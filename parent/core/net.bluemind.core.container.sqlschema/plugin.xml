@@ -54,5 +54,12 @@
             script="sql/owner-subscriptions-1.0.0-SNAPSHOT.sql">
       </sql>
    </extension>
+   <extension
+         point="net.bluemind.core.jdbc.maintenance">
+      <maintenance-script
+            name="Clustered and clean changeset  "
+            script="sql/changeset-maintenance.sql">
+      </maintenance-script>
+   </extension>
 
 </plugin>

@@ -92,25 +92,59 @@ CREATE TABLE t_container_location (
 
 CREATE INDEX idx_container_changelog_sort ON t_container_changelog(item_id, version);
 
-CREATE TABLE t_container_changeset (LIKE t_container_changelog);
+/** Changeset */
 
-CREATE INDEX idx_container_changeset_container_id_version ON t_container_changeset (container_id, version);
+CREATE TABLE t_container_changeset (LIKE t_container_changelog) PARTITION BY LIST (container_id);
 
-CREATE INDEX idx_container_changeset_cluster ON t_container_changeset(item_id, version);
+CREATE INDEX ON t_container_changeset(item_id, version);
 
+/** Changeset: create partition */
+
+CREATE OR REPLACE FUNCTION create_changeset_partition() RETURNS TRIGGER
+  LANGUAGE plpgsql                                    
+AS $$
+DECLARE
+  partition TEXT;
+BEGIN
+    partition := 't_container_changeset_' || NEW.id;
+    EXECUTE 'CREATE TABLE ' || partition || ' PARTITION OF t_container_changeset FOR VALUES IN ( ' || NEW.id || ' );';
+    return NEW;
+  end;
+$$;
+
+
+CREATE OR REPLACE FUNCTION drop_changeset_partition() RETURNS TRIGGER
+  LANGUAGE plpgsql
+AS $$
+DECLARE
+  partition TEXT;
+BEGIN
+    partition := 't_container_changeset_' || OLD.id;
+    EXECUTE 'DROP TABLE '|| partition || ';';
+    return OLD;
+  end;
+$$;
+
+DROP TRIGGER IF EXISTS create_changeset_partition ON t_container;
+CREATE TRIGGER create_changeset_partition AFTER INSERT ON t_container FOR EACH ROW EXECUTE PROCEDURE create_changeset_partition();
+DROP TRIGGER IF EXISTS drop_changeset_partition ON t_container;
+CREATE TRIGGER drop_changeset_partition AFTER DELETE ON t_container FOR EACH ROW EXECUTE PROCEDURE drop_changeset_partition();
+
+/** Changeset: data trigger */
 
 CREATE OR REPLACE FUNCTION changeset_insert() RETURNS TRIGGER
   LANGUAGE plpgsql                                    
 AS $$
 BEGIN
-    DELETE FROM t_container_changeset WHERE item_id = NEW.item_id;
-    INSERT INTO t_container_changeset 
-    (SELECT * FROM t_container_changelog where item_id = NEW.item_id ORDER BY version DESC limit 1) 
+    EXECUTE 'DELETE FROM t_container_changeset_' || NEW.container_id || ' WHERE item_id = ' || NEW.item_id || ';';
+    EXECUTE 'INSERT INTO t_container_changeset_' || NEW.container_id || ' 
+    (SELECT * FROM t_container_changelog where item_id = ' || NEW.item_id || ' AND container_id = ' || NEW.container_id || ' ORDER BY version DESC limit 1) 
     UNION 
-    (SELECT * FROM t_container_changelog where item_id = NEW.item_id ORDER BY version  limit 1);
+    (SELECT * FROM t_container_changelog where item_id = ' || NEW.item_id || ' AND container_id = ' || NEW.container_id || ' ORDER BY version  limit 1);';
     return NEW;
   end;
 $$;
+
 
 CREATE OR REPLACE FUNCTION changeset_delete() RETURNS TRIGGER
   LANGUAGE plpgsql                                    
@@ -119,9 +153,9 @@ AS $$
     IF EXISTS (SELECT 1 FROM t_container_changeset WHERE item_id = OLD.item_id AND version = OLD.version) THEN
       DELETE FROM t_container_changeset WHERE item_id = OLD.item_id;
       INSERT INTO t_container_changeset 
-        (SELECT * FROM t_container_changelog where item_id = OLD.item_id ORDER BY version DESC limit 1) 
+        (SELECT * FROM t_container_changelog where item_id = OLD.item_id AND container_id = OLD.container_id ORDER BY version DESC limit 1) 
         UNION 
-        (SELECT * FROM t_container_changelog where item_id = OLD.item_id ORDER BY version  limit 1);
+        (SELECT * FROM t_container_changelog where item_id = OLD.item_id AND container_id = OLD.container_id ORDER BY version  limit 1);
     END IF;
     RETURN OLD;
   end;
@@ -131,6 +165,7 @@ CREATE TRIGGER changelog_insert AFTER INSERT  ON t_container_changelog FOR EACH 
 CREATE TRIGGER changelog_delete AFTER UPDATE OR DELETE ON t_container_changelog FOR EACH ROW EXECUTE PROCEDURE changeset_delete();
 CREATE TRIGGER changelog_update AFTER UPDATE ON t_container_changelog FOR EACH ROW WHEN (OLD.item_id IS DISTINCT FROM NEW.item_id) EXECUTE PROCEDURE changeset_insert();
 
+/* Method to book a range of id */
 
 CREATE OR REPLACE FUNCTION multi_nextval(
    use_seqname regclass,
