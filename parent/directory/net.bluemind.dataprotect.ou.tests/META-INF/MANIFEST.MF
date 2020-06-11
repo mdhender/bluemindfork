@@ -6,7 +6,6 @@ Bundle-Version: 4.1.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,
  org.junit,
  net.bluemind.core.jdbc.testshelper,
- net.bluemind.core.elasticsearch.testshelper,
  net.bluemind.pool,
  net.bluemind.tests.defaultdata,
  net.bluemind.imap,
