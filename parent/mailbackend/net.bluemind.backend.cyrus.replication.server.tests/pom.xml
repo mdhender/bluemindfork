@@ -7,4 +7,26 @@
   </parent>
   <artifactId>net.bluemind.backend.cyrus.replication.server.tests</artifactId>
   <packaging>eclipse-test-plugin</packaging>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<configuration>
+					<dependency-resolution>
+						<extraRequirements>
+							<requirement>
+								<type>eclipse-feature</type>
+								<id>net.bluemind.tests.feature</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+						</extraRequirements>
+					</dependency-resolution>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>

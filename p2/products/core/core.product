@@ -297,16 +297,16 @@
       <plugin id="net.bluemind.mailshare.api"/>
       <plugin id="net.bluemind.mailshare.hook"/>
       <plugin id="net.bluemind.mailshare.service"/>
-      <plugin id="net.bluemind.monitoring.api"/>
-      <plugin id="net.bluemind.monitoring.service"/>
-      <plugin id="net.bluemind.monitoring.handler.services"/>
-      <plugin id="net.bluemind.monitoring.handler.system"/>
-      <plugin id="net.bluemind.metrics.core"/>
       <plugin id="net.bluemind.metrics.alerts.api"/>
       <plugin id="net.bluemind.metrics.annotations"/>
+      <plugin id="net.bluemind.metrics.core"/>
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.mime4j.bodies"/>
       <plugin id="net.bluemind.mime4j.common"/>
+      <plugin id="net.bluemind.monitoring.api"/>
+      <plugin id="net.bluemind.monitoring.handler.services"/>
+      <plugin id="net.bluemind.monitoring.handler.system"/>
+      <plugin id="net.bluemind.monitoring.service"/>
       <plugin id="net.bluemind.neko.common"/>
       <plugin id="net.bluemind.network.topology"/>
       <plugin id="net.bluemind.network.topology.producer"/>
@@ -390,6 +390,7 @@
       <plugin id="net.bluemind.user.service"/>
       <plugin id="net.bluemind.user.sqlschema"/>
       <plugin id="net.bluemind.utils"/>
+      <plugin id="net.bluemind.vertx.core.patch" fragment="true"/>
       <plugin id="net.bluemind.webmail.sqlschema"/>
       <plugin id="net.bluemind.xivo.client"/>
       <plugin id="net.bluemind.xivo.common"/>
@@ -466,8 +467,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
       <property name="osgi.noShutdown" value="true" />
+      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
    </configurations>
 
    <preferencesInfo>

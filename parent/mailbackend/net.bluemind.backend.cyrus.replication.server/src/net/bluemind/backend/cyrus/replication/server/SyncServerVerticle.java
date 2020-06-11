@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
@@ -49,7 +49,8 @@ public class SyncServerVerticle extends AbstractVerticle {
 
 	private boolean started = false;
 
-	public void start(Future<Void> start) {
+	@Override
+	public void start(Promise<Void> start) {
 		super.vertx.eventBus().consumer(SystemState.BROADCAST, (Message<JsonObject> m) -> {
 			if (!started) {
 				SystemState state = SystemState.fromOperation(m.body().getString("operation"));
@@ -60,13 +61,13 @@ public class SyncServerVerticle extends AbstractVerticle {
 			}
 		});
 
-		start.complete(null);
+		start.complete();
 	}
 
 	private void startSyncServer() {
 		NetServerOptions syncOpts = new NetServerOptions().setAcceptBacklog(1024).setTcpNoDelay(true)
-				.setTcpKeepAlive(true).setReuseAddress(true);
-		syncOpts.setReceiveBufferSize(4 * 1024 * 1024).setUsePooledBuffers(true);
+				.setTcpKeepAlive(true).setReuseAddress(true).setUsePooledBuffers(true);
+		// syncOpts.setReceiveBufferSize(8 * 1024 * 1024);
 
 		NetServer srv = vertx.createNetServer(syncOpts);
 		HttpClientProvider prov = new HttpClientProvider(vertx);

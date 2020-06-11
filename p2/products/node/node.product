@@ -50,6 +50,7 @@
       <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
       <plugin id="net.bluemind.systemd.notify"/>
       <plugin id="net.bluemind.utils"/>
+      <plugin id="net.bluemind.vertx.core.patch" fragment="true"/>
       <plugin id="net.java.dev.jna"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.jobs"/>

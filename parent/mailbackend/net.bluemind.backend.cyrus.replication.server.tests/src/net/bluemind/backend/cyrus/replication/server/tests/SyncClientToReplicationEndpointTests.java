@@ -118,7 +118,7 @@ public class SyncClientToReplicationEndpointTests {
 			return sc.disconnect();
 		}).thenAccept(v -> {
 			System.out.println("Disconnected.");
-		}).get(5, TimeUnit.MINUTES);
+		}).get(10, TimeUnit.MINUTES);
 	}
 
 	@After

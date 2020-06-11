@@ -113,6 +113,7 @@
       <plugin id="net.bluemind.todolist.api"/>
       <plugin id="net.bluemind.user.api"/>
       <plugin id="net.bluemind.utils"/>
+      <plugin id="net.bluemind.vertx.core.patch" fragment="true"/>
       <plugin id="net.freeutils.tnef"/>
       <plugin id="net.java.dev.jna"/>
       <plugin id="net.sourceforge.nekohtml"/>
