@@ -72,7 +72,17 @@ public class SqlUpdater implements Updater {
 		}
 
 		try (Connection con = pool.getConnection(); Statement st = con.createStatement()) {
-			st.execute(schemaValue);
+			con.setAutoCommit(false);
+			try {
+				st.execute(schemaValue);
+				con.commit();
+			} catch (Exception e) {
+				con.rollback();
+				throw e;
+			}
+			finally {
+				con.setAutoCommit(true);
+			}
 		} catch (Exception e) {
 			monitor.log(e.getMessage());
 			logger.error("error during execution of script " + file, e);
