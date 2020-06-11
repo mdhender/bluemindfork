@@ -386,7 +386,8 @@ public final class ESearchActivator implements BundleActivator {
 		try {
 			client.admin().indices().prepareDelete(index).execute().actionGet();
 			if (isPrimary(index)) {
-				int count = indexes.values().stream().filter(item -> item.supportsIndex(index)).findFirst().get().count;
+				int count = indexes.values().stream().filter(item -> item.supportsIndex(index)).findFirst().get()
+						.count();
 				if (count > 1) {
 					for (int i = 1; i <= count; i++) {
 						String indexName = index + "_" + i;
@@ -426,7 +427,7 @@ public final class ESearchActivator implements BundleActivator {
 			}
 		} else {
 			IndexDefinition definition = indexDefinition.get();
-			int count = primary ? definition.count : 1;
+			int count = primary ? definition.count() : 1;
 			byte[] schema = definition.schema;
 			try {
 				if (count > 1) {
@@ -471,13 +472,17 @@ public final class ESearchActivator implements BundleActivator {
 		private final String index;
 		private final byte[] schema;
 		private final Optional<ISchemaMatcher> matcher;
-		private final int count;
+		private final int cnt;
 
 		IndexDefinition(String index, byte[] schema, Optional<ISchemaMatcher> matcher, int count) {
 			this.index = index;
 			this.schema = schema;
 			this.matcher = matcher;
-			this.count = count;
+			this.cnt = count;
+		}
+
+		public int count() {
+			return Integer.parseInt(System.getProperty("es." + index + ".count", "" + cnt));
 		}
 
 		boolean supportsIndex(String name) {
