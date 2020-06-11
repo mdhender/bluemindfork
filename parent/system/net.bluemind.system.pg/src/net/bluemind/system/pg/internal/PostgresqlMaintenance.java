@@ -23,6 +23,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +38,7 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.system.api.Database;
 import net.bluemind.system.pg.api.IInternalPostgresMaintenance;
 import net.bluemind.system.pg.api.IPostgresqlMaintenance;
 
@@ -95,17 +98,32 @@ public class PostgresqlMaintenance implements IPostgresqlMaintenance, IInternalP
 		logger.info("executing pgmaintenance, {} scripts to execute", scripts.size() + 1);
 		m.begin(scripts.size() + 1, "Going to play " + scripts.size() + 1);
 		for (MaintenanceScript script : scripts) {
-			executeScript(script.name, script.script, m.subWork(1));
+			executeScript(script.name, script.script, script.database, m.subWork(1));
 		}
 
-		executeScript("vacuum", "VACUUM ANALYZE", m.subWork(1));
+		executeScript("vacuum", "VACUUM ANALYZE", Database.ALL, m.subWork(1));
 	}
 
-	private void executeScript(String name, String script, IServerTaskMonitor monitor) {
-		monitor.begin(1, "play script " + name);
+	private void executeScript(String name, String script, Database db, IServerTaskMonitor monitor) {
+		monitor.begin(1, "Executing script " + name);
 		logger.info("executing script {} : {}", name, script);
 		long time = System.currentTimeMillis();
-		try (Connection con = context.getDataSource().getConnection(); Statement st = con.createStatement()) {
+		if (db == Database.ALL || db == Database.DIRECTORY) {
+			monitor.begin(1, "Executing script " + name + " on database BJ");
+			logger.info("executing script {} : {} on database BJ", name, script);
+			execute(name, script, monitor, time, context.getDataSource());
+		}
+		if (db == Database.ALL || db == Database.SHARD) {
+			for (DataSource ds : context.getAllMailboxDataSource()) {
+				monitor.begin(1, "Executing script " + name + " on database BJ-DATA");
+				logger.info("executing script {} : {} on database BJ-DATA", name, script);
+				execute(name, script, monitor, time, ds);
+			}
+		}
+	}
+
+	private void execute(String name, String script, IServerTaskMonitor monitor, long time, DataSource ds) {
+		try (Connection con = ds.getConnection(); Statement st = con.createStatement()) {
 			st.execute(script);
 			monitor.progress(1, "script " + name + " played");
 			logger.info("script {} took {}ms to execute", name, System.currentTimeMillis() - time);

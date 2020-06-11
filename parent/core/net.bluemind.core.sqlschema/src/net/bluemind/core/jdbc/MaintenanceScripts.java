@@ -34,15 +34,19 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 
+import net.bluemind.system.api.Database;
+
 public class MaintenanceScripts {
 
 	public static class MaintenanceScript {
 		public final String name;
 		public final String script;
+		public final Database database;
 
-		private MaintenanceScript(String name, String script) {
+		private MaintenanceScript(String name, String script, Database database) {
 			this.name = name;
 			this.script = script;
+			this.database = database;
 		}
 	}
 
@@ -74,14 +78,22 @@ public class MaintenanceScripts {
 						continue;
 					}
 
+					String script = null;
 					try (InputStream in = url.openStream()) {
-						String script = new String(ByteStreams.toByteArray(in));
-						scripts.add(new MaintenanceScript(e.getAttribute("name"), script));
+						script = new String(ByteStreams.toByteArray(in));
 					} catch (IOException t) {
 						logger.error("error reading {} ", url, t);
 						continue;
 					}
 
+					PgDatabase db = null;
+					try {
+						db = (PgDatabase) e.createExecutableExtension("database");
+					} catch (Exception e1) {
+						db = new PgDatabase.ALL();
+					}
+
+					scripts.add(new MaintenanceScript(e.getAttribute("name"), script, db.database()));
 				}
 			}
 

@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.role.api;bundle-version="4.1.0",
  net.bluemind.server.hook,
  net.bluemind.config,
- net.bluemind.node.api
+ net.bluemind.node.api,
+ net.bluemind.system.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.system.pg
