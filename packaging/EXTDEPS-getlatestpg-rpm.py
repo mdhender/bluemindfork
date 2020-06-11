@@ -32,7 +32,9 @@ def main(repomd_baseurl, postgresql_version, rhel_version):
     pkg_versions = [
         "{}-{}".format(e.get("ver"), e.get("rel"))
         for e in root.findall("package[@type='rpm']/name/[.='postgresql{}']/../version".format(postgresql_version))
+        if "rc" not in e.get("ver") and "beta" not in e.get("ver")
     ]
+    pkg_versions.sort()
     print('PG_RHEL{}="{}"'.format(rhel_version, sorted(pkg_versions)[-1]))
 
 
