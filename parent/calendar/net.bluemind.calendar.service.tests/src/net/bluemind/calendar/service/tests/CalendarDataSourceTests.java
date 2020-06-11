@@ -21,7 +21,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.ICalendar;
@@ -37,11 +36,6 @@ import net.bluemind.user.persistence.UserSubscriptionStore;
 public class CalendarDataSourceTests extends AbstractCalendarTests {
 
 	private Container wrongDsCalendar;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	public void before() throws Exception {

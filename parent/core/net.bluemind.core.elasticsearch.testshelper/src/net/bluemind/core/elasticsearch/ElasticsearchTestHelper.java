@@ -86,11 +86,6 @@ public class ElasticsearchTestHelper implements BundleActivator {
 			host = conf.get("host");
 		}
 
-		int port = 9300;
-		if (conf.get("esport") != null) {
-			port = Integer.parseInt(conf.get("esport"));
-		}
-
 		String mcastId = null;
 		File mcastIdFile = new File("/etc/bm/mcast.id");
 		if (mcastIdFile.exists()) {
@@ -145,7 +140,9 @@ public class ElasticsearchTestHelper implements BundleActivator {
 		}
 	}
 
-	public void beforeTest() {
+	public void beforeTest(int count) {
+		System.setProperty("es.mailspool.count", count + "");
+
 		ESearchActivator.initClient(getClient());
 		ESearchActivator.resetAll();
 		ESearchActivator.resetIndex("mailspool_pending");
@@ -154,6 +151,11 @@ public class ElasticsearchTestHelper implements BundleActivator {
 		ESearchActivator.resetIndex("event");
 		ESearchActivator.resetIndex("todo");
 		ESearchActivator.resetIndex("im");
+
+	}
+
+	public void beforeTest() {
+		beforeTest(1);
 	}
 
 	public void refresh(String index) {

@@ -34,7 +34,6 @@ import org.asynchttpclient.RequestBuilder;
 import org.asynchttpclient.Response;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
@@ -56,11 +55,6 @@ public class HttpFetchPartWithFilenameTests extends AbstractRollingReplicationTe
 	private String apiKey;
 	protected String partition;
 	protected String mboxRoot;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	public void before() throws Exception {

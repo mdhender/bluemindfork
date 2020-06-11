@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
@@ -60,11 +59,6 @@ public class RepairSupportTests extends AbstractRollingReplicationTests {
 	private String mboxRoot;
 	private ExpectCommand expect;
 	private ClientSideServiceProvider provider;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Override
 	public void before() throws Exception {

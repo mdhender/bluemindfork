@@ -18,7 +18,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.io.ByteStreams;
@@ -52,11 +51,6 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 	private String partition;
 	private String mboxRoot;
 	private ClientSideServiceProvider provider;
-
-	@BeforeClass
-	public static void beforeClass() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	public void before() throws Exception {

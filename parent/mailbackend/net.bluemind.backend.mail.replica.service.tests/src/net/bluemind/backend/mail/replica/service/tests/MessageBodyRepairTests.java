@@ -68,7 +68,6 @@ public class MessageBodyRepairTests {
 
 	@BeforeClass
 	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
 		originalBodyStreamProcessorBodyVersion = BodyStreamProcessor.BODY_VERSION;
 	}
 

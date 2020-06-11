@@ -135,7 +135,7 @@ public class IndexTestHelper {
 		System.err.println("Deploying with es: " + esServer.ip + ", imap: " + imapServer.ip);
 
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
-		ElasticsearchTestHelper.getInstance().beforeTest();
+		ElasticsearchTestHelper.getInstance().beforeTest(25);
 
 		for (String domUid : domains) {
 			PopulateHelper.addDomain(domUid, Routing.none);

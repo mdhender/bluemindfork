@@ -28,7 +28,6 @@ import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -84,11 +83,6 @@ public class EasServerSetup {
 
 		BmConfIni ini = new BmConfIni();
 
-		Server esServer = new Server();
-		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		System.out.println("ES is " + esServer.ip);
-		esServer.tags = Lists.newArrayList("bm/es");
-
 		this.cyrusIp = ini.get("imap-role");
 		Server imapServer = new Server();
 		imapServer.ip = cyrusIp;
@@ -98,8 +92,7 @@ public class EasServerSetup {
 		CyrusService cyrusService = new CyrusService(cyrusServer);
 		cyrusService.reset();
 
-		PopulateHelper.initGlobalVirt(esServer, imapServer);
-		ElasticsearchTestHelper.getInstance().beforeTest();
+		PopulateHelper.initGlobalVirt(imapServer);
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
 
 		String unique = System.currentTimeMillis() + "";

@@ -26,7 +26,6 @@ import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 
 import com.google.common.collect.Lists;
 
@@ -81,11 +80,6 @@ public abstract class AbstractMailboxServiceTests {
 	private ItemValue<Server> dataLocation;
 	protected String testUserUid;
 	BmTestContext testContext;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	public void before() throws Exception {

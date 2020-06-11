@@ -59,7 +59,6 @@ public class GroupProtocolTests {
 
 	@BeforeClass
 	public static void init() throws IOException {
-		System.setProperty("es.mailspool.count", "1");
 		GroupProtocolVerticle.socketPath(File.createTempFile("socket", "pt").getAbsolutePath());
 	}
 

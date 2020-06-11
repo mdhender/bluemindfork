@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.bluemind.backend.mail.api.IMailboxFolders;
@@ -56,11 +55,6 @@ public class MailItemUpdateTests extends AbstractRollingReplicationTests {
 	private ItemValue<MailboxFolder> inbox;
 	private IMailboxItems mailApi;
 	private ItemValue<MailboxItem> mailObject;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	public void before() throws Exception {

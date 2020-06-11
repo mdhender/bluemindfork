@@ -45,7 +45,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -136,11 +135,6 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	private String apiKey;
 	protected String partition;
 	protected String mboxRoot;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	@Override

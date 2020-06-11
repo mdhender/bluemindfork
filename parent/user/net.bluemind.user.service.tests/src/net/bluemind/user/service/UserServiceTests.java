@@ -46,7 +46,6 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -147,11 +146,6 @@ public class UserServiceTests {
 	private SecurityContext userSecurityContext;
 	private ContainerUserStoreService userStoreService;
 	private ItemValue<Domain> domain;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	public void before() throws Exception {

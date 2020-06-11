@@ -26,7 +26,6 @@ import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.IFreebusyUids;
@@ -47,11 +46,6 @@ public class FreebusyRepairTests {
 	private Container container;
 	private FreebusyStore store;
 	private Container cal;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	public void before() throws Exception {

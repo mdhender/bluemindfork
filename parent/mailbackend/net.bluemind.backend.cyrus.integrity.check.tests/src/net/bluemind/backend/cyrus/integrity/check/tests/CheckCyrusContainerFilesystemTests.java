@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -64,11 +63,6 @@ public class CheckCyrusContainerFilesystemTests {
 	private String domainUid;
 	private String userUid;
 	private BmContext ctx;
-
-	@BeforeClass
-	public static void beforeClass() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	public void before() throws Exception {

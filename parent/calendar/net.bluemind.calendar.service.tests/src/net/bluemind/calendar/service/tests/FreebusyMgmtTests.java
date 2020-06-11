@@ -29,7 +29,6 @@ import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -64,11 +63,6 @@ public class FreebusyMgmtTests {
 	protected SecurityContext defaultSecurityContext;
 	protected SecurityContext anotherSecurityContext;
 	protected Container container;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	public void before() throws Exception {

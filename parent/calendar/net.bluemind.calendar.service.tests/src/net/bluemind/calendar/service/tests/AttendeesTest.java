@@ -24,17 +24,12 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 
 public class AttendeesTest {
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Test
 	public void testEqualsNPE() {

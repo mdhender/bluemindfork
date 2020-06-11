@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -39,7 +38,6 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -50,7 +48,6 @@ import net.bluemind.directory.api.OrgUnitPath;
 import net.bluemind.directory.service.internal.OrgUnitContainerStoreService;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class OrgUnitsTests {
@@ -66,13 +63,7 @@ public class OrgUnitsTests {
 		JdbcTestHelper.getInstance().beforeTest();
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
-		ElasticsearchTestHelper.getInstance().beforeTest();
-
-		Server esServer = new Server();
-		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
-
-		PopulateHelper.initGlobalVirt(esServer);
+		PopulateHelper.initGlobalVirt();
 
 		domainUid = "test" + System.currentTimeMillis() + ".lan";
 		ItemValue<Domain> domain = PopulateHelper.createTestDomain(domainUid);

@@ -27,7 +27,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.VEvent;
@@ -43,11 +42,6 @@ public class VEventValidatorTest {
 
 	private VEventValidator validator = new VEventValidator();
 	private ZoneId defaultTz = ZoneId.systemDefault();
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Test
 	public void testValidate() {

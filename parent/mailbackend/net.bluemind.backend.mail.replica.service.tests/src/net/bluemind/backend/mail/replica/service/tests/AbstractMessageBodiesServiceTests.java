@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.util.Objects;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 
 import com.google.common.io.ByteStreams;
 
@@ -48,11 +47,6 @@ public abstract class AbstractMessageBodiesServiceTests {
 	protected String partition;
 	protected MailboxReplicaRootDescriptor mboxDescriptor;
 	protected Vertx vertx;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	protected Stream openResource(String path) {
 		try (InputStream inputStream = AbstractReplicatedMailboxesServiceTests.class.getClassLoader()

@@ -7,7 +7,6 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.jdbc.testshelper;bundle-version="4.1.0",
  net.bluemind.tests.defaultdata;bundle-version="4.1.0",
- net.bluemind.core.elasticsearch.testshelper;bundle-version="4.1.0",
  net.bluemind.backend.cyrus.replication.testhelper;bundle-version="4.1.0",
  net.bluemind.vertx.testhelper,
  com.google.guava,
