@@ -78,7 +78,7 @@ public class UpgraderMigration {
 
 			sequences.addAll(Arrays.asList(430, 420, 410, 400, 390, 380, 370, 360, 350, 340, 330, 320, 310, 300, 290,
 					280, 270, 260, 250, 240, 230, 220, 210, 200, 190, 180, 170, 160, 150, 140, 130, 120, 110, 100, 90,
-					80, 70, 60, 50, 40, 50, 60, 50, 40, 30, 20, 10, 0));
+					80, 70, 60, 50, 40, 50, 60, 50, 40, 30, 20, 10, 7, 0));
 
 			registerUpgradersByInstallationDate(store, servers);
 		} else {
@@ -86,7 +86,7 @@ public class UpgraderMigration {
 			int fromRelease = Integer.parseInt(from.release);
 
 			sequences.addAll(Arrays.asList(180, 170, 160, 150, 140, 130, 120, 110, 100, 90, 80, 70, 60, 50, 40, 50, 60,
-					50, 40, 30, 20, 10, 0));
+					50, 40, 30, 20, 10, 7, 0));
 
 			if (fromRelease > 42538) {
 				sequences.addAll(Arrays.asList(210, 200, 190));
