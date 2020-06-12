@@ -14,7 +14,7 @@ export async function $_Vuebus_mailboxRecordsChanged({ dispatch, state }) {
         filter: state.messageFilter
     });
     const numberOfMessagesWithMetadata = Object.entries(state.messages.items).length;
-    const messagesToFetch = state.messages.itemKeys.slice(0, Math.max(numberOfMessagesWithMetadata, 200));
+    const messagesToFetch = state.messages.itemKeys.slice(0, Math.min(numberOfMessagesWithMetadata, 200));
     dispatch("messages/multipleByKey", messagesToFetch);
     dispatch("loadUnreadCount", currentFolderUid);
 }
