@@ -145,7 +145,19 @@ public class LdapAddressbookCreationWidget extends CompositeGwtWidgetElement {
 	}
 
 	private String getLdapProtocol() {
-		return ldapProtocol.getValue(ldapProtocol.getSelectedIndex());
+		if (ldapProtocol.getSelectedValue() == null) {
+			return "plain";
+		}
+
+		if (ldapProtocol.getSelectedValue().startsWith("tls")) {
+			return "tls";
+		}
+
+		if (ldapProtocol.getSelectedValue().startsWith("ssl")) {
+			return "ssl";
+		}
+
+		return "plain";
 	}
 
 	@Override
