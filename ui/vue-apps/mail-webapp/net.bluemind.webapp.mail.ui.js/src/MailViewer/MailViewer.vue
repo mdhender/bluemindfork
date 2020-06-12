@@ -1,8 +1,8 @@
 <template>
-    <div class="mail-message-content d-flex flex-column py-2 flex-grow-1 bg-surface">
+    <div class="mail-viewer d-flex flex-column py-2 flex-grow-1 bg-surface">
         <bm-row class="px-lg-5 px-4">
             <bm-col cols="12">
-                <mail-message-content-toolbar />
+                <mail-viewer-toolbar />
             </bm-col>
         </bm-row>
         <bm-row class="px-lg-5 px-4">
@@ -12,7 +12,7 @@
         </bm-row>
         <bm-row class="d-flex px-lg-5 px-4">
             <bm-col cols="8" class="d-flex">
-                <mail-message-content-from :dn="message.from.dn" :address="message.from.address" />
+                <mail-viewer-from :dn="message.from.dn" :address="message.from.address" />
             </bm-col>
             <bm-col cols="4" class="align-self-center text-right">
                 {{ $d(message.date, "full_date") }}
@@ -27,16 +27,12 @@
         </bm-row>
         <bm-row class="px-lg-5 px-4">
             <bm-col cols="12">
-                <mail-message-content-recipient v-if="to" :recipients="to">
-                    {{ $t("mail.content.to") }}
-                </mail-message-content-recipient>
+                <mail-viewer-recipient v-if="to" :recipients="to">{{ $t("mail.content.to") }} </mail-viewer-recipient>
             </bm-col>
         </bm-row>
         <bm-row class="pb-2 px-lg-5 px-4">
             <bm-col cols="12">
-                <mail-message-content-recipient v-if="cc" :recipients="cc">
-                    {{ $t("mail.content.copy") }}
-                </mail-message-content-recipient>
+                <mail-viewer-recipient v-if="cc" :recipients="cc">{{ $t("mail.content.copy") }} </mail-viewer-recipient>
             </bm-col>
         </bm-row>
         <bm-row class="px-lg-5">
@@ -57,20 +53,20 @@
 import { mapState, mapActions, mapGetters } from "vuex";
 import { BmCol, BmRow } from "@bluemind/styleguide";
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
-import MailMessageContentFrom from "./MailMessageContentFrom";
-import MailMessageContentRecipient from "./MailMessageContentRecipient";
-import MailMessageContentToolbar from "./MailMessageContentToolbar";
+import MailViewerFrom from "./MailViewerFrom";
+import MailViewerRecipient from "./MailViewerRecipient";
+import MailViewerToolbar from "./MailViewerToolbar";
 import PartsViewer from "./PartsViewer/PartsViewer";
 
 export default {
-    name: "MailMessageContent",
+    name: "MailViewer",
     components: {
         BmCol,
         BmRow,
         MailAttachmentsBlock,
-        MailMessageContentFrom,
-        MailMessageContentRecipient,
-        MailMessageContentToolbar,
+        MailViewerFrom,
+        MailViewerRecipient,
+        MailViewerToolbar,
         PartsViewer
     },
     computed: {
@@ -117,7 +113,7 @@ export default {
 </script>
 
 <style scoped>
-.mail-message-content {
+.mail-viewer {
     z-index: 20;
 }
 </style>

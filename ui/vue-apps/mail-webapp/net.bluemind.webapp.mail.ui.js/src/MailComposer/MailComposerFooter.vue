@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-message-new-footer d-flex justify-content-between align-items-center">
+    <div class="mail-composer-footer d-flex justify-content-between align-items-center">
         <div>
             <bm-button
                 type="submit"
@@ -65,7 +65,7 @@ import { DraftStatus } from "@bluemind/backend.mail.store";
 import { mapState, mapActions, mapGetters } from "vuex";
 
 export default {
-    name: "MailMessageNewFooter",
+    name: "MailComposerFooter",
     components: {
         BmButton,
         BmIcon
@@ -133,7 +133,7 @@ export default {
 </script>
 
 <style>
-.mail-message-new-footer {
+.mail-composer-footer {
     z-index: 2;
     position: relative;
 }

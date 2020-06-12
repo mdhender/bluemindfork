@@ -1,4 +1,4 @@
-import MailApp, { MailThread, MailMessageNew, MailActionsPanel } from "@bluemind/webapp.mail.ui.vuejs";
+import MailApp, { MailThread, MailComposer, MailActionsPanel } from "@bluemind/webapp.mail.ui.vuejs";
 import virtualRoutes from "./virtualRoutes";
 import MessageQueryParam from "./MessageQueryParam";
 import injector from "@bluemind/inject";
@@ -19,7 +19,7 @@ export default [
             {
                 name: "mail:new",
                 path: "new",
-                component: MailMessageNew
+                component: MailComposer
             },
             {
                 name: "mail:message",

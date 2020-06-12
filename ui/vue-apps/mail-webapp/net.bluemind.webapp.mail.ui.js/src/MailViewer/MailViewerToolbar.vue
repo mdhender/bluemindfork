@@ -1,5 +1,5 @@
 <template>
-    <bm-button-toolbar key-nav class="mail-message-content-toolbar float-right">
+    <bm-button-toolbar key-nav class="mail-viewer-toolbar float-right">
         <bm-button
             v-bm-tooltip.ds500
             variant="simple-primary"
@@ -35,7 +35,7 @@ import { BmButton, BmButtonToolbar, BmIcon, BmTooltip } from "@bluemind/stylegui
 import { mapState } from "vuex";
 
 export default {
-    name: "MailMessageContentToolbar",
+    name: "MailViewerToolbar",
     components: {
         BmButton,
         BmButtonToolbar,

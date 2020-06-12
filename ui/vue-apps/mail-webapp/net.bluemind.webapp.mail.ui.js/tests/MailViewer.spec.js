@@ -1,4 +1,4 @@
-xdescribe("MailMessageContent", () => {
+xdescribe("MailViewer", () => {
     xtest("should display time in fr format with our custom i18n mixin", () => {
         //     Vue.mixin(InheritTranslationsMixin);
         //     const dateTimeFormats = {

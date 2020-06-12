@@ -16,7 +16,7 @@
         >
             {{ $t("mail.content.alert.readonly") }}
         </mail-component-alert>
-        <mail-message-new
+        <mail-composer
             v-if="showComposer"
             :message="preparedAnswer"
             :previous-message="previousMessage"
@@ -24,7 +24,8 @@
             :user-pref-text-only="userPrefTextOnly"
             @close="mode = 'default'"
         />
-        <mail-message-content v-else />
+        <mail-viewer v-if="message" />
+        <div />
     </div>
 </template>
 
@@ -34,16 +35,16 @@ import { computeSubject, previousMessageContent } from "../MessageBuilder";
 import { MimeType } from "@bluemind/email";
 import { ItemUri } from "@bluemind/item-uri";
 import MailComponentAlert from "../MailComponentAlert";
-import MailMessageContent from "../MailMessageContent";
-import MailMessageNew from "../MailMessageNew";
-import MailMessageNewModes from "../MailMessageNew/MailMessageNewModes";
+import MailComposer from "../MailComposer";
+import MailComposerModes from "../MailComposer/MailComposerModes";
+import MailViewer from "../MailViewer";
 
 export default {
     name: "MailThread",
     components: {
         MailComponentAlert,
-        MailMessageContent,
-        MailMessageNew
+        MailComposer,
+        MailViewer
     },
     data() {
         return {
@@ -83,11 +84,11 @@ export default {
         mode() {
             if (this.showComposer) {
                 if (this.isReplyAll() && this.preparedAnswer.cc && this.preparedAnswer.cc.length > 0) {
-                    return MailMessageNewModes.TO | MailMessageNewModes.CC;
+                    return MailComposerModes.TO | MailComposerModes.CC;
                 }
-                return MailMessageNewModes.TO;
+                return MailComposerModes.TO;
             }
-            return MailMessageNewModes.NONE;
+            return MailComposerModes.NONE;
         },
         showComposer() {
             const action = this.pathSuffix();
@@ -125,13 +126,17 @@ export default {
 .mail-thread {
     min-height: 100%;
 
-    .mail-message-new ~ .mail-message-content {
+    .mail-component-alert {
+        margin-bottom: $sp-1;
+    }
+
+    .mail-composer ~ .mail-viewer {
         @media (max-width: map-get($grid-breakpoints, "lg")) {
             display: none !important;
         }
     }
 
-    .mail-message-new {
+    .mail-composer {
         @media (min-width: map-get($grid-breakpoints, "lg")) {
             height: auto !important;
         }

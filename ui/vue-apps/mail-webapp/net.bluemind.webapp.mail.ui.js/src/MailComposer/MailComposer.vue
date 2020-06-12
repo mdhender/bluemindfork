@@ -1,5 +1,5 @@
 <template>
-    <bm-form class="mail-message-new p-lg-3 flex-grow-1 d-flex h-100">
+    <bm-form class="mail-composer p-lg-3 flex-grow-1 d-flex h-100">
         <bm-panel>
             <template #header>
                 <span
@@ -72,7 +72,7 @@
 
                     <bm-form-input
                         v-model="message_.subject"
-                        class="mail-message-new-subject d-flex align-items-center"
+                        class="mail-composer-subject d-flex align-items-center"
                         :placeholder="$t('mail.new.subject.placeholder')"
                         :aria-label="$t('mail.new.subject.aria')"
                         type="text"
@@ -130,7 +130,7 @@
                 </bm-button>
             </template>
             <template #footer>
-                <mail-message-new-footer
+                <mail-composer-footer
                     :user-pref-text-only="userPrefTextOnly"
                     :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
                     @toggleTextFormat="userPrefIsMenuBarOpened = !userPrefIsMenuBarOpened"
@@ -161,13 +161,13 @@ import {
     BmFileDropZone
 } from "@bluemind/styleguide";
 import debounce from "lodash/debounce";
-import MailMessageNewFooter from "./MailMessageNewFooter";
-import MailMessageNewModes from "./MailMessageNewModes";
-import ServiceLocator from "@bluemind/inject";
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
+import MailComposerFooter from "./MailComposerFooter";
+import MailComposerModes from "./MailComposerModes";
+import ServiceLocator from "@bluemind/inject";
 
 export default {
-    name: "MailMessageNew",
+    name: "MailComposer",
     components: {
         BmButton,
         BmCol,
@@ -180,7 +180,7 @@ export default {
         BmPanel,
         BmRichEditor,
         BmRow,
-        MailMessageNewFooter,
+        MailComposerFooter,
         MailAttachmentsBlock
     },
     directives: { BmTooltip },
@@ -191,7 +191,7 @@ export default {
         },
         mode: {
             type: Number,
-            default: MailMessageNewModes.TO | MailMessageNewModes.CC
+            default: MailComposerModes.TO | MailComposerModes.CC
         },
         previousMessage: {
             type: Object,
@@ -204,7 +204,7 @@ export default {
     },
     data() {
         return {
-            modes: MailMessageNewModes,
+            modes: MailComposerModes,
             autocompleteResults: [],
             autocompleteResultsTo: [],
             autocompleteResultsCc: [],
@@ -336,40 +336,42 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
-.mail-message-new .mail-message-new-subject input,
-.mail-message-new .bm-contact-input input,
-.mail-message-new textarea {
-    border: none;
-}
+.mail-composer {
+    .mail-composer-subject input,
+    .bm-contact-input input,
+    textarea {
+        border: none;
+    }
 
-.mail-message-new input:focus,
-.mail-message-new textarea:focus {
-    box-shadow: none;
-}
+    input:focus,
+    textarea:focus {
+        box-shadow: none;
+    }
 
-.mail-message-new .bm-rich-editor-content .ProseMirror {
-    min-height: 12rem;
-}
+    .bm-rich-editor-content .ProseMirror {
+        min-height: 12rem;
+    }
 
-.mail-message-new .mail-content {
-    overflow: auto !important;
-}
+    .mail-content {
+        overflow: auto !important;
+    }
 
-.mail-message-new .ProseMirror,
-.mail-message-new .mail-content {
-    padding: $sp-2 $sp-3;
-}
+    .ProseMirror,
+    .mail-content {
+        padding: $sp-2 $sp-3;
+    }
 
-.mail-message-new .mail-message-new-subject {
-    min-height: 2.5rem;
-}
+    .mail-composer-subject {
+        min-height: 2.5rem;
+    }
 
-.mail-message-new .bm-contact-input .btn {
-    min-width: 3rem;
-    text-align: left;
-}
+    .bm-contact-input .btn {
+        min-width: 3rem;
+        text-align: left;
+    }
 
-.mail-message-new .bm-contact-input .bm-form-autocomplete-input .suggestions {
-    z-index: 200;
+    .bm-contact-input .bm-form-autocomplete-input .suggestions {
+        z-index: 200;
+    }
 }
 </style>

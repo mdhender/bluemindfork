@@ -6,7 +6,7 @@
 import { BmContact } from "@bluemind/styleguide";
 
 export default {
-    name: "MailMessageContentFrom",
+    name: "MailViewerFrom",
     components: {
         BmContact
     },
