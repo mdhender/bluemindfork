@@ -77,9 +77,6 @@ public class TodoListService implements ITodoList {
 	private VTodoStore vtodoStore;
 
 	public TodoListService(DataSource pool, Client esearchClient, Container container, BmContext bmContext) {
-		if (!container.owner.equals(container.domainUid) && pool.equals(bmContext.getDataSource())) {
-			throw new ServerFault("wrong datasource");
-		}
 		this.bmContext = bmContext;
 		this.container = container;
 		this.vtodoStore = new VTodoStore(pool, container);

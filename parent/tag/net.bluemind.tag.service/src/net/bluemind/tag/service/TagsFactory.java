@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -19,7 +19,6 @@
 package net.bluemind.tag.service;
 
 import java.sql.SQLException;
-
 import javax.sql.DataSource;
 
 import net.bluemind.core.api.fault.ErrorCode;
@@ -48,9 +47,11 @@ public class TagsFactory implements IServerSideServiceFactory<ITags> {
 		if (container == null) {
 			throw new ServerFault("container " + containerId + " not found", ErrorCode.NOT_FOUND);
 		}
+		if (!isDomainContainer(container) && ds.equals(context.getDataSource())) {
+			throw new ServerFault("wrong datasource container.uid " + container.uid);
+		}
 
-		if (container.domainUid.equals(container.owner)) {
-			// domain tags
+		if (isDomainContainer(container)) {
 			return new DomainTags(context, ds, container);
 		} else {
 			return new Tags(context, ds, container);
@@ -68,5 +69,9 @@ public class TagsFactory implements IServerSideServiceFactory<ITags> {
 			throw new ServerFault("should have exactly one param");
 		}
 		return instance(context, params[0]);
+	}
+
+	private static boolean isDomainContainer(Container container) {
+		return container.owner.equals(container.domainUid); // default tags of domain
 	}
 }

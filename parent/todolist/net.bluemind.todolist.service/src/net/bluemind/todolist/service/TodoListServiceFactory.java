@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -54,6 +54,11 @@ public class TodoListServiceFactory implements ServerSideServiceProvider.IServer
 		if (container == null) {
 			throw new ServerFault("container " + containerId + " not found", ErrorCode.NOT_FOUND);
 		}
+
+		if (!container.owner.equals(container.domainUid) && ds.equals(context.getDataSource())) {
+			throw new ServerFault("wrong datasource container.uid " + container.uid);
+		}
+
 		// FIXME Not sure why but todo must have it own system tag...
 
 		Client esClient = ESearchActivator.getClient();

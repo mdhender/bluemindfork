@@ -104,9 +104,6 @@ public class CalendarService implements IInternalCalendar {
 
 	public CalendarService(DataSource pool, Client esearchClient, Container container, BmContext context,
 			CalendarAuditor auditor) throws ServerFault {
-		if (pool.equals(context.getDataSource())) {
-			throw new ServerFault("wrong datasource");
-		}
 		this.container = container;
 		this.context = context;
 		this.auditor = auditor;

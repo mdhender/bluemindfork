@@ -46,7 +46,6 @@ import net.bluemind.addressbook.api.VCardChanges.ItemAdd;
 import net.bluemind.addressbook.api.VCardInfo;
 import net.bluemind.addressbook.api.VCardQuery;
 import net.bluemind.addressbook.api.VCardQuery.OrderBy;
-import net.bluemind.addressbook.domainbook.DomainAddressBook;
 import net.bluemind.addressbook.persistence.VCardIndexStore;
 import net.bluemind.addressbook.persistence.VCardStore;
 import net.bluemind.addressbook.service.IInCoreAddressBook;
@@ -100,9 +99,6 @@ public class AddressBookService implements IInCoreAddressBook {
 	private final VCardStore vcardStore;
 
 	public AddressBookService(DataSource dataSource, Client esearchClient, Container container, BmContext context) {
-		if (!isDefaultDomainAb(container) && dataSource.equals(context.getDataSource())) {
-			throw new ServerFault("wrong datasource");
-		}
 		this.context = context;
 		this.securityContext = context.getSecurityContext();
 		this.container = container;
@@ -117,10 +113,6 @@ public class AddressBookService implements IInCoreAddressBook {
 		extValidator = new Validator(context);
 
 		rbacManager = RBACManager.forContext(context).forContainer(container);
-	}
-
-	private static boolean isDefaultDomainAb(Container container) {
-		return container.uid.equals(DomainAddressBook.getIdentifier(container.domainUid));
 	}
 
 	@Override

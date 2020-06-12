@@ -60,9 +60,6 @@ public class Tags implements ITags {
 	protected final BmContext context;
 
 	public Tags(BmContext context, DataSource ds, Container container) {
-		if (!isDomainContainer(container) && ds.equals(context.getDataSource())) {
-			throw new ServerFault("wrong datasource");
-		}
 		this.context = context;
 		this.container = container;
 		eventBus = VertxPlatform.eventBus();
