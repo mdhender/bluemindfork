@@ -9,3 +9,11 @@ Architecture: amd64
 Conflicts: bm-ips
 Description: BlueMind configuration
   BlueMind configuration
+
+Package: bm-ips
+Depends: bm-cyrus, ${misc:Depends}
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.
