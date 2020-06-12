@@ -50,16 +50,16 @@
                         {{ $tc("mail.actions.mark_unflagged", selectedMessageKeys.length) }}
                     </bm-label-icon>
                 </bm-button>
-                <!-- TODO: uncomment when ready
-             <bm-button variant="outline-secondary">
-                <bm-label-icon icon="forbidden"> {{ $t("mail.actions.spam") }} </bm-label-icon>
-            </bm-button>
-            <bm-button variant="outline-secondary">
-                <bm-label-icon icon="trash"> {{ $t("mail.actions.remove") }} </bm-label-icon>
-            </bm-button>
-            <bm-button variant="outline-secondary">
-                <bm-label-icon icon="forward"> {{ $t("common.forward") }} </bm-label-icon>
-            </bm-button> -->
+                <bm-button
+                    v-if="!anyMessageReadOnly"
+                    variant="outline-secondary"
+                    @click.exact="removeSelectedMessages"
+                    @click.shift.exact="purgeSelectedMessages"
+                >
+                    <bm-label-icon icon="trash">
+                        {{ $tc("mail.actions.remove", selectedMessageKeys.length) }}
+                    </bm-label-icon>
+                </bm-button>
             </div>
 
             <bm-button variant="inline-secondary" class="my-4" @click="removeSelection">
@@ -120,12 +120,17 @@ export default {
             "areMessagesFiltered",
             "currentFolder",
             "isReadOnlyFolder",
-            "isSearchMode"
+            "isSearchMode",
+            "my",
+            "nextMessageKey"
         ]),
         anyMessageReadOnly() {
             return this.selectedMessageKeys
                 .map(messageKey => ItemUri.container(messageKey))
                 .some(folderUid => this.isReadOnlyFolder(folderUid));
+        },
+        isSelectionMultiple() {
+            return this.selectedMessageKeys.length > 1;
         }
     },
     methods: {
@@ -134,7 +139,9 @@ export default {
             markAsUnflagged: "markAsUnflagged",
             markAsUnread: "markAsUnread",
             markFolderAsRead: "markFolderAsRead",
-            markMessagesAsRead: "markAsRead"
+            markMessagesAsRead: "markAsRead",
+            purge: "purge",
+            remove: "remove"
         }),
         ...mapMutations("mail-webapp", ["addAllToSelectedMessages", "deleteAllSelectedMessages"]),
         ...mapMutations("mail-webapp/currentMessage", { clearCurrentMessage: "clear" }),
@@ -148,6 +155,39 @@ export default {
             areAllMessagesInFolderSelected
                 ? this.markFolderAsRead(this.currentFolderKey)
                 : this.markMessagesAsRead(this.selectedMessageKeys);
+        },
+        async purgeSelectedMessages() {
+            const confirm = await this.$bvModal.msgBoxConfirm(
+                this.$tc("mail.actions.purge.modal.content", this.selectedMessageKeys.length),
+                {
+                    title: this.$tc("mail.actions.purge.modal.title", this.selectedMessageKeys.length),
+                    okTitle: this.$t("common.delete"),
+                    cancelVariant: "outline-secondary",
+                    cancelTitle: this.$t("common.cancel"),
+                    centered: true,
+                    hideHeaderClose: false
+                }
+            );
+            if (confirm) {
+                // do this before followed async operations
+                const nextMessageKey = this.nextMessageKey;
+                this.purge(this.selectedMessageKeys);
+                if (!this.isSelectionMultiple) {
+                    this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
+                }
+            }
+        },
+        async removeSelectedMessages() {
+            if (this.currentFolderKey === this.my.TRASH.key) {
+                this.purgeSelectedMessages();
+            } else {
+                // do this before followed async operations
+                const nextMessageKey = this.nextMessageKey;
+                this.remove(this.selectedMessageKeys);
+                if (!this.isSelectionMultiple) {
+                    this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
+                }
+            }
         }
     }
 };

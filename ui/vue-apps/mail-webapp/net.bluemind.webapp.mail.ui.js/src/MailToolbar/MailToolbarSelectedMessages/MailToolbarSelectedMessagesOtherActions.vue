@@ -34,13 +34,21 @@ export default {
     directives: { BmTooltip },
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapGetters("mail-webapp", ["nextMessageKey"])
+        ...mapGetters("mail-webapp", ["nextMessageKey"]),
+        ...mapState("mail-webapp", ["selectedMessageKeys"]),
+        isSelectionMultiple() {
+            return this.selectedMessageKeys.length > 1;
+        }
     },
     methods: {
         ...mapActions("mail-webapp", ["purge"]),
         deletionConfirmed() {
-            this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
-            this.purge(this.currentMessageKey);
+            // do this before followed async operations
+            const nextMessageKey = this.nextMessageKey;
+            this.purge(this.selectedMessageKeys.length ? this.selectedMessageKeys : this.currentMessageKey);
+            if (!this.isSelectionMultiple) {
+                this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
+            }
         }
     }
 };

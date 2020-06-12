@@ -1,6 +1,7 @@
-import { remove } from "../../src/actions/remove";
+import { remove } from "../../src/actions/purgeAndRemove";
 import ItemUri from "@bluemind/item-uri";
 
+const messageKey = ItemUri.encode("message-id", "source-uid");
 let mockMessage;
 
 const context = {
@@ -25,77 +26,71 @@ const context = {
             ["inbox-uid"]: {
                 unread: 10
             }
-        }
+        },
+        currentMessage: { key: messageKey }
     }
 };
 
 describe("[Mail-WebappStore][actions] : remove", () => {
     beforeEach(() => {
-        mockMessage = { subject: "dummy", states: "not-a-valid-state" };
+        mockMessage = { subject: "dummy", states: "not-a-valid-state", key: messageKey };
         context.commit.mockClear();
         context.dispatch.mockClear();
     });
-    test("call private move action", done => {
-        const messageKey = ItemUri.encode("message-id", "source-uid");
-        remove(context, messageKey).then(() => {
-            expect(context.dispatch).toHaveBeenCalledWith("$_move", {
-                messageKeys: [messageKey],
-                destinationKey: "trash-key"
-            });
-            done();
+    test("call private move action", async () => {
+        await remove(context, messageKey);
+        expect(context.dispatch).toHaveBeenCalledWith("$_move", {
+            messageKeys: [messageKey],
+            destinationKey: "trash-key"
         });
+
         expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [messageKey]);
     });
-    test("display alerts", done => {
-        const messageKey = ItemUri.encode("message-id", "source-uid");
-        remove(context, messageKey).then(() => {
-            expect(context.commit).toHaveBeenNthCalledWith(
-                1,
-                "addApplicationAlert",
-                {
-                    code: "MSG_REMOVED_LOADING",
-                    props: { subject: "dummy" },
-                    uid: expect.anything()
-                },
-                { root: true }
-            );
+    test("display alerts", async () => {
+        await remove(context, messageKey);
+        expect(context.commit).toHaveBeenNthCalledWith(
+            1,
+            "addApplicationAlert",
+            {
+                code: "MSG_REMOVED_LOADING",
+                props: { subject: "dummy" },
+                uid: expect.anything()
+            },
+            { root: true }
+        );
 
-            expect(context.commit).toHaveBeenNthCalledWith(
-                2,
-                "addApplicationAlert",
-                {
-                    code: "MSG_REMOVED_OK",
-                    props: { subject: "dummy" }
-                },
-                { root: true }
-            );
-            expect(context.commit).toHaveBeenNthCalledWith(3, "removeApplicationAlert", expect.anything(), {
-                root: true
-            });
-            done();
+        expect(context.commit).toHaveBeenNthCalledWith(
+            3,
+            "addApplicationAlert",
+            {
+                code: "MSG_REMOVED_OK",
+                props: { subject: "dummy" },
+                uid: undefined
+            },
+            { root: true }
+        );
+        expect(context.commit).toHaveBeenNthCalledWith(4, "removeApplicationAlert", expect.anything(), {
+            root: true
         });
     });
-    test("remove message definitely if current folder is the trash", () => {
+    test("remove message definitely if current folder is the trash", async () => {
         const messageKey = ItemUri.encode("message-id", "trash-uid");
-        remove(context, messageKey);
-        expect(context.dispatch).toHaveBeenCalledWith("purge", messageKey);
+        await remove(context, messageKey);
+        expect(context.dispatch).toHaveBeenCalledWith("messages/remove", [messageKey]);
     });
-    test("update the unread counter if necessary", done => {
+    test("update the unread counter if necessary", async () => {
         const messageKey = ItemUri.encode("message-id", "inbox-uid");
 
         // call remove without any unread mail, do not expect to update the unread counter
-        mockMessage = { subject: "dummy", states: "not-a-valid-state hello-there" };
-        remove(context, messageKey)
-            .then(() => {
-                expect(context.commit).not.toHaveBeenCalledWith("setUnreadCount");
+        mockMessage = { subject: "dummy", states: "not-a-valid-state hello-there", key: messageKey };
+        await remove(context, messageKey);
 
-                // call remove with unread mails, expect to update the unread counter
-                mockMessage = { subject: "dummy", states: "not-a-valid-state not-seen" };
-                return remove(context, messageKey);
-            })
-            .then(() => {
-                expect(context.commit).toHaveBeenCalledWith("setUnreadCount", { folderUid: "inbox-uid", count: 9 });
-                done();
-            });
+        expect(context.commit).not.toHaveBeenCalledWith("setUnreadCount");
+
+        // call remove with unread mails, expect to update the unread counter
+        mockMessage = { subject: "dummy", states: "not-a-valid-state not-seen", key: messageKey };
+        await remove(context, messageKey);
+
+        expect(context.commit).toHaveBeenCalledWith("setUnreadCount", { folderUid: "inbox-uid", count: 9 });
     });
 });

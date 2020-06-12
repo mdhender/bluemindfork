@@ -122,7 +122,7 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
               >
                 <input
                   autocomplete="off"
-                  class="form-control pr-4"
+                  class="form-control bm-form-input-padding"
                   icon="search"
                   type="text"
                 />
@@ -206,7 +206,7 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
               class="bm-form-input position-relative d-inline-block flex-fill"
             >
               <input
-                class="form-control pr-4"
+                class="form-control bm-form-input-padding"
                 reset="true"
                 type="text"
               />

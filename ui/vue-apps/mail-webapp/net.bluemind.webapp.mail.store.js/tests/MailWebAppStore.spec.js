@@ -270,7 +270,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.arrayContaining([messageKey]));
         store.dispatch("mail-webapp/remove", messageKey, { root: true }).then(() => {
             expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
-            expect(itemsService.deleteById).toHaveBeenCalled();
+            expect(itemsService.multipleDeleteById).toHaveBeenCalled();
             done();
         });
     });
@@ -287,7 +287,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.arrayContaining([messageKey]));
         store.dispatch("mail-webapp/purge", messageKey, { root: true }).then(() => {
             expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
-            expect(itemsService.deleteById).toHaveBeenCalled();
+            expect(itemsService.multipleDeleteById).toHaveBeenCalled();
             done();
         });
     });

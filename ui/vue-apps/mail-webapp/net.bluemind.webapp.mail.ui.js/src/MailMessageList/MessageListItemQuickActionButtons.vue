@@ -102,16 +102,20 @@ export default {
                 this.purge();
                 return;
             }
-            if (this.currentMessageKey === this.message.key) {
-                this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
-            }
+            // do this before followed async operations
+            const nextMessageKey = this.nextMessageKey;
             this.$store.dispatch("mail-webapp/remove", this.message.key);
+            if (this.currentMessageKey === this.message.key) {
+                this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
+            }
         },
         async purge() {
             const confirm = await this.$bvModal.msgBoxConfirm(
-                this.$t("mail.actions.purge.modal.content", { subject: this.message.subject }),
+                this.$tc("mail.actions.purge.modal.content", this.selectedMessageKeys.length || 1, {
+                    subject: this.message.subject
+                }),
                 {
-                    title: this.$t("mail.actions.purge.modal.title"),
+                    title: this.$tc("mail.actions.purge.modal.title", this.selectedMessageKeys.length || 1),
                     okTitle: this.$t("common.delete"),
                     cancelVariant: "outline-secondary",
                     cancelTitle: this.$t("common.cancel"),
@@ -120,10 +124,12 @@ export default {
                 }
             );
             if (confirm) {
-                if (this.currentMessageKey === this.message.key) {
-                    this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
-                }
+                // do this before followed async operations
+                const nextMessageKey = this.nextMessageKey;
                 this.$store.dispatch("mail-webapp/purge", this.message.key);
+                if (this.currentMessageKey === this.message.key) {
+                    this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
+                }
             }
         }
     }
