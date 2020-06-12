@@ -140,11 +140,15 @@ public class CalendarContainerSync implements ISyncableContainer {
 		}
 	}
 
-	private long nextSyncDelay() {
-		if (this.domainSettings != null && this.domainSettings.containsKey(DOMAIN_SETTING_MIN_DELAY_KEY)) {
-			return Long.valueOf(this.domainSettings.get(DOMAIN_SETTING_MIN_DELAY_KEY));
+	static long getNextSyncDelay(Map<String, String> domainSettings) {
+		if (domainSettings != null && domainSettings.containsKey(DOMAIN_SETTING_MIN_DELAY_KEY)) {
+			return Long.valueOf(domainSettings.get(DOMAIN_SETTING_MIN_DELAY_KEY));
 		}
 		return DEFAULT_NEXT_SYNC_DELAY;
+	}
+
+	private long nextSyncDelay() {
+		return getNextSyncDelay(this.domainSettings);
 	}
 
 	private ContainerSyncResult syncCalendar(SyncData data) {

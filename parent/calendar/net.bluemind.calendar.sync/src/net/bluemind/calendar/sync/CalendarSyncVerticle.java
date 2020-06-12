@@ -46,6 +46,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.NullTaskMonitor;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
@@ -155,7 +156,8 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 				final ContainerSyncStore containerSyncStore = new ContainerSyncStore(
 						DataSourceRouter.get(context, calendarUid), containerStore.get(calendarUid));
 				syncStatus.load(containerSyncStore.getSyncStatus());
-				if (syncStatus.errors < syncErrorLimit() && System.currentTimeMillis() > syncStatus.nextSync) {
+				if ((syncStatus.errors < syncErrorLimit() || reEnableBlockedSync(syncStatus, context, calendarUid))
+						&& System.currentTimeMillis() > syncStatus.nextSync) {
 					syncingCals.add(syncStatus.id);
 					this.executor.execute(syncStatus);
 				}
@@ -163,6 +165,22 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
+	}
+
+	private boolean reEnableBlockedSync(RunnableSyncStatus syncStatus, BmContext bmContext, String calendarUid) {
+		final ContainerStore containerStore = new ContainerStore(bmContext,
+				DataSourceRouter.get(bmContext, syncStatus.id), bmContext.getSecurityContext());
+		final Container container;
+		try {
+			container = containerStore.get(syncStatus.id);
+		} catch (SQLException e) {
+			return false;
+		}
+		long nextSyncDelay = CalendarContainerSync.getNextSyncDelay(
+				bmContext.getServiceProvider().instance(IDomainSettings.class, container.domainUid).get());
+		Long nextSync = syncStatus.nextSync;
+
+		return System.currentTimeMillis() > (nextSync + (3 * nextSyncDelay));
 	}
 
 	/**
