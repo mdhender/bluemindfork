@@ -58,7 +58,7 @@ public class RBACManager {
 		this.directPermissionResolver = new DirectPermissionResolver(context);
 	}
 
-	public boolean can(String... roles) {
+	public final boolean can(String... roles) {
 		return can(ImmutableSet.copyOf(roles));
 	}
 
@@ -214,12 +214,11 @@ public class RBACManager {
 		}
 	}
 
-	public void check(String... roles) throws ServerFault {
+	public final void check(String... roles) throws ServerFault {
 		check(ImmutableSet.<String>builder().add(roles).build());
 	}
 
 	public RBACManager forContainer(String uid) throws ServerFault {
-
 		Container container = null;
 		try {
 
@@ -297,8 +296,65 @@ public class RBACManager {
 		return context.getSecurityContext().getRoles();
 	}
 
+	private static final class SystemRBACManager extends RBACManager {
+
+		public SystemRBACManager(BmContext context) {
+			super(context);
+		}
+
+		@Override
+		public boolean canAll(Set<String> roles) {
+			return true;
+		}
+
+		@Override
+		public boolean can(Set<String> roles) {
+			return true;
+		}
+
+		@Override
+		public void checkNotAnoynmous() throws ServerFault {
+			// ok
+		}
+
+		@Override
+		public void check(Set<String> roles) throws ServerFault {
+			// ok
+		}
+
+		@Override
+		public RBACManager forContainer(String rbacUid) throws ServerFault {
+			return this;
+		}
+
+		@Override
+		public RBACManager forContainer(Container container) throws ServerFault {
+			return this;
+		}
+
+		@Override
+		public RBACManager forEntry(String uid) throws ServerFault {
+			return this;
+		}
+
+		@Override
+		public RBACManager forDomain(String domainUid) {
+			return this;
+		}
+
+		@Override
+		public RBACManager forOrgUnit(String orgUnitUid) {
+			return this;
+		}
+
+	}
+
 	public static RBACManager forContext(BmContext context) {
-		return new RBACManager(context);
+		if (context.getSecurityContext().isDomainGlobal()) {
+			return new SystemRBACManager(context);
+		} else {
+			return new RBACManager(context);
+		}
 	}
 
 	public static RBACManager forSecurityContext(SecurityContext tok) {
