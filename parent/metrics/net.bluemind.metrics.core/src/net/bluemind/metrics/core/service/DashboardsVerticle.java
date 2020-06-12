@@ -25,6 +25,7 @@ import net.bluemind.metrics.core.tick.client.ChronografClient;
 import net.bluemind.network.utils.NetworkHelper;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.tag.api.TagDescriptor;
 
 public class DashboardsVerticle extends AbstractVerticle {
 
@@ -64,7 +65,7 @@ public class DashboardsVerticle extends AbstractVerticle {
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IServer serverApi = prov.instance(IServer.class, InstallationId.getIdentifier());
 		Optional<ItemValue<Server>> chronograf = serverApi.allComplete().stream()
-				.filter(iv -> iv.value.tags.contains("metrics/influxdb")).findFirst();
+				.filter(iv -> iv.value.tags.contains(TagDescriptor.bm_metrics_influx.getTag())).findFirst();
 		if (!chronograf.isPresent()) {
 			logger.warn("Missing chronograf server");
 		} else {
@@ -80,7 +81,7 @@ public class DashboardsVerticle extends AbstractVerticle {
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IServer serverApi = prov.instance(IServer.class, InstallationId.getIdentifier());
 		Optional<ItemValue<Server>> chronograf = serverApi.allComplete().stream()
-				.filter(iv -> iv.value.tags.contains("metrics/influxdb")).findFirst();
+				.filter(iv -> iv.value.tags.contains(TagDescriptor.bm_metrics_influx.getTag())).findFirst();
 		if (!chronograf.isPresent()) {
 			logger.warn("Missing chronograf server");
 			return;

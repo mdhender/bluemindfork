@@ -107,6 +107,8 @@ nginxConfiguration /etc/bm-webserver/bm-upstream-webserver.conf /usr/share/doc/b
 
 nginxConfiguration /etc/bm-core/bm-upstream-core.conf /usr/share/doc/bm-client-access/bm-core/bm-upstream-core.conf
 
+nginxConfiguration /etc/bm-tick/bm-upstream-tick.conf /usr/share/doc/bm-client-access/bm-tick/bm-upstream-tick.conf
+
 nginxConfiguration /etc/nginx/bm-nginx-role.conf /usr/share/doc/bm-client-access/bm-nginx/bm-nginx-role.conf
 nginxConfiguration /etc/nginx/bm-upstream-mainnginx.conf /usr/share/doc/bm-client-access/bm-nginx/bm-upstream-mainnginx.conf
 nginxConfiguration /etc/nginx/bm-http-auth.conf /usr/share/doc/bm-client-access/bm-nginx/bm-http-auth.conf

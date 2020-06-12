@@ -109,6 +109,7 @@
       <plugin id="net.bluemind.mailflow.common.api.gwt"/>
       <plugin id="net.bluemind.mailmessage.api"/>
       <plugin id="net.bluemind.mailmessage.api.gwt"/>
+      <plugin id="net.bluemind.metrics.alerts.api"/>
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.mime4j.common"/>
       <plugin id="net.bluemind.neko.common"/>

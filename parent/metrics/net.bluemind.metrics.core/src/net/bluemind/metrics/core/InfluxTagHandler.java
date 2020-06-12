@@ -39,6 +39,8 @@ import net.bluemind.metrics.core.tick.TickInputConfigurator;
 import net.bluemind.network.utils.NetworkHelper;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.nginx.NginxService;
+import net.bluemind.tag.api.TagDescriptor;
 
 public class InfluxTagHandler extends TickInputConfigurator {
 
@@ -46,9 +48,10 @@ public class InfluxTagHandler extends TickInputConfigurator {
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals("metrics/influxdb")) {
+		if (!tag.equals(TagDescriptor.bm_metrics_influx.getTag())) {
 			return;
 		}
+
 		logger.info("Tagging {}", itemValue.value.address());
 
 		IServer serverApi = context.provider().instance(IServer.class, InstallationId.getIdentifier());
@@ -86,13 +89,15 @@ public class InfluxTagHandler extends TickInputConfigurator {
 				logger.error("Exception during template processing : {}", e2);
 			}
 		}
-		monitor.ifPresent(mon -> mon.log("TICK for " + tag + " configured on " + itemValue.value.address()));
 
+		new NginxService().updateTickUpstream(itemValue.value.address());
+
+		monitor.ifPresent(mon -> mon.log("TICK for " + tag + " configured on " + itemValue.value.address()));
 	}
 
 	@Override
 	public void onServerUntagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals("metrics/influxdb")) {
+		if (!tag.equals(TagDescriptor.bm_metrics_influx.getTag())) {
 			return;
 		}
 

@@ -30,6 +30,7 @@ import net.bluemind.network.utils.NetworkHelper;
 import net.bluemind.server.api.CommandStatus;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.tag.api.TagDescriptor;
 
 public class AlertsVerticle extends AbstractVerticle {
 
@@ -59,7 +60,7 @@ public class AlertsVerticle extends AbstractVerticle {
 			IServer serverApi = prov.instance(IServer.class, InstallationId.getIdentifier());
 
 			Optional<ItemValue<Server>> kapacitor = serverApi.allComplete().stream()
-					.filter(iv -> iv.value.tags.contains("metrics/influxdb")).findFirst();
+					.filter(iv -> iv.value.tags.contains(TagDescriptor.bm_metrics_influx.getTag())).findFirst();
 
 			if (!kapacitor.isPresent()) {
 				logger.warn("Missing kapacitor server");

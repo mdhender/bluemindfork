@@ -15,7 +15,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.container.api;bundle-version="4.1.0",
  net.bluemind.config,
  org.fusesource.jansi,
- com.google.guava
+ com.google.guava,
+ net.bluemind.tag.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.metrics
 Bundle-ActivationPolicy: lazy

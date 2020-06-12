@@ -27,6 +27,7 @@ import net.bluemind.config.InstallationId;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.tag.api.TagDescriptor;
 
 @Command(name = "status", description = "display the TICK stack status")
 public class TickStatusCommand implements ICmdLet, Runnable {
@@ -60,7 +61,7 @@ public class TickStatusCommand implements ICmdLet, Runnable {
 
 		IServer serversApi = ctx.adminApi().instance(IServer.class, InstallationId.getIdentifier());
 		Optional<ItemValue<Server>> tickServer = serversApi.allComplete().stream()
-				.filter(srvItem -> srvItem.value.tags.contains("metrics/influxdb")).findAny();
+				.filter(srvItem -> srvItem.value.tags.contains(TagDescriptor.bm_metrics_influx.getTag())).findAny();
 		if (tickServer.isPresent()) {
 			System.out.println(ctx.ansi().a("Tick deployement ").fgBrightGreen().a("OK").reset());
 		} else {

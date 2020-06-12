@@ -286,6 +286,7 @@
    <bundle id="net.bluemind.mailshare.api.php" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailshare.hook" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailshare.service" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.metrics.alerts.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.milter" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mime4j.common" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mvp.closure" version="4.1.0.qualifier"/>

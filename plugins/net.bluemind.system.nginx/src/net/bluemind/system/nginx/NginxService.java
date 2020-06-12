@@ -23,8 +23,10 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.CoreException;
@@ -39,12 +41,10 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
-import net.bluemind.server.api.Server;
 import net.bluemind.tag.api.TagDescriptor;
 
 public class NginxService {
@@ -75,29 +75,56 @@ public class NginxService {
 		return updaters;
 	}
 
-	private List<String> getTaggedServers() throws ServerFault {
+	/**
+	 * Get all servers matching tag.
+	 * 
+	 * If no tags specified, return all server tags as "bm/nginx" or "bm/nginx-edge"
+	 * 
+	 * @param tags matching tag - support only "bm/nginx" or "bm/nginx-edge"
+	 * @return
+	 * @throws ServerFault
+	 */
+	private List<String> getTaggedServers(TagDescriptor... tags) throws ServerFault {
+		Set<String> tagsAsString = new HashSet<>();
+		if (tags.length != 0) {
+			tagsAsString.addAll(Arrays.stream(tags)
+					.filter(tag -> tag == TagDescriptor.bm_nginx || tag == TagDescriptor.bm_nginx_edge)
+					.map(tag -> tag.getTag()).collect(Collectors.toList()));
+		} else {
+			tagsAsString.addAll(Arrays.asList(TagDescriptor.bm_nginx.getTag(), TagDescriptor.bm_nginx_edge.getTag()));
+		}
+
 		return Topology.getIfAvailable()
 				.map(t -> t.nodes().stream()
-						.filter(server -> server.value.tags.stream()
-								.anyMatch(tag -> tag.equals(TagDescriptor.bm_nginx.getTag())
-										|| tag.equals(TagDescriptor.bm_nginx_edge.getTag())))
+						.filter(server -> server.value.tags.stream().anyMatch(tag -> tagsAsString.contains(tag)))
 						.map(s -> s.value.address()).collect(Collectors.toList()))
 				.orElse(Arrays.asList("127.0.0.1"));
 	}
 
-	public byte[] serverNameContent(String address) {
+	private byte[] serverNameContent(String address) {
 		return ("server_name " + address + ";\n").getBytes();
 	}
 
-	public byte[] externalUrlContent(String address) {
+	private byte[] externalUrlContent(String address) {
 		return ("set $bmexternalurl " + address + ";\n").getBytes();
 	}
 
+	/**
+	 * Reload NGinx & FPM on all servers tagged as "bm/nginx" and "bm/nginx-edge"
+	 * 
+	 * @throws ServerFault
+	 */
 	public void reloadHttpd() throws ServerFault {
 		getTaggedServers().forEach(server -> reloadHttpd(NodeActivator.get(server)));
 	}
 
-	private void reloadHttpd(INodeClient nc) throws ServerFault {
+	/**
+	 * Reload NGinx & FPM on specific server
+	 * 
+	 * @param nc
+	 * @throws ServerFault
+	 */
+	public void reloadHttpd(INodeClient nc) throws ServerFault {
 		NCUtils.forget(nc, "service bm-php-fpm reload");
 		NCUtils.forget(nc, "service bm-nginx reload");
 	}
@@ -172,15 +199,23 @@ public class NginxService {
 		getTaggedServers().forEach(server -> updateExternalUrl(server, externalUrl));
 	}
 
-	public void updateExternalUrl(ItemValue<Server> server, String externalUrl) {
-		updateExternalUrl(server.value.address(), externalUrl);
-	}
-
-	private void updateExternalUrl(String addr, String externalUrl) {
-		logger.info("update worker_connections on {}", addr);
-		INodeClient nc = NodeActivator.get(addr);
+	public void updateExternalUrl(String nginxServerIp, String externalUrl) {
+		logger.info("update bm-servername.conf & bm-externalurl.conf on {}", nginxServerIp);
+		INodeClient nc = NodeActivator.get(nginxServerIp);
 		nc.writeFile("/etc/nginx/bm-servername.conf", new ByteArrayInputStream(serverNameContent(externalUrl)));
 		nc.writeFile("/etc/nginx/bm-externalurl.conf", new ByteArrayInputStream(externalUrlContent(externalUrl)));
+		reloadHttpd(nc);
+	}
+
+	public void updateTickUpstream(String tickIp) {
+		getTaggedServers(TagDescriptor.bm_nginx).forEach(server -> updateTickUpstream(server, tickIp));
+	}
+
+	public void updateTickUpstream(String nginxServerIp, String tickIp) {
+		logger.info("Update bm-upstream-tick.conf on {}", nginxServerIp);
+		INodeClient nc = NodeActivator.get(nginxServerIp);
+		nc.writeFile("/etc/bm-tick/bm-upstream-tick.conf",
+				new ByteArrayInputStream(String.format("server %s:8888;", tickIp).getBytes()));
 		reloadHttpd(nc);
 	}
 }

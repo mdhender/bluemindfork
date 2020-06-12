@@ -41,6 +41,11 @@ upstream eas {
   include /etc/bm-eas/bm-upstream-eas.conf;
 }
 
+upstream tick {
+  ip_hash;
+  include /etc/bm-tick/bm-upstream-tick.conf;
+}
+
 upstream mainnginx {
   ip_hash;
   include /etc/nginx/bm-upstream-mainnginx.conf;
@@ -54,6 +59,7 @@ server {
   set $bm_upstream_core http://core;
   set $bm_upstream_mapi http://mapi;
   set $bm_upstream_eas http://eas;
+  set $bm_upstream_tick http://tick;
 
   if ($bm_nginx_role = "edge") {
     set $bm_upstream_hps https://mainnginx;
@@ -61,6 +67,7 @@ server {
     set $bm_upstream_core https://mainnginx;
     set $bm_upstream_mapi https://mainnginx;
     set $bm_upstream_eas https://mainnginx;
+    set $bm_upstream_tick http://mainnginx;
   }
 
   listen   443 ssl http2 default_server;
@@ -389,6 +396,25 @@ server {
     rewrite ^.*$ /webapp/index.html break;
 
     proxy_pass $bm_upstream_hps;
+  }
+  
+  location /tick/ {
+    set $bm_auth_basic "BlueMind Tick";
+    if ($bm_nginx_role = "edge") {
+      set $bm_auth_basic off;
+    }
+
+    auth_basic $bm_auth_basic;
+    auth_basic_user_file  /etc/nginx/sw.htpasswd;
+  
+    gzip             on;
+    gzip_min_length  1000;
+    gzip_proxied     any;
+    gzip_types       text/plain application/xml text/css text/javascript text/json application/json;
+    gzip_comp_level 9;
+
+    proxy_http_version 1.1;
+    proxy_pass $bm_upstream_tick;
   }
 
   location /native {
