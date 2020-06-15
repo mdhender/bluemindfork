@@ -1,6 +1,8 @@
 {
     "common.send": "Send",
     "common.to": "To",
+    "common.to.lowercase": "to",
+    "common.from": "From",
     "common.cc": "Cc",
     "common.bcc": "Bcc",
     "common.save": "Save",
@@ -21,10 +23,19 @@
     "common.search": "Search",
     "common.searching": "Searching...",
     "common.messages": "0 message | 1 message | {count} messages",
+    "common.message": "message",
     "common.search.error": "Search did not succeed.",
     "common.check.connection": "Check your internet connection and retry in a few moments.",
     "common.or": "or",
     "common.cancel": "Cancel",
     "common.mailshares": "Shared folders",
-    "common.reload": "reload"
+    "common.reload": "reload",
+    "common.title": "Title :",
+    "common.when": "When :",
+    "common.organizer": "Organizer :",
+    "common.attendees": "Attendee : | Attendees : ",
+    "common.accept": "Accept",
+    "common.accept.temporarily": "Accept temporarily",
+    "common.refuse": "Refuse",
+    "common.invitation": "invitation"
 }

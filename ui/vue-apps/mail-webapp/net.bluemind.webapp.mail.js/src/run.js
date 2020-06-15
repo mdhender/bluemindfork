@@ -1,5 +1,6 @@
 import { AddressBooksClient } from "@bluemind/addressbook.api";
 import { AlertFactory } from "@bluemind/alert.store";
+import { CalendarClient } from "@bluemind/calendar.api";
 import { ContainersClient } from "@bluemind/core.container.api";
 import { ItemsTransferClient } from "@bluemind/backend.mail.api";
 import { MailboxesClient } from "@bluemind/mailbox.api";
@@ -87,6 +88,14 @@ function registerAPIClients() {
         factory: (sourceUid, destinationUid) => {
             const userSession = injector.getProvider("UserSession").get();
             return new ItemsTransferClient(userSession.sid, sourceUid, destinationUid);
+        }
+    });
+
+    injector.register({
+        provide: "CalendarPersistence",
+        factory: () => {
+            const userSession = injector.getProvider("UserSession").get();
+            return new CalendarClient(userSession.sid, "calendar:Default:" + userSession.userId);
         }
     });
 }

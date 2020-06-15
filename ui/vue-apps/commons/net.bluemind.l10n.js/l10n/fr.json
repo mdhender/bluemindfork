@@ -1,6 +1,8 @@
 {
     "common.send": "Envoyer",
     "common.to": "À",
+    "common.to.lowercase": "au",
+    "common.from": "Du",
     "common.cc": "Cc",
     "common.bcc": "Cci",
     "common.save": "Enregistrer",
@@ -21,10 +23,19 @@
     "common.search": "Recherche",
     "common.searching": "Recherche en cours...",
     "common.messages": "0 message | 1 message | {count} messages",
+    "common.message": "message",
     "common.search.error": "La recherche n'a pu aboutir.",
     "common.check.connection": "Vérifiez votre connexion internet et réessayez dans quelques instants.",
     "common.or": "ou",
     "common.cancel": "Annuler",
     "common.mailshares": "Dossiers partagés",
-    "common.reload": "recharger"
+    "common.reload": "recharger",
+    "common.title": "Titre :",
+    "common.when": "Quand :",
+    "common.organizer": "Organisateur :",
+    "common.attendees": "Participant : | Participants : ",
+    "common.accept": "Accepter",
+    "common.accept.temporarily": "Accepter provisoirement",
+    "common.refuse": "Refuser",
+    "common.invitation": "invitation"
 }

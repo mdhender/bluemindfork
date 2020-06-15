@@ -681,6 +681,13 @@
   version "4.1.46613"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/backend.mail.l10n/-/backend.mail.l10n-4.1.46613.tgz#5b7a7091fafeaf476544fba11c25b2637363e5b1"
 
+"@bluemind/calendar.api@^4.1.0":
+  version "4.1.48916"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/calendar.api/-/calendar.api-4.1.48916.tgz#9c7095e23896860bd649cffe7ff3734fa69675ec"
+  integrity sha512-AKfjtxIjUaOzc+DnQdWVrY4FHpDlLI+SAJOTwvkloJ3i2lL2nG/o7kIzatO2O27sfm1y06Mop4wRIeZiV9qIuw==
+  dependencies:
+    axios "^0.18.0"
+
 "@bluemind/core.container.api@^4.1.0":
   version "4.1.46844"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/core.container.api/-/core.container.api-4.1.46844.tgz#69ad6901bdc684573874ab85b2d5b09b686f0331"

@@ -127,6 +127,12 @@ function getDateTimeFormats() {
             month: "2-digit",
             year: "numeric"
         },
+        full_date_long: {
+            weekday: "long",
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        },
         full_date_time: {
             weekday: "long",
             day: "2-digit",

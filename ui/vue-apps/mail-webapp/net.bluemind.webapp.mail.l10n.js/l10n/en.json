@@ -159,5 +159,8 @@
     "mail.compose.forward.prev.message.info.from": "From",
     "mail.main.switch.webmail": "Try the new webmail",
     "mail.messages.multiple.drag_shadow": "The selected thread | {count} selected threads",
-    "mail.selection.alert.readonly": "Some selected messages are read-only. Some actions (like Move or Remove) may not be available."
+    "mail.selection.alert.readonly": "Some selected messages are read-only. Some actions (like Move or Remove) may not be available.",
+    "mail.ics": "This message contains an invitation",
+    "mail.ics.got_invited": "invited you at",
+    "mail.content.alert.ics.dont_exist": "This message references an event which does not exist"
 }

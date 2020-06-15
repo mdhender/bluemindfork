@@ -1,6 +1,13 @@
 <template>
-    <div class="mail-viewer d-flex flex-column py-2 flex-grow-1 bg-surface">
-        <bm-row class="px-lg-5 px-4">
+    <div class="mail-viewer d-flex flex-column pb-2 flex-grow-1">
+        <mail-component-alert
+            v-if="!message.ics.isEmpty && !currentEvent && !isIcsAlertBlocked"
+            icon="exclamation-circle"
+            @close="isIcsAlertBlocked = true"
+        >
+            {{ $t("mail.content.alert.ics.dont_exist") }}
+        </mail-component-alert>
+        <bm-row class="px-lg-5 px-4 pt-2">
             <bm-col cols="12">
                 <mail-viewer-toolbar />
             </bm-col>
@@ -43,7 +50,8 @@
         </bm-row>
         <bm-row ref="scrollableContainer" class="pt-1 flex-fill px-lg-5 px-4">
             <bm-col col>
-                <parts-viewer />
+                <ics-viewer v-if="!message.ics.isEmpty && currentEvent" />
+                <parts-viewer v-else />
             </bm-col>
         </bm-row>
     </div>
@@ -52,7 +60,9 @@
 <script>
 import { mapState, mapActions, mapGetters } from "vuex";
 import { BmCol, BmRow } from "@bluemind/styleguide";
+import IcsViewer from "./IcsViewer";
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
+import MailComponentAlert from "../MailComponentAlert";
 import MailViewerFrom from "./MailViewerFrom";
 import MailViewerRecipient from "./MailViewerRecipient";
 import MailViewerToolbar from "./MailViewerToolbar";
@@ -63,14 +73,22 @@ export default {
     components: {
         BmCol,
         BmRow,
+        IcsViewer,
         MailAttachmentsBlock,
+        MailComponentAlert,
         MailViewerFrom,
         MailViewerRecipient,
         MailViewerToolbar,
         PartsViewer
     },
+    data() {
+        return {
+            isIcsAlertBlocked: false
+        };
+    },
     computed: {
         ...mapGetters("mail-webapp/currentMessage", ["message"]),
+        ...mapState("mail-webapp", ["currentEvent"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key", parts: "parts" }),
         to() {
             if (this.message.to.length > 0) {
@@ -93,6 +111,9 @@ export default {
             handler: function() {
                 this.resetScroll();
                 this.markAsRead([this.currentMessageKey]);
+                if (this.isIcsAlertBlocked) {
+                    this.isIcsAlertBlocked = false;
+                }
             },
             immediate: true
         }

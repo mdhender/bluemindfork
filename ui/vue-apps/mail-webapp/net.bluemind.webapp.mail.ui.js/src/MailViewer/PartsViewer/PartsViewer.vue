@@ -12,26 +12,21 @@
 <script>
 import { mapGetters } from "vuex";
 import { MimeType } from "@bluemind/email";
-import TextCalendarPartViewer from "./TextCalendarPartViewer";
-import TextHtmlPartViewer from "./TextHtmlPartViewer";
 import ImagePartViewer from "./ImagePartViewer";
+import TextHtmlPartViewer from "./TextHtmlPartViewer";
 import TextPlainPartViewer from "./TextPlainPartViewer";
 
 export default {
     name: "PartsViewer",
     components: {
-        TextCalendarPartViewer,
         ImagePartViewer,
         TextHtmlPartViewer,
         TextPlainPartViewer
     },
     computed: {
-        ...mapGetters("mail-webapp/currentMessage", { parts: "content" })
+        ...mapGetters("mail-webapp/currentMessage", { parts: "content", message: "message" })
     },
     methods: {
-        isCalendarPart(part) {
-            return MimeType.isCalendar(part);
-        },
         isHtmlPart(part) {
             return MimeType.isHtml(part);
         },
@@ -42,9 +37,7 @@ export default {
             return MimeType.isImage(part);
         },
         isSupportedPart(part) {
-            return (
-                this.isCalendarPart(part) || this.isHtmlPart(part) || this.isTextPart(part) || this.isImagePart(part)
-            );
+            return this.isHtmlPart(part) || this.isTextPart(part) || this.isImagePart(part);
         },
         computePartComponent(mimeType) {
             let name;
