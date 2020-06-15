@@ -1,9 +1,9 @@
 // insert a build version number here ${version} to invalidate the previous installed Service Worker on clients 
 const CACHE_NAME = "bm-assets";
-const files = ["${files?join("\",\"", "", "\"]")};
+const files = ["${scope}/", "${files?join("\",\"", "", "\"]")};
 
 self.addEventListener("install", function (event) {
-  event.waitUntil(precache(files).then(self.skipWaiting()));
+  event.waitUntil(precacheredirected(files).then(self.skipWaiting()));
 });
 
 self.addEventListener("fetch", function (event) {
@@ -15,7 +15,11 @@ async function fromCache(request) {
   return matching || fetch(request);
 }
 
-async function precache(files) {
-  const cache = await caches.open(CACHE_NAME);
-  return cache.addAll(files);
+async function precacheredirected(files) {
+    const cache = await caches.open(CACHE_NAME);
+    Promise.all(files
+      .map(async function(url) {
+        const response = await fetch(new Request(url, {redirect: 'manual'})); // Required by https://bugs.chromium.org/p/chromium/issues/detail?id=669363&desc=2#c1
+        cache.put(url, response);
+      }));
 }

@@ -24,7 +24,6 @@
         in order for this application to display correctly.
       </div>
     </noscript>
-    <!-- appcache" -->
     <iframe style='display:none' frameborder="0" src="index-offline.html"><!-- needed --></iframe>
   </body>
 </html>

@@ -21,7 +21,5 @@ goog.provide("bluemind.db");
  */
 
 goog.require("net.bluemind.task.TaskApplication");
-goog.require("net.bluemind.net.AppCacheHandler");
 
 new net.bluemind.task.TaskApplication();
-new net.bluemind.net.AppCacheHandler();

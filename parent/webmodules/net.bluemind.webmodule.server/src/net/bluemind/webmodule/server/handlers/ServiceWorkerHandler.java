@@ -45,6 +45,7 @@ public class ServiceWorkerHandler implements IWebModuleConsumer, Handler<HttpSer
 		Map<String, Object> model = new HashMap<>();
 		model.put("version", BMVersion.getVersion());
 		model.put("files", getAssetsList());
+		model.put("scope", module.root);
 
 		Writer sw = new StringWriter();
 		try {
@@ -64,13 +65,15 @@ public class ServiceWorkerHandler implements IWebModuleConsumer, Handler<HttpSer
 	private List<String> getAssetsList() {
 		List<String> files = new ArrayList<>();
 		files.add("style/customstyle.css");
+		files.add("index.html");
 		files.addAll(module.resources.stream().flatMap(resource -> resource.getResources().stream())
 				.filter(ServiceWorkerHandler::assetsFilter).collect(Collectors.toSet()));
 		return files;
 	}
 
 	private static Boolean assetsFilter(String path) {
-		return !(path.startsWith(".") || path.endsWith(".nocache.js") || path.endsWith(".devmode.js")
+		
+		return !(path.startsWith(".") || path.endsWith(".devmode.js")
 				|| path.startsWith("WEB-INF"));
 	}
 
