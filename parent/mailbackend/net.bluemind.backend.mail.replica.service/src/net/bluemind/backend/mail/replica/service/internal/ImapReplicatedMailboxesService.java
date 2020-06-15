@@ -220,6 +220,9 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		rbac.check(Verb.Write.name());
 
 		ItemValue<MailboxFolder> toDelete = getCompleteById(id);
+		if (toDelete.value.deleted) {
+			throw ServerFault.notFound("Folder with id " + id + " has already been deleted.");
+		}
 		logger.info("toDelete: {}", toDelete);
 		UpdatedName newName = updateName(toDelete.value, container.uid);
 		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(newName.subtreeContainer);
