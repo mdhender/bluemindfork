@@ -76,12 +76,6 @@
             code="net.bluemind.metrics.core.UpgradeExistingTags">
       </java>
    </extension>
-   <extension
-         point="net.bluemind.system.schemaupgrader.javacode">
-      <java
-            code="net.bluemind.metrics.core.UpgradeDataFormat">
-      </java>
-   </extension>
    
    <extension
          point="net.bluemind.core.rest.apiEndpoint">
