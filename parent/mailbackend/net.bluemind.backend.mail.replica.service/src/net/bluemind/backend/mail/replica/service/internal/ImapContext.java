@@ -68,8 +68,7 @@ public class ImapContext {
 	}
 
 	private static final Cache<String, ImapContext> createCache() {
-		Cache<String, ImapContext> ret = CacheBuilder.newBuilder()
-				.expireAfterAccess(5, TimeUnit.MINUTES)
+		Cache<String, ImapContext> ret = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
 				.removalListener(new RemovalListener<String, ImapContext>() {
 
 					@Override
@@ -108,7 +107,7 @@ public class ImapContext {
 		private final ReentrantLock lock;
 
 		public PoolableStoreClient(String hostname, int port, String login, String password) {
-			super(hostname, port, login, password);
+			super(hostname, port, login, password, 15);
 			this.lock = new ReentrantLock();
 			this.fastFetch = VXStoreClient.create(hostname, port, login, password);
 		}
