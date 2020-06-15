@@ -381,7 +381,7 @@ public final class ESearchActivator implements BundleActivator {
 		resetIndex(client, index);
 	}
 
-	public static void resetIndex(Client client, String index) {
+	private static void resetIndex(Client client, String index) {
 		logger.info("reset index {}", index);
 		try {
 			client.admin().indices().prepareDelete(index).execute().actionGet();
@@ -401,11 +401,6 @@ public final class ESearchActivator implements BundleActivator {
 
 		}
 
-		initIndex(client, index, isPrimary(index));
-	}
-
-	public static void initIndex(String index) {
-		Client client = ESearchActivator.getClient();
 		initIndex(client, index, isPrimary(index));
 	}
 
