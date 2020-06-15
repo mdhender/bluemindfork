@@ -1607,6 +1607,14 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
+	public void multipleDeleteRuns() throws IMAPException, InterruptedException {
+		int cnt = 50;
+		for (int i = 0; i < cnt; i++) {
+			deleteDeepWithMultipleChildren();
+		}
+	}
+
+	@Test
 	public void deleteEmptyWithMultipleChildren() throws IMAPException, InterruptedException, IOException {
 		IServiceProvider clientProv = provider();
 		IMailboxFolders mboxesApi = clientProv.instance(IMailboxFolders.class, partition, mboxRoot);

@@ -22,21 +22,19 @@ import java.util.concurrent.CompletableFuture;
 
 import net.bluemind.lib.vertx.VertxPlatform;
 
-public class ThreadContextHelper {
+public final class ThreadContextHelper {
 
 	private ThreadContextHelper() {
 
 	}
 
 	public static <T> CompletableFuture<T> inWorkerThread(CompletableFuture<T> eventLoopFuture) {
-		return eventLoopFuture.thenCompose(ident -> {
-			CompletableFuture<T> dependentsInWorkerThread = new CompletableFuture<>();
-			VertxPlatform.getVertx().executeBlocking(prom -> {
-				dependentsInWorkerThread.complete(ident);
-				prom.complete();
-			}, false, res -> {
-			});
-			return dependentsInWorkerThread;
-		});
+		CompletableFuture<T> dependentsInWorkerThread = new CompletableFuture<>();
+		eventLoopFuture.thenAccept(ident -> VertxPlatform.getVertx().executeBlocking(prom -> {
+			dependentsInWorkerThread.complete(ident);
+			prom.complete();
+		}, false, res -> {
+		}));
+		return dependentsInWorkerThread;
 	}
 }
