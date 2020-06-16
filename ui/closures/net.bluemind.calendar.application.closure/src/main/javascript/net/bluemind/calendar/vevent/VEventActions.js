@@ -338,7 +338,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.duplicate = function(e) {
       model.attendees.push(model.organizer);
       model.organizer = {'commonName' : calendar.name, 'dir' : calendar.dir }
     }
-    if (model.state.meeting) {
+    if (model.states.meeting) {
       this.resetAttendeesStatus_(model.attendees);
     }
     model.states.updatable = true;
