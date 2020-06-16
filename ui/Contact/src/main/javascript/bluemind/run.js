@@ -30,7 +30,7 @@ goog.require("net.bluemind.contact.ContactApplication");
 window["bundles"]["contact"] = {
   start: function () {
     new net.bluemind.contact.ContactApplication();
-  },
+  }
 };
 
 bundleListener("contact");
