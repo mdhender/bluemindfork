@@ -284,7 +284,7 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
   >
     <svg
       aria-hidden="true"
-      class="svg-inline--fa fa-flag-fill fa-w-16 fa-2x"
+      class="text-warning svg-inline--fa fa-flag-fill fa-w-16 fa-2x"
       data-icon="flag-fill"
       data-prefix="fas"
       focusable="false"
