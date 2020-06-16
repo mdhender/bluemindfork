@@ -209,7 +209,7 @@ public final class ClientSupport {
 					logger.warn("imap connection is already stop");
 				}
 			}
-			session.closeNow();
+			session.close();
 		}
 	}
 
