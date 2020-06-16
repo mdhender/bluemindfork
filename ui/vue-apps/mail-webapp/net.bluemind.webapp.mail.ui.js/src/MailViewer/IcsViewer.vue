@@ -1,21 +1,21 @@
 <template>
     <div class="ics-viewer">
-        <div class="header px-3 pt-2 pb-3">
+        <div class="header px-3 pt-2 pb-3 bg-extra-light">
             <bm-label-icon icon="event" class="font-weight-bold mb-1 d-block">
                 <template v-if="currentEvent.status === 'NeedsAction'">{{ $t("mail.ics") }}</template>
                 <template v-else>{{ $t("mail.ics.already_answered") }}</template>
             </bm-label-icon>
             <div v-if="currentEvent && message.ics.needsReply">
-                <div v-if="currentEvent.status === 'NeedsAction' || wantToEdit" class="needs-action">
-                    <bm-button variant="simple" class="mr-2 px-1" @click="answer('Accepted')">
+                <div v-if="hasToChoose" class="mt-3">
+                    <bm-button variant="outline-primary" class="mr-2 px-1" @click="answer('Accepted')">
                         <bm-label-icon icon="check" icon-size="lg">{{ $t("common.accept") }}</bm-label-icon>
                     </bm-button>
-                    <bm-button variant="simple" class="mr-2 px-1" @click="answer('Tentative')">
+                    <bm-button variant="outline-primary" class="mr-2 px-1" @click="answer('Tentative')">
                         <bm-label-icon icon="interrogation" icon-size="lg">{{
                             $t("common.accept.temporarily")
                         }}</bm-label-icon>
                     </bm-button>
-                    <bm-button variant="simple" class="px-1" @click="answer('Declined')">
+                    <bm-button variant="outline-primary" class="px-1" @click="answer('Declined')">
                         <bm-label-icon icon="cross" icon-size="lg">{{ $t("common.refuse") }}</bm-label-icon>
                     </bm-button>
                 </div>
@@ -29,7 +29,7 @@
                     <bm-label-icon v-else-if="currentEvent.status === 'Declined'" icon="cross" icon-size="lg">
                         {{ $t("mail.ics.refused") }}
                     </bm-label-icon>
-                    <bm-button variant="outline-secondary" @click="wantToEdit = true">
+                    <bm-button variant="outline-secondary" @click="hasToChoose = true">
                         {{ $t("common.edit.answer") }}
                     </bm-button>
                 </div>
@@ -92,7 +92,7 @@ export default {
                 { text: this.$t("common.invitation"), value: "invitation" }
             ],
             selectedChoice: 0,
-            wantToEdit: false
+            hasToChoose: true
         };
     },
     computed: {
@@ -102,11 +102,14 @@ export default {
             return this.currentEvent.attendees.length;
         }
     },
+    mounted() {
+        this.hasToChoose = this.currentEvent.status === "NeedsAction";
+    },
     methods: {
         ...mapActions("mail-webapp", ["setEventStatus"]),
         answer(status) {
             this.setEventStatus(status);
-            this.wantToEdit = false;
+            this.hasToChoose = false;
         }
     }
 };
@@ -122,14 +125,6 @@ export default {
     }
 
     .header {
-        background-color: $calendar-light-color;
-        .needs-action {
-            .btn,
-            .btn:hover {
-                background-color: $calendar-color;
-                color: $white;
-            }
-        }
         .answered {
             .fa-check {
                 color: $green;

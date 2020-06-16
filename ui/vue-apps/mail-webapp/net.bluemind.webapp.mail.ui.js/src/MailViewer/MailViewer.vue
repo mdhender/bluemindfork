@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-viewer d-flex flex-column pb-2 flex-grow-1">
+    <div class="mail-viewer d-flex flex-column pb-2 flex-grow-1 bg-surface">
         <mail-component-alert
             v-if="!message.ics.isEmpty && !currentEvent && !isIcsAlertBlocked"
             icon="exclamation-circle"

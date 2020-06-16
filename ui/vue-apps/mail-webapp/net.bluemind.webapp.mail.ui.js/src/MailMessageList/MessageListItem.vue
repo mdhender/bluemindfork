@@ -142,6 +142,10 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
 
+.message-list-item .states .fa-event {
+    color: $calendar-color;
+}
+
 .message-list-item {
     cursor: pointer;
 

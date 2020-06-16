@@ -6,7 +6,7 @@
             :class="[anyMessageSelected ? 'd-block' : 'd-none']"
             @click.exact.native.prevent.stop="$emit('toggleSelect', message.key, true)"
         />
-        <component :is="state" v-if="!!state" />
+        <component :is="state" v-if="!!state" class="states" />
     </div>
 </template>
 
@@ -16,6 +16,10 @@ const STATE_COMPONENT = {
         components: { BmIcon },
         template: '<bm-icon icon="paper-clip"/>',
         priority: 99
+    },
+    ["is-ics"]: {
+        components: { BmIcon },
+        template: '<bm-icon icon="event"/>'
     }
 };
 
@@ -61,6 +65,10 @@ export default {
     min-width: $sp-2 + 1.3rem;
 
     $avatar-height: 1.3rem !important;
+
+    .states.fa-event {
+        color: $calendar-color;
+    }
 
     .bm-avatar {
         height: $avatar-height;

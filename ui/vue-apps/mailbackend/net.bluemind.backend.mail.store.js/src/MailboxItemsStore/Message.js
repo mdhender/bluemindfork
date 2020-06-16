@@ -156,6 +156,9 @@ function fromMailboxItem(item, message) {
         message.ics.eventUid = semiColonIndex === -1 ? icsHeaderValue : icsHeaderValue.substring(0, semiColonIndex);
     }
 
+    if (!message.ics.isEmpty) {
+        message.states.push("is-ics");
+    }
     if (mailboxItem.body.smartAttach) {
         message.states.push("has-attachment");
     }
