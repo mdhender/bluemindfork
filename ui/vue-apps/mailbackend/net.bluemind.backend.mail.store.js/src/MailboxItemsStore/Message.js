@@ -144,6 +144,7 @@ function fromMailboxItem(item, message) {
     message.uid = item.uid;
     message.id = item.internalId;
     message.imapUid = mailboxItem.imapUid;
+    // FIXME: move ics object computation into EventHelper
     message.ics = {
         isEmpty: !mailboxItem.body.headers.map(header => header.name).includes("X-BM-Event")
     };

@@ -1,19 +1,38 @@
 <template>
     <div class="ics-viewer">
-        <div class="header pl-3 pt-2 pb-3">
-            <bm-label-icon icon="event" class="font-weight-bold mb-3 d-block">{{ $t("mail.ics") }}</bm-label-icon>
+        <div class="header px-3 pt-2 pb-3">
+            <bm-label-icon icon="event" class="font-weight-bold mb-1 d-block">
+                <template v-if="currentEvent.status === 'NeedsAction'">{{ $t("mail.ics") }}</template>
+                <template v-else>{{ $t("mail.ics.already_answered") }}</template>
+            </bm-label-icon>
             <div v-if="currentEvent && message.ics.needsReply">
-                <bm-button variant="simple" class="mr-2 px-1">
-                    <bm-label-icon icon="check" icon-size="lg">{{ $t("common.accept") }}</bm-label-icon>
-                </bm-button>
-                <bm-button variant="simple" class="mr-2 px-1">
-                    <bm-label-icon icon="interrogation" icon-size="lg">{{
-                        $t("common.accept.temporarily")
-                    }}</bm-label-icon>
-                </bm-button>
-                <bm-button variant="simple" class="px-1">
-                    <bm-label-icon icon="cross" icon-size="lg">{{ $t("common.refuse") }}</bm-label-icon>
-                </bm-button>
+                <div v-if="currentEvent.status === 'NeedsAction' || wantToEdit" class="needs-action">
+                    <bm-button variant="simple" class="mr-2 px-1" @click="answer('Accepted')">
+                        <bm-label-icon icon="check" icon-size="lg">{{ $t("common.accept") }}</bm-label-icon>
+                    </bm-button>
+                    <bm-button variant="simple" class="mr-2 px-1" @click="answer('Tentative')">
+                        <bm-label-icon icon="interrogation" icon-size="lg">{{
+                            $t("common.accept.temporarily")
+                        }}</bm-label-icon>
+                    </bm-button>
+                    <bm-button variant="simple" class="px-1" @click="answer('Declined')">
+                        <bm-label-icon icon="cross" icon-size="lg">{{ $t("common.refuse") }}</bm-label-icon>
+                    </bm-button>
+                </div>
+                <div v-else class="answered d-flex pl-4">
+                    <bm-label-icon v-if="currentEvent.status === 'Accepted'" icon="check" icon-size="lg">
+                        {{ $t("mail.ics.accepted") }}
+                    </bm-label-icon>
+                    <bm-label-icon v-else-if="currentEvent.status === 'Tentative'" icon="interrogation" icon-size="lg">
+                        {{ $t("mail.ics.accepted.temporarily") }}
+                    </bm-label-icon>
+                    <bm-label-icon v-else-if="currentEvent.status === 'Declined'" icon="cross" icon-size="lg">
+                        {{ $t("mail.ics.refused") }}
+                    </bm-label-icon>
+                    <bm-button variant="outline-secondary" @click="wantToEdit = true">
+                        {{ $t("common.edit.answer") }}
+                    </bm-button>
+                </div>
             </div>
         </div>
         <bm-choice-group
@@ -54,7 +73,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 import { BmButton, BmChoiceGroup, BmLabelIcon } from "@bluemind/styleguide";
 import PartsViewer from "./PartsViewer/PartsViewer";
 
@@ -72,7 +91,8 @@ export default {
                 { text: this.$t("common.message"), value: "message" },
                 { text: this.$t("common.invitation"), value: "invitation" }
             ],
-            selectedChoice: 0
+            selectedChoice: 0,
+            wantToEdit: false
         };
     },
     computed: {
@@ -80,6 +100,13 @@ export default {
         ...mapState("mail-webapp", ["currentEvent"]),
         attendeesLength() {
             return this.currentEvent.attendees.length;
+        }
+    },
+    methods: {
+        ...mapActions("mail-webapp", ["setEventStatus"]),
+        answer(status) {
+            this.setEventStatus(status);
+            this.wantToEdit = false;
         }
     }
 };
@@ -96,11 +123,26 @@ export default {
 
     .header {
         background-color: $calendar-light-color;
+        .needs-action {
+            .btn,
+            .btn:hover {
+                background-color: $calendar-color;
+                color: $white;
+            }
+        }
+        .answered {
+            .fa-check {
+                color: $green;
+            }
 
-        .btn,
-        .btn:hover {
-            background-color: $calendar-color;
-            color: $white;
+            .fa-cross {
+                color: $red;
+            }
+
+            .bm-label-icon {
+                margin-right: auto;
+                align-self: center;
+            }
         }
     }
 

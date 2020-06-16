@@ -37,5 +37,6 @@
     "common.accept": "Accepter",
     "common.accept.temporarily": "Accepter provisoirement",
     "common.refuse": "Refuser",
-    "common.invitation": "invitation"
+    "common.invitation": "invitation",
+    "common.edit.answer": "Modifier votre réponse"
 }

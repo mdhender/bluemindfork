@@ -1,3 +1,5 @@
+// FIXME: move to new store
+
 import { DateComparator } from "@bluemind/date";
 import injector from "@bluemind/inject";
 
@@ -11,7 +13,10 @@ export default {
                 mail: main.organizer.mailto
             },
             date: adaptDate(main.dtstart, main.dtend),
-            attendees: main.attendees.map(attendee => ({ name: attendee.commonName, mail: attendee.mailto }))
+            attendees: main.attendees.map(attendee => ({ name: attendee.commonName, mail: attendee.mailto })),
+            status: adaptStatus(main.attendees),
+            uid: event.uid,
+            serverEvent: event
         };
     }
 };
@@ -65,4 +70,9 @@ function adaptDate(dtstart, dtend) {
             vueI18n.d(endDate, "full_date_time")
         );
     }
+}
+
+function adaptStatus(attendees) {
+    const userSession = injector.getProvider("UserSession").get();
+    return attendees.find(a => a.mailto === userSession.defaultEmail).partStatus;
 }

@@ -4,7 +4,8 @@ import EventHelper from "./EventHelper";
 import injector from "@bluemind/inject";
 
 const actions = {
-    fetchEvent
+    fetchEvent,
+    setEventStatus
 };
 
 async function fetchEvent({ commit }, eventUid) {
@@ -18,9 +19,25 @@ async function fetchEvent({ commit }, eventUid) {
     commit("setCurrentEvent", event);
 }
 
+async function setEventStatus({ state, commit }, status) {
+    commit("setCurrentEventStatus", status);
+    return await injector
+        .getProvider("CalendarPersistence")
+        .get()
+        .update(state.currentEvent.uid, state.currentEvent.serverEvent.value, true);
+}
+
 const mutations = {
     setCurrentEvent(state, event) {
         state.currentEvent = event;
+    },
+    setCurrentEventStatus(state, status) {
+        state.currentEvent.status = status;
+
+        const userSession = injector.getProvider("UserSession").get();
+        state.currentEvent.serverEvent.value.main.attendees.find(
+            a => a.mailto === userSession.defaultEmail
+        ).partStatus = status;
     }
 };
 
