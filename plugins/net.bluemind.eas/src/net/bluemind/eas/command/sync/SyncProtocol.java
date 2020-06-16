@@ -197,7 +197,11 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			EventBus eb = VertxPlatform.eventBus();
 			eb.request("eas.push.killer." + bs.getUser().getUid(), jso, (AsyncResult<Message<Void>> event) -> {
 				logger.info("Push stopped for {}", bs.getUser().getUid());
-				executeSync(bs, sr, responseHandler);
+				VertxPlatform.getVertx().executeBlocking(prop -> {
+					executeSync(bs, sr, responseHandler);
+					prop.complete();
+				}, false, res -> {
+				});
 			});
 		} else {
 			logger.info("Sync push mode. user: {}, device: {}, collections size: {}", bs.getLoginAtDomain(),
