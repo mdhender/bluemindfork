@@ -51,10 +51,6 @@ public class ChangelogStore extends JdbcAbstractStore {
 
 	private final Container container;
 
-	private final String flaggedChangesetQuery;
-
-	private final String changesetQuery;
-
 	private class ChangelogStatementValues implements StatementValues<LogEntry> {
 
 		private byte type;
@@ -130,8 +126,6 @@ public class ChangelogStore extends JdbcAbstractStore {
 	public ChangelogStore(DataSource pool, Container container) {
 		super(pool);
 		this.container = container;
-		this.changesetQuery = String.format(CHANGESET_QUERY, container.id);
-		this.flaggedChangesetQuery = String.format(FLAGGED_CHANGESET_QUERY, container.id);
 	}
 
 	public static class LogEntry {
@@ -167,12 +161,14 @@ public class ChangelogStore extends JdbcAbstractStore {
 			+ "INSERT INTO t_container_changelog (version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed) select version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed from lock";
 
 	private static final String CHANGESET_QUERY = "SELECT version, type, item_uid, item_id, weight_seed "
-			+ " FROM t_container_changeset_%s WHERE container_id = ? AND version > ? order by item_id, version";
+			+ " FROM t_container_changeset WHERE container_id = ? AND version > ? order by item_id, version";
 
 	private static final String FLAGGED_CHANGESET_QUERY = "SELECT cl.version, cl.type, cl.item_uid, cl.item_id, ci.flags, cl.weight_seed "
-			+ " FROM t_container_changeset_%s cl "//
+			+ " FROM t_container_changeset cl "//
 			+ " LEFT JOIN t_container_item ci ON (ci.container_id=cl.container_id AND ci.id=cl.item_id AND ci.version=cl.version) "//
 			+ "WHERE cl.container_id = ? AND cl.version > ? order by cl.item_id, cl.version";
+
+	private static final String DELETE_CHANGESET_QUERY = "DELETE FROM t_container_changeset WHERE container_id = ?";
 
 	private static final Creator<ChangeLogEntry> CREATOR = con -> new ChangeLogEntry();
 
@@ -226,7 +222,7 @@ public class ChangelogStore extends JdbcAbstractStore {
 	}
 
 	public ContainerChangeset<String> changeset(IWeightProvider wp, long from, long to) throws SQLException {
-		List<ChangeLogEntry> entries = select(changesetQuery, CREATOR, new LightChangelogEntryPopulator(),
+		List<ChangeLogEntry> entries = select(CHANGESET_QUERY, CREATOR, new LightChangelogEntryPopulator(),
 				new Object[] { container.id, from });
 
 		return ChangelogUtils.toChangeset(wp, from, entries, entry -> entry.itemUid, ItemFlagFilter.all());
@@ -238,34 +234,36 @@ public class ChangelogStore extends JdbcAbstractStore {
 	}
 
 	public ContainerChangeset<Long> changesetById(IWeightProvider wp, long from, long to) throws SQLException {
-		List<ChangeLogEntry> entries = select(changesetQuery, CREATOR, new LightChangelogEntryPopulator(),
+		List<ChangeLogEntry> entries = select(CHANGESET_QUERY, CREATOR, new LightChangelogEntryPopulator(),
 				new Object[] { container.id, from });
 		return ChangelogUtils.toChangeset(wp, from, entries, entry -> entry.internalId, ItemFlagFilter.all());
 	}
 
 	public ContainerChangeset<ItemVersion> changesetById(long from, long to, ItemFlagFilter filter)
 			throws SQLException {
-		List<FlaggedChangeLogEntry> entries = select(flaggedChangesetQuery, con -> new FlaggedChangeLogEntry(),
+		List<FlaggedChangeLogEntry> entries = select(FLAGGED_CHANGESET_QUERY, con -> new FlaggedChangeLogEntry(),
 				new FlaggedChangelogEntryPopulator(), new Object[] { container.id, from });
 		return ChangelogUtils.toChangeset(s -> s, from, entries, entry -> new ItemVersion(entry), filter);
 	}
 
 	public ContainerChangeset<ItemVersion> changesetById(IWeightProvider wp, long from, long to, ItemFlagFilter filter)
 			throws SQLException {
-		List<FlaggedChangeLogEntry> entries = select(flaggedChangesetQuery, con -> new FlaggedChangeLogEntry(),
+		List<FlaggedChangeLogEntry> entries = select(FLAGGED_CHANGESET_QUERY, con -> new FlaggedChangeLogEntry(),
 				new FlaggedChangelogEntryPopulator(), new Object[] { container.id, from });
 		return ChangelogUtils.toChangeset(wp, from, entries, entry -> new ItemVersion(entry), filter);
 	}
 
 	public ContainerChangeset<ItemIdentifier> fullChangesetById(IWeightProvider wp, long from, long to)
 			throws SQLException {
-		List<FlaggedChangeLogEntry> entries = select(flaggedChangesetQuery, con -> new FlaggedChangeLogEntry(),
+		List<FlaggedChangeLogEntry> entries = select(FLAGGED_CHANGESET_QUERY, con -> new FlaggedChangeLogEntry(),
 				new FlaggedChangelogEntryPopulator(), new Object[] { container.id, from });
 		return ChangelogUtils.toChangeset(wp, from, entries, entry -> new ItemIdentifier(entry), ItemFlagFilter.all());
 	}
 
 	public void deleteLog() throws SQLException {
 		delete("delete from t_container_changelog where container_id = ?", new Object[] { container.id });
+		delete(DELETE_CHANGESET_QUERY, new Object[] { container.id });
+
 	}
 
 	public void insertLog(List<ChangeLogEntry> entries) throws SQLException {
