@@ -121,6 +121,10 @@ function getDateTimeFormats() {
             day: "2-digit",
             month: "2-digit"
         },
+        day_month: {
+            day: "2-digit",
+            month: "long"
+        },
         full_date: {
             weekday: "short",
             day: "2-digit",
@@ -137,6 +141,14 @@ function getDateTimeFormats() {
             weekday: "long",
             day: "2-digit",
             month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        },
+        full_date_time_long: {
+            weekday: "long",
+            day: "2-digit",
+            month: "long",
             year: "numeric",
             hour: "2-digit",
             minute: "2-digit"

@@ -2,18 +2,20 @@
     <div class="ics-viewer">
         <div class="header px-3 pt-2 pb-3 bg-extra-light">
             <bm-label-icon icon="event" class="font-weight-bold mb-1 d-block">
-                <template v-if="currentEvent.status === 'NeedsAction'">{{ $t("mail.ics") }}</template>
+                <template v-if="currentEvent.status === 'NeedsAction' || !currentEvent.status">
+                    {{ $t("mail.ics") }}
+                </template>
                 <template v-else>{{ $t("mail.ics.already_answered") }}</template>
             </bm-label-icon>
-            <div v-if="currentEvent && message.ics.needsReply">
-                <div v-if="hasToChoose" class="mt-3">
+            <div v-if="message.ics.needsReply && currentEvent.status">
+                <div v-if="currentEvent.status === 'NeedsAction' || openChangeStatus" class="mt-3">
                     <bm-button variant="outline-primary" class="mr-2 px-1" @click="answer('Accepted')">
                         <bm-label-icon icon="check" icon-size="lg">{{ $t("common.accept") }}</bm-label-icon>
                     </bm-button>
                     <bm-button variant="outline-primary" class="mr-2 px-1" @click="answer('Tentative')">
-                        <bm-label-icon icon="interrogation" icon-size="lg">{{
-                            $t("common.accept.temporarily")
-                        }}</bm-label-icon>
+                        <bm-label-icon icon="interrogation" icon-size="lg">
+                            {{ $t("common.accept.tentatively") }}
+                        </bm-label-icon>
                     </bm-button>
                     <bm-button variant="outline-primary" class="px-1" @click="answer('Declined')">
                         <bm-label-icon icon="cross" icon-size="lg">{{ $t("common.refuse") }}</bm-label-icon>
@@ -24,12 +26,12 @@
                         {{ $t("mail.ics.accepted") }}
                     </bm-label-icon>
                     <bm-label-icon v-else-if="currentEvent.status === 'Tentative'" icon="interrogation" icon-size="lg">
-                        {{ $t("mail.ics.accepted.temporarily") }}
+                        {{ $t("mail.ics.accepted.tentatively") }}
                     </bm-label-icon>
                     <bm-label-icon v-else-if="currentEvent.status === 'Declined'" icon="cross" icon-size="lg">
-                        {{ $t("mail.ics.refused") }}
+                        {{ $t("mail.ics.declined") }}
                     </bm-label-icon>
-                    <bm-button variant="outline-secondary" @click="hasToChoose = true">
+                    <bm-button variant="outline-secondary" @click="openChangeStatus = true">
                         {{ $t("common.edit.answer") }}
                     </bm-button>
                 </div>
@@ -92,7 +94,7 @@ export default {
                 { text: this.$t("common.invitation"), value: "invitation" }
             ],
             selectedChoice: 0,
-            hasToChoose: true
+            openChangeStatus: false
         };
     },
     computed: {
@@ -102,14 +104,16 @@ export default {
             return this.currentEvent.attendees.length;
         }
     },
-    mounted() {
-        this.hasToChoose = this.currentEvent.status === "NeedsAction";
+    watch: {
+        currentEvent() {
+            this.openChangeStatus = false;
+        }
     },
     methods: {
         ...mapActions("mail-webapp", ["setEventStatus"]),
         answer(status) {
             this.setEventStatus(status);
-            this.hasToChoose = false;
+            this.openChangeStatus = false;
         }
     }
 };

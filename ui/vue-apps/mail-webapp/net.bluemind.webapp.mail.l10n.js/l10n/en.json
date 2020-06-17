@@ -163,8 +163,8 @@
     "mail.ics": "This message contains an invitation",
     "mail.ics.got_invited": "invited you at",
     "mail.ics.already_answered": "This message contains an invitation which has already been processed",
-    "mail.ics.refused": "You refused the invitation",
-    "mail.ics.accepted": "You accepted the invitation",
-    "mail.ics.accepted.temporarily": "You accepted temporarily the invitation",
+    "mail.ics.declined": "You declined the invite",
+    "mail.ics.accepted": "You accepted the invite",
+    "mail.ics.accepted.tentatively": "You tentatively accepted the invite",
     "mail.content.alert.ics.dont_exist": "This message references an event which does not exist"
 }

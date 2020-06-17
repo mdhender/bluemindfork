@@ -164,8 +164,8 @@
     "mail.ics": "Ce message contient une invitation",
     "mail.ics.got_invited": "vous a invité à",
     "mail.ics.already_answered": "Ce message contient une invitation qui a déjà été traitée",
-    "mail.ics.refused": "Vous avez refusé l'invitation",
+    "mail.ics.declined": "Vous avez refusé l'invitation",
     "mail.ics.accepted": "Vous avez accepté l'invitation",
-    "mail.ics.accepted.temporarily": "Vous avez accepté provisoirement l'invitation",
+    "mail.ics.accepted.tentatively": "Vous avez accepté provisoirement l'invitation",
     "mail.content.alert.ics.dont_exist": "Ce message fait référence à un évènement qui n'existe pas dans votre calendrier"
 }
