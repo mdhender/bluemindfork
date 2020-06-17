@@ -462,6 +462,7 @@
       <plugin id="org.xhtmlrenderer.flying-saucer-core"/>
       <plugin id="org.xhtmlrenderer.flying-saucer-pdf"/>
       <plugin id="slf4j.api"/>
+      <plugin id="org.ini4j"/>
       <plugin id="xpp3"/>
    </plugins>
 

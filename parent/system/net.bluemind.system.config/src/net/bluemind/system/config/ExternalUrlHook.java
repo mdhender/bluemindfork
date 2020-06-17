@@ -18,8 +18,12 @@
  */
 package net.bluemind.system.config;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Map;
 
+import org.ini4j.Ini;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +32,12 @@ import com.google.common.base.Strings;
 import net.bluemind.core.api.Regex;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.node.api.INodeClient;
+import net.bluemind.node.api.NodeActivator;
+import net.bluemind.server.api.Server;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.hook.ISystemConfigurationObserver;
@@ -38,6 +47,8 @@ import net.bluemind.system.nginx.NginxService;
 
 public class ExternalUrlHook
 		implements ISystemConfigurationObserver, ISystemConfigurationSanitizor, ISystemConfigurationValidator {
+	private static final String BMINI = "/etc/bm/bm.ini";
+
 	private static Logger logger = LoggerFactory.getLogger(ExternalUrlHook.class);
 
 	@Override
@@ -53,6 +64,36 @@ public class ExternalUrlHook
 		logger.info("System configuration {} has been updated, changed to {}", SysConfKeys.external_url.name(),
 				externalUrl);
 		new NginxService().updateExternalUrl(externalUrl);
+
+		updateBmIni(externalUrl);
+	}
+
+	private void updateBmIni(String externalUrl) {
+		INodeClient nc = NodeActivator.get(Topology.get().core().value.address());
+		Ini iniFile;
+		try {
+			iniFile = new Ini(new ByteArrayInputStream(nc.read(BMINI)));
+		} catch (IOException e) {
+			logger.error("Unable to read {}", BMINI, e);
+			throw new ServerFault(e);
+		}
+
+		iniFile.get("global").put("external-url", externalUrl);
+
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			iniFile.store(baos);
+		} catch (IOException e) {
+			logger.error("Unable to write {}", BMINI, e);
+			throw new ServerFault(e);
+		}
+
+		byte[] iniFileContent = baos.toByteArray();
+		Topology.get().nodes().forEach(server -> updateBmIni(server, iniFileContent));
+	}
+
+	private void updateBmIni(ItemValue<Server> server, byte[] iniFile) {
+		NodeActivator.get(server.value.address()).writeFile(BMINI, new ByteArrayInputStream(iniFile));
 	}
 
 	@Override
