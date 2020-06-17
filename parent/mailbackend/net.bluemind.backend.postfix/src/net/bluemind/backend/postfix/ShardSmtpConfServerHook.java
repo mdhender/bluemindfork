@@ -32,8 +32,8 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.hook.DefaultServerHook;
-import net.bluemind.tag.api.TagDescriptor;
 
 public class ShardSmtpConfServerHook extends DefaultServerHook {
 

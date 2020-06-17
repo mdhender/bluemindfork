@@ -45,7 +45,7 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
-import net.bluemind.tag.api.TagDescriptor;
+import net.bluemind.server.api.TagDescriptor;
 
 public class NginxService {
 	private static Logger logger = LoggerFactory.getLogger(NginxService.class);

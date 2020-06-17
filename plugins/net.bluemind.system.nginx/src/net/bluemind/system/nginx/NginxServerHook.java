@@ -35,10 +35,10 @@ import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.hook.DefaultServerHook;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
-import net.bluemind.tag.api.TagDescriptor;
 
 public class NginxServerHook extends DefaultServerHook {
 	private static Logger logger = LoggerFactory.getLogger(NginxServerHook.class);

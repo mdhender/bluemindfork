@@ -31,10 +31,10 @@ import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.client.AHCNodeClientFactory;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.hook.DefaultServerHook;
 import net.bluemind.system.api.GlobalSettingsKeys;
 import net.bluemind.system.api.IGlobalSettings;
-import net.bluemind.tag.api.TagDescriptor;
 
 public class FileHostingServerHook extends DefaultServerHook {
 

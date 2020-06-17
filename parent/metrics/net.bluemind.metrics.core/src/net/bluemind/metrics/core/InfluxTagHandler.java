@@ -39,6 +39,7 @@ import net.bluemind.metrics.core.tick.TickInputConfigurator;
 import net.bluemind.network.utils.NetworkHelper;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.nginx.NginxService;
 
 public class InfluxTagHandler extends TickInputConfigurator {
@@ -47,7 +48,7 @@ public class InfluxTagHandler extends TickInputConfigurator {
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals("metrics/influxdb")) {
+		if (!tag.equals(TagDescriptor.bm_metrics_influx.name())) {
 			return;
 		}
 
@@ -96,7 +97,7 @@ public class InfluxTagHandler extends TickInputConfigurator {
 
 	@Override
 	public void onServerUntagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals("metrics/influxdb")) {
+		if (!tag.equals(TagDescriptor.bm_metrics_influx.name())) {
 			return;
 		}
 

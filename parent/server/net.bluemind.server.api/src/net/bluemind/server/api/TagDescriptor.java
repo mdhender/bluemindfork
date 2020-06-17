@@ -16,9 +16,8 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.tag.api;
+package net.bluemind.server.api;
 
-// FIXME should not be here.. tags != server tags
 public enum TagDescriptor {
 	bm_redirector("bm/redirector"), //
 	bm_settings("bm/settings"), //
@@ -35,6 +34,7 @@ public enum TagDescriptor {
 	bm_pgsql("bm/pgsql"), //
 	bm_contact("bm/contact"), //
 	mail_smtp_edge("mail/smtp-edge"), //
+	bm_metrics_influx("metrics/influxdb"), //
 	bm_filehosting("filehosting/data");
 
 	private final String tag;

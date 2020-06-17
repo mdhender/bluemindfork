@@ -28,11 +28,11 @@ import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.client.AHCNodeClientFactory;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.hook.DefaultServerHook;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.config.MessageSizeValue;
-import net.bluemind.tag.api.TagDescriptor;
 
 public class WebmailHook extends DefaultServerHook {
 
