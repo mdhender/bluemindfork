@@ -23,8 +23,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import javax.sql.DataSource;
 
-import net.bluemind.core.api.BMVersion;
-import net.bluemind.core.api.VersionInfo;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.system.schemaupgrader.UpdateAction;
@@ -32,11 +30,7 @@ import net.bluemind.system.schemaupgrader.UpdateResult;
 import net.bluemind.system.schemaupgrader.Updater;
 
 public class UpgradeExistingTags implements Updater {
-
-	private VersionInfo versionInfo;
-
 	public UpgradeExistingTags() {
-		this.versionInfo = VersionInfo.create(BMVersion.getVersion());
 	}
 
 	@Override

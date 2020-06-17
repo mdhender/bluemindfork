@@ -85,20 +85,23 @@ public class NginxService {
 	 * @throws ServerFault
 	 */
 	private List<String> getTaggedServers(TagDescriptor... tags) throws ServerFault {
-		Set<String> tagsAsString = new HashSet<>();
-		if (tags.length != 0) {
-			tagsAsString.addAll(Arrays.stream(tags)
-					.filter(tag -> tag == TagDescriptor.bm_nginx || tag == TagDescriptor.bm_nginx_edge)
-					.map(tag -> tag.getTag()).collect(Collectors.toList()));
-		} else {
-			tagsAsString.addAll(Arrays.asList(TagDescriptor.bm_nginx.getTag(), TagDescriptor.bm_nginx_edge.getTag()));
-		}
+		Set<String> tagsAsString = getTagAsString(tags);
 
 		return Topology.getIfAvailable()
 				.map(t -> t.nodes().stream()
 						.filter(server -> server.value.tags.stream().anyMatch(tag -> tagsAsString.contains(tag)))
 						.map(s -> s.value.address()).collect(Collectors.toList()))
 				.orElse(Arrays.asList("127.0.0.1"));
+	}
+
+	private Set<String> getTagAsString(TagDescriptor[] tags) {
+		if (tags.length != 0) {
+			return Arrays.stream(tags)
+					.filter(tag -> tag == TagDescriptor.bm_nginx || tag == TagDescriptor.bm_nginx_edge)
+					.map(TagDescriptor::getTag).collect(Collectors.toSet());
+		}
+
+		return new HashSet<>(Arrays.asList(TagDescriptor.bm_nginx.getTag(), TagDescriptor.bm_nginx_edge.getTag()));
 	}
 
 	private byte[] serverNameContent(String address) {
