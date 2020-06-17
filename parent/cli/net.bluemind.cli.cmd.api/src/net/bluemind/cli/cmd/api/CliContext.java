@@ -19,16 +19,17 @@ package net.bluemind.cli.cmd.api;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.fusesource.jansi.Ansi;
 
 import com.google.common.base.Suppliers;
 
+import net.bluemind.config.BmIni;
 import net.bluemind.config.Token;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
-import net.bluemind.network.topology.Topology;
 
 public class CliContext {
 
@@ -40,7 +41,7 @@ public class CliContext {
 	}
 
 	private ClientSideServiceProvider loadAdminServices() {
-		String core = Topology.getIfAvailable().map(t -> t.core().value.address()).orElse("127.0.0.1");
+		String core = Optional.ofNullable(BmIni.value("external-url")).orElse("127.0.0.1");
 		return ClientSideServiceProvider.getProvider("http://" + core + ":8090", Token.admin0());
 	}
 
