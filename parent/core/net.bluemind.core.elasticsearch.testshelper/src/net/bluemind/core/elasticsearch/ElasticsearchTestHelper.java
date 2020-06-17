@@ -25,6 +25,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
+import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
@@ -37,6 +38,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.io.Files;
 
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.node.api.INodeClient;
+import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
 
 public class ElasticsearchTestHelper implements BundleActivator {
@@ -79,12 +82,7 @@ public class ElasticsearchTestHelper implements BundleActivator {
 			return cli;
 		}
 
-		BmConfIni conf = new BmConfIni();
-		String host = conf.get("es-host");
-
-		if (host == null) {
-			host = conf.get("host");
-		}
+		String host = getHost();
 
 		String mcastId = null;
 		File mcastIdFile = new File("/etc/bm/mcast.id");
@@ -141,16 +139,26 @@ public class ElasticsearchTestHelper implements BundleActivator {
 	}
 
 	public void beforeTest(int count) {
-		System.setProperty("es.mailspool.count", count + "");
+		try {
+			System.setProperty("es.mailspool.count", count + "");
 
-		ESearchActivator.initClient(getClient());
-		ESearchActivator.resetAll();
-		ESearchActivator.resetIndex("mailspool_pending");
-		ESearchActivator.resetIndex("mailspool");
-		ESearchActivator.resetIndex("contact");
-		ESearchActivator.resetIndex("event");
-		ESearchActivator.resetIndex("todo");
-		ESearchActivator.resetIndex("im");
+			ESearchActivator.initClient(getClient());
+			ESearchActivator.resetAll();
+			ESearchActivator.resetIndex("mailspool_pending");
+			ESearchActivator.resetIndex("mailspool");
+			ESearchActivator.resetIndex("contact");
+			ESearchActivator.resetIndex("event");
+			ESearchActivator.resetIndex("todo");
+			ESearchActivator.resetIndex("im");
+		} catch (NoNodeAvailableException n) {
+			logger.error(n.getMessage(), n);
+			String host = getHost();
+			System.err.println("Starting checks on " + host + "...");
+			INodeClient node = NodeActivator.get(host);
+			byte[] fetched = node.read("/var/log/bm-elasticsearch/bluemind.log");
+			System.err.println("ES log in docker:'\n" + new String(fetched) + "'\n");
+			throw n;
+		}
 
 	}
 
