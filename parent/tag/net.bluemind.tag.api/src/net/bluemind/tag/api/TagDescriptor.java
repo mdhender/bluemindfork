@@ -35,8 +35,7 @@ public enum TagDescriptor {
 	bm_pgsql("bm/pgsql"), //
 	bm_contact("bm/contact"), //
 	mail_smtp_edge("mail/smtp-edge"), //
-	bm_filehosting("filehosting/data"), //
-	bm_metrics_influx("metrics/influxdb");
+	bm_filehosting("filehosting/data");
 
 	private final String tag;
 
