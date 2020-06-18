@@ -74,10 +74,8 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 
 	}
 
-	private static Cache<String, ValidatedAuth> validated = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterWrite(10, TimeUnit.MINUTES)
-			.build();
+	private static Cache<String, ValidatedAuth> validated = CacheBuilder.newBuilder().recordStats()
+			.expireAfterWrite(10, TimeUnit.MINUTES).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override
@@ -208,7 +206,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 			loginResp.whenComplete((loginRespAndRouting, ex) -> {
 				r.resume();
 				if (ex != null) {
-					logger.warn("{}", ex.getMessage());
+					logger.warn("auth problem, check core.log ({})", ex.getMessage());
 					r.response().putHeader("WWW-Authenticate", "Basic realm=\"bm.basic.auth\"").setStatusCode(401)
 							.end();
 				} else if (loginRespAndRouting == null) {
