@@ -341,6 +341,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.duplicate = function(e) {
     if (model.states.meeting) {
       this.resetAttendeesStatus_(model.attendees);
     }
+    model.exdate = [];
     model.states.updatable = true;
     model.uid = net.bluemind.mvp.UID.generate();
     model.calendar = calendar.uid;
