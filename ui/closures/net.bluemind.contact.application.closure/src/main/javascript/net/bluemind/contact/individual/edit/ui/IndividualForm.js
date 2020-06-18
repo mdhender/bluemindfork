@@ -290,8 +290,6 @@ net.bluemind.contact.individual.edit.ui.IndividualForm.prototype.setModel = func
   }
   this.hiddenFields();
 
-  this.getChild('header').getChild('fullname').focus();
-
 };
 
 /** @override */
