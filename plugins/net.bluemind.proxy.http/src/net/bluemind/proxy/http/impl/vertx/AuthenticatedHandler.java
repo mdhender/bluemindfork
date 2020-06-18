@@ -43,7 +43,6 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.http.RequestOptions;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.metrics.registry.IdFactory;
-import net.bluemind.proxy.http.IDecorableRequest;
 import net.bluemind.proxy.http.InvalidSession;
 import net.bluemind.proxy.http.config.ForwardedLocation;
 import net.bluemind.proxy.http.config.ForwardedLocation.ResolvedLoc;
@@ -140,16 +139,12 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 
 				clientResp.setStatusCode(upstreamResp.statusCode());
 				final AtomicLong writtenToClient = new AtomicLong();
-				upstreamResp.handler(new Handler<Buffer>() {
-					public void handle(Buffer data) {
-						writtenToClient.addAndGet(data.length());
-						clientResp.write(data);
-						if (clientResp.writeQueueFull()) {
-							upstreamResp.pause();
-							clientResp.drainHandler(event -> {
-								upstreamResp.resume();
-							});
-						}
+				upstreamResp.handler((Buffer data) -> {
+					writtenToClient.addAndGet(data.length());
+					clientResp.write(data);
+					if (clientResp.writeQueueFull()) {
+						upstreamResp.pause();
+						clientResp.drainHandler(event -> upstreamResp.resume());
 					}
 				});
 				upstreamResp.endHandler(v -> {
@@ -168,13 +163,7 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 		final MultiMap cHeaders = clientReq.headers();
 		if (userReq.provider != null) {
 			try {
-				userReq.provider.decorate(userReq.sessionId, new IDecorableRequest() {
-
-					@Override
-					public void addHeader(String n, String v) {
-						cHeaders.add(n, v);
-					}
-				});
+				userReq.provider.decorate(userReq.sessionId, cHeaders::add);
 			} catch (InvalidSession e) {
 				userReq.fromClient.response().setStatusCode(302);
 				userReq.fromClient.response().headers().add("Location", "/bluemind_sso_logout");
@@ -183,41 +172,37 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 			}
 		}
 		upstreamReq.setTimeout(30000);
-		upstreamReq.exceptionHandler(new Handler<Throwable>() {
-
-			@Override
-			public void handle(Throwable event) {
-				logger.error(clientReq.method() + " " + clientReq.uri() + " error: " + event.getMessage(), event);
-				String message = event.getMessage();
-				if (message == null) {
-					message = "Internal Server Error";
-				}
-				clientResp.setStatusCode(500).setStatusMessage(message).end();
-
+		upstreamReq.exceptionHandler((Throwable event) -> {
+			if (clientResp.ended()) {
+				logger.warn("{} Skipping response ({})", clientReq.uri(), event.getMessage());
+				return;
 			}
+			logger.error("{} {} error: {}", clientReq.method(), clientReq.uri(), event.getMessage(), event);
+			String message = event.getMessage();
+			if (message == null) {
+				message = "Internal Server Error";
+			}
+			clientResp.setStatusCode(500).setStatusMessage(message).end();
+
 		});
 		cHeaders.remove("Connection");
 
 		upstreamReq.headers().setAll(cHeaders);
 		final AtomicLong writtenToUpstream = new AtomicLong();
-		clientReq.exceptionHandler(new Handler<Throwable>() {
-
-			@Override
-			public void handle(Throwable event) {
-				logger.error("Client req error: " + event.getMessage(), event);
-				clientResp.setStatusCode(500).setStatusMessage("Internal Server Error").end();
+		clientReq.exceptionHandler((Throwable event) -> {
+			if (clientResp.ended()) {
+				logger.warn("Skipping resp for {}", event.getMessage());
+				return;
 			}
+			logger.error("Client req error: {}", event.getMessage(), event);
+			clientResp.setStatusCode(500).setStatusMessage("Internal Server Error").end();
 		});
-		clientReq.handler(new Handler<Buffer>() {
-			public void handle(Buffer data) {
-				writtenToUpstream.addAndGet(data.length());
-				upstreamReq.write(data);
-				if (upstreamReq.writeQueueFull()) {
-					clientReq.pause();
-					upstreamReq.drainHandler(event -> {
-						clientReq.resume();
-					});
-				}
+		clientReq.handler((Buffer data) -> {
+			writtenToUpstream.addAndGet(data.length());
+			upstreamReq.write(data);
+			if (upstreamReq.writeQueueFull()) {
+				clientReq.pause();
+				upstreamReq.drainHandler(event -> clientReq.resume());
 			}
 		});
 
@@ -251,7 +236,7 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 
 			@Override
 			public void success(Boolean value) {
-				if (value) {
+				if (Boolean.TRUE.equals(value)) {
 					userReq.fromClient.response().headers().add("BMAuth", "OK");
 					userReq.fromClient.response().setStatusCode(200);
 					userReq.fromClient.response().end("OK");
@@ -273,21 +258,17 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 	}
 
 	private void templatesUri(final HttpServerRequest req) {
-		req.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				try {
-					CachedTemplate tpl = Templates.getCached(req.uri());
-					HttpServerResponse resp = req.response();
-					resp.setStatusCode(200);
-					resp.headers().set("Content-Type", tpl.getContentType());
-					resp.end(Buffer.buffer(tpl.getContent()));
-				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
-					req.response().setStatusCode(503).setStatusMessage(e.getMessage() != null ? e.getMessage() : "null")
-							.end();
-				}
+		req.endHandler(v -> {
+			try {
+				CachedTemplate tpl = Templates.getCached(req.uri());
+				HttpServerResponse resp = req.response();
+				resp.setStatusCode(200);
+				resp.headers().set("Content-Type", tpl.getContentType());
+				resp.end(Buffer.buffer(tpl.getContent()));
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+				req.response().setStatusCode(503).setStatusMessage(e.getMessage() != null ? e.getMessage() : "null")
+						.end();
 			}
 		});
 	}
