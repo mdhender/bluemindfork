@@ -205,7 +205,8 @@ net.bluemind.contact.vcard.VCardModelAdapter.prototype.fromModelView = function(
       'organizational' : {},
       'related' : {},
       'explanatory' : {},
-      'communications' : {}
+      'communications' : {},
+      'security' : {}
     }
   };
   if (mv.name) {
