@@ -20,6 +20,7 @@ package net.bluemind.system.ldap.importation.hooks;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.message.BindRequest;
@@ -29,6 +30,9 @@ import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.domain.api.Domain;
 import net.bluemind.system.importation.commons.Parameters;
@@ -105,9 +109,15 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 		return ldapUserLogin;
 	}
 
+	private static final Cache<String, String> uuidToDnCache = CacheBuilder.newBuilder()
+			.expireAfterWrite(1, TimeUnit.HOURS).recordStats().build();
+
 	@Override
 	protected String getUserDnByUuid(Parameters parameters, String uuid) throws Exception {
-		String ldapUserLogin = null;
+		String ldapUserLogin = uuidToDnCache.getIfPresent(uuid);
+		if (ldapUserLogin != null) {
+			return ldapUserLogin;
+		}
 
 		LdapPoolByDomain ldapPoolByDomain = Activator.getLdapPoolByDomain();
 
@@ -143,6 +153,8 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 
 		if (ldapUserLogin == null) {
 			logger.error("Unable to find {}", uuid);
+		} else {
+			uuidToDnCache.put(uuid, ldapUserLogin);
 		}
 
 		return ldapUserLogin;
