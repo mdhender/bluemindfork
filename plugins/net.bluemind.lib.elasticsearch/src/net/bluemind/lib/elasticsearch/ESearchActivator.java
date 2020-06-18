@@ -416,9 +416,9 @@ public final class ESearchActivator implements BundleActivator {
 			logger.warn("no SCHEMA for {}", index);
 			try {
 				client.admin().indices().prepareCreate(index).execute().actionGet();
-				return;
 			} catch (Exception e) {
 				logger.warn("failed to create indice {} : {}", index, e.getMessage());
+				throw e;
 			}
 		} else {
 			IndexDefinition definition = indexDefinition.get();
@@ -447,6 +447,7 @@ public final class ESearchActivator implements BundleActivator {
 				}
 			} catch (Exception e) {
 				logger.warn("failed to create indice {} : {}", index, e.getMessage(), e);
+				throw e;
 			}
 		}
 	}

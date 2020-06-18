@@ -25,7 +25,6 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
-import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
@@ -150,10 +149,9 @@ public class ElasticsearchTestHelper implements BundleActivator {
 			ESearchActivator.resetIndex("event");
 			ESearchActivator.resetIndex("todo");
 			ESearchActivator.resetIndex("im");
-		} catch (NoNodeAvailableException n) {
-			logger.error(n.getMessage(), n);
+		} catch (Exception n) {
 			String host = getHost();
-			System.err.println("Starting checks on " + host + "...");
+			System.err.println("Starting checks on " + host + " after " + n.getMessage() + " klass: " + n.getClass());
 			INodeClient node = NodeActivator.get(host);
 			byte[] fetched = node.read("/var/log/bm-elasticsearch/bluemind.log");
 			System.err.println("ES log in docker:'\n" + new String(fetched) + "'\n");
