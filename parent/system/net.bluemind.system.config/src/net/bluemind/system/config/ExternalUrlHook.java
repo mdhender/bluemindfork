@@ -20,7 +20,11 @@ package net.bluemind.system.config;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Map;
 
 import org.ini4j.Ini;
@@ -35,7 +39,6 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.network.topology.Topology;
-import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.SysConfKeys;
@@ -69,10 +72,9 @@ public class ExternalUrlHook
 	}
 
 	private void updateBmIni(String externalUrl) {
-		INodeClient nc = NodeActivator.get(Topology.get().core().value.address());
 		Ini iniFile;
-		try {
-			iniFile = new Ini(new ByteArrayInputStream(nc.read(BMINI)));
+		try (InputStream in = Files.newInputStream(new File(BMINI).toPath())) {
+			iniFile = new Ini(in);
 		} catch (IOException e) {
 			logger.error("Unable to read {}", BMINI, e);
 			throw new ServerFault(e);
@@ -81,15 +83,17 @@ public class ExternalUrlHook
 		iniFile.get("global").put("external-url", externalUrl);
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		try {
+		try (OutputStream out = Files.newOutputStream(new File(BMINI).toPath())) {
 			iniFile.store(baos);
+			iniFile.store(out);
 		} catch (IOException e) {
 			logger.error("Unable to write {}", BMINI, e);
 			throw new ServerFault(e);
 		}
 
 		byte[] iniFileContent = baos.toByteArray();
-		Topology.get().nodes().forEach(server -> updateBmIni(server, iniFileContent));
+		Topology.getIfAvailable()
+				.ifPresent(topo -> topo.nodes().forEach(server -> updateBmIni(server, iniFileContent)));
 	}
 
 	private void updateBmIni(ItemValue<Server> server, byte[] iniFile) {
