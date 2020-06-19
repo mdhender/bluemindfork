@@ -18,6 +18,7 @@
 package net.bluemind.ysnp.impl;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netflix.spectator.api.Registry;
+import com.netflix.spectator.api.Timer;
 
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.AbstractVerticle;
@@ -88,6 +90,8 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 		netsock.exceptionHandler(t -> logger.error(t.getMessage(), t));
 		netsock.handler(buf -> {
 			Creds creds = parse(buf.getByteBuf());
+			Timer timer = registry.timer(idFactory.name("validationTime"));
+			long time = registry.clock().monotonicTime();
 			vertx.executeBlocking((Promise<Boolean> p) -> {
 				try {
 					boolean valid = vp.validate(creds.login, creds.password, creds.service, creds.realm, expireOk);
@@ -96,6 +100,8 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 					p.fail(e);
 				}
 			}, res -> {
+				long elapsed = registry.clock().monotonicTime() - time;
+				timer.record(elapsed, TimeUnit.NANOSECONDS);
 				if (res.succeeded() && res.result().booleanValue()) {
 					registry.counter(idFactory.name("authCount", "status", "ok", "service", creds.service)).increment();
 					netsock.write(Buffer.buffer(SASL_OK));
