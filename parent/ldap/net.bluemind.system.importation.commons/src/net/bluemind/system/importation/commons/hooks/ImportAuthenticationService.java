@@ -30,9 +30,9 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.authentication.provider.IAuthProvider;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -46,16 +46,10 @@ import net.bluemind.user.api.User;
 public abstract class ImportAuthenticationService implements IAuthProvider {
 	private static final Logger logger = LoggerFactory.getLogger(ImportAuthenticationService.class);
 
-	private static final Cache<UuidMapper, String> uidToDN = CacheBuilder.newBuilder()
-			.recordStats()
-			.initialCapacity(1024)
-			.expireAfterWrite(20, TimeUnit.MINUTES)
-			.build();
-	private static final Cache<String, String> dnToPass = CacheBuilder.newBuilder()
-			.recordStats()
-			.initialCapacity(1024)
-			.expireAfterWrite(20, TimeUnit.MINUTES)
-			.build();
+	private static final Cache<UuidMapper, String> uidToDN = CacheBuilder.newBuilder().recordStats()
+			.initialCapacity(1024).expireAfterWrite(20, TimeUnit.MINUTES).build();
+	private static final Cache<String, String> dnToPass = CacheBuilder.newBuilder().recordStats().initialCapacity(1024)
+			.expireAfterWrite(20, TimeUnit.MINUTES).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override
@@ -123,6 +117,7 @@ public abstract class ImportAuthenticationService implements IAuthProvider {
 		try {
 			userDn = getUserDnFromExtId(parameters, domain, authContext.getUser());
 		} catch (GetDnFailure e) {
+			logger.warn("dn resolution failed", e);
 			return AuthResult.NO;
 		}
 
@@ -145,8 +140,8 @@ public abstract class ImportAuthenticationService implements IAuthProvider {
 	}
 
 	/**
-	 * Try to authenticate unexistant BlueMind user against directory to check if it
-	 * exists in directory
+	 * Try to authenticate non-existing BlueMind user against directory to check if
+	 * it exists in directory
 	 * 
 	 * @param domain
 	 * @param parameters
@@ -199,7 +194,7 @@ public abstract class ImportAuthenticationService implements IAuthProvider {
 			try {
 				udn = getUserDnByUuid(parameters, bmUserUid.get().getGuid());
 			} catch (Exception e) {
-				throw new GetDnFailure();
+				throw new GetDnFailure(e);
 			}
 
 			if (udn != null) {
@@ -212,11 +207,14 @@ public abstract class ImportAuthenticationService implements IAuthProvider {
 		if (udn == null) {
 			logger.error("Unable to find DN for extId {}, user {}@{}. Time: {}ms.", bmUserUid.get().getExtId(),
 					userItem.value.login, domain.value.name, ldSearchTime);
-			throw new GetDnFailure();
+			throw new GetDnFailure("failure for extId " + bmUserUid.get().getExtId() + " user " + userItem.value.login);
 		}
 
-		logger.info("Found: {}, searched for extId {}, u: {}@{}. Time: {}ms.", udn, bmUserUid.get().getExtId(),
-				userItem.value.login, domain.value.name, ldSearchTime);
+		// don't flood logs with fast searches
+		if (ldSearchTime > 10) {
+			logger.info("Found: {}, searched for extId {}, u: {}@{}. Time: {}ms.", udn, bmUserUid.get().getExtId(),
+					userItem.value.login, domain.value.name, ldSearchTime);
+		}
 
 		return udn;
 	}
