@@ -270,6 +270,7 @@ public final class ESearchActivator implements BundleActivator {
 			}
 
 			settingsBuilder.put("node.name", "client-" + UUID.randomUUID());
+                        settingsBuilder.put("client.transport.ping_timeout", "20s");
 			Settings settings = settingsBuilder.build();
 			TransportClient cli = new PreBuiltTransportClient(settings);
 			StringBuilder hlist = new StringBuilder();
