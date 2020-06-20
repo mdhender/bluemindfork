@@ -112,7 +112,15 @@ public class InstallationService implements IInstallation {
 
 	@Override
 	public TaskRef upgrade() throws ServerFault {
+		isAllowed();
 
+		InstallationVersion version = getVersion();
+
+		VersionInfo from = VersionInfo.checkAndCreate(version.databaseVersion);
+		return context.provider().instance(ITasksManager.class).run(new InstallationUpgradeTask(context, from));
+	}
+
+	private void isAllowed() {
 		if (!context.getSecurityContext().isDomainGlobal()) {
 			throw new ServerFault("only admin0 can do upgrade", ErrorCode.NOT_GLOBAL_ADMIN);
 		}
@@ -122,10 +130,13 @@ public class InstallationService implements IInstallation {
 				|| coreState == SystemState.CORE_STATE_UPGRADE)) {
 			throw new ServerFault("Upgrade is not available in state " + coreState);
 		}
-		InstallationVersion version = getVersion();
+	}
 
-		VersionInfo from = VersionInfo.checkAndCreate(version.databaseVersion);
-		return context.provider().instance(ITasksManager.class).run(new InstallationUpgradeTask(context, from));
+	@Override
+	public TaskRef atEveryUpgrade() {
+		isAllowed();
+
+		return context.provider().instance(ITasksManager.class).run(new AtEveryUpgradeTask());
 	}
 
 	@Override

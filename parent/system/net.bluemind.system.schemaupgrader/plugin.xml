@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-
    <extension-point id="net.bluemind.system.schemaupgrader.sqlscript" name="sqlscript" schema="schema/net.bluemind.system.schemaupgrader.sqlscript.exsd"/>
    <extension-point id="net.bluemind.system.schemaupgrader.javacode" name="javacode" schema="schema/net.bluemind.system.schemaupgrader.javacode.exsd"/>
+   <extension-point id="net.bluemind.system.schemaupgrader.ateveryupgrade" name="ateveryupgrade" schema="schema/net.bluemind.system.schemaupgrader.ateveryupgrade.exsd"/>
    <extension-point id="net.bluemind.system.schemaupgrader.upgradersprovider" name="upgradersprovider" schema="schema/net.bluemind.system.schemaupgrader.upgradersprovider.exsd"/>
    <extension-point id="net.bluemind.system.schemaupgrader.component" name="component" schema="schema/net.bluemind.system.schemaupgrader.component.exsd"/>
-
 </plugin>

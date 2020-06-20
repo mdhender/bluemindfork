@@ -17,44 +17,21 @@
   */
 package net.bluemind.metrics.core;
 
-import java.util.Date;
-import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
-
-import javax.sql.DataSource;
-
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.system.schemaupgrader.UpdateAction;
+import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.system.schemaupgrader.AtEveryUpgrade;
 import net.bluemind.system.schemaupgrader.UpdateResult;
-import net.bluemind.system.schemaupgrader.Updater;
 
-public class UpgradeExistingTags implements Updater {
+public class UpgradeExistingTags implements AtEveryUpgrade {
 	public UpgradeExistingTags() {
 	}
 
 	@Override
-	public UpdateResult executeUpdate(net.bluemind.core.task.service.IServerTaskMonitor monitor, DataSource pool,
-			Set<UpdateAction> handledActions) {
+	public UpdateResult executeUpdate(IServerTaskMonitor monitor) {
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IInCoreTickConfiguration tickConfApi = prov.instance(IInCoreTickConfiguration.class);
 		tickConfApi.reconfigure(monitor, prov.getContext());
 		return UpdateResult.ok();
 	}
-
-	@Override
-	public boolean afterSchemaUpgrade() {
-		return true;
-	}
-
-	@Override
-	public Date date() {
-		return new Date();
-	}
-
-	@Override
-	public int sequence() {
-		return ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE);
-	}
-
 }
