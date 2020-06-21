@@ -36,7 +36,8 @@ Require-Bundle: net.bluemind.authentication.api;bundle-version="1.0.0";visibilit
  org.apache.james.apache-mime4j-dom,
  org.freemarker.freemarker,
  net.bluemind.common.freemarker,
- org.apache.james.apache-mime4j-core
+ org.apache.james.apache-mime4j-core,
+ net.bluemind.system.state
 Export-Package: net.bluemind.authentication.service
 Bundle-Activator: net.bluemind.authentication.service.Activator
 Bundle-ActivationPolicy: lazy
