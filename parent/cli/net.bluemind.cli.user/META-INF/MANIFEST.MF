@@ -27,7 +27,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.config,
  net.bluemind.utils,
  com.github.freva.ascii-table,
- net.bluemind.group.api
+ net.bluemind.group.api,
+ net.bluemind.hornetq.client,
+ net.bluemind.network.topology
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.user
 Bundle-ActivationPolicy: lazy
