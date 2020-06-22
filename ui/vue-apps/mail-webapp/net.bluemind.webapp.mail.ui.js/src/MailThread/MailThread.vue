@@ -1,7 +1,7 @@
 <template>
-    <div v-if="message" class="mail-thread bg-surface">
+    <div v-if="message" class="mail-thread d-flex flex-column">
         <mail-component-alert
-            v-if="message && !areRemoteImagesUnblocked(message.key) && showBlockedImagesAlert"
+            v-if="!areRemoteImagesUnblocked(message.key) && showBlockedImagesAlert"
             icon="exclamation-circle"
             @close="setShowBlockedImagesAlert(false)"
         >
@@ -24,8 +24,7 @@
             :user-pref-text-only="userPrefTextOnly"
             @close="mode = 'default'"
         />
-        <mail-message-content v-if="message" />
-        <div />
+        <mail-message-content v-else />
     </div>
 </template>
 
@@ -125,10 +124,6 @@ export default {
 
 .mail-thread {
     min-height: 100%;
-
-    .mail-component-alert {
-        margin-bottom: $sp-1;
-    }
 
     .mail-message-new ~ .mail-message-content {
         @media (max-width: map-get($grid-breakpoints, "lg")) {
