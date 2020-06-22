@@ -65,7 +65,7 @@ public class InfluxTagHandler extends TickInputConfigurator {
 		new NetworkHelper(itemValue.value.address()).waitForListeningPort(8086, 1, TimeUnit.MINUTES);
 
 		serverApi.submitAndWait(itemValue.uid,
-				"/usr/bin/influx -execute 'alter retention policy autogen on telegraf duration 7d;'");
+				"/usr/bin/influx -execute 'alter retention policy autogen on telegraf duration 30d;'");
 		List<ItemValue<Server>> allServers = serverApi.allComplete();
 		for (ItemValue<Server> srvItem : allServers) {
 			try {
