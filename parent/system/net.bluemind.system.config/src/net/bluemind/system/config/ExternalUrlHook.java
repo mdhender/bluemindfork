@@ -102,6 +102,9 @@ public class ExternalUrlHook
 
 	@Override
 	public void sanitize(SystemConf previous, Map<String, String> modifications) throws ServerFault {
+		// external-url key is forbidden in database
+		modifications.put("external-url", null);
+
 		if (!modifications.containsKey(SysConfKeys.external_url.name())
 				|| modifications.get(SysConfKeys.external_url.name()) == null) {
 			return;

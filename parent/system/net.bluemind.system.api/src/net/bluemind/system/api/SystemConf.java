@@ -24,7 +24,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import net.bluemind.core.api.BMApi;
 
@@ -55,7 +57,7 @@ public class SystemConf {
 			return new ArrayList<>(Arrays.asList(value.split(systemConfSeparator)));
 		}
 	}
-	
+
 	public void setStringListValue(String prop, List<String> notifiedEmails) {
 		values.put(prop, String.join(systemConfSeparator, notifiedEmails));
 	}
@@ -71,11 +73,19 @@ public class SystemConf {
 		return c;
 	}
 
+	/**
+	 * Merge newValues to previous and remove key with null value
+	 * 
+	 * @param previous
+	 * @param newValues
+	 * @return
+	 */
 	public static Map<String, String> merge(SystemConf previous, Map<String, String> newValues) {
 		Map<String, String> merged = new HashMap<>();
 		merged.putAll(previous.values);
 		merged.putAll(newValues);
-		return merged;
+		return merged.entrySet().stream().filter(entry -> entry.getValue() != null)
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
 
 	public Integer integerValue(String prop) {
