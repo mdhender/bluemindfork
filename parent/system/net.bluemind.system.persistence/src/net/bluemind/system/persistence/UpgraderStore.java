@@ -103,20 +103,23 @@ public final class UpgraderStore extends JdbcAbstractStore {
 		String sql = "select exists (select from pg_tables where tablename = 't_bm_upgraders')";
 		boolean foundUpgraderTable = unique(sql, BooleanCreator.FIRST, Collections.emptyList(), new Object[0]);
 		if (!foundUpgraderTable) {
-			String createEnum = "create type enum_database_name as enum ('DIRECTORY', 'SHARD', 'ALL')";
-			String createTable = "create table t_bm_upgraders (server text, " //
-					+ "phase enum_upgrader_phase, " //
-					+ "database_name enum_database_name, " //
-					+ "upgrader_id text, " //
-					+ "success boolean, " //
-					+ "PRIMARY KEY (server, database_name, upgrader_id))";
-			try (Connection con = datasource.getConnection(); Statement st = con.createStatement()) {
-				st.execute(createEnum);
-				st.execute(createTable);
-			}
-
+			createUpgraderTable();
 		}
 		return !foundUpgraderTable;
+	}
+
+	private void createUpgraderTable() throws SQLException {
+		String createEnum = "create type enum_database_name as enum ('DIRECTORY', 'SHARD', 'ALL')";
+		String createTable = "create table t_bm_upgraders (server text, " //
+				+ "phase enum_upgrader_phase, " //
+				+ "database_name enum_database_name, " //
+				+ "upgrader_id text, " //
+				+ "success boolean, " //
+				+ "PRIMARY KEY (server, database_name, upgrader_id))";
+		try (Connection con = datasource.getConnection(); Statement st = con.createStatement()) {
+			st.execute(createEnum);
+			st.execute(createTable);
+		}
 	}
 
 }

@@ -36,6 +36,11 @@ public class UpgraderServerHook extends DefaultServerHook {
 		}
 
 		UpgraderStore store = new UpgraderStore(context.getDataSource());
+		try {
+			store.needsMigration();
+		} catch (SQLException e) {
+			throw new ServerFault("Cannot create upgrader table", e);
+		}
 		for (Updater updater : upgraders) {
 			registerUpgrader(server.uid, store, updater);
 			if (tag.equals("bm/pgsql")) {
