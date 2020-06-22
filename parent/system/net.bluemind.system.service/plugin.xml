@@ -80,6 +80,9 @@
       <validator
             class="net.bluemind.system.service.internal.SubscriptionContactsValidator">
       </validator>
+      <observer
+            class="net.bluemind.system.service.internal.SharedSystemConfigurationVerticle$Updater">
+      </observer>
    </extension>
 
 </plugin>
