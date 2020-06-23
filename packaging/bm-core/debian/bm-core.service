@@ -5,6 +5,7 @@ After=bm-node.service postgresql.service
 PartOf=bluemind.target
 
 [Service]
+TasksMax=10000
 Type=notify
 WorkingDirectory=/var/log
 TimeoutStartSec=90s
