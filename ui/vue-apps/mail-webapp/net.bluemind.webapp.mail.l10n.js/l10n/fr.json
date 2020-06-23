@@ -160,12 +160,11 @@
     "mail.compose.forward.prev.message.info.from": "De",
     "mail.main.switch.webmail": "Essayer le nouveau webmail",
     "mail.messages.multiple.drag_shadow": "La conversation séléctionnée | {count} conversations séléctionnées",
-    "mail.selection.alert.readonly": "Certains message sélectionnés sont en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles",
+    "mail.selection.alert.readonly": "Certains messages sélectionnés sont en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles",
     "mail.ics": "Ce message contient une invitation",
     "mail.ics.got_invited": "vous a invité à",
-    "mail.ics.already_answered": "Ce message contient une invitation qui a déjà été traitée",
-    "mail.ics.declined": "Vous avez refusé l'invitation",
-    "mail.ics.accepted": "Vous avez accepté l'invitation",
-    "mail.ics.accepted.tentatively": "Vous avez accepté provisoirement l'invitation",
+    "mail.ics.declined": "Invitation refusée",
+    "mail.ics.accepted": "Invitation acceptée",
+    "mail.ics.accepted.tentatively": "Invitation acceptée provisoirement",
     "mail.content.alert.ics.dont_exist": "Ce message fait référence à un évènement qui n'existe pas dans votre calendrier"
 }

@@ -66,10 +66,6 @@ export default {
 
     $avatar-height: 1.3rem !important;
 
-    .states.fa-event {
-        color: $calendar-color;
-    }
-
     .bm-avatar {
         height: $avatar-height;
     }

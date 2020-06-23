@@ -13,7 +13,7 @@
                     ref="filterChoiceGroup"
                     v-bm-tooltip.ds500
                     :options="filters"
-                    :selected="filters[filterIndex].value"
+                    :selected="filters[filterIndex]"
                     :aria-label="$t('mail.list.filter.aria')"
                     :title="$t('mail.list.filter.tooltip')"
                 />

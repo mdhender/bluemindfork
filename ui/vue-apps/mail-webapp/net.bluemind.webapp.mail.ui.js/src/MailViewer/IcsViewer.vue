@@ -1,52 +1,60 @@
 <template>
     <div class="ics-viewer">
         <div class="header px-3 pt-2 pb-3 bg-extra-light">
-            <bm-label-icon icon="event" class="font-weight-bold mb-1 d-block">
-                <template v-if="currentEvent.status === 'NeedsAction' || !currentEvent.status">
-                    {{ $t("mail.ics") }}
+            <div class="font-weight-bold mb-1 d-block top">
+                <template v-if="!currentEvent.status || currentEvent.status === 'NeedsAction'">
+                    <bm-icon icon="event" class="mr-2" size="lg" /> {{ $t("mail.ics") }}
                 </template>
-                <template v-else>{{ $t("mail.ics.already_answered") }}</template>
-            </bm-label-icon>
-            <div v-if="message.ics.needsReply && currentEvent.status">
-                <div v-if="currentEvent.status === 'NeedsAction' || openChangeStatus" class="mt-3">
-                    <bm-button variant="outline-primary" class="mr-2 px-1" @click="answer('Accepted')">
-                        <bm-label-icon icon="check" icon-size="lg">{{ $t("common.accept") }}</bm-label-icon>
-                    </bm-button>
-                    <bm-button variant="outline-primary" class="mr-2 px-1" @click="answer('Tentative')">
-                        <bm-label-icon icon="interrogation" icon-size="lg">
-                            {{ $t("common.accept.tentatively") }}
-                        </bm-label-icon>
-                    </bm-button>
-                    <bm-button variant="outline-primary" class="px-1" @click="answer('Declined')">
-                        <bm-label-icon icon="cross" icon-size="lg">{{ $t("common.refuse") }}</bm-label-icon>
-                    </bm-button>
-                </div>
-                <div v-else class="answered d-flex pl-4">
-                    <bm-label-icon v-if="currentEvent.status === 'Accepted'" icon="check" icon-size="lg">
-                        {{ $t("mail.ics.accepted") }}
-                    </bm-label-icon>
-                    <bm-label-icon v-else-if="currentEvent.status === 'Tentative'" icon="interrogation" icon-size="lg">
+                <template v-else>
+                    <bm-icon :stacked="['event', computeEventIcon]" class="mr-2" size="lg" />
+                    <template v-if="currentEvent.status === 'Accepted'">{{ $t("mail.ics.accepted") }}</template>
+                    <template v-else-if="currentEvent.status === 'Tentative'">
                         {{ $t("mail.ics.accepted.tentatively") }}
+                    </template>
+                    <template v-else-if="currentEvent.status === 'Declined'">{{ $t("mail.ics.declined") }}</template>
+                </template>
+            </div>
+            <div v-if="message.ics.needsReply && currentEvent.status" class="mt-3">
+                <bm-button
+                    variant="outline-primary"
+                    class="mr-2 px-1"
+                    :class="currentEvent.status === 'Accepted' ? 'active' : ''"
+                    @click="answer('Accepted')"
+                >
+                    <bm-label-icon icon="check" icon-size="lg">{{ $t("common.accept") }}</bm-label-icon>
+                </bm-button>
+                <bm-button
+                    variant="outline-primary"
+                    class="mr-2 px-1"
+                    :class="currentEvent.status === 'Tentative' ? 'active' : ''"
+                    @click="answer('Tentative')"
+                >
+                    <bm-label-icon icon="interrogation" icon-size="lg">
+                        {{ $t("common.accept.tentatively") }}
                     </bm-label-icon>
-                    <bm-label-icon v-else-if="currentEvent.status === 'Declined'" icon="cross" icon-size="lg">
-                        {{ $t("mail.ics.declined") }}
-                    </bm-label-icon>
-                    <bm-button variant="outline-secondary" @click="openChangeStatus = true">
-                        {{ $t("common.edit.answer") }}
-                    </bm-button>
-                </div>
+                </bm-button>
+                <bm-button
+                    variant="outline-primary"
+                    class="px-1"
+                    :class="currentEvent.status === 'Declined' ? 'active' : ''"
+                    @click="answer('Declined')"
+                >
+                    <bm-label-icon icon="cross" icon-size="lg">{{ $t("common.refuse") }}</bm-label-icon>
+                </bm-button>
             </div>
         </div>
         <bm-choice-group
             class="border-bottom my-3"
             :options="choices"
-            :selected="choices[selectedChoice].value"
+            :selected="choices[selectedChoice]"
             @select="index => (selectedChoice = index)"
         />
         <parts-viewer v-if="selectedChoice === 0" class="message" />
-        <div v-else class="invitation pl-5 d-inline-block">
-            <h1>{{ currentEvent.organizer.name }} {{ $t("mail.ics.got_invited") }}</h1>
-            <h1 class="font-weight-bold">&laquo;{{ currentEvent.summary }}&raquo;</h1>
+        <div v-else class="invitation pl-5">
+            <h1>
+                {{ currentEvent.organizer.name }} {{ $t("mail.ics.got_invited") }}
+                <span class="font-weight-bold">&laquo;{{ currentEvent.summary }}&raquo;</span>
+            </h1>
             <hr />
             <div class="font-weight-bold">
                 <bm-label-icon icon="event" class="d-block">{{ $t("common.title") }}</bm-label-icon>
@@ -64,8 +72,8 @@
                 &lt;{{ currentEvent.organizer.mail }}&gt;
             </div>
             <hr />
-            <bm-label-icon :icon="attendeesLength > 1 ? 'group' : 'user'" class="font-weight-bold d-block">{{
-                $tc("common.attendees", attendeesLength)
+            <bm-label-icon icon="group" class="font-weight-bold d-block">{{
+                $tc("common.attendees", currentEvent.attendees.length)
             }}</bm-label-icon>
             <div v-for="attendee in currentEvent.attendees" :key="attendee.mail">
                 <span class="font-weight-bold">{{ attendee.name }}</span> &lt;{{ attendee.mail }}&gt;
@@ -76,7 +84,7 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-import { BmButton, BmChoiceGroup, BmLabelIcon } from "@bluemind/styleguide";
+import { BmButton, BmChoiceGroup, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 import PartsViewer from "./PartsViewer/PartsViewer";
 
 export default {
@@ -84,6 +92,7 @@ export default {
     components: {
         BmButton,
         BmChoiceGroup,
+        BmIcon,
         BmLabelIcon,
         PartsViewer
     },
@@ -93,27 +102,39 @@ export default {
                 { text: this.$t("common.message"), value: "message" },
                 { text: this.$t("common.invitation"), value: "invitation" }
             ],
-            selectedChoice: 0,
-            openChangeStatus: false
+            selectedChoice: 0
         };
     },
     computed: {
         ...mapGetters("mail-webapp/currentMessage", ["message"]),
         ...mapState("mail-webapp", ["currentEvent"]),
-        attendeesLength() {
-            return this.currentEvent.attendees.length;
+        computeEventIcon() {
+            let icon = "event";
+            if (this.currentEvent.status) {
+                switch (this.currentEvent.status) {
+                    case "Accepted":
+                        icon = "check";
+                        break;
+                    case "Tentative":
+                        icon = "interrogation";
+                        break;
+                    case "Declined":
+                        icon = "cross";
+                        break;
+                }
+            }
+            return icon;
         }
     },
     watch: {
         currentEvent() {
-            this.openChangeStatus = false;
+            this.selectedChoice = 0;
         }
     },
     methods: {
         ...mapActions("mail-webapp", ["setEventStatus"]),
         answer(status) {
             this.setEventStatus(status);
-            this.openChangeStatus = false;
         }
     }
 };
@@ -124,12 +145,14 @@ export default {
 
 .ics-viewer {
     hr {
-        background-color: $calendar-color;
+        border-color: $calendar-color;
         margin-bottom: $sp-1;
+        max-width: 66%;
+        margin-left: 0;
     }
 
     .header {
-        .answered {
+        .top {
             .fa-check {
                 color: $green;
             }
@@ -138,9 +161,8 @@ export default {
                 color: $red;
             }
 
-            .bm-label-icon {
-                margin-right: auto;
-                align-self: center;
+            .fa-interrogation {
+                color: $purple;
             }
         }
     }
