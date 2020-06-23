@@ -11,6 +11,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.hook.DefaultServerHook;
+import net.bluemind.system.api.Database;
 import net.bluemind.system.persistence.Upgrader;
 import net.bluemind.system.persistence.Upgrader.UpgradePhase;
 import net.bluemind.system.persistence.UpgraderStore;
@@ -51,14 +52,16 @@ public class UpgraderServerHook extends DefaultServerHook {
 
 	private void registerUpgrader(String serverUid, UpgraderStore store, Updater updater) {
 		Upgrader upgrader = new Upgrader();
-		upgrader.database = updater.database();
 		upgrader.phase = UpgradePhase.SCHEMA_UPGRADE;
 		upgrader.server = serverUid;
 		upgrader.success = true;
 		upgrader.upgraderId = Upgrader.toId(updater.date(), updater.sequence());
 		try {
-			if (!store.upgraderRegistered(upgrader.upgraderId, serverUid, updater.database())) {
-				store.add(upgrader);
+			for (Database db : Database.values()) {
+				upgrader.database = db;
+				if (!store.upgraderRegistered(upgrader.upgraderId, serverUid, updater.database())) {
+					store.add(upgrader);
+				}
 			}
 		} catch (SQLException e) {
 			throw new ServerFault(e);
