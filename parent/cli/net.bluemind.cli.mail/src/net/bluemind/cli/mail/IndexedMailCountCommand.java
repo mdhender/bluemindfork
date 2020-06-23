@@ -30,6 +30,8 @@ import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.system.api.IInstallation;
+import net.bluemind.system.api.PublicInfos;
 
 @Command(name = "indexed", description = "Shows the number of indexed messages")
 public class IndexedMailCountCommand implements ICmdLet, Runnable {
@@ -42,6 +44,8 @@ public class IndexedMailCountCommand implements ICmdLet, Runnable {
 	@Override
 	public void run() {
 		long docs = 0;
+		PublicInfos infos = CliContext.get().adminApi().instance(IInstallation.class).getInfos();
+		ctx.info("infos: " + infos.softwareVersion + " " + infos.releaseName);
 		do {
 			IndexStats stat = ESearchActivator.getClient().admin().indices().prepareStats("mailspool_pending").get()
 					.getIndex("mailspool_pending");
