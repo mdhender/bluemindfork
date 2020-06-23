@@ -33,8 +33,12 @@ import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.Email;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.email.EmailHelper;
 import net.bluemind.directory.api.BaseDirEntry.AccountType;
+import net.bluemind.group.api.Group;
+import net.bluemind.group.api.IGroup;
+import net.bluemind.group.api.Member;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.IServer;
@@ -85,6 +89,8 @@ public class UserQuickCreateCommand implements ICmdLet, Runnable {
 		if (dom == null) {
 			ctx.error(domainPart + " is not a known domain or alias.");
 		}
+		IGroup grpApi = ctx.adminApi().instance(IGroup.class, dom);
+		ItemValue<Group> userGroup = grpApi.byName("user");
 		CountDownLatch cdl = new CountDownLatch(1);
 		MQ.init().thenAccept(v -> {
 			User u = new User();
@@ -105,6 +111,9 @@ public class UserQuickCreateCommand implements ICmdLet, Runnable {
 			String uid = "cli-created-" + UUID.randomUUID().toString().toLowerCase();
 			ctx.info("Creating " + uid + " for " + loginAtDomain);
 			uApi.create(uid, u);
+			if (userGroup != null) {
+				grpApi.add(userGroup.uid, Arrays.asList(Member.user(uid)));
+			}
 			cdl.countDown();
 		}).whenComplete((v, ex) -> {
 			if (ex != null) {
