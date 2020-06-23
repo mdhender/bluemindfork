@@ -217,7 +217,7 @@
       </verticle>
    </extension>
    <extension
-         point="net.bluemind.system.schemaupgrader.ateveryupgrade">
+         point="net.bluemind.system.schemaupgrader.postinst">
       <java
             code="net.bluemind.metrics.core.UpgradeExistingTags"
             priority="1000">

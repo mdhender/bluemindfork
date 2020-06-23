@@ -21,8 +21,8 @@ package net.bluemind.system.schemaupgrader.tests.internal;
 import java.util.List;
 
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
-import net.bluemind.system.schemaupgrader.AtEveryUpgrade;
 import net.bluemind.system.schemaupgrader.ISchemaUpgradersProvider;
+import net.bluemind.system.schemaupgrader.PostInst;
 import net.bluemind.system.schemaupgrader.SqlScripts;
 import net.bluemind.system.schemaupgrader.Updater;
 
@@ -48,10 +48,9 @@ public class TestSchemaProvider implements ISchemaUpgradersProvider {
 	}
 
 	@Override
-	public List<AtEveryUpgrade> atEveryUpgradeJavaUpdaters() {
-		RunnableExtensionLoader<AtEveryUpgrade> epLoader = new RunnableExtensionLoader<>();
-		return epLoader.loadExtensionsWithPriority("net.bluemind.system.schemaupgrader", "ateveryupgrade", "java",
-				"code");
+	public List<PostInst> postInstJavaUpdaters() {
+		RunnableExtensionLoader<PostInst> epLoader = new RunnableExtensionLoader<>();
+		return epLoader.loadExtensionsWithPriority("net.bluemind.system.schemaupgrader", "postinst", "java", "code");
 	}
 
 }

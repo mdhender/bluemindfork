@@ -26,46 +26,46 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
-import net.bluemind.system.schemaupgrader.AtEveryUpgrade;
 import net.bluemind.system.schemaupgrader.ISchemaUpgradersProvider;
+import net.bluemind.system.schemaupgrader.PostInst;
 import net.bluemind.system.schemaupgrader.UpdateResult;
 
-public class AtEveryUpgradeTask implements IServerTask {
-	private static final Logger logger = LoggerFactory.getLogger(AtEveryUpgradeTask.class);
+public class PostInstTask implements IServerTask {
+	private static final Logger logger = LoggerFactory.getLogger(PostInstTask.class);
 
 	@Override
 	public void run(IServerTaskMonitor monitor) throws Exception {
-		monitor.begin(2, "Running every upgrade ending tasks...");
+		monitor.begin(2, "Running post-installation upgraders...");
 		ISchemaUpgradersProvider upgradersProvider = ISchemaUpgradersProvider.getSchemaUpgradersProvider();
 
 		if (!upgradersProvider.isActive()) {
 			StringBuilder msg = new StringBuilder("*********************************************************");
-			msg.append("* Every upgraders are not active. Make sure your subscription is valid.");
+			msg.append("* Post-installation upgraders are not active. Make sure your subscription is valid.");
 			msg.append("*********************************************************");
 			logger.warn("{}", msg);
-			monitor.end(false, "Every upgraders are not active. Make sure your subscription is valid", "");
-			throw new ServerFault("Upgraders are not available");
+			monitor.end(false, "Post-installation upgraders are not active. Make sure your subscription is valid", "");
+			throw new ServerFault("Post-installation upgraders are not available");
 		}
 
-		monitor.progress(1, "Upgrade ending tasks found");
+		monitor.progress(1, "Post-installation tasks found");
 
-		List<AtEveryUpgrade> atEveryUpgrade = upgradersProvider.atEveryUpgradeJavaUpdaters();
-		IServerTaskMonitor upgraderMonitor = monitor.subWork(atEveryUpgrade.size());
+		List<PostInst> postinst = upgradersProvider.postInstJavaUpdaters();
+		IServerTaskMonitor upgraderMonitor = monitor.subWork(postinst.size());
 
 		try {
-			atEveryUpgrade.stream().forEach(upgrader -> runUpgrader(upgraderMonitor, upgrader));
+			postinst.stream().forEach(upgrader -> runUpgrader(upgraderMonitor, upgrader));
 		} catch (ServerFault sf) {
-			monitor.end(false, "Upgrade ending task fail!", "");
+			monitor.end(false, "Post-installation upgrade fail!", "");
 		}
 	}
 
-	private void runUpgrader(IServerTaskMonitor monitor, AtEveryUpgrade upgrader) {
+	private void runUpgrader(IServerTaskMonitor monitor, PostInst upgrader) {
 		UpdateResult updateResult = upgrader.executeUpdate(monitor);
 		if (updateResult.equals(UpdateResult.failed())) {
-			monitor.end(false, String.format("Upgrade ending task %s fail!", upgrader.getClass().getName()), "");
+			monitor.end(false, String.format("Post-installations upgrade %s fail!", upgrader.getClass().getName()), "");
 			throw new ServerFault();
 		}
 
-		monitor.progress(1, String.format("Upgrade ending task %s success!", upgrader.getClass().getName()));
+		monitor.progress(1, String.format("Post-installation upgrade %s success!", upgrader.getClass().getName()));
 	}
 }

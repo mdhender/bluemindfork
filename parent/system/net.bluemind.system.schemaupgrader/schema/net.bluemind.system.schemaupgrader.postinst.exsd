@@ -3,7 +3,7 @@
 <schema targetNamespace="net.bluemind.system.schemaupgrader" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="net.bluemind.system.schemaupgrader" id="net.bluemind.system.schemaupgrader.ateveryupgrade" name="ateveryupgrade"/>
+         <meta.schema plugin="net.bluemind.system.schemaupgrader" id="net.bluemind.system.schemaupgrader.postinst" name="postinst"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -55,7 +55,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":net.bluemind.system.schemaupgrader.AtEveryUpgrade"/>
+                  <meta.attribute kind="java" basedOn=":net.bluemind.system.schemaupgrader.PostInst"/>
                </appinfo>
             </annotation>
          </attribute>

@@ -133,10 +133,10 @@ public class InstallationService implements IInstallation {
 	}
 
 	@Override
-	public TaskRef atEveryUpgrade() {
+	public TaskRef postinst() {
 		isAllowed();
 
-		return context.provider().instance(ITasksManager.class).run(new AtEveryUpgradeTask());
+		return context.provider().instance(ITasksManager.class).run(new PostInstTask());
 	}
 
 	@Override

@@ -21,7 +21,7 @@ package net.bluemind.system.schemaupgrader;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.system.api.Database;
 
-public interface AtEveryUpgrade {
+public interface PostInst {
 	UpdateResult executeUpdate(IServerTaskMonitor monitor);
 
 	public default Database database() {

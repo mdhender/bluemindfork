@@ -20,10 +20,10 @@ package net.bluemind.metrics.core;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
-import net.bluemind.system.schemaupgrader.AtEveryUpgrade;
+import net.bluemind.system.schemaupgrader.PostInst;
 import net.bluemind.system.schemaupgrader.UpdateResult;
 
-public class UpgradeExistingTags implements AtEveryUpgrade {
+public class UpgradeExistingTags implements PostInst {
 	public UpgradeExistingTags() {
 	}
 

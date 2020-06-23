@@ -100,9 +100,15 @@ public interface IInstallation extends ICustomTheme {
 	@Path("_upgrade")
 	public TaskRef upgrade() throws ServerFault;
 
+	/**
+	 * Run post-installation upgraders
+	 * 
+	 * @return
+	 * @throws ServerFault
+	 */
 	@POST
-	@Path("_ateveryupgrade")
-	public TaskRef atEveryUpgrade() throws ServerFault;
+	@Path("_postinst")
+	public TaskRef postinst() throws ServerFault;
 
 	@GET
 	@Path("_upgrade")
