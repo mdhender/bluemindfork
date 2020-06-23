@@ -49,9 +49,13 @@ public class CliContext {
 		ClientSideServiceProvider ret = ClientSideServiceProvider.getProvider("http://" + core + ":8090",
 				Token.admin0());
 		Topology.getIfAvailable().orElseGet(() -> {
-			List<ItemValue<Server>> servers = ret.instance(IServer.class, "default").allComplete();
-			Topology.update(servers);
-			return Topology.get();
+			try {
+				List<ItemValue<Server>> servers = ret.instance(IServer.class, "default").allComplete();
+				Topology.update(servers);
+				return Topology.get();
+			} catch (Exception e) { // NOSONAR
+				return null;
+			}
 		});
 		return ret;
 	}
