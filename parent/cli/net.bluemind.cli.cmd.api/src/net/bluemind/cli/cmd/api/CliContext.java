@@ -19,6 +19,7 @@ package net.bluemind.cli.cmd.api;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -28,8 +29,12 @@ import com.google.common.base.Suppliers;
 
 import net.bluemind.config.BmIni;
 import net.bluemind.config.Token;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.Server;
 
 public class CliContext {
 
@@ -37,12 +42,18 @@ public class CliContext {
 	private Supplier<ClientSideServiceProvider> adminServices = Suppliers.memoize(this::loadAdminServices);
 
 	private CliContext() {
-		loadAdminServices();
 	}
 
 	private ClientSideServiceProvider loadAdminServices() {
 		String core = Optional.ofNullable(BmIni.value("external-url")).orElse("127.0.0.1");
-		return ClientSideServiceProvider.getProvider("http://" + core + ":8090", Token.admin0());
+		ClientSideServiceProvider ret = ClientSideServiceProvider.getProvider("http://" + core + ":8090",
+				Token.admin0());
+		Topology.getIfAvailable().orElseGet(() -> {
+			List<ItemValue<Server>> servers = ret.instance(IServer.class, "default").allComplete();
+			Topology.update(servers);
+			return Topology.get();
+		});
+		return ret;
 	}
 
 	public Ansi ansi() {
