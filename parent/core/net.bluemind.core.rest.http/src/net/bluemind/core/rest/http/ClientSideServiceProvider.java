@@ -23,6 +23,7 @@ import java.util.List;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
+import org.asynchttpclient.uri.Uri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ import net.bluemind.core.rest.IServiceProvider;
 public class ClientSideServiceProvider implements IServiceProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(ClientSideServiceProvider.class);
-	private String base;
+	private Uri base;
 	private String apiKey;
 	private List<String> remoteIps;
 	private String origin;
@@ -65,7 +66,7 @@ public class ClientSideServiceProvider implements IServiceProvider {
 	}
 
 	private ClientSideServiceProvider(String base, String apiKey, AsyncHttpClient client) {
-		this.base = base;
+		this.base = Uri.create(base);
 		this.apiKey = apiKey;
 		this.client = client;
 	}

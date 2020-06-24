@@ -24,8 +24,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.net.HttpHeaders;
 
 import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
@@ -133,11 +135,13 @@ public class DefaultResponseCodecs {
 			return resp;
 		}
 
+		private static final Splitter ACCEPT_SPLITTER = Splitter.on(", ");
+
 		private Map.Entry<String, ResponseCodec<T>> codec(RestRequest request, String defaultMimeType) {
-			if (request.headers.get("Accept") != null) {
-				String accept = request.headers.get("Accept");
-				String[] accepts = accept.split(", ");
-				if (accept.length() > 0) {
+			String accept = request.headers.get(HttpHeaders.ACCEPT);
+			if (accept != null) {
+				Iterable<String> accepts = ACCEPT_SPLITTER.split(accept);
+				if (!accept.isEmpty()) {
 					return getBestCodec(accepts, defaultMimeType);
 				}
 
@@ -146,7 +150,7 @@ public class DefaultResponseCodecs {
 
 		}
 
-		private Map.Entry<String, ResponseCodec<T>> getBestCodec(String[] accepts, String defaultMimeType) {
+		private Map.Entry<String, ResponseCodec<T>> getBestCodec(Iterable<String> accepts, String defaultMimeType) {
 			Map.Entry<String, ResponseCodec<T>> ret = null;
 
 			for (String type : accepts) {

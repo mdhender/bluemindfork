@@ -20,6 +20,7 @@ package net.bluemind.core.rest.http.internal;
 
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.RequestBuilder;
+import org.asynchttpclient.uri.Uri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +34,20 @@ public class AsyncHttpCallHandler implements IRestCallHandler {
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(AsyncHttpCallHandler.class);
 
-	private final String baseUri;
+	private final Uri baseUri;
 	private final AsyncHttpClient asyncHttpClient;
 	private static final byte[] EMPTY_BODY = new byte[0];
+	private final PathPrep prep;
 
-	public AsyncHttpCallHandler(AsyncHttpClient asyncHttpClient, String baseUri) {
+	public AsyncHttpCallHandler(AsyncHttpClient asyncHttpClient, Uri baseUri) {
 		this.asyncHttpClient = asyncHttpClient;
 		this.baseUri = baseUri;
+		this.prep = baseUri.getPath().isEmpty() ? p -> p : p -> baseUri.getPath() + p;
+
+	}
+
+	private interface PathPrep {
+		String apply(String r);
 	}
 
 	@Override
@@ -47,15 +55,13 @@ public class AsyncHttpCallHandler implements IRestCallHandler {
 
 		RequestBuilder requestBuilder = new RequestBuilder();
 		requestBuilder.setMethod(request.method.name());
-
-		String path = request.path;
-		requestBuilder.setUrl(baseUri + path);
+		Uri parsedUri = new Uri(baseUri.getScheme(), baseUri.getUserInfo(), baseUri.getHost(), baseUri.getPort(),
+				prep.apply(request.path), null, null);
+		requestBuilder.setUri(parsedUri);
 
 		request.headers.forEach(entry -> requestBuilder.addHeader(entry.getKey(), entry.getValue()));
 
-		for (String val : request.remoteAddresses) {
-			requestBuilder.addHeader("X-Forwarded-For", val);
-		}
+		requestBuilder.addHeader("X-Forwarded-For", request.remoteAddresses);
 
 		if (request.origin != null) {
 			requestBuilder.addHeader("X-BM-Origin", request.origin);
@@ -71,7 +77,9 @@ public class AsyncHttpCallHandler implements IRestCallHandler {
 			requestBuilder.setBody(EMPTY_BODY);
 		}
 
-		logger.debug("execute query {}", requestBuilder);
+		if (logger.isDebugEnabled()) {
+			logger.debug("execute query {}", requestBuilder);
+		}
 		asyncHttpClient.prepareRequest(requestBuilder.build()).execute(new AsyncCompletionHandler(responseHandler));
 	}
 

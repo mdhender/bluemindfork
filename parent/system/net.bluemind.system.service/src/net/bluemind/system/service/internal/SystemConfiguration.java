@@ -75,8 +75,8 @@ public class SystemConfiguration implements ISystemConfiguration {
 		try {
 			values.putAll(systemConfStore.get());
 		} catch (Exception e) {
-			logger.error("error retrieving system configuration from database", e);
-			logger.warn("Trying loading 3.0 bminfo");
+			logger.warn("error retrieving system configuration from database ({}), will try 3.0 bm-info",
+					e.getMessage());
 
 			try {
 				values.putAll(systemConfStore.get30());
