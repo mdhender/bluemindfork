@@ -18,6 +18,7 @@
 package net.bluemind.calendar.service.eventdeferredaction;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.time.ZoneId;
@@ -129,6 +130,31 @@ public class EventDeferredActionExecutorTests {
 		assertTrue(mailer.hasBeenCalled());
 		assertEquals(0, getDeferredActions(eventDate).size());
 		System.err.println("Took " + (System.currentTimeMillis() - time) + "ms to occur");
+	}
+
+	@Test
+	public void executingSingleDeferredActionWithNoAssociatedEventShouldGetDeleted() throws Exception {
+		ICalendar calendar = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+				ICalendarUids.defaultUserCalendar("testuser"));
+
+		final ZonedDateTime eventDate = ZonedDateTime.now().plusNanos(2000000000);
+
+		String uid = EventCreator.defaultVEvent(eventDate).withAlarm(-1).saveOnCalendar(calendar);
+
+		MockedSendmail mailer = new MockedSendmail();
+		EventDeferredActionExecutor executor = new EventDeferredActionExecutor();
+		executor.mailHelper = new EventMailHelper(mailer);
+
+		assertEquals(1, getDeferredActions(eventDate).size());
+
+		calendar.delete(uid, false);
+		executor.execute(eventDate);
+		long time = System.currentTimeMillis();
+		while (!mailer.hasBeenCalled() && System.currentTimeMillis() - time < 3000) {
+			Thread.sleep(100);
+		}
+		assertFalse(mailer.hasBeenCalled());
+		assertEquals(0, getDeferredActions(eventDate).size());
 	}
 
 	@Test
