@@ -75,6 +75,7 @@ public class ProducerTests {
 	@Before
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
+		Serializers.clear();
 		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 		ElasticsearchTestHelper.getInstance().beforeTest();
 

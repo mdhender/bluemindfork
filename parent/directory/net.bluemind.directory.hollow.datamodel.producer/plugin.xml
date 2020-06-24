@@ -24,9 +24,6 @@
    <extension
          point="net.bluemind.core.caches.registry.registration">
       <reg
-            impl="net.bluemind.directory.hollow.datamodel.producer.Serializers$Reg">
-      </reg>
-      <reg
             impl="net.bluemind.directory.hollow.datamodel.producer.impl.DomainVersions$Reg">
       </reg>
    </extension>
