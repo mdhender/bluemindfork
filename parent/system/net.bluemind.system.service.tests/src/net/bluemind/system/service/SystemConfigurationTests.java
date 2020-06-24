@@ -19,9 +19,9 @@
 package net.bluemind.system.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.HashMap;
@@ -47,7 +47,6 @@ public class SystemConfigurationTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		ValidatorHook.throwException = false;
@@ -93,7 +92,7 @@ public class SystemConfigurationTests {
 		service(SecurityContext.SYSTEM).updateMutableValues(values);
 
 		conf = service(SecurityContext.SYSTEM).getValues();
-		assertTrue(conf.values.containsKey("test2"));
+		assertFalse(conf.values.containsKey("test2"));
 		assertNull(conf.values.get("test2"));
 	}
 
