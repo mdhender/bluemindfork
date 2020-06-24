@@ -112,7 +112,7 @@ public class InstallationService implements IInstallation {
 
 	@Override
 	public TaskRef upgrade() throws ServerFault {
-		isAllowed();
+		checkPermissions();
 
 		InstallationVersion version = getVersion();
 
@@ -120,7 +120,7 @@ public class InstallationService implements IInstallation {
 		return context.provider().instance(ITasksManager.class).run(new InstallationUpgradeTask(context, from));
 	}
 
-	private void isAllowed() {
+	private void checkPermissions() {
 		if (!context.getSecurityContext().isDomainGlobal()) {
 			throw new ServerFault("only admin0 can do upgrade", ErrorCode.NOT_GLOBAL_ADMIN);
 		}
@@ -134,7 +134,7 @@ public class InstallationService implements IInstallation {
 
 	@Override
 	public TaskRef postinst() {
-		isAllowed();
+		checkPermissions();
 
 		return context.provider().instance(ITasksManager.class).run(new PostInstTask());
 	}
