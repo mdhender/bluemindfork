@@ -55,7 +55,7 @@ public class PostInstTask implements IServerTask {
 		try {
 			postinst.stream().forEach(upgrader -> runUpgrader(upgraderMonitor, upgrader));
 		} catch (ServerFault sf) {
-			monitor.end(false, "Post-installation upgrade fail!", "");
+			monitor.end(false, "Post-installation upgrade failed!", "");
 		}
 	}
 
