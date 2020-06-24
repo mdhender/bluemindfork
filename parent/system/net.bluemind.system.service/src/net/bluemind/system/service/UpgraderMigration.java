@@ -115,6 +115,10 @@ public class UpgraderMigration {
 				sequences.addAll(Arrays.asList(290));
 			}
 
+			if (fromRelease > 43927) {
+				sequences.addAll(Arrays.asList(300, 310, 320, 330, 340, 350, 360, 370, 380, 390));
+			}
+
 			if (fromRelease > 47229) {
 				sequences.addAll(Arrays.asList(400));
 			}
