@@ -4,8 +4,6 @@
     "name":"bluemind/imap-role"
             },{
     "name":"bluemind/smtp-role"
-        },{ 
-    "name":"bluemind/elasticsearch-tests" 
-		},{
+        },{
     "name":"bluemind/node-tests"
 }]

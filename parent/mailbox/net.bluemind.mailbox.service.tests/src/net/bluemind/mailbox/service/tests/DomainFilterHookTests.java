@@ -32,7 +32,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -57,7 +56,6 @@ public class DomainFilterHookTests {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
-		ElasticsearchTestHelper.getInstance().beforeTest();
 		final CountDownLatch launched = new CountDownLatch(1);
 		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
 			@Override
@@ -73,13 +71,9 @@ public class DomainFilterHookTests {
 		imapServer.ip = new BmConfIni().get("imap-role");
 		imapServer.tags = Lists.newArrayList("mail/imap");
 
-		Server esServer = new Server();
-		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
+		PopulateHelper.initGlobalVirt(imapServer);
 
-		PopulateHelper.initGlobalVirt(imapServer, esServer);
-
-		PopulateHelper.createTestDomain(domainUid, imapServer, esServer);
+		PopulateHelper.createTestDomain(domainUid, imapServer);
 	}
 
 	@Test
