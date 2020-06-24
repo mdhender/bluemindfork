@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.core.api.VersionInfo;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -73,7 +75,11 @@ public class UpgraderMigration {
 		}
 
 		Set<Integer> sequences = new HashSet<>();
-		if (Integer.parseInt(from.release) > 48913) {
+
+		String installationDateAsString = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class).getValues()
+				.stringValue(SysConfKeys.installation_release_date.name());
+		if (!Strings.isNullOrEmpty(installationDateAsString)) {
 			// installation >= 4.3, we register all upgraders 4.0 -> 4.3 + all upgraders <
 			// installation date
 
@@ -81,7 +87,7 @@ public class UpgraderMigration {
 					280, 270, 260, 250, 240, 230, 220, 210, 200, 190, 180, 170, 160, 150, 140, 130, 120, 110, 100, 90,
 					80, 70, 60, 50, 40, 50, 60, 50, 40, 30, 20, 10, 7, 0));
 
-			registerUpgradersByInstallationDate(store, servers);
+			registerUpgradersByInstallationDate(store, servers, installationDateAsString);
 		} else {
 
 			int fromRelease = Integer.parseInt(from.release);
@@ -138,11 +144,8 @@ public class UpgraderMigration {
 		}
 	}
 
-	private static void registerUpgradersByInstallationDate(UpgraderStore store, List<String> servers)
-			throws Exception {
-		String installationDateAsString = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(ISystemConfiguration.class).getValues()
-				.stringValue(SysConfKeys.installation_release_date.name());
+	private static void registerUpgradersByInstallationDate(UpgraderStore store, List<String> servers,
+			String installationDateAsString) throws Exception {
 		Date installationDate = new SimpleDateFormat("yyyy-MM-dd").parse(installationDateAsString);
 
 		SchemaUpgrade.getUpgradePath().forEach(upgrader -> {
@@ -151,7 +154,6 @@ public class UpgraderMigration {
 				registerUpgrader(store, servers, Upgrader.toId(upgrader.date(), upgrader.sequence()));
 			}
 		});
-
 	}
 
 }
