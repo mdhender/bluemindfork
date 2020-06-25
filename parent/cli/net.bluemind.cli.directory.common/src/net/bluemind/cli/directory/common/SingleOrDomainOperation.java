@@ -48,15 +48,24 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 	private class OperationResult {
 		public final DirEntryWithDomain dirEntryWithDomain;
 		public final Exception exception;
+		public final boolean noop;
 
 		public OperationResult(DirEntryWithDomain dirEntryWithDomain) {
 			this.dirEntryWithDomain = dirEntryWithDomain;
 			this.exception = null;
+			this.noop = false;
 		}
 
 		public OperationResult(DirEntryWithDomain dirEntryWithDomain, Exception exception) {
 			this.dirEntryWithDomain = dirEntryWithDomain;
 			this.exception = exception;
+			this.noop = false;
+		}
+
+		public OperationResult(DirEntryWithDomain dirEntryWithDomain, boolean noop) {
+			this.dirEntryWithDomain = dirEntryWithDomain;
+			this.exception = null;
+			this.noop = noop;
 		}
 
 		public boolean isError() {
@@ -104,6 +113,8 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 		entriesWithDomainUid.forEach(de -> opsWatcher.submit(() -> {
 			try {
 				synchronousDirOperation(de.domainUid, de.dirEntry);
+			} catch (NoopException no) {
+				return new OperationResult(de, true);
 			} catch (Exception e) {
 				return new OperationResult(de, e);
 			}
@@ -112,12 +123,17 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 		}));
 
 		int ended = 0;
+		int noops = 0;
 		for (int i = 0; i < entriesWithDomainUid.size(); i++) {
 			OperationResult operationResult = null;
 			try {
 				operationResult = opsWatcher.take().get();
 			} catch (InterruptedException | ExecutionException e) {
 				throw new RuntimeException(e);
+			}
+
+			if (operationResult.noop) {
+				noops++;
 			}
 
 			if (operationResult.isError()) {
@@ -135,6 +151,10 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 			if (!noProgress) {
 				ctx.progress(entriesWithDomainUid.size(), ++ended);
 			}
+		}
+		if (noops > 0) {
+			int handled = entriesWithDomainUid.size() - noops;
+			ctx.info("Handled " + handled + " entries. " + noops + " entries have been ignored");
 		}
 	}
 
