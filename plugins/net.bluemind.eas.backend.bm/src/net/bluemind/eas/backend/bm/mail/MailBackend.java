@@ -46,6 +46,7 @@ import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
+import net.bluemind.backend.mail.api.flags.FlagUpdate;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.calendar.api.ICalendar;
@@ -290,34 +291,24 @@ public class MailBackend extends CoreConnect {
 			}
 
 			MSEmail email = (MSEmail) data;
-			if (email.isRead() != null) {
-				if (email.isRead()) {
-					item.value.flags.add(MailboxItemFlag.System.Seen.value());
-				} else {
-					item.value.flags.removeIf(f -> f.equals(MailboxItemFlag.System.Answered.value()));
-				}
-			}
-
-			if (email.isStarred() != null) {
-				if (email.isStarred()) {
-					item.value.flags.add(MailboxItemFlag.System.Flagged.value());
-				} else {
-					item.value.flags.removeIf(f -> f.equals(MailboxItemFlag.System.Flagged.value()));
-				}
-			}
-			try {
-				service.updateById(id, item.value);
-			} catch (ServerFault sf) {
-				sf.printStackTrace();
-				if (sf.getCode() != ErrorCode.TIMEOUT) {
-					throw sf;
-				}
-			}
+			validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, id);
+			validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, id);
 
 			return ci;
 		}
 
 		return null;
+	}
+
+	private void validateFlag(Boolean property, MailboxItemFlag flag, IMailboxItems service, long id) {
+		if (property != null) {
+			if (property.booleanValue()) {
+				service.addFlag(FlagUpdate.of(id, flag));
+			} else {
+				service.deleteFlag(FlagUpdate.of(id, flag));
+			}
+		}
+
 	}
 
 	public List<MoveItemsResponse.Response> move(BackendSession bs, HierarchyNode srcFolder, HierarchyNode dstFolder,
@@ -434,8 +425,7 @@ public class MailBackend extends CoreConnect {
 			}
 			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 			ItemValue<MailboxItem> item = service.getCompleteById(uid);
-			item.value.flags.add(MailboxItemFlag.System.Answered.value());
-			service.updateById(uid, item.value);
+			service.addFlag(FlagUpdate.of(item.internalId, MailboxItemFlag.System.Answered.value()));
 
 			send(bs, mailContent, rewriter, saveInSent);
 		} catch (Exception e) {
@@ -466,8 +456,7 @@ public class MailBackend extends CoreConnect {
 
 			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 			ItemValue<MailboxItem> item = service.getCompleteById(uid);
-			item.value.flags.add(new MailboxItemFlag("$Forwarded"));
-			service.updateById(uid, item.value);
+			service.addFlag(FlagUpdate.of(item.internalId, new MailboxItemFlag("$Forwarded")));
 
 			send(bs, mailContent, rewriter, saveInSent);
 		} catch (Exception e) {
