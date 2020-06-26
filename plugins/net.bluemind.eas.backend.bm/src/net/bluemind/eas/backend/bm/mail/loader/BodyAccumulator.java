@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.mail.api.MessageBody.Part;
@@ -62,7 +63,7 @@ public class BodyAccumulator {
 	}
 
 	public BodyAccumulator(BodyOptions options) {
-		if (options.bodyPrefs != null && options.bodyPrefs.size() > 0) {
+		if (options.bodyPrefs != null && !options.bodyPrefs.isEmpty()) {
 			BodyPreference bp = options.bodyPrefs.get(0);
 			needed = bp.type;
 			if (bp.truncationSize != null) {
@@ -82,15 +83,14 @@ public class BodyAccumulator {
 	public InputStream toInputStream(Stream stream) throws InterruptedException, ExecutionException, TimeoutException {
 		CompletableFuture<Buffer> partContent = SyncStreamDownload.read(stream);
 		Buffer partValue = partContent.get(15, TimeUnit.SECONDS);
-		return new FastByteInputStream(partValue.getBytes());
+		return new ByteBufInputStream(partValue.getByteBuf());
 	}
 
 	public void consumeMime(Stream stream) {
-		CompletableFuture<Buffer> partContent = SyncStreamDownload.read(stream);
+		fbos = new FileBackedOutputStream(32768, "body-accu-consume");
+		CompletableFuture<Void> partContent = SyncStreamDownload.read(stream, fbos);
 		try {
-			Buffer buff = partContent.get(15, TimeUnit.SECONDS);
-			fbos = new FileBackedOutputStream(32768, "body-accu-consume");
-			fbos.write(buff.getBytes());
+			partContent.get(15, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

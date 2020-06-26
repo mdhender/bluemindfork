@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import io.netty.buffer.ByteBufInputStream;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxItem;
@@ -31,7 +32,6 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.MailFolder;
 import net.bluemind.eas.backend.bm.impl.CoreConnect;
-import net.bluemind.eas.backend.bm.mail.loader.FastByteInputStream;
 import net.bluemind.eas.backend.bm.mail.loader.SyncStreamDownload;
 
 public class AttachmentLoader extends CoreConnect {
@@ -56,7 +56,7 @@ public class AttachmentLoader extends CoreConnect {
 		Stream partStream = service.fetch(item.value.imapUid, partAddr, contentTransferEncoding, null, null, null);
 		CompletableFuture<Buffer> partContent = SyncStreamDownload.read(partStream);
 		Buffer part = partContent.get(10, TimeUnit.SECONDS);
-		return new FastByteInputStream(part.getBytes());
+		return new ByteBufInputStream(part.getByteBuf());
 	}
 
 }
