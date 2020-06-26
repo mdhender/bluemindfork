@@ -32,6 +32,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.dom.Message;
 import org.junit.Assert;
@@ -45,6 +46,8 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Part;
+import net.bluemind.backend.mail.api.MessageBody.Recipient;
+import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
 import net.bluemind.backend.mail.parsing.Bodies;
 import net.bluemind.backend.mail.parsing.BodyStreamProcessor;
 import net.bluemind.backend.mail.parsing.BodyStreamProcessor.MessageBodyData;
@@ -266,5 +269,23 @@ public class BodyStreamProcessorTests {
 		Part thirdChild = result.body.structure.children.get(2);
 		Assert.assertEquals(DispositionType.ATTACHMENT, thirdChild.dispositionType);
 		Assert.assertEquals("Undelivred Message Headers.txt", thirdChild.fileName);
+	}
+
+	@Test
+	public void testEmptyFromAddress() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+		Stream stream = openResource("data/empty_from_address.eml");
+		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
+		assertNotNull(result);
+
+		List<Recipient> originators = result.body.recipients.stream().filter(r -> r.kind == RecipientKind.Originator)
+				.collect(Collectors.toList());
+		assertEquals(1, originators.size());
+		Recipient originator = originators.get(0);
+		assertEquals(null, originator.dn);
+		assertEquals("Christian Bergere", originator.address);
+
+		JsonObject asJs = new JsonObject(JsonUtils.asString(result.body.structure));
+		System.out.println("JS: " + asJs.encodePrettily());
+
 	}
 }
