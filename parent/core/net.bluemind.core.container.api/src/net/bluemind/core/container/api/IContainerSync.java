@@ -36,5 +36,10 @@ public interface IContainerSync {
 	public TaskRef sync() throws ServerFault;
 
 	@GET
+	@Path("_last")
 	public Date getLastSync() throws ServerFault;
+
+	@GET
+	@Path("_next")
+	public Date getNextSync() throws ServerFault;
 }

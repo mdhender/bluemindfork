@@ -80,12 +80,6 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 	 */
 	private static final Set<String> syncingCals = ConcurrentHashMap.newKeySet();
 
-	/**
-	 * A calendar synchronization with too many changes will be considered as
-	 * erroneous.
-	 */
-	private static final int MAX_SYNC_OPERATIONS = 50;
-
 	/** When this limit is reached, sync on demand stops. */
 	public static int syncErrorLimit() {
 		return CalendarService.SYNC_ERRORS_LIMIT;
@@ -213,15 +207,8 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 
 	private static void updateSyncStatus(final ContainerSyncStatus previousSyncStatus,
 			final ContainerSyncResult containerSyncResult, final BmContext context, final Container container) {
-		if (hasTooManySyncOperations(containerSyncResult)) {
-			containerSyncResult.status.syncStatus = Status.ERROR;
-			LOGGER.warn("Calendar {} ICS has too many changes (>{})", container.name, MAX_SYNC_OPERATIONS);
-		}
-
-		// update the calendar synchronization status
 		final ContainerSyncStatus newStatus;
 		if (containerSyncResult == null || Status.ERROR == containerSyncResult.status.syncStatus) {
-			// increment errors
 			if (containerSyncResult == null) {
 				newStatus = previousSyncStatus;
 			} else {
@@ -230,22 +217,11 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 			newStatus.errors = previousSyncStatus != null ? previousSyncStatus.errors + 1 : 1;
 		} else {
 			newStatus = containerSyncResult.status;
-			// a success resets errors
 			newStatus.errors = 0;
 		}
 		final ContainerSyncStore containerSyncStore = new ContainerSyncStore(
 				DataSourceRouter.get(context, container.uid), container);
 		containerSyncStore.setSyncStatus(newStatus);
-	}
-
-	private static boolean hasTooManySyncOperations(final ContainerSyncResult containerSyncResult) {
-		final int operations = containerSyncResult.added + containerSyncResult.removed + containerSyncResult.updated;
-		final int daysSinceLastSync = daysSinceLastSync(containerSyncResult.status);
-		if (daysSinceLastSync > 0) {
-			return operations / daysSinceLastSync(containerSyncResult.status) > MAX_SYNC_OPERATIONS;
-		} else {
-			return operations > MAX_SYNC_OPERATIONS;
-		}
 	}
 
 	protected static int daysSinceLastSync(final ContainerSyncStatus containerSyncStatus) {
