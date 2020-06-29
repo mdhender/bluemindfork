@@ -229,10 +229,14 @@ public final class ClientSupport {
 			lock.release();
 			throw new IMAPRuntimeException("Not connected to server.");
 		}
+		if (responses == null) {
+			lock.release();
+			throw new IMAPRuntimeException("null responses to " + sentTag);
+		}
 		try {
 			String receivedTag = cmd.taggedResponseReceived(responses);
 			if (!sentTag.equals(receivedTag)) {
-				logger.error("TAG MISMATCH, C: " + sentTag + ", S: " + receivedTag);
+				logger.error("TAG MISMATCH, C: {}, S: {}", sentTag, receivedTag);
 				// when everything fails
 				// System.exit(1);
 			}

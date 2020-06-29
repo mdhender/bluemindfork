@@ -65,8 +65,8 @@ public class SystemConfiguration implements ISystemConfiguration {
 			} catch (IOException e) {
 				logger.error("error during loading bm.ini", e);
 			}
-		} else {
-			logger.warn("/etc/bm/bm.ini not found");
+		} else if (logger.isDebugEnabled()) {
+			logger.debug("/etc/bm/bm.ini not found");
 		}
 
 		Map<String, String> values = props.entrySet().stream()

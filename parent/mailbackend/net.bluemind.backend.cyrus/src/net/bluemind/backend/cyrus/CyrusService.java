@@ -309,7 +309,7 @@ public class CyrusService {
 	}
 
 	public void reset() throws ServerFault {
-		NCUtils.execNoOut(nodeClient, "/usr/share/bm-cyrus/resetCyrus.sh", 5, TimeUnit.SECONDS);
-		NCUtils.execNoOut(nodeClient, "rm -rf /var/lib/cyrus/sync", 5, TimeUnit.SECONDS);
+		NCUtils.execNoOut(nodeClient, "/usr/share/bm-cyrus/resetCyrus.sh", 30, TimeUnit.SECONDS);
+		NCUtils.execNoOut(nodeClient, "rm -rf /var/lib/cyrus/sync", 30, TimeUnit.SECONDS);
 	}
 }
