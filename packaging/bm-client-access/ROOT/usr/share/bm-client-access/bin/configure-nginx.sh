@@ -89,6 +89,9 @@ fi
 rm -f /etc/nginx/BM-DONOTCONF
 
 echo "Install/Upgrade BlueMind nginx virtual host"
+
+[ -e /etc/nginx/bm-local.d/tick.conf ] && rm -f /etc/nginx/bm-local.d/tick.conf
+
 forceNginxConfiguration /etc/nginx/sites-available/bm-client-access /usr/share/doc/bm-client-access/bm-client-access
 forceNginxConfiguration /etc/nginx/sites-available/bm-client-access-without-password /usr/share/doc/bm-client-access/bm-client-access-without-password
 forceNginxConfiguration /etc/nginx/global.d/bm-mail-proxy.conf /usr/share/doc/bm-client-access/global.d/bm-mail-proxy.conf
