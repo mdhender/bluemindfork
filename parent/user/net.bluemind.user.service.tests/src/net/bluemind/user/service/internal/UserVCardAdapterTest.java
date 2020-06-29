@@ -21,6 +21,7 @@ package net.bluemind.user.service.internal;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -32,6 +33,7 @@ import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.user.api.User;
 
 public class UserVCardAdapterTest {
@@ -105,6 +107,29 @@ public class UserVCardAdapterTest {
 		assertNotNull(card);
 		assertEquals(1 + 4 + 1, card.communications.emails.size());
 		assertEquals("1@origin.net", card.defaultMail());
+	}
+
+	@Test
+	public void testUserWithRoutingNoneShouldHaveNoInternalEmailsInVCard() {
+		Domain d = new Domain();
+		d.aliases = ImmutableSet.<String>builder().add("a.net").add("b.net").add("c.net").build();
+		d.name = "origin.net";
+		ItemValue<Domain> domain = ItemValue.create("origin.net", d);
+
+		User user = new User();
+		user.routing = Routing.none;
+		user.contactInfos = new VCard();
+		user.contactInfos.communications.emails = Arrays.asList(VCard.Communications.Email.create("1@a.net"),
+				VCard.Communications.Email.create("external@ext.net"), VCard.Communications.Email.create("1@b.net"),
+				VCard.Communications.Email.create("1@c.net"), VCard.Communications.Email.create("1@origin.net"));
+		user.contactInfos.identification.formatedName = FormatedName.create("gg");
+		user.emails = new ArrayList<>();
+
+		UserVCardAdapter adapter = new UserVCardAdapter();
+		VCard card = adapter.asVCard(domain, "zz", user);
+		assertNotNull(card);
+		assertEquals(1, card.communications.emails.size());
+		assertEquals("external@ext.net", card.communications.emails.get(0).value);
 	}
 
 	@Test
