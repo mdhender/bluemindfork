@@ -30,6 +30,7 @@ import com.google.common.base.Splitter;
 
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpServerRequest;
@@ -42,7 +43,6 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.http.vertx.NeedVertxExecutor;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
-import net.bluemind.lib.vertx.BlockingCode;
 import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.network.topology.TopologyException;
@@ -55,7 +55,6 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 	private static final Logger logger = LoggerFactory.getLogger(Nginx.class);
 
 	private Vertx vertx;
-	private BlockingCode blocking;
 	private static Optional<String> defaultDomain;
 
 	private static class QueryParameters {
@@ -141,7 +140,15 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 			}
 			QueryParameters qp = QueryParameters.fromRequest(req, time);
 
-			blocking.run(() -> computeResponse(qp)).whenComplete((ar, ex) -> {
+			vertx.executeBlocking((Promise<AuthResponse> prom) -> {
+				try {
+					prom.complete(computeResponse(qp));
+				} catch (Exception e) {
+					prom.fail(e);
+				}
+			}, false, res -> {
+				Throwable ex = res.cause();
+				AuthResponse ar = res.result();
 				if (ex != null) {
 					logger.error(ex.getMessage(), ex);
 					fail(qp, resp);
@@ -151,7 +158,6 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 					succeed(resp, qp, ar.backendSrv, ar.backendLatd);
 				}
 				resp.end();
-
 			});
 
 		});
@@ -213,6 +219,7 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 	private void fail(QueryParameters qp, HttpServerResponse resp) {
 		logger.error("[{}] Denied auth from {}", qp == null ? null : qp.latd, qp == null ? null : qp.clientIp);
 		resp.headers().add("Auth-Status", "Invalid login or password");
+		resp.headers().add("Auth-Wait", "2");
 	}
 
 	private void succeed(HttpServerResponse resp, QueryParameters qp, String backendSrv, String backendLatd) {
@@ -239,15 +246,9 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 	@Override
 	public void setVertxExecutor(Vertx vertx, ExecutorService bmExecutor) {
 		this.vertx = vertx;
-		this.blocking = BlockingCode.forVertx(this.vertx).withExecutor(bmExecutor);
 		logger.info("Init with {}", vertx);
 
-		vertx.eventBus().consumer("bm.defaultdomain.changed", new Handler<Message<Object>>() {
-			@Override
-			public void handle(Message<Object> event) {
-				loadDefaultDomain();
-			}
-		});
+		vertx.eventBus().consumer("bm.defaultdomain.changed", (Message<Object> event) -> loadDefaultDomain());
 
 	}
 }
