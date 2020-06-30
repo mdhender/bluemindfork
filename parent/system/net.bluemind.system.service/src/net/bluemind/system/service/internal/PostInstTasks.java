@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -8,7 +8,6 @@
  * it under the terms of either the GNU Affero General Public License as
  * published by the Free Software Foundation (version 3 of the License).
  *
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -16,29 +15,22 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.dataprotect.calendar.internal;
+package net.bluemind.system.service.internal;
 
-import java.util.Collections;
 import java.util.List;
 
-import net.bluemind.system.schemaupgrader.ISchemaUpgradersProvider;
-import net.bluemind.system.schemaupgrader.Updater;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
+import net.bluemind.system.schemaupgrader.PostInst;
 
-public class RestoreSchemaProvider implements ISchemaUpgradersProvider {
+public class PostInstTasks {
 
-	@Override
-	public List<Updater> allJavaUpdaters() {
-		return Collections.emptyList();
+	private PostInstTasks() {
+
 	}
 
-	@Override
-	public List<Updater> allSqlUpdaters() {
-		return Collections.emptyList();
-	}
-
-	@Override
-	public boolean isActive() {
-		return true;
+	public static List<PostInst> postInstJavaUpdaters() {
+		RunnableExtensionLoader<PostInst> epLoader = new RunnableExtensionLoader<>();
+		return epLoader.loadExtensionsWithPriority("net.bluemind.system.schemaupgrader", "postinst", "java", "code");
 	}
 
 }

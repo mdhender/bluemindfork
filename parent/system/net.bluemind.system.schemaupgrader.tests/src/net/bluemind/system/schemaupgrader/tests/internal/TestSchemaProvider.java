@@ -22,7 +22,6 @@ import java.util.List;
 
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.system.schemaupgrader.ISchemaUpgradersProvider;
-import net.bluemind.system.schemaupgrader.PostInst;
 import net.bluemind.system.schemaupgrader.SqlScripts;
 import net.bluemind.system.schemaupgrader.Updater;
 
@@ -45,12 +44,6 @@ public class TestSchemaProvider implements ISchemaUpgradersProvider {
 	@Override
 	public boolean isActive() {
 		return true;
-	}
-
-	@Override
-	public List<PostInst> postInstJavaUpdaters() {
-		RunnableExtensionLoader<PostInst> epLoader = new RunnableExtensionLoader<>();
-		return epLoader.loadExtensionsWithPriority("net.bluemind.system.schemaupgrader", "postinst", "java", "code");
 	}
 
 }
