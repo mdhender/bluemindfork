@@ -1,0 +1,14 @@
+[
+  {
+    "namespace": "RPCClientApi",
+    "functions": [
+      {
+        "name": "init",
+        "type": "function",
+        "description": "RPCClient",
+        "async": true,
+        "parameters": []
+      }
+    ]
+  }
+]

@@ -12,6 +12,16 @@
       </download>
    </extension>
    <extension
+         point="net.bluemind.ui.settings.downloads">
+      <download
+            description="%download.description.1"
+            role="hasTbird"
+            section="downloads"
+            title="%download.title.1"
+            url="/settings/settings/download/tbird-webext.xpi">
+      </download>
+   </extension>
+   <extension
          point="net.bluemind.webmodule">
       <web-module-provider
             module="/settings">
@@ -23,12 +33,20 @@
                path="settings/download/tbird.xpi">
          </handler>
          <handler
+               class="net.bluemind.ui.settings.downloads.tbird.TBirdDownloadHandlerWebExt"
+               path="settings/download/tbird-webext.xpi">
+         </handler>
+         <handler
          class="net.bluemind.ui.settings.downloads.tbird.TBirdUpdateRdf"
                path="settings/download/updateRdf">
          </handler>
          <handler
-         class="net.bluemind.ui.settings.downloads.tbird.TBirdUpdateJson"
+               class="net.bluemind.ui.settings.downloads.tbird.TBirdUpdateJson"
                path="settings/download/updateJson">
+         </handler>
+         <handler
+               class="net.bluemind.ui.settings.downloads.tbird.TBirdUpdateJsonWebExt"
+               path="settings/download/updateJson-webext">
          </handler>
       </web-module-provider>
    </extension>

@@ -1,0 +1,14 @@
+[
+  {
+    "namespace": "BmDirWrapperApi",
+    "functions": [
+      {
+        "name": "init",
+        "type": "function",
+        "description": "BmDirWrapper",
+        "async": true,
+        "parameters": []
+      }
+    ]
+  }
+]

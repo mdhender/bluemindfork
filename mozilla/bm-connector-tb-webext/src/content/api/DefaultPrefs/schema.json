@@ -1,0 +1,14 @@
+[
+  {
+    "namespace": "DefaultPrefsApi",
+    "functions": [
+      {
+        "name": "setExtensionDefaultPrefs",
+        "type": "function",
+        "description": "set Extension Default Prefs",
+        "async": true,
+        "parameters": []
+      }
+    ]
+  }
+]

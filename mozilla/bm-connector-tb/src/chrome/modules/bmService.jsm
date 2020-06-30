@@ -91,6 +91,7 @@ let bmService = {
         let loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
                 .getService(Components.interfaces.mozIJSSubScriptLoader);
         loader.loadSubScript("chrome://bm/content/monitor.js");
+        loader.loadSubScript("chrome://messenger/content/sanitize.js");
         this.monitor = gBMMonitor;
         this.monitor.startListening();
         loader.loadSubScript("chrome://bm/content/contactSync.js");
@@ -160,9 +161,45 @@ let bmService = {
         bmUtils.setCharPref("extensions.bm.folders.lastSync", "0");
         bmUtils.setCharPref("extensions.bm.folders.deleted", "");
         bmUtils.setCharPref("extensions.bm.lists.lastSync", "0");
+        this._clearCacheAndCookies();
+        this._clearIndexedDB();
         this.monitor.startListening();
         this._logger.info("*Reset done*");
     },
+    _clearCacheAndCookies: function() {
+        this._logger.info("Clear cookies and cache");
+        try {
+            Services.prefs.setBoolPref("privacy.cpd.cache", true);
+            Services.prefs.setBoolPref("privacy.cpd.cookies", true);
+            Services.prefs.setBoolPref("privacy.cpd.offlineApps", true);
+            let s = new Sanitizer();
+            s.prefDomain = "privacy.cpd.";
+            s.range = Sanitizer.getClearRange(Sanitizer.TIMESPAN_EVERYTHING);
+            s.ignoreTimespan = !s.range;
+            s.sanitize();
+        } catch(e) {
+            this._logger.error(e);
+        }
+    },
+    _clearIndexedDB: function() {
+		try {
+			//clear indexedDB
+			let serverUrl = bmUtils.getCharPref("extensions.bm.server", null);
+			if (serverUrl) {
+				this._logger.info("Clear indexedDB for uri:" + serverUrl);
+				let baseURI = Services.io.newURI(serverUrl, null, null);
+				let principal = Services.scriptSecurityManager.createCodebasePrincipal(baseURI, {});
+                try {
+                    Services.qms.clearStoragesForPrincipal(principal, null, true);
+                } catch(e) {
+                    //TB 68.3.1
+                    Services.qms.clearStoragesForPrincipal(principal);
+                }
+			}
+		} catch(e) {
+			this._logger.error(e);
+		}
+	},
     observe: function(aSubject, aTopic, aData) {
         if (aTopic == 'timer-callback' && !Services.io.offline) {
             this.doSync(true);

@@ -1,0 +1,14 @@
+[
+  {
+    "namespace": "LoggerApi",
+    "functions": [
+      {
+        "name": "init",
+        "type": "function",
+        "description": "Logger",
+        "async": true,
+        "parameters": []
+      }
+    ]
+  }
+]

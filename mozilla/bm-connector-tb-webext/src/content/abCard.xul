@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://bm/content/skin/style.css" type="text/css"?>
+
+<overlay id="bm-abCardOverlay" xmlns:html="http://www.w3.org/1999/xhtml"
+    onremove="gBMAbCard.onremove();">
+    <script type="application/x-javascript" src="chrome://bm/content/abCard.js" />
+    <script type="application/x-javascript" src="chrome://bm/content/apply-locales.js" />
+
+    <tab id="debugTabButton" label="Debug" accesskey="D" appendto="abTabs"/>
+    
+    <vbox id="abBmDebugTab" appendto="abTabPanels">
+        <button id="bmShowDebug" label="Show all props" oncommand="ShowProps();"/>
+        <html:textarea id="bmProps" readonly="true" rows="12"/>
+    </vbox>
+       
+    <hbox id="bmAlertLocalCard" hidden="true" appendto="editcard">
+        <label id="bmAlert" class="red" value="bm.card.alert.local;" />
+        <label id="bmOfList" value="" />
+    </hbox>
+    <hbox id="bmInError" hidden="true" appendto="editcard">
+        <label id="bmError" class="red" value="" />
+    </hbox>
+</overlay>

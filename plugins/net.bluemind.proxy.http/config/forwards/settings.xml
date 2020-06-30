@@ -6,6 +6,8 @@
 			<wl uri="/download/updateRdf" />
 			<wl uri="/download/updateJson" />
 			<wl uri="/download/tbird.xpi" />
+			<wl uri="/download/updateJson-webext" />
+			<wl uri="/download/tbird-webext.xpi" />
 			<wl uri="/download/outlookx86" />
 			<wl uri="/download/outlookx64" />
 		</whitelist>

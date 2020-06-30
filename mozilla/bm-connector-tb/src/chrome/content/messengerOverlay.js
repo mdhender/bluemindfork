@@ -435,6 +435,12 @@ var gBMOverlay = {
 		bmUtils.setIntPref("network.cookie.cookieBehavior", 0);
 		/* The cookie's lifetime is supplied by the server */
 		bmUtils.setIntPref("network.cookie.lifetimePolicy", 0);
+		// default prefs are not migrated when uprading TB
+		let branch = Services.prefs.getDefaultBranch("");
+		branch.setBoolPref("extensions.update.requireBuiltInCerts", true);
+		branch.setBoolPref("extensions.install.requireBuiltInCerts", true);
+		bmUtils.setBoolPref("extensions.update.requireBuiltInCerts", false);
+		bmUtils.setBoolPref("extensions.install.requireBuiltInCerts", false);
 	}
 };
 

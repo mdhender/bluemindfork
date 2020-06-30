@@ -1,0 +1,14 @@
+[
+  {
+    "namespace": "BmDirectoryApi",
+    "functions": [
+      {
+        "name": "init",
+        "type": "function",
+        "description": "BmDirectory",
+        "async": true,
+        "parameters": []
+      }
+    ]
+  }
+]

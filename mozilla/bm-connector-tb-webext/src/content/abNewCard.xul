@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://bm/content/skin/style.css" type="text/css"?>
+
+<overlay id="bm-ab-overlay" xmlns:html="http://www.w3.org/1999/xhtml"
+  onremove="gBMAbNewCard.onremove();">
+
+  <script type="application/x-javascript" src="chrome://bm/content/abNewCard.js" />
+
+</overlay>

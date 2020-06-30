@@ -30,6 +30,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
@@ -47,12 +48,31 @@ public class TBirdUpdateJson implements Handler<HttpServerRequest> {
 
 	@Override
 	public void handle(HttpServerRequest request) {
+		String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
+		String downloadUrl = "https://%s/settings/settings/download/";
+		String version = Activator.bundle.getVersion().toString();
+
+		// Add .0 to legacy version and .1 to webext version
+		// to handle update from legacy extension to webext when updating to TB 78.
+		// Sample scenario:
+		// - TB 68 with legacy connector v 4.3.2000
+		// - update BM to v 4.3.2030
+		// - TB 68 update connector to v 4.3.2030.0
+		// - TB 68 update to TB 78
+		// - TB 78 update connector to v 4.3.2030.1
+		if (userAgent.contains("Thunderbird/78")) {
+			downloadUrl += "tbird-webext.xpi";
+			version += ".1";
+		} else {
+			downloadUrl += "tbird.xpi";
+			version += ".0";
+		}
+
 		StringWriter sw = new StringWriter();
 
 		Map<String, Object> model = new HashMap<>();
-		model.put("version", Activator.bundle.getVersion().toString());
-		model.put("url", String.format("https://%s/settings/settings/download/tbird.xpi",
-				TBirdDownloadHandler.getExternalUrl()));
+		model.put("version", version);
+		model.put("url", String.format(downloadUrl, TBirdDownloadHandler.getExternalUrl()));
 
 		try {
 			template.process(model, sw);

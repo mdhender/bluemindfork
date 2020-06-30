@@ -1,0 +1,14 @@
+[
+  {
+    "namespace": "AutocompleteApi",
+    "functions": [
+      {
+        "name": "init",
+        "type": "function",
+        "description": "Autocomplete",
+        "async": true,
+        "parameters": []
+      }
+    ]
+  }
+]
