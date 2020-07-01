@@ -10,10 +10,12 @@
       </extension>
       <extension point="net.bluemind.webmodule">
             <web-module-provider module="*">
-                  <handler class="net.bluemind.webmodule.server.handlers.ServiceWorkerHandler" path="sw.js">
-                  </handler>
                   <web-resource bundle="net.bluemind.webmodule.server">
                   </web-resource>
+            </web-module-provider>
+            <web-module-provider module="/cal,/task,/contact">
+                  <handler class="net.bluemind.webmodule.server.handlers.ServiceWorkerHandler" path="sw.js">
+                  </handler>
                   <js async-loading="false" path="sw-register.js" translation="false">
                   </js>
             </web-module-provider>
