@@ -443,14 +443,11 @@ public class AddressBookService implements IInCoreAddressBook {
 				}
 
 			};
-			// FIXME : Not enough... a group can be member of another group, we
-			// should
-			// create vcard according to dependencies constraints
+
 			Map<Boolean, List<ItemAdd>> isGroupPartitions = changes.add.stream()
 					.collect(Collectors.partitioningBy(c -> c.value.kind == VCard.Kind.group));
 			isGroupPartitions.get(false).forEach(createOrUpdate);
-			isGroupPartitions.get(true).forEach(createOrUpdate);
-
+			GroupSortingByDependencies.sortByDependencies(isGroupPartitions.get(true)).forEach(createOrUpdate);
 		}
 
 		if (changes.modify != null && changes.modify.size() > 0) {

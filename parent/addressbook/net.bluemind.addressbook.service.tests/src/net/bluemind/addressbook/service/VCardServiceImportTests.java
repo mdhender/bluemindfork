@@ -226,6 +226,28 @@ public class VCardServiceImportTests extends AbstractServiceTests {
 		assertEquals("testmember@bm.loc", member.mailto);
 	}
 
+	@Test
+	public void testImportGroupMemberDependencyResolving() throws Exception {
+		List<String> uids = importCards("vcfFile/group_deps.vcf");
+		assertEquals(7, uids.size());
+
+		boolean checked = false;
+		for (String uid : uids) {
+			ItemValue<VCard> cardItem = getService(defaultSecurityContext).getComplete(uid);
+			if (cardItem.displayName.equals("ald3")) {
+				assertEquals(2, cardItem.value.organizational.member.size());
+				for (Member m : cardItem.value.organizational.member) {
+					// check reference to group listed after this group in the VCF file
+					if (m.commonName.equals("ald2")) {
+						checked = true;
+					}
+				}
+			}
+		}
+
+		assertTrue(checked);
+	}
+
 	// TODO test import organization
 
 	private ItemValue<VCard> importProperty(boolean appendFN, String... propertyValue) throws ServerFault {
