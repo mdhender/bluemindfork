@@ -173,7 +173,7 @@ public class LdapAddressbookCreationWidget extends CompositeGwtWidgetElement {
 		descriptor.getSettings().put("type", LdapParameters.DirectoryType.ldap.name());
 		descriptor.getSettings().put("hostname", ldapHostname.getValue());
 		descriptor.getSettings().put("protocol", getLdapProtocol());
-		descriptor.getSettings().put("allCerticate", getAllCertificate() ? "true" : "false");
+		descriptor.getSettings().put("allCertificate", getAllCertificate() ? "true" : "false");
 		descriptor.getSettings().put("baseDn", ldapBaseDn.getValue());
 		descriptor.getSettings().put("loginDn", ldapLoginDn.getValue());
 		descriptor.getSettings().put("loginPw", ldapLoginPw.getValue());
