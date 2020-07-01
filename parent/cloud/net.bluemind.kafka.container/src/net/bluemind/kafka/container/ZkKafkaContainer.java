@@ -32,7 +32,7 @@ public class ZkKafkaContainer extends GenericContainer<ZkKafkaContainer> impleme
 	private static final Logger logger = LoggerFactory.getLogger(ZkKafkaContainer.class);
 
 	public ZkKafkaContainer() {
-		super("repository.blue-mind.loc:5001/bluemind/zk-kafka:4.1.50208");
+		super("repository.blue-mind.loc:5001/bluemind/zk-kafka:4.1.50901");
 		withExposedPorts(2181, port());
 		waitingFor(new org.testcontainers.containers.wait.strategy.AbstractWaitStrategy() {
 
