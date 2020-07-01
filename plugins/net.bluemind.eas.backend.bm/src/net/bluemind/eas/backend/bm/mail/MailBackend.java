@@ -291,8 +291,8 @@ public class MailBackend extends CoreConnect {
 			}
 
 			MSEmail email = (MSEmail) data;
-			validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, id);
-			validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, id);
+			validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, item);
+			validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, item);
 
 			return ci;
 		}
@@ -300,12 +300,13 @@ public class MailBackend extends CoreConnect {
 		return null;
 	}
 
-	private void validateFlag(Boolean property, MailboxItemFlag flag, IMailboxItems service, long id) {
+	private void validateFlag(Boolean property, MailboxItemFlag flag, IMailboxItems service,
+			ItemValue<MailboxItem> item) {
 		if (property != null) {
-			if (property.booleanValue()) {
-				service.addFlag(FlagUpdate.of(id, flag));
-			} else {
-				service.deleteFlag(FlagUpdate.of(id, flag));
+			if (property.booleanValue() && !item.value.flags.contains(flag)) {
+				service.addFlag(FlagUpdate.of(item.internalId, flag));
+			} else if (!property.booleanValue() && item.value.flags.contains(flag)) {
+				service.deleteFlag(FlagUpdate.of(item.internalId, flag));
 			}
 		}
 
