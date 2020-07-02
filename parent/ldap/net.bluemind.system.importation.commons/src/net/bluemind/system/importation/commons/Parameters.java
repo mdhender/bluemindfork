@@ -107,7 +107,7 @@ public class Parameters {
 			}
 		}
 
-		private final Host host;
+		private final Optional<Host> host;
 
 		public final String login;
 		public final String password;
@@ -115,7 +115,8 @@ public class Parameters {
 		public final LdapProtocol protocol;
 		public final boolean acceptAllCertificates;
 
-		public Server(Host host, String login, String password, LdapProtocol protocol, boolean acceptAllCertificates) {
+		public Server(Optional<Host> host, String login, String password, LdapProtocol protocol,
+				boolean acceptAllCertificates) {
 			this.host = host;
 			this.login = login;
 			this.password = password;
@@ -130,8 +131,8 @@ public class Parameters {
 		}
 
 		public List<Host> getLdapHost() {
-			if (host != null) {
-				return Arrays.asList(host);
+			if (host.isPresent()) {
+				return Arrays.asList(host.get());
 			}
 
 			return sortLdapHosts(getAlternativeHosts());
@@ -397,11 +398,11 @@ public class Parameters {
 
 	@Override
 	public String toString() {
-		return "LdapParameters [" + ((ldapServer.host != null) ? "hostname=" + ldapServer.host.hostname : "")
-				+ ", protocol=" + ldapServer.protocol + ", allCertificate=" + ldapServer.acceptAllCertificates
-				+ ", loginDn=" + ldapServer.login + ", lastupdate=" + lastUpdate + ", relayMailboxGroup="
-				+ splitDomain.relayMailboxGroup + ", baseDn=" + ldapDirectory.baseDn + ", userFilter="
-				+ ldapDirectory.userFilter + ", groupFilter=" + ldapDirectory.groupFilter + ", extId="
-				+ ldapDirectory.extIdAttribute + ", splitRelayEnabled=" + splitDomain.splitRelayEnabled + "]";
+		return String.format(
+				"LdapParameters [hostname=%s, protocol=%s, allCertificate=%b, loginDn=%s, lastupdate=%s, relayMailboxGroup=%s, baseDn=%s, userFilter=%s, groupFilter=%s, extId=%s, splitRelayEnabled=%s]",
+				ldapServer.host.isPresent() ? ldapServer.host.get().hostname : "undef", ldapServer.protocol,
+				ldapServer.acceptAllCertificates, ldapServer.login, lastUpdate, splitDomain.relayMailboxGroup,
+				ldapDirectory.baseDn, ldapDirectory.userFilter, ldapDirectory.groupFilter, ldapDirectory.extIdAttribute,
+				splitDomain.splitRelayEnabled);
 	}
 }

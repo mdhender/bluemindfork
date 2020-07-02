@@ -19,6 +19,7 @@ package net.bluemind.system.importation.commons.pool;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import net.bluemind.lib.ldap.LdapProtocol;
 import net.bluemind.system.importation.commons.Parameters.Server;
@@ -27,7 +28,7 @@ public class TestServer extends Server {
 	public List<Host> alternativeHosts = Collections.emptyList();
 
 	public TestServer(Host host, String login, String password, LdapProtocol protocol, boolean acceptAllCertificates) {
-		super(host, login, password, protocol, acceptAllCertificates);
+		super(Optional.of(host), login, password, protocol, acceptAllCertificates);
 	}
 
 	@Override
