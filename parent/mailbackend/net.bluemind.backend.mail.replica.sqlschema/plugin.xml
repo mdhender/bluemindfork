@@ -8,16 +8,5 @@
             resource="sql/mailreplica-schema-1.0.0.sql">
       </schema>
    </extension>
-   <extension
-         point="net.bluemind.system.schemaupgrader.sqlscript">
-      <sql
-            after_schema_upgrade="false"
-            database="net.bluemind.system.schemaupgrader.UpgraderDatabase$ALL"
-            date_yyyyMMdd="20200428" 
-            sequence="10"
-            ignore_errors="false"
-            script="sql/mailreplica-schema-1.0.0.sql">
-      </sql>
-   </extension>
-
+ 
 </plugin>
