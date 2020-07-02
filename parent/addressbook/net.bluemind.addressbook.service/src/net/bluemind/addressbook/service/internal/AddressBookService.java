@@ -75,6 +75,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sanitizer.Sanitizer;
+import net.bluemind.core.utils.DependencyResolver;
 import net.bluemind.core.utils.ImageUtils;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -447,7 +448,12 @@ public class AddressBookService implements IInCoreAddressBook {
 			Map<Boolean, List<ItemAdd>> isGroupPartitions = changes.add.stream()
 					.collect(Collectors.partitioningBy(c -> c.value.kind == VCard.Kind.group));
 			isGroupPartitions.get(false).forEach(createOrUpdate);
-			GroupSortingByDependencies.sortByDependencies(isGroupPartitions.get(true)).forEach(createOrUpdate);
+
+			DependencyResolver.sortByDependencies(isGroupPartitions.get(true), itemAdd -> itemAdd.uid,
+					itemAdd -> itemAdd.value.organizational.member.stream()
+							.filter(member -> member.containerUid == null && member.itemUid != null)
+							.map(member -> member.itemUid).collect(Collectors.toSet()))
+					.forEach(createOrUpdate);
 		}
 
 		if (changes.modify != null && changes.modify.size() > 0) {

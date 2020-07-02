@@ -18,8 +18,6 @@
  */
 package net.bluemind.directory.service.internal;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +27,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.core.api.fault.ErrorCode;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.utils.DependencyResolver;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
@@ -64,70 +61,18 @@ public class DirEntryRepairSupports {
 				.collect(Collectors.toList());
 	}
 
-	private static class OpDeps {
-		public InternalMaintenanceOperation op;
-		public Set<String> deps = new HashSet<>();
-
-		public OpDeps(InternalMaintenanceOperation op) {
-			this.op = op;
-		}
-	}
-
-	private static void visit(OpDeps op, Map<String, OpDeps> map, Set<String> temp, Set<String> permanent,
-			List<OpDeps> res) {
-		if (permanent.contains(op.op.identifier)) {
-			return;
-		}
-
-		if (temp.contains(op.op.identifier)) {
-			throw new ServerFault("circular dependency found", ErrorCode.INVALID_PARAMETER);
-		}
-
-		temp.add(op.op.identifier);
-		op.deps.forEach(dep -> {
-			if (!map.containsKey(dep)) {
-				logger.warn(String.format("Unknow dependency %s for %s maintenance operation", dep, op.op.identifier));
-				return;
-			}
-
-			visit(map.get(dep), map, temp, permanent, res);
-		});
-		permanent.add(op.op.identifier);
-		res.add(op);
-	}
-
 	public static List<InternalMaintenanceOperation> order(List<InternalMaintenanceOperation> toSort) {
-		Map<String, OpDeps> map = toSort.stream().map(OpDeps::new)
-				.collect(Collectors.toMap(o -> o.op.identifier, o -> o));
-
-		// transform before/after into simple dependencies ( a dependsOn b,c,d )
-		map.values().forEach(o -> {
-			if (o.op.beforeOp != null && map.get(o.op.beforeOp) != null) {
-				map.get(o.op.beforeOp).deps.add(o.op.identifier);
+		Map<String, Set<String>> deps = toSort.stream()
+				.collect(Collectors.toMap(op -> op.identifier, op -> new HashSet<>()));
+		for (InternalMaintenanceOperation op : toSort) {
+			if (op.beforeOp != null && deps.containsKey(op.beforeOp)) {
+				deps.get(op.beforeOp).add(op.identifier);
 			}
-
-			if (o.op.afterOp != null) {
-				o.deps.add(o.op.afterOp);
+			if (op.afterOp != null) {
+				deps.get(op.identifier).add(op.afterOp);
 			}
-		});
-
-		// https://en.wikipedia.org/wiki/Topological_sorting#Depth-first_search
-		Set<String> temp = new HashSet<>();
-		Set<String> permanent = new HashSet<>();
-		List<OpDeps> res = new ArrayList<>(toSort.size());
-		Collection<OpDeps> vCol = map.values();
-
-		while (vCol.iterator().hasNext()) {
-			OpDeps o = vCol.iterator().next();
-			visit(o, map, temp, permanent, res);
-			vCol = vCol.stream().sequential().filter(v -> !permanent.contains(o.op.identifier))
-					.collect(Collectors.toList());
 		}
-		map.values().forEach(o -> {
-			visit(o, map, temp, permanent, res);
-		});
-
-		return res.stream().sequential().map(o -> o.op).collect(Collectors.toList());
+		return DependencyResolver.sortByDependencies(toSort, op -> op.identifier, op -> deps.get(op.identifier));
 	}
 
 }
