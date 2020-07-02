@@ -60,7 +60,9 @@ public class SharingModel extends JavaScriptObject {
 
 	public static void populate(JavaScriptObject mainModel, String modelId, JsArray<JsAccessControlEntry> jsAcl) {
 		JsMapStringJsObject model = mainModel.<JsMapStringJsObject>cast().get(modelId).cast();
-		model.put("acl", jsAcl);
+		if (model != null) {
+			model.put("acl", jsAcl);
+		}
 	}
 
 	public static SharingModel get(JavaScriptObject mainModel, String modelId) {
