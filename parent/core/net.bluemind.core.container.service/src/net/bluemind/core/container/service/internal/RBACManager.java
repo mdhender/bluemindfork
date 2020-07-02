@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -350,9 +349,10 @@ public class RBACManager {
 
 		@Override
 		public Set<Permission> resolve() {
-			return Sets.newHashSet(ContainerPermission.ALL);
+			Set<Permission> perms = super.resolve();
+			perms.add(ContainerPermission.ALL);
+			return perms;
 		}
-
 	}
 
 	public static RBACManager forContext(BmContext context) {
