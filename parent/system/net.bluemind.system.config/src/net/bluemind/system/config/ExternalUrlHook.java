@@ -102,7 +102,7 @@ public class ExternalUrlHook
 
 	@Override
 	public void sanitize(SystemConf previous, Map<String, String> modifications) throws ServerFault {
-		if (!modifications.containsKey(SysConfKeys.external_url.name())
+		if (!modifications.containsKey(SysConfKeys.external_url.name()) && previous != null
 				&& previous.values.containsKey("external-url")) {
 			modifications.put(SysConfKeys.external_url.name(), previous.stringValue("external-url"));
 		}
