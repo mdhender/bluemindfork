@@ -20,6 +20,7 @@ package net.bluemind.calendar.service.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -358,9 +359,17 @@ public class CalendarAutocompleteServiceTests {
 		assertEquals("g1", att1.uid);
 		assertEquals(ICalendarUids.defaultUserCalendar("u1"), att2.uid);
 
-		res = service.calendarGroupLookup(att1.uid);
+		boolean ok = false;
+		long time = System.currentTimeMillis();
+		while (System.currentTimeMillis() < time + 10000) {
+			int size = service.calendarGroupLookup(att1.uid).size();
+			if (size == 3) {
+				ok = true;
+				break;
+			}
+		}
 		// u1 + u2 + g4.u6 (u3 is not Readable, g2 and g3 are hidden)
-		assertEquals(3, res.size());
+		assertTrue(ok);
 	}
 
 	@Test
