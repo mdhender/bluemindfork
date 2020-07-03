@@ -323,25 +323,35 @@ public class FolderBackend extends CoreConnect {
 
 		updatedUserSubscriptions.stream().filter(c -> !"mailboxacl".equals(c.value.containerType))
 				.forEach(container -> {
-					String nodeUid = ContainerHierarchyNode.uidFor(container.value.containerUid,
-							container.value.containerType, bs.getUser().getDomain());
+					try {
+						String nodeUid = ContainerHierarchyNode.uidFor(container.value.containerUid,
+								container.value.containerType, bs.getUser().getDomain());
 
-					IContainersFlatHierarchy ownerHierarchy = getAdmin0Service(bs, IContainersFlatHierarchy.class,
-							bs.getUser().getDomain(), container.value.owner);
+						IContainersFlatHierarchy ownerHierarchy = getAdmin0Service(bs, IContainersFlatHierarchy.class,
+								bs.getUser().getDomain(), container.value.owner + "a");
 
-					ItemValue<ContainerHierarchyNode> node = ownerHierarchy.getComplete(nodeUid);
-					if (node != null) {
-						FolderChangeReference f = null;
-						if (container.value.offlineSync) {
-							f = getHierarchyItemSubscriptionChange(bs, container, node);
+						ItemValue<ContainerHierarchyNode> node = ownerHierarchy.getComplete(nodeUid);
+						if (node != null) {
+							FolderChangeReference f = null;
+							if (container.value.offlineSync) {
+								f = getHierarchyItemSubscriptionChange(bs, container, node);
+							} else {
+								f = getDeletedItemChange(CollectionId
+										.of(container.internalId, Long.toString(node.internalId)).getValue());
+							}
+							Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
 						} else {
-							f = getDeletedItemChange(
-									CollectionId.of(container.internalId, Long.toString(node.internalId)).getValue());
+							logger.warn(
+									"[{}] update subscription: no node uid {} for container {} in hierarchy. type: {}",
+									bs.getUser().getDefaultEmail(), nodeUid, container, container.value.containerType);
 						}
-						Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
-					} else {
-						logger.warn("[{}] update subscription: no node uid {} for container {} in hierarchy. type: {}",
-								bs.getUser().getDefaultEmail(), nodeUid, container, container.value.containerType);
+					} catch (ServerFault sf) {
+						if (sf.getCode() == ErrorCode.NOT_FOUND) {
+							logger.warn("Skip subscription changes : {}", sf.getMessage());
+						} else {
+							throw sf;
+						}
+
 					}
 				});
 
