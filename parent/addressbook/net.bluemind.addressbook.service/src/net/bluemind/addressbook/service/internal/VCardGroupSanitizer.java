@@ -128,7 +128,7 @@ public class VCardGroupSanitizer {
 
 		Map<String, Member> localCards = group.organizational.member.stream().filter(
 				member -> (abUid.equals(member.containerUid) || member.containerUid == null) && member.itemUid != null)
-				.collect(Collectors.toMap(m -> m.itemUid, m -> m));
+				.collect(Collectors.toMap(m -> m.itemUid, m -> m, (member1, member2) -> member1));
 
 		List<ItemValue<VCard>> cards = ab.multipleGet(ImmutableList.copyOf(localCards.keySet()));
 		boolean modifiedFlag = cards.stream().map(card -> {
