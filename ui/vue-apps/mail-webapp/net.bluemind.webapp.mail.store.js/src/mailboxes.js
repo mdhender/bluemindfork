@@ -1,5 +1,4 @@
 import Vue from "vue";
-import { Verb } from "@bluemind/core.container.api";
 import { inject } from "@bluemind/inject";
 import { MailboxAdaptor } from "./helpers/MailboxAdaptor";
 
@@ -16,10 +15,12 @@ export const mutations = {
 
 export const actions = {
     async [FETCH_MAILBOXES]({ commit }) {
-        const items = await inject("ContainersPersistence").all({
-            verb: [Verb.Read, Verb.Write, Verb.All],
-            type: "mailboxacl"
-        });
+        const subscriptions = await inject("SubscriptionPersistence").list();
+        const items = await inject("ContainersPersistence").getContainers(
+            subscriptions
+                .filter(subscription => subscription.value.containerType === "mailboxacl")
+                .map(subscription => subscription.value.containerUid)
+        );
         commit(ADD_MAILBOXES, items.map(MailboxAdaptor.fromMailboxContainer).filter(Boolean));
     }
 };

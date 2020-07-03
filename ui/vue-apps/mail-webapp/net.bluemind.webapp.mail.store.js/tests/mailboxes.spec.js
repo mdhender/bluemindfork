@@ -2,7 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
-import { MockContainersClient } from "@bluemind/test-mocks";
+import { MockContainersClient, MockOwnerSubscriptionsClient } from "@bluemind/test-mocks";
 import { Verb } from "@bluemind/core.container.api";
 import { state, mutations, actions, ADD_MAILBOXES, FETCH_MAILBOXES } from "../src/mailboxes";
 import aliceContainers from "./data/users/alice/containers";
@@ -10,6 +10,7 @@ import { MailboxType } from "../src/helpers/MailboxAdaptor";
 
 const containersService = new MockContainersClient();
 inject.register({ provide: "ContainersPersistence", factory: () => containersService });
+inject.register({ provide: "SubscriptionPersistence", factory: () => new MockOwnerSubscriptionsClient() });
 Vue.use(Vuex);
 
 describe("mailboxes store", () => {
@@ -45,14 +46,15 @@ describe("mailboxes store", () => {
                     actions
                 })
             );
-            containersService.all.mockClear();
+            containersService.getContainers.mockClear();
         });
         describe("FETCH_MAILBOXES", () => {
             test("Fetch a mailboxe", async () => {
                 const mailbox = aliceContainers.find(container => {
                     return container.type === "mailboxacl";
                 });
-                containersService.all.mockResolvedValueOnce([mailbox]);
+
+                containersService.getContainers.mockResolvedValueOnce([mailbox]);
                 await store.dispatch(FETCH_MAILBOXES);
                 expect(Object.keys(store.state.mailboxes).length).toEqual(1);
                 expect(Object.values(store.state.mailboxes)[0]).toMatchObject({
@@ -64,12 +66,12 @@ describe("mailboxes store", () => {
                 const mailboxes = aliceContainers.filter(container => {
                     return container.type === "mailboxacl" && ["alice", "bob"].includes(container.name);
                 });
-                containersService.all.mockResolvedValueOnce(mailboxes);
+                containersService.getContainers.mockResolvedValueOnce(mailboxes);
                 await store.dispatch("FETCH_MAILBOXES");
                 expect(Object.keys(store.state.mailboxes).length).toEqual(2);
                 Object.values(store.state.mailboxes).forEach(mailbox => {
                     expect(mailbox.type).toEqual(MailboxType.USER);
-                    expect(mailbox.uid).toEqual("user." + mailbox.name);
+                    expect(mailbox.uid).toEqual("user." + mailbox.owner);
                     expect(mailbox.root).toEqual("");
                 });
             });
@@ -77,7 +79,7 @@ describe("mailboxes store", () => {
                 const mailboxes = aliceContainers.filter(container => {
                     return container.type === "mailboxacl" && ["read.only", "read.write"].includes(container.name);
                 });
-                containersService.all.mockResolvedValueOnce(mailboxes);
+                containersService.getContainers.mockResolvedValueOnce(mailboxes);
                 await store.dispatch("FETCH_MAILBOXES");
                 expect(Object.keys(store.state.mailboxes).length).toEqual(2);
                 Object.values(store.state.mailboxes).forEach(mailbox => {

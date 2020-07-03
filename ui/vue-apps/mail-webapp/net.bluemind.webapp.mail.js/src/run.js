@@ -1,23 +1,24 @@
+import Vue from "vue";
 import { AddressBooksClient } from "@bluemind/addressbook.api";
 import { AlertFactory } from "@bluemind/alert.store";
 import { CalendarClient } from "@bluemind/calendar.api";
 import { ContainersClient } from "@bluemind/core.container.api";
 import { ItemsTransferClient } from "@bluemind/backend.mail.api";
+import { MailAlertRenderer } from "@bluemind/webapp.mail.ui.vuejs";
 import { MailboxesClient } from "@bluemind/mailbox.api";
 import { MailboxFoldersClient, OutboxClient } from "@bluemind/backend.mail.api";
 import { MailboxItemsService } from "@bluemind/backend.mail.service";
+import { OwnerSubscriptionsClient } from "@bluemind/core.container.api";
 import { TaskClient } from "@bluemind/core.task.api";
 import { UserSettingsClient } from "@bluemind/user.api";
 import injector from "@bluemind/inject";
-import { MailAlertRenderer } from "@bluemind/webapp.mail.ui.vuejs";
 import MailApp from "@bluemind/webapp.mail.ui.vuejs";
 import MailAppAlerts from "@bluemind/webapp.mail.alert";
-import mailRoutes from "./router";
-import MailWebAppStore from "@bluemind/webapp.mail.store.deprecated";
 import MailStore from "@bluemind/webapp.mail.store";
+import MailWebAppStore from "@bluemind/webapp.mail.store.deprecated";
 import router from "@bluemind/router";
 import store from "@bluemind/store";
-import Vue from "vue";
+import mailRoutes from "./router";
 import Scheduler from "./scheduler";
 
 registerAPIClients();
@@ -51,6 +52,14 @@ function registerAPIClients() {
         factory: () => {
             const userSession = injector.getProvider("UserSession").get();
             return new OutboxClient(userSession.sid, userSession.domain, userSession.userId);
+        }
+    });
+
+    injector.register({
+        provide: "SubscriptionPersistence",
+        factory: () => {
+            const userSession = injector.getProvider("UserSession").get();
+            return new OwnerSubscriptionsClient(userSession.sid, userSession.domain, userSession.userId);
         }
     });
 
