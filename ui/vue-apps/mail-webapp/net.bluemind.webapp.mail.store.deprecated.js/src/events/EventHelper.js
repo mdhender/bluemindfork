@@ -5,7 +5,7 @@ import { WeekDay } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
 
 export default {
-    adapt(event, userName) {
+    adapt(event, uid) {
         const main = event.value.main;
         return {
             summary: main.summary,
@@ -15,7 +15,7 @@ export default {
             },
             date: adaptDate(main.dtstart, main.dtend, main.rrule),
             attendees: main.attendees.map(attendee => ({ name: attendee.commonName, mail: attendee.mailto })),
-            status: adaptStatus(main.attendees, userName),
+            status: adaptStatus(main.attendees, uid),
             uid: event.uid,
             serverEvent: event
         };
@@ -145,9 +145,7 @@ function adaptAllDayEvent(dtstart, dtend, vueI18n) {
 /**
  * return null if user is not in attendees
  */
-function adaptStatus(attendees, userName) {
-    const userSession = injector.getProvider("UserSession").get();
-    const currentAddress = userName + "@" + userSession.domain;
-    const user = attendees.find(a => a.mailto === currentAddress);
+function adaptStatus(attendees, uid) {
+    const user = attendees.find(a => a.dir && a.dir.split("/").pop() === uid);
     return user ? user.partStatus : null;
 }

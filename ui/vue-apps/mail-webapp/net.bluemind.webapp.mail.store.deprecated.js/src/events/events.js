@@ -15,7 +15,7 @@ async function fetchEvent({ commit, getters }, eventUid) {
         .get()
         .getComplete(eventUid);
     if (event) {
-        event = EventHelper.adapt(event, getters.currentMailbox.name);
+        event = EventHelper.adapt(event, getters.currentMailbox.uid);
     }
     commit("setCurrentEvent", event);
 }
