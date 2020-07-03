@@ -81,6 +81,7 @@ public class EventAttachmentHelper {
 		} catch (Exception e) {
 		}
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		logger.info("Loading {}", attachment.publicUrl);
 		try (BufferedInputStream in = new BufferedInputStream(new URL(attachment.publicUrl).openStream())) {
 			byte dataBuffer[] = new byte[8192];
 			int bytesRead = 0;
