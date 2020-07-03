@@ -12,14 +12,14 @@ export const MailBoxBuilder = {
                 break;
         }
         mailbox.uid = item.owner;
-        mailbox.name = item.name;
+        mailbox.name = item.ownerDisplayName;
         mailbox.writable = item.verbs.includes(Verb.Write) || item.verbs.includes(Verb.All);
         if (mailbox.type === "user") {
-            mailbox.mailboxUid = "user." + mailbox.name;
+            mailbox.mailboxUid = "user." + mailbox.uid;
             mailbox.root = "";
         } else {
             mailbox.mailboxUid = mailbox.uid;
-            mailbox.root = item.name;
+            mailbox.root = item.ownerDisplayName;
         }
         mailbox.folders = getters["folders/getFoldersByMailbox"](mailbox.mailboxUid);
         return mailbox;
@@ -31,7 +31,7 @@ export const MailBoxBuilder = {
     isUser(mailbox) {
         return mailbox.type === "mailboxacl" && mailbox.ownerDirEntryPath.split("/")[1] === "users";
     },
-    isMe(mailbox, name) {
-        return this.isUser(mailbox) && mailbox.name === name;
+    isMe(mailbox, uid) {
+        return this.isUser(mailbox) && mailbox.uid === uid;
     }
 };

@@ -31,8 +31,8 @@ function fromUserMailbox(item) {
         ...fromBaseMailbox(item),
         name: item.name,
         type: MailboxType.USER,
-        uid: "user." + item.name,
-        key: "user." + item.name,
+        uid: "user." + item.owner,
+        key: "user." + item.owner,
         root: ""
     };
 }

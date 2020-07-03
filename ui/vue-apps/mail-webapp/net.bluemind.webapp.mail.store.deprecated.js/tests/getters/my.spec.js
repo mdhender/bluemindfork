@@ -11,7 +11,7 @@ const getters = {
     "folders/getFoldersByMailbox": jest.fn(),
     "mailboxes/containers": []
 };
-const state = { login: "jane@bluemind.net" };
+const state = { userUid: "janeUid" };
 
 describe("[Mail-WebappStore][getters] : my ", () => {
     beforeEach(() => {
@@ -48,7 +48,7 @@ describe("[Mail-WebappStore][getters] : my ", () => {
     test("build the mailbox even if no containers have been fetched ", () => {
         getters["mailboxes/containers"] = [];
         my(state, getters);
-        const fake = { ownerDirEntryPath: "/users/", owner: "", verbs: [Verb.All], name: "jane" };
+        const fake = { ownerDirEntryPath: "/users/", owner: "janeUid", verbs: [Verb.All] };
         expect(MailBoxBuilder.build).toHaveBeenCalledWith(fake, expect.anything());
     });
 });

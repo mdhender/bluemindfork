@@ -58,8 +58,8 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
                 done();
             });
     });
-    test("set login", () => {
-        bootstrap(context, "mylogin@bluemind.lan");
-        expect(context.commit).toHaveBeenCalledWith("setUserLogin", "mylogin@bluemind.lan");
+    test("set user uid", () => {
+        bootstrap(context, "userUid");
+        expect(context.commit).toHaveBeenCalledWith("setUserUid", "userUid");
     });
 });

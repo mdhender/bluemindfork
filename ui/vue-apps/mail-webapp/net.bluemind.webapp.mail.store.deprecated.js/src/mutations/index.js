@@ -9,7 +9,7 @@ export * from "./setCurrentFolder";
 export * from "./setMaxMessageSize";
 export * from "./setMessageFilter";
 export * from "./setUnreadCount";
-export * from "./setUserLogin";
+export * from "./setUserUid";
 export * from "./setStatus";
 export * from "./setUserSettings";
 export * from "./toggleEditFolder";

@@ -23,12 +23,12 @@ describe("MailboxAdaptor", () => {
             const mailbox = MailboxAdaptor.fromMailboxContainer(user);
             expect(mailbox).toMatchInlineSnapshot(`
                 Object {
-                  "key": "user.alice",
+                  "key": "user.6793466E-F5D4-490F-97BF-DF09D3327BF4",
                   "name": "alice",
                   "owner": "6793466E-F5D4-490F-97BF-DF09D3327BF4",
                   "root": "",
                   "type": "users",
-                  "uid": "user.alice",
+                  "uid": "user.6793466E-F5D4-490F-97BF-DF09D3327BF4",
                   "writable": true,
                 }
             `);

@@ -8,15 +8,18 @@ const user = {
     type: "mailboxacl",
     ownerDirEntryPath: "bm.lan/users/941ED8F6",
     owner: "941ED8F6",
+    uid: "941ED8F6",
     verbs: [Verb.All],
-    name: "alice"
+    ownerDisplayName: "Alice",
+    name: "Alice"
 };
 const mailshare = {
     type: "mailboxacl",
     ownerDirEntryPath: "bm.lan/mailshares/D5030EE3",
-    name: "mailshare",
+    name: "Mailshare mailshare",
     owner: "D5030EE3",
-    verbs: [Verb.Read]
+    verbs: [Verb.Read],
+    ownerDisplayName: "mailshare"
 };
 const calendar = {
     type: "calendar"
@@ -39,19 +42,19 @@ describe("[Mail-WebappStore][getters] : mailshares ", () => {
         expect(MailBoxBuilder.isMe(mailshare, "mailshare")).not.toBeTruthy();
         expect(MailBoxBuilder.isMe(user, "bob")).not.toBeTruthy();
         expect(MailBoxBuilder.isMe(calendar, "dummy")).not.toBeTruthy();
-        expect(MailBoxBuilder.isMe(user, "alice")).toBeTruthy();
+        expect(MailBoxBuilder.isMe(user, "941ED8F6")).toBeTruthy();
     });
     test("set the mailbox owner UID ", () => {
         expect(MailBoxBuilder.build(user, getters).uid).toEqual(user.owner);
         expect(MailBoxBuilder.build(mailshare, getters).uid).toEqual(mailshare.owner);
     });
     test("set the mailbox UID ", () => {
-        expect(MailBoxBuilder.build(user, getters).mailboxUid).toEqual("user." + user.name);
+        expect(MailBoxBuilder.build(user, getters).mailboxUid).toEqual("user." + user.uid);
         expect(MailBoxBuilder.build(mailshare, getters).mailboxUid).toEqual(mailshare.owner);
     });
     test("set mailbox's folders ", () => {
         MailBoxBuilder.build(user, getters);
-        expect(getters["folders/getFoldersByMailbox"]).toHaveBeenCalledWith("user." + user.name);
+        expect(getters["folders/getFoldersByMailbox"]).toHaveBeenCalledWith("user." + user.uid);
         MailBoxBuilder.build(mailshare, getters);
         expect(getters["folders/getFoldersByMailbox"]).toHaveBeenCalledWith(mailshare.owner);
     });
@@ -60,12 +63,12 @@ describe("[Mail-WebappStore][getters] : mailshares ", () => {
         expect(MailBoxBuilder.build(mailshare, getters).writable).toEqual(false);
     });
     test("set mailbox name", () => {
-        expect(MailBoxBuilder.build(user, getters).name).toEqual(user.name);
-        expect(MailBoxBuilder.build(mailshare, getters).name).toEqual(mailshare.name);
+        expect(MailBoxBuilder.build(user, getters).name).toEqual(user.ownerDisplayName);
+        expect(MailBoxBuilder.build(mailshare, getters).name).toEqual(mailshare.ownerDisplayName);
     });
     test("set mailbox root", () => {
         expect(MailBoxBuilder.build(user, getters).root).toEqual("");
-        expect(MailBoxBuilder.build(mailshare, getters).root).toEqual(mailshare.name);
+        expect(MailBoxBuilder.build(mailshare, getters).root).toEqual(mailshare.ownerDisplayName);
     });
     test("set mailbox type", () => {
         expect(MailBoxBuilder.build(user, getters).type).toEqual("user");
