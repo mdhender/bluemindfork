@@ -627,8 +627,8 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.attachmentsHasBeenModified 
     return false;
   } else {
     return !goog.array.equals(remote['attachments'], modified.attachments, function(remoteAttachment, modifiedAttachment) {
-      return remoteAttachment['name'] == modifiedAttachment['name']
-          && remoteAttachment['publicUrl'] == modifiedAttachment['publicUrl'];
+      return remoteAttachment['name'] == modifiedAttachment.name
+          && remoteAttachment['publicUrl'] == modifiedAttachment.publicUrl;
     });
   }
 }
@@ -701,6 +701,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.dateHasBeenModified = funct
 
 /**
  * Generate an empty event
+ * 
  * @return {Object} Vevent
  */
 net.bluemind.calendar.vevent.VEventAdaptor.prototype.createVEvent = function() {
