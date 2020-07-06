@@ -70,4 +70,10 @@
                factory="net.bluemind.mailbox.service.internal.repair.MailboxRepairSupport$Factory">
          </repairSupport>
       </extension>
+      <extension
+            point="net.bluemind.user.hook.userhook">
+         <hook
+               impl="net.bluemind.mailbox.service.hook.MailboxUserHook">
+         </hook>
+      </extension>
 </plugin>
