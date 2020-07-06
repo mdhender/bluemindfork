@@ -20,8 +20,10 @@ package net.bluemind.calendar.service.internal;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -504,7 +506,8 @@ public class CalendarService implements IInternalCalendar {
 			ret.total = res.total;
 		} else {
 			if (query.attendee != null && query.attendee.calendarOwnerAsDir) {
-				addOwnerToQuery(query);
+				Optional<DirEntry> owner = getCalendarOwner(query);
+				query.attendee.dir = "bm://" + owner.get().path;
 			}
 			ListResult<String> res = indexStore.search(query, searchInPrivate());
 			items = filterValues(storeService.getMultiple(res.values));
@@ -523,7 +526,11 @@ public class CalendarService implements IInternalCalendar {
 	private ListResult<ItemValue<VEventSeries>> searchPendingEvents(VEventQuery query) {
 		ListResult<ItemValue<VEventSeries>> res = PendingEventsCache.getIfPresent(container.uid);
 		if (res == null) {
-			addOwnerToQuery(query);
+			Optional<DirEntry> owner = getCalendarOwner(query);
+			if (!owner.isPresent()) {
+				return ListResult.create(Collections.emptyList());
+			}
+			query.attendee.dir = "bm://" + owner.get().path;
 			ListResult<String> t = indexStore.search(query, searchInPrivate());
 			List<ItemValue<VEventSeries>> items = storeService.getMultiple(t.values);
 			res = ListResult.create(items);
@@ -550,10 +557,9 @@ public class CalendarService implements IInternalCalendar {
 		return res;
 	}
 
-	private void addOwnerToQuery(VEventQuery query) {
-		DirEntry dirEntry = context.su().provider().instance(IDirectory.class, container.domainUid)
-				.findByEntryUid(container.owner);
-		query.attendee.dir = "bm://" + dirEntry.path;
+	private Optional<DirEntry> getCalendarOwner(VEventQuery query) {
+		return Optional.ofNullable(context.su().provider().instance(IDirectory.class, container.domainUid)
+				.findByEntryUid(container.owner));
 	}
 
 	private boolean searchInPrivate() {
