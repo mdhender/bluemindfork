@@ -23,7 +23,8 @@ Require-Bundle: org.freemarker.freemarker;bundle-version="2.3.20",
  net.bluemind.utils,
  net.bluemind.core.sendmail,
  net.bluemind.mailbox.api,
- com.sun.mail.javax.mail
+ com.sun.mail.javax.mail,
+ org.asynchttpclient.async-http-client
 Export-Package: net.bluemind.calendar,
  net.bluemind.calendar.helper.ical4j,
  net.bluemind.calendar.helper.mail,
