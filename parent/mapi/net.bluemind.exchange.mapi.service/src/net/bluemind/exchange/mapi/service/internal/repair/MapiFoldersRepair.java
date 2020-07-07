@@ -133,12 +133,13 @@ public class MapiFoldersRepair implements IDirEntryRepairSupport {
 		private void verifyExtraFolders(String domainUid, DirEntry entry, DiagnosticReport report,
 				IServerTaskMonitor monitor, FolderRepairAction processExtra) {
 			logger.info("Checking mapi folders of {}@{}", entry, domainUid);
-			monitor.log("Checking folders of " + entry + "@" + domainUid);
+			monitor.log("Checking mapi folders of " + entry + "@" + domainUid);
 
 			IMapiMailbox mboxApi = context.provider().instance(IMapiMailbox.class, domainUid, entry.entryUid);
 			MapiReplica replica = mboxApi.get();
 			if (replica == null) {
-				report.warn(mapiFoldersOp.identifier, "Missing replica for " + entry);
+				monitor.log(String.format("No replica found. Skip %s", mapiFoldersOp.identifier));
+				report.ok(mapiFoldersOp.identifier, "No replica found");
 				return;
 			}
 			monitor.log("Replica is " + replica.localReplicaGuid);
