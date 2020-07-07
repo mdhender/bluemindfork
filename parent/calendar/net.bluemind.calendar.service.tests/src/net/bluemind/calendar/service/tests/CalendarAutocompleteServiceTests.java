@@ -361,7 +361,7 @@ public class CalendarAutocompleteServiceTests {
 
 		boolean ok = false;
 		long time = System.currentTimeMillis();
-		while (System.currentTimeMillis() < time + 10000) {
+		while (System.currentTimeMillis() < time + 20000) {
 			int size = service.calendarGroupLookup(att1.uid).size();
 			if (size == 3) {
 				ok = true;
