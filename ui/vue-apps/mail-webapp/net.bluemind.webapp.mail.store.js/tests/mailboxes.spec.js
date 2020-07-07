@@ -58,7 +58,7 @@ describe("mailboxes store", () => {
                 await store.dispatch(FETCH_MAILBOXES);
                 expect(Object.keys(store.state.mailboxes).length).toEqual(1);
                 expect(Object.values(store.state.mailboxes)[0]).toMatchObject({
-                    name: mailbox.name,
+                    name: mailbox.ownerDisplayname,
                     writable: mailbox.verbs.includes(Verb.Write)
                 });
             });

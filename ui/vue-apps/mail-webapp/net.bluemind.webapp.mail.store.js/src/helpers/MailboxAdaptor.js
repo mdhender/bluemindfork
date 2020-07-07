@@ -18,8 +18,8 @@ export const MailboxAdaptor = {
     toMailboxContainer(mailbox) {
         return {
             ownerDirEntryPath: "/" + mailbox.type,
+            ownerDisplayname: mailbox.name,
             owner: mailbox.owner,
-            name: mailbox.name,
             verbs: mailbox.writable ? [Verb.Write] : [Verb.Read],
             type: "mailboxacl"
         };
@@ -29,7 +29,6 @@ export const MailboxAdaptor = {
 function fromUserMailbox(item) {
     return {
         ...fromBaseMailbox(item),
-        name: item.name,
         type: MailboxType.USER,
         uid: "user." + item.owner,
         key: "user." + item.owner,
@@ -40,7 +39,6 @@ function fromUserMailbox(item) {
 function fromSharedMailbox(item) {
     return {
         ...fromBaseMailbox(item),
-        name: item.ownerDisplayname,
         type: MailboxType.MAILSHARE,
         uid: item.owner,
         key: item.owner,
@@ -51,6 +49,7 @@ function fromSharedMailbox(item) {
 function fromBaseMailbox(item) {
     return {
         owner: item.owner,
+        name: item.ownerDisplayname,
         writable: item.verbs.includes(Verb.Write) || item.verbs.includes(Verb.All)
     };
 }

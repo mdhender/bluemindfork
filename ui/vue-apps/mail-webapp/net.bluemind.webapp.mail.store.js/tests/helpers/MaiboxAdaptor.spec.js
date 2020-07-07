@@ -24,7 +24,7 @@ describe("MailboxAdaptor", () => {
             expect(mailbox).toMatchInlineSnapshot(`
                 Object {
                   "key": "user.6793466E-F5D4-490F-97BF-DF09D3327BF4",
-                  "name": "alice",
+                  "name": "Alice",
                   "owner": "6793466E-F5D4-490F-97BF-DF09D3327BF4",
                   "root": "",
                   "type": "users",
@@ -46,7 +46,7 @@ describe("MailboxAdaptor", () => {
             ).toStrictEqual({
                 ownerDirEntryPath: "/mailshares",
                 owner: "boss",
-                name: "mailbox",
+                ownerDisplayname: "mailbox",
                 verbs: [Verb.Read],
                 type: "mailboxacl"
             });
@@ -62,7 +62,7 @@ describe("MailboxAdaptor", () => {
             ).toStrictEqual({
                 ownerDirEntryPath: "/users",
                 owner: "boss",
-                name: "mailbox",
+                ownerDisplayname: "mailbox",
                 verbs: [Verb.Write],
                 type: "mailboxacl"
             });
