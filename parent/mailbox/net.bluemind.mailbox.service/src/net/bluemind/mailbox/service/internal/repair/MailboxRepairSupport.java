@@ -88,7 +88,6 @@ public class MailboxRepairSupport implements IDirEntryRepairSupport {
 
 		return new HashSet<>(Arrays.asList(new MailboxAclsContainerMaintenanceOperation(context),
 				new MailboxFilesystemMaintenanceOperation(context), new MailboxAclsMaintenanceOperation(context),
-				new MailboxAutoSubscriptionsMaintenanceOperation(context),
 				new MailboxExistsMaintenanceOperation(context), new MailboxFiltersMaintenanceOperation(context),
 				new MailboxImapHierarchyMaintenanceOperation(context), new MailboxQuotaMaintenanceOperation(context),
 				new MailboxIndexExistsMaintenanceOperation(context),
