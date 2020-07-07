@@ -85,7 +85,6 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.NullTaskMonitor;
-import net.bluemind.directory.api.IDirectory;
 import net.bluemind.index.MailIndexActivator;
 import net.bluemind.index.mail.BulkData.DeleteUnitHelper;
 import net.bluemind.index.mail.BulkData.UnitDelete;
@@ -901,7 +900,7 @@ public class MailIndexService implements IMailIndexService {
 
 	@SuppressWarnings({ "unchecked" })
 	private MessageSearchResult createSearchResult(SearchHit sh) {
-		Integer itemId = (Integer) sh.field("itemId").getValue();
+		Integer itemId = sh.field("itemId").getValue();
 		Map<String, Object> source = sh.getSourceAsMap();
 		String folderUid = ((String) source.get("id")).split(":")[0];
 		String contUid = "mbox_records_" + folderUid;
@@ -932,31 +931,16 @@ public class MailIndexService implements IMailIndexService {
 			to = Mbox.create(mboxFrom.getName(), mboxFrom.getAddress());
 		}
 
-		Mbox from = Mbox.create("unknown", "unknown");
 		org.apache.james.mime4j.dom.address.Mailbox mboxFrom = LenientAddressBuilder.DEFAULT
 				.parseMailbox(headers.get("from"));
-		String routingType = getRoutingType(mboxFrom.getDomain(), mboxFrom.getAddress());
-		from = Mbox.create(mboxFrom.getName(), mboxFrom.getAddress(), routingType);
+		Mbox from = Mbox.create(mboxFrom.getName(), mboxFrom.getAddress(), "SMTP");
 
 		boolean hasAttachment = !((List<String>) source.get("has")).isEmpty();
 
 		String preview = Strings.nullToEmpty((String) source.get("preview"));
 
-		MessageSearchResult msr = new MessageSearchResult(contUid, itemId, subject, size, "IPM.Note", messageDate, from,
-				to, seen, flagged, hasAttachment, preview);
-		return msr;
-	}
-
-	private String getRoutingType(String domain, String address) {
-		try {
-			IDirectory dir = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDirectory.class,
-					domain);
-			if (dir.getByEmail(address) != null) {
-				return "SMTP";
-			}
-		} catch (Exception e) {
-		}
-		return "EX";
+		return new MessageSearchResult(contUid, itemId, subject, size, "IPM.Note", messageDate, from, to, seen, flagged,
+				hasAttachment, preview);
 	}
 
 }
