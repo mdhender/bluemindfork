@@ -278,8 +278,6 @@ public class MailBackend extends CoreConnect {
 
 			MailFolder folder = storage.getMailFolder(bs, collectionId);
 
-			logger.info("THIS IS FOLDER {}", folder);
-
 			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 
 			long id = Long.parseLong(ci.itemId);
