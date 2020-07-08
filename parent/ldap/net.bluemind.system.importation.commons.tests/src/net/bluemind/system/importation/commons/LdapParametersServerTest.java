@@ -38,7 +38,7 @@ public class LdapParametersServerTest {
 
 		public ServerTest(Host host, String login, String password, LdapProtocol protocol,
 				boolean acceptAllCertificates) {
-			super(Optional.of(host), login, password, protocol, acceptAllCertificates);
+			super(Optional.ofNullable(host), login, password, protocol, acceptAllCertificates);
 		}
 
 		@Override

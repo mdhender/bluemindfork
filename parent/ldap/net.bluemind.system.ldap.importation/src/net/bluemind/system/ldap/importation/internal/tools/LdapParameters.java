@@ -42,7 +42,7 @@ public class LdapParameters extends Parameters {
 	public static class LdapServer extends Server {
 		public LdapServer(Host host, String login, String password, LdapProtocol protocol,
 				boolean acceptAllCertificates) {
-			super(Optional.of(host), login, password, protocol, acceptAllCertificates);
+			super(Optional.ofNullable(host), login, password, protocol, acceptAllCertificates);
 		}
 
 		@Override

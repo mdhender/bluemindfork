@@ -28,7 +28,7 @@ public class TestServer extends Server {
 	public List<Host> alternativeHosts = Collections.emptyList();
 
 	public TestServer(Host host, String login, String password, LdapProtocol protocol, boolean acceptAllCertificates) {
-		super(Optional.of(host), login, password, protocol, acceptAllCertificates);
+		super(Optional.ofNullable(host), login, password, protocol, acceptAllCertificates);
 	}
 
 	@Override
