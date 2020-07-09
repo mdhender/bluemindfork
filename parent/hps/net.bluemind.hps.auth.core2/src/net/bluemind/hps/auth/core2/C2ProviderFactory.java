@@ -18,8 +18,6 @@
  */
 package net.bluemind.hps.auth.core2;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,14 +121,7 @@ public class C2ProviderFactory implements IAuthProviderFactory {
 
 		Registry reg = MetricsRegistry.get();
 		IdFactory idf = new IdFactory("activeSessions", reg, C2ProviderFactory.class);
-		AtomicLong active = new AtomicLong();
-		PolledMeter.using(reg).withId(idf.name("distinctUsers")).monitorValue(active);
-
-		VertxPlatform.getVertx().setPeriodic(60000, tid -> {
-			coreSessions.cleanUp();
-			active.set(coreSessions.size());
-			logger.info("SESSION STATS: size: {}, {}", coreSessions.size(), coreSessions.stats());
-		});
+		PolledMeter.using(reg).withId(idf.name("distinctUsers")).monitorSize(coreSessions.asMap());
 		return coreSessions;
 	}
 
