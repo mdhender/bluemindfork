@@ -451,7 +451,8 @@ public class AddressBookService implements IInCoreAddressBook {
 
 			DependencyResolver.sortByDependencies(isGroupPartitions.get(true), itemAdd -> itemAdd.uid,
 					itemAdd -> itemAdd.value.organizational.member.stream()
-							.filter(member -> member.containerUid == null && member.itemUid != null)
+							.filter(member -> (member.containerUid == null || member.containerUid.equals(container.uid))
+									&& member.itemUid != null)
 							.map(member -> member.itemUid).collect(Collectors.toSet()))
 					.forEach(createOrUpdate);
 		}
