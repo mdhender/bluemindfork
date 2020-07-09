@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.webmodule.server.IWebFilter;
@@ -40,7 +41,8 @@ import net.bluemind.webmodule.server.IWebFilter;
 public class WebModuleSessionInfosFilter implements IWebFilter {
 	private static final Logger logger = LoggerFactory.getLogger(WebModuleSessionInfosFilter.class);
 
-	private Template mainTemplate;
+	private Template jsTemplate;
+	private Template jsonTemplate;
 
 	public WebModuleSessionInfosFilter() {
 
@@ -49,7 +51,9 @@ public class WebModuleSessionInfosFilter implements IWebFilter {
 		freemarkerCfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
 
 		try {
-			mainTemplate = freemarkerCfg.getTemplate("jsSessionInfos.ftl");
+			jsTemplate = freemarkerCfg.getTemplate("jsSessionInfos.ftl");
+			jsonTemplate = freemarkerCfg.getTemplate("jsonSessionInfos.ftl");
+
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -58,9 +62,28 @@ public class WebModuleSessionInfosFilter implements IWebFilter {
 	@Override
 	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
 		String path = request.path();
+		String accept = request.getHeader(HttpHeaders.ACCEPT);
+		CompletableFuture<HttpServerRequest> response;
 		if (!path.endsWith("session-infos.js")) {
-			return CompletableFuture.completedFuture(request);
+			response = CompletableFuture.completedFuture(request);
+		} else if (accept.toLowerCase().contains("application/json")) {
+			response = responseWithSessionInfosJson(request);
+		} else {
+			response = responseWithSessionInfosJs(request);
 		}
+		return response;
+	}
+
+	private CompletableFuture<HttpServerRequest> responseWithSessionInfosJs(HttpServerRequest request) {
+		return responseWithSessionInfos(request, jsTemplate, "application/javascript");
+	}
+
+	private CompletableFuture<HttpServerRequest> responseWithSessionInfosJson(HttpServerRequest request) {
+		return responseWithSessionInfos(request, jsonTemplate, "application/json");
+	}
+
+	private CompletableFuture<HttpServerRequest> responseWithSessionInfos(HttpServerRequest request, Template template,
+			String type) {
 
 		Map<String, Object> model = new HashMap<>();
 
@@ -71,12 +94,12 @@ public class WebModuleSessionInfosFilter implements IWebFilter {
 		model.put("version", BMVersion.getVersion());
 		model.put("brandVersion", BMVersion.getVersionName());
 		try {
-			mainTemplate.process(model, sw);
+			template.process(model, sw);
 		} catch (TemplateException | IOException e) {
 			logger.error("error during js generation", e);
 		}
 
-		request.response().putHeader("Content-type", "application/javascript; charset=utf-8");
+		request.response().putHeader("Content-type", type + "; charset=utf-8");
 		request.response().setStatusCode(200).end(sw.toString());
 		return CompletableFuture.completedFuture(null);
 
