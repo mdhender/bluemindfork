@@ -378,7 +378,8 @@ public class CalendarService implements IInternalCalendar {
 		ItemValue<VEventSeries> item = itemId != null ? storeService.get(itemId, null) : storeService.get(optUid, null);
 
 		if (item == null) {
-			throw ServerFault.notFound("entry[" + optUid + "/" + itemId + "]@" + container.uid + " not found");
+			logger.warn("Failed to delete, event not found {}/{}");
+			return;
 		}
 		String uid = item.uid;
 

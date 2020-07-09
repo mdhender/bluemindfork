@@ -1107,17 +1107,6 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	}
 
 	@Test
-	public void testDeleteUnknownEvent() throws ServerFault {
-		try {
-			getCalendarService(userSecurityContext, userCalendarContainer).delete(UUID.randomUUID().toString(),
-					sendNotifications);
-			fail();
-		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.NOT_FOUND, sf.getCode());
-		}
-	}
-
-	@Test
 	public void testUpdateUnknownEvent() throws ServerFault {
 		try {
 			getCalendarService(userSecurityContext, userCalendarContainer).update(UUID.randomUUID().toString(),
