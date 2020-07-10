@@ -350,6 +350,7 @@ public class CalendarService implements IInternalCalendar {
 
 	private List<ItemValue<VEventSeries>> filterValues(List<ItemValue<VEventSeries>> values) throws ServerFault {
 
+		// tom: what the fuck does this do ?
 		for (ItemValue<VEventSeries> value : values) {
 			value = filter(value);
 		}
@@ -374,11 +375,11 @@ public class CalendarService implements IInternalCalendar {
 		emitNotification();
 	}
 
-	private void doDelete(String optUid, Long itemId, Boolean sendNotifications) throws ServerFault {
+	private void doDelete(String optUid, Long itemId, Boolean sendNotifications) {
 		ItemValue<VEventSeries> item = itemId != null ? storeService.get(itemId, null) : storeService.get(optUid, null);
 
 		if (item == null) {
-			logger.warn("Failed to delete, event not found {}/{}");
+			logger.warn("Failed to delete, event not found {}/{}", optUid, itemId);
 			return;
 		}
 		String uid = item.uid;
@@ -501,14 +502,14 @@ public class CalendarService implements IInternalCalendar {
 		List<ItemValue<VEventSeries>> items;
 		if (isPendingEventsSearch(query)) {
 			ListResult<ItemValue<VEventSeries>> res = searchPendingEvents(query);
-			items = filterValues(((ListResult<ItemValue<VEventSeries>>) res).values.stream().map(iv -> {
+			items = filterValues(res.values.stream().map(iv -> {
 				return ItemValue.create(iv, iv.value.copy());
 			}).collect(Collectors.toList()));
 			ret.total = res.total;
 		} else {
 			if (query.attendee != null && query.attendee.calendarOwnerAsDir) {
 				Optional<DirEntry> owner = getCalendarOwner(query);
-				query.attendee.dir = "bm://" + owner.get().path;
+				owner.ifPresent(de -> query.attendee.dir = "bm://" + de.path);
 			}
 			ListResult<String> res = indexStore.search(query, searchInPrivate());
 			items = filterValues(storeService.getMultiple(res.values));
