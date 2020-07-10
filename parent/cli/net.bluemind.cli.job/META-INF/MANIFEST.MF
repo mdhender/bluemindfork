@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: net.bluemind.cli.group
+Bundle-Name: net.bluemind.cli.job
 Bundle-SymbolicName: net.bluemind.cli.job;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.cli.job.Activator
