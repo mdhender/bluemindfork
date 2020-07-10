@@ -72,6 +72,11 @@ public class CliContext {
 		return adminServices.get();
 	}
 
+	public IServiceProvider api(String authKey) {
+		String core = Optional.ofNullable(BmIni.value("external-url")).orElse("127.0.0.1");
+		return ClientSideServiceProvider.getProvider("http://" + core + ":8090", authKey);
+	}
+
 	/**
 	 * Prints a red message (and avoids sonar error)
 	 * 
@@ -97,6 +102,13 @@ public class CliContext {
 	 */
 	public void info(String msg) {
 		System.out.println(msg); // NOSONAR
+	}
+
+	public void info(String msg, Object... args) {
+		for (Object o : args) {
+			msg = msg.replaceFirst("\\{\\}", o.toString());
+		}
+		info(msg);
 	}
 
 	public void progress(int total, int current) {

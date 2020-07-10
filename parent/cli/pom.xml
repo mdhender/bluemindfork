@@ -28,6 +28,7 @@
 		<module>net.bluemind.cli.group</module>
 		<module>net.bluemind.cli.todolist</module>
 		<module>net.bluemind.cli.sysconf</module>
+		<module>net.bluemind.cli.filehosting</module>
 		<module>net.bluemind.cli.inject.imap</module>
 		<module>net.bluemind.cli.inject.imap.tests</module>
 	</modules>

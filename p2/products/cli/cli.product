@@ -67,6 +67,7 @@
       <plugin id="net.bluemind.cli.cmd.api"/>
       <plugin id="net.bluemind.cli.contact"/>
       <plugin id="net.bluemind.cli.directory.common"/>
+      <plugin id="net.bluemind.cli.filehosting"/>
       <plugin id="net.bluemind.cli.group"/>
       <plugin id="net.bluemind.cli.hollow"/>
       <plugin id="net.bluemind.cli.hz"/>

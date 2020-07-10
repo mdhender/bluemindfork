@@ -123,7 +123,8 @@ public class FileHostingService implements IFileHosting {
 			info.present = false;
 			return info;
 		}
-		info = delegate(null).info(context);
+		info.info = delegates.stream().map(d -> d.info(context).info).reduce("",
+				(sum, infoString) -> sum.concat(infoString).concat("\n"));
 		info.present = true;
 		return info;
 	}

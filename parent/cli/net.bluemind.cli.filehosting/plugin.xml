@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.cli.cmd.api.cmdlet">
+      <registration
+            impl="net.bluemind.cli.filehosting.FileHostingInfoCommand$Reg"
+            priority="100">
+      </registration>
+   </extension>
+   <extension
+         point="net.bluemind.cli.cmd.api.cmdlet">
+      <registration
+            impl="net.bluemind.cli.filehosting.ActivateFileHostingInfoCommand$Reg"
+            priority="10">
+      </registration>
+   </extension>
+   <extension
+         point="net.bluemind.cli.cmd.api.cmdlet">
+      <registration
+            impl="net.bluemind.cli.filehosting.FileHostingListCommand$Reg"
+            priority="10">
+      </registration>
+   </extension>
+   
+</plugin>
