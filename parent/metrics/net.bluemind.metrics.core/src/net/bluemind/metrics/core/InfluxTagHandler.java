@@ -48,7 +48,7 @@ public class InfluxTagHandler extends TickInputConfigurator {
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals(TagDescriptor.bm_metrics_influx.name())) {
+		if (!tag.equals(TagDescriptor.bm_metrics_influx.getTag())) {
 			return;
 		}
 
@@ -61,7 +61,7 @@ public class InfluxTagHandler extends TickInputConfigurator {
 			TagHelper.jarToFS(InfluxTagHandler.class, "/configs/bm-kapacitor.conf",
 					"/etc/telegraf/telegraf.d/bm-kapacitor.conf", itemValue, serverApi);
 		} catch (IOException e) {
-			logger.error("Error copying file : {}", e);
+			logger.error("Error copying file", e);
 			return;
 		}
 		serverApi.submitAndWait(itemValue.uid, "service influxdb restart");
@@ -76,7 +76,7 @@ public class InfluxTagHandler extends TickInputConfigurator {
 				cfg.setTemplateLoader(new ClassTemplateLoader(InfluxTagHandler.class, "/templates/"));
 				Template temp = cfg.getTemplate("output.ftl");
 				StringWriter out = new StringWriter();
-				Map<String, String> map = new HashMap<String, String>();
+				Map<String, String> map = new HashMap<>();
 				map.put("influxdbip", itemValue.value.address() + ":8086");
 				map.put("hostAddress", srvItem.value.address());
 				map.put("uid", srvItem.uid);
@@ -84,9 +84,9 @@ public class InfluxTagHandler extends TickInputConfigurator {
 				serverApi.writeFile(srvItem.uid, "/etc/telegraf/telegraf.d/output.conf", out.toString().getBytes());
 				serverApi.submitAndWait(srvItem.uid, "service telegraf restart");
 			} catch (IOException e1) {
-				logger.error("Can't open ftl template : {}", e1);
+				logger.error("Can't open ftl template", e1);
 			} catch (TemplateException e2) {
-				logger.error("Exception during template processing : {}", e2);
+				logger.error("Exception during template processing", e2);
 			}
 		}
 
@@ -97,7 +97,7 @@ public class InfluxTagHandler extends TickInputConfigurator {
 
 	@Override
 	public void onServerUntagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals(TagDescriptor.bm_metrics_influx.name())) {
+		if (!tag.equals(TagDescriptor.bm_metrics_influx.getTag())) {
 			return;
 		}
 

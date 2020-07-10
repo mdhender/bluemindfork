@@ -47,12 +47,4 @@ public enum TagDescriptor {
 		return tag;
 	}
 
-	public static boolean contains(String otherTag) {
-		for (TagDescriptor tag : TagDescriptor.values()) {
-			if (tag.getTag().equals(otherTag)) {
-				return true;
-			}
-		}
-		return false;
-	}
 }

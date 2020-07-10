@@ -22,7 +22,7 @@ import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 
 public class DiskSpace implements ITickTemplateProvider {
-	private static final Logger logger = LoggerFactory.getLogger(ITickTemplateProvider.class);
+	private static final Logger logger = LoggerFactory.getLogger(DiskSpace.class);
 
 	@Override
 	public String templateId() {
@@ -42,7 +42,7 @@ public class DiskSpace implements ITickTemplateProvider {
 
 		IServer serverApi = ctx.provider().instance(IServer.class, InstallationId.getIdentifier());
 
-		List<TemplateDefinition> defs = new ArrayList<TemplateDefinition>();
+		List<TemplateDefinition> defs = new ArrayList<>();
 
 		for (Product prod : srvProducts) {
 			for (String mountpoint : prod.mountpoints) {
