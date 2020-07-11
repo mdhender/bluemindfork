@@ -25,6 +25,8 @@ if [ $1 -eq 1 ]; then
     chmod +x /usr/share/bm-cli/bm-cli
     
 fi
+
+%posttrans
 rm -fr /var/lib/bm-cli/*
 
 rm -rf /usr/share/bm-cli/plugins
@@ -34,7 +36,6 @@ if [ -e /usr/share/bm-cli/extensions ]; then
     find /usr/share/bm-cli/extensions -name '*.jar' -exec ln -f {} /usr/share/bm-cli/plugins \;
 fi
 find /usr/share/bm-cli/main -name '*.jar' -exec ln -f {} /usr/share/bm-cli/plugins \;
-
 /usr/lib/jvm/bm-jdk/bin/java -Xshare:dump
 
 %preun
