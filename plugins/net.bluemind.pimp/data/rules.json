@@ -67,12 +67,6 @@
 		"optional": true
 	},
 	{
-		"product":"bm-locator",
-		"defaultHeap":128,
-		"defaultDirect":128,
-		"sparePercent":0
-	},
-	{
 		"product":"bm-hps",
 		"defaultHeap":64,
 		"defaultDirect":64,

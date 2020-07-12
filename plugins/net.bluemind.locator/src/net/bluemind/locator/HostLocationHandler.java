@@ -30,6 +30,7 @@ import com.netflix.spectator.api.Registry;
 
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.locator.impl.LocatorDbHelper;
@@ -65,36 +66,37 @@ public class HostLocationHandler implements Handler<HttpServerRequest> {
 		String loginAtDomain = params.get("latd");
 		String origin = Optional.ofNullable(req.headers().get("X-Bm-Origin")).orElse("unknown");
 
-		vertx.<Set<String>>executeBlocking(prom -> {
+		vertx.executeBlocking((Promise<Set<String>> prom) -> {
 			try {
 				Set<String> ips = LocatorDbHelper.findUserAssignedHosts(loginAtDomain, service + "/" + property);
 				prom.complete(ips);
 			} catch (Exception e) {
 				prom.fail(e);
 			}
-		}, res -> {
+		}, false, res -> {
 			if (res.failed()) {
-				registry.counter(idFactory.name("requestsCount", "statusCode", "500", "origin", origin)).increment();
+				registry.counter(idFactory.name("locatorRequestsCount", "statusCode", "500", "origin", origin))
+						.increment();
 				req.response().setStatusCode(500);
 				req.response().setStatusMessage(res.cause().getMessage() != null ? res.cause().getMessage() : "null");
 				req.response().end();
 				final long end = registry.clock().monotonicTime();
-				registry.timer(idFactory.name("executionTime")).record(end - start, TimeUnit.NANOSECONDS);
+				registry.timer(idFactory.name("locatorExecutionTime")).record(end - start, TimeUnit.NANOSECONDS);
 			} else {
 				Set<String> ips = res.result();
 				final long end = registry.clock().monotonicTime();
-				registry.timer(idFactory.name("executionTime")).record(end - start, TimeUnit.NANOSECONDS);
+				registry.timer(idFactory.name("locatorExecutionTime")).record(end - start, TimeUnit.NANOSECONDS);
 				if (ips == null) {
 					// exceptionnaly triggered
 				} else if (!ips.isEmpty()) {
-					registry.counter(idFactory.name("requestsCount", "statusCode", "200", "origin", origin))
+					registry.counter(idFactory.name("locatorRequestsCount", "statusCode", "200", "origin", origin))
 							.increment();
 					if (logger.isDebugEnabled()) {
 						logger.debug("{} => {}", req.path(), ips);
 					}
 					req.response().end(Joiner.on('\n').join(ips));
 				} else {
-					registry.counter(idFactory.name("requestsCount", "statusCode", "404", "origin", origin))
+					registry.counter(idFactory.name("locatorRequestsCount", "statusCode", "404", "origin", origin))
 							.increment();
 					String error = "Could not find " + service + "/" + property + " for " + loginAtDomain;
 					logger.error(error);
