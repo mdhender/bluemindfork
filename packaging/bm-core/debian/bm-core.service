@@ -13,6 +13,7 @@ GuessMainPID=no
 RemainAfterExit=no
 LimitNOFILE=65536
 SuccessExitStatus=129 143
+Environment="PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
 Environment=JAVA_HOME=/usr/lib/jvm/bm-jdk
 ExecStart=/usr/share/bm-core/bm-core /var/run/bm-core.pid
 

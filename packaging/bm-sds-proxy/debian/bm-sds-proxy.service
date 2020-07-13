@@ -20,6 +20,7 @@ LimitCORE=infinity
 LimitNOFILE=65535
 
 PermissionsStartOnly=true
+Environment="PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
 Environment=JAVA_HOME=/usr/lib/jvm/bm-jdk
 ExecStartPre=/usr/share/bm-sds-proxy/bm-sds-proxy pre-start
 ExecStart=/usr/share/bm-sds-proxy/bm-sds-proxy
