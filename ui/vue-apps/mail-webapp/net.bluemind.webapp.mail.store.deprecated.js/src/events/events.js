@@ -21,26 +21,29 @@ async function fetchEvent({ commit, getters }, eventUid) {
 }
 
 async function setEventStatus({ state, commit, getters }, status) {
-    const userName = getters.currentMailbox.name;
+    const uid = getters.currentMailbox.uid;
     const previousStatus = state.currentEvent.status;
-    commit("setCurrentEventStatus", { status, userName });
-    return await injector
-        .getProvider("CalendarPersistence")
-        .get()
-        .update(state.currentEvent.uid, state.currentEvent.serverEvent.value, true)
-        .catch(() => commit("setCurrentEventStatus", { status: previousStatus, userName }));
+    try {
+        commit("setCurrentEventStatus", { status, uid });
+        await injector
+            .getProvider("CalendarPersistence")
+            .get()
+            .update(state.currentEvent.uid, state.currentEvent.serverEvent.value, true);
+    } catch {
+        commit("setCurrentEventStatus", { status: previousStatus, uid });
+    }
 }
 
 const mutations = {
     setCurrentEvent(state, event) {
         state.currentEvent = event;
     },
-    setCurrentEventStatus(state, { status, userName }) {
+    setCurrentEventStatus(state, { status, uid }) {
         state.currentEvent.status = status;
 
-        const userSession = injector.getProvider("UserSession").get();
-        const currentAddress = userName + "@" + userSession.domain;
-        state.currentEvent.serverEvent.value.main.attendees.find(a => a.mailto === currentAddress).partStatus = status;
+        state.currentEvent.serverEvent.value.main.attendees.find(
+            a => a.dir && a.dir.split("/").pop() === uid
+        ).partStatus = status;
     }
 };
 
