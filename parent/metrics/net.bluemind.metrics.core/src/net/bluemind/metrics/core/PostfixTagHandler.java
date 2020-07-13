@@ -18,12 +18,17 @@ import net.bluemind.server.api.Server;
 
 public class PostfixTagHandler extends TickInputConfigurator {
 	private static final Logger logger = LoggerFactory.getLogger(PostfixTagHandler.class);
-	private static final String UNIX_ACL[] = { "/usr/sbin/usermod -a -G postdrop telegraf",
-			"/bin/chgrp -R postdrop /var/spool/postfix/active", "/bin/chgrp -R postdrop /var/spool/postfix/hold",
-			"/bin/chgrp -R postdrop /var/spool/postfix/incoming", "/bin/chgrp -R postdrop /var/spool/postfix/deferred",
-			"/bin/chmod -R g+rXs /var/spool/postfix/active", "/bin/chmod -R g+rXs /var/spool/postfix/hold",
-			"/bin/chmod -R g+rXs /var/spool/postfix/incoming", "/bin/chmod -R g+rXs /var/spool/postfix/deferred",
-			"/bin/chmod g+r /var/spool/postfix/maildrop" };
+	private static final String UNIX_ACL[] = {
+			"usermod -a -G postdrop telegraf",
+			"chgrp -R postdrop /var/spool/postfix/active",
+			"chgrp -R postdrop /var/spool/postfix/hold",
+			"chgrp -R postdrop /var/spool/postfix/incoming",
+			"chgrp -R postdrop /var/spool/postfix/deferred",
+			"chmod -R g+rXs /var/spool/postfix/active",
+			"chmod -R g+rXs /var/spool/postfix/hold",
+			"chmod -R g+rXs /var/spool/postfix/incoming",
+			"chmod -R g+rXs /var/spool/postfix/deferred",
+			"chmod g+r /var/spool/postfix/maildrop" };
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
