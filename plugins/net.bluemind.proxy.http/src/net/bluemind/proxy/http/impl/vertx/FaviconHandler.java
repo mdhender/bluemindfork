@@ -22,6 +22,7 @@ import java.util.Base64;
 
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 
 public final class FaviconHandler implements Handler<HttpServerRequest> {
@@ -31,6 +32,7 @@ public final class FaviconHandler implements Handler<HttpServerRequest> {
 
 	@Override
 	public void handle(HttpServerRequest event) {
+		event.response().putHeader(HttpHeaders.CONTENT_TYPE, "image/x-icon");
 		event.response().end(iconBuffer);
 	}
 

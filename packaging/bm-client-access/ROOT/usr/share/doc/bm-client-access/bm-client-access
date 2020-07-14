@@ -89,6 +89,7 @@ server {
   add_header X-Content-Type-Options nosniff;
   add_header 'Referrer-Policy' 'strict-origin-when-cross-origin';
   add_header X-XSS-Protection "1; mode=block";
+  add_header X-Robots-Tag noindex;
   error_page 403 /errors-pages/403.html;
   error_page 404 /errors-pages/404.html;
   error_page 500 /errors-pages/500.html;
@@ -106,6 +107,11 @@ server {
     proxy_intercept_errors on;
     proxy_pass $bm_upstream_hps$uri$is_args$args;
   }
+
+  location /robots.txt {
+    alias /usr/share/bm-client-access/robots.txt;
+  }
+
 
   location /errors-pages {
     alias /usr/share/bm-client-access/errors-pages;
