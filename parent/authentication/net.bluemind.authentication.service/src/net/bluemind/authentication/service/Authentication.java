@@ -211,7 +211,8 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 		default:
 			resp = new LoginResponse();
 			resp.status = Status.Bad;
-			logger.error("result auth is {} for for login: {} origin: {} remoteIps: {}", result, login, origin,
+			resp.message = String.format("Result auth is %s for login: %s", result, login);
+			logger.error("result auth is {} for login: {} origin: {} remoteIps: {}", result, login, origin,
 					securityContext.getRemoteAddresses());
 		}
 
