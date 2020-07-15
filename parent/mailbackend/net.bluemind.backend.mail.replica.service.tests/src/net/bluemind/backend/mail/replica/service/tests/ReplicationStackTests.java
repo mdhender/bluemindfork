@@ -240,6 +240,40 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
+	public void addFlagAlreadySet() throws Exception {
+
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> inbox = mboxesApi.byName("INBOX");
+
+		ItemValue<MailboxItem> mail = addDraft(inbox);
+
+		IMailboxItems itemsApi = provider().instance(IMailboxItems.class, inbox.uid);
+
+		ItemValue<MailboxItem> mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertFalse(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+
+		System.err.println("SEEN");
+		itemsApi.addFlag(FlagUpdate.of(mail.internalId, MailboxItemFlag.System.Seen.value()));
+		mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertTrue(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+
+		System.err.println("SEEN AGAIN");
+		itemsApi.addFlag(FlagUpdate.of(mail.internalId, MailboxItemFlag.System.Seen.value()));
+		mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertTrue(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+
+	}
+
+	@Test
+	public void addFlagUnknownMail() {
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> inbox = mboxesApi.byName("INBOX");
+		IMailboxItems itemsApi = provider().instance(IMailboxItems.class, inbox.uid);
+		Ack ack = itemsApi.addFlag(FlagUpdate.of(98765432L, MailboxItemFlag.System.Seen.value()));
+		assertEquals(0L, ack.version);
+	}
+
+	@Test
 	public void updateFlagsBatch() throws IMAPException, InterruptedException {
 
 		IServiceProvider prov = provider();
