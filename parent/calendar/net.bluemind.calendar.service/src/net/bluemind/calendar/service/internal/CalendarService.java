@@ -699,10 +699,7 @@ public class CalendarService implements IInternalCalendar {
 
 	@Override
 	public boolean isAutoSyncActivated() throws ServerFault {
-		final ContainerSyncStore containerSyncStore = new ContainerSyncStore(
-				DataSourceRouter.get(context, container.uid), container);
-		final ContainerSyncStatus containerSyncStatus = containerSyncStore.getSyncStatus();
-		return containerSyncStatus != null ? containerSyncStatus.errors < SYNC_ERRORS_LIMIT : true;
+		return true;
 	}
 
 	@Override

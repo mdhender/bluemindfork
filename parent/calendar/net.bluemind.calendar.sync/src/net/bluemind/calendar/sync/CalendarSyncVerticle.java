@@ -46,7 +46,6 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.NullTaskMonitor;
-import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
@@ -101,22 +100,22 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 	 * runtime behavior. </i>
 	 */
 	public int syncStatusComparator(final ContainerSyncStatus syncStatus1, final ContainerSyncStatus syncStatus2) {
-		return weight(syncStatus1) - weight(syncStatus2);
+		return Long.compare(weight(syncStatus2), weight(syncStatus1));
 	}
 
 	/**
 	 * The more the weight the less a calendar's synchronization is prioritized.<br>
 	 * 
 	 * <pre>
-	 *  100 x syncErrors - daysSinceLastSync
+	 * daysSinceLastSync
 	 * </pre>
 	 * 
 	 * <i>Note: this method does not support
 	 * {@link ContainerSyncStatus#errors}<code>/100</code> equals or greater than
 	 * {@link Integer#MAX_VALUE}. Results are then unusable.</i>
 	 */
-	private static int weight(final ContainerSyncStatus containerSyncStatus) {
-		return 100 * containerSyncStatus.errors - daysSinceLastSync(containerSyncStatus);
+	private static long weight(final ContainerSyncStatus containerSyncStatus) {
+		return millisSinceLastSync(containerSyncStatus);
 	}
 
 	/**
@@ -135,10 +134,9 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 		// in order to be eligible for synchronization, a calendar must meet
 		// these conditions:
 		// 1) be remote
-		// 2) have less than SYNC_ERRORS_LIMIT synchronization errors
-		// 3) having reached the delay between two synchronizations
-		// 4) not being currently queued for synchronization
-		// 5) the "bm.calendar.service.accessed" event must have an "external"
+		// 2) having reached the delay between two synchronizations
+		// 3) not being currently queued for synchronization
+		// 4) the "bm.calendar.service.accessed" event must have an "external"
 		// origin
 		// for performance matters, these conditions are split in the following
 		// code:
@@ -150,8 +148,7 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 				final ContainerSyncStore containerSyncStore = new ContainerSyncStore(
 						DataSourceRouter.get(context, calendarUid), containerStore.get(calendarUid));
 				syncStatus.load(containerSyncStore.getSyncStatus());
-				if ((syncStatus.errors < syncErrorLimit() || reEnableBlockedSync(syncStatus, context, calendarUid))
-						&& System.currentTimeMillis() > syncStatus.nextSync) {
+				if (System.currentTimeMillis() > syncStatus.nextSync) {
 					syncingCals.add(syncStatus.id);
 					this.executor.execute(syncStatus);
 				}
@@ -159,22 +156,6 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
-	}
-
-	private boolean reEnableBlockedSync(RunnableSyncStatus syncStatus, BmContext bmContext, String calendarUid) {
-		final ContainerStore containerStore = new ContainerStore(bmContext,
-				DataSourceRouter.get(bmContext, syncStatus.id), bmContext.getSecurityContext());
-		final Container container;
-		try {
-			container = containerStore.get(syncStatus.id);
-		} catch (SQLException e) {
-			return false;
-		}
-		long nextSyncDelay = CalendarContainerSync.getNextSyncDelay(
-				bmContext.getServiceProvider().instance(IDomainSettings.class, container.domainUid).get());
-		Long nextSync = syncStatus.nextSync;
-
-		return System.currentTimeMillis() > (nextSync + (3 * nextSyncDelay));
 	}
 
 	/**
@@ -214,20 +195,18 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 			} else {
 				newStatus = containerSyncResult.status;
 			}
-			newStatus.errors = previousSyncStatus != null ? previousSyncStatus.errors + 1 : 1;
 		} else {
 			newStatus = containerSyncResult.status;
-			newStatus.errors = 0;
 		}
 		final ContainerSyncStore containerSyncStore = new ContainerSyncStore(
 				DataSourceRouter.get(context, container.uid), container);
 		containerSyncStore.setSyncStatus(newStatus);
 	}
 
-	protected static int daysSinceLastSync(final ContainerSyncStatus containerSyncStatus) {
+	protected static long millisSinceLastSync(final ContainerSyncStatus containerSyncStatus) {
 		final long now = System.currentTimeMillis();
 		final long lastSync = containerSyncStatus.lastSync != null ? containerSyncStatus.lastSync.getTime() : 0;
-		return (int) TimeUnit.MILLISECONDS.toDays(now - lastSync);
+		return now - lastSync;
 	}
 
 	/**
@@ -246,7 +225,7 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 				this.syncTokens = containerSyncStatus.syncTokens;
 				this.lastSync = containerSyncStatus.lastSync;
 				this.nextSync = containerSyncStatus.nextSync != null ? containerSyncStatus.nextSync : 0;
-				this.errors = containerSyncStatus.errors;
+				this.syncStatusInfo = containerSyncStatus.syncStatusInfo;
 			} else {
 				// no sync has been done yet, for comparisons sake, set the last
 				// and next synchronization to 1970-01-01 (epoch)

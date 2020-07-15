@@ -48,9 +48,6 @@ public class ContainerSyncStatus {
 	/** The {@link Status} of the synchronization. */
 	public Status syncStatus;
 
-	/**
-	 * The number of successive synchronizations errors done so far (may be
-	 * reset to zero).
-	 */
-	public Integer errors = 0;
+	/** Container specific status informations. */
+	public String syncStatusInfo;
 }

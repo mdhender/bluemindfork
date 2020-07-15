@@ -110,4 +110,11 @@ public class ContainerSyncService implements IContainerSync {
 		return new Date(sync.nextSync);
 	}
 
+	@Override
+	public String getSyncStatus() throws ServerFault {
+		RBACManager.forContext(context).forContainer(container).check(Verb.Read.name(), Verb.Manage.name());
+		ContainerSyncStatus sync = containerSyncStore.getSyncStatus();
+		return sync.syncStatusInfo;
+	}
+
 }

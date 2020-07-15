@@ -82,15 +82,18 @@ public class CalendarContainerSync implements ISyncableContainer {
 
 	private static final String SYNC_TOKEN_KEY_MODIFIED_SINCE = "modified-since";
 
+	private static final String SYNC_TOKEN_KEY_SYNC_DELAY = "current-sync-delay";
+
 	private static final String SYNC_TOKEN_KEY_MD5_HASH = "md5";
 
-	private static final int SYNC_OPERATION_THRESHOLD = 50;
+	private static final double MAX_SYNC_OPERATIONS = 50;
 
-	private static class SyncData {
+	private static final long MAX_SYNC_DELAY = TimeUnit.DAYS.toMillis(3);
+
+	static class SyncData {
 		private long timestamp;
 		private String modifiedSince;
 		private String etag;
-		private String md5Hash;
 		private long nextSync;
 		private HttpURLConnection con;
 	}
@@ -100,9 +103,13 @@ public class CalendarContainerSync implements ISyncableContainer {
 	private BmContext context;
 	private Container container;
 
-	private Map<String, String> calendarSettings;
+	protected Map<String, String> calendarSettings;
 
-	private Map<String, String> domainSettings;
+	protected Map<String, String> domainSettings;
+
+	protected CalendarContainerSync() {
+
+	}
 
 	public CalendarContainerSync(BmContext context, Container container) {
 		this.context = context;
@@ -120,6 +127,13 @@ public class CalendarContainerSync implements ISyncableContainer {
 	@Override
 	public ContainerSyncResult sync(Map<String, String> syncTokens, IServerTaskMonitor monitor) {
 		monitor.begin(3, null);
+
+		ContainerSyncResult ret = new ContainerSyncResult();
+		ret.status = new ContainerSyncStatus();
+		ret.status.syncStatus = Status.ERROR;
+		SyncData syncData = new SyncData();
+		syncData.timestamp = System.currentTimeMillis();
+
 		try {
 			if (this.calendarSettings != null && this.calendarSettings.containsKey("icsUrl")) {
 				monitor.progress(1, "Parsing ics...");
@@ -127,19 +141,58 @@ public class CalendarContainerSync implements ISyncableContainer {
 				final String etag = syncTokens.get(SYNC_TOKEN_KEY_ETAG);
 				final String md5Hash = syncTokens.get(SYNC_TOKEN_KEY_MD5_HASH);
 
-				final SyncData syncData = fetchData(modifiedSince, etag, md5Hash, this.calendarSettings.get("icsUrl"));
+				fetchData(modifiedSince, etag, md5Hash, this.calendarSettings.get("icsUrl"), syncData);
 				logger.info("Sync calendar {} (uid:{})", container.name, container.uid);
-				final ContainerSyncResult ret = syncCalendar(syncData);
+				syncCalendar(syncData, ret);
 				logger.info("{} calendar sync done. created: {}, updated: {}, deleted: {}", container.name, ret.added,
 						ret.updated, ret.removed);
+
+				ret.status.nextSync = Math.max(syncData.timestamp + this.nextSyncDelay(), syncData.nextSync);
+				ret.status.syncStatusInfo = "OK: sync done";
 				return ret;
 			}
 
 			logger.error("Fail to fetch container settings for calendar {} (uid: {})", container.name, container.uid);
 			return null;
+		} catch (ExternalServerException e) {
+			setNextSync(syncTokens, ret, 1.5f, true);
+			ret.status.syncStatusInfo = e.getErrorInfo();
+		} catch (HttpAuthException | UnknownServerException | SyncElementsNotModifiedException e) {
+			setNextSync(syncTokens, ret, 2f, true);
+			ret.status.syncStatusInfo = e.getErrorInfo();
+		} catch (MalformedURLException e) {
+			int penalty = 4;
+			ret.status.nextSync = System.currentTimeMillis() + this.nextSyncDelay() * penalty;
+			ret.status.syncStatusInfo = new MalformedIcsUrlException().getErrorInfo();
+		} catch (NoSyncDoneException e) {
+			ret.status.nextSync = Math.max(syncData.timestamp + this.nextSyncDelay(), syncData.nextSync);
+			ret.status.syncStatusInfo = new NoSyncDoneException().getErrorInfo();
+			ret.status.syncStatus = Status.SUCCESS;
+		} catch (TooManySyncElementsException e) {
+			double penalty = 2 - MAX_SYNC_OPERATIONS / e.operationCount;
+			setNextSync(syncTokens, ret, penalty, false);
+			ret.status.syncStatusInfo = e.getErrorInfo();
 		} catch (Exception e) {
-			throw new ServerFault(e);
+			logger.warn("Internal error while syncing ICS", e);
+			setNextSync(syncTokens, ret, 2f, true);
+			ret.status.syncStatusInfo = new InternalServerException().getErrorInfo();
+		} finally {
+			ret.status.syncTokens.put(SYNC_TOKEN_KEY_MODIFIED_SINCE, syncData.modifiedSince);
+			ret.status.syncTokens.put(SYNC_TOKEN_KEY_ETAG, syncData.etag);
 		}
+		return ret;
+	}
+
+	private void setNextSync(Map<String, String> syncTokens, ContainerSyncResult ret, double penalty,
+			boolean accumulatePenalty) {
+		long baseDelay = accumulatePenalty ? getCurrentSyncDelay(syncTokens) : this.nextSyncDelay();
+		long delay = (long) Math.min(MAX_SYNC_DELAY, Math.max(baseDelay * penalty, this.nextSyncDelay()));
+		ret.status.nextSync = System.currentTimeMillis() + delay;
+		ret.status.syncTokens.put(SYNC_TOKEN_KEY_SYNC_DELAY, "" + delay);
+	}
+
+	private long getCurrentSyncDelay(Map<String, String> syncTokens) {
+		return Long.parseLong(syncTokens.getOrDefault(SYNC_TOKEN_KEY_SYNC_DELAY, "" + this.nextSyncDelay()));
 	}
 
 	static long getNextSyncDelay(Map<String, String> domainSettings) {
@@ -153,22 +206,13 @@ public class CalendarContainerSync implements ISyncableContainer {
 		return getNextSyncDelay(this.domainSettings);
 	}
 
-	private ContainerSyncResult syncCalendar(SyncData data) {
-		ContainerSyncResult ret = new ContainerSyncResult();
-		ret.status = new ContainerSyncStatus();
-		ret.status.nextSync = Math.max(data.timestamp + this.nextSyncDelay(), data.nextSync);
-		ret.status.syncTokens.put(SYNC_TOKEN_KEY_MODIFIED_SINCE, data.modifiedSince);
-		ret.status.syncTokens.put(SYNC_TOKEN_KEY_ETAG, data.etag);
-		ret.status.syncTokens.put(SYNC_TOKEN_KEY_MD5_HASH, data.md5Hash);
-		ret.status.syncStatus = Status.ERROR;
-
+	private void syncCalendar(SyncData data, ContainerSyncResult ret) {
 		if (data.con != null) {
 			try (InputStream in = data.con.getInputStream()) {
 				IInternalCalendar service = context.provider().instance(IInternalCalendar.class, container.uid);
 				TaskStatus status = TaskUtils.wait(context.provider(), syncIcs(service, in));
 
 				logger.info("Sync ICS result: {}", status.result);
-
 				ContainerUpdatesResult result = JsonUtils.read(status.result, ContainerUpdatesResult.class);
 				ret.added = result.added.size();
 				ret.updated = result.updated.size();
@@ -176,8 +220,13 @@ public class CalendarContainerSync implements ISyncableContainer {
 				ret.unhandled = result.unhandled.size();
 				ret.status.lastSync = new Date();
 				ret.status.syncStatus = Status.SUCCESS;
-				ret.status.nextSync = ret.status.nextSync + Math.min(TimeUnit.DAYS.toMillis(1),
-						(ret.updated / SYNC_OPERATION_THRESHOLD * TimeUnit.HOURS.toMillis(1)));
+
+				if (result.synced() > MAX_SYNC_OPERATIONS) {
+					throw new TooManySyncElementsException(result.synced());
+				}
+			} catch (TooManySyncElementsException e) {
+				ret.status.syncStatus = Status.SUCCESS;
+				throw e;
 			} catch (Exception e) {
 				logger.warn("Cannot sync ics", e);
 				ret.status.syncStatus = Status.ERROR;
@@ -185,13 +234,10 @@ public class CalendarContainerSync implements ISyncableContainer {
 				data.con.disconnect();
 			}
 		}
-		return ret;
 	}
 
-	private SyncData fetchData(String modifiedSince, String etag, String md5Hash, String icsUrl) throws Exception {
-		SyncData ret = new SyncData();
-		ret.timestamp = System.currentTimeMillis();
-
+	protected SyncData fetchData(String modifiedSince, String etag, String md5Hash, String icsUrl, SyncData syncData)
+			throws Exception {
 		// webcal:// -> java.net.MalformedURLException: unknown protocol: webcal
 		// quick fix
 		final boolean originalIcsUrlHasWebcalProtocol;
@@ -205,17 +251,17 @@ public class CalendarContainerSync implements ISyncableContainer {
 		ResponseData response;
 		try {
 			response = requestIcs(icsUrl, "HEAD", modifiedSince, etag);
-		} catch (MalformedURLException e2) {
-			logger.error("invalid url '{}'", icsUrl, e2);
-			ret.modifiedSince = "";
-			return ret;
+		} catch (MalformedURLException e) {
+			logger.error("invalid url '{}'", icsUrl, e);
+			syncData.modifiedSince = "";
+			throw e;
 		}
 
 		if (this.isNotModified(modifiedSince, response)) {
 			logger.debug("{} Not Modified (304 or header)", icsUrl);
-			ret.modifiedSince = Long.toString(response.lastModified);
-			ret.etag = response.etag;
-			return ret;
+			syncData.modifiedSince = Long.toString(response.lastModified);
+			syncData.etag = response.etag;
+			throw new SyncElementsNotModifiedException();
 		}
 
 		if (response.status == 405) {
@@ -224,21 +270,27 @@ public class CalendarContainerSync implements ISyncableContainer {
 
 		ResponseData get = requestIcs(icsUrl, "GET", null, null);
 
-		ret.nextSync = response.nextSync == 0 ? get.nextSync : response.nextSync;
+		syncData.nextSync = response.nextSync == 0 ? get.nextSync : response.nextSync;
 
 		if (get.status == 200) {
 			// GET returns a Last-Modified header
-			ret.modifiedSince = Long.toString(get.lastModified);
-			ret.etag = get.etag;
-			ret.con = get.con;
+			syncData.modifiedSince = Long.toString(get.lastModified);
+			syncData.etag = get.etag;
+			syncData.con = get.con;
+			return syncData;
 		} else if (originalIcsUrlHasWebcalProtocol && icsUrl.startsWith(HTTP_PREFIX)) {
 			// try now with https
-			return this.fetchData(modifiedSince, etag, md5Hash, icsUrl.replace(HTTP_PREFIX, HTTPS_PREFIX));
+			return this.fetchData(modifiedSince, etag, md5Hash, icsUrl.replace(HTTP_PREFIX, HTTPS_PREFIX), syncData);
 		} else {
-			return ret;
+			if (get.status >= 400 && get.status < 500) {
+				throw new HttpAuthException();
+			} else if (get.status >= 500) {
+				throw new ExternalServerException();
+			} else {
+				logger.warn("Unknown server exception while syncing ICS, server returned status {}", get.status);
+				throw new UnknownServerException(get.status);
+			}
 		}
-
-		return ret;
 	}
 
 	/**

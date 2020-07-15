@@ -42,4 +42,8 @@ public interface IContainerSync {
 	@GET
 	@Path("_next")
 	public Date getNextSync() throws ServerFault;
+
+	@GET
+	@Path("_status")
+	public String getSyncStatus() throws ServerFault;
 }
