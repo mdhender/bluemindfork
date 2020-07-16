@@ -88,7 +88,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail-webapp/currentMessage", ["message"]),
-        ...mapState("mail-webapp", ["currentEvent"]),
+        ...mapState("mail-webapp", ["currentEvent", "messageFilter"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key", parts: "parts" }),
         to() {
             if (this.message.to.length > 0) {
@@ -110,7 +110,10 @@ export default {
         currentMessageKey: {
             handler: function() {
                 this.resetScroll();
-                this.markAsRead([this.currentMessageKey]);
+                // FIXME: remove this if once https://forge.bluemind.net/jira/browse/FEATWEBML-1017 is fixed
+                if (this.messageFilter !== "unread") {
+                    this.markAsRead([this.currentMessageKey]);
+                }
                 if (this.isIcsAlertBlocked) {
                     this.isIcsAlertBlocked = false;
                 }
