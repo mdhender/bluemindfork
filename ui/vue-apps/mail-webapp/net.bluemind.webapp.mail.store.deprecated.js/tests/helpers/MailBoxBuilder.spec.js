@@ -10,7 +10,7 @@ const user = {
     owner: "941ED8F6",
     uid: "941ED8F6",
     verbs: [Verb.All],
-    ownerDisplayName: "Alice",
+    ownerDisplayname: "Alice",
     name: "Alice"
 };
 const mailshare = {
@@ -19,7 +19,7 @@ const mailshare = {
     name: "Mailshare mailshare",
     owner: "D5030EE3",
     verbs: [Verb.Read],
-    ownerDisplayName: "mailshare"
+    ownerDisplayname: "mailshare"
 };
 const calendar = {
     type: "calendar"
@@ -63,12 +63,12 @@ describe("[Mail-WebappStore][getters] : mailshares ", () => {
         expect(MailBoxBuilder.build(mailshare, getters).writable).toEqual(false);
     });
     test("set mailbox name", () => {
-        expect(MailBoxBuilder.build(user, getters).name).toEqual(user.ownerDisplayName);
-        expect(MailBoxBuilder.build(mailshare, getters).name).toEqual(mailshare.ownerDisplayName);
+        expect(MailBoxBuilder.build(user, getters).name).toEqual(user.ownerDisplayname);
+        expect(MailBoxBuilder.build(mailshare, getters).name).toEqual(mailshare.ownerDisplayname);
     });
     test("set mailbox root", () => {
         expect(MailBoxBuilder.build(user, getters).root).toEqual("");
-        expect(MailBoxBuilder.build(mailshare, getters).root).toEqual(mailshare.ownerDisplayName);
+        expect(MailBoxBuilder.build(mailshare, getters).root).toEqual(mailshare.ownerDisplayname);
     });
     test("set mailbox type", () => {
         expect(MailBoxBuilder.build(user, getters).type).toEqual("user");

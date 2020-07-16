@@ -33,7 +33,7 @@
                     </bm-label-icon>
                 </bm-button>
                 <bm-button
-                    v-if="!areAllSelectedMessagesFlagged"
+                    v-if="!areAllSelectedMessagesFlagged && !anyMessageReadOnly"
                     variant="outline-secondary"
                     @click="markAsFlagged(selectedMessageKeys)"
                 >
@@ -42,7 +42,7 @@
                     }}</bm-label-icon>
                 </bm-button>
                 <bm-button
-                    v-if="!areAllSelectedMessagesUnflagged"
+                    v-if="!areAllSelectedMessagesUnflagged && !anyMessageReadOnly"
                     variant="outline-secondary"
                     @click="markAsUnflagged(selectedMessageKeys)"
                 >

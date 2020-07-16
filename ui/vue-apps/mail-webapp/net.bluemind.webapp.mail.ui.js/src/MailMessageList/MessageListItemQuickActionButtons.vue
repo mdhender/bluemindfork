@@ -16,7 +16,7 @@
             <bm-button
                 v-if="message.states.includes('not-seen')"
                 v-bm-tooltip.ds500.top.viewport
-                class="p-1 mr-2"
+                class="p-1"
                 :aria-label="$tc('mail.actions.mark_read.aria')"
                 :title="$tc('mail.actions.mark_read.aria')"
                 variant="inline-secondary"
@@ -27,7 +27,7 @@
             <bm-button
                 v-else
                 v-bm-tooltip.ds500.top.viewport
-                class="p-1 mr-2"
+                class="p-1"
                 :aria-label="$tc('mail.actions.mark_unread.aria')"
                 :title="$tc('mail.actions.mark_unread.aria')"
                 variant="inline-secondary"
@@ -35,28 +35,30 @@
             >
                 <bm-icon icon="unread" size="lg" />
             </bm-button>
-            <bm-button
-                v-if="!message.flags.includes(Flags.FLAGGED)"
-                v-bm-tooltip.ds500.top.viewport
-                class="p-1"
-                :aria-label="$tc('mail.actions.mark_flagged.aria')"
-                :title="$tc('mail.actions.mark_flagged.aria')"
-                variant="inline-secondary"
-                @click.prevent.stop="markAsFlagged([message.key])"
-            >
-                <bm-icon icon="flag-outline" size="lg" />
-            </bm-button>
-            <bm-button
-                v-else
-                v-bm-tooltip.ds500.top.viewport
-                class="p-1"
-                :aria-label="$tc('mail.actions.mark_unflagged.aria')"
-                :title="$tc('mail.actions.mark_unflagged.aria')"
-                variant="inline-secondary"
-                @click.prevent.stop="markAsUnflagged([message.key])"
-            >
-                <bm-icon class="text-warning" icon="flag-fill" size="lg" />
-            </bm-button>
+            <template v-if="!isReadOnlyFolder(folderUidOfMessage)">
+                <bm-button
+                    v-if="!message.flags.includes(Flags.FLAGGED)"
+                    v-bm-tooltip.ds500.top.viewport
+                    class="p-1 ml-2"
+                    :aria-label="$tc('mail.actions.mark_flagged.aria')"
+                    :title="$tc('mail.actions.mark_flagged.aria')"
+                    variant="inline-secondary"
+                    @click.prevent.stop="markAsFlagged([message.key])"
+                >
+                    <bm-icon icon="flag-outline" size="lg" />
+                </bm-button>
+                <bm-button
+                    v-else
+                    v-bm-tooltip.ds500.top.viewport
+                    class="p-1 ml-2"
+                    :aria-label="$tc('mail.actions.mark_unflagged.aria')"
+                    :title="$tc('mail.actions.mark_unflagged.aria')"
+                    variant="inline-secondary"
+                    @click.prevent.stop="markAsUnflagged([message.key])"
+                >
+                    <bm-icon class="text-warning" icon="flag-fill" size="lg" />
+                </bm-button>
+            </template>
         </bm-button-group>
     </bm-button-toolbar>
 </template>

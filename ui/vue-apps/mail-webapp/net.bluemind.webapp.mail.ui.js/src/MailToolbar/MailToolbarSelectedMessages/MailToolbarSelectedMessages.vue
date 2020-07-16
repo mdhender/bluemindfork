@@ -117,14 +117,18 @@ export default {
             }
         },
         displayMarkAsFlagged() {
-            if (this.isSelectionMultiple) {
+            if (this.selectionHasReadOnlyFolders) {
+                return false;
+            } else if (this.isSelectionMultiple) {
                 return !this.areAllSelectedMessagesFlagged;
             } else {
                 return !this.currentMessage.flags.includes(Flag.FLAGGED);
             }
         },
         displayMarkAsUnflagged() {
-            if (this.isSelectionMultiple) {
+            if (this.selectionHasReadOnlyFolders) {
+                return false;
+            } else if (this.isSelectionMultiple) {
                 return !this.areAllSelectedMessagesUnflagged;
             } else {
                 return this.currentMessage.flags.includes(Flag.FLAGGED);
