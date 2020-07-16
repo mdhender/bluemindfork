@@ -12,14 +12,14 @@ export const MailBoxBuilder = {
                 break;
         }
         mailbox.uid = item.owner;
-        mailbox.name = item.ownerDisplayName;
+        mailbox.name = item.ownerDisplayname;
         mailbox.writable = item.verbs.includes(Verb.Write) || item.verbs.includes(Verb.All);
         if (mailbox.type === "user") {
             mailbox.mailboxUid = "user." + mailbox.uid;
             mailbox.root = "";
         } else {
             mailbox.mailboxUid = mailbox.uid;
-            mailbox.root = item.ownerDisplayName;
+            mailbox.root = item.ownerDisplayname;
         }
         mailbox.folders = getters["folders/getFoldersByMailbox"](mailbox.mailboxUid);
         return mailbox;
