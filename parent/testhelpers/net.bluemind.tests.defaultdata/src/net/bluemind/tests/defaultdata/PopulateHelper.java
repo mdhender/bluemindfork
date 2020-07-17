@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
@@ -67,11 +67,14 @@ public class PopulateHelper {
 		System.setProperty("throttle.disabled", "true");
 	}
 
-	private static void addDomainContainers(String domainUid) throws Exception {
+	private PopulateHelper() {
+	}
 
+	private static void addDomainContainers(String domainUid, String... aliases) throws Exception {
+		System.err.println("Populate " + domainUid + " aliases: " + Arrays.toString(aliases));
 		IDomains domains = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
 
-		domains.create(domainUid, Domain.create(domainUid, domainUid, domainUid, Collections.<String>emptySet()));
+		domains.create(domainUid, Domain.create(domainUid, domainUid, domainUid, Sets.newHashSet(aliases)));
 	}
 
 	public static final String FAKE_CYRUS_IP = "10.1.2.3";
@@ -84,13 +87,13 @@ public class PopulateHelper {
 		addDomain(domain, Routing.none);
 	}
 
-	public static void addDomain(String domain, Routing adminRouting) throws Exception {
-		createDomain(domain);
+	public static void addDomain(String domain, Routing adminRouting, String... aliases) throws Exception {
+		createDomain(domain, aliases);
 		addDomainAdmin("admin", domain, adminRouting);
 	}
 
-	public static void createDomain(String domain) throws Exception {
-		addDomainContainers(domain);
+	public static void createDomain(String domain, String... aliases) throws Exception {
+		addDomainContainers(domain, aliases);
 		IServer srvService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
 				installationId());
 		List<ItemValue<Server>> servers = srvService.allComplete();
