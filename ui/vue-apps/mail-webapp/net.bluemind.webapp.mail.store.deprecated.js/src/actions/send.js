@@ -49,7 +49,7 @@ function flush() {
         .then(taskRef => {
             // wait for the flush of the outbox to be finished
             const taskService = injector.getProvider("TaskService").get(taskRef.id);
-            return retrieveTaskResult(taskService, 250, 5);
+            return retrieveTaskResult(taskService);
         });
 }
 
@@ -149,8 +149,10 @@ function validateDraft(draft) {
     }
 }
 
-/** Wait for the task to be finished or a timeout is reached. */
-function retrieveTaskResult(taskService, delayTime, maxTries, iteration = 1) {
+/**
+ * Wait for the task to be finished or a timeout is reached.
+ */
+function retrieveTaskResult(taskService, delayTime = 500, maxTries = 60, iteration = 1) {
     return new Promise(resolve => setTimeout(() => resolve(taskService.status()), delayTime)).then(taskStatus => {
         const taskEnded =
             taskStatus && taskStatus.state && taskStatus.state !== "InProgress" && taskStatus.state !== "NotStarted";
@@ -158,8 +160,7 @@ function retrieveTaskResult(taskService, delayTime, maxTries, iteration = 1) {
             return JSON.parse(taskStatus.result);
         } else {
             if (iteration < maxTries) {
-                // 'smart' delay: add 250ms each retry
-                return retrieveTaskResult(taskService, delayTime + 250, maxTries, ++iteration);
+                return retrieveTaskResult(taskService, delayTime, maxTries, ++iteration);
             } else {
                 return Promise.reject("Timeout while retrieving task result");
             }
