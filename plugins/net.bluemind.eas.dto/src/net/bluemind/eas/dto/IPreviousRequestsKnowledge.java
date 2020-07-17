@@ -35,4 +35,8 @@ public interface IPreviousRequestsKnowledge {
 
 	String getPolicyKey();
 
+	Integer getLastWait();
+
+	Long getHeartbeart();
+
 }
