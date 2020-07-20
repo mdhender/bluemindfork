@@ -41,19 +41,17 @@ import net.bluemind.mailbox.api.Mailbox;
 public class DeletedDataMementos extends CacheHolder<String, Optional<Subtree>> {
 	public static final Logger logger = LoggerFactory.getLogger(DeletedDataMementos.class);
 
-	private static Cache<String, Optional<Subtree>> buildCache() {
-		return CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterWrite(2, TimeUnit.MINUTES)
-			.build();
-	}
-
 	public static class Registration implements ICacheRegistration {
+
+		private static Cache<String, Optional<Subtree>> buildCache() {
+			return CacheBuilder.newBuilder().recordStats().expireAfterWrite(2, TimeUnit.MINUTES).build();
+		}
 
 		@Override
 		public void registerCaches(CacheRegistry cr) {
 			cr.register("deletedDataMementos", buildCache());
 		}
+
 	}
 
 	public DeletedDataMementos(Cache<String, Optional<Subtree>> cache) {
@@ -65,6 +63,12 @@ public class DeletedDataMementos extends CacheHolder<String, Optional<Subtree>> 
 			return new DeletedDataMementos(null);
 		}
 		return new DeletedDataMementos(context.provider().instance(CacheRegistry.class).get("deletedDataMementos"));
+	}
+
+	public static void forgetDeletion(BmContext ctx, String domainUid, Mailbox box) {
+		DeletedDataMementos mementos = DeletedDataMementos.get(ctx);
+		String key = cacheKey(domainUid, box);
+		mementos.invalidate(key);
 	}
 
 	public static void preDelete(BmContext ctx, String domainUid, ItemValue<Mailbox> mbox) {
@@ -92,9 +96,17 @@ public class DeletedDataMementos extends CacheHolder<String, Optional<Subtree>> 
 
 	}
 
+	private static String cacheKey(String domainUid, MailboxReplicaRootDescriptor mailboxRoot) {
+		return domainUid + "!" + mailboxRoot.ns.prefix() + mailboxRoot.name;
+	}
+
+	private static String cacheKey(String domainUid, Mailbox mbox) {
+		return domainUid + "!" + mbox.type.nsPrefix + mbox.name;
+	}
+
 	public static Subtree cachedSubtree(BmContext context, String domainUid, MailboxReplicaRootDescriptor mailboxRoot) {
 		DeletedDataMementos ctxCache = DeletedDataMementos.get(context);
-		String key = domainUid + "!" + mailboxRoot.ns.prefix() + mailboxRoot.name;
+		String key = cacheKey(domainUid, mailboxRoot);
 		logger.debug("Looking for {}", key);
 		Optional<Subtree> subtree = ctxCache.getIfPresent(key);
 

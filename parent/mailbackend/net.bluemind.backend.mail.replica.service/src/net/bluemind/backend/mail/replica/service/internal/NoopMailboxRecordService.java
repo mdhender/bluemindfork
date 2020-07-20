@@ -104,14 +104,14 @@ public class NoopMailboxRecordService implements IDbMailboxRecords {
 
 	@Override
 	public List<ImapBinding> imapBindings(List<Long> ids) {
-		logger.info("NOOP operation IDbMailboxRecords#containerChangelog");
-		return null;
+		logger.info("NOOP operation IDbMailboxRecords#imapBindings");
+		return Collections.emptyList();
 	}
 
 	@Override
 	public List<ItemValue<MailboxRecord>> all() {
-		logger.info("NOOP operation IDbMailboxRecords#containerChangelog");
-		return null;
+		logger.info("NOOP operation IDbMailboxRecords#all");
+		return Collections.emptyList();
 	}
 
 	@Override

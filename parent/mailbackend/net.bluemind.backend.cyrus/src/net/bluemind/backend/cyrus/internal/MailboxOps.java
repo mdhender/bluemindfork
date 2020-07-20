@@ -38,7 +38,6 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.imap.Acl;
 import net.bluemind.imap.CreateMailboxResult;
-import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Type;
@@ -87,17 +86,6 @@ public final class MailboxOps {
 
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-	}
-
-	public static void rename(ItemValue<Server> srv, String prevBox, String newBox) {
-		try (StoreClient sc = new StoreClient(srv.value.address(), 1143, "admin0", Token.admin0())) {
-			sc.login();
-			logger.info("RENAMING {} to {}", prevBox, newBox);
-			boolean result = sc.rename(prevBox, newBox);
-			logger.info("RENAME {} -> {}: {}", prevBox, newBox, result);
-		} catch (IMAPException e) {
 			logger.error(e.getMessage(), e);
 		}
 	}

@@ -50,7 +50,7 @@ public class MailboxSubtreesRepair implements IDirEntryRepairSupport {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(MailboxSubtreesRepair.class);
-	public static final MaintenanceOperation ownerSubs = MaintenanceOperation.create(IMailReplicaUids.REPAIR_SUBTREE_OP,
+	public static final MaintenanceOperation repairSubtree = MaintenanceOperation.create(IMailReplicaUids.REPAIR_SUBTREE_OP,
 			"Check replication subtree container presence");
 
 	private static class MailboxSubtreesMaintenance extends InternalMaintenanceOperation {
@@ -58,7 +58,7 @@ public class MailboxSubtreesRepair implements IDirEntryRepairSupport {
 		private final BmContext context;
 
 		public MailboxSubtreesMaintenance(BmContext ctx) {
-			super(ownerSubs.identifier, null, "mailboxDefaultFolders", 1);
+			super(repairSubtree.identifier, null, "mailboxDefaultFolders", 1);
 			this.context = ctx;
 		}
 
@@ -102,7 +102,7 @@ public class MailboxSubtreesRepair implements IDirEntryRepairSupport {
 	@Override
 	public Set<MaintenanceOperation> availableOperations(Kind kind) {
 		if (kind == Kind.USER || kind == Kind.MAILSHARE || kind == Kind.GROUP || kind == Kind.RESOURCE) {
-			return ImmutableSet.of(ownerSubs);
+			return ImmutableSet.of(repairSubtree);
 		} else {
 			return Collections.emptySet();
 		}

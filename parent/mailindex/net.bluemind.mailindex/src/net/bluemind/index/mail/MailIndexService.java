@@ -130,7 +130,7 @@ public class MailIndexService implements IMailIndexService {
 		Map<String, Object> content = new HashMap<>();
 		content.put("content", body.content);
 		content.put("messageId", body.messageId.toString());
-		content.put("references", body.references.stream().map(kw -> kw.toString()).collect(Collectors.toList()));
+		content.put("references", body.references.stream().map(Object::toString).collect(Collectors.toList()));
 		content.put("preview", body.preview);
 		content.put("subject", body.subject.toString());
 		content.put("subject_kw", body.subject.toString());
@@ -425,13 +425,18 @@ public class MailIndexService implements IMailIndexService {
 		 * this alias is assigned to.
 		 */
 		String index = getUserAliasIndex(alias, getIndexClient());
-		logger.info("Cleaning up parent-child hierarchie of alias/index {}/{}", alias, index);
+		logger.info("Cleaning up parent-child hierarchy of alias/index {}/{}", alias, index);
 		VertxPlatform.eventBus().publish("index.mailspool.cleanup", new JsonObject().put("index", index));
 	}
 
 	private String getUserAliasIndex(String alias, Client client) {
-		GetAliasesResponse t = client.admin().indices().prepareGetAliases(alias).execute().actionGet();
-		return t.getAliases().keysIt().next();
+		try {
+			GetAliasesResponse t = client.admin().indices().prepareGetAliases(alias).execute().actionGet();
+			return t.getAliases().keysIt().next();
+		} catch (Exception e) {
+			logger.error("getUserAliasIndex({})", alias, e);
+			return alias;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -594,7 +599,7 @@ public class MailIndexService implements IMailIndexService {
 			}
 		}
 
-		if (t == null || t != null && t.getAliases().isEmpty()) {
+		if (t == null || t.getAliases().isEmpty()) {
 			monitor.progress(1, "no alias, check mailspool index");
 			monitor.progress(1, String.format("create alias %s from mailspool ", getIndexAliasName(entityId)));
 

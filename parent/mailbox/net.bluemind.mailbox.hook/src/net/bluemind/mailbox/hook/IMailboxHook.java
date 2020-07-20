@@ -34,11 +34,16 @@ public interface IMailboxHook {
 	 * @param name
 	 * @throws ServerFault
 	 */
-	default void preMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault {
+	default void preMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> value) {
 
 	}
 
 	public void onMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault;
+
+	default void preMailboxUpdate(BmContext context, String domainUid, ItemValue<Mailbox> previousValue,
+			ItemValue<Mailbox> value) {
+
+	}
 
 	public void onMailboxUpdated(BmContext context, String domainUid, ItemValue<Mailbox> previousValue,
 			ItemValue<Mailbox> value) throws ServerFault;

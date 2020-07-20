@@ -28,28 +28,30 @@ import net.bluemind.mailbox.api.Mailbox;
 public class MailboxHookAdapter implements IMailboxHook {
 
 	@Override
-	public void onMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> value)
-			throws ServerFault {
+	public void onMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault {
+		// empty impl is legit here
 	}
 
 	@Override
 	public void onMailboxUpdated(BmContext context, String domainUid, ItemValue<Mailbox> previousValue,
 			ItemValue<Mailbox> value) throws ServerFault {
+		// empty impl is legit here
 	}
 
 	@Override
-	public void onMailboxDeleted(BmContext context, String domainUid, ItemValue<Mailbox> value)
-			throws ServerFault {
+	public void onMailboxDeleted(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault {
+		// empty impl is legit here
 	}
 
 	@Override
 	public void onMailFilterChanged(BmContext context, String domainUid, ItemValue<Mailbox> value, MailFilter filter)
 			throws ServerFault {
+		// empty impl is legit here
 	}
 
 	@Override
-	public void onDomainMailFilterChanged(BmContext context, String domainUid, MailFilter filter)
-			throws ServerFault {
+	public void onDomainMailFilterChanged(BmContext context, String domainUid, MailFilter filter) throws ServerFault {
+		// empty impl is legit here
 	}
 
 }

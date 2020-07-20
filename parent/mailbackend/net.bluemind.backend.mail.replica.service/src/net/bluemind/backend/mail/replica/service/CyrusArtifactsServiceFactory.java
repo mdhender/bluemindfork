@@ -28,6 +28,7 @@ import net.bluemind.backend.mail.replica.persistence.QuotaStore;
 import net.bluemind.backend.mail.replica.persistence.SeenOverlayStore;
 import net.bluemind.backend.mail.replica.persistence.SieveScriptStore;
 import net.bluemind.backend.mail.replica.service.internal.CyrusArtifactsService;
+import net.bluemind.backend.mail.replica.service.internal.NoopCyrusArtifacts;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
@@ -83,7 +84,8 @@ public class CyrusArtifactsServiceFactory
 					entry = dirApi.findByEntryUid(mbox.uid);
 				}
 				if (entry == null) {
-					throw ServerFault.notFound("DirEntry with email '" + email + "' (or mailbox name) not found");
+					logger.warn("DirEntry with email '{}' (or mailbox name) not found => NOOP service", email);
+					return new NoopCyrusArtifacts(userId);
 				}
 			}
 			pool = context.getMailboxDataSource(entry.dataLocation);
