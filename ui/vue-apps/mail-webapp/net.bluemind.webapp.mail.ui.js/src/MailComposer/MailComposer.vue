@@ -81,44 +81,68 @@
                     />
                 </div>
                 <bm-row class="d-block m-0"><hr class="bg-dark m-0"/></bm-row>
-                <bm-row>
+                <bm-row class="mt-1 mb-2">
                     <bm-col cols="12">
-                        <mail-attachments-block :attachments="parts.attachments" editable expanded />
+                        <bm-file-drop-zone
+                            class="z-index-110 attachments"
+                            file-type-regex="image/(jpeg|jpg|png|gif)"
+                            @dropFiles="addAttachments($event)"
+                        >
+                            <template #dropZone>
+                                <bm-icon icon="paper-clip" size="2x" />
+                                <h2 class="text-center p-2">
+                                    {{ $tc("mail.new.attachments.images.drop.zone", draggedFilesCount) }}
+                                </h2>
+                            </template>
+                            <mail-attachments-block :attachments="parts.attachments" editable expanded />
+                        </bm-file-drop-zone>
                     </bm-col>
                 </bm-row>
                 <bm-file-drop-zone
-                    class="z-index-110"
-                    :text="$t('mail.new.attachments.drop.zone')"
+                    class="z-index-110 as-attachments"
+                    file-type-regex="^(?!.*image/(jpeg|jpg|png|gif)).*$"
+                    at-least-one-match
                     @dropFiles="addAttachments($event)"
+                    @filesCount="draggedFilesCount = $event"
                 >
-                    <bm-form-textarea
-                        v-if="userPrefTextOnly"
-                        ref="message-content"
-                        v-model="message_.content"
-                        :rows="10"
-                        :max-rows="10000"
-                        :aria-label="$t('mail.new.content.aria')"
-                        class="mail-content"
-                        no-resize
-                        @input="saveDraft"
-                    />
-                    <bm-rich-editor
-                        v-else
-                        ref="message-content"
-                        v-model="message_.content"
-                        :is-menu-bar-opened="userPrefIsMenuBarOpened"
-                        class="h-100"
-                        @input="saveDraft"
-                    >
-                        <bm-button
-                            v-if="previousMessage && !message_.isReplyExpanded"
-                            variant="outline-dark"
-                            class="align-self-start ml-3 mb-2"
-                            @click="displayPreviousMessages"
+                    <template #dropZone>
+                        <h2 class="text-center p-2">{{ $tc("mail.new.attachments.drop.zone", draggedFilesCount) }}</h2>
+                        <bm-icon icon="arrow-up" size="2x" />
+                    </template>
+                    <bm-file-drop-zone class="z-index-110" inline file-type-regex="image/(jpeg|jpg|png|gif)">
+                        <template #dropZone>
+                            <bm-icon class="text-dark" icon="file-type-image" size="2x" />
+                            <h2 class="text-center p-2">{{ $tc("mail.new.images.drop.zone", draggedFilesCount) }}</h2>
+                        </template>
+                        <bm-form-textarea
+                            v-if="userPrefTextOnly"
+                            ref="message-content"
+                            v-model="message_.content"
+                            :rows="10"
+                            :max-rows="10000"
+                            :aria-label="$t('mail.new.content.aria')"
+                            class="mail-content"
+                            no-resize
+                            @input="saveDraft"
+                        />
+                        <bm-rich-editor
+                            v-else
+                            ref="message-content"
+                            v-model="message_.content"
+                            :is-menu-bar-opened="userPrefIsMenuBarOpened"
+                            class="h-100"
+                            @input="saveDraft"
                         >
-                            <bm-icon icon="3dots" size="sm" />
-                        </bm-button>
-                    </bm-rich-editor>
+                            <bm-button
+                                v-if="previousMessage && !message_.isReplyExpanded"
+                                variant="outline-dark"
+                                class="align-self-start ml-3 mb-2"
+                                @click="displayPreviousMessages"
+                            >
+                                <bm-icon icon="3dots" size="sm" />
+                            </bm-button>
+                        </bm-rich-editor>
+                    </bm-file-drop-zone>
                 </bm-file-drop-zone>
                 <bm-button
                     v-if="userPrefTextOnly && previousMessage && !message_.isReplyExpanded"
@@ -222,7 +246,8 @@ export default {
                 previousMessage: this.previousMessage,
                 type: undefined,
                 isReplyExpanded: false
-            }
+            },
+            draggedFilesCount: -1
         };
     },
     computed: {
@@ -372,6 +397,15 @@ export default {
 
     .bm-contact-input .bm-form-autocomplete-input .suggestions {
         z-index: 200;
+    }
+
+    .bm-file-drop-zone.attachments .bm-dropzone-active-content {
+        min-height: 7em;
+    }
+
+    .bm-file-drop-zone.as-attachments.bm-dropzone-active,
+    .bm-file-drop-zone.as-attachments.bm-dropzone-hover {
+        background: url("~@bluemind/styleguide/assets/attachment.png") no-repeat center center;
     }
 }
 </style>
