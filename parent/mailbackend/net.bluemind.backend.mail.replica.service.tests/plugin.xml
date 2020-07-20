@@ -9,13 +9,6 @@
       </analyzer>
    </extension>
    <extension
-         point="net.bluemind.core.sendmail.mailer">
-        <mailer
-         	impl="net.bluemind.backend.mail.replica.service.tests.FakeSendmail"
-         	priority="2" >
-         </mailer>      
-   </extension>
-   <extension
          point="net.bluemind.lib.vertx.verticles">
       <verticle
             impl="net.bluemind.backend.mail.replica.service.tests.LocalSyncClientVerticle$ScReg">
