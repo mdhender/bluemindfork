@@ -1,17 +1,21 @@
 <template>
     <div class="message-list-item-middle d-flex flex-column text-truncate">
-        <div v-bm-tooltip.ds500.viewport :title="from" class="mail-message-list-item-sender h3 text-dark text-truncate">
+        <div
+            v-bm-tooltip.ds500.right.viewport
+            :title="from"
+            class="mail-message-list-item-sender h3 text-dark text-truncate"
+        >
             {{ from }}
         </div>
         <div
-            v-bm-tooltip.ds500.bottom.viewport
+            v-bm-tooltip.ds500.right.viewport
             :title="message.subject"
             class="mail-message-list-item-subject text-secondary text-truncate"
         >
             {{ message.subject }}
         </div>
         <div
-            v-bm-tooltip.ds500.bottom.viewport
+            v-bm-tooltip.ds500.right.viewport
             :title="message.preview"
             class="mail-message-list-item-preview text-dark text-condensed text-truncate"
         >
