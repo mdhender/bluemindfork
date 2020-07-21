@@ -23,9 +23,6 @@
    <extension
          point="net.bluemind.system.schemaupgrader.javacode">
       <java
-            code="net.bluemind.system.ldap.export.upgrader.EnableMonitorDatabase">
-      </java>
-      <java
             code="net.bluemind.system.ldap.export.upgrader.AddBmHiddenAttribute">
       </java>
       <java
