@@ -8,11 +8,8 @@ export async function $_Vuebus_mailboxRecordsChanged({ dispatch, state }) {
 
     const currentFolderUid = ItemUri.item(state.currentFolderKey);
 
-    await dispatch("messages/list", {
-        sorted: state.sorted,
-        folderUid: currentFolderUid,
-        filter: state.messageFilter
-    });
+    await dispatch("messages/list", { sorted: state.sorted, folderUid: currentFolderUid, filter: state.messageFilter });
+
     const numberOfMessagesWithMetadata = Object.entries(state.messages.items).length;
     const messagesToFetch = state.messages.itemKeys.slice(0, Math.min(numberOfMessagesWithMetadata, 200));
     dispatch("messages/multipleByKey", messagesToFetch);
