@@ -95,15 +95,15 @@ public class IMIPParserImpl implements IIMIPParser {
 			} else {
 				// BM-5591
 				// Outlook sends application/tnef for vTodo
-				logger.info("MS-TNEF part is not suppoted");
+				logger.info("MS-TNEF part is not supported");
 				BinaryBody bb = (BinaryBody) e.getBody();
 				try {
 					TNEFInputStream tnefIs = new TNEFInputStream(bb.getInputStream());
 					net.freeutils.tnef.Message tnef = new net.freeutils.tnef.Message(tnefIs);
 
 					ITIPMethod method = null;
-					String msgClass = (String) tnef.getAttribute(Attr.attMessageClass).getValue();
-					if ("IPM.TaskRequest".equals(msgClass)) {
+					Attr msgClass = tnef.getAttribute(Attr.attMessageClass);
+					if (msgClass != null && "IPM.TaskRequest".equals((String) msgClass.getValue())) {
 						method = ITIPMethod.REQUEST;
 					}
 
