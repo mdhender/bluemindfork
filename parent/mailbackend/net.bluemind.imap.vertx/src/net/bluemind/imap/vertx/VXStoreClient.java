@@ -243,10 +243,17 @@ public class VXStoreClient {
 	}
 
 	public CompletableFuture<Void> close() {
-		return connectFuture.thenCompose(sock -> {
-			sock.close();
-			return closeFuture;
-		});
+		if (!connectFuture.isDone()) {
+			client.close();
+			connectFuture.cancel(true);
+			closeFuture.cancel(true);
+			return CompletableFuture.completedFuture(null);
+		} else {
+			return connectFuture.thenCompose(sock -> {
+				sock.close(ar -> client.close());
+				return closeFuture;
+			});
+		}
 	}
 
 	public boolean isClosed() {
