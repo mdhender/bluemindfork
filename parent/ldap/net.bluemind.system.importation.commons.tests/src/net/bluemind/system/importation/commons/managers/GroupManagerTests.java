@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -84,6 +85,11 @@ public class GroupManagerTests {
 		@Override
 		protected Parameters getDirectoryParameters() {
 			return null;
+		}
+
+		@Override
+		protected Set<String> getRangedGroupMembers() {
+			return Collections.emptySet();
 		}
 	}
 

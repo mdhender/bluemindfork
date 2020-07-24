@@ -18,9 +18,11 @@
  */
 package net.bluemind.system.ldap.importation.internal.tools;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
@@ -94,5 +96,10 @@ public class GroupManagerImpl extends GroupManager {
 	@Override
 	protected Parameters getDirectoryParameters() {
 		return ldapParameters;
+	}
+
+	@Override
+	protected Set<String> getRangedGroupMembers() {
+		return Collections.emptySet();
 	}
 }

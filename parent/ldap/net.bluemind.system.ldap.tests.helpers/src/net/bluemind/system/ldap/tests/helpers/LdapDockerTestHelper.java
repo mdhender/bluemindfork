@@ -51,6 +51,7 @@ import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.pool.impl.docker.DockerContainer;
+import net.bluemind.system.importation.search.PagedSearchResult;
 
 public class LdapDockerTestHelper {
 	public static final String LDAP_ROOT_DN = "dc=local";
@@ -128,7 +129,7 @@ public class LdapDockerTestHelper {
 		}
 	}
 
-	private static void deleteTree(LdapConnection ldapCon, String dn) throws DeleteTreeException {
+	public static void deleteTree(LdapConnection ldapCon, String dn) throws DeleteTreeException {
 		SearchCursor cursor = null;
 		Entry entry = null;
 		try {
@@ -138,10 +139,13 @@ public class LdapDockerTestHelper {
 			searchRequest.setFilter("(objectclass=*)");
 			searchRequest.addAttributes("dn");
 			searchRequest.setDerefAliases(AliasDerefMode.NEVER_DEREF_ALIASES);
+
+			PagedSearchResult pagesSearchResult = new PagedSearchResult(ldapCon, searchRequest);
+
 			cursor = ldapCon.search(searchRequest);
 
-			while (cursor.next()) {
-				Response response = cursor.get();
+			while (pagesSearchResult.next()) {
+				Response response = pagesSearchResult.get();
 
 				if (response.getType() != MessageTypeEnum.SEARCH_RESULT_ENTRY) {
 					continue;

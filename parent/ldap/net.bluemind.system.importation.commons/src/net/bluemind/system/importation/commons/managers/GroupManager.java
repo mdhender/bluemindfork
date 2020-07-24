@@ -74,6 +74,14 @@ public abstract class GroupManager extends EntityManager {
 
 	protected abstract Parameters getDirectoryParameters();
 
+	/**
+	 * https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ldap/searching-using-range-retrieval
+	 * 
+	 * @param groupMembersAttribute
+	 * @return Set of member DN
+	 */
+	protected abstract Set<String> getRangedGroupMembers();
+
 	public void update(ItemValue<Group> currentGroup) throws ServerFault {
 		update(new ImportLogger(), currentGroup);
 	}
@@ -168,16 +176,22 @@ public abstract class GroupManager extends EntityManager {
 	}
 
 	public Set<String> getGroupMembers(GroupMemberAttribute groupMembersAttribute) {
+		Attribute member = entry.get(groupMembersAttribute.name());
+		if (member != null && member.size() != 0) {
+			return getGroupMembers(member);
+		}
+
+		return getRangedGroupMembers();
+	}
+
+	protected Set<String> getGroupMembers(Attribute member) {
 		Set<String> groupMembers = new HashSet<>();
 
-		Attribute member = entry.get(groupMembersAttribute.name());
-		if (member != null) {
-			Iterator<Value<?>> iterator = member.iterator();
-			while (iterator.hasNext()) {
-				String memberValue = iterator.next().getString();
-				if (memberValue != null && !memberValue.trim().isEmpty()) {
-					groupMembers.add(memberValue);
-				}
+		Iterator<Value<?>> iterator = member.iterator();
+		while (iterator.hasNext()) {
+			String memberValue = iterator.next().getString();
+			if (memberValue != null && !memberValue.trim().isEmpty()) {
+				groupMembers.add(memberValue);
 			}
 		}
 

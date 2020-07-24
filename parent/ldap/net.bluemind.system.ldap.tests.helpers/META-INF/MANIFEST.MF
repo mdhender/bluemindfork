@@ -11,4 +11,5 @@ Require-Bundle: org.junit,
  net.bluemind.core.commons,
  net.bluemind.node.api,
  slf4j.api,
- net.bluemind.ldap.directory.client;bundle-version="1.0.3"
+ net.bluemind.ldap.directory.client;bundle-version="1.0.3",
+ net.bluemind.system.importation.commons
