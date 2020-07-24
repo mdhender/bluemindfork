@@ -95,7 +95,7 @@ public class DirectorySerializationVerticle extends AbstractVerticle {
 			}
 		};
 		ThrottleMessages<JsonObject> tm = new ThrottleMessages<>(msg -> msg.body().getString(DOMAIN_FIELD),
-				dirChangeHandler, vertx, 1000);
+				dirChangeHandler, vertx, 5000);
 		vertx.eventBus().consumer("dir.changed", tm);
 	}
 
