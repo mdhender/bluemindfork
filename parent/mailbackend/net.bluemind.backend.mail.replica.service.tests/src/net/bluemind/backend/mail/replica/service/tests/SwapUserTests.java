@@ -22,7 +22,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -35,8 +37,14 @@ import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
+import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.api.utils.Subtree;
+import net.bluemind.backend.mail.replica.service.ReplicationEvents;
 import net.bluemind.backend.mail.replica.service.tests.ReplicationEventsRecorder.Hierarchy;
+import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.core.api.Email;
+import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
@@ -47,6 +55,9 @@ import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mailshare.api.IMailshare;
+import net.bluemind.mailshare.api.Mailshare;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -57,6 +68,7 @@ public class SwapUserTests extends AbstractRollingReplicationTests {
 	private ItemValue<Mailbox> replMbox;
 
 	@Before
+	@Override
 	public void before() throws Exception {
 		super.before();
 
@@ -102,6 +114,7 @@ public class SwapUserTests extends AbstractRollingReplicationTests {
 	}
 
 	@After
+	@Override
 	public void after() throws Exception {
 		System.err.println("Test is over, after starts...");
 		super.after();
@@ -112,7 +125,7 @@ public class SwapUserTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
-	public void deleteUserThenRenameMailbox() throws Exception {
+	public void deleteUserThenRenameUserMailbox() throws Exception {
 		IUser userApi = suProvider().instance(IUser.class, domainUid);
 		ItemValue<User> theUser = userApi.getComplete(userUid);
 		assertNotNull(theUser);
@@ -150,6 +163,110 @@ public class SwapUserTests extends AbstractRollingReplicationTests {
 			assertTrue("'OK success' expected after rename but we did not: " + userResp, userResp.isOk());
 			System.err.println(userResp);
 			assertFalse("GET USER must not return an empty response after the rename", userResp.dataLines.isEmpty());
+			return sc2.disconnect();
+		}).get(5, TimeUnit.SECONDS);
+
+	}
+
+	@Test
+	public void renameUserThenCreateSharedMailboxWithSameName() throws Exception {
+
+		IMailshare mailshareApi = suProvider().instance(IMailshare.class, domainUid);
+		Mailshare mailshare = new Mailshare();
+		mailshare.name = replMbox.value.name;
+		mailshare.emails = Arrays.asList(Email.create(mailshare.name + "@" + domainUid, true));
+		mailshare.routing = Routing.internal;
+
+		IUser userApi = suProvider().instance(IUser.class, domainUid);
+
+		ItemValue<User> toRename = userApi.getComplete(replMbox.uid);
+		toRename.value.login = "moved.out." + System.currentTimeMillis();
+		toRename.value.emails = Arrays.asList(Email.create(toRename.value.login + "@" + domainUid, false));
+		System.err.println("Start rename to " + toRename.value.login + " process....");
+		userApi.update(toRename.uid, toRename.value);
+		System.err.println("Sleeping 3sec after update returned.");
+		Thread.sleep(3000);
+
+		// create the mailshare with the mailbox name the user had before rename
+		CompletableFuture<MailboxReplicaRootDescriptor> onRoot = ReplicationEvents.onMailboxRootCreated();
+		MailboxReplicaRootDescriptor expected = MailboxReplicaRootDescriptor.create(Namespace.shared, mailshare.name);
+		Subtree sub = SubtreeContainer.mailSubtreeUid(domainUid, expected.ns, mailshare.name);
+		String subtreeUid = sub.subtreeUid();
+		System.err.println("On subtree update " + subtreeUid);
+		CompletableFuture<ItemIdentifier> onSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
+		CompletableFuture<Void> allEvents = CompletableFuture.allOf(onRoot, onSubtree);
+
+		System.err.println("Before create mailshare.....");
+		mailshareApi.create(mailshare.name + ".shared", mailshare);
+
+		allEvents.get(10, TimeUnit.SECONDS);
+		System.err.println("All events completed.");
+		SyncClient sc2 = new SyncClient("127.0.0.1", 2501);
+		sc2.connect().thenCompose(c -> {
+			return sc2.getMailboxes(domainUid + "!" + mailshare.name.replace('.', '^'));
+		}).thenCompose(userResp -> {
+			assertTrue("'OK success' expected after rename but we did not: " + userResp, userResp.isOk());
+			System.err.println(userResp);
+			assertFalse("GET MAILBOX must not return an empty response after the rename", userResp.dataLines.isEmpty());
+			return sc2.disconnect();
+		}).get(5, TimeUnit.SECONDS);
+
+	}
+
+	@Test
+	public void createUserWithDeletedSharedMailboxName() throws Exception {
+
+		IMailshare mailshareApi = suProvider().instance(IMailshare.class, domainUid);
+		Mailshare mailshare = new Mailshare();
+		mailshare.name = "shared" + System.currentTimeMillis();
+		mailshare.emails = Arrays.asList(Email.create(mailshare.name + "@" + domainUid, true));
+		mailshare.routing = Routing.internal;
+
+		CompletableFuture<MailboxReplicaRootDescriptor> onRoot = ReplicationEvents.onMailboxRootCreated();
+		MailboxReplicaRootDescriptor expected = MailboxReplicaRootDescriptor.create(Namespace.shared, mailshare.name);
+		Subtree sub = SubtreeContainer.mailSubtreeUid(domainUid, expected.ns, mailshare.name);
+		String subtreeUid = sub.subtreeUid();
+		System.err.println("On subtree update " + subtreeUid);
+		CompletableFuture<ItemIdentifier> onSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
+		CompletableFuture<Void> allEvents = CompletableFuture.allOf(onRoot, onSubtree);
+
+		System.err.println("Before create mailshare.....");
+		mailshareApi.create(mailshare.name, mailshare);
+
+		allEvents.get(10, TimeUnit.SECONDS);
+		System.err.println("start deleting mailshare...");
+		TaskRef tr = mailshareApi.delete(mailshare.name);
+		TaskStatus status = TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), tr);
+		assertEquals(TaskStatus.State.Success, status.state);
+
+		Thread.sleep(400);
+		System.err.println("mailshare " + mailshare.name + " deleted.");
+
+		// replace the shared mailbox by a user
+		String replacedShare = PopulateHelper.addUser(mailshare.name, domainUid);
+
+		ItemValue<Mailbox> replacementBox = suProvider().instance(IMailboxes.class, domainUid)
+				.getComplete(replacedShare);
+		assertNotNull(replMbox);
+		String subtree = IMailReplicaUids.subtreeUid(domainUid, replacementBox);
+
+		IDbReplicatedMailboxes replFolders = suProvider().instance(IDbByContainerReplicatedMailboxes.class, subtree);
+		ItemValue<MailboxFolder> replInbox = replFolders.byName("INBOX");
+		long wait = System.currentTimeMillis();
+		while (replInbox == null && (System.currentTimeMillis() - wait) < 30000) {
+			Thread.sleep(50);
+			replInbox = replFolders.byName("INBOX");
+		}
+		assertNotNull("inbox for replacement user not replicated in time", replInbox);
+		System.err.println("Replacement populated in " + (System.currentTimeMillis() - wait) + "ms.");
+
+		SyncClient sc2 = new SyncClient("127.0.0.1", 2501);
+		sc2.connect().thenCompose(c -> {
+			return sc2.getUser(mailshare.name + "@" + domainUid);
+		}).thenCompose(userResp -> {
+			assertTrue("'OK success' expected after rename but we did not: " + userResp, userResp.isOk());
+			System.err.println(userResp);
+			assertFalse("GET MAILBOX must not return an empty response after the rename", userResp.dataLines.isEmpty());
 			return sc2.disconnect();
 		}).get(5, TimeUnit.SECONDS);
 
