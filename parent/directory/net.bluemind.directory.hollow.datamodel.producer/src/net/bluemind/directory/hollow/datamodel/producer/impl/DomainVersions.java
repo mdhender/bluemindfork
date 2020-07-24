@@ -17,8 +17,6 @@
   */
 package net.bluemind.directory.hollow.datamodel.producer.impl;
 
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +31,7 @@ public class DomainVersions extends CacheHolder<String, Long> {
 	private static final Logger logger = LoggerFactory.getLogger(DomainVersions.class);
 
 	private static Cache<String, Long> build() {
-		return CacheBuilder.newBuilder()
-				.recordStats()
-				.expireAfterWrite(5, TimeUnit.MINUTES)
-				.build();
+		return CacheBuilder.newBuilder().recordStats().build();
 	}
 
 	private static final DomainVersions VERSIONS = new DomainVersions(build());
