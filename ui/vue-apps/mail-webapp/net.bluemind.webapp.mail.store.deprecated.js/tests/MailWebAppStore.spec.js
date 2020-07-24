@@ -100,7 +100,6 @@ describe("[MailWebAppStore] Vuex store", () => {
         expect(store.getters["mail-webapp/my"].folders).toEqual(
             store.getters["mail-webapp/folders/getFoldersByMailbox"]("user.6793466E-F5D4-490F-97BF-DF09D3327BF4")
         );
-        expect(store.getters["mail-webapp/currentFolder"]).toBe(store.getters["mail-webapp/my"].INBOX);
 
         await awaitForLastCall;
         expect(store.getters["mail-webapp/mailshares"].length).toBe(2);
@@ -146,19 +145,18 @@ describe("[MailWebAppStore] Vuex store", () => {
         const folderUid = "050ca560-37ae-458a-bd52-c40fedf4068d";
         const folderKey = ItemUri.encode(folderUid, "user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
         itemsService.getPerUserUnread.mockReturnValue(Promise.resolve({ total: 5 }));
-        itemsService.filteredChangesetById.mockReturnValue(
-            Promise.resolve({
-                created: aliceInbox
+        itemsService.unreadItems.mockReturnValue(
+            Promise.resolve(
+                aliceInbox
                     .filter(message => !message.value.flags.includes(Flag.SEEN))
-                    .map(message => {
-                        return { id: message.internalId };
-                    })
-            })
+                    .map(message => message.internalId)
+            )
         );
         itemsService.multipleById.mockImplementation(() =>
             Promise.resolve(aliceInbox.filter(message => !message.value.flags.includes(Flag.SEEN)))
         );
 
+        expect(store.state["mail-webapp"].messages.itemKeys.length).toEqual(0);
         await store.dispatch("mail-webapp/loadMessageList", { folder: folderKey, filter: "unread" }, { root: true });
         expect(store.state["mail-webapp"].currentFolderKey).toEqual(folderKey);
         expect(store.state["mail-webapp"].messages.itemKeys.length).toEqual(5);

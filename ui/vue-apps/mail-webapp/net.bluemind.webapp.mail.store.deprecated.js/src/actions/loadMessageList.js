@@ -29,7 +29,6 @@ export async function loadMessageList({ dispatch, commit, state, getters }, { fo
     if (searchStatus === SEARCH_STATUS.RESOLVED) {
         return;
     }
-
     commit("setMessageFilter", filter);
     commit("messages/clearItems");
     commit("messages/clearParts");

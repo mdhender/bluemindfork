@@ -4,15 +4,19 @@ import { loadMessageList } from "../../src/actions/loadMessageList";
 
 jest.mock("@bluemind/containerobserver");
 
+const mailboxUid = "mailbox:uid";
+
 const folderUid = "folder:uid",
-    mailboxUid = "mailbox:uid";
-const folderKey = ItemUri.encode(folderUid, mailboxUid);
+    folderKey = ItemUri.encode(folderUid, mailboxUid);
+
+const inboxUid = "inbox-uid",
+    inboxKey = ItemUri.encode(inboxUid, mailboxUid);
 
 const context = {
     dispatch: jest.fn().mockReturnValue(Promise.resolve([1, 2, 3])),
     commit: jest.fn(),
     state: {
-        currentFolderKey: "key",
+        currentFolderKey: inboxKey,
         messages: { itemKeys: [1, 2, 3] },
         sorted: "up to down",
         messageFilter: null,
@@ -23,11 +27,8 @@ const context = {
     },
     getters: {
         my: {
-            INBOX: {
-                key: "key",
-                uid: "uid"
-            },
-            mailboxUid: "my_mailbox_uid"
+            INBOX: { key: inboxKey, uid: inboxUid },
+            mailboxUid: mailboxUid
         },
         "folders/getFolderByKey": jest
             .fn()
@@ -95,6 +96,17 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
         expect(context.dispatch).toHaveBeenNthCalledWith(2, "messages/list", {
             sorted: context.state.sorted,
             folderUid
+        });
+        expect(context.dispatch).toHaveBeenNthCalledWith(3, "messages/multipleByKey", context.state.messages.itemKeys);
+    });
+
+    test("set default folder to inbox by default", async () => {
+        context.state.currentFolderKey = folderKey;
+        await loadMessageList(context, {});
+        expect(context.dispatch).toHaveBeenNthCalledWith(1, "selectFolder", inboxKey);
+        expect(context.dispatch).toHaveBeenNthCalledWith(2, "messages/list", {
+            sorted: context.state.sorted,
+            folderUid: inboxUid
         });
         expect(context.dispatch).toHaveBeenNthCalledWith(3, "messages/multipleByKey", context.state.messages.itemKeys);
     });
