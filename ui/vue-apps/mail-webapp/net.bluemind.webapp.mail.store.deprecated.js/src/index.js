@@ -8,6 +8,8 @@ import { MailboxItemsStore as messages, MailboxFoldersStore as folders } from "@
 import { ContainersStore as mailboxes } from "@bluemind/core.container.store";
 import MessageStore from "./MessageStore/";
 import search from "./modules/search";
+export * from "./SearchHelper";
+export * from "./FolderHelper";
 
 export default {
     namespaced: true,

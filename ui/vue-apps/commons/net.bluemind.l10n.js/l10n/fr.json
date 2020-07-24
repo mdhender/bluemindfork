@@ -1,6 +1,8 @@
 {
     "common.and": "et",
     "common.the": "Le",
+    "common.action.reset": "Réinitialiser",
+    "common.action.search": "Rechercher",
     "common.send": "Envoyer",
     "common.to": "À",
     "common.from": "Du",

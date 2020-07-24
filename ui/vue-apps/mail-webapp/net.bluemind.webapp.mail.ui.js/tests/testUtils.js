@@ -20,7 +20,8 @@ export function createStore(overrides) {
                     my: jest.fn(() => ({})),
                     currentMessageAttachments: jest.fn(() => [{ mime: "" }]),
                     draft: jest.fn(() => {}),
-                    isReadOnlyFolder: jest.fn(() => () => false)
+                    isReadOnlyFolder: jest.fn(() => () => false),
+                    matchingFolders: jest.fn(() => () => [])
                 },
                 modules: {
                     currentMessage: {

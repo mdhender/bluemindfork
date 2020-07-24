@@ -20,7 +20,7 @@
                 ...message.states,
                 isMessageSelected(message.key) || currentMessageKey === message.key ? 'active' : '',
                 `message-list-item-${userSettings.mail_message_list_style}`,
-                message.flags.some(f => Flags.FLAGGED === f) ? 'list-group-item-warning-custom' : ''
+                isImportant ? 'warning-custom' : ''
             ]"
             role="link"
             @click="navigateTo"
@@ -29,8 +29,15 @@
             @mouseleave="mouseIn = false"
         >
             <message-list-item-left :message="message" @toggleSelect="$emit('toggleSelect', message.key, true)" />
-            <message-list-item-middle class="flex-fill px-2" :message="message" />
-            <message-list-item-right class="pr-1" :message="message" :mouse-in="mouseIn" />
+            <message-list-item-middle
+                class="flex-fill px-2"
+                :message="message"
+                :is-important="isImportant"
+                :mouse-in="mouseIn"
+            />
+            <transition name="fade-in" mode="out-in">
+                <message-list-item-quick-action-buttons v-if="mouseIn" :message="message" />
+            </transition>
         </bm-list-group-item>
         <template v-slot:shadow>
             <mail-message-list-item-shadow :message="message" :count="selectedMessageKeys.length" />
@@ -45,7 +52,7 @@ import ItemUri from "@bluemind/item-uri";
 import MailMessageListItemShadow from "./MailMessageListItemShadow";
 import MessageListItemLeft from "./MessageListItemLeft";
 import MessageListItemMiddle from "./MessageListItemMiddle";
-import MessageListItemRight from "./MessageListItemRight";
+import MessageListItemQuickActionButtons from "./MessageListItemQuickActionButtons";
 import { Flag } from "@bluemind/email";
 
 export default {
@@ -55,8 +62,8 @@ export default {
         BmListGroupItem,
         MessageListItemLeft,
         MessageListItemMiddle,
-        MessageListItemRight,
-        MailMessageListItemShadow
+        MailMessageListItemShadow,
+        MessageListItemQuickActionButtons
     },
     directives: { BmTooltip },
     props: {
@@ -76,15 +83,17 @@ export default {
                 cursor: "cursor",
                 text: this.$t("mail.actions.move")
             },
-            mouseIn: false,
-            Flags: Flag
+            mouseIn: false
         };
     },
     computed: {
         ...mapGetters("mail-webapp/folders", ["getFolderByKey"]),
-        ...mapGetters("mail-webapp", ["isMessageSelected", "nextMessageKey"]),
+        ...mapGetters("mail-webapp", ["isMessageSelected", "nextMessageKey", "currentMailbox"]),
         ...mapState("mail-webapp", ["selectedMessageKeys", "userSettings"]),
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" })
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
+        isImportant() {
+            return this.message.flags.some(f => Flag.FLAGGED === f);
+        }
     },
     methods: {
         ...mapActions("mail-webapp", ["move"]),
@@ -133,7 +142,8 @@ export default {
             this.$emit("toggleSelect", this.message.key);
         },
         navigateTo() {
-            this.$router.navigate({ name: "v:mail:message", params: { message: this.message.key } });
+            const folder = ItemUri.encode(ItemUri.container(this.message.key), this.currentMailbox.mailboxUid);
+            this.$router.navigate({ name: "v:mail:message", params: { folder, message: this.message.key } });
         }
     }
 };
@@ -217,9 +227,26 @@ export default {
         display: none;
     }
 
-    .list-group-item-warning-custom {
-        // obtain the same enlightment that BAlert applies on $warning
-        background-color: lighten($warning, 33.9%);
+    // obtain the same enlightment that BAlert applies on $warning TODO move to variables.scss in SG
+    $custom-warning-color: lighten($warning, 33.9%);
+
+    .warning-custom {
+        background-color: $custom-warning-color;
+    }
+
+    .fade-in-enter-active {
+        transition: opacity 0.35s linear 0.15s;
+    }
+
+    .fade-in-leave-active {
+        opacity: 0;
+    }
+
+    .fade-in-enter,
+    .fade-in-leave-to {
+        opacity: 0;
+        position: absolute;
+        right: 0;
     }
 }
 </style>

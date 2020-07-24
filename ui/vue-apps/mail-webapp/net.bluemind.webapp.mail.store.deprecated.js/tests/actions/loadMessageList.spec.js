@@ -16,7 +16,10 @@ const context = {
         messages: { itemKeys: [1, 2, 3] },
         sorted: "up to down",
         messageFilter: null,
-        draft: { parts: { attachments: [] } }
+        draft: { parts: { attachments: [] } },
+        search: {
+            pattern: null
+        }
     },
     getters: {
         my: {
@@ -26,8 +29,12 @@ const context = {
             },
             mailboxUid: "my_mailbox_uid"
         },
-        "folders/getFolderByKey": jest.fn().mockReturnValue({ uid: folderUid, key: folderKey }),
-        "folders/getFolderByPath": jest.fn().mockReturnValue({ uid: folderUid, key: folderKey }),
+        "folders/getFolderByKey": jest
+            .fn()
+            .mockReturnValue({ uid: folderUid, key: folderKey, value: { fullName: "plop" } }),
+        "folders/getFolderByPath": jest
+            .fn()
+            .mockReturnValue({ uid: folderUid, key: folderKey, value: { fullName: "plop" } }),
         mailshares: [{ root: "mailshare", mailboxUid: "mailshare_uid" }]
     }
 };
@@ -105,8 +112,12 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
         await loadMessageList(context, { folder: folderKey });
         expect(context.dispatch).not.toHaveBeenCalledWith("search/search", expect.anything());
         context.dispatch.mockClear();
-        await loadMessageList(context, { folder: folderKey, search: "search pattern" });
-        expect(context.dispatch).toHaveBeenCalledWith("search/search", { pattern: "search pattern" });
+        await loadMessageList(context, { folder: folderKey, search: '"search pattern"' });
+        expect(context.dispatch).toHaveBeenCalledWith("search/search", {
+            pattern: "search pattern",
+            filter: undefined,
+            folderKey: undefined
+        });
         expect(context.dispatch).not.toHaveBeenCalledWith("message/list", expect.anything());
         expect(context.dispatch).not.toHaveBeenCalledWith("messages/multipleByKey", expect.anything());
     });
@@ -119,7 +130,7 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
             folderUid,
             filter: messageQuery.filter
         });
-        messageQuery = { folder: folderKey, search: "search pattern", filter: "unread" };
+        messageQuery = { folder: folderKey, search: '"search pattern"', filter: "unread" };
         await loadMessageList(context, messageQuery);
         expect(context.dispatch).toHaveBeenCalledWith("search/search", {
             pattern: "search pattern",

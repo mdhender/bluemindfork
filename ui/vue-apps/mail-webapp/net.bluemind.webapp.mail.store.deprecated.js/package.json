@@ -17,7 +17,8 @@
         "@bluemind/item-uri": "^4.1.0",
         "@bluemind/uuid": "^4.1.0",
         "lodash.debounce": "^4.0.8",
-        "lodash.flatmap": "^4.5.0"
+        "lodash.flatmap": "^4.5.0",
+        "lucene-query-parser": "^1.2.0"
     },
     "devDependencies": {
         "@bluemind/conf": "^4.1.0",

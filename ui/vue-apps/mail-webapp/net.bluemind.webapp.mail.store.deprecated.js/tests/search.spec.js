@@ -8,20 +8,14 @@ describe("[Mail-WebappStore][search]", () => {
         test("initial state", () => {
             expect(state).toEqual({
                 pattern: null,
-                status: STATUS.IDLE
+                status: STATUS.IDLE,
+                searchFolder: null
             });
         });
     });
 
     describe("mutations", () => {
-        const { setPattern, setStatus } = mutations;
-        test("setPattern", () => {
-            const state = {
-                pattern: null
-            };
-            setPattern(state, "foobar");
-            expect(state.pattern).toBe("foobar");
-        });
+        const { setStatus } = mutations;
 
         test("setStatus", () => {
             const state = {
@@ -60,7 +54,8 @@ describe("[Mail-WebappStore][search]", () => {
                 Promise.resolve({
                     results: [
                         {
-                            itemId: "foobar"
+                            itemId: "foobar",
+                            containerUid: "folderUid"
                         }
                     ]
                 });
@@ -69,7 +64,7 @@ describe("[Mail-WebappStore][search]", () => {
             const context = {
                 rootState: {
                     ["mail-webapp"]: {
-                        currentFolderKey: "WyJmMjFhMzU5OS1kODJhLTQ5NTktODEyMi04OWY0ZmFmNjBjMWUiLCJ1c2VyLnRlc3QiXQ=="
+                        currentFolderKey: ItemUri.encode("abcdef", "folderUid")
                     }
                 },
                 rootGetters: {
@@ -83,19 +78,12 @@ describe("[Mail-WebappStore][search]", () => {
                 }
             };
 
-            const key = ItemUri.encode(
-                "foobar",
-                ItemUri.item("WyJmMjFhMzU5OS1kODJhLTQ5NTktODEyMi04OWY0ZmFmNjBjMWUiLCJ1c2VyLnRlc3QiXQ==")
-            );
+            const key = ItemUri.encode("foobar", "folderUid");
 
             const expectedMutations = [
                 {
                     type: "setStatus",
                     payload: STATUS.LOADING
-                },
-                {
-                    type: "setPattern",
-                    payload: "foo"
                 },
                 {
                     type: "mail-webapp/messages/setItemKeys",
@@ -119,7 +107,7 @@ describe("[Mail-WebappStore][search]", () => {
             const context = {
                 rootState: {
                     ["mail-webapp"]: {
-                        currentFolderKey: "WyJmMjFhMzU5OS1kODJhLTQ5NTktODEyMi04OWY0ZmFmNjBjMWUiLCJ1c2VyLnRlc3QiXQ=="
+                        currentFolderKey: ItemUri.encode("abcdef", "folderUid")
                     }
                 },
                 rootGetters: {
@@ -136,10 +124,6 @@ describe("[Mail-WebappStore][search]", () => {
                 {
                     type: "setStatus",
                     payload: STATUS.LOADING
-                },
-                {
-                    type: "setPattern",
-                    payload: "foo"
                 },
                 {
                     type: "setStatus",

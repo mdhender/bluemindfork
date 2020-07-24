@@ -288,6 +288,7 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
 .message-list {
+    overflow-x: hidden;
     overflow-y: auto;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <folder-result-content v-if="isResolved" class="h-100" />
+    <div class="h-100 bg-extra-light">
+        <folder-result-content v-if="isResolved" />
         <folder-result-spinner v-if="isLoading" />
     </div>
 </template>
