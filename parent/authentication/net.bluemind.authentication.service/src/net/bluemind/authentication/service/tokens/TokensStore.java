@@ -32,11 +32,11 @@ import com.netflix.hollow.api.consumer.fs.HollowFilesystemBlobRetriever;
 import com.netflix.hollow.api.producer.HollowIncrementalProducer;
 import com.netflix.hollow.api.producer.HollowProducer;
 import com.netflix.hollow.api.producer.HollowProducer.BlobStorageCleaner;
-import com.netflix.hollow.api.producer.fs.HollowFilesystemBlobStorageCleaner;
 import com.netflix.hollow.api.producer.fs.HollowFilesystemPublisher;
 import com.netflix.hollow.core.write.objectmapper.RecordPrimaryKey;
 
 import net.bluemind.authentication.service.Token;
+import net.bluemind.common.hollow.BmFilesystemBlobStorageCleaner;
 
 public class TokensStore {
 	private static final String BASE_DATA_DIR = "/var/spool/bm-hollowed/tokens";
@@ -58,7 +58,7 @@ public class TokensStore {
 
 		HollowFilesystemPublisher publisher = new HollowFilesystemPublisher(localPublishDir);
 
-		BlobStorageCleaner cleaner = new HollowFilesystemBlobStorageCleaner(localPublishDir, 10);
+		BlobStorageCleaner cleaner = new BmFilesystemBlobStorageCleaner(localPublishDir, 10);
 		HollowProducer producer = HollowProducer.withPublisher(publisher) //
 				.withBlobStorageCleaner(cleaner).build();
 		producer.initializeDataModel(Token.class);

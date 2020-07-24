@@ -120,6 +120,7 @@
       <plugin id="net.bluemind.calendar.sync"/>
       <plugin id="net.bluemind.calendar.usercalendar"/>
       <plugin id="net.bluemind.common.freemarker"/>
+      <plugin id="net.bluemind.common.hollow"/>
       <plugin id="net.bluemind.common.io"/>
       <plugin id="net.bluemind.common.reflect"/>
       <plugin id="net.bluemind.config"/>
@@ -446,6 +447,7 @@
       <plugin id="org.igniterealtime.smack.core"/>
       <plugin id="org.igniterealtime.smack.extensions"/>
       <plugin id="org.igniterealtime.smack.tcp"/>
+      <plugin id="org.ini4j"/>
       <plugin id="org.iq80.snappy"/>
       <plugin id="org.jboss.logging.jboss-logging"/>
       <plugin id="org.jsoup"/>
@@ -462,14 +464,13 @@
       <plugin id="org.xhtmlrenderer.flying-saucer-core"/>
       <plugin id="org.xhtmlrenderer.flying-saucer-pdf"/>
       <plugin id="slf4j.api"/>
-      <plugin id="org.ini4j"/>
       <plugin id="xpp3"/>
    </plugins>
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.noShutdown" value="true" />
       <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
+      <property name="osgi.noShutdown" value="true" />
    </configurations>
 
    <preferencesInfo>

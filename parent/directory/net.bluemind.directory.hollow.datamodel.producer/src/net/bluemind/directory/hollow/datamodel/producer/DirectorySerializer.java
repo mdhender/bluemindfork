@@ -52,10 +52,10 @@ import com.netflix.hollow.api.producer.HollowIncrementalProducer;
 import com.netflix.hollow.api.producer.HollowProducer;
 import com.netflix.hollow.api.producer.HollowProducer.BlobStorageCleaner;
 import com.netflix.hollow.api.producer.fs.HollowFilesystemAnnouncer;
-import com.netflix.hollow.api.producer.fs.HollowFilesystemBlobStorageCleaner;
 import com.netflix.hollow.api.producer.fs.HollowFilesystemPublisher;
 import com.netflix.hollow.core.write.objectmapper.RecordPrimaryKey;
 
+import net.bluemind.common.hollow.BmFilesystemBlobStorageCleaner;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerChangeset;
@@ -114,7 +114,7 @@ public class DirectorySerializer implements DataSerializer {
 		HollowFilesystemAnnouncer announcer = new HzHollowAnnouncer("directory/" + domainUid, localPublishDir);
 		this.announcementWatcher = new HollowFilesystemAnnouncementWatcher(localPublishDir);
 
-		BlobStorageCleaner cleaner = new HollowFilesystemBlobStorageCleaner(localPublishDir, 10);
+		BlobStorageCleaner cleaner = new BmFilesystemBlobStorageCleaner(localPublishDir, 10);
 		this.producer = HollowProducer.withPublisher(publisher).withAnnouncer(announcer) //
 				.withBlobStorageCleaner(cleaner).build();
 		producer.initializeDataModel(AddressBookRecord.class);

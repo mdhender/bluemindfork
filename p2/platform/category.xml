@@ -512,4 +512,5 @@
    <bundle id="net.bluemind.core.sendmail.testhelper"/>
    <bundle id="net.bluemind.linkify"/>
    <bundle id="net.bluemind.vertx.core.patch"/>
+   <bundle id="net.bluemind.common.hollow"/>
 </site>
