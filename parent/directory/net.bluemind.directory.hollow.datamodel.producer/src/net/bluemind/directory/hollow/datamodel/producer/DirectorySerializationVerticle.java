@@ -61,6 +61,13 @@ public class DirectorySerializationVerticle extends AbstractVerticle {
 	private DirectorySerializer createSerializer(String domainUid) {
 		DirectorySerializer s = new DirectorySerializer(domainUid);
 		s.start();
+
+		vertx.setTimer(1000, tid -> {
+			long time = System.currentTimeMillis();
+			s.produce();
+			logger.info("Initial hollow sync on startup for {} took {}ms.", domainUid,
+					System.currentTimeMillis() - time);
+		});
 		return s;
 	}
 
