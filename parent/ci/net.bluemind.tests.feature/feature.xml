@@ -81,11 +81,4 @@
          version="0.0.0"
          fragment="true"/>
 
-   <plugin
-         id="net.bluemind.vertx.core.patch"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
-
 </feature>

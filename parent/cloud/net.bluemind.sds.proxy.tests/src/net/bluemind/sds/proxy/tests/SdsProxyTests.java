@@ -38,8 +38,11 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.RequestOptions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.net.SocketAddress;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class SdsProxyTests {
@@ -65,8 +68,15 @@ public class SdsProxyTests {
 	}
 
 	private HttpClient client() {
-		return VertxPlatform.getVertx()
-				.createHttpClient(new HttpClientOptions().setDefaultHost("127.0.0.1").setDefaultPort(8091));
+		return VertxPlatform.getVertx().createHttpClient(new HttpClientOptions());
+	}
+
+	protected SocketAddress socket() {
+		return SocketAddress.inetSocketAddress(8091, "127.0.0.1");
+	}
+
+	private RequestOptions uri(String s) {
+		return new RequestOptions().setURI(s);
 	}
 
 	@After
@@ -77,7 +87,7 @@ public class SdsProxyTests {
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("storeType", "dummy");
-		client.post("/configuration", resp -> {
+		client.request(HttpMethod.POST, socket(), uri("/configuration"), resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
 			resp.endHandler(v -> {
@@ -97,7 +107,7 @@ public class SdsProxyTests {
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "123");
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
-		client.options("/sds", resp -> {
+		client.request(HttpMethod.OPTIONS, socket(), uri("/sds"), resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
 			resp.endHandler(v -> {
@@ -115,7 +125,7 @@ public class SdsProxyTests {
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "789");
-		client.options("/sds", resp -> {
+		client.request(HttpMethod.OPTIONS, socket(), uri("/sds"), resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
 			resp.endHandler(v -> {
@@ -133,7 +143,7 @@ public class SdsProxyTests {
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "123");
-		client.delete("/sds", resp -> {
+		client.request(HttpMethod.DELETE, socket(), uri("/sds"), resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
 			resp.endHandler(v -> {
@@ -152,7 +162,7 @@ public class SdsProxyTests {
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "put.dest").put("filename",
 				new File(root, "orig.txt").getAbsolutePath());
-		client.put("/sds", resp -> {
+		client.request(HttpMethod.PUT, socket(), uri("/sds"), resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
 			resp.endHandler(v -> {
@@ -172,7 +182,7 @@ public class SdsProxyTests {
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "123").put("filename",
 				new File(root, "dest.txt").getAbsolutePath());
-		client.get("/sds", resp -> {
+		client.request(HttpMethod.GET, socket(), uri("/sds"), resp -> {
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
 			resp.endHandler(v -> {
 				System.err.println(resp.statusCode());
@@ -196,7 +206,7 @@ public class SdsProxyTests {
 					new File(root, "dest" + i + ".txt").getAbsolutePath()));
 		}
 		payload.put("transfers", transfers);
-		client.post("/sds/mget", resp -> {
+		client.request(HttpMethod.POST, socket(), uri("/sds/mget"), resp -> {
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
 			resp.endHandler(v -> {
 				System.err.println(resp.statusCode());
@@ -233,7 +243,7 @@ public class SdsProxyTests {
 		});
 
 		JsonObject payload = new JsonObject().put("storeType", "test");
-		client.post("/configuration", resp -> {
+		client.request(HttpMethod.POST, socket(), uri("/configuration"), resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
 			resp.endHandler(v -> {
@@ -247,7 +257,7 @@ public class SdsProxyTests {
 		assertEquals(200, httpStatus);
 
 		payload = new JsonObject().put("mailbox", "yeah").put("guid", "123");
-		client.options("/sds", resp -> {
+		client.request(HttpMethod.OPTIONS, socket(), uri("/sds"), resp -> {
 			resp.endHandler(v -> {
 			});
 		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
