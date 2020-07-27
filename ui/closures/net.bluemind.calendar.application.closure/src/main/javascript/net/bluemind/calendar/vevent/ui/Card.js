@@ -166,7 +166,11 @@ net.bluemind.calendar.vevent.ui.Card.prototype.createDom = function() {
   }
 
   if (model.rrule && model.rrule.until) {
-    model.rrule.until = this.formatter.datetime.format(model.rrule.until);
+    if (model.states.allday){
+       model.rrule.until = this.formatter.date.format(model.rrule.until);
+    } else {
+       model.rrule.until = this.formatter.datetime.format(model.rrule.until);
+    }
   }
 
   if (model.rrule && model.rrule.byday && model.rrule.byday.length > 0) {
