@@ -20,6 +20,7 @@ package net.bluemind.mailbox.service.internal;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
 
@@ -52,6 +53,7 @@ public class MailFilterSanitizer implements ISanitizer<MailFilter> {
 		} else if (obj.forwarding.emails == null) {
 			obj.forwarding.emails = new HashSet<>();
 		}
+		obj.forwarding.emails = obj.forwarding.emails.stream().map(String::toLowerCase).collect(Collectors.toSet());
 
 		if (obj.vacation == null) {
 			obj.vacation = new Vacation();

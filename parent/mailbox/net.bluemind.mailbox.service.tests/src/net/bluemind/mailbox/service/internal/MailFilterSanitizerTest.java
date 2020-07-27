@@ -17,6 +17,7 @@
   */
 package net.bluemind.mailbox.service.internal;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -26,10 +27,22 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import net.bluemind.mailbox.api.MailFilter;
+import net.bluemind.mailbox.api.MailFilter.Forwarding;
 import net.bluemind.mailbox.api.MailFilter.Rule;
 
 public class MailFilterSanitizerTest {
 	private static final MailFilterSanitizer sanitizer = new MailFilterSanitizer();
+
+	@Test
+	public void create_lowercaseForwardingEmailsList() {
+		MailFilter mf = new MailFilter();
+		mf.forwarding = new Forwarding();
+		mf.forwarding.emails.add("DAVID@BM.LAN");
+
+		sanitizer.create(mf);
+
+		assertEquals("david@bm.lan", mf.forwarding.emails.iterator().next());
+	}
 
 	@Test
 	public void create_nullForwarding() {
