@@ -85,6 +85,7 @@
     "mail.actions.spam": "Spam",
     "mail.actions.textformat.hide.aria": "Masquer les outils de mise en forme du texte",
     "mail.actions.textformat.show.aria": "Afficher les outils de mise en forme du texte",
+    "mail.application.title": "Messagerie",
     "mail.attachment.untitled": "Sans titre - ({mimeType})",
     "mail.compose.forward.body": "---- Message Original ----",
     "mail.compose.forward.prev.message.info.date": "Date",

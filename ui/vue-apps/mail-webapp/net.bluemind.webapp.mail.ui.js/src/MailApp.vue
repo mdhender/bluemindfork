@@ -80,12 +80,13 @@
 <script>
 import { BmFormCheckbox, BmLabelIcon, BmButton, BmCol, BmIcon, BmRow, MakeUniq } from "@bluemind/styleguide";
 import { mapState } from "vuex";
+import favicon from "../assets/favicon.png";
+import injector from "@bluemind/inject";
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import MailFolderTree from "./MailFolder/MailFolderTree";
 import MailMessageList from "./MailMessageList/MailMessageList";
 import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
-import injector from "@bluemind/inject";
 import MessagesOptionsForMobile from "./MessagesOptionsForMobile";
 
 export default {
@@ -142,6 +143,10 @@ export default {
             return this.composerOrMessageIsDisplayed || this.selectedMessageKeys.length > 1;
         }
     },
+    created() {
+        setFavicon();
+        document.title = this.$t("mail.application.title") + " - Bluemind";
+    },
     methods: {
         composeNewMessage() {
             this.$router.navigate("mail:new");
@@ -158,9 +163,19 @@ export default {
         }
     }
 };
+
+function setFavicon() {
+    const link = document.querySelector("link[rel*='icon']") || document.createElement("link");
+    link.type = "image/x-icon";
+    link.rel = "shortcut icon";
+    link.href = favicon;
+    document.getElementsByTagName("head")[0].appendChild(link);
+}
 </script>
+
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
+
 .flex-fill {
     min-height: 0;
 }

@@ -85,6 +85,7 @@
     "mail.actions.spam": "Spam",
     "mail.actions.textformat.hide.aria": "Hide the text formatting toolbar",
     "mail.actions.textformat.show.aria": "Show the text formatting toolbar",
+    "mail.application.title": "Mail",
     "mail.attachment.untitled": "Untitled - ({mimeType})",
     "mail.compose.forward.body": "---- Original Message ----",
     "mail.compose.forward.prev.message.info.date": "Date",
