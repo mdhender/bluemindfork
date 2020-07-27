@@ -64,6 +64,7 @@ async function search({ commit, dispatch, rootGetters }, { pattern, filter, fold
         const searchResults = await ServiceLocator.getProvider("MailboxFoldersPersistence")
             .get(mailboxUid)
             .searchItems(searchPayload);
+        if (!searchResults.results) searchResults.results = [];
         const itemKeys = searchResults.results.map(res => {
             const underscoreIndex = res.containerUid.lastIndexOf("_");
             const offset = underscoreIndex >= 0 ? underscoreIndex + 1 : 0;

@@ -175,6 +175,7 @@ export default {
     input {
         border: none !important;
         background-color: transparent !important;
+        box-shadow: none !important;
         padding-left: $sp-1 !important;
     }
 

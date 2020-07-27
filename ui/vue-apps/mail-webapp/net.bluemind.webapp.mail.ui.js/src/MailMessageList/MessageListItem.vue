@@ -89,7 +89,7 @@ export default {
     computed: {
         ...mapGetters("mail-webapp/folders", ["getFolderByKey"]),
         ...mapGetters("mail-webapp", ["isMessageSelected", "nextMessageKey", "currentMailbox"]),
-        ...mapState("mail-webapp", ["selectedMessageKeys", "userSettings"]),
+        ...mapState("mail-webapp", ["currentFolderKey", "selectedMessageKeys", "userSettings"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         isImportant() {
             return this.message.flags.some(f => Flag.FLAGGED === f);
@@ -142,8 +142,11 @@ export default {
             this.$emit("toggleSelect", this.message.key);
         },
         navigateTo() {
-            const folder = ItemUri.encode(ItemUri.container(this.message.key), this.currentMailbox.mailboxUid);
-            this.$router.navigate({ name: "v:mail:message", params: { folder, message: this.message.key } });
+            const params = { message: this.message.key };
+            if (ItemUri.item(this.currentFolderKey) !== ItemUri.container(this.message.key)) {
+                params.folder = ItemUri.encode(ItemUri.container(this.message.key), this.currentMailbox.mailboxUid);
+            }
+            this.$router.navigate({ name: "v:mail:message", params });
         }
     }
 };
