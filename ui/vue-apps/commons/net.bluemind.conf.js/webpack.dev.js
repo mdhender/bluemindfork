@@ -6,9 +6,8 @@ module.exports = merge(common, {
     devServer: {
         historyApiFallback: true,
         overlay: true,
-        port: 9180,
         host: "0.0.0.0",
         disableHostCheck: true
     },
-    devtool: "#eval-source-map"
+    devtool: "eval-source-map"
 });

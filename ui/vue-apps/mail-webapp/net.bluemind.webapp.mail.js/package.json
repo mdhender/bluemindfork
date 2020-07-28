@@ -11,6 +11,7 @@
         "@bluemind/backend.mail.api": "^4.1.0",
         "@bluemind/backend.mail.service": "^4.1.0",
         "@bluemind/backend.mail.store": "^4.1.0",
+        "@bluemind/calendar.api": "^4.1.0",
         "@bluemind/core.container.api": "^4.1.0",
         "@bluemind/core.task.api": "^4.1.0",
         "@bluemind/inject": "^4.1.0",
@@ -19,17 +20,20 @@
         "@bluemind/router": "^4.1.0",
         "@bluemind/store": "^4.1.0",
         "@bluemind/user.api": "^4.1.0",
+        "@bluemind/webapp.mail.store.deprecated": "^4.1.0",
+        "@bluemind/webapp.mail.store": "^4.1.0",
         "@bluemind/webapp.mail.ui.vuejs": "^4.1.0",
-        "bottleneck": "^2.19.5"
+        "@types/workbox-core": "^4.3.0",
+        "bottleneck": "^2.19.5",
+        "idb": "^5.0.4"
     },
     "devDependencies": {
-        "@bluemind/conf": "^4.1.0",
-        "url-loader": "^2.1.0",
-        "webpack-bundle-analyzer": "^3.6.0"
+        "webpack-bundle-analyzer": "^3.6.0",
+        "@bluemind/conf": "^4.1.0"
     },
     "scripts": {
         "analyze-bundle": "webpack --profile --json > stats.json && webpack-bundle-analyzer --port 4200 stats.json",
         "build": "webpack --env production --progress --profile --colors",
-        "dev": "webpack-dev-server --env development --progress --colors"
+        "dev": "webpack-dev-server --env development --progress --colors --port 9180"
     }
 }

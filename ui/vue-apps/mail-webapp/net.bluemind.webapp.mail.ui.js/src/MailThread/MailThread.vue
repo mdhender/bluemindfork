@@ -1,7 +1,7 @@
 <template>
-    <div class="mail-thread bg-surface">
+    <div v-if="message" class="mail-thread d-flex flex-column">
         <mail-component-alert
-            v-if="message && !areRemoteImagesUnblocked(message.key) && showBlockedImagesAlert"
+            v-if="!areRemoteImagesUnblocked(message.key) && showBlockedImagesAlert"
             icon="exclamation-circle"
             @close="setShowBlockedImagesAlert(false)"
         >
@@ -16,7 +16,7 @@
         >
             {{ $t("mail.content.alert.readonly") }}
         </mail-component-alert>
-        <mail-message-new
+        <mail-composer
             v-if="showComposer"
             :message="preparedAnswer"
             :previous-message="previousMessage"
@@ -24,7 +24,7 @@
             :user-pref-text-only="userPrefTextOnly"
             @close="mode = 'default'"
         />
-        <mail-message-content v-if="message" />
+        <mail-viewer v-if="message" />
         <div />
     </div>
 </template>
@@ -35,16 +35,16 @@ import { computeSubject, previousMessageContent } from "../MessageBuilder";
 import { MimeType } from "@bluemind/email";
 import { ItemUri } from "@bluemind/item-uri";
 import MailComponentAlert from "../MailComponentAlert";
-import MailMessageContent from "../MailMessageContent";
-import MailMessageNew from "../MailMessageNew";
-import MailMessageNewModes from "../MailMessageNew/MailMessageNewModes";
+import MailComposer from "../MailComposer";
+import MailComposerModes from "../MailComposer/MailComposerModes";
+import MailViewer from "../MailViewer";
 
 export default {
     name: "MailThread",
     components: {
         MailComponentAlert,
-        MailMessageContent,
-        MailMessageNew
+        MailComposer,
+        MailViewer
     },
     data() {
         return {
@@ -84,11 +84,11 @@ export default {
         mode() {
             if (this.showComposer) {
                 if (this.isReplyAll() && this.preparedAnswer.cc && this.preparedAnswer.cc.length > 0) {
-                    return MailMessageNewModes.TO | MailMessageNewModes.CC;
+                    return MailComposerModes.TO | MailComposerModes.CC;
                 }
-                return MailMessageNewModes.TO;
+                return MailComposerModes.TO;
             }
-            return MailMessageNewModes.NONE;
+            return MailComposerModes.NONE;
         },
         showComposer() {
             const action = this.pathSuffix();
@@ -130,13 +130,13 @@ export default {
         margin-bottom: $sp-1;
     }
 
-    .mail-message-new ~ .mail-message-content {
+    .mail-composer ~ .mail-viewer {
         @media (max-width: map-get($grid-breakpoints, "lg")) {
             display: none !important;
         }
     }
 
-    .mail-message-new {
+    .mail-composer {
         @media (min-width: map-get($grid-breakpoints, "lg")) {
             height: auto !important;
         }

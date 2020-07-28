@@ -18,6 +18,7 @@
         "@bluemind/l10n": "^4.1.0",
         "@bluemind/styleguide": "^0.1.0",
         "@bluemind/webapp.mail.l10n": "^4.1.0",
+        "@bluemind/webapp.mail.store": "^4.1.0",
         "lodash.debounce": "^4.0.8",
         "lodash.last": "^3.0.0",
         "vue-global-events": "^1.1.2"

@@ -98,10 +98,7 @@ describe("[MailboxItemsStore] Vuex store", () => {
     test("can filter a folder ('unread')", done => {
         const folderUid = "folder:uid";
         const sorted = { dir: "desc", column: "internal_date" };
-        mockedClient.sortedIds.mockReturnValueOnce(Promise.resolve(exampleMessages.map(message => message.internalId)));
-        mockedClient.filteredChangesetById.mockReturnValueOnce(
-            Promise.resolve({ created: [{ id: "4." }, { id: "7." }, { id: "11." }] })
-        );
+        mockedClient.unreadItems.mockReturnValueOnce(Promise.resolve(["4.", "7.", "11."]));
         const filteredMessages = [exampleMessages[3], exampleMessages[4], exampleMessages[7]];
         mockedClient.multipleById.mockReturnValueOnce(
             Promise.resolve([exampleMessages[3], exampleMessages[4], exampleMessages[7]])

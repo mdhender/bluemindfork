@@ -7,37 +7,46 @@ import WebSocketEventTarget from "./WebSocketEventTarget";
 import OnlineEvent from "./OnlineEvent";
 import RestEvent from "./RestEvent";
 
-const websocket = global.$websocket || (global.$websocket = createWebsocket());
+const WEBSOCKET_DEFAULT_URL = "/eventbus/";
 
-function createWebsocket() {
-    return {
-        client: null,
-        handler: new WebSocketEventTarget(),
-        plugins: new EventTarget(),
-        online: false,
-        url: null,
-        timers: {
-            ping: null,
-            heartbeat: null,
-            connect: null
-        }
-    };
-}
+const websocket = (global.$websocket = global.$websocket || createWebsocket());
 
+/**
+ *
+ * @param url specify an URL for the websocket you want to use. Default matchs Bluemind websocket.
+ *
+ */
 export default class WebSocketClient {
-    constructor(url) {
-        init(url);
+    constructor(url = WEBSOCKET_DEFAULT_URL) {
+        this.persistentRegistrations = [];
+        this.onOnline(() => {
+            this.persistentRegistrations.forEach(({ path, listener }) => this.register(path, listener));
+        });
+
+        if (!isInit(url)) {
+            websocket.url = url;
+            websocket.client = createSockJsClient();
+        }
     }
 
     send(request, listener) {
         return send(request, listener);
     }
 
-    register(path, listener) {
+    register(path, listener, persistent = true) {
+        if (
+            persistent &&
+            !this.persistentRegistrations.some(pending => pending.path === path && pending.listener === listener)
+        ) {
+            this.persistentRegistrations.push({ path, listener });
+        }
         return this.send({ method: Method.REGISTER, path }, listener);
     }
 
     unregister(path, listener) {
+        this.persistentRegistrations = this.persistentRegistrations.filter(
+            pending => pending.path !== path || pending.listener !== listener
+        );
         return this.send({ method: Method.UNREGISTER, path }, listener);
     }
 
@@ -55,23 +64,11 @@ export default class WebSocketClient {
     }
 
     use(plugin) {
-        const args = Array.prototype.slice.call(arguments, 1);
-        args.unshift(websocket.plugins);
-        if (typeof plugin.install === "function") {
-            plugin.install.apply(plugin, args);
-        } else if (typeof plugin === "function") {
-            plugin.apply(null, args);
-        }
+        use(plugin);
     }
 
     reset() {
-        websocket.client.close();
-        websocket.handler.clear();
-        websocket.plugins.clear();
-        websocket.url = null;
-        clearTimeout(websocket.timers.heartbeat);
-        clearTimeout(websocket.timers.ping);
-        clearTimeout(websocket.timers.reconnect);
+        reset();
     }
 }
 
@@ -82,9 +79,23 @@ const Method = {
     UNREGISTER: "unregister"
 };
 
-function init(url) {
-    websocket.url = url;
-    websocket.client = createSockJsClient();
+function createWebsocket() {
+    return {
+        client: null,
+        handler: new WebSocketEventTarget(),
+        plugins: new EventTarget(),
+        online: false,
+        url: null,
+        timers: {
+            ping: null,
+            heartbeat: null,
+            connect: null
+        }
+    };
+}
+
+function isInit(url) {
+    return url === websocket.url && websocket.client;
 }
 
 function createSockJsClient() {
@@ -92,8 +103,7 @@ function createSockJsClient() {
     if (websocket.client !== null && websocket.client.readyState !== SockJS.CLOSED) {
         return websocket.client;
     }
-    //FIXME: Use the real client
-    const client = {};
+    const client = new SockJS(websocket.url);
     client.onopen = function() {
         websocket.timers.ping = setTimeout(ping, 5 * 1000);
         online();
@@ -143,7 +153,7 @@ function send(request, listener) {
 
     const promise = new Promise(resolver.bind(this, request.requestId));
     if (websocket.client.readyState !== SockJS.OPEN) {
-        // websocket.handler.disconnected(request.requestId);
+        websocket.handler.disconnected(request.requestId);
     } else {
         websocket.client.send(JSON.stringify(request));
     }
@@ -200,4 +210,24 @@ function resolver(requestId, resolve, reject) {
             resolve(event.data);
         }
     });
+}
+
+function use(plugin) {
+    const args = Array.prototype.slice.call(arguments, 1);
+    args.unshift(websocket.plugins);
+    if (typeof plugin.install === "function") {
+        plugin.install.apply(plugin, args);
+    } else if (typeof plugin === "function") {
+        plugin.apply(null, args);
+    }
+}
+
+function reset() {
+    websocket.client.close();
+    websocket.handler.clear();
+    websocket.plugins.clear();
+    websocket.url = null;
+    clearTimeout(websocket.timers.heartbeat);
+    clearTimeout(websocket.timers.ping);
+    clearTimeout(websocket.timers.reconnect);
 }

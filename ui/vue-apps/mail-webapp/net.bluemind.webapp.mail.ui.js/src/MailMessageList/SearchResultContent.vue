@@ -1,8 +1,8 @@
 <template>
-    <div>
+    <div class="h-100 d-flex flex-column">
         <search-result-content-header />
-        <search-result-content-empty v-if="count === 0" :pattern="search.pattern" />
-        <message-list v-if="count > 0" class="h-100" />
+        <search-result-content-empty v-if="count === 0" class="flex-fill" :pattern="search.pattern" />
+        <message-list v-if="count > 0" class="flex-fill" />
     </div>
 </template>
 

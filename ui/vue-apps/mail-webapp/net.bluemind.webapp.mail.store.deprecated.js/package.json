@@ -1,0 +1,33 @@
+{
+    "name": "@bluemind/webapp.mail.store.deprecated",
+    "version": "4.1.0",
+    "description": "Bluemind MailApp Vuex store",
+    "author": "Blue Mind SAS",
+    "license": "Affero GPLv3",
+    "main": "src/index.js",
+    "module": "src/index.js",
+    "dependencies": {
+        "@bluemind/alert.store": "^4.1.0",
+        "@bluemind/backend.mail.store": "^4.1.0",
+        "@bluemind/containerobserver": "^4.1.0",
+        "@bluemind/core.container.api": "^4.1.0",
+        "@bluemind/core.container.store": "^4.1.0",
+        "@bluemind/email": "^4.1.0",
+        "@bluemind/inject": "^4.1.0",
+        "@bluemind/item-uri": "^4.1.0",
+        "@bluemind/uuid": "^4.1.0",
+        "lodash.debounce": "^4.0.8",
+        "lodash.flatmap": "^4.5.0",
+        "lucene-query-parser": "^1.2.0"
+    },
+    "devDependencies": {
+        "@bluemind/conf": "^4.1.0",
+        "@bluemind/webapp.mail.store": "^4.1.0",
+        "@vue/test-utils": "^1.0.0-beta.25",
+        "lodash.clonedeep": "^4.5.0"
+    },
+    "scripts": {
+        "lint": "eslint src/**/*.{js,vue}",
+        "test": "jest --config node_modules/@bluemind/conf/jest.config.js"
+    }
+}

@@ -1,0 +1,12 @@
+import { STATUS } from "../constants";
+
+export let currentFolderKey;
+export let foldersData = {};
+export let userUid;
+export let maxMessageSize;
+export let messageFilter;
+export let messagesWithUnblockedRemoteImages = [];
+export let selectedMessageKeys = [];
+export let showBlockedImagesAlert = false;
+export const status = STATUS.IDLE;
+export let userSettings = {};

@@ -2,7 +2,7 @@ import merge from "lodash.merge";
 import Vuex from "vuex";
 import { mount, createLocalVue } from "@vue/test-utils";
 import cloneDeep from "lodash.clonedeep";
-import MessageStore from "@bluemind/webapp.mail.store/src/MessageStore";
+import MessageStore from "@bluemind/webapp.mail.store.deprecated/src/MessageStore";
 import MailboxItemsStore from "@bluemind/backend.mail.store/src/MailboxItemsStore";
 
 export function createStore(overrides) {
@@ -20,7 +20,8 @@ export function createStore(overrides) {
                     my: jest.fn(() => ({})),
                     currentMessageAttachments: jest.fn(() => [{ mime: "" }]),
                     draft: jest.fn(() => {}),
-                    isReadOnlyFolder: jest.fn(() => () => false)
+                    isReadOnlyFolder: jest.fn(() => () => false),
+                    matchingFolders: jest.fn(() => () => [])
                 },
                 modules: {
                     currentMessage: {
@@ -30,7 +31,8 @@ export function createStore(overrides) {
                                 return {
                                     key:
                                         "WyIxNWUwZjNjYS01M2E2LTRiYmItYWQ0NS02MTgwNjcyYmE4ZWMiLCIzNUU1MTJCOC0xRDVBLTRENkQtQUMzOC01QzY4OENDQzlBMDUiXQ==",
-                                    states: []
+                                    states: [],
+                                    flags: []
                                 };
                             })
                         }
