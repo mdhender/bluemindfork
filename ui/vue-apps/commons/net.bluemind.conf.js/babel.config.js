@@ -11,7 +11,8 @@ module.exports = function(api, otherPlugins = []) {
                     node: 8
                 }
             }
-        ]
+        ],
+        "@babel/preset-typescript"
     ];
 
     const plugins = otherPlugins;

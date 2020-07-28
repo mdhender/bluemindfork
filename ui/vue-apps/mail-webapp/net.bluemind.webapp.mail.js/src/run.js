@@ -116,6 +116,13 @@ global.activateServiceWorker = process.env.NODE_ENV === "development";
 
 if ("serviceWorker" in navigator && global.activateServiceWorker) {
     window.addEventListener("load", () => {
-        navigator.serviceWorker.register("service-worker.js"); // related to webpack configuration
+        navigator.serviceWorker
+            .register("service-worker.js")
+            .then(registration => {
+                console.log("Service Worker registered. ", registration);
+            })
+            .catch(error => {
+                console.error("Service Worker registered failed. ", error);
+            });
     });
 }

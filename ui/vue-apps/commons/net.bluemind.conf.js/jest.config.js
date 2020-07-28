@@ -3,10 +3,10 @@ process.env.TZ = "GMT";
 module.exports = {
     rootDir: process.cwd() + "/",
     verbose: true,
-    moduleFileExtensions: ["js", "json", "vue"],
+    moduleFileExtensions: ["ts", "js", "json", "vue"],
     modulePathIgnorePatterns: ["open/clients/js/target/"],
     transform: {
-        "^.+\\.js$": "babel-jest",
+        "^.+\\.[t|j]sx?$": "babel-jest",
         ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2|svg)$": "jest-transform-stub",
         ".*\\.(vue)$": "vue-jest"
     },
