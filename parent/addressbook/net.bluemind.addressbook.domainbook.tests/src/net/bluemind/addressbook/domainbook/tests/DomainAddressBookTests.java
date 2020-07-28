@@ -89,7 +89,7 @@ public class DomainAddressBookTests {
 				.getSecurityContext();
 
 		domain = PopulateHelper.createTestDomain(domainUid, esServer);
-		dirContainer = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM)
+		dirContainer = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM)
 				.get(domainUid);
 		PopulateHelper.domainAdmin(domainUid, domainAdmin.getSubject());
 		final SettableFuture<Void> future = SettableFuture.<Void>create();

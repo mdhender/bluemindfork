@@ -40,6 +40,8 @@ import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.AsyncHandler;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
@@ -52,7 +54,6 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.network.topology.TopologyException;
 
 public class BasicAuthHandler implements Handler<HttpServerRequest> {
-
 	public final Handler<AuthenticatedRequest> lh;
 	private final String origin;
 	private final String role;
@@ -73,8 +74,15 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 
 	}
 
-	private static Cache<String, ValidatedAuth> validated = CacheBuilder.newBuilder()
+	private static Cache<String, ValidatedAuth> validated = CacheBuilder.newBuilder().recordStats()
 			.expireAfterWrite(10, TimeUnit.MINUTES).build();
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(BasicAuthHandler.class, validated);
+		}
+	}
 
 	public static final class AuthenticatedRequest {
 
@@ -198,7 +206,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 			loginResp.whenComplete((loginRespAndRouting, ex) -> {
 				r.resume();
 				if (ex != null) {
-					logger.warn("{}", ex.getMessage());
+					logger.warn("auth problem, check core.log ({})", ex.getMessage());
 					r.response().putHeader("WWW-Authenticate", "Basic realm=\"bm.basic.auth\"").setStatusCode(401)
 							.end();
 				} else if (loginRespAndRouting == null) {

@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.tigase
-Bundle-SymbolicName: net.bluemind.xmpp.server
+Bundle-SymbolicName: net.bluemind.xmpp.server;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.xmpp.server.Activator
 Bundle-Vendor: blue-mind.net
@@ -10,6 +10,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.hornetq.client;bundle-version="1.0.0",
  net.bluemind.lib.elasticsearch;bundle-version="1.0.0",
+ net.bluemind.core.caches.registry,
  net.bluemind.core.rest.http,
  net.bluemind.core.rest,
  net.bluemind.authentication.api,

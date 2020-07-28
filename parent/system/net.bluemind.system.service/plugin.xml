@@ -26,6 +26,9 @@
       <endpoint
             api="net.bluemind.system.api.IExternalSystem">
       </endpoint>
+      <endpoint
+            api="net.bluemind.system.api.ICacheMgmt">
+      </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
@@ -48,6 +51,9 @@
       <serviceFactory
             class="net.bluemind.system.service.ExternalSystemServiceFactory">
       </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.system.service.CacheMgmtFactory">
+      </serviceFactory>
    </extension>
    <extension
          point="net.bluemind.system.schemaupgrader.component">
@@ -61,6 +67,22 @@
       <verticle
             impl="net.bluemind.system.service.internal.SharedSystemConfigurationVerticle$Init">
       </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.system.service.hooks.UpgraderServerHook"
+			priority="1">
+	  </hook>
+   	</extension>
+	<extension
+         point="net.bluemind.system.hook">
+      <validator
+            class="net.bluemind.system.service.internal.SubscriptionContactsValidator">
+      </validator>
+      <observer
+            class="net.bluemind.system.service.internal.SharedSystemConfigurationVerticle$Updater">
+      </observer>
    </extension>
 
 </plugin>

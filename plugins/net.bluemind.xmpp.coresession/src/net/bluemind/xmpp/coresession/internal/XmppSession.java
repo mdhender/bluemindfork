@@ -141,7 +141,7 @@ public class XmppSession {
 					// send notification
 					String from = pres.getFrom();
 					String pic = "";
-					RosterItem item = RosterItemCache.getInstance().get(XmppSessionMessage.parseJabberId(from));
+					RosterItem item = RosterItemCache.get(XmppSessionMessage.parseJabberId(from));
 					if (item != null) {
 						from = item.user.value.contactInfos.identification.formatedName.value;
 						pic = item.photo;
@@ -550,7 +550,7 @@ public class XmppSession {
 				String pic = "";
 				String jabberId = XmppSessionMessage.parseJabberId(from);
 
-				RosterItem item = RosterItemCache.getInstance().get(jabberId);
+				RosterItem item = RosterItemCache.get(jabberId);
 				if (item != null) {
 					from = item.user.value.contactInfos.identification.formatedName.value;
 					pic = item.photo;

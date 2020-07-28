@@ -54,7 +54,7 @@ public class DeferredActionService implements IDeferredAction {
 		this.context = context;
 		this.deferredActionStore = new DeferredActionStore(dataSource, container);
 		this.storeService = new ContainerDeferredActionStoreService(dataSource, context.getSecurityContext(), container,
-				"deferredAction", deferredActionStore);
+				deferredActionStore);
 		this.validator = new Validator(context);
 		this.sanitizer = new Sanitizer(context);
 	}

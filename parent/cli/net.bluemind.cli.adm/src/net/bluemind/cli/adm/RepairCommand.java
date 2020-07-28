@@ -28,6 +28,7 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
+import net.bluemind.cli.directory.common.NoopException;
 import net.bluemind.cli.directory.common.SingleOrDomainOperation;
 import net.bluemind.cli.utils.Tasks;
 import net.bluemind.core.container.model.ItemValue;
@@ -71,7 +72,7 @@ public class RepairCommand extends SingleOrDomainOperation {
 			filteredOps = Sets.intersection(toRun, opsIds);
 
 			if (filteredOps.isEmpty()) {
-				return;
+				throw new NoopException();
 			}
 
 			ctx.info("Selected ops: " + filteredOps);

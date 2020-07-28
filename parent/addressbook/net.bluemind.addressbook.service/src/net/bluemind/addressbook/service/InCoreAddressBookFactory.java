@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -19,14 +19,12 @@
 package net.bluemind.addressbook.service;
 
 import java.sql.SQLException;
-
 import javax.sql.DataSource;
 
 import org.elasticsearch.client.Client;
 
-import com.google.common.base.Throwables;
-
 import net.bluemind.addressbook.api.IAddressBookUids;
+import net.bluemind.addressbook.domainbook.DomainAddressBook;
 import net.bluemind.addressbook.service.internal.AddressBookService;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -61,8 +59,12 @@ public class InCoreAddressBookFactory
 		}
 
 		if (!container.type.equals(IAddressBookUids.TYPE)) {
-			Throwables.propagate(new ServerFault(
-					"Incompatible addressbook container: " + container.type + ", uid: " + container.uid));
+			throw new ServerFault(
+					"Incompatible addressbook container: " + container.type + ", uid: " + container.uid);
+		}
+
+		if (!isDefaultDomainAb(container) && ds.equals(context.getDataSource())) {
+			throw new ServerFault("wrong datasource container.uid " + container.uid);
 		}
 
 		Client esClient = ESearchActivator.getClient();
@@ -79,5 +81,9 @@ public class InCoreAddressBookFactory
 			throw new ServerFault("wrong number of instance parameters");
 		}
 		return getService(context, params[0]);
+	}
+
+	private static boolean isDefaultDomainAb(Container container) {
+		return container.uid.equals(DomainAddressBook.getIdentifier(container.domainUid));
 	}
 }

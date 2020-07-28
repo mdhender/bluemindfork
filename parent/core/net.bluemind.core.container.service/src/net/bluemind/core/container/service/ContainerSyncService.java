@@ -103,4 +103,11 @@ public class ContainerSyncService implements IContainerSync {
 		return sync.lastSync;
 	}
 
+	@Override
+	public Date getNextSync() throws ServerFault {
+		RBACManager.forContext(context).forContainer(container).check(Verb.Read.name(), Verb.Manage.name());
+		ContainerSyncStatus sync = containerSyncStore.getSyncStatus();
+		return new Date(sync.nextSync);
+	}
+
 }

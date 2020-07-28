@@ -37,7 +37,9 @@ import net.bluemind.core.task.service.LoggingTaskMonitor;
 import net.bluemind.core.task.service.NullTaskMonitor;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
+import net.bluemind.system.api.SystemState;
 import net.bluemind.system.pg.api.IInternalPostgresMaintenance;
+import net.bluemind.system.state.StateContext;
 
 public class PGMaintenanceVerticle extends AbstractVerticle {
 
@@ -60,10 +62,6 @@ public class PGMaintenanceVerticle extends AbstractVerticle {
 	@Override
 	public void start() {
 		nextTimer();
-	}
-
-	public static void main(String[] args) {
-		System.err.println(millisecTo2AM());
 	}
 
 	public static long millisecTo2AM() {
@@ -92,10 +90,18 @@ public class PGMaintenanceVerticle extends AbstractVerticle {
 			logger.warn("pgmaintenance is disabled");
 			return;
 		}
+		if (!coreInRunningState()) {
+			logger.warn("core upgrade running, skipping pgmaintenance");
+			return;
+		}
 
 		BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
 		context.provider().instance(IInternalPostgresMaintenance.class)
 				.executeMaintenanceQueries(new LoggingTaskMonitor(logger, new NullTaskMonitor(), 0));
+	}
+
+	private boolean coreInRunningState() {
+		return StateContext.getState() == SystemState.CORE_STATE_RUNNING;
 	}
 
 	protected boolean isDisabled() {

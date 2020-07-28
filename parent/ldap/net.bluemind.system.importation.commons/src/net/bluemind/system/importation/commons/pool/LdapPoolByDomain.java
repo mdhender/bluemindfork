@@ -92,8 +92,9 @@ public class LdapPoolByDomain {
 	 * @throws Exception
 	 */
 	public LdapConnectionContext getConnectionContext(Parameters ldapParameters) throws Exception {
-		if (poolByDomain.putIfAbsent(ldapParameters, new LdapPoolWrapper(ldapParameters)) == null) {
-			logger.debug("Initialize LDAP pool for: " + ldapParameters.toString());
+		if (poolByDomain.putIfAbsent(ldapParameters, new LdapPoolWrapper(ldapParameters)) == null
+				&& logger.isDebugEnabled()) {
+			logger.debug("Initialize LDAP pool for: {}", ldapParameters);
 		}
 		LdapPoolWrapper pool = poolByDomain.get(ldapParameters);
 
@@ -125,6 +126,7 @@ public class LdapPoolByDomain {
 		try {
 			response = ldapConCtx.ldapCon.bind(bindRequest);
 		} catch (LdapException le) {
+			logger.error(le.getMessage(), le);
 			releaseConnectionContext(ldapConCtx.setError());
 			return Optional.empty();
 		}
@@ -145,7 +147,9 @@ public class LdapPoolByDomain {
 			return Optional.empty();
 		}
 
-		logger.debug("Bind success on: " + ldapParameters.toString() + "(" + ldSearchTime + "ms)");
+		if (logger.isDebugEnabled()) {
+			logger.debug("Bind success on: {} ({}ms)", ldapParameters, ldSearchTime);
+		}
 		return Optional.of(ldapConCtx);
 	}
 
@@ -156,8 +160,7 @@ public class LdapPoolByDomain {
 
 		LdapPoolWrapper pool = poolByDomain.get(ldapConCtx.ldapParameters);
 		if (pool == null) {
-			logger.warn(
-					"No LDAP connection pool for: " + ldapConCtx.ldapParameters.toString() + ", closing connection");
+			logger.warn("No LDAP connection pool for: {}, closing connection", ldapConCtx.ldapParameters);
 
 			ldapConCtx.ldapCon.close();
 			return;
@@ -177,11 +180,11 @@ public class LdapPoolByDomain {
 	}
 
 	public void resetPool(Parameters ldapParameters) {
-		logger.info("Reset LDAP pool for domain: " + ldapParameters.toString());
+		logger.info("Reset LDAP pool for domain: {}", ldapParameters);
 
 		LdapPoolWrapper pool = poolByDomain.remove(ldapParameters);
 		if (pool == null) {
-			logger.warn("No LDAP connection pool for: " + ldapParameters.toString());
+			logger.warn("No LDAP connection pool for: {}", ldapParameters);
 			return;
 		}
 

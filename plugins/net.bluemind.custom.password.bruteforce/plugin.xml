@@ -13,5 +13,10 @@
             impl="net.bluemind.core.password.bruteforce.Fail2Ban">
       </auth_provider>
    </extension>
-
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.core.password.bruteforce.Fail2Ban$CacheRegistration">
+      </reg>
+   </extension>
 </plugin>

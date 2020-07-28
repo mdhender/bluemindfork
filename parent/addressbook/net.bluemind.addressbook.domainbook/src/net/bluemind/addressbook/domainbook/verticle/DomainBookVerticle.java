@@ -63,7 +63,8 @@ public class DomainBookVerticle extends AbstractVerticle {
 				}
 
 				logger.info("replicate domain book {} DONE in {} ms", domain, (System.currentTimeMillis() - time));
-
+				// to help unit tests wait
+				vertx.eventBus().publish("domainbook.sync." + domain, "DONE");
 			}
 
 		};

@@ -149,7 +149,7 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 	private void reindex(Container container, IServerTaskMonitor monitor) throws ServerFault {
 		DataSource ds = DataSourceRouter.get(context, container.uid);
 		VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
-				context.getSecurityContext(), container, IAddressBookUids.TYPE, new VCardStore(ds, container),
+				context.getSecurityContext(), container, new VCardStore(ds, container),
 				new VCardIndexStore(ESearchActivator.getClient(), container));
 		VCardIndexStore indexStore = new VCardIndexStore(ESearchActivator.getClient(), container);
 
@@ -231,7 +231,7 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 		}
 
 		VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
-				context.getSecurityContext(), container, IAddressBookUids.TYPE, new VCardStore(ds, container),
+				context.getSecurityContext(), container, new VCardStore(ds, container),
 				new VCardIndexStore(ESearchActivator.getClient(), container));
 
 		ContainerChangeset<String> changeset = storeService.changeset(since, Long.MAX_VALUE);
@@ -303,7 +303,7 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 		}
 
 		final VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
-				context.getSecurityContext(), container, IAddressBookUids.TYPE, new VCardStore(ds, container),
+				context.getSecurityContext(), container, new VCardStore(ds, container),
 				new VCardIndexStore(ESearchActivator.getClient(), container));
 
 		if (resetBeforeRestore) {
@@ -361,7 +361,7 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 			throw ServerFault.sqlFault(e);
 		}
 		VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
-				context.getSecurityContext(), container, IAddressBookUids.TYPE, new VCardStore(ds, container),
+				context.getSecurityContext(), container, new VCardStore(ds, container),
 				new VCardIndexStore(ESearchActivator.getClient(), container));
 
 		storeService.prepareContainerDelete();

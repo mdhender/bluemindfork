@@ -17,7 +17,12 @@
   */
 package net.bluemind.eas.backend.bm.mail.loader;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.concurrent.CompletableFuture;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -29,6 +34,12 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.vertx.VertxStream;
 
 public class SyncStreamDownload {
+
+	private static final Logger logger = LoggerFactory.getLogger(SyncStreamDownload.class);
+
+	private SyncStreamDownload() {
+
+	}
 
 	private static class TargetStream implements WriteStream<Buffer> {
 
@@ -69,6 +80,7 @@ public class SyncStreamDownload {
 
 		@Override
 		public void end() {
+			// ok
 		}
 
 		@Override
@@ -78,13 +90,84 @@ public class SyncStreamDownload {
 
 	}
 
+	private static class OIOTargetStream implements WriteStream<Buffer> {
+
+		private final OutputStream out;
+
+		public OIOTargetStream(OutputStream out) {
+			this.out = out;
+		}
+
+		@Override
+		public OIOTargetStream exceptionHandler(Handler<Throwable> handler) {
+			return this;
+		}
+
+		@Override
+		public OIOTargetStream setWriteQueueMaxSize(int maxSize) {
+			return this;
+		}
+
+		@Override
+		public boolean writeQueueFull() {
+			return false;
+		}
+
+		@Override
+		public OIOTargetStream drainHandler(Handler<Void> handler) {
+			return this;
+		}
+
+		@Override
+		public OIOTargetStream write(Buffer data) {
+			try {
+				out.write(data.getBytes());
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+			}
+			return this;
+		}
+
+		@Override
+		public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
+			write(data);
+			handler.handle(null);
+			return this;
+		}
+
+		@Override
+		public void end() {
+			try {
+				out.close();
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+
+		@Override
+		public void end(Handler<AsyncResult<Void>> handler) {
+			end();
+			handler.handle(null);
+		}
+
+	}
+
 	public static CompletableFuture<Buffer> read(Stream s) {
-		CompletableFuture<Buffer> ret = new CompletableFuture<Buffer>();
+		CompletableFuture<Buffer> ret = new CompletableFuture<>();
 		TargetStream out = new TargetStream();
 		ReadStream<Buffer> toRead = VertxStream.read(s);
-		toRead.endHandler(v -> {
-			ret.complete(out.out);
-		});
+		toRead.endHandler(v -> ret.complete(out.out));
+		Pump pump = Pump.pump(toRead, out);
+		pump.start();
+		toRead.resume();
+		return ret;
+	}
+
+	public static CompletableFuture<Void> read(Stream s, OutputStream target) {
+		CompletableFuture<Void> ret = new CompletableFuture<>();
+		OIOTargetStream out = new OIOTargetStream(target);
+		ReadStream<Buffer> toRead = VertxStream.read(s);
+		toRead.endHandler(v -> ret.complete(null));
 		Pump pump = Pump.pump(toRead, out);
 		pump.start();
 		toRead.resume();

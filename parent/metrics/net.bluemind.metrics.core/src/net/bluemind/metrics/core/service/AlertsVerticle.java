@@ -30,6 +30,7 @@ import net.bluemind.network.utils.NetworkHelper;
 import net.bluemind.server.api.CommandStatus;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class AlertsVerticle extends AbstractVerticle {
 
@@ -59,7 +60,7 @@ public class AlertsVerticle extends AbstractVerticle {
 			IServer serverApi = prov.instance(IServer.class, InstallationId.getIdentifier());
 
 			Optional<ItemValue<Server>> kapacitor = serverApi.allComplete().stream()
-					.filter(iv -> iv.value.tags.contains("metrics/influxdb")).findFirst();
+					.filter(iv -> iv.value.tags.contains(TagDescriptor.bm_metrics_influx.getTag())).findFirst();
 
 			if (!kapacitor.isPresent()) {
 				logger.warn("Missing kapacitor server");
@@ -83,9 +84,8 @@ public class AlertsVerticle extends AbstractVerticle {
 			if (tplId == null) {
 				configureKapacitor(prov, kapaSrv, servers);
 			} else {
-				TickTemplates.template().stream().filter(tpl -> tpl.templateId().equals(tplId)).forEach(tpl -> {
-					loadTemplate(tpl, servers, kapaSrv, prov.getContext());
-				});
+				TickTemplates.template().stream().filter(tpl -> tpl.templateId().equals(tplId))
+						.forEach(tpl -> loadTemplate(tpl, servers, kapaSrv, prov.getContext()));
 			}
 			msg.reply(new JsonObject().put("status", "ok"));
 		});
@@ -104,7 +104,9 @@ public class AlertsVerticle extends AbstractVerticle {
 
 	private void loadTemplate(ITickTemplateProvider template, List<ItemValue<Server>> servers,
 			ItemValue<Server> kapaSrv, BmContext bmContext) {
-		logger.info("Load template {}", template.templateId());
+		if (logger.isInfoEnabled()) {
+			logger.info("Load template {}", template.templateId());
+		}
 		IServer srvApi = bmContext.provider().instance(IServer.class, InstallationId.getIdentifier());
 		try (InputStream in = template.content()) {
 			byte[] tplContent = ByteStreams.toByteArray(in);
@@ -112,10 +114,14 @@ public class AlertsVerticle extends AbstractVerticle {
 			String cmd = KAPACITOR + " define-template " + template.templateId() + " -tick /tmp/"
 					+ template.templateId() + ".tick";
 			CommandStatus tplDef = srvApi.submitAndWait(kapaSrv.uid, cmd);
-			logger.info("Template {} defined, success: {}", template.templateId(), tplDef.successful);
+			if (logger.isInfoEnabled()) {
+				logger.info("Template {} defined, success: {}", template.templateId(), tplDef.successful);
+			}
 			if (!tplDef.successful) {
 				for (String s : tplDef.output) {
-					logger.error("{}: {}", template.templateId(), s);
+					if (logger.isErrorEnabled()) {
+						logger.error("{}: {}", template.templateId(), s);
+					}
 				}
 			}
 

@@ -30,11 +30,11 @@
       <reg
             impl="net.bluemind.domain.service.internal.DomainsCache$Registration">
       </reg>
-   </extension>
-   <extension
-         point="net.bluemind.core.caches.registry.registration">
       <reg
             impl="net.bluemind.domain.service.internal.DomainSettingsCache$Registration">
+      </reg>
+      <reg
+            impl="net.bluemind.domain.service.internal.DomainsService$CacheRegistration">
       </reg>
    </extension>
    <extension

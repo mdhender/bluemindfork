@@ -44,7 +44,7 @@ public class ContainerCalendarViewStoreService extends ContainerStoreService<Cal
 	 */
 	public ContainerCalendarViewStoreService(DataSource pool, SecurityContext securityContext, Container container,
 			String itemType, CalendarViewStore itemValueStore) {
-		super(pool, securityContext, container, itemType, itemValueStore);
+		super(pool, securityContext, container, itemValueStore);
 	}
 
 	public void setDefault(String uid) throws ServerFault {

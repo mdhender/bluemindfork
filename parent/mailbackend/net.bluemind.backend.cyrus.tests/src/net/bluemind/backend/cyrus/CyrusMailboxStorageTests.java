@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -296,27 +297,39 @@ public class CyrusMailboxStorageTests {
 
 	@Test
 	public void testUpdateRename_user() throws Exception {
-
 		Mailbox mb = defaultMailbox(Mailbox.Type.user);
 		ItemValue<Mailbox> item = item("test" + System.currentTimeMillis(), mb);
 
 		storage().create(context, domainUid, item);
+
+		Map<String, Acl> acl = getAcl(mb.type.cyrAdmPrefix + mb.name + "@" + domainUid);
+		acl.put("other@" + domainUid, Acl.ALL);
+		CyrusAclService.sync(server.value.address()).setAcl(mb.type.cyrAdmPrefix + mb.name + "@" + domainUid, acl);
+
+		checkAcl(mb.type.cyrAdmPrefix + mb.name + "@" + domainUid, acl);
 
 		// begin test
 		Mailbox mbRenamed = defaultMailbox();
 		ItemValue<Mailbox> itemRenamed = item(item.uid, mbRenamed);
 		storage().update(context, domainUid, item, itemRenamed);
 
-		assertAppendMail("user/" + mbRenamed.name + "@" + domainUid);
+		assertAppendMail(mb.type.cyrAdmPrefix + mbRenamed.name + "@" + domainUid);
+
+		checkAcl(mbRenamed.type.cyrAdmPrefix + mbRenamed.name + "@" + domainUid, acl);
 	}
 
 	@Test
 	public void testUpdateRename_mailshare() throws Exception {
-
 		Mailbox mb = defaultMailbox(Mailbox.Type.mailshare);
 		ItemValue<Mailbox> item = item("test" + System.currentTimeMillis(), mb);
 
 		storage().create(context, domainUid, item);
+
+		Map<String, Acl> acl = getAcl(mb.type.cyrAdmPrefix + mb.name + "@" + domainUid);
+		acl.put("other@" + domainUid, Acl.ALL);
+		CyrusAclService.sync(server.value.address()).setAcl(mb.type.cyrAdmPrefix + mb.name + "@" + domainUid, acl);
+
+		checkAcl(mb.type.cyrAdmPrefix + mb.name + "@" + domainUid, acl);
 
 		// begin test
 		Mailbox mbRenamed = defaultMailbox(Mailbox.Type.mailshare);
@@ -324,6 +337,8 @@ public class CyrusMailboxStorageTests {
 		storage().update(context, domainUid, item, itemRenamed);
 
 		assertAppendMail(mbRenamed.name + "@" + domainUid);
+
+		checkAcl(mbRenamed.type.cyrAdmPrefix + mbRenamed.name + "@" + domainUid, acl);
 	}
 
 	@Test
@@ -334,12 +349,39 @@ public class CyrusMailboxStorageTests {
 
 		storage().create(context, domainUid, item);
 
+		Map<String, Acl> acl = getAcl(mb.type.cyrAdmPrefix + mb.name + "@" + domainUid);
+		acl.put("other@" + domainUid, Acl.ALL);
+		CyrusAclService.sync(server.value.address()).setAcl(mb.type.cyrAdmPrefix + mb.name + "@" + domainUid, acl);
+
+		checkAcl(mb.type.cyrAdmPrefix + mb.name + "@" + domainUid, acl);
+
 		// begin test
 		Mailbox mbRenamed = defaultMailbox(Mailbox.Type.group);
 		ItemValue<Mailbox> itemRenamed = item(item.uid, mbRenamed);
 		storage().update(context, domainUid, item, itemRenamed);
 
 		assertAppendMail(mbRenamed.name + "@" + domainUid);
+
+		checkAcl(mb.type.cyrAdmPrefix + mbRenamed.name + "@" + domainUid, acl);
+	}
+
+	private Map<String, Acl> getAcl(String mailboxName) throws IMAPException {
+		try (StoreClient storeClient = new StoreClient(server.value.address(), 1143, "admin0", Token.admin0())) {
+			storeClient.login();
+			return storeClient.listAcl(mailboxName);
+		}
+	}
+
+	private void checkAcl(String mailboxName, Map<String, Acl> expectedAcls) throws IMAPException {
+		Map<String, Acl> currentAcls = getAcl(mailboxName);
+
+		assertEquals(expectedAcls.size(), currentAcls.size());
+		expectedAcls.entrySet().forEach(entry -> checkAcl(currentAcls, entry));
+	}
+
+	private void checkAcl(Map<String, Acl> currentAcls, Entry<String, Acl> entry) {
+		assertTrue(currentAcls.containsKey(entry.getKey()));
+		assertEquals(entry.getValue(), currentAcls.get(entry.getKey()));
 	}
 
 	@Test

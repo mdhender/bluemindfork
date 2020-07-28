@@ -30,7 +30,7 @@ public class MailspoolIndexDashboard implements ITickDashboardProvider {
 
 	@Override
 	public InputStream content() {
-		return JvmMemoryDashboard.class.getClassLoader()
+		return MailspoolIndexDashboard.class.getClassLoader()
 				.getResourceAsStream("dashboards/mailspool_index_dashboard.json");
 	}
 

@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import org.elasticsearch.common.Strings;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -51,11 +50,6 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.vertx.testhelper.Deploy;
 
 public class ImapInjectorTests {
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	private String domainUid;
 	private CyrusReplicationHelper cyrusReplication;

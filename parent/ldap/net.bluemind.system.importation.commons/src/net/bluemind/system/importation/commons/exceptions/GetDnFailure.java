@@ -19,4 +19,12 @@ package net.bluemind.system.importation.commons.exceptions;
 
 @SuppressWarnings("serial")
 public class GetDnFailure extends Exception {
+
+	public GetDnFailure(Exception e) {
+		super(e);
+	}
+
+	public GetDnFailure(String string) {
+		super(string);
+	}
 }

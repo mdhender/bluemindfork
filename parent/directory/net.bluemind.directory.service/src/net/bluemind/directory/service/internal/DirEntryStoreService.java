@@ -55,7 +55,7 @@ public class DirEntryStoreService extends BaseDirStoreService<DirEntry> {
 	private DirEntriesCache cache;
 
 	public DirEntryStoreService(BmContext context, Container container, String domainUid) {
-		super(context, context.getDataSource(), context.getSecurityContext(), container, "dir",
+		super(context, context.getDataSource(), context.getSecurityContext(), container,
 				new DirEntryStore(context.getDataSource(), container));
 		this.ouStore = new OrgUnitStore(context.getDataSource(), container);
 		this.entryStore = new DirEntryStore(context.getDataSource(), container);

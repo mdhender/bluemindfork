@@ -19,6 +19,7 @@ package net.bluemind.core.container.persistence;
 
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
@@ -34,9 +35,11 @@ import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.rest.BmContext;
 
 public class DataSourceRouter {
-
 	private static final Logger logger = LoggerFactory.getLogger(DataSourceRouter.class);
-	private static final Cache<String, Optional<String>> cache = CacheBuilder.newBuilder().build();
+	private static final Cache<String, Optional<String>> cache = CacheBuilder.newBuilder()
+			.recordStats()
+			.expireAfterAccess(2, TimeUnit.HOURS)
+			.build();
 
 	public static class CacheReg implements ICacheRegistration {
 

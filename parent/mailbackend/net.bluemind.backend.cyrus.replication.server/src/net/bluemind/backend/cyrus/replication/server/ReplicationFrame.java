@@ -23,6 +23,7 @@
 package net.bluemind.backend.cyrus.replication.server;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ public class ReplicationFrame {
 	private long id;
 	private CompletableFuture<ReplicationFrame> asyncPart;
 
-	public ReplicationFrame(long frameId, LinkedList<Token> tokenQueue, CompletableFuture<Void> asyncPart) {
+	public ReplicationFrame(long frameId, List<Token> tokenQueue, CompletableFuture<Void> asyncPart) {
 		this.id = frameId;
 		this.tokens = mergeTextTokens(tokenQueue);
 		this.asyncPart = asyncPart.thenApply(v -> this);
@@ -47,7 +48,7 @@ public class ReplicationFrame {
 		return asyncPart;
 	}
 
-	private LinkedList<Token> mergeTextTokens(LinkedList<Token> tokenQueue) {
+	private LinkedList<Token> mergeTextTokens(List<Token> tokenQueue) {
 		long time = System.currentTimeMillis();
 		Token prev = null;
 		LinkedList<Token> merged = new LinkedList<>();

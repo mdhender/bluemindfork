@@ -53,31 +53,9 @@ public class VCardGroupSanitizer {
 
 		return group.organizational.member.stream().map(member -> member.containerUid).filter(c -> c != null).distinct()
 				.map(uid -> cleanupMembersOf(group, uid)).filter(m -> m).count() > 0;
-
-		// if (group.kind == VCard.Kind.group && group.organizational.member !=
-		// null
-		// && !group.organizational.member.isEmpty()) {
-		// group.organizational.member.stream().map(member ->
-		// member.containerUid).filter(c -> c != null).distinct()
-		// .forEach(uid -> cleanupMembersOf(group, uid));
-		// }
 	}
 
 	private boolean cleanupMembersOf(VCard group, String uid) {
-		// IAddressBook ab = null;
-		// try {
-		// ab = context.provider().instance(IAddressBook.class, uid);
-		// sanitizeFor(ab, group, uid);
-		// } catch (ServerFault e) {
-		// if (e.getCode() == ErrorCode.NOT_FOUND) {
-		// group.organizational.member.stream().filter(member ->
-		// uid.equals(member.containerUid))
-		// .forEach(member -> member.containerUid = null);
-		// } else if (e.getCode() != ErrorCode.PERMISSION_DENIED) {
-		// throw e;
-		// }
-		// }
-
 		IAddressBook ab = null;
 		try {
 			ab = context.provider().instance(IAddressBook.class, uid);
@@ -108,27 +86,9 @@ public class VCardGroupSanitizer {
 	}
 
 	public boolean sanitizeFor(IAddressBook ab, VCard group, String abUid) {
-		// Map<String, Member> localCards = group.organizational.member.stream()
-		// .filter(member -> abUid.equals(member.containerUid) && member.itemUid
-		// != null)
-		// .collect(Collectors.toMap(m -> m.itemUid, m -> m));
-		//
-		// List<ItemValue<VCard>> cards =
-		// ab.multipleGet(ImmutableList.copyOf(localCards.keySet()));
-		// cards.forEach(card -> {
-		// Member member = localCards.get(card.uid);
-		// member.commonName = card.displayName;
-		// member.mailto = card.value.defaultMail();
-		// localCards.remove(card.uid);
-		// });
-		//
-		// localCards.values().forEach(m -> {
-		// m.containerUid = null;
-		// });
-
 		Map<String, Member> localCards = group.organizational.member.stream().filter(
 				member -> (abUid.equals(member.containerUid) || member.containerUid == null) && member.itemUid != null)
-				.collect(Collectors.toMap(m -> m.itemUid, m -> m));
+				.collect(Collectors.toMap(m -> m.itemUid, m -> m, (member1, member2) -> member1));
 
 		List<ItemValue<VCard>> cards = ab.multipleGet(ImmutableList.copyOf(localCards.keySet()));
 		boolean modifiedFlag = cards.stream().map(card -> {

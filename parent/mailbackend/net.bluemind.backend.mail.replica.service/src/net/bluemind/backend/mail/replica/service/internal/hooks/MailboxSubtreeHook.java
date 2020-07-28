@@ -41,7 +41,7 @@ public class MailboxSubtreeHook implements IMailboxHook {
 
 	@Override
 	public void preMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> boxItem) throws ServerFault {
-		forgetDeletion(context, domainUid, boxItem.value.name);
+		forgetDeletion(context, domainUid, boxItem);
 
 		if (boxItem.value.dataLocation == null) {
 			// users & admins group (default groups) seems to be in this case
@@ -58,12 +58,23 @@ public class MailboxSubtreeHook implements IMailboxHook {
 	}
 
 	@Override
+	public void preMailboxUpdate(BmContext context, String domainUid, ItemValue<Mailbox> previousValue,
+			ItemValue<Mailbox> value) {
+		if (!previousValue.value.name.equals(value.value.name)) {
+			// the new name might match a previously deleted mailbox
+			forgetDeletion(context, domainUid, value);
+		}
+	}
+
+	@Override
 	public void onMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> boxItem) throws ServerFault {
 		// we used to initialize here but creating the subtree at preCreate time avoids
 		// a race with Cyrus replication
 	}
 
-	private void forgetDeletion(BmContext context, String domainUid, String name) {
+	private void forgetDeletion(BmContext context, String domainUid, ItemValue<Mailbox> mbox) {
+		String name = mbox.value.name;
+		DeletedDataMementos.forgetDeletion(context, domainUid, mbox.value);
 		try {
 			logger.info("Ensure we don't consider {}@{} as deleted", name, domainUid);
 			DeletedMailboxesStore deletedData = new DeletedMailboxesStore(context.getDataSource());

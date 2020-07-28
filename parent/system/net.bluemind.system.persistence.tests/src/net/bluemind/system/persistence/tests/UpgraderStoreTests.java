@@ -43,6 +43,7 @@ public class UpgraderStoreTests {
 		JdbcTestHelper.getInstance().beforeTest();
 
 		schemaVersionStore = new UpgraderStore(JdbcTestHelper.getInstance().getDataSource());
+		schemaVersionStore.needsMigration();
 
 		logger.debug("stores: {}", schemaVersionStore);
 	}

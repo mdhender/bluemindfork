@@ -21,7 +21,5 @@
  * @fileoverview BlueMind.
  */
 goog.require("net.bluemind.calendar.CalendarApplication");
-goog.require("net.bluemind.net.AppCacheHandler");
 
-new net.bluemind.net.AppCacheHandler();
 new net.bluemind.calendar.CalendarApplication();

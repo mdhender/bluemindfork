@@ -36,8 +36,11 @@ setExternalUrl() {
         /usr/share/bm-client-access/bin/createcert.sh configure.your.external.url ${externalurl} $(hostname -I)
     fi
 
-    echo "server_name $externalurl;" > /etc/nginx/bm-servername.conf
-    echo "set \$bmexternalurl $externalurl;" > /etc/nginx/bm-externalurl.conf
+    [ ! -e /etc/nginx/bm-servername.conf ] && \
+        echo "server_name $externalurl;" > /etc/nginx/bm-servername.conf
+    
+    [ ! -e /etc/nginx/bm-externalurl.conf ] && \
+        echo "set \$bmexternalurl $externalurl;" > /etc/nginx/bm-externalurl.conf
 }
 
 enableVhost() {
@@ -86,6 +89,9 @@ fi
 rm -f /etc/nginx/BM-DONOTCONF
 
 echo "Install/Upgrade BlueMind nginx virtual host"
+
+[ -e /etc/nginx/bm-local.d/tick.conf ] && rm -f /etc/nginx/bm-local.d/tick.conf
+
 forceNginxConfiguration /etc/nginx/sites-available/bm-client-access /usr/share/doc/bm-client-access/bm-client-access
 forceNginxConfiguration /etc/nginx/sites-available/bm-client-access-without-password /usr/share/doc/bm-client-access/bm-client-access-without-password
 forceNginxConfiguration /etc/nginx/global.d/bm-mail-proxy.conf /usr/share/doc/bm-client-access/global.d/bm-mail-proxy.conf
@@ -103,6 +109,8 @@ nginxConfiguration /etc/bm-hps/bm-upstream-hps.conf /usr/share/doc/bm-client-acc
 nginxConfiguration /etc/bm-webserver/bm-upstream-webserver.conf /usr/share/doc/bm-client-access/bm-webserver/bm-upstream-webserver.conf
 
 nginxConfiguration /etc/bm-core/bm-upstream-core.conf /usr/share/doc/bm-client-access/bm-core/bm-upstream-core.conf
+
+nginxConfiguration /etc/bm-tick/bm-upstream-tick.conf /usr/share/doc/bm-client-access/bm-tick/bm-upstream-tick.conf
 
 nginxConfiguration /etc/nginx/bm-nginx-role.conf /usr/share/doc/bm-client-access/bm-nginx/bm-nginx-role.conf
 nginxConfiguration /etc/nginx/bm-upstream-mainnginx.conf /usr/share/doc/bm-client-access/bm-nginx/bm-upstream-mainnginx.conf

@@ -47,7 +47,12 @@ public class DirectorySerializationVerticle extends AbstractVerticle {
 	private void activateSerializers() {
 		try {
 			IDomains domApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
-			domApi.all().forEach(dom -> Serializers.put(dom.uid, createSerializer(dom.uid)));
+			domApi.all().forEach(dom -> {
+				DirectorySerializer ser = createSerializer(dom.uid);
+				Serializers.put(dom.uid, ser);
+				logger.info("{} registered for {}", ser, dom.uid);
+
+			});
 		} catch (Exception e) {
 			logger.warn("Cannot activate domain serializers", e);
 		}
@@ -56,6 +61,13 @@ public class DirectorySerializationVerticle extends AbstractVerticle {
 	private DirectorySerializer createSerializer(String domainUid) {
 		DirectorySerializer s = new DirectorySerializer(domainUid);
 		s.start();
+
+		vertx.setTimer(1000, tid -> {
+			long time = System.currentTimeMillis();
+			s.produce();
+			logger.info("Initial hollow sync on startup for {} took {}ms.", domainUid,
+					System.currentTimeMillis() - time);
+		});
 		return s;
 	}
 
@@ -90,7 +102,7 @@ public class DirectorySerializationVerticle extends AbstractVerticle {
 			}
 		};
 		ThrottleMessages<JsonObject> tm = new ThrottleMessages<>(msg -> msg.body().getString(DOMAIN_FIELD),
-				dirChangeHandler, vertx, 1000);
+				dirChangeHandler, vertx, 5000);
 		vertx.eventBus().consumer("dir.changed", tm);
 	}
 

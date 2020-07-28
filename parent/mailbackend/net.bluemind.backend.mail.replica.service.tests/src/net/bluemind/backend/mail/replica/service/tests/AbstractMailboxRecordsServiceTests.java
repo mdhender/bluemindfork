@@ -109,7 +109,8 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		acl.domainUid = dom;
 		container.domainUid = dom;
 		container = containerHome.create(container);
-		containerHome.create(acl);
+		acl = containerHome.create(acl);
+
 		MailboxReplicaStore mboxStore = new MailboxReplicaStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(),
 				container, dom);
 		ItemStore items = new ItemStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(), container,
@@ -133,6 +134,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		ContainerStore dirHome = new ContainerStore(testContext, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 		dirHome.createContainerLocation(container, "dataloc");
+		dirHome.createContainerLocation(acl, "dataloc");
 
 	}
 

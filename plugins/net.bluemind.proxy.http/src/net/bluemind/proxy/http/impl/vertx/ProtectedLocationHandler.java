@@ -135,7 +135,7 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 
 	private void addCspHeader(HttpServerRequest event) {
 		event.response().putHeader("Content-Security-Policy",
-				"connect-src 'self' ws:; default-src 'self' ws: 'unsafe-inline' 'unsafe-eval'; img-src * data: blob: ");
+				"connect-src 'self' ws: wss:; default-src 'self' ws: wss: 'unsafe-inline' 'unsafe-eval'; img-src * data: blob: ");
 
 		event.response().putHeader("Feature-Policy",
 				"accelerometer 'none'; ambient-light-sensor 'none'; autoplay 'self'; battery 'none';"

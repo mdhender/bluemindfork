@@ -4,7 +4,9 @@ PartOf=bluemind.target
 
 [Service]
 Type=oneshot
-ExecStart=/etc/init.d/bm-pimp start
+Environment="PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
+Environment=JAVA_HOME=/usr/lib/jvm/bm-jdk
+ExecStart=/usr/share/bm-pimp/bm-pimp
 RemainAfterExit=yes
 # 0 is the same as infinity, but "infinity" needs systemd 229
 TimeoutStartSec=1h

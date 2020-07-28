@@ -84,6 +84,8 @@ public class CalendarContainerSync implements ISyncableContainer {
 
 	private static final String SYNC_TOKEN_KEY_MD5_HASH = "md5";
 
+	private static final int SYNC_OPERATION_THRESHOLD = 50;
+
 	private static class SyncData {
 		private long timestamp;
 		private String modifiedSince;
@@ -140,11 +142,15 @@ public class CalendarContainerSync implements ISyncableContainer {
 		}
 	}
 
-	private long nextSyncDelay() {
-		if (this.domainSettings != null && this.domainSettings.containsKey(DOMAIN_SETTING_MIN_DELAY_KEY)) {
-			return Long.valueOf(this.domainSettings.get(DOMAIN_SETTING_MIN_DELAY_KEY));
+	static long getNextSyncDelay(Map<String, String> domainSettings) {
+		if (domainSettings != null && domainSettings.containsKey(DOMAIN_SETTING_MIN_DELAY_KEY)) {
+			return Long.valueOf(domainSettings.get(DOMAIN_SETTING_MIN_DELAY_KEY));
 		}
 		return DEFAULT_NEXT_SYNC_DELAY;
+	}
+
+	private long nextSyncDelay() {
+		return getNextSyncDelay(this.domainSettings);
 	}
 
 	private ContainerSyncResult syncCalendar(SyncData data) {
@@ -164,13 +170,14 @@ public class CalendarContainerSync implements ISyncableContainer {
 				logger.info("Sync ICS result: {}", status.result);
 
 				ContainerUpdatesResult result = JsonUtils.read(status.result, ContainerUpdatesResult.class);
-
 				ret.added = result.added.size();
 				ret.updated = result.updated.size();
 				ret.removed = result.removed.size();
 				ret.unhandled = result.unhandled.size();
 				ret.status.lastSync = new Date();
 				ret.status.syncStatus = Status.SUCCESS;
+				ret.status.nextSync = ret.status.nextSync + Math.min(TimeUnit.DAYS.toMillis(1),
+						(ret.updated / SYNC_OPERATION_THRESHOLD * TimeUnit.HOURS.toMillis(1)));
 			} catch (Exception e) {
 				logger.warn("Cannot sync ics", e);
 				ret.status.syncStatus = Status.ERROR;

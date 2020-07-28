@@ -79,7 +79,7 @@ public class SharedSystemConfigurationVerticle extends AbstractVerticle {
 			clusterConf.putAll(values.values);
 			logger.info("Sysconf pre-loaded with {} values", values.values.size());
 		}).exceptionally(t -> {
-			logger.error(t.getMessage(), t);
+			logger.warn(t.getMessage());
 			return null;
 		});
 	}

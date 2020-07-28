@@ -54,17 +54,15 @@ public interface IInstallation extends ICustomTheme {
 	/**
 	 * Update subscription URL to given version on all servers
 	 * 
-	 * @param version
-	 *                    target version. Special versions:
-	 *                    <ul>
-	 *                    <li><i>latest</i> targets the latest published version of
-	 *                    installed BlueMind major version</li>
-	 *                    <li><i>current</i> targets the current installed version
-	 *                    of BlueMind</li>
-	 *                    </ul>
+	 * @param version target version. Special versions:
+	 *                <ul>
+	 *                <li><i>latest</i> targets the latest published version of
+	 *                installed BlueMind major version</li>
+	 *                <li><i>current</i> targets the current installed version of
+	 *                BlueMind</li>
+	 *                </ul>
 	 * 
-	 * @throws ServerFault
-	 *                         standard error object (unchecked exception)
+	 * @throws ServerFault standard error object (unchecked exception)
 	 */
 	@POST
 	@Path("subscription/_version")
@@ -101,6 +99,16 @@ public interface IInstallation extends ICustomTheme {
 	@POST
 	@Path("_upgrade")
 	public TaskRef upgrade() throws ServerFault;
+
+	/**
+	 * Run post-installation upgraders
+	 * 
+	 * @return
+	 * @throws ServerFault
+	 */
+	@POST
+	@Path("_postinst")
+	public TaskRef postinst() throws ServerFault;
 
 	@GET
 	@Path("_upgrade")
@@ -142,5 +150,4 @@ public interface IInstallation extends ICustomTheme {
 	@POST
 	@Path("_hostReport")
 	public String sendHostReport();
-
 }

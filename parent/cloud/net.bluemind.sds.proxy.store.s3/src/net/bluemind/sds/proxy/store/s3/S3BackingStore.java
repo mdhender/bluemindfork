@@ -61,6 +61,7 @@ import net.bluemind.sds.proxy.store.ISdsBackingStore;
 import net.bluemind.sds.proxy.store.SdsException;
 import software.amazon.awssdk.core.async.AsyncResponseTransformer;
 import software.amazon.awssdk.core.async.SdkPublisher;
+import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.model.BucketLocationConstraint;
 import software.amazon.awssdk.services.s3.model.CreateBucketConfiguration;
@@ -69,6 +70,8 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
@@ -132,17 +135,33 @@ public class S3BackingStore implements ISdsBackingStore {
 		existLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "exist"));
 	}
 
+	@SuppressWarnings("serial")
+	private static class S3StoreException extends RuntimeException {
+		public S3StoreException(Throwable t) {
+			super(t);
+		}
+	}
+
+	private static final HeadObjectResponse NOT_FOUND = (HeadObjectResponse) HeadObjectResponse.builder()
+			.sdkHttpResponse(SdkHttpResponse.builder().statusCode(404).build()).build();
+
 	@Override
 	public CompletableFuture<ExistResponse> exists(ExistRequest req) {
 		final long start = clock.monotonicTime();
-		return client.headObject(HeadObjectRequest.builder().bucket(bucket).key(req.guid).build())
-				.thenApply(head -> {
-					boolean known = head != null && head.sdkHttpResponse().statusCode() == 200;
-					existLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
-					registry.counter(idFactory.name("request").withTag("method", "exist").withTag("status",
-							known ? "success" : "error")).increment();
-					return ExistResponse.from(known);
-				});
+		return client.headObject(HeadObjectRequest.builder().bucket(bucket).key(req.guid).build()).exceptionally(t -> {
+			if (t.getCause() instanceof NoSuchKeyException) {
+				return NOT_FOUND;
+			} else {
+				throw new S3StoreException(t.getCause());
+			}
+		}).thenApply(head -> {
+			boolean known = head != null && head.sdkHttpResponse().statusCode() == 200;
+			existLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
+			registry.counter(
+					idFactory.name("request").withTag("method", "exist").withTag("status", known ? "success" : "error"))
+					.increment();
+			return ExistResponse.from(known);
+		});
 	}
 
 	@Override

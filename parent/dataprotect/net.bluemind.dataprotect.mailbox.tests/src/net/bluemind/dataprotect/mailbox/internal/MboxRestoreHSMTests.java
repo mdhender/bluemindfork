@@ -108,6 +108,8 @@ public class MboxRestoreHSMTests {
 	public void before() throws Exception {
 		prepareLocalFilesystem();
 
+		ElasticsearchTestHelper.getInstance().beforeTest();
+
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 

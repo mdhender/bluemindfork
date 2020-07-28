@@ -46,6 +46,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.NullTaskMonitor;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
@@ -78,12 +79,6 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 	 * synchronization of the same calendar at a time.
 	 */
 	private static final Set<String> syncingCals = ConcurrentHashMap.newKeySet();
-
-	/**
-	 * A calendar synchronization with too many changes will be considered as
-	 * erroneous.
-	 */
-	private static final int MAX_SYNC_OPERATIONS = 50;
 
 	/** When this limit is reached, sync on demand stops. */
 	public static int syncErrorLimit() {
@@ -155,7 +150,8 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 				final ContainerSyncStore containerSyncStore = new ContainerSyncStore(
 						DataSourceRouter.get(context, calendarUid), containerStore.get(calendarUid));
 				syncStatus.load(containerSyncStore.getSyncStatus());
-				if (syncStatus.errors < syncErrorLimit() && System.currentTimeMillis() > syncStatus.nextSync) {
+				if ((syncStatus.errors < syncErrorLimit() || reEnableBlockedSync(syncStatus, context, calendarUid))
+						&& System.currentTimeMillis() > syncStatus.nextSync) {
 					syncingCals.add(syncStatus.id);
 					this.executor.execute(syncStatus);
 				}
@@ -163,6 +159,22 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
+	}
+
+	private boolean reEnableBlockedSync(RunnableSyncStatus syncStatus, BmContext bmContext, String calendarUid) {
+		final ContainerStore containerStore = new ContainerStore(bmContext,
+				DataSourceRouter.get(bmContext, syncStatus.id), bmContext.getSecurityContext());
+		final Container container;
+		try {
+			container = containerStore.get(syncStatus.id);
+		} catch (SQLException e) {
+			return false;
+		}
+		long nextSyncDelay = CalendarContainerSync.getNextSyncDelay(
+				bmContext.getServiceProvider().instance(IDomainSettings.class, container.domainUid).get());
+		Long nextSync = syncStatus.nextSync;
+
+		return System.currentTimeMillis() > (nextSync + (3 * nextSyncDelay));
 	}
 
 	/**
@@ -195,15 +207,8 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 
 	private static void updateSyncStatus(final ContainerSyncStatus previousSyncStatus,
 			final ContainerSyncResult containerSyncResult, final BmContext context, final Container container) {
-		if (hasTooManySyncOperations(containerSyncResult)) {
-			containerSyncResult.status.syncStatus = Status.ERROR;
-			LOGGER.warn("Calendar {} ICS has too many changes (>{})", container.name, MAX_SYNC_OPERATIONS);
-		}
-
-		// update the calendar synchronization status
 		final ContainerSyncStatus newStatus;
 		if (containerSyncResult == null || Status.ERROR == containerSyncResult.status.syncStatus) {
-			// increment errors
 			if (containerSyncResult == null) {
 				newStatus = previousSyncStatus;
 			} else {
@@ -212,22 +217,11 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 			newStatus.errors = previousSyncStatus != null ? previousSyncStatus.errors + 1 : 1;
 		} else {
 			newStatus = containerSyncResult.status;
-			// a success resets errors
 			newStatus.errors = 0;
 		}
 		final ContainerSyncStore containerSyncStore = new ContainerSyncStore(
 				DataSourceRouter.get(context, container.uid), container);
 		containerSyncStore.setSyncStatus(newStatus);
-	}
-
-	private static boolean hasTooManySyncOperations(final ContainerSyncResult containerSyncResult) {
-		final int operations = containerSyncResult.added + containerSyncResult.removed + containerSyncResult.updated;
-		final int daysSinceLastSync = daysSinceLastSync(containerSyncResult.status);
-		if (daysSinceLastSync > 0) {
-			return operations / daysSinceLastSync(containerSyncResult.status) > MAX_SYNC_OPERATIONS;
-		} else {
-			return operations > MAX_SYNC_OPERATIONS;
-		}
 	}
 
 	protected static int daysSinceLastSync(final ContainerSyncStatus containerSyncStatus) {

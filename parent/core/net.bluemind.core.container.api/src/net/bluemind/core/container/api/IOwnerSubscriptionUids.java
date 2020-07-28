@@ -23,7 +23,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
-import net.bluemind.core.container.model.BaseContainerDescriptor;
 
 /**
  * To unify the management of changelogs, ACLs, client synchronization,
@@ -44,10 +43,8 @@ public interface IOwnerSubscriptionUids {
 	/**
 	 * Returns the owner subscription container UID
 	 * 
-	 * @param ownerUid
-	 *                      owner
-	 * @param domainUid
-	 *                      domain
+	 * @param ownerUid  owner
+	 * @param domainUid domain
 	 * @return owner subscription container uid
 	 */
 	@GET
@@ -60,8 +57,8 @@ public interface IOwnerSubscriptionUids {
 		return "owner_subscriptions_" + ownerUid + "_at_" + domainUid;
 	}
 
-	public static String subscriptionUid(BaseContainerDescriptor cd, String ownerUid) {
-		return "sub-of-" + ownerUid + "-to-" + cd.uid;
+	public static String subscriptionUid(String containerUid, String ownerUid) {
+		return "sub-of-" + ownerUid + "-to-" + containerUid;
 	}
 
 }

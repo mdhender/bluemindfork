@@ -66,7 +66,7 @@ public class AbstractSearchTests {
 
 	@Before
 	public void before() throws Exception {
-		ElasticsearchTestHelper.getInstance().beforeTest();
+		ElasticsearchTestHelper.getInstance().beforeTest(25);
 		JdbcTestHelper.getInstance().beforeTest();
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());

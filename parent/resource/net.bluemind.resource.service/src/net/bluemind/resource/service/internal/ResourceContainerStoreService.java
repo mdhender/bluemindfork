@@ -26,7 +26,6 @@ import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.DirEntry;
-import net.bluemind.directory.api.DirectoryContainerType;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.directory.service.DirEntryHandler;
 import net.bluemind.directory.service.DirValueStoreService;
@@ -49,8 +48,7 @@ public class ResourceContainerStoreService extends DirValueStoreService<Resource
 	private ResourceStore resourceStore;
 
 	public ResourceContainerStoreService(BmContext context, ItemValue<Domain> domain, Container container) {
-		super(context, context.getDataSource(), context.getSecurityContext(), domain, container,
-				DirectoryContainerType.TYPE, DirEntry.Kind.RESOURCE,
+		super(context, context.getDataSource(), context.getSecurityContext(), domain, container, DirEntry.Kind.RESOURCE,
 				new ResourceStore(context.getDataSource(), container), new ResourceDirEntryAdapter(),
 				new ResourceVCardAdapter(), new ResourceMailboxAdapter());
 		this.resourceStore = new ResourceStore(context.getDataSource(), container);

@@ -85,7 +85,6 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.NullTaskMonitor;
-import net.bluemind.directory.api.IDirectory;
 import net.bluemind.index.MailIndexActivator;
 import net.bluemind.index.mail.BulkData.DeleteUnitHelper;
 import net.bluemind.index.mail.BulkData.UnitDelete;
@@ -121,7 +120,7 @@ public class MailIndexService implements IMailIndexService {
 		metricRegistry = MetricsRegistry.get();
 		idFactory = new IdFactory("mailindex-service", metricRegistry, MailIndexService.class);
 
-		VertxPlatform.getVertx().setPeriodic(1000L * 60 * 60, i -> getStats());
+		VertxPlatform.executeBlockingPeriodic(TimeUnit.HOURS.toMillis(1), i -> getStats());
 	}
 
 	@Override
@@ -131,7 +130,7 @@ public class MailIndexService implements IMailIndexService {
 		Map<String, Object> content = new HashMap<>();
 		content.put("content", body.content);
 		content.put("messageId", body.messageId.toString());
-		content.put("references", body.references.stream().map(kw -> kw.toString()).collect(Collectors.toList()));
+		content.put("references", body.references.stream().map(Object::toString).collect(Collectors.toList()));
 		content.put("preview", body.preview);
 		content.put("subject", body.subject.toString());
 		content.put("subject_kw", body.subject.toString());
@@ -426,13 +425,18 @@ public class MailIndexService implements IMailIndexService {
 		 * this alias is assigned to.
 		 */
 		String index = getUserAliasIndex(alias, getIndexClient());
-		logger.info("Cleaning up parent-child hierarchie of alias/index {}/{}", alias, index);
+		logger.info("Cleaning up parent-child hierarchy of alias/index {}/{}", alias, index);
 		VertxPlatform.eventBus().publish("index.mailspool.cleanup", new JsonObject().put("index", index));
 	}
 
 	private String getUserAliasIndex(String alias, Client client) {
-		GetAliasesResponse t = client.admin().indices().prepareGetAliases(alias).execute().actionGet();
-		return t.getAliases().keysIt().next();
+		try {
+			GetAliasesResponse t = client.admin().indices().prepareGetAliases(alias).execute().actionGet();
+			return t.getAliases().keysIt().next();
+		} catch (Exception e) {
+			logger.error("getUserAliasIndex({})", alias, e);
+			return alias;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -595,7 +599,7 @@ public class MailIndexService implements IMailIndexService {
 			}
 		}
 
-		if (t == null || t != null && t.getAliases().isEmpty()) {
+		if (t == null || t.getAliases().isEmpty()) {
 			monitor.progress(1, "no alias, check mailspool index");
 			monitor.progress(1, String.format("create alias %s from mailspool ", getIndexAliasName(entityId)));
 
@@ -901,7 +905,7 @@ public class MailIndexService implements IMailIndexService {
 
 	@SuppressWarnings({ "unchecked" })
 	private MessageSearchResult createSearchResult(SearchHit sh) {
-		Integer itemId = (Integer) sh.field("itemId").getValue();
+		Integer itemId = sh.field("itemId").getValue();
 		Map<String, Object> source = sh.getSourceAsMap();
 		String folderUid = ((String) source.get("id")).split(":")[0];
 		String contUid = "mbox_records_" + folderUid;
@@ -932,31 +936,16 @@ public class MailIndexService implements IMailIndexService {
 			to = Mbox.create(mboxFrom.getName(), mboxFrom.getAddress());
 		}
 
-		Mbox from = Mbox.create("unknown", "unknown");
 		org.apache.james.mime4j.dom.address.Mailbox mboxFrom = LenientAddressBuilder.DEFAULT
 				.parseMailbox(headers.get("from"));
-		String routingType = getRoutingType(mboxFrom.getDomain(), mboxFrom.getAddress());
-		from = Mbox.create(mboxFrom.getName(), mboxFrom.getAddress(), routingType);
+		Mbox from = Mbox.create(mboxFrom.getName(), mboxFrom.getAddress(), "SMTP");
 
 		boolean hasAttachment = !((List<String>) source.get("has")).isEmpty();
 
 		String preview = Strings.nullToEmpty((String) source.get("preview"));
 
-		MessageSearchResult msr = new MessageSearchResult(contUid, itemId, subject, size, "IPM.Note", messageDate, from,
-				to, seen, flagged, hasAttachment, preview);
-		return msr;
-	}
-
-	private String getRoutingType(String domain, String address) {
-		try {
-			IDirectory dir = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDirectory.class,
-					domain);
-			if (dir.getByEmail(address) != null) {
-				return "SMTP";
-			}
-		} catch (Exception e) {
-		}
-		return "EX";
+		return new MessageSearchResult(contUid, itemId, subject, size, "IPM.Note", messageDate, from, to, seen, flagged,
+				hasAttachment, preview);
 	}
 
 }

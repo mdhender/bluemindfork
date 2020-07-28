@@ -24,6 +24,7 @@ import java.util.Map;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.domain.service.internal.DomainSettingsCache;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
@@ -39,6 +40,7 @@ public class GlobalSettingsService implements IGlobalSettings {
 	private final GlobalSettingsStore store;
 	private final DomainSettingsCache domCache;
 	private final Validator validator;
+	private final Sanitizer sanitizer;
 	private List<IGlobalSettingsObserver> observers;
 
 	public GlobalSettingsService(BmContext context) {
@@ -46,6 +48,7 @@ public class GlobalSettingsService implements IGlobalSettings {
 		store = new GlobalSettingsStore(context.getDataSource());
 		domCache = DomainSettingsCache.get(context);
 
+		sanitizer = new Sanitizer(context);
 		validator = new Validator(context);
 
 		RunnableExtensionLoader<IGlobalSettingsObserver> observerLoader = new RunnableExtensionLoader<IGlobalSettingsObserver>();
@@ -57,6 +60,7 @@ public class GlobalSettingsService implements IGlobalSettings {
 		GlobalSettings updates = GlobalSettings.build(settings);
 		GlobalSettings current = GlobalSettings.build(get());
 
+		sanitizer.update(current, updates);
 		validator.update(current, updates);
 
 		try {

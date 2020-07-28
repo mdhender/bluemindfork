@@ -57,8 +57,7 @@ public class InternalOwnerSubscriptionsService implements IInternalOwnerSubscrip
 		rbac.check(BasicRoles.ROLE_MANAGE_USER_SUBSCRIPTIONS, BasicRoles.ROLE_SELF);
 
 		OwnerSubscriptionStore itemValueStore = new OwnerSubscriptionStore(ds, this.container);
-		storeService = new ContainerStoreService<>(ds, context.getSecurityContext(), this.container,
-				"container_subscription", itemValueStore);
+		storeService = new ContainerStoreService<>(ds, context.getSecurityContext(), this.container, itemValueStore);
 		this.eventsProducer = events;
 	}
 

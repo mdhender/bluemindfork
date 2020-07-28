@@ -37,8 +37,8 @@ public class ContainerDeferredActionStoreService extends ContainerStoreService<D
 	private DeferredActionStore store;
 
 	public ContainerDeferredActionStoreService(DataSource pool, SecurityContext securityContext, Container container,
-			String itemType, IItemValueStore<DeferredAction> itemValueStore) {
-		super(pool, securityContext, container, itemType, itemValueStore);
+			IItemValueStore<DeferredAction> itemValueStore) {
+		super(pool, securityContext, container, itemValueStore);
 		store = (DeferredActionStore) itemValueStore;
 	}
 

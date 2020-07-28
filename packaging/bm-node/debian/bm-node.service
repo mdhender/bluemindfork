@@ -11,8 +11,12 @@ TimeoutStartSec=90s
 GuessMainPID=no
 RemainAfterExit=no
 SuccessExitStatus=129 143
+Environment="PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
 Environment=JAVA_HOME=/usr/lib/jvm/bm-jdk
 ExecStart=/usr/share/bm-node/bm-node /var/run/bm-node.pid
+
+# enabling on one component enables accounting on the whole slice, which is what we want
+CPUAccounting=yes
 
 [Install]
 WantedBy=bluemind.target

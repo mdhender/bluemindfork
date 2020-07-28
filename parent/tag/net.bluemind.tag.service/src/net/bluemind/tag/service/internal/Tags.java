@@ -42,7 +42,6 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagChanges;
@@ -61,13 +60,10 @@ public class Tags implements ITags {
 	protected final BmContext context;
 
 	public Tags(BmContext context, DataSource ds, Container container) {
-		if (!isDomainContainer(container) && ds.equals(context.getDataSource())) {
-			throw new ServerFault("wrong datasource");
-		}
 		this.context = context;
 		this.container = container;
 		eventBus = VertxPlatform.eventBus();
-		this.storeService = new ContainerStoreService<>(ds, context.getSecurityContext(), container, ITagUids.TYPE,
+		this.storeService = new ContainerStoreService<>(ds, context.getSecurityContext(), container,
 				new TagStore(ds, container));
 		this.rbacManager = RBACManager.forContext(context).forContainer(container);
 		this.validator = new TagValidator();

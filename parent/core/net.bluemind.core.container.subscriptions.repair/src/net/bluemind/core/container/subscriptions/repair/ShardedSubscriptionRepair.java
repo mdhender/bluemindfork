@@ -109,7 +109,7 @@ public class ShardedSubscriptionRepair implements IDirEntryRepairSupport {
 				for (BaseContainerDescriptor cd : descriptorsFromShards) {
 					ContainerSubscriptionModel model = ContainerSubscriptionModel.create(cd,
 							byUid.get(cd.uid).offlineSync);
-					String subUid = IOwnerSubscriptionUids.subscriptionUid(cd, entry.entryUid);
+					String subUid = IOwnerSubscriptionUids.subscriptionUid(cd.uid, entry.entryUid);
 					if (allKnownUids.contains(subUid)) {
 						subsApi.update(subUid, model);
 						refreshed.add(subUid);

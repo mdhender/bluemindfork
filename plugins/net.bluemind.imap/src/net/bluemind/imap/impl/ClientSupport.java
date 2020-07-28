@@ -118,11 +118,13 @@ public final class ClientSupport {
 	private final ITagProducer tagsProducer;
 	private MinigTLSFilter sslFilter;
 	private final ICallbackFactory icf;
+	private final int commandTimeoutSecs;
 
-	public ClientSupport(ITagProducer tp, ICallbackFactory icf) {
+	public ClientSupport(ITagProducer tp, ICallbackFactory icf, int commandTimeoutSecs) {
 		this.icf = icf;
 		this.lock = new Semaphore(1);
 		this.tagsProducer = tp;
+		this.commandTimeoutSecs = commandTimeoutSecs;
 	}
 
 	private void lock(long timeoutInSec) {
@@ -139,7 +141,7 @@ public final class ClientSupport {
 	}
 
 	private void lock() {
-		lock(60 * 60);
+		lock(commandTimeoutSecs);
 	}
 
 	public boolean login(String login, String password, SocketConnector connector, SocketAddress address,
@@ -207,7 +209,7 @@ public final class ClientSupport {
 					logger.warn("imap connection is already stop");
 				}
 			}
-			session.close(true).awaitUninterruptibly();
+			session.close();
 		}
 	}
 
@@ -227,10 +229,14 @@ public final class ClientSupport {
 			lock.release();
 			throw new IMAPRuntimeException("Not connected to server.");
 		}
+		if (responses == null) {
+			lock.release();
+			throw new IMAPRuntimeException("null responses to " + sentTag);
+		}
 		try {
 			String receivedTag = cmd.taggedResponseReceived(responses);
 			if (!sentTag.equals(receivedTag)) {
-				logger.error("TAG MISMATCH, C: " + sentTag + ", S: " + receivedTag);
+				logger.error("TAG MISMATCH, C: {}, S: {}", sentTag, receivedTag);
 				// when everything fails
 				// System.exit(1);
 			}
@@ -416,12 +422,9 @@ public final class ClientSupport {
 	/**
 	 * Sets an IMAP Acl on a mailbox
 	 * 
-	 * @param mailbox
-	 *            user/toto@willow.vmw
-	 * @param consumer
-	 *            admin0
-	 * @param acl
-	 *            all
+	 * @param mailbox  user/toto@willow.vmw
+	 * @param consumer admin0
+	 * @param acl      all
 	 * @return true if SETACL succeeds
 	 */
 	public boolean setAcl(String mailbox, String consumer, Acl acl) {

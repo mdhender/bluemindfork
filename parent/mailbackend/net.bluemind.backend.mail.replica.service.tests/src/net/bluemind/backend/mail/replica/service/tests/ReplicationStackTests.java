@@ -45,7 +45,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -136,11 +135,6 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	private String apiKey;
 	protected String partition;
 	protected String mboxRoot;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	@Override
@@ -243,6 +237,40 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		}
 		time = System.currentTimeMillis() - time;
 		System.out.println("avg per update: " + ((double) time) / count + "ms.");
+	}
+
+	@Test
+	public void addFlagAlreadySet() throws Exception {
+
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> inbox = mboxesApi.byName("INBOX");
+
+		ItemValue<MailboxItem> mail = addDraft(inbox);
+
+		IMailboxItems itemsApi = provider().instance(IMailboxItems.class, inbox.uid);
+
+		ItemValue<MailboxItem> mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertFalse(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+
+		System.err.println("SEEN");
+		itemsApi.addFlag(FlagUpdate.of(mail.internalId, MailboxItemFlag.System.Seen.value()));
+		mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertTrue(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+
+		System.err.println("SEEN AGAIN");
+		itemsApi.addFlag(FlagUpdate.of(mail.internalId, MailboxItemFlag.System.Seen.value()));
+		mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertTrue(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+
+	}
+
+	@Test
+	public void addFlagUnknownMail() {
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> inbox = mboxesApi.byName("INBOX");
+		IMailboxItems itemsApi = provider().instance(IMailboxItems.class, inbox.uid);
+		Ack ack = itemsApi.addFlag(FlagUpdate.of(98765432L, MailboxItemFlag.System.Seen.value()));
+		assertEquals(0L, ack.version);
 	}
 
 	@Test
@@ -437,6 +465,58 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
+	public void createMailshareSubFolderSpeed() throws Exception {
+		for (int i = 0; i < 100; i++) {
+
+			String msName = "ms" + System.currentTimeMillis();
+			String msUid = UUID.randomUUID().toString();
+
+			IMailshare ms = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IMailshare.class,
+					domainUid);
+			Mailshare mailshare = new Mailshare();
+			mailshare.name = msName;
+			mailshare.emails = Arrays.asList(Email.create(msName + "@" + domainUid, true, true));
+			mailshare.routing = Routing.internal;
+			ms.create(msUid, mailshare);
+
+			IContainerManagement cmgmt = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(msUid));
+			List<AccessControlEntry> accessControlList = new ArrayList<>(cmgmt.getAccessControlList());
+			AccessControlEntry entry = new AccessControlEntry();
+			entry.subject = userUid;
+			entry.verb = Verb.All;
+			accessControlList.add(entry);
+			cmgmt.setAccessControlList(accessControlList);
+
+			IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, msName);
+			ItemValue<MailboxFolder> root = mboxesApi.byName(msName);
+
+			String folderName = "msf" + System.currentTimeMillis();
+			IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
+			IdRange ids = idAllocator.allocateOfflineIds(2);
+			long folderId = ids.globalCounter;
+			MailboxFolder folder = new MailboxFolder();
+			System.err.println("Creating " + folderName + ", child of " + root);
+			folder.name = folderName;
+			folder.parentUid = root.uid; // NOSONAR
+			ItemIdentifier createAck = mboxesApi.createForHierarchy(folderId, folder);
+			ItemValue<MailboxFolder> folderItem = mboxesApi.getCompleteById(createAck.id);
+			assertEquals("round " + i, folderName, folderItem.displayName);
+
+			String subFolderName = "mss" + System.currentTimeMillis();
+			MailboxFolder subFolder = new MailboxFolder();
+			System.err.println("Creating " + subFolderName + ", child of " + folderItem);
+			subFolder.fullName = null;
+			subFolder.name = subFolderName;
+			subFolder.parentUid = folderItem.uid;
+			createAck = mboxesApi.createForHierarchy(folderId + 1, subFolder);
+			ItemValue<MailboxFolder> subFolderItem = mboxesApi.getCompleteById(createAck.id);
+			assertEquals("round " + i, subFolderName, subFolderItem.displayName);
+
+		}
+	}
+
+	@Test
 	public void deleteFolderShouldDeleteSubFoldersMailshare() throws Exception {
 		String msName = "ms" + System.currentTimeMillis();
 		String msUid = UUID.randomUUID().toString();
@@ -459,22 +539,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		cmgmt.setAccessControlList(accessControlList);
 
 		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, msName);
-		ItemValue<MailboxFolder> root = null;
-		List<ItemValue<MailboxFolder>> all = mboxesApi.all();
-		long delay = System.currentTimeMillis();
-		while (all == null || all.isEmpty()) {
-			Thread.sleep(50);
-			if (System.currentTimeMillis() - delay > 30000) {
-				throw new TimeoutException("Wait for inbox took more than 30sec");
-			}
-			all = mboxesApi.all();
-		}
-		for (ItemValue<MailboxFolder> mf : all) {
-			if (mf.value.name.equals(mailshare.name)) {
-				root = mf;
-				break;
-			}
-		}
+		ItemValue<MailboxFolder> root = mboxesApi.byName(msName);
 		assertNotNull(root);
 
 		String folderName = "msf" + System.currentTimeMillis();
@@ -488,15 +553,18 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		ItemIdentifier createAck = mboxesApi.createForHierarchy(folderId, folder);
 		assertNotNull(createAck);
 		ItemValue<MailboxFolder> folderItem = mboxesApi.getCompleteById(createAck.id);
+		assertEquals(folderName, folderItem.displayName);
 
 		String subFolderName = "mss" + System.currentTimeMillis();
 		MailboxFolder subFolder = new MailboxFolder();
+		System.err.println("Creating " + subFolderName + ", child of " + folderItem);
 		subFolder.fullName = null;
 		subFolder.name = subFolderName;
 		subFolder.parentUid = folderItem.uid;
 		createAck = mboxesApi.createForHierarchy(folderId + 1, subFolder);
 		assertNotNull(createAck);
 		ItemValue<MailboxFolder> subFolderItem = mboxesApi.getCompleteById(createAck.id);
+		assertEquals(subFolderName, subFolderItem.displayName);
 
 		System.err.println("deepDelete starts for " + folderItem);
 		mboxesApi.deepDelete(folderItem.internalId);
@@ -1222,7 +1290,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		System.err.println("Setting ACLs....");
 		aclApi.setAccessControlList(Arrays.asList(AccessControlEntry.create(userUid, Verb.Write)));
 		System.err.println("**** ROOT is " + created.ns + ", " + created.name + ", version: " + onSubtree.get());
-		Thread.sleep(500);
+
 		IMailboxFolders folders = provider().instance(IMailboxFolders.class, partition, mailshare.name);
 		List<ItemValue<MailboxFolder>> allFolders = folders.all();
 		ItemValue<MailboxFolder> root = null;
@@ -1573,6 +1641,14 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
+	public void multipleDeleteRuns() throws IMAPException, InterruptedException {
+		int cnt = 50;
+		for (int i = 0; i < cnt; i++) {
+			deleteDeepWithMultipleChildren();
+		}
+	}
+
+	@Test
 	public void deleteEmptyWithMultipleChildren() throws IMAPException, InterruptedException, IOException {
 		IServiceProvider clientProv = provider();
 		IMailboxFolders mboxesApi = clientProv.instance(IMailboxFolders.class, partition, mboxRoot);
@@ -1752,8 +1828,6 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		toCreate.name = base + "/a" + time;
 		created = mboxesApi.createForHierarchy(ids.globalCounter + 1, toCreate);
 		ItemValue<MailboxFolder> toRename = mboxesApi.getCompleteById(created.id);
-
-		Thread.sleep(1000);
 
 		System.out.println("Got a create of version " + created.version);
 		ItemValue<MailboxFolder> foundItem = mboxesApi.byName(base);

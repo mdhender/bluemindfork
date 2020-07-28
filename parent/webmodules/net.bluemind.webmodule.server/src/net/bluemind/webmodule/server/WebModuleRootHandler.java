@@ -133,7 +133,12 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 
 	private void onError(HttpServerRequest request, Throwable t) {
 		String path = request.path();
+		if (request.response().ended()) {
+			logger.warn("[{}] Skipping reponse to ended request ({})", path, t.getMessage());
+			return;
+		}
 		logger.error("error during handling request: {}", path, t);
+
 		request.response().setStatusCode(500);
 		request.response().setStatusMessage("server error: " + t.getMessage());
 		request.response().end();

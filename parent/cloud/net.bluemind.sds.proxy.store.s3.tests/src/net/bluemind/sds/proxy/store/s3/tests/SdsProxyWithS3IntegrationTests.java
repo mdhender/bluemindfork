@@ -34,7 +34,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -77,11 +76,6 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.vertx.testhelper.Deploy;
 
 public class SdsProxyWithS3IntegrationTests {
-
-	@BeforeClass
-	public static void beforeClass() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	private CyrusReplicationHelper cyrusReplication;
 	private String domainUid;

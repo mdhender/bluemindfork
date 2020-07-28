@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.validation,
  net.bluemind.hornetq.client,
  org.asynchttpclient.async-http-client;bundle-version="2.10.4",
- org.reactivestreams.reactive-streams;bundle-version="1.0.3"
+ org.reactivestreams.reactive-streams;bundle-version="1.0.3",
+ net.bluemind.system.nginx
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.metrics.core
 Bundle-ActivationPolicy: lazy

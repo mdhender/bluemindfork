@@ -276,8 +276,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 				AccessControlEntry.create(attendee1SecurityContext.getSubject(), Verb.All),
 				AccessControlEntry.create(attendee2SecurityContext.getSubject(), Verb.Write));
 		try {
-			aclStore.store(userCalendarContainer, ace);
-			aclStore.store(userTagContainer, ace);
+			aclStoreData.store(userCalendarContainer, ace);
+			aclStoreData.store(userTagContainer, ace);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -1104,17 +1104,6 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 				.search(query).values.get(0);
 		List<VEvent> list = OccurrenceHelper.list(res, dateMin, dateMax);
 		assertEquals(22, list.size());
-	}
-
-	@Test
-	public void testDeleteUnknownEvent() throws ServerFault {
-		try {
-			getCalendarService(userSecurityContext, userCalendarContainer).delete(UUID.randomUUID().toString(),
-					sendNotifications);
-			fail();
-		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.NOT_FOUND, sf.getCode());
-		}
 	}
 
 	@Test

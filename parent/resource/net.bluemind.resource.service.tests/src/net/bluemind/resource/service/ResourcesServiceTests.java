@@ -297,6 +297,8 @@ public class ResourcesServiceTests {
 		String datalocation = PopulateHelper.FAKE_CYRUS_IP;
 		ContainerStore cs = new ContainerStore(domainAdminCtx, domainAdminCtx.getMailboxDataSource(datalocation),
 				SecurityContext.SYSTEM);
+		ContainerStore systemcs = new ContainerStore(domainAdminCtx, JdbcTestHelper.getInstance().getDataSource(),
+				SecurityContext.SYSTEM);
 
 		try {
 			TaskRef tr = service(badDomainAdminSC).delete(rtId);
@@ -307,13 +309,13 @@ public class ResourcesServiceTests {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
-		assertNotNull(cs.get("freebusy:" + rtId));
+		assertNotNull(systemcs.get("freebusy:" + rtId));
 
 		TaskRef tr = service(domainAdminSC).delete(rtId);
 		TaskUtils.wait(ServerSideServiceProvider.getProvider(badDomainAdminSC), tr);
 		assertNull(store.get(rtId, null));
 		assertNull(cs.get(rtId));
-		assertNull(cs.get("freebusy:" + rtId));
+		assertNull(systemcs.get("freebusy:" + rtId));
 
 		tr = service(domainAdminSC).delete("fakeId");
 		TaskStatus status = TaskUtils.wait(ServerSideServiceProvider.getProvider(badDomainAdminSC), tr);

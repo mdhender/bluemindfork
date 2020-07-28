@@ -168,7 +168,7 @@ public class GroupServiceTests {
 
 		UserStore userStore = new UserStore(JdbcTestHelper.getInstance().getDataSource(), userContainer);
 		ContainerStoreService<User> userStoreService = new ContainerStoreService<>(
-				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, userContainer, "user", userStore);
+				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, userContainer, userStore);
 
 		String nt = "" + System.nanoTime();
 		String adm = "adm" + nt;
@@ -1227,8 +1227,7 @@ public class GroupServiceTests {
 
 		UserStore userStore = new UserStore(JdbcTestHelper.getInstance().getDataSource(), otherUserContainer);
 		ContainerStoreService<User> userStoreService = new ContainerStoreService<>(
-				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, otherUserContainer, "user",
-				userStore);
+				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, otherUserContainer, userStore);
 
 		ItemValue<User> user = defaultUser();
 
@@ -1309,8 +1308,7 @@ public class GroupServiceTests {
 
 		GroupStore groupStore = new GroupStore(JdbcTestHelper.getInstance().getDataSource(), otherDomainContainer);
 		ContainerStoreService<Group> groupStoreService = new ContainerStoreService<>(
-				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, otherDomainContainer, "group",
-				groupStore);
+				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, otherDomainContainer, groupStore);
 
 		Member member = new Member();
 		member.type = Member.Type.group;
@@ -1352,8 +1350,7 @@ public class GroupServiceTests {
 
 		GroupStore groupStore = new GroupStore(JdbcTestHelper.getInstance().getDataSource(), otherDomainContainer);
 		ContainerStoreService<Group> groupStoreService = new ContainerStoreService<>(
-				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, otherDomainContainer, "group",
-				groupStore);
+				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, otherDomainContainer, groupStore);
 
 		Group group = defaultGroup();
 		String uid = UUID.randomUUID().toString();

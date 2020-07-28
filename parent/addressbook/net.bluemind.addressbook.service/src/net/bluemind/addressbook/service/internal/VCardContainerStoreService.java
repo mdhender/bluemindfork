@@ -25,7 +25,6 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Kind;
 import net.bluemind.addressbook.persistence.VCardIndexStore;
@@ -53,13 +52,13 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 
 	public VCardContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
 			Container container) {
-		this(context, dataSource, securityContext, container, IAddressBookUids.TYPE,
-				new VCardStore(dataSource, container), new VCardIndexStore(ESearchActivator.getClient(), container));
+		this(context, dataSource, securityContext, container, new VCardStore(dataSource, container),
+				new VCardIndexStore(ESearchActivator.getClient(), container));
 	}
 
 	public VCardContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
-			Container container, String itemType, IItemValueStore<VCard> itemValueStore, VCardIndexStore indexStore) {
-		super(dataSource, securityContext, container, itemType, itemValueStore, card -> ItemFlag.SEEN, c -> 0L, s -> s);
+			Container container, IItemValueStore<VCard> itemValueStore, VCardIndexStore indexStore) {
+		super(dataSource, securityContext, container, itemValueStore, card -> ItemFlag.SEEN, c -> 0L, s -> s);
 		tagRefService = context.su().provider().instance(IInCoreTagRef.class, container.uid);
 		documentStore = DocumentStorage.store;
 		this.indexStore = indexStore;

@@ -33,9 +33,9 @@ public class LocatorVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		logger.info("Spawing a locator server instance...");
-		HttpServer httpServer = vertx.createHttpServer(new HttpServerOptions().setUsePooledBuffers(true)
-				.setTcpNoDelay(true).setAcceptBacklog(1024).setReuseAddress(true));
+		logger.info("Spawning a locator server instance...");
+		HttpServer httpServer = vertx.createHttpServer(
+				new HttpServerOptions().setTcpNoDelay(true).setAcceptBacklog(1024).setReuseAddress(true));
 
 		RouteMatcher rm = new RouteMatcher(vertx);
 		HostLocationHandler hls = new HostLocationHandler(vertx);

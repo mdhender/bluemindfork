@@ -168,6 +168,8 @@ public class ChangelogStore extends JdbcAbstractStore {
 			+ " LEFT JOIN t_container_item ci ON (ci.container_id=cl.container_id AND ci.id=cl.item_id AND ci.version=cl.version) "//
 			+ "WHERE cl.container_id = ? AND cl.version > ? order by cl.item_id, cl.version";
 
+	private static final String DELETE_CHANGESET_QUERY = "DELETE FROM t_container_changeset WHERE container_id = ?";
+
 	private static final Creator<ChangeLogEntry> CREATOR = con -> new ChangeLogEntry();
 
 	public void itemCreated(LogEntry entry) throws SQLException {
@@ -260,6 +262,8 @@ public class ChangelogStore extends JdbcAbstractStore {
 
 	public void deleteLog() throws SQLException {
 		delete("delete from t_container_changelog where container_id = ?", new Object[] { container.id });
+		delete(DELETE_CHANGESET_QUERY, new Object[] { container.id });
+
 	}
 
 	public void insertLog(List<ChangeLogEntry> entries) throws SQLException {

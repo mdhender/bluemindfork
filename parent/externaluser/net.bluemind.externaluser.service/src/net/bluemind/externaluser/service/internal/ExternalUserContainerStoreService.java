@@ -57,16 +57,15 @@ public class ExternalUserContainerStoreService extends DirValueStoreService<Exte
 	public ExternalUserContainerStoreService(BmContext context, ItemValue<Domain> domain,
 			Container externalUserContainer) {
 		this(context, context.getDataSource(), context.getSecurityContext(), domain, externalUserContainer,
-				"externalUser", DirEntry.Kind.EXTERNALUSER,
-				null,
-				new ExternalUserDirEntryAdapter(), new ExternalUserVCardAdapter(), new NullMailboxAdapter<>());
+				DirEntry.Kind.EXTERNALUSER, null, new ExternalUserDirEntryAdapter(), new ExternalUserVCardAdapter(),
+				new NullMailboxAdapter<>());
 	}
 
 	public ExternalUserContainerStoreService(BmContext context, DataSource pool, SecurityContext securityContext,
-			ItemValue<Domain> domain, Container container, String itemType, Kind kind,
-			IItemValueStore<ExternalUser> itemValueStore, DirEntryAdapter<ExternalUser> adapter,
-			VCardAdapter<ExternalUser> vcardAdapter, MailboxAdapter<ExternalUser> mailboxAdapter) {
-		super(context, pool, securityContext, domain, container, itemType, kind, itemValueStore, adapter, vcardAdapter,
+			ItemValue<Domain> domain, Container container, Kind kind, IItemValueStore<ExternalUser> itemValueStore,
+			DirEntryAdapter<ExternalUser> adapter, VCardAdapter<ExternalUser> vcardAdapter,
+			MailboxAdapter<ExternalUser> mailboxAdapter) {
+		super(context, pool, securityContext, domain, container, kind, itemValueStore, adapter, vcardAdapter,
 				mailboxAdapter);
 		this.itemStore = new ItemStore(pool, container, context.getSecurityContext());
 	}

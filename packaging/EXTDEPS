@@ -1,5 +1,5 @@
-BMCYRUS="3.0.13-bluemind280"
-BMSDS="1.0.0-280"
+BMCYRUS="3.0.13-bluemind291"
+BMSDS="1.0.0-291"
 
 BMES="6.8.6-bluemind85"
 
@@ -9,37 +9,37 @@ MINIO="2019.10.12-bluemind9"
 BMJDK="8u252-bluemind34"
 BMSNZIP="1.0.4-bluemind4"
 BMNGINX="1.18.0-bluemind98"
-BMPHP="5.6.40-bluemind89"
-BMPHPMEMCACHE="3.0.8-bluemind89"
+BMPHP="5.6.40-bluemind98"
+BMPHPMEMCACHE="3.0.8-bluemind98"
 
 
 # tick
-TELEGRAF="1.11.1.bm5-1"
-KAPACITOR="1.5.3.bm3~a801279d"
-CHRONOGRAF="1.7.12.bm1~81b47b2c2"
-INFLUXDB="1.7.7.bm3~0f9bc7512"
+TELEGRAF="1.14.4.bm1-1"
+KAPACITOR="1.5.4.bm1~8f674e3b-0"
+CHRONOGRAF="1.8.4.bm1~f1647abb4"
+INFLUXDB="1.8.0.bm1~247d383a3"
 
 
 # PostgreSQL
 # Use EXTDEPS-getlastpg.sh if you need to modify (requires python3 + requests for RHEL)
 # Example: ./EXTDEPS-getlastpg.sh 11 # for PostgreSQL 11
-BMPOSTGRESQL="11.7-bluemind114"
+BMPOSTGRESQL="12.3-bluemind116"
 
-PG_XENIAL="11.7-2.pgdg16.04+1"
-PGCOMMON_XENIAL="213.pgdg16.04+1"
-PG_BIONIC="11.7-2.pgdg18.04+1"
-PGCOMMON_BIONIC="213.pgdg18.04+1"
-PG_FOCAL="11.7-3.pgdg20.04+1"
-PGCOMMON_FOCAL="213.pgdg20.04+1"
-PG_JESSIE="11.7-2.pgdg80+1"
-PGCOMMON_JESSIE="213.pgdg80+1"
-PG_STRETCH="11.7-2.pgdg90+1"
-PGCOMMON_STRETCH="213.pgdg90+1"
-PG_BUSTER="11.7-2.pgdg100+1"
-PGCOMMON_BUSTER="213.pgdg100+1"
+PG_XENIAL="12.3-1.pgdg16.04+1"
+PGCOMMON_XENIAL="215.pgdg16.04+1"
+PG_BIONIC="12.3-1.pgdg18.04+1"
+PGCOMMON_BIONIC="215.pgdg18.04+1"
+PG_FOCAL="12.3-1.pgdg20.04+1"
+PGCOMMON_FOCAL="215.pgdg20.04+1"
+PG_JESSIE="12.3-1.pgdg80+1"
+PGCOMMON_JESSIE="215.pgdg80+1"
+PG_STRETCH="12.3-1.pgdg90+1"
+PGCOMMON_STRETCH="215.pgdg90+1"
+PG_BUSTER="12.3-1.pgdg100+1"
+PGCOMMON_BUSTER="215.pgdg100+1"
 PGKEYRING="2018.2"
-PG_RHEL7="11.7-1PGDG.rhel7"
-PG_RHEL8="11.7-1PGDG.rhel8"
+PG_RHEL7="12.3-1PGDG.rhel7"
+PG_RHEL8="12.3-1PGDG.rhel8"
 
 
 # Cyrus
@@ -105,73 +105,73 @@ BMPOSTGRESQLRPM="bm-postgresql=${BMPOSTGRESQL} \
 
 PGKEYRINGDEB="pgdg-keyring=${PGKEYRING}"
 
-PGDEB_JESSIE="postgresql-11=${PG_JESSIE} \
-		postgresql-client-11=${PG_JESSIE} \
-		postgresql-contrib-11=${PG_JESSIE} \
-		postgresql-server-dev-11=${PG_JESSIE} \
+PGDEB_JESSIE="postgresql-12=${PG_JESSIE} \
+		postgresql-client-12=${PG_JESSIE} \
+		postgresql-contrib-12=${PG_JESSIE} \
+		postgresql-server-dev-12=${PG_JESSIE} \
 		libpq5=${PG_JESSIE} \
 		libpq-dev=${PG_JESSIE}"
 PGCOMMONDEB_JESSIE="postgresql-client-common=${PGCOMMON_JESSIE} \
 		postgresql-common=${PGCOMMON_JESSIE}"
 
-PGDEB_STRETCH="postgresql-11=${PG_STRETCH} \
-		postgresql-client-11=${PG_STRETCH} \
-		postgresql-contrib-11=${PG_STRETCH} \
-		postgresql-server-dev-11=${PG_STRETCH} \
+PGDEB_STRETCH="postgresql-12=${PG_STRETCH} \
+		postgresql-client-12=${PG_STRETCH} \
+		postgresql-contrib-12=${PG_STRETCH} \
+		postgresql-server-dev-12=${PG_STRETCH} \
 		libpq5=${PG_STRETCH} \
 		libpq-dev=${PG_STRETCH} \
 		libllvm6.0"
 PGCOMMONDEB_STRETCH="postgresql-client-common=${PGCOMMON_STRETCH} \
 		postgresql-common=${PGCOMMON_STRETCH}"
 
-PGDEB_BUSTER="postgresql-11=${PG_BUSTER} \
-		postgresql-client-11=${PG_BUSTER} \
-		postgresql-contrib-11=${PG_BUSTER} \
-		postgresql-server-dev-11=${PG_BUSTER} \
+PGDEB_BUSTER="postgresql-12=${PG_BUSTER} \
+		postgresql-client-12=${PG_BUSTER} \
+		postgresql-contrib-12=${PG_BUSTER} \
+		postgresql-server-dev-12=${PG_BUSTER} \
 		libpq5=${PG_BUSTER} \
 		libpq-dev=${PG_BUSTER} \
 		libllvm6.0"
 PGCOMMONDEB_BUSTER="postgresql-client-common=${PGCOMMON_BUSTER} \
 		postgresql-common=${PGCOMMON_BUSTER}"
 
-PGDEB_XENIAL="postgresql-11=${PG_XENIAL} \
-		postgresql-client-11=${PG_XENIAL} \
-		postgresql-contrib-11=${PG_XENIAL} \
-		postgresql-server-dev-11=${PG_XENIAL} \
+PGDEB_XENIAL="postgresql-12=${PG_XENIAL} \
+		postgresql-client-12=${PG_XENIAL} \
+		postgresql-contrib-12=${PG_XENIAL} \
+		postgresql-server-dev-12=${PG_XENIAL} \
 		libpq5=${PG_XENIAL} \
 		libpq-dev=${PG_XENIAL}"
 PGCOMMONDEB_XENIAL="postgresql-client-common=${PGCOMMON_XENIAL} \
 		postgresql-common=${PGCOMMON_XENIAL}"
 
-PGDEB_BIONIC="postgresql-11=${PG_BIONIC} \
-		postgresql-client-11=${PG_BIONIC} \
-		postgresql-contrib-11=${PG_BIONIC} \
-		postgresql-server-dev-11=${PG_BIONIC} \
+PGDEB_BIONIC="postgresql-12=${PG_BIONIC} \
+		postgresql-client-12=${PG_BIONIC} \
+		postgresql-contrib-12=${PG_BIONIC} \
+		postgresql-server-dev-12=${PG_BIONIC} \
 		libpq5=${PG_BIONIC} \
 		libpq-dev=${PG_BIONIC}"
 PGCOMMONDEB_BIONIC="postgresql-client-common=${PGCOMMON_BIONIC} \
 		postgresql-common=${PGCOMMON_BIONIC}"
 		
-PGDEB_FOCAL="postgresql-11=${PG_FOCAL} \
-		postgresql-client-11=${PG_FOCAL} \
-		postgresql-contrib-11=${PG_FOCAL} \
-		postgresql-server-dev-11=${PG_FOCAL} \
+PGDEB_FOCAL="postgresql-12=${PG_FOCAL} \
+		postgresql-client-12=${PG_FOCAL} \
+		postgresql-contrib-12=${PG_FOCAL} \
+		postgresql-server-dev-12=${PG_FOCAL} \
 		libpq5=${PG_FOCAL} \
 		libpq-dev=${PG_FOCAL}"
 PGCOMMONDEB_FOCAL="postgresql-client-common=${PGCOMMON_FOCAL} \
 		postgresql-common=${PGCOMMON_FOCAL}"
 
-PGRPM_RHEL7="postgresql11=${PG_RHEL7} \
-		postgresql11-contrib=${PG_RHEL7} \
-		postgresql11-devel=${PG_RHEL7} \
-		postgresql11-libs=${PG_RHEL7} \
-		postgresql11-server=${PG_RHEL7}"
+PGRPM_RHEL7="postgresql12=${PG_RHEL7} \
+		postgresql12-contrib=${PG_RHEL7} \
+		postgresql12-devel=${PG_RHEL7} \
+		postgresql12-libs=${PG_RHEL7} \
+		postgresql12-server=${PG_RHEL7}"
 
-PGRPM_RHEL8="postgresql11=${PG_RHEL8} \
-		postgresql11-contrib=${PG_RHEL8} \
-		postgresql11-devel=${PG_RHEL8} \
-		postgresql11-libs=${PG_RHEL8} \
-		postgresql11-server=${PG_RHEL8}"
+PGRPM_RHEL8="postgresql12=${PG_RHEL8} \
+		postgresql12-contrib=${PG_RHEL8} \
+		postgresql12-devel=${PG_RHEL8} \
+		postgresql12-libs=${PG_RHEL8} \
+		postgresql12-server=${PG_RHEL8}"
 
 # Distribution
 DEB_DISTRIBUTION="JESSIE STRETCH BUSTER XENIAL BIONIC FOCAL"

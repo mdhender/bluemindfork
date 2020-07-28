@@ -22,8 +22,6 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +32,12 @@ import io.vertx.core.Verticle;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.network.topology.Topology;
 
-public class DbCheck extends AbstractVerticle implements BundleActivator {
+public class DbCheck extends AbstractVerticle {
 
 	private Registry metricRegistry;
 	private IdFactory idFactory;
@@ -51,15 +50,12 @@ public class DbCheck extends AbstractVerticle implements BundleActivator {
 		metricRegistry = MetricsRegistry.get();
 		idFactory = new IdFactory("jdbc", metricRegistry, DbCheck.class);
 
-		super.vertx.setPeriodic(1000 * 10, (id) -> {
-			Topology.getIfAvailable().ifPresent(topo -> {
-				String coreuid = topo.core().uid;
-				check(JdbcActivator.getInstance().getDataSource(), coreuid, "directory");
-				JdbcActivator.getInstance().getMailboxDataSource().entrySet().forEach(e -> {
-					check(e.getValue(), e.getKey(), "mailbox");
-				});
-			});
-		});
+		VertxPlatform.executeBlockingPeriodic(10000, id -> Topology.getIfAvailable().ifPresent(topo -> {
+			String coreuid = topo.core().uid;
+			check(JdbcActivator.getInstance().getDataSource(), coreuid, "directory");
+			JdbcActivator.getInstance().getMailboxDataSource().entrySet()
+					.forEach(e -> check(e.getValue(), e.getKey(), "mailbox"));
+		}));
 	}
 
 	private void check(DataSource ds, String dataLocation, String kind) {
@@ -89,18 +85,6 @@ public class DbCheck extends AbstractVerticle implements BundleActivator {
 		public Verticle newInstance() {
 			return new DbCheck();
 		}
-
-	}
-
-	@Override
-	public void start(BundleContext context) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void stop(BundleContext context) throws Exception {
-		// TODO Auto-generated method stub
 
 	}
 

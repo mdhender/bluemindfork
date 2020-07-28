@@ -31,6 +31,10 @@
             impl="net.bluemind.cli.user.UserSharingsCommand$Reg"
             priority="77">
       </registration>
+      <registration
+            impl="net.bluemind.cli.user.UserQuickCreateCommand$Reg"
+            priority="76">
+      </registration>
    </extension>
 
 </plugin>

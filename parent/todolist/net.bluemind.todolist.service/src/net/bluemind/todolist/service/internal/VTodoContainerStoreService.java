@@ -46,15 +46,15 @@ public class VTodoContainerStoreService extends ContainerStoreService<VTodo> {
 	private IInCoreTagRef tagRefService;
 
 	public VTodoContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
-			Container container, String itemType, IItemValueStore<VTodo> itemValueStore) {
-		super(dataSource, securityContext, container, itemType, itemValueStore, todo -> ItemFlag.SEEN,
-				VTodoWeight.seedProvider(), VTodoWeight.weigthProvider());
+			Container container, IItemValueStore<VTodo> itemValueStore) {
+		super(dataSource, securityContext, container, itemValueStore, todo -> ItemFlag.SEEN, VTodoWeight.seedProvider(),
+				VTodoWeight.weigthProvider());
 		this.tagRefService = context.su().provider().instance(IInCoreTagRef.class, container.uid);
 	}
 
 	public VTodoContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
-			Container container, String itemType) {
-		this(context, dataSource, securityContext, container, itemType, new VTodoStore(dataSource, container));
+			Container container) {
+		this(context, dataSource, securityContext, container, new VTodoStore(dataSource, container));
 	}
 
 	@Override

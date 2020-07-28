@@ -80,10 +80,11 @@
    <bundle id="net.bluemind.config" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.contact.application.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.container.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.core.annotationvalidator" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.api.py" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.bo.report.provider" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.core.caches.registry" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.commons" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.annotationvalidator" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.commons.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.commons.php" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.commons.tests" version="4.1.0.qualifier"/>
@@ -210,6 +211,9 @@
    <bundle id="net.bluemind.filehosting.filesystem.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.filehosting.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.filehosting.ui.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.custom.password.sizestrength" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.custom.password.sizestrength.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.custom.password.sizestrength.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.globalsettings.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.globalsettings.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.group.api" version="4.1.0.qualifier"/>
@@ -282,6 +286,7 @@
    <bundle id="net.bluemind.mailshare.api.php" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailshare.hook" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailshare.service" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.metrics.alerts.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.milter" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mime4j.common" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mvp.closure" version="4.1.0.qualifier"/>
@@ -380,6 +385,7 @@
    <bundle id="net.bluemind.ui.adminconsole.dataprotect" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.ui.adminconsole.directory" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.ui.adminconsole.filehosting.settings" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.ui.adminconsole.password.sizestrength" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.ui.adminconsole.jobs" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.ui.adminconsole.ldap.export" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.ui.adminconsole.ldap.importation" version="4.1.0.qualifier"/>
@@ -505,4 +511,6 @@
    <bundle id="net.bluemind.system.schemaupgrader.runner"/>
    <bundle id="net.bluemind.core.sendmail.testhelper"/>
    <bundle id="net.bluemind.linkify"/>
+   <bundle id="net.bluemind.vertx.core.patch"/>
+   <bundle id="net.bluemind.common.hollow"/>
 </site>

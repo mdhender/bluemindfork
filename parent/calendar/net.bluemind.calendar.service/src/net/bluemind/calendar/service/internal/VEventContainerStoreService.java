@@ -48,16 +48,16 @@ public class VEventContainerStoreService extends ContainerStoreService<VEventSer
 	private IInCoreTagRef tagRefService;
 
 	public VEventContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
-			Container container, String itemType, IItemValueStore<VEventSeries> itemValueStore) {
-		super(dataSource, securityContext, container, itemType, itemValueStore, v -> ItemFlag.SEEN,
-				VEventWeight.seedProvider(), VEventWeight.weigthProvider());
+			Container container, IItemValueStore<VEventSeries> itemValueStore) {
+		super(dataSource, securityContext, container, itemValueStore, v -> ItemFlag.SEEN, VEventWeight.seedProvider(),
+				VEventWeight.weigthProvider());
 
 		tagRefService = context.su().provider().instance(IInCoreTagRef.class, container.uid);
 	}
 
 	public VEventContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
 			Container container) {
-		this(context, dataSource, securityContext, container, "calendar", new VEventSeriesStore(dataSource, container));
+		this(context, dataSource, securityContext, container, new VEventSeriesStore(dataSource, container));
 	}
 
 	@Override

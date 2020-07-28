@@ -39,8 +39,6 @@ public enum BmService {
 
 	LMTPD("bm-lmtpd", "Lmtpd"),
 
-	LOCATOR("bm-locator", "Locator"),
-
 	NODE("bm-node", "Node"),
 
 	TIKA("bm-tika", "Tika"),

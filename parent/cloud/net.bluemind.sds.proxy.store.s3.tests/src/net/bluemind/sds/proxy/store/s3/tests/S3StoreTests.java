@@ -131,6 +131,7 @@ public class S3StoreTests {
 		System.err.println("deleting...");
 		assertNull(store.delete(dr).join().error);
 
+		System.err.println("exist check...");
 		ExistRequest er2 = new ExistRequest();
 		er2.guid = dr.guid;
 		er2.mailbox = dr.mailbox;

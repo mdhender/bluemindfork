@@ -49,7 +49,6 @@ import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.service.internal.hooks.DeletedDataMementos;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.model.Container;
@@ -197,7 +196,6 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 					logger.error("Reset error: {}", e.getMessage(), e);
 				}
 			}
-			CacheRegistry.get().invalidateAll();
 		} else {
 			logger.warn("Owner ns: {}, mbox: {} not found.", namespace, mailboxName);
 		}
@@ -215,7 +213,7 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		for (Container cont : recordsContainers) {
 			MailboxRecordStore store = new MailboxRecordStore(ds, cont);
 			ContainerStoreService<MailboxRecord> storeService = new ContainerStoreService<>(ds,
-					context.getSecurityContext(), cont, "mail", store);
+					context.getSecurityContext(), cont, store);
 			logger.info("Clearing {}", cont.uid);
 			storeService.deleteAll();
 			containersApi.delete(cont.uid);
@@ -227,7 +225,7 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		for (Container cont : mboxReplicaContainers) {
 			MailboxReplicaStore store = new MailboxReplicaStore(ds, cont, partition.domainUid);
 			ContainerStoreService<MailboxReplica> storeService = new ContainerStoreService<>(ds,
-					context.getSecurityContext(), cont, "mbox_replica", store);
+					context.getSecurityContext(), cont, store);
 			logger.info("Clearing {}", cont.uid);
 			storeService.deleteAll();
 			containersApi.delete(cont.uid);

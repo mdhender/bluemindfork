@@ -18,9 +18,10 @@
  */
 package net.bluemind.core.rest.base;
 
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -30,7 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Registry;
+import com.netflix.spectator.api.Timer;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
@@ -70,8 +73,24 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 	private final boolean directExec;
 
 	private static final BMExecutor executor = new BMExecutor("BM-Core");
-	private static final Registry registry = MetricsRegistry.get();
-	private static final IdFactory idFactory = new IdFactory(MetricsRegistry.get(), RestRootHandler.class);
+
+	private static class MetricsHolder {
+		final Registry registry;
+		final IdFactory idFactory;
+		final Counter countSuccess;
+		final Timer handlingTimer;
+		final Counter countFail;
+
+		private MetricsHolder() {
+			registry = MetricsRegistry.get();
+			idFactory = new IdFactory(MetricsRegistry.get(), RestRootHandler.class);
+			this.countSuccess = registry.counter(idFactory.name("callsCount", "status", "success"));
+			this.countFail = registry.counter(idFactory.name("callsCount", "status", "failure"));
+			this.handlingTimer = registry.timer(idFactory.name("handlingDuration"));
+		}
+	}
+
+	private static final MetricsHolder metrics = new MetricsHolder();
 
 	public RestRootHandler(Vertx vertx) {
 		this(vertx, false);
@@ -112,7 +131,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 	}
 
 	private void doCall(RestRequest request, AsyncHandler<RestResponse> rh) {
-		final long start = registry.clock().monotonicTime();
+		final long start = metrics.registry.clock().monotonicTime();
 		TreePathNode rootNode = pathsByMethod.get(request.method);
 		final TreePathLeaf leaf = rootNode.leaf(request.path);
 		if (leaf == null) {
@@ -125,17 +144,17 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 
 			@Override
 			public void success(RestResponse value) {
-				registry.counter(idFactory.name("callsCount", "status", "success")).increment();
-				registry.counter(idFactory.name("callsByRPC", "status", "success", "rpc", leaf.name())).increment();
-				registry.timer(idFactory.name("handlingDuration")).record(registry.clock().monotonicTime() - start,
-						TimeUnit.NANOSECONDS);
+				metrics.countSuccess.increment();
+				metrics.registry.counter(metrics.idFactory.name("callsByRPC", "status", "success", "rpc", leaf.name()))
+						.increment();
+				metrics.handlingTimer.record(metrics.registry.clock().monotonicTime() - start, TimeUnit.NANOSECONDS);
 				rh.success(value);
 
 			}
 
 			@Override
 			public void failure(Throwable e) {
-				registry.counter(idFactory.name("callsCount", "status", "failure")).increment();
+				metrics.countFail.increment();
 			}
 
 		};
@@ -177,14 +196,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 		@Override
 		public void failure(Throwable e) {
 			if (vertx != null) {
-				vertx.runOnContext(new Handler<Void>() {
-
-					@Override
-					public void handle(Void event) {
-						logger.debug("do send response failure {}", e);
-						response.failure(e);
-					}
-				});
+				vertx.runOnContext((Void event) -> response.failure(e));
 			} else {
 				response.failure(e);
 			}
@@ -272,16 +284,17 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 		}
 	}
 
-	private Map<HttpMethod, TreePathNode> pathsByMethod = new ImmutableMap.Builder<HttpMethod, TreePathNode>()
-			.put(HttpMethod.GET, new TreePathNode())//
-			.put(HttpMethod.POST, new TreePathNode()) //
-			.put(HttpMethod.PUT, new TreePathNode()) //
-			.put(HttpMethod.DELETE, new TreePathNode()) //
-			.build();
+	private Map<HttpMethod, TreePathNode> pathsByMethod = new EnumMap<>(
+			new ImmutableMap.Builder<HttpMethod, TreePathNode>().put(HttpMethod.GET, new TreePathNode())//
+					.put(HttpMethod.POST, new TreePathNode()) //
+					.put(HttpMethod.PUT, new TreePathNode()) //
+					.put(HttpMethod.DELETE, new TreePathNode()) //
+					.build());
 
-	public static class TreePathNode {
-		public final Map<String, TreePathNode> childrens = new TreeMap<>();
-		public final Map<String, TreePathLeaf> leaves = new TreeMap<>();
+	public static final class TreePathNode {
+		public final Map<String, TreePathNode> childrens = new HashMap<>();
+		public final Map<String, TreePathLeaf> leaves = new HashMap<>();
+		private static final String MAGIC = "/_";
 
 		public TreePathLeaf leaf(String path) {
 			if (path.length() > 0 && path.charAt(1) == '/') {
@@ -294,7 +307,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 				TreePathNode child = childrens.get(currentPath);
 				if (child == null) {
 					// magic path
-					child = childrens.get("/_");
+					child = childrens.get(MAGIC);
 				}
 
 				if (child == null) {
@@ -305,7 +318,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 			} else {
 				TreePathLeaf ret = leaves.get(path);
 				if (ret == null) {
-					ret = leaves.get("/_");
+					ret = leaves.get(MAGIC);
 				}
 				return ret;
 			}
@@ -322,8 +335,8 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 				child.insert(path.substring(idx), leaf);
 
 			} else {
-				path = magicPath(path);
-				if (leaves.putIfAbsent(path, leaf) != null) {
+				String sub = magicPath(path);
+				if (leaves.putIfAbsent(sub, leaf) != null && logger.isErrorEnabled()) {
 					logger.error("path {} already taken for {}", path, leaf.name());
 				}
 			}
@@ -331,7 +344,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 
 		private String magicPath(String currentPath) {
 			if (currentPath.startsWith("/{")) {
-				return "/_";
+				return MAGIC;
 			} else {
 				return currentPath;
 			}
@@ -339,14 +352,15 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 
 	}
 
-	public static class TreePathLeaf implements IRestCallHandler {
+	public static final class TreePathLeaf implements IRestCallHandler {
 
-		private IRestCallHandler handler;
+		private final IRestCallHandler handler;
 
 		public TreePathLeaf(IRestCallHandler handler) {
 			this.handler = handler;
 		}
 
+		@Override
 		public String name() {
 			return handler.name();
 		}

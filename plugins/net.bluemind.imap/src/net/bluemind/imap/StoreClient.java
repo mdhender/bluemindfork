@@ -65,11 +65,19 @@ public class StoreClient implements AutoCloseable {
 		connector.setHandler(handler);
 	}
 
+	public StoreClient(String hostname, int port, String login, String password, int timeoutSecs) {
+		this(new TagProducer(), hostname, port, login, password, timeoutSecs);
+	}
+
 	public StoreClient(String hostname, int port, String login, String password) {
 		this(new TagProducer(), hostname, port, login, password);
 	}
 
 	public StoreClient(ITagProducer tp, String hostname, int port, String login, String password) {
+		this(tp, hostname, port, login, password, 60 * 60);
+	}
+
+	public StoreClient(ITagProducer tp, String hostname, int port, String login, String password, int timeoutSecs) {
 		if (tp == null) {
 			throw new NullPointerException("tag producer cannot be null");
 		}
@@ -84,7 +92,7 @@ public class StoreClient implements AutoCloseable {
 			public IResponseCallback create() {
 				return new StoreClientCallback();
 			}
-		});
+		}, timeoutSecs);
 	}
 
 	/**
@@ -133,8 +141,7 @@ public class StoreClient implements AutoCloseable {
 	/**
 	 * Opens the given IMAP folder. Only one folder quand be active at a time.
 	 * 
-	 * @param mailbox
-	 *            utf8 mailbox name.
+	 * @param mailbox utf8 mailbox name.
 	 * @throws IMAPException
 	 */
 	public boolean select(String mailbox) throws IMAPException {
@@ -293,10 +300,8 @@ public class StoreClient implements AutoCloseable {
 	}
 
 	/**
-	 * @param mailbox
-	 *            user/admin@buffy.kvm
-	 * @param quota
-	 *            unit is KB, 0 removes the quota
+	 * @param mailbox user/admin@buffy.kvm
+	 * @param quota   unit is KB, 0 removes the quota
 	 * @return
 	 */
 	public boolean setQuota(String mailbox, int quota) {

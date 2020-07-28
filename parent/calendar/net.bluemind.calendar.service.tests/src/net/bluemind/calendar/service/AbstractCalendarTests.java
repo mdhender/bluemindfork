@@ -34,7 +34,6 @@ import javax.sql.DataSource;
 import org.elasticsearch.client.transport.TransportClient;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
@@ -151,6 +150,7 @@ public abstract class AbstractCalendarTests {
 
 	protected SecurityContext basicUserSecurityContext;
 	protected DataSource dataDataSource;
+	protected DataSource systemDataSource;
 
 	protected AclStore aclStore;
 	protected AclStore aclStoreData;
@@ -159,11 +159,6 @@ public abstract class AbstractCalendarTests {
 	protected String datalocation;
 
 	private Container userDefActionContainer;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Rule
 	public final TestName junitName = new TestName();
@@ -193,11 +188,11 @@ public abstract class AbstractCalendarTests {
 		domainUid = "bm.lan";
 		datalocation = PopulateHelper.FAKE_CYRUS_IP;
 		dataDataSource = JdbcActivator.getInstance().getMailboxDataSource(datalocation);
+		systemDataSource = JdbcTestHelper.getInstance().getDataSource();
 
 		ItemValue<Domain> domain = PopulateHelper.createTestDomain(domainUid);
 
-		ContainerStore containerStore = new ContainerStore(testContext, JdbcTestHelper.getInstance().getDataSource(),
-				SecurityContext.SYSTEM);
+		ContainerStore containerStore = new ContainerStore(testContext, systemDataSource, SecurityContext.SYSTEM);
 
 		Container mboxContainer = containerStore.get(domainUid);
 		assertNotNull(mboxContainer);
@@ -221,7 +216,7 @@ public abstract class AbstractCalendarTests {
 				SecurityContext.SYSTEM);
 
 		ContainerStoreService<VCard> vcardStore = new ContainerStoreService<VCard>(
-				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, usersBook, IAddressBookUids.TYPE,
+				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, usersBook,
 				new VCardStore(JdbcTestHelper.getInstance().getDataSource(), usersBook));
 
 		// test user
@@ -239,24 +234,27 @@ public abstract class AbstractCalendarTests {
 				domainUid);
 		Sessions.get().put(basicUserSecurityContext.getSessionId(), basicUserSecurityContext);
 
-		userCalendarContainer = createTestContainer(userSecurityContext, ICalendarUids.TYPE, "John Doe",
+		userCalendarContainer = createTestContainer(userSecurityContext, dataDataSource, ICalendarUids.TYPE, "John Doe",
 				ICalendarUids.TYPE + ":Default:" + testUser.uid, testUser.uid);
-		userCalendarViewContainer = createTestContainer(userSecurityContext, "calendarview", "views",
+		userCalendarViewContainer = createTestContainer(userSecurityContext, dataDataSource, "calendarview", "views",
 				"calendarview:" + testUser.uid, testUser.uid);
-		userDefActionContainer = createTestContainer(userSecurityContext, IDeferredActionContainerUids.TYPE,
-				"defActions", IDeferredActionContainerUids.uidForUser(testUser.uid), testUser.uid);
+		userDefActionContainer = createTestContainer(userSecurityContext, dataDataSource,
+				IDeferredActionContainerUids.TYPE, "defActions", IDeferredActionContainerUids.uidForUser(testUser.uid),
+				testUser.uid);
 
-		userFreebusyContainer = createTestContainer(userSecurityContext, IFreebusyUids.TYPE, "John Doe",
-				IFreebusyUids.getFreebusyContainerUid(testUser.uid), testUser.uid);
+		// vFreeBusy is stored in bj...
+		userFreebusyContainer = createTestContainer(userSecurityContext, systemDataSource, IFreebusyUids.TYPE,
+				"John Doe", IFreebusyUids.getFreebusyContainerUid(testUser.uid), testUser.uid);
 
-		userTagContainer = createTestContainer(userSecurityContext, ITagUids.TYPE, "tags",
+		userTagContainer = createTestContainer(userSecurityContext, dataDataSource, ITagUids.TYPE, "tags",
 				ITagUids.TYPE + "_" + testUser.uid, testUser.uid);
 
-		Container contactsContainer = createTestContainer(userSecurityContext, IAddressBookUids.TYPE, "My Contacts",
-				"book:Contacts_" + testUser.uid, testUser.uid);
+		Container contactsContainer = createTestContainer(userSecurityContext, dataDataSource, IAddressBookUids.TYPE,
+				"My Contacts", "book:Contacts_" + testUser.uid, testUser.uid);
 
-		Container collectedContactsContainer = createTestContainer(userSecurityContext, IAddressBookUids.TYPE,
-				"Collected contacts yay", "book:CollectedContacts_" + testUser.uid, testUser.uid);
+		Container collectedContactsContainer = createTestContainer(userSecurityContext, dataDataSource,
+				IAddressBookUids.TYPE, "Collected contacts yay", "book:CollectedContacts_" + testUser.uid,
+				testUser.uid);
 
 		// attendee 1
 		attendee1 = defaultUser("test" + UUID.randomUUID().toString(), "attendee1", "attendee1");
@@ -265,9 +263,9 @@ public abstract class AbstractCalendarTests {
 		attendee1SecurityContext = new SecurityContext("attendee1", attendee1.uid, Arrays.<String>asList(),
 				Arrays.<String>asList(), domainUid);
 		Sessions.get().put(attendee1SecurityContext.getSessionId(), attendee1SecurityContext);
-		attendee1CalendarContainer = createTestContainer(attendee1SecurityContext, ICalendarUids.TYPE, "test",
-				ICalendarUids.TYPE + ":Default:" + attendee1.uid, attendee1.uid);
-		attendee1TagContainer = createTestContainer(attendee1SecurityContext, ITagUids.TYPE, "tags",
+		attendee1CalendarContainer = createTestContainer(attendee1SecurityContext, dataDataSource, ICalendarUids.TYPE,
+				"test", ICalendarUids.TYPE + ":Default:" + attendee1.uid, attendee1.uid);
+		attendee1TagContainer = createTestContainer(attendee1SecurityContext, dataDataSource, ITagUids.TYPE, "tags",
 				ITagUids.TYPE + "_" + attendee1.uid, attendee1.uid);
 
 		// attendee 2
@@ -277,9 +275,9 @@ public abstract class AbstractCalendarTests {
 		attendee2SecurityContext = new SecurityContext("attendee2", attendee2.uid, Arrays.<String>asList(),
 				Arrays.<String>asList(), domainUid);
 		Sessions.get().put(attendee2SecurityContext.getSessionId(), attendee2SecurityContext);
-		attendee2CalendarContainer = createTestContainer(attendee2SecurityContext, ICalendarUids.TYPE, "test",
-				ICalendarUids.TYPE + ":Default:" + attendee2.uid, attendee2.uid);
-		attendee2TagContainer = createTestContainer(attendee2SecurityContext, ITagUids.TYPE, "tags",
+		attendee2CalendarContainer = createTestContainer(attendee2SecurityContext, dataDataSource, ICalendarUids.TYPE,
+				"test", ICalendarUids.TYPE + ":Default:" + attendee2.uid, attendee2.uid);
+		attendee2TagContainer = createTestContainer(attendee2SecurityContext, dataDataSource, ITagUids.TYPE, "tags",
 				ITagUids.TYPE + "_" + attendee2.uid, attendee2.uid);
 
 		// forbidden attendee
@@ -289,12 +287,12 @@ public abstract class AbstractCalendarTests {
 		SecurityContext forbiddenSecurityContext = new SecurityContext("forbidden", forbidden.uid,
 				Arrays.<String>asList(), Arrays.<String>asList(), domainUid);
 		Sessions.get().put(forbiddenSecurityContext.getSessionId(), forbiddenSecurityContext);
-		forbiddenCalendarContainer = createTestContainer(forbiddenSecurityContext, ICalendarUids.TYPE, "test",
-				ICalendarUids.TYPE + ":Default:" + forbidden.uid, forbidden.uid);
+		forbiddenCalendarContainer = createTestContainer(forbiddenSecurityContext, dataDataSource, ICalendarUids.TYPE,
+				"test", ICalendarUids.TYPE + ":Default:" + forbidden.uid, forbidden.uid);
 
 		// Dlist
 		vcardStore = new ContainerStoreService<VCard>(JdbcTestHelper.getInstance().getDataSource(),
-				SecurityContext.SYSTEM, contactsContainer, IAddressBookUids.TYPE,
+				SecurityContext.SYSTEM, contactsContainer,
 				new VCardStore(JdbcTestHelper.getInstance().getDataSource(), contactsContainer));
 		VCardIndexStore vcardIndex = new VCardIndexStore(ElasticsearchTestHelper.getInstance().getClient(),
 				contactsContainer);
@@ -355,12 +353,12 @@ public abstract class AbstractCalendarTests {
 				.asList(AccessControlEntry.create(userSecurityContext.getSubject(), Verb.All));
 		aclStore.store(domainContainer, ace);
 		aclStore.store(usersBook, ace);
+		aclStore.store(userFreebusyContainer, ace);
 
 		// Acls sharded data
 		aclStoreData = new AclStore(testContext, dataDataSource);
 		aclStoreData.store(userCalendarContainer, ace);
 		aclStoreData.store(userCalendarViewContainer, ace);
-		aclStoreData.store(userFreebusyContainer, ace);
 		aclStoreData.store(userTagContainer, ace);
 		aclStoreData.store(userDefActionContainer, ace);
 		aclStoreData.store(contactsContainer, ace);
@@ -380,7 +378,7 @@ public abstract class AbstractCalendarTests {
 
 		// Tags
 		ContainerStoreService<Tag> storeService = new ContainerStoreService<>(dataDataSource, userSecurityContext,
-				userTagContainer, ITagUids.TYPE, new TagStore(dataDataSource, userTagContainer));
+				userTagContainer, new TagStore(dataDataSource, userTagContainer));
 
 		tag1 = new Tag();
 		tag1.label = "tag1";
@@ -505,19 +503,18 @@ public abstract class AbstractCalendarTests {
 		return ret;
 	}
 
-	protected Container createTestContainer(SecurityContext context, String type, String name, String uid, String owner)
-			throws SQLException {
+	protected Container createTestContainer(SecurityContext context, DataSource datasource, String type, String name,
+			String uid, String owner) throws SQLException {
 		BmContext ctx = new BmTestContext(context);
-		ContainerStore containerHome = new ContainerStore(ctx, dataDataSource, context);
+		ContainerStore containerHome = new ContainerStore(ctx, datasource, context);
 		Container container = Container.create(uid, type, name, owner, domainUid, true);
 		container = containerHome.create(container);
-
-		ContainerStore directoryStore = new ContainerStore(ctx, ctx.getDataSource(), context);
-		directoryStore.createContainerLocation(container, datalocation);
-
+		if (datasource != systemDataSource) {
+			ContainerStore directoryStore = new ContainerStore(ctx, ctx.getDataSource(), context);
+			directoryStore.createContainerLocation(container, datalocation);
+		}
 		IUserSubscription subApi = ctx.provider().instance(IUserSubscription.class, domainUid);
 		subApi.subscribe(context.getSubject(), Arrays.asList(ContainerSubscription.create(container.uid, true)));
-
 		return container;
 	}
 

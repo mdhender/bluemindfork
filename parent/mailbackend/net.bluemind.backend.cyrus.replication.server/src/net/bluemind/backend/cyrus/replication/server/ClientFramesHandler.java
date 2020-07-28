@@ -73,14 +73,10 @@ public class ClientFramesHandler implements Handler<Buffer> {
 		CompletableFuture<Void> root = CompletableFuture.completedFuture(null);
 		while ((frame = tokensHandler.next()) != null) {
 			final ReplicationFrame currentFrame = frame;
-			root = root.thenCompose(nothing -> {
-				return currentFrame.asyncComponent();
-			}).thenCompose(frameWithWritesCompleted -> {
-				return framesHandler.processFrame(frameWithWritesCompleted);
-			});
+			root = root.thenCompose(nothing -> currentFrame.asyncComponent())
+					.thenCompose(frameWithWritesCompleted -> framesHandler.processFrame(frameWithWritesCompleted));
 		}
 		root.whenComplete((v, ex) -> {
-			logger.debug("Resume read.");
 			client.resume();
 			if (ex != null) {
 				logger.error("Frame processing ended with error", ex);

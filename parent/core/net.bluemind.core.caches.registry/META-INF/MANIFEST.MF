@@ -9,8 +9,10 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava;bundle-version="24.1.0";visibility:=reexport,
  net.bluemind.eclipse.common,
  slf4j.api;bundle-version="1.7.5",
+ net.bluemind.core.commons,
  net.bluemind.core.rest;bundle-version="4.1.0",
- net.bluemind.core.commons
+ net.bluemind.hornetq.client,
+ net.bluemind.metrics.registry
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.caches.registry

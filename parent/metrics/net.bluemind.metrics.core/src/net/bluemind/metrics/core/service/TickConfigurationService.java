@@ -17,17 +17,12 @@
   */
 package net.bluemind.metrics.core.service;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.io.ByteStreams;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.Message;
@@ -68,22 +63,6 @@ public class TickConfigurationService implements IInCoreTickConfiguration {
 	public void reconfigure(IServerTaskMonitor monitor, BmContext ctx) {
 		IServer serversApi = ctx.provider().instance(IServer.class, InstallationId.getIdentifier());
 		List<ItemValue<Server>> allServers = Topology.get().nodes();
-
-		Topology.get().anyIfPresent("metrics/influxdb").ifPresent(influx -> {
-			List<ItemValue<Server>> nginxServers = allServers.stream().filter(s -> s.value.tags.contains("bm/nginx"))
-					.collect(Collectors.toList());
-			nginxServers.forEach(srv -> {
-				try (InputStream in = getClass().getClassLoader().getResourceAsStream("nginx/tick.conf")) {
-					String tpl = new String(ByteStreams.toByteArray(in));
-					tpl = tpl.replace("${chronograf}", influx.value.address());
-					serversApi.writeFile(srv.uid, "/etc/nginx/bm-local.d/tick.conf", tpl.getBytes());
-					monitor.log("NGINX configuration for tick written on " + srv.value.address());
-				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
-				}
-			});
-		});
-
 		List<TickInputConfigurator> hooks = TickConfigurators.configurators();
 
 		IServerTaskMonitor sub = monitor.subWork(allServers.size());

@@ -27,8 +27,8 @@ import net.bluemind.core.context.SecurityContext;
 public class ContainerWithoutChangelogService<T> extends ContainerStoreService<T> {
 
 	public ContainerWithoutChangelogService(DataSource pool, SecurityContext securityContext, Container container,
-			String itemType, IItemValueStore<T> itemValueStore) {
-		super(pool, securityContext, container, itemType, itemValueStore);
+			IItemValueStore<T> itemValueStore) {
+		super(pool, securityContext, container, itemValueStore);
 		hasChangeLog = false;
 	}
 

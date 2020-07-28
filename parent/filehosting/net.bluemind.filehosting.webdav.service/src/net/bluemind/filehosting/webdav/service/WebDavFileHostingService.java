@@ -162,6 +162,15 @@ public abstract class WebDavFileHostingService implements IFileHostingService {
 	}
 
 	@Override
+	public boolean exists(SecurityContext context, String path) throws ServerFault {
+		String encoded = sanitizePath(path);
+		WebdavContext webdavContext = getWebdavContext(context);
+		return webdav(() -> {
+			return webdavContext.sardine.exists(createUri(encoded, webdavContext.connectionContext));
+		});
+	}
+
+	@Override
 	public Stream get(SecurityContext context, String path) throws ServerFault {
 		String encoded = sanitizePath(path);
 		WebdavContext webdavContext = getWebdavContext(context);

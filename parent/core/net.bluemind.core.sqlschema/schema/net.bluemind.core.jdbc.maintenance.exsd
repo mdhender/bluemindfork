@@ -66,6 +66,16 @@
                </appinfo>
             </annotation>
          </attribute>
+         <attribute name="database" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":net.bluemind.core.jdbc.PgDatabase"/>
+               </appinfo>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 

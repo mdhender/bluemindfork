@@ -20,13 +20,24 @@ package net.bluemind.core.rest.http;
 
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.tests.services.IRestPathTestService;
@@ -62,6 +73,21 @@ public class RestHttpTests extends RestTestServiceTests {
 		} catch (Exception e) {
 			System.err.println("Got a timeout as expected: " + e.getMessage());
 		}
+	}
+
+	@Test
+	public void testRestPathServiceSpeed() throws InterruptedException, ExecutionException, TimeoutException {
+		IRestPathTestService srv = getRestPathTestService(SecurityContext.SYSTEM, "container", "user.root");
+		ListeningExecutorService pool = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(4));
+		int cnt = 500_000;
+		List<ListenableFuture<String>> list = new ArrayList<>(cnt);
+		for (int i = 0; i < cnt; i++) {
+			ListenableFuture<String> fut = pool.submit(() -> srv.goodMorning("yeah"));
+			list.add(fut);
+		}
+		CompletableFuture<Void> endOfRun = new CompletableFuture<>();
+		Futures.whenAllComplete(list).run(() -> endOfRun.complete(null), MoreExecutors.directExecutor());
+		endOfRun.get(5, TimeUnit.MINUTES);
 	}
 
 	@Override

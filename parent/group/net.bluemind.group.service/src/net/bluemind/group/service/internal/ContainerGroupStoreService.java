@@ -69,7 +69,7 @@ public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 
 	public ContainerGroupStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
 			Container container, ItemValue<Domain> domain) {
-		super(context, dataSource, securityContext, domain, container, "group", DirEntry.Kind.GROUP,
+		super(context, dataSource, securityContext, domain, container, DirEntry.Kind.GROUP,
 				new GroupStore(dataSource, container), new GroupDirEntryAdapter(),
 				new GroupVCardAdapter(dataSource, securityContext, container, domain.uid), new GroupMailboxAdapter());
 		this.groupStore = new GroupStore(dataSource, container);
@@ -277,7 +277,7 @@ public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 		}
 	}
 
-	public List<ItemValue<DirEntryAndValue<Group>>> search(GroupSearchQuery query)  throws ServerFault  {
+	public List<ItemValue<DirEntryAndValue<Group>>> search(GroupSearchQuery query) throws ServerFault {
 		return doOrFail(() -> {
 			List<String> uids = groupStore.search(query);
 			return getMultiple(uids);

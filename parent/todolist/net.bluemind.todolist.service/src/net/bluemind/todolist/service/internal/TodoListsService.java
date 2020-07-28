@@ -120,7 +120,7 @@ public class TodoListsService implements ITodoLists {
 		RBACManager.forContext(ctx).forContainer(container).check("Manage");
 
 		VTodoContainerStoreService storeService = new VTodoContainerStoreService(ctx, ds, ctx.getSecurityContext(),
-				container, ITodoUids.TYPE);
+				container);
 		VTodoIndexStore indexStore = new VTodoIndexStore(ESearchActivator.getClient(), container);
 
 		storeService.prepareContainerDelete();

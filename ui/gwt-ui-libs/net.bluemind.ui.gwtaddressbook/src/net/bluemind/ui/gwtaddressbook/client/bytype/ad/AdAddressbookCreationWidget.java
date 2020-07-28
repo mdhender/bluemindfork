@@ -156,7 +156,7 @@ public class AdAddressbookCreationWidget extends CompositeGwtWidgetElement {
 		descriptor.getSettings().put("type", LdapParameters.DirectoryType.ad.name());
 		descriptor.getSettings().put("hostname", adHostname.getValue());
 		descriptor.getSettings().put("protocol", getLdapProtocol());
-		descriptor.getSettings().put("allCerticate", getAllCertificate() ? "true" : "false");
+		descriptor.getSettings().put("allCertificate", getAllCertificate() ? "true" : "false");
 		descriptor.getSettings().put("baseDn", adBaseDn.getValue());
 		descriptor.getSettings().put("loginDn", adLoginDn.getValue());
 		descriptor.getSettings().put("loginPw", adLoginPw.getValue());

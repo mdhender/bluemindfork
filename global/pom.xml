@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.bluemind</groupId>
 	<artifactId>net.bluemind.global</artifactId>
@@ -27,8 +27,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<tycho-version>1.7.0</tycho-version>
 		<tycho-extras-version>1.7.0</tycho-extras-version>
-		<bm-plugins-version>1.0.378</bm-plugins-version>
-		<bm.metrics.agent>1.19.0</bm.metrics.agent>
+		<bm-plugins-version>1.0.379</bm-plugins-version>
+		<bm.metrics.agent>1.20.0</bm.metrics.agent>
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
 		<sonar.language>java</sonar.language>
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -36,14 +36,14 @@
 		<sonar.jacoco.excludes>**/*Test*,**/generated/**/*</sonar.jacoco.excludes>
 		<l10n.list>"en", "fr"</l10n.list>
 		<gwt-version>2.8.2</gwt-version>
-		<docker.devenv.tag>4.1.50208</docker.devenv.tag>
+		<docker.devenv.tag>4.1.50901</docker.devenv.tag>
 	</properties>
 
 	<repositories>
 		<repository>
 			<id>bluemind-deps</id>
 			<layout>p2</layout>
-			<url>http://forge.blue-mind.net/staging/p2/dependencies/479/</url>
+			<url>http://forge.blue-mind.net/staging/p2/dependencies/488/</url>
 		</repository>
 		<repository>
 			<id>tigase</id>
@@ -102,7 +102,7 @@
 		</plugins>
 
 		<pluginManagement>
-            <plugins>
+			<plugins>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-install-plugin</artifactId>
@@ -358,7 +358,7 @@
 					<groupId>net.bluemind</groupId>
 					<artifactId>net.bluemind.codegen.closure</artifactId>
 					<version>${bm-plugins-version}</version>
-                                      </plugin>
+				</plugin>
 
 				<plugin>
 					<groupId>net.bluemind</groupId>
@@ -400,7 +400,7 @@
 					<artifactId>gwt-maven-plugin</artifactId>
 					<version>${gwt-version}</version>
 					<configuration>
-						<extraJvmArgs>-Xmx1024M -Xms512M -Xss512k</extraJvmArgs>
+						<extraJvmArgs>-Xmx2048M</extraJvmArgs>
 					</configuration>
 					<executions>
 						<execution>

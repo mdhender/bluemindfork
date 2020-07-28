@@ -40,8 +40,8 @@ public abstract class BaseDirStoreService<T> extends ContainerStoreService<T> {
 	private BmContext bmContext;
 
 	protected BaseDirStoreService(BmContext ctx, DataSource pool, SecurityContext securityContext, Container container,
-			String itemType, IItemValueStore<T> itemValueStore) {
-		super(pool, securityContext, container, itemType, itemValueStore);
+			IItemValueStore<T> itemValueStore) {
+		super(pool, securityContext, container, itemValueStore);
 		this.bmContext = ctx;
 	}
 

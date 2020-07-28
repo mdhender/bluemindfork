@@ -69,7 +69,4 @@ public interface SysConfAuthConstants extends Messages {
 
 	String globalParams();
 
-	String maxSessionPerUser();
-
-	String maxSessionPerUserTitle();
 }

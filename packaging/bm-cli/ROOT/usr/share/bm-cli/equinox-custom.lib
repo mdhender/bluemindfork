@@ -46,14 +46,6 @@ elif [ -d /usr/share/bm-conf/logs/ -a -f "/usr/share/bm-conf/logs/${product}.log
    JVM_OPTS="${JVM_OPTS} -Dlogback.configurationFile=/usr/share/bm-conf/logs/${product}.log.xml"
 fi
 
-rm -rf /usr/share/${product}/plugins
-mkdir -p /usr/share/${product}/plugins
-
-if [ -e /usr/share/${product}/extensions ]; then
-    find /usr/share/${product}/extensions -name '*.jar' -exec ln -f {} /usr/share/${product}/plugins \;
-fi
-
-find /usr/share/${product}/main -name '*.jar' -exec ln -f {} /usr/share/${product}/plugins \;
 
 PRODUCT_WORK_DIR=/var/lib/${product}/work
 mkdir -p ${PRODUCT_WORK_DIR}
@@ -106,7 +98,7 @@ function bm_equinox_run_appid() {
         exit 1
     }
 
-    $JAVA_HOME/bin/java ${JVM_OPTS} ${JVM_EXT_OPTS} \
+    $JAVA_HOME/bin/java ${JVM_OPTS} ${JVM_EXT_OPTS} -Xshare:on \
         -Djava.awt.headless=true -Duser.timezone=GMT \
         -cp ${equinox_jar} ${equinox_main_class} \
         -application $appid_to_run "$@"

@@ -17,6 +17,8 @@
  */
 package net.bluemind.backend.mail.replica.service.internal;
 
+import java.util.concurrent.TimeUnit;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
@@ -27,7 +29,10 @@ import net.bluemind.core.container.model.ItemValue;
 
 public class MboxReplicasCache {
 	private static final Cache<String, ItemValue<MailboxReplica>> replicas = CacheBuilder.newBuilder()
-			.concurrencyLevel(16).recordStats().build();
+			.recordStats()
+			.expireAfterWrite(10, TimeUnit.MINUTES)
+			.concurrencyLevel(16)
+			.build();
 
 	private MboxReplicasCache() {
 

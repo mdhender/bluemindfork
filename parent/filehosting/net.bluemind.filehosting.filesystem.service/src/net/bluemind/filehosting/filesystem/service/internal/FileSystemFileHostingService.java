@@ -119,6 +119,11 @@ public class FileSystemFileHostingService implements IFileHostingService {
 	}
 
 	@Override
+	public boolean exists(SecurityContext context, String path) throws ServerFault {
+		return fileExists(createFilePath(path, context, false));
+	}
+
+	@Override
 	public Stream getSharedFile(SecurityContext context, String uid) throws ServerFault {
 		FileHostingEntity entity = store.getByUid(uid);
 		if (fileHasExpired(entity)) {

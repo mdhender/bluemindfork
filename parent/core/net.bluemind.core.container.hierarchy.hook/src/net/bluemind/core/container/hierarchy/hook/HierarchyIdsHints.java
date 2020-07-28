@@ -17,12 +17,17 @@
   */
 package net.bluemind.core.container.hierarchy.hook;
 
+import java.util.concurrent.TimeUnit;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 public class HierarchyIdsHints {
-
-	private static Cache<String, Long> idHints = CacheBuilder.newBuilder().maximumSize(256).build();
+	private static final Cache<String, Long> idHints = CacheBuilder.newBuilder()
+			.recordStats()
+			.maximumSize(256)
+			.expireAfterAccess(5, TimeUnit.MINUTES)
+			.build();
 
 	public static void putHint(String uid, long id) {
 		idHints.put(uid, id);

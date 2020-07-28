@@ -32,7 +32,7 @@ import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
-import net.bluemind.tag.api.TagDescriptor;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.ui.adminconsole.system.domains.assignments.AssignmentWidget;
 
 public class EditDomainIndexingEditor extends AssignmentWidget {

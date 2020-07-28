@@ -19,7 +19,9 @@
 package net.bluemind.filehosting.filesystem.service.internal;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -170,6 +172,17 @@ public class FileSystemFileHostingServiceTests {
 		String fetched = streamToString(service.get(path));
 
 		Assert.assertEquals(testString, fetched);
+	}
+
+	@Test
+	public void testCheckingExistence() throws Exception {
+		String path = "/test123.txt";
+		String testString = "test";
+		Stream bytesToStream = bytesToStream(testString.getBytes());
+		service.store(path, bytesToStream);
+
+		assertTrue(service.exists(path));
+		assertFalse(service.exists(path + System.currentTimeMillis()));
 	}
 
 	@Test

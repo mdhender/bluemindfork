@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="contact.appcache">
+<html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -24,7 +24,6 @@
         in order for this application to display correctly.
       </div>
     </noscript>
-    <!-- appcache" -->
     <iframe style='display:none' frameborder="0" src="index-offline.html"><!-- needed --></iframe>
   </body>
 </html>

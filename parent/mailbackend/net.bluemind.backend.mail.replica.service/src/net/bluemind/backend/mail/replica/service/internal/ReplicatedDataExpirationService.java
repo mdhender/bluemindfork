@@ -73,11 +73,15 @@ public class ReplicatedDataExpirationService implements IReplicatedDataExpiratio
 
 			partitioned.entrySet().forEach(entry -> {
 				String mboxUniqueId = IMailReplicaUids.uniqueId(entry.getKey());
-				List<Long> imapUids = entry.getValue();
-				logger.info("Expiring {} messages of mailbox {}", imapUids.size(), mboxUniqueId);
-				monitor.log("Expiring " + imapUids.size() + " messages of mailbox " + mboxUniqueId);
+				try {
+					List<Long> imapUids = entry.getValue();
+					logger.info("Expiring {} messages of mailbox {}", imapUids.size(), mboxUniqueId);
+					monitor.log("Expiring " + imapUids.size() + " messages of mailbox " + mboxUniqueId);
 
-				context.provider().instance(IDbMailboxRecords.class, mboxUniqueId).deleteImapUids(imapUids);
+					context.provider().instance(IDbMailboxRecords.class, mboxUniqueId).deleteImapUids(imapUids);
+				} catch (Exception e) {
+					logger.error("Error cleaning up {}: {}", mboxUniqueId, e.getMessage());
+				}
 			});
 
 			new ContainersHierarchyNodeStore(pool, null).removeDeletedRecords(days);

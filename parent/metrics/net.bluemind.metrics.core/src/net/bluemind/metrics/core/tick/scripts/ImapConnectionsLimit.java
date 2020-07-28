@@ -54,7 +54,7 @@ public class ImapConnectionsLimit extends BasicTickTemplateProvider {
 		Set<Product> srvProducts = EnumSet.noneOf(Product.class);
 		server.value.tags.forEach(tag -> srvProducts.addAll(Product.byTag(tag)));
 
-		List<TemplateDefinition> defs = new ArrayList<TemplateDefinition>();
+		List<TemplateDefinition> defs = new ArrayList<>();
 
 		ISystemConfiguration sysConfApi = ctx.provider().instance(ISystemConfiguration.class);
 		Integer maxChild = sysConfApi.getValues().integerValue("imap_max_child");

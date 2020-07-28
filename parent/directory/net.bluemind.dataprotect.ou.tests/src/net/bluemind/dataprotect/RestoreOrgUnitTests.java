@@ -43,7 +43,6 @@ import io.vertx.core.Handler;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.ITask;
@@ -101,15 +100,9 @@ public class RestoreOrgUnitTests {
 		});
 		cdl.await();
 
-		ElasticsearchTestHelper.getInstance().beforeTest();
-
 		Server core = new Server();
 		core.ip = new BmConfIni().get("node-host");
 		core.tags = getTagsExcept("bm/es", "mail/imap", "bm/pgsql", "bm/pgsql-data");
-
-		Server esServer = new Server();
-		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		esServer.tags = Lists.newArrayList("bm/es");
 
 		String cyrusIp = new BmConfIni().get("imap-role");
 		imapServer = new Server();
@@ -120,7 +113,7 @@ public class RestoreOrgUnitTests {
 		dbServer.ip = new BmConfIni().get("host");
 		dbServer.tags = Lists.newArrayList("bm/pgsql", "bm/pgsql-data");
 
-		PopulateHelper.initGlobalVirt(false, core, esServer, dbServer, imapServer);
+		PopulateHelper.initGlobalVirt(false, core, dbServer, imapServer);
 		PopulateHelper.addDomainAdmin("admin0", "global.virt");
 
 		PopulateHelper.addDomain(domain, Routing.none);

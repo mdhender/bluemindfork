@@ -275,12 +275,6 @@ public class DirectoryCenter extends Composite implements IGwtScreenRoot, IDomai
 
 	private ScreenRoot instance;
 
-	@UiHandler("filterBox")
-	void onChange(ChangeEvent event) {
-		pager.firstPage();
-		find();
-	}
-
 	protected DirectoryCenter(ScreenRoot instance) {
 		this.instance = instance;
 		bmDataGridStyle = dataGridRes.dataGridStyle();

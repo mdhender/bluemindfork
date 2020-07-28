@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -19,10 +19,7 @@
 package net.bluemind.calendar.service;
 
 import java.sql.SQLException;
-
 import javax.sql.DataSource;
-
-import com.google.common.base.Throwables;
 
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.internal.IInternalCalendar;
@@ -39,7 +36,6 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 
 public class CalendarServiceBaseFactory {
-
 	protected IInternalCalendar getService(BmContext context, String containerId) throws ServerFault {
 
 		DataSource ds = DataSourceRouter.get(context, containerId);
@@ -56,8 +52,12 @@ public class CalendarServiceBaseFactory {
 		}
 
 		if (!container.type.equals(ICalendarUids.TYPE)) {
-			Throwables.propagate(new ServerFault(
-					"Incompatible calendar container type: " + container.type + ", uid: " + container.uid));
+			throw new ServerFault(
+					"Incompatible calendar container type: " + container.type + ", uid: " + container.uid);
+		}
+
+		if (ds.equals(context.getDataSource())) {
+			throw new ServerFault("wrong datasource container.uid " + container.uid);
 		}
 
 		CalendarAuditor auditor = CalendarAuditor.auditor(IAuditManager.instance(), context, container);

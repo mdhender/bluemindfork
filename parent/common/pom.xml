@@ -12,6 +12,8 @@
 		<module>net.bluemind.common.reflect</module>
 		<module>net.bluemind.common.io</module>
 		<module>net.bluemind.common.freemarker</module>
+		<module>net.bluemind.common.hollow</module>
+		<module>net.bluemind.vertx.core.patch</module>
 		<module>net.bluemind.systemd.notify</module>
 		<module>net.bluemind.systemd.notify.tests</module>
 	</modules>

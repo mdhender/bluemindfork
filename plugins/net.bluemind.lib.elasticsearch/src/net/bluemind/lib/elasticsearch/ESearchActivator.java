@@ -270,6 +270,7 @@ public final class ESearchActivator implements BundleActivator {
 			}
 
 			settingsBuilder.put("node.name", "client-" + UUID.randomUUID());
+                        settingsBuilder.put("client.transport.ping_timeout", "20s");
 			Settings settings = settingsBuilder.build();
 			TransportClient cli = new PreBuiltTransportClient(settings);
 			StringBuilder hlist = new StringBuilder();
@@ -381,12 +382,13 @@ public final class ESearchActivator implements BundleActivator {
 		resetIndex(client, index);
 	}
 
-	public static void resetIndex(Client client, String index) {
+	private static void resetIndex(Client client, String index) {
 		logger.info("reset index {}", index);
 		try {
 			client.admin().indices().prepareDelete(index).execute().actionGet();
 			if (isPrimary(index)) {
-				int count = indexes.values().stream().filter(item -> item.supportsIndex(index)).findFirst().get().count;
+				int count = indexes.values().stream().filter(item -> item.supportsIndex(index)).findFirst().get()
+						.count();
 				if (count > 1) {
 					for (int i = 1; i <= count; i++) {
 						String indexName = index + "_" + i;
@@ -403,11 +405,6 @@ public final class ESearchActivator implements BundleActivator {
 		initIndex(client, index, isPrimary(index));
 	}
 
-	public static void initIndex(String index) {
-		Client client = ESearchActivator.getClient();
-		initIndex(client, index, isPrimary(index));
-	}
-
 	private static boolean isPrimary(String index) {
 		return !Pattern.compile(".*_\\d+").matcher(index).matches();
 	}
@@ -420,13 +417,13 @@ public final class ESearchActivator implements BundleActivator {
 			logger.warn("no SCHEMA for {}", index);
 			try {
 				client.admin().indices().prepareCreate(index).execute().actionGet();
-				return;
 			} catch (Exception e) {
 				logger.warn("failed to create indice {} : {}", index, e.getMessage());
+				throw e;
 			}
 		} else {
 			IndexDefinition definition = indexDefinition.get();
-			int count = primary ? definition.count : 1;
+			int count = primary ? definition.count() : 1;
 			byte[] schema = definition.schema;
 			try {
 				if (count > 1) {
@@ -451,6 +448,7 @@ public final class ESearchActivator implements BundleActivator {
 				}
 			} catch (Exception e) {
 				logger.warn("failed to create indice {} : {}", index, e.getMessage(), e);
+				throw e;
 			}
 		}
 	}
@@ -471,13 +469,17 @@ public final class ESearchActivator implements BundleActivator {
 		private final String index;
 		private final byte[] schema;
 		private final Optional<ISchemaMatcher> matcher;
-		private final int count;
+		private final int cnt;
 
 		IndexDefinition(String index, byte[] schema, Optional<ISchemaMatcher> matcher, int count) {
 			this.index = index;
 			this.schema = schema;
 			this.matcher = matcher;
-			this.count = count;
+			this.cnt = count;
+		}
+
+		public int count() {
+			return Integer.parseInt(System.getProperty("es." + index + ".count", "" + cnt));
 		}
 
 		boolean supportsIndex(String name) {

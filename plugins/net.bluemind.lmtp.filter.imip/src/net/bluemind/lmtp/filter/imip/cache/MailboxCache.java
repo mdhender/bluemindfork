@@ -31,6 +31,8 @@ import com.google.common.cache.CacheBuilder;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.mailbox.api.IMailboxes;
@@ -38,13 +40,19 @@ import net.bluemind.mailbox.api.Mailbox;
 
 public class MailboxCache extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(MailboxCache.class);
-	private static Cache<String, Optional<ItemValue<Mailbox>>> nameToMailbox;
+	private static final Cache<String, Optional<ItemValue<Mailbox>>> nameToMailbox = CacheBuilder.newBuilder()
+			.recordStats()
+			.concurrencyLevel(4)
+			.expireAfterAccess(30, TimeUnit.MINUTES)
+			.initialCapacity(1024)
+			.build();
 	private static Map<String, String> uidToName = new ConcurrentHashMap<>();
 
-	static {
-		nameToMailbox = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).concurrencyLevel(4)
-				.initialCapacity(1024) //
-				.build();
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(MailboxCache.class, nameToMailbox);
+		}
 	}
 
 	@Override

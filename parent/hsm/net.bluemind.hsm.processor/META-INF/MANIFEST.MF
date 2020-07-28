@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.hsm.processor
-Bundle-SymbolicName: net.bluemind.hsm.processor
+Bundle-SymbolicName: net.bluemind.hsm.processor;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -15,6 +15,7 @@ Require-Bundle: net.bluemind.hsm.storage,
  slf4j.api,
  net.bluemind.core.context,
  net.bluemind.user.api,
+ net.bluemind.core.caches.registry,
  net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.container.persistence,
  net.bluemind.core.rest,

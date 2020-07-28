@@ -57,8 +57,8 @@ import net.bluemind.proxy.http.ExternalCreds;
 import net.bluemind.proxy.http.IAuthProvider;
 import net.bluemind.proxy.http.IDecorableRequest;
 import net.bluemind.proxy.http.InvalidSession;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.SysConfKeys;
-import net.bluemind.tag.api.TagDescriptor;
 import net.bluemind.user.api.ChangePassword;
 import net.bluemind.user.api.IUserPromise;
 

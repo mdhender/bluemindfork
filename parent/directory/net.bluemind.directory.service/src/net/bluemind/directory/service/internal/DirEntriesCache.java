@@ -33,13 +33,16 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.DirEntry;
 
 public class DirEntriesCache {
-
 	public static class Registration implements ICacheRegistration {
 		@Override
 		public void registerCaches(CacheRegistry cr) {
-			logger.info("Registered DirEntries cache");
-			cr.register(DirEntriesCache.class,
-					CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build());
+			logger.debug("Registered DirEntries cache");
+			cr.register(
+				DirEntriesCache.class,
+				CacheBuilder.newBuilder()
+					.recordStats()
+					.expireAfterAccess(1, TimeUnit.MINUTES)
+					.build());
 		}
 	}
 

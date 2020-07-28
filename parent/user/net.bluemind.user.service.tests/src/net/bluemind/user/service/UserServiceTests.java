@@ -46,7 +46,6 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -147,11 +146,6 @@ public class UserServiceTests {
 	private SecurityContext userSecurityContext;
 	private ContainerUserStoreService userStoreService;
 	private ItemValue<Domain> domain;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	public void before() throws Exception {
@@ -401,14 +395,14 @@ public class UserServiceTests {
 		String uid = create(user);
 		VertxEventChecker<JsonObject> eventChecker = new VertxEventChecker<>(
 				AddressBookBusAddresses.getChangedEventAddress(DomainAddressBook.getIdentifier(domainUid)));
+		VertxEventChecker<String> syncChecker = new VertxEventChecker<>("domainbook.sync." + domainUid);
 
 		user = getService(domainAdminSecurityContext).getComplete(uid).value;
 
 		eventChecker.shouldSuccess();
-
-		// ensure the vcard has been created
-		// eventChecker.shouldSuccess is not enough, several events are sent
-		Thread.sleep(200);
+		System.err.println("Waiting for sync");
+		syncChecker.shouldSuccess();
+		System.err.println("Got sync");
 
 		IAddressBook abService = ServerSideServiceProvider.getProvider(domainAdminSecurityContext)
 				.instance(IAddressBook.class, "addressbook_" + domainUid);
@@ -417,14 +411,12 @@ public class UserServiceTests {
 
 		eventChecker = new VertxEventChecker<>(
 				AddressBookBusAddresses.getChangedEventAddress(DomainAddressBook.getIdentifier(domainUid)));
+		syncChecker = new VertxEventChecker<>("domainbook.sync." + domainUid);
 		user.archived = true;
 		getService(domainAdminSecurityContext).update(uid, user);
 
 		eventChecker.shouldSuccess();
-
-		// ensure the vcard has been removed (archived user)
-		// eventChecker.shouldSuccess is not enough, several events are sent
-		Thread.sleep(200);
+		syncChecker.shouldSuccess();
 
 		vcard = abService.getComplete(uid);
 		assertNull(vcard);

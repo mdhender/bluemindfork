@@ -79,7 +79,7 @@ public class ApplyMessage implements IAsyncReplicationCommand {
 				count.addAndGet(batchSize);
 				CompletableFuture<?>[] batch = new CompletableFuture[batchSize];
 				for (int i = 0; i < batchSize; i++) {
-					batch[i] = state.addMessage(msg.toProcess[i]);
+					batch[i] = state.addMessage(msg.toProcess[i]).exceptionally(ex -> null);
 				}
 				return CompletableFuture.allOf(batch);
 			});

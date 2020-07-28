@@ -51,7 +51,7 @@ public class PimpMyRam implements IApplication {
 
 	private void writePg(String tpl) {
 		try (InputStream in = PimpMyRam.class.getClassLoader().getResourceAsStream("data/pg/" + tpl)) {
-			File tgt = new File("/etc/postgresql/11/main/postgresql.conf.local");
+			File tgt = new File("/etc/postgresql/12/main/postgresql.conf.local");
 			byte[] data = ByteStreams.toByteArray(in);
 			Files.write(data, tgt);
 			logger.info("PostgreSQL memory configured with template {}", tpl);

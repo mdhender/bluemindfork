@@ -70,7 +70,8 @@ public final class UpgraderStore extends JdbcAbstractStore {
 		}
 	}
 
-	private static final String SELECT = "SELECT 1 FROM t_bm_upgraders WHERE upgrader_id = ? AND server = ? AND database_name = ?::enum_database_name AND success = true";
+	private static final String SELECT_REGISTERED = "SELECT 1 FROM t_bm_upgraders WHERE upgrader_id = ? AND server = ? AND database_name = ?::enum_database_name";
+	private static final String SELECT = SELECT_REGISTERED + " AND success = true";
 
 	public boolean upgraderCompleted(String upgraderId, String server, Database database) throws SQLException {
 		Boolean found = unique(SELECT, rs -> Boolean.TRUE, Collections.emptyList(),
@@ -92,24 +93,33 @@ public final class UpgraderStore extends JdbcAbstractStore {
 				new Object[] { component, version, version });
 	}
 
+	public boolean upgraderRegistered(String upgraderId, String server, Database database) throws SQLException {
+		Boolean found = unique(SELECT_REGISTERED, rs -> Boolean.TRUE, Collections.emptyList(),
+				new Object[] { upgraderId, server, database.name() });
+		return found != null;
+	}
+
 	public boolean needsMigration() throws SQLException {
 		String sql = "select exists (select from pg_tables where tablename = 't_bm_upgraders')";
 		boolean foundUpgraderTable = unique(sql, BooleanCreator.FIRST, Collections.emptyList(), new Object[0]);
 		if (!foundUpgraderTable) {
-			String createEnum = "create type enum_database_name as enum ('DIRECTORY', 'SHARD', 'ALL')";
-			String createTable = "create table t_bm_upgraders (server text, " //
-					+ "phase enum_upgrader_phase, " //
-					+ "database_name enum_database_name, " //
-					+ "upgrader_id text, " //
-					+ "success boolean, " //
-					+ "PRIMARY KEY (server, database_name, upgrader_id))";
-			try (Connection con = datasource.getConnection(); Statement st = con.createStatement()) {
-				st.execute(createEnum);
-				st.execute(createTable);
-			}
-
+			createUpgraderTable();
 		}
 		return !foundUpgraderTable;
+	}
+
+	private void createUpgraderTable() throws SQLException {
+		String createEnum = "create type enum_database_name as enum ('DIRECTORY', 'SHARD', 'ALL')";
+		String createTable = "create table t_bm_upgraders (server text, " //
+				+ "phase enum_upgrader_phase, " //
+				+ "database_name enum_database_name, " //
+				+ "upgrader_id text, " //
+				+ "success boolean, " //
+				+ "PRIMARY KEY (server, database_name, upgrader_id))";
+		try (Connection con = datasource.getConnection(); Statement st = con.createStatement()) {
+			st.execute(createEnum);
+			st.execute(createTable);
+		}
 	}
 
 }

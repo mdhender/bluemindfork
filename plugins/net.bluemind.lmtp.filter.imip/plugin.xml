@@ -18,5 +18,13 @@
             impl="net.bluemind.lmtp.filter.imip.cache.MailboxCacheFactory">
       </verticle>
    </extension>
-
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.lmtp.filter.imip.EventRequestHandler$CacheRegistration">
+      </reg>
+      <reg
+            impl="net.bluemind.lmtp.filter.imip.cache.MailboxCache$CacheRegistration">
+      </reg>
+   </extension>
 </plugin>

@@ -3,5 +3,4 @@
 <plugin>
    <extension-point id="net.bluemind.core.sessions.provider" name="provider" schema="schema/net.bluemind.core.sessions.provider.exsd"/>
    <extension-point id="net.bluemind.core.sessions.deletion" name="deletion" schema="schema/net.bluemind.core.sessions.deletion.exsd"/>
-
 </plugin>

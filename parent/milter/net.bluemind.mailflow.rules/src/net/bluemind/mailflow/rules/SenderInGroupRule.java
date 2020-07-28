@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.group.api.IGroup;
@@ -37,7 +39,6 @@ import net.bluemind.mailflow.rbe.MailRuleEvaluation;
 import net.bluemind.user.api.IUser;
 
 public class SenderInGroupRule extends DefaultRule implements MailRule {
-
 	@Override
 	public String identifier() {
 		return "SenderInGroupRule";
@@ -48,8 +49,19 @@ public class SenderInGroupRule extends DefaultRule implements MailRule {
 		return "Rule matches against sender in given group";
 	}
 
-	private static Cache<String, List<String>> groupMapping = CacheBuilder.newBuilder().maximumSize(1000)
-			.expireAfterWrite(10, TimeUnit.MINUTES).build();
+	private static Cache<String, List<String>> groupMapping = CacheBuilder.newBuilder()
+			.recordStats()
+			.maximumSize(1000)
+			.expireAfterWrite(10, TimeUnit.MINUTES)
+			.build();
+
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(SenderInGroupRule.class, groupMapping);
+		}
+	}
 
 	@Override
 	public MailRuleEvaluation evaluate(Message message, IClientContext mailflowContext) {

@@ -25,7 +25,6 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -63,11 +62,6 @@ public class AddressBookXferTests {
 	private String userUid = "test" + System.currentTimeMillis();
 	private String shardIp;
 	private SecurityContext context;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	public void before() throws Exception {

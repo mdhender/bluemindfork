@@ -36,12 +36,12 @@ import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.hook.DefaultServerHook;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.hook.ISystemConfigurationObserver;
 import net.bluemind.system.hook.ISystemHook;
-import net.bluemind.tag.api.TagDescriptor;
 
 public class SettingsHook extends DefaultServerHook implements ISystemConfigurationObserver, ISystemHook {
 	Logger logger = LoggerFactory.getLogger(SettingsHook.class.getName());

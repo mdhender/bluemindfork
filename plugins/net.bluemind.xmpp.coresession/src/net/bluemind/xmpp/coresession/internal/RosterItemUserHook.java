@@ -39,7 +39,7 @@ public class RosterItemUserHook extends DefaultUserHook {
 
 		if ("admin0@global.virt"
 				.equals(Optional.ofNullable(current.value.defaultEmail()).map(e -> e.address).orElse(""))) {
-			RosterItemCache.getInstance().invalidate(context, current.value);
+			RosterItemCache.invalidate(context, current.value);
 		}
 
 	}

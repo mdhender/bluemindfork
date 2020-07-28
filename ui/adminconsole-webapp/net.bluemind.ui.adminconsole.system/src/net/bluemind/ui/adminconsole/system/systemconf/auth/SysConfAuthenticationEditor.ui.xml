@@ -24,16 +24,6 @@
 										<g:ListBox ui:field="domainList" title="{c.domainList}" />
 									</td>
 								</tr>
-								<tr>
-									<td class="label" style='width:60%'>
-										<g:Label text="{c.maxSessionPerUser}"></g:Label>
-									</td>
-									<td>
-										<g:TextBox ui:field="maxSessionPerUser"
-											title="{c.maxSessionPerUserTitle}"
-											readOnly="false" />
-									</td>
-								</tr>
 							</table>
 						</g:HTMLPanel>
 					</f:FieldSetPanel>

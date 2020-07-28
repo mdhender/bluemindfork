@@ -28,6 +28,8 @@ public interface ExternalCalendarConstants extends Messages {
 
 	public String lastSync();
 
+	public String nextSync();
+
 	public String icsUrl();
 
 	public String confirmReset();

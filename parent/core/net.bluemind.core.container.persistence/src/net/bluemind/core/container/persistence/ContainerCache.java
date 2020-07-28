@@ -17,6 +17,8 @@
   */
 package net.bluemind.core.container.persistence;
 
+import java.util.concurrent.TimeUnit;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
@@ -26,12 +28,16 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 
 public final class ContainerCache {
-
 	public static class Registration implements ICacheRegistration {
-
 		@Override
 		public void registerCaches(CacheRegistry cr) {
-			cr.register(ContainerCache.class, CacheBuilder.newBuilder().build());
+			cr.register(
+				ContainerCache.class,
+				CacheBuilder.newBuilder()
+					.recordStats()
+					.expireAfterAccess(10, TimeUnit.MINUTES)
+					.build()
+			);
 		}
 	}
 
@@ -47,7 +53,6 @@ public final class ContainerCache {
 		} else {
 			return new ContainerCache(context.provider().instance(CacheRegistry.class).get(ContainerCache.class));
 		}
-
 	}
 
 	public Container getIfPresent(String uid) {
@@ -56,7 +61,6 @@ public final class ContainerCache {
 		} else {
 			return null;
 		}
-
 	}
 
 	public void put(String uid, Container c) {

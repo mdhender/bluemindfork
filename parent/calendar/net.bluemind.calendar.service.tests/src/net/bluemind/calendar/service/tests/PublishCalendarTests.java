@@ -76,7 +76,7 @@ public class PublishCalendarTests extends AbstractCalendarTests {
 		assertFalse(export.contains("DESCRIPTION:aaa"));
 		assertFalse(export.contains("SUMMARY:top secret"));
 
-		aclStore.store(userCalendarContainer, Arrays.asList());
+		aclStoreData.store(userCalendarContainer, Arrays.asList());
 
 		try {
 			getPublishCalendarService(userSecurityContext, userCalendarContainer).publish(token);

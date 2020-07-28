@@ -49,14 +49,14 @@ public class ShardedSubscriptionsHook extends ContainersHookAdapter {
 			IInternalOwnerSubscriptions subApi = ctx.provider().instance(IInternalOwnerSubscriptions.class, domain,
 					newOwner);
 			ContainerSubscriptionModel sub = ContainerSubscriptionModel.create(cd, cd.offlineSync);
-			String subUid = IOwnerSubscriptionUids.subscriptionUid(cd, newOwner);
+			String subUid = IOwnerSubscriptionUids.subscriptionUid(cd.uid, newOwner);
 			subApi.create(subUid, sub);
 			logger.info("Stored new sub {}, offline: {}", subUid, cd.offlineSync);
 		}
 		for (String oldOwner : unsubs) {
 			IInternalOwnerSubscriptions subApi = ctx.provider().instance(IInternalOwnerSubscriptions.class, domain,
 					oldOwner);
-			String subUid = IOwnerSubscriptionUids.subscriptionUid(cd, oldOwner);
+			String subUid = IOwnerSubscriptionUids.subscriptionUid(cd.uid, oldOwner);
 			subApi.delete(subUid);
 			logger.info("Cleared sub {}", subUid);
 		}
@@ -66,7 +66,7 @@ public class ShardedSubscriptionsHook extends ContainersHookAdapter {
 	public void onContainerOfflineSyncStatusChanged(BmContext ctx, ContainerDescriptor cd, String subject) {
 		IInternalOwnerSubscriptions subApi = ctx.provider().instance(IInternalOwnerSubscriptions.class, cd.domainUid,
 				subject);
-		String sub = IOwnerSubscriptionUids.subscriptionUid(cd, subject);
+		String sub = IOwnerSubscriptionUids.subscriptionUid(cd.uid, subject);
 		ItemValue<ContainerSubscriptionModel> theSub = subApi.getComplete(sub);
 		if (theSub != null) {
 			theSub.value.offlineSync = cd.offlineSync;
@@ -88,7 +88,7 @@ public class ShardedSubscriptionsHook extends ContainersHookAdapter {
 		for (String subject : subscribers) {
 			IInternalOwnerSubscriptions subApi = ctx.provider().instance(IInternalOwnerSubscriptions.class,
 					cur.domainUid, subject);
-			String sub = IOwnerSubscriptionUids.subscriptionUid(cur, subject);
+			String sub = IOwnerSubscriptionUids.subscriptionUid(cur.uid, subject);
 			ItemValue<ContainerSubscriptionModel> toUpdate = subApi.getComplete(sub);
 			logger.info("Renaming {} => {} for subscriber {}", toUpdate.value.name, cur.name, subject);
 			toUpdate.value.name = cur.name;

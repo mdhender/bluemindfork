@@ -24,6 +24,7 @@
 		<module>net.bluemind.ui.adminconsole.monitoring</module>
 		<module>net.bluemind.ui.adminconsole.ldap.export</module>
 		<module>net.bluemind.ui.adminconsole.cti</module>
+		<module>net.bluemind.ui.adminconsole.password.sizestrength</module>
 	</modules>
 
 </project>

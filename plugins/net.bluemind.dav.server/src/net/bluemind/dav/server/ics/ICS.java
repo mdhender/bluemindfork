@@ -68,10 +68,9 @@ public class ICS {
 
 			try (Reader icsReader = new InputStreamReader(in);
 					UnfoldingReader ur = new UnfoldingReader(icsReader, true)) {
-				logger.info("Parsing custom tz infos {}", file);
+				logger.info("Parsing custom tz infos {}, id {}", file, id);
 				BiConsumer<Calendar, Component> consumer = (calendar, component) -> {
-					VTimeZone vtz = (VTimeZone) calendar.getComponent("VTIMEZONE");
-					osxVtz.put(id, vtz);
+					osxVtz.put(id, (VTimeZone) component);
 				};
 				builder.build(ur, consumer);
 

@@ -27,7 +27,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.ldap.importation.api,
  net.bluemind.system.schemaupgrader,
  net.bluemind.core.task.service,
- net.bluemind.eclipse.common
+ net.bluemind.eclipse.common,
+ net.bluemind.metrics.registry
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: blue-mind.net

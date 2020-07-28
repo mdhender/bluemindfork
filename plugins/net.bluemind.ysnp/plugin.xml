@@ -36,5 +36,10 @@
             impl="net.bluemind.ysnp.impl.ExpireOkSaslAuthdVerticleFactory">
       </verticle>
    </extension>
-
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.ysnp.impl.ValidationPolicy$CacheRegistration">
+      </reg>
+   </extension>
 </plugin>

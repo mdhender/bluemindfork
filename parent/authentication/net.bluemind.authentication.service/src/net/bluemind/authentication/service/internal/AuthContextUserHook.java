@@ -33,7 +33,7 @@ public class AuthContextUserHook extends DefaultUserHook {
 
 	@Override
 	public void onUserCreated(BmContext context, String domainUid, ItemValue<User> fresh) throws ServerFault {
-		AuthContextCache.getInstance().getCache().invalidateAll(cacheKeys(context, domainUid, fresh));
+		AuthContextCache.getCache().invalidateAll(cacheKeys(context, domainUid, fresh));
 	}
 
 	@Override
@@ -41,12 +41,12 @@ public class AuthContextUserHook extends DefaultUserHook {
 			throws ServerFault {
 		Set<String> keys = cacheKeys(context, domainUid, previous);
 		keys.addAll(cacheKeys(context, domainUid, current));
-		AuthContextCache.getInstance().getCache().invalidateAll(keys);
+		AuthContextCache.getCache().invalidateAll(keys);
 	}
 
 	@Override
 	public void onUserDeleted(BmContext context, String domainUid, ItemValue<User> deleted) throws ServerFault {
-		AuthContextCache.getInstance().getCache().invalidateAll(cacheKeys(context, domainUid, deleted));
+		AuthContextCache.getCache().invalidateAll(cacheKeys(context, domainUid, deleted));
 	}
 
 	private Set<String> cacheKeys(BmContext context, String domainUid, ItemValue<User> u) {

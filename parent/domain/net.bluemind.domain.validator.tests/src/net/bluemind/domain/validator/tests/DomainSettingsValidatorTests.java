@@ -81,7 +81,7 @@ public class DomainSettingsValidatorTests {
 
 		MailboxStore mailboxStore = new MailboxStore(JdbcTestHelper.getInstance().getDataSource(), mailboxContainer);
 		mailboxStoreService = new ContainerStoreService<>(JdbcTestHelper.getInstance().getDataSource(),
-				SecurityContext.SYSTEM, mailboxContainer, "mailbox", mailboxStore);
+				SecurityContext.SYSTEM, mailboxContainer, mailboxStore);
 
 		validator = new DomainSettingsValidator();
 

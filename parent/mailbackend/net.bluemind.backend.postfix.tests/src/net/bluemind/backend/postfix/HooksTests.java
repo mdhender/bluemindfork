@@ -361,8 +361,7 @@ public abstract class HooksTests {
 	protected void updateTestDomain(Domain domain) throws ServerFault {
 		DomainStore domainStore = new DomainStore(JdbcTestHelper.getInstance().getDataSource());
 		ContainerStoreService<Domain> domainStoreService = new ContainerStoreService<Domain>(
-				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, domainsContainer, "domain",
-				domainStore);
+				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, domainsContainer, domainStore);
 
 		domainStoreService.update(domain.name, domain.name, domain);
 		CacheRegistry.get().invalidateAll();

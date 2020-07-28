@@ -20,8 +20,10 @@ package net.bluemind.calendar.service.internal;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -104,9 +106,6 @@ public class CalendarService implements IInternalCalendar {
 
 	public CalendarService(DataSource pool, Client esearchClient, Container container, BmContext context,
 			CalendarAuditor auditor) throws ServerFault {
-		if (pool.equals(context.getDataSource())) {
-			throw new ServerFault("wrong datasource");
-		}
 		this.container = container;
 		this.context = context;
 		this.auditor = auditor;
@@ -114,7 +113,7 @@ public class CalendarService implements IInternalCalendar {
 
 		veventStore = new VEventSeriesStore(pool, container);
 		storeService = new VEventContainerStoreService(context, pool, context.getSecurityContext(), container,
-				"calendar", veventStore);
+				veventStore);
 
 		indexStore = new VEventIndexStore(esearchClient, container);
 
@@ -351,6 +350,7 @@ public class CalendarService implements IInternalCalendar {
 
 	private List<ItemValue<VEventSeries>> filterValues(List<ItemValue<VEventSeries>> values) throws ServerFault {
 
+		// tom: what the fuck does this do ?
 		for (ItemValue<VEventSeries> value : values) {
 			value = filter(value);
 		}
@@ -375,11 +375,12 @@ public class CalendarService implements IInternalCalendar {
 		emitNotification();
 	}
 
-	private void doDelete(String optUid, Long itemId, Boolean sendNotifications) throws ServerFault {
+	private void doDelete(String optUid, Long itemId, Boolean sendNotifications) {
 		ItemValue<VEventSeries> item = itemId != null ? storeService.get(itemId, null) : storeService.get(optUid, null);
 
 		if (item == null) {
-			throw ServerFault.notFound("entry[" + optUid + "/" + itemId + "]@" + container.uid + " not found");
+			logger.warn("Failed to delete, event not found {}/{}", optUid, itemId);
+			return;
 		}
 		String uid = item.uid;
 
@@ -501,13 +502,14 @@ public class CalendarService implements IInternalCalendar {
 		List<ItemValue<VEventSeries>> items;
 		if (isPendingEventsSearch(query)) {
 			ListResult<ItemValue<VEventSeries>> res = searchPendingEvents(query);
-			items = filterValues(((ListResult<ItemValue<VEventSeries>>) res).values.stream().map(iv -> {
+			items = filterValues(res.values.stream().map(iv -> {
 				return ItemValue.create(iv, iv.value.copy());
 			}).collect(Collectors.toList()));
 			ret.total = res.total;
 		} else {
 			if (query.attendee != null && query.attendee.calendarOwnerAsDir) {
-				addOwnerToQuery(query);
+				Optional<DirEntry> owner = getCalendarOwner(query);
+				owner.ifPresent(de -> query.attendee.dir = "bm://" + de.path);
 			}
 			ListResult<String> res = indexStore.search(query, searchInPrivate());
 			items = filterValues(storeService.getMultiple(res.values));
@@ -526,7 +528,11 @@ public class CalendarService implements IInternalCalendar {
 	private ListResult<ItemValue<VEventSeries>> searchPendingEvents(VEventQuery query) {
 		ListResult<ItemValue<VEventSeries>> res = PendingEventsCache.getIfPresent(container.uid);
 		if (res == null) {
-			addOwnerToQuery(query);
+			Optional<DirEntry> owner = getCalendarOwner(query);
+			if (!owner.isPresent()) {
+				return ListResult.create(Collections.emptyList());
+			}
+			query.attendee.dir = "bm://" + owner.get().path;
 			ListResult<String> t = indexStore.search(query, searchInPrivate());
 			List<ItemValue<VEventSeries>> items = storeService.getMultiple(t.values);
 			res = ListResult.create(items);
@@ -553,10 +559,9 @@ public class CalendarService implements IInternalCalendar {
 		return res;
 	}
 
-	private void addOwnerToQuery(VEventQuery query) {
-		DirEntry dirEntry = context.su().provider().instance(IDirectory.class, container.domainUid)
-				.findByEntryUid(container.owner);
-		query.attendee.dir = "bm://" + dirEntry.path;
+	private Optional<DirEntry> getCalendarOwner(VEventQuery query) {
+		return Optional.ofNullable(context.su().provider().instance(IDirectory.class, container.domainUid)
+				.findByEntryUid(container.owner));
 	}
 
 	private boolean searchInPrivate() {

@@ -31,6 +31,8 @@ import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.ValidationKind;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
@@ -45,15 +47,25 @@ import tigase.db.TigaseDBException;
 import tigase.xmpp.BareJID;
 
 public final class CF {
-
 	private static final Logger logger = LoggerFactory.getLogger(CF.class);
-	private static final Cache<BareJID, String> idIndex;
-	private static final Cache<String, ItemValue<Domain>> domainCache;
+	private static final Cache<BareJID, String> idIndex = CacheBuilder.newBuilder()
+			.recordStats()
+			.expireAfterAccess(20, TimeUnit.MINUTES)
+			.initialCapacity(1024)
+			.build();
+	private static final Cache<String, ItemValue<Domain>> domainCache = CacheBuilder.newBuilder()
+			.recordStats()
+			.expireAfterAccess(1, TimeUnit.HOURS)
+			.initialCapacity(1024)
+			.build();
 	private static String coreIp;
 
-	static {
-		idIndex = CacheBuilder.newBuilder().expireAfterAccess(20, TimeUnit.MINUTES).initialCapacity(1024).build();
-		domainCache = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).initialCapacity(1024).build();
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register("xmpp-server-cf-idindex", idIndex);
+			cr.register("xmpp-server-cf-domain", domainCache);
+		}
 	}
 
 	/**

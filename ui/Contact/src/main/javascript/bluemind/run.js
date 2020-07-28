@@ -20,20 +20,17 @@
 
 /**
  * @fileoverview
- * 
+ *
  * Application entry point.
  */
 
 goog.require("net.bluemind.contact.ContactApplication");
-goog.require("net.bluemind.net.AppCacheHandler");
-
-new net.bluemind.net.AppCacheHandler();
 
 /** */
-window['bundles']['contact'] = {
-  'start' : function() {
+window["bundles"]["contact"] = {
+  start: function () {
     new net.bluemind.contact.ContactApplication();
   }
-}
+};
 
-bundleListener('contact');
+bundleListener("contact");

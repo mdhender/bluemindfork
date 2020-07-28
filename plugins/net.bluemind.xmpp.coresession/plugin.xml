@@ -27,5 +27,10 @@
             class="net.bluemind.xmpp.coresession.XivoEventAccessBusRule">
       </access-rule>
    </extension>
-
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.xmpp.coresession.internal.RosterItemCache$CacheRegistration">
+      </reg>
+   </extension>
 </plugin>

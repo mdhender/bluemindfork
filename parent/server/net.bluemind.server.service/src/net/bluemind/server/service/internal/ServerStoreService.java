@@ -34,7 +34,7 @@ public class ServerStoreService extends ContainerStoreService<Server> {
 	private ServerStore serverStore;
 
 	public ServerStoreService(BmContext context, Container container) {
-		super(context.getDataSource(), context.getSecurityContext(), container, "server",
+		super(context.getDataSource(), context.getSecurityContext(), container,
 				new ServerStore(context.getDataSource(), container));
 		serverStore = (ServerStore) getItemValueStore();
 	}

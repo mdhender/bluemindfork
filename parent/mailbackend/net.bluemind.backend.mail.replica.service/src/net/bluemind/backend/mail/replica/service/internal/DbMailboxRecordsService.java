@@ -328,6 +328,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 			// apply the changes
 			toCreate.forEach((MailboxRecord mr) -> {
 				if (mr.internalFlags.contains(InternalFlag.expunged)) {
+					EmitReplicationEvents.recordCreated(mailboxUniqueId, Long.MAX_VALUE, -1, mr.imapUid);
 					logger.debug("Skipping create on expunged record");
 					return;
 				}

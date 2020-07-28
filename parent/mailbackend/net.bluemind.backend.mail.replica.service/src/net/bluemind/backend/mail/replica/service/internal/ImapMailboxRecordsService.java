@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -293,7 +294,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			logger.info("cannot remove flag $MDNSent (on {})", id);
 			mail.flags.add(mdnSentFlag);
 		}
-		boolean flagsChanged = current.value.flags.stream().allMatch(f -> mail.flags.contains(f));
+
+		boolean flagsChanged = !new HashSet<>(current.value.flags).equals(new HashSet<>(mail.flags));
+
 		String newSub = Optional.ofNullable(mail.body.subject).orElse("");
 		String oldSub = current.value.body.subject;
 		boolean subjectChanged = !newSub.equals(oldSub);
@@ -360,7 +363,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			}
 		}, expectedStruct);
 		SizedStream updatedEml = createEmlStructure(current.internalId, current.value.body.guid, newValue.body);
-		CompletableFuture<ItemChange> completion = ReplicationEvents.onRecordUpdate(mailboxUniqueId,
+		CompletableFuture<ItemChange> completion = ReplicationEvents.onRecordChanged(mailboxUniqueId,
 				current.value.imapUid);
 
 		ImapResponseStatus<AppendResponse> appended = imapContext.withImapClient((sc, fast) -> {

@@ -9,5 +9,14 @@
             class="net.bluemind.core.caches.registry.CacheRegistry$Factory">
       </serviceFactory>
    </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.core.caches.registry.CacheRegistryStatisticsVerticle$Factory">
+      </verticle>
+      <verticle
+            impl="net.bluemind.core.caches.registry.CacheRegistryFlusherVerticle$Factory">
+      </verticle>
+   </extension>
 </plugin>
    

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.custom.password.sizestrength.api
+Bundle-SymbolicName: net.bluemind.custom.password.sizestrength.api
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Automatic-Module-Name: net.bluemind.custom.password.sizestrength.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: net.bluemind.custom.password.sizestrength.api
+Require-Bundle: net.bluemind.core.commons

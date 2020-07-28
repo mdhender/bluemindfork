@@ -83,12 +83,13 @@ public class PromoteCommand extends AbstractHSMCommand {
 		p.flags.remove("bmarchived");
 
 		FlagsList flags = FlagsList.fromString("(" + Joiner.on(" ").join(p.flags) + ")");
-		try (InputStream toRestore = storage.take(context.getSecurityContext().getContainerUid(),
+		try (InputStream toRestore = storage.peek(context.getSecurityContext().getContainerUid(),
 				context.getLoginContext().uid, p.hsmId); CountingInputStream cis = new CountingInputStream(toRestore)) {
 			int restored = sc.append(folderPath, cis, flags, p.internalDate);
 			if (restored <= 0) {
 				throw new IOException("Failed to append " + p.hsmId);
 			}
+			storage.delete(context.getSecurityContext().getContainerUid(), context.getLoginContext().uid, p.hsmId);
 
 			stats.mailMoved();
 

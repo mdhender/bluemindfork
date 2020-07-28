@@ -164,7 +164,7 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 
 	private void reindex(Container container, DataSource ds, IServerTaskMonitor monitor) throws ServerFault {
 		VEventContainerStoreService storeService = new VEventContainerStoreService(context, ds,
-				context.getSecurityContext(), container, ICalendarUids.TYPE, new VEventSeriesStore(ds, container));
+				context.getSecurityContext(), container, new VEventSeriesStore(ds, container));
 		VEventIndexStore indexStore = new VEventIndexStore(ESearchActivator.getClient(), container);
 
 		logger.info("reindexing calendar {}", container.uid);
@@ -324,7 +324,7 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 		}
 
 		VEventContainerStoreService storeService = new VEventContainerStoreService(context, ds,
-				context.getSecurityContext(), container, ICalendarUids.TYPE, new VEventSeriesStore(ds, container));
+				context.getSecurityContext(), container, new VEventSeriesStore(ds, container));
 		VEventIndexStore indexStore = new VEventIndexStore(ESearchActivator.getClient(), container);
 
 		storeService.prepareContainerDelete();

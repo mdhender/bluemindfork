@@ -19,6 +19,7 @@ package net.bluemind.backend.mail.replica.service.internal;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import javax.sql.DataSource;
 
@@ -34,6 +35,7 @@ import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
+import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
@@ -47,6 +49,7 @@ import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
 
@@ -69,6 +72,7 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		String domainUid = replicaStore.partition.replace('_', '.');
 
 		Long expectedId = FolderInternalIdCache.expectedFolderId(container, replica.fullName);
+
 		ItemVersion created = null;
 		if (expectedId != null) {
 			logger.info("Hierarchy will use expected id {}", expectedId);
@@ -93,6 +97,20 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 			logger.warn("Associated records container {} already exists", recordsContainerUid);
 		}
 		ItemIdentifier iid = ItemIdentifier.of(uid, created.id, created.version);
+
+		String fn = replica.fullName;
+		if (root.ns == Namespace.shared && replica.parentUid != null) {
+			String parentRecs = IMailReplicaUids.mboxRecords(replica.parentUid);
+			ReplicasStore repStore = new ReplicasStore(DataSourceRouter.get(context, parentRecs));
+			Optional<SubtreeLocation> optRecordsLocation = SubtreeLocations.getById(repStore, replica.parentUid);
+			if (!optRecordsLocation.isPresent()) {
+				throw ServerFault.notFound("subtree loc not found for parent " + replica.parentUid);
+			}
+			SubtreeLocation recLoc = optRecordsLocation.get();
+			fn = recLoc.imapPath(context) + "/" + replica.name;
+		}
+
+		EmitReplicationEvents.mailboxCreated(container.uid, fn, iid);
 		EmitReplicationEvents.subtreeUpdated(container.uid, iid);
 	}
 

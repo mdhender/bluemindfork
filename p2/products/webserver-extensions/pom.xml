@@ -22,6 +22,7 @@
 		<module>adminconsole-ldap</module>
 		<module>adminconsole-ldap-export</module>
 		<module>adminconsole-filehosting</module>
+		<module>adminconsole-password-sizestrength</module>
 		<module>adminconsole</module>
 		<module>im</module>
 		<module>cti</module>

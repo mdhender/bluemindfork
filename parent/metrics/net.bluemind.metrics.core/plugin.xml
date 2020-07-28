@@ -71,19 +71,6 @@
       </hook>
    </extension>
    <extension
-         point="net.bluemind.system.schemaupgrader.javacode">
-      <java
-            code="net.bluemind.metrics.core.UpgradeExistingTags">
-      </java>
-   </extension>
-   <extension
-         point="net.bluemind.system.schemaupgrader.javacode">
-      <java
-            code="net.bluemind.metrics.core.UpgradeDataFormat">
-      </java>
-   </extension>
-   
-   <extension
          point="net.bluemind.core.rest.apiEndpoint">
       <endpoint
             api="net.bluemind.metrics.alerts.api.IAlerts">
@@ -183,6 +170,9 @@
      <tick_dashboard_provider
            impl="net.bluemind.metrics.core.tick.dashboards.SDSDashboard">
      </tick_dashboard_provider>
+     <tick_dashboard_provider
+           impl="net.bluemind.metrics.core.tick.dashboards.CachesDashboard">
+     </tick_dashboard_provider>
    </extension>
    <extension
          point="net.bluemind.metrics.core.tickInputConfigurator">
@@ -226,5 +216,11 @@
             impl="net.bluemind.metrics.core.service.ChecksConsumerVerticle$ConsumerFactory">
       </verticle>
    </extension>
-   
+   <extension
+         point="net.bluemind.system.schemaupgrader.postinst">
+      <java
+            code="net.bluemind.metrics.core.UpgradeExistingTags"
+            priority="1000">
+      </java>
+   </extension>
 </plugin>

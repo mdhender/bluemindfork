@@ -17,28 +17,11 @@
   */
 package net.bluemind.directory.hollow.datamodel.producer;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
-import net.bluemind.core.caches.registry.CacheRegistry;
-import net.bluemind.core.caches.registry.ICacheRegistration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Serializers {
-
-	private static final Cache<String, DirectorySerializer> active = CacheBuilder.newBuilder().build();
-
-	/**
-	 * We use a cache reg to ensure proper clean up at unit tests start
-	 *
-	 */
-	public static class Reg implements ICacheRegistration {
-
-		@Override
-		public void registerCaches(CacheRegistry cr) {
-			cr.register("HollowDirSerializers", Serializers.active);
-		}
-
-	}
+	private static final Map<String, DirectorySerializer> active = new ConcurrentHashMap<>();
 
 	private Serializers() {
 	}
@@ -49,15 +32,15 @@ public class Serializers {
 	}
 
 	public static void remove(String domain) {
-		active.invalidate(domain);
+		active.remove(domain);
 	}
 
 	public static void clear() {
-		active.invalidateAll();
+		active.clear();
 	}
 
 	public static DirectorySerializer forDomain(String dom) {
-		return active.getIfPresent(dom);
+		return active.get(dom);
 	}
 
 }

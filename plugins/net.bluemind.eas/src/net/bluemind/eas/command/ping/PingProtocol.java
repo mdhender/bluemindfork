@@ -36,6 +36,8 @@ import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
@@ -57,16 +59,22 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.vertx.common.request.Requests;
 
 public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
-
 	private static final Logger logger = LoggerFactory.getLogger(PingProtocol.class);
-	private static Cache<String, Integer> heartbeat;
 	private static HeartbeatSync heartbeatSync;
 	private final ISyncStorage store;
+	private static final Cache<String, Integer> heartbeat = CacheBuilder.newBuilder()
+			.recordStats().build();
 
 	static {
-		heartbeat = CacheBuilder.newBuilder().build();
 		heartbeatSync = new HeartbeatSync();
 		heartbeatSync.start(heartbeat);
+	}
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(PingProtocol.class, heartbeat);
+		}
 	}
 
 	public PingProtocol() {

@@ -28,11 +28,10 @@ import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
 
 public class DomainVersions extends CacheHolder<String, Long> {
-
 	private static final Logger logger = LoggerFactory.getLogger(DomainVersions.class);
 
 	private static Cache<String, Long> build() {
-		return CacheBuilder.newBuilder().build();
+		return CacheBuilder.newBuilder().recordStats().build();
 	}
 
 	private static final DomainVersions VERSIONS = new DomainVersions(build());
@@ -50,7 +49,7 @@ public class DomainVersions extends CacheHolder<String, Long> {
 		@Override
 		public void registerCaches(CacheRegistry cr) {
 			Cache<String, Long> internalCache = VERSIONS.cache.orElse(null);
-			logger.info("Registering {}", internalCache);
+			logger.debug("Registering {}", internalCache);
 			cr.register("hollow.dir.versions", internalCache);
 		}
 

@@ -3,6 +3,7 @@ package net.bluemind.core.rest.base;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.util.AsciiString;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.rest.filter.RestFilterAdapter;
@@ -11,15 +12,18 @@ public class BmApiVersionFilter extends RestFilterAdapter {
 
 	private static Logger logger = LoggerFactory.getLogger(BmApiVersionFilter.class);
 
+	private static final String CORE_VERSION = BMVersion.getVersion();
+	private static final boolean DEV_MODE = CORE_VERSION.contains("qualifier");
+	private static final CharSequence VERSION_HEADER = AsciiString.cached("x-bm-clientversion");
+
 	@Override
 	public AsyncHandler<RestResponse> preAuthorization(RestRequest request,
 			AsyncHandler<RestResponse> responseHandler) {
 
-		String clientVersion = request.headers.get("X-BM-ClientVersion");
-		String coreVersion = BMVersion.getVersion();
-		if (!isDevMode(clientVersion, coreVersion) && clientVersion != null && !coreVersion.equals(clientVersion)) {
+		String clientVersion = request.headers.get(VERSION_HEADER);
+		if (!isDevMode(clientVersion) && clientVersion != null && !CORE_VERSION.equals(clientVersion)) {
 			String msg = String.format("CORE called with wrong version, clientVersion : %s, coreVersion %s",
-					clientVersion, coreVersion);
+					clientVersion, CORE_VERSION);
 			logger.warn(msg);
 
 			return new AsyncHandler<RestResponse>() {
@@ -41,7 +45,7 @@ public class BmApiVersionFilter extends RestFilterAdapter {
 		}
 	}
 
-	private boolean isDevMode(String clientVersion, String coreVersion) {
-		return (clientVersion != null && clientVersion.contains("qualifier")) || coreVersion.contains("qualifier");
+	private boolean isDevMode(String clientVersion) {
+		return (clientVersion != null && clientVersion.contains("qualifier")) || DEV_MODE;
 	}
 }

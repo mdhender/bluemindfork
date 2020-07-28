@@ -161,6 +161,29 @@ public class DomainSettingsMailQuotaValidatorTests {
 		}
 	}
 
+	@Test
+	public void update_noQuotaMaxWithMailboxQuotaAssigned() {
+		Mailbox mailbox = new Mailbox();
+		mailbox.name = "test" + System.currentTimeMillis();
+		mailbox.type = Type.user;
+		mailbox.dataLocation = PopulateHelper.FAKE_CYRUS_IP;
+		mailbox.quota = 200;
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IMailboxes.class, domain.uid)
+				.create(UUID.randomUUID().toString(), mailbox);
+
+		mailbox = new Mailbox();
+		mailbox.name = "test" + System.currentTimeMillis();
+		mailbox.type = Type.mailshare;
+		mailbox.dataLocation = PopulateHelper.FAKE_CYRUS_IP;
+		mailbox.quota = 200;
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IMailboxes.class, domain.uid)
+				.create(UUID.randomUUID().toString(), mailbox);
+
+		new DomainSettingsMailQuotaValidator(adminContext).update(
+				new DomainSettings(domain.uid, getDomainSettings("10", "10")),
+				new DomainSettings(domain.uid, getDomainSettings("0", "10")));
+	}
+
 	private Map<String, String> getDomainSettings() {
 		return getDomainSettings("50", "10");
 	}

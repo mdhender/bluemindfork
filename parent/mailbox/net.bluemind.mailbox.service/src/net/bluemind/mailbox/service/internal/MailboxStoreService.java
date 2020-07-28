@@ -32,7 +32,6 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
-import net.bluemind.mailbox.api.MailboxContainerType;
 import net.bluemind.mailbox.identity.persistence.MailboxIdentityStore;
 import net.bluemind.mailbox.persistence.MailFilterStore;
 import net.bluemind.mailbox.persistence.MailboxStore;
@@ -45,7 +44,7 @@ public class MailboxStoreService extends ContainerStoreService<Mailbox> {
 	private MailboxStore mailboxStore;
 
 	public MailboxStoreService(DataSource pool, SecurityContext securityContext, Container container) {
-		super(pool, securityContext, container, MailboxContainerType.TYPE, new MailboxStore(pool, container));
+		super(pool, securityContext, container, new MailboxStore(pool, container));
 		this.mailFilterStore = new MailFilterStore(pool, container);
 		this.origin = securityContext.getOrigin();
 		this.identityStore = new MailboxIdentityStore(pool);

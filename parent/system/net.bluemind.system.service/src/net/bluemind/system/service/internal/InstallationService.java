@@ -20,7 +20,13 @@ package net.bluemind.system.service.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.Files;
 
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
@@ -107,7 +112,15 @@ public class InstallationService implements IInstallation {
 
 	@Override
 	public TaskRef upgrade() throws ServerFault {
+		checkPermissions();
 
+		InstallationVersion version = getVersion();
+
+		VersionInfo from = VersionInfo.checkAndCreate(version.databaseVersion);
+		return context.provider().instance(ITasksManager.class).run(new InstallationUpgradeTask(context, from));
+	}
+
+	private void checkPermissions() {
 		if (!context.getSecurityContext().isDomainGlobal()) {
 			throw new ServerFault("only admin0 can do upgrade", ErrorCode.NOT_GLOBAL_ADMIN);
 		}
@@ -117,10 +130,13 @@ public class InstallationService implements IInstallation {
 				|| coreState == SystemState.CORE_STATE_UPGRADE)) {
 			throw new ServerFault("Upgrade is not available in state " + coreState);
 		}
-		InstallationVersion version = getVersion();
+	}
 
-		VersionInfo from = VersionInfo.checkAndCreate(version.databaseVersion);
-		return context.provider().instance(ITasksManager.class).run(new InstallationUpgradeTask(context, from));
+	@Override
+	public TaskRef postinst() {
+		checkPermissions();
+
+		return context.provider().instance(ITasksManager.class).run(new PostInstTask());
 	}
 
 	@Override
@@ -155,7 +171,7 @@ public class InstallationService implements IInstallation {
 			logger.warn("mcast.id is already present, we create a new installation on an existing one !");
 		}
 		try {
-			Files.write(UUID.randomUUID().toString().getBytes(), f);
+			Files.write(f.toPath(), UUID.randomUUID().toString().getBytes());
 			InstallationId.reload();
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
@@ -237,8 +253,34 @@ public class InstallationService implements IInstallation {
 		roles.add(BasicRoles.SELF_CHANGE_PASSWORD);
 		userService.setRoles(uid, roles);
 
+		try {
+			registerInstallationDate(provider);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new ServerFault("error during installation initialisation, Failed to register installation date : "
+					+ e.getMessage());
+		}
+
 		StateContext.setState("core.upgrade.end");
 		monitor.end(true, "Initialized system", null);
+	}
+
+	private void registerInstallationDate(ServerSideServiceProvider provider) throws Exception {
+		File ref = new File("/usr/share/bm-core/main").listFiles(f -> f.isFile() && f.getName().endsWith(".jar"))[0];
+		BasicFileAttributes attr = Files.readAttributes(ref.toPath(), BasicFileAttributes.class);
+		FileTime mTime = attr.lastModifiedTime();
+		FileTime cTime = attr.creationTime();
+		LocalDate ld = null;
+		if (cTime.toMillis() < mTime.toMillis()) {
+			ld = LocalDate.from(cTime.toInstant().atZone(ZoneId.systemDefault()));
+		} else {
+			ld = LocalDate.from(mTime.toInstant().atZone(ZoneId.systemDefault()));
+		}
+		String installationReleaseDate = DateTimeFormatter.ISO_LOCAL_DATE.format(ld);
+		ISystemConfiguration sysConfService = provider.instance(ISystemConfiguration.class);
+		Map<String, String> map = new HashMap<>();
+		map.put(SysConfKeys.installation_release_date.name(), installationReleaseDate);
+		sysConfService.updateMutableValues(map);
 	}
 
 	@Override

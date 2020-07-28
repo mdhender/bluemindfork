@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -128,12 +127,12 @@ public class OutboxService implements IOutbox {
 				monitor.end(true, "FLUSHING OUTBOX finished successfully",
 						String.format("{\"result\": %s}", JsonUtils.asString(importedMailboxItems)));
 			}).get(30, TimeUnit.SECONDS);
-		} catch (InterruptedException | ExecutionException e) {
-			monitor.end(false, "FLUSHING OUTBOX - finished in error", "{\"result\": \"" + e + "\"}");
-			logger.error("FLUSHING OUTBOX - finished in error", e);
 		} catch (TimeoutException e) {
 			monitor.end(false, "FLUSHING OUTBOX - timeout reached", "{\"result\": \"" + e + "\"}");
 			logger.warn("FLUSHING OUTBOX - timeout reached", e);
+		} catch (Exception e) {
+			monitor.end(false, "FLUSHING OUTBOX - finished in error", "{\"result\": \"" + e + "\"}");
+			logger.error("FLUSHING OUTBOX - finished in error", e);
 		}
 	}
 

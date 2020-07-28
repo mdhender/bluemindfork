@@ -35,16 +35,20 @@ import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.hook.DefaultServerHook;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
-import net.bluemind.tag.api.TagDescriptor;
 
 public class NginxServerHook extends DefaultServerHook {
 	private static Logger logger = LoggerFactory.getLogger(NginxServerHook.class);
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> server, String tag) throws ServerFault {
+		if (TagDescriptor.bm_nginx.getTag().equals(tag)) {
+			newNginx(server);
+		}
+
 		if (TagDescriptor.bm_nginx_edge.getTag().equals(tag)) {
 			newEdge(server);
 		}
@@ -54,14 +58,15 @@ public class NginxServerHook extends DefaultServerHook {
 		}
 	}
 
-	private void updateExternalUrl(BmContext context, ItemValue<Server> server, String tag) {
-		logger.info("Server tagged as {}, deploy external url", tag);
-		
-		String externalUrl = context.su().provider().instance(ISystemConfiguration.class).getValues()
-				.stringValue(SysConfKeys.external_url.name());
-		if (externalUrl != null) {
-			new NginxService().updateExternalUrl(server, externalUrl);
-		}
+	private void newNginx(ItemValue<Server> server) {
+		NginxService nginxService = new NginxService();
+
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IServer.class, InstallationId.getIdentifier()).allComplete().stream()
+				.filter(s -> s.value.tags.contains("metrics/influxdb")).forEach(metricsInfluxServer -> nginxService
+						.updateTickUpstream(server.value.address(), metricsInfluxServer.value.address()));
+
+		nginxService.reloadHttpd(NodeActivator.get(server.value.address()));
 	}
 
 	private void newEdge(ItemValue<Server> server) {
@@ -99,6 +104,16 @@ public class NginxServerHook extends DefaultServerHook {
 			throw new ServerFault(String.format("No host tag %s found!", TagDescriptor.bm_nginx.getTag()));
 		}
 
-		NCUtils.execNoOut(remote, "service bm-nginx restart");
+		new NginxService().reloadHttpd(remote);
+	}
+
+	private void updateExternalUrl(BmContext context, ItemValue<Server> server, String tag) {
+		logger.info("Server tagged as {}, deploy external url", tag);
+
+		String externalUrl = context.su().provider().instance(ISystemConfiguration.class).getValues()
+				.stringValue(SysConfKeys.external_url.name());
+		if (externalUrl != null) {
+			new NginxService().updateExternalUrl(server.value.address(), externalUrl);
+		}
 	}
 }

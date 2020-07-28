@@ -44,6 +44,7 @@ public class EmitReplicationEvents {
 		payload.put("version", upd.version);
 		payload.put("itemId", upd.id);
 		eb.publish("mailreplica.record.updated." + mboxUniqueId + "." + mr.imapUid, payload);
+		eb.publish("mailreplica.record.changed." + mboxUniqueId + "." + mr.imapUid, payload);
 	}
 
 	public static void recordCreated(String mboxUniqueId, long version, long internalId, long imapUid) {
@@ -52,6 +53,7 @@ public class EmitReplicationEvents {
 		payload.put("version", version);
 		payload.put("itemId", internalId);
 		eb.publish("mailreplica.record.created." + mboxUniqueId, payload);
+		eb.publish("mailreplica.record.changed." + mboxUniqueId + "." + imapUid, payload);
 		JsonObject copy = payload.copy();
 		copy.put("mailbox", mboxUniqueId);
 		copy.put("container", IMailReplicaUids.mboxRecords(mboxUniqueId));
@@ -85,6 +87,14 @@ public class EmitReplicationEvents {
 		}
 		eb.publish("bm.mailbox.hook.changed", new JsonObject().put("container", c.owner).put("type", "mailbox"));
 
+	}
+
+	public static void mailboxCreated(String subtreeContainerUid, String folderName, ItemIdentifier item) {
+		logger.debug("****** mailboxCreated {}, folderName: {}", subtreeContainerUid, folderName);
+		JsonObject js = new JsonObject().put("uid", subtreeContainerUid)//
+				.put("itemUid", item.uid).put("itemId", item.id).put("version", item.version);
+
+		eb.publish(ReplicationEvents.MBOX_CREATE_ADDR + "." + subtreeContainerUid + "." + folderName, js);
 	}
 
 	public static void subtreeUpdated(String subtreeContainerUid, ItemIdentifier item) {

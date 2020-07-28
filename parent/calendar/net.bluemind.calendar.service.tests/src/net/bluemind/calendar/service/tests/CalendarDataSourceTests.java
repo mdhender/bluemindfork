@@ -58,19 +58,11 @@ public class CalendarDataSourceTests extends AbstractCalendarTests {
 
 	@Test
 	public void testWrongDataSource() throws ServerFault {
-
-		try {
-			getCalendarService(userSecurityContext, wrongDsCalendar);
-			fail("service init with wrong ds");
-		} catch (ServerFault e) {
-			assertEquals("wrong datasource", e.getMessage());
-		}
-
 		try {
 			ServerSideServiceProvider.getProvider(userSecurityContext).instance(ICalendar.class, wrongDsCalendar.uid);
 			fail("service init with wrong ds");
 		} catch (ServerFault e) {
-			assertEquals("wrong datasource", e.getMessage());
+			assertEquals("wrong datasource container.uid " + wrongDsCalendar.uid, e.getMessage());
 		}
 
 	}

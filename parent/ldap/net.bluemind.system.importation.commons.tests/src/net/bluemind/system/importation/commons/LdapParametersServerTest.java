@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Test;
 
@@ -37,7 +38,7 @@ public class LdapParametersServerTest {
 
 		public ServerTest(Host host, String login, String password, LdapProtocol protocol,
 				boolean acceptAllCertificates) {
-			super(host, login, password, protocol, acceptAllCertificates);
+			super(Optional.ofNullable(host), login, password, protocol, acceptAllCertificates);
 		}
 
 		@Override

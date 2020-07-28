@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -151,11 +152,14 @@ public class AttachmentServiceTests {
 		Assert.assertEquals(name, file1.name);
 		Assert.assertNotNull(file1.publicUrl);
 
-		Assert.assertEquals("test_1.txt", file2.name);
+		String pattern = "test_\\d{13}.txt";
+		Assert.assertTrue(Pattern.compile(pattern).matcher(file2.name).matches());
 		Assert.assertNotNull(file2.publicUrl);
 
-		Assert.assertEquals("test_2.txt", file3.name);
+		Assert.assertTrue(Pattern.compile(pattern).matcher(file3.name).matches());
 		Assert.assertNotNull(file3.publicUrl);
+
+		Assert.assertNotEquals(file2.name, file3.name);
 	}
 
 	@Test
@@ -170,11 +174,14 @@ public class AttachmentServiceTests {
 		Assert.assertEquals(name, file1.name);
 		Assert.assertNotNull(file1.publicUrl);
 
-		Assert.assertEquals("test_1", file2.name);
+		String pattern = "test_\\d{13}";
+		Assert.assertTrue(Pattern.compile(pattern).matcher(file2.name).matches());
 		Assert.assertNotNull(file2.publicUrl);
 
-		Assert.assertEquals("test_2", file3.name);
+		Assert.assertTrue(Pattern.compile(pattern).matcher(file3.name).matches());
 		Assert.assertNotNull(file3.publicUrl);
+
+		Assert.assertNotEquals(file2.name, file3.name);
 
 	}
 

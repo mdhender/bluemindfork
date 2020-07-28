@@ -58,7 +58,7 @@ public final class DOMUtils {
 
 	private static TransformerFactory fac;
 	private static DocumentBuilderFactory dbf;
-	private static DocumentBuilder builder;
+	private static DocumentBuilder mainbuilder;
 	private static Semaphore builderLock;
 
 	static {
@@ -67,16 +67,34 @@ public final class DOMUtils {
 		dbf.setNamespaceAware(true);
 		dbf.setValidating(false);
 		try {
-			builder = dbf.newDocumentBuilder();
+			mainbuilder = dbf.newDocumentBuilder();
 			builderLock = new Semaphore(1);
 		} catch (ParserConfigurationException e) {
 		}
 	}
 
-	private static final void lock() {
-		try {
-			builderLock.acquire();
-		} catch (InterruptedException e) {
+	private static final LockingDocumentBuilder lock() {
+		boolean acc = builderLock.tryAcquire();
+		if (acc) {
+			return () -> mainbuilder;
+		} else {
+			return new LockingDocumentBuilder() {
+
+				@Override
+				public DocumentBuilder builder() {
+					try {
+						synchronized (dbf) {
+							return dbf.newDocumentBuilder();
+						}
+					} catch (ParserConfigurationException e) {
+						return null;
+					}
+				}
+
+				@Override
+				public void unlock() {
+				}
+			};
 		}
 	}
 
@@ -262,37 +280,38 @@ public final class DOMUtils {
 
 	public static Document parse(InputStream is)
 			throws SAXException, IOException, ParserConfigurationException, FactoryConfigurationError {
-		lock();
+		LockingDocumentBuilder builder = lock();
 		Document ret = null;
 		try {
-			ret = builder.parse(is);
+			ret = builder.builder().parse(is);
 		} finally {
-			unlock();
+			builder.unlock();
 		}
 		return ret;
 	}
 
 	public static Document parse(File f)
 			throws SAXException, IOException, ParserConfigurationException, FactoryConfigurationError {
-		lock();
+		LockingDocumentBuilder builder = lock();
 		Document ret = null;
 		try {
-			ret = builder.parse(f);
+			ret = builder.builder().parse(f);
 		} finally {
-			unlock();
+			builder.unlock();
 		}
 		return ret;
 	}
 
 	public static Document createDoc(String namespace, String rootElement)
 			throws ParserConfigurationException, FactoryConfigurationError {
-		lock();
-		DOMImplementation di = builder.getDOMImplementation();
+		LockingDocumentBuilder builder = lock();
+		DocumentBuilder domBuilder = builder.builder();
+		DOMImplementation di = domBuilder.getDOMImplementation();
 		Document ret = null;
 		try {
 			ret = di.createDocument(namespace, rootElement, null);
 		} finally {
-			unlock();
+			builder.unlock();
 		}
 		return ret;
 	}
@@ -302,5 +321,13 @@ public final class DOMUtils {
 		reader.setContentHandler(handler);
 		reader.setErrorHandler(handler);
 		reader.parse(new InputSource(is));
+	}
+
+	private interface LockingDocumentBuilder {
+		public default void unlock() {
+			DOMUtils.unlock();
+		}
+
+		public DocumentBuilder builder();
 	}
 }

@@ -6,9 +6,6 @@ import net.bluemind.lib.vertx.IVerticlePriority;
 
 public class LocatorVerticleFactory implements IVerticleFactory, IVerticlePriority {
 
-	public LocatorVerticleFactory() {
-	}
-
 	@Override
 	public boolean isWorker() {
 		return false;

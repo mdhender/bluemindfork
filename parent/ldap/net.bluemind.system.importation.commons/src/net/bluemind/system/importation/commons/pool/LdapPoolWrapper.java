@@ -61,7 +61,7 @@ public class LdapPoolWrapper {
 			initPoolFromHosts();
 
 			if (pool == null) {
-				logger.error("No LDAP hosts available for: " + ldapParameters.toString());
+				logger.error("No LDAP hosts available for: {}", ldapParameters);
 				throw new NoLdapHostAvailableFault("No LDAP hosts available for: " + ldapParameters.toString());
 			}
 
@@ -73,7 +73,7 @@ public class LdapPoolWrapper {
 
 	private void initPoolFromHosts() {
 		List<Host> ldapHosts = ldapParameters.ldapServer.getLdapHost();
-		if (ldapHosts == null || ldapHosts.size() == 0) {
+		if (ldapHosts == null || ldapHosts.isEmpty()) {
 			throw new IllegalArgumentException("At least one LDAP host must be defined!");
 		}
 
@@ -120,6 +120,7 @@ public class LdapPoolWrapper {
 			try {
 				tmpPool.close();
 			} catch (Exception e1) {
+				// ok
 			}
 
 			if (e instanceof LdapOperationException

@@ -116,7 +116,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 				+ "JOIN t_container c on c.id = ci.container_id "//
 				+ "WHERE mbr.system_flags::bit(32) & (" + InternalFlag.expunged.value + ")::bit(32)= " //
 				+ "(" + InternalFlag.expunged.value + ")::bit(32) " //
-				+ "AND mbr.last_updated < (now() - interval '" + days + " days')";
+				+ "AND mbr.last_updated < (now() - interval '" + days + " days') LIMIT 10000";
 
 		return select(query, con -> new MailboxRecordItemV(), (rs, index, itemv) -> {
 			itemv.containerUid = rs.getString(index++);

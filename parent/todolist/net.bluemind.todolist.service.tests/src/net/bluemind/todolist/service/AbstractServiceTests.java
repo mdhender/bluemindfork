@@ -153,7 +153,7 @@ public abstract class AbstractServiceTests {
 		future.get();
 
 		vtodoStoreService = new VTodoContainerStoreService(defaultContext, JdbcTestHelper.getInstance().getDataSource(),
-				SecurityContext.SYSTEM, container, "todolist", vtodoStore);
+				SecurityContext.SYSTEM, container, vtodoStore);
 
 	}
 
@@ -174,7 +174,7 @@ public abstract class AbstractServiceTests {
 
 		// create some tags
 		ContainerStoreService<Tag> storeService = new ContainerStoreService<>(dataDataSource, defaultSecurityContext,
-				tagContainer, ITagUids.TYPE, new TagStore(dataDataSource, container));
+				tagContainer, new TagStore(dataDataSource, container));
 
 		tag1 = new Tag();
 		tag1.label = "tag1";

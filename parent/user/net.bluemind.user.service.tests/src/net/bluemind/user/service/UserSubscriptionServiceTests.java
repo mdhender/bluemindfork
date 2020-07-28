@@ -30,7 +30,6 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -58,11 +57,6 @@ import net.bluemind.user.api.IUserSubscription;
 public class UserSubscriptionServiceTests {
 
 	private SecurityContext testContext;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	public void before() throws Exception {

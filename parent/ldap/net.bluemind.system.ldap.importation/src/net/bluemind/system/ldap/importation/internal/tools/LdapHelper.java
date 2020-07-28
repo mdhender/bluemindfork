@@ -20,6 +20,7 @@ package net.bluemind.system.ldap.importation.internal.tools;
 
 import java.text.ParseException;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.api.ldap.codec.api.ConfigurableBinaryAttributeDetector;
 import org.apache.directory.api.ldap.codec.api.DefaultConfigurableBinaryAttributeDetector;
@@ -43,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
+import com.netflix.spectator.api.Timer;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -54,13 +56,19 @@ import net.bluemind.system.importation.commons.Parameters;
 import net.bluemind.system.importation.commons.managers.UserManager;
 import net.bluemind.system.importation.commons.scanner.IImportLogger;
 import net.bluemind.system.importation.i18n.Messages;
+import net.bluemind.system.ldap.importation.metrics.MetricsHolder;
 import net.bluemind.system.ldap.importation.search.LdapUserSearchFilter;
 import net.bluemind.user.api.User;
 
 public class LdapHelper {
 	private static final Logger logger = LoggerFactory.getLogger(LdapHelper.class);
 
+	private static final MetricsHolder metrics = MetricsHolder.get();
+
 	private static final long LDAP_TIMEOUT = 10000;
+
+	private LdapHelper() {
+	}
 
 	public static void checkLDAPParameters(LdapParameters ldapParameters) throws ServerFault {
 		if (ldapParameters.ldapServer.getLdapHost() == null || ldapParameters.ldapServer.getLdapHost().size() != 1
@@ -100,12 +108,15 @@ public class LdapHelper {
 
 	public static Optional<UserManager> getLdapUser(LdapParameters ldapParameters, ItemValue<Domain> domain,
 			String userLogin, ItemValue<User> bmUser, MailFilter mailFilter) {
+		Timer conTimer = metrics.forOperation("getLdapUser");
+		long time = metrics.clock.monotonicTime();
 		try (LdapConProxy ldapCon = connectLdap(ldapParameters)) {
 			EntryCursor result = ldapCon.search(ldapParameters.ldapDirectory.baseDn,
 					new LdapUserSearchFilter().getSearchFilter(ldapParameters, Optional.empty(), userLogin, null),
 					SearchScope.SUBTREE, "*", UserManagerImpl.LDAP_MEMBER_OF,
 					ldapParameters.ldapDirectory.extIdAttribute);
 
+			conTimer.record(metrics.clock.monotonicTime() - time, TimeUnit.NANOSECONDS);
 			if (result.next()) {
 				Entry entry = result.get();
 
@@ -140,7 +151,6 @@ public class LdapHelper {
 
 	public static LdapConProxy connectLdap(Parameters ldapParameters) throws ServerFault {
 		LdapConProxy ldapCon = null;
-
 		try {
 			ldapCon = getLdapCon(ldapParameters);
 
@@ -153,7 +163,6 @@ public class LdapHelper {
 			}
 
 			BindResponse response = ldapCon.bind(bindRequest);
-
 			if (ResultCodeEnum.SUCCESS != response.getLdapResult().getResultCode() || !ldapCon.isAuthenticated()) {
 				throw new ServerFault("LDAP connection failed: " + response.getLdapResult().getDiagnosticMessage());
 			}

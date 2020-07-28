@@ -77,8 +77,10 @@ class EventCreator {
 		return this;
 	}
 
-	public void saveOnCalendar(ICalendar calendar) throws InterruptedException, ExecutionException, TimeoutException {
-		saveOnCalendar(calendar, nextUid());
+	public String saveOnCalendar(ICalendar calendar) throws InterruptedException, ExecutionException, TimeoutException {
+		String nextUid = nextUid();
+		saveOnCalendar(calendar, nextUid);
+		return nextUid;
 	}
 
 	public void saveOnCalendar(ICalendar calendar, String uid)

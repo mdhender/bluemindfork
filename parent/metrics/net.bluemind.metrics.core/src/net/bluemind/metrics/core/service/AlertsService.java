@@ -45,12 +45,12 @@ public class AlertsService implements IAlerts {
 
 	@Override
 	public void receive(Stream payload) {
-		logger.info("Got stream {}", payload);
+		logger.debug("Got stream {}", payload);
 		CompletableFuture<Void> handled = new CompletableFuture<>();
 		ReadStream<Buffer> toRead = VertxStream.read(payload);
 		Buffer content = Buffer.buffer();
 		toRead.endHandler(v -> handled.complete(null));
-		toRead.handler(b -> content.appendBuffer(b));
+		toRead.handler(content::appendBuffer);
 		toRead.resume();
 
 		try {

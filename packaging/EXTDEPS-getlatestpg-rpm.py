@@ -32,7 +32,9 @@ def main(repomd_baseurl, postgresql_version, rhel_version):
     pkg_versions = [
         "{}-{}".format(e.get("ver"), e.get("rel"))
         for e in root.findall("package[@type='rpm']/name/[.='postgresql{}']/../version".format(postgresql_version))
+        if "rc" not in e.get("ver") and "beta" not in e.get("ver")
     ]
+    pkg_versions.sort()
     print('PG_RHEL{}="{}"'.format(rhel_version, sorted(pkg_versions)[-1]))
 
 
@@ -41,7 +43,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("postgresql_version",
-        help="PostgreSQL major version (eg. 11)")
+        help="PostgreSQL major version (eg. 12)")
     parser.add_argument("--rhel-version", default="7", help="RHEL version (eg. 7)")
     parser.add_argument("--arch", default="x86_64", help="Architecture")
     parser.add_argument("--yum-repomd-base",

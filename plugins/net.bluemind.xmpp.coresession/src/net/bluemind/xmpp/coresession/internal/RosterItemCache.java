@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -37,25 +39,21 @@ import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
 public class RosterItemCache {
-
 	private static final Logger logger = LoggerFactory.getLogger(RosterItemCache.class);
 
-	private Cache<String, RosterItem> items;
-	private static final RosterItemCache instance;
+	private static final Cache<String, RosterItem> items = CacheBuilder.newBuilder()
+			.recordStats()
+			.expireAfterAccess(1, TimeUnit.HOURS)
+			.build();
 
-	static {
-		instance = new RosterItemCache();
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(RosterItemCache.class, items);
+		}
 	}
 
-	public static RosterItemCache getInstance() {
-		return instance;
-	}
-
-	private RosterItemCache() {
-		items = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build();
-	}
-
-	public RosterItem get(String jabberId) {
+	public static RosterItem get(String jabberId) {
 		RosterItem ret = items.getIfPresent(jabberId);
 
 		if (ret != null) {
@@ -100,7 +98,7 @@ public class RosterItemCache {
 		return ret;
 	}
 
-	public void invalidate(BmContext context, User user) {
+	public static void invalidate(BmContext context, User user) {
 		logger.debug("invalidate {} from cache", user.defaultEmail());
 		items.invalidate(user.login + "@" + context.getSecurityContext().getContainerUid());
 		if (user.defaultEmail() != null) {

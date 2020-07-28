@@ -85,5 +85,13 @@
             priority="2">
       </rule_factory>
    </extension>
- 
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.mailflow.rules.SenderInGroupRule$CacheRegistration">
+      </reg>
+      <reg
+            impl="net.bluemind.mailflow.rules.SenderInOuRule$CacheRegistration">
+      </reg>
+   </extension>
 </plugin>

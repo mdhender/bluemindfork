@@ -30,14 +30,25 @@ import com.google.common.cache.CacheBuilder;
 import net.bluemind.authentication.provider.IAuthProvider;
 import net.bluemind.authentication.provider.ILoginValidationListener;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 
 public class Fail2Ban implements ILoginValidationListener, IAuthProvider {
 	private static final Logger logger = LoggerFactory.getLogger(Fail2Ban.class);
 
 	private static final Cache<String, AtomicInteger> trials = CacheBuilder.newBuilder()
-			.expireAfterAccess(20, TimeUnit.SECONDS).build();
+			.recordStats()
+			.expireAfterAccess(20, TimeUnit.SECONDS)
+			.build();
 
 	public Fail2Ban() {
+	}
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(Fail2Ban.class, trials);
+		}
 	}
 
 	@Override

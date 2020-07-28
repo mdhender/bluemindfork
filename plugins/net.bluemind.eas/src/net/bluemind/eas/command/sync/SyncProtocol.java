@@ -197,7 +197,11 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			EventBus eb = VertxPlatform.eventBus();
 			eb.request("eas.push.killer." + bs.getUser().getUid(), jso, (AsyncResult<Message<Void>> event) -> {
 				logger.info("Push stopped for {}", bs.getUser().getUid());
-				executeSync(bs, sr, responseHandler);
+				VertxPlatform.getVertx().executeBlocking(prop -> {
+					executeSync(bs, sr, responseHandler);
+					prop.complete();
+				}, false, res -> {
+				});
 			});
 		} else {
 			logger.info("Sync push mode. user: {}, device: {}, collections size: {}", bs.getLoginAtDomain(),
@@ -580,10 +584,6 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 	private List<CollectionSyncResponse.ServerResponse> executeClientCommands(BackendSession bs,
 			CollectionSyncRequest col, ItemDataType dataType) throws ActiveSyncException {
 
-		if ("SMS".equals(col.getDataClass())) {
-			return new ArrayList<>();
-		}
-
 		int size = col.getChangedItems().size() + col.getCreatedItems().size() + col.getFetchIds().size()
 				+ col.getDeletedIds().size();
 
@@ -593,24 +593,25 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 
 		IContentsImporter importer = backend.getContentsImporter(bs);
 
-		if (!col.getDeletedIds().isEmpty()) {
-			// COAX-261: do not send Delete Response (Exchange style)
-			clientDelete(bs, col, importer, dataType, col.getDeletedIds());
-		}
-
 		StateMachine sm = new StateMachine(Backends.internalStorage());
 		SyncState syncState = sm.getSyncState(bs, col.getCollectionId(), col.getSyncKey());
 
-		for (Element e : col.getChangedItems()) {
-			ret.add(clientChange(bs, col, importer, dataType, e, syncState));
+		if (!"SMS".equals(col.getDataClass())) {
+			if (!col.getDeletedIds().isEmpty()) {
+				// COAX-261: do not send Delete Response (Exchange style)
+				clientDelete(bs, col, importer, dataType, col.getDeletedIds());
+			}
+			for (Element e : col.getCreatedItems()) {
+				ret.add(clientCreate(bs, col, importer, dataType, e, syncState));
+			}
+			IContentsExporter cex = backend.getContentsExporter(bs);
+			for (CollectionItem item : col.getFetchIds()) {
+				ret.add(clientFetch(bs, col, cex, dataType, item));
+			}
 		}
 
-		for (Element e : col.getCreatedItems()) {
-			ret.add(clientCreate(bs, col, importer, dataType, e, syncState));
-		}
-		IContentsExporter cex = backend.getContentsExporter(bs);
-		for (CollectionItem item : col.getFetchIds()) {
-			ret.add(clientFetch(bs, col, cex, dataType, item));
+		for (Element e : col.getChangedItems()) {
+			ret.add(clientChange(bs, col, importer, dataType, e, syncState));
 		}
 
 		return ret;

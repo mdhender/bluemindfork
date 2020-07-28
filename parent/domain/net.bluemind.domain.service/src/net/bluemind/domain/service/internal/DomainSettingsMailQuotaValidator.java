@@ -93,7 +93,7 @@ public class DomainSettingsMailQuotaValidator implements IValidator<DomainSettin
 
 		checkQuota(kind, quotaMax, quotaDefault);
 
-		if (oldValue.isPresent() && quotaMax != getQuota(oldValue.get().settings, quotaMaxKey)) {
+		if (oldValue.isPresent() && quotaMax != 0 && quotaMax != getQuota(oldValue.get().settings, quotaMaxKey)) {
 			checkMailboxQuota(newValue.domainUid, quotaMax);
 		}
 	}

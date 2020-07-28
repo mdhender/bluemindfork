@@ -44,10 +44,8 @@ public class PrintServiceTests extends AbstractCalendarTests {
 	@Test
 	public void tesGeneratePdf() throws ServerFault, IOException {
 		PrintOptions options = new PrintOptions();
-		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 10, 0, 0, 0, 0, utcTz),
-				Precision.Date);
-		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 17, 0, 0, 0, 0, utcTz),
-				Precision.Date);
+		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 10, 0, 0, 0, 0, utcTz), Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 17, 0, 0, 0, 0, utcTz), Precision.Date);
 		options.calendars.add(CalendarMetadata.create(userCalendarContainer.uid, "#3D99FF"));
 
 		options.format = PrintFormat.PDF;
@@ -63,10 +61,8 @@ public class PrintServiceTests extends AbstractCalendarTests {
 		String uid = "test_" + System.nanoTime();
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 		PrintOptions options = new PrintOptions();
-		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 10, 0, 0, 0, 0, utcTz),
-				Precision.Date);
-		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 17, 0, 0, 0, 0, utcTz),
-				Precision.Date);
+		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 10, 0, 0, 0, 0, utcTz), Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 17, 0, 0, 0, 0, utcTz), Precision.Date);
 		options.calendars.add(CalendarMetadata.create(userCalendarContainer.uid, "#3D99FF"));
 
 		options.view = PrintView.AGENDA;
@@ -77,10 +73,8 @@ public class PrintServiceTests extends AbstractCalendarTests {
 	@Test
 	public void tesGeneratePng() throws ServerFault, IOException {
 		PrintOptions options = new PrintOptions();
-		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 10, 0, 0, 0, 0, utcTz),
-				Precision.Date);
-		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 17, 0, 0, 0, 0, utcTz),
-				Precision.Date);
+		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 10, 0, 0, 0, 0, utcTz), Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 17, 0, 0, 0, 0, utcTz), Precision.Date);
 		options.calendars.add(CalendarMetadata.create(userCalendarContainer.uid, "#3D99FF"));
 
 		options.format = PrintFormat.PNG;

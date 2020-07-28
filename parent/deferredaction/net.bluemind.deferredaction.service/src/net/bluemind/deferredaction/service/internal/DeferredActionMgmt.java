@@ -38,7 +38,7 @@ public class DeferredActionMgmt implements IDeferredActionMgmt {
 		this.container = container;
 		DeferredActionStore deferredActionStore = new DeferredActionStore(dataSource, container);
 		this.storeService = new ContainerDeferredActionStoreService(dataSource, context.getSecurityContext(), container,
-				"deferredAction", deferredActionStore);
+				deferredActionStore);
 	}
 
 	@Override

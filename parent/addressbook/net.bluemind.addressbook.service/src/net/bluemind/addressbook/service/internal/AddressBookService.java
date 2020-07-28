@@ -40,14 +40,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import net.bluemind.addressbook.api.IAddressBook;
-import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCardChanges;
 import net.bluemind.addressbook.api.VCardChanges.ItemAdd;
 import net.bluemind.addressbook.api.VCardInfo;
 import net.bluemind.addressbook.api.VCardQuery;
 import net.bluemind.addressbook.api.VCardQuery.OrderBy;
-import net.bluemind.addressbook.domainbook.DomainAddressBook;
 import net.bluemind.addressbook.persistence.VCardIndexStore;
 import net.bluemind.addressbook.persistence.VCardStore;
 import net.bluemind.addressbook.service.IInCoreAddressBook;
@@ -77,6 +75,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sanitizer.Sanitizer;
+import net.bluemind.core.utils.DependencyResolver;
 import net.bluemind.core.utils.ImageUtils;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -101,9 +100,6 @@ public class AddressBookService implements IInCoreAddressBook {
 	private final VCardStore vcardStore;
 
 	public AddressBookService(DataSource dataSource, Client esearchClient, Container container, BmContext context) {
-		if (!isDefaultDomainAb(container) && dataSource.equals(context.getDataSource())) {
-			throw new ServerFault("wrong datasource");
-		}
 		this.context = context;
 		this.securityContext = context.getSecurityContext();
 		this.container = container;
@@ -111,17 +107,13 @@ public class AddressBookService implements IInCoreAddressBook {
 		this.vcardStore = new VCardStore(dataSource, container);
 		this.eventProducer = new AddressBookEventProducer(container, securityContext, VertxPlatform.eventBus());
 		indexStore = new VCardIndexStore(esearchClient, container);
-		this.storeService = new VCardContainerStoreService(context, dataSource, securityContext, container,
-				IAddressBookUids.TYPE, vcardStore, indexStore);
+		this.storeService = new VCardContainerStoreService(context, dataSource, securityContext, container, vcardStore,
+				indexStore);
 
 		extSanitizer = new Sanitizer(context);
 		extValidator = new Validator(context);
 
 		rbacManager = RBACManager.forContext(context).forContainer(container);
-	}
-
-	private static boolean isDefaultDomainAb(Container container) {
-		return container.uid.equals(DomainAddressBook.getIdentifier(container.domainUid));
 	}
 
 	@Override
@@ -452,14 +444,17 @@ public class AddressBookService implements IInCoreAddressBook {
 				}
 
 			};
-			// FIXME : Not enough... a group can be member of another group, we
-			// should
-			// create vcard according to dependencies constraints
+
 			Map<Boolean, List<ItemAdd>> isGroupPartitions = changes.add.stream()
 					.collect(Collectors.partitioningBy(c -> c.value.kind == VCard.Kind.group));
 			isGroupPartitions.get(false).forEach(createOrUpdate);
-			isGroupPartitions.get(true).forEach(createOrUpdate);
 
+			DependencyResolver.sortByDependencies(isGroupPartitions.get(true), itemAdd -> itemAdd.uid,
+					itemAdd -> itemAdd.value.organizational.member.stream()
+							.filter(member -> (member.containerUid == null || member.containerUid.equals(container.uid))
+									&& member.itemUid != null)
+							.map(member -> member.itemUid).collect(Collectors.toSet()))
+					.forEach(createOrUpdate);
 		}
 
 		if (changes.modify != null && changes.modify.size() > 0) {

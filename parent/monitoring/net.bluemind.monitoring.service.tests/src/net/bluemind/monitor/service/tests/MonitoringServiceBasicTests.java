@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -42,11 +41,6 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 public class MonitoringServiceBasicTests {
 
 	private IServiceProvider prov;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	public void before() throws Exception {

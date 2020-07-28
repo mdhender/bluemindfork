@@ -150,29 +150,18 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		rbac.check(Verb.Write.name());
 
 		sanitizeNames(value);
-		String newName = value.fullName;
-		String toWatch = container.uid;
+		UpdatedName newName = updateName(value, container.uid);
 
-		if (root.ns == Namespace.shared && value.parentUid != null) {
-			String parentRecs = IMailReplicaUids.mboxRecords(value.parentUid);
-			ReplicasStore repStore = new ReplicasStore(DataSourceRouter.get(context, parentRecs));
-			Optional<SubtreeLocation> optRecordsLocation = SubtreeLocations.getById(repStore, value.parentUid);
-			if (!optRecordsLocation.isPresent()) {
-				throw ServerFault.notFound("subtree loc not found for parent " + value.parentUid);
-			}
-			SubtreeLocation recLoc = optRecordsLocation.get();
-			toWatch = recLoc.subtreeContainer;
-			newName = recLoc.imapPath(context) + "/" + value.name;
-		}
-
-		ItemValue<MailboxFolder> folder = byName(newName);
+		ItemValue<MailboxFolder> folder = byName(newName.fullName);
 		if (folder != null) {
 			return ItemIdentifier.of(folder.uid, folder.internalId, folder.version);
 		}
 
 		FolderInternalIdCache.storeExpectedRecordId(container, value.fullName, hierId);
-		final String computedName = newName;
-		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(toWatch);
+		final String computedName = newName.fullName;
+
+		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onMailboxCreated(newName.subtreeContainer,
+				newName.fullName);
 		logger.info("{} Should create '{}'", root, computedName);
 		return imapContext.withImapClient((sc, fast) -> {
 			boolean ok = sc.create(computedName);
@@ -200,28 +189,45 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		return createForHierarchy(alloc.globalCounter, value);
 	}
 
+	private static class UpdatedName {
+		String subtreeContainer;
+		String fullName;
+
+		public UpdatedName(String subtreeContainer, String fullName) {
+			this.subtreeContainer = subtreeContainer;
+			this.fullName = fullName;
+		}
+
+	}
+
+	private UpdatedName updateName(MailboxFolder folder, String containerUid) {
+		if (root.ns == Namespace.shared && folder.parentUid != null) {
+			String parentRecs = IMailReplicaUids.mboxRecords(folder.parentUid);
+			ReplicasStore repStore = new ReplicasStore(DataSourceRouter.get(context, parentRecs));
+			Optional<SubtreeLocation> optRecordsLocation = SubtreeLocations.getById(repStore, folder.parentUid);
+			if (!optRecordsLocation.isPresent()) {
+				throw ServerFault.notFound("subtree loc not found for parent " + folder.parentUid);
+			}
+			SubtreeLocation recLoc = optRecordsLocation.get();
+			return new UpdatedName(recLoc.subtreeContainer, recLoc.imapPath(context) + "/" + folder.name);
+		} else {
+			return new UpdatedName(containerUid, folder.fullName);
+		}
+	}
+
 	@Override
 	public void deleteById(long id) {
 		rbac.check(Verb.Write.name());
 
 		ItemValue<MailboxFolder> toDelete = getCompleteById(id);
-		logger.info("toDelete: {}", toDelete);
-		String newName = toDelete.value.fullName;
-		String toWatch = container.uid;
-		if (root.ns == Namespace.shared && toDelete.value.parentUid != null) {
-			String parentRecs = IMailReplicaUids.mboxRecords(toDelete.value.parentUid);
-			ReplicasStore repStore = new ReplicasStore(DataSourceRouter.get(context, parentRecs));
-			Optional<SubtreeLocation> optRecordsLocation = SubtreeLocations.getById(repStore, toDelete.value.parentUid);
-			if (!optRecordsLocation.isPresent()) {
-				throw ServerFault.notFound("subtree loc not found for parent " + toDelete.value.parentUid);
-			}
-			SubtreeLocation recLoc = optRecordsLocation.get();
-			toWatch = recLoc.subtreeContainer;
-			newName = recLoc.imapPath(context) + "/" + toDelete.value.name;
+		if (toDelete.value.deleted) {
+			throw ServerFault.notFound("Folder with id " + id + " has already been deleted.");
 		}
-		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(toWatch);
-		final String fnName = newName;
-		final String fnToWath = toWatch;
+		logger.info("toDelete: {}", toDelete);
+		UpdatedName newName = updateName(toDelete.value, container.uid);
+		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(newName.subtreeContainer);
+		final String fnName = newName.fullName;
+		final String fnToWath = newName.subtreeContainer;
 		imapContext.withImapClient((sc, fast) -> {
 			logger.info("Deleting {}", fnName);
 			selectInbox(sc, fast);

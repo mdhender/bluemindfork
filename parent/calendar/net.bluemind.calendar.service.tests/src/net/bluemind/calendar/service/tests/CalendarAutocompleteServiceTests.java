@@ -358,9 +358,8 @@ public class CalendarAutocompleteServiceTests {
 		assertEquals("g1", att1.uid);
 		assertEquals(ICalendarUids.defaultUserCalendar("u1"), att2.uid);
 
-		res = service.calendarGroupLookup(att1.uid);
 		// u1 + u2 + g4.u6 (u3 is not Readable, g2 and g3 are hidden)
-		assertEquals(3, res.size());
+		assertEquals(3, service.calendarGroupLookup(att1.uid).size());
 	}
 
 	@Test

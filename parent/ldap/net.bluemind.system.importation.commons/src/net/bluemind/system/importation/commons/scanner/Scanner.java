@@ -210,6 +210,10 @@ public abstract class Scanner {
 				ItemValue<User> user = coreService.getUserByExtId(deletedUserUuid.getExtId());
 
 				if (user != null) {
+					if (user.value.archived) {
+						continue;
+					}
+
 					importLogger.info(Messages.suspendUser(user));
 					coreService.suspendUser(user);
 				} else {

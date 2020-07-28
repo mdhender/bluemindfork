@@ -22,8 +22,6 @@
  */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +46,6 @@ import net.bluemind.backend.mail.api.events.MailEventAddresses;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 
 public class ReplicationEventsRecorder {
@@ -108,11 +105,7 @@ public class ReplicationEventsRecorder {
 			if (asUser.status != LoginResponse.Status.Ok) {
 				return;
 			}
-			SecurityContext sec = new SecurityContext(asUser.authKey, asUser.authUser.uid, Collections.emptyList(),
-					new ArrayList<>(asUser.authUser.roles), domainUid);
-			// server side, as the user
-			IServiceProvider userProv = ServerSideServiceProvider.getProvider(sec);
-			IDbReplicatedMailboxes mailFoldersApi = userProv.instance(IDbReplicatedMailboxes.class,
+			IDbReplicatedMailboxes mailFoldersApi = prov.instance(IDbReplicatedMailboxes.class,
 					domainUid.replace('.', '_'), "user." + login.replace('.', '^'));
 
 			JsonObject body = msg.body();

@@ -19,13 +19,14 @@
 package net.bluemind.core.rest.http;
 
 import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.uri.Uri;
 
 import net.bluemind.core.rest.base.BasicClientProxy;
 import net.bluemind.core.rest.http.internal.AsyncHttpCallHandler;
 
 public class HttpClientFactory<S, T> extends BasicClientProxy<S, T> {
 
-	public HttpClientFactory(Class<S> api, Class<T> asyncApi, String baseUrl) {
+	public HttpClientFactory(Class<S> api, Class<T> asyncApi, Uri baseUrl) {
 		this(api, asyncApi, baseUrl, ahc());
 	}
 
@@ -33,16 +34,25 @@ public class HttpClientFactory<S, T> extends BasicClientProxy<S, T> {
 		return ClientSideServiceProvider.defaultClient;
 	}
 
-	HttpClientFactory(Class<S> api, Class<T> asyncApi, String baseUrl, AsyncHttpClient client) {
+	HttpClientFactory(Class<S> api, Class<T> asyncApi, Uri baseUrl, AsyncHttpClient client) {
 		super(new AsyncHttpCallHandler(client, baseUrl), api, asyncApi);
 	}
 
 	public static <S, T> HttpClientFactory<S, T> create(Class<S> api, Class<T> asyncApi, String baseUrl,
 			AsyncHttpClient client) {
+		return create(api, asyncApi, Uri.create(baseUrl), client);
+	}
+
+	public static <S, T> HttpClientFactory<S, T> create(Class<S> api, Class<T> asyncApi, Uri baseUrl,
+			AsyncHttpClient client) {
 		return new HttpClientFactory<>(api, asyncApi, baseUrl, client);
 	}
 
 	public static <S, T> HttpClientFactory<S, T> create(Class<S> api, Class<T> asyncApi, String baseUrl) {
+		return create(api, asyncApi, Uri.create(baseUrl));
+	}
+
+	public static <S, T> HttpClientFactory<S, T> create(Class<S> api, Class<T> asyncApi, Uri baseUrl) {
 		return new HttpClientFactory<>(api, asyncApi, baseUrl, ahc());
 	}
 

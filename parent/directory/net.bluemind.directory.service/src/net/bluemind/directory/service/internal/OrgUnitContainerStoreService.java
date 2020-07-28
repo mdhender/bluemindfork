@@ -59,7 +59,7 @@ public class OrgUnitContainerStoreService extends DirValueStoreService<OrgUnit> 
 	private ItemStore genericItemStore;
 
 	public OrgUnitContainerStoreService(BmContext context, Container container, ItemValue<Domain> domain) {
-		super(context, context.getDataSource(), context.getSecurityContext(), domain, container, "dir", Kind.ORG_UNIT,
+		super(context, context.getDataSource(), context.getSecurityContext(), domain, container, Kind.ORG_UNIT,
 				new OrgUnitStore(context.getDataSource(), container), new OUDirEntryAdapter(), new NullVCardAdapter<>(),
 				new NullMailboxAdapter<>());
 		this.orgUnitStore = new OrgUnitStore(context.getDataSource(), container);

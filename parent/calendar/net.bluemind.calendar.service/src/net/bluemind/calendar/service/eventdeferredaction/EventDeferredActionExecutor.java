@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.MimeException;
 import org.elasticsearch.common.Strings;
@@ -87,13 +88,24 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 
 		logger.info("Found {} deferred actions of type {}", deferredActions.size(), EventDeferredAction.ACTION_ID);
 
-		deferredActions.stream().map(EventDeferredActionExecutor::from).filter(Optional::isPresent).map(Optional::get)
-				.forEach(action -> {
+		List<ItemValue<Optional<EventDeferredAction>>> actions = deferredActions.stream()
+				.map(EventDeferredActionExecutor::from).collect(Collectors.toList());
+		deleteObsoleteActions(deferredActionService, actions);
+		actions.stream().filter(action -> action.value.isPresent())
+				.map(action -> ItemValue.create(action.uid, action.value.get())).forEach(action -> {
 					VertxPlatform.getVertx().setTimer(
 							Math.max(1, action.value.executionDate.getTime() - new Date().getTime()),
 							(timerId) -> executeAction(deferredActionService, action, mailboxesService,
 									userSettingsService, directoryService));
 				});
+	}
+
+	private void deleteObsoleteActions(IDeferredAction deferredActionService,
+			List<ItemValue<Optional<EventDeferredAction>>> actions) {
+		actions.stream().filter(action -> !action.value.isPresent()).forEach(action -> {
+			logger.info("Deleting invalid deferred action {}", action.uid);
+			deferredActionService.delete(action.uid);
+		});
 	}
 
 	private void executeAction(IDeferredAction deferredActionService, ItemValue<EventDeferredAction> deferredAction,
@@ -194,13 +206,13 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 		return new Locale(language);
 	}
 
-	static Optional<ItemValue<EventDeferredAction>> from(ItemValue<DeferredAction> deferredAction) {
+	static ItemValue<Optional<EventDeferredAction>> from(ItemValue<DeferredAction> deferredAction) {
 		try {
 			EventDeferredAction eventDeferredAction = new EventDeferredAction(deferredAction.value);
-			return Optional.ofNullable(ItemValue.create(deferredAction.uid, eventDeferredAction));
+			return ItemValue.create(deferredAction.uid, Optional.of(eventDeferredAction));
 		} catch (Exception e) {
 			logger.error("An error occured while getting event data of action: {}", deferredAction.uid, e);
+			return ItemValue.create(deferredAction.uid, Optional.empty());
 		}
-		return Optional.empty();
 	}
 }

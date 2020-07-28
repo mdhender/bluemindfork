@@ -37,7 +37,6 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.TextBox;
 
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
@@ -92,9 +91,6 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 
 	@UiField
 	ListBox domainList;
-
-	@UiField
-	TextBox maxSessionPerUser;
 
 	private ListBox authTypeSel;
 
@@ -165,11 +161,6 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 		} else {
 			authTypeSel.setSelectedIndex(detectAuthTypeIndex(null));
 		}
-		if (null != map.get(SysConfKeys.hps_max_sessions_per_user.name())) {
-			maxSessionPerUser.setValue(map.get(SysConfKeys.hps_max_sessions_per_user.name()).toString());
-		} else {
-			maxSessionPerUser.setValue("5");
-		}
 		updateAuthType(AuthType.getByIndex(authTypeSel.getSelectedIndex()), false);
 	}
 
@@ -178,7 +169,6 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 		SysConfModel map = SysConfModel.from(model);
 
 		map.putString(SysConfKeys.default_domain.name(), domainList.getSelectedValue());
-		map.putString(SysConfKeys.hps_max_sessions_per_user.name(), maxSessionPerUser.getValue());
 
 		AuthType at = AuthType.getByIndex(authTypeSel.getSelectedIndex());
 		map.putString(SysConfKeys.auth_type.name(), at.name());
@@ -342,7 +332,7 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 
 	public static native JSONObject getJsObject(String responseText)
 	/*-{
-		return JSON.parse(responseText);
+    return JSON.parse(responseText);
 	}-*/;
 
 	private static class ValidationResult {

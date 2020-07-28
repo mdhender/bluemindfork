@@ -18,7 +18,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.io.ByteStreams;
@@ -52,11 +51,6 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 	private String partition;
 	private String mboxRoot;
 	private ClientSideServiceProvider provider;
-
-	@BeforeClass
-	public static void beforeClass() {
-		System.setProperty("es.mailspool.count", "1");
-	}
 
 	@Before
 	public void before() throws Exception {
@@ -113,12 +107,14 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 		IMailboxItems mailboxItemsService = provider.instance(IMailboxItems.class, sentUid);
 		assertEquals(0, mailboxItemsService.count(ItemFlagFilter.all()).total);
 
-		provider.instance(IOutbox.class, domainUid, userUid).flush();
-
+		long time = System.currentTimeMillis();
 		CompletableFuture<Void> applyMailboxCompletetion = new ExpectCommand().onNextApplyMailbox(sentUid);
+
+		provider.instance(IOutbox.class, domainUid, userUid).flush();
 
 		try {
 			applyMailboxCompletetion.get(5, TimeUnit.SECONDS);
+			System.err.println("Flushed in " + (System.currentTimeMillis() - time) + "ms.");
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			e.printStackTrace();
 			fail();

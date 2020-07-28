@@ -35,14 +35,15 @@ public class ChronografClient implements AutoCloseable {
 
 	public List<DashInfos> getExistingDashboards()
 			throws JsonProcessingException, IOException, InterruptedException, ExecutionException, TimeoutException {
-		List<DashInfos> existingDashboards = new ArrayList<DashInfos>();
+		List<DashInfos> existingDashboards = new ArrayList<>();
 		String request = apiEndpoint + "/dashboards";
 		JsonObject json = jsonHelper.get(request);
 		JsonArray dashBoards = json.getJsonArray("dashboards");
 		if (dashBoards != null) {
 			for (int i = 0; i < dashBoards.size(); i++) {
 				JsonObject dashBoard = dashBoards.getJsonObject(i);
-				existingDashboards.add(new DashInfos(dashBoard.getString("name"), dashBoard.getInteger("id")));
+				existingDashboards
+						.add(new DashInfos(dashBoard.getString("name"), Integer.parseInt(dashBoard.getString("id"))));
 			}
 		}
 		return existingDashboards;
@@ -80,10 +81,10 @@ public class ChronografClient implements AutoCloseable {
 				jsonHelper.sendPost(request, json);
 				logger.info("Chronograf dashboard {} created.", dashboard.name());
 			} catch (Exception e) {
-				logger.warn("Unable to create chronograf dashboard {}", e);
+				logger.warn("Unable to create chronograf dashboard", e);
 			}
 		} catch (Exception e) {
-			logger.warn("Error while setting chronograf dashboards {}", e);
+			logger.warn("Error while setting chronograf dashboards", e);
 		}
 	}
 

@@ -34,7 +34,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.io.ByteStreams;
@@ -82,12 +81,6 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 	private String apiKey;
 	protected String partition;
 	protected String mboxRoot;
-
-	@BeforeClass
-	public static void oneShotBefore() {
-		System.setProperty("es.mailspool.count", "1");
-
-	}
 
 	@Before
 	public void before() throws Exception {

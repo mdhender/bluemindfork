@@ -27,10 +27,12 @@ import net.bluemind.eclipse.common.IHasPriority;
 
 public class CallLoggerFilter extends RestFilterAdapter implements IHasPriority {
 
+	private static final String ROOT_HANDLER_NAME = RestRootHandler.class.getSimpleName();
+
 	@Override
 	public AsyncHandler<RestResponse> preAuthorization(RestRequest request,
 			AsyncHandler<RestResponse> responseHandler) {
-		CallLogger callLogger = CallLogger.start(RestRootHandler.class.getSimpleName(), request);
+		CallLogger callLogger = CallLogger.start(ROOT_HANDLER_NAME, request);
 		return callLogger.responseHandler(responseHandler);
 	}
 

@@ -114,6 +114,8 @@ public abstract class ICSImportTask implements IServerTask {
 		List<ItemValue<VEventSeries>> byIcsUid = service.getByIcsUid(itemValue.uid);
 		if (itemValue.updated == null || //
 				byIcsUid.isEmpty() || //
+				eventHasAddedExDates(event, byIcsUid.get(0).value) || // BM-16128 Google does not update last-modified
+																		// if only the exdates have been modified
 				itemValue.updated.after(byIcsUid.get(0).updated)) {
 			VEventChanges eventChanges = EventChangesMerge.getStrategy(byIcsUid, event).merge(byIcsUid, event);
 			changes.addAll(eventChanges);
@@ -126,6 +128,17 @@ public abstract class ICSImportTask implements IServerTask {
 		ret.unhandled.addAll(result.errors.stream().map(e -> e.uid).collect(Collectors.toList()));
 
 		return ret;
+	}
+
+	private boolean eventHasAddedExDates(VEventSeries event, VEventSeries localEvent) {
+		return exdateCount(event) != exdateCount(localEvent);
+	}
+
+	private int exdateCount(VEventSeries event) {
+		if (event.main != null && event.main.exdate != null) {
+			return event.main.exdate.size();
+		}
+		return 0;
 	}
 
 	public static enum Mode {

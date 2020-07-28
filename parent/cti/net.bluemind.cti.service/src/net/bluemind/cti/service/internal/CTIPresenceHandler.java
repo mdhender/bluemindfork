@@ -17,9 +17,9 @@
   */
 package net.bluemind.cti.service.internal;
 
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +34,8 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -47,11 +49,19 @@ import net.bluemind.lib.vertx.utils.ThrottleMessages;
 import net.bluemind.user.api.IUserSettings;
 
 public class CTIPresenceHandler extends AbstractVerticle {
-
 	private static final Logger logger = LoggerFactory.getLogger(CTIPresenceHandler.class);
-	private final Cache<String, String> uidForEmail = CacheBuilder.newBuilder()//
-			.expireAfterAccess(5, TimeUnit.MINUTES).maximumSize(2048)//
+	private static final Cache<String, String> uidForEmail = CacheBuilder.newBuilder()
+			.recordStats()
+			.expireAfterAccess(5, TimeUnit.MINUTES)
+			.maximumSize(2048)
 			.build();
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(CTIPresenceHandler.class, uidForEmail);
+		}
+	}
 
 	public static final String ADDR = "throttled.presence";
 

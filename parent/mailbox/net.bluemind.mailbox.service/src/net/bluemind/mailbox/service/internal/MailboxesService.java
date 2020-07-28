@@ -698,6 +698,16 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	public void updated(String uid, Mailbox previous, Mailbox value) throws ServerFault {
 		ItemValue<Mailbox> previousItemValue = ItemValue.create(uid, previous);
 		ItemValue<Mailbox> itemValue = storeService.get(uid, null);
+
+		for (IMailboxHook hook : hooks) {
+			try {
+				hook.preMailboxUpdate(context, domainUid, previousItemValue, itemValue);
+			} catch (Exception e) {
+				logger.error("error during call to hook (preMailboxUpdate) {} : {} ", hook.getClass(), e.getMessage(),
+						e);
+			}
+		}
+
 		mailboxStorage().update(context, domainUid, previousItemValue, itemValue);
 		for (IMailboxHook hook : hooks) {
 			try {

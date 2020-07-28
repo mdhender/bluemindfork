@@ -31,5 +31,10 @@
             implementation="net.bluemind.cti.service.internal.DeferredActionCTIExecutorFactory">
       </executor>
    </extension>
-
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.cti.service.internal.CTIPresenceHandler$CacheRegistration">
+      </reg>
+   </extension>
 </plugin>

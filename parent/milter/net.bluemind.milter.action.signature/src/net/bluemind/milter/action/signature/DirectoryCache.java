@@ -36,6 +36,8 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
@@ -46,15 +48,23 @@ import net.bluemind.mailflow.rbe.IClientContext;
 import net.bluemind.network.topology.Topology;
 
 public class DirectoryCache extends AbstractVerticle {
-
 	private static Optional<IServiceProvider> provider = Optional.empty();
 	private static Map<String, Long> changesetVersion = new ConcurrentHashMap<>();
 	private static Map<String, VCard> uidToVCard = new ConcurrentHashMap<>();
 	private static Map<String, String> emailToUid = new ConcurrentHashMap<>();
-	private static Cache<String, String> noVCards = CacheBuilder.newBuilder().expireAfterWrite(20, TimeUnit.MINUTES)
+	private static Cache<String, String> noVCards = CacheBuilder.newBuilder()
+			.recordStats()
+			.expireAfterWrite(20, TimeUnit.MINUTES)
 			.build();
 
 	private static final Logger logger = LoggerFactory.getLogger(DirectoryCache.class);
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(DirectoryCache.class, noVCards);
+		}
+	}
 
 	@Override
 	public void start() {

@@ -27,10 +27,25 @@ import com.google.common.cache.CacheStats;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
+
 public class HashCache {
+	private static final Cache<String, File> hashes = CacheBuilder.newBuilder()
+			.recordStats()
+			.expireAfterAccess(10, TimeUnit.MINUTES)
+			.maximumSize(1024)
+			.removalListener(new ExpireListener())
+			.build();
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(HashCache.class, hashes);
+		}
+	}
 
 	private static class ExpireListener implements RemovalListener<String, File> {
-
 		@Override
 		public void onRemoval(RemovalNotification<String, File> notification) {
 			if (notification.wasEvicted()) {
@@ -39,9 +54,6 @@ public class HashCache {
 		}
 
 	};
-
-	private static final Cache<String, File> hashes = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES)
-			.removalListener(new ExpireListener()).recordStats().maximumSize(1024).build();
 
 	public static File getIfPresent(String hash) {
 		return hashes.getIfPresent(hash);

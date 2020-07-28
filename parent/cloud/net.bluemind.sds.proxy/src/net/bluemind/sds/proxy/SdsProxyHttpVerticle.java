@@ -17,40 +17,18 @@
   */
 package net.bluemind.sds.proxy;
 
-import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netflix.spectator.api.Id;
-import com.netflix.spectator.api.Registry;
-
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Promise;
 import io.vertx.core.Verticle;
-import io.vertx.core.eventbus.DeliveryOptions;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.IVerticleFactory;
-import net.bluemind.lib.vertx.RouteMatcher;
-import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.metrics.registry.IdFactory;
-import net.bluemind.metrics.registry.MetricsRegistry;
-import net.bluemind.sds.proxy.dto.ConfigureResponse;
-import net.bluemind.sds.proxy.dto.ExistResponse;
-import net.bluemind.sds.proxy.dto.JsMapper;
-import net.bluemind.sds.proxy.dto.SdsResponse;
-import net.bluemind.sds.proxy.events.SdsAddresses;
-import net.bluemind.vertx.common.request.Requests;
 
-public class SdsProxyHttpVerticle extends AbstractVerticle {
+public class SdsProxyHttpVerticle extends SdsProxyBaseVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(SdsProxyHttpVerticle.class);
+	public static final int PORT = 8091;
 
 	public static class SdsProxyHttpFactory implements IVerticleFactory {
 
@@ -66,157 +44,15 @@ public class SdsProxyHttpVerticle extends AbstractVerticle {
 
 	}
 
-	private static final Registry registry = MetricsRegistry.get();
-	private static final IdFactory idFactory = new IdFactory("http", MetricsRegistry.get(), SdsProxyHttpVerticle.class);
-
-	@Override
-	public void start(Promise<Void> startedResult) {
-
-		HttpServer srv = vertx.createHttpServer();
-		RouteMatcher router = new RouteMatcher(vertx);
-		router.noMatch(req -> {
-			logger.warn("Unknown request to {} {}", req.method(), req.absoluteURI());
-			req.response().setStatusCode(400).end();
-		});
-		router.options("/sds", this::exist);
-		router.delete("/sds", this::delete);
-		router.put("/sds", this::put);
-		router.get("/sds", this::get);
-		router.post("/sds/mget", this::mget);
-		router.post("/configuration", this::configure);
-		router.post("/mailbox", this::validateMailbox);
-
-		router.put("/sds/mapping", this::putMapping);
-		router.delete("/sds/mapping", this::delMapping);
-		router.post("/sds/mapping", this::queryMapping);
-
-		srv.requestHandler(router).listen(8091, result -> {
+	protected void doListen(Promise<Void> startedResult, HttpServer srv) {
+		srv.listen(PORT, result -> {
 			if (result.succeeded()) {
+				logger.info("listening on TCP {}", PORT);
 				startedResult.complete(null);
 			} else {
 				startedResult.fail(result.cause());
 			}
 		});
-	}
-
-	private void putMapping(HttpServerRequest r) {
-		HttpServerRequest request = Requests.wrap(r);
-		Requests.tag(request, "method", SdsAddresses.MAP);
-
-		request.bodyHandler(buf -> {
-			logger.debug("MAP {}", buf);
-			VertxPlatform.eventBus().request(SdsAddresses.MAP, new JsonObject(buf), ar -> {
-				if (ar.succeeded()) {
-					request.response().end();
-				} else {
-					logger.error("mapping error", ar.cause());
-					request.response().setStatusCode(500).end();
-				}
-			});
-		});
-	}
-
-	private void delMapping(HttpServerRequest r) {
-		HttpServerRequest request = Requests.wrap(r);
-		request.bodyHandler(buf -> {
-			JsonObject reqJs = new JsonObject(buf);
-			logger.info("UNMAP {}", reqJs.encodePrettily());
-			request.response().end();
-		});
-	}
-
-	private void queryMapping(HttpServerRequest r) {
-		HttpServerRequest request = Requests.wrap(r);
-		Requests.tag(request, "method", SdsAddresses.QUERY);
-		request.bodyHandler(buf -> {
-			logger.debug("QUERY {}", buf);
-			VertxPlatform.eventBus().request(SdsAddresses.QUERY, new JsonObject(buf),
-					(AsyncResult<Message<JsonObject>> ar) -> {
-						if (ar.succeeded()) {
-							request.response().end(ar.result().body().encode());
-						} else {
-							logger.error("mapping query error", ar.cause());
-							request.response().setStatusCode(500).end();
-						}
-					});
-		});
-	}
-
-	private void configure(HttpServerRequest request) {
-		sendBody(request, SdsAddresses.CONFIG, ConfigureResponse.class, (resp, http) -> http.setStatusCode(200).end());
-	}
-
-	private void exist(HttpServerRequest request) {
-		sendBody(request, SdsAddresses.EXIST, ExistResponse.class,
-				(resp, http) -> http.setStatusCode(resp.exists ? 200 : 404).end());
-	}
-
-	private void delete(HttpServerRequest req) {
-		sendBody(req, SdsAddresses.DELETE, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
-	}
-
-	private void put(HttpServerRequest req) {
-		sendBody(req, SdsAddresses.PUT, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
-	}
-
-	private void get(HttpServerRequest req) {
-		sendBody(req, SdsAddresses.GET, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
-	}
-
-	private void mget(HttpServerRequest req) {
-		sendBody(req, SdsAddresses.MGET, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
-	}
-
-	private void validateMailbox(HttpServerRequest request) {
-		HttpServerRequest req = Requests.wrap(request);
-		req.bodyHandler(payload ->
-
-		vertx.eventBus().request(SdsAddresses.VALIDATION, payload, new DeliveryOptions().setSendTimeout(3000),
-				(AsyncResult<Message<Boolean>> result) -> {
-					if (result.failed()) {
-						logger.info("Unable to get a result ({}), accept by default", result.cause().getMessage());
-						req.response().setStatusCode(200).end();
-					} else {
-						boolean isAccepted = result.result().body();
-						if (isAccepted) {
-							req.response().setStatusCode(200).end();
-						} else {
-							logger.warn("Refusing for {}", payload);
-							req.response().setStatusCode(403).end();
-						}
-					}
-
-				}));
-	}
-
-	private <T extends SdsResponse> void sendBody(HttpServerRequest httpReq, String address, Class<T> respClass,
-			BiConsumer<T, HttpServerResponse> onSuccess) {
-		long start = registry.clock().monotonicTime();
-		HttpServerRequest req = Requests.wrap(httpReq);
-		Requests.tag(req, "method", address);
-
-		req.bodyHandler(payload -> vertx.eventBus().request(address, payload.toString(),
-				new DeliveryOptions().setSendTimeout(20000), (AsyncResult<Message<String>> res) -> {
-					Id timerId = idFactory.name("requestTime")//
-							.withTag("method", address)//
-							.withTag("status", res.succeeded() ? "OK" : "FAILED");
-					registry.timer(timerId).record(registry.clock().monotonicTime() - start, TimeUnit.NANOSECONDS);
-
-					if (res.succeeded()) {
-						String jsonString = res.result().body();
-						T objectResp = JsMapper.readValue(jsonString, respClass);
-						objectResp.tags().forEach((k, v) -> Requests.tag(req, k, v));
-						if (objectResp.succeeded()) {
-							onSuccess.accept(objectResp, req.response());
-						} else {
-							req.response().setStatusMessage(objectResp.error.message).setStatusCode(500).end();
-						}
-					} else {
-						logger.error("Call over {} failed", address, res.cause());
-						req.response().setStatusCode(500).end();
-					}
-				}));
-
 	}
 
 }

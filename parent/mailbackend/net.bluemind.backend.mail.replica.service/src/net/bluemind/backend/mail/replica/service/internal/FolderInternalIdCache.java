@@ -31,6 +31,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.backend.mail.api.IMailboxFolders;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.Container;
 
 /**
@@ -43,7 +45,6 @@ import net.bluemind.core.container.model.Container;
  * 
  */
 public class FolderInternalIdCache {
-
 	private static final Logger logger = LoggerFactory.getLogger(FolderInternalIdCache.class);
 
 	public static String key(Container substree, String folder) {
@@ -54,8 +55,15 @@ public class FolderInternalIdCache {
 		return k;
 	}
 
-	private static final Cache<String, Long> folderKeyToExpectedInternalId = CacheBuilder.newBuilder().maximumSize(512)
-			.build();
+	private static final Cache<String, Long> folderKeyToExpectedInternalId = CacheBuilder.newBuilder().recordStats()
+			.maximumSize(512).build();
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.registerReadOnly(FolderInternalIdCache.class, folderKeyToExpectedInternalId);
+		}
+	}
 
 	public static Long expectedFolderId(Container subtree, String folder) {
 		return folderKeyToExpectedInternalId.getIfPresent(key(subtree, folder));

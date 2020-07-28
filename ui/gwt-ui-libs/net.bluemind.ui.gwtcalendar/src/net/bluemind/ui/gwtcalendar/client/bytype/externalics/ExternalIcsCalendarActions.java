@@ -25,6 +25,8 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -54,12 +56,16 @@ public class ExternalIcsCalendarActions extends CompositeGwtWidgetElement {
 	private Anchor syncAnchor;
 	private Label icsUrl;
 	private Label syncDeactivated;
+	private Label nextSync;
 
 	public ExternalIcsCalendarActions() {
 
 		VerticalPanel vp = new VerticalPanel();
 		icsUrl = new Label();
 		vp.add(icsUrl);
+
+		nextSync = new Label();
+		vp.add(nextSync);
 
 		HorizontalPanel hp = new HorizontalPanel();
 
@@ -136,7 +142,10 @@ public class ExternalIcsCalendarActions extends CompositeGwtWidgetElement {
 
 			@Override
 			public void success(TaskRef value) {
-				TaskWatcher.track(value.id, false).thenAccept(v -> checkAutoSync());
+				TaskWatcher.track(value.id, false).thenAccept(v -> {
+					checkAutoSync();
+					loadNextSync();
+				});
 			}
 
 			@Override
@@ -153,6 +162,7 @@ public class ExternalIcsCalendarActions extends CompositeGwtWidgetElement {
 		JsMapStringString m = model.cast();
 		containerUid = m.get("container");
 		icsUrl.setText(m.get("icsUrl"));
+		this.loadNextSync();
 		this.checkAutoSync();
 	}
 
@@ -168,6 +178,23 @@ public class ExternalIcsCalendarActions extends CompositeGwtWidgetElement {
 			@Override
 			public void failure(Throwable e) {
 			}
+		});
+	}
+
+	private void loadNextSync() {
+		final IContainerSyncAsync syncService = new ContainerSyncGwtEndpoint(Ajax.TOKEN.getSessionId(), containerUid);
+		syncService.getNextSync(new AsyncHandler<Date>() {
+
+			@Override
+			public void success(Date date) {
+				nextSync.setText(ExternalCalendarConstants.INST.nextSync() + ": "
+						+ DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM).format(date));
+			}
+
+			@Override
+			public void failure(Throwable e) {
+			}
+
 		});
 	}
 

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>net.bluemind.ui.adminconsole.password.sizestrength</artifactId>
+	<packaging>eclipse-plugin</packaging>
+	<parent>
+		<version>4.1.0-SNAPSHOT</version>
+		<groupId>net.bluemind</groupId>
+		<artifactId>adminconsole</artifactId>
+	</parent>
+	<properties>
+		<adminconsole-passwordsizestrength.module>net.bluemind.ui.adminconsole.password.sizestrength.PasswordSizeStrength</adminconsole-passwordsizestrength.module>
+	</properties>
+	<profiles>
+		<profile>
+			<id>i18n</id>
+			<properties>
+				<adminconsole-passwordsizestrength.module>net.bluemind.ui.adminconsole.password.sizestrength.PasswordSizeStrengthI18n</adminconsole-passwordsizestrength.module>
+			</properties>
+
+		</profile>
+	</profiles>
+	<build>
+		<sourceDirectory>src</sourceDirectory>		
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>gwt-maven-plugin</artifactId>
+				<inherited>true</inherited>
+				<configuration>
+					<module>${adminconsole-passwordsizestrength.module}</module>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

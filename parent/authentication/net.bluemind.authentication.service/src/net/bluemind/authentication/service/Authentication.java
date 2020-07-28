@@ -64,8 +64,8 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.role.service.IInternalRoles;
-import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
@@ -149,15 +149,14 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 		}
 		logger.debug("try login with l: '{}', o: '{}'", login, origin);
 
-		SystemState systemState = context.su().provider().instance(IInstallation.class).getSystemState();
-		if (systemState != SystemState.CORE_STATE_RUNNING) {
-			if (!context.getSecurityContext().isAdmin() && !"admin0@global.virt".equals(login)) {
-				LoginResponse maintenanceResponse = new LoginResponse();
-				maintenanceResponse.status = Status.Bad;
-				logger.warn("Authentication denied for user {} while system is in maintenance mode", login);
-				maintenanceResponse.message = "Authentication denied while system is in maintenance mode";
-				return maintenanceResponse;
-			}
+		SystemState systemState = StateContext.getState();
+		if (systemState != SystemState.CORE_STATE_RUNNING && !context.getSecurityContext().isAdmin()
+				&& !"admin0@global.virt".equals(login)) {
+			LoginResponse maintenanceResponse = new LoginResponse();
+			maintenanceResponse.status = Status.Bad;
+			logger.warn("Authentication denied for user {} while system is in maintenance mode", login);
+			maintenanceResponse.message = "Authentication denied while system is in maintenance mode";
+			return maintenanceResponse;
 		}
 
 		AuthContext authContext = buildAuthContext(login, password);
@@ -170,16 +169,16 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 			return resp;
 		}
 
-		SecurityContext context = Sessions.get().getIfPresent(password);
+		SecurityContext sc = Sessions.get().getIfPresent(password);
 
 		AuthResult result = AuthResult.UNKNOWN;
-		if (context != null) {
-			if (authContext.user != null && authContext.user.uid.equals(context.getSubject())) {
+		if (sc != null) {
+			if (authContext.user != null && authContext.user.uid.equals(sc.getSubject())) {
 				logger.debug("login with token by {}", authContext.user);
 				result = AuthResult.YES;
 			}
 
-			if (authContext.user != null && !authContext.user.uid.equals(context.getSubject())) {
+			if (authContext.user != null && !authContext.user.uid.equals(sc.getSubject())) {
 				logger.debug("login with token by {} but user doesnt match session", authContext.user);
 			}
 		}
@@ -204,10 +203,10 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 		LoginResponse resp = null;
 		switch (result) {
 		case YES:
-			resp = getLoginResponse(context, origin, interactive, authContext, login, Status.Ok);
+			resp = getLoginResponse(sc, origin, interactive, authContext, login, Status.Ok);
 			break;
 		case EXPIRED:
-			resp = getLoginResponse(context, origin, interactive, authContext, login, Status.Expired);
+			resp = getLoginResponse(sc, origin, interactive, authContext, login, Status.Expired);
 			break;
 		default:
 			resp = new LoginResponse();
@@ -272,7 +271,7 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 		}
 
 		try {
-			IAuthContext nakedAuthContext = AuthContextCache.getInstance().getCache().get(login, () -> {
+			IAuthContext nakedAuthContext = AuthContextCache.getCache().get(login, () -> {
 				return loadFromDb(login);
 			}).orElse(null);
 
@@ -310,7 +309,7 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 
 		AuthContext authContext = new AuthContext(null, theDomain, internalUser, localPart, null);
 		Optional<IAuthContext> ret = Optional.of(authContext);
-		AuthContextCache.getInstance().getCache().put(login, ret);
+		AuthContextCache.getCache().put(login, ret);
 		return ret;
 	}
 

@@ -439,13 +439,15 @@ public class BodyStreamProcessor {
 			return;
 		}
 		mailboxes.forEach(mailbox -> {
-			Recipient recip = Recipient.create(kind, mailbox.getName(), mailbox.getAddress());
-			output.add(recip);
+			if (!">".equals(mailbox.getAddress())) {
+				Recipient recip = Recipient.create(kind, mailbox.getName(), mailbox.getAddress());
+				output.add(recip);
+			}
 		});
 	}
 
 	private static void addRecips(List<Recipient> output, RecipientKind kind, Mailbox mailbox) {
-		if (mailbox == null) {
+		if (mailbox == null || ">".equals(mailbox.getAddress())) {
 			return;
 		}
 		Recipient recip = Recipient.create(kind, mailbox.getName(), mailbox.getAddress());
