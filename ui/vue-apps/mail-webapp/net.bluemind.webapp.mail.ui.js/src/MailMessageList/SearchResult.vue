@@ -1,6 +1,6 @@
 <template>
-    <div class="h-100 bg-extra-light">
-        <search-result-content v-if="isResolved" />
+    <div>
+        <search-result-content v-if="isResolved" class="h-100" />
         <search-result-spinner v-if="isLoading" />
         <search-result-error v-if="isRejected" />
     </div>

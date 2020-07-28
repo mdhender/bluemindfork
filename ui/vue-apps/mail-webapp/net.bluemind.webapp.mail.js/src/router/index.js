@@ -1,4 +1,4 @@
-import MailApp, { MailThread, MailComposer, MailActionsPanel } from "@bluemind/webapp.mail.ui.vuejs";
+import MailApp, { MailThread, MailMessageNew, MailActionsPanel } from "@bluemind/webapp.mail.ui.vuejs";
 import virtualRoutes from "./virtualRoutes";
 import MessageQueryParam from "./MessageQueryParam";
 import injector from "@bluemind/inject";
@@ -9,17 +9,20 @@ export default [
         path: "/mail/:messagequery*",
         component: MailApp,
         meta: {
-            onEnter: store => store.dispatch("mail-webapp/bootstrap", injector.getProvider("UserSession").get().userId),
+            onEnter(store) {
+                return store.dispatch("mail-webapp/bootstrap", injector.getProvider("UserSession").get().login);
+            },
             watch: {
-                messagequery: (store, value) =>
-                    store.dispatch("mail-webapp/loadMessageList", MessageQueryParam.parse(value))
+                messagequery: (store, value) => {
+                    return store.dispatch("mail-webapp/loadMessageList", MessageQueryParam.parse(value));
+                }
             }
         },
         children: [
             {
                 name: "mail:new",
                 path: "new",
-                component: MailComposer
+                component: MailMessageNew
             },
             {
                 name: "mail:message",

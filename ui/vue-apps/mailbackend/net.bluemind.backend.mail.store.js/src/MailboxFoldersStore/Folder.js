@@ -36,11 +36,8 @@ export default class Folder {
         this.key = key;
     }
 
-    match(pattern, mailboxRoot = "") {
-        let normalized = pattern
-            .replace(mailboxRoot, "")
-            .toLowerCase()
-            .replace(/\/+/g, "/");
+    match(pattern) {
+        let normalized = pattern.toLowerCase().replace(/\/+/g, "/");
 
         const path = this.value.fullName.toLowerCase();
         if (normalized.startsWith("/")) {

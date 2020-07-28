@@ -3,17 +3,17 @@ const merge = require("webpack-merge");
 const prod = require("./node_modules/@bluemind/conf/webpack.prod.js");
 const dev = require("./node_modules/@bluemind/conf/webpack.dev.js");
 
-const conf = {
+const myConf = {
     entry: "./src/run.js",
     output: {
-        path: path.resolve(__dirname, "./web-resources"),
-        filename: "js/net.bluemind.webapp.root.js"
+        path: path.resolve(__dirname, "./web-resources/js/compile"),
+        filename: "net.bluemind.webapp.root.js"
     }
 };
 
 module.exports = mode => {
     if (mode === "production") {
-        return merge(prod, conf);
+        return merge(prod, myConf);
     }
-    return merge(dev, conf);
+    return merge(dev, myConf);
 };

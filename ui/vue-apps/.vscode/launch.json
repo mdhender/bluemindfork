@@ -16,25 +16,26 @@
             "program": "${workspaceFolder}/node_modules/jest/bin/jest"
         },
         {
-            "name": "vuejs: chrome",
-            "runtimeExecutable": "/usr/bin/chromium",
+            "type": "chrome",
             "request": "launch",
-            "type": "pwa-chrome",
-            "url": "http://localhost:8080/webapp/mail",
+            "name": "vuejs: chrome",
+            "url": "${env:BM_HOST}/webapp/mail/index.html",
+            "webRoot": "${workspaceFolder}/src",
+            "breakOnLoad": true,
             "sourceMapPathOverrides": {
-                "webpack://@bluemind/webapp.mail/*": "${workspaceFolder}/mail-webapp/net.bluemind.webapp.mail.js/*"
+                "webpack:///src/*": "${webRoot}/*"
             }
         },
         {
-            "name": "vuejs: firefox",
             "type": "firefox",
             "request": "launch",
-            "url": "http://localhost:8080/webapp/mail",
+            "name": "vuejs: firefox",
+            "url": "${env:BM_HOST}/webapp/mail/index.html",
             "webRoot": "${workspaceFolder}/src",
             "pathMappings": [
                 {
-                    "url": "webpack://bluemind/webapp.root/src/run.js",
-                    "path": "${workspaceFolder}/mail-webapp/net.bluemind.webapp.mail.js/src/run.js"
+                    "url": "webpack:///",
+                    "path": "${workspaceFolder}/mail-webapp/"
                 }
             ]
         }

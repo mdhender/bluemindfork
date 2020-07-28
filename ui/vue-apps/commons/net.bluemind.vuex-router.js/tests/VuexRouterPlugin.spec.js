@@ -120,8 +120,8 @@ describe("VuexRouterPlugin", () => {
         expect(LEAVING.meta.watch.unchanged).not.toHaveBeenCalled();
         expect(NEVER.meta.watch.unchanged).not.toHaveBeenCalled();
 
-        expect(ENTERING.meta.watch.absent).toHaveBeenCalled();
-        expect(UPDATING.meta.watch.absent).toHaveBeenCalled();
+        expect(ENTERING.meta.watch.absent).not.toHaveBeenCalled();
+        expect(UPDATING.meta.watch.absent).not.toHaveBeenCalled();
         expect(LEAVING.meta.watch.absent).not.toHaveBeenCalled();
         expect(NEVER.meta.watch.absent).not.toHaveBeenCalled();
 

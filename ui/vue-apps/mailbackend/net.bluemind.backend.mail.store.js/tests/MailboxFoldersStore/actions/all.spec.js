@@ -1,22 +1,57 @@
-import { all } from "../../../src/MailboxFoldersStore/actions/all";
-import { FETCH_FOLDERS } from "@bluemind/webapp.mail.store";
+import { all as allAction } from "../../../src/MailboxFoldersStore/actions/all";
+import ServiceLocator from "@bluemind/inject";
+
+jest.mock("@bluemind/inject");
+
+const result = [
+    {
+        uid: "1",
+        value: {
+            deleted: false
+        }
+    },
+    {
+        uid: "2",
+        value: {
+            deleted: false
+        }
+    },
+    {
+        uid: "3",
+        value: {
+            deleted: true
+        }
+    }
+];
+const all = jest.fn().mockReturnValue(Promise.resolve(result));
+const get = jest.fn().mockReturnValue({
+    all
+});
+ServiceLocator.getProvider.mockReturnValue({
+    get
+});
 
 const context = {
-    rootState: { mail: { mailboxes: { containerUid: { key: "Mailbox" } } } },
-    dispatch: jest.fn().mockResolvedValue()
+    commit: jest.fn()
 };
 
 describe("[MailFoldersStore][actions] : all", () => {
     beforeEach(() => {
-        context.dispatch.mockClear();
+        context.commit.mockClear();
     });
-    test("call 'all' service for a given mailbox and mutate state with undeleted folders only", async () => {
-        await all(context, "containerUid");
-        expect(context.dispatch).toHaveBeenCalledWith(FETCH_FOLDERS, { key: "Mailbox" }, { root: true });
-    });
-    test("fail if 'all' call fail", async () => {
+    test("call 'all' service for a given mailbox and mutate state with undeleted folders only", done => {
         const mailboxUid = "containerUid";
-        context.dispatch.mockRejectedValue("Error!");
-        await expect(all(context, mailboxUid)).rejects.toBe("Error!");
+        allAction(context, mailboxUid).then(() => {
+            const expectedResults = result.filter(item => !item.value.deleted);
+            expect(context.commit).toHaveBeenCalledWith("storeItems", { items: expectedResults, mailboxUid });
+            done();
+        });
+        expect(get).toHaveBeenCalledWith("containerUid");
+        expect(all).toHaveBeenCalled();
+    });
+    test("fail if 'all' call fail", () => {
+        const mailboxUid = "containerUid";
+        all.mockReturnValueOnce(Promise.reject("Error!"));
+        expect(allAction(context, mailboxUid)).rejects.toBe("Error!");
     });
 });

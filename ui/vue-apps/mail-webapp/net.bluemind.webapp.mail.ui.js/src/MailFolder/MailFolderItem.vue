@@ -43,10 +43,9 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmCounterBadge, BmDropzone, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { ItemUri } from "@bluemind/item-uri";
-import { REMOVE_FOLDER } from "@bluemind/webapp.mail.store";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItemMenu from "./MailFolderItemMenu";
@@ -94,7 +93,7 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", ["expandFolder", "renameFolder", "createFolder"]),
-        ...mapMutations([REMOVE_FOLDER]),
+        ...mapMutations("mail-webapp/folders", { deleteFolder: "removeItems" }),
         ...mapMutations("mail-webapp", ["toggleEditFolder"]),
         submit(newFolderName) {
             if (this.folder.name !== "") {
@@ -133,7 +132,7 @@ export default {
             if (this.folder.name !== "") {
                 this.toggleEditFolder(this.folder.uid);
             } else {
-                this[REMOVE_FOLDER](this.folder.uid);
+                this.deleteFolder([this.folder.key]);
             }
         }
     }

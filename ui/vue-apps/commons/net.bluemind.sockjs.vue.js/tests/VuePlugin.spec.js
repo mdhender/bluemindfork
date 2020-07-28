@@ -23,7 +23,7 @@ const socket = {
     use() {}
 };
 WebSocketClient.mockImplementation(() => socket);
-Vue.use(VueSockJSPlugin, VueBus);
+Vue.use(VueSockJSPlugin, { VueBus });
 
 describe("SockjsVuePlugin", () => {
     let TestComponent;

@@ -92,16 +92,11 @@ export default {
         },
         hasMore: function() {
             return this.length < this.count;
-        },
-        isSelectionMultiple() {
-            return this.selectedMessageKeys.length > 1;
         }
     },
     watch: {
         currentMessageKey() {
-            if (this.currentMessageKey) {
-                this.focusByKey(this.currentMessageKey);
-            }
+            this.focusByKey(this.currentMessageKey);
         },
         currentFolderKey() {
             this.lastFocusedMessage = null;
@@ -143,24 +138,15 @@ export default {
             if (this.currentFolderKey === this.my.TRASH.key) {
                 this.purge();
             } else {
-                // do this before followed async operations
-                const nextMessageKey = this.nextMessageKey;
-                this.$store.dispatch(
-                    "mail-webapp/remove",
-                    this.selectedMessageKeys.length ? this.selectedMessageKeys : this.currentMessageKey
-                );
-                if (!this.isSelectionMultiple) {
-                    this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
-                }
+                this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
+                this.$store.dispatch("mail-webapp/remove", this.currentMessageKey);
             }
         },
         async purge() {
             const confirm = await this.$bvModal.msgBoxConfirm(
-                this.$tc("mail.actions.purge.modal.content", this.selectedMessageKeys.length || 1, {
-                    subject: this.currentMessage && this.currentMessage.subject
-                }),
+                this.$t("mail.actions.purge.modal.content", { subject: this.currentMessage.subject }),
                 {
-                    title: this.$tc("mail.actions.purge.modal.title", this.selectedMessageKeys.length || 1),
+                    title: this.$t("mail.actions.purge.modal.title"),
                     okTitle: this.$t("common.delete"),
                     cancelVariant: "outline-secondary",
                     cancelTitle: this.$t("common.cancel"),
@@ -169,15 +155,8 @@ export default {
                 }
             );
             if (confirm) {
-                // do this before followed async operations
-                const nextMessageKey = this.nextMessageKey;
-                this.$store.dispatch(
-                    "mail-webapp/purge",
-                    this.selectedMessageKeys.length ? this.selectedMessageKeys : this.currentMessageKey
-                );
-                if (!this.isSelectionMultiple) {
-                    this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
-                }
+                this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
+                this.$store.dispatch("mail-webapp/purge", this.currentMessageKey);
             }
         },
         goToByDiff(diff) {
@@ -288,7 +267,6 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
 .message-list {
-    overflow-x: hidden;
     overflow-y: auto;
 }
 </style>

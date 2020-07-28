@@ -9,12 +9,10 @@
     "dependencies": {
         "@bluemind/backend.mail.l10n": "^4.1.0",
         "@bluemind/core.container.api": "^4.1.0",
-        "@bluemind/webapp.mail.store": "^4.1.0",
         "@bluemind/email": "^4.1.0",
         "@bluemind/inject": "^4.1.0",
         "@bluemind/item-uri": "^4.1.0",
         "@bluemind/router": "^4.1.0",
-        "@bluemind/uuid": "^4.1.0",
         "lodash.clonedeep": "^4.5.0",
         "lodash.findlast": "^4.6.0",
         "lodash.isequal": "^4.5.0",

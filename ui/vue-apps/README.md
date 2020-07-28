@@ -1,100 +1,78 @@
 # Applications JS pour BlueMind
 
-## Code Style Guide
+Actuellement l'environnement de développement nécessite d'utiliser un reverse proxy pour servir les fichiers des applications depuis son poste de développement.
+Lors du déploiement et du packaging, nous utilisons [maven](https://maven.apache.org/), mais pour le développement d'applications ou modules existants, il n'est pas nécessaire d'en tenir compte.
 
-See [Code Style Guide](STYLEGUIDE.md).
+Dans l'optique d'avoir un code le plus homogène possible, sont en place [eslint/prettier](https://prettier.io/docs/en/integrating-with-linters.html) et des configurations pour l'éditeur [vscode](https://code.visualstudio.com/). L'utilisation des [single file components](https://vuejs.org/v2/guide/single-file-components.html) de [vuejs](https://vuejs.org/v2/) impose également l'utilisation de loader webpack particulier.
 
-## Format and linter
+## Configuration du reverse-proxy BlueMind
 
-Projects use [Prettier](https://prettier.io/) for code formatting concerns, while letting [Eslint](https://eslint.org/) focus on code-quality concerns.
+Le serveur web bluemind peut être complété par le [webdev filter](https://jenkins2.bluemind.net/view/Addons/job/addons/job/devmode/). Pour configurer ce dernier, créer un fichier `/etc/bm/dev.json` sur la vm qui fait tourner BlueMind:
 
-## Editor
-
-For developing BlueMind Vue applications, we strongly recommend using [Visual Studio Code](https://code.visualstudio.com/). As projects are using [single-file components](https://vuejs.org/v2/guide/single-file-components.html) (SFCs), get the awesome [Vetur extension](https://github.com/vuejs/vetur), which provides many great features.
-
-## Build
-
-[Webpack](https://webpack.js.org/) manages builds with some loaders:
-
--   [vue-loader](https://vue-loader.vuejs.org)
--   and others
-
-## Run Webapps in development environment
-
-Add [webdev filter](https://jenkins2.bluemind.net/view/Addons/job/addons/job/devmode/) in your bm-webserver installation.
-
-Create `/etc/bm/dev.json`:
-
-```json
+```
 {
-    "servers": {
-        "webpack-dev-server-root": {
-            "ip": "dev.bluemind.test",
-            "port": 9181
-        },
-        "webpack-dev-server-mail": {
-            "ip": "dev.bluemind.test",
-            "port": 9180
-        }
+  "servers": {
+    "webpack-compile": {
+      "ip": "dev.bluemind.test",
+      "port": 9180
     },
-    "filters": [
-        {
-            "serverId": "webpack-dev-server-mail",
-            "search": "/webapp/js/net.bluemind.webapp.mail.js",
-            "replace": "/js/net.bluemind.webapp.mail.js",
-            "active": true
-        },
-        {
-            "serverId": "webpack-dev-server-mail",
-            "search": "/webapp/service-worker.js",
-            "replace": "/service-worker.js",
-            "active": true
-        },
-        {
-            "serverId": "webpack-dev-server-root",
-            "search": "/webapp/js/net.bluemind.webapp.root.js",
-            "replace": "/js/net.bluemind.webapp.root.js",
-            "active": true
-        }
-    ],
-    "forwardPorts": [
-        {
-            "serverId": "webpack-dev-server-root",
-            "src": 9181,
-            "active": true
-        },
-        {
-            "serverId": "webpack-dev-server-mail",
-            "src": 9180,
-            "active": true
-        }
-    ]
+    "webapp-server": {
+      "ip": "dev.bluemind.test",
+      "port": 9181
+    },
+  },
+  "filters": [
+    {
+      "serverId": "webapp-server",
+      "search": "/webapp/js/compile/net.bluemind.webapp.root.js",
+      "replace": "/net.bluemind.webapp.root.js",
+      "active": true
+    },
+    {
+      "serverId": "webpack-compile",
+      "search": "/webapp/js/compile/net.bluemind.webapp.mail.js",
+      "replace": "/net.bluemind.webapp.mail.js",
+      "active": true
+    }
+  ],
+  "forwardPorts": [
+    {
+      "serverId": "webapp-server",
+      "src": 9181,
+      "active": true
+    },
+    {
+      "serverId": "webpack-compile",
+      "src": 9180,
+      "active": true
+    }
 }
 ```
 
-Update `/etc/hosts`:
+Il faut également modifier `/etc/hosts` pour ajouter une redirection de `dev.bluemind.test` vers l'IP de l'host qui fera tourner le contenu des apps.
 
-```
-127.0.0.1 localhost
-::1 localhost
+-   `webapp-server` sert les fichiers communs et la bannière
+-   `webpack-compile` sert les fichiers de l'application
 
-<ip of webpack-dev-server> dev.bluemind.test
-```
+## Développement avec transpilation automatique
 
-### Service Worker
+Pour servir les fichiers de la bannière et de l'application, il faut démarrer deux `webpack-dev-server` disponible depuis les scripts npm :
 
-Many service workers features are now enabled by default in newer versions of supporting browsers.
-You’ll also need to serve your code via HTTPS — Service workers are restricted to running across HTTPS for security reasons.
-In order to facilitate local development, localhost is considered a secure origin by browsers as well.
+-   `yarn root` ou `(cd root-webapp/net.bluemind.webapp.root.js && yarn dev)`
+-   `yarn mail` ou `(cd mail-webapp/net.bluemind.webapp.mail.ui.js && yarn dev)`
 
-## Debugging in vscode
+## Configuration de l'environnement de développement
 
-Configuration is available in [`.vscode/launch.json`](.vscode/launch.json).
+Il est recommandé d'utiliser vscode. Il est indispensable de suivre les guidelines et styleguides de développement (si une règle n'est pas définie ou n'est pas claire, il faudra l'expliciter et l'intégrer aux règles existantes).
 
-Needed extensions:
+## Debug
+
+Une configuration est disponible dans `.vscode/launch.json` pour brancher un debugger vscode à l'application servie par la VM.
+
+Pour profiter du debugger, il faut installer les extensions Chrome/Chromium ou Firefox:
 
 -   Chrome/Chromium : https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome
 -   Firefox : https://marketplace.visualstudio.com/items?itemName=firefox-devtools.vscode-firefox-debug
 
-Use `BM_HOST` environment variable to adapt your own environment.
-For instance, with bash `export BM_HOST="http://bm4.local"` or with fish `set -x BM_HOST http://bm4.local`.
+Afin de ne pas stipuler sur l'URL servie par votre VM, nous utilisons une variable d'environnement : `BM_HOST`.
+Veillez à la déclarer avec la valeur de votre domaine, exemple pour bash `export BM_HOST="http://bm4.local"` ou pour fish `set -x BM_HOST http://bm4.local`.

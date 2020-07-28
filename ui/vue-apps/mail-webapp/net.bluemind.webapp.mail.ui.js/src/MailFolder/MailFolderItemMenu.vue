@@ -33,11 +33,10 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
 import { isDefaultFolder } from "@bluemind/backend.mail.store";
-import { CREATE_FOLDER } from "@bluemind/webapp.mail.store";
 import { ItemUri } from "@bluemind/item-uri";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 import UUIDGenerator from "@bluemind/uuid";
 
 export default {
@@ -54,8 +53,6 @@ export default {
     },
     computed: {
         ...mapGetters("mail-webapp", ["mailshares"]),
-        ...mapState("mail", ["mailboxes", "folders"]),
-        ...mapState("mail-webapp", ["currentFolderKey"]),
         isDefaultFolder() {
             return isDefaultFolder(this.folder);
         },
@@ -73,37 +70,44 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", ["removeFolder", "markFolderAsRead"]),
-        ...mapMutations([CREATE_FOLDER]),
+        ...mapMutations("mail-webapp/folders", { addFolder: "storeItems" }),
         ...mapMutations("mail-webapp", ["expandFolder", "toggleEditFolder"]),
         async deleteFolder() {
-            const modalTitleKey =
-                this.folder.children.length > 0
-                    ? "mail.folder.delete.dialog.question.with_subfolders"
-                    : "mail.folder.delete.dialog.question";
-            const confirm = await this.$bvModal.msgBoxConfirm(this.$t(modalTitleKey, { name: this.folder.fullName }), {
-                title: this.$t("mail.folder.delete.dialog.title"),
-                okTitle: this.$t("common.delete"),
-                cancelVariant: "outline-secondary",
-                cancelTitle: this.$t("common.cancel"),
-                centered: true,
-                hideHeaderClose: false
-            });
+            const confirm = await this.$bvModal.msgBoxConfirm(
+                this.$t("mail.folder.delete.dialog.question", { name: this.folder.fullName }),
+                {
+                    title: this.$t("mail.folder.delete.dialog.title"),
+                    okTitle: this.$t("common.delete"),
+                    cancelVariant: "outline-secondary",
+                    cancelTitle: this.$t("common.cancel"),
+                    centered: true,
+                    hideHeaderClose: false
+                }
+            );
             if (confirm) {
-                const keyBeingRemoved = this.folder.key;
                 this.removeFolder(this.folder.key).then(() => {
-                    if (this.currentFolderKey === keyBeingRemoved) {
+                    if (this.currentFolderKey === this.folder.key) {
                         this.$router.push({ name: "mail:home" });
                     }
                 });
             }
         },
         async createSubFolder() {
-            const mailbox = this.mailboxes[ItemUri.container(this.folder.key)];
-            const key = UUIDGenerator.generate();
-            this[CREATE_FOLDER]({ key, name: "", parent: this.folder.uid, mailbox });
+            const subFolderUid = UUIDGenerator.generate();
+            const subFolder = {
+                value: {
+                    name: "",
+                    fullName: this.folder.fullName + "/",
+                    path: this.folder.fullName + "/",
+                    parentUid: this.folder.uid
+                },
+                uid: subFolderUid,
+                displayName: ""
+            };
+
+            this.addFolder({ items: [subFolder], mailboxUid: ItemUri.container(this.folder.key) });
             await this.$nextTick();
-            // TODO: Remove when new store is complete. mUsing key as uid here is a hack.
-            this.toggleEditFolder(key);
+            this.toggleEditFolder(subFolderUid);
             this.expandFolder(this.folder.uid);
         }
     }

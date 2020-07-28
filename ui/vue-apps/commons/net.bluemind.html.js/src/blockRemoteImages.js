@@ -15,7 +15,7 @@ export function unblockRemoteImages(html) {
 }
 
 const blockedImageClass = "blocked-image";
-const blockedImageSrc = "//:0";
+const blockedImageSrc = "void:blockedImage";
 
 function block(htmlDoc) {
     for (let img of htmlDoc.images) {

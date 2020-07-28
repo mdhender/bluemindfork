@@ -25,7 +25,6 @@ export default {
 </script>
 <style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
-@import "~@bluemind/styleguide/css/mixins";
 
 $shadow-width: 240px;
 
@@ -37,6 +36,8 @@ $shadow-width: 240px;
 /** @see dragAndDrop/plugins/tooltip.js */
 .bm-drag-tooltip {
     max-width: $shadow-width;
-    @include text-overflow;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 </style>

@@ -8,17 +8,17 @@
                     @change="$bus.$emit(TOGGLE_SELECTION_ALL)"
                 />
             </bm-col>
-            <bm-col class="d-none d-lg-block">
+            <bm-col class="d-none d-lg-block" cols="7">
                 <bm-choice-group
                     ref="filterChoiceGroup"
                     v-bm-tooltip.ds500
                     :options="filters"
-                    :selected="filters[filterIndex]"
+                    :selected="filters[filterIndex].value"
                     :aria-label="$t('mail.list.filter.aria')"
                     :title="$t('mail.list.filter.tooltip')"
                 />
             </bm-col>
-            <bm-col class="d-none d-sm-block d-md-none d-xl-block text-right" cols="2">
+            <bm-col class="d-none d-sm-block d-md-none d-xl-block text-right" cols="4">
                 <!-- hidden until the sort feature is really developed : https://forge.bluemind.net/jira/browse/FEATWEBML-573
                 <span class="text-nowrap"> 
                     {{ $t("common.sort_by") }}
@@ -34,7 +34,7 @@ import { BmCheck, BmCol, BmRow, BmChoiceGroup, BmTooltip } from "@bluemind/style
 import { mapState, mapGetters } from "vuex";
 import { TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
 
-const FILTER_INDEXES = { all: 0, unread: 1, flagged: 2 };
+const FILTER_INDEXES = { all: 0, unread: 1 };
 
 export default {
     name: "MailMessageListHeader",
@@ -64,11 +64,6 @@ export default {
                     text: this.$t("mail.list.filter.unread"),
                     value: "unread",
                     to: this.$router.relative({ name: "v:mail:home", params: { filter: "unread" } }, this.$route)
-                },
-                {
-                    text: this.$t("mail.list.filter.flagged"),
-                    value: "flagged",
-                    to: this.$router.relative({ name: "v:mail:home", params: { filter: "flagged" } }, this.$route)
                 }
             ];
         },

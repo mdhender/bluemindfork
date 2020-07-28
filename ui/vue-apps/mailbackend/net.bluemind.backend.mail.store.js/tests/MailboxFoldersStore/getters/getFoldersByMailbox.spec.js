@@ -1,13 +1,15 @@
 import { getFoldersByMailbox } from "../../../src/MailboxFoldersStore/getters/getFoldersByMailbox";
-import ItemUri from "@bluemind/item-uri";
 
 const getters = {
-    folders: [
-        { name: "Folder 1 from container 1", key: ItemUri.encode("key1", "container 1") },
-        { name: "Folder 1 from container 2", key: ItemUri.encode("key2", "container 2") },
-        { name: "Folder 2 from container 1", key: ItemUri.encode("key3", "container 1") },
-        { name: "Folder 2 from container 2", key: ItemUri.encode("key4", "container 2") }
-    ]
+    getFolderByKey: key => {
+        const folders = {
+            key1: { name: "Folder 1 from container 1" },
+            key2: { name: "Folder 1 from container 2" },
+            key3: { name: "Folder 2 from container 1" },
+            key4: { name: "Folder 2 from container 2" }
+        };
+        return folders[key];
+    }
 };
 const state = {
     itemsByContainer: {
@@ -19,7 +21,7 @@ const state = {
 describe("[MailFoldersStore][getters] : getFoldersByMailbox ", () => {
     test("return folders for a given mailbox", () => {
         const folders = getFoldersByMailbox(state, getters)("container 2");
-        expect(folders).toEqual([getters.folders[1], getters.folders[3]]);
+        expect(folders).toEqual([{ name: "Folder 1 from container 2" }, { name: "Folder 2 from container 2" }]);
     });
     test("return an empty array if no container match", () => {
         const folders = getFoldersByMailbox(state, getters)("container 3");

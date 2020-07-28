@@ -4,9 +4,9 @@ import ItemUri from "@bluemind/item-uri";
 
 jest.mock("@bluemind/inject");
 
-const multipleDeleteById = jest.fn().mockReturnValue(Promise.resolve());
+const deleteById = jest.fn().mockReturnValue(Promise.resolve());
 const get = jest.fn().mockReturnValue({
-    multipleDeleteById
+    deleteById
 });
 ServiceLocator.getProvider.mockReturnValue({
     get
@@ -31,11 +31,11 @@ describe("[MailItemsStore][actions] : remove", () => {
             done();
         });
         expect(get).toHaveBeenCalledWith(folderUid);
-        expect(multipleDeleteById).toHaveBeenCalledWith([messageId]);
+        expect(deleteById).toHaveBeenCalledWith(messageId);
     });
 
-    test("fail if deleteById call fail", async () => {
-        multipleDeleteById.mockReturnValueOnce(Promise.reject("Error!"));
-        await expect(remove(context, messageKey)).rejects.toBe("Error!");
+    test("fail if deleteById call fail", () => {
+        deleteById.mockReturnValueOnce(Promise.reject("Error!"));
+        expect(remove(context, messageKey)).rejects.toBe("Error!");
     });
 });

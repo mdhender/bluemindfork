@@ -39,7 +39,6 @@ export default function(html) {
     const xssFilter = new xss.FilterXSS({
         css: false,
         stripIgnoreTag: true,
-        stripIgnoreTagBody: ["script", "title"],
         whiteList: customWhiteList,
         onIgnoreTagAttr: customOnIgnoreTagAttr,
         onTagAttr: customOnTagAttr,

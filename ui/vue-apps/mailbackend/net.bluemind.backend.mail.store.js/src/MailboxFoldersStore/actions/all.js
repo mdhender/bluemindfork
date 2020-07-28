@@ -1,6 +1,11 @@
-import { FETCH_FOLDERS } from "@bluemind/webapp.mail.store";
+import ServiceLocator from "@bluemind/inject";
 
-export function all({ dispatch, rootState }, mailboxUid) {
-    const mailbox = rootState.mail.mailboxes[mailboxUid];
-    return dispatch(FETCH_FOLDERS, mailbox, { root: true });
+export function all({ commit }, mailboxUid) {
+    return ServiceLocator.getProvider("MailboxFoldersPersistence")
+        .get(mailboxUid)
+        .all()
+        .then(items => {
+            items = items.filter(item => !item.value.deleted);
+            commit("storeItems", { items, mailboxUid });
+        });
 }

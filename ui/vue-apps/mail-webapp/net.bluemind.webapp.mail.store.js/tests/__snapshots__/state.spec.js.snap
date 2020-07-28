@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`[Mail-WebappStore][state] initial state 1`] = `
+Object {
+  "currentFolderKey": undefined,
+  "foldersData": Object {},
+  "login": undefined,
+  "maxMessageSize": undefined,
+  "messageFilter": undefined,
+  "messagesWithUnblockedRemoteImages": Array [],
+  "selectedMessageKeys": Array [],
+  "showBlockedImagesAlert": false,
+  "status": "idle",
+  "userSettings": Object {},
+}
+`;

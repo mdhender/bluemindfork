@@ -33,32 +33,17 @@ export default {
     },
     MSG_REMOVED_LOADING: {
         type: AlertTypes.LOADING,
-        key: "alert.mail.message.remove.loading",
+        key: "alert.common.remove.loading",
         renderer: "MailAlertRenderer"
     },
     MSG_REMOVED_OK: {
         type: AlertTypes.SUCCESS,
-        key: "alert.mail.message.remove.ok",
+        key: "alert.common.remove.ok",
         renderer: "MailAlertRenderer"
     },
     MSG_REMOVED_ERROR: {
         type: AlertTypes.ERROR,
-        key: "alert.mail.message.remove.error",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_MULTIPLE_REMOVED_LOADING: {
-        type: AlertTypes.LOADING,
-        key: "alert.mail.message.multiple.remove.loading",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_MULTIPLE_REMOVED_OK: {
-        type: AlertTypes.SUCCESS,
-        key: "alert.mail.message.multiple.remove.ok",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_MULTIPLE_REMOVED_ERROR: {
-        type: AlertTypes.ERROR,
-        key: "alert.mail.message.multiple.remove.error",
+        key: "alert.common.remove.error",
         renderer: "MailAlertRenderer"
     },
     MSG_SEND_LOADING: {
@@ -78,32 +63,17 @@ export default {
     },
     MSG_PURGE_LOADING: {
         type: AlertTypes.LOADING,
-        key: "alert.mail.message.purge.loading",
+        key: "alert.common.purge.loading",
         renderer: "MailAlertRenderer"
     },
     MSG_PURGE_OK: {
         type: AlertTypes.SUCCESS,
-        key: "alert.mail.message.purge.ok",
+        key: "alert.common.purge.ok",
         renderer: "MailAlertRenderer"
     },
     MSG_PURGE_ERROR: {
         type: AlertTypes.ERROR,
-        key: "alert.mail.message.purge.error",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_MULTIPLE_PURGE_LOADING: {
-        type: AlertTypes.LOADING,
-        key: "alert.mail.message.multiple.purge.loading",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_MULTIPLE_PURGE_OK: {
-        type: AlertTypes.SUCCESS,
-        key: "alert.mail.message.multiple.purge.ok",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_MULTIPLE_PURGE_ERROR: {
-        type: AlertTypes.ERROR,
-        key: "alert.mail.message.multiple.purge.error",
+        key: "alert.common.purge.error",
         renderer: "MailAlertRenderer"
     },
     MSG_DRAFT_DELETE_OK: {
@@ -204,36 +174,6 @@ export default {
     MSG_FOLDER_CREATE_SUCCESS: {
         type: AlertTypes.SUCCESS,
         key: "alert.folder.create.success",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_MULTIPLE_MARK_AS_FLAGGED_LOADING: {
-        type: AlertTypes.LOADING,
-        key: "alert.mail.multiple.markasflagged.loading",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_MULTIPLE_MARK_AS_FLAGGED_ERROR: {
-        type: AlertTypes.ERROR,
-        key: "alert.mail.multiple.markasflagged.error",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_MULTIPLE_MARK_AS_FLAGGED_SUCCESS: {
-        type: AlertTypes.SUCCESS,
-        key: "alert.mail.multiple.markasflagged.success",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_MULTIPLE_MARK_AS_UNFLAGGED_LOADING: {
-        type: AlertTypes.LOADING,
-        key: "alert.mail.multiple.markasunflagged.loading",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_MULTIPLE_MARK_AS_UNFLAGGED_ERROR: {
-        type: AlertTypes.ERROR,
-        key: "alert.mail.multiple.markasunflagged.error",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_MULTIPLE_MARK_AS_UNFLAGGED_SUCCESS: {
-        type: AlertTypes.SUCCESS,
-        key: "alert.mail.multiple.markasunflagged.success",
         renderer: "MailAlertRenderer"
     }
 };

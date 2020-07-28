@@ -16,11 +16,7 @@ ServiceLocator.getProvider.mockReturnValue({
 });
 
 const context = {
-    commit: jest.fn(),
-    dispatch: jest.fn().mockResolvedValue(),
-    state: {
-        items: {}
-    }
+    commit: jest.fn()
 };
 
 describe("[MailItemsStore][actions] : deleteFlag", () => {
@@ -49,8 +45,8 @@ describe("[MailItemsStore][actions] : deleteFlag", () => {
         expect(service.deleteFlag).toHaveBeenCalledWith({ itemsId: [messageId], mailboxItemFlag });
     });
 
-    test("fail if deleteFlag call fail", async () => {
-        service.deleteFlag.mockRejectedValue();
-        await expect(deleteFlag(context, { messageKeys: [messageKey], mailboxItemFlag })).rejects.toEqual(new Error());
+    test("fail if deleteFlag call fail", () => {
+        service.deleteFlag.mockReturnValueOnce(Promise.reject("Error!"));
+        expect(deleteFlag(context, { messageKeys: [messageKey], mailboxItemFlag })).rejects.toBe("Error!");
     });
 });

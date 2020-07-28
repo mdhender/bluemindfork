@@ -1,26 +1,48 @@
 import { remove } from "../../../src/MailboxFoldersStore/actions/remove";
 import ItemUri from "@bluemind/item-uri";
-import { REMOVE_FOLDER } from "@bluemind/webapp.mail.store";
+import ServiceLocator from "@bluemind/inject";
 
+jest.mock("@bluemind/inject");
+
+const deleteById = jest.fn();
+const get = jest.fn().mockReturnValue({
+    deleteById
+});
+ServiceLocator.getProvider.mockReturnValue({
+    get
+});
 const context = {
-    rootState: {
-        mail: { folders: { folderId: { key: "Folder", mailbox: "user.jdoe" } }, mailboxes: { "user.jdoe": {} } }
-    },
-    dispatch: jest.fn().mockResolvedValue()
+    commit: jest.fn(),
+    getters: {
+        getFolderByKey: jest.fn().mockImplementation(() => {
+            return { uid: "folderId", internalId: "folderInternalId" };
+        })
+    }
 };
 
 describe("[MailFoldersStore][actions] : remove", () => {
     beforeEach(() => {
-        context.dispatch.mockClear();
+        context.commit.mockClear();
+        deleteById.mockClear();
     });
     test("Basic", async () => {
         const folderKey = ItemUri.encode("folderId", "user.jdoe");
         await remove(context, folderKey);
-        expect(context.dispatch).toHaveBeenCalledWith(REMOVE_FOLDER, { key: "Folder", mailbox: {} }, { root: true });
+        expect(context.commit).toHaveBeenCalledWith("removeItems", [folderKey]);
+        expect(get).toHaveBeenCalledWith("user.jdoe");
+        expect(deleteById).toHaveBeenCalledWith("folderInternalId");
+        expect(context.commit).not.toHaveBeenCalledWith("storeItems", [folderKey]);
     });
     test("With error", async () => {
-        context.dispatch.mockRejectedValue("ERROR");
+        deleteById.mockRejectedValue(new Error("ERROR"));
         const folderKey = ItemUri.encode("folderId", "user.jdoe");
-        await expect(remove(context, folderKey)).rejects.toBe("ERROR");
+        try {
+            await remove(context, folderKey);
+        } catch (e) {
+            expect(context.commit).toHaveBeenCalledWith("removeItems", [folderKey]);
+            expect(get).toHaveBeenCalledWith("user.jdoe");
+            expect(deleteById).toHaveBeenCalledWith("folderInternalId");
+            expect(context.commit).toHaveBeenCalledWith("storeItems", expect.anything());
+        }
     });
 });

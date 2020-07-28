@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`[ContainersStore][state]  1`] = `
+Object {
+  "containerKeys": Array [],
+  "containers": Object {},
+}
+`;

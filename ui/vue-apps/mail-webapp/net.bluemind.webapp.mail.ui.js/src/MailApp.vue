@@ -1,41 +1,32 @@
 <template>
     <div class="flex-fill d-flex flex-column mail-app">
-        <bm-row align-v="center" class="shadow-sm bg-surface topbar z-index-250" :class="{ darkened }">
+        <bm-row align-v="center" class="shadow-sm bg-surface topbar z-index-250">
             <bm-col
                 cols="2"
                 order="0"
-                class="d-lg-flex justify-content-start pl-lg-4"
-                :class="hideListInResponsiveMode || composerOrMessageIsDisplayed ? 'd-none' : ''"
+                class="d-lg-flex justify-content-start pl-4"
+                :class="hideListInResponsiveMode ? 'd-none' : ''"
             >
-                <bm-button variant="inline-light" class="d-inline-block d-lg-none w-100" @click="toggleFolders">
+                <bm-button variant="inline-light" class="d-inline-block d-lg-none" @click="toggleFolders">
                     <bm-icon icon="burger-menu" size="2x" />
                 </bm-button>
                 <bm-button variant="primary" class="text-nowrap d-lg-inline-block d-none" @click="composeNewMessage">
                     <bm-label-icon icon="plus">{{ $t("mail.main.new") }}</bm-label-icon>
                 </bm-button>
             </bm-col>
-            <bm-col
-                cols="8"
-                lg="3"
-                order="1"
-                class="d-lg-block px-2"
-                :class="hideListInResponsiveMode || composerOrMessageIsDisplayed ? 'd-none' : ''"
-            >
+            <bm-col cols="9" lg="3" order="1" class="d-lg-block px-2" :class="hideListInResponsiveMode ? 'd-none' : ''">
                 <mail-search-form />
             </bm-col>
-            <bm-col cols="2" lg="0" order="2" :class="composerOrMessageIsDisplayed ? 'd-none' : 'd-lg-none'">
-                <messages-options-for-mobile @shown="darkened = true" @hidden="darkened = false" />
-            </bm-col>
             <bm-col
-                :class="displayToolbarInResponsiveMode ? 'd-inline-block d-lg-block' : 'd-none'"
-                class="h-100"
+                :class="displayToolbarInResponsiveMode ? '' : 'd-none'"
+                class="d-inline-block d-lg-block h-100"
                 cols="12"
                 lg="5"
                 order="2"
             >
                 <mail-toolbar class="mx-auto mx-lg-0" />
             </bm-col>
-            <bm-col v-if="canSwitchWebmail" order="last" class="d-none d-lg-block pr-4">
+            <bm-col v-if="canSwitchWebmail" cols="2" order="last" class="d-none d-lg-block pr-4">
                 <bm-form-checkbox
                     switch
                     checked="true"
@@ -86,7 +77,6 @@ import MailMessageList from "./MailMessageList/MailMessageList";
 import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
 import injector from "@bluemind/inject";
-import MessagesOptionsForMobile from "./MessagesOptionsForMobile";
 
 export default {
     name: "MailApp",
@@ -100,8 +90,7 @@ export default {
         MailFolderTree,
         MailMessageList,
         MailSearchForm,
-        MailToolbar,
-        MessagesOptionsForMobile
+        MailToolbar
     },
 
     mixins: [MakeUniq],
@@ -109,12 +98,11 @@ export default {
     data() {
         return {
             userSession: injector.getProvider("UserSession").get(),
-            showFolders: false,
-            darkened: false
+            showFolders: false
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["selectedMessageKeys", "messageFilter"]),
+        ...mapState("mail-webapp", ["selectedMessageKeys"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         isMessageComposerDisplayed() {
             const routePath = this.$route.path;
@@ -129,7 +117,7 @@ export default {
             return this.isMessageComposerDisplayed || (this.currentMessageKey && this.selectedMessageKeys.length === 0);
         },
         composerOrMessageIsDisplayed() {
-            return this.isMessageComposerDisplayed || !!this.currentMessageKey;
+            return this.isMessageComposerDisplayed || this.currentMessageKey;
         },
         canSwitchWebmail() {
             return (
@@ -193,16 +181,6 @@ export default {
         @media (max-width: map-get($grid-breakpoints, "lg")) {
             box-shadow: $box-shadow-lg;
         }
-    }
-    .darkened::before {
-        position: absolute;
-        content: "";
-        background: black;
-        top: 0px;
-        bottom: 0px;
-        width: 100%;
-        opacity: 0.5;
-        z-index: 1;
     }
 }
 </style>

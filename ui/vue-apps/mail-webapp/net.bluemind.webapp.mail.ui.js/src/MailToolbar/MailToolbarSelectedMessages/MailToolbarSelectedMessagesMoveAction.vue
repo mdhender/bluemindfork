@@ -81,7 +81,6 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailFolderInput from "../../MailFolderInput";
-import { FolderHelper } from "@bluemind/webapp.mail.store.deprecated";
 
 export default {
     name: "MailToolbarConsultMessageMoveAction",
@@ -107,6 +106,17 @@ export default {
         ...mapState("mail-webapp", ["currentFolderKey"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail-webapp", ["nextMessageKey", "my", "mailshares"]),
+        matchingFolders() {
+            if (this.pattern !== "") {
+                return [this.my].concat(this.mailshares).reduce((matches, mailbox) => {
+                    return matches.concat(this.filter(mailbox, this.pattern, this.maxFolders - matches.length));
+                }, []);
+            } else {
+                return [this.my.INBOX, this.my.TRASH]
+                    .filter(folder => folder && folder.key !== this.currentFolderKey)
+                    .map(folder => toFolderItem(folder));
+            }
+        },
         displayCreateFolderBtnFromPattern() {
             let pattern = this.pattern;
             if (pattern !== "") {
@@ -117,26 +127,10 @@ export default {
                 );
             }
             return false;
-        },
-        matchingFolders() {
-            if (this.pattern !== "") {
-                return FolderHelper.applyFilterThenSliceAndTransform(
-                    [this.my].concat(this.mailshares),
-                    this.filter,
-                    this.maxFolders
-                ).map(toFolderItem);
-            } else {
-                return [this.my.INBOX, this.my.TRASH]
-                    .filter(folder => folder && folder.key !== this.currentFolderKey)
-                    .map(folder => toFolderItem({ folder, isShared: false, path: folder.value.fullName }));
-            }
         }
     },
     methods: {
         ...mapActions("mail-webapp", ["move"]),
-        filter(folder, { writable, root }) {
-            return writable && folder.key !== this.currentFolderKey && folder.match(this.pattern, root);
-        },
         selectFolder(item) {
             this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
             this.move({ messageKey: this.currentMessageKey, folder: item });
@@ -149,13 +143,31 @@ export default {
             this.$refs["move-dropdown"].hide(true);
             this.pattern = "";
         },
+        filter(mailbox, pattern, max) {
+            const matches = [];
+            if (mailbox.writable) {
+                for (let i = 0; i < mailbox.folders.length && matches.length < max; i++) {
+                    const folder = mailbox.folders[i];
+                    const root = folder.value.parentUid !== null ? mailbox.root : "";
+                    if (folder.key !== this.currentFolderKey && folder.match(pattern.replace(root, ""))) {
+                        const folderItem = toFolderItem(
+                            folder,
+                            mailbox.type === "mailshare",
+                            root && root + "/" + folder.value.fullName
+                        );
+                        matches.push(folderItem);
+                    }
+                }
+            }
+            return matches;
+        },
         resetPattern() {
             this.pattern = "";
         }
     }
 };
 
-function toFolderItem({ folder, isShared, path }) {
+function toFolderItem(folder, isShared = false, path = undefined) {
     return {
         key: folder.key,
         isShared: !!isShared,
@@ -170,8 +182,7 @@ function toFolderItem({ folder, isShared, path }) {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/variables";
-@import "~@bluemind/styleguide/css/mixins";
+@import "~@bluemind/styleguide/css/_variables";
 
 .move-message {
     input {
@@ -180,7 +191,6 @@ function toFolderItem({ folder, isShared, path }) {
 
     .dropdown-menu {
         min-width: 20vw;
-        max-width: 40vw;
     }
 
     .bm-dropdown-autocomplete form {
@@ -192,10 +202,6 @@ function toFolderItem({ folder, isShared, path }) {
 
     .dropdown-divider {
         margin: 0 !important;
-    }
-
-    .dropdown-item-content {
-        @include text-overflow;
     }
 
     .dropdown-item,

@@ -1,6 +1,8 @@
 <template>
     <div class="container">
-        <bm-container class="mail-attachment-item bg-white border border-light text-condensed py-1 px-2 mt-2">
+        <bm-container
+            class="mail-message-content-attachment-item bg-white border border-light text-condensed py-1 px-2 mt-2"
+        >
             <bm-row v-if="isExpanded" class="pt-1">
                 <bm-col cols="12" class="px-1">
                     <img
@@ -153,7 +155,7 @@ export default {
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
 
-.mail-attachment-item {
+.mail-message-content-attachment-item {
     position: relative;
 
     .progress {

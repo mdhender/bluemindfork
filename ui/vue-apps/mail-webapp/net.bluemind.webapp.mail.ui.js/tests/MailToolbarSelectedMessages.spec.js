@@ -2,7 +2,7 @@ import MailToolbarSelectedMessages from "../src/MailToolbar/MailToolbarSelectedM
 jest.mock("@bluemind/styleguide/css/_variables.scss", () => ({ iconsColors: "" }));
 import { createWrapper, createStore } from "./testUtils";
 
-describe("MailToolbarSelectedMessages", () => {
+describe("MailToolbarConsultMessage", () => {
     test("is a Vue instance", () => {
         const wrapper = createWrapper(MailToolbarSelectedMessages);
         expect(wrapper.isVueInstance()).toBeTruthy();
@@ -30,8 +30,7 @@ describe("MailToolbarSelectedMessages", () => {
                                     return {
                                         key:
                                             "WyIxNWUwZjNjYS01M2E2LTRiYmItYWQ0NS02MTgwNjcyYmE4ZWMiLCIzNUU1MTJCOC0xRDVBLTRENkQtQUMzOC01QzY4OENDQzlBMDUiXQ==",
-                                        states: ["not-seen"],
-                                        flags: []
+                                        states: ["not-seen"]
                                     };
                                 })
                             }

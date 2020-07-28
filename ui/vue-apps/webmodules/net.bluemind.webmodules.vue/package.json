@@ -5,17 +5,15 @@
     "license": "Affero GPLv3",
     "author": "Blue Mind SAS",
     "scripts": {
-        "build": "npm-run-all -s clean copy:*",
-        "clean": "rm -fr ./web-resources/* && mkdir -p ./web-resources/js/",
+        "build": "run-s clean copy:*",
+        "clean": "rm -fr ./web-resources/* && mkdir ./web-resources/js/",
         "copy:vue": "cp ./node_modules/vue/dist/vue.min.js ./web-resources/js/vue.min.js",
         "copy:vue-dev": "cp ./node_modules/vue/dist/vue.js ./web-resources/js/vue.js",
         "copy:vuex": "cp ./node_modules/vuex/dist/vuex.min.js ./web-resources/js/vuex.js",
         "copy:vue-router": "cp ./node_modules/vue-router/dist/vue-router.min.js ./web-resources/js/vue-router.js"
     },
     "devDependencies": {
-        "npm-run-all": "^4.1.5"
-    },
-    "dependencies": {
+        "npm-run-all": "^4.1.5",
         "vue": "2.6.10",
         "vue-router": "3.0.3",
         "vuex": "3.1.0"

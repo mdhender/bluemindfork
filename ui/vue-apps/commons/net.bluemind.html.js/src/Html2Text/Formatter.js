@@ -162,7 +162,7 @@ function pre(node, context, options) {
 
 function hr(node, context, options) {
     nl(context);
-    const content = text(repeat("-", options.lineLength), context, options);
+    const content = text(repeat("-", options.lineLength, context, options));
     nl(context);
     return content;
 }

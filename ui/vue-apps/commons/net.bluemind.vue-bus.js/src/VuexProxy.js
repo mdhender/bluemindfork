@@ -9,6 +9,7 @@ export default {
     start(bus, store) {
         _bus = bus;
         _store = store;
+
         _bus.$on("*", dispatch);
     },
 
@@ -22,28 +23,25 @@ let _bus, _store;
 
 function dispatch(event, payload) {
     const name = event.replace(METHOD_PATTERN, "").toLowerCase();
-
-    const mutationMatch = anyMatch(_store._mutations, name);
-    if (mutationMatch) {
-        _store.commit(mutationMatch, payload);
-    }
-
-    const actionMatch = anyMatch(_store._actions, name);
-    if (actionMatch) {
-        _store.dispatch(actionMatch, payload);
-    }
-}
-
-function anyMatch(obj, name) {
-    for (const fullName in obj) {
-        const endPoint = fullName
-            .split("/")
-            .pop()
-            .toLowerCase();
-
-        if (endPoint.startsWith(PREFIX) && name === endPoint.replace(PREFIX, "").replace(METHOD_PATTERN, "")) {
-            return fullName;
+    const sendToStore = (rules, storeCallback) => {
+        for (const fullName in rules) {
+            const endPoint = fullName
+                .split("/")
+                .pop()
+                .toLowerCase();
+            if (endPoint.startsWith(PREFIX)) {
+                if (name === endPoint.replace(PREFIX, "").replace(METHOD_PATTERN, "")) {
+                    storeCallback(fullName, payload);
+                }
+            }
         }
-    }
-    return false;
+    };
+
+    sendToStore(_store._mutations, (fullName, payload) => {
+        _store.commit(fullName, payload);
+    });
+
+    sendToStore(_store._actions, (fullName, payload) => {
+        _store.dispatch(fullName, payload);
+    });
 }
