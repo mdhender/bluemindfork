@@ -28,6 +28,7 @@ function moveByFolder({ getters, dispatch, commit }, messageKeys, sourceUid, des
 }
 
 function moveInsideSameMailbox(destinationMailbox, destinationInternalId, sourceInternalId, messageKeys, dispatch) {
+    dispatch("_removeMessages", messageKeys);
     return ServiceLocator.getProvider("MailboxFoldersPersistence")
         .get(destinationMailbox)
         .importItems(destinationInternalId, {
@@ -37,14 +38,13 @@ function moveInsideSameMailbox(destinationMailbox, destinationInternalId, source
             }),
             expectedIds: undefined,
             deleteFromSource: true
-        })
-        .then(() => dispatch("_removeMessages", messageKeys));
+        });
 }
 
 function moveToDifferentMailbox(messageKeys, sourceUid, destinationUid, dispatch) {
+    dispatch("_removeMessages", messageKeys);
     const messageIds = messageKeys.map(key => ItemUri.item(key));
     return ServiceLocator.getProvider("ItemsTransferPersistence")
         .get(sourceUid, destinationUid)
-        .move(messageIds)
-        .then(() => dispatch("_removeMessages", messageKeys));
+        .move(messageIds);
 }
