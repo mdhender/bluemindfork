@@ -23,7 +23,7 @@ registerRoute(
         const [uid, method] = params;
         const db = new MailIDB();
         const folder = await db.getSyncedFolder({ uid });
-        if (!folder) {
+        if (!folder || !getResponseBody[method]) {
             return fetch(request);
         }
         return new Response(JSON.stringify(await getResponseBody[method](request)), {

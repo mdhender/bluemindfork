@@ -20,6 +20,7 @@ import router from "@bluemind/router";
 import store from "@bluemind/store";
 import mailRoutes from "./router";
 import Scheduler from "./scheduler";
+import global from "@bluemind/global";
 
 registerAPIClients();
 store.registerModule("mail", MailStore);
@@ -111,7 +112,9 @@ function registerAPIClients() {
     });
 }
 
-if ("serviceWorker" in navigator) {
+global.activateServiceWorker = process.env.NODE_ENV === "development";
+
+if ("serviceWorker" in navigator && global.activateServiceWorker) {
     window.addEventListener("load", () => {
         navigator.serviceWorker.register("service-worker.js"); // related to webpack configuration
     });
