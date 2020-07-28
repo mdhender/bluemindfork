@@ -11,7 +11,7 @@
         "roles": "${(BMRoles)!}",
         "formatedName": "${(BMUserFormatedName)!}",
         "bmVersion" : "${(version)!}",
-        "bmBrandVersion" : "${(brandVersion)!}",
+        "bmBrandVersion" : "${(brandVersion)!}"
       };
 
 window['bmcSessionInfos'] = bmcSessionInfos;

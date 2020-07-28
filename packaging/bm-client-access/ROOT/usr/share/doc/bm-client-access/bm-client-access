@@ -380,18 +380,6 @@ server {
     proxy_http_version 1.1;
   }
 
-  location ~ ^/webapp/(.*/)?((?:((?:fonts|images|css|js|style)/.*)|session-infos.js))$ {
-    gzip             on;
-    gzip_min_length  1000;
-    gzip_proxied     any;
-    gzip_types       text/plain application/xml text/css text/javascript text/json application/json;
-    gzip_disable     "MSIE [1-6]\.";
-    gzip_comp_level 9;
-
-    set $bm_request_uri /webapp/$2;
-    proxy_pass $bm_upstream_hps$bm_request_uri;
-  }
-  
   location /webapp/ {
     gzip             on;
     gzip_min_length  1000;
@@ -399,7 +387,9 @@ server {
     gzip_types       text/plain application/xml text/css text/javascript text/json application/json;
     gzip_disable     "MSIE [1-6]\.";
     gzip_comp_level 9;
-    rewrite ^.*$ /webapp/index.html break;
+    proxy_intercept_errors on;
+    #All url not served by webserver are handled by the in-app router
+    error_page 404 =200 /webapp/index.html;
 
     proxy_pass $bm_upstream_hps;
   }

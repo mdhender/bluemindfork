@@ -23,6 +23,7 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
@@ -41,73 +42,55 @@ import net.bluemind.webmodule.server.IWebFilter;
 public class WebModuleSessionInfosFilter implements IWebFilter {
 	private static final Logger logger = LoggerFactory.getLogger(WebModuleSessionInfosFilter.class);
 
-	private Template jsTemplate;
-	private Template jsonTemplate;
-
-	public WebModuleSessionInfosFilter() {
-
-		Configuration freemarkerCfg = new Configuration();
-		freemarkerCfg.setClassForTemplateLoading(WebModuleSessionInfosFilter.class, "/templates");
-		freemarkerCfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
-
-		try {
-			jsTemplate = freemarkerCfg.getTemplate("jsSessionInfos.ftl");
-			jsonTemplate = freemarkerCfg.getTemplate("jsonSessionInfos.ftl");
-
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
-	}
-
 	@Override
 	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
-		String path = request.path();
-		String accept = request.getHeader(HttpHeaders.ACCEPT);
-		CompletableFuture<HttpServerRequest> response;
-		if (!path.endsWith("session-infos.js")) {
-			response = CompletableFuture.completedFuture(request);
-		} else if (accept.toLowerCase().contains("application/json")) {
-			response = responseWithSessionInfosJson(request);
-		} else {
-			response = responseWithSessionInfosJs(request);
+		if (isSessionInfos(request)) {
+			return sessionInfos(request);
 		}
-		return response;
+		return CompletableFuture.completedFuture(request);
 	}
 
-	private CompletableFuture<HttpServerRequest> responseWithSessionInfosJs(HttpServerRequest request) {
-		return responseWithSessionInfos(request, jsTemplate, "application/javascript");
+	private boolean isSessionInfos(HttpServerRequest request) {
+		String path = request.path();
+		return path.endsWith("session-infos.js") || path.endsWith("session-infos");
 	}
 
-	private CompletableFuture<HttpServerRequest> responseWithSessionInfosJson(HttpServerRequest request) {
-		return responseWithSessionInfos(request, jsonTemplate, "application/json");
-	}
-
-	private CompletableFuture<HttpServerRequest> responseWithSessionInfos(HttpServerRequest request, Template template,
-			String type) {
-
-		Map<String, Object> model = new HashMap<>();
-
-		loadModel(model, request);
-
-		StringWriter sw = new StringWriter();
+	private CompletableFuture<HttpServerRequest> sessionInfos(HttpServerRequest request) {
+		List<Entry<String, String>> headers = request.headers().entries();
+		Map<String, Object> model = loadModel(headers);
+		StringWriter stringWriter = new StringWriter();
 
 		model.put("version", BMVersion.getVersion());
 		model.put("brandVersion", BMVersion.getVersionName());
+
 		try {
-			template.process(model, sw);
+			Configuration configuration = new Configuration(Configuration.VERSION_2_3_30);
+			configuration.setClassForTemplateLoading(WebModuleSessionInfosFilter.class, "/templates");
+			configuration.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
+			Template template = configuration
+					.getTemplate(isApplicationJson(request) ? "jsonSessionInfos.ftl" : "jsSessionInfos.ftl");
+			template.process(model, stringWriter);
 		} catch (TemplateException | IOException e) {
-			logger.error("error during js generation", e);
+			logger.error("error during template generation", e);
 		}
 
-		request.response().putHeader("Content-type", type + "; charset=utf-8");
-		request.response().setStatusCode(200).end(sw.toString());
+		String contentType = isApplicationJson(request) ? "application/json" : "application/javascript";
+		request.response().putHeader("Content-type", contentType + "; charset=utf-8");
+		if (!isApplicationJson(request)) {
+			request.response().putHeader("X-API-Deprecation-Info", "prefer /session-infos -H accept: application/json");
+		}
+		request.response().setStatusCode(200).end(stringWriter.toString());
 		return CompletableFuture.completedFuture(null);
-
 	}
 
-	protected void loadModel(Map<String, Object> model, HttpServerRequest request) {
+	private boolean isApplicationJson(HttpServerRequest request) {
+		String accept = request.getHeader(HttpHeaders.ACCEPT);
+		return accept.toLowerCase().contains("application/json") || request.path().endsWith("session-infos");
+	}
 
-		for (Entry<String, String> entry : request.headers().entries()) {
+	protected Map<String, Object> loadModel(List<Entry<String, String>> entries) {
+		Map<String, Object> model = new HashMap<>();
+		for (Entry<String, String> entry : entries) {
 			if (entry.getKey().equals("BMUserFirstName") || entry.getKey().equals("BMUserLastName")
 					|| entry.getKey().equals("BMUserFormatedName")) {
 				String value = entry.getValue();
@@ -120,6 +103,7 @@ public class WebModuleSessionInfosFilter implements IWebFilter {
 				model.put(entry.getKey(), entry.getValue());
 			}
 		}
+		return model;
 	}
 
 }

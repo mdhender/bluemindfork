@@ -36,6 +36,7 @@ import com.netflix.spectator.api.Registry;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpHeaders;
@@ -82,7 +83,7 @@ public abstract class AbstractIndexHandler implements IWebModuleConsumer, Handle
 	}
 
 	private void init() {
-		Configuration freemarkerCfg = new Configuration();
+		Configuration freemarkerCfg = new Configuration(Configuration.VERSION_2_3_30);
 		freemarkerCfg.setTemplateLoader(new EquinoxTemplateLoader(this.getClass().getClassLoader(), "/templates/"));
 		freemarkerCfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
 
@@ -92,7 +93,7 @@ public abstract class AbstractIndexHandler implements IWebModuleConsumer, Handle
 			logger.error(e.getMessage(), e);
 		}
 
-		Configuration privateFreemarkerCfg = new Configuration();
+		Configuration privateFreemarkerCfg = new Configuration(Configuration.VERSION_2_3_30);
 		privateFreemarkerCfg.setClassForTemplateLoading(AbstractIndexHandler.class, "/templates");
 		privateFreemarkerCfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
 		try {
@@ -115,7 +116,7 @@ public abstract class AbstractIndexHandler implements IWebModuleConsumer, Handle
 
 	}
 
-	private void generateCssRuntime(Configuration cfg) throws Exception {
+	private void generateCssRuntime(Configuration cfg) throws IOException, TemplateException {
 		Template template = cfg.getTemplate("cssLibs.ftl");
 		Map<String, Object> model = new HashMap<>();
 		model.put("cssLinks", module.css);
@@ -127,7 +128,7 @@ public abstract class AbstractIndexHandler implements IWebModuleConsumer, Handle
 
 	}
 
-	private String generateJsRuntime(String lang) throws Exception {
+	private String generateJsRuntime(String lang) throws TemplateException, IOException {
 		Map<String, Object> model = new HashMap<>();
 
 		List<JsEntry> js = new ArrayList<>(module.js.size());
