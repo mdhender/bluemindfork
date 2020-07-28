@@ -35,6 +35,7 @@ import net.bluemind.group.api.Member;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
@@ -98,13 +99,14 @@ public class CoreServices implements ICoreServices {
 	 */
 	@Override
 	public Map<String, String> getUserStats() {
-		return ImmutableMap.of("en",
-				userStats.created + " users created, " + userStats.updated + " users updated, " + userStats.suspended
-						+ " users suspended, " + userStats.deleted + " users deleted",
-				"fr",
-				userStats.created + " utilisateurs créés, " + userStats.updated + " utilisateurs mis à jour, "
-						+ userStats.suspended + " utilisateurs suspendus, " + userStats.deleted
-						+ " utilisateurs supprimés");
+		return ImmutableMap
+				.of("en",
+						userStats.created + " users created, " + userStats.updated + " users updated, "
+								+ userStats.suspended + " users suspended, " + userStats.deleted + " users deleted",
+						"fr",
+						userStats.created + " utilisateurs créés, " + userStats.updated + " utilisateurs mis à jour, "
+								+ userStats.suspended + " utilisateurs suspendus, " + userStats.deleted
+								+ " utilisateurs supprimés");
 	}
 
 	/*
@@ -389,8 +391,7 @@ public class CoreServices implements ICoreServices {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * net.bluemind.system.importation.commons.ICoreServices#userSetPhoto(java.
+	 * @see net.bluemind.system.importation.commons.ICoreServices#userSetPhoto(java.
 	 * lang.String, byte[])
 	 */
 	@Override
@@ -401,8 +402,7 @@ public class CoreServices implements ICoreServices {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * net.bluemind.system.importation.commons.ICoreServices#userDeletePhoto(
+	 * @see net.bluemind.system.importation.commons.ICoreServices#userDeletePhoto(
 	 * java.lang.String)
 	 */
 	@Override
@@ -413,8 +413,7 @@ public class CoreServices implements ICoreServices {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * net.bluemind.system.importation.commons.ICoreServices#setMailboxQuota(
+	 * @see net.bluemind.system.importation.commons.ICoreServices#setMailboxQuota(
 	 * java.lang.String, int)
 	 */
 	@Override
@@ -433,5 +432,24 @@ public class CoreServices implements ICoreServices {
 			mailbox.value.quota = mailboxQuota;
 			mailboxService.update(uid, mailbox.value);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.bluemind.system.importation.commons.ICoreServices#setUserMailRouting(
+	 * net.bluemind.mailbox.api.Mailbox.Routing, java.lang.String)
+	 */
+	@Override
+	public void setUserMailRouting(Routing routing, String userUid) {
+		ItemValue<User> user = userService.getComplete(userUid);
+
+		if (user.value.routing == Routing.none || user.value.routing == routing) {
+			return;
+		}
+
+		user.value.routing = routing;
+		userService.update(user.uid, user.value);
 	}
 }

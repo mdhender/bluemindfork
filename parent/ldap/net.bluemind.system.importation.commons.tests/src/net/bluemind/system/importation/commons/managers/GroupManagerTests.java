@@ -65,7 +65,8 @@ public class GroupManagerTests {
 		}
 
 		@Override
-		protected void setNameFromDefaultAttribute(IImportLogger importLogger) {
+		protected String getNameFromDefaultAttribute(IImportLogger importLogger) {
+			return "";
 		}
 
 		@Override

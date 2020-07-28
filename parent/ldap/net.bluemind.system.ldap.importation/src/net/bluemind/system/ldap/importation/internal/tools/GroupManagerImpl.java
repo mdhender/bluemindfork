@@ -19,7 +19,6 @@
 package net.bluemind.system.ldap.importation.internal.tools;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -27,7 +26,6 @@ import java.util.Set;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.system.importation.commons.Parameters;
@@ -60,20 +58,8 @@ public class GroupManagerImpl extends GroupManager {
 	}
 
 	@Override
-	protected void setNameFromDefaultAttribute(IImportLogger importLogger) {
-		try {
-			group.value.name = LdapHelper.checkMandatoryAttribute(importLogger, entry, LDAP_NAME);
-		} catch (ServerFault sf) {
-			HashMap<String, String> messages = new HashMap<>(2);
-			messages.put("en",
-					String.format("Unable to manage group: %s, missing attribute: %s", entry.getDn(), LDAP_NAME));
-			messages.put("fr", String.format("Impossible de gérer le groupe: %s, attribut manquant: %s", entry.getDn(),
-					LDAP_NAME));
-
-			importLogger.error(messages);
-
-			throw sf;
-		}
+	protected String getNameFromDefaultAttribute(IImportLogger importLogger) {
+		return LdapHelper.checkMandatoryAttribute(importLogger, entry, LDAP_NAME);
 	}
 
 	@Override

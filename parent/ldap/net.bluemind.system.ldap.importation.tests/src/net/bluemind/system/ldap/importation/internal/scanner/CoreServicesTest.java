@@ -34,6 +34,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.Member;
 import net.bluemind.mailbox.api.MailFilter;
+import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.system.importation.commons.ICoreServices;
 import net.bluemind.user.api.User;
 
@@ -45,6 +46,8 @@ public class CoreServicesTest implements ICoreServices {
 	public HashMap<String, ItemValue<Group>> groups = new HashMap<>();
 	private HashMap<String, Set<Member>> groupMembers = new HashMap<>();
 	private Map<String, Set<ItemValue<Group>>> userMemberOf = new HashMap<>();
+	public Set<String> memberUpdateToInternal = new HashSet<>();
+	public Set<String> memberUpdateToExternal = new HashSet<>();
 
 	// Created during this run
 	public Map<String, ItemValue<Group>> createdGroups = new HashMap<>();
@@ -428,5 +431,18 @@ public class CoreServicesTest implements ICoreServices {
 	@Override
 	public void setMailboxQuota(String uid, int mailboxQuota) {
 		quotaSet.put(uid, mailboxQuota);
+	}
+
+	@Override
+	public void setUserMailRouting(Routing routing, String userUid) {
+		if (routing == Routing.internal) {
+			memberUpdateToInternal.add(userUid);
+			return;
+		}
+
+		if (routing == Routing.external) {
+			memberUpdateToExternal.add(userUid);
+			return;
+		}
 	}
 }
