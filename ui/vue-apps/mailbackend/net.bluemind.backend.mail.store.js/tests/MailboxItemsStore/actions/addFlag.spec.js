@@ -16,7 +16,11 @@ ServiceLocator.getProvider.mockReturnValue({
 });
 
 const context = {
-    commit: jest.fn()
+    commit: jest.fn(),
+    dispatch: jest.fn().mockResolvedValue(),
+    state: {
+        items: {}
+    }
 };
 
 describe("[MailItemsStore][actions] : addFlag", () => {
@@ -45,8 +49,8 @@ describe("[MailItemsStore][actions] : addFlag", () => {
         expect(service.addFlag).toHaveBeenCalledWith({ itemsId: [messageId], mailboxItemFlag });
     });
 
-    test("fail if addFlag call fail", () => {
+    test("fail if addFlag call fail", async () => {
         service.addFlag.mockReturnValueOnce(Promise.reject("Error!"));
-        expect(addFlag(context, { messageKeys: [messageKey], mailboxItemFlag })).rejects.toBe("Error!");
+        await expect(addFlag(context, { messageKeys: [messageKey], mailboxItemFlag })).rejects.toEqual(new Error());
     });
 });

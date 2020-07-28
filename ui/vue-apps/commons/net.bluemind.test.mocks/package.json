@@ -6,5 +6,8 @@
     "author": "Blue Mind SAS",
     "main": "src/index.js",
     "module": "src/index.js",
-    "dependencies": {}
+    "devDependencies": {
+        "@bluemind/backend.mail.api": "^4.1.0",
+        "@bluemind/core.container.api": "^4.1.0"
+    }
 }

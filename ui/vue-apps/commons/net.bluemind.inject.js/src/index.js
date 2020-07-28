@@ -1,1 +1,1 @@
-export { default } from "./DependencyLocator";
+export { default, inject } from "./DependencyLocator";

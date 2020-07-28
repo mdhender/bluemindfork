@@ -1,7 +1,7 @@
 import MailActionsPanel from "./MailActionsPanel";
 import MailAlertRenderer from "./MailAlertRenderer";
+import MailComposer from "./MailComposer";
 import MailThread from "./MailThread/MailThread";
-import MailMessageNew from "./MailMessageNew";
 
 export { default } from "./MailApp";
-export { MailActionsPanel, MailAlertRenderer, MailMessageNew, MailThread };
+export { MailActionsPanel, MailAlertRenderer, MailComposer, MailThread };

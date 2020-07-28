@@ -1,8 +1,5 @@
-import ServiceLocator from "@bluemind/inject";
+import { FETCH_MAILBOXES } from "@bluemind/webapp.mail.store";
 
-export function all({ commit }, { type, verb }) {
-    return ServiceLocator.getProvider("ContainersPersistence")
-        .get()
-        .all({ type, verb })
-        .then(containers => commit("storeContainers", containers));
+export function all({ dispatch }) {
+    return dispatch(FETCH_MAILBOXES, null, { root: true });
 }

@@ -16,57 +16,57 @@ export default {
     render(createElement) {
         const alert = this.alert;
         const children = [];
-        if (alert.props) {
-            children.push(
-                createElement(
-                    "router-link",
-                    {
-                        attrs: { place: "subjectWithLink" },
-                        props: { to: alert.props.subjectLink }
-                    },
-                    [alert.props.subject]
-                )
-            );
-            children.push(createElement("i", { attrs: { place: "subject" } }, [alert.props.subject]));
-            const mailFolderIcon = createElement("mail-folder-icon", {
-                attrs: { place: "icon", folder: alert.props.folder }
-            });
-            children.push(
-                createElement(
-                    "router-link",
-                    {
-                        attrs: {
-                            place: "folderNameWithLink",
-                            style: "font-style: normal !important; font-weight: bold;"
-                        },
-                        props: { to: alert.props.folderNameLink }
-                    },
-                    [mailFolderIcon]
-                )
-            );
+        alert.props = alert.props ? alert.props : {};
 
-            children.push(
-                createElement("mail-folder-icon", {
+        children.push(
+            createElement(
+                "router-link",
+                {
+                    attrs: { place: "subjectWithLink" },
+                    props: { to: alert.props.subjectLink }
+                },
+                [alert.props.subject]
+            )
+        );
+        children.push(createElement("i", { attrs: { place: "subject" } }, [alert.props.subject]));
+        const mailFolderIcon = createElement("mail-folder-icon", {
+            attrs: { place: "icon", folder: alert.props.folder }
+        });
+        children.push(
+            createElement(
+                "router-link",
+                {
                     attrs: {
-                        place: "oldFolderName",
-                        folder: alert.props.oldFolder,
+                        place: "folderNameWithLink",
                         style: "font-style: normal !important; font-weight: bold;"
-                    }
-                })
-            );
-
-            children.push(createElement("br", { attrs: { place: "br" } }));
-
-            children.push(
-                createElement(
-                    "a",
-                    {
-                        attrs: { place: "reloadLink", href: "." }
                     },
-                    [this.$t("common.reload")]
-                )
-            );
-        }
+                    props: { to: alert.props.folderNameLink }
+                },
+                [mailFolderIcon]
+            )
+        );
+
+        children.push(
+            createElement("mail-folder-icon", {
+                attrs: {
+                    place: "oldFolderName",
+                    folder: alert.props.oldFolder,
+                    style: "font-style: normal !important; font-weight: bold;"
+                }
+            })
+        );
+
+        children.push(createElement("br", { attrs: { place: "br" } }));
+
+        children.push(
+            createElement(
+                "a",
+                {
+                    attrs: { place: "reloadLink", href: "." }
+                },
+                [this.$t("common.reload")]
+            )
+        );
 
         return createElement("i18n", { props: { path: alert.key, places: alert.props } }, children);
     }

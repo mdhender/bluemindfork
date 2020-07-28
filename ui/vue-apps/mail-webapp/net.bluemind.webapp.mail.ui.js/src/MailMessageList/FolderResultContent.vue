@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="h-100">
         <folder-result-content-empty v-if="count === 0" />
         <message-list v-if="count > 0" class="h-100" />
     </div>

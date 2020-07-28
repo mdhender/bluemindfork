@@ -18,6 +18,9 @@ Message {
   },
   "hasSeparator": true,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 476,
   "imapUid": 11,
   "key": "WzQ3NiwiZm9sZGVyOnVpZCJd",
@@ -87,6 +90,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 472,
   "imapUid": 7,
   "key": "WzQ3MiwiZm9sZGVyOnVpZCJd",
@@ -155,6 +161,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 469,
   "imapUid": 4,
   "key": "WzQ2OSwiZm9sZGVyOnVpZCJd",
@@ -231,6 +240,9 @@ Message {
   },
   "hasSeparator": true,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 477,
   "imapUid": 12,
   "key": "WzQ3NywiZm9sZGVyOnVpZCJd",
@@ -303,6 +315,9 @@ Message {
       ],
     },
   ],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 478,
   "imapUid": 13,
   "key": "WzQ3OCwiZm9sZGVyOnVpZCJd",
@@ -365,6 +380,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 475,
   "imapUid": 10,
   "key": "WzQ3NSwiZm9sZGVyOnVpZCJd",
@@ -439,6 +457,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 476,
   "imapUid": 11,
   "key": "WzQ3NiwiZm9sZGVyOnVpZCJd",
@@ -508,6 +529,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 472,
   "imapUid": 7,
   "key": "WzQ3MiwiZm9sZGVyOnVpZCJd",
@@ -578,6 +602,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 473,
   "imapUid": 8,
   "key": "WzQ3MywiZm9sZGVyOnVpZCJd",
@@ -643,6 +670,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 474,
   "imapUid": 9,
   "key": "WzQ3NCwiZm9sZGVyOnVpZCJd",
@@ -706,6 +736,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 469,
   "imapUid": 4,
   "key": "WzQ2OSwiZm9sZGVyOnVpZCJd",
@@ -782,6 +815,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 470,
   "imapUid": 5,
   "key": "WzQ3MCwiZm9sZGVyOnVpZCJd",
@@ -852,6 +888,9 @@ Message {
       ],
     },
   ],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 471,
   "imapUid": 6,
   "key": "WzQ3MSwiZm9sZGVyOnVpZCJd",
@@ -921,6 +960,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 467,
   "imapUid": 2,
   "key": "WzQ2NywiZm9sZGVyOnVpZCJd",
@@ -996,6 +1038,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 468,
   "imapUid": 3,
   "key": "WzQ2OCwiZm9sZGVyOnVpZCJd",
@@ -1070,6 +1115,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 466,
   "imapUid": 1,
   "key": "WzQ2NiwiZm9sZGVyOnVpZCJd",
@@ -1135,6 +1183,9 @@ Message {
   },
   "hasSeparator": true,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 477,
   "imapUid": 12,
   "key": "WzQ3NywiZm9sZGVyOnVpZCJd",
@@ -1207,6 +1258,9 @@ Message {
       ],
     },
   ],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 478,
   "imapUid": 13,
   "key": "WzQ3OCwiZm9sZGVyOnVpZCJd",
@@ -1269,6 +1323,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 475,
   "imapUid": 10,
   "key": "WzQ3NSwiZm9sZGVyOnVpZCJd",
@@ -1343,6 +1400,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 476,
   "imapUid": 11,
   "key": "WzQ3NiwiZm9sZGVyOnVpZCJd",
@@ -1412,6 +1472,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 472,
   "imapUid": 7,
   "key": "WzQ3MiwiZm9sZGVyOnVpZCJd",
@@ -1480,6 +1543,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 473,
   "imapUid": 8,
   "key": "WzQ3MywiZm9sZGVyOnVpZCJd",
@@ -1547,6 +1613,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 474,
   "imapUid": 9,
   "key": "WzQ3NCwiZm9sZGVyOnVpZCJd",
@@ -1610,6 +1679,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 469,
   "imapUid": 4,
   "key": "WzQ2OSwiZm9sZGVyOnVpZCJd",
@@ -1686,6 +1758,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 470,
   "imapUid": 5,
   "key": "WzQ3MCwiZm9sZGVyOnVpZCJd",
@@ -1756,6 +1831,9 @@ Message {
       ],
     },
   ],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 471,
   "imapUid": 6,
   "key": "WzQ3MSwiZm9sZGVyOnVpZCJd",
@@ -1825,6 +1903,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 467,
   "imapUid": 2,
   "key": "WzQ2NywiZm9sZGVyOnVpZCJd",
@@ -1900,6 +1981,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 468,
   "imapUid": 3,
   "key": "WzQ2OCwiZm9sZGVyOnVpZCJd",
@@ -1974,6 +2058,9 @@ Message {
   },
   "hasSeparator": false,
   "headers": Array [],
+  "ics": Object {
+    "isEmpty": true,
+  },
   "id": 466,
   "imapUid": 1,
   "key": "WzQ2NiwiZm9sZGVyOnVpZCJd",

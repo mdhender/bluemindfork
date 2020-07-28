@@ -144,7 +144,21 @@ function fromMailboxItem(item, message) {
     message.uid = item.uid;
     message.id = item.internalId;
     message.imapUid = mailboxItem.imapUid;
+    // FIXME: move ics object computation into EventHelper
+    message.ics = {
+        isEmpty: !mailboxItem.body.headers.map(header => header.name).includes("X-BM-Event")
+    };
 
+    if (!message.ics.isEmpty) {
+        const icsHeaderValue = mailboxItem.body.headers.find(header => header.name === "X-BM-Event").values[0];
+        message.ics.needsReply = icsHeaderValue.includes('rsvp="true"') || icsHeaderValue.includes("rsvp='true'");
+        const semiColonIndex = icsHeaderValue.indexOf(";");
+        message.ics.eventUid = semiColonIndex === -1 ? icsHeaderValue : icsHeaderValue.substring(0, semiColonIndex);
+    }
+
+    if (!message.ics.isEmpty) {
+        message.states.push("is-ics");
+    }
     if (mailboxItem.body.smartAttach) {
         message.states.push("has-attachment");
     }

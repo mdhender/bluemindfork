@@ -1,7 +1,7 @@
-import WebSocketClient from "@bluemind/sockjs";
 import injector from "@bluemind/inject";
+import WebsocketClient from "@bluemind/sockjs";
 
-const socket = new WebSocketClient();
+const socket = new WebsocketClient();
 
 export default {
     observe(type, uid) {

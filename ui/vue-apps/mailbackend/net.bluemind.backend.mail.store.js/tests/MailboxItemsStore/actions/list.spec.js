@@ -6,10 +6,12 @@ jest.mock("@bluemind/inject");
 const result = [1, 2, 3];
 const filteredResult = { created: [{ id: 2 }] };
 const sortedIds = jest.fn().mockReturnValue(Promise.resolve(result));
+const unreadItems = jest.fn().mockReturnValue(Promise.resolve(result));
 const filteredChangesetById = jest.fn().mockReturnValue(Promise.resolve(filteredResult));
 const get = jest.fn().mockReturnValue({
     sortedIds,
-    filteredChangesetById
+    filteredChangesetById,
+    unreadItems
 });
 ServiceLocator.getProvider.mockReturnValue({
     get
@@ -49,15 +51,14 @@ describe("[MailItemsStore][actions] : list", () => {
         expect(get).toHaveBeenCalledWith("containerUid");
         expect(sortedIds).toHaveBeenCalledWith(sorted);
     });
-    test("call filteredChangesetById when 'unread' filter is set", done => {
+    test("call unreadItems when 'unread' filter is set", done => {
         const sorted = { column: "internal_date", dir: "Desc" },
             folderUid = "containerUid";
         list(context, { sorted, folderUid, filter: "unread" }).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("setItemKeysByIdsFolderUid", { ids: [2], folderUid });
+            expect(context.commit).toHaveBeenCalledWith("setItemKeysByIdsFolderUid", { ids: result, folderUid });
             done();
         });
         expect(get).toHaveBeenCalledWith("containerUid");
-        const filters = { must: [], mustNot: ["Deleted", "Seen"] };
-        expect(filteredChangesetById).toHaveBeenCalledWith(0, filters);
+        expect(unreadItems).toHaveBeenCalled();
     });
 });

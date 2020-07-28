@@ -29,8 +29,8 @@ describe("[MailItemsStore][actions] : getCompleteByKey", () => {
         expect(get).toHaveBeenCalledWith("folderUid");
         expect(service.getCompleteById).toHaveBeenCalledWith("itemId");
     });
-    test("fail if sortedIds call fail", () => {
+    test("fail if sortedIds call fail", async () => {
         service.getCompleteById.mockReturnValueOnce(Promise.reject("Error!"));
-        expect(getCompleteByKey(context, messageKey)).rejects.toBe("Error!");
+        await expect(getCompleteByKey(context, messageKey)).rejects.toBe("Error!");
     });
 });

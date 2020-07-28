@@ -15,14 +15,34 @@
         "closure-compile": {
             "ip": "dev.bluemind.test",
             "port": 9810
+        },
+        "webpack-dev-server-mail": {
+            "ip": "dev.bluemind.test",
+            "port": 9180
+        },
+        "webpack-dev-server-root": {
+            "ip": "dev.bluemind.test",
+            "port": 9181
         }
     },
     "filters": [
         {
-            "serverId": "webpack-compile",
-            "search": "/webapp/js/compile/net.bluemind.webapp.mail.js",
-            "replace": "/net.bluemind.webapp.mail.js",
-            "active": false
+            "serverId": "webpack-dev-server-mail",
+            "search": "/webapp/js/net.bluemind.webapp.mail.js",
+            "replace": "/js/net.bluemind.webapp.mail.js",
+            "active": true
+        },
+        {                
+            "serverId": "webpack-dev-server-mail",
+            "search": "/webapp/service-worker.js",
+            "replace": "/service-worker.js",
+            "active": true
+        },
+        {
+            "serverId": "webpack-dev-server-root",
+            "search": "/webapp/js/net.bluemind.webapp.root.js",
+            "replace": "/js/net.bluemind.webapp.root.js",
+            "active": true
         },
         {
             "serverId": "gwt-compile",
@@ -96,6 +116,16 @@
         }
     ],
     "forwardPorts": [
+        {
+            "serverId": "webpack-dev-server-root",
+            "src": 9181,
+            "active": true
+        },
+        {
+            "serverId": "webpack-dev-server-mail",
+            "src": 9180,
+            "active": true
+        },
         {
             "serverId": "webpack-compile",
             "src": 9180,

@@ -1,5 +1,5 @@
 <template>
-    <bm-container v-if="hasAttachments" class="mail-message-content-attachments-block p-2 bg-extra-light">
+    <bm-container v-if="hasAttachments" class="mail-attachments-block p-2 bg-extra-light">
         <div class="d-flex align-items-center">
             <bm-button
                 v-bm-tooltip.ds500
@@ -61,7 +61,7 @@
                 <bm-button
                     v-bm-tooltip.ds500
                     variant="outline-secondary"
-                    class="w-100 h-100 mail-message-content-attachments-block-toggle py-2"
+                    class="w-100 h-100 py-2"
                     :title="$t('common.toggleAttachments')"
                     :aria-label="$t('common.toggleAttachments')"
                     @click="toggleExpand"
@@ -263,7 +263,7 @@ export default {
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
 
-.mail-message-content-attachments-block .col-4 {
+.mail-attachments-block .col-4 {
     padding-right: $sp-1 !important;
     padding-left: $sp-1 !important;
 }

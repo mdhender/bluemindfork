@@ -11,11 +11,7 @@ export default {
         return date1.getDate() === date2.getDate() && this.isSameMonth(date1, date2);
     },
 
-    isSameDate(date1, date2) {
-        return this.isSameDay(date1, date2);
-    },
-
     isToday(date) {
-        return this.isSameDate(date, new Date());
+        return this.isSameDay(date, new Date());
     }
 };

@@ -42,7 +42,7 @@ async function executeParamsActions(route, to, from, store) {
 }
 
 async function executeParamAction(action, parameter, to, from, store) {
-    if (from.params[parameter] !== to.params[parameter])
+    if (!(parameter in from.params) || from.params[parameter] !== to.params[parameter])
         await action(store, to.params[parameter], from.params[parameter], to, from);
 }
 
