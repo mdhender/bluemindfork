@@ -14,7 +14,7 @@ export const TreeBuilder = {
         return nodeMap.get(null) || [];
     },
 
-    toTreeItem(folder, { unread, expanded, editing }, writable) {
+    toTreeItem(folder, { unread, editing }, writable, expanded) {
         return {
             uid: folder.uid,
             key: folder.key,

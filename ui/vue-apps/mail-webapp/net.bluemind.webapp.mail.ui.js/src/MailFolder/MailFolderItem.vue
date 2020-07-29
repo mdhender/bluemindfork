@@ -88,7 +88,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["expandFolder", "renameFolder", "createFolder"]),
+        ...mapActions("mail-webapp", ["renameFolder", "createFolder"]),
         ...mapMutations([REMOVE_FOLDER]),
         ...mapMutations("mail-webapp", ["toggleEditFolder"]),
         submit(newFolderName) {

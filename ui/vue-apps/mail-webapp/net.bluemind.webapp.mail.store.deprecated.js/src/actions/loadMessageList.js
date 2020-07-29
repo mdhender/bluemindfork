@@ -1,5 +1,6 @@
 import { STATUS } from "../constants";
 import { STATUS as SEARCH_STATUS } from "../modules/search";
+import { TOGGLE_FOLDER } from "@bluemind/webapp.mail.store";
 import ContainerObserver from "@bluemind/containerobserver";
 import ItemUri from "@bluemind/item-uri";
 import SearchHelper from "../SearchHelper";
@@ -89,7 +90,8 @@ function getMailshareUid(getters, path) {
 
 function expandParents(commit, getters, folder) {
     if (folder.value && folder.value.parentUid) {
-        commit("expandFolder", folder.value.parentUid);
+        console.log("Expand parents : CALL TOGGLE_FOLDER");
+        commit(TOGGLE_FOLDER, folder.value.parentUid, { root: true });
         const mailboxId = ItemUri.container(folder.key);
         const parentFolderKey = ItemUri.encode(folder.value.parentUid, mailboxId);
         const parentFolder = getters["folders/getFolderByKey"](parentFolderKey);

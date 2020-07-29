@@ -17,8 +17,7 @@
                 node-id-key="key"
                 class="text-nowrap"
                 breakpoint="xl"
-                @expand="expandFolder"
-                @collapse="collapseFolder"
+                @toggle="toggle"
                 @select="selectFolder"
             >
                 <template v-slot="f">
@@ -45,8 +44,7 @@
                 node-id-key="key"
                 class="text-nowrap"
                 breakpoint="xl"
-                @expand="expandFolder"
-                @collapse="collapseFolder"
+                @toggle="toggle"
                 @select="selectFolder"
             >
                 <template v-slot="f">
@@ -60,7 +58,8 @@
 <script>
 import { BmButton, BmCollapse, BmIcon, BmTree } from "@bluemind/styleguide";
 import { ItemUri } from "@bluemind/item-uri";
-import { mapGetters, mapActions, mapState } from "vuex";
+import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
+import { TOGGLE_FOLDER } from "@bluemind/webapp.mail.store";
 import injector from "@bluemind/inject";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItem from "./MailFolderItem";
@@ -88,7 +87,8 @@ export default {
         ...mapState("mail-webapp", ["currentFolderKey"])
     },
     methods: {
-        ...mapActions("mail-webapp", ["expandFolder", "collapseFolder", "createFolder"]),
+        ...mapActions("mail-webapp", ["createFolder"]),
+        ...mapMutations([TOGGLE_FOLDER]),
         selectFolder(key) {
             this.$emit("toggle-folders");
             const folder = this.getFolderByKey(key);
@@ -112,6 +112,9 @@ export default {
                 displayName: newFolderName
             };
             this.createFolder({ folder, mailboxUid: this.my.mailboxUid });
+        },
+        toggle(folderKey) {
+            this[TOGGLE_FOLDER](ItemUri.item(folderKey));
         }
     }
 };

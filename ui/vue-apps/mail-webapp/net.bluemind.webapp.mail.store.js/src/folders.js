@@ -7,6 +7,7 @@ export const ADD_FOLDER = "ADD_FOLDER";
 export const ADD_FOLDERS = "ADD_FOLDERS";
 export const RENAME_FOLDER = "RENAME_FOLDER";
 export const REMOVE_FOLDER = "REMOVE_FOLDER";
+export const TOGGLE_FOLDER = "TOGGLE_FOLDER";
 
 export const FETCH_FOLDERS = "FETCH_FOLDERS";
 export const CREATE_FOLDER = "CREATE_FOLDER";
@@ -29,6 +30,10 @@ export const mutations = {
     },
     [REMOVE_FOLDER]: (state, key) => {
         Vue.delete(state.folders, key);
+    },
+    [TOGGLE_FOLDER]: (state, key) => {
+        console.log("COUCOUUUUU TOGGLE !!!!!!!!", key);
+        Vue.set(state.folders, key, FolderAdaptor.toggle(state.folders[key]));
     }
 };
 

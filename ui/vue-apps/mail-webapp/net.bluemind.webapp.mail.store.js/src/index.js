@@ -16,6 +16,7 @@ export const FETCH_FOLDERS = "mail/" + folders.FETCH_FOLDERS;
 export const CREATE_FOLDER = "mail/" + folders.CREATE_FOLDER;
 export const RENAME_FOLDER = "mail/" + folders.RENAME_FOLDER;
 export const REMOVE_FOLDER = "mail/" + folders.REMOVE_FOLDER;
+export const TOGGLE_FOLDER = "mail/" + folders.TOGGLE_FOLDER;
 
 export const ADD_MAILBOXES = "mail/" + mailboxes.ADD_FOLDER;
 export const FETCH_MAILBOXES = "mail/" + mailboxes.FETCH_MAILBOXES;
