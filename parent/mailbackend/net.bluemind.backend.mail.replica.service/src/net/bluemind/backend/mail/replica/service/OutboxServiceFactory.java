@@ -35,9 +35,14 @@ import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 
-public class OutboxServiceFactory implements IServerSideServiceFactory<IOutbox>  {
+public class OutboxServiceFactory implements IServerSideServiceFactory<IOutbox> {
+
+	private final ISendmail sendmail;
 
 	public OutboxServiceFactory() {
+		this.sendmail = new RunnableExtensionLoader<ISendmail>()
+				.loadExtensionsWithPriority("net.bluemind.core.sendmail", "mailer", "mailer", "impl").get(0);
+
 	}
 
 	@Override
@@ -52,20 +57,11 @@ public class OutboxServiceFactory implements IServerSideServiceFactory<IOutbox> 
 		}
 		String domainUid = params[0];
 		String mailboxUid = params[1];
-		
-		ItemValue<Mailbox> mailboxItem = ServerSideServiceProvider
-			.getProvider(SecurityContext.SYSTEM)
-			.instance(IMailboxes.class, domainUid)
-			.getComplete(mailboxUid);
-		
-		return new OutboxService(
-				context, 
-				domainUid, 
-				mailboxItem,
-				new RunnableExtensionLoader<ISendmail>()
-					.loadExtensionsWithPriority("net.bluemind.core.sendmail", "mailer", "mailer", "impl")
-					.get(0)
-				);
+
+		ItemValue<Mailbox> mailboxItem = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IMailboxes.class, domainUid).getComplete(mailboxUid);
+
+		return new OutboxService(context, domainUid, mailboxItem, sendmail);
 	}
 
 }

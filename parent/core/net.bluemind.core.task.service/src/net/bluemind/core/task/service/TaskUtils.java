@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
@@ -83,6 +84,11 @@ public class TaskUtils {
 			ts = taskApi.status();
 		} while (!ts.state.ended);
 		return ts;
+	}
+
+	public static String logStreamWait(IServiceProvider provider, TaskRef ref) {
+		ITask taskApi = provider.instance(ITask.class, ref.id + "");
+		return GenericStream.streamToString(taskApi.log());
 	}
 
 	public static TaskStatus wait(IServiceProvider provider, TaskRef ref) {

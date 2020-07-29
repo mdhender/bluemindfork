@@ -85,13 +85,18 @@ public class OutboxService implements IOutbox {
 		long sentInternalId = mailboxFoldersService.byName("Sent").internalId;
 
 		IMailboxItems mailboxItemsService = serviceProvider.instance(IMailboxItems.class, outboxUid);
+		long enumerate = System.currentTimeMillis();
 		List<ItemValue<MailboxItem>> mails = retrieveOutboxItems(mailboxItemsService);
-		monitor.begin(mails.size(), "FLUSHING OUTBOX - have " + mails.size() + " mails to send.");
+		int mailCount = mails.size();
+		enumerate = System.currentTimeMillis() - enumerate;
+		logger.info("[{}] Flushing {} outbox item(s), enumerate took {}ms.", context.getSecurityContext().getSubject(),
+				mails.size(), enumerate);
+		monitor.begin(mails.size(), "FLUSHING OUTBOX - have " + mailCount + " mails to send.");
 
 		AuthUser user = serviceProvider.instance(IAuthentication.class).getCurrentUser();
 
-		List<CompletableFuture<Void>> promises = new ArrayList<>();
-		final List<ImportedMailboxItem> importedMailboxItems = new ArrayList<>(mails.size());
+		List<CompletableFuture<Void>> promises = new ArrayList<>(mailCount);
+		final List<ImportedMailboxItem> importedMailboxItems = new ArrayList<>(mailCount);
 		mails.forEach(item -> {
 			promises.add(
 					SyncStreamDownload.read(mailboxItemsService.fetchComplete(item.value.imapUid)).thenAccept(buf -> {
@@ -124,6 +129,7 @@ public class OutboxService implements IOutbox {
 
 		try {
 			CompletableFuture.allOf(Iterables.toArray(promises, CompletableFuture.class)).thenAccept(finished -> {
+				logger.info("[{}] flushed {}", context.getSecurityContext().getSubject(), mailCount);
 				monitor.end(true, "FLUSHING OUTBOX finished successfully",
 						String.format("{\"result\": %s}", JsonUtils.asString(importedMailboxItems)));
 			}).get(30, TimeUnit.SECONDS);
