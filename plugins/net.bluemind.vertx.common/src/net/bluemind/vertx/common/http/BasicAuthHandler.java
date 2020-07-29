@@ -42,6 +42,7 @@ import net.bluemind.config.Token;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
@@ -147,9 +148,9 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 		LoginResponse lr;
 		Mailbox.Routing mboxRouting;
 
-		public WithRouting(LoginResponse lr, Routing r) {
+		public WithRouting(LoginResponse lr, ItemValue<Mailbox> mbox) {
 			this.lr = lr;
-			this.mboxRouting = r;
+			this.mboxRouting = mbox != null ? mbox.value.routing : Routing.none;
 		}
 	}
 
@@ -196,10 +197,11 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 						if (lrOrNull == null) {
 							return CompletableFuture.completedFuture(null);
 						} else {
+
 							IMailboxesPromise mboxesApi = adminProv.instance(IMailboxesPromise.class,
 									lrOrNull.authUser.domainUid);
 							return mboxesApi.byName(lrOrNull.authUser.value.login)
-									.thenApply(mbox -> new WithRouting(lrOrNull, mbox.value.routing));
+									.thenApply(mbox -> new WithRouting(lrOrNull, mbox));
 						}
 					});
 
