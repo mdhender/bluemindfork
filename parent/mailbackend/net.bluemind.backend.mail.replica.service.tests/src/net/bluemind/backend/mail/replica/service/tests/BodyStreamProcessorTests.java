@@ -127,6 +127,19 @@ public class BodyStreamProcessorTests {
 	}
 
 	@Test
+	public void testWrongPartMimeForRoundcubeMessage() throws Exception {
+		Stream stream = openResource("data/wrong_part_mime.eml");
+		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
+		assertNotNull(result);
+		JsonObject asJs = new JsonObject(JsonUtils.asString(result.body.structure));
+		System.out.println("JS: " + asJs.encodePrettily());
+		JsonObject secondPartInAlternative = asJs.getJsonArray("children").getJsonObject(1);
+		assertNotNull(secondPartInAlternative);
+		assertEquals("text/html", secondPartInAlternative.getString("mime"));
+		assertEquals("UTF-8", secondPartInAlternative.getString("charset"));
+	}
+
+	@Test
 	public void testReferencesHeader() throws IOException, InterruptedException, ExecutionException, TimeoutException {
 		Stream stream = openResource("data/plezi_BM14512_with_references.eml");
 		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
