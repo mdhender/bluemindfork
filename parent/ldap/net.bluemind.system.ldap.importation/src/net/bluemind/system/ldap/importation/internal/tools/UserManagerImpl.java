@@ -278,6 +278,6 @@ public class UserManagerImpl extends UserManager {
 
 	@Override
 	public List<? extends UuidMapper> getUserGroupsMemberGuid(LdapConnection ldapCon) {
-		return new MemberOfLdapSearch(null, ldapParameters).getUserGroupsByMemberUuid(ldapCon, ldapParameters, entry);
+		return new MemberOfLdapSearch(ldapParameters).getUserGroupsByMemberUuid(ldapCon, ldapParameters, entry);
 	}
 }

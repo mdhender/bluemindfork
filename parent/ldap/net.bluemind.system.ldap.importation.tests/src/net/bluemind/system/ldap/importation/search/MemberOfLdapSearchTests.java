@@ -22,11 +22,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -34,11 +36,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.lib.ldap.LdapConProxy;
-import net.bluemind.scheduledjob.api.JobExitStatus;
 import net.bluemind.system.importation.commons.UuidMapper;
-import net.bluemind.system.importation.commons.scanner.ImportLogger;
-import net.bluemind.system.importation.commons.scanner.RepportStatus;
 import net.bluemind.system.importation.search.PagedSearchResult;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.tests.helpers.LdapDockerTestHelper;
@@ -67,7 +67,7 @@ public class MemberOfLdapSearchTests {
 
 		LdapSearchTestHelper.updateEntry(ldapParameters, "uid=user01," + LdapDockerTestHelper.LDAP_ROOT_DN);
 
-		MemberOfLdapSearch search = new MemberOfLdapSearch(getImportLogger(), ldapParameters);
+		MemberOfLdapSearch search = new MemberOfLdapSearch(ldapParameters);
 
 		List<String> logins = new ArrayList<>();
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters);
@@ -82,16 +82,11 @@ public class MemberOfLdapSearchTests {
 		}
 	}
 
-	private ImportLogger getImportLogger() {
-		return new ImportLogger(Optional.empty(), Optional.empty(), Optional.of(new RepportStatus()));
-	}
-
 	@Test
 	public void testUserByLogin() throws Exception {
 		LdapParameters ldapParameters = LdapSearchTestHelper.getLdapParameters();
-		ImportLogger importLogger = getImportLogger();
 
-		MemberOfLdapSearch search = new MemberOfLdapSearch(importLogger, ldapParameters);
+		MemberOfLdapSearch search = new MemberOfLdapSearch(ldapParameters);
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
 			PagedSearchResult cursor = search.findAllUsers(connection);
@@ -106,16 +101,15 @@ public class MemberOfLdapSearchTests {
 
 			List<UuidMapper> memberUIs = search.getUserGroupsByMemberUuid(connection, ldapParameters, entry);
 			Assert.assertEquals(2, memberUIs.size());
-			Assert.assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
 		}
 	}
 
 	@Test
 	public void testUserByLoginInvalidExternalId() throws Exception {
-		LdapParameters ldapParameters = LdapSearchTestHelper.getLdapParameters("invalid", null, null, null);
-		ImportLogger importLogger = getImportLogger();
+		LdapParameters ldapParameters = LdapSearchTestHelper.getLdapParameters("invalid", Optional.empty(),
+				Optional.empty(), Optional.empty(), Optional.empty());
 
-		MemberOfLdapSearch search = new MemberOfLdapSearch(importLogger, ldapParameters);
+		MemberOfLdapSearch search = new MemberOfLdapSearch(ldapParameters);
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
 			PagedSearchResult cursor = search.findAllUsers(connection);
@@ -130,7 +124,39 @@ public class MemberOfLdapSearchTests {
 
 			List<UuidMapper> memberUIs = search.getUserGroupsByMemberUuid(connection, ldapParameters, entry);
 			Assert.assertEquals(0, memberUIs.size());
-			Assert.assertEquals(JobExitStatus.COMPLETED_WITH_WARNINGS, importLogger.repportStatus.get().getJobStatus());
+		}
+	}
+
+	@Test
+	public void getUserGroupsByMemberUuid() throws LdapException, ServerFault, IOException {
+		LdapParameters ldapParameters = LdapSearchTestHelper.getLdapParameters("entryUuid", Optional.empty(),
+				Optional.empty(), Optional.empty(), Optional.empty());
+
+		MemberOfLdapSearch search = new MemberOfLdapSearch(ldapParameters);
+
+		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
+			Entry entry = connection.lookup("uid=user00,dc=local", "memberof");
+
+			List<UuidMapper> groupsUuid = search.getUserGroupsByMemberUuid(connection, ldapParameters, entry);
+			assertEquals(1, groupsUuid.size());
+
+			Entry group = connection.lookup("cn=grptest00,dc=local", "entryuuid");
+			assertEquals(group.get("entryUuid").get().getString(), groupsUuid.get(0).getGuid());
+		}
+	}
+
+	@Test
+	public void getUserGroupsByMemberUuid_dnNotUnderBaseDn() throws LdapException, ServerFault, IOException {
+		LdapParameters ldapParameters = LdapSearchTestHelper.getLdapParameters("uid", Optional.empty(),
+				Optional.empty(), Optional.empty(), Optional.of("ou=user,dc=local"));
+
+		MemberOfLdapSearch search = new MemberOfLdapSearch(ldapParameters);
+
+		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
+			Entry entry = connection.lookup("uid=user00,ou=user,dc=local", "memberof");
+
+			List<UuidMapper> groupsUuid = search.getUserGroupsByMemberUuid(connection, ldapParameters, entry);
+			assertEquals(0, groupsUuid.size());
 		}
 	}
 }

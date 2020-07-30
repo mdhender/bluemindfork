@@ -1,0 +1,28 @@
+dn: uid=user00,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: user00
+sn: Nom00
+cn: Prenom00 Nom00
+givenName: Prenom00
+description: Description Prenom00 Nom00
+userPassword:: e1NIQX1rN1liU0NTUzdPSkhsaUpRWkF2RkNUNFlZNTA9
+
+dn: cn=grptest00,dc=local
+objectClass: bmGroup
+objectClass: top
+objectClass: posixGroup
+cn: grptest00
+gidNumber: 10000
+description: Test group 00
+member: uid=user00,dc=local
+
+dn: cn=grptest01,dc=local
+objectClass: bmGroup
+objectClass: top
+objectClass: posixGroup
+cn: grptest01
+gidNumber: 10000
+description: Test group 01

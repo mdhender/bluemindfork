@@ -32,13 +32,13 @@ public class MemberOfLdapScanner extends LdapScanner {
 
 	public MemberOfLdapScanner(ImportLogger importLogger, LdapParameters ldapParameters, ItemValue<Domain> domain) {
 		super(importLogger, ldapParameters, domain);
-		this.ldapSearch = new MemberOfLdapSearch(importLogger, ldapParameters);
+		this.ldapSearch = new MemberOfLdapSearch(ldapParameters);
 	}
 
 	public MemberOfLdapScanner(ImportLogger importLogger, ICoreServices coreService, LdapParameters ldapParameters,
 			ItemValue<Domain> domain) {
 		super(importLogger, coreService, ldapParameters, domain);
-		this.ldapSearch = new MemberOfLdapSearch(importLogger, ldapParameters);
+		this.ldapSearch = new MemberOfLdapSearch(ldapParameters);
 	}
 
 	@Override
