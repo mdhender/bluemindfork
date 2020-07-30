@@ -1,6 +1,7 @@
 import Vue from "vue";
 import { FolderAdaptor } from "./helpers/FolderAdaptor";
 import { inject } from "@bluemind/inject";
+import { ItemFlag } from "@bluemind/core.container.api";
 
 export const ADD_FOLDER = "ADD_FOLDER";
 export const ADD_FOLDERS = "ADD_FOLDERS";
@@ -35,7 +36,7 @@ export const actions = {
     async [FETCH_FOLDERS]({ commit }, mailbox) {
         const items = await inject("MailboxFoldersPersistence", mailbox.uid).all();
         const folders = items
-            .filter(item => !item.value.deleted)
+            .filter(item => !item.flags.includes(ItemFlag.Deleted))
             .sort((a, b) => a.value.fullName.toLowerCase().localeCompare(b.value.fullName.toLowerCase()))
             .map(item => FolderAdaptor.fromMailboxFolder(item, mailbox));
         commit(ADD_FOLDERS, folders);
