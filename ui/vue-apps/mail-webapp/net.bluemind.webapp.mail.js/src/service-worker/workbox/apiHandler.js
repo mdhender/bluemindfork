@@ -3,35 +3,21 @@ import { MailIDB } from "../mailIDB";
 let sequentialRequest = Promise.resolve();
 
 export default async function({ request }) {
-    console.log(request);
     const splittedUrl = request.url.split("/");
     const apiUrl = splittedUrl.slice(4, splittedUrl.length).join("/");
-    console.log(apiUrl);
     if (isApiSupported(apiUrl)) {
         const apiMethod = await useIndexedDB(request);
         if (apiMethod) {
-            console.log("Going to return response from cache !");
             return new Response(JSON.stringify(await getResponseBody[apiMethod](request)), {
                 headers: {
                     fromcache: "true"
                 }
             });
         } else if (isSequentialRequest(apiUrl, request.method)) {
-            console.log(request);
-            console.log("request has been detected as a SEQUENTIAL REQUEST !");
-            sequentialRequest = sequentialRequest
-                .then(() => {
-                    console.log("successful end of previous promise, begin of another one");
-                    return fetch(request);
-                })
-                .catch(() => {
-                    console.log("failure end of previous promise, begin of another one");
-                    return fetch(request);
-                });
+            sequentialRequest = sequentialRequest.then(() => fetch(request)).catch(() => fetch(request));
             return sequentialRequest;
         }
     }
-    console.log("do nothing");
     return fetch(request);
 }
 
