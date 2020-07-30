@@ -18,6 +18,8 @@
   */
 package net.bluemind.core.sendmail;
 
+import java.io.InputStream;
+
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.address.MailboxList;
@@ -30,12 +32,9 @@ public interface ISendmail {
 	 * Send an email using specific SMTP authentication. This API is usable from
 	 * outside core JVM.
 	 * 
-	 * @param creds
-	 *                       SMTP credentials
-	 * @param fromEmail
-	 *                       Envelope from
-	 * @param userDomain
-	 *                       Used to locate a valid SMTP
+	 * @param creds      SMTP credentials
+	 * @param fromEmail  Envelope from
+	 * @param userDomain Used to locate a valid SMTP
 	 * @param m
 	 * @throws ServerFault
 	 */
@@ -55,8 +54,7 @@ public interface ISendmail {
 	public SendmailResponse send(Mailbox from, Message m);
 
 	/**
-	 * @param creds
-	 *                      SMTP credentials
+	 * @param creds     SMTP credentials
 	 * @param domainUid
 	 * @param m
 	 * @throws ServerFault
@@ -67,17 +65,17 @@ public interface ISendmail {
 	 * Send an email using specific SMTP authentication. This API is usable from
 	 * outside core JVM.
 	 * 
-	 * @param creds
-	 *                       SMTP credentials
-	 * @param fromEmail
-	 *                       Envelope from
-	 * @param userDomain
-	 *                       Used to locate a valid SMTP
-	 * @param rcptTo
-	 *                       the real recipients
+	 * @param creds      SMTP credentials
+	 * @param fromEmail  Envelope from
+	 * @param userDomain Used to locate a valid SMTP
+	 * @param rcptTo     the real recipients
 	 * @param m
 	 * @throws ServerFault
 	 */
 	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
 			Message m);
+
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+			InputStream inStream);
+
 }

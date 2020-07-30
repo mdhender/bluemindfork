@@ -1,5 +1,6 @@
 package net.bluemind.core.sendmail.testhelper;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -66,5 +67,22 @@ public class FakeSendmail implements ISendmail {
 		tm.message = m;
 		messages.add(tm);
 		return SendmailResponse.success();
+	}
+
+	@Override
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+			InputStream in) {
+		mailSent = true;
+
+		TestMail tm = new TestMail();
+		tm.from = fromEmail;
+		for (Mailbox mbox : rcptTo) {
+			tm.to.add(mbox.getAddress());
+		}
+
+		tm.message = null;
+		messages.add(tm);
+		return SendmailResponse.success();
+
 	}
 }

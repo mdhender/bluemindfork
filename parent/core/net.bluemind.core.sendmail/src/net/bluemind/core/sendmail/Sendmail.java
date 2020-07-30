@@ -18,20 +18,30 @@
  */
 package net.bluemind.core.sendmail;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Collectors;
+
+import javax.mail.Address;
+import javax.mail.Authenticator;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
 
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.AddressList;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.address.MailboxList;
-import org.columba.ristretto.message.Address;
-import org.columba.ristretto.smtp.SMTPProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.mail.smtp.SMTPMessage;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.mime4j.common.Mime4JHelper;
@@ -117,37 +127,57 @@ public class Sendmail implements ISendmail {
 	@Override
 	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
 			Message m) {
+		try (InputStream in = Mime4JHelper.asStream(m)) {
+			return send(creds, fromEmail, userDomain, rcptTo, in);
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+			return SendmailResponse.fail(e.getMessage());
+		}
+	}
+
+	@Override
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+			InputStream inStream) {
 		if (rcptTo == null) {
 			throw new ServerFault("null To: field in message");
 		}
 
-		SendmailResponse sendmailResponse = null;
-
+		Properties prop = new Properties();
 		String ip = Topology.get().any("mail/smtp").value.address();
-		try (SMTPProtocol smtp = new SMTPProtocol(ip, 587)) {
-			smtp.openPort();
-			smtp.startTLS();
-			smtp.auth("PLAIN", creds.loginAtDomain, creds.authKey.toCharArray());
-			smtp.ehlo(InetAddress.getLocalHost());
-			smtp.mail(new Address(fromEmail));
+		prop.put("mail.smtp.auth", true);
+		prop.put("mail.smtp.starttls.enable", "true");
+		prop.put("mail.smtp.host", ip);
+		prop.put("mail.smtp.port", "587");
+		prop.put("mail.smtp.ssl.trust", ip);
 
+		try {
+			Session session = Session.getInstance(prop, new Authenticator() {
+				@Override
+				protected PasswordAuthentication getPasswordAuthentication() {
+					return new PasswordAuthentication(creds.loginAtDomain, creds.authKey);
+				}
+			});
+			long javaxMailReparse = System.currentTimeMillis();
+			SMTPMessage msg = new SMTPMessage(session, new BufferedInputStream(inStream));
+			javaxMailReparse = System.currentTimeMillis() - javaxMailReparse;
+			long transSend = System.currentTimeMillis();
+			List<Address> asList = new LinkedList<>();
 			for (Mailbox to : rcptTo) {
-				smtp.rcpt(new Address(to.getAddress()));
+				asList.add(new InternetAddress(to.getAddress(), false));
 			}
-			try (InputStream inStream = Mime4JHelper.asStream(m)) {
-				sendmailResponse = new SendmailResponse(smtp.data(inStream));
-				smtp.quit();
-			}
-
-			logger.info("Email sent {}", getLog(creds, fromEmail, rcptTo, sendmailResponse, Optional.empty()));
+			Address[] addresses = asList.toArray(new Address[0]);
+			Transport.send(msg, addresses);
+			transSend = System.currentTimeMillis() - transSend;
+			SendmailResponse sendmailResponse = SendmailResponse.success();
+			logger.info("JAVAX.MAIL Email sent {}, reparse {}ms, transport {}ms.",
+					getLog(creds, fromEmail, rcptTo, sendmailResponse, Optional.empty()), javaxMailReparse, transSend);
 			return sendmailResponse;
-		} catch (Exception se) {
-			logger.error("Email not sent {}",
-					getLog(creds, fromEmail, rcptTo, sendmailResponse, Optional.of(se.getMessage())));
-			logger.error(se.getMessage(), se);
 
-			return SendmailResponse.fail(se.getMessage());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return SendmailResponse.fail(e.getMessage());
 		}
+
 	}
 
 	private String getLog(SendmailCredentials creds, String fromEmail, MailboxList rcptTo,

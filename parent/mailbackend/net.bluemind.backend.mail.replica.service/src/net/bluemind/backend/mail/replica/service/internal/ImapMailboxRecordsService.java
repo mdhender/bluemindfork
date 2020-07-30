@@ -462,6 +462,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	private CompletableFuture<ItemIdentifier> createAsync(long id, MailboxItem value) {
 		logger.info("create 'draft' {}", id);
+		SizedStream sizedStream = createEmlStructure(id, null, value.body);
+
 		CompletableFuture<ItemChange> completion = ReplicationEvents.onRecordCreate(mailboxUniqueId, id);
 
 		int addedUid = imapContext.withImapClient((sc, fast) -> {
@@ -482,7 +484,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				}
 			});
 
-			SizedStream sizedStream = createEmlStructure(id, null, value.body);
 			logger.info("Append {}bytes EML into {}", sizedStream.size, imapFolder);
 			int added = sc.append(imapFolder, sizedStream.input, fl, value.body.date);
 			logger.info("Added IMAP UID: {} with date {}", added, value.body.date);
