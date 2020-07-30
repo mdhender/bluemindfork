@@ -1,6 +1,7 @@
 import UUIDGenerator from "@bluemind/uuid";
 import { Flag } from "@bluemind/email";
 import ItemUri from "@bluemind/item-uri";
+import { SET_UNREAD_COUNT } from "@bluemind/webapp.mail.store";
 
 export async function markFolderAsRead(context, folderKey) {
     const folder = context.getters["folders/getFolderByKey"](folderKey);
@@ -26,12 +27,12 @@ async function optimisticMarkFolderAsRead(context, folderKey) {
     const messageKeys = unseenMessagesInFolder(context.state, folderUid);
     context.commit("messages/addFlag", { messageKeys, mailboxItemFlag: Flag.SEEN });
     const unreadCount = context.getters.unreadCount(folderUid);
-    context.commit("setUnreadCount", { folderUid, count: 0 });
+    context.commit(SET_UNREAD_COUNT, { key: folderUid, count: 0 }, { root: true });
     try {
         await context.dispatch("folders/markAsRead", folderKey);
     } catch (e) {
         context.commit("messages/deleteFlag", { messageKeys, mailboxItemFlag: Flag.SEEN });
-        context.commit("setUnreadCount", { folderUid, count: unreadCount });
+        context.commit(SET_UNREAD_COUNT, { key: folderUid, count: unreadCount }, { root: true });
         throw e;
     }
 }

@@ -7,6 +7,7 @@ export const ADD_FOLDER = "ADD_FOLDER";
 export const ADD_FOLDERS = "ADD_FOLDERS";
 export const RENAME_FOLDER = "RENAME_FOLDER";
 export const REMOVE_FOLDER = "REMOVE_FOLDER";
+export const SET_UNREAD_COUNT = "SET_UNREAD_COUNT";
 export const TOGGLE_FOLDER = "TOGGLE_FOLDER";
 
 export const FETCH_FOLDERS = "FETCH_FOLDERS";
@@ -30,6 +31,12 @@ export const mutations = {
     },
     [REMOVE_FOLDER]: (state, key) => {
         Vue.delete(state.folders, key);
+    },
+    [SET_UNREAD_COUNT]: (state, { key, count }) => {
+        console.log("COUCOUUUUU SET UNREAD COUNT !!!!!!!!", key);
+        if (count >= 0) {
+            Vue.set(state.folders, key, FolderAdaptor.setUnreadCount(state.folders[key], count));
+        }
     },
     [TOGGLE_FOLDER]: (state, key) => {
         console.log("COUCOUUUUU TOGGLE !!!!!!!!", key);

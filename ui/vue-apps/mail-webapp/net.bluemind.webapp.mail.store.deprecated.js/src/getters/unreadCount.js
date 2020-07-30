@@ -1,3 +1,3 @@
-export function unreadCount(state) {
-    return folderUid => (state.foldersData[folderUid] && state.foldersData[folderUid].unread) || 0;
+export function unreadCount(state, rootState) {
+    return folderUid => rootState.mail.folders[folderUid].unread;
 }

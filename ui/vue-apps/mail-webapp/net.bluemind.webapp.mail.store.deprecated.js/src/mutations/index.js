@@ -6,7 +6,6 @@ export * from "./deleteSelectedMessageKey";
 export * from "./setCurrentFolder";
 export * from "./setMaxMessageSize";
 export * from "./setMessageFilter";
-export * from "./setUnreadCount";
 export * from "./setUserUid";
 export * from "./setStatus";
 export * from "./setUserSettings";

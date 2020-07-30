@@ -7,7 +7,8 @@ export function tree(state, getters, rootState) {
             folder,
             state.foldersData[folder.uid] || {},
             true,
-            rootState.mail.folders[folder.uid].expanded
+            rootState.mail.folders[folder.uid].expanded,
+            rootState.mail.folders[folder.uid].unread
         )
     );
     tree.my = TreeBuilder.build(nodes);
@@ -19,7 +20,8 @@ export function tree(state, getters, rootState) {
                     folder,
                     state.foldersData[folder.uid] || {},
                     mailshare.writable,
-                    rootState.mail.folders[folder.uid].expanded
+                    rootState.mail.folders[folder.uid].expanded,
+                    rootState.mail.folders[folder.uid].unread
                 )
             )
         );

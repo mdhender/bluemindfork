@@ -14,15 +14,15 @@ export const TreeBuilder = {
         return nodeMap.get(null) || [];
     },
 
-    toTreeItem(folder, { unread, editing }, writable, expanded) {
+    toTreeItem(folder, { editing }, writable, expanded, unread) {
         return {
             uid: folder.uid,
             key: folder.key,
             name: folder.value.name,
             fullName: folder.value.fullName,
             parent: folder.value.parentUid || null,
-            unread: unread || 0,
-            expanded: !!expanded,
+            unread,
+            expanded,
             loaded: true,
             children: [],
             writable,

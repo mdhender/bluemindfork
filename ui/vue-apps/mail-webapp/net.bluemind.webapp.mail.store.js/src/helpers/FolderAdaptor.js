@@ -11,6 +11,7 @@ export const FolderAdaptor = {
             name: remotefolder.value.name,
             path: path(mailbox.root, remotefolder.value.fullName),
             expanded: false,
+            unread: 0,
             writable: mailbox.writable,
             default: FolderAdaptor.isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox)
         };
@@ -49,18 +50,15 @@ export const FolderAdaptor = {
 
     rename(folder, name) {
         const path = folder.path.replace(new RegExp(folder.name + "$"), name);
-        return {
-            ...folder,
-            name,
-            path
-        };
+        return { ...folder, name, path };
     },
 
     toggle(folder) {
-        return {
-            ...folder,
-            expanded: !folder.expanded
-        };
+        return { ...folder, expanded: !folder.expanded };
+    },
+
+    setUnreadCount(folder, count) {
+        return { ...folder, unread: count };
     }
 };
 

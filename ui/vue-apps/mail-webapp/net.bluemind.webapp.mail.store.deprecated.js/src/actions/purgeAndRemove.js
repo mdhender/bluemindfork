@@ -1,3 +1,4 @@
+import { SET_UNREAD_COUNT } from "@bluemind/webapp.mail.store";
 import UUIDGenerator from "@bluemind/uuid";
 import ItemUri from "@bluemind/item-uri";
 
@@ -22,7 +23,7 @@ async function action(context, messageKeys, action, actionFunction) {
     try {
         const messages = await context.dispatch("$_getIfNotPresent", messageKeys);
         const unreadMessageKeys = messages.filter(m => m.states.includes("not-seen")).map(m => m.key);
-        cleanUp(messageKeys, unreadMessageKeys, context.state, context.commit);
+        cleanUp(messageKeys, unreadMessageKeys, context);
         await actionFunction(context, messageKeys);
         okAlert(action, context.commit, messageKeys, subject);
     } catch (e) {
@@ -43,17 +44,24 @@ function removeMessages(context, messageKeys) {
     });
 }
 
-function cleanUp(messageKeys, unreadMessageKeys, state, commit) {
+function cleanUp(messageKeys, unreadMessageKeys, context) {
     const messageKeysByFolder = ItemUri.urisByContainer(messageKeys);
     Object.keys(messageKeysByFolder).forEach(folderUid => {
         const keys = messageKeysByFolder[folderUid];
         keys.forEach(messageKey => {
             if (unreadMessageKeys.includes(messageKey)) {
-                commit("setUnreadCount", { folderUid, count: state.foldersData[folderUid].unread - 1 });
+                context.commit(
+                    SET_UNREAD_COUNT,
+                    {
+                        key: folderUid,
+                        count: context.rootState.mail.folders[folderUid].unread - 1
+                    },
+                    { root: true }
+                );
             }
-            commit("deleteSelectedMessageKey", messageKey);
-            if (state.currentMessage.key === messageKey) {
-                state.currentMessage.key = null;
+            context.commit("deleteSelectedMessageKey", messageKey);
+            if (context.state.currentMessage.key === messageKey) {
+                context.state.currentMessage.key = null;
             }
         });
     });
