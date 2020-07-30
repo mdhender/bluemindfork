@@ -10,10 +10,10 @@ export const FolderAdaptor = {
             parent: remotefolder.value.parentUid,
             name: remotefolder.value.name,
             path: path(mailbox.root, remotefolder.value.fullName),
-            expanded: false,
-            unread: 0,
             writable: mailbox.writable,
-            default: FolderAdaptor.isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox)
+            default: FolderAdaptor.isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox),
+            expanded: false,
+            unread: 0
         };
     },
     toMailboxFolder(localfolder, parent, mailbox) {
@@ -44,7 +44,9 @@ export const FolderAdaptor = {
             name,
             path: path((parent && parent.path) || mailbox.root, name),
             writable: mailbox.writable,
-            default: FolderAdaptor.isDefault(!parent, name, mailbox)
+            default: FolderAdaptor.isDefault(!parent, name, mailbox),
+            expanded: false,
+            unread: 0
         };
     },
 

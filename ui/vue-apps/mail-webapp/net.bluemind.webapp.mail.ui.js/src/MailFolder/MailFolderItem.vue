@@ -41,7 +41,7 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmCounterBadge, BmDropzone, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { ItemUri } from "@bluemind/item-uri";
-import { REMOVE_FOLDER } from "@bluemind/webapp.mail.store";
+import { REMOVE_FOLDER, TOGGLE_EDIT_FOLDER } from "@bluemind/webapp.mail.store";
 import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItemMenu from "./MailFolderItemMenu";
@@ -70,9 +70,11 @@ export default {
     },
     computed: {
         ...mapState("mail-webapp", ["currentFolderKey"]),
+        ...mapState("mail", ["folderList"]),
         ...mapGetters("mail-webapp", ["my", "mailshares"]),
         editingFolder() {
-            return this.folder.editing;
+            console.log(this.folderList.editing, " / ", this.folder.uid);
+            return this.folderList.editing === this.folder.uid;
         }
     },
     watch: {
@@ -89,8 +91,10 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", ["renameFolder", "createFolder"]),
-        ...mapMutations([REMOVE_FOLDER]),
-        ...mapMutations("mail-webapp", ["toggleEditFolder"]),
+        ...mapMutations([REMOVE_FOLDER, TOGGLE_EDIT_FOLDER]),
+        toggleEditFolder(folderUid) {
+            this[TOGGLE_EDIT_FOLDER](folderUid);
+        },
         submit(newFolderName) {
             if (this.folder.name !== "") {
                 this.renameFolder({ folderKey: this.folder.key, newFolderName }).then(() => {

@@ -5,7 +5,6 @@ export function tree(state, getters, rootState) {
     let nodes = getters.my.folders.map(folder =>
         TreeBuilder.toTreeItem(
             folder,
-            state.foldersData[folder.uid] || {},
             true,
             rootState.mail.folders[folder.uid].expanded,
             rootState.mail.folders[folder.uid].unread
@@ -18,7 +17,6 @@ export function tree(state, getters, rootState) {
             nodes.push(
                 TreeBuilder.toTreeItem(
                     folder,
-                    state.foldersData[folder.uid] || {},
                     mailshare.writable,
                     rootState.mail.folders[folder.uid].expanded,
                     rootState.mail.folders[folder.uid].unread

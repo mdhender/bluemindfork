@@ -23,6 +23,7 @@ export const mutations = {
         Vue.set(state.folders, folder.key, folder);
     },
     [ADD_FOLDER]: (state, folder) => {
+        console.log("HELLO ADD FOLDER", folder);
         Vue.set(state.folders, folder.key, folder);
     },
     [ADD_FOLDERS]: (state, folders) => folders.forEach(folder => Vue.set(state.folders, folder.key, folder)),
