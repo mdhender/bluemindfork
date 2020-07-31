@@ -9,7 +9,10 @@ export const FolderAdaptor = {
             mailbox: mailbox.uid,
             parent: remotefolder.value.parentUid,
             name: remotefolder.value.name,
-            path: path(mailbox.root, remotefolder.value.fullName),
+            path:
+                parent || mailbox.type !== "mailshares"
+                    ? remotefolder.value.fullName
+                    : path(mailbox.root, remotefolder.value.fullName),
             writable: mailbox.writable,
             default: FolderAdaptor.isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox),
             expanded: false,
@@ -42,7 +45,7 @@ export const FolderAdaptor = {
             mailbox: mailbox.key,
             parent: parent ? parent.key : null,
             name,
-            path: path((parent && parent.path) || mailbox.root, name),
+            path: computePath(mailbox, name, parent),
             writable: mailbox.writable,
             default: FolderAdaptor.isDefault(!parent, name, mailbox),
             expanded: false,
@@ -53,16 +56,18 @@ export const FolderAdaptor = {
     rename(folder, name) {
         const path = folder.path.replace(new RegExp(folder.name + "$"), name);
         return { ...folder, name, path };
-    },
-
-    toggle(folder) {
-        return { ...folder, expanded: !folder.expanded };
-    },
-
-    setUnreadCount(folder, count) {
-        return { ...folder, unread: count };
     }
 };
+
+function computePath(mailbox, name, parent) {
+    if (parent) {
+        return path(parent.path, name);
+    } else if (mailbox.type === "mailshares") {
+        return mailbox.root;
+    } else {
+        return name;
+    }
+}
 
 function path() {
     return Array.from(arguments)

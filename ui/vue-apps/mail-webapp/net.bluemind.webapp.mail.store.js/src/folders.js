@@ -17,13 +17,25 @@ export const state = {
     folders: {}
 };
 
+export const getters = {
+    ["HAS_CHILDREN_GETTER"]: state => key => !!Object.values(state.folders).find(folder => folder.parent === key),
+    ["MAILSHARE_FOLDERS"]: (state, getters) => {
+        return Object.values(state.folders)
+            .filter(folder => getters["MAILSHARE_KEYS"].includes(folder.mailbox))
+            .map(folder => folder.key);
+    },
+    ["MY_MAILBOX_FOLDERS"]: (state, getters) =>
+        Object.values(state.folders)
+            .filter(folder => getters["MY_MAILBOX_KEY"] === folder.mailbox)
+            .map(folder => folder.key)
+};
+
 export const mutations = {
     [CREATE_FOLDER]: (state, { key, name, parent, mailbox }) => {
         const folder = FolderAdaptor.create(key, name, parent && state.folders[parent], mailbox);
         Vue.set(state.folders, folder.key, folder);
     },
     [ADD_FOLDER]: (state, folder) => {
-        console.log("HELLO ADD FOLDER", folder);
         Vue.set(state.folders, folder.key, folder);
     },
     [ADD_FOLDERS]: (state, folders) => folders.forEach(folder => Vue.set(state.folders, folder.key, folder)),
@@ -34,14 +46,12 @@ export const mutations = {
         Vue.delete(state.folders, key);
     },
     [SET_UNREAD_COUNT]: (state, { key, count }) => {
-        console.log("COUCOUUUUU SET UNREAD COUNT !!!!!!!!", key);
-        if (count >= 0) {
-            Vue.set(state.folders, key, FolderAdaptor.setUnreadCount(state.folders[key], count));
+        if (count >= 0 && state.folders[key].unread !== count) {
+            state.folders[key].unread = count;
         }
     },
     [TOGGLE_FOLDER]: (state, key) => {
-        console.log("COUCOUUUUU TOGGLE !!!!!!!!", key);
-        Vue.set(state.folders, key, FolderAdaptor.toggle(state.folders[key]));
+        state.folders[key].expanded = !state.folders[key].expanded;
     }
 };
 
@@ -67,6 +77,7 @@ export const actions = {
             throw e;
         }
     },
+    //FIXME : when deleting a folder having children, it is not deleted in UI & we got errors in the console..
     async [REMOVE_FOLDER]({ state, commit }, { key, mailbox }) {
         const folder = state.folders[key];
         commit(REMOVE_FOLDER, key);

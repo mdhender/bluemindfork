@@ -54,6 +54,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail-webapp", ["mailshares"]),
+        ...mapGetters("mail", { hasChildren: "HAS_CHILDREN_GETTER" }),
         ...mapState("mail", ["mailboxes", "folders"]),
         ...mapState("mail-webapp", ["currentFolderKey"]),
         isDefaultFolder() {
@@ -63,7 +64,7 @@ export default {
             return (
                 !this.folder.parent &&
                 this.mailshares.some(mailshare =>
-                    mailshare.folders.some(({ uid }) => uid.toUpperCase() === this.folder.uid.toUpperCase())
+                    mailshare.folders.some(({ uid }) => uid.toUpperCase() === this.folder.key.toUpperCase())
                 )
             );
         },
@@ -75,11 +76,10 @@ export default {
         ...mapActions("mail-webapp", ["removeFolder", "markFolderAsRead"]),
         ...mapMutations([CREATE_FOLDER, TOGGLE_EDIT_FOLDER, TOGGLE_FOLDER]),
         async deleteFolder() {
-            const modalTitleKey =
-                this.folder.children.length > 0
-                    ? "mail.folder.delete.dialog.question.with_subfolders"
-                    : "mail.folder.delete.dialog.question";
-            const confirm = await this.$bvModal.msgBoxConfirm(this.$t(modalTitleKey, { name: this.folder.fullName }), {
+            const modalTitleKey = this.hasChildren(this.folder.key)
+                ? "mail.folder.delete.dialog.question.with_subfolders"
+                : "mail.folder.delete.dialog.question";
+            const confirm = await this.$bvModal.msgBoxConfirm(this.$t(modalTitleKey, { name: this.folder.name }), {
                 title: this.$t("mail.folder.delete.dialog.title"),
                 okTitle: this.$t("common.delete"),
                 cancelVariant: "outline-secondary",
@@ -90,21 +90,21 @@ export default {
             if (confirm) {
                 const keyBeingRemoved = this.folder.key;
                 this.removeFolder(this.folder.key).then(() => {
-                    if (this.currentFolderKey === keyBeingRemoved) {
+                    if (ItemUri.item(this.currentFolderKey) === keyBeingRemoved) {
                         this.$router.push({ name: "mail:home" });
                     }
                 });
             }
         },
         async createSubFolder() {
-            const mailbox = this.mailboxes[ItemUri.container(this.folder.key)];
+            const mailbox = this.mailboxes[this.folder.mailbox];
             const key = UUIDGenerator.generate();
-            this[CREATE_FOLDER]({ key, name: "", parent: this.folder.uid, mailbox });
+            this[CREATE_FOLDER]({ key, name: "", parent: this.folder.key, mailbox });
             await this.$nextTick();
             // TODO: Remove when new store is complete. mUsing key as uid here is a hack.
             this[TOGGLE_EDIT_FOLDER](key);
             if (!this.folder.expanded) {
-                this[TOGGLE_FOLDER](this.folder.uid);
+                this[TOGGLE_FOLDER](this.folder.key);
             }
         }
     }

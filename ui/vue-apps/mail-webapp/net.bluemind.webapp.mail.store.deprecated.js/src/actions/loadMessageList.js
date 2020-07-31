@@ -4,12 +4,16 @@ import { TOGGLE_FOLDER } from "@bluemind/webapp.mail.store";
 import ContainerObserver from "@bluemind/containerobserver";
 import ItemUri from "@bluemind/item-uri";
 import SearchHelper from "../SearchHelper";
+import router from "@bluemind/router";
 
-export async function loadMessageList({ dispatch, commit, state, getters }, { folder, mailshare, filter, search }) {
+export async function loadMessageList(
+    { dispatch, commit, state, getters, rootState },
+    { folder, mailshare, filter, search }
+) {
     const locatedFolder = locateFolder(folder, mailshare, getters);
     const locatedFolderIsMailshareRoot = mailshare && !locatedFolder.value.fullName.includes("/");
     await dispatch("selectFolder", locatedFolder.key);
-    expandParents(commit, getters, locatedFolder);
+    expandParents(commit, getters, locatedFolder, rootState);
 
     const searchInfo = SearchHelper.parseQuery(search);
     let searchStatus = SEARCH_STATUS.IDLE;
@@ -75,6 +79,9 @@ function locateFolder(local, mailshare, getters) {
                 folder = getters["folders/getFolderByPath"](keyOrPath, mailbox);
             }
         }
+        if (!folder) {
+            router.push({ name: "mail:root" });
+        }
     }
     return folder || getters.my.INBOX;
 }
@@ -88,13 +95,14 @@ function getMailshareUid(getters, path) {
     return mailbox && mailbox.mailboxUid;
 }
 
-function expandParents(commit, getters, folder) {
+function expandParents(commit, getters, folder, rootState) {
     if (folder.value && folder.value.parentUid) {
-        console.log("Expand parents : CALL TOGGLE_FOLDER");
-        commit(TOGGLE_FOLDER, folder.value.parentUid, { root: true });
+        if (!rootState.mail.folders[folder.value.parentUid].expanded) {
+            commit(TOGGLE_FOLDER, folder.value.parentUid, { root: true });
+        }
         const mailboxId = ItemUri.container(folder.key);
         const parentFolderKey = ItemUri.encode(folder.value.parentUid, mailboxId);
         const parentFolder = getters["folders/getFolderByKey"](parentFolderKey);
-        expandParents(commit, getters, parentFolder);
+        expandParents(commit, getters, parentFolder, rootState);
     }
 }

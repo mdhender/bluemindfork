@@ -53,9 +53,9 @@
                 class="position-lg-static position-absolute d-lg-block px-0 
                 h-100 col-12 col-lg-2 z-index-200 overlay top-0 bottom-0"
             >
-                <bm-col cols="10" lg="12" class="mail-folder-tree-wrapper bg-surface h-100">
+                <bm-col cols="10" lg="12" class="mail-folder-sidebar-wrapper bg-surface h-100">
                     <div class="h-100 scroller scroller-visible-on-hover">
-                        <mail-folder-tree class="d-inline-block " @toggle-folders="toggleFolders" />
+                        <mail-folder-sidebar class="d-inline-block " @toggle-folders="toggleFolders" />
                     </div>
                 </bm-col>
             </bm-row>
@@ -83,7 +83,7 @@ import { mapState } from "vuex";
 import favicon from "../assets/favicon.png";
 import injector from "@bluemind/inject";
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
-import MailFolderTree from "./MailFolder/MailFolderTree";
+import MailFolderSidebar from "./MailFolder/MailFolderSidebar";
 import MailMessageList from "./MailMessageList/MailMessageList";
 import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
@@ -98,7 +98,7 @@ export default {
         BmLabelIcon,
         BmIcon,
         BmRow,
-        MailFolderTree,
+        MailFolderSidebar,
         MailMessageList,
         MailSearchForm,
         MailToolbar,
@@ -201,10 +201,7 @@ function setFavicon() {
             top: #{($custom-switch-indicator-size + $custom-control-indicator-size) / 2} !important;
         }
     }
-    .mail-folder-tree {
-        min-width: 100%;
-    }
-    .mail-folder-tree-wrapper {
+    .mail-folder-sidebar-wrapper {
         @media (max-width: map-get($grid-breakpoints, "lg")) {
             box-shadow: $box-shadow-lg;
         }

@@ -15,5 +15,4 @@ export * from "./messageListMode";
 export * from "./my";
 export * from "./nextMessageKey";
 export * from "./status";
-export * from "./tree";
 export * from "./unreadCount";

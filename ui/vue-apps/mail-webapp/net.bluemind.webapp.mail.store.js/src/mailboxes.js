@@ -9,6 +9,16 @@ export const state = {
     mailboxes: {}
 };
 
+export const getters = {
+    // FIXME (with mailbox.owner === state.session.userId) once we got a store session
+    MY_MAILBOX_KEY: state => Object.values(state.mailboxes).find(mailbox => mailbox.type === "users").key,
+
+    MAILSHARE_KEYS: state =>
+        Object.values(state.mailboxes)
+            .filter(mailbox => mailbox.type === "mailshares")
+            .map(mailshare => mailshare.key)
+};
+
 export const mutations = {
     [ADD_MAILBOXES]: (state, mailboxes) => mailboxes.forEach(mailbox => Vue.set(state.mailboxes, mailbox.key, mailbox))
 };

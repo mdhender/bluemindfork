@@ -8,7 +8,8 @@ export default {
     namespaced: true,
     state: { ...folders.state, ...folderList.state, ...mailboxes.state },
     actions: { ...folders.actions, ...mailboxes.actions },
-    mutations: { ...folders.mutations, ...folderList.mutations, ...mailboxes.mutations }
+    mutations: { ...folders.mutations, ...folderList.mutations, ...mailboxes.mutations },
+    getters: { ...folders.getters, ...mailboxes.getters }
 };
 
 export const ADD_FOLDER = "mail/" + folders.ADD_FOLDER;

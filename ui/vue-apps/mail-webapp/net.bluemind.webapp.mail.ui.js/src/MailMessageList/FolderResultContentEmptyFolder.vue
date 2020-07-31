@@ -1,5 +1,6 @@
 <template>
     <mail-message-list-empty
+        v-if="currentFolder"
         v-bm-tooltip.viewport
         :image="emptyFolderIllustration"
         class="content-empty-folder"
@@ -7,7 +8,6 @@
     >
         {{ $t("mail.folder") }}
         <mail-folder-icon
-            v-if="currentFolder"
             :shared="currentMailbox.type == 'mailshare'"
             :folder="currentFolder.value"
             class="font-weight-bold"

@@ -1,6 +1,8 @@
+import { ItemUri } from "@bluemind/item-uri";
 import UUIDGenerator from "@bluemind/uuid";
 
-export async function removeFolder({ commit, dispatch, getters }, folderKey) {
+export async function removeFolder({ commit, dispatch, getters, rootState }, folderUid) {
+    const folderKey = ItemUri.encode(folderUid, rootState.mail.folders[folderUid].mailbox);
     const folder = getters["folders/getFolderByKey"](folderKey);
     const uid = UUIDGenerator.generate();
     const props = { oldFolder: folder.value };

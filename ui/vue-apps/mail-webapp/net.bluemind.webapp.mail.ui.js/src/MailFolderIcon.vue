@@ -39,7 +39,7 @@ export default {
     computed: {
         icon() {
             const modifier = this.shared ? "-shared" : "";
-            switch (this.folder.fullName) {
+            switch (this.folder.path) {
                 case "INBOX":
                     return "inbox";
                 case "Drafts":

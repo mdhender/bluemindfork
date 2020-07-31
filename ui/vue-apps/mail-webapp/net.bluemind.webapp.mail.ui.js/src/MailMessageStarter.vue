@@ -52,7 +52,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["tree", "my"]),
+        ...mapGetters("mail-webapp", ["my"]),
         ...mapGetters("mail-webapp/messages", ["messages"]),
         ...mapState("mail-webapp", ["currentFolderKey"]),
 

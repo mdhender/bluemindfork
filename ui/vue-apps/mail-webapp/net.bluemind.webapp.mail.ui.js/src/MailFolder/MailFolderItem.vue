@@ -15,7 +15,7 @@
         <div v-if="!folder.writable" v-bm-tooltip.top.viewport class="mr-2" :title="$t('mail.folder.access.limited')">
             <bm-icon icon="info-circle" />
         </div>
-        <mail-folder-item-menu :folder="folder" @edit="toggleEditFolder(folder.uid)" />
+        <mail-folder-item-menu :folder="folder" @edit="toggleEditFolder(folder.key)" />
         <bm-counter-badge
             v-if="folder.unread > 0"
             :value="folder.unread"
@@ -40,7 +40,6 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmCounterBadge, BmDropzone, BmIcon, BmTooltip } from "@bluemind/styleguide";
-import { ItemUri } from "@bluemind/item-uri";
 import { REMOVE_FOLDER, TOGGLE_EDIT_FOLDER } from "@bluemind/webapp.mail.store";
 import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
@@ -58,23 +57,23 @@ export default {
     },
     directives: { BmTooltip },
     props: {
-        folder: {
-            type: Object,
+        folderKey: {
+            type: String,
             required: true
-        },
-        shared: {
-            type: Boolean,
-            required: false,
-            default: false
         }
     },
     computed: {
         ...mapState("mail-webapp", ["currentFolderKey"]),
-        ...mapState("mail", ["folderList"]),
+        ...mapState("mail", ["folderList", "folders"]),
         ...mapGetters("mail-webapp", ["my", "mailshares"]),
+        folder() {
+            return this.folders[this.folderKey];
+        },
+        shared() {
+            return !this.folder.mailbox.startsWith("user.");
+        },
         editingFolder() {
-            console.log(this.folderList.editing, " / ", this.folder.uid);
-            return this.folderList.editing === this.folder.uid;
+            return this.folderList.editing === this.folder.key;
         }
     },
     watch: {
@@ -96,7 +95,7 @@ export default {
             this[TOGGLE_EDIT_FOLDER](folderUid);
         },
         submit(newFolderName) {
-            if (this.folder.name !== "") {
+            if (this.folder && this.folder.name !== "") {
                 this.renameFolder({ folderKey: this.folder.key, newFolderName }).then(() => {
                     if (this.currentFolderKey === this.folder.key) {
                         this.$router.navigate({ name: "v:mail:message", params: { folder: this.folder.key } });
@@ -106,33 +105,20 @@ export default {
                 const folder = {
                     value: {
                         name: newFolderName,
-                        fullName: this.folder.fullName + newFolderName,
-                        path: this.folder.fullName + newFolderName,
+                        fullName: this.folder.path + "/" + newFolderName,
+                        path: this.folder.path + "/" + newFolderName,
                         parentUid: this.folder.parent
                     },
                     displayName: newFolderName
                 };
-                let mailboxUid;
-                let parentFolder = this.my.folders.find(f => f.uid === this.folder.parent);
-                if (parentFolder) {
-                    mailboxUid = ItemUri.container(parentFolder.key);
-                } else {
-                    for (let mailshare of this.mailshares) {
-                        parentFolder = mailshare.folders.find(folder => folder.uid === this.folder.parent);
-                        if (parentFolder) {
-                            mailboxUid = ItemUri.container(parentFolder.key);
-                            break;
-                        }
-                    }
-                }
-                this.createFolder({ folder, mailboxUid });
+                this.createFolder({ folder, mailboxUid: this.folder.mailbox });
             }
         },
         closeInput() {
-            if (this.folder.name !== "") {
-                this.toggleEditFolder(this.folder.uid);
+            if (this.folder && this.folder.name !== "") {
+                this.toggleEditFolder(this.folder.key);
             } else {
-                this[REMOVE_FOLDER](this.folder.uid);
+                this[REMOVE_FOLDER](this.folder.key);
             }
         }
     }

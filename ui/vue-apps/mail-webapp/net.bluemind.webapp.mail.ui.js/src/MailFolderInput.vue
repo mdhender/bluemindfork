@@ -24,9 +24,10 @@
 
 <script>
 import { BmFormInput, BmIcon, BmNotice } from "@bluemind/styleguide";
-import { isFolderNameValid, isFolderPathTooLong } from "@bluemind/backend.mail.store";
-import { mapGetters, mapState } from "vuex";
-import ItemUri from "@bluemind/item-uri";
+import { isFolderNameValid } from "@bluemind/backend.mail.store";
+import { mapGetters } from "vuex";
+
+const FOLDER_PATH_MAX_LENGTH = 250;
 
 export default {
     name: "MailFolderInput",
@@ -60,16 +61,16 @@ export default {
     },
     computed: {
         ...mapGetters("mail-webapp/folders", ["getFolderByPath"]),
-        ...mapGetters("mail-webapp", ["mailshares", "my"]),
-        ...mapState("mail-webapp", ["currentFolderKey"]),
+        ...mapGetters("mail-webapp", ["mailshares"]),
+        ...mapGetters("mail", { myMailboxKey: "MY_MAILBOX_KEY" }),
         isNewFolderNameValid() {
             if (this.folder && this.folder.name === this.newFolderName) {
                 return true;
             }
             if (this.newFolderName !== "") {
-                const currentMailbox = (this.folder && ItemUri.container(this.folder.key)) || this.my.mailboxUid;
+                const currentMailbox = (this.folder && this.folder.mailbox) || this.myMailboxKey;
 
-                if (isFolderPathTooLong(this.folder, this.newFolderName)) {
+                if (this.path.length > FOLDER_PATH_MAX_LENGTH) {
                     return this.$t("mail.actions.folder.invalid.too_long");
                 }
 
@@ -80,22 +81,26 @@ export default {
                     });
                 }
 
-                let path;
-                if (this.folder) {
-                    path =
-                        this.folder.fullName.substring(0, this.folder.fullName.lastIndexOf("/") + 1) +
-                        this.newFolderName;
-                    if (this.my.mailboxUid !== currentMailbox) {
-                        path = this.mailshares.find(mailshare => mailshare.uid === currentMailbox).name + "/" + path;
-                    }
-                } else {
-                    path = this.newFolderName;
-                }
-                if (this.getFolderByPath(path, currentMailbox)) {
+                if (this.getFolderByPath(this.path, currentMailbox)) {
                     return this.$t("mail.actions.folder.invalid.already_exist");
                 }
             }
             return true;
+        },
+        path() {
+            let path = "";
+            if (this.isRename) {
+                const splitted = this.folder.path.split("/");
+                splitted.pop();
+                path = splitted ? splitted + "/" : "";
+            } else if (this.folder) {
+                path = this.folder.path + "/";
+            }
+            path += this.newFolderName;
+            return path;
+        },
+        isRename() {
+            return this.folder && this.folder.name !== "";
         },
         computeIconName() {
             return this.isActive ? (this.shared ? "folder-shared" : "folder") : "plus";
@@ -127,12 +132,11 @@ export default {
         },
         submit() {
             if (this.isNewFolderNameValid === true && this.newFolderName !== "") {
-                const newName = this.newFolderName;
-                this.closeInput();
-                if (this.folder && this.folder.name === newName) {
+                if (this.folder && this.folder.name === this.newFolderName) {
                     return;
                 }
-                this.$emit("submit", newName);
+                this.$emit("submit", this.newFolderName);
+                this.closeInput();
             }
         },
         onFocusOut() {

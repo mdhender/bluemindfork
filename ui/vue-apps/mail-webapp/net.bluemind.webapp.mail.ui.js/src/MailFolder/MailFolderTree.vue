@@ -1,71 +1,44 @@
 <template>
-    <div class="mail-folder-tree">
+    <div>
         <bm-button
             variant="inline-info-dark"
-            class="collapse-mailbox-btn d-flex align-items-center pb-2 pt-3 border-0 pl-1 w-100"
-            aria-controls="collapse-mailbox"
-            :aria-expanded="isMailboxExpanded"
-            @click="isMailboxExpanded = !isMailboxExpanded"
+            class="collapse-tree-btn d-flex align-items-center pb-2 pt-3 border-0 pl-1 w-100"
+            :aria-controls="'collapse-tree-' + collapseName"
+            :aria-expanded="isTreeExpanded"
+            @click="isTreeExpanded = !isTreeExpanded"
         >
-            <bm-icon :icon="isMailboxExpanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" />
-            <span class="font-weight-bold">{{ mailboxEmail }}</span>
+            <bm-icon :icon="isTreeExpanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" />
+            <span class="font-weight-bold">{{ collapseName }}</span>
         </bm-button>
-        <bm-collapse id="collapse-mailbox" v-model="isMailboxExpanded">
+        <bm-collapse :id="'collapse-tree-' + collapseName" v-model="isTreeExpanded">
             <bm-tree
-                :value="tree.my"
-                :selected="currentFolderKey"
+                :tree="tree"
+                :selected="currentFolderUid"
                 node-id-key="key"
                 class="text-nowrap"
                 breakpoint="xl"
                 @toggle="toggle"
                 @select="selectFolder"
             >
-                <template v-slot="f">
-                    <mail-folder-item :folder="f.value" />
+                <template v-slot="{ value }">
+                    <mail-folder-item :folder-key="value.key" />
                 </template>
             </bm-tree>
-            <mail-folder-input class="pl-4" @submit="add" />
-        </bm-collapse>
-        <bm-button
-            v-if="mailshares.length > 0"
-            variant="inline-info-dark"
-            class="collapse-mailbox-btn d-flex align-items-center pb-2 pt-3 border-0 pl-1 w-100"
-            aria-controls="collapse-mailbox"
-            :aria-expanded="areMailsharesExpanded"
-            @click="areMailsharesExpanded = !areMailsharesExpanded"
-        >
-            <bm-icon :icon="areMailsharesExpanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" />
-            <span class="font-weight-bold">{{ $t("common.mailshares") }}</span>
-        </bm-button>
-        <bm-collapse id="collapse-mailshares" v-model="areMailsharesExpanded">
-            <bm-tree
-                :value="tree.mailshares"
-                :selected="currentFolderKey"
-                node-id-key="key"
-                class="text-nowrap"
-                breakpoint="xl"
-                @toggle="toggle"
-                @select="selectFolder"
-            >
-                <template v-slot="f">
-                    <mail-folder-item shared :folder="f.value" />
-                </template>
-            </bm-tree>
+            <mail-folder-input v-if="showInput" class="pl-4" @submit="add" />
         </bm-collapse>
     </div>
 </template>
 
 <script>
-import { BmButton, BmCollapse, BmIcon, BmTree } from "@bluemind/styleguide";
-import { ItemUri } from "@bluemind/item-uri";
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
+import { BmButton, BmCollapse, BmIcon, BmTree } from "@bluemind/styleguide";
+import ItemUri from "@bluemind/item-uri";
 import { TOGGLE_FOLDER } from "@bluemind/webapp.mail.store";
-import injector from "@bluemind/inject";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItem from "./MailFolderItem";
 
 export default {
-    name: "MailFolderTree",
+    name: "MailFolderMyMailbox",
     components: {
         BmButton,
         BmCollapse,
@@ -74,33 +47,36 @@ export default {
         MailFolderInput,
         MailFolderItem
     },
+    props: {
+        tree: {
+            type: Array,
+            required: true
+        },
+        collapseName: {
+            type: String,
+            required: true
+        },
+        showInput: {
+            type: Boolean,
+            default: false
+        }
+    },
     data() {
         return {
-            isMailboxExpanded: true,
-            areMailsharesExpanded: true,
-            mailboxEmail: injector.getProvider("UserSession").get().defaultEmail
+            isTreeExpanded: true
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["tree", "mailshares", "my"]),
-        ...mapGetters("mail-webapp/folders", ["getFolderByKey"]),
-        ...mapState("mail-webapp", ["currentFolderKey"])
+        ...mapGetters("mail", { myMailboxKey: "MY_MAILBOX_KEY" }),
+        ...mapState("mail", ["folders"]),
+        ...mapState("mail-webapp", ["currentFolderKey"]),
+        currentFolderUid() {
+            return ItemUri.item(this.currentFolderKey);
+        }
     },
     methods: {
         ...mapActions("mail-webapp", ["createFolder"]),
         ...mapMutations([TOGGLE_FOLDER]),
-        selectFolder(key) {
-            this.$emit("toggle-folders");
-            const folder = this.getFolderByKey(key);
-            const mailboxUid = ItemUri.container(key);
-            if (mailboxUid === this.my.mailboxUid) {
-                this.$router.push({ name: "v:mail:home", params: { folder: folder.value.fullName } });
-            } else {
-                const root = this.mailshares.find(mailshare => mailshare.mailboxUid === mailboxUid).root;
-                const prefix = folder.value.parentUid !== null ? root + "/" : "";
-                this.$router.push({ name: "v:mail:home", params: { mailshare: prefix + folder.value.fullName } });
-            }
-        },
         add(newFolderName) {
             const folder = {
                 value: {
@@ -111,19 +87,30 @@ export default {
                 },
                 displayName: newFolderName
             };
-            this.createFolder({ folder, mailboxUid: this.my.mailboxUid });
+            this.createFolder({ folder, mailboxUid: this.myMailboxKey });
         },
+        selectFolder(key) {
+            this.$emit("toggle-folders");
+            const folder = this.folders[key];
+            if (folder.mailbox === this.myMailboxKey) {
+                this.$router.push({ name: "v:mail:home", params: { folder: folder.path } });
+            } else {
+                this.$router.push({ name: "v:mail:home", params: { mailshare: folder.path } });
+            }
+        },
+
         toggle(folderKey) {
-            this[TOGGLE_FOLDER](ItemUri.item(folderKey));
+            this[TOGGLE_FOLDER](folderKey);
         }
     }
 };
 </script>
+
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-folder-tree {
-    button.collapse-mailbox-btn {
+    button.collapse-tree-btn {
         border-bottom: 1px solid $light !important;
     }
 }
