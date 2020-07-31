@@ -339,7 +339,7 @@ public class FolderBackend extends CoreConnect {
 								container.value.containerType, bs.getUser().getDomain());
 
 						IContainersFlatHierarchy ownerHierarchy = getAdmin0Service(bs, IContainersFlatHierarchy.class,
-								bs.getUser().getDomain(), container.value.owner + "a");
+								bs.getUser().getDomain(), container.value.owner);
 
 						ItemValue<ContainerHierarchyNode> node = ownerHierarchy.getComplete(nodeUid);
 						if (node != null) {
