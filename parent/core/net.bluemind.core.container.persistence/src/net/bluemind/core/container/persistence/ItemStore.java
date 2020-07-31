@@ -287,8 +287,15 @@ public class ItemStore extends JdbcAbstractStore {
 	}
 
 	public List<Item> filtered(ItemFlagFilter filter) throws SQLException {
+		return filtered(filter, null, null);
+	}
+
+	public List<Item> filtered(ItemFlagFilter filter, Integer offset, Integer limit) throws SQLException {
 		String selectQuery = "SELECT " + COLUMNS.names() + " FROM t_container_item ci WHERE container_id = ? ";
 		selectQuery += FlagsSqlFilter.filterSql("ci", filter);
+		if (offset != null && limit != null) {
+			selectQuery += " ORDER BY ci.id DESC LIMIT " + limit + " OFFSET " + offset;
+		}
 		return select(selectQuery, ItemCreator.INSTANCE, ITEM_POPULATORS, new Object[] { container.id });
 	}
 

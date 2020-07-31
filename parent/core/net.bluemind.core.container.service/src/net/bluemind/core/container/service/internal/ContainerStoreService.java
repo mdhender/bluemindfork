@@ -24,12 +24,15 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.core.api.ListResult;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.model.ChangeLogEntry;
@@ -37,6 +40,7 @@ import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
+import net.bluemind.core.container.model.IdQuery;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlag;
@@ -619,6 +623,28 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				ret.add(i.uid);
 			}
 			return ret;
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+
+	}
+
+	@Override
+	public ListResult<Long> allIds(IdQuery query) {
+		if (query.offset < 0 || query.limit < 0) {
+			throw new ServerFault("negative offset or limit");
+		}
+		try {
+			int len = query.filter == null ? itemStore.getItemCount() : itemStore.count(query.filter);
+			List<Item> items = query.filter == null ? itemStore.all()
+					: itemStore.filtered(query.filter, query.offset, query.limit);
+
+			// check after because it can change...
+			long serverVersion = getVersion();
+			if (query.knownContainerVersion != serverVersion) {
+				throw new ServerFault("stale client version, server is at " + serverVersion, ErrorCode.VERSION_HAS_CHANGED);
+			}
+			return ListResult.create(items.stream().map(i -> i.id).collect(Collectors.toList()), len);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}

@@ -22,9 +22,11 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangelog;
+import net.bluemind.core.container.model.IdQuery;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
@@ -75,8 +77,8 @@ public interface IContainerStoreService<T> {
 	/**
 	 * Create item with external and a given internal ID.
 	 * 
-	 * Use this only if you are sure that the internal ID is available (because
-	 * you pre-allocated some ids).
+	 * Use this only if you are sure that the internal ID is available (because you
+	 * pre-allocated some ids).
 	 * 
 	 * If internalId is null, this is identical to create.
 	 * 
@@ -95,16 +97,14 @@ public interface IContainerStoreService<T> {
 
 	/**
 	 * @param uid
-	 * @return the id & version of the deleted item or null if nothing was
-	 *         deleted
+	 * @return the id & version of the deleted item or null if nothing was deleted
 	 * @throws ServerFault
 	 */
 	ItemVersion delete(String uid) throws ServerFault;
 
 	/**
 	 * @param id
-	 * @return the id & version of the deleted item or null if nothing was
-	 *         deleted
+	 * @return the id & version of the deleted item or null if nothing was deleted
 	 * @throws ServerFault
 	 */
 	ItemVersion delete(long id) throws ServerFault;
@@ -121,6 +121,8 @@ public interface IContainerStoreService<T> {
 	public void touch(String uid) throws ServerFault;
 
 	public List<String> allUids() throws ServerFault;
+
+	ListResult<Long> allIds(IdQuery query);
 
 	/**
 	 * delete all values. To use before deleting containers

@@ -42,6 +42,7 @@ import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
 import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
+import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -52,6 +53,7 @@ import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
+import net.bluemind.core.container.model.IdQuery;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
@@ -157,6 +159,12 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+	}
+
+	@Override
+	public ListResult<Long> allIds(String filter, Long knownContainerVersion, Integer limit, Integer offset) {
+		rbac.check(Verb.Read.name());
+		return storeService.allIds(IdQuery.of(filter, knownContainerVersion, limit, offset));
 	}
 
 	public Stream fetchComplete(long imapUid) {

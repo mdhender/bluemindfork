@@ -25,12 +25,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
-import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemVersion;
 
 @BMApi(version = "3")
@@ -93,5 +93,13 @@ public interface IChangelogSupport {
 	@GET
 	@Path("_version")
 	public long getVersion() throws ServerFault;
+
+	@GET
+	@Path("_itemIds")
+	default ListResult<Long> allIds(@QueryParam("filter") String filter,
+			@QueryParam("knownContainerVersion") Long knownContainerVersion, @QueryParam("limit") Integer limit,
+			@QueryParam("offset") Integer offset) {
+		throw new ServerFault("Not implemented");
+	}
 
 }
