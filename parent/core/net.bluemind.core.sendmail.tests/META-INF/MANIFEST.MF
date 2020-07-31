@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.core.sendmail.tests
+Bundle-SymbolicName: net.bluemind.core.sendmail.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.core.sendmail.tests.Activator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ org.subethamail.subethasmtp;bundle-version="3.1.7",
+ com.google.guava,
+ org.junit,
+ net.bluemind.network.topology,
+ net.bluemind.core.sendmail,
+ org.apache.james.apache-mime4j-dom
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.core.sendmail.tests
+Bundle-ActivationPolicy: lazy

@@ -68,6 +68,7 @@
 		<module>net.bluemind.core.auditlog</module>
 
 		<module>net.bluemind.core.sendmail</module>
+		<module>net.bluemind.core.sendmail.tests</module>
 		<module>net.bluemind.core.sendmail.testhelper/</module>
 	</modules>
 
