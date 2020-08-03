@@ -22,7 +22,6 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.TextBox;
 
 import net.bluemind.addressbook.api.gwt.js.JsAddressBookDescriptor;
 import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
@@ -30,6 +29,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
+import net.bluemind.ui.common.client.forms.StringEdit;
 
 public class InternalAddressbookCreationWidget extends CompositeGwtWidgetElement {
 
@@ -42,7 +42,7 @@ public class InternalAddressbookCreationWidget extends CompositeGwtWidgetElement
 	}
 
 	@UiField
-	TextBox label;
+	StringEdit label;
 
 	private HTMLPanel form;
 
@@ -54,13 +54,13 @@ public class InternalAddressbookCreationWidget extends CompositeGwtWidgetElement
 	@Override
 	public void loadModel(JavaScriptObject model) {
 		JsAddressBookDescriptor descriptor = model.cast();
-		label.setText(descriptor.getName());
+		label.setStringValue(descriptor.getName());
 	}
 
 	@Override
 	public void saveModel(JavaScriptObject model) {
 		JsAddressBookDescriptor descriptor = model.cast();
-		descriptor.setName(label.getText());
+		descriptor.setName(label.getStringValue());
 		descriptor.getSettings().put("type", "internal");
 	}
 
