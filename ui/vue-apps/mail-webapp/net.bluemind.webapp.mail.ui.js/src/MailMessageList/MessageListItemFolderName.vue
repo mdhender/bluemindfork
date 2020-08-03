@@ -10,9 +10,9 @@
             class="pl-1 pr-2 text-secondary text-truncate"
             :class="[isActive ? 'bg-info' : isImportant ? 'warning-custom' : 'bg-white']"
             :shared="folder.isShared"
-            :folder="folder.value"
+            :folder="folder"
         >
-            <i class="font-weight-bold">{{ folder.displayName }}</i>
+            <i class="font-weight-bold">{{ folder.name }}</i>
         </mail-folder-icon>
     </div>
 </template>

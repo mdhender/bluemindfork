@@ -35,8 +35,8 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
-import { isDefaultFolder } from "@bluemind/backend.mail.store";
 import { CREATE_FOLDER, TOGGLE_EDIT_FOLDER, TOGGLE_FOLDER } from "@bluemind/webapp.mail.store";
+import { FolderAdaptor } from "@bluemind/webapp.mail.store";
 import { ItemUri } from "@bluemind/item-uri";
 import UUIDGenerator from "@bluemind/uuid";
 
@@ -57,16 +57,11 @@ export default {
         ...mapGetters("mail", { hasChildren: "HAS_CHILDREN_GETTER" }),
         ...mapState("mail", ["mailboxes", "folders"]),
         ...mapState("mail-webapp", ["currentFolderKey"]),
-        isDefaultFolder() {
-            return isDefaultFolder(this.folder);
-        },
         isMailshareRoot() {
-            return (
-                !this.folder.parent &&
-                this.mailshares.some(mailshare =>
-                    mailshare.folders.some(({ uid }) => uid.toUpperCase() === this.folder.key.toUpperCase())
-                )
-            );
+            return FolderAdaptor.isMailshareRoot(this.folder, this.mailboxes[this.folder.mailbox]);
+        },
+        isDefaultFolder() {
+            return FolderAdaptor.isMyMailboxDefaultFolder(this.folder);
         },
         isReadOnly() {
             return !this.folder.writable;

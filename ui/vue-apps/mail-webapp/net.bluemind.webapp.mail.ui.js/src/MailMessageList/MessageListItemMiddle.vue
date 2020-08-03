@@ -14,9 +14,9 @@
                         class="text-secondary text-truncate"
                         :class="[isActive ? 'bg-info' : isImportant ? 'warning-custom' : 'bg-white']"
                         :shared="folder.isShared"
-                        :folder="folder.value"
+                        :folder="folder"
                     >
-                        <i class="font-weight-bold">{{ folder.value.name }}</i>
+                        <i class="font-weight-bold">{{ folder.name }}</i>
                     </mail-folder-icon>
                 </div>
                 <div v-else-if="!mouseIn" class="d-flex justify-content-end">

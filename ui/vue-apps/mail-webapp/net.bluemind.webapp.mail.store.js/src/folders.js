@@ -18,16 +18,28 @@ export const state = {
 };
 
 export const getters = {
-    ["HAS_CHILDREN_GETTER"]: state => key => !!Object.values(state.folders).find(folder => folder.parent === key),
-    ["MAILSHARE_FOLDERS"]: (state, getters) => {
+    FOLDER_BY_PATH: state => path => Object.values(state.folders).find(folder => folder.path === path),
+    FOLDER_BY_MAILBOX: state => mailboxKey =>
+        Object.values(state.folders).filter(folder => folder.mailbox === mailboxKey),
+    HAS_CHILDREN_GETTER: state => key => !!Object.values(state.folders).find(folder => folder.parent === key),
+    MAILSHARE_FOLDERS: (state, getters) => {
         return Object.values(state.folders)
             .filter(folder => getters["MAILSHARE_KEYS"].includes(folder.mailbox))
             .map(folder => folder.key);
     },
-    ["MY_MAILBOX_FOLDERS"]: (state, getters) =>
+    MY_MAILBOX_FOLDERS: (state, getters) =>
         Object.values(state.folders)
             .filter(folder => getters["MY_MAILBOX_KEY"] === folder.mailbox)
-            .map(folder => folder.key)
+            .map(folder => folder.key),
+    MY_DEFAULT_FOLDERS: (state, getters) => {
+        const defaultFolders = getters["MY_MAILBOX_FOLDERS"]
+            .map(folderKey => state.folders[folderKey])
+            .filter(folder => FolderAdaptor.isMyMailboxDefaultFolder(folder))
+            .map(folder => {
+                return [folder.name.toUpperCase(), folder];
+            });
+        return Object.fromEntries(defaultFolders);
+    }
 };
 
 export const mutations = {
@@ -68,7 +80,7 @@ export const actions = {
     async [CREATE_FOLDER]({ commit, state }, { key, name, parent, mailbox }) {
         commit(CREATE_FOLDER, { key, name, parent, mailbox });
         const folder = state.folders[key];
-        const item = FolderAdaptor.toMailboxFolder(folder, state.folders[folder.parent], mailbox);
+        const item = FolderAdaptor.toMailboxFolder(folder, mailbox);
         try {
             const { uid, id } = await inject("MailboxFoldersPersistence", mailbox.uid).createBasic(item.value);
             commit(ADD_FOLDER, { ...folder, uid, id });
@@ -93,7 +105,7 @@ export const actions = {
         const oldName = state.folders[key].name;
         commit(RENAME_FOLDER, { name, key, mailbox });
         const folder = state.folders[key];
-        const item = FolderAdaptor.toMailboxFolder(folder, state.folders[folder.parent], mailbox);
+        const item = FolderAdaptor.toMailboxFolder(folder, mailbox);
         try {
             await inject("MailboxFoldersPersistence", mailbox.uid).updateById(item.internalId, item.value);
         } catch (e) {

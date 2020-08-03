@@ -1,7 +1,7 @@
 import { Verb } from "@bluemind/core.container.api";
 
 export const MailBoxBuilder = {
-    build(item, getters) {
+    build(item, rootGetters) {
         const mailbox = {};
         switch (item.ownerDirEntryPath.split("/")[1]) {
             case "mailshares":
@@ -21,7 +21,7 @@ export const MailBoxBuilder = {
             mailbox.mailboxUid = mailbox.uid;
             mailbox.root = item.ownerDisplayname;
         }
-        mailbox.folders = getters["folders/getFoldersByMailbox"](mailbox.mailboxUid);
+        mailbox.folders = rootGetters["mail/FOLDER_BY_MAILBOX"](mailbox.mailboxUid);
         return mailbox;
     },
 

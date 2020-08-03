@@ -12,11 +12,12 @@ export const state = {
 export const getters = {
     // FIXME (with mailbox.owner === state.session.userId) once we got a store session
     MY_MAILBOX_KEY: state => Object.values(state.mailboxes).find(mailbox => mailbox.type === "users").key,
-
+    MY_MAILBOX: (state, getters) => state.mailboxes[getters.MY_MAILBOX_KEY],
     MAILSHARE_KEYS: state =>
         Object.values(state.mailboxes)
             .filter(mailbox => mailbox.type === "mailshares")
-            .map(mailshare => mailshare.key)
+            .map(mailshare => mailshare.key),
+    MAILSHARES: (state, getters) => getters.MAILSHARE_KEYS.map(key => state.mailboxes[key])
 };
 
 export const mutations = {

@@ -87,7 +87,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp/folders", ["getFolderByKey"]),
+        ...mapState("mail", ["folders"]),
         ...mapGetters("mail-webapp", ["isMessageSelected", "nextMessageKey", "currentMailbox"]),
         ...mapState("mail-webapp", ["currentFolderKey", "selectedMessageKeys", "userSettings"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
@@ -132,9 +132,9 @@ export default {
                     this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
                 }
                 if (this.selectedMessageKeys.includes(this.message.key)) {
-                    this.move({ messageKey: [...this.selectedMessageKeys], folder: this.getFolderByKey(folder.key) });
+                    this.move({ messageKey: [...this.selectedMessageKeys], folder: this.folders[folder.key] });
                 } else {
-                    this.move({ messageKey: this.message.key, folder: this.getFolderByKey(folder.key) });
+                    this.move({ messageKey: this.message.key, folder: this.folders[folder.key] });
                 }
             }
         },

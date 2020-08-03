@@ -4,10 +4,10 @@ import ItemUri from "@bluemind/item-uri";
 import { SET_UNREAD_COUNT } from "@bluemind/webapp.mail.store";
 
 export async function markFolderAsRead(context, folderKey) {
-    const folder = context.getters["folders/getFolderByKey"](folderKey);
+    const folder = context.rootState.mail.folders[folderKey];
     const uid = UUIDGenerator.generate();
     const props = {
-        folder: { name: folder.value.fullName },
+        folder: { name: folder.path },
         folderNameLink: { name: "v:mail:home", params: { folder: folderKey } }
     };
     const root = { root: true };
@@ -23,22 +23,21 @@ export async function markFolderAsRead(context, folderKey) {
 }
 
 async function optimisticMarkFolderAsRead(context, folderKey) {
-    const folderUid = ItemUri.item(folderKey);
-    const messageKeys = unseenMessagesInFolder(context.state, folderUid);
+    const messageKeys = unseenMessagesInFolder(context.state, folderKey);
     context.commit("messages/addFlag", { messageKeys, mailboxItemFlag: Flag.SEEN });
-    const unreadCount = context.getters.unreadCount(folderUid);
-    context.commit(SET_UNREAD_COUNT, { key: folderUid, count: 0 }, { root: true });
+    const unreadCount = context.getters.unreadCount(folderKey);
+    context.commit(SET_UNREAD_COUNT, { key: folderKey, count: 0 }, { root: true });
     try {
-        await context.dispatch("folders/markAsRead", folderKey);
+        await context.dispatch("folders/markAsRead", ItemUri.item(folderKey));
     } catch (e) {
         context.commit("messages/deleteFlag", { messageKeys, mailboxItemFlag: Flag.SEEN });
-        context.commit(SET_UNREAD_COUNT, { key: folderUid, count: unreadCount }, { root: true });
+        context.commit(SET_UNREAD_COUNT, { key: folderKey, count: unreadCount }, { root: true });
         throw e;
     }
 }
 
-function unseenMessagesInFolder(state, folderUid) {
+function unseenMessagesInFolder(state, folderKey) {
     return Object.keys(state.messages.items).filter(
-        key => ItemUri.container(key) === folderUid && !state.messages.items[key].value.flags.includes(Flag.SEEN)
+        key => ItemUri.container(key) === folderKey && !state.messages.items[key].value.flags.includes(Flag.SEEN)
     );
 }

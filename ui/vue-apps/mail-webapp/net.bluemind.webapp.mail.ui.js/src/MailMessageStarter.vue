@@ -17,7 +17,7 @@
                         <div class="pb-2">{{ $t("mail.message.starter.display") }}</div>
                         <bm-button
                             v-if="my.DRAFTS"
-                            :to="{ name: 'v:mail:home', params: { folder: my.DRAFTS.value.fullName } }"
+                            :to="{ name: 'v:mail:home', params: { folder: my.DRAFTS.path } }"
                             variant="secondary"
                         >
                             <bm-label-icon icon="pencil">

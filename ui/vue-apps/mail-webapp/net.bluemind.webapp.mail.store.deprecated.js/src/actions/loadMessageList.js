@@ -7,13 +7,13 @@ import SearchHelper from "../SearchHelper";
 import router from "@bluemind/router";
 
 export async function loadMessageList(
-    { dispatch, commit, state, getters, rootState },
+    { dispatch, commit, state, rootState, rootGetters },
     { folder, mailshare, filter, search }
 ) {
-    const locatedFolder = locateFolder(folder, mailshare, getters);
-    const locatedFolderIsMailshareRoot = mailshare && !locatedFolder.value.fullName.includes("/");
-    await dispatch("selectFolder", locatedFolder.key);
-    expandParents(commit, getters, locatedFolder, rootState);
+    const locatedFolder = locateFolder(folder, mailshare, rootState, rootGetters);
+    const locatedFolderIsMailshareRoot = mailshare && !locatedFolder.path.includes("/");
+    await dispatch("selectFolder", locatedFolder);
+    expandParents(commit, locatedFolder, rootState);
 
     const searchInfo = SearchHelper.parseQuery(search);
     let searchStatus = SEARCH_STATUS.IDLE;
@@ -58,7 +58,7 @@ export async function loadMessageList(
         await dispatch("search/search", { pattern: searchInfo.pattern, filter, folderKey: searchInfo.folder });
     } else {
         ContainerObserver.observe("mailbox_records", prefix + ItemUri.item(state.currentFolderKey));
-        await dispatch("messages/list", { sorted: state.sorted, folderUid: locatedFolder.uid, filter });
+        await dispatch("messages/list", { sorted: state.sorted, folderUid: locatedFolder.key, filter });
         const sorted = state.messages.itemKeys;
         await dispatch("messages/multipleByKey", sorted.slice(0, 40));
     }
@@ -66,43 +66,30 @@ export async function loadMessageList(
     commit("setStatus", STATUS.RESOLVED);
 }
 
-function locateFolder(local, mailshare, getters) {
+function locateFolder(local, mailshare, rootState, rootGetters) {
     let folder;
     if (local || mailshare) {
         let keyOrPath = local || mailshare;
-        if (ItemUri.isItemUri(keyOrPath)) {
-            folder = getters["folders/getFolderByKey"](keyOrPath);
-        }
-        if (!folder) {
-            let mailbox = local ? getters.my.mailboxUid : getMailshareUid(getters, mailshare);
-            if (mailbox) {
-                folder = getters["folders/getFolderByPath"](keyOrPath, mailbox);
-            }
+        if (rootState.mail.folders[keyOrPath]) {
+            folder = rootState.mail.folders[keyOrPath];
+        } else if (ItemUri.isItemUri(keyOrPath)) {
+            folder = rootState.mail.folders[ItemUri.item(keyOrPath)];
+        } else {
+            folder = rootGetters["mail/FOLDER_BY_PATH"](keyOrPath);
         }
         if (!folder) {
             router.push({ name: "mail:root" });
         }
     }
-    return folder || getters.my.INBOX;
+    return folder || rootGetters["mail/MY_DEFAULT_FOLDERS"].INBOX;
 }
 
-function getMailshareUid(getters, path) {
-    const root = path
-        .split("/")
-        .filter(Boolean)
-        .shift();
-    const mailbox = getters.mailshares.filter(ms => ms.root === root).shift();
-    return mailbox && mailbox.mailboxUid;
-}
-
-function expandParents(commit, getters, folder, rootState) {
-    if (folder.value && folder.value.parentUid) {
-        if (!rootState.mail.folders[folder.value.parentUid].expanded) {
-            commit(TOGGLE_FOLDER, folder.value.parentUid, { root: true });
+function expandParents(commit, folder, rootState) {
+    if (folder.parent) {
+        const parentFolder = rootState.mail.folders[folder.parent];
+        if (!parentFolder.expanded) {
+            commit(TOGGLE_FOLDER, folder.parent, { root: true });
         }
-        const mailboxId = ItemUri.container(folder.key);
-        const parentFolderKey = ItemUri.encode(folder.value.parentUid, mailboxId);
-        const parentFolder = getters["folders/getFolderByKey"](parentFolderKey);
-        expandParents(commit, getters, parentFolder, rootState);
+        expandParents(commit, parentFolder, rootState);
     }
 }

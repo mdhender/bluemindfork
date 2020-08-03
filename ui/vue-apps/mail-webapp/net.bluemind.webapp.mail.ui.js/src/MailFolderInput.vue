@@ -24,7 +24,6 @@
 
 <script>
 import { BmFormInput, BmIcon, BmNotice } from "@bluemind/styleguide";
-import { isFolderNameValid } from "@bluemind/backend.mail.store";
 import { mapGetters } from "vuex";
 
 const FOLDER_PATH_MAX_LENGTH = 250;
@@ -60,16 +59,12 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp/folders", ["getFolderByPath"]),
-        ...mapGetters("mail-webapp", ["mailshares"]),
-        ...mapGetters("mail", { myMailboxKey: "MY_MAILBOX_KEY" }),
+        ...mapGetters("mail", ["FOLDER_BY_PATH"]),
         isNewFolderNameValid() {
             if (this.folder && this.folder.name === this.newFolderName) {
                 return true;
             }
             if (this.newFolderName !== "") {
-                const currentMailbox = (this.folder && this.folder.mailbox) || this.myMailboxKey;
-
                 if (this.path.length > FOLDER_PATH_MAX_LENGTH) {
                     return this.$t("mail.actions.folder.invalid.too_long");
                 }
@@ -81,7 +76,7 @@ export default {
                     });
                 }
 
-                if (this.getFolderByPath(this.path, currentMailbox)) {
+                if (this.FOLDER_BY_PATH(this.path)) {
                     return this.$t("mail.actions.folder.invalid.already_exist");
                 }
             }
@@ -157,6 +152,20 @@ export default {
         }
     }
 };
+
+const FORBIDDEN_FOLDER_CHARACTERS = '/@%*"`;^<>{}|';
+
+/**
+ * return invalid character if name is invalid
+ */
+function isFolderNameValid(name) {
+    for (let i = 0; i < name.length; i++) {
+        if (FORBIDDEN_FOLDER_CHARACTERS.includes(name.charAt(i))) {
+            return name.charAt(i);
+        }
+    }
+    return true;
+}
 </script>
 
 <style lang="scss">

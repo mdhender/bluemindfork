@@ -4,12 +4,12 @@
         v-bm-tooltip.viewport
         :image="emptyFolderIllustration"
         class="content-empty-folder"
-        :title="currentFolder.value.name"
+        :title="currentFolder.name"
     >
         {{ $t("mail.folder") }}
         <mail-folder-icon
             :shared="currentMailbox.type == 'mailshare'"
-            :folder="currentFolder.value"
+            :folder="currentFolder"
             class="font-weight-bold"
         />
         {{ $t("mail.empty") }}

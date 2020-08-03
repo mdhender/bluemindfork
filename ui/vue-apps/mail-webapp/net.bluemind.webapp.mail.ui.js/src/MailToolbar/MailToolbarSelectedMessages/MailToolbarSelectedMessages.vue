@@ -93,12 +93,12 @@ export default {
             "areAllSelectedMessagesUnflagged",
             "areAllSelectedMessagesUnread",
             "areMessagesFiltered",
-            "isReadOnlyFolder",
             "isSearchMode",
             "my",
             "nextMessageKey"
         ]),
         ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
+        ...mapState("mail", ["folders"]),
         isSelectionMultiple() {
             return this.selectedMessageKeys.length > 1;
         },
@@ -136,7 +136,7 @@ export default {
         },
         selectionHasReadOnlyFolders() {
             const selection = this.selectedMessageKeys.length ? this.selectedMessageKeys : [this.currentMessage.key];
-            return selection.some(key => this.isReadOnlyFolder(ItemUri.container(key)));
+            return selection.some(messageKey => !this.folders[ItemUri.container(messageKey)].writable);
         }
     },
     methods: {

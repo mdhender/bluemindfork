@@ -20,7 +20,7 @@
                 v-bm-tooltip
                 class="toggle-button no-border-left no-box-shadow text-truncate"
                 variant="outline-secondary"
-                :title="selectedFolder.value.fullName"
+                :title="selectedFolder.path"
                 @click="showForm = !showForm"
             >
                 {{ compressFolderFullName(selectedFolder) }}<bm-icon class="ml-2" icon="caret-down" size="sm" />
@@ -47,9 +47,9 @@
                         :items="filteredFolders"
                         :max-results="maxFolders"
                         @selected="setSelectedFolder"
-                        @close="folderPattern = selectedFolder.value.fullName"
+                        @close="folderPattern = selectedFolder.path"
                     >
-                        {{ item.value.fullName }}
+                        {{ item.path }}
                     </bm-combo-box>
                 </bm-form-group>
                 <div class="float-right">
@@ -143,7 +143,7 @@ export default {
         },
         suggestedFolders() {
             return [
-                { key: null, value: { fullName: this.$t("common.all") } },
+                { key: null, path: this.$t("common.all") },
                 this.my.INBOX,
                 replaceFolderFullName(this.currentFolder, this.$t("mail.search.options.folder.current")),
                 this.my.SENT,
@@ -174,11 +174,11 @@ export default {
     methods: {
         ...mapMutations("mail-webapp/search", ["setStatus"]),
         filter(folder, { root }) {
-            return folder.match(this.folderPattern, root);
+            return folder.path.match(this.folderPattern, root);
         },
         setSelectedFolder(item) {
             this.selectedFolder = item;
-            this.folderPattern = item.value.fullName;
+            this.folderPattern = item.path;
         },
         cancel() {
             this.updateRoute.cancel();
@@ -212,7 +212,7 @@ export default {
             }
         },
         compressFolderFullName(item) {
-            let text = item.value.fullName;
+            let text = item.path;
             const size = text.length;
             const slashCount = (text.match(/\//g) || []).length;
             if (size > 30 && slashCount > 1) {
@@ -230,18 +230,15 @@ export default {
             this.setSelectedFolder(folder || this.initialFolder);
         },
         isMailshareRootFolder(folder) {
-            return !!folder.isShared && this.mailshares.some(m => m.root === folder.value.fullName);
+            return !!folder.isShared && this.mailshares.some(m => m.root === folder.path);
         }
     }
 };
 
-function replaceFolderFullName(folder, fullName, isShared) {
+function replaceFolderFullName(folder, path, isShared) {
     return {
         ...folder,
-        value: {
-            ...folder.value,
-            fullName
-        },
+        path,
         isShared
     };
 }

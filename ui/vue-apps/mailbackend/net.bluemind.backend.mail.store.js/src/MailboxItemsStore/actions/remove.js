@@ -9,9 +9,9 @@ export function remove({ commit }, messageKeys) {
     );
 }
 
-function removeByFolder(commit, messageKeys, folderUid) {
+function removeByFolder(commit, messageKeys, folderKey) {
     return ServiceLocator.getProvider("MailboxItemsPersistence")
-        .get(folderUid)
+        .get(folderKey)
         .multipleDeleteById(messageKeys.map(key => ItemUri.item(key)))
         .then(() => commit("removeItems", messageKeys));
 }

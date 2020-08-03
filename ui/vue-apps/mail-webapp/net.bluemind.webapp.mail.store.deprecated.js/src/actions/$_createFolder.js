@@ -1,30 +1,22 @@
-import ItemUri from "@bluemind/item-uri";
-
-export function $_createFolder({ dispatch, getters }, { folder, mailboxUid }) {
-    let parent = getNearestFolder(folder, getters);
-    let hierarchy = folder.value.fullName;
+export function $_createFolder({ dispatch, rootState }, { folder, mailboxUid }) {
+    let parent = getNearestFolder(folder, rootState);
+    let hierarchy = folder.path;
     if (parent !== null) {
-        hierarchy = hierarchy.replace(parent.value.fullName, "");
+        hierarchy = hierarchy.replace(parent.path, "");
     }
     return hierarchy
         .split("/")
         .filter(Boolean)
         .reduce(
             (promise, folder) =>
-                promise.then(key =>
-                    dispatch("folders/create", {
-                        name: folder,
-                        parentUid: key ? ItemUri.item(key) : null,
-                        mailboxUid
-                    })
-                ),
+                promise.then(key => dispatch("folders/create", { name: folder, parent: key, mailboxUid })),
             Promise.resolve(parent && parent.key)
         );
 }
 
 function get(folders, hierarchy, parent) {
     const name = hierarchy[0];
-    const folder = folders.find(folder => equal(folder, { parentUid: parent && parent.uid, name }));
+    const folder = folders.find(folder => equal(folder, { parentKey: parent && parent.key, name }));
     if (!folder) {
         return parent;
     }
@@ -35,15 +27,15 @@ function get(folders, hierarchy, parent) {
     return folder;
 }
 
-function equal(folder, { name, parentUid }) {
-    return folder.value.parentUid === parentUid && name.toLowerCase() === folder.value.name.toLowerCase();
+function equal(folder, { name, parent }) {
+    return folder.parent === parent && name.toLowerCase() === folder.name.toLowerCase();
 }
 
-function getNearestFolder(folder, getters) {
+function getNearestFolder(folder, rootState) {
     if (folder.key) {
-        return getters["folders/getFolderByKey"](folder.key);
+        return rootState.mail.folders[folder.key];
     } else {
-        const hierarchy = folder.value.fullName.split("/").filter(Boolean);
-        return get(getters["folders/folders"], hierarchy, null);
+        const hierarchy = folder.path.split("/").filter(Boolean);
+        return get(Object.values(rootState.mail.folders), hierarchy, null);
     }
 }

@@ -37,12 +37,12 @@ function updateUnreadCounters(limiter) {
 }
 
 function fetchPerUserUnread(folder) {
-    return store.dispatch("mail-webapp/loadUnreadCount", folder.uid);
+    return store.dispatch("mail-webapp/loadUnreadCount", folder.key);
 }
 
 function getFlatFolders() {
     return store.getters["mail-webapp/my"].folders
-        .filter(folder => folder.value.parentUid === null)
+        .filter(folder => folder.parent === null)
         .map(addOptions({ priority: 4 }))
         .concat(
             store.getters["mail-webapp/mailshares"].map(mailbox => addOptions({ priority: 5 })(mailbox.folders[0]))
@@ -54,7 +54,7 @@ function addOptions({ priority }) {
         ...folder,
         options: {
             priority: priority,
-            id: folder.uid
+            id: folder.key
         }
     });
 }

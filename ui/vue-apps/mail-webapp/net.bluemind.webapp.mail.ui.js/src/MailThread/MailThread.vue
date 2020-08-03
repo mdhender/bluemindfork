@@ -10,7 +10,7 @@
             <a href="#" @click.prevent="showImages()">{{ $t("mail.content.alert.images.show") }}</a>
         </mail-component-alert>
         <mail-component-alert
-            v-if="isReadOnlyFolder(folderUidOfCurrentMessage) && !isReadOnlyAlertDismissed"
+            v-if="!folderOfCurrentMessage.writable && !isReadOnlyAlertDismissed"
             icon="info-circle-plain"
             @close="isReadOnlyAlertDismissed = true"
         >
@@ -55,9 +55,10 @@ export default {
     computed: {
         ...mapGetters("mail-webapp/currentMessage", { message: "message", inlineParts: "content" }),
         ...mapState("mail-webapp", ["showBlockedImagesAlert"]),
-        ...mapGetters("mail-webapp", ["areRemoteImagesUnblocked", "currentFolder", "isReadOnlyFolder"]),
-        folderUidOfCurrentMessage() {
-            return ItemUri.container(this.message.key);
+        ...mapGetters("mail-webapp", ["areRemoteImagesUnblocked", "currentFolder"]),
+        ...mapState("mail", ["folders"]),
+        folderOfCurrentMessage() {
+            return this.folders[ItemUri.container(this.message.key)];
         },
         previousMessage() {
             return {

@@ -1,17 +1,16 @@
 import UUIDGenerator from "@bluemind/uuid";
-import ItemUri from "@bluemind/item-uri";
 
-export function move({ dispatch, commit, getters }, { messageKey, folder }) {
+export function move({ dispatch, commit, getters, rootState }, { messageKey, folder }) {
     const isArray = Array.isArray(messageKey);
     if (isArray && messageKey.length > 1) {
-        return moveMultipleMessages({ dispatch, commit, getters }, { messageKeys: messageKey, folder });
+        return moveMultipleMessages({ dispatch, commit, getters, rootState }, { messageKeys: messageKey, folder });
     } else {
         messageKey = isArray ? messageKey[0] : messageKey;
-        return moveSingleMessage({ dispatch, commit, getters }, { messageKey, folder });
+        return moveSingleMessage({ dispatch, commit, getters, rootState }, { messageKey, folder });
     }
 }
 
-function moveSingleMessage({ dispatch, commit, getters }, { messageKey, folder }) {
+function moveSingleMessage({ dispatch, commit, getters, rootState }, { messageKey, folder }) {
     let subject, destination, isDestinationMailshare;
     const alertUid = UUIDGenerator.generate();
     return dispatch("$_getIfNotPresent", [messageKey])
@@ -21,9 +20,8 @@ function moveSingleMessage({ dispatch, commit, getters }, { messageKey, folder }
             return dispatch("$_createFolder", { folder, mailboxUid: getters.my.mailboxUid });
         })
         .then(key => {
-            destination = getters["folders/getFolderByKey"](key);
-            const destinationContainer = ItemUri.container(destination.key);
-            isDestinationMailshare = getters.mailshares.findIndex(({ uid }) => uid === destinationContainer) >= 0;
+            destination = rootState.mail.folders[key];
+            isDestinationMailshare = getters.mailshares.findIndex(({ uid }) => uid === destination.mailbox) >= 0;
             return dispatch("$_move", { messageKeys: [messageKey], destinationKey: key });
         })
         .then(() => addOkAlert(commit, subject, destination, isDestinationMailshare))
@@ -31,15 +29,14 @@ function moveSingleMessage({ dispatch, commit, getters }, { messageKey, folder }
         .finally(() => commit("removeApplicationAlert", alertUid, { root: true }));
 }
 
-function moveMultipleMessages({ dispatch, commit, getters }, { messageKeys, folder }) {
+function moveMultipleMessages({ dispatch, commit, getters, rootState }, { messageKeys, folder }) {
     let destination, isDestinationMailshare;
     const alertUid = UUIDGenerator.generate();
     addLoadingAlertForMultipleMessages(commit, messageKeys.length, alertUid);
     return dispatch("$_createFolder", { folder, mailboxUid: getters.my.mailboxUid })
         .then(key => {
-            destination = getters["folders/getFolderByKey"](key);
-            const destinationContainer = ItemUri.container(destination.key);
-            isDestinationMailshare = getters.mailshares.findIndex(({ uid }) => uid === destinationContainer) >= 0;
+            destination = rootState.mail.folders[key];
+            isDestinationMailshare = getters.mailshares.findIndex(({ uid }) => uid === destination.mailbox) >= 0;
             return dispatch("$_move", { messageKeys, destinationKey: key });
         })
         .then(() => addOkAlertForMultipleMessages(commit, messageKeys.length, destination, isDestinationMailshare))
@@ -52,7 +49,7 @@ function addErrorAlert(commit, subject, folder, error) {
         "addApplicationAlert",
         {
             code: "MSG_MOVE_ERROR",
-            props: { subject, folderName: folder.value.name, reason: error.message }
+            props: { subject, folderName: folder.name, reason: error.message }
         },
         { root: true }
     );
@@ -61,20 +58,20 @@ function addErrorAlert(commit, subject, folder, error) {
 function addErrorAlertForMultipleMessages(commit, folder) {
     commit(
         "addApplicationAlert",
-        { code: "MSG_MOVE_ERROR_MULTIPLE", props: { folderName: folder.value.name } },
+        { code: "MSG_MOVE_ERROR_MULTIPLE", props: { folderName: folder.name } },
         { root: true }
     );
 }
 
 function addOkAlert(commit, subject, folder, isMailshare) {
-    const params = isMailshare ? { mailshare: folder.value.fullName } : { folder: folder.value.fullName };
+    const params = isMailshare ? { mailshare: folder.path } : { folder: folder.path };
     commit(
         "addApplicationAlert",
         {
             code: "MSG_MOVE_OK",
             props: {
                 subject,
-                folder: folder.value,
+                folder,
                 folderNameLink: { name: "v:mail:home", params }
             }
         },
@@ -83,14 +80,14 @@ function addOkAlert(commit, subject, folder, isMailshare) {
 }
 
 function addOkAlertForMultipleMessages(commit, count, folder, isMailshare) {
-    const params = isMailshare ? { mailshare: folder.value.fullName } : { folder: folder.value.fullName };
+    const params = isMailshare ? { mailshare: folder.path } : { folder: folder.path };
     commit(
         "addApplicationAlert",
         {
             code: "MSG_MOVE_OK_MULTIPLE",
             props: {
                 count,
-                folder: folder.value,
+                folder,
                 folderNameLink: { name: "v:mail:home", params }
             }
         },

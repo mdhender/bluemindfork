@@ -8,7 +8,6 @@ export * from "./areRemoteImagesUnblocked";
 export * from "./currentFolder";
 export * from "./currentMailbox";
 export * from "./isMessageSelected";
-export * from "./isReadOnlyFolder";
 export * from "./lastRecipients";
 export * from "./mailshares";
 export * from "./messageListMode";

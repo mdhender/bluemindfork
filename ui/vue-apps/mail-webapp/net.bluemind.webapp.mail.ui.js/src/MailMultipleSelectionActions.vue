@@ -71,8 +71,8 @@
             <div v-if="!areAllMessagesSelected" class="mt-3">
                 <h3 v-if="!isSearchMode" class="d-inline px-3 align-middle">
                     {{ $t("mail.message.select.all.folder") }}
-                    <mail-folder-icon :shared="currentFolder.isShared" :folder="currentFolder.value">
-                        <span class="font-weight-bold">{{ currentFolder.value.fullName }}</span>
+                    <mail-folder-icon :shared="currentFolder.isShared" :folder="currentFolder">
+                        <span class="font-weight-bold">{{ currentFolder.path }}</span>
                     </mail-folder-icon>
                 </h3>
                 <h3 v-else class="d-inline px-3 align-middle">
@@ -119,15 +119,15 @@ export default {
             "areAllSelectedMessagesUnread",
             "areMessagesFiltered",
             "currentFolder",
-            "isReadOnlyFolder",
             "isSearchMode",
             "my",
             "nextMessageKey"
         ]),
+        ...mapState("mail", ["folders"]),
         anyMessageReadOnly() {
             return this.selectedMessageKeys
                 .map(messageKey => ItemUri.container(messageKey))
-                .some(folderUid => this.isReadOnlyFolder(folderUid));
+                .some(folderKey => !this.folders[folderKey].writable);
         },
         isSelectionMultiple() {
             return this.selectedMessageKeys.length > 1;

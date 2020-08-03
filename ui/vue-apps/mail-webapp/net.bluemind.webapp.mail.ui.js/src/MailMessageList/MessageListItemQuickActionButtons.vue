@@ -2,7 +2,7 @@
     <bm-button-toolbar class="message-list-item-quick-action-buttons">
         <bm-button-group>
             <bm-button
-                v-if="!isReadOnlyFolder(folderUidOfMessage)"
+                v-if="folderOfMessage.writable"
                 v-bm-tooltip.top.viewport
                 :aria-label="$tc('mail.actions.remove.aria')"
                 :title="$tc('mail.actions.remove.aria')"
@@ -35,7 +35,7 @@
             >
                 <bm-icon icon="unread" size="lg" />
             </bm-button>
-            <template v-if="!isReadOnlyFolder(folderUidOfMessage)">
+            <template v-if="folderOfMessage.writable">
                 <bm-button
                     v-if="!message.flags.includes(Flags.FLAGGED)"
                     v-bm-tooltip.top.viewport
@@ -90,11 +90,12 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["nextMessageKey", "my", "isReadOnlyFolder"]),
+        ...mapGetters("mail-webapp", ["nextMessageKey", "my"]),
         ...mapState("mail-webapp", ["currentFolderKey"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        folderUidOfMessage() {
-            return ItemUri.container(this.message.key);
+        ...mapState("mail", ["folders"]),
+        folderOfMessage() {
+            return this.folders[ItemUri.container(this.message.key)];
         }
     },
     methods: {

@@ -35,7 +35,7 @@ describe("FolderAdaptor", () => {
             const mailbox = {
                 root: ""
             };
-            expect(FolderAdaptor.toMailboxFolder(folder, null, mailbox)).toMatchInlineSnapshot(`
+            expect(FolderAdaptor.toMailboxFolder(folder, mailbox)).toMatchInlineSnapshot(`
                             Object {
                               "internalId": 460,
                               "uid": "135adc10-db84-440e-aebc-e10d185fa227",
@@ -57,7 +57,7 @@ describe("FolderAdaptor", () => {
             const mailbox = {
                 root: "mailbox"
             };
-            expect(FolderAdaptor.toMailboxFolder(folder, null, mailbox)).toMatchInlineSnapshot(`
+            expect(FolderAdaptor.toMailboxFolder(folder, mailbox)).toMatchInlineSnapshot(`
                             Object {
                               "internalId": 460,
                               "uid": "135adc10-db84-440e-aebc-e10d185fa227",
@@ -79,7 +79,7 @@ describe("FolderAdaptor", () => {
             const mailbox = {
                 root: "inbox"
             };
-            expect(FolderAdaptor.toMailboxFolder(folder, null, mailbox).uid).toEqual(folder.key);
+            expect(FolderAdaptor.toMailboxFolder(folder, mailbox).uid).toEqual(folder.key);
         });
     });
     describe("isDefault", () => {

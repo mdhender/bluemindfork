@@ -79,13 +79,9 @@ export default {
         ...mapMutations([TOGGLE_FOLDER]),
         add(newFolderName) {
             const folder = {
-                value: {
-                    name: newFolderName,
-                    fullName: newFolderName,
-                    path: newFolderName,
-                    parentUid: null
-                },
-                displayName: newFolderName
+                name: newFolderName,
+                path: newFolderName,
+                parent: null
             };
             this.createFolder({ folder, mailboxUid: this.myMailboxKey });
         },

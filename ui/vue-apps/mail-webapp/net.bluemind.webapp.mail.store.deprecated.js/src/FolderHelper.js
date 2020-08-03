@@ -15,12 +15,12 @@ function _filter(mailbox, filter, max) {
     const matches = [];
     for (let i = 0; i < mailbox.folders.length && matches.length < max; i++) {
         const folder = mailbox.folders[i];
-        const root = folder.value.parentUid !== null ? mailbox.root : "";
+        const root = folder.parent !== null ? mailbox.root : "";
         if (filter(folder, Object.assign({}, mailbox, { root }))) {
             const folderItem = toFolderItem(
                 folder,
                 mailbox.type === "mailshare",
-                ((root && root + "/") || "") + folder.value.fullName
+                ((root && root + "/") || "") + folder.path
             );
             matches.push(folderItem);
         }

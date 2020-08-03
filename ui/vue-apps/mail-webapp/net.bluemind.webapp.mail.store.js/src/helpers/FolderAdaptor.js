@@ -1,5 +1,7 @@
 import { MailboxType } from "./MailboxAdaptor";
 
+const DEFAULT_FOLDER_NAMES = ["INBOX", "Sent", "Drafts", "Trash", "Junk", "Outbox"];
+
 export const FolderAdaptor = {
     fromMailboxFolder(remotefolder, mailbox) {
         return {
@@ -9,32 +11,32 @@ export const FolderAdaptor = {
             mailbox: mailbox.uid,
             parent: remotefolder.value.parentUid,
             name: remotefolder.value.name,
-            path:
-                parent || mailbox.type !== "mailshares"
-                    ? remotefolder.value.fullName
-                    : path(mailbox.root, remotefolder.value.fullName),
+            path: computePathFromRemote(remotefolder, mailbox),
             writable: mailbox.writable,
-            default: FolderAdaptor.isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox),
+            default: isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox),
             expanded: false,
             unread: 0
         };
     },
-    toMailboxFolder(localfolder, parent, mailbox) {
+    toMailboxFolder(localfolder, mailbox) {
         return {
             //TODO: Remove || localfolder.key when only the new store will bes used in MailFolderItemMenu. This is a temporary hack.
             uid: localfolder.uid || localfolder.key,
             internalId: localfolder.id,
             value: {
-                parentUid: parent && parent.uid,
+                parentUid: localfolder.parent,
                 name: localfolder.name,
                 fullName: localfolder.path.replace(new RegExp("^" + mailbox.root + "/"), "")
             }
         };
     },
 
-    isDefault(isRootFolder, name, mailbox) {
-        const defaultFolderNames = ["INBOX", "Sent", "Drafts", "Trash", "Junk", "Outbox"];
-        return isRootFolder && (mailbox.type !== MailboxType.USER || defaultFolderNames.includes(name));
+    isMyMailboxDefaultFolder(folder) {
+        return !folder.parent && DEFAULT_FOLDER_NAMES.includes(folder.name);
+    },
+
+    isMailshareRoot(folder, mailbox) {
+        return mailbox.type === "mailshares" && !folder.parent;
     },
 
     create(key, name, parent, mailbox) {
@@ -47,7 +49,7 @@ export const FolderAdaptor = {
             name,
             path: computePath(mailbox, name, parent),
             writable: mailbox.writable,
-            default: FolderAdaptor.isDefault(!parent, name, mailbox),
+            default: isDefault(!parent, name, mailbox),
             expanded: false,
             unread: 0
         };
@@ -58,6 +60,16 @@ export const FolderAdaptor = {
         return { ...folder, name, path };
     }
 };
+
+function computePathFromRemote(remotefolder, mailbox) {
+    if (mailbox.type === "mailshares") {
+        if (!remotefolder.value.parentUid) {
+            return mailbox.root;
+        }
+        return path(mailbox.root, remotefolder.value.fullName);
+    }
+    return remotefolder.value.fullName;
+}
 
 function computePath(mailbox, name, parent) {
     if (parent) {
@@ -73,4 +85,8 @@ function path() {
     return Array.from(arguments)
         .filter(Boolean)
         .join("/");
+}
+
+function isDefault(isRootFolder, name, mailbox) {
+    return isRootFolder && (mailbox.type !== MailboxType.USER || DEFAULT_FOLDER_NAMES.includes(name));
 }

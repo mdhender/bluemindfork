@@ -28,13 +28,13 @@
             <bm-dropdown-item-button
                 v-bm-tooltip.left
                 class="text-nowrap text-truncate w-100"
-                :title="$tc('mail.actions.move.item', 1, { path: item.value.path })"
+                :title="$tc('mail.actions.move.item', 1, { path: item.path })"
                 @click="selectFolder(item)"
             >
                 <template #icon>
-                    <mail-folder-icon no-text :shared="item.isShared" :folder="item.value" />
+                    <mail-folder-icon no-text :shared="item.isShared" :folder="item" />
                 </template>
-                {{ item.value.path }}
+                {{ item.path }}
             </bm-dropdown-item-button>
         </bm-dropdown-autocomplete>
         <bm-dropdown-divider />
@@ -48,7 +48,7 @@
             <mail-folder-input
                 class="pl-2 pr-1"
                 :submit-on-focusout="false"
-                @submit="newFolderName => selectFolder({ value: { fullName: newFolderName, path: newFolderName } })"
+                @submit="newFolderName => selectFolder({ name: newFolderName, path: newFolderName })"
                 @keydown.left.native.stop
                 @keydown.right.native.stop
                 @keydown.esc.native.stop
@@ -60,7 +60,7 @@
             :aria-label="$tc('mail.actions.move.item', 1, { path: pattern })"
             :title="$tc('mail.actions.move.item', 1, { path: pattern })"
             icon="plus"
-            @click="selectFolder({ value: { fullName: pattern, path: pattern } })"
+            @click="selectFolder({ name: pattern, path: pattern })"
         >
             {{ $t("mail.folder.new.from_pattern", [pattern]) }}
         </bm-dropdown-item-button>
@@ -82,6 +82,7 @@ import GlobalEvents from "vue-global-events";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailFolderInput from "../../MailFolderInput";
 import { FolderHelper } from "@bluemind/webapp.mail.store.deprecated";
+import ItemUri from "@bluemind/item-uri";
 
 export default {
     name: "MailToolbarConsultMessageMoveAction",
@@ -112,8 +113,7 @@ export default {
             if (pattern !== "") {
                 pattern = pattern.replace(/\/+/, "/").replace(/^\/?(.*)\/?$/g, "$1");
                 return (
-                    pattern &&
-                    !this.matchingFolders.some(match => match.value.fullName.toLowerCase() === pattern.toLowerCase())
+                    pattern && !this.matchingFolders.some(match => match.path.toLowerCase() === pattern.toLowerCase())
                 );
             }
             return false;
@@ -124,18 +124,22 @@ export default {
                     [this.my].concat(this.mailshares),
                     this.filter,
                     this.maxFolders
-                ).map(toFolderItem);
+                );
             } else {
-                return [this.my.INBOX, this.my.TRASH]
-                    .filter(folder => folder && folder.key !== this.currentFolderKey)
-                    .map(folder => toFolderItem({ folder, isShared: false, path: folder.value.fullName }));
+                return [this.my.INBOX, this.my.TRASH].filter(
+                    folder => folder && ItemUri.encode(folder.key, folder.mailbox) !== this.currentFolderKey
+                );
             }
         }
     },
     methods: {
         ...mapActions("mail-webapp", ["move"]),
         filter(folder, { writable, root }) {
-            return writable && folder.key !== this.currentFolderKey && folder.match(this.pattern, root);
+            return (
+                writable &&
+                ItemUri.encode(folder.key, folder.mailbox) !== this.currentFolderKey &&
+                folder.name.match(this.pattern, root)
+            );
         },
         selectFolder(item) {
             this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
@@ -154,19 +158,6 @@ export default {
         }
     }
 };
-
-function toFolderItem({ folder, isShared, path }) {
-    return {
-        key: folder.key,
-        isShared: !!isShared,
-        value: {
-            path: path || folder.value.fullName,
-            fullName: folder.value.fullName,
-            parentUid: folder.value.parentUid,
-            name: folder.value.name
-        }
-    };
-}
 </script>
 
 <style lang="scss">
