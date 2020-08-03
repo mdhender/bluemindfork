@@ -17,7 +17,7 @@
             </bm-form-input>
             <bm-button
                 ref="toggleButton"
-                v-bm-tooltip.ds500
+                v-bm-tooltip
                 class="toggle-button no-border-left no-box-shadow text-truncate"
                 variant="outline-secondary"
                 :title="selectedFolder.value.fullName"

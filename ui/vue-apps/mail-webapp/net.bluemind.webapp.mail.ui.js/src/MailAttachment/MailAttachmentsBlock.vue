@@ -2,7 +2,7 @@
     <bm-container v-if="hasAttachments" class="mail-attachments-block p-2 bg-extra-light">
         <div class="d-flex align-items-center">
             <bm-button
-                v-bm-tooltip.ds500
+                v-bm-tooltip
                 variant="inline-dark"
                 :aria-label="$t('common.toggleAttachments')"
                 :title="$t('common.toggleAttachments')"
@@ -59,7 +59,7 @@
             </bm-col>
             <bm-col cols="4" class="pt-2 border-transparent">
                 <bm-button
-                    v-bm-tooltip.ds500
+                    v-bm-tooltip
                     variant="outline-secondary"
                     class="w-100 h-100 py-2"
                     :title="$t('common.toggleAttachments')"

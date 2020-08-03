@@ -1,6 +1,6 @@
 <template>
     <bm-dropdown
-        v-bm-tooltip.bottom.ds500
+        v-bm-tooltip.bottom
         :no-caret="true"
         variant="simple-dark"
         :aria-label="$tc('mail.toolbar.more.aria')"

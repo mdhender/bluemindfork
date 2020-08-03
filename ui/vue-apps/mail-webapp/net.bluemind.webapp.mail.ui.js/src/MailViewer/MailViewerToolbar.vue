@@ -1,7 +1,7 @@
 <template>
     <bm-button-toolbar key-nav class="mail-viewer-toolbar float-right">
         <bm-button
-            v-bm-tooltip.ds500
+            v-bm-tooltip
             variant="simple-primary"
             :aria-label="$t('mail.content.reply.aria')"
             :title="$t('mail.content.reply.aria')"
@@ -10,7 +10,7 @@
             <bm-icon icon="reply" size="2x" />
         </bm-button>
         <bm-button
-            v-bm-tooltip.ds500
+            v-bm-tooltip
             variant="simple-primary"
             :aria-label="$t('mail.content.reply_all.aria')"
             :title="$t('mail.content.reply_all.aria')"
@@ -19,7 +19,7 @@
             <bm-icon icon="reply-all" size="2x" />
         </bm-button>
         <bm-button
-            v-bm-tooltip.ds500
+            v-bm-tooltip
             variant="simple-primary"
             :aria-label="$t('mail.content.forward.aria')"
             :title="$t('mail.content.forward.aria')"

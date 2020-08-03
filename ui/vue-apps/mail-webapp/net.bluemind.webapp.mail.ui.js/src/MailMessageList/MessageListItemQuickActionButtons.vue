@@ -3,7 +3,7 @@
         <bm-button-group>
             <bm-button
                 v-if="!isReadOnlyFolder(folderUidOfMessage)"
-                v-bm-tooltip.ds500.top.viewport
+                v-bm-tooltip.top.viewport
                 :aria-label="$tc('mail.actions.remove.aria')"
                 :title="$tc('mail.actions.remove.aria')"
                 class="p-1 mr-2"
@@ -15,7 +15,7 @@
             </bm-button>
             <bm-button
                 v-if="message.states.includes('not-seen')"
-                v-bm-tooltip.ds500.top.viewport
+                v-bm-tooltip.top.viewport
                 class="p-1"
                 :aria-label="$tc('mail.actions.mark_read.aria')"
                 :title="$tc('mail.actions.mark_read.aria')"
@@ -26,7 +26,7 @@
             </bm-button>
             <bm-button
                 v-else
-                v-bm-tooltip.ds500.top.viewport
+                v-bm-tooltip.top.viewport
                 class="p-1"
                 :aria-label="$tc('mail.actions.mark_unread.aria')"
                 :title="$tc('mail.actions.mark_unread.aria')"
@@ -38,7 +38,7 @@
             <template v-if="!isReadOnlyFolder(folderUidOfMessage)">
                 <bm-button
                     v-if="!message.flags.includes(Flags.FLAGGED)"
-                    v-bm-tooltip.ds500.top.viewport
+                    v-bm-tooltip.top.viewport
                     class="p-1 ml-2"
                     :aria-label="$tc('mail.actions.mark_flagged.aria')"
                     :title="$tc('mail.actions.mark_flagged.aria')"
@@ -49,7 +49,7 @@
                 </bm-button>
                 <bm-button
                     v-else
-                    v-bm-tooltip.ds500.top.viewport
+                    v-bm-tooltip.top.viewport
                     class="p-1 ml-2"
                     :aria-label="$tc('mail.actions.mark_unflagged.aria')"
                     :title="$tc('mail.actions.mark_unflagged.aria')"

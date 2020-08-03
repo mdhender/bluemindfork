@@ -19,7 +19,7 @@
                     <bm-icon :icon="fileTypeIcon" size="2x" class="align-bottom pt-1" />
                 </bm-col>
                 <bm-col class="text-nowrap text-truncate flex-grow-1 px-1" :class="{ muted: uploadProgressEntry }">
-                    <span v-bm-tooltip.ds500 :title="attachment.filename" class="font-weight-bold">
+                    <span v-bm-tooltip :title="attachment.filename" class="font-weight-bold">
                         {{ filename }}
                     </span>
                     <br />
@@ -28,7 +28,7 @@
                 <bm-col class="col-auto py-1">
                     <bm-button
                         v-if="isDownloadable"
-                        v-bm-tooltip.ds500
+                        v-bm-tooltip
                         variant="light"
                         class="p-0"
                         size="md"
@@ -40,7 +40,7 @@
                     </bm-button>
                     <bm-button-close
                         v-if="isRemovable"
-                        v-bm-tooltip.ds500
+                        v-bm-tooltip
                         variant="light"
                         class="p-0"
                         size="md"

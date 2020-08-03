@@ -21,7 +21,7 @@
         <div class="d-flex align-items-center">
             <span
                 v-if="errorOccuredOnSave"
-                v-bm-tooltip.bottom.ds500
+                v-bm-tooltip.bottom
                 class="pr-2 text-danger"
                 :title="$t('mail.draft.save.error.reason')"
             >
@@ -32,7 +32,7 @@
             <span v-else class="text-muted pr-2">{{ saveMessage }}</span>
             <bm-button
                 v-if="!userPrefTextOnly"
-                v-bm-tooltip.left.ds500
+                v-bm-tooltip.left
                 variant="simple-dark"
                 class="p-2"
                 :aria-label="textFormatterLabel"
@@ -44,7 +44,7 @@
             </bm-button>
             <input ref="attachInputRef" type="file" multiple hidden @change="addAttachments($event.target.files)" />
             <bm-button
-                v-bm-tooltip.bottom.ds500
+                v-bm-tooltip.bottom
                 variant="simple-dark"
                 class="p-2"
                 :aria-label="$tc('mail.actions.attach.aria')"

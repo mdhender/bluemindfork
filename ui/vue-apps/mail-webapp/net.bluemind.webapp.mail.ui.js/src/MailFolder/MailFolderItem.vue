@@ -12,12 +12,7 @@
             class="flex-fill"
             :class="folder.unread > 0 ? 'font-weight-bold' : ''"
         />
-        <div
-            v-if="!folder.writable"
-            v-bm-tooltip.top.viewport.ds500
-            class="mr-2"
-            :title="$t('mail.folder.access.limited')"
-        >
+        <div v-if="!folder.writable" v-bm-tooltip.top.viewport class="mr-2" :title="$t('mail.folder.access.limited')">
             <bm-icon icon="info-circle" />
         </div>
         <mail-folder-item-menu :folder="folder" @edit="toggleEditFolder(folder.uid)" />

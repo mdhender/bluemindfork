@@ -2,7 +2,7 @@
     <div class="message-list-item-middle d-flex flex-column text-truncate">
         <div class="d-flex flex-row">
             <div
-                v-bm-tooltip.ds500.right.viewport
+                v-bm-tooltip.viewport
                 :title="from"
                 class="mail-message-list-item-sender h3 text-dark text-truncate flex-fill"
             >
@@ -27,14 +27,14 @@
         <div class="d-flex flex-row ">
             <div class="d-flex flex-column flex-fill overflow-hidden">
                 <div
-                    v-bm-tooltip.ds500.right.viewport
+                    v-bm-tooltip.viewport
                     :title="message.subject"
                     class="mail-message-list-item-subject text-secondary text-truncate"
                 >
                     {{ message.subject }}
                 </div>
                 <div
-                    v-bm-tooltip.ds500.right.viewport
+                    v-bm-tooltip.viewport
                     :title="message.preview"
                     class="mail-message-list-item-preview text-dark text-condensed text-truncate"
                 >

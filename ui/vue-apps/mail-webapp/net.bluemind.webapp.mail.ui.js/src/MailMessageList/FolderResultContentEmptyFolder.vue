@@ -1,6 +1,6 @@
 <template>
     <mail-message-list-empty
-        v-bm-tooltip.ds500.viewport
+        v-bm-tooltip.viewport
         :image="emptyFolderIllustration"
         class="content-empty-folder"
         :title="currentFolder.value.name"

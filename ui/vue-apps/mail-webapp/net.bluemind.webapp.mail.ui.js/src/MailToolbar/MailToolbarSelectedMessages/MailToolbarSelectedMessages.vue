@@ -2,7 +2,7 @@
     <div class="mail-toolbar-consult-message">
         <bm-button
             v-show="displayMarkAsRead"
-            v-bm-tooltip.bottom.ds500
+            v-bm-tooltip.bottom
             variant="simple-dark"
             class="unread"
             :title="$tc('mail.actions.mark_read.aria', selectedMessageKeys.length || 1)"
@@ -14,7 +14,7 @@
         </bm-button>
         <bm-button
             v-show="displayMarkAsUnread"
-            v-bm-tooltip.bottom.ds500
+            v-bm-tooltip.bottom
             variant="simple-dark"
             class="read"
             :title="$tc('mail.actions.mark_unread.aria', selectedMessageKeys.length || 1)"
@@ -29,7 +29,7 @@
         <mail-toolbar-selected-messages-move-action v-show="!isSelectionMultiple && !selectionHasReadOnlyFolders" />
         <bm-button
             v-show="!selectionHasReadOnlyFolders"
-            v-bm-tooltip.bottom.ds500
+            v-bm-tooltip.bottom
             variant="simple-dark"
             :title="$tc('mail.actions.remove.aria')"
             :aria-label="$tc('mail.actions.remove.aria')"
@@ -41,7 +41,7 @@
         </bm-button>
         <bm-button
             v-show="displayMarkAsFlagged"
-            v-bm-tooltip.bottom.ds500
+            v-bm-tooltip.bottom
             variant="simple-dark"
             class="flagged"
             :title="$tc('mail.actions.mark_flagged.aria', selectedMessageKeys.length)"
@@ -53,7 +53,7 @@
         </bm-button>
         <bm-button
             v-show="displayMarkAsUnflagged"
-            v-bm-tooltip.bottom.ds500
+            v-bm-tooltip.bottom
             variant="simple-dark"
             class="unflagged"
             :title="$tc('mail.actions.mark_unflagged.aria', selectedMessageKeys.length)"

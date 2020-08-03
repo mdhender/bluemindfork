@@ -1,7 +1,7 @@
 <template>
     <div>
         <bm-button
-            v-bm-tooltip.bottom.ds500
+            v-bm-tooltip.bottom
             variant="simple-dark"
             :aria-label="$tc('mail.actions.send.aria')"
             :title="$tc('mail.actions.send.aria')"
@@ -12,7 +12,7 @@
             <span class="d-none d-lg-block">{{ $tc("mail.actions.send") }}</span>
         </bm-button>
         <bm-button
-            v-bm-tooltip.bottom.ds500
+            v-bm-tooltip.bottom
             variant="simple-dark"
             :aria-label="$tc('mail.actions.attach.aria')"
             :title="$tc('mail.actions.attach.aria')"
@@ -24,7 +24,7 @@
         </bm-button>
         <input ref="attachInputRef" type="file" multiple hidden @change="addAttachments($event.target.files)" />
         <bm-button
-            v-bm-tooltip.bottom.ds500
+            v-bm-tooltip.bottom
             variant="simple-dark"
             :aria-label="$tc('mail.actions.save.aria')"
             :title="$tc('mail.actions.save.aria')"
@@ -35,7 +35,7 @@
             <span class="d-none d-lg-block">{{ $tc("mail.actions.save") }}</span>
         </bm-button>
         <bm-button
-            v-bm-tooltip.bottom.ds500
+            v-bm-tooltip.bottom
             variant="simple-dark"
             :aria-label="$tc('mail.actions.remove.compose.aria')"
             :title="$tc('mail.actions.remove.compose.aria')"

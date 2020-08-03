@@ -2,7 +2,7 @@
     <bm-navbar type="dark" variant="info-dark" class="bm-banner p-0 align-items-stretch d-none d-lg-flex">
         <bm-button
             id="all-apps-popover"
-            v-bm-tooltip.ds500
+            v-bm-tooltip
             variant="link"
             class="px-3 align-self-center"
             :title="$t('banner.reach.all_apps')"
@@ -35,7 +35,7 @@
                 </bm-col>
             </bm-row>
         </bm-popover>
-        <bm-navbar-brand v-bm-tooltip.ds500 href="#" :to="logoLink" :title="$t('banner.main.brand')">
+        <bm-navbar-brand v-bm-tooltip href="#" :to="logoLink" :title="$t('banner.main.brand')">
             <!-- eslint-disable-next-line vue/no-v-html -->
             <svg height="30" width="120" v-html="logo" />
         </bm-navbar-brand>
