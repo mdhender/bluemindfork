@@ -52,6 +52,7 @@ public class AddressBookDescriptorValidator implements IValidator<AddressBookDes
 
 	private void validate(AddressBookDescriptor obj) throws ServerFault {
 		ParametersValidator.notNull(obj);
+		ParametersValidator.notNullAndNotEmpty(obj.name);
 		ParametersValidator.notNull(obj.settings);
 	}
 
