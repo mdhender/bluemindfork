@@ -30,6 +30,7 @@ import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.Tasks;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.metrics.alerts.api.ITickConfiguration;
+import net.bluemind.system.nginx.NginxService;
 
 @Command(name = "reconfigure", description = "update the TICK configuration on all servers")
 public class TickReconfigureCommand implements ICmdLet, Runnable {
@@ -71,6 +72,9 @@ public class TickReconfigureCommand implements ICmdLet, Runnable {
 			ITickConfiguration tickApi = ctx.adminApi().instance(ITickConfiguration.class);
 			TaskRef ref = tickApi.reconfigure();
 			Tasks.follow(ctx, ref, "Fail to update tick configuration");
+
+			NginxService nginxService = new NginxService();
+			nginxService.reloadHttpd();
 		}
 	}
 
