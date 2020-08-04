@@ -294,19 +294,28 @@ public class FolderBackend extends CoreConnect {
 			if (container.value.offlineSync) {
 				String nodeUid = ContainerHierarchyNode.uidFor(container.value.containerUid,
 						container.value.containerType, bs.getUser().getDomain());
+				try {
+					IContainersFlatHierarchy ownerHierarchy = getAdmin0Service(bs, IContainersFlatHierarchy.class,
+							bs.getUser().getDomain(), container.value.owner);
 
-				IContainersFlatHierarchy ownerHierarchy = getAdmin0Service(bs, IContainersFlatHierarchy.class,
-						bs.getUser().getDomain(), container.value.owner);
+					ItemValue<ContainerHierarchyNode> node = ownerHierarchy.getComplete(nodeUid);
+					if (node != null) {
+						FolderChangeReference f = getHierarchyItemSubscriptionChange(bs, container, node);
+						Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
+					} else {
+						logger.warn("[{}] new subscription: no node uid {} for container {} in {} hierarchy. type: {}",
+								bs.getUser().getDefaultEmail(), nodeUid, container, container.value.owner,
+								container.value.containerType);
+					}
+				} catch (ServerFault sf) {
+					if (sf.getCode() == ErrorCode.NOT_FOUND) {
+						logger.warn("Skip new subscription : {}", sf.getMessage());
+					} else {
+						throw sf;
+					}
 
-				ItemValue<ContainerHierarchyNode> node = ownerHierarchy.getComplete(nodeUid);
-				if (node != null) {
-					FolderChangeReference f = getHierarchyItemSubscriptionChange(bs, container, node);
-					Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
-				} else {
-					logger.warn("[{}] new subscription: no node uid {} for container {} in {} hierarchy. type: {}",
-							bs.getUser().getDefaultEmail(), nodeUid, container, container.value.owner,
-							container.value.containerType);
 				}
+
 			}
 		});
 
