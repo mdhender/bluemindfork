@@ -58,7 +58,6 @@
 
 package org.columba.ristretto.smtp;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -72,7 +71,7 @@ import java.io.OutputStream;
  */
 public class SMTPOutputStream extends CRLFOutputStream {
 	public SMTPOutputStream(OutputStream os) {
-		super(new BufferedOutputStream(os, 65536));
+		super(os);
 	}
 
 	public void write(int b) throws IOException {
