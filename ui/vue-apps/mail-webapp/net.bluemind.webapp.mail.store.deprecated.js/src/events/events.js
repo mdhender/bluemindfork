@@ -9,19 +9,19 @@ const actions = {
     setEventStatus
 };
 
-async function fetchEvent({ commit, getters }, eventUid) {
+async function fetchEvent({ commit, rootGetters }, eventUid) {
     let event = await injector
         .getProvider("CalendarPersistence")
         .get()
         .getComplete(eventUid);
     if (event) {
-        event = EventHelper.adapt(event, getters.currentMailbox.key);
+        event = EventHelper.adapt(event, rootGetters["mail/CURRENT_MAILBOX"].owner);
     }
     commit("setCurrentEvent", event);
 }
 
-async function setEventStatus({ state, commit, getters }, status) {
-    const uid = getters.currentMailbox.key;
+async function setEventStatus({ state, commit, rootGetters }, status) {
+    const uid = rootGetters["mail/CURRENT_MAILBOX"].owner;
     const previousStatus = state.currentEvent.status;
     try {
         commit("setCurrentEventStatus", { status, uid });

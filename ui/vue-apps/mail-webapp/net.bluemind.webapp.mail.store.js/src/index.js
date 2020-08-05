@@ -10,7 +10,7 @@ export default {
     state: { ...app.state, ...folders.state, ...folderList.state, ...mailboxes.state },
     actions: { ...folders.actions, ...mailboxes.actions },
     mutations: { ...app.mutations, ...folders.mutations, ...folderList.mutations, ...mailboxes.mutations },
-    getters: { ...folders.getters, ...mailboxes.getters }
+    getters: { ...app.getters, ...folders.getters, ...mailboxes.getters }
 };
 
 export const ADD_FOLDER = "mail/" + folders.ADD_FOLDER;

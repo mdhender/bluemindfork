@@ -8,7 +8,7 @@
     >
         {{ $t("mail.folder") }}
         <mail-folder-icon
-            :shared="currentMailbox.type == 'mailshares'"
+            :shared="CURRENT_MAILBOX.type == 'mailshares'"
             :folder="currentFolder"
             class="font-weight-bold"
         />
@@ -37,7 +37,7 @@ export default {
     },
     computed: {
         ...mapState("mail", ["folders", "activeFolder"]),
-        ...mapGetters("mail-webapp", ["currentMailbox"]),
+        ...mapGetters("mail", ["CURRENT_MAILBOX"]),
         currentFolder() {
             return this.folders[this.activeFolder];
         }

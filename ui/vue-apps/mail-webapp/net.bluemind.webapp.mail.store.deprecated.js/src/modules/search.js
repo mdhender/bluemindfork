@@ -59,7 +59,7 @@ async function search({ commit, dispatch, rootState, rootGetters }, { pattern, f
         commit("setStatus", STATUS.LOADING);
         const mailboxUid = folderKey
             ? rootState.mail.folders[folderKey].mailbox
-            : rootGetters["mail-webapp/currentMailbox"].key;
+            : rootGetters["mail/CURRENT_MAILBOX"].key;
         const searchPayload = buildPayload(pattern, filter, folderKey ? folderKey : undefined);
         const searchResults = await ServiceLocator.getProvider("MailboxFoldersPersistence")
             .get(mailboxUid)

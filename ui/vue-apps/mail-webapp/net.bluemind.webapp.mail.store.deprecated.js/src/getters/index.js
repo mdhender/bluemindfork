@@ -5,7 +5,6 @@ export * from "./areAllSelectedMessagesUnflagged";
 export * from "./areAllSelectedMessagesUnread";
 export * from "./areMessagesFiltered";
 export * from "./areRemoteImagesUnblocked";
-export * from "./currentMailbox";
 export * from "./isMessageSelected";
 export * from "./lastRecipients";
 export * from "./messageListMode";

@@ -88,7 +88,7 @@ export default {
     },
     computed: {
         ...mapState("mail", ["folders", "activeFolder"]),
-        ...mapGetters("mail-webapp", ["isMessageSelected", "nextMessageKey", "currentMailbox"]),
+        ...mapGetters("mail-webapp", ["isMessageSelected", "nextMessageKey"]),
         ...mapState("mail-webapp", ["selectedMessageKeys", "userSettings"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         isImportant() {
