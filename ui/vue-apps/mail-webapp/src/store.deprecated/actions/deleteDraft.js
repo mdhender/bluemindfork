@@ -1,4 +1,4 @@
-import { DraftStatus } from "@bluemind/backend.mail.store";
+import DraftStatus from "../mailbackend/MailboxItemsStore/DraftStatus";
 import injector from "@bluemind/inject";
 
 /** Delete the draft (hard delete, not moved in Trash box). */

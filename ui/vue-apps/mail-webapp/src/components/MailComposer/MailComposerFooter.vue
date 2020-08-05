@@ -61,7 +61,7 @@
 <script>
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
-import { DraftStatus } from "@bluemind/backend.mail.store";
+import DraftStatus from "../../store.deprecated/mailbackend/MailboxItemsStore/DraftStatus";
 import { mapState, mapActions, mapGetters } from "vuex";
 
 export default {

@@ -46,7 +46,7 @@ async function addAttachment({ getters, commit, rootGetters }, file) {
     commit("draft/setAttachmentProgress", { attachmentUid: attachment.uid, loaded: 0, total: 100, canceller });
     const service = injector
         .getProvider("MailboxItemsPersistence")
-        .get(rootGetters["mail/MY_DEFAULT_FOLDERS.DRAFTS"].key);
+        .get(rootGetters["mail/MY_DEFAULT_FOLDERS"].DRAFTS.key);
     return service
         .uploadPart(file, canceller, createOnUploadProgress(commit, getters, attachment, canceller))
         .then(address => {

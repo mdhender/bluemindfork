@@ -1,10 +1,10 @@
-import { DraftStatus } from "@bluemind/backend.mail.store";
 import { Flag } from "@bluemind/email";
 import { MockMailboxItemsClient } from "@bluemind/test-mocks";
-import { saveDraft } from "../../src/actions/saveDraft";
 import ServiceLocator from "@bluemind/inject";
-import htmlWithBase64Images from "../data/htmlWithBase64Images";
 import UUIDGenerator from "@bluemind/uuid";
+import { saveDraft } from "../../src/actions/saveDraft";
+import DraftStatus from "../../mailbackend/MailboxItemsStore/Message";
+import htmlWithBase64Images from "../data/htmlWithBase64Images";
 
 const mockedCidUid = "myCid";
 let itemsService;

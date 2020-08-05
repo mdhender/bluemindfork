@@ -1,8 +1,8 @@
-import { DraftStatus } from "@bluemind/backend.mail.store";
 import { EmailValidator, Flag } from "@bluemind/email";
 import injector from "@bluemind/inject";
-import UUIDGenerator from "@bluemind/uuid";
 import ItemUri from "@bluemind/item-uri";
+import UUIDGenerator from "@bluemind/uuid";
+import DraftStatus from "../mailbackend/MailboxItemsStore/DraftStatus";
 
 /** Send the last draft: move it to the Outbox then flush. */
 export function send({ state, commit, dispatch, rootGetters }) {
@@ -66,8 +66,8 @@ function moveToOutbox(rootGetters, draftId) {
     return injector
         .getProvider("MailboxFoldersPersistence")
         .get(rootGetters["mail/MY_MAILBOX_KEY"])
-        .importItems(rootGetters["mail/MY_DEFAULT_FOLDERS"].OUTBOX.internalId, {
-            mailboxFolderId: rootGetters["mail/MY_DEFAULT_FOLDERS"].DRAFTS.internalId,
+        .importItems(rootGetters["mail/MY_DEFAULT_FOLDERS"].OUTBOX.id, {
+            mailboxFolderId: rootGetters["mail/MY_DEFAULT_FOLDERS"].DRAFTS.id,
             ids: [{ id: draftId }],
             expectedIds: undefined,
             deleteFromSource: true

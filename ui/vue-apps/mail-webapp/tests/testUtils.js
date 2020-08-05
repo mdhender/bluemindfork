@@ -3,7 +3,7 @@ import Vuex from "vuex";
 import { mount, createLocalVue } from "@vue/test-utils";
 import cloneDeep from "lodash.clonedeep";
 import MessageStore from "../src/store.deprecated/MessageStore";
-import MailboxItemsStore from "@bluemind/backend.mail.store/src/MailboxItemsStore";
+import MailboxItemsStore from "../src/store.deprecated/mailbackend/MailboxItemsStore";
 
 export function createStore(overrides) {
     const storeOptions = {

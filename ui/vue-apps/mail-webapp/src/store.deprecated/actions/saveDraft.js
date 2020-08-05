@@ -1,7 +1,8 @@
 import { html2text } from "@bluemind/html-utils";
-import { Message, DraftStatus } from "@bluemind/backend.mail.store";
 import { MimeType, PartsHelper } from "@bluemind/email";
+import DraftStatus from "../mailbackend/MailboxItemsStore/DraftStatus";
 import injector from "@bluemind/inject";
+import Message from "../mailbackend/MailboxItemsStore/Message";
 
 /** Save the current draft: create it into Drafts box, delete the previous one. */
 export function saveDraft({ commit, state, getters, rootGetters }) {

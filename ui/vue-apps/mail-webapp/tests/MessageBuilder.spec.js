@@ -39,7 +39,7 @@ jest.mock("@bluemind/inject", () => {
         }
     };
 });
-import { Message } from "@bluemind/backend.mail.store";
+import Message from "../src/store.deprecated/mailbackend/MailboxItemsStore/Message";
 
 describe("MessageBuilder", () => {
     let message = null;

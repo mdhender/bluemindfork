@@ -50,7 +50,7 @@
 
 <script>
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
-import { DraftStatus } from "@bluemind/backend.mail.store";
+import DraftStatus from "../../store.deprecated/mailbackend/MailboxItemsStore/DraftStatus";
 import { mapActions, mapState, mapGetters } from "vuex";
 
 export default {
