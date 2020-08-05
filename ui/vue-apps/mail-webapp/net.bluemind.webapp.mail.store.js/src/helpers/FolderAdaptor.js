@@ -20,8 +20,7 @@ export const FolderAdaptor = {
     },
     toMailboxFolder(localfolder, mailbox) {
         return {
-            //TODO: Remove || localfolder.key when only the new store will bes used in MailFolderItemMenu. This is a temporary hack.
-            uid: localfolder.uid || localfolder.key,
+            uid: localfolder.uid,
             internalId: localfolder.id,
             value: {
                 parentUid: localfolder.parent,

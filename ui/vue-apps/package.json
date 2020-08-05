@@ -7,7 +7,7 @@
             "core/*",
             "mailbackend/*",
             "mail-webapp/*",
-            "root-webapp/*"
+            "root-webapp"
         ],
         "nohoist": [
             "**/bootstrap-vue",
@@ -63,7 +63,7 @@
     },
     "scripts": {
         "test": "jest --watch --config node_modules/@bluemind/conf/jest.config.js",
-        "root": "(cd root-webapp/net.bluemind.webapp.root.js && yarn dev)",
+        "root": "(cd root-webapp && yarn dev)",
         "mail": "(cd mail-webapp/net.bluemind.webapp.mail.js && yarn dev)",
         "test-ci": "jest --ci --json --config node_modules/@bluemind/conf/jest.config.js --testResultsProcessor jest-jenkins-reporter --coverage --coverageReporters cobertura > jest.json"
     },

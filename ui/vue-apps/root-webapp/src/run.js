@@ -4,7 +4,7 @@ import { FirstDayOfWeek, InheritTranslationsMixin } from "@bluemind/i18n";
 import { sync } from "vuex-router-sync";
 import AlertStore from "@bluemind/alert.store";
 import injector from "@bluemind/inject";
-import MainApp from "./MainApp.vue";
+import MainApp from "./components/MainApp";
 import NotificationManager from "./NotificationManager";
 import router from "@bluemind/router";
 import store from "@bluemind/store";

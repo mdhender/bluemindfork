@@ -14,9 +14,9 @@
 import { BmApplicationAlert } from "@bluemind/styleguide";
 import { mapState } from "vuex";
 import "@bluemind/styleguide/css/bluemind.scss";
-import BmBanner from "@bluemind/banner.ui.vuejs/components/BmBanner";
 import CommonL10N from "@bluemind/l10n";
 import injector from "@bluemind/inject";
+import BmBanner from "./BmBanner";
 
 export default {
     components: {

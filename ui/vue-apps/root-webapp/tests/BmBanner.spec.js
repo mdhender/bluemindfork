@@ -1,6 +1,6 @@
 import { shallowMount, createLocalVue } from "@vue/test-utils";
 import merge from "lodash.merge";
-import BmBanner from "../components/BmBanner";
+import BmBanner from "../src/components/BmBanner";
 import { BmPopover } from "@bluemind/styleguide";
 
 jest.mock("@bluemind/styleguide/css/_variables.scss", () => ({ iconsColors: "" }));
