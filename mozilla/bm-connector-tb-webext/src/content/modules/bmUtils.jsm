@@ -306,8 +306,9 @@ let bmUtils = {
             let directory = it.getNext();
             if (directory instanceof Components.interfaces.nsIAbDirectory) {
                 let uri = directory.URI;
+                let pref = uri;
                 if (uri == historyDirUri || uri == prevHistoryDirUri) {
-                    this.deletePrefBranch(directory.URI);
+                    this.deletePrefBranch(uri);
                     //delete bm cards
                     let cardsToDel = [];
                     let cards = directory.childCards;
@@ -319,9 +320,8 @@ let bmUtils = {
                     }
                     directory.deleteCards(cardsToDel);
                 } else if (uri.indexOf("bmdirectory://") == 0) {
-                    removeDirectory(null, uri, uri);
+                    removeDirectory(null, uri, pref);
                 } else {
-                    let pref = uri;
                     let id = this.getCharPref(pref + ".bm-id", null);
                     if (id != null) {
                         removeDirectory(null, uri, pref);
@@ -329,7 +329,7 @@ let bmUtils = {
                         let prefLegacy = pref.replace("jsaddrbook", "moz-abmdbdirectory").replace(".sqlite", ".mab");
                         id = this.getCharPref(prefLegacy + ".bm-id", null);
                         if (id != null) {
-                            removeDirectory(directory, uri, pref);
+                            removeDirectory(directory, uri, prefLegacy);
                         }
                     }
                 }
