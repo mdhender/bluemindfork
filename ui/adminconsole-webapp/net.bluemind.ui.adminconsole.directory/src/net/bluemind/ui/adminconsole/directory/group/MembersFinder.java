@@ -55,12 +55,13 @@ public class MembersFinder implements SimpleBaseDirEntryFinder {
 		}
 
 		int to = Math.min(tQuery.from + tQuery.size, members.size());
-		// Don't use query pagination as we filter expected members
-		tQuery.from = 0;
-		tQuery.size = 0;
 		tQuery.entryUidFilter = members.subList(tQuery.from, to).stream() //
 				.map(m -> m.getUid()) //
 				.collect(Collectors.toList());
+
+		// Don't use query pagination as we filter expected members
+		tQuery.from = 0;
+		tQuery.size = 0;
 
 		directory.search(tQuery, new AsyncHandler<ListResult<ItemValue<DirEntry>>>() {
 
