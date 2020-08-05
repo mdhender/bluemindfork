@@ -1,7 +1,7 @@
 BMCYRUS="3.0.13-bluemind291"
 BMSDS="1.0.0-291"
 
-BMES="6.8.6-bluemind85"
+BMES="6.8.6-bluemind86"
 
 KAFKA="2.4.0-bluemind9"
 MINIO="2019.10.12-bluemind9"
