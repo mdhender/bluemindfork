@@ -1,10 +1,10 @@
 import injector from "@bluemind/inject";
 
 export function loadMailboxConfig({ rootGetters, commit }) {
-    injector
+    return injector
         .getProvider("MailboxesPersistence")
         .get()
-        .getMailboxConfig(rootGetters.MY_MAILBOX_KEY)
+        .getMailboxConfig(rootGetters["mail/MY_MAILBOX"].owner)
         .then(mailboxConfig => {
             commit("setMaxMessageSize", mailboxConfig.messageMaxSize);
         });

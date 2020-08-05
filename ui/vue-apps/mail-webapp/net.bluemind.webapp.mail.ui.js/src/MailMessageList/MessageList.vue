@@ -77,7 +77,6 @@ export default {
     computed: {
         ...mapGetters("mail-webapp", [
             "nextMessageKey",
-            "my",
             "areMessagesFiltered",
             "isMessageSelected",
             "areAllMessagesSelected"
@@ -87,6 +86,7 @@ export default {
         ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
         ...mapState("mail-webapp", ["currentFolderKey", "messageFilter", "selectedMessageKeys"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
+        ...mapGetters("mail", ["MY_DEFAULT_FOLDERS"]),
         _messages() {
             return this.messages.slice(0, this.length);
         },
@@ -140,7 +140,7 @@ export default {
             }
         },
         remove() {
-            if (this.currentFolderKey === this.my.TRASH.key) {
+            if (this.currentFolderKey === this.MY_DEFAULT_FOLDERS.TRASH.key) {
                 this.purge();
             } else {
                 // do this before followed async operations

@@ -4,8 +4,10 @@ import { MimeType, PartsHelper } from "@bluemind/email";
 import injector from "@bluemind/inject";
 
 /** Save the current draft: create it into Drafts box, delete the previous one. */
-export function saveDraft({ commit, state, getters }) {
-    const service = injector.getProvider("MailboxItemsPersistence").get(getters.my.DRAFTS.uid);
+export function saveDraft({ commit, state, getters, rootGetters }) {
+    const service = injector
+        .getProvider("MailboxItemsPersistence")
+        .get(rootGetters["mail/MY_DEFAULT_FOLDERS"].DRAFTS.uid);
     const userSession = injector.getProvider("UserSession").get();
     let draft;
 

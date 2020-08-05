@@ -5,7 +5,7 @@ import UUIDGenerator from "@bluemind/uuid";
 import ItemUri from "@bluemind/item-uri";
 
 /** Send the last draft: move it to the Outbox then flush. */
-export function send({ state, commit, getters, dispatch }) {
+export function send({ state, commit, dispatch, rootGetters }) {
     const draft = state.draft;
     let draftId = draft.id;
     const loadingAlertUid = addLoadingAlert(commit, draft.subject);
@@ -15,7 +15,7 @@ export function send({ state, commit, getters, dispatch }) {
             draftId = newDraftId;
             commit("draft/update", { status: DraftStatus.SENDING });
             validateDraft(draft);
-            return moveToOutbox(getters.my, draftId);
+            return moveToOutbox(rootGetters, draftId);
         })
         .then(moveResult => {
             if (!moveResult || moveResult.status !== "SUCCESS") {
@@ -24,8 +24,17 @@ export function send({ state, commit, getters, dispatch }) {
             draftId = moveResult.doneIds[0].destination;
             return flush(); // flush means send mail + move to sentbox
         })
-        .then(taskResult => getSentMessageId(taskResult, draftId, getters.my.SENT.uid))
-        .then(mailItem => handleSuccess(mailItem.internalId, loadingAlertUid, getters.my, draft, commit, dispatch))
+        .then(taskResult => getSentMessageId(taskResult, draftId, rootGetters["mail/MY_DEFAULT_FOLDERS"].SENT.uid))
+        .then(mailItem =>
+            handleSuccess(
+                mailItem.internalId,
+                loadingAlertUid,
+                rootGetters["mail/MY_DEFAULT_FOLDERS"],
+                draft,
+                commit,
+                dispatch
+            )
+        )
         .catch(reason => handleError(commit, draft.subject, loadingAlertUid, reason));
 }
 
@@ -53,22 +62,22 @@ function flush() {
         });
 }
 
-function moveToOutbox(my, draftId) {
+function moveToOutbox(rootGetters, draftId) {
     return injector
         .getProvider("MailboxFoldersPersistence")
-        .get(my.mailboxUid)
-        .importItems(my.OUTBOX.internalId, {
-            mailboxFolderId: my.DRAFTS.internalId,
+        .get(rootGetters["mail/MY_MAILBOX_KEY"])
+        .importItems(rootGetters["mail/MY_DEFAULT_FOLDERS"].OUTBOX.internalId, {
+            mailboxFolderId: rootGetters["mail/MY_DEFAULT_FOLDERS"].DRAFTS.internalId,
             ids: [{ id: draftId }],
             expectedIds: undefined,
             deleteFromSource: true
         });
 }
 
-function handleSuccess(sentMailId, loadingAlertUid, my, draft, commit, dispatch) {
-    clearAttachmentParts(my.DRAFTS.uid, draft);
+function handleSuccess(sentMailId, loadingAlertUid, myDefaultFolders, draft, commit, dispatch) {
+    clearAttachmentParts(myDefaultFolders.DRAFTS.uid, draft);
     manageFlagOnPreviousMessage(draft, dispatch);
-    const messageKey = ItemUri.encode(sentMailId, my.SENT.uid);
+    const messageKey = ItemUri.encode(sentMailId, myDefaultFolders.SENT.uid);
     commit("removeApplicationAlert", loadingAlertUid, { root: true });
     commit(
         "addApplicationAlert",
@@ -78,7 +87,7 @@ function handleSuccess(sentMailId, loadingAlertUid, my, draft, commit, dispatch)
                 subject: draft.subject,
                 subjectLink: {
                     name: "v:mail:message",
-                    params: { message: messageKey, folder: my.SENT.value.fullName }
+                    params: { message: messageKey, folder: myDefaultFolders.SENT.path }
                 }
             }
         },

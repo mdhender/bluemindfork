@@ -42,9 +42,9 @@ export default {
     computed: {
         ...mapGetters("mail-webapp", ["isMessageSelected", "my"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail", ["mailboxes"]),
+        ...mapState("mail", ["folders", "mailboxes"]),
         folder() {
-            return this.my.folders.find(f => f.uid === ItemUri.container(this.message.key));
+            return this.folders[ItemUri.container(this.message.key)];
         },
         isActive() {
             return this.isMessageSelected(this.message.key) || this.message.key === this.currentMessageKey;

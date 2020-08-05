@@ -94,11 +94,11 @@ export default {
             "areAllSelectedMessagesUnread",
             "areMessagesFiltered",
             "isSearchMode",
-            "my",
             "nextMessageKey"
         ]),
         ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
         ...mapState("mail", ["folders"]),
+        ...mapGetters("mail", ["MY_DEFAULT_FOLDERS"]),
         isSelectionMultiple() {
             return this.selectedMessageKeys.length > 1;
         },
@@ -174,7 +174,7 @@ export default {
             }
         },
         remove() {
-            if (this.currentFolderKey === this.my.TRASH.key) {
+            if (ItemUri.item(this.currentFolderKey) === this.MY_DEFAULT_FOLDERS.TRASH.key) {
                 this.purge();
             } else {
                 // do this before followed async operations

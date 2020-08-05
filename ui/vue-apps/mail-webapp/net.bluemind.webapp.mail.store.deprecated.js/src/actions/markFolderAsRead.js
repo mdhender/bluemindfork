@@ -28,7 +28,7 @@ async function optimisticMarkFolderAsRead(context, folderKey) {
     const unreadCount = context.getters.unreadCount(folderKey);
     context.commit(SET_UNREAD_COUNT, { key: folderKey, count: 0 }, { root: true });
     try {
-        await context.dispatch("folders/markAsRead", ItemUri.item(folderKey));
+        await context.dispatch("folders/markAsRead", folderKey);
     } catch (e) {
         context.commit("messages/deleteFlag", { messageKeys, mailboxItemFlag: Flag.SEEN });
         context.commit(SET_UNREAD_COUNT, { key: folderKey, count: unreadCount }, { root: true });

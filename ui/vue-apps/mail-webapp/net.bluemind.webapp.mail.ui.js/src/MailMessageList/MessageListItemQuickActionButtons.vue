@@ -90,10 +90,11 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["nextMessageKey", "my"]),
+        ...mapGetters("mail-webapp", ["nextMessageKey"]),
         ...mapState("mail-webapp", ["currentFolderKey"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["folders"]),
+        ...mapGetters("mail", ["MY_DEFAULT_FOLDERS"]),
         folderOfMessage() {
             return this.folders[ItemUri.container(this.message.key)];
         }
@@ -101,7 +102,7 @@ export default {
     methods: {
         ...mapActions("mail-webapp", ["markAsRead", "markAsUnread", "markAsFlagged", "markAsUnflagged"]),
         remove() {
-            if (this.currentFolderKey === this.my.TRASH.key) {
+            if (ItemUri.item(this.currentFolderKey) === this.MY_DEFAULT_FOLDERS.TRASH.key) {
                 this.purge();
                 return;
             }

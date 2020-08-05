@@ -67,7 +67,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { myMailboxKey: "MY_MAILBOX_KEY" }),
+        ...mapGetters("mail", ["MY_MAILBOX_KEY"]),
         ...mapState("mail", ["folders"]),
         ...mapState("mail-webapp", ["currentFolderKey"]),
         currentFolderUid() {
@@ -83,12 +83,12 @@ export default {
                 path: newFolderName,
                 parent: null
             };
-            this.createFolder({ folder, mailboxUid: this.myMailboxKey });
+            this.createFolder({ folder, mailboxUid: this.MY_MAILBOX_KEY });
         },
         selectFolder(key) {
             this.$emit("toggle-folders");
             const folder = this.folders[key];
-            if (folder.mailbox === this.myMailboxKey) {
+            if (folder.mailbox === this.MY_MAILBOX_KEY) {
                 this.$router.push({ name: "v:mail:home", params: { folder: folder.path } });
             } else {
                 this.$router.push({ name: "v:mail:home", params: { mailshare: folder.path } });

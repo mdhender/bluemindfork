@@ -10,7 +10,6 @@ export * from "./currentMailbox";
 export * from "./isMessageSelected";
 export * from "./lastRecipients";
 export * from "./messageListMode";
-export * from "./my";
 export * from "./nextMessageKey";
 export * from "./status";
 export * from "./unreadCount";

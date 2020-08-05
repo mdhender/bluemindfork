@@ -16,8 +16,7 @@
                     <div class="d-table-cell px-4">
                         <div class="pb-2">{{ $t("mail.message.starter.display") }}</div>
                         <bm-button
-                            v-if="my.DRAFTS"
-                            :to="{ name: 'v:mail:home', params: { folder: my.DRAFTS.path } }"
+                            :to="{ name: 'v:mail:home', params: { folder: MY_DEFAULT_FOLDERS.DRAFTS.name } }"
                             variant="secondary"
                         >
                             <bm-label-icon icon="pencil">
@@ -52,7 +51,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["my"]),
+        ...mapGetters("mail", ["MY_DEFAULT_FOLDERS"]),
         ...mapGetters("mail-webapp/messages", ["messages"]),
         ...mapState("mail-webapp", ["currentFolderKey"]),
 

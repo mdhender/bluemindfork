@@ -120,10 +120,10 @@ export default {
             "areMessagesFiltered",
             "currentFolder",
             "isSearchMode",
-            "my",
             "nextMessageKey"
         ]),
         ...mapState("mail", ["folders", "mailboxes"]),
+        ...mapGetters("mail", ["MY_DEFAULT_FOLDERS"]),
         anyMessageReadOnly() {
             return this.selectedMessageKeys
                 .map(messageKey => ItemUri.container(messageKey))
@@ -181,7 +181,7 @@ export default {
             }
         },
         async removeSelectedMessages() {
-            if (ItemUri.item(this.currentFolderKey) === this.my.TRASH.key) {
+            if (ItemUri.item(this.currentFolderKey) === this.MY_DEFAULT_FOLDERS.TRASH.key) {
                 this.purgeSelectedMessages();
             } else {
                 // do this before followed async operations

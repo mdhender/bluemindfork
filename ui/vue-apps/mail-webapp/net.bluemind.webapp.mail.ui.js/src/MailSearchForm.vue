@@ -132,6 +132,7 @@ export default {
         ...mapState("mail-webapp/search", { currentSearchPattern: "pattern", currentSearchedFolder: "searchFolder" }),
         ...mapGetters("mail-webapp", ["my", "currentFolder"]),
         ...mapState("mail", ["folders", "mailboxes"]),
+        ...mapGetters("mail", ["MY_DEFAULT_FOLDERS"]),
         filteredFolders() {
             if (this.folderPattern !== "") {
                 const filtered = Object.values(this.folders).filter(folder =>
@@ -146,10 +147,10 @@ export default {
         suggestedFolders() {
             return [
                 { key: null, path: this.$t("common.all") },
-                this.my.INBOX,
+                this.MY_DEFAULT_FOLDERS.INBOX,
                 { key: this.currentFolder.key, path: this.$t("mail.search.options.folder.current") },
-                this.my.SENT,
-                this.my.TRASH
+                this.MY_DEFAULT_FOLDERS.SENT,
+                this.MY_DEFAULT_FOLDERS.TRASH
             ];
         },
         searchQuery() {

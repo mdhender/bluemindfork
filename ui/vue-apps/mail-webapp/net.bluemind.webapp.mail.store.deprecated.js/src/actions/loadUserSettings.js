@@ -4,7 +4,7 @@ export function loadUserSettings({ rootGetters, commit }) {
     return injector
         .getProvider("UserSettingsPersistence")
         .get()
-        .getOne(rootGetters.MY_MAILBOX_KEY, "mail_message_list_style")
+        .getOne(rootGetters["mail/MY_MAILBOX"].owner, "mail_message_list_style")
         .then(listStyleValue => {
             commit("setUserSettings", { mail_message_list_style: listStyleValue });
         });
