@@ -9,7 +9,7 @@
         <mail-folder-icon
             class="pl-1 pr-2 text-secondary text-truncate"
             :class="[isActive ? 'bg-info' : isImportant ? 'warning-custom' : 'bg-white']"
-            :shared="folder.isShared"
+            :shared="isFolderOfMailshare(folder)"
             :folder="folder"
         >
             <i class="font-weight-bold">{{ folder.name }}</i>
@@ -42,11 +42,17 @@ export default {
     computed: {
         ...mapGetters("mail-webapp", ["isMessageSelected", "my"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
+        ...mapState("mail", ["mailboxes"]),
         folder() {
             return this.my.folders.find(f => f.uid === ItemUri.container(this.message.key));
         },
         isActive() {
             return this.isMessageSelected(this.message.key) || this.message.key === this.currentMessageKey;
+        }
+    },
+    methods: {
+        isFolderOfMailshare(folder) {
+            return this.mailboxes[folder.mailbox].type === "mailshares";
         }
     }
 };

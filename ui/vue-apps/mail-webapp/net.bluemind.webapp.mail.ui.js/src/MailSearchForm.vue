@@ -76,7 +76,8 @@ import {
 import { mapGetters, mapMutations, mapState } from "vuex";
 import debounce from "lodash.debounce";
 import GlobalEvents from "vue-global-events";
-import { FolderHelper, SearchHelper } from "@bluemind/webapp.mail.store.deprecated";
+import { SearchHelper } from "@bluemind/webapp.mail.store.deprecated";
+import { FolderAdaptor } from "@bluemind/webapp.mail.store";
 
 const SPINNER_TIMEOUT = 250;
 const UPDATE_ROUTE_TIMEOUT = 1000;
@@ -110,11 +111,11 @@ export default {
                         params: {
                             search: this.searchQuery,
                             folder:
-                                this.selectedFolder.key && !this.selectedFolder.isShared
+                                this.selectedFolder.key && !this.isFolderOfMailshare(this.selectedFolder)
                                     ? this.selectedFolder.key
                                     : undefined,
                             mailshare:
-                                this.selectedFolder.key && this.selectedFolder.isShared
+                                this.selectedFolder.key && this.isFolderOfMailshare(this.selectedFolder)
                                     ? this.selectedFolder.key
                                     : undefined
                         }
@@ -129,23 +130,24 @@ export default {
 
     computed: {
         ...mapState("mail-webapp/search", { currentSearchPattern: "pattern", currentSearchedFolder: "searchFolder" }),
-        ...mapGetters("mail-webapp", ["my", "mailshares", "currentFolder"]),
+        ...mapGetters("mail-webapp", ["my", "currentFolder"]),
+        ...mapState("mail", ["folders", "mailboxes"]),
         filteredFolders() {
-            if (this.folderPattern) {
-                return FolderHelper.applyFilterThenSliceAndTransform(
-                    [this.my].concat(this.mailshares),
-                    this.filter,
-                    this.maxFolders
-                ).map(match => replaceFolderFullName(match.folder, match.path, match.isShared));
-            } else {
-                return this.suggestedFolders;
+            if (this.folderPattern !== "") {
+                const filtered = Object.values(this.folders).filter(folder =>
+                    folder.path.toLowerCase().includes(this.folderPattern.toLowerCase())
+                );
+                if (filtered) {
+                    return filtered.slice(0, this.maxFolders);
+                }
             }
+            return this.suggestedFolders;
         },
         suggestedFolders() {
             return [
                 { key: null, path: this.$t("common.all") },
                 this.my.INBOX,
-                replaceFolderFullName(this.currentFolder, this.$t("mail.search.options.folder.current")),
+                { key: this.currentFolder.key, path: this.$t("mail.search.options.folder.current") },
                 this.my.SENT,
                 this.my.TRASH
             ];
@@ -222,26 +224,17 @@ export default {
             return text;
         },
         setFolderFromKeyOrInitial(key) {
-            const folder = FolderHelper.applyFilterThenSliceAndTransform(
-                [this.my].concat(this.mailshares),
-                f => f.key === key,
-                1
-            ).map(f => (f.folder ? replaceFolderFullName(f.folder, f.path, f.isShared) : f.folder))[0];
+            const folder = this.folders[key];
             this.setSelectedFolder(folder || this.initialFolder);
         },
         isMailshareRootFolder(folder) {
-            return !!folder.isShared && this.mailshares.some(m => m.root === folder.path);
+            return FolderAdaptor.isMailshareRoot(folder, this.mailboxes[folder.mailbox]);
+        },
+        isFolderOfMailshare(folder) {
+            return this.mailboxes[folder.mailbox].type === "mailshares";
         }
     }
 };
-
-function replaceFolderFullName(folder, path, isShared) {
-    return {
-        ...folder,
-        path,
-        isShared
-    };
-}
 </script>
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";

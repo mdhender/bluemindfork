@@ -32,7 +32,7 @@
                 @click="selectFolder(item)"
             >
                 <template #icon>
-                    <mail-folder-icon no-text :shared="item.isShared" :folder="item" />
+                    <mail-folder-icon no-text :shared="isFolderOfMailshare(item)" :folder="item" />
                 </template>
                 {{ item.path }}
             </bm-dropdown-item-button>
@@ -81,7 +81,6 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailFolderInput from "../../MailFolderInput";
-import { FolderHelper } from "@bluemind/webapp.mail.store.deprecated";
 import ItemUri from "@bluemind/item-uri";
 
 export default {
@@ -107,7 +106,8 @@ export default {
     computed: {
         ...mapState("mail-webapp", ["currentFolderKey"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapGetters("mail-webapp", ["nextMessageKey", "my", "mailshares"]),
+        ...mapGetters("mail-webapp", ["nextMessageKey", "my"]),
+        ...mapState("mail", ["folders", "mailboxes"]),
         displayCreateFolderBtnFromPattern() {
             let pattern = this.pattern;
             if (pattern !== "") {
@@ -120,27 +120,20 @@ export default {
         },
         matchingFolders() {
             if (this.pattern !== "") {
-                return FolderHelper.applyFilterThenSliceAndTransform(
-                    [this.my].concat(this.mailshares),
-                    this.filter,
-                    this.maxFolders
+                const filtered = Object.values(this.folders).filter(folder =>
+                    folder.path.toLowerCase().includes(this.pattern.toLowerCase())
                 );
-            } else {
-                return [this.my.INBOX, this.my.TRASH].filter(
-                    folder => folder && ItemUri.encode(folder.key, folder.mailbox) !== this.currentFolderKey
-                );
+                if (filtered) {
+                    return filtered.slice(0, this.maxFolders);
+                }
             }
+            return [this.my.INBOX, this.my.TRASH].filter(
+                folder => folder && ItemUri.encode(folder.key, folder.mailbox) !== this.currentFolderKey
+            );
         }
     },
     methods: {
         ...mapActions("mail-webapp", ["move"]),
-        filter(folder, { writable, root }) {
-            return (
-                writable &&
-                ItemUri.encode(folder.key, folder.mailbox) !== this.currentFolderKey &&
-                folder.name.match(this.pattern, root)
-            );
-        },
         selectFolder(item) {
             this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
             this.move({ messageKey: this.currentMessageKey, folder: item });
@@ -155,6 +148,9 @@ export default {
         },
         resetPattern() {
             this.pattern = "";
+        },
+        isFolderOfMailshare(folder) {
+            return this.mailboxes[folder.mailbox].type === "mailshares";
         }
     }
 };

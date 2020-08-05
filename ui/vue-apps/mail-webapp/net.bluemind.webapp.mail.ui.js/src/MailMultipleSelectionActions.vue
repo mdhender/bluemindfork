@@ -71,7 +71,7 @@
             <div v-if="!areAllMessagesSelected" class="mt-3">
                 <h3 v-if="!isSearchMode" class="d-inline px-3 align-middle">
                     {{ $t("mail.message.select.all.folder") }}
-                    <mail-folder-icon :shared="currentFolder.isShared" :folder="currentFolder">
+                    <mail-folder-icon :shared="isFolderOfMailshare(currentFolder)" :folder="currentFolder">
                         <span class="font-weight-bold">{{ currentFolder.path }}</span>
                     </mail-folder-icon>
                 </h3>
@@ -123,7 +123,7 @@ export default {
             "my",
             "nextMessageKey"
         ]),
-        ...mapState("mail", ["folders"]),
+        ...mapState("mail", ["folders", "mailboxes"]),
         anyMessageReadOnly() {
             return this.selectedMessageKeys
                 .map(messageKey => ItemUri.container(messageKey))
@@ -156,6 +156,9 @@ export default {
                 ? this.markFolderAsRead(this.currentFolderKey)
                 : this.markMessagesAsRead(this.selectedMessageKeys);
         },
+        isFolderOfMailshare(folder) {
+            return this.mailboxes[folder.mailbox].type === "mailshares";
+        },
         async purgeSelectedMessages() {
             const confirm = await this.$bvModal.msgBoxConfirm(
                 this.$tc("mail.actions.purge.modal.content", this.selectedMessageKeys.length),
@@ -178,7 +181,7 @@ export default {
             }
         },
         async removeSelectedMessages() {
-            if (this.currentFolderKey === this.my.TRASH.key) {
+            if (ItemUri.item(this.currentFolderKey) === this.my.TRASH.key) {
                 this.purgeSelectedMessages();
             } else {
                 // do this before followed async operations

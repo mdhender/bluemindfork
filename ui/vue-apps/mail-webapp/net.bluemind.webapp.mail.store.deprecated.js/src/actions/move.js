@@ -1,27 +1,29 @@
 import UUIDGenerator from "@bluemind/uuid";
 
-export function move({ dispatch, commit, getters, rootState }, { messageKey, folder }) {
+export function move(context, { messageKey, folder }) {
     const isArray = Array.isArray(messageKey);
     if (isArray && messageKey.length > 1) {
-        return moveMultipleMessages({ dispatch, commit, getters, rootState }, { messageKeys: messageKey, folder });
+        return moveMultipleMessages(context, { messageKeys: messageKey, folder });
     } else {
         messageKey = isArray ? messageKey[0] : messageKey;
-        return moveSingleMessage({ dispatch, commit, getters, rootState }, { messageKey, folder });
+        return moveSingleMessage(context, { messageKey, folder });
     }
 }
 
-function moveSingleMessage({ dispatch, commit, getters, rootState }, { messageKey, folder }) {
+function moveSingleMessage({ dispatch, commit, rootState, rootGetters }, { messageKey, folder }) {
     let subject, destination, isDestinationMailshare;
     const alertUid = UUIDGenerator.generate();
     return dispatch("$_getIfNotPresent", [messageKey])
         .then(messages => {
             subject = messages[0].subject;
             addLoadingAlert(commit, subject, alertUid);
-            return dispatch("$_createFolder", { folder, mailboxUid: getters.my.mailboxUid });
+            return dispatch("$_createFolder", { folder, mailboxUid: rootGetters.MY_MAILBOX_KEY });
         })
         .then(key => {
             destination = rootState.mail.folders[key];
-            isDestinationMailshare = getters.mailshares.findIndex(({ uid }) => uid === destination.mailbox) >= 0;
+            isDestinationMailshare = rootGetters["mail/MAILSHARE_KEYS"].some(
+                mailshareKey => mailshareKey === destination.mailbox
+            );
             return dispatch("$_move", { messageKeys: [messageKey], destinationKey: key });
         })
         .then(() => addOkAlert(commit, subject, destination, isDestinationMailshare))
@@ -29,14 +31,16 @@ function moveSingleMessage({ dispatch, commit, getters, rootState }, { messageKe
         .finally(() => commit("removeApplicationAlert", alertUid, { root: true }));
 }
 
-function moveMultipleMessages({ dispatch, commit, getters, rootState }, { messageKeys, folder }) {
+function moveMultipleMessages({ dispatch, commit, rootState, rootGetters }, { messageKeys, folder }) {
     let destination, isDestinationMailshare;
     const alertUid = UUIDGenerator.generate();
     addLoadingAlertForMultipleMessages(commit, messageKeys.length, alertUid);
-    return dispatch("$_createFolder", { folder, mailboxUid: getters.my.mailboxUid })
+    return dispatch("$_createFolder", { folder, mailboxUid: rootGetters.MY_MAILBOX_KEY })
         .then(key => {
             destination = rootState.mail.folders[key];
-            isDestinationMailshare = getters.mailshares.findIndex(({ uid }) => uid === destination.mailbox) >= 0;
+            isDestinationMailshare = rootGetters["mail/MAILSHARE_KEYS"].some(
+                mailshareKey => mailshareKey === destination.mailbox
+            );
             return dispatch("$_move", { messageKeys, destinationKey: key });
         })
         .then(() => addOkAlertForMultipleMessages(commit, messageKeys.length, destination, isDestinationMailshare))

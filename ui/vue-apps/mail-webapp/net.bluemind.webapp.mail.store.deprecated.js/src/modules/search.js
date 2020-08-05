@@ -54,13 +54,13 @@ export default {
     getters
 };
 
-async function search({ commit, dispatch, rootGetters }, { pattern, filter, folderKey }) {
+async function search({ commit, dispatch, rootState, rootGetters }, { pattern, filter, folderKey }) {
     try {
         commit("setStatus", STATUS.LOADING);
         const mailboxUid = folderKey
-            ? ItemUri.container(folderKey)
-            : rootGetters["mail-webapp/currentMailbox"].mailboxUid;
-        const searchPayload = buildPayload(pattern, filter, folderKey ? ItemUri.item(folderKey) : undefined);
+            ? rootState.mail.folders[folderKey].mailbox
+            : rootGetters["mail-webapp/currentMailbox"].key;
+        const searchPayload = buildPayload(pattern, filter, folderKey ? folderKey : undefined);
         const searchResults = await ServiceLocator.getProvider("MailboxFoldersPersistence")
             .get(mailboxUid)
             .searchItems(searchPayload);
@@ -79,7 +79,7 @@ async function search({ commit, dispatch, rootGetters }, { pattern, filter, fold
     }
 }
 
-function buildPayload(pattern, filter, folderUid) {
+function buildPayload(pattern, filter, folderKey) {
     const flags = filter === "unread" ? "is:unread" : filter === "flagged" ? "is:flagged" : "";
     return {
         query: {
@@ -90,7 +90,7 @@ function buildPayload(pattern, filter, folderUid) {
             offset: undefined,
             scope: {
                 folderScope: {
-                    folderUid
+                    folderUid: folderKey
                 },
                 isDeepTraversal: false
             }

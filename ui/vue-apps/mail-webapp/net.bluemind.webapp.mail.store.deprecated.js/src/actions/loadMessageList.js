@@ -11,7 +11,7 @@ export async function loadMessageList(
     { folder, mailshare, filter, search }
 ) {
     const locatedFolder = locateFolder(folder, mailshare, rootState, rootGetters);
-    const locatedFolderIsMailshareRoot = mailshare && !locatedFolder.path.includes("/");
+    const locatedFolderIsMailshareRoot = mailshare && !locatedFolder.parent;
     await dispatch("selectFolder", locatedFolder);
     expandParents(commit, locatedFolder, rootState);
 

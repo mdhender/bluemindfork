@@ -45,8 +45,14 @@ function getFlatFolders() {
         .filter(folder => folder.parent === null)
         .map(addOptions({ priority: 4 }))
         .concat(
-            store.getters["mail-webapp/mailshares"].map(mailbox => addOptions({ priority: 5 })(mailbox.folders[0]))
+            store.getters["mail/MAILSHARE_KEYS"]
+                .map(mailshareKey => getMailshareRoot(mailshareKey, store.state.mail.folders))
+                .map(addOptions({ priority: 5 }))
         );
+}
+
+function getMailshareRoot(mailshareKey, folders) {
+    return Object.values(folders).find(folder => folder.mailbox === mailshareKey && !folder.parent);
 }
 
 function addOptions({ priority }) {

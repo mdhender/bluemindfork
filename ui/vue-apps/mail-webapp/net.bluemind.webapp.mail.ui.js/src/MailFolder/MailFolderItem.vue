@@ -66,7 +66,7 @@ export default {
     computed: {
         ...mapState("mail-webapp", ["currentFolderKey"]),
         ...mapState("mail", ["folderList", "folders"]),
-        ...mapGetters("mail-webapp", ["my", "mailshares"]),
+        ...mapGetters("mail-webapp", ["my"]),
         currentFolderUid() {
             return ItemUri.item(this.currentFolderKey);
         },

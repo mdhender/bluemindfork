@@ -15,13 +15,13 @@ async function fetchEvent({ commit, getters }, eventUid) {
         .get()
         .getComplete(eventUid);
     if (event) {
-        event = EventHelper.adapt(event, getters.currentMailbox.uid);
+        event = EventHelper.adapt(event, getters.currentMailbox.key);
     }
     commit("setCurrentEvent", event);
 }
 
 async function setEventStatus({ state, commit, getters }, status) {
-    const uid = getters.currentMailbox.uid;
+    const uid = getters.currentMailbox.key;
     const previousStatus = state.currentEvent.status;
     try {
         commit("setCurrentEventStatus", { status, uid });

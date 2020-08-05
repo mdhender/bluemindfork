@@ -3,11 +3,11 @@ import UUIDGenerator from "@bluemind/uuid";
 
 const CLEAN_UP_DELAY = 1000;
 
-export function addAttachments({ getters, commit, dispatch }, files) {
+export function addAttachments({ getters, commit, dispatch, rootGetters }, files) {
     if (files.length > 0) {
         let promises = [];
         for (let file of files) {
-            promises.push(addAttachment({ getters, commit }, file));
+            promises.push(addAttachment({ getters, commit, rootGetters }, file));
         }
         return Promise.all(promises).then(() => dispatch("saveDraft"));
     }
@@ -34,7 +34,7 @@ const buildAttachment = function(file) {
     };
 };
 
-async function addAttachment({ getters, commit }, file) {
+async function addAttachment({ getters, commit, rootGetters }, file) {
     const attachment = buildAttachment(file);
 
     // this will contain a function for cancelling the upload
@@ -44,7 +44,7 @@ async function addAttachment({ getters, commit }, file) {
     commit("draft/addAttachment", attachment);
 
     commit("draft/setAttachmentProgress", { attachmentUid: attachment.uid, loaded: 0, total: 100, canceller });
-    const service = injector.getProvider("MailboxItemsPersistence").get(getters.my.DRAFTS.uid);
+    const service = injector.getProvider("MailboxItemsPersistence").get(rootGetters.MY_DEFAULT_FOLDERS.DRAFTS.key);
     return service
         .uploadPart(file, canceller, createOnUploadProgress(commit, getters, attachment, canceller))
         .then(address => {

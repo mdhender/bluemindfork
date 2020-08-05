@@ -144,7 +144,7 @@ export default {
         navigateTo() {
             const params = { message: this.message.key };
             if (ItemUri.item(this.currentFolderKey) !== ItemUri.container(this.message.key)) {
-                params.folder = ItemUri.encode(ItemUri.container(this.message.key), this.currentMailbox.mailboxUid);
+                params.folder = ItemUri.encode(ItemUri.container(this.message.key), this.currentMailbox.key);
             }
             this.$router.navigate({ name: "v:mail:message", params });
         }

@@ -8,7 +8,7 @@
     >
         {{ $t("mail.folder") }}
         <mail-folder-icon
-            :shared="currentMailbox.type == 'mailshare'"
+            :shared="currentMailbox.type == 'mailshares'"
             :folder="currentFolder"
             class="font-weight-bold"
         />

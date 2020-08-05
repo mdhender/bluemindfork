@@ -13,7 +13,7 @@
                     <mail-folder-icon
                         class="text-secondary text-truncate"
                         :class="[isActive ? 'bg-info' : isImportant ? 'warning-custom' : 'bg-white']"
-                        :shared="folder.isShared"
+                        :shared="isFolderOfMailshare(folder)"
                         :folder="folder"
                     >
                         <i class="font-weight-bold">{{ folder.name }}</i>
@@ -108,8 +108,9 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["isMessageSelected", "my", "mailshares", "isSearchMode"]),
+        ...mapGetters("mail-webapp", ["isMessageSelected", "my", "isSearchMode"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
+        ...mapState("mail", ["mailboxes", "folders"]),
         from() {
             return this.message.from.dn ? this.message.from.dn : this.message.from.address;
         },
@@ -133,11 +134,15 @@ export default {
                 .sort((a, b) => a.order - b.order);
         },
         folder() {
-            const allFolders = this.my.folders.concat(this.mailshares.reduce((res, m) => [...res, ...m.folders], []));
-            return allFolders.find(f => f.uid === ItemUri.container(this.message.key));
+            return Object.values(this.folders).find(folder => folder.key === ItemUri.container(this.message.key));
         },
         isActive() {
             return this.isMessageSelected(this.message.key) || this.message.key === this.currentMessageKey;
+        }
+    },
+    methods: {
+        isFolderOfMailshare(folder) {
+            return this.mailboxes[folder.mailbox].type === "mailshares";
         }
     }
 };

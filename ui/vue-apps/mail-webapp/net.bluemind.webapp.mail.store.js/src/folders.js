@@ -69,7 +69,7 @@ export const mutations = {
 
 export const actions = {
     async [FETCH_FOLDERS]({ commit }, mailbox) {
-        const items = await inject("MailboxFoldersPersistence", mailbox.uid).all();
+        const items = await inject("MailboxFoldersPersistence", mailbox.key).all();
         const folders = items
             .filter(item => !item.flags.includes(ItemFlag.Deleted))
             .sort((a, b) => a.value.fullName.toLowerCase().localeCompare(b.value.fullName.toLowerCase()))

@@ -53,7 +53,6 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail-webapp", ["mailshares"]),
         ...mapGetters("mail", { hasChildren: "HAS_CHILDREN_GETTER" }),
         ...mapState("mail", ["mailboxes", "folders"]),
         ...mapState("mail-webapp", ["currentFolderKey"]),

@@ -9,7 +9,6 @@ export * from "./currentFolder";
 export * from "./currentMailbox";
 export * from "./isMessageSelected";
 export * from "./lastRecipients";
-export * from "./mailshares";
 export * from "./messageListMode";
 export * from "./my";
 export * from "./nextMessageKey";

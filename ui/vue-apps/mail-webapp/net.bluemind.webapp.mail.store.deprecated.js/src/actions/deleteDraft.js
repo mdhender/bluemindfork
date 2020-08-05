@@ -2,7 +2,7 @@ import { DraftStatus } from "@bluemind/backend.mail.store";
 import injector from "@bluemind/inject";
 
 /** Delete the draft (hard delete, not moved in Trash box). */
-export function deleteDraft({ commit, state, getters }) {
+export function deleteDraft({ commit, state, rootGetters }) {
     const draft = state.draft;
     if (!draft.id || draft.status === DraftStatus.DELETED) {
         // no saved draft to delete, just close the composer
@@ -13,7 +13,7 @@ export function deleteDraft({ commit, state, getters }) {
 
     return new Promise(resolve => {
         // initialize service, session and status
-        const draftbox = getters.my.DRAFTS;
+        const draftbox = rootGetters.MY_DEFAULT_FOLDERS.DRAFTS;
 
         service = injector.getProvider("MailboxItemsPersistence").get(draftbox.uid);
         commit("draft/update", { status: DraftStatus.DELETING });
