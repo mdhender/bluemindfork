@@ -3,7 +3,6 @@ export * from "./addSelectedMessageKey";
 export * from "./setShowBlockedImagesAlert";
 export * from "./deleteAllSelectedMessages";
 export * from "./deleteSelectedMessageKey";
-export * from "./setCurrentFolder";
 export * from "./setMaxMessageSize";
 export * from "./setMessageFilter";
 export * from "./setUserUid";

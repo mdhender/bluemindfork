@@ -85,7 +85,7 @@ export default {
     },
     directives: { BmTooltip },
     computed: {
-        ...mapState("mail-webapp", ["currentFolderKey", "selectedMessageKeys"]),
+        ...mapState("mail-webapp", ["selectedMessageKeys"]),
         ...mapGetters("mail-webapp", [
             "areAllMessagesSelected",
             "areAllSelectedMessagesFlagged",
@@ -97,7 +97,7 @@ export default {
             "nextMessageKey"
         ]),
         ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
-        ...mapState("mail", ["folders"]),
+        ...mapState("mail", ["folders", "activeFolder"]),
         ...mapGetters("mail", ["MY_DEFAULT_FOLDERS"]),
         isSelectionMultiple() {
             return this.selectedMessageKeys.length > 1;
@@ -174,7 +174,7 @@ export default {
             }
         },
         remove() {
-            if (ItemUri.item(this.currentFolderKey) === this.MY_DEFAULT_FOLDERS.TRASH.key) {
+            if (this.activeFolder === this.MY_DEFAULT_FOLDERS.TRASH.key) {
                 this.purge();
             } else {
                 // do this before followed async operations
@@ -195,7 +195,7 @@ export default {
             const areAllMessagesInFolderSelected =
                 this.areAllMessagesSelected && !this.areMessagesFiltered && !this.isSearchMode;
             areAllMessagesInFolderSelected
-                ? this.markFolderAsRead(this.currentFolderKey)
+                ? this.markFolderAsRead(this.activeFolder)
                 : this.markMessagesAsRead(this.selectedKeys());
         },
         doMarkAsUnread() {

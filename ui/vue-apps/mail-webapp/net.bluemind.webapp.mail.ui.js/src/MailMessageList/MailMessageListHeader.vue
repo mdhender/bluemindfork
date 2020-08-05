@@ -51,7 +51,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["currentFolderKey", "messageFilter", "selectedMessageKeys"]),
+        ...mapState("mail-webapp", ["messageFilter", "selectedMessageKeys"]),
         ...mapGetters("mail-webapp", ["areAllMessagesSelected"]),
         filters() {
             return [

@@ -13,7 +13,7 @@ export async function markFolderAsRead(context, folderKey) {
     const root = { root: true };
     context.commit("addApplicationAlert", { uid, code: "MSG_FOLDER_MARKASREAD_LOADING", props }, root);
     try {
-        await optimisticMarkFolderAsRead(context, folderKey);
+        await optimisticMarkFolderAsRead(context, folder);
         context.commit("removeApplicationAlert", uid, root);
         context.commit("addApplicationAlert", { code: "MSG_FOLDER_MARKASREAD_SUCCESS", props }, root);
     } catch (e) {
@@ -22,16 +22,16 @@ export async function markFolderAsRead(context, folderKey) {
     }
 }
 
-async function optimisticMarkFolderAsRead(context, folderKey) {
-    const messageKeys = unseenMessagesInFolder(context.state, folderKey);
+async function optimisticMarkFolderAsRead(context, folder) {
+    const messageKeys = unseenMessagesInFolder(context.state, folder.key);
     context.commit("messages/addFlag", { messageKeys, mailboxItemFlag: Flag.SEEN });
-    const unreadCount = context.getters.unreadCount(folderKey);
-    context.commit(SET_UNREAD_COUNT, { key: folderKey, count: 0 }, { root: true });
+    const unreadCount = folder.unread;
+    context.commit(SET_UNREAD_COUNT, { key: folder.key, count: 0 }, { root: true });
     try {
-        await context.dispatch("folders/markAsRead", folderKey);
+        await context.dispatch("folders/markAsRead", folder.key);
     } catch (e) {
         context.commit("messages/deleteFlag", { messageKeys, mailboxItemFlag: Flag.SEEN });
-        context.commit(SET_UNREAD_COUNT, { key: folderKey, count: unreadCount }, { root: true });
+        context.commit(SET_UNREAD_COUNT, { key: folder.key, count: unreadCount }, { root: true });
         throw e;
     }
 }

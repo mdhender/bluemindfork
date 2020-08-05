@@ -24,7 +24,7 @@ export default {
         MailToolbarSelectedMessages
     },
     computed: {
-        ...mapState("mail-webapp", ["currentFolderKey", "selectedMessageKeys"]),
+        ...mapState("mail-webapp", ["selectedMessageKeys"]),
         ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
         isMessageComposerDisplayed() {
             const routePath = this.$route.path;

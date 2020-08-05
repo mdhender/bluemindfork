@@ -1,9 +1,6 @@
-import ItemUri from "@bluemind/item-uri";
-
-export function selectFolder({ commit, dispatch, state }, folder) {
-    const encodedKey = ItemUri.encode(folder.key, folder.mailbox);
-    if (state.currentFolderKey !== encodedKey) {
-        commit("setCurrentFolder", encodedKey);
+export function selectFolder({ commit, dispatch, rootState }, folder) {
+    if (rootState.mail.activeFolder !== folder.key) {
+        commit("mail/SET_CURRENT_FOLDER", folder.key, { root: true });
     }
     return dispatch("loadUnreadCount", folder.key);
 }

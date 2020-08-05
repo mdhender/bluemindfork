@@ -2,12 +2,12 @@ import { MimeType } from "@bluemind/email";
 import injector from "@bluemind/inject";
 import ItemUri from "@bluemind/item-uri";
 
-export function selectMessage({ dispatch, commit, state, getters }, messageKey) {
+export function selectMessage({ dispatch, commit, state, rootState }, messageKey) {
     const userSession = injector.getProvider("UserSession").get();
     const CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
 
-    if (state.currentFolderKey && !ItemUri.isItemUri(messageKey)) {
-        messageKey = ItemUri.encode(parseInt(messageKey), getters.currentFolder.uid);
+    if (rootState.mail.activeFolder && !ItemUri.isItemUri(messageKey)) {
+        messageKey = ItemUri.encode(parseInt(messageKey), rootState.mail.activeFolder);
     }
 
     if (state.currentMessage.key !== messageKey) {

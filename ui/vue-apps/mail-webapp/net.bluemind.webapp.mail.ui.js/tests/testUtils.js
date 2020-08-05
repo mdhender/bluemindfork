@@ -12,7 +12,6 @@ export function createStore(overrides) {
             "mail-webapp": {
                 namespaced: true,
                 state: {
-                    currentFolderKey: "",
                     maxMessageSize: 10,
                     selectedMessageKeys: []
                 },

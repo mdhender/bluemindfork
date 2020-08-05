@@ -109,7 +109,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["selectedMessageKeys", "search", "currentFolderKey"]),
+        ...mapState("mail-webapp", ["selectedMessageKeys", "search"]),
         ...mapState("mail-webapp/messages", ["itemKeys"]),
         ...mapGetters("mail-webapp", [
             "areAllMessagesSelected",
@@ -118,11 +118,10 @@ export default {
             "areAllSelectedMessagesUnflagged",
             "areAllSelectedMessagesUnread",
             "areMessagesFiltered",
-            "currentFolder",
             "isSearchMode",
             "nextMessageKey"
         ]),
-        ...mapState("mail", ["folders", "mailboxes"]),
+        ...mapState("mail", ["folders", "mailboxes", "activeFolder"]),
         ...mapGetters("mail", ["MY_DEFAULT_FOLDERS"]),
         anyMessageReadOnly() {
             return this.selectedMessageKeys
@@ -131,6 +130,9 @@ export default {
         },
         isSelectionMultiple() {
             return this.selectedMessageKeys.length > 1;
+        },
+        currentFolder() {
+            return this.folders[this.activeFolder];
         }
     },
     methods: {
@@ -153,7 +155,7 @@ export default {
             const areAllMessagesInFolderSelected =
                 this.areAllMessagesSelected && !this.areMessagesFiltered && !this.isSearchMode;
             areAllMessagesInFolderSelected
-                ? this.markFolderAsRead(this.currentFolderKey)
+                ? this.markFolderAsRead(this.activeFolder)
                 : this.markMessagesAsRead(this.selectedMessageKeys);
         },
         isFolderOfMailshare(folder) {
@@ -181,7 +183,7 @@ export default {
             }
         },
         async removeSelectedMessages() {
-            if (ItemUri.item(this.currentFolderKey) === this.MY_DEFAULT_FOLDERS.TRASH.key) {
+            if (this.activeFolder === this.MY_DEFAULT_FOLDERS.TRASH.key) {
                 this.purgeSelectedMessages();
             } else {
                 // do this before followed async operations

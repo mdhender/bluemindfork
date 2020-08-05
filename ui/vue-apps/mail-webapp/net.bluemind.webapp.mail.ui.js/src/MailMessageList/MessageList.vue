@@ -84,9 +84,10 @@ export default {
         ...mapState("mail-webapp/messages", ["itemKeys"]),
         ...mapGetters("mail-webapp/messages", ["messages", "count", "indexOf"]),
         ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
-        ...mapState("mail-webapp", ["currentFolderKey", "messageFilter", "selectedMessageKeys"]),
+        ...mapState("mail-webapp", ["messageFilter", "selectedMessageKeys"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail", ["MY_DEFAULT_FOLDERS"]),
+        ...mapState("mail", ["activeFolder"]),
         _messages() {
             return this.messages.slice(0, this.length);
         },
@@ -103,7 +104,7 @@ export default {
                 this.focusByKey(this.currentMessageKey);
             }
         },
-        currentFolderKey() {
+        activeFolder() {
             this.lastFocusedMessage = null;
             this.anchoredMessageForShift = null;
         }
@@ -140,7 +141,7 @@ export default {
             }
         },
         remove() {
-            if (this.currentFolderKey === this.MY_DEFAULT_FOLDERS.TRASH.key) {
+            if (this.activeFolder === this.MY_DEFAULT_FOLDERS.TRASH.key) {
                 this.purge();
             } else {
                 // do this before followed async operations

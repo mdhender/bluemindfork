@@ -81,7 +81,6 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailFolderInput from "../../MailFolderInput";
-import ItemUri from "@bluemind/item-uri";
 
 export default {
     name: "MailToolbarConsultMessageMoveAction",
@@ -104,10 +103,9 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["currentFolderKey"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail-webapp", ["nextMessageKey"]),
-        ...mapState("mail", ["folders", "mailboxes"]),
+        ...mapState("mail", ["folders", "mailboxes", "activeFolder"]),
         ...mapGetters("mail", ["MY_DEFAULT_FOLDERS"]),
         displayCreateFolderBtnFromPattern() {
             let pattern = this.pattern;
@@ -129,7 +127,7 @@ export default {
                 }
             }
             return [this.MY_DEFAULT_FOLDERS.INBOX, this.MY_DEFAULT_FOLDERS.TRASH].filter(
-                folder => folder && folder.key !== ItemUri.item(this.currentFolderKey)
+                folder => folder && folder.key !== this.activeFolder
             );
         }
     },

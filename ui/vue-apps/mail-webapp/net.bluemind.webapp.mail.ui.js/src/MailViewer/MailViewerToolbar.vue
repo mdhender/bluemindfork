@@ -43,7 +43,6 @@ export default {
     },
     directives: { BmTooltip },
     computed: {
-        ...mapState("mail-webapp", ["currentFolderKey"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" })
     }
 };

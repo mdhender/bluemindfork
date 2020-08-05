@@ -1,6 +1,5 @@
 import { STATUS } from "../constants";
 
-export let currentFolderKey;
 export let userUid;
 export let maxMessageSize;
 export let messageFilter;

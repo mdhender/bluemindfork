@@ -1,14 +1,15 @@
 export { FolderAdaptor } from "./helpers/FolderAdaptor";
 export { MailboxAdaptor } from "./helpers/MailboxAdaptor";
+import * as app from "./app";
 import * as folders from "./folders";
 import * as folderList from "./folderList";
 import * as mailboxes from "./mailboxes";
 
 export default {
     namespaced: true,
-    state: { ...folders.state, ...folderList.state, ...mailboxes.state },
+    state: { ...app.state, ...folders.state, ...folderList.state, ...mailboxes.state },
     actions: { ...folders.actions, ...mailboxes.actions },
-    mutations: { ...folders.mutations, ...folderList.mutations, ...mailboxes.mutations },
+    mutations: { ...app.mutations, ...folders.mutations, ...folderList.mutations, ...mailboxes.mutations },
     getters: { ...folders.getters, ...mailboxes.getters }
 };
 

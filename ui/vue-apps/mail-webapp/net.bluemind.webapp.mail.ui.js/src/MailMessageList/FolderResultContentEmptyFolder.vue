@@ -18,7 +18,7 @@
 
 <script>
 import { BmTooltip } from "@bluemind/styleguide";
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import emptyFolderIllustration from "../../assets/empty-folder.png";
 import MailFolderIcon from "../MailFolderIcon";
 import MailMessageListEmpty from "./MailMessageListEmpty";
@@ -36,7 +36,11 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["currentFolder", "currentMailbox"])
+        ...mapState("mail", ["folders", "activeFolder"]),
+        ...mapGetters("mail-webapp", ["currentMailbox"]),
+        currentFolder() {
+            return this.folders[this.activeFolder];
+        }
     }
 };
 </script>

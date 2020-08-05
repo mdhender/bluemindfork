@@ -19,7 +19,7 @@
         <bm-counter-badge
             v-if="folder.unread > 0"
             :value="folder.unread"
-            :variant="folder.key != currentFolderUid ? 'secondary' : 'primary'"
+            :variant="folder.key != activeFolder ? 'secondary' : 'primary'"
             class="mr-1 d-block"
         />
     </bm-dropzone>
@@ -44,7 +44,6 @@ import { REMOVE_FOLDER, TOGGLE_EDIT_FOLDER } from "@bluemind/webapp.mail.store";
 import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItemMenu from "./MailFolderItemMenu";
-import { ItemUri } from "@bluemind/item-uri";
 
 export default {
     name: "MailFolderItem",
@@ -64,12 +63,8 @@ export default {
         }
     },
     computed: {
-        ...mapState("mail-webapp", ["currentFolderKey"]),
-        ...mapState("mail", ["folderList", "folders"]),
+        ...mapState("mail", ["folderList", "folders", "activeFolder"]),
         ...mapGetters("mail-webapp", ["my"]),
-        currentFolderUid() {
-            return ItemUri.item(this.currentFolderKey);
-        },
         folder() {
             return this.folders[this.folderKey];
         },
@@ -101,7 +96,7 @@ export default {
         submit(newFolderName) {
             if (this.folder && this.folder.name !== "") {
                 this.renameFolder({ folderKey: this.folder.key, newFolderName }).then(() => {
-                    if (this.currentFolderUid === this.folder.key) {
+                    if (this.activeFolder === this.folder.key) {
                         this.$router.navigate({ name: "v:mail:message", params: { folder: this.folder.key } });
                     }
                 });

@@ -55,7 +55,7 @@ export default {
     computed: {
         ...mapGetters("mail-webapp/currentMessage", { message: "message", inlineParts: "content" }),
         ...mapState("mail-webapp", ["showBlockedImagesAlert"]),
-        ...mapGetters("mail-webapp", ["areRemoteImagesUnblocked", "currentFolder"]),
+        ...mapGetters("mail-webapp", ["areRemoteImagesUnblocked"]),
         ...mapState("mail", ["folders"]),
         folderOfCurrentMessage() {
             return this.folders[ItemUri.container(this.message.key)];

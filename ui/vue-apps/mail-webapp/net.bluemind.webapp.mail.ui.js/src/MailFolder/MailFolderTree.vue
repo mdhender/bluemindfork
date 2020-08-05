@@ -13,7 +13,7 @@
         <bm-collapse :id="'collapse-tree-' + collapseName" v-model="isTreeExpanded">
             <bm-tree
                 :tree="tree"
-                :selected="currentFolderUid"
+                :selected="activeFolder"
                 node-id-key="key"
                 class="text-nowrap"
                 breakpoint="xl"
@@ -32,7 +32,6 @@
 <script>
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import { BmButton, BmCollapse, BmIcon, BmTree } from "@bluemind/styleguide";
-import ItemUri from "@bluemind/item-uri";
 import { TOGGLE_FOLDER } from "@bluemind/webapp.mail.store";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItem from "./MailFolderItem";
@@ -68,11 +67,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail", ["MY_MAILBOX_KEY"]),
-        ...mapState("mail", ["folders"]),
-        ...mapState("mail-webapp", ["currentFolderKey"]),
-        currentFolderUid() {
-            return ItemUri.item(this.currentFolderKey);
-        }
+        ...mapState("mail", ["folders", "activeFolder"])
     },
     methods: {
         ...mapActions("mail-webapp", ["createFolder"]),

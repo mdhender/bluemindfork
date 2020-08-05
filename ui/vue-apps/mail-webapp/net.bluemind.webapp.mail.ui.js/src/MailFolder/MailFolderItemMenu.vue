@@ -37,7 +37,6 @@ import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
 import { CREATE_FOLDER, TOGGLE_EDIT_FOLDER, TOGGLE_FOLDER } from "@bluemind/webapp.mail.store";
 import { FolderAdaptor } from "@bluemind/webapp.mail.store";
-import { ItemUri } from "@bluemind/item-uri";
 import UUIDGenerator from "@bluemind/uuid";
 
 export default {
@@ -54,8 +53,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail", { hasChildren: "HAS_CHILDREN_GETTER" }),
-        ...mapState("mail", ["mailboxes", "folders"]),
-        ...mapState("mail-webapp", ["currentFolderKey"]),
+        ...mapState("mail", ["mailboxes", "folders", "activeFolder"]),
         isMailshareRoot() {
             return FolderAdaptor.isMailshareRoot(this.folder, this.mailboxes[this.folder.mailbox]);
         },
@@ -84,7 +82,7 @@ export default {
             if (confirm) {
                 const keyBeingRemoved = this.folder.key;
                 this.removeFolder(this.folder.key).then(() => {
-                    if (ItemUri.item(this.currentFolderKey) === keyBeingRemoved) {
+                    if (this.activeFolder === keyBeingRemoved) {
                         this.$router.push({ name: "mail:home" });
                     }
                 });
