@@ -291,31 +291,46 @@ let bmUtils = {
         let abManager = Components.classes["@mozilla.org/abmanager;1"]
                                 .getService().QueryInterface(Components.interfaces.nsIAbManager);
         let it = abManager.directories;
+        let removeDirectory = function(directory, uri, pref) {
+            if (directory) {
+                let cards = directory.childCards;
+                for (let card of cards) {
+                    if (card) bmPhotos.removePhoto(card);
+                }
+            }
+            this.deletePrefBranch(pref);
+            abManager.deleteAddressBook(uri);
+        }.bind(this);
+
         while (it.hasMoreElements()) {
             let directory = it.getNext();
             if (directory instanceof Components.interfaces.nsIAbDirectory) {
-                let id = this.getCharPref(directory.URI + ".bm-id", null);
-                if (id != null) {
-                    if (directory.URI == historyDirUri || directory.URI == prevHistoryDirUri) {
-                        this.deletePrefBranch(directory.URI);
-                        //delete bm cards
-                        let cardsToDel = [];
-                        let cards = directory.childCards;
-                        for (let card of cards) {
-                            let id = card.getProperty("bm-id", null);
-                            if (id) {
-                                cardsToDel.push(card);
-                            }
+                let uri = directory.URI;
+                if (uri == historyDirUri || uri == prevHistoryDirUri) {
+                    this.deletePrefBranch(directory.URI);
+                    //delete bm cards
+                    let cardsToDel = [];
+                    let cards = directory.childCards;
+                    for (let card of cards) {
+                        let id = card.getProperty("bm-id", null);
+                        if (id) {
+                            cardsToDel.push(card);
                         }
-                        directory.deleteCards(cardsToDel);
+                    }
+                    directory.deleteCards(cardsToDel);
+                } else if (uri.indexOf("bmdirectory://") == 0) {
+                    removeDirectory(null, uri, uri);
+                } else {
+                    let pref = uri;
+                    let id = this.getCharPref(pref + ".bm-id", null);
+                    if (id != null) {
+                        removeDirectory(null, uri, pref);
                     } else {
-                        let cards = directory.childCards;
-                        for (let card of cards) {
-                            if (card) bmPhotos.removePhoto(card);
+                        let prefLegacy = pref.replace("jsaddrbook", "moz-abmdbdirectory").replace(".sqlite", ".mab");
+                        id = this.getCharPref(prefLegacy + ".bm-id", null);
+                        if (id != null) {
+                            removeDirectory(directory, uri, pref);
                         }
-                        let uri = directory.URI;
-                        this.deletePrefBranch(uri);
-                        abManager.deleteAddressBook(uri);
                     }
                 }
             }
@@ -352,7 +367,7 @@ let bmUtils = {
         if (isLocal) {
             return true;
         }
-        // "moz-jsdirectory://abook-5.sqlite/MailList1"
+        // "jsdirectory://abook-5.sqlite/MailList1"
         let parentUri = uri.substring(0, uri.indexOf("sqlite") + 6);
         let parentDir = MailServices.ab.getDirectory(parentUri);
         return this.isBmReadOnlyAddressbook(parentDir);
