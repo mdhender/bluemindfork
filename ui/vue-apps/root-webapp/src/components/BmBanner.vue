@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import RootL10N from "../../l10n/";
+import BannerL10N from "../../l10n/";
 import BmBannerApplications from "./BmBannerApplications";
 import BmBannerAppIcon from "./BmBannerAppIcon";
 import BmBannerUser from "./BmBannerUser";
@@ -80,7 +80,7 @@ export default {
         BmRow
     },
     directives: { BmTooltip },
-    componentI18N: { messages: RootL10N },
+    componentI18N: { messages: BannerL10N },
     props: {
         applications: {
             required: true,

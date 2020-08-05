@@ -1427,15 +1427,6 @@
   dependencies:
     axios "^0.18.0"
 
-"@bluemind/core.container.store@^4.1.0":
-  version "4.1.51101"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/core.container.store/-/core.container.store-4.1.51101.tgz#e0d465449e43bd5bab72302d794bb3727f0a6b75"
-  integrity sha512-JGRtr7/47S1A151fpOfa6hVxFrxDq+1PaaLcsOjS6z/c32SJtABUl5M7rXbs4bkwY0puJeGaTtFyJHGlu9dnQg==
-  dependencies:
-    "@bluemind/core.container.api" "^4.1.0"
-    "@bluemind/webapp.mail.store" "^4.1.0"
-    lodash.clonedeep "^4.5.0"
-
 "@bluemind/core.task.api@^4.1.0":
   version "4.1.46844"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/core.task.api/-/core.task.api-4.1.46844.tgz#580a1e584129cfe3497e96ac29708098993615cf"
