@@ -51,10 +51,12 @@ import net.bluemind.server.api.Server;
 public class SendmailTests {
 
 	private SMTPServer server;
+	private TestMessageListener testListener;
 
 	@Before
 	public void before() {
-		this.server = new SMTPServer(new SimpleMessageListenerAdapter(new TestMessageListener()));
+		this.testListener = new TestMessageListener();
+		this.server = new SMTPServer(new SimpleMessageListenerAdapter(testListener));
 		System.setProperty(Sendmail.SMTP_SUBMIT_PORT_PROP, "1587");
 		System.setProperty(Sendmail.SMTP_STARTTLS_PROP, "false");
 
@@ -86,10 +88,13 @@ public class SendmailTests {
 			SendmailCredentials creds = SendmailCredentials.as("username", "password");
 			MailboxList recips = new MailboxList(Arrays.asList(new Mailbox("recipient", "bluemind.net")), true);
 			long time = System.currentTimeMillis();
+			long before = testListener.total();
 			SendmailResponse resp = s.send(creds, "username@bluemind.net", "bluemind.net", recips, eml);
 			assertEquals(250, resp.code());
+			long after = testListener.total();
 			time = System.currentTimeMillis() - time;
-			System.err.println("Sent in " + time + "ms.");
+			System.err.println("Sent " + (after - before) + " in " + time + "ms.");
+			assertEquals(9564459, after - before);
 		}
 	}
 
@@ -104,6 +109,7 @@ public class SendmailTests {
 		int cnt = 100;
 		MailboxList recips = new MailboxList(Arrays.asList(new Mailbox("recipient", "bluemind.net")), true);
 		long totalTime = 0;
+		long totalSize = testListener.total();
 		for (int i = 0; i < cnt; i++) {
 			try (InputStream eml = new ByteBufInputStream(target.duplicate())) {
 				SendmailCredentials creds = SendmailCredentials.as("username", "password");
@@ -115,6 +121,8 @@ public class SendmailTests {
 				System.err.println((i + 1) + "/" + cnt + " Sent in " + time + "ms.");
 			}
 		}
+		long afterSize = testListener.total();
+		assertEquals(9564459, (afterSize - totalSize) / cnt);
 		long average = totalTime / cnt;
 		System.err.println("Average Send time is " + average + "ms.");
 	}

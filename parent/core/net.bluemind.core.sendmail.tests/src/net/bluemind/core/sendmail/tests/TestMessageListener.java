@@ -24,8 +24,11 @@ import org.subethamail.smtp.TooMuchDataException;
 import org.subethamail.smtp.helper.SimpleMessageListener;
 
 import com.google.common.io.ByteStreams;
+import com.google.common.io.CountingOutputStream;
 
 public class TestMessageListener implements SimpleMessageListener {
+
+	private long total;
 
 	@Override
 	public boolean accept(String from, String recipient) {
@@ -35,7 +38,13 @@ public class TestMessageListener implements SimpleMessageListener {
 
 	@Override
 	public void deliver(String from, String recipient, InputStream data) throws TooMuchDataException, IOException {
-		ByteStreams.copy(data, ByteStreams.nullOutputStream());
+		CountingOutputStream out = new CountingOutputStream(ByteStreams.nullOutputStream());
+		ByteStreams.copy(data, out);
+		this.total += out.getCount();
+	}
+
+	public long total() {
+		return total;
 	}
 
 }
