@@ -40,7 +40,8 @@ net.bluemind.contact.group.edit.GroupEditPresenter = function(ctx) {
       .getChild('members'));
   view.getChild('form').getChild('members').setMatcher(matcher);
   this.handler.listen(view, net.bluemind.contact.group.edit.ui.MemberField.EventType.CREATE, this.handleCreateMember_);
-  this.handler.listen(view, net.bluemind.contact.group.edit.ui.MemberField.EventType.AC_ADD, this.handleAutoCompleteEntryAdded_);
+  this.handler.listen(view, net.bluemind.contact.group.edit.ui.MemberField.EventType.AC_ADD,
+      this.handleAutoCompleteEntryAdded_);
   this.handler.listen(view, net.bluemind.contact.group.ui.MemberDetails.EventType.GOTO, this.handleGoToMember_);
   this.handler.listen(view, 'validate', this.handleValidateContact_);
 }
@@ -118,12 +119,12 @@ net.bluemind.contact.group.edit.GroupEditPresenter.prototype.handleCreateMember_
  */
 net.bluemind.contact.group.edit.GroupEditPresenter.prototype.handleGoToMember_ = function(event) {
   var model = event.model;
-  
+
   var cont = model.container;
-  if (!model.container){
+  if (!model.container) {
     cont = this.view.getModel().container.id;
   }
-  
+
   this.ctx.service('addressbook').getItem(cont, model.id).then(function(card) {
     if (card) {
       this.ctx.helper('url').goTo('/vcard/?uid=' + model.id + '&container=' + cont);
@@ -163,19 +164,28 @@ net.bluemind.contact.group.edit.GroupEditPresenter.prototype.handleValidateConta
   var promises = [];
   for ( var index in model.members) {
     var member = model.members[index];
-    promises.push(this.ctx.service('addressbook').getItem(member.container ? member.container : model.container.id, member.id));
+      promises.push({
+        "uid" : member.id,
+        "promise" : this.ctx.service('addressbook').getItem(member.container ? member.container : model.container.id,
+            member.id)
+      });
   }
-  goog.Promise.all(promises).then(function(ret) {
-    for ( var index in ret) {
+  
+  goog.Promise.all(promises.map(p => p.promise)).then(function(ret) {
+    for (var index in promises) {
+      
+      var resolved = promises[index]; 
+      var resolvedValue = ret[index];
+      
       var i = model.members.length;
-      while ( i--) {
+      while (i--) {
         var member = model.members[i];
-        if (member.id == ret[index]['uid']) {
-          if (!ret[index]['value'] || ret[index]['value']['kind'] == 'group') {
+        if (member.id == resolved['uid']) {
+          if (!resolvedValue || !resolvedValue['value'] || resolvedValue['value']['kind'] == 'group') {
             model.members.splice(i, 1);
           } else {
-            member.name = ret[index]['displayName'];
-            var communications = ret[index]['value']['communications'];
+            member.name = resolvedValue['displayName'];
+            var communications = resolvedValue['value']['communications'];
             if (communications && communications['emails'] && communications['emails'].length > 0) {
               member.email = communications['emails'][0]['value'];
             } else {
@@ -228,7 +238,7 @@ net.bluemind.contact.group.edit.GroupEditPresenter.MemberMatcher.prototype.reque
           if (match['value']['kind'] == 'group') {
             // FEATBL-716: filter dlists from other addressbooks
             return false;
-          } 
+          }
         }
         return !goog.array.contains(values, match['uid']);
       }, this);
