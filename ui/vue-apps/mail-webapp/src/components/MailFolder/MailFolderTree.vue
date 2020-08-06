@@ -32,7 +32,6 @@
 <script>
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import { BmButton, BmCollapse, BmIcon, BmTree } from "@bluemind/styleguide";
-import { TOGGLE_FOLDER } from "../../store/";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItem from "./MailFolderItem";
 
@@ -71,7 +70,7 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", ["createFolder"]),
-        ...mapMutations([TOGGLE_FOLDER]),
+        ...mapMutations("mail", ["TOGGLE_FOLDER"]),
         add(newFolderName) {
             const folder = {
                 name: newFolderName,
@@ -91,7 +90,7 @@ export default {
         },
 
         toggle(folderKey) {
-            this[TOGGLE_FOLDER](folderKey);
+            this.TOGGLE_FOLDER(folderKey);
         }
     }
 };

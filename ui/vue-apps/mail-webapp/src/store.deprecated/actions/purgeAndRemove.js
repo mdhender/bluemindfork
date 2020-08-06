@@ -1,6 +1,5 @@
 import UUIDGenerator from "@bluemind/uuid";
 import ItemUri from "@bluemind/item-uri";
-import { SET_UNREAD_COUNT } from "../../store/";
 
 export function purge(context, messageKeys) {
     return action(context, messageKeys, "PURGE", purgeMessages);
@@ -51,7 +50,7 @@ function cleanUp(messageKeys, unreadMessageKeys, context) {
         keys.forEach(messageKey => {
             if (unreadMessageKeys.includes(messageKey)) {
                 context.commit(
-                    SET_UNREAD_COUNT,
+                    "mail/SET_UNREAD_COUNT",
                     {
                         key: folderUid,
                         count: context.rootState.mail.folders[folderUid].unread - 1

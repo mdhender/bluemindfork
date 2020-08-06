@@ -1,6 +1,5 @@
 import { STATUS } from "../constants";
 import { STATUS as SEARCH_STATUS } from "../modules/search";
-import { TOGGLE_FOLDER } from "../../store/";
 import ContainerObserver from "@bluemind/containerobserver";
 import ItemUri from "@bluemind/item-uri";
 import SearchHelper from "../SearchHelper";
@@ -89,7 +88,7 @@ function expandParents(commit, folder, rootState) {
     if (folder.parent) {
         const parentFolder = rootState.mail.folders[folder.parent];
         if (!parentFolder.expanded) {
-            commit(TOGGLE_FOLDER, folder.parent, { root: true });
+            commit("mail/TOGGLE_FOLDER", folder.parent, { root: true });
         }
         expandParents(commit, parentFolder, rootState);
     }

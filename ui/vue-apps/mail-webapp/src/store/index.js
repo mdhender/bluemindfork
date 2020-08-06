@@ -10,17 +10,3 @@ export default {
     mutations: { ...app.mutations, ...folders.mutations, ...folderList.mutations, ...mailboxes.mutations },
     getters: { ...app.getters, ...folders.getters, ...mailboxes.getters }
 };
-
-export const ADD_FOLDER = "mail/" + folders.ADD_FOLDER;
-export const ADD_FOLDERS = "mail/" + folders.ADD_FOLDERS;
-export const FETCH_FOLDERS = "mail/" + folders.FETCH_FOLDERS;
-export const CREATE_FOLDER = "mail/" + folders.CREATE_FOLDER;
-export const RENAME_FOLDER = "mail/" + folders.RENAME_FOLDER;
-export const REMOVE_FOLDER = "mail/" + folders.REMOVE_FOLDER;
-export const SET_UNREAD_COUNT = "mail/" + folders.SET_UNREAD_COUNT;
-export const TOGGLE_FOLDER = "mail/" + folders.TOGGLE_FOLDER;
-
-export const TOGGLE_EDIT_FOLDER = "mail/" + folderList.TOGGLE_EDIT_FOLDER;
-
-export const ADD_MAILBOXES = "mail/" + mailboxes.ADD_FOLDER;
-export const FETCH_MAILBOXES = "mail/" + mailboxes.FETCH_MAILBOXES;
