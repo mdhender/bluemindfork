@@ -163,9 +163,7 @@ net.bluemind.contact.group.edit.GroupEditPresenter.prototype.handleValidateConta
   var promises = [];
   for ( var index in model.members) {
     var member = model.members[index];
-    if (member.container != model.container.id) {
-      promises.push(this.ctx.service('addressbook').getItem(member.container, member.id));
-    }
+    promises.push(this.ctx.service('addressbook').getItem(member.container ? member.container : model.container.id, member.id));
   }
   goog.Promise.all(promises).then(function(ret) {
     for ( var index in ret) {
