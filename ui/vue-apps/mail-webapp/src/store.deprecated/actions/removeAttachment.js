@@ -7,10 +7,9 @@ export function removeAttachment({ commit, dispatch, getters, state, rootGetters
     let promise = Promise.resolve();
 
     if (status !== "ERROR") {
-        const draftbox = rootGetters["mail/MY_DEFAULT_FOLDERS"].DRAFTS;
         promise = injector
             .getProvider("MailboxItemsPersistence")
-            .get(draftbox.uid)
+            .get(rootGetters["mail/MY_DRAFTS"].uid)
             .removePart(partAddress);
     }
     return promise.then(() => {

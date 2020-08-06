@@ -1,7 +1,8 @@
 import Vue from "vue";
-import { FolderAdaptor } from "./helpers/FolderAdaptor";
 import { inject } from "@bluemind/inject";
 import { ItemFlag } from "@bluemind/core.container.api";
+import { DEFAULT_FOLDER_NAMES } from "./helpers/DefaultFolders";
+import { FolderAdaptor } from "./helpers/FolderAdaptor";
 
 export const ADD_FOLDER = "ADD_FOLDER";
 export const ADD_FOLDERS = "ADD_FOLDERS";
@@ -31,15 +32,11 @@ export const getters = {
         Object.values(state.folders)
             .filter(folder => getters["MY_MAILBOX_KEY"] === folder.mailbox)
             .map(folder => folder.key),
-    MY_DEFAULT_FOLDERS: (state, getters) => {
-        const defaultFolders = getters["MY_MAILBOX_FOLDERS"]
-            .map(folderKey => state.folders[folderKey])
-            .filter(folder => FolderAdaptor.isMyMailboxDefaultFolder(folder))
-            .map(folder => {
-                return [folder.name.toUpperCase(), folder];
-            });
-        return Object.fromEntries(defaultFolders);
-    }
+    MY_INBOX: state => Object.values(state.folders).find(folder => folder.imapName === DEFAULT_FOLDER_NAMES.INBOX),
+    MY_OUTBOX: state => Object.values(state.folders).find(folder => folder.imapName === DEFAULT_FOLDER_NAMES.OUTBOX),
+    MY_DRAFTS: state => Object.values(state.folders).find(folder => folder.imapName === DEFAULT_FOLDER_NAMES.DRAFTS),
+    MY_SENT: state => Object.values(state.folders).find(folder => folder.imapName === DEFAULT_FOLDER_NAMES.SENT),
+    MY_TRASH: state => Object.values(state.folders).find(folder => folder.imapName === DEFAULT_FOLDER_NAMES.TRASH)
 };
 
 export const mutations = {

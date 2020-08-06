@@ -13,6 +13,7 @@
 
 <script>
 import { BmLabelIcon, BmIcon } from "@bluemind/styleguide";
+import { DEFAULT_FOLDER_NAMES } from "../store/helpers/DefaultFolders";
 
 export default {
     name: "MailFolderIcon",
@@ -39,21 +40,22 @@ export default {
     computed: {
         icon() {
             const modifier = this.shared ? "-shared" : "";
-            switch (this.folder.path) {
-                case "INBOX":
+            switch (this.folder.imapName) {
+                case DEFAULT_FOLDER_NAMES.INBOX:
                     return "inbox";
-                case "Drafts":
+                case DEFAULT_FOLDER_NAMES.DRAFTS:
                     return "pencil" + modifier;
-                case "Trash":
+                case DEFAULT_FOLDER_NAMES.TRASH:
                     return "trash" + modifier;
-                case "Junk":
+                case DEFAULT_FOLDER_NAMES.JUNK:
                     return "forbidden";
-                case "Outbox":
+                case DEFAULT_FOLDER_NAMES.OUTBOX:
                     return "clock";
-                case "Sent":
+                case DEFAULT_FOLDER_NAMES.SENT:
                     return "paper-plane" + modifier;
+                default:
+                    return "folder" + modifier;
             }
-            return "folder" + modifier;
         }
     }
 };

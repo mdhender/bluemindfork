@@ -40,7 +40,7 @@ function purgeMessages(context, messageKeys) {
 function removeMessages(context, messageKeys) {
     return context.dispatch("$_move", {
         messageKeys: messageKeys,
-        destinationKey: context.rootGetters["mail/MY_DEFAULT_FOLDERS"].TRASH.key
+        destinationKey: context.rootGetters["mail/MY_TRASH"].key
     });
 }
 
@@ -107,5 +107,5 @@ function errorAlert(action, commit, messageKeys, subject) {
 
 function allMessagesInTrash(rootGetters, messageKeys) {
     messageKeys = Array.isArray(messageKeys) ? messageKeys : [messageKeys];
-    return messageKeys.every(key => ItemUri.container(key) === rootGetters["mail/MY_DEFAULT_FOLDERS"].TRASH.uid);
+    return messageKeys.every(key => ItemUri.container(key) === rootGetters["mail/MY_TRASH"].uid);
 }

@@ -24,12 +24,13 @@ export function send({ state, commit, dispatch, rootGetters }) {
             draftId = moveResult.doneIds[0].destination;
             return flush(); // flush means send mail + move to sentbox
         })
-        .then(taskResult => getSentMessageId(taskResult, draftId, rootGetters["mail/MY_DEFAULT_FOLDERS"].SENT.uid))
+        .then(taskResult => getSentMessageId(taskResult, draftId, rootGetters["mail/MY_SENT"].uid))
         .then(mailItem =>
             handleSuccess(
                 mailItem.internalId,
                 loadingAlertUid,
-                rootGetters["mail/MY_DEFAULT_FOLDERS"],
+                rootGetters["mail/MY_SENT"],
+                rootGetters["mail/MY_DRAFTS"],
                 draft,
                 commit,
                 dispatch
@@ -66,18 +67,18 @@ function moveToOutbox(rootGetters, draftId) {
     return injector
         .getProvider("MailboxFoldersPersistence")
         .get(rootGetters["mail/MY_MAILBOX_KEY"])
-        .importItems(rootGetters["mail/MY_DEFAULT_FOLDERS"].OUTBOX.id, {
-            mailboxFolderId: rootGetters["mail/MY_DEFAULT_FOLDERS"].DRAFTS.id,
+        .importItems(rootGetters["mail/MY_OUTBOX"].id, {
+            mailboxFolderId: rootGetters["mail/MY_DRAFTS"].id,
             ids: [{ id: draftId }],
             expectedIds: undefined,
             deleteFromSource: true
         });
 }
 
-function handleSuccess(sentMailId, loadingAlertUid, myDefaultFolders, draft, commit, dispatch) {
-    clearAttachmentParts(myDefaultFolders.DRAFTS.uid, draft);
+function handleSuccess(sentMailId, loadingAlertUid, mySentBox, myDraftBox, draft, commit, dispatch) {
+    clearAttachmentParts(myDraftBox.uid, draft);
     manageFlagOnPreviousMessage(draft, dispatch);
-    const messageKey = ItemUri.encode(sentMailId, myDefaultFolders.SENT.uid);
+    const messageKey = ItemUri.encode(sentMailId, mySentBox.uid);
     commit("removeApplicationAlert", loadingAlertUid, { root: true });
     commit(
         "addApplicationAlert",
@@ -87,7 +88,7 @@ function handleSuccess(sentMailId, loadingAlertUid, myDefaultFolders, draft, com
                 subject: draft.subject,
                 subjectLink: {
                     name: "v:mail:message",
-                    params: { message: messageKey, folder: myDefaultFolders.SENT.path }
+                    params: { message: messageKey, folder: mySentBox.path }
                 }
             }
         },

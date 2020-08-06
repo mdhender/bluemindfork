@@ -63,5 +63,11 @@
     "common.every_year.day_month": "Tous les ans, le {dayMonth}",
     "common.every_year.day_month.with_time": "Tous les ans, le {dayMonth}, de {startTime} à {endTime}",
     "common.every_day.with_time": "Tous les jours, de {startTime} à {endTime}",
-    "common.every_day": "Tous les jours"
+    "common.every_day": "Tous les jours",
+    "common.folder.outbox": "Boîte d'envoi",
+    "common.folder.drafts": "Brouillons",
+    "common.folder.inbox": "Boîte de réception",
+    "common.folder.junk": "Messages indésirables",
+    "common.folder.sent": "Messages envoyés",
+    "common.folder.trash": "Corbeille"
 }

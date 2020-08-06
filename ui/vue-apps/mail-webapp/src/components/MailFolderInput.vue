@@ -23,8 +23,9 @@
 </template>
 
 <script>
-import { BmFormInput, BmIcon, BmNotice } from "@bluemind/styleguide";
 import { mapGetters } from "vuex";
+import { BmFormInput, BmIcon, BmNotice } from "@bluemind/styleguide";
+import { DEFAULT_FOLDERS } from "../store/helpers/DefaultFolders";
 
 const FOLDER_PATH_MAX_LENGTH = 250;
 
@@ -76,7 +77,7 @@ export default {
                     });
                 }
 
-                if (this.FOLDER_BY_PATH(this.path)) {
+                if (this.FOLDER_BY_PATH(this.path) || DEFAULT_FOLDERS.includes(this.path)) {
                     return this.$t("mail.actions.folder.invalid.already_exist");
                 }
             }

@@ -98,7 +98,7 @@ export default {
         ]),
         ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
         ...mapState("mail", ["folders", "activeFolder"]),
-        ...mapGetters("mail", ["MY_DEFAULT_FOLDERS"]),
+        ...mapGetters("mail", ["MY_TRASH"]),
         isSelectionMultiple() {
             return this.selectedMessageKeys.length > 1;
         },
@@ -174,7 +174,7 @@ export default {
             }
         },
         remove() {
-            if (this.activeFolder === this.MY_DEFAULT_FOLDERS.TRASH.key) {
+            if (this.activeFolder === this.MY_TRASH.key) {
                 this.purge();
             } else {
                 // do this before followed async operations

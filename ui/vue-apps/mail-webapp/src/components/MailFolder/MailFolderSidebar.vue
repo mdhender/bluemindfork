@@ -18,6 +18,7 @@
 <script>
 import { mapGetters, mapState } from "vuex";
 import injector from "@bluemind/inject";
+import { DEFAULT_FOLDERS } from "../../store/helpers/DefaultFolders";
 import MailFolderTree from "./MailFolderTree";
 
 export default {
@@ -52,6 +53,7 @@ function toTreeItem(folder, hasChildrenGetter) {
     return {
         key: folder.key,
         name: folder.name,
+        imapName: folder.imapName,
         expanded: folder.expanded,
         children: [],
         hasChildren: hasChildrenGetter(folder.key),
@@ -74,11 +76,9 @@ function buildTreeMap(nodes) {
     return nodeMap.get(null) || [];
 }
 
-const defaultFolders = ["INBOX", "Sent", "Drafts", "Trash", "Junk", "Outbox"];
-
 function compare(f1, f2) {
-    const f1Weight = defaultFolders.indexOf(f1.name);
-    const f2Weight = defaultFolders.indexOf(f2.name);
+    const f1Weight = DEFAULT_FOLDERS.indexOf(f1.imapName);
+    const f2Weight = DEFAULT_FOLDERS.indexOf(f2.imapName);
     if (f1Weight >= 0 && f2Weight >= 0) {
         return f1Weight - f2Weight;
     } else if (f1Weight >= 0 && f2Weight < 0) {
@@ -86,7 +86,7 @@ function compare(f1, f2) {
     } else if (f1Weight < 0 && f2Weight >= 0) {
         return 1;
     } else {
-        return f1.name.localeCompare(f2.name);
+        return f1.imapName.localeCompare(f2.imapName);
     }
 }
 </script>

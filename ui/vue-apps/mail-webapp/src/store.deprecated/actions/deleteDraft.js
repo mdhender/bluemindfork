@@ -13,7 +13,7 @@ export function deleteDraft({ commit, state, rootGetters }) {
 
     return new Promise(resolve => {
         // initialize service, session and status
-        const draftbox = rootGetters["mail/MY_DEFAULT_FOLDERS"].DRAFTS;
+        const draftbox = rootGetters["mail/MY_DRAFTS"];
 
         service = injector.getProvider("MailboxItemsPersistence").get(draftbox.uid);
         commit("draft/update", { status: DraftStatus.DELETING });

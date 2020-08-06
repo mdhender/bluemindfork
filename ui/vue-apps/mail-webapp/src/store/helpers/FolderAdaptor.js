@@ -1,6 +1,6 @@
+import injector from "@bluemind/inject";
+import { DEFAULT_FOLDERS } from "./DefaultFolders";
 import { MailboxType } from "./MailboxAdaptor";
-
-const DEFAULT_FOLDER_NAMES = ["INBOX", "Sent", "Drafts", "Trash", "Junk", "Outbox"];
 
 export const FolderAdaptor = {
     fromMailboxFolder(remotefolder, mailbox) {
@@ -10,7 +10,10 @@ export const FolderAdaptor = {
             id: remotefolder.internalId,
             mailbox: mailbox.uid,
             parent: remotefolder.value.parentUid,
-            name: remotefolder.value.name,
+            name: isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox)
+                ? translateDefaults(remotefolder.value.name)
+                : remotefolder.value.name,
+            imapName: remotefolder.value.name,
             path: computePathFromRemote(remotefolder, mailbox),
             writable: mailbox.writable,
             default: isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox),
@@ -31,7 +34,7 @@ export const FolderAdaptor = {
     },
 
     isMyMailboxDefaultFolder(folder) {
-        return !folder.parent && DEFAULT_FOLDER_NAMES.includes(folder.name);
+        return !folder.parent && DEFAULT_FOLDERS.includes(folder.imapName);
     },
 
     isMailshareRoot(folder, mailbox) {
@@ -45,7 +48,8 @@ export const FolderAdaptor = {
             id: null,
             mailbox: mailbox.key,
             parent: parent ? parent.key : null,
-            name,
+            name: name,
+            imapName: name,
             path: computePath(mailbox, name, parent),
             writable: mailbox.writable,
             default: isDefault(!parent, name, mailbox),
@@ -61,13 +65,17 @@ export const FolderAdaptor = {
 };
 
 function computePathFromRemote(remotefolder, mailbox) {
+    const folderPath = isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox)
+        ? translateDefaults(remotefolder.value.name)
+        : remotefolder.value.fullName;
+
     if (mailbox.type === "mailshares") {
         if (!remotefolder.value.parentUid) {
             return mailbox.root;
         }
-        return path(mailbox.root, remotefolder.value.fullName);
+        return path(mailbox.root, folderPath);
     }
-    return remotefolder.value.fullName;
+    return folderPath;
 }
 
 function computePath(mailbox, name, parent) {
@@ -87,5 +95,13 @@ function path() {
 }
 
 function isDefault(isRootFolder, name, mailbox) {
-    return isRootFolder && (mailbox.type !== MailboxType.USER || DEFAULT_FOLDER_NAMES.includes(name));
+    return isRootFolder && (mailbox.type !== MailboxType.USER || DEFAULT_FOLDERS.includes(name));
+}
+
+function translateDefaults(name) {
+    if (DEFAULT_FOLDERS.includes(name)) {
+        const vueI18n = injector.getProvider("i18n").get();
+        return vueI18n.t("common.folder." + name.toLowerCase());
+    }
+    return name;
 }

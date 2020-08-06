@@ -64,5 +64,11 @@
     "common.every_year.day_month.with_time": "Every year, the {dayMonth}, from {startTime} to {endTime}",
     "common.number_suffix": "1st | 2nd | 3rd | {number}th",
     "common.every_day.with_time": "Every day, from {startTime} to {endTime}",
-    "common.every_day": "Every day"
+    "common.every_day": "Every day",
+    "common.folder.drafts": "Drafts",
+    "common.folder.inbox": "Inbox",
+    "common.folder.junk": "Junk",
+    "common.folder.outbox": "Outbox",
+    "common.folder.sent": "Sent messages",
+    "common.folder.trash": "Trash"
 }

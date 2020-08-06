@@ -82,7 +82,7 @@ function locateFolder(local, mailshare, rootState, rootGetters) {
             router.push({ name: "mail:root" });
         }
     }
-    return folder || rootGetters["mail/MY_DEFAULT_FOLDERS"].INBOX;
+    return folder || rootGetters["mail/MY_INBOX"];
 }
 
 function expandParents(commit, folder, rootState) {

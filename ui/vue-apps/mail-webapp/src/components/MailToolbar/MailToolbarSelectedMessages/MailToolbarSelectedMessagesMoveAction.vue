@@ -106,7 +106,7 @@ export default {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail-webapp", ["nextMessageKey"]),
         ...mapState("mail", ["folders", "mailboxes", "activeFolder"]),
-        ...mapGetters("mail", ["MY_DEFAULT_FOLDERS"]),
+        ...mapGetters("mail", ["MY_TRASH", "MY_INBOX"]),
         displayCreateFolderBtnFromPattern() {
             let pattern = this.pattern;
             if (pattern !== "") {
@@ -126,9 +126,7 @@ export default {
                     return filtered.slice(0, this.maxFolders);
                 }
             }
-            return [this.MY_DEFAULT_FOLDERS.INBOX, this.MY_DEFAULT_FOLDERS.TRASH].filter(
-                folder => folder && folder.key !== this.activeFolder
-            );
+            return [this.MY_INBOX, this.MY_TRASH].filter(folder => folder && folder.key !== this.activeFolder);
         }
     },
     methods: {
