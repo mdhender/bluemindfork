@@ -58,16 +58,6 @@ describe("[Mail-WebappStore][actions] : move", () => {
                 1,
                 "addApplicationAlert",
                 {
-                    code: "MSG_MOVED_LOADING",
-                    props: { subject: "dummy" },
-                    uid: expect.anything()
-                },
-                { root: true }
-            );
-            expect(context.commit).toHaveBeenNthCalledWith(
-                2,
-                "addApplicationAlert",
-                {
                     code: "MSG_MOVE_OK",
                     props: {
                         subject: "dummy",
@@ -77,9 +67,6 @@ describe("[Mail-WebappStore][actions] : move", () => {
                 },
                 { root: true }
             );
-            expect(context.commit).toHaveBeenNthCalledWith(3, "removeApplicationAlert", expect.anything(), {
-                root: true
-            });
             done();
         });
     });

@@ -1,23 +1,17 @@
-import UUIDGenerator from "@bluemind/uuid";
 import { Flag } from "@bluemind/email";
 import ItemUri from "@bluemind/item-uri";
 
 export async function markFolderAsRead(context, folderKey) {
     const folder = context.rootState.mail.folders[folderKey];
-    const uid = UUIDGenerator.generate();
     const props = {
         folder: { name: folder.path },
         folderNameLink: { name: "v:mail:home", params: { folder: folderKey } }
     };
-    const root = { root: true };
-    context.commit("addApplicationAlert", { uid, code: "MSG_FOLDER_MARKASREAD_LOADING", props }, root);
     try {
         await optimisticMarkFolderAsRead(context, folder);
-        context.commit("removeApplicationAlert", uid, root);
-        context.commit("addApplicationAlert", { code: "MSG_FOLDER_MARKASREAD_SUCCESS", props }, root);
+        context.commit("addApplicationAlert", { code: "MSG_FOLDER_MARKASREAD_SUCCESS", props }, { root: true });
     } catch (e) {
-        context.commit("removeApplicationAlert", uid, root);
-        context.commit("addApplicationAlert", { code: "MSG_FOLDER_MARKASREAD_ERROR", props }, root);
+        context.commit("addApplicationAlert", { code: "MSG_FOLDER_MARKASREAD_ERROR", props }, { root: true });
     }
 }
 

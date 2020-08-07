@@ -1,11 +1,6 @@
 import { AlertTypes } from "@bluemind/alert.store";
 
 export default {
-    MSG_MOVED_LOADING: {
-        type: AlertTypes.LOADING,
-        key: "alert.mail.move.loading",
-        renderer: "MailAlertRenderer"
-    },
     MSG_MOVED_LOADING_MULTIPLE: {
         type: AlertTypes.LOADING,
         key: "alert.mail.move.multiple.loading",
@@ -29,11 +24,6 @@ export default {
     MSG_MOVE_ERROR_MULTIPLE: {
         type: AlertTypes.ERROR,
         key: "alert.mail.move.multiple.error",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_REMOVED_LOADING: {
-        type: AlertTypes.LOADING,
-        key: "alert.mail.message.remove.loading",
         renderer: "MailAlertRenderer"
     },
     MSG_REMOVED_OK: {
@@ -74,11 +64,6 @@ export default {
     MSG_SENT_ERROR: {
         type: AlertTypes.ERROR,
         key: "alert.mail.message.sent.error",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_PURGE_LOADING: {
-        type: AlertTypes.LOADING,
-        key: "alert.mail.message.purge.loading",
         renderer: "MailAlertRenderer"
     },
     MSG_PURGE_OK: {
@@ -146,11 +131,6 @@ export default {
         key: "alert.mail.multiple.markasunread.success",
         renderer: "MailAlertRenderer"
     },
-    MSG_FOLDER_REMOVE_LOADING: {
-        type: AlertTypes.LOADING,
-        key: "alert.folder.remove.loading",
-        renderer: "MailAlertRenderer"
-    },
     MSG_FOLDER_REMOVE_ERROR: {
         type: AlertTypes.ERROR,
         key: "alert.folder.remove.error",
@@ -159,11 +139,6 @@ export default {
     MSG_FOLDER_REMOVE_SUCCESS: {
         type: AlertTypes.SUCCESS,
         key: "alert.folder.remove.success",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_FOLDER_RENAME_LOADING: {
-        type: AlertTypes.LOADING,
-        key: "alert.folder.rename.loading",
         renderer: "MailAlertRenderer"
     },
     MSG_FOLDER_RENAME_ERROR: {
@@ -176,11 +151,6 @@ export default {
         key: "alert.folder.rename.success",
         renderer: "MailAlertRenderer"
     },
-    MSG_FOLDER_MARKASREAD_LOADING: {
-        type: AlertTypes.LOADING,
-        key: "alert.folder.mark_as_read.loading",
-        renderer: "MailAlertRenderer"
-    },
     MSG_FOLDER_MARKASREAD_ERROR: {
         type: AlertTypes.ERROR,
         key: "alert.folder.mark_as_read.error",
@@ -189,11 +159,6 @@ export default {
     MSG_FOLDER_MARKASREAD_SUCCESS: {
         type: AlertTypes.SUCCESS,
         key: "alert.folder.mark_as_read.success",
-        renderer: "MailAlertRenderer"
-    },
-    MSG_FOLDER_CREATE_LOADING: {
-        type: AlertTypes.LOADING,
-        key: "alert.folder.create.loading",
         renderer: "MailAlertRenderer"
     },
     MSG_FOLDER_CREATE_ERROR: {

@@ -44,19 +44,7 @@ describe("[Mail-WebappStore][actions] : remove", () => {
 
     test("display alerts", async () => {
         await remove(context, messageKey);
-        expect(context.commit).toHaveBeenNthCalledWith(
-            1,
-            "addApplicationAlert",
-            {
-                code: "MSG_REMOVED_LOADING",
-                props: { subject: "dummy" },
-                uid: expect.anything()
-            },
-            { root: true }
-        );
-
-        expect(context.commit).toHaveBeenNthCalledWith(
-            3,
+        expect(context.commit).toHaveBeenCalledWith(
             "addApplicationAlert",
             {
                 code: "MSG_REMOVED_OK",
@@ -65,9 +53,6 @@ describe("[Mail-WebappStore][actions] : remove", () => {
             },
             { root: true }
         );
-        expect(context.commit).toHaveBeenNthCalledWith(4, "removeApplicationAlert", expect.anything(), {
-            root: true
-        });
     });
 
     test("remove message definitely if current folder is the trash", async () => {

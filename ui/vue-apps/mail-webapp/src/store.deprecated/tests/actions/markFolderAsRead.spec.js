@@ -27,15 +27,7 @@ describe("[Mail-WebappStore][actions] : markFolderAsRead", () => {
 
     test("Basic", async () => {
         await markFolderAsRead(context, folderKey);
-        expect(context.commit).toHaveBeenCalledWith(
-            "addApplicationAlert",
-            expect.objectContaining({
-                code: "MSG_FOLDER_MARKASREAD_LOADING"
-            }),
-            expect.anything()
-        );
         expect(context.dispatch).toHaveBeenCalledWith("folders/markAsRead", folderKey);
-        expect(context.commit).toHaveBeenCalledWith("removeApplicationAlert", expect.anything(), expect.anything());
         expect(context.commit).toHaveBeenCalledWith(
             "addApplicationAlert",
             expect.objectContaining({
@@ -55,15 +47,7 @@ describe("[Mail-WebappStore][actions] : markFolderAsRead", () => {
     test("With Error", async () => {
         context.dispatch.mockRejectedValueOnce();
         await markFolderAsRead(context, folderKey);
-        expect(context.commit).toHaveBeenCalledWith(
-            "addApplicationAlert",
-            expect.objectContaining({
-                code: "MSG_FOLDER_MARKASREAD_LOADING"
-            }),
-            expect.anything()
-        );
         expect(context.dispatch).toHaveBeenCalledWith("folders/markAsRead", folderKey);
-        expect(context.commit).toHaveBeenCalledWith("removeApplicationAlert", expect.anything(), expect.anything());
         expect(context.commit).not.toHaveBeenCalledWith(
             "addApplicationAlert",
             expect.objectContaining({

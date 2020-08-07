@@ -18,7 +18,10 @@ export function remove(context, messageKeys) {
 async function action(context, messageKeys, action, actionFunction) {
     messageKeys = [...(Array.isArray(messageKeys) ? messageKeys : [messageKeys])];
     const subject = await retrieveSubject(context.dispatch, messageKeys);
-    const loadingAlertUid = loadingAlert(action, context.commit, messageKeys, subject);
+    let loadingAlertUid;
+    if (messageKeys.length > 1) {
+        loadingAlertUid = loadingAlert(action, context.commit, messageKeys, subject);
+    }
     try {
         const messages = await context.dispatch("$_getIfNotPresent", messageKeys);
         const unreadMessageKeys = messages.filter(m => m.states.includes("not-seen")).map(m => m.key);
@@ -28,7 +31,9 @@ async function action(context, messageKeys, action, actionFunction) {
     } catch (e) {
         errorAlert(action, context.commit, messageKeys, subject);
     } finally {
-        context.commit("removeApplicationAlert", loadingAlertUid, { root: true });
+        if (messageKeys.length > 1) {
+            context.commit("removeApplicationAlert", loadingAlertUid, { root: true });
+        }
     }
 }
 

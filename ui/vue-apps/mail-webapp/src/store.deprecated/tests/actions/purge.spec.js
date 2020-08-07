@@ -27,11 +27,6 @@ const context = {
 };
 
 describe("MailApp Store: Purge message action", () => {
-    const expectedLoadingAlert = {
-        code: "MSG_PURGE_LOADING",
-        props: { subject: undefined }
-    };
-
     beforeEach(() => {
         isMessageRemoveActionSuccessfull = true;
         mockMessage = { subject: undefined, states: "not-a-valid-state", key: messageKey };
@@ -44,22 +39,9 @@ describe("MailApp Store: Purge message action", () => {
         expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [messageKey]);
         expect(context.dispatch).toHaveBeenCalledWith("messages/remove", [messageKey]);
 
-        expect(context.commit).toHaveBeenCalledTimes(4);
-        let loadingAlertUid = context.commit.mock.calls[0][1].uid;
+        expect(context.commit).toHaveBeenCalledTimes(2);
 
-        expect(context.commit).toHaveBeenNthCalledWith(
-            1,
-            "addApplicationAlert",
-            expect.objectContaining(expectedLoadingAlert),
-            { root: true }
-        );
-
-        expect(context.commit).toHaveBeenNthCalledWith(4, "removeApplicationAlert", loadingAlertUid, {
-            root: true
-        });
-
-        expect(context.commit).toHaveBeenNthCalledWith(
-            3,
+        expect(context.commit).toHaveBeenCalledWith(
             "addApplicationAlert",
             expect.objectContaining({
                 code: "MSG_PURGE_OK",
@@ -76,20 +58,8 @@ describe("MailApp Store: Purge message action", () => {
         expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [messageKey]);
         expect(context.dispatch).toHaveBeenCalledWith("messages/remove", [messageKey]);
 
-        expect(context.commit).toHaveBeenCalledTimes(4);
-        let loadingAlertUid = context.commit.mock.calls[0][1].uid;
-
-        expect(context.commit).toHaveBeenNthCalledWith(
-            1,
-            "addApplicationAlert",
-            expect.objectContaining(expectedLoadingAlert),
-            { root: true }
-        );
-        expect(context.commit).toHaveBeenNthCalledWith(4, "removeApplicationAlert", loadingAlertUid, {
-            root: true
-        });
-        expect(context.commit).toHaveBeenNthCalledWith(
-            3,
+        expect(context.commit).toHaveBeenCalledTimes(2);
+        expect(context.commit).toHaveBeenCalledWith(
             "addApplicationAlert",
             expect.objectContaining({
                 code: "MSG_PURGE_ERROR",
@@ -111,7 +81,7 @@ describe("MailApp Store: Purge message action", () => {
         await purgeAction(context, messageKey);
 
         expect(context.commit).toHaveBeenNthCalledWith(
-            6,
+            3,
             "mail/SET_UNREAD_COUNT",
             { key: "trash-key", count: 9 },
             { root: true }

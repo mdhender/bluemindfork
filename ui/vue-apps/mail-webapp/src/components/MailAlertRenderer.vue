@@ -40,6 +40,7 @@ export default {
                         place: "folderNameWithLink",
                         style: "font-style: normal !important; font-weight: bold;"
                     },
+                    class: "ml-1",
                     props: { to: alert.props.folderNameLink }
                 },
                 [mailFolderIcon]
@@ -52,7 +53,8 @@ export default {
                     place: "oldFolderName",
                     folder: alert.props.oldFolder,
                     style: "font-style: normal !important; font-weight: bold;"
-                }
+                },
+                class: "ml-1"
             })
         );
 

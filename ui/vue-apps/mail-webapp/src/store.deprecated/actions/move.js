@@ -12,11 +12,9 @@ export function move(context, { messageKey, folder }) {
 
 function moveSingleMessage({ dispatch, commit, rootState, rootGetters }, { messageKey, folder }) {
     let subject, destination, isDestinationMailshare;
-    const alertUid = UUIDGenerator.generate();
     return dispatch("$_getIfNotPresent", [messageKey])
         .then(messages => {
             subject = messages[0].subject;
-            addLoadingAlert(commit, subject, alertUid);
             return dispatch("$_createFolder", { folder, mailboxUid: rootGetters["mail/MY_MAILBOX_KEY"] });
         })
         .then(key => {
@@ -27,8 +25,7 @@ function moveSingleMessage({ dispatch, commit, rootState, rootGetters }, { messa
             return dispatch("$_move", { messageKeys: [messageKey], destinationKey: key });
         })
         .then(() => addOkAlert(commit, subject, destination, isDestinationMailshare))
-        .catch(error => addErrorAlert(commit, subject, folder, error))
-        .finally(() => commit("removeApplicationAlert", alertUid, { root: true }));
+        .catch(error => addErrorAlert(commit, subject, folder, error));
 }
 
 function moveMultipleMessages({ dispatch, commit, rootState, rootGetters }, { messageKeys, folder }) {
@@ -94,18 +91,6 @@ function addOkAlertForMultipleMessages(commit, count, folder, isMailshare) {
                 folder,
                 folderNameLink: { name: "v:mail:home", params }
             }
-        },
-        { root: true }
-    );
-}
-
-function addLoadingAlert(commit, subject, alertUid) {
-    commit(
-        "addApplicationAlert",
-        {
-            code: "MSG_MOVED_LOADING",
-            props: { subject },
-            uid: alertUid
         },
         { root: true }
     );

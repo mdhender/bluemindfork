@@ -82,6 +82,7 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .main-app .bm-application-alert {
-    bottom: $sp-1;
+    bottom: $sp-4;
+    left: $sp-4;
 }
 </style>
