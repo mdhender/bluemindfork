@@ -43,7 +43,7 @@ describe("InheritTranslationsMixin", () => {
 
     function mountAndGetChild() {
         // why should we use sync: false -->https://github.com/vuejs/vue-test-utils/issues/1130
-        return mount(ParentComponent, { localVue, sync: false }).find(ChildComponent).vm;
+        return mount(ParentComponent, { localVue, sync: false }).findComponent(ChildComponent).vm;
     }
 
     test("child component does not define its i18n messages but still inherits i18n messages from its parent", () => {
@@ -59,7 +59,7 @@ describe("InheritTranslationsMixin", () => {
         ParentComponent.i18n.messages = parentMessages;
         ChildComponent.componentI18N = { messages: childMessages };
         const parentWrapper = mount(ParentComponent, { localVue, sync: false });
-        const childComp = parentWrapper.find(ChildComponent).vm;
+        const childComp = parentWrapper.findComponent(ChildComponent).vm;
 
         expect(childComp.$i18n.messages["en"]).toMatchObject({ "my.parent.trad": "good" });
         expect(childComp.$i18n.locale).toEqual("en");
@@ -117,7 +117,7 @@ describe("InheritTranslationsMixin", () => {
 
     test("Child component with an empty key object", () => {
         ChildComponent.componentI18N = { messages: { en: {} } };
-        const childComp = mount(ParentComponent, { localVue, sync: false }).find(ChildComponent);
-        expect(childComp.isVueInstance()).toBeTruthy();
+        const childComp = mount(ParentComponent, { localVue, sync: false }).findComponent(ChildComponent);
+        expect(childComp).toBeDefined();
     });
 });

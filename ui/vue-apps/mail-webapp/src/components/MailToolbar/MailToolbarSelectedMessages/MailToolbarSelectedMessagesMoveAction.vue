@@ -79,6 +79,7 @@ import {
 } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
+import { FolderAdaptor } from "../../../store/helpers/FolderAdaptor";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailFolderInput from "../../MailFolderInput";
 
@@ -106,21 +107,22 @@ export default {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail-webapp", ["nextMessageKey"]),
         ...mapState("mail", ["folders", "mailboxes", "activeFolder"]),
-        ...mapGetters("mail", ["MY_TRASH", "MY_INBOX"]),
+        ...mapGetters("mail", ["MY_TRASH", "MY_INBOX", "FOLDER_BY_PATH"]),
         displayCreateFolderBtnFromPattern() {
             let pattern = this.pattern;
             if (pattern !== "") {
                 pattern = pattern.replace(/\/+/, "/").replace(/^\/?(.*)\/?$/g, "$1");
-                return (
-                    pattern && !this.matchingFolders.some(match => match.path.toLowerCase() === pattern.toLowerCase())
-                );
+                return pattern && FolderAdaptor.isNameValid(pattern, pattern, this.FOLDER_BY_PATH) === true;
             }
             return false;
         },
         matchingFolders() {
             if (this.pattern !== "") {
-                const filtered = Object.values(this.folders).filter(folder =>
-                    folder.path.toLowerCase().includes(this.pattern.toLowerCase())
+                const filtered = Object.values(this.folders).filter(
+                    folder =>
+                        folder.key !== this.activeFolder &&
+                        folder.writable &&
+                        folder.path.toLowerCase().includes(this.pattern.toLowerCase())
                 );
                 if (filtered) {
                     return filtered.slice(0, this.maxFolders);

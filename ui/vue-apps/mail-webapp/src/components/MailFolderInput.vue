@@ -25,9 +25,7 @@
 <script>
 import { mapGetters } from "vuex";
 import { BmFormInput, BmIcon, BmNotice } from "@bluemind/styleguide";
-import { DEFAULT_FOLDERS } from "../store/helpers/DefaultFolders";
-
-const FOLDER_PATH_MAX_LENGTH = 250;
+import { FolderAdaptor } from "../store/helpers/FolderAdaptor";
 
 export default {
     name: "MailFolderInput",
@@ -62,26 +60,10 @@ export default {
     computed: {
         ...mapGetters("mail", ["FOLDER_BY_PATH"]),
         isNewFolderNameValid() {
-            if (this.folder && this.folder.name === this.newFolderName) {
+            if ((this.folder && this.folder.name === this.newFolderName) || this.newFolderName === "") {
                 return true;
             }
-            if (this.newFolderName !== "") {
-                if (this.path.length > FOLDER_PATH_MAX_LENGTH) {
-                    return this.$t("mail.actions.folder.invalid.too_long");
-                }
-
-                const checkValidity = isFolderNameValid(this.newFolderName.toLowerCase());
-                if (checkValidity !== true) {
-                    return this.$t("mail.actions.folder.invalid.character", {
-                        character: checkValidity
-                    });
-                }
-
-                if (this.FOLDER_BY_PATH(this.path) || DEFAULT_FOLDERS.includes(this.path)) {
-                    return this.$t("mail.actions.folder.invalid.already_exist");
-                }
-            }
-            return true;
+            return FolderAdaptor.isNameValid(this.newFolderName, this.path, this.FOLDER_BY_PATH);
         },
         path() {
             let path = "";
@@ -153,20 +135,6 @@ export default {
         }
     }
 };
-
-const FORBIDDEN_FOLDER_CHARACTERS = '/@%*"`;^<>{}|';
-
-/**
- * return invalid character if name is invalid
- */
-function isFolderNameValid(name) {
-    for (let i = 0; i < name.length; i++) {
-        if (FORBIDDEN_FOLDER_CHARACTERS.includes(name.charAt(i))) {
-            return name.charAt(i);
-        }
-    }
-    return true;
-}
 </script>
 
 <style lang="scss">

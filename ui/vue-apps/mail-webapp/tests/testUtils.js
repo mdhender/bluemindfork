@@ -54,6 +54,10 @@ export function createStore(overrides) {
                             key: folderUid
                         }
                     }
+                },
+                getters: {
+                    MY_TRASH: () => {},
+                    MY_INBOX: () => {}
                 }
             }
         }
