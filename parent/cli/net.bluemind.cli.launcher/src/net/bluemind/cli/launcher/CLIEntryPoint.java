@@ -21,6 +21,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.eclipse.equinox.app.IApplication;
@@ -30,12 +31,19 @@ import org.fusesource.jansi.Ansi.Color;
 import org.fusesource.jansi.AnsiConsole;
 import org.osgi.framework.Version;
 
+import io.airlift.airline.ParseArgumentsUnexpectedException;
+import io.airlift.airline.ParseCommandUnrecognizedException;
+
 import com.google.common.base.Splitter;
 
 public class CLIEntryPoint implements IApplication {
 
+	public static final Integer EXIT_FAIL = new Integer(50);
+	public static final Integer EXIT_INVALID_ARGUMENTS = new Integer(51);
+
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
+		Integer returncode = EXIT_OK;
 		try {
 			AnsiConsole.systemInstall();
 			Version version = context.getBrandingBundle().getVersion();
@@ -48,19 +56,35 @@ public class CLIEntryPoint implements IApplication {
 				Path script = Paths.get(args[0]);
 				CLIManager cm = new CLIManager(version);
 				try (Stream<String> linesStream = Files.lines(script)) {
-					linesStream.map(this::asArguments).forEach(cm::processArgs);
+					Optional<Integer> returncodes = linesStream.map(this::asArguments).map(cmdargs -> {
+							try {
+								cm.processArgs(cmdargs);
+								return EXIT_OK;
+							} catch (ParseArgumentsUnexpectedException | ParseCommandUnrecognizedException e) {
+								return EXIT_INVALID_ARGUMENTS;
+							} catch (Exception e) {
+								return EXIT_FAIL;
+							}
+						}).filter(ret -> !EXIT_OK.equals(ret)).findAny();
+					if (returncodes.isPresent()) {
+						returncode = returncodes.get();
+					}
 				}
 			} else {
 				CLIManager cm = new CLIManager(version);
 				cm.processArgs(args);
 			}
+		} catch (ParseArgumentsUnexpectedException | ParseCommandUnrecognizedException e) {
+			System.err.println(Ansi.ansi().fg(Color.RED).a(e.getMessage()).reset());
+			returncode = EXIT_INVALID_ARGUMENTS;
 		} catch (Exception e) {
 			System.err.println(Ansi.ansi().fg(Color.RED).a(e.getMessage()).reset());
 			e.printStackTrace();
+			returncode = EXIT_FAIL;
 		} finally {
 			AnsiConsole.systemUninstall();
 		}
-		return IApplication.EXIT_OK;
+		return returncode;
 	}
 
 	private boolean isCliScript(String[] args) {

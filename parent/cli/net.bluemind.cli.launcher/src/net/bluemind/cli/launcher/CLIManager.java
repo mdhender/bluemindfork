@@ -68,6 +68,7 @@ public class CLIManager {
 		} catch (ParseArgumentsUnexpectedException | ParseCommandUnrecognizedException e) {
 			ctx.error(String.format("Invalid input: %s", e.getMessage()));
 			airliftCli.parse(new String[] {}).forContext(null).run();
+			throw e;
 		} catch (CliException c) {
 		} catch (Exception e) {
 			ctx.error(e.getMessage());
