@@ -468,7 +468,7 @@ var gBMOverlay = {
 		bmUtils.setIntPref("network.cookie.cookieBehavior", 0);
 		/* The cookie's lifetime is supplied by the server */
 		bmUtils.setIntPref("network.cookie.lifetimePolicy", 0);
-		/* self signed */
+		/* self signed or CA not in thunderbird installer */
 		bmUtils.setBoolPref("extensions.install.requireBuiltInCerts", false);
 		bmUtils.setBoolPref("extensions.update.requireBuiltInCerts", false);
 	},

@@ -437,8 +437,8 @@ var gBMOverlay = {
 		bmUtils.setIntPref("network.cookie.lifetimePolicy", 0);
 		// default prefs are not migrated when uprading TB
 		let branch = Services.prefs.getDefaultBranch("");
-		branch.setBoolPref("extensions.update.requireBuiltInCerts", true);
-		branch.setBoolPref("extensions.install.requireBuiltInCerts", true);
+		branch.deleteBranch("extensions.update.requireBuiltInCerts");
+		branch.deleteBranch("extensions.install.requireBuiltInCerts");
 		bmUtils.setBoolPref("extensions.update.requireBuiltInCerts", false);
 		bmUtils.setBoolPref("extensions.install.requireBuiltInCerts", false);
 	}
