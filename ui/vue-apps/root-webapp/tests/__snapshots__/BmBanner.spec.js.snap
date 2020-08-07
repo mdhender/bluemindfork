@@ -9,9 +9,7 @@ exports[`BmBanner should match snapshot 1`] = `
 >
   <bm-button-stub
     class="px-3 align-self-center"
-    event="click"
     id="all-apps-popover"
-    routertag="a"
     tag="button"
     target="_self"
     type="button"
@@ -48,9 +46,7 @@ exports[`BmBanner should match snapshot 1`] = `
   </bm-popover-stub>
    
   <bm-navbar-brand-stub
-    event="click"
     href="#"
-    routertag="a"
     tag="div"
     target="_self"
     to="/"

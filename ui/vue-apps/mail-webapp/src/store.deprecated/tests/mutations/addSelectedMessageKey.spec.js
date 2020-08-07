@@ -1,4 +1,4 @@
-import { addSelectedMessageKey } from "../../src/mutations/addSelectedMessageKey";
+import { addSelectedMessageKey } from "../../mutations/addSelectedMessageKey";
 
 const state = {
     selectedMessageKeys: [2, 4],

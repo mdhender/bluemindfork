@@ -1,4 +1,4 @@
-import { count } from "../../../src/MailboxItemsStore/getters/count";
+import { count } from "../../../MailboxItemsStore/getters/count";
 
 describe("[MailboxItemsStore][getters] : count ", () => {
     test("return number of items in list ", () => {

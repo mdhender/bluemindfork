@@ -1,4 +1,4 @@
-import { computeSubject, previousMessageContent } from "../src/MessageBuilder";
+import { computeSubject, previousMessageContent } from "../src/components/MessageBuilder";
 import { MimeType } from "@bluemind/email";
 import mailboxItem from "./data/mailbox-item.json";
 jest.mock("@bluemind/inject", () => {

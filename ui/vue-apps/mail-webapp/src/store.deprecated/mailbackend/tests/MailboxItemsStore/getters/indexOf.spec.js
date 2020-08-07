@@ -1,4 +1,4 @@
-import { indexOf } from "../../../src/MailboxItemsStore/getters/indexOf";
+import { indexOf } from "../../../MailboxItemsStore/getters/indexOf";
 
 const itemKeys = ["key1", "key4", "key5", "key12", "key2", "key6", "key7", "key8", "key9", "key10", "key11"];
 const state = {

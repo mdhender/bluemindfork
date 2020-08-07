@@ -1,4 +1,4 @@
-import { areAllMessagesSelected } from "../../src/getters/areAllMessagesSelected";
+import { areAllMessagesSelected } from "../../getters/areAllMessagesSelected";
 
 const state = {
     selectedMessageKeys: [],

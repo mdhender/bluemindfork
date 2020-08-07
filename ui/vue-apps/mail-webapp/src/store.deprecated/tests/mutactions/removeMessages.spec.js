@@ -1,4 +1,4 @@
-import { _removeMessages } from "../../src/mutactions/removeMessages";
+import { _removeMessages } from "../../mutactions/removeMessages";
 
 const context = {
     commit: jest.fn()

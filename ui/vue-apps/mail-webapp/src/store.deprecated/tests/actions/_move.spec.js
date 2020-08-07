@@ -1,4 +1,4 @@
-import { $_move } from "../../src/actions/$_move";
+import { $_move } from "../../actions/$_move";
 import ItemUri from "@bluemind/item-uri";
 import ServiceLocator from "@bluemind/inject";
 import { MailboxFoldersClient } from "@bluemind/backend.mail.api";
@@ -6,18 +6,28 @@ import { MailboxFoldersClient } from "@bluemind/backend.mail.api";
 jest.mock("@bluemind/inject");
 jest.mock("@bluemind/backend.mail.api");
 
+const sourceFolderKey = "source_key",
+    messageKey = ItemUri.encode("message_id", sourceFolderKey),
+    destinationKey = "destination_key",
+    mailboxUid = "my_mailbox_uid";
+
 const context = {
-    getters: {
-        my: {
-            mailboxUid: "my_mailbox_uid"
-        },
-        currentMailbox: { mailboxUid: "my_mailbox_uid" },
-        "folders/getFolderByKey": jest.fn().mockReturnValue({
-            internalId: 1
-        })
-    },
     commit: jest.fn(),
-    dispatch: jest.fn()
+    dispatch: jest.fn(),
+    rootState: {
+        mail: {
+            folders: {
+                [sourceFolderKey]: {
+                    mailbox: mailboxUid,
+                    id: 20
+                },
+                [destinationKey]: {
+                    mailbox: mailboxUid,
+                    id: 10
+                }
+            }
+        }
+    }
 };
 
 const service = new MailboxFoldersClient();
@@ -30,21 +40,10 @@ describe("[Mail-WebappStore][actions] : $_move", () => {
     beforeEach(() => {
         context.commit.mockClear = {};
         service.importItems.mockClear();
-        context.getters["folders/getFolderByKey"].mockClear();
     });
+
     test("call service to move message", () => {
-        context.getters["folders/getFolderByKey"].mockReturnValueOnce({ internalId: 10 });
-        context.getters["folders/getFolderByKey"].mockReturnValueOnce({ internalId: 20 });
-        const messageKey = ItemUri.encode("message_id", "source_uid"),
-            destinationKey = ItemUri.encode("destination_uid", "my_mailbox_uid");
-
         $_move(context, { messageKeys: [messageKey], destinationKey });
-
-        expect(context.getters["folders/getFolderByKey"]).toHaveBeenNthCalledWith(1, destinationKey);
-        expect(context.getters["folders/getFolderByKey"]).toHaveBeenNthCalledWith(
-            2,
-            ItemUri.encode("source_uid", "my_mailbox_uid")
-        );
         expect(get).toHaveBeenCalledWith("my_mailbox_uid");
         expect(service.importItems).toHaveBeenCalledWith(10, {
             mailboxFolderId: 20,
@@ -53,9 +52,8 @@ describe("[Mail-WebappStore][actions] : $_move", () => {
             deleteFromSource: true
         });
     });
+
     test("remove moved message from the state", done => {
-        const messageKey = ItemUri.encode("message_id", "source_uid"),
-            destinationKey = ItemUri.encode("destination_uid", "my_mailbox_uid");
         $_move(context, { messageKeys: [messageKey], destinationKey }).then(() => {
             expect(context.dispatch).toHaveBeenCalledWith("_removeMessages", [messageKey]);
             done();

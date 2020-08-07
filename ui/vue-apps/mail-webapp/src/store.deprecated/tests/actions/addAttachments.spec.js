@@ -1,16 +1,12 @@
-import { addAttachments } from "../../src/actions/addAttachments";
+import { addAttachments } from "../../actions/addAttachments";
 import { MockMailboxItemsClient } from "@bluemind/test-mocks";
 import ServiceLocator from "@bluemind/inject";
 
 const context = {
     commit: jest.fn(),
     dispatch: jest.fn().mockReturnValue(Promise.resolve()),
-    getters: {
-        my: {
-            DRAFTS: { key: "draft-key", uid: "trash-uid" }
-        }
-    },
-    state: { currentMessage: { parts: { attachments: [] } } }
+    state: { currentMessage: { parts: { attachments: [] } } },
+    rootGetters: { "mail/MY_DRAFTS": { key: "draft-key", uid: "trash-uid" } }
 };
 
 const mockedClient = new MockMailboxItemsClient();

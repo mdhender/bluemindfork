@@ -1,4 +1,4 @@
-import { clear } from "../../../src/MessageStore/mutations/clear";
+import { clear } from "../../../MessageStore/mutations/clear";
 
 const state = {
     key: "AD1DZSD4",

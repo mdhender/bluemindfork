@@ -6,21 +6,26 @@ import {
     MockMailboxItemsClient,
     MockMailboxFoldersClient,
     MockOwnerSubscriptionsClient,
-    MockContainersClient
+    MockContainersClient,
+    MockI18NProvider
 } from "@bluemind/test-mocks";
 import aliceFolders from "./data/alice/folders";
 import aliceInbox from "./data/alice/inbox";
 import cloneDeep from "lodash.clonedeep";
 import containers from "./data/alice/containers";
 import ItemUri from "@bluemind/item-uri";
-import MailWebAppStore from "../src";
-import MailStore, { FETCH_MAILBOXES, FETCH_FOLDERS } from "@bluemind/webapp.mail.store";
+import MailWebAppStore from "../";
+import MailStore from "../../store/";
+import AlertStore from "@bluemind/alert.store";
+import { AlertFactory } from "@bluemind/alert.store";
+import MailAppAlerts from "../../alerts";
 import readOnlyFolders from "./data/read.only/folders";
 import ServiceLocator from "@bluemind/inject";
 import sharedFolders from "./data/shared/folders";
 import Vuex from "vuex";
 import WebsocketClient from "@bluemind/sockjs";
 import { Flag } from "@bluemind/email";
+import { FolderAdaptor } from "../../store/helpers/FolderAdaptor";
 
 jest.mock("@bluemind/sockjs");
 jest.mock("@bluemind/mailbox.api");
@@ -42,23 +47,25 @@ ServiceLocator.register({ provide: "ItemsTransferPersistence", factory: () => it
 ServiceLocator.register({
     provide: "UserSession",
     factory: () => {
-        return {
-            roles: ["hasCalendar"]
-        };
+        return { roles: ["hasCalendar"] };
     }
 });
+ServiceLocator.register({ provide: "i18n", factory: () => MockI18NProvider });
 
 WebsocketClient.register = jest.fn();
+AlertFactory.register(MailAppAlerts);
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
 describe("[MailWebAppStore] Vuex store", () => {
     let store;
+
     beforeEach(() => {
         store = new Vuex.Store();
         store.registerModule("mail-webapp", cloneDeep(MailWebAppStore));
         store.registerModule("mail", cloneDeep(MailStore));
+        store.registerModule("alert", cloneDeep(AlertStore));
         MailboxesClient.mockClear();
         foldersService = new MockMailboxFoldersClient();
         itemsService = new MockMailboxItemsClient();
@@ -67,6 +74,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         mailboxesService = new MailboxesClient();
         userSettingsService = new UserSettingsClient();
     });
+
     test("bootstrap load folders into store with unread count", async () => {
         let letsEndThis;
         const awaitForLastCall = new Promise(resolve => {
@@ -93,38 +101,41 @@ describe("[MailWebAppStore] Vuex store", () => {
         expect(store.state["mail-webapp"].userSettings).toMatchObject({
             mail_message_list_style: mockedMessageListStyle
         });
-        expect(store.getters["mail-webapp/my"].mailboxUid).toEqual("user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
-        expect(store.getters["mail-webapp/my"].INBOX.uid).toEqual("f1c3f42f-551b-446d-9682-cfe0574b3205");
-        expect(store.getters["mail-webapp/my"].TRASH.uid).toEqual("98a9383e-5156-44eb-936a-e6b0825b0809");
-        expect(store.getters["mail-webapp/my"].folders.length).toEqual(aliceFolders.length);
-        expect(store.getters["mail-webapp/my"].folders).toEqual(
-            store.getters["mail-webapp/folders/getFoldersByMailbox"]("user.6793466E-F5D4-490F-97BF-DF09D3327BF4")
+        expect(store.getters["mail/MY_MAILBOX_KEY"]).toEqual("user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
+        expect(store.getters["mail/MY_INBOX"].uid).toEqual("f1c3f42f-551b-446d-9682-cfe0574b3205");
+        expect(store.getters["mail/MY_TRASH"].uid).toEqual("98a9383e-5156-44eb-936a-e6b0825b0809");
+        expect(store.getters["mail/MY_MAILBOX_FOLDERS"].length).toEqual(aliceFolders.length);
+        expect(store.getters["mail/MY_MAILBOX_FOLDERS"]).toEqual(
+            store.getters["mail/FOLDER_BY_MAILBOX"]("user.6793466E-F5D4-490F-97BF-DF09D3327BF4").map(f => f.key)
         );
 
         await awaitForLastCall;
-        expect(store.getters["mail-webapp/mailshares"].length).toBe(2);
-        expect(store.getters["mail-webapp/mailshares"][0].folders.length).toBe(2);
-        expect(store.getters["mail-webapp/mailshares"][0].folders[0].uid).toEqual(
+        expect(store.getters["mail/MAILSHARE_KEYS"].length).toBe(2);
+        expect(store.getters["mail/FOLDER_BY_MAILBOX"]("A78219B7-6F50-457D-BECA-4614865B3E2B").length).toBe(2);
+        expect(store.getters["mail/FOLDER_BY_MAILBOX"]("A78219B7-6F50-457D-BECA-4614865B3E2B")[0].uid).toEqual(
             "97e386cc-caff-4931-8bd7-d921bd900f37"
         );
     });
+
     test("select a folder", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch(FETCH_MAILBOXES);
+        await store.dispatch("mail/FETCH_MAILBOXES");
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
-        await store.dispatch(FETCH_FOLDERS, store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]);
+        await store.dispatch(
+            "mail/FETCH_FOLDERS",
+            store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
+        );
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
 
         const folderUid = "050ca560-37ae-458a-bd52-c40fedf4068d";
-        const folderKey = ItemUri.encode(folderUid, "user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
         itemsService.sortedIds.mockReturnValueOnce(Promise.resolve(aliceInbox.map(message => message.internalId)));
         itemsService.getPerUserUnread.mockReturnValueOnce(Promise.resolve({ total: 4 }));
         itemsService.multipleById.mockImplementationOnce(ids =>
             Promise.resolve(aliceInbox.filter(message => ids.includes(message.internalId)))
         );
-        await store.dispatch("mail-webapp/loadMessageList", { folder: folderKey }, { root: true });
-        expect(store.state["mail-webapp"].currentFolderKey).toEqual(folderKey);
+        await store.dispatch("mail-webapp/loadMessageList", { folder: folderUid }, { root: true });
+        expect(store.state["mail"].activeFolder).toEqual(folderUid);
         expect(store.state["mail-webapp"].messages.itemKeys.length).toEqual(aliceInbox.length);
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(
             aliceInbox.map(m => ItemUri.encode(m.internalId, folderUid))
@@ -133,17 +144,20 @@ describe("[MailWebAppStore] Vuex store", () => {
             store.state["mail-webapp"].messages.items[store.state["mail-webapp"].messages.itemKeys[0]]
         ).not.toBeUndefined();
     });
+
     test("select a folder with 'unread' filter", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch(FETCH_MAILBOXES);
+        await store.dispatch("mail/FETCH_MAILBOXES");
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
-        await store.dispatch(FETCH_FOLDERS, store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]);
+        await store.dispatch(
+            "mail/FETCH_FOLDERS",
+            store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
+        );
 
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
 
         const folderUid = "050ca560-37ae-458a-bd52-c40fedf4068d";
-        const folderKey = ItemUri.encode(folderUid, "user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
         itemsService.getPerUserUnread.mockReturnValue(Promise.resolve({ total: 5 }));
         itemsService.unreadItems.mockReturnValue(
             Promise.resolve(
@@ -157,8 +171,8 @@ describe("[MailWebAppStore] Vuex store", () => {
         );
 
         expect(store.state["mail-webapp"].messages.itemKeys.length).toEqual(0);
-        await store.dispatch("mail-webapp/loadMessageList", { folder: folderKey, filter: "unread" }, { root: true });
-        expect(store.state["mail-webapp"].currentFolderKey).toEqual(folderKey);
+        await store.dispatch("mail-webapp/loadMessageList", { folder: folderUid, filter: "unread" }, { root: true });
+        expect(store.state["mail"].activeFolder).toEqual(folderUid);
         expect(store.state["mail-webapp"].messages.itemKeys.length).toEqual(5);
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(
             aliceInbox
@@ -168,11 +182,10 @@ describe("[MailWebAppStore] Vuex store", () => {
         expect(
             store.state["mail-webapp"].messages.items[store.state["mail-webapp"].messages.itemKeys[0]]
         ).not.toBeUndefined();
-        expect(store.state["mail-webapp"].foldersData[folderUid].unread).toBe(5);
-        expect(store.getters["mail-webapp/currentMailbox"].mailboxUid).toEqual(
-            "user.6793466E-F5D4-490F-97BF-DF09D3327BF4"
-        );
+        expect(store.state["mail"].folders[folderUid].unread).toBe(5);
+        expect(store.getters["mail/CURRENT_MAILBOX"].key).toEqual("user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
     });
+
     test("select a message", done => {
         const folderUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";
         const messageKey = ItemUri.encode(872, folderUid);
@@ -209,20 +222,23 @@ describe("[MailWebAppStore] Vuex store", () => {
             done();
         });
     });
+
     test("remove a message from my mailbox", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch(FETCH_MAILBOXES);
+        await store.dispatch("mail/FETCH_MAILBOXES");
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
-        await store.dispatch(FETCH_FOLDERS, store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]);
+        await store.dispatch(
+            "mail/FETCH_FOLDERS",
+            store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
+        );
 
         const folderUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";
-        const folderKey = ItemUri.encode(folderUid, "user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
         let messageKey = ItemUri.encode(872, folderUid);
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
         store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid }, { root: true });
 
-        store.commit("mail-webapp/setCurrentFolder", folderKey, { root: true });
+        store.commit("mail/SET_ACTIVE_FOLDER", folderUid, { root: true });
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.arrayContaining([messageKey]));
 
         await store.dispatch("mail-webapp/remove", messageKey, { root: true });
@@ -230,36 +246,44 @@ describe("[MailWebAppStore] Vuex store", () => {
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
         expect(foldersService.importItems).toHaveBeenCalled();
     });
+
     test("remove a message from a mailshare", async () => {
         //load data
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch(FETCH_MAILBOXES);
+        await store.dispatch("mail/FETCH_MAILBOXES");
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
-        await store.dispatch(FETCH_FOLDERS, store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]);
+        await store.dispatch(
+            "mail/FETCH_FOLDERS",
+            store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
+        );
         foldersService.all.mockReturnValueOnce(Promise.resolve(sharedFolders));
-        await store.dispatch(FETCH_FOLDERS, store.state.mail.mailboxes["2814CC5D-D372-4F66-A434-89863E99B8CD"]);
+        await store.dispatch("mail/FETCH_FOLDERS", store.state.mail.mailboxes["2814CC5D-D372-4F66-A434-89863E99B8CD"]);
 
         const folderUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";
-        const folderKey = ItemUri.encode(folderUid, "2814CC5D-D372-4F66-A434-89863E99B8CD");
+        store.state.mail.folders[folderUid].mailbox = "2814CC5D-D372-4F66-A434-89863E99B8CD";
         let messageKey = ItemUri.encode(872, folderUid);
         itemsService.fetchComplete.mockReturnValueOnce(Promise.resolve("eml"));
         itemsService.uploadPart.mockReturnValueOnce(Promise.resolve("addr"));
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
-        store.commit("mail-webapp/mailboxes/storeContainers", containers, { root: true });
+        store.commit("mail/ADD_MAILBOXES", containers, { root: true });
 
         store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid }, { root: true });
-        store.commit("mail-webapp/setCurrentFolder", folderKey, { root: true });
+        store.commit("mail/SET_ACTIVE_FOLDER", folderUid, { root: true });
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.arrayContaining([messageKey]));
         await store.dispatch("mail-webapp/remove", messageKey, { root: true });
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
         expect(itemsTransferClient.move).toHaveBeenCalled();
     });
+
     test("remove a message from trash", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch(FETCH_MAILBOXES);
+        await store.dispatch("mail/FETCH_MAILBOXES");
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
-        await store.dispatch(FETCH_FOLDERS, store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]);
+        await store.dispatch(
+            "mail/FETCH_FOLDERS",
+            store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
+        );
 
         const trashUid = "98a9383e-5156-44eb-936a-e6b0825b0809";
         const messageKey = ItemUri.encode(872, trashUid);
@@ -270,16 +294,12 @@ describe("[MailWebAppStore] Vuex store", () => {
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
         expect(itemsService.multipleDeleteById).toHaveBeenCalled();
     });
+
     test("remove a message definitely", done => {
         const folderUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";
         const messageKey = ItemUri.encode(872, folderUid);
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
         store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid }, { root: true });
-        store.commit(
-            "mail-webapp/folders/storeItems",
-            { items: aliceFolders, mailboxUid: "user.6793466E-F5D4-490F-97BF-DF09D3327BF4" },
-            { root: true }
-        );
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.arrayContaining([messageKey]));
         store.dispatch("mail-webapp/purge", messageKey, { root: true }).then(() => {
             expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
@@ -287,65 +307,70 @@ describe("[MailWebAppStore] Vuex store", () => {
             done();
         });
     });
+
     test("move a message", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch(FETCH_MAILBOXES);
+        await store.dispatch("mail/FETCH_MAILBOXES");
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
-        await store.dispatch(FETCH_FOLDERS, store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]);
+        await store.dispatch(
+            "mail/FETCH_FOLDERS",
+            store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
+        );
 
         const inboxUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";
-        const archive2017Key = ItemUri.encode(
-            "050ca560-37ae-458a-bd52-c40fedf4068d",
-            "user.6793466E-F5D4-490F-97BF-DF09D3327BF4"
-        );
-        const folderKey = ItemUri.encode(inboxUid, "user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
+        const archive2017Uid = "050ca560-37ae-458a-bd52-c40fedf4068d";
         let messageKey = ItemUri.encode(872, inboxUid);
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
-        store.commit("mail-webapp/setCurrentFolder", folderKey, { root: true });
+        store.commit("mail/SET_ACTIVE_FOLDER", inboxUid, { root: true });
         store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid: inboxUid }, { root: true });
-        const destination = store.getters["mail-webapp/folders/getFolderByKey"](archive2017Key);
+        const destination = store.state.mail.folders[archive2017Uid];
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.arrayContaining([messageKey]));
         await store.dispatch("mail-webapp/move", { messageKey, folder: destination }, { root: true });
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
         expect(foldersService.importItems).toHaveBeenCalled();
     });
+
     test("move a message across mailboxes", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch(FETCH_MAILBOXES);
+        await store.dispatch("mail/FETCH_MAILBOXES");
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
-        await store.dispatch(FETCH_FOLDERS, store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]);
+        await store.dispatch(
+            "mail/FETCH_FOLDERS",
+            store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
+        );
         foldersService.all.mockReturnValueOnce(Promise.resolve(sharedFolders));
-        await store.dispatch(FETCH_FOLDERS, store.state.mail.mailboxes["2814CC5D-D372-4F66-A434-89863E99B8CD"]);
+        await store.dispatch("mail/FETCH_FOLDERS", store.state.mail.mailboxes["2814CC5D-D372-4F66-A434-89863E99B8CD"]);
 
         const folderUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";
-        const archive2017Key = ItemUri.encode(
-            "050ca560-37ae-458a-bd52-c40fedf4068d",
-            "user.6793466E-F5D4-490F-97BF-DF09D3327BF4"
-        );
-        const folderKey = ItemUri.encode(folderUid, "2814CC5D-D372-4F66-A434-89863E99B8CD");
+        const archive2017Uid = "050ca560-37ae-458a-bd52-c40fedf4068d";
         let messageKey = ItemUri.encode(872, folderUid);
 
         itemsService.fetchComplete.mockReturnValueOnce(Promise.resolve("eml"));
         itemsService.uploadPart.mockReturnValueOnce(Promise.resolve("addr"));
 
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
-        store.commit("mail-webapp/mailboxes/storeContainers", containers, { root: true });
-        store.commit("mail-webapp/setCurrentFolder", folderKey, { root: true });
+        store.commit("mail/ADD_MAILBOXES", containers, { root: true });
+        store.commit("mail/SET_ACTIVE_FOLDER", folderUid, { root: true });
         store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid }, { root: true });
-        const destination = store.getters["mail-webapp/folders/getFolderByKey"](archive2017Key);
+        store.state.mail.folders[archive2017Uid].mailbox = "2814CC5D-D372-4F66-A434-89863E99B8CD";
+        const destination = store.state.mail.folders[archive2017Uid];
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.arrayContaining([messageKey]));
         await store.dispatch("mail-webapp/move", { messageKey, folder: destination }, { root: true });
         expect(itemsTransferClient.move).toHaveBeenCalled();
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
     });
+
     test("move a message in a new folder", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch(FETCH_MAILBOXES);
+        await store.dispatch("mail/FETCH_MAILBOXES");
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
-        await store.dispatch(FETCH_FOLDERS, store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]);
+        await store.dispatch(
+            "mail/FETCH_FOLDERS",
+            store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
+        );
 
         const inboxUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";
         let messageKey = ItemUri.encode(872, inboxUid);
@@ -365,18 +390,23 @@ describe("[MailWebAppStore] Vuex store", () => {
             displayName: "MyNewFolder",
             flags: []
         };
-        let folderKey = ItemUri.encode(destination.uid, "user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
+        const adaptedDestination = FolderAdaptor.fromMailboxFolder(
+            destination,
+            "user.6793466E-F5D4-490F-97BF-DF09D3327BF4"
+        );
+        adaptedDestination.key = undefined; // if a key is defined, it means folder is already created in server
+        let folderUid = destination.uid;
         foldersService.createBasic.mockReturnValue(Promise.resolve({ uid: destination.uid }));
         foldersService.getComplete.mockReturnValue(Promise.resolve(destination));
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
         store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid: inboxUid }, { root: true });
-        store.commit("mail-webapp/setCurrentFolder", folderKey, { root: true });
+        store.commit("mail/SET_ACTIVE_FOLDER", folderUid, { root: true });
 
-        await store.dispatch("mail-webapp/move", { messageKey, folder: destination }, { root: true });
+        await store.dispatch("mail-webapp/move", { messageKey, folder: adaptedDestination }, { root: true });
 
-        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
         expect(foldersService.importItems).toHaveBeenCalled();
         expect(foldersService.createBasic).toHaveBeenCalled();
-        expect(store.getters["mail-webapp/folders/getFolderByKey"](folderKey)).toBeDefined();
+        expect(store.state.mail.folders[folderUid]).toBeDefined();
+        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
     });
 });

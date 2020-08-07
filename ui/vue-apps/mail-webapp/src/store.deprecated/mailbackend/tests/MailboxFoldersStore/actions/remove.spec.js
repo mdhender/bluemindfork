@@ -1,6 +1,4 @@
-import { remove } from "../../../src/MailboxFoldersStore/actions/remove";
-import ItemUri from "@bluemind/item-uri";
-import { REMOVE_FOLDER } from "@bluemind/webapp.mail.store";
+import { remove } from "../../../MailboxFoldersStore/actions/remove";
 
 const context = {
     rootState: {
@@ -14,13 +12,15 @@ describe("[MailFoldersStore][actions] : remove", () => {
         context.dispatch.mockClear();
     });
     test("Basic", async () => {
-        const folderKey = ItemUri.encode("folderId", "user.jdoe");
-        await remove(context, folderKey);
-        expect(context.dispatch).toHaveBeenCalledWith(REMOVE_FOLDER, { key: "Folder", mailbox: {} }, { root: true });
+        await remove(context, "folderId");
+        expect(context.dispatch).toHaveBeenCalledWith(
+            "mail/REMOVE_FOLDER",
+            { key: "Folder", mailbox: {} },
+            { root: true }
+        );
     });
     test("With error", async () => {
         context.dispatch.mockRejectedValue("ERROR");
-        const folderKey = ItemUri.encode("folderId", "user.jdoe");
-        await expect(remove(context, folderKey)).rejects.toBe("ERROR");
+        await expect(remove(context, "folderId")).rejects.toBe("ERROR");
     });
 });

@@ -1,4 +1,4 @@
-import { areAllSelectedMessagesUnflagged } from "../../src/getters/areAllSelectedMessagesUnflagged";
+import { areAllSelectedMessagesUnflagged } from "../../getters/areAllSelectedMessagesUnflagged";
 import { Flag } from "@bluemind/email";
 
 const mailFlagged = {

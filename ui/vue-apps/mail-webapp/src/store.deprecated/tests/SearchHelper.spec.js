@@ -1,4 +1,4 @@
-import SearchHelper from "../src/SearchHelper";
+import SearchHelper from "../SearchHelper";
 
 const context = {
     commit: jest.fn()

@@ -10,7 +10,6 @@ export async function loadMessageList(
     { folder, mailshare, filter, search }
 ) {
     const locatedFolder = locateFolder(folder, mailshare, rootState, rootGetters);
-    const locatedFolderIsMailshareRoot = mailshare && !locatedFolder.parent;
     await dispatch("selectFolder", locatedFolder);
     expandParents(commit, locatedFolder, rootState);
 
@@ -39,6 +38,7 @@ export async function loadMessageList(
     commit("currentMessage/clear");
     commit("setStatus", STATUS.LOADING);
     commit("search/setPattern", searchInfo.pattern);
+    const locatedFolderIsMailshareRoot = mailshare && !locatedFolder.parent;
     const searchFolder = searchInfo.folder
         ? searchInfo.folder
         : locatedFolderIsMailshareRoot

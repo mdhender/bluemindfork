@@ -1,4 +1,4 @@
-import MailAttachmentsBlock from "../src/MailAttachment/MailAttachmentsBlock";
+import MailAttachmentsBlock from "../src/components/MailAttachment/MailAttachmentsBlock";
 import { BmProgress } from "@bluemind/styleguide";
 jest.mock("@bluemind/styleguide/css/_variables.scss", () => ({ iconsColors: "" }));
 import { createWrapper } from "./testUtils";

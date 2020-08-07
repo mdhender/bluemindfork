@@ -1,4 +1,4 @@
-import { deleteSelectedMessageKey } from "../../src/mutations/deleteSelectedMessageKey";
+import { deleteSelectedMessageKey } from "../../mutations/deleteSelectedMessageKey";
 
 const state = {
     selectedMessageKeys: [2, 3, 4],

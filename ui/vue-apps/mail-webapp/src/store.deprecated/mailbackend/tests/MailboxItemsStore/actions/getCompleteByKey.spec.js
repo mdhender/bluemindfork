@@ -1,7 +1,7 @@
-import { getCompleteByKey } from "../../../src/MailboxItemsStore/actions/getCompleteByKey";
+import { getCompleteByKey } from "../../../MailboxItemsStore/actions/getCompleteByKey";
 import ServiceLocator from "@bluemind/inject";
 import { MailboxItemsClient } from "@bluemind/backend.mail.api";
-import { ItemUri } from "../../../../../commons/net.bluemind.item-uri.js/src/ItemUri";
+import { ItemUri } from "@bluemind/item-uri";
 jest.mock("@bluemind/inject");
 jest.mock("@bluemind/backend.mail.api");
 

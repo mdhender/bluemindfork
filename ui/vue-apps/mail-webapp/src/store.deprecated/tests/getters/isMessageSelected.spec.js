@@ -1,4 +1,4 @@
-import { isMessageSelected } from "../../src/getters/isMessageSelected";
+import { isMessageSelected } from "../../getters/isMessageSelected";
 
 const state = {
     selectedMessageKeys: [],

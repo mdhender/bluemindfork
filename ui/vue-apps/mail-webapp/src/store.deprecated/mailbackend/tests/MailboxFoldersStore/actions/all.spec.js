@@ -1,5 +1,4 @@
-import { all } from "../../../src/MailboxFoldersStore/actions/all";
-import { FETCH_FOLDERS } from "@bluemind/webapp.mail.store";
+import { all } from "../../../MailboxFoldersStore/actions/all";
 
 const context = {
     rootState: { mail: { mailboxes: { containerUid: { key: "Mailbox" } } } },
@@ -12,7 +11,7 @@ describe("[MailFoldersStore][actions] : all", () => {
     });
     test("call 'all' service for a given mailbox and mutate state with undeleted folders only", async () => {
         await all(context, "containerUid");
-        expect(context.dispatch).toHaveBeenCalledWith(FETCH_FOLDERS, { key: "Mailbox" }, { root: true });
+        expect(context.dispatch).toHaveBeenCalledWith("mail/FETCH_FOLDERS", { key: "Mailbox" }, { root: true });
     });
     test("fail if 'all' call fail", async () => {
         const mailboxUid = "containerUid";

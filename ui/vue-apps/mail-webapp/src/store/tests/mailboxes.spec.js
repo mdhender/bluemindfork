@@ -4,9 +4,9 @@ import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
 import { MockContainersClient, MockOwnerSubscriptionsClient } from "@bluemind/test-mocks";
 import { Verb } from "@bluemind/core.container.api";
-import { state, mutations, actions, ADD_MAILBOXES, FETCH_MAILBOXES } from "../src/mailboxes";
+import { state, mutations, actions, getters } from "../mailboxes";
 import aliceContainers from "./data/users/alice/containers";
-import { MailboxType } from "../src/helpers/MailboxAdaptor";
+import { MailboxType } from "../helpers/MailboxAdaptor";
 
 const containersService = new MockContainersClient();
 inject.register({ provide: "ContainersPersistence", factory: () => containersService });
@@ -17,25 +17,24 @@ describe("mailboxes store", () => {
     describe("mutations", () => {
         describe("ADD_MAILBOXES", () => {
             test("Add a mailbox", () => {
-                const { [ADD_MAILBOXES]: addMailboxes } = mutations;
                 const mailbox = { key: "1" };
                 const stateForTest = {
                     mailboxes: {}
                 };
-                addMailboxes(stateForTest, [mailbox]);
+                mutations.ADD_MAILBOXES(stateForTest, [mailbox]);
                 expect(stateForTest).toStrictEqual({ mailboxes: { "1": mailbox } });
             });
             test("Add multiple mailboxes ", () => {
-                const { [ADD_MAILBOXES]: addMailboxes } = mutations;
                 const mailboxes = [{ key: "1" }, { key: "123" }];
                 const stateForTest = {
                     mailboxes: {}
                 };
-                addMailboxes(stateForTest, mailboxes);
+                mutations.ADD_MAILBOXES(stateForTest, mailboxes);
                 expect(stateForTest).toStrictEqual({ mailboxes: { "1": mailboxes[0], "123": mailboxes[1] } });
             });
         });
     });
+
     describe("action", () => {
         let store;
         beforeEach(() => {
@@ -55,7 +54,7 @@ describe("mailboxes store", () => {
                 });
 
                 containersService.getContainers.mockResolvedValueOnce([mailbox]);
-                await store.dispatch(FETCH_MAILBOXES);
+                await store.dispatch("FETCH_MAILBOXES");
                 expect(Object.keys(store.state.mailboxes).length).toEqual(1);
                 expect(Object.values(store.state.mailboxes)[0]).toMatchObject({
                     name: mailbox.ownerDisplayname,
@@ -88,6 +87,70 @@ describe("mailboxes store", () => {
                     expect(mailbox.root).toEqual(mailbox.name);
                 });
             });
+        });
+    });
+
+    describe("getters", () => {
+        test("MY_MAILBOX", () => {
+            const state = {
+                mailboxes: {
+                    "1": {
+                        key: "1",
+                        type: "mailshares"
+                    },
+                    "2": {
+                        key: "2",
+                        type: "users"
+                    }
+                }
+            };
+            const mockedGetters = { MY_MAILBOX_KEY: "2" };
+            expect(getters["MY_MAILBOX_KEY"](state)).toEqual("2");
+            expect(getters["MY_MAILBOX"](state, mockedGetters)).toEqual({ key: "2", type: "users" });
+        });
+        test.skip("FIXME when adding session store: MY_MAILBOX_KEY is wrong when having multiple users mailboxes", () => {
+            const state = {
+                mailboxes: {
+                    "1": {
+                        key: "1",
+                        type: "mailshares"
+                    },
+                    "2": {
+                        key: "2",
+                        type: "users"
+                    },
+                    MY_REAL_MAILBOX_KEY: {
+                        key: "MY_REAL_MAILBOX_KEY",
+                        type: "users"
+                    }
+                }
+            };
+            expect(getters["MY_MAILBOX_KEY"](state)).toEqual("MY_REAL_MAILBOX_KEY");
+        });
+
+        test("MAILSHARES", () => {
+            const state = {
+                mailboxes: {
+                    "1": {
+                        key: "1",
+                        type: "mailshares"
+                    },
+                    "2": {
+                        key: "2",
+                        type: "users"
+                    },
+                    "3": {
+                        key: "3",
+                        type: "mailshares"
+                    }
+                }
+            };
+            const mockedGetters = { MAILSHARE_KEYS: ["1", "3"] };
+            expect(getters["MAILSHARE_KEYS"](state)).toEqual(["1", "3"]);
+            expect(getters["MAILSHARES"](state, mockedGetters)).toEqual([
+                { key: "1", type: "mailshares" },
+                { key: "3", type: "mailshares" }
+            ]);
         });
     });
 });

@@ -1,4 +1,4 @@
-import { areRemoteImagesUnblocked } from "../../src/getters/areRemoteImagesUnblocked";
+import { areRemoteImagesUnblocked } from "../../getters/areRemoteImagesUnblocked";
 
 const state = { messagesWithUnblockedRemoteImages: [] };
 

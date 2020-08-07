@@ -1,4 +1,4 @@
-import { setUserSettings } from "../../src/mutations/setUserSettings";
+import { setUserSettings } from "../../mutations/setUserSettings";
 
 describe("[Mail-WebappStore][mutations] : setUserSettings", () => {
     const userSettingsData = { myKey: "myValue" };

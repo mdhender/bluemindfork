@@ -1,4 +1,4 @@
-import { list } from "../../../src/MailboxItemsStore/actions/list";
+import { list } from "../../../MailboxItemsStore/actions/list";
 import ServiceLocator from "@bluemind/inject";
 
 jest.mock("@bluemind/inject");

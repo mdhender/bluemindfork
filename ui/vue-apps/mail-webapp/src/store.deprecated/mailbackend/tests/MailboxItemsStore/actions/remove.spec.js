@@ -1,4 +1,4 @@
-import { remove } from "../../../src/MailboxItemsStore/actions/remove";
+import { remove } from "../../../MailboxItemsStore/actions/remove";
 import ServiceLocator from "@bluemind/inject";
 import ItemUri from "@bluemind/item-uri";
 

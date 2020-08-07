@@ -1,4 +1,4 @@
-import { deleteFlag } from "../../../src/MailboxItemsStore/actions/deleteFlag";
+import { deleteFlag } from "../../../MailboxItemsStore/actions/deleteFlag";
 import { Flag } from "@bluemind/email";
 import { MailboxItemsClient } from "@bluemind/backend.mail.api";
 import ItemUri from "@bluemind/item-uri";

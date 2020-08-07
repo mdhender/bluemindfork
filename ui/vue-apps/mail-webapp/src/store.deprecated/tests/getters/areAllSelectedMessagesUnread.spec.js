@@ -1,4 +1,4 @@
-import { areAllSelectedMessagesUnread } from "../../src/getters/areAllSelectedMessagesUnread";
+import { areAllSelectedMessagesUnread } from "../../getters/areAllSelectedMessagesUnread";
 import { Flag } from "@bluemind/email";
 
 const mailSeen = {

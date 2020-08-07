@@ -1,11 +1,9 @@
-import * as state from "../src/state";
+import * as state from "../state";
 
 describe("[Mail-WebappStore][state]", () => {
     test("initial state", () => {
         expect(state).toMatchInlineSnapshot(`
             Object {
-              "currentFolderKey": undefined,
-              "foldersData": Object {},
               "maxMessageSize": undefined,
               "messageFilter": undefined,
               "messagesWithUnblockedRemoteImages": Array [],

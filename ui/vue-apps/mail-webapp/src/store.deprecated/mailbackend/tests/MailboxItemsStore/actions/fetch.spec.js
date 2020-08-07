@@ -1,5 +1,5 @@
-import { fetch } from "../../../src/MailboxItemsStore/actions/fetch";
-import { ItemUri } from "../../../../../commons/net.bluemind.item-uri.js/src/ItemUri";
+import { fetch } from "../../../MailboxItemsStore/actions/fetch";
+import { ItemUri } from "@bluemind/item-uri";
 import { MockMailboxItemsClient } from "@bluemind/test-mocks";
 import ServiceLocator from "@bluemind/inject";
 

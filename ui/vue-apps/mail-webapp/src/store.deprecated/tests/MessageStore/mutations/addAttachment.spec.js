@@ -1,4 +1,4 @@
-import { addAttachment } from "../../../src/MessageStore/mutations/addAttachment";
+import { addAttachment } from "../../../MessageStore/mutations/addAttachment";
 
 const state = {
     parts: {

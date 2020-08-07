@@ -1,4 +1,4 @@
-import { removeItems } from "../../../src/MailboxItemsStore/mutations/removeItems";
+import { removeItems } from "../../../MailboxItemsStore/mutations/removeItems";
 
 const state = {};
 describe("[MailItemsStore][mutations] : RemoveItems", () => {

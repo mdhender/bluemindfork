@@ -1,4 +1,4 @@
-import { MailboxAdaptor, MailboxType } from "../../src/helpers/MailboxAdaptor";
+import { MailboxAdaptor, MailboxType } from "../../helpers/MailboxAdaptor";
 import containers from "../data/users/alice/containers.json";
 import { Verb } from "@bluemind/core.container.api";
 

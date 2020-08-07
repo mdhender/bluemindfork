@@ -1,4 +1,4 @@
-import { getAttachmentStatus } from "../../../src/MessageStore/getters/getAttachmentStatus";
+import { getAttachmentStatus } from "../../../MessageStore/getters/getAttachmentStatus";
 
 const state = {
     attachmentStatuses: {

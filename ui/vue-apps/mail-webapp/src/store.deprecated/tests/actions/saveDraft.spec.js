@@ -2,8 +2,8 @@ import { Flag } from "@bluemind/email";
 import { MockMailboxItemsClient } from "@bluemind/test-mocks";
 import ServiceLocator from "@bluemind/inject";
 import UUIDGenerator from "@bluemind/uuid";
-import { saveDraft } from "../../src/actions/saveDraft";
-import DraftStatus from "../../mailbackend/MailboxItemsStore/Message";
+import { saveDraft } from "../../actions/saveDraft";
+import DraftStatus from "../../mailbackend/MailboxItemsStore/DraftStatus";
 import htmlWithBase64Images from "../data/htmlWithBase64Images";
 
 const mockedCidUid = "myCid";
@@ -18,6 +18,11 @@ const context = {
     getters: {
         my: {
             DRAFTS: { key: "draft-key", uid: "trash-uid" }
+        }
+    },
+    rootGetters: {
+        "mail/MY_DRAFTS": {
+            key: "draft-key"
         }
     }
 };
@@ -83,6 +88,7 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
             flags: [Flag.SEEN]
         };
     });
+
     test("Save new draft", async () => {
         await saveDraft(context);
         expect(context.commit).toHaveBeenNthCalledWith(1, "draft/update", { status: DraftStatus.SAVING });
@@ -93,6 +99,7 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
         });
         expect(itemsService.create).toHaveBeenCalledWith(expectedMailItem);
     });
+
     test("Modify existing draft", async () => {
         const contentText = "My wonderful content!";
         context.state.draft.content = contentText;
@@ -118,6 +125,7 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
         expectedMailItem.body.subject = "ModifiedSubject";
         expect(itemsService.create).toHaveBeenCalledWith(expectedMailItem);
     });
+
     test("With attachments", async () => {
         context.state.draft.parts.attachments.push({ uid: "attachment1" });
         context.state.draft.parts.attachments.push({ uid: "attachment2" });
@@ -154,6 +162,7 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
         };
         expect(itemsService.create).toHaveBeenCalledWith(expectedMailItem);
     });
+
     test("With error", async () => {
         itemsService.create.mockImplementation(() => {
             throw new Error();

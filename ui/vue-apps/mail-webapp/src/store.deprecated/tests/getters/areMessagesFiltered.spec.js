@@ -1,4 +1,4 @@
-import { areMessagesFiltered } from "../../src/getters/areMessagesFiltered";
+import { areMessagesFiltered } from "../../getters/areMessagesFiltered";
 
 const state = { messageFilter: null };
 

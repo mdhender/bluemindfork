@@ -1,4 +1,4 @@
-import { setUserUid } from "../../src/mutations/setUserUid";
+import { setUserUid } from "../../mutations/setUserUid";
 
 describe("[Mail-WebappStore][mutations] : setUserLogin", () => {
     test("update login state", () => {

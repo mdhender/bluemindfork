@@ -1,4 +1,4 @@
-import { setMessageFilter } from "../../src/mutations/setMessageFilter";
+import { setMessageFilter } from "../../mutations/setMessageFilter";
 
 describe("[Mail-WebappStore][mutations] : setMessageFilter", () => {
     const state = {};

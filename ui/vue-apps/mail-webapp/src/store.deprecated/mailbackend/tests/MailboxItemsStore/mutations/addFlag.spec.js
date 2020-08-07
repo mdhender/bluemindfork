@@ -1,5 +1,5 @@
 import { Flag } from "@bluemind/email";
-import { addFlag } from "../../../src/MailboxItemsStore/mutations/addFlag";
+import { addFlag } from "../../../MailboxItemsStore/mutations/addFlag";
 
 describe("[MailItemsStore][mutations] : addFlag", () => {
     test("add seen flag to mark a message as seen", () => {

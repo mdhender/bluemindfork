@@ -1,5 +1,5 @@
-import { storePartContent } from "../../../src/MailboxItemsStore/mutations/storePartContent";
-import { PartKey } from "../../../src/MailboxItemsStore/PartKey";
+import { storePartContent } from "../../../MailboxItemsStore/mutations/storePartContent";
+import { PartKey } from "../../../MailboxItemsStore/PartKey";
 
 describe("[MailItemsStore][mutations] : storePartContent", () => {
     test("store part content and part/item mapping", () => {

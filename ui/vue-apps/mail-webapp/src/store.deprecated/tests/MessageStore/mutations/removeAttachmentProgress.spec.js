@@ -1,4 +1,4 @@
-import { removeAttachmentProgress } from "../../../src/MessageStore/mutations/removeAttachmentProgress";
+import { removeAttachmentProgress } from "../../../MessageStore/mutations/removeAttachmentProgress";
 
 const state = {
     attachmentProgresses: { att01: "progress01", att02: "progress01", att03: "progress01" }

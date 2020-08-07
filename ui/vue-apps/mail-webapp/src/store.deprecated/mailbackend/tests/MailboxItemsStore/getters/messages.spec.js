@@ -1,5 +1,6 @@
-import { messages } from "../../../src/MailboxItemsStore/getters/messages";
-import Message from "../../../src/MailboxItemsStore/Message";
+import { messages } from "../../../MailboxItemsStore/getters/messages";
+import Message from "../../../MailboxItemsStore/Message";
+
 const items = {
     key1: {
         internalId: "a",

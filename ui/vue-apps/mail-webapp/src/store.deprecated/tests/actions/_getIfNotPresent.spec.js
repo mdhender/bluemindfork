@@ -1,4 +1,4 @@
-import { $_getIfNotPresent } from "../../src/actions/$_getIfNotPresent";
+import { $_getIfNotPresent } from "../../actions/$_getIfNotPresent";
 
 const context = {
     dispatch: jest.fn().mockReturnValue(Promise.resolve()),

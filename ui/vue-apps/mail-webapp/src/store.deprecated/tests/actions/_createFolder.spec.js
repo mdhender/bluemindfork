@@ -1,168 +1,150 @@
-import { $_createFolder } from "../../src/actions/$_createFolder";
-import ItemUri from "@bluemind/item-uri";
+import { $_createFolder } from "../../actions/$_createFolder";
 
 const mailboxUid = "mailbox-uid";
-const context = {
-    commit: jest.fn(),
-    dispatch: jest.fn().mockReturnValue(Promise.resolve(ItemUri.encode("dummy", "dummy"))),
-    getters: {
-        my: { mailboxUid },
-        "folders/folders": [],
-        "folders/getFolderByKey": jest.fn().mockImplementation(key => {
-            return context.getters["folders/folders"].find(f => f.key === key);
-        })
-    }
-};
 
 function createHierarchy(path, mailbox) {
     const hierarchy = path.split("/").filter(Boolean);
     const folders = [];
-    const uid = () => Math.round(Math.random() * 100000);
+    const uid = () => Math.round(Math.random() * 100000) + "";
     hierarchy.reduce((parent, name) => {
         const folder = {
             uid: uid(),
-            value: {
-                name: name,
-                fullName: parent ? parent.value.fullName + "/" + name : name,
-                parentUid: parent ? parent.uid : null
-            }
+            name,
+            path: parent ? parent.path + "/" + name : name,
+            parent: parent ? parent.uid : null,
+            mailbox
         };
-        folder.key = ItemUri.encode(folder.uid, mailbox);
+        folder.key = folder.uid;
         folders.push(folder);
         return folder;
     }, null);
-    return folders;
+    const res = {};
+    folders.forEach(f => (res[f.key] = f));
+    return res;
 }
 
 describe("[Mail-WebappStore][actions] :  $_createFolder", () => {
+    let context;
+
     beforeEach(() => {
-        context.commit.mockClear();
-        context.dispatch.mockClear();
-        context.getters.my = { mailboxUid };
-        context.getters["folders/folders"] = [];
-        context.getters["folders/getFolderByKey"].mockClear();
+        context = {
+            commit: jest.fn(),
+            dispatch: jest.fn().mockReturnValue(Promise.resolve("dummy")),
+            rootState: {
+                mail: {
+                    folders: {}
+                }
+            }
+        };
     });
-    test("do not create folder if path already exists", done => {
-        context.getters["folders/folders"] = createHierarchy("My/beautifull/hierarchy", context.getters.my.mailboxUid);
-        let promise = context.getters["folders/folders"].reduce((promise, f) => {
-            const folder = { value: { fullName: f.value.fullName, name: f.value.name } };
-            return promise.then(() => $_createFolder(context, { folder, mailboxUid }));
-        }, Promise.resolve());
-        promise.then(() => {
-            expect(context.dispatch).not.toHaveBeenCalled();
-            done();
-        });
-    });
-    test("do not create folder if a key is provided", done => {
-        context.getters["folders/folders"] = createHierarchy("My/beautifull/hierarchy", context.getters.my.mailboxUid);
-        let promise = context.getters["folders/folders"].reduce((promise, f) => {
-            const folder = { key: f.key, value: { fullName: f.value.fullName, name: f.value.name } };
-            return promise.then(() =>
-                $_createFolder(context, { folder, mailboxUid }).then(key => expect(key).toEqual(folder.key))
-            );
-        }, Promise.resolve());
-        promise.then(() => {
-            expect(context.dispatch).not.toHaveBeenCalled();
-            done();
-        });
-    });
-    test("create folder and return the folder key", done => {
-        const folder = { value: { fullName: "myFolder", name: "myFolder" } };
-        $_createFolder(context, { folder, mailboxUid }).then(key => {
-            expect(context.dispatch).toHaveBeenCalledWith("folders/create", {
-                name: "myFolder",
-                parentUid: null,
-                mailboxUid: context.getters.my.mailboxUid
-            });
-            expect(key).toEqual(ItemUri.encode("dummy", "dummy"));
-            done();
-        });
-    });
-    test("create folder within the correct hierarchy", done => {
-        let folders = createHierarchy("My/beautifull/hierarchy", context.getters.my.mailboxUid);
-        folders = folders.concat(createHierarchy("Another/one/to/dust", context.getters.my.mailboxUid));
-        context.getters["folders/folders"] = folders;
-        let parent = folders.find(f => f.value.fullName === "Another/one");
-        let folder = { value: { fullName: "Another/one/again", name: "again" } };
-        $_createFolder(context, { folder, mailboxUid })
-            .then(() => {
-                expect(context.dispatch).toHaveBeenCalledWith("folders/create", {
-                    name: "again",
-                    parentUid: parent.uid,
-                    mailboxUid: context.getters.my.mailboxUid
-                });
-                parent = folders.find(f => f.value.fullName === "My/beautifull");
-                folder = { value: { fullName: "My/beautifull/things", name: "things" } };
-                return $_createFolder(context, { folder, mailboxUid });
-            })
-            .then(() => {
-                expect(context.dispatch).toHaveBeenCalledWith("folders/create", {
-                    name: "things",
-                    parentUid: parent.uid,
-                    mailboxUid
-                });
-                done();
-            });
-    });
-    test("create all folder's parents", done => {
-        let folders = createHierarchy("My", mailboxUid);
-        context.getters["folders/folders"] = folders;
-        let folder = { value: { fullName: "Another/one/to", name: "again" } };
 
-        context.dispatch.mockReturnValueOnce(Promise.resolve(ItemUri.encode("key1", mailboxUid)));
-        context.dispatch.mockReturnValueOnce(Promise.resolve(ItemUri.encode("key2", mailboxUid)));
-        context.dispatch.mockReturnValueOnce(Promise.resolve(ItemUri.encode("key3", mailboxUid)));
-        context.dispatch.mockReturnValueOnce(Promise.resolve(ItemUri.encode("key4", mailboxUid)));
-        context.dispatch.mockReturnValueOnce(Promise.resolve(ItemUri.encode("key5", mailboxUid)));
-
-        $_createFolder(context, { folder, mailboxUid })
-            .then(key => {
-                expect(context.dispatch).toHaveBeenNthCalledWith(1, "folders/create", {
-                    name: "Another",
-                    parentUid: null,
-                    mailboxUid
-                });
-                expect(context.dispatch).toHaveBeenNthCalledWith(2, "folders/create", {
-                    name: "one",
-                    parentUid: "key1",
-                    mailboxUid
-                });
-                expect(context.dispatch).toHaveBeenNthCalledWith(3, "folders/create", {
-                    name: "to",
-                    parentUid: "key2",
-                    mailboxUid
-                });
-                expect(key).toEqual(ItemUri.encode("key3", mailboxUid));
-                folder = { value: { fullName: "My/beautifull/hierarchy", name: "again" } };
-                return $_createFolder(context, { folder, mailboxUid });
-            })
-            .then(key => {
-                expect(context.dispatch).toHaveBeenNthCalledWith(4, "folders/create", {
-                    name: "beautifull",
-                    parentUid: folders[0].uid,
-                    mailboxUid
-                });
-                expect(context.dispatch).toHaveBeenNthCalledWith(5, "folders/create", {
-                    name: "hierarchy",
-                    parentUid: "key4",
-                    mailboxUid
-                });
-                expect(key).toEqual(ItemUri.encode("key5", mailboxUid));
-                done();
-            });
+    test("do not create folder if path already exists", async () => {
+        context.rootState.mail.folders = createHierarchy("My/beautifull/hierarchy", mailboxUid);
+        const folder = {
+            path: "My/beautifull/hierarchy",
+            name: "hierarchy"
+        };
+        await $_createFolder(context, { folder, mailboxUid });
+        expect(context.dispatch).not.toHaveBeenCalled();
     });
-    test("create folders in another mailbox", done => {
+
+    test("do not create folder if a key is provided", async () => {
+        const folder = { key: "okok" };
+        await $_createFolder(context, { folder, mailboxUid });
+        expect(context.dispatch).not.toHaveBeenCalled();
+    });
+
+    test("create folder and return the folder key", async () => {
+        const folder = { path: "myFolder", name: "myFolder" };
+        const key = await $_createFolder(context, { folder, mailboxUid });
+
+        expect(context.dispatch).toHaveBeenCalledWith("folders/create", {
+            name: "myFolder",
+            parent: null,
+            mailboxUid
+        });
+        expect(key).toEqual("dummy");
+    });
+
+    test("create folder within the correct hierarchy", async () => {
+        let folders = createHierarchy("My/beautifull/hierarchy", mailboxUid);
+        let otherFolders = createHierarchy("Another/one/to/dust", mailboxUid);
+        context.rootState.mail.folders = { ...folders, ...otherFolders };
+
+        let parent = Object.values(context.rootState.mail.folders).find(f => f.path === "Another/one");
+        let folder = { path: "Another/one/again", name: "again" };
+        await $_createFolder(context, { folder, mailboxUid });
+        expect(context.dispatch).toHaveBeenCalledWith("folders/create", {
+            name: "again",
+            parent: parent.key,
+            mailboxUid
+        });
+
+        parent = Object.values(context.rootState.mail.folders).find(f => f.path === "My/beautifull");
+        folder = { path: "My/beautifull/things", name: "things" };
+        await $_createFolder(context, { folder, mailboxUid });
+        expect(context.dispatch).toHaveBeenCalledWith("folders/create", {
+            name: "things",
+            parent: parent.key,
+            mailboxUid
+        });
+    });
+
+    test("create all folder's parents", async () => {
+        context.rootState.mail.folders = createHierarchy("My", mailboxUid);
+
+        context.dispatch.mockReturnValueOnce(Promise.resolve("key1"));
+        context.dispatch.mockReturnValueOnce(Promise.resolve("key2"));
+        context.dispatch.mockReturnValueOnce(Promise.resolve("key3"));
+        context.dispatch.mockReturnValueOnce(Promise.resolve("key4"));
+        context.dispatch.mockReturnValueOnce(Promise.resolve("key5"));
+
+        let folder = { path: "Another/one/to", name: "again" };
+
+        let key = await $_createFolder(context, { folder, mailboxUid });
+        expect(context.dispatch).toHaveBeenNthCalledWith(1, "folders/create", {
+            name: "Another",
+            parent: null,
+            mailboxUid
+        });
+        expect(context.dispatch).toHaveBeenNthCalledWith(2, "folders/create", {
+            name: "one",
+            parent: "key1",
+            mailboxUid
+        });
+        expect(context.dispatch).toHaveBeenNthCalledWith(3, "folders/create", {
+            name: "to",
+            parent: "key2",
+            mailboxUid
+        });
+        expect(key).toEqual("key3");
+
+        folder = { path: "My/beautifull/hierarchy", name: "again" };
+        key = await $_createFolder(context, { folder, mailboxUid });
+        expect(context.dispatch).toHaveBeenNthCalledWith(4, "folders/create", {
+            name: "beautifull",
+            parent: Object.keys(context.rootState.mail.folders)[0],
+            mailboxUid
+        });
+        expect(context.dispatch).toHaveBeenNthCalledWith(5, "folders/create", {
+            name: "hierarchy",
+            parent: "key4",
+            mailboxUid
+        });
+        expect(key).toEqual("key5");
+    });
+
+    test("create folders in another mailbox", async () => {
         let folders = createHierarchy("Mailshare2/", "a-mailbox");
-        folders = folders.concat(createHierarchy("Mailshare1/subFolder", "another-mailbox-uid"));
-        context.getters["folders/folders"] = folders;
-        let folder = { value: { fullName: "Mailshare1/subFolder/folder", name: "folder" } };
-        $_createFolder(context, { folder, mailboxUid: "another-mailbox-uid" }).then(() => {
-            expect(context.dispatch).toHaveBeenCalledWith("folders/create", {
-                name: "folder",
-                parentUid: expect.anything(),
-                mailboxUid: "another-mailbox-uid"
-            });
-            done();
+        let otherFolders = createHierarchy("Mailshare1/subFolder", "another-mailbox-uid");
+        context.rootState.mail.folders = { ...folders, ...otherFolders };
+
+        let folder = { path: "Mailshare1/subFolder/folder", name: "folder" };
+        await $_createFolder(context, { folder, mailboxUid: "another-mailbox-uid" });
+        expect(context.dispatch).toHaveBeenCalledWith("folders/create", {
+            name: "folder",
+            parent: expect.anything(),
+            mailboxUid: "another-mailbox-uid"
         });
     });
 });

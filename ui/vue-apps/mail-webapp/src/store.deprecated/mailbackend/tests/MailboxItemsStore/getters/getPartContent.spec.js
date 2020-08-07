@@ -1,5 +1,5 @@
-import { getPartContent } from "../../../src/MailboxItemsStore/getters/getPartContent";
-import { PartKey } from "../../../src/MailboxItemsStore/PartKey";
+import { getPartContent } from "../../../MailboxItemsStore/getters/getPartContent";
+import { PartKey } from "../../../MailboxItemsStore/PartKey";
 
 const state = {
     partContents: { [PartKey.encode(2, 1)]: "Part 1", [PartKey.encode("B", "A")]: "Part 2" }

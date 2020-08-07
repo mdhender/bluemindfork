@@ -1,4 +1,4 @@
-import { removeAttachment } from "../../src/actions/removeAttachment";
+import { removeAttachment } from "../../actions/removeAttachment";
 import { MockMailboxItemsClient } from "@bluemind/test-mocks";
 import ServiceLocator from "@bluemind/inject";
 
@@ -9,10 +9,7 @@ const context = {
     commit: jest.fn(),
     dispatch: jest.fn().mockReturnValue(Promise.resolve()),
     getters: {
-        "draft/getAttachmentStatus": jest.fn(),
-        my: {
-            DRAFTS: {}
-        }
+        "draft/getAttachmentStatus": jest.fn()
     },
     state: {
         draft: {
@@ -25,6 +22,9 @@ const context = {
                 ]
             }
         }
+    },
+    rootGetters: {
+        "mail/MY_DRAFTS": jest.fn().mockReturnValue({})
     }
 };
 

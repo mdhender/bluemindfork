@@ -2,8 +2,15 @@ import merge from "lodash.merge";
 import Vuex from "vuex";
 import { mount, createLocalVue } from "@vue/test-utils";
 import cloneDeep from "lodash.clonedeep";
+import { ItemUri } from "@bluemind/item-uri";
 import MessageStore from "../src/store.deprecated/MessageStore";
 import MailboxItemsStore from "../src/store.deprecated/mailbackend/MailboxItemsStore";
+
+const localVue = createLocalVue();
+localVue.use(Vuex);
+
+const folderUid = "folder:uid";
+export const messageKey = ItemUri.encode("message:id", folderUid);
 
 export function createStore(overrides) {
     const storeOptions = {
@@ -27,8 +34,7 @@ export function createStore(overrides) {
                         getters: {
                             message: jest.fn(() => {
                                 return {
-                                    key:
-                                        "WyIxNWUwZjNjYS01M2E2LTRiYmItYWQ0NS02MTgwNjcyYmE4ZWMiLCIzNUU1MTJCOC0xRDVBLTRENkQtQUMzOC01QzY4OENDQzlBMDUiXQ==",
+                                    key: messageKey,
                                     states: [],
                                     flags: []
                                 };
@@ -39,6 +45,16 @@ export function createStore(overrides) {
                     messages: cloneDeep(MailboxItemsStore)
                 },
                 actions: {}
+            },
+            mail: {
+                namespaced: true,
+                state: {
+                    folders: {
+                        [folderUid]: {
+                            key: folderUid
+                        }
+                    }
+                }
             }
         }
     };
@@ -47,8 +63,6 @@ export function createStore(overrides) {
 }
 
 export function createWrapper(component, overrides, propsData = {}) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
     const defaultMountingOptions = {
         localVue,
         store: createStore(),

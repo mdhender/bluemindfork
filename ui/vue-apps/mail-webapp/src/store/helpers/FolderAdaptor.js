@@ -10,13 +10,13 @@ export const FolderAdaptor = {
             id: remotefolder.internalId,
             mailbox: mailbox.uid,
             parent: remotefolder.value.parentUid,
-            name: isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox)
+            name: this.isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox)
                 ? translateDefaults(remotefolder.value.name)
                 : remotefolder.value.name,
             imapName: remotefolder.value.name,
             path: computePathFromRemote(remotefolder, mailbox),
             writable: mailbox.writable,
-            default: isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox),
+            default: this.isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox),
             expanded: false,
             unread: 0
         };
@@ -52,7 +52,7 @@ export const FolderAdaptor = {
             imapName: name,
             path: computePath(mailbox, name, parent),
             writable: mailbox.writable,
-            default: isDefault(!parent, name, mailbox),
+            default: this.isDefault(!parent, name, mailbox),
             expanded: false,
             unread: 0
         };
@@ -61,11 +61,15 @@ export const FolderAdaptor = {
     rename(folder, name) {
         const path = folder.path.replace(new RegExp(folder.name + "$"), name);
         return { ...folder, name, path };
+    },
+
+    isDefault(isRootFolder, name, mailbox) {
+        return isRootFolder && (mailbox.type !== MailboxType.USER || DEFAULT_FOLDERS.includes(name));
     }
 };
 
 function computePathFromRemote(remotefolder, mailbox) {
-    const folderPath = isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox)
+    const folderPath = FolderAdaptor.isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox)
         ? translateDefaults(remotefolder.value.name)
         : remotefolder.value.fullName;
 
@@ -92,10 +96,6 @@ function path() {
     return Array.from(arguments)
         .filter(Boolean)
         .join("/");
-}
-
-function isDefault(isRootFolder, name, mailbox) {
-    return isRootFolder && (mailbox.type !== MailboxType.USER || DEFAULT_FOLDERS.includes(name));
 }
 
 function translateDefaults(name) {

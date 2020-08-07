@@ -1,4 +1,4 @@
-import * as messageListMode from "../../src/getters/messageListMode";
+import * as messageListMode from "../../getters/messageListMode";
 
 describe("[Mail-WebappStore]", () => {
     const { isSearchMode, isFolderMode } = messageListMode;

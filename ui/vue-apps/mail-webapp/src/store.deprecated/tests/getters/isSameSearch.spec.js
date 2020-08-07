@@ -1,4 +1,4 @@
-import { isSameSearch } from "../../src/getters/isSameSearch";
+import { isSameSearch } from "../../getters/isSameSearch";
 
 let state;
 

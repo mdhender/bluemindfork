@@ -1,4 +1,4 @@
-import { selectMessage } from "../../src/actions/selectMessage";
+import { selectMessage } from "../../actions/selectMessage";
 import { ItemUri } from "@bluemind/item-uri";
 import { MimeType } from "@bluemind/email";
 import ServiceLocator from "@bluemind/inject";
@@ -30,10 +30,14 @@ const context = {
     ),
     commit: jest.fn(),
     state: {
-        currentFolderKey: "key",
         currentMessage: {},
         messages: { itemKeys: [1, 2, 3] },
         sorted: "up to down"
+    },
+    rootState: {
+        mail: {
+            activeFolder: ""
+        }
     }
 };
 

@@ -1,4 +1,4 @@
-import { status } from "../../../src/MessageStore/getters/status";
+import { status } from "../../../MessageStore/getters/status";
 
 const state = { status: "FamousStatus" };
 

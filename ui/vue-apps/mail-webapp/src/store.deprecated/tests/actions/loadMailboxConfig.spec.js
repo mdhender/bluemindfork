@@ -1,4 +1,4 @@
-import { loadMailboxConfig } from "../../src/actions/loadMailboxConfig";
+import { loadMailboxConfig } from "../../actions/loadMailboxConfig";
 
 const mockedMessageMaxSize = 666;
 jest.mock("@bluemind/inject", () => {

@@ -1,4 +1,4 @@
-import { addFlag } from "../../../src/MailboxItemsStore/actions/addFlag";
+import { addFlag } from "../../../MailboxItemsStore/actions/addFlag";
 import { Flag } from "@bluemind/email";
 import { MailboxItemsClient } from "@bluemind/backend.mail.api";
 import ItemUri from "@bluemind/item-uri";

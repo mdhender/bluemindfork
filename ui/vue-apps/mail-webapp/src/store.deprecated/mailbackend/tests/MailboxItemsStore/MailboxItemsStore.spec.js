@@ -4,7 +4,7 @@ import { MockMailboxItemsClient } from "@bluemind/test-mocks";
 import cloneDeep from "lodash.clonedeep";
 import exampleMessages from "./data/messages";
 import ItemUri from "@bluemind/item-uri";
-import MailboxItemsStore from "../../src/MailboxItemsStore";
+import MailboxItemsStore from "../../MailboxItemsStore";
 import plainTextPart from "./data/plainTextPart";
 import ServiceLocator from "@bluemind/inject";
 import Vuex from "vuex";

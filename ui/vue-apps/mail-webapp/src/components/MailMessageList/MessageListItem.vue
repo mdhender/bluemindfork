@@ -100,21 +100,21 @@ export default {
         setTooltip(folder) {
             if (folder) {
                 const draggedMessageFolderUid = ItemUri.container(this.message.key);
-                const dropzoneFolderUid = ItemUri.item(folder.key);
+                const dropzoneFolderUid = folder.key;
                 const dropzoneFolderIsReadOnly = !folder.writable;
 
                 if (draggedMessageFolderUid === dropzoneFolderUid) {
                     this.tooltip.text = this.$t("mail.actions.move.item.warning.self", {
-                        path: folder.fullName
+                        path: folder.path
                     });
                     this.tooltip.cursor = "forbidden";
                 } else if (dropzoneFolderIsReadOnly) {
                     this.tooltip.text = this.$t("mail.actions.move.item.warning.readonly", {
-                        path: folder.fullName
+                        path: folder.path
                     });
                     this.tooltip.cursor = "forbidden";
                 } else {
-                    this.tooltip.text = this.$t("mail.actions.move.item", { path: folder.fullName });
+                    this.tooltip.text = this.$t("mail.actions.move.item", { path: folder.path });
                     this.tooltip.cursor = "cursor";
                 }
             }
@@ -125,7 +125,7 @@ export default {
         },
         moveMessage(folder) {
             const draggedMessageFolderUid = ItemUri.container(this.message.key);
-            const dropzoneFolderUid = ItemUri.item(folder.key);
+            const dropzoneFolderUid = folder.key;
             const dropzoneFolderIsReadOnly = !folder.writable;
             if (draggedMessageFolderUid !== dropzoneFolderUid && !dropzoneFolderIsReadOnly) {
                 if (this.message.key === this.currentMessageKey) {

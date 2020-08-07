@@ -1,7 +1,5 @@
-import { create } from "../../../src/MailboxFoldersStore/actions/create";
+import { create } from "../../../MailboxFoldersStore/actions/create";
 import UUIDGenerator from "@bluemind/uuid";
-import ItemUri from "@bluemind/item-uri";
-import { CREATE_FOLDER } from "@bluemind/webapp.mail.store";
 
 jest.mock("@bluemind/uuid");
 
@@ -20,9 +18,9 @@ describe("[MailFoldersStore][actions] : create", () => {
         context.commit.mockClear();
     });
     test("call createBasics and getComplete with the given data", async () => {
-        const key = await create(context, { name: "folder", parentUid: null, mailboxUid: "container" });
+        const key = await create(context, { name: "folder", parent: null, mailboxUid: "container" });
         expect(context.dispatch).toHaveBeenCalledWith(
-            CREATE_FOLDER,
+            "mail/CREATE_FOLDER",
             {
                 mailbox: { uid: "container" },
                 parent: null,
@@ -31,6 +29,6 @@ describe("[MailFoldersStore][actions] : create", () => {
             },
             { root: true }
         );
-        expect(key).toEqual(ItemUri.encode("uid", "container"));
+        expect(key).toEqual("uid");
     });
 });

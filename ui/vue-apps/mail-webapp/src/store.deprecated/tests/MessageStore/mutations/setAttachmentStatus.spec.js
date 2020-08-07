@@ -1,4 +1,4 @@
-import { setAttachmentStatus } from "../../../src/MessageStore/mutations/setAttachmentStatus";
+import { setAttachmentStatus } from "../../../MessageStore/mutations/setAttachmentStatus";
 
 const state = {
     attachmentStatuses: {

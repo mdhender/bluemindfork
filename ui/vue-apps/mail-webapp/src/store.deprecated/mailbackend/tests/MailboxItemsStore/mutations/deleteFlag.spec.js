@@ -1,5 +1,5 @@
 import { Flag } from "@bluemind/email";
-import { deleteFlag } from "../../../src/MailboxItemsStore/mutations/deleteFlag";
+import { deleteFlag } from "../../../MailboxItemsStore/mutations/deleteFlag";
 
 describe("[MailItemsStore][mutations] : deleteFlag", () => {
     test("delete an existing seen flag", () => {

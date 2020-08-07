@@ -1,10 +1,14 @@
-import { removeFolder } from "../../src/actions/removeFolder";
+import { removeFolder } from "../../actions/removeFolder";
 
 const context = {
     dispatch: jest.fn().mockResolvedValue(),
     commit: jest.fn(),
-    getters: {
-        "folders/getFolderByKey": jest.fn().mockReturnValue({ value: { fullName: "INBOX" } })
+    rootState: {
+        mail: {
+            folders: {
+                key: {}
+            }
+        }
     }
 };
 
@@ -12,8 +16,8 @@ describe("[Mail-WebappStore][actions] : removeFolder", () => {
     beforeEach(() => {
         context.dispatch.mockClear();
         context.commit.mockClear();
-        context.getters["folders/getFolderByKey"].mockClear();
     });
+
     test("Basic", async () => {
         await removeFolder(context, "key");
         expect(context.commit).toHaveBeenCalledWith(
@@ -40,6 +44,7 @@ describe("[Mail-WebappStore][actions] : removeFolder", () => {
             expect.anything()
         );
     });
+
     test("With Error", async () => {
         context.dispatch.mockRejectedValueOnce();
         await removeFolder(context, "key");

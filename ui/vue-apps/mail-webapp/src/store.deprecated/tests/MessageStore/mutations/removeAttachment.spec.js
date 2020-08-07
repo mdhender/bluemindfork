@@ -1,4 +1,4 @@
-import { removeAttachment } from "../../../src/MessageStore/mutations/removeAttachment";
+import { removeAttachment } from "../../../MessageStore/mutations/removeAttachment";
 
 const state = {
     parts: {

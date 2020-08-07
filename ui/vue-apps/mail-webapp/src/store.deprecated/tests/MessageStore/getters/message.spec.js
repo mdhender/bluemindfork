@@ -1,4 +1,4 @@
-import { message } from "../../../src/MessageStore/getters/message";
+import { message } from "../../../MessageStore/getters/message";
 
 const rootGetters = {
     "mail-webapp/messages/getMessagesByKey": jest.fn().mockReturnValue(["TheMessage"])

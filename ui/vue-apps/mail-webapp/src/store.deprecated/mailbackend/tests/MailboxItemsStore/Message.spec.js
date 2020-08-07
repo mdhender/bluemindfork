@@ -15,7 +15,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-import Message from "../../src/MailboxItemsStore/Message.js";
+import Message from "../../MailboxItemsStore/Message.js";
 import mailboxItem from "./data/mailbox-item.json";
 
 describe("Message", () => {

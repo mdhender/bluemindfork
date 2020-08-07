@@ -1,6 +1,6 @@
 import { Flag } from "@bluemind/email";
-import { markAsUnread } from "../../src/actions/markAs";
 import ItemUri from "@bluemind/item-uri";
+import { markAsUnread } from "../../actions/markAs";
 
 const messageId = "74515";
 const folderUid = "2da34601-8c78-4cc3-baf0-1ae3dfe24a23";
@@ -15,14 +15,6 @@ const context = {
     commit: jest.fn(),
     dispatch: jest.fn().mockReturnValue(Promise.resolve([{ states: ["not-seen"], key: messageKey1 }])),
     state: {
-        foldersData: {
-            [folderUid]: {
-                unread: 10
-            },
-            [folderUid2]: {
-                unread: 1
-            }
-        },
         messages: {
             items: { [messageKey1]: {}, [messageKey3]: {} }
         }
@@ -33,6 +25,20 @@ const context = {
                 { key: messageKey1, states: ["not-seen"] },
                 { key: messageKey3, states: ["seen"] }
             ].filter(message => messageKeys.includes(message.key))
+    },
+    rootState: {
+        mail: {
+            folders: {
+                [folderUid]: {
+                    key: folderUid,
+                    unread: 10
+                },
+                [folderUid2]: {
+                    key: folderUid2,
+                    unread: 1
+                }
+            }
+        }
     }
 };
 
@@ -48,7 +54,11 @@ describe("[Mail-WebappStore][actions] : markAsUnead", () => {
             messageKeys: [messageKey3],
             mailboxItemFlag
         });
-        expect(context.commit).toHaveBeenCalledWith("setUnreadCount", { folderUid, count: 11 });
+        expect(context.commit).toHaveBeenCalledWith(
+            "mail/SET_UNREAD_COUNT",
+            { key: folderUid, count: 11 },
+            { root: true }
+        );
     });
 
     test("call update seen only if message is seen (message is in state)", async () => {
@@ -77,7 +87,11 @@ describe("[Mail-WebappStore][actions] : markAsUnead", () => {
             messageKeys: [messageKey3],
             mailboxItemFlag
         });
-        expect(context.commit).toHaveBeenCalledWith("setUnreadCount", { folderUid, count: 11 });
+        expect(context.commit).toHaveBeenCalledWith(
+            "mail/SET_UNREAD_COUNT",
+            { key: folderUid, count: 11 },
+            { root: true }
+        );
     });
 
     test("Multiple messages, different folders (missing messages)", async () => {

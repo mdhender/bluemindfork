@@ -1,6 +1,6 @@
-import { FolderAdaptor } from "../../src/helpers/FolderAdaptor";
+import { FolderAdaptor } from "../../helpers/FolderAdaptor";
 import remotefolder from "../data/remotefolder.json";
-import { MailboxType } from "../../src/helpers/MailboxAdaptor";
+import { MailboxType } from "../../helpers/MailboxAdaptor";
 
 describe("FolderAdaptor", () => {
     test("fromMailboxFolder", () => {
@@ -13,17 +13,21 @@ describe("FolderAdaptor", () => {
         expect(FolderAdaptor.fromMailboxFolder(remotefolder, mailbox)).toMatchInlineSnapshot(`
             Object {
               "default": false,
+              "expanded": false,
               "id": 460,
+              "imapName": "Archives",
               "key": "135adc10-db84-440e-aebc-e10d185fa227",
               "mailbox": "135adc10-db84-440e-aebc-e10d185fa227",
               "name": "Archives",
               "parent": null,
-              "path": "inbox/Archives",
+              "path": "Archives",
               "uid": "135adc10-db84-440e-aebc-e10d185fa227",
+              "unread": 0,
               "writable": true,
             }
         `);
     });
+
     describe("toMailboxFolder", () => {
         test("Export a local folder in a mailbox withour root remote folder", () => {
             const folder = {
@@ -36,17 +40,18 @@ describe("FolderAdaptor", () => {
                 root: ""
             };
             expect(FolderAdaptor.toMailboxFolder(folder, mailbox)).toMatchInlineSnapshot(`
-                            Object {
-                              "internalId": 460,
-                              "uid": "135adc10-db84-440e-aebc-e10d185fa227",
-                              "value": Object {
-                                "fullName": "Archives",
-                                "name": "Archives",
-                                "parentUid": null,
-                              },
-                            }
-                    `);
+                Object {
+                  "internalId": 460,
+                  "uid": "135adc10-db84-440e-aebc-e10d185fa227",
+                  "value": Object {
+                    "fullName": "Archives",
+                    "name": "Archives",
+                    "parentUid": undefined,
+                  },
+                }
+            `);
         });
+
         test("Export a local folder in a mailbox with a root folder to remote folder", () => {
             const folder = {
                 id: 460,
@@ -58,30 +63,19 @@ describe("FolderAdaptor", () => {
                 root: "mailbox"
             };
             expect(FolderAdaptor.toMailboxFolder(folder, mailbox)).toMatchInlineSnapshot(`
-                            Object {
-                              "internalId": 460,
-                              "uid": "135adc10-db84-440e-aebc-e10d185fa227",
-                              "value": Object {
-                                "fullName": "Archives",
-                                "name": "Archives",
-                                "parentUid": null,
-                              },
-                            }
-                    `);
-        });
-        test("Temporarily hack to export local folder key as remote folder uid", () => {
-            const folder = {
-                id: 460,
-                key: "135adc10-db84-440e-aebc-e10d185fa227",
-                name: "Archives",
-                path: "mailboxrootArchives"
-            };
-            const mailbox = {
-                root: "inbox"
-            };
-            expect(FolderAdaptor.toMailboxFolder(folder, mailbox).uid).toEqual(folder.key);
+                Object {
+                  "internalId": 460,
+                  "uid": "135adc10-db84-440e-aebc-e10d185fa227",
+                  "value": Object {
+                    "fullName": "Archives",
+                    "name": "Archives",
+                    "parentUid": undefined,
+                  },
+                }
+            `);
         });
     });
+
     describe("isDefault", () => {
         test("INBOX in user mailbox is a default folder", () => {
             expect(FolderAdaptor.isDefault(true, "INBOX", { type: MailboxType.USER })).toBeTruthy();
@@ -134,13 +128,16 @@ describe("FolderAdaptor", () => {
             expect(FolderAdaptor.create("123", "name", null, mailbox)).toMatchInlineSnapshot(`
                 Object {
                   "default": false,
+                  "expanded": false,
                   "id": null,
+                  "imapName": "name",
                   "key": "123",
                   "mailbox": "mailbox-key",
                   "name": "name",
                   "parent": null,
                   "path": "name",
                   "uid": null,
+                  "unread": 0,
                   "writable": true,
                 }
             `);
@@ -151,13 +148,16 @@ describe("FolderAdaptor", () => {
                 .toMatchInlineSnapshot(`
                 Object {
                   "default": false,
+                  "expanded": false,
                   "id": null,
+                  "imapName": "name",
                   "key": "123",
                   "mailbox": "mailbox-key",
                   "name": "name",
                   "parent": "0",
                   "path": "parent/folder/name",
                   "uid": null,
+                  "unread": 0,
                   "writable": true,
                 }
             `);
@@ -167,13 +167,16 @@ describe("FolderAdaptor", () => {
             expect(FolderAdaptor.create("123", "name", null, mailbox)).toMatchInlineSnapshot(`
                 Object {
                   "default": true,
+                  "expanded": false,
                   "id": null,
+                  "imapName": "name",
                   "key": "123",
                   "mailbox": "mailbox-key",
                   "name": "name",
                   "parent": null,
-                  "path": "mailshare/name",
+                  "path": "mailshare",
                   "uid": null,
+                  "unread": 0,
                   "writable": true,
                 }
             `);
@@ -184,13 +187,16 @@ describe("FolderAdaptor", () => {
             expect(FolderAdaptor.create("123", "name", null, mailbox)).toMatchInlineSnapshot(`
                 Object {
                   "default": true,
+                  "expanded": false,
                   "id": null,
+                  "imapName": "name",
                   "key": "123",
                   "mailbox": "mailbox-key",
                   "name": "name",
                   "parent": null,
-                  "path": "mailshare/name",
+                  "path": "mailshare",
                   "uid": null,
+                  "unread": 0,
                   "writable": true,
                 }
             `);
@@ -201,13 +207,16 @@ describe("FolderAdaptor", () => {
                 .toMatchInlineSnapshot(`
                 Object {
                   "default": false,
+                  "expanded": false,
                   "id": null,
+                  "imapName": "name",
                   "key": "123",
                   "mailbox": "mailbox-key",
                   "name": "name",
                   "parent": "0",
                   "path": "mailshare/folder/name",
                   "uid": null,
+                  "unread": 0,
                   "writable": true,
                 }
             `);

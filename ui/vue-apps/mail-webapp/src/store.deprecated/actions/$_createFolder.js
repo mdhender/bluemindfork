@@ -1,4 +1,7 @@
 export function $_createFolder({ dispatch, rootState }, { folder, mailboxUid }) {
+    if (folder.key) {
+        return folder.key;
+    }
     let parent = getNearestFolder(folder, rootState);
     let hierarchy = folder.path;
     if (parent !== null) {
@@ -16,7 +19,7 @@ export function $_createFolder({ dispatch, rootState }, { folder, mailboxUid }) 
 
 function get(folders, hierarchy, parent) {
     const name = hierarchy[0];
-    const folder = folders.find(folder => equal(folder, { parentKey: parent && parent.key, name }));
+    const folder = folders.find(folder => equal(folder, { parent: parent && parent.key, name }));
     if (!folder) {
         return parent;
     }
@@ -32,10 +35,6 @@ function equal(folder, { name, parent }) {
 }
 
 function getNearestFolder(folder, rootState) {
-    if (folder.key) {
-        return rootState.mail.folders[folder.key];
-    } else {
-        const hierarchy = folder.path.split("/").filter(Boolean);
-        return get(Object.values(rootState.mail.folders), hierarchy, null);
-    }
+    const hierarchy = folder.path.split("/").filter(Boolean);
+    return get(Object.values(rootState.mail.folders), hierarchy, null);
 }

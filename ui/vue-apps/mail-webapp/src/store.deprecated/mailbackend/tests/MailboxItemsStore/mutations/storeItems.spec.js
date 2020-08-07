@@ -1,4 +1,4 @@
-import { storeItems } from "../../../src/MailboxItemsStore/mutations/storeItems";
+import { storeItems } from "../../../MailboxItemsStore/mutations/storeItems";
 import ItemUri from "@bluemind/item-uri";
 
 jest.mock("@bluemind/inject");

@@ -1,4 +1,4 @@
-import { content } from "../../../src/MessageStore/getters/content";
+import { content } from "../../../MessageStore/getters/content";
 import { PartsHelper } from "@bluemind/email";
 
 PartsHelper.insertInlineImages = jest.fn().mockReturnValue([]);

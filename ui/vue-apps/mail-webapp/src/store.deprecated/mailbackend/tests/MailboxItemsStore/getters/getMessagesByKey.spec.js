@@ -1,4 +1,4 @@
-import { getMessagesByKey } from "../../../src/MailboxItemsStore/getters/getMessagesByKey";
+import { getMessagesByKey } from "../../../MailboxItemsStore/getters/getMessagesByKey";
 
 const getters = {
     messages: [

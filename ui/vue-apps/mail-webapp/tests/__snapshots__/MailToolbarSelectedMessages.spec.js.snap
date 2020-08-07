@@ -63,6 +63,7 @@ exports[`MailToolbarSelectedMessages should match snapshot 1`] = `
    
   <div
     class="dropdown b-dropdown h-100 move-message btn-group"
+    style="display: none;"
   >
     <!---->
     <button
@@ -223,6 +224,7 @@ exports[`MailToolbarSelectedMessages should match snapshot 1`] = `
    
   <button
     class="btn btn-simple-dark"
+    style="display: none;"
     type="button"
   >
     <svg
@@ -251,6 +253,7 @@ exports[`MailToolbarSelectedMessages should match snapshot 1`] = `
    
   <button
     class="btn flagged btn-simple-dark"
+    style="display: none;"
     type="button"
   >
     <svg
@@ -306,68 +309,6 @@ exports[`MailToolbarSelectedMessages should match snapshot 1`] = `
     </span>
   </button>
    
-  <div
-    class="dropdown b-dropdown other_actions h-100 btn-group"
-  >
-    <!---->
-    <button
-      aria-expanded="false"
-      aria-haspopup="true"
-      class="btn dropdown-toggle btn-simple-dark dropdown-toggle-no-caret"
-      type="button"
-    >
-      <svg
-        aria-hidden="true"
-        class="svg-inline--fa fa-3dots fa-w-16 fa-2x"
-        data-icon="3dots"
-        data-prefix="fas"
-        focusable="false"
-        role="img"
-        viewBox="0 0 12 12"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          class=""
-          d="M4 5.99998C4 6.55226 3.55228 6.99998 3 6.99998C2.44772 6.99998 2 6.55226 2 5.99998C2 5.44769 2.44772 4.99998 3 4.99998C3.55228 4.99998 4 5.44769 4 5.99998ZM7 5.99998C7 6.55226 6.55228 6.99998 6 6.99998C5.44772 6.99998 5 6.55226 5 5.99998C5 5.44769 5.44772 4.99998 6 4.99998C6.55228 4.99998 7 5.44769 7 5.99998ZM9 6.99998C9.55228 6.99998 10 6.55226 10 5.99998C10 5.44769 9.55228 4.99998 9 4.99998C8.44772 4.99998 8 5.44769 8 5.99998C8 6.55226 8.44772 6.99998 9 6.99998Z"
-          fill="currentColor"
-        />
-      </svg>
-       
-      <span
-        class="d-none d-lg-block"
-      >
-        
-      </span>
-    </button>
-    <ul
-      class="dropdown-menu dropdown-menu-right"
-      role="menu"
-      tabindex="-1"
-    >
-       
-      <li
-        class="shadow-sm"
-        role="presentation"
-      >
-        <a
-          class="dropdown-item"
-          href="#"
-          role="menuitem"
-          target="_self"
-        >
-           
-          <div
-            class="dropdown-item-content"
-          >
-            
-        
-    
-          </div>
-           
-          <!---->
-        </a>
-      </li>
-    </ul>
-  </div>
+  <!---->
 </div>
 `;

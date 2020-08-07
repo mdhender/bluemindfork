@@ -13,20 +13,34 @@ export const getters = {
     FOLDER_BY_MAILBOX: state => mailboxKey =>
         Object.values(state.folders).filter(folder => folder.mailbox === mailboxKey),
     HAS_CHILDREN_GETTER: state => key => !!Object.values(state.folders).find(folder => folder.parent === key),
-    MAILSHARE_FOLDERS: (state, getters) => {
-        return Object.values(state.folders)
+    MAILSHARE_FOLDERS: (state, getters) =>
+        Object.values(state.folders)
             .filter(folder => getters["MAILSHARE_KEYS"].includes(folder.mailbox))
-            .map(folder => folder.key);
-    },
+            .map(folder => folder.key),
     MY_MAILBOX_FOLDERS: (state, getters) =>
         Object.values(state.folders)
             .filter(folder => getters["MY_MAILBOX_KEY"] === folder.mailbox)
             .map(folder => folder.key),
-    MY_INBOX: state => Object.values(state.folders).find(folder => folder.imapName === DEFAULT_FOLDER_NAMES.INBOX),
-    MY_OUTBOX: state => Object.values(state.folders).find(folder => folder.imapName === DEFAULT_FOLDER_NAMES.OUTBOX),
-    MY_DRAFTS: state => Object.values(state.folders).find(folder => folder.imapName === DEFAULT_FOLDER_NAMES.DRAFTS),
-    MY_SENT: state => Object.values(state.folders).find(folder => folder.imapName === DEFAULT_FOLDER_NAMES.SENT),
-    MY_TRASH: state => Object.values(state.folders).find(folder => folder.imapName === DEFAULT_FOLDER_NAMES.TRASH)
+    MY_INBOX: (state, getters) =>
+        Object.values(state.folders).find(
+            folder => folder.mailbox === getters["MY_MAILBOX_KEY"] && folder.imapName === DEFAULT_FOLDER_NAMES.INBOX
+        ),
+    MY_OUTBOX: (state, getters) =>
+        Object.values(state.folders).find(
+            folder => folder.mailbox === getters["MY_MAILBOX_KEY"] && folder.imapName === DEFAULT_FOLDER_NAMES.OUTBOX
+        ),
+    MY_DRAFTS: (state, getters) =>
+        Object.values(state.folders).find(
+            folder => folder.mailbox === getters["MY_MAILBOX_KEY"] && folder.imapName === DEFAULT_FOLDER_NAMES.DRAFTS
+        ),
+    MY_SENT: (state, getters) =>
+        Object.values(state.folders).find(
+            folder => folder.mailbox === getters["MY_MAILBOX_KEY"] && folder.imapName === DEFAULT_FOLDER_NAMES.SENT
+        ),
+    MY_TRASH: (state, getters) =>
+        Object.values(state.folders).find(
+            folder => folder.mailbox === getters["MY_MAILBOX_KEY"] && folder.imapName === DEFAULT_FOLDER_NAMES.TRASH
+        )
 };
 
 export const mutations = {

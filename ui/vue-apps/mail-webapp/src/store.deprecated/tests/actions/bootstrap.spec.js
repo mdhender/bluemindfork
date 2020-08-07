@@ -1,21 +1,15 @@
-import { bootstrap } from "../../src/actions/bootstrap";
+import { bootstrap } from "../../actions/bootstrap";
 
+const myMailboxUid = "mailbox:uid",
+    mailshareKeys = ["A", "B"],
+    myMailboxFolderKeys = ["1", "2", "3"];
 const context = {
     dispatch: jest.fn().mockReturnValue(Promise.resolve()),
     commit: jest.fn(),
-    state: {
-        currentFolderKey: "key"
-    },
-    getters: {
-        my: {
-            INBOX: {
-                uid: "inbox_uid",
-                key: "inbox_key"
-            },
-            mailboxUid: "mailbox:uid",
-            folders: [{ uid: "1" }, { uid: "2" }, { uid: "3" }, { uid: "4" }, { uid: "5" }, { uid: "6" }]
-        },
-        mailshares: []
+    rootGetters: {
+        "mail/MY_MAILBOX_KEY": myMailboxUid,
+        "mail/MY_MAILBOX_FOLDERS": myMailboxFolderKeys,
+        "mail/MAILSHARE_KEYS": mailshareKeys
     }
 };
 
@@ -23,29 +17,25 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
     beforeEach(() => {
         context.dispatch.mockClear();
         context.commit.mockClear();
-        context.state.currentFolderKey = "key";
     });
-    test("load all folders from my mailbox", done => {
+
+    test("load all folders from my mailbox and get unread count", done => {
         bootstrap(context).then(() => {
-            expect(context.dispatch).toHaveBeenNthCalledWith(1, "mailboxes/all", {
-                type: "mailboxacl",
-                verb: ["Read", "Write", "All"]
-            });
-            expect(context.dispatch).toHaveBeenNthCalledWith(2, "folders/all", "mailbox:uid");
+            expect(context.dispatch).toHaveBeenNthCalledWith(1, "mail/FETCH_MAILBOXES", null, { root: true });
+            expect(context.dispatch).toHaveBeenNthCalledWith(2, "folders/all", myMailboxUid);
+            myMailboxFolderKeys.forEach(key => expect(context.dispatch).toHaveBeenCalledWith("loadUnreadCount", key));
             done();
         });
     });
+
     test("load all folders from mailshares", done => {
-        context.mailshares = [{ uid: "a" }, { uid: "b" }, { uid: "c" }];
         bootstrap(context).then(() => {
-            expect(context.dispatch).toHaveBeenNthCalledWith(1, "mailboxes/all", {
-                type: "mailboxacl",
-                verb: ["Read", "Write", "All"]
-            });
-            expect(context.dispatch).toHaveBeenNthCalledWith(2, "folders/all", "mailbox:uid");
+            expect(context.dispatch).toHaveBeenNthCalledWith(1, "mail/FETCH_MAILBOXES", null, { root: true });
+            mailshareKeys.forEach(key => expect(context.dispatch).toHaveBeenCalledWith("folders/all", key));
             done();
         });
     });
+
     test("set user uid", () => {
         bootstrap(context, "userUid");
         expect(context.commit).toHaveBeenCalledWith("setUserUid", "userUid");

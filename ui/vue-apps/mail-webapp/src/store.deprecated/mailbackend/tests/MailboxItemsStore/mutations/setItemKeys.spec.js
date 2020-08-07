@@ -1,4 +1,4 @@
-import { setItemKeysByIdsFolderUid } from "../../../src/MailboxItemsStore/mutations/setItemKeys";
+import { setItemKeysByIdsFolderUid } from "../../../MailboxItemsStore/mutations/setItemKeys";
 import ItemUri from "@bluemind/item-uri";
 
 describe("[MailItemsStore][mutations] : setItemsKeys", () => {

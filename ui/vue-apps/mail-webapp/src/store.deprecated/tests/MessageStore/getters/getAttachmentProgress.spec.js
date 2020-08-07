@@ -1,4 +1,4 @@
-import { getAttachmentProgress } from "../../../src/MessageStore/getters/getAttachmentProgress";
+import { getAttachmentProgress } from "../../../MessageStore/getters/getAttachmentProgress";
 
 const state = {
     attachmentProgresses: {

@@ -1,9 +1,9 @@
-import { purge as purgeAction } from "../../src/actions/purgeAndRemove";
+import { purge as purgeAction } from "../../actions/purgeAndRemove";
 import ItemUri from "@bluemind/item-uri";
 
 let isMessageRemoveActionSuccessfull = true;
 let mockMessage;
-const messageKey = ItemUri.encode("message-id", "inbox-uid");
+const messageKey = ItemUri.encode("message-id", "trash-key");
 const context = {
     dispatch: jest.fn().mockImplementation(arg => {
         if (arg === "$_getIfNotPresent") {
@@ -14,12 +14,15 @@ const context = {
     }),
     commit: jest.fn(),
     state: {
-        foldersData: {
-            ["inbox-uid"]: {
-                unread: 10
-            }
-        },
         currentMessage: { key: messageKey }
+    },
+    rootGetters: {
+        "mail/MY_TRASH": { key: "trash-key" }
+    },
+    rootState: {
+        mail: {
+            folders: { "trash-key": { key: "trash-key", unread: 10 } }
+        }
     }
 };
 
@@ -95,17 +98,23 @@ describe("MailApp Store: Purge message action", () => {
             { root: true }
         );
     });
+
     test("update the unread counter if necessary", async () => {
         // call remove without any unread mail, do not expect to update the unread counter
         mockMessage = { subject: "dummy", states: "not-a-valid-state hello-there", key: messageKey };
         await purgeAction(context, messageKey);
 
-        expect(context.commit).not.toHaveBeenCalledWith("setUnreadCount");
+        expect(context.commit).not.toHaveBeenCalledWith("mail/SET_UNREAD_COUNT");
 
         // call remove with unread mails, expect to update the unread counter
         mockMessage = { subject: "dummy", states: "not-a-valid-state not-seen", key: messageKey };
         await purgeAction(context, messageKey);
 
-        expect(context.commit).toHaveBeenCalledWith("setUnreadCount", { folderUid: "inbox-uid", count: 9 });
+        expect(context.commit).toHaveBeenNthCalledWith(
+            6,
+            "mail/SET_UNREAD_COUNT",
+            { key: "trash-key", count: 9 },
+            { root: true }
+        );
     });
 });

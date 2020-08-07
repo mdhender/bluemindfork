@@ -1,4 +1,4 @@
-import { addAllToSelectedMessages } from "../../src/mutations/addAllToSelectedMessages";
+import { addAllToSelectedMessages } from "../../mutations/addAllToSelectedMessages";
 
 const state = {
     selectedMessageKeys: []

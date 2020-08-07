@@ -1,5 +1,5 @@
-import GetInlinePartsVisitor from "../../src/MailboxItemsStore/GetInlinePartsVisitor.js";
-import TreeWalker from "../../src/MailboxItemsStore/TreeWalker.js";
+import GetInlinePartsVisitor from "../../MailboxItemsStore/GetInlinePartsVisitor.js";
+import TreeWalker from "../../MailboxItemsStore/TreeWalker.js";
 
 describe("GetInlinePartsVisitor", () => {
     /**

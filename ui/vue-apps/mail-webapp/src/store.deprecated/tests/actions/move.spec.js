@@ -1,16 +1,33 @@
-import { move } from "../../src/actions/move";
+import { move } from "../../actions/move";
 import ItemUri from "@bluemind/item-uri";
 
 ItemUri.container = jest.fn().mockReturnValue("");
+
+const mailboxUid = "mboxUid";
 const context = {
     commit: jest.fn(),
     dispatch: jest.fn(),
-    getters: {
-        my: { mailboxUid: "mailbox-uid" },
-        mailshares: [],
-        "folders/getFolderByKey": jest
-            .fn()
-            .mockReturnValue({ key: "folder-key", value: { name: "folderName", fullName: "Full/name" } })
+    state: {
+        messages: {
+            items: {
+                "message-key": {}
+            }
+        }
+    },
+    rootState: {
+        mail: {
+            folders: {
+                "folder-key": {
+                    path: "/my/path",
+                    key: "folder-key",
+                    name: "folderName"
+                }
+            }
+        }
+    },
+    rootGetters: {
+        "mail/MY_MAILBOX_KEY": mailboxUid,
+        "mail/MAILSHARE_KEYS": []
     }
 };
 
@@ -20,24 +37,22 @@ describe("[Mail-WebappStore][actions] : move", () => {
         context.dispatch.mockClear();
         context.dispatch.mockReturnValueOnce(Promise.resolve([{ subject: "dummy" }]));
         context.dispatch.mockReturnValueOnce("folder-key");
-        context.getters["folders/getFolderByKey"].mockClear();
     });
-    test("call private move action", done => {
+
+    test("call private move action", async () => {
         const messageKey = "message-key",
             folder = { key: "folder-key" };
-        move(context, { messageKey, folder }).then(() => {
-            expect(context.getters["folders/getFolderByKey"]).toHaveBeenCalledWith("folder-key");
-            expect(context.dispatch).toHaveBeenCalledWith("$_move", {
-                messageKeys: [messageKey],
-                destinationKey: "folder-key"
-            });
-            done();
-        });
+        await move(context, { messageKey, folder });
         expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [messageKey]);
+        expect(context.dispatch).toHaveBeenCalledWith("$_move", {
+            messageKeys: [messageKey],
+            destinationKey: "folder-key"
+        });
     });
+
     test("display alerts", done => {
         const messageKey = "message-key",
-            folder = { key: "folder-key", value: { name: "folderName", fullName: "Full/name" } };
+            folder = { key: "folder-key", name: "folderName", path: "/my/path" };
         move(context, { messageKey, folder }).then(() => {
             expect(context.commit).toHaveBeenNthCalledWith(
                 1,
@@ -56,8 +71,8 @@ describe("[Mail-WebappStore][actions] : move", () => {
                     code: "MSG_MOVE_OK",
                     props: {
                         subject: "dummy",
-                        folder: folder.value,
-                        folderNameLink: { name: "v:mail:home", params: { folder: folder.value.fullName } }
+                        folder: folder,
+                        folderNameLink: { name: "v:mail:home", params: { folder: folder.path } }
                     }
                 },
                 { root: true }
@@ -68,13 +83,14 @@ describe("[Mail-WebappStore][actions] : move", () => {
             done();
         });
     });
+
     test("call createFolder private action", done => {
         const messageKey = "message-key",
             folder = { value: { name: "folder-name" } };
         move(context, { messageKey, folder }).then(() => {
             expect(context.dispatch).toHaveBeenCalledWith("$_createFolder", {
                 folder,
-                mailboxUid: context.getters.my.mailboxUid
+                mailboxUid: mailboxUid
             });
             done();
         });

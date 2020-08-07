@@ -1,4 +1,4 @@
-import { update } from "../../../src/MessageStore/mutations/update";
+import { update } from "../../../MessageStore/mutations/update";
 
 const state = {
     key: "AD1DZSD4",

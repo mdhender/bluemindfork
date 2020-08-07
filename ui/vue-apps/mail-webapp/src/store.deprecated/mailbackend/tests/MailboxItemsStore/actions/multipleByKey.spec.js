@@ -1,7 +1,7 @@
-import { multipleByKey } from "../../../src/MailboxItemsStore/actions/multipleByKey";
+import { multipleByKey } from "../../../MailboxItemsStore/actions/multipleByKey";
 import ServiceLocator from "@bluemind/inject";
 import { MailboxItemsClient } from "@bluemind/backend.mail.api";
-import { ItemUri } from "@bluemind/item-uri/src/ItemUri";
+import { ItemUri } from "@bluemind/item-uri";
 jest.mock("@bluemind/inject");
 jest.mock("@bluemind/backend.mail.api");
 

@@ -1,4 +1,4 @@
-import { loadRange } from "../../src/actions/loadRange";
+import { loadRange } from "../../actions/loadRange";
 
 jest.useFakeTimers();
 

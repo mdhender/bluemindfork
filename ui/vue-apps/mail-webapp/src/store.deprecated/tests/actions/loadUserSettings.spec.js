@@ -1,4 +1,4 @@
-import { loadUserSettings } from "../../src/actions/loadUserSettings";
+import { loadUserSettings } from "../../actions/loadUserSettings";
 
 const mockedMessageListStyle = "full";
 jest.mock("@bluemind/inject", () => {

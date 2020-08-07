@@ -1,4 +1,4 @@
-import { state } from "../../src/MailboxItemsStore/state";
+import { state } from "../../MailboxItemsStore/state";
 
 describe("[MailItemsStore][state]", () => {
     test("initial state", () => {

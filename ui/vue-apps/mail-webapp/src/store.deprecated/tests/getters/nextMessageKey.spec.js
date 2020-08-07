@@ -1,4 +1,4 @@
-import { nextMessageKey } from "../../src/getters/nextMessageKey";
+import { nextMessageKey } from "../../getters/nextMessageKey";
 
 describe("[Mail-WebappStore][getters] : nextMessageKey ", () => {
     const getters = {

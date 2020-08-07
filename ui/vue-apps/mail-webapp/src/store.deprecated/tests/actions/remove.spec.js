@@ -1,4 +1,4 @@
-import { remove } from "../../src/actions/purgeAndRemove";
+import { remove } from "../../actions/purgeAndRemove";
 import ItemUri from "@bluemind/item-uri";
 
 const messageKey = ItemUri.encode("message-id", "source-uid");
@@ -11,23 +11,17 @@ const context = {
             return Promise.resolve([mockMessage]);
         }
     }),
-    getters: {
-        my: {
-            mailboxUid: "mailbox-uid",
-            TRASH: { key: "trash-key", uid: "trash-uid" },
-            INBOX: { key: "inbox-key", uid: "inbox-uid" }
-        },
-        "folders/getFolderByKey": jest.fn().mockReturnValue({
-            internalId: 10
-        })
-    },
     state: {
-        foldersData: {
-            ["inbox-uid"]: {
-                unread: 10
-            }
-        },
         currentMessage: { key: messageKey }
+    },
+    rootGetters: {
+        "mail/MY_TRASH": { key: "trash-key" }
+    },
+    rootState: {
+        mail: {
+            activeFolder: "trash-key",
+            folders: { "inbox-uid": { unread: 10 } }
+        }
     }
 };
 
@@ -37,6 +31,7 @@ describe("[Mail-WebappStore][actions] : remove", () => {
         context.commit.mockClear();
         context.dispatch.mockClear();
     });
+
     test("call private move action", async () => {
         await remove(context, messageKey);
         expect(context.dispatch).toHaveBeenCalledWith("$_move", {
@@ -46,6 +41,7 @@ describe("[Mail-WebappStore][actions] : remove", () => {
 
         expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [messageKey]);
     });
+
     test("display alerts", async () => {
         await remove(context, messageKey);
         expect(context.commit).toHaveBeenNthCalledWith(
@@ -73,11 +69,13 @@ describe("[Mail-WebappStore][actions] : remove", () => {
             root: true
         });
     });
+
     test("remove message definitely if current folder is the trash", async () => {
-        const messageKey = ItemUri.encode("message-id", "trash-uid");
+        const messageKey = ItemUri.encode("message-id", "trash-key");
         await remove(context, messageKey);
         expect(context.dispatch).toHaveBeenCalledWith("messages/remove", [messageKey]);
     });
+
     test("update the unread counter if necessary", async () => {
         const messageKey = ItemUri.encode("message-id", "inbox-uid");
 
@@ -85,12 +83,16 @@ describe("[Mail-WebappStore][actions] : remove", () => {
         mockMessage = { subject: "dummy", states: "not-a-valid-state hello-there", key: messageKey };
         await remove(context, messageKey);
 
-        expect(context.commit).not.toHaveBeenCalledWith("setUnreadCount");
+        expect(context.commit).not.toHaveBeenCalledWith("mail/SET_UNREAD_COUNT");
 
         // call remove with unread mails, expect to update the unread counter
         mockMessage = { subject: "dummy", states: "not-a-valid-state not-seen", key: messageKey };
         await remove(context, messageKey);
 
-        expect(context.commit).toHaveBeenCalledWith("setUnreadCount", { folderUid: "inbox-uid", count: 9 });
+        expect(context.commit).toHaveBeenCalledWith(
+            "mail/SET_UNREAD_COUNT",
+            { key: "inbox-uid", count: 9 },
+            { root: true }
+        );
     });
 });

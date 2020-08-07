@@ -1,4 +1,4 @@
-import { unblockRemoteImages } from "../../src/mutations/unblockRemoteImages";
+import { unblockRemoteImages } from "../../mutations/unblockRemoteImages";
 
 const state = { messagesWithUnblockedRemoteImages: [] };
 

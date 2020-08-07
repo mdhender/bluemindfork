@@ -106,5 +106,5 @@ function errorAlert(action, commit, messageKeys, subject) {
 
 function allMessagesInTrash(rootGetters, messageKeys) {
     messageKeys = Array.isArray(messageKeys) ? messageKeys : [messageKeys];
-    return messageKeys.every(key => ItemUri.container(key) === rootGetters["mail/MY_TRASH"].uid);
+    return messageKeys.every(key => ItemUri.container(key) === rootGetters["mail/MY_TRASH"].key);
 }

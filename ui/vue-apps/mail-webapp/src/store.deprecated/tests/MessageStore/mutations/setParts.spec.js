@@ -1,4 +1,4 @@
-import { setParts } from "../../../src/MessageStore/mutations/setParts";
+import { setParts } from "../../../MessageStore/mutations/setParts";
 
 const state = {
     parts: {

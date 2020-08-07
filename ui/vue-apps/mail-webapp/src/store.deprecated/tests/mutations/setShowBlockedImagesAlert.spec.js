@@ -1,4 +1,4 @@
-import { setShowBlockedImagesAlert } from "../../src/mutations/setShowBlockedImagesAlert";
+import { setShowBlockedImagesAlert } from "../../mutations/setShowBlockedImagesAlert";
 
 const state = { showBlockedImagesAlert: false };
 

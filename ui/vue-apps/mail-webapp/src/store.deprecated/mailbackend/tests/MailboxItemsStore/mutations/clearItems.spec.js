@@ -1,4 +1,4 @@
-import { clearItems } from "../../../src/MailboxItemsStore/mutations/clearItems";
+import { clearItems } from "../../../MailboxItemsStore/mutations/clearItems";
 
 jest.mock("@bluemind/inject");
 

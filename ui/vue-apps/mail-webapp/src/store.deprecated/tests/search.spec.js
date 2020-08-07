@@ -1,5 +1,5 @@
 import { MockMailboxFoldersClient } from "@bluemind/test-mocks";
-import { state, getters, mutations, actions, STATUS } from "../src/modules/search";
+import { state, getters, mutations, actions, STATUS } from "../modules/search";
 import ItemUri from "@bluemind/item-uri";
 import ServiceLocator from "@bluemind/inject";
 
@@ -60,17 +60,22 @@ describe("[Mail-WebappStore][search]", () => {
                     ]
                 });
             mockMailboxFoldersPersistenceSearchItems(mockedImplementation);
-
+            const mailboxUid = "abcdef",
+                folderUid = "folderUid";
             const context = {
                 rootState: {
-                    ["mail-webapp"]: {
-                        currentFolderKey: ItemUri.encode("abcdef", "folderUid")
+                    mail: {
+                        folders: {
+                            [folderUid]: {
+                                key: folderUid,
+                                mailbox: mailboxUid
+                            }
+                        },
+                        activeFolder: folderUid
                     }
                 },
                 rootGetters: {
-                    "mail-webapp/currentMailbox": {
-                        mailboxUid: "abcdef"
-                    }
+                    "mail/CURRENT_MAILBOX": { key: mailboxUid }
                 },
                 dispatch: jest.fn(),
                 state: {
