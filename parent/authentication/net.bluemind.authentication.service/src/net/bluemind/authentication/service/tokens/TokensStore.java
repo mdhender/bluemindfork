@@ -56,7 +56,7 @@ public class TokensStore {
 		File localPublishDir = new File(BASE_DATA_DIR);
 		localPublishDir.mkdirs();
 
-		HollowFilesystemPublisher publisher = new HollowFilesystemPublisher(localPublishDir);
+		HollowFilesystemPublisher publisher = new HollowFilesystemPublisher(localPublishDir.toPath());
 
 		BlobStorageCleaner cleaner = new BmFilesystemBlobStorageCleaner(localPublishDir, 10);
 		HollowProducer producer = HollowProducer.withPublisher(publisher) //
@@ -64,8 +64,9 @@ public class TokensStore {
 		producer.initializeDataModel(Token.class);
 		this.incremental = new HollowIncrementalProducer(producer);
 
-		HollowConsumer.BlobRetriever blobRetriever = new HollowFilesystemBlobRetriever(localPublishDir);
-		if (!restoreIfAvailable(producer, blobRetriever, new HollowFilesystemAnnouncementWatcher(localPublishDir))) {
+		HollowConsumer.BlobRetriever blobRetriever = new HollowFilesystemBlobRetriever(localPublishDir.toPath());
+		if (!restoreIfAvailable(producer, blobRetriever,
+				new HollowFilesystemAnnouncementWatcher(localPublishDir.toPath()))) {
 			producer.runCycle(state -> {
 				state.add(new Token(net.bluemind.config.Token.admin0(), "admin0", "global.virt"));
 			});

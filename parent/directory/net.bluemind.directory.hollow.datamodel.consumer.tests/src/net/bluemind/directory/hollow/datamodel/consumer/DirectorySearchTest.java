@@ -224,7 +224,7 @@ public class DirectorySearchTest {
 	}
 
 	private void serialize(List<AddressBookRecord> records, CountDownLatch wait) {
-		HollowFilesystemPublisher publisher = new HollowFilesystemPublisher(file);
+		HollowFilesystemPublisher publisher = new HollowFilesystemPublisher(file.toPath());
 		Announcer announcer = new Announcer(file);
 		announcer.setWait(wait);
 		HollowProducer producer = HollowProducer.withPublisher(publisher).withAnnouncer(announcer).build();
@@ -255,7 +255,7 @@ public class DirectorySearchTest {
 		private CountDownLatch wait;
 
 		public Announcer(File publishDir) {
-			super(publishDir);
+			super(publishDir.toPath());
 		}
 
 		@Override

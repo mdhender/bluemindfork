@@ -18,7 +18,6 @@ package net.bluemind.serialization.client;
  * END LICENSE
  */
 
-
 import java.io.File;
 
 import com.netflix.hollow.api.consumer.HollowConsumer;
@@ -28,8 +27,8 @@ import com.netflix.hollow.api.consumer.fs.HollowFilesystemBlobRetriever;
 public class LocalHollowContext {
 
 	public HollowContext create(File dir) {
-		HollowConsumer.BlobRetriever blobRetriever = new HollowFilesystemBlobRetriever(dir);
-		HollowConsumer.AnnouncementWatcher announcementWatcher = new HollowFilesystemAnnouncementWatcher(dir);
+		HollowConsumer.BlobRetriever blobRetriever = new HollowFilesystemBlobRetriever(dir.toPath());
+		HollowConsumer.AnnouncementWatcher announcementWatcher = new HollowFilesystemAnnouncementWatcher(dir.toPath());
 		return new HollowContext(blobRetriever, announcementWatcher);
 	}
 

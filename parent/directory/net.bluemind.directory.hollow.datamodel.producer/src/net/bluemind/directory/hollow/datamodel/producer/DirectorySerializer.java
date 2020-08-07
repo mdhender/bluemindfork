@@ -110,9 +110,9 @@ public class DirectorySerializer implements DataSerializer {
 
 		File localPublishDir = createDataDir();
 
-		HollowFilesystemPublisher publisher = new HollowFilesystemPublisher(localPublishDir);
+		HollowFilesystemPublisher publisher = new HollowFilesystemPublisher(localPublishDir.toPath());
 		HollowFilesystemAnnouncer announcer = new HzHollowAnnouncer("directory/" + domainUid, localPublishDir);
-		this.announcementWatcher = new HollowFilesystemAnnouncementWatcher(localPublishDir);
+		this.announcementWatcher = new HollowFilesystemAnnouncementWatcher(localPublishDir.toPath());
 
 		BlobStorageCleaner cleaner = new BmFilesystemBlobStorageCleaner(localPublishDir, 10);
 		this.producer = HollowProducer.withPublisher(publisher).withAnnouncer(announcer) //
@@ -120,7 +120,7 @@ public class DirectorySerializer implements DataSerializer {
 		producer.initializeDataModel(AddressBookRecord.class);
 		producer.initializeDataModel(OfflineAddressBook.class);
 		logger.info("Announcement watcher current version: {}", announcementWatcher.getLatestVersion());
-		this.blobRetriever = new HollowFilesystemBlobRetriever(localPublishDir);
+		this.blobRetriever = new HollowFilesystemBlobRetriever(localPublishDir.toPath());
 		this.incremental = new HollowIncrementalProducer(producer);
 	}
 

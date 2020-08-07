@@ -1,5 +1,6 @@
 package net.bluemind.authentication.service.tokens;
 
+import java.util.Objects;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -109,7 +110,8 @@ public class TokensAPI extends HollowAPI  {
         return tokenTypeAPI;
     }
     public Collection<HString> getAllHString() {
-        return new AllHollowRecordCollection<HString>(getDataAccess().getTypeDataAccess("String").getTypeState()) {
+        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("String"), "type not loaded or does not exist in dataset; type=String");
+        return new AllHollowRecordCollection<HString>(tda.getTypeState()) {
             protected HString getForOrdinal(int ordinal) {
                 return getHString(ordinal);
             }
@@ -120,7 +122,8 @@ public class TokensAPI extends HollowAPI  {
         return (HString)stringProvider.getHollowObject(ordinal);
     }
     public Collection<Token> getAllToken() {
-        return new AllHollowRecordCollection<Token>(getDataAccess().getTypeDataAccess("Token").getTypeState()) {
+        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("Token"), "type not loaded or does not exist in dataset; type=Token");
+        return new AllHollowRecordCollection<Token>(tda.getTypeState()) {
             protected Token getForOrdinal(int ordinal) {
                 return getToken(ordinal);
             }

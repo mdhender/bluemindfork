@@ -1,9 +1,8 @@
 package net.bluemind.directory.hollow.datamodel.consumer;
 
+import com.netflix.hollow.api.consumer.HollowConsumer;
 import com.netflix.hollow.api.objects.HollowObject;
 import com.netflix.hollow.core.schema.HollowObjectSchema;
-
-import com.netflix.hollow.tools.stringifier.HollowRecordStringifier;
 
 @SuppressWarnings("all")
 public class Email extends HollowObject {

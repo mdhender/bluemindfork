@@ -1,5 +1,6 @@
 package net.bluemind.directory.hollow.datamodel.consumer;
 
+import java.util.Objects;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -265,7 +266,8 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         return addressBookRecordTypeAPI;
     }
     public Collection<Date> getAllDate() {
-        return new AllHollowRecordCollection<Date>(getDataAccess().getTypeDataAccess("Date").getTypeState()) {
+        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("Date"), "type not loaded or does not exist in dataset; type=Date");
+        return new AllHollowRecordCollection<Date>(tda.getTypeState()) {
             protected Date getForOrdinal(int ordinal) {
                 return getDate(ordinal);
             }
@@ -276,7 +278,8 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         return (Date)dateProvider.getHollowObject(ordinal);
     }
     public Collection<HString> getAllHString() {
-        return new AllHollowRecordCollection<HString>(getDataAccess().getTypeDataAccess("String").getTypeState()) {
+        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("String"), "type not loaded or does not exist in dataset; type=String");
+        return new AllHollowRecordCollection<HString>(tda.getTypeState()) {
             protected HString getForOrdinal(int ordinal) {
                 return getHString(ordinal);
             }
@@ -287,7 +290,8 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         return (HString)stringProvider.getHollowObject(ordinal);
     }
     public Collection<DataLocation> getAllDataLocation() {
-        return new AllHollowRecordCollection<DataLocation>(getDataAccess().getTypeDataAccess("DataLocation").getTypeState()) {
+        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("DataLocation"), "type not loaded or does not exist in dataset; type=DataLocation");
+        return new AllHollowRecordCollection<DataLocation>(tda.getTypeState()) {
             protected DataLocation getForOrdinal(int ordinal) {
                 return getDataLocation(ordinal);
             }
@@ -298,7 +302,8 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         return (DataLocation)dataLocationProvider.getHollowObject(ordinal);
     }
     public Collection<Email> getAllEmail() {
-        return new AllHollowRecordCollection<Email>(getDataAccess().getTypeDataAccess("Email").getTypeState()) {
+        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("Email"), "type not loaded or does not exist in dataset; type=Email");
+        return new AllHollowRecordCollection<Email>(tda.getTypeState()) {
             protected Email getForOrdinal(int ordinal) {
                 return getEmail(ordinal);
             }
@@ -309,7 +314,8 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         return (Email)emailProvider.getHollowObject(ordinal);
     }
     public Collection<ListOfEmail> getAllListOfEmail() {
-        return new AllHollowRecordCollection<ListOfEmail>(getDataAccess().getTypeDataAccess("ListOfEmail").getTypeState()) {
+        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("ListOfEmail"), "type not loaded or does not exist in dataset; type=ListOfEmail");
+        return new AllHollowRecordCollection<ListOfEmail>(tda.getTypeState()) {
             protected ListOfEmail getForOrdinal(int ordinal) {
                 return getListOfEmail(ordinal);
             }
@@ -320,7 +326,8 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         return (ListOfEmail)listOfEmailProvider.getHollowObject(ordinal);
     }
     public Collection<SetOfString> getAllSetOfString() {
-        return new AllHollowRecordCollection<SetOfString>(getDataAccess().getTypeDataAccess("SetOfString").getTypeState()) {
+        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("SetOfString"), "type not loaded or does not exist in dataset; type=SetOfString");
+        return new AllHollowRecordCollection<SetOfString>(tda.getTypeState()) {
             protected SetOfString getForOrdinal(int ordinal) {
                 return getSetOfString(ordinal);
             }
@@ -331,7 +338,8 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         return (SetOfString)setOfStringProvider.getHollowObject(ordinal);
     }
     public Collection<OfflineAddressBook> getAllOfflineAddressBook() {
-        return new AllHollowRecordCollection<OfflineAddressBook>(getDataAccess().getTypeDataAccess("OfflineAddressBook").getTypeState()) {
+        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("OfflineAddressBook"), "type not loaded or does not exist in dataset; type=OfflineAddressBook");
+        return new AllHollowRecordCollection<OfflineAddressBook>(tda.getTypeState()) {
             protected OfflineAddressBook getForOrdinal(int ordinal) {
                 return getOfflineAddressBook(ordinal);
             }
@@ -342,7 +350,8 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         return (OfflineAddressBook)offlineAddressBookProvider.getHollowObject(ordinal);
     }
     public Collection<AddressBookRecord> getAllAddressBookRecord() {
-        return new AllHollowRecordCollection<AddressBookRecord>(getDataAccess().getTypeDataAccess("AddressBookRecord").getTypeState()) {
+        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("AddressBookRecord"), "type not loaded or does not exist in dataset; type=AddressBookRecord");
+        return new AllHollowRecordCollection<AddressBookRecord>(tda.getTypeState()) {
             protected AddressBookRecord getForOrdinal(int ordinal) {
                 return getAddressBookRecord(ordinal);
             }

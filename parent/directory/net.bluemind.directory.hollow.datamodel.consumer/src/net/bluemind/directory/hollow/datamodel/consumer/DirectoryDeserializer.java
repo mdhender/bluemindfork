@@ -83,7 +83,8 @@ public class DirectoryDeserializer {
 		uidIndex.listenToDataRefresh();
 		this.nameIndex = new HollowPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "name.value");
 		nameIndex.listenForDeltaUpdates();
-		this.emailIndex = new HollowPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "emails.address.value");
+		this.emailIndex = new HollowPrefixIndex(consumer.getStateEngine(), "AddressBookRecord",
+				"emails.element.address.value");
 		emailIndex.listenForDeltaUpdates();
 		this.kindIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "", "kind.value");
 		kindIndex.listenForDeltaUpdates();

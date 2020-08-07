@@ -8,6 +8,18 @@ import com.netflix.hollow.api.consumer.index.AbstractHollowHashIndex;
 import com.netflix.hollow.api.consumer.data.AbstractHollowOrdinalIterable;
 
 
+/**
+ * @deprecated see {@link com.netflix.hollow.api.consumer.index.HashIndex} which can be built as follows:
+ * <pre>{@code
+ *     HashIndex<Date, K> uki = HashIndex.from(consumer, Date.class)
+ *         .usingBean(k);
+ *     Stream<Date> results = uki.findMatches(k);
+ * }</pre>
+ * where {@code K} is a class declaring key field paths members, annotated with
+ * {@link com.netflix.hollow.api.consumer.index.FieldPath}, and {@code k} is an instance of
+ * {@code K} that is the query to find the matching {@code Date} objects.
+ */
+@Deprecated
 @SuppressWarnings("all")
 public class OfflineDirectoryAPIHashIndex extends AbstractHollowHashIndex<OfflineDirectoryAPI> {
 

@@ -1,9 +1,9 @@
 package net.bluemind.directory.hollow.datamodel.consumer;
 
+import com.netflix.hollow.api.consumer.HollowConsumer;
+import com.netflix.hollow.api.consumer.index.UniqueKeyIndex;
 import com.netflix.hollow.api.objects.HollowObject;
 import com.netflix.hollow.core.schema.HollowObjectSchema;
-
-import com.netflix.hollow.tools.stringifier.HollowRecordStringifier;
 
 @SuppressWarnings("all")
 public class AddressBookRecord extends HollowObject {
@@ -316,6 +316,24 @@ public class AddressBookRecord extends HollowObject {
 
     protected AddressBookRecordDelegate delegate() {
         return (AddressBookRecordDelegate)delegate;
+    }
+
+    /**
+     * Creates a unique key index for {@code AddressBookRecord} that has a primary key.
+     * The primary key is represented by the class {@link String}.
+     * <p>
+     * By default the unique key index will not track updates to the {@code consumer} and thus
+     * any changes will not be reflected in matched results.  To track updates the index must be
+     * {@link HollowConsumer#addRefreshListener(HollowConsumer.RefreshListener) registered}
+     * with the {@code consumer}
+     *
+     * @param consumer the consumer
+     * @return the unique key index
+     */
+    public static UniqueKeyIndex<AddressBookRecord, String> uniqueIndex(HollowConsumer consumer) {
+        return UniqueKeyIndex.from(consumer, AddressBookRecord.class)
+            .bindToPrimaryKey()
+            .usingPath("uid", String.class);
     }
 
 }

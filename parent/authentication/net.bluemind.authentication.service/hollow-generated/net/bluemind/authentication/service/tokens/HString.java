@@ -1,11 +1,12 @@
 package net.bluemind.authentication.service.tokens;
 
+import com.netflix.hollow.api.consumer.HollowConsumer;
 import com.netflix.hollow.api.objects.HollowObject;
 import com.netflix.hollow.core.schema.HollowObjectSchema;
-
-import com.netflix.hollow.tools.stringifier.HollowRecordStringifier;
+import com.netflix.hollow.core.write.objectmapper.HollowTypeName;
 
 @SuppressWarnings("all")
+@HollowTypeName(name="String")
 public class HString extends HollowObject {
 
     public HString(StringDelegate delegate, int ordinal) {
