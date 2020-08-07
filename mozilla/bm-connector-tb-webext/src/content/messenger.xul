@@ -128,15 +128,15 @@
           </columns>
           <rows>
               <row>
-                  <label value="bm.icsbandal.title;"/>
+                  <label value="__BM_bm.icsbandal.title__"/>
                   <label id="bm-ics-bandal-title" value=""/>
               </row>
               <row>
-                  <label value="bm.icsbandal.when;"/>
+                  <label value="__BM_bm.icsbandal.when__"/>
                   <label id="bm-ics-bandal-when" value=""/>
               </row>
               <row>
-                  <label value="bm.icsbandal.where;"/>
+                  <label value="__BM_bm.icsbandal.where__"/>
                   <label id="bm-ics-bandal-where" value=""/>
               </row>
               <row id="bm-ics-bandal-partRow">

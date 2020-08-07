@@ -53,7 +53,7 @@ specialTabs.bmTabType = {
      *  the second parameter's contentWindow property.
      */
     openTab(aTab, aArgs) {
-        console.trace("OPEN TAB:", aTab, aArgs);
+      console.trace("OPEN TAB:", aTab, aArgs);
       if (!("contentPage" in aArgs)) {
         throw new Error("contentPage must be specified");
       }
@@ -172,6 +172,33 @@ specialTabs.bmTabType = {
 
       // Wire up a progress listener to the filter for this browser
       aTab.progressListener = new tabProgressListener(aTab, false);
+      aTab.progressListener.addProgressListener({
+        onProgressChange: function() {},
+        onProgressChange64: function() {},
+        onLocationChange: function bm_onLocationChange(aWebProgress, aRequest, aLocationURI, aFlags) {
+            gBMOverlay._logger.debug("onLocationChange:" + aLocationURI.spec + ", " + aFlags);
+            try {
+              let path = aLocationURI.pathQueryRef;
+              gBMOverlay._logger.debug("path:" + path);
+              if ((path && (path.indexOf("/login/index.html") == 0)
+                || (aLocationURI.spec != "about:blank" && aLocationURI.spec.indexOf(aArgs.contentPage) != 0))) {
+                let tabmail = document.getElementById("tabmail");
+                tabmail.closeTab(aTab);
+                delayOpener.open({
+                  bmApp: aArgs.bmApp,
+                  openInBackGround: true
+                });
+              }
+            } catch(e) {
+              gBMOverlay._logger.error("onLocationChange:" + e);
+            }
+          },
+          onStateChange: function() {},
+          onStatusChange: function() {},
+          onSecurityChange: function() {},
+          onRefreshAttempted: function() {},
+          onContentBlockingEvent: function() {}
+      });
 
       filter.addProgressListener(
         aTab.progressListener,
@@ -226,7 +253,7 @@ specialTabs.bmTabType = {
       };
     },
     restoreTab(aTabmail, aPersistedState) {
-        new bmTabsDelayOpener().open({
+        delayOpener.open({
             bmApp: aPersistedState.bmApp,
             openInBackGround: true
         });
@@ -254,6 +281,8 @@ bmTabsDelayOpener.prototype = {
         }
     }
 };
+
+var delayOpener = new bmTabsDelayOpener();
 
 // custom event, fired by the overlay loader after it has finished loading
 document.addEventListener("DOMOverlayLoaded_bm-connector-tb@blue-mind.net", () => {
