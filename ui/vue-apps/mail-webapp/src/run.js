@@ -5,7 +5,7 @@ import { CalendarClient } from "@bluemind/calendar.api";
 import { ContainersClient } from "@bluemind/core.container.api";
 import { ItemsTransferClient } from "@bluemind/backend.mail.api";
 import { MailboxesClient } from "@bluemind/mailbox.api";
-import { MailboxFoldersClient, OutboxClient } from "@bluemind/backend.mail.api";
+import { OutboxClient } from "@bluemind/backend.mail.api";
 import { OwnerSubscriptionsClient } from "@bluemind/core.container.api";
 import { TaskClient } from "@bluemind/core.task.api";
 import { UserSettingsClient } from "@bluemind/user.api";
@@ -16,7 +16,7 @@ import store from "@bluemind/store";
 import MailAlertRenderer from "./components/MailAlertRenderer";
 import MailApp from "./components/MailApp";
 import MailAppAlerts from "./alerts";
-import MailboxItemsService from "./store.deprecated/mailbackend/MailboxItemsService";
+import { MailboxItemsClientProxy, MailboxFoldersClientProxy } from "./store.deprecated/mailbackend/APIClientsProxy";
 import mailRoutes from "./router";
 import Scheduler from "./scheduler";
 import MailStore from "./store/";
@@ -39,13 +39,13 @@ function registerAPIClients() {
         provide: "MailboxFoldersPersistence",
         factory: mailboxUid => {
             const userSession = injector.getProvider("UserSession").get();
-            return new MailboxFoldersClient(userSession.sid, userSession.domain.replace(".", "_"), mailboxUid);
+            return new MailboxFoldersClientProxy(userSession.sid, userSession.domain.replace(".", "_"), mailboxUid);
         }
     });
 
     injector.register({
         provide: "MailboxItemsPersistence",
-        factory: uid => new MailboxItemsService(injector.getProvider("UserSession").get().sid, uid)
+        factory: uid => new MailboxItemsClientProxy(injector.getProvider("UserSession").get().sid, uid)
     });
 
     injector.register({

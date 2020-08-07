@@ -1,6 +1,6 @@
 import { MailIDB } from "../mailIDB";
 
-let sequentialRequest = Promise.resolve();
+// let sequentialRequest = Promise.resolve();
 
 export default async function({ request }) {
     const splittedUrl = request.url.split("/");
@@ -13,27 +13,28 @@ export default async function({ request }) {
                     fromcache: "true"
                 }
             });
-        } else if (isSequentialRequest(apiUrl, request.method)) {
-            sequentialRequest = sequentialRequest.then(() => fetch(request)).catch(() => fetch(request));
-            return sequentialRequest;
         }
+        // else if (isSequentialRequest(apiUrl, request.method)) {
+        //     sequentialRequest = sequentialRequest.then(() => fetch(request)).catch(() => fetch(request));
+        //     return sequentialRequest;
+        // }
     }
     return fetch(request);
 }
 
-const generateImapRequests = {
-    mail_items: [
-        { pattern: "_addFlag", method: "PUT" },
-        { pattern: "_deleteFlag", method: "POST" },
-        { pattern: "part", method: "GET" }
-    ],
-    mail_folders: [{ pattern: "importItems", method: "PUT" }]
-};
+// const generateImapRequests = {
+//     mail_items: [
+//         { pattern: "_addFlag", method: "PUT" },
+//         { pattern: "_deleteFlag", method: "POST" },
+//         { pattern: "part", method: "GET" }
+//     ],
+//     mail_folders: [{ pattern: "importItems", method: "PUT" }]
+// };
 
-function isSequentialRequest(url, method) {
-    const key = url.startsWith("mail_items") ? "mail_items" : "mail_folders";
-    return generateImapRequests[key].find(request => url.includes(request.pattern) && method === request.method);
-}
+// function isSequentialRequest(url, method) {
+//     const key = url.startsWith("mail_items") ? "mail_items" : "mail_folders";
+//     return generateImapRequests[key].find(request => url.includes(request.pattern) && method === request.method);
+// }
 
 function isApiSupported(url) {
     return url.startsWith("mail_items") || url.startsWith("mail_folders");
