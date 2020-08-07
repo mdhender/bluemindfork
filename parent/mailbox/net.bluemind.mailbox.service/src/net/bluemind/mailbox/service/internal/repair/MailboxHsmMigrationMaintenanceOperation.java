@@ -128,28 +128,26 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 			logger.info("Found {} folders for ns {}{} on domain {}", folders.size(), mailbox.value.type.nsPrefix,
 					mailbox.value.name.replace(".", "^"), domainUid);
 
-			try (Sudo pass = new Sudo(mailbox.value.name, domainUid)) {
-				IHSM hsm = ServerSideServiceProvider.getProvider(pass.context).instance(IHSM.class, domainUid);
-				promote(domainUid, folders, hsm, pass, server, monitor);
-			}
+			promote(domainUid, folders, server, monitor);
 		}
 	}
 
-	private void promote(String domainUid, List<ItemValue<MailboxFolder>> folders, IHSM hsm, Sudo pass,
-			ItemValue<Server> server, IServerTaskMonitor monitor) {
-
-		try (StoreClient sc = new StoreClient(server.value.address(), 1143, mailbox.value.name + "@" + domainUid,
-				pass.context.getSessionId())) {
-			if (sc.login()) {
-				for (ItemValue<MailboxFolder> folder : folders) {
+	private void promote(String domainUid, List<ItemValue<MailboxFolder>> folders, ItemValue<Server> server,
+			IServerTaskMonitor monitor) {
+		for (ItemValue<MailboxFolder> folder : folders) {
+			try (Sudo pass = new Sudo(mailbox.value.name, domainUid);
+					StoreClient sc = new StoreClient(server.value.address(), 1143, mailbox.value.name + "@" + domainUid,
+							pass.context.getSessionId())) {
+				if (sc.login()) {
 					logger.info("Checking folder {} ", folder.value.fullName);
-					promoteFolder(hsm, monitor, sc, folder);
+					promoteFolder(domainUid, monitor, sc, folder);
 				}
 			}
 		}
 	}
 
-	private void promoteFolder(IHSM hsm, IServerTaskMonitor monitor, StoreClient sc, ItemValue<MailboxFolder> folder) {
+	private void promoteFolder(String domainUid, IServerTaskMonitor monitor, StoreClient sc,
+			ItemValue<MailboxFolder> folder) {
 		try {
 			sc.select(folder.value.fullName);
 		} catch (IMAPException e) {
@@ -175,20 +173,22 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 
 					logger.info("Promoting {} summaries", imapSummaries.size());
 
-					promoteSummaries(mailbox, folder, imapSummaries, hsm);
+					promoteSummaries(domainUid, mailbox, folder, imapSummaries);
 				}
 			});
 		}
 	}
 
-	private void promoteSummaries(ItemValue<Mailbox> mailbox, ItemValue<MailboxFolder> folder,
-			Collection<Summary> imapSummaries, IHSM hsm) {
+	private void promoteSummaries(String domainUid, ItemValue<Mailbox> mailbox, ItemValue<MailboxFolder> folder,
+			Collection<Summary> imapSummaries) {
 
 		List<Promote> toPromote = imapSummaries.stream().map(s -> summaryToPromote(s, folder, mailbox.uid))
 				.collect(Collectors.toList());
 
-		hsm.promoteMultiple(toPromote);
-
+		try (Sudo pass = new Sudo(mailbox.value.name, domainUid)) {
+			ServerSideServiceProvider.getProvider(pass.context).instance(IHSM.class, domainUid)
+					.promoteMultiple(toPromote);
+		}
 	}
 
 	private Promote summaryToPromote(Summary sum, ItemValue<MailboxFolder> folder, String mailboxUid) {
