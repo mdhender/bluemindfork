@@ -66,6 +66,7 @@ public class SendmailTests {
 				throw new LoginFailedException();
 			}
 		};
+		server.setDisableReceivedHeaders(true);
 		server.setAuthenticationHandlerFactory(new PlainAuthenticationHandlerFactory(validator));
 		server.start();
 
@@ -94,7 +95,7 @@ public class SendmailTests {
 			long after = testListener.total();
 			time = System.currentTimeMillis() - time;
 			System.err.println("Sent " + (after - before) + " in " + time + "ms.");
-			assertEquals(9564459, after - before);
+			assertEquals(9564250, after - before);
 		}
 	}
 
@@ -122,7 +123,7 @@ public class SendmailTests {
 			}
 		}
 		long afterSize = testListener.total();
-		assertEquals(9564459, (afterSize - totalSize) / cnt);
+		assertEquals(9564250, (afterSize - totalSize) / cnt);
 		long average = totalTime / cnt;
 		System.err.println("Average Send time is " + average + "ms.");
 	}
