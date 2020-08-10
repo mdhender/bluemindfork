@@ -42,6 +42,7 @@ import net.bluemind.mailflow.api.ExecutionMode;
 import net.bluemind.mailflow.api.MailActionDescriptor;
 import net.bluemind.mailflow.api.MailRuleActionAssignment;
 import net.bluemind.mailflow.api.MailRuleDescriptor;
+import net.bluemind.mailflow.api.MailflowRouting;
 import net.bluemind.mailflow.api.MailflowRule;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.actions.MailflowActionConfig;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.rules.RuleTreeItem;
@@ -60,6 +61,7 @@ public class RuleAssignmentWidget extends Composite {
 	private TextArea description = new TextArea();
 	private TextBox group = new TextBox();
 	private ListBox executionMode = new ListBox();
+	private ListBox routing = new ListBox();
 	private FlowPanel ruleConfig = new FlowPanel();
 	private FlowPanel actionConfig = new FlowPanel();
 	private Label actionTitle = new Label();
@@ -107,7 +109,7 @@ public class RuleAssignmentWidget extends Composite {
 
 		widget.setStyleName(style.widget());
 
-		Grid grid = new Grid(6, 2);
+		Grid grid = new Grid(7, 2);
 		grid.setStyleName(style.grid());
 		grid.setCellPadding(3);
 		for (int i = 0; i < 4; i++) {
@@ -126,6 +128,10 @@ public class RuleAssignmentWidget extends Composite {
 
 		executionMode.addItem(ExecutionMode.CONTINUE.name());
 		executionMode.addItem(ExecutionMode.STOP_AFTER_EXECUTION.name());
+
+		routing.addItem(MailflowRouting.OUTGOING.name());
+		routing.addItem(MailflowRouting.INCOMING.name());
+		routing.addItem(MailflowRouting.BOTH.name());
 
 		removeAssignment.setStyleName("button");
 		addRule.setStyleName("button");
@@ -150,10 +156,12 @@ public class RuleAssignmentWidget extends Composite {
 		grid.setWidget(2, 1, isActive);
 		grid.setWidget(3, 0, new Label(TEXTS.executionMode()));
 		grid.setWidget(3, 1, executionMode);
-		grid.setWidget(4, 0, new Label(TEXTS.position()));
-		grid.setWidget(4, 1, positionSelect);
-		grid.setWidget(5, 0, new Label(TEXTS.group()));
-		grid.setWidget(5, 1, group);
+		grid.setWidget(4, 0, new Label(TEXTS.routing()));
+		grid.setWidget(4, 1, routing);
+		grid.setWidget(5, 0, new Label(TEXTS.position()));
+		grid.setWidget(5, 1, positionSelect);
+		grid.setWidget(6, 0, new Label(TEXTS.group()));
+		grid.setWidget(6, 1, group);
 		widget.add(grid);
 		widget.add(tree);
 		widget.add(ruleConfig);
@@ -224,6 +232,12 @@ public class RuleAssignmentWidget extends Composite {
 			executionMode.setSelectedIndex(1);
 		}
 
+		if (assignment.routing == MailflowRouting.INCOMING) {
+			routing.setSelectedIndex(1);
+		} else if (assignment.routing == MailflowRouting.BOTH) {
+			routing.setSelectedIndex(2);
+		}
+
 		description.setText(assignment.description);
 		isActive.setValue(assignment.isActive);
 		group.setText(assignment.group);
@@ -266,12 +280,22 @@ public class RuleAssignmentWidget extends Composite {
 			assignment.group = group.getText().trim();
 			assignment.mode = executionMode.getSelectedIndex() == 0 ? ExecutionMode.CONTINUE
 					: ExecutionMode.STOP_AFTER_EXECUTION;
+
+			if (routing.getSelectedIndex() == 1) {
+				assignment.routing = MailflowRouting.INCOMING;
+			} else if (routing.getSelectedIndex() == 2) {
+				assignment.routing = MailflowRouting.BOTH;
+			} else {
+				assignment.routing = MailflowRouting.OUTGOING;
+			}
+
 			assignment.rules = ((RuleTreeItem) tree.getItem(0)).toRule();
 			assignment.actionIdentifier = action.getIdentifier();
 			assignment.actionConfiguration = action.get();
 			assignment.position = Integer.parseInt(positionSelect.getSelectedItemText());
 			assignment.uid = uid;
 		} catch (Exception e) {
+			GWT.log("popopopo " + e.getMessage());
 			return Optional.empty();
 		}
 		return Optional.of(assignment);

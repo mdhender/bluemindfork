@@ -468,6 +468,7 @@
    <bundle id="net.bluemind.core.api.mozjs" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.monitoring.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.monitoring.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.milter.action.misc" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.milter.action.signature" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.signature.commons" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.state" version="4.1.0.qualifier"/>

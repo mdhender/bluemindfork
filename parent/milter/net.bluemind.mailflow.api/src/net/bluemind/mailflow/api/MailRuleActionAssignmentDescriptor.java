@@ -24,13 +24,13 @@ import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public class MailRuleActionAssignmentDescriptor {
-
 	public int position;
 	public String description;
 	public MailflowRule rules;
 	public String actionIdentifier;
 	public String group;
 	public ExecutionMode mode = ExecutionMode.CONTINUE;
+	public MailflowRouting routing = MailflowRouting.OUTGOING;
 	public Map<String, String> actionConfiguration;
 	public boolean isActive;
 

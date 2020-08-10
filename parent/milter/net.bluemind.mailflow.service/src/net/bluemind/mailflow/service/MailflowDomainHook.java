@@ -40,9 +40,8 @@ public class MailflowDomainHook extends DomainHookAdapter {
 		logger.info("Deleting all mailflow rules of domain {}", domain.uid);
 
 		IMailflowRules service = context.provider().instance(IMailflowRules.class, domain.uid);
-		service.listAssignments().forEach(assignment -> {
-			service.delete(assignment.uid);
-		});
+
+		service.listAssignments().stream().map(assignment -> assignment.uid).forEach(service::delete);
 
 		EmitMailflowEvent.invalidateDomainAliasCache(domain.uid);
 	}

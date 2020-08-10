@@ -21,6 +21,7 @@
 		<module>net.bluemind.signature.commons</module>
 		<module>net.bluemind.mailflow.registration</module>
 		<module>net.bluemind.milter.metrics</module>
+		<module>net.bluemind.milter.action.misc</module>
 		<module>net.bluemind.milter.action.signature</module>
 		<module>net.bluemind.milter.action.signature.tests</module>
 	</modules>

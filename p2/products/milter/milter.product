@@ -85,6 +85,7 @@
       <plugin id="net.bluemind.mailshare.api"/>
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.milter"/>
+      <plugin id="net.bluemind.milter.action.misc"/>
       <plugin id="net.bluemind.milter.action.signature"/>
       <plugin id="net.bluemind.milter.metrics"/>
       <plugin id="net.bluemind.mime4j.common"/>

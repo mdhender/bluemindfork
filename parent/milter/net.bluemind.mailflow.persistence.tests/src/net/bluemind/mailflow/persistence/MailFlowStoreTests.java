@@ -19,11 +19,13 @@
 package net.bluemind.mailflow.persistence;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +35,7 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.mailflow.api.ExecutionMode;
 import net.bluemind.mailflow.api.MailRuleActionAssignment;
 import net.bluemind.mailflow.api.MailRuleActionAssignmentDescriptor;
+import net.bluemind.mailflow.api.MailflowRouting;
 import net.bluemind.mailflow.api.MailflowRule;
 
 public class MailFlowStoreTests {
@@ -40,7 +43,7 @@ public class MailFlowStoreTests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		
+
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 	}
 
@@ -82,6 +85,40 @@ public class MailFlowStoreTests {
 		assertEquals(assignment2.position, mailRuleActionAssignment2.position);
 		validateSampleHierarchy(assignment2.rules, mailRuleActionAssignment2.rules);
 
+	}
+
+	@Test
+	public void getAssignmentByRouting() {
+		MailFlowStore rulesService = getStore();
+
+		MailRuleActionAssignmentDescriptor assignment = getAssignment("1");
+		assignment.routing = MailflowRouting.INCOMING;
+		String uid = UUID.randomUUID().toString();
+		rulesService.create(uid, assignment);
+
+		MailRuleActionAssignmentDescriptor assignment2 = getAssignment("2");
+		assignment2.routing = MailflowRouting.INCOMING;
+		String uid2 = UUID.randomUUID().toString();
+		rulesService.create(uid2, assignment2);
+
+		MailRuleActionAssignmentDescriptor assignment3 = getAssignment("3");
+		assignment3.routing = MailflowRouting.OUTGOING;
+		String uid3 = UUID.randomUUID().toString();
+		rulesService.create(uid3, assignment3);
+
+		List<MailRuleActionAssignment> listAssignments = rulesService.getAll().stream()
+				.filter(assignement -> assignement.routing == MailflowRouting.INCOMING).collect(Collectors.toList());
+		assertEquals(2, listAssignments.size());
+		listAssignments.forEach(a -> assertTrue(a.uid.equals(uid) || a.uid.equals(uid2)));
+
+		listAssignments = rulesService.getAll().stream()
+				.filter(assignement -> assignement.routing == MailflowRouting.OUTGOING).collect(Collectors.toList());
+		assertEquals(1, listAssignments.size());
+		listAssignments.forEach(a -> assertTrue(a.uid.equals(uid3)));
+
+		listAssignments = rulesService.getAll().stream()
+				.filter(assignement -> assignement.routing == MailflowRouting.ALL).collect(Collectors.toList());
+		assertEquals(0, listAssignments.size());
 	}
 
 	private MailFlowStore getStore() {
@@ -148,6 +185,7 @@ public class MailFlowStoreTests {
 		assignment.actionIdentifier = "action1";
 		assignment.description = id + "Add a disclaimer when my rule matches";
 		assignment.mode = ExecutionMode.CONTINUE;
+		assignment.routing = MailflowRouting.OUTGOING;
 		assignment.position = 3;
 		assignment.rules = createSampleRuleHierarchy(id);
 		return assignment;
