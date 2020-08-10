@@ -1,0 +1,6 @@
+{
+    "settings.manage.account": "gérer mon compte",
+    "settings.mail.thread": "Afficher ensemble les réponses au même message (conversations)",
+    "settings.mail.thread.disable": "Ne pas grouper les conversations",
+    "settings.mail.thread.enable": "Grouper les conversations"
+}

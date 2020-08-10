@@ -1,6 +1,18 @@
 <template>
     <div class="main-app d-flex flex-column vh-100 bg-light">
-        <bm-banner :applications="applications" :widgets="widgets" :user="user" :software="software" />
+        <bm-banner
+            :applications="applications"
+            :widgets="widgets"
+            :user="user"
+            :software="software"
+            @openPreferences="areSettingsOpened = true"
+        />
+        <bm-settings
+            v-if="areSettingsOpened"
+            :user="user"
+            :applications="applications"
+            @close="areSettingsOpened = false"
+        />
         <bm-spinner v-if="appState == 'loading'" :size="2" class="d-flex flex-fill align-self-center" />
         <div
             v-else-if="appState == 'error'"
@@ -25,12 +37,14 @@ import "@bluemind/styleguide/css/bluemind.scss";
 import CommonL10N from "@bluemind/l10n";
 import injector from "@bluemind/inject";
 import BmBanner from "./BmBanner";
+import BmSettings from "./BmSettings";
 
 export default {
     components: {
         BmApplicationAlert,
         BmBanner,
-        BmSpinner
+        BmSpinner,
+        BmSettings
     },
     componentI18N: { messages: CommonL10N },
     data() {
@@ -79,6 +93,7 @@ export default {
         };
         data.user = user;
         data.software = software;
+        data.areSettingsOpened = true;
         return data;
     },
     computed: {

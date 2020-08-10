@@ -9,10 +9,10 @@
             </template>
             <bm-dropdown-item
                 v-bm-tooltip.left="$t('banner.menu.settings.aria')"
-                href="/settings/"
                 :aria-label="$t('banner.menu.settings.aria')"
+                @click="$emit('openPreferences')"
             >
-                <bm-label-icon icon="preferences">{{ $t("banner.menu.settings") }} </bm-label-icon>
+                <bm-label-icon icon="preferences">{{ $t("common.settings") }} </bm-label-icon>
             </bm-dropdown-item>
             <bm-dropdown-item href="/bluemind_sso_logout">
                 <bm-label-icon icon="sign-out">{{ $t("banner.menu.logout") }} </bm-label-icon>

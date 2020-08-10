@@ -44,12 +44,12 @@
             <span v-if="selectedApp">{{ selectedApp.name }}</span>
         </div>
         <component :is="widget.component" v-for="widget in widgets" :key="widget.component" />
-        <bm-banner-user :user="user" />
+        <bm-banner-user :user="user" @openPreferences="$emit('openPreferences')" />
     </bm-navbar>
 </template>
 
 <script>
-import BannerL10N from "../../l10n/";
+import BannerL10N from "../../l10n/banner/";
 import BmBannerApplications from "./BmBannerApplications";
 import BmBannerAppIcon from "./BmBannerAppIcon";
 import BmBannerUser from "./BmBannerUser";

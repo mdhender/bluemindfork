@@ -72,5 +72,7 @@
     "common.folder.sent": "Sent messages",
     "common.folder.trash": "Trash",
     "common.application.bootstrap.error": "Error when bootstraping application...",
-    "common.application.bootstrap.error.solution": "Please retry in a few moments or contact your administrator."
+    "common.application.bootstrap.error.solution": "Please retry in a few moments or contact your administrator.",
+    "common.settings": "Preferences",
+    "common.general": "General"
 }
