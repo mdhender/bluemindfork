@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import com.netflix.hollow.api.consumer.HollowConsumer;
 import com.netflix.hollow.api.consumer.HollowConsumer.AnnouncementWatcher;
+import com.netflix.hollow.api.consumer.index.UniqueKeyIndex;
 import com.netflix.hollow.core.index.HollowHashIndex;
 import com.netflix.hollow.core.index.HollowHashIndexResult;
 import com.netflix.hollow.core.index.HollowPrefixIndex;
@@ -53,9 +54,9 @@ public class DirectoryDeserializer {
 
 	private static final Logger logger = LoggerFactory.getLogger(DirectoryDeserializer.class);
 	private static final String BASE_DATA_DIR = "/var/spool/bm-hollowed/directory";
-	protected AddressBookRecordPrimaryKeyIndex uidIndex;
-	protected AddressBookRecordPrimaryKeyIndex distinguishedNameIndex;
-	protected AddressBookRecordPrimaryKeyIndex minimalIndex;
+	protected UniqueKeyIndex<AddressBookRecord, String> uidIndex;
+	protected UniqueKeyIndex<AddressBookRecord, String> distinguishedNameIndex;
+	protected UniqueKeyIndex<AddressBookRecord, Long> minimalIndex;
 	protected HollowHashIndex kindIndex;
 	protected HollowConsumer consumer;
 	private HollowPrefixIndex nameIndex;
@@ -69,18 +70,19 @@ public class DirectoryDeserializer {
 	public DirectoryDeserializer(File dir) {
 		logger.info("Consuming from directory {}", dir.getAbsolutePath());
 		HollowContext context = HollowContext.get(dir, "directory");
-		this.consumer = HollowConsumer.withBlobRetriever(context.blobRetriever)
+		this.consumer = new HollowConsumer.Builder<>().withBlobRetriever(context.blobRetriever)
 				.withAnnouncementWatcher(watcher(context)).withGeneratedAPIClass(OfflineDirectoryAPI.class).build();
 
 		this.consumer.triggerRefresh();
 		logger.info("Current version: {}", consumer.getCurrentVersionId());
 
-		this.minimalIndex = new AddressBookRecordPrimaryKeyIndex(consumer, "minimalid");
-		minimalIndex.listenToDataRefresh();
-		this.distinguishedNameIndex = new AddressBookRecordPrimaryKeyIndex(consumer, "distinguishedName");
-		distinguishedNameIndex.listenToDataRefresh();
-		this.uidIndex = new AddressBookRecordPrimaryKeyIndex(consumer, "uid");
-		uidIndex.listenToDataRefresh();
+		this.minimalIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class).usingPath("minimalid", Long.class);
+		this.consumer.addRefreshListener(minimalIndex);
+		this.distinguishedNameIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class)
+				.usingPath("distinguishedName", String.class);
+		this.consumer.addRefreshListener(distinguishedNameIndex);
+		this.uidIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class).usingPath("uid", String.class);
+		this.consumer.addRefreshListener(uidIndex);
 		this.nameIndex = new HollowPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "name.value");
 		nameIndex.listenForDeltaUpdates();
 		this.emailIndex = new HollowPrefixIndex(consumer.getStateEngine(), "AddressBookRecord",

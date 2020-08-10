@@ -20,6 +20,8 @@ package net.bluemind.authentication.service.tokens;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,11 +31,11 @@ import com.netflix.hollow.api.consumer.HollowConsumer.AnnouncementWatcher;
 import com.netflix.hollow.api.consumer.HollowConsumer.BlobRetriever;
 import com.netflix.hollow.api.consumer.fs.HollowFilesystemAnnouncementWatcher;
 import com.netflix.hollow.api.consumer.fs.HollowFilesystemBlobRetriever;
-import com.netflix.hollow.api.producer.HollowIncrementalProducer;
+import com.netflix.hollow.api.consumer.index.UniqueKeyIndex;
 import com.netflix.hollow.api.producer.HollowProducer;
 import com.netflix.hollow.api.producer.HollowProducer.BlobStorageCleaner;
+import com.netflix.hollow.api.producer.HollowProducer.Builder;
 import com.netflix.hollow.api.producer.fs.HollowFilesystemPublisher;
-import com.netflix.hollow.core.write.objectmapper.RecordPrimaryKey;
 
 import net.bluemind.authentication.service.Token;
 import net.bluemind.common.hollow.BmFilesystemBlobStorageCleaner;
@@ -49,8 +51,8 @@ public class TokensStore {
 	}
 
 	private final HollowConsumer consumer;
-	private final TokenPrimaryKeyIndex keyIndex;
-	private final HollowIncrementalProducer incremental;
+	private final UniqueKeyIndex<net.bluemind.authentication.service.tokens.Token, String> keyIndex;
+	private final HollowProducer.Incremental incremental;
 
 	private TokensStore() {
 		File localPublishDir = new File(BASE_DATA_DIR);
@@ -59,10 +61,11 @@ public class TokensStore {
 		HollowFilesystemPublisher publisher = new HollowFilesystemPublisher(localPublishDir.toPath());
 
 		BlobStorageCleaner cleaner = new BmFilesystemBlobStorageCleaner(localPublishDir, 10);
-		HollowProducer producer = HollowProducer.withPublisher(publisher) //
-				.withBlobStorageCleaner(cleaner).build();
+		Builder<?> builder = HollowProducer.withPublisher(publisher) //
+				.withBlobStorageCleaner(cleaner);
+		HollowProducer producer = builder.build();
 		producer.initializeDataModel(Token.class);
-		this.incremental = new HollowIncrementalProducer(producer);
+		this.incremental = builder.buildIncremental();
 
 		HollowConsumer.BlobRetriever blobRetriever = new HollowFilesystemBlobRetriever(localPublishDir.toPath());
 		if (!restoreIfAvailable(producer, blobRetriever,
@@ -72,9 +75,13 @@ public class TokensStore {
 			});
 		}
 
-		this.consumer = HollowConsumer.withBlobRetriever(blobRetriever).withGeneratedAPIClass(TokensAPI.class).build();
+		this.consumer = new HollowConsumer.Builder<>().withBlobRetriever(blobRetriever)
+				.withGeneratedAPIClass(TokensAPI.class).build();
 		consumer.triggerRefresh();
-		this.keyIndex = new TokenPrimaryKeyIndex(consumer, true, "key");
+
+		this.keyIndex = UniqueKeyIndex.from(consumer, net.bluemind.authentication.service.tokens.Token.class)
+				.usingPath("key", String.class);
+		consumer.addRefreshListener(this.keyIndex);
 	}
 
 	private boolean restoreIfAvailable(HollowProducer producer, BlobRetriever retriever,
@@ -89,15 +96,15 @@ public class TokensStore {
 	}
 
 	public synchronized void add(Token tok) {
-		incremental.addOrModify(tok);
-		consumer.triggerRefreshTo(incremental.runCycle());
+		long newVersion = incremental.runIncrementalCycle(incrementalState -> incrementalState.addOrModify(tok));
+		consumer.triggerRefreshTo(newVersion);
 	}
 
 	public synchronized Token remove(String key) {
 		Token current = byKey(key);
 		if (current != null) {
-			incremental.delete(new RecordPrimaryKey("Token", new String[] { key }));
-			consumer.triggerRefreshTo(incremental.runCycle());
+			long newVersion = incremental.runIncrementalCycle(incrementalState -> incrementalState.delete(current));
+			consumer.triggerRefreshTo(newVersion);
 		}
 		return current;
 	}
@@ -116,17 +123,17 @@ public class TokensStore {
 		TokensAPI api = (TokensAPI) consumer.getAPI();
 		Collection<net.bluemind.authentication.service.tokens.Token> tokens = api.getAllToken();
 		long now = System.currentTimeMillis();
-		int count = 0;
-		for (net.bluemind.authentication.service.tokens.Token tok : tokens) {
-			if (now > tok.getExpiresTimestamp()) {
-				incremental.delete(new RecordPrimaryKey("Token", new String[] { tok.getKey().getValue() }));
-				count++;
-			}
+		List<net.bluemind.authentication.service.tokens.Token> expired = tokens.stream()
+				.filter(tok -> now > tok.getExpiresTimestamp()).collect(Collectors.toList());
+		if (!expired.isEmpty()) {
+			long newVersion = incremental.runIncrementalCycle(incrementalState -> {
+				for (net.bluemind.authentication.service.tokens.Token expiredToken : tokens) {
+					incrementalState.delete(expiredToken);
+				}
+			});
+			consumer.triggerRefreshTo(newVersion);
 		}
-		if (count > 0) {
-			consumer.triggerRefreshTo(incremental.runCycle());
-		}
-		logger.info("Expired {} token(s), {} remaining.", count, tokens.size() - count);
+		logger.info("Expired {} token(s), {} remaining.", expired.size(), tokens.size() - expired.size());
 	}
 
 }
