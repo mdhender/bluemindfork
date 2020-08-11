@@ -171,7 +171,7 @@ net.bluemind.contact.group.edit.GroupEditPresenter.prototype.handleValidateConta
       });
   }
   
-  goog.Promise.all(promises.map(function (p) {return p.promise})).then(function(ret) {
+  goog.Promise.all(promises.map(function (p) {return p['promise']})).then(function(ret) {
     for (var index in promises) {
       
       var resolved = promises[index]; 
