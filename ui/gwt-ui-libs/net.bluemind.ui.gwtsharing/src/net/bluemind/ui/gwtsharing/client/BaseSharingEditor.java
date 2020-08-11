@@ -51,28 +51,9 @@ public abstract class BaseSharingEditor extends CompositeGwtWidgetElement {
 		Map<String, String> verbs = new HashMap<>();
 		AclConstants constants = GWT.create(AclConstants.class);
 
-		if (type.equals("calendar")) {
-			verbs.put("access", constants.aclCalendarAccess());
-			verbs.put("read", constants.aclCalendarRead());
-			verbs.put("write", constants.aclCalendarWrite());
-			verbs.put("admin", constants.aclCalendarAdmin());
-		} else if ("freebusy".equals(type)) {
-			verbs.put("read", constants.aclFreebusyRead());
-			verbs.put("admin", constants.aclFreebusyAdmin());
-		} else if ("addressbook".equals(type)) {
-			verbs.put("read", constants.aclBookRead());
-			verbs.put("write", constants.aclBookWrite());
-			verbs.put("admin", constants.aclBookAdmin());
-		} else if ("mailboxacl".equals(type)) {
-			verbs.put("send-on-behalf", constants.aclMailSendOnBehalf());
-			verbs.put("read", constants.aclMailRead());
-			verbs.put("write", constants.aclMailWrite());
-			verbs.put("admin", constants.aclMailAdmin());
-		} else {
-			verbs.put("read", constants.aclRead());
-			verbs.put("write", constants.aclWrite());
-			verbs.put("admin", constants.aclAdmin());
-		}
+		verbs.put("read", constants.aclRead());
+		verbs.put("write", constants.aclWrite());
+		verbs.put("admin", constants.aclAdmin());
 		return verbs;
 	}
 

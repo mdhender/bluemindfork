@@ -18,6 +18,9 @@
  */
 package net.bluemind.ui.adminconsole.directory.user;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 
@@ -26,12 +29,9 @@ import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
-import net.bluemind.ui.common.client.forms.acl.AclEntity;
+import net.bluemind.ui.common.client.forms.acl.AclConstants;
 import net.bluemind.ui.gwtsharing.client.BaseSharingEditor;
-import net.bluemind.ui.gwtsharing.client.IAclEntityValidator;
 import net.bluemind.ui.gwtsharing.client.SharingModel;
-import net.bluemind.ui.gwtsharing.client.SharingsModel;
-import net.bluemind.ui.gwtsharing.client.ValidationResult;
 import net.bluemind.ui.mailbox.sharing.CrossShardSharingValidator;
 import net.bluemind.ui.mailbox.sharing.IMailboxSharingEditor;
 
@@ -46,6 +46,17 @@ public class MailboxSharingEditor extends BaseSharingEditor implements IMailboxS
 		SharingModel sm = SharingModel.get(model, MailboxSharingModelHandler.MODEL_ID);
 		dataLocation = sm.getDataLocation();
 		edit.setPublicSharingVisible(false);
+	}
+
+	protected Map<String, String> getVerbs() {
+		Map<String, String> verbs = new HashMap<>();
+		AclConstants constants = GWT.create(AclConstants.class);
+
+		verbs.put("send-on-behalf", constants.aclMailSendOnBehalf());
+		verbs.put("read", constants.aclMailRead());
+		verbs.put("write", constants.aclMailWrite());
+		verbs.put("admin", constants.aclMailAdmin());
+		return verbs;
 	}
 
 	public static void registerType() {

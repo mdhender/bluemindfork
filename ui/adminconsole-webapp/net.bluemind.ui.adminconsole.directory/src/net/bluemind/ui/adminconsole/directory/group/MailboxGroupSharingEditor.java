@@ -18,13 +18,18 @@
  */
 package net.bluemind.ui.adminconsole.directory.group;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.shared.GWT;
 
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
 import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
+import net.bluemind.ui.common.client.forms.acl.AclConstants;
 import net.bluemind.ui.gwtsharing.client.BaseSharingEditor;
 import net.bluemind.ui.gwtsharing.client.SharingModel;
 import net.bluemind.ui.mailbox.sharing.CrossShardSharingValidator;
@@ -46,6 +51,16 @@ public class MailboxGroupSharingEditor extends BaseSharingEditor implements IMai
 		super.loadModel(model);
 		SharingModel sm = SharingModel.get(model, MailboxGroupSharingModelHandler.MODEL_ID);
 		dataLocation = sm.getDataLocation();
+	}
+
+	protected Map<String, String> getVerbs() {
+		Map<String, String> verbs = new HashMap<>();
+		AclConstants constants = GWT.create(AclConstants.class);
+
+		verbs.put("read", constants.aclMailRead());
+		verbs.put("write", constants.aclMailWrite());
+		verbs.put("admin", constants.aclMailAdmin());
+		return verbs;
 	}
 
 	@Override
