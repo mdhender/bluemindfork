@@ -7,4 +7,3 @@ export let messagesWithUnblockedRemoteImages = [];
 export let selectedMessageKeys = [];
 export let showBlockedImagesAlert = false;
 export const status = STATUS.IDLE;
-export let userSettings = {};

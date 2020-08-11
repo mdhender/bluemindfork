@@ -1,5 +1,4 @@
 import { MailboxesClient } from "@bluemind/mailbox.api";
-import { UserSettingsClient } from "@bluemind/user.api";
 import { createLocalVue } from "@vue/test-utils";
 import {
     MockItemsTransferClient,
@@ -35,12 +34,10 @@ let containerService = new MockContainersClient(),
     mailboxesService,
     foldersService = new MockMailboxFoldersClient(),
     itemsService = new MockMailboxItemsClient(),
-    itemsTransferClient = new MockItemsTransferClient(),
-    userSettingsService;
+    itemsTransferClient = new MockItemsTransferClient();
 ServiceLocator.register({ provide: "ContainersPersistence", factory: () => containerService });
 ServiceLocator.register({ provide: "SubscriptionPersistence", factory: () => new MockOwnerSubscriptionsClient() });
 ServiceLocator.register({ provide: "MailboxesPersistence", factory: () => mailboxesService });
-ServiceLocator.register({ provide: "UserSettingsPersistence", factory: () => userSettingsService });
 ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: () => itemsService });
 ServiceLocator.register({ provide: "MailboxFoldersPersistence", factory: () => foldersService });
 ServiceLocator.register({ provide: "ItemsTransferPersistence", factory: () => itemsTransferClient });
@@ -72,7 +69,6 @@ describe("[MailWebAppStore] Vuex store", () => {
         itemsTransferClient = new MockItemsTransferClient();
         containerService = new MockContainersClient();
         mailboxesService = new MailboxesClient();
-        userSettingsService = new UserSettingsClient();
     });
 
     test("bootstrap load folders into store with unread count", async () => {
@@ -93,14 +89,9 @@ describe("[MailWebAppStore] Vuex store", () => {
         itemsService.getPerUserUnread.mockReturnValueOnce(Promise.resolve({ count: 15 }));
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
         mailboxesService.getMailboxConfig.mockReturnValue(Promise.resolve({}));
-        const mockedMessageListStyle = "compact";
-        userSettingsService.getOne.mockReturnValue(Promise.resolve(mockedMessageListStyle));
 
         await store.dispatch("mail-webapp/bootstrap", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
         expect(store.state["mail-webapp"].userUid).toBe("6793466E-F5D4-490F-97BF-DF09D3327BF4");
-        expect(store.state["mail-webapp"].userSettings).toMatchObject({
-            mail_message_list_style: mockedMessageListStyle
-        });
         expect(store.getters["mail/MY_MAILBOX_KEY"]).toEqual("user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
         expect(store.getters["mail/MY_INBOX"].uid).toEqual("f1c3f42f-551b-446d-9682-cfe0574b3205");
         expect(store.getters["mail/MY_TRASH"].uid).toEqual("98a9383e-5156-44eb-936a-e6b0825b0809");

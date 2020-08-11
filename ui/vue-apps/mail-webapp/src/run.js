@@ -8,7 +8,6 @@ import { MailboxesClient } from "@bluemind/mailbox.api";
 import { OutboxClient } from "@bluemind/backend.mail.api";
 import { OwnerSubscriptionsClient } from "@bluemind/core.container.api";
 import { TaskClient } from "@bluemind/core.task.api";
-import { UserSettingsClient } from "@bluemind/user.api";
 import injector from "@bluemind/inject";
 import global from "@bluemind/global";
 import router from "@bluemind/router";
@@ -77,14 +76,6 @@ function registerAPIClients() {
     injector.register({
         provide: "TaskService",
         factory: taskId => new TaskClient(injector.getProvider("UserSession").get().sid, taskId)
-    });
-
-    injector.register({
-        provide: "UserSettingsPersistence",
-        factory: () => {
-            const userSession = injector.getProvider("UserSession").get();
-            return new UserSettingsClient(userSession.sid, userSession.domain);
-        }
     });
 
     injector.register({

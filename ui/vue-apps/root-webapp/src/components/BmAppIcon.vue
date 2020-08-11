@@ -1,5 +1,5 @@
 <template>
-    <span class="bm-banner-app-icon">
+    <span class="bm-app-icon">
         <!-- eslint-disable-next-line vue/no-v-html -->
         <span v-if="!!iconApp.svg" v-html="iconApp.svg" />
         <bm-icon v-else-if="!!iconApp.name" :name="iconApp.name" />
@@ -9,7 +9,7 @@
 
 <script>
 export default {
-    name: "BmBannerAppIcon",
+    name: "BmAppIcon",
     props: {
         iconApp: {
             type: Object,

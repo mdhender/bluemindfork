@@ -2,5 +2,12 @@
     "settings.manage.account": "my account",
     "settings.mail.thread": "Show replies to the same message together (conversations)",
     "settings.mail.thread.disable": "Do not show messages grouped by conversation",
-    "settings.mail.thread.enable": "Show messages grouped by conversation"
+    "settings.mail.thread.enable": "Show messages grouped by conversation",
+    "settings.mail.message.list.display": "Display density",
+    "settings.mail.message.list.display.full": "Full",
+    "settings.mail.message.list.display.normal": "Normal",
+    "settings.mail.message.list.display.compact": "Compact",
+    "settings.save.error": "Error when saving, check your network connection",
+    "settings.save.success": "Successfully saved",
+    "settings.menu.apps": "Applications preferences menu"
 }

@@ -89,7 +89,8 @@ export default {
     computed: {
         ...mapState("mail", ["folders", "activeFolder"]),
         ...mapGetters("mail-webapp", ["isMessageSelected", "nextMessageKey"]),
-        ...mapState("mail-webapp", ["selectedMessageKeys", "userSettings"]),
+        ...mapState("mail-webapp", ["selectedMessageKeys"]),
+        ...mapState("session", ["userSettings"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         isImportant() {
             return this.message.flags.some(f => Flag.FLAGGED === f);
@@ -226,6 +227,7 @@ export default {
         }
     }
 
+    .message-list-item-normal .mail-message-list-item-preview,
     .message-list-item-null .mail-message-list-item-preview {
         display: none;
     }

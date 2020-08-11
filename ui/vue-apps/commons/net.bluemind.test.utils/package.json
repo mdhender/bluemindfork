@@ -11,6 +11,7 @@
         "@bluemind/backend.mail.api": "^4.1.0",
         "@bluemind/calendar.api": "^4.1.0",
         "@bluemind/core.container.api": "^4.1.0",
+        "@bluemind/user.api": "^4.1.0",
         "vue-i18n": "^8.21.0"
     }
 }

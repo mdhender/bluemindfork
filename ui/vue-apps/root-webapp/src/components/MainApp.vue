@@ -21,7 +21,7 @@
             {{ $t("common.application.bootstrap.error") }}<br />
             {{ $t("common.application.bootstrap.error.solution") }}
         </div>
-        <router-view v-else />
+        <router-view v-else :class="areSettingsOpened ? 'd-none' : 'd-flex'" />
         <bm-application-alert :alerts="applicationAlerts" class="z-index-250 position-absolute">
             <template v-slot="slotProps">
                 <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
@@ -36,8 +36,8 @@ import { mapState } from "vuex";
 import "@bluemind/styleguide/css/bluemind.scss";
 import CommonL10N from "@bluemind/l10n";
 import injector from "@bluemind/inject";
-import BmBanner from "./BmBanner";
-import BmSettings from "./BmSettings";
+import BmBanner from "./banner/BmBanner";
+import BmSettings from "./settings/BmSettings";
 
 export default {
     components: {

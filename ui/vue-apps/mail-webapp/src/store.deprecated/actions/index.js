@@ -10,7 +10,6 @@ export * from "./loadMailboxConfig";
 export * from "./loadMessageList";
 export * from "./loadRange";
 export * from "./loadUnreadCount";
-export * from "./loadUserSettings";
 export * from "./markFolderAsRead";
 export * from "./markAs";
 export * from "./move";

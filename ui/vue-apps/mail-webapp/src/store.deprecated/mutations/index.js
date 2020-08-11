@@ -7,5 +7,4 @@ export * from "./setMaxMessageSize";
 export * from "./setMessageFilter";
 export * from "./setUserUid";
 export * from "./setStatus";
-export * from "./setUserSettings";
 export * from "./unblockRemoteImages";

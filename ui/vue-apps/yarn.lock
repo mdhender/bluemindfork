@@ -102,6 +102,14 @@
     "@babel/helper-explode-assignable-expression" "^7.10.4"
     "@babel/types" "^7.10.4"
 
+"@babel/helper-call-delegate@^7.11.4":
+  version "7.11.4"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@babel/helper-call-delegate/-/helper-call-delegate-7.11.4.tgz#c9c63196f0eebabe592dc684e3f17c48a7554db7"
+  integrity sha512-JionsxeZH+NQPj7Z2xZiJj/b5Duo9m3qz7SjTgQS4T/p2QDbzWXjG15DbmAogbnE3CMCi9UeeplaB5UY4gUejg==
+  dependencies:
+    "@babel/helper-hoist-variables" "^7.10.4"
+    "@babel/types" "^7.10.4"
+
 "@babel/helper-compilation-targets@^7.10.4":
   version "7.10.4"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/@babel/helper-compilation-targets/-/helper-compilation-targets-7.10.4.tgz#804ae8e3f04376607cc791b9d47d540276332bd2"
@@ -1061,9 +1069,9 @@
     axios "^0.18.0"
 
 "@bluemind/styleguide@^0.1.0":
-  version "0.1.1251"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1251.tgz#101d7f50b4597238b2e4c58c2368e8c784b7790c"
-  integrity sha512-wXjexNdGtG3u3v+gIUf36wsRNatckgGUng6K/Px86WdhHJ7mhbp+gQ1OXezSL2q/8Wje2KwJZPpGqvA/cudqhw==
+  version "0.1.1259"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1259.tgz#cb22b505f5cd88400358a3d5a533ff2646ac776b"
+  integrity sha512-g6p9rAkI4KXx/IaVBz7VO/X+OzO/Qo9AqPQPK/KV9s47OhgHT4x+FMLdGgIqqfFzBWzkvynq7MR45LUOcEAoVg==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"
@@ -1072,6 +1080,7 @@
     interactjs "^1.9.20"
     lodash.clonedeep "^4.5.0"
     lodash.throttle "^4.1.1"
+    svg-inline-loader "^0.8.2"
     tiptap "^1.26.1"
     tiptap-extensions "^1.28.3"
     vue-global-events "^1.1.2"

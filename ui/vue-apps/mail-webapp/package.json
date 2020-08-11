@@ -26,7 +26,6 @@
         "@bluemind/router": "^4.1.0",
         "@bluemind/store": "^4.1.0",
         "@bluemind/styleguide": "^0.1.0",
-        "@bluemind/user.api": "^4.1.0",
         "@bluemind/uuid": "^4.1.0",
         "@types/workbox-core": "^4.3.0",
         "bottleneck": "^2.19.5",

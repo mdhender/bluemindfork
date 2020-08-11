@@ -14,6 +14,7 @@
     },
     "devDependencies": {
         "@babel/core": "^7.4.5",
+        "@babel/helper-call-delegate": "^7.11.4",
         "@babel/preset-env": "^7.4.5",
         "@babel/preset-typescript": "^7.10.4",
         "@bluemind/conf": "4.1.0",

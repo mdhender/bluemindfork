@@ -4,6 +4,8 @@ import { DateTimeFormats, FirstDayOfWeek, InheritTranslationsMixin } from "@blue
 import { sync } from "vuex-router-sync";
 import AlertStore from "@bluemind/alert.store";
 import RootAppStore from "./rootAppStore";
+import { UserSettingsClient } from "@bluemind/user.api";
+import SessionStore from "./sessionStore";
 import injector from "@bluemind/inject";
 import MainApp from "./components/MainApp";
 import NotificationManager from "./NotificationManager";
@@ -78,6 +80,7 @@ function initStore() {
     extend(router, store);
     store.registerModule("alert", AlertStore);
     store.registerModule("root-app", RootAppStore);
+    store.registerModule("session", SessionStore);
 }
 
 function registerDependencies(userSession) {
@@ -92,6 +95,13 @@ function registerDependencies(userSession) {
     injector.register({
         provide: "GlobalEventBus",
         use: VueBus.Client
+    });
+
+    injector.register({
+        provide: "UserSettingsPersistence",
+        factory: () => {
+            return new UserSettingsClient(userSession.sid, userSession.domain);
+        }
     });
 }
 

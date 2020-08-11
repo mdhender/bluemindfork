@@ -24,12 +24,12 @@
                 <bm-col v-for="app in applications" :key="app.href" cols="6" class="text-white">
                     <a v-if="app.external" :href="app.href">
                         <div class="pl-3 my-2 bm-app">
-                            <bm-banner-app-icon :icon-app="app.icon" />
+                            <bm-app-icon :icon-app="app.icon" />
                             <span class="pl-2 text-uppercase align-middle">{{ app.name }}</span>
                         </div>
                     </a>
                     <router-link v-else :to="app.href" tag="div" class="pl-3 my-2 bm-app" @click.native="closePopover">
-                        <bm-banner-app-icon :icon-app="app.icon" />
+                        <bm-app-icon :icon-app="app.icon" />
                         <span class="pl-2 text-uppercase align-middle">{{ app.name }}</span>
                     </router-link>
                 </bm-col>
@@ -49,9 +49,9 @@
 </template>
 
 <script>
-import BannerL10N from "../../l10n/banner/";
+import BannerL10N from "../../../l10n/banner/";
 import BmBannerApplications from "./BmBannerApplications";
-import BmBannerAppIcon from "./BmBannerAppIcon";
+import BmAppIcon from "../BmAppIcon";
 import BmBannerUser from "./BmBannerUser";
 import {
     BmButton,
@@ -69,7 +69,7 @@ export default {
     name: "BmBanner",
     components: {
         BmBannerApplications,
-        BmBannerAppIcon,
+        BmAppIcon,
         BmBannerUser,
         BmButton,
         BmCol,

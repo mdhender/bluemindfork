@@ -10,7 +10,6 @@ describe("[Mail-WebappStore][state]", () => {
               "selectedMessageKeys": Array [],
               "showBlockedImagesAlert": false,
               "status": "idle",
-              "userSettings": Object {},
               "userUid": undefined,
             }
         `);

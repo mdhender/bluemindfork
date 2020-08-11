@@ -7,9 +7,7 @@
             :href="app.external ? app.href : ''"
             class="px-2"
         >
-            <div class="d-inline-block">
-                <bm-banner-app-icon :icon-app="app.icon" />
-            </div>
+            <div class="d-inline-block"><bm-app-icon :icon-app="app.icon" /></div>
             <bm-badge>{{ app.count }}</bm-badge>
         </bm-nav-item>
     </bm-navbar-nav>
@@ -17,13 +15,13 @@
 
 <script>
 import { BmBadge, BmNavbarNav, BmNavItem } from "@bluemind/styleguide";
-import BmBannerAppIcon from "./BmBannerAppIcon";
+import BmAppIcon from "../BmAppIcon";
 
 export default {
     name: "BmBannerApplications",
     components: {
         BmBadge,
-        BmBannerAppIcon,
+        BmAppIcon,
         BmNavbarNav,
         BmNavItem
     },

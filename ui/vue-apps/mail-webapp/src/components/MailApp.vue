@@ -1,5 +1,5 @@
 <template>
-    <div class="flex-fill d-flex flex-column mail-app">
+    <div class="flex-fill d-lg-flex flex-column mail-app">
         <bm-row align-v="center" class="shadow-sm bg-surface topbar z-index-250" :class="{ darkened }">
             <bm-col
                 cols="2"
