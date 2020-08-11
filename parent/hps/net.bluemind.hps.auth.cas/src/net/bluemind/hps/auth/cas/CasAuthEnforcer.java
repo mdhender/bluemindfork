@@ -75,7 +75,7 @@ public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
 
 		Supplier<Boolean> casAuthType = () -> Optional.ofNullable(sysconf.get())
 				.map(sm -> sm.get(SysConfKeys.auth_type.name()) != null
-						&& !sm.get(SysConfKeys.auth_type.name()).equalsIgnoreCase("cas") ? true : false)
+						&& sm.get(SysConfKeys.auth_type.name()).equalsIgnoreCase("cas"))
 				.orElse(false);
 
 		casEnabled = () -> (casAuthType.get() && casURL.get() != null && casDomain.get() != null
