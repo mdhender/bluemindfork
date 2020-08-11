@@ -36,7 +36,7 @@ public class MailMenusContributor implements MenuContributorUnwrapped {
 	@Override
 	public MenuContribution contribution() {
 
-		Section mailSection = Section.create("/webmail/", messages.mailApp(), 5, null,
+		Section mailSection = Section.create("/webmail/", messages.webmail(), 5, null,
 				JsArray.createArray().<JsArray<Screen>> cast(), //
 				JsArray.createArray().<JsArray<Section>> cast());
 
