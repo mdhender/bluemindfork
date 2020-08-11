@@ -249,22 +249,6 @@
     max-height: 250px;
 }
 
-.newWebmail table {
-	margin-left: 60px;
-}
-.newWebmail td {
-	padding-right: 60px;
-}
-.newWebmail label {
-	vertical-align: top;
-	padding-left: 4px;
-}
-.newWebmail span {
-	text-align: center;
-	display: block;
-}
-
-
 @-webkit-keyframes progress-bar-stripes {
   from {
     background-position: 40px 0;

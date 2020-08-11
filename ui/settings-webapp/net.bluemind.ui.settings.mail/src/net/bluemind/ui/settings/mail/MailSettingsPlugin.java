@@ -56,8 +56,6 @@ public class MailSettingsPlugin {
 		MailboxesSharingsModelHandler.registerType();
 		MailForwardEditor.registerType();
 
-		NewWebmailSettings.registerType();
-
 		MailboxSubscriptionsEditor.registerType();
 		MailboxSubscriptionsModelHandler.registerType();
 
