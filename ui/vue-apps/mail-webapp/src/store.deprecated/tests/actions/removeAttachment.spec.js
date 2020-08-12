@@ -1,5 +1,5 @@
 import { removeAttachment } from "../../actions/removeAttachment";
-import { MockMailboxItemsClient } from "@bluemind/test-mocks";
+import { MockMailboxItemsClient } from "@bluemind/test-utils";
 import ServiceLocator from "@bluemind/inject";
 
 const attachmentUid = "uid1",

@@ -1,6 +1,6 @@
 import { createLocalVue } from "@vue/test-utils";
 import { Flag } from "@bluemind/email";
-import { MockMailboxItemsClient } from "@bluemind/test-mocks";
+import { MockMailboxItemsClient } from "@bluemind/test-utils";
 import cloneDeep from "lodash.clonedeep";
 import exampleMessages from "./data/messages";
 import ItemUri from "@bluemind/item-uri";

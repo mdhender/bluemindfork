@@ -1,5 +1,5 @@
 import { Flag } from "@bluemind/email";
-import { MockMailboxItemsClient } from "@bluemind/test-mocks";
+import { MockMailboxItemsClient } from "@bluemind/test-utils";
 import ServiceLocator from "@bluemind/inject";
 import UUIDGenerator from "@bluemind/uuid";
 import { saveDraft } from "../../actions/saveDraft";

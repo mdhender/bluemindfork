@@ -1,6 +1,6 @@
 import { fetch } from "../../../MailboxItemsStore/actions/fetch";
 import { ItemUri } from "@bluemind/item-uri";
-import { MockMailboxItemsClient } from "@bluemind/test-mocks";
+import { MockMailboxItemsClient } from "@bluemind/test-utils";
 import ServiceLocator from "@bluemind/inject";
 
 const messageKey = ItemUri.encode("itemId", "folderUid");

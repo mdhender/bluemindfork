@@ -1,5 +1,5 @@
 import { addAttachments } from "../../actions/addAttachments";
-import { MockMailboxItemsClient } from "@bluemind/test-mocks";
+import { MockMailboxItemsClient } from "@bluemind/test-utils";
 import ServiceLocator from "@bluemind/inject";
 
 const context = {

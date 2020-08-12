@@ -8,7 +8,7 @@ import {
     MockOwnerSubscriptionsClient,
     MockContainersClient,
     MockI18NProvider
-} from "@bluemind/test-mocks";
+} from "@bluemind/test-utils";
 import aliceFolders from "./data/alice/folders";
 import aliceInbox from "./data/alice/inbox";
 import cloneDeep from "lodash.clonedeep";

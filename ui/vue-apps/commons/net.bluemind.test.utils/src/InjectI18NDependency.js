@@ -1,0 +1,28 @@
+import Vue from "vue";
+import VueI18n from "vue-i18n";
+import { DateTimeFormats } from "@bluemind/i18n";
+import injector from "@bluemind/inject";
+
+jest.mock("@bluemind/styleguide", () => ({
+    StyleguideL10N: {
+        en: {},
+        fr: {}
+    }
+}));
+import CommonL10N from "@bluemind/l10n";
+
+export default {
+    registerCommonL10N: () => {
+        Vue.use(VueI18n);
+
+        injector.register({
+            provide: "i18n",
+            use: new VueI18n({
+                locale: "fr",
+                fallbackLocale: "fr",
+                dateTimeFormats: { fr: DateTimeFormats },
+                messages: CommonL10N
+            })
+        });
+    }
+};

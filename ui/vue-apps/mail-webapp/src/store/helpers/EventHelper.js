@@ -1,5 +1,3 @@
-// FIXME: move to new store
-
 import { DateComparator } from "@bluemind/date";
 import { WeekDay } from "@bluemind/i18n";
 import injector from "@bluemind/inject";

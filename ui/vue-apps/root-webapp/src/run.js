@@ -1,6 +1,6 @@
 import { BmModalPlugin } from "@bluemind/styleguide";
 import { extend } from "@bluemind/vuex-router";
-import { FirstDayOfWeek, InheritTranslationsMixin } from "@bluemind/i18n";
+import { DateTimeFormats, FirstDayOfWeek, InheritTranslationsMixin } from "@bluemind/i18n";
 import { sync } from "vuex-router-sync";
 import AlertStore from "@bluemind/alert.store";
 import injector from "@bluemind/inject";
@@ -106,57 +106,8 @@ function initI18N(userSession) {
 }
 
 function getDateTimeFormats() {
-    const formats = {
-        short_date: {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric"
-        },
-        short_time: {
-            hour: "2-digit",
-            minute: "2-digit"
-        },
-        relative_date: {
-            weekday: "short",
-            day: "2-digit",
-            month: "2-digit"
-        },
-        day_month: {
-            day: "2-digit",
-            month: "long"
-        },
-        full_date: {
-            weekday: "short",
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric"
-        },
-        full_date_long: {
-            weekday: "long",
-            day: "2-digit",
-            month: "long",
-            year: "numeric"
-        },
-        full_date_time: {
-            weekday: "long",
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        },
-        full_date_time_long: {
-            weekday: "long",
-            day: "2-digit",
-            month: "long",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        }
-    };
-
     return {
-        fr: formats,
-        en: formats
+        fr: DateTimeFormats,
+        en: DateTimeFormats
     };
 }

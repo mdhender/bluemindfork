@@ -1,6 +1,6 @@
 {
-    "name": "@bluemind/test-mocks",
-    "description": "Jest mocks",
+    "name": "@bluemind/test-utils",
+    "description": "Jest mocks, inject dependencies, etc",
     "version": "4.1.0",
     "license": "Affero GPLv3",
     "author": "Blue Mind SAS",
@@ -8,6 +8,7 @@
     "module": "src/index.js",
     "devDependencies": {
         "@bluemind/backend.mail.api": "^4.1.0",
+        "@bluemind/calendar.api": "^4.1.0",
         "@bluemind/core.container.api": "^4.1.0"
     }
 }

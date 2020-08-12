@@ -2,7 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
-import { MockMailboxFoldersClient, MockI18NProvider } from "@bluemind/test-mocks";
+import { MockMailboxFoldersClient, MockI18NProvider } from "@bluemind/test-utils";
 import { DEFAULT_FOLDER_NAMES } from "../helpers/DefaultFolders";
 import { FolderAdaptor } from "../helpers/FolderAdaptor";
 import { MailboxAdaptor, MailboxType } from "../helpers/MailboxAdaptor";

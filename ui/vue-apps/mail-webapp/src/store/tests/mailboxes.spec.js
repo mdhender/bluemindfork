@@ -2,7 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
-import { MockContainersClient, MockOwnerSubscriptionsClient } from "@bluemind/test-mocks";
+import { MockContainersClient, MockOwnerSubscriptionsClient } from "@bluemind/test-utils";
 import { Verb } from "@bluemind/core.container.api";
 import { state, mutations, actions, getters } from "../mailboxes";
 import aliceContainers from "./data/users/alice/containers";

@@ -43,7 +43,7 @@
     },
     "devDependencies": {
         "@bluemind/conf": "^4.1.0",
-        "@bluemind/test-mocks": "^4.1.0",
+        "@bluemind/test-utils": "^4.1.0",
         "@vue/test-utils": "^1.0.0-beta.25",
         "lodash.clonedeep": "^4.5.0",
         "lodash.merge": "^4.6.2",

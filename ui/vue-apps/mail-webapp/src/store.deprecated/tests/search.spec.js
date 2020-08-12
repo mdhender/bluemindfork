@@ -1,4 +1,4 @@
-import { MockMailboxFoldersClient } from "@bluemind/test-mocks";
+import { MockMailboxFoldersClient } from "@bluemind/test-utils";
 import { state, getters, mutations, actions, STATUS } from "../modules/search";
 import ItemUri from "@bluemind/item-uri";
 import ServiceLocator from "@bluemind/inject";
