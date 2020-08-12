@@ -147,7 +147,7 @@ export default {
             return [
                 { key: null, path: this.$t("common.all") },
                 this.MY_INBOX,
-                { key: this.activeFolder, path: this.$t("mail.search.options.folder.current") },
+                { ...this.folders[this.activeFolder], ...{ path: this.$t("mail.search.options.folder.current") } },
                 this.MY_SENT,
                 this.MY_TRASH
             ];

@@ -22,7 +22,9 @@ export async function loadMessageList(
                 state.search.pattern,
                 state.search.searchFolder,
                 searchInfo.pattern,
-                searchInfo.folder
+                searchInfo.folder,
+                filter,
+                state.messageFilter
             )
         ) {
             searchStatus = SEARCH_STATUS.RESOLVED;

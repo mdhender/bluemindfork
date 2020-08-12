@@ -13,11 +13,12 @@ function parseQuery(expression) {
     return { pattern, folder };
 }
 
-function isSameSearch(previousPattern, previousFolderKey, pattern, folderKey) {
+function isSameSearch(previousPattern, previousFolderKey, pattern, folderKey, filter, previousFilter) {
     const isSamePattern = pattern === previousPattern;
     const isSameFolder = folderKey && folderKey === previousFolderKey;
+    const isSameFilter = previousFilter === filter;
     const isAllFoldersAgain = !folderKey && !previousFolderKey;
-    return isSamePattern && (isSameFolder || isAllFoldersAgain);
+    return isSamePattern && isSameFilter && (isSameFolder || isAllFoldersAgain);
 }
 
 function walkLuceneTree(node, nodeFunction) {
