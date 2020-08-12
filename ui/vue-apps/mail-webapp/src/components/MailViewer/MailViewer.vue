@@ -88,7 +88,8 @@ export default {
     },
     computed: {
         ...mapGetters("mail-webapp/currentMessage", ["message"]),
-        ...mapState("mail-webapp", ["currentEvent", "messageFilter"]),
+        ...mapState("mail-webapp", ["messageFilter"]),
+        ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key", parts: "parts" }),
         to() {
             if (this.message.to.length > 0) {

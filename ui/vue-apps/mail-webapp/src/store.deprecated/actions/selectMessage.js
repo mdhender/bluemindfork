@@ -17,7 +17,7 @@ export function selectMessage({ dispatch, commit, state, rootState }, messageKey
             commit("currentMessage/update", { key: messageKey });
 
             if (userSession.roles.includes("hasCalendar") && !message.ics.isEmpty) {
-                promises.push(dispatch("fetchEvent", message.ics.eventUid));
+                promises.push(dispatch("mail/FETCH_EVENT", message.ics.eventUid, { root: true }));
             }
 
             const parts = message.computeParts();

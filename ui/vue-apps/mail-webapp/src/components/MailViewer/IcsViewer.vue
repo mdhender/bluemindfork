@@ -107,7 +107,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail-webapp/currentMessage", ["message"]),
-        ...mapState("mail-webapp", ["currentEvent"]),
+        ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
         computeEventIcon() {
             let icon = "event";
             if (this.currentEvent.status) {
@@ -132,9 +132,9 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["setEventStatus"]),
+        ...mapActions("mail", ["SET_EVENT_STATUS"]),
         answer(status) {
-            this.setEventStatus(status);
+            this.SET_EVENT_STATUS(status);
         }
     }
 };
