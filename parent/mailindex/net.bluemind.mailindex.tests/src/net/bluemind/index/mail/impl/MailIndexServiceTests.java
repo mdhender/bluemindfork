@@ -689,4 +689,34 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		assertEquals(0, results.totalResults);
 	}
 
+	@Test
+	public void testSearchCheckCyrillicRecipient() throws IOException {
+		long imapUid = 1;
+		byte[] eml = Files.toByteArray(new File("data/testRecipient.eml"));
+		storeBody(bodyUid, eml);
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList());
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.headerQuery = new HeaderQuery();
+		query.headerQuery.logicalOperator = LogicalOperator.AND;
+		Header headerQueryElement = new Header();
+		headerQueryElement.name = "From";
+		headerQueryElement.value = "Антон Плескановский <osef@gmail.com>";
+		query.headerQuery.query = Arrays.asList(headerQueryElement);
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(1, results.totalResults);
+		MessageSearchResult messageSearchResult = results.results.get(0);
+
+		assertEquals("Антон Плескановский", messageSearchResult.from.displayName);
+		assertEquals("osef@gmail.com", messageSearchResult.from.address);
+	}
+
 }
