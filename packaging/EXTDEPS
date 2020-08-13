@@ -65,7 +65,7 @@ BMTICKRPM="bm-telegraf=${TELEGRAF} \
 BMESDEB="bm-elasticsearch=${BMES}"
 BMESRPM="bm-elasticsearch=${BMES}"
 
-# JDK
+# JDK
 BMJDKDEB="bm-jdk=${BMJDK}"
 BMJDKRPM="bm-jdk=${BMJDK}"
 
@@ -73,7 +73,7 @@ BMJDKRPM="bm-jdk=${BMJDK}"
 BMKAFKADEB="bm-kafka=${KAFKA}"
 BMMINIODEB="bm-sds-storage-s3-minio=${MINIO}"
 
-# SNZIP
+# SNZIP
 BMSNZIPDEB="bm-maintenance-snzip=${BMSNZIP}"
 BMSNZIPRPM="bm-maintenance-snzip=${BMSNZIP}"
 

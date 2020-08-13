@@ -62,20 +62,19 @@ fi
 
 %postun
 if [ $1 -eq 0 ]; then
-    # Uninstall
-    if [ -e /etc/php-fpm.d/www.conf ]; then
-      rm -rf /etc/php-fpm.d/www.conf
-    fi
-    
-    if [ -e /etc/nginx/sites-available/bm-webmail ]; then
-      rm -rf /etc/nginx/sites-available/bm-webmail
-    fi
-    
-    if [ -e /etc/nginx/sites-enabled/bm-webmail ]; then
-      rm -rf /etc/nginx/sites-enabled/bm-webmail
-    fi
-
-    if [ -e /var/log/bm-webmail ]; then
-        rm -rf /var/log/bm-webmail
-    fi
+  # Uninstall
+  if [ -e /etc/php-fpm.d/www.conf ]; then
+    rm -rf /etc/php-fpm.d/www.conf
+  fi
+  
+  if [ -e /etc/nginx/sites-available/bm-webmail ]; then
+    rm -rf /etc/nginx/sites-available/bm-webmail
+  fi
+  
+  if [ -e /etc/nginx/sites-enabled/bm-webmail ]; then
+    rm -rf /etc/nginx/sites-enabled/bm-webmail
+  fi
+  if [ -e /var/log/bm-webmail ]; then
+    rm -rf /var/log/bm-webmail
+  fi
 fi

@@ -21,8 +21,10 @@ set -e
 
 case "$1" in
   triggered)
-    [ -d /run/systemd/system ] && (systemctl start bluemind.target || true)
-    exit $?
+    if [ -d /run/systemd/system ]; then
+        systemctl start bluemind.target || true
+    fi
+    exit 0
     ;;
 esac
 
