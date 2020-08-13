@@ -36,11 +36,12 @@ if [ -L /usr/share/bm-webmail/logs ]; then
 fi
 
 chkconfig memcached on
-systemctl stop memcached || true
+[ -d /run/systemd/system ] && systemctl stop memcached || true
 cp -f /usr/share/doc/bm-webmail/sysconfig-memcached /etc/sysconfig/memcached
-systemctl start memcached
-
-systemctl stop httpd || true
+if [ -d /run/systemd/system ]; then
+  systemctl start memcached
+  systemctl stop httpd || true
+fi
 systemctl disable httpd || true
 
 if [ ! -e /etc/bm-webmail/bm-php5-fpm.conf ]; then
@@ -54,9 +55,10 @@ ln -s ../sites-available/bm-webmail .
 popd
 
 systemctl enable bm-php-fpm
-systemctl restart bm-php-fpm
-
-systemctl restart bm-nginx
+if [ -d /run/systemd/system ]; then
+  systemctl restart bm-php-fpm
+  systemctl restart bm-nginx
+fi
 
 %postun
 if [ $1 -eq 0 ]; then

@@ -19,7 +19,7 @@
 
 case "$1" in
 	triggered)
-		systemctl restart bm-webserver || true
+		[ -d /run/systemd/system ] && (systemctl restart bm-webserver || true)
 		exit $?
 		;;
 esac

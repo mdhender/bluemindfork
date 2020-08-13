@@ -32,26 +32,28 @@ install -m 644 /sources/stretch/bm-sds-proxy.service %{buildroot}%{_unitdir}
 %pre
 if [ $1 -gt 1 ]; then
     # Upgrade
-    systemctl stop bm-sds-proxy
+    [ -d /run/systemd/system ] && systemctl stop bm-sds-proxy
 fi
 
 %post -p /bin/bash
-systemctl daemon-reload
 systemctl enable bm-sds-proxy
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload
 
-if [ $1 -eq 1 ]; then
-    # Installation
-    systemctl start bm-sds-proxy
+    if [ $1 -eq 1 ]; then
+        # Installation
+        systemctl start bm-sds-proxy
+    fi
 fi
 
 %preun
 if [ $1 -eq 0 ]; then
     # Uninstall
-    systemctl stop bm-sds-proxy
+    [ -d /run/systemd/system ] && systemctl stop bm-sds-proxy
 fi
 
 %postun
 if [ $1 -eq 1 ]; then
-    # Upgrade
-    systemctl start bm-sds-proxy
+    # Upgrade
+    [ -d /run/systemd/system ] && systemctl start bm-sds-proxy
 fi

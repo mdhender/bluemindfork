@@ -35,26 +35,28 @@ install -m 644 /sources/stretch/bm-core.service %{buildroot}%{_unitdir}
 %pre
 if [ $1 -gt 1 ]; then
     # Upgrade
-    systemctl stop bm-core
+    [ -d /run/systemd/system ] && systemctl stop bm-core
 fi
 
 %post -p /bin/bash
-systemctl daemon-reload
 systemctl enable bm-core
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload
 
-if [ $1 -eq 1 ]; then
-    # Installation
-    systemctl start bm-core
+    if [ $1 -eq 1 ]; then
+        # Installation
+        systemctl start bm-core
+    fi
 fi
 
 %preun
 if [ $1 -eq 0 ]; then
     # Uninstall
-    systemctl stop bm-core
+    [ -d /run/systemd/system ] && systemctl stop bm-core
 fi
 
 %postun
 if [ $1 -eq 1 ]; then
-    # Upgrade
-    systemctl start bm-core
+    # Upgrade
+    [ -d /run/systemd/system ] && systemctl start bm-core
 fi

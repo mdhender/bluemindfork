@@ -31,26 +31,28 @@ install -m 644 /sources/stretch/bm-lmtpd.service %{buildroot}%{_unitdir}
 %pre
 if [ $1 -gt 1 ]; then
     # Upgrade
-    systemctl stop bm-lmtpd
+    [ -d /run/systemd/system ] && systemctl stop bm-lmtpd
 fi
 
 %post -p /bin/bash
-systemctl daemon-reload
 systemctl enable bm-lmtpd
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload
 
-if [ $1 -eq 1 ]; then
-    # Installation
-    systemctl start bm-lmtpd
+    if [ $1 -eq 1 ]; then
+        # Installation
+        systemctl start bm-lmtpd
+    fi
 fi
 
 %preun
 if [ $1 -eq 0 ]; then
     # Uninstall
-    systemctl stop bm-lmtpd
+    [ -d /run/systemd/system ] && systemctl stop bm-lmtpd
 fi
 
 %postun
 if [ $1 -eq 1 ]; then
-    # Upgrade
-    systemctl start bm-lmtpd
+    # Upgrade
+    [ -d /run/systemd/system ] && systemctl start bm-lmtpd
 fi

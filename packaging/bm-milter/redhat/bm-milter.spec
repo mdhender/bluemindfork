@@ -31,26 +31,28 @@ install -m 644 /sources/stretch/bm-milter.service %{buildroot}%{_unitdir}
 %pre
 if [ $1 -gt 1 ]; then
     # Upgrade
-    systemctl stop bm-milter
+    [ -d /run/systemd/system ] && systemctl stop bm-milter
 fi
 
 %post -p /bin/bash
-systemctl daemon-reload
 systemctl enable bm-milter
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload
 
-if [ $1 -eq 1 ]; then
-    # Installation
-    systemctl start bm-milter
+    if [ $1 -eq 1 ]; then
+        # Installation
+        systemctl start bm-milter
+    fi
 fi
 
 %preun
 if [ $1 -eq 0 ]; then
     # Uninstall
-    systemctl stop bm-milter
+    [ -d /run/systemd/system ] && systemctl stop bm-milter
 fi
 
 %postun
 if [ $1 -eq 1 ]; then
-    # Upgrade
-    systemctl start bm-milter
+    # Upgrade
+    [ -d /run/systemd/system ] && systemctl start bm-milter
 fi

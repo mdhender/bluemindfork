@@ -41,13 +41,13 @@ rm -f bm-webmail
 ln -s ../sites-available/bm-webmail .
 popd
 
-systemctl restart bm-php-fpm
-
-systemctl stop apache2 0>/dev/null 1>/dev/null 2>/dev/null || true
 systemctl disable apache2 0>/dev/null 1>/dev/null 2>/dev/null || true
-
-echo "Trying to restart nginx service"
-systemctl restart bm-nginx 0>/dev/null 1>/dev/null 2>/dev/null || true
+if [ -d /run/systemd/system ]; then
+    systemctl restart bm-php-fpm
+    systemctl stop apache2 0>/dev/null 1>/dev/null 2>/dev/null || true
+    echo "Trying to restart nginx service"
+    systemctl restart bm-nginx 0>/dev/null 1>/dev/null 2>/dev/null || true
+fi
 
 #DEBHELPER#
 

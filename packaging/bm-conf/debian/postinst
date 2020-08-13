@@ -20,10 +20,10 @@
 set -e
 
 case "$1" in
-	triggered)
-		systemctl start bluemind.target || true
-		exit $?
-		;;
+  triggered)
+    [ -d /run/systemd/system ] && (systemctl start bluemind.target || true)
+    exit $?
+    ;;
 esac
 
 # Source debconf library.
@@ -80,16 +80,13 @@ fi
 
 #DEBHELPER#
 
-if [ -d /run/systemd/system ]; then
-    systemctl daemon-reload
-
-    for service in $(grep "enable" /lib/systemd/system-preset/10-bluemind.preset |cut -d ' ' -f 2); do
-	if systemctl is-enabled ${service} > /dev/null 2>&1; then
-            echo -n "Re-enabling "${service}": "
-            systemctl reenable ${service} > /dev/null 2>&1 || true
-            echo "done"
-	fi
-    done
-fi
+[ -d /run/systemd/system ] && systemctl daemon-reload
+for service in $(grep "enable" /lib/systemd/system-preset/10-bluemind.preset |cut -d ' ' -f 2); do
+    if systemctl is-enabled ${service} > /dev/null 2>&1; then
+        echo -n "Re-enabling "${service}": "
+        systemctl reenable ${service} > /dev/null 2>&1 || true
+        echo "done"
+    fi
+done
 
 exit 0

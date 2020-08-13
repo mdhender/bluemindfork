@@ -33,26 +33,28 @@ install -m 644 /sources/stretch/bm-ysnp.service %{buildroot}%{_unitdir}
 %pre
 if [ $1 -gt 1 ]; then
     # Upgrade
-    systemctl stop bm-ysnp
+    [ -d /run/systemd/system ] && systemctl stop bm-ysnp
 fi
 
 %post -p /bin/bash
-systemctl daemon-reload
 systemctl enable bm-ysnp
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload
 
-if [ $1 -eq 1 ]; then
-    # Installation
-    systemctl start bm-ysnp
+    if [ $1 -eq 1 ]; then
+        # Installation
+        systemctl start bm-ysnp
+    fi
 fi
 
 %preun
 if [ $1 -eq 0 ]; then
     # Uninstall
-    systemctl stop bm-ysnp
+    [ -d /run/systemd/system ] && systemctl stop bm-ysnp
 fi
 
 %postun
 if [ $1 -eq 1 ]; then
-    # Upgrade
-    systemctl start bm-ysnp
+    # Upgrade
+    [ -d /run/systemd/system ] && systemctl start bm-ysnp
 fi

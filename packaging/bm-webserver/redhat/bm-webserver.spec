@@ -33,36 +33,38 @@ install -m 644 /sources/stretch/bm-webserver.service %{buildroot}%{_unitdir}
 %pre
 if [ $1 -gt 1 ]; then
     # Upgrade
-    systemctl stop bm-webserver
+    [ -d /run/systemd/system ] && systemctl stop bm-webserver
 fi
 
 %post -p /bin/bash
-systemctl daemon-reload
 systemctl enable bm-webserver
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload
 
-if [ $1 -eq 1 ]; then
-    # Installation
-    systemctl start bm-webserver
+    if [ $1 -eq 1 ]; then
+        # Installation
+        systemctl start bm-webserver
+    fi
 fi
 
 %preun
 if [ $1 -eq 0 ]; then
     # Uninstall
-    systemctl stop bm-webserver
+    [ -d /run/systemd/system ] && systemctl stop bm-webserver
 fi
 
 %postun
 if [ $1 -eq 1 ]; then
     # Upgrade
-    systemctl start bm-webserver
+    [ -d /run/systemd/system ] && systemctl start bm-webserver
 fi
 
 %triggerin -p /bin/bash -- bm-setup-wizard, bm-installation-wizard, bm-admin-console, bm-calendar, bm-connector-thunderbird, bm-default-app, bm-plugin-admin-console-ldap-import, bm-plugin-admin-console-ad-import, bm-plugin-webserver-dav, bm-settings, bm-webmail, bm-autodiscover, bm-chooser, bm-contact, bm-im, bm-plugin-webserver-cti, bm-push, bm-todolist, bm-plugin-webserver-filehosting, bm-doc
 [ $1 -ne 1 ] && exit 0
 if [ $2 -eq 1 ]; then
-    systemctl restart bm-webserver
+    [ -d /run/systemd/system ] && systemctl restart bm-webserver
 fi
 
 %triggerpostun -p /bin/bash -- bm-setup-wizard, bm-installation-wizard, bm-admin-console, bm-calendar, bm-connector-thunderbird, bm-default-app, bm-plugin-admin-console-ldap-import, bm-plugin-admin-console-ad-import, bm-plugin-webserver-dav, bm-settings, bm-webmail, bm-autodiscover, bm-chooser, bm-contact, bm-im, bm-plugin-webserver-cti, bm-push, bm-todolist, bm-plugin-webserver-filehosting, bm-doc
 [ $1 -ne 1 ] && exit 0
-[ $2 -lt 2 ] && systemctl restart bm-webserver
+[ $2 -lt 2 ] && [ -d /run/systemd/system ] && systemctl restart bm-webserver
