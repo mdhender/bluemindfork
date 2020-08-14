@@ -61,7 +61,7 @@ public class UserManagerImpl extends UserManager {
 	public static final String LDAP_MEMBER_OF = "memberOf";
 	private static final String[] LDAP_MAIL = { "mail", "mailLocalAddress", "mailAlternateAddress",
 			"gosaMailAlternateAddress" };
-	private static final String[] LDAP_MAIL_QUOTA = { "mailQuotaSize", "mailQuota" };
+	private static final String[] LDAP_MAIL_QUOTA = { "mailQuotaSize", "mailQuota", "gosaMailQuota" };
 	private static final String LDAP_JOBTITLE = "title";
 	private static final String LDAP_ORGANIZATION = "o";
 	private static final String LDAP_ORGANIZATIONUNIT = "ou";
