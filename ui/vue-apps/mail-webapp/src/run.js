@@ -9,7 +9,6 @@ import { OutboxClient } from "@bluemind/backend.mail.api";
 import { OwnerSubscriptionsClient } from "@bluemind/core.container.api";
 import { TaskClient } from "@bluemind/core.task.api";
 import injector from "@bluemind/inject";
-import global from "@bluemind/global";
 import router from "@bluemind/router";
 import store from "@bluemind/store";
 import MailAlertRenderer from "./components/MailAlertRenderer";
@@ -103,9 +102,7 @@ function registerAPIClients() {
     });
 }
 
-global.activateServiceWorker = process.env.NODE_ENV === "development";
-
-if ("serviceWorker" in navigator && global.activateServiceWorker) {
+if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
         navigator.serviceWorker
             .register("service-worker.js")

@@ -1,5 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase } from "idb";
-import { MailFolder, UID, MailItem, ChangeSet } from "../api/entry";
+import { MailFolder, UID, MailItem } from "../api/entry";
 
 interface SyncedFolder {
     uid: UID;

@@ -13,6 +13,7 @@ export async function periodicSync(foldersFullName: Array<string>) {
     return await Promise.all(
         folders.map(async ({ uid, minInterval }) => {
             const syncer = sync(db, mailapi, uid);
+            await syncer();
             const intervalId = setInterval(syncer, minInterval);
             return { intervalId, minInterval, uid };
         })
@@ -44,6 +45,7 @@ async function initIDB(sid: string, userId: string, domain: string) {
 
 function sync(db: MailIDB, mailapi: MailAPI, uid: UID) {
     return async () => {
+        console.log("Syncing folder ", uid);
         const lastSync = await db.getSyncedFolder({ uid });
         if (!lastSync) {
             throw new Error(`Folder not found: ${{ uid }}`);

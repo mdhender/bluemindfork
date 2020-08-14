@@ -1,7 +1,5 @@
 import { MailIDB } from "../mailIDB";
 
-// let sequentialRequest = Promise.resolve();
-
 export default async function ({ request }) {
     const splittedUrl = request.url.split("/");
     const apiUrl = splittedUrl.slice(4, splittedUrl.length).join("/");
@@ -14,27 +12,9 @@ export default async function ({ request }) {
                 }
             });
         }
-        // else if (isSequentialRequest(apiUrl, request.method)) {
-        //     sequentialRequest = sequentialRequest.then(() => fetch(request)).catch(() => fetch(request));
-        //     return sequentialRequest;
-        // }
     }
     return fetch(request);
 }
-
-// const generateImapRequests = {
-//     mail_items: [
-//         { pattern: "_addFlag", method: "PUT" },
-//         { pattern: "_deleteFlag", method: "POST" },
-//         { pattern: "part", method: "GET" }
-//     ],
-//     mail_folders: [{ pattern: "importItems", method: "PUT" }]
-// };
-
-// function isSequentialRequest(url, method) {
-//     const key = url.startsWith("mail_items") ? "mail_items" : "mail_folders";
-//     return generateImapRequests[key].find(request => url.includes(request.pattern) && method === request.method);
-// }
 
 function isApiSupported(url) {
     return url.startsWith("mail_items") || url.startsWith("mail_folders");
@@ -56,7 +36,8 @@ async function useIndexedDB(request) {
 
 const getResponseBody = {
     "_filteredChangesetById?since=0": filteredChangesetById,
-    _multipleById: multipleById
+    _multipleById: multipleById,
+    _unread: unreadItems
 };
 
 async function multipleById(request) {
@@ -64,16 +45,36 @@ async function multipleById(request) {
     return await new MailIDB().getMailItems(ids.map(id => ({ internalId: id })));
 }
 
-async function filteredChangesetById() {
+async function unreadItems() {
+    const allMailItems = await new MailIDB().getAllMailItems();
+    const expectedFlags = { must: [], mustNot: ["Deleted", "Seen"] };
+    return allMailItems
+        .filter(item => filterByFlags(expectedFlags, item))
+        .sort(sortMessage)
+        .map(item => item.internalId);
+}
+
+async function filteredChangesetById(request) {
+    const expectedFlags = await request.json();
     const allMailItems = await new MailIDB().getAllMailItems();
     return {
         created: allMailItems
-            .sort((item1, item2) => {
-                return item2.value.body.date - item1.value.body.date;
-            })
+            .filter(item => filterByFlags(expectedFlags, item))
+            .sort(sortMessage)
             .map(({ internalId: id, version }) => ({ id, version })),
         delete: [],
         updated: [],
         version: 0
     };
+}
+
+function filterByFlags(expectedFlags, item) {
+    return (
+        expectedFlags.must.every(flag => item.flags.includes(flag)) &&
+        !expectedFlags.mustNot.some(flag => item.flags.includes(flag))
+    );
+}
+
+function sortMessage(item1, item2) {
+    return item2.value.body.date - item1.value.body.date;
 }
