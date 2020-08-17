@@ -48,7 +48,7 @@ public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
 	private final Supplier<String> callbackURL;
 	private final Supplier<Boolean> casEnabled;
 	private Vertx vertx;
-	private Optional<HttpClient> httpClient;
+	private Optional<HttpClient> httpClient = Optional.empty();
 	private boolean wasEnabled;
 
 	public CasAuthEnforcer() {
@@ -93,15 +93,14 @@ public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
 
 		logStatus(true);
 
-		HttpClient httpClient = this.httpClient.orElse(initHttpClient());
-
 		// make /login/native happy ( and login public ressources available )
 		if (req.path().startsWith("/login/") && !req.path().equals("/login/index.html")) {
 			return AuthRequirements.notHandle();
 		}
 		if (io.vertx.core.http.HttpMethod.GET == req.method()) {
 			// only redirect GET to not pass
-			CasProtocol protocol = new CasProtocol(httpClient, casURL.get(), casDomain.get(), callbackURL.get());
+			CasProtocol protocol = new CasProtocol(httpClient.orElseGet(() -> initHttpClient()), casURL.get(),
+					casDomain.get(), callbackURL.get());
 			return AuthRequirements.needSession(protocol);
 		} else {
 			return AuthRequirements.notHandle();
