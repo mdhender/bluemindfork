@@ -131,7 +131,7 @@ public class RuleAssignmentWidget extends Composite {
 
 		routing.addItem(MailflowRouting.OUTGOING.name());
 		routing.addItem(MailflowRouting.INCOMING.name());
-		routing.addItem(MailflowRouting.BOTH.name());
+		routing.addItem(MailflowRouting.ALL.name());
 
 		removeAssignment.setStyleName("button");
 		addRule.setStyleName("button");
@@ -234,7 +234,7 @@ public class RuleAssignmentWidget extends Composite {
 
 		if (assignment.routing == MailflowRouting.INCOMING) {
 			routing.setSelectedIndex(1);
-		} else if (assignment.routing == MailflowRouting.BOTH) {
+		} else if (assignment.routing == MailflowRouting.ALL) {
 			routing.setSelectedIndex(2);
 		}
 
@@ -284,7 +284,7 @@ public class RuleAssignmentWidget extends Composite {
 			if (routing.getSelectedIndex() == 1) {
 				assignment.routing = MailflowRouting.INCOMING;
 			} else if (routing.getSelectedIndex() == 2) {
-				assignment.routing = MailflowRouting.BOTH;
+				assignment.routing = MailflowRouting.ALL;
 			} else {
 				assignment.routing = MailflowRouting.OUTGOING;
 			}
