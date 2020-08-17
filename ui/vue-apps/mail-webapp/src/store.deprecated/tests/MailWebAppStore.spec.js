@@ -47,7 +47,7 @@ ServiceLocator.register({ provide: "ItemsTransferPersistence", factory: () => it
 ServiceLocator.register({
     provide: "UserSession",
     factory: () => {
-        return { roles: ["hasCalendar"] };
+        return { roles: ["hasCalendar"], userId: "6793466E-F5D4-490F-97BF-DF09D3327BF4" };
     }
 });
 ServiceLocator.register({ provide: "i18n", factory: () => MockI18NProvider });

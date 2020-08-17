@@ -7,8 +7,8 @@ export const state = {
 };
 
 export const getters = {
-    // FIXME (with mailbox.owner === state.session.userId) once we got a store session
-    MY_MAILBOX_KEY: state => Object.values(state.mailboxes).find(mailbox => mailbox.type === "users").key,
+    MY_MAILBOX_KEY: state =>
+        Object.values(state.mailboxes).find(mailbox => mailbox.owner === inject("UserSession").userId).key,
     MY_MAILBOX: (state, getters) => state.mailboxes[getters.MY_MAILBOX_KEY],
     MAILSHARE_KEYS: state =>
         Object.values(state.mailboxes)

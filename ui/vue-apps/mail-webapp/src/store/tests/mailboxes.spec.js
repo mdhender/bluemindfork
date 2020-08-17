@@ -8,9 +8,17 @@ import { state, mutations, actions, getters } from "../mailboxes";
 import aliceContainers from "./data/users/alice/containers";
 import { MailboxType } from "../helpers/MailboxAdaptor";
 
+const userId = "6793466E-F5D4-490F-97BF-DF09D3327BF4";
+
 const containersService = new MockContainersClient();
 inject.register({ provide: "ContainersPersistence", factory: () => containersService });
 inject.register({ provide: "SubscriptionPersistence", factory: () => new MockOwnerSubscriptionsClient() });
+inject.register({
+    provide: "UserSession",
+    factory: () => {
+        return { userId };
+    }
+});
 Vue.use(Vuex);
 
 describe("mailboxes store", () => {
@@ -105,10 +113,9 @@ describe("mailboxes store", () => {
                 }
             };
             const mockedGetters = { MY_MAILBOX_KEY: "2" };
-            expect(getters["MY_MAILBOX_KEY"](state)).toEqual("2");
             expect(getters["MY_MAILBOX"](state, mockedGetters)).toEqual({ key: "2", type: "users" });
         });
-        test.skip("FIXME when adding session store: MY_MAILBOX_KEY is wrong when having multiple users mailboxes", () => {
+        test("MY_MAILBOX_KEY match the mailbox where owner is userId session", () => {
             const state = {
                 mailboxes: {
                     "1": {
@@ -117,11 +124,13 @@ describe("mailboxes store", () => {
                     },
                     "2": {
                         key: "2",
-                        type: "users"
+                        type: "users",
+                        owner: "unknown"
                     },
                     MY_REAL_MAILBOX_KEY: {
                         key: "MY_REAL_MAILBOX_KEY",
-                        type: "users"
+                        type: "users",
+                        owner: userId
                     }
                 }
             };
