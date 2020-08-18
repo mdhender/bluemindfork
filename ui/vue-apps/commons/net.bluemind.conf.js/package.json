@@ -2,8 +2,8 @@
     "name": "@bluemind/conf",
     "version": "4.1.0",
     "description": "Bluemind configuration files for front-end development",
+    "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
-    "license": "Affero GPLv3",
     "publishConfig": {
         "registry": "https://forge.bluemind.net/nexus/repository/bm-npm/"
     },

@@ -2,12 +2,12 @@
     "name": "@bluemind/eslint-config",
     "version": "1.0.0",
     "description": "Shareable eslint config by Bluemind",
+    "license": "AGPL-3.0-only",
+    "author": "Blue Mind SAS",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
-    "author": "Blue Mind SAS",
-    "license": "Affero GPLv3",
     "peerDependencies": {
         "@vue/eslint-config-prettier": "^6.0.0",
         "eslint": "^6.8.0",

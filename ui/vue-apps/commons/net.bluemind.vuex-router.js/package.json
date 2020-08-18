@@ -1,10 +1,8 @@
 {
     "name": "@bluemind/vuex-router",
-    "description": "Extend vue-router to add vuex action on routing events",
     "version": "4.1.0",
-    "license": "Affero GPLv3",
+    "description": "Extend vue-router to add vuex action on routing events",
+    "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
-    "main": "src/index.js",
-    "module": "src/index.js",
-    "scripts": {}
+    "main": "src/index.js"
 }

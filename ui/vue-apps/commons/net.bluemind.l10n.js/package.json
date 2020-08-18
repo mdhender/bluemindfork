@@ -2,7 +2,11 @@
     "name": "@bluemind/l10n",
     "version": "4.1.0",
     "description": "Bluemind common translations",
+    "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
-    "license": "Affero GPLv3",
-    "main": "index.js"
+    "main": "index.js",
+    "dependencies": {
+        "@bluemind/i18n": "^4.1.0",
+        "@bluemind/styleguide": "^0.1.0"
+    }
 }

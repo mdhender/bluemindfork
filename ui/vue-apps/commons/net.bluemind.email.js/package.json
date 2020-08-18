@@ -2,14 +2,11 @@
     "name": "@bluemind/email",
     "version": "4.1.0",
     "description": "Bluemind email helper",
+    "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
-    "license": "Affero GPLv3",
     "main": "src/index.js",
-    "module": "src/index.js",
-    "devDependencies": {
-        "@bluemind/conf": "^4.1.0"
-    },
-    "scripts": {
-        "test": "jest --config node_modules/@bluemind/conf/jest.config.js"
+    "dependencies": {
+        "@bluemind/html-utils": "^4.1.0",
+        "@bluemind/uuid": "^4.1.0"
     }
 }

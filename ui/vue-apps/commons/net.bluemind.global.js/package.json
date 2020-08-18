@@ -1,10 +1,8 @@
 {
     "name": "@bluemind/global",
-    "description": "Bluemind package to wrap globals objects",
     "version": "4.1.0",
-    "license": "Affero GPLv3",
+    "description": "Bluemind package to wrap globals objects",
+    "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
-    "main": "src/index.js",
-    "module": "src/index.js",
-    "scripts": {}
+    "main": "src/index.js"
 }

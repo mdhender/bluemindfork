@@ -1,18 +1,10 @@
 {
     "name": "@bluemind/containerobserver",
-    "description": "Plugin using websocket and vue-bus to observe changes on containers",
     "version": "4.1.0",
-    "license": "Affero GPLv3",
+    "description": "Plugin using websocket and vue-bus to observe changes on containers",
+    "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js",
-    "module": "src/index.js",
-    "devDependencies": {
-        "@bluemind/conf": "^4.1.0",
-        "@vue/test-utils": "^1.0.0-beta.25"
-    },
-    "scripts": {
-        "test": "jest --config node_modules/@bluemind/conf/jest.config.js"
-    },
     "dependencies": {
         "@bluemind/sockjs": "^4.1.0",
         "@bluemind/inject": "^4.1.0"

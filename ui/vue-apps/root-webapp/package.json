@@ -3,7 +3,7 @@
     "version": "4.1.0",
     "description": "Bluemind root application",
     "author": "Blue Mind SAS",
-    "license": "Affero GPLv3",
+    "license": "AGPL-3.0-only",
     "main": "src/run.js",
     "dependencies": {
         "@bluemind/alert.store": "^4.1.0",
@@ -15,7 +15,7 @@
         "@bluemind/vue-bus": "^4.1.0",
         "@bluemind/vue-sockjs": "^4.1.0",
         "@bluemind/vuex-router": "^4.1.0",
-        "vue-i18n": "^8.14.0",
+        "vue-i18n": "^8.21.0",
         "vue2-touch-events": "^2.2.1",
         "vuex": "^3.0.1",
         "vuex-router-sync": "^5.0.0"

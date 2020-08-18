@@ -1,22 +1,15 @@
 {
     "name": "@bluemind/sockjs",
-    "description": "Plugin to connect bluemind sockjs bus",
     "version": "4.1.0",
-    "license": "Affero GPLv3",
+    "description": "Plugin to connect bluemind sockjs bus",
+    "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js",
-    "module": "src/index.js",
-    "devDependencies": {
-        "@bluemind/conf": "^4.1.0",
-        "@vue/test-utils": "^1.0.0-beta.25"
-    },
     "dependencies": {
         "@bluemind/event": "^4.1.0",
-        "@bluemind/global": "^4.1.0"
-    },
-    "scripts": {
-        "lint": "eslint src/**/*.{js,vue}",
-        "test": "jest --config node_modules/@bluemind/conf/jest.config.js"
+        "@bluemind/global": "^4.1.0",
+        "@bluemind/inject": "^4.1.0",
+        "@bluemind/uuid": "^4.1.0"
     },
     "peerDependencies": {
         "sockjs-client": "^1.3.0"

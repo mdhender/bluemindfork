@@ -1,14 +1,14 @@
 {
     "name": "@bluemind/alert.store",
-    "description": "Bluemind alert module : Vuex model",
     "version": "4.1.0",
-    "license": "Affero GPLv3",
+    "description": "Bluemind alert module : Vuex model",
+    "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js",
-    "module": "src/index.js",
     "dependencies": {
         "@bluemind/global": "^4.1.0",
         "@bluemind/inject": "^4.1.0",
+        "@bluemind/uuid": "^4.1.0",
         "lodash.clonedeep": "4.5.0"
     }
 }

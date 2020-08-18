@@ -2015,6 +2015,15 @@
     lodash "^4.17.15"
     pretty "^2.0.0"
 
+"@vue/test-utils@^1.0.4":
+  version "1.0.4"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@vue/test-utils/-/test-utils-1.0.4.tgz#6341caccdf72da5914a5168e680ea12550fba98a"
+  integrity sha512-uIdDqFauzNJWlhltLSZU+P3uHEgUQczklSv2b1EKC7JzxBg9OY/5sx8UyuJwBD+zuxidhFZ4SjTuPgr8cdf63w==
+  dependencies:
+    dom-event-types "^1.0.0"
+    lodash "^4.17.15"
+    pretty "^2.0.0"
+
 "@webassemblyjs/ast@1.9.0":
   version "1.9.0"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/@webassemblyjs/ast/-/ast-1.9.0.tgz#bd850604b4042459a5a41cd7d338cbed695ed964"
@@ -10125,6 +10134,11 @@ vue-hot-reload-api@^2.3.0:
 vue-i18n@^8.14.0:
   version "8.15.3"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/vue-i18n/-/vue-i18n-8.15.3.tgz#9f947802d9b734fcb92e2ce724da654f2f9fc0f4"
+
+vue-i18n@^8.21.0:
+  version "8.21.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/vue-i18n/-/vue-i18n-8.21.0.tgz#526450525fdbb9c877685b5ba6cb9573b73d3940"
+  integrity sha512-pKBq6Kg5hNacFHMFgPbpYsFlDIMRu4Ew/tpvTWns14CZoCxt7B3tmSNdrLruGMMivnJu1rhhRqsQqT6YwHkuQQ==
 
 vue-jest@^4.0.0-beta.2:
   version "4.0.0-beta.4"

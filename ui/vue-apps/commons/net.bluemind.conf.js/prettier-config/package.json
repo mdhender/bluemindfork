@@ -2,12 +2,12 @@
     "name": "@bluemind/prettier-config",
     "version": "1.0.0",
     "description": "Shareable prettier config by Bluemind",
+    "license": "AGPL-3.0-only",
+    "author": "Blue Mind SAS",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
-    "author": "Blue Mind SAS",
-    "license": "Affero GPLv3",
     "peerDependencies": {
         "prettier": "^1.19.1"
     },

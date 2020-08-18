@@ -2,7 +2,7 @@
     "name": "@bluemind/webmodules.vue",
     "description": "Bluemind webmodule to provide one instance of vuejs, vue-router and vuex",
     "version": "4.1.0",
-    "license": "Affero GPLv3",
+    "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "scripts": {
         "build": "npm-run-all -s clean copy:*",

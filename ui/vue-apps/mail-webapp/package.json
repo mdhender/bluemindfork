@@ -4,7 +4,7 @@
     "description": "Bluemind MailApp",
     "author": "Blue Mind SAS",
     "main": "src/run.js",
-    "license": "Affero GPLv3",
+    "license": "AGPL-3.0-only",
     "dependencies": {
         "@bluemind/addressbook.api": "^4.1.0",
         "@bluemind/alert.store": "^4.1.0",
@@ -18,8 +18,8 @@
         "@bluemind/email": "^4.1.0",
         "@bluemind/file-utils": "^4.1.0",
         "@bluemind/html-utils": "^4.1.0",
-        "@bluemind/inject": "^4.1.0",
         "@bluemind/i18n": "^4.1.0",
+        "@bluemind/inject": "^4.1.0",
         "@bluemind/item-uri": "^4.1.0",
         "@bluemind/l10n": "^4.1.0",
         "@bluemind/mailbox.api": "^4.1.0",

@@ -1,16 +1,8 @@
 {
     "name": "@bluemind/item-uri",
-    "description": "Item URI generator. Build unique key from Item uid/id and container uid",
     "version": "4.1.0",
-    "license": "Affero GPLv3",
+    "description": "Item URI generator. Build unique key from Item uid/id and container uid",
+    "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
-    "main": "src/index.js",
-    "module": "src/index.js",
-    "devDependencies": {
-        "@bluemind/conf": "^4.1.0"
-    },
-    "scripts": {
-        "build": "",
-        "test": "jest --config node_modules/@bluemind/conf/jest.config.js"
-    }
+    "main": "src/index.js"
 }

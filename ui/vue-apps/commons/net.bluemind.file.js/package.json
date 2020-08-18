@@ -2,8 +2,7 @@
     "name": "@bluemind/file-utils",
     "description": "File utils : compute file size units",
     "version": "4.1.0",
-    "license": "Affero GPLv3",
+    "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
-    "main": "src/index.js",
-    "module": "src/index.js"
+    "main": "src/index.js"
 }

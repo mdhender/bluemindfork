@@ -1,14 +1,16 @@
 {
     "name": "@bluemind/test-utils",
-    "description": "Jest mocks, inject dependencies, etc",
     "version": "4.1.0",
-    "license": "Affero GPLv3",
+    "description": "Jest mocks, inject dependencies, etc",
+    "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js",
-    "module": "src/index.js",
-    "devDependencies": {
+    "dependencies": {
+        "@bluemind/i18n": "^4.1.0",
+        "@bluemind/inject": "^4.1.0",
         "@bluemind/backend.mail.api": "^4.1.0",
         "@bluemind/calendar.api": "^4.1.0",
-        "@bluemind/core.container.api": "^4.1.0"
+        "@bluemind/core.container.api": "^4.1.0",
+        "vue-i18n": "^8.21.0"
     }
 }

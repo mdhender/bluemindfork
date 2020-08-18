@@ -1,8 +1,8 @@
 {
     "name": "@bluemind/store",
-    "description": "Bluemind package to export global Vuex store",
     "version": "4.1.0",
-    "license": "Affero GPLv3",
+    "description": "Bluemind package to export global Vuex store",
+    "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js",
     "module": "src/index.js",
@@ -10,5 +10,8 @@
     "dependencies": {
         "@bluemind/global": "^4.1.0"
     },
-    "peerDependencies": {}
+    "peerDependencies": {
+        "vue": "^2.6.0",
+        "vuex": "^3.0.1"
+    }
 }

@@ -1,12 +1,10 @@
 {
     "name": "@bluemind/html-utils",
-    "description": "HTML utils : text2html, html2text, sanitizer, validator...",
     "version": "4.1.0",
-    "license": "Affero GPLv3",
+    "description": "HTML utils : text2html, html2text, sanitizer, validator...",
+    "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js",
-    "module": "src/index.js",
-    "scripts": {},
     "dependencies": {
         "libphonenumber-js": "^1.7.8",
         "linkifyjs": "^2.1.8",
