@@ -60,10 +60,15 @@
         "vue": "^2.6.0"
     },
     "scripts": {
-        "test": "jest --watch --config node_modules/@bluemind/conf/jest.config.js",
+        "test": "jest --config node_modules/@bluemind/conf/jest.config.js",
         "root": "cd root-webapp && yarn dev",
         "mail": "cd mail-webapp && yarn dev",
         "test-ci": "jest --ci --json --config node_modules/@bluemind/conf/jest.config.js --testResultsProcessor jest-jenkins-reporter --coverage --coverageReporters cobertura > jest.json"
     },
-    "prettier": "@bluemind/prettier-config"
+    "prettier": "@bluemind/prettier-config",
+    "browserslist": [
+        "> 0.25%",
+        "not dead",
+        "not ie <= 8"
+    ]
 }

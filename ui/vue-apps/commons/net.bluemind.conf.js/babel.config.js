@@ -1,4 +1,4 @@
-module.exports = function(api, otherPlugins = []) {
+module.exports = function (api, otherPlugins = []) {
     api.cache(true);
 
     const presets = [
