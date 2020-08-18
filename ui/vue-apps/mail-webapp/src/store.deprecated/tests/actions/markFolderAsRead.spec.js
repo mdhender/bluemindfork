@@ -1,7 +1,11 @@
 import { markFolderAsRead } from "../../actions/markFolderAsRead";
+import inject from "@bluemind/inject";
+import { MockMailboxFoldersClient } from "@bluemind/test-utils";
+
+const foldersService = new MockMailboxFoldersClient();
+inject.register({ provide: "MailboxFoldersPersistence", factory: () => foldersService });
 
 const folderKey = "folder-key";
-
 const context = {
     dispatch: jest.fn().mockResolvedValue(),
     commit: jest.fn(),
@@ -13,7 +17,7 @@ const context = {
     rootState: {
         mail: {
             folders: {
-                [folderKey]: { path: "", key: folderKey }
+                [folderKey]: { path: "", key: folderKey, id: "id" }
             }
         }
     }
@@ -27,7 +31,7 @@ describe("[Mail-WebappStore][actions] : markFolderAsRead", () => {
 
     test("Basic", async () => {
         await markFolderAsRead(context, folderKey);
-        expect(context.dispatch).toHaveBeenCalledWith("folders/markAsRead", folderKey);
+        expect(foldersService.markFolderAsRead).toHaveBeenCalledWith("id");
         expect(context.commit).toHaveBeenCalledWith(
             "addApplicationAlert",
             expect.objectContaining({
@@ -45,9 +49,9 @@ describe("[Mail-WebappStore][actions] : markFolderAsRead", () => {
     });
 
     test("With Error", async () => {
-        context.dispatch.mockRejectedValueOnce();
+        foldersService.markFolderAsRead.mockRejectedValueOnce();
         await markFolderAsRead(context, folderKey);
-        expect(context.dispatch).toHaveBeenCalledWith("folders/markAsRead", folderKey);
+        expect(foldersService.markFolderAsRead).toHaveBeenCalledWith("id");
         expect(context.commit).not.toHaveBeenCalledWith(
             "addApplicationAlert",
             expect.objectContaining({

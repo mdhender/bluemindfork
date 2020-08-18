@@ -4,7 +4,6 @@ import * as mutations from "./mutations";
 import * as mutactions from "./mutactions";
 import * as state from "./state";
 import messages from "../store.deprecated/mailbackend/MailboxItemsStore";
-import folders from "../store.deprecated/mailbackend/MailboxFoldersStore";
 import MessageStore from "./MessageStore/";
 import search from "./modules/search";
 
@@ -17,7 +16,6 @@ export default {
     modules: {
         search,
         messages,
-        folders,
         currentMessage: MessageStore,
         draft: MessageStore
     }

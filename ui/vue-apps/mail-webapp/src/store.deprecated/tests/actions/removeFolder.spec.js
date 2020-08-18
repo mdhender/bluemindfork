@@ -1,13 +1,14 @@
 import { removeFolder } from "../../actions/removeFolder";
 
+const folderKey = "folder:key";
+const mailbox = { key: "mailbox:key" };
 const context = {
     dispatch: jest.fn().mockResolvedValue(),
     commit: jest.fn(),
     rootState: {
         mail: {
-            folders: {
-                key: {}
-            }
+            folders: { [folderKey]: { key: folderKey, mailbox: mailbox.key } },
+            mailboxes: { [mailbox.key]: mailbox }
         }
     }
 };
@@ -19,8 +20,12 @@ describe("[Mail-WebappStore][actions] : removeFolder", () => {
     });
 
     test("Basic", async () => {
-        await removeFolder(context, "key");
-        expect(context.dispatch).toHaveBeenCalledWith("folders/remove", "key");
+        await removeFolder(context, folderKey);
+        expect(context.dispatch).toHaveBeenCalledWith(
+            "mail/REMOVE_FOLDER",
+            { key: folderKey, mailbox },
+            { root: true }
+        );
         expect(context.commit).toHaveBeenCalledWith(
             "addApplicationAlert",
             expect.objectContaining({
@@ -39,8 +44,12 @@ describe("[Mail-WebappStore][actions] : removeFolder", () => {
 
     test("With Error", async () => {
         context.dispatch.mockRejectedValueOnce();
-        await removeFolder(context, "key");
-        expect(context.dispatch).toHaveBeenCalledWith("folders/remove", "key");
+        await removeFolder(context, folderKey);
+        expect(context.dispatch).toHaveBeenCalledWith(
+            "mail/REMOVE_FOLDER",
+            { key: folderKey, mailbox },
+            { root: true }
+        );
         expect(context.commit).not.toHaveBeenCalledWith(
             "addApplicationAlert",
             expect.objectContaining({
