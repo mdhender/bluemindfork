@@ -1,15 +1,11 @@
 <template>
-    <mail-message-list-empty
-        v-if="currentFolder"
-        v-bm-tooltip.viewport
-        :image="emptyFolderIllustration"
-        class="content-empty-folder"
-        :title="currentFolder.name"
-    >
+    <mail-message-list-empty v-if="currentFolder" :image="emptyFolderIllustration" class="content-empty-folder">
         {{ $t("mail.folder") }}
         <mail-folder-icon
+            v-bm-tooltip.viewport
             :shared="CURRENT_MAILBOX.type == 'mailshares'"
             :folder="currentFolder"
+            :title="currentFolder.name"
             class="font-weight-bold"
         />
         {{ $t("mail.empty") }}

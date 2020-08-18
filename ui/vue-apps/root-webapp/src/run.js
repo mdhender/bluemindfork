@@ -3,6 +3,7 @@ import { extend } from "@bluemind/vuex-router";
 import { DateTimeFormats, FirstDayOfWeek, InheritTranslationsMixin } from "@bluemind/i18n";
 import { sync } from "vuex-router-sync";
 import AlertStore from "@bluemind/alert.store";
+import RootAppStore from "./rootAppStore";
 import injector from "@bluemind/inject";
 import MainApp from "./components/MainApp";
 import NotificationManager from "./NotificationManager";
@@ -76,6 +77,7 @@ function initStore() {
     sync(store, router);
     extend(router, store);
     store.registerModule("alert", AlertStore);
+    store.registerModule("root-app", RootAppStore);
 }
 
 function registerDependencies(userSession) {

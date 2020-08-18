@@ -1,7 +1,15 @@
 <template>
     <div class="main-app d-flex flex-column vh-100 bg-light">
         <bm-banner :applications="applications" :widgets="widgets" :user="user" :software="software" />
-        <router-view />
+        <bm-spinner v-if="appState == 'loading'" :size="2" class="d-flex flex-fill align-self-center" />
+        <div
+            v-else-if="appState == 'error'"
+            class="text-danger text-center h2 d-flex flex-fill align-self-center align-items-center"
+        >
+            {{ $t("common.application.bootstrap.error") }}<br />
+            {{ $t("common.application.bootstrap.error.solution") }}
+        </div>
+        <router-view v-else />
         <bm-application-alert :alerts="applicationAlerts" class="z-index-250 position-absolute">
             <template v-slot="slotProps">
                 <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
@@ -11,7 +19,7 @@
 </template>
 
 <script>
-import { BmApplicationAlert } from "@bluemind/styleguide";
+import { BmApplicationAlert, BmSpinner } from "@bluemind/styleguide";
 import { mapState } from "vuex";
 import "@bluemind/styleguide/css/bluemind.scss";
 import CommonL10N from "@bluemind/l10n";
@@ -21,7 +29,8 @@ import BmBanner from "./BmBanner";
 export default {
     components: {
         BmApplicationAlert,
-        BmBanner
+        BmBanner,
+        BmSpinner
     },
     componentI18N: { messages: CommonL10N },
     data() {
@@ -73,7 +82,8 @@ export default {
         return data;
     },
     computed: {
-        ...mapState({ applicationAlerts: state => state.alert.applicationAlerts })
+        ...mapState({ applicationAlerts: state => state.alert.applicationAlerts }),
+        ...mapState("root-app", ["appState"])
     }
 };
 </script>

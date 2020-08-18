@@ -1,4 +1,4 @@
-import injector from "@bluemind/inject";
+import { inject } from "@bluemind/inject";
 import MailActionsPanel from "../components/MailActionsPanel";
 import MailApp from "../components/MailApp";
 import MailComposer from "../components/MailComposer";
@@ -12,7 +12,11 @@ export default [
         path: "/mail/:messagequery*",
         component: MailApp,
         meta: {
-            onEnter: store => store.dispatch("mail-webapp/bootstrap", injector.getProvider("UserSession").get().userId),
+            onEnter: store =>
+                store
+                    .dispatch("mail-webapp/bootstrap", inject("UserSession").userId)
+                    .then(() => store.commit("root-app/SET_APP_STATE", "success"))
+                    .catch(() => store.commit("root-app/SET_APP_STATE", "error")),
             watch: {
                 messagequery: (store, value) =>
                     store.dispatch("mail-webapp/loadMessageList", MessageQueryParam.parse(value))

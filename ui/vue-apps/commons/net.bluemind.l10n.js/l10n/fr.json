@@ -69,5 +69,7 @@
     "common.folder.inbox": "Boîte de réception",
     "common.folder.junk": "Messages indésirables",
     "common.folder.sent": "Messages envoyés",
-    "common.folder.trash": "Corbeille"
+    "common.folder.trash": "Corbeille",
+    "common.application.bootstrap.error": "Erreur lors de l'initialisation de l'application...",
+    "common.application.bootstrap.error.solution": "Veuillez réessayer dans quelques instants ou contacter votre administrateur."
 }
