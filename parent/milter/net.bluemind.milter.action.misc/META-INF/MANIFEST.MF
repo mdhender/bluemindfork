@@ -10,4 +10,5 @@ Require-Bundle: net.bluemind.milter,
  slf4j.api,
  net.bluemind.mailflow.rbe,
  org.apache.james.apache-mime4j-dom,
- com.google.guava
+ com.google.guava,
+ javax.mail-api

@@ -18,7 +18,11 @@
  */
 package net.bluemind.milter.action.misc.updatesubject;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+
+import javax.mail.internet.MimeUtility;
 
 import com.google.common.base.Strings;
 
@@ -56,6 +60,10 @@ public class UpdateSubjectAction implements MilterAction {
 				+ (Strings.isNullOrEmpty(configuration.get("subjectSuffix")) ? "" : configuration.get("subjectSuffix"));
 
 		modifier.removeHeader("Subject");
-		modifier.addHeader("Subject", newSubject, identifier());
+		try {
+			modifier.addHeader("Subject", MimeUtility.encodeText(newSubject, StandardCharsets.UTF_8.name(), "Q"),
+					identifier());
+		} catch (UnsupportedEncodingException e) {
+		}
 	}
 }
