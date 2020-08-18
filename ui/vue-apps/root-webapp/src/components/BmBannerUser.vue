@@ -3,7 +3,7 @@
         <bm-nav-item-dropdown right offset="5">
             <template slot="button-content">
                 <bm-avatar :alt="user.displayname" class="flex-shrink-0" />
-                <span v-bm-tooltip class="pr-4 username text-truncate m-auto" :title="user.displayname">
+                <span v-bm-tooltip.left class="pr-4 username text-truncate m-auto" :title="user.displayname">
                     {{ user.displayname }}
                 </span>
             </template>
