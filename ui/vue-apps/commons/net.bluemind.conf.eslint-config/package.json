@@ -1,21 +1,15 @@
 {
     "name": "@bluemind/eslint-config",
-    "version": "1.0.0",
+    "version": "4.1.0",
     "description": "Shareable eslint config by Bluemind",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "index.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
     "peerDependencies": {
         "@vue/eslint-config-prettier": "^6.0.0",
-        "eslint": "^6.8.0",
+        "eslint": "^7.7.0",
         "eslint-plugin-prettier": "^3.1.2",
         "eslint-plugin-vue": "^6.2.1",
-        "prettier": "^1.19.1"
-    },
-    "publishConfig": {
-        "registry": "https://forge.bluemind.net/nexus/repository/bm-npm/"
+        "prettier": "^2.0.5"
     }
 }

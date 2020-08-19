@@ -2,7 +2,7 @@ import RelativeNavigationPlugin from "../src/RelativeNavigationPlugin";
 
 describe("RelativeNavigationPlugin", () => {
     test("Add navigate and relative method to router", () => {
-        const mock = function() {};
+        const mock = function () {};
         RelativeNavigationPlugin.extends(mock);
         expect(mock.prototype.navigate).toBeDefined();
         expect(mock.prototype.relative).toBeDefined();
@@ -13,7 +13,7 @@ describe("RelativeNavigationPlugin", () => {
         expect(mock.prototype.relative).toEqual("Do not overwrite");
     });
     test("Relative keep all not overwritten params", () => {
-        const mock = function() {};
+        const mock = function () {};
         mock.prototype.push = jest.fn();
         RelativeNavigationPlugin.extends(mock);
         const router = new mock();
@@ -34,7 +34,7 @@ describe("RelativeNavigationPlugin", () => {
         expect(location.params).toEqual({ folder: "INBOX", message: "5." });
     });
     test("Relative accept a string as route name", () => {
-        const mock = function() {};
+        const mock = function () {};
         mock.prototype.push = jest.fn();
         RelativeNavigationPlugin.extends(mock);
         const router = new mock();
@@ -49,7 +49,7 @@ describe("RelativeNavigationPlugin", () => {
     });
 
     test("Only keep hash and qyery if we navigate inside the same route", () => {
-        const mock = function() {};
+        const mock = function () {};
         mock.prototype.push = jest.fn();
         RelativeNavigationPlugin.extends(mock);
         const router = new mock();
@@ -69,7 +69,7 @@ describe("RelativeNavigationPlugin", () => {
     });
 
     test("Relative use currentRoute if a from is not specify", () => {
-        const mock = function() {};
+        const mock = function () {};
         mock.prototype.push = jest.fn();
         mock.prototype.currentRoute = {
             params: { old: "is old" }
@@ -80,7 +80,7 @@ describe("RelativeNavigationPlugin", () => {
         expect(location.params).toEqual({ old: "is old", neo: "is new" });
     });
     test("Navigate push relative location", () => {
-        const mock = function() {};
+        const mock = function () {};
         mock.prototype.push = jest.fn();
         RelativeNavigationPlugin.extends(mock);
         mock.prototype.relative = jest.fn().mockReturnValue("location");
@@ -90,7 +90,7 @@ describe("RelativeNavigationPlugin", () => {
         expect(router.push).toHaveBeenCalledWith("location");
     });
     test("Relative location does not contains extra parameters", () => {
-        const mock = function() {};
+        const mock = function () {};
         mock.prototype.push = jest.fn();
         RelativeNavigationPlugin.extends(mock);
         const router = new mock();

@@ -80,7 +80,7 @@
                         @input="saveDraft"
                     />
                 </div>
-                <bm-row class="d-block m-0"><hr class="bg-dark m-0"/></bm-row>
+                <bm-row class="d-block m-0"><hr class="bg-dark m-0" /></bm-row>
                 <bm-row class="mt-1 mb-2">
                     <bm-col cols="12">
                         <bm-file-drop-zone
@@ -258,27 +258,27 @@ export default {
         }
     },
     watch: {
-        autocompleteResults: function() {
+        autocompleteResults: function () {
             this.autocompleteResultsTo = this.getAutocompleteResults("to");
             this.autocompleteResultsCc = this.getAutocompleteResults("cc");
             this.autocompleteResultsBcc = this.getAutocompleteResults("bcc");
         }
     },
-    created: function() {
+    created: function () {
         this.deleteAllSelectedMessages();
         this.clearDraft();
         this.message_.type = this.userPrefTextOnly ? "text" : "html";
         this.message_.previousMessage = this.previousMessage;
         this.updateDraft(this.message_);
     },
-    mounted: function() {
+    mounted: function () {
         if (this.message && (this.message.to.length > 0 || this.message.cc.length > 0)) {
             this.$refs["message-content"].focus();
         } else {
             this.$refs.to.focus();
         }
     },
-    destroyed: function() {
+    destroyed: function () {
         this.clearDraft();
     },
     methods: {
@@ -320,7 +320,7 @@ export default {
             this.fieldFocused = fieldFocused;
             this.search(searchedPattern);
         },
-        search: debounce(function(searchedRecipient) {
+        search: debounce(function (searchedRecipient) {
             if (searchedRecipient === "") {
                 this.autocompleteResults = [];
             } else {

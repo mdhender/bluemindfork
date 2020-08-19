@@ -9,10 +9,7 @@ export const state = {
 
 export const actions = {
     async FETCH_EVENT({ commit, getters }, eventUid) {
-        let event = await injector
-            .getProvider("CalendarPersistence")
-            .get()
-            .getComplete(eventUid);
+        let event = await injector.getProvider("CalendarPersistence").get().getComplete(eventUid);
         if (event) {
             event = EventHelper.adapt(event, getters["CURRENT_MAILBOX"].owner);
         }

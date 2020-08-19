@@ -11,7 +11,7 @@ export function annotate(fn) {
             $inject = [];
             fnText = fn.toString().replace(STRIP_COMMENTS, "");
             argDecl = fnText.match(FN_ARGS);
-            argDecl[2].split(FN_ARG_SPLIT).forEach(function(name) {
+            argDecl[2].split(FN_ARG_SPLIT).forEach(function (name) {
                 if (name.length > 0) {
                     $inject.push(name.trim());
                 }

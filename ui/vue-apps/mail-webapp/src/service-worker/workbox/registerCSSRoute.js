@@ -1,7 +1,7 @@
 import { registerRoute } from "workbox-routing";
 import { StaleWhileRevalidate } from "workbox-strategies";
 
-export default function() {
+export default function () {
     registerRoute(
         // Cache style resources, i.e. CSS files.
         ({ request }) => request.destination === "style",

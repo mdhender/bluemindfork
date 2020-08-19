@@ -6,7 +6,7 @@ export default class NotificationManager {
         }
         if (!this.userAlreadyAnswered) {
             Notification.requestPermission(
-                function() {
+                function () {
                     this._init();
                 }.bind(this)
             );

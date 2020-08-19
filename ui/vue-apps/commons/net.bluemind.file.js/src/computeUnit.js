@@ -1,4 +1,4 @@
-export default function(fileSize) {
+export default function (fileSize) {
     if (fileSize / Math.pow(10, 9) >= 1) {
         return (fileSize / Math.pow(10, 9)).toFixed(1) + " Go";
     } else if (fileSize / Math.pow(10, 6) >= 1) {

@@ -104,18 +104,18 @@ function createSockJsClient() {
         return websocket.client;
     }
     const client = new SockJS(websocket.url);
-    client.onopen = function() {
+    client.onopen = function () {
         websocket.timers.ping = setTimeout(ping, 5 * 1000);
         online();
         websocket.plugins.dispatchEvent(new Event("open"));
     };
 
-    client.onheartbeat = function() {
+    client.onheartbeat = function () {
         clearTimeout(websocket.timers.heartbeat);
         websocket.timers.heartbeat = setTimeout(() => websocket.client.close(), 20 * 1000);
     };
 
-    client.onclose = function() {
+    client.onclose = function () {
         clearTimeout(websocket.timers.ping);
         clearTimeout(websocket.timers.heartbeat);
         offline();
@@ -123,7 +123,7 @@ function createSockJsClient() {
         websocket.plugins.dispatchEvent(new Event("close"));
     };
 
-    client.onmessage = function(event) {
+    client.onmessage = function (event) {
         var response = JSON.parse(event.data);
         websocket.handler.dispatchEvent(new RestEvent(response.requestId, response));
         websocket.plugins.dispatchEvent(new RestEvent("message", response));

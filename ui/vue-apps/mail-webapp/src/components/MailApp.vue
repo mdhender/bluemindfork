@@ -50,12 +50,11 @@
             <!-- v-show is overridden by d-lg-block in large devices -->
             <bm-row
                 v-show="showFolders"
-                class="position-lg-static position-absolute d-lg-block px-0 
-                h-100 col-12 col-lg-2 z-index-200 overlay top-0 bottom-0"
+                class="position-lg-static position-absolute d-lg-block px-0 h-100 col-12 col-lg-2 z-index-200 overlay top-0 bottom-0"
             >
                 <bm-col cols="10" lg="12" class="mail-folder-sidebar-wrapper bg-surface h-100">
                     <div class="h-100 scroller scroller-visible-on-hover">
-                        <mail-folder-sidebar class="d-inline-block " @toggle-folders="toggleFolders" />
+                        <mail-folder-sidebar class="d-inline-block" @toggle-folders="toggleFolders" />
                     </div>
                 </bm-col>
             </bm-row>

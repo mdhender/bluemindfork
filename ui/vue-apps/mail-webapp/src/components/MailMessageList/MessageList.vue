@@ -91,7 +91,7 @@ export default {
         _messages() {
             return this.messages.slice(0, this.length);
         },
-        hasMore: function() {
+        hasMore: function () {
             return this.length < this.count;
         },
         isSelectionMultiple() {
@@ -113,7 +113,7 @@ export default {
         this.focusByKey(this.currentMessageKey);
     },
     bus: {
-        [TOGGLE_SELECTION_ALL]: function() {
+        [TOGGLE_SELECTION_ALL]: function () {
             this.toggleAll();
         }
     },

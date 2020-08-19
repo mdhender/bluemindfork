@@ -61,7 +61,7 @@ export default class GetInlinePartsVisitor {
     forkResults(part, ancestors) {
         const root = this.getBranchRoot(part, ancestors);
         this.getChildrenResults(root, ancestors).forEach(sibling => {
-            let results = part.children.map(function(part) {
+            let results = part.children.map(function (part) {
                 return {
                     lastForkAddress: part.address,
                     capabilities: sibling.capabilities.slice(0),

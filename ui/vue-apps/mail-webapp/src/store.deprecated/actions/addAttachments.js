@@ -14,7 +14,7 @@ export function addAttachments({ getters, commit, dispatch, rootGetters }, files
 }
 
 /** Build a DTO representing an attachment. */
-const buildAttachment = function(file) {
+const buildAttachment = function (file) {
     return {
         content: file,
         uid: UUIDGenerator.generate(),

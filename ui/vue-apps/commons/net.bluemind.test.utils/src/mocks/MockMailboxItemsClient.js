@@ -9,7 +9,7 @@ Object.getOwnPropertyNames(MailboxItemsClient.prototype).forEach(property => {
     }
 });
 
-mockedMailboxItemClient.prototype.mockFetch = function(text) {
+mockedMailboxItemClient.prototype.mockFetch = function (text) {
     mockedMailboxItemClient.prototype.fetch.mockImplementation(() => {
         return Promise.resolve(new Blob([text], { type: "text/plain" }));
     });

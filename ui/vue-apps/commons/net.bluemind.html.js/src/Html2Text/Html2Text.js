@@ -146,6 +146,6 @@ const display = {
     title: "block"
 };
 
-export default function(str) {
+export default function (str) {
     return htmlToText(str, {});
 }

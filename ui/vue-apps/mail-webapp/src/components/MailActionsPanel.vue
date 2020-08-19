@@ -22,7 +22,7 @@ export default {
     },
     watch: {
         selectedMessageKeys: {
-            handler: function() {
+            handler: function () {
                 if (this.selectedMessageKeys.length === 1) {
                     this.selectMessage(this.selectedMessageKeys[0]);
                 }

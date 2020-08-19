@@ -1,5 +1,5 @@
 export default {
-    beforeCreate: function() {
+    beforeCreate: function () {
         if (this.$parent && this.$parent.$i18n) {
             const locales = [this.$i18n.locale, this.$i18n.fallbackLocale];
             if (this.$options.componentI18N && this.$options.componentI18N.messages) {

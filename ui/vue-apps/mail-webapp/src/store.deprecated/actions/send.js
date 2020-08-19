@@ -152,10 +152,7 @@ function validateDraft(draft) {
     let recipients = draft.to.concat(draft.cc).concat(draft.bcc);
     const allRecipientsAreValid = recipients.some(recipient => EmailValidator.validateAddress(recipient));
     if (!allRecipientsAreValid) {
-        throw injector
-            .getProvider("i18n")
-            .get()
-            .t("mail.error.email.address.invalid");
+        throw injector.getProvider("i18n").get().t("mail.error.email.address.invalid");
     }
 }
 

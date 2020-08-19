@@ -76,7 +76,7 @@ export default {
     },
     watch: {
         editingFolder: {
-            handler: function(value) {
+            handler: function (value) {
                 if (value) {
                     this.$nextTick(() => {
                         this.$refs["folder-input"].select();

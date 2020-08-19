@@ -12,9 +12,6 @@ import injector from "@bluemind/inject";
 
 export default {
     compute(abbreviation) {
-        return injector
-            .getProvider("i18n")
-            .get()
-            .t(weekday[abbreviation]);
+        return injector.getProvider("i18n").get().t(weekday[abbreviation]);
     }
 };

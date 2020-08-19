@@ -5,7 +5,7 @@ import LinkifyTransformer from "./transformers/LinkifyTransformer";
 import CallToTransformer from "./transformers/CallToTransformer";
 import PreTransformer from "./transformers/PreTransformer";
 
-export default function(text, additionnalTransformer) {
+export default function (text, additionnalTransformer) {
     let transformer = new LinkifyTransformer(additionnalTransformer); // must be the first transformer to run
     transformer = new CallToTransformer(transformer);
     transformer = new BoldTransformer(transformer);

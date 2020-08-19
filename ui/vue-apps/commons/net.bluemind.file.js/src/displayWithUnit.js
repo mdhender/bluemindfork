@@ -1,4 +1,4 @@
-export default function(fileSize, unit) {
+export default function (fileSize, unit) {
     if (unit === "Go") {
         return (fileSize / Math.pow(10, 9)).toFixed(1) + " Go";
     } else if (unit === "Mo") {

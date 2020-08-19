@@ -131,9 +131,7 @@ function computePath(mailbox, name, parent) {
 }
 
 function path() {
-    return Array.from(arguments)
-        .filter(Boolean)
-        .join("/");
+    return Array.from(arguments).filter(Boolean).join("/");
 }
 
 function translateDefaults(name) {

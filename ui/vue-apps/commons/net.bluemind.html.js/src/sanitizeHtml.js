@@ -31,7 +31,7 @@ const ADDITIONAL_ALLOWED_ATTRIBUTES_FOR_ANY_TAG = [
 
 const ALLOWED_LINK_PROTOCOLS = ["http", "https"];
 
-export default function(html) {
+export default function (html) {
     const customWhiteList = {
         ...xss.whiteList,
         ...ADDITIONAL_ALLOWED_TAGS

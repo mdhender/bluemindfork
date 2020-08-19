@@ -5,7 +5,7 @@
         class="messages-options-for-mobile d-flex justify-content-end"
         v-on="$listeners"
     >
-        <template v-slot:button-content><bm-icon icon="3dots" size="2x"/></template>
+        <template v-slot:button-content><bm-icon icon="3dots" size="2x" /></template>
         <bm-dropdown-item-button v-if="messageFilter !== 'unread'" variant="dark" @click="filterUnread">
             {{ this.$t("mail.list.menu.filter") + " " + this.$t("mail.list.menu.filter.unread") }}
         </bm-dropdown-item-button>

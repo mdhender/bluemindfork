@@ -38,10 +38,10 @@ export const getters = {
     isLoading(state) {
         return state.status === STATUS.LOADING;
     },
-    isRejected: function(state) {
+    isRejected: function (state) {
         return state.status === STATUS.REJECTED;
     },
-    isResolved: function(state) {
+    isResolved: function (state) {
         return state.status === STATUS.RESOLVED;
     }
 };

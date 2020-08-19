@@ -179,10 +179,7 @@ function buildRecipients(sender, senderName, message) {
         }
     ];
 
-    return primaries
-        .concat(carbonCopies)
-        .concat(blindCarbonCopies)
-        .concat(originator);
+    return primaries.concat(carbonCopies).concat(blindCarbonCopies).concat(originator);
 }
 
 function buildRecipientsForKind(kind, addresses) {

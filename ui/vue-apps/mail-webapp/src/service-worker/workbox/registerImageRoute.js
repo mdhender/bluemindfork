@@ -2,7 +2,7 @@ import { registerRoute } from "workbox-routing";
 import { CacheFirst } from "workbox-strategies";
 import { ExpirationPlugin } from "workbox-expiration";
 
-export default function() {
+export default function () {
     registerRoute(
         // Cache image files.
         ({ request }) => request.destination === "image",

@@ -18,7 +18,7 @@ export function visit(node, context, options) {
 
 function visitChildren(node, context, options) {
     let result = "";
-    node.nodes.forEach(function(child) {
+    node.nodes.forEach(function (child) {
         result += node.accept(
             child,
             {

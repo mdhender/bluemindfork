@@ -12,7 +12,7 @@ export default {
             reservoirRefreshInterval: 10 * 1000
         });
 
-        limiter.on("error", function(err) {
+        limiter.on("error", function (err) {
             console.error("[bottleneck] something was wrong", err);
         });
 

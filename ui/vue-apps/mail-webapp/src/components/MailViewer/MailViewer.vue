@@ -109,7 +109,7 @@ export default {
     },
     watch: {
         currentMessageKey: {
-            handler: function() {
+            handler: function () {
                 this.resetScroll();
                 // FIXME: remove this if once https://forge.bluemind.net/jira/browse/FEATWEBML-1017 is fixed
                 if (this.messageFilter !== "unread") {

@@ -37,7 +37,5 @@ function moveInsideSameMailbox(destinationMailbox, destinationInternalId, source
 function moveToDifferentMailbox(messageKeys, sourceUid, destinationUid, dispatch) {
     dispatch("_removeMessages", messageKeys);
     const messageIds = messageKeys.map(key => ItemUri.item(key));
-    return ServiceLocator.getProvider("ItemsTransferPersistence")
-        .get(sourceUid, destinationUid)
-        .move(messageIds);
+    return ServiceLocator.getProvider("ItemsTransferPersistence").get(sourceUid, destinationUid).move(messageIds);
 }

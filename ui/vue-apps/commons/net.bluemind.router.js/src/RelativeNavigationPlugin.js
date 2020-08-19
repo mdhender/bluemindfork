@@ -1,12 +1,12 @@
 export default {
     extends(VueRouter) {
         if (!VueRouter.prototype.navigate) {
-            VueRouter.prototype.navigate = function(to, from) {
+            VueRouter.prototype.navigate = function (to, from) {
                 this.push(this.relative(to, from));
             };
         }
         if (!VueRouter.prototype.relative) {
-            VueRouter.prototype.relative = function(to, from) {
+            VueRouter.prototype.relative = function (to, from) {
                 let { name, params, hash, query } = from || this.currentRoute;
                 const location = normalize(to, { name, params, hash, query });
                 return Object.assign({}, { name, params, hash, query }, location);

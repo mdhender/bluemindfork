@@ -2,7 +2,7 @@ import { MailIDB } from "../mailIDB";
 
 // let sequentialRequest = Promise.resolve();
 
-export default async function({ request }) {
+export default async function ({ request }) {
     const splittedUrl = request.url.split("/");
     const apiUrl = splittedUrl.slice(4, splittedUrl.length).join("/");
     if (isApiSupported(apiUrl)) {

@@ -4,8 +4,9 @@
     "description": "Bluemind configuration files for front-end development",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
-    "publishConfig": {
-        "registry": "https://forge.bluemind.net/nexus/repository/bm-npm/"
+    "dependencies": {
+        "@bluemind/eslint-config": "^4.1.0",
+        "@bluemind/prettier-config": "^4.1.0"
     },
     "prettier": "@bluemind/prettier-config"
 }

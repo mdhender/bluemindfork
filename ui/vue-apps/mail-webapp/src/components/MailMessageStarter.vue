@@ -6,7 +6,7 @@
                 <h1>{{ $t("common.or") }}</h1>
             </div>
             <div class="flex-grow-1 flex-shrink-0 overflow-hidden d-flex flex-column align-items-center">
-                <div class="bg-white py-3 d-table ">
+                <div class="bg-white py-3 d-table">
                     <div class="d-table-cell px-4">
                         <div class="pb-2">{{ $t("mail.message.starter.write") }}</div>
                         <bm-button :to="{ name: 'mail:new' }" variant="primary">

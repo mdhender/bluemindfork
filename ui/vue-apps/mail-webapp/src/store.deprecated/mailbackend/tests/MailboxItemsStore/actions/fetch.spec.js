@@ -49,9 +49,7 @@ describe("[MailItemsStore][actions] : fetch", () => {
     });
 
     test("fail if sortedIds call fail", async () => {
-        ServiceLocator.getProvider("MailboxItemsPersistence")
-            .get()
-            .fetch.mockReturnValueOnce(Promise.reject("Error!"));
+        ServiceLocator.getProvider("MailboxItemsPersistence").get().fetch.mockReturnValueOnce(Promise.reject("Error!"));
         await expect(fetch(context, { messageKey, part, isAttachment: false })).rejects.toBe("Error!");
     });
 

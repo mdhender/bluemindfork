@@ -37,7 +37,7 @@ export default {
         const data = {};
         data.applications = [];
         data.widgets = [];
-        window.bmExtensions_["net.bluemind.banner"].map(function(extension) {
+        window.bmExtensions_["net.bluemind.banner"].map(function (extension) {
             if (extension.application) {
                 const entry = extension.application;
                 data.applications.push({

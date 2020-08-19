@@ -24,7 +24,7 @@
                 </div>
             </transition>
         </div>
-        <div class="d-flex flex-row ">
+        <div class="d-flex flex-row">
             <div class="d-flex flex-column flex-fill overflow-hidden">
                 <div
                     v-bm-tooltip.viewport
@@ -114,7 +114,7 @@ export default {
         from() {
             return this.message.from.dn ? this.message.from.dn : this.message.from.address;
         },
-        displayedDate: function() {
+        displayedDate: function () {
             const today = new Date();
             const messageDate = this.message.date;
             if (DateComparator.isSameDay(messageDate, today)) {
@@ -124,7 +124,7 @@ export default {
             }
             return this.$d(messageDate, "short_date");
         },
-        smallerDisplayedDate: function() {
+        smallerDisplayedDate: function () {
             return this.displayedDate.substring(this.displayedDate.indexOf(" ") + 1);
         },
         widgets() {

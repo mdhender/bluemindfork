@@ -36,10 +36,7 @@ function dispatch(event, payload) {
 
 function anyMatch(obj, name) {
     for (const fullName in obj) {
-        const endPoint = fullName
-            .split("/")
-            .pop()
-            .toLowerCase();
+        const endPoint = fullName.split("/").pop().toLowerCase();
 
         if (endPoint.startsWith(PREFIX) && name === endPoint.replace(PREFIX, "").replace(METHOD_PATTERN, "")) {
             return fullName;
