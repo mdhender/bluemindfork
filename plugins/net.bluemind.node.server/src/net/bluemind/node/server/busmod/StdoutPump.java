@@ -18,10 +18,7 @@
  */
 package net.bluemind.node.server.busmod;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,18 +77,22 @@ public final class StdoutPump implements Runnable {
 
 	public void run() {
 		long time = System.currentTimeMillis();
+		long count = 0;
 		try {
 			Integer exit = null;
-			AtomicLong count = new AtomicLong();
-			readProcessStream(proc.getInputStream(), readInfo -> {
-				if (record) {
-					Buffer chunk = Buffer.buffer(chunk(readInfo.data, readInfo.length));
+			byte[] buf = new byte[32768];
+			while (true) {
+				int read = in.read(buf);
+				if (read == -1) {
+					break;
+				}
+				if (record && read > 0) {
+					Buffer chunk = Buffer.buffer(chunk(buf, read));
 					rp.handle(chunk);
 				}
-				count.addAndGet(1);
-			});
-			readProcessStream(proc.getErrorStream(), r -> {
-			});
+				logger.debug("[{}] pumped {}bytes.", rc.getPid(), read);
+				count++;
+			}
 			logger.debug("Exited stream pump after {}loops.", count);
 			try {
 				exit = proc.waitFor();
@@ -100,7 +101,7 @@ public final class StdoutPump implements Runnable {
 					wsEndpoint.complete(rc.getPid());
 				}
 				rc.setExitValue(exit, time);
-				logger.info("[{}] exit: {} (loops: {})", rc.getPid(), exit, count.get());
+				logger.info("[{}] exit: {} (loops: {})", rc.getPid(), exit, count);
 				proc.destroy();
 			} catch (InterruptedException itse) {
 				logger.error(itse.getMessage(), itse);
@@ -110,31 +111,6 @@ public final class StdoutPump implements Runnable {
 			rp.handle(Buffer.buffer(e.getMessage()));
 			logger.error("[{}] {}", rc.getPid(), e.getMessage());
 			rc.setExitValue(1, time);
-		}
-	}
-
-	private void readProcessStream(InputStream stream, Consumer<ReadInfo> func) throws IOException {
-		new Thread(() -> {
-			byte[] buf = new byte[32768];
-			int read = -1;
-			try {
-				while ((read = stream.read(buf)) != -1) {
-					func.accept(new ReadInfo(read, buf));
-					logger.debug("[{}] pumped {}bytes.", rc.getPid(), read);
-				}
-			} catch (IOException e) {
-				logger.warn("Cannot read process inputstream", e);
-			}
-		}).start();
-	}
-
-	static class ReadInfo {
-		final int length;
-		final byte[] data;
-
-		public ReadInfo(int length, byte[] data) {
-			this.length = length;
-			this.data = data;
 		}
 	}
 }
