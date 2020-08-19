@@ -1,5 +1,5 @@
 const path = require("path");
-const merge = require("webpack-merge");
+const { merge } = require("webpack-merge");
 const prod = require("./node_modules/@bluemind/conf/webpack.prod.js");
 const dev = require("./node_modules/@bluemind/conf/webpack.dev.js");
 
