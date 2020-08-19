@@ -1,6 +1,5 @@
 import VueBus from "../src/index.js";
-import { createLocalVue } from "@vue/test-utils";
-import { shallowMount } from "@vue/test-utils";
+import { createLocalVue, shallowMount } from "@vue/test-utils";
 import Vuex from "vuex";
 
 const Vue = createLocalVue();
@@ -18,14 +17,14 @@ describe("VueBus", () => {
                 busEvent: jest.fn()
             }
         };
-    }),
-        test("VueProxy is installed", () => {
-            const wrapper = shallowMount(TestComponent, {
-                localVue: Vue
-            });
-
-            expect(wrapper.vm.$bus).toBeDefined();
+    });
+    test("VueProxy is installed", () => {
+        const wrapper = shallowMount(TestComponent, {
+            localVue: Vue
         });
+
+        expect(wrapper.vm.$bus).toBeDefined();
+    });
     test("VuexProxy is started", () => {
         new VueBus.Client().$emit("dummy", {});
         expect(mutations.$_VueBus_dummy).toBeCalled();

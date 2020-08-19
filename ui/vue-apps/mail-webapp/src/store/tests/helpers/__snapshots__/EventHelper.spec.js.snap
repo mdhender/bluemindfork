@@ -8,7 +8,7 @@ Object {
       "name": "test",
     },
   ],
-  "date": "2020 M08 14, Fri",
+  "date": "vendredi 14 août 2020",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
@@ -108,7 +108,7 @@ Object {
       "name": "test",
     },
   ],
-  "date": "2020 M08 14, Fri de 10:00 AM à 11:00 AM",
+  "date": "vendredi 14 août 2020 de 10:00 à 11:00",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
@@ -208,7 +208,7 @@ Object {
       "name": "test",
     },
   ],
-  "date": "Tous les jours, de 10:00 AM à 11:30 AM",
+  "date": "Tous les jours, de 10:00 à 11:30",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
@@ -321,7 +321,7 @@ Object {
       "name": "test",
     },
   ],
-  "date": "Toutes les semaines,  le vendredi, de 7:00 AM à 8:00 AM",
+  "date": "Toutes les semaines,  le vendredi, de 07:00 à 08:00",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
@@ -557,7 +557,7 @@ Object {
       "name": "test",
     },
   ],
-  "date": "Le 19 de chaque mois, de 7:00 AM à 7:30 AM",
+  "date": "Le 19 de chaque mois, de 07:00 à 07:30",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",

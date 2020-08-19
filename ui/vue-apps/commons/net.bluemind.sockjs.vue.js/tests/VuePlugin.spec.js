@@ -1,6 +1,5 @@
 import VueSockJSPlugin from "../src/index.js";
-import { createLocalVue } from "@vue/test-utils";
-import { shallowMount } from "@vue/test-utils";
+import { createLocalVue, shallowMount } from "@vue/test-utils";
 import WebSocketClient from "@bluemind/sockjs";
 
 jest.mock("@bluemind/sockjs");
@@ -34,13 +33,13 @@ describe("SockjsVuePlugin", () => {
                 busEvent: jest.fn()
             }
         };
-    }),
-        test("A WebSocketClient is installed in Vue instance", () => {
-            const wrapper = shallowMount(TestComponent, {
-                localVue: Vue
-            });
-            expect(wrapper.vm.$socket).toBeDefined();
+    });
+    test("A WebSocketClient is installed in Vue instance", () => {
+        const wrapper = shallowMount(TestComponent, {
+            localVue: Vue
         });
+        expect(wrapper.vm.$socket).toBeDefined();
+    });
     test("On ping error, a disconnected message is sent on the bus", () => {
         expect(emit).toHaveBeenNthCalledWith(2, "disconnected");
     });
