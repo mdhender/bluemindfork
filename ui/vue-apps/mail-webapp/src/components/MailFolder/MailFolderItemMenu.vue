@@ -1,10 +1,5 @@
 <template>
-    <bm-contextual-menu
-        class="mail-folder-item-menu d-none"
-        boundary="viewport"
-        @shown="shown = true"
-        @hidden="shown = false"
-    >
+    <bm-contextual-menu class="mail-folder-item-menu" boundary="viewport">
         <bm-dropdown-item-button
             :disabled="isDefaultFolder || isReadOnly"
             icon="plus"

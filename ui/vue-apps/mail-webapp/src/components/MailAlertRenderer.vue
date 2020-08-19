@@ -36,10 +36,7 @@ export default {
             createElement(
                 "router-link",
                 {
-                    attrs: {
-                        place: "folderNameWithLink",
-                        style: "font-style: normal !important; font-weight: bold;"
-                    },
+                    attrs: { place: "folderNameWithLink" },
                     class: "ml-1",
                     props: { to: alert.props.folderNameLink }
                 },
@@ -51,8 +48,7 @@ export default {
             createElement("mail-folder-icon", {
                 attrs: {
                     place: "oldFolderName",
-                    folder: alert.props.oldFolder,
-                    style: "font-style: normal !important; font-weight: bold;"
+                    folder: alert.props.oldFolder
                 },
                 class: "ml-1"
             })
@@ -60,17 +56,13 @@ export default {
 
         children.push(createElement("br", { attrs: { place: "br" } }));
 
-        children.push(
-            createElement(
-                "a",
-                {
-                    attrs: { place: "reloadLink", href: "." }
-                },
-                [this.$t("common.reload")]
-            )
-        );
+        children.push(createElement("a", { attrs: { place: "reloadLink", href: "." } }, [this.$t("common.reload")]));
 
-        return createElement("i18n", { props: { path: alert.key, places: alert.props } }, children);
+        return createElement(
+            "i18n",
+            { props: { path: alert.key, places: alert.props }, class: "mail-alert-renderer" },
+            children
+        );
     }
 };
 </script>
@@ -78,9 +70,20 @@ export default {
 <style lang="scss" scoped>
 @import "@bluemind/styleguide/css/_variables.scss";
 
-a,
-a:visited {
-    font-style: italic !important;
-    color: theme-color("dark") !important;
+.mail-alert-renderer {
+    a,
+    a:visited {
+        font-style: italic !important;
+        color: theme-color("dark") !important;
+
+        .mail-folder-icon {
+            text-decoration: underline;
+        }
+    }
+
+    .mail-folder-icon {
+        font-style: normal !important;
+        font-weight: bold;
+    }
 }
 </style>

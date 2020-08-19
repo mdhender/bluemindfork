@@ -19,9 +19,9 @@
             <div class="bg-white py-2 px-3 actions-button w-75 mt-4">
                 <div class="arrow-up" />
                 <bm-button v-if="!areAllSelectedMessagesRead" variant="outline-secondary" @click="markAsRead()">
-                    <bm-label-icon icon="read">{{
-                        $tc("mail.actions.mark_as_read", selectedMessageKeys.length)
-                    }}</bm-label-icon>
+                    <bm-label-icon icon="read">
+                        {{ $tc("mail.actions.mark_as_read", selectedMessageKeys.length) }}
+                    </bm-label-icon>
                 </bm-button>
                 <bm-button
                     v-if="!areAllSelectedMessagesUnread"
@@ -37,9 +37,9 @@
                     variant="outline-secondary"
                     @click="markAsFlagged(selectedMessageKeys)"
                 >
-                    <bm-label-icon icon="flag-outline">{{
-                        $tc("mail.actions.mark_flagged", selectedMessageKeys.length)
-                    }}</bm-label-icon>
+                    <bm-label-icon icon="flag-outline">
+                        {{ $tc("mail.actions.mark_flagged", selectedMessageKeys.length) }}
+                    </bm-label-icon>
                 </bm-button>
                 <bm-button
                     v-if="!areAllSelectedMessagesUnflagged && !anyMessageReadOnly"
@@ -71,13 +71,17 @@
             <div v-if="!areAllMessagesSelected" class="mt-3">
                 <h3 v-if="!isSearchMode" class="d-inline px-3 align-middle">
                     {{ $t("mail.message.select.all.folder") }}
-                    <mail-folder-icon :shared="isFolderOfMailshare(currentFolder)" :folder="currentFolder">
-                        <span class="font-weight-bold">{{ currentFolder.path }}</span>
+                    <mail-folder-icon
+                        :shared="isFolderOfMailshare(currentFolder)"
+                        :folder="currentFolder"
+                        class="font-weight-bold ml-1"
+                    >
+                        {{ currentFolder.path }}
                     </mail-folder-icon>
                 </h3>
                 <h3 v-else class="d-inline px-3 align-middle">
                     {{ $t("mail.message.select.all.search") }}
-                    <bm-icon icon="search" /> <span class="font-weight-bold">"{{ search.pattern }}"</span>
+                    <bm-icon icon="search" /><span class="font-weight-bold">"{{ search.pattern }}"</span>
                 </h3>
                 <bm-button @click="addAllToSelectedMessages(itemKeys)">{{ $t("common.select.all") }}</bm-button>
             </div>

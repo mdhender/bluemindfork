@@ -1069,9 +1069,9 @@
     axios "^0.18.0"
 
 "@bluemind/styleguide@^0.1.0":
-  version "0.1.1259"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1259.tgz#cb22b505f5cd88400358a3d5a533ff2646ac776b"
-  integrity sha512-g6p9rAkI4KXx/IaVBz7VO/X+OzO/Qo9AqPQPK/KV9s47OhgHT4x+FMLdGgIqqfFzBWzkvynq7MR45LUOcEAoVg==
+  version "0.1.1262"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1262.tgz#2ab17a9ef9c91517d370bec992156f2afc42e512"
+  integrity sha512-JdcZ3mtXh/93UuJpWa4BhqEdsT2Ecg02ODlpu5TkDojSv1w2CqWRfvC49xMrX5oX3r9n1xST/RyECeK+zOGt3g==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"

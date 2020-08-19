@@ -50,12 +50,10 @@
             <!-- v-show is overridden by d-lg-block in large devices -->
             <bm-row
                 v-show="showFolders"
-                class="position-lg-static position-absolute d-lg-block px-0 h-100 col-12 col-lg-2 z-index-200 overlay top-0 bottom-0"
+                class="position-lg-static position-absolute d-lg-block px-0 col-12 col-lg-2 z-index-200 overlay top-0 bottom-0"
             >
                 <bm-col cols="10" lg="12" class="mail-folder-sidebar-wrapper bg-surface h-100">
-                    <div class="h-100 scroller scroller-visible-on-hover">
-                        <mail-folder-sidebar class="d-inline-block" @toggle-folders="toggleFolders" />
-                    </div>
+                    <mail-folder-sidebar @toggle-folders="toggleFolders" />
                 </bm-col>
             </bm-row>
             <bm-col cols="12" lg="3" class="pl-lg-2 px-0 d-lg-block" :class="hideListInResponsiveMode ? 'd-none' : ''">
@@ -174,10 +172,6 @@ function setFavicon() {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
-
-.flex-fill {
-    min-height: 0;
-}
 
 .mail-app {
     .topbar {

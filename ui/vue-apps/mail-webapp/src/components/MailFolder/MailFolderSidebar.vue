@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-folder-sidebar">
+    <div class="mail-folder-sidebar h-100 scroller-y scroller-visible-on-hover">
         <mail-folder-tree
             :tree="buildTree(myMailboxFolders)"
             :collapse-name="mailboxEmail"

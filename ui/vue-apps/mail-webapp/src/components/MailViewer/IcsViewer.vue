@@ -151,19 +151,15 @@ export default {
         margin-left: 0;
     }
 
-    .header {
-        .top {
-            .fa-check {
-                color: $green;
-            }
-
-            .fa-cross {
-                color: $red;
-            }
-
-            .fa-interrogation {
-                color: $purple;
-            }
+    .header .top {
+        .fa-check {
+            color: $green;
+        }
+        .fa-cross {
+            color: $red;
+        }
+        .fa-interrogation {
+            color: $purple;
         }
     }
 
@@ -173,7 +169,7 @@ export default {
             margin-left: #{-1rem - $sp-3};
 
             svg {
-                margin-right: $sp-3;
+                margin-right: $sp-3 !important;
             }
         }
     }

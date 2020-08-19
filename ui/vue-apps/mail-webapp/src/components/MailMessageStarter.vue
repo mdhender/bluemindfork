@@ -10,7 +10,7 @@
                     <div class="d-table-cell px-4">
                         <div class="pb-2">{{ $t("mail.message.starter.write") }}</div>
                         <bm-button :to="{ name: 'mail:new' }" variant="primary">
-                            <bm-label-icon icon="plus"> {{ $t("mail.main.new") }} </bm-label-icon>
+                            <bm-label-icon icon="plus">{{ $t("mail.main.new") }}</bm-label-icon>
                         </bm-button>
                     </div>
                     <div class="d-table-cell px-4">
@@ -19,9 +19,7 @@
                             :to="{ name: 'v:mail:home', params: { folder: MY_DRAFTS.name } }"
                             variant="secondary"
                         >
-                            <bm-label-icon icon="pencil">
-                                {{ $t("mail.message.starter.display.drafts") }}
-                            </bm-label-icon>
+                            <bm-label-icon icon="pencil">{{ $t("mail.message.starter.display.drafts") }}</bm-label-icon>
                         </bm-button>
                     </div>
                 </div>

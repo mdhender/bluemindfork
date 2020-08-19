@@ -6,9 +6,14 @@
         :icon="icon"
         :aria-label="shared && $t('common.mailshares')"
     />
-    <bm-label-icon v-else class="mail-folder-icon" :icon="icon" :aria-label="shared && $t('common.mailshares')">
-        <slot>{{ folder.name }}</slot>
-    </bm-label-icon>
+    <bm-label-icon
+        v-else
+        class="mail-folder-icon"
+        :icon="icon"
+        :aria-label="shared && $t('common.mailshares')"
+        :tooltip="folder.path"
+        >{{ folder.name }}</bm-label-icon
+    >
 </template>
 
 <script>

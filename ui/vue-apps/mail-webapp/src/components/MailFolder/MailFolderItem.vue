@@ -4,7 +4,7 @@
         :states="{ active: false }"
         :accept="['message']"
         :value="folder"
-        class="mail-folder-item w-100 d-flex align-items-center"
+        class="mail-folder-item flex-fill d-inline-flex align-items-center"
     >
         <mail-folder-icon
             :shared="shared"
@@ -12,15 +12,20 @@
             class="flex-fill"
             :class="folder.unread > 0 ? 'font-weight-bold' : ''"
         />
-        <div v-if="!folder.writable" v-bm-tooltip.top.viewport class="mr-2" :title="$t('mail.folder.access.limited')">
+        <div v-if="!folder.writable" v-bm-tooltip.top.viewport :title="$t('mail.folder.access.limited')" class="pr-1">
             <bm-icon icon="info-circle" />
         </div>
-        <mail-folder-item-menu :folder="folder" @edit="toggleEditFolder(folder.key)" />
+        <mail-folder-item-menu
+            :folder="folder"
+            class="mx-1"
+            :class="folder.unread > 0 ? 'd-none' : ''"
+            @edit="toggleEditFolder(folder.key)"
+        />
         <bm-counter-badge
             v-if="folder.unread > 0"
             :value="folder.unread"
             :variant="folder.key != activeFolder ? 'secondary' : 'primary'"
-            class="mr-1 d-block"
+            class="mx-1 d-block"
         />
     </bm-dropzone>
     <mail-folder-input
@@ -76,7 +81,7 @@ export default {
     },
     watch: {
         editingFolder: {
-            handler: function (value) {
+            handler: function(value) {
                 if (value) {
                     this.$nextTick(() => {
                         this.$refs["folder-input"].select();
@@ -123,20 +128,33 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-folder-item {
+    min-height: 26px !important;
+
     .mail-folder-item-menu,
     .bm-counter-badge {
-        right: 0;
+        min-width: 1.4rem;
     }
 
-    .mail-folder-icon {
-        padding: {
-            top: $sp-1;
-            bottom: $sp-1;
+    .mail-folder-icon > div {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: break-spaces;
+        line-height: 1.2;
+        word-break: break-word;
+    }
+
+    .mail-folder-item-menu {
+        visibility: hidden;
+
+        & > button {
+            padding: 0;
         }
-    }
-
-    .mail-folder-item-menu.d-flex + .bm-counter-badge {
-        display: none !important;
+        &.d-flex + .bm-counter-badge {
+            display: none !important;
+        }
     }
 }
 
@@ -144,6 +162,7 @@ export default {
     .mail-folder-item:hover {
         .mail-folder-item-menu {
             display: flex !important;
+            visibility: visible;
         }
         .bm-counter-badge {
             display: none !important;

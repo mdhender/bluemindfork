@@ -2,7 +2,7 @@
     <div>
         <bm-button
             variant="inline-info-dark"
-            class="collapse-tree-btn d-flex align-items-center pb-2 pt-3 border-0 pl-1 w-100"
+            class="collapse-tree-btn d-flex align-items-center pb-2 pt-3 border-0 pl-2 w-100"
             :aria-controls="'collapse-tree-' + collapseName"
             :aria-expanded="isTreeExpanded"
             @click="isTreeExpanded = !isTreeExpanded"
