@@ -90,7 +90,9 @@ public final class StdoutPump implements Runnable {
 				}
 				count.addAndGet(1);
 			});
-			readProcessStream(proc.getErrorStream(), r -> {
+			readProcessStream(proc.getErrorStream(), readInfo -> {
+				logger.warn("Errorstream of command {} : {}", rc.name,
+						new String(chunk(readInfo.data, readInfo.length)));
 			});
 			logger.debug("Exited stream pump after {}loops.", count);
 			try {
