@@ -235,8 +235,9 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		String query = "SELECT item.id, rec.imap_uid FROM t_mailbox_record rec "
 				+ "INNER JOIN t_container_item item ON rec.item_id=item.id " //
 				+ "WHERE item.container_id=? " //
-				+ "AND (item.flags::bit(32) & (" + ItemFlag.Deleted.value + ")::bit(32))=0::bit(32)" // not deleted
-				+ "AND (item.flags::bit(32) & (" + ItemFlag.Seen.value + ")::bit(32))=0::bit(32)"; // not seen
+				+ "AND (item.flags::bit(32) & (" + ItemFlag.Deleted.value + ")::bit(32))=0::bit(32) " // not deleted
+				+ "AND (item.flags::bit(32) & (" + ItemFlag.Seen.value + ")::bit(32))=0::bit(32) " // not seen
+				+ "ORDER BY internal_date DESC";
 
 		return select(query, rs -> new ImapBinding(), (rs, index, value) -> {
 			value.itemId = rs.getInt(index++);
