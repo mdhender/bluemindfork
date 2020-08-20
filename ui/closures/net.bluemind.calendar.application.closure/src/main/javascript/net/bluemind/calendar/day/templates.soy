@@ -323,6 +323,31 @@
             </tr>
           {/if}
 
+          {if $event.url}
+            <tr>
+              <th>{msg meaning="calendar.event.url" desc="event url label"}URL{/msg}</th>
+              <td colspan="2"><a target="blank" href="{$event.url}">{$event.url}</a></td>
+            </tr>
+          {/if}
+
+          {if $event.description}
+            <tr>
+              <th>{msg meaning="calendar.event.description" desc="event description label"}Description{/msg}</th>
+              <td colspan="2">{$event.description |noAutoescape}</td>
+            </tr>
+          {/if}
+
+          {if $event.attachments and length($event.attachments) > 0}
+            <tr>
+              <th>{msg meaning="calendar.event.attachments" desc="event attachments label"}Attachments{/msg}</th>
+              <td colspan="2">
+                {foreach $attachment in $event.attachments}
+                    <a href="{$attachment.publicUrl}" target="_blank">{$attachment.name}</a><br/>
+                {/foreach}
+              </td>
+            </tr>
+          {/if}
+
           {if $event.states.meeting}
             <tr>
               <th class="{css attendees-label}">{msg meaning="calendar.event.attendees" desc="attendees"}Attendees{/msg}</th>
