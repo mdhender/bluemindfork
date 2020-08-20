@@ -49,7 +49,8 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.backend.mail.replica.api,
  net.bluemind.core.sessions,
  net.bluemind.network.topology,
- net.bluemind.user.hook
+ net.bluemind.user.hook,
+ net.bluemind.scheduledjob.scheduler
 Export-Package: net.bluemind.mailbox.service,
  net.bluemind.mailbox.service.common,
  net.bluemind.mailbox.service.hook,

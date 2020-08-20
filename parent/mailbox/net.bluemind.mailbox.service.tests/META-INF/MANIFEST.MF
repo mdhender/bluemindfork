@@ -35,6 +35,7 @@ Require-Bundle: org.junit,
  net.bluemind.mailbox.persistence,
  net.bluemind.role.api;bundle-version="4.1.0",
  net.bluemind.system.api,
- net.bluemind.config
+ net.bluemind.config,
+ net.bluemind.scheduledjob.scheduler
 Automatic-Module-Name: net.bluemind.mailbox.service.tests
 
