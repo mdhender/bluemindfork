@@ -93,7 +93,7 @@ export default {
         };
         data.user = user;
         data.software = software;
-        data.areSettingsOpened = true;
+        data.areSettingsOpened = false;
         return data;
     },
     computed: {
