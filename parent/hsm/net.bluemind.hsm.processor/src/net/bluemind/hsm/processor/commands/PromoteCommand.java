@@ -82,7 +82,7 @@ public class PromoteCommand extends AbstractHSMCommand {
 	private TierChangeResult promote(HSMRunStats stats, Promote p) throws IOException {
 		p.flags.remove("bmarchived");
 
-		FlagsList flags = FlagsList.fromString("(" + Joiner.on(" ").join(p.flags) + ")");
+		FlagsList flags = FlagsList.fromString(Joiner.on(" ").join(p.flags));
 		try (InputStream toRestore = storage.peek(context.getSecurityContext().getContainerUid(),
 				context.getLoginContext().uid, p.hsmId); CountingInputStream cis = new CountingInputStream(toRestore)) {
 			int restored = sc.append(folderPath, cis, flags, p.internalDate);
