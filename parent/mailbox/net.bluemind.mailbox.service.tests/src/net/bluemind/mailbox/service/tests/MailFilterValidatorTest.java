@@ -67,6 +67,19 @@ public class MailFilterValidatorTest {
 	}
 
 	@Test
+	public void testInvalidateComposedFilter() {
+		MailFilter filter = new MailFilter();
+		MailFilter.Rule rule1 = new MailFilter.Rule();
+		rule1 = new MailFilter.Rule();
+		rule1.criteria = "FROM:IS: toto@yahoo.fr\nbad header:IS: fdss";
+		rule1.active = true;
+		rule1.read = true;
+		filter.rules = Arrays.asList(rule1);
+
+		checkFail(SecurityContext.SYSTEM, filter, ErrorCode.INVALID_PARAMETER);
+	}
+
+	@Test
 	public void testValidateRules() {
 		MailFilter filter = new MailFilter();
 		MailFilter.Rule rule = new MailFilter.Rule();

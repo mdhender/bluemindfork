@@ -75,14 +75,17 @@ public class MailFilterValidator implements IValidator<MailFilter> {
 		ParametersValidator.nullOrNotEmpty(rule.criteria);
 
 		if (rule.criteria != null) {
-			String[] splittedCriteria = rule.criteria.split(":");
-			if (splittedCriteria.length > 1) {
-				// first param is a HEADER
-				String headerName = splittedCriteria[0];
-				// 1*<any CHAR, excluding CTLs, SPACE, and ":">
-				if (!headerName.chars().allMatch(c -> c > 31 && c != ' ' && c < 127 && c != ':')) {
-					throw new ServerFault("header name " + headerName + " contains invalid characters",
-							ErrorCode.INVALID_PARAMETER);
+			String[] lines = rule.criteria.split("\n");
+			for (String line : lines) {
+				String[] splittedCriteria = line.split(":");
+				if (splittedCriteria.length > 1) {
+					// first param is a HEADER
+					String headerName = splittedCriteria[0];
+					// 1*<any CHAR, excluding CTLs, SPACE, and ":">
+					if (!headerName.chars().allMatch(c -> c > 31 && c != ' ' && c < 127 && c != ':')) {
+						throw new ServerFault("header name " + headerName + " contains invalid characters",
+								ErrorCode.INVALID_PARAMETER);
+					}
 				}
 			}
 		}
