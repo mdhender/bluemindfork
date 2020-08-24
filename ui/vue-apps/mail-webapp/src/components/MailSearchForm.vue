@@ -77,7 +77,7 @@ import { mapGetters, mapMutations, mapState } from "vuex";
 import debounce from "lodash.debounce";
 import GlobalEvents from "vue-global-events";
 import { SearchHelper } from "../store.deprecated/SearchHelper";
-import { FolderAdaptor } from "../store/helpers/FolderAdaptor";
+import { FolderAdaptor } from "../store/folders/helpers/FolderAdaptor";
 
 const SPINNER_TIMEOUT = 250;
 const UPDATE_ROUTE_TIMEOUT = 1000;

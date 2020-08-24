@@ -28,7 +28,7 @@
 <script>
 import { mapGetters } from "vuex";
 import { BmFormInput, BmIcon, BmNotice } from "@bluemind/styleguide";
-import { FolderAdaptor } from "../store/helpers/FolderAdaptor";
+import { FolderAdaptor } from "../store/folders/helpers/FolderAdaptor";
 
 export default {
     name: "MailFolderInput",

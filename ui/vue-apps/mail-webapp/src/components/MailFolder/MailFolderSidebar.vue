@@ -18,7 +18,7 @@
 <script>
 import { mapGetters, mapState } from "vuex";
 import injector from "@bluemind/inject";
-import { DEFAULT_FOLDERS } from "../../store/helpers/DefaultFolders";
+import { DEFAULT_FOLDERS } from "../../store/folders/helpers/DefaultFolders";
 import MailFolderTree from "./MailFolderTree";
 
 export default {

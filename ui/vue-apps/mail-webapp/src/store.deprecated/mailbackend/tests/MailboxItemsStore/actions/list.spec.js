@@ -17,8 +17,10 @@ ServiceLocator.getProvider.mockReturnValue({
     get
 });
 
+//FIXME: Something is wrong if I need to mock dispatch
 const context = {
-    commit: jest.fn()
+    commit: jest.fn(),
+    dispatch: jest.fn()
 };
 
 describe("[MailItemsStore][actions] : list", () => {

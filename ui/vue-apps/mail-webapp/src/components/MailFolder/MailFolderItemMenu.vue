@@ -31,7 +31,8 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
-import { FolderAdaptor } from "../../store/helpers/FolderAdaptor";
+import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
+import { TOGGLE_FOLDER, ADD_FOLDER } from "../../store/folders/mutations";
 
 export default {
     name: "MailFolderItemMenu",
@@ -60,7 +61,7 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", ["removeFolder", "markFolderAsRead"]),
-        ...mapMutations("mail", ["CREATE_FOLDER", "TOGGLE_EDIT_FOLDER", "TOGGLE_FOLDER"]),
+        ...mapMutations("mail", [ADD_FOLDER, "TOGGLE_EDIT_FOLDER", TOGGLE_FOLDER]),
         async deleteFolder() {
             const modalTitleKey = this.hasChildren(this.folder.key)
                 ? "mail.folder.delete.dialog.question.with_subfolders"
@@ -85,7 +86,7 @@ export default {
         async createSubFolder() {
             const mailbox = this.mailboxes[this.folder.mailbox];
             const key = UUIDGenerator.generate();
-            this.CREATE_FOLDER({ key, name: "", parent: this.folder.key, mailbox });
+            this.ADD_FOLDER({ key, name: "", parent: this.folder.key, mailbox });
             await this.$nextTick();
             // TODO: Remove when new store is complete. mUsing key as uid here is a hack.
             this.TOGGLE_EDIT_FOLDER(key);

@@ -1,8 +1,11 @@
-import { FolderAdaptor } from "../../helpers/FolderAdaptor";
-import remotefolder from "../data/remotefolder.json";
 import { MailboxType } from "../../helpers/MailboxAdaptor";
+import remotefolder from "../../tests/data/remotefolder.json";
+import { FolderAdaptor } from "../helpers/FolderAdaptor";
 
-describe("FolderAdaptor", () => {
+//TODO: rework on folder adaptors
+// - test coverage is low
+// - interfaces are uncertain and heterogeneous
+describe("Folder adaptors", () => {
     test("fromMailboxFolder", () => {
         const mailbox = {
             uid: "135adc10-db84-440e-aebc-e10d185fa227",
@@ -42,7 +45,7 @@ describe("FolderAdaptor", () => {
             expect(FolderAdaptor.toMailboxFolder(folder, mailbox)).toMatchInlineSnapshot(`
                 Object {
                   "internalId": 460,
-                  "uid": "135adc10-db84-440e-aebc-e10d185fa227",
+                  "uid": undefined,
                   "value": Object {
                     "fullName": "Archives",
                     "name": "Archives",
@@ -51,7 +54,6 @@ describe("FolderAdaptor", () => {
                 }
             `);
         });
-
         test("Export a local folder in a mailbox with a root folder to remote folder", () => {
             const folder = {
                 id: 460,
@@ -65,7 +67,7 @@ describe("FolderAdaptor", () => {
             expect(FolderAdaptor.toMailboxFolder(folder, mailbox)).toMatchInlineSnapshot(`
                 Object {
                   "internalId": 460,
-                  "uid": "135adc10-db84-440e-aebc-e10d185fa227",
+                  "uid": undefined,
                   "value": Object {
                     "fullName": "Archives",
                     "name": "Archives",

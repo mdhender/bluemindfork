@@ -18,7 +18,7 @@
 
 <script>
 import { BmLabelIcon, BmIcon } from "@bluemind/styleguide";
-import { DEFAULT_FOLDER_NAMES } from "../store/helpers/DefaultFolders";
+import { DEFAULT_FOLDER_NAMES } from "../store/folders/helpers/DefaultFolders";
 
 export default {
     name: "MailFolderIcon",

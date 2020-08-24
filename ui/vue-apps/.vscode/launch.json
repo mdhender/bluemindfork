@@ -28,13 +28,13 @@
         {
             "name": "vuejs: firefox",
             "type": "firefox",
-            "request": "launch",
+            "request": "attach",
             "url": "http://localhost:8080/webapp/mail",
             "webRoot": "${workspaceFolder}/src",
             "pathMappings": [
                 {
-                    "url": "webpack://bluemind/webapp.root/src/run.js",
-                    "path": "${workspaceFolder}/mail-webapp/net.bluemind.webapp.mail.js/src/run.js"
+                    "url": "webpack://bluemind/webapp.mail",
+                    "path": "${workspaceFolder}/mail-webapp"
                 }
             ]
         }

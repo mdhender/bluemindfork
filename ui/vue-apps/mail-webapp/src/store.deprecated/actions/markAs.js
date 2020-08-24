@@ -1,6 +1,7 @@
 import { Flag } from "@bluemind/email";
 import ItemUri from "@bluemind/item-uri";
 import UUIDGenerator from "@bluemind/uuid";
+import { SET_UNREAD_COUNT } from "../../store/folders/mutations";
 
 export function markAsRead(context, messageKeys) {
     const updateAction = "messages/addFlag";
@@ -113,7 +114,7 @@ function setUnreadCount(context, messageKeys, updateAction) {
         const length = messageKeysByFolder[folder].length;
         const value = updateAction === "messages/deleteFlag" ? length : -length;
         context.commit(
-            "mail/SET_UNREAD_COUNT",
+            "mail/" + SET_UNREAD_COUNT,
             {
                 key: folder,
                 count: context.rootState.mail.folders[folder].unread + value //FIXME

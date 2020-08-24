@@ -4,6 +4,8 @@ import ContainerObserver from "@bluemind/containerobserver";
 import ItemUri from "@bluemind/item-uri";
 import SearchHelper from "../SearchHelper";
 import router from "@bluemind/router";
+import { FOLDER_BY_PATH } from "../../store/folders/getters";
+import { TOGGLE_FOLDER } from "../../store/folders/mutations";
 
 export async function loadMessageList(
     { dispatch, commit, state, rootState, rootGetters },
@@ -77,7 +79,7 @@ function locateFolder(local, mailshare, rootState, rootGetters) {
             console.error("SHOULD NOT HAPPEN ANYMORE, USE folderUid instead of folderKey in router");
             folder = rootState.mail.folders[ItemUri.item(keyOrPath)];
         } else {
-            folder = rootGetters["mail/FOLDER_BY_PATH"](keyOrPath);
+            folder = rootGetters["mail/" + FOLDER_BY_PATH](keyOrPath);
         }
         if (!folder) {
             router.push({ name: "mail:root" });
@@ -90,7 +92,7 @@ function expandParents(commit, folder, rootState) {
     if (folder.parent) {
         const parentFolder = rootState.mail.folders[folder.parent];
         if (!parentFolder.expanded) {
-            commit("mail/TOGGLE_FOLDER", folder.parent, { root: true });
+            commit("mail/" + TOGGLE_FOLDER, folder.parent, { root: true });
         }
         expandParents(commit, parentFolder, rootState);
     }

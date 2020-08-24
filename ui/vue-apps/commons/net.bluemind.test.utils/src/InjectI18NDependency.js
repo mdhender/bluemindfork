@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueI18n from "vue-i18n";
 import { DateTimeFormats } from "@bluemind/i18n";
+import CommonL10N from "@bluemind/l10n";
 import injector from "@bluemind/inject";
 
 jest.mock("@bluemind/styleguide", () => ({
@@ -9,7 +10,6 @@ jest.mock("@bluemind/styleguide", () => ({
         fr: {}
     }
 }));
-import CommonL10N from "@bluemind/l10n";
 
 export default {
     registerCommonL10N: () => {

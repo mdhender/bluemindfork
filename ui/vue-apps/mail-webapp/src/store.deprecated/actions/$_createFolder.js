@@ -1,4 +1,6 @@
 import UUIDGenerator from "@bluemind/uuid";
+import { REMOVE_FOLDER, ADD_FOLDER } from "../../store/folders/mutations";
+import { CREATE_FOLDER } from "../../store/folders/actions";
 
 export function $_createFolder(context, { folder, mailboxUid }) {
     if (folder.key) {
@@ -43,10 +45,10 @@ function getNearestFolder(folder, rootState) {
 async function createFolder(name, parentKey, mailboxUid, context) {
     const mailbox = context.rootState.mail.mailboxes[mailboxUid];
     const key = UUIDGenerator.generate();
-    await context.dispatch("mail/CREATE_FOLDER", { key, name, parent: parentKey, mailbox }, { root: true });
+    await context.dispatch("mail/" + CREATE_FOLDER, { key, name, parent: parentKey, mailbox }, { root: true });
     const folder = context.rootState.mail.folders[key];
-    context.commit("mail/REMOVE_FOLDER", key, { root: true });
+    context.commit("mail/" + REMOVE_FOLDER, key, { root: true });
     folder.key = folder.uid;
-    context.commit("mail/ADD_FOLDER", folder, { root: true });
+    context.commit("mail/" + ADD_FOLDER, folder, { root: true });
     return folder.uid;
 }

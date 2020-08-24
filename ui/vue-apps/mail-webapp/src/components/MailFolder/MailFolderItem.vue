@@ -49,6 +49,7 @@ import { BmCounterBadge, BmDropzone, BmIcon, BmTooltip } from "@bluemind/stylegu
 import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItemMenu from "./MailFolderItemMenu";
+import { REMOVE_FOLDER } from "../../store/folders/mutations";
 
 export default {
     name: "MailFolderItem",
@@ -93,7 +94,7 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", ["renameFolder", "createFolder"]),
-        ...mapMutations("mail", ["REMOVE_FOLDER", "TOGGLE_EDIT_FOLDER"]),
+        ...mapMutations("mail", [REMOVE_FOLDER, "TOGGLE_EDIT_FOLDER"]),
         toggleEditFolder(folderUid) {
             this.TOGGLE_EDIT_FOLDER(folderUid);
         },

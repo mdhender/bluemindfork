@@ -10,13 +10,13 @@ export function $_move(context, { messageKeys, destinationKey }) {
     );
 }
 
-function moveByFolder({ dispatch, commit, rootState }, messageKeys, sourceKey, destinationKey) {
+function moveByFolder({ dispatch, rootState }, messageKeys, sourceKey, destinationKey) {
     const destination = rootState.mail.folders[destinationKey];
     const source = rootState.mail.folders[sourceKey];
     if (destination.mailbox === source.mailbox) {
         return moveInsideSameMailbox(destination.mailbox, destination.id, source.id, messageKeys, dispatch);
     } else {
-        return moveToDifferentMailbox(messageKeys, sourceKey, destination.uid, dispatch, commit);
+        return moveToDifferentMailbox(messageKeys, sourceKey, destination.uid, dispatch);
     }
 }
 

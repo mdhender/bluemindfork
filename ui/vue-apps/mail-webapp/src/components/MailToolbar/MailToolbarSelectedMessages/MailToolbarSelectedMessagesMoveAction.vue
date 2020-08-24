@@ -79,7 +79,7 @@ import {
 } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
-import { FolderAdaptor } from "../../../store/helpers/FolderAdaptor";
+import { FolderAdaptor } from "../../../store/folders/helpers/FolderAdaptor";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailFolderInput from "../../MailFolderInput";
 
