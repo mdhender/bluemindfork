@@ -365,6 +365,62 @@ net.bluemind.calendar.day.DayPresenter.prototype.adaptVEvent_ = function(vevent,
   vevent.states.synced = vseries.states.synced;
   vevent.states.error = vseries.states.error;
   vevent.tooltip = vseries.tooltip || vevent.summary;
+
+
+  if (vevent.rrule && vevent.rrule.until) {
+    if (vevent.states.allday){
+       vevent.rrule.until = this.formatter.date.format(vevent.rrule.until);
+    } else {
+       vevent.rrule.until = this.formatter.datetime.format(vevent.rrule.until);
+    }
+  }
+
+  if (vevent.rrule && vevent.rrule.byday && vevent.rrule.byday.length > 0) {
+    var weekdays = goog.array.clone(goog.i18n.DateTimeSymbols_en.STANDALONEWEEKDAYS);
+    var i18n = goog.array.clone(goog.i18n.DateTimeSymbols.STANDALONEWEEKDAYS);
+
+    var byday = [];
+    for (var i = 0; i < vevent.rrule.byday.length; i++) {
+      var day = vevent.rrule.byday[i].day;
+      var offset = vevent.rrule.byday[i].offset;
+      var index = goog.array.indexOf(goog.i18n.DateTimeSymbols_en.STANDALONEWEEKDAYS, day);
+      if (offset == 0) {
+        byday.push(i18n[index]);
+      } else if (!goog.isDefAndNotNull(vevent.rrule.bymonth)) {
+        byday.push({
+          day : i18n[index],
+          offset : offset
+        });
+      } else {
+        byday.push({
+          day : i18n[index],
+          month : goog.i18n.DateTimeSymbols.STANDALONEMONTHS[vevent.rrule.bymonth],
+          offset : offset
+        });
+      }
+    }
+    vevent.rrule.byday = byday;
+  }
+
+  goog.array.forEach(vevent.alarm, function(a){
+    var duration = a.trigger;
+    var unit = 1;
+    if (a.trigger == 0) {
+      duration = 0;
+      unit = 1;
+    } else if (a.trigger % 86400 == 0) {
+      duration = a.trigger / 86400;
+      unit = 86400;
+    } else if (a.trigger % 3600 == 0) {
+      duration = a.trigger / 3600;
+      unit = 3600;
+    } else if (a.trigger % 60 == 0) {
+      duration = a.trigger / 60;
+      unit = 60;
+    }
+    a.duration = duration;
+    a.unit = unit;
+  });
   
 };
 
