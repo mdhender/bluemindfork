@@ -16,7 +16,6 @@ import Vue2TouchEvents from "vue2-touch-events";
 import VueBus from "@bluemind/vue-bus";
 import VueI18n from "vue-i18n";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
-import WebsocketClient from "@bluemind/sockjs";
 
 initWebApp();
 
@@ -26,7 +25,6 @@ function initWebApp() {
     registerDependencies(userSession);
     initStore();
     setVuePlugins();
-    setNotificationWhenReceivingMail(userSession);
     const i18n = initI18N(userSession);
 
     new Vue({
@@ -36,6 +34,8 @@ function initWebApp() {
         router,
         store
     });
+
+    new NotificationManager().setNotificationWhenReceivingMail(userSession);
 }
 
 function setVuePlugins() {
@@ -44,28 +44,6 @@ function setVuePlugins() {
     Vue.use(VueSockjsPlugin, VueBus);
     Vue.use(Vue2TouchEvents, { disableClick: true });
     Vue.use(BmModalPlugin);
-}
-
-function setNotificationWhenReceivingMail(userSession) {
-    if (userSession.roles.includes("hasMail")) {
-        const notificationManager = new NotificationManager();
-
-        const mailAppExtension = window.bmExtensions_["net.bluemind.banner"].find(
-            extension => extension.application.role === "hasMail" && extension.application.href.includes("mail")
-        );
-        const mailIconAsSvg = mailAppExtension.application.children["icon-svg"].body;
-        const mailIconAsBlobURL = URL.createObjectURL(new Blob([mailIconAsSvg], { type: "image/svg+xml" }));
-
-        const address = userSession.userId + ".notifications.mails";
-
-        const sendNotification = ({ data }) => {
-            const mailSubject = data.body.body;
-            const mailSender = data.body.title;
-            notificationManager.send(mailSender, mailSubject, mailIconAsBlobURL);
-        };
-
-        new WebsocketClient().register(address, sendNotification);
-    }
 }
 
 function registerUserSession() {

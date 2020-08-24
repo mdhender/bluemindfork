@@ -40,7 +40,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail-webapp", ["isMessageSelected", "my"]),
+        ...mapGetters("mail-webapp", ["isMessageSelected"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["folders", "mailboxes"]),
         folder() {

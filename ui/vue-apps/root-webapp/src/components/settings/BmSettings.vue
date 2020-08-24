@@ -13,9 +13,9 @@
                     :user="user"
                     :available-apps="availableApps"
                     :selected-app="selectedApp"
+                    :class="selectedApp ? 'd-none' : ''"
                     @change="selectedApp = $event"
                     @close="$emit('close')"
-                    :class="selectedApp ? 'd-none' : ''"
                 />
                 <bm-settings-content
                     :class="selectedApp ? 'd-flex' : 'd-none'"

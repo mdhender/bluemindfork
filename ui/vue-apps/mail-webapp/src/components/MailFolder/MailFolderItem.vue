@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
 import { BmCounterBadge, BmDropzone, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
@@ -68,7 +68,6 @@ export default {
     },
     computed: {
         ...mapState("mail", ["folderList", "folders", "activeFolder"]),
-        ...mapGetters("mail-webapp", ["my"]),
         folder() {
             return this.folders[this.folderKey];
         },
@@ -81,7 +80,7 @@ export default {
     },
     watch: {
         editingFolder: {
-            handler: function(value) {
+            handler: function (value) {
                 if (value) {
                     this.$nextTick(() => {
                         this.$refs["folder-input"].select();

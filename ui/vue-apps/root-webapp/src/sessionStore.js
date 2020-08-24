@@ -7,10 +7,7 @@ const state = {
 const actions = {
     async FETCH_ALL_SETTINGS({ commit }) {
         const userSession = injector.getProvider("UserSession").get();
-        let settings = await injector
-            .getProvider("UserSettingsPersistence")
-            .get()
-            .get(userSession.userId);
+        let settings = await injector.getProvider("UserSettingsPersistence").get().get(userSession.userId);
 
         // set default settings if needed
         settings = { mail_message_list_style: "normal", mail_thread: "false", ...settings };
@@ -20,10 +17,7 @@ const actions = {
 
     async UPDATE_ALL_SETTINGS({ commit }, userSettings) {
         const userSession = injector.getProvider("UserSession").get();
-        await injector
-            .getProvider("UserSettingsPersistence")
-            .get()
-            .set(userSession.userId, userSettings);
+        await injector.getProvider("UserSettingsPersistence").get().set(userSession.userId, userSettings);
         commit("SET_USER_SETTINGS", userSettings);
     }
 };

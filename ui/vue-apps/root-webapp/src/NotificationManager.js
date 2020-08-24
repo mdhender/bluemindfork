@@ -1,3 +1,8 @@
+import ItemUri from "@bluemind/item-uri";
+import router from "@bluemind/router";
+import store from "@bluemind/store";
+import WebsocketClient from "@bluemind/sockjs";
+
 export default class NotificationManager {
     constructor() {
         this.isAvailable = "Notification" in window;
@@ -19,9 +24,36 @@ export default class NotificationManager {
         this.userAlreadyAnswered = Notification.permission === "denied" || this.hasPermission;
     }
 
-    send(title, body, icon) {
+    send(title, body, icon, onClickHandler) {
         if (this.isAvailable && this.hasPermission) {
-            new Notification(title, { icon, body, image: icon, badge: icon });
+            const notification = new Notification(title, { icon, body, image: icon, badge: icon });
+            notification.onclick = onClickHandler;
+        }
+    }
+
+    setNotificationWhenReceivingMail(userSession) {
+        if (userSession.roles.includes("hasMail")) {
+            const mailAppExtension = window.bmExtensions_["net.bluemind.banner"].find(
+                extension => extension.application.role === "hasMail" && extension.application.href.includes("mail")
+            );
+            const mailIconAsSvg = mailAppExtension.application.children["icon-svg"].body;
+            const mailIconAsBlobURL = URL.createObjectURL(new Blob([mailIconAsSvg], { type: "image/svg+xml" }));
+
+            const address = userSession.userId + ".notifications.mails";
+
+            const sendNotification = ({ data }) => {
+                const onNotifClick = () => {
+                    // FIXME : will not work if mail store or mail routes are not init
+                    const key = ItemUri.encode(Number(data.body.internalId), store.getters["mail/MY_INBOX"].key);
+                    router.push({ name: "mail:message", params: { message: key } });
+                };
+
+                const mailSubject = data.body.body;
+                const mailSender = data.body.title;
+                this.send(mailSender, mailSubject, mailIconAsBlobURL, onNotifClick);
+            };
+
+            new WebsocketClient().register(address, sendNotification);
         }
     }
 }

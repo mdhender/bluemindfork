@@ -20,14 +20,14 @@
                 <bm-form-radio-group v-model="localUserSettings.mail_thread" class="d-flex flex-wrap">
                     <bm-form-radio value="true" class="ml-5" :aria-label="$t('settings.mail.thread.enable')">
                         <!-- eslint-disable-next-line vue/no-v-html -->
-                        <template #img><div v-html="threadSettingImageOn"/></template>
+                        <template #img><div v-html="threadSettingImageOn" /></template>
                         <template>
                             {{ $t("settings.mail.thread.enable") }}
                         </template>
                     </bm-form-radio>
                     <bm-form-radio value="false" class="ml-5" :aria-label="$t('settings.mail.thread.disable')">
                         <!-- eslint-disable-next-line vue/no-v-html -->
-                        <template #img><div v-html="threadSettingImageOff"/></template>
+                        <template #img><div v-html="threadSettingImageOff" /></template>
                         <template> {{ $t("settings.mail.thread.disable") }}</template>
                     </bm-form-radio>
                 </bm-form-radio-group>
@@ -41,7 +41,7 @@
                         :aria-label="$t('settings.mail.message.list.display.full')"
                     >
                         <!-- eslint-disable-next-line vue/no-v-html -->
-                        <template #img><img :src="listStyleFull"/></template>
+                        <template #img><img :src="listStyleFull" /></template>
                         <template>
                             {{ $t("settings.mail.message.list.display.full") }}
                         </template>
@@ -52,7 +52,7 @@
                         :aria-label="$t('settings.mail.message.list.display.normal')"
                     >
                         <!-- eslint-disable-next-line vue/no-v-html -->
-                        <template #img><img :src="listStyleNormal"/></template>
+                        <template #img><img :src="listStyleNormal" /></template>
                         <template>
                             {{ $t("settings.mail.message.list.display.normal") }}
                         </template>
@@ -63,7 +63,7 @@
                         :aria-label="$t('settings.mail.message.list.display.compact')"
                     >
                         <!-- eslint-disable-next-line vue/no-v-html -->
-                        <template #img><img :src="listStyleCompact"/></template>
+                        <template #img><img :src="listStyleCompact" /></template>
                         <template>
                             {{ $t("settings.mail.message.list.display.compact") }}
                         </template>
