@@ -19,7 +19,7 @@ for i in `find . -maxdepth 4 -regextype sed -regex '.*/[0-9]\+$' -type d`; do
 
   if [ ${r"${found}"} -eq 0 ]; then
     echo "Remove ${r"$i"}"
-    /usr/bin/rsync -a --delete ${r"$syncsrc"} ${r"$i"}
+    /usr/bin/rsync -a --delete ${r"$syncsrc"}/ ${r"$i"}/
     rm -fr ${r"$i"}
   fi
 done

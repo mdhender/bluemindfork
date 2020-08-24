@@ -82,7 +82,7 @@ public class ForgetTask implements IServerTask {
 			monitor.log("Removing " + path);
 			String empty = "/tmp/empty" + UUID.randomUUID().toString();
 			NCUtils.execNoOut(nc, "mkdir -p " + empty);
-			NCUtils.execNoOut(nc, "/usr/bin/rsync -a --delete " + empty + " " + path);
+			NCUtils.execNoOut(nc, "/usr/bin/rsync -a --delete " + empty + "/ " + path + "/");
 			NCUtils.execNoOut(nc, "rm -fr " + path);
 			NCUtils.execNoOut(nc, "rmdir " + empty);
 		}
