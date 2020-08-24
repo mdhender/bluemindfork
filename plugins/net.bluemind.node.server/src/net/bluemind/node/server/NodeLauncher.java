@@ -18,6 +18,8 @@
  */
 package net.bluemind.node.server;
 
+import java.util.concurrent.TimeUnit;
+
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.slf4j.Logger;
@@ -53,6 +55,9 @@ public class NodeLauncher implements IApplication {
 
 		httpDep.await();
 		workerDep.await();
+
+		VertxPlatform.spawnBlocking(5, TimeUnit.SECONDS);
+
 		if (SystemD.isAvailable()) {
 			SystemD.get().notifyReady();
 		}
