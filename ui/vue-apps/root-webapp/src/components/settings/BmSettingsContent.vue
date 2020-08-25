@@ -41,7 +41,7 @@
                         :aria-label="$t('settings.mail.message.list.display.full')"
                     >
                         <!-- eslint-disable-next-line vue/no-v-html -->
-                        <template #img><img :src="listStyleFull" /></template>
+                        <template #img><img :src="listStyleFull" alt="null" /></template>
                         <template>
                             {{ $t("settings.mail.message.list.display.full") }}
                         </template>
@@ -52,7 +52,7 @@
                         :aria-label="$t('settings.mail.message.list.display.normal')"
                     >
                         <!-- eslint-disable-next-line vue/no-v-html -->
-                        <template #img><img :src="listStyleNormal" /></template>
+                        <template #img><img :src="listStyleNormal" alt="null" /></template>
                         <template>
                             {{ $t("settings.mail.message.list.display.normal") }}
                         </template>
@@ -63,7 +63,7 @@
                         :aria-label="$t('settings.mail.message.list.display.compact')"
                     >
                         <!-- eslint-disable-next-line vue/no-v-html -->
-                        <template #img><img :src="listStyleCompact" /></template>
+                        <template #img><img :src="listStyleCompact" alt="null" /></template>
                         <template>
                             {{ $t("settings.mail.message.list.display.compact") }}
                         </template>
