@@ -66,17 +66,18 @@ import MailFolderIcon from "../MailFolderIcon";
 const FLAG_COMPONENT = {
     [Flag.FLAGGED]: {
         components: { BmIcon },
-        template: '<bm-icon class="text-warning" icon="flag-fill"/>',
+        template:
+            '<bm-icon :aria-label="$t(\'mail.list.flagged.aria\')" aria-hidden="false" class="text-warning" icon="flag-fill"/>',
         order: 3
     },
     [Flag.FORWARDED]: {
         components: { BmIcon },
-        template: '<bm-icon icon="forward"/>',
+        template: '<bm-icon :aria-label="$t(\'mail.list.forwarded.aria\')" aria-hidden="false" icon="forward"/>',
         order: 1
     },
     [Flag.ANSWERED]: {
         components: { BmIcon },
-        template: '<bm-icon icon="reply"/>',
+        template: '<bm-icon :aria-label="$t(\'mail.list.replied.aria\')" aria-hidden="false" icon="reply"/>',
         order: 2
     }
 };
@@ -114,7 +115,7 @@ export default {
         from() {
             return this.message.from.dn ? this.message.from.dn : this.message.from.address;
         },
-        displayedDate: function () {
+        displayedDate: function() {
             const today = new Date();
             const messageDate = this.message.date;
             if (DateComparator.isSameDay(messageDate, today)) {
@@ -124,7 +125,7 @@ export default {
             }
             return this.$d(messageDate, "short_date");
         },
-        smallerDisplayedDate: function () {
+        smallerDisplayedDate: function() {
             return this.displayedDate.substring(this.displayedDate.indexOf(" ") + 1);
         },
         widgets() {
