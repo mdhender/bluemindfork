@@ -68,7 +68,6 @@ public class SmtpInjector extends MailExchangeInjector {
 				logger.debug("Added {} to {}", sendResp.getMessage(), email);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
-				System.exit(1);
 			} finally {
 				lock.release();
 			}

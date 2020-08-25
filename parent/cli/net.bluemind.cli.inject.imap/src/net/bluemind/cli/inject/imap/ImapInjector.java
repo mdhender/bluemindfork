@@ -53,7 +53,6 @@ public class ImapInjector extends MailExchangeInjector {
 				logger.debug("Added {} to {}", added, email);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
-				System.exit(1);
 			} finally {
 				lock.release();
 			}
