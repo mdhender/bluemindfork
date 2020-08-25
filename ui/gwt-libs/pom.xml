@@ -48,9 +48,9 @@
 		<module>net.bluemind.mailmessage.api.gwt</module>
 		<module>net.bluemind.eas.api.gwt</module>
 		<module>net.bluemind.backend.mail.api.gwt</module>
-		<module>net.bluemind.monitoring.api.gwt</module>
 		<module>net.bluemind.externaluser.api.gwt</module>
 		<module>net.bluemind.custom.password.sizestrength.api.gwt</module>
+		<module>net.bluemind.metrics.alerts.api.gwt</module>
 	</modules>
 
 	<build>

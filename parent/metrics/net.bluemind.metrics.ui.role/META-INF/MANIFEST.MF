@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.metrics.ui.role
+Bundle-SymbolicName: net.bluemind.metrics.ui.role;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.metrics.ui.role
+Bundle-ActivationPolicy: lazy
+Require-Bundle: com.google.guava,
+ net.bluemind.role.api,
+ net.bluemind.role.provider,
+ org.eclipse.osgi
+Bundle-Activator: net.bluemind.metrics.ui.role.Activator

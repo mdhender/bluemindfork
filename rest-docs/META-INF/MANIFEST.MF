@@ -37,7 +37,6 @@ Require-Bundle: net.bluemind.core.context;bundle-version="1.0.0";resolution:=opt
  net.bluemind.mailmessage.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.mailshare.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.metrics.alerts.api;bundle-version="1.0.0";resolution:=optional,
- net.bluemind.monitoring.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.node.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.resource.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.role.api;bundle-version="1.0.0";resolution:=optional,

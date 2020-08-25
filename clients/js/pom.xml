@@ -47,7 +47,6 @@
 						<apiName>net.bluemind.mailflow.common.api</apiName>
 						<apiName>net.bluemind.mailmessage.api</apiName>
 						<apiName>net.bluemind.mailshare.api</apiName>
-						<apiName>net.bluemind.monitoring.api</apiName>
 						<apiName>net.bluemind.node.api</apiName>
 						<apiName>net.bluemind.resource.api</apiName>
 						<apiName>net.bluemind.role.api</apiName>

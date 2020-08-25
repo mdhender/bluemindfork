@@ -19,6 +19,7 @@
 	  <module>net.bluemind.metrics.registry.tests</module>
 	  <module>net.bluemind.tracing</module>
 	  <module>net.bluemind.tracing.tests</module>
+	  <module>net.bluemind.metrics.ui.role</module>
 	</modules>
 
 </project>

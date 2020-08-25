@@ -26,32 +26,30 @@ import com.google.gwt.i18n.client.ConstantsWithLookup;
 
 public interface ScreensConstants extends ConstantsWithLookup {
 
-	String subscriptionExpDateLabel();
+	String date();
 
-	String noSubscription();
+	String id();
 
-	String bmVersionLabel();
+	String level();
 
-	String updateDateTimeLabel();
+	String product();
 
-	String generalInfoLabel();
+	String name();
 
-	String cpuInfoLabel();
+	String host();
 
-	String memInfoLabel();
+	String datalocation();
 
-	String disksInfoLabel();
+	String message();
 
-	String statsLabel();
+	String all();
 
-	String filtersLabel();
+	String warning();
 
-	String koFilter();
+	String critical();
 
-	String warningFilter();
+	String filterResolved();
 
-	String okFilter();
-
-	String on();
+	String days();
 
 }
