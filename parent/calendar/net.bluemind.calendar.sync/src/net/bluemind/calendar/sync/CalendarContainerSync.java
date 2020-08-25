@@ -389,7 +389,11 @@ public class CalendarContainerSync implements ISyncableContainer {
 	private long extractExpires(final HttpURLConnection connection) {
 		final String expiresString = connection.getHeaderField("Expires");
 		if (expiresString != null) {
-			return Instant.from(DateTimeFormatter.RFC_1123_DATE_TIME.parse(expiresString)).toEpochMilli();
+			try {
+				return Instant.from(DateTimeFormatter.RFC_1123_DATE_TIME.parse(expiresString)).toEpochMilli();
+			} catch (Exception e) {
+				logger.info("Expires header \"{}\" is invalid, defaulting to 0", expiresString);
+			}
 		}
 		return 0;
 	}
