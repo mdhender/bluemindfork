@@ -36,7 +36,7 @@
                 :mouse-in="mouseIn"
             />
             <transition name="fade-in" mode="out-in">
-                <message-list-item-quick-action-buttons v-if="mouseIn" :message="message" />
+                <message-list-item-quick-action-buttons v-if="mouseIn" :message="message" @purge="purge" />
             </transition>
         </bm-list-group-item>
         <template v-slot:shadow>
@@ -136,6 +136,29 @@ export default {
                     this.move({ messageKey: [...this.selectedMessageKeys], folder: this.folders[folder.key] });
                 } else {
                     this.move({ messageKey: this.message.key, folder: this.folders[folder.key] });
+                }
+            }
+        },
+        async purge() {
+            const confirm = await this.$bvModal.msgBoxConfirm(
+                this.$tc("mail.actions.purge.modal.content", this.selectedMessageKeys.length || 1, {
+                    subject: this.message.subject
+                }),
+                {
+                    title: this.$tc("mail.actions.purge.modal.title", this.selectedMessageKeys.length || 1),
+                    okTitle: this.$t("common.delete"),
+                    cancelVariant: "outline-secondary",
+                    cancelTitle: this.$t("common.cancel"),
+                    centered: true,
+                    hideHeaderClose: false
+                }
+            );
+            if (confirm) {
+                // do this before followed async operations
+                const nextMessageKey = this.nextMessageKey;
+                this.$store.dispatch("mail-webapp/purge", this.message.key);
+                if (this.currentMessageKey === this.message.key) {
+                    this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
                 }
             }
         },

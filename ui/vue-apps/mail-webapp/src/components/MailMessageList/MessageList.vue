@@ -38,7 +38,7 @@
                 @toggleSelect="toggleSelect"
                 @click.exact.native="unselectAllIfNeeded(message.key)"
                 @click.ctrl.exact.native.capture.prevent.stop="toggleSelect(message.key)"
-                @click.shift.exact.native.capture.prevent.stop="selectRange(message.key, true)"
+                @click.shift.exact.native.prevent.stop="selectRange(message.key, true)"
                 @click.shift.exact.ctrl.exact.native.capture.prevent.stop="selectRange(message.key)"
                 @dragstart="draggedMessage = message.key"
                 @dragend="draggedMessage = null"

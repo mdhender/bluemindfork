@@ -8,7 +8,7 @@
                 :title="$tc('mail.actions.remove.aria')"
                 class="p-1 mr-2"
                 variant="inline-secondary"
-                @click.shift.exact.prevent.stop="purge"
+                @click.shift.exact.prevent.stop="$emit('purge')"
                 @click.exact.prevent.stop="remove"
             >
                 <bm-icon icon="trash" size="lg" />
@@ -102,7 +102,7 @@ export default {
         ...mapActions("mail-webapp", ["markAsRead", "markAsUnread", "markAsFlagged", "markAsUnflagged"]),
         remove() {
             if (this.activeFolder === this.MY_TRASH.key) {
-                this.purge();
+                this.$emit("purge");
                 return;
             }
             // do this before followed async operations
@@ -110,29 +110,6 @@ export default {
             this.$store.dispatch("mail-webapp/remove", this.message.key);
             if (this.currentMessageKey === this.message.key) {
                 this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
-            }
-        },
-        async purge() {
-            const confirm = await this.$bvModal.msgBoxConfirm(
-                this.$tc("mail.actions.purge.modal.content", this.selectedMessageKeys.length || 1, {
-                    subject: this.message.subject
-                }),
-                {
-                    title: this.$tc("mail.actions.purge.modal.title", this.selectedMessageKeys.length || 1),
-                    okTitle: this.$t("common.delete"),
-                    cancelVariant: "outline-secondary",
-                    cancelTitle: this.$t("common.cancel"),
-                    centered: true,
-                    hideHeaderClose: false
-                }
-            );
-            if (confirm) {
-                // do this before followed async operations
-                const nextMessageKey = this.nextMessageKey;
-                this.$store.dispatch("mail-webapp/purge", this.message.key);
-                if (this.currentMessageKey === this.message.key) {
-                    this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
-                }
             }
         }
     }
