@@ -42,7 +42,15 @@
             >
                 <bm-icon icon="text-format" size="lg" />
             </bm-button>
-            <input ref="attachInputRef" type="file" multiple hidden @change="addAttachments($event.target.files)" />
+            <input
+                tabindex="-1"
+                aria-hidden="true"
+                ref="attachInputRef"
+                type="file"
+                multiple
+                hidden
+                @change="addAttachments($event.target.files)"
+            />
             <bm-button
                 v-bm-tooltip.bottom
                 variant="simple-dark"

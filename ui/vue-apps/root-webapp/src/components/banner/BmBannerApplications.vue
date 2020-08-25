@@ -1,5 +1,5 @@
 <template>
-    <bm-navbar-nav fill class="bm-banner-applications align-items-end">
+    <bm-navbar-nav fill class="bm-banner-applications align-items-end" role="menubar">
         <bm-nav-item
             v-for="app in applications"
             :key="app.href"
@@ -8,6 +8,7 @@
             class="px-2"
         >
             <div class="d-inline-block"><bm-app-icon :icon-app="app.icon" /></div>
+            <span class="sr-only">{{ app.name }}</span>
             <bm-badge>{{ app.count }}</bm-badge>
         </bm-nav-item>
     </bm-navbar-nav>
