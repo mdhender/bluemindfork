@@ -117,6 +117,7 @@
     "mail.folder.new.from_scratch": "New folder",
     "mail.folder.rename": "Rename folder",
     "mail.folder": "Folder",
+    "mail.folder.unread": "Unread messages counter: ",
     "mail.ics.accepted.tentatively": "Invitation tentatively accepted",
     "mail.ics.accepted": "Invitation accepted",
     "mail.ics.declined": "Invitation declined",

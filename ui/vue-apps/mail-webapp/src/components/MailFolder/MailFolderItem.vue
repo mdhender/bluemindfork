@@ -26,6 +26,7 @@
             :value="folder.unread"
             :variant="folder.key != activeFolder ? 'secondary' : 'primary'"
             class="mx-1 d-block"
+            :aria-label="$t('mail.folder.unread') + folder.unread"
         />
     </bm-dropzone>
     <mail-folder-input

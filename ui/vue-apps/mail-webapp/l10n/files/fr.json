@@ -117,6 +117,7 @@
     "mail.folder.new.from_scratch": "Nouveau dossier",
     "mail.folder.rename": "Renommer le dossier",
     "mail.folder": "Le dossier",
+    "mail.folder.unread": "Nombre de messages non-lus : ",
     "mail.ics.accepted.tentatively": "Invitation acceptée provisoirement",
     "mail.ics.accepted": "Invitation acceptée",
     "mail.ics.declined": "Invitation refusée",
