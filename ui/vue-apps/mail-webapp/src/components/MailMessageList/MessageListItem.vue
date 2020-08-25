@@ -28,6 +28,36 @@
             @mouseenter="mouseIn = true"
             @mouseleave="mouseIn = false"
         >
+            <i18n path="mail.list.sr_info" tag="p" class="sr-only">
+                <template #title>
+                    <p id="srInfoTitle">{{ $t("mail.list.sr_info.title") }}</p>
+                </template>
+                <template #props>
+                    <i18n path="mail.list.sr_info.props" tag="ul" aria-labelledby="srInfoTitle">
+                        <template v-if="message.flags.includes(Flags.FLAGGED)" #flagged>
+                            <li>{{ $t("mail.list.sr_info.flagged") }}</li>
+                        </template>
+                        <template v-if="message.states.includes('not-seen')" #unread>
+                            <li>{{ $t("mail.list.sr_info.unread") }}</li>
+                        </template>
+                        <template v-else #read>
+                            <li>{{ $t("mail.list.sr_info.read") }}</li>
+                        </template>
+                        <template v-if="message.states.includes('is-ics')" #event>
+                            <li>{{ $t("mail.list.sr_info.event") }}</li>
+                        </template>
+                        <template v-if="message.states.includes('has-attachment')" #attachment>
+                            <li>{{ $t("mail.list.sr_info.attachment") }}</li>
+                        </template>
+                        <template v-if="message.flags.includes(Flags.ANSWERED)" #replied>
+                            <li>{{ $t("mail.list.sr_info.replied") }}</li>
+                        </template>
+                        <template v-if="message.flags.includes(Flags.FORWARDED)" #forwarded>
+                            <li>{{ $t("mail.list.sr_info.forwarded") }}</li>
+                        </template>
+                    </i18n>
+                </template>
+            </i18n>
             <message-list-item-left :message="message" @toggleSelect="$emit('toggleSelect', message.key, true)" />
             <message-list-item-middle
                 class="flex-fill px-2"
@@ -83,7 +113,8 @@ export default {
                 cursor: "cursor",
                 text: this.$t("mail.actions.move")
             },
-            mouseIn: false
+            mouseIn: false,
+            Flags: Flag
         };
     },
     computed: {
