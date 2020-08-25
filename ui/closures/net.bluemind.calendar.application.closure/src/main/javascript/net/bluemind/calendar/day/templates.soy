@@ -398,7 +398,7 @@
           {if $event.url}
             <tr>
               <th>{msg meaning="calendar.event.url" desc="event url label"}URL{/msg}</th>
-              <td colspan="2"><a target="blank" href="{$event.url}">{$event.url}</a></td>
+              <td colspan="2"><a target="blank" href="{$event.sanitizedUrl}">{$event.url}</a></td>
             </tr>
           {/if}
 
