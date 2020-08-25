@@ -53,6 +53,7 @@ smtpd_sender_restrictions = check_sender_access tcp:127.0.0.1:25250
 
 # Misc
 disable_vrfy_command=yes
+smtputf8_enable = no
 
 #Milter
 smtpd_milters = inet:127.0.0.1:2500
