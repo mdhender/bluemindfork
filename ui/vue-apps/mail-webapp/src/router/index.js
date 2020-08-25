@@ -7,6 +7,7 @@ import MessageQueryParam from "./MessageQueryParam";
 import virtualRoutes from "./virtualRoutes";
 
 export default [
+    { path: "/index.html", redirect: "/mail/" },
     {
         name: "mail:root",
         path: "/mail/:messagequery*",
