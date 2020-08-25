@@ -20,9 +20,7 @@ package net.bluemind.network.topology;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +51,7 @@ public class Topology {
 	public static IServiceTopology get() {
 		try {
 			return init.thenApply(v -> topology).get(20, TimeUnit.SECONDS);
-		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+		} catch (Exception e) {
 			throw TopologyException.availabilityTimeout(e);
 		}
 	}

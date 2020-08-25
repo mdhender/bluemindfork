@@ -23,6 +23,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -30,9 +31,12 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import net.bluemind.core.jdbc.JdbcActivator;
+import net.bluemind.network.topology.IServiceTopology;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.pool.BMPoolActivator;
 import net.bluemind.pool.impl.BmConfIni;
 
@@ -45,7 +49,7 @@ public class LocatorDbHelper {
 	 */
 	private static final Set<String> dataLocationBasedServices = Sets.newHashSet("mail/imap");
 
-	public LocatorDbHelper() {
+	private LocatorDbHelper() {
 	}
 
 	/**
@@ -58,6 +62,14 @@ public class LocatorDbHelper {
 	 * @return
 	 */
 	public static Set<String> findUserAssignedHosts(String latdOrEmail, String tag) {
+		Optional<IServiceTopology> topo = Topology.getIfAvailable();
+		// don't run sql when we are single node or with one instance of a tag
+		if (!Boolean.getBoolean("locator.topology.disable") && (topo
+				.map(t -> t.singleNode() || t.nodes().stream().filter(s -> s.value.tags.contains(tag)).count() <= 1))
+						.orElse(false)) {
+			return topo.flatMap(t -> t.anyIfPresent(tag)).map(s -> ImmutableSet.of(s.value.address()))
+					.orElseGet(ImmutableSet::of);
+		}
 		int idx = latdOrEmail.indexOf('@');
 		String domain = "global.virt";
 		String login = "";
@@ -69,7 +81,9 @@ public class LocatorDbHelper {
 
 		Set<String> allAssigned = findAssignedHosts(domain, global, tag);
 		if (!global && allAssigned.size() > 1 && dataLocationBasedServices.contains(tag)) {
-			logger.info("Going to fetch user data loc");
+			if (logger.isDebugEnabled()) {
+				logger.debug("Going to fetch user {}@{} data loc for {}", login, domain, tag);
+			}
 			String userDataLocation = getUserDataLocation(login, domain);
 			return userDataLocation != null ? Sets.newHashSet(userDataLocation) : Collections.emptySet();
 		} else {
@@ -87,7 +101,7 @@ public class LocatorDbHelper {
 	 * 
 	 * @return a unique ip or fdqn assigned to the domain
 	 */
-	public static Set<String> findAssignedHosts(String domain, boolean global, String tag) {
+	private static Set<String> findAssignedHosts(String domain, boolean global, String tag) {
 
 		StringBuilder find = new StringBuilder();
 
