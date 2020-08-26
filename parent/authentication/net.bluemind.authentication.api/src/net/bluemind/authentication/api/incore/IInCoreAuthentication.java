@@ -30,4 +30,9 @@ public interface IInCoreAuthentication extends IAuthentication {
 		return buildContext(null, domainUid, userUid);
 	}
 
+	/**
+	 * Delete all stored tokens
+	 */
+	public void resetTokens();
+
 }

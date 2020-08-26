@@ -48,6 +48,7 @@ import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.ISecurityToken;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
+import net.bluemind.authentication.api.incore.IInCoreAuthentication;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -423,6 +424,37 @@ public class AuthenticationTests {
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.AUTHENTICATION_FAIL, sf.getCode());
 		}
+	}
+
+	@Test
+	public void testResetTokens() throws Exception {
+		initState();
+		IAuthentication authentication = getService(null);
+		LoginResponse response = authentication.login("admin0@global.virt", "admin", "junit");
+		assertEquals(Status.Ok, response.status);
+
+		ISecurityToken secToken = getTokenService(response.authKey);
+		secToken.upgrade();
+		String permToken = response.authKey;
+
+		// destroy the volatile auth key
+		authentication = getService(response.authKey);
+		authentication.logout();
+
+		// verify the token is re-activated after logout
+		authentication = getService(permToken);
+		AuthUser current = authentication.getCurrentUser();
+		assertNotNull(current);
+		assertEquals("admin0", current.uid);
+		secToken.renew();
+
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreAuthentication.class)
+				.resetTokens();
+
+		authentication = getService(permToken);
+		current = authentication.getCurrentUser();
+		assertNotNull(current);
+		assertEquals("admin0", current.uid);
 	}
 
 	@Test

@@ -19,6 +19,13 @@
 package net.bluemind.authentication.service.tokens;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,7 +51,7 @@ public class TokensStore {
 	private static final String BASE_DATA_DIR = "/var/spool/bm-hollowed/tokens";
 	private static final Logger logger = LoggerFactory.getLogger(TokensStore.class);
 
-	private static final TokensStore INST = new TokensStore();
+	private static TokensStore INST = new TokensStore();
 
 	public static TokensStore get() {
 		return INST;
@@ -82,6 +89,15 @@ public class TokensStore {
 		this.keyIndex = UniqueKeyIndex.from(consumer, net.bluemind.authentication.service.tokens.Token.class)
 				.usingPath("key", String.class);
 		consumer.addRefreshListener(this.keyIndex);
+	}
+
+	public static void reset() {
+		try {
+			deleteDataDir();
+		} catch (IOException e) {
+			logger.warn("Cannot remove token data dir", e);
+		}
+		INST = new TokensStore();
 	}
 
 	private boolean restoreIfAvailable(HollowProducer producer, BlobRetriever retriever,
@@ -134,6 +150,24 @@ public class TokensStore {
 			consumer.triggerRefreshTo(newVersion);
 		}
 		logger.info("Expired {} token(s), {} remaining.", expired.size(), tokens.size() - expired.size());
+	}
+
+	private static void deleteDataDir() throws IOException {
+		Path directory = Paths.get(BASE_DATA_DIR);
+		Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				Files.delete(file);
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+				Files.delete(dir);
+				return FileVisitResult.CONTINUE;
+			}
+		});
+
 	}
 
 }

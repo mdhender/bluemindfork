@@ -38,7 +38,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 
 import net.bluemind.authentication.api.AuthUser;
-import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.authentication.api.ValidationKind;
@@ -49,6 +48,7 @@ import net.bluemind.authentication.provider.IAuthProvider.IAuthContext;
 import net.bluemind.authentication.provider.ILoginSessionValidator;
 import net.bluemind.authentication.provider.ILoginValidationListener;
 import net.bluemind.authentication.service.internal.AuthContextCache;
+import net.bluemind.authentication.service.tokens.TokensStore;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.service.internal.RBACManager;
@@ -71,7 +71,7 @@ import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
 import net.bluemind.user.service.IInCoreUser;
 
-public class Authentication implements IAuthentication, IInCoreAuthentication {
+public class Authentication implements IInCoreAuthentication {
 
 	private static final Logger logger = LoggerFactory.getLogger(Authentication.class);
 
@@ -563,6 +563,11 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 		logger.error("validate password or token failed for login: {} result: {} origin: {} remoteIps: {}", login,
 				authResult, origin, securityContext.getRemoteAddresses());
 		return ValidationKind.NONE;
+	}
+
+	@Override
+	public void resetTokens() {
+		TokensStore.reset();
 	}
 
 }
