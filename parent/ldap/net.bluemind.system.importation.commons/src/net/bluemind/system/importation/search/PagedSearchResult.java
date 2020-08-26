@@ -119,7 +119,7 @@ public class PagedSearchResult implements Iterable<Response>, AutoCloseable {
 
 	public boolean next() throws LdapException, CursorException, LdapSearchException {
 		if (cursor == null) {
-			return getNextPage().next();
+			return getNextPage();
 		}
 
 		if (cursor.next()) {
@@ -130,10 +130,10 @@ public class PagedSearchResult implements Iterable<Response>, AutoCloseable {
 			return false;
 		}
 
-		return getNextPage().next();
+		return getNextPage();
 	}
 
-	private SearchCursor getNextPage() throws LdapException, LdapSearchException {
+	private boolean getNextPage() throws LdapException, LdapSearchException, CursorException {
 		pagedSearchControl.setSize(pageSize);
 		searchRequest.addControl(pagedSearchControl);
 
@@ -141,13 +141,17 @@ public class PagedSearchResult implements Iterable<Response>, AutoCloseable {
 
 		cursor = ldapCon.search(searchRequest);
 
-		SearchResultDone result = cursor.getSearchResultDone();
-		LdapResult ldapResult = result.getLdapResult();
-		if (ldapResult.getResultCode() != ResultCodeEnum.SUCCESS) {
-			throw new LdapSearchException(ldapResult);
+		if (!cursor.next()) {
+			// If search return no response, check search result code
+			LdapResult ldapResult = cursor.getSearchResultDone().getLdapResult();
+			if (ldapResult.getResultCode() != ResultCodeEnum.SUCCESS) {
+				throw new LdapSearchException(ldapResult);
+			}
+
+			return false;
 		}
 
-		return cursor;
+		return true;
 	}
 
 	private boolean hasNextPage() throws LdapSearchException {
