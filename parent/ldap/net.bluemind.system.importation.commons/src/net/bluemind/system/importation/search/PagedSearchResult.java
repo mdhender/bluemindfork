@@ -133,13 +133,20 @@ public class PagedSearchResult implements Iterable<Response>, AutoCloseable {
 		return getNextPage().next();
 	}
 
-	private SearchCursor getNextPage() throws LdapException {
+	private SearchCursor getNextPage() throws LdapException, LdapSearchException {
 		pagedSearchControl.setSize(pageSize);
 		searchRequest.addControl(pagedSearchControl);
 
 		closeCursor();
 
 		cursor = ldapCon.search(searchRequest);
+
+		SearchResultDone result = cursor.getSearchResultDone();
+		LdapResult ldapResult = result.getLdapResult();
+		if (ldapResult.getResultCode() != ResultCodeEnum.SUCCESS) {
+			throw new LdapSearchException(ldapResult);
+		}
+
 		return cursor;
 	}
 
