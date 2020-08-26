@@ -1,16 +1,19 @@
 import { MailIDB } from "../mailIDB";
+import { sync } from "../sync";
 
 export default async function ({ request }) {
     const splittedUrl = request.url.split("/");
     const apiUrl = splittedUrl.slice(4, splittedUrl.length).join("/");
     if (isApiSupported(apiUrl)) {
-        const apiMethod = await useIndexedDB(request);
-        if (apiMethod) {
-            return new Response(JSON.stringify(await getResponseBody[apiMethod](request)), {
-                headers: {
-                    fromcache: "true"
-                }
-            });
+        let regex = /\/api\/mail_items\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/(.*)$/;
+        const match = regex.exec(request.url);
+        if (match) {
+            const [, folderUid, apiMethod] = match;
+            if (await canUseLocalData(folderUid, apiMethod)) {
+                return new Response(JSON.stringify(await getResponseBody[apiMethod](request, folderUid)), {
+                    headers: { "X-BM-FROMCACHE": "true" }
+                });
+            }
         }
     }
     return fetch(request);
@@ -20,16 +23,11 @@ function isApiSupported(url) {
     return url.startsWith("mail_items") || url.startsWith("mail_folders");
 }
 
-async function useIndexedDB(request) {
-    let regex = /\/api\/mail_items\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/(.*)$/;
-    const match = regex.exec(request.url);
-    if (match) {
-        const db = new MailIDB();
-        const [, uid, apiMethod] = match;
-        const folder = await db.getSyncedFolder({ uid });
-        if (folder && getResponseBody[apiMethod]) {
-            return apiMethod;
-        }
+async function canUseLocalData(folderUid, apiMethod) {
+    const db = new MailIDB();
+    const folder = await db.getSyncedFolder({ uid: folderUid });
+    if (folder && getResponseBody[apiMethod]) {
+        return true;
     }
     return false;
 }
@@ -45,22 +43,24 @@ async function multipleById(request) {
     return await new MailIDB().getMailItems(ids.map(id => ({ internalId: id })));
 }
 
-async function unreadItems() {
+async function unreadItems(request, folderUid) {
+    await sync(folderUid)();
     const allMailItems = await new MailIDB().getAllMailItems();
     const expectedFlags = { must: [], mustNot: ["Deleted", "Seen"] };
     return allMailItems
         .filter(item => filterByFlags(expectedFlags, item))
-        .sort(sortMessage)
+        .sort(sortMessageByDate)
         .map(item => item.internalId);
 }
 
-async function filteredChangesetById(request) {
+async function filteredChangesetById(request, folderUid) {
+    await sync(folderUid)();
     const expectedFlags = await request.json();
     const allMailItems = await new MailIDB().getAllMailItems();
     return {
         created: allMailItems
             .filter(item => filterByFlags(expectedFlags, item))
-            .sort(sortMessage)
+            .sort(sortMessageByDate)
             .map(({ internalId: id, version }) => ({ id, version })),
         delete: [],
         updated: [],
@@ -75,6 +75,6 @@ function filterByFlags(expectedFlags, item) {
     );
 }
 
-function sortMessage(item1, item2) {
+function sortMessageByDate(item1, item2) {
     return item2.value.body.date - item1.value.body.date;
 }
