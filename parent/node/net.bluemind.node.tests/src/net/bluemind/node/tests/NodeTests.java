@@ -28,8 +28,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -199,6 +202,52 @@ public class NodeTests {
 			nc.asyncExecute(ExecRequest.anonymous("/usr/bin/git --help"), simple);
 		}
 		cdl.await(5, TimeUnit.SECONDS);
+	}
+
+	@Test
+	public void testExternalKillOverWebsocket() throws InterruptedException {
+		int count = 5;
+		CountDownLatch cdl = new CountDownLatch(count);
+		CountDownLatch starts = new CountDownLatch(count);
+		Set<String> activeTasks = ConcurrentHashMap.newKeySet();
+		Set<Integer> exitCodes = ConcurrentHashMap.newKeySet();
+		ProcessHandler simple = new ProcessHandler() {
+
+			@Override
+			public void log(String l) {
+			}
+
+			@Override
+			public void completed(int exitCode) {
+				exitCodes.add(exitCode);
+				cdl.countDown();
+			}
+
+			@Override
+			public void starting(String taskRef) {
+				System.out.println("starting " + taskRef);
+				activeTasks.add(taskRef);
+				starts.countDown();
+			}
+
+		};
+
+		for (int i = 0; i < count; i++) {
+			nc.asyncExecute(ExecRequest.anonymous("/bin/sleep 4"), simple);
+		}
+		assertTrue(starts.await(1, TimeUnit.SECONDS));
+		assertEquals(5, activeTasks.size());
+
+		Iterator<String> it = activeTasks.iterator();
+		nc.asyncExecute(ExecRequest.anonymous("kill -9 " + it.next()), new ProcessHandler.NoOutBlockingHandler());
+		nc.asyncExecute(ExecRequest.anonymous("kill -15 " + it.next()), new ProcessHandler.NoOutBlockingHandler());
+
+		System.err.println("Started " + activeTasks);
+		assertTrue(cdl.await(10, TimeUnit.SECONDS));
+		assertEquals(3, exitCodes.size());
+		assertTrue(exitCodes.contains(0));
+		assertTrue(exitCodes.contains(137)); // kill -9
+		assertTrue(exitCodes.contains(143)); // kill -15
 	}
 
 	@Test

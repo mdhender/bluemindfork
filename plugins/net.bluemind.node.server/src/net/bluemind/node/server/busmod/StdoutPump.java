@@ -19,6 +19,7 @@
 package net.bluemind.node.server.busmod;
 
 import java.io.InputStream;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,23 +95,23 @@ public final class StdoutPump implements Runnable {
 				count++;
 			}
 			logger.debug("Exited stream pump after {}loops.", count);
-			try {
-				exit = proc.waitFor();
-				if (wsEndpoint != null) {
-					wsEndpoint.write("completion", new JsonObject().put("exit", exit));
-					wsEndpoint.complete(rc.getPid());
-				}
-				rc.setExitValue(exit, time);
-				logger.info("[{}] exit: {} (loops: {})", rc.getPid(), exit, count);
-				proc.destroy();
-			} catch (InterruptedException itse) {
-				logger.error(itse.getMessage(), itse);
-				// thrown by exitValue() when not finished
-			}
+			exit = proc.waitFor();
+			notifyEndOnWs(exit);
+			rc.setExitValue(exit, time);
+			logger.info("[{}] exit: {} (loops: {})", rc.getPid(), exit, count);
+			proc.destroy();
 		} catch (Exception e) {
 			rp.handle(Buffer.buffer(e.getMessage()));
 			logger.error("[{}] {}", rc.getPid(), e.getMessage());
+			notifyEndOnWs(1);
 			rc.setExitValue(1, time);
+		}
+	}
+
+	private void notifyEndOnWs(Integer exit) {
+		if (wsEndpoint != null) {
+			wsEndpoint.write("completion", new JsonObject().put("exit", Optional.ofNullable(exit).orElse(1)));
+			wsEndpoint.complete(rc.getPid());
 		}
 	}
 }
