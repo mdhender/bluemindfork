@@ -368,15 +368,10 @@ net.bluemind.calendar.day.DayPresenter.prototype.adaptVEvent_ = function(vevent,
 
 
   if (vevent.rrule && vevent.rrule.until) {
-    if (vevent.states.allday){
-       vevent.rrule.until = this.formatter.date.format(vevent.rrule.until);
-    } else {
-       vevent.rrule.until = this.formatter.datetime.format(vevent.rrule.until);
-    }
+    vevent.rrule.until = formatter.formatDate(vevent.rrule.until);
   }
 
   if (vevent.rrule && vevent.rrule.byday && vevent.rrule.byday.length > 0) {
-    var weekdays = goog.array.clone(goog.i18n.DateTimeSymbols_en.STANDALONEWEEKDAYS);
     var i18n = goog.array.clone(goog.i18n.DateTimeSymbols.STANDALONEWEEKDAYS);
 
     var byday = [];
