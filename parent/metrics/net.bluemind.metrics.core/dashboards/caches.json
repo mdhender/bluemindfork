@@ -861,7 +861,7 @@
 			"name": "YSNP - Cache activity",
 			"queries": [
 				{
-					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-milter.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-ysnp.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
 					"queryConfig": {
 						"database": "",
 						"measurement": "",
@@ -873,7 +873,7 @@
 							"tags": []
 						},
 						"areTagsAccepted": false,
-						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-milter.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-ysnp.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
 						"range": null,
 						"shifts": null
 					},
