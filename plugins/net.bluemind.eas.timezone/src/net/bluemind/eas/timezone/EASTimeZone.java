@@ -19,7 +19,7 @@
 package net.bluemind.eas.timezone;
 
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -50,20 +50,21 @@ public class EASTimeZone {
 	public String toBase64() {
 		ByteBuf out = Unpooled.buffer().order(ByteOrder.LITTLE_ENDIAN);
 		out.writeInt(bias);
-		byte[] utf = standardName.getBytes(Charset.forName("utf-16le"));
+		byte[] utf = standardName.getBytes(StandardCharsets.UTF_16LE);
 		out.writeBytes(utf);
 		out.writeZero(64 - utf.length);
 		standardDate.writeTo(out);
 		out.writeInt(standardBias);
 
-		utf = daylightName.getBytes(Charset.forName("utf-16le"));
+		utf = daylightName.getBytes(StandardCharsets.UTF_16LE);
 		out.writeBytes(utf);
 		out.writeZero(64 - utf.length);
 		daylightDate.writeTo(out);
 		out.writeInt(daylightBias);
 
 		ByteBuf encoded = Base64.encode(out, false);
-		String ascii = encoded.toString(Charset.forName("ascii"));
+		String ascii = encoded.toString(StandardCharsets.US_ASCII);
+		encoded.release();
 		return ascii;
 	}
 
