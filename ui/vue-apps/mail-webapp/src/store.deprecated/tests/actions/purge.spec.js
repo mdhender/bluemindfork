@@ -58,7 +58,7 @@ describe("MailApp Store: Purge message action", () => {
         expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [messageKey]);
         expect(context.dispatch).toHaveBeenCalledWith("messages/remove", [messageKey]);
 
-        expect(context.commit).toHaveBeenCalledTimes(2);
+        expect(context.commit).toHaveBeenCalledTimes(1);
         expect(context.commit).toHaveBeenCalledWith(
             "addApplicationAlert",
             expect.objectContaining({
@@ -70,21 +70,7 @@ describe("MailApp Store: Purge message action", () => {
     });
 
     test("update the unread counter if necessary", async () => {
-        // call remove without any unread mail, do not expect to update the unread counter
-        mockMessage = { subject: "dummy", states: "not-a-valid-state hello-there", key: messageKey };
         await purgeAction(context, messageKey);
-
-        expect(context.commit).not.toHaveBeenCalledWith("mail/SET_UNREAD_COUNT");
-
-        // call remove with unread mails, expect to update the unread counter
-        mockMessage = { subject: "dummy", states: "not-a-valid-state not-seen", key: messageKey };
-        await purgeAction(context, messageKey);
-
-        expect(context.commit).toHaveBeenNthCalledWith(
-            3,
-            "mail/SET_UNREAD_COUNT",
-            { key: "trash-key", count: 9 },
-            { root: true }
-        );
+        expect(context.dispatch).toHaveBeenNthCalledWith(3, "mail-webapp/loadUnreadCount", "trash-key");
     });
 });

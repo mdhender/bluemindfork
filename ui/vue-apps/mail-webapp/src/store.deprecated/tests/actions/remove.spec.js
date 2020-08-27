@@ -63,21 +63,7 @@ describe("[Mail-WebappStore][actions] : remove", () => {
 
     test("update the unread counter if necessary", async () => {
         const messageKey = ItemUri.encode("message-id", "inbox-uid");
-
-        // call remove without any unread mail, do not expect to update the unread counter
-        mockMessage = { subject: "dummy", states: "not-a-valid-state hello-there", key: messageKey };
         await remove(context, messageKey);
-
-        expect(context.commit).not.toHaveBeenCalledWith("mail/SET_UNREAD_COUNT");
-
-        // call remove with unread mails, expect to update the unread counter
-        mockMessage = { subject: "dummy", states: "not-a-valid-state not-seen", key: messageKey };
-        await remove(context, messageKey);
-
-        expect(context.commit).toHaveBeenCalledWith(
-            "mail/SET_UNREAD_COUNT",
-            { key: "inbox-uid", count: 9 },
-            { root: true }
-        );
+        expect(context.dispatch).toHaveBeenNthCalledWith(3, "mail-webapp/loadUnreadCount", "inbox-uid");
     });
 });

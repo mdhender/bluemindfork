@@ -23,10 +23,8 @@ async function action(context, messageKeys, action, actionFunction) {
         loadingAlertUid = loadingAlert(action, context.commit, messageKeys, subject);
     }
     try {
-        const messages = await context.dispatch("$_getIfNotPresent", messageKeys);
-        const unreadMessageKeys = messages.filter(m => m.states.includes("not-seen")).map(m => m.key);
-        cleanUp(messageKeys, unreadMessageKeys, context);
         await actionFunction(context, messageKeys);
+        cleanUp(messageKeys, context);
         okAlert(action, context.commit, messageKeys, subject);
     } catch (e) {
         errorAlert(action, context.commit, messageKeys, subject);
@@ -48,21 +46,12 @@ function removeMessages(context, messageKeys) {
     });
 }
 
-function cleanUp(messageKeys, unreadMessageKeys, context) {
+function cleanUp(messageKeys, context) {
     const messageKeysByFolder = ItemUri.urisByContainer(messageKeys);
-    Object.keys(messageKeysByFolder).forEach(folderUid => {
-        const keys = messageKeysByFolder[folderUid];
+    Object.keys(messageKeysByFolder).forEach(folderKey => {
+        context.dispatch("mail-webapp/loadUnreadCount", folderKey);
+        const keys = messageKeysByFolder[folderKey];
         keys.forEach(messageKey => {
-            if (unreadMessageKeys.includes(messageKey)) {
-                context.commit(
-                    "mail/SET_UNREAD_COUNT",
-                    {
-                        key: folderUid,
-                        count: context.rootState.mail.folders[folderUid].unread - 1
-                    },
-                    { root: true }
-                );
-            }
             context.commit("deleteSelectedMessageKey", messageKey);
             if (context.state.currentMessage.key === messageKey) {
                 context.state.currentMessage.key = null;
