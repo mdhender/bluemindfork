@@ -19,7 +19,6 @@
 package net.bluemind.eas.timezone;
 
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
@@ -51,7 +50,7 @@ public class TimeZoneCodec {
 		String daylightName = asString(uncutString);
 		SystemTime daylightDate = SystemTime.of(buf);
 		int daylightBias = buf.readInt();
-
+		buf.release();
 		return new EASTimeZone(bias, standardName, standardDate, standardBias, daylightName, daylightDate,
 				daylightBias);
 
@@ -70,7 +69,7 @@ public class TimeZoneCodec {
 		} while (true);
 		uncutString.release();
 
-		return utf16String.toString(Charset.forName("utf-16le"));
+		return utf16String.toString(StandardCharsets.UTF_16LE);
 	}
 
 }

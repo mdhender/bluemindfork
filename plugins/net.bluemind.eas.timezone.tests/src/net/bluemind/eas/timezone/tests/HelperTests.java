@@ -25,13 +25,37 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import io.netty.buffer.ByteBufAllocatorMetric;
+import io.netty.buffer.UnpooledByteBufAllocator;
+import io.netty.util.ResourceLeakDetector;
+import io.netty.util.ResourceLeakDetector.Level;
 import net.bluemind.eas.timezone.EASTimeZone;
 import net.bluemind.eas.timezone.EASTimeZoneHelper;
 import net.bluemind.eas.timezone.TimeZoneCodec;
 
 public class HelperTests {
+
+	private static long beforeDirect;
+	private static Level prevLvl;
+
+	@BeforeClass
+	public static void leaks() {
+		ByteBufAllocatorMetric metrics = UnpooledByteBufAllocator.DEFAULT.metric();
+		beforeDirect = metrics.usedDirectMemory();
+		prevLvl = ResourceLeakDetector.getLevel();
+		ResourceLeakDetector.setLevel(Level.PARANOID);
+	}
+
+	@AfterClass
+	public static void unleaks() {
+		ByteBufAllocatorMetric metrics = UnpooledByteBufAllocator.DEFAULT.metric();
+		System.err.println("direct usage: " + metrics.usedDirectMemory() + ", before: " + beforeDirect);
+		ResourceLeakDetector.setLevel(prevLvl);
+	}
 
 	@Test
 	public void convertEuropeParis() {
