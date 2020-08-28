@@ -48,6 +48,7 @@ import com.netflix.hollow.core.read.iterator.HollowOrdinalIterator;
 import com.netflix.hollow.tools.query.HollowFieldMatchQuery;
 
 import net.bluemind.directory.hollow.datamodel.consumer.Query.QueryType;
+import net.bluemind.directory.hollow.datamodel.consumer.internal.LoggingRefreshListener;
 import net.bluemind.serialization.client.HollowContext;
 
 public class DirectoryDeserializer {
@@ -72,6 +73,8 @@ public class DirectoryDeserializer {
 		HollowContext context = HollowContext.get(dir, "directory");
 		this.consumer = new HollowConsumer.Builder<>().withBlobRetriever(context.blobRetriever)
 				.withAnnouncementWatcher(watcher(context)).withGeneratedAPIClass(OfflineDirectoryAPI.class).build();
+		this.consumer.addRefreshListener(new LoggingRefreshListener(
+				dir.getName() + " ctx:" + context.toString().replace("net.bluemind.serialization.client.", "")));
 
 		this.consumer.triggerRefresh();
 		logger.info("Current version: {}", consumer.getCurrentVersionId());

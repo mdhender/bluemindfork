@@ -16,7 +16,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.config,
  org.fusesource.jansi,
  com.google.guava,
- net.bluemind.system.nginx
+ net.bluemind.network.topology
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.metrics
 Bundle-ActivationPolicy: lazy

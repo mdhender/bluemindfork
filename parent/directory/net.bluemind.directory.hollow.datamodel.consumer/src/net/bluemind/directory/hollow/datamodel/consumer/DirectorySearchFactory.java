@@ -44,7 +44,7 @@ public class DirectorySearchFactory {
 
 	private static SerializedDirectorySearch get(String domain, Optional<Predicate<AddressBookRecord>> matcher) {
 		DirectoryDeserializer deserializer = DirectorySearchFactory.deserializers.computeIfAbsent(domain,
-				d -> new DirectoryDeserializer(d));
+				DirectoryDeserializer::new);
 		if (!matcher.isPresent()) {
 			return new DefaultDirectorySearch(deserializer);
 		} else {
@@ -58,6 +58,6 @@ public class DirectorySearchFactory {
 
 	public static void reset() {
 		DirectorySearchFactory.deserializers = new HashMap<>();
-	};
+	}
 
 }
