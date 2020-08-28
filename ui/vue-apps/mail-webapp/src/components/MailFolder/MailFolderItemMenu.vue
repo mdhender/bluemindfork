@@ -32,6 +32,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
 import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
+import { create } from "../../model/folder";
 import { TOGGLE_FOLDER, ADD_FOLDER } from "../../store/folders/mutations";
 
 export default {
@@ -86,7 +87,7 @@ export default {
         async createSubFolder() {
             const mailbox = this.mailboxes[this.folder.mailbox];
             const key = UUIDGenerator.generate();
-            this.ADD_FOLDER({ key, name: "", parent: this.folder.key, mailbox });
+            this.ADD_FOLDER(create(key, "", this.folder, mailbox));
             await this.$nextTick();
             // TODO: Remove when new store is complete. mUsing key as uid here is a hack.
             this.TOGGLE_EDIT_FOLDER(key);

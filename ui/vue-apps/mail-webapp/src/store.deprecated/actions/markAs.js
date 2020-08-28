@@ -56,7 +56,7 @@ function onSuccessForMarkAsReadOrUnread(messageKeys, context, updateAction) {
         return updateAction === "messages/deleteFlag" ? !unread : unread;
     });
     return () => {
-        if (anyMessageMissingInState(context.state, messageKeys)) {
+        if (anyMessageMissingInState(context.rootGetters, messageKeys)) {
             const messageKeysByFolder = ItemUri.urisByContainer(messageKeys);
             loadUnreadCount(messageKeysByFolder, context.dispatch);
         } else {
@@ -73,7 +73,7 @@ function markAs(context, updateAction, flagType, messageFilter, alertCodes, mess
         context.commit("addApplicationAlert", { code: alertCodes.LOADING, uid: alertUid }, { root: true });
     }
 
-    if (anyMessageMissingInState(context.state, messageKeys)) {
+    if (anyMessageMissingInState(context.rootGetters, messageKeys)) {
         promise = markAsWhenMessagesMissingInState(messageKeys, updateAction, flagType, context.dispatch);
     } else {
         promise = markAsWhenAllMessagesAreInState(context, messageKeys, updateAction, flagType, messageFilter);
@@ -124,8 +124,8 @@ function setUnreadCount(context, messageKeys, updateAction) {
     });
 }
 
-function anyMessageMissingInState(state, messageKeys) {
-    return messageKeys.filter(messageKey => !state.messages.items[messageKey]).length > 0;
+function anyMessageMissingInState(rootGetters, messageKeys) {
+    return messageKeys.some(messageKey => !rootGetters["mail/isLoaded"](messageKey));
 }
 
 function updateFlag(action, flagType, dispatch, messageKeys) {

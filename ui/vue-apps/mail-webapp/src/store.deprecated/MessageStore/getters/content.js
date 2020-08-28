@@ -2,7 +2,7 @@ import { MimeType, PartsHelper } from "@bluemind/email";
 
 export function content(state, getters, rootState, rootGetters) {
     const partsContent = rootState["mail-webapp"]["messages"].itemsParts[state.key];
-    if (state.key && partsContent.length > 0) {
+    if (state.key && partsContent) {
         const parts = state.parts.inlines
             .map(part => {
                 const content = rootGetters["mail-webapp/messages/getPartContent"](state.key, part.address);

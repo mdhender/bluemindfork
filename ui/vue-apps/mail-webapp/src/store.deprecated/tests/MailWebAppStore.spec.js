@@ -25,6 +25,8 @@ import Vuex from "vuex";
 import WebsocketClient from "@bluemind/sockjs";
 import { Flag } from "@bluemind/email";
 import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
+import mutationTypes from "../../store/mutationTypes";
+import MessageAdaptor from "../../store/messages/MessageAdaptor";
 
 jest.mock("@bluemind/sockjs");
 jest.mock("@bluemind/mailbox.api");
@@ -54,6 +56,13 @@ AlertFactory.register(MailAppAlerts);
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
+
+function initializeMessages({ commit }, messages, folderUid) {
+    const ids = messages.map(({ internalId }) => MessageAdaptor.create(internalId, { key: folderUid, uid: folderUid }));
+    commit("mail/" + mutationTypes.SET_MESSAGE_LIST, ids);
+    const adapted = messages.map(m => MessageAdaptor.fromMailboxItem(m, { key: folderUid }));
+    commit("mail/" + mutationTypes.ADD_MESSAGES, adapted);
+}
 
 describe("[MailWebAppStore] Vuex store", () => {
     let store;
@@ -127,17 +136,15 @@ describe("[MailWebAppStore] Vuex store", () => {
         );
         await store.dispatch("mail-webapp/loadMessageList", { folder: folderUid }, { root: true });
         expect(store.state["mail"].activeFolder).toEqual(folderUid);
-        expect(store.state["mail-webapp"].messages.itemKeys.length).toEqual(aliceInbox.length);
-        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(
+        expect(store.state.mail.messageList.messageKeys.length).toEqual(aliceInbox.length);
+        expect(store.state.mail.messageList.messageKeys).toEqual(
             aliceInbox.map(m => ItemUri.encode(m.internalId, folderUid))
         );
-        expect(
-            store.state["mail-webapp"].messages.items[store.state["mail-webapp"].messages.itemKeys[0]]
-        ).not.toBeUndefined();
+        expect(store.state.mail.messages[store.state.mail.messageList.messageKeys[0]]).not.toBeUndefined();
     });
 
     //FIXME: When folder store became a module, this test broke
-    test.skip("select a folder with 'unread' filter", async () => {
+    test("select a folder with 'unread' filter", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
         await store.dispatch("mail/FETCH_MAILBOXES");
@@ -162,57 +169,53 @@ describe("[MailWebAppStore] Vuex store", () => {
             Promise.resolve(aliceInbox.filter(message => !message.value.flags.includes(Flag.SEEN)))
         );
 
-        expect(store.state["mail-webapp"].messages.itemKeys.length).toEqual(0);
+        expect(store.state.mail.messageList.messageKeys.length).toEqual(0);
         await store.dispatch("mail-webapp/loadMessageList", { folder: folderUid, filter: "unread" }, { root: true });
-        expect(store.state["mail"].activeFolder).toEqual(folderUid);
-        expect(store.state["mail-webapp"].messages.itemKeys.length).toEqual(5);
-        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(
+        expect(store.state.mail.activeFolder).toEqual(folderUid);
+        expect(store.state.mail.messageList.messageKeys.length).toEqual(5);
+        expect(store.state.mail.messageList.messageKeys).toEqual(
             aliceInbox
                 .filter(message => !message.flags.includes("Seen"))
                 .map(m => ItemUri.encode(m.internalId, folderUid))
         );
-        expect(
-            store.state["mail-webapp"].messages.items[store.state["mail-webapp"].messages.itemKeys[0]]
-        ).not.toBeUndefined();
-        expect(store.state["mail"].folders[folderUid].unread).toBe(5);
+        expect(store.state.mail.messages[store.state.mail.messageList.messageKeys[0]]).not.toBeUndefined();
+        expect(store.state.mail.folders[folderUid].unread).toBe(5);
         expect(store.getters["mail/CURRENT_MAILBOX"].key).toEqual("user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
     });
 
-    test("select a message", done => {
+    test("select a message", async () => {
         const folderUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";
         const messageKey = ItemUri.encode(872, folderUid);
         const text = "Text content...";
         itemsService.mockFetch(text);
-        store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid }, { root: true });
-        store.dispatch("mail-webapp/selectMessage", messageKey, { root: true }).then(() => {
-            expect(store.getters["mail-webapp/currentMessage/message"]).toStrictEqual(
-                store.getters["mail-webapp/messages/getMessagesByKey"]([messageKey])[0]
-            );
-            let parts = [
-                {
-                    mime: "text/plain",
-                    address: "1",
-                    encoding: "quoted-printable",
-                    charset: "ISO-8859-1",
-                    size: 25,
-                    content: text
-                }
-            ];
-            expect(store.getters["mail-webapp/currentMessage/content"]).toEqual(parts);
-            parts = [
-                {
-                    mime: "text/x-ruby-script",
-                    address: "2",
-                    encoding: "7bit",
-                    charset: "us-ascii",
-                    filename: "api.rb",
-                    size: 28
-                }
-            ];
-            expect(store.state["mail-webapp"].currentMessage.parts.attachments).toEqual(parts);
+        initializeMessages(store, aliceInbox, folderUid);
+        await store.dispatch("mail-webapp/selectMessage", messageKey, { root: true });
 
-            done();
-        });
+        expect(store.getters["mail-webapp/currentMessage/message"]).toStrictEqual(
+            store.getters["mail-webapp/messages/getMessagesByKey"]([messageKey])[0]
+        );
+        let parts = [
+            {
+                mime: "text/plain",
+                address: "1",
+                encoding: "quoted-printable",
+                charset: "ISO-8859-1",
+                size: 25,
+                content: text
+            }
+        ];
+        expect(store.getters["mail-webapp/currentMessage/content"]).toEqual(parts);
+        parts = [
+            {
+                mime: "text/x-ruby-script",
+                address: "2",
+                encoding: "7bit",
+                charset: "us-ascii",
+                filename: "api.rb",
+                size: 28
+            }
+        ];
+        expect(store.state["mail-webapp"].currentMessage.parts.attachments).toEqual(parts);
     });
 
     test("remove a message from my mailbox", async () => {
@@ -228,14 +231,15 @@ describe("[MailWebAppStore] Vuex store", () => {
         const folderUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";
         let messageKey = ItemUri.encode(872, folderUid);
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
-        store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid }, { root: true });
+
+        initializeMessages(store, aliceInbox, folderUid);
 
         store.commit("mail/SET_ACTIVE_FOLDER", folderUid, { root: true });
-        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.arrayContaining([messageKey]));
+        expect(store.state.mail.messageList.messageKeys).toEqual(expect.arrayContaining([messageKey]));
 
         await store.dispatch("mail-webapp/remove", messageKey, { root: true });
 
-        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
+        expect(store.state.mail.messageList.messageKeys).toEqual(expect.not.arrayContaining([messageKey]));
         expect(foldersService.importItems).toHaveBeenCalled();
     });
 
@@ -259,11 +263,11 @@ describe("[MailWebAppStore] Vuex store", () => {
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
         store.commit("mail/ADD_MAILBOXES", containers, { root: true });
 
-        store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid }, { root: true });
+        initializeMessages(store, aliceInbox, folderUid);
         store.commit("mail/SET_ACTIVE_FOLDER", folderUid, { root: true });
-        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.arrayContaining([messageKey]));
+        expect(store.state.mail.messageList.messageKeys).toEqual(expect.arrayContaining([messageKey]));
         await store.dispatch("mail-webapp/remove", messageKey, { root: true });
-        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
+        expect(store.state.mail.messageList.messageKeys).toEqual(expect.not.arrayContaining([messageKey]));
         expect(itemsTransferClient.move).toHaveBeenCalled();
     });
 
@@ -280,24 +284,22 @@ describe("[MailWebAppStore] Vuex store", () => {
         const trashUid = "98a9383e-5156-44eb-936a-e6b0825b0809";
         const messageKey = ItemUri.encode(872, trashUid);
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
-        store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid: trashUid }, { root: true });
-        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.arrayContaining([messageKey]));
+        initializeMessages(store, aliceInbox, trashUid);
+        expect(store.state.mail.messageList.messageKeys).toEqual(expect.arrayContaining([messageKey]));
         await store.dispatch("mail-webapp/remove", messageKey, { root: true });
-        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
+        expect(store.state.mail.messageList.messageKeys).toEqual(expect.not.arrayContaining([messageKey]));
         expect(itemsService.multipleDeleteById).toHaveBeenCalled();
     });
 
-    test("remove a message definitely", done => {
+    test("remove a message definitely", async () => {
         const folderUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";
         const messageKey = ItemUri.encode(872, folderUid);
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
-        store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid }, { root: true });
-        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.arrayContaining([messageKey]));
-        store.dispatch("mail-webapp/purge", messageKey, { root: true }).then(() => {
-            expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
-            expect(itemsService.multipleDeleteById).toHaveBeenCalled();
-            done();
-        });
+        initializeMessages(store, aliceInbox, folderUid);
+        expect(store.state.mail.messageList.messageKeys).toEqual(expect.arrayContaining([messageKey]));
+        await store.dispatch("mail-webapp/purge", messageKey, { root: true });
+        expect(store.state.mail.messageList.messageKeys).toEqual(expect.not.arrayContaining([messageKey]));
+        expect(itemsService.multipleDeleteById).toHaveBeenCalled();
     });
 
     test("move a message", async () => {
@@ -315,11 +317,11 @@ describe("[MailWebAppStore] Vuex store", () => {
         let messageKey = ItemUri.encode(872, inboxUid);
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
         store.commit("mail/SET_ACTIVE_FOLDER", inboxUid, { root: true });
-        store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid: inboxUid }, { root: true });
+        initializeMessages(store, aliceInbox, inboxUid);
         const destination = store.state.mail.folders[archive2017Uid];
-        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.arrayContaining([messageKey]));
+        expect(store.state.mail.messageList.messageKeys).toEqual(expect.arrayContaining([messageKey]));
         await store.dispatch("mail-webapp/move", { messageKey, folder: destination }, { root: true });
-        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
+        expect(store.state.mail.messageList.messageKeys).toEqual(expect.not.arrayContaining([messageKey]));
         expect(foldersService.importItems).toHaveBeenCalled();
     });
 
@@ -345,13 +347,13 @@ describe("[MailWebAppStore] Vuex store", () => {
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
         store.commit("mail/ADD_MAILBOXES", containers, { root: true });
         store.commit("mail/SET_ACTIVE_FOLDER", folderUid, { root: true });
-        store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid }, { root: true });
+        initializeMessages(store, aliceInbox, folderUid);
         store.state.mail.folders[archive2017Uid].mailbox = "2814CC5D-D372-4F66-A434-89863E99B8CD";
         const destination = store.state.mail.folders[archive2017Uid];
-        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.arrayContaining([messageKey]));
+        expect(store.state.mail.messageList.messageKeys).toEqual(expect.arrayContaining([messageKey]));
         await store.dispatch("mail-webapp/move", { messageKey, folder: destination }, { root: true });
         expect(itemsTransferClient.move).toHaveBeenCalled();
-        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
+        expect(store.state.mail.messageList.messageKeys).toEqual(expect.not.arrayContaining([messageKey]));
     });
 
     test("move a message in a new folder", async () => {
@@ -391,7 +393,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         foldersService.createBasic.mockReturnValue(Promise.resolve({ uid: destination.uid }));
         foldersService.getComplete.mockReturnValue(Promise.resolve(destination));
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
-        store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid: inboxUid }, { root: true });
+        initializeMessages(store, aliceInbox, inboxUid);
         store.commit("mail/SET_ACTIVE_FOLDER", folderUid, { root: true });
 
         await store.dispatch("mail-webapp/move", { messageKey, folder: adaptedDestination }, { root: true });
@@ -399,6 +401,6 @@ describe("[MailWebAppStore] Vuex store", () => {
         expect(foldersService.importItems).toHaveBeenCalled();
         expect(foldersService.createBasic).toHaveBeenCalled();
         expect(store.state.mail.folders[folderUid]).toBeDefined();
-        expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
+        expect(store.state.mail.messageList.messageKeys).toEqual(expect.not.arrayContaining([messageKey]));
     });
 });

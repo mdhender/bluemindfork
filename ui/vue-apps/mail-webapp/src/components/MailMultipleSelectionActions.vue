@@ -83,7 +83,9 @@
                     {{ $t("mail.message.select.all.search") }}
                     <bm-icon icon="search" /><span class="font-weight-bold">"{{ search.pattern }}"</span>
                 </h3>
-                <bm-button @click="addAllToSelectedMessages(itemKeys)">{{ $t("common.select.all") }}</bm-button>
+                <bm-button @click="addAllToSelectedMessages(messageList.messageKeys)">
+                    {{ $t("common.select.all") }}
+                </bm-button>
             </div>
         </div>
     </div>
@@ -114,7 +116,6 @@ export default {
     },
     computed: {
         ...mapState("mail-webapp", ["selectedMessageKeys", "search"]),
-        ...mapState("mail-webapp/messages", ["itemKeys"]),
         ...mapGetters("mail-webapp", [
             "areAllMessagesSelected",
             "areAllSelectedMessagesFlagged",
@@ -125,7 +126,7 @@ export default {
             "isSearchMode",
             "nextMessageKey"
         ]),
-        ...mapState("mail", ["folders", "mailboxes", "activeFolder"]),
+        ...mapState("mail", ["folders", "mailboxes", "activeFolder", "messageList"]),
         ...mapGetters("mail", ["MY_TRASH"]),
         anyMessageReadOnly() {
             return this.selectedMessageKeys

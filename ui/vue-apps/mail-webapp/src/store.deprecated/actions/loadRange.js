@@ -1,9 +1,9 @@
 const loading = [];
 const PAGE_SIZE = 100;
 
-export async function loadRange({ dispatch, getters, state }, range) {
+export async function loadRange({ dispatch, getters, rootState }, range) {
     const messages = getters["messages/messages"];
-    const sorted = state.messages.itemKeys;
+    const sorted = rootState.mail.messageList.messageKeys;
     const keys = getKeysForRange(messages, sorted, range);
     if (keys.length > 0) {
         await loadMessages(dispatch, keys, loading);

@@ -1,112 +1,130 @@
-import mutations from "../../messages/mutations";
+import mutations from "../mutations";
+import MessageStatus from "../MessageStatus";
 
-describe("messages", () => {
-    describe("mutations", () => {
-        describe("ADD_MESSAGE/S", () => {
-            const { ADD_MESSAGE, ADD_MESSAGES } = mutations;
-            test("index by key", () => {
-                const state = {};
-                const message = {
-                    key: 1
-                };
-                ADD_MESSAGE(state, message);
-                expect(state).toEqual({
-                    [message.key]: message
-                });
-            });
-            test("add a bunch of messages", () => {
-                const state = {};
-                const messages = [{ key: 1 }, { key: 2 }, { key: 3 }];
-                ADD_MESSAGES(state, messages);
-                expect(state).toMatchInlineSnapshot(`
-                    Object {
-                      "1": Object {
-                        "key": 1,
-                      },
-                      "2": Object {
-                        "key": 2,
-                      },
-                      "3": Object {
-                        "key": 3,
-                      },
-                    }
-                `);
-            });
-            test("add a bunch of messages but without required parameters", () => {
-                const state = {};
-                const messages = [{ key: 1 }, { key: 2 }, { key: 3 }];
-                ADD_MESSAGES(state, messages);
-                expect(state).toMatchInlineSnapshot(`
-                    Object {
-                      "1": Object {
-                        "key": 1,
-                      },
-                      "2": Object {
-                        "key": 2,
-                      },
-                      "3": Object {
-                        "key": 3,
-                      },
-                    }
-                `);
-            });
+describe("mutations", () => {
+    describe("ADD_MESSAGES", () => {
+        test("when state is empty", () => {
+            const message = { key: "key1", subject: "mySubject" };
+            const message2 = { key: "key2", subject: "anotherSubject" };
+            const state = {};
+            mutations.ADD_MESSAGES(state, [message, message2]);
+            expect(state).toEqual({ [message.key]: message, [message2.key]: message2 });
         });
 
-        describe("UPDATE_STATUS", () => {
-            const { UPDATE_STATUS } = mutations;
-            test("new status", () => {
-                const state = { 1: { status: "STATUS" } };
-                UPDATE_STATUS(state, { key: 1, status: "UPDATED" });
-                expect(state).toEqual({ 1: { status: "UPDATED" } });
-            });
-            test("no previous status", () => {
-                const state = {
-                    1: {}
-                };
-                UPDATE_STATUS(state, { key: 1, status: "UPDATED" });
-                expect(state).toEqual({ 1: { status: "UPDATED" } });
-            });
+        test("overwrites message if it's already in state", () => {
+            const message = { key: "key1", subject: "mySubject" };
+            const state = { [message.key]: message };
+            message.subject = "modified";
+            mutations.ADD_MESSAGES(state, [message]);
+            expect(state).toEqual({ [message.key]: message });
         });
 
-        describe("READ FLAG", () => {
-            const { MARK_AS_READ } = mutations;
-            test("just update read flag", () => {
-                const state = {
-                    1: { data: { prop: "existing", flags: { read: false, important: true } } },
-                    2: { data: { flags: { read: false } } }
-                };
-                MARK_AS_READ(state, { key: 1 });
-                expect(state).toMatchInlineSnapshot(`
-                    Object {
-                      "1": Object {
-                        "data": Object {
-                          "flags": Object {
-                            "important": true,
-                            "read": true,
-                          },
-                          "prop": "existing",
-                        },
-                      },
-                      "2": Object {
-                        "data": Object {
-                          "flags": Object {
-                            "read": false,
-                          },
-                        },
-                      },
-                    }
-                `);
-            });
+        test("dont delete existing messages in state", () => {
+            const message = { key: "key1", subject: "mySubject" };
+            const state = { [message.key]: message };
+            const message2 = { key: "key2", subject: "anotherSubject" };
+            mutations.ADD_MESSAGES(state, [message2]);
+            expect(state).toEqual({ [message.key]: message, [message2.key]: message2 });
+        });
+    });
 
-            test("when key is missing", () => {
-                const state = {
-                    1: { data: { prop: "existing", flags: { read: false, important: true } } },
-                    2: { data: { flags: { read: false } } }
-                };
-                const initialState = JSON.parse(JSON.stringify(state));
-                MARK_AS_READ(state, 0);
-                expect(state).toEqual(initialState);
-            });
+    describe("REMOVE_MESSAGES", () => {
+        test("dont delete other messages in state", () => {
+            const message = { key: "key1", subject: "mySubject" };
+            const message2 = { key: "key2", subject: "anotherSubject" };
+            const state = { [message.key]: message, [message2.key]: message2 };
+            mutations.REMOVE_MESSAGES(state, [message2.key]);
+            expect(state).toEqual({ [message.key]: message });
+        });
+
+        test("do nothing if key dont exist", () => {
+            const message = { key: "key1", subject: "mySubject" };
+            const state = { [message.key]: message };
+            mutations.REMOVE_MESSAGES(state, ["UNKNOWN-KEY"]);
+            expect(state).toEqual({ [message.key]: message });
+        });
+    });
+
+    describe("ADD_FLAG", () => {
+        test("dont add flag if it's already set", () => {
+            const message = { key: "key1", status: MessageStatus.LOADED, flags: ["READ"] };
+            const state = { [message.key]: message };
+            mutations.ADD_FLAG(state, { messageKeys: [message.key], flag: "READ" });
+            expect(state[message.key].flags).toEqual(["READ"]);
+        });
+
+        test("dont add flag if message metadata are not loaded", () => {
+            const message = { key: "key1", status: MessageStatus.NOT_LOADED };
+            const state = { [message.key]: message };
+            mutations.ADD_FLAG(state, { messageKeys: [message.key], flag: "READ" });
+            expect(state[message.key].flags).toEqual(undefined);
+        });
+
+        test("dont change other flag", () => {
+            const message = { key: "key1", status: MessageStatus.LOADED, flags: ["OTHER"] };
+            const state = { [message.key]: message };
+            mutations.ADD_FLAG(state, { messageKeys: [message.key], flag: "READ" });
+            expect(state[message.key].flags).toEqual(["OTHER", "READ"]);
+        });
+
+        test("add flag to multiple messages", () => {
+            const message = { key: "key1", status: MessageStatus.LOADED, flags: [] };
+            const message2 = { key: "key2", status: MessageStatus.LOADED, flags: [] };
+            const state = { [message.key]: message, [message2.key]: message2 };
+            mutations.ADD_FLAG(state, { messageKeys: [message.key, message2.key], flag: "READ" });
+            expect(state[message.key].flags).toEqual(["READ"]);
+            expect(state[message2.key].flags).toEqual(["READ"]);
+        });
+    });
+
+    describe("DELETE_FLAG", () => {
+        test("do nothing if flag is not set", () => {
+            const message = { key: "key1", status: MessageStatus.LOADED, flags: ["OTHER"] };
+            const state = { [message.key]: message };
+            mutations.DELETE_FLAG(state, { messageKeys: [message.key], flag: "READ" });
+            expect(state[message.key].flags).toEqual(["OTHER"]);
+        });
+
+        test("dont change other flag", () => {
+            const message = { key: "key1", status: MessageStatus.LOADED, flags: ["OTHER", "READ"] };
+            const state = { [message.key]: message };
+            mutations.DELETE_FLAG(state, { messageKeys: [message.key], flag: "READ" });
+            expect(state[message.key].flags).toEqual(["OTHER"]);
+        });
+
+        test("delete flag to multiple messages", () => {
+            const message = { key: "key1", status: MessageStatus.LOADED, flags: ["READ"] };
+            const message2 = { key: "key2", status: MessageStatus.LOADED, flags: ["READ"] };
+            const state = { [message.key]: message, [message2.key]: message2 };
+            mutations.DELETE_FLAG(state, { messageKeys: [message.key, message2.key], flag: "READ" });
+            expect(state[message.key].flags).toEqual([]);
+            expect(state[message2.key].flags).toEqual([]);
+        });
+    });
+
+    describe("SET_MESSAGES_STATUS", () => {
+        test("can change status", () => {
+            const message = { key: "key1", status: MessageStatus.NOT_LOADED };
+            const state = { [message.key]: message };
+            mutations.SET_MESSAGES_STATUS(state, [{ key: message.key, status: MessageStatus.LOADED }]);
+            expect(state[message.key].status).toEqual(MessageStatus.LOADED);
+        });
+    });
+
+    describe("SET_MESSAGE_LIST", () => {
+        test("messages are added to the state", () => {
+            const state = {};
+            const message = { key: "key1", status: MessageStatus.NOT_LOADED };
+            const message2 = { key: "key2", status: MessageStatus.NOT_LOADED };
+            mutations.SET_MESSAGE_LIST(state, [message, message2]);
+            expect(state).toEqual({ [message.key]: message, [message2.key]: message2 });
+        });
+
+        test("dont update message if it's already set", () => {
+            const message = { key: "key1" };
+            const state = { [message.key]: message };
+            mutations.SET_MESSAGE_LIST(state, [{ key: message.key, status: MessageStatus.LOADED }]);
+            expect(state[message.key].status).toEqual(undefined);
         });
     });
 });

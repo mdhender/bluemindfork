@@ -1,10 +1,18 @@
-import mutations from "./mutations";
 import actions from "./actions";
-import getters from "./getters";
+import MessageStatus from "./MessageStatus";
+import mutations from "./mutations";
 
 export default {
-    state: {},
-    getters,
+    actions,
     mutations,
-    actions
+    getters: {
+        isLoaded(state) {
+            return key => {
+                let m = state[key];
+                let s = m && state[key].status;
+                return s === MessageStatus.LOADED;
+            };
+        }
+    },
+    state: {}
 };

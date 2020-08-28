@@ -64,6 +64,6 @@ describe("[Mail-WebappStore][actions] : remove", () => {
     test("update the unread counter if necessary", async () => {
         const messageKey = ItemUri.encode("message-id", "inbox-uid");
         await remove(context, messageKey);
-        expect(context.dispatch).toHaveBeenNthCalledWith(3, "mail-webapp/loadUnreadCount", "inbox-uid");
+        expect(context.dispatch).toHaveBeenNthCalledWith(3, "loadUnreadCount", "inbox-uid");
     });
 });

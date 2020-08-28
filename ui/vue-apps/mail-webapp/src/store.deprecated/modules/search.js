@@ -1,5 +1,5 @@
 import ServiceLocator from "@bluemind/inject";
-import ItemUri from "@bluemind/item-uri";
+import MessageAdaptor from "../../store/messages/MessageAdaptor";
 
 const MAX_SEARCH_RESULTS = 500;
 export const STATUS = {
@@ -65,13 +65,18 @@ async function search({ commit, dispatch, rootState, rootGetters }, { pattern, f
             .get(mailboxUid)
             .searchItems(searchPayload);
         if (!searchResults.results) searchResults.results = [];
-        const itemKeys = searchResults.results.map(res => {
+        const messages = searchResults.results.map(res => {
             const underscoreIndex = res.containerUid.lastIndexOf("_");
             const offset = underscoreIndex >= 0 ? underscoreIndex + 1 : 0;
-            return ItemUri.encode(res.itemId, res.containerUid.substring(offset));
+            const folderUid = res.containerUid.substring(offset);
+            return MessageAdaptor.create(res.itemId, { key: folderUid, uid: folderUid });
         });
-        commit("mail-webapp/messages/setItemKeys", itemKeys, { root: true });
-        const result = await dispatch("mail-webapp/messages/multipleByKey", itemKeys.slice(0, 40), { root: true });
+        commit("mail/SET_MESSAGE_LIST", messages, { root: true });
+        const result = await dispatch(
+            "mail-webapp/messages/multipleByKey",
+            messages.slice(0, 40).map(m => m.key),
+            { root: true }
+        );
         commit("setStatus", STATUS.RESOLVED);
         return result;
     } catch (err) {

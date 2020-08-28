@@ -1,56 +1,30 @@
 import { deleteFlag } from "../../../MailboxItemsStore/actions/deleteFlag";
 import { Flag } from "@bluemind/email";
-import { MailboxItemsClient } from "@bluemind/backend.mail.api";
-import ItemUri from "@bluemind/item-uri";
-import ServiceLocator from "@bluemind/inject";
-jest.mock("@bluemind/inject");
-jest.mock("@bluemind/backend.mail.api");
-
-jest.mock("@bluemind/inject");
-
-const service = new MailboxItemsClient();
-service.deleteFlag.mockReturnValue(Promise.resolve());
-const get = jest.fn().mockReturnValue(service);
-ServiceLocator.getProvider.mockReturnValue({
-    get
-});
+import actionTypes from "../../../../../store/actionTypes";
 
 const context = {
-    commit: jest.fn(),
-    dispatch: jest.fn().mockResolvedValue(),
-    state: {
-        items: {}
-    }
+    dispatch: jest.fn().mockResolvedValue()
 };
 
 describe("[MailItemsStore][actions] : deleteFlag", () => {
-    const messageId = "74515",
-        folderUid = "2da34601-8c78-4cc3-baf0-1ae3dfe24a23",
-        mailboxItemFlag = Flag.SEEN;
-    const messageKey = ItemUri.encode(messageId, folderUid);
+    const mailboxItemFlag = Flag.SEEN;
+    const messageKey = "key";
 
     beforeEach(() => {
-        context.commit.mockClear();
+        context.dispatch.mockClear();
     });
 
-    test("call delete flag for a given messageId and folderUid  and mutate state", done => {
-        deleteFlag(context, { messageKeys: [messageKey], mailboxItemFlag }).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("deleteFlag", { messageKeys: [messageKey], mailboxItemFlag });
-            done();
-        });
-        expect(get).toHaveBeenCalledWith(folderUid);
-        expect(service.deleteFlag).toHaveBeenCalledWith({ itemsId: [messageId], mailboxItemFlag });
-
-        deleteFlag(context, { messageKeys: [messageKey], mailboxItemFlag }).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("deleteFlag", { messageKeys: [messageKey], mailboxItemFlag });
-            done();
-        });
-        expect(get).toHaveBeenCalledWith(folderUid);
-        expect(service.deleteFlag).toHaveBeenCalledWith({ itemsId: [messageId], mailboxItemFlag });
+    test("call delete flag for a given messageId and folderUid  and mutate state", () => {
+        deleteFlag(context, { messageKeys: [messageKey], mailboxItemFlag });
+        expect(context.dispatch).toHaveBeenCalledWith(
+            "mail/" + actionTypes.DELETE_FLAG,
+            { messageKeys: [messageKey], flag: mailboxItemFlag },
+            { root: true }
+        );
     });
 
     test("fail if deleteFlag call fail", async () => {
-        service.deleteFlag.mockRejectedValue();
-        await expect(deleteFlag(context, { messageKeys: [messageKey], mailboxItemFlag })).rejects.toEqual(new Error());
+        context.dispatch.mockRejectedValue("Error");
+        await expect(deleteFlag(context, { messageKeys: [messageKey], mailboxItemFlag })).rejects.toEqual("Error");
     });
 });

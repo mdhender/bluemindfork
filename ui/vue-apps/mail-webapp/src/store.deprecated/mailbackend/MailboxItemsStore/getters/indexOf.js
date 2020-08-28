@@ -1,3 +1,3 @@
-export function indexOf(state) {
-    return key => state.itemKeys.indexOf(key);
+export function indexOf(state, getters, rootState) {
+    return key => rootState.mail.messageList.messageKeys.findIndex(messageKey => messageKey === key);
 }

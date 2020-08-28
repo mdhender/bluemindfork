@@ -3,6 +3,7 @@ import * as consultPanel from "./consultPanel";
 import folders from "./folders";
 import messages from "./messages";
 import * as folderList from "./folderList";
+import messageList from "./messageList";
 import * as mailboxes from "./mailboxes";
 
 export default {
@@ -18,6 +19,7 @@ export default {
     getters: { ...app.getters, ...mailboxes.getters },
     modules: {
         folders,
-        messages
+        messages,
+        messageList
     }
 };

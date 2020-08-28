@@ -15,4 +15,6 @@ mockedMailboxItemClient.prototype.mockFetch = function (text) {
     });
 };
 
+mockedMailboxItemClient.prototype.getPerUserUnread.mockReturnValue({ count: 0 });
+
 export default mockedMailboxItemClient;

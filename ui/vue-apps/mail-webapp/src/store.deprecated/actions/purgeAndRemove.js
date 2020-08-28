@@ -49,7 +49,7 @@ function removeMessages(context, messageKeys) {
 function cleanUp(messageKeys, context) {
     const messageKeysByFolder = ItemUri.urisByContainer(messageKeys);
     Object.keys(messageKeysByFolder).forEach(folderKey => {
-        context.dispatch("mail-webapp/loadUnreadCount", folderKey);
+        context.dispatch("loadUnreadCount", folderKey);
         const keys = messageKeysByFolder[folderKey];
         keys.forEach(messageKey => {
             context.commit("deleteSelectedMessageKey", messageKey);

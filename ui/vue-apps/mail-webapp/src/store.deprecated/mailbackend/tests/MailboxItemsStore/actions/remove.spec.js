@@ -1,41 +1,28 @@
 import { remove } from "../../../MailboxItemsStore/actions/remove";
-import ServiceLocator from "@bluemind/inject";
-import ItemUri from "@bluemind/item-uri";
+import actionTypes from "../../../../../store/actionTypes";
 
 jest.mock("@bluemind/inject");
 
-const multipleDeleteById = jest.fn().mockReturnValue(Promise.resolve());
-const get = jest.fn().mockReturnValue({
-    multipleDeleteById
-});
-ServiceLocator.getProvider.mockReturnValue({
-    get
-});
-
 const context = {
-    commit: jest.fn()
+    dispatch: jest.fn()
 };
 
 describe("[MailItemsStore][actions] : remove", () => {
-    const messageId = "74515",
-        folderUid = "2da34601-8c78-4cc3-baf0-1ae3dfe24a23";
-    const messageKey = ItemUri.encode(messageId, folderUid);
+    const messageKey = "messageKey";
 
     beforeEach(() => {
-        context.commit.mockClear();
+        context.dispatch.mockClear();
     });
 
-    test("call remove service for a given messageId and folderUid  and mutate state", done => {
-        remove(context, messageKey).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("removeItems", [messageKey]);
-            done();
+    test("call remove service for a given messageId and folderUid  and mutate state", () => {
+        remove(context, messageKey);
+        expect(context.dispatch).toHaveBeenCalledWith("mail/" + actionTypes.REMOVE_MESSAGES, messageKey, {
+            root: true
         });
-        expect(get).toHaveBeenCalledWith(folderUid);
-        expect(multipleDeleteById).toHaveBeenCalledWith([messageId]);
     });
 
     test("fail if deleteById call fail", async () => {
-        multipleDeleteById.mockReturnValueOnce(Promise.reject("Error!"));
+        context.dispatch.mockReturnValueOnce(Promise.reject("Error!"));
         await expect(remove(context, messageKey)).rejects.toBe("Error!");
     });
 });

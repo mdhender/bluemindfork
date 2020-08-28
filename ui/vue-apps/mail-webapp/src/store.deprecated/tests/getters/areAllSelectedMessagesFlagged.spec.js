@@ -2,50 +2,51 @@ import { areAllSelectedMessagesFlagged } from "../../getters/areAllSelectedMessa
 import { Flag } from "@bluemind/email";
 
 const mailFlagged = {
-    value: {
-        flags: [Flag.FLAGGED]
-    }
+    flags: [Flag.FLAGGED]
 };
 
 const mailUnflagged = {
-    value: {
-        flags: []
-    }
+    flags: []
 };
 
 function mockState(mockedItems) {
     return {
-        selectedMessageKeys: ["1", "2", "3"],
-        messages: {
-            items: mockedItems
+        state: {
+            selectedMessageKeys: ["1", "2", "3"],
+            messages: {
+                items: mockedItems
+            }
+        },
+        getters: {
+            "messages/getMessageByKey": key => mockedItems[key]
         }
     };
 }
 
 describe("[Mail-WebappStore][getters] : areAllSelectedMessagesFlagged", () => {
     test("All messages are flagged", () => {
-        const state = mockState({
+        const { state, getters } = mockState({
             "1": mailFlagged,
             "2": mailFlagged,
             "3": mailFlagged
         });
-        expect(areAllSelectedMessagesFlagged(state)).toBe(true);
+        expect(areAllSelectedMessagesFlagged(state, getters)).toBe(true);
     });
 
     test("All messages are flagged (BEST EFFORT)", () => {
-        const state = mockState({
+        const { state, getters } = mockState({
             "1": mailFlagged,
             "2": mailFlagged
         });
-        expect(areAllSelectedMessagesFlagged(state)).toBe(true);
+        expect(areAllSelectedMessagesFlagged(state, getters)).toBe(true);
     });
 
     test("At least one message is not flagged", () => {
-        const state = mockState({
+        const { state, getters } = mockState({
             "1": mailFlagged,
             "2": mailFlagged,
             "3": mailUnflagged
         });
-        expect(areAllSelectedMessagesFlagged(state)).toBe(false);
+        expect(areAllSelectedMessagesFlagged(state, getters)).toBe(false);
     });
 });

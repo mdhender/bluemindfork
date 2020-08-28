@@ -14,7 +14,6 @@ describe("[MailboxItemsStore][getters] : getPartContent ", () => {
     });
     test("return undefined if no message match", () => {
         const content = getPartContent(state)("A", 2);
-
         expect(content).toBeUndefined();
     });
 });

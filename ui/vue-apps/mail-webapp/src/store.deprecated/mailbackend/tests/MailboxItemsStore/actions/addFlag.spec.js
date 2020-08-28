@@ -3,6 +3,7 @@ import { Flag } from "@bluemind/email";
 import { MailboxItemsClient } from "@bluemind/backend.mail.api";
 import ItemUri from "@bluemind/item-uri";
 import ServiceLocator from "@bluemind/inject";
+import actionTypes from "../../../../../store/actionTypes";
 jest.mock("@bluemind/inject");
 jest.mock("@bluemind/backend.mail.api");
 
@@ -33,24 +34,17 @@ describe("[MailItemsStore][actions] : addFlag", () => {
         context.commit.mockClear();
     });
 
-    test("call add flag for a given messageId and folderUid  and mutate state", done => {
-        addFlag(context, { messageKeys: [messageKey], mailboxItemFlag }).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("addFlag", { messageKeys: [messageKey], mailboxItemFlag });
-            done();
-        });
-        expect(get).toHaveBeenCalledWith(folderUid);
-        expect(service.addFlag).toHaveBeenCalledWith({ itemsId: [messageId], mailboxItemFlag });
-
-        addFlag(context, { messageKeys: [messageKey], mailboxItemFlag }).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("addFlag", { messageKeys: [messageKey], mailboxItemFlag });
-            done();
-        });
-        expect(get).toHaveBeenCalledWith(folderUid);
-        expect(service.addFlag).toHaveBeenCalledWith({ itemsId: [messageId], mailboxItemFlag });
+    test("call add flag for a given messageId and folderUid  and mutate state", () => {
+        addFlag(context, { messageKeys: [messageKey], mailboxItemFlag });
+        expect(context.dispatch).toHaveBeenCalledWith(
+            "mail/" + actionTypes.ADD_FLAG,
+            { messageKeys: [messageKey], flag: mailboxItemFlag },
+            { root: true }
+        );
     });
 
     test("fail if addFlag call fail", async () => {
-        service.addFlag.mockReturnValueOnce(Promise.reject("Error!"));
-        await expect(addFlag(context, { messageKeys: [messageKey], mailboxItemFlag })).rejects.toEqual(new Error());
+        context.dispatch.mockReturnValueOnce(Promise.reject("Error!"));
+        await expect(addFlag(context, { messageKeys: [messageKey], mailboxItemFlag })).rejects.toEqual("Error!");
     });
 });

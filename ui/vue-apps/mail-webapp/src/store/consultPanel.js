@@ -1,4 +1,4 @@
-import injector from "@bluemind/inject";
+import { inject } from "@bluemind/inject";
 import EventHelper from "./helpers/EventHelper";
 
 export const state = {
@@ -9,7 +9,7 @@ export const state = {
 
 export const actions = {
     async FETCH_EVENT({ commit, getters }, eventUid) {
-        let event = await injector.getProvider("CalendarPersistence").get().getComplete(eventUid);
+        let event = await inject("CalendarPersistence").getComplete(eventUid);
         if (event) {
             event = EventHelper.adapt(event, getters["CURRENT_MAILBOX"].owner);
         }
@@ -21,10 +21,11 @@ export const actions = {
         const previousStatus = state.consultPanel.currentEvent.status;
         try {
             commit("SET_CURRENT_EVENT_STATUS", { status, uid });
-            await injector
-                .getProvider("CalendarPersistence")
-                .get()
-                .update(state.consultPanel.currentEvent.uid, state.consultPanel.currentEvent.serverEvent.value, true);
+            await inject("CalendarPersistence").update(
+                state.consultPanel.currentEvent.uid,
+                state.consultPanel.currentEvent.serverEvent.value,
+                true
+            );
         } catch {
             commit("SET_CURRENT_EVENT_STATUS", { status: previousStatus, uid });
         }

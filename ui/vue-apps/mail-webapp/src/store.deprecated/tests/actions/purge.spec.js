@@ -71,6 +71,6 @@ describe("MailApp Store: Purge message action", () => {
 
     test("update the unread counter if necessary", async () => {
         await purgeAction(context, messageKey);
-        expect(context.dispatch).toHaveBeenNthCalledWith(3, "mail-webapp/loadUnreadCount", "trash-key");
+        expect(context.dispatch).toHaveBeenNthCalledWith(3, "loadUnreadCount", "trash-key");
     });
 });

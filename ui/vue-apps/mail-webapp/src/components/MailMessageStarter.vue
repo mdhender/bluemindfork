@@ -49,8 +49,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", ["MY_DRAFTS"]),
-        ...mapGetters("mail-webapp/messages", ["messages"])
+        ...mapGetters("mail", ["MY_DRAFTS"])
     }
 };
 </script>

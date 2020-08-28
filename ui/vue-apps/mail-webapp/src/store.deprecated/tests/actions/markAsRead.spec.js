@@ -14,11 +14,7 @@ const mailboxItemFlag = Flag.SEEN;
 const context = {
     commit: jest.fn(),
     dispatch: jest.fn().mockReturnValue(Promise.resolve([{ states: ["not-seen"], key: messageKey1 }])),
-    state: {
-        messages: {
-            items: { [messageKey1]: {}, [messageKey3]: {} }
-        }
-    },
+    state: {},
     getters: {
         "messages/getMessagesByKey": messageKeys =>
             [
@@ -28,6 +24,7 @@ const context = {
     },
     rootState: {
         mail: {
+            messages: {},
             folders: {
                 [folderUid]: {
                     key: folderUid,
@@ -39,6 +36,9 @@ const context = {
                 }
             }
         }
+    },
+    rootGetters: {
+        "mail/isLoaded": key => [messageKey1, messageKey3].includes(key)
     }
 };
 

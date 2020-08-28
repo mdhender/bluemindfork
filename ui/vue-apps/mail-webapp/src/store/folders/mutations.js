@@ -18,7 +18,6 @@ const renameFolder = (state, { key, name, path }) => {
     state[key].path = path;
 };
 
-//TODO: change signature to: ({key}) => {}
 export const REMOVE_FOLDER = "REMOVE_FOLDER";
 const removeFolder = function (state, key) {
     Vue.delete(state, key);
@@ -33,7 +32,6 @@ const setUnreadCount = (state, { key, count }) => {
     }
 };
 
-//TODO: change signature to: ({key}) => {}
 export const TOGGLE_FOLDER = "TOGGLE_FOLDER";
 const toggleFolder = (state, key) => {
     state[key].expanded = !state[key].expanded;

@@ -22,7 +22,7 @@ Object {
 exports[`actions Fetch folders 1`] = `
 Object {
   "050ca560-37ae-458a-bd52-c40fedf4068d": Object {
-    "default": true,
+    "default": false,
     "expanded": false,
     "id": 462,
     "imapName": "2017",
@@ -36,7 +36,7 @@ Object {
     "writable": undefined,
   },
   "135adc10-db84-440e-aebc-e10d185fa227": Object {
-    "default": true,
+    "default": false,
     "expanded": false,
     "id": 460,
     "imapName": "Archives",
@@ -50,7 +50,7 @@ Object {
     "writable": undefined,
   },
   "65b51768-8544-4bb3-9950-c6f4fc32a52e": Object {
-    "default": true,
+    "default": false,
     "expanded": false,
     "id": 464,
     "imapName": "Clients",

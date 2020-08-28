@@ -1,5 +1,6 @@
 import ContainerObserver from "@bluemind/containerobserver";
 import { loadMessageList } from "../../actions/loadMessageList";
+import mutationTypes from "../../../store/mutationTypes";
 
 jest.mock("@bluemind/containerobserver");
 
@@ -41,6 +42,10 @@ const context = {
                 [inboxUid]: inbox,
                 [folderUid]: folder,
                 [folderUidOfMailshare]: folderOfMailshare
+            },
+            messages: {},
+            messageList: {
+                messageKeys: [1, 2, 3]
             }
         }
     },
@@ -99,13 +104,12 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
         expect(context.commit).toHaveBeenCalledWith("search/setPattern", undefined);
         expect(context.commit).toHaveBeenCalledWith("currentMessage/clear");
         expect(context.commit).toHaveBeenCalledWith("messages/clearParts");
-        expect(context.commit).toHaveBeenCalledWith("messages/clearItems");
+        expect(context.commit).toHaveBeenCalledWith("mail/" + mutationTypes.CLEAR_MESSAGE_LIST, {}, { root: true });
     });
     test("fetch messages on folder select folder", async () => {
         await loadMessageList(context, { folder: folderUid, filter: "all" });
         expect(context.dispatch).toHaveBeenNthCalledWith(1, "selectFolder", folder);
         expect(context.dispatch).toHaveBeenNthCalledWith(2, "messages/list", {
-            sorted: context.state.sorted,
             folderUid,
             filter: "all"
         });
@@ -117,18 +121,17 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
         await loadMessageList(context, {});
         expect(context.dispatch).toHaveBeenNthCalledWith(1, "selectFolder", inbox);
         expect(context.dispatch).toHaveBeenNthCalledWith(2, "messages/list", {
-            sorted: context.state.sorted,
             folderUid: inboxUid
         });
         expect(context.dispatch).toHaveBeenNthCalledWith(3, "messages/multipleByKey", context.state.messages.itemKeys);
     });
 
     test("fetch only the 40 first mails of the selected folder", async () => {
-        context.state.messages.itemKeys = new Array(200).fill(0).map((zero, i) => i);
+        context.rootState.mail.messageList.messageKeys = new Array(200).fill(0).map((zero, i) => i);
         await loadMessageList(context, { folder: folderUid });
         expect(context.dispatch).toHaveBeenCalledWith(
             "messages/multipleByKey",
-            context.state.messages.itemKeys.slice(0, 40)
+            context.rootState.mail.messageList.messageKeys.slice(0, 40)
         );
     });
 
@@ -150,7 +153,6 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
         let messageQuery = { folder: folderUid, filter: "unread" };
         await loadMessageList(context, messageQuery);
         expect(context.dispatch).toHaveBeenNthCalledWith(2, "messages/list", {
-            sorted: context.state.sorted,
             folderUid: messageQuery.folder,
             filter: messageQuery.filter
         });

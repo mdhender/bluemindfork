@@ -2,6 +2,7 @@ import { Flag } from "@bluemind/email";
 import ItemUri from "@bluemind/item-uri";
 import { inject } from "@bluemind/inject";
 import { SET_UNREAD_COUNT } from "../../store/folders/mutations";
+import mutationTypes from "../../store/mutationTypes";
 
 export async function markFolderAsRead(context, folderKey) {
     const folder = context.rootState.mail.folders[folderKey];
@@ -18,21 +19,21 @@ export async function markFolderAsRead(context, folderKey) {
 }
 
 async function optimisticMarkFolderAsRead(context, folder) {
-    const messageKeys = unseenMessagesInFolder(context.state, folder.key);
-    context.commit("messages/addFlag", { messageKeys, mailboxItemFlag: Flag.SEEN });
+    const messageKeys = unseenMessagesInFolder(context.rootState, context.getters, folder.key);
+    context.commit("mail/" + mutationTypes.ADD_FLAG, { messageKeys, flag: Flag.SEEN }, { root: true });
     const unreadCount = folder.unread;
     context.commit("mail/" + SET_UNREAD_COUNT, { key: folder.key, count: 0 }, { root: true });
     try {
         await inject("MailboxFoldersPersistence", folder.mailbox).markFolderAsRead(folder.id);
     } catch (e) {
-        context.commit("messages/deleteFlag", { messageKeys, mailboxItemFlag: Flag.SEEN });
+        context.commit("mail/DELETE_FLAG", { messageKeys, flag: Flag.SEEN }, { root: true });
         context.commit("mail/" + SET_UNREAD_COUNT, { key: folder.key, count: unreadCount }, { root: true });
         throw e;
     }
 }
 
-function unseenMessagesInFolder(state, folderKey) {
-    return Object.keys(state.messages.items).filter(
-        key => ItemUri.container(key) === folderKey && !state.messages.items[key].value.flags.includes(Flag.SEEN)
+function unseenMessagesInFolder(rootState, getters, folderKey) {
+    return getters["messages/messages"].filter(
+        message => ItemUri.container(message.key) === folderKey && message.flags.includes(Flag.SEEN)
     );
 }

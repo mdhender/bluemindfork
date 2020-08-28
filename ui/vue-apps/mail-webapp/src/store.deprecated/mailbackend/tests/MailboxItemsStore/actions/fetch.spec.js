@@ -24,16 +24,14 @@ describe("[MailItemsStore][actions] : fetch", () => {
         context.commit.mockClear();
     });
 
-    test("call fetch service for an attachment with a given messageKey and mutate state with result", done => {
-        fetch(context, { messageKey, part, isAttachment: true }).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("storePartContent", {
-                messageKey,
-                address: part.address,
-                content: new Blob([partTextContent], { type: "text/plain" })
-            });
-            done();
-        });
+    test("call fetch service for an attachment with a given messageKey and mutate state with result", async () => {
+        await fetch(context, { messageKey, part, isAttachment: true });
         checkFetchCall();
+        expect(context.commit).toHaveBeenCalledWith("storePartContent", {
+            messageKey,
+            address: part.address,
+            content: new Blob([partTextContent], { type: "text/plain" })
+        });
     });
 
     test("call fetch service with a given messageKey and mutate state with result", done => {
@@ -56,7 +54,7 @@ describe("[MailItemsStore][actions] : fetch", () => {
     function checkFetchCall() {
         expect(get).toHaveBeenCalledWith("folderUid");
         expect(ServiceLocator.getProvider("MailboxItemsPersistence").get().fetch).toHaveBeenCalledWith(
-            context.state.items[messageKey].value.imapUid,
+            "1.",
             part.address,
             part.encoding,
             part.mime,
@@ -68,14 +66,8 @@ describe("[MailItemsStore][actions] : fetch", () => {
 function mockVuexContext() {
     return {
         commit: jest.fn(),
-        state: {
-            items: {
-                [messageKey]: {
-                    value: {
-                        imapUid: "1."
-                    }
-                }
-            }
+        getters: {
+            getMessageByKey: () => ({ imapUid: "1." })
         }
     };
 }

@@ -6,6 +6,7 @@ import SearchHelper from "../SearchHelper";
 import router from "@bluemind/router";
 import { FOLDER_BY_PATH } from "../../store/folders/getters";
 import { TOGGLE_FOLDER } from "../../store/folders/mutations";
+import mutationTypes from "../../store/mutationTypes";
 
 export async function loadMessageList(
     { dispatch, commit, state, rootState, rootGetters },
@@ -37,7 +38,8 @@ export async function loadMessageList(
         return;
     }
     commit("setMessageFilter", filter);
-    commit("messages/clearItems");
+    commit("mail/" + mutationTypes.CLEAR_MESSAGE_LIST, rootState.mail.messageList.messageKeys, { root: true });
+    commit("mail/" + mutationTypes.CLEAR_MESSAGE_LIST, {}, { root: true });
     commit("messages/clearParts");
     commit("currentMessage/clear");
     commit("setStatus", STATUS.LOADING);
@@ -61,8 +63,8 @@ export async function loadMessageList(
         await dispatch("search/search", { pattern: searchInfo.pattern, filter, folderKey: searchInfo.folder });
     } else {
         ContainerObserver.observe("mailbox_records", prefix + rootState.mail.activeFolder);
-        await dispatch("messages/list", { sorted: state.sorted, folderUid: locatedFolder.key, filter });
-        const sorted = state.messages.itemKeys;
+        await dispatch("messages/list", { folderUid: locatedFolder.key, filter });
+        const sorted = rootState.mail.messageList.messageKeys;
         await dispatch("messages/multipleByKey", sorted.slice(0, 40));
     }
 
@@ -76,7 +78,7 @@ function locateFolder(local, mailshare, rootState, rootGetters) {
         if (rootState.mail.folders[keyOrPath]) {
             folder = rootState.mail.folders[keyOrPath];
         } else if (ItemUri.isItemUri(keyOrPath)) {
-            console.error("SHOULD NOT HAPPEN ANYMORE, USE folderUid instead of folderKey in router");
+            console.error("SHOULD NOT HAPPEN ANYMORE, use folderUid instead of folderKey in router");
             folder = rootState.mail.folders[ItemUri.item(keyOrPath)];
         } else {
             folder = rootGetters["mail/" + FOLDER_BY_PATH](keyOrPath);

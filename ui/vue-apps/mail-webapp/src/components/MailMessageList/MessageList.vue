@@ -21,13 +21,13 @@
         @keyup.shift.exact.space="selectRange(lastFocusedMessage, true)"
         @keyup.shift.exact.up="selectRangeByDiff(-1, true)"
         @keyup.shift.exact.down="selectRangeByDiff(+1, true)"
-        @keyup.shift.exact.home="selectRange(itemKeys[0], true)"
-        @keyup.shift.exact.end="selectRange(itemKeys[count - 1], true)"
+        @keyup.shift.exact.home="selectRange(messageKeys[0], true)"
+        @keyup.shift.exact.end="selectRange(messageKeys[count - 1], true)"
         @keyup.shift.ctrl.exact.space="selectRange(lastFocusedMessage)"
         @keyup.shift.ctrl.exact.up="selectRangeByDiff(-1)"
         @keyup.shift.ctrl.exact.down="selectRangeByDiff(+1)"
-        @keyup.shift.ctrl.exact.home="selectRange(itemKeys[0])"
-        @keyup.shift.ctrl.exact.end="selectRange(itemKeys[count - 1])"
+        @keyup.shift.ctrl.exact.home="selectRange(messageKeys[0])"
+        @keyup.shift.ctrl.exact.end="selectRange(messageKeys[count - 1])"
     >
         <div v-for="(message, index) in _messages" :key="index">
             <message-list-separator v-if="message.hasSeparator" :text="$t(message.range.name)" />
@@ -81,13 +81,12 @@ export default {
             "isMessageSelected",
             "areAllMessagesSelected"
         ]),
-        ...mapState("mail-webapp/messages", ["itemKeys"]),
         ...mapGetters("mail-webapp/messages", ["messages", "count", "indexOf"]),
         ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
         ...mapState("mail-webapp", ["messageFilter", "selectedMessageKeys"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail", ["MY_TRASH"]),
-        ...mapState("mail", ["activeFolder"]),
+        ...mapState("mail", { activeFolder: "activeFolder", messageKeys: state => state.messageList.messageKeys }),
         _messages() {
             return this.messages.slice(0, this.length);
         },
@@ -261,7 +260,7 @@ export default {
                 this.deleteAllSelectedMessages();
                 this.clearCurrentMessage();
             } else {
-                this.addAllToSelectedMessages(this.itemKeys);
+                this.addAllToSelectedMessages(this.messageKeys);
             }
             this.navigateAfterSelection();
         },

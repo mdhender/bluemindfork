@@ -1,16 +1,9 @@
-import ServiceLocator from "@bluemind/inject";
-import ItemUri from "@bluemind/item-uri";
+import actionTypes from "../../../../store/actionTypes";
 
-export function multipleByKey({ commit }, messageKeys) {
-    const idsByFolder = ItemUri.itemsByContainer(messageKeys);
-    return Promise.all(
-        Object.keys(idsByFolder).map(folderUid => getMessages(folderUid, idsByFolder[folderUid], commit))
+export function multipleByKey({ dispatch, rootState }, messageKeys) {
+    return dispatch(
+        "mail/" + actionTypes.FETCH_MESSAGE_METADATA,
+        { messageKeys, folders: rootState.mail.folders },
+        { root: true }
     );
-}
-
-function getMessages(folderUid, ids, commit) {
-    return ServiceLocator.getProvider("MailboxItemsPersistence")
-        .get(folderUid)
-        .multipleById(ids)
-        .then(items => commit("storeItems", { items, folderUid }));
 }

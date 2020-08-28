@@ -1,19 +1,9 @@
 import { MockMailboxFoldersClient } from "@bluemind/test-utils";
-import { state, getters, mutations, actions, STATUS } from "../modules/search";
+import { getters, mutations, actions, STATUS } from "../modules/search";
 import ItemUri from "@bluemind/item-uri";
 import ServiceLocator from "@bluemind/inject";
 
 describe("[Mail-WebappStore][search]", () => {
-    describe("state", () => {
-        test("initial state", () => {
-            expect(state).toEqual({
-                pattern: null,
-                status: STATUS.IDLE,
-                searchFolder: null
-            });
-        });
-    });
-
     describe("mutations", () => {
         const { setStatus } = mutations;
 
@@ -91,8 +81,17 @@ describe("[Mail-WebappStore][search]", () => {
                     payload: STATUS.LOADING
                 },
                 {
-                    type: "mail-webapp/messages/setItemKeys",
-                    payload: [key]
+                    type: "mail/SET_MESSAGE_LIST",
+                    payload: [
+                        {
+                            folderRef: { uid: folderUid, key: folderUid },
+                            key,
+                            remoteRef: {
+                                internalId: "foobar"
+                            },
+                            status: "NOT-LOADED"
+                        }
+                    ]
                 },
                 {
                     type: "setStatus",
@@ -116,9 +115,7 @@ describe("[Mail-WebappStore][search]", () => {
                     }
                 },
                 rootGetters: {
-                    "mail-webapp/currentMailbox": {
-                        mailboxUid: "abcdef"
-                    }
+                    "mail/CURRENT_MAILBOX": { key: "abcdef" }
                 },
                 state: {
                     pattern: ""

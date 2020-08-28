@@ -1,5 +1,6 @@
-import Message from "../Message";
 import { DateRange } from "@bluemind/date";
+import Message from "../Message";
+import MessageAdaptor from "../../../../store/messages/MessageAdaptor";
 
 const Range = (() => {
     const TODAY = DateRange.today();
@@ -17,10 +18,12 @@ const Range = (() => {
     };
 })();
 
-export function messages(state) {
-    return state.itemKeys
-        .filter(key => state.items[key])
-        .map(key => new Message(key, state.items[key]))
+// FIXME after store migration this code should be a computed in MessageList component
+//      range and separator can also be improved at this moment + need to fix : https://forge.bluemind.net/jira/browse/FEATWEBML-868
+export function messages(state, getters, rootState, rootGetters) {
+    return rootState.mail.messageList.messageKeys
+        .filter(key => rootGetters["mail/isLoaded"](key))
+        .map(key => new Message(key, MessageAdaptor.toMailboxItem(rootState.mail.messages[key])))
         .map((message, index, arr) => {
             message.range = Range.getRange(message.date);
             message.hasSeparator = index === 0 || message.range !== arr[index - 1].range;

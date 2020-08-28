@@ -5,15 +5,23 @@ import api from "../../api/apiFolders";
 import storeConfig from "../index";
 import { FETCH_FOLDERS, CREATE_FOLDER, REMOVE_FOLDER, RENAME_FOLDER } from "../actions";
 import { ADD_FOLDER } from "../mutations";
+import injector from "@bluemind/inject";
 
 Vue.use(Vuex);
 jest.mock("../../api/apiFolders");
+
+injector.register({
+    provide: "i18n",
+    use: {
+        t: jest.fn()
+    }
+});
 
 describe("actions", () => {
     test("Fetch folders", async () => {
         const store = new Vuex.Store(deepClone(storeConfig));
         const mailbox = {
-            type: "foo",
+            type: "users",
             name: "bar"
         };
         api.getAllFolders.mockReturnValue(require("../../tests/data/users/alice/folders.json"));

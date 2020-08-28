@@ -7,9 +7,11 @@ const context = {
     getters: {
         "messages/messages": {}
     },
-    state: {
-        messages: {
-            itemKeys: new Array(1000).fill(0).map((val, index) => index)
+    rootState: {
+        mail: {
+            messageList: {
+                messageKeys: new Array(1000).fill(0).map((val, index) => index)
+            }
         }
     }
 };
@@ -26,24 +28,24 @@ describe("[Mail-WebappStore][actions] : loadRange", () => {
 
         expect(context.dispatch).toHaveBeenCalledWith(
             "messages/multipleByKey",
-            expect.arrayContaining(context.state.messages.itemKeys.slice(100, 200))
+            expect.arrayContaining(context.rootState.mail.messageList.messageKeys.slice(100, 200))
         );
     });
     test("do not load messages already loaded", async () => {
-        context.state.messages.itemKeys.slice(100, 150).forEach(key => {
+        context.rootState.mail.messageList.messageKeys.slice(100, 150).forEach(key => {
             context.getters["messages/messages"][key] = {};
         });
         await loadRange(context, { start: 100, end: 200 });
         expect(context.dispatch).toHaveBeenCalledWith(
             "messages/multipleByKey",
-            expect.not.arrayContaining(context.state.messages.itemKeys.slice(100, 150))
+            expect.not.arrayContaining(context.rootState.mail.messageList.messageKeys.slice(100, 150))
         );
     });
     test("pre-load items arround requested range", async () => {
         await loadRange(context, { start: 100, end: 200 });
         expect(context.dispatch).toHaveBeenCalledWith(
             "messages/multipleByKey",
-            expect.arrayContaining(context.state.messages.itemKeys.slice(50, 250))
+            expect.arrayContaining(context.rootState.mail.messageList.messageKeys.slice(50, 250))
         );
     });
     test("Do not load item aleady requested but not yet return by remote", async () => {
@@ -52,11 +54,11 @@ describe("[Mail-WebappStore][actions] : loadRange", () => {
         loadRange(context, { start: 0, end: 500 });
         expect(context.dispatch).toHaveBeenCalledWith(
             "messages/multipleByKey",
-            expect.not.arrayContaining(context.state.messages.itemKeys.slice(100, 200))
+            expect.not.arrayContaining(context.rootState.mail.messageList.messageKeys.slice(100, 200))
         );
     });
     test("Pre-load next range if not loaded", async () => {
-        context.state.messages.itemKeys.slice(100, 200).forEach(key => {
+        context.rootState.mail.messageList.messageKeys.slice(100, 200).forEach(key => {
             context.getters["messages/messages"][key] = {};
         });
         await loadRange(context, { start: 125, end: 150 });
@@ -65,14 +67,16 @@ describe("[Mail-WebappStore][actions] : loadRange", () => {
         expect(context.dispatch).toHaveBeenCalledWith(
             "messages/multipleByKey",
             expect.arrayContaining(
-                context.state.messages.itemKeys.slice(0, 100).concat(context.state.messages.itemKeys.slice(200, 300))
+                context.rootState.mail.messageList.messageKeys
+                    .slice(0, 100)
+                    .concat(context.rootState.mail.messageList.messageKeys.slice(200, 300))
             )
         );
         context.dispatch.mockClear();
         await loadRange(context, { start: 175, end: 200 });
         expect(context.dispatch).toHaveBeenCalledWith(
             "messages/multipleByKey",
-            expect.arrayContaining(context.state.messages.itemKeys.slice(200, 225))
+            expect.arrayContaining(context.rootState.mail.messageList.messageKeys.slice(200, 225))
         );
     });
 });

@@ -8,7 +8,9 @@ function fromMailboxFolder(remotefolder, mailbox) {
         id: remotefolder.internalId,
         mailbox: mailbox.uid,
         parent: remotefolder.value.parentUid,
-        name: remotefolder.value.name,
+        name: isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox)
+            ? translateDefaults(remotefolder.value.name)
+            : remotefolder.value.name,
         imapName: remotefolder.value.name,
         path: computePathFromRemote(remotefolder, mailbox),
         writable: mailbox.writable,
@@ -36,23 +38,6 @@ function isMyMailboxDefaultFolder(folder) {
 
 function isMailshareRoot(folder, mailbox) {
     return mailbox.type === "mailshares" && !folder.parent;
-}
-
-function create(key, name, parent, mailbox) {
-    return {
-        key: key,
-        uid: null,
-        id: null,
-        mailbox: mailbox.key,
-        parent: parent ? parent.key : null,
-        name: name,
-        imapName: name,
-        path: computePath(mailbox, name, parent),
-        writable: mailbox.writable,
-        default: isDefault(!parent, name, mailbox),
-        expanded: false,
-        unread: 0
-    };
 }
 
 function rename(folder, name) {
@@ -103,7 +88,9 @@ function isFolderNameValid(name) {
 }
 
 function computePathFromRemote(remotefolder, mailbox) {
-    const folderPath = remotefolder.value.fullName;
+    const folderPath = FolderAdaptor.isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox)
+        ? translateDefaults(remotefolder.value.name)
+        : remotefolder.value.fullName;
 
     if (mailbox.type === "mailshares") {
         if (!remotefolder.value.parentUid) {
@@ -114,14 +101,12 @@ function computePathFromRemote(remotefolder, mailbox) {
     return folderPath;
 }
 
-function computePath(mailbox, name, parent) {
-    if (parent) {
-        return path(parent.path, name);
-    } else if (mailbox.type === "mailshares") {
-        return mailbox.root;
-    } else {
-        return name;
+function translateDefaults(name) {
+    if (DEFAULT_FOLDERS.includes(name)) {
+        const vueI18n = injector.getProvider("i18n").get();
+        return vueI18n.t("common.folder." + name.toLowerCase()) || name;
     }
+    return name;
 }
 
 function path() {
@@ -133,7 +118,6 @@ export const FolderAdaptor = {
     toMailboxFolder,
     isMyMailboxDefaultFolder,
     isMailshareRoot,
-    create,
     rename,
     isDefault,
     isNameValid

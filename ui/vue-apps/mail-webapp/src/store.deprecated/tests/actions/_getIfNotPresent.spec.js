@@ -5,44 +5,37 @@ const context = {
     getters: {
         "messages/getMessagesByKey": jest.fn().mockReturnValue("SUCCESS")
     },
-    commit: jest.fn(),
-    state: {
-        currentFolderUid: "folder_uid",
-        messages: {
-            items: {}
-        }
-    }
+    rootGetters: {
+        "mail/isLoaded": jest.fn().mockReturnValue(false)
+    },
+    commit: jest.fn()
 };
 describe("[Mail-WebappStore][actions] : $_getIfNotPresent", () => {
     beforeEach(() => {
-        context.state.messages.items = {};
         context.dispatch.mockClear();
         context.getters["messages/getMessagesByKey"].mockClear();
+        context.rootGetters["mail/isLoaded"].mockClear();
     });
     test("load message only if not in store", () => {
         const key1 = "key1",
             key2 = "key2";
-        context.state.messages.items[key1] = {};
+        context.rootGetters["mail/isLoaded"].mockReturnValueOnce(true);
         $_getIfNotPresent(context, [key1]);
         expect(context.dispatch).toHaveBeenCalledWith("messages/multipleByKey", []);
         $_getIfNotPresent(context, [key2]);
         expect(context.dispatch).toHaveBeenCalledWith("messages/multipleByKey", [key2]);
     });
-    test("return requested message", done => {
+    test("return requested message", async () => {
         const key = "key";
-        $_getIfNotPresent(context, [key]).then(message => {
-            expect(context.getters["messages/getMessagesByKey"]).toHaveBeenCalledWith([key]);
-            expect(message).toBe("SUCCESS");
-            done();
-        });
+        const message = await $_getIfNotPresent(context, [key]);
+        expect(context.getters["messages/getMessagesByKey"]).toHaveBeenCalledWith([key]);
+        expect(message).toBe("SUCCESS");
     });
-    test("load only missing messages", done => {
+    test("load only missing messages", async () => {
         const keys = ["key", "toto", "miam"];
-        context.state.messages.items["toto"] = {};
-        $_getIfNotPresent(context, keys).then(() => {
-            expect(context.dispatch).toHaveBeenCalledWith("messages/multipleByKey", ["key", "miam"]);
-            expect(context.getters["messages/getMessagesByKey"]).toHaveBeenCalledWith(["key", "toto", "miam"]);
-            done();
-        });
+        context.rootGetters["mail/isLoaded"].mockImplementation(key => key === "toto");
+        await $_getIfNotPresent(context, keys);
+        expect(context.dispatch).toHaveBeenCalledWith("messages/multipleByKey", ["key", "miam"]);
+        expect(context.getters["messages/getMessagesByKey"]).toHaveBeenCalledWith(["key", "toto", "miam"]);
     });
 });

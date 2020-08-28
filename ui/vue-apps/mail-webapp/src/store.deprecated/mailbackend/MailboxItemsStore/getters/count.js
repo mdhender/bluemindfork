@@ -1,3 +1,3 @@
-export function count(state) {
-    return state.itemKeys.length;
+export function count(state, getters, rootState) {
+    return rootState.mail.messageList.messageKeys.length;
 }

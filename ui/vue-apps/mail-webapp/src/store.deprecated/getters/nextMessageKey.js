@@ -1,10 +1,11 @@
-export function nextMessageKey(state, getters) {
+export function nextMessageKey(state, getters, rootState) {
+    const messageListKeys = rootState.mail.messageList.messageKeys;
     const count = getters["messages/count"];
     let selection = state.selectedMessageKeys.length ? state.selectedMessageKeys : [state.currentMessage.key];
     const otherMessageAvailable = selection.length < count;
 
     if (otherMessageAvailable) {
-        selection = sortSelectionLikeItemKeys(state, selection);
+        selection = sortSelectionLikeItemKeys(messageListKeys, selection);
         let nextIndex = retrieveIndexAfterSelection(getters, selection);
         let nextIndexIsOutOfBounds = nextIndex === count;
 
@@ -16,7 +17,7 @@ export function nextMessageKey(state, getters) {
                 nextIndex = retrieveFirstAvailableIndexInSelectionBounds(getters, selection);
             }
         }
-        return state.messages.itemKeys[nextIndex];
+        return messageListKeys[nextIndex];
     }
 }
 
@@ -41,6 +42,6 @@ function retrieveFirstAvailableIndexInSelectionBounds(getters, selection) {
     return previousIndex + 1;
 }
 
-function sortSelectionLikeItemKeys(state, selection) {
-    return state.messages.itemKeys.filter(key => selection.includes(key));
+function sortSelectionLikeItemKeys(messageListKeys, selection) {
+    return messageListKeys.filter(key => selection.includes(key));
 }

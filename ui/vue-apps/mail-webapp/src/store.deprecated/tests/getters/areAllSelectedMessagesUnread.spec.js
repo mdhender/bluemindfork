@@ -2,50 +2,48 @@ import { areAllSelectedMessagesUnread } from "../../getters/areAllSelectedMessag
 import { Flag } from "@bluemind/email";
 
 const mailSeen = {
-    value: {
-        flags: [Flag.SEEN]
-    }
+    flags: [Flag.SEEN]
 };
 
 const mailUnseen = {
-    value: {
-        flags: []
-    }
+    flags: []
 };
 
 function mockState(mockedItems) {
     return {
-        selectedMessageKeys: ["1", "2", "3"],
-        messages: {
-            items: mockedItems
+        state: {
+            selectedMessageKeys: ["1", "2", "3"]
+        },
+        getters: {
+            "messages/getMessageByKey": key => mockedItems[key]
         }
     };
 }
 
 describe("[Mail-WebappStore][getters] : areAllMessagesSelected", () => {
     test("All messages are unread", () => {
-        const state = mockState({
+        const { state, getters } = mockState({
             "1": mailUnseen,
             "2": mailUnseen,
             "3": mailUnseen
         });
-        expect(areAllSelectedMessagesUnread(state)).toBe(true);
+        expect(areAllSelectedMessagesUnread(state, getters)).toBe(true);
     });
 
     test("All messages are unread (BEST EFFORT)", () => {
-        const state = mockState({
+        const { state, getters } = mockState({
             "1": mailUnseen,
             "2": mailUnseen
         });
-        expect(areAllSelectedMessagesUnread(state)).toBe(true);
+        expect(areAllSelectedMessagesUnread(state, getters)).toBe(true);
     });
 
     test("At least one message is not unread", () => {
-        const state = mockState({
+        const { state, getters } = mockState({
             "1": mailUnseen,
             "2": mailUnseen,
             "3": mailSeen
         });
-        expect(areAllSelectedMessagesUnread(state)).toBe(false);
+        expect(areAllSelectedMessagesUnread(state, getters)).toBe(false);
     });
 });

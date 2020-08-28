@@ -39,6 +39,9 @@ const context = {
                 }
             }
         }
+    },
+    rootGetters: {
+        "mail/isLoaded": key => [messageKey1, messageKey3].includes(key)
     }
 };
 
