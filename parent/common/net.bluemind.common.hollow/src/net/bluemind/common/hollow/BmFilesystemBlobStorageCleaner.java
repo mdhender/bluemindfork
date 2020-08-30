@@ -92,6 +92,6 @@ public class BmFilesystemBlobStorageCleaner extends HollowProducer.BlobStorageCl
 	}
 
 	private File[] getFilesByType(final String blobType) {
-		return blobStoreDir.listFiles((File dir, String name) -> name.contains(blobType));
+		return blobStoreDir.listFiles((File dir, String name) -> name.startsWith(blobType));
 	}
 }
