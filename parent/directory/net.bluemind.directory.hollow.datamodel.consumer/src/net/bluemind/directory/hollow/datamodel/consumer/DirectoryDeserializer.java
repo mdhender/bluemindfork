@@ -53,8 +53,13 @@ import net.bluemind.serialization.client.HollowContext;
 
 public class DirectoryDeserializer {
 
+	/**
+	 * system property used to override the filesystem folder holding hollow
+	 * directory data.
+	 */
+	public static final String BASE_DIR_PROP = "hollow.serdes.folder.directory";
+
 	private static final Logger logger = LoggerFactory.getLogger(DirectoryDeserializer.class);
-	private static final String BASE_DATA_DIR = "/var/spool/bm-hollowed/directory";
 	protected UniqueKeyIndex<AddressBookRecord, String> uidIndex;
 	protected UniqueKeyIndex<AddressBookRecord, String> distinguishedNameIndex;
 	protected UniqueKeyIndex<AddressBookRecord, Long> minimalIndex;
@@ -64,8 +69,12 @@ public class DirectoryDeserializer {
 	private HollowPrefixIndex emailIndex;
 	private static final Set<String> complexQueryKeys = new HashSet<>(Arrays.asList("anr", "office"));
 
+	public static final String baseDataDir() {
+		return System.getProperty(BASE_DIR_PROP, "/var/spool/bm-hollowed/directory");
+	}
+
 	public DirectoryDeserializer(String domain) {
-		this(new File(BASE_DATA_DIR, domain));
+		this(new File(baseDataDir(), domain));
 	}
 
 	public DirectoryDeserializer(File dir) {

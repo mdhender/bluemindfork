@@ -69,14 +69,17 @@ public class BmFilesystemBlobStorageCleaner extends HollowProducer.BlobStorageCl
 		}
 
 		sortByLastModified(files);
-
+		int del = 0;
 		for (int i = kept; i < files.length; i++) {
 			File file = files[i];
 			boolean deleted = file.delete(); // NOSONAR
 			if (!deleted) {
 				logger.warn("Could not delete delta {}", file.getPath());
+			} else {
+				del++;
 			}
 		}
+		logger.info("Cleared {} old {} file(s)", del, type);
 	}
 
 	private void sortByLastModified(File[] files) {

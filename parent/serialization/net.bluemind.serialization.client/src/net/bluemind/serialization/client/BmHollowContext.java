@@ -153,7 +153,7 @@ public class BmHollowContext {
 		@Override
 		public void onUpdate(String set, String subset, long version) {
 			if (set.equals(this.set) && subset.equals(this.subset)) {
-				observers.forEach(HollowConsumer::triggerAsyncRefresh);
+				observers.forEach(o -> o.triggerRefreshTo(version));
 			}
 		}
 
