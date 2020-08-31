@@ -6,6 +6,6 @@ Standards-Version: 3.9.1
 
 Package: bm-xmpp
 Architecture: amd64
-Depends: bm-jdk (= 8u252-bluemind34)
+Depends: bm-jdk (= 8u265-bluemind36)
 Description: BlueMind XMPP server
  BlueMind XMPP server
