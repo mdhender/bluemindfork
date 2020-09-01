@@ -120,7 +120,6 @@ public class StateObserverVerticle extends AbstractVerticle {
 			JsonObject msg = event.body();
 			SystemState newState = SystemState.fromOperation(msg.getString("operation"));
 			updateState(newState, StateUpdateOrigin.BUS_EVENT);
-			refreshState();
 		});
 
 		vertx.eventBus().consumer(IStateListener.STATE_BUS_EP_ADDRESS, (Message<Void> event) -> {
