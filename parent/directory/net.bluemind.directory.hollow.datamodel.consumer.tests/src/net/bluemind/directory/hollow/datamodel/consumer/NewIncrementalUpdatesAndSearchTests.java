@@ -48,10 +48,15 @@ public class NewIncrementalUpdatesAndSearchTests extends BaseIncrementalUpdatesA
 		return (List<Long> toDrop, OfflineAddressBook book, AddressBookRecord... recs) -> {
 			System.err.println("Running strategy with " + recs.length + " record(s");
 			newIncremental.runIncrementalCycle(state -> {
+				state.addOrModify(book);
+
 				Arrays.asList(recs).forEach(state::addOrModify);
 
 				toDrop.forEach(
 						l -> state.delete(new RecordPrimaryKey("AddressBookRecord", new String[] { "uid" + l })));
+
+				System.err.println("oabRoot SEQ is at " + book.sequence);
+
 			});
 		};
 

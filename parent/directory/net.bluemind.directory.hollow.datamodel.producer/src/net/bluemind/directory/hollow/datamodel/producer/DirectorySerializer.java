@@ -144,11 +144,16 @@ public class DirectorySerializer implements DataSerializer {
 			AnnouncementWatcher unpinnableAnnouncementWatcher) {
 
 		long latestVersion = unpinnableAnnouncementWatcher.getLatestVersion();
-		if (latestVersion != AnnouncementWatcher.NO_ANNOUNCEMENT_AVAILABLE) {
-			producer.restore(latestVersion, retriever);
-			return true;
+		try {
+			if (latestVersion != AnnouncementWatcher.NO_ANNOUNCEMENT_AVAILABLE) {
+				producer.restore(latestVersion, retriever);
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			logger.error("Could not restore existing hollow snapshot for {}", domainUid, e);
+			return false;
 		}
-		return false;
 	}
 
 	private long serializeIncrement() {
@@ -166,7 +171,11 @@ public class DirectorySerializer implements DataSerializer {
 		List<String> allUids = new ArrayList<>(Sets.newHashSet(Iterables.concat(changeset.created, changeset.updated)));
 		logger.info("Sync from v{} gave +{} / -{} uid(s)", version, allUids.size(), changeset.deleted.size());
 		final Map<String, DataLocation> locationCache = new HashMap<>();
+
 		long hollowVersion = producer.runIncrementalCycle(populator -> {
+			OfflineAddressBook oab = oabs.computeIfAbsent(domainUid, d -> createOabEntry(domain, changeset.version));
+			oab.sequence = (int) changeset.version;
+			populator.addOrModify(oab);
 			for (List<String> dirPartition : Lists.partition(allUids, 100)) {
 				List<ItemValue<DirEntry>> entries = loadEntries(dirApi, dirPartition);
 				List<String> uidWithEmails = entries.stream().filter(iv -> iv.value.email != null).map(iv -> iv.uid)
@@ -177,7 +186,6 @@ public class DirectorySerializer implements DataSerializer {
 					dirEntryToAddressBookRecord(domain, entry,
 							mailboxes.stream().filter(m -> m.uid.equals(entry.value.entryUid)).findAny().orElse(null),
 							locationCache, installationId).ifPresent(rec -> {
-								rec.addressBook = oabs.computeIfAbsent(domainUid, d -> createOabEntry(domain));
 								if (entry.value.archived) {
 									populator.delete(new RecordPrimaryKey("AddressBookRecord",
 											new String[] { entry.value.entryUid }));
@@ -316,13 +324,13 @@ public class DirectorySerializer implements DataSerializer {
 		}).collect(Collectors.toList());
 	}
 
-	private OfflineAddressBook createOabEntry(ItemValue<Domain> domain) {
+	private OfflineAddressBook createOabEntry(ItemValue<Domain> domain, long version) {
 		OfflineAddressBook oab = new OfflineAddressBook();
 		oab.containerGuid = UUID.nameUUIDFromBytes((domain.internalId + ":" + domain.uid).getBytes()).toString();
 		oab.hierarchicalRootDepartment = null;
 		oab.distinguishedName = "/";
 		oab.name = "\\Default Global Address List";
-		oab.sequence = 1;
+		oab.sequence = (int) version;
 		oab.domainName = domain.uid;
 		oab.domainAliases = domain.value.aliases;
 		return oab;

@@ -9,20 +9,26 @@ import com.netflix.hollow.api.objects.delegate.HollowCachedDelegate;
 @SuppressWarnings("all")
 public class EmailDelegateCachedImpl extends HollowObjectAbstractDelegate implements HollowCachedDelegate, EmailDelegate {
 
-    private final int addressOrdinal;
+    private final String address;
     private final Boolean allAliases;
     private final Boolean isDefault;
     private EmailTypeAPI typeAPI;
 
     public EmailDelegateCachedImpl(EmailTypeAPI typeAPI, int ordinal) {
-        this.addressOrdinal = typeAPI.getAddressOrdinal(ordinal);
+        this.address = typeAPI.getAddress(ordinal);
         this.allAliases = typeAPI.getAllAliasesBoxed(ordinal);
         this.isDefault = typeAPI.getIsDefaultBoxed(ordinal);
         this.typeAPI = typeAPI;
     }
 
-    public int getAddressOrdinal(int ordinal) {
-        return addressOrdinal;
+    public String getAddress(int ordinal) {
+        return address;
+    }
+
+    public boolean isAddressEqual(int ordinal, String testValue) {
+        if(testValue == null)
+            return address == null;
+        return testValue.equals(address);
     }
 
     public boolean getAllAliases(int ordinal) {

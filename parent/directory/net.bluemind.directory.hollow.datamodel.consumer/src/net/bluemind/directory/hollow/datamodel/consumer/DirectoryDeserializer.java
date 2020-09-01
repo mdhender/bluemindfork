@@ -48,6 +48,7 @@ import com.netflix.hollow.core.read.iterator.HollowOrdinalIterator;
 import com.netflix.hollow.tools.query.HollowFieldMatchQuery;
 
 import net.bluemind.directory.hollow.datamodel.consumer.Query.QueryType;
+import net.bluemind.directory.hollow.datamodel.consumer.internal.BmPrefixIndex;
 import net.bluemind.directory.hollow.datamodel.consumer.internal.LoggingRefreshListener;
 import net.bluemind.serialization.client.HollowContext;
 
@@ -64,9 +65,15 @@ public class DirectoryDeserializer {
 	protected UniqueKeyIndex<AddressBookRecord, String> distinguishedNameIndex;
 	protected UniqueKeyIndex<AddressBookRecord, Long> minimalIndex;
 	protected HollowHashIndex kindIndex;
-	protected HollowConsumer consumer;
+	protected final HollowConsumer consumer;
+	private final AnnouncementWatcher watcher;
 	private HollowPrefixIndex nameIndex;
 	private HollowPrefixIndex emailIndex;
+
+	private UniqueKeyIndex<OfflineAddressBook, String> rootByDomainUidIndex;
+
+	private final String domainUid;
+
 	private static final Set<String> complexQueryKeys = new HashSet<>(Arrays.asList("anr", "office"));
 
 	public static final String baseDataDir() {
@@ -78,8 +85,10 @@ public class DirectoryDeserializer {
 	}
 
 	public DirectoryDeserializer(File dir) {
-		logger.info("Consuming from directory {}", dir.getAbsolutePath());
+		this.domainUid = dir.getName();
+		logger.info("Consuming from directory {} for domain {}", dir.getAbsolutePath(), domainUid);
 		HollowContext context = HollowContext.get(dir, "directory");
+		this.watcher = watcher(context);
 		this.consumer = new HollowConsumer.Builder<>().withBlobRetriever(context.blobRetriever)
 				.withAnnouncementWatcher(watcher(context)).withGeneratedAPIClass(OfflineDirectoryAPI.class).build();
 		this.consumer.addRefreshListener(new LoggingRefreshListener(
@@ -88,6 +97,9 @@ public class DirectoryDeserializer {
 		this.consumer.triggerRefresh();
 		logger.info("Current version: {}", consumer.getCurrentVersionId());
 
+		this.rootByDomainUidIndex = OfflineAddressBook.uniqueIndex(consumer);
+		this.consumer.addRefreshListener(rootByDomainUidIndex);
+
 		this.minimalIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class).usingPath("minimalid", Long.class);
 		this.consumer.addRefreshListener(minimalIndex);
 		this.distinguishedNameIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class)
@@ -95,10 +107,9 @@ public class DirectoryDeserializer {
 		this.consumer.addRefreshListener(distinguishedNameIndex);
 		this.uidIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class).usingPath("uid", String.class);
 		this.consumer.addRefreshListener(uidIndex);
-		this.nameIndex = new HollowPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "name.value");
+		this.nameIndex = new BmPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "name");
 		nameIndex.listenForDeltaUpdates();
-		this.emailIndex = new HollowPrefixIndex(consumer.getStateEngine(), "AddressBookRecord",
-				"emails.element.address.value");
+		this.emailIndex = new BmPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "emails.element.address");
 		emailIndex.listenForDeltaUpdates();
 		this.kindIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "", "kind.value");
 		kindIndex.listenForDeltaUpdates();
@@ -111,6 +122,10 @@ public class DirectoryDeserializer {
 	public Collection<AddressBookRecord> all() {
 		OfflineDirectoryAPI api = (OfflineDirectoryAPI) consumer.getAPI();
 		return api.getAllAddressBookRecord();
+	}
+
+	public Optional<OfflineAddressBook> root() {
+		return Optional.ofNullable(rootByDomainUidIndex.findMatch(domainUid));
 	}
 
 	public List<AddressBookRecord> search(List<Predicate<? super AddressBookRecord>> predicates) {
@@ -198,8 +213,7 @@ public class DirectoryDeserializer {
 	}
 
 	private List<AddressBookRecord> order(List<AddressBookRecord> list) {
-		return list.stream().sorted((a, b) -> a.getName().getValue().compareTo(b.getName().getValue()))
-				.collect(Collectors.toList());
+		return list.stream().sorted((a, b) -> a.getName().compareTo(b.getName())).collect(Collectors.toList());
 	}
 
 	public List<AddressBookRecord> search(Query query) {
@@ -240,7 +254,7 @@ public class DirectoryDeserializer {
 	}
 
 	private boolean evalValue(String key, String value, AddressBookRecord record) {
-		return AddressBookMatcher.matches(key, value, record);
+		return AddressBookMatcher.matches(key, value, root(), record);
 	}
 
 	private List<AddressBookRecord> simpleQuery(String key, String value) {

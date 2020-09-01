@@ -9,19 +9,18 @@ import com.netflix.hollow.api.objects.delegate.HollowCachedDelegate;
 @SuppressWarnings("all")
 public class AddressBookRecordDelegateCachedImpl extends HollowObjectAbstractDelegate implements HollowCachedDelegate, AddressBookRecordDelegate {
 
-    private final int addressBookOrdinal;
-    private final int uidOrdinal;
-    private final int distinguishedNameOrdinal;
+    private final String uid;
+    private final String distinguishedName;
     private final int domainOrdinal;
     private final int kindOrdinal;
     private final int emailsOrdinal;
     private final int createdOrdinal;
     private final int updatedOrdinal;
-    private final int emailOrdinal;
+    private final String email;
     private final Long minimalid;
-    private final int nameOrdinal;
-    private final int surnameOrdinal;
-    private final int givenNameOrdinal;
+    private final String name;
+    private final String surname;
+    private final String givenName;
     private final int titleOrdinal;
     private final int officeLocationOrdinal;
     private final int departmentNameOrdinal;
@@ -55,19 +54,18 @@ public class AddressBookRecordDelegateCachedImpl extends HollowObjectAbstractDel
     private AddressBookRecordTypeAPI typeAPI;
 
     public AddressBookRecordDelegateCachedImpl(AddressBookRecordTypeAPI typeAPI, int ordinal) {
-        this.addressBookOrdinal = typeAPI.getAddressBookOrdinal(ordinal);
-        this.uidOrdinal = typeAPI.getUidOrdinal(ordinal);
-        this.distinguishedNameOrdinal = typeAPI.getDistinguishedNameOrdinal(ordinal);
+        this.uid = typeAPI.getUid(ordinal);
+        this.distinguishedName = typeAPI.getDistinguishedName(ordinal);
         this.domainOrdinal = typeAPI.getDomainOrdinal(ordinal);
         this.kindOrdinal = typeAPI.getKindOrdinal(ordinal);
         this.emailsOrdinal = typeAPI.getEmailsOrdinal(ordinal);
         this.createdOrdinal = typeAPI.getCreatedOrdinal(ordinal);
         this.updatedOrdinal = typeAPI.getUpdatedOrdinal(ordinal);
-        this.emailOrdinal = typeAPI.getEmailOrdinal(ordinal);
+        this.email = typeAPI.getEmail(ordinal);
         this.minimalid = typeAPI.getMinimalidBoxed(ordinal);
-        this.nameOrdinal = typeAPI.getNameOrdinal(ordinal);
-        this.surnameOrdinal = typeAPI.getSurnameOrdinal(ordinal);
-        this.givenNameOrdinal = typeAPI.getGivenNameOrdinal(ordinal);
+        this.name = typeAPI.getName(ordinal);
+        this.surname = typeAPI.getSurname(ordinal);
+        this.givenName = typeAPI.getGivenName(ordinal);
         this.titleOrdinal = typeAPI.getTitleOrdinal(ordinal);
         this.officeLocationOrdinal = typeAPI.getOfficeLocationOrdinal(ordinal);
         this.departmentNameOrdinal = typeAPI.getDepartmentNameOrdinal(ordinal);
@@ -101,16 +99,24 @@ public class AddressBookRecordDelegateCachedImpl extends HollowObjectAbstractDel
         this.typeAPI = typeAPI;
     }
 
-    public int getAddressBookOrdinal(int ordinal) {
-        return addressBookOrdinal;
+    public String getUid(int ordinal) {
+        return uid;
     }
 
-    public int getUidOrdinal(int ordinal) {
-        return uidOrdinal;
+    public boolean isUidEqual(int ordinal, String testValue) {
+        if(testValue == null)
+            return uid == null;
+        return testValue.equals(uid);
     }
 
-    public int getDistinguishedNameOrdinal(int ordinal) {
-        return distinguishedNameOrdinal;
+    public String getDistinguishedName(int ordinal) {
+        return distinguishedName;
+    }
+
+    public boolean isDistinguishedNameEqual(int ordinal, String testValue) {
+        if(testValue == null)
+            return distinguishedName == null;
+        return testValue.equals(distinguishedName);
     }
 
     public int getDomainOrdinal(int ordinal) {
@@ -133,8 +139,14 @@ public class AddressBookRecordDelegateCachedImpl extends HollowObjectAbstractDel
         return updatedOrdinal;
     }
 
-    public int getEmailOrdinal(int ordinal) {
-        return emailOrdinal;
+    public String getEmail(int ordinal) {
+        return email;
+    }
+
+    public boolean isEmailEqual(int ordinal, String testValue) {
+        if(testValue == null)
+            return email == null;
+        return testValue.equals(email);
     }
 
     public long getMinimalid(int ordinal) {
@@ -147,16 +159,34 @@ public class AddressBookRecordDelegateCachedImpl extends HollowObjectAbstractDel
         return minimalid;
     }
 
-    public int getNameOrdinal(int ordinal) {
-        return nameOrdinal;
+    public String getName(int ordinal) {
+        return name;
     }
 
-    public int getSurnameOrdinal(int ordinal) {
-        return surnameOrdinal;
+    public boolean isNameEqual(int ordinal, String testValue) {
+        if(testValue == null)
+            return name == null;
+        return testValue.equals(name);
     }
 
-    public int getGivenNameOrdinal(int ordinal) {
-        return givenNameOrdinal;
+    public String getSurname(int ordinal) {
+        return surname;
+    }
+
+    public boolean isSurnameEqual(int ordinal, String testValue) {
+        if(testValue == null)
+            return surname == null;
+        return testValue.equals(surname);
+    }
+
+    public String getGivenName(int ordinal) {
+        return givenName;
+    }
+
+    public boolean isGivenNameEqual(int ordinal, String testValue) {
+        if(testValue == null)
+            return givenName == null;
+        return testValue.equals(givenName);
     }
 
     public int getTitleOrdinal(int ordinal) {

@@ -11,11 +11,12 @@ public class Email extends HollowObject {
         super(delegate, ordinal);
     }
 
-    public HString getAddress() {
-        int refOrdinal = delegate().getAddressOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getHString(refOrdinal);
+    public String getAddress() {
+        return delegate().getAddress(ordinal);
+    }
+
+    public boolean isAddressEqual(String testValue) {
+        return delegate().isAddressEqual(ordinal, testValue);
     }
 
     public boolean getAllAliases() {

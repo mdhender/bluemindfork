@@ -32,22 +32,22 @@ public class OfflineDirectoryAPI extends HollowAPI  {
     private final HollowObjectCreationSampler objectCreationSampler;
 
     private final DateTypeAPI dateTypeAPI;
-    private final StringTypeAPI stringTypeAPI;
-    private final DataLocationTypeAPI dataLocationTypeAPI;
     private final EmailTypeAPI emailTypeAPI;
     private final ListOfEmailTypeAPI listOfEmailTypeAPI;
+    private final StringTypeAPI stringTypeAPI;
+    private final DataLocationTypeAPI dataLocationTypeAPI;
+    private final AddressBookRecordTypeAPI addressBookRecordTypeAPI;
     private final SetOfStringTypeAPI setOfStringTypeAPI;
     private final OfflineAddressBookTypeAPI offlineAddressBookTypeAPI;
-    private final AddressBookRecordTypeAPI addressBookRecordTypeAPI;
 
     private final HollowObjectProvider dateProvider;
-    private final HollowObjectProvider stringProvider;
-    private final HollowObjectProvider dataLocationProvider;
     private final HollowObjectProvider emailProvider;
     private final HollowObjectProvider listOfEmailProvider;
+    private final HollowObjectProvider stringProvider;
+    private final HollowObjectProvider dataLocationProvider;
+    private final HollowObjectProvider addressBookRecordProvider;
     private final HollowObjectProvider setOfStringProvider;
     private final HollowObjectProvider offlineAddressBookProvider;
-    private final HollowObjectProvider addressBookRecordProvider;
 
     public OfflineDirectoryAPI(HollowDataAccess dataAccess) {
         this(dataAccess, Collections.<String>emptySet());
@@ -66,7 +66,7 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         HollowTypeDataAccess typeDataAccess;
         HollowFactory factory;
 
-        objectCreationSampler = new HollowObjectCreationSampler("Date","String","DataLocation","Email","ListOfEmail","SetOfString","OfflineAddressBook","AddressBookRecord");
+        objectCreationSampler = new HollowObjectCreationSampler("Date","Email","ListOfEmail","String","DataLocation","AddressBookRecord","SetOfString","OfflineAddressBook");
 
         typeDataAccess = dataAccess.getTypeDataAccess("Date");
         if(typeDataAccess != null) {
@@ -85,44 +85,6 @@ public class OfflineDirectoryAPI extends HollowAPI  {
             dateProvider = new HollowObjectCacheProvider(typeDataAccess, dateTypeAPI, factory, previousCacheProvider);
         } else {
             dateProvider = new HollowObjectFactoryProvider(typeDataAccess, dateTypeAPI, factory);
-        }
-
-        typeDataAccess = dataAccess.getTypeDataAccess("String");
-        if(typeDataAccess != null) {
-            stringTypeAPI = new StringTypeAPI(this, (HollowObjectTypeDataAccess)typeDataAccess);
-        } else {
-            stringTypeAPI = new StringTypeAPI(this, new HollowObjectMissingDataAccess(dataAccess, "String"));
-        }
-        addTypeAPI(stringTypeAPI);
-        factory = factoryOverrides.get("String");
-        if(factory == null)
-            factory = new StringHollowFactory();
-        if(cachedTypes.contains("String")) {
-            HollowObjectCacheProvider previousCacheProvider = null;
-            if(previousCycleAPI != null && (previousCycleAPI.stringProvider instanceof HollowObjectCacheProvider))
-                previousCacheProvider = (HollowObjectCacheProvider) previousCycleAPI.stringProvider;
-            stringProvider = new HollowObjectCacheProvider(typeDataAccess, stringTypeAPI, factory, previousCacheProvider);
-        } else {
-            stringProvider = new HollowObjectFactoryProvider(typeDataAccess, stringTypeAPI, factory);
-        }
-
-        typeDataAccess = dataAccess.getTypeDataAccess("DataLocation");
-        if(typeDataAccess != null) {
-            dataLocationTypeAPI = new DataLocationTypeAPI(this, (HollowObjectTypeDataAccess)typeDataAccess);
-        } else {
-            dataLocationTypeAPI = new DataLocationTypeAPI(this, new HollowObjectMissingDataAccess(dataAccess, "DataLocation"));
-        }
-        addTypeAPI(dataLocationTypeAPI);
-        factory = factoryOverrides.get("DataLocation");
-        if(factory == null)
-            factory = new DataLocationHollowFactory();
-        if(cachedTypes.contains("DataLocation")) {
-            HollowObjectCacheProvider previousCacheProvider = null;
-            if(previousCycleAPI != null && (previousCycleAPI.dataLocationProvider instanceof HollowObjectCacheProvider))
-                previousCacheProvider = (HollowObjectCacheProvider) previousCycleAPI.dataLocationProvider;
-            dataLocationProvider = new HollowObjectCacheProvider(typeDataAccess, dataLocationTypeAPI, factory, previousCacheProvider);
-        } else {
-            dataLocationProvider = new HollowObjectFactoryProvider(typeDataAccess, dataLocationTypeAPI, factory);
         }
 
         typeDataAccess = dataAccess.getTypeDataAccess("Email");
@@ -163,6 +125,63 @@ public class OfflineDirectoryAPI extends HollowAPI  {
             listOfEmailProvider = new HollowObjectFactoryProvider(typeDataAccess, listOfEmailTypeAPI, factory);
         }
 
+        typeDataAccess = dataAccess.getTypeDataAccess("String");
+        if(typeDataAccess != null) {
+            stringTypeAPI = new StringTypeAPI(this, (HollowObjectTypeDataAccess)typeDataAccess);
+        } else {
+            stringTypeAPI = new StringTypeAPI(this, new HollowObjectMissingDataAccess(dataAccess, "String"));
+        }
+        addTypeAPI(stringTypeAPI);
+        factory = factoryOverrides.get("String");
+        if(factory == null)
+            factory = new StringHollowFactory();
+        if(cachedTypes.contains("String")) {
+            HollowObjectCacheProvider previousCacheProvider = null;
+            if(previousCycleAPI != null && (previousCycleAPI.stringProvider instanceof HollowObjectCacheProvider))
+                previousCacheProvider = (HollowObjectCacheProvider) previousCycleAPI.stringProvider;
+            stringProvider = new HollowObjectCacheProvider(typeDataAccess, stringTypeAPI, factory, previousCacheProvider);
+        } else {
+            stringProvider = new HollowObjectFactoryProvider(typeDataAccess, stringTypeAPI, factory);
+        }
+
+        typeDataAccess = dataAccess.getTypeDataAccess("DataLocation");
+        if(typeDataAccess != null) {
+            dataLocationTypeAPI = new DataLocationTypeAPI(this, (HollowObjectTypeDataAccess)typeDataAccess);
+        } else {
+            dataLocationTypeAPI = new DataLocationTypeAPI(this, new HollowObjectMissingDataAccess(dataAccess, "DataLocation"));
+        }
+        addTypeAPI(dataLocationTypeAPI);
+        factory = factoryOverrides.get("DataLocation");
+        if(factory == null)
+            factory = new DataLocationHollowFactory();
+        if(cachedTypes.contains("DataLocation")) {
+            HollowObjectCacheProvider previousCacheProvider = null;
+            if(previousCycleAPI != null && (previousCycleAPI.dataLocationProvider instanceof HollowObjectCacheProvider))
+                previousCacheProvider = (HollowObjectCacheProvider) previousCycleAPI.dataLocationProvider;
+            dataLocationProvider = new HollowObjectCacheProvider(typeDataAccess, dataLocationTypeAPI, factory, previousCacheProvider);
+        } else {
+            dataLocationProvider = new HollowObjectFactoryProvider(typeDataAccess, dataLocationTypeAPI, factory);
+        }
+
+        typeDataAccess = dataAccess.getTypeDataAccess("AddressBookRecord");
+        if(typeDataAccess != null) {
+            addressBookRecordTypeAPI = new AddressBookRecordTypeAPI(this, (HollowObjectTypeDataAccess)typeDataAccess);
+        } else {
+            addressBookRecordTypeAPI = new AddressBookRecordTypeAPI(this, new HollowObjectMissingDataAccess(dataAccess, "AddressBookRecord"));
+        }
+        addTypeAPI(addressBookRecordTypeAPI);
+        factory = factoryOverrides.get("AddressBookRecord");
+        if(factory == null)
+            factory = new AddressBookRecordHollowFactory();
+        if(cachedTypes.contains("AddressBookRecord")) {
+            HollowObjectCacheProvider previousCacheProvider = null;
+            if(previousCycleAPI != null && (previousCycleAPI.addressBookRecordProvider instanceof HollowObjectCacheProvider))
+                previousCacheProvider = (HollowObjectCacheProvider) previousCycleAPI.addressBookRecordProvider;
+            addressBookRecordProvider = new HollowObjectCacheProvider(typeDataAccess, addressBookRecordTypeAPI, factory, previousCacheProvider);
+        } else {
+            addressBookRecordProvider = new HollowObjectFactoryProvider(typeDataAccess, addressBookRecordTypeAPI, factory);
+        }
+
         typeDataAccess = dataAccess.getTypeDataAccess("SetOfString");
         if(typeDataAccess != null) {
             setOfStringTypeAPI = new SetOfStringTypeAPI(this, (HollowSetTypeDataAccess)typeDataAccess);
@@ -201,54 +220,29 @@ public class OfflineDirectoryAPI extends HollowAPI  {
             offlineAddressBookProvider = new HollowObjectFactoryProvider(typeDataAccess, offlineAddressBookTypeAPI, factory);
         }
 
-        typeDataAccess = dataAccess.getTypeDataAccess("AddressBookRecord");
-        if(typeDataAccess != null) {
-            addressBookRecordTypeAPI = new AddressBookRecordTypeAPI(this, (HollowObjectTypeDataAccess)typeDataAccess);
-        } else {
-            addressBookRecordTypeAPI = new AddressBookRecordTypeAPI(this, new HollowObjectMissingDataAccess(dataAccess, "AddressBookRecord"));
-        }
-        addTypeAPI(addressBookRecordTypeAPI);
-        factory = factoryOverrides.get("AddressBookRecord");
-        if(factory == null)
-            factory = new AddressBookRecordHollowFactory();
-        if(cachedTypes.contains("AddressBookRecord")) {
-            HollowObjectCacheProvider previousCacheProvider = null;
-            if(previousCycleAPI != null && (previousCycleAPI.addressBookRecordProvider instanceof HollowObjectCacheProvider))
-                previousCacheProvider = (HollowObjectCacheProvider) previousCycleAPI.addressBookRecordProvider;
-            addressBookRecordProvider = new HollowObjectCacheProvider(typeDataAccess, addressBookRecordTypeAPI, factory, previousCacheProvider);
-        } else {
-            addressBookRecordProvider = new HollowObjectFactoryProvider(typeDataAccess, addressBookRecordTypeAPI, factory);
-        }
-
     }
 
     public void detachCaches() {
         if(dateProvider instanceof HollowObjectCacheProvider)
             ((HollowObjectCacheProvider)dateProvider).detach();
-        if(stringProvider instanceof HollowObjectCacheProvider)
-            ((HollowObjectCacheProvider)stringProvider).detach();
-        if(dataLocationProvider instanceof HollowObjectCacheProvider)
-            ((HollowObjectCacheProvider)dataLocationProvider).detach();
         if(emailProvider instanceof HollowObjectCacheProvider)
             ((HollowObjectCacheProvider)emailProvider).detach();
         if(listOfEmailProvider instanceof HollowObjectCacheProvider)
             ((HollowObjectCacheProvider)listOfEmailProvider).detach();
+        if(stringProvider instanceof HollowObjectCacheProvider)
+            ((HollowObjectCacheProvider)stringProvider).detach();
+        if(dataLocationProvider instanceof HollowObjectCacheProvider)
+            ((HollowObjectCacheProvider)dataLocationProvider).detach();
+        if(addressBookRecordProvider instanceof HollowObjectCacheProvider)
+            ((HollowObjectCacheProvider)addressBookRecordProvider).detach();
         if(setOfStringProvider instanceof HollowObjectCacheProvider)
             ((HollowObjectCacheProvider)setOfStringProvider).detach();
         if(offlineAddressBookProvider instanceof HollowObjectCacheProvider)
             ((HollowObjectCacheProvider)offlineAddressBookProvider).detach();
-        if(addressBookRecordProvider instanceof HollowObjectCacheProvider)
-            ((HollowObjectCacheProvider)addressBookRecordProvider).detach();
     }
 
     public DateTypeAPI getDateTypeAPI() {
         return dateTypeAPI;
-    }
-    public StringTypeAPI getStringTypeAPI() {
-        return stringTypeAPI;
-    }
-    public DataLocationTypeAPI getDataLocationTypeAPI() {
-        return dataLocationTypeAPI;
     }
     public EmailTypeAPI getEmailTypeAPI() {
         return emailTypeAPI;
@@ -256,14 +250,20 @@ public class OfflineDirectoryAPI extends HollowAPI  {
     public ListOfEmailTypeAPI getListOfEmailTypeAPI() {
         return listOfEmailTypeAPI;
     }
+    public StringTypeAPI getStringTypeAPI() {
+        return stringTypeAPI;
+    }
+    public DataLocationTypeAPI getDataLocationTypeAPI() {
+        return dataLocationTypeAPI;
+    }
+    public AddressBookRecordTypeAPI getAddressBookRecordTypeAPI() {
+        return addressBookRecordTypeAPI;
+    }
     public SetOfStringTypeAPI getSetOfStringTypeAPI() {
         return setOfStringTypeAPI;
     }
     public OfflineAddressBookTypeAPI getOfflineAddressBookTypeAPI() {
         return offlineAddressBookTypeAPI;
-    }
-    public AddressBookRecordTypeAPI getAddressBookRecordTypeAPI() {
-        return addressBookRecordTypeAPI;
     }
     public Collection<Date> getAllDate() {
         HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("Date"), "type not loaded or does not exist in dataset; type=Date");
@@ -277,30 +277,6 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         objectCreationSampler.recordCreation(0);
         return (Date)dateProvider.getHollowObject(ordinal);
     }
-    public Collection<HString> getAllHString() {
-        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("String"), "type not loaded or does not exist in dataset; type=String");
-        return new AllHollowRecordCollection<HString>(tda.getTypeState()) {
-            protected HString getForOrdinal(int ordinal) {
-                return getHString(ordinal);
-            }
-        };
-    }
-    public HString getHString(int ordinal) {
-        objectCreationSampler.recordCreation(1);
-        return (HString)stringProvider.getHollowObject(ordinal);
-    }
-    public Collection<DataLocation> getAllDataLocation() {
-        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("DataLocation"), "type not loaded or does not exist in dataset; type=DataLocation");
-        return new AllHollowRecordCollection<DataLocation>(tda.getTypeState()) {
-            protected DataLocation getForOrdinal(int ordinal) {
-                return getDataLocation(ordinal);
-            }
-        };
-    }
-    public DataLocation getDataLocation(int ordinal) {
-        objectCreationSampler.recordCreation(2);
-        return (DataLocation)dataLocationProvider.getHollowObject(ordinal);
-    }
     public Collection<Email> getAllEmail() {
         HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("Email"), "type not loaded or does not exist in dataset; type=Email");
         return new AllHollowRecordCollection<Email>(tda.getTypeState()) {
@@ -310,7 +286,7 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         };
     }
     public Email getEmail(int ordinal) {
-        objectCreationSampler.recordCreation(3);
+        objectCreationSampler.recordCreation(1);
         return (Email)emailProvider.getHollowObject(ordinal);
     }
     public Collection<ListOfEmail> getAllListOfEmail() {
@@ -322,8 +298,44 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         };
     }
     public ListOfEmail getListOfEmail(int ordinal) {
-        objectCreationSampler.recordCreation(4);
+        objectCreationSampler.recordCreation(2);
         return (ListOfEmail)listOfEmailProvider.getHollowObject(ordinal);
+    }
+    public Collection<HString> getAllHString() {
+        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("String"), "type not loaded or does not exist in dataset; type=String");
+        return new AllHollowRecordCollection<HString>(tda.getTypeState()) {
+            protected HString getForOrdinal(int ordinal) {
+                return getHString(ordinal);
+            }
+        };
+    }
+    public HString getHString(int ordinal) {
+        objectCreationSampler.recordCreation(3);
+        return (HString)stringProvider.getHollowObject(ordinal);
+    }
+    public Collection<DataLocation> getAllDataLocation() {
+        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("DataLocation"), "type not loaded or does not exist in dataset; type=DataLocation");
+        return new AllHollowRecordCollection<DataLocation>(tda.getTypeState()) {
+            protected DataLocation getForOrdinal(int ordinal) {
+                return getDataLocation(ordinal);
+            }
+        };
+    }
+    public DataLocation getDataLocation(int ordinal) {
+        objectCreationSampler.recordCreation(4);
+        return (DataLocation)dataLocationProvider.getHollowObject(ordinal);
+    }
+    public Collection<AddressBookRecord> getAllAddressBookRecord() {
+        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("AddressBookRecord"), "type not loaded or does not exist in dataset; type=AddressBookRecord");
+        return new AllHollowRecordCollection<AddressBookRecord>(tda.getTypeState()) {
+            protected AddressBookRecord getForOrdinal(int ordinal) {
+                return getAddressBookRecord(ordinal);
+            }
+        };
+    }
+    public AddressBookRecord getAddressBookRecord(int ordinal) {
+        objectCreationSampler.recordCreation(5);
+        return (AddressBookRecord)addressBookRecordProvider.getHollowObject(ordinal);
     }
     public Collection<SetOfString> getAllSetOfString() {
         HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("SetOfString"), "type not loaded or does not exist in dataset; type=SetOfString");
@@ -334,7 +346,7 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         };
     }
     public SetOfString getSetOfString(int ordinal) {
-        objectCreationSampler.recordCreation(5);
+        objectCreationSampler.recordCreation(6);
         return (SetOfString)setOfStringProvider.getHollowObject(ordinal);
     }
     public Collection<OfflineAddressBook> getAllOfflineAddressBook() {
@@ -346,20 +358,8 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         };
     }
     public OfflineAddressBook getOfflineAddressBook(int ordinal) {
-        objectCreationSampler.recordCreation(6);
-        return (OfflineAddressBook)offlineAddressBookProvider.getHollowObject(ordinal);
-    }
-    public Collection<AddressBookRecord> getAllAddressBookRecord() {
-        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("AddressBookRecord"), "type not loaded or does not exist in dataset; type=AddressBookRecord");
-        return new AllHollowRecordCollection<AddressBookRecord>(tda.getTypeState()) {
-            protected AddressBookRecord getForOrdinal(int ordinal) {
-                return getAddressBookRecord(ordinal);
-            }
-        };
-    }
-    public AddressBookRecord getAddressBookRecord(int ordinal) {
         objectCreationSampler.recordCreation(7);
-        return (AddressBookRecord)addressBookRecordProvider.getHollowObject(ordinal);
+        return (OfflineAddressBook)offlineAddressBookProvider.getHollowObject(ordinal);
     }
     public void setSamplingDirector(HollowSamplingDirector director) {
         super.setSamplingDirector(director);

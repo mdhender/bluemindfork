@@ -186,21 +186,21 @@ public class ProducerTests {
 
 		Collection<AddressBookRecord> all = search.all();
 		all.forEach(ab -> {
-			System.err.println("***************** " + ab.getUid().getValue() + " - " + ab.getMinimalid() + " -> "
-					+ ab.getDistinguishedName().getValue());
+			System.err.println("***************** " + ab.getUid() + " - " + ab.getMinimalid() + " -> "
+					+ ab.getDistinguishedName());
 		});
 
 		String user7dn = "/o=mapi/ou=" + domainUid + "/cn=recipients/cn=user:" + "user7";
 
 		Optional<AddressBookRecord> byUid = search.byUid("uSeR7");
 		assertTrue(byUid.isPresent());
-		assertEquals(user7dn, byUid.get().getDistinguishedName().getValue());
-		assertEquals("uSeR7", byUid.get().getUid().getValue());
+		assertEquals(user7dn, byUid.get().getDistinguishedName());
+		assertEquals("uSeR7", byUid.get().getUid());
 
 		byUid = search.byDistinguishedName(user7dn);
 		assertTrue(byUid.isPresent());
-		assertEquals(user7dn, byUid.get().getDistinguishedName().getValue());
-		assertEquals("uSeR7", byUid.get().getUid().getValue());
+		assertEquals(user7dn, byUid.get().getDistinguishedName());
+		assertEquals("uSeR7", byUid.get().getUid());
 	}
 
 	@Test

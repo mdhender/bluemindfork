@@ -19,16 +19,20 @@ package net.bluemind.serialization.client;
  */
 
 import java.io.File;
+import java.nio.file.Path;
 
 import com.netflix.hollow.api.consumer.HollowConsumer;
-import com.netflix.hollow.api.consumer.fs.HollowFilesystemAnnouncementWatcher;
 import com.netflix.hollow.api.consumer.fs.HollowFilesystemBlobRetriever;
+
+import net.bluemind.common.hollow.BmFilesystemAnnoucementWatcher;
 
 public class LocalHollowContext {
 
 	public HollowContext create(File dir) {
-		HollowConsumer.BlobRetriever blobRetriever = new HollowFilesystemBlobRetriever(dir.toPath());
-		HollowConsumer.AnnouncementWatcher announcementWatcher = new HollowFilesystemAnnouncementWatcher(dir.toPath());
+		Path asPath = dir.toPath();
+		HollowConsumer.BlobRetriever blobRetriever = new HollowFilesystemBlobRetriever(asPath);
+		HollowConsumer.AnnouncementWatcher announcementWatcher = new BmFilesystemAnnoucementWatcher(asPath);
+		// new HollowFilesystemAnnouncementWatcher(dir.toPath());
 		return new HollowContext(blobRetriever, announcementWatcher);
 	}
 

@@ -121,6 +121,7 @@ public abstract class BaseIncrementalUpdatesAndSearchTests {
 	}
 
 	private void serialize(List<Long> toDrop, AddressBookRecord... records) {
+		book.sequence++;
 		strat.produce(toDrop, book, records);
 	}
 
@@ -134,7 +135,6 @@ public abstract class BaseIncrementalUpdatesAndSearchTests {
 		record.email = record.uid + "@bm.loc";
 		record.emails = Arrays.asList(Email.create(record.email, true, true),
 				Email.create("alt-" + record.email, false, false));
-		record.addressBook = book;
 		record.created = new Date();
 		record.updated = record.created;
 		return record;
@@ -190,6 +190,8 @@ public abstract class BaseIncrementalUpdatesAndSearchTests {
 				} catch (Throwable t) {
 					System.err.println("FAIL: " + t.getMessage());
 					errors.increment();
+					t.printStackTrace();
+					System.exit(1);
 				}
 				try {
 					Thread.sleep(0, 1);
@@ -224,23 +226,28 @@ public abstract class BaseIncrementalUpdatesAndSearchTests {
 						"Serialized " + chunk.size() + " record(s), dropped " + toDelete.size() + " record(s)");
 
 				try {
-					Thread.sleep(100);
+					Thread.sleep(50);
 				} catch (InterruptedException e) {
 				}
-				// checkByEmail("uid2@bm.loc", 2);
-				// checkByEmail("uid4@bm.loc", 4);
 			}
 		}
-		serialize(toFlush.toArray(empty));
+		AddressBookRecord[] remainder = toFlush.toArray(empty);
+		serialize(remainder);
 		System.err.println("Serialized " + toFlush.size() + " record(s)");
+		System.err.println("last record is " + remainder[remainder.length - 1].uid);
 
 		System.err.println("Waiting for annoucements....");
 		try {
 			Thread.sleep(4000);
 		} catch (InterruptedException e) {
 		}
+
+		Optional<net.bluemind.directory.hollow.datamodel.consumer.OfflineAddressBook> parentBook = defaultSearch.root();
+		assertTrue(parentBook.isPresent());
+
 		Collection<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> allRecs = defaultSearch.all();
 		System.err.println("TEST finishes with " + allRecs.size() + " item(s) in hollow");
+		System.err.println("deleted " + deleted + " record(s) during test.");
 		int total = count - start + 4 - deleted;
 		assertEquals(total, allRecs.size());
 
@@ -259,8 +266,12 @@ public abstract class BaseIncrementalUpdatesAndSearchTests {
 	private void checkByEmail(String em, long minId) {
 		Optional<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> lookup = defaultSearch.byEmail(em);
 		assertTrue("nothing found for " + em, lookup.isPresent());
+		lookup.ifPresent(rec -> {
+			assertEquals(minId, rec.getMinimalid());
+		});
 		assertEquals(Long.valueOf(minId), lookup
 				.map(net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord::getMinimalid).orElse(-1L));
+
 	}
 
 }

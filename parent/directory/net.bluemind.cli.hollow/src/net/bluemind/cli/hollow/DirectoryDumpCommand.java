@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Strings;
 
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
@@ -66,8 +67,10 @@ public class DirectoryDumpCommand implements ICmdLet, Runnable {
 			return domain;
 		});
 		SerializedDirectorySearch hollow = DirectorySearchFactory.get(domUid);
+		String version = hollow.root().map(r -> Integer.toString(r.getSequence())).orElse("UNKNOWN");
 		Collection<AddressBookRecord> bookItems = hollow.all();
-		ctx.info("Hollow directory of '" + domUid + "' has " + bookItems.size() + " item(s).");
+		ctx.info("Hollow directory of '" + domUid + "' has " + bookItems.size() + " item(s) with directory version "
+				+ version + ".");
 		List<AddressBookRecord> sorted = new ArrayList<>(bookItems);
 		sorted.sort((r1, r2) -> Long.compare(r1.getMinimalid(), r2.getMinimalid()));
 		for (AddressBookRecord abr : sorted) {
@@ -94,6 +97,10 @@ public class DirectoryDumpCommand implements ICmdLet, Runnable {
 
 	private String hstring(HString s) {
 		return Optional.ofNullable(s).map(HString::getValue).orElse("");
+	}
+
+	private String hstring(String s) {
+		return Strings.nullToEmpty(s);
 	}
 
 	@Override

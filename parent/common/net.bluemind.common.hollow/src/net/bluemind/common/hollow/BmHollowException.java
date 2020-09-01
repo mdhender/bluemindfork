@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -8,7 +8,6 @@
  * it under the terms of either the GNU Affero General Public License as
  * published by the Free Software Foundation (version 3 of the License).
  *
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -16,25 +15,13 @@
  * See LICENSE.txt
  * END LICENSE
  */
+package net.bluemind.common.hollow;
 
-package net.bluemind.directory.hollow.datamodel;
+@SuppressWarnings("serial")
+public class BmHollowException extends RuntimeException {
 
-import com.netflix.hollow.core.write.objectmapper.HollowInline;
-
-public class Email {
-
-	@HollowInline
-	public String address;
-
-	public boolean allAliases;
-	public boolean isDefault;
-
-	public static Email create(String address, boolean isDefault, boolean allAliases) {
-		Email email = new Email();
-		email.address = address;
-		email.isDefault = isDefault;
-		email.allAliases = allAliases;
-		return email;
+	public BmHollowException(Throwable t) {
+		super(t);
 	}
 
 }

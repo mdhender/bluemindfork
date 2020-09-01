@@ -25,6 +25,7 @@ import com.netflix.hollow.core.write.HollowWriteStateEngine;
 import com.netflix.hollow.core.write.objectmapper.HollowObjectMapper;
 
 import net.bluemind.directory.hollow.datamodel.AddressBookRecord;
+import net.bluemind.directory.hollow.datamodel.OfflineAddressBook;
 import net.bluemind.directory.hollow.datamodel.consumer.DirectoryDeserializer;
 
 public class GenerateConsumerApi {
@@ -33,19 +34,24 @@ public class GenerateConsumerApi {
 		HollowWriteStateEngine writeEngine = new HollowWriteStateEngine();
 		HollowObjectMapper mapper = new HollowObjectMapper(writeEngine);
 		mapper.initializeTypeState(AddressBookRecord.class);
+		mapper.initializeTypeState(OfflineAddressBook.class);
 
 		HollowAPIGenerator generator = new HollowAPIGenerator.Builder().withAPIClassname("OfflineDirectoryAPI")
 				// .withDestination(
 				// "/Users/tom/git/bluemind-all/open/parent/directory/net.bluemind.directory.hollow.datamodel.consumer/hollow-generated/")
-				.withDestination(
-						"/Users/tf/dev/projects/bluemind-mapi/open/parent/directory/net.bluemind.directory.hollow.datamodel.consumer/hollow-generated")
 				// .withDestination(
-				// "/Users/tom/git/bluemind-all/open/parent/directory/net.bluemind.directory.hollow.datamodel.consumer/hollow-generated")
-				.withPackageName(DirectoryDeserializer.class.getPackage().getName()).withDataModel(writeEngine).build();
+				// "/Users/tf/dev/projects/bluemind-mapi/open/parent/directory/net.bluemind.directory.hollow.datamodel.consumer/hollow-generated")
+				.withDestination(
+						"/Users/tom/git/bluemind-all/open/parent/directory/net.bluemind.directory.hollow.datamodel.consumer/hollow-generated")
+				.withPackageName(DirectoryDeserializer.class.getPackage().getName())//
+				.withDataModel(writeEngine)//
+				// .withHollowPrimitiveTypes(true)//
+				.build();
 		// "/Users/david/devel/bluemind/open/parent/directory/net.bluemind.directory.hollow.datamodel.consumer/hollow-generated")
 		// .withPackageName(Activator.class.getPackage().getName()).withDataModel(writeEngine).build();
 
 		generator.generateSourceFiles();
+		System.out.println("Source files generated.");// NOSONAR
 	}
 
 }

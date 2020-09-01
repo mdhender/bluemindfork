@@ -20,15 +20,19 @@ package net.bluemind.directory.hollow.datamodel.consumer;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.google.common.base.Strings;
 
 public class AddressBookMatcher {
 
 	private AddressBookMatcher() {
 	}
 
-	public static boolean matches(String key, String value, AddressBookRecord record) {
+	public static boolean matches(String key, String value, Optional<OfflineAddressBook> book,
+			AddressBookRecord record) {
 		value = value.toLowerCase();
 		switch (key) {
 		case "name":
@@ -56,34 +60,41 @@ public class AddressBookMatcher {
 		case "anr":
 			String email = value(record.getEmail());
 			String name = value(record.getName());
-			return email.contains(value) || name.contains(value) || emailsMatch(value, record);
+			return email.contains(value) || name.contains(value) || emailsMatch(value, book, record);
 		default:
 			return false;
 		}
 
 	}
 
-	private static boolean emailsMatch(String value, AddressBookRecord record) {
-		Set<String> domainNames = new HashSet<>();
-		domainNames.add(record.getAddressBook().getDomainName().getValue());
-		for (Iterator<HString> iter = record.getAddressBook().getDomainAliases().iterator(); iter.hasNext();) {
-			domainNames.add(iter.next().getValue());
-		}
-		for (Iterator<Email> iter = record.getEmails().iterator(); iter.hasNext();) {
-			Email email = iter.next();
-			String emailAddress = value(email.getAddress());
-			Set<String> addresses = new HashSet<>();
-			if (!email.getAllAliases()) {
-				addresses.add(emailAddress);
-			} else {
-				addresses.addAll(domainNames.stream().map(alias -> emailAddress.split("@")[0] + "@" + alias)
-						.collect(Collectors.toSet()));
+	private static boolean emailsMatch(String value, Optional<OfflineAddressBook> optBook, AddressBookRecord record) {
+		return optBook.map(book -> {
+			Set<String> domainNames = new HashSet<>();
+			domainNames.add(book.getDomainName().getValue());
+			for (Iterator<HString> iter = book.getDomainAliases().iterator(); iter.hasNext();) {
+				domainNames.add(iter.next().getValue());
 			}
-			if (addresses.stream().anyMatch(addr -> addr.contains(value))) {
-				return true;
+			for (Iterator<Email> iter = record.getEmails().iterator(); iter.hasNext();) {
+				Email email = iter.next();
+				String emailAddress = value(email.getAddress());
+				Set<String> addresses = new HashSet<>();
+				if (!email.getAllAliases()) {
+					addresses.add(emailAddress);
+				} else {
+					addresses.addAll(domainNames.stream().map(alias -> emailAddress.split("@")[0] + "@" + alias)
+							.collect(Collectors.toSet()));
+				}
+				if (addresses.stream().anyMatch(addr -> addr.contains(value))) {
+					return true;
+				}
 			}
-		}
-		return false;
+			return false;
+		}).orElse(false);
+
+	}
+
+	private static String value(String string) {
+		return Strings.nullToEmpty(string).toLowerCase();
 	}
 
 	private static String value(HString string) {

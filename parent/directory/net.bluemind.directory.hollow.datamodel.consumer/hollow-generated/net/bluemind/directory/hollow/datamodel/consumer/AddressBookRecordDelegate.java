@@ -6,11 +6,13 @@ import com.netflix.hollow.api.objects.delegate.HollowObjectDelegate;
 @SuppressWarnings("all")
 public interface AddressBookRecordDelegate extends HollowObjectDelegate {
 
-    public int getAddressBookOrdinal(int ordinal);
+    public String getUid(int ordinal);
 
-    public int getUidOrdinal(int ordinal);
+    public boolean isUidEqual(int ordinal, String testValue);
 
-    public int getDistinguishedNameOrdinal(int ordinal);
+    public String getDistinguishedName(int ordinal);
+
+    public boolean isDistinguishedNameEqual(int ordinal, String testValue);
 
     public int getDomainOrdinal(int ordinal);
 
@@ -22,17 +24,25 @@ public interface AddressBookRecordDelegate extends HollowObjectDelegate {
 
     public int getUpdatedOrdinal(int ordinal);
 
-    public int getEmailOrdinal(int ordinal);
+    public String getEmail(int ordinal);
+
+    public boolean isEmailEqual(int ordinal, String testValue);
 
     public long getMinimalid(int ordinal);
 
     public Long getMinimalidBoxed(int ordinal);
 
-    public int getNameOrdinal(int ordinal);
+    public String getName(int ordinal);
 
-    public int getSurnameOrdinal(int ordinal);
+    public boolean isNameEqual(int ordinal, String testValue);
 
-    public int getGivenNameOrdinal(int ordinal);
+    public String getSurname(int ordinal);
+
+    public boolean isSurnameEqual(int ordinal, String testValue);
+
+    public String getGivenName(int ordinal);
+
+    public boolean isGivenNameEqual(int ordinal, String testValue);
 
     public int getTitleOrdinal(int ordinal);
 

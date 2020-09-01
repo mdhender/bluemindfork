@@ -17,14 +17,17 @@ public class EmailTypeAPI extends HollowObjectTypeAPI {
         this.delegateLookupImpl = new EmailDelegateLookupImpl(this);
     }
 
-    public int getAddressOrdinal(int ordinal) {
+    public String getAddress(int ordinal) {
         if(fieldIndex[0] == -1)
-            return missingDataHandler().handleReferencedOrdinal("Email", ordinal, "address");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[0]);
+            return missingDataHandler().handleString("Email", ordinal, "address");
+        boxedFieldAccessSampler.recordFieldAccess(fieldIndex[0]);
+        return getTypeDataAccess().readString(ordinal, fieldIndex[0]);
     }
 
-    public StringTypeAPI getAddressTypeAPI() {
-        return getAPI().getStringTypeAPI();
+    public boolean isAddressEqual(int ordinal, String testValue) {
+        if(fieldIndex[0] == -1)
+            return missingDataHandler().handleStringEquals("Email", ordinal, "address", testValue);
+        return getTypeDataAccess().isStringFieldEqual(ordinal, fieldIndex[0], testValue);
     }
 
     public boolean getAllAliases(int ordinal) {

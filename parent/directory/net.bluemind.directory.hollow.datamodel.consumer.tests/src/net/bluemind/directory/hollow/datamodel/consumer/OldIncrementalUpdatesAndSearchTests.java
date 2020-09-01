@@ -47,6 +47,7 @@ public class OldIncrementalUpdatesAndSearchTests extends BaseIncrementalUpdatesA
 		HollowIncrementalProducer incremental = new HollowIncrementalProducer(producer);
 
 		return (List<Long> toDrop, OfflineAddressBook book, AddressBookRecord... recs) -> {
+			incremental.addOrModify(book);
 			Arrays.asList(recs).forEach(incremental::addOrModify);
 			toDrop.forEach(
 					l -> incremental.delete(new RecordPrimaryKey("AddressBookRecord", new String[] { "uid" + l })));

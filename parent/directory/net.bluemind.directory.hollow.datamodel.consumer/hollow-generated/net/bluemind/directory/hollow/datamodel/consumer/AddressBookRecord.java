@@ -12,25 +12,20 @@ public class AddressBookRecord extends HollowObject {
         super(delegate, ordinal);
     }
 
-    public OfflineAddressBook getAddressBook() {
-        int refOrdinal = delegate().getAddressBookOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getOfflineAddressBook(refOrdinal);
+    public String getUid() {
+        return delegate().getUid(ordinal);
     }
 
-    public HString getUid() {
-        int refOrdinal = delegate().getUidOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getHString(refOrdinal);
+    public boolean isUidEqual(String testValue) {
+        return delegate().isUidEqual(ordinal, testValue);
     }
 
-    public HString getDistinguishedName() {
-        int refOrdinal = delegate().getDistinguishedNameOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getHString(refOrdinal);
+    public String getDistinguishedName() {
+        return delegate().getDistinguishedName(ordinal);
+    }
+
+    public boolean isDistinguishedNameEqual(String testValue) {
+        return delegate().isDistinguishedNameEqual(ordinal, testValue);
     }
 
     public HString getDomain() {
@@ -68,11 +63,12 @@ public class AddressBookRecord extends HollowObject {
         return  api().getDate(refOrdinal);
     }
 
-    public HString getEmail() {
-        int refOrdinal = delegate().getEmailOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getHString(refOrdinal);
+    public String getEmail() {
+        return delegate().getEmail(ordinal);
+    }
+
+    public boolean isEmailEqual(String testValue) {
+        return delegate().isEmailEqual(ordinal, testValue);
     }
 
     public long getMinimalid() {
@@ -83,25 +79,28 @@ public class AddressBookRecord extends HollowObject {
         return delegate().getMinimalidBoxed(ordinal);
     }
 
-    public HString getName() {
-        int refOrdinal = delegate().getNameOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getHString(refOrdinal);
+    public String getName() {
+        return delegate().getName(ordinal);
     }
 
-    public HString getSurname() {
-        int refOrdinal = delegate().getSurnameOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getHString(refOrdinal);
+    public boolean isNameEqual(String testValue) {
+        return delegate().isNameEqual(ordinal, testValue);
     }
 
-    public HString getGivenName() {
-        int refOrdinal = delegate().getGivenNameOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getHString(refOrdinal);
+    public String getSurname() {
+        return delegate().getSurname(ordinal);
+    }
+
+    public boolean isSurnameEqual(String testValue) {
+        return delegate().isSurnameEqual(ordinal, testValue);
+    }
+
+    public String getGivenName() {
+        return delegate().getGivenName(ordinal);
+    }
+
+    public boolean isGivenNameEqual(String testValue) {
+        return delegate().isGivenNameEqual(ordinal, testValue);
     }
 
     public HString getTitle() {

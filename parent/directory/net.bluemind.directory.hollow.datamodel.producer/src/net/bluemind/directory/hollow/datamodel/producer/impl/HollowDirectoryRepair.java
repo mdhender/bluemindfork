@@ -88,7 +88,13 @@ public class HollowDirectoryRepair implements IDirEntryRepairSupport {
 			monitor.begin(1, "Repairing " + domainUid + " hollow directory");
 			// this will force production from a changeset(0L)
 			DomainVersions.get().invalidate(domainUid);
-			serializer.remove();
+			if (serializer != null) {
+				serializer.remove();
+			} else {
+				serializer = new DirectorySerializer(domainUid);
+				serializer.remove();
+				Serializers.put(domainUid, serializer);
+			}
 			serializer.init();
 			serializer.produce();
 
