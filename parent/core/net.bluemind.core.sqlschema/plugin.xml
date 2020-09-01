@@ -1,21 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="net.bluemind.core.jdbc.schema" name="schema" schema="schema/net.bluemind.core.jdbc.schema.exsd"/>
-   <extension-point id="net.bluemind.core.jdbc.maintenance" name="maintenance" schema="schema/net.bluemind.core.jdbc.maintenance.exsd"/>
-   <extension
-         point="net.bluemind.core.jdbc.schema">
-      <schema
+    <extension-point id="net.bluemind.core.jdbc.schema" name="schema" schema="schema/net.bluemind.core.jdbc.schema.exsd"/>
+    <extension-point id="net.bluemind.core.jdbc.maintenance" name="maintenance" schema="schema/net.bluemind.core.jdbc.maintenance.exsd"/>
+    <extension
+        point="net.bluemind.core.jdbc.schema">
+        <schema
             name="schema-version"
             resource="sql/schema-version-0.0.1.sql">
-      </schema>
-      <schema
+        </schema>
+        <schema
             name="datetime"
             resource="sql/datetime-schema-1.0.0.sql">
-         <compose
-               id="schema-version">
-         </compose>
-      </schema>
-   </extension>
-   
+            <compose
+                id="schema-version">
+            </compose>
+        </schema>
+        <schema
+            name="pg_stat_statements"
+            resource="sql/pg_stat_statements.sql">
+            <compose
+                id="schema-version">
+            </compose>
+        </schema>
+    </extension>
 </plugin>
