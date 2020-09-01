@@ -540,10 +540,14 @@ public class CalendarBackend extends CoreConnect {
 
 			try {
 				ICalendar service = getService(bs, srcFolder.containerUid);
-
 				ItemValue<VEventSeries> evt = service.getComplete(item.itemId);
 
-				service.delete(item.itemId, false);
+				if (evt == null) {
+					logger.error("Failed to find event {} in {}", item.itemId, srcFolder.containerUid);
+					resp.status = Status.ServerError;
+					ret.add(resp);
+					return;
+				}
 
 				service = getService(bs, dstFolder.containerUid);
 				String uid = UUID.randomUUID().toString();
@@ -555,11 +559,12 @@ public class CalendarBackend extends CoreConnect {
 				resp.dstMsgId = dstFolder.collectionId.getValue() + ":" + uid;
 				ret.add(resp);
 
+				service.delete(item.itemId, false);
+
 			} catch (ServerFault sf) {
 				logger.error(sf.getMessage());
 				resp.status = Status.ServerError;
 				ret.add(resp);
-
 			}
 		});
 
