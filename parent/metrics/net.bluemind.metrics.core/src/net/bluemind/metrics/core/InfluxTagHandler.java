@@ -61,7 +61,7 @@ public class InfluxTagHandler extends TickInputConfigurator {
 			TagHelper.jarToFS(InfluxTagHandler.class, "/configs/bm-kapacitor.conf",
 					"/etc/telegraf/telegraf.d/bm-kapacitor.conf", itemValue, serverApi);
 		} catch (IOException e) {
-			logger.error("Error copying file", e);
+			logger.error("Error copying file : {}", e.toString());
 			return;
 		}
 		serverApi.submitAndWait(itemValue.uid, "service influxdb restart");
@@ -123,9 +123,9 @@ public class InfluxTagHandler extends TickInputConfigurator {
 				serverApi.writeFile(srvItem.uid, "/etc/telegraf/telegraf.d/output.conf", out.toString().getBytes());
 				serverApi.submitAndWait(srvItem.uid, "service telegraf restart");
 			} catch (IOException e1) {
-				logger.error("Can't open ftl template : {}", e1);
+				logger.error("Can't open ftl template : {}", e1.toString());
 			} catch (TemplateException e2) {
-				logger.error("Exception during template processing : {}", e2);
+				logger.error("Exception during template processing : {}", e2.toString());
 			}
 		}
 	}

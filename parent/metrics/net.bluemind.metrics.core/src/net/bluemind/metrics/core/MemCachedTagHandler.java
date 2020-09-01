@@ -25,7 +25,7 @@ public class MemCachedTagHandler extends TickInputConfigurator {
 			TagHelper.jarToFS(getClass(), "/configs/bm-memcached.conf", "/etc/telegraf/telegraf.d/bm-memcached.conf",
 					itemValue, context.provider().instance(IServer.class, InstallationId.getIdentifier()));
 		} catch (IOException e) {
-			logger.error("Error copying file : {}", e);
+			logger.error("Error copying file : {}", e.toString());
 			return;
 		}
 		TagHelper.reloadTelegraf(itemValue.value.address());
@@ -38,7 +38,7 @@ public class MemCachedTagHandler extends TickInputConfigurator {
 			return;
 		}
 		TagHelper.deleteRemote(itemValue.value.address(), "/etc/telegraf/telegraf.d/bm-memcached.conf");
-		logger.info("Deleted file /etc/telegraf/telegraf.d/bm-memcached.conf at " + itemValue.value.address());
+		logger.info("Deleted file /etc/telegraf/telegraf.d/bm-memcached.conf at {}", itemValue.value.address());
 		TagHelper.reloadTelegraf(itemValue.value.address());
 	}
 }

@@ -27,7 +27,7 @@ public class ElasticsearchTagHandler extends TickInputConfigurator {
 					context.provider().instance(IServer.class, InstallationId.getIdentifier()));
 			logger.info("Created file /etc/telegraf/telegraf.d/bm-elasticsearch.conf");
 		} catch (IOException e) {
-			logger.error("Error copying file : {}", e);
+			logger.error("Error copying file : {}", e.toString());
 			return;
 		}
 		TagHelper.reloadTelegraf(itemValue.value.address());
@@ -40,7 +40,7 @@ public class ElasticsearchTagHandler extends TickInputConfigurator {
 			return;
 		}
 		TagHelper.deleteRemote(itemValue.value.address(), "/etc/telegraf/telegraf.d/bm-elasticsearch.conf");
-		logger.info("Deleted file /etc/telegraf/telegraf.d/bm-elasticsearch.conf at " + itemValue.value.address());
+		logger.info("Deleted file /etc/telegraf/telegraf.d/bm-elasticsearch.conf at {}", itemValue.value.address());
 		TagHelper.reloadTelegraf(itemValue.value.address());
 	}
 }

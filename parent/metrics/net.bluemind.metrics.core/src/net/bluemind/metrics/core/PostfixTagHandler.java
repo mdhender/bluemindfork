@@ -40,13 +40,13 @@ public class PostfixTagHandler extends TickInputConfigurator {
 		for (String str : UNIX_ACL) {
 			NCUtils.execNoOut(nodeClient, str);
 		}
-		logger.info("Added postfix monitoring necessary rights at " + itemValue.value.address());
+		logger.info("Added postfix monitoring necessary rights at {}", itemValue.value.address());
 
 		try {
 			TagHelper.jarToFS(getClass(), "/configs/bm-postfix.conf", "/etc/telegraf/telegraf.d/bm-postfix.conf",
 					itemValue, context.provider().instance(IServer.class, InstallationId.getIdentifier()));
 		} catch (IOException e) {
-			logger.error("Error copying file : {}", e);
+			logger.error("Error copying file : {}", e.toString());
 			return;
 		}
 		TagHelper.reloadTelegraf(itemValue.value.address());

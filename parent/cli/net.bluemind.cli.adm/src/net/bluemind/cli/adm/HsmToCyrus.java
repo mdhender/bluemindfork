@@ -115,9 +115,7 @@ public class HsmToCyrus implements ICmdLet, Runnable {
 					File srcDir = new File(sourceDir);
 					if (srcDir.exists() && srcDir.isDirectory()) {
 						try (Stream<Path> dirStream = Files.list(srcDir.toPath())) {
-							dirStream.forEach(p -> {
-								inject(sc, p);
-							});
+							dirStream.forEach(p -> inject(sc, p));
 						} catch (IOException e) {
 							ctx.error("Error streaming dir " + srcDir.getAbsolutePath());
 						}
