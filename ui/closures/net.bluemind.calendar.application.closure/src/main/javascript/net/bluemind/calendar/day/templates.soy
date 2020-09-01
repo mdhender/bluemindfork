@@ -309,7 +309,7 @@
             </tr>
           {/if}
 
-          {if $event.class == "private"}
+          {if $event.class == "Private"}
             <tr>
               <th>{msg meaning="calendar.event.privacy.label" desc="Privacy"}Privacy{/msg}</th>
               <td colspan="2">{msg meaning="calendar.event.privacy.private" desc="Private"}Private{/msg}private</td>
@@ -355,7 +355,7 @@
             {if isNonnull($event.rrule.until)}
               ,&nbsp;{msg meaning="calendar.event.repeat.until" desc="Label for repeat end"}until{/msg}&nbsp;{$event.rrule.until}
             {/if}
-            {if isNonnull($event.rrule.count)}
+            {if isNonnull($event.rrule.count) and $event.rrule.count > 0}
               ,&nbsp;{$event.rrule.count}&nbsp;{msg meaning="calendar.event.repeat.times" desc="Label for repeat count"}times{/msg}
             {/if}
               </td>
@@ -398,14 +398,14 @@
           {if $event.url}
             <tr>
               <th>{msg meaning="calendar.event.url" desc="event url label"}URL{/msg}</th>
-              <td colspan="2"><a target="blank" href="{$event.sanitizedUrl}">{$event.url}</a></td>
+              <td colspan="2"><div class="{css bubble-url-container}"><a target="blank" href="{$event.sanitizedUrl}">{$event.prettyUrl}</a></div></td>
             </tr>
           {/if}
 
           {if $event.description}
             <tr>
               <th>{msg meaning="calendar.event.description" desc="event description label"}Description{/msg}</th>
-              <td colspan="2">{$event.description |noAutoescape}</td>
+              <td colspan="2"><div class="{css bubble-description-container}">{$event.description |noAutoescape}</div></td>
             </tr>
           {/if}
 

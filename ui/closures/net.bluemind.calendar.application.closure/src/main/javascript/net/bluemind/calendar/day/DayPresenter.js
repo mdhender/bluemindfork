@@ -424,6 +424,11 @@ net.bluemind.calendar.day.DayPresenter.prototype.adaptVEvent_ = function(vevent,
 
   vevent.sanitizedUrl = url;
 
+  var prettyUrl = vevent.url;
+  if (prettyUrl.length > 50) {
+    prettyUrl = prettyUrl.substring(0, 49) + "...";
+  }
+  vevent.prettyUrl = prettyUrl;
   
 };
 

@@ -1098,6 +1098,16 @@ table.event-full-detail td .description {
    max-height: 200px;
 }
 
+.bubble-description-container {
+   overflow-y: auto;
+   max-height: 200px;
+   overflow-wrap: anywhere;
+}
+
+.bubble-url-container {
+   overflow-wrap: anywhere;
+}
+
 .event-list td.date  {
   font-weight:bold;
   vertical-align:top;
