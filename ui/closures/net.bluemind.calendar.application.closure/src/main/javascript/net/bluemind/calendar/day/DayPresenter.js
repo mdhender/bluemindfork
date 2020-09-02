@@ -41,6 +41,8 @@ goog.require("net.bluemind.container.service.ContainersService.EventType");
 goog.require("net.bluemind.date.DateRange");
 goog.require("net.bluemind.mvp.Presenter");
 goog.require("net.bluemind.rrule.OccurrencesHelper");
+goog.require("goog.i18n.DateTimeSymbols");
+goog.require("goog.i18n.DateTimeSymbols_en");
 
 
 /**
@@ -372,29 +374,29 @@ net.bluemind.calendar.day.DayPresenter.prototype.adaptVEvent_ = function(vevent,
   }
 
   if (vevent.rrule && vevent.rrule.byday && vevent.rrule.byday.length > 0) {
-    var i18n = goog.array.clone(goog.i18n.DateTimeSymbols.STANDALONEWEEKDAYS);
-
-    var byday = [];
-    for (var i = 0; i < vevent.rrule.byday.length; i++) {
-      var day = vevent.rrule.byday[i].day;
-      var offset = vevent.rrule.byday[i].offset;
-      var index = goog.array.indexOf(goog.i18n.DateTimeSymbols_en.STANDALONEWEEKDAYS, day);
-      if (offset == 0) {
-        byday.push(i18n[index]);
-      } else if (!goog.isDefAndNotNull(vevent.rrule.bymonth)) {
-        byday.push({
-          day : i18n[index],
-          offset : offset
-        });
-      } else {
-        byday.push({
-          day : i18n[index],
-          month : goog.i18n.DateTimeSymbols.STANDALONEMONTHS[vevent.rrule.bymonth],
-          offset : offset
-        });
+      var weekdays = goog.array.clone(goog.i18n.DateTimeSymbols_en.STANDALONEWEEKDAYS);
+      var i18n = goog.array.clone(goog.i18n.DateTimeSymbols.STANDALONEWEEKDAYS);
+      var byday = [];
+      for (var i = 0; i < vevent.rrule.byday.length; i++) {
+        var day = vevent.rrule.byday[i].day;
+        var offset = vevent.rrule.byday[i].offset;
+        var index = goog.array.indexOf(goog.i18n.DateTimeSymbols_en.STANDALONEWEEKDAYS, day);
+        if (offset == 0) {
+          byday.push(i18n[index]);
+        } else if (!goog.isDefAndNotNull(vevent.rrule.bymonth)) {
+          byday.push({
+            day : i18n[index],
+            offset : offset
+          });
+        } else {
+          byday.push({
+            day : i18n[index],
+            month : goog.i18n.DateTimeSymbols.STANDALONEMONTHS[vevent.rrule.bymonth],
+            offset : offset
+          });
+        }
       }
-    }
-    vevent.rrule.byday = byday;
+      vevent.rrule.byday = byday;
   }
 
   goog.array.forEach(vevent.alarm, function(a){
@@ -425,7 +427,7 @@ net.bluemind.calendar.day.DayPresenter.prototype.adaptVEvent_ = function(vevent,
   vevent.sanitizedUrl = url;
 
   var prettyUrl = vevent.url;
-  if (prettyUrl.length > 50) {
+  if (prettyUrl != null && prettyUrl.length > 50) {
     prettyUrl = prettyUrl.substring(0, 49) + "...";
   }
   vevent.prettyUrl = prettyUrl;
