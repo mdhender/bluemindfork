@@ -4,7 +4,9 @@
         <bm-check
             :checked="isMessageSelected(message.key)"
             :class="[anyMessageSelected ? 'd-block' : 'd-none']"
-            @click.exact.native.prevent.stop="$emit('toggleSelect', message.key, true)"
+            @change="$emit('toggleSelect', message.key, true)"
+            @click.exact.native.stop
+            @keyup.native.space.stop
         />
         <component :is="state" v-if="!!state" class="states" />
     </div>

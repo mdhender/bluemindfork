@@ -190,12 +190,14 @@ export default {
         opacity: 0.55;
     }
 
-    &:hover .bm-check {
-        display: block !important;
-    }
-
-    &:hover .bm-avatar {
-        display: none !important;
+    &:focus-within,
+    &:hover {
+        .bm-check {
+            display: block !important;
+        }
+        .bm-avatar {
+            display: none !important;
+        }
     }
 
     div.list-group-item.not-seen {
@@ -211,15 +213,12 @@ export default {
         border-left: transparent solid 4px !important;
     }
 
-    .list-group-item:focus {
+    &:focus .list-group-item {
         outline: $outline;
+        outline-offset: -1px;
         &:hover {
             background-color: $component-active-bg-darken;
         }
-    }
-
-    &:focus {
-        outline: $outline !important;
     }
 
     &:focus &:hover {
