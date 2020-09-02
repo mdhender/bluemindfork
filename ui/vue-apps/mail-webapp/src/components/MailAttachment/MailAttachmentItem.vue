@@ -15,7 +15,11 @@
                 </bm-col>
             </bm-row>
             <bm-row class="no-gutters align-items-center">
-                <bm-col class="col-auto align-self-start" :class="{ muted: uploadProgressEntry }">
+                <bm-col
+                    class="col-auto align-self-start"
+                    :class="{ muted: uploadProgressEntry }"
+                    :title="$t('mail.content.file-type', { fileType: $t('mail.content.' + fileTypeIcon) })"
+                >
                     <bm-icon :icon="fileTypeIcon" size="2x" class="align-bottom pt-1" />
                 </bm-col>
                 <bm-col class="text-nowrap text-truncate flex-grow-1 px-1" :class="{ muted: uploadProgressEntry }">
@@ -33,7 +37,12 @@
                         class="p-0"
                         size="md"
                         :title="$tc('common.downloadAttachment')"
-                        :aria-label="$tc('common.downloadAttachment')"
+                        :aria-label="
+                            $t('mail.content.download', {
+                                fileType: $t('mail.content.' + fileTypeIcon),
+                                name: attachment.filename
+                            })
+                        "
                         @click="$emit('save')"
                     >
                         <bm-icon icon="download" size="2x" class="p-1" />
