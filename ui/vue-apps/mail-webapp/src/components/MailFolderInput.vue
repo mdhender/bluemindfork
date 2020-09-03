@@ -8,6 +8,8 @@
             class="d-inline-block flex-fill"
             reset
             :placeholder="folder ? '' : $t('mail.folder.new.from_scratch')"
+            :state="isNewFolderNameValid === true"
+            aria-describedby="mail-folder-input-invalid"
             @focus="isActive = true"
             @focusout="onFocusOut"
             @keydown.enter="submit"
@@ -16,6 +18,7 @@
         />
         <bm-notice
             v-if="isNewFolderNameValid !== true"
+            id="mail-folder-input-invalid"
             :text="isNewFolderNameValid"
             class="position-absolute z-index-110 mx-2"
         />
