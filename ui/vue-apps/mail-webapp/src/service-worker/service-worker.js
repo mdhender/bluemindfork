@@ -5,12 +5,13 @@ import registerCSSRoute from "./workbox/registerCSSRoute";
 import registerImageRoute from "./workbox/registerImageRoute";
 import registerScriptRoute from "./workbox/registerScriptRoute";
 
-import { initSync, periodicSync } from "./sync";
+import { registerPeriodicSync } from "./periodicSync";
 
 precacheAndRoute(self.__WB_MANIFEST);
+
 registerApiRoute();
 registerCSSRoute();
 registerImageRoute();
 registerScriptRoute();
 
-initSync().then(() => periodicSync(["INBOX"]));
+registerPeriodicSync();

@@ -1,19 +1,20 @@
 export type UID = string;
 
-interface ItemValue extends Object {
+interface ItemValue<T> {
     created: number;
     createdBy: string;
     displayName: string;
     externalId?: any;
-    flags: Array<any>;
+    flags: any[];
     internalId: number;
     uid: UID;
     updated: number;
     updatedBy: string;
     version: number;
+    value: T;
 }
 interface MailFolderValue {
-    acls: Array<{ rights: string; subject: string }>;
+    acls: { rights: string; subject: string }[];
     dataLocation: any;
     deleted: boolean;
     fullName: string;
@@ -30,26 +31,23 @@ interface MailFolderValue {
     syncCRC: number;
     uidValidity: number;
 }
-export interface MailFolder extends ItemValue {
-    value: MailFolderValue;
-}
+
+export type MailFolder = ItemValue<MailFolderValue>;
 interface MailItemValue {
     body: any;
-    flags: Array<"Seen">;
+    flags: "Seen"[];
     imapUid: number;
     internalDate: number;
-    internalFlags: Array<any>;
+    internalFlags: any[];
     lastUpdated: number;
     messageBody: string;
     modSeq: number;
 }
-export interface MailItem extends ItemValue {
-    value: MailItemValue;
-}
 
+export type MailItem = ItemValue<MailItemValue>;
 export interface ChangeSet {
-    created: Array<{ id: number; version: number }>;
-    deleted: Array<{ id: number; version: number }>;
-    updated: Array<{ id: number; version: number }>;
+    created: { id: number; version: number }[];
+    deleted: { id: number; version: number }[];
+    updated: { id: number; version: number }[];
     version: number;
 }
