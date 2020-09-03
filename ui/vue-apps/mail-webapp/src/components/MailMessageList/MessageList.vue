@@ -12,7 +12,7 @@
         @keyup.home.exact="goToByIndex(0)"
         @keyup.end.exact="goToByIndex(count - 1)"
         @keyup.space.exact="goToByKey(lastFocusedMessage)"
-        @keyup.ctrl.exact.space="toggleSelect(lastFocusedMessage)"
+        @keyup.ctrl.exact.space="toggleSelect(lastFocusedMessage, true)"
         @keyup.ctrl.exact.65="toggleAll()"
         @keyup.ctrl.exact.up="focusByDiff(-1)"
         @keyup.ctrl.exact.down="focusByDiff(+1)"
