@@ -55,7 +55,7 @@ public class SockJsProvider {
 				client.webSocket(uri, sockResult -> {
 					if (sockResult.succeeded()) {
 						WebSocket retSock = sockResult.result();
-						logger.info("Connected to sockjs server");
+						logger.info("Connected to sockjs server {} {}, waiters: {}", uri, retSock, waiters.size());
 						ws = retSock;
 
 						ws.handler(buffer -> {
@@ -77,10 +77,16 @@ public class SockJsProvider {
 	}
 
 	public void registerResponseHandler(String id, Handler<JsonObject> handler) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("reg resp handler {} {}", id, handler);
+		}
 		responseHandlers.put(id, handler);
 	}
 
 	public void unregisterResponseHandler(String id) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("unreg resp handler {}", id);
+		}
 		responseHandlers.remove(id);
 	}
 
@@ -110,8 +116,8 @@ public class SockJsProvider {
 		Handler<JsonObject> handler = responseHandlers.get(reqId);
 		if (handler != null) {
 			handler.handle(r);
-		} else {
-			logger.info("no  handler for {} : {}", reqId, r);
+		} else if (logger.isDebugEnabled()) {
+			logger.debug("no  handler for {} : {}", reqId, r);
 		}
 	}
 }

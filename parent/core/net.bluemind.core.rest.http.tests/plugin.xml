@@ -8,4 +8,16 @@
             path="/route-test/binded">
       </route>
    </extension>
+   <extension
+         point="net.bluemind.core.rest.eventBusAccessRule">
+      <access-rule
+            class="net.bluemind.core.rest.http.SockAccessRuleForTests">
+      </access-rule>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.core.rest.http.SockFakeAddressVerticle$Factory">
+      </verticle>
+   </extension>
 </plugin>
