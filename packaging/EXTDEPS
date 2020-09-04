@@ -23,7 +23,7 @@ INFLUXDB="1.8.0.bm1~247d383a3"
 # PostgreSQL
 # Use EXTDEPS-getlastpg.sh if you need to modify (requires python3 + requests for RHEL)
 # Example: ./EXTDEPS-getlastpg.sh 11 # for PostgreSQL 11
-BMPOSTGRESQL="12.4-bluemind129"
+BMPOSTGRESQL="12.4-bluemind131"
 
 PG_XENIAL="12.4-1.pgdg16.04+1"
 PGCOMMON_XENIAL="216.pgdg16.04+1"
