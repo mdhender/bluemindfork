@@ -38,15 +38,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 
-import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.dataprotect.service.IDPContext;
 import net.bluemind.dataprotect.worker.DefaultWorker;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
-import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 
 public class ElasticWorker extends DefaultWorker {
@@ -61,9 +57,6 @@ public class ElasticWorker extends DefaultWorker {
 
 	private static final String snapshot = "snapshot-es";
 
-	public ElasticWorker() {
-	}
-
 	@Override
 	public boolean supportsTag(String tag) {
 		return "bm/es".equals(tag);
@@ -71,7 +64,7 @@ public class ElasticWorker extends DefaultWorker {
 
 	@Override
 	public Set<String> getDataDirs() {
-		return Sets.newHashSet(dir);
+		return Sets.newHashSet(repo);
 	}
 
 	@Override
@@ -113,13 +106,12 @@ public class ElasticWorker extends DefaultWorker {
 			throw new ServerFault("Cannot create ES Snapshot: " + snap.state().name());
 		}
 
-		// copy es repo to backup location
-		IServer serverApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
-				InstallationId.getIdentifier());
+	}
 
-		serverApi.submitAndWait(toBackup.uid, String.format("rm -rf %s", dir));
-		serverApi.submitAndWait(toBackup.uid, String.format("mkdir -p %s", dir));
-		serverApi.submitAndWait(toBackup.uid, String.format("rsync -r %s %s", repo, dir));
+	@Override
+	public void dataDirsSaved(IDPContext ctx, String tag, ItemValue<Server> backedUp) throws ServerFault {
+		logger.info("Cleanup ES snapshot after backup of {}", backedUp.value.address());
+		ClusterAdminClient cluster = ESearchActivator.getClient().admin().cluster();
 		deleteExistingSnapshots(cluster);
 	}
 
