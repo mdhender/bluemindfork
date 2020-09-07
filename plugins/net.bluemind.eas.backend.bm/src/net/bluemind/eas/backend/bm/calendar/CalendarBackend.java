@@ -544,6 +544,7 @@ public class CalendarBackend extends CoreConnect {
 
 				if (evt == null) {
 					logger.error("Failed to find event {} in {}", item.itemId, srcFolder.containerUid);
+					resp.srcMsgId = item.toString();
 					resp.status = Status.ServerError;
 					ret.add(resp);
 					return;
@@ -563,6 +564,7 @@ public class CalendarBackend extends CoreConnect {
 
 			} catch (ServerFault sf) {
 				logger.error(sf.getMessage());
+				resp.srcMsgId = item.toString();
 				resp.status = Status.ServerError;
 				ret.add(resp);
 			}
