@@ -124,6 +124,9 @@
      <verticle
          impl="net.bluemind.metrics.core.healing.SafeRestartOnHprofVerticle$Factory">
      </verticle>
+     <verticle
+         impl="net.bluemind.metrics.core.healing.HealElasticSearchOnDiskUsage$Factory">
+      </verticle>
    </extension>
    <extension
        point="net.bluemind.lib.vertx.verticles">
@@ -159,6 +162,12 @@
          </tick_template_provider>
          <tick_template_provider
                impl="net.bluemind.metrics.core.tick.scripts.RunningCyrusReplication">
+         </tick_template_provider>
+         <tick_template_provider
+               impl="net.bluemind.metrics.core.tick.scripts.ElasticSearchClusterHealth">
+         </tick_template_provider>
+         <tick_template_provider
+               impl="net.bluemind.metrics.core.tick.scripts.ElasticSearchDiskFree">
          </tick_template_provider>
    </extension>
    <extension

@@ -24,6 +24,10 @@ public class TickTemplateHelper {
 			this.alertSubId = alertSubId;
 			this.datalocation = datalocation;
 		}
+
+		public String toString() {
+			return "Product: " + product + " alertSubId: " + alertSubId + " datalocation: " + datalocation;
+		}
 	}
 
 	public static String newId(Product p, String alertSubId, ItemValue<Server> server) {

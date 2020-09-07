@@ -5,10 +5,12 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 
 import io.vertx.core.AbstractVerticle;
@@ -95,7 +97,9 @@ public class AlertsVerticle extends AbstractVerticle {
 	private void configureKapacitor(ServerSideServiceProvider prov, ItemValue<Server> kapaSrv,
 			List<ItemValue<Server>> servers) {
 		List<ITickTemplateProvider> templates = TickTemplates.template();
-		logger.info("Found {} tick script provider(s)", templates.size());
+		logger.info("Found {} tick script provider(s): {}", templates.size(),
+				templates.stream().map(ITickTemplateProvider::templateId).collect(Collectors.joining(","))
+		);
 
 		for (ITickTemplateProvider template : templates) {
 			loadTemplate(template, servers, kapaSrv, prov.getContext());
@@ -140,15 +144,21 @@ public class AlertsVerticle extends AbstractVerticle {
 				logger.info("Template {} has {} definitions", template.templateId(), definitions.size());
 				for (TemplateDefinition td : definitions) {
 					byte[] defContent = td.variables.encode().getBytes();
-					srvApi.writeFile(kapaSrv.uid, "/tmp/" + template.templateId() + ".json", defContent);
+					String defFilePath = "/tmp/" + template.templateId() + ".json";
+					srvApi.writeFile(kapaSrv.uid, defFilePath, defContent);
 					String defCmd = KAPACITOR + " define " + td.name + " -template " + template.templateId()
-							+ " -vars /tmp/" + template.templateId() + ".json -dbrp telegraf.autogen";
+							+ " -vars " + defFilePath + " -dbrp telegraf.autogen";
 					CommandStatus cmdRes = srvApi.submitAndWait(kapaSrv.uid, defCmd);
 					logger.info("Template {} instanciated {}, for {}, success: {}", template.templateId(), td.name,
 							srvAddress, cmdRes.successful);
-					String enableCmd = KAPACITOR + " enable " + td.name;
-					CommandStatus enableRes = srvApi.submitAndWait(kapaSrv.uid, enableCmd);
-					logger.info("Task {} enabled: {}", td.name, enableRes.successful);
+					if (! cmdRes.successful) {
+						logger.error("Template {} load error: {}", template.templateId(), cmdRes.output);
+					} else {
+						// TODO: remove temporary file defFilePath
+						String enableCmd = KAPACITOR + " enable " + td.name;
+						CommandStatus enableRes = srvApi.submitAndWait(kapaSrv.uid, enableCmd);
+						logger.info("Task {} enabled: {}", td.name, enableRes.successful);
+					}
 				}
 			});
 		} catch (IOException e) {
