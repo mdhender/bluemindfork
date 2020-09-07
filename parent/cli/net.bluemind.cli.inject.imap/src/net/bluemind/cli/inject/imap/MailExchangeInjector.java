@@ -18,6 +18,8 @@
 package net.bluemind.cli.inject.imap;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
@@ -77,7 +79,14 @@ public class MailExchangeInjector {
 		IDirectory dirApi = provider.instance(IDirectory.class, domainUid);
 		ListResult<ItemValue<DirEntry>> users = dirApi.search(DirEntryQuery.filterKind(Kind.USER));
 		IMailboxes mboxApi = provider.instance(IMailboxes.class, domainUid);
-		this.userEmails = users.values.stream().map(iv -> {
+
+		List<ItemValue<DirEntry>> chunk = new ArrayList<>(users.values);
+		// because our cyrus max process is 200
+		if (chunk.size() > 175) {
+			Collections.shuffle(chunk, ThreadLocalRandom.current());
+			chunk = chunk.subList(0, 175);
+		}
+		this.userEmails = chunk.stream().map(iv -> {
 			String em = iv.value.email;
 			if (em == null) {
 				return null;
@@ -88,8 +97,9 @@ public class MailExchangeInjector {
 				return null;
 			}
 			LoginResponse lr = provider.instance(IAuthentication.class).su(em);
-			return tmf.create(em, lr.authKey);
+			return tmf.create(lr.latd, lr.authKey);
 		}).filter(Objects::nonNull).collect(Collectors.toCollection(ArrayList::new));
+
 		this.domain = domainUid;
 		for (TargetMailbox tm : userEmails) {
 			boolean login = tm.prepare();
