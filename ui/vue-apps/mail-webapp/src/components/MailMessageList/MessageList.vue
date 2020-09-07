@@ -3,8 +3,8 @@
         class="message-list bg-extra-light"
         tabindex="0"
         @scroll="onScroll"
-        @keyup.shift.delete.exact.prevent="purge"
-        @keyup.delete.exact.prevent="remove"
+        @keyup.shift.delete.exact.prevent="purge($event)"
+        @keyup.delete.exact.prevent="remove($event)"
         @keyup.up.exact="goToByDiff(-1)"
         @keyup.down.exact="goToByDiff(+1)"
         @keyup.page-down.exact="goToByDiff(+PAGE)"
@@ -140,44 +140,50 @@ export default {
                 this.loadMore();
             }
         },
-        remove() {
-            if (this.activeFolder === this.MY_TRASH.key) {
-                this.purge();
-            } else {
-                // do this before followed async operations
-                const nextMessageKey = this.nextMessageKey;
-                this.$store.dispatch(
-                    "mail-webapp/remove",
-                    this.selectedMessageKeys.length ? this.selectedMessageKeys : this.currentMessageKey
-                );
-                if (!this.isSelectionMultiple) {
-                    this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
+        remove(event) {
+            // '.delete' modifier captures both 'Delete' and 'Backspace' keys, we just want 'Delete'
+            if (event.key === "Delete") {
+                if (this.activeFolder === this.MY_TRASH.key) {
+                    this.purge(event);
+                } else {
+                    // do this before followed async operations
+                    const nextMessageKey = this.nextMessageKey;
+                    this.$store.dispatch(
+                        "mail-webapp/remove",
+                        this.selectedMessageKeys.length ? this.selectedMessageKeys : this.currentMessageKey
+                    );
+                    if (!this.isSelectionMultiple) {
+                        this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
+                    }
                 }
             }
         },
-        async purge() {
-            const confirm = await this.$bvModal.msgBoxConfirm(
-                this.$tc("mail.actions.purge.modal.content", this.selectedMessageKeys.length || 1, {
-                    subject: this.currentMessage && this.currentMessage.subject
-                }),
-                {
-                    title: this.$tc("mail.actions.purge.modal.title", this.selectedMessageKeys.length || 1),
-                    okTitle: this.$t("common.delete"),
-                    cancelVariant: "outline-secondary",
-                    cancelTitle: this.$t("common.cancel"),
-                    centered: true,
-                    hideHeaderClose: false
-                }
-            );
-            if (confirm) {
-                // do this before followed async operations
-                const nextMessageKey = this.nextMessageKey;
-                this.$store.dispatch(
-                    "mail-webapp/purge",
-                    this.selectedMessageKeys.length ? this.selectedMessageKeys : this.currentMessageKey
+        async purge(event) {
+            // '.delete' modifier captures both 'Delete' and 'Backspace' keys, we just want 'Delete'
+            if (event.key === "Delete") {
+                const confirm = await this.$bvModal.msgBoxConfirm(
+                    this.$tc("mail.actions.purge.modal.content", this.selectedMessageKeys.length || 1, {
+                        subject: this.currentMessage && this.currentMessage.subject
+                    }),
+                    {
+                        title: this.$tc("mail.actions.purge.modal.title", this.selectedMessageKeys.length || 1),
+                        okTitle: this.$t("common.delete"),
+                        cancelVariant: "outline-secondary",
+                        cancelTitle: this.$t("common.cancel"),
+                        centered: true,
+                        hideHeaderClose: false
+                    }
                 );
-                if (!this.isSelectionMultiple) {
-                    this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
+                if (confirm) {
+                    // do this before followed async operations
+                    const nextMessageKey = this.nextMessageKey;
+                    this.$store.dispatch(
+                        "mail-webapp/purge",
+                        this.selectedMessageKeys.length ? this.selectedMessageKeys : this.currentMessageKey
+                    );
+                    if (!this.isSelectionMultiple) {
+                        this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
+                    }
                 }
             }
         },
