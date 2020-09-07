@@ -200,6 +200,9 @@
      <tick_dashboard_provider
            impl="net.bluemind.metrics.core.tick.dashboards.PostgresqlDashboard">
      </tick_dashboard_provider>
+     <tick_dashboard_provider
+           impl="net.bluemind.metrics.core.tick.dashboards.ElasticSearchDashboard">
+     </tick_dashboard_provider>
    </extension>
    <extension
          point="net.bluemind.metrics.core.tickInputConfigurator">
