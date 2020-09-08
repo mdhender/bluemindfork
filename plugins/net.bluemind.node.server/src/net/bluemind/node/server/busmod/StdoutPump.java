@@ -24,7 +24,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.parsetools.RecordParser;
@@ -47,23 +46,18 @@ public final class StdoutPump implements Runnable {
 		this.in = proc.getInputStream();
 		this.rc = rc;
 		this.record = recordOutput;
-		this.rp = RecordParser.newDelimited(Buffer.buffer(LF), new Handler<Buffer>() {
-
-			@Override
-			public void handle(Buffer event) {
-				newLine(event);
-			}
-		});
+		this.rp = RecordParser.newDelimited(Buffer.buffer(LF), this::newLine);
 		this.wsEndpoint = wsEP;
 	}
 
 	private void newLine(Buffer b) {
 		String line = b.toString();
 		logger.debug("[{}]: {}", rc.getPid(), line);
-		rc.out(line);
 		if (wsEndpoint != null) {
 			JsonObject log = new JsonObject().put("log", line);
 			wsEndpoint.write("log", log);
+		} else {
+			rc.out(line);
 		}
 	}
 
@@ -101,7 +95,7 @@ public final class StdoutPump implements Runnable {
 			logger.info("[{}] exit: {} (loops: {})", rc.getPid(), exit, count);
 			proc.destroy();
 		} catch (Exception e) {
-			rp.handle(Buffer.buffer(e.getMessage()));
+			rp.handle(Buffer.buffer("\n" + e.getMessage() + "\n"));
 			logger.error("[{}] {}", rc.getPid(), e.getMessage());
 			notifyEndOnWs(1);
 			rc.setExitValue(1, time);
