@@ -49,7 +49,7 @@ public class MonitoringMenusContributor implements MenuContributorUnwrapped {
 				"fa-pie-chart", JsArray.createArray().<JsArray<Screen>>cast(), ssections)));
 
 		screens.push(Contributed.create("bmHealth",
-				Screen.create("checkGlobalStatus", v.globalStatusScreenTitle(), "bmMetrics", true)));
+				Screen.create("checkGlobalStatus", v.globalStatusScreenTitle(), "bmMonitoring", true)));
 
 		return MenuContribution.create(sections, screens);
 	}

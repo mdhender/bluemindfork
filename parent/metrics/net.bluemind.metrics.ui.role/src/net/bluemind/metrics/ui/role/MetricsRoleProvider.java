@@ -34,7 +34,7 @@ import net.bluemind.role.provider.IRolesProvider;
 
 public class MetricsRoleProvider implements IRolesProvider {
 
-	public static final String ROLE_MONITORING = "bmMetrics";
+	public static final String ROLE_MONITORING = "bmMonitoring";
 
 	@Override
 	public Set<String> getRoles() {
