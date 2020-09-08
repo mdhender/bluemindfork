@@ -17,15 +17,22 @@
   */
 package net.bluemind.cli.user;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
+import com.github.javafaker.Faker;
+
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
+import io.netty.util.internal.ThreadLocalRandom;
 import net.bluemind.addressbook.api.VCard;
+import net.bluemind.addressbook.api.VCard.Communications.Tel;
 import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.cli.cmd.api.CliContext;
@@ -67,12 +74,23 @@ public class UserQuickCreateCommand implements ICmdLet, Runnable {
 	@Option(name = "--pass", description = "password to apply, otherwise localpart will be used")
 	public String password;
 
+	@Option(name = "--random", description = "Generate random infos into the VCard")
+	public Boolean randomData = false;
+
 	private CliContext ctx;
+
+	private static final com.github.javafaker.Name nameFaker = Faker.instance().name();
+	private static final com.github.javafaker.PhoneNumber phoneFaker = Faker.instance().phoneNumber();
+	private static final com.github.javafaker.GameOfThrones gotFaker = Faker.instance().gameOfThrones();
 
 	@Override
 	public Runnable forContext(CliContext ctx) {
 		this.ctx = ctx;
 		return this;
+	}
+
+	private String forEmail(String namePart) {
+		return namePart.replace(' ', '.').toLowerCase();
 	}
 
 	public void run() {
@@ -96,14 +114,34 @@ public class UserQuickCreateCommand implements ICmdLet, Runnable {
 			User u = new User();
 			u.login = localPart;
 			VCard card = new VCard();
-			card.identification.name = Name.create(domainPart.toUpperCase(), localPart, null, null, null, null);
-			card.identification.formatedName = FormatedName.create(localPart);
+			String familyName = domainPart.toUpperCase();
+			String givenName = localPart;
+			String extraName = null;
+			String fn = givenName + " " + familyName;
+			List<Email> emails = new ArrayList<>();
+			Email defEmail = Email.create(loginAtDomain, true, false);
+			emails.add(defEmail);
+			if (Boolean.TRUE.equals(randomData)) {
+				familyName = nameFaker.lastName();
+				givenName = nameFaker.firstName();
+				extraName = localPart;
+				fn = givenName + " " + extraName + " " + familyName;
+				card.organizational.role = gotFaker.house();
+				card.communications.tels = Arrays.asList(Tel.create(phoneFaker.cellPhone(), Collections.emptyList()));
+
+				String fakeLocal = forEmail(givenName) + "." + forEmail(familyName)
+						+ ThreadLocalRandom.current().nextInt(100, 1000);
+				defEmail.isDefault = false;
+				emails.add(Email.create(fakeLocal + "@" + domainPart, true, false));
+			}
+			card.identification.name = Name.create(familyName, givenName, extraName, null, null, null);
+			card.identification.formatedName = FormatedName.create(fn);
 			u.contactInfos = card;
 
 			u.password = Optional.ofNullable(password).orElse(localPart);
 			u.accountType = AccountType.FULL;
 			u.routing = Routing.internal;
-			u.emails = Arrays.asList(Email.create(loginAtDomain, true, false));
+			u.emails = emails;
 			u.dataLocation = ctx.adminApi().instance(IServer.class, "default").allComplete().stream()
 					.filter(s -> s.value.tags.contains("mail/imap")).findAny().map(s -> s.uid).orElse(null);
 

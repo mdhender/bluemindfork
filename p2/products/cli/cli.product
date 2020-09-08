@@ -35,6 +35,7 @@
       <plugin id="com.fasterxml.jackson.module.jackson-module-afterburner"/>
       <plugin id="com.github.freva.ascii-table"/>
       <plugin id="com.github.javafaker"/>
+      <plugin id="com.github.mifmif.generex"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.hazelcast"/>
       <plugin id="com.hazelcast.client" fragment="true"/>
@@ -147,6 +148,7 @@
       <plugin id="org.apache.commons.codec"/>
       <plugin id="org.apache.commons.compress"/>
       <plugin id="org.apache.commons.lang"/>
+      <plugin id="org.apache.commons.lang3"/>
       <plugin id="org.apache.mina.core"/>
       <plugin id="org.apache.xerces"/>
       <plugin id="org.apache.xml.resolver"/>

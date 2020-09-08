@@ -49,6 +49,7 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.MailboxQuota;
 
 public class MailExchangeInjector {
@@ -96,7 +97,8 @@ public class MailExchangeInjector {
 				logger.info("Skip user {} with quota", iv.value.entryUid);
 				return null;
 			}
-			LoginResponse lr = provider.instance(IAuthentication.class).su(em);
+			ItemValue<Mailbox> mbox = mboxApi.getComplete(iv.value.entryUid);
+			LoginResponse lr = provider.instance(IAuthentication.class).su(mbox.value.name + "@" + domainUid);
 			return tmf.create(lr.latd, lr.authKey);
 		}).filter(Objects::nonNull).collect(Collectors.toCollection(ArrayList::new));
 
