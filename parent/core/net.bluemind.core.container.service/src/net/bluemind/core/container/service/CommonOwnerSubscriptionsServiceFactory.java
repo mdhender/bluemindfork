@@ -22,9 +22,6 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IOwnerSubscriptionUids;
 import net.bluemind.core.container.model.Container;
@@ -39,8 +36,6 @@ public abstract class CommonOwnerSubscriptionsServiceFactory<T> {
 
 	public abstract Class<T> factoryClass();
 
-	private static final Logger logger = LoggerFactory.getLogger(CommonOwnerSubscriptionsServiceFactory.class);
-
 	public T instance(BmContext context, String... params) throws ServerFault {
 		if (params == null || params.length < 2) {
 			throw new ServerFault("2 parameters expected, domainUid & ownerUid (got " + params + ")");
@@ -52,7 +47,7 @@ public abstract class CommonOwnerSubscriptionsServiceFactory<T> {
 
 		DataSource ds = DataSourceRouter.get(context, containerUid);
 		if (ds == context.getDataSource()) {
-			logger.warn("directory datasource selected for {}", containerUid);
+			throw new ServerFault("Wrong datasource for container " + containerUid);
 		}
 		ContainerStore containerStore = new ContainerStore(context, ds, context.getSecurityContext());
 
