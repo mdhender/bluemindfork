@@ -7,7 +7,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-consoleLog hollow directory devenv.blue
+      <programArgs>-consoleLog hollow directory armary.fr
       </programArgs>
       <vmArgs>-Duser.timezone=GMT -Djava.awt.headless=true -Dnet.bluemind.property.product=bm-cli
       </vmArgs>
@@ -84,6 +84,7 @@
       <plugin id="net.bluemind.cli.todolist"/>
       <plugin id="net.bluemind.cli.user"/>
       <plugin id="net.bluemind.cli.utils"/>
+      <plugin id="net.bluemind.common.hollow"/>
       <plugin id="net.bluemind.common.io"/>
       <plugin id="net.bluemind.common.reflect"/>
       <plugin id="net.bluemind.config"/>

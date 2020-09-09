@@ -109,7 +109,8 @@ public class DirectoryDeserializer {
 		this.consumer.addRefreshListener(uidIndex);
 		this.nameIndex = new BmPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "name");
 		nameIndex.listenForDeltaUpdates();
-		this.emailIndex = new BmPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "emails.element.address");
+		this.emailIndex = new BmPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "emails.element.address",
+				1);
 		emailIndex.listenForDeltaUpdates();
 		this.kindIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "", "kind.value");
 		kindIndex.listenForDeltaUpdates();

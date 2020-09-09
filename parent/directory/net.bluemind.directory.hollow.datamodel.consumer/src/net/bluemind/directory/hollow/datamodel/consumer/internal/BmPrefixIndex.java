@@ -17,10 +17,15 @@
  */
 package net.bluemind.directory.hollow.datamodel.consumer.internal;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.netflix.hollow.core.index.HollowPrefixIndex;
 import com.netflix.hollow.core.read.engine.HollowReadStateEngine;
 
 public class BmPrefixIndex extends HollowPrefixIndex {
+
+	private static final Logger logger = LoggerFactory.getLogger(BmPrefixIndex.class);
 
 	public BmPrefixIndex(HollowReadStateEngine readStateEngine, String type, String fieldPath) {
 		this(readStateEngine, type, fieldPath, 4);
@@ -33,8 +38,14 @@ public class BmPrefixIndex extends HollowPrefixIndex {
 
 	@Override
 	protected long estimateNumNodes(long totalWords, long averageWordLen) {
+		// averageWordLen can be Integer.MAX_VALUE with some hollow snapshots
+		long parentEstimate = totalWords * Math.min(1024, averageWordLen);
+		if (averageWordLen > 1024) {
+			logger.warn("averageWordLen > 1024 ({}). Estimate will be {} instead of {} to prevent huge allocation",
+					averageWordLen, 10 * parentEstimate, totalWords * averageWordLen);
+		}
 		// ProducerTests deleteGroup fails with a too low estimate
-		return 10 * super.estimateNumNodes(totalWords, averageWordLen);
+		return 10 * parentEstimate;
 	}
 
 }
