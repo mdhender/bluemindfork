@@ -51,22 +51,6 @@
         "script": "content/api/DefaultPrefs/defaultprefs-impl.js"
       }
     },
-    "BmDirWrapperApi": {
-      "schema": "content/api/BmDirWrapper/schema.json",
-      "parent": {
-        "scopes": ["addon_parent"],
-        "paths": [["BmDirWrapperApi"]],
-        "script": "content/api/BmDirWrapper/bmdirwrapper-impl.js"
-      }
-    },
-    "BmDirectoryApi": {
-      "schema": "content/api/BmDirectory/schema.json",
-      "parent": {
-        "scopes": ["addon_parent"],
-        "paths": [["BmDirectoryApi"]],
-        "script": "content/api/BmDirectory/bmdirectory-impl.js"
-      }
-    },
     "LoggerApi": {
       "schema": "content/api/Logger/schema.json",
       "parent": {

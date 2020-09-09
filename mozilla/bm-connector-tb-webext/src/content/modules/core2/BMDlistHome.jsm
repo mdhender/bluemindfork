@@ -111,7 +111,7 @@ BMDlist.prototype = {
         return this._list.description;
     },
     setDescription: function(value) {
-        this._list.description = value;
+        this._list.description = value ? value: "";
     },
     getMembers: function(directory) {
         let members = [];

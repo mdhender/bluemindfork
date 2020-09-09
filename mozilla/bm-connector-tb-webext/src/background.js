@@ -49,9 +49,7 @@ async function main() {
   // init XPCOM components
   await browser.LoggerApi.init();
   await browser.RPCClientApi.init();
-  //await browser.BmDirWrapperApi.init();
   await browser.AutocompleteApi.init();
-  //await browser.BmDirectoryApi.init();
 
   // register a script which is called upon add-on unload
   await browser.ConversionHelper.registerUnloadScript("chrome://bm/content/unload.js");
