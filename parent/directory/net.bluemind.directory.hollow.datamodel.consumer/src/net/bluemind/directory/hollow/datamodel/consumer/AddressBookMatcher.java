@@ -23,7 +23,10 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 
 public class AddressBookMatcher {
@@ -60,12 +63,15 @@ public class AddressBookMatcher {
 		case "anr":
 			String email = value(record.getEmail());
 			String name = value(record.getName());
-			return email.contains(value) || name.contains(value) || emailsMatch(value, book, record);
+			return email.startsWith(value) || name.startsWith(value) || emailsMatch(value, book, record);
 		default:
 			return false;
 		}
 
 	}
+
+	private static final Splitter EMAIL_CHUNKS = Splitter.on(CharMatcher.anyOf(".-@"));
+	private static final Splitter EMAIL_AT = Splitter.on('@');
 
 	private static boolean emailsMatch(String value, Optional<OfflineAddressBook> optBook, AddressBookRecord record) {
 		return optBook.map(book -> {
@@ -81,16 +87,31 @@ public class AddressBookMatcher {
 				if (!email.getAllAliases()) {
 					addresses.add(emailAddress);
 				} else {
-					addresses.addAll(domainNames.stream().map(alias -> emailAddress.split("@")[0] + "@" + alias)
+					addresses.addAll(domainNames.stream().map(alias -> localPart(emailAddress) + "@" + alias)
 							.collect(Collectors.toSet()));
 				}
-				if (addresses.stream().anyMatch(addr -> addr.contains(value))) {
+				if (addresses.stream().flatMap(AddressBookMatcher::emailChunks)
+						.anyMatch(chunk -> chunk.startsWith(value))) {
 					return true;
 				}
 			}
 			return false;
 		}).orElse(false);
 
+	}
+
+	private static String localPart(String email) {
+		return EMAIL_AT.split(email).iterator().next();
+	}
+
+	/**
+	 * Turns john.bang@groupe-charal.com into [ john bang groupe charal com ]
+	 * 
+	 * @param addr
+	 * @return
+	 */
+	private static Stream<String> emailChunks(String addr) {
+		return EMAIL_CHUNKS.splitToList(addr).stream();
 	}
 
 	private static String value(String string) {

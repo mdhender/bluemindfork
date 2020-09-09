@@ -19,6 +19,7 @@
 package net.bluemind.directory.hollow.datamodel.consumer;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -51,6 +52,7 @@ import com.netflix.hollow.api.producer.HollowProducer;
 import com.netflix.hollow.api.producer.fs.HollowFilesystemAnnouncer;
 
 import net.bluemind.directory.hollow.datamodel.AddressBookRecord;
+import net.bluemind.directory.hollow.datamodel.AnrToken;
 import net.bluemind.directory.hollow.datamodel.Email;
 import net.bluemind.directory.hollow.datamodel.OfflineAddressBook;
 
@@ -137,6 +139,9 @@ public abstract class BaseIncrementalUpdatesAndSearchTests {
 				Email.create("alt-" + record.email, false, false));
 		record.created = new Date();
 		record.updated = record.created;
+		AnrToken anr = new AnrToken();
+		anr.token = record.uid;
+		record.anr = Arrays.asList(anr);
 		return record;
 
 	}
@@ -174,6 +179,13 @@ public abstract class BaseIncrementalUpdatesAndSearchTests {
 		serialize(rec1, rec3, rec4);
 		checkByEmail("uid2@bm.loc", 2);
 		checkByEmail("uid4@bm.loc", 4);
+
+		Collection<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> anrSearch = defaultSearch
+				.byNameOrEmailPrefix("uid4");
+		assertFalse(anrSearch.isEmpty());
+		for (net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord abr : anrSearch) {
+			System.err.println("Got " + abr.getName());
+		}
 
 		AddressBookRecord[] empty = new AddressBookRecord[0];
 		List<AddressBookRecord> toFlush = new ArrayList<>();

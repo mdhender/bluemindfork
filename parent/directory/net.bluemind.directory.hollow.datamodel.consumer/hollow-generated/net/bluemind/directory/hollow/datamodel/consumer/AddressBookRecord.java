@@ -305,6 +305,13 @@ public class AddressBookRecord extends HollowObject {
         return delegate().getHiddenBoxed(ordinal);
     }
 
+    public ListOfAnrToken getAnr() {
+        int refOrdinal = delegate().getAnrOrdinal(ordinal);
+        if(refOrdinal == -1)
+            return null;
+        return  api().getListOfAnrToken(refOrdinal);
+    }
+
     public OfflineDirectoryAPI api() {
         return typeApi().getAPI();
     }

@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2018
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,18 +16,13 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.directory.hollow.datamodel.consumer;
+package net.bluemind.directory.hollow.datamodel;
 
-import java.util.List;
+import com.netflix.hollow.core.write.objectmapper.HollowInline;
 
-public class SearchResults {
+public class AnrToken {
 
-	public final int totalCount;
-	public final List<AddressBookRecord> records;
-
-	public SearchResults(int totalCount, List<AddressBookRecord> records) {
-		this.totalCount = totalCount;
-		this.records = records;
-	}
+	@HollowInline
+	public String token;
 
 }

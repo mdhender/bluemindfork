@@ -213,6 +213,10 @@ public class AddressBookRecordDelegateLookupImpl extends HollowObjectAbstractDel
         return typeAPI.getHiddenBoxed(ordinal);
     }
 
+    public int getAnrOrdinal(int ordinal) {
+        return typeAPI.getAnrOrdinal(ordinal);
+    }
+
     public AddressBookRecordTypeAPI getTypeAPI() {
         return typeAPI;
     }

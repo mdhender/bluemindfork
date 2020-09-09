@@ -303,6 +303,7 @@ public class DirectorySerializer implements DataSerializer {
 		rec.userX509Certificate = serializer.get(DirEntrySerializer.Property.UserX509Certificate).toByteArray();
 		rec.thumbnail = serializer.get(DirEntrySerializer.Property.ThumbnailPhoto).toByteArray();
 		rec.hidden = serializer.get(DirEntrySerializer.Property.Hidden).toBoolean();
+		rec.anr = AnrTokens.compute(rec);
 		return rec;
 	}
 

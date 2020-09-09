@@ -51,6 +51,7 @@ public class AddressBookRecordDelegateCachedImpl extends HollowObjectAbstractDel
     private final byte[] userX509Certificate;
     private final byte[] thumbnail;
     private final Boolean hidden;
+    private final int anrOrdinal;
     private AddressBookRecordTypeAPI typeAPI;
 
     public AddressBookRecordDelegateCachedImpl(AddressBookRecordTypeAPI typeAPI, int ordinal) {
@@ -96,6 +97,7 @@ public class AddressBookRecordDelegateCachedImpl extends HollowObjectAbstractDel
         this.userX509Certificate = typeAPI.getUserX509Certificate(ordinal);
         this.thumbnail = typeAPI.getThumbnail(ordinal);
         this.hidden = typeAPI.getHiddenBoxed(ordinal);
+        this.anrOrdinal = typeAPI.getAnrOrdinal(ordinal);
         this.typeAPI = typeAPI;
     }
 
@@ -313,6 +315,10 @@ public class AddressBookRecordDelegateCachedImpl extends HollowObjectAbstractDel
 
     public Boolean getHiddenBoxed(int ordinal) {
         return hidden;
+    }
+
+    public int getAnrOrdinal(int ordinal) {
+        return anrOrdinal;
     }
 
     @Override

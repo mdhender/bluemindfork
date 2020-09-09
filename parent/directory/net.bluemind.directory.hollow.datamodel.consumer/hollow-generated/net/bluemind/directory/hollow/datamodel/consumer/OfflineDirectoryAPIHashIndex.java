@@ -11,13 +11,13 @@ import com.netflix.hollow.api.consumer.data.AbstractHollowOrdinalIterable;
 /**
  * @deprecated see {@link com.netflix.hollow.api.consumer.index.HashIndex} which can be built as follows:
  * <pre>{@code
- *     HashIndex<Date, K> uki = HashIndex.from(consumer, Date.class)
+ *     HashIndex<AnrToken, K> uki = HashIndex.from(consumer, AnrToken.class)
  *         .usingBean(k);
- *     Stream<Date> results = uki.findMatches(k);
+ *     Stream<AnrToken> results = uki.findMatches(k);
  * }</pre>
  * where {@code K} is a class declaring key field paths members, annotated with
  * {@link com.netflix.hollow.api.consumer.index.FieldPath}, and {@code k} is an instance of
- * {@code K} that is the query to find the matching {@code Date} objects.
+ * {@code K} that is the query to find the matching {@code AnrToken} objects.
  */
 @Deprecated
 @SuppressWarnings("all")
@@ -29,6 +29,17 @@ public class OfflineDirectoryAPIHashIndex extends AbstractHollowHashIndex<Offlin
 
     public OfflineDirectoryAPIHashIndex(HollowConsumer consumer, boolean isListenToDataRefresh, String queryType, String selectFieldPath, String... matchFieldPaths) {
         super(consumer, isListenToDataRefresh, queryType, selectFieldPath, matchFieldPaths);
+    }
+
+    public Iterable<AnrToken> findAnrTokenMatches(Object... keys) {
+        HollowHashIndexResult matches = idx.findMatches(keys);
+        if(matches == null) return Collections.emptySet();
+
+        return new AbstractHollowOrdinalIterable<AnrToken>(matches.iterator()) {
+            public AnrToken getData(int ordinal) {
+                return api.getAnrToken(ordinal);
+            }
+        };
     }
 
     public Iterable<Date> findDateMatches(Object... keys) {
@@ -49,6 +60,17 @@ public class OfflineDirectoryAPIHashIndex extends AbstractHollowHashIndex<Offlin
         return new AbstractHollowOrdinalIterable<Email>(matches.iterator()) {
             public Email getData(int ordinal) {
                 return api.getEmail(ordinal);
+            }
+        };
+    }
+
+    public Iterable<ListOfAnrToken> findListOfAnrTokenMatches(Object... keys) {
+        HollowHashIndexResult matches = idx.findMatches(keys);
+        if(matches == null) return Collections.emptySet();
+
+        return new AbstractHollowOrdinalIterable<ListOfAnrToken>(matches.iterator()) {
+            public ListOfAnrToken getData(int ordinal) {
+                return api.getListOfAnrToken(ordinal);
             }
         };
     }

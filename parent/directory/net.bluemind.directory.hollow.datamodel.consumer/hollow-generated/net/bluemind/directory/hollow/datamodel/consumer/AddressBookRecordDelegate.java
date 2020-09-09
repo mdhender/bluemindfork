@@ -106,6 +106,8 @@ public interface AddressBookRecordDelegate extends HollowObjectDelegate {
 
     public Boolean getHiddenBoxed(int ordinal);
 
+    public int getAnrOrdinal(int ordinal);
+
     public AddressBookRecordTypeAPI getTypeAPI();
 
 }

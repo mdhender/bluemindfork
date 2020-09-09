@@ -43,6 +43,7 @@ import com.netflix.hollow.api.producer.fs.HollowFilesystemAnnouncer;
 import com.netflix.hollow.api.producer.fs.HollowFilesystemPublisher;
 
 import net.bluemind.directory.hollow.datamodel.AddressBookRecord;
+import net.bluemind.directory.hollow.datamodel.AnrToken;
 import net.bluemind.directory.hollow.datamodel.Email;
 import net.bluemind.directory.hollow.datamodel.OfflineAddressBook;
 
@@ -243,6 +244,9 @@ public class DirectorySearchTest {
 		record.emails = Arrays.asList(Email.create(record.email, true, true),
 				Email.create("alt-" + record.email, false, false));
 		record.domain = "bm.loc";
+		AnrToken anr = new AnrToken();
+		anr.token = record.uid;
+		record.anr = Arrays.asList(anr);
 		return record;
 
 	}

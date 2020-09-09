@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -66,9 +65,9 @@ public class DirectoryDeserializer {
 	protected UniqueKeyIndex<AddressBookRecord, Long> minimalIndex;
 	protected HollowHashIndex kindIndex;
 	protected final HollowConsumer consumer;
-	private final AnnouncementWatcher watcher;
-	private HollowPrefixIndex nameIndex;
-	private HollowPrefixIndex emailIndex;
+	private final HollowPrefixIndex nameIndex;
+	private final HollowHashIndex anrIndex;
+	private final HollowPrefixIndex emailIndex;
 
 	private UniqueKeyIndex<OfflineAddressBook, String> rootByDomainUidIndex;
 
@@ -88,9 +87,9 @@ public class DirectoryDeserializer {
 		this.domainUid = dir.getName();
 		logger.info("Consuming from directory {} for domain {}", dir.getAbsolutePath(), domainUid);
 		HollowContext context = HollowContext.get(dir, "directory");
-		this.watcher = watcher(context);
+		AnnouncementWatcher watcher = watcher(context);
 		this.consumer = new HollowConsumer.Builder<>().withBlobRetriever(context.blobRetriever)
-				.withAnnouncementWatcher(watcher(context)).withGeneratedAPIClass(OfflineDirectoryAPI.class).build();
+				.withAnnouncementWatcher(watcher).withGeneratedAPIClass(OfflineDirectoryAPI.class).build();
 		this.consumer.addRefreshListener(new LoggingRefreshListener(
 				dir.getName() + " ctx:" + context.toString().replace("net.bluemind.serialization.client.", "")));
 
@@ -109,6 +108,10 @@ public class DirectoryDeserializer {
 		this.consumer.addRefreshListener(uidIndex);
 		this.nameIndex = new BmPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "name");
 		nameIndex.listenForDeltaUpdates();
+		// this.anrIndex = new BmPrefixIndex(consumer.getStateEngine(),
+		// "AddressBookRecord", "anr.element.token");
+		this.anrIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "", "anr.element.token");
+		anrIndex.listenForDeltaUpdates();
 		this.emailIndex = new BmPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "emails.element.address",
 				1);
 		emailIndex.listenForDeltaUpdates();
@@ -149,19 +152,12 @@ public class DirectoryDeserializer {
 		return Optional.ofNullable(minimalIndex.findMatch(minimalId));
 	}
 
-	public Collection<AddressBookRecord> byNameOrEmailPrefix(String value) {
-		Map<Integer, AddressBookRecord> results = new HashMap<>();
-		results.putAll(byNamePrefix(value).stream().collect(Collectors.toMap(a -> a.getOrdinal(), a -> a)));
-		results.putAll(byEmailPrefix(value).stream().collect(Collectors.toMap(a -> a.getOrdinal(), a -> a)));
-		return results.values();
+	public List<AddressBookRecord> byNameOrEmailPrefix(String value) {
+		return byHash(anrIndex, value);
 	}
 
 	public Optional<AddressBookRecord> byEmail(String email) {
 		return byEmailPrefix(email).stream().findFirst();
-	}
-
-	private List<AddressBookRecord> byNamePrefix(String name) {
-		return byPrefix(nameIndex, name);
 	}
 
 	private List<AddressBookRecord> byEmailPrefix(String email) {
@@ -180,8 +176,12 @@ public class DirectoryDeserializer {
 		return results;
 	}
 
-	public Collection<AddressBookRecord> byKind(String kind) {
-		HollowHashIndexResult findMatches = kindIndex.findMatches(kind);
+	public List<AddressBookRecord> byKind(String kind) {
+		return byHash(kindIndex, kind);
+	}
+
+	private List<AddressBookRecord> byHash(HollowHashIndex hash, String kind) {
+		HollowHashIndexResult findMatches = hash.findMatches(kind);
 		if (findMatches == null) {
 			return Collections.emptyList();
 		}

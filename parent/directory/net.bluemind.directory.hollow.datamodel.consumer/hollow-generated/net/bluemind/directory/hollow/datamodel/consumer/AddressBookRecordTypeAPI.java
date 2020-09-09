@@ -51,7 +51,8 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
             "addressBookX509Certificate",
             "userX509Certificate",
             "thumbnail",
-            "hidden"
+            "hidden",
+            "anr"
         });
         this.delegateLookupImpl = new AddressBookRecordDelegateLookupImpl(this);
     }
@@ -505,6 +506,16 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
 
+
+    public int getAnrOrdinal(int ordinal) {
+        if(fieldIndex[42] == -1)
+            return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "anr");
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[42]);
+    }
+
+    public ListOfAnrTokenTypeAPI getAnrTypeAPI() {
+        return getAPI().getListOfAnrTokenTypeAPI();
+    }
 
     public AddressBookRecordDelegateLookupImpl getDelegateLookupImpl() {
         return delegateLookupImpl;

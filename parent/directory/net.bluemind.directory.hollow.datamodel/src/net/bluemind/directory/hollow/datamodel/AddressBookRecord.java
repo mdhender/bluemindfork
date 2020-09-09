@@ -190,4 +190,6 @@ public class AddressBookRecord {
 	public byte[] thumbnail;
 
 	public boolean hidden;
+
+	public List<AnrToken> anr;
 }
