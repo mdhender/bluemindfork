@@ -91,6 +91,8 @@ public class DirectorySerializer implements DataSerializer {
 	private final String domainUid;
 	private final Object produceLock;
 
+	private static final boolean DROP_HIDDEN = new File("/etc/bm/hollow.no.hidden").exists();
+
 	public DirectorySerializer(String domainUid) {
 		this.domainUid = domainUid;
 		this.produceLock = new Object();
@@ -186,7 +188,7 @@ public class DirectorySerializer implements DataSerializer {
 					dirEntryToAddressBookRecord(domain, entry,
 							mailboxes.stream().filter(m -> m.uid.equals(entry.value.entryUid)).findAny().orElse(null),
 							locationCache, installationId).ifPresent(rec -> {
-								if (entry.value.archived) {
+								if (entry.value.archived || dropHiddenEntry(entry)) {
 									populator.delete(new RecordPrimaryKey("AddressBookRecord",
 											new String[] { entry.value.entryUid }));
 								} else {
@@ -204,6 +206,10 @@ public class DirectorySerializer implements DataSerializer {
 		logger.info("Created new incremental hollow snap (dir v{}, hollow v{})", changeset.version, hollowVersion);
 		DomainVersions.get().put(domainUid, changeset.version);
 		return hollowVersion;
+	}
+
+	private boolean dropHiddenEntry(ItemValue<DirEntry> de) {
+		return DROP_HIDDEN && de.value.hidden;
 	}
 
 	private List<ItemValue<DirEntry>> loadEntries(IDirectory dirApi, List<String> dirPartition) {
