@@ -34,16 +34,18 @@ const MAILITEMS_MULTIPLEBYID = "mail_items/:uid/_multipleById";
 async function multipleByIdHandler({ request, params: [folderUid] }) {
     if (await db.isInFolderSyncInfo(folderUid)) {
         const ids = await request.clone().json();
-        const { localMailItems, localIds, remoteIds } = await db.getMixedMailItems(folderUid, ids);
-        const response = await fetch(new Request(request.clone(), { body: JSON.stringify(remoteIds) }));
-        const mailItems = await response.json();
-        await db.putMailItems(mailItems, folderUid);
-        const data = localMailItems.concat(mailItems);
-        const headers = new Headers(response.headers);
-        headers.append("X-BM-Fromcache", true);
-        headers.append("X-BM-LocalIds", JSON.stringify(localIds));
-        headers.append("X-BM-RemoteIds", JSON.stringify(remoteIds));
-        return new Response(JSON.stringify(data), { headers });
+        if (Array.isArray(ids) && ids.length > 0) {
+            const { localMailItems, localIds, remoteIds } = await db.getMixedMailItems(folderUid, ids);
+            const response = await fetch(new Request(request.clone(), { body: JSON.stringify(remoteIds) }));
+            const mailItems = await response.json();
+            await db.putMailItems(mailItems, folderUid);
+            const data = localMailItems.concat(mailItems);
+            const headers = new Headers(response.headers);
+            headers.append("X-BM-Fromcache", true);
+            headers.append("X-BM-LocalIds", JSON.stringify(localIds));
+            headers.append("X-BM-RemoteIds", JSON.stringify(remoteIds));
+            return new Response(JSON.stringify(data), { headers });
+        }
     }
     return await fetch(request);
 }
