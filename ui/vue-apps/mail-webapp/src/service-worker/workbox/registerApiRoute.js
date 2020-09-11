@@ -15,21 +15,6 @@ function registerApiRoute(index) {
     }
 }
 
-const apiRoutes = {
-    [MAILITEMS_MULTIPLEBYID]: {
-        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_multipleById/,
-        handler: multipleByIdHandler
-    },
-    [MAILITEMS_CHANGESETSINCE0]: {
-        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_filteredChangesetById\?since=0/,
-        handler: filteredChangesetByIdHandler
-    },
-    [MAILITEMS_UNREAD]: {
-        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_unread/,
-        handler: unreadItemsHandler
-    }
-};
-
 const MAILITEMS_MULTIPLEBYID = "mail_items/:uid/_multipleById";
 async function multipleByIdHandler({ request, params: [folderUid] }) {
     if (await db.isInFolderSyncInfo(folderUid)) {
@@ -98,3 +83,18 @@ function filterByFlags(expectedFlags, item) {
 function sortMessageByDate(item1, item2) {
     return item2.value.body.date - item1.value.body.date;
 }
+
+const apiRoutes = {
+    [MAILITEMS_MULTIPLEBYID]: {
+        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_multipleById/,
+        handler: multipleByIdHandler
+    },
+    [MAILITEMS_CHANGESETSINCE0]: {
+        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_filteredChangesetById\?since=0/,
+        handler: filteredChangesetByIdHandler
+    },
+    [MAILITEMS_UNREAD]: {
+        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_unread/,
+        handler: unreadItemsHandler
+    }
+};
