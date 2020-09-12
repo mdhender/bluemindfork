@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +71,7 @@ public class BmHollowContext {
 				Path file = new File(path).toPath();
 				try (BmHollowClient client = new BmHollowClient(BmHollowClient.Type.snapshot, set, subset,
 						desiredVersion)) {
-					Files.copy(client.openStream(), file);
+					Files.copy(client.openStream(), file, StandardCopyOption.REPLACE_EXISTING);
 				}
 				return new HollowConsumer.Blob(desiredVersion) {
 

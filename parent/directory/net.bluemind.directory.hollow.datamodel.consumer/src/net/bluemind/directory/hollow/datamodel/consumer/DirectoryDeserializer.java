@@ -39,6 +39,8 @@ import org.slf4j.LoggerFactory;
 
 import com.netflix.hollow.api.consumer.HollowConsumer;
 import com.netflix.hollow.api.consumer.HollowConsumer.AnnouncementWatcher;
+import com.netflix.hollow.api.consumer.HollowConsumer.ObjectLongevityConfig;
+import com.netflix.hollow.api.consumer.HollowConsumer.ObjectLongevityDetector;
 import com.netflix.hollow.api.consumer.index.UniqueKeyIndex;
 import com.netflix.hollow.core.index.HollowHashIndex;
 import com.netflix.hollow.core.index.HollowHashIndexResult;
@@ -83,13 +85,73 @@ public class DirectoryDeserializer {
 		this(new File(baseDataDir(), domain));
 	}
 
+	private static class LongevityConfig implements ObjectLongevityConfig {
+
+		@Override
+		public boolean enableLongLivedObjectSupport() {
+			return true;
+		}
+
+		@Override
+		public boolean enableExpiredUsageStackTraces() {
+			return false;
+		}
+
+		@Override
+		public long gracePeriodMillis() {
+			return 5000;
+		}
+
+		@Override
+		public long usageDetectionPeriodMillis() {
+			return 60000;
+		}
+
+		@Override
+		public boolean dropDataAutomatically() {
+			return true;
+		}
+
+		@Override
+		public boolean forceDropData() {
+			return false;
+		}
+
+	}
+
+	private static class LongevityDetector implements ObjectLongevityDetector {
+
+		@Override
+		public void staleReferenceExistenceDetected(int count) {
+			if (count > 0) {
+				logger.warn("staleReferenceExistenceDetected({})", count);
+			}
+		}
+
+		@Override
+		public void staleReferenceUsageDetected(int count) {
+			if (count > 0) {
+				logger.warn("staleReferenceUsageDetected({})", count);
+			}
+		}
+
+	}
+
+	/**
+	 * Caching of hollow objects is forbidden
+	 */
+	private static final ObjectLongevityConfig longevity = new LongevityConfig();
+	private static final ObjectLongevityDetector detector = new LongevityDetector();
+
 	public DirectoryDeserializer(File dir) {
 		this.domainUid = dir.getName();
 		logger.info("Consuming from directory {} for domain {}", dir.getAbsolutePath(), domainUid);
 		HollowContext context = HollowContext.get(dir, "directory");
 		AnnouncementWatcher watcher = watcher(context);
-		this.consumer = new HollowConsumer.Builder<>().withBlobRetriever(context.blobRetriever)
-				.withAnnouncementWatcher(watcher).withGeneratedAPIClass(OfflineDirectoryAPI.class).build();
+		this.consumer = new HollowConsumer.Builder<>()//
+				.withBlobRetriever(context.blobRetriever).withAnnouncementWatcher(watcher)//
+				.withObjectLongevityConfig(longevity).withObjectLongevityDetector(detector)//
+				.withGeneratedAPIClass(OfflineDirectoryAPI.class).build();
 		this.consumer.addRefreshListener(new LoggingRefreshListener(
 				dir.getName() + " ctx:" + context.toString().replace("net.bluemind.serialization.client.", "")));
 
@@ -108,8 +170,6 @@ public class DirectoryDeserializer {
 		this.consumer.addRefreshListener(uidIndex);
 		this.nameIndex = new BmPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "name");
 		nameIndex.listenForDeltaUpdates();
-		// this.anrIndex = new BmPrefixIndex(consumer.getStateEngine(),
-		// "AddressBookRecord", "anr.element.token");
 		this.anrIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "", "anr.element.token");
 		anrIndex.listenForDeltaUpdates();
 		this.emailIndex = new BmPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "emails.element.address",
