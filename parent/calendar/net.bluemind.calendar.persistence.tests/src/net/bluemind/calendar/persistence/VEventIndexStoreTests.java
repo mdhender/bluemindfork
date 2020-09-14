@@ -71,7 +71,7 @@ public class VEventIndexStoreTests {
 
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 		String containerId = "test" + System.nanoTime();
 		container = Container.create(containerId, "test", "test", "me", true);
