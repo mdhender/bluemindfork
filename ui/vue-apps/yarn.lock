@@ -1069,9 +1069,9 @@
     axios "^0.18.0"
 
 "@bluemind/styleguide@^0.1.0":
-  version "0.1.1263"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1263.tgz#545cadde954200e3cdd24c495c85140a2a6e0089"
-  integrity sha512-Ftb7kLNM43lVMiOBta/DvKOQfgwxTa3x2nIRbdPj7ECUfzuQrb6f8SIQGz346xtV5fyn8kr3gcXAqaSlJTtIMw==
+  version "0.1.1271"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1271.tgz#15c4267a859959d5fbe62759d46aa843b7724a28"
+  integrity sha512-I/WkQlQw8KIlb3U7tnK1rBj13hQEoJi+w5uxTLs9LW6Vbxqy2sR7F6WDPJjKDlppnPTddPVMaGp0qzSZnTrljg==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"
@@ -1101,19 +1101,22 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@fortawesome/fontawesome-common-types@^0.2.26":
-  version "0.2.26"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.2.26.tgz#6e0b13a752676036f8196f8a1500d53a27b4adc1"
+"@fortawesome/fontawesome-common-types@^0.2.30":
+  version "0.2.30"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.2.30.tgz#2f1cc5b46bd76723be41d0013a8450c9ba92b777"
+  integrity sha512-TsRwpTuKwFNiPhk1UfKgw7zNPeV5RhNp2Uw3pws+9gDAkPGKrtjR1y2lI3SYn7+YzyfuNknflpBA1LRKjt7hMg==
 
 "@fortawesome/fontawesome-svg-core@^1.2.12":
-  version "1.2.26"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-1.2.26.tgz#671569271d6b532cdea5e3deb8ff16f8b7ac251d"
+  version "1.2.30"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-1.2.30.tgz#f56dc6791861fe5d1af04fb8abddb94658c576db"
+  integrity sha512-E3sAXATKCSVnT17HYmZjjbcmwihrNOCkoU7dVMlasrcwiJAHxSKeZ+4WN5O+ElgO/FaYgJmASl8p9N7/B/RttA==
   dependencies:
-    "@fortawesome/fontawesome-common-types" "^0.2.26"
+    "@fortawesome/fontawesome-common-types" "^0.2.30"
 
 "@fortawesome/vue-fontawesome@^0.1.4":
-  version "0.1.9"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@fortawesome/vue-fontawesome/-/vue-fontawesome-0.1.9.tgz#d3af6d4e50f337327de90447fe35fa1e117a2fbe"
+  version "0.1.10"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@fortawesome/vue-fontawesome/-/vue-fontawesome-0.1.10.tgz#eeeec1e4e8850bed0468f938292b06cda793bf34"
+  integrity sha512-b2+SLF31h32LSepVcXe+BQ63yvbq5qmTCy4KfFogCYm2bn68H5sDWUnX+U7MBqnM2aeEk9M7xSoqGnu+wSdY6w==
 
 "@hapi/address@2.x.x":
   version "2.1.4"
@@ -1147,10 +1150,10 @@
   dependencies:
     "@hapi/hoek" "^8.3.0"
 
-"@interactjs/types@1.9.20":
-  version "1.9.20"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@interactjs/types/-/types-1.9.20.tgz#ed7cb6d4f865c00867cc0b03bb030cf8062894ff"
-  integrity sha512-Pc0//Ha9+peuJzvnVN8TScWgIHRk7ehf+PPV2vwRQkcmsYgiGDy+sxSDbjB/25jJxrgaj/I4lLyRZEw1Wdve9Q==
+"@interactjs/types@1.9.22":
+  version "1.9.22"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@interactjs/types/-/types-1.9.22.tgz#1504d3170b062555b03ee8eb954ae653b7f614e2"
+  integrity sha512-GMMMCYE+FPrKCOOOqQ/ImpqLyinb6e8psw9MR9ymTJxnkmJMKrY/GDC/187PVxpWdtSqW+GibkeRfUCOv6vFjg==
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
@@ -1359,6 +1362,7 @@
 "@nuxt/opencollective@^0.3.0":
   version "0.3.0"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/@nuxt/opencollective/-/opencollective-0.3.0.tgz#11d8944dcf2d526e31660bb69570be03f8fb72b7"
+  integrity sha512-Vf09BxCdj1iT2IRqVwX5snaY2WCTkvM0O4cWWSO1ThCFuc4if0Q/nNwAgCxRU0FeYHJ7DdyMUNSdswCLKlVqeg==
   dependencies:
     chalk "^2.4.2"
     consola "^2.10.1"
@@ -2545,18 +2549,20 @@ bonjour@^3.5.0:
     multicast-dns-service-types "^1.1.0"
 
 bootstrap-vue@^2.0.0:
-  version "2.2.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/bootstrap-vue/-/bootstrap-vue-2.2.0.tgz#cef661ec4875a45bdede38c629d26bd42ff5a111"
+  version "2.17.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/bootstrap-vue/-/bootstrap-vue-2.17.0.tgz#ecff2823cd80f8673f0084091dc54498164cc5fb"
+  integrity sha512-cYeoVTxAP0koMseCwSl4KQgcdm2M6COfn3F0UaecGkaWy6Vf5Jl+VjDctaR4SvkHZ693tHjW28s/icbsGtKRjQ==
   dependencies:
     "@nuxt/opencollective" "^0.3.0"
-    bootstrap ">=4.4.1 <5.0.0"
-    popper.js "^1.16.0"
+    bootstrap ">=4.5.2 <5.0.0"
+    popper.js "^1.16.1"
     portal-vue "^2.1.7"
     vue-functional-data-merge "^3.1.0"
 
-"bootstrap@>=4.4.1 <5.0.0", bootstrap@^4.1.1:
-  version "4.4.1"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/bootstrap/-/bootstrap-4.4.1.tgz#8582960eea0c5cd2bede84d8b0baf3789c3e8b01"
+"bootstrap@>=4.5.2 <5.0.0", bootstrap@^4.1.1:
+  version "4.5.2"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/bootstrap/-/bootstrap-4.5.2.tgz#a85c4eda59155f0d71186b6e6ad9b875813779ab"
+  integrity sha512-vlGn0bcySYl/iV+BGA544JkkZP5LB3jsmkeKLFQakCOwCM3AOk7VkldBz4jrzSe+Z0Ezn99NVXa1o45cQY4R6A==
 
 bottleneck@^2.19.5:
   version "2.19.5"
@@ -3021,8 +3027,9 @@ connect-history-api-fallback@^1.6.0:
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/connect-history-api-fallback/-/connect-history-api-fallback-1.6.0.tgz#8b32089359308d111115d81cad3fceab888f97bc"
 
 consola@^2.10.1:
-  version "2.11.3"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/consola/-/consola-2.11.3.tgz#f7315836224c143ac5094b47fd4c816c2cd1560e"
+  version "2.15.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/consola/-/consola-2.15.0.tgz#40fc4eefa4d2f8ef2e2806147f056ea207fcc0e9"
+  integrity sha512-vlcSGgdYS26mPf7qNi+dCisbhiyDnrN1zaRbw3CSuc2wGOMEGGPsp46PdRG5gqXwgtJfjxDkxRNAgRPr1B77vQ==
 
 console-control-strings@^1.0.0, console-control-strings@~1.1.0:
   version "1.1.0"
@@ -4040,11 +4047,12 @@ fast-levenshtein@^2.0.6, fast-levenshtein@~2.0.6:
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
 
-fault@^1.0.2:
-  version "1.0.3"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/fault/-/fault-1.0.3.tgz#4da88cf979b6b792b4e13c7ec836767725170b7e"
+fault@^1.0.0:
+  version "1.0.4"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/fault/-/fault-1.0.4.tgz#eafcfc0a6d214fc94601e170df29954a4f842f13"
+  integrity sha512-CJ0HCB5tL5fYTEA7ToAq5+kTwd++Borf1/bifxd9iT70QcXr4MRrO3Llf8Ifs70q+SJcGHFtnIE/Nw6giCtECA==
   dependencies:
-    format "^0.2.2"
+    format "^0.2.0"
 
 faye-websocket@^0.10.0:
   version "0.10.0"
@@ -4243,9 +4251,10 @@ form-data@~2.3.2:
     combined-stream "^1.0.6"
     mime-types "^2.1.12"
 
-format@^0.2.2:
+format@^0.2.0:
   version "0.2.2"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/format/-/format-0.2.2.tgz#d6170107e9efdc4ed30c9dc39016df942b5cb58b"
+  integrity sha1-1hcBB+nv3E7TDJ3DkBbflCtctYs=
 
 forwarded@~0.1.2:
   version "0.1.2"
@@ -4650,9 +4659,10 @@ he@^1.1.0:
   version "1.2.0"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
 
-highlight.js@~9.16.0:
-  version "9.16.2"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/highlight.js/-/highlight.js-9.16.2.tgz#68368d039ffe1c6211bcc07e483daf95de3e403e"
+highlight.js@~10.1.0:
+  version "10.1.2"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/highlight.js/-/highlight.js-10.1.2.tgz#c20db951ba1c22c055010648dfffd7b2a968e00c"
+  integrity sha512-Q39v/Mn5mfBlMff9r+zzA+gWxRsCRKwEMvYTiisLr/XUiFI/4puWt0Ojdko3R3JCNWGdOWaA5g/Yxqa23kC5AA==
 
 home-or-tmp@^2.0.0:
   version "2.0.0"
@@ -4889,11 +4899,11 @@ ini@^1.3.4, ini@^1.3.5:
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/ini/-/ini-1.3.5.tgz#eee25f56db1c9ec6085e0c22778083f596abf927"
 
 interactjs@^1.9.20:
-  version "1.9.20"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/interactjs/-/interactjs-1.9.20.tgz#a23fbd41f09ab4373a5c2ee888a6f09f59b7786c"
-  integrity sha512-PxKinDWxutsLDOuZEXRmq6WUhdK3/82IIiC4tisNY/pMgPaUI/F564RxdmrTEw9ukYh+DSE8Gb9owQdA1pdo0g==
+  version "1.9.22"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/interactjs/-/interactjs-1.9.22.tgz#5ae98d2dd46d720cccdb89222b4e1ddcbe5cfeb9"
+  integrity sha512-zUQefYtYJTazWKqDCSYV0vMJPFWp/PKXwpA3v75fD3+4+4J3/ItjlO7K3L1CpNWYU6s8uoEmwwOD6uDy6OoI/w==
   dependencies:
-    "@interactjs/types" "1.9.20"
+    "@interactjs/types" "1.9.22"
 
 internal-ip@^4.3.0:
   version "4.3.0"
@@ -6552,6 +6562,7 @@ lodash.templatesettings@^4.0.0:
 lodash.throttle@^4.1.1:
   version "4.1.1"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.throttle/-/lodash.throttle-4.1.1.tgz#c23e91b710242ac70c37f1e1cda9274cc39bf2f4"
+  integrity sha1-wj6RtxAkKscMN/HhzaknTMOb8vQ=
 
 lodash@^4.0.0, lodash@^4.17.15, lodash@^4.17.19, lodash@~4.17.10:
   version "4.17.20"
@@ -6582,12 +6593,13 @@ loud-rejection@^1.0.0:
     currently-unhandled "^0.4.1"
     signal-exit "^3.0.0"
 
-lowlight@1.13.0:
-  version "1.13.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lowlight/-/lowlight-1.13.0.tgz#9b4fd00559985e40e11c916ccab14c7c0cf4320d"
+lowlight@^1.14.0:
+  version "1.14.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lowlight/-/lowlight-1.14.0.tgz#83ebc143fec0f9e6c0d3deffe01be129ce56b108"
+  integrity sha512-N2E7zTM7r1CwbzwspPxJvmjAbxljCPThTFawEX2Z7+P3NGrrvY54u8kyU16IY4qWfoVIxY8SYCS8jTkuG7TqYA==
   dependencies:
-    fault "^1.0.2"
-    highlight.js "~9.16.0"
+    fault "^1.0.0"
+    highlight.js "~10.1.0"
 
 lru-cache@^4.0.1, lru-cache@^4.1.2, lru-cache@^4.1.5:
   version "4.1.5"
@@ -6974,8 +6986,9 @@ nice-try@^1.0.4:
   integrity sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==
 
 node-fetch@^2.6.0:
-  version "2.6.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/node-fetch/-/node-fetch-2.6.0.tgz#e633456386d4aa55863f676a7ab0daa8fdecb0fd"
+  version "2.6.1"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/node-fetch/-/node-fetch-2.6.1.tgz#045bd323631f76ed2e2b55573394416b639a0052"
+  integrity sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==
 
 node-forge@0.9.0:
   version "0.9.0"
@@ -7280,8 +7293,9 @@ optionator@^0.9.1:
     word-wrap "^1.2.3"
 
 orderedmap@^1.1.0:
-  version "1.1.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/orderedmap/-/orderedmap-1.1.0.tgz#dc41a147130b51e203e8523ea5ea57724af2b63d"
+  version "1.1.1"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/orderedmap/-/orderedmap-1.1.1.tgz#c618e77611b3b21d0fe3edc92586265e0059c789"
+  integrity sha512-3Ux8um0zXbVacKUkcytc0u3HgC0b0bBLT+I60r2J/En72cI0nZffqrA7Xtf2Hqs27j1g82llR5Mhbd0Z1XW4AQ==
 
 original@^1.0.0:
   version "1.0.2"
@@ -7574,13 +7588,15 @@ pn@^1.1.0:
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/pn/-/pn-1.1.0.tgz#e2f4cef0e219f463c179ab37463e4e1ecdccbafb"
   integrity sha512-2qHaIQr2VLRFoxe2nASzsV6ef4yOOH+Fi9FBOVH6cqeSgUnoyySPZkxzLuzd+RYOQTRpROA0ztTMqxROKSb/nA==
 
-popper.js@^1.16.0:
-  version "1.16.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/popper.js/-/popper.js-1.16.0.tgz#2e1816bcbbaa518ea6c2e15a466f4cb9c6e2fbb3"
+popper.js@^1.16.1:
+  version "1.16.1"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/popper.js/-/popper.js-1.16.1.tgz#2a223cb3dc7b6213d740e40372be40de43e65b1b"
+  integrity sha512-Wb4p1J4zyFTbM+u6WuO4XstYx4Ky9Cewe4DWrel7B0w6VVICvPwdOpotjzcf6eD8TsckVnIMNONQyPIUFOUbCQ==
 
 portal-vue@^2.1.7:
   version "2.1.7"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/portal-vue/-/portal-vue-2.1.7.tgz#ea08069b25b640ca08a5b86f67c612f15f4e4ad4"
+  integrity sha512-+yCno2oB3xA7irTt0EU5Ezw22L2J51uKAacE/6hMPMoO/mx3h4rXFkkBkT4GFsMDv/vEe8TNKC3ujJJ0PTwb6g==
 
 portfinder@^1.0.26:
   version "1.0.27"
@@ -7766,15 +7782,17 @@ prop-types@^15.6.2:
     object-assign "^4.1.1"
     react-is "^16.8.1"
 
-prosemirror-collab@1.2.2:
+prosemirror-collab@^1.2.2:
   version "1.2.2"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-collab/-/prosemirror-collab-1.2.2.tgz#8d2c0e82779cfef5d051154bd0836428bd6d9c4a"
+  integrity sha512-tBnHKMLgy5Qmx9MYVcLfs3pAyjtcqYYDd9kp3y+LSiQzkhMQDfZSV3NXWe4Gsly32adSef173BvObwfoSQL5MA==
   dependencies:
     prosemirror-state "^1.0.0"
 
-prosemirror-commands@1.1.2:
-  version "1.1.2"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-commands/-/prosemirror-commands-1.1.2.tgz#6868cabc9f9112fba94c805139473527774b0dea"
+prosemirror-commands@1.1.4, prosemirror-commands@^1.1.4:
+  version "1.1.4"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-commands/-/prosemirror-commands-1.1.4.tgz#991563e67623acab4f8c510fad1570f8b4693780"
+  integrity sha512-kj4Qi+8h3EpJtZuuEDwZ9h2/QNGWDsIX/CzjmClxi9GhxWyBUMVUvIFk0mgdqHyX20lLeGmOpc0TLA5aPzgpWg==
   dependencies:
     prosemirror-model "^1.0.0"
     prosemirror-state "^1.0.0"
@@ -7783,71 +7801,81 @@ prosemirror-commands@1.1.2:
 prosemirror-dropcursor@1.3.2:
   version "1.3.2"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-dropcursor/-/prosemirror-dropcursor-1.3.2.tgz#28738c4ed7102e814d7a8a26d70018523fc7cd6d"
+  integrity sha512-4c94OUGyobGnwcQI70OXyMhE/9T4aTgjU+CHxkd5c7D+jH/J0mKM/lk+jneFVKt7+E4/M0D9HzRPifu8U28Thw==
   dependencies:
     prosemirror-state "^1.0.0"
     prosemirror-transform "^1.1.0"
     prosemirror-view "^1.1.0"
 
-prosemirror-gapcursor@1.1.2:
-  version "1.1.2"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-gapcursor/-/prosemirror-gapcursor-1.1.2.tgz#a1400a86a51d4cccc065e68d5625a9fb5bc623e0"
+prosemirror-gapcursor@1.1.5:
+  version "1.1.5"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-gapcursor/-/prosemirror-gapcursor-1.1.5.tgz#0c37fd6cbb1d7c46358c2e7397f8da9a8b5c6246"
+  integrity sha512-SjbUZq5pgsBDuV3hu8GqgIpZR5eZvGLM+gPQTqjVVYSMUCfKW3EGXTEYaLHEl1bGduwqNC95O3bZflgtAb4L6w==
   dependencies:
     prosemirror-keymap "^1.0.0"
     prosemirror-model "^1.0.0"
     prosemirror-state "^1.0.0"
     prosemirror-view "^1.0.0"
 
-prosemirror-history@1.1.2:
-  version "1.1.2"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-history/-/prosemirror-history-1.1.2.tgz#3e8f11efbd316e98322028be67549df1f94fc6da"
+prosemirror-history@^1.1.3:
+  version "1.1.3"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-history/-/prosemirror-history-1.1.3.tgz#4f76a1e71db4ef7cdf0e13dec6d8da2aeaecd489"
+  integrity sha512-zGDotijea+vnfnyyUGyiy1wfOQhf0B/b6zYcCouBV8yo6JmrE9X23M5q7Nf/nATywEZbgRLG70R4DmfSTC+gfg==
   dependencies:
     prosemirror-state "^1.2.2"
     prosemirror-transform "^1.0.0"
     rope-sequence "^1.3.0"
 
-prosemirror-inputrules@1.1.2:
+prosemirror-inputrules@1.1.2, prosemirror-inputrules@^1.1.2:
   version "1.1.2"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-inputrules/-/prosemirror-inputrules-1.1.2.tgz#487e46c763e1212a4577397aba7706139084f012"
+  integrity sha512-Ja5Z3BWestlHYGvtSGqyvxMeB8QEuBjlHM8YnKtLGUXMDp965qdDV4goV8lJb17kIWHk7e7JNj6Catuoa3302g==
   dependencies:
     prosemirror-state "^1.0.0"
     prosemirror-transform "^1.0.0"
 
-prosemirror-keymap@1.1.3, prosemirror-keymap@^1.0.0, prosemirror-keymap@^1.1.2:
-  version "1.1.3"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-keymap/-/prosemirror-keymap-1.1.3.tgz#be22d6108df2521608e9216a87b1a810f0ed361e"
+prosemirror-keymap@1.1.4, prosemirror-keymap@^1.0.0, prosemirror-keymap@^1.1.2:
+  version "1.1.4"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-keymap/-/prosemirror-keymap-1.1.4.tgz#8b481bf8389a5ac40d38dbd67ec3da2c7eac6a6d"
+  integrity sha512-Al8cVUOnDFL4gcI5IDlG6xbZ0aOD/i3B17VT+1JbHWDguCgt/lBHVTHUBcKvvbSg6+q/W4Nj1Fu6bwZSca3xjg==
   dependencies:
     prosemirror-state "^1.0.0"
     w3c-keyname "^2.2.0"
 
-prosemirror-model@1.8.2:
-  version "1.8.2"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-model/-/prosemirror-model-1.8.2.tgz#c74eaacb0bbfea49b59a6d89fef5516181666a56"
+prosemirror-model@1.11.0:
+  version "1.11.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-model/-/prosemirror-model-1.11.0.tgz#dc36cdb3ad6442b9f6325c7d89170c624f9dc520"
+  integrity sha512-GqoAz/mIYjdv8gVYJ8mWFKpHoTxn/lXq4tXJ6bTVxs+rem2LzMYXrNVXfucGtfsgqsJlRIgng/ByG9j7Q8XDrg==
   dependencies:
     orderedmap "^1.1.0"
 
-prosemirror-model@^1.0.0, prosemirror-model@^1.1.0, prosemirror-model@^1.8.1:
-  version "1.9.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-model/-/prosemirror-model-1.9.0.tgz#ffca789c14d3874976961e43f150a3b72fd5c34a"
+prosemirror-model@^1.0.0, prosemirror-model@^1.1.0, prosemirror-model@^1.11.0, prosemirror-model@^1.8.1:
+  version "1.11.2"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-model/-/prosemirror-model-1.11.2.tgz#3ce08172b465bc725c8808c18c2e9378fe69418d"
+  integrity sha512-+gM+x1VUfGAyKR/g0bK7FC46fVNq0xVVL859QAQ7my2p5HzKrPps/pSbYn7T50XTG2r2IhZJChsUFUBHtcoN0Q==
   dependencies:
     orderedmap "^1.1.0"
 
-prosemirror-schema-list@1.1.2:
-  version "1.1.2"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-schema-list/-/prosemirror-schema-list-1.1.2.tgz#310809209094b03425da7f5c337105074913da6c"
+prosemirror-schema-list@^1.1.4:
+  version "1.1.4"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-schema-list/-/prosemirror-schema-list-1.1.4.tgz#471f9caf2d2bed93641d2e490434c0d2d4330df1"
+  integrity sha512-pNTuZflacFOBlxrTcWSdWhjoB8BaucwfJVp/gJNxztOwaN3wQiC65axclXyplf6TKgXD/EkWfS/QAov3/Znadw==
   dependencies:
     prosemirror-model "^1.0.0"
     prosemirror-transform "^1.0.0"
 
-prosemirror-state@1.3.2, prosemirror-state@^1.0.0, prosemirror-state@^1.2.2, prosemirror-state@^1.3.1:
-  version "1.3.2"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-state/-/prosemirror-state-1.3.2.tgz#1b910b0dc01c1f00926bb9ba1589f7b7ac0d658b"
+prosemirror-state@1.3.3, prosemirror-state@^1.0.0, prosemirror-state@^1.2.2, prosemirror-state@^1.3.1, prosemirror-state@^1.3.3:
+  version "1.3.3"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-state/-/prosemirror-state-1.3.3.tgz#b2862866b14dec2b3ae1ab18229f2bd337651a2c"
+  integrity sha512-PLXh2VJsIgvlgSTH6I2Yg6vk1CzPDp21DFreVpQtDMY2S6WaMmrQgDTLRcsrD8X38v8Yc873H7+ogdGzyIPn+w==
   dependencies:
     prosemirror-model "^1.0.0"
     prosemirror-transform "^1.0.0"
 
-prosemirror-tables@1.0.0:
-  version "1.0.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-tables/-/prosemirror-tables-1.0.0.tgz#ec3d0b11e638c6a92dd14ae816d0a2efd1719b70"
+prosemirror-tables@^1.1.1:
+  version "1.1.1"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-tables/-/prosemirror-tables-1.1.1.tgz#ad66300cc49500455cf1243bb129c9e7d883321e"
+  integrity sha512-LmCz4jrlqQZRsYRDzCRYf/pQ5CUcSOyqZlAj5kv67ZWBH1SVLP2U9WJEvQfimWgeRlIz0y0PQVqO1arRm1+woA==
   dependencies:
     prosemirror-keymap "^1.1.2"
     prosemirror-model "^1.8.1"
@@ -7855,33 +7883,31 @@ prosemirror-tables@1.0.0:
     prosemirror-transform "^1.2.1"
     prosemirror-view "^1.13.3"
 
-prosemirror-transform@1.2.2:
-  version "1.2.2"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-transform/-/prosemirror-transform-1.2.2.tgz#4439ae7e88ea1395d9beed6a4cd852d72b16ed2f"
+prosemirror-transform@^1.0.0, prosemirror-transform@^1.1.0, prosemirror-transform@^1.2.1, prosemirror-transform@^1.2.8:
+  version "1.2.8"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-transform/-/prosemirror-transform-1.2.8.tgz#4b86544fa43637fe381549fb7b019f4fb71fe65c"
+  integrity sha512-hKqceqv9ZmMQXNQkhFjr0KFGPvkhygaWND+uIM0GxRpALrKfxP97SsgHTBs3OpJhDmh5N+mB4D/CksB291Eavg==
   dependencies:
     prosemirror-model "^1.0.0"
 
-prosemirror-transform@^1.0.0, prosemirror-transform@^1.1.0, prosemirror-transform@^1.2.1:
-  version "1.2.3"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-transform/-/prosemirror-transform-1.2.3.tgz#239d17591af24d39ef3f1999daa09e1f1c76b06a"
-  dependencies:
-    prosemirror-model "^1.0.0"
-
-prosemirror-utils@0.9.6:
+prosemirror-utils@^0.9.6:
   version "0.9.6"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-utils/-/prosemirror-utils-0.9.6.tgz#3d97bd85897e3b535555867dc95a51399116a973"
+  integrity sha512-UC+j9hQQ1POYfMc5p7UFxBTptRiGPR7Kkmbl3jVvU8VgQbkI89tR/GK+3QYC8n+VvBZrtAoCrJItNhWSxX3slA==
 
-prosemirror-view@1.13.4:
-  version "1.13.4"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-view/-/prosemirror-view-1.13.4.tgz#01d873db7731e0aacc410a9038447d1b7536fd07"
+prosemirror-view@1.15.4:
+  version "1.15.4"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-view/-/prosemirror-view-1.15.4.tgz#69a6217e3557dd1eb34a6d45caed1c3ee8e05b12"
+  integrity sha512-SzcszIrDJnQIS+f7WiS5KmQBfdYEhPqp/Hx9bKmXH7ZxrxRiBKPy1/9MoZzxjXUkm+5WHjX+N1fjAMXKoz/OQw==
   dependencies:
     prosemirror-model "^1.1.0"
     prosemirror-state "^1.0.0"
     prosemirror-transform "^1.1.0"
 
-prosemirror-view@^1.0.0, prosemirror-view@^1.1.0, prosemirror-view@^1.13.3:
-  version "1.13.7"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-view/-/prosemirror-view-1.13.7.tgz#d1f75a12f04e0b537a4cd2f0708326b4663b0a43"
+prosemirror-view@^1.0.0, prosemirror-view@^1.1.0, prosemirror-view@^1.13.3, prosemirror-view@^1.15.4:
+  version "1.15.7"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/prosemirror-view/-/prosemirror-view-1.15.7.tgz#b6ce82a08b7ffa8ff06b64ab36ec357229c66aa6"
+  integrity sha512-fSSXphXg+82qb4xNsHT0mX6ro0Wu1/l+WIFO5jYfyjd42r6ZWSg0gFItLgqOVPxoKQOlrPJUhrozTxiqx0EXOg==
   dependencies:
     prosemirror-model "^1.1.0"
     prosemirror-state "^1.0.0"
@@ -8365,6 +8391,7 @@ rollup@^1.31.1:
 rope-sequence@^1.3.0:
   version "1.3.2"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/rope-sequence/-/rope-sequence-1.3.2.tgz#a19e02d72991ca71feb6b5f8a91154e48e3c098b"
+  integrity sha512-ku6MFrwEVSVmXLvy3dYph3LAMNS0890K7fabn+0YIRQ2T96T9F4gkFf0vf0WW0JUraNWwGRtInEpH7yO4tbQZg==
 
 rsvp@^3.3.3:
   version "3.6.2"
@@ -9287,58 +9314,63 @@ thunky@^1.0.2:
   version "1.1.0"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/thunky/-/thunky-1.1.0.tgz#5abaf714a9405db0504732bbccd2cedd9ef9537d"
 
-tiptap-commands@^1.12.5:
-  version "1.12.5"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/tiptap-commands/-/tiptap-commands-1.12.5.tgz#d2bd1adcc79fe47938bd64b91b6dec4688a88086"
+tiptap-commands@^1.14.6:
+  version "1.14.6"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/tiptap-commands/-/tiptap-commands-1.14.6.tgz#e7f0b91fd0ea99b2bac937862d91907dd722fe0c"
+  integrity sha512-SNUNcKFGB6MogujBPlbPzRGweLpST1n9k/50+xSN27qFX6MgU9APz8WDf8HviUc5RlOBeQyo4Z9Rrp0eR+t3Qg==
   dependencies:
-    prosemirror-commands "1.1.2"
-    prosemirror-inputrules "1.1.2"
-    prosemirror-model "1.8.2"
-    prosemirror-schema-list "1.1.2"
-    prosemirror-state "1.3.2"
-    prosemirror-tables "1.0.0"
-    prosemirror-utils "0.9.6"
-    tiptap-utils "^1.8.3"
+    prosemirror-commands "^1.1.4"
+    prosemirror-inputrules "^1.1.2"
+    prosemirror-model "^1.11.0"
+    prosemirror-schema-list "^1.1.4"
+    prosemirror-state "^1.3.3"
+    prosemirror-tables "^1.1.1"
+    prosemirror-utils "^0.9.6"
+    tiptap-utils "^1.10.4"
 
 tiptap-extensions@^1.28.3:
-  version "1.28.6"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/tiptap-extensions/-/tiptap-extensions-1.28.6.tgz#ce3ca3ccd9c9658e749c5aa5e97255a70468eaff"
+  version "1.32.7"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/tiptap-extensions/-/tiptap-extensions-1.32.7.tgz#1eaa7522aa1ecdd7c1225f3fd81a2c39cd643ca0"
+  integrity sha512-/LmZpU+O5EsDbc7rV6iEfo50jWFvU/ezSjG0RI+3EcUqyS5wTpcUVlvTtJkWATHV8/F1Cirm5r6SXhzDu/FdPA==
   dependencies:
-    lowlight "1.13.0"
-    prosemirror-collab "1.2.2"
-    prosemirror-history "1.1.2"
-    prosemirror-model "1.8.2"
-    prosemirror-state "1.3.2"
-    prosemirror-tables "1.0.0"
-    prosemirror-transform "1.2.2"
-    prosemirror-utils "0.9.6"
-    prosemirror-view "1.13.4"
-    tiptap "^1.26.6"
-    tiptap-commands "^1.12.5"
+    lowlight "^1.14.0"
+    prosemirror-collab "^1.2.2"
+    prosemirror-history "^1.1.3"
+    prosemirror-model "^1.11.0"
+    prosemirror-state "^1.3.3"
+    prosemirror-tables "^1.1.1"
+    prosemirror-transform "^1.2.8"
+    prosemirror-utils "^0.9.6"
+    prosemirror-view "^1.15.4"
+    tiptap "^1.29.6"
+    tiptap-commands "^1.14.6"
+    tiptap-utils "^1.10.4"
 
-tiptap-utils@^1.8.3:
-  version "1.8.3"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/tiptap-utils/-/tiptap-utils-1.8.3.tgz#fdfc8f7888f6e9ed0dae081f5f66b9f5429608a9"
+tiptap-utils@^1.10.4:
+  version "1.10.4"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/tiptap-utils/-/tiptap-utils-1.10.4.tgz#a2c39bcb13cc640c3e08f2ec648288ff214b22eb"
+  integrity sha512-0U6rrDODlL1YH/JgX2zR0aFrmmoV2Fex8MwpkcKwQ2Ks7zcY2fPjUyoKnq0Ue05vs1PH692OiDAAFammZWfzjw==
   dependencies:
-    prosemirror-model "1.8.2"
-    prosemirror-state "1.3.2"
-    prosemirror-tables "1.0.0"
-    prosemirror-utils "0.9.6"
+    prosemirror-model "^1.11.0"
+    prosemirror-state "^1.3.3"
+    prosemirror-tables "^1.1.1"
+    prosemirror-utils "^0.9.6"
 
-tiptap@^1.26.1, tiptap@^1.26.6:
-  version "1.26.6"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/tiptap/-/tiptap-1.26.6.tgz#b287fa7cb1c20690868aee8dc526de5390b054f0"
+tiptap@^1.26.1, tiptap@^1.29.6:
+  version "1.29.6"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/tiptap/-/tiptap-1.29.6.tgz#a2fceb0b0790fd790da828cd28bd8de8e9ac9c90"
+  integrity sha512-6GkWbwsnDlM92Fq/a3Jl5nXjpFRwCr5S+zuRbBPfOSLA1RmD29uUSBgquZEhdiBCG+0SsvX2ixkQ5poSGCrnEQ==
   dependencies:
-    prosemirror-commands "1.1.2"
+    prosemirror-commands "1.1.4"
     prosemirror-dropcursor "1.3.2"
-    prosemirror-gapcursor "1.1.2"
+    prosemirror-gapcursor "1.1.5"
     prosemirror-inputrules "1.1.2"
-    prosemirror-keymap "1.1.3"
-    prosemirror-model "1.8.2"
-    prosemirror-state "1.3.2"
-    prosemirror-view "1.13.4"
-    tiptap-commands "^1.12.5"
-    tiptap-utils "^1.8.3"
+    prosemirror-keymap "1.1.4"
+    prosemirror-model "1.11.0"
+    prosemirror-state "1.3.3"
+    prosemirror-view "1.15.4"
+    tiptap-commands "^1.14.6"
+    tiptap-utils "^1.10.4"
 
 tmpl@1.0.x:
   version "1.0.4"
@@ -9757,18 +9789,21 @@ vue-eslint-parser@^7.0.0:
 vue-functional-data-merge@^3.1.0:
   version "3.1.0"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/vue-functional-data-merge/-/vue-functional-data-merge-3.1.0.tgz#08a7797583b7f35680587f8a1d51d729aa1dc657"
+  integrity sha512-leT4kdJVQyeZNY1kmnS1xiUlQ9z1B/kdBFCILIjYYQDqZgLqCLa0UhjSSeRX6c3mUe6U5qYeM8LrEqkHJ1B4LA==
 
 vue-global-events@^1.1.2:
-  version "1.1.2"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/vue-global-events/-/vue-global-events-1.1.2.tgz#aae6e221d095ab6fc82ce5d3a40ba3b9ebdfaab7"
+  version "1.2.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/vue-global-events/-/vue-global-events-1.2.0.tgz#156ca26c841d42016d6f27bb32c8f99430581476"
+  integrity sha512-OOOaikEsw1vPXufwEEc8JHqxn7H4i+h+xDWdS6n6nkCVYsYPsjc4mqjDXKFYKEuLkEwaWQ4dIBYioynitdhxWg==
 
 vue-hot-reload-api@^2.3.0:
   version "2.3.4"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/vue-hot-reload-api/-/vue-hot-reload-api-2.3.4.tgz#532955cc1eb208a3d990b3a9f9a70574657e08f2"
 
 vue-i18n@^8.14.0:
-  version "8.15.3"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/vue-i18n/-/vue-i18n-8.15.3.tgz#9f947802d9b734fcb92e2ce724da654f2f9fc0f4"
+  version "8.21.1"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/vue-i18n/-/vue-i18n-8.21.1.tgz#afa8e6390a5de3b65bd17533c4269181f86f1d61"
+  integrity sha512-KEakJLI7R6+UCmhJOMZ0K7C+Zf5FcMh7QDkBRaEq39V7d9JgSrTDBf/9HuHU3TaxQYXx4fUi5PTIPdwLXq+iow==
 
 vue-i18n@^8.21.0:
   version "8.21.0"
@@ -9854,8 +9889,9 @@ w3c-hr-time@^1.0.1, w3c-hr-time@^1.0.2:
     browser-process-hrtime "^1.0.0"
 
 w3c-keyname@^2.2.0:
-  version "2.2.2"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/w3c-keyname/-/w3c-keyname-2.2.2.tgz#7ea63170454bb19f1a3c6b628fc3dc8889276e91"
+  version "2.2.4"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/w3c-keyname/-/w3c-keyname-2.2.4.tgz#4ade6916f6290224cdbd1db8ac49eab03d0eef6b"
+  integrity sha512-tOhfEwEzFLJzf6d1ZPkYfGj+FWhIpBux9ppoP3rlclw3Z0BZv3N7b7030Z1kYth+6rDuAsXUFr+d0VE6Ed1ikw==
 
 w3c-xmlserializer@^2.0.0:
   version "2.0.0"
