@@ -19,6 +19,7 @@ package net.bluemind.lib.vertx;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -28,9 +29,15 @@ public class WorkerExecutorService extends AbstractExecutorService {
 
 	private boolean shutdown;
 	private final WorkerExecutor exec;
+	private Optional<Runnable> preRunExecution;
 
 	public WorkerExecutorService(String name, int size, long timeout, TimeUnit unit) {
+		this(name, size, timeout, unit, null);
+	}
+
+	public WorkerExecutorService(String name, int size, long timeout, TimeUnit unit, Runnable preRunExecution) {
 		super();
+		this.preRunExecution = Optional.ofNullable(preRunExecution);
 		this.exec = VertxPlatform.getVertx().createSharedWorkerExecutor(name, size, timeout, unit);
 	}
 
@@ -68,6 +75,7 @@ public class WorkerExecutorService extends AbstractExecutorService {
 	public void execute(Runnable command) {
 		exec.executeBlocking(prom -> {
 			try {
+				preRunExecution.ifPresent(exec -> exec.run());
 				command.run();
 				prom.complete();
 			} catch (Exception e) {

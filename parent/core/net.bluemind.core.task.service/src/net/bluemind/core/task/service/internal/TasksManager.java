@@ -27,6 +27,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.MoreExecutors;
+
+import io.netty.util.concurrent.FastThreadLocal;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
@@ -48,7 +51,11 @@ public class TasksManager implements ITasksManager {
 	private ConcurrentHashMap<String, FutureThreadInfo> futures = new ConcurrentHashMap<>();
 	private Vertx vertx;
 	public static final int MAX_TASK_COUNT = 10;
-	private ExecutorService executer = new WorkerExecutorService("bm-tasks", 15, 1, TimeUnit.DAYS);
+	private static final Object ROOT_TASK_MARKER = new Object();
+	private final FastThreadLocal<Object> threadLocal = new FastThreadLocal<>();
+	private ExecutorService executer = new WorkerExecutorService("bm-tasks", 15, 1, TimeUnit.DAYS,
+			() -> threadLocal.set(ROOT_TASK_MARKER));
+	private ExecutorService directExecutor = MoreExecutors.listeningDecorator(MoreExecutors.newDirectExecutorService());
 
 	public TasksManager(Vertx vertx) {
 		this.vertx = vertx;
@@ -69,8 +76,10 @@ public class TasksManager implements ITasksManager {
 				throw new ServerFault("task " + taskId + " already running");
 			}
 		}
+
 		try {
-			executeTask(taskId, serverTask, loggingMonitor, task);
+			ExecutorService executer = executesInRunningRootTask() ? this.directExecutor : this.executer;
+			executeTask(taskId, serverTask, loggingMonitor, task, executer);
 		} catch (RejectedExecutionException e) {
 			cleanupTask(task);
 			throw new ServerFault("The task has been rejected by the thread pool", ErrorCode.FAILURE);
@@ -78,8 +87,12 @@ public class TasksManager implements ITasksManager {
 		return TaskRef.create(taskId);
 	}
 
+	private boolean executesInRunningRootTask() {
+		return ROOT_TASK_MARKER == threadLocal.get();
+	}
+
 	private void executeTask(final String taskId, final IServerTask serverTask, LoggingTaskMonitor loggingMonitor,
-			TaskManager task) {
+			TaskManager task, ExecutorService executer) {
 
 		CancellableRunnable runnable = new CancellableRunnable() {
 
@@ -143,7 +156,6 @@ public class TasksManager implements ITasksManager {
 			futures.get(taskId).runnable.cancel();
 			futures.get(taskId).future.cancel(true);
 		}
-
 	}
 
 }
