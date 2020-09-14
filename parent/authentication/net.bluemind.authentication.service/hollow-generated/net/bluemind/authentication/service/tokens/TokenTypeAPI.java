@@ -18,14 +18,17 @@ public class TokenTypeAPI extends HollowObjectTypeAPI {
         this.delegateLookupImpl = new TokenDelegateLookupImpl(this);
     }
 
-    public int getKeyOrdinal(int ordinal) {
+    public String getKey(int ordinal) {
         if(fieldIndex[0] == -1)
-            return missingDataHandler().handleReferencedOrdinal("Token", ordinal, "key");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[0]);
+            return missingDataHandler().handleString("Token", ordinal, "key");
+        boxedFieldAccessSampler.recordFieldAccess(fieldIndex[0]);
+        return getTypeDataAccess().readString(ordinal, fieldIndex[0]);
     }
 
-    public StringTypeAPI getKeyTypeAPI() {
-        return getAPI().getStringTypeAPI();
+    public boolean isKeyEqual(int ordinal, String testValue) {
+        if(fieldIndex[0] == -1)
+            return missingDataHandler().handleStringEquals("Token", ordinal, "key", testValue);
+        return getTypeDataAccess().isStringFieldEqual(ordinal, fieldIndex[0], testValue);
     }
 
     public int getSubjectUidOrdinal(int ordinal) {

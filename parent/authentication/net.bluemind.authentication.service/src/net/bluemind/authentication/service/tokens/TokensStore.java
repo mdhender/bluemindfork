@@ -28,6 +28,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -43,6 +44,7 @@ import com.netflix.hollow.api.producer.HollowProducer;
 import com.netflix.hollow.api.producer.HollowProducer.BlobStorageCleaner;
 import com.netflix.hollow.api.producer.HollowProducer.Builder;
 import com.netflix.hollow.api.producer.fs.HollowFilesystemPublisher;
+import com.netflix.hollow.core.write.objectmapper.RecordPrimaryKey;
 
 import net.bluemind.authentication.service.Token;
 import net.bluemind.common.hollow.BmFilesystemBlobStorageCleaner;
@@ -51,10 +53,10 @@ public class TokensStore {
 	private static final String BASE_DATA_DIR = "/var/spool/bm-hollowed/tokens";
 	private static final Logger logger = LoggerFactory.getLogger(TokensStore.class);
 
-	private static TokensStore INST = new TokensStore();
+	private static TokensStore instance = new TokensStore();
 
 	public static TokensStore get() {
-		return INST;
+		return instance;
 	}
 
 	private final HollowConsumer consumer;
@@ -77,9 +79,8 @@ public class TokensStore {
 		HollowConsumer.BlobRetriever blobRetriever = new HollowFilesystemBlobRetriever(localPublishDir.toPath());
 		if (!restoreIfAvailable(producer, blobRetriever,
 				new HollowFilesystemAnnouncementWatcher(localPublishDir.toPath()))) {
-			producer.runCycle(state -> {
-				state.add(new Token(net.bluemind.config.Token.admin0(), "admin0", "global.virt"));
-			});
+			producer.runCycle(
+					state -> state.add(new Token(net.bluemind.config.Token.admin0(), "admin0", "global.virt")));
 		}
 
 		this.consumer = new HollowConsumer.Builder<>().withBlobRetriever(blobRetriever)
@@ -97,7 +98,7 @@ public class TokensStore {
 		} catch (IOException e) {
 			logger.warn("Cannot remove token data dir", e);
 		}
-		INST = new TokensStore();
+		instance = new TokensStore();
 	}
 
 	private boolean restoreIfAvailable(HollowProducer producer, BlobRetriever retriever,
@@ -118,8 +119,9 @@ public class TokensStore {
 
 	public synchronized Token remove(String key) {
 		Token current = byKey(key);
-		if (current != null) {
-			long newVersion = incremental.runIncrementalCycle(incrementalState -> incrementalState.delete(current));
+		if (key != null) {
+			long newVersion = incremental.runIncrementalCycle(
+					incrementalState -> incrementalState.delete(new RecordPrimaryKey("Token", new String[] { key })));
 			consumer.triggerRefreshTo(newVersion);
 		}
 		return current;
@@ -128,28 +130,28 @@ public class TokensStore {
 	public Token byKey(String key) {
 		net.bluemind.authentication.service.tokens.Token internalTok = keyIndex.findMatch(key);
 		if (internalTok != null) {
-			Token tok = new Token(key, internalTok.getSubjectUid().getValue(),
-					internalTok.getSubjectDomain().getValue());
-			return tok;
+			return new Token(key, internalTok.getSubjectUid().getValue(), internalTok.getSubjectDomain().getValue());
 		}
 		return null;
 	}
 
-	public synchronized void expireOldTokens() {
+	public synchronized int expireOldTokens() {
 		TokensAPI api = (TokensAPI) consumer.getAPI();
 		Collection<net.bluemind.authentication.service.tokens.Token> tokens = api.getAllToken();
 		long now = System.currentTimeMillis();
-		List<net.bluemind.authentication.service.tokens.Token> expired = tokens.stream()
-				.filter(tok -> now > tok.getExpiresTimestamp()).collect(Collectors.toList());
+		List<RecordPrimaryKey> expired = tokens.stream().filter(tok -> now > tok.getExpiresTimestamp())
+				.map(net.bluemind.authentication.service.tokens.Token::getKey).filter(Objects::nonNull)
+				.map(key -> new RecordPrimaryKey("Token", new String[] { key })).collect(Collectors.toList());
 		if (!expired.isEmpty()) {
 			long newVersion = incremental.runIncrementalCycle(incrementalState -> {
-				for (net.bluemind.authentication.service.tokens.Token expiredToken : tokens) {
+				for (RecordPrimaryKey expiredToken : expired) {
 					incrementalState.delete(expiredToken);
 				}
 			});
 			consumer.triggerRefreshTo(newVersion);
 		}
 		logger.info("Expired {} token(s), {} remaining.", expired.size(), tokens.size() - expired.size());
+		return expired.size();
 	}
 
 	private static void deleteDataDir() throws IOException {

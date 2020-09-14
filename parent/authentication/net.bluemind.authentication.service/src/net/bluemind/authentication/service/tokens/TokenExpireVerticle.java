@@ -22,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.VertxPlatform;
 
@@ -43,10 +45,12 @@ public class TokenExpireVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		VertxPlatform.executeBlockingPeriodic(TimeUnit.HOURS.toMillis(1), tid -> {
-			TokensStore.get().expireOldTokens();
-		});
+		VertxPlatform.executeBlockingPeriodic(TimeUnit.HOURS.toMillis(1), tid -> TokensStore.get().expireOldTokens());
 		TokensStore.get().expireOldTokens();
+		vertx.eventBus().localConsumer("hollow.tokens.store.expire", (Message<JsonObject> msg) -> {
+			int expired = TokensStore.get().expireOldTokens();
+			msg.reply(expired);
+		});
 	}
 
 }

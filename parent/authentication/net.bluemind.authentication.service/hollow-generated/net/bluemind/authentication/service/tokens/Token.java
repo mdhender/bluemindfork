@@ -12,11 +12,12 @@ public class Token extends HollowObject {
         super(delegate, ordinal);
     }
 
-    public HString getKey() {
-        int refOrdinal = delegate().getKeyOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getHString(refOrdinal);
+    public String getKey() {
+        return delegate().getKey(ordinal);
+    }
+
+    public boolean isKeyEqual(String testValue) {
+        return delegate().isKeyEqual(ordinal, testValue);
     }
 
     public HString getSubjectUid() {

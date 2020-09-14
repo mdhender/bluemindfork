@@ -20,11 +20,13 @@ package net.bluemind.authentication.service;
 
 import java.util.concurrent.TimeUnit;
 
+import com.netflix.hollow.core.write.objectmapper.HollowInline;
 import com.netflix.hollow.core.write.objectmapper.HollowPrimaryKey;
 
 @HollowPrimaryKey(fields = { "key" })
 public class Token {
 
+	@HollowInline
 	public String key;
 
 	public String subjectUid;

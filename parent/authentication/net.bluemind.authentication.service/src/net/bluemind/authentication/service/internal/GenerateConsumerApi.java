@@ -34,15 +34,17 @@ public class GenerateConsumerApi {
 		HollowObjectMapper mapper = new HollowObjectMapper(writeEngine);
 		mapper.initializeTypeState(Token.class);
 
-		HollowAPIGenerator generator = new HollowAPIGenerator.Builder().withAPIClassname("TokensAPI").withDestination(
-				"/Users/tf/dev/projects/bluemind-mapi/open/parent/authentication/net.bluemind.authentication.service/hollow-generated")
-				// .withDestination(
-				// "/Users/tom/git/bluemind-all/open/parent/authentication/net.bluemind.authentication.service/hollow-generated")
+		HollowAPIGenerator generator = new HollowAPIGenerator.Builder().withAPIClassname("TokensAPI")//
+//				.withDestination(
+//				"/Users/tf/dev/projects/bluemind-mapi/open/parent/authentication/net.bluemind.authentication.service/hollow-generated")
+				.withDestination(
+						"/Users/tom/git/bluemind-all/open/parent/authentication/net.bluemind.authentication.service/hollow-generated")
 				.withPackageName(TokensStore.class.getPackage().getName()).withDataModel(writeEngine).build();
 		// "/Users/david/devel/bluemind/open/parent/directory/net.bluemind.directory.hollow.datamodel.consumer/hollow-generated")
 		// .withPackageName(Activator.class.getPackage().getName()).withDataModel(writeEngine).build();
 
 		generator.generateSourceFiles();
+		System.err.println("Source files generated."); // NOSONAR
 	}
 
 }
