@@ -255,7 +255,7 @@ export default {
     }
 
     // obtain the same enlightment that BAlert applies on $warning TODO move to variables.scss in SG
-    $custom-warning-color: lighten($warning, 33.9%);
+    $custom-warning-color: theme-color-level("warning", $alert-bg-level);
 
     .warning-custom:not(.active) {
         background-color: $custom-warning-color;
