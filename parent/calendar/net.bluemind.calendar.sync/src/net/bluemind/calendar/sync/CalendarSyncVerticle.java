@@ -125,12 +125,13 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 	 * @param message the {@link Message} given by the {@link EventBus}
 	 */
 	private void queue(final Message<JsonObject> message) {
-		final JsonObject messageBody = message.body();
-		final String calendarUid = messageBody.getString("calendarUid");
-		final String origin = messageBody.getString("origin");
-		final boolean hasExternalOrigin = !SecurityContext.SYSTEM.getOrigin().equals(origin);
-		final boolean isRemote = messageBody.getBoolean("isRemote");
-		final RunnableSyncStatus syncStatus = new RunnableSyncStatus(calendarUid);
+		JsonObject messageBody = message.body();
+		String calendarUid = messageBody.getString("calendarUid");
+		String origin = messageBody.getString("origin");
+		boolean isInteractive = messageBody.getBoolean("isInteractive");
+		boolean isClientAccess = !SecurityContext.SYSTEM.getOrigin().equals(origin) || isInteractive;
+		boolean isRemote = messageBody.getBoolean("isRemote");
+		RunnableSyncStatus syncStatus = new RunnableSyncStatus(calendarUid);
 		// in order to be eligible for synchronization, a calendar must meet
 		// these conditions:
 		// 1) be remote
@@ -141,11 +142,11 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 		// for performance matters, these conditions are split in the following
 		// code:
 		try {
-			if (isRemote && hasExternalOrigin && !syncingCals.contains(syncStatus.id)) {
-				final BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
-				final ContainerStore containerStore = new ContainerStore(context,
+			if (isRemote && isClientAccess && !syncingCals.contains(syncStatus.id)) {
+				BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
+				ContainerStore containerStore = new ContainerStore(context,
 						DataSourceRouter.get(context, calendarUid), context.getSecurityContext());
-				final ContainerSyncStore containerSyncStore = new ContainerSyncStore(
+				ContainerSyncStore containerSyncStore = new ContainerSyncStore(
 						DataSourceRouter.get(context, calendarUid), containerStore.get(calendarUid));
 				syncStatus.load(containerSyncStore.getSyncStatus());
 				if (System.currentTimeMillis() > syncStatus.nextSync) {

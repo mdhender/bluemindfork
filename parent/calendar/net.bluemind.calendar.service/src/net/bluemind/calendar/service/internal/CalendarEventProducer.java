@@ -71,10 +71,11 @@ public class CalendarEventProducer {
 		eventBus.publish(CalendarHookAddress.EVENT_DELETED, new LocalJsonObject<>(msg));
 	}
 
-	public void serviceAccessed(final String calendarUid, final String origin, final boolean isRemote) {
-		final JsonObject message = new JsonObject();
+	public void serviceAccessed(String calendarUid, String origin, boolean isInteractive, boolean isRemote) {
+		JsonObject message = new JsonObject();
 		message.put("calendarUid", calendarUid);
 		message.put("origin", origin);
+		message.put("isInteractive", isInteractive);
 		message.put("isRemote", isRemote);
 		eventBus.publish("bm.calendar.service.accessed", message);
 	}
