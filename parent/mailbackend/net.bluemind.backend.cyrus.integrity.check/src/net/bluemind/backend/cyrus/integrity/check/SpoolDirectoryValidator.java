@@ -110,7 +110,7 @@ public class SpoolDirectoryValidator {
 		// top directory is in a known partition root
 		String prefix = String.join("/", firstParts);
 		if (!domainPrefixes.contains(prefix)) {
-			logger.warn("'{}' is not in a valid prefix ({} are valid)", prefix, domainPrefixes);
+			logger.warn("'{}' is not in a valid prefix", prefix);
 			return false;
 		}
 		if (spoolDirectory.equals(prefix)) {
@@ -131,7 +131,7 @@ public class SpoolDirectoryValidator {
 				logger.debug("letter is right: {}, base: {}", letterIsRight, basePrefix);
 				return letterIsRight && roots.contains(basePrefix);
 			}
-			logger.warn("Unknown trailer: '{}' ({} are valid)", trailer, roots);
+			logger.warn("Unknown trailer: '{}'", trailer);
 			return false;
 		}
 
