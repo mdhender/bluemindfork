@@ -2,19 +2,20 @@ import { html2text } from "@bluemind/html-utils";
 import { MimeType, PartsHelper } from "@bluemind/email";
 import DraftStatus from "../mailbackend/MailboxItemsStore/DraftStatus";
 import injector from "@bluemind/inject";
-import Message from "../mailbackend/MailboxItemsStore/Message";
+import MessageAdaptor from "../../store/messages/MessageAdaptor";
 
 /** Save the current draft: create it into Drafts box, delete the previous one. */
-export function saveDraft({ commit, state, getters, rootGetters }) {
+export function saveDraft({ commit, state, getters, rootGetters }, { message, editorContent, userPrefTextOnly }) {
     const service = injector.getProvider("MailboxItemsPersistence").get(rootGetters["mail/MY_DRAFTS"].key);
     const userSession = injector.getProvider("UserSession").get();
-    let draft;
-
+    console.log("saveDraft action ! ", message);
+    let draft = { ...message };
+    console.log(draft);
     // only one saveDraft at a time
     return waitUntilDraftNotSaving(getters, 250, 5)
         .then(() => {
             commit("draft/update", { status: DraftStatus.SAVING });
-            draft = prepareDraft(draft, state);
+            draft = prepareDraft(draft, editorContent, userPrefTextOnly);
             return uploadInlineParts(draft, service);
         })
         .then(addrParts => {
@@ -26,24 +27,27 @@ export function saveDraft({ commit, state, getters, rootGetters }) {
             return cleanParts(draft, service);
         })
         .then(() => {
+            // FIXME set DraftStatus in a "composer" state because we need it in toolbar + composer
             commit("draft/update", { status: DraftStatus.SAVED, saveDate: new Date(), id: draft.id });
             if (draft.previousId) {
-                return service.deleteById(draft.previousId).then(() => draft.id);
+                return service.deleteById(draft.previousId).then(() => draft.remoteRef.internalId);
             }
-            return draft.id;
+            return draft.remoteRef.internalId;
         })
-        .catch(() => {
+        .catch(reason => {
+            console.log("saveDraft ERROR");
+            console.error(reason);
             commit("draft/update", { status: DraftStatus.SAVE_ERROR, saveDate: null });
         });
 }
 
-function createDraftStructure(draft, service, userSession, state) {
+function createDraftStructure(draft, service, userSession, state, userPrefTextOnly) {
     let structure;
     const textPart = PartsHelper.createTextPart(draft.addrParts[MimeType.TEXT_PLAIN][0]);
 
-    if (draft.type === "text") {
+    if (userPrefTextOnly) {
         structure = textPart;
-    } else if (draft.type === "html") {
+    } else {
         const htmlPart = PartsHelper.createHtmlPart(draft.addrParts[MimeType.TEXT_HTML][0]);
         structure = PartsHelper.createAlternativePart(textPart, htmlPart);
         structure = PartsHelper.createInlineImageParts(structure, draft.addrParts[MimeType.IMAGE], draft.inlineImages);
@@ -54,7 +58,7 @@ function createDraftStructure(draft, service, userSession, state) {
         structure
     );
     return service.create(
-        new Message(null, draft).toMailboxItem(userSession.defaultEmail, userSession.formatedName, true, structure)
+        MessageAdaptor.realToMailboxItem(draft, userSession.defaultEmail, userSession.formatedName, true, structure)
     );
 }
 
@@ -68,21 +72,20 @@ function cleanParts(draft, service) {
     return Promise.all(promises);
 }
 
-function prepareDraft(draft, state) {
-    draft = JSON.parse(JSON.stringify(state.draft));
-    draft = Object.assign(draft, { previousId: draft.id, id: undefined });
+function prepareDraft(draft, editorContent, userPrefTextOnly) {
+    draft = Object.assign(draft, { previousId: draft.remoteRef.internalId, id: undefined });
 
     handleReplyOrForward(draft);
     sanitize(draft);
     // FIXME cyrus wants \r\n, should do the replacement in the core, yes ?
-    draft.content = draft.content.replace(/\r?\n/g, "\r\n");
+    editorContent = editorContent.replace(/\r?\n/g, "\r\n");
 
     draft.partsToUpload = {};
-    if (draft.type === "text") {
+    if (userPrefTextOnly) {
         draft.inlineImages = [];
-        draft.partsToUpload[MimeType.TEXT_PLAIN] = [draft.content];
-    } else if (draft.type === "html") {
-        const cidResults = PartsHelper.insertCid(draft.content);
+        draft.partsToUpload[MimeType.TEXT_PLAIN] = [editorContent];
+    } else {
+        const cidResults = PartsHelper.insertCid(editorContent);
         const html = cidResults.html;
         draft.inlineImages = cidResults.images;
         draft.partsToUpload[MimeType.TEXT_HTML] = [html];

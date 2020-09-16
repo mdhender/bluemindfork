@@ -2,7 +2,7 @@ import { MimeType } from "@bluemind/email";
 import injector from "@bluemind/inject";
 import ItemUri from "@bluemind/item-uri";
 
-export function selectMessage({ dispatch, commit, state, rootState }, messageKey) {
+export function selectMessage({ dispatch, commit, state, rootState, rootGetters }, messageKey) {
     const userSession = injector.getProvider("UserSession").get();
     const CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
 
@@ -18,6 +18,10 @@ export function selectMessage({ dispatch, commit, state, rootState }, messageKey
 
             if (userSession.roles.includes("hasCalendar") && !message.ics.isEmpty) {
                 promises.push(dispatch("mail/FETCH_EVENT", message.ics.eventUid, { root: true }));
+            }
+
+            if (ItemUri.container(messageKey) === rootGetters["mail/MY_DRAFTS"].key) {
+                commit("mail/SET_MESSAGE_COMPOSING", { messageKey, composing: true }, { root: true });
             }
 
             const parts = message.computeParts();

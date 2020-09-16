@@ -1,5 +1,5 @@
 <template>
-    <bm-container v-if="hasAttachments" class="mail-attachments-block p-2 bg-extra-light">
+    <bm-container class="mail-attachments-block p-2 bg-extra-light">
         <div class="d-flex align-items-center">
             <bm-button
                 v-bm-tooltip
@@ -151,9 +151,6 @@ export default {
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail-webapp", { attachmentsMaxWeight: "maxMessageSize" }),
-        hasAttachments() {
-            return this.attachments.length > 0;
-        },
         hasMoreThan3Attachments() {
             return this.attachments.length > 3;
         },

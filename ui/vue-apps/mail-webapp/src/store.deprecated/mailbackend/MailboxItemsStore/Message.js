@@ -57,21 +57,6 @@ export default class Message {
         this.userSession = injector.getProvider("UserSession").get();
     }
 
-    toMailboxItem(sender, senderName, isSeen, structure) {
-        let mailboxItem = {
-            body: {
-                subject: this.subject,
-                headers: this.headers,
-                recipients: buildRecipients(sender, senderName, this),
-                messageId: this.messageId,
-                references: this.references,
-                structure
-            },
-            flags: isSeen ? [Flag.SEEN] : []
-        };
-        return mailboxItem;
-    }
-
     /**
      * Compute parts (inline and attachment)
      *
@@ -165,31 +150,6 @@ function fromMailboxItem(item, message) {
     if (message.flags.find(mailboxItemFlag => mailboxItemFlag === Flag.SEEN) === undefined) {
         message.states.push("not-seen");
     }
-}
-
-function buildRecipients(sender, senderName, message) {
-    const primaries = buildRecipientsForKind(RecipientKind.Primary, message.to);
-    const carbonCopies = buildRecipientsForKind(RecipientKind.CarbonCopy, message.cc);
-    const blindCarbonCopies = buildRecipientsForKind(RecipientKind.BlindCarbonCopy, message.bcc);
-    const originator = [
-        {
-            kind: RecipientKind.Originator,
-            address: sender,
-            dn: senderName
-        }
-    ];
-
-    return primaries.concat(carbonCopies).concat(blindCarbonCopies).concat(originator);
-}
-
-function buildRecipientsForKind(kind, addresses) {
-    return (addresses || []).map(address => {
-        return {
-            kind: kind,
-            address: address,
-            dn: "" // FIXME should provide the displayed name here
-        };
-    });
 }
 
 /**

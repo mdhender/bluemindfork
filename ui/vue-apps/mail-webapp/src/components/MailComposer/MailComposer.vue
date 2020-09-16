@@ -12,7 +12,7 @@
                         <bm-col cols="11">
                             <bm-contact-input
                                 ref="to"
-                                :contacts.sync="message_.to"
+                                :contacts.sync="message.to"
                                 :autocomplete-results="autocompleteResultsTo"
                                 @search="searchedPattern => onSearch('to', searchedPattern)"
                                 @update:contacts="saveDraft"
@@ -22,10 +22,13 @@
                         </bm-col>
                         <bm-col cols="1" class="text-center">
                             <bm-button
-                                v-if="mode_ == modes.TO"
+                                v-if="displayedRecipientFields == recipientModes.TO"
                                 variant="simple-dark"
                                 class="text-blue"
-                                @click="mode_ = modes.TO | modes.CC | modes.BCC"
+                                @click="
+                                    displayedRecipientFields =
+                                        recipientModes.TO | recipientModes.CC | recipientModes.BCC
+                                "
                             >
                                 <bm-icon icon="chevron" />
                             </bm-button>
@@ -33,10 +36,10 @@
                     </bm-row>
                     <hr class="m-0" />
 
-                    <div v-if="mode_ > modes.TO" class="d-flex">
+                    <div v-if="displayedRecipientFields > recipientModes.TO" class="d-flex">
                         <div class="d-flex flex-grow-1">
                             <bm-contact-input
-                                :contacts.sync="message_.cc"
+                                :contacts.sync="message.cc"
                                 :autocomplete-results="autocompleteResultsCc"
                                 class="w-100"
                                 @search="searchedPattern => onSearch('cc', searchedPattern)"
@@ -46,29 +49,34 @@
                             </bm-contact-input>
                         </div>
                         <bm-button
-                            v-if="mode_ == (modes.TO | modes.CC)"
+                            v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC)"
                             variant="simple-dark"
                             class="text-blue my-2 mr-1"
-                            @click="mode_ = modes.TO | modes.CC | modes.BCC"
+                            @click="
+                                displayedRecipientFields = recipientModes.TO | recipientModes.CC | recipientModes.BCC
+                            "
                         >
                             {{ $t("common.bcc") }}
                         </bm-button>
                     </div>
-                    <hr v-if="mode_ > modes.TO" class="m-0" />
+                    <hr v-if="displayedRecipientFields > recipientModes.TO" class="m-0" />
 
                     <bm-contact-input
-                        v-if="mode_ == (modes.TO | modes.CC | modes.BCC)"
-                        :contacts.sync="message_.bcc"
+                        v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC | recipientModes.BCC)"
+                        :contacts.sync="message.bcc"
                         :autocomplete-results="autocompleteResultsBcc"
                         @search="searchedPattern => onSearch('bcc', searchedPattern)"
                         @update:contacts="saveDraft"
                     >
                         {{ $t("common.bcc") }}
                     </bm-contact-input>
-                    <hr v-if="mode_ == (modes.TO | modes.CC | modes.BCC)" class="m-0" />
+                    <hr
+                        v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC | recipientModes.BCC)"
+                        class="m-0"
+                    />
 
                     <bm-form-input
-                        v-model="message_.subject"
+                        v-model="message.subject"
                         class="mail-composer-subject d-flex align-items-center"
                         :placeholder="$t('mail.new.subject.placeholder')"
                         :aria-label="$t('mail.new.subject.aria')"
@@ -91,7 +99,12 @@
                                     {{ $tc("mail.new.attachments.images.drop.zone", draggedFilesCount) }}
                                 </h2>
                             </template>
-                            <mail-attachments-block :attachments="parts.attachments" editable expanded />
+                            <mail-attachments-block
+                                v-if="message.attachments > 0"
+                                :attachments="message.attachments"
+                                editable
+                                expanded
+                            />
                         </bm-file-drop-zone>
                     </bm-col>
                 </bm-row>
@@ -114,7 +127,7 @@
                         <bm-form-textarea
                             v-if="userPrefTextOnly"
                             ref="message-content"
-                            v-model="message_.content"
+                            v-model="editorContent"
                             :rows="10"
                             :max-rows="10000"
                             :aria-label="$t('mail.new.content.aria')"
@@ -125,16 +138,16 @@
                         <bm-rich-editor
                             v-else
                             ref="message-content"
-                            v-model="message_.content"
+                            v-model="editorContent"
                             :is-menu-bar-opened="userPrefIsMenuBarOpened"
                             class="h-100"
                             @input="saveDraft"
                         >
                             <bm-button
-                                v-if="previousMessage && !message_.isReplyExpanded"
+                                v-if="collapsedContent"
                                 variant="outline-dark"
                                 class="align-self-start ml-3 mb-2"
-                                @click="displayPreviousMessages"
+                                @click="expandContent"
                             >
                                 <bm-icon icon="3dots" size="sm" />
                             </bm-button>
@@ -142,10 +155,10 @@
                     </bm-file-drop-zone>
                 </bm-file-drop-zone>
                 <bm-button
-                    v-if="userPrefTextOnly && previousMessage && !message_.isReplyExpanded"
+                    v-if="userPrefTextOnly && collapsedContent"
                     variant="outline-dark"
                     class="align-self-start"
-                    @click="displayPreviousMessages"
+                    @click="expandContent"
                 >
                     <bm-icon icon="3dots" size="sm" />
                 </bm-button>
@@ -165,8 +178,12 @@
 
 <script>
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
+import debounce from "lodash/debounce";
+
 import { OrderBy } from "@bluemind/addressbook.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
+import { MimeType, PartsHelper } from "@bluemind/email";
+import { inject } from "@bluemind/inject";
 import {
     BmButton,
     BmCol,
@@ -180,12 +197,12 @@ import {
     BmTooltip,
     BmFileDropZone
 } from "@bluemind/styleguide";
-import debounce from "lodash/debounce";
+
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 import MailComposerFooter from "./MailComposerFooter";
-import MailComposerModes from "./MailComposerModes";
 import MailComposerPanel from "./MailComposerPanel";
-import ServiceLocator from "@bluemind/inject";
+
+const recipientModes = { TO: 1, CC: 2, BCC: 4 }; // flags for the display mode of MailComposer's recipients fields
 
 export default {
     name: "MailComposer",
@@ -206,52 +223,46 @@ export default {
     },
     directives: { BmTooltip },
     props: {
-        message: {
-            type: Object,
-            default: () => null
-        },
-        mode: {
-            type: Number,
-            default: MailComposerModes.TO | MailComposerModes.CC
-        },
-        previousMessage: {
-            type: Object,
-            default: null
-        },
-        userPrefTextOnly: {
-            type: Boolean,
-            default: false
+        messageKey: {
+            type: String,
+            default: undefined
         }
     },
     data() {
         return {
-            modes: MailComposerModes,
+            message: {},
+            recipientModes,
             autocompleteResults: [],
             autocompleteResultsTo: [],
             autocompleteResultsCc: [],
             autocompleteResultsBcc: [],
-            debouncedSave: debounce(this.save, 1000),
+            debouncedSave: debounce(
+                () =>
+                    this.save({
+                        message: this.message,
+                        editorContent: this.editorContent,
+                        userPrefTextOnly: this.userPrefTextOnly
+                    }),
+                1000
+            ),
             userPrefIsMenuBarOpened: false, // TODO: initialize this with user setting
-            mode_: this.mode,
-            message_: {
-                to: this.message ? this.message.to : [],
-                cc: this.message ? this.message.cc : [],
-                bcc: this.message ? this.message.bcc : [],
-                subject: this.message ? this.message.subject : "",
-                content: "",
-                headers: [],
-                previousMessage: this.previousMessage,
-                type: undefined,
-                isReplyExpanded: false
-            },
+            userPrefTextOnly: false, // TODO: initialize this with user setting
+            editorContent: "",
+            collapsedContent: null, // FIXME: init if a separator is detected in content
+            /**
+             * @example
+             * displayedRecipientFields = (TO|CC|BCC) means we want to display all 3 fields
+             * displayedRecipientFields = TO means we want to display TO field only
+             */
+            displayedRecipientFields: recipientModes.TO | recipientModes.CC, // FIXME: init it if a separator is detected in content
             draggedFilesCount: -1
         };
     },
     computed: {
         ...mapGetters("mail-webapp", ["lastRecipients"]),
-        ...mapState("mail-webapp/draft", ["parts"]),
+        ...mapState("mail", ["messages"]),
         panelTitle() {
-            return this.message_.subject ? this.message_.subject : this.$t("mail.main.new");
+            return this.message.subject ? this.message.subject : this.$t("mail.main.new");
         }
     },
     watch: {
@@ -259,54 +270,86 @@ export default {
             this.autocompleteResultsTo = this.getAutocompleteResults("to");
             this.autocompleteResultsCc = this.getAutocompleteResults("cc");
             this.autocompleteResultsBcc = this.getAutocompleteResults("bcc");
+        },
+        messageKey: {
+            handler: async function () {
+                this.message = { ...this.messages[this.messageKey] };
+                await this.initEditorContent();
+                console.log(this.message);
+                if (this.message.to.length > 0 || this.message.cc.length > 0) {
+                    this.$refs["message-content"].focus();
+                } else {
+                    this.$refs.to.focus();
+                }
+            },
+            immediate: true
         }
     },
     created: function () {
         this.deleteAllSelectedMessages();
-        this.clearDraft();
-        this.message_.type = this.userPrefTextOnly ? "text" : "html";
-        this.message_.previousMessage = this.previousMessage;
-        this.updateDraft(this.message_);
-    },
-    mounted: function () {
-        if (this.message && (this.message.to.length > 0 || this.message.cc.length > 0)) {
-            this.$refs["message-content"].focus();
-        } else {
-            this.$refs.to.focus();
-        }
     },
     destroyed: function () {
-        this.clearDraft();
+        this.saveDraft();
     },
     methods: {
         ...mapActions("mail-webapp", { save: "saveDraft", addAttachments: "addAttachments" }),
         ...mapMutations("mail-webapp", ["deleteAllSelectedMessages"]),
-        ...mapMutations("mail-webapp/draft", { clearDraft: "clear", updateDraft: "update" }),
-        ...mapGetters("mail-webapp/draft", { isMessageEmpty: "isEmpty" }),
-        displayPreviousMessages() {
-            this.message_.content += this.previousMessage.content;
-            this.$nextTick(() => {
-                if (!this.userPrefTextOnly) {
-                    this.$refs["message-content"].updateContent();
-                    this.$refs["message-content"].focus("start");
-                } else {
-                    this.$refs["message-content"].focus();
-                    this.$refs["message-content"].setSelectionRange(0, 0);
-                }
-            });
-            this.message_.isReplyExpanded = true;
+        async initEditorContent() {
+            /**
+             * FIXME (EN FAIRE UN TICKET)
+             * Actually composer is very strict because it accepts only structure generated by himself : classic alternative case with text plain or html (inlined images are supported).
+             * But it would be better if it supports draft coming from other clients. So we need to support a lot of cases :
+             *      - if message got just a text plain part
+             *      - if message contains only a html part and if userPrefTextOnly == true then we must convert HTML part into text part
+             *      - if message contains only a plain text part and userPrefTextOnly == false then we must convert plain text part into HTML
+             *      - all other complex cases are not supported yet.. (for example mixed part with an html followed by an image, followed by a text plain, etc)
+             */
+
+            let newContent;
+            if (this.userPrefTextOnly) {
+                const textPlainPart = this.message.inlinePartsByCapabilities.find(
+                    part => part.capabilities === MimeType.TEXT_PLAIN
+                ).parts[0];
+                newContent = await fetchPart(textPlainPart, this.message);
+            } else {
+                let parts = this.message.inlinePartsByCapabilities.find(
+                    part => part.capabilities[0] === MimeType.TEXT_HTML
+                ).parts;
+                const partsContent = await Promise.all(parts.map(part => fetchPart(part, this.message)));
+                parts = parts.map((part, index) => ({ ...part, content: partsContent[index] }));
+                const htmlPart = parts.find(part => part.mime === MimeType.TEXT_HTML);
+                PartsHelper.insertInlineImages(
+                    [htmlPart],
+                    parts.filter(part => MimeType.isImage(part) && part.contentId)
+                );
+                newContent = htmlPart.content;
+            }
+            this.updateEditorContent(newContent);
+        },
+        async expandContent() {
+            this.updateEditorContent(this.editorContent + this.collapsedContent);
+            this.collapsedContent = null;
+        },
+        async updateEditorContent(newContent) {
+            this.editorContent = newContent;
+            await this.$nextTick();
+            if (this.userPrefTextOnly) {
+                this.$refs["message-content"].focus();
+                this.$refs["message-content"].setSelectionRange(0, 0);
+            } else {
+                this.$refs["message-content"].updateContent();
+                this.$refs["message-content"].focus("start");
+            }
         },
         send() {
             this.debouncedSave.cancel();
             // send then close the composer
-            this.$store.dispatch("mail-webapp/send").then(() => this.$router.navigate("v:mail:message"));
+            this.$store.dispatch("mail-webapp/send", this.message).then(() => this.$router.navigate("v:mail:message"));
         },
         saveDraft() {
-            this.updateDraft(this.message_);
+            console.log("hello save draft !", this.message);
             this.debouncedSave.cancel();
-            if (!this.isMessageEmpty()) {
-                this.debouncedSave();
-            }
+            this.debouncedSave();
         },
         async deleteDraft() {
             this.debouncedSave.cancel();
@@ -335,8 +378,7 @@ export default {
             if (searchedRecipient === "") {
                 this.autocompleteResults = [];
             } else {
-                return ServiceLocator.getProvider("AddressBooksPersistence")
-                    .get()
+                return inject("AddressBooksPersistence")
                     .search({
                         from: 0,
                         size: 5,
@@ -367,6 +409,26 @@ export default {
         }
     }
 };
+
+async function fetchPart(part, message) {
+    const stream = await inject("MailboxItemsPersistence", message.folderRef.uid).fetch(
+        message.remoteRef.imapUid,
+        part.address,
+        part.encoding,
+        part.mime,
+        part.charset
+    );
+    if (MimeType.isText(part) || MimeType.isHtml(part) || MimeType.isCalendar(part)) {
+        return new Promise(resolve => {
+            const reader = new FileReader();
+            reader.readAsText(stream, part.encoding);
+            reader.addEventListener("loadend", e => {
+                resolve(e.target.result);
+            });
+        });
+    }
+    return stream;
+}
 </script>
 
 <style lang="scss">

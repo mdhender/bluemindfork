@@ -1,6 +1,9 @@
 <template>
     <div class="message-list-item-middle d-flex flex-column text-truncate">
         <div class="d-flex flex-row">
+            <div v-if="MY_DRAFTS.key === activeFolder" class="text-danger mx-1 font-italic">
+                [{{ $t("common.folder.draft") }}]
+            </div>
             <div
                 v-bm-tooltip.viewport
                 :title="fromOrTo"
@@ -106,10 +109,10 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["isMessageSelected", "my", "isSearchMode"]),
+        ...mapGetters("mail-webapp", ["isMessageSelected", "isSearchMode"]),
         ...mapGetters("mail", ["MY_DRAFTS", "MY_SENT"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail", ["mailboxes", "folders", "messages"]),
+        ...mapState("mail", ["mailboxes", "folders", "messages", "activeFolder"]),
         displayedDate: function () {
             const today = new Date();
             const messageDate = this.message.date;

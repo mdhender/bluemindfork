@@ -5,9 +5,9 @@ import UUIDGenerator from "@bluemind/uuid";
 import DraftStatus from "../mailbackend/MailboxItemsStore/DraftStatus";
 
 /** Send the last draft: move it to the Outbox then flush. */
-export function send({ state, commit, dispatch, rootGetters }) {
-    const draft = state.draft;
-    let draftId = draft.id;
+export function send({ commit, dispatch, rootGetters }, draft) {
+    console.log(draft);
+    let draftId = draft.remoteRef.internalId;
     const loadingAlertUid = addLoadingAlert(commit, draft.subject);
 
     return dispatch("saveDraft")
@@ -100,13 +100,14 @@ function handleSuccess(sentMailId, loadingAlertUid, mySentBox, myDraftBox, draft
 function clearAttachmentParts(draftboxUid, draft) {
     const service = injector.getProvider("MailboxItemsPersistence").get(draftboxUid);
     return Promise.all(
-        draft.parts.attachments
+        draft.attachments
             .filter(a => draft.attachmentStatuses[a.uid] !== "ERROR")
             .map(a => service.removePart(a.address))
     );
 }
 
 function manageFlagOnPreviousMessage(draft, dispatch) {
+    // FIXME
     if (draft.previousMessage && draft.previousMessage.action) {
         let action = draft.previousMessage.action;
         let mailboxItemFlag;
@@ -120,6 +121,7 @@ function manageFlagOnPreviousMessage(draft, dispatch) {
 }
 
 function handleError(commit, draftSubject, loadingAlertUid, reason) {
+    console.error(reason);
     commit("removeApplicationAlert", loadingAlertUid, { root: true });
     commit(
         "addApplicationAlert",

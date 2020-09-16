@@ -32,6 +32,7 @@
     "common.or": "or",
     "common.cancel": "Cancel",
     "common.mailshares": "Shared folders",
+    "common.folder.draft": "draft",
     "common.reload": "reload",
     "common.title": "Title :",
     "common.when": "When :",

@@ -196,8 +196,9 @@ export default {
         },
         navigateTo() {
             const params = { message: this.message.key };
-            if (this.activeFolder !== ItemUri.container(this.message.key)) {
-                params.folder = ItemUri.container(this.message.key);
+            const messageFolder = ItemUri.container(this.message.key);
+            if (this.activeFolder !== messageFolder) {
+                params.folder = messageFolder;
             }
             this.$router.navigate({ name: "v:mail:message", params });
         }

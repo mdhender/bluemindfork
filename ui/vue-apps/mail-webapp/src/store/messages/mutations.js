@@ -32,5 +32,8 @@ export default {
     },
     [mutationTypes.SET_MESSAGE_LIST]: (state, messages) => {
         messages.filter(message => !state[message.key]).forEach(message => Vue.set(state, message.key, message));
+    },
+    [mutationTypes.SET_MESSAGE_COMPOSING]: (state, { messageKey, composing }) => {
+        state[messageKey].composing = composing;
     }
 };
