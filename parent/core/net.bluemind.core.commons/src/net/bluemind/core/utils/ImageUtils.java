@@ -76,7 +76,6 @@ public class ImageUtils {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
 			throw new ServerFault("not an image (" + e.getMessage() + ")", ErrorCode.INVALID_PARAMETER);
 		} finally {
 			if (tmpFile != null) {

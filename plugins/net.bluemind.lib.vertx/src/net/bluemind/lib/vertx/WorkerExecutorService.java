@@ -63,7 +63,7 @@ public class WorkerExecutorService extends AbstractExecutorService {
 
 	@Override
 	public boolean isTerminated() {
-		return shutdown;
+		return isShutdown();
 	}
 
 	@Override
@@ -75,7 +75,7 @@ public class WorkerExecutorService extends AbstractExecutorService {
 	public void execute(Runnable command) {
 		exec.executeBlocking(prom -> {
 			try {
-				preRunExecution.ifPresent(exec -> exec.run());
+				preRunExecution.ifPresent(Runnable::run);
 				command.run();
 				prom.complete();
 			} catch (Exception e) {

@@ -47,22 +47,22 @@ import net.bluemind.lib.vertx.WorkerExecutorService;
 public class TasksManager implements ITasksManager {
 
 	private static Logger logger = LoggerFactory.getLogger(TasksManager.class);
-	private ConcurrentHashMap<String, TaskManager> tasks = new ConcurrentHashMap<>();
-	private ConcurrentHashMap<String, FutureThreadInfo> futures = new ConcurrentHashMap<>();
-	private Vertx vertx;
-	public static final int MAX_TASK_COUNT = 10;
 	private static final Object ROOT_TASK_MARKER = new Object();
+
+	private final ConcurrentHashMap<String, TaskManager> tasks = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String, FutureThreadInfo> futures = new ConcurrentHashMap<>();
+	private final Vertx vertx;
 	private final FastThreadLocal<Object> threadLocal = new FastThreadLocal<>();
-	private ExecutorService executer = new WorkerExecutorService("bm-tasks", 15, 1, TimeUnit.DAYS,
+	private final ExecutorService executer = new WorkerExecutorService("bm-tasks", 15, 1, TimeUnit.DAYS,
 			() -> threadLocal.set(ROOT_TASK_MARKER));
-	private ExecutorService directExecutor = MoreExecutors.listeningDecorator(MoreExecutors.newDirectExecutorService());
+	private final ExecutorService directExecutor = MoreExecutors.newDirectExecutorService();
 
 	public TasksManager(Vertx vertx) {
 		this.vertx = vertx;
 	}
 
 	@Override
-	public TaskRef run(final String taskId, final IServerTask serverTask) throws ServerFault {
+	public TaskRef run(final String taskId, final IServerTask serverTask) {
 		MessageConsumer<JsonObject> cons = vertx.eventBus().consumer(addr(taskId));
 		final TaskManager task = new TaskManager(taskId, cons);
 		final TaskMonitor monitor = new TaskMonitor(vertx.eventBus(), addr(taskId));
@@ -78,8 +78,8 @@ public class TasksManager implements ITasksManager {
 		}
 
 		try {
-			ExecutorService executer = executesInRunningRootTask() ? this.directExecutor : this.executer;
-			executeTask(taskId, serverTask, loggingMonitor, task, executer);
+			ExecutorService selectedExecutor = executesInRunningRootTask() ? this.directExecutor : this.executer;
+			executeTask(taskId, serverTask, loggingMonitor, task, selectedExecutor);
 		} catch (RejectedExecutionException e) {
 			cleanupTask(task);
 			throw new ServerFault("The task has been rejected by the thread pool", ErrorCode.FAILURE);
@@ -92,7 +92,7 @@ public class TasksManager implements ITasksManager {
 	}
 
 	private void executeTask(final String taskId, final IServerTask serverTask, LoggingTaskMonitor loggingMonitor,
-			TaskManager task, ExecutorService executer) {
+			TaskManager task, ExecutorService es) {
 
 		CancellableRunnable runnable = new CancellableRunnable() {
 
@@ -102,7 +102,7 @@ public class TasksManager implements ITasksManager {
 					serverTask.run(loggingMonitor);
 					loggingMonitor.end(true, "OK", null);
 				} catch (Exception e) {
-					logger.error("error in task " + taskId, e);
+					logger.error("error in task {}", taskId, e);
 					loggingMonitor.end(false, e.getMessage(), null);
 				} finally {
 					vertx.setTimer(1000 * 60 * 10l, event -> cleanupTask(task));
@@ -115,11 +115,11 @@ public class TasksManager implements ITasksManager {
 			}
 		};
 
-		futures.put(taskId, new FutureThreadInfo(executer.submit(runnable), runnable));
+		futures.put(taskId, new FutureThreadInfo(es.submit(runnable), runnable));
 	}
 
 	@Override
-	public TaskRef run(final IServerTask serverTask) throws ServerFault {
+	public TaskRef run(final IServerTask serverTask) {
 		final String taskId = UUID.randomUUID().toString();
 		return run(taskId, serverTask);
 	}
