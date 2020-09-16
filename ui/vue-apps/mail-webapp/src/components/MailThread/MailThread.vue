@@ -58,7 +58,7 @@ export default {
             return this.folders[ItemUri.container(this.currentMessageKey)];
         },
         isADraft() {
-            return this.messages[this.currentMessageKey].composing;
+            return this.currentMessageKey ? this.messages[this.currentMessageKey].composing : false;
         }
         // previousMessage() {
         //     return {
