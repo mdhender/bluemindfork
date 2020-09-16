@@ -66,6 +66,10 @@ export class MailDB {
         return key !== undefined;
     }
 
+    async isFullySynced(uid: string) {
+        return (await (await this.dbPromise).getAllKeysFromIndex("ids_stack", "by-folderUid", uid)).length === 0;
+    }
+
     async updateFolderSyncInfo(folderSyncInfo: FolderSyncInfo) {
         const old = await this.getFolderSyncInfo(folderSyncInfo.uid);
         if (!old || old.version < folderSyncInfo.version) {

@@ -37,7 +37,7 @@ async function multipleByIdHandler({ request, params: [folderUid] }) {
 
 const MAILITEMS_CHANGESETSINCE0 = "mail_items/:uid/_filteredChangesetById?since=0";
 async function filteredChangesetByIdHandler({ request, params: [folderUid] }) {
-    if (await db.isInFolderSyncInfo(folderUid)) {
+    if (await db.isFullySynced(folderUid)) {
         const expectedFlags = await request.json();
         const allMailItems = await new MailDB().getAllMailItems(folderUid);
         const data = {
@@ -58,7 +58,7 @@ async function filteredChangesetByIdHandler({ request, params: [folderUid] }) {
 
 const MAILITEMS_UNREAD = "mail_items/:uid/_unread";
 async function unreadItemsHandler({ request, params: [folderUid] }) {
-    if (await db.isInFolderSyncInfo(folderUid)) {
+    if (await db.isFullySynced(folderUid)) {
         const allMailItems = await db.getAllMailItems(folderUid);
         const expectedFlags = { must: [], mustNot: ["Deleted", "Seen"] };
         const data = allMailItems

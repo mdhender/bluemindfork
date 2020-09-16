@@ -5,11 +5,10 @@ import { MailFolder } from "./entry";
 
 const db = new MailDB();
 
-const period = 30 * 60 * 1000;
-const chunkSize = 50;
+const chunkSize = 200;
 const limiter = new Bottleneck({
     maxConcurrent: 1,
-    minTime: period
+    minTime: 30 * 1000
 });
 
 function createFolderSyncInfo(folder: MailFolder): FolderSyncInfo {
