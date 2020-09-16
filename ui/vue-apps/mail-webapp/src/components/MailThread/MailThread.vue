@@ -1,11 +1,11 @@
 <template>
     <article
-        v-if="message"
+        v-if="(currentMessageKey && isADraft) || (message && !isADraft)"
         class="mail-thread d-flex flex-column"
         :aria-label="$t('mail.application.region.messagethread')"
     >
         <mail-component-alert
-            v-if="!areRemoteImagesUnblocked(message.key) && showBlockedImagesAlert"
+            v-if="!areRemoteImagesUnblocked(currentMessageKey) && showBlockedImagesAlert"
             icon="exclamation-circle"
             @close="setShowBlockedImagesAlert(false)"
         >
@@ -20,15 +20,7 @@
         >
             {{ $t("mail.content.alert.readonly") }}
         </mail-component-alert>
-        <mail-composer v-if="isADraft" :message-key="message.key" />
-        <!-- <mail-composer
-            v-else-if="showComposer"
-            :message="preparedAnswer"
-            :previous-message="previousMessage"
-            :mode="mode"
-            :user-pref-text-only="userPrefTextOnly"
-            @close="mode = 'default'"
-        /> -->
+        <mail-composer v-if="isADraft" :message-key="currentMessageKey" />
         <mail-viewer v-else-if="message" />
         <div />
     </article>
@@ -57,15 +49,16 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp/currentMessage", { message: "message", inlineParts: "content" }),
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
+        ...mapGetters("mail-webapp/currentMessage", { message: "message" }),
         ...mapState("mail-webapp", ["showBlockedImagesAlert"]),
         ...mapGetters("mail-webapp", ["areRemoteImagesUnblocked"]),
         ...mapState("mail", ["folders", "messages"]),
         folderOfCurrentMessage() {
-            return this.folders[ItemUri.container(this.message.key)];
+            return this.folders[ItemUri.container(this.currentMessageKey)];
         },
         isADraft() {
-            return this.messages[this.message.key].composing;
+            return this.messages[this.currentMessageKey].composing;
         }
         // previousMessage() {
         //     return {
@@ -77,7 +70,7 @@ export default {
         //         ),
         //         messageId: this.message.messageId,
         //         references: this.message.references,
-        //         messageKey: this.message.key,
+        //         messageKey: this.currentMessageKey,
         //         action: this.pathSuffix()
         //     };
         // },
@@ -117,15 +110,15 @@ export default {
     },
     methods: {
         ...mapMutations("mail-webapp", ["setShowBlockedImagesAlert", "unblockRemoteImages"]),
-        pathSuffix() {
-            let indexOfLastSlash = this.$store.state.route.path.lastIndexOf("/");
-            return this.$store.state.route.path.substring(indexOfLastSlash + 1);
-        },
-        isReplyAll() {
-            return this.pathSuffix() === this.message.actions.REPLYALL;
-        },
+        // pathSuffix() {
+        //     let indexOfLastSlash = this.$store.state.route.path.lastIndexOf("/");
+        //     return this.$store.state.route.path.substring(indexOfLastSlash + 1);
+        // },
+        // isReplyAll() {
+        //     return this.pathSuffix() === this.message.actions.REPLYALL;
+        // },
         showImages() {
-            this.unblockRemoteImages(this.message.key);
+            this.unblockRemoteImages(this.currentMessageKey);
         }
     }
 };

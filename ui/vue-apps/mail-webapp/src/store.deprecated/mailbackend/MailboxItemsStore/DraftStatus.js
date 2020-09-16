@@ -16,6 +16,8 @@
  * END LICENSE
  */
 
+// FIXME: move it in new store or in models folder ?
+
 /** Draft statuses. */
 export default Object.freeze({
     NEW: Symbol("new"),

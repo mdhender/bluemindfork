@@ -48,7 +48,7 @@
         <bm-row class="px-lg-5">
             <bm-col cols="12">
                 <hr class="bg-dark my-0" />
-                <mail-attachments-block :attachments="parts.attachments" />
+                <mail-attachments-block v-if="parts.attachments.length > 0" :attachments="parts.attachments" />
             </bm-col>
         </bm-row>
         <bm-row ref="scrollableContainer" class="pt-1 flex-fill px-lg-5 px-4">

@@ -165,6 +165,7 @@
             </template>
             <template #footer>
                 <mail-composer-footer
+                    :message="message"
                     :user-pref-text-only="userPrefTextOnly"
                     :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
                     @toggleTextFormat="userPrefIsMenuBarOpened = !userPrefIsMenuBarOpened"
@@ -272,7 +273,8 @@ export default {
             this.autocompleteResultsBcc = this.getAutocompleteResults("bcc");
         },
         messageKey: {
-            handler: async function () {
+            handler: async function (old, newT) {
+                console.log("MailCOMPOSER messageKey changed ! old: ", old, " / new : ", newT);
                 this.message = { ...this.messages[this.messageKey] };
                 await this.initEditorContent();
                 console.log(this.message);
@@ -287,9 +289,6 @@ export default {
     },
     created: function () {
         this.deleteAllSelectedMessages();
-    },
-    destroyed: function () {
-        this.saveDraft();
     },
     methods: {
         ...mapActions("mail-webapp", { save: "saveDraft", addAttachments: "addAttachments" }),
@@ -343,11 +342,14 @@ export default {
         },
         send() {
             this.debouncedSave.cancel();
-            // send then close the composer
-            this.$store.dispatch("mail-webapp/send", this.message).then(() => this.$router.navigate("v:mail:message"));
+            this.$store.dispatch("mail-webapp/send", {
+                message: this.message,
+                editorContent: this.editorContent,
+                userPrefTextOnly: this.userPrefTextOnly
+            });
+            this.$router.navigate("v:mail:home");
         },
         saveDraft() {
-            console.log("hello save draft !", this.message);
             this.debouncedSave.cancel();
             this.debouncedSave();
         },

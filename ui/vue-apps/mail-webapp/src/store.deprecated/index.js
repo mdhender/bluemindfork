@@ -16,7 +16,6 @@ export default {
     modules: {
         search,
         messages,
-        currentMessage: MessageStore,
-        draft: MessageStore
+        currentMessage: MessageStore
     }
 };

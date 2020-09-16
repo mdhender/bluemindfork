@@ -61,7 +61,8 @@ export default {
     },
     directives: { BmTooltip },
     computed: {
-        ...mapState("mail-webapp", ["draft"]),
+        // FIXME: use messageCompose state
+        ...mapState("mail", ["draft"]),
         ...mapGetters("mail-webapp/draft", ["hasRecipient"]),
         isSending() {
             return this.draft.status === DraftStatus.SENDING;
@@ -99,7 +100,9 @@ export default {
             }
         },
         doSend() {
-            this.send().then(() => this.$router.navigate("v:mail:message"));
+            // FIXME
+            this.send();
+            this.$router.navigate("v:mail:home");
         },
         openFilePicker() {
             this.$refs.attachInputRef.click();

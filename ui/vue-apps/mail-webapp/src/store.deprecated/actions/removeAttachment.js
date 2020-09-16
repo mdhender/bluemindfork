@@ -1,5 +1,6 @@
 import injector from "@bluemind/inject";
 
+// FIXME, draft store does not exist anymore
 export function removeAttachment({ commit, dispatch, getters, state, rootGetters }, attachmentUid) {
     const status = getters["draft/getAttachmentStatus"](attachmentUid);
     const partAddress = state.draft.parts.attachments.find(attachment => attachment.uid === attachmentUid).address;

@@ -1,40 +1,31 @@
 import DraftStatus from "../mailbackend/MailboxItemsStore/DraftStatus";
 import injector from "@bluemind/inject";
+import mutationTypes from "../../store/mutationTypes";
 
-/** Delete the draft (hard delete, not moved in Trash box). */
-export function deleteDraft({ commit, state, rootGetters }) {
-    const draft = state.draft;
-    if (!draft.id || draft.status === DraftStatus.DELETED) {
-        // no saved draft to delete, just close the composer
+export async function deleteDraft({ commit, rootGetters }, message) {
+    const draft = { ...message };
+    if (!draft.remoteRef.internalId || draft.status === DraftStatus.DELETED) {
         return Promise.resolve();
     }
 
-    let service;
+    const draftbox = rootGetters["mail/MY_DRAFTS"];
+    const service = injector.getProvider("MailboxItemsPersistence").get(draftbox.uid);
+    commit("mail/" + mutationTypes.SET_DRAFT_STATUS, DraftStatus.DELETING, { root: true });
 
-    return new Promise(resolve => {
-        // initialize service, session and status
-        const draftbox = rootGetters["mail/MY_DRAFTS"];
-
-        service = injector.getProvider("MailboxItemsPersistence").get(draftbox.remoteRef.uid);
-        commit("draft/update", { status: DraftStatus.DELETING });
-        return resolve();
-    })
-        .then(() => {
-            // request a delete on core side
-            return service.deleteById(draft.id);
-        })
-        .then(() => {
-            commit("draft/update", { status: DraftStatus.DELETED });
-        })
-        .catch(reason => {
-            commit(
-                "addApplicationAlert",
-                {
-                    code: "MSG_DRAFT_DELETE_ERROR",
-                    props: { subject: draft.subject, reason }
-                },
-                { root: true }
-            );
-            commit("draft/update", { status: DraftStatus.DELETE_ERROR });
-        });
+    try {
+        // FIXME ? maybe duplicated code with PURGE_MESSAGE action
+        await service.deleteById(draft.remoteRef.internalId);
+        commit("mail/" + mutationTypes.REMOVE_MESSAGES, [message.key], { root: true });
+        commit("mail/" + mutationTypes.SET_DRAFT_STATUS, DraftStatus.DELETED, { root: true });
+    } catch (reason) {
+        commit(
+            "addApplicationAlert",
+            {
+                code: "MSG_DRAFT_DELETE_ERROR",
+                props: { subject: draft.subject, reason }
+            },
+            { root: true }
+        );
+        commit("mail/" + mutationTypes.SET_DRAFT_STATUS, DraftStatus.DELETE_ERROR, { root: true });
+    }
 }

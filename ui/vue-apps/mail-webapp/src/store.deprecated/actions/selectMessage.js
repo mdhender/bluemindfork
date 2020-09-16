@@ -22,17 +22,18 @@ export function selectMessage({ dispatch, commit, state, rootState, rootGetters 
 
             if (ItemUri.container(messageKey) === rootGetters["mail/MY_DRAFTS"].key) {
                 commit("mail/SET_MESSAGE_COMPOSING", { messageKey, composing: true }, { root: true });
+            } else {
+                // FIXME: remove me once MailViewer manage parts fetch
+                const parts = message.computeParts();
+                const inlines = parts.inlines.find(part =>
+                    part.capabilities.every(capability => CAPABILITIES.includes(capability))
+                );
+                commit("currentMessage/setParts", { attachments: parts.attachments, inlines: inlines.parts });
+                promises.push(
+                    ...inlines.parts.map(part => dispatch("messages/fetch", { messageKey, part, isAttachment: false }))
+                );
+                return Promise.all(promises);
             }
-
-            const parts = message.computeParts();
-            const inlines = parts.inlines.find(part =>
-                part.capabilities.every(capability => CAPABILITIES.includes(capability))
-            );
-            commit("currentMessage/setParts", { attachments: parts.attachments, inlines: inlines.parts });
-            promises.push(
-                ...inlines.parts.map(part => dispatch("messages/fetch", { messageKey, part, isAttachment: false }))
-            );
-            return Promise.all(promises);
         });
     }
     return Promise.resolve();

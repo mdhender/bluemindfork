@@ -70,7 +70,7 @@
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
 import DraftStatus from "../../store.deprecated/mailbackend/MailboxItemsStore/DraftStatus";
-import { mapState, mapActions, mapGetters } from "vuex";
+import { mapState, mapActions } from "vuex";
 
 export default {
     name: "MailComposerFooter",
@@ -87,11 +87,17 @@ export default {
         userPrefIsMenuBarOpened: {
             type: Boolean,
             default: false
+        },
+        message: {
+            type: Object,
+            required: true
         }
     },
     computed: {
-        ...mapState("mail-webapp", ["draft"]),
-        ...mapGetters("mail-webapp/draft", ["hasRecipient"]),
+        ...mapState("mail", ["draft"]),
+        hasRecipient() {
+            return this.message.to.length > 0 || this.message.cc.length > 0 || this.message.bcc.length > 0;
+        },
         isSending() {
             return this.draft.status === DraftStatus.SENDING;
         },
@@ -119,7 +125,7 @@ export default {
             }
         },
         formattedDraftSaveDate() {
-            const saveDate = this.draft.saveDate || new Date();
+            const saveDate = this.draft.saveDate;
             if (DateComparator.isToday(saveDate)) {
                 return this.$t("mail.draft.save.date.time", { time: this.$d(saveDate, "short_time") });
             }

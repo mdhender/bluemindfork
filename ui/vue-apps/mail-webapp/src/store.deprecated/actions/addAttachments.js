@@ -34,6 +34,7 @@ const buildAttachment = function (file) {
     };
 };
 
+// FIXME: replace me by an action on messages store
 async function addAttachment({ getters, commit, rootGetters }, file) {
     const attachment = buildAttachment(file);
 

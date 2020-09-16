@@ -99,10 +99,6 @@ export default class Message {
             isEmptyContent(this.content)
         );
     }
-
-    hasRecipient() {
-        return (this.to && this.to.length) || (this.cc && this.cc.length) || (this.bcc && this.bcc.length);
-    }
 }
 
 function isEmptyContent(content) {

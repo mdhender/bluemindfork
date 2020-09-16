@@ -3,45 +3,44 @@ import { MimeType, PartsHelper } from "@bluemind/email";
 import DraftStatus from "../mailbackend/MailboxItemsStore/DraftStatus";
 import injector from "@bluemind/inject";
 import MessageAdaptor from "../../store/messages/MessageAdaptor";
+import mutationTypes from "../../store/mutationTypes";
 
 /** Save the current draft: create it into Drafts box, delete the previous one. */
-export function saveDraft({ commit, state, getters, rootGetters }, { message, editorContent, userPrefTextOnly }) {
+export function saveDraft({ commit, getters, rootGetters }, { message, editorContent, userPrefTextOnly }) {
     const service = injector.getProvider("MailboxItemsPersistence").get(rootGetters["mail/MY_DRAFTS"].key);
     const userSession = injector.getProvider("UserSession").get();
-    console.log("saveDraft action ! ", message);
     let draft = { ...message };
-    console.log(draft);
+
     // only one saveDraft at a time
     return waitUntilDraftNotSaving(getters, 250, 5)
         .then(() => {
-            commit("draft/update", { status: DraftStatus.SAVING });
+            commit("mail/" + mutationTypes.SET_DRAFT_STATUS, DraftStatus.SAVING, { root: true });
             draft = prepareDraft(draft, editorContent, userPrefTextOnly);
             return uploadInlineParts(draft, service);
         })
         .then(addrParts => {
             draft.addrParts = addrParts;
-            return createDraftStructure(draft, service, userSession, state);
+            return createDraftStructure(draft, service, userSession);
         })
         .then(({ id }) => {
-            draft.id = id;
+            draft.remoteRef.internalId = id;
             return cleanParts(draft, service);
         })
         .then(() => {
             // FIXME set DraftStatus in a "composer" state because we need it in toolbar + composer
-            commit("draft/update", { status: DraftStatus.SAVED, saveDate: new Date(), id: draft.id });
+            commit("mail/" + mutationTypes.SET_DRAFT_SAVE_DATE, new Date(), { root: true });
+            commit("mail/" + mutationTypes.SET_DRAFT_STATUS, DraftStatus.SAVED, { root: true });
             if (draft.previousId) {
                 return service.deleteById(draft.previousId).then(() => draft.remoteRef.internalId);
             }
             return draft.remoteRef.internalId;
         })
-        .catch(reason => {
-            console.log("saveDraft ERROR");
-            console.error(reason);
-            commit("draft/update", { status: DraftStatus.SAVE_ERROR, saveDate: null });
+        .catch(() => {
+            commit("mail/" + mutationTypes.SET_DRAFT_STATUS, DraftStatus.SAVE_ERROR, { root: true });
         });
 }
 
-function createDraftStructure(draft, service, userSession, state, userPrefTextOnly) {
+function createDraftStructure(draft, service, userSession, userPrefTextOnly) {
     let structure;
     const textPart = PartsHelper.createTextPart(draft.addrParts[MimeType.TEXT_PLAIN][0]);
 
@@ -53,8 +52,8 @@ function createDraftStructure(draft, service, userSession, state, userPrefTextOn
         structure = PartsHelper.createInlineImageParts(structure, draft.addrParts[MimeType.IMAGE], draft.inlineImages);
     }
     structure = PartsHelper.createAttachmentParts(
-        state.draft.parts.attachments,
-        state.draft.attachmentStatuses,
+        draft.attachments,
+        draft.attachmentStatuses, // FIXME
         structure
     );
     return service.create(
@@ -76,9 +75,7 @@ function prepareDraft(draft, editorContent, userPrefTextOnly) {
     draft = Object.assign(draft, { previousId: draft.remoteRef.internalId, id: undefined });
 
     handleReplyOrForward(draft);
-    sanitize(draft);
-    // FIXME cyrus wants \r\n, should do the replacement in the core, yes ?
-    editorContent = editorContent.replace(/\r?\n/g, "\r\n");
+    sanitize(draft, editorContent);
 
     draft.partsToUpload = {};
     if (userPrefTextOnly) {
@@ -133,13 +130,15 @@ function handleReplyOrForward(draft) {
     }
 }
 
-function sanitize(messageToSend) {
+function sanitize(messageToSend, editorContent) {
     if (messageToSend.subject === "") {
         messageToSend.subject = "(No subject)";
     }
-    if (messageToSend.content) {
-        messageToSend.content = messageToSend.content.replace(/[\n\r]/g, String.fromCharCode(13, 10));
+    if (editorContent) {
+        editorContent = editorContent.replace(/[\n\r]/g, String.fromCharCode(13, 10));
     }
+    // FIXME cyrus wants \r\n, should do the replacement in the core, yes ?
+    editorContent = editorContent.replace(/\r?\n/g, "\r\n");
 }
 
 /**

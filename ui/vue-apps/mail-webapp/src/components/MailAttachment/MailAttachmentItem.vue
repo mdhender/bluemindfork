@@ -122,6 +122,7 @@ export default {
         }
     },
     computed: {
+        // FIXME: draft state doesnt exist anymore
         ...mapGetters("mail-webapp/draft", ["getAttachmentStatus", "getAttachmentProgress"]),
         uploadProgressEntry() {
             return this.getAttachmentProgress(this.attachment.uid);

@@ -3,18 +3,18 @@ import injector from "@bluemind/inject";
 import ItemUri from "@bluemind/item-uri";
 import UUIDGenerator from "@bluemind/uuid";
 import DraftStatus from "../mailbackend/MailboxItemsStore/DraftStatus";
+import mutationTypes from "../../store/mutationTypes";
 
 /** Send the last draft: move it to the Outbox then flush. */
-export function send({ commit, dispatch, rootGetters }, draft) {
-    console.log(draft);
-    let draftId = draft.remoteRef.internalId;
-    const loadingAlertUid = addLoadingAlert(commit, draft.subject);
+export function send({ commit, dispatch, rootGetters }, { message, editorContent, userPrefTextOnly }) {
+    let draftId = message.remoteRef.internalId;
+    const loadingAlertUid = addLoadingAlert(commit, message.subject);
 
-    return dispatch("saveDraft")
+    return dispatch("saveDraft", { message, editorContent, userPrefTextOnly })
         .then(newDraftId => {
             draftId = newDraftId;
-            commit("draft/update", { status: DraftStatus.SENDING });
-            validateDraft(draft);
+            commit("mail/" + mutationTypes.SET_DRAFT_STATUS, DraftStatus.SENDING, { root: true });
+            validateDraft(message);
             return moveToOutbox(rootGetters, draftId);
         })
         .then(moveResult => {
@@ -31,12 +31,12 @@ export function send({ commit, dispatch, rootGetters }, draft) {
                 loadingAlertUid,
                 rootGetters["mail/MY_SENT"],
                 rootGetters["mail/MY_DRAFTS"],
-                draft,
+                message,
                 commit,
                 dispatch
             )
         )
-        .catch(reason => handleError(commit, draft.subject, loadingAlertUid, reason));
+        .catch(reason => handleError(commit, message.subject, loadingAlertUid, reason));
 }
 
 function getSentMessageId(taskResult, draftId, sentboxUid) {
@@ -94,7 +94,7 @@ function handleSuccess(sentMailId, loadingAlertUid, mySentBox, myDraftBox, draft
         },
         { root: true }
     );
-    commit("draft/update", { status: DraftStatus.SENT, id: null, saveDate: null });
+    commit("mail/" + mutationTypes.SET_DRAFT_STATUS, DraftStatus.SENT, { root: true });
 }
 
 function clearAttachmentParts(draftboxUid, draft) {
@@ -131,7 +131,7 @@ function handleError(commit, draftSubject, loadingAlertUid, reason) {
         },
         { root: true }
     );
-    commit("draft/update", { status: DraftStatus.SENT });
+    commit("mail/" + mutationTypes.SET_DRAFT_STATUS, DraftStatus.SEND_ERROR, { root: true });
 }
 
 function addLoadingAlert(commit, draftSubject) {
