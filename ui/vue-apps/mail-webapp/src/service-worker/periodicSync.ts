@@ -32,14 +32,18 @@ export async function registerPeriodicSync() {
         })
     );
     foldersSyncInfo.forEach(syncInfo => {
-        scheduleUpdates(mailapi, syncInfo);
+        scheduleUpdates(mailapi, syncInfo.uid);
         setInterval(() => {
-            scheduleUpdates(mailapi, syncInfo);
+            scheduleUpdates(mailapi, syncInfo.uid);
         }, syncInfo.minInterval);
     });
 }
 
-async function scheduleUpdates(mailapi: MailAPI, syncInfo: FolderSyncInfo) {
+async function scheduleUpdates(mailapi: MailAPI, uid: string) {
+    const syncInfo = await db.getFolderSyncInfo(uid);
+    if (syncInfo === undefined) {
+        return;
+    }
     const changeSet = await mailapi.fetchChangeset(syncInfo.uid, syncInfo.version).then(response => response.json());
     const folderUid = syncInfo.uid;
 
