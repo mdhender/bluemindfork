@@ -4,7 +4,7 @@
             <bm-button
                 type="submit"
                 variant="primary"
-                :disabled="isSending || isDeleting || !hasRecipient"
+                :disabled="isSending || !hasRecipient"
                 @click.prevent="$emit('send')"
             >
                 {{ $t("common.send") }}
@@ -12,7 +12,7 @@
             <bm-button
                 variant="simple-dark"
                 class="ml-2"
-                :disabled="isSaving || isSending || isDeleting"
+                :disabled="isSaving || isSending"
                 @click.prevent="$emit('delete')"
             >
                 {{ $t("common.delete") }}
@@ -37,7 +37,7 @@
                 class="p-2"
                 :aria-label="textFormatterLabel"
                 :title="textFormatterLabel"
-                :disabled="isSending || isDeleting"
+                :disabled="isSending"
                 @click="$emit('toggleTextFormat')"
             >
                 <bm-icon icon="text-format" size="lg" />
@@ -57,7 +57,7 @@
                 class="p-2"
                 :aria-label="$tc('mail.actions.attach.aria')"
                 :title="$tc('mail.actions.attach.aria')"
-                :disabled="isSending || isDeleting"
+                :disabled="isSending"
                 @click="openFilePicker()"
             >
                 <bm-icon icon="paper-clip" size="lg" />
@@ -67,10 +67,12 @@
 </template>
 
 <script>
-import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
+import { mapActions } from "vuex";
+
 import { DateComparator } from "@bluemind/date";
-import DraftStatus from "../../store.deprecated/mailbackend/MailboxItemsStore/DraftStatus";
-import { mapState, mapActions } from "vuex";
+import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
+
+import MessageStatus from "../../store/messages/MessageStatus";
 
 export default {
     name: "MailComposerFooter",
@@ -94,38 +96,29 @@ export default {
         }
     },
     computed: {
-        ...mapState("mail", ["draft"]),
         hasRecipient() {
             return this.message.to.length > 0 || this.message.cc.length > 0 || this.message.bcc.length > 0;
         },
         isSending() {
-            return this.draft.status === DraftStatus.SENDING;
+            return this.message.status === MessageStatus.SENDING;
         },
         isSaving() {
-            return this.draft.status === DraftStatus.SAVING;
-        },
-        isDeleting() {
-            return this.draft.status === DraftStatus.DELETING;
+            return this.message.status === MessageStatus.SAVING;
         },
         errorOccuredOnSave() {
-            return this.draft.status === DraftStatus.SAVE_ERROR;
-        },
-        hasSaveDate() {
-            return this.draft.saveDate;
+            return this.message.status === MessageStatus.SAVE_ERROR;
         },
         saveMessage() {
             if (this.isSaving) {
                 return this.$t("mail.draft.save.inprogress");
             } else if (this.errorOccuredOnSave) {
                 return this.$t("mail.draft.save.error");
-            } else if (this.hasSaveDate) {
-                return this.formattedDraftSaveDate;
             } else {
-                return null;
+                return this.formattedDraftSaveDate;
             }
         },
         formattedDraftSaveDate() {
-            const saveDate = this.draft.saveDate;
+            const saveDate = this.message.date;
             if (DateComparator.isToday(saveDate)) {
                 return this.$t("mail.draft.save.date.time", { time: this.$d(saveDate, "short_time") });
             }
@@ -138,7 +131,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["addAttachments", "saveDraft"]),
+        ...mapActions("mail-webapp", ["addAttachments"]),
         openFilePicker() {
             this.$refs.attachInputRef.click();
         }

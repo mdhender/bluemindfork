@@ -56,12 +56,12 @@ export default {
         key: "alert.mail.send.loading",
         renderer: "MailAlertRenderer"
     },
-    MSG_SENT_OK: {
+    MSG_SEND_OK: {
         type: AlertTypes.SUCCESS,
         key: "alert.mail.message.sent.ok",
         renderer: "MailAlertRenderer"
     },
-    MSG_SENT_ERROR: {
+    MSG_SEND_ERROR: {
         type: AlertTypes.ERROR,
         key: "alert.mail.message.sent.error",
         renderer: "MailAlertRenderer"

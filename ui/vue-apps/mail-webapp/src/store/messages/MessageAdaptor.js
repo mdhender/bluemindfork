@@ -1,7 +1,6 @@
 import cloneDeep from "lodash.clonedeep";
 import pick from "lodash.pick";
 
-import { Flag } from "@bluemind/email";
 import ItemUri from "@bluemind/item-uri";
 import { RecipientKind } from "@bluemind/backend.mail.api";
 
@@ -18,6 +17,8 @@ export default {
             },
             status: MessageStatus.LOADED,
             flags: remote.value.flags,
+            date: new Date(remote.value.body.date),
+            from: buildFrom(remote),
             to: remote.value.body.recipients
                 .filter(rcpt => rcpt.kind === RecipientKind.Primary)
                 .map(rcpt => rcpt.address),
@@ -27,7 +28,7 @@ export default {
             bcc: remote.value.body.recipients
                 .filter(rcpt => rcpt.kind === RecipientKind.BlindCarbonCopy)
                 .map(rcpt => rcpt.address),
-            // FIXME ? put 3 following properties in messageCompose state ?
+            // FIXME ? for those 3 following properties there are only used when sending a message. Maybe we can just use remote for this case
             messageId: remote.value.body.messageId,
             references: remote.value.body.references,
             headers: remote.value.body.headers,
@@ -55,19 +56,18 @@ export default {
         };
     },
 
-    realToMailboxItem(local, sender, senderName, isSeen, structure) {
-        let mailboxItem = {
+    realToMailboxItem(local, structure) {
+        return {
             body: {
                 subject: local.subject,
                 headers: local.headers,
-                recipients: buildRecipients(sender, senderName, local),
+                recipients: buildRecipients(local),
                 messageId: local.messageId,
                 references: local.references,
                 structure
             },
-            flags: isSeen ? [Flag.SEEN] : []
+            flags: local.flags
         };
-        return mailboxItem;
     },
 
     create(internalId, { key, remoteRef: { uid } }) {
@@ -101,15 +101,15 @@ function computeParts(structure) {
     };
 }
 
-function buildRecipients(sender, senderName, message) {
+function buildRecipients(message) {
     const primaries = buildRecipientsForKind(RecipientKind.Primary, message.to);
     const carbonCopies = buildRecipientsForKind(RecipientKind.CarbonCopy, message.cc);
     const blindCarbonCopies = buildRecipientsForKind(RecipientKind.BlindCarbonCopy, message.bcc);
     const originator = [
         {
             kind: RecipientKind.Originator,
-            address: sender,
-            dn: senderName
+            address: message.from.address,
+            dn: message.from.name
         }
     ];
 
@@ -124,4 +124,12 @@ function buildRecipientsForKind(kind, addresses) {
             dn: "" // FIXME should provide the displayed name here
         };
     });
+}
+
+function buildFrom(remote) {
+    const from = remote.value.body.recipients.find(rcpt => rcpt.kind === RecipientKind.Primary);
+    return {
+        address: from.address,
+        name: from.dn
+    };
 }

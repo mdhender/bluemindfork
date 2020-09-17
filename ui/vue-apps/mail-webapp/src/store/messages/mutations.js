@@ -35,5 +35,21 @@ export default {
     },
     [mutationTypes.SET_MESSAGE_COMPOSING]: (state, { messageKey, composing }) => {
         state[messageKey].composing = composing;
+    },
+    [mutationTypes.SET_MESSAGE_SUBJECT]: (state, { messageKey, subject }) => {
+        state[messageKey].subject = subject;
+    },
+    [mutationTypes.SET_MESSAGE_RECIPIENTS]: (state, { messageKey, recipients }) => {
+        state[messageKey].to = recipients.to;
+        state[messageKey].cc = recipients.cc;
+        state[messageKey].bcc = recipients.bcc;
+    },
+    [mutationTypes.SET_MESSAGE_DATE]: (state, { messageKey, date }) => {
+        state[messageKey].date = date;
+    },
+
+    // FIXME when finding soluce for message key route when composing a draft
+    [mutationTypes.SET_MESSAGE_INTERNAL_ID]: (state, { messageKey, internalId }) => {
+        state[messageKey].remoteRef.internalId = internalId;
     }
 };

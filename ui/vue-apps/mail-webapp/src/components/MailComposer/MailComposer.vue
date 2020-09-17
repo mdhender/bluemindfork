@@ -10,13 +10,13 @@
                 <div class="pl-3">
                     <mail-composer-recipients :message="message" @save-draft="saveDraft" />
                     <bm-form-input
-                        v-model="message.subject"
+                        :value="message.subject"
                         class="mail-composer-subject d-flex align-items-center"
                         :placeholder="$t('mail.new.subject.placeholder')"
                         :aria-label="$t('mail.new.subject.aria')"
                         type="text"
+                        @input="updateSubject"
                         @keydown.enter.native.prevent
-                        @input="saveDraft"
                     />
                 </div>
                 <bm-row class="d-block m-0"><hr class="bg-dark m-0" /></bm-row>
@@ -61,21 +61,21 @@
                         <bm-form-textarea
                             v-if="userPrefTextOnly"
                             ref="message-content"
-                            v-model="editorContent"
+                            :value="messageCompose.editorContent"
                             :rows="10"
                             :max-rows="10000"
                             :aria-label="$t('mail.new.content.aria')"
                             class="mail-content"
                             no-resize
-                            @input="saveDraft"
+                            @input="updateEditorContent"
                         />
                         <bm-rich-editor
                             v-else
                             ref="message-content"
-                            v-model="editorContent"
+                            :value="messageCompose.editorContent"
                             :is-menu-bar-opened="userPrefIsMenuBarOpened"
                             class="h-100"
-                            @input="saveDraft"
+                            @input="updateEditorContent"
                         >
                             <bm-button
                                 v-if="collapsedContent"
@@ -134,6 +134,8 @@ import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 import MailComposerRecipients from "./MailComposerRecipients";
 import MailComposerFooter from "./MailComposerFooter";
 import MailComposerPanel from "./MailComposerPanel";
+import actionTypes from "../../store/actionTypes";
+import mutationTypes from "../../store/mutationTypes";
 
 export default {
     name: "MailComposer",
@@ -156,43 +158,43 @@ export default {
     props: {
         messageKey: {
             type: String,
-            default: undefined
+            required: true
         }
     },
     data() {
         return {
-            message: {},
             debouncedSave: debounce(
                 () =>
                     this.save({
-                        message: this.message,
-                        editorContent: this.editorContent,
-                        userPrefTextOnly: this.userPrefTextOnly
+                        userPrefTextOnly: this.userPrefTextOnly,
+                        draftKey: this.messageKey,
+                        myDraftsFolderKey: this.MY_DRAFTS.key,
+                        editorContent: this.messageCompose.editorContent
                     }),
-                1000
+                1500
             ),
             userPrefIsMenuBarOpened: false, // TODO: initialize this with user setting
             userPrefTextOnly: false, // TODO: initialize this with user setting
-            editorContent: "",
             collapsedContent: null, // FIXME: init if a separator is detected in content
             draggedFilesCount: -1
         };
     },
     computed: {
         ...mapGetters("mail-webapp", ["lastRecipients"]),
-        ...mapState("mail", ["messages"]),
+        ...mapState("mail", ["messages", "messageCompose"]),
+        ...mapGetters("mail", ["MY_DRAFTS", "MY_OUTBOX", "MY_SENT", "MY_MAILBOX_KEY"]),
+        message() {
+            return this.messages[this.messageKey];
+        },
         panelTitle() {
             return this.message.subject ? this.message.subject : this.$t("mail.main.new");
         }
     },
     watch: {
         messageKey: {
-            handler: async function (old, newT) {
-                console.log("MailCOMPOSER messageKey changed ! old: ", old, " / new : ", newT);
-                this.message = { ...this.messages[this.messageKey] };
+            handler: async function () {
                 await this.initEditorContent();
-                console.log(this.message);
-                if (this.message.to.length > 0 || this.message.cc.length > 0) {
+                if (this.message.to.length > 0) {
                     this.$refs["message-content"].focus();
                 } else {
                     this.$refs.to.focus();
@@ -205,8 +207,19 @@ export default {
         this.deleteAllSelectedMessages();
     },
     methods: {
-        ...mapActions("mail-webapp", { save: "saveDraft", addAttachments: "addAttachments" }),
+        ...mapActions("mail", { save: actionTypes.SAVE_MESSAGE }),
+        ...mapActions("mail", [actionTypes.SEND_MESSAGE]),
+        ...mapActions("mail-webapp", ["addAttachments", "purge"]),
         ...mapMutations("mail-webapp", ["deleteAllSelectedMessages"]),
+        ...mapMutations("mail", [
+            mutationTypes.SET_DRAFT_EDITOR_CONTENT,
+            mutationTypes.SET_MESSAGE_RECIPIENTS,
+            mutationTypes.SET_MESSAGE_SUBJECT
+        ]),
+        updateSubject(subject) {
+            this.SET_MESSAGE_SUBJECT({ messageKey: this.messageKey, subject });
+            this.saveDraft();
+        },
         async initEditorContent() {
             /**
              * FIXME (EN FAIRE UN TICKET)
@@ -237,14 +250,15 @@ export default {
                 );
                 newContent = htmlPart.content;
             }
-            this.updateEditorContent(newContent);
+            this.SET_DRAFT_EDITOR_CONTENT(newContent);
+            this.setCursorInEditor();
         },
         async expandContent() {
-            this.updateEditorContent(this.editorContent + this.collapsedContent);
+            this.SET_DRAFT_EDITOR_CONTENT(this.messageCompose.editorContent + this.collapsedContent);
             this.collapsedContent = null;
+            this.setCursorInEditor();
         },
-        async updateEditorContent(newContent) {
-            this.editorContent = newContent;
+        async setCursorInEditor() {
             await this.$nextTick();
             if (this.userPrefTextOnly) {
                 this.$refs["message-content"].focus();
@@ -254,12 +268,20 @@ export default {
                 this.$refs["message-content"].focus("start");
             }
         },
+        async updateEditorContent(newContent) {
+            this.SET_DRAFT_EDITOR_CONTENT(newContent);
+            this.saveDraft();
+        },
         send() {
             this.debouncedSave.cancel();
-            this.$store.dispatch("mail-webapp/send", {
-                message: this.message,
-                editorContent: this.editorContent,
-                userPrefTextOnly: this.userPrefTextOnly
+            this.SEND_MESSAGE({
+                userPrefTextOnly: this.userPrefTextOnly,
+                draftKey: this.messageKey,
+                myMailboxKey: this.MY_MAILBOX_KEY,
+                outboxId: this.MY_OUTBOX.id,
+                myDraftsFolder: this.MY_DRAFTS,
+                sentFolder: this.MY_SENT,
+                editorContent: this.messageCompose.editorContent
             });
             this.$router.navigate("v:mail:home");
         },
@@ -279,13 +301,14 @@ export default {
             });
             if (confirm) {
                 // delete the draft then close the composer
-                this.$store.dispatch("mail-webapp/deleteDraft");
+                this.purge(this.messageKey);
                 this.$router.navigate("v:mail:home");
             }
         }
     }
 };
 
+// FIXME ? move it in message model file, will also be needed by MailViewer
 async function fetchPart(part, message) {
     const stream = await inject("MailboxItemsPersistence", message.folderRef.uid).fetch(
         message.remoteRef.imapUid,

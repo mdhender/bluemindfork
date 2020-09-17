@@ -3,7 +3,7 @@
         <bm-button variant="inline-light" class="d-lg-none btn-sm mr-auto" @click="back()">
             <bm-icon icon="arrow-back" size="2x" />
         </bm-button>
-        <mail-toolbar-compose-message v-if="isMessageComposerDisplayed" />
+        <mail-toolbar-compose-message v-if="currentMessageKey && messages[currentMessageKey].composing" />
         <mail-toolbar-selected-messages v-else-if="currentMessage || selectedMessageKeys.length > 1" />
     </bm-button-toolbar>
 </template>
@@ -24,17 +24,10 @@ export default {
         MailToolbarSelectedMessages
     },
     computed: {
+        ...mapState("mail", ["messages"]),
         ...mapState("mail-webapp", ["selectedMessageKeys"]),
-        ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
-        isMessageComposerDisplayed() {
-            const routePath = this.$route.path;
-            return (
-                routePath.endsWith("new") ||
-                routePath.endsWith("reply") ||
-                routePath.endsWith("replyAll") ||
-                routePath.endsWith("forward")
-            );
-        }
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
+        ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" })
     },
     methods: {
         back() {

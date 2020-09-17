@@ -130,6 +130,7 @@ export default {
     computed: {
         ...mapState("mail-webapp", ["selectedMessageKeys", "messageFilter"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
+        // FIXME
         isMessageComposerDisplayed() {
             const routePath = this.$route.path;
             return (
