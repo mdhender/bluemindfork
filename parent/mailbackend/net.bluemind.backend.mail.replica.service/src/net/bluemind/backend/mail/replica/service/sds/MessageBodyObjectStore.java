@@ -31,7 +31,9 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.replica.service.sds.IObjectStoreReader.Factory;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
-import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.SharedMap;
+import net.bluemind.hornetq.client.Shared;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 
@@ -73,11 +75,17 @@ public class MessageBodyObjectStore {
 			logger.debug("Object store for {} and partition {}", this.ctx, partition);
 		}
 
-		ISystemConfiguration config = ctx.provider().instance(ISystemConfiguration.class);
-		this.objectStoreReader = loadReader(config.getValues());
+		SystemConf config = sharedSysConf();
+
+		this.objectStoreReader = loadReader(config);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Reading with {}", objectStoreReader);
 		}
+	}
+
+	private SystemConf sharedSysConf() {
+		SharedMap<String, String> content = MQ.sharedMap(Shared.MAP_SYSCONF);
+		return SystemConf.create(content.keys().stream().collect(Collectors.toMap(k -> k, content::get)));
 	}
 
 	private static Map<String, Factory> loadStores() {

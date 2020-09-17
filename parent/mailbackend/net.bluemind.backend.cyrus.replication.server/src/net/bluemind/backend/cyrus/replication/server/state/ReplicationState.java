@@ -90,9 +90,11 @@ public class ReplicationState {
 			Stream uploadStream = storage.stream(dest.toPath());
 			return messageBodiesApi.create(msg.guid(), uploadStream);
 		}).whenComplete((v, ex) -> {
-			dest.delete();
+			if (!dest.delete()) {
+				logger.debug("{} was not deleted", dest);
+			}
 			if (ex != null) {
-				logger.error("addMessage.create: " + ex.getMessage(), ex);
+				logger.error("addMessage.create: {}", ex.getMessage(), ex);
 			} else {
 				addMsgCounter.increment();
 				addMsgCounterBytes.increment(len);
