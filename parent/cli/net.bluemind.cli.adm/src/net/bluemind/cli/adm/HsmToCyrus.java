@@ -98,13 +98,14 @@ public class HsmToCyrus implements ICmdLet, Runnable {
 			return;
 		}
 
-		LoginResponse lr = provider.instance(IAuthentication.class).su(user.value.defaultEmailAddress());
-		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, user.value.defaultEmailAddress(), lr.authKey)) {
+		String fullLogin = user.value.login + "@" + domainUid;
+		LoginResponse lr = provider.instance(IAuthentication.class).su(fullLogin);
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, fullLogin, lr.authKey)) {
 			if (sc.login()) {
 				sc.create(foldername);
 				sc.subscribe(foldername);
 			} else {
-				ctx.error("Unable to login as " + user.value.defaultEmailAddress());
+				ctx.error("Unable to login as " + fullLogin);
 			}
 
 			// Move snappy to mailbox
