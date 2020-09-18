@@ -855,7 +855,7 @@ div.column-emul {
 .eb-inner {
   background-color: #bcf;
   border: 1px solid #666;
-  width: 430px;
+  width: 530px;
   outline: none;
   -moz-box-shadow: 0px 5px 30px #555;
   -webkit-box-shadow: 0px 5px 30px #555;
@@ -868,6 +868,8 @@ div.column-emul {
 
 .eb-root {
   padding:5px 10px;
+  overflow-y: auto;
+  max-height: 600px;
 }
 
 .eb-title {
@@ -983,6 +985,8 @@ td.btn-detail {
 
 .eb-table th {
   text-align: right;
+  vertical-align: top;
+  padding-top: 3px;
 }
 
 .eb-table td {
@@ -1094,14 +1098,14 @@ table.event-full-detail td .description {
 }
 
 .bubble-attendees-container {
-   overflow-y: auto;
-   max-height: 200px;
 }
 
 .bubble-description-container {
-   overflow-y: auto;
-   max-height: 200px;
    overflow-wrap: anywhere;
+}
+
+.bubble-description-container p {
+  margin: 0px;
 }
 
 .bubble-url-container {
