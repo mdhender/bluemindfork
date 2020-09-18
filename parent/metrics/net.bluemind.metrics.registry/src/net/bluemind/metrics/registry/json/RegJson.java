@@ -3,8 +3,9 @@ package net.bluemind.metrics.registry.json;
 import com.netflix.spectator.api.Id;
 
 public abstract class RegJson {
-	private String metricType;
-	private String id;
+
+	private final String metricType;
+	private final String id;
 
 	protected RegJson(String metricType, Id id) {
 		this.metricType = metricType;
@@ -19,7 +20,7 @@ public abstract class RegJson {
 	public String getMetricType() {
 		return this.metricType;
 	}
-	
+
 	public String getId() {
 		return this.id;
 	}

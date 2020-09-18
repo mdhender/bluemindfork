@@ -16,11 +16,14 @@ import net.bluemind.metrics.registry.client.WebSocketClient;
 import net.bluemind.metrics.registry.json.CounterJson;
 
 public class BMCounter implements Counter {
-	private final static Logger logger = LoggerFactory.getLogger(BMCounter.class);
+
+	private static final Logger logger = LoggerFactory.getLogger(BMCounter.class);
+
 	private final Clock clock;
 	private final Id id;
 	private final LongAdder count;
 	private final WebSocketClient webSockClient;
+	private final CounterJson dto;
 
 	/** Create a new instance. */
 	BMCounter(Clock clock, Id id, WebSocketClient webSockClient) {
@@ -28,6 +31,7 @@ public class BMCounter implements Counter {
 		this.clock = clock;
 		this.id = id;
 		this.count = new LongAdder();
+		this.dto = new CounterJson(id, 0L);
 	}
 
 	@Override
@@ -50,23 +54,21 @@ public class BMCounter implements Counter {
 	@Override
 	public void increment() {
 		count.increment();
+		propagateUpdate();
+	}
+
+	private void propagateUpdate() {
 		try {
-			CounterJson counterJson = new CounterJson(id, this.count.longValue());
-			this.webSockClient.sendTextFrame(Mapper.get().writeValueAsString(counterJson));
+			webSockClient.sendTextFrame(dto.withCount(count.longValue()));
 		} catch (IOException e) {
-			logger.error("IOException : ", e);
+			logger.error("IOException", e);
 		}
 	}
 
 	@Override
 	public void increment(long amount) {
 		count.add(amount);
-		try {
-			CounterJson counterJson = new CounterJson(id, this.count.longValue());
-			this.webSockClient.sendTextFrame(Mapper.get().writeValueAsString(counterJson));
-		} catch (IOException e) {
-			logger.error("IOException : ", e);
-		}
+		propagateUpdate();
 	}
 
 	@Override
@@ -78,12 +80,7 @@ public class BMCounter implements Counter {
 	public void add(double amount) {
 		// We only use long but it looks like this is the only method called.
 		count.add((long) amount);
-		try {
-			CounterJson counterJson = new CounterJson(id, this.count.longValue());
-			this.webSockClient.sendTextFrame(Mapper.get().writeValueAsString(counterJson));
-		} catch (IOException e) {
-			logger.error("IOException : ", e);
-		}
+		propagateUpdate();
 	}
 
 	@Override

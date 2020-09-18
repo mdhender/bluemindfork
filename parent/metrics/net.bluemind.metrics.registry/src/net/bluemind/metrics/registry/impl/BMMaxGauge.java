@@ -51,7 +51,7 @@ public class BMMaxGauge implements Gauge {
 		value.max(v);
 		try {
 			GaugeJson gaugeJson = new GaugeJson(id, this.value.get());
-			this.webSockClient.sendTextFrame(Mapper.get().writeValueAsString(gaugeJson));
+			this.webSockClient.sendTextFrame(gaugeJson);
 		} catch (IOException e) {
 			logger.error("IOException : ", e);
 		}

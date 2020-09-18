@@ -52,7 +52,7 @@ public class BMDistributionSummary implements DistributionSummary {
 		}
 		try {
 			DistributionSummaryJson distributionSummaryJson = new DistributionSummaryJson(id, amount);
-			this.webSockClient.sendTextFrame(Mapper.get().writeValueAsString(distributionSummaryJson));
+			this.webSockClient.sendTextFrame(distributionSummaryJson);
 		} catch (IOException e) {
 			logger.error("IOException : ", e);
 		}
