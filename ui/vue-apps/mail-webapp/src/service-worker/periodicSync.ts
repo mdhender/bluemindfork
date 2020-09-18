@@ -6,10 +6,12 @@ import { MailFolder } from "./entry";
 const db = new MailDB();
 
 const chunkSize = 200;
-const limiter = new Bottleneck({
-    maxConcurrent: 1,
-    minTime: 30 * 1000
-});
+function initializeLimiter() {
+    return new Bottleneck({
+        maxConcurrent: 1,
+        minTime: 30 * 1000
+    });
+}
 
 function createFolderSyncInfo(folder: MailFolder): FolderSyncInfo {
     return {
@@ -49,15 +51,14 @@ async function scheduleUpdates(mailapi: MailAPI, uid: string) {
 
     if (changeSet.version !== syncInfo.version) {
         await db.applyChangeset(changeSet, folderUid, syncInfo);
-    }
-
-    const chunks = await buildChunks(folderUid, chunkSize);
-
-    for (const ids of chunks.ids) {
-        if (ids.length > 0) {
-            const response = await limiter.schedule(() => mailapi.fetchMailItems(chunks.folderUid, ids));
-            const mailItems = await response.json();
-            await db.putMailItems(mailItems, folderUid);
+        const limiter = initializeLimiter();
+        const chunks = await buildChunks(folderUid, chunkSize);
+        for (const ids of chunks.ids) {
+            if (ids.length > 0) {
+                const response = await limiter.schedule(() => mailapi.fetchMailItems(chunks.folderUid, ids));
+                const mailItems = await response.json();
+                await db.putMailItems(mailItems, folderUid);
+            }
         }
     }
 }
