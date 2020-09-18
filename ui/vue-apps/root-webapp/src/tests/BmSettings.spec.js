@@ -1,4 +1,3 @@
-import BmSettingsContent from "../components/settings/BmSettingsContent";
 import BmSettings from "../components/settings/BmSettings";
 jest.mock("@bluemind/styleguide/css/_variables.scss", () => ({ iconsColors: "" }));
 import { MountComponentUtils } from "@bluemind/test-utils";
@@ -21,19 +20,9 @@ describe("BmSettings", () => {
         expect(wrapper.findComponent(BmSettings)).toBeDefined();
     });
 
-    test("is loading at init when data fetch has failed", async () => {
-        mockedStore.modules.session.actions.FETCH_ALL_SETTINGS = jest.fn().mockRejectedValue();
+    test("is idle at init", async () => {
         wrapper = MountComponentUtils.createWrapper(BmSettings, mockedStore, props);
         await wrapper.vm.$nextTick();
-        expect(mockedStore.modules.session.actions.FETCH_ALL_SETTINGS).toHaveBeenCalled();
-        expect(wrapper.vm.$data.status).toBe("loading");
-    });
-
-    test("is idle at init when data fetch has successed", async () => {
-        mockedStore.modules.session.actions.FETCH_ALL_SETTINGS = jest.fn().mockResolvedValue();
-        wrapper = MountComponentUtils.createWrapper(BmSettings, mockedStore, props);
-        await wrapper.vm.$nextTick();
-        expect(mockedStore.modules.session.actions.FETCH_ALL_SETTINGS).toHaveBeenCalled();
         expect(wrapper.vm.$data.status).toBe("idle");
     });
 

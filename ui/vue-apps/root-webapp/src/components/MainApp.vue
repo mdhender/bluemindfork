@@ -32,7 +32,7 @@
 
 <script>
 import { BmApplicationAlert, BmSpinner } from "@bluemind/styleguide";
-import { mapState } from "vuex";
+import { mapActions, mapState } from "vuex";
 import "@bluemind/styleguide/css/bluemind.scss";
 import CommonL10N from "@bluemind/l10n";
 import injector from "@bluemind/inject";
@@ -47,6 +47,7 @@ export default {
         BmSettings
     },
     componentI18N: { messages: CommonL10N },
+
     data() {
         const data = {};
         data.applications = [];
@@ -99,6 +100,13 @@ export default {
     computed: {
         ...mapState({ applicationAlerts: state => state.alert.applicationAlerts }),
         ...mapState("root-app", ["appState"])
+    },
+    created() {
+        // initialize user settings
+        this.FETCH_ALL_SETTINGS();
+    },
+    methods: {
+        ...mapActions("session", ["FETCH_ALL_SETTINGS"])
     }
 };
 </script>

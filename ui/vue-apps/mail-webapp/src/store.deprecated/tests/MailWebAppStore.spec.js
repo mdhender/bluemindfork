@@ -6,7 +6,8 @@ import {
     MockMailboxFoldersClient,
     MockOwnerSubscriptionsClient,
     MockContainersClient,
-    MockI18NProvider
+    MockI18NProvider,
+    MountComponentUtils
 } from "@bluemind/test-utils";
 import aliceFolders from "./data/alice/folders";
 import aliceInbox from "./data/alice/inbox";
@@ -27,6 +28,7 @@ import { Flag } from "@bluemind/email";
 import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
 import mutationTypes from "../../store/mutationTypes";
 import MessageAdaptor from "../../store/messages/MessageAdaptor";
+import SessionStore from "../../store/";
 
 jest.mock("@bluemind/sockjs");
 jest.mock("@bluemind/mailbox.api");
@@ -74,6 +76,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         store.registerModule("mail-webapp", cloneDeep(MailWebAppStore));
         store.registerModule("mail", cloneDeep(MailStore));
         store.registerModule("alert", cloneDeep(AlertStore));
+        store.registerModule("session", cloneDeep(MountComponentUtils.mockSessionStore().modules.session));
         MailboxesClient.mockClear();
         foldersService = new MockMailboxFoldersClient();
         itemsService = new MockMailboxItemsClient();

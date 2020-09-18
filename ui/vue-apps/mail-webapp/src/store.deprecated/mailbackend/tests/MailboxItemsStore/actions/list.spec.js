@@ -10,7 +10,8 @@ const context = {
             folders: {
                 containerUid: {}
             }
-        }
+        },
+        session: { userSettings: {} }
     }
 };
 
@@ -22,7 +23,7 @@ describe("[MailItemsStore][actions] : list", () => {
         list(context, { folderUid: "containerUid" });
         expect(context.dispatch).toHaveBeenCalledWith(
             "mail/" + actionTypes.FETCH_FOLDER_MESSAGE_KEYS,
-            { folder: {}, filter: undefined },
+            { folder: {}, filter: undefined, conversationsEnabled: false },
             { root: true }
         );
     });
@@ -34,7 +35,7 @@ describe("[MailItemsStore][actions] : list", () => {
         list(context, { folderUid: "containerUid", filter: "all" });
         expect(context.dispatch).toHaveBeenCalledWith(
             "mail/" + actionTypes.FETCH_FOLDER_MESSAGE_KEYS,
-            { folder: {}, filter: "all" },
+            { folder: {}, filter: "all", conversationsEnabled: false },
             { root: true }
         );
     });

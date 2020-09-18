@@ -204,10 +204,10 @@ exports[`MailToolbarSelectedMessages should match snapshot 1`] = `
             </svg>
              
             <div
-              aria-describedby="mail-folder-input-invalid"
               class="bm-form-input position-relative d-inline-block flex-fill"
             >
               <input
+                aria-describedby="mail-folder-input-invalid"
                 class="form-control is-valid bm-form-input-padding"
                 reset="true"
                 type="text"

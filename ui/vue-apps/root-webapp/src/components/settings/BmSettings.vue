@@ -72,12 +72,10 @@ export default {
         }
     },
     created() {
-        this.FETCH_ALL_SETTINGS().then(() => {
-            this.status = "idle";
-        });
+        this.status = "idle";
     },
     methods: {
-        ...mapActions("session", ["FETCH_ALL_SETTINGS", "UPDATE_ALL_SETTINGS"]),
+        ...mapActions("session", ["UPDATE_ALL_SETTINGS"]),
         async save(userSettings) {
             this.status = "loading";
             try {

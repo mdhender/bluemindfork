@@ -19,6 +19,7 @@ import mailRoutes from "./router";
 import Scheduler from "./scheduler";
 import MailStore from "./store/";
 import MailWebAppStore from "./store.deprecated/";
+import { MailConversationClient } from "@bluemind/backend.mail.api";
 
 registerAPIClients();
 store.registerModule("mail", MailStore);
@@ -98,6 +99,20 @@ function registerAPIClients() {
         factory: () => {
             const userSession = injector.getProvider("UserSession").get();
             return new CalendarClient(userSession.sid, "calendar:Default:" + userSession.userId);
+        }
+    });
+
+    injector.register({
+        provide: "MailConversationPersistence",
+        factory: () => {
+            const userSession = injector.getProvider("UserSession").get();
+            const conversationContainerId =
+                "subtree_" +
+                userSession.domain.replace(".", "_") +
+                "!user." +
+                userSession.login.split("@")[0] +
+                "_conversations";
+            return new MailConversationClient(userSession.sid, conversationContainerId);
         }
     });
 }

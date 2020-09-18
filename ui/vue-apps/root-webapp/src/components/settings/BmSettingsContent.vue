@@ -165,6 +165,7 @@ export default {
         }
     },
     mounted() {
+        this.initUserSettings();
         const selector = document.querySelector(".bm-settings-navbar .bm-app-icon svg");
         if (selector) {
             selector.setAttribute("height", 21);

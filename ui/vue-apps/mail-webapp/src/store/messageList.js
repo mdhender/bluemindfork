@@ -21,7 +21,7 @@ const mutations = {
 };
 
 const actions = {
-    async [actionTypes.FETCH_FOLDER_MESSAGE_KEYS]({ commit }, { folder, filter }) {
+    async [actionTypes.FETCH_FOLDER_MESSAGE_KEYS]({ commit }, { folder, filter, conversationsEnabled }) {
         const service = inject("MailboxItemsPersistence", folder.remoteRef.uid);
         let ids;
         switch (filter) {
@@ -40,10 +40,30 @@ const actions = {
                 ids = await service.sortedIds();
                 break;
         }
+
+        ids = conversationsEnabled ? await conversationFilter(folder, ids) : ids;
+
         const messages = ids.map(id => MessageAdaptor.create(id, folder));
+
         commit(mutationTypes.SET_MESSAGE_LIST, messages);
     }
 };
+
+async function conversationFilter(folder, ids) {
+    let conversations = await inject("MailConversationPersistence").byFolder(folder.uid);
+    return (
+        conversations
+            // extract first message from each conversation matching one of ids
+            .map(({ value: { messageIds } }) => {
+                const message = messageIds.sort((a, b) => a.date - b.date).find(({ itemId }) => ids.includes(itemId));
+                return message ? { itemId: message.itemId, date: message.date } : undefined;
+            })
+            .filter(Boolean)
+            // order by creation date, newer message to older one
+            .sort((a, b) => b.date - a.date)
+            .map(m => m.itemId)
+    );
+}
 
 export default {
     actions,
