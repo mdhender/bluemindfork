@@ -62,6 +62,7 @@ import { Flag } from "@bluemind/email";
 import { mapGetters, mapState } from "vuex";
 import ItemUri from "@bluemind/item-uri";
 import MailFolderIcon from "../MailFolderIcon";
+import { MailboxType } from "../../model/mailbox";
 
 const FLAG_COMPONENT = {
     [Flag.FLAGGED]: {
@@ -115,7 +116,7 @@ export default {
         from() {
             return this.message.from.dn ? this.message.from.dn : this.message.from.address;
         },
-        displayedDate: function() {
+        displayedDate: function () {
             const today = new Date();
             const messageDate = this.message.date;
             if (DateComparator.isSameDay(messageDate, today)) {
@@ -125,7 +126,7 @@ export default {
             }
             return this.$d(messageDate, "short_date");
         },
-        smallerDisplayedDate: function() {
+        smallerDisplayedDate: function () {
             return this.displayedDate.substring(this.displayedDate.indexOf(" ") + 1);
         },
         widgets() {
@@ -143,7 +144,7 @@ export default {
     },
     methods: {
         isFolderOfMailshare(folder) {
-            return this.mailboxes[folder.mailbox].type === "mailshares";
+            return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         }
     }
 };

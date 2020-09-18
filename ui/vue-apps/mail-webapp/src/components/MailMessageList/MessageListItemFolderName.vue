@@ -21,6 +21,7 @@
 import ItemUri from "@bluemind/item-uri";
 import MailFolderIcon from "../MailFolderIcon";
 import { mapGetters, mapState } from "vuex";
+import { MailboxType } from "../../model/mailbox";
 
 export default {
     name: "MessageListItemFolderName",
@@ -52,7 +53,7 @@ export default {
     },
     methods: {
         isFolderOfMailshare(folder) {
-            return this.mailboxes[folder.mailbox].type === "mailshares";
+            return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         }
     }
 };

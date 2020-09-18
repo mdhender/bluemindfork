@@ -18,8 +18,8 @@ describe("folderList store", () => {
                 B: { key: "B" }
             };
             state.folders = {
-                1: { key: "1", mailbox: "B" },
-                2: { key: "2", mailbox: "A" }
+                1: { key: "1", mailboxRef: { key: "B" } },
+                2: { key: "2", mailboxRef: { key: "A" } }
             };
             mutations.SET_ACTIVE_FOLDER(state, "1");
             expect(getters.CURRENT_MAILBOX(state)).toEqual({ key: "B" });

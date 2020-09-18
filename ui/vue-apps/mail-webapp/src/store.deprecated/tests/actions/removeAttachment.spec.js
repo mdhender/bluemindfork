@@ -24,7 +24,7 @@ const context = {
         }
     },
     rootGetters: {
-        "mail/MY_DRAFTS": jest.fn().mockReturnValue({})
+        "mail/MY_DRAFTS": { remoteRef: { uid: "draf:uid" } }
     }
 };
 

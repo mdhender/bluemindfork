@@ -51,7 +51,7 @@ export default {
         ...mapGetters("mail", { hasChildren: "HAS_CHILDREN_GETTER" }),
         ...mapState("mail", ["mailboxes", "folders", "activeFolder"]),
         isMailshareRoot() {
-            return FolderAdaptor.isMailshareRoot(this.folder, this.mailboxes[this.folder.mailbox]);
+            return FolderAdaptor.isMailshareRoot(this.folder, this.mailboxes[this.folder.mailboxRef.key]);
         },
         isDefaultFolder() {
             return FolderAdaptor.isMyMailboxDefaultFolder(this.folder);
@@ -85,7 +85,7 @@ export default {
             }
         },
         async createSubFolder() {
-            const mailbox = this.mailboxes[this.folder.mailbox];
+            const mailbox = this.mailboxes[this.folder.mailboxRef.key];
             const key = UUIDGenerator.generate();
             this.ADD_FOLDER(create(key, "", this.folder, mailbox));
             await this.$nextTick();

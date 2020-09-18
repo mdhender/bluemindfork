@@ -2,7 +2,7 @@ import { REMOVE_FOLDER } from "../../store/folders/actions";
 
 export async function removeFolder({ commit, dispatch, rootState }, folderKey) {
     const folder = rootState.mail.folders[folderKey];
-    const mailbox = rootState.mail.mailboxes[folder.mailbox];
+    const mailbox = rootState.mail.mailboxes[folder.mailboxRef.key];
     const props = { oldFolder: folder };
     try {
         await dispatch("mail/" + REMOVE_FOLDER, { key: folderKey, mailbox }, { root: true });

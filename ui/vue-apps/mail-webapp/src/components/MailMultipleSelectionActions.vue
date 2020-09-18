@@ -98,6 +98,7 @@ import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
 import MailComponentAlert from "./MailComponentAlert";
 import MailFolderIcon from "./MailFolderIcon";
 import multipleSelectionIllustration from "../../assets/multiple-selection.png";
+import { MailboxType } from "../model/mailbox";
 
 export default {
     name: "MailMultipleSelectionActions",
@@ -164,7 +165,7 @@ export default {
                 : this.markMessagesAsRead(this.selectedMessageKeys);
         },
         isFolderOfMailshare(folder) {
-            return this.mailboxes[folder.mailbox].type === "mailshares";
+            return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         },
         async purgeSelectedMessages() {
             const confirm = await this.$bvModal.msgBoxConfirm(

@@ -78,7 +78,7 @@ describe("mailboxes store", () => {
                 expect(Object.keys(store.state.mailboxes).length).toEqual(2);
                 Object.values(store.state.mailboxes).forEach(mailbox => {
                     expect(mailbox.type).toEqual(MailboxType.USER);
-                    expect(mailbox.uid).toEqual("user." + mailbox.owner);
+                    expect(mailbox.remoteRef.uid).toEqual("user." + mailbox.owner);
                     expect(mailbox.root).toEqual("");
                 });
             });
@@ -91,7 +91,7 @@ describe("mailboxes store", () => {
                 expect(Object.keys(store.state.mailboxes).length).toEqual(2);
                 Object.values(store.state.mailboxes).forEach(mailbox => {
                     expect(mailbox.type).toEqual(MailboxType.MAILSHARE);
-                    expect(mailbox.uid).toEqual(mailbox.owner);
+                    expect(mailbox.remoteRef.uid).toEqual(mailbox.owner);
                     expect(mailbox.root).toEqual(mailbox.name);
                 });
             });

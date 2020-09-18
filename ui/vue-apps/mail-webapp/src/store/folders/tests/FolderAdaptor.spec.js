@@ -8,7 +8,7 @@ import { FolderAdaptor } from "../helpers/FolderAdaptor";
 describe("Folder adaptors", () => {
     test("fromMailboxFolder", () => {
         const mailbox = {
-            uid: "135adc10-db84-440e-aebc-e10d185fa227",
+            remoteRef: { uid: "135adc10-db84-440e-aebc-e10d185fa227" },
             root: "inbox",
             type: MailboxType.USER,
             writable: true
@@ -17,14 +17,19 @@ describe("Folder adaptors", () => {
             Object {
               "default": false,
               "expanded": false,
-              "id": 460,
               "imapName": "Archives",
               "key": "135adc10-db84-440e-aebc-e10d185fa227",
-              "mailbox": "135adc10-db84-440e-aebc-e10d185fa227",
+              "mailboxRef": Object {
+                "key": undefined,
+                "uid": "135adc10-db84-440e-aebc-e10d185fa227",
+              },
               "name": "Archives",
               "parent": null,
               "path": "Archives",
-              "uid": "135adc10-db84-440e-aebc-e10d185fa227",
+              "remoteRef": Object {
+                "internalId": 460,
+                "uid": "135adc10-db84-440e-aebc-e10d185fa227",
+              },
               "unread": 0,
               "writable": true,
             }
@@ -34,8 +39,10 @@ describe("Folder adaptors", () => {
     describe("toMailboxFolder", () => {
         test("Export a local folder in a mailbox withour root remote folder", () => {
             const folder = {
-                id: 460,
-                uid: "135adc10-db84-440e-aebc-e10d185fa227",
+                remoteRef: {
+                    internalId: 460,
+                    uid: "135adc10-db84-440e-aebc-e10d185fa227"
+                },
                 name: "Archives",
                 path: "Archives"
             };
@@ -45,7 +52,7 @@ describe("Folder adaptors", () => {
             expect(FolderAdaptor.toMailboxFolder(folder, mailbox)).toMatchInlineSnapshot(`
                 Object {
                   "internalId": 460,
-                  "uid": undefined,
+                  "uid": "135adc10-db84-440e-aebc-e10d185fa227",
                   "value": Object {
                     "fullName": "Archives",
                     "name": "Archives",
@@ -56,8 +63,10 @@ describe("Folder adaptors", () => {
         });
         test("Export a local folder in a mailbox with a root folder to remote folder", () => {
             const folder = {
-                id: 460,
-                uid: "135adc10-db84-440e-aebc-e10d185fa227",
+                remoteRef: {
+                    internalId: 460,
+                    uid: "135adc10-db84-440e-aebc-e10d185fa227"
+                },
                 name: "Archives",
                 path: "mailbox/Archives"
             };
@@ -67,7 +76,7 @@ describe("Folder adaptors", () => {
             expect(FolderAdaptor.toMailboxFolder(folder, mailbox)).toMatchInlineSnapshot(`
                 Object {
                   "internalId": 460,
-                  "uid": undefined,
+                  "uid": "135adc10-db84-440e-aebc-e10d185fa227",
                   "value": Object {
                     "fullName": "Archives",
                     "name": "Archives",

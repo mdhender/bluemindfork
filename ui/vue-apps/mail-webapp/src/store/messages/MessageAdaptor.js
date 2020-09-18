@@ -28,7 +28,7 @@ export default {
         };
     },
 
-    create(internalId, { key, uid }) {
+    create(internalId, { key, remoteRef: { uid } }) {
         return {
             key: ItemUri.encode(internalId, key),
             folderRef: { key, uid },

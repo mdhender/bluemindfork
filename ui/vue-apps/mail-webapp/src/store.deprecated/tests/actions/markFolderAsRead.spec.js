@@ -15,7 +15,12 @@ const context = {
     rootState: {
         mail: {
             folders: {
-                [folderKey]: { path: "", key: folderKey, id: "id" }
+                [folderKey]: {
+                    path: "",
+                    key: folderKey,
+                    remoteRef: { internalId: "id" },
+                    mailboxRef: { uid: "mailbox-uid" }
+                }
             }
         }
     }

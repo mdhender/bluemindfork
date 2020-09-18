@@ -4,9 +4,14 @@ import { DEFAULT_FOLDERS } from "./DefaultFolders";
 function fromMailboxFolder(remotefolder, mailbox) {
     return {
         key: remotefolder.uid,
-        uid: remotefolder.uid,
-        id: remotefolder.internalId,
-        mailbox: mailbox.uid,
+        remoteRef: {
+            uid: remotefolder.uid,
+            internalId: remotefolder.internalId
+        },
+        mailboxRef: {
+            uid: mailbox.remoteRef.uid,
+            key: mailbox.key
+        },
         parent: remotefolder.value.parentUid,
         name: isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox)
             ? translateDefaults(remotefolder.value.name)
@@ -22,8 +27,8 @@ function fromMailboxFolder(remotefolder, mailbox) {
 
 function toMailboxFolder(localfolder, mailbox) {
     return {
-        uid: localfolder.key,
-        internalId: localfolder.id,
+        uid: localfolder.key || localfolder.remoteRef.uid,
+        internalId: localfolder.remoteRef.internalId,
         value: {
             parentUid: localfolder.parent,
             name: localfolder.name,

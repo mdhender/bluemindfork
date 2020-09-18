@@ -58,7 +58,9 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 
 function initializeMessages({ commit }, messages, folderUid) {
-    const ids = messages.map(({ internalId }) => MessageAdaptor.create(internalId, { key: folderUid, uid: folderUid }));
+    const ids = messages.map(({ internalId }) =>
+        MessageAdaptor.create(internalId, { key: folderUid, remoteRef: { uid: folderUid } })
+    );
     commit("mail/" + mutationTypes.SET_MESSAGE_LIST, ids);
     const adapted = messages.map(m => MessageAdaptor.fromMailboxItem(m, { key: folderUid }));
     commit("mail/" + mutationTypes.ADD_MESSAGES, adapted);
@@ -102,19 +104,13 @@ describe("[MailWebAppStore] Vuex store", () => {
         await store.dispatch("mail-webapp/bootstrap", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
         expect(store.state["mail-webapp"].userUid).toBe("6793466E-F5D4-490F-97BF-DF09D3327BF4");
         expect(store.getters["mail/MY_MAILBOX_KEY"]).toEqual("user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
-        expect(store.getters["mail/MY_INBOX"].uid).toEqual("f1c3f42f-551b-446d-9682-cfe0574b3205");
-        expect(store.getters["mail/MY_TRASH"].uid).toEqual("98a9383e-5156-44eb-936a-e6b0825b0809");
+        expect(store.getters["mail/MY_INBOX"].key).toEqual("f1c3f42f-551b-446d-9682-cfe0574b3205");
+        expect(store.getters["mail/MY_TRASH"].key).toEqual("98a9383e-5156-44eb-936a-e6b0825b0809");
         expect(store.getters["mail/MY_MAILBOX_FOLDERS"].length).toEqual(aliceFolders.length);
-        expect(store.getters["mail/MY_MAILBOX_FOLDERS"]).toEqual(
-            store.getters["mail/FOLDER_BY_MAILBOX"]("user.6793466E-F5D4-490F-97BF-DF09D3327BF4").map(f => f.key)
-        );
 
         await awaitForLastCall;
         expect(store.getters["mail/MAILSHARE_KEYS"].length).toBe(2);
-        expect(store.getters["mail/FOLDER_BY_MAILBOX"]("A78219B7-6F50-457D-BECA-4614865B3E2B").length).toBe(2);
-        expect(store.getters["mail/FOLDER_BY_MAILBOX"]("A78219B7-6F50-457D-BECA-4614865B3E2B")[0].uid).toEqual(
-            "97e386cc-caff-4931-8bd7-d921bd900f37"
-        );
+        expect(store.getters["mail/MAILSHARE_FOLDERS"].length).toBe(4);
     });
 
     test("select a folder", async () => {
@@ -256,7 +252,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         await store.dispatch("mail/FETCH_FOLDERS", store.state.mail.mailboxes["2814CC5D-D372-4F66-A434-89863E99B8CD"]);
 
         const folderUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";
-        store.state.mail.folders[folderUid].mailbox = "2814CC5D-D372-4F66-A434-89863E99B8CD";
+        store.state.mail.folders[folderUid].mailboxRef.key = "2814CC5D-D372-4F66-A434-89863E99B8CD";
         let messageKey = ItemUri.encode(872, folderUid);
         itemsService.fetchComplete.mockReturnValueOnce(Promise.resolve("eml"));
         itemsService.uploadPart.mockReturnValueOnce(Promise.resolve("addr"));
@@ -348,7 +344,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         store.commit("mail/ADD_MAILBOXES", containers, { root: true });
         store.commit("mail/SET_ACTIVE_FOLDER", folderUid, { root: true });
         initializeMessages(store, aliceInbox, folderUid);
-        store.state.mail.folders[archive2017Uid].mailbox = "2814CC5D-D372-4F66-A434-89863E99B8CD";
+        store.state.mail.folders[archive2017Uid].mailboxRef.key = "2814CC5D-D372-4F66-A434-89863E99B8CD";
         const destination = store.state.mail.folders[archive2017Uid];
         expect(store.state.mail.messageList.messageKeys).toEqual(expect.arrayContaining([messageKey]));
         await store.dispatch("mail-webapp/move", { messageKey, folder: destination }, { root: true });
@@ -384,10 +380,11 @@ describe("[MailWebAppStore] Vuex store", () => {
             displayName: "MyNewFolder",
             flags: []
         };
-        const adaptedDestination = FolderAdaptor.fromMailboxFolder(
-            destination,
-            "user.6793466E-F5D4-490F-97BF-DF09D3327BF4"
-        );
+        const adaptedDestination = FolderAdaptor.fromMailboxFolder(destination, {
+            remoteRef: {
+                uid: "user.6793466E-F5D4-490F-97BF-DF09D3327BF4"
+            }
+        });
         adaptedDestination.key = undefined; // if a key is defined, it means folder is already created in server
         let folderUid = destination.uid;
         foldersService.createBasic.mockReturnValue(Promise.resolve({ uid: destination.uid }));

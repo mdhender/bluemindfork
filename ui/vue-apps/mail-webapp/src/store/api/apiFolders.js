@@ -14,7 +14,7 @@ async function updateFolder(mailbox, folder) {
     await apiClient(mailbox).updateById(folder.internalId, folder.value);
 }
 
-function apiClient({ uid }) {
+function apiClient({ remoteRef: { uid } }) {
     return inject("MailboxFoldersPersistence", uid);
 }
 

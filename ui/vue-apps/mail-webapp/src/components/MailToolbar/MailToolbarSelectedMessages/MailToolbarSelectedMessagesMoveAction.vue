@@ -82,6 +82,7 @@ import GlobalEvents from "vue-global-events";
 import { FolderAdaptor } from "../../../store/folders/helpers/FolderAdaptor";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailFolderInput from "../../MailFolderInput";
+import { MailboxType } from "../../../model/mailbox";
 
 export default {
     name: "MailToolbarConsultMessageMoveAction",
@@ -149,7 +150,7 @@ export default {
             this.pattern = "";
         },
         isFolderOfMailshare(folder) {
-            return this.mailboxes[folder.mailbox].type === "mailshares";
+            return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         }
     }
 };

@@ -12,9 +12,11 @@ describe("MailboxAdaptor", () => {
                   "key": "2814CC5D-D372-4F66-A434-89863E99B8CD",
                   "name": "read.write",
                   "owner": "2814CC5D-D372-4F66-A434-89863E99B8CD",
+                  "remoteRef": Object {
+                    "uid": "2814CC5D-D372-4F66-A434-89863E99B8CD",
+                  },
                   "root": "read.write",
                   "type": "mailshares",
-                  "uid": "2814CC5D-D372-4F66-A434-89863E99B8CD",
                   "writable": true,
                 }
             `);
@@ -26,9 +28,11 @@ describe("MailboxAdaptor", () => {
                   "key": "user.6793466E-F5D4-490F-97BF-DF09D3327BF4",
                   "name": "Alice",
                   "owner": "6793466E-F5D4-490F-97BF-DF09D3327BF4",
+                  "remoteRef": Object {
+                    "uid": "user.6793466E-F5D4-490F-97BF-DF09D3327BF4",
+                  },
                   "root": "",
                   "type": "users",
-                  "uid": "user.6793466E-F5D4-490F-97BF-DF09D3327BF4",
                   "writable": true,
                 }
             `);

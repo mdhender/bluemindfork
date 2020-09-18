@@ -3,9 +3,14 @@ import { MailboxType } from "./mailbox";
 export function create(key, name, parent, mailbox) {
     return {
         key: key,
-        uid: null,
-        id: null,
-        mailbox: mailbox.key,
+        remoteRef: {
+            uid: null,
+            internalId: null
+        },
+        mailboxRef: {
+            uid: mailbox.remoteRef.uid,
+            key: mailbox.key
+        },
         parent: parent ? parent.key : null,
         name: name,
         imapName: name,

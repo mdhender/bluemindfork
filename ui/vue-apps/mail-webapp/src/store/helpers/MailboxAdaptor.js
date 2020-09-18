@@ -30,7 +30,9 @@ function fromUserMailbox(item) {
     return {
         ...fromBaseMailbox(item),
         type: MailboxType.USER,
-        uid: "user." + item.owner,
+        remoteRef: {
+            uid: "user." + item.owner
+        },
         key: "user." + item.owner,
         root: ""
     };
@@ -40,7 +42,9 @@ function fromSharedMailbox(item) {
     return {
         ...fromBaseMailbox(item),
         type: MailboxType.MAILSHARE,
-        uid: item.owner,
+        remoteRef: {
+            uid: item.owner
+        },
         key: item.owner,
         root: item.ownerDisplayname
     };

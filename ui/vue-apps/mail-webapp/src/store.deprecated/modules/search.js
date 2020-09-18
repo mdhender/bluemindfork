@@ -58,7 +58,7 @@ async function search({ commit, dispatch, rootState, rootGetters }, { pattern, f
     try {
         commit("setStatus", STATUS.LOADING);
         const mailboxUid = folderKey
-            ? rootState.mail.folders[folderKey].mailbox
+            ? rootState.mail.folders[folderKey].mailboxRef.uid
             : rootGetters["mail/CURRENT_MAILBOX"].key;
         const searchPayload = buildPayload(pattern, filter, folderKey ? folderKey : undefined);
         const searchResults = await ServiceLocator.getProvider("MailboxFoldersPersistence")
@@ -69,7 +69,7 @@ async function search({ commit, dispatch, rootState, rootGetters }, { pattern, f
             const underscoreIndex = res.containerUid.lastIndexOf("_");
             const offset = underscoreIndex >= 0 ? underscoreIndex + 1 : 0;
             const folderUid = res.containerUid.substring(offset);
-            return MessageAdaptor.create(res.itemId, { key: folderUid, uid: folderUid });
+            return MessageAdaptor.create(res.itemId, { key: folderUid, remoteRef: { uid: folderUid } });
         });
         commit("mail/SET_MESSAGE_LIST", messages, { root: true });
         const result = await dispatch(

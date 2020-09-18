@@ -50,6 +50,7 @@ import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItemMenu from "./MailFolderItemMenu";
 import { REMOVE_FOLDER } from "../../store/folders/mutations";
+import { MailboxType } from "../../model/mailbox";
 
 export default {
     name: "MailFolderItem",
@@ -69,12 +70,12 @@ export default {
         }
     },
     computed: {
-        ...mapState("mail", ["folderList", "folders", "activeFolder"]),
+        ...mapState("mail", ["folderList", "folders", "activeFolder", "mailboxes"]),
         folder() {
             return this.folders[this.folderKey];
         },
         shared() {
-            return !this.folder.mailbox.startsWith("user.");
+            return this.mailboxes[this.folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         },
         editingFolder() {
             return this.folderList.editing === this.folder.key;
@@ -111,7 +112,7 @@ export default {
                     path: this.folder.path + "/" + newFolderName,
                     parent: this.folder.parent
                 };
-                this.createFolder({ folder, mailboxUid: this.folder.mailbox });
+                this.createFolder({ folder, mailboxUid: this.folder.mailboxRef.uid });
             }
         },
         closeInput() {

@@ -7,7 +7,7 @@ const context = {
     commit: jest.fn(),
     rootState: {
         mail: {
-            folders: { [folderKey]: { key: folderKey, mailbox: mailbox.key } },
+            folders: { [folderKey]: { key: folderKey, mailboxRef: { key: mailbox.key } } },
             mailboxes: { [mailbox.key]: mailbox }
         }
     }

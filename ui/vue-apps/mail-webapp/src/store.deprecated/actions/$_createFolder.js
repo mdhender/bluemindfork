@@ -48,7 +48,7 @@ async function createFolder(name, parentKey, mailboxUid, context) {
     await context.dispatch("mail/" + CREATE_FOLDER, { key, name, parent: parentKey, mailbox }, { root: true });
     const folder = context.rootState.mail.folders[key];
     context.commit("mail/" + REMOVE_FOLDER, key, { root: true });
-    folder.key = folder.uid;
+    folder.key = folder.remoteRef.uid;
     context.commit("mail/" + ADD_FOLDER, folder, { root: true });
-    return folder.uid;
+    return folder.key;
 }

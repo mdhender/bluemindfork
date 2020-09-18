@@ -22,7 +22,7 @@ const mutations = {
 
 const actions = {
     async [actionTypes.FETCH_FOLDER_MESSAGE_KEYS]({ commit }, { folder, filter }) {
-        const service = inject("MailboxItemsPersistence", folder.uid);
+        const service = inject("MailboxItemsPersistence", folder.remoteRef.uid);
         let ids;
         switch (filter) {
             case "unread": {

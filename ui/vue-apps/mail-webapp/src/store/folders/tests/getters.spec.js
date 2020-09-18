@@ -15,19 +15,6 @@ describe("getters", () => {
         expect(getters.FOLDER_BY_PATH(state)("whatever")).toEqual(undefined);
     });
 
-    test("FOLDER_BY_MAILBOX", () => {
-        const state = {
-            "1": { key: "1", mailbox: "mine" },
-            "2": { key: "2", mailbox: "mine" },
-            "3": { key: "3", mailbox: "other" }
-        };
-        expect(getters.FOLDER_BY_MAILBOX(state)("mine")).toEqual([
-            { key: "1", mailbox: "mine" },
-            { key: "2", mailbox: "mine" }
-        ]);
-        expect(getters.FOLDER_BY_MAILBOX(state)("other")).toEqual([{ key: "3", mailbox: "other" }]);
-    });
-
     test("HAS_CHILDREN_GETTER", () => {
         const state = {
             "1": { key: "1", parent: null },
@@ -41,10 +28,10 @@ describe("getters", () => {
 
     test("MAILSHARE_FOLDERS", async () => {
         const state = {
-            "1": { key: "1", mailbox: "A" },
-            "2": { key: "2", mailbox: "unknown" },
-            "3": { key: "3", mailbox: "B" },
-            "4": { key: "4", mailbox: "C" }
+            "1": { key: "1", mailboxRef: { key: "A" } },
+            "2": { key: "2", mailboxRef: { key: "unknown" } },
+            "3": { key: "3", mailboxRef: { key: "B" } },
+            "4": { key: "4", mailboxRef: { key: "C" } }
         };
         const mockedGetters = { MAILSHARE_KEYS: ["A", "C"] };
         expect(getters.MAILSHARE_FOLDERS(state, mockedGetters)).toEqual(["1", "4"]);
@@ -52,10 +39,10 @@ describe("getters", () => {
 
     test("MY_MAILBOX_FOLDERS", async () => {
         const state = {
-            "1": { key: "1", mailbox: "A" },
-            "2": { key: "2", mailbox: "unknown" },
-            "3": { key: "3", mailbox: "B" },
-            "4": { key: "4", mailbox: "C" }
+            "1": { key: "1", mailboxRef: { key: "A" } },
+            "2": { key: "2", mailboxRef: { key: "unknown" } },
+            "3": { key: "3", mailboxRef: { key: "B" } },
+            "4": { key: "4", mailboxRef: { key: "C" } }
         };
         const mockedGetters = { MY_MAILBOX_KEY: "B" };
         expect(getters.MY_MAILBOX_FOLDERS(state, mockedGetters)).toEqual(["3"]);
@@ -63,13 +50,13 @@ describe("getters", () => {
 
     test("DEFAULT FOLDERS", async () => {
         const state = {
-            "1": { key: "1", imapName: "whatever", mailbox: "myMailbox" },
-            "1bis": { key: "1bis", imapName: DEFAULT_FOLDER_NAMES.INBOX, mailbox: "other" },
-            "2": { key: "2", imapName: DEFAULT_FOLDER_NAMES.INBOX, mailbox: "myMailbox" },
-            "3": { key: "3", imapName: DEFAULT_FOLDER_NAMES.OUTBOX, mailbox: "myMailbox" },
-            "4": { key: "4", imapName: DEFAULT_FOLDER_NAMES.SENT, mailbox: "myMailbox" },
-            "5": { key: "5", imapName: DEFAULT_FOLDER_NAMES.TRASH, mailbox: "myMailbox" },
-            "6": { key: "6", imapName: DEFAULT_FOLDER_NAMES.DRAFTS, mailbox: "myMailbox" }
+            "1": { key: "1", imapName: "whatever", mailboxRef: { key: "myMailbox" } },
+            "1bis": { key: "1bis", imapName: DEFAULT_FOLDER_NAMES.INBOX, mailboxRef: { key: "other" } },
+            "2": { key: "2", imapName: DEFAULT_FOLDER_NAMES.INBOX, mailboxRef: { key: "myMailbox" } },
+            "3": { key: "3", imapName: DEFAULT_FOLDER_NAMES.OUTBOX, mailboxRef: { key: "myMailbox" } },
+            "4": { key: "4", imapName: DEFAULT_FOLDER_NAMES.SENT, mailboxRef: { key: "myMailbox" } },
+            "5": { key: "5", imapName: DEFAULT_FOLDER_NAMES.TRASH, mailboxRef: { key: "myMailbox" } },
+            "6": { key: "6", imapName: DEFAULT_FOLDER_NAMES.DRAFTS, mailboxRef: { key: "myMailbox" } }
         };
 
         const mockedGetters = { MY_MAILBOX_KEY: "myMailbox" };

@@ -23,8 +23,9 @@ async function optimisticMarkFolderAsRead(context, folder) {
     context.commit("mail/" + mutationTypes.ADD_FLAG, { messageKeys, flag: Flag.SEEN }, { root: true });
     const unreadCount = folder.unread;
     context.commit("mail/" + SET_UNREAD_COUNT, { key: folder.key, count: 0 }, { root: true });
+    console.log(folder);
     try {
-        await inject("MailboxFoldersPersistence", folder.mailbox).markFolderAsRead(folder.id);
+        await inject("MailboxFoldersPersistence", folder.mailboxRef.uid).markFolderAsRead(folder.remoteRef.internalId);
     } catch (e) {
         context.commit("mail/DELETE_FLAG", { messageKeys, flag: Flag.SEEN }, { root: true });
         context.commit("mail/" + SET_UNREAD_COUNT, { key: folder.key, count: unreadCount }, { root: true });

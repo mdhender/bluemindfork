@@ -12,9 +12,9 @@ import MessageStatus from "../MessageStatus";
 
 Vue.use(Vuex);
 
-describe("actions", () => {
+describe("Messages actions", () => {
     let store;
-    let folder = { key: "folder-key", uid: "folder-key" };
+    let folder = { key: "folder-key", remoteRef: { uid: "folder-key" } };
     let messages;
     beforeEach(() => {
         store = new Vuex.Store(cloneDeep(config));
@@ -112,6 +112,8 @@ describe("actions", () => {
                     messageKeys: [adapted.key],
                     flag: Flag.SEEN
                 });
+            } catch (e) {
+                expect(e).toEqual("Failure");
             } finally {
                 expect(store.state[adapted.key].flags).not.toEqual(expect.arrayContaining([Flag.SEEN]));
             }
@@ -192,7 +194,7 @@ describe("actions", () => {
             expect(store.state[adapted.key].flags).not.toEqual(expect.arrayContaining([Flag.SEEN]));
         });
 
-        test("On failure add flag ", async () => {
+        test("On failure remove flag ", async () => {
             const adapted = MessageAdaptor.fromMailboxItem(
                 messages.find(({ value: { flags } }) => flags.includes(Flag.SEEN)),
                 folder
@@ -204,6 +206,8 @@ describe("actions", () => {
                     messageKeys: [adapted.key],
                     flag: Flag.SEEN
                 });
+            } catch (e) {
+                expect(e).toEqual("Failure");
             } finally {
                 expect(store.state[adapted.key].flags).toEqual(expect.arrayContaining([Flag.SEEN]));
             }
@@ -279,6 +283,8 @@ describe("actions", () => {
             inject("MailboxItemsPersistence").multipleDeleteById.mockRejectedValueOnce("Failure");
             try {
                 await store.dispatch(actionTypes.REMOVE_MESSAGES, adapted.key);
+            } catch {
+                // Nothing to do
             } finally {
                 expect(store.state[adapted.key].status).toEqual(MessageStatus.LOADED);
             }
@@ -287,6 +293,8 @@ describe("actions", () => {
             inject("MailboxItemsPersistence").multipleDeleteById.mockRejectedValueOnce("Failure");
             try {
                 await store.dispatch(actionTypes.REMOVE_MESSAGES, adapted.key);
+            } catch {
+                // Nothing to do
             } finally {
                 expect(store.state[adapted.key].status).toEqual(MessageStatus.NOT_LOADED);
             }

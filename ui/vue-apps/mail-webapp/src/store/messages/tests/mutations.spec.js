@@ -49,21 +49,21 @@ describe("mutations", () => {
         test("dont add flag if it's already set", () => {
             const message = { key: "key1", status: MessageStatus.LOADED, flags: ["READ"] };
             const state = { [message.key]: message };
-            mutations.ADD_FLAG(state, { messageKeys: [message.key], flag: "READ" });
+            mutations.ADD_FLAG(state, { keys: [message.key], flag: "READ" });
             expect(state[message.key].flags).toEqual(["READ"]);
         });
 
         test("dont add flag if message metadata are not loaded", () => {
             const message = { key: "key1", status: MessageStatus.NOT_LOADED };
             const state = { [message.key]: message };
-            mutations.ADD_FLAG(state, { messageKeys: [message.key], flag: "READ" });
+            mutations.ADD_FLAG(state, { keys: [message.key], flag: "READ" });
             expect(state[message.key].flags).toEqual(undefined);
         });
 
         test("dont change other flag", () => {
             const message = { key: "key1", status: MessageStatus.LOADED, flags: ["OTHER"] };
             const state = { [message.key]: message };
-            mutations.ADD_FLAG(state, { messageKeys: [message.key], flag: "READ" });
+            mutations.ADD_FLAG(state, { keys: [message.key], flag: "READ" });
             expect(state[message.key].flags).toEqual(["OTHER", "READ"]);
         });
 
@@ -71,7 +71,7 @@ describe("mutations", () => {
             const message = { key: "key1", status: MessageStatus.LOADED, flags: [] };
             const message2 = { key: "key2", status: MessageStatus.LOADED, flags: [] };
             const state = { [message.key]: message, [message2.key]: message2 };
-            mutations.ADD_FLAG(state, { messageKeys: [message.key, message2.key], flag: "READ" });
+            mutations.ADD_FLAG(state, { keys: [message.key, message2.key], flag: "READ" });
             expect(state[message.key].flags).toEqual(["READ"]);
             expect(state[message2.key].flags).toEqual(["READ"]);
         });
@@ -81,14 +81,14 @@ describe("mutations", () => {
         test("do nothing if flag is not set", () => {
             const message = { key: "key1", status: MessageStatus.LOADED, flags: ["OTHER"] };
             const state = { [message.key]: message };
-            mutations.DELETE_FLAG(state, { messageKeys: [message.key], flag: "READ" });
+            mutations.DELETE_FLAG(state, { keys: [message.key], flag: "READ" });
             expect(state[message.key].flags).toEqual(["OTHER"]);
         });
 
         test("dont change other flag", () => {
             const message = { key: "key1", status: MessageStatus.LOADED, flags: ["OTHER", "READ"] };
             const state = { [message.key]: message };
-            mutations.DELETE_FLAG(state, { messageKeys: [message.key], flag: "READ" });
+            mutations.DELETE_FLAG(state, { keys: [message.key], flag: "READ" });
             expect(state[message.key].flags).toEqual(["OTHER"]);
         });
 
@@ -96,7 +96,7 @@ describe("mutations", () => {
             const message = { key: "key1", status: MessageStatus.LOADED, flags: ["READ"] };
             const message2 = { key: "key2", status: MessageStatus.LOADED, flags: ["READ"] };
             const state = { [message.key]: message, [message2.key]: message2 };
-            mutations.DELETE_FLAG(state, { messageKeys: [message.key, message2.key], flag: "READ" });
+            mutations.DELETE_FLAG(state, { keys: [message.key, message2.key], flag: "READ" });
             expect(state[message.key].flags).toEqual([]);
             expect(state[message2.key].flags).toEqual([]);
         });

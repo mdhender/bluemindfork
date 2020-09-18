@@ -12,13 +12,13 @@ function createHierarchy(path, mailbox) {
     const uid = () => Math.round(Math.random() * 100000) + "";
     hierarchy.reduce((parent, name) => {
         const folder = {
-            uid: uid(),
+            remoteRef: { uid: uid() },
             name,
             path: parent ? parent.path + "/" + name : name,
-            parent: parent ? parent.uid : null,
-            mailbox
+            parent: parent ? parent.key : null,
+            mailboxRef: { ...mailbox }
         };
-        folder.key = folder.uid;
+        folder.key = folder.remoteRef.uid;
         folders.push(folder);
         return folder;
     }, null);
@@ -45,7 +45,13 @@ describe("[Mail-WebappStore][actions]: $_createFolder", () => {
             }
         };
         context.dispatch.mockImplementation((actionName, { key, name, parent, mailbox }) => {
-            context.rootState.mail.folders[key] = { key, uid: serverUid, name, parent, mailbox: mailbox.key };
+            context.rootState.mail.folders[key] = {
+                key,
+                remoteRef: { uid: serverUid },
+                name,
+                parent,
+                mailboxRef: { key: mailbox.key }
+            };
         });
         UUIDGenerator.generate = jest.fn().mockReturnValue(mockedGeneratedUid);
     });
@@ -85,7 +91,13 @@ describe("[Mail-WebappStore][actions]: $_createFolder", () => {
         expect(context.commit).toHaveBeenNthCalledWith(
             2,
             "mail/ADD_FOLDER",
-            { key: serverUid, uid: serverUid, mailbox: mailboxUid, name: "myFolder", parent: null },
+            {
+                key: serverUid,
+                remoteRef: { uid: serverUid },
+                mailboxRef: { key: mailboxUid },
+                name: "myFolder",
+                parent: null
+            },
             { root: true }
         );
         expect(key).toEqual(serverUid);
@@ -135,7 +147,13 @@ describe("[Mail-WebappStore][actions]: $_createFolder", () => {
         UUIDGenerator.generate.mockReturnValueOnce("key5");
 
         context.dispatch.mockImplementation((actionName, { key, name, parent, mailbox }) => {
-            context.rootState.mail.folders[key] = { key, uid: key, name, parent, mailbox: mailbox.key };
+            context.rootState.mail.folders[key] = {
+                key,
+                remoteRef: { uid: key },
+                name,
+                parent,
+                mailboxRef: { key: mailbox.key }
+            };
         });
 
         let folder = { path: "Another/one/to" };

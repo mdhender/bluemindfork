@@ -9,7 +9,7 @@ export function removeAttachment({ commit, dispatch, getters, state, rootGetters
     if (status !== "ERROR") {
         promise = injector
             .getProvider("MailboxItemsPersistence")
-            .get(rootGetters["mail/MY_DRAFTS"].uid)
+            .get(rootGetters["mail/MY_DRAFTS"].remoteRef.uid)
             .removePart(partAddress);
     }
     return promise.then(() => {

@@ -1,5 +1,6 @@
 import { move } from "../../actions/move";
 import ItemUri from "@bluemind/item-uri";
+import { MailboxType } from "../../../store/helpers/MailboxAdaptor";
 
 ItemUri.container = jest.fn().mockReturnValue("");
 
@@ -20,14 +21,16 @@ const context = {
                 "folder-key": {
                     path: "/my/path",
                     key: "folder-key",
-                    name: "folderName"
+                    remoteRef: { uid: "folder-key" },
+                    name: "folderName",
+                    mailboxRef: { key: mailboxUid }
                 }
-            }
+            },
+            mailboxes: { [mailboxUid]: { type: MailboxType.USER } }
         }
     },
     rootGetters: {
-        "mail/MY_MAILBOX_KEY": mailboxUid,
-        "mail/MAILSHARE_KEYS": []
+        "mail/MY_MAILBOX_KEY": mailboxUid
     }
 };
 
@@ -41,7 +44,7 @@ describe("[Mail-WebappStore][actions] : move", () => {
 
     test("call private move action", async () => {
         const messageKey = "message-key",
-            folder = { key: "folder-key" };
+            folder = { key: "folder-key", mailboxRef: { key: "mailbox-key" }, remoteRef: { uid: "folder-key" } };
         await move(context, { messageKey, folder });
         expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [messageKey]);
         expect(context.dispatch).toHaveBeenCalledWith("$_move", {
@@ -52,7 +55,13 @@ describe("[Mail-WebappStore][actions] : move", () => {
 
     test("display alerts", done => {
         const messageKey = "message-key",
-            folder = { key: "folder-key", name: "folderName", path: "/my/path" };
+            folder = {
+                key: "folder-key",
+                mailboxRef: { key: mailboxUid },
+                remoteRef: { uid: "folder-key" },
+                name: "folderName",
+                path: "/my/path"
+            };
         move(context, { messageKey, folder }).then(() => {
             expect(context.commit).toHaveBeenNthCalledWith(
                 1,

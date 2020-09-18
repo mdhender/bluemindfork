@@ -9,5 +9,5 @@ export const mutations = {
 };
 
 export const getters = {
-    CURRENT_MAILBOX: state => state.mailboxes[state.folders[state.activeFolder].mailbox]
+    CURRENT_MAILBOX: state => state.mailboxes[state.folders[state.activeFolder].mailboxRef.key]
 };

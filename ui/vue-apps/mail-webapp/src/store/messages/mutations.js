@@ -8,22 +8,22 @@ export default {
             Vue.set(state, message.key, message);
         });
     },
-    [mutationTypes.ADD_FLAG]: (state, { messageKeys, flag }) => {
-        messageKeys.forEach(key => {
+    [mutationTypes.ADD_FLAG]: (state, { keys, flag }) => {
+        keys.forEach(key => {
             if (state[key].status === MessageStatus.LOADED && !state[key].flags.includes(flag)) {
                 state[key].flags.push(flag);
             }
         });
     },
-    [mutationTypes.DELETE_FLAG]: (state, { messageKeys, flag }) => {
-        messageKeys.forEach(key => {
+    [mutationTypes.DELETE_FLAG]: (state, { keys, flag }) => {
+        keys.forEach(key => {
             if (state[key].status === MessageStatus.LOADED && state[key].flags.includes(flag)) {
                 state[key].flags = state[key].flags.filter(f => f !== flag);
             }
         });
     },
-    [mutationTypes.REMOVE_MESSAGES]: (state, messageKeys) => {
-        messageKeys.forEach(key => {
+    [mutationTypes.REMOVE_MESSAGES]: (state, keys) => {
+        keys.forEach(key => {
             Vue.delete(state, key);
         });
     },

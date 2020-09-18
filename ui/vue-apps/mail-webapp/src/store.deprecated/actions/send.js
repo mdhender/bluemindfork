@@ -24,7 +24,7 @@ export function send({ state, commit, dispatch, rootGetters }) {
             draftId = moveResult.doneIds[0].destination;
             return flush(); // flush means send mail + move to sentbox
         })
-        .then(taskResult => getSentMessageId(taskResult, draftId, rootGetters["mail/MY_SENT"].uid))
+        .then(taskResult => getSentMessageId(taskResult, draftId, rootGetters["mail/MY_SENT"].remoteRef.uid))
         .then(mailItem =>
             handleSuccess(
                 mailItem.internalId,
@@ -67,8 +67,8 @@ function moveToOutbox(rootGetters, draftId) {
     return injector
         .getProvider("MailboxFoldersPersistence")
         .get(rootGetters["mail/MY_MAILBOX_KEY"])
-        .importItems(rootGetters["mail/MY_OUTBOX"].id, {
-            mailboxFolderId: rootGetters["mail/MY_DRAFTS"].id,
+        .importItems(rootGetters["mail/MY_OUTBOX"].remoteRef.internalId, {
+            mailboxFolderId: rootGetters["mail/MY_DRAFTS"].remoteRef.internalId,
             ids: [{ id: draftId }],
             expectedIds: undefined,
             deleteFromSource: true
@@ -76,9 +76,9 @@ function moveToOutbox(rootGetters, draftId) {
 }
 
 function handleSuccess(sentMailId, loadingAlertUid, mySentBox, myDraftBox, draft, commit, dispatch) {
-    clearAttachmentParts(myDraftBox.uid, draft);
+    clearAttachmentParts(myDraftBox.remoteRef.uid, draft);
     manageFlagOnPreviousMessage(draft, dispatch);
-    const messageKey = ItemUri.encode(sentMailId, mySentBox.uid);
+    const messageKey = ItemUri.encode(sentMailId, mySentBox.remoteRef.uid);
     commit("removeApplicationAlert", loadingAlertUid, { root: true });
     commit(
         "addApplicationAlert",

@@ -12,6 +12,9 @@ export default {
                 let s = m && state[key].status;
                 return s === MessageStatus.LOADED;
             };
+        },
+        getMessagesByKey(state) {
+            return keys => (Array.isArray(keys) ? keys : [keys]).map(key => state[key]);
         }
     },
     state: {}

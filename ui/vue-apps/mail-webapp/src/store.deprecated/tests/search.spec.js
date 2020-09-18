@@ -58,7 +58,8 @@ describe("[Mail-WebappStore][search]", () => {
                         folders: {
                             [folderUid]: {
                                 key: folderUid,
-                                mailbox: mailboxUid
+                                remoteRef: { uid: folderUid },
+                                mailboxRef: { key: mailboxUid }
                             }
                         },
                         activeFolder: folderUid

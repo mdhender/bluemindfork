@@ -26,8 +26,8 @@ const createFolder = async function ({ commit, state }, { key, name, parent, mai
     commit(ADD_FOLDER, foldertoadd);
     const item = FolderAdaptor.toMailboxFolder(foldertoadd, mailbox);
     try {
-        const { uid, id } = await api.createNewFolder(mailbox, item);
-        commit(ADD_FOLDER, { ...foldertoadd, uid, id });
+        const { uid, id: internalId } = await api.createNewFolder(mailbox, item);
+        commit(ADD_FOLDER, { ...foldertoadd, remoteRef: { uid, internalId } });
     } catch (e) {
         commit(MUTATION_REMOVE_FOLDER, foldertoadd.key);
         throw e;

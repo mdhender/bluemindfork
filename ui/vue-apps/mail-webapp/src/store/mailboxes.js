@@ -9,7 +9,7 @@ export const state = {
 export const getters = {
     MY_MAILBOX_KEY: state =>
         Object.values(state.mailboxes).find(mailbox => mailbox.owner === inject("UserSession").userId).key,
-    MY_MAILBOX: (state, getters) => state.mailboxes[getters.MY_MAILBOX_KEY],
+    MY_MAILBOX: (state, { MY_MAILBOX_KEY }) => state.mailboxes[MY_MAILBOX_KEY],
     MAILSHARE_KEYS: state =>
         Object.values(state.mailboxes)
             .filter(mailbox => mailbox.type === "mailshares")

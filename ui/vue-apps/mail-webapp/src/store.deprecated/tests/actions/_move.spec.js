@@ -18,12 +18,12 @@ const context = {
         mail: {
             folders: {
                 [sourceFolderKey]: {
-                    mailbox: mailboxUid,
-                    id: 20
+                    mailboxRef: { key: mailboxUid, uid: mailboxUid },
+                    remoteRef: { internalId: 20 }
                 },
                 [destinationKey]: {
-                    mailbox: mailboxUid,
-                    id: 10
+                    mailboxRef: { key: mailboxUid, uid: mailboxUid },
+                    remoteRef: { internalId: 10 }
                 }
             }
         }

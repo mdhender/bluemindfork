@@ -1,4 +1,5 @@
 import UUIDGenerator from "@bluemind/uuid";
+import { MailboxType } from "../../store/helpers/MailboxAdaptor";
 
 export function move(context, { messageKey, folder }) {
     const isArray = Array.isArray(messageKey);
@@ -19,9 +20,8 @@ function moveSingleMessage({ dispatch, commit, rootState, rootGetters }, { messa
         })
         .then(key => {
             destination = rootState.mail.folders[key];
-            isDestinationMailshare = rootGetters["mail/MAILSHARE_KEYS"].some(
-                mailshareKey => mailshareKey === destination.mailbox
-            );
+            isDestinationMailshare =
+                rootState.mail.mailboxes[destination.mailboxRef.key].type === MailboxType.MAILSHARE;
             return dispatch("$_move", { messageKeys: [messageKey], destinationKey: key });
         })
         .then(() => addOkAlert(commit, subject, destination, isDestinationMailshare))
@@ -35,9 +35,9 @@ function moveMultipleMessages({ dispatch, commit, rootState, rootGetters }, { me
     return dispatch("$_createFolder", { folder, mailboxUid: rootGetters["mail/MY_MAILBOX_KEY"] })
         .then(key => {
             destination = rootState.mail.folders[key];
-            isDestinationMailshare = rootGetters["mail/MAILSHARE_KEYS"].some(
-                mailshareKey => mailshareKey === destination.mailbox
-            );
+            isDestinationMailshare =
+                rootState.mail.mailboxes[destination.mailboxRef.key].type === MailboxType.MAILSHARE;
+
             return dispatch("$_move", { messageKeys, destinationKey: key });
         })
         .then(() => addOkAlertForMultipleMessages(commit, messageKeys.length, destination, isDestinationMailshare))

@@ -78,6 +78,7 @@ import debounce from "lodash.debounce";
 import GlobalEvents from "vue-global-events";
 import { SearchHelper } from "../store.deprecated/SearchHelper";
 import { FolderAdaptor } from "../store/folders/helpers/FolderAdaptor";
+import { MailboxType } from "../model/mailbox";
 
 const SPINNER_TIMEOUT = 250;
 const UPDATE_ROUTE_TIMEOUT = 1000;
@@ -228,10 +229,10 @@ export default {
             this.setSelectedFolder(folder || this.initialFolder);
         },
         isMailshareRootFolder(folder) {
-            return FolderAdaptor.isMailshareRoot(folder, this.mailboxes[folder.mailbox]);
+            return FolderAdaptor.isMailshareRoot(folder, this.mailboxes[folder.mailboxRef.key]);
         },
         isFolderOfMailshare(folder) {
-            return this.mailboxes[folder.mailbox].type === "mailshares";
+            return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         }
     }
 };
