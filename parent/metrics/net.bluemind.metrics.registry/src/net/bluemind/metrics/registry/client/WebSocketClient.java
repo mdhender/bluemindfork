@@ -53,11 +53,6 @@ public class WebSocketClient {
 		logger.info("Websocket created");
 	}
 
-	@Deprecated
-	public void sendTextFrame(final String text) throws IOException {
-		ch.writeAndFlush(new TextWebSocketFrame(text));
-	}
-
 	public void sendTextFrame(RegJson dto) throws IOException {
 		ByteBuf asBuffer = Unpooled.wrappedBuffer(Mapper.get().writeValueAsBytes(dto));
 		ch.writeAndFlush(new TextWebSocketFrame(asBuffer));
