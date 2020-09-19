@@ -58,14 +58,11 @@ net.bluemind.calendar.banner.CalendarBanner = function() {
     this.waitingCalendars = [];
     this.retrievePendingActionsForMany(cs);
   }, 5000, this);
-  this.containersObserver.observerContainers('folder.hierarchy', [ this.getFolderContainerUid_() ]);
   this.observeCalendars();
 }
 
 net.bluemind.calendar.banner.CalendarBanner.prototype.changed = function(e) {
-  if (e.containerType == 'folder.hierarchy') {
-    this.observeCalendars();
-  } else if (e.containerType == 'calendar') {
+  if (e.containerType == 'calendar') {
     this.waitingCalendars.push(e.container);
     goog.Timer.callOnce( function() {
       this.refreshThrottle.fire();
@@ -223,13 +220,13 @@ net.bluemind.calendar.banner.CalendarBanner.attends = function(vevent, dir) {
 }
 net.bluemind.calendar.banner.CalendarBanner.listener;
 
-goog.global['calendarPendingActions'] = function(reciever) {
+goog.global['calendarPendingActions'] = function(receiver) {
   if (net.bluemind.calendar.banner.CalendarBanner.listener) {
-      net.bluemind.calendar.banner.CalendarBanner.listener = reciever;
+      net.bluemind.calendar.banner.CalendarBanner.listener = receiver;
       net.bluemind.calendar.banner.CalendarBanner.widget.retrievePendingActions();
-      console.error('Calendar pending listenr is already registered. It should not be called more than one time!')
+      console.error('Calendar pending listener is already registered. It should not be called more than once.')
   } else {
-    net.bluemind.calendar.banner.CalendarBanner.listener = reciever;
+    net.bluemind.calendar.banner.CalendarBanner.listener = receiver;
     net.bluemind.calendar.banner.CalendarBanner.widget = new net.bluemind.calendar.banner.CalendarBanner();
   }
 }
