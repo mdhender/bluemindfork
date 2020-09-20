@@ -47,9 +47,7 @@ net.bluemind.calendar.PendingEventsMgmt = function(ctx) {
   this.totalCache_ = null;
   this.handler.listen(this.containersObserver, net.bluemind.container.service.ContainersObserver.EventType.CHANGE,
       function(e) {
-        if (e.containerType == 'folder.hierarchy') {
-          this.observeCalendars();
-        } else if (e.containerType == 'calendar') {
+        if (e.containerType == 'calendar') {
           this.retrievePendingActionsForOne(e.container).then(function() {
             this.dispatchEvent('change');
           }, null, this);
@@ -58,7 +56,6 @@ net.bluemind.calendar.PendingEventsMgmt = function(ctx) {
 
   this.calendars = [];
   this.calendarsCounts = [];
-  this.containersObserver.observerContainers('folder.hierarchy', [ this.getFolderContainerUid_() ]);
   this.observeCalendars();
 };
 goog.inherits(net.bluemind.calendar.PendingEventsMgmt, goog.events.EventTarget);
