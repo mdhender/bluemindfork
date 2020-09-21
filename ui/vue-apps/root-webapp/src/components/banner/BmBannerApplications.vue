@@ -6,6 +6,7 @@
             :to="app.external ? '' : app.href"
             :href="app.external ? app.href : ''"
             class="px-2"
+            role="menuitem"
         >
             <div class="d-inline-block"><bm-app-icon :icon-app="app.icon" /></div>
             <span class="sr-only">{{ app.name }}</span>

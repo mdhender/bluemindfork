@@ -36,7 +36,8 @@ export default {
                 this.setShowBlockedImagesAlert(false);
             }
 
-            return buildHtml(content);
+            const label = this.$t("mail.application.region.messagecontent");
+            return buildHtml(content, label);
         }
     },
     methods: {
@@ -64,7 +65,7 @@ export default {
     }
 };
 
-function buildHtml(content) {
+function buildHtml(content, label) {
     const style = `
         body {
             font-family: 'Montserrat', sans-serif;
@@ -115,7 +116,7 @@ function buildHtml(content) {
     // FIXME: as we add our own <head> tag, we should parse existing <head> in content variable
     return `<html>
                 <head><base target="_blank"><style>${style}</style></head>
-                <body>${content}</body>
+                <body><main aria-label="${label}">${content}</main></body>
             </html>`;
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-search-form" @keyup.esc="showForm = false" @click.stop>
+    <div class="mail-search-form" role="search" @keyup.esc="showForm = false" @click.stop>
         <global-events @click="showForm = false" />
         <div class="d-flex">
             <bm-form-input

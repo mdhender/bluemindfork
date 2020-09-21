@@ -1,6 +1,10 @@
 <template>
-    <div class="flex-fill d-lg-flex flex-column mail-app">
-        <bm-row align-v="center" class="shadow-sm bg-surface topbar z-index-250" :class="{ darkened }">
+    <main class="flex-fill d-lg-flex flex-column mail-app">
+        <section
+            :aria-label="$t('mail.application.region.mailtools')"
+            class="row align-items-center shadow-sm bg-surface topbar z-index-250"
+            :class="{ darkened }"
+        >
             <bm-col
                 cols="2"
                 order="0"
@@ -45,17 +49,18 @@
                     {{ $t("mail.main.switch.webmail") }}
                 </bm-form-checkbox>
             </bm-col>
-        </bm-row>
+        </section>
         <bm-row class="flex-fill position-relative flex-nowrap">
             <!-- v-show is overridden by d-lg-block in large devices -->
-            <bm-row
+            <section
                 v-show="showFolders"
-                class="position-lg-static position-absolute d-lg-block px-0 col-12 col-lg-2 z-index-200 overlay top-0 bottom-0"
+                :aria-label="$t('mail.application.region.folderlist')"
+                class="row position-lg-static position-absolute d-lg-block px-0 col-12 col-lg-2 z-index-200 overlay top-0 bottom-0"
             >
                 <bm-col cols="10" lg="12" class="mail-folder-sidebar-wrapper bg-surface h-100">
                     <mail-folder-sidebar @toggle-folders="toggleFolders" />
                 </bm-col>
-            </bm-row>
+            </section>
             <bm-col cols="12" lg="3" class="pl-lg-2 px-0 d-lg-block" :class="hideListInResponsiveMode ? 'd-none' : ''">
                 <mail-message-list class="h-100" />
             </bm-col>
@@ -71,7 +76,7 @@
         >
             <bm-icon icon="pencil" />
         </bm-button>
-    </div>
+    </main>
 </template>
 
 <script>

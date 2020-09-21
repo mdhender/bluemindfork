@@ -1,9 +1,9 @@
 <template>
-    <div class="mail-message-list d-flex flex-column">
+    <section :aria-label="$t('mail.application.region.messagelist')" class="mail-message-list d-flex flex-column">
         <mail-message-list-header id="mail-message-list-header" />
         <search-result v-if="isSearchMode" class="flex-fill" />
         <folder-result v-if="isFolderMode" class="flex-fill" />
-    </div>
+    </section>
 </template>
 
 <script>

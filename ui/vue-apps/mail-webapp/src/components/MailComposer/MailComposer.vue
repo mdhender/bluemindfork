@@ -2,11 +2,11 @@
     <bm-form class="mail-composer p-lg-3 flex-grow-1 d-flex h-100">
         <bm-panel>
             <template #header>
-                <span
+                <heading
                     v-bm-tooltip.hover
                     class="d-none d-lg-flex text-nowrap text-truncate card-header px-2 py-1"
                     :title="panelTitle"
-                    >{{ panelTitle }}</span
+                    >{{ panelTitle }}</heading
                 >
             </template>
             <template #body>

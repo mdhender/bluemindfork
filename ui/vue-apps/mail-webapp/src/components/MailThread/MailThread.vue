@@ -1,5 +1,9 @@
 <template>
-    <div v-if="message" class="mail-thread d-flex flex-column">
+    <article
+        v-if="message"
+        class="mail-thread d-flex flex-column"
+        :aria-label="$t('mail.application.region.messagethread')"
+    >
         <mail-component-alert
             v-if="!areRemoteImagesUnblocked(message.key) && showBlockedImagesAlert"
             icon="exclamation-circle"
@@ -26,7 +30,7 @@
         />
         <mail-viewer v-if="message" />
         <div />
-    </div>
+    </article>
 </template>
 
 <script>

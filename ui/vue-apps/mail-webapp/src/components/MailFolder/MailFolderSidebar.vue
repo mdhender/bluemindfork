@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-folder-sidebar h-100 scroller-y scroller-visible-on-hover">
+    <nav class="mail-folder-sidebar h-100 scroller-y scroller-visible-on-hover">
         <mail-folder-tree
             :tree="buildTree(myMailboxFolders)"
             :collapse-name="mailboxEmail"
@@ -12,7 +12,7 @@
             :collapse-name="$t('common.mailshares')"
             @toggle-folders="$emit('toggle-folders')"
         />
-    </div>
+    </nav>
 </template>
 
 <script>

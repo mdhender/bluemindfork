@@ -1,5 +1,8 @@
 <template>
-    <div class="mail-viewer d-flex flex-column pb-2 flex-grow-1 bg-surface">
+    <section
+        class="mail-viewer d-flex flex-column pb-2 flex-grow-1 bg-surface"
+        :aria-label="$t('mail.application.region.messagedetails')"
+    >
         <mail-component-alert
             v-if="!message.ics.isEmpty && !currentEvent && !isIcsAlertBlocked"
             icon="exclamation-circle"
@@ -54,7 +57,7 @@
                 <parts-viewer v-else />
             </bm-col>
         </bm-row>
-    </div>
+    </section>
 </template>
 
 <script>
