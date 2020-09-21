@@ -31,6 +31,9 @@ export function createStore(overrides) {
                 modules: {
                     currentMessage: {
                         namespaced: true,
+                        state: {
+                            key: messageKey
+                        },
                         getters: {
                             message: jest.fn(() => {
                                 return {
@@ -53,6 +56,9 @@ export function createStore(overrides) {
                         [folderUid]: {
                             key: folderUid
                         }
+                    },
+                    messages: {
+                        [messageKey]: { flags: [] }
                     }
                 },
                 getters: {

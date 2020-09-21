@@ -6,7 +6,6 @@ exports[`MailToolbarSelectedMessages should match snapshot 1`] = `
 >
   <button
     class="btn unread btn-simple-dark"
-    style="display: none;"
     type="button"
   >
     <svg
@@ -35,6 +34,7 @@ exports[`MailToolbarSelectedMessages should match snapshot 1`] = `
    
   <button
     class="btn read btn-simple-dark"
+    style="display: none;"
     type="button"
   >
     <svg
@@ -204,10 +204,11 @@ exports[`MailToolbarSelectedMessages should match snapshot 1`] = `
             </svg>
              
             <div
+              aria-describedby="mail-folder-input-invalid"
               class="bm-form-input position-relative d-inline-block flex-fill"
             >
               <input
-                class="form-control bm-form-input-padding"
+                class="form-control is-valid bm-form-input-padding"
                 reset="true"
                 type="text"
               />

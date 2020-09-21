@@ -96,9 +96,16 @@ export default {
             "isSearchMode",
             "nextMessageKey"
         ]),
-        ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
-        ...mapState("mail", ["folders", "activeFolder"]),
+        ...mapGetters("mail-webapp/currentMessage", { deprecatedMessage: "message" }),
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
+        ...mapState("mail", ["folders", "activeFolder", "messages"]),
         ...mapGetters("mail", ["MY_TRASH"]),
+        currentMessageFlags() {
+            console.log(this.currentMessageKey);
+            console.log(this.messages);
+            console.log(this.messages[this.currentMessageKey].flags);
+            return this.messages[this.currentMessageKey].flags;
+        },
         isSelectionMultiple() {
             return this.selectedMessageKeys.length > 1;
         },
@@ -106,14 +113,14 @@ export default {
             if (this.isSelectionMultiple) {
                 return !this.areAllSelectedMessagesRead;
             } else {
-                return this.currentMessage.states.includes("not-seen");
+                return !this.currentMessageFlags.includes(Flag.SEEN);
             }
         },
         displayMarkAsUnread() {
             if (this.isSelectionMultiple) {
                 return !this.areAllSelectedMessagesUnread;
             } else {
-                return !this.currentMessage.states.includes("not-seen");
+                return this.currentMessageFlags.includes(Flag.SEEN);
             }
         },
         displayMarkAsFlagged() {
@@ -122,7 +129,7 @@ export default {
             } else if (this.isSelectionMultiple) {
                 return !this.areAllSelectedMessagesFlagged;
             } else {
-                return !this.currentMessage.flags.includes(Flag.FLAGGED);
+                return !this.currentMessageFlags.includes(Flag.FLAGGED);
             }
         },
         displayMarkAsUnflagged() {
@@ -131,11 +138,11 @@ export default {
             } else if (this.isSelectionMultiple) {
                 return !this.areAllSelectedMessagesUnflagged;
             } else {
-                return this.currentMessage.flags.includes(Flag.FLAGGED);
+                return this.currentMessageFlags.includes(Flag.FLAGGED);
             }
         },
         selectionHasReadOnlyFolders() {
-            const selection = this.selectedMessageKeys.length ? this.selectedMessageKeys : [this.currentMessage.key];
+            const selection = this.selectedMessageKeys.length ? this.selectedMessageKeys : [this.currentMessageKey];
             return selection.some(messageKey => !this.folders[ItemUri.container(messageKey)].writable);
         }
     },
@@ -150,7 +157,7 @@ export default {
         async purge() {
             const confirm = await this.$bvModal.msgBoxConfirm(
                 this.$tc("mail.actions.purge.modal.content", this.selectedMessageKeys.length || 1, {
-                    subject: this.currentMessage && this.currentMessage.subject
+                    subject: this.deprecatedMessage && this.deprecatedMessage.subject
                 }),
                 {
                     title: this.$tc("mail.actions.purge.modal.title", this.selectedMessageKeys.length || 1),
@@ -166,7 +173,7 @@ export default {
                 const nextMessageKey = this.nextMessageKey;
                 this.$store.dispatch(
                     "mail-webapp/purge",
-                    this.selectedMessageKeys.length > 1 ? this.selectedMessageKeys : this.currentMessage.key
+                    this.selectedMessageKeys.length > 1 ? this.selectedMessageKeys : this.currentMessageKey
                 );
                 if (!this.isSelectionMultiple) {
                     this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
@@ -181,7 +188,7 @@ export default {
                 const nextMessageKey = this.nextMessageKey;
                 this.$store.dispatch(
                     "mail-webapp/remove",
-                    this.selectedMessageKeys.length > 1 ? this.selectedMessageKeys : this.currentMessage.key
+                    this.selectedMessageKeys.length > 1 ? this.selectedMessageKeys : this.currentMessageKey
                 );
                 if (!this.isSelectionMultiple) {
                     this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
@@ -189,7 +196,7 @@ export default {
             }
         },
         selectedKeys() {
-            return this.isSelectionMultiple ? this.selectedMessageKeys : [this.currentMessage.key];
+            return this.isSelectionMultiple ? this.selectedMessageKeys : [this.currentMessageKey];
         },
         doMarkAsRead() {
             const areAllMessagesInFolderSelected =
@@ -202,7 +209,7 @@ export default {
             if (this.isSelectionMultiple) {
                 this.markAsUnread(this.selectedMessageKeys);
             } else {
-                this.markAsUnread([this.currentMessage.key]);
+                this.markAsUnread([this.currentMessageKey]);
             }
         },
         doMarkAsFlagged() {
