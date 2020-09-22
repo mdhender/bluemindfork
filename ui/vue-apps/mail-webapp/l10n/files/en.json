@@ -111,6 +111,8 @@
     "mail.draft.save.error.reason": "You may be disconnected",
     "mail.draft.save.error": "Error when saving draft",
     "mail.draft.save.inprogress": "Saving...",
+    "mail.draft.delete.confirm.title": "Supprimer le brouillon",
+    "mail.draft.delete.confirm.content": "Etes-vous sur de vouloir supprimer ce brouillon ?",
     "mail.empty": "is empty",
     "mail.error.email.address.invalid": "Invalid email address.",
     "mail.folder.access.limited": "Limited access",

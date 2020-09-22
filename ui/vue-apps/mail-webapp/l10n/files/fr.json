@@ -111,6 +111,8 @@
     "mail.draft.save.error.reason": "Vous êtes peut-être déconnecté",
     "mail.draft.save.error": "Erreur lors de l'enregistrement du brouillon",
     "mail.draft.save.inprogress": "Enregistrement en cours...",
+    "mail.draft.delete.confirm.title": "Supprimer le brouillon",
+    "mail.draft.delete.confirm.content": "Etes-vous sur de vouloir supprimer ce brouillon ?",
     "mail.empty": "est vide",
     "mail.error.email.address.invalid": "Adresse de courriel invalide.",
     "mail.folder.access.limited": "Droits restreints",

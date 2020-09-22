@@ -311,10 +311,24 @@ export default {
                 this.debouncedSave();
             }
         },
-        deleteDraft() {
+        async deleteDraft() {
             this.debouncedSave.cancel();
-            // delete the draft then close the composer
-            this.$store.dispatch("mail-webapp/deleteDraft").then(() => this.$router.navigate("v:mail:message"));
+            if (this.isMessageEmpty()) {
+                this.$store.dispatch("mail-webapp/deleteDraft").then(() => this.$router.navigate("v:mail:message"));
+                return;
+            }
+            const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.draft.delete.confirm.content"), {
+                title: this.$t("mail.draft.delete.confirm.title"),
+                okTitle: this.$t("common.delete"),
+                cancelVariant: "outline-secondary",
+                cancelTitle: this.$t("common.cancel"),
+                centered: true,
+                hideHeaderClose: false
+            });
+            if (confirm) {
+                // delete the draft then close the composer
+                this.$store.dispatch("mail-webapp/deleteDraft").then(() => this.$router.navigate("v:mail:message"));
+            }
         },
         onSearch(fieldFocused, searchedPattern) {
             this.fieldFocused = fieldFocused;

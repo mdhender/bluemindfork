@@ -78,8 +78,25 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", ["deleteDraft", "saveDraft", "send", "addAttachments"]),
-        doDelete() {
-            this.deleteDraft().then(() => this.$router.navigate("v:mail:message"));
+        ...mapGetters("mail-webapp/draft", { isMessageEmpty: "isEmpty" }),
+        async doDelete() {
+            if (this.isMessageEmpty()) {
+                await this.$store.dispatch("mail-webapp/deleteDraft");
+                this.$router.navigate("v:mail:message");
+                return;
+            }
+            const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.draft.delete.confirm.content"), {
+                title: this.$t("mail.draft.delete.confirm.title"),
+                okTitle: this.$t("common.delete"),
+                cancelVariant: "outline-secondary",
+                cancelTitle: this.$t("common.cancel"),
+                centered: true,
+                hideHeaderClose: false
+            });
+            if (confirm) {
+                await this.deleteDraft();
+                this.$router.navigate("v:mail:message");
+            }
         },
         doSend() {
             this.send().then(() => this.$router.navigate("v:mail:message"));
