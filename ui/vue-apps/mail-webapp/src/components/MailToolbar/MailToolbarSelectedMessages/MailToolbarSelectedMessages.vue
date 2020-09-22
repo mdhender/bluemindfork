@@ -101,9 +101,6 @@ export default {
         ...mapState("mail", ["folders", "activeFolder", "messages"]),
         ...mapGetters("mail", ["MY_TRASH"]),
         currentMessageFlags() {
-            console.log(this.currentMessageKey);
-            console.log(this.messages);
-            console.log(this.messages[this.currentMessageKey].flags);
             return this.messages[this.currentMessageKey].flags;
         },
         isSelectionMultiple() {
