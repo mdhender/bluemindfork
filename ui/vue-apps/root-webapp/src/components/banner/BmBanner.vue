@@ -49,6 +49,15 @@
             <span v-if="selectedApp">{{ selectedApp.name }}</span>
         </div>
         <component :is="widget.component" v-for="widget in widgets" :key="widget.component" />
+        <a
+            v-bm-tooltip
+            href="https://forge.bluemind.net/confluence/display/BM4/La+messagerie"
+            target="_blank"
+            :title="$t('banner.reach.help')"
+            class="align-self-center text-white mr-4"
+        >
+            <bm-icon icon="interrogation" size="lg"
+        /></a>
         <bm-banner-user :user="user" @openPreferences="$emit('openPreferences')" />
     </bm-navbar>
 </template>

@@ -4,5 +4,6 @@
     "banner.main.apps": "Applications Bluemind",
     "banner.menu.logout": "Déconnexion",
     "banner.menu.settings.aria": "Accéder aux paramètres de mon compte",
-    "banner.reach.all_apps": "Accéder à toutes les applications Bluemind"
+    "banner.reach.all_apps": "Accéder à toutes les applications Bluemind",
+    "banner.reach.help": "Accéder à l'aide de la messagerie Bluemind"
 }
