@@ -46,31 +46,31 @@ echo "Cyrus data: ${cyrus_data_count} archives: ${cyrus_archive_count} total: ${
 echo "Indexed count: ${message_body_count}"
 echo "Delta percent: ${delta_percent}%"
 
-if [ "$delta_percent" -ge 5 ]; then
-    echo
-    echo "WARNING: the indexation process seems incomplete"
-    echo "The migration process involves requesting indexes for BMARCHIVED emails."
-    echo "If you continue, you could miss some archived emails"
-    echo
-    echo "NOTE: The count may be erroneous because cyrus does not remove files immediately"
-    echo "  You can run cyr_expire -X0 in order to remove thoses files and retry the migration script again"
-    echo
-    echo "NOTE: you can force the reindexation of the mailspool:"
-    echo "    bm-cli maintenance repair --ops replication.subtree [domain_uid]"
-    echo "    bm-cli maintenance repair --ops replication.parentUid [domain_uid]"
-    echo "  Please note this command is asynchronous, you will need to WAIT for /var/log/bm/replication.log to settle down"
-    echo "  before running the HSM migration again."
-    echo
-    echo "Continue anyway ?"
-    select yn in Yes No; do
-        case $yn in
-            Yes) break;;
-            No) exit 3;;
-        esac
-    done
-else
-    echo "Inexation seems fine"
-fi
+# if [ "$delta_percent" -ge 5 ]; then
+#     echo
+#     echo "WARNING: the indexation process seems incomplete"
+#     echo "The migration process involves requesting indexes for BMARCHIVED emails."
+#     echo "If you continue, you could miss some archived emails"
+#     echo
+#     echo "NOTE: The count may be erroneous because cyrus does not remove files immediately"
+#     echo "  You can run cyr_expire -X0 in order to remove thoses files and retry the migration script again"
+#     echo
+#     echo "NOTE: you can force the reindexation of the mailspool:"
+#     echo "    bm-cli maintenance repair --ops replication.subtree [domain_uid]"
+#     echo "    bm-cli maintenance repair --ops replication.parentUid [domain_uid]"
+#     echo "  Please note this command is asynchronous, you will need to WAIT for /var/log/bm/replication.log to settle down"
+#     echo "  before running the HSM migration again."
+#     echo
+#     echo "Continue anyway ?"
+#     select yn in Yes No; do
+#         case $yn in
+#             Yes) break;;
+#             No) exit 3;;
+#         esac
+#     done
+# else
+#     echo "Inexation seems fine"
+# fi
 
 (
 echo "[START]: $(date -R) (force: $force)"
@@ -99,7 +99,7 @@ for domain in ${domains}; do
     allusers=""
     for userid in $all_userids; do
         userinfo=$(curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
-            -XGET ${API_URL}/users/${domain}/${userid}/complete | jq -c -r '{"email": .value.emails | .[] | select(.isDefault == true).address, "uid": .uid}')
+            -XGET ${API_URL}/users/${domain}/${userid}/complete | jq -c -r '{"email": .value.emails | .[] | select(.isDefault == true).address, "uid": .uid, "login": .value.login}')
         allusers="$allusers $userinfo"
     done
     
@@ -107,6 +107,7 @@ for domain in ${domains}; do
     for userinfo in $allusers; do
         user_email=$(echo $userinfo | jq -r -c '.email')
         user_uid=$(echo $userinfo | jq -r -c '.uid')
+        user_login=$(echo $userinfo | jq -r -c '.login')
 
         if grep -q ${user_uid} ${MIGRATED_LOG} 2>/dev/null; then
             echo "[${domain}][${user_email}:${user_uid}] already migrated"
@@ -151,19 +152,23 @@ for domain in ${domains}; do
         echo ${user_email} >> ${MIGRATED_LOG}
         if [ "$quota_update" -eq "1" ]; then
             echo "[${domain}][${user_email}] Retrieve used space using quota"
-            used_space=$(quota -J | jq -r -c 'to_entries[] | select(.key == "user/'$user_email'") | .value.STORAGE.used')
+            used_space=$(quota -J | jq -r -c 'to_entries[] | select(.key == "user/'$user_login'") | .value.STORAGE.used')
 
-            user_before_leftquota=$(jq -a -r -c 'to_entries[] | select(.key == "user/'$user_email'") | .value' ${QUOTA_DUMP})
-            new_quota=$(((${used_space} + ${user_before_leftquota})/1024))
+            user_before_leftquota=$(jq -a -r -c 'to_entries[] | select(.key == "user/'$user_login'") | .value' ${QUOTA_DUMP})
+            if [ -z "${user_before_leftquota}" ] || [ -z "${used_space}" ]; then
+                echo "[${domain}][${user_email}] Unable to restore quota: can't calculate actual disk usage"
+            else
+                new_quota=$(((${used_space} + ${user_before_leftquota})/1024))
+                new_user_values=$(echo $user_json | jq -c '.value | .quota='${new_quota})
 
-            new_user_values=$(echo $user_json | jq -c '.value | .quota='${new_quota})
-
-            echo "[${domain}][${user_email}] Setting quota to ${new_quota} KiB"
-            curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
-                -XPOST -d "$user_values" \
-                ${API_URL}/users/${domain}/${user_uid}
+                echo "[${domain}][${user_email}] Setting quota to ${new_quota} KiB"
+                curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
+                    -XPOST -d "$user_values" \
+                    ${API_URL}/users/${domain}/${user_uid}
+            fi
         fi
     done
 done
 echo "[END]: $(date -R)"
 ) | tee -a ${MIGRATION_LOG}
+
