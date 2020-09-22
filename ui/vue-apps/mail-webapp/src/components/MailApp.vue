@@ -82,8 +82,8 @@
 <script>
 import { BmFormCheckbox, BmLabelIcon, BmButton, BmCol, BmIcon, BmRow, MakeUniq } from "@bluemind/styleguide";
 import { mapState } from "vuex";
-import favicon from "../../assets/favicon.png";
 import injector from "@bluemind/inject";
+import FaviconHelper from "../FaviconHelper";
 import MailAppL10N from "../../l10n/";
 import MailFolderSidebar from "./MailFolder/MailFolderSidebar";
 import MailMessageList from "./MailMessageList/MailMessageList";
@@ -113,7 +113,8 @@ export default {
         return {
             userSession: injector.getProvider("UserSession").get(),
             showFolders: false,
-            darkened: false
+            darkened: false,
+            unreadNotifInfavicon: 0
         };
     },
     computed: {
@@ -146,8 +147,10 @@ export default {
         }
     },
     created() {
-        setFavicon();
-        document.title = this.$t("mail.application.title") + " - Bluemind";
+        FaviconHelper.setFavicon();
+        const documentTitle = this.$t("mail.application.title") + " - Bluemind";
+        document.title = documentTitle;
+        FaviconHelper.handleUnreadNotifInFavicon(this.userSession, documentTitle);
     },
     methods: {
         composeNewMessage() {
@@ -165,14 +168,6 @@ export default {
         }
     }
 };
-
-function setFavicon() {
-    const link = document.querySelector("link[rel*='icon']") || document.createElement("link");
-    link.type = "image/x-icon";
-    link.rel = "shortcut icon";
-    link.href = favicon;
-    document.getElementsByTagName("head")[0].appendChild(link);
-}
 </script>
 
 <style lang="scss">
