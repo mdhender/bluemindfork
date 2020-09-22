@@ -942,7 +942,7 @@ public class MailIndexService implements IMailIndexService {
 
 		Mbox from = Mbox.create("unknown", "unknown");
 		try {
-			InternetAddress mboxFrom = new InternetAddress(headers.get("from"));
+			EmailAddress mboxFrom = new EmailAddress(headers.get("from"));
 			from = Mbox.create(mboxFrom.getPersonal(), mboxFrom.getAddress(), "SMTP");
 		} catch (AddressException e) {
 			logger.warn("Failed to parse FROM " + headers.get("from"));
