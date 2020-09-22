@@ -268,11 +268,8 @@ public class StoreClient implements AutoCloseable {
 	}
 
 	public ListResult listSubFoldersMailbox(String mailbox) {
-
 		String mboxTree = mailbox.substring(0, mailbox.indexOf('@')) + "/*" + mailbox.substring(mailbox.indexOf('@'));
-		ListResult mailboxes = cs.listMailbox(mboxTree);
-
-		return mailboxes;
+		return cs.listMailbox(mboxTree);
 	}
 
 	public int append(String mailbox, InputStream in, FlagsList fl) {
