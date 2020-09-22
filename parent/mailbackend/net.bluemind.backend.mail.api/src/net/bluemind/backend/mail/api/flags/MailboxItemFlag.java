@@ -71,7 +71,7 @@ public class MailboxItemFlag {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((flag == null) ? 0 : flag.hashCode());
+		result = prime * result + ((flag == null) ? 0 : flag.toLowerCase().hashCode());
 		return result;
 	}
 
@@ -88,7 +88,7 @@ public class MailboxItemFlag {
 			if (other.flag != null) {
 				return false;
 			}
-		} else if (!flag.equals(other.flag)) {
+		} else if (!flag.equalsIgnoreCase(other.flag)) {
 			return false;
 		}
 		return true;
