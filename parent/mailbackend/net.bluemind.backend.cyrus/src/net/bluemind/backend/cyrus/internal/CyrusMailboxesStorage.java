@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -92,7 +93,7 @@ import net.bluemind.user.api.User;
 public class CyrusMailboxesStorage implements IMailboxesStorage {
 
 	private Logger logger = LoggerFactory.getLogger(CyrusMailboxesStorage.class);
-	private final static List<IMailboxEventConsumer> consumers = getHooks();
+	private static final List<IMailboxEventConsumer> consumers = getHooks();
 
 	private static List<IMailboxEventConsumer> getHooks() {
 		RunnableExtensionLoader<IMailboxEventConsumer> rel = new RunnableExtensionLoader<>();
@@ -135,7 +136,6 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 			List<String> createdFolders = MailboxOps.createUserFolders(domainUid, srvItem.value, mbox.value.name,
 					DefaultFolder.USER_FOLDERS);
 			foldersCreated(context, domainUid, mbox, createdFolders);
-			// MailboxOps.annotate(srv, boxContainer);
 		}
 			break;
 		case group:
@@ -576,11 +576,69 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 				});
 			}
 
-			logger.info("checkAndRepairHierarchy mbox {}@{}, {} folders, tooks {}ms", mailbox.uid, domainUid, lr.size(),
+			logger.info("checkAndRepairHierarchy mbox {}@{}, {} folders, took {}ms", mailbox.uid, domainUid, lr.size(),
 					System.currentTimeMillis() - start);
 
 			return ret;
 		}
+	}
+
+	@Override
+	public CheckAndRepairStatus checkAndRepairSharedSeen(BmContext context, String domainUid,
+			ItemValue<Mailbox> mailbox, boolean repair) {
+
+		long start = System.currentTimeMillis();
+		ItemValue<Server> server = context.provider().instance(IServer.class, InstallationId.getIdentifier())
+				.getComplete(mailbox.value.dataLocation);
+
+		int checked = 0;
+		int fixed = 0;
+		List<String> toFix = new LinkedList<>();
+
+		try (StoreClient sc = new StoreClient(server.value.address(), 1143, "admin0", Token.admin0())) {
+			if (!sc.login()) {
+				throw new ServerFault("Fail to login: admin0");
+			}
+
+			String root = boxname(mailbox.value, domainUid);
+			String sharedSeen = "/vendor/cmu/cyrus-imapd/sharedseen";
+
+			// checking looks more expensive than repairing here...
+			if (!checkAnnotation(sc, root, sharedSeen, "true")) {
+				toFix.add(root);
+			}
+			checked++;
+			for (ListInfo li : sc.listSubFoldersMailbox(root)) {
+				if (li.isSelectable() && !checkAnnotation(sc, li.getName(), sharedSeen, "true")) {
+					toFix.add(li.getName());
+				}
+				checked++;
+			}
+
+			if (repair) {
+				for (String boxName : toFix) {
+					boolean repaired = sc.setAnnotation(
+							"\"" + boxName + "\" \"/vendor/cmu/cyrus-imapd/sharedseen\" (\"value.shared\" \"true\")");
+					if (!repaired) {
+						logger.warn("Could not annotate '{}'", boxName);
+					} else {
+						fixed++;
+					}
+				}
+			}
+			logger.info("checkAndRepairSharedSeen mbox {}@{} checked: {}, broken: {}, fixed: {} in {}ms", mailbox.uid,
+					domainUid, checked, toFix.size(), fixed, System.currentTimeMillis() - start);
+		}
+		return new CheckAndRepairStatus(checked, toFix.size(), fixed);
+	}
+
+	private boolean checkAnnotation(StoreClient sc, String boxName, String annot, String expectedShared) {
+		AnnotationList annots = sc.getAnnotation(boxName, annot);
+		return Optional.ofNullable(annots.get(annot)).map(a -> expectedShared.equals(a.valueShared)).orElseGet(() -> {
+
+			logger.warn("{} does not have the expected value ({}) for {}", boxName, expectedShared, annot);
+			return false;
+		});
 	}
 
 	@Override
@@ -608,7 +666,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 				+ (mailbox.value.type == Type.user ? "user." : "") + mailbox.value.name.replace(".", "^"));
 		logger.info("Fixing quota of {} success", mailboxName);
 
-		logger.info("checkAndRepairQuota mbox {}@{}, tooks {}ms", mailbox.uid, domainUid,
+		logger.info("checkAndRepairQuota mbox {}@{}, took {}ms", mailbox.uid, domainUid,
 				System.currentTimeMillis() - start);
 	}
 
@@ -631,7 +689,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 			logger.info("Cyrus reconstruct success");
 		}
 
-		logger.info("checkAndRepairFilesystem mbox {}@{}, tooks {}ms", mailbox.uid, domainUid,
+		logger.info("checkAndRepairFilesystem mbox {}@{}, took {}ms", mailbox.uid, domainUid,
 				System.currentTimeMillis() - start);
 	}
 

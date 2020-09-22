@@ -41,7 +41,7 @@ public class GetAnnotationCommand extends SimpleCommand<AnnotationList> {
 		IMAPResponse last = rs.get(rs.size() - 1);
 		if (last.isBad()) {
 			for (IMAPResponse r : rs) {
-				logger.error("ANNOT: " + r.getPayload());
+				logger.error("ANNOT: {}", r.getPayload());
 			}
 			data = new AnnotationList(0);
 			return;

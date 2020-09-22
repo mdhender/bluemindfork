@@ -42,7 +42,8 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.system.hook,
  net.bluemind.backend.cyrus.partitions;visibility:=reexport,
  net.bluemind.network.utils,
- net.bluemind.lib.jutf7
+ net.bluemind.lib.jutf7,
+ net.bluemind.network.topology
 Automatic-Module-Name: net.bluemind.backend.cyrus
 
 

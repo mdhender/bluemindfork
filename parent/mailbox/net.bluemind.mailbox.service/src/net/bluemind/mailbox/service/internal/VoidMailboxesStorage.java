@@ -142,6 +142,13 @@ public class VoidMailboxesStorage implements IMailboxesStorage {
 	}
 
 	@Override
+	public CheckAndRepairStatus checkAndRepairSharedSeen(BmContext context, String domainUid,
+			ItemValue<Mailbox> mailbox, boolean repair) {
+		logger.warn("VOID MAILSTORAGE checkAndRepairSharedSeen {}:{}", domainUid, mailbox.uid);
+		return new CheckAndRepairStatus(0, 0, 0);
+	}
+
+	@Override
 	public void move(String domainUid, ItemValue<Mailbox> mailbox, ItemValue<Server> sourceServer,
 			ItemValue<Server> dstServer) {
 		logger.warn("VOID MAILSTORAGE move");
@@ -151,4 +158,5 @@ public class VoidMailboxesStorage implements IMailboxesStorage {
 	public void rewriteCyrusConfiguration(String serverUid) {
 		logger.warn("VOID MAILSTORAGE rewriteCyrusConfiguration");
 	}
+
 }

@@ -155,6 +155,16 @@ public class CyrusService {
 					logger.info("mbox " + boxName + " already exists, that's fine.");
 				}
 			}
+			if (boxName.startsWith("user/")) {
+				// we want shared seen flags for user mailboxes
+				boolean annotated = sc.setAnnotation(
+						"\"" + boxName + "\" \"/vendor/cmu/cyrus-imapd/sharedseen\" (\"value.shared\" \"true\")");
+				if (!annotated) {
+					logger.warn("Mailbox {} annotation for sharedseen FAILURE.", boxName);
+				} else {
+					logger.info("Mailbox {} annotation for sharedseen SUCCESS.", boxName);
+				}
+			}
 		} catch (IMAPException e) {
 			logger.error(e.getMessage(), e);
 			throw new ServerFault(
