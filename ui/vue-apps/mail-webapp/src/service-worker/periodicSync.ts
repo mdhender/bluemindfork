@@ -51,14 +51,14 @@ async function scheduleUpdates(mailapi: MailAPI, uid: string) {
 
     if (changeSet.version !== syncInfo.version) {
         await db.applyChangeset(changeSet, folderUid, syncInfo);
-        const limiter = initializeLimiter();
-        const chunks = await buildChunks(folderUid, chunkSize);
-        for (const ids of chunks.ids) {
-            if (ids.length > 0) {
-                const response = await limiter.schedule(() => mailapi.fetchMailItems(chunks.folderUid, ids));
-                const mailItems = await response.json();
-                await db.putMailItems(mailItems, folderUid);
-            }
+    }
+    const limiter = initializeLimiter();
+    const chunks = await buildChunks(folderUid, chunkSize);
+    for (const ids of chunks.ids) {
+        if (ids.length > 0) {
+            const response = await limiter.schedule(() => mailapi.fetchMailItems(chunks.folderUid, ids));
+            const mailItems = await response.json();
+            await db.putMailItems(mailItems, folderUid);
         }
     }
 }
