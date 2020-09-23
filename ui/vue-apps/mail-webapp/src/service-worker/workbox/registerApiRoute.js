@@ -37,30 +37,40 @@ async function multipleByIdHandler({ request, params: [folderUid] }) {
 
 const MAILITEMS_CHANGESETSINCE0 = "mail_items/:uid/_filteredChangesetById?since=0";
 async function filteredChangesetByIdHandler({ request, params: [folderUid] }) {
-    if (await db.isFullySynced(folderUid)) {
-        const expectedFlags = await request.json();
-        const allMailItems = await new MailDB().getAllMailItems(folderUid);
-        const data = {
-            created: allMailItems
-                .filter(item => filterByFlags(expectedFlags, item))
-                .sort(sortMessageByDate)
-                .map(({ internalId: id, version }) => ({ id, version })),
-            delete: [],
-            updated: [],
-            version: 0
-        };
-        const headers = new Headers();
-        headers.append("X-BM-Fromcache", true);
-        return new Response(JSON.stringify(data), { headers });
+    const expectedFlags = await request.clone().json();
+    const syncUpToDate = await db.isFullySynced(folderUid);
+    try {
+        if (syncUpToDate) {
+            return fromIndexedDB(expectedFlags, folderUid);
+        } else {
+            return fetch(request);
+        }
+    } catch (error) {
+        return fromIndexedDB(expectedFlags, folderUid);
     }
-    return await fetch(request);
+}
+
+async function fromIndexedDB(expectedFlags, folderUid) {
+    const allMailItems = await db.getAllMailItems(folderUid);
+    const data = {
+        created: allMailItems
+            .filter(item => filterByFlags(expectedFlags, item))
+            .sort(sortMessageByDate)
+            .map(({ internalId: id, version }) => ({ id, version })),
+        delete: [],
+        updated: [],
+        version: 0
+    };
+    const headers = new Headers();
+    headers.append("X-BM-Fromcache", true);
+    return new Response(JSON.stringify(data), { status: 200, headers });
 }
 
 const MAILITEMS_UNREAD = "mail_items/:uid/_unread";
 async function unreadItemsHandler({ request, params: [folderUid] }) {
     if (await db.isFullySynced(folderUid)) {
-        const allMailItems = await db.getAllMailItems(folderUid);
         const expectedFlags = { must: [], mustNot: ["Deleted", "Seen"] };
+        const allMailItems = await db.getAllMailItems(folderUid);
         const data = allMailItems
             .filter(item => filterByFlags(expectedFlags, item))
             .sort(sortMessageByDate)
@@ -72,7 +82,6 @@ async function unreadItemsHandler({ request, params: [folderUid] }) {
     }
     return await fetch(request);
 }
-
 function filterByFlags(expectedFlags, item) {
     return (
         expectedFlags.must.every(flag => item.flags.includes(flag)) &&
