@@ -1,4 +1,5 @@
 import Vue from "vue";
+import { Workbox } from "workbox-window";
 import { AddressBooksClient } from "@bluemind/addressbook.api";
 import { AlertFactory } from "@bluemind/alert.store";
 import { CalendarClient } from "@bluemind/calendar.api";
@@ -117,15 +118,17 @@ function registerAPIClients() {
     });
 }
 
-if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-        navigator.serviceWorker
-            .register("service-worker.js")
-            .then(registration => {
-                console.log("Service Worker registered. ", registration);
-            })
-            .catch(error => {
-                console.error("Service Worker registered failed. ", error);
-            });
-    });
-}
+(async () => {
+    if ("serviceWorker" in navigator) {
+        const wb = new Workbox("service-worker.js");
+        wb.messageSW({
+            type: "INIT_PERIODIC_SYNC"
+        });
+        try {
+            const registration = await wb.register();
+            console.log("Service Worker registered. ", registration);
+        } catch (error) {
+            console.error("Service Worker registered failed. ", error);
+        }
+    }
+})();

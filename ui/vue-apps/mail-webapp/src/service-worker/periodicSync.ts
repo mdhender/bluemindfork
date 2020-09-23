@@ -28,17 +28,13 @@ export async function registerPeriodicSync() {
     const folders = await mailapi.fetchMailFolders(domain, userId).then(response => response.json());
     await db.putMailFolders(folders);
     const foldersSyncInfo = folders.map(folder => createFolderSyncInfo(folder));
-    await Promise.all(
-        foldersSyncInfo.map(folderSyncInfo => {
-            return db.updateFolderSyncInfo(folderSyncInfo);
-        })
-    );
-    foldersSyncInfo.forEach(syncInfo => {
+    await Promise.all(foldersSyncInfo.map(folderSyncInfo => db.updateFolderSyncInfo(folderSyncInfo)));
+    for (const syncInfo of foldersSyncInfo) {
         scheduleUpdates(mailapi, syncInfo.uid);
         setInterval(() => {
             scheduleUpdates(mailapi, syncInfo.uid);
         }, syncInfo.minInterval);
-    });
+    }
 }
 
 async function scheduleUpdates(mailapi: MailAPI, uid: string) {

@@ -14,4 +14,8 @@ registerCSSRoute();
 registerImageRoute();
 registerScriptRoute();
 
-registerPeriodicSync();
+self.addEventListener("message", event => {
+    if (event.data.type === "INIT_PERIODIC_SYNC") {
+        registerPeriodicSync();
+    }
+});
