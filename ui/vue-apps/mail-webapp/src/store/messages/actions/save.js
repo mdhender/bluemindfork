@@ -13,24 +13,24 @@ export default async function ({ commit, state }, { userPrefTextOnly, draftKey, 
 
         await waitUntilDraftNotSaving(state[draftKey], 250, 5); // only one saveDraft at a time
         commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SAVING }]);
+        const draft = state[draftKey];
+        // const previousDraftId = draft.remoteRef.internalId;
 
-        const draft = { ...state[draftKey] };
-        const previousDraftId = draft.remoteRef.internalId;
-
-        let { partsToUpload, inlineImages } = prepareDraft(draft, editorContent, userPrefTextOnly);
+        let { partsToUpload, inlineImages } = prepareDraft(draft, editorContent, userPrefTextOnly, commit);
         const addrParts = await uploadInlineParts(service, partsToUpload);
-        const newDraftId = await createDraftStructure(draft, service, userPrefTextOnly, addrParts, inlineImages);
+        await createDraftStructure(draft, service, userPrefTextOnly, addrParts, inlineImages);
 
-        commit(mutationTypes.SET_MESSAGE_INTERNAL_ID, { messageKey: draft.key, internalId: newDraftId });
-        commit(mutationTypes.SET_MESSAGE_DATE, { messageKey: draft.key, date: new Date() });
+        // FIXME when fixing create
+        // commit(mutationTypes.SET_MESSAGE_INTERNAL_ID, { messageKey: draft.key, internalId: newDraftId });
         commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
 
-        await cleanParts(service, addrParts);
-        if (previousDraftId) {
-            await service.deleteById(previousDraftId);
-        }
+        // FIXME
+        // await cleanParts(service, addrParts);
 
-        return newDraftId;
+        // FIXME when fixing create
+        // if (previousDraftId) {
+        //     await service.deleteById(previousDraftId);
+        // }
     } catch (e) {
         commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SAVE_ERROR }]);
         throw e;
@@ -48,31 +48,50 @@ async function createDraftStructure(draft, service, userPrefTextOnly, addrParts,
         structure = PartsHelper.createAlternativePart(textPart, htmlPart);
         structure = PartsHelper.createInlineImageParts(structure, addrParts[MimeType.IMAGE], inlineImages);
     }
-    structure = PartsHelper.createAttachmentParts(
-        draft.attachments,
-        draft.attachmentStatuses, // FIXME
-        structure
-    );
-    const createResult = await service.create(MessageAdaptor.realToMailboxItem(draft, structure));
-    return createResult.id;
+    structure = PartsHelper.createAttachmentParts(draft.attachments, structure);
+
+    setMultipartAddresses(structure, draft.partsAddressesByMimeType);
+
+    // FIXME when fixing create
+    // const createResult = await service.create(MessageAdaptor.realToMailboxItem(draft, structure));
+    // return createResult.id;
+
+    return await service.updateById(draft.remoteRef.internalId, MessageAdaptor.realToMailboxItem(draft, structure));
 }
 
-function cleanParts(service, addrParts) {
-    const promises = [];
-    Object.keys(addrParts).forEach(mimeType => {
-        addrParts[mimeType].forEach(address => {
-            promises.push(service.removePart(address));
-        });
-    });
-    return Promise.all(promises);
+function setMultipartAddresses(structure, partsAddressesByMimeType) {
+    let alternativePart;
+    structure.address = "TEXT";
+
+    if (structure.mime === MimeType.MULTIPART_MIXED) {
+        alternativePart = structure.children[0];
+        alternativePart.address = partsAddressesByMimeType[MimeType.MULTIPART_ALTERNATIVE] || "1";
+    } else {
+        alternativePart = structure;
+    }
+
+    if (alternativePart.children[1].mime === MimeType.MULTIPART_RELATED) {
+        alternativePart.children[1].address = partsAddressesByMimeType[MimeType.MULTIPART_RELATED] || "2";
+    }
 }
 
-function prepareDraft(draft, editorContent, userPrefTextOnly) {
+// function cleanParts(service, addrParts) {
+//     const promises = [];
+//     Object.keys(addrParts).forEach(mimeType => {
+//         addrParts[mimeType].forEach(address => {
+//             promises.push(service.removePart(address));
+//         });
+//     });
+//     return Promise.all(promises);
+// }
+
+function prepareDraft(draft, editorContent, userPrefTextOnly, commit) {
+    sanitize(draft, editorContent, commit);
+    setHeaders(draft, commit);
+    // handleReplyOrForward(draft); FIXME
+
     const partsToUpload = {};
     let inlineImages = [];
-
-    // handleReplyOrForward(draft); FIXME
-    sanitize(draft, editorContent);
 
     if (userPrefTextOnly) {
         partsToUpload[MimeType.TEXT_PLAIN] = [editorContent];
@@ -127,15 +146,34 @@ async function uploadInlineParts(service, partsToUpload) {
 //     }
 // }
 
-function sanitize(draft, editorContent) {
+function setHeaders(draft, commit) {
+    // needed by BM core to detect if mail has changed when using IMailboxItems.updateById
+    const headers = JSON.parse(JSON.stringify(draft.headers));
+    const saveDate = new Date();
+    commit(mutationTypes.SET_MESSAGE_DATE, { messageKey: draft.key, date: saveDate });
+
+    const hasXBmDraftKeyHeader = headers.find(header => header.name === "X-Bm-Draft-Refresh-Date");
+    if (hasXBmDraftKeyHeader) {
+        hasXBmDraftKeyHeader.values = [saveDate.getTime()];
+    } else {
+        headers.push({
+            name: "X-Bm-Draft-Refresh-Date",
+            values: [saveDate.getTime()]
+        });
+    }
+    commit(mutationTypes.SET_MESSAGE_HEADERS, { messageKey: draft.key, headers });
+}
+
+function sanitize(draft, editorContent, commit) {
     if (draft.subject === "") {
-        draft.subject = "(No subject)";
+        // FIXME i18n
+        commit(mutationTypes.SET_MESSAGE_SUBJECT, { messageKey: draft.key, subject: "(No subject)" });
     }
     if (editorContent) {
-        editorContent = editorContent.replace(/[\n\r]/g, String.fromCharCode(13, 10));
+        commit(mutationTypes.SET_DRAFT_EDITOR_CONTENT, editorContent.replace(/[\n\r]/g, String.fromCharCode(13, 10)));
     }
     // FIXME cyrus wants \r\n, should do the replacement in the core, yes ?
-    editorContent = editorContent.replace(/\r?\n/g, "\r\n");
+    commit(mutationTypes.SET_DRAFT_EDITOR_CONTENT, editorContent.replace(/\r?\n/g, "\r\n"));
 }
 
 /**

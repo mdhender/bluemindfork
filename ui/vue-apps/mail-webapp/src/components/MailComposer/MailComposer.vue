@@ -33,12 +33,7 @@
                                     {{ $tc("mail.new.attachments.images.drop.zone", draggedFilesCount) }}
                                 </h2>
                             </template>
-                            <mail-attachments-block
-                                v-if="message.attachments > 0"
-                                :attachments="message.attachments"
-                                editable
-                                expanded
-                            />
+                            <mail-attachments-block v-if="message.attachments.length > 0" :message="message" expanded />
                         </bm-file-drop-zone>
                     </bm-col>
                 </bm-row>
@@ -46,8 +41,8 @@
                     class="z-index-110 as-attachments"
                     file-type-regex="^(?!.*image/(jpeg|jpg|png|gif)).*$"
                     at-least-one-match
-                    @dropFiles="addAttachments($event)"
                     @filesCount="draggedFilesCount = $event"
+                    @dropFiles="addAttachments($event)"
                 >
                     <template #dropZone>
                         <h2 class="text-center p-2">{{ $tc("mail.new.attachments.drop.zone", draggedFilesCount) }}</h2>
@@ -102,9 +97,10 @@
                     :message="message"
                     :user-pref-text-only="userPrefTextOnly"
                     :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
-                    @toggleTextFormat="userPrefIsMenuBarOpened = !userPrefIsMenuBarOpened"
+                    @toggle-text-format="userPrefIsMenuBarOpened = !userPrefIsMenuBarOpened"
                     @delete="deleteDraft"
                     @send="send"
+                    @add-attachments="addAttachments"
                 />
             </template>
         </mail-composer-panel>
@@ -116,7 +112,6 @@ import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import debounce from "lodash/debounce";
 
 import { MimeType, PartsHelper } from "@bluemind/email";
-import { inject } from "@bluemind/inject";
 import {
     BmButton,
     BmCol,
@@ -208,8 +203,8 @@ export default {
     },
     methods: {
         ...mapActions("mail", { save: actionTypes.SAVE_MESSAGE }),
-        ...mapActions("mail", [actionTypes.SEND_MESSAGE]),
-        ...mapActions("mail-webapp", ["addAttachments", "purge"]),
+        ...mapActions("mail", [actionTypes.SEND_MESSAGE, actionTypes.ADD_ATTACHMENTS]),
+        ...mapActions("mail-webapp", ["purge"]),
         ...mapMutations("mail-webapp", ["deleteAllSelectedMessages"]),
         ...mapMutations("mail", [
             mutationTypes.SET_DRAFT_EDITOR_CONTENT,
@@ -236,12 +231,21 @@ export default {
                 const textPlainPart = this.message.inlinePartsByCapabilities.find(
                     part => part.capabilities === MimeType.TEXT_PLAIN
                 ).parts[0];
-                newContent = await fetchPart(textPlainPart, this.message);
+                newContent = await PartsHelper.fetch(
+                    this.message.remoteRef.imapUid,
+                    this.message.folderRef.uid,
+                    textPlainPart,
+                    false
+                );
             } else {
                 let parts = this.message.inlinePartsByCapabilities.find(
                     part => part.capabilities[0] === MimeType.TEXT_HTML
                 ).parts;
-                const partsContent = await Promise.all(parts.map(part => fetchPart(part, this.message)));
+                const partsContent = await Promise.all(
+                    parts.map(part =>
+                        PartsHelper.fetch(this.message.remoteRef.imapUid, this.message.folderRef.uid, part, false)
+                    )
+                );
                 parts = parts.map((part, index) => ({ ...part, content: partsContent[index] }));
                 const htmlPart = parts.find(part => part.mime === MimeType.TEXT_HTML);
                 PartsHelper.insertInlineImages(
@@ -271,6 +275,15 @@ export default {
         async updateEditorContent(newContent) {
             this.SET_DRAFT_EDITOR_CONTENT(newContent);
             this.saveDraft();
+        },
+        addAttachments(files) {
+            this.ADD_ATTACHMENTS({
+                messageKey: this.messageKey,
+                files,
+                userPrefTextOnly: this.userPrefTextOnly,
+                myDraftsFolderKey: this.MY_DRAFTS.key,
+                editorContent: this.messageCompose.editorContent
+            });
         },
         send() {
             this.debouncedSave.cancel();
@@ -307,27 +320,6 @@ export default {
         }
     }
 };
-
-// FIXME ? move it in message model file, will also be needed by MailViewer
-async function fetchPart(part, message) {
-    const stream = await inject("MailboxItemsPersistence", message.folderRef.uid).fetch(
-        message.remoteRef.imapUid,
-        part.address,
-        part.encoding,
-        part.mime,
-        part.charset
-    );
-    if (MimeType.isText(part) || MimeType.isHtml(part) || MimeType.isCalendar(part)) {
-        return new Promise(resolve => {
-            const reader = new FileReader();
-            reader.readAsText(stream, part.encoding);
-            reader.addEventListener("loadend", e => {
-                resolve(e.target.result);
-            });
-        });
-    }
-    return stream;
-}
 </script>
 
 <style lang="scss">

@@ -4,8 +4,8 @@
             <bm-row v-if="isExpanded" class="pt-1">
                 <bm-col cols="12" class="px-1">
                     <img
-                        v-if="hasPreview"
-                        :src="preview"
+                        v-if="hasPreview && attachment.contentUrl"
+                        :src="attachment.contentUrl"
                         class="w-100 preview mb-1"
                         :alt="$tc('common.attachmentPreview')"
                     />
@@ -17,15 +17,13 @@
             <bm-row class="no-gutters align-items-center">
                 <bm-col
                     class="col-auto align-self-start"
-                    :class="{ muted: uploadProgressEntry }"
+                    :class="{ muted: !isUploaded }"
                     :title="$t('mail.content.file-type', { fileType: $t('mail.content.' + fileTypeIcon) })"
                 >
                     <bm-icon :icon="fileTypeIcon" size="2x" class="align-bottom pt-1" />
                 </bm-col>
-                <bm-col class="text-nowrap text-truncate flex-grow-1 px-1" :class="{ muted: uploadProgressEntry }">
-                    <span v-bm-tooltip :title="attachment.filename" class="font-weight-bold">
-                        {{ filename }}
-                    </span>
+                <bm-col class="text-nowrap text-truncate flex-grow-1 px-1" :class="{ muted: !isUploaded }">
+                    <span v-bm-tooltip :title="attachment.filename" class="font-weight-bold">{{ filename }} </span>
                     <br />
                     {{ fileSize }}
                 </bm-col>
@@ -43,7 +41,7 @@
                                 name: attachment.filename
                             })
                         "
-                        @click="$emit('save')"
+                        @click="download"
                     >
                         <bm-icon icon="download" size="2x" class="p-1" />
                     </bm-button>
@@ -55,23 +53,34 @@
                         size="md"
                         :title="isCancellable ? $tc('common.cancel') : $tc('common.removeAttachment')"
                         :aria-label="isCancellable ? $tc('common.cancel') : $tc('common.removeAttachment')"
-                        @click="isCancellable ? cancel() : $emit('remove')"
+                        @click="isCancellable ? cancel() : removeAttachment()"
                     />
                 </bm-col>
             </bm-row>
             <bm-progress
-                v-if="uploadProgressEntry"
-                :value="uploadProgressEntry.loaded"
-                :max="uploadProgressEntry.total"
-                :animated="uploadProgressEntry.animated"
+                v-if="!isUploaded"
+                :value="attachment.progress.loaded"
+                :max="attachment.progress.total"
+                :animated="attachment.progress.animated"
                 :variant="errorMessage ? 'danger' : 'primary'"
             />
         </bm-container>
         <div v-if="errorMessage" class="row px-1"><bm-notice class="w-100" :text="errorMessage" /></div>
+        <a
+            ref="download-attachment-link"
+            class="d-none"
+            :download="attachment.filename"
+            :href="attachment.contentUrl"
+        />
     </div>
 </template>
 
 <script>
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+
+import { MimeType, PartsHelper } from "@bluemind/email";
+import { computeUnit } from "@bluemind/file-utils";
+import global from "@bluemind/global";
 import {
     BmButton,
     BmCol,
@@ -83,9 +92,10 @@ import {
     BmButtonClose,
     BmNotice
 } from "@bluemind/styleguide";
-import { computeUnit } from "@bluemind/file-utils";
-import { MimeType } from "@bluemind/email";
-import { mapGetters } from "vuex";
+
+import { AttachmentStatus } from "../../model/attachment";
+import actionTypes from "../../store/actionTypes";
+import mutationTypes from "../../store/mutationTypes";
 
 export default {
     name: "MailAttachmentItem",
@@ -105,27 +115,24 @@ export default {
             type: Object,
             required: true
         },
+        message: {
+            type: Object,
+            required: true
+        },
         isExpanded: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-        isRemovable: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-        isDownloadable: {
             type: Boolean,
             required: false,
             default: true
         }
     },
     computed: {
-        // FIXME: draft state doesnt exist anymore
-        ...mapGetters("mail-webapp/draft", ["getAttachmentStatus", "getAttachmentProgress"]),
-        uploadProgressEntry() {
-            return this.getAttachmentProgress(this.attachment.uid);
+        ...mapGetters("mail", ["MY_DRAFTS"]),
+        ...mapState("mail", ["messageCompose"]),
+        isRemovable() {
+            return this.message.composing;
+        },
+        isDownloadable() {
+            return !this.message.composing;
         },
         fileTypeIcon() {
             return MimeType.matchingIcon(this.attachment.mime);
@@ -141,20 +148,70 @@ export default {
         hasPreview() {
             return MimeType.previewAvailable(this.attachment.mime);
         },
-        preview() {
-            return URL.createObjectURL(this.attachment.content);
-        },
         errorMessage() {
-            const status = this.getAttachmentStatus(this.attachment.uid);
-            return status === "ERROR" ? this.$t("alert.mail.message.draft.attach.error") : undefined;
+            return this.attachment.status === AttachmentStatus.ERROR
+                ? this.$t("alert.mail.message.draft.attach.error")
+                : undefined;
         },
         isCancellable() {
-            return this.uploadProgressEntry && this.getAttachmentStatus(this.attachment.uid) !== "ERROR";
+            return !this.isUploaded && this.attachment.status !== AttachmentStatus.ERROR;
+        },
+        isUploaded() {
+            return this.attachment.progress.loaded === this.attachment.progress.total;
+        }
+    },
+    watch: {
+        isExpanded: {
+            handler: function () {
+                if (this.isExpanded && this.hasPreview && this.isUploaded) {
+                    this.setContentUrl();
+                }
+            },
+            immediate: true
+        },
+        message() {
+            if (this.isExpanded && this.hasPreview && this.isUploaded) {
+                this.setContentUrl();
+            }
         }
     },
     methods: {
+        ...mapActions("mail", [actionTypes.REMOVE_ATTACHMENT]),
+        ...mapMutations("mail", [mutationTypes.SET_ATTACHMENT_CONTENT_URL]),
         cancel() {
-            this.getAttachmentProgress(this.attachment.uid).canceller.cancel();
+            global.cancellers[this.attachment.address + this.message.key].cancel();
+        },
+        async setContentUrl() {
+            if (!this.attachment.contentUrl) {
+                const contentUrl = URL.createObjectURL(
+                    await PartsHelper.fetch(
+                        this.message.remoteRef.imapUid,
+                        this.message.folderRef.uid,
+                        this.attachment,
+                        true
+                    )
+                );
+                this.SET_ATTACHMENT_CONTENT_URL({
+                    messageKey: this.message.key,
+                    address: this.attachment.address,
+                    url: contentUrl
+                });
+            }
+        },
+        removeAttachment() {
+            // FIXME userPrefTextOnly setting
+            this.REMOVE_ATTACHMENT({
+                messageKey: this.message.key,
+                attachmentAddress: this.attachment.address,
+                userPrefTextOnly: false,
+                myDraftsFolderKey: this.MY_DRAFTS.key,
+                editorContent: this.messageCompose.editorContent
+            });
+        },
+        async download() {
+            await this.setContentUrl();
+            await this.$nextTick();
+            this.$refs["download-attachment-link"].click();
         }
     }
 };

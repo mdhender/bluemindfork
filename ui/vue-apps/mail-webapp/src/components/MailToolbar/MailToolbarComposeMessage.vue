@@ -22,7 +22,21 @@
             <bm-icon icon="paper-clip" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.attach") }}</span>
         </bm-button>
-        <input ref="attachInputRef" type="file" multiple hidden @change="addAttachments($event.target.files)" />
+        <input
+            ref="attachInputRef"
+            type="file"
+            multiple
+            hidden
+            @change="
+                ADD_ATTACHMENTS({
+                    messageKey,
+                    files: $event.target.files,
+                    userPrefTextOnly,
+                    myDraftsFolderKey: MY_DRAFTS.key,
+                    editorContent: messageCompose.editorContent
+                })
+            "
+        />
         <bm-button
             v-bm-tooltip.bottom
             variant="simple-dark"
@@ -97,8 +111,8 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["addAttachments", "purge"]),
-        ...mapActions("mail", [actionTypes.SAVE_MESSAGE, actionTypes.SEND_MESSAGE]),
+        ...mapActions("mail-webapp", ["purge"]),
+        ...mapActions("mail", [actionTypes.ADD_ATTACHMENTS, actionTypes.SAVE_MESSAGE, actionTypes.SEND_MESSAGE]),
         async doDelete() {
             const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.draft.delete.confirm.content"), {
                 title: this.$t("mail.draft.delete.confirm.title"),

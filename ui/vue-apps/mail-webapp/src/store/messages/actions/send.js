@@ -11,36 +11,32 @@ export default async function (
     { userPrefTextOnly, draftKey, myMailboxKey, outboxId, myDraftsFolder, sentFolder, editorContent }
 ) {
     const draft = state[draftKey];
+    let draftId = draft.remoteRef.internalId;
 
-    try {
-        let draftId = await dispatch(actionTypes.SAVE_MESSAGE, {
-            userPrefTextOnly,
-            draftKey,
-            myDraftsFolderKey: myDraftsFolder.key,
-            editorContent
-        });
-        commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENDING }]);
-        validateDraft(draft);
+    await dispatch(actionTypes.SAVE_MESSAGE, {
+        userPrefTextOnly,
+        draftKey,
+        myDraftsFolderKey: myDraftsFolder.key,
+        editorContent
+    });
 
-        const moveResult = await moveToOutbox(draftId, myMailboxKey, outboxId, myDraftsFolder.id);
-        if (!moveResult || moveResult.status !== "SUCCESS") {
-            throw "Unable to move draft to Outbox.";
-        }
+    commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENDING }]);
+    validateDraft(draft);
 
-        draftId = moveResult.doneIds[0].destination;
-        const taskResult = await flush(); // flush means send mail + move to sentbox
-        const mailItem = await getSentMessageId(taskResult, draftId, sentFolder.uid);
-
-        clearAttachmentParts(myDraftsFolder.uid, draft);
-        manageFlagOnPreviousMessage(draft, dispatch);
-
-        commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
-        return mailItem;
-    } catch (reason) {
-        console.log(reason);
-        commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SEND_ERROR }]);
-        throw reason;
+    const moveResult = await moveToOutbox(draftId, myMailboxKey, outboxId, myDraftsFolder.id);
+    if (!moveResult || moveResult.status !== "SUCCESS") {
+        throw "Unable to move draft to Outbox.";
     }
+
+    draftId = moveResult.doneIds[0].destination;
+    const taskResult = await flush(); // flush means send mail + move to sentbox
+    const mailItem = await getSentMessageId(taskResult, draftId, sentFolder.uid);
+
+    clearAttachmentParts(myDraftsFolder.uid, draft);
+    manageFlagOnPreviousMessage(draft, dispatch);
+
+    commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
+    return mailItem;
 }
 
 function getSentMessageId(taskResult, draftId, sentboxUid) {

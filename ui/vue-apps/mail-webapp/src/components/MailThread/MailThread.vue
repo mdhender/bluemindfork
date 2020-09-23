@@ -57,8 +57,13 @@ export default {
         folderOfCurrentMessage() {
             return this.folders[ItemUri.container(this.currentMessageKey)];
         },
+        okok() {
+            return this.messages[this.currentMessageKey];
+        },
         isADraft() {
-            return this.currentMessageKey ? this.messages[this.currentMessageKey].composing : false;
+            return this.currentMessageKey && this.messages[this.currentMessageKey]
+                ? this.messages[this.currentMessageKey].composing
+                : false;
         }
         // previousMessage() {
         //     return {

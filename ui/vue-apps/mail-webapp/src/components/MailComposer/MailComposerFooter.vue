@@ -38,18 +38,18 @@
                 :aria-label="textFormatterLabel"
                 :title="textFormatterLabel"
                 :disabled="isSending"
-                @click="$emit('toggleTextFormat')"
+                @click="$emit('toggle-text-format')"
             >
                 <bm-icon icon="text-format" size="lg" />
             </bm-button>
             <input
+                ref="attachInputRef"
                 tabindex="-1"
                 aria-hidden="true"
-                ref="attachInputRef"
                 type="file"
                 multiple
                 hidden
-                @change="addAttachments($event.target.files)"
+                @change="$emit('add-attachments', $event.target.files)"
             />
             <bm-button
                 v-bm-tooltip.bottom
@@ -72,6 +72,7 @@ import { mapActions } from "vuex";
 import { DateComparator } from "@bluemind/date";
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 
+import actionTypes from "../../store/actionTypes";
 import MessageStatus from "../../store/messages/MessageStatus";
 
 export default {
@@ -131,7 +132,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["addAttachments"]),
+        ...mapActions("mail", [actionTypes.ADD_ATTACHMENTS]),
         openFilePicker() {
             this.$refs.attachInputRef.click();
         }

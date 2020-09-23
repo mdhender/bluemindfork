@@ -5,7 +5,9 @@ import MessageStatus from "./MessageStatus";
 export default {
     [mutationTypes.ADD_MESSAGES]: (state, messages) => {
         messages.forEach(message => {
-            Vue.set(state, message.key, message);
+            if (state[message.key] && !state[message.key].composing) {
+                Vue.set(state, message.key, message);
+            }
         });
     },
     [mutationTypes.ADD_FLAG]: (state, { keys, flag }) => {
@@ -47,7 +49,37 @@ export default {
     [mutationTypes.SET_MESSAGE_DATE]: (state, { messageKey, date }) => {
         state[messageKey].date = date;
     },
-
+    [mutationTypes.SET_MESSAGE_HEADERS]: (state, { messageKey, headers }) => {
+        state[messageKey].headers = headers;
+    },
+    [mutationTypes.ADD_ATTACHMENT]: (state, { messageKey, attachment }) => {
+        state[messageKey].attachments.push(attachment);
+    },
+    [mutationTypes.REMOVE_ATTACHMENT]: (state, { messageKey, address }) => {
+        const attachments = state[messageKey].attachments;
+        const index = attachments.findIndex(a => a.address === address);
+        if (attachments[index].contentUrl) {
+            URL.revokeObjectURL(attachments[index].contentUrl);
+        }
+        attachments.splice(index, 1);
+    },
+    [mutationTypes.UPDATE_ATTACHMENT]: (state, { messageKey, oldAddress, address, contentUrl }) => {
+        const attachment = state[messageKey].attachments.find(a => a.address === oldAddress);
+        attachment.contentUrl = contentUrl;
+        attachment.address = address;
+    },
+    [mutationTypes.SET_ATTACHMENT_STATUS]: (state, { messageKey, address, status }) => {
+        const attachment = state[messageKey].attachments.find(a => a.address === address);
+        attachment.status = status;
+    },
+    [mutationTypes.SET_ATTACHMENT_PROGRESS]: (state, { messageKey, address, loaded, total }) => {
+        const attachment = state[messageKey].attachments.find(a => a.address === address);
+        attachment.progress = { loaded, total };
+    },
+    [mutationTypes.SET_ATTACHMENT_CONTENT_URL]: (state, { messageKey, address, url }) => {
+        const attachment = state[messageKey].attachments.find(a => a.address === address);
+        attachment.contentUrl = url;
+    },
     // FIXME when finding soluce for message key route when composing a draft
     [mutationTypes.SET_MESSAGE_INTERNAL_ID]: (state, { messageKey, internalId }) => {
         state[messageKey].remoteRef.internalId = internalId;

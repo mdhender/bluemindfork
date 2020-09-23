@@ -3,7 +3,9 @@
         <bm-button variant="inline-light" class="d-lg-none btn-sm mr-auto" @click="back()">
             <bm-icon icon="arrow-back" size="2x" />
         </bm-button>
-        <mail-toolbar-compose-message v-if="currentMessageKey && messages[currentMessageKey].composing" />
+        <mail-toolbar-compose-message
+            v-if="currentMessageKey && messages[currentMessageKey] && messages[currentMessageKey].composing"
+        />
         <mail-toolbar-selected-messages v-else-if="currentMessage || selectedMessageKeys.length > 1" />
     </bm-button-toolbar>
 </template>

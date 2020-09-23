@@ -8,9 +8,9 @@
                 :title="$t('common.toggleAttachments')"
                 @click.prevent="toggleExpand"
             >
-                <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" />
+                <bm-icon :icon="areAllExpanded ? 'caret-down' : 'caret-right'" />
             </bm-button>
-            <template v-if="editable">
+            <template v-if="message.composing">
                 <bm-icon icon="paper-clip" class="mr-1 ml-2" :class="paperClipColor" size="lg" />
                 <span :class="isTooHeavy ? 'text-danger font-weight-bold' : ''">
                     {{
@@ -38,24 +38,10 @@
         </div>
         <bm-row v-if="seeMoreAttachments" class="ml-3 mr-1">
             <bm-col cols="4">
-                <mail-attachment-item
-                    :attachment="attachments[0]"
-                    :is-expanded="isExpanded"
-                    :is-removable="editable"
-                    :is-downloadable="!editable"
-                    @save="save(0)"
-                    @remove="removeAttachment(attachments[0].uid)"
-                />
+                <mail-attachment-item :attachment="attachments[0]" :is-expanded="isExpanded(0)" :message="message" />
             </bm-col>
             <bm-col cols="4">
-                <mail-attachment-item
-                    :attachment="attachments[1]"
-                    :is-expanded="isExpanded"
-                    :is-removable="editable"
-                    :is-downloadable="!editable"
-                    @save="save(1)"
-                    @remove="removeAttachment(attachments[1].uid)"
-                />
+                <mail-attachment-item :attachment="attachments[1]" :is-expanded="isExpanded(1)" :message="message" />
             </bm-col>
             <bm-col cols="4" class="pt-2 border-transparent">
                 <bm-button
@@ -77,22 +63,9 @@
         </bm-row>
         <bm-row v-else class="ml-3 mr-1">
             <bm-col v-for="(attachment, index) in attachments" :key="attachment.address" cols="4">
-                <mail-attachment-item
-                    :attachment="attachment"
-                    :is-expanded="isExpanded"
-                    :is-removable="editable"
-                    :is-downloadable="!editable"
-                    @save="save(index)"
-                    @remove="removeAttachment(attachment.uid)"
-                />
+                <mail-attachment-item :attachment="attachment" :is-expanded="isExpanded(index)" :message="message" />
             </bm-col>
         </bm-row>
-        <a
-            ref="download-attachment-link"
-            class="d-none"
-            :download="downloadAttachmentFilename"
-            :href="downloadAttachmentBlob"
-        />
         <!-- Save all button with i18n, please dont delete it 
             <bm-button
             variant="outline-secondary"
@@ -106,11 +79,13 @@
 </template>
 
 <script>
-import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmTooltip, BmProgress } from "@bluemind/styleguide";
+import { mapMutations, mapState } from "vuex";
+
 import { displayWithUnit } from "@bluemind/file-utils";
-import { mapActions, mapState, mapGetters } from "vuex";
-import { MimeType } from "@bluemind/email";
+import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmTooltip, BmProgress } from "@bluemind/styleguide";
+
 import MailAttachmentItem from "./MailAttachmentItem";
+import mutationTypes from "../../store/mutationTypes";
 
 export default {
     name: "MailAttachmentsBlock",
@@ -125,40 +100,29 @@ export default {
     },
     directives: { BmTooltip },
     props: {
-        attachments: {
-            type: Array,
-            default: () => []
-        },
-        editable: {
-            type: Boolean,
-            required: false,
-            default: false
+        message: {
+            type: Object,
+            required: true
         },
         expanded: {
             type: Boolean,
-            required: false,
             default: false
         }
     },
     data() {
-        return {
-            isExpanded: this.expanded,
-            attachmentsContentFetched: false,
-            downloadAttachmentFilename: "",
-            downloadAttachmentBlob: ""
-        };
+        return { areAllExpanded: this.expanded };
     },
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail-webapp", { attachmentsMaxWeight: "maxMessageSize" }),
+        attachments() {
+            return this.message.attachments;
+        },
         hasMoreThan3Attachments() {
             return this.attachments.length > 3;
         },
         seeMoreAttachments() {
-            return !this.isExpanded && this.hasMoreThan3Attachments;
-        },
-        hasAnyAttachmentWithPreview() {
-            return this.attachments.some(a => this.hasPreview(a));
+            return !this.areAllExpanded && this.hasMoreThan3Attachments;
         },
         attachmentsWeight() {
             return this.attachments.map(attachment => attachment.size).reduce((total, size) => total + size, 0);
@@ -192,65 +156,31 @@ export default {
     },
     watch: {
         currentMessageKey() {
-            this.isExpanded = this.expanded;
-            this.attachmentsContentFetched = false;
+            this.areAllExpanded = this.expanded;
         }
     },
-    methods: {
-        ...mapActions("mail-webapp/messages", ["fetch"]),
-        ...mapActions("mail-webapp", ["removeAttachment"]),
-        ...mapGetters("mail-webapp/messages", ["getPartContent"]),
-        toggleExpand() {
-            if (!this.isExpanded && this.hasAnyAttachmentWithPreview && !this.attachmentsContentFetched) {
-                let promises = this.attachments
-                    .filter(a => MimeType.previewAvailable(a.mime))
-                    .map(attachment => this.loadContentIfMissing(attachment));
-                Promise.all(promises)
-                    .then(() => {
-                        this.attachmentsContentFetched = true;
-                        this.isExpanded = !this.isExpanded;
-                    })
-                    .catch(() => console.error("fail to fetch attachment content"));
-            } else {
-                this.isExpanded = !this.isExpanded;
-            }
-        },
-        hasPreview(attachment) {
-            return MimeType.previewAvailable(attachment.mime);
-        },
-        save(index) {
-            const attachment = this.attachments[index];
-            // attachment content may be already fetched (if its preview has been displayed)
-            if (attachment.content !== undefined) {
-                this.triggerDownload(index);
-            } else {
-                this.loadContentIfMissing(attachment).then(() => this.triggerDownload(index));
-            }
-        },
-        triggerDownload(index) {
-            const attachment = this.attachments[index];
-
-            this.downloadAttachmentFilename = attachment.filename;
-            this.downloadAttachmentBlob = URL.createObjectURL(attachment.content);
-
-            this.$nextTick(() => this.$refs["download-attachment-link"].click());
-        },
-        loadContentIfMissing(attachment) {
-            if (!attachment.content) {
-                // need to fetch content (for attachments where preview is available)
-                // before render expanded mode
-                return this.fetch({
-                    messageKey: this.currentMessageKey,
-                    part: attachment,
-                    isAttachment: true
-                }).then(() => {
-                    attachment.content = this.getPartContent()(this.currentMessageKey, attachment.address);
+    destroyed() {
+        this.attachments.forEach(attachment => {
+            if (attachment.contentUrl) {
+                URL.revokeObjectURL(attachment.contentUrl);
+                this.SET_ATTACHMENT_CONTENT_URL({
+                    messageKey: this.message.key,
+                    address: attachment.address,
+                    url: null
                 });
-            } else {
-                return Promise.resolve();
             }
+        });
+    },
+    methods: {
+        ...mapMutations("mail", [mutationTypes.SET_ATTACHMENT_CONTENT_URL]),
+        isExpanded(index) {
+            return this.areAllExpanded || index < 2;
+        },
+        async toggleExpand() {
+            this.areAllExpanded = !this.areAllExpanded;
         },
         displaySize(size) {
+            size = size < 100000 ? 100000 : size;
             return displayWithUnit(size, "Mo");
         }
     }

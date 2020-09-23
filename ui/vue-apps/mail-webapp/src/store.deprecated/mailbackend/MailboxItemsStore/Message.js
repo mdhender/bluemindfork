@@ -17,10 +17,10 @@
  */
 import { EmailExtractor, Flag } from "@bluemind/email";
 import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mail.api";
-import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
-import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
+import GetAttachmentPartsVisitor from "../../../store/messages/GetAttachmentPartsVisitor";
+import GetInlinePartsVisitor from "../../../store/messages/GetInlinePartsVisitor";
 import injector from "@bluemind/inject";
-import TreeWalker from "./TreeWalker";
+import TreeWalker from "../../../store/messages/TreeWalker";
 
 /**
  * Holds data and methods for displaying a mail message and respond to it.

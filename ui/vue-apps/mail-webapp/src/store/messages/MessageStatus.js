@@ -5,6 +5,5 @@ export default {
     REMOVED: "REMOVED",
     SAVING: "SAVING",
     SAVE_ERROR: "SAVE_ERROR",
-    SENDING: "SENDING",
-    SEND_ERROR: "SEND_ERROR"
+    SENDING: "SENDING"
 };

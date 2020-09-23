@@ -2,9 +2,13 @@ import cloneDeep from "lodash.clonedeep";
 import pick from "lodash.pick";
 
 import ItemUri from "@bluemind/item-uri";
-import { RecipientKind } from "@bluemind/backend.mail.api";
+import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mail.api";
 
+import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
+import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
+import PartsAddressesByMimeTypeVisitor from "./PartsAddressesByMimeTypeVisitor";
 import MessageStatus from "./MessageStatus";
+import TreeWalker from "./TreeWalker";
 
 export default {
     fromMailboxItem(remote, { key, uid }) {
@@ -59,6 +63,7 @@ export default {
     realToMailboxItem(local, structure) {
         return {
             body: {
+                date: local.date.getTime(),
                 subject: local.subject,
                 headers: local.headers,
                 recipients: buildRecipients(local),
@@ -66,6 +71,7 @@ export default {
                 references: local.references,
                 structure
             },
+            imapUid: local.remoteRef.imapUid,
             flags: local.flags
         };
     },
@@ -84,20 +90,19 @@ export default {
     }
 };
 
-// FIXME: THOSE IMPORT MUST BE MOVED IN NEW STORE
-import GetAttachmentPartsVisitor from "../../store.deprecated/mailbackend/MailboxItemsStore/GetAttachmentPartsVisitor";
-import GetInlinePartsVisitor from "../../store.deprecated/mailbackend/MailboxItemsStore/GetInlinePartsVisitor";
-import TreeWalker from "../../store.deprecated/mailbackend/MailboxItemsStore/TreeWalker";
-
 // FIXME: remove DUPLICATED FUNCTION (see MessageBuilder in deprecated store)
 function computeParts(structure) {
     const inlineVisitor = new GetInlinePartsVisitor();
     const attachmentVisitor = new GetAttachmentPartsVisitor();
-    const walker = new TreeWalker(structure, [inlineVisitor, attachmentVisitor]);
+    const partsAddressesByMimeTypeVisitor = new PartsAddressesByMimeTypeVisitor();
+
+    const walker = new TreeWalker(structure, [inlineVisitor, attachmentVisitor, partsAddressesByMimeTypeVisitor]);
     walker.walk();
+
     return {
+        attachments: attachmentVisitor.result(),
         inlinePartsByCapabilities: inlineVisitor.result(),
-        attachments: attachmentVisitor.result()
+        partsAddressesByMimeType: partsAddressesByMimeTypeVisitor.result()
     };
 }
 

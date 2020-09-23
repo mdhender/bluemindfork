@@ -1,9 +1,10 @@
 import { MimeType } from "@bluemind/email";
-import injector from "@bluemind/inject";
+import { inject } from "@bluemind/inject";
 import ItemUri from "@bluemind/item-uri";
 
+import mutationTypes from "../../store/mutationTypes";
+
 export function selectMessage({ dispatch, commit, state, rootState, rootGetters }, messageKey) {
-    const userSession = injector.getProvider("UserSession").get();
     const CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
 
     if (rootState.mail.activeFolder && !ItemUri.isItemUri(messageKey)) {
@@ -16,12 +17,11 @@ export function selectMessage({ dispatch, commit, state, rootState, rootGetters 
             const promises = [];
             commit("currentMessage/update", { key: messageKey });
 
-            if (userSession.roles.includes("hasCalendar") && !message.ics.isEmpty) {
+            if (inject("UserSession").roles.includes("hasCalendar") && !message.ics.isEmpty) {
                 promises.push(dispatch("mail/FETCH_EVENT", message.ics.eventUid, { root: true }));
             }
-
             if (ItemUri.container(messageKey) === rootGetters["mail/MY_DRAFTS"].key) {
-                commit("mail/SET_MESSAGE_COMPOSING", { messageKey, composing: true }, { root: true });
+                commit("mail/" + mutationTypes.SET_MESSAGE_COMPOSING, { messageKey, composing: true }, { root: true });
             } else {
                 // FIXME: remove me once MailViewer manage parts fetch
                 const parts = message.computeParts();

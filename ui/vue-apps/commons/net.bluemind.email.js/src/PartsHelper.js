@@ -1,5 +1,7 @@
-import MimeType from "./MimeType";
+import { inject } from "@bluemind/inject";
 import UUIDGenerator from "@bluemind/uuid";
+
+import MimeType from "./MimeType";
 
 export default {
     createAlternativePart,
@@ -9,6 +11,7 @@ export default {
     createMixedPart,
     createRelatedPart,
     createTextPart,
+    fetch,
     insertCid,
     insertInlineImages,
     isAttachment
@@ -87,10 +90,10 @@ function isAttachment(part) {
     return part.dispositionType && part.dispositionType === "ATTACHMENT";
 }
 
-function createAttachmentParts(attachments, attachmentStatuses, structure) {
+function createAttachmentParts(attachments, structure) {
     if (attachments.length > 0) {
         let children = [structure];
-        children.push(...attachments.filter(a => attachmentStatuses[a.uid] !== "ERROR"));
+        children.push(...attachments.filter(a => a.status !== "ERROR"));
         structure = createMixedPart(children);
     }
     return structure;
@@ -145,4 +148,26 @@ function createInlineImageParts(structure, addresses, images) {
         structure.children[1] = createRelatedPart(childrenOfRelatedPart);
     }
     return structure;
+}
+
+// FIXME: duplicated code with fetch action. Remove fetch action once MailViewer is refactored
+async function fetch(messageImapUid, folderUid, part, isAttachment) {
+    const stream = await inject("MailboxItemsPersistence", folderUid).fetch(
+        messageImapUid,
+        part.address,
+        part.encoding,
+        part.mime,
+        part.charset
+    );
+    if (!isAttachment && (MimeType.isText(part) || MimeType.isHtml(part) || MimeType.isCalendar(part))) {
+        return new Promise(resolve => {
+            const reader = new FileReader();
+            reader.readAsText(stream, part.encoding);
+            reader.addEventListener("loadend", e => {
+                resolve(e.target.result);
+            });
+        });
+    } else {
+        return stream;
+    }
 }
