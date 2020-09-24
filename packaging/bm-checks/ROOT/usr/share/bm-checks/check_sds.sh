@@ -7,7 +7,7 @@ WORKSPACE=`dirname $0`
 source ${WORKSPACE}"/check.lib"
 
 function check_sds {
-    existrequest=$(curl --connect-timeout 30 --max-time 120 -X HEAD -o /dev/null -w "%{http_code}" --silent -d'{"mailbox":"check","partition":"check"}' http://localhost:8091/mailbox)
+    existrequest=$(curl --connect-timeout 30 --max-time 120 -X POST -o /dev/null -w "%{http_code}" --silent -d'{"mailbox":"check","partition":"check"}' http://localhost:8091/mailbox)
     existrequestret=$?
     if [ ${existrequestret} -ne 0 ]
         then
