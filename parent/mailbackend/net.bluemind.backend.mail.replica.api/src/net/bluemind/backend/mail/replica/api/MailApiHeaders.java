@@ -34,6 +34,11 @@ public final class MailApiHeaders {
 	 */
 	public static final String X_BM_PREVIOUS_BODY = "X-Bm-Previous-Body";
 
+	/**
+	 * Message date when using updateById
+	 */
+	public static final String X_BM_DRAFT_REFRESH_DATE = "X-Bm-Draft-Refresh-Date";
+
 	public static class OutlookProps {
 
 		/**

@@ -326,7 +326,10 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	private Ack mailRewrite(ItemValue<MailboxItem> current, MailboxItem newValue) {
 		logger.warn("Full EML rewrite expected with subject '{}'", newValue.body.subject);
-		newValue.body.date = current.value.body.date;
+		newValue.body.date = new Date(Long.parseLong(newValue.body.headers.stream()
+				.filter(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)).findAny()
+				.orElse(Header.create(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE, "" + current.value.body.date)).values
+						.get(0)));
 		Part currentStruct = current.value.body.structure;
 		Part expectedStruct = newValue.body.structure;
 		logger.info("Shoud go from:\n{} to\n{}", JsonUtils.asString(currentStruct), JsonUtils.asString(expectedStruct));
@@ -370,8 +373,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 			List<String> allFlags = newValue.flags.stream().map(item -> item.flag).collect(Collectors.toList());
 			ReadStream<Buffer> asStream = new VertxInputReadStream(fast.vertx(), updatedEml.input);
-			CompletableFuture<ImapResponseStatus<AppendResponse>> append = fast.append(imapFolder,
-					current.value.body.date, allFlags, updatedEml.size, asStream);
+			CompletableFuture<ImapResponseStatus<AppendResponse>> append = fast.append(imapFolder, newValue.body.date,
+					allFlags, updatedEml.size, asStream);
 			try {
 				return append.thenCompose(appendResult -> {
 					FlagsList fl = new FlagsList();
@@ -561,6 +564,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 						v.value.imapUid);
 				return null;
 			}
+
 			if (v.value.internalDate != null) {
 				adapted.value.body.date = v.value.internalDate;
 			}
