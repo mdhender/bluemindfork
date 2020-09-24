@@ -1,6 +1,6 @@
 <template>
     <div class="message-list-item-left d-flex flex-column align-items-center">
-        <bm-avatar :alt="from" :class="[anyMessageSelected ? 'd-none' : '']" />
+        <bm-avatar :alt="fromOrTo" :class="[anyMessageSelected ? 'd-none' : '']" />
         <bm-check
             :checked="isMessageSelected(message.key)"
             :class="[anyMessageSelected ? 'd-block' : 'd-none']"
@@ -43,9 +43,8 @@ export default {
     computed: {
         ...mapState("mail-webapp", ["selectedMessageKeys"]),
         ...mapGetters("mail-webapp", ["isMessageSelected"]),
-        from() {
-            return this.message.from.dn ? this.message.from.dn : this.message.from.address;
-        },
+        ...mapGetters("mail", ["MY_DRAFTS", "MY_SENT"]),
+        ...mapState("mail", ["messages"]),
         anyMessageSelected() {
             return this.selectedMessageKeys.length > 0;
         },
@@ -55,6 +54,17 @@ export default {
                 .filter(state => !!state)
                 .sort((a, b) => a.order < b.order)
                 .shift();
+        },
+
+        fromOrTo() {
+            const messageFolder = this.messages[this.message.key].folderRef.key;
+            const isSentOrDraftBox = [this.MY_DRAFTS.key, this.MY_SENT.key].includes(messageFolder);
+            if (isSentOrDraftBox) {
+                const firstRecipient = this.message.to[0];
+                return firstRecipient ? (firstRecipient.dn ? firstRecipient.dn : firstRecipient.address) : "";
+            } else {
+                return this.message.from.dn ? this.message.from.dn : this.message.from.address;
+            }
         }
     }
 };

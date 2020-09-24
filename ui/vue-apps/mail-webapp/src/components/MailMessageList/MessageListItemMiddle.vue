@@ -3,10 +3,10 @@
         <div class="d-flex flex-row">
             <div
                 v-bm-tooltip.viewport
-                :title="from"
+                :title="fromOrTo"
                 class="mail-message-list-item-sender h3 text-dark text-truncate flex-fill"
             >
-                {{ from }}
+                {{ fromOrTo }}
             </div>
             <transition name="fade-out" mode="out-in">
                 <div v-if="isSearchMode && !mouseIn" class="d-flex slide">
@@ -84,7 +84,7 @@ const FLAG_COMPONENT = {
 };
 
 export default {
-    name: "MessageListItemLeft",
+    name: "MessageListItemMiddle",
     directives: { BmTooltip },
     components: { BmIcon, MailFolderIcon },
     props: {
@@ -111,11 +111,9 @@ export default {
     },
     computed: {
         ...mapGetters("mail-webapp", ["isMessageSelected", "my", "isSearchMode"]),
+        ...mapGetters("mail", ["MY_DRAFTS", "MY_SENT"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail", ["mailboxes", "folders"]),
-        from() {
-            return this.message.from.dn ? this.message.from.dn : this.message.from.address;
-        },
+        ...mapState("mail", ["mailboxes", "folders", "messages"]),
         displayedDate: function () {
             const today = new Date();
             const messageDate = this.message.date;
@@ -140,6 +138,15 @@ export default {
         },
         isActive() {
             return this.isMessageSelected(this.message.key) || this.message.key === this.currentMessageKey;
+        },
+        fromOrTo() {
+            const messageFolder = this.messages[this.message.key].folderRef.key;
+            const isSentOrDraftBox = [this.MY_DRAFTS.key, this.MY_SENT.key].includes(messageFolder);
+            if (isSentOrDraftBox) {
+                return this.message.to.map(to => (to.dn ? to.dn : to.address)).join(", ");
+            } else {
+                return this.message.from.dn ? this.message.from.dn : this.message.from.address;
+            }
         }
     },
     methods: {
