@@ -16,7 +16,7 @@
  * END LICENSE
  */
 import { EmailExtractor, Flag } from "@bluemind/email";
-import { RecipientKind } from "@bluemind/backend.mail.api";
+import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mail.api";
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
 import injector from "@bluemind/inject";
