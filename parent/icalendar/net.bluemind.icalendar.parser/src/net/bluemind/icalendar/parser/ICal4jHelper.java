@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -121,15 +122,20 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 	static ZoneId utcTz = ZoneId.of("UTC");
 
-	// ICS -> BM
 	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, Optional<String> globalTZ,
 			Optional<CalendarOwner> owner) {
+		return this.parseIcs(iCalendarElement, cc, globalTZ, Collections.emptyMap(), owner);
+	}
+
+	// ICS -> BM
+	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, Optional<String> globalTZ,
+			Map<String, String> tzMapping, Optional<CalendarOwner> owner) {
 
 		// UID
 		String uid = parseIcsUid(cc.getProperty(Property.UID));
 
 		// DTSTART
-		iCalendarElement.dtstart = parseIcsDate((DateProperty) cc.getProperty(Property.DTSTART), globalTZ);
+		iCalendarElement.dtstart = parseIcsDate((DateProperty) cc.getProperty(Property.DTSTART), globalTZ, tzMapping);
 
 		// SUMMARY
 		iCalendarElement.summary = parseIcsSummary(cc.getProperty(Property.SUMMARY));
@@ -286,13 +292,13 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		}
 
 		// EXDATE
-		Set<BmDateTime> exdate = parseIcsExDate(cc.getProperties(Property.EXDATE), globalTZ);
+		Set<BmDateTime> exdate = parseIcsExDate(cc.getProperties(Property.EXDATE), globalTZ, tzMapping);
 		if (exdate != null) {
 			iCalendarElement.exdate = exdate;
 		}
 
 		// RDATE
-		Set<BmDateTime> rdate = parseIcsRDate(cc.getProperties(Property.RDATE), globalTZ);
+		Set<BmDateTime> rdate = parseIcsRDate(cc.getProperties(Property.RDATE), globalTZ, tzMapping);
 		if (rdate != null) {
 			iCalendarElement.rdate = rdate;
 		}
@@ -533,9 +539,11 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 	/**
 	 * @param exDatePropList
+	 * @param tzMapping
 	 * @return
 	 */
-	private static Set<BmDateTime> parseIcsExDate(PropertyList exDatePropList, Optional<String> globalTZ) {
+	private static Set<BmDateTime> parseIcsExDate(PropertyList exDatePropList, Optional<String> globalTZ,
+			Map<String, String> tzMapping) {
 
 		if (exDatePropList != null && exDatePropList.size() > 0) {
 			Set<BmDateTime> ret = new HashSet<>();
@@ -546,6 +554,9 @@ public class ICal4jHelper<T extends ICalendarElement> {
 				for (Object o : dateList) {
 					String oTimeZone = null != exDate.getTimeZone() ? exDate.getTimeZone().getID() : null;
 					oTimeZone = oTimeZone != null ? oTimeZone : globalTZ.orElse(null);
+					if (oTimeZone != null && tzMapping.containsKey(oTimeZone)) {
+						oTimeZone = tzMapping.get(oTimeZone);
+					}
 					ret.add(IcalConverter.convertToDateTime((Date) o, oTimeZone));
 				}
 
@@ -558,9 +569,11 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 	/**
 	 * @param rDatePropList
+	 * @param tzMapping
 	 * @return
 	 */
-	private static Set<BmDateTime> parseIcsRDate(PropertyList rDatePropList, Optional<String> globalTZ) {
+	private static Set<BmDateTime> parseIcsRDate(PropertyList rDatePropList, Optional<String> globalTZ,
+			Map<String, String> tzMapping) {
 
 		if (rDatePropList != null && rDatePropList.size() > 0) {
 			Set<BmDateTime> ret = new HashSet<>();
@@ -571,6 +584,9 @@ public class ICal4jHelper<T extends ICalendarElement> {
 				for (Object o : dateList) {
 					String oTimeZone = null != rDate.getTimeZone() ? rDate.getTimeZone().getID() : null;
 					oTimeZone = null != oTimeZone ? oTimeZone : globalTZ.isPresent() ? globalTZ.get() : null;
+					if (oTimeZone != null && tzMapping.containsKey(oTimeZone)) {
+						oTimeZone = tzMapping.get(oTimeZone);
+					}
 					ret.add(IcalConverter.convertToDateTime((Date) o, oTimeZone));
 				}
 
@@ -801,11 +817,13 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	}
 
 	/**
+	 * @param tzMapping
 	 * @param startDate
 	 * @return
 	 */
-	protected static BmDateTime parseIcsDate(DateProperty date, Optional<String> globalTZ) {
-		return IcalConverter.convertToDateTime(date, globalTZ);
+	protected static BmDateTime parseIcsDate(DateProperty date, Optional<String> globalTZ,
+			Map<String, String> tzMapping) {
+		return IcalConverter.convertToDateTime(date, globalTZ, tzMapping);
 	}
 
 	// BM -> ICS

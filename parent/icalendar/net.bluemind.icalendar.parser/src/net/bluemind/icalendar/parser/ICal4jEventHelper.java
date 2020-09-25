@@ -18,6 +18,8 @@
  */
 package net.bluemind.icalendar.parser;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 import net.bluemind.calendar.api.VEvent;
@@ -30,15 +32,22 @@ import net.fortuna.ical4j.model.property.DateProperty;
 
 public class ICal4jEventHelper<T extends VEvent> extends ICal4jHelper<T> {
 
-	@SuppressWarnings("unchecked")
-	@Override
 	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, Optional<String> globalTZ,
 			Optional<CalendarOwner> owner) {
-		ItemValue<T> parseIcs = super.parseIcs(iCalendarElement, cc, globalTZ, owner);
+		return parseIcs(iCalendarElement, cc, globalTZ, Collections.emptyMap(), owner);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, Optional<String> globalTZ,
+			Map<String, String> tzMapping, Optional<CalendarOwner> owner) {
+
+		ItemValue<T> parseIcs = super.parseIcs(iCalendarElement, cc, globalTZ, tzMapping, owner);
 
 		// RECCURID
 		if (cc.getProperty(Property.RECURRENCE_ID) != null) {
-			BmDateTime recurid = parseIcsDate((DateProperty) cc.getProperty(Property.RECURRENCE_ID), globalTZ);
+			BmDateTime recurid = parseIcsDate((DateProperty) cc.getProperty(Property.RECURRENCE_ID), globalTZ,
+					tzMapping);
 			VEventOccurrence evt = VEventOccurrence.fromEvent(iCalendarElement, recurid);
 
 			// FIXME should instantiate iCalendarElement in this class
@@ -46,7 +55,6 @@ public class ICal4jEventHelper<T extends VEvent> extends ICal4jHelper<T> {
 		}
 
 		return parseIcs;
-
 	}
 
 }

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -144,7 +145,7 @@ public class VTodoAdapter extends ICal4jHelper<VTodo> {
 				vtodo = parseIcs(vtodo, ical4j, globalTZ, Optional.empty()).value;
 
 				// DUE
-				vtodo.due = parseIcsDate(ical4j.getDue(), globalTZ);
+				vtodo.due = parseIcsDate(ical4j.getDue(), globalTZ, Collections.emptyMap());
 
 				// PERCENT
 				if (ical4j.getPercentComplete() != null) {
@@ -153,7 +154,7 @@ public class VTodoAdapter extends ICal4jHelper<VTodo> {
 
 				// COMPLETE
 				if (ical4j.getDateCompleted() != null) {
-					vtodo.completed = parseIcsDate(ical4j.getDateCompleted(), globalTZ);
+					vtodo.completed = parseIcsDate(ical4j.getDateCompleted(), globalTZ, Collections.emptyMap());
 				}
 
 				// DESC

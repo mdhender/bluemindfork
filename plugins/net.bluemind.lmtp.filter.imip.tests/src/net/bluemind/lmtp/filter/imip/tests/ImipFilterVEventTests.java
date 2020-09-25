@@ -1163,6 +1163,13 @@ public class ImipFilterVEventTests {
 	}
 
 	@Test
+	public void testZoomInvitation() throws Exception {
+		List<ItemValue<VEventSeries>> events = getVEventsFromIcs("vtz.ics");
+		ItemValue<VEventSeries> event = events.get(0);
+		assertEquals("America/Indianapolis", event.value.main.dtstart.timezone);
+	}
+
+	@Test
 	public void testCancelException() throws Exception {
 		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
 

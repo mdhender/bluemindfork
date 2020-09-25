@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -55,6 +56,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.icalendar.parser.CalendarOwner;
 import net.bluemind.icalendar.parser.ICal4jEventHelper;
 import net.bluemind.icalendar.parser.ICal4jHelper;
+import net.bluemind.icalendar.parser.ObservanceMapper;
 import net.bluemind.lib.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.data.UnfoldingReader;
@@ -242,8 +244,10 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 			rootFolder = Files.createTempDirectory(UUID.randomUUID().toString()).toFile();
 			File icsFile = new File(rootFolder, System.currentTimeMillis() + ".ics");
 			TimezoneInfo tzInfo = serializeToFile(ics, icsFile);
+			ObservanceMapper tzMapper = new ObservanceMapper(tzInfo.timezones);
+			Map<String, String> tzMapping = tzMapper.getTimezoneMapping();
 			parseICS(rootFolder, icsFile, tzInfo);
-			parseEvents(owner, consumer, rootFolder, tzInfo);
+			parseEvents(owner, tzMapping, consumer, rootFolder, tzInfo);
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		} finally {
@@ -260,8 +264,8 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		}
 	}
 
-	private static void parseEvents(Optional<CalendarOwner> owner, Consumer<ItemValue<VEventSeries>> consumer,
-			File rootFolder, TimezoneInfo tzInfo) {
+	private static void parseEvents(Optional<CalendarOwner> owner, Map<String, String> tzMapping,
+			Consumer<ItemValue<VEventSeries>> consumer, File rootFolder, TimezoneInfo tzInfo) {
 		File[] seriesFolders = rootFolder.listFiles(file -> file.isDirectory());
 		for (File seriesFolder : seriesFolders) {
 			List<ItemValue<VEvent>> events = Arrays.asList(seriesFolder.listFiles()).stream().map(asFile -> {
@@ -279,7 +283,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
 				}
-				return fromComponent(ref.get(), tzInfo.globalTZ, owner);
+				return fromComponent(ref.get(), tzInfo.globalTZ, tzMapping, owner);
 			}).collect(Collectors.toList());
 
 			ItemValue<VEventSeries> series = normalizeEvent(seriesFolder.getName(), events);
@@ -344,11 +348,11 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 	}
 
 	private static ItemValue<VEvent> fromComponent(Component component, Optional<String> globalTZ,
-			Optional<CalendarOwner> owner) {
+			Map<String, String> tzMapping, Optional<CalendarOwner> owner) {
 		net.fortuna.ical4j.model.component.VEvent ical4j = (net.fortuna.ical4j.model.component.VEvent) component;
 
 		ItemValue<VEvent> vevent = (ItemValue<VEvent>) new ICal4jEventHelper<>().parseIcs(new VEvent(), ical4j,
-				globalTZ, owner);
+				globalTZ, tzMapping, owner);
 		if (ical4j.getCreated() != null) {
 			vevent.created = ical4j.getCreated().getDate();
 		}
@@ -361,7 +365,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		}
 
 		// DTEND
-		vevent.value.dtend = ICal4jHelper.parseIcsDate(ical4j.getEndDate(), globalTZ);
+		vevent.value.dtend = ICal4jHelper.parseIcsDate(ical4j.getEndDate(), globalTZ, tzMapping);
 
 		// TRANSPARENCY
 		if (ical4j.getTransparency() != null) {
