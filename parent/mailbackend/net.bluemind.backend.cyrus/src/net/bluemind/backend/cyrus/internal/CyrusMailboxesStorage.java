@@ -855,7 +855,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		case group:
 		case resource:
 		case mailshare:
-			return mailbox.uid + "/" + name + "@" + domainUid;
+			return mailbox.value.name + "/" + name + "@" + domainUid;
 		case user:
 		default:
 			return name;
