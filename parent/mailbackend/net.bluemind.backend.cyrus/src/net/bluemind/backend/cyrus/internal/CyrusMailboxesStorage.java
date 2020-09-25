@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 
 import net.bluemind.backend.cyrus.CyrusAclService;
 import net.bluemind.backend.cyrus.CyrusAdmins;
@@ -617,8 +618,8 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 
 			if (repair) {
 				for (String boxName : toFix) {
-					boolean repaired = sc.setAnnotation(
-							"\"" + boxName + "\" \"/vendor/cmu/cyrus-imapd/sharedseen\" (\"value.shared\" \"true\")");
+					boolean repaired = sc.setMailboxAnnotation(boxName, "/vendor/cmu/cyrus-imapd/sharedseen",
+							ImmutableMap.of("value.shared", "true"));
 					if (!repaired) {
 						logger.warn("Could not annotate '{}'", boxName);
 					} else {

@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
@@ -349,8 +350,9 @@ public class SieveWriter {
 			SieveConnectionData sieveConnectionData) throws IMAPException, Exception {
 		try (StoreClient storeClient = new StoreClient(sieveConnectionData.host, 1143, sieveConnectionData.login,
 				sieveConnectionData.password)) {
-			if (storeClient.login() && !storeClient.setAnnotation("\"" + mailbox.value.name + "@" + domain.value.name
-					+ "\" \"/vendor/cmu/cyrus-imapd/sieve\" (\"value.shared\" \"" + scriptName + "\")")) {
+			;
+			if (storeClient.login() && !storeClient.setMailboxAnnotation(mailbox.value.name + "@" + domain.uid,
+					"/vendor/cmu/cyrus-imapd/sieve", ImmutableMap.of("value.shared", scriptName))) {
 				String errorMsg = String.format(
 						"Unable to set IMAP annotation /vendor/cmu/cyrus-imapd/sieve on mailbox: %s@%s",
 						mailbox.value.name, domain.value.name);

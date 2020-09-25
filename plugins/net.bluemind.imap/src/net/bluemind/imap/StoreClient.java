@@ -396,10 +396,6 @@ public class StoreClient implements AutoCloseable {
 		return cs.xfer(boxName, serverName, partition);
 	}
 
-	public boolean setAnnotation(String annotation) {
-		return cs.setAnnotation(annotation);
-	}
-
 	public boolean setMailboxAnnotation(String mailbox, String annotationId, Map<String, String> keyValues) {
 		return cs.setAnnotation(mailbox, annotationId, keyValues);
 	}
