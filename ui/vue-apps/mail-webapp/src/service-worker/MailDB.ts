@@ -116,11 +116,12 @@ export class MailDB {
             async (promise, id) => {
                 const { remoteIds, localIds, localMailItems } = await promise;
                 const localMailItem = await (await this.dbPromise).get("mail_items", [folderUid, id]);
-                if (localMailItem === undefined) {
-                    remoteIds.push(id);
-                } else {
+                const idInStack = await (await this.dbPromise).get("ids_stack", [folderUid, id]);
+                if (localMailItem !== undefined && idInStack === undefined) {
                     localMailItems.push(localMailItem);
                     localIds.push(id);
+                } else {
+                    remoteIds.push(id);
                 }
                 return { remoteIds, localIds, localMailItems };
             },

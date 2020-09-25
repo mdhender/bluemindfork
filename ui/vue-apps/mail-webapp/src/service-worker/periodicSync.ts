@@ -38,42 +38,53 @@ export async function registerPeriodicSync() {
 }
 
 async function scheduleUpdates(mailapi: MailAPI, uid: string) {
+    await sync(mailapi, uid);
+    await scheduleFetchData(uid, mailapi);
+}
+
+export async function sync(mailapi: MailAPI, uid: string) {
     const syncInfo = await db.getFolderSyncInfo(uid);
     if (syncInfo === undefined) {
         return;
     }
     const changeSet = await mailapi.fetchChangeset(syncInfo.uid, syncInfo.version).then(response => response.json());
-    const folderUid = syncInfo.uid;
 
     if (changeSet.version !== syncInfo.version) {
-        await db.applyChangeset(changeSet, folderUid, syncInfo);
-    }
-    const limiter = initializeLimiter();
-    const chunks = await buildChunks(folderUid, chunkSize);
-    for (const ids of chunks.ids) {
-        if (ids.length > 0) {
-            const response = await limiter.schedule(() => mailapi.fetchMailItems(chunks.folderUid, ids));
-            const mailItems = await response.json();
-            await db.putMailItems(mailItems, folderUid);
-        }
+        await db.applyChangeset(changeSet, syncInfo.uid, syncInfo);
     }
 }
 
-async function buildChunks(folderUid: string, chunkSize: number) {
+async function scheduleFetchData(uid: string, mailapi: MailAPI) {
+    const limiter = initializeLimiter();
+    const batches = await batchIds(uid, chunkSize);
+
+    for (const ids of batches) {
+        limiter.schedule(async () => {
+            const response = await fetchData(mailapi, uid, ids);
+            const mailItems = await response.json();
+            await db.putMailItems(mailItems, uid);
+        });
+    }
+}
+
+function fetchData(mailapi: MailAPI, uid: string, ids: number[]) {
+    return mailapi.fetchMailItems(uid, ids);
+}
+
+async function batchIds(folderUid: string, chunkSize: number) {
     let cursor = await (await db.dbPromise)
         .transaction("ids_stack", "readwrite")
         .store.index("by-folderUid")
         .openCursor(folderUid);
-    const ids: number[][] = [[]];
+    const chunks: number[][] = [];
     while (cursor) {
-        ids[ids.length - 1].push(cursor.value.internalId);
-        if (ids[ids.length - 1].length === chunkSize) {
-            ids.push([]);
+        const idx = chunks.length - 1;
+        chunks[idx] = chunks[idx] || [];
+        chunks[idx].push(cursor.value.internalId);
+        if (chunks[idx].length === chunkSize) {
+            chunks.push([]);
         }
         cursor = await cursor.continue();
     }
-    return {
-        folderUid,
-        ids
-    };
+    return chunks;
 }

@@ -1,21 +1,45 @@
 import { registerRoute } from "workbox-routing";
 import { MailDB } from "../MailDB";
+import { MailAPI } from "../MailAPI";
+import { sync } from "../periodicSync";
 
 const db = new MailDB();
 
-export default function () {
-    registerApiRoute(MAILITEMS_MULTIPLEBYID);
-    registerApiRoute(MAILITEMS_CHANGESETSINCE0);
-    registerApiRoute(MAILITEMS_UNREAD);
+const apiRoutes = [
+    {
+        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_multipleById/,
+        handler: multipleByIdHandler
+    },
+    {
+        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_filteredChangesetById\?since=0/,
+        handler: filteredChangesetByIdHandler
+    },
+    {
+        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_unread/,
+        handler: unreadItemsHandler
+    }
+];
+
+function prehandler(handler) {
+    return async options => {
+        const {
+            request: { headers },
+            params: [folderUid]
+        } = options;
+        const sid = headers.get("x-bm-apikey");
+        await sync(new MailAPI(sid), folderUid);
+        return handler(options);
+    };
 }
 
-function registerApiRoute(index) {
-    for (const method of ["GET", "POST", "PUT", "DELETE"]) {
-        registerRoute(apiRoutes[index].capture, apiRoutes[index].handler, method);
+export default function () {
+    for (const { capture, handler } of apiRoutes) {
+        for (const method of ["GET", "POST", "PUT", "DELETE"]) {
+            registerRoute(capture, prehandler(handler), method);
+        }
     }
 }
 
-const MAILITEMS_MULTIPLEBYID = "mail_items/:uid/_multipleById";
 async function multipleByIdHandler({ request, params: [folderUid] }) {
     if (await db.isInFolderSyncInfo(folderUid)) {
         const ids = await request.clone().json();
@@ -35,7 +59,6 @@ async function multipleByIdHandler({ request, params: [folderUid] }) {
     return await fetch(request);
 }
 
-const MAILITEMS_CHANGESETSINCE0 = "mail_items/:uid/_filteredChangesetById?since=0";
 async function filteredChangesetByIdHandler({ request, params: [folderUid] }) {
     const expectedFlags = await request.clone().json();
     const syncUpToDate = await db.isFullySynced(folderUid);
@@ -66,7 +89,6 @@ async function fromIndexedDB(expectedFlags, folderUid) {
     return new Response(JSON.stringify(data), { status: 200, headers });
 }
 
-const MAILITEMS_UNREAD = "mail_items/:uid/_unread";
 async function unreadItemsHandler({ request, params: [folderUid] }) {
     if (await db.isFullySynced(folderUid)) {
         const expectedFlags = { must: [], mustNot: ["Deleted", "Seen"] };
@@ -92,18 +114,3 @@ function filterByFlags(expectedFlags, item) {
 function sortMessageByDate(item1, item2) {
     return item2.value.body.date - item1.value.body.date;
 }
-
-const apiRoutes = {
-    [MAILITEMS_MULTIPLEBYID]: {
-        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_multipleById/,
-        handler: multipleByIdHandler
-    },
-    [MAILITEMS_CHANGESETSINCE0]: {
-        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_filteredChangesetById\?since=0/,
-        handler: filteredChangesetByIdHandler
-    },
-    [MAILITEMS_UNREAD]: {
-        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_unread/,
-        handler: unreadItemsHandler
-    }
-};
