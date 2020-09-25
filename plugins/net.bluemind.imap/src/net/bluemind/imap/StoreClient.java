@@ -443,17 +443,12 @@ public class StoreClient implements AutoCloseable {
 	}
 
 	public boolean isExist(String mbox) {
-		ListResult box = cs.listMailbox(mbox);
-		if (box.size() != 0) {
-			return true;
-		}
-
-		return false;
+		return !cs.listMailbox(mbox).isEmpty();
 	}
 
 	public boolean isExistAndSelectable(String mbox) {
 		ListResult box = cs.listMailbox(mbox);
-		if (box.size() != 0) {
+		if (!box.isEmpty()) {
 			return box.get(0).isSelectable();
 		}
 		return false;
