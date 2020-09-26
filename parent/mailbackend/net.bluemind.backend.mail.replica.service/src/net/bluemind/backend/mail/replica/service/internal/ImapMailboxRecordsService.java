@@ -326,10 +326,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	private Ack mailRewrite(ItemValue<MailboxItem> current, MailboxItem newValue) {
 		logger.warn("Full EML rewrite expected with subject '{}'", newValue.body.subject);
-		newValue.body.date = new Date(Long.parseLong(newValue.body.headers.stream()
+		newValue.body.date = newValue.body.headers.stream()
 				.filter(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)).findAny()
-				.orElse(Header.create(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE, "" + current.value.body.date)).values
-						.get(0)));
+				.map(h -> new Date(Long.parseLong(h.firstValue()))).orElse(current.value.body.date);
 		Part currentStruct = current.value.body.structure;
 		Part expectedStruct = newValue.body.structure;
 		logger.info("Shoud go from:\n{} to\n{}", JsonUtils.asString(currentStruct), JsonUtils.asString(expectedStruct));
