@@ -70,6 +70,12 @@
                     </bm-form-radio>
                 </bm-form-radio-group>
             </bm-form-group>
+            <h2 class="pb-4">{{ $t("settings.mail.signature") }}</h2>
+            <bm-form-group :aria-label="$t('settings.mail.signature')">
+                <bm-form-checkbox v-model="localUserSettings.insert_signature">
+                    {{ $t("settings.mail.signature.insert") }}
+                </bm-form-checkbox>
+            </bm-form-group>
         </div>
         <div class="d-flex mt-auto pl-5 py-3 border-top border-secondary">
             <bm-button
@@ -105,6 +111,7 @@ import {
     BmCol,
     BmIcon,
     BmLabelIcon,
+    BmFormCheckbox,
     BmFormGroup,
     BmFormRadio,
     BmFormRadioGroup
@@ -121,6 +128,7 @@ export default {
         BmIcon,
         BmLabelIcon,
         BmAppIcon,
+        BmFormCheckbox,
         BmFormRadio,
         BmFormRadioGroup,
         BmFormGroup
@@ -178,6 +186,7 @@ export default {
         },
         initUserSettings() {
             this.localUserSettings = { ...this.userSettings };
+            this.localUserSettings.signature_auto = this.localUserSettings.signature_auto || "always";
         }
     }
 };

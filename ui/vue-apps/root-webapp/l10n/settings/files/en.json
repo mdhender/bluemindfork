@@ -7,6 +7,8 @@
     "settings.mail.message.list.display.full": "Full",
     "settings.mail.message.list.display.normal": "Normal",
     "settings.mail.message.list.display.compact": "Compact",
+    "settings.mail.signature": "Signature",
+    "settings.mail.signature.insert": "Automatically insert the signature",
     "settings.save.error": "Error when saving, check your network connection",
     "settings.save.success": "Successfully saved",
     "settings.menu.apps": "Applications preferences menu"
