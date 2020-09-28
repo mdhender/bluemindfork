@@ -1,7 +1,7 @@
 import mutationsTypes from "../../mutationTypes";
-import MessageStatus from "../MessageStatus";
+import { MessageStatus } from "../../../model/message";
 import apiMessages from "../../api/apiMessages";
-import MessageAdaptor from "../MessageAdaptor";
+import MessageAdaptor from "../helpers/MessageAdaptor";
 
 export async function addFlag({ commit, getters, state }, { messageKeys, flag }) {
     const keys = Array.isArray(messageKeys) ? messageKeys : [messageKeys];
@@ -12,7 +12,7 @@ export async function addFlag({ commit, getters, state }, { messageKeys, flag })
     try {
         await apiMessages.addFlag(messages, flag);
     } catch (e) {
-        commit(mutationsTypes.DELETE_FLAG, { keys: messages.map(({ key }) => key), flag });
+        commit(mutationsTypes.DELETE_FLAG, { keys, flag });
         throw e;
     }
 }

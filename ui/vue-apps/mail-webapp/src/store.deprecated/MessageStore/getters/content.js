@@ -1,5 +1,6 @@
-import { MimeType, PartsHelper } from "@bluemind/email";
+import { MimeType, InlineImageHelper } from "@bluemind/email";
 
+// DELETE ME when migrate MailViewer and selectMessage
 export function content(state, getters, rootState, rootGetters) {
     const partsContent = rootState["mail-webapp"]["messages"].itemsParts[state.key];
     if (state.key && partsContent) {
@@ -13,7 +14,7 @@ export function content(state, getters, rootState, rootGetters) {
             .filter(part => !!part);
         const html = parts.filter(part => part.mime === MimeType.TEXT_HTML);
         const images = parts.filter(part => MimeType.isImage(part) && part.contentId);
-        const inlined = PartsHelper.insertInlineImages(html, images);
+        const inlined = InlineImageHelper.insertInlineImages(html, images);
         const others = parts.filter(part => part.mime !== MimeType.TEXT_HTML && !inlined.includes(part.contentId));
         return [...html, ...others];
     }

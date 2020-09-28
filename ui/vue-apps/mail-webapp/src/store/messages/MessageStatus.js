@@ -1,9 +1,0 @@
-export default {
-    NOT_LOADED: "NOT-LOADED",
-    PENDING: "PENDING",
-    LOADED: "LOADED",
-    REMOVED: "REMOVED",
-    SAVING: "SAVING",
-    SAVE_ERROR: "SAVE_ERROR",
-    SENDING: "SENDING"
-};

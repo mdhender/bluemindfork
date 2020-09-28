@@ -1,5 +1,5 @@
 import actions from "./actions";
-import MessageStatus from "./MessageStatus";
+import { MessageStatus } from "../../model/message";
 import mutations from "./mutations";
 
 export default {

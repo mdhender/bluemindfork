@@ -26,7 +26,9 @@ const ADDITIONAL_ALLOWED_ATTRIBUTES_FOR_ANY_TAG = [
     "leftmargin",
     "topmargin",
     "marginwidth",
-    "marginheight"
+    "marginheight",
+    "data-bm-reply-separator",
+    "data-bm-forward-separator"
 ];
 
 const ALLOWED_LINK_PROTOCOLS = ["http", "https"];

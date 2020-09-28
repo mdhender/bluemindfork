@@ -1,7 +1,8 @@
 import { inject } from "@bluemind/inject";
 import map from "lodash.map";
 import flatmap from "lodash.flatmap";
-import MessageAdaptor from "../messages/MessageAdaptor";
+
+import MessageAdaptor from "../messages/helpers/MessageAdaptor";
 
 export default {
     async deleteFlag(messages, mailboxItemFlag) {
@@ -36,7 +37,7 @@ function api(folderUid) {
 
 function groupByFolder(messages) {
     return messages.reduce((byFolder, message) => {
-        if(!byFolder[message.folderRef.uid]) {
+        if (!byFolder[message.folderRef.uid]) {
             byFolder[message.folderRef.uid] = { itemsId: [], folderRef: message.folderRef };
         }
         byFolder[message.folderRef.uid].itemsId.push(message.remoteRef.internalId);

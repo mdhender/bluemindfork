@@ -1,6 +1,6 @@
 import { inject } from "@bluemind/inject";
 import { ItemFlag } from "@bluemind/core.container.api";
-import MessageAdaptor from "./messages/MessageAdaptor";
+import MessageAdaptor from "./messages/helpers/MessageAdaptor";
 import mutationTypes from "./mutationTypes";
 import actionTypes from "./actionTypes";
 

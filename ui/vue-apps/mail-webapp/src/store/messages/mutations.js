@@ -1,13 +1,14 @@
 import Vue from "vue";
 import mutationTypes from "../mutationTypes";
-import MessageStatus from "./MessageStatus";
+import { MessageStatus } from "../../model/message";
 
 export default {
     [mutationTypes.ADD_MESSAGES]: (state, messages) => {
         messages.forEach(message => {
-            if (!state[message.key] || (state[message.key] && !state[message.key].composing)) {
-                Vue.set(state, message.key, message);
+            if (state[message.key]) {
+                message.composing = state[message.key].composing;
             }
+            Vue.set(state, message.key, message);
         });
     },
     [mutationTypes.ADD_FLAG]: (state, { keys, flag }) => {
@@ -79,9 +80,5 @@ export default {
     [mutationTypes.SET_ATTACHMENT_CONTENT_URL]: (state, { messageKey, address, url }) => {
         const attachment = state[messageKey].attachments.find(a => a.address === address);
         attachment.contentUrl = url;
-    },
-    // FIXME when finding soluce for message key route when composing a draft
-    [mutationTypes.SET_MESSAGE_INTERNAL_ID]: (state, { messageKey, internalId }) => {
-        state[messageKey].remoteRef.internalId = internalId;
     }
 };

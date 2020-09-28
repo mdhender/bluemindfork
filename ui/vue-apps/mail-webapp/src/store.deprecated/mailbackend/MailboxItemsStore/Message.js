@@ -15,12 +15,13 @@
  * See LICENSE.txt
  * END LICENSE
  */
-import { EmailExtractor, Flag } from "@bluemind/email";
 import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mail.api";
-import GetAttachmentPartsVisitor from "../../../store/messages/GetAttachmentPartsVisitor";
-import GetInlinePartsVisitor from "../../../store/messages/GetInlinePartsVisitor";
-import injector from "@bluemind/inject";
-import TreeWalker from "../../../store/messages/TreeWalker";
+import { Flag } from "@bluemind/email";
+
+import GetAttachmentPartsVisitor from "../../../store/messages/helpers/GetAttachmentPartsVisitor";
+import GetInlinePartsVisitor from "../../../store/messages/helpers/GetInlinePartsVisitor";
+import TreeWalker from "../../../store/messages/helpers/TreeWalker";
+import { MessageHeader } from "../../../model/message";
 
 /**
  * Holds data and methods for displaying a mail message and respond to it.
@@ -29,32 +30,12 @@ import TreeWalker from "../../../store/messages/TreeWalker";
  */
 export default class Message {
     constructor(key, item) {
-        this.actions = {
-            REPLY: "reply",
-            REPLYALL: "replyAll",
-            FORWARD: "forward"
-        };
-
-        this.recipientFields = {
-            TO: "to",
-            CC: "cc"
-        };
-
-        this.recipientHeaders = {
-            MAIL_FOLLOWUP_TO: "Mail-Followup-To",
-            MAIL_REPLY_TO: "Mail-Reply-To",
-            REPLY_TO: "Reply-To"
-        };
-
         if (item.value) {
             fromMailboxItem(item, this);
         } else {
             Object.assign(this, item);
         }
         this.key = key;
-        //FIXME : 1 - The user session should not be a requirement here!
-        //FIXME : 2 - Storing the whole user session in a serialized object is a bad idea...
-        this.userSession = injector.getProvider("UserSession").get();
     }
 
     /**
@@ -64,6 +45,7 @@ export default class Message {
      * @see GetAttachmentPartsVisitor
      *
      */
+    // DELETE ME once selectMessage is migrate in new store
     computeParts() {
         const inlineVisitor = new GetInlinePartsVisitor();
         const attachmentVisitor = new GetAttachmentPartsVisitor();
@@ -74,36 +56,6 @@ export default class Message {
             attachments: attachmentVisitor.result()
         };
     }
-
-    /**
-     * Compute the list of recipients depending on the action (reply, reply all...) and the kind of recipient field we
-     *  want to fill (cc, to).
-     */
-    computeRecipients(targetField = this.recipientFields.TO, action = this.actions.REPLY) {
-        switch (targetField) {
-            case this.recipientFields.CC:
-                return computeRecipientsCC(action, this);
-            case this.recipientFields.TO:
-                return computeRecipientsTO(action, this);
-            default:
-                return [];
-        }
-    }
-
-    isEmpty() {
-        return (
-            (!this.to || !this.to.length) &&
-            (!this.cc || !this.cc.length) &&
-            (!this.bcc || !this.bcc.length) &&
-            !this.subject &&
-            isEmptyContent(this.content)
-        );
-    }
-}
-
-function isEmptyContent(content) {
-    const consideredAsEmptyRegex = /^<div>(<br>)*<\/div>$/;
-    return !content || consideredAsEmptyRegex.test(content);
 }
 
 /** Initialize the given message using the MailboxItem 'item'.  */
@@ -127,11 +79,12 @@ function fromMailboxItem(item, message) {
     message.imapUid = mailboxItem.imapUid;
     // FIXME: move ics object computation into EventHelper
     message.ics = {
-        isEmpty: !mailboxItem.body.headers.map(header => header.name).includes("X-BM-Event")
+        isEmpty: !mailboxItem.body.headers.map(header => header.name).includes(MessageHeader.X_BM_EVENT)
     };
 
     if (!message.ics.isEmpty) {
-        const icsHeaderValue = mailboxItem.body.headers.find(header => header.name === "X-BM-Event").values[0];
+        const icsHeaderValue = mailboxItem.body.headers.find(header => header.name === MessageHeader.X_BM_EVENT)
+            .values[0];
         message.ics.needsReply = icsHeaderValue.includes('rsvp="true"') || icsHeaderValue.includes("rsvp='true'");
         const semiColonIndex = icsHeaderValue.indexOf(";");
         message.ics.eventUid = semiColonIndex === -1 ? icsHeaderValue : icsHeaderValue.substring(0, semiColonIndex);
@@ -145,91 +98,5 @@ function fromMailboxItem(item, message) {
     }
     if (message.flags.find(mailboxItemFlag => mailboxItemFlag === Flag.SEEN) === undefined) {
         message.states.push("not-seen");
-    }
-}
-
-/**
- * Compute the list of recipients depending on the action (reply, reply all...) and the 'Cc' recipient field.
- */
-function computeRecipientsCC(action, message) {
-    if (action === message.actions.FORWARD) {
-        return [];
-    }
-
-    if (action === message.actions.REPLYALL) {
-        const mailFollowUpTo = message.headers.find(
-            header => header.name === message.recipientHeaders.MAIL_FOLLOWUP_TO
-        );
-        if (!mailFollowUpTo) {
-            return message.cc.map(cc => cc.address);
-        }
-    }
-    return [];
-}
-
-/**
- * Compute the list of recipients depending on the action (reply, reply all...) and the 'To' recipient field.
- */
-function computeRecipientsTO(action, message) {
-    if (action === message.actions.FORWARD) {
-        return [];
-    }
-
-    const isReplyAll = action === message.actions.REPLYALL;
-
-    if (isReplyAll) {
-        const mailFollowUpTo = header(message.recipientHeaders.MAIL_FOLLOWUP_TO, message);
-        if (mailFollowUpTo) {
-            return addressesFromHeader(mailFollowUpTo, true);
-        }
-    }
-
-    const mailReplyToHeader = header(message.recipientHeaders.MAIL_REPLY_TO, message);
-    if (mailReplyToHeader) {
-        return addressesFromHeader(mailReplyToHeader, isReplyAll);
-    }
-
-    const replyToHeader = header(message.recipientHeaders.REPLY_TO, message);
-    if (replyToHeader) {
-        return addressesFromHeader(replyToHeader, isReplyAll);
-    }
-
-    // compute recipients from "From" or "To"
-    let recipients = [message.from.address];
-    const myEmail = message.userSession.defaultEmail;
-    if (isReplyAll) {
-        // respond to sender and all recipients except myself
-        recipients.push(...message.to.map(to => to.address));
-        recipients = recipients.filter(address => address !== myEmail);
-        // avoid duplicates
-        recipients = Array.from(new Set(recipients));
-        if (recipients.length === 0) {
-            // I was alone, respond to myself then
-            recipients = [myEmail];
-        }
-    } else if (recipients.includes(myEmail)) {
-        // all recipients except myself
-        recipients = message.to.map(to => to.address).filter(address => address !== myEmail);
-        if (recipients.length === 0) {
-            // I was alone, respond to myself then
-            recipients = [myEmail];
-        } else {
-            // respond to the first "not me" recipient only
-            recipients = [recipients[0]];
-        }
-    }
-
-    return recipients;
-}
-
-function header(headerName, message) {
-    return message.headers.find(header => header.name === headerName);
-}
-
-function addressesFromHeader(header, isReplyAll) {
-    if (isReplyAll) {
-        return header.values.map(value => EmailExtractor.extractEmail(value));
-    } else {
-        return [EmailExtractor.extractEmail(header.values[0])];
     }
 }

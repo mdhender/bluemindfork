@@ -1,6 +1,7 @@
 import { DateRange } from "@bluemind/date";
+
 import Message from "../Message";
-import MessageAdaptor from "../../../../store/messages/MessageAdaptor";
+import MessageAdaptor from "../../../../store/messages/helpers/MessageAdaptor";
 
 const Range = (() => {
     const TODAY = DateRange.today();

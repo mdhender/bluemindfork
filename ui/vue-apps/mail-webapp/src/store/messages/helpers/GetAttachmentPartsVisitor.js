@@ -1,6 +1,4 @@
-import { PartsHelper } from "@bluemind/email";
-
-import { create } from "../../model/attachment";
+import { create, isAttachment } from "../../../model/attachment";
 
 export default class GetAttachmentPartsVisitor {
     constructor() {
@@ -8,7 +6,7 @@ export default class GetAttachmentPartsVisitor {
     }
 
     visit(part) {
-        if (PartsHelper.isAttachment(part)) {
+        if (isAttachment(part)) {
             const attachment = create(
                 part.address,
                 part.charset,

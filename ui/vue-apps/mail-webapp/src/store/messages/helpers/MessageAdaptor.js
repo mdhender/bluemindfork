@@ -6,8 +6,8 @@ import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mai
 
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
-import PartsAddressesByMimeTypeVisitor from "./PartsAddressesByMimeTypeVisitor";
-import MessageStatus from "./MessageStatus";
+import GetMultiPartAddressesVisitor from "./GetMultiPartAddressesVisitor";
+import { MessageStatus } from "../../../model/message";
 import TreeWalker from "./TreeWalker";
 
 export default {
@@ -22,26 +22,10 @@ export default {
             status: MessageStatus.LOADED,
             flags: remote.value.flags,
             date: new Date(remote.value.body.date),
-            from: buildFrom(remote),
-            to: remote.value.body.recipients
-                .filter(rcpt => rcpt.kind === RecipientKind.Primary)
-                .map(rcpt => rcpt.address),
-            cc: remote.value.body.recipients
-                .filter(rcpt => rcpt.kind === RecipientKind.CarbonCopy)
-                .map(rcpt => rcpt.address),
-            bcc: remote.value.body.recipients
-                .filter(rcpt => rcpt.kind === RecipientKind.BlindCarbonCopy)
-                .map(rcpt => rcpt.address),
-            // FIXME ? for those 3 following properties there are only used when sending a message. Maybe we can just use remote for this case
+            ...computeRecipients(remote),
             messageId: remote.value.body.messageId,
-            references: remote.value.body.references,
+            references: remote.value.body.references || [],
             headers: remote.value.body.headers,
-            /**
-             * FIXME ?
-             * If computeParts cost too much perf then :
-             *      - exceptionnaly we should set here "structure" property which is non-adapted
-             *      - move this computation in MailComposer & MailViewer components
-             */
             ...computeParts(remote.value.body.structure),
             subject: remote.value.body.subject,
             composing: false,
@@ -85,56 +69,88 @@ export default {
         };
     },
 
+    createWithMetadata(myDraftsFolder, { defaultEmail, formatedName }, structure) {
+        return {
+            key: null,
+            folderRef: { key: myDraftsFolder.key, uid: myDraftsFolder.remoteRef.uid },
+            remoteRef: { imapUid: null, internalId: null },
+            status: MessageStatus.LOADED,
+            flags: [],
+            date: new Date(),
+            from: {
+                address: defaultEmail,
+                name: formatedName
+            },
+            to: [],
+            cc: [],
+            bcc: [],
+            messageId: "",
+            references: [],
+            headers: [],
+            ...computeParts(structure),
+            subject: "",
+            composing: true
+        };
+    },
+
     partialCopy(message, properties = []) {
         return cloneDeep(pick(message, properties.concat("key", "folderRef", "status", "remoteRef")));
     }
 };
 
-// FIXME: remove DUPLICATED FUNCTION (see MessageBuilder in deprecated store)
+// FIXME: remove DUPLICATED FUNCTION once MailViewer use new store (see Message.js in deprecated store)
 function computeParts(structure) {
     const inlineVisitor = new GetInlinePartsVisitor();
     const attachmentVisitor = new GetAttachmentPartsVisitor();
-    const partsAddressesByMimeTypeVisitor = new PartsAddressesByMimeTypeVisitor();
+    const multipartAddressesVisitor = new GetMultiPartAddressesVisitor();
 
-    const walker = new TreeWalker(structure, [inlineVisitor, attachmentVisitor, partsAddressesByMimeTypeVisitor]);
+    const walker = new TreeWalker(structure, [inlineVisitor, attachmentVisitor, multipartAddressesVisitor]);
     walker.walk();
 
     return {
         attachments: attachmentVisitor.result(),
         inlinePartsByCapabilities: inlineVisitor.result(),
-        partsAddressesByMimeType: partsAddressesByMimeTypeVisitor.result()
+        multipartAddresses: multipartAddressesVisitor.result()
     };
 }
 
-function buildRecipients(message) {
-    const primaries = buildRecipientsForKind(RecipientKind.Primary, message.to);
-    const carbonCopies = buildRecipientsForKind(RecipientKind.CarbonCopy, message.cc);
-    const blindCarbonCopies = buildRecipientsForKind(RecipientKind.BlindCarbonCopy, message.bcc);
+function computeRecipients(remote) {
+    const from = remote.value.body.recipients.find(rcpt => rcpt.kind === RecipientKind.Originator);
+    return {
+        from: { dn: from.dn, address: from.address },
+        to: remote.value.body.recipients
+            .filter(rcpt => rcpt.kind === RecipientKind.Primary)
+            .map(rcpt => ({ dn: rcpt.dn, address: rcpt.address })),
+        cc: remote.value.body.recipients
+            .filter(rcpt => rcpt.kind === RecipientKind.CarbonCopy)
+            .map(rcpt => ({ dn: rcpt.dn, address: rcpt.address })),
+        bcc: remote.value.body.recipients
+            .filter(rcpt => rcpt.kind === RecipientKind.BlindCarbonCopy)
+            .map(rcpt => ({ dn: rcpt.dn, address: rcpt.address }))
+    };
+}
+
+function buildRecipients(local) {
+    const primaries = buildRecipientsForKind(RecipientKind.Primary, local.to);
+    const carbonCopies = buildRecipientsForKind(RecipientKind.CarbonCopy, local.cc);
+    const blindCarbonCopies = buildRecipientsForKind(RecipientKind.BlindCarbonCopy, local.bcc);
     const originator = [
         {
             kind: RecipientKind.Originator,
-            address: message.from.address,
-            dn: message.from.name
+            address: local.from.address,
+            dn: local.from.name
         }
     ];
 
     return primaries.concat(carbonCopies).concat(blindCarbonCopies).concat(originator);
 }
 
-function buildRecipientsForKind(kind, addresses) {
-    return (addresses || []).map(address => {
+function buildRecipientsForKind(kind, recipients) {
+    return (recipients || []).map(recipient => {
         return {
             kind: kind,
-            address: address,
-            dn: "" // FIXME should provide the displayed name here
+            address: recipient.address,
+            dn: recipient.name
         };
     });
-}
-
-function buildFrom(remote) {
-    const from = remote.value.body.recipients.find(rcpt => rcpt.kind === RecipientKind.Primary);
-    return {
-        address: from.address,
-        name: from.dn
-    };
 }

@@ -70,7 +70,7 @@
 import { DateComparator } from "@bluemind/date";
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 
-import MessageStatus from "../../store/messages/MessageStatus";
+import { MessageStatus } from "../../model/message";
 
 export default {
     name: "MailComposerFooter",

@@ -78,7 +78,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
-import { MimeType, PartsHelper } from "@bluemind/email";
+import { MimeType } from "@bluemind/email";
 import { computeUnit } from "@bluemind/file-utils";
 import global from "@bluemind/global";
 import {
@@ -96,6 +96,7 @@ import {
 import { AttachmentStatus } from "../../model/attachment";
 import actionTypes from "../../store/actionTypes";
 import mutationTypes from "../../store/mutationTypes";
+import PartsHelper from "../../store/messages/helpers/PartsHelper";
 
 export default {
     name: "MailAttachmentItem",
@@ -195,7 +196,7 @@ export default {
                 attachmentAddress: this.attachment.address,
                 userPrefTextOnly: false,
                 myDraftsFolderKey: this.MY_DRAFTS.key,
-                editorContent: this.messageCompose.editorContent
+                messageCompose: this.messageCompose
             });
         },
         async download() {

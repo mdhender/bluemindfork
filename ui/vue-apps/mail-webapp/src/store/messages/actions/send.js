@@ -1,14 +1,15 @@
 import { EmailValidator, Flag } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
+import ItemUri from "@bluemind/item-uri";
 
 import actionTypes from "../../actionTypes";
 import mutationTypes from "../../mutationTypes";
-import MessageStatus from "../MessageStatus";
+import { MessageStatus, MessageHeader, MessageCreationModes } from "../../../model/message";
 
 /** Send the last draft: move it to the Outbox then flush. */
 export default async function (
     { commit, dispatch, state },
-    { userPrefTextOnly, draftKey, myMailboxKey, outboxId, myDraftsFolder, sentFolder, editorContent }
+    { userPrefTextOnly, draftKey, myMailboxKey, outboxId, myDraftsFolder, sentFolder, messageCompose }
 ) {
     const draft = state[draftKey];
     let draftId = draft.remoteRef.internalId;
@@ -17,25 +18,31 @@ export default async function (
         userPrefTextOnly,
         draftKey,
         myDraftsFolderKey: myDraftsFolder.key,
-        editorContent
+        messageCompose
     });
 
     commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENDING }]);
     validateDraft(draft);
 
-    const moveResult = await moveToOutbox(draftId, myMailboxKey, outboxId, myDraftsFolder.id);
+    const moveResult = await moveToOutbox(draftId, myMailboxKey, outboxId, myDraftsFolder.remoteRef.internalId);
     if (!moveResult || moveResult.status !== "SUCCESS") {
         throw "Unable to move draft to Outbox.";
     }
 
     draftId = moveResult.doneIds[0].destination;
     const taskResult = await flush(); // flush means send mail + move to sentbox
-    const mailItem = await getSentMessageId(taskResult, draftId, sentFolder.uid);
-
-    clearAttachmentParts(myDraftsFolder.uid, draft);
-    manageFlagOnPreviousMessage(draft, dispatch);
+    const mailItem = await getSentMessageId(taskResult, draftId, sentFolder.remoteRef.uid);
 
     commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
+
+    manageFlagOnPreviousMessage(draft, dispatch, state);
+
+    // add necessary data to build a link to the newly created message in Sent box
+    mailItem.subjectLink = {
+        name: "v:mail:message",
+        params: { message: ItemUri.encode(mailItem.internalId, sentFolder.remoteRef.uid), folder: sentFolder.path }
+    };
+
     return mailItem;
 }
 
@@ -67,32 +74,26 @@ function moveToOutbox(draftId, myMailboxKey, outboxId, myDraftsFolderId) {
     });
 }
 
-function clearAttachmentParts(draftboxUid, draft) {
-    const service = inject("MailboxItemsPersistence", draftboxUid);
-    return Promise.all(
-        draft.attachments
-            .filter(a => draft.attachmentStatuses[a.uid] !== "ERROR")
-            .map(a => service.removePart(a.address))
-    );
-}
-
-function manageFlagOnPreviousMessage(draft, dispatch) {
-    // FIXME
-    if (draft.previousMessage && draft.previousMessage.action) {
-        let action = draft.previousMessage.action;
-        let mailboxItemFlag;
-        if (action === "replyAll" || action === "reply") {
-            mailboxItemFlag = Flag.ANSWERED;
-        } else if (action === "forward") {
-            mailboxItemFlag = Flag.FORWARDED;
+function manageFlagOnPreviousMessage(draft, dispatch, state) {
+    const draftInfoHeader = draft.headers.find(header => header.name === MessageHeader.X_BM_DRAFT_INFO);
+    if (draftInfoHeader) {
+        const [typeOfDraft, messageInternalId, folderUid] = draftInfoHeader.values[0].split(",");
+        const mailboxItemFlag = typeOfDraft === MessageCreationModes.FORWARD ? Flag.FORWARDED : Flag.ANSWERED;
+        const messageKey = ItemUri.encode(parseInt(messageInternalId), folderUid);
+        if (state[messageKey]) {
+            dispatch(actionTypes.ADD_FLAG, {
+                messageKeys: [messageKey],
+                flag: mailboxItemFlag
+            });
+        } else {
+            inject("MailboxItemsPersistence", folderUid).addFlag({ itemsId: [messageInternalId], mailboxItemFlag });
         }
-        dispatch(actionTypes.ADD_FLAG, { messageKeys: [draft.previousMessage.messageKey], flag: mailboxItemFlag });
     }
 }
 
 function validateDraft(draft) {
     let recipients = draft.to.concat(draft.cc).concat(draft.bcc);
-    const allRecipientsAreValid = recipients.some(recipient => EmailValidator.validateAddress(recipient));
+    const allRecipientsAreValid = recipients.some(recipient => EmailValidator.validateAddress(recipient.address));
     if (!allRecipientsAreValid) {
         throw inject("i18n").t("mail.error.email.address.invalid");
     }

@@ -81,6 +81,8 @@
 </template>
 
 <script>
+import { mapActions, mapGetters, mapState } from "vuex";
+
 import {
     BmFormCheckbox,
     BmLabelIcon,
@@ -91,8 +93,8 @@ import {
     MakeUniq,
     BmClipPath
 } from "@bluemind/styleguide";
-import { mapState } from "vuex";
-import injector from "@bluemind/inject";
+import { inject } from "@bluemind/inject";
+
 import FaviconHelper from "../FaviconHelper";
 import MailAppL10N from "../../l10n/";
 import MailFolderSidebar from "./MailFolder/MailFolderSidebar";
@@ -100,6 +102,8 @@ import MailMessageList from "./MailMessageList/MailMessageList";
 import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
 import MessagesOptionsForMobile from "./MessagesOptionsForMobile";
+import actionTypes from "../store/actionTypes";
+import { MessageCreationModes } from "../model/message";
 
 export default {
     name: "MailApp",
@@ -121,7 +125,7 @@ export default {
     componentI18N: { messages: MailAppL10N },
     data() {
         return {
-            userSession: injector.getProvider("UserSession").get(),
+            userSession: inject("UserSession"),
             showFolders: false,
             darkened: false,
             unreadNotifInfavicon: 0
@@ -130,15 +134,12 @@ export default {
     computed: {
         ...mapState("mail-webapp", ["selectedMessageKeys", "messageFilter"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        // FIXME
+        ...mapState("mail", ["messages"]),
+        ...mapGetters("mail", ["MY_DRAFTS"]),
         isMessageComposerDisplayed() {
-            const routePath = this.$route.path;
-            return (
-                routePath.endsWith("new") ||
-                routePath.endsWith("reply") ||
-                routePath.endsWith("replyAll") ||
-                routePath.endsWith("forward")
-            );
+            return this.currentMessageKey && this.messages[this.currentMessageKey]
+                ? this.messages[this.currentMessageKey].composing
+                : false;
         },
         hideListInResponsiveMode() {
             return this.isMessageComposerDisplayed || (this.currentMessageKey && this.selectedMessageKeys.length === 0);
@@ -164,18 +165,20 @@ export default {
         FaviconHelper.handleUnreadNotifInFavicon(this.userSession, documentTitle);
     },
     methods: {
-        composeNewMessage() {
-            this.$router.navigate("mail:new");
+        ...mapActions("mail", [actionTypes.CREATE_MESSAGE]),
+        async composeNewMessage() {
+            const messageKey = await this.CREATE_MESSAGE({
+                myDraftsFolder: this.MY_DRAFTS,
+                creationMode: MessageCreationModes.NEW
+            });
+            return this.$router.navigate({ name: "v:mail:message", params: { message: messageKey } });
         },
         toggleFolders() {
             this.showFolders = !this.showFolders;
         },
-        switchWebmail() {
-            injector
-                .getProvider("UserSettingsPersistence")
-                .get()
-                .setOne(this.userSession.userId, "mail-application", '"webmail"')
-                .then(() => location.replace("/webmail/"));
+        async switchWebmail() {
+            await inject("UserSettingsPersistence").setOne(this.userSession.userId, "mail-application", '"webmail"');
+            location.replace("/webmail/");
         }
     }
 };

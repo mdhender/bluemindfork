@@ -1,5 +1,5 @@
 import ServiceLocator from "@bluemind/inject";
-import MessageAdaptor from "../../store/messages/MessageAdaptor";
+import MessageAdaptor from "../../store/messages/helpers/MessageAdaptor";
 
 const MAX_SEARCH_RESULTS = 500;
 export const STATUS = {

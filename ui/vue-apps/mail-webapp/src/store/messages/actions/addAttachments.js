@@ -6,7 +6,7 @@ import actionTypes from "../../actionTypes";
 import { create, AttachmentStatus } from "../../../model/attachment";
 import mutationTypes from "../../mutationTypes";
 
-export default async function ({ commit, dispatch, state }, { messageKey, files, userPrefTextOnly, editorContent }) {
+export default async function ({ commit, dispatch, state }, { messageKey, files, userPrefTextOnly, messageCompose }) {
     const myDraftsFolderRef = state[messageKey].folderRef;
     if (files.length > 0) {
         const promises = [];
@@ -19,7 +19,7 @@ export default async function ({ commit, dispatch, state }, { messageKey, files,
             userPrefTextOnly,
             draftKey: messageKey,
             myDraftsFolderKey: myDraftsFolderRef.key,
-            editorContent
+            messageCompose
         });
     }
 }

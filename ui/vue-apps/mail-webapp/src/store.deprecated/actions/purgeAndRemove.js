@@ -60,9 +60,15 @@ function cleanUp(messageKeys, context) {
     });
 }
 
-function retrieveSubject(dispatch, messageKeys) {
+async function retrieveSubject(dispatch, messageKeys) {
     if (messageKeys.length === 1) {
-        return dispatch("$_getIfNotPresent", messageKeys).then(messages => messages[0].subject);
+        const messages = await dispatch("$_getIfNotPresent", messageKeys);
+        if (messages[0]) {
+            return messages[0].subject;
+        } else {
+            // FIXME : need spec here --> what do we want to display when removing a draft ?
+            return "My draft";
+        }
     }
 }
 

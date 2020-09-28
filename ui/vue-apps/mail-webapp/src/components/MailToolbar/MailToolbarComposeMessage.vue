@@ -33,7 +33,7 @@
                     files: $event.target.files,
                     userPrefTextOnly,
                     myDraftsFolderKey: MY_DRAFTS.key,
-                    editorContent: messageCompose.editorContent
+                    messageCompose
                 })
             "
         />
@@ -48,7 +48,7 @@
                     userPrefTextOnly,
                     draftKey: messageKey,
                     myDraftsFolderKey: MY_DRAFTS.key,
-                    editorContent: messageCompose.editorContent
+                    messageCompose
                 })
             "
         >
@@ -70,13 +70,12 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 
 import actionTypes from "../../store/actionTypes";
-import MessageStatus from "../../store/messages/MessageStatus";
-import { mapGetters } from "vuex";
+import { MessageStatus, isEmpty } from "../../model/message";
 
 export default {
     name: "MailToolbarComposeMessage",
@@ -114,6 +113,11 @@ export default {
         ...mapActions("mail-webapp", ["purge"]),
         ...mapActions("mail", [actionTypes.ADD_ATTACHMENTS, actionTypes.SAVE_MESSAGE, actionTypes.SEND_MESSAGE]),
         async doDelete() {
+            if (isEmpty(this.message, this.messageCompose.editorContent)) {
+                this.purge(this.messageKey);
+                this.$router.navigate("v:mail:home");
+                return;
+            }
             const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.draft.delete.confirm.content"), {
                 title: this.$t("mail.draft.delete.confirm.title"),
                 okTitle: this.$t("common.delete"),
@@ -132,10 +136,10 @@ export default {
                 userPrefTextOnly: this.userPrefTextOnly,
                 draftKey: this.messageKey,
                 myMailboxKey: this.MY_MAILBOX_KEY,
-                outboxId: this.MY_OUTBOX.id,
+                outboxId: this.MY_OUTBOX.remoteRef.internalId,
                 myDraftsFolder: this.MY_DRAFTS,
                 sentFolder: this.MY_SENT,
-                editorContent: this.messageCompose.editorContent
+                messageCompose: this.messageCompose
             });
             this.$router.navigate("v:mail:home");
         },

@@ -6,7 +6,7 @@ import { AttachmentStatus } from "../../../model/attachment";
 
 export default async function (
     { commit, dispatch, state },
-    { messageKey, attachmentAddress, userPrefTextOnly, myDraftsFolderKey, editorContent }
+    { messageKey, attachmentAddress, userPrefTextOnly, myDraftsFolderKey, messageCompose }
 ) {
     const status = state[messageKey].attachments.find(attachment => attachment.address === attachmentAddress).status;
 
@@ -18,6 +18,6 @@ export default async function (
         userPrefTextOnly,
         draftKey: messageKey,
         myDraftsFolderKey,
-        editorContent
+        messageCompose
     });
 }

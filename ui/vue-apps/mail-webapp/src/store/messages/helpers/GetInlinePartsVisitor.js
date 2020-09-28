@@ -1,6 +1,8 @@
-import { MimeType } from "@bluemind/email";
-import { PartsHelper } from "@bluemind/email";
 import findLast from "lodash.findlast";
+
+import { MimeType } from "@bluemind/email";
+
+import { isAttachment } from "../../../model/attachment";
 
 /**
  * Pass this and a body.structure to TreeWalker to build an array of maps of inline parts keyed by capabilities.
@@ -118,7 +120,7 @@ export default class GetInlinePartsVisitor {
     }
 
     isInline(part) {
-        return !PartsHelper.isAttachment(part);
+        return !isAttachment(part);
     }
 
     isLeaf(part) {

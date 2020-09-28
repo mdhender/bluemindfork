@@ -88,6 +88,10 @@ export default {
         message: {
             type: Object,
             required: true
+        },
+        isReplyOrForward: {
+            type: Boolean,
+            default: false
         }
     },
     data() {
@@ -98,7 +102,7 @@ export default {
              * displayedRecipientFields = (TO|CC|BCC) means we want to display all 3 fields
              * displayedRecipientFields = TO means we want to display TO field only
              */
-            displayedRecipientFields: recipientModes.TO | recipientModes.CC, // FIXME: init it if a separator is detected in content
+            displayedRecipientFields: this.computeDisplayedFields(), // FIXME: init it if a separator is detected in content
             autocompleteResults: [],
             autocompleteResultsTo: [],
             autocompleteResultsCc: [],
@@ -113,6 +117,15 @@ export default {
         }
     },
     methods: {
+        computeDisplayedFields() {
+            if (this.isReplyOrForward && this.message.cc.length === 0) {
+                return recipientModes.TO;
+            }
+            return recipientModes.TO | recipientModes.CC;
+        },
+        focus() {
+            this.$refs.to.focus();
+        },
         onSearch(fieldFocused, searchedPattern) {
             this.fieldFocused = fieldFocused;
             this.search(searchedPattern);

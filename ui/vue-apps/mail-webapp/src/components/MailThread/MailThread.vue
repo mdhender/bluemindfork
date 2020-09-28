@@ -28,12 +28,11 @@
 
 <script>
 import { mapGetters, mapMutations, mapState } from "vuex";
-// import { computeSubject, previousMessageContent } from "../MessageBuilder";
-// import { MimeType } from "@bluemind/email";
+
 import { ItemUri } from "@bluemind/item-uri";
+
 import MailComponentAlert from "../MailComponentAlert";
 import MailComposer from "../MailComposer";
-// import MailComposerModes from "../MailComposer/MailComposerModes";
 import MailViewer from "../MailViewer";
 
 export default {
@@ -62,48 +61,6 @@ export default {
                 ? this.messages[this.currentMessageKey].composing
                 : false;
         }
-        // previousMessage() {
-        //     return {
-        //         content: previousMessageContent(
-        //             this.pathSuffix(),
-        //             this.inlineParts,
-        //             this.message,
-        //             this.userPrefTextOnly ? MimeType.TEXT_PLAIN : MimeType.TEXT_HTML
-        //         ),
-        //         messageId: this.message.messageId,
-        //         references: this.message.references,
-        //         messageKey: this.currentMessageKey,
-        //         action: this.pathSuffix()
-        //     };
-        // },
-        // preparedAnswer() {
-        //     const action = this.pathSuffix();
-        //     return {
-        //         to: this.message.computeRecipients(this.message.recipientFields.TO, action),
-        //         cc: this.message.computeRecipients(this.message.recipientFields.CC, action),
-        //         subject: computeSubject(action, this.message)
-        //     };
-        // },
-        // mode() {
-        //     if (this.showComposer) {
-        //         if (this.isReplyAll() && this.preparedAnswer.cc && this.preparedAnswer.cc.length > 0) {
-        //             return MailComposerModes.TO | MailComposerModes.CC;
-        //         }
-        //         return MailComposerModes.TO;
-        //     }
-        //     return MailComposerModes.NONE;
-        // },
-        // showComposer() {
-        //     if (this.message) {
-        //         const action = this.pathSuffix();
-        //         return (
-        //             action === this.message.actions.REPLY ||
-        //             action === this.message.actions.REPLYALL ||
-        //             action === this.message.actions.FORWARD
-        //         );
-        //     }
-        //     return false;
-        // }
     },
     watch: {
         message() {
@@ -112,13 +69,6 @@ export default {
     },
     methods: {
         ...mapMutations("mail-webapp", ["setShowBlockedImagesAlert", "unblockRemoteImages"]),
-        // pathSuffix() {
-        //     let indexOfLastSlash = this.$store.state.route.path.lastIndexOf("/");
-        //     return this.$store.state.route.path.substring(indexOfLastSlash + 1);
-        // },
-        // isReplyAll() {
-        //     return this.pathSuffix() === this.message.actions.REPLYALL;
-        // },
         showImages() {
             this.unblockRemoteImages(this.currentMessageKey);
         }
