@@ -176,7 +176,6 @@ public class ResourceIcsHook implements ICalendarHook {
 
 	@Override
 	public void onEventCreated(VEventMessage message) {
-
 		if (!sendNotification(message)) {
 			return;
 		}
@@ -284,8 +283,7 @@ public class ResourceIcsHook implements ICalendarHook {
 			DirEntry entry = directoryService.findByEntryUid(acl.subject);
 			if (entry != null) {
 				if (entry.kind == DirEntry.Kind.GROUP) {
-					List<Member> users = groupService
-							.getExpandedUserMembers(entry.entryUid);
+					List<Member> users = groupService.getExpandedUserMembers(entry.entryUid);
 					for (Member user : users) {
 						if (adminsUsers.containsKey(user.uid)) {
 							continue;
@@ -347,13 +345,9 @@ public class ResourceIcsHook implements ICalendarHook {
 	 * @return
 	 */
 	private boolean sendNotification(VEventMessage message) {
-		// FIXME
-		// if (!message.sendNotifications) {
-		// logger.info("Do not send notification email to {}. Event uid: {},
-		// title: '{}'", message.container.name,
-		// event.uid, event.summary);
-		// return false;
-		// }
+		if (!message.sendNotifications) {
+			return false;
+		}
 
 		VEvent event = message.vevent.main;
 		if (null == event) {
