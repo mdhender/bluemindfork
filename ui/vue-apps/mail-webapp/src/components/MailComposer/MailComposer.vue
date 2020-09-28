@@ -1,6 +1,6 @@
 <template>
-    <bm-form class="mail-composer p-lg-3 flex-grow-1 d-flex h-100">
-        <bm-panel>
+    <bm-form class="mail-composer p-lg-3 flex-grow-1 d-flex">
+        <mail-composer-panel class="flex-grow-1">
             <template #header>
                 <h3 class="d-none d-lg-flex text-nowrap text-truncate card-header px-2 py-1">
                     {{ panelTitle }}
@@ -159,7 +159,7 @@
                     @send="send"
                 />
             </template>
-        </bm-panel>
+        </mail-composer-panel>
     </bm-form>
 </template>
 
@@ -175,7 +175,6 @@ import {
     BmForm,
     BmFormTextarea,
     BmIcon,
-    BmPanel,
     BmRichEditor,
     BmRow,
     BmTooltip,
@@ -185,6 +184,7 @@ import debounce from "lodash/debounce";
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 import MailComposerFooter from "./MailComposerFooter";
 import MailComposerModes from "./MailComposerModes";
+import MailComposerPanel from "./MailComposerPanel";
 import ServiceLocator from "@bluemind/inject";
 
 export default {
@@ -198,7 +198,7 @@ export default {
         BmForm,
         BmFormTextarea,
         BmIcon,
-        BmPanel,
+        MailComposerPanel,
         BmRichEditor,
         BmRow,
         MailComposerFooter,
@@ -417,6 +417,16 @@ export default {
     .bm-file-drop-zone.as-attachments.bm-dropzone-active,
     .bm-file-drop-zone.as-attachments.bm-dropzone-hover {
         background: url("~@bluemind/styleguide/assets/attachment.png") no-repeat center center;
+    }
+
+    .mail-composer-panel-footer {
+        display: none;
+    }
+
+    @include media-breakpoint-up(lg) {
+        .mail-composer-panel-footer {
+            display: block;
+        }
     }
 }
 </style>

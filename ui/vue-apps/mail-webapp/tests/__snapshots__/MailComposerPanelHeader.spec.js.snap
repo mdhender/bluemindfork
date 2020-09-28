@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MailComposerPanelHeader MailComposerPanelHeader should match snapshot 1`] = `
+<div
+  class="mail-composer-panel-header card-header d-flex justify-content-between align-items-center rounded-top"
+>
+  <span
+    class="text-nowrap text-truncate"
+    title="My Panel Title"
+  >
+    My Panel Title
+  </span>
+   
+  <button
+    aria-label="Close"
+    class="close text-light"
+    type="button"
+  >
+    ×
+  </button>
+</div>
+`;

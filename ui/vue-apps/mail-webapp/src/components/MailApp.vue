@@ -64,7 +64,7 @@
             <bm-col cols="12" lg="3" class="pl-lg-2 px-0 d-lg-block" :class="hideListInResponsiveMode ? 'd-none' : ''">
                 <mail-message-list class="h-100" />
             </bm-col>
-            <bm-col lg="7" class="overflow-auto">
+            <bm-col lg="7" class="overflow-auto d-flex flex-column">
                 <router-view />
             </bm-col>
         </bm-row>

@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MailComposerPanelHeader MailComposerPanel should match snapshot 1`] = `
+<div
+  class="d-flex flex-column bg-white mail-composer-panel"
+>
+  <div
+    class="mail-composer-panel-header card-header d-flex justify-content-between align-items-center rounded-top"
+  >
+    <span
+      class="text-nowrap text-truncate"
+      title="My Panel Title"
+    >
+      My Panel Title
+    </span>
+     
+    <button
+      aria-label="Close"
+      class="close text-light"
+      type="button"
+    >
+      ×
+    </button>
+  </div>
+   
+  <div
+    class="flex-grow-1 d-flex flex-column"
+  >
+    <span>
+      My body is a temple.
+    </span>
+  </div>
+   
+  <div
+    class="p-2 border-top mail-composer-panel-footer"
+  >
+    <button>
+      Submit
+    </button>
+  </div>
+</div>
+`;
