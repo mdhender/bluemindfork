@@ -2,12 +2,9 @@
     <bm-form class="mail-composer p-lg-3 flex-grow-1 d-flex h-100">
         <bm-panel>
             <template #header>
-                <heading
-                    v-bm-tooltip.hover
-                    class="d-none d-lg-flex text-nowrap text-truncate card-header px-2 py-1"
-                    :title="panelTitle"
-                    >{{ panelTitle }}</heading
-                >
+                <h3 class="d-none d-lg-flex text-nowrap text-truncate card-header px-2 py-1">
+                    {{ panelTitle }}
+                </h3>
             </template>
             <template #body>
                 <div class="pl-3">

@@ -69,18 +69,28 @@
             </bm-col>
         </bm-row>
         <bm-button
+            v-bm-clip-path="'hexagon'"
             variant="primary"
-            class="d-lg-none position-absolute bottom-1 right-1 z-index-110"
+            class="d-lg-none position-absolute mail-app-responsive-btn z-index-110"
             :class="hideListInResponsiveMode ? 'd-none' : 'd-block'"
             @click="composeNewMessage"
         >
-            <bm-icon icon="pencil" />
+            <bm-icon icon="plus" size="2x" />
         </bm-button>
     </main>
 </template>
 
 <script>
-import { BmFormCheckbox, BmLabelIcon, BmButton, BmCol, BmIcon, BmRow, MakeUniq } from "@bluemind/styleguide";
+import {
+    BmFormCheckbox,
+    BmLabelIcon,
+    BmButton,
+    BmCol,
+    BmIcon,
+    BmRow,
+    MakeUniq,
+    BmClipPath
+} from "@bluemind/styleguide";
 import { mapState } from "vuex";
 import injector from "@bluemind/inject";
 import FaviconHelper from "../FaviconHelper";
@@ -106,7 +116,7 @@ export default {
         MailToolbar,
         MessagesOptionsForMobile
     },
-
+    directives: { BmClipPath },
     mixins: [MakeUniq],
     componentI18N: { messages: MailAppL10N },
     data() {
@@ -208,6 +218,13 @@ export default {
         width: 100%;
         opacity: 0.5;
         z-index: 1;
+    }
+
+    .mail-app-responsive-btn {
+        bottom: $sp-2;
+        right: $sp-2;
+        height: 4em;
+        width: 4em;
     }
 }
 </style>
