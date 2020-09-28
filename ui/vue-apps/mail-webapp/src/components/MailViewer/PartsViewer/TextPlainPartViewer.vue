@@ -36,12 +36,12 @@ export default {
     }
     pre {
         white-space: pre-line;
+        font-family: "Montserrat", sans-serif;
+        font-size: 0.75rem;
+        font-weight: 400;
+        color: #2f2f2f;
     }
 
-    font-family: "Montserrat", sans-serif;
-    font-size: 0.75rem;
-    font-weight: 400;
-    color: #2f2f2f;
     margin: 0;
 }
 </style>

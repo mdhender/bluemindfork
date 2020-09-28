@@ -67,12 +67,16 @@ export default {
 
 function buildHtml(content, label) {
     const style = `
-        body {
-            font-family: 'Montserrat', sans-serif;
+        body {  
+            font-family: 'Montserrat', sans-serif;     
             font-size: 0.75rem;
             font-weight: 400;
-            color: #2f2f2f;
+            color: #1f1f1f;
             margin: 0;
+        }
+
+        pre {
+            font-family: 'Montserrat', sans-serif;
         }
 
         img.blocked-image {
