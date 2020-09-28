@@ -6,28 +6,25 @@ import actionTypes from "../../actionTypes";
 import { create, AttachmentStatus } from "../../../model/attachment";
 import mutationTypes from "../../mutationTypes";
 
-export default async function (
-    { state, commit, dispatch },
-    { messageKey, files, userPrefTextOnly, myDraftsFolderKey, editorContent }
-) {
-    console.log("1");
+export default async function ({ commit, dispatch, state }, { messageKey, files, userPrefTextOnly, editorContent }) {
+    const myDraftsFolderRef = state[messageKey].folderRef;
     if (files.length > 0) {
         const promises = [];
         for (let file of files) {
-            promises.push(addAttachment({ state, commit }, messageKey, file, myDraftsFolderKey));
+            promises.push(addAttachment({ commit }, messageKey, file, myDraftsFolderRef.uid));
         }
         await Promise.all(promises);
 
         return dispatch(actionTypes.SAVE_MESSAGE, {
             userPrefTextOnly,
             draftKey: messageKey,
-            myDraftsFolderKey,
+            myDraftsFolderKey: myDraftsFolderRef.key,
             editorContent
         });
     }
 }
 
-async function addAttachment({ state, commit }, messageKey, file, myDraftsFolderKey) {
+async function addAttachment({ commit }, messageKey, file, myDraftsFolderUid) {
     // FIXME: need to set a charset and encoding ?
     const attachment = create(
         UUIDGenerator.generate(),
@@ -47,10 +44,10 @@ async function addAttachment({ state, commit }, messageKey, file, myDraftsFolder
         // this will make the attachment component appear in the UI
         commit(mutationTypes.ADD_ATTACHMENT, { messageKey, attachment });
 
-        const address = await inject("MailboxItemsPersistence", myDraftsFolderKey).uploadPart(
+        const address = await inject("MailboxItemsPersistence", myDraftsFolderUid).uploadPart(
             file,
             global.cancellers[attachment.address + messageKey],
-            createOnUploadProgress(commit, state, messageKey, attachment)
+            createOnUploadProgress(commit, messageKey, attachment)
         );
 
         commit(mutationTypes.UPDATE_ATTACHMENT, {
@@ -65,7 +62,7 @@ async function addAttachment({ state, commit }, messageKey, file, myDraftsFolder
     }
 }
 
-function createOnUploadProgress(commit, state, messageKey, attachment) {
+function createOnUploadProgress(commit, messageKey, attachment) {
     return progress => {
         commit(mutationTypes.SET_ATTACHMENT_PROGRESS, {
             messageKey,

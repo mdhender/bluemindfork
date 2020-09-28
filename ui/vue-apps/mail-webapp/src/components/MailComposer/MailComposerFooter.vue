@@ -67,12 +67,9 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
-
 import { DateComparator } from "@bluemind/date";
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 
-import actionTypes from "../../store/actionTypes";
 import MessageStatus from "../../store/messages/MessageStatus";
 
 export default {
@@ -132,7 +129,6 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", [actionTypes.ADD_ATTACHMENTS]),
         openFilePicker() {
             this.$refs.attachInputRef.click();
         }

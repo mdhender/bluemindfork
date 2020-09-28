@@ -5,7 +5,7 @@ import MessageStatus from "./MessageStatus";
 export default {
     [mutationTypes.ADD_MESSAGES]: (state, messages) => {
         messages.forEach(message => {
-            if (state[message.key] && !state[message.key].composing) {
+            if (!state[message.key] || (state[message.key] && !state[message.key].composing)) {
                 Vue.set(state, message.key, message);
             }
         });

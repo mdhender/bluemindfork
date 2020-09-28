@@ -37,7 +37,11 @@ function insertInlineImages(partsWithReferences = [], imageParts = []) {
             if (imagePart) {
                 partWithReferences.content = partWithReferences.content.replace(
                     replaceRegex,
-                    "$1" + URL.createObjectURL(imagePart.content) + "$2"
+                    "$1" +
+                        URL.createObjectURL(imagePart.content) +
+                        '" data-bm-imap-address="' +
+                        imagePart.address +
+                        "$2"
                 );
                 inlined.push(imagePart.contentId);
             }
@@ -46,31 +50,36 @@ function insertInlineImages(partsWithReferences = [], imageParts = []) {
     return inlined;
 }
 
-function insertCid(html) {
-    const images = [];
-    const imageTags = new DOMParser().parseFromString(html, "text/html").querySelectorAll("img[src]");
+function insertCid(html, inlineImages) {
+    const streamByCid = {};
 
+    const imageTags = new DOMParser().parseFromString(html, "text/html").querySelectorAll("img[src]");
     imageTags.forEach(img => {
         const dataSrc = img.src;
         if (dataSrc.startsWith("data:image")) {
+            // new inlines
             const cid = UUIDGenerator.generate() + "@bluemind.net";
             html = html.replace(dataSrc, "cid:" + cid);
 
             const extractDataRegex = /data:image(.*)base64,/g;
             const metadatas = dataSrc.match(extractDataRegex)[0];
             const data = dataSrc.replace(metadatas, "");
-            images.push({
-                content: convertData(data),
-                part: {
-                    mime: metadatas.substring(5, metadatas.length - 8),
-                    dispositionType: "INLINE",
-                    encoding: "base64",
-                    contentId: cid
-                }
+            inlineImages.push({
+                address: null,
+                mime: metadatas.substring(5, metadatas.length - 8),
+                dispositionType: "INLINE",
+                encoding: "base64",
+                contentId: cid
             });
+            streamByCid[cid] = convertData(data);
+        } else if (dataSrc.startsWith("blob:")) {
+            // already fetched inlines
+            const imapAddress = img.attributes.getNamedItem("data-bm-imap-address").nodeValue;
+            const cid = inlineImages.find(part => part.address === imapAddress).contentId;
+            html = html.replace(dataSrc, "cid:" + cid.substring(1, cid.length - 1));
         }
     });
-    return { images, html };
+    return { html, inlineImages, streamByCid };
 }
 
 function convertData(b64Data) {
@@ -138,13 +147,10 @@ function createRelatedPart(children) {
     };
 }
 
-function createInlineImageParts(structure, addresses, images) {
-    if (images && images.length > 0) {
-        const childrenOfRelatedPart = [structure.children[1]];
-        images.forEach((image, index) => {
-            const inlineImageChildPart = Object.assign({}, image.part, { address: addresses[index] });
-            childrenOfRelatedPart.push(inlineImageChildPart);
-        });
+function createInlineImageParts(structure, inlineImages, newAddresses) {
+    if (inlineImages && inlineImages.length > 0) {
+        inlineImages.forEach(part => (part.address = part.address ? part.address : newAddresses.pop()));
+        const childrenOfRelatedPart = [structure.children[1]].concat(inlineImages);
         structure.children[1] = createRelatedPart(childrenOfRelatedPart);
     }
     return structure;

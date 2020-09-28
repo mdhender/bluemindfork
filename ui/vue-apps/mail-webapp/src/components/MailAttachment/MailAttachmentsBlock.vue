@@ -8,7 +8,7 @@
                 :title="$t('common.toggleAttachments')"
                 @click.prevent="toggleExpand"
             >
-                <bm-icon :icon="areAllExpanded ? 'caret-down' : 'caret-right'" />
+                <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" />
             </bm-button>
             <template v-if="message.composing">
                 <bm-icon icon="paper-clip" class="mr-1 ml-2" :class="paperClipColor" size="lg" />
@@ -38,10 +38,10 @@
         </div>
         <bm-row v-if="seeMoreAttachments" class="ml-3 mr-1">
             <bm-col cols="4">
-                <mail-attachment-item :attachment="attachments[0]" :is-expanded="isExpanded(0)" :message="message" />
+                <mail-attachment-item :attachment="attachments[0]" :message="message" />
             </bm-col>
             <bm-col cols="4">
-                <mail-attachment-item :attachment="attachments[1]" :is-expanded="isExpanded(1)" :message="message" />
+                <mail-attachment-item :attachment="attachments[1]" :message="message" />
             </bm-col>
             <bm-col cols="4" class="pt-2 border-transparent">
                 <bm-button
@@ -62,8 +62,8 @@
             </bm-col>
         </bm-row>
         <bm-row v-else class="ml-3 mr-1">
-            <bm-col v-for="(attachment, index) in attachments" :key="attachment.address" cols="4">
-                <mail-attachment-item :attachment="attachment" :is-expanded="isExpanded(index)" :message="message" />
+            <bm-col v-for="attachment in attachments" :key="attachment.address" cols="4">
+                <mail-attachment-item :attachment="attachment" :message="message" />
             </bm-col>
         </bm-row>
         <!-- Save all button with i18n, please dont delete it 
@@ -110,7 +110,7 @@ export default {
         }
     },
     data() {
-        return { areAllExpanded: this.expanded };
+        return { isExpanded: this.expanded };
     },
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
@@ -122,7 +122,7 @@ export default {
             return this.attachments.length > 3;
         },
         seeMoreAttachments() {
-            return !this.areAllExpanded && this.hasMoreThan3Attachments;
+            return !this.isExpanded && this.hasMoreThan3Attachments;
         },
         attachmentsWeight() {
             return this.attachments.map(attachment => attachment.size).reduce((total, size) => total + size, 0);
@@ -156,28 +156,27 @@ export default {
     },
     watch: {
         currentMessageKey() {
-            this.areAllExpanded = this.expanded;
+            this.isExpanded = this.expanded;
         }
     },
     destroyed() {
         this.attachments.forEach(attachment => {
             if (attachment.contentUrl) {
                 URL.revokeObjectURL(attachment.contentUrl);
-                this.SET_ATTACHMENT_CONTENT_URL({
-                    messageKey: this.message.key,
-                    address: attachment.address,
-                    url: null
-                });
+                if (!this.message.composing) {
+                    this.SET_ATTACHMENT_CONTENT_URL({
+                        messageKey: this.message.key,
+                        address: attachment.address,
+                        url: null
+                    });
+                }
             }
         });
     },
     methods: {
         ...mapMutations("mail", [mutationTypes.SET_ATTACHMENT_CONTENT_URL]),
-        isExpanded(index) {
-            return this.areAllExpanded || index < 2;
-        },
         async toggleExpand() {
-            this.areAllExpanded = !this.areAllExpanded;
+            this.isExpanded = !this.isExpanded;
         },
         displaySize(size) {
             size = size < 100000 ? 100000 : size;

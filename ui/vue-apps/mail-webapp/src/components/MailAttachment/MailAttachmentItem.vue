@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <bm-container class="mail-attachment-item bg-white border border-light text-condensed py-1 px-2 mt-2">
-            <bm-row v-if="isExpanded" class="pt-1">
+            <bm-row class="pt-1">
                 <bm-col cols="12" class="px-1">
                     <img
                         v-if="hasPreview && attachment.contentUrl"
@@ -71,7 +71,7 @@
             class="d-none"
             :download="attachment.filename"
             :href="attachment.contentUrl"
-        />
+        ></a>
     </div>
 </template>
 
@@ -118,11 +118,6 @@ export default {
         message: {
             type: Object,
             required: true
-        },
-        isExpanded: {
-            type: Boolean,
-            required: false,
-            default: true
         }
     },
     computed: {
@@ -161,18 +156,13 @@ export default {
         }
     },
     watch: {
-        isExpanded: {
+        message: {
             handler: function () {
-                if (this.isExpanded && this.hasPreview && this.isUploaded) {
+                if (this.hasPreview && this.isUploaded) {
                     this.setContentUrl();
                 }
             },
             immediate: true
-        },
-        message() {
-            if (this.isExpanded && this.hasPreview && this.isUploaded) {
-                this.setContentUrl();
-            }
         }
     },
     methods: {

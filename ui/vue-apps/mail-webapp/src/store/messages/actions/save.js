@@ -16,7 +16,8 @@ export default async function ({ commit, state }, { userPrefTextOnly, draftKey, 
         const draft = state[draftKey];
         // const previousDraftId = draft.remoteRef.internalId;
 
-        let { partsToUpload, inlineImages } = prepareDraft(draft, editorContent, userPrefTextOnly, commit);
+        let sanitizedEditorContent = sanitize(draft, editorContent, commit);
+        let { partsToUpload, inlineImages } = prepareDraft(draft, sanitizedEditorContent, userPrefTextOnly, commit);
         const addrParts = await uploadInlineParts(service, partsToUpload);
         await createDraftStructure(draft, service, userPrefTextOnly, addrParts, inlineImages);
 
@@ -46,7 +47,7 @@ async function createDraftStructure(draft, service, userPrefTextOnly, addrParts,
     } else {
         const htmlPart = PartsHelper.createHtmlPart(addrParts[MimeType.TEXT_HTML][0]);
         structure = PartsHelper.createAlternativePart(textPart, htmlPart);
-        structure = PartsHelper.createInlineImageParts(structure, addrParts[MimeType.IMAGE], inlineImages);
+        structure = PartsHelper.createInlineImageParts(structure, inlineImages, addrParts[MimeType.IMAGE]);
     }
     structure = PartsHelper.createAttachmentParts(draft.attachments, structure);
 
@@ -86,7 +87,6 @@ function setMultipartAddresses(structure, partsAddressesByMimeType) {
 // }
 
 function prepareDraft(draft, editorContent, userPrefTextOnly, commit) {
-    sanitize(draft, editorContent, commit);
     setHeaders(draft, commit);
     // handleReplyOrForward(draft); FIXME
 
@@ -96,14 +96,18 @@ function prepareDraft(draft, editorContent, userPrefTextOnly, commit) {
     if (userPrefTextOnly) {
         partsToUpload[MimeType.TEXT_PLAIN] = [editorContent];
     } else {
-        const cidResults = PartsHelper.insertCid(editorContent);
-        const html = cidResults.html;
-        inlineImages = cidResults.images;
+        const previousInlineImages = draft.inlinePartsByCapabilities
+            .find(byCapabilities => byCapabilities.capabilities[0] === MimeType.TEXT_HTML)
+            .parts.filter(part => part.dispositionType === "INLINE" && part.mime.startsWith(MimeType.IMAGE));
+        const insertCidsResults = PartsHelper.insertCid(editorContent, previousInlineImages);
+        inlineImages = insertCidsResults.inlineImages;
+        const inlineImagesToUpload = inlineImages.filter(part => !part.address);
+
+        const html = insertCidsResults.html;
         partsToUpload[MimeType.TEXT_HTML] = [html];
         partsToUpload[MimeType.TEXT_PLAIN] = [html2text(html).replace(/\r?\n/g, "\r\n")];
-        partsToUpload[MimeType.IMAGE] = inlineImages.map(image => image.content);
+        partsToUpload[MimeType.IMAGE] = inlineImagesToUpload.map(part => insertCidsResults.streamByCid[part.contentId]);
     }
-
     return { partsToUpload, inlineImages };
 }
 
@@ -170,10 +174,12 @@ function sanitize(draft, editorContent, commit) {
         commit(mutationTypes.SET_MESSAGE_SUBJECT, { messageKey: draft.key, subject: "(No subject)" });
     }
     if (editorContent) {
-        commit(mutationTypes.SET_DRAFT_EDITOR_CONTENT, editorContent.replace(/[\n\r]/g, String.fromCharCode(13, 10)));
+        editorContent = editorContent.replace(/[\n\r]/g, String.fromCharCode(13, 10));
     }
     // FIXME cyrus wants \r\n, should do the replacement in the core, yes ?
-    commit(mutationTypes.SET_DRAFT_EDITOR_CONTENT, editorContent.replace(/\r?\n/g, "\r\n"));
+    editorContent = editorContent.replace(/\r?\n/g, "\r\n");
+
+    return editorContent;
 }
 
 /**
