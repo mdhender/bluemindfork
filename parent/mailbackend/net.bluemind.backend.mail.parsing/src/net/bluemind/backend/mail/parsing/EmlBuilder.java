@@ -170,7 +170,8 @@ public class EmlBuilder {
 				ae.setContentDisposition(ContentDispositionField.DISPOSITION_TYPE_INLINE, safeEncode(p.fileName));
 			}
 			try {
-				ae.getHeader().addField(LenientFieldParser.parse("Content-ID: <" + p.contentId + ">"));
+				String cid = p.contentId.startsWith("<") ? p.contentId : "<" + p.contentId + ">";
+				ae.getHeader().addField(LenientFieldParser.parse("Content-ID: " + cid));
 			} catch (MimeException e) {
 				logger.warn("Failed to set content-id to {}: {}", p.contentId, e.getMessage());
 			}
