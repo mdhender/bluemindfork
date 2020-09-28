@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+/** Modified by BM, original file at https://github.com/vector-im/element-web/blob/develop/src/favicon.ts */
+
 interface IParams {
     // colour parameters
     bgColor: string;
@@ -37,13 +39,20 @@ const defaults: IParams = {
     isLeft: false
 };
 
+declare global {
+    interface Window {
+        InstallTrigger: any;
+        opera: any;
+    }
+}
+
 // Allows dynamic rendering of a circular badge atop the loaded favicon
 // supports colour, font and basic positioning parameters.
 // Based upon https://github.com/ejci/favico.js/blob/master/favico.js [MIT license]
 export default class Favicon {
     private readonly browser = {
-        ff: typeof window.InstallTrigger !== "undefined",
-        opera: !!window.opera || navigator.userAgent.includes("Opera")
+        ff: navigator.userAgent.includes("Firefox"),
+        opera: navigator.userAgent.includes("Opera")
     };
 
     private readonly params: IParams;
@@ -57,6 +66,7 @@ export default class Favicon {
     private readyCb = () => {};
 
     constructor(params: Partial<IParams> = {}) {
+        this.context = null as any;
         this.params = { ...defaults, ...params };
 
         this.icons = Favicon.getIcons();
@@ -72,14 +82,14 @@ export default class Favicon {
                 // get height and width of the favicon
                 this.canvas.height = this.baseImage.height > 0 ? this.baseImage.height : 32;
                 this.canvas.width = this.baseImage.width > 0 ? this.baseImage.width : 32;
-                this.context = this.canvas.getContext("2d");
+                this.context = this.canvas.getContext("2d") as CanvasRenderingContext2D;
                 this.ready();
             };
-            this.baseImage.setAttribute("src", lastIcon.getAttribute("href"));
+            this.baseImage.setAttribute("src", lastIcon.getAttribute("href") || "");
         } else {
             this.canvas.height = this.baseImage.height = 32;
             this.canvas.width = this.baseImage.width = 32;
-            this.context = this.canvas.getContext("2d");
+            this.context = this.canvas.getContext("2d") as CanvasRenderingContext2D;
             this.ready();
         }
     }
@@ -183,13 +193,13 @@ export default class Favicon {
         this.readyCb();
     }
 
-    private setIcon(canvas) {
+    private setIcon(canvas: HTMLCanvasElement) {
         // setImmediate(() => {
         this.setIconSrc(canvas.toDataURL("image/png"));
         // });
     }
 
-    private setIconSrc(url) {
+    private setIconSrc(url: string) {
         // if is attached to fav icon
         if (this.browser.ff || this.browser.opera) {
             // for FF we need to "recreate" element, attach to dom and remove old <link>
@@ -231,7 +241,7 @@ export default class Favicon {
         const icons: HTMLLinkElement[] = [];
         const links = window.document.getElementsByTagName("head")[0].getElementsByTagName("link");
         for (let i = 0; i < links.length; i++) {
-            if (/(^|\s)icon(\s|$)/i.test(links[i].getAttribute("rel"))) {
+            if (/(^|\s)icon(\s|$)/i.test("" + links[i].getAttribute("rel"))) {
                 icons.push(links[i]);
             }
         }
