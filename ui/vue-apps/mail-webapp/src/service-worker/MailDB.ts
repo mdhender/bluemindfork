@@ -61,13 +61,15 @@ export class MailDB {
         return (await this.dbPromise).getAll("folders_syncinfo");
     }
 
-    async isInFolderSyncInfo(uid: string) {
+    async isLocalFolder(uid: string) {
         const key = await (await this.dbPromise).getKey("folders_syncinfo", uid);
         return key !== undefined;
     }
 
-    async isFullySynced(uid: string) {
-        return (await (await this.dbPromise).getAllKeysFromIndex("ids_stack", "by-folderUid", uid)).length === 0;
+    async isUptodate(uid: string) {
+        const isLocalFolder = await this.isLocalFolder(uid);
+        const isSynced = (await (await this.dbPromise).countFromIndex("ids_stack", "by-folderUid", uid)) === 0;
+        return isLocalFolder && isSynced;
     }
 
     async updateFolderSyncInfo(folderSyncInfo: FolderSyncInfo) {
@@ -106,6 +108,7 @@ export class MailDB {
         const tx = (await this.dbPromise).transaction(["folders_syncinfo", "ids_stack", "mail_items"], "readwrite");
         await Promise.all(created.map(({ id }) => tx.objectStore("ids_stack").put({ internalId: id, folderUid })));
         await Promise.all(updated.map(({ id }) => tx.objectStore("ids_stack").put({ internalId: id, folderUid })));
+        await Promise.all(deleted.map(({ id }) => tx.objectStore("ids_stack").delete([folderUid, id])));
         await Promise.all(deleted.map(({ id }) => tx.objectStore("mail_items").delete([folderUid, id])));
         await tx.objectStore("folders_syncinfo").put({ ...syncInfo, version });
         await tx.done;

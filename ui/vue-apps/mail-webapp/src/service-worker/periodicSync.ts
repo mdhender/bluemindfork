@@ -6,11 +6,12 @@ import { MailFolder } from "./entry";
 const db = new MailDB();
 
 const chunkSize = 200;
-function initializeLimiter() {
-    return new Bottleneck({
+function initializeBottleneck() {
+    const limiter = new Bottleneck({
         maxConcurrent: 1,
         minTime: 30 * 1000
     });
+    return limiter;
 }
 
 function createFolderSyncInfo(folder: MailFolder): FolderSyncInfo {
@@ -23,68 +24,73 @@ function createFolderSyncInfo(folder: MailFolder): FolderSyncInfo {
 }
 
 export async function registerPeriodicSync() {
+    let limiter = initializeBottleneck();
     const { sid, domain, userId } = await getSessionInfos();
     const mailapi = new MailAPI(sid);
     const folders = await mailapi.fetchMailFolders(domain, userId).then(response => response.json());
     await db.putMailFolders(folders);
     const foldersSyncInfo = folders.map(folder => createFolderSyncInfo(folder));
     await Promise.all(foldersSyncInfo.map(folderSyncInfo => db.updateFolderSyncInfo(folderSyncInfo)));
+
+    limiter = await fillInLimiter(limiter, foldersSyncInfo, mailapi);
+
     for (const syncInfo of foldersSyncInfo) {
-        scheduleUpdates(mailapi, syncInfo.uid);
-        setInterval(() => {
-            scheduleUpdates(mailapi, syncInfo.uid);
+        interval(async () => {
+            const updated = await updateIdStack(mailapi, syncInfo.uid);
+            if (updated) {
+                limiter = await fillInLimiter(limiter, foldersSyncInfo, mailapi);
+            }
         }, syncInfo.minInterval);
     }
 }
 
-async function scheduleUpdates(mailapi: MailAPI, uid: string) {
-    await sync(mailapi, uid);
-    await scheduleFetchData(uid, mailapi);
+async function fillInLimiter(oldLimiter: Bottleneck, foldersSyncInfo: FolderSyncInfo[], mailapi: MailAPI) {
+    oldLimiter.stop();
+    const limiter = initializeBottleneck();
+    for (const syncInfo of foldersSyncInfo) {
+        let cursor = await (await db.dbPromise)
+            .transaction("ids_stack", "readwrite")
+            .store.index("by-folderUid")
+            .openCursor(syncInfo.uid);
+        while (cursor) {
+            const ids: number[] = [];
+            while (cursor && ids.length < chunkSize) {
+                ids.push(cursor.value.internalId);
+                cursor = await cursor.continue();
+            }
+            limiter
+                .schedule(async () => {
+                    if (ids.length > 0) {
+                        const response = await fetchData(mailapi, syncInfo.uid, ids);
+                        const mailItems = await response.json();
+                        return db.putMailItems(mailItems, syncInfo.uid);
+                    }
+                })
+                .catch(() => {});
+        }
+    }
+    return limiter;
 }
 
-export async function sync(mailapi: MailAPI, uid: string) {
+function interval(fn: Function, minInterval: number) {
+    fn();
+    setInterval(fn, minInterval);
+}
+
+export async function updateIdStack(mailapi: MailAPI, uid: string) {
     const syncInfo = await db.getFolderSyncInfo(uid);
-    if (syncInfo === undefined) {
-        return;
-    }
-    const changeSet = await mailapi.fetchChangeset(syncInfo.uid, syncInfo.version).then(response => response.json());
+    if (syncInfo) {
+        const response = await mailapi.fetchChangeset(syncInfo.uid, syncInfo.version);
+        const changeSet = await response.json();
 
-    if (changeSet.version !== syncInfo.version) {
-        await db.applyChangeset(changeSet, syncInfo.uid, syncInfo);
+        const outofdate = changeSet.version !== syncInfo.version;
+        if (outofdate) {
+            await db.applyChangeset(changeSet, syncInfo.uid, syncInfo);
+        }
     }
-}
-
-async function scheduleFetchData(uid: string, mailapi: MailAPI) {
-    const limiter = initializeLimiter();
-    const batches = await batchIds(uid, chunkSize);
-
-    for (const ids of batches) {
-        limiter.schedule(async () => {
-            const response = await fetchData(mailapi, uid, ids);
-            const mailItems = await response.json();
-            await db.putMailItems(mailItems, uid);
-        });
-    }
+    return Promise.resolve(false);
 }
 
 function fetchData(mailapi: MailAPI, uid: string, ids: number[]) {
     return mailapi.fetchMailItems(uid, ids);
-}
-
-async function batchIds(folderUid: string, chunkSize: number) {
-    let cursor = await (await db.dbPromise)
-        .transaction("ids_stack", "readwrite")
-        .store.index("by-folderUid")
-        .openCursor(folderUid);
-    const chunks: number[][] = [];
-    while (cursor) {
-        const idx = chunks.length - 1;
-        chunks[idx] = chunks[idx] || [];
-        chunks[idx].push(cursor.value.internalId);
-        if (chunks[idx].length === chunkSize) {
-            chunks.push([]);
-        }
-        cursor = await cursor.continue();
-    }
-    return chunks;
 }

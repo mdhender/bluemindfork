@@ -121,12 +121,12 @@ function registerAPIClients() {
 (async () => {
     if ("serviceWorker" in navigator) {
         const wb = new Workbox("service-worker.js");
-        wb.messageSW({
-            type: "INIT_PERIODIC_SYNC"
-        });
         try {
             const registration = await wb.register();
             console.log("Service Worker registered. ", registration);
+            wb.messageSW({
+                type: "INIT_PERIODIC_SYNC"
+            });
         } catch (error) {
             console.error("Service Worker registered failed. ", error);
         }

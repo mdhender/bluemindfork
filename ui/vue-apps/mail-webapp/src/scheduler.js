@@ -12,6 +12,7 @@ export default {
             reservoirRefreshInterval: 10 * 1000
         });
 
+        //FIXME: got error on runtime, can't beleive it comes from SW bottleneck usage
         limiter.on("error", function (err) {
             console.error("[bottleneck] something was wrong", err);
         });

@@ -1,7 +1,7 @@
 import { registerRoute } from "workbox-routing";
 import { MailDB } from "../MailDB";
 import { MailAPI } from "../MailAPI";
-import { sync } from "../periodicSync";
+import { updateIdStack } from "../periodicSync";
 
 const db = new MailDB();
 
@@ -27,7 +27,9 @@ function prehandler(handler) {
             params: [folderUid]
         } = options;
         const sid = headers.get("x-bm-apikey");
-        await sync(new MailAPI(sid), folderUid);
+        if (await db.isLocalFolder(folderUid)) {
+            await updateIdStack(new MailAPI(sid), folderUid);
+        }
         return handler(options);
     };
 }
@@ -41,7 +43,7 @@ export default function () {
 }
 
 async function multipleByIdHandler({ request, params: [folderUid] }) {
-    if (await db.isInFolderSyncInfo(folderUid)) {
+    if (await db.isLocalFolder(folderUid)) {
         const ids = await request.clone().json();
         if (Array.isArray(ids) && ids.length > 0) {
             const { localMailItems, localIds, remoteIds } = await db.getMixedMailItems(folderUid, ids);
@@ -61,9 +63,9 @@ async function multipleByIdHandler({ request, params: [folderUid] }) {
 
 async function filteredChangesetByIdHandler({ request, params: [folderUid] }) {
     const expectedFlags = await request.clone().json();
-    const syncUpToDate = await db.isFullySynced(folderUid);
+    const isUptodate = await db.isUptodate(folderUid);
     try {
-        if (syncUpToDate) {
+        if (isUptodate) {
             return fromIndexedDB(expectedFlags, folderUid);
         } else {
             return fetch(request);
@@ -90,7 +92,7 @@ async function fromIndexedDB(expectedFlags, folderUid) {
 }
 
 async function unreadItemsHandler({ request, params: [folderUid] }) {
-    if (await db.isFullySynced(folderUid)) {
+    if (await db.isUptodate(folderUid)) {
         const expectedFlags = { must: [], mustNot: ["Deleted", "Seen"] };
         const allMailItems = await db.getAllMailItems(folderUid);
         const data = allMailItems
