@@ -113,9 +113,16 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
-
 .main-app .bm-application-alert {
-    bottom: $sp-4;
-    left: $sp-4;
+    bottom: $sp-5;
+    left: $sp-2;
+    right: $sp-2;
+}
+@include media-breakpoint-up(lg) {
+    .main-app .bm-application-alert {
+        bottom: $sp-4;
+        left: $sp-4;
+        right: $sp-4;
+    }
 }
 </style>
