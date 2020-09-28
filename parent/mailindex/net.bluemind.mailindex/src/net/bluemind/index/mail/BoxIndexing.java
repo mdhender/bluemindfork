@@ -178,7 +178,8 @@ public class BoxIndexing {
 				handledDbEntries.add((int) imapUid);
 			}
 			logger.info("Folder {}:{}, resyncing from {} to {}", f.uid, f.value.name, lowestUid, highestUid);
-			handledEsEntries.addAll(resyncUidRange(mailbox, f, (int) lowestUid, (int) highestUid, flagMapping));
+			handledEsEntries
+					.addAll(resyncUidRange(mailbox, f, (int) lowestUid, (int) highestUid, flagMapping, monitor));
 			monitor.progress(partialList.size(), null);
 		}
 
@@ -195,7 +196,7 @@ public class BoxIndexing {
 	}
 
 	private Set<Integer> resyncUidRange(ItemValue<Mailbox> mailbox, ItemValue<MailboxFolder> f, int lowUid, int highUid,
-			Map<Record, Collection<MailboxItemFlag>> flagMapping) {
+			Map<Record, Collection<MailboxItemFlag>> flagMapping, IServerTaskMonitor monitor) {
 		String set = lowUid + ":" + highUid;
 		// retrieve mails summary from es
 		IDSet asSet = IDSet.parse(set);
@@ -243,6 +244,8 @@ public class BoxIndexing {
 			}
 		} catch (Exception t) {
 			logger.error("resyncSelectedFolder failure on " + f.displayName, t);
+			monitor.log("Synchronization of folder " + f.displayName + " failed.\r\nError: " + t.getMessage()
+					+ "\r\nSee /var/log/bm/mail-index.log for more infos.\r\nSkipping this folder");
 		}
 		return esSums.keySet();
 	}
