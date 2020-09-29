@@ -19,13 +19,22 @@
 package net.bluemind.calendar.service.internal;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.zone.ZoneRules;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -34,13 +43,17 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
+import net.bluemind.calendar.api.ICalendarSettings;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.Regex;
+import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
@@ -48,18 +61,23 @@ import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.tag.service.TagsSanitizer;
+import net.bluemind.user.api.IUserSettings;
 
 public class VEventSanitizer {
 
 	private static Logger logger = LoggerFactory.getLogger(VEventSanitizer.class);
 
-	private TagsSanitizer tagsSanitizer;
-	private String domainUid;
+	private final TagsSanitizer tagsSanitizer;
+	private final String domainUid;
+	private final Optional<String> defaultTimezone;
+	private final Function<String, String> timezoneCheck;
 
 	private BmContext context;
 
-	public VEventSanitizer(BmContext ctx, String domainUid) throws ServerFault {
-		this.domainUid = domainUid;
+	public VEventSanitizer(BmContext ctx, Container calendar) throws ServerFault {
+		this.domainUid = calendar.domainUid;
+		this.defaultTimezone = detectDefaultTimezone(ctx, calendar);
+		this.timezoneCheck = getTimezoneCheck(this.defaultTimezone);
 		this.context = ctx;
 		this.tagsSanitizer = new TagsSanitizer(ctx);
 	}
@@ -227,6 +245,29 @@ public class VEventSanitizer {
 		}
 
 		vevent.draft &= !sendNotification;
+
+		sanitizeTimezone(vevent);
+	}
+
+	private void sanitizeTimezone(VEvent vevent) {
+		defaultTimezone.ifPresent(defaultTz -> {
+			sanitizeTz(vevent.dtstart, defaultTz);
+			sanitizeTz(vevent.dtend, defaultTz);
+			if (vevent.rrule != null) {
+				sanitizeTz(vevent.rrule.until, defaultTz);
+				if (vevent.exdate != null) {
+					for (BmDateTime exdate : vevent.exdate) {
+						sanitizeTz(exdate, defaultTz);
+					}
+				}
+			}
+		});
+	}
+
+	private void sanitizeTz(BmDateTime date, String defaultTimeZone) {
+		if (date != null && date.timezone != null && !date.timezone.equals(defaultTimeZone)) {
+			date.timezone = timezoneCheck.apply(date.timezone);
+		}
 	}
 
 	private String removeOuterMarkups(String html) {
@@ -353,4 +394,43 @@ public class VEventSanitizer {
 
 		return _dir;
 	}
+
+	private Function<String, String> getTimezoneCheck(Optional<String> defaultTimezone) {
+		Optional<Function<String, String>> func = defaultTimezone.map(defaultTz -> {
+			ZoneId zone = ZoneId.of(defaultTz);
+			ZoneRules rules = zone.getRules();
+
+			Map<String, String> cache = new HashMap<>();
+			return (tz -> {
+				return cache.computeIfAbsent(tz, timezone -> {
+					ZoneId z = ZoneId.of(timezone);
+					ZoneRules tzRules = z.getRules();
+					Instant testDate = LocalDateTime.of(2020, 7, 20, 0, 0).toInstant(ZoneOffset.ofHours(0));
+					if (tzRules.getOffset(testDate) == rules.getOffset(testDate)
+							&& tzRules.getStandardOffset(testDate) == rules.getStandardOffset(testDate)) {
+						return defaultTz;
+					}
+					return timezone;
+				});
+			});
+		});
+		return func.orElse(tz -> tz);
+	}
+
+	private Optional<String> detectDefaultTimezone(BmContext ctx, Container calendar) {
+		String timezoneId = null;
+		try {
+			IServiceProvider provider = ctx.provider();
+			ICalendarSettings calSettings = provider.instance(ICalendarSettings.class, calendar.uid);
+			timezoneId = calSettings.get().timezoneId;
+			if (timezoneId == null) {
+				timezoneId = provider.instance(IUserSettings.class, calendar.domainUid).get(calendar.owner)
+						.get("timezone");
+			}
+		} catch (ServerFault e) {
+			// FIXME fix all the tests having a bad setup
+		}
+		return Optional.ofNullable(timezoneId);
+	}
+
 }

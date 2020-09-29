@@ -1153,7 +1153,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 		VEvent event = item.value.main;
 		assertEquals("Réunion Formation", event.summary);
-		assertEquals(ZonedDateTime.of(2013, 2, 13, 14, 0, 0, 0, ZoneId.of("CET")),
+		assertEquals(ZonedDateTime.of(2013, 2, 13, 14, 0, 0, 0, ZoneId.of("Europe/Paris")),
 				new BmDateTimeWrapper(event.dtstart).toDateTime());
 	}
 

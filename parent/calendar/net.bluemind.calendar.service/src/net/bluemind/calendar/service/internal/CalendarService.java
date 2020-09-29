@@ -109,7 +109,7 @@ public class CalendarService implements IInternalCalendar {
 		this.container = container;
 		this.context = context;
 		this.auditor = auditor;
-		sanitizer = new VEventSanitizer(context, container.domainUid);
+		sanitizer = new VEventSanitizer(context, container);
 
 		veventStore = new VEventSeriesStore(pool, container);
 		storeService = new VEventContainerStoreService(context, pool, context.getSecurityContext(), container,
