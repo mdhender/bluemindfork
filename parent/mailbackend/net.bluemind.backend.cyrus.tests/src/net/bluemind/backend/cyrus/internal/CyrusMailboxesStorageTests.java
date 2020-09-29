@@ -79,12 +79,19 @@ public class CyrusMailboxesStorageTests {
 	}
 
 	@Test
-	public void checkAndRepairSharedSeen() throws IOException {
+	public void checkAndRepairSharedSeen() throws IOException, IMAPException {
 		String userLogin = "testsharedseen." + System.currentTimeMillis();
 		String userUid = PopulateHelper.addUser(userLogin, domainUid);
 
 		ItemValue<Mailbox> userMailbox = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IMailboxes.class, domainUid).getComplete(userUid);
+
+		String strangeFN = "La fille du bédoin... " + System.currentTimeMillis();
+		try (StoreClient sc = new StoreClient(imapServerAddress, 1143, userLogin + "@" + domainUid, "password")) {
+			assertTrue(sc.login());
+
+			assertTrue(sc.create(strangeFN));
+		}
 
 		CyrusMailboxesStorage cms = new CyrusMailboxesStorage();
 		int toFix = 0;
@@ -108,7 +115,7 @@ public class CyrusMailboxesStorageTests {
 			CheckAndRepairStatus status = cms.checkAndRepairSharedSeen(new BmTestContext(SecurityContext.SYSTEM),
 					domainUid, userMailbox, true);
 			assertTrue(status.checked > 0);
-			assertEquals(0, status.fixed);
+			assertEquals("A second repair run should have nothing to do.", 0, status.fixed);
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
