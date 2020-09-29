@@ -65,9 +65,7 @@
                 :is-important="isImportant"
                 :mouse-in="mouseIn"
             />
-            <transition name="fade-in" mode="out-in">
-                <message-list-item-quick-action-buttons v-if="mouseIn" :message="message" @purge="purge" />
-            </transition>
+            <message-list-item-quick-action-buttons v-show="mouseIn" :message="message" @purge="purge" />
         </bm-list-group-item>
         <template v-slot:shadow>
             <mail-message-list-item-shadow :message="message" :count="selectedMessageKeys.length" />

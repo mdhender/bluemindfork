@@ -8,21 +8,19 @@
             >
                 {{ fromOrTo }}
             </div>
-            <transition name="fade-out" mode="out-in">
-                <div v-if="isSearchMode && !mouseIn" class="d-flex slide">
-                    <mail-folder-icon
-                        class="text-secondary text-truncate"
-                        :class="[isActive ? 'bg-info' : isImportant ? 'warning-custom' : 'bg-white']"
-                        :shared="isFolderOfMailshare(folder)"
-                        :folder="folder"
-                    >
-                        <i class="font-weight-bold">{{ folder.name }}</i>
-                    </mail-folder-icon>
-                </div>
-                <div v-else-if="!mouseIn" class="d-flex justify-content-end">
-                    <component :is="widget" v-for="widget in widgets" :key="widget.template" />
-                </div>
-            </transition>
+            <div v-if="isSearchMode && !mouseIn" class="d-flex slide">
+                <mail-folder-icon
+                    class="text-secondary text-truncate"
+                    :class="[isActive ? 'bg-info' : isImportant ? 'warning-custom' : 'bg-white']"
+                    :shared="isFolderOfMailshare(folder)"
+                    :folder="folder"
+                >
+                    <i class="font-weight-bold">{{ folder.name }}</i>
+                </mail-folder-icon>
+            </div>
+            <div v-else-if="!mouseIn" class="d-flex justify-content-end">
+                <component :is="widget" v-for="widget in widgets" :key="widget.template" />
+            </div>
         </div>
         <div class="d-flex flex-row">
             <div class="d-flex flex-column flex-fill overflow-hidden">
@@ -41,16 +39,14 @@
                     {{ message.preview || "&nbsp;" }}
                 </div>
             </div>
-            <transition name="fade-out" mode="out-in">
-                <div v-if="!mouseIn" class="mail-message-list-item-date text-secondary align-self-end">
-                    <span class="d-none d-sm-block d-md-none d-xl-block">
-                        {{ displayedDate }}
-                    </span>
-                    <span class="d-sm-none d-md-block d-xl-none">
-                        {{ smallerDisplayedDate }}
-                    </span>
-                </div>
-            </transition>
+            <div v-show="!mouseIn" class="mail-message-list-item-date text-secondary align-self-end">
+                <span class="d-none d-sm-block d-md-none d-xl-block">
+                    {{ displayedDate }}
+                </span>
+                <span class="d-sm-none d-md-block d-xl-none">
+                    {{ smallerDisplayedDate }}
+                </span>
+            </div>
         </div>
     </div>
 </template>
