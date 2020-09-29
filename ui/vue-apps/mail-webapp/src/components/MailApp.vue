@@ -39,7 +39,7 @@
             >
                 <mail-toolbar class="mx-auto mx-lg-0" />
             </bm-col>
-            <bm-col v-if="canSwitchWebmail" order="last" class="d-none d-lg-block pr-4">
+            <bm-col v-if="canSwitchWebmail" order="last" class="d-none d-lg-block pr-2">
                 <bm-form-checkbox
                     switch
                     checked="true"

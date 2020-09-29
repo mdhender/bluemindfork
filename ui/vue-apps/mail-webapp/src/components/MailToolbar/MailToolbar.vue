@@ -54,13 +54,15 @@ export default {
 }
 
 .mail-toolbar .btn {
-    padding-top: 0;
-    padding-bottom: 0;
+    padding: 0 $sp-1;
     height: 100%;
-    min-width: 5.5rem;
     font-weight: $font-weight-normal;
-    @media (max-width: map-get($grid-breakpoints, "lg")) {
-        min-width: auto;
+}
+
+.mail-toolbar .bm-dropdown,
+.mail-toolbar .btn {
+    @media (min-width: map-get($grid-breakpoints, "xl")) {
+        min-width: 5.5rem;
     }
 }
 

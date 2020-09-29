@@ -218,16 +218,3 @@ export default {
     }
 };
 </script>
-
-<style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
-
-.mail-toolbar-consult-message .unread,
-.mail-toolbar-consult-message .read,
-.mail-toolbar-consult-message .flagged,
-.mail-toolbar-consult-message .unflagged {
-    @media (min-width: map-get($grid-breakpoints, "lg")) {
-        width: 8rem;
-    }
-}
-</style>
