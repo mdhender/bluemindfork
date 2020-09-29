@@ -18,7 +18,7 @@
                 {{ $t("common.delete") }}
             </bm-button>
         </div>
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center toolbar">
             <span
                 v-if="errorOccuredOnSave"
                 v-bm-tooltip.bottom
@@ -34,7 +34,6 @@
                 v-if="!userPrefTextOnly"
                 v-bm-tooltip.left
                 variant="simple-dark"
-                class="p-2"
                 :aria-label="textFormatterLabel"
                 :title="textFormatterLabel"
                 :disabled="isSending"
@@ -54,7 +53,6 @@
             <bm-button
                 v-bm-tooltip.bottom
                 variant="simple-dark"
-                class="p-2"
                 :aria-label="$tc('mail.actions.attach.aria')"
                 :title="$tc('mail.actions.attach.aria')"
                 :disabled="isSending"
@@ -62,20 +60,40 @@
             >
                 <bm-icon icon="paper-clip" size="lg" />
             </bm-button>
+            <bm-dropdown v-if="hasSignature" dropup right no-caret variant="simple-dark">
+                <template #button-content>
+                    <bm-icon icon="3dots-v" size="lg" />
+                </template>
+                <bm-dropdown-item-toggle :checked="isSignatureInserted" @click="toggleSignature">{{
+                    $t("mail.compose.toolbar.insert_signature")
+                }}</bm-dropdown-item-toggle>
+            </bm-dropdown>
         </div>
     </div>
 </template>
 
 <script>
 import { DateComparator } from "@bluemind/date";
-import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
-
+import { inject } from "@bluemind/inject";
+import { BmButton, BmIcon, BmTooltip, BmDropdown, BmDropdownItemToggle } from "@bluemind/styleguide";
 import { MessageStatus } from "../../model/message";
+import {
+    addHtmlSignature,
+    addTextSignature,
+    isHtmlSignaturePresent,
+    isTextSignaturePresent,
+    removeHtmlSignature,
+    removeTextSignature
+} from "../../model/signature";
+import { mapMutations } from "vuex";
+const USER_PREF_TEXT_ONLY = false;
 
 export default {
     name: "MailComposerFooter",
     components: {
         BmButton,
+        BmDropdown,
+        BmDropdownItemToggle,
         BmIcon
     },
     directives: { BmTooltip },
@@ -93,6 +111,7 @@ export default {
             required: true
         }
     },
+    data: () => ({ signature: "" }),
     computed: {
         hasRecipient() {
             return this.message.to.length > 0 || this.message.cc.length > 0 || this.message.bcc.length > 0;
@@ -102,6 +121,17 @@ export default {
         },
         isSaving() {
             return this.message.status === MessageStatus.SAVING;
+        },
+        hasSignature() {
+            return !!this.signature;
+        },
+        isSignatureInserted() {
+            return (
+                this.hasSignature &&
+                (USER_PREF_TEXT_ONLY
+                    ? isTextSignaturePresent(this.draft.content, this.signature)
+                    : isHtmlSignaturePresent(this.draft.content, this.signature))
+            );
         },
         errorOccuredOnSave() {
             return this.message.status === MessageStatus.SAVE_ERROR;
@@ -128,17 +158,44 @@ export default {
                 : this.$tc("mail.actions.textformat.show.aria");
         }
     },
+    async created() {
+        const identities = await inject("IUserMailIdentities").getIdentities();
+        const defaultIdentity = identities.find(identity => identity.isDefault);
+        this.signature = defaultIdentity && defaultIdentity.signature;
+    },
     methods: {
+        ...mapMutations("mail", ["SET_DRAFT_EDITOR_CONTENT"]),
         openFilePicker() {
             this.$refs.attachInputRef.click();
+        },
+        toggleSignature() {
+            if (!this.isSignatureInserted) {
+                this.addSignature();
+            } else {
+                this.removeSignature();
+            }
+        },
+        addSignature() {
+            const content = USER_PREF_TEXT_ONLY
+                ? addTextSignature(this.draft.content, this.signature)
+                : addHtmlSignature(this.draft.content, this.signature);
+            this.SET_DRAFT_EDITOR_CONTENT(content);
+        },
+        removeSignature() {
+            const content = USER_PREF_TEXT_ONLY
+                ? removeTextSignature(this.draft.content, this.signature)
+                : removeHtmlSignature(this.draft.content, this.signature);
+            this.SET_DRAFT_EDITOR_CONTENT(content);
         }
     }
 };
 </script>
 
-<style>
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
 .mail-composer-footer {
-    z-index: 2;
-    position: relative;
+    .toolbar .btn {
+        padding: $sp-2;
+    }
 }
 </style>

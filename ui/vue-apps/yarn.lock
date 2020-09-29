@@ -1093,6 +1093,13 @@
   dependencies:
     axios "^0.18.0"
 
+"@bluemind/user.api@^4.1.52881":
+  version "4.1.52881"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/user.api/-/user.api-4.1.52881.tgz#1e4eb70709af394f7ad1c41135304db557f27617"
+  integrity sha512-g3c6lidF2jyqmQXP/6/cWfiNvHQEAe1ySshNlWe7Ok8XY9Zq0LroI1yDin+2ibaD+Le/1l5UkZjK6YL0SAyG2Q==
+  dependencies:
+    axios "^0.18.0"
+
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/@cnakazawa/watch/-/watch-1.0.4.tgz#f864ae85004d0fcab6f50be9141c4da368d1656a"

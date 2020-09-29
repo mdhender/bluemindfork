@@ -200,5 +200,12 @@
     "mail.toolbar.more": "Others",
     "mail.toolbar.move.tooltip": "Move message",
     "mail.viewer.no.subject": "(No subject)",
-    "mail.viewer.no.preview": "(No preview available)"
+    "mail.viewer.no.preview": "(No preview available)",
+    "mail": {
+        "compose": {
+            "toolbar": {
+                "insert_signature": "Insert my signature"
+            }
+        }
+    }
 }
