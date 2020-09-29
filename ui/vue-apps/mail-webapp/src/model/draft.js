@@ -12,6 +12,7 @@ import { create as createAttachment } from "./attachment";
 
 // FIXME: must remove this import, model must depend only of other models and commons packages
 import PlayWithInlinePartsByCapabilities from "../store/messages/helpers/PlayWithInlinePartsByCapabilities";
+import { removeSignatureIds } from "./signature";
 
 export function adaptDraft(creationMode, previousMessage, userSession) {
     let draft = {
@@ -286,7 +287,7 @@ function adaptPreviousMessageForReply(expectedMimeType, content) {
                 }
             </style>
             <blockquote class="reply">` +
-            content +
+            removeSignatureIds(content) +
             "</blockquote>"
         );
     }

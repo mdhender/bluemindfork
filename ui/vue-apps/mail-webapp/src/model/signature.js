@@ -4,7 +4,7 @@ const TEXT_SIGNATURE_PREFIX = "--\n";
 export function isHtmlSignaturePresent(raw) {
     const fragment = htmlAsFragment(raw);
     const signature = fragment.getElementById(HTML_SIGNATURE_ID);
-    return signature && signature.html;
+    return signature && !!signature.innerHTML;
 }
 
 export function removeHtmlSignature(raw) {
@@ -25,6 +25,7 @@ export function addHtmlSignature(raw, signatureContent) {
         fragment.firstElementChild.appendChild(signature);
     }
     signature.innerHTML = signatureContent;
+    fragment.firstElementChild.insertBefore(document.createElement("br"), signature);
     return fragment.firstElementChild.innerHTML;
 }
 
@@ -47,4 +48,9 @@ export function removeTextSignature(raw, content) {
 export function addTextSignature(raw, content) {
     const regexp = new RegExp("^" + TEXT_SIGNATURE_PREFIX + content, "mi");
     return raw.replace(regexp, TEXT_SIGNATURE_PREFIX + content);
+}
+
+export function removeSignatureIds(content) {
+    const regexp = new RegExp("id\\s*=\\s*['\"]\\s*" + HTML_SIGNATURE_ID + "\\s*['\"]");
+    return content.replaceAll(regexp, "");
 }

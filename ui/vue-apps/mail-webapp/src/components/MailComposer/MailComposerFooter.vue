@@ -85,7 +85,7 @@ import {
     removeHtmlSignature,
     removeTextSignature
 } from "../../model/signature";
-import { mapMutations } from "vuex";
+import { mapMutations, mapState } from "vuex";
 const USER_PREF_TEXT_ONLY = false;
 
 export default {
@@ -113,6 +113,8 @@ export default {
     },
     data: () => ({ signature: "" }),
     computed: {
+        ...mapState("session", { settings: "userSettings" }),
+        ...mapState("mail", { editorContent: ({ messageCompose }) => messageCompose.editorContent }),
         hasRecipient() {
             return this.message.to.length > 0 || this.message.cc.length > 0 || this.message.bcc.length > 0;
         },
@@ -129,8 +131,8 @@ export default {
             return (
                 this.hasSignature &&
                 (USER_PREF_TEXT_ONLY
-                    ? isTextSignaturePresent(this.draft.content, this.signature)
-                    : isHtmlSignaturePresent(this.draft.content, this.signature))
+                    ? isTextSignaturePresent(this.editorContent, this.signature)
+                    : isHtmlSignaturePresent(this.editorContent, this.signature))
             );
         },
         errorOccuredOnSave() {
@@ -162,6 +164,14 @@ export default {
         const identities = await inject("IUserMailIdentities").getIdentities();
         const defaultIdentity = identities.find(identity => identity.isDefault);
         this.signature = defaultIdentity && defaultIdentity.signature;
+        if (this.signature && this.settings.insert_signature) {
+            this.addSignature();
+        }
+    },
+    mounted() {
+        if (this.signature && this.settings.insert_signature) {
+            this.addSignature();
+        }
     },
     methods: {
         ...mapMutations("mail", ["SET_DRAFT_EDITOR_CONTENT"]),
@@ -177,14 +187,14 @@ export default {
         },
         addSignature() {
             const content = USER_PREF_TEXT_ONLY
-                ? addTextSignature(this.draft.content, this.signature)
-                : addHtmlSignature(this.draft.content, this.signature);
+                ? addTextSignature(this.editorContent, this.signature)
+                : addHtmlSignature(this.editorContent, this.signature);
             this.SET_DRAFT_EDITOR_CONTENT(content);
         },
         removeSignature() {
             const content = USER_PREF_TEXT_ONLY
-                ? removeTextSignature(this.draft.content, this.signature)
-                : removeHtmlSignature(this.draft.content, this.signature);
+                ? removeTextSignature(this.editorContent, this.signature)
+                : removeHtmlSignature(this.editorContent, this.signature);
             this.SET_DRAFT_EDITOR_CONTENT(content);
         }
     }
