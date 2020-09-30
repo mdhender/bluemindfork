@@ -238,16 +238,15 @@ public class Mime4JHelper {
 
 	/**
 	 * Parses the given mime stream and rewrites parts encoding to quoted-printable
-	 * & base64. The resulting message is safe to include in utf-8 encoded XML.
+	 * & base64.
 	 * 
 	 * @param in
 	 * @return a message without xml-unsafe characters
 	 */
-	public static Message makeUtf8Compatible(InputStream in) {
+	public static Message parseAndClean(InputStream in, BodyFactory bodyFactory) {
 		logger.info("*** Rewriting message parts to make them UTF-8 compatible");
 		MessageImpl message = new MessageImpl();
-		BodyFactory bf = new BasicBodyFactory();
-		return parse(in, message, new XmlSafeEntityBuilder(message, bf));
+		return parse(in, message, new XmlSafeEntityBuilder(message, bodyFactory));
 	}
 
 	public static void serializeBody(Body toDump, OutputStream out) {
