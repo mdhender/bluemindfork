@@ -63,6 +63,9 @@ public class GetAnnotationCommand extends SimpleCommand<AnnotationList> {
 				mboxEnd = a.indexOf('"', 1);
 				afterMboxShift = 2;
 			}
+			if (mboxEnd == -1) {
+				return;
+			}
 
 			String parsedMbox = a.substring(startMbox, mboxEnd);
 			if (!parsedMbox.equals(mailbox)) {
