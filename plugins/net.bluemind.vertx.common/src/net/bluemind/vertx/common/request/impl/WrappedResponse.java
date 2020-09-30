@@ -229,11 +229,13 @@ final class WrappedResponse implements HttpServerResponse {
 		impl.end();
 	}
 
+	@Override
 	public HttpServerResponse sendFile(String filename) {
 		File toSend = new File(filename);
 		if (toSend.exists()) {
 			respSize.add(toSend.length());
 		}
+		endImpl();
 		impl.sendFile(filename);
 		return this;
 	}
@@ -283,24 +285,35 @@ final class WrappedResponse implements HttpServerResponse {
 	}
 
 	public HttpServerResponse sendFile(String filename, long offset) {
+		endImpl();
 		return impl.sendFile(filename, offset);
 	}
 
 	public HttpServerResponse sendFile(String filename, long offset, long length) {
+		endImpl();
 		return impl.sendFile(filename, offset, length);
 	}
 
 	public HttpServerResponse sendFile(String filename, Handler<AsyncResult<Void>> resultHandler) {
-		return impl.sendFile(filename, resultHandler);
+		return impl.sendFile(filename, res -> {
+			endImpl();
+			resultHandler.handle(res);
+		});
 	}
 
 	public HttpServerResponse sendFile(String filename, long offset, Handler<AsyncResult<Void>> resultHandler) {
-		return impl.sendFile(filename, offset, resultHandler);
+		return impl.sendFile(filename, offset, res -> {
+			endImpl();
+			resultHandler.handle(res);
+		});
 	}
 
 	public HttpServerResponse sendFile(String filename, long offset, long length,
 			Handler<AsyncResult<Void>> resultHandler) {
-		return impl.sendFile(filename, offset, length, resultHandler);
+		return impl.sendFile(filename, offset, length, res -> {
+			endImpl();
+			resultHandler.handle(res);
+		});
 	}
 
 	public boolean ended() {
