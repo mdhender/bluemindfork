@@ -21,6 +21,7 @@ package net.bluemind.calendar.service.internal;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -405,9 +406,13 @@ public class VEventSanitizer {
 				return cache.computeIfAbsent(tz, timezone -> {
 					ZoneId z = ZoneId.of(timezone);
 					ZoneRules tzRules = z.getRules();
-					Instant testDate = LocalDateTime.of(2020, 7, 20, 0, 0).toInstant(ZoneOffset.ofHours(0));
-					if (tzRules.getOffset(testDate) == rules.getOffset(testDate)
-							&& tzRules.getStandardOffset(testDate) == rules.getStandardOffset(testDate)) {
+					int year = Year.now().getValue();
+					Instant testDateNorthernSummer = LocalDateTime.of(year, 7, 20, 0, 0)
+							.toInstant(ZoneOffset.ofHours(0));
+					Instant testDateNorthernWinter = LocalDateTime.of(year, 12, 20, 0, 0)
+							.toInstant(ZoneOffset.ofHours(0));
+					if (matchesDefaultTimezone(defaultTz, rules, tzRules, testDateNorthernSummer)
+							&& matchesDefaultTimezone(defaultTz, rules, tzRules, testDateNorthernWinter)) {
 						return defaultTz;
 					}
 					return timezone;
@@ -415,6 +420,10 @@ public class VEventSanitizer {
 			});
 		});
 		return func.orElse(tz -> tz);
+	}
+
+	private boolean matchesDefaultTimezone(String defaultTz, ZoneRules rules, ZoneRules tzRules, Instant testDate) {
+		return tzRules.getOffset(testDate) == rules.getOffset(testDate);
 	}
 
 	private Optional<String> detectDefaultTimezone(BmContext ctx, Container calendar) {

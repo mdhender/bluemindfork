@@ -558,17 +558,17 @@ public class VEventSanitizerTests {
 		IDomainSettings settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomainSettings.class, user1DefaultCalendar.domainUid);
 		Map<String, String> setting = settings.get();
-		setting.put("timezone", "America/Indianapolis");
+		setting.put("timezone", "America/Asuncion");
 		settings.set(setting);
 
 		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
 		VEvent vevent = new VEvent();
-		vevent.dtstart = new BmDateTime("2019-12-03T10:15:30+01:00", "Europe/Paris", Precision.DateTime);
+		vevent.dtstart = new BmDateTime("2019-12-03T10:15:30+01:00", "America/La_Paz", Precision.DateTime);
 		vevent.summary = "event " + System.currentTimeMillis();
 
 		sanitizer.sanitize(vevent, true);
 
-		assertEquals("Europe/Paris", vevent.dtstart.timezone);
+		assertEquals("America/La_Paz", vevent.dtstart.timezone);
 	}
 
 }
