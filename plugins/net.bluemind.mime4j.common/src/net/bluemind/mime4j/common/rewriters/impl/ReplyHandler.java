@@ -86,7 +86,7 @@ public class ReplyHandler extends DontTouchHandler {
 	public ReplyHandler(Message entity, BodyFactory bf, Mailbox defaultFrom, InputStream toAnswer,
 			boolean keepAttachments) {
 		super(entity, bf, defaultFrom);
-		replied = Mime4JHelper.parseAndClean(toAnswer, new BasicBodyFactory());
+		replied = Mime4JHelper.makeUtf8Compatible(toAnswer);
 		this.keepAttachments = keepAttachments;
 		try {
 			toAnswer.close();

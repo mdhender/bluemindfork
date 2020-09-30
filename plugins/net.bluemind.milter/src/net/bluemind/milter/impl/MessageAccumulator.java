@@ -17,7 +17,6 @@ import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.milter.SmtpAddress;
 import net.bluemind.milter.SmtpEnvelope;
 import net.bluemind.mime4j.common.Mime4JHelper;
-import net.bluemind.mime4j.common.OffloadedBodyFactory;
 
 /**
  * Accumulate all events for ONE message to build {@link Message} and
@@ -85,7 +84,7 @@ public class MessageAccumulator {
 
 	void done() {
 		try (InputStream in = current.asByteSource().openStream()) {
-			message = Mime4JHelper.parseAndClean(in, new OffloadedBodyFactory());
+			message = Mime4JHelper.parse(in);
 		} catch (IOException e) {
 			Throwables.propagate(e);
 		} finally {
