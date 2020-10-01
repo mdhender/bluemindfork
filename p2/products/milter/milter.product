@@ -39,6 +39,7 @@
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.web"/>
+      <plugin id="javax.mail-api"/>
       <plugin id="javax.validation.api"/>
       <plugin id="javax.ws.rs"/>
       <plugin id="javax.xml"/>
