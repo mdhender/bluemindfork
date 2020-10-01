@@ -1,12 +1,26 @@
 import { inject } from "@bluemind/inject";
-import { ItemFlag } from "@bluemind/core.container.api";
-
 import { createOnlyMetadata } from "../model/message";
 import mutationTypes from "./mutationTypes";
 import actionTypes from "./actionTypes";
+import apiMessages from "./api/apiMessages";
+
+export const MessageListStatus = {
+    IDLE: Symbol("idle"),
+    LOADING: Symbol("loading"),
+    ERROR: Symbol("error"),
+    SUCCESS: Symbol("success")
+};
+
+export const MessageListFilter = {
+    ALL: "all",
+    UNREAD: "unread",
+    FLAGGED: "flagged"
+};
 
 const state = {
-    messageKeys: []
+    messageKeys: [],
+    status: MessageListStatus.IDLE,
+    filter: MessageListFilter.ALL
 };
 
 const mutations = {
@@ -18,37 +32,32 @@ const mutations = {
     },
     [mutationTypes.SET_MESSAGE_LIST]: (state, messages) => {
         state.messageKeys = messages.map(m => m.key);
+    },
+    [mutationTypes.SET_MESSAGE_LIST_STATUS]: (state, status) => {
+        state.status = status;
+    },
+    [mutationTypes.SET_MESSAGE_LIST_FILTER]: (state, filter) => {
+        state.filter = filter;
     }
 };
 
 const actions = {
     async [actionTypes.FETCH_FOLDER_MESSAGE_KEYS]({ commit }, { folder, filter, conversationsEnabled }) {
-        const service = inject("MailboxItemsPersistence", folder.remoteRef.uid);
-        let ids;
-        switch (filter) {
-            case "unread": {
-                ids = await service.unreadItems();
-                break;
-            }
-            case "flagged": {
-                const filters = { must: [ItemFlag.Important], mustNot: [ItemFlag.Deleted] };
-                ids = await service.filteredChangesetById(0, filters).then(changeset => {
-                    return changeset.created.map(itemVersion => itemVersion.id);
-                });
-                break;
-            }
-            default:
-                ids = await service.sortedIds();
-                break;
+        commit(mutationTypes.SET_MESSAGE_LIST_STATUS, MessageListStatus.LOADING);
+        //FIXME: should be set by component not here
+        commit(mutationTypes.SET_MESSAGE_LIST_FILTER, filter);
+        try {
+            let ids = await apiMessages.sortedIds(filter, folder);
+            ids = conversationsEnabled ? await conversationFilter(folder, ids) : ids;
+            const messages = ids.map(id =>
+                createOnlyMetadata({ internalId: id, folder: { key: folder.key, uid: folder.remoteRef.uid } })
+            );
+            commit(mutationTypes.SET_MESSAGE_LIST, messages);
+            commit(mutationTypes.SET_MESSAGE_LIST_STATUS, MessageListStatus.SUCCESS);
+        } catch (e) {
+            commit(mutationTypes.SET_MESSAGE_LIST_STATUS, MessageListStatus.ERROR);
+            throw e;
         }
-
-        ids = conversationsEnabled ? await conversationFilter(folder, ids) : ids;
-
-        const messages = ids.map(id =>
-            createOnlyMetadata({ internalId: id, folder: { key: folder.key, uid: folder.remoteRef.uid } })
-        );
-
-        commit(mutationTypes.SET_MESSAGE_LIST, messages);
     }
 };
 
@@ -68,9 +77,18 @@ async function conversationFilter(folder, ids) {
     );
 }
 
+const getters = {
+    MESSAGE_LIST_IS_LOADING: ({ status }) => status === MessageListStatus.LOADING,
+    MESSAGE_LIST_IS_RESOLVED: ({ status }) => status === MessageListStatus.SUCCESS,
+    MESSAGE_LIST_IS_REJECTED: ({ status }) => status === MessageListStatus.ERROR,
+    MESSAGE_LIST_COUNT: ({ messageKeys }) => messageKeys.length,
+    MESSAGE_LIST_FILTERED: ({ filter }) => filter && filter !== MessageListFilter.ALL,
+    MESSAGE_LIST_UNREAD_FILTER_ENABLED: ({ filter }) => filter === MessageListFilter.UNREAD,
+    MESSAGE_LIST_FLAGGED_FILTER_ENABLED: ({ filter }) => filter === MessageListFilter.FLAGGED
+};
 export default {
     actions,
     mutations,
     state,
-    getters: {}
+    getters
 };

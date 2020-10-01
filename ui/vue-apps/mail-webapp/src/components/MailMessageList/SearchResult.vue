@@ -1,8 +1,8 @@
 <template>
     <div class="h-100 bg-extra-light">
-        <search-result-content v-if="isResolved" />
-        <search-result-spinner v-if="isLoading" />
-        <search-result-error v-if="isRejected" />
+        <search-result-content v-if="MESSAGE_LIST_IS_RESOLVED" />
+        <search-result-spinner v-if="MESSAGE_LIST_IS_LOADING" />
+        <search-result-error v-if="MESSAGE_LIST_IS_REJECTED" />
     </div>
 </template>
 
@@ -20,7 +20,7 @@ export default {
         SearchResultContent
     },
     computed: {
-        ...mapGetters("mail-webapp/search", ["isLoading", "isRejected", "isResolved"])
+        ...mapGetters("mail", ["MESSAGE_LIST_IS_LOADING", "MESSAGE_LIST_IS_RESOLVED", "MESSAGE_LIST_IS_REJECTED"])
     }
 };
 </script>

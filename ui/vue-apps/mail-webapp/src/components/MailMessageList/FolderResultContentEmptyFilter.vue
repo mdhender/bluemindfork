@@ -1,8 +1,8 @@
 <template>
     <mail-message-list-empty :image="image">
         <h3 class="d-inline text-center">
-            <p v-if="messageFilter === 'unread'">{{ $t("mail.list.unread.none") }}</p>
-            <p v-if="messageFilter === 'flagged'">{{ $t("mail.list.flagged.none") }}</p>
+            <p v-if="MESSAGE_LIST_UNREAD_FILTER_ENABLED">{{ $t("mail.list.unread.none") }}</p>
+            <p v-if="MESSAGE_LIST_FLAGGED_FILTER_ENABLED">{{ $t("mail.list.flagged.none") }}</p>
             <p>
                 <router-link :to="$router.relative({ name: 'v:mail:home', params: { filter: null } }, $route)">
                     {{ $t("mail.list.filter.remove") }}
@@ -16,7 +16,7 @@
 import emptyFolderIllustrationUnreadFilter from "../../../assets/empty-folder-unread-filter.png";
 import emptyFolderIllustrationFlaggedFilter from "../../../assets/empty-folder-flagged-filter.png";
 import MailMessageListEmpty from "./MailMessageListEmpty";
-import { mapState } from "vuex";
+import { mapGetters } from "vuex";
 
 export default {
     name: "FolderResultContentEmptyFilter",
@@ -30,16 +30,15 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["messageFilter"]),
+        ...mapGetters("mail", ["MESSAGE_LIST_UNREAD_FILTER_ENABLED", "MESSAGE_LIST_FLAGGED_FILTER_ENABLED"]),
         image() {
-            switch (this.messageFilter) {
-                case "unread":
-                    return this.emptyFolderIllustrationUnreadFilter;
-                case "flagged":
-                    return this.emptyFolderIllustrationFlaggedFilter;
-                default:
-                    return null;
+            if (this.MESSAGE_LIST_UNREAD_FILTER_ENABLED) {
+                return this.emptyFolderIllustrationUnreadFilter;
             }
+            if (this.MESSAGE_LIST_FLAGGED_FILTER_ENABLED) {
+                return this.emptyFolderIllustrationFlaggedFilter;
+            }
+            return null;
         }
     }
 };

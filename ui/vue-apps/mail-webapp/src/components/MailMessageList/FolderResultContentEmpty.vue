@@ -1,5 +1,5 @@
 <template>
-    <folder-result-content-empty-filter v-if="areMessagesFiltered" />
+    <folder-result-content-empty-filter v-if="MESSAGE_LIST_FILTERED" />
     <folder-result-content-empty-folder v-else />
 </template>
 
@@ -14,9 +14,7 @@ export default {
         FolderResultContentEmptyFilter
     },
     computed: {
-        ...mapGetters("mail-webapp", ["areMessagesFiltered"])
+        ...mapGetters("mail", ["MESSAGE_LIST_FILTERED"])
     }
 };
 </script>
-
-<style></style>

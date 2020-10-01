@@ -14,7 +14,7 @@
                 <bm-icon icon="trash" size="lg" />
             </bm-button>
             <bm-button
-                v-if="message.states.includes('not-seen')"
+                v-if="!message.flags.includes(Flag.SEEN)"
                 v-bm-tooltip.top.viewport
                 class="p-1"
                 :aria-label="$tc('mail.actions.mark_read.aria')"
@@ -37,7 +37,7 @@
             </bm-button>
             <template v-if="folderOfMessage.writable">
                 <bm-button
-                    v-if="!message.flags.includes(Flags.FLAGGED)"
+                    v-if="!message.flags.includes(Flag.FLAGGED)"
                     v-bm-tooltip.top.viewport
                     class="p-1 ml-2"
                     :aria-label="$tc('mail.actions.mark_flagged.aria')"
@@ -65,7 +65,6 @@
 
 <script>
 import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
-import { ItemUri } from "@bluemind/item-uri";
 import { mapActions, mapGetters, mapState } from "vuex";
 import { Flag } from "@bluemind/email";
 
@@ -86,7 +85,7 @@ export default {
     },
     data() {
         return {
-            Flags: Flag
+            Flag
         };
     },
     computed: {
@@ -95,7 +94,7 @@ export default {
         ...mapState("mail", ["folders", "activeFolder"]),
         ...mapGetters("mail", ["MY_TRASH"]),
         folderOfMessage() {
-            return this.folders[ItemUri.container(this.message.key)];
+            return this.folders[this.message.folderRef.key];
         }
     },
     methods: {

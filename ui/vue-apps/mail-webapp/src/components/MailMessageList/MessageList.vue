@@ -10,28 +10,28 @@
         @keyup.page-down.exact="goToByDiff(+PAGE)"
         @keyup.page-up.exact="goToByDiff(-PAGE)"
         @keyup.home.exact="goToByIndex(0)"
-        @keyup.end.exact="goToByIndex(count - 1)"
+        @keyup.end.exact="goToByIndex(MESSAGE_LIST_COUNT - 1)"
         @keyup.space.exact="goToByKey(lastFocusedMessage)"
         @keyup.ctrl.exact.space="toggleSelect(lastFocusedMessage, true)"
         @keyup.ctrl.exact.65="toggleAll()"
         @keyup.ctrl.exact.up="focusByDiff(-1)"
         @keyup.ctrl.exact.down="focusByDiff(+1)"
         @keyup.ctrl.exact.home="focusByIndex(0)"
-        @keyup.ctrl.exact.end="focusByIndex(count - 1)"
+        @keyup.ctrl.exact.end="focusByIndex(MESSAGE_LIST_COUNT - 1)"
         @keyup.shift.exact.space="selectRange(lastFocusedMessage, true)"
         @keyup.shift.exact.up="selectRangeByDiff(-1, true)"
         @keyup.shift.exact.down="selectRangeByDiff(+1, true)"
         @keyup.shift.exact.home="selectRange(messageKeys[0], true)"
-        @keyup.shift.exact.end="selectRange(messageKeys[count - 1], true)"
+        @keyup.shift.exact.end="selectRange(messageKeys[MESSAGE_LIST_COUNT - 1], true)"
         @keyup.shift.ctrl.exact.space="selectRange(lastFocusedMessage)"
         @keyup.shift.ctrl.exact.up="selectRangeByDiff(-1)"
         @keyup.shift.ctrl.exact.down="selectRangeByDiff(+1)"
         @keyup.shift.ctrl.exact.home="selectRange(messageKeys[0])"
-        @keyup.shift.ctrl.exact.end="selectRange(messageKeys[count - 1])"
+        @keyup.shift.ctrl.exact.end="selectRange(messageKeys[MESSAGE_LIST_COUNT - 1])"
     >
-        <div v-for="(message, index) in _messages" :key="index">
-            <message-list-separator v-if="message.hasSeparator" :text="$t(message.range.name)" />
-            <message-list-item
+        <div v-for="message in messages" :key="message.key">
+            <date-separator :message="message" />
+            <draggable-message
                 :ref="'message-' + message.key"
                 :message="message"
                 :is-muted="!!draggedMessage && isMessageSelected(draggedMessage) && isMessageSelected(message.key)"
@@ -52,18 +52,18 @@
 import { BmListGroup, BmListGroupItem } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 import { TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
-import MessageListItem from "./MessageListItem";
-import MessageListSeparator from "./MessageListSeparator";
+import DateSeparator from "./DateSeparator";
+import DraggableMessage from "./DraggableMessage";
 
 const PAGE = 9;
 
 export default {
     name: "MessageList",
     components: {
+        DateSeparator,
         BmListGroup,
         BmListGroupItem,
-        MessageListItem,
-        MessageListSeparator
+        DraggableMessage
     },
     data() {
         return {
@@ -81,17 +81,22 @@ export default {
             "isMessageSelected",
             "areAllMessagesSelected"
         ]),
-        ...mapGetters("mail-webapp/messages", ["messages", "count", "indexOf"]),
         ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
-        ...mapState("mail-webapp", ["messageFilter", "selectedMessageKeys"]),
+        ...mapState("mail-webapp", ["selectedMessageKeys"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapGetters("mail", ["MY_TRASH"]),
-        ...mapState("mail", { activeFolder: "activeFolder", messageKeys: state => state.messageList.messageKeys }),
-        _messages() {
-            return this.messages.slice(0, this.length);
+        ...mapGetters("mail", ["MY_TRASH", "MESSAGE_LIST_COUNT", "isLoaded"]),
+        ...mapState("mail", {
+            activeFolder: "activeFolder",
+            messageKeys: state => state.messageList.messageKeys
+        }),
+        messages() {
+            return this.messageKeys
+                .slice(0, this.length)
+                .map(key => this.$store.state.mail.messages[key])
+                .filter(({ key }) => this.isLoaded(key));
         },
         hasMore: function () {
-            return this.length < this.count;
+            return this.length < this.MESSAGE_LIST_COUNT;
         },
         isSelectionMultiple() {
             return this.selectedMessageKeys.length > 1;
@@ -127,7 +132,7 @@ export default {
         ...mapMutations("mail-webapp/currentMessage", { clearCurrentMessage: "clear" }),
         async loadMore() {
             if (this.hasMore) {
-                const end = Math.min(this.length + 20, this.count);
+                const end = Math.min(this.length + 20, this.MESSAGE_LIST_COUNT);
                 await this.loadRange({ start: this.length, end });
                 this.length = end;
             }
@@ -187,49 +192,49 @@ export default {
             }
         },
         goToByDiff(diff) {
-            this.goToByIndex(this.indexOf(this.lastFocusedMessage) + diff);
+            this.goToByIndex(this.messageKeys.indexOf(this.lastFocusedMessage) + diff);
         },
         goToByIndex(index) {
-            index = Math.min(Math.max(0, index), this.count - 1);
-            this.goToByKey(this.messages[index].key);
+            index = Math.min(Math.max(0, index), this.MESSAGE_LIST_COUNT - 1);
+            this.goToByKey(this.messageKeys[index]);
         },
         goToByKey(key) {
             this.$router.navigate({ name: "v:mail:message", params: { message: key } });
             this.deleteAllSelectedMessages();
         },
         focusByKey(key) {
-            this.focusByIndex(this.indexOf(key));
-        },
-        focusByDiff(diff) {
-            this.focusByIndex(this.indexOf(this.lastFocusedMessage) + diff);
-        },
-        focusByIndex(index) {
-            if (index !== -1 && this.messages[index]) {
-                const messageKeyToFocus = this.messages[index].key;
+            if (key) {
                 this.$nextTick(() => {
-                    const htmlElement = this.$refs["message-" + messageKeyToFocus];
+                    const htmlElement = this.$refs["message-" + key];
                     if (htmlElement[0] && htmlElement[0].$el) {
                         htmlElement[0].$el.focus();
                     } else {
                         console.log("not in DOM..");
                     }
                 });
-                this.lastFocusedMessage = messageKeyToFocus;
+                this.lastFocusedMessage = key;
+            }
+        },
+        focusByDiff(diff) {
+            this.focusByIndex(this.messageKeys.indexOf(this.lastFocusedMessage) + diff);
+        },
+        focusByIndex(index) {
+            if (index !== -1 && this.messageKeys[index]) {
+                this.focusByKey(this.messageKeys[index]);
             }
         },
         selectRangeByDiff(diff, shouldReset = false) {
-            const index = this.indexOf(this.lastFocusedMessage) + diff;
-            const message = this.messages[index];
-            if (message) {
-                this.selectRange(message.key, shouldReset);
+            const index = this.messageKeys.indexOf(this.lastFocusedMessage) + diff;
+            if (this.messageKeys[index]) {
+                this.selectRange(this.messageKeys[index].key, shouldReset);
             }
         },
         selectRange(destinationMessageKey, shouldReset = false) {
             this.checkReset(shouldReset);
             this.initAnchored();
             if (this.anchoredMessageForShift && destinationMessageKey) {
-                const startIndex = this.indexOf(this.anchoredMessageForShift);
-                const endIndex = this.indexOf(destinationMessageKey);
+                const startIndex = this.messageKeys.indexOf(this.anchoredMessageForShift);
+                const endIndex = this.messageKeys.indexOf(destinationMessageKey);
                 this.addMessageKeysBetween(startIndex, endIndex);
                 this.focusByKey(destinationMessageKey);
                 this.navigateAfterSelection();
@@ -243,16 +248,11 @@ export default {
         addMessageKeysBetween(start, end) {
             const realStart = start < end ? start : end;
             const realEnd = start < end ? end : start;
-            return this.messages
-                .slice(realStart, realEnd + 1)
-                .filter(Boolean)
-                .map(message => message.key)
-                .forEach(key => this.addSelectedMessageKey(key));
+            return this.messageKeys.slice(realStart, realEnd + 1).forEach(key => this.addSelectedMessageKey(key));
         },
         initAnchored() {
             if (!this.anchoredMessageForShift) {
-                this.anchoredMessageForShift =
-                    this.lastFocusedMessage || this.currentMessageKey || (this.messages[0] && this.messages[0].key);
+                this.anchoredMessageForShift = this.lastFocusedMessage || this.currentMessageKey || this.messageKeys[0];
             }
         },
         toggleAll() {

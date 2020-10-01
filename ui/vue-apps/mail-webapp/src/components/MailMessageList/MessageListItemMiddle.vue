@@ -139,7 +139,7 @@ export default {
             return this.isMessageSelected(this.message.key) || this.message.key === this.currentMessageKey;
         },
         fromOrTo() {
-            const messageFolder = this.messages[this.message.key].folderRef.key;
+            const messageFolder = this.message.folderRef.key;
             const isSentOrDraftBox = [this.MY_DRAFTS.key, this.MY_SENT.key].includes(messageFolder);
             if (isSentOrDraftBox) {
                 return this.message.to.map(to => (to.dn ? to.dn : to.address)).join(", ");

@@ -7,11 +7,7 @@ export default {
     mutations,
     getters: {
         isLoaded(state) {
-            return key => {
-                let m = state[key];
-                let s = m && state[key].status;
-                return s === MessageStatus.LOADED;
-            };
+            return key => state[key].status === MessageStatus.LOADED;
         }
     },
     state: {}

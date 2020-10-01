@@ -1,7 +1,7 @@
 <template>
     <div class="h-100 bg-extra-light">
-        <folder-result-content v-if="isResolved" />
-        <folder-result-spinner v-if="isLoading" />
+        <folder-result-content v-if="MESSAGE_LIST_IS_RESOLVED" />
+        <folder-result-spinner v-if="MESSAGE_LIST_IS_LOADING" />
     </div>
 </template>
 
@@ -17,11 +17,7 @@ export default {
         FolderResultSpinner
     },
     computed: {
-        ...mapGetters("mail-webapp", ["isResolved", "isLoading"])
+        ...mapGetters("mail", ["MESSAGE_LIST_IS_LOADING", "MESSAGE_LIST_IS_RESOLVED"])
     }
 };
 </script>
-
-<style lang="scss">
-@import "~@bluemind/styleguide/css/variables";
-</style>

@@ -1,8 +1,8 @@
 <template>
     <bm-list-group>
-        <bm-list-group-item class="font-size-lg pl-4"
-            >{{ $t("common.search") }} : {{ $tc("common.messages", count, { count }) }}</bm-list-group-item
-        >
+        <bm-list-group-item class="font-size-lg pl-4">
+            {{ $t("common.search") }} : {{ $tc("common.messages", MESSAGE_LIST_COUNT, { MESSAGE_LIST_COUNT }) }}
+        </bm-list-group-item>
     </bm-list-group>
 </template>
 
@@ -16,7 +16,7 @@ export default {
         BmListGroupItem
     },
     computed: {
-        ...mapGetters("mail-webapp/messages", ["count"])
+        ...mapGetters("mail", ["MESSAGE_LIST_COUNT"])
     }
 };
 </script>

@@ -5,7 +5,7 @@ import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mai
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
 import GetMultiPartAddressesVisitor from "./GetMultiPartAddressesVisitor";
-import { createWithMetadata, MessageStatus } from "../../../model/message";
+import { createWithMetadata, MessageHeader, MessageStatus } from "../../../model/message";
 import TreeWalker from "./TreeWalker";
 
 export default {
@@ -25,6 +25,9 @@ export default {
             subject: remote.value.body.subject,
             composing: false,
             status: MessageStatus.LOADED,
+            preview: remote.value.body.preview,
+            hasAttachment: remote.value.body.smartAttach,
+            hasICS: remote.value.body.headers.some(({ name }) => name === MessageHeader.X_BM_EVENT),
             remote // FIXME: remove me once messages getter is deleted
         };
         return merge(message, adapted);

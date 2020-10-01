@@ -27,9 +27,8 @@ export function create() {
         date: null,
         headers: [],
         subject: "",
+        preview: "",
         composing: false,
-
-        partContentByMimeType: {},
 
         from: {
             address: "",
@@ -43,7 +42,12 @@ export function create() {
         messageId: "",
         references: [],
 
-        // adapted from message structure
+        // parts
+        hasAttachment: false,
+        hasIcs: false,
+
+        partContentByMimeType: {},
+
         attachments: [],
         inlinePartsByCapabilities: [],
         multipartAddresses: {}

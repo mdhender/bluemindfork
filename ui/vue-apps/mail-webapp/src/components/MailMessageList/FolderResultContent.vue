@@ -1,7 +1,7 @@
 <template>
     <div class="h-100">
-        <folder-result-content-empty v-if="count === 0" />
-        <message-list v-if="count > 0" class="h-100" />
+        <folder-result-content-empty v-if="MESSAGE_LIST_COUNT === 0" />
+        <message-list v-if="MESSAGE_LIST_COUNT > 0" class="h-100" />
     </div>
 </template>
 
@@ -16,7 +16,7 @@ export default {
         MessageList
     },
     computed: {
-        ...mapGetters("mail-webapp/messages", ["count"])
+        ...mapGetters("mail", ["MESSAGE_LIST_COUNT"])
     }
 };
 </script>

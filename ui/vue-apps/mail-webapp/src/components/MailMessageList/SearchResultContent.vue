@@ -1,8 +1,8 @@
 <template>
     <div class="h-100 d-flex flex-column">
         <search-result-content-header />
-        <search-result-content-empty v-if="count === 0" class="flex-fill" :pattern="search.pattern" />
-        <message-list v-if="count > 0" class="flex-fill" />
+        <search-result-content-empty v-if="MESSAGE_LIST_COUNT === 0" class="flex-fill" :pattern="search.pattern" />
+        <message-list v-if="MESSAGE_LIST_COUNT > 0" class="flex-fill" />
     </div>
 </template>
 
@@ -20,10 +20,8 @@ export default {
         MessageList
     },
     computed: {
-        ...mapGetters("mail-webapp/messages", ["count"]),
+        ...mapGetters("mail", ["MESSAGE_LIST_COUNT"]),
         ...mapState("mail-webapp", ["search"])
     }
 };
 </script>
-
-<style lang="scss"></style>
