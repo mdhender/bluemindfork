@@ -336,6 +336,7 @@ public class MilterHandler implements JilterHandler {
 	@Override
 	public JilterStatus eoh() {
 		logger.debug("eoh");
+		accumulator.eoh();
 
 		return forEachListener(listener -> listener.onEoh());
 	}

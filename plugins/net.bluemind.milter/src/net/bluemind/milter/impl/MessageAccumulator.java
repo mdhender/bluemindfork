@@ -31,6 +31,8 @@ public class MessageAccumulator {
 	private SmtpEnvelope currentEnvelope = new SmtpEnvelope();
 	private Message message;
 
+	private static final byte[] CRLF = "\r\n".getBytes();
+
 	public MessageAccumulator() {
 		logger.debug("new accumulator");
 	}
@@ -63,19 +65,22 @@ public class MessageAccumulator {
 			current.write(headerf.getBytes());
 			current.write(": ".getBytes());
 			current.write(headerv.getBytes());
-			current.write("\n".getBytes());
+			current.write(CRLF);
 		} catch (IOException e) {
 			Throwables.propagate(e);
 		}
 	}
 
 	void eoh() {
-
+		try {
+			current.write(CRLF);
+		} catch (IOException e) {
+			Throwables.propagate(e);
+		}
 	}
 
 	void body(ByteBuffer bodyp) {
 		try {
-			current.write("\n".getBytes());
 			current.write(bodyp.array(), bodyp.arrayOffset(), bodyp.limit());
 		} catch (IOException e) {
 			Throwables.propagate(e);
