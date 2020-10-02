@@ -116,7 +116,7 @@
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import debounce from "lodash/debounce";
 
-import { InlineImageHelper } from "@bluemind/email";
+import { MimeType, InlineImageHelper } from "@bluemind/email";
 import {
     BmButton,
     BmCol,
@@ -137,7 +137,7 @@ import MailComposerPanel from "./MailComposerPanel";
 import actionTypes from "../../store/actionTypes";
 import mutationTypes from "../../store/mutationTypes";
 import { isEmpty, MessageForwardAttributeSeparator, MessageReplyAttributeSeparator } from "../../model/message";
-import MessageBuilder from "../../store/messages/helpers/MessageBuilder";
+import PlayWithInlinePartsByCapabilities from "../../store/messages/helpers/PlayWithInlinePartsByCapabilities";
 
 export default {
     name: "MailComposer",
@@ -210,6 +210,7 @@ export default {
     },
     destroyed: function () {
         if (isEmpty(this.message, this.messageCompose.editorContent)) {
+            this.debouncedSave.cancel();
             this.purge(this.messageKey);
         }
     },
@@ -231,23 +232,41 @@ export default {
         async initEditorContent() {
             this.SET_DRAFT_EDITOR_CONTENT("");
             this.SET_DRAFT_COLLAPSED_CONTENT(null);
+
+            let newContent = await this.computeContent();
+
+            this.SET_DRAFT_EDITOR_CONTENT(newContent);
+
+            await this.$nextTick();
+            this.updateHtmlComposer();
+        },
+        async computeContent() {
             let newContent;
             if (this.userPrefTextOnly) {
-                newContent = await MessageBuilder.getTextFromStructure(this.message);
+                const textContent = this.message.partContentByMimeType[MimeType.TEXT_PLAIN];
+                newContent =
+                    textContent || textContent === ""
+                        ? textContent
+                        : await PlayWithInlinePartsByCapabilities.getTextFromStructure(this.message);
             } else {
-                const result = await MessageBuilder.getHtmlFromStructure(this.message);
-                newContent = result.html;
+                const htmlContent = this.message.partContentByMimeType[MimeType.TEXT_HTML];
+                let inlineImageParts = [];
+                if (htmlContent || htmlContent === "") {
+                    newContent = htmlContent;
+                } else {
+                    const result = await PlayWithInlinePartsByCapabilities.getHtmlFromStructure(this.message);
+                    newContent = result.html;
+                    inlineImageParts = result.inlineImageParts;
+                }
 
                 InlineImageHelper.insertInlineImages(
                     [newContent],
-                    result.inlineImageParts.filter(part => part.contentId)
+                    inlineImageParts.filter(part => part.contentId)
                 );
 
                 newContent = this.handleSeparator(newContent);
             }
-            this.SET_DRAFT_EDITOR_CONTENT(newContent);
-            await this.$nextTick();
-            this.updateHtmlComposer();
+            return newContent;
         },
         handleSeparator(content) {
             const doc = new DOMParser().parseFromString(content, "text/html");

@@ -24,6 +24,7 @@ export default {
         });
         return flatmap(await Promise.all(requests));
     },
+
     multipleDeleteById(messages) {
         const byFolder = groupByFolder(messages);
         const requests = map(byFolder, ({ itemsId }, folder) => api(folder).multipleDeleteById(itemsId));

@@ -25,7 +25,6 @@ export default async function ({ commit, dispatch, state }, { messageKey, files,
 }
 
 async function addAttachment({ commit }, messageKey, file, myDraftsFolderUid) {
-    // FIXME: need to set a charset and encoding ?
     const attachment = create(
         UUIDGenerator.generate(),
         null,

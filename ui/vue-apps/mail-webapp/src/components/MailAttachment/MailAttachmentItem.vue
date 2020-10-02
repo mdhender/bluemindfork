@@ -80,6 +80,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { MimeType } from "@bluemind/email";
 import { computeUnit } from "@bluemind/file-utils";
+import { inject } from "@bluemind/inject";
 import global from "@bluemind/global";
 import {
     BmButton,
@@ -96,7 +97,7 @@ import {
 import { AttachmentStatus } from "../../model/attachment";
 import actionTypes from "../../store/actionTypes";
 import mutationTypes from "../../store/mutationTypes";
-import PartsHelper from "../../store/messages/helpers/PartsHelper";
+import { fetch } from "../../model/message";
 
 export default {
     name: "MailAttachmentItem",
@@ -157,7 +158,7 @@ export default {
         }
     },
     watch: {
-        message: {
+        attachment: {
             handler: function () {
                 if (this.hasPreview && this.isUploaded) {
                     this.setContentUrl();
@@ -175,9 +176,9 @@ export default {
         async setContentUrl() {
             if (!this.attachment.contentUrl) {
                 const contentUrl = URL.createObjectURL(
-                    await PartsHelper.fetch(
+                    await fetch(
                         this.message.remoteRef.imapUid,
-                        this.message.folderRef.uid,
+                        inject("MailboxItemsPersistence", this.message.folderRef.uid),
                         this.attachment,
                         true
                     )

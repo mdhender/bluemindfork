@@ -163,13 +163,11 @@ export default {
         this.attachments.forEach(attachment => {
             if (attachment.contentUrl) {
                 URL.revokeObjectURL(attachment.contentUrl);
-                if (!this.message.composing) {
-                    this.SET_ATTACHMENT_CONTENT_URL({
-                        messageKey: this.message.key,
-                        address: attachment.address,
-                        url: null
-                    });
-                }
+                this.SET_ATTACHMENT_CONTENT_URL({
+                    messageKey: this.message.key,
+                    address: attachment.address,
+                    url: null
+                });
             }
         });
     },

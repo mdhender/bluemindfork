@@ -1,14 +1,13 @@
 export function create(address, charset, name, encoding, mime, size, isUploaded) {
-    let headers, progress, status;
+    let progress, status;
     if (!isUploaded) {
         progress = { loaded: 0, total: 100 };
-        headers = uploadAttachmentHeaders(name, size);
         status = AttachmentStatus.NOT_LOADED;
     } else {
         progress = { loaded: 100, total: 100 };
-        headers = [];
         status = AttachmentStatus.LOADED;
     }
+
     return {
         address,
         charset,
@@ -16,7 +15,7 @@ export function create(address, charset, name, encoding, mime, size, isUploaded)
         encoding,
         mime,
         size,
-        headers,
+        headers: getAttachmentHeaders(name, size),
         progress,
         status,
         contentUrl: null
@@ -29,7 +28,7 @@ export const AttachmentStatus = {
     ERROR: "ERROR"
 };
 
-export function uploadAttachmentHeaders(name, size) {
+export function getAttachmentHeaders(name, size) {
     return [
         {
             name: "Content-Disposition",

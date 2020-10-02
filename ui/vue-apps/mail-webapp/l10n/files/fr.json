@@ -91,7 +91,6 @@
     "mail.compose.forward.prev.message.info.from": "De",
     "mail.compose.forward.prev.message.info.subject": "Sujet",
     "mail.compose.forward.prev.message.info.to": "\u00C0",
-    "mail.compose.forward.subject": "Tr: ",
     "mail.compose.reply.body": "Le {date}, {name} a écrit :",
     "mail.compose.reply.subject": "Re: ",
     "mail.content.alert.ics.dont_exist": "Ce message fait référence à un évènement qui n'existe pas dans votre calendrier",

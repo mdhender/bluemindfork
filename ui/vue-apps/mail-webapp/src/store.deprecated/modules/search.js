@@ -1,5 +1,6 @@
 import ServiceLocator from "@bluemind/inject";
-import MessageAdaptor from "../../store/messages/helpers/MessageAdaptor";
+
+import { createOnlyMetadata } from "../../model/message";
 
 const MAX_SEARCH_RESULTS = 500;
 export const STATUS = {
@@ -69,7 +70,7 @@ async function search({ commit, dispatch, rootState, rootGetters }, { pattern, f
             const underscoreIndex = res.containerUid.lastIndexOf("_");
             const offset = underscoreIndex >= 0 ? underscoreIndex + 1 : 0;
             const folderUid = res.containerUid.substring(offset);
-            return MessageAdaptor.create(res.itemId, { key: folderUid, remoteRef: { uid: folderUid } });
+            return createOnlyMetadata({ internalId: res.itemId, folder: { key: folderUid, uid: folderUid } });
         });
         commit("mail/SET_MESSAGE_LIST", messages, { root: true });
         const result = await dispatch(

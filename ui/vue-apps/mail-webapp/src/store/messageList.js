@@ -1,6 +1,7 @@
 import { inject } from "@bluemind/inject";
 import { ItemFlag } from "@bluemind/core.container.api";
-import MessageAdaptor from "./messages/helpers/MessageAdaptor";
+
+import { createOnlyMetadata } from "../model/message";
 import mutationTypes from "./mutationTypes";
 import actionTypes from "./actionTypes";
 
@@ -43,7 +44,9 @@ const actions = {
 
         ids = conversationsEnabled ? await conversationFilter(folder, ids) : ids;
 
-        const messages = ids.map(id => MessageAdaptor.create(id, folder));
+        const messages = ids.map(id =>
+            createOnlyMetadata({ internalId: id, folder: { key: folder.key, uid: folder.remoteRef.uid } })
+        );
 
         commit(mutationTypes.SET_MESSAGE_LIST, messages);
     }

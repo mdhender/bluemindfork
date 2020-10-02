@@ -27,6 +27,11 @@ export default {
     },
     [mutationTypes.REMOVE_MESSAGES]: (state, keys) => {
         keys.forEach(key => {
+            state[key].attachments
+                .filter(attachment => attachment.contentUrl)
+                .forEach(attachment => {
+                    URL.revokeObjectURL(attachment.contentUrl);
+                });
             Vue.delete(state, key);
         });
     },
@@ -53,6 +58,9 @@ export default {
     [mutationTypes.SET_MESSAGE_HEADERS]: (state, { messageKey, headers }) => {
         state[messageKey].headers = headers;
     },
+    [mutationTypes.SET_MESSAGE_ATTACHMENTS]: (state, { messageKey, attachments }) => {
+        state[messageKey].attachments = attachments;
+    },
     [mutationTypes.ADD_ATTACHMENT]: (state, { messageKey, attachment }) => {
         state[messageKey].attachments.push(attachment);
     },
@@ -78,7 +86,9 @@ export default {
         attachment.progress = { loaded, total };
     },
     [mutationTypes.SET_ATTACHMENT_CONTENT_URL]: (state, { messageKey, address, url }) => {
-        const attachment = state[messageKey].attachments.find(a => a.address === address);
-        attachment.contentUrl = url;
+        if (state[messageKey]) {
+            const attachment = state[messageKey].attachments.find(a => a.address === address);
+            attachment.contentUrl = url;
+        }
     }
 };

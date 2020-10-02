@@ -1,10 +1,11 @@
-import { EmailValidator, Flag } from "@bluemind/email";
+import { Flag } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import ItemUri from "@bluemind/item-uri";
 
 import actionTypes from "../../actionTypes";
 import mutationTypes from "../../mutationTypes";
 import { MessageStatus, MessageHeader, MessageCreationModes } from "../../../model/message";
+import { validateDraft } from "../../../model/draft";
 
 /** Send the last draft: move it to the Outbox then flush. */
 export default async function (
@@ -22,21 +23,26 @@ export default async function (
     });
 
     commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENDING }]);
-    validateDraft(draft);
-
-    const moveResult = await moveToOutbox(draftId, myMailboxKey, outboxId, myDraftsFolder.remoteRef.internalId);
-    if (!moveResult || moveResult.status !== "SUCCESS") {
-        throw "Unable to move draft to Outbox.";
-    }
-
-    draftId = moveResult.doneIds[0].destination;
+    validateDraft(draft, inject("i18n"));
+    draftId = await moveToOutbox(draftId, myMailboxKey, outboxId, myDraftsFolder.remoteRef.internalId);
     const taskResult = await flush(); // flush means send mail + move to sentbox
-    const mailItem = await getSentMessageId(taskResult, draftId, sentFolder.remoteRef.uid);
-
     commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
 
     manageFlagOnPreviousMessage(draft, dispatch, state);
 
+    return await getSentMessage(taskResult, draftId, sentFolder);
+}
+
+async function getSentMessage(taskResult, draftId, sentFolder) {
+    let mailItem;
+    if (taskResult.result && Array.isArray(taskResult.result)) {
+        let importedMailboxItem = taskResult.result.find(r => r.source === draftId);
+        mailItem = await inject("MailboxItemsPersistence", sentFolder.remoteRef.uid).getCompleteById(
+            importedMailboxItem.destination
+        );
+    } else {
+        throw "Unable to retrieve task result";
+    }
     // add necessary data to build a link to the newly created message in Sent box
     mailItem.subjectLink = {
         name: "v:mail:message",
@@ -44,15 +50,6 @@ export default async function (
     };
 
     return mailItem;
-}
-
-function getSentMessageId(taskResult, draftId, sentboxUid) {
-    if (taskResult.result && Array.isArray(taskResult.result)) {
-        let importedMailboxItem = taskResult.result.find(r => r.source === draftId);
-        return inject("MailboxItemsPersistence", sentboxUid).getCompleteById(importedMailboxItem.destination);
-    } else {
-        throw "Unable to retrieve task result";
-    }
 }
 
 function flush() {
@@ -65,20 +62,28 @@ function flush() {
         });
 }
 
-function moveToOutbox(draftId, myMailboxKey, outboxId, myDraftsFolderId) {
-    return inject("MailboxFoldersPersistence", myMailboxKey).importItems(outboxId, {
+async function moveToOutbox(draftId, myMailboxKey, outboxId, myDraftsFolderId) {
+    const moveResult = await inject("MailboxFoldersPersistence", myMailboxKey).importItems(outboxId, {
         mailboxFolderId: myDraftsFolderId,
         ids: [{ id: draftId }],
         expectedIds: undefined,
         deleteFromSource: true
     });
+    if (!moveResult || moveResult.status !== "SUCCESS") {
+        throw "Unable to move draft to Outbox.";
+    }
+    return moveResult.doneIds[0].destination;
 }
 
 function manageFlagOnPreviousMessage(draft, dispatch, state) {
-    const draftInfoHeader = draft.headers.find(header => header.name === MessageHeader.X_BM_DRAFT_INFO);
-    if (draftInfoHeader) {
-        const [typeOfDraft, messageInternalId, folderUid] = draftInfoHeader.values[0].split(",");
-        const mailboxItemFlag = typeOfDraft === MessageCreationModes.FORWARD ? Flag.FORWARDED : Flag.ANSWERED;
+    const hasDraftInfoHeader = draft.headers.find(header => header.name === MessageHeader.X_BM_DRAFT_INFO);
+    if (hasDraftInfoHeader) {
+        const draftInfoHeader = JSON.parse(hasDraftInfoHeader.values[0]);
+        const mailboxItemFlag = draftInfoHeader.type === MessageCreationModes.FORWARD ? Flag.FORWARDED : Flag.ANSWERED;
+
+        const messageInternalId = draftInfoHeader.messageInternalId;
+        const folderUid = draftInfoHeader.folderUid;
+
         const messageKey = ItemUri.encode(parseInt(messageInternalId), folderUid);
         if (state[messageKey]) {
             dispatch(actionTypes.ADD_FLAG, {
@@ -88,14 +93,6 @@ function manageFlagOnPreviousMessage(draft, dispatch, state) {
         } else {
             inject("MailboxItemsPersistence", folderUid).addFlag({ itemsId: [messageInternalId], mailboxItemFlag });
         }
-    }
-}
-
-function validateDraft(draft) {
-    let recipients = draft.to.concat(draft.cc).concat(draft.bcc);
-    const allRecipientsAreValid = recipients.some(recipient => EmailValidator.validateAddress(recipient.address));
-    if (!allRecipientsAreValid) {
-        throw inject("i18n").t("mail.error.email.address.invalid");
     }
 }
 

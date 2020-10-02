@@ -1,7 +1,6 @@
 import mutationsTypes from "../../mutationTypes";
-import { MessageStatus } from "../../../model/message";
+import { MessageStatus, partialCopy } from "../../../model/message";
 import apiMessages from "../../api/apiMessages";
-import MessageAdaptor from "../helpers/MessageAdaptor";
 
 export async function addFlag({ commit, getters, state }, { messageKeys, flag }) {
     const keys = Array.isArray(messageKeys) ? messageKeys : [messageKeys];
@@ -38,9 +37,7 @@ export async function fetchMessageMetadata({ commit, state }, { messageKeys }) {
 }
 
 export async function removeMessages({ commit, state }, messageKeys) {
-    const messages = (Array.isArray(messageKeys) ? messageKeys : [messageKeys]).map(key =>
-        MessageAdaptor.partialCopy(state[key])
-    );
+    const messages = (Array.isArray(messageKeys) ? messageKeys : [messageKeys]).map(key => partialCopy(state[key]));
     commit(
         mutationsTypes.SET_MESSAGES_STATUS,
         messages.map(({ key }) => ({ key, status: MessageStatus.REMOVED }))

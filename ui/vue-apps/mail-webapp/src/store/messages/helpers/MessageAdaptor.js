@@ -1,36 +1,33 @@
-import cloneDeep from "lodash.clonedeep";
-import pick from "lodash.pick";
+import merge from "lodash.merge";
 
-import ItemUri from "@bluemind/item-uri";
 import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mail.api";
 
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
 import GetMultiPartAddressesVisitor from "./GetMultiPartAddressesVisitor";
-import { MessageStatus } from "../../../model/message";
+import { createWithMetadata, MessageStatus } from "../../../model/message";
 import TreeWalker from "./TreeWalker";
 
 export default {
     fromMailboxItem(remote, { key, uid }) {
-        return {
-            key: ItemUri.encode(remote.internalId, key),
-            folderRef: { key, uid },
+        const message = createWithMetadata({ internalId: remote.internalId, folder: { key, uid } });
+        const adapted = {
             remoteRef: {
-                imapUid: remote.value.imapUid,
-                internalId: remote.internalId
+                imapUid: remote.value.imapUid
             },
-            status: MessageStatus.LOADED,
             flags: remote.value.flags,
             date: new Date(remote.value.body.date),
             ...computeRecipients(remote),
             messageId: remote.value.body.messageId,
             references: remote.value.body.references || [],
             headers: remote.value.body.headers,
-            ...computeParts(remote.value.body.structure),
+            ...this.computeParts(remote.value.body.structure),
             subject: remote.value.body.subject,
             composing: false,
-            remote
+            status: MessageStatus.LOADED,
+            remote // FIXME: remove me once messages getter is deleted
         };
+        return merge(message, adapted);
     },
 
     // DELETE ME ONCE deprecated messages getter is removed
@@ -60,59 +57,22 @@ export default {
         };
     },
 
-    create(internalId, { key, remoteRef: { uid } }) {
-        return {
-            key: ItemUri.encode(internalId, key),
-            folderRef: { key, uid },
-            remoteRef: { internalId },
-            status: MessageStatus.NOT_LOADED
-        };
-    },
+    // FIXME: remove DUPLICATED FUNCTION once MailViewer use new store (see Message.js in deprecated store)
+    computeParts(structure) {
+        const inlineVisitor = new GetInlinePartsVisitor();
+        const attachmentVisitor = new GetAttachmentPartsVisitor();
+        const multipartAddressesVisitor = new GetMultiPartAddressesVisitor();
 
-    createWithMetadata(myDraftsFolder, { defaultEmail, formatedName }, structure) {
-        return {
-            key: null,
-            folderRef: { key: myDraftsFolder.key, uid: myDraftsFolder.remoteRef.uid },
-            remoteRef: { imapUid: null, internalId: null },
-            status: MessageStatus.LOADED,
-            flags: [],
-            date: new Date(),
-            from: {
-                address: defaultEmail,
-                name: formatedName
-            },
-            to: [],
-            cc: [],
-            bcc: [],
-            messageId: "",
-            references: [],
-            headers: [],
-            ...computeParts(structure),
-            subject: "",
-            composing: true
-        };
-    },
+        const walker = new TreeWalker(structure, [inlineVisitor, attachmentVisitor, multipartAddressesVisitor]);
+        walker.walk();
 
-    partialCopy(message, properties = []) {
-        return cloneDeep(pick(message, properties.concat("key", "folderRef", "status", "remoteRef")));
+        return {
+            attachments: attachmentVisitor.result(),
+            inlinePartsByCapabilities: inlineVisitor.result(),
+            multipartAddresses: multipartAddressesVisitor.result()
+        };
     }
 };
-
-// FIXME: remove DUPLICATED FUNCTION once MailViewer use new store (see Message.js in deprecated store)
-function computeParts(structure) {
-    const inlineVisitor = new GetInlinePartsVisitor();
-    const attachmentVisitor = new GetAttachmentPartsVisitor();
-    const multipartAddressesVisitor = new GetMultiPartAddressesVisitor();
-
-    const walker = new TreeWalker(structure, [inlineVisitor, attachmentVisitor, multipartAddressesVisitor]);
-    walker.walk();
-
-    return {
-        attachments: attachmentVisitor.result(),
-        inlinePartsByCapabilities: inlineVisitor.result(),
-        multipartAddresses: multipartAddressesVisitor.result()
-    };
-}
 
 function computeRecipients(remote) {
     const from = remote.value.body.recipients.find(rcpt => rcpt.kind === RecipientKind.Originator);

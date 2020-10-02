@@ -1,3 +1,60 @@
+import merge from "lodash.merge";
+import cloneDeep from "lodash.clonedeep";
+import pick from "lodash.pick";
+
+import ItemUri from "@bluemind/item-uri";
+import { MimeType } from "@bluemind/email";
+
+export function createOnlyMetadata({ internalId, folder: { key, uid } }) {
+    return {
+        key: internalId && key ? ItemUri.encode(internalId, key) : null,
+        folderRef: { key, uid },
+        remoteRef: { internalId },
+        status: MessageStatus.NOT_LOADED
+    };
+}
+
+export function createWithMetadata(metadata) {
+    const messageMetadata = createOnlyMetadata(metadata);
+    const emptyMessage = create();
+    return merge(emptyMessage, messageMetadata);
+}
+
+export function create() {
+    const emptyData = {
+        remoteRef: { imapUid: null },
+        flags: [],
+        date: null,
+        headers: [],
+        subject: "",
+        composing: false,
+
+        partContentByMimeType: {},
+
+        from: {
+            address: "",
+            name: ""
+        },
+        to: [],
+        cc: [],
+        bcc: [],
+
+        // used only by reply / forward
+        messageId: "",
+        references: [],
+
+        // adapted from message structure
+        attachments: [],
+        inlinePartsByCapabilities: [],
+        multipartAddresses: {}
+    };
+    return merge(createOnlyMetadata({ folder: {} }), emptyData); // FIXME ? does {} param set null to key / uid / internalId ??
+}
+
+export function partialCopy(message, properties = []) {
+    return cloneDeep(pick(message, properties.concat("key", "folderRef", "status", "remoteRef")));
+}
+
 export const MessageStatus = {
     NOT_LOADED: "NOT-LOADED",
     PENDING: "PENDING",
@@ -46,4 +103,31 @@ function isEmptyContent(content) {
 
 function isSubjectEmpty(subject) {
     return subject === "" || subject === " ";
+}
+
+// FIXME: duplicated code with fetch action. Remove fetch action once MailViewer is refactored
+export async function fetch(messageImapUid, service, part, isAttachment) {
+    const stream = await service.fetch(messageImapUid, part.address, part.encoding, part.mime, part.charset);
+    if (!isAttachment && (MimeType.isText(part) || MimeType.isHtml(part) || MimeType.isCalendar(part))) {
+        return new Promise(resolve => {
+            const reader = new FileReader();
+            reader.readAsText(stream, part.encoding);
+            reader.addEventListener("loadend", e => {
+                resolve(e.target.result);
+            });
+        });
+    } else {
+        return stream;
+    }
+}
+
+export async function clean(partAddresses, attachmentAddresses, service) {
+    const promises = [];
+    Object.keys(partAddresses).forEach(mimeType => {
+        partAddresses[mimeType].forEach(address => {
+            promises.push(service.removePart(address));
+        });
+    });
+    attachmentAddresses.forEach(address => promises.push(service.removePart(address)));
+    return Promise.all(promises);
 }

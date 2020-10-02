@@ -91,7 +91,6 @@
     "mail.compose.forward.prev.message.info.from": "From",
     "mail.compose.forward.prev.message.info.subject": "Subject",
     "mail.compose.forward.prev.message.info.to": "To",
-    "mail.compose.forward.subject": "Fw: ",
     "mail.compose.reply.body": "On {date}, {name} wrote:",
     "mail.compose.reply.subject": "Re: ",
     "mail.content.alert.ics.dont_exist": "This message references an event which does not exist",
