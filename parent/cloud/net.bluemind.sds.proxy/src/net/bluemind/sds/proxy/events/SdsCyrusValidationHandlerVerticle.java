@@ -1,5 +1,6 @@
 package net.bluemind.sds.proxy.events;
 
+import java.io.File;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -46,13 +47,23 @@ public class SdsCyrusValidationHandlerVerticle extends AbstractVerticle {
 
 		vertx.eventBus().consumer(SdsAddresses.VALIDATION, (Message<Buffer> message) -> {
 			JsonObject json = JsonHelper.getJsonFromString(message.body().toString());
-
-			if (JsonHelper.isValidJson(json, "mailbox", "partition")) {
+			if (JsonHelper.isValidJson(json, "mailbox", "partition", "mboxpath")) {
 				String mailbox = json.getString("mailbox");
 				String partition = json.getString("partition");
+				String mboxpath = json.getString("mboxpath");
 
 				cli.prevalidate(mailbox, partition).thenAccept((Boolean result) -> {
-					logger.info("BM Core {} creation of {}/{}", result ? "approves" : "rejects", partition, mailbox);
+					logger.info("BM Core {} creation of {}/{}", Boolean.TRUE.equals(result) ? "approves" : "rejects",
+							partition, mailbox);
+					if (Boolean.TRUE.equals(result) && mboxpath != null) {
+						// Ensure the cyrus data folder exists for the creation of future messages
+						// downloaded from S3
+						File fsMbox = new File(mboxpath);
+						if (!fsMbox.exists()) {
+							logger.info("create missing cyrus folder {}", fsMbox.getPath());
+							fsMbox.mkdirs();
+						}
+					}
 					message.reply(result);
 				}).exceptionally(ex -> {
 					logger.error("Unable to get approval of {}/{}: {}", partition, mailbox, ex.getMessage());
