@@ -9,7 +9,7 @@ const chunkSize = 200;
 function initializeBottleneck() {
     const limiter = new Bottleneck({
         maxConcurrent: 1,
-        minTime: 30 * 1000
+        minTime: 10 * 1000
     });
     return limiter;
 }
@@ -51,7 +51,7 @@ async function fillInLimiter(oldLimiter: Bottleneck, foldersSyncInfo: FolderSync
         let cursor = await (await db.dbPromise)
             .transaction("ids_stack", "readwrite")
             .store.index("by-folderUid")
-            .openCursor(syncInfo.uid);
+            .openCursor(syncInfo.uid, "prev");
         while (cursor) {
             const ids: number[] = [];
             while (cursor && ids.length < chunkSize) {
@@ -86,6 +86,7 @@ export async function updateIdStack(mailapi: MailAPI, uid: string) {
         const outofdate = changeSet.version !== syncInfo.version;
         if (outofdate) {
             await db.applyChangeset(changeSet, syncInfo.uid, syncInfo);
+            return Promise.resolve(true);
         }
     }
     return Promise.resolve(false);

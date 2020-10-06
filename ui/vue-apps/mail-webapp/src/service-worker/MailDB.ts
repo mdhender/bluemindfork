@@ -1,4 +1,4 @@
-import { openDB, DBSchema, IDBPDatabase } from "idb";
+import { openDB, DBSchema, IDBPDatabase, IDBPTransaction } from "idb";
 import { MailFolder, UID, MailItem, ChangeSet } from "./entry";
 
 export interface FolderSyncInfo {
@@ -23,18 +23,19 @@ interface MailSchema extends DBSchema {
         indexes: { "by-folderUid": string };
     };
     ids_stack: {
-        key: [string, number];
+        key: number;
         value: { internalId: number; folderUid: string };
-        indexes: { "by-folderUid": string };
+        indexes: { "by-folderUid": string; key: [string, number] };
     };
 }
 
 export class MailDB {
     dbPromise: Promise<IDBPDatabase<MailSchema>>;
     constructor() {
-        this.dbPromise = openDB<MailSchema>("webapp/mail", 2, {
+        const schemaVersion = 3;
+        this.dbPromise = openDB<MailSchema>("webapp/mail", schemaVersion, {
             upgrade(db, oldVersion) {
-                if (oldVersion < 2) {
+                if (oldVersion < schemaVersion) {
                     for (const name of Object.values(db.objectStoreNames)) {
                         db.deleteObjectStore(name);
                     }
@@ -44,10 +45,9 @@ export class MailDB {
                     "by-folderUid",
                     "folderUid"
                 );
-                db.createObjectStore("ids_stack", { keyPath: ["folderUid", "internalId"] }).createIndex(
-                    "by-folderUid",
-                    "folderUid"
-                );
+                const stackStore = db.createObjectStore("ids_stack", { autoIncrement: true });
+                stackStore.createIndex("by-folderUid", "folderUid");
+                stackStore.createIndex("key", ["folderUid", "internalId"]);
                 db.createObjectStore("mail_folders", { keyPath: "uid" }).createIndex("by-fullName", "value.fullName");
             }
         });
@@ -88,8 +88,9 @@ export class MailDB {
 
     async putMailItems(mailItems: MailItem[], folderUid: string) {
         const tx = (await this.dbPromise).transaction(["ids_stack", "mail_items"], "readwrite");
-        await Promise.all(
-            mailItems.map(({ internalId }) => tx.objectStore("ids_stack").delete([folderUid, internalId]))
+        this.deleteStackIds(
+            mailItems.map(({ internalId }) => internalId),
+            folderUid
         );
         await Promise.all(
             mailItems
@@ -106,12 +107,35 @@ export class MailDB {
     async applyChangeset(changeSet: ChangeSet, folderUid: string, syncInfo: FolderSyncInfo) {
         const { created, updated, deleted, version } = changeSet;
         const tx = (await this.dbPromise).transaction(["folders_syncinfo", "ids_stack", "mail_items"], "readwrite");
-        await Promise.all(created.map(({ id }) => tx.objectStore("ids_stack").put({ internalId: id, folderUid })));
-        await Promise.all(updated.map(({ id }) => tx.objectStore("ids_stack").put({ internalId: id, folderUid })));
-        await Promise.all(deleted.map(({ id }) => tx.objectStore("ids_stack").delete([folderUid, id])));
+        const ids = created
+            .concat(updated)
+            .concat(deleted)
+            .map(({ id }) => id);
+        await this.deleteStackIds(ids, folderUid, tx);
+        await Promise.all(
+            created.reverse().concat(updated.reverse()).map(({ id }) => tx.objectStore("ids_stack").put({ internalId: id, folderUid }))
+        );
         await Promise.all(deleted.map(({ id }) => tx.objectStore("mail_items").delete([folderUid, id])));
         await tx.objectStore("folders_syncinfo").put({ ...syncInfo, version });
         await tx.done;
+    }
+
+    private async deleteStackIds(
+        ids: number[],
+        folderUid: string,
+        tx?: IDBPTransaction<MailSchema, ("folders_syncinfo" | "ids_stack" | "mail_items")[]>
+    ) {
+        const localtx = tx === undefined ? (await this.dbPromise).transaction(["ids_stack"], "readwrite") : tx;
+        const outdatedKeys = await Promise.all(
+            ids.map(id => localtx.objectStore("ids_stack").index("key").getKey([folderUid, id]))
+        );
+        await Promise.all(
+            outdatedKeys.map(key => {
+                if (key) {
+                    return localtx.objectStore("ids_stack").delete(key);
+                }
+            })
+        );
     }
 
     async getMixedMailItems(folderUid: string, ids: number[]) {
@@ -119,7 +143,7 @@ export class MailDB {
             async (promise, id) => {
                 const { remoteIds, localIds, localMailItems } = await promise;
                 const localMailItem = await (await this.dbPromise).get("mail_items", [folderUid, id]);
-                const idInStack = await (await this.dbPromise).get("ids_stack", [folderUid, id]);
+                const idInStack = await (await this.dbPromise).getFromIndex("ids_stack", "key", [folderUid, id]);
                 if (localMailItem !== undefined && idInStack === undefined) {
                     localMailItems.push(localMailItem);
                     localIds.push(id);
