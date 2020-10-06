@@ -16,7 +16,10 @@ import com.google.common.collect.Lists;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.RequestOptions;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.net.SocketAddress;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
@@ -28,6 +31,14 @@ public class SdsCyrusValidationTests {
 	public void before() throws InterruptedException, ExecutionException, TimeoutException {
 		populateTopology();
 		startVerticles();
+	}
+
+	protected SocketAddress socket() {
+		return SocketAddress.inetSocketAddress(8091, "127.0.0.1");
+	}
+
+	private RequestOptions uri(String s) {
+		return new RequestOptions().setURI(s);
 	}
 
 	private void startVerticles() throws InterruptedException, ExecutionException, TimeoutException {
@@ -56,10 +67,13 @@ public class SdsCyrusValidationTests {
 	public void headCallNoPayload() throws InterruptedException, ExecutionException, TimeoutException {
 		HttpClient client = client();
 		CompletableFuture<Integer> async = new CompletableFuture<>();
-		client.post("/mailbox", resp -> {
-			async.complete(resp.statusCode());
+		client.request(HttpMethod.POST, socket(), uri("/mailbox"), resp -> {
+			System.err.println("resp " + resp);
+			resp.exceptionHandler(t -> async.completeExceptionally(t));
+			resp.endHandler(v -> {
+				async.complete(resp.statusCode());
+			});
 		}).setChunked(true).end();
-
 		int httpStatus = async.get(5, TimeUnit.SECONDS);
 		assertEquals(403, httpStatus);
 	}
@@ -76,8 +90,12 @@ public class SdsCyrusValidationTests {
 		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
-		client.post("/mailbox", resp -> {
-			asyncStatusCode.complete(resp.statusCode());
+		client.request(HttpMethod.POST, socket(), uri("/mailbox"), resp -> {
+			System.err.println("resp " + resp);
+			resp.exceptionHandler(t -> asyncStatusCode.completeExceptionally(t));
+			resp.endHandler(v -> {
+				asyncStatusCode.complete(resp.statusCode());
+			});
 		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 
 		int statusCode = asyncStatusCode.get(5, TimeUnit.SECONDS);
@@ -91,8 +109,12 @@ public class SdsCyrusValidationTests {
 		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
-		client.post("/mailbox", resp -> {
-			asyncStatusCode.complete(resp.statusCode());
+		client.request(HttpMethod.POST, socket(), uri("/mailbox"), resp -> {
+			System.err.println("resp " + resp);
+			resp.exceptionHandler(t -> asyncStatusCode.completeExceptionally(t));
+			resp.endHandler(v -> {
+				asyncStatusCode.complete(resp.statusCode());
+			});
 		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 
 		int statusCode = asyncStatusCode.get(5, TimeUnit.SECONDS);
@@ -106,8 +128,12 @@ public class SdsCyrusValidationTests {
 		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
-		client.post("/mailbox", resp -> {
-			asyncStatusCode.complete(resp.statusCode());
+		client.request(HttpMethod.POST, socket(), uri("/mailbox"), resp -> {
+			System.err.println("resp " + resp);
+			resp.exceptionHandler(t -> asyncStatusCode.completeExceptionally(t));
+			resp.endHandler(v -> {
+				asyncStatusCode.complete(resp.statusCode());
+			});
 		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 
 		int statusCode = asyncStatusCode.get(5, TimeUnit.SECONDS);
@@ -118,13 +144,17 @@ public class SdsCyrusValidationTests {
 	public void headCallValidPayload() throws InterruptedException, ExecutionException, TimeoutException {
 		JsonObject payload = new JsonObject()//
 				.put("mailbox", "mailboxvalue")//
-				.put("partition", "partitionvalue");
+				.put("partition", "partitionvalue").put("mboxpath", "/tmp/mbox");
 
 		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
-		client.post("/mailbox", resp -> {
-			asyncStatusCode.complete(resp.statusCode());
+		client.request(HttpMethod.POST, socket(), uri("/mailbox"), resp -> {
+			System.err.println("resp " + resp);
+			resp.exceptionHandler(t -> asyncStatusCode.completeExceptionally(t));
+			resp.endHandler(v -> {
+				asyncStatusCode.complete(resp.statusCode());
+			});
 		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 
 		int statusCode = asyncStatusCode.get(5, TimeUnit.SECONDS);
