@@ -85,6 +85,7 @@ public class UserSettingsEditor extends CompositeGwtWidgetElement {
 		dateFormat.addItem("31/12/2012", "dd/MM/yyyy");
 		dateFormat.addItem("2012-12-31", "yyyy-MM-dd");
 		dateFormat.addItem("12/31/2012", "MM/dd/yyyy");
+		dateFormat.addItem("31.12.2012", "dd.MM.yyyy");
 		ct(i++, messages.dateFormat(), dateFormat);
 
 		// Time format

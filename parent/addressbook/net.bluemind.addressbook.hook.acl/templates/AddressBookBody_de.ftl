@@ -1,3 +1,3 @@
-${user} has shared the addressbook '${entity}' with you
+${user} hat das Addressbuch '${entity}' mit Ihnen geteilt
 
-You can subscribe this addressbook in your settings.
+Sie können das Addressbuch in Ihren Einstellungen abonnieren.

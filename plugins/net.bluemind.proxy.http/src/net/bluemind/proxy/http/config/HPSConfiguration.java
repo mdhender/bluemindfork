@@ -31,8 +31,6 @@ public class HPSConfiguration {
 
 	private Collection<ForwardedLocation> forwardedLocations;
 
-	private TemplatesConfiguration templatesConfiguration;
-
 	private CookiePreferences cookiePreferences;
 
 	private int port;
@@ -47,14 +45,6 @@ public class HPSConfiguration {
 
 	public void setForwardedLocations(Collection<ForwardedLocation> forwardedLocations) {
 		this.forwardedLocations = forwardedLocations;
-	}
-
-	public TemplatesConfiguration getTemplatesConfiguration() {
-		return templatesConfiguration;
-	}
-
-	public void setTemplatesConfiguration(TemplatesConfiguration templatesConfiguration) {
-		this.templatesConfiguration = templatesConfiguration;
 	}
 
 	public CookiePreferences getCookiePreferences() {

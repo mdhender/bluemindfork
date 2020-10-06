@@ -168,11 +168,12 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 	@Override
 	protected String getLang(HttpServerRequest request) {
 		String acceptLang = request.headers().get("Accept-Language");
-		if (acceptLang != null && acceptLang.startsWith("fr")) {
+		if (acceptLang == null) {
 			return "fr";
-		} else {
-			return "en";
 		}
+		return Locale.LanguageRange.parse(acceptLang).stream() //
+				.map(range -> new Locale(range.getRange())).findFirst() //
+				.get().getLanguage().toLowerCase();
 	}
 
 	private ITaggedServiceProvider getProvider() {

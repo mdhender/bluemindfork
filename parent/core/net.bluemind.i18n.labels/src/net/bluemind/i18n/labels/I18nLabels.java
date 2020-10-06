@@ -38,7 +38,7 @@ public class I18nLabels {
 
 	static final Logger logger = LoggerFactory.getLogger(I18nLabels.class);
 
-	private static final String[] langs = { "fr" };
+	private static final String[] langs = { "fr", "de", "es", "hu", "it", "nl", "pl", "pt", "ru", "sk", "uk", "zh" };
 	private static final I18nLabels INSTANCE = new I18nLabels();
 	private Map<String, String> defaultResource;
 	private Map<String, Map<String, String>> resources = new HashMap<>();

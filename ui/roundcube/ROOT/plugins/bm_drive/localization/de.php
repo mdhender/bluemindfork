@@ -19,7 +19,6 @@
  */
 ?>
 <?php
-$labels['invalidcontactemaildomain']='E-Mail Domain des Kontaktes nicht zulässig';
-$labels['users']='Globales Addressbuch';
-$labels['contacts']='Meine Kontakte';
-$labels['collected_contacts']='Gesammelte Kontakte';
+
+$labels['browse_remote'] = 'Server';
+?>

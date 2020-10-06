@@ -16,10 +16,8 @@
  *
  * See LICENSE.txt
  * END LICENSE
- */
-?>
-<?php
-$labels['invalidcontactemaildomain']='E-Mail Domain des Kontaktes nicht zulässig';
-$labels['users']='Globales Addressbuch';
-$labels['contacts']='Meine Kontakte';
-$labels['collected_contacts']='Gesammelte Kontakte';
+*/
+
+$labels = array();
+include INSTALL_PATH. "plugins/bm_drive/localization/de.php";
+
