@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-component-alert d-flex bg-surface">
+    <div class="mail-component-alert shadow-sm z-index-200 bg-surface">
         <bm-alert
             show
             variant="warning"

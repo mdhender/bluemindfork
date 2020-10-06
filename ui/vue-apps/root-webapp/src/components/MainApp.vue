@@ -1,5 +1,6 @@
 <template>
-    <div class="main-app d-flex flex-column vh-100 bg-light">
+    <div class="main-app d-flex flex-column h-100 bg-light">
+        <global-events target="self" @resize="appHeight" />
         <bm-banner
             :applications="applications"
             :widgets="widgets"
@@ -33,6 +34,7 @@
 <script>
 import { BmApplicationAlert, BmSpinner } from "@bluemind/styleguide";
 import { mapActions, mapState } from "vuex";
+import GlobalEvents from "vue-global-events";
 import "@bluemind/styleguide/css/bluemind.scss";
 import CommonL10N from "@bluemind/l10n";
 import injector from "@bluemind/inject";
@@ -44,7 +46,8 @@ export default {
         BmApplicationAlert,
         BmBanner,
         BmSpinner,
-        BmSettings
+        BmSettings,
+        GlobalEvents
     },
     componentI18N: { messages: CommonL10N },
 
@@ -102,17 +105,30 @@ export default {
         ...mapState("root-app", ["appState"])
     },
     created() {
+        this.appHeight();
         // initialize user settings
         this.FETCH_ALL_SETTINGS();
     },
     methods: {
-        ...mapActions("session", ["FETCH_ALL_SETTINGS"])
+        ...mapActions("session", ["FETCH_ALL_SETTINGS"]),
+        appHeight() {
+            /*
+            Fix for mobile : 100vh is too tall, it doesn't count the mobile toolbar
+            This issue must be tested on a real phone since browser device simulator does not disply the toolbar
+            */
+            document.documentElement.style.setProperty("--app-height", window.innerHeight + "px");
+        }
     }
 };
 </script>
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
+body {
+    height: 100vh;
+    height: var(--app-height);
+}
+
 .main-app .bm-application-alert {
     bottom: $sp-5;
     left: $sp-2;

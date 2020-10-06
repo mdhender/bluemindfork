@@ -1,6 +1,6 @@
 <template>
     <section
-        class="mail-viewer d-flex flex-column pb-2 flex-grow-1 bg-surface"
+        class="mail-viewer d-flex flex-column flex-grow-1 bg-surface"
         :aria-label="$t('mail.application.region.messagedetails')"
     >
         <mail-component-alert
@@ -12,7 +12,7 @@
         </mail-component-alert>
         <bm-row class="px-lg-5 px-4 pt-2">
             <bm-col cols="12">
-                <mail-viewer-toolbar />
+                <mail-viewer-toolbar class="d-none d-lg-flex" />
             </bm-col>
         </bm-row>
         <bm-row class="px-lg-5 px-4">
@@ -61,6 +61,7 @@
                 <parts-viewer v-else :message-key="message.key" />
             </bm-col>
         </bm-row>
+        <mail-viewer-toolbar class="d-flex d-lg-none" />
     </section>
 </template>
 
@@ -140,7 +141,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .mail-viewer {
     z-index: 20;
 }

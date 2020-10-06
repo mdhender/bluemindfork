@@ -83,10 +83,6 @@ export default {
 .mail-thread {
     min-height: 100%;
 
-    .mail-component-alert {
-        margin-bottom: $sp-1;
-    }
-
     .mail-composer ~ .mail-viewer {
         @media (max-width: map-get($grid-breakpoints, "lg")) {
             display: none !important;
