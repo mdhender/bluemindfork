@@ -22,7 +22,7 @@
         "@bluemind/prettier-config": "^4.1.0",
         "@types/jest": "^26.0.7",
         "@vue/eslint-config-prettier": "^6.0.0",
-        "@vue/test-utils": "^1.0.3",
+        "@vue/test-utils": "^1.1.0",
         "babel-core": "^6.26.3",
         "babel-eslint": "^10.0.3",
         "babel-jest": "^26.1.0",

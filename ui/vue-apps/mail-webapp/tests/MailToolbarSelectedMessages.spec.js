@@ -6,7 +6,7 @@ import { Flag } from "@bluemind/email";
 describe("MailToolbarSelectedMessages", () => {
     test("is a Vue instance", () => {
         const wrapper = createWrapper(MailToolbarSelectedMessages);
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
     test("should match snapshot", () => {
@@ -28,13 +28,13 @@ describe("MailToolbarSelectedMessages", () => {
             }
         });
         const wrapper = createWrapper(MailToolbarSelectedMessages, { store: storeWithReadMessage });
-        expect(wrapper.find(".btn.read").isVisible()).toBe(true);
-        expect(wrapper.find(".btn.unread").isVisible()).toBe(false);
+        expect(wrapper.find(".read").isVisible()).toBe(true);
+        expect(wrapper.find(".unread").isVisible()).toBe(false);
     });
 
     test("should display 'mark read' button if the message is unread", () => {
         const wrapper = createWrapper(MailToolbarSelectedMessages);
-        expect(wrapper.find(".btn.unread").isVisible()).toBe(true);
-        expect(wrapper.find(".btn.read").isVisible()).toBe(false);
+        expect(wrapper.find(".unread").isVisible()).toBe(true);
+        expect(wrapper.find(".read").isVisible()).toBe(false);
     });
 });

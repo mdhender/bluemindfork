@@ -1,7 +1,8 @@
+import cloneDeep from "lodash.clonedeep";
 import merge from "lodash.merge";
 import Vuex from "vuex";
-import { mount, createLocalVue } from "@vue/test-utils";
-import cloneDeep from "lodash.clonedeep";
+
+import { createLocalVue, mount } from "@vue/test-utils";
 import { ItemUri } from "@bluemind/item-uri";
 import MessageStore from "../src/store.deprecated/MessageStore";
 import MailboxItemsStore from "../src/store.deprecated/mailbackend/MailboxItemsStore";

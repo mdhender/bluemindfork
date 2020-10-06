@@ -18,7 +18,7 @@ describe("MailComposerPanelHeader", () => {
     let regexCloseButton = new RegExp(/<button type="button.*class="close/);
 
     test("is a Vue instance", () => {
-        expect(defaultMount().isVueInstance()).toBeTruthy();
+        expect(defaultMount().vm).toBeTruthy();
     });
 
     test("MailComposerPanelHeader should match snapshot", () => {

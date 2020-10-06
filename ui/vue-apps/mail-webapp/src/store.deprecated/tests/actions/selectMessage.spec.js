@@ -12,6 +12,11 @@ ServiceLocator.register({
     }
 });
 
+const folderUid = "folder:uid",
+    messageId = 10;
+const messageKey = ItemUri.encode(messageId, folderUid);
+const anotherMessageKey = ItemUri.encode(20, folderUid);
+
 const context = {
     dispatch: jest.fn().mockReturnValue(
         Promise.resolve([
@@ -36,14 +41,18 @@ const context = {
     },
     rootState: {
         mail: {
-            activeFolder: ""
+            activeFolder: null,
+            messages: {
+                [messageKey]: { composing: false },
+                [anotherMessageKey]: { composing: false }
+            }
         }
+    },
+    rootGetters: {
+        "mail/MY_DRAFTS": {}
     }
 };
 
-const folderUid = "folder:uid",
-    messageId = 10;
-const messageKey = ItemUri.encode(messageId, folderUid);
 describe("[Mail-WebappStore][actions] : selectMessage", () => {
     beforeEach(() => {
         context.dispatch.mockClear();
@@ -57,16 +66,14 @@ describe("[Mail-WebappStore][actions] : selectMessage", () => {
         expect(context.dispatch).not.toHaveBeenCalled();
     });
     test("to load the selected message", done => {
-        const another = ItemUri.encode(20, folderUid);
-        selectMessage(context, another).then(() => {
-            expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [another]);
+        selectMessage(context, anotherMessageKey).then(() => {
+            expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [anotherMessageKey]);
             done();
         });
     });
     test("set the current message in state", done => {
-        const another = ItemUri.encode(20, folderUid);
-        selectMessage(context, another).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("currentMessage/update", { key: another });
+        selectMessage(context, anotherMessageKey).then(() => {
+            expect(context.commit).toHaveBeenCalledWith("currentMessage/update", { key: anotherMessageKey });
             expect(context.commit).toHaveBeenCalledWith("currentMessage/setParts", {
                 attachments: "All attachments",
                 inlines: ["The", "good", "one"]
@@ -75,11 +82,10 @@ describe("[Mail-WebappStore][actions] : selectMessage", () => {
         });
     });
     test("to fetch inline parts", done => {
-        const another = ItemUri.encode(20, folderUid);
-        selectMessage(context, another).then(() => {
+        selectMessage(context, anotherMessageKey).then(() => {
             ["The", "good", "one"].forEach(part => {
                 expect(context.dispatch).toHaveBeenCalledWith("messages/fetch", {
-                    messageKey: another,
+                    messageKey: anotherMessageKey,
                     part,
                     isAttachment: false
                 });

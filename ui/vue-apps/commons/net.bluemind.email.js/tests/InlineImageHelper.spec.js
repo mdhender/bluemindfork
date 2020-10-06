@@ -1,6 +1,6 @@
-import PartsHelper from "../src/PartsHelper";
+import InlineImageHelper from "../src/InlineImageHelper";
 
-describe("PartsHelper insertInlineImages", () => {
+describe("InlineImageHelper insertInlineImages", () => {
     const mockedBlobAsURLObject = "blob:mockedURLObject:";
     global.URL.createObjectURL = jest.fn().mockImplementation(arg => {
         return mockedBlobAsURLObject + arg;
@@ -18,9 +18,19 @@ describe("PartsHelper insertInlineImages", () => {
                 </html>`
             }
         ];
-        const imagePart1 = { contentId: "<999999999@test.com>", content: "45D67E89\n1A23BC6\n", mime: "image/jpg" };
+        const imagePart1 = {
+            contentId: "<999999999@test.com>",
+            content: "45D67E89\n1A23BC6\n",
+            mime: "image/jpg",
+            address: "2.3"
+        };
         const imagePart2Content = "1A23BC6\n45D67E89\n";
-        const imagePart2 = { contentId: "<123456789@test.com>", content: imagePart2Content, mime: "image/png" };
+        const imagePart2 = {
+            contentId: "<123456789@test.com>",
+            content: imagePart2Content,
+            mime: "image/png",
+            address: "2.4"
+        };
         const imageParts = [imagePart1, imagePart2];
 
         // build expected result
@@ -33,14 +43,14 @@ describe("PartsHelper insertInlineImages", () => {
                     <body>
                         This is my referenced image:<img alt="myImage" src="` +
                     expectedSrcContent +
-                    `">
+                    `" data-bm-imap-address="2.4">
                     </body>
                 </html>`
             }
         ];
 
         // run the code
-        PartsHelper.insertInlineImages(partsWithReferences, imageParts);
+        InlineImageHelper.insertInlineImages(partsWithReferences, imageParts);
 
         // compare the actual result and the expected one
         expect(partsWithReferences).toEqual(expected);
@@ -66,9 +76,19 @@ describe("PartsHelper insertInlineImages", () => {
             }
         ];
         const imagePart1Content = "45D67E89\n1A23BC6\n";
-        const imagePart1 = { contentId: "<999999999@test.com>", content: imagePart1Content, mime: "image/jpg" };
+        const imagePart1 = {
+            contentId: "<999999999@test.com>",
+            content: imagePart1Content,
+            mime: "image/jpg",
+            address: "3.6"
+        };
         const imagePart2Content = "1A23BC6\n45D67E89\n";
-        const imagePart2 = { contentId: "<123456789@test.com>", content: imagePart2Content, mime: "image/png" };
+        const imagePart2 = {
+            contentId: "<123456789@test.com>",
+            content: imagePart2Content,
+            mime: "image/png",
+            address: "3.4"
+        };
         const imageParts = [imagePart1, imagePart2];
 
         // build expected result
@@ -81,7 +101,7 @@ describe("PartsHelper insertInlineImages", () => {
                         <p><img src="` +
                     mockedBlobAsURLObject +
                     imagePart1Content +
-                    `"></p>
+                    `" data-bm-imap-address="3.6"></p>
                         <img src="http://... " />
                         Salut Kévin j'ai un src="cid:123456789@test.com" dans mon mail c'est normal ?
                         <div>
@@ -89,7 +109,7 @@ describe("PartsHelper insertInlineImages", () => {
                                 src="` +
                     mockedBlobAsURLObject +
                     imagePart2Content +
-                    `" height="42px">
+                    `" data-bm-imap-address="3.4" height="42px">
                         </div>
                         <p><img src="cid:DOESNOTEXIST"></p>
                     </body>
@@ -98,7 +118,7 @@ describe("PartsHelper insertInlineImages", () => {
         ];
 
         // run the code
-        PartsHelper.insertInlineImages(partsWithReferences, imageParts);
+        InlineImageHelper.insertInlineImages(partsWithReferences, imageParts);
 
         // compare the actual result and the expected one
         expect(partsWithReferences).toEqual(expected);

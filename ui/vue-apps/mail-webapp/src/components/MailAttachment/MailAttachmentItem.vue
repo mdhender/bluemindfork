@@ -23,7 +23,7 @@
                     <bm-icon :icon="fileTypeIcon" size="2x" class="align-bottom pt-1" />
                 </bm-col>
                 <bm-col class="text-nowrap text-truncate flex-grow-1 px-1" :class="{ muted: !isUploaded }">
-                    <span v-bm-tooltip :title="attachment.filename" class="font-weight-bold">{{ filename }} </span>
+                    <span v-bm-tooltip :title="attachment.fileName" class="font-weight-bold">{{ fileName }} </span>
                     <br />
                     {{ fileSize }}
                 </bm-col>
@@ -38,7 +38,7 @@
                         :aria-label="
                             $t('mail.content.download', {
                                 fileType: $t('mail.content.' + fileTypeIcon),
-                                name: attachment.filename
+                                name: attachment.fileName
                             })
                         "
                         @click="download"
@@ -69,7 +69,7 @@
         <a
             ref="download-attachment-link"
             class="d-none"
-            :download="attachment.filename"
+            :download="attachment.fileName"
             :href="attachment.contentUrl"
         ></a>
     </div>
@@ -134,9 +134,9 @@ export default {
         fileTypeIcon() {
             return MimeType.matchingIcon(this.attachment.mime);
         },
-        filename() {
-            return this.attachment.filename
-                ? this.attachment.filename
+        fileName() {
+            return this.attachment.fileName
+                ? this.attachment.fileName
                 : this.$t("mail.attachment.untitled", { mimeType: this.attachment.mime });
         },
         fileSize() {

@@ -1,26 +1,30 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
-import config from "../index";
+
+import { Flag } from "@bluemind/email";
 import ServiceLocator, { inject } from "@bluemind/inject";
 import { MockMailboxItemsClient } from "@bluemind/test-utils";
-import MessageAdaptor from "../MessageAdaptor";
-import mutationsTypes from "../../mutationTypes";
-import actionTypes from "../../actionTypes";
-import { Flag } from "@bluemind/email";
-import MessageStatus from "../MessageStatus";
+
+import messageStore from "../../index";
+import MessageAdaptor from "../../helpers/MessageAdaptor";
+import mutationsTypes from "../../../mutationTypes";
+import actionTypes from "../../../actionTypes";
+import { MessageStatus, createOnlyMetadata } from "../../../../model/message";
 
 Vue.use(Vuex);
 
 describe("Messages actions", () => {
     let store;
-    let folder = { key: "folder-key", remoteRef: { uid: "folder-key" } };
+    let folder = { key: "folder-key", uid: "folder-key" };
     let messages;
+
     beforeEach(() => {
-        store = new Vuex.Store(cloneDeep(config));
+        store = new Vuex.Store(cloneDeep(messageStore));
         ServiceLocator.register({ provide: "MailboxItemsPersistence", use: new MockMailboxItemsClient(messages) });
-        messages = cloneDeep(require("../../tests/data/users/alice/messages.json"));
+        messages = cloneDeep(require("../../../tests/data/users/alice/messages.json"));
     });
+
     describe("ADD_FLAG", () => {
         test("Call add flag remote API", async () => {
             const adapted = messages
@@ -53,7 +57,7 @@ describe("Messages actions", () => {
             expect(inject("MailboxItemsPersistence").addFlag).not.toHaveBeenCalled();
         });
         test("Call add flag remote API for messages not yet loaded", async () => {
-            const adapted = [1, 2].map(id => MessageAdaptor.create(id, folder));
+            const adapted = [1, 2].map(id => createOnlyMetadata({ internalId: id, folder }));
             store.commit(mutationsTypes.ADD_MESSAGES, adapted);
             const messageKeys = adapted.map(message => message.key);
             await store.dispatch(actionTypes.ADD_FLAG, {
@@ -80,7 +84,7 @@ describe("Messages actions", () => {
             expect(store.state[adapted.key].flags).toEqual(expect.arrayContaining([Flag.SEEN]));
         });
         test("Only add flag to loaded items", () => {
-            const adapted = MessageAdaptor.create(1, folder);
+            const adapted = createOnlyMetadata({ internalId: 1, folder });
             store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
             store.dispatch(actionTypes.ADD_FLAG, {
                 messageKeys: [1],
@@ -167,7 +171,7 @@ describe("Messages actions", () => {
             expect(inject("MailboxItemsPersistence").deleteFlag).not.toHaveBeenCalled();
         });
         test("Call delete flag remote API for messages not yet loaded", async () => {
-            const adapted = [1, 2].map(id => MessageAdaptor.create(id, folder));
+            const adapted = [1, 2].map(id => createOnlyMetadata({ internalId: id, folder }));
             store.commit(mutationsTypes.ADD_MESSAGES, adapted);
             const messageKeys = adapted.map(message => message.key);
             await store.dispatch(actionTypes.DELETE_FLAG, {
@@ -231,7 +235,7 @@ describe("Messages actions", () => {
     });
     describe("FETCH_MESSAGE_METADATA", () => {
         test("Call fetch message API", () => {
-            const adapted = [1, 2, 3].map(id => MessageAdaptor.create(id, folder));
+            const adapted = [1, 2, 3].map(id => createOnlyMetadata({ internalId: id, folder }));
             store.commit(mutationsTypes.ADD_MESSAGES, adapted);
             store.dispatch(actionTypes.FETCH_MESSAGE_METADATA, {
                 messageKeys: adapted.map(message => message.key)
@@ -240,7 +244,7 @@ describe("Messages actions", () => {
         });
         test("Add LOADED status to messages", async () => {
             const message = messages.pop();
-            const adapted = MessageAdaptor.create(message.internalId, folder);
+            const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
             store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").multipleById.mockResolvedValueOnce([message]);
             await store.dispatch(actionTypes.FETCH_MESSAGE_METADATA, {
@@ -288,7 +292,7 @@ describe("Messages actions", () => {
             } finally {
                 expect(store.state[adapted.key].status).toEqual(MessageStatus.LOADED);
             }
-            adapted = MessageAdaptor.create(1, folder);
+            adapted = createOnlyMetadata({ internalId: 1, folder });
             store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").multipleDeleteById.mockRejectedValueOnce("Failure");
             try {

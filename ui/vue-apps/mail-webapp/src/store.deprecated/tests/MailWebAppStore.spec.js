@@ -27,8 +27,9 @@ import WebsocketClient from "@bluemind/sockjs";
 import { Flag } from "@bluemind/email";
 import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
 import mutationTypes from "../../store/mutationTypes";
-import MessageAdaptor from "../../store/messages/MessageAdaptor";
-import SessionStore from "../../store/";
+import MessageAdaptor from "../../store/messages/helpers/MessageAdaptor";
+import { createOnlyMetadata } from "../../model/message";
+import { create as createAttachment } from "../../model/attachment";
 
 jest.mock("@bluemind/sockjs");
 jest.mock("@bluemind/mailbox.api");
@@ -60,10 +61,10 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 
 function initializeMessages({ commit }, messages, folderUid) {
-    const ids = messages.map(({ internalId }) =>
-        MessageAdaptor.create(internalId, { key: folderUid, remoteRef: { uid: folderUid } })
+    const messagesMetadata = messages.map(({ internalId }) =>
+        createOnlyMetadata({ internalId, folder: { key: folderUid, uid: folderUid } })
     );
-    commit("mail/" + mutationTypes.SET_MESSAGE_LIST, ids);
+    commit("mail/" + mutationTypes.SET_MESSAGE_LIST, messagesMetadata);
     const adapted = messages.map(m => MessageAdaptor.fromMailboxItem(m, { key: folderUid }));
     commit("mail/" + mutationTypes.ADD_MESSAGES, adapted);
 }
@@ -77,6 +78,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         store.registerModule("mail", cloneDeep(MailStore));
         store.registerModule("alert", cloneDeep(AlertStore));
         store.registerModule("session", cloneDeep(MountComponentUtils.mockSessionStore().modules.session));
+
         MailboxesClient.mockClear();
         foldersService = new MockMailboxFoldersClient();
         itemsService = new MockMailboxItemsClient();
@@ -183,6 +185,23 @@ describe("[MailWebAppStore] Vuex store", () => {
     });
 
     test("select a message", async () => {
+        store.state.mail = {
+            mailboxes: {
+                "6793466E-F5D4-490F-97BF-DF09D3327BF4": {
+                    key: "6793466E-F5D4-490F-97BF-DF09D3327BF4",
+                    owner: "6793466E-F5D4-490F-97BF-DF09D3327BF4"
+                }
+            },
+            folders: {
+                "6793466E-F5D4-490F-97BF-DF09D3327BF4": {
+                    mailboxRef: { key: "6793466E-F5D4-490F-97BF-DF09D3327BF4" },
+                    imapName: "Drafts"
+                }
+            },
+            messages: {},
+            messageList: {}
+        };
+
         const folderUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";
         const messageKey = ItemUri.encode(872, folderUid);
         const text = "Text content...";
@@ -204,17 +223,8 @@ describe("[MailWebAppStore] Vuex store", () => {
             }
         ];
         expect(store.getters["mail-webapp/currentMessage/content"]).toEqual(parts);
-        parts = [
-            {
-                mime: "text/x-ruby-script",
-                address: "2",
-                encoding: "7bit",
-                charset: "us-ascii",
-                filename: "api.rb",
-                size: 28
-            }
-        ];
-        expect(store.state["mail-webapp"].currentMessage.parts.attachments).toEqual(parts);
+        const attachment = createAttachment("2", "us-ascii", "api.rb", "7bit", "text/x-ruby-script", 28, true);
+        expect(store.state["mail"].messages[messageKey].attachments).toEqual([attachment]);
     });
 
     test("remove a message from my mailbox", async () => {

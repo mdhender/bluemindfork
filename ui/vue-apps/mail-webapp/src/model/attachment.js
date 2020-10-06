@@ -1,4 +1,4 @@
-export function create(address, charset, name, encoding, mime, size, isUploaded) {
+export function create(address, charset, fileName, encoding, mime, size, isUploaded) {
     let progress, status;
     if (!isUploaded) {
         progress = { loaded: 0, total: 100 };
@@ -11,10 +11,11 @@ export function create(address, charset, name, encoding, mime, size, isUploaded)
     return {
         address,
         charset,
-        filename: name,
+        fileName,
         encoding,
         mime,
         size,
+        dispositionType: "ATTACHMENT",
         headers: getAttachmentHeaders(name, size),
         progress,
         status,

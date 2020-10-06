@@ -1,7 +1,7 @@
 import { content } from "../../../MessageStore/getters/content";
-import { PartsHelper } from "@bluemind/email";
+import { InlineImageHelper } from "@bluemind/email";
 
-PartsHelper.insertInlineImages = jest.fn().mockReturnValue([]);
+InlineImageHelper.insertInlineImages = jest.fn().mockReturnValue([]);
 
 describe("[Mail-WebappStore/MessageStore][getters] : content ", () => {
     const state = {};
@@ -10,7 +10,7 @@ describe("[Mail-WebappStore/MessageStore][getters] : content ", () => {
     let parts = {};
 
     beforeEach(() => {
-        PartsHelper.insertInlineImages.mockClear();
+        InlineImageHelper.insertInlineImages.mockClear();
         Object.assign(state, {
             key: "key",
             parts: {
@@ -70,9 +70,9 @@ describe("[Mail-WebappStore/MessageStore][getters] : content ", () => {
             "1.2": "text",
             "1.3": "image"
         };
-        PartsHelper.insertInlineImages.mockReturnValue(["uid"]);
+        InlineImageHelper.insertInlineImages.mockReturnValue(["uid"]);
         const result = content(state, undefined, rootState, rootGetters);
-        expect(PartsHelper.insertInlineImages).toHaveBeenCalledWith(
+        expect(InlineImageHelper.insertInlineImages).toHaveBeenCalledWith(
             [{ address: "1.1", mime: "text/html", content: "html" }],
             [{ address: "1.3", mime: "image/png", contentId: "uid", content: "image" }]
         );

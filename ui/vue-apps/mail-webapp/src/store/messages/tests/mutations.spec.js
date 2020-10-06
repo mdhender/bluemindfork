@@ -1,5 +1,5 @@
 import mutations from "../mutations";
-import MessageStatus from "../MessageStatus";
+import { MessageStatus } from "../../../model/message";
 
 describe("mutations", () => {
     describe("ADD_MESSAGES", () => {

@@ -8,7 +8,7 @@ import {
     MessageReplyAttributeSeparator,
     fetch
 } from "./message";
-import { getAttachmentHeaders } from "./attachment";
+import { create as createAttachment } from "./attachment";
 
 // FIXME: must remove this import, model must depend only of other models and commons packages
 import PlayWithInlinePartsByCapabilities from "../store/messages/helpers/PlayWithInlinePartsByCapabilities";
@@ -55,8 +55,9 @@ function adaptDraftForReplyOrForward(draft, creationMode, previousMessage, userS
 
 /**
  * Compute the subject in function of creationMode (like "Re: My Subject" when replying).
+ * INTERNAL METHOD (exported only for testing purpose)
  */
-function buildSubject(creationMode, previousMessage) {
+export function buildSubject(creationMode, previousMessage) {
     const subjectPrefix = creationMode === MessageCreationModes.FORWARD ? "Fw: " : "Re: ";
     // avoid subject prefix repetitions (like "Re: Re: Re: Re: My Subject")
     if (subjectPrefix !== previousMessage.subject.substring(0, subjectPrefix.length)) {
@@ -65,7 +66,10 @@ function buildSubject(creationMode, previousMessage) {
     return previousMessage.subject;
 }
 
-function buildRecipients(creationMode, previousMessage, myEmail, myName) {
+/**
+ * INTERNAL METHOD (exported only for testing purpose)
+ */
+export function buildRecipients(creationMode, previousMessage, myEmail, myName) {
     let cc = [],
         to = [];
 
@@ -115,9 +119,9 @@ function buildRecipients(creationMode, previousMessage, myEmail, myName) {
 
 function extractAddressesFromHeader(header, isReplyAll) {
     if (isReplyAll) {
-        return header.values.map(value => EmailExtractor.extractEmail(value));
+        return header.values.map(value => ({ address: EmailExtractor.extractEmail(value), dn: "" }));
     } else {
-        return [{ address: EmailExtractor.extractEmail(header.values[0]), name: "" }];
+        return [{ address: EmailExtractor.extractEmail(header.values[0]), dn: "" }];
     }
 }
 
@@ -191,13 +195,19 @@ export async function uploadInlineParts(creationMode, previousMessage, service, 
 export async function uploadAttachments(previousMessage, service) {
     const attachments = [];
     for (const attachment of previousMessage.attachments) {
-        const stream = await fetch(previousMessage.remoteRef.imapUid, previousMessage.folderRef.uid, attachment, true);
+        const stream = await fetch(previousMessage.remoteRef.imapUid, service, attachment, true);
         const address = await service.uploadPart(stream);
-        attachments.push({
-            ...attachment,
-            address,
-            headers: getAttachmentHeaders(attachment.filename, attachment.size)
-        });
+        attachments.push(
+            createAttachment(
+                address,
+                attachment.charset,
+                attachment.fileName,
+                attachment.encoding,
+                attachment.mime,
+                attachment.size,
+                true
+            )
+        );
     }
     return attachments;
 }
@@ -300,7 +310,7 @@ function buildSeparatorForForward(message, lineBreakSeparator, vueI18n) {
 
 /** @return like "John Doe <jdoe@bluemind.net>" */
 function nameAndAddress(recipient) {
-    return recipient.name ? recipient.name + " <" + recipient.address + ">" : recipient.address;
+    return recipient.dn ? recipient.dn + " <" + recipient.address + ">" : recipient.address;
 }
 
 export function prepareDraft(draft, messageCompose, userPrefTextOnly) {

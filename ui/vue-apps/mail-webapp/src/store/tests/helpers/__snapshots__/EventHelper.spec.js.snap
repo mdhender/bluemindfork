@@ -8,7 +8,7 @@ Object {
       "name": "test",
     },
   ],
-  "date": "vendredi 14 août 2020",
+  "date": "2020 M08 14, Fri",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
@@ -108,7 +108,7 @@ Object {
       "name": "test",
     },
   ],
-  "date": "vendredi 14 août 2020 de 10:00 à 11:00",
+  "date": "2020 M08 14, Fri de 10:00 à 11:00",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",

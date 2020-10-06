@@ -27,11 +27,13 @@ export default {
     },
     [mutationTypes.REMOVE_MESSAGES]: (state, keys) => {
         keys.forEach(key => {
-            state[key].attachments
-                .filter(attachment => attachment.contentUrl)
-                .forEach(attachment => {
-                    URL.revokeObjectURL(attachment.contentUrl);
-                });
+            if (state[key] && state[key].attachments) {
+                state[key].attachments
+                    .filter(attachment => attachment.contentUrl)
+                    .forEach(attachment => {
+                        URL.revokeObjectURL(attachment.contentUrl);
+                    });
+            }
             Vue.delete(state, key);
         });
     },

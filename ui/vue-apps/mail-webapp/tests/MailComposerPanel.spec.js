@@ -26,7 +26,7 @@ describe("MailComposerPanelHeader", () => {
     let regexFooterContent = new RegExp(/<button>\s*Submit\s*<\/button>/);
 
     test("is a Vue instance", () => {
-        expect(defaultMount().isVueInstance()).toBeTruthy();
+        expect(defaultMount().vm).toBeTruthy();
     });
 
     test("MailComposerPanel should match snapshot", () => {
