@@ -29,7 +29,7 @@
                     :title="message.subject"
                     class="mail-message-list-item-subject text-secondary text-truncate"
                 >
-                    {{ message.subject }}
+                    {{ message.subject || "&nbsp;" }}
                 </div>
                 <div
                     v-bm-tooltip.viewport
