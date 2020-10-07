@@ -94,10 +94,14 @@ public abstract class AbstractPgWorker extends DefaultWorker {
 		try {
 			NCUtils.execNoOut(nc, "chmod +x " + dir + "/dump.sh");
 			ExitList el = NCUtils.exec(nc, dir + "/dump.sh");
+
 			for (String log : el) {
 				if (!StringUtils.isBlank(log)) {
 					ctx.info("en", "DUMP: " + log);
 				}
+			}
+			if (el.getExitCode() != 0) {
+				throw new ServerFault("pg_dump failed with exit code " + el.getExitCode());
 			}
 		} finally {
 			NCUtils.execNoOut(nc, "rm -f " + dir + "/dump.sh");
@@ -105,7 +109,15 @@ public abstract class AbstractPgWorker extends DefaultWorker {
 
 		logger.info("Backup postgresql configuration files");
 		NCUtils.execNoOut(nc, "rm -rf " + dir + "/configuration");
-		NCUtils.execNoOut(nc, "cp -r /etc/postgresql " + dir + "/configuration");
+		ExitList el = NCUtils.exec(nc, "cp -r /etc/postgresql " + dir + "/configuration");
+		for (String log : el) {
+			if (!StringUtils.isBlank(log)) {
+				ctx.info("en", "copy postgresql conf: " + log);
+			}
+		}
+		if (el.getExitCode() != 0) {
+			throw new ServerFault("copy postgresql config failed with exit code " + el.getExitCode());
+		}
 	}
 
 	@Override

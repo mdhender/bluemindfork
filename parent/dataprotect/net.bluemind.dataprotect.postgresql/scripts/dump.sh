@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 rm -f ${file}
 
 PGPASSWORD=${pass} pg_dump \
