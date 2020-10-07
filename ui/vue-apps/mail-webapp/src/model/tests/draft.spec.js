@@ -69,11 +69,7 @@ describe("uploadInlineParts", () => {
     itemsService.uploadPart = jest.fn().mockReturnValue("2");
 
     vueI18n.t = jest.fn().mockImplementation((key, params) => {
-        if (key === "mail.compose.reply.subject") {
-            return "Re: ";
-        } else if (key === "mail.compose.forward.subject") {
-            return "Fw: ";
-        } else if (key === "mail.compose.reply.body") {
+        if (key === "mail.compose.reply.body") {
             return "On " + params.date + ", " + params.name + " wrote:";
         } else if (key === "mail.compose.forward.body") {
             return "---- Original Message ----";

@@ -92,7 +92,6 @@
     "mail.compose.forward.prev.message.info.subject": "Subject",
     "mail.compose.forward.prev.message.info.to": "To",
     "mail.compose.reply.body": "On {date}, {name} wrote:",
-    "mail.compose.reply.subject": "Re: ",
     "mail.content.alert.ics.dont_exist": "This message references an event which does not exist",
     "mail.content.alert.images.blocked": "Remote images have been blocked to protect your privacy.",
     "mail.content.alert.images.show": "Show images.",
