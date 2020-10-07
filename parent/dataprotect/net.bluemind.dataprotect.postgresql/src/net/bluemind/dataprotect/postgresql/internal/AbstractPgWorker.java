@@ -69,8 +69,7 @@ public abstract class AbstractPgWorker extends DefaultWorker {
 
 	private String dataString(String file) throws ServerFault {
 		try (InputStream in = AbstractPgWorker.class.getClassLoader().getResourceAsStream(file)) {
-			String s = new String(ByteStreams.toByteArray(in));
-			return s;
+			return new String(ByteStreams.toByteArray(in));
 		} catch (IOException ioe) {
 			throw new ServerFault(ioe);
 		}
@@ -126,13 +125,8 @@ public abstract class AbstractPgWorker extends DefaultWorker {
 	}
 
 	@Override
-	public void dataDirsSaved(IDPContext ctx, String tag, ItemValue<Server> backedUp) throws ServerFault {
-		super.dataDirsSaved(ctx, tag, backedUp);
-	}
-
-	@Override
 	public void restore(IDPContext ctx, PartGeneration part, Map<String, Object> params) throws ServerFault {
-		logger.info("Should restore postgresql from part " + part.id);
+		logger.info("Should restore postgresql from part {}", part.id);
 
 		String dir = getBackupDirectory();
 

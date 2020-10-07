@@ -125,7 +125,7 @@ public class LoadGenerationTask implements IServerTask {
 			});
 		}
 
-		logger.info("Sending generation with " + gc.capabilities.size() + " capabilities.");
+		logger.info("Sending generation with {} capabilities", gc.capabilities.size());
 		monitor.end(true, "restored", JsonUtils.asString(gc));
 
 	}

@@ -74,7 +74,7 @@ public class RestoreBooksTask implements IServerTask {
 			monitor.begin(backABs.size(), String.format(
 					"Starting restore for uid %s : Backup contains %d addressbook(s)", item.entryUid, backABs.size()));
 
-			logger.info("Backup contains " + backABs.size() + " addressbook(s)");
+			logger.info("Backup contains {} addressbook(s)", backABs.size());
 			for (ContainerDescriptor backAB : backABs) {
 				restore(back, live, backAB, liveABs, monitor.subWork(1));
 			}
@@ -98,7 +98,7 @@ public class RestoreBooksTask implements IServerTask {
 
 		String bookUid = mapBookUid(backAB.uid);
 
-		if (liveABs.stream().filter(c -> c.uid.equals(bookUid)).findFirst().isPresent()) {
+		if (liveABs.stream().anyMatch(c -> c.uid.equals(bookUid))) {
 			IAddressBook liveABApi = live.provider().instance(IAddressBook.class, bookUid);
 			liveABApi.reset();
 			monitor.progress(1, "reset done");

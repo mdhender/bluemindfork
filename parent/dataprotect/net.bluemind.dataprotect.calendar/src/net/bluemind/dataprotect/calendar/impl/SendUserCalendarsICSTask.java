@@ -17,7 +17,7 @@
   */
 package net.bluemind.dataprotect.calendar.impl;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -91,7 +91,7 @@ public class SendUserCalendarsICSTask implements IServerTask {
 			ContainerQuery cq = ContainerQuery.ownerAndType(backUserContext.getSubject(), ICalendarUids.TYPE);
 			List<ContainerDescriptor> cals = containersService.all(cq);
 
-			Map<String, String> allIcs = new HashMap<String, String>(cals.size());
+			Map<String, String> allIcs = new HashMap<>(cals.size());
 			for (ContainerDescriptor cal : cals) {
 				IVEvent service = back.instance(IVEvent.class, cal.uid);
 				allIcs.put(cal.name, GenericStream.streamToString(service.exportAll()));
@@ -123,7 +123,7 @@ public class SendUserCalendarsICSTask implements IServerTask {
 		MultipartImpl mp = new MultipartImpl("mixed");
 		BasicBodyFactory bbf = new BasicBodyFactory();
 		TextBody tb = bbf.textBody("Une sauvegarde de vos calendriers est attachée à ce message",
-				Charset.forName("utf-8"));
+				StandardCharsets.UTF_8);
 		BodyPart textPart = new BodyPart();
 		textPart.setBody(tb, "text/plain");
 		textPart.setContentTransferEncoding(MimeUtil.ENC_QUOTED_PRINTABLE);

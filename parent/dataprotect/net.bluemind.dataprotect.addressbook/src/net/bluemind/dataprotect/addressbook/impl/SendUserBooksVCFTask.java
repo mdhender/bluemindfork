@@ -17,7 +17,7 @@
   */
 package net.bluemind.dataprotect.addressbook.impl;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -122,7 +122,7 @@ public class SendUserBooksVCFTask implements IServerTask {
 		MultipartImpl mp = new MultipartImpl("mixed");
 		BasicBodyFactory bbf = new BasicBodyFactory();
 		TextBody tb = bbf.textBody("Une sauvegarde de vos carnets d'adresses est attachée à ce message",
-				Charset.forName("utf-8"));
+				StandardCharsets.UTF_8);
 		BodyPart textPart = new BodyPart();
 		textPart.setBody(tb, "text/plain");
 		textPart.setContentTransferEncoding(MimeUtil.ENC_QUOTED_PRINTABLE);

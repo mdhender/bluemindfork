@@ -184,8 +184,7 @@ public class DPService implements IDataProtect {
 			throw new ServerFault("Generation " + generationId + " not found");
 		}
 		ForgetTask install = new ForgetTask(ctx, this, dpg);
-		TaskRef ret = ctx.provider().instance(ITasksManager.class).run(install);
-		return ret;
+		return ctx.provider().instance(ITasksManager.class).run(install);
 	}
 
 	@Override
@@ -227,22 +226,19 @@ public class DPService implements IDataProtect {
 			throw new ServerFault("Generation " + generationId + " not found");
 		}
 		InstallTask install = new InstallTask(ctx, dpg);
-		TaskRef ret = ctx.provider().instance(ITasksManager.class).run(install);
-		return ret;
+		return ctx.provider().instance(ITasksManager.class).run(install);
 	}
 
 	@Override
 	public TaskRef saveAll() throws ServerFault {
 		rbac.check(BasicRoles.ROLE_SYSTEM_MANAGER);
 		logger.info("Backup TIME....");
-		TaskRef ret = ctx.provider().instance(ITasksManager.class).run(new SaveAllTask(ctx, this));
-		return ret;
+		return ctx.provider().instance(ITasksManager.class).run(new SaveAllTask(ctx, this));
 	}
 
 	private void checkAccess() throws ServerFault {
 		rbac.forDomain(ctx.getSecurityContext().getContainerUid()).check(BasicRoles.ROLE_MANAGE_RESTORE,
 				BasicRoles.ROLE_DATAPROTECT);
-
 	}
 
 }

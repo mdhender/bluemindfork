@@ -91,9 +91,15 @@ public class BackupDataProvider implements AutoCloseable {
 		this.targetDatabase = target != null ? target : "dp" + UUID.randomUUID().toString().replace("-", "");
 		this.sc = sc;
 		this.monitor = monitor;
-		pgContext = new ArrayList<PgContext>();
+		pgContext = new ArrayList<>();
 	}
 
+	/**
+	 * @param server: This field is ignored
+	 * @deprecated: use BackupDataProvider(String target, SecurityContext sc,
+	 *              IServerTaskMonitor monitor)
+	 */
+	@Deprecated
 	public BackupDataProvider(String target, String server, IServerTaskMonitor monitor) {
 		this(target, SecurityContext.SYSTEM, monitor);
 	}
@@ -174,9 +180,9 @@ public class BackupDataProvider implements AutoCloseable {
 				list -> partialUpgrade(list, handledActions, store, onlySchema, database, datalocation, ds, report));
 
 		if (report.status == Status.FAILED) {
-			logger.warn("Could not upgrade backup database from version {} to {}", dpVersion.toString(), to.toString());
-			throw new ServerFault(String.format("Could not upgrade backup database from version %s to %s",
-					dpVersion.toString(), to.toString()));
+			logger.warn("Could not upgrade backup database from version {} to {}", dpVersion, to);
+			throw new ServerFault(
+					String.format("Could not upgrade backup database from version %s to %s", dpVersion, to));
 		}
 	}
 

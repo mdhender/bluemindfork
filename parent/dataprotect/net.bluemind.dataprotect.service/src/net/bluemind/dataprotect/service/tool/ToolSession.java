@@ -244,7 +244,7 @@ public class ToolSession implements IToolSession {
 			args.append(' ').append(to);
 			String theCmd = args.toString();
 			ExitList output = NCUtils.exec(nc, theCmd);
-			logger.info("Running " + theCmd);
+			logger.info("Running {}", theCmd);
 			int eCode = output.getExitCode();
 			for (String s : output) {
 				if (eCode == 0) {

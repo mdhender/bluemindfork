@@ -77,7 +77,7 @@ public class RestoreCalendarsTask implements IServerTask {
 			monitor.begin(backCalendars.size(), String.format("Starting restore for uid %s: Backup contains %s",
 					item.entryUid, backCalendars.size()));
 
-			logger.info("Backup contains " + backCalendars.size() + " calendar(s)");
+			logger.info("Backup contains {} calendar(s)", backCalendars.size());
 			for (ContainerDescriptor backCalendar : backCalendars) {
 				restore(back, live, backCalendar, liveCalendars, monitor.subWork(1));
 			}
@@ -100,7 +100,7 @@ public class RestoreCalendarsTask implements IServerTask {
 
 		String calendarUid = mapCalendarUid(backCalendar.uid);
 
-		if (liveCalendars.stream().filter(c -> c.uid.equals(calendarUid)).findFirst().isPresent()) {
+		if (liveCalendars.stream().anyMatch(c -> c.uid.equals(calendarUid))) {
 			ICalendar lCalApi = live.provider().instance(ICalendar.class, calendarUid);
 			TaskRef tr = lCalApi.reset();
 			TaskUtils.wait(live.provider(), tr);
