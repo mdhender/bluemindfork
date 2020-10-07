@@ -6,22 +6,22 @@
         v-on="$listeners"
     >
         <template v-slot:button-content><bm-icon icon="3dots" size="2x" /></template>
-        <bm-dropdown-item-button v-if="messageFilter !== 'unread'" variant="dark" @click="filterUnread">
+        <bm-dropdown-item-button v-if="!MESSAGE_LIST_UNREAD_FILTER_ENABLED" variant="dark" @click="filterUnread">
             {{ this.$t("mail.list.menu.filter") + " " + this.$t("mail.list.menu.filter.unread") }}
         </bm-dropdown-item-button>
-        <bm-dropdown-divider v-if="messageFilter !== 'unread'" />
-        <bm-dropdown-item-button v-if="messageFilter !== 'flagged'" variant="dark" @click="filterFlagged">
+        <bm-dropdown-divider v-if="!MESSAGE_LIST_UNREAD_FILTER_ENABLED" />
+        <bm-dropdown-item-button v-if="MESSAGE_LIST_FLAGGED_FILTER_ENABLED" variant="dark" @click="filterFlagged">
             {{ this.$t("mail.list.menu.filter") + " " + this.$t("mail.list.menu.filter.flagged") }}
         </bm-dropdown-item-button>
-        <bm-dropdown-divider v-if="messageFilter !== 'flagged'" />
-        <bm-dropdown-item-button v-if="messageFilter" variant="dark" @click="filterAll">
-            {{ this.$t("mail.list.filter.remove") + " '" + this.$t("mail.list.menu.filter." + messageFilter) + "'" }}
+        <bm-dropdown-divider v-if="!MESSAGE_LIST_UNREAD_FILTER_ENABLED" />
+        <bm-dropdown-item-button v-if="MESSAGE_LIST_FILTERED" variant="dark" @click="filterAll">
+            {{ this.$t("mail.list.filter.remove") + " '" + this.$t("mail.list.menu.filter." + filter) + "'" }}
         </bm-dropdown-item-button>
-    </bm-dropdown></template
->
+    </bm-dropdown>
+</template>
 <script>
 import { BmDropdown, BmDropdownItemButton, BmDropdownDivider, BmIcon } from "@bluemind/styleguide";
-import { mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 
 export default {
     name: "MessagesOptionsForMobile",
@@ -32,7 +32,12 @@ export default {
         BmIcon
     },
     computed: {
-        ...mapState("mail-webapp", ["messageFilter"])
+        ...mapGetters("mail", [
+            "MESSAGE_LIST_UNREAD_FILTER_ENABLED",
+            "MESSAGE_LIST_FLAGGED_FILTER_ENABLED",
+            "MESSAGE_LIST_FILTERED"
+        ]),
+        ...mapState("mail", { filter: state => state.messageList.filter })
     },
     methods: {
         filterUnread() {

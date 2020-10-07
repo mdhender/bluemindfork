@@ -35,7 +35,7 @@
                 :ref="'message-' + message.key"
                 :message="message"
                 :is-muted="!!draggedMessage && isMessageSelected(draggedMessage) && isMessageSelected(message.key)"
-                @toggleSelect="toggleSelect"
+                @toggle-select="toggleSelect"
                 @click.exact.native="unselectAllIfNeeded(message.key)"
                 @click.ctrl.exact.native.capture.prevent.stop="toggleSelect(message.key)"
                 @click.shift.exact.native.prevent.stop="selectRange(message.key, true)"
@@ -75,12 +75,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", [
-            "nextMessageKey",
-            "areMessagesFiltered",
-            "isMessageSelected",
-            "areAllMessagesSelected"
-        ]),
+        ...mapGetters("mail-webapp", ["nextMessageKey", "isMessageSelected", "areAllMessagesSelected"]),
         ...mapState("mail-webapp", ["selectedMessageKeys"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail", ["MY_TRASH", "MESSAGE_LIST_COUNT", "isLoaded"]),

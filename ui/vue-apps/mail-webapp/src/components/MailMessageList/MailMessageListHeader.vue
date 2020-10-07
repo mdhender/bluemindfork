@@ -18,13 +18,6 @@
                     :title="$t('mail.list.filter.tooltip')"
                 />
             </bm-col>
-            <bm-col class="d-none d-sm-block d-md-none d-xl-block text-right" cols="2">
-                <!-- hidden until the sort feature is really developed : https://forge.bluemind.net/jira/browse/FEATWEBML-573
-                <span class="text-nowrap"> 
-                    {{ $t("common.sort_by") }}
-                    <span class="fake-select">{{ $t("common.date") }} <bm-icon icon="caret-down"/></span>
-                </span> -->
-            </bm-col>
         </bm-row>
     </div>
 </template>
@@ -51,7 +44,8 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["messageFilter", "selectedMessageKeys"]),
+        ...mapState("mail", { filter: ({ messageList }) => messageList.filter }),
+        ...mapState("mail-webapp", ["selectedMessageKeys"]),
         ...mapGetters("mail-webapp", ["areAllMessagesSelected"]),
         filters() {
             return [
@@ -73,12 +67,7 @@ export default {
             ];
         },
         filterIndex() {
-            return FILTER_INDEXES[this.messageFilter] || 0;
-        }
-    },
-    watch: {
-        messageFilter() {
-            this.$refs.filterChoiceGroup.select(this.filters[this.filterIndex]);
+            return FILTER_INDEXES[this.filter] || 0;
         }
     }
 };

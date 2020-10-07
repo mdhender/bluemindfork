@@ -1,7 +1,7 @@
 <template>
     <div class="message-list-item-middle d-flex flex-column text-truncate">
         <div class="d-flex flex-row">
-            <div v-if="MY_DRAFTS.key === activeFolder" class="text-danger mx-1 font-italic">
+            <div v-if="MY_DRAFTS.key === message.folderRef.key" class="text-danger mx-1 font-italic">
                 [{{ $t("common.folder.draft") }}]
             </div>
             <div
@@ -11,7 +11,7 @@
             >
                 {{ fromOrTo }}
             </div>
-            <div v-if="isSearchMode && !mouseIn" class="d-flex slide">
+            <div v-if="MESSAGE_LIST_IS_SEARCH_MODE && !mouseIn" class="d-flex slide">
                 <mail-folder-icon
                     class="text-secondary text-truncate"
                     :class="[isActive ? 'bg-info' : isImportant ? 'warning-custom' : 'bg-white']"
@@ -109,10 +109,10 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["isMessageSelected", "isSearchMode"]),
-        ...mapGetters("mail", ["MY_DRAFTS", "MY_SENT"]),
+        ...mapGetters("mail-webapp", ["isMessageSelected"]),
+        ...mapGetters("mail", ["MY_DRAFTS", "MY_SENT", "MESSAGE_LIST_IS_SEARCH_MODE"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail", ["mailboxes", "folders", "messages", "activeFolder"]),
+        ...mapState("mail", ["mailboxes", "folders", "messages"]),
         displayedDate: function () {
             const today = new Date();
             const messageDate = this.message.date;

@@ -76,6 +76,16 @@ function isNameValid(name, path, FOLDER_BY_PATH) {
     return true;
 }
 
+function toRef(payload) {
+    if (typeof payload === "string") {
+        const uid = payload;
+        return { key: uid, uid };
+    } else {
+        const folder = payload;
+        return { key: folder.key, uid: folder.remoteRef.uid };
+    }
+}
+
 const FOLDER_PATH_MAX_LENGTH = 250;
 
 const FORBIDDEN_FOLDER_CHARACTERS = '/@%*"`;^<>{}|';
@@ -125,5 +135,6 @@ export const FolderAdaptor = {
     isMailshareRoot,
     rename,
     isDefault,
-    isNameValid
+    isNameValid,
+    toRef
 };

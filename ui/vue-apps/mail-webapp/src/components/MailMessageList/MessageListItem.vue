@@ -15,7 +15,7 @@
         @mouseleave="mouseIn = false"
     >
         <screen-reader-only-message-information :message="message" />
-        <message-list-item-left :message="message" @toggleSelect="$emit('toggle-select', message.key, true)" />
+        <message-list-item-left :message="message" @toggle-select="$emit('toggle-select', message.key, true)" />
         <message-list-item-middle
             class="flex-fill px-2"
             :message="message"

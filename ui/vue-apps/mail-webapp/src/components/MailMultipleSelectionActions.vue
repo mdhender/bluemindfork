@@ -69,7 +69,7 @@
             <hr v-if="!areAllMessagesSelected" class="w-75 border-dark" />
 
             <div v-if="!areAllMessagesSelected" class="mt-3">
-                <h3 v-if="!isSearchMode" class="d-inline px-3 align-middle">
+                <h3 v-if="!MESSAGE_LIST_IS_SEARCH_MODE" class="d-inline px-3 align-middle">
                     {{ $t("mail.message.select.all.folder") }}
                     <mail-folder-icon
                         :shared="isFolderOfMailshare(currentFolder)"
@@ -81,7 +81,7 @@
                 </h3>
                 <h3 v-else class="d-inline px-3 align-middle">
                     {{ $t("mail.message.select.all.search") }}
-                    <bm-icon icon="search" /><span class="font-weight-bold">"{{ search.pattern }}"</span>
+                    <bm-icon icon="search" /><span class="font-weight-bold">"{{ messageList.search.pattern }}"</span>
                 </h3>
                 <bm-button @click="addAllToSelectedMessages(messageList.messageKeys)">
                     {{ $t("common.select.all") }}
@@ -116,19 +116,17 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["selectedMessageKeys", "search"]),
+        ...mapState("mail-webapp", ["selectedMessageKeys"]),
         ...mapGetters("mail-webapp", [
             "areAllMessagesSelected",
             "areAllSelectedMessagesFlagged",
             "areAllSelectedMessagesRead",
             "areAllSelectedMessagesUnflagged",
             "areAllSelectedMessagesUnread",
-            "areMessagesFiltered",
-            "isSearchMode",
             "nextMessageKey"
         ]),
         ...mapState("mail", ["folders", "mailboxes", "activeFolder", "messageList"]),
-        ...mapGetters("mail", ["MY_TRASH"]),
+        ...mapGetters("mail", ["MY_TRASH", "MESSAGE_LIST_FILTERED", "MESSAGE_LIST_IS_SEARCH_MODE"]),
         anyMessageReadOnly() {
             return this.selectedMessageKeys
                 .map(messageKey => ItemUri.container(messageKey))
@@ -159,7 +157,7 @@ export default {
         },
         markAsRead() {
             const areAllMessagesInFolderSelected =
-                this.areAllMessagesSelected && !this.areMessagesFiltered && !this.isSearchMode;
+                this.areAllMessagesSelected && !this.MESSAGE_LIST_FILTERED && !this.MESSAGE_LIST_IS_SEARCH_MODE;
             areAllMessagesInFolderSelected
                 ? this.markFolderAsRead(this.activeFolder)
                 : this.markMessagesAsRead(this.selectedMessageKeys);

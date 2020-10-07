@@ -4,7 +4,6 @@ export * from "./setShowBlockedImagesAlert";
 export * from "./deleteAllSelectedMessages";
 export * from "./deleteSelectedMessageKey";
 export * from "./setMaxMessageSize";
-export * from "./setMessageFilter";
 export * from "./setUserUid";
 export * from "./setStatus";
 export * from "./unblockRemoteImages";

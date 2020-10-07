@@ -1,5 +1,3 @@
-import { STATUS } from "../constants";
-import { STATUS as SEARCH_STATUS } from "../modules/search";
 import ContainerObserver from "@bluemind/containerobserver";
 import ItemUri from "@bluemind/item-uri";
 import SearchHelper from "../SearchHelper";
@@ -7,50 +5,41 @@ import router from "@bluemind/router";
 import { FOLDER_BY_PATH } from "../../store/folders/getters";
 import { TOGGLE_FOLDER } from "../../store/folders/mutations";
 import mutationTypes from "../../store/mutationTypes";
+import actionTypes from "../../store/actionTypes";
+import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
 
 export async function loadMessageList(
-    { dispatch, commit, state, rootState, rootGetters },
+    { dispatch, commit, rootState, rootGetters },
     { folder, mailshare, filter, search }
 ) {
+    const ROOT = { root: true };
     const locatedFolder = locateFolder(folder, mailshare, rootState, rootGetters);
     await dispatch("selectFolder", locatedFolder);
     expandParents(commit, locatedFolder, rootState);
 
     const searchInfo = SearchHelper.parseQuery(search);
-    let searchStatus = SEARCH_STATUS.IDLE;
     if (search) {
-        searchStatus = SEARCH_STATUS.LOADING;
         if (
             SearchHelper.isSameSearch(
-                state.search.pattern,
-                state.search.searchFolder,
+                rootState.mail.messageList.search.pattern,
+                rootState.mail.messageList.search.folder && rootState.mail.messageList.search.folder.key,
                 searchInfo.pattern,
                 searchInfo.folder,
                 filter,
-                state.messageFilter
+                rootState.mail.messageList.filter
             )
         ) {
-            searchStatus = SEARCH_STATUS.RESOLVED;
+            return;
         }
     }
-    commit("search/setStatus", searchStatus);
-    if (searchStatus === SEARCH_STATUS.RESOLVED) {
-        return;
-    }
-    commit("setMessageFilter", filter);
-    commit("mail/" + mutationTypes.CLEAR_MESSAGE_LIST, rootState.mail.messageList.messageKeys, { root: true });
-    commit("mail/" + mutationTypes.CLEAR_MESSAGE_LIST, {}, { root: true });
+    const searchFolder = searchInfo.folder ? FolderAdaptor.toRef(rootState.mail.folders[searchInfo.folder]) : undefined;
+    commit("mail/" + mutationTypes.SET_MESSAGE_LIST_FILTER, filter, ROOT);
+    commit("mail/" + mutationTypes.CLEAR_MESSAGE_LIST, null, ROOT);
+    commit("mail/" + mutationTypes.SET_SEARCH_PATTERN, searchInfo.pattern, ROOT);
+    commit("mail/" + mutationTypes.SET_SEARCH_FOLDER, searchFolder, ROOT);
+
     commit("messages/clearParts");
     commit("currentMessage/clear");
-    commit("setStatus", STATUS.LOADING);
-    commit("search/setPattern", searchInfo.pattern);
-    const locatedFolderIsMailshareRoot = mailshare && !locatedFolder.parent;
-    const searchFolder = searchInfo.folder
-        ? searchInfo.folder
-        : locatedFolderIsMailshareRoot
-        ? locatedFolder.key
-        : undefined;
-    commit("search/setSearchFolder", searchFolder);
     commit("deleteAllSelectedMessages");
 
     const prefix = "mbox_records_";
@@ -58,17 +47,14 @@ export async function loadMessageList(
     if (previousFolderKey) {
         ContainerObserver.forget("mailbox_records", prefix + previousFolderKey);
     }
-
-    if (search) {
-        await dispatch("search/search", { pattern: searchInfo.pattern, filter, folderKey: searchInfo.folder });
-    } else {
+    if (!rootGetters["mail/MESSAGE_LIST_IS_SEARCH_MODE"]) {
         ContainerObserver.observe("mailbox_records", prefix + rootState.mail.activeFolder);
-        await dispatch("messages/list", { folderUid: locatedFolder.key, filter });
-        const sorted = rootState.mail.messageList.messageKeys;
-        await dispatch("messages/multipleByKey", sorted.slice(0, 40));
     }
-
-    commit("setStatus", STATUS.RESOLVED);
+    const f = rootState.mail.folders[locatedFolder.key];
+    const conversationsEnabled = rootState.session.userSettings.mail_thread === "true";
+    await dispatch("mail/" + actionTypes.FETCH_MESSAGE_LIST_KEYS, { folder: f, conversationsEnabled }, ROOT);
+    const sorted = rootState.mail.messageList.messageKeys;
+    await dispatch("mail/" + actionTypes.FETCH_MESSAGE_METADATA, { messageKeys: sorted.slice(0, 40) }, ROOT);
 }
 
 function locateFolder(local, mailshare, rootState, rootGetters) {

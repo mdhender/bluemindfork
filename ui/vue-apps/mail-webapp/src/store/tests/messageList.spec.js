@@ -14,21 +14,65 @@ describe("messageList", () => {
         beforeEach(() => {
             store = new Vuex.Store(cloneDeep(storeOptions));
         });
-        test("FETCH_FOLDER_MESSAGE_KEYS", async () => {
+        test("REFRESH_MESSAGE_LIST_KEYS list messages", async () => {
             const ids = [1, 2, 3, 5, 7, 11, 13];
-            apiMessages.sortedIds.mockResolvedValue(ids);
-            const promise = store.dispatch(actionTypes.FETCH_FOLDER_MESSAGE_KEYS, {
+            apiMessages.sortedIds.mockResolvedValueOnce(ids);
+            await store.dispatch(actionTypes.FETCH_MESSAGE_LIST_KEYS, {
+                folder: { key: "key", remoteRef: { uid: "uid" } }
+            });
+            expect(apiMessages.sortedIds).toHaveBeenCalled();
+            expect(store.state.messageKeys.length).toEqual(ids.length);
+        });
+        test("REFRESH_MESSAGE_LIST_KEYS search messages", async () => {
+            store.commit(mutationTypes.SET_SEARCH_PATTERN, "Search pattern");
+            const ids = [1, 2, 3, 5, 7, 11, 13].map(id => ({ id, folderRef: {} }));
+            apiMessages.search.mockResolvedValueOnce(ids);
+            await store.dispatch(actionTypes.FETCH_MESSAGE_LIST_KEYS, {
+                folder: { key: "key", remoteRef: { uid: "uid" } }
+            });
+            expect(apiMessages.search).toHaveBeenCalled();
+            expect(store.state.messageKeys.length).toEqual(ids.length);
+        });
+        test("REFRESH_MESSAGE_LIST_KEYS failure", async () => {
+            apiMessages.sortedIds.mockRejectedValue("Error");
+            expect.assertions(1);
+            try {
+                await store.dispatch(actionTypes.FETCH_MESSAGE_LIST_KEYS, {
+                    folder: { key: "key", remoteRef: { uid: "uid" } }
+                });
+            } catch (e) {
+                expect(e).toEqual("Error");
+            }
+        });
+        test("FETCH_MESSAGE_LIST_KEYS list messages", async () => {
+            const ids = [1, 2, 3, 5, 7, 11, 13];
+            apiMessages.sortedIds.mockResolvedValueOnce(ids);
+            const promise = store.dispatch(actionTypes.FETCH_MESSAGE_LIST_KEYS, {
                 folder: { key: "key", remoteRef: { uid: "uid" } }
             });
             expect(store.state.status).toEqual(MessageListStatus.LOADING);
+            expect(apiMessages.sortedIds).toHaveBeenCalled();
             await promise;
             expect(store.state.status).toEqual(MessageListStatus.SUCCESS);
             expect(store.state.messageKeys.length).toEqual(ids.length);
         });
-        test("FETCH_FOLDER_MESSAGE_KEYS failure", async () => {
+        test("FETCH_MESSAGE_LIST_KEYS search messages", async () => {
+            store.commit(mutationTypes.SET_SEARCH_PATTERN, "Search pattern");
+            const ids = [1, 2, 3, 5, 7, 11, 13].map(id => ({ id, folderRef: {} }));
+            apiMessages.search.mockResolvedValueOnce(ids);
+            const promise = store.dispatch(actionTypes.FETCH_MESSAGE_LIST_KEYS, {
+                folder: { key: "key", remoteRef: { uid: "uid" } }
+            });
+            expect(store.state.status).toEqual(MessageListStatus.LOADING);
+            expect(apiMessages.search).toHaveBeenCalled();
+            await promise;
+            expect(store.state.status).toEqual(MessageListStatus.SUCCESS);
+            expect(store.state.messageKeys.length).toEqual(ids.length);
+        });
+        test("FETCH_MESSAGE_LIST_KEYS failure", async () => {
             apiMessages.sortedIds.mockRejectedValue("Error");
             try {
-                await store.dispatch(actionTypes.FETCH_FOLDER_MESSAGE_KEYS, {
+                await store.dispatch(actionTypes.FETCH_MESSAGE_LIST_KEYS, {
                     folder: { key: "key", remoteRef: { uid: "uid" } }
                 });
             } catch (e) {

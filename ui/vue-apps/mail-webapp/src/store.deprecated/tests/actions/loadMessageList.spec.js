@@ -1,6 +1,7 @@
 import ContainerObserver from "@bluemind/containerobserver";
 import { loadMessageList } from "../../actions/loadMessageList";
 import mutationTypes from "../../../store/mutationTypes";
+import actionTypes from "../../../store/actionTypes";
 
 jest.mock("@bluemind/containerobserver");
 
@@ -29,7 +30,6 @@ const context = {
     state: {
         messages: { itemKeys: [1, 2, 3] },
         sorted: "up to down",
-        messageFilter: null,
         draft: { parts: { attachments: [] } },
         search: {
             pattern: null
@@ -45,7 +45,17 @@ const context = {
             },
             messages: {},
             messageList: {
-                messageKeys: [1, 2, 3]
+                messageKeys: [1, 2, 3],
+                filter: null,
+                search: {
+                    pattern: null,
+                    folder: null
+                }
+            }
+        },
+        session: {
+            userSettings: {
+                mail_thread: false
             }
         }
     },
@@ -100,67 +110,72 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
 
     test("clear the current context", async () => {
         await loadMessageList(context, {});
-        expect(context.commit).toHaveBeenCalledWith("search/setStatus", "idle");
-        expect(context.commit).toHaveBeenCalledWith("search/setPattern", undefined);
+        expect(context.commit).toHaveBeenCalledWith("mail/" + mutationTypes.SET_SEARCH_PATTERN, undefined, {
+            root: true
+        });
         expect(context.commit).toHaveBeenCalledWith("currentMessage/clear");
         expect(context.commit).toHaveBeenCalledWith("messages/clearParts");
-        expect(context.commit).toHaveBeenCalledWith("mail/" + mutationTypes.CLEAR_MESSAGE_LIST, {}, { root: true });
+        expect(context.commit).toHaveBeenCalledWith("mail/" + mutationTypes.CLEAR_MESSAGE_LIST, null, { root: true });
     });
     test("fetch messages on folder select folder", async () => {
         await loadMessageList(context, { folder: folderUid, filter: "all" });
         expect(context.dispatch).toHaveBeenNthCalledWith(1, "selectFolder", folder);
-        expect(context.dispatch).toHaveBeenNthCalledWith(2, "messages/list", {
-            folderUid,
-            filter: "all"
-        });
-        expect(context.dispatch).toHaveBeenNthCalledWith(3, "messages/multipleByKey", context.state.messages.itemKeys);
+        expect(context.dispatch).toHaveBeenNthCalledWith(
+            2,
+            "mail/" + actionTypes.FETCH_MESSAGE_LIST_KEYS,
+            { conversationsEnabled: false, folder },
+            { root: true }
+        );
+        expect(context.dispatch).toHaveBeenNthCalledWith(
+            3,
+            "mail/" + actionTypes.FETCH_MESSAGE_METADATA,
+            { messageKeys: [1, 2, 3] },
+            { root: true }
+        );
     });
 
     test("set default folder to inbox by default", async () => {
         context.rootState.activeFolder = folderUid;
         await loadMessageList(context, {});
         expect(context.dispatch).toHaveBeenNthCalledWith(1, "selectFolder", inbox);
-        expect(context.dispatch).toHaveBeenNthCalledWith(2, "messages/list", {
-            folderUid: inboxUid
-        });
-        expect(context.dispatch).toHaveBeenNthCalledWith(3, "messages/multipleByKey", context.state.messages.itemKeys);
+        expect(context.dispatch).toHaveBeenNthCalledWith(
+            2,
+            "mail/" + actionTypes.FETCH_MESSAGE_LIST_KEYS,
+            { conversationsEnabled: false, folder: inbox },
+            { root: true }
+        );
+        expect(context.dispatch).toHaveBeenNthCalledWith(
+            3,
+            "mail/" + actionTypes.FETCH_MESSAGE_METADATA,
+            { messageKeys: [1, 2, 3] },
+            { root: true }
+        );
     });
 
     test("fetch only the 40 first mails of the selected folder", async () => {
         context.rootState.mail.messageList.messageKeys = new Array(200).fill(0).map((zero, i) => i);
         await loadMessageList(context, { folder: folderUid });
         expect(context.dispatch).toHaveBeenCalledWith(
-            "messages/multipleByKey",
-            context.rootState.mail.messageList.messageKeys.slice(0, 40)
+            "mail/" + actionTypes.FETCH_MESSAGE_METADATA,
+            {
+                messageKeys: context.rootState.mail.messageList.messageKeys.slice(0, 40)
+            },
+            { root: true }
         );
     });
 
     test("Call search action only if a search pattern is set", async () => {
-        await loadMessageList(context, { folder: folderUid });
-        expect(context.dispatch).not.toHaveBeenCalledWith("search/search", expect.anything());
-        context.dispatch.mockClear();
         await loadMessageList(context, { folder: folderUid, search: '"search pattern"' });
-        expect(context.dispatch).toHaveBeenCalledWith("search/search", {
-            pattern: "search pattern",
-            filter: undefined,
-            folderKey: undefined
+        expect(context.commit).toHaveBeenCalledWith("mail/" + mutationTypes.SET_SEARCH_PATTERN, "search pattern", {
+            root: true
         });
-        expect(context.dispatch).not.toHaveBeenCalledWith("message/list", expect.anything());
-        expect(context.dispatch).not.toHaveBeenCalledWith("messages/multipleByKey", expect.anything());
     });
 
     test("Use filter for search or folder fetching if a filter is given", async () => {
         let messageQuery = { folder: folderUid, filter: "unread" };
         await loadMessageList(context, messageQuery);
-        expect(context.dispatch).toHaveBeenNthCalledWith(2, "messages/list", {
-            folderUid: messageQuery.folder,
-            filter: messageQuery.filter
-        });
-        messageQuery = { folder: folderUid, search: '"search pattern"', filter: "unread" };
-        await loadMessageList(context, messageQuery);
-        expect(context.dispatch).toHaveBeenCalledWith("search/search", {
-            pattern: "search pattern",
-            filter: messageQuery.filter
+        expect(context.commit).toHaveBeenCalledWith("mail/" + mutationTypes.SET_MESSAGE_LIST_FILTER, "unread", {
+            root: true
         });
     });
 });

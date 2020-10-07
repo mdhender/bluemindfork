@@ -3,6 +3,8 @@ import { createOnlyMetadata } from "../model/message";
 import mutationTypes from "./mutationTypes";
 import actionTypes from "./actionTypes";
 import apiMessages from "./api/apiMessages";
+import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
+import searchModule from "./search";
 
 export const MessageListStatus = {
     IDLE: Symbol("idle"),
@@ -42,24 +44,34 @@ const mutations = {
 };
 
 const actions = {
-    async [actionTypes.FETCH_FOLDER_MESSAGE_KEYS]({ commit }, { folder, filter, conversationsEnabled }) {
+    async [actionTypes.FETCH_MESSAGE_LIST_KEYS]({ commit, dispatch }, { folder, conversationsEnabled }) {
         commit(mutationTypes.SET_MESSAGE_LIST_STATUS, MessageListStatus.LOADING);
-        //FIXME: should be set by component not here
-        commit(mutationTypes.SET_MESSAGE_LIST_FILTER, filter);
         try {
-            let ids = await apiMessages.sortedIds(filter, folder);
-            ids = conversationsEnabled ? await conversationFilter(folder, ids) : ids;
-            const messages = ids.map(id =>
-                createOnlyMetadata({ internalId: id, folder: { key: folder.key, uid: folder.remoteRef.uid } })
-            );
-            commit(mutationTypes.SET_MESSAGE_LIST, messages);
+            await dispatch(actionTypes.REFRESH_MESSAGE_LIST_KEYS, { folder, conversationsEnabled });
             commit(mutationTypes.SET_MESSAGE_LIST_STATUS, MessageListStatus.SUCCESS);
         } catch (e) {
             commit(mutationTypes.SET_MESSAGE_LIST_STATUS, MessageListStatus.ERROR);
             throw e;
         }
+    },
+    async [actionTypes.REFRESH_MESSAGE_LIST_KEYS]({ commit, state, getters }, { folder, conversationsEnabled }) {
+        const messages = getters.MESSAGE_LIST_IS_SEARCH_MODE
+            ? await search(state, folder)
+            : await list(state, folder, conversationsEnabled);
+        commit(mutationTypes.SET_MESSAGE_LIST, messages);
     }
 };
+
+async function search({ filter, search }, folder) {
+    let results = await apiMessages.search(search, filter, folder);
+    return results.map(({ id, folderRef }) => createOnlyMetadata({ internalId: id, folder: folderRef }));
+}
+
+async function list({ filter }, folder, conversation) {
+    let ids = await apiMessages.sortedIds(filter, folder);
+    ids = conversation ? await conversationFilter(folder, ids) : ids;
+    return ids.map(id => createOnlyMetadata({ internalId: id, folder: FolderAdaptor.toRef(folder) }));
+}
 
 async function conversationFilter(folder, ids) {
     let conversations = await inject("MailConversationPersistence").byFolder(folder.uid);
@@ -90,5 +102,8 @@ export default {
     actions,
     mutations,
     state,
-    getters
+    getters,
+    modules: {
+        search: searchModule
+    }
 };

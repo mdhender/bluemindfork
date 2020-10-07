@@ -4,6 +4,9 @@ import flatmap from "lodash.flatmap";
 
 import MessageAdaptor from "../messages/helpers/MessageAdaptor";
 import { ItemFlag } from "@bluemind/core.container.api";
+import { FolderAdaptor } from "../folders/helpers/FolderAdaptor";
+
+const MAX_SEARCH_RESULTS = 500;
 
 export default {
     async deleteFlag(messages, mailboxItemFlag) {
@@ -46,11 +49,26 @@ export default {
             default:
                 return await service.sortedIds();
         }
+    },
+    async search({ pattern, folder }, filter, currentFolder) {
+        const payload = { query: searchQuery(pattern, filter, folder && folder.uid), sort: searchSort() };
+        const { results } = await folderApi(currentFolder.mailboxRef.uid).searchItems(payload);
+        if (!results) {
+            return [];
+        }
+        return results.map(({ itemId, containerUid }) => {
+            const folderRef = FolderAdaptor.toRef(extractFolderUid(containerUid));
+            return { id: itemId, folderRef };
+        });
     }
 };
 
 function api(folderUid) {
     return inject("MailboxItemsPersistence", folderUid);
+}
+
+function folderApi(mailboxUid) {
+    return inject("MailboxFoldersPersistence", mailboxUid);
 }
 
 function groupByFolder(messages) {
@@ -61,4 +79,30 @@ function groupByFolder(messages) {
         byFolder[message.folderRef.uid].itemsId.push(message.remoteRef.internalId);
         return byFolder;
     }, {});
+}
+
+function searchQuery(query, filter, folderUid) {
+    return { query, recordQuery: filterQuery(filter), maxResults: MAX_SEARCH_RESULTS, scope: searchScope(folderUid) };
+}
+
+function filterQuery(filter) {
+    switch (filter) {
+        case "unread":
+        case "flagged":
+            return "is:" + filter;
+        default:
+            return "";
+    }
+}
+
+function searchScope(folderUid) {
+    return { folderScope: { folderUid }, isDeepTraversal: false };
+}
+
+function searchSort() {
+    return { criteria: [{ field: "date", order: "Desc" }] };
+}
+
+function extractFolderUid(containerUid) {
+    return containerUid.replace("mbox_records_", "");
 }

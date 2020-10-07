@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions, mapGetters } from "vuex";
 import { BmCol, BmRow } from "@bluemind/styleguide";
 import IcsViewer from "./IcsViewer";
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
@@ -100,7 +100,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["messageFilter"]),
+        ...mapGetters("mail", ["MESSAGE_LIST_UNREAD_FILTER_ENABLED"]),
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
         ...mapState("mail", ["messages"]),
         subject() {
@@ -115,7 +115,7 @@ export default {
             handler: function () {
                 this.resetScroll();
                 // FIXME: remove this if once https://forge.bluemind.net/jira/browse/FEATWEBML-1017 is fixed
-                if (this.messageFilter !== "unread") {
+                if (!this.MESSAGE_LIST_UNREAD_FILTER_ENABLED) {
                     this.markAsRead([this.messageKey]);
                 }
                 if (this.isIcsAlertBlocked) {

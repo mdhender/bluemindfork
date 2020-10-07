@@ -132,7 +132,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["selectedMessageKeys", "messageFilter"]),
+        ...mapState("mail-webapp", ["selectedMessageKeys"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["messages"]),
         ...mapGetters("mail", ["MY_DRAFTS"]),

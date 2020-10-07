@@ -79,6 +79,8 @@ import GlobalEvents from "vue-global-events";
 import { SearchHelper } from "../store.deprecated/SearchHelper";
 import { FolderAdaptor } from "../store/folders/helpers/FolderAdaptor";
 import { MailboxType } from "../model/mailbox";
+import mutationTypes from "../store/mutationTypes";
+import { MessageListStatus } from "../store/messageList";
 
 const SPINNER_TIMEOUT = 250;
 const UPDATE_ROUTE_TIMEOUT = 1000;
@@ -123,14 +125,14 @@ export default {
                     }),
                 UPDATE_ROUTE_TIMEOUT
             ),
-            showSpinner: debounce(() => this.setStatus("loading"), SPINNER_TIMEOUT),
+            showSpinner: debounce(() => this.SET_MESSAGE_LIST_STATUS(MessageListStatus.LOADING), SPINNER_TIMEOUT),
             showForm: false,
             maxFolders: 10
         };
     },
 
     computed: {
-        ...mapState("mail-webapp/search", { currentSearchPattern: "pattern", currentSearchedFolder: "searchFolder" }),
+        ...mapState("mail", { currentSearch: ({ messageList }) => messageList.search }),
         ...mapState("mail", ["folders", "mailboxes", "activeFolder"]),
         ...mapGetters("mail", ["MY_INBOX", "MY_SENT", "MY_TRASH"]),
         filteredFolders() {
@@ -161,21 +163,13 @@ export default {
             return searchQuery;
         }
     },
-    watch: {
-        currentSearchPattern(value) {
-            this.pattern = value;
-        },
-        currentSearchedFolder(key) {
-            this.setFolderFromKeyOrInitial(key);
-        }
-    },
     created() {
-        this.pattern = this.currentSearchPattern;
+        this.pattern = this.currentSearch.pattern;
         this.initialFolder = this.suggestedFolders[0];
-        this.setFolderFromKeyOrInitial(this.currentSearchedFolder);
+        this.setFolderFromKeyOrInitial(this.currentSearch.folder);
     },
     methods: {
-        ...mapMutations("mail-webapp/search", ["setStatus"]),
+        ...mapMutations("mail", [mutationTypes.SET_MESSAGE_LIST_STATUS]),
         filter(folder, { root }) {
             return folder.path.match(this.folderPattern, root);
         },
@@ -189,7 +183,7 @@ export default {
         },
         reset() {
             this.cancel();
-            this.setStatus("idle");
+            this.SET_MESSAGE_LIST_STATUS(MessageListStatus.IDLE);
             this.pattern = null;
             this.$router.navigate({ name: "v:mail:home", params: { search: null } });
             this.setSelectedFolder(this.initialFolder);
@@ -199,8 +193,8 @@ export default {
             if (this.pattern) {
                 if (
                     !SearchHelper.isSameSearch(
-                        this.currentSearchPattern,
-                        this.currentSearchedFolder,
+                        this.currentSearch.pattern,
+                        this.currentSearch.folder && this.currentSearch.folder.key,
                         this.pattern,
                         this.selectedFolder.key
                     )
@@ -224,9 +218,12 @@ export default {
             }
             return text;
         },
-        setFolderFromKeyOrInitial(key) {
-            const folder = this.folders[key];
-            this.setSelectedFolder(folder || this.initialFolder);
+        setFolderFromKeyOrInitial(folder) {
+            if (folder) {
+                this.setSelectedFolder(this.folders[folder.key]);
+            } else {
+                this.setSelectedFolder(this.initialFolder);
+            }
         },
         isMailshareRootFolder(folder) {
             return FolderAdaptor.isMailshareRoot(folder, this.mailboxes[folder.mailboxRef.key]);

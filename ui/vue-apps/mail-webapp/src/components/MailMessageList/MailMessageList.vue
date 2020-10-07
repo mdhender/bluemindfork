@@ -1,8 +1,8 @@
 <template>
     <section :aria-label="$t('mail.application.region.messagelist')" class="mail-message-list d-flex flex-column">
         <mail-message-list-header id="mail-message-list-header" />
-        <search-result v-if="isSearchMode" class="flex-fill" />
-        <folder-result v-if="isFolderMode" class="flex-fill" />
+        <search-result v-if="MESSAGE_LIST_IS_SEARCH_MODE" class="flex-fill" />
+        <folder-result v-else class="flex-fill" />
     </section>
 </template>
 
@@ -20,7 +20,7 @@ export default {
         FolderResult
     },
     computed: {
-        ...mapGetters("mail-webapp", ["isSearchMode", "isFolderMode"])
+        ...mapGetters("mail", ["MESSAGE_LIST_IS_SEARCH_MODE"])
     }
 };
 </script>

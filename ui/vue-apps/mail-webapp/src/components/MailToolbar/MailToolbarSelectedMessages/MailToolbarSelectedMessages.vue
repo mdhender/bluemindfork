@@ -92,13 +92,11 @@ export default {
             "areAllSelectedMessagesRead",
             "areAllSelectedMessagesUnflagged",
             "areAllSelectedMessagesUnread",
-            "areMessagesFiltered",
-            "isSearchMode",
             "nextMessageKey"
         ]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["folders", "activeFolder", "messages"]),
-        ...mapGetters("mail", ["MY_TRASH"]),
+        ...mapGetters("mail", ["MY_TRASH", "MESSAGE_LIST_FILTERED", "MESSAGE_LIST_IS_SEARCH_MODE"]),
         message() {
             return this.messages[this.currentMessageKey];
         },
@@ -196,7 +194,7 @@ export default {
         },
         doMarkAsRead() {
             const areAllMessagesInFolderSelected =
-                this.areAllMessagesSelected && !this.areMessagesFiltered && !this.isSearchMode;
+                this.areAllMessagesSelected && !this.MESSAGE_LIST_FILTERED && !this.MESSAGE_LIST_IS_SEARCH_MODE;
             areAllMessagesInFolderSelected
                 ? this.markFolderAsRead(this.activeFolder)
                 : this.markMessagesAsRead(this.selectedKeys());

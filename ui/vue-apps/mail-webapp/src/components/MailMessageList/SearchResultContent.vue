@@ -21,7 +21,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail", ["MESSAGE_LIST_COUNT"]),
-        ...mapState("mail-webapp", ["search"])
+        ...mapState("mail", { search: state => state.messageList.search })
     }
 };
 </script>

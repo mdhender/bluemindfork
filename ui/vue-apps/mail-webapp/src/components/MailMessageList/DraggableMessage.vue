@@ -12,7 +12,7 @@
         @dragstart="$emit('dragstart', $event)"
         @dragend="$emit('dragend', $event)"
     >
-        <message-list-item :message="message" @toggleSelect="$emit('toggle-select', message.key)" />
+        <message-list-item :message="message" @toggle-select="$emit('toggle-select', message.key)" />
         <template v-slot:shadow>
             <mail-message-list-item-shadow :message="message" :count="selectedMessageKeys.length" />
         </template>

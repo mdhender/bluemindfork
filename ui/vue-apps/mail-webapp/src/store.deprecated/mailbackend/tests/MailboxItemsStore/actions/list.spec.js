@@ -22,7 +22,7 @@ describe("[MailItemsStore][actions] : list", () => {
     test("call sortedIds for the given folder and mutate state with result", () => {
         list(context, { folderUid: "containerUid" });
         expect(context.dispatch).toHaveBeenCalledWith(
-            "mail/" + actionTypes.FETCH_FOLDER_MESSAGE_KEYS,
+            "mail/" + actionTypes.FETCH_MESSAGE_LIST_KEYS,
             { folder: {}, filter: undefined, conversationsEnabled: false },
             { root: true }
         );
@@ -34,7 +34,7 @@ describe("[MailItemsStore][actions] : list", () => {
     test("call sortedIds when 'all' filter is set", () => {
         list(context, { folderUid: "containerUid", filter: "all" });
         expect(context.dispatch).toHaveBeenCalledWith(
-            "mail/" + actionTypes.FETCH_FOLDER_MESSAGE_KEYS,
+            "mail/" + actionTypes.FETCH_MESSAGE_LIST_KEYS,
             { folder: {}, filter: "all", conversationsEnabled: false },
             { root: true }
         );
