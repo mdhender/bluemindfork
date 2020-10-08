@@ -73,6 +73,7 @@
       <plugin id="net.bluemind.cli.hollow"/>
       <plugin id="net.bluemind.cli.hz"/>
       <plugin id="net.bluemind.cli.index"/>
+      <plugin id="net.bluemind.cli.inject.common"/>
       <plugin id="net.bluemind.cli.inject.imap"/>
       <plugin id="net.bluemind.cli.job"/>
       <plugin id="net.bluemind.cli.launcher"/>
