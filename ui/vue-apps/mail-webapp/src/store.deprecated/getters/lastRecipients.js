@@ -14,8 +14,8 @@ export function lastRecipients(unused, getters, { max = 5 }) {
         const allRecipients = message.to
             .concat(message.cc)
             .concat(message.bcc)
-            .map(recipient => ({ email: recipient.address, formattedName: recipient.formattedName }))
-            .filter(recipient => !lastRecipients.some(r => r.email === recipient.email));
+            .map(recipient => ({ email: recipient.address, dn: recipient.dn }))
+            .filter(recipient => !lastRecipients.some(r => r.address === recipient.address));
         lastRecipients = lastRecipients.concat(allRecipients.splice(0, max - lastRecipients.length));
     }
     return lastRecipients;

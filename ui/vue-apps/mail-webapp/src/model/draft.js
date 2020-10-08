@@ -18,7 +18,7 @@ export function adaptDraft(creationMode, previousMessage, userSession) {
         date: new Date(),
         from: {
             address: userSession.defaultEmail,
-            name: userSession.formatedName
+            dn: userSession.formatedName
         },
         composing: true
     };

@@ -4,14 +4,14 @@ async function getAllFolders(mailbox) {
     return await apiClient(mailbox).all();
 }
 
-async function createNewFolder(mailbox, folder) {
-    return await apiClient(mailbox).createBasic(folder.value);
+async function createNewFolder(mailbox, remoteFolder) {
+    return await apiClient(mailbox).createBasic(remoteFolder.value);
 }
 async function deleteFolder(mailbox, folder) {
-    await apiClient(mailbox).deepDelete(folder.id);
+    await apiClient(mailbox).deepDelete(folder.remoteRef.internalId);
 }
-async function updateFolder(mailbox, folder) {
-    await apiClient(mailbox).updateById(folder.internalId, folder.value);
+async function updateFolder(mailbox, remoteFolder) {
+    await apiClient(mailbox).updateById(remoteFolder.internalId, remoteFolder.value);
 }
 
 function apiClient({ remoteRef: { uid } }) {

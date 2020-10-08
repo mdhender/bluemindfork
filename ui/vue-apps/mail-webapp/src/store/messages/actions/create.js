@@ -36,7 +36,6 @@ export default async function ({ commit, state }, { myDraftsFolder, creationMode
         createWithMetadata(metadata),
         adaptDraft(creationMode, previousMessage, inject("UserSession"))
     );
-
     metadata.internalId = (await service.create(MessageAdaptor.realToMailboxItem(messageForCreate, structure))).id;
     messageForCreate.remoteRef.internalId = metadata.internalId;
     const imapUid = (await apiMessages.multipleById([messageForCreate]))[0].remoteRef.imapUid;

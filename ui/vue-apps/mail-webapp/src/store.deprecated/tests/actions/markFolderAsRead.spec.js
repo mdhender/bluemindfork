@@ -21,7 +21,8 @@ const context = {
                     remoteRef: { internalId: "id" },
                     mailboxRef: { uid: "mailbox-uid" }
                 }
-            }
+            },
+            messages: {}
         }
     }
 };

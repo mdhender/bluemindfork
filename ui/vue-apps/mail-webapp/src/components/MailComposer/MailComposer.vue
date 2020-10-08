@@ -222,7 +222,6 @@ export default {
         ...mapMutations("mail", [
             mutationTypes.SET_DRAFT_EDITOR_CONTENT,
             mutationTypes.SET_DRAFT_COLLAPSED_CONTENT,
-            mutationTypes.SET_MESSAGE_RECIPIENTS,
             mutationTypes.SET_MESSAGE_SUBJECT
         ]),
         updateSubject(subject) {

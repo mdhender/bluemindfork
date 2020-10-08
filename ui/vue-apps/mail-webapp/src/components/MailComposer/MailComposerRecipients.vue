@@ -4,10 +4,10 @@
             <bm-col cols="11">
                 <bm-contact-input
                     ref="to"
-                    :contacts.sync="message.to"
+                    :contacts="message.to"
                     :autocomplete-results="autocompleteResultsTo"
                     @search="searchedPattern => onSearch('to', searchedPattern)"
-                    @update:contacts="$emit('save-draft')"
+                    @update:contacts="updateTo"
                 >
                     {{ $t("common.to") }}
                 </bm-contact-input>
@@ -28,11 +28,11 @@
         <div v-if="displayedRecipientFields > recipientModes.TO" class="d-flex">
             <div class="d-flex flex-grow-1">
                 <bm-contact-input
-                    :contacts.sync="message.cc"
+                    :contacts="message.cc"
                     :autocomplete-results="autocompleteResultsCc"
                     class="w-100"
                     @search="searchedPattern => onSearch('cc', searchedPattern)"
-                    @update:contacts="$emit('save-draft')"
+                    @update:contacts="updateCc"
                 >
                     {{ $t("common.cc") }}
                 </bm-contact-input>
@@ -50,10 +50,10 @@
 
         <bm-contact-input
             v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC | recipientModes.BCC)"
-            :contacts.sync="message.bcc"
+            :contacts="message.bcc"
             :autocomplete-results="autocompleteResultsBcc"
             @search="searchedPattern => onSearch('bcc', searchedPattern)"
-            @update:contacts="$emit('save-draft')"
+            @update:contacts="updateBcc"
         >
             {{ $t("common.bcc") }}
         </bm-contact-input>
@@ -71,6 +71,8 @@ import { OrderBy } from "@bluemind/addressbook.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
 import { BmButton, BmCol, BmContactInput, BmIcon, BmRow } from "@bluemind/styleguide";
+import { mapMutations } from "vuex";
+import mutationTypes from "../../store/mutationTypes";
 
 const recipientModes = { TO: 1, CC: 2, BCC: 4 }; // flags for the display mode of MailComposer's recipients fields
 
@@ -84,7 +86,6 @@ export default {
         BmRow
     },
     props: {
-        // FIXME ? some prop properties are modified by this component (but no Vue warning ??)
         message: {
             type: Object,
             required: true
@@ -117,6 +118,11 @@ export default {
         }
     },
     methods: {
+        ...mapMutations("mail", [
+            mutationTypes.SET_MESSAGE_TO,
+            mutationTypes.SET_MESSAGE_CC,
+            mutationTypes.SET_MESSAGE_BCC
+        ]),
         computeDisplayedFields() {
             if (this.isReplyOrForward && this.message.cc.length === 0) {
                 return recipientModes.TO;
@@ -162,6 +168,18 @@ export default {
             } else {
                 return this.lastRecipients;
             }
+        },
+        updateTo(contacts) {
+            this.SET_MESSAGE_TO({ messageKey: this.message.key, to: contacts });
+            this.$emit("save-draft");
+        },
+        updateCc(contacts) {
+            this.SET_MESSAGE_CC({ messageKey: this.message.key, cc: contacts });
+            this.$emit("save-draft");
+        },
+        updateBcc(contacts) {
+            this.SET_MESSAGE_BCC({ messageKey: this.message.key, bcc: contacts });
+            this.$emit("save-draft");
         }
     }
 };

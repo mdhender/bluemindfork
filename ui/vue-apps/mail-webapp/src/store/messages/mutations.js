@@ -49,16 +49,20 @@ export default {
     [mutationTypes.SET_MESSAGE_SUBJECT]: (state, { messageKey, subject }) => {
         state[messageKey].subject = subject;
     },
-    [mutationTypes.SET_MESSAGE_RECIPIENTS]: (state, { messageKey, recipients }) => {
-        state[messageKey].to = recipients.to;
-        state[messageKey].cc = recipients.cc;
-        state[messageKey].bcc = recipients.bcc;
-    },
     [mutationTypes.SET_MESSAGE_DATE]: (state, { messageKey, date }) => {
         state[messageKey].date = date;
     },
     [mutationTypes.SET_MESSAGE_HEADERS]: (state, { messageKey, headers }) => {
         state[messageKey].headers = headers;
+    },
+    [mutationTypes.SET_MESSAGE_TO]: (state, { messageKey, to }) => {
+        state[messageKey].to = to;
+    },
+    [mutationTypes.SET_MESSAGE_CC]: (state, { messageKey, cc }) => {
+        state[messageKey].cc = cc;
+    },
+    [mutationTypes.SET_MESSAGE_BCC]: (state, { messageKey, bcc }) => {
+        state[messageKey].bcc = bcc;
     },
     [mutationTypes.SET_MESSAGE_ATTACHMENTS]: (state, { messageKey, attachments }) => {
         state[messageKey].attachments = attachments;

@@ -206,7 +206,7 @@ export default {
             if (key) {
                 this.$nextTick(() => {
                     const htmlElement = this.$refs["message-" + key];
-                    if (htmlElement[0] && htmlElement[0].$el) {
+                    if (htmlElement && htmlElement[0] && htmlElement[0].$el) {
                         htmlElement[0].$el.focus();
                     } else {
                         console.log("not in DOM..");

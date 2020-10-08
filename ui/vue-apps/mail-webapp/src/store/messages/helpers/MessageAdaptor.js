@@ -97,23 +97,15 @@ function buildRecipients(local) {
     const primaries = buildRecipientsForKind(RecipientKind.Primary, local.to);
     const carbonCopies = buildRecipientsForKind(RecipientKind.CarbonCopy, local.cc);
     const blindCarbonCopies = buildRecipientsForKind(RecipientKind.BlindCarbonCopy, local.bcc);
-    const originator = [
-        {
-            kind: RecipientKind.Originator,
-            address: local.from.address,
-            dn: local.from.name
-        }
-    ];
+    const originator = buildRecipientsForKind(RecipientKind.Originator, [local.from]);
 
     return primaries.concat(carbonCopies).concat(blindCarbonCopies).concat(originator);
 }
 
 function buildRecipientsForKind(kind, recipients) {
-    return (recipients || []).map(recipient => {
-        return {
-            kind: kind,
-            address: recipient.address,
-            dn: recipient.name
-        };
-    });
+    return (recipients || []).map(recipient => ({
+        kind: kind,
+        address: recipient.address,
+        dn: recipient.dn
+    }));
 }

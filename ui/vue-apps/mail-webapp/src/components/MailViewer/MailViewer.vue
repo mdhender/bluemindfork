@@ -22,7 +22,7 @@
         </bm-row>
         <bm-row class="d-flex px-lg-5 px-4">
             <bm-col cols="8" class="d-flex">
-                <mail-viewer-from :dn="message.from.dn" :address="message.from.address" />
+                <mail-viewer-from :contact="message.from" />
             </bm-col>
             <bm-col cols="4" class="align-self-center text-right">
                 {{ $d(message.date, "full_date") }}
@@ -37,12 +37,16 @@
         </bm-row>
         <bm-row class="px-lg-5 px-4">
             <bm-col cols="12">
-                <mail-viewer-recipient v-if="to" :recipients="to">{{ $t("mail.content.to") }} </mail-viewer-recipient>
+                <mail-viewer-recipient v-if="message.to.length > 0" :recipients="message.to"
+                    >{{ $t("mail.content.to") }}
+                </mail-viewer-recipient>
             </bm-col>
         </bm-row>
         <bm-row class="pb-2 px-lg-5 px-4">
             <bm-col cols="12">
-                <mail-viewer-recipient v-if="cc" :recipients="cc">{{ $t("mail.content.copy") }} </mail-viewer-recipient>
+                <mail-viewer-recipient v-if="message.cc.length > 0" :recipients="message.cc"
+                    >{{ $t("mail.content.copy") }}
+                </mail-viewer-recipient>
             </bm-col>
         </bm-row>
         <bm-row class="px-lg-5">
@@ -95,18 +99,6 @@ export default {
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key", parts: "parts" }),
         ...mapState("mail", ["messages"]),
-        to() {
-            if (this.message.to.length > 0) {
-                return this.message.to.map(dest => (dest.dn ? dest.dn : dest.address));
-            }
-            return "";
-        },
-        cc() {
-            if (this.message.cc.length > 0) {
-                return this.message.cc.map(dest => (dest.dn ? dest.dn : dest.address));
-            }
-            return "";
-        },
         subject() {
             return this.message.subject || "(No subject)"; // FIXME i18n
         }

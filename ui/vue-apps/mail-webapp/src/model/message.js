@@ -32,7 +32,7 @@ export function create() {
 
         from: {
             address: "",
-            name: ""
+            dn: ""
         },
         to: [],
         cc: [],

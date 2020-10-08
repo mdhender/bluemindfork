@@ -1,8 +1,8 @@
 export default {
     toContact(vCardInfo) {
         return {
-            email: vCardInfo.value.mail,
-            formattedName: vCardInfo.displayName,
+            address: vCardInfo.value.mail,
+            dn: vCardInfo.value.formatedName,
             kind: vCardInfo.value.kind,
             photo: vCardInfo.value.photo,
             uid: vCardInfo.uid
