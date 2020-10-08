@@ -118,7 +118,7 @@ public class EmlBuilder {
 			if (split.hasNext()) {
 				dom = split.next();
 			}
-			Mailbox cur = new Mailbox(local, dom);
+			Mailbox cur = new Mailbox(r.dn, local, dom);
 			switch (r.kind) {
 			case BlindCarbonCopy:
 				bcc.add(cur);

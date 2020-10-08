@@ -71,6 +71,8 @@ import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Part;
+import net.bluemind.backend.mail.api.MessageBody.Recipient;
+import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
 import net.bluemind.backend.mail.api.flags.FlagUpdate;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.api.utils.PartsWalker;
@@ -377,8 +379,22 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
 		IdRange oneId = idAllocator.allocateOfflineIds(1);
 		long expectedId = oneId.globalCounter;
+		item.body.recipients = Arrays.asList(Recipient.create(RecipientKind.Originator, "myName", "myAddress@mail.com"),
+				Recipient.create(RecipientKind.Primary, "primaryName", "primary@mail.com"));
 		recordsApi.createById(expectedId, item);
 		ItemValue<MailboxItem> reloaded = recordsApi.getCompleteById(expectedId);
+		assertEquals(reloaded.value.body.recipients.size(), 2);
+		Optional<Recipient> from = reloaded.value.body.recipients.stream()
+				.filter(recipient -> recipient.kind.equals(RecipientKind.Originator)).findFirst();
+		Optional<Recipient> to = reloaded.value.body.recipients.stream()
+				.filter(recipient -> recipient.kind.equals(RecipientKind.Primary)).findFirst();
+		if (!from.isPresent() || !to.isPresent()) {
+			fail("Recipients are not replicated");
+		}
+		assertEquals("myName", from.get().dn);
+		assertEquals("myAddress@mail.com", from.get().address);
+		assertEquals("primaryName", to.get().dn);
+		assertEquals("primary@mail.com", to.get().address);
 		assertNotNull(reloaded);
 		assertNotNull(reloaded.value.body.headers);
 		Optional<Header> idHeader = reloaded.value.body.headers.stream()
