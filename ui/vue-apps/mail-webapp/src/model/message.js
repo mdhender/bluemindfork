@@ -46,13 +46,14 @@ export function create() {
         hasAttachment: false,
         hasIcs: false,
 
-        partContentByMimeType: {},
+        partContentByMimeType: {}, // REMOVE ME and use byAddress
+        partContentByAddress: {},
 
         attachments: [],
         inlinePartsByCapabilities: [],
         multipartAddresses: {}
     };
-    return merge(createOnlyMetadata({ folder: {} }), emptyData); // FIXME ? does {} param set null to key / uid / internalId ??
+    return merge(createOnlyMetadata({ folder: {} }), emptyData);
 }
 
 export function partialCopy(message, properties = []) {
@@ -109,7 +110,7 @@ function isSubjectEmpty(subject) {
     return subject === "" || subject === " ";
 }
 
-// FIXME: duplicated code with fetch action. Remove fetch action once MailViewer is refactored
+// FIXME: move it like a message action because it must store parts in state ?
 export async function fetch(messageImapUid, service, part, isAttachment) {
     const stream = await service.fetch(messageImapUid, part.address, part.encoding, part.mime, part.charset);
     if (!isAttachment && (MimeType.isText(part) || MimeType.isHtml(part) || MimeType.isCalendar(part))) {
@@ -123,6 +124,10 @@ export async function fetch(messageImapUid, service, part, isAttachment) {
     } else {
         return stream;
     }
+}
+
+export async function fetchAll(messageImapUid, service, parts, isAttachment) {
+    return Promise.all(parts.map(part => fetch(messageImapUid, service, part, isAttachment)));
 }
 
 export async function clean(partAddresses, attachmentAddresses, service) {

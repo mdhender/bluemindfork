@@ -38,7 +38,6 @@ export async function loadMessageList(
     commit("mail/" + mutationTypes.SET_SEARCH_PATTERN, searchInfo.pattern, ROOT);
     commit("mail/" + mutationTypes.SET_SEARCH_FOLDER, searchFolder, ROOT);
 
-    commit("messages/clearParts");
     commit("currentMessage/clear");
     commit("deleteAllSelectedMessages");
 

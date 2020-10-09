@@ -58,7 +58,7 @@
         <bm-row ref="scrollableContainer" class="pt-1 flex-fill px-lg-5 px-4">
             <bm-col col>
                 <ics-viewer v-if="message.hasICS && currentEvent" />
-                <parts-viewer v-else />
+                <parts-viewer v-else :message-key="message.key" />
             </bm-col>
         </bm-row>
     </section>

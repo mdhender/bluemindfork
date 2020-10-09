@@ -114,7 +114,6 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
             root: true
         });
         expect(context.commit).toHaveBeenCalledWith("currentMessage/clear");
-        expect(context.commit).toHaveBeenCalledWith("messages/clearParts");
         expect(context.commit).toHaveBeenCalledWith("mail/" + mutationTypes.CLEAR_MESSAGE_LIST, null, { root: true });
     });
     test("fetch messages on folder select folder", async () => {

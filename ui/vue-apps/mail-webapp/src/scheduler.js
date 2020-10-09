@@ -54,7 +54,7 @@ function getFlatFolders() {
 }
 
 function getMailshareRoot(mailshareKey, folders) {
-    return Object.values(folders).find(folder => folder.mailbox === mailshareKey && !folder.parent);
+    return Object.values(folders).find(folder => folder.mailboxRef.key === mailshareKey && !folder.parent);
 }
 
 function addOptions({ priority }) {

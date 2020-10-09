@@ -74,22 +74,6 @@ describe("[Mail-WebappStore][actions] : selectMessage", () => {
     test("set the current message in state", done => {
         selectMessage(context, anotherMessageKey).then(() => {
             expect(context.commit).toHaveBeenCalledWith("currentMessage/update", { key: anotherMessageKey });
-            expect(context.commit).toHaveBeenCalledWith("currentMessage/setParts", {
-                attachments: "All attachments",
-                inlines: ["The", "good", "one"]
-            });
-            done();
-        });
-    });
-    test("to fetch inline parts", done => {
-        selectMessage(context, anotherMessageKey).then(() => {
-            ["The", "good", "one"].forEach(part => {
-                expect(context.dispatch).toHaveBeenCalledWith("messages/fetch", {
-                    messageKey: anotherMessageKey,
-                    part,
-                    isAttachment: false
-                });
-            });
             done();
         });
     });

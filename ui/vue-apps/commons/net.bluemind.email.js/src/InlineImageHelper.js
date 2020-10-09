@@ -7,12 +7,12 @@ export default {
      * @param partsWithReferences parts with CID references inside an image markup
      * @param imageParts parts with base64 images and a CID identifier
      */
-    insertInlineImages(partsWithReferences = [], imageParts = []) {
+    insertInlineImages(partsWithReferences = [], imageParts = [], partContentByAddress) {
         const inlineReferenceRegex = /<img[^>]+?src\s*=\s*['"]cid:([^'"]*)['"][^>]*?>{1}?/gim;
         const inlined = [];
-        partsWithReferences.forEach(partWithReferences => {
+        partsWithReferences.forEach(part => {
             let inlineReferences;
-            while ((inlineReferences = inlineReferenceRegex.exec(partWithReferences.content)) !== null) {
+            while ((inlineReferences = inlineReferenceRegex.exec(partContentByAddress[part.address])) !== null) {
                 const cid = inlineReferences[1];
                 const replaceRegex = new RegExp(
                     "(<img[^>]+?src\\s*=\\s*['\"])cid:" + cid + "(['\"][^>]*?>{1}?)",
@@ -23,10 +23,11 @@ export default {
                         part.contentId && part.contentId.toUpperCase() === "<" + inlineReferences[1].toUpperCase() + ">"
                 );
                 if (imagePart) {
-                    partWithReferences.content = partWithReferences.content.replace(
+                    // FIXME: mutate state here..
+                    partContentByAddress[part.address] = partContentByAddress[part.address].replace(
                         replaceRegex,
                         "$1" +
-                            URL.createObjectURL(imagePart.content) +
+                            URL.createObjectURL(partContentByAddress[imagePart.address]) +
                             '" data-bm-imap-address="' +
                             imagePart.address +
                             "$2"

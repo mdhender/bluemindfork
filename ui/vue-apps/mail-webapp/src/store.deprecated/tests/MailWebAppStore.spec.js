@@ -212,17 +212,6 @@ describe("[MailWebAppStore] Vuex store", () => {
         expect(store.getters["mail-webapp/currentMessage/message"]).toStrictEqual(
             store.getters["mail-webapp/messages/getMessagesByKey"]([messageKey])[0]
         );
-        let parts = [
-            {
-                mime: "text/plain",
-                address: "1",
-                encoding: "quoted-printable",
-                charset: "ISO-8859-1",
-                size: 25,
-                content: text
-            }
-        ];
-        expect(store.getters["mail-webapp/currentMessage/content"]).toEqual(parts);
         const attachment = createAttachment("2", "us-ascii", "api.rb", "7bit", "text/x-ruby-script", 28, true);
         expect(store.state["mail"].messages[messageKey].attachments).toEqual([attachment]);
     });

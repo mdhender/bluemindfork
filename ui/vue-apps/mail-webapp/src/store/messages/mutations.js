@@ -5,9 +5,6 @@ import { MessageStatus } from "../../model/message";
 export default {
     [mutationTypes.ADD_MESSAGES]: (state, messages) => {
         messages.forEach(message => {
-            if (state[message.key]) {
-                message.composing = state[message.key].composing;
-            }
             Vue.set(state, message.key, message);
         });
     },
@@ -63,6 +60,19 @@ export default {
     },
     [mutationTypes.SET_MESSAGE_BCC]: (state, { messageKey, bcc }) => {
         state[messageKey].bcc = bcc;
+    },
+    [mutationTypes.SET_MESSAGE_PART_CONTENTS]: (state, { key, contents, parts }) => {
+        if (!state[key].partContentByAddress) {
+            state[key].partContentByAddress = {};
+        }
+        parts.forEach((part, index) => {
+            Vue.set(state[key].partContentByAddress, part.address, contents[index]);
+        });
+    },
+    [mutationTypes.REMOVE_MESSAGE_PART_CONTENTS]: (state, key) => {
+        if (state[key]) {
+            state[key].partContentByAddress = {};
+        }
     },
     [mutationTypes.SET_MESSAGE_ATTACHMENTS]: (state, { messageKey, attachments }) => {
         state[messageKey].attachments = attachments;

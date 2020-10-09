@@ -3,18 +3,29 @@
         <template v-for="(part, index) in parts">
             <template v-if="isSupportedPart(part)">
                 <hr v-if="index !== 0" :key="part.address + '-sepatator'" class="part-separator" />
-                <component :is="computePartComponent(part.mime)" :key="part.address" :value="part.content" />
+                <component
+                    :is="computePartComponent(part.mime)"
+                    :key="part.address"
+                    :value="message.partContentByAddress[part.address]"
+                />
             </template>
         </template>
     </div>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import { MimeType } from "@bluemind/email";
+import { mapMutations, mapState } from "vuex";
+
+import { inject } from "@bluemind/inject";
+import { MimeType, InlineImageHelper } from "@bluemind/email";
+
+import { fetchAll } from "../../../model/message";
 import ImagePartViewer from "./ImagePartViewer";
 import TextHtmlPartViewer from "./TextHtmlPartViewer";
 import TextPlainPartViewer from "./TextPlainPartViewer";
+import mutationTypes from "../../../store/mutationTypes";
+
+const CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
 
 export default {
     name: "PartsViewer",
@@ -23,10 +34,54 @@ export default {
         TextHtmlPartViewer,
         TextPlainPartViewer
     },
+    props: {
+        messageKey: {
+            type: String,
+            required: true
+        }
+    },
+    data() {
+        return {
+            parts: []
+        };
+    },
     computed: {
-        ...mapGetters("mail-webapp/currentMessage", { parts: "content" })
+        ...mapState("mail", ["messages"]),
+        message() {
+            return this.messages[this.messageKey];
+        }
+    },
+    watch: {
+        messageKey: {
+            handler: async function (newKey, oldKey) {
+                if (oldKey) {
+                    this.cleanPartsContent(oldKey);
+                }
+
+                const service = inject("MailboxItemsPersistence", this.message.folderRef.uid);
+                const inlines = this.message.inlinePartsByCapabilities.find(part =>
+                    part.capabilities.every(capability => CAPABILITIES.includes(capability))
+                ).parts;
+
+                const contents = await fetchAll(this.message.remoteRef.imapUid, service, inlines, false);
+                this.SET_MESSAGE_PART_CONTENTS({ key: this.message.key, contents, parts: inlines });
+
+                const html = inlines.filter(part => part.mime === MimeType.TEXT_HTML);
+                const images = inlines.filter(part => MimeType.isImage(part) && part.contentId);
+                const inlined = InlineImageHelper.insertInlineImages(html, images, this.message.partContentByAddress);
+                const others = inlines.filter(
+                    part => part.mime !== MimeType.TEXT_HTML && !inlined.includes(part.contentId)
+                );
+                this.parts = [...html, ...others];
+            },
+            immediate: true
+        }
+    },
+    destroyed() {
+        this.cleanPartsContent(this.messageKey);
     },
     methods: {
+        ...mapMutations("mail", [mutationTypes.SET_MESSAGE_PART_CONTENTS, mutationTypes.REMOVE_MESSAGE_PART_CONTENTS]),
         isHtmlPart(part) {
             return MimeType.isHtml(part);
         },
@@ -50,6 +105,10 @@ export default {
                     .join("");
             }
             return name + "PartViewer";
+        },
+        cleanPartsContent(messageKey) {
+            this.parts = [];
+            this.REMOVE_MESSAGE_PART_CONTENTS(messageKey);
         }
     }
 };

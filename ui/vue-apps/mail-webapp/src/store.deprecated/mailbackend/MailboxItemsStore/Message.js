@@ -18,9 +18,6 @@
 import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mail.api";
 import { Flag } from "@bluemind/email";
 
-import GetAttachmentPartsVisitor from "../../../store/messages/helpers/GetAttachmentPartsVisitor";
-import GetInlinePartsVisitor from "../../../store/messages/helpers/GetInlinePartsVisitor";
-import TreeWalker from "../../../store/messages/helpers/TreeWalker";
 import { MessageHeader } from "../../../model/message";
 
 /**
@@ -36,25 +33,6 @@ export default class Message {
             Object.assign(this, item);
         }
         this.key = key;
-    }
-
-    /**
-     * Compute parts (inline and attachment)
-     *
-     * @see GetInlinePartsVisitor
-     * @see GetAttachmentPartsVisitor
-     *
-     */
-    // DELETE ME once selectMessage is migrate in new store
-    computeParts() {
-        const inlineVisitor = new GetInlinePartsVisitor();
-        const attachmentVisitor = new GetAttachmentPartsVisitor();
-        const walker = new TreeWalker(this.structure, [inlineVisitor, attachmentVisitor]);
-        walker.walk();
-        return {
-            inlines: inlineVisitor.result(),
-            attachments: attachmentVisitor.result()
-        };
     }
 }
 
@@ -77,7 +55,6 @@ function fromMailboxItem(item, message) {
     message.uid = item.uid;
     message.id = item.internalId;
     message.imapUid = mailboxItem.imapUid;
-    // FIXME: move ics object computation into EventHelper
     message.ics = {
         isEmpty: !mailboxItem.body.headers.map(header => header.name).includes(MessageHeader.X_BM_EVENT)
     };

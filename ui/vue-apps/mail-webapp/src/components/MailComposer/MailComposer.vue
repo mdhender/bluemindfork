@@ -116,7 +116,7 @@
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import debounce from "lodash/debounce";
 
-import { MimeType, InlineImageHelper } from "@bluemind/email";
+import { MimeType } from "@bluemind/email";
 import {
     BmButton,
     BmCol,
@@ -249,19 +249,12 @@ export default {
                         : await PlayWithInlinePartsByCapabilities.getTextFromStructure(this.message);
             } else {
                 const htmlContent = this.message.partContentByMimeType[MimeType.TEXT_HTML];
-                let inlineImageParts = [];
                 if (htmlContent || htmlContent === "") {
                     newContent = htmlContent;
                 } else {
                     const result = await PlayWithInlinePartsByCapabilities.getHtmlFromStructure(this.message);
                     newContent = result.html;
-                    inlineImageParts = result.inlineImageParts;
                 }
-
-                InlineImageHelper.insertInlineImages(
-                    [newContent],
-                    inlineImageParts.filter(part => part.contentId)
-                );
 
                 newContent = this.handleSeparator(newContent);
             }

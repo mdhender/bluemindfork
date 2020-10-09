@@ -31,7 +31,6 @@ describe.skip("Message", () => {
             body: {
                 subject: mailboxItem.value.body.subject,
                 headers: mailboxItem.value.body.headers,
-                // FIXME we do not handle the displayed name (aka distinguished name) yet (except fo Originator)
                 recipients: mailboxItem.value.body.recipients.map(r =>
                     r.kind === "Originator" ? r : { kind: r.kind, address: r.address, dn: "" }
                 ),

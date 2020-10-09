@@ -49,7 +49,7 @@
             :selected="choices[selectedChoice]"
             @select="index => (selectedChoice = index)"
         />
-        <parts-viewer v-if="selectedChoice === 0" />
+        <parts-viewer v-if="selectedChoice === 0" :message-key="message.key" />
         <div v-else class="invitation pl-5">
             <h1>
                 {{ currentEvent.organizer.name }} {{ $t("mail.ics.got_invited") }}
