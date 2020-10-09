@@ -99,25 +99,24 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 
 	}
 
+	private static final String MBOX_GET = "SELECT " //
+			+ MailboxColumns.cols.names() //
+			+ ", t_directory_entry.datalocation "//
+			+ ", la,ra,all_aliases,is_def " //
+			+ " FROM t_mailbox " //
+			+ " left join t_directory_entry on t_directory_entry.item_id = t_mailbox.item_id " + " left outer join (" //
+			+ "   SELECT item_id," //
+			+ "   array_agg(" + EmailColumns.left_address.name() + ") la, "//
+			+ "   array_agg(" + EmailColumns.right_address.name() + ") ra, "//
+			+ "   array_agg(" + EmailColumns.all_aliases.name() + ") all_aliases, "//
+			+ "   array_agg(" + EmailColumns.is_default.name() + ") is_def"//
+			+ "   FROM t_mailbox_email group by t_mailbox_email.item_id) as emails " //
+			+ " on emails.item_id = t_mailbox.item_id " //
+			+ " WHERE t_mailbox.item_id = ?";
+
 	@Override
 	public Mailbox get(Item item) throws SQLException {
-		String query = "SELECT " //
-				+ MailboxColumns.cols.names() //
-				+ ", t_directory_entry.datalocation "//
-				+ ", la,ra,all_aliases,is_def " //
-				+ " FROM t_mailbox " //
-				+ " left join t_directory_entry on t_directory_entry.item_id = t_mailbox.item_id "
-				+ " left outer join (" //
-				+ "   SELECT item_id," //
-				+ "   array_agg(" + EmailColumns.left_address.name() + ") la, "//
-				+ "   array_agg(" + EmailColumns.right_address.name() + ") ra, "//
-				+ "   array_agg(" + EmailColumns.all_aliases.name() + ") all_aliases, "//
-				+ "   array_agg(" + EmailColumns.is_default.name() + ") is_def"//
-				+ "   FROM t_mailbox_email group by t_mailbox_email.item_id) as emails " //
-				+ " on emails.item_id = t_mailbox.item_id " //
-				+ " WHERE t_mailbox.item_id = ?";
-
-		Mailbox m = unique(query, MAILBOX_CREATOR,
+		Mailbox m = unique(MBOX_GET, MAILBOX_CREATOR,
 				Arrays.asList(MailboxColumns.populator(), EmailColumns.aggPopulator(container.domainUid)),
 				new Object[] { item.id });
 		if (m == null)
@@ -133,7 +132,7 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 	private void setEmails(Item item, Collection<Email> emails) throws SQLException {
 		deleteEmails(item);
 
-		if (emails == null || emails.size() == 0) {
+		if (emails == null || emails.isEmpty()) {
 			return;
 		}
 

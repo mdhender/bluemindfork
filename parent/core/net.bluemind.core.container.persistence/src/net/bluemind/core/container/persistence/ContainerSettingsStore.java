@@ -19,7 +19,6 @@
 package net.bluemind.core.container.persistence;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -29,10 +28,14 @@ import net.bluemind.core.jdbc.JdbcAbstractStore;
 
 public class ContainerSettingsStore extends JdbcAbstractStore {
 
-	private static final Creator<Map<String, String>> mapCreator = con -> new HashMap<>();
+	private static final class MapHolder {
+		Map<String, String> value;
+	}
+
+	private static final Creator<MapHolder> mapCreator = con -> new MapHolder();
 	@SuppressWarnings("unchecked")
-	private static final EntityPopulator<Map<String, String>> mapPopulator = (rs, index, map) -> {
-		map.putAll((Map<String, String>) rs.getObject(index++));
+	private static final EntityPopulator<MapHolder> mapPopulator = (rs, index, map) -> {
+		map.value = (Map<String, String>) rs.getObject(index++);
 		return index;
 	};
 
@@ -49,8 +52,9 @@ public class ContainerSettingsStore extends JdbcAbstractStore {
 	}
 
 	public Map<String, String> getSettings() throws SQLException {
-		String query = "SELECT settings from t_container_settings where container_id = ?";
-		return unique(query, mapCreator, mapPopulator, new Object[] { container.id });
+		String query = "SELECT settings FROM t_container_settings WHERE container_id = ?";
+		MapHolder res = unique(query, mapCreator, mapPopulator, container.id);
+		return res != null ? res.value : null;
 	}
 
 	public void setSettings(Map<String, String> settings) throws SQLException {

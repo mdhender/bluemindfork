@@ -64,12 +64,13 @@ public class ContainersHierarchyNodeStore extends AbstractItemValueStore<Contain
 		delete("DELETE FROM t_container_hierarchy WHERE item_id = ?", new Object[] { item.id });
 	}
 
+	private static final String SELECT_NODE = "SELECT " + ContainersHierarchyNodeColumns.cols.names()
+			+ " FROM t_container_hierarchy WHERE item_id=?";
+
 	@Override
 	public ContainerHierarchyNode get(Item item) throws SQLException {
-		String query = "SELECT " + ContainersHierarchyNodeColumns.cols.names()
-				+ " FROM t_container_hierarchy WHERE item_id=?";
-		return unique(query, rs -> new ContainerHierarchyNode(), ContainersHierarchyNodeColumns.POPULATOR,
-				new Object[] { item.id });
+		return unique(SELECT_NODE, rs -> new ContainerHierarchyNode(), ContainersHierarchyNodeColumns.POPULATOR,
+				item.id);
 	}
 
 	@Override

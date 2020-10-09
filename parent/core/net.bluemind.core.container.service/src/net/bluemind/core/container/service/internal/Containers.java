@@ -88,10 +88,8 @@ public class Containers implements IContainers {
 	private static final Logger logger = LoggerFactory.getLogger(Containers.class);
 
 	private static List<IContainersHook> loadContainerHooks() {
-		RunnableExtensionLoader<IContainersHook> rel = new RunnableExtensionLoader<IContainersHook>();
-		List<IContainersHook> hooks = rel.loadExtensions("net.bluemind.core.container.hooks", "container", "hook",
-				"impl");
-		return hooks;
+		RunnableExtensionLoader<IContainersHook> rel = new RunnableExtensionLoader<>();
+		return rel.loadExtensions("net.bluemind.core.container.hooks", "container", "hook", "impl");
 	}
 
 	public Containers(BmContext context) {
@@ -273,11 +271,18 @@ public class Containers implements IContainers {
 
 		// FIXME perm check is missing
 		List<BaseContainerDescriptor> ret = new ArrayList<>(containerIds.size());
+		Map<String, IDirectory> dirApiByDomain = new HashMap<>();
+
 		containerIds.forEach(uid -> {
 			DataSource dataSource = DataSourceRouter.get(context, uid);
 			ContainerStore containerStore = new ContainerStore(context, dataSource, securityContext);
-			Optional.ofNullable(doOrFail(() -> containerStore.get(uid)))
-					.ifPresent(c -> ret.add(asDescriptorLight(c, securityContext)));
+			Optional.ofNullable(doOrFail(() -> containerStore.get(uid))).ifPresent(c -> {
+				IDirectory dirApi = c.domainUid != null
+						? dirApiByDomain.computeIfAbsent(c.domainUid,
+								dom -> context.su().provider().instance(IDirectory.class, dom))
+						: null;
+				ret.add(asDescriptorLight(c, securityContext, dirApi));
+			});
 		});
 
 		return ret;
@@ -414,13 +419,18 @@ public class Containers implements IContainers {
 	private List<BaseContainerDescriptor> asDescriptorsLight(List<Container> containers, SecurityContext sc)
 			throws ServerFault {
 		List<BaseContainerDescriptor> ret = new ArrayList<>(containers.size());
+		Map<String, IDirectory> dirApiByDomain = new HashMap<>();
 		for (Container c : containers) {
-			ret.add(asDescriptorLight(c, sc));
+			IDirectory dirApi = c.domainUid != null
+					? dirApiByDomain.computeIfAbsent(c.domainUid,
+							dom -> context.su().provider().instance(IDirectory.class, dom))
+					: null;
+			ret.add(asDescriptorLight(c, sc, dirApi));
 		}
 		return ret;
 	}
 
-	BaseContainerDescriptor asDescriptorLight(Container c, SecurityContext sc) throws ServerFault {
+	BaseContainerDescriptor asDescriptorLight(Container c, SecurityContext sc, IDirectory dirApi) throws ServerFault {
 		DataSource dataSource = DataSourceRouter.get(context, c.uid);
 
 		if (logger.isDebugEnabled()) {
@@ -430,10 +440,9 @@ public class Containers implements IContainers {
 		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(c.uid, label, c.owner, c.type, c.domainUid,
 				c.defaultContainer);
 
-		if (descriptor.owner != null && descriptor.domainUid != null) {
+		if (descriptor.owner != null && dirApi != null) {
 			try {
-				DirEntry entry = context.su().provider().instance(IDirectory.class, c.domainUid)
-						.findByEntryUid(descriptor.owner);
+				DirEntry entry = dirApi.findByEntryUid(descriptor.owner);
 				if (entry != null) {
 					descriptor.ownerDisplayname = entry.displayName;
 					descriptor.ownerDirEntryPath = entry.path;
@@ -449,7 +458,7 @@ public class Containers implements IContainers {
 		doOrFail(() -> {
 			descriptor.settings = settingsStore.getSettings();
 			if (descriptor.settings == null) {
-				descriptor.settings = new HashMap<>();
+				descriptor.settings = Collections.emptyMap();
 			}
 			return null;
 		});

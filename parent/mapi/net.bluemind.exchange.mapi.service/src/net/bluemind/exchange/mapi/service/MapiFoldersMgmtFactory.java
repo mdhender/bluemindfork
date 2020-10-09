@@ -18,13 +18,18 @@
  */
 package net.bluemind.exchange.mapi.service;
 
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IFlatHierarchyUids;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.directory.api.DirEntry;
-import net.bluemind.directory.api.IDirectory;
 import net.bluemind.exchange.mapi.api.IMapiFoldersMgmt;
 import net.bluemind.exchange.mapi.api.IMapiMailbox;
 import net.bluemind.exchange.mapi.api.MapiReplica;
@@ -32,15 +37,15 @@ import net.bluemind.exchange.mapi.service.internal.MapiFoldersMgmt;
 
 public class MapiFoldersMgmtFactory implements ServerSideServiceProvider.IServerSideServiceFactory<IMapiFoldersMgmt> {
 
+	private static final Logger logger = LoggerFactory.getLogger(MapiFoldersMgmtFactory.class);
+
 	@Override
 	public Class<IMapiFoldersMgmt> factoryClass() {
 		return IMapiFoldersMgmt.class;
 	}
 
-	private IMapiFoldersMgmt getService(BmContext context, String domain, MapiReplica replica, DirEntry de)
-			throws ServerFault {
-		MapiFoldersMgmt service = new MapiFoldersMgmt(context, domain, replica, de);
-		return service;
+	private IMapiFoldersMgmt getService(BmContext context, String domain, MapiReplica replica, DataSource storeDs) {
+		return new MapiFoldersMgmt(context, domain, replica, storeDs);
 	}
 
 	@Override
@@ -51,14 +56,17 @@ public class MapiFoldersMgmtFactory implements ServerSideServiceProvider.IServer
 		String domain = params[0];
 		String mboxUid = params[1];
 		IServiceProvider prov = context.provider();
-		IDirectory dirApi = prov.instance(IDirectory.class, domain);
-		DirEntry de = dirApi.findByEntryUid(mboxUid);
 		IMapiMailbox mapiMboxApi = prov.instance(IMapiMailbox.class, domain, mboxUid);
 		MapiReplica replica = mapiMboxApi.get();
 		if (replica == null) {
 			throw new ServerFault("Replica not found for mailbox " + mboxUid, ErrorCode.NOT_FOUND);
 		}
-		return getService(context, domain, replica, de);
+		String hierUid = IFlatHierarchyUids.getIdentifier(mboxUid, domain);
+		DataSource storeDs = DataSourceRouter.get(context, hierUid);
+		if (context.getDataSource() == storeDs) {
+			logger.warn("Directory DS selected for {} @ {}", mboxUid, domain);
+		}
+		return getService(context, domain, replica, storeDs);
 	}
 
 }

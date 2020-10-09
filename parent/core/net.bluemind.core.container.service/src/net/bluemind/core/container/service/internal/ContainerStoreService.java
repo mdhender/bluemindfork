@@ -31,6 +31,9 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -79,7 +82,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	private final IItemFlagsProvider<T> flagsProvider;
 	private final IWeightSeedProvider<T> weightSeedProvider;
 	private final IWeightProvider weightProvider;
-	private ContainerChangeEventProducer containerChangeEventProducer;
+	private Supplier<ContainerChangeEventProducer> containerChangeEventProducer;
 
 	public static interface IItemFlagsProvider<W> {
 		Collection<ItemFlag> flags(W value);
@@ -106,8 +109,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		this.flagsProvider = fProv;
 		this.weightSeedProvider = wsProv;
 		this.weightProvider = wProv;
-		this.containerChangeEventProducer = new ContainerChangeEventProducer(securityContext, VertxPlatform.eventBus(),
-				container);
+		this.containerChangeEventProducer = Suppliers
+				.memoize(() -> new ContainerChangeEventProducer(securityContext, VertxPlatform.eventBus(), container));
 	}
 
 	public ContainerStoreService(DataSource pool, SecurityContext securityContext, Container container,
@@ -295,7 +298,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemCreated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
-				this.containerChangeEventProducer.produceEvent();
+				containerChangeEventProducer.get().produceEvent();
 			}
 			createValue(item, value);
 			return ItemUpdate.of(item);
@@ -319,7 +322,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
-				this.containerChangeEventProducer.produceEvent();
+				containerChangeEventProducer.get().produceEvent();
 			}
 			createValue(item, value);
 			return null;
@@ -346,7 +349,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
-				this.containerChangeEventProducer.produceEvent();
+				containerChangeEventProducer.get().produceEvent();
 			}
 			updateValue(item, value);
 			return ItemUpdate.of(item);
@@ -370,7 +373,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
-				this.containerChangeEventProducer.produceEvent();
+				containerChangeEventProducer.get().produceEvent();
 			}
 			updateValue(item, value);
 			return ItemUpdate.of(item);
@@ -393,7 +396,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemDeleted(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, 0L));
-				this.containerChangeEventProducer.produceEvent();
+				containerChangeEventProducer.get().produceEvent();
 			}
 			itemStore.delete(item);
 			return ItemUpdate.of(item);
@@ -412,7 +415,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemDeleted(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, 0L));
-				this.containerChangeEventProducer.produceEvent();
+				containerChangeEventProducer.get().produceEvent();
 			}
 			itemStore.delete(item);
 			return ItemUpdate.of(item);
@@ -433,7 +436,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, 0L));
-				this.containerChangeEventProducer.produceEvent();
+				containerChangeEventProducer.get().produceEvent();
 			}
 			return null;
 		});
@@ -451,7 +454,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			// delete container
 			if (hasChangeLog) {
 				changelogStore.allItemsDeleted(securityContext.getSubject(), origin);
-				this.containerChangeEventProducer.produceEvent();
+				containerChangeEventProducer.get().produceEvent();
 			}
 			// delete items
 			itemStore.deleteAll();
@@ -607,7 +610,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				T value = getValue(item);
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
-				this.containerChangeEventProducer.produceEvent();
+				containerChangeEventProducer.get().produceEvent();
 			}
 			return null;
 		});
@@ -642,7 +645,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			// check after because it can change...
 			long serverVersion = getVersion();
 			if (query.knownContainerVersion != serverVersion) {
-				throw new ServerFault("stale client version, server is at " + serverVersion, ErrorCode.VERSION_HAS_CHANGED);
+				throw new ServerFault("stale client version, server is at " + serverVersion,
+						ErrorCode.VERSION_HAS_CHANGED);
 			}
 			return ListResult.create(items.stream().map(i -> i.id).collect(Collectors.toList()), len);
 		} catch (SQLException e) {
