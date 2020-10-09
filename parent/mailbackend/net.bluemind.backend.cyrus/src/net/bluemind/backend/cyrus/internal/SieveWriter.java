@@ -46,7 +46,6 @@ import net.bluemind.backend.cyrus.Sudo;
 import net.bluemind.config.InstallationId;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.Email;
-import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -191,13 +190,8 @@ public class SieveWriter {
 			// scheduled
 			if (vac.start != null) {
 				long now = new Date().getTime();
-				Long start = new BmDateTimeWrapper(vac.start).toUTCTimestamp();
-				Long end = null;
-				if (vac.end != null) {
-					end = new BmDateTimeWrapper(vac.end).toUTCTimestamp();
-				}
 				// and in range
-				if (start <= now && (end == null || end > now)) {
+				if (vac.start.getTime() <= now && (vac.end == null || vac.end.getTime() > now)) {
 					// we are scheduled & in range, so we are enabled
 				} else {
 					// we are scheduled & out of range => disable

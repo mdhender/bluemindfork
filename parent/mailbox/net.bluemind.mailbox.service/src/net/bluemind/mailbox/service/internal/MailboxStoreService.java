@@ -112,7 +112,7 @@ public class MailboxStoreService extends ContainerStoreService<Mailbox> {
 
 	public List<String> inOfOffice() throws ServerFault {
 		return doOrFail(() -> {
-			return mailFilterStore.findInOfOffice(new Date());
+			return mailFilterStore.findInOffice(new Date());
 		});
 	}
 

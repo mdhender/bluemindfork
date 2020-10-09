@@ -6,12 +6,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Date;
 
-import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.jdbc.Columns;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.jdbc.JdbcAbstractStore.Creator;
-import net.bluemind.core.jdbc.convert.DateTimeType;
 import net.bluemind.mailbox.api.MailFilter;
 
 public final class MailFilterVacationColumns {
@@ -42,13 +41,13 @@ public final class MailFilterVacationColumns {
 				statement.setBoolean(index++, value.enabled);
 
 				if (value.start != null) {
-					statement.setTimestamp(index++, DateTimeType.asTimestamp(value.start));
+					statement.setTimestamp(index++, new Timestamp(value.start.getTime()));
 				} else {
 					statement.setNull(index++, Types.TIMESTAMP);
 				}
 
 				if (value.end != null) {
-					statement.setTimestamp(index++, DateTimeType.asTimestamp(value.end));
+					statement.setTimestamp(index++, new Timestamp(value.end.getTime()));
 				} else {
 					statement.setNull(index++, Types.TIMESTAMP);
 				}
@@ -69,12 +68,12 @@ public final class MailFilterVacationColumns {
 				value.enabled = rs.getBoolean(index++);
 				Timestamp start = rs.getTimestamp(index++);
 				if (start != null) {
-					value.start = DateTimeType.fromTimestamp(start, "UTC", BmDateTime.Precision.DateTime.name());
+					value.start = new Date(start.getTime());
 				}
 
 				Timestamp end = rs.getTimestamp(index++);
 				if (end != null) {
-					value.end = DateTimeType.fromTimestamp(end, "UTC", BmDateTime.Precision.DateTime.name());
+					value.end = new Date(end.getTime());
 				}
 
 				value.subject = rs.getString(index++);

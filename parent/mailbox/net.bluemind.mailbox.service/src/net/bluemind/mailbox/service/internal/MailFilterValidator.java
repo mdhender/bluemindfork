@@ -25,7 +25,6 @@ import java.util.regex.Pattern;
 import com.google.common.base.Strings;
 
 import net.bluemind.core.api.ParametersValidator;
-import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
@@ -122,7 +121,7 @@ public class MailFilterValidator implements IValidator<MailFilter> {
 		}
 
 		ParametersValidator.notNull(vacation.start);
-		if (vacation.end != null && new BmDateTimeWrapper(vacation.start).isAfter(vacation.end)) {
+		if (vacation.end != null && vacation.start.after(vacation.end)) {
 			throw new ServerFault("end date is before start date of vacation", ErrorCode.INVALID_PARAMETER);
 		}
 

@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -69,8 +70,6 @@ import net.bluemind.backend.cyrus.utils.Include;
 import net.bluemind.backend.cyrus.utils.Redirect;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.Email;
-import net.bluemind.core.api.date.BmDateTime;
-import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -179,10 +178,10 @@ public class SieveWriterTests {
 		filter.vacation.enabled = true;
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DAY_OF_YEAR, -1);
-		filter.vacation.start = new BmDateTime(c.toInstant().toString(), null, Precision.Date);
+		filter.vacation.start = new Date(c.getTimeInMillis());
 
 		c.add(Calendar.DAY_OF_YEAR, 3);
-		filter.vacation.end = new BmDateTime(c.toInstant().toString(), null, Precision.Date);
+		filter.vacation.end = new Date(c.getTimeInMillis());
 		filter.vacation.subject = "blabla";
 		filter.vacation.text = "blabla\n jfgkj \nsfdkjfdk";
 		mbox.value.emails = Arrays.asList(Email.create("test@test.com", true), Email.create("toto@test.com", false),

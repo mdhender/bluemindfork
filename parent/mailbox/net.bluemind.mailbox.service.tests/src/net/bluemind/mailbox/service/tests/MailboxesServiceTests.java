@@ -44,6 +44,7 @@ import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
+import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -777,9 +778,14 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DAY_OF_YEAR, -1);
-		vacation.start = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null, Precision.Date);
+		BmDateTime bmDateTimeStart = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null,
+				Precision.Date);
+		long toTimestamp = new BmDateTimeWrapper(bmDateTimeStart).toUTCTimestamp();
+		vacation.start = new Date(toTimestamp);
 		c.add(Calendar.DAY_OF_YEAR, 3);
-		vacation.end = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null, Precision.Date);
+		bmDateTimeStart = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null, Precision.Date);
+		toTimestamp = new BmDateTimeWrapper(bmDateTimeStart).toUTCTimestamp();
+		vacation.end = new Date(toTimestamp);
 
 		MailFilter mailFilter = new MailFilter();
 		mailFilter.vacation = vacation;
@@ -831,9 +837,14 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DAY_OF_YEAR, -1);
-		vacation.start = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null, Precision.Date);
+		BmDateTime bmDateTime = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null,
+				Precision.Date);
+		long toTimestamp = new BmDateTimeWrapper(bmDateTime).toUTCTimestamp();
+		vacation.start = new Date(toTimestamp);
 		c.add(Calendar.DAY_OF_YEAR, 3);
-		vacation.end = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null, Precision.Date);
+		bmDateTime = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null, Precision.Date);
+		toTimestamp = new BmDateTimeWrapper(bmDateTime).toUTCTimestamp();
+		vacation.end = new Date(toTimestamp);
 
 		Rule r1 = new Rule();
 		r1.active = true;
@@ -874,9 +885,14 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DAY_OF_YEAR, -1);
-		vacation.start = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null, Precision.Date);
+		BmDateTime bmDateTime = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null,
+				Precision.Date);
+		long toTimestamp = new BmDateTimeWrapper(bmDateTime).toUTCTimestamp();
+		vacation.start = new Date(toTimestamp);
 		c.add(Calendar.DAY_OF_YEAR, 3);
-		vacation.end = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null, Precision.Date);
+		bmDateTime = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null, Precision.Date);
+		toTimestamp = new BmDateTimeWrapper(bmDateTime).toUTCTimestamp();
+		vacation.end = new Date(toTimestamp);
 
 		Rule r1 = new Rule();
 		r1.active = true;
