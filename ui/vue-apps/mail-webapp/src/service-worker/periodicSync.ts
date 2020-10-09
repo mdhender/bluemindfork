@@ -3,6 +3,17 @@ import { MailDB, FolderSyncInfo } from "./MailDB";
 import { MailAPI, getSessionInfos } from "./MailAPI";
 import { MailFolder } from "./entry";
 
+function log(...args: any[]) {
+    const styles = [
+        `background: #00acac`,
+        `border-radius: 0.5em`,
+        `color: white`,
+        `font-weight: bold`,
+        `padding: 2px 0.5em`
+    ];
+    console.log(...["%cperiodicSync.ts", styles.join(";")], ...args);
+}
+
 const db = new MailDB();
 
 const chunkSize = 200;
@@ -31,7 +42,7 @@ export async function registerPeriodicSync() {
     await db.putMailFolders(folders);
     const foldersSyncInfo = folders.map(folder => createFolderSyncInfo(folder));
     await Promise.all(foldersSyncInfo.map(folderSyncInfo => db.updateFolderSyncInfo(folderSyncInfo)));
-
+    log("registerPeriodicSync", { folders, foldersSyncInfo });
     limiter = await fillInLimiter(limiter, foldersSyncInfo, mailapi);
 
     for (const syncInfo of foldersSyncInfo) {
@@ -54,6 +65,8 @@ async function fillInLimiter(oldLimiter: Bottleneck, foldersSyncInfo: FolderSync
             .openCursor(syncInfo.uid, "prev");
         while (cursor) {
             const ids: number[] = [];
+            ids.push(cursor.value.internalId);
+            cursor = await cursor.continue();
             while (cursor && ids.length < chunkSize) {
                 ids.push(cursor.value.internalId);
                 cursor = await cursor.continue();
@@ -63,6 +76,7 @@ async function fillInLimiter(oldLimiter: Bottleneck, foldersSyncInfo: FolderSync
                     if (ids.length > 0) {
                         const response = await fetchData(mailapi, syncInfo.uid, ids);
                         const mailItems = await response.json();
+                        log("limiter.schedul", { syncInfo, ids, mailItems });
                         return db.putMailItems(mailItems, syncInfo.uid);
                     }
                 })
@@ -73,6 +87,7 @@ async function fillInLimiter(oldLimiter: Bottleneck, foldersSyncInfo: FolderSync
 }
 
 function interval(fn: Function, minInterval: number) {
+    log("interval", { minInterval });
     fn();
     setInterval(fn, minInterval);
 }
@@ -84,6 +99,7 @@ export async function updateIdStack(mailapi: MailAPI, uid: string) {
         const changeSet = await response.json();
 
         const outofdate = changeSet.version !== syncInfo.version;
+        log("updateIdStack", { uid, syncInfo, changeSet });
         if (outofdate) {
             await db.applyChangeset(changeSet, syncInfo.uid, syncInfo);
             return Promise.resolve(true);

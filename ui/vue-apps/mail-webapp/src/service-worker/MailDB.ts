@@ -1,6 +1,17 @@
 import { openDB, DBSchema, IDBPDatabase, IDBPTransaction } from "idb";
 import { MailFolder, UID, MailItem, ChangeSet } from "./entry";
 
+function log(...args: any[]) {
+    const styles = [
+        `background: #acac00`,
+        `border-radius: 0.5em`,
+        `color: white`,
+        `font-weight: bold`,
+        `padding: 2px 0.5em`
+    ];
+    console.log(...["%cMailDB.ts", styles.join(";")], ...args);
+}
+
 export interface FolderSyncInfo {
     uid: string;
     fullName: string;
@@ -111,9 +122,13 @@ export class MailDB {
             .concat(updated)
             .concat(deleted)
             .map(({ id }) => id);
+        log("applyChangeset", { changeSet, created, updated, deleted, version, folderUid, syncInfo, ids });
         await this.deleteStackIds(ids, folderUid, tx);
         await Promise.all(
-            created.reverse().concat(updated.reverse()).map(({ id }) => tx.objectStore("ids_stack").put({ internalId: id, folderUid }))
+            created
+                .reverse()
+                .concat(updated.reverse())
+                .map(({ id }) => tx.objectStore("ids_stack").put({ internalId: id, folderUid }))
         );
         await Promise.all(deleted.map(({ id }) => tx.objectStore("mail_items").delete([folderUid, id])));
         await tx.objectStore("folders_syncinfo").put({ ...syncInfo, version });
@@ -129,6 +144,7 @@ export class MailDB {
         const outdatedKeys = await Promise.all(
             ids.map(id => localtx.objectStore("ids_stack").index("key").getKey([folderUid, id]))
         );
+        log("deleteStackIds", { ids, folderUid, outdatedKeys });
         await Promise.all(
             outdatedKeys.map(key => {
                 if (key) {
