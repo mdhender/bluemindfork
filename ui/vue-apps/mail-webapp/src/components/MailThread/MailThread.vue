@@ -21,7 +21,7 @@
             {{ $t("mail.content.alert.readonly") }}
         </mail-component-alert>
         <mail-composer v-if="isADraft" :message-key="currentMessageKey" />
-        <mail-viewer v-else-if="message" />
+        <mail-viewer v-else-if="message" :message-key="currentMessageKey" />
         <div />
     </article>
 </template>
@@ -49,10 +49,12 @@ export default {
     },
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapGetters("mail-webapp/currentMessage", { message: "message" }),
         ...mapState("mail-webapp", ["showBlockedImagesAlert"]),
         ...mapGetters("mail-webapp", ["areRemoteImagesUnblocked"]),
         ...mapState("mail", ["folders", "messages"]),
+        message() {
+            return this.messages[this.currentMessageKey];
+        },
         folderOfCurrentMessage() {
             return this.folders[ItemUri.container(this.currentMessageKey)];
         },

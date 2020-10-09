@@ -96,12 +96,11 @@ export default {
             "isSearchMode",
             "nextMessageKey"
         ]),
-        ...mapGetters("mail-webapp/currentMessage", { deprecatedMessage: "message" }),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["folders", "activeFolder", "messages"]),
         ...mapGetters("mail", ["MY_TRASH"]),
-        currentMessageFlags() {
-            return this.messages[this.currentMessageKey].flags;
+        message() {
+            return this.messages[this.currentMessageKey];
         },
         isSelectionMultiple() {
             return this.selectedMessageKeys.length > 1;
@@ -110,14 +109,14 @@ export default {
             if (this.isSelectionMultiple) {
                 return !this.areAllSelectedMessagesRead;
             } else {
-                return !this.currentMessageFlags.includes(Flag.SEEN);
+                return !this.message.flags.includes(Flag.SEEN);
             }
         },
         displayMarkAsUnread() {
             if (this.isSelectionMultiple) {
                 return !this.areAllSelectedMessagesUnread;
             } else {
-                return this.currentMessageFlags.includes(Flag.SEEN);
+                return this.message.flags.includes(Flag.SEEN);
             }
         },
         displayMarkAsFlagged() {
@@ -126,7 +125,7 @@ export default {
             } else if (this.isSelectionMultiple) {
                 return !this.areAllSelectedMessagesFlagged;
             } else {
-                return !this.currentMessageFlags.includes(Flag.FLAGGED);
+                return !this.message.flags.includes(Flag.FLAGGED);
             }
         },
         displayMarkAsUnflagged() {
@@ -135,7 +134,7 @@ export default {
             } else if (this.isSelectionMultiple) {
                 return !this.areAllSelectedMessagesUnflagged;
             } else {
-                return this.currentMessageFlags.includes(Flag.FLAGGED);
+                return this.message.flags.includes(Flag.FLAGGED);
             }
         },
         selectionHasReadOnlyFolders() {
@@ -154,7 +153,7 @@ export default {
         async purge() {
             const confirm = await this.$bvModal.msgBoxConfirm(
                 this.$tc("mail.actions.purge.modal.content", this.selectedMessageKeys.length || 1, {
-                    subject: this.deprecatedMessage && this.deprecatedMessage.subject
+                    subject: this.message.subject
                 }),
                 {
                     title: this.$tc("mail.actions.purge.modal.title", this.selectedMessageKeys.length || 1),

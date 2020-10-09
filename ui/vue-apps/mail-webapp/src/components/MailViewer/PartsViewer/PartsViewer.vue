@@ -24,7 +24,7 @@ export default {
         TextPlainPartViewer
     },
     computed: {
-        ...mapGetters("mail-webapp/currentMessage", { parts: "content", message: "message" })
+        ...mapGetters("mail-webapp/currentMessage", { parts: "content" })
     },
     methods: {
         isHtmlPart(part) {

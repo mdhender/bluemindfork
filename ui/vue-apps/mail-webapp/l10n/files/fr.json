@@ -198,5 +198,6 @@
     "mail.shortcuts.purge": "Maj + Suppr",
     "mail.toolbar.more.aria": "Autres actions possibles sur la sélection",
     "mail.toolbar.more": "Autres",
-    "mail.toolbar.move.tooltip": "Déplacer le message"
+    "mail.toolbar.move.tooltip": "Déplacer le message",
+    "mail.viewer.no.subject": "(Pas de sujet)"
 }

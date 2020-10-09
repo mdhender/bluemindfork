@@ -4,7 +4,7 @@
         :aria-label="$t('mail.application.region.messagedetails')"
     >
         <mail-component-alert
-            v-if="!message.ics.isEmpty && !currentEvent && !isIcsAlertBlocked"
+            v-if="message.hasICS && !currentEvent && !isIcsAlertBlocked"
             icon="exclamation-circle"
             @close="isIcsAlertBlocked = true"
         >
@@ -52,12 +52,12 @@
         <bm-row class="px-lg-5">
             <bm-col cols="12">
                 <hr class="bg-dark my-0" />
-                <mail-attachments-block v-if="parts.attachments.length > 0" :message="messages[currentMessageKey]" />
+                <mail-attachments-block v-if="message.attachments.length > 0" :message="message" />
             </bm-col>
         </bm-row>
         <bm-row ref="scrollableContainer" class="pt-1 flex-fill px-lg-5 px-4">
             <bm-col col>
-                <ics-viewer v-if="!message.ics.isEmpty && currentEvent" />
+                <ics-viewer v-if="message.hasICS && currentEvent" />
                 <parts-viewer v-else />
             </bm-col>
         </bm-row>
@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapGetters } from "vuex";
+import { mapState, mapActions } from "vuex";
 import { BmCol, BmRow } from "@bluemind/styleguide";
 import IcsViewer from "./IcsViewer";
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
@@ -88,28 +88,35 @@ export default {
         MailViewerToolbar,
         PartsViewer
     },
+    props: {
+        messageKey: {
+            type: String,
+            required: true
+        }
+    },
     data() {
         return {
             isIcsAlertBlocked: false
         };
     },
     computed: {
-        ...mapGetters("mail-webapp/currentMessage", ["message"]),
         ...mapState("mail-webapp", ["messageFilter"]),
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key", parts: "parts" }),
         ...mapState("mail", ["messages"]),
         subject() {
-            return this.message.subject || "(No subject)"; // FIXME i18n
+            return this.message.subject || this.$t("mail.viewer.no.subject");
+        },
+        message() {
+            return this.messages[this.messageKey];
         }
     },
     watch: {
-        currentMessageKey: {
+        messageKey: {
             handler: function () {
                 this.resetScroll();
                 // FIXME: remove this if once https://forge.bluemind.net/jira/browse/FEATWEBML-1017 is fixed
                 if (this.messageFilter !== "unread") {
-                    this.markAsRead([this.currentMessageKey]);
+                    this.markAsRead([this.messageKey]);
                 }
                 if (this.isIcsAlertBlocked) {
                     this.isIcsAlertBlocked = false;

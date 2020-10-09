@@ -81,7 +81,6 @@ export default {
             "isMessageSelected",
             "areAllMessagesSelected"
         ]),
-        ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
         ...mapState("mail-webapp", ["selectedMessageKeys"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail", ["MY_TRASH", "MESSAGE_LIST_COUNT", "isLoaded"]),
@@ -94,6 +93,9 @@ export default {
                 .slice(0, this.length)
                 .map(key => this.$store.state.mail.messages[key])
                 .filter(({ key }) => this.isLoaded(key));
+        },
+        currentMessage() {
+            return this.messages[this.currentMessageKey];
         },
         hasMore: function () {
             return this.length < this.MESSAGE_LIST_COUNT;

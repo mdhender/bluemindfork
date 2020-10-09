@@ -14,7 +14,7 @@
                     <template v-else-if="currentEvent.status === 'Declined'">{{ $t("mail.ics.declined") }}</template>
                 </template>
             </div>
-            <div v-if="message.ics.needsReply && currentEvent.status" class="mt-3">
+            <div v-if="needsReply && currentEvent.status" class="mt-3">
                 <bm-button
                     variant="outline-primary"
                     class="mr-2 px-1"
@@ -49,7 +49,7 @@
             :selected="choices[selectedChoice]"
             @select="index => (selectedChoice = index)"
         />
-        <parts-viewer v-if="selectedChoice === 0" class="message" />
+        <parts-viewer v-if="selectedChoice === 0" />
         <div v-else class="invitation pl-5">
             <h1>
                 {{ currentEvent.organizer.name }} {{ $t("mail.ics.got_invited") }}
@@ -83,9 +83,12 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapActions, mapState } from "vuex";
+
 import { BmButton, BmChoiceGroup, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
+
 import PartsViewer from "./PartsViewer/PartsViewer";
+import { MessageHeader } from "../../model/message";
 
 export default {
     name: "IcsViewer",
@@ -106,8 +109,12 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp/currentMessage", ["message"]),
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
+        ...mapState("mail", ["messages"]),
+        message() {
+            return this.messages[this.currentMessageKey];
+        },
         computeEventIcon() {
             let icon = "event";
             if (this.currentEvent.status) {
@@ -124,6 +131,11 @@ export default {
                 }
             }
             return icon;
+        },
+        needsReply() {
+            const icsHeaderValue = this.message.headers.find(header => header.name === MessageHeader.X_BM_EVENT)
+                .values[0];
+            return icsHeaderValue.includes('rsvp="true"') || icsHeaderValue.includes("rsvp='true'");
         }
     },
     watch: {
