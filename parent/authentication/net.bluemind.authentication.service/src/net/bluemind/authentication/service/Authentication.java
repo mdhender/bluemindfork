@@ -455,12 +455,12 @@ public class Authentication implements IInCoreAuthentication {
 			ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 			Map<String, String> settings = sp.instance(IUserSettings.class, domainPart).get(user.uid);
 
-			SecurityContext context = buildSecurityContext(resp.authKey, user, domainPart, settings,
+			SecurityContext builtContext = buildSecurityContext(resp.authKey, user, domainPart, settings,
 					securityContext.getOrigin(), false, interactive);
 
-			resp.authUser = AuthUser.create(context.getContainerUid(), context.getSubject(), user.displayName,
-					user.value, new HashSet<>(context.getRoles()), context.getRolesByOrgUnits(), settings);
-			Sessions.get().put(resp.authKey, context);
+			resp.authUser = AuthUser.create(builtContext.getContainerUid(), builtContext.getSubject(), user.displayName,
+					user.value, new HashSet<>(builtContext.getRoles()), builtContext.getRolesByOrgUnits(), settings);
+			Sessions.get().put(resp.authKey, builtContext);
 			return resp;
 		}
 	}

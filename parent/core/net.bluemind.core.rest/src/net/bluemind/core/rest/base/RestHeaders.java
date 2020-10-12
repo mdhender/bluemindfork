@@ -19,7 +19,6 @@
 package net.bluemind.core.rest.base;
 
 import io.vertx.core.MultiMap;
-import io.vertx.core.http.CaseInsensitiveHeaders;
 import io.vertx.core.http.HttpHeaders;
 
 public class RestHeaders {
@@ -32,7 +31,7 @@ public class RestHeaders {
 	}
 
 	public static MultiMap newMultimap() {
-		return new CaseInsensitiveHeaders();
+		return MultiMap.caseInsensitiveMultiMap();
 	}
 
 }
