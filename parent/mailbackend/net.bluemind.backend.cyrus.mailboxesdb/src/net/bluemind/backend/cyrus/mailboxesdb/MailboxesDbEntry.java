@@ -233,4 +233,16 @@ public class MailboxesDbEntry {
 
 		return String.format("%s%s%%(%s)", name, TAB, mailboxInfos.toString().trim());
 	}
+
+	public static boolean validate(MailboxesDbEntry dbEntry) {
+		if (dbEntry == null || isInDefaultPartition(dbEntry.partition)) {
+			return false;
+		}
+		return true;
+	}
+
+	private static boolean isInDefaultPartition(String partition) {
+		return partition.equals("default");
+	}
+
 }

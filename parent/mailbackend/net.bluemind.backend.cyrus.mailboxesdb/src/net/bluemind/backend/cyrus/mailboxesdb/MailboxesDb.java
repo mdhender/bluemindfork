@@ -126,8 +126,8 @@ public class MailboxesDb {
 	private MailboxesDb(String serverIp, String[] lines) {
 		this.serverIp = serverIp;
 
-		mailboxesDbEntry = Arrays.stream(lines).map(line -> MailboxesDbEntry.getFromString(line))
-				.filter(Objects::nonNull).collect(Collectors.toList());
+		mailboxesDbEntry = Arrays.stream(lines).map(MailboxesDbEntry::getFromString).filter(MailboxesDbEntry::validate)
+				.collect(Collectors.toList());
 	}
 
 	public void getFlatMailboxesDb(OutputStream os) throws IOException {
