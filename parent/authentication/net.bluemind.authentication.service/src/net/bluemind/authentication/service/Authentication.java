@@ -529,12 +529,13 @@ public class Authentication implements IInCoreAuthentication {
 	}
 
 	@Override
-	public SecurityContext buildContext(String sid, String domainUid, String userUid) throws ServerFault {
+	public SecurityContext buildContext(String sid, String origin, String domainUid, String userUid)
+			throws ServerFault {
 		ItemValue<User> user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUser.class, domainUid).getComplete(userUid);
 		Map<String, String> settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUserSettings.class, domainUid).get(userUid);
-		return buildSecurityContext(sid, user, domainUid, settings, securityContext.getOrigin(), false, false);
+		return buildSecurityContext(sid, user, domainUid, settings, origin, false, false);
 	}
 
 	@Override

@@ -12,6 +12,7 @@ public class TokenDelegateCachedImpl extends HollowObjectAbstractDelegate implem
     private final String key;
     private final int subjectUidOrdinal;
     private final int subjectDomainOrdinal;
+    private final String origin;
     private final Long expiresTimestamp;
     private TokenTypeAPI typeAPI;
 
@@ -19,6 +20,7 @@ public class TokenDelegateCachedImpl extends HollowObjectAbstractDelegate implem
         this.key = typeAPI.getKey(ordinal);
         this.subjectUidOrdinal = typeAPI.getSubjectUidOrdinal(ordinal);
         this.subjectDomainOrdinal = typeAPI.getSubjectDomainOrdinal(ordinal);
+        this.origin = typeAPI.getOrigin(ordinal);
         this.expiresTimestamp = typeAPI.getExpiresTimestampBoxed(ordinal);
         this.typeAPI = typeAPI;
     }
@@ -39,6 +41,16 @@ public class TokenDelegateCachedImpl extends HollowObjectAbstractDelegate implem
 
     public int getSubjectDomainOrdinal(int ordinal) {
         return subjectDomainOrdinal;
+    }
+
+    public String getOrigin(int ordinal) {
+        return origin;
+    }
+
+    public boolean isOriginEqual(int ordinal, String testValue) {
+        if(testValue == null)
+            return origin == null;
+        return testValue.equals(origin);
     }
 
     public long getExpiresTimestamp(int ordinal) {

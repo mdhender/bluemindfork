@@ -34,6 +34,14 @@ public class Token extends HollowObject {
         return  api().getHString(refOrdinal);
     }
 
+    public String getOrigin() {
+        return delegate().getOrigin(ordinal);
+    }
+
+    public boolean isOriginEqual(String testValue) {
+        return delegate().isOriginEqual(ordinal, testValue);
+    }
+
     public long getExpiresTimestamp() {
         return delegate().getExpiresTimestamp(ordinal);
     }

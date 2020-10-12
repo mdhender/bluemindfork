@@ -14,6 +14,10 @@ public interface TokenDelegate extends HollowObjectDelegate {
 
     public int getSubjectDomainOrdinal(int ordinal);
 
+    public String getOrigin(int ordinal);
+
+    public boolean isOriginEqual(int ordinal, String testValue);
+
     public long getExpiresTimestamp(int ordinal);
 
     public Long getExpiresTimestampBoxed(int ordinal);

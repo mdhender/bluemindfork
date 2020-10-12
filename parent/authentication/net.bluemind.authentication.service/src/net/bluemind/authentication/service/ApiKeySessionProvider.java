@@ -46,7 +46,7 @@ public class ApiKeySessionProvider implements ISessionsProvider {
 		return Optional.ofNullable(keyService.get(token)).map(apiKey -> {
 
 			logger.info("[{}@{}] Building context for api key}", apiKey.subject, apiKey.domainUid);
-			return coreAuth.buildContext(apiKey.sid, apiKey.domainUid, apiKey.subject);
+			return coreAuth.buildContext(apiKey.sid, "apikey-of-" + apiKey.subject, apiKey.domainUid, apiKey.subject);
 		});
 	}
 

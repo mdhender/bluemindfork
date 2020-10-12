@@ -79,8 +79,8 @@ public class TokensStore {
 		HollowConsumer.BlobRetriever blobRetriever = new HollowFilesystemBlobRetriever(localPublishDir.toPath());
 		if (!restoreIfAvailable(producer, blobRetriever,
 				new HollowFilesystemAnnouncementWatcher(localPublishDir.toPath()))) {
-			producer.runCycle(
-					state -> state.add(new Token(net.bluemind.config.Token.admin0(), "admin0", "global.virt")));
+			producer.runCycle(state -> state
+					.add(new Token(net.bluemind.config.Token.admin0(), "admin0", "global.virt", "core-tok")));
 		}
 
 		this.consumer = new HollowConsumer.Builder<>().withBlobRetriever(blobRetriever)
@@ -130,7 +130,8 @@ public class TokensStore {
 	public Token byKey(String key) {
 		net.bluemind.authentication.service.tokens.Token internalTok = keyIndex.findMatch(key);
 		if (internalTok != null) {
-			return new Token(key, internalTok.getSubjectUid().getValue(), internalTok.getSubjectDomain().getValue());
+			return new Token(key, internalTok.getSubjectUid().getValue(), internalTok.getSubjectDomain().getValue(),
+					internalTok.getOrigin());
 		}
 		return null;
 	}

@@ -33,12 +33,16 @@ public class Token {
 
 	public String subjectDomain;
 
+	@HollowInline
+	public String origin;
+
 	public long expiresTimestamp;
 
-	public Token(String key, String subject, String subjectDomain) {
+	public Token(String key, String subject, String subjectDomain, String origin) {
 		this.key = key;
 		this.subjectUid = subject;
 		this.subjectDomain = subjectDomain;
+		this.origin = origin;
 		expiresTimestamp = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7);
 	}
 
