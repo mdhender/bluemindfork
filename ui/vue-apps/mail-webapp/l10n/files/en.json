@@ -199,5 +199,6 @@
     "mail.toolbar.more.aria": "Others actions for selected messages",
     "mail.toolbar.more": "Others",
     "mail.toolbar.move.tooltip": "Move message",
-    "mail.viewer.no.subject": "(No subject)"
+    "mail.viewer.no.subject": "(No subject)",
+    "mail.viewer.no.preview": "(No preview available)"
 }

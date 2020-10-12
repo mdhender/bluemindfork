@@ -29,17 +29,17 @@
             <div class="d-flex flex-column flex-fill overflow-hidden">
                 <div
                     v-bm-tooltip.viewport
-                    :title="message.subject"
+                    :title="displayedSubject"
                     class="mail-message-list-item-subject text-secondary text-truncate"
                 >
-                    {{ message.subject || "&nbsp;" }}
+                    {{ displayedSubject }}
                 </div>
                 <div
                     v-bm-tooltip.viewport
-                    :title="message.preview"
+                    :title="displayedPreview"
                     class="mail-message-list-item-preview text-dark text-condensed text-truncate"
                 >
-                    {{ message.preview || "&nbsp;" }}
+                    {{ displayedPreview }}
                 </div>
             </div>
             <div v-show="!mouseIn" class="mail-message-list-item-date text-secondary align-self-end">
@@ -145,6 +145,22 @@ export default {
                 return this.message.to.map(to => (to.dn ? to.dn : to.address)).join(", ");
             } else {
                 return this.message.from.dn ? this.message.from.dn : this.message.from.address;
+            }
+        },
+        displayedSubject() {
+            const subject = this.message.subject;
+            if (!subject || subject.trim() === "") {
+                return this.$t("mail.viewer.no.subject");
+            } else {
+                return subject;
+            }
+        },
+        displayedPreview() {
+            const preview = this.message.preview;
+            if (!preview || preview.trim() === "") {
+                return this.$t("mail.viewer.no.preview");
+            } else {
+                return preview;
             }
         }
     },
