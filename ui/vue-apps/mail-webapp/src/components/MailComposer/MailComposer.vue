@@ -178,7 +178,8 @@ export default {
             userPrefIsMenuBarOpened: false, // TODO: initialize this with user setting
             userPrefTextOnly: false, // TODO: initialize this with user setting
             draggedFilesCount: -1,
-            isReplyOrForward: false
+            isReplyOrForward: false,
+            lockUpdateHtmlComposer: false
         };
     },
     computed: {
@@ -205,7 +206,10 @@ export default {
             immediate: true
         },
         "messageCompose.editorContent"() {
-            this.updateHtmlComposer();
+            if (!this.lockUpdateHtmlComposer) {
+                this.updateHtmlComposer();
+            }
+            this.lockUpdateHtmlComposer = false;
         }
     },
     created: function () {
@@ -295,6 +299,7 @@ export default {
             this.$refs["message-content"].updateContent();
         },
         async updateEditorContent(newContent) {
+            this.lockUpdateHtmlComposer = true;
             this.SET_DRAFT_EDITOR_CONTENT(newContent);
             this.saveDraft();
         },
