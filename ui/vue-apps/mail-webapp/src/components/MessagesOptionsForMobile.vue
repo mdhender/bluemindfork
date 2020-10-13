@@ -57,7 +57,6 @@ export default {
 </script>
 <style lang="scss">
 .messages-options-for-mobile {
-    z-index: 252;
     .dropdown-divider {
         margin: 0.05rem 0;
     }

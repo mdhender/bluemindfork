@@ -1,7 +1,7 @@
 <template>
     <div class="mail-search-form" role="search" @keyup.esc="showForm = false" @click.stop>
         <global-events @click="showForm = false" />
-        <div class="d-flex">
+        <div class="d-flex mail-search-form-quicksearch">
             <bm-form-input
                 v-model="pattern"
                 class="flex-fill no-border-right"
@@ -20,7 +20,6 @@
                 v-bm-tooltip
                 class="toggle-button no-border-left no-box-shadow text-truncate"
                 variant="outline-secondary"
-                :title="selectedFolder.path"
                 @click="showForm = !showForm"
             >
                 {{ compressFolderFullName(selectedFolder) }}<bm-icon class="ml-2" icon="caret-down" size="sm" />
@@ -30,12 +29,23 @@
             id="search-form"
             ref="searchForm"
             v-model="showForm"
-            class="search-form position-absolute bg-surface shadow-sm p-3"
+            class="search-form position-absolute bg-surface shadow-sm p-3 z-index-110"
         >
-            <bm-form @submit.prevent="search" @reset.prevent="setSelectedFolder(initialFolder)" @drag.stop>
+            <bm-form
+                class="d-flex flex-column h-100"
+                @submit.prevent="search"
+                @reset.prevent="setSelectedFolder(initialFolder)"
+                @drag.stop
+            >
+                <div class="d-lg-none">
+                    <bm-button variant="inline-dark" size="lg" @click="close">
+                        <bm-icon icon="arrow-back" size="lg" />
+                    </bm-button>
+                </div>
                 <bm-form-group
                     class="pr-0 mr-0"
-                    label-cols="3"
+                    label-cols-lg="3"
+                    label-cols="6"
                     label-for="folderCombo"
                     :label="$t('mail.search.options.folder.label')"
                 >
@@ -43,7 +53,7 @@
                         id="folderCombo"
                         v-slot="{ item }"
                         v-model="folderPattern"
-                        class="w-100 z-index-110"
+                        class="w-100"
                         :items="filteredFolders"
                         :max-results="maxFolders"
                         @selected="setSelectedFolder"
@@ -52,9 +62,11 @@
                         {{ item.path }}
                     </bm-combo-box>
                 </bm-form-group>
-                <div class="float-right">
+                <div class="d-flex flex-grow-1 align-items-end justify-content-end">
                     <bm-button type="submit" variant="primary">{{ $t("common.action.search") }}</bm-button>
-                    <bm-button type="reset" variant="inline-secondary">{{ $t("common.action.reset") }}</bm-button>
+                    <bm-button type="reset" variant="inline-secondary" class="ml-2">
+                        {{ $t("common.action.reset") }}
+                    </bm-button>
                 </div>
             </bm-form>
         </bm-collapse>
@@ -188,6 +200,9 @@ export default {
             this.$router.navigate({ name: "v:mail:home", params: { search: null } });
             this.setSelectedFolder(this.initialFolder);
         },
+        close() {
+            this.showForm = false;
+        },
         search() {
             this.showForm = false;
             if (this.pattern) {
@@ -285,6 +300,39 @@ export default {
         }
         .form-group > div {
             padding-right: 0px;
+        }
+    }
+
+    @media (max-width: map-get($grid-breakpoints, "lg")) {
+        .mail-search-form-quicksearch {
+            .form-control,
+            .form-control::placeholder,
+            .form-control:focus,
+            .toggle-button,
+            .toggle-button:focus,
+            .toggle-button:active,
+            .toggle-button::before,
+            .close,
+            .icon-wrapper {
+                color: $white !important;
+                background: transparent !important;
+                border-color: transparent !important;
+                border-bottom-color: $white !important;
+                opacity: 1;
+            }
+        }
+
+        .search-form {
+            position: fixed !important;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            width: auto;
+        }
+
+        .form-group {
+            padding: $sp-2 $sp-3;
         }
     }
 }
