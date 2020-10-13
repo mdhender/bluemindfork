@@ -203,6 +203,9 @@ export default {
                 }
             },
             immediate: true
+        },
+        "messageCompose.editorContent"() {
+            this.updateHtmlComposer();
         }
     },
     created: function () {
@@ -236,7 +239,6 @@ export default {
 
             this.SET_DRAFT_EDITOR_CONTENT(newContent);
 
-            await this.$nextTick();
             this.updateHtmlComposer();
         },
         async computeContent() {
@@ -280,16 +282,16 @@ export default {
             this.setCursorInEditor();
         },
         async setCursorInEditor() {
-            await this.$nextTick();
             if (this.userPrefTextOnly) {
                 this.$refs["message-content"].focus();
                 this.$refs["message-content"].setSelectionRange(0, 0);
             } else {
-                this.updateHtmlComposer();
+                await this.updateHtmlComposer();
                 this.$refs["message-content"].focus("start");
             }
         },
-        updateHtmlComposer() {
+        async updateHtmlComposer() {
+            await this.$nextTick();
             this.$refs["message-content"].updateContent();
         },
         async updateEditorContent(newContent) {
