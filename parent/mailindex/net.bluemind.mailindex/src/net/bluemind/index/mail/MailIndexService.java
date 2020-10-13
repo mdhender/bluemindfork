@@ -41,6 +41,7 @@ import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
@@ -881,7 +882,9 @@ public class MailIndexService implements IMailIndexService {
 
 	private BoolQueryBuilder addSearchQuery(BoolQueryBuilder bq, String query) {
 		if (!Strings.isNullOrEmpty(query)) {
-			return bq.must(JoinQueryBuilders.hasParentQuery(PARENT_TYPE, QueryBuilders.queryStringQuery(query), false));
+			return bq.must(JoinQueryBuilders.hasParentQuery(PARENT_TYPE,
+					QueryBuilders.queryStringQuery(query).defaultField("content").defaultOperator(Operator.AND),
+					false));
 		} else {
 			return bq;
 		}
