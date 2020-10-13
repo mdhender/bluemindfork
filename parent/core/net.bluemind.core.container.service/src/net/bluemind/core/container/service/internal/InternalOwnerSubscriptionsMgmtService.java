@@ -66,8 +66,10 @@ public class InternalOwnerSubscriptionsMgmtService implements IInternalOwnerSubs
 		}
 		DataSource ds = null;
 		logger.info("***** Owner subscriptions init for user {}: {} @: {}", entry.displayName, ownerUid, domainUid);
+		// Normally, the container is sharded, but due to unknown reasons, the container
+		// sometimes is present in
+		// the directory database
 		if (entry.dataLocation == null) {
-			logger.warn("Using directory datasource for {} subscriptions", entry);
 			ds = context.getDataSource();
 		} else {
 			ds = context.getMailboxDataSource(entry.dataLocation);

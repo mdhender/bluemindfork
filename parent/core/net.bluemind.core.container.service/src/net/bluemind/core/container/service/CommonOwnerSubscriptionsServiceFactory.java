@@ -46,9 +46,9 @@ public abstract class CommonOwnerSubscriptionsServiceFactory<T> {
 		String containerUid = IOwnerSubscriptionUids.getIdentifier(ownerUid, domainUid);
 
 		DataSource ds = DataSourceRouter.get(context, containerUid);
-		if (ds == context.getDataSource()) {
-			throw new ServerFault("Wrong datasource for container " + containerUid);
-		}
+		// Don't check for a sharded DB here. Normally, the container is sharded, but
+		// due to unknown reasons, the container
+		// sometimes is present in the directory database
 		ContainerStore containerStore = new ContainerStore(context, ds, context.getSecurityContext());
 
 		Container container = null;
