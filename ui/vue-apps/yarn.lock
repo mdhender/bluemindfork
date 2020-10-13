@@ -1069,9 +1069,9 @@
     axios "^0.18.0"
 
 "@bluemind/styleguide@^0.1.0":
-  version "0.1.1299"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1299.tgz#fa6626d9f59911eef8c24c9b59e7d2b9aada879e"
-  integrity sha512-WqfUCQlJnIvj4oMhcNzkHC+jAkElH503DIHWGq/yCy8ff1c4RJtBNN05jqRztyZhvcaRd+OmiuVgVJEmwja4kQ==
+  version "0.1.1302"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1302.tgz#ce1398569981e22b524d71f0fa7e73418ccfaded"
+  integrity sha512-DwMBZNx+yATg2hOpMjVaktVt67wK9M70w1Yncq7l7O94ijVpG5w0K5qo5bp/DH/rhMMnqrBkxnEenus68w4aHw==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"
@@ -1101,17 +1101,17 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@fortawesome/fontawesome-common-types@^0.2.31":
-  version "0.2.31"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.2.31.tgz#f15a39e5ab4e5dfda0717733bcacb9580e666ad9"
-  integrity sha512-xfnPyH6NN5r/h1/qDYoGB0BlHSID902UkQzxR8QsoKDh55KAPr8ruAoie12WQEEQT8lRE2wtV7LoUllJ1HqCag==
+"@fortawesome/fontawesome-common-types@^0.2.32":
+  version "0.2.32"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.2.32.tgz#3436795d5684f22742989bfa08f46f50f516f259"
+  integrity sha512-ux2EDjKMpcdHBVLi/eWZynnPxs0BtFVXJkgHIxXRl+9ZFaHPvYamAfCzeeQFqHRjuJtX90wVnMRaMQAAlctz3w==
 
 "@fortawesome/fontawesome-svg-core@^1.2.12":
-  version "1.2.31"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-1.2.31.tgz#23fff9c521f1b57e79e4c2fd6cce8aa794e9d99e"
-  integrity sha512-lqUWRK+ylHQJG5Kiez4XrAZAfc7snxCc+X59quL3xPfMnxzfyf1lt+/hD7X1ZL4KlzAH2KFzMuEVrolo/rAkog==
+  version "1.2.32"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-1.2.32.tgz#da092bfc7266aa274be8604de610d7115f9ba6cf"
+  integrity sha512-XjqyeLCsR/c/usUpdWcOdVtWFVjPbDFBTQkn2fQRrWhhUoxriQohO2RWDxLyUM8XpD+Zzg5xwJ8gqTYGDLeGaQ==
   dependencies:
-    "@fortawesome/fontawesome-common-types" "^0.2.31"
+    "@fortawesome/fontawesome-common-types" "^0.2.32"
 
 "@fortawesome/vue-fontawesome@^0.1.4":
   version "0.1.10"
