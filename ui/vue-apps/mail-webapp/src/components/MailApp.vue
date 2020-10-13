@@ -1,5 +1,6 @@
 <template>
     <main class="flex-fill d-lg-flex flex-column mail-app">
+        <global-events @click="showFolders = false" />
         <section
             :aria-label="$t('mail.application.region.mailtools')"
             class="row align-items-center shadow-sm bg-surface topbar z-index-250"
@@ -11,7 +12,7 @@
                 class="d-lg-flex justify-content-start pl-lg-4"
                 :class="hideListInResponsiveMode || composerOrMessageIsDisplayed ? 'd-none' : ''"
             >
-                <bm-button variant="inline-light" class="d-inline-block d-lg-none w-100" @click="toggleFolders">
+                <bm-button variant="inline-light" class="d-inline-block d-lg-none w-100" @click.stop="toggleFolders">
                     <bm-icon icon="burger-menu" size="2x" />
                 </bm-button>
                 <bm-button variant="primary" class="text-nowrap d-lg-inline-block d-none" @click="composeNewMessage">
@@ -82,7 +83,7 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-
+import GlobalEvents from "vue-global-events";
 import {
     BmFormCheckbox,
     BmLabelIcon,
@@ -114,6 +115,7 @@ export default {
         BmLabelIcon,
         BmIcon,
         BmRow,
+        GlobalEvents,
         MailFolderSidebar,
         MailMessageList,
         MailSearchForm,
