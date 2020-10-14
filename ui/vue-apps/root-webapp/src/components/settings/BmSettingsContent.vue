@@ -120,7 +120,7 @@ import BmAppIcon from "../BmAppIcon";
 import { mapState } from "vuex";
 
 export default {
-    name: "BmSettings",
+    name: "BmSettingsContent",
     components: {
         BmButton,
         BmButtonClose,
@@ -186,7 +186,6 @@ export default {
         },
         initUserSettings() {
             this.localUserSettings = { ...this.userSettings };
-            this.localUserSettings.signature_auto = this.localUserSettings.signature_auto || "always";
         }
     }
 };

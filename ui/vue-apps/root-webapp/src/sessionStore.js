@@ -1,4 +1,4 @@
-import injector from "@bluemind/inject";
+import { inject } from "@bluemind/inject";
 
 const state = {
     userSettings: {}
@@ -6,18 +6,18 @@ const state = {
 
 const actions = {
     async FETCH_ALL_SETTINGS({ commit }) {
-        const userSession = injector.getProvider("UserSession").get();
-        let settings = await injector.getProvider("UserSettingsPersistence").get().get(userSession.userId);
+        const userSession = inject("UserSession");
+        let settings = await inject("UserSettingsPersistence").get(userSession.userId);
 
         // set default settings if needed
-        settings = { mail_message_list_style: "normal", mail_thread: "false", ...settings };
+        settings = { insert_signature: "true", mail_message_list_style: "normal", mail_thread: "false", ...settings };
 
         commit("SET_USER_SETTINGS", settings);
     },
 
     async UPDATE_ALL_SETTINGS({ commit }, userSettings) {
-        const userSession = injector.getProvider("UserSession").get();
-        await injector.getProvider("UserSettingsPersistence").get().set(userSession.userId, userSettings);
+        const userSession = inject("UserSession");
+        await inject("UserSettingsPersistence").set(userSession.userId, userSettings);
         commit("SET_USER_SETTINGS", userSettings);
     }
 };

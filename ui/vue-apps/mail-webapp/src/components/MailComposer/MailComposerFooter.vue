@@ -164,12 +164,12 @@ export default {
         const identities = await inject("IUserMailIdentities").getIdentities();
         const defaultIdentity = identities.find(identity => identity.isDefault);
         this.signature = defaultIdentity && defaultIdentity.signature;
-        if (this.signature && this.settings.insert_signature) {
+        if (this.signature && this.settings.insert_signature === "true") {
             this.addSignature();
         }
     },
     mounted() {
-        if (this.signature && this.settings.insert_signature) {
+        if (this.signature && this.settings.insert_signature === "true") {
             this.addSignature();
         }
     },
