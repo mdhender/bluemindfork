@@ -1,6 +1,6 @@
 import { EmailExtractor, Flag, MimeType } from "@bluemind/email";
 
-import MessagePathParam from "../router/MessagePathParam";
+import MessagePathParam from "~/router/MessagePathParam";
 import { AttachmentStatus } from "./attachment";
 import { LoadingStatus } from "./loading-status";
 import {
@@ -47,7 +47,7 @@ export function createEmpty(myDraftsFolder, userSession) {
         dn: userSession.formatedName
     };
     message.flags = [Flag.SEEN];
-    message.status = MessageStatus.IDLE;
+    message.status = MessageStatus.NEW;
     message.loading = LoadingStatus.LOADED;
     message.composing = true;
     message.remoteRef.imapUid = "1"; // faked imapUid because updateById needs it
@@ -81,18 +81,46 @@ export function createReplyOrForward(previousMessage, myDraftsFolder, userSessio
     }
 
     message.subject = computeSubject(creationMode, previousMessage);
+
+    handleIdentificationFields(message, previousMessage);
+
+    return message;
+}
+
+/**
+ * Handle identification fields, as described in RFC-5322.
+ * @see https://tools.ietf.org/html/rfc5322#section-3.6.4
+ */
+function handleIdentificationFields(message, previousMessage) {
+    const references =
+        extractHeaderValues(previousMessage, MessageHeader.REFERENCES) ||
+        extractHeaderValues(previousMessage, MessageHeader.IN_REPLY_TO) ||
+        [];
+
     if (previousMessage.messageId) {
         const inReplyToHeader = {
             name: MessageHeader.IN_REPLY_TO,
             values: [previousMessage.messageId]
         };
         message.headers.push(inReplyToHeader);
-        message.references = [previousMessage.messageId].concat(previousMessage.references);
-    } else {
-        message.references = previousMessage.references;
+        references.push(previousMessage.messageId);
     }
 
-    return message;
+    if (references.length) {
+        const referencesHeader = {
+            name: MessageHeader.REFERENCES,
+            values: [references.join(" ")]
+        };
+        message.headers.push(referencesHeader);
+    }
+}
+
+/** Extract multi-valued / whitespace separated values from given header. */
+function extractHeaderValues(message, headerName) {
+    const header = message.headers.find(h => h.name.toUpperCase() === headerName.toUpperCase());
+    return header && header.values && header.values.length
+        ? header.values.reduce((a, b) => (a.length ? a + " " + b : b), "").split(/\s+/)
+        : undefined;
 }
 
 // INTERNAL METHOD (exported only for testing purpose)
@@ -170,12 +198,12 @@ export function computeSubject(creationMode, previousMessage) {
     return previousMessage.subject;
 }
 
-export function getEditorContent(userPrefTextOnly, parts, partsDataByAddress, userLang) {
+export function getEditorContent(userPrefTextOnly, parts, partsData, userLang) {
     let content;
     if (userPrefTextOnly) {
-        content = mergePartsForTextarea(parts, partsDataByAddress);
+        content = mergePartsForTextarea(parts, partsData);
     } else {
-        content = mergePartsForRichEditor(parts, partsDataByAddress, userLang);
+        content = mergePartsForRichEditor(parts, partsData, userLang);
     }
     return content;
 }
@@ -290,4 +318,11 @@ function buildSeparatorForForward(message, lineBreakSeparator, vueI18n) {
 /** @return like "John Doe <jdoe@bluemind.net>" */
 function nameAndAddress(recipient) {
     return recipient.dn ? recipient.dn + " <" + recipient.address + ">" : recipient.address;
+}
+
+export function draftInfoHeader(message) {
+    const draftInfoHeader = message.headers.find(h => h.name === MessageHeader.X_BM_DRAFT_INFO);
+    if (draftInfoHeader) {
+        return JSON.parse(draftInfoHeader.values[0]);
+    }
 }

@@ -1,6 +1,6 @@
 import { inject } from "@bluemind/inject";
 
-import { LOAD_MAX_MESSAGE_SIZE } from "~actions";
+import { LOAD_MAX_MESSAGE_SIZE } from "~/actions";
 import {
     RESET_ATTACHMENTS_FORWARDED,
     SET_ATTACHMENTS_FORWARDED,
@@ -8,7 +8,7 @@ import {
     SET_DRAFT_EDITOR_CONTENT,
     SET_MAX_MESSAGE_SIZE,
     SET_SAVED_INLINE_IMAGES
-} from "~mutations";
+} from "~/mutations";
 
 export default {
     mutations: {

@@ -22,10 +22,10 @@ import { BmChoiceGroup } from "@bluemind/styleguide";
 import PartsViewer from "./PartsViewer/PartsViewer";
 import ReplyToCounterProposal from "./ReplyToCounterProposal";
 import ReplyToInvitation from "./ReplyToInvitation";
-import { FETCH_EVENT } from "~actions";
-import { CURRENT_MAILBOX } from "~getters";
+import { FETCH_EVENT } from "~/actions";
+import { CURRENT_MAILBOX } from "~/getters";
 import EventViewerInvitation from "./EventViewerInvitation";
-import { LoadingStatus } from "../../model/loading-status";
+import { LoadingStatus } from "~/model/loading-status";
 
 export default {
     name: "EventViewer",
@@ -58,7 +58,7 @@ export default {
         eventNotFoundAlert() {
             return {
                 alert: { name: "mail.EVENT_NOT_FOUND", uid: "EVENT_NOT_FOUND" },
-                options: { area: "mail-thread", renderer: "DefaultAlert" }
+                options: { area: "mail-message", renderer: "DefaultAlert" }
             };
         },
         videoConferenceAlert() {
@@ -69,7 +69,7 @@ export default {
                     payload: this.currentEvent.conference
                 },
                 options: {
-                    area: "mail-thread",
+                    area: "mail-message",
                     renderer: "VideoConferencing",
                     icon: "video-circle",
                     dismissible: false

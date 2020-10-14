@@ -3,16 +3,19 @@ import cloneDeep from "lodash.clonedeep";
 import pick from "lodash.pick";
 
 import { LoadingStatus } from "./loading-status";
+import { Flag } from "@bluemind/email";
 
-export function createOnlyMetadata({ internalId, folder: { key, uid } }) {
+export function createOnlyMetadata({ internalId, folder: { key, uid }, conversationRef }) {
     return {
         key: internalId >= 0 && key ? messageKey(internalId, key) : null,
         folderRef: { key, uid },
         remoteRef: { internalId },
+        conversationRef: conversationRef,
         status: MessageStatus.IDLE,
         loading: LoadingStatus.NOT_LOADED
     };
 }
+
 export function messageKey(id, folderKey) {
     const string = folderKey + "/" + id;
     let hash = 0;
@@ -51,7 +54,7 @@ export function create() {
 
         // used only by reply / forward
         messageId: "",
-        references: [],
+        conversationId: undefined,
 
         // parts
         hasAttachment: false,
@@ -76,6 +79,7 @@ export function partialCopy(message, properties = []) {
 
 export const MessageStatus = {
     IDLE: "IDLE",
+    NEW: "NEW",
     SAVING: "SAVING",
     SAVE_ERROR: "SAVE_ERROR",
     SENDING: "SENDING",
@@ -92,8 +96,10 @@ export const MessageCreationModes = {
 export const MessageHeader = {
     MAIL_FOLLOWUP_TO: "Mail-Followup-To",
     MAIL_REPLY_TO: "Mail-Reply-To",
+    MESSAGE_ID: "Message-ID",
     REPLY_TO: "Reply-To",
     IN_REPLY_TO: "In-Reply-To",
+    REFERENCES: "References",
 
     X_BM_DRAFT_INFO: "X-Bm-Draft-Info",
     X_BM_DRAFT_REFRESH_DATE: "X-Bm-Draft-Refresh-Date",
@@ -115,4 +121,12 @@ export function equal(a, b) {
                 a.remoteRef.internalId === b.remoteRef?.internalId &&
                 a.folderRef.key === b.folderRef?.key))
     );
+}
+
+export function isUnread(message) {
+    return message.loading === LoadingStatus.LOADED && !message.flags.includes(Flag.SEEN);
+}
+
+export function isFlagged(message) {
+    return message.loading === LoadingStatus.LOADED && message.flags.includes(Flag.FLAGGED);
 }

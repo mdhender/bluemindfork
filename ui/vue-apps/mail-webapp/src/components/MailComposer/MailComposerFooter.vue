@@ -43,6 +43,7 @@
                 multiple
                 hidden
                 @change="addAttachments($event.target.files)"
+                @click.stop
             />
             <bm-button
                 variant="simple-dark"
@@ -66,12 +67,11 @@
 </template>
 
 <script>
-import { DateComparator } from "@bluemind/date";
 import { BmButton, BmIcon, BmDropdown, BmDropdownItemToggle } from "@bluemind/styleguide";
 
-import { ComposerActionsMixin } from "~mixins";
-import { MessageStatus } from "~model/message";
-import { isNewMessage } from "~model/draft";
+import { ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
+import { MessageStatus } from "~/model/message";
+import { isNewMessage } from "~/model/draft";
 
 export default {
     name: "MailComposerFooter",
@@ -81,7 +81,7 @@ export default {
         BmDropdownItemToggle,
         BmIcon
     },
-    mixins: [ComposerActionsMixin],
+    mixins: [ComposerActionsMixin, FormattedDateMixin],
     props: {
         userPrefIsMenuBarOpened: {
             type: Boolean,
@@ -125,11 +125,10 @@ export default {
             }
         },
         formattedDraftSaveDate() {
-            const saveDate = this.message.date;
-            if (DateComparator.isToday(saveDate)) {
-                return this.$t("mail.draft.save.date.time", { time: this.$d(saveDate, "short_time") });
-            }
-            return this.$t("mail.draft.save.date", { date: this.$d(saveDate, "short_date") });
+            const formatted = this.formatDraftSaveDate(this.message);
+            return formatted.time
+                ? this.$t("mail.draft.save.date.time", formatted)
+                : this.$t("mail.draft.save.date", formatted);
         },
         textFormatterLabel() {
             return this.userPrefIsMenuBarOpened

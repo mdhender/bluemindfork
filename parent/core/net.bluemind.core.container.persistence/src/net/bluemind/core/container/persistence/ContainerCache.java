@@ -28,45 +28,68 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 
 public final class ContainerCache {
+
 	public static class Registration implements ICacheRegistration {
+		private static final long duration = 10;
+		private static final TimeUnit unit = TimeUnit.MINUTES;
+
 		@Override
 		public void registerCaches(CacheRegistry cr) {
-			cr.register(ContainerCache.class,
-					Caffeine.newBuilder().recordStats().expireAfterAccess(10, TimeUnit.MINUTES).build());
+			cr.register("ContainerUidCache",
+					Caffeine.newBuilder().recordStats().expireAfterAccess(duration, unit).build());
+			cr.register("ContainerIdCache",
+					Caffeine.newBuilder().recordStats().expireAfterAccess(duration, unit).build());
 		}
 	}
 
-	private Cache<String, Container> cache;
+	private Cache<String, Container> uidCache;
+	private Cache<Long, Container> idCache;
 
-	public ContainerCache(Cache<String, Container> cache) {
-		this.cache = cache;
+	public ContainerCache(Cache<String, Container> uidCache, Cache<Long, Container> idCache) {
+		this.uidCache = uidCache;
+		this.idCache = idCache;
 	}
 
 	public static ContainerCache get(BmContext context) {
 		if (context == null || context.provider().instance(CacheRegistry.class) == null) {
-			return new ContainerCache(null);
+			return new ContainerCache(null, null);
 		} else {
-			return new ContainerCache(context.provider().instance(CacheRegistry.class).get(ContainerCache.class));
+			CacheRegistry instance = context.provider().instance(CacheRegistry.class);
+			return new ContainerCache(instance.get("ContainerUidCache"), instance.get("ContainerIdCache"));
 		}
 	}
 
 	public Container getIfPresent(String uid) {
-		if (cache != null) {
-			return cache.getIfPresent(uid);
+		if (uidCache != null) {
+			return uidCache.getIfPresent(uid);
 		} else {
 			return null;
 		}
 	}
 
-	public void put(String uid, Container c) {
-		if (cache != null) {
-			cache.put(uid, c);
+	public Container getIfPresent(long id) {
+		if (idCache != null) {
+			return idCache.getIfPresent(id);
+		} else {
+			return null;
 		}
 	}
 
-	public void invalidate(String uid) {
-		if (cache != null) {
-			cache.invalidate(uid);
+	public void put(String uid, long id, Container c) {
+		if (uidCache != null) {
+			uidCache.put(uid, c);
+		}
+		if (idCache != null) {
+			idCache.put(id, c);
+		}
+	}
+
+	public void invalidate(String uid, long id) {
+		if (uidCache != null) {
+			uidCache.invalidate(uid);
+		}
+		if (idCache != null) {
+			idCache.invalidate(id);
 		}
 	}
 

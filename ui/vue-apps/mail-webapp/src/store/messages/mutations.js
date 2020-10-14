@@ -23,10 +23,9 @@ import {
     SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES,
     SET_MESSAGE_IMAP_UID,
     SET_MESSAGE_PREVIEW,
-    SET_MESSAGE_LIST,
     SET_MESSAGE_SUBJECT,
     SET_MESSAGE_TO
-} from "~mutations";
+} from "~/mutations";
 
 export default {
     [ADD_MESSAGES]: (state, messages) => {
@@ -38,7 +37,11 @@ export default {
     [DELETE_FLAG]: (state, { messages, flag }) => {
         messages.forEach(({ key }) => (state[key].flags = state[key].flags.filter(f => f !== flag)));
     },
-    [REMOVE_MESSAGES]: removeMessages,
+    [REMOVE_MESSAGES]: (state, { messages }) => {
+        messages.forEach(({ key }) => {
+            Vue.delete(state, key);
+        });
+    },
     [MOVE_MESSAGES]: (state, { messages }) => messages.forEach(m => (state[m.key].folderRef = m.folderRef)),
     [SET_MESSAGE_PREVIEW]: (state, { key, preview }) => {
         state[key].preview = preview;
@@ -49,11 +52,10 @@ export default {
     [SET_MESSAGES_LOADING_STATUS]: (state, messages) => {
         messages.forEach(m => (state[m.key].loading = m.loading));
     },
-    [SET_MESSAGE_LIST]: (state, messages) => {
-        messages.filter(message => !state[message.key]).forEach(message => Vue.set(state, message.key, message));
-    },
     [SET_MESSAGE_COMPOSING]: (state, { messageKey, composing }) => {
-        state[messageKey].composing = composing;
+        if (state[messageKey]) {
+            state[messageKey].composing = composing;
+        }
     },
     [SET_MESSAGE_SUBJECT]: (state, { messageKey, subject }) => {
         state[messageKey].subject = subject;
@@ -113,8 +115,3 @@ export default {
         attachment.progress = { loaded, total };
     }
 };
-function removeMessages(state, messages) {
-    messages.forEach(({ key }) => {
-        Vue.delete(state, key);
-    });
-}

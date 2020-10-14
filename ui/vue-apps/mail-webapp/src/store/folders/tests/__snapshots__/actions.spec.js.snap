@@ -3,6 +3,7 @@
 exports[`actions CREATE_FOLDER Create folder 1`] = `
 Object {
   "bar-baz": Object {
+    "allowConversations": true,
     "allowSubfolder": false,
     "default": false,
     "expanded": false,
@@ -28,6 +29,7 @@ Object {
 exports[`actions FETCH_FOLDERS Fetch folders 1`] = `
 Object {
   "050ca560-37ae-458a-bd52-c40fedf4068d": Object {
+    "allowConversations": true,
     "allowSubfolder": false,
     "default": false,
     "expanded": false,
@@ -48,6 +50,7 @@ Object {
     "writable": undefined,
   },
   "135adc10-db84-440e-aebc-e10d185fa227": Object {
+    "allowConversations": true,
     "allowSubfolder": false,
     "default": false,
     "expanded": false,
@@ -68,6 +71,7 @@ Object {
     "writable": undefined,
   },
   "65b51768-8544-4bb3-9950-c6f4fc32a52e": Object {
+    "allowConversations": true,
     "allowSubfolder": false,
     "default": false,
     "expanded": false,
@@ -88,6 +92,7 @@ Object {
     "writable": undefined,
   },
   "67201a3a-91cb-4198-a153-85a8174be9e6": Object {
+    "allowConversations": false,
     "allowSubfolder": false,
     "default": true,
     "expanded": false,
@@ -108,6 +113,7 @@ Object {
     "writable": undefined,
   },
   "7998fa63-3854-4ecb-8558-9596065c0128": Object {
+    "allowConversations": false,
     "allowSubfolder": false,
     "default": true,
     "expanded": false,
@@ -128,6 +134,7 @@ Object {
     "writable": undefined,
   },
   "98a9383e-5156-44eb-936a-e6b0825b0809": Object {
+    "allowConversations": false,
     "allowSubfolder": false,
     "default": true,
     "expanded": false,
@@ -148,6 +155,7 @@ Object {
     "writable": undefined,
   },
   "eb4cc101-60bf-48ac-91ce-7698bd29ba73": Object {
+    "allowConversations": false,
     "allowSubfolder": false,
     "default": true,
     "expanded": false,
@@ -168,6 +176,7 @@ Object {
     "writable": undefined,
   },
   "f1c3f42f-551b-446d-9682-cfe0574b3205": Object {
+    "allowConversations": true,
     "allowSubfolder": false,
     "default": true,
     "expanded": false,
@@ -188,6 +197,7 @@ Object {
     "writable": undefined,
   },
   "fd965e68-c276-4db0-a298-01a92d3c9822": Object {
+    "allowConversations": false,
     "allowSubfolder": false,
     "default": true,
     "expanded": false,

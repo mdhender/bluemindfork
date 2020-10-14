@@ -1,10 +1,11 @@
 import { html2text, sanitizeHtml } from "@bluemind/html-utils";
 import { InlineImageHelper, PartsBuilder } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
+import random from "lodash.random";
 
-import { isNewMessage } from "~model/draft";
-import { AttachmentStatus } from "~model/attachment";
-import { MessageHeader, MessageStatus } from "~model/message";
+import { isNewMessage } from "~/model/draft";
+import { AttachmentStatus } from "~/model/attachment";
+import { MessageHeader, MessageStatus } from "~/model/message";
 import {
     RESET_ATTACHMENTS_FORWARDED,
     SET_MESSAGE_DATE,
@@ -17,14 +18,15 @@ import {
     SET_ATTACHMENT_ADDRESS,
     SET_ATTACHMENT_STATUS,
     SET_MESSAGE_PREVIEW
-} from "~mutations";
+} from "~/mutations";
 import MessageAdaptor from "../helpers/MessageAdaptor";
+import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 
 export function isReadyToBeSaved(draft, messageCompose) {
     const checkAttachments =
         draft.attachments.every(a => a.status === AttachmentStatus.UPLOADED) ||
         (isNewMessage(draft) && messageCompose.forwardedAttachments.length > 0); // due to attachments forward cases
-    return draft.status === MessageStatus.IDLE && checkAttachments;
+    return (draft.status === MessageStatus.IDLE || draft.status === MessageStatus.NEW) && checkAttachments;
 }
 
 export async function save(context, draft, messageCompose) {
@@ -77,18 +79,40 @@ async function createEmlOnServer(context, draft, service, structure) {
     context.commit(SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES, { key: draft.key, inlinePartsByCapabilities });
 
     const { saveDate, headers } = forceMailRewriteOnServer(draft);
+
+    if (!headers.find(h => h.name.toUpperCase() === MessageHeader.MESSAGE_ID.toUpperCase())) {
+        headers.push(generateMessageIDHeader(draft));
+    }
+
     context.commit(SET_MESSAGE_HEADERS, { messageKey: draft.key, headers });
     context.commit(SET_MESSAGE_DATE, { messageKey: draft.key, date: saveDate });
 
     const remoteMessage = MessageAdaptor.toMailboxItem(draft, structure);
-    if (isNewMessage(draft)) {
-        const { imapUid, id: internalId } = await service.create(remoteMessage);
-        context.commit(SET_MESSAGE_INTERNAL_ID, { key: draft.key, internalId });
-        context.commit(SET_MESSAGE_IMAP_UID, { key: draft.key, imapUid });
-    } else {
-        const { imapUid } = await service.updateById(draft.remoteRef.internalId, remoteMessage);
-        context.commit(SET_MESSAGE_IMAP_UID, { key: draft.key, imapUid });
-    }
+    const { imapUid, id: internalId } = isNewMessage(draft)
+        ? await service.create(remoteMessage)
+        : {
+              ...(await service.updateById(draft.remoteRef.internalId, remoteMessage)),
+              id: draft.remoteRef.internalId
+          };
+    context.commit(SET_MESSAGE_INTERNAL_ID, { key: draft.key, internalId });
+    context.commit(SET_MESSAGE_IMAP_UID, { key: draft.key, imapUid });
+    const mailItem = await inject("MailboxItemsPersistence", draft.folderRef.uid).getCompleteById(internalId);
+    const adapted = MessageAdaptor.fromMailboxItem(mailItem, FolderAdaptor.toRef(draft.folderRef.uid));
+    context.commit(SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES, {
+        key: draft.key,
+        inlinePartsByCapabilities: adapted.inlinePartsByCapabilities
+    });
+}
+
+function generateMessageIDHeader(draft) {
+    const encodedDate = new Date().getTime().toString(36);
+    const encodedRandomNumber = random(Math.pow(2, 64) - 1).toString(36);
+    const domain = draft.from.address.substring(draft.from.address.indexOf("@") + 1);
+    const value = "<" + encodedDate + "." + encodedRandomNumber + "@" + domain + ">";
+    return {
+        name: MessageHeader.MESSAGE_ID,
+        values: [value]
+    };
 }
 
 // when attachments are forwarded, we have to upload them at first save

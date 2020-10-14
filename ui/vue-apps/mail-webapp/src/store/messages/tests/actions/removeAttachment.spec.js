@@ -2,10 +2,10 @@ import ServiceLocator from "@bluemind/inject";
 import { MockMailboxItemsClient } from "@bluemind/test-utils";
 
 import removeAttachment from "../../actions/removeAttachment";
-import { AttachmentStatus } from "~model/attachment";
-import { MY_DRAFTS } from "~getters";
-import { REMOVE_ATTACHMENT } from "~mutations";
-import { DEBOUNCED_SAVE_MESSAGE } from "~actions";
+import { AttachmentStatus } from "~/model/attachment";
+import { MY_DRAFTS } from "~/getters";
+import { REMOVE_ATTACHMENT } from "~/mutations";
+import { DEBOUNCED_SAVE_MESSAGE } from "~/actions";
 
 describe("removeAttachment action", () => {
     let mockedClient, context;

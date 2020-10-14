@@ -22,6 +22,8 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import net.bluemind.backend.mail.replica.api.MailboxRecordAnnotation;
+
 public class MboxRecord {
 
 	// mutable part...
@@ -33,6 +35,7 @@ public class MboxRecord {
 	private long lastUpdated;
 	private long internalDate;
 	private String bodyGuid;
+	private List<MailboxRecordAnnotation> annotations = Collections.emptyList();
 
 	public static class MessageRecordBuilder {
 
@@ -43,6 +46,7 @@ public class MboxRecord {
 		private long lastUpdated;
 		private long internalDate;
 		private String bodyGuid;
+		private List<MailboxRecordAnnotation> annotations = Collections.emptyList();
 
 		private MessageRecordBuilder() {
 			this.flags = Collections.emptyList();
@@ -83,8 +87,13 @@ public class MboxRecord {
 			return this;
 		}
 
+		public MessageRecordBuilder annotations(List<MailboxRecordAnnotation> annotations) {
+			this.annotations = annotations;
+			return this;
+		}
+
 		public MboxRecord build() {
-			return new MboxRecord(bodyGuid, uid, modseq, lastUpdated, internalDate, flags, size);
+			return new MboxRecord(bodyGuid, uid, modseq, lastUpdated, internalDate, flags, size, annotations);
 		}
 
 	}
@@ -94,7 +103,7 @@ public class MboxRecord {
 	}
 
 	private MboxRecord(String bodyGuid, long uid, long modseq, long lastUpdated, long internalDate, List<String> flags,
-			long size) {
+			long size, List<MailboxRecordAnnotation> annotations) {
 		this.bodyGuid = bodyGuid;
 		this.uid = uid;
 		this.modseq = modseq;
@@ -102,6 +111,7 @@ public class MboxRecord {
 		this.internalDate = internalDate;
 		this.flags = flags;
 		this.size = size;
+		this.annotations = annotations;
 	}
 
 	public String bodyGuid() {
@@ -140,6 +150,10 @@ public class MboxRecord {
 		return size;
 	}
 
+	public List<MailboxRecordAnnotation> annotations() {
+		return annotations;
+	}
+
 	public String toParentObjectString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("%(");
@@ -154,6 +168,15 @@ public class MboxRecord {
 			sb.append(" SIZE ").append(666);
 		}
 		sb.append(" GUID ").append(bodyGuid());
+		if(!annotations.isEmpty()) {
+			sb.append(" ANNOTATIONS (");
+			boolean first = true;
+			for (MailboxRecordAnnotation mra : annotations) {
+				sb.append(first ? "" : " ").append(mra.toParenObjectString());
+				first = false;
+			}
+			sb.append(")");
+		}
 		sb.append(")");
 		return sb.toString();
 	}

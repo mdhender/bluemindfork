@@ -10,7 +10,7 @@ import {
     REMOVE_MESSAGES,
     SET_FOLDER_EXPANDED,
     SET_UNREAD_COUNT
-} from "~mutations";
+} from "~/mutations";
 import { Flag } from "@bluemind/email";
 
 describe("folder mutations", () => {

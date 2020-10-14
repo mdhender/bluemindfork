@@ -1,14 +1,10 @@
-import { MimeType } from "@bluemind/email";
-import { inject } from "@bluemind/inject";
-
-import { FETCH_ACTIVE_MESSAGE_INLINE_PARTS } from "~actions";
 import {
     RESET_ACTIVE_MESSAGE,
     SET_ACTIVE_MESSAGE,
     SET_ACTIVE_MESSAGE_PART_DATA,
-    UNSELECT_ALL_MESSAGES,
-    UNSELECT_MESSAGE
-} from "~mutations";
+    UNSELECT_ALL_CONVERSATIONS,
+    UNSELECT_CONVERSATION
+} from "~/mutations";
 
 export default {
     mutations: {
@@ -23,60 +19,19 @@ export default {
             state.key = null;
             state.partsDataByAddress = {};
         },
-        [UNSELECT_MESSAGE]: (state, messageKey) => {
+        [UNSELECT_CONVERSATION]: (state, messageKey) => {
             if (state.key === messageKey) {
                 state.key = null;
                 state.partsDataByAddress = {};
             }
         },
-        [UNSELECT_ALL_MESSAGES]: state => {
+        [UNSELECT_ALL_CONVERSATIONS]: state => {
             state.key = null;
             state.partsDataByAddress = {};
         }
     },
 
-    actions: {
-        async [FETCH_ACTIVE_MESSAGE_INLINE_PARTS]({ commit, state }, { folderUid, imapUid, inlines }) {
-            const service = inject("MailboxItemsPersistence", folderUid);
-            const notLoaded = inlines.filter(
-                part => !Object.prototype.hasOwnProperty.call(state.partsDataByAddress, part.address)
-            );
-
-            return Promise.all(
-                notLoaded.map(async part => {
-                    const blob = await service.fetch(imapUid, part.address, part.encoding, part.mime, part.charset);
-                    let converted =
-                        MimeType.isHtml(part) || MimeType.isText(part)
-                            ? await convertAsText(blob, part)
-                            : await convertToBase64(blob);
-                    commit(SET_ACTIVE_MESSAGE_PART_DATA, { data: converted, address: part.address });
-                })
-            );
-        }
-    },
-
     state: {
-        partsDataByAddress: {},
         key: null
     }
 };
-
-function convertAsText(blob, part) {
-    return new Promise(resolve => {
-        const reader = new FileReader();
-        reader.readAsText(blob, part.charset);
-        reader.addEventListener("loadend", e => {
-            resolve(e.target.result);
-        });
-    });
-}
-
-function convertToBase64(blob) {
-    const reader = new FileReader();
-    reader.readAsDataURL(blob);
-    return new Promise(resolve => {
-        reader.onloadend = () => {
-            resolve(reader.result);
-        };
-    });
-}

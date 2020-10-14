@@ -298,7 +298,10 @@ describe("sync", () => {
         fetchMock.mock("api/mail_items/1/_multipleById", []);
         const db = await (await Session.db()).dbPromise;
         fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=0", {
-            created: [], updated: [], deleted: [], version: 1
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 1
         });
 
         let updated = await syncMailFolder(1);
@@ -316,7 +319,10 @@ describe("sync", () => {
         `);
 
         fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=1", {
-            created: [], updated: [], deleted: [], version: 2
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 2
         });
         updated = await syncMailFolder(1);
         expect(updated).toBeTruthy();
@@ -338,10 +344,16 @@ describe("sync", () => {
         fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
         fetchMock.mock("api/mail_items/1/_multipleById", []);
         fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=0", {
-            created: [], updated: [], deleted: [], version: 1
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 1
         });
         fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=1", {
-            created: [], updated: [], deleted: [], version: 2
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 2
         });
 
         let updated = await syncMailFolder(1);
@@ -362,7 +374,10 @@ describe("sync", () => {
             { delay: 100 }
         );
         fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=1", {
-            created: [], updated: [], deleted: [], version: 2
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 2
         });
         syncMailFolder(1);
         let updated = await syncMailFolder(1);
@@ -387,7 +402,10 @@ describe("sync", () => {
         fetchMock.mock("api/mail_items/1/_multipleById", []);
         const db = await (await Session.db()).dbPromise;
         fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=0", {
-            created: [], updated: [], deleted: [], version: 1
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 1
         });
 
         let updated = await syncMailFolder("1");
@@ -405,7 +423,10 @@ describe("sync", () => {
         `);
 
         fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=1", {
-            created: [], updated: [], deleted: [], version: 1
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 1
         });
         updated = await syncMailFolder("1");
         expect(updated).toBeFalsy();
@@ -428,7 +449,10 @@ describe("sync", () => {
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_all", []);
         const db = await (await Session.db()).dbPromise;
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=0", {
-            created: [], updated: [], deleted: [], version: 1
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 1
         });
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_mgetById", []);
 
@@ -445,7 +469,10 @@ describe("sync", () => {
         `);
 
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=1", {
-            created: [], updated: [], deleted: [], version: 2
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 2
         });
         const updated = await syncMailbox("foo.bar", "baz");
         expect(updated).toBeTruthy();
@@ -477,10 +504,16 @@ describe("sync", () => {
             }
         ]);
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=0", {
-            created: [1], updated: [2], deleted: [], version: 1
+            created: [1],
+            updated: [2],
+            deleted: [],
+            version: 1
         });
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=1", {
-            created: [], updated: [], deleted: [], version: 1
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 1
         });
 
         const db = await (await Session.db()).dbPromise;
@@ -527,10 +560,16 @@ describe("sync", () => {
             }
         ]);
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=0", {
-            created: [1], updated: [2], deleted: [], version: 1
+            created: [1],
+            updated: [2],
+            deleted: [],
+            version: 1
         });
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=1", {
-            created: [], updated: [], deleted: [], version: 2
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 2
         });
 
         let updated = await syncMailbox("foo.bar", "baz");
@@ -552,7 +591,10 @@ describe("sync", () => {
             { delay: 100 }
         );
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=1", {
-            created: [], updated: [], deleted: [], version: 2
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 2
         });
         syncMailbox("foo.bar", "baz");
         let updated = await syncMailbox("foo.bar", "baz");

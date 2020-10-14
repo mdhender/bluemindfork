@@ -52,6 +52,7 @@ import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.utils.InputReadStream;
@@ -64,6 +65,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 	protected String mboxUniqueId;
 	protected String partition;
 	protected MailboxReplicaRootDescriptor mboxDescriptor;
+	protected String dom;
 
 	protected Vertx vertx;
 
@@ -78,6 +80,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
+		ElasticsearchTestHelper.getInstance().beforeTest();
 		vertx = VertxPlatform.getVertx();
 
 		final CountDownLatch launched = new CountDownLatch(1);
@@ -88,7 +91,8 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 			}
 		});
 		launched.await();
-		String dom = "vagrant" + System.currentTimeMillis() + ".vmw";
+		dom = "vagrant" + System.currentTimeMillis() + ".vmw";
+
 		partition = "dataloc__" + dom.replace('.', '_');
 		JdbcActivator.getInstance().addMailboxDataSource("dataloc",
 				JdbcTestHelper.getInstance().getMailboxDataDataSource());
@@ -100,16 +104,23 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 				JdbcTestHelper.getInstance().getMailboxDataDataSource(), securityContext);
 
 		Subtree subtreeId = SubtreeContainer.mailSubtreeUid(dom, Namespace.users, "me");
+		ContainerStore dirHome = new ContainerStore(testContext, JdbcTestHelper.getInstance().getDataSource(),
+				securityContext);
 
 		// init a subtree with an inbox
 		Container container = Container.create(subtreeId.subtreeUid(), IMailReplicaUids.REPLICATED_MBOXES, "test", "me",
 				true);
+		String conversationSubtreeUid = IMailReplicaUids.conversationSubtreeUid(dom, "me");
+		Container containerConversion = Container.create(conversationSubtreeUid,
+				IMailReplicaUids.REPLICATED_CONVERSATIONS, "test", "me", true);
+		Container conversionCont = containerHome.create(containerConversion);
 		Container acl = Container.create(IMailboxAclUids.uidForMailbox("me"), IMailboxAclUids.MAILBOX_ACL_PREFIX,
 				"acls", "me", true);
 		acl.domainUid = dom;
 		container.domainUid = dom;
 		container = containerHome.create(container);
 		acl = containerHome.create(acl);
+		dirHome.createContainerLocation(container, "dataloc");
 
 		MailboxReplicaStore mboxStore = new MailboxReplicaStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(),
 				container, dom);
@@ -131,8 +142,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		container.domainUid = dom;
 		container = containerHome.create(container);
 
-		ContainerStore dirHome = new ContainerStore(testContext, JdbcTestHelper.getInstance().getDataSource(),
-				securityContext);
+		dirHome.createContainerLocation(conversionCont, "dataloc");
 		dirHome.createContainerLocation(container, "dataloc");
 		dirHome.createContainerLocation(acl, "dataloc");
 

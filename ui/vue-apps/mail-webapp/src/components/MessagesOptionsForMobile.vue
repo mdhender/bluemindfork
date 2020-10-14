@@ -6,15 +6,15 @@
         v-on="$listeners"
     >
         <template v-slot:button-content><bm-icon icon="3dots" size="2x" /></template>
-        <bm-dropdown-item-button v-if="!MESSAGE_LIST_UNREAD_FILTER_ENABLED" variant="dark" @click="filterUnread">
+        <bm-dropdown-item-button v-if="!CONVERSATION_LIST_UNREAD_FILTER_ENABLED" variant="dark" @click="filterUnread">
             {{ this.$t("mail.list.menu.filter") + " " + this.$t("mail.list.menu.filter.unread") }}
         </bm-dropdown-item-button>
-        <bm-dropdown-divider v-if="!MESSAGE_LIST_UNREAD_FILTER_ENABLED" />
-        <bm-dropdown-item-button v-if="!MESSAGE_LIST_FLAGGED_FILTER_ENABLED" variant="dark" @click="filterFlagged">
+        <bm-dropdown-divider v-if="!CONVERSATION_LIST_UNREAD_FILTER_ENABLED" />
+        <bm-dropdown-item-button v-if="!CONVERSATION_LIST_FLAGGED_FILTER_ENABLED" variant="dark" @click="filterFlagged">
             {{ this.$t("mail.list.menu.filter") + " " + this.$t("mail.list.menu.filter.flagged") }}
         </bm-dropdown-item-button>
-        <bm-dropdown-divider v-if="!MESSAGE_LIST_UNREAD_FILTER_ENABLED" />
-        <bm-dropdown-item-button v-if="MESSAGE_LIST_FILTERED" variant="dark" @click="filterAll">
+        <bm-dropdown-divider v-if="!CONVERSATION_LIST_UNREAD_FILTER_ENABLED" />
+        <bm-dropdown-item-button v-if="CONVERSATION_LIST_FILTERED" variant="dark" @click="filterAll">
             {{ this.$t("mail.list.filter.remove") + " '" + this.$t("mail.list.menu.filter." + filter) + "'" }}
         </bm-dropdown-item-button>
     </bm-dropdown>
@@ -23,10 +23,10 @@
 import { BmDropdown, BmDropdownItemButton, BmDropdownDivider, BmIcon } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
 import {
-    MESSAGE_LIST_UNREAD_FILTER_ENABLED,
-    MESSAGE_LIST_FLAGGED_FILTER_ENABLED,
-    MESSAGE_LIST_FILTERED
-} from "~getters";
+    CONVERSATION_LIST_UNREAD_FILTER_ENABLED,
+    CONVERSATION_LIST_FLAGGED_FILTER_ENABLED,
+    CONVERSATION_LIST_FILTERED
+} from "~/getters";
 
 export default {
     name: "MessagesOptionsForMobile",
@@ -38,11 +38,11 @@ export default {
     },
     computed: {
         ...mapGetters("mail", {
-            MESSAGE_LIST_UNREAD_FILTER_ENABLED,
-            MESSAGE_LIST_FLAGGED_FILTER_ENABLED,
-            MESSAGE_LIST_FILTERED
+            CONVERSATION_LIST_UNREAD_FILTER_ENABLED,
+            CONVERSATION_LIST_FLAGGED_FILTER_ENABLED,
+            CONVERSATION_LIST_FILTERED
         }),
-        ...mapState("mail", { filter: state => state.messageList.filter })
+        ...mapState("mail", { filter: state => state.conversationList.filter })
     },
     methods: {
         filterUnread() {

@@ -34,10 +34,10 @@ import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import { BmButton, BmCollapse, BmIcon, BmTree } from "@bluemind/styleguide";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItem from "./MailFolderItem";
-import { SET_FOLDER_EXPANDED } from "~mutations";
-import { CREATE_FOLDER } from "~actions";
-import { MY_MAILBOX, FOLDER_GET_CHILDREN } from "~getters";
-import { MailRoutesMixin } from "~mixins";
+import { SET_FOLDER_EXPANDED } from "~/mutations";
+import { CREATE_FOLDER } from "~/actions";
+import { MY_MAILBOX, FOLDER_GET_CHILDREN } from "~/getters";
+import { MailRoutesMixin } from "~/mixins";
 
 export default {
     name: "MailFolderMyMailbox",

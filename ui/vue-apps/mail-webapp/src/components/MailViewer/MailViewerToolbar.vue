@@ -1,8 +1,5 @@
 <template>
-    <bm-button-toolbar
-        key-nav
-        class="mail-viewer-toolbar float-right mail-viewer-mobile-actions bg-white position-sticky"
-    >
+    <bm-button-toolbar key-nav class="mail-viewer-toolbar mail-viewer-mobile-actions bg-white float-right">
         <bm-button
             variant="simple-primary"
             :aria-label="$t('mail.content.reply.aria')"
@@ -23,50 +20,76 @@
         </bm-button>
         <bm-button
             variant="simple-primary"
-            :aria-label="$t('common.forward')"
-            :title="$t('common.forward')"
+            :aria-label="$t('mail.content.forward.aria')"
+            :title="$t('mail.content.forward.aria')"
             @click="forward"
         >
             <bm-icon icon="forward" size="2x" />
-            <span class="d-lg-none">{{ $t("common.forward") }}</span>
+            <span class="d-lg-none">{{ $t("mail.content.forward.aria") }}</span>
         </bm-button>
+        <mail-viewer-toolbar-other-actions v-if="showOtherActions" :message="message" :conversation="conversation" />
     </bm-button-toolbar>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-
 import { BmButton, BmButtonToolbar, BmIcon } from "@bluemind/styleguide";
 
-import { MessageCreationModes } from "~model/message";
-import { draftPath } from "../../model/draft";
-import { ACTIVE_MESSAGE, MY_DRAFTS } from "~getters";
-import MessagePathParam from "../../router/MessagePathParam";
+import { MessageCreationModes } from "~/model/message";
+import { draftPath } from "~/model/draft";
+import { MY_DRAFTS } from "~/getters";
+import MessagePathParam from "~/router/MessagePathParam";
+import MailViewerToolbarOtherActions from "./MailViewerToolbarOtherActions";
 
 export default {
     name: "MailViewerToolbar",
     components: {
         BmButton,
         BmButtonToolbar,
-        BmIcon
+        BmIcon,
+        MailViewerToolbarOtherActions
+    },
+    props: {
+        message: {
+            type: Object,
+            required: false,
+            default: null
+        },
+        conversation: {
+            type: Object,
+            required: false,
+            default: null
+        },
+        showOtherActions: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
     },
     computed: {
-        ...mapGetters("mail", { ACTIVE_MESSAGE, MY_DRAFTS })
+        ...mapGetters("mail", { MY_DRAFTS })
     },
     methods: {
         reply() {
-            this.goTo(MessageCreationModes.REPLY);
+            this.goTo(MessageCreationModes.REPLY, this.conversation);
         },
         replyAll() {
-            this.goTo(MessageCreationModes.REPLY_ALL);
+            this.goTo(MessageCreationModes.REPLY_ALL, this.conversation);
         },
         forward() {
             this.goTo(MessageCreationModes.FORWARD);
         },
-        goTo(action) {
-            const messagepath = draftPath(this.MY_DRAFTS);
-            const message = MessagePathParam.build("", this.ACTIVE_MESSAGE);
-            this.$router.navigate({ name: "mail:message", params: { messagepath }, query: { action, message } });
+        goTo(action, conversation) {
+            if (conversation) {
+                this.$router.navigate({
+                    name: "v:mail:conversation",
+                    params: { conversation, action, related: this.message }
+                });
+            } else {
+                const messagepath = draftPath(this.MY_DRAFTS);
+                const message = MessagePathParam.build("", this.message);
+                this.$router.navigate({ name: "mail:message", params: { messagepath }, query: { action, message } });
+            }
         }
     }
 };

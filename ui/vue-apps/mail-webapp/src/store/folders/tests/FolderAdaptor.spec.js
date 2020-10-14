@@ -1,7 +1,7 @@
 import { MailboxType } from "../../../model/mailbox";
 import remotefolder from "../../tests/data/remotefolder.json";
 import { FolderAdaptor } from "../helpers/FolderAdaptor";
-import { isDefault } from "~model/folder";
+import { isDefault } from "~/model/folder";
 
 //TODO: rework on folder adaptors
 // - test coverage is low
@@ -16,6 +16,7 @@ describe("Folder adaptors", () => {
         };
         expect(FolderAdaptor.fromMailboxFolder(remotefolder, mailbox)).toMatchInlineSnapshot(`
             Object {
+              "allowConversations": true,
               "allowSubfolder": true,
               "default": false,
               "expanded": false,

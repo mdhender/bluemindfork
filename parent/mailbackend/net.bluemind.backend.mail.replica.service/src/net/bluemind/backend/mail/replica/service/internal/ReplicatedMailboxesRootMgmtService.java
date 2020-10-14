@@ -93,8 +93,10 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		String containerUid = sub.subtreeUid();
 		String ownerUid = sub.ownerUid;
 		IContainers contApi = context.provider().instance(IContainers.class);
-		if (getRootContainer(containerUid, contApi) == null) {
-			createRootContainer(root, domainUid, containerUid, ownerUid, contApi);
+		String conversationSubtreeUid = IMailReplicaUids.conversationSubtreeUid(domainUid, ownerUid);
+		if (getContainers(containerUid, conversationSubtreeUid, contApi).isContainerMissing()) {
+			logger.info("Create missing root {}", containerUid);
+			createContainers(root, domainUid, containerUid, conversationSubtreeUid, ownerUid, contApi);
 		} else {
 			ContainerModifiableDescriptor cmd = new ContainerModifiableDescriptor();
 			cmd.defaultContainer = true;
@@ -104,28 +106,39 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		}
 	}
 
-	private void createRootContainer(MailboxReplicaRootDescriptor root, String domainUid, String containerUid,
-			String ownerUid, IContainers contApi) {
+	private void createContainers(MailboxReplicaRootDescriptor root, String domainUid, String rootContainerUid,
+			String conversationContainerUid, String ownerUid, IContainers contApi) {
 		try {
 			lock.writeLock().lock();
-			if (getRootContainer(containerUid, contApi) == null) {
-				logger.info("Create missing root {}", containerUid);
-				ContainerDescriptor toCreate = ContainerDescriptor.create(containerUid, subtreeName(root), ownerUid,
+			ReplicatedMailboxesContainers containers = getContainers(rootContainerUid, conversationContainerUid,
+					contApi);
+			if (!containers.rootContainer.isPresent()) {
+				ContainerDescriptor toCreate = ContainerDescriptor.create(rootContainerUid, subtreeName(root), ownerUid,
 						IMailReplicaUids.REPLICATED_MBOXES, domainUid, true);
 				toCreate.domainUid = domainUid;
 
 				contApi.create(toCreate.uid, toCreate);
-				EmitReplicationEvents.mailboxRootCreated(root);
+			}
+			if (!containers.conversationContainer.isPresent()) {
+				createConversationContainer(conversationContainerUid, domainUid, root, ownerUid, contApi);
 			}
 		} finally {
+			EmitReplicationEvents.mailboxRootCreated(root);
 			lock.writeLock().unlock();
 		}
 	}
 
-	private ContainerDescriptor getRootContainer(String containerUid, IContainers contApi) {
+	private void createConversationContainer(String conversationContainerUid, String domainUid,
+			MailboxReplicaRootDescriptor root, String ownerUid, IContainers containerService) {
+		ContainerDescriptor conversationContainerDescriptor = ContainerDescriptor.create(conversationContainerUid,
+				conversationSubtreeName(root), ownerUid, IMailReplicaUids.REPLICATED_CONVERSATIONS, domainUid, true);
+		containerService.create(conversationContainerDescriptor.uid, conversationContainerDescriptor);
+	}
+
+	private ReplicatedMailboxesContainers getContainers(String rootUid, String conversationUid, IContainers contApi) {
 		try {
 			lock.readLock().lock();
-			return contApi.getIfPresent(containerUid);
+			return ReplicatedMailboxesContainers.getContainers(rootUid, conversationUid, contApi);
 		} finally {
 			lock.readLock().unlock();
 		}
@@ -133,6 +146,10 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 
 	private String subtreeName(MailboxReplicaRootDescriptor root) {
 		return root.ns.name() + "/" + root.name.replace('^', '.');
+	}
+
+	private String conversationSubtreeName(MailboxReplicaRootDescriptor root) {
+		return subtreeName(root) + "_conversations";
 	}
 
 	private String owner(String namespace, String mailboxName, String domainUid, String defaultOwner) {
@@ -245,6 +262,27 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 			this.store = store;
 		}
 
+	}
+
+	private static class ReplicatedMailboxesContainers {
+		final Optional<ContainerDescriptor> rootContainer;
+		final Optional<ContainerDescriptor> conversationContainer;
+
+		public ReplicatedMailboxesContainers(ContainerDescriptor rootContainer,
+				ContainerDescriptor conversationContainer) {
+			this.rootContainer = Optional.ofNullable(rootContainer);
+			this.conversationContainer = Optional.ofNullable(conversationContainer);
+		}
+
+		boolean isContainerMissing() {
+			return !rootContainer.isPresent() || !conversationContainer.isPresent();
+		}
+
+		static ReplicatedMailboxesContainers getContainers(String rootUid, String conversationUid,
+				IContainers contApi) {
+			return new ReplicatedMailboxesContainers(contApi.getIfPresent(rootUid),
+					contApi.getIfPresent(conversationUid));
+		}
 	}
 
 }

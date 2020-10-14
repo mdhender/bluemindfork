@@ -429,7 +429,7 @@ public class Directory {
 
 				service.xfer(destination);
 
-				dirContainerStore.invalidateCache(c.uid);
+				dirContainerStore.invalidateCache(c.uid, c.id);
 				DataSourceRouter.invalidateContainer(c.uid);
 
 				// clear old container data

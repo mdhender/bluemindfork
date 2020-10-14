@@ -2,13 +2,13 @@ import { EmailValidator, Flag } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { retrieveTaskResult } from "@bluemind/task";
 
-import { ADD_FLAG, SAVE_MESSAGE } from "~actions";
-import { MessageStatus, MessageHeader, MessageCreationModes } from "~model/message";
-import { SET_MESSAGES_STATUS } from "~mutations";
+import { ADD_FLAG, REPLACE_DRAFT_MESSAGE, SAVE_MESSAGE } from "~/actions";
+import { MessageStatus, MessageHeader, MessageCreationModes } from "~/model/message";
+import { SET_MESSAGES_STATUS } from "~/mutations";
 import MessageAdaptor from "../helpers/MessageAdaptor";
 import { FolderAdaptor } from "../../folders/helpers/FolderAdaptor";
-import * as Folder from "../../../model/folder";
-import * as Message from "../../../model/message";
+import * as Folder from "~/model/folder";
+import * as Message from "~/model/message";
 
 /** Send the last draft: move it to the Outbox then flush. */
 export default async function (
@@ -30,7 +30,9 @@ export default async function (
     manageFlagOnPreviousMessage(context, draft);
     removeAttachmentAndInlineTmpParts(draft, messageCompose);
 
-    return await getSentMessage(taskResult, draftId, sentFolder);
+    const message = await getSentMessage(taskResult, draftId, sentFolder);
+    await context.dispatch(REPLACE_DRAFT_MESSAGE, { draft, message });
+    return message;
 }
 
 function removeAttachmentAndInlineTmpParts(draft, messageCompose) {

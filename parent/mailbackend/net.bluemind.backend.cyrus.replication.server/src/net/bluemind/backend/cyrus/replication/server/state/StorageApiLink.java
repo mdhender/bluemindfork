@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Vertx;
 import net.bluemind.backend.cyrus.partitions.CyrusBoxes.ReplicatedBox;
+import net.bluemind.backend.mail.api.IMailConversationPromise;
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotationsPromise;
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifactsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecordsPromise;
@@ -95,5 +96,7 @@ public interface StorageApiLink {
 	public CompletableFuture<Boolean> validate(String login, String secret);
 
 	public CompletableFuture<List<ResolvedMailbox>> resolveNames(List<String> names);
+
+	public CompletableFuture<IMailConversationPromise> conversations(ReplicatedBox userFrom);
 
 }

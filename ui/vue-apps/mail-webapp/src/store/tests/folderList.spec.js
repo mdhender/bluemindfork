@@ -1,5 +1,5 @@
 import store from "../folderList";
-import { TOGGLE_EDIT_FOLDER } from "~mutations";
+import { TOGGLE_EDIT_FOLDER } from "~/mutations";
 
 describe("folderList store", () => {
     describe("mutations", () => {

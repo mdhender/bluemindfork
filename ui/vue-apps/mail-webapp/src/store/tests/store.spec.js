@@ -5,28 +5,31 @@ import { Flag } from "@bluemind/email";
 import storeData from "..";
 
 import {
-    ALL_MESSAGES_ARE_SELECTED,
-    ALL_SELECTED_MESSAGES_ARE_FLAGGED,
-    ALL_SELECTED_MESSAGES_ARE_READ,
-    ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
-    ALL_SELECTED_MESSAGES_ARE_UNREAD,
+    ALL_CONVERSATIONS_ARE_SELECTED,
+    ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED,
+    ALL_SELECTED_CONVERSATIONS_ARE_READ,
+    ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED,
+    ALL_SELECTED_CONVERSATIONS_ARE_UNREAD,
+    CONVERSATION_METADATA,
+    CURRENT_MAILBOX,
     MAILSHARE_FOLDERS,
     MAILSHARE_ROOT_FOLDERS,
-    MESSAGE_LIST_MESSAGES,
+    CONVERSATION_LIST_CONVERSATIONS,
     MY_DRAFTS,
     MY_INBOX,
+    MY_MAILBOX,
     MY_MAILBOX_FOLDERS,
     MY_MAILBOX_ROOT_FOLDERS,
     MY_OUTBOX,
     MY_SENT,
     MY_TRASH,
-    NEXT_MESSAGE,
+    NEXT_CONVERSATION,
     SELECTION
-} from "~getters";
+} from "~/getters";
 import { DEFAULT_FOLDER_NAMES } from "../folders/helpers/DefaultFolders";
-import { MailboxType } from "~model/mailbox";
+import { MailboxType } from "~/model/mailbox";
 import injector from "@bluemind/inject";
-import { SET_ACTIVE_FOLDER } from "~mutations";
+import { SET_ACTIVE_FOLDER } from "~/mutations";
 import { LoadingStatus } from "../../model/loading-status";
 
 Vue.use(Vuex);
@@ -59,79 +62,59 @@ describe("Mail store", () => {
             store.commit(SET_ACTIVE_FOLDER, { key: "1" });
             expect(store.getters.CURRENT_MAILBOX).toEqual({ key: "B" });
         });
-        test("ALL_SELECTED_MESSAGES_ARE_UNREAD", () => {
-            store.state.messages = {
-                1: { flags: [], loading: LoadingStatus.LOADED },
-                2: { flags: [Flag.SEEN], loading: LoadingStatus.NOT_LOADED },
-                3: { flags: [Flag.SEEN], loading: LoadingStatus.LOADED },
-                4: { flags: [], loading: LoadingStatus.LOADED }
-            };
-            store.state.selection._keys = [1, 2];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNREAD]).toBeFalsy();
-            store.state.selection._keys = [1, 4];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNREAD]).toBeTruthy();
-            store.state.selection._keys = [1, 3];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNREAD]).toBeFalsy();
-            store.state.selection._keys = [];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNREAD]).toBeFalsy();
+        test("ALL_SELECTED_CONVERSATIONS_ARE_UNREAD", () => {
+            initMailbox(store);
+            store.state.conversations.conversationByKey = buildConversations([[], [Flag.SEEN], [Flag.SEEN], []]);
+            initConversations(store);
+            store.state.selection = [1, 4];
+            expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_UNREAD]).toBeTruthy();
+            store.state.selection = [1, 2, 3];
+            expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_UNREAD]).toBeFalsy();
+            store.state.selection = [];
+            expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_UNREAD]).toBeFalsy();
         });
-        test("ALL_SELECTED_MESSAGES_ARE_READ", () => {
-            store.state.messages = {
-                1: { flags: [Flag.SEEN], loading: LoadingStatus.LOADED },
-                2: { flags: [], loading: LoadingStatus.NOT_LOADED },
-                3: { flags: [], loading: LoadingStatus.LOADED },
-                4: { flags: [Flag.SEEN], loading: LoadingStatus.LOADED }
-            };
-            store.state.selection._keys = [1, 2];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_READ]).toBeFalsy();
-            store.state.selection._keys = [1, 4];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_READ]).toBeTruthy();
-            store.state.selection._keys = [1, 3];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_READ]).toBeFalsy();
-            store.state.selection._keys = [];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_READ]).toBeFalsy();
+        test("ALL_SELECTED_CONVERSATIONS_ARE_READ", () => {
+            initMailbox(store);
+            store.state.conversations.conversationByKey = buildConversations([[Flag.SEEN], [Flag.SEEN], [], []]);
+            initConversations(store);
+            store.state.selection = [1, 2];
+            expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_READ]).toBeTruthy();
+            store.state.selection = [1, 2, 3];
+            expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_READ]).toBeFalsy();
+            store.state.selection = [];
+            expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_READ]).toBeFalsy();
         });
-        test("ALL_SELECTED_MESSAGES_ARE_FLAGGED", () => {
-            store.state.messages = {
-                1: { flags: [Flag.FLAGGED], loading: LoadingStatus.LOADED },
-                2: { flags: [], loading: LoadingStatus.NOT_LOADED },
-                3: { flags: [], loading: LoadingStatus.LOADED },
-                4: { flags: [Flag.FLAGGED], loading: LoadingStatus.LOADED }
-            };
-            store.state.selection._keys = [1, 2];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_FLAGGED]).toBeFalsy();
-            store.state.selection._keys = [1, 4];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_FLAGGED]).toBeTruthy();
-            store.state.selection._keys = [1, 3];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_FLAGGED]).toBeFalsy();
-            store.state.selection._keys = [];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_FLAGGED]).toBeFalsy();
+        test("ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED", () => {
+            initMailbox(store);
+            store.state.conversations.conversationByKey = buildConversations([[Flag.FLAGGED], [Flag.FLAGGED], [], []]);
+            initConversations(store);
+            store.state.selection = [1, 2];
+            expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED]).toBeTruthy();
+            store.state.selection = [1, 2, 3];
+            expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED]).toBeFalsy();
+            store.state.selection = [];
+            expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED]).toBeFalsy();
         });
-        test("ALL_SELECTED_MESSAGES_ARE_UNFLAGGED", () => {
-            store.state.messages = {
-                1: { flags: [], loading: LoadingStatus.LOADED },
-                2: { flags: [Flag.FLAGGED], loading: LoadingStatus.NOT_LOADED },
-                3: { flags: [Flag.FLAGGED], loading: LoadingStatus.LOADED },
-                4: { flags: [], loading: LoadingStatus.LOADED }
-            };
-            store.state.selection._keys = [1, 2];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNFLAGGED]).toBeFalsy();
-            store.state.selection._keys = [1, 4];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNFLAGGED]).toBeTruthy();
-            store.state.selection._keys = [1, 3];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNFLAGGED]).toBeFalsy();
-            store.state.selection._keys = [];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNFLAGGED]).toBeFalsy();
+        test("ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED", () => {
+            initMailbox(store);
+            store.state.conversations.conversationByKey = buildConversations([[], [Flag.FLAGGED], [Flag.FLAGGED], []]);
+            initConversations(store);
+            store.state.selection = [1, 4];
+            expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED]).toBeTruthy();
+            store.state.selection = [1, 2, 3];
+            expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED]).toBeFalsy();
+            store.state.selection = [];
+            expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED]).toBeFalsy();
         });
-        test("ALL_MESSAGES_ARE_SELECTED", () => {
-            store.state.messageList = { _keys: [1, 2, 3], _removed: [] };
+        test("ALL_CONVERSATIONS_ARE_SELECTED", () => {
+            store.state.conversationList = { _keys: [1, 2, 3], _removed: [] };
             store.state.selection = { _keys: [1, 2], _removed: [] };
-            expect(store.getters[ALL_MESSAGES_ARE_SELECTED]).toBeFalsy();
+            expect(store.getters[ALL_CONVERSATIONS_ARE_SELECTED]).toBeFalsy();
             store.state.selection._keys = [1, 2, 3];
-            expect(store.getters[ALL_MESSAGES_ARE_SELECTED]).toBeTruthy();
+            expect(store.getters[ALL_CONVERSATIONS_ARE_SELECTED]).toBeTruthy();
             store.state.selection._keys = [];
-            store.state.messageList = { _keys: [], _removed: [] };
-            expect(store.getters[ALL_MESSAGES_ARE_SELECTED]).toBeFalsy();
+            store.state.conversationList = { _keys: [], _removed: [] };
+            expect(store.getters[ALL_CONVERSATIONS_ARE_SELECTED]).toBeFalsy();
         });
 
         test("MAILSHARE_FOLDERS", () => {
@@ -147,25 +130,40 @@ describe("Mail store", () => {
             };
             expect(store.getters[MAILSHARE_FOLDERS]).toEqual([store.state.folders["1"], store.state.folders["4"]]);
         });
-        test("MESSAGE_LIST_MESSAGES", () => {
+
+        // skipped because unable to mock CURRENT_MAILBOX
+        test.skip("CONVERSATION_LIST_CONVERSATIONS", () => {
             Array.from(Array(500)).forEach((v, key) => {
                 if (key % 2 === 0) {
-                    store.state.messageList._keys.push(key);
+                    store.state.conversationList._keys.push(key);
                 }
                 if (key % 10 === 0) {
-                    store.state.messageList._removed.push(key);
+                    store.state.conversationList._removed.push(key);
                 }
-                store.state.messages[key] = { key };
+                const folderRef = { key: "folderKey" };
+                store.state.conversations.messages[key] = { key, folderRef };
+                store.state.conversations.conversationByKey[key] = {
+                    key,
+                    messages: [{ key, folderRef }]
+                };
             });
-            store.state.messageList.currentPage = 0;
-            expect(store.getters[MESSAGE_LIST_MESSAGES]).toEqual([]);
-            store.state.messageList.currentPage = 1;
-            expect(store.getters[MESSAGE_LIST_MESSAGES].length).toEqual(50);
-            expect(store.getters[MESSAGE_LIST_MESSAGES][0]).toEqual(
-                store.state.messages[store.state.messageList._keys[1]]
+
+            // unable to mock CURRENT_MAILBOX FIXME
+            store.getters = {
+                ...store.getters,
+                [MY_MAILBOX]: { loading: LoadingStatus.LOADED, writable: true },
+                [CURRENT_MAILBOX]: { writable: true }
+            };
+
+            store.state.conversationList.currentPage = 0;
+            expect(store.getters[CONVERSATION_LIST_CONVERSATIONS]).toEqual([]);
+            store.state.conversationList.currentPage = 1;
+            expect(store.getters[CONVERSATION_LIST_CONVERSATIONS].length).toEqual(50);
+            expect(store.getters[CONVERSATION_LIST_CONVERSATIONS][0]).toEqual(
+                store.state.conversations.conversationByKey[store.state.conversationList._keys[1]]
             );
-            store.state.messageList.currentPage = 2;
-            expect(store.getters[MESSAGE_LIST_MESSAGES].length).toEqual(100);
+            store.state.conversationList.currentPage = 2;
+            expect(store.getters[CONVERSATION_LIST_CONVERSATIONS].length).toEqual(50);
         });
         test("MY_MAILBOX_FOLDERS", () => {
             store.state.folders = {
@@ -236,54 +234,75 @@ describe("Mail store", () => {
             };
             expect(store.getters[MAILSHARE_ROOT_FOLDERS]).toEqual([store.state.folders["1"]]);
         });
-        describe("NEXT_MESSAGE", () => {
+        describe("NEXT_CONVERSATION", () => {
             beforeEach(() => {
-                store.state.messageList._keys = Array(10)
+                store.state.conversationList._keys = Array(10)
                     .fill(0)
                     .map((v, i) => 2 * i);
-                store.state.messages = store.state.messageList._keys.reduce(
+                store.state.conversations.conversationByKey = store.state.conversationList._keys.reduce(
                     (obj, key) => ({ ...obj, [key]: { key } }),
                     {}
                 );
                 store.state.selection._keys = [];
-                store.state.activeMessage.key = undefined;
+                store.state.conversations.currentConversation = undefined;
             });
-            test("return first message after active message", () => {
-                store.state.activeMessage.key = 2;
-                const result = store.getters[NEXT_MESSAGE];
+            test("return first conversation after current conversation", () => {
+                store.state.conversations.currentConversation = { key: 2 };
+                const result = store.getters[NEXT_CONVERSATION];
                 expect(result.key).toBe(4);
             });
-            test("return the previous message if there is no next mesage ", () => {
-                store.state.activeMessage.key = 18;
-                const result = store.getters[NEXT_MESSAGE];
+            test("return the previous conversation if there is no next conversation ", () => {
+                store.state.conversations.currentConversation = { key: 18 };
+                const result = store.getters[NEXT_CONVERSATION];
                 expect(result.key).toBe(16);
             });
-            test("return null if there is no next messages", () => {
-                store.state.messageList._keys = [2];
-                store.state.activeMessage.key = 2;
-                const result = store.getters[NEXT_MESSAGE];
+            test("return null if there is no next conversation", () => {
+                store.state.conversationList._keys = [2];
+                store.state.conversations.currentConversation = { key: 2 };
+                const result = store.getters[NEXT_CONVERSATION];
                 expect(result).toBeNull();
             });
-            test("return null if no activeMessage", () => {
-                store.state.activeMessage.key = undefined;
-                const result = store.getters[NEXT_MESSAGE];
+            test("return null if no currentConversation", () => {
+                store.state.conversations.currentConversation = undefined;
+                const result = store.getters[NEXT_CONVERSATION];
                 expect(result).toBeNull();
             });
-            test("return first message if active message is not in list", () => {
-                store.state.messages[20] = { key: 20, remoteRef: { internalId: 1 }, folderRef: { key: 1 } };
-                store.state.activeMessage.key = 20;
-                const result = store.getters[NEXT_MESSAGE];
+            test("return first conversation if current conversation is not in list", () => {
+                store.state.conversations.conversationByKey[20] = {
+                    key: 20,
+                    remoteRef: { internalId: 1 },
+                    folderRef: { key: 1 }
+                };
+                store.state.conversations.currentConversation = { key: 20 };
+                const result = store.getters[NEXT_CONVERSATION];
                 expect(result.key).toBe(0);
             });
-            test("do not return first message if it is equal to current message", () => {
-                store.state.activeMessage.key = 20;
-                store.state.messages[20] = { key: 20, remoteRef: { internalId: 1 }, folderRef: { key: 1 } };
-                store.state.messages[0] = { key: 0, remoteRef: { internalId: 1 }, folderRef: { key: 1 } };
-                const result = store.getters[NEXT_MESSAGE];
+            test("do not return first conversation if it is equal to current conversation", () => {
+                store.state.conversations.currentConversation = {
+                    key: 20,
+                    remoteRef: { internalId: 1 },
+                    folderRef: { key: 1 }
+                };
+                store.state.conversations.conversationByKey[0] = {
+                    key: 0,
+                    remoteRef: { internalId: 1 },
+                    folderRef: { key: 1 }
+                };
+                const result = store.getters[NEXT_CONVERSATION];
                 expect(result.key).toBe(2);
             });
         });
         test("SELECTION", () => {
+            store.state.folders = {
+                "1": { key: "1", imapName: "whatever", mailboxRef: { key: "myMailbox" } },
+                "2": { key: "2", imapName: DEFAULT_FOLDER_NAMES.INBOX, mailboxRef: { key: "myMailbox" } },
+                "5": { key: "5", imapName: DEFAULT_FOLDER_NAMES.TRASH, mailboxRef: { key: "myMailbox" } },
+                "6": { key: "6", imapName: DEFAULT_FOLDER_NAMES.SENT, mailboxRef: { key: "myMailbox" } }
+            };
+            store.state.mailboxes = {
+                myMailbox: { key: "myMailbox", owner: "me", loading: LoadingStatus.LOADED }
+            };
+            injector.register({ provide: "UserSession", use: { userId: "me" } });
             Array.from(Array(100)).forEach((v, key) => {
                 if (key % 2 === 0) {
                     store.state.selection._keys.push(key);
@@ -291,13 +310,72 @@ describe("Mail store", () => {
                 if (key % 10 === 0) {
                     store.state.selection._removed.push(key);
                 }
-                store.state.messages[key] = { key };
+                store.state.conversations.conversationByKey[key] = { key, folderRef: { key: 1 }, messages: [{ key }] };
+                store.state.conversations.messages[key] = { key, folderRef: { key: 1 } };
             });
             expect(store.getters[SELECTION]).toEqual(
-                Object.values(store.state.messages).filter(({ key }) => key % 2 === 0 && key % 10 !== 0)
+                Object.values(store.state.conversations.conversationByKey)
+                    .filter(({ key }) => key % 2 === 0 && key % 10 !== 0)
+                    .map(({ key }) => store.getters[CONVERSATION_METADATA](key))
             );
             expect(store.getters[SELECTION].length).toEqual(40);
-            expect(store.getters[SELECTION][0]).toEqual(store.state.messages[store.state.selection._keys[1]]);
+            expect(store.getters[SELECTION][0]).toEqual(
+                store.getters[CONVERSATION_METADATA](store.state.selection._keys[1])
+            );
         });
     });
 });
+
+function initMailbox(store) {
+    store.state.folders = {
+        "1": {
+            key: "1",
+            imapName: DEFAULT_FOLDER_NAMES.TRASH,
+            mailboxRef: { key: "myMailbox", remoteRef: { uid: "toto" } }
+        }
+    };
+    store.state.mailboxes = {
+        B: { key: "B", owner: "B", remoteRef: { uid: "toto" } }
+    };
+    injector.register({
+        provide: "UserSession",
+        use: { userId: "B" }
+    });
+    injector.register({ provide: "i18n", use: { t: n => n } });
+}
+
+function buildConversations(flags) {
+    const folderRef = { key: "folderKey" };
+    return {
+        1: {
+            key: 1,
+            folderRef,
+            messages: [{ key: 1, folderRef, flags: flags[0], loading: LoadingStatus.LOADED }],
+            loading: LoadingStatus.LOADED
+        },
+        2: {
+            key: 2,
+            folderRef,
+            messages: [{ key: 2, folderRef, flags: flags[1], loading: LoadingStatus.LOADED }],
+            loading: LoadingStatus.NOT_LOADED
+        },
+        3: {
+            key: 3,
+            folderRef,
+            messages: [{ key: 3, folderRef, flags: flags[2], loading: LoadingStatus.LOADED }],
+            loading: LoadingStatus.LOADED
+        },
+        4: {
+            key: 4,
+            folderRef,
+            messages: [{ key: 4, folderRef, flags: flags[3], loading: LoadingStatus.LOADED }],
+            loading: LoadingStatus.LOADED
+        }
+    };
+}
+
+function initConversations(store) {
+    store.commit("SET_CONVERSATION_LIST", Object.values(store.state.conversations.conversationByKey));
+    const flattenMessages = Object.values(store.state.conversations.conversationByKey).flatMap(c => c.messages);
+    store.commit("ADD_MESSAGES", flattenMessages);
+}

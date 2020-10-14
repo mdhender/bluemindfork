@@ -97,10 +97,11 @@ public class BodyStreamProcessor {
 
 	private static final Set<String> fromMailApi = Sets.newHashSet(MailApiHeaders.ALL);
 
+	private static final Set<String> toAdd = Sets.newHashSet("IN-REPLY-TO", "REFERENCES");
+
 	private static Set<String> toDrop = Sets.newHashSet("from", "to", "cc", "date", "received", "x-received", "subject",
 			"content-type", "mime-version", "dkim-signature", "x-google-dkim-signature", "arc-seal", "message-id",
-			"references", "arc-message-signature", "arc-authentication-results", "received-spf", "return-path",
-			"x-sieve");
+			"arc-message-signature", "arc-authentication-results", "received-spf", "return-path", "x-sieve");
 
 	private static Set<String> whiteList = buildWhiteList();
 
@@ -122,6 +123,7 @@ public class BodyStreamProcessor {
 		Set<String> white = new HashSet<>();
 		fromSummaryClass.forEach(s -> white.add(s.toLowerCase()));
 		fromMailApi.forEach(s -> white.add(s.toLowerCase()));
+		toAdd.forEach(s -> white.add(s.toLowerCase()));
 		white.removeAll(toDrop);
 		return ImmutableSet.copyOf(white);
 	}

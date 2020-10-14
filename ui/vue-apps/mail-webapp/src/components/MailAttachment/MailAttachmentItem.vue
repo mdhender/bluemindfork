@@ -88,8 +88,8 @@ import { computeUnit } from "@bluemind/file-utils";
 import global from "@bluemind/global";
 import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmProgress, BmButtonClose, BmNotice } from "@bluemind/styleguide";
 
-import { AttachmentStatus } from "~model/attachment";
-import { ComposerActionsMixin } from "~mixins";
+import { AttachmentStatus } from "~/model/attachment";
+import { ComposerActionsMixin } from "~/mixins";
 
 export default {
     name: "MailAttachmentItem",

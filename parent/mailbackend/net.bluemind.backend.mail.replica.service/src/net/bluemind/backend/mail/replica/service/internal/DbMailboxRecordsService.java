@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,6 +46,8 @@ import org.slf4j.LoggerFactory;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.backend.mail.api.Conversation;
+import net.bluemind.backend.mail.api.Conversation.MessageRef;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
@@ -53,6 +56,7 @@ import net.bluemind.backend.mail.api.flags.WellKnownFlags;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
+import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -89,6 +93,8 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 	private final IMailIndexService indexService;
 
+	private final IInternalMailConversation conversationService;
+
 	private static final Map<String, BlockingQueue<List<MailboxRecord>>> updateQueue = new ConcurrentHashMap<>();
 
 	public DbMailboxRecordsService(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
@@ -99,6 +105,13 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 			throw new ServerFault("Service is invoked with directory datasource for " + cont.uid + ".");
 		}
 		this.indexService = index;
+		this.conversationService = createConversationService(context, mailboxUniqueId, ds);
+	}
+
+	private IInternalMailConversation createConversationService(BmContext context, String mailboxUniqueId,
+			DataSource ds) {
+		String uid = IMailReplicaUids.conversationSubtreeUid(container.domainUid, container.owner);
+		return context.provider().instance(IInternalMailConversation.class, uid);
 	}
 
 	@Override
@@ -366,6 +379,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 			}
 			// apply the changes
 			toCreate.forEach((MailboxRecord mr) -> {
+				String uid = mr.imapUid + ".";
 				if (mr.internalFlags.contains(InternalFlag.expunged)) {
 					EmitReplicationEvents.recordCreated(mailboxUniqueId, Long.MAX_VALUE, -1, mr.imapUid);
 					logger.debug("Skipping create on expunged record");
@@ -379,7 +393,6 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 					return;
 				}
 
-				String uid = mr.imapUid + ".";
 				UpsertResult upsert = null;
 				String guidCacheKey = IMailReplicaUids.uniqueId(container.uid) + ":" + mr.messageBody;
 				Long expId = GuidExpectedIdCache.expectedId(guidCacheKey);
@@ -434,10 +447,18 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 						&& !idxAndNotif.value.flags.contains(MailboxItemFlag.System.Deleted.value())) {
 					newMailNotification.add(idxAndNotif);
 				}
+				if (mr.conversationId != null) {
+					try {
+						addMessageToConversation(uid);
+					} catch (Exception e) {
+						logger.warn("Cannot store conversation", e);
+					}
+				}
 			});
 
 			AtomicInteger softDelete = new AtomicInteger();
 			toUpdate.forEach((Long itemId, MailboxRecord mr) -> {
+				String uid = mr.imapUid + ".";
 				VanishedBody vanished = BodyInternalIdCache.vanishedBody(container.owner, mr.messageBody);
 				if (vanished != null) {
 					logger.info("Using version from vanished item {} and the old imap uid", vanished);
@@ -491,6 +512,31 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		}
 		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, contVersion, itemIds,
 				createdIds);
+	}
+
+	private void addMessageToConversation(String uid) {
+		ItemValue<MailboxRecord> record = storeService.get(uid, null);
+		ItemValue<Conversation> conversation = conversationService.byConversationId(record.value.conversationId);
+		if (conversation == null) {
+			Conversation newConversation = new Conversation();
+			newConversation.conversationId = record.value.conversationId;
+			newConversation.messageRefs = new ArrayList<>();
+			MessageRef messageId = new MessageRef();
+			messageId.folderUid = IMailReplicaUids.uniqueId(container.uid);
+			messageId.itemId = record.internalId;
+			messageId.date = record.value.internalDate;
+			newConversation.messageRefs.add(messageId);
+			conversationService.create(UUID.randomUUID().toString(), newConversation);
+		} else {
+			MessageRef messageId = new MessageRef();
+			messageId.folderUid = IMailReplicaUids.uniqueId(container.uid);
+			messageId.itemId = record.internalId;
+			messageId.date = record.value.internalDate;
+			if (!conversation.value.messageRefs.contains(messageId)) {
+				conversation.value.messageRefs.add(messageId);
+				conversationService.update(conversation.uid, conversation.value);
+			}
+		}
 	}
 
 	private static final ExecutorService ES_CRUD_POOL = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
@@ -549,7 +595,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 			itemUids.forEach(rec -> {
 				ItemVersion iv = storeService.delete(rec.itemId);
 				lastVersion.set(iv.version);
-
+				conversationService.removeMessage(IMailReplicaUids.uniqueId(container.uid), rec.itemId);
 			});
 			return null;
 		});

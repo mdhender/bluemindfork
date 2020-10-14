@@ -17,6 +17,8 @@
   */
 package net.bluemind.backend.cyrus.replication.server.state;
 
+import java.math.BigInteger;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -27,12 +29,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
+import com.google.common.io.BaseEncoding;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.replication.server.state.MboxRecord.MessageRecordBuilder;
+import net.bluemind.backend.mail.api.Conversation;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.backend.mail.replica.api.ConversationAnnotation;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
+import net.bluemind.backend.mail.replica.api.MailboxRecordAnnotation;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplica.Acl;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
@@ -195,14 +201,25 @@ public class DtoConverters {
 	}
 
 	public static MboxRecord from(MailboxRecord mr) {
+		return builderFrom(mr).build();
+	}
+
+	public static MboxRecord from(MailboxRecord mr, Conversation conversation) {
+		MessageRecordBuilder builder = builderFrom(mr);
+		builder.annotations(
+				Collections.<MailboxRecordAnnotation>singletonList(new ConversationAnnotation(conversation)));
+		return builder.build();
+
+	}
+
+	private static MessageRecordBuilder builderFrom(MailboxRecord mr) {
 		MessageRecordBuilder b = MboxRecord.builder();
 		b.uid(mr.imapUid).modseq(mr.modSeq);
 		b.internalDate(mr.internalDate.getTime() / 1000).lastUpdated(mr.lastUpdated.getTime() / 1000);
 		b.body(mr.messageBody);
-		List<String> flags = new LinkedList<>();
-		flags.addAll(mr.flags.stream().map(item -> item.flag).collect(Collectors.toList()));
-		b.flags(flags);
-		return b.build();
+		b.flags(mr.flags.stream().map(item -> item.flag).collect(Collectors.toList()));
+		b.annotations(Collections.emptyList());
+		return b;
 	}
 
 	public static MailboxRecord from(MboxRecord replRec) {
@@ -247,6 +264,11 @@ public class DtoConverters {
 				break;
 			}
 		}
+
+		mr.conversationId = replRec.annotations().stream().filter(a -> "/vendor/cmu/cyrus-imapd/thrid".equals(a.entry))
+				.findFirst().map(a -> new BigInteger(BaseEncoding.base16().decode(a.value.toUpperCase())).longValue())
+				.orElse(null);
+
 		return mr;
 	}
 

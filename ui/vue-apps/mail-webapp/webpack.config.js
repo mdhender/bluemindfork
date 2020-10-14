@@ -16,7 +16,13 @@ const conf = {
         rules: [{ test: /\.ts?$/, use: ["babel-loader", "ts-loader"], exclude: /node_modules/ }]
     },
     resolve: {
-        extensions: [".ts"]
+        extensions: [".ts"],
+        alias: {
+            "~/actions$": path.resolve(__dirname, "src/store/types/actions.js"),
+            "~/getters$": path.resolve(__dirname, "src/store/types/getters.js"),
+            "~/mutations$": path.resolve(__dirname, "src/store/types/mutations.js"),
+            "~": path.resolve(__dirname, "src/")
+        }
     }
 };
 

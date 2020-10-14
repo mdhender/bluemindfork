@@ -1,7 +1,7 @@
 <template>
     <article
-        v-if="MESSAGE_IS_LOADED(ACTIVE_MESSAGE)"
-        class="mail-thread d-flex flex-column overflow-x-hidden"
+        v-if="CONVERSATION_IS_LOADED(conversation)"
+        class="mail-thread d-flex flex-column overflow-x-hidden bg-surface"
         :aria-label="$t('mail.application.region.messagethread')"
     >
         <bm-alert-area :alerts="alerts" @remove="REMOVE">
@@ -9,8 +9,7 @@
                 <component :is="context.alert.renderer" :alert="context.alert" />
             </template>
         </bm-alert-area>
-        <mail-composer v-if="ACTIVE_MESSAGE && ACTIVE_MESSAGE.composing" :message="ACTIVE_MESSAGE" />
-        <mail-viewer v-else :message="ACTIVE_MESSAGE" />
+        <mail-conversation-viewer :conversation="conversation" />
         <div />
     </article>
     <article v-else class="mail-thread">
@@ -25,23 +24,34 @@ import { INFO, REMOVE } from "@bluemind/alert.store";
 import { BmAlertArea } from "@bluemind/styleguide";
 
 import {
+    RESET_ACTIVE_MESSAGE,
+    RESET_PARTS_DATA,
     SET_ACTIVE_MESSAGE,
     SET_ACTIVE_FOLDER,
     SET_BLOCK_REMOTE_IMAGES,
-    SET_MESSAGE_COMPOSING,
-    UNSELECT_ALL_MESSAGES
-} from "~mutations";
-import { ACTIVE_MESSAGE, MESSAGE_IS_LOADED, MY_DRAFTS, MY_MAILBOX, SELECTION_IS_EMPTY } from "~getters";
-import { FETCH_MESSAGE_IF_NOT_LOADED } from "~actions";
+    SET_CURRENT_CONVERSATION,
+    UNSELECT_ALL_CONVERSATIONS
+} from "~/mutations";
+import {
+    CONVERSATION_LIST_IS_SEARCH_MODE,
+    CONVERSATION_METADATA,
+    CONVERSATION_IS_LOADED,
+    MY_DRAFTS,
+    MY_MAILBOX,
+    SELECTION_IS_EMPTY
+} from "~/getters";
+import { FETCH_CONVERSATION_IF_NOT_LOADED } from "~/actions";
 import BlockedRemoteContent from "./Alerts/BlockedRemoteContent";
 import VideoConferencing from "./Alerts/VideoConferencing";
 import MailComposer from "../MailComposer";
+import MailConversationViewer from "../MailViewer/MailConversationViewer";
 import MailViewer from "../MailViewer";
 import MailViewerLoading from "../MailViewer/MailViewerLoading";
-import MessagePathParam from "../../router/MessagePathParam";
-import { WaitForMixin, ComposerInitMixin } from "~mixins";
-import { LoadingStatus } from "../../model/loading-status";
-import { isNewMessage } from "../../model/draft";
+import ConversationPathParam from "~/router/ConversationPathParam";
+import { WaitForMixin, ComposerInitMixin } from "~/mixins";
+import { isDraftFolder } from "~/model/folder";
+import { LoadingStatus } from "~/model/loading-status";
+import { MessageCreationModes } from "~/model/message";
 
 export default {
     name: "MailThread",
@@ -49,6 +59,7 @@ export default {
         BlockedRemoteContent,
         BmAlertArea,
         MailComposer,
+        MailConversationViewer,
         MailViewer,
         MailViewerLoading,
         VideoConferencing
@@ -59,11 +70,29 @@ export default {
     },
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
-        ...mapGetters("mail", { ACTIVE_MESSAGE, MY_MAILBOX, MESSAGE_IS_LOADED, MY_DRAFTS, SELECTION_IS_EMPTY }),
-
+        ...mapState("mail", {
+            messages: ({ conversations }) => conversations.messages,
+            conversations: ({ conversations }) => conversations.conversationByKey,
+            currentConversation: ({ conversations }) => conversations.currentConversation
+        }),
+        ...mapGetters("mail", {
+            CONVERSATION_LIST_IS_SEARCH_MODE,
+            CONVERSATION_METADATA,
+            MY_MAILBOX,
+            CONVERSATION_IS_LOADED,
+            MY_DRAFTS,
+            SELECTION_IS_EMPTY
+        }),
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-thread") }),
+        conversation() {
+            // remember activeMessageKey corresponds to the message in the URL, the conversation we are currently viewing is stored in store.state.conversations.currentConversation
+            return this.CONVERSATION_METADATA(this.currentConversation?.key);
+        },
         folder() {
-            return this.ACTIVE_MESSAGE && this.folders[this.ACTIVE_MESSAGE.folderRef.key];
+            return this.conversation && this.folders[this.conversation.folderRef.key];
+        },
+        isADraft() {
+            return isDraftFolder(this.folder.path);
         },
         readOnlyAlert() {
             return {
@@ -80,48 +109,57 @@ export default {
                 this.REMOVE(this.readOnlyAlert.alert);
             }
         },
-        async "ACTIVE_MESSAGE.key"() {
+        async "currentConversation.key"() {
             this.SET_BLOCK_REMOTE_IMAGES(false);
-            try {
-                if (this.ACTIVE_MESSAGE && !this.ACTIVE_MESSAGE.composing) {
-                    const folderKey = this.ACTIVE_MESSAGE.folderRef.key;
-                    this.SET_ACTIVE_FOLDER(this.folders[folderKey]);
-                    if (this.MY_DRAFTS && folderKey === this.MY_DRAFTS.key) {
-                        this.SET_MESSAGE_COMPOSING({ messageKey: this.ACTIVE_MESSAGE.key, composing: true });
-                    }
-                }
-            } catch (e) {
-                console.log(e);
-                this.$router.push({ name: "mail:home" });
-            }
         },
-
-        "$route.params.messagepath": {
-            async handler(value) {
-                if (value) {
+        "$route.params.conversationpath": {
+            async handler(conversationPath) {
+                this.RESET_PARTS_DATA();
+                if (conversationPath) {
                     try {
+                        this.RESET_ACTIVE_MESSAGE();
                         let assert = mailbox => mailbox && mailbox.loading === LoadingStatus.LOADED;
                         await this.$waitFor(MY_MAILBOX, assert);
-                        const { folderKey, messageId: internalId } = MessagePathParam.parse(value, this.activeFolder);
-                        if (isNewMessage({ remoteRef: { internalId } })) {
-                            if (this.$route.query?.action && this.$route.query?.message) {
-                                const { action, message: related } = this.$route.query;
-                                await this.initRelatedMessage(action, MessagePathParam.parse(related));
-                            } else {
-                                this.initNewMessage();
-                            }
-                        }
-                        const message = await this.FETCH_MESSAGE_IF_NOT_LOADED({
+
+                        const {
+                            folderKey,
                             internalId,
+                            action,
+                            relatedFolderKey,
+                            relatedId
+                        } = ConversationPathParam.parse(conversationPath, this.activeFolder);
+
+                        if (!this.SELECTION_IS_EMPTY) {
+                            this.UNSELECT_ALL_CONVERSATIONS();
+                        }
+
+                        const conversation = await this.FETCH_CONVERSATION_IF_NOT_LOADED({
+                            conversationId: internalId,
                             folder: this.folders[folderKey]
                         });
-                        if (!this.SELECTION_IS_EMPTY) {
-                            this.UNSELECT_ALL_MESSAGES();
+
+                        switch (action) {
+                            case MessageCreationModes.REPLY:
+                            case MessageCreationModes.REPLY_ALL:
+                            case MessageCreationModes.FORWARD:
+                                await this.initRelatedMessage(action, {
+                                    internalId: relatedId,
+                                    folderKey: relatedFolderKey
+                                });
+                                break;
+                            case MessageCreationModes.NEW:
+                                this.initNewMessage();
+                                break;
+                            default:
+                                break;
                         }
-                        this.SET_ACTIVE_MESSAGE(message);
+
+                        if (conversation) {
+                            this.SET_CURRENT_CONVERSATION(conversation);
+                        }
                     } catch (e) {
-                        console.log(e);
                         this.$router.push({ name: "mail:home" });
+                        throw e;
                     }
                 }
             },
@@ -130,13 +168,15 @@ export default {
     },
     methods: {
         ...mapMutations("mail", {
+            RESET_PARTS_DATA,
+            RESET_ACTIVE_MESSAGE,
             SET_ACTIVE_FOLDER,
             SET_ACTIVE_MESSAGE,
             SET_BLOCK_REMOTE_IMAGES,
-            SET_MESSAGE_COMPOSING,
-            UNSELECT_ALL_MESSAGES
+            SET_CURRENT_CONVERSATION,
+            UNSELECT_ALL_CONVERSATIONS
         }),
-        ...mapActions("mail", { FETCH_MESSAGE_IF_NOT_LOADED }),
+        ...mapActions("mail", { FETCH_CONVERSATION_IF_NOT_LOADED }),
         ...mapActions("alert", { REMOVE, INFO })
     }
 };

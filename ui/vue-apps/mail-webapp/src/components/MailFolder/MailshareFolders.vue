@@ -11,7 +11,7 @@
 import { mapGetters } from "vuex";
 import MailFolderTree from "./MailFolderTree.vue";
 import FolderListLoading from "./FolderListLoading.vue";
-import { MAILBOXES_ARE_LOADED, MAILSHARE_ROOT_FOLDERS, MAILSHARES } from "~getters";
+import { MAILBOXES_ARE_LOADED, MAILSHARE_ROOT_FOLDERS, MAILSHARES } from "~/getters";
 
 export default {
     name: "MailshareFolders",

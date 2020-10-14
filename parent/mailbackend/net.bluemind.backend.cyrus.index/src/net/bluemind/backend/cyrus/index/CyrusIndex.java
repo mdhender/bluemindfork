@@ -50,7 +50,7 @@ public class CyrusIndex {
 		return records;
 	}
 
-	private CyrusIndexHeader readHeader() throws IOException, UnknownVersion {
+	public CyrusIndexHeader readHeader() throws IOException, UnknownVersion {
 		header = CyrusIndexHeader.from(stream);
 		return header;
 	}

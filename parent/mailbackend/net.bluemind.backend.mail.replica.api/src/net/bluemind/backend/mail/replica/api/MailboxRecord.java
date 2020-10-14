@@ -26,12 +26,15 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.core.api.BMApi;
 
 /**
  * %(UID 3 MODSEQ 4 LAST_UPDATED 1483363360 FLAGS (\Seen) INTERNALDATE
- * 1483363360 SIZE 830 GUID 2a48b9230d2e6ad4a283d5d817bc6c01c097e3a9)
+ * 1483363360 SIZE 830 GUID 2a48b9230d2e6ad4a283d5d817bc6c01c097e3a9 ANNOTATIONS
+ * (%(ENTRY /vendor/cmu/cyrus-imapd/thrid USERID NIL VALUE 555fb6a47816a480)))
  *
  */
 @BMApi(version = "3")
@@ -76,5 +79,11 @@ public class MailboxRecord extends MailboxItem {
 	public long modSeq;
 	public Date internalDate;
 	public Date lastUpdated;
+	public Long conversationId;
+
+	@JsonGetter(value = "conversationId")
+	public String getConversationId() {
+		return String.valueOf(conversationId);
+	}
 
 }

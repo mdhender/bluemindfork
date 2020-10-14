@@ -3,18 +3,18 @@
 ## Files Management
 
 -   Components are written in [single-file components](https://vuejs.org/v2/guide/single-file-components.html) in `components/` folder.
--   Filenames of [single-file components](https://vuejs.org/v2/guide/single-file-components.html) must always be PascalCase: `MessageList.vue`.
--   Child components that are tightly coupled with their parent should include the parent component name as a prefix: `MessageList.vue`, `MessageListItem.vue`, `MessageListSeparator.vue`
+-   Filenames of [single-file components](https://vuejs.org/v2/guide/single-file-components.html) must always be PascalCase: `ConversationList.vue`.
+-   Child components that are tightly coupled with their parent should include the parent component name as a prefix: `ConversationList.vue`, `ConversationListItem.vue`, `ConversationListSeparator.vue`
 
 ### examples
 
 ```
 .
-└── MailMessageList
-    ├── MessageListItemQuickActionButtons.vue
-    ├── MessageListItem.vue
-    ├── MessageListSeparator.vue
-    └── MessageList.vue
+└── MailConversationList
+    ├── ConversationListItemQuickActionButtons.vue
+    ├── ConversationListItem.vue
+    ├── ConversationListSeparator.vue
+    └── ConversationList.vue
 ```
 
 ## Component

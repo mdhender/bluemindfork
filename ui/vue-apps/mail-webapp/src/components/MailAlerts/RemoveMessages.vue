@@ -15,11 +15,9 @@ export default {
     },
     computed: {
         subject() {
-            if (Array.isArray(this.alert.payload)) {
-                return this.alert.payload[0].subject;
-            } else {
-                return this.alert.payload.subject;
-            }
+            const payload = this.alert.payload;
+            const firstItem = payload.conversations?.[0] || payload.messages?.[0] || payload[0] || payload;
+            return firstItem.subject;
         }
     }
 };

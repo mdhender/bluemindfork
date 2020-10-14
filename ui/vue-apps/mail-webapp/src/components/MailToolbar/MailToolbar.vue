@@ -7,18 +7,27 @@
             v-if="MESSAGE_IS_LOADED(ACTIVE_MESSAGE) && ACTIVE_MESSAGE.composing"
             :message="ACTIVE_MESSAGE"
         />
-        <mail-toolbar-selected-messages v-else-if="MESSAGE_IS_LOADED(ACTIVE_MESSAGE) || MULTIPLE_MESSAGE_SELECTED" />
+        <mail-toolbar-selected-conversations
+            v-else-if="currentConversationIsLoaded || SEVERAL_CONVERSATIONS_SELECTED"
+        />
     </bm-button-toolbar>
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 
 import { BmButton, BmIcon, BmButtonToolbar } from "@bluemind/styleguide";
 
 import MailToolbarComposeMessage from "./MailToolbarComposeMessage";
-import MailToolbarSelectedMessages from "./MailToolbarSelectedMessages";
-import { ACTIVE_MESSAGE, MULTIPLE_MESSAGE_SELECTED, MESSAGE_IS_LOADED } from "~getters";
+import MailToolbarSelectedConversations from "./MailToolbarSelectedConversations";
+import {
+    ACTIVE_MESSAGE,
+    CONVERSATION_IS_LOADED,
+    CONVERSATION_METADATA,
+    MESSAGE_IS_LOADED,
+    SEVERAL_CONVERSATIONS_SELECTED
+} from "~/getters";
+import { UNSET_CURRENT_CONVERSATION } from "~/mutations";
 
 export default {
     name: "MailToolbar",
@@ -27,14 +36,26 @@ export default {
         BmButtonToolbar,
         BmIcon,
         MailToolbarComposeMessage,
-        MailToolbarSelectedMessages
+        MailToolbarSelectedConversations
     },
     computed: {
-        ...mapState("mail", ["messages"]),
-        ...mapGetters("mail", { ACTIVE_MESSAGE, MULTIPLE_MESSAGE_SELECTED, MESSAGE_IS_LOADED })
+        ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
+        ...mapState("mail", { currentConversation: ({ conversations }) => conversations.currentConversation }),
+        ...mapGetters("mail", {
+            ACTIVE_MESSAGE,
+            CONVERSATION_IS_LOADED,
+            CONVERSATION_METADATA,
+            MESSAGE_IS_LOADED,
+            SEVERAL_CONVERSATIONS_SELECTED
+        }),
+        currentConversationIsLoaded() {
+            return this.CONVERSATION_IS_LOADED(this.CONVERSATION_METADATA(this.currentConversation?.key));
+        }
     },
     methods: {
+        ...mapMutations("mail", { UNSET_CURRENT_CONVERSATION }),
         back() {
+            this.UNSET_CURRENT_CONVERSATION();
             this.$router.navigate("v:mail:home");
         }
     }

@@ -58,6 +58,7 @@ import net.bluemind.server.api.TagDescriptor;
 public class Repack implements IMaintenanceScript {
 	private static final long TIMEOUT_HOURS = 6;
 	private static final int DEFAULT_CHANGESET_PARTITION_COUNT = 256;
+	private static final int DEFAULT_CONVERSATION_PARTITION_COUNT = 25;
 
 	private static final Logger logger = LoggerFactory.getLogger(Repack.class);
 	private static final Map<DataSource, Integer> dsPartitionCount = new HashMap<>();
@@ -169,7 +170,7 @@ public class Repack implements IMaintenanceScript {
 	}
 
 	public void setColumnNotNull(DataSource ds, IServerTaskMonitor monitor, String tableName, String columnName) {
-		if (! isColumnNotNull(ds, monitor, tableName, columnName)) {
+		if (!isColumnNotNull(ds, monitor, tableName, columnName)) {
 			setColumnNotNullNonBlocking(ds, monitor, tableName, columnName);
 		}
 	}
@@ -266,6 +267,14 @@ public class Repack implements IMaintenanceScript {
 						+ DEFAULT_CHANGESET_PARTITION_COUNT + ") -1 AS partition_count;\")\n");
 				sb.append("for i in $(seq 0 ${partitionCount}); do\n");
 				sb.append("  pg_repack -d " + dbName + " -t \"t_container_changeset_${i}\"\n");
+				sb.append("done\n");
+
+				// Conversations
+				sb.append("conversationsPartitionCount=$(psql -d " + dbName
+						+ " -AtqE -c \"SELECT COALESCE(current_setting('bm.conversation_partitions', true)::integer, "
+						+ DEFAULT_CONVERSATION_PARTITION_COUNT + ") -1 AS partition_count;\")\n");
+				sb.append("for i in $(seq 0 ${conversationsPartitionCount}); do\n");
+				sb.append("  pg_repack -d " + dbName + " -t \"t_conversation_${i}\"\n");
 				sb.append("done\n");
 			}
 			String scriptPath = "/tmp/maintenance_repack_" + System.nanoTime() + ".sh";

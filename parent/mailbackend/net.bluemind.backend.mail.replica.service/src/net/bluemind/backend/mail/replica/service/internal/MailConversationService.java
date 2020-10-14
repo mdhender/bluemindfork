@@ -1,0 +1,193 @@
+/* BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2021
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+package net.bluemind.backend.mail.replica.service.internal;
+
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import javax.sql.DataSource;
+
+import net.bluemind.backend.mail.api.Conversation;
+import net.bluemind.backend.mail.api.Conversation.MessageRef;
+import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
+import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.replica.persistence.ConversationStore;
+import net.bluemind.backend.mail.replica.persistence.InternalConversation;
+import net.bluemind.backend.mail.replica.persistence.InternalConversation.InternalMessageRef;
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.ItemFlagFilter;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.acl.Verb;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.service.internal.ContainerStoreService;
+import net.bluemind.core.container.service.internal.RBACManager;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+
+public class MailConversationService implements IInternalMailConversation {
+
+	private final ContainerStoreService<InternalConversation> storeService;
+	private final ConversationStore conversationStore;
+	private final RBACManager rbacManager;
+	private final ContainerStore containerStore;
+
+	public MailConversationService(BmContext context, DataSource ds, Container conversationContainer) {
+		this.conversationStore = new ConversationStore(ds, conversationContainer);
+		this.storeService = new ContainerWithoutChangelogService<>(ds, context.getSecurityContext(),
+				conversationContainer, conversationStore);
+		rbacManager = RBACManager.forContext(context).forContainer(conversationContainer);
+		this.containerStore = new ContainerStore(context, ds, context.getSecurityContext());
+	}
+
+	@Override
+	public void create(String uid, Conversation conversation) {
+		rbacManager.check(Verb.Write.name());
+		storeService.create(uid, createDisplayName(conversation), conversationToInternal(conversation));
+	}
+
+	@Override
+	public void update(String uid, Conversation conversation) {
+		rbacManager.check(Verb.Write.name());
+		storeService.update(uid, createDisplayName(conversation), conversationToInternal(conversation));
+	}
+
+	@Override
+	public ItemValue<Conversation> byConversationId(long conversationId) {
+		rbacManager.check(Verb.Read.name());
+		try {
+			Long itemId = conversationStore.byConversationId(conversationId);
+			if (itemId == null) {
+				return null;
+			}
+			return conversationToPublic(storeService.get(itemId, null));
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+	}
+
+	private String createDisplayName(Conversation conversation) {
+		return "conversation_" + conversation.conversationId;
+	}
+
+	@Override
+	public List<ItemValue<Conversation>> byFolder(String folderUid, ItemFlagFilter filter) {
+		rbacManager.check(Verb.Read.name());
+		try {
+			Predicate<InternalMessageRef> filterPredicate = null;
+			if (!filter.matchAll()) {
+				Set<Long> validIds = getValidIds(folderUid, filter);
+				filterPredicate = id -> validIds.contains(id.itemId);
+			} else {
+				filterPredicate = id -> true;
+			}
+			Predicate<InternalMessageRef> pred = filterPredicate;
+
+			List<Long> conversationItemIds = conversationStore.byFolder(uidToId(folderUid));
+			return storeService.getMultipleById(conversationItemIds).stream() //
+					.filter(conversation -> conversation.value.messageRefs.stream() //
+							.anyMatch(pred))
+					.map(this::conversationToPublic).collect(Collectors.toList());
+
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+	}
+
+	private Set<Long> getValidIds(String folderUid, ItemFlagFilter filter) {
+		Set<Long> validIds = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDbMailboxRecords.class, folderUid).filteredChangesetById(0l, filter).created.stream()
+						.map(i -> i.id).collect(Collectors.toSet());
+		return validIds;
+	}
+
+	@Override
+	public void removeMessage(String folderUid, Long itemId) {
+		rbacManager.check(Verb.Write.name());
+		try {
+			List<ItemValue<Conversation>> conversations = storeService
+					.getMultipleById(conversationStore.byMessage(uidToId(folderUid), itemId)).stream()
+					.map(this::conversationToPublic).collect(Collectors.toList());
+			for (ItemValue<Conversation> conversation : conversations) {
+				conversation.value.removeMessage(folderUid, itemId);
+				if (conversation.value.messageRefs.isEmpty()) {
+					storeService.delete(conversation.uid);
+				} else {
+					update(conversation.uid, conversation.value);
+				}
+			}
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+	}
+
+	private InternalConversation conversationToInternal(Conversation conversation) {
+		InternalConversation internal = new InternalConversation();
+		internal.conversationId = conversation.conversationId;
+		internal.messageRefs = conversation.messageRefs.stream().map(this::messageToInternal)
+				.collect(Collectors.toList());
+		return internal;
+	}
+
+	private ItemValue<Conversation> conversationToPublic(ItemValue<InternalConversation> itemValue) {
+		Conversation external = new Conversation();
+		external.conversationId = itemValue.value.conversationId;
+		external.messageRefs = itemValue.value.messageRefs.stream().map(this::messageToPublic)
+				.collect(Collectors.toList());
+		return ItemValue.create(itemValue, external);
+	}
+
+	private InternalMessageRef messageToInternal(MessageRef messageid) {
+		InternalMessageRef internal = new InternalMessageRef();
+		internal.date = messageid.date;
+		internal.itemId = messageid.itemId;
+		internal.folderId = uidToId(messageid.folderUid);
+		return internal;
+	}
+
+	private MessageRef messageToPublic(InternalMessageRef internalMessageId) {
+		MessageRef external = new MessageRef();
+		external.date = internalMessageId.date;
+		external.itemId = internalMessageId.itemId;
+		external.folderUid = idToUid(internalMessageId.folderId);
+		return external;
+	}
+
+	private String idToUid(long folderId) {
+		try {
+			return IMailReplicaUids.getUniqueId(containerStore.get(folderId).uid);
+		} catch (SQLException e) {
+			throw new ServerFault(e);
+		}
+	}
+
+	private long uidToId(String folderUid) {
+		try {
+			return containerStore.get(IMailReplicaUids.mboxRecords(folderUid)).id;
+		} catch (SQLException e) {
+			throw new ServerFault(e);
+		}
+	}
+
+}

@@ -47,7 +47,6 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistence.ContainerCache;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
@@ -525,7 +524,7 @@ public class DomainsServiceTests {
 			getService(sameDomainSC).get("bm.lan");
 			CacheRegistry reg = ServerSideServiceProvider.getProvider(sameDomainSC).instance(CacheRegistry.class);
 			assertNotNull(reg);
-			Cache<String, Object> cache = reg.get(ContainerCache.class);
+			Cache<String, Object> cache = reg.get("ContainerUidCache");
 			assertNotNull(cache);
 			cache.asMap().forEach((k, v) -> System.err.println(k + " => " + v));
 			assertTrue(cache.asMap().containsKey("domains_bluemind-noid"));

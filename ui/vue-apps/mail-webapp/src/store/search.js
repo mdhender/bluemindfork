@@ -1,5 +1,5 @@
-import { MESSAGE_LIST_IS_SEARCH_MODE } from "~getters";
-import { SET_SEARCH_FOLDER, SET_SEARCH_PATTERN } from "~mutations";
+import { CONVERSATION_LIST_IS_SEARCH_MODE } from "~/getters";
+import { SET_SEARCH_FOLDER, SET_SEARCH_PATTERN } from "~/mutations";
 
 const state = {
     pattern: null,
@@ -16,7 +16,7 @@ const mutations = {
 };
 
 const getters = {
-    [MESSAGE_LIST_IS_SEARCH_MODE]: ({ pattern }) => pattern && pattern.trim().length > 0
+    [CONVERSATION_LIST_IS_SEARCH_MODE]: ({ pattern }) => pattern && pattern.trim().length > 0
 };
 
 export default { state, mutations, getters };

@@ -1,7 +1,7 @@
 import actions from "./actions";
 import mutations from "./mutations";
-import { MESSAGE_IS_LOADED, MESSAGE_IS_LOADING } from "~getters";
-import { LoadingStatus } from "../../model/loading-status";
+import { MESSAGE_IS_LOADED, MESSAGE_IS_LOADING } from "~/getters";
+import { LoadingStatus } from "~/model/loading-status";
 
 export default {
     actions,

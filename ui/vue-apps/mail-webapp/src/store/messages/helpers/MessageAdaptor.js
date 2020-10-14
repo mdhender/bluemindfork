@@ -4,9 +4,9 @@ import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mai
 
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
-import { createWithMetadata, MessageHeader, MessageStatus } from "~model/message";
+import { createWithMetadata, MessageHeader, MessageStatus } from "~/model/message";
 import TreeWalker from "./TreeWalker";
-import { LoadingStatus } from "../../../model/loading-status";
+import { LoadingStatus } from "~/model/loading-status";
 
 export default {
     fromMailboxItem(remote, { key, uid }) {
@@ -21,7 +21,7 @@ export default {
             ...computeRecipients(remote),
             messageId: remote.value.body.messageId,
             version: remote.version,
-            references: remote.value.body.references || [],
+            conversationId: remote.value.conversationId,
             headers: remote.value.body.headers,
             ...this.computeParts(remote.value.body.structure),
             subject: remote.value.body.subject,
@@ -44,7 +44,6 @@ export default {
                 headers: local.headers,
                 recipients: buildRecipients(local),
                 messageId: local.messageId,
-                references: local.references,
                 structure: structure
             },
             imapUid: local.remoteRef.imapUid,

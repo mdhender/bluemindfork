@@ -17,6 +17,11 @@ public class HotUpgradeTask {
 	public int failure = 0;
 	public Date createdAt;
 	public Date updatedAt;
+	public HotUpgradeTaskExecutionMode executionMode;
+
+	public HotUpgradeTask() {
+		executionMode = HotUpgradeTaskExecutionMode.DIRECT;
+	}
 
 	private Map<String, Object> deserializedParameters;
 
@@ -50,6 +55,10 @@ public class HotUpgradeTask {
 	public HotUpgradeTask setParameters(Map<String, Object> parameters) {
 		this.parameters = JsonUtils.asString(parameters);
 		return this;
+	}
+
+	public String groupName() {
+		return this.updatedAt.toInstant().toEpochMilli() + "-" + this.operation;
 	}
 
 	@Override

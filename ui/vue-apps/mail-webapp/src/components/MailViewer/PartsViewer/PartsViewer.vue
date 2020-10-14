@@ -2,11 +2,16 @@
     <div class="parts-viewer py-2">
         <template v-for="(part, index) in parts">
             <hr v-if="index !== 0" :key="part.address + '-separator'" class="part-separator" />
-            <text-html-part-viewer v-if="isHtmlPart(part)" :key="part.address" :value="htmlWithImageInserted[index]" />
+            <text-html-part-viewer
+                v-if="isHtmlPart(part)"
+                :key="part.address"
+                :value="htmlWithImageInserted[index]"
+                :message="message"
+            />
             <text-plain-part-viewer
                 v-else-if="isTextPart(part)"
                 :key="part.address"
-                :value="activeMessage.partsDataByAddress[part.address]"
+                :value="partsData[message.key] && partsData[message.key][part.address]"
             />
             <image-part-viewer v-else-if="isImagePart(part)" :key="part.address" :value="computeImageUrl(part)" />
         </template>
@@ -18,11 +23,11 @@ import { mapActions, mapState } from "vuex";
 
 import { computePreviewOrDownloadUrl, MimeType, InlineImageHelper } from "@bluemind/email";
 
-import { getPartsFromCapabilities } from "~model/part";
+import { getPartsFromCapabilities } from "~/model/part";
 import ImagePartViewer from "./ImagePartViewer";
 import TextHtmlPartViewer from "./TextHtmlPartViewer";
 import TextPlainPartViewer from "./TextPlainPartViewer";
-import { FETCH_ACTIVE_MESSAGE_INLINE_PARTS } from "~actions";
+import { FETCH_PART_DATA } from "~/actions";
 
 const VIEWER_CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
 
@@ -46,7 +51,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail", ["activeMessage"])
+        ...mapState("mail", ["partsData"])
     },
     watch: {
         "message.key": {
@@ -57,14 +62,15 @@ export default {
 
                 this.parts = [...inlines.filter(part => !MimeType.isImage(part) || !part.contentId)];
 
-                await this.FETCH_ACTIVE_MESSAGE_INLINE_PARTS({
+                await this.FETCH_PART_DATA({
+                    messageKey: this.message.key,
                     folderUid: this.message.folderRef.uid,
                     imapUid: this.message.remoteRef.imapUid,
                     inlines: inlines.filter(part => MimeType.isHtml(part) || MimeType.isText(part))
                 });
 
                 const html = inlines.filter(MimeType.isHtml);
-                const htmlContents = html.map(part => this.activeMessage.partsDataByAddress[part.address]);
+                const htmlContents = html.map(part => this.partsData[this.message.key][part.address]);
                 const cidImages = inlines.filter(part => MimeType.isImage(part) && part.contentId);
                 const insertionResult = await InlineImageHelper.insertAsUrl(
                     htmlContents,
@@ -84,7 +90,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", { FETCH_ACTIVE_MESSAGE_INLINE_PARTS }),
+        ...mapActions("mail", { FETCH_PART_DATA }),
         isHtmlPart(part) {
             return MimeType.isHtml(part);
         },

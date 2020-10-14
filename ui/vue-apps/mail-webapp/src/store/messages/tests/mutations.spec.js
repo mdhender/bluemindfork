@@ -1,6 +1,6 @@
 import mutations from "../mutations";
-import { MessageStatus } from "~model/message";
-import { LoadingStatus } from "../../../model/loading-status";
+import { MessageStatus } from "~/model/message";
+import { LoadingStatus } from "~/model/loading-status";
 
 describe("mutations", () => {
     describe("ADD_MESSAGES", () => {
@@ -34,14 +34,14 @@ describe("mutations", () => {
             const message = { key: "key1", subject: "mySubject" };
             const message2 = { key: "key2", subject: "anotherSubject" };
             const state = { [message.key]: message, [message2.key]: message2 };
-            mutations.REMOVE_MESSAGES(state, [message2]);
+            mutations.REMOVE_MESSAGES(state, { messages: [message2] });
             expect(state).toEqual({ [message.key]: message });
         });
 
         test("do nothing if key dont exist", () => {
             const message = { key: "key1", subject: "mySubject" };
             const state = { [message.key]: message };
-            mutations.REMOVE_MESSAGES(state, ["UNKNOWN-KEY"]);
+            mutations.REMOVE_MESSAGES(state, { messages: ["UNKNOWN-KEY"] });
             expect(state).toEqual({ [message.key]: message });
         });
     });

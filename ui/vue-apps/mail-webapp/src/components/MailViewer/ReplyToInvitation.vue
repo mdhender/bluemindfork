@@ -61,9 +61,9 @@ import { mapActions, mapGetters, mapState } from "vuex";
 
 import { BmButton, BmIcon, BmLabelIcon, BmSkeleton, BmSkeletonButton } from "@bluemind/styleguide";
 
-import { SET_EVENT_STATUS } from "~actions";
-import { ACTIVE_MESSAGE, CURRENT_MAILBOX } from "~getters";
-import { LoadingStatus } from "../../model/loading-status";
+import { SET_EVENT_STATUS } from "~/actions";
+import { ACTIVE_MESSAGE, CURRENT_MAILBOX } from "~/getters";
+import { LoadingStatus } from "~/model/loading-status";
 
 export default {
     name: "ReplyToInvitation",

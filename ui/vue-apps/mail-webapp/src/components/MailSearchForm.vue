@@ -87,14 +87,14 @@ import {
 import { mapGetters, mapMutations, mapState } from "vuex";
 import debounce from "lodash.debounce";
 import GlobalEvents from "vue-global-events";
-import { SearchHelper } from "../model/SearchHelper";
-import { MY_SENT, MY_MAILBOX, MY_INBOX, MY_TRASH } from "~getters";
-import { isMailshareRoot } from "~model/folder";
-import { MessageListStatus } from "../store/messageList";
-import { SET_MESSAGE_LIST_STATUS } from "~mutations";
-import { translatePath } from "~model/folder";
-import { MailRoutesMixin } from "~mixins";
-import { LoadingStatus } from "../model/loading-status";
+import { SearchHelper } from "~/model/SearchHelper";
+import { MY_SENT, MY_MAILBOX, MY_INBOX, MY_TRASH } from "~/getters";
+import { isMailshareRoot } from "~/model/folder";
+import { ConversationListStatus } from "~/store/conversationList";
+import { SET_CONVERSATION_LIST_STATUS } from "~/mutations";
+import { translatePath } from "~/model/folder";
+import { MailRoutesMixin } from "~/mixins";
+import { LoadingStatus } from "~/model/loading-status";
 
 const SPINNER_TIMEOUT = 250;
 const UPDATE_ROUTE_TIMEOUT = 1000;
@@ -132,13 +132,16 @@ export default {
                     }),
                 UPDATE_ROUTE_TIMEOUT
             ),
-            showSpinner: debounce(() => this.SET_MESSAGE_LIST_STATUS(MessageListStatus.LOADING), SPINNER_TIMEOUT),
+            showSpinner: debounce(
+                () => this.SET_CONVERSATION_LIST_STATUS(ConversationListStatus.LOADING),
+                SPINNER_TIMEOUT
+            ),
             showForm: false,
             maxFolders: 10
         };
     },
     computed: {
-        ...mapState("mail", { currentSearch: ({ messageList }) => messageList.search }),
+        ...mapState("mail", { currentSearch: ({ conversationList }) => conversationList.search }),
         ...mapState("mail", ["folders", "mailboxes", "activeFolder"]),
         ...mapGetters("mail", { MY_INBOX, MY_MAILBOX, MY_SENT, MY_TRASH }),
         filteredFolders() {
@@ -188,7 +191,7 @@ export default {
         this.setFolderFromKeyOrInitial(this.currentSearch.folder);
     },
     methods: {
-        ...mapMutations("mail", { SET_MESSAGE_LIST_STATUS }),
+        ...mapMutations("mail", { SET_CONVERSATION_LIST_STATUS }),
         filter(folder, { root }) {
             return folder.path.match(this.folderPattern, root);
         },
@@ -202,7 +205,7 @@ export default {
         },
         reset() {
             this.cancel();
-            this.SET_MESSAGE_LIST_STATUS(MessageListStatus.IDLE);
+            this.SET_CONVERSATION_LIST_STATUS(ConversationListStatus.IDLE);
             this.pattern = null;
             this.$router.navigate({ name: "v:mail:home", params: { search: null } });
             this.setSelectedFolder(this.initialFolder);

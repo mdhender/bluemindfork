@@ -9,11 +9,10 @@ import {
     REMOVE_MESSAGES,
     SAVE_MESSAGE,
     SEND_MESSAGE
-} from "~actions";
-import { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~getters";
-import { ADD_MESSAGES } from "~mutations";
-import { isNewMessage } from "~model/draft";
-import { ACTIVE_MESSAGE } from "../store/types/getters";
+} from "~/actions";
+import { ACTIVE_MESSAGE, MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~/getters";
+import { ADD_MESSAGES, REMOVE_NEW_MESSAGE_FROM_CONVERSATION } from "~/mutations";
+import { isNewMessage } from "~/model/draft";
 
 /**
  * Provide composition Vuex actions to components
@@ -31,13 +30,24 @@ export default {
         };
     },
     computed: {
+        ...mapState("mail", ["activeFolder", "folders"]),
         ...mapGetters("mail", {
             $_ComposerActionsMixin_MY_DRAFTS: MY_DRAFTS,
             $_ComposerActionsMixin_MY_OUTBOX: MY_OUTBOX,
             $_ComposerActionsMixin_MY_SENT: MY_SENT,
             $_ComposerActionsMixin_MY_MAILBOX_KEY: MY_MAILBOX_KEY
         }),
-        ...mapState("mail", { $_ComposerActionsMixin_messageCompose: "messageCompose" })
+        ...mapState("mail", {
+            $_ComposerActionsMixin_messageCompose: "messageCompose",
+            $_ComposerActionsMixin_currentConversation: ({ conversations }) => conversations.currentConversation
+        }),
+        ...mapState("session", { $_ComposerActionsMixin_settings: ({ settings }) => settings.remote }),
+        conversationsActivated() {
+            return (
+                this.$_ComposerActionsMixin_settings.mail_thread === "true" &&
+                this.folders[this.activeFolder].allowConversations
+            );
+        }
     },
     methods: {
         ...mapActions("mail", {
@@ -48,7 +58,10 @@ export default {
             $_ComposerActionsMixin_REMOVE_ATTACHMENT: REMOVE_ATTACHMENT,
             $_ComposerActionsMixin_REMOVE_MESSAGES: REMOVE_MESSAGES
         }),
-        ...mapMutations("mail", { $_ComposerActionsMixin_ADD_MESSAGES: ADD_MESSAGES }),
+        ...mapMutations("mail", {
+            $_ComposerActionsMixin_ADD_MESSAGES: ADD_MESSAGES,
+            $_ComposerActionsMixin_REMOVE_NEW_MESSAGE_FROM_CONVERSATION: REMOVE_NEW_MESSAGE_FROM_CONVERSATION
+        }),
         async debouncedSave() {
             const wasMessageOnlyLocal = isNewMessage(this.message);
             await this.$_ComposerActionsMixin_DEBOUNCED_SAVE({
@@ -89,7 +102,26 @@ export default {
         },
         async deleteDraft() {
             if (isNewMessage(this.message)) {
-                this.$router.navigate("v:mail:home");
+                if (!this.$_ComposerActionsMixin_currentConversation) {
+                    this.$router.navigate("v:mail:home");
+                } else {
+                    this.$_ComposerActionsMixin_REMOVE_NEW_MESSAGE_FROM_CONVERSATION({
+                        conversation: this.$_ComposerActionsMixin_currentConversation,
+                        message: this.message
+                    });
+
+                    if (this.conversationsActivated) {
+                        this.$router.navigate({
+                            name: "v:mail:conversation",
+                            params: { conversation: this.$_ComposerActionsMixin_currentConversation }
+                        });
+                    } else {
+                        this.$router.navigate({
+                            name: "v:mail:message",
+                            params: { message: this.$_ComposerActionsMixin_currentConversation }
+                        });
+                    }
+                }
             } else {
                 const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.draft.delete.confirm.content"), {
                     title: this.$t("mail.draft.delete.confirm.title"),
@@ -101,9 +133,13 @@ export default {
                     autoFocusButton: "ok"
                 });
                 if (confirm) {
-                    this.$_ComposerActionsMixin_REMOVE_MESSAGES([this.message]);
+                    const conversation = this.$_ComposerActionsMixin_currentConversation;
+                    this.$_ComposerActionsMixin_REMOVE_MESSAGES({ conversation, messages: [this.message] });
                     this.removeAttachmentAndInlineTmpParts();
-                    this.$router.navigate("v:mail:home");
+
+                    if (!this.conversationsActivated) {
+                        this.$router.navigate("v:mail:home");
+                    }
                 }
             }
         },
@@ -116,7 +152,13 @@ export default {
                 sentFolder: this.$_ComposerActionsMixin_MY_SENT,
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
             });
-            this.$router.navigate("v:mail:home");
+            if (
+                !this.conversationsActivated ||
+                !this.$_ComposerActionsMixin_currentConversation ||
+                this.$_ComposerActionsMixin_currentConversation.messages.length < 2
+            ) {
+                this.$router.navigate("v:mail:home");
+            }
         },
         removeAttachmentAndInlineTmpParts() {
             const service = inject("MailboxItemsPersistence", this.message.folderRef.uid);

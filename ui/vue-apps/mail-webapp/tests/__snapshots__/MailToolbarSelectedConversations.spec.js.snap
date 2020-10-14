@@ -1,0 +1,414 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
+<div
+  class="mail-toolbar-selected-conversations"
+>
+  <button
+    class="btn unread btn-lg-simple-dark btn-inline-light"
+    style="display: none;"
+    type="button"
+  >
+    <svg
+      aria-hidden="true"
+      class="svg-inline--fa fa-read fa-w-16 fa-2x"
+      data-icon="read"
+      data-prefix="fas"
+      focusable="false"
+      role="img"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        class=""
+        d="M5.70239,0.0982214 c 0.17679,-0.1309619 0.41843,-0.1309619 0.59522,0 L 10.7976,3.43155 C 10.9249,3.52585 11,3.67491 11,3.83333 V 10.5 c 0,0.2761 -0.2239,0.5 -0.5,0.5 h -9 C 1.22386,11 1,10.7761 1,10.5 V 3.83333 C 1,3.67491 1.07508,3.52585 1.20239,3.43155 Z M 10,10 V 4.43427 L 6.00001,7.10093 2,4.43426 V 10 Z M 9.20998,3.5 6,1.12223 2.79002,3.5 h 6.41996"
+        fill="currentColor"
+      />
+    </svg>
+     
+    <span
+      class="d-none d-lg-block"
+    >
+       
+    </span>
+  </button>
+   
+  <button
+    class="btn read btn-lg-simple-dark btn-inline-light"
+    type="button"
+  >
+    <svg
+      aria-hidden="true"
+      class="svg-inline--fa fa-unread fa-w-16 fa-2x"
+      data-icon="unread"
+      data-prefix="fas"
+      focusable="false"
+      role="img"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        class=""
+        d="M 1,9.50001 H 2.5 V 10.5 c 0,0.5523 0.44771,1 1,1 h 7 c 0.5523,0 1,-0.4477 1,-1 V 5.50001 c 0,-0.55228 -0.4477,-1 -1,-1 h -7 c -0.55229,0 -1,0.44772 -1,1 v 3 h -1 l 3e-5,-5 L 4.6,1.32501 7.9,3.80002 C 8.12091,3.9657 8.43431,3.92093 8.6,3.70002 8.76569,3.4791 8.72091,3.1657 8.5,3.00002 L 4.6,0.0750122 0.700028,2.85001 c -0.125903,0.09443 -0.2,0.24263 -0.2,0.4 L 0.5,9.00001 C 0.5,9.13262 0.552678,9.2598 0.646446,9.35357 0.740214,9.44734 0.867392,9.50001 1,9.50001 Z M 3.5,8.99932 V 6.15858 L 6.99995,9.15854 10.5,6.1585 V 10.5 h -7 V 9.00071 Z M 6.99995,7.84146 4.26826,5.50001 h 5.46339 z"
+        fill="currentColor"
+      />
+    </svg>
+     
+    <span
+      class="d-none d-lg-block"
+    >
+      
+    </span>
+  </button>
+   
+  <div
+    class="dropdown b-dropdown mail-toolbar-selected-conversations-move-action h-100 btn-group"
+  >
+    <!---->
+    <button
+      aria-expanded="false"
+      aria-haspopup="true"
+      class="btn dropdown-toggle btn-inline-light btn-lg-simple-dark dropdown-toggle-no-caret"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        class="svg-inline--fa fa-folder fa-w-16 fa-2x"
+        data-icon="folder"
+        data-prefix="fas"
+        focusable="false"
+        role="img"
+        viewBox="0 0 12 12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          class=""
+          d="m 1.29221,10.5 h 8.2189 c 0.23,0 0.43,-0.16 0.48,-0.38 l 1.99999,-7 c 0.04,-0.15 0,-0.31 -0.09,-0.43 -0.09,-0.12 -0.24,-0.19 -0.39,-0.19 l -5.07999,1e-5 -0.86,-0.85 c -0.09,-0.1 -0.22,-0.15 -0.35,-0.15 L 3.29222,1.5 c -0.24,0 -0.44,0.16 -0.49,0.39 L 2.64972,2.49998 H 0.501098 c -0.15,0 -0.29,0.06 -0.39,0.19 -0.0999996,0.12 -0.1299996,0.27 -0.0999996,0.42 L 0.631108,10.0359 C 0.672572,10.2266 0.892844,10.404 1.09801,10.4591 1.15887,10.4857 1.22452,10.5 1.29221,10.5 Z M 1.1211,3.49998 H 2.39972 L 1.41882,7.42356 Z M 9.12111,9.5 h -7.2089 l 1.78001,-7 1.31889,1e-5 0.86,0.85 c 0.09,0.1 0.22,0.15 0.35,0.15 L 10.8711,3.5 Z"
+          fill="currentColor"
+        />
+      </svg>
+       
+      <span
+        class="d-none d-lg-block"
+      >
+         
+      </span>
+    </button>
+    <ul
+      class="dropdown-menu"
+      role="menu"
+      tabindex="-1"
+    >
+      <!---->
+        
+      <li
+        class="bm-dropdown-autocomplete"
+        role="presentation"
+      >
+        <!---->
+        <ul
+          class="list-unstyled"
+          role="group"
+        >
+          <li
+            role="presentation"
+          >
+            <form
+              class="b-dropdown-form"
+              tabindex="-1"
+            >
+              <div
+                class="bm-form-input position-relative"
+              >
+                <input
+                  autocomplete="off"
+                  class="form-control bm-form-input-padding"
+                  icon="search"
+                  resettable="true"
+                  type="text"
+                />
+                 
+                <div
+                  class="icon-wrapper position-absolute d-flex"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="icon h-100 svg-inline--fa fa-search fa-w-16"
+                    data-icon="search"
+                    data-prefix="fas"
+                    focusable="false"
+                    role="img"
+                    viewBox="0 0 12 12"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      class=""
+                      d="M 7.37236,8.22087 C 6.70863,8.71056 5.88811,9 5,9 2.79086,9 1,7.20914 1,5 1,2.79086 2.79086,1 5,1 7.20914,1 9,2.79086 9,5 9,5.88811 8.71057,6.70862 8.22088,7.37234 l 2.35492,2.35487 c 0.2343,0.23431 0.2343,0.61419 0,0.84849 -0.2344,0.2344 -0.61425,0.2344 -0.84857,0 z M 5,2.2 C 3.4536,2.2 2.2,3.4536 2.2,5 2.2,6.5464 3.4536,7.8 5,7.8 6.5464,7.8 7.8,6.5464 7.8,5 7.8,3.4536 6.5464,2.2 5,2.2 Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                   
+                  <!---->
+                </div>
+              </div>
+            </form>
+          </li>
+           
+          <li
+            role="presentation"
+          >
+            <hr
+              aria-orientation="horizontal"
+              class="dropdown-divider"
+              role="separator"
+            />
+          </li>
+           
+          <li
+            class="text-nowrap text-truncate w-100"
+            role="presentation"
+          >
+            <button
+              class="dropdown-item"
+              role="menuitem"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                class="mail-folder-icon svg-inline--fa fa-trash fa-w-16 fa-fw"
+                data-icon="trash"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                viewBox="0 0 12 12"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  class=""
+                  d="M1.5 2.5C1.5 2.78 1.72 3 2 3H10C10.28 3 10.5 2.78 10.5 2.5C10.5 2.22 10.28 2 10 2H7.5V1C7.5 0.72 7.28 0.5 7 0.5H5C4.72 0.5 4.5 0.72 4.5 1V2H2C1.72 2 1.5 2.22 1.5 2.5Z M2.5 11C2.22386 11 2 10.7761 2 10.5C2 10.5001 2 10.4999 2 10.5L2 4.5C2 4.22386 2.22386 4 2.5 4C2.77614 4 3 4.22386 3 4.5L3 10H4.40002L4.40002 4.5C4.40002 4.22386 4.62388 4 4.90002 4C5.17617 4 5.40002 4.22386 5.40002 4.5L5.40002 10L6.80005 10L6.80005 4.5C6.80005 4.22386 7.02391 4 7.30005 4C7.57619 4 7.80005 4.22386 7.80005 4.5L7.80005 10H9L9 4.5C9 4.22386 9.22386 4 9.5 4C9.77614 4 10 4.22386 10 4.5V10.5C10 10.7761 9.77614 11 9.5 11H2.5Z"
+                  fill="currentColor"
+                />
+              </svg>
+               
+              <div
+                class="dropdown-item-content"
+              >
+                
+            
+        
+              </div>
+               
+              <!---->
+            </button>
+          </li>
+        </ul>
+      </li>
+       
+      <li
+        role="presentation"
+      >
+        <hr
+          aria-orientation="horizontal"
+          class="dropdown-divider"
+          role="separator"
+        />
+      </li>
+       
+      <li
+        class="new-folder position-relative"
+        role="presentation"
+      >
+        <form
+          class="b-dropdown-form"
+          tabindex="-1"
+        >
+          <div
+            class="mail-folder-input flex-fill d-flex align-items-center position-relative pl-2 pr-1 border-bottom"
+          >
+            <svg
+              aria-hidden="true"
+              class="svg-inline--fa fa-plus-folder fa-w-16 fa-fw"
+              data-icon="plus-folder"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 12 12"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                class=""
+                d="M6.5 4.5C6.77614 4.5 7 4.72386 7 5V6L8 6C8.27614 6 8.5 6.22386 8.5 6.5C8.5 6.77614 8.27614 7 8 7H7V8C7 8.27614 6.77614 8.5 6.5 8.5C6.22386 8.5 6 8.27614 6 8V7H5C4.72386 7 4.5 6.77614 4.5 6.5C4.5 6.22386 4.72386 6 5 6H6V5C6 4.72386 6.22386 4.5 6.5 4.5Z M 9.51111,10.5 H 1.29221 C 1.22452,10.5 1.15887,10.4857 1.09801,10.4591 0.892844,10.404 0.672572,10.2266 0.631108,10.0359 L 0.0110984,3.10998 c -0.03,-0.15 0,-0.3 0.0999996,-0.42 0.1,-0.13 0.24,-0.19 0.39,-0.19 H 2.64972 L 2.80222,1.89 c 0.05,-0.23 0.25,-0.39 0.49,-0.39 l 1.92889,1e-5 c 0.13,0 0.26,0.05 0.35,0.15 l 0.86,0.85 5.07999,-1e-5 c 0.15,0 0.3,0.07 0.39,0.19 0.09,0.12 0.13,0.28 0.09,0.43 l -1.99999,7 c -0.05,0.22 -0.25,0.38 -0.48,0.38 z M 1.1211,3.49998 1.41882,7.42356 2.39972,3.49998 Z M 1.91221,9.5 h 7.2089 l 1.74999,-6 -4.64999,1e-5 c -0.13,0 -0.26,-0.05 -0.35,-0.15 l -0.86,-0.85 L 3.69222,2.5 Z"
+                fill="currentColor"
+              />
+            </svg>
+             
+            <div
+              class="bm-form-input position-relative d-inline-block flex-fill"
+            >
+              <input
+                aria-describedby="mail-folder-input-invalid"
+                class="form-control bm-form-input-padding"
+                resettable="true"
+                type="text"
+              />
+               
+              <!---->
+            </div>
+             
+            <!---->
+          </div>
+        </form>
+      </li>
+    </ul>
+  </div>
+   
+  <button
+    class="btn btn-lg-simple-dark btn-inline-light"
+    type="button"
+  >
+    <svg
+      aria-hidden="true"
+      class="svg-inline--fa fa-trash fa-w-16 fa-2x"
+      data-icon="trash"
+      data-prefix="fas"
+      focusable="false"
+      role="img"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        class=""
+        d="M1.5 2.5C1.5 2.78 1.72 3 2 3H10C10.28 3 10.5 2.78 10.5 2.5C10.5 2.22 10.28 2 10 2H7.5V1C7.5 0.72 7.28 0.5 7 0.5H5C4.72 0.5 4.5 0.72 4.5 1V2H2C1.72 2 1.5 2.22 1.5 2.5Z M2.5 11C2.22386 11 2 10.7761 2 10.5C2 10.5001 2 10.4999 2 10.5L2 4.5C2 4.22386 2.22386 4 2.5 4C2.77614 4 3 4.22386 3 4.5L3 10H4.40002L4.40002 4.5C4.40002 4.22386 4.62388 4 4.90002 4C5.17617 4 5.40002 4.22386 5.40002 4.5L5.40002 10L6.80005 10L6.80005 4.5C6.80005 4.22386 7.02391 4 7.30005 4C7.57619 4 7.80005 4.22386 7.80005 4.5L7.80005 10H9L9 4.5C9 4.22386 9.22386 4 9.5 4C9.77614 4 10 4.22386 10 4.5V10.5C10 10.7761 9.77614 11 9.5 11H2.5Z"
+        fill="currentColor"
+      />
+    </svg>
+     
+    <span
+      class="d-none d-lg-block"
+    >
+      
+    </span>
+  </button>
+   
+  <button
+    class="btn flagged btn-lg-simple-dark btn-inline-light"
+    type="button"
+  >
+    <svg
+      aria-hidden="true"
+      class="svg-inline--fa fa-flag-outline fa-w-16 fa-2x"
+      data-icon="flag-outline"
+      data-prefix="fas"
+      focusable="false"
+      role="img"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        class=""
+        d="M 11.5,1 9.625,4 11.5,7 h -9 v 4.5 C 2.5,11.7761 2.27614,12 2,12 1.72386,12 1.5,11.7761 1.5,11.5 V 1 Z m -9,5 h 7.19575 l -1.25,-2 1.25,-2 H 2.5 Z"
+        fill="currentColor"
+      />
+    </svg>
+     
+    <span
+      class="d-none d-lg-block"
+    >
+       
+    </span>
+  </button>
+   
+  <button
+    class="btn unflagged btn-lg-simple-dark btn-inline-light"
+    style="display: none;"
+    type="button"
+  >
+    <svg
+      aria-hidden="true"
+      class="text-warning svg-inline--fa fa-flag-fill fa-w-16 fa-2x"
+      data-icon="flag-fill"
+      data-prefix="fas"
+      focusable="false"
+      role="img"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        class=""
+        d="M9.625 4L11.5 7H2.5V11.5C2.5 11.7761 2.27614 12 2 12C1.72386 12 1.5 11.7761 1.5 11.5V1H11.5L9.625 4Z"
+        fill="currentColor"
+      />
+    </svg>
+     
+    <span
+      class="d-none d-lg-block"
+    >
+       
+    </span>
+  </button>
+   
+  <div
+    class="dropdown b-dropdown mail-toolbar-consult-message-other-actions h-100 btn-group"
+  >
+    <!---->
+    <button
+      aria-expanded="false"
+      aria-haspopup="true"
+      class="btn dropdown-toggle btn-inline-light btn-lg-simple-dark dropdown-toggle-no-caret"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        class="svg-inline--fa fa-3dots fa-w-16 fa-2x"
+        data-icon="3dots"
+        data-prefix="fas"
+        focusable="false"
+        role="img"
+        viewBox="0 0 12 12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          class=""
+          d="M4 5.99998C4 6.55226 3.55228 6.99998 3 6.99998C2.44772 6.99998 2 6.55226 2 5.99998C2 5.44769 2.44772 4.99998 3 4.99998C3.55228 4.99998 4 5.44769 4 5.99998ZM7 5.99998C7 6.55226 6.55228 6.99998 6 6.99998C5.44772 6.99998 5 6.55226 5 5.99998C5 5.44769 5.44772 4.99998 6 4.99998C6.55228 4.99998 7 5.44769 7 5.99998ZM9 6.99998C9.55228 6.99998 10 6.55226 10 5.99998C10 5.44769 9.55228 4.99998 9 4.99998C8.44772 4.99998 8 5.44769 8 5.99998C8 6.55226 8.44772 6.99998 9 6.99998Z"
+          fill="currentColor"
+        />
+      </svg>
+       
+      <span
+        class="d-none d-lg-block"
+      >
+        
+      </span>
+    </button>
+    <ul
+      class="dropdown-menu dropdown-menu-right"
+      role="menu"
+      tabindex="-1"
+    >
+       
+      <li
+        class="shadow-sm"
+        role="presentation"
+      >
+        <a
+          class="dropdown-item"
+          href="#"
+          role="menuitem"
+          target="_self"
+        >
+           
+          <div
+            class="dropdown-item-content"
+          >
+            
+        
+    
+          </div>
+           
+          <!---->
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+`;

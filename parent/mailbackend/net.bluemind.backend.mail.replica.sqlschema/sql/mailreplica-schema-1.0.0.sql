@@ -46,6 +46,7 @@ create table IF NOT EXISTS t_mailbox_record (
 	system_flags int4 not null,
 	other_flags text[],
 	container_id int4 not null references t_container(id) ON UPDATE CASCADE  on delete cascade,
+	conversation_id bigint,
 	item_id int4 references t_container_item(id) ON UPDATE CASCADE  on delete cascade
 );
 create index IF NOT EXISTS t_mailbox_record_imap_uid ON t_mailbox_record (imap_uid);
@@ -141,3 +142,31 @@ create table IF NOT EXISTS t_subtree_uid (
 );
 
 create index IF NOT EXISTS subtree_uid_idx ON t_subtree_uid (domain_uid, mailbox_name);
+
+CREATE TABLE t_conversation (
+	conversation_id bigint not null, 
+	messages JSONB not null,
+	container_id int8 not null,
+	item_id int8 REFERENCES t_container_item(id) ON DELETE CASCADE,
+	unique(container_id, conversation_id)
+) PARTITION BY HASH (container_id);
+CREATE INDEX i_conversation_messages ON t_conversation USING gin ((messages) jsonb_path_ops);
+CREATE INDEX i_conversation_item_id ON t_conversation (item_id);
+
+DO LANGUAGE plpgsql 
+$$
+DECLARE
+  partition TEXT;
+  partition_count INTEGER;
+BEGIN
+  SELECT INTO partition_count COALESCE(current_setting('bm.conversation_partitions', true)::integer, 25);
+  
+  FOR partition_key IN 0..(partition_count-1)
+  LOOP
+    partition := 't_conversation_' || partition_key;
+    RAISE NOTICE 'CREATING CHANGESET PARTITION %...', partition;    
+    EXECUTE 'CREATE TABLE ' || partition || ' PARTITION OF t_conversation FOR VALUES WITH (MODULUS '|| partition_count || ', REMAINDER ' || partition_key || ');';
+  END LOOP;
+END;
+$$;
+

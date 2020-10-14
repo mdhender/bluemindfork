@@ -5,7 +5,7 @@
     >
         <bm-row class="px-lg-5 px-4 pt-2">
             <bm-col cols="12">
-                <mail-viewer-toolbar class="d-none d-lg-flex" />
+                <mail-viewer-toolbar class="d-none d-lg-flex" :message="message" />
             </bm-col>
         </bm-row>
         <bm-row class="px-lg-5 px-4">
@@ -17,7 +17,7 @@
             <bm-col cols="8" class="d-flex">
                 <mail-viewer-from :contact="message.from" />
             </bm-col>
-            <bm-col cols="4" class="align-self-center text-right">
+            <bm-col cols="4" class="align-self-center text-right text-secondary">
                 {{ $d(message.date, "full_date_time_short") }}
             </bm-col>
         </bm-row>
@@ -48,11 +48,10 @@
         </bm-row>
         <bm-row ref="scrollableContainer" class="pt-1 flex-fill px-lg-5 px-4">
             <bm-col col>
-                <event-viewer v-if="containsEvent" :message="message" />
-                <parts-viewer v-else :message="message" />
+                <body-viewer :message="message" />
             </bm-col>
         </bm-row>
-        <mail-viewer-toolbar class="d-flex d-lg-none" />
+        <mail-viewer-toolbar class="d-flex d-lg-none" :message="message" />
     </section>
 </template>
 
@@ -60,28 +59,26 @@
 import { mapState, mapActions, mapGetters } from "vuex";
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
+import BodyViewer from "./BodyViewer";
 import { BmCol, BmRow } from "@bluemind/styleguide";
 
-import EventViewer from "./EventViewer";
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 import MailViewerFrom from "./MailViewerFrom";
 import MailViewerRecipient from "./MailViewerRecipient";
 import MailViewerToolbar from "./MailViewerToolbar";
-import PartsViewer from "./PartsViewer/PartsViewer";
-import { MESSAGE_LIST_UNREAD_FILTER_ENABLED } from "~getters";
-import { MARK_MESSAGE_AS_READ } from "~actions";
+import { CONVERSATION_LIST_UNREAD_FILTER_ENABLED } from "~/getters";
+import { MARK_MESSAGE_AS_READ } from "~/actions";
 
 export default {
     name: "MailViewer",
     components: {
         BmCol,
         BmRow,
-        EventViewer,
+        BodyViewer,
         MailAttachmentsBlock,
         MailViewerFrom,
         MailViewerRecipient,
-        MailViewerToolbar,
-        PartsViewer
+        MailViewerToolbar
     },
     props: {
         message: {
@@ -91,7 +88,7 @@ export default {
     },
     computed: {
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
-        ...mapGetters("mail", { MESSAGE_LIST_UNREAD_FILTER_ENABLED }),
+        ...mapGetters("mail", { CONVERSATION_LIST_UNREAD_FILTER_ENABLED }),
         ...mapState("mail", ["folders"]),
         subject() {
             return this.message.subject || this.$t("mail.viewer.no.subject");
@@ -104,7 +101,10 @@ export default {
         "message.key": {
             handler: function () {
                 this.resetScroll();
-                if (!this.MESSAGE_LIST_UNREAD_FILTER_ENABLED && this.folders[this.message.folderRef.key].writable) {
+                if (
+                    !this.CONVERSATION_LIST_UNREAD_FILTER_ENABLED &&
+                    this.folders[this.message.folderRef.key].writable
+                ) {
                     this.MARK_MESSAGE_AS_READ([this.message]);
                 }
             },

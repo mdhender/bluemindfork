@@ -175,7 +175,8 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		String query = "SELECT item.id FROM t_mailbox_record rec "
 				+ "INNER JOIN t_container_item item ON rec.item_id=item.id " //
 				+ "WHERE item.container_id=? " //
-				+ "AND (item.flags::bit(32) & 2::bit(32))=0::bit(32)"; // not deleted
+				+ "AND (item.flags::bit(32) & 2::bit(32))=0::bit(32)"; // not
+																		// deleted
 		StringBuilder sort = new StringBuilder();
 		if (sorted == null || sorted.fields.isEmpty()) {
 			sort.append("rec.internal_date desc");

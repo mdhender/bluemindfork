@@ -1,7 +1,7 @@
 import cloneDeep from "lodash.clonedeep";
 import store from "../search";
-import { MESSAGE_LIST_IS_SEARCH_MODE } from "~getters";
-import { SET_SEARCH_FOLDER, SET_SEARCH_PATTERN } from "~mutations";
+import { CONVERSATION_LIST_IS_SEARCH_MODE } from "~/getters";
+import { SET_SEARCH_FOLDER, SET_SEARCH_PATTERN } from "~/mutations";
 
 describe("search", () => {
     let state;
@@ -21,12 +21,12 @@ describe("search", () => {
         });
     });
     describe("getters", () => {
-        test("MESSAGE_LIST_IS_SEARCH_MODE", () => {
-            expect(store.getters[MESSAGE_LIST_IS_SEARCH_MODE](state)).toBeFalsy();
+        test("CONVERSATION_LIST_IS_SEARCH_MODE", () => {
+            expect(store.getters[CONVERSATION_LIST_IS_SEARCH_MODE](state)).toBeFalsy();
             state.pattern = "Search pattern";
-            expect(store.getters[MESSAGE_LIST_IS_SEARCH_MODE](state)).toBeTruthy();
+            expect(store.getters[CONVERSATION_LIST_IS_SEARCH_MODE](state)).toBeTruthy();
             state.pattern = "   ";
-            expect(store.getters[MESSAGE_LIST_IS_SEARCH_MODE](state)).toBeFalsy();
+            expect(store.getters[CONVERSATION_LIST_IS_SEARCH_MODE](state)).toBeFalsy();
         });
     });
 });

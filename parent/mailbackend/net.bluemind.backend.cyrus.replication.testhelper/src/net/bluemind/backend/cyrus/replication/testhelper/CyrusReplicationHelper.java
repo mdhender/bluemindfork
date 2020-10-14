@@ -103,6 +103,9 @@ public class CyrusReplicationHelper {
 		if (idx > 0) {
 			imapStr = imapStr.substring(0, idx - 1);
 		}
+
+		// see
+		// https://www.cyrusimap.org/dev/imap/reference/manpages/configs/imapd.conf.html
 		StringBuilder replConf = new StringBuilder("\n#SYNCCONF\n");
 		replConf.append("sync_log: 1").append('\n');
 		replConf.append("sync_log_channels: junit").append('\n');
@@ -115,12 +118,20 @@ public class CyrusReplicationHelper {
 		replConf.append("junit_sync_try_imap: 0").append('\n');
 		// because our cyrus configuration in docker does not match what we package
 		replConf.append("annotation_definitions: /etc/cyrus-annotations").append('\n');
+		addConversationsSettings(replConf);
 		String updatedConf = imapStr + replConf.toString();
 		nc.writeFile("/etc/imapd.conf", new ByteArrayInputStream(updatedConf.getBytes()));
 		CyrusService cs = new CyrusService(cyrusIp);
 		cs.refreshAnnotations();
 		cs.reload();
 		this.server = cs.server();
+	}
+
+	private static void addConversationsSettings(StringBuilder conf) {
+		conf.append("conversations: 1").append("\n");
+		conf.append("conversations_db: twoskip").append("\n");
+		conf.append("conversations_expire_after: 9000d").append("\n");
+		conf.append("conversations_max_thread: 100").append("\n");
 	}
 
 	public ItemValue<Server> server() {

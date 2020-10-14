@@ -1,4 +1,4 @@
-import { SET_ROUTE_FILTER, SET_ROUTE_FOLDER, SET_ROUTE_MAILBOX, SET_ROUTE_SEARCH } from "~mutations";
+import { SET_ROUTE_FILTER, SET_ROUTE_FOLDER, SET_ROUTE_MAILBOX, SET_ROUTE_SEARCH } from "~/mutations";
 export default {
     state: {
         folder: undefined,

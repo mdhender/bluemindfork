@@ -5,8 +5,8 @@ import inject from "@bluemind/inject";
 import { MockCalendarClient } from "@bluemind/test-utils";
 import storeOptions from "../consultPanel";
 import EventHelper from "../helpers/EventHelper";
-import { FETCH_EVENT, SET_EVENT_STATUS } from "~actions";
-import { SET_CURRENT_EVENT, SET_CURRENT_EVENT_STATUS, SET_BLOCK_REMOTE_IMAGES } from "~mutations";
+import { FETCH_EVENT, SET_EVENT_STATUS } from "~/actions";
+import { SET_CURRENT_EVENT, SET_CURRENT_EVENT_STATUS, SET_BLOCK_REMOTE_IMAGES } from "~/mutations";
 
 const calendarService = new MockCalendarClient();
 inject.register({ provide: "CalendarPersistence", factory: () => calendarService });

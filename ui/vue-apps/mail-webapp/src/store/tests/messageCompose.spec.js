@@ -4,8 +4,8 @@ import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
 import { MockMailboxesClient } from "@bluemind/test-utils";
 import storeOptions from "../messageCompose";
-import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT, SET_MAX_MESSAGE_SIZE } from "~mutations";
-import { LOAD_MAX_MESSAGE_SIZE } from "~actions";
+import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT, SET_MAX_MESSAGE_SIZE } from "~/mutations";
+import { LOAD_MAX_MESSAGE_SIZE } from "~/actions";
 
 Vue.use(Vuex);
 

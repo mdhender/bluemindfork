@@ -14,8 +14,28 @@
             "event_not_found": {
                 "warning": "Diese E-Mail referenziert einen nicht mehr existierenden Termin"
             },
+            "mark_conversations_as_flagged": {
+                "loading": "Markiere die E-Mail Konversation {name} als wichtig...|Markiere die E-Mail Konversationen {name} als wichtig...",
+                "success": "Die E-Mail Konversation wurde als wichtig markiert!|{count} Konversationen wurden erfolgreich als wichtig markiert.",
+                "error": "Fehler beim Markieren der E-Mail Konversation {name} als wichtig.|Fehler beim Markieren der E-Mail Konversationen als wichtig."
+            },
+            "mark_conversations_as_unflagged": {
+                "loading": "Entferne die Markierung der Konversation...|Entferne die Markierung der Konversationen...",
+                "success": "Markierungen wurden erfolgreich entfernt.|Markierungen der Konversationen wurden erfolgreich entfernt.",
+                "error": "Fehler beim Entfernen der Markierung der Konversation.|Fehler beim Entfernen der Markierung der Konversationen."
+            },
+            "mark_conversations_as_read": {
+                "loading": "Konversation wird als gelesen markiert.|Konversationen werden als gelesen markiert.",
+                "success": "Konversation wurde erfolgreich als gelesen markiert.|Konversationen wurden erfolgreich als gelesen markiert.",
+                "error": "Fehler beim markieren der Konversation als gelesen.|Fehler beim markieren der Konversationen als gelesen."
+            },
+            "mark_conversations_as_unread": {
+                "loading": "Konversation wird als ungelesen markiert.|Konversationen werden als ungelesen markiert.",
+                "success": "Konversation wurde erfolgreich als ungelesen markiert.|Konversationen wurden erfolgreich als ungelesen markiert.",
+                "error": "Fehler beim markieren der Konversation als ungelesen.|Fehler beim markieren der Konversationen als ungelesen."
+            },
             "mark_folder_as_read": {
-                "loading": "Markiere Ordner {folderNameWithLink} als Gelesen...",
+                "loading": "Markiere Ordner {name} als Gelesen...",
                 "success": "Ordner {name} wurde als Gelesen markiert!",
                 "error": "Fehler beim Markieren des Ordners {name} als Gelesen."
             },
@@ -39,6 +59,20 @@
                 "success": "{count} E-Mails erfolgreich als ungelesen markiert.",
                 "error": "Fehler beim Markieren der Nachrichten."
             },
+            "move_conversations": {
+                "loading": {
+                    "single": "Konversation \"{subject}\" wird in den Ordner {folder} verschoben...",
+                    "plural": "{count} Konversationen werden in den Ordner {folder} verschoben..."
+                },
+                "success": {
+                    "single": "\"{subject}\" wurde erfolgreich nach {folder} verschoben.",
+                    "plural": "{count} Konversationen erfolgreich nach {folder} verschoben."
+                },
+                "error": {
+                    "single": "Verschieben der Konversation \"{subject}\" nach {folder} fehlgeschlagen.",
+                    "plural": "Verschieben der ausgewählten Konversationen nach {folder} fehlgeschlagen."
+                }
+            },
             "move_messages": {
                 "loading": {
                     "single": "\"{subject}\" wird in den Ordner {folder} verschoben...",
@@ -51,6 +85,20 @@
                 "error": {
                     "single": "Fehler beim Verschieben von \"{subject}\" in den Ordner {folder}.",
                     "plural": "Fehler beim Verschieben der ausgewählten E-Mails in den Ordner {folder}."
+                }
+            },
+            "move_conversations_to_trash": {
+                "loading": {
+                    "single": "Verschiebe die Konversation \"{subject}\" nach {folder}...",
+                    "plural": "Verschiebe die Konversationen nach {folder}..."
+                },
+                "success": {
+                    "single": "Konversation \"{subject}\" erfolgreich nach {folder} verschoben.",
+                    "plural": "Konversationen erfolgreich nach {folder} verschoben."
+                },
+                "error": {
+                    "single": "Verschieben der Konversation \"{subject}\" nach {folder} fehlgeschlagen.",
+                    "plural": "Verschieben der Konversationen nach {folder} fehlgeschlagen."
                 }
             },
             "move_messages_to_trash": {
@@ -74,6 +122,11 @@
                 "loading": "Fehler beim Umbenennen von \"{previousName}\" in \"{name}\".",
                 "success": "Ordner {previousName} wurde in {name} umbenannt!",
                 "error": "Fehler beim Umbenennen von \"{previousName}\" in \"{name}\"."
+            },
+            "remove_conversations": {
+                "loading": "Konversation \"{subject}\" wird dauerhaft gelöscht...|{count} Konversationen werden dauerhaft gelöscht...",
+                "success": "Konversation \"{subject}\" wurde gelöscht.|{count} Konversationen wurden gelöscht..",
+                "error": "Löschen der Konversation \"{subject}\" fehlgeschlagen.| Löschen der Konversationen fehlgeschlagen."
             },
             "remove_folder": {
                 "loading": "Lösche Ordner {name}...",
@@ -99,6 +152,8 @@
     "mail.actions.attach.aria": "Anhang beifügen",
     "mail.actions.attach": "Anhängen",
     "mail.actions.create.folder": "Ordner erstellen",
+    "mail.actions.edit": "Bearbeiten",
+    "mail.actions.extend": "Maximieren",
     "mail.actions.folder.invalid.already_exist": "Der Ordnername ist bereits vergeben",
     "mail.actions.folder.invalid.too_long": "Ordnername überschreitet die maximale Länge",
     "mail.actions.folder.subfolder.forbidden": "Verbotene Unterordner",
@@ -120,7 +175,12 @@
     "mail.actions.move.item": "Verschiebe E-Mail nach {path} | Verschiebe ausgewählte E-Mails nach {path}",
     "mail.actions.move": "Verschieben",
     "mail.actions.purge.modal.content": "E-Mail \"{subject}\" permanent löschen? | Ausgewählte E-Mails permanent löschen?",
+    "mail.actions.purge.draft.modal.content": "Entwurf \"{subject}\" am {date} gespeichert löschen?",
+    "mail.actions.purge.draft.modal.content.time": "Entwurf \"{subject}\" um {time} gespeichert löschen?",
+    "mail.actions.purge.conversations.modal.content": "E-Mail Konversation \"{subject}\" permanent löschen? | Ausgewählte E-Mail Konversationen permanent löschen?",
     "mail.actions.purge.modal.title": "E-Mail löschen | E-Mails löschen",
+    "mail.actions.purge.draft.modal.title": "Entwurf löschen",
+    "mail.actions.purge.conversations.modal.title": "E-Mail Konversation löschen | E-Mail Konversationen löschen",
     "mail.actions.purge": "Permanent löschen",
     "mail.actions.remove.aria": "Lösche {subject} | Lösche ausgewählte E-Mails",
     "mail.actions.remove.compose.aria": "Lösche E-Mail in Bearbeitung",
@@ -169,8 +229,11 @@
     "mail.content.reply_all.aria": "Allen Empfängern antworten",
     "mail.content.reply.aria": "Einem Empfänger antworten",
     "mail.content.to": "an",
+    "mail.conversation.icon.title": "Gespräch von {count} Nachrichten",
+    "mail.conversation.show.middle.messages": "Zeige alle {count} Beiträge",
     "mail.draft.delete.confirm.content": "Entwurf löschen?",
     "mail.draft.delete.confirm.title": "Entwurf löschen",
+    "mail.draft.not.sent": "Diese Nachricht wurde nicht gesendet",
     "mail.draft.save.date.time": "Entwurf um {time} gespeichert",
     "mail.draft.save.date": "Entwurf am {time} gespeichert",
     "mail.draft.save.error.reason": "Sie sind eventuell nicht verbunden",
@@ -272,5 +335,7 @@
                 "insert_signature": "Meine Signatur einfügen"
             }
         }
-    }
+    },
+    "mail.save.date": "am {date} gespeichert",
+    "mail.save.date.time": "um {time} gespeichert"
 }

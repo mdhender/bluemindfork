@@ -1,6 +1,12 @@
 export { default as ComposerActionsMixin } from "./ComposerActionsMixin";
+export { default as ComposerMixin } from "./ComposerMixin";
 export { default as ComposerInitMixin } from "./ComposerInitMixin";
+export { default as EditRecipientsMixin } from "./EditRecipientsMixin";
+export { default as FlagMixin } from "./FlagMixin";
+export { default as FormattedDateMixin } from "./FormattedDateMixin";
 export { default as MoveMixin } from "./MoveMixin";
 export { default as RemoveMixin } from "./RemoveMixin";
 export { default as MailRoutesMixin } from "./MailRoutesMixin";
+export { default as SelectionMixin } from "./SelectionMixin";
 export { default as WaitForMixin } from "./WaitForMixin";
+export { default as FilterFolderMixin } from "./FilterFolderMixin";

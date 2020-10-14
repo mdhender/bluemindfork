@@ -50,6 +50,7 @@ public class MailboxRecordColumns {
 			.col("internal_date")//
 			.col("system_flags")//
 			.col("other_flags")//
+			.col("conversation_id")//
 	;
 
 	public static List<MailboxItemFlag> extractSystemFlags(int encodedFlags) {
@@ -77,6 +78,7 @@ public class MailboxRecordColumns {
 				value.internalFlags = InternalFlag.of(encodedFlags);
 				value.flags.addAll(
 						toList(rs.getArray(index++)).stream().map(MailboxItemFlag::new).collect(Collectors.toList()));
+				value.conversationId = (Long) rs.getObject(index++);
 				return index;
 			}
 		};
@@ -115,6 +117,7 @@ public class MailboxRecordColumns {
 				compoundFlags |= InternalFlag.valueOf(value.internalFlags);
 				statement.setInt(index++, compoundFlags);
 				statement.setArray(index++, con.createArrayOf("text", otherFlags.toArray()));
+				statement.setObject(index++, value.conversationId);
 				statement.setLong(index++, containerId);
 				statement.setLong(index++, item.id);
 				return 0;

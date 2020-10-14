@@ -1,23 +1,23 @@
 import isEqual from "lodash.isequal";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { FETCH_MESSAGE_LIST_KEYS } from "~actions";
-import { FOLDERS_BY_UPPERCASE_PATH, MY_INBOX, MY_MAILBOX, MAILBOX_BY_NAME, MAILBOXES_ARE_LOADED } from "~getters";
+import { FETCH_CONVERSATION_LIST_KEYS } from "~/actions";
+import { FOLDERS_BY_UPPERCASE_PATH, MY_INBOX, MY_MAILBOX, MAILBOX_BY_NAME, MAILBOXES_ARE_LOADED } from "~/getters";
 import {
     SET_ACTIVE_FOLDER,
-    SET_MESSAGE_LIST_FILTER,
+    SET_CONVERSATION_LIST_FILTER,
     SET_ROUTE_FILTER,
     SET_ROUTE_FOLDER,
     SET_ROUTE_MAILBOX,
     SET_ROUTE_SEARCH,
     SET_SEARCH_FOLDER,
     SET_SEARCH_PATTERN
-} from "~mutations";
-import { LoadingStatus } from "../../model/loading-status";
-import MessageQueryParam from "../../router/MessageQueryParam";
-import SearchHelper from "../../model/SearchHelper";
-import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
-import { MessageListFilter } from "../../store/messageList";
-import { WaitForMixin } from "~mixins";
+} from "~/mutations";
+import { LoadingStatus } from "~/model/loading-status";
+import MessageQueryParam from "~/router/MessageQueryParam";
+import SearchHelper from "~/model/SearchHelper";
+import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
+import { ConversationListFilter } from "~/store/conversationList";
+import { WaitForMixin } from "~/mixins";
 
 export default {
     mixins: [WaitForMixin],
@@ -30,13 +30,14 @@ export default {
             MY_MAILBOX
         }),
         ...mapState("mail", ["activeFolder", "folders", "route"]),
+        ...mapState("session", { settings: ({ settings }) => settings.remote }),
         $_RouterMixin_query() {
             const query = MessageQueryParam.parse(this.$route.params.messagequery);
             return {
                 mailbox: query.mailbox,
                 folder: query.folder,
                 search: SearchHelper.parseQuery(query.search),
-                filter: (query.filter || MessageListFilter.ALL).trim().toLowerCase()
+                filter: (query.filter || ConversationListFilter.ALL).trim().toLowerCase()
             };
         }
     },
@@ -68,7 +69,7 @@ export default {
                 await this.$_RouterMixin_isReady(this.route.mailbox);
                 try {
                     const folder = this.$_RouterMixin_resolveFolder(this.route);
-                    this.SET_MESSAGE_LIST_FILTER(this.route.filter);
+                    this.SET_CONVERSATION_LIST_FILTER(this.route.filter);
                     this.SET_SEARCH_PATTERN(this.route.search.pattern);
                     if (this.route.search.pattern) {
                         this.SET_SEARCH_FOLDER(
@@ -78,9 +79,10 @@ export default {
                     if (!this.route.search.pattern || this.$_RouterMixin_query.folder || !this.activeFolder) {
                         this.SET_ACTIVE_FOLDER(folder);
                     }
-                    await this.FETCH_MESSAGE_LIST_KEYS({
+                    const conversationsActivated = this.settings.mail_thread === "true" && folder.allowConversations;
+                    await this.FETCH_CONVERSATION_LIST_KEYS({
                         folder: this.folders[this.activeFolder],
-                        conversationsEnabled: false
+                        conversationsActivated
                     });
                     //TODO: Sync query params with router params (navigate...)
                 } catch {
@@ -91,10 +93,10 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", { FETCH_MESSAGE_LIST_KEYS }),
+        ...mapActions("mail", { FETCH_CONVERSATION_LIST_KEYS }),
         ...mapMutations("mail", {
             SET_ACTIVE_FOLDER,
-            SET_MESSAGE_LIST_FILTER,
+            SET_CONVERSATION_LIST_FILTER,
             SET_ROUTE_FILTER,
             SET_ROUTE_FOLDER,
             SET_ROUTE_MAILBOX,

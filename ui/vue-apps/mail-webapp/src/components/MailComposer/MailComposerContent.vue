@@ -40,9 +40,9 @@ import { mapMutations, mapState } from "vuex";
 
 import { BmButton, BmFileDropZone, BmIcon, BmRichEditor } from "@bluemind/styleguide";
 
-import { REMOVE_MESSAGES, SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~mutations";
-import { isNewMessage } from "~model/draft";
-import { ComposerActionsMixin, ComposerInitMixin } from "~mixins";
+import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
+import { isNewMessage } from "~/model/draft";
+import { ComposerActionsMixin, ComposerInitMixin } from "~/mixins";
 
 export default {
     name: "MailComposerContent",
@@ -72,19 +72,25 @@ export default {
     watch: {
         "message.key": {
             async handler() {
-                if (!isNewMessage(this.message)) {
+                const newMessage = isNewMessage(this.message);
+
+                if (!newMessage) {
                     await this.initFromRemoteMessage(this.message);
-                    await this.updateHtmlComposer();
+                }
+
+                await this.updateHtmlComposer();
+
+                // focus on content when a recipient is already set
+                if (this.message.to.length > 0) {
                     this.focus();
-                } else {
-                    await this.updateHtmlComposer();
+                    this.$el.scrollIntoView();
                 }
             },
             immediate: true
         }
     },
     methods: {
-        ...mapMutations("mail", [REMOVE_MESSAGES, SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT]),
+        ...mapMutations("mail", [SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT]),
         async updateEditorContent(newContent) {
             this.SET_DRAFT_EDITOR_CONTENT(newContent);
             this.debouncedSave();

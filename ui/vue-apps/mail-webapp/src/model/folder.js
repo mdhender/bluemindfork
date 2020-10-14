@@ -20,6 +20,7 @@ export function create(key, name, parent, mailbox) {
         imapName: name,
         path: path(mailbox, translatedName, parent),
         writable: mailbox.writable,
+        allowConversations: allowConversations(path(mailbox, name, parent)),
         allowSubfolder: allowSubfolder(mailbox.writable, !parent, name, mailbox),
         default: defaultFolder,
         expanded: false,
@@ -68,6 +69,17 @@ export function allowSubfolder(writable, isRoot, name, mailbox) {
     allowed |= DEFAULT_FOLDERS.INBOX.toUpperCase() === name.toUpperCase();
     allowed |= mailbox.type === MailboxType.MAILSHARE && isRoot;
     return Boolean(writable && allowed);
+}
+
+export function allowConversations(path) {
+    const rootFolderName = path.split("/")[0];
+    return ![
+        DEFAULT_FOLDERS.SENT,
+        DEFAULT_FOLDERS.DRAFTS,
+        DEFAULT_FOLDERS.TRASH,
+        DEFAULT_FOLDERS.JUNK,
+        DEFAULT_FOLDERS.OUTBOX
+    ].includes(rootFolderName);
 }
 
 export function translatePath(path) {
@@ -187,4 +199,9 @@ export function compare(f1, f2) {
 
 export function generateKey(folderUid) {
     return folderUid;
+}
+
+export function isDraftFolder(path) {
+    const rootFolderName = path.split("/")[0];
+    return DEFAULT_FOLDERS.DRAFTS === rootFolderName;
 }

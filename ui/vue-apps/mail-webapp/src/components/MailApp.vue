@@ -42,7 +42,7 @@
                 <bm-form-checkbox
                     switch
                     checked="true"
-                    class="switch-webmail text-condensed text-right"
+                    class="switch-webmail text-condensed text-right text-primary"
                     @change="switchWebmail()"
                 >
                     {{ $t("mail.main.switch.webmail") }}
@@ -60,10 +60,10 @@
             </section>
             <multipane class="w-100" layout="vertical">
                 <div
-                    class="pl-lg-2 px-0 d-lg-block mail-message-list-div"
+                    class="pl-lg-2 px-0 d-lg-block mail-conversation-list-div"
                     :class="hideListInResponsiveMode ? 'd-none' : ''"
                 >
-                    <mail-message-list class="h-100" />
+                    <mail-conversation-list class="h-100" />
                 </div>
                 <multipane-resizer />
                 <div class="flex-grow-1 overflow-auto flex-basis-0">
@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
@@ -88,12 +88,12 @@ import RouterMixin from "./MailApp/RouterMixin";
 import ServerPush from "./MailApp/ServerPush";
 import MailAppL10N from "../../l10n/";
 import MailFolderSidebar from "./MailFolder/MailFolderSidebar";
-import MailMessageList from "./MailMessageList/MailMessageList";
+import MailConversationList from "./MailConversationList/MailConversationList";
 import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
 import MessagesOptionsForMobile from "./MessagesOptionsForMobile";
 import NewMessage from "./NewMessage";
-import { ACTIVE_MESSAGE, MULTIPLE_MESSAGE_SELECTED, SELECTION_IS_EMPTY } from "~getters";
+import { ACTIVE_MESSAGE, SEVERAL_CONVERSATIONS_SELECTED, SELECTION_IS_EMPTY } from "~/getters";
 import { Multipane, MultipaneResizer } from "@bluemind/vue-multipane";
 
 export default {
@@ -106,7 +106,7 @@ export default {
         BmRow,
         GlobalEvents,
         MailFolderSidebar,
-        MailMessageList,
+        MailConversationList,
         MailSearchForm,
         MailToolbar,
         MessagesOptionsForMobile,
@@ -125,12 +125,14 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { ACTIVE_MESSAGE, MULTIPLE_MESSAGE_SELECTED, SELECTION_IS_EMPTY }),
+        ...mapGetters("mail", { ACTIVE_MESSAGE, SEVERAL_CONVERSATIONS_SELECTED, SELECTION_IS_EMPTY }),
+        ...mapState("mail", { currentConversation: ({ conversations }) => conversations.currentConversation }),
         hideListInResponsiveMode() {
-            return this.ACTIVE_MESSAGE && (this.ACTIVE_MESSAGE.composing || this.SELECTION_IS_EMPTY);
+            const item = this.ACTIVE_MESSAGE || this.currentConversation;
+            return item && (item.composing || this.SELECTION_IS_EMPTY);
         },
         composerOrMessageIsDisplayed() {
-            return Boolean(this.ACTIVE_MESSAGE);
+            return Boolean(this.currentConversation);
         },
         canSwitchWebmail() {
             return (
@@ -140,7 +142,7 @@ export default {
             );
         },
         displayToolbarInResponsiveMode() {
-            return this.composerOrMessageIsDisplayed || this.MULTIPLE_MESSAGE_SELECTED;
+            return this.composerOrMessageIsDisplayed || this.SEVERAL_CONVERSATIONS_SELECTED;
         }
     },
     created() {
@@ -200,7 +202,7 @@ export default {
         }
     }
     .darkened::before {
-        position: absolute;
+        position: fixed;
         content: "";
         background: black;
         top: 0;
@@ -217,7 +219,7 @@ export default {
         width: 4em;
     }
 
-    .mail-message-list-div {
+    .mail-conversation-list-div {
         min-width: 100%;
         width: 100%;
     }
@@ -233,7 +235,7 @@ export default {
 
     /* Large devices (laptops/desktops, 992px and up) */
     @media only screen and (min-width: 992px) {
-        .mail-message-list-div {
+        .mail-conversation-list-div {
             min-width: 20%;
             max-width: 70%;
             width: 30%;

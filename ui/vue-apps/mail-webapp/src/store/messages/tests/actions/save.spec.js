@@ -3,11 +3,12 @@ import { MockMailboxItemsClient } from "@bluemind/test-utils";
 import ServiceLocator from "@bluemind/inject";
 
 import { saveAsap } from "../../actions/save";
-import { MessageStatus, createWithMetadata } from "~model/message";
+import { MessageStatus, createWithMetadata } from "~/model/message";
 import htmlWithBase64Images from "../data/htmlWithBase64Images";
-import { MY_DRAFTS } from "~getters";
-import { SET_MESSAGES_STATUS } from "~mutations";
-import { AttachmentStatus } from "~model/attachment";
+import { MY_DRAFTS } from "~/getters";
+import { SET_MESSAGES_STATUS } from "~/mutations";
+import { AttachmentStatus } from "~/model/attachment";
+import MessageAdaptor from "~/store/messages/helpers/MessageAdaptor";
 
 jest.mock("../../../api/apiMessages");
 let itemsService, draft, context, saveParams;
@@ -30,7 +31,8 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         draft.status = MessageStatus.IDLE;
 
         saveParams = { draft, messageCompose };
-
+        MessageAdaptor.fromMailboxItem = jest.fn();
+        MessageAdaptor.fromMailboxItem.mockReturnValue({ inlinePartsByCapabilities: null });
         context = {
             dispatch: jest.fn().mockReturnValue(Promise.resolve([1, 2, 3])),
             commit: jest.fn(),
@@ -51,7 +53,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
                 status: MessageStatus.SAVING
             }
         ]);
-        expect(context.commit).toHaveBeenNthCalledWith(8, SET_MESSAGES_STATUS, [
+        expect(context.commit).toHaveBeenNthCalledWith(10, SET_MESSAGES_STATUS, [
             {
                 key: draft.key,
                 status: MessageStatus.IDLE
@@ -170,7 +172,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
                 status: MessageStatus.SAVING
             }
         ]);
-        expect(context.commit).toHaveBeenNthCalledWith(8, SET_MESSAGES_STATUS, [
+        expect(context.commit).toHaveBeenNthCalledWith(10, SET_MESSAGES_STATUS, [
             {
                 key: draft.key,
                 status: MessageStatus.IDLE

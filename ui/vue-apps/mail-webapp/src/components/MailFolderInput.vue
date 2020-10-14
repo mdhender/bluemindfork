@@ -28,8 +28,8 @@
 <script>
 import { mapGetters } from "vuex";
 import { BmFormInput, BmIcon, BmNotice } from "@bluemind/styleguide";
-import { isNameValid, normalize } from "~model/folder";
-import { FOLDERS_BY_UPPERCASE_PATH } from "~getters";
+import { isNameValid, normalize } from "~/model/folder";
+import { FOLDERS_BY_UPPERCASE_PATH } from "~/getters";
 
 export default {
     name: "MailFolderInput",

@@ -2,7 +2,7 @@ import { DateComparator, WeekDayCodes } from "@bluemind/date";
 import { WeekDay } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
-import { LoadingStatus } from "../../model/loading-status";
+import { LoadingStatus } from "~/model/loading-status";
 
 export default {
     adapt(event, mailboxOwner, originator, recuridIsoDate) {

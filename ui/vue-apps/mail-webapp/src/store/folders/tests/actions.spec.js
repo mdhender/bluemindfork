@@ -11,8 +11,8 @@ import {
     REMOVE_FOLDER,
     RENAME_FOLDER,
     UNREAD_FOLDER_COUNT
-} from "~actions";
-import { ADD_FOLDER } from "~mutations";
+} from "~/actions";
+import { ADD_FOLDER } from "~/mutations";
 import injector from "@bluemind/inject";
 import apiFolders from "../../api/apiFolders";
 
@@ -29,8 +29,14 @@ injector.register({
 describe("actions", () => {
     let store;
     beforeEach(() => {
+        storeConfig.actions["alert/LOADING"] = jest.fn();
+        storeConfig.actions["alert/SUCCESS"] = jest.fn();
+        storeConfig.actions["alert/ERROR"] = jest.fn();
         apiFolders.createNewFolder.mockClear();
         api.getAllFolders.mockClear();
+        storeConfig.actions["alert/LOADING"] = jest.fn();
+        storeConfig.actions["alert/SUCCESS"] = jest.fn();
+        storeConfig.actions["alert/ERROR"] = jest.fn();
         store = new Vuex.Store(deepClone(storeConfig));
     });
     describe("FETCH_FOLDERS", () => {

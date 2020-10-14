@@ -1,15 +1,15 @@
 import { inject } from "@bluemind/inject";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { MAILBOXES_ARE_LOADED, MAILSHARES, MAILBOX_BY_NAME, MY_MAILBOX, MY_MAILBOX_FOLDERS } from "~getters";
-import { FETCH_FOLDERS, FETCH_MAILBOXES, LOAD_MAX_MESSAGE_SIZE, UNREAD_FOLDER_COUNT } from "~actions";
-import { ADD_MAILBOXES } from "~mutations";
-import { LoadingStatus } from "../../model/loading-status";
-import { create, MailboxType } from "../../model/mailbox";
+import { MAILBOXES_ARE_LOADED, MAILSHARES, MAILBOX_BY_NAME, MY_MAILBOX, MY_MAILBOX_FOLDERS } from "~/getters";
+import { FETCH_FOLDERS, FETCH_MAILBOXES, LOAD_MAX_MESSAGE_SIZE, UNREAD_FOLDER_COUNT } from "~/actions";
+import { ADD_MAILBOXES } from "~/mutations";
+import { LoadingStatus } from "~/model/loading-status";
+import { create, MailboxType } from "~/model/mailbox";
 
 export default {
     computed: {
         ...mapGetters("mail", { MAILBOXES_ARE_LOADED, MAILBOX_BY_NAME, MY_MAILBOX, MY_MAILBOX_FOLDERS, MAILSHARES }),
-        ...mapState("mail", ["folders", "messages", "messageList"])
+        ...mapState("mail", ["folders", "conversationList"])
     },
     methods: {
         ...mapActions("mail", {

@@ -38,6 +38,7 @@ import net.bluemind.backend.cyrus.replication.server.state.MboxRecord;
 import net.bluemind.backend.cyrus.replication.server.state.MboxRecord.MessageRecordBuilder;
 import net.bluemind.backend.cyrus.replication.server.state.ReplicationState;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
+import net.bluemind.backend.mail.replica.api.MailboxRecordAnnotation;
 
 /**
  * APPLY MAILBOX %(UNIQUEID 002647c6582c5f46 MBOXNAME ex2016.vmw!user.nico
@@ -103,6 +104,13 @@ public class ApplyMailbox implements IAsyncReplicationCommand {
 				builder.internalDate(Long.parseLong(mailRecord.getString("INTERNALDATE")));
 				builder.lastUpdated(Long.parseLong(mailRecord.getString("LAST_UPDATED")));
 				builder.flags(JsUtils.asList(mailRecord.getJsonArray("FLAGS"), (String in) -> in));
+				if (mailRecord.containsKey("ANNOTATIONS")) {
+					builder.annotations(JsUtils.asList(mailRecord.getJsonArray("ANNOTATIONS"), (JsonObject obj) -> {
+						MailboxRecordAnnotation mra = MailboxRecordAnnotation.of(obj);
+						mra.value = Token.atomOrValue(mra.value);
+						return mra;
+					}));
+				}
 				mboxState.add(DtoConverters.from(builder.build()));
 			}
 			if (logger.isDebugEnabled()) {

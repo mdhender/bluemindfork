@@ -12,6 +12,7 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 
 const folderUid = "folder:uid";
+export const conversationKey = generateKey(1, folderUid);
 export const messageKey = generateKey(1, folderUid);
 const userId = "6793466E-F5D4-490F-97BF-DF09D3327BF4";
 
@@ -29,7 +30,7 @@ inject.register({
 });
 
 const mailbox = {
-    key: "MY_MAIBOX",
+    key: "MY_MAILBOX",
     type: "users",
     owner: userId
 };
@@ -38,15 +39,28 @@ export function createStore() {
     const store = new Vuex.Store();
     store.registerModule("alert", AlertStore);
     store.registerModule("mail", MailAppStore);
-
     store.commit("mail/SET_MAX_MESSAGE_SIZE", 10);
     store.commit("mail/ADD_MAILBOXES", [mailbox]);
     store.commit("mail/SET_MAILBOX_FOLDERS", {
-        folders: [{ key: folderUid, mailboxRef: { key: "MY_MAIBOX" } }],
+        folders: [
+            { key: folderUid, mailboxRef: { key: "MY_MAILBOX" }, writable: true, path: "my/folder" },
+            { key: "TraskKey", imapName: "Trash", path: "Trash", mailboxRef: { key: "MY_MAILBOX" }, writable: true },
+            { key: "SentKey", imapName: "Sent", path: "Sent", mailboxRef: { key: "MY_MAILBOX" }, writable: true }
+        ],
         mailbox
     });
-    store.commit("mail/ADD_MESSAGES", [{ key: messageKey, flags: [], folderRef: { key: folderUid, uid: folderUid } }]);
-    store.commit("mail/SET_ACTIVE_MESSAGE", { key: messageKey });
+    const conversations = [
+        {
+            key: conversationKey,
+            flags: [],
+            folderRef: { key: folderUid, uid: folderUid },
+            messages: [{ key: messageKey, folderRef: { key: folderUid, uid: folderUid } }],
+            date: new Date(123456)
+        }
+    ];
+    store.commit("mail/SET_CONVERSATION_LIST", conversations);
+    store.commit("mail/ADD_MESSAGES", conversations[0].messages);
+    store.commit("mail/SET_CURRENT_CONVERSATION", conversations[0]);
 
     return store;
 }

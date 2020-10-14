@@ -1,7 +1,7 @@
 import store from "@bluemind/store";
 import Bottleneck from "bottleneck";
-import { MAILSHARE_KEYS, MY_MAILBOX_FOLDERS } from "~getters";
-import { UNREAD_FOLDER_COUNT } from "~actions";
+import { MAILSHARE_KEYS, MY_MAILBOX_FOLDERS } from "~/getters";
+import { UNREAD_FOLDER_COUNT } from "~/actions";
 
 export default {
     startUnreadCountersUpdater(interval = 10 * 60 * 1000) {

@@ -3,7 +3,6 @@ import { withAlert } from "../../helpers/withAlert";
 import {
     addFlag,
     deleteFlag,
-    emptyFolder,
     fetchMessageIfNotLoaded,
     fetchMessageMetadata,
     moveMessages,
@@ -18,7 +17,6 @@ import {
     ADD_FLAG,
     DEBOUNCED_SAVE_MESSAGE,
     DELETE_FLAG,
-    EMPTY_FOLDER,
     FETCH_MESSAGE_IF_NOT_LOADED,
     FETCH_MESSAGE_METADATA,
     MARK_MESSAGE_AS_FLAGGED,
@@ -29,13 +27,15 @@ import {
     MARK_MESSAGES_AS_READ,
     MARK_MESSAGES_AS_UNFLAGGED,
     MARK_MESSAGES_AS_UNREAD,
+    MOVE_MESSAGES_NO_ALERT,
     MOVE_MESSAGES_TO_TRASH,
     MOVE_MESSAGES,
     REMOVE_ATTACHMENT,
+    REMOVE_MESSAGES_NO_ALERT,
     REMOVE_MESSAGES,
     SAVE_MESSAGE,
     SEND_MESSAGE
-} from "~actions";
+} from "~/actions";
 
 import { Flag } from "@bluemind/email";
 
@@ -49,7 +49,6 @@ export default {
     [ADD_FLAG]: addFlag,
     [DEBOUNCED_SAVE_MESSAGE]: debouncedSave,
     [DELETE_FLAG]: deleteFlag,
-    [EMPTY_FOLDER]: withAlert(emptyFolder, EMPTY_FOLDER, "EmptyFolder"),
     [FETCH_MESSAGE_IF_NOT_LOADED]: fetchMessageIfNotLoaded,
     [FETCH_MESSAGE_METADATA]: fetchMessageMetadata,
     [MARK_MESSAGE_AS_FLAGGED]: markAsFlagged,
@@ -61,9 +60,11 @@ export default {
     [MARK_MESSAGES_AS_UNFLAGGED]: withAlert(markAsUnflagged, MARK_MESSAGES_AS_UNFLAGGED),
     [MARK_MESSAGES_AS_UNREAD]: withAlert(markAsUnread, MARK_MESSAGES_AS_UNREAD),
     [MOVE_MESSAGES]: withAlert(moveMessages, MOVE_MESSAGES, "MoveMessages"),
+    [MOVE_MESSAGES_NO_ALERT]: moveMessages,
     [MOVE_MESSAGES_TO_TRASH]: withAlert(moveMessages, MOVE_MESSAGES_TO_TRASH, "MoveMessages"),
     [REMOVE_ATTACHMENT]: removeAttachment,
     [REMOVE_MESSAGES]: withAlert(removeMessages, REMOVE_MESSAGES, "RemoveMessages"),
+    [REMOVE_MESSAGES_NO_ALERT]: removeMessages,
     [SAVE_MESSAGE]: saveAsap,
     [SEND_MESSAGE]: withAlert(send, SEND_MESSAGE, "SendMessage")
 };

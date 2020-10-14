@@ -51,14 +51,17 @@ import org.junit.Test;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.ByteStreams;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
+import net.bluemind.backend.mail.api.Conversation;
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.IBaseMailboxFolders;
 import net.bluemind.backend.mail.api.IItemsTransfer;
+import net.bluemind.backend.mail.api.IMailConversation;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.IUserInbox;
@@ -81,6 +84,7 @@ import net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotations;
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifacts;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.backend.mail.replica.api.MailboxAnnotation;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
@@ -91,6 +95,7 @@ import net.bluemind.backend.mail.replica.api.QuotaRoot;
 import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents;
 import net.bluemind.backend.mail.replica.service.internal.ItemsTransferService;
+import net.bluemind.backend.mail.replica.service.internal.ReplicatedDataExpirationService;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
@@ -113,12 +118,16 @@ import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.sessions.Sessions;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.TaskUtils;
+import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
@@ -133,6 +142,7 @@ import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
+import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
@@ -2572,10 +2582,12 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		final ItemValue<MailboxFolder> inbox = mailboxFolders.byName("INBOX");
 		assertNotNull(inbox);
 
-		// create APPLE-MAIL draft containing inline parts not displayed by other client
+		// create APPLE-MAIL draft containing inline parts not displayed by
+		// other client
 		final ItemValue<MailboxItem> reloaded = addDraft(inbox);
 
-		// check disposition types are fixed ( 0:text without disposition, 1:image
+		// check disposition types are fixed ( 0:text without disposition,
+		// 1:image
 		// attachment,
 		// 2:image attachment)
 		final List<Part> subParts = reloaded.value.body.structure.children;
@@ -3059,6 +3071,124 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 				time < maxTime ? "" : " (max wait reached)"));
 
 		assertTrue("Expected the message to have a 'Seen' flag", messageIsSeen(message));
+	}
+
+	@Test
+	public void testMailConversation() throws Exception {
+		String user2Uid = PopulateHelper.addUser("user2", domainUid, Routing.internal);
+		IMailConversation user1ConversationService = provider().instance(IMailConversation.class,
+				IMailReplicaUids.conversationSubtreeUid(domainUid, userUid));
+		IMailboxFolders user1MboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> user1Inbox = user1MboxesApi.byName("INBOX");
+		ItemValue<MailboxFolder> user1SentBox = user1MboxesApi.byName("Sent");
+
+		//
+		// simulate user1 sends to user2 (should generate a conversation for
+		// user1 in Sent)
+		//
+		long user1ItemId = createEml("data/user1_send_to_user2.eml", userUid, mboxRoot, "Sent");
+		String user2MboxRoot = "user." + user2Uid.replace('.', '^');
+		createEml("data/user1_send_to_user2.eml", user2Uid, user2MboxRoot, "INBOX");
+		List<ItemValue<Conversation>> user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid,
+				ItemFlagFilter.all());
+		// a conversation already exists in INBOX due to #before method
+		assertEquals(1, user1InboxConversations.size());
+		List<ItemValue<Conversation>> user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid,
+				ItemFlagFilter.all());
+		assertEquals(1, user1SentConversations.size());
+		long conversationId = user1SentConversations.get(0).value.conversationId;
+		long numberOfMessagesInConversation = user1SentConversations.get(0).value.messageRefs.size();
+		assertEquals(1, numberOfMessagesInConversation);
+
+		//
+		// simulate user2 replies to user1 (should generate a conversation for
+		// user1 in Inbox)
+		//
+		createEml("data/user2_reply_to_user1.eml", user2Uid, user2MboxRoot, "Sent");
+		long user1ItemId2 = createEml("data/user2_reply_to_user1.eml", userUid, mboxRoot, "INBOX");
+		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
+		assertEquals(2, user1InboxConversations.size());
+		assertEquals(2, user1InboxConversations.get(1).value.messageRefs.size());
+		assertEquals(user1ItemId, user1InboxConversations.get(1).value.messageRefs.get(0).itemId);
+		assertEquals(user1ItemId2, user1InboxConversations.get(1).value.messageRefs.get(1).itemId);
+		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
+		assertEquals(1, user1SentConversations.size());
+		assertEquals(conversationId, user1InboxConversations.get(1).value.conversationId);
+		numberOfMessagesInConversation = user1InboxConversations.get(1).value.messageRefs.size();
+		assertEquals(2, numberOfMessagesInConversation);
+
+		//
+		// simulate user1 sends another one to user2 (should not generate more
+		// conversation for user1 in Inbox, but one more in Sent)
+		//
+		createEml("data/user1_send_another_to_user2.eml", userUid, mboxRoot, "Sent");
+		createEml("data/user1_send_another_to_user2.eml", user2Uid, user2MboxRoot, "INBOX");
+		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
+		assertEquals(2, user1InboxConversations.size());
+		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
+		assertEquals(2, user1SentConversations.size());
+		assertNotEquals(conversationId, user1SentConversations.get(1).value.conversationId);
+
+		//
+		// move sent message to trash
+		//
+		IMailboxFolders foldersApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> trash = foldersApi.byName("Trash");
+		IItemsTransfer transferApi = provider().instance(IItemsTransfer.class, user1SentBox.uid, trash.uid);
+		List<ItemIdentifier> moved = transferApi.move(Arrays.asList(user1ItemId));
+		assertNotNull(moved);
+		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
+		assertEquals(2, user1SentConversations.size());
+		numberOfMessagesInConversation = user1SentConversations.get(0).value.messageRefs.size();
+		assertEquals(1, numberOfMessagesInConversation);
+
+		//
+		// move reply message to trash
+		//
+		IItemsTransfer transferApi2 = provider().instance(IItemsTransfer.class, user1Inbox.uid, trash.uid);
+		List<ItemIdentifier> moved2 = transferApi2.move(Arrays.asList(user1ItemId2));
+		assertNotNull(moved2);
+		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
+		assertEquals(2, user1InboxConversations.size());
+		numberOfMessagesInConversation = user1InboxConversations.get(0).value.messageRefs.size();
+		assertEquals(1, numberOfMessagesInConversation);
+
+		//
+		// clean up trash
+		//
+		provider().instance(IMailboxFolders.class, partition, mboxRoot).emptyFolder(trash.internalId);
+		Thread.sleep(1000);
+		TaskRef deleteExpiredTaskRef = new ReplicatedDataExpirationService(new BmTestContext(SecurityContext.SYSTEM),
+				JdbcTestHelper.getInstance().getMailboxDataDataSource(), "bm/core").deleteExpired(0);
+		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), deleteExpiredTaskRef);
+		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
+		assertEquals(2, user1InboxConversations.size());
+		numberOfMessagesInConversation = user1InboxConversations.get(0).value.messageRefs.size();
+		assertEquals(1, numberOfMessagesInConversation);
+	}
+
+	/** Create a message in a synchronous way. */
+	private long createEml(String emlPath, String userUid, String mboxRoot, String folderName) throws IOException {
+		try (InputStream in = getClass().getClassLoader().getResourceAsStream(emlPath)) {
+			IServiceProvider provider = ServerSideServiceProvider.getProvider(new SecurityContext(userUid, userUid,
+					Collections.<String>emptyList(), Collections.<String>emptyList(), domainUid));
+			Stream stream = VertxStream.stream(Buffer.buffer(ByteStreams.toByteArray(in)));
+			IMailboxFolders mailboxFolderService = provider.instance(IMailboxFolders.class, partition, mboxRoot);
+			ItemValue<MailboxFolder> folder = mailboxFolderService.byName(folderName);
+			IMailboxItems mailboxItemService = provider.instance(IMailboxItems.class, folder.uid);
+			String partId = mailboxItemService.uploadPart(stream);
+			Part fullEml = Part.create(null, "message/rfc822", partId);
+			MessageBody messageBody = new MessageBody();
+			messageBody.subject = "Subject_" + System.currentTimeMillis();
+			messageBody.structure = fullEml;
+			MailboxItem item = new MailboxItem();
+			item.body = messageBody;
+			IOfflineMgmt offlineMgmt = provider.instance(IOfflineMgmt.class, domainUid, userUid);
+			IdRange oneId = offlineMgmt.allocateOfflineIds(1);
+			long expectedId = oneId.globalCounter;
+			mailboxItemService.createById(expectedId, item);
+			return expectedId;
+		}
 	}
 
 }

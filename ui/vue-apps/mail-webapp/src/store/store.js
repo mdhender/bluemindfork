@@ -3,19 +3,22 @@ import { Flag } from "@bluemind/email";
 import { DEFAULT_FOLDER_NAMES } from "./folders/helpers/DefaultFolders";
 import {
     ACTIVE_MESSAGE,
-    ALL_MESSAGES_ARE_SELECTED,
-    ALL_SELECTED_MESSAGES_ARE_FLAGGED,
-    ALL_SELECTED_MESSAGES_ARE_READ,
-    ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
-    ALL_SELECTED_MESSAGES_ARE_UNREAD,
-    ALL_SELECTED_MESSAGES_ARE_WRITABLE,
+    ALL_CONVERSATIONS_ARE_SELECTED,
+    ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED,
+    ALL_SELECTED_CONVERSATIONS_ARE_READ,
+    ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED,
+    ALL_SELECTED_CONVERSATIONS_ARE_UNREAD,
+    ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
+    CONVERSATION_IS_LOADED,
+    CONVERSATION_METADATA,
     CURRENT_MAILBOX,
     IS_ACTIVE_MESSAGE,
+    IS_CURRENT_CONVERSATION,
     MAILSHARE_FOLDERS,
     MAILSHARE_KEYS,
     MAILSHARE_ROOT_FOLDERS,
-    MESSAGE_LIST_ALL_KEYS,
-    MESSAGE_LIST_MESSAGES,
+    CONVERSATION_LIST_ALL_KEYS,
+    CONVERSATION_LIST_CONVERSATIONS,
     MY_DRAFTS,
     MY_INBOX,
     MY_MAILBOX_FOLDERS,
@@ -25,14 +28,14 @@ import {
     MY_OUTBOX,
     MY_SENT,
     MY_TRASH,
-    NEXT_MESSAGE,
+    NEXT_CONVERSATION,
     SELECTION,
     SELECTION_FLAGS
-} from "~getters";
-import { SET_ACTIVE_FOLDER } from "~mutations";
-import { compare, create } from "../model/folder";
-import { LoadingStatus } from "../model/loading-status";
-import { equal } from "../model/message";
+} from "~/getters";
+import { SET_ACTIVE_FOLDER } from "~/mutations";
+import { compare, create } from "~/model/folder";
+import { LoadingStatus } from "~/model/loading-status";
+import { equal } from "~/model/message";
 
 export const state = {
     activeFolder: undefined
@@ -52,13 +55,18 @@ const NONE = 4;
 
 export const getters = {
     [CURRENT_MAILBOX]: state => state.mailboxes[state.folders[state.activeFolder]?.mailboxRef?.key],
-    [ALL_SELECTED_MESSAGES_ARE_UNREAD]: (state, { SELECTION_FLAGS }) => SELECTION_FLAGS[Flag.SEEN] === NONE,
-    [ALL_SELECTED_MESSAGES_ARE_READ]: (state, { SELECTION_FLAGS }) => SELECTION_FLAGS[Flag.SEEN] === ALL,
-    [ALL_SELECTED_MESSAGES_ARE_FLAGGED]: (state, { SELECTION_FLAGS }) => SELECTION_FLAGS[Flag.FLAGGED] === ALL,
-    [ALL_SELECTED_MESSAGES_ARE_UNFLAGGED]: (state, { SELECTION_FLAGS }) => SELECTION_FLAGS[Flag.FLAGGED] === NONE,
-    [ALL_SELECTED_MESSAGES_ARE_WRITABLE]: (state, { CURRENT_MAILBOX }) => CURRENT_MAILBOX.writable,
-    [ALL_MESSAGES_ARE_SELECTED]: (state, { SELECTION_KEYS, MESSAGE_LIST_ALL_KEYS }) =>
-        SELECTION_KEYS.length > 0 && SELECTION_KEYS.length === MESSAGE_LIST_ALL_KEYS.length,
+    [ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED]: (
+        state,
+        getters // TODO try to use SELECTION FLAGS, remove allSelectedConversationsAre
+    ) => allSelectedConversationsAre(state, getters, Flag.FLAGGED),
+    [ALL_SELECTED_CONVERSATIONS_ARE_READ]: (state, getters) => allSelectedConversationsAre(state, getters, Flag.SEEN),
+    [ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED]: (state, getters) =>
+        allSelectedConversationsAreNot(state, getters, Flag.FLAGGED),
+    [ALL_SELECTED_CONVERSATIONS_ARE_UNREAD]: (state, getters) =>
+        allSelectedConversationsAreNot(state, getters, Flag.SEEN),
+    [ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE]: (state, { CURRENT_MAILBOX }) => CURRENT_MAILBOX.writable,
+    [ALL_CONVERSATIONS_ARE_SELECTED]: (state, { SELECTION_KEYS, CONVERSATION_LIST_ALL_KEYS }) =>
+        SELECTION_KEYS.length > 0 && SELECTION_KEYS.length === CONVERSATION_LIST_ALL_KEYS.length,
     [MAILSHARE_FOLDERS]: ({ folders }, getters) =>
         Object.values(folders).filter(folder => getters[MAILSHARE_KEYS].includes(folder.mailboxRef.key)),
     [MY_MAILBOX_FOLDERS]: ({ folders }, getters) =>
@@ -67,27 +75,37 @@ export const getters = {
         MY_MAILBOX_FOLDERS.filter(({ parent }) => !parent).sort(compare),
     [MAILSHARE_ROOT_FOLDERS]: (state, { MAILSHARE_FOLDERS }) =>
         MAILSHARE_FOLDERS.filter(({ parent }) => !parent).sort(compare),
-    [MESSAGE_LIST_MESSAGES]: ({ messages }, { MESSAGE_LIST_KEYS }) => MESSAGE_LIST_KEYS.map(key => messages[key]),
+    [CONVERSATION_LIST_CONVERSATIONS]: (state, { CONVERSATION_LIST_KEYS, CONVERSATION_METADATA }) =>
+        CONVERSATION_LIST_KEYS.map(key => CONVERSATION_METADATA(key)),
     [MY_INBOX]: myGetterFor(INBOX),
     [MY_OUTBOX]: myGetterFor(OUTBOX),
     [MY_DRAFTS]: myGetterFor(DRAFTS),
     [MY_SENT]: myGetterFor(SENT),
     [MY_TRASH]: myGetterFor(TRASH),
-    [ACTIVE_MESSAGE]: ({ messages, activeMessage }) => messages[activeMessage.key],
-    [IS_ACTIVE_MESSAGE]: ({ messages }, { ACTIVE_MESSAGE }) => ({ key }) => equal(messages[key], ACTIVE_MESSAGE),
-    [NEXT_MESSAGE]: ({ messages }, { [MESSAGE_LIST_ALL_KEYS]: keys, ACTIVE_MESSAGE }) => {
-        if (ACTIVE_MESSAGE && keys.length > 1) {
+    [ACTIVE_MESSAGE]: ({ conversations: { messages }, activeMessage }) => messages[activeMessage.key],
+    [IS_ACTIVE_MESSAGE]: ({ conversations: { messages } }, { ACTIVE_MESSAGE }) => ({ key }) =>
+        equal(messages[key], ACTIVE_MESSAGE),
+    [IS_CURRENT_CONVERSATION]: ({ conversations: { currentConversation } }) => conversation =>
+        equal(conversation, currentConversation),
+    [NEXT_CONVERSATION]: (
+        { conversations: { conversationByKey, currentConversation } },
+        { [CONVERSATION_LIST_ALL_KEYS]: keys }
+    ) => {
+        if (currentConversation && keys.length > 1) {
             for (let i = 0; i < keys.length; i++) {
-                if (ACTIVE_MESSAGE.key === keys[i]) {
-                    return messages[i + 1 < keys.length ? keys[i + 1] : keys[i - 1]];
+                if (currentConversation.key === keys[i]) {
+                    return conversationByKey[i + 1 < keys.length ? keys[i + 1] : keys[i - 1]];
                 }
             }
-            return equal(ACTIVE_MESSAGE, messages[keys[0]]) ? messages[keys[1]] : messages[keys[0]];
+            return equal(currentConversation, conversationByKey[keys[0]])
+                ? conversationByKey[keys[1]]
+                : conversationByKey[keys[0]];
         }
         return null;
     },
-    [SELECTION]: ({ messages }, { SELECTION_KEYS }) => SELECTION_KEYS.map(key => messages[key]),
-    [SELECTION_FLAGS]: ({ messages }, { SELECTION_KEYS }) => {
+    [SELECTION]: (state, { CONVERSATION_METADATA, SELECTION_KEYS }) =>
+        SELECTION_KEYS.map(key => CONVERSATION_METADATA(key)),
+    [SELECTION_FLAGS]: ({ conversations: { messages } }, { SELECTION_KEYS }) => {
         const meta = { [Flag.SEEN]: ALL | NONE, [Flag.FLAGGED]: ALL | NONE };
         for (let i = 0; i < SELECTION_KEYS.length && (meta[Flag.SEEN] || meta[Flag.FLAGGED]); i++) {
             const { flags, loading } = messages[SELECTION_KEYS[i]];
@@ -109,4 +127,22 @@ function myGetterFor(name) {
             return create(undefined, name, null, getters[MY_MAILBOX]);
         }
     };
+}
+function allSelectedConversationsAre({ selection }, getters, flag) {
+    if (selection.length > 0) {
+        return selection
+            .map(key => getters[CONVERSATION_METADATA](key))
+            .filter(Boolean)
+            .every(metadata => !getters[CONVERSATION_IS_LOADED](metadata) || metadata.flags.includes(flag));
+    }
+    return false;
+}
+function allSelectedConversationsAreNot({ selection }, getters, flag) {
+    if (selection.length > 0) {
+        return selection
+            .map(key => getters[CONVERSATION_METADATA](key))
+            .filter(Boolean)
+            .every(metadata => !getters[CONVERSATION_IS_LOADED](metadata) || !metadata.flags.includes(flag));
+    }
+    return false;
 }

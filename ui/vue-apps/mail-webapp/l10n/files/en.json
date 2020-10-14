@@ -14,6 +14,26 @@
             "event_not_found": {
                 "warning": "This message references an event which does not exist"
             },
+            "mark_conversations_as_flagged": {
+                "loading": "Conversation is being flagged...|Conversations are being flagged...",
+                "success": "Successfully flagged conversation.|Successfully flagged {count} conversations.",
+                "error": "Failed to flag conversation.|Failed to flag conversations."
+            },
+            "mark_conversations_as_unflagged": {
+                "loading": "Removing flag from conversation...|Removing flag from conversations...",
+                "success": "Successfully removed flag from conversation.|Successfully removed flag from conversations.",
+                "error": "Failed to remove flag from conversation.|Failed to remove flag from conversations."
+            },
+            "mark_conversations_as_read": {
+                "loading": "Conversation is being marked as read.|Conversations are being marked as read.",
+                "success": "Successfully marked conversation as read.|Successfully marked conversations as read.",
+                "error": "Failed to mark conversation as read.|Failed to mark conversations as read."
+            },
+            "mark_conversations_as_unread": {
+                "loading": "Conversation is being marked as unread.|Conversations are being marked as unread.",
+                "success": "Successfully marked conversation as unread.|Successfully marked conversations as unread.",
+                "error": "Failed to mark conversation as unread.|Failed to mark conversations as unread."
+            },
             "mark_folder_as_read": {
                 "loading": "Folder {name} is beeing been marked as read...",
                 "success": "Folder {name} has been marked as read!",
@@ -39,10 +59,24 @@
                 "success": "Successfully marked {count} messages as unread.",
                 "error": "Failed to mark selected messages as unread."
             },
+            "move_conversations": {
+                "loading": {
+                    "single": "Conversation \"{subject}\" is being moved to {folder}...",
+                    "plural": "{count} conversations are being moved to {folder}..."
+                },
+                "success": {
+                    "single": "Successfully moved \"{subject}\" to {folder}.",
+                    "plural": "Successfully moved {count} conversations to {folder}."
+                },
+                "error": {
+                    "single": "Failed to move conversation \"{subject}\" to {folder}.",
+                    "plural": "Failed to move selected conversations to {folder}."
+                }
+            },
             "move_messages": {
                 "loading": {
-                    "single": "\"{subject}\" is beeing moved in {folder}...",
-                    "plural": "Moving {count} messages in {folder}..."
+                    "single": "\"{subject}\" is being moved to {folder}...",
+                    "plural": "Moving {count} messages to {folder}..."
                 },
                 "success": {
                     "single": "\"{subject}\" has been successfully moved to {folder}.",
@@ -51,6 +85,20 @@
                 "error": {
                     "single": "Failed to move \"{subject}\" in {folder}.",
                     "plural": "Failed to move selected messages in {folder}."
+                }
+            },
+            "move_conversations_to_trash": {
+                "loading": {
+                    "single": "Moving conversation \"{subject}\" to {folder}...",
+                    "plural": "Moving conversations to {folder}..."
+                },
+                "success": {
+                    "single": "Successfully moved conversation \"{subject}\" to {folder}.",
+                    "plural": "Successfully moved conversations to {folder}."
+                },
+                "error": {
+                    "single": "Failed to move conversation \"{subject}\" to {folder}.",
+                    "plural": "Failed to move conversations to {folder}."
                 }
             },
             "move_messages_to_trash": {
@@ -74,6 +122,11 @@
                 "loading": "Folder {previousName} is being renamed into {name}...",
                 "success": "Folder {previousName} renamed to {name}!",
                 "error": "Failed to renaming folder \"{previousName}\" to \"{name}\"."
+            },
+            "remove_conversations": {
+                "loading": "Conversation \"{subject}\" is being removed permanently...|{count} conversations are being removed permanently...",
+                "success": "Conversation \"{subject}\" has been removed permanently.|{count} conversations have been successfully removed permanently..",
+                "error": "Failed to remove conversation \"{subject}\".| Failed to remove selected conversations."
             },
             "remove_folder": {
                 "loading": "Folder \"{name}\" is being removed...",
@@ -99,6 +152,8 @@
     "mail.actions.attach.aria": "Attach a file",
     "mail.actions.attach": "Attach",
     "mail.actions.create.folder": "Create a new folder",
+    "mail.actions.edit": "Edit",
+    "mail.actions.extend": "Extend",
     "mail.actions.folder.invalid.already_exist": "This folder name is already used",
     "mail.actions.folder.invalid.too_long": "Folder name is too long",
     "mail.actions.folder.subfolder.forbidden": "Forbidden subfolders",
@@ -106,6 +161,8 @@
     "mail.actions.mark_as_read": "Mark as read",
     "mail.actions.mark_as_unflagged": "Remove flag",
     "mail.actions.mark_as_unread": "Mark as unread",
+    "mail.actions.mark_conversations_as_read": "Mark as read",
+    "mail.actions.mark_conversations_as_unread": "Mark as unread",
     "mail.actions.mark_flagged.aria": "Flag {subject} | Flag selected messages",
     "mail.actions.mark_flagged": "Flag",
     "mail.actions.mark_read.aria": "Mark {subject} as read | Mark selected messages as read",
@@ -120,7 +177,12 @@
     "mail.actions.move.item": "Move message to {path} | Move selected messages to {path}",
     "mail.actions.move": "Move",
     "mail.actions.purge.modal.content": "Remove message \"{subject}\" permanently? | Remove selected messages permanently?",
+    "mail.actions.purge.draft.modal.content": "Remove draft \"{subject}\" saved on {date} ?",
+    "mail.actions.purge.draft.modal.content.time": "Remove draft \"{subject}\" saved at {time} ?",
+    "mail.actions.purge.conversations.modal.content": "Remove conversation \"{subject}\" permanently? | Remove selected conversations permanently?",
     "mail.actions.purge.modal.title": "Remove a message | Remove messages",
+    "mail.actions.purge.draft.modal.title": "Remove a draft",
+    "mail.actions.purge.conversations.modal.title": "Remove a conversation | Remove conversations",
     "mail.actions.purge": "Remove permanently",
     "mail.actions.remove.aria": "Remove {subject} | Remove selected messages",
     "mail.actions.remove.compose.aria": "Remove message being written",
@@ -146,9 +208,11 @@
     "mail.compose.forward.prev.message.info.subject": "Subject",
     "mail.compose.forward.prev.message.info.to": "To",
     "mail.compose.reply.body": "On {date}, {name} wrote:",
+    "mail.content.alert.ics.dont_exist": "This message references an event which does not exist",
     "mail.content.alert.images.blocked": "Remote images have been blocked to protect your privacy.",
     "mail.content.alert.images.show": "Show images.",
     "mail.content.alert.images.trust.sender": "Trust content of {sender}",
+    "mail.content.alert.readonly": "Read-only message. Some actions (like Move or Remove) may not be available.",
     "mail.content.blindcopy": "blind copy",
     "mail.content.body": "Message content",
     "mail.content.copy": "copy",
@@ -169,8 +233,12 @@
     "mail.content.reply_all.aria": "Reply all",
     "mail.content.reply.aria": "Reply",
     "mail.content.to": "to",
+    "mail.conversation.icon.title": "Conversation of {count} messages",
+    "mail.conversations.selected": "conversations selected",
+    "mail.conversation.show.middle.messages": "Show {count} messages",
     "mail.draft.delete.confirm.content": "Are you sure to delete this draft?",
     "mail.draft.delete.confirm.title": "Delete draft",
+    "mail.draft.not.sent": "This message has not been sent",
     "mail.draft.save.date.time": "Draft saved at {time}",
     "mail.draft.save.date": "Draft saved on {date}",
     "mail.draft.save.error.reason": "You may be disconnected",
@@ -272,5 +340,7 @@
                 "insert_signature": "Insert my signature"
             }
         }
-    }
+    },
+    "mail.save.date": "saved on {date}",
+    "mail.save.date.time": "saved at {time}"
 }

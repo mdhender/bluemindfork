@@ -1,8 +1,13 @@
 import { inject } from "@bluemind/inject";
 import EventHelper from "./helpers/EventHelper";
-import { FETCH_EVENT, SET_EVENT_STATUS, ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~actions";
-import { RESET_ACTIVE_MESSAGE, SET_BLOCK_REMOTE_IMAGES, SET_CURRENT_EVENT, SET_CURRENT_EVENT_STATUS } from "~mutations";
-import { LoadingStatus } from "../model/loading-status";
+import { FETCH_EVENT, SET_EVENT_STATUS, ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~/actions";
+import {
+    RESET_ACTIVE_MESSAGE,
+    SET_BLOCK_REMOTE_IMAGES,
+    SET_CURRENT_EVENT,
+    SET_CURRENT_EVENT_STATUS
+} from "~/mutations";
+import { LoadingStatus } from "~/model/loading-status";
 
 export default {
     state: {

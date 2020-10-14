@@ -1,0 +1,42 @@
+$COUNTED_FLAGS
+$FOLDER_NAMES	(dev-bm4.test!user.user1 dev-bm4.test!user.user1.Sent dev-bm4.test!user.user1.Drafts dev-bm4.test!user.user1.Junk dev-bm4.test!user.user1.Outbox dev-bm4.test!user.user1.Trash)
+<0294a14ce2ccead6d719e70ad5c0e0b6@dev-bm4.test>	0 c3935370c11c6b47 1622023781
+<ab29e7a353bc0161512bac9c7a09bd3d@dev-bm4.test>	0 c3935370c11c6b47 1622023781
+B8f5f74ed9d71cd5f	0 (32 12 0 0 () ((0 22 2 0 0) (1 30 2 0 0) (2 24 2 0 0) (3 26 2 0 0) (4 28 2 0 0) (5 32 2 0 0)) () "" 0 ())
+Bc3935370c11c6b47	0 (8 2 2 1 () ((0 7 1 1 1) (1 8 1 1 0)) (("user2 user2" NIL user2 dev-bm4.test 1622022637 1) ("user1 user1" NIL user1 dev-bm4.test 1622022618 1)) firstmessage 3014 ((ee974c2e6ef01f3ddc1a157dd91a1e0d3f48add4 1 1622022618 733543053) (52608a91ca7560557372c0120476c6476b181700 1 1622022637 2522178585)))
+Fdev-bm4.test!user.user1	0 (32 1 1)
+Fdev-bm4.test!user.user1.Drafts	0 (32 0 0)
+Fdev-bm4.test!user.user1.Junk	0 (32 0 0)
+Fdev-bm4.test!user.user1.Outbox	0 (32 0 0)
+Fdev-bm4.test!user.user1.Sent	0 (32 1 1)
+Fdev-bm4.test!user.user1.Trash	0 (32 0 0)
+G10f77e31b528119ac8b11524106ab85c4ffe5417:1:1[2]
+G1eacad0c9618c64d977cede0a30d7d93f29f4fa2:0:2	8f5f74ed9d71cd5f
+G1eacad0c9618c64d977cede0a30d7d93f29f4fa2:0:3	8f5f74ed9d71cd5f
+G1eacad0c9618c64d977cede0a30d7d93f29f4fa2:1:2	8f5f74ed9d71cd5f
+G1eacad0c9618c64d977cede0a30d7d93f29f4fa2:1:3	8f5f74ed9d71cd5f
+G1eacad0c9618c64d977cede0a30d7d93f29f4fa2:2:1	8f5f74ed9d71cd5f
+G1eacad0c9618c64d977cede0a30d7d93f29f4fa2:2:2	8f5f74ed9d71cd5f
+G1eacad0c9618c64d977cede0a30d7d93f29f4fa2:3:1	8f5f74ed9d71cd5f
+G1eacad0c9618c64d977cede0a30d7d93f29f4fa2:3:2	8f5f74ed9d71cd5f
+G1eacad0c9618c64d977cede0a30d7d93f29f4fa2:4:1	8f5f74ed9d71cd5f
+G1eacad0c9618c64d977cede0a30d7d93f29f4fa2:4:2	8f5f74ed9d71cd5f
+G1eacad0c9618c64d977cede0a30d7d93f29f4fa2:5:1	8f5f74ed9d71cd5f
+G1eacad0c9618c64d977cede0a30d7d93f29f4fa2:5:2	8f5f74ed9d71cd5f
+G52608a91ca7560557372c0120476c6476b181700:0:1332	c3935370c11c6b47
+Ga6ce7e6f80adf8b4ffa684321efb91977e7ef32e:0:1[2]
+Gacb6d0a4253e2f717e8b32be78a8524dfa649989:1:1[1]
+Gda39a3ee5e6b4b0d3255bfef95601890b3fb78be:0:2[1]
+Gda39a3ee5e6b4b0d3255bfef95601890b3fb78be:0:3[1]
+Gda39a3ee5e6b4b0d3255bfef95601890b3fb78be:1:2[1]
+Gda39a3ee5e6b4b0d3255bfef95601890b3fb78be:1:3[1]
+Gda39a3ee5e6b4b0d3255bfef95601890b3fb78be:2:1[1]
+Gda39a3ee5e6b4b0d3255bfef95601890b3fb78be:2:2[1]
+Gda39a3ee5e6b4b0d3255bfef95601890b3fb78be:3:1[1]
+Gda39a3ee5e6b4b0d3255bfef95601890b3fb78be:3:2[1]
+Gda39a3ee5e6b4b0d3255bfef95601890b3fb78be:4:1[1]
+Gda39a3ee5e6b4b0d3255bfef95601890b3fb78be:4:2[1]
+Gda39a3ee5e6b4b0d3255bfef95601890b3fb78be:5:1[1]
+Gda39a3ee5e6b4b0d3255bfef95601890b3fb78be:5:2[1]
+Gee974c2e6ef01f3ddc1a157dd91a1e0d3f48add4:1:1	c3935370c11c6b47
+Gfea8af40ea3c1d4e8da69b7d6463534cfaeeba8d:0:1[1]

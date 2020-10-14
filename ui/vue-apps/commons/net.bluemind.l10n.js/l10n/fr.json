@@ -139,5 +139,7 @@
     "common.minutes": "minutes",
     "common.hours": "heures",
     "common.days": "jours",
-    "common.days_before": "1 jour avant | {count} jours avant"
+    "common.days_before": "1 jour avant | {count} jours avant",
+    "common.expand": "Déplier",
+    "common.collapse": "Replier"
 }

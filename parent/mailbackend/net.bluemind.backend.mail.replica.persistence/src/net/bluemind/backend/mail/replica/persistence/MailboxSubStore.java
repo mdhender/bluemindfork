@@ -41,13 +41,12 @@ public class MailboxSubStore extends JdbcAbstractStore {
 				+ MailboxSubColumns.COLUMNS.values() + ") ON CONFLICT (" + MailboxSubColumns.COLUMNS.names()
 				+ ") DO NOTHING";
 		insert(query, sub, MailboxSubColumns.values());
-		logger.info("Sub inserted.");
 	}
 
 	public void delete(MailboxSub sub) throws SQLException {
 		String query = "DELETE FROM t_mailbox_sub where user_id=? AND mbox=?";
 		delete(query, new Object[] { sub.userId, sub.mboxName });
-		logger.info("Sub {} deleted.", sub);
+		logger.debug("Sub {} deleted.", sub);
 	}
 
 	public List<MailboxSub> byUser(String userId) throws SQLException {

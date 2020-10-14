@@ -4,17 +4,18 @@ import { InlineImageHelper, MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
 
-import { FETCH_ACTIVE_MESSAGE_INLINE_PARTS, FETCH_MESSAGE_IF_NOT_LOADED } from "~actions";
-import { MY_DRAFTS } from "~getters";
+import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
+import { MY_DRAFTS } from "~/getters";
 import {
+    ADD_MESSAGE_TO_CONVERSATION,
     ADD_MESSAGES,
     SET_ATTACHMENTS_FORWARDED,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
     SET_SAVED_INLINE_IMAGES
-} from "~mutations";
-import { addSignature } from "~model/signature";
-import { getPartsFromCapabilities } from "~model/part";
+} from "~/mutations";
+import { addSignature } from "~/model/signature";
+import { getPartsFromCapabilities } from "~/model/part";
 // FIXME: all those methods are helper of mixin, not model..
 import {
     addSeparator,
@@ -23,9 +24,9 @@ import {
     createReplyOrForward,
     getEditorContent,
     handleSeparator
-} from "~model/draft";
-import { MessageCreationModes } from "~model/message";
-import apiMessages from "../store/api/apiMessages";
+} from "~/model/draft";
+import { MessageCreationModes } from "~/model/message";
+import apiMessages from "~/store/api/apiMessages";
 
 /**
  * Manage different cases of composer initialization
@@ -37,9 +38,12 @@ export default {
         };
     },
     computed: {
+        ...mapState("mail", ["activeFolder", "folders"]),
         ...mapGetters("mail", { $_ComposerInitMixin_MY_DRAFTS: MY_DRAFTS }),
-        ...mapState("mail", { $_ComposerInitMixin_activeMessage: "activeMessage" }),
-        ...mapState("mail", { $_ComposerInitMixin_signature: ({ messageCompose }) => messageCompose.signature }),
+        ...mapState("mail", {
+            $_ComposerInitMixin_partsData: "partsData",
+            $_ComposerInitMixin_currentConversation: ({ conversations }) => conversations.currentConversation
+        }),
         ...mapState("session", { $_ComposerInitMixin_settings: ({ settings }) => settings.remote }),
         $_ComposerInitMixin_insertSignaturePref() {
             return this.$_ComposerInitMixin_settings.insert_signature;
@@ -50,14 +54,21 @@ export default {
         ...mapGetters("root-app", { $_ComposerInitMixin_defaultIdentity: "DEFAULT_IDENTITY" }),
         $_ComposerInitMixin_signature() {
             return this.$_ComposerInitMixin_defaultIdentity.signature;
+        },
+        conversationsActivated() {
+            return (
+                this.$_ComposerInitMixin_settings.mail_thread === "true" &&
+                this.folders[this.activeFolder].allowConversations
+            );
         }
     },
     methods: {
         ...mapActions("mail", {
-            $_ComposerInitMixin_FETCH_ACTIVE_MESSAGE_INLINE_PARTS: FETCH_ACTIVE_MESSAGE_INLINE_PARTS
+            $_ComposerInitMixin_FETCH_PART_DATA: FETCH_PART_DATA
         }),
         ...mapMutations("mail", {
             $_ComposerInitMixin_ADD_MESSAGES: ADD_MESSAGES,
+            $_ComposerInitMixin_ADD_MESSAGE_TO_CONVERSATION: ADD_MESSAGE_TO_CONVERSATION,
             $_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT: SET_DRAFT_COLLAPSED_CONTENT,
             $_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT: SET_DRAFT_EDITOR_CONTENT,
             $_ComposerInitMixin_SET_SAVED_INLINE_IMAGES: SET_SAVED_INLINE_IMAGES,
@@ -67,12 +78,14 @@ export default {
         // case when user clicks on a message in MY_DRAFTS folder
         async initFromRemoteMessage(message) {
             const messageWithTmpAddresses = await apiMessages.getForUpdate(message);
+            messageWithTmpAddresses.conversationRef = message.conversationRef;
             messageWithTmpAddresses.composing = true;
             this.$_ComposerInitMixin_ADD_MESSAGES([messageWithTmpAddresses]);
 
             const parts = getPartsFromCapabilities(messageWithTmpAddresses, COMPOSER_CAPABILITIES);
 
-            await this.$_ComposerInitMixin_FETCH_ACTIVE_MESSAGE_INLINE_PARTS({
+            await this.$_ComposerInitMixin_FETCH_PART_DATA({
+                messageKey: message.key,
                 folderUid: message.folderRef.uid,
                 imapUid: message.remoteRef.imapUid,
                 inlines: parts.filter(part => MimeType.isHtml(part) || MimeType.isText(part))
@@ -81,7 +94,7 @@ export default {
             let content = getEditorContent(
                 this.userPrefTextOnly,
                 parts,
-                this.$_ComposerInitMixin_activeMessage.partsDataByAddress,
+                this.$_ComposerInitMixin_partsData[message.key],
                 this.$_ComposerInitMixin_lang
             );
             if (!this.userPrefTextOnly) {
@@ -118,7 +131,7 @@ export default {
                 case MessageCreationModes.FORWARD:
                     try {
                         const previous = await this.$store.dispatch("mail/" + FETCH_MESSAGE_IF_NOT_LOADED, {
-                            internalId: related.messageId,
+                            internalId: related.internalId,
                             folder: this.$store.state.mail.folders[related.folderKey]
                         });
                         return this.initReplyOrForward(action, previous);
@@ -140,7 +153,9 @@ export default {
             }
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(null);
+
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
+            return message;
         },
 
         // case of a reply or forward message
@@ -151,11 +166,11 @@ export default {
                 inject("UserSession"),
                 creationMode
             );
-            this.$_ComposerInitMixin_ADD_MESSAGES([message]);
 
             const parts = getPartsFromCapabilities(previousMessage, COMPOSER_CAPABILITIES);
 
-            await this.$_ComposerInitMixin_FETCH_ACTIVE_MESSAGE_INLINE_PARTS({
+            await this.$_ComposerInitMixin_FETCH_PART_DATA({
+                messageKey: previousMessage.key,
                 folderUid: previousMessage.folderRef.uid,
                 imapUid: previousMessage.remoteRef.imapUid,
                 inlines: parts.filter(
@@ -166,7 +181,7 @@ export default {
             let contentFromPreviousMessage = getEditorContent(
                 this.userPrefTextOnly,
                 parts,
-                this.$_ComposerInitMixin_activeMessage.partsDataByAddress,
+                this.$_ComposerInitMixin_partsData[previousMessage.key],
                 this.$_ComposerInitMixin_lang
             );
 
@@ -175,7 +190,7 @@ export default {
                 const insertionResult = await InlineImageHelper.insertAsBase64(
                     [contentFromPreviousMessage],
                     partsWithCid,
-                    this.$_ComposerInitMixin_activeMessage.partsDataByAddress
+                    this.$_ComposerInitMixin_partsData[previousMessage.key]
                 );
                 contentFromPreviousMessage = insertionResult.contentsWithImageInserted[0];
                 contentFromPreviousMessage = sanitizeHtml(contentFromPreviousMessage);
@@ -192,16 +207,33 @@ export default {
                 this.$_ComposerInitMixin_signature && this.$_ComposerInitMixin_insertSignaturePref === "true"
                     ? addSignature("", this.userPrefTextOnly, this.$_ComposerInitMixin_signature)
                     : "";
+
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(collapsed);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
+
+            this.$_ComposerInitMixin_ADD_MESSAGES([message]);
+            if (creationMode !== MessageCreationModes.FORWARD) {
+                this.$_ComposerInitMixin_ADD_MESSAGE_TO_CONVERSATION({
+                    message,
+                    conversation: this.$_ComposerInitMixin_currentConversation
+                });
+            }
 
             if (creationMode === MessageCreationModes.FORWARD) {
                 const forwardedAttachments = await uploadAttachments(previousMessage);
                 this.$_ComposerInitMixin_SET_ATTACHMENTS_FORWARDED(forwardedAttachments);
             }
 
-            this.$router.navigate({ name: "v:mail:message", params: { message: message } });
+            if (this.conversationsActivated && creationMode !== MessageCreationModes.FORWARD) {
+                this.$router.navigate({
+                    name: "v:mail:conversation",
+                    params: { conversation: this.$_ComposerInitMixin_currentConversation }
+                });
+            } else {
+                this.$router.navigate({ name: "v:mail:message", params: { message } });
+            }
+            return message;
         }
     }
 };

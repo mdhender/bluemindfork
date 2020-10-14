@@ -38,7 +38,7 @@ import { BmButton, BmLabelIcon } from "@bluemind/styleguide";
 import emptyMessageIllustration from "../../assets/home-page.png";
 import NewMessage from "./NewMessage";
 import { mapGetters } from "vuex";
-import { MY_DRAFTS } from "~getters";
+import { MY_DRAFTS } from "~/getters";
 
 export default {
     name: "MailMessageStarter",

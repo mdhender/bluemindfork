@@ -70,11 +70,7 @@ function registerAPIClients() {
         factory: () => {
             const userSession = injector.getProvider("UserSession").get();
             const conversationContainerId =
-                "subtree_" +
-                userSession.domain.replace(".", "_") +
-                "!user." +
-                userSession.login.split("@")[0] +
-                "_conversations";
+                "subtree_" + userSession.domain.replace(".", "_") + "!" + userSession.userId + "_conversations";
             return new MailConversationClient(userSession.sid, conversationContainerId);
         }
     });

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.backend.cyrus.annotationdb
+Bundle-SymbolicName: net.bluemind.backend.cyrus.annotationdb
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Automatic-Module-Name: net.bluemind.backend.cyrus.annotationdb
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: slf4j.api,
+ net.bluemind.node.api,
+ com.google.guava,
+ net.bluemind.network.utils
+Export-Package: net.bluemind.backend.cyrus.annotationdb

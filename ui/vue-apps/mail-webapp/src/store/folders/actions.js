@@ -9,10 +9,10 @@ import {
     REMOVE_FOLDER,
     RENAME_FOLDER,
     SET_UNREAD_COUNT
-} from "~mutations";
-import { FOLDERS_BY_UPPERCASE_PATH } from "~getters";
+} from "~/mutations";
+import { FOLDERS_BY_UPPERCASE_PATH } from "~/getters";
 import { FolderAdaptor } from "./helpers/FolderAdaptor";
-import { create, rename } from "~model/folder";
+import { create, rename } from "~/model/folder";
 import { withAlert } from "../helpers/withAlert";
 import {
     CREATE_FOLDER,
@@ -21,7 +21,7 @@ import {
     CREATE_FOLDER_HIERARCHY,
     MARK_FOLDER_AS_READ,
     UNREAD_FOLDER_COUNT
-} from "~actions";
+} from "~/actions";
 
 const fetchFolders = async function ({ commit }, mailbox) {
     const items = await api.getAllFolders(mailbox);

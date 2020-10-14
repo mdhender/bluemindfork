@@ -2,7 +2,7 @@
     <bm-dropzone
         v-if="!editingFolder"
         :states="{ active: false }"
-        :accept="['message']"
+        :accept="['conversation']"
         :value="folder"
         class="mail-folder-item flex-fill d-inline-flex align-items-center"
     >
@@ -49,9 +49,9 @@ import { BmCounterBadge, BmDropzone, BmIcon } from "@bluemind/styleguide";
 import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItemMenu from "./MailFolderItemMenu";
-import { REMOVE_FOLDER, TOGGLE_EDIT_FOLDER } from "~mutations";
-import { RENAME_FOLDER, CREATE_FOLDER } from "~actions";
-import { MailboxType } from "~model/mailbox";
+import { REMOVE_FOLDER, TOGGLE_EDIT_FOLDER } from "~/mutations";
+import { RENAME_FOLDER, CREATE_FOLDER } from "~/actions";
+import { MailboxType } from "~/model/mailbox";
 
 export default {
     name: "MailFolderItem",
@@ -104,7 +104,7 @@ export default {
             if (this.folder && this.folder.remoteRef.uid) {
                 this.RENAME_FOLDER({ folder: this.folder, name, mailbox });
                 if (this.activeFolder === this.folder.key) {
-                    this.$router.navigate({ name: "v:mail:message", params: { folder: this.folder.path } });
+                    this.$router.navigate({ name: "v:mail:conversation", params: { folder: this.folder.path } });
                 }
             } else if (this.folder) {
                 const parent = this.folders[this.folder.parent];

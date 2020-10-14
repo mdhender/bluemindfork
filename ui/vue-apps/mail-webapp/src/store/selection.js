@@ -1,21 +1,21 @@
 import {
-    ADD_MESSAGES,
-    CLEAR_MESSAGE_LIST,
+    CLEAR_CONVERSATION_LIST,
     MOVE_MESSAGES,
+    REMOVE_CONVERSATIONS,
     REMOVE_MESSAGES,
-    SELECT_ALL_MESSAGES,
-    SELECT_MESSAGE,
-    SET_MESSAGE_LIST,
-    UNSELECT_ALL_MESSAGES,
-    UNSELECT_MESSAGE
-} from "~mutations";
+    SELECT_ALL_CONVERSATIONS,
+    SELECT_CONVERSATION,
+    SET_CONVERSATION_LIST,
+    UNSELECT_ALL_CONVERSATIONS,
+    UNSELECT_CONVERSATION
+} from "~/mutations";
 import {
-    MESSAGE_IS_SELECTED,
-    MULTIPLE_MESSAGE_SELECTED,
-    ONE_MESSAGE_SELECTED,
+    CONVERSATION_IS_SELECTED,
+    SEVERAL_CONVERSATIONS_SELECTED,
+    ONE_CONVERSATION_SELECTED,
     SELECTION_IS_EMPTY,
     SELECTION_KEYS
-} from "~getters";
+} from "~/getters";
 
 const state = {
     _keys: [],
@@ -23,35 +23,24 @@ const state = {
 };
 
 const mutations = {
-    [UNSELECT_MESSAGE]: ({ _keys }, key) => {
+    [UNSELECT_CONVERSATION]: ({ _keys }, key) => {
         let index = _keys.indexOf(key);
         if (index >= 0) {
             _keys.splice(index, 1);
         }
     },
-    [SELECT_MESSAGE]: ({ _keys }, key) => {
+    [SELECT_CONVERSATION]: ({ _keys }, key) => {
         if (!_keys.includes(key)) _keys.push(key);
     },
-    [SELECT_ALL_MESSAGES]: (state, keys) => {
+    [SELECT_ALL_CONVERSATIONS]: (state, keys) => {
         state._keys = [...keys];
     },
-    [UNSELECT_ALL_MESSAGES]: state => {
+    [UNSELECT_ALL_CONVERSATIONS]: state => {
         state._keys = [];
         state._removed = [];
     },
     // Hooks
-    [ADD_MESSAGES]: (state, messages) => {
-        if (state._removed.length > 0) {
-            const keys = new Set(messages.map(({ key }) => key));
-            for (let i = state._removed.length - 1; i >= 0 && keys.size > 0; i--) {
-                if (keys.has(state._removed[i])) {
-                    keys.delete(state._removed[i]);
-                    state._removed.splice(i, 1);
-                }
-            }
-        }
-    },
-    [SET_MESSAGE_LIST]: (state, messages) => {
+    [SET_CONVERSATION_LIST]: (state, messages) => {
         const keySet = new Set(messages.map(({ key }) => key));
         const removed = new Set(state._removed);
         for (let index = state._keys.length - 1; index >= 0; index--) {
@@ -62,8 +51,30 @@ const mutations = {
         }
         state._removed = Array.from(removed);
     },
-    [REMOVE_MESSAGES]: ({ _keys, _removed }, messages) => {
-        const keySet = new Set(messages.map(({ key }) => key));
+    [MOVE_MESSAGES]: (state, { conversation, messages }) => {
+        if (conversation) {
+            const messageKeysToRemove = new Set(messages.map(message => message.key));
+            const countOfMessageInConversationFolder = conversation.messages
+                .filter(message => message.folderRef.key === conversation.folderRef.key)
+                .filter(message => !messageKeysToRemove.has(message.key)).length;
+            if (countOfMessageInConversationFolder === 0) {
+                state._removed.push(conversation.key);
+            }
+        }
+    },
+    [REMOVE_MESSAGES]: (state, { conversation, messages }) => {
+        if (conversation) {
+            const messageKeysToRemove = new Set(messages.map(message => message.key));
+            const countOfMessageInConversationFolder = conversation.messages
+                .filter(message => message.folderRef.key === conversation.folderRef.key)
+                .filter(message => !messageKeysToRemove.has(message.key)).length;
+            if (countOfMessageInConversationFolder === 0) {
+                state._removed.push(conversation.key);
+            }
+        }
+    },
+    [REMOVE_CONVERSATIONS]: ({ _keys, _removed }, conversations) => {
+        const keySet = new Set(conversations.map(({ key }) => key));
         for (let i = 0; i < _keys.length && keySet.size > 0; i++) {
             if (keySet.has(_keys[i])) {
                 keySet.delete(_keys[i]);
@@ -71,18 +82,7 @@ const mutations = {
             }
         }
     },
-    [MOVE_MESSAGES]: (state, { messages }) => {
-        const moved = new Set(messages.map(({ key }) => key));
-        const removed = new Set(state._removed);
-        for (let i = 0; i < state._keys.length && moved.size > 0; i++) {
-            if (moved.has(state._keys[i])) {
-                moved.delete(state._keys[i]);
-                removed.has(state._keys[i]) ? removed.delete(state._keys[i]) : removed.add(state._keys[i]);
-            }
-        }
-        state._removed = Array.from(removed);
-    },
-    [CLEAR_MESSAGE_LIST]: state => {
+    [CLEAR_CONVERSATION_LIST]: state => {
         state._keys = [];
         state._removed = [];
     }
@@ -90,9 +90,9 @@ const mutations = {
 
 const getters = {
     [SELECTION_IS_EMPTY]: (s, { SELECTION_KEYS }) => SELECTION_KEYS.length === 0,
-    [ONE_MESSAGE_SELECTED]: (s, { SELECTION_KEYS }) => SELECTION_KEYS.length === 1,
-    [MULTIPLE_MESSAGE_SELECTED]: (s, { SELECTION_KEYS }) => SELECTION_KEYS.length > 1,
-    [MESSAGE_IS_SELECTED]: (s, { SELECTION_KEYS }) => {
+    [ONE_CONVERSATION_SELECTED]: (s, { SELECTION_KEYS }) => SELECTION_KEYS.length === 1,
+    [SEVERAL_CONVERSATIONS_SELECTED]: (s, { SELECTION_KEYS }) => SELECTION_KEYS.length > 1,
+    [CONVERSATION_IS_SELECTED]: (s, { SELECTION_KEYS }) => {
         const selection = new Set(SELECTION_KEYS);
         return key => selection.has(key);
     },

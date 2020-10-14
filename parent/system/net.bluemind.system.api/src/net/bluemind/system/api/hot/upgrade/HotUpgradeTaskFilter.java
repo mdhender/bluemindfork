@@ -11,14 +11,17 @@ public class HotUpgradeTaskFilter {
 
 	private final List<HotUpgradeTaskStatus> statuses;
 	private final int maxFailure;
+	private final List<HotUpgradeTaskExecutionMode> mode;
 
-	private HotUpgradeTaskFilter(List<HotUpgradeTaskStatus> statuses, int maxFailure) {
+	private HotUpgradeTaskFilter(List<HotUpgradeTaskStatus> statuses, int maxFailure,
+			List<HotUpgradeTaskExecutionMode> mode) {
 		this.statuses = Collections.unmodifiableList(statuses);
 		this.maxFailure = maxFailure;
+		this.mode = Collections.unmodifiableList(mode);
 	}
 
 	private HotUpgradeTaskFilter(List<HotUpgradeTaskStatus> statuses) {
-		this(statuses, -1);
+		this(statuses, -1, Arrays.asList(HotUpgradeTaskExecutionMode.DIRECT, HotUpgradeTaskExecutionMode.JOB));
 	}
 
 	public HotUpgradeTaskFilter() {
@@ -34,7 +37,11 @@ public class HotUpgradeTaskFilter {
 	}
 
 	public HotUpgradeTaskFilter withMaxFailure(int maxFailure) {
-		return new HotUpgradeTaskFilter(statuses, maxFailure);
+		return new HotUpgradeTaskFilter(statuses, maxFailure, mode);
+	}
+
+	public HotUpgradeTaskFilter mode(HotUpgradeTaskExecutionMode... mode) {
+		return new HotUpgradeTaskFilter(statuses, maxFailure, Arrays.asList(mode));
 	}
 
 	public static HotUpgradeTaskFilter filter(HotUpgradeTaskStatus... statuses) {
@@ -45,11 +52,15 @@ public class HotUpgradeTaskFilter {
 		return new HotUpgradeTaskFilter();
 	}
 
+	public List<HotUpgradeTaskExecutionMode> getMode() {
+		return mode;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("HotUpgradeTaskFilter [statuses=").append(statuses).append(", maxFailure=").append(maxFailure)
-				.append("]");
+				.append(", modes=").append(mode).append("]");
 		return builder.toString();
 	}
 

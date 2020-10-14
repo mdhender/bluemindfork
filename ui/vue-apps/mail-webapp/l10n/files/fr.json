@@ -14,6 +14,26 @@
             "event_not_found": {
                 "warning": "Ce message fait référence à un évènement qui n'existe pas dans votre calendrier"
             },
+            "mark_conversations_as_flagged": {
+                "loading": "Conversation en train d'être marquée comme importante...|Conversations en train d'être marquées comme importantes...",
+                "success": "Conversation marquée comme importante.|{count} conversations marquées comme importantes.",
+                "error": "La conversation n'a pas pu être marquée comme importante.|Les conversations n'ont pas pu être marquées comme importantes."
+            },
+            "mark_conversations_as_unflagged": {
+                "loading": "En train d'enlever l'indicateur d'importance sur la conversation...|En train d'enlever l'indicateur d'importance sur les conversations...",
+                "success": "La conversation n'est plus marquée comme importante.|{count} conversations ne sont plus marquées comme importantes.",
+                "error": "Impossible d'enlever l'indicateur d'importance sur la conversation.|Impossible d'enlever l'indicateur d'importance sur les conversations."
+            },
+            "mark_conversations_as_read": {
+                "loading": "Conversation en train d'être marquée comme lue...|Conversations en train d'être marquées comme lues...",
+                "success": "Conversation marquée comme lue|{count} conversations marquées comme lues",
+                "error": "La conversation n'a pas pu être marquée comme lue|Les conversations n'ont pas pu être marquées comme lues."
+            },
+            "mark_conversations_as_unread": {
+                "loading": "Conversation en train d'être marquée comme non-lue...|Conversations en train d'être marquées comme non-lues...",
+                "success": "Conversation marquée comme non-lue|{count} conversations marquées comme non-lues",
+                "error": "La conversation n'a pas pu être marquée comme non-lue|Les conversations n'ont pas pu être marquées comme non-lues."
+            },
             "mark_folder_as_read": {
                 "loading": "Le dossier {name} est en train d'être marqué comme lu...",
                 "success": "Le dossier {name} a été marqué comme lu.",
@@ -39,6 +59,20 @@
                 "success": "{count} messages ont bien été marqués comme non-lus.",
                 "error": "Les messages sélectionnés n'ont pas pu être marqués comme non-lus."
             },
+            "move_conversations": {
+                "loading": {
+                    "single": "La conversation \"{subject}\" est en train d'être déplacée vers {folder}...",
+                    "plural": "{count} conversations sont en train d'être déplacées vers {folder}..."
+                },
+                "success": {
+                    "single": "La conversation \"{subject}\" a bien été déplacée dans {folder}.",
+                    "plural": "{count} conversations ont bien été déplacées dans {folder}."
+                },
+                "error": {
+                    "single": "La conversation \"{subject}\" n'a pas pu être déplacée vers {folder}.",
+                    "plural": "Les conversations sélectionnées n'ont pas pu être déplacées vers {folder}."
+                }
+            },
             "move_messages": {
                 "loading": {
                     "single": "\"{subject}\" est en train d'être déplacé vers {folder}...",
@@ -51,6 +85,20 @@
                 "error": {
                     "single": "\"{subject}\" n'a pas pu être déplacé vers {folder}.",
                     "plural": "Les messages sélectionnés n'ont pas pu être déplacés dans {folder}."
+                }
+            },
+            "move_conversations_to_trash": {
+                "loading": {
+                    "single": "La conversation \"{subject}\" est en train d'être déplacée vers la {folder}...",
+                    "plural": "{count} conversations sont en train d'être déplacées vers la {folder}..."
+                },
+                "success": {
+                    "single": "La conversation \"{subject}\" a bien été déplacée vers la {folder}.",
+                    "plural": "{count} conversations ont bien été déplacées dans la {folder}."
+                },
+                "error": {
+                    "single": "La conversation \"{subject}\" n'a pas pu être déplacée vers la {folder}.",
+                    "plural": "Les conversations sélectionnées n'ont pas pu être déplacées dans la {folder}."
                 }
             },
             "move_messages_to_trash": {
@@ -74,6 +122,11 @@
                 "loading": "Le dossier \"{previousName}\" est en train d'être renommé en \"{name}\"...",
                 "success": "Le dossier \"{previousName}\" a bien été renommé en {name}.",
                 "error": "Le dossier \"{previousName}\" n'a pas pu être renommé."
+            },
+            "remove_conversations": {
+                "loading": "La conversation \"{subject}\" est en train d'être supprimée définitivement...|Les conversations sélectionnées sont en train d'être supprimées définitivement...",
+                "success": "La conversation \"{subject}\" a bien été supprimée définitivement.|Les conversations sélectionnées ont bien été supprimées définitivement.",
+                "error": "La conversation \"{subject}\" n'a pas pu être supprimée définitivement.|Les conversations sélectionnées n'ont pas pu être supprimées définitivement."
             },
             "remove_folder": {
                 "loading": "Le dossier \"{name}\" est en cours de suppression...",
@@ -99,6 +152,8 @@
     "mail.actions.attach.aria": "Joindre un fichier",
     "mail.actions.attach": "Joindre",
     "mail.actions.create.folder": "Créer un nouveau dossier",
+    "mail.actions.edit": "Editer",
+    "mail.actions.extend": "Agrandir",
     "mail.actions.folder.invalid.already_exist": "Ce nom de dossier est déjà utilisé",
     "mail.actions.folder.invalid.too_long": "Nom de dossier trop long",
     "mail.actions.folder.subfolder.forbidden": "Sous-dossiers interdits",
@@ -106,6 +161,8 @@
     "mail.actions.mark_as_read": "Marquer comme lu | Marquer comme lus",
     "mail.actions.mark_as_unflagged": "Ne plus suivre",
     "mail.actions.mark_as_unread": "Marquer comme non lu | Marquer comme non lus",
+    "mail.actions.mark_conversations_as_read": "Marquer comme lues",
+    "mail.actions.mark_conversations_as_unread": "Marquer comme non lues",
     "mail.actions.mark_flagged.aria": "Assurer le suivi du message {subject} | Assurer le suivi des messages sélectionnés",
     "mail.actions.mark_flagged": "Assurer un suivi",
     "mail.actions.mark_read.aria": "Marquer le message {subject} comme lu | Marquer les messages sélectionnés comme lus",
@@ -120,7 +177,12 @@
     "mail.actions.move.item": "Déplacer le message vers {path} | Déplacer les messages sélectionnés vers {path}",
     "mail.actions.move": "Déplacer",
     "mail.actions.purge.modal.content": "Supprimer définitivement le message \"{subject}\" ? | Supprimer définitivement les messages sélectionnés ?",
+    "mail.actions.purge.draft.modal.content": "Supprimer le brouillon \"{subject}\" enregistré le {date} ?",
+    "mail.actions.purge.draft.modal.content.time": "Supprimer le brouillon \"{subject}\" enregistré à {time} ?",
+    "mail.actions.purge.conversations.modal.content": "Supprimer définitivement la conversation \"{subject}\" ? | Supprimer définitivement les conversations sélectionnées ?",
     "mail.actions.purge.modal.title": "Supprimer un message | Supprimer des messages",
+    "mail.actions.purge.draft.modal.title": "Supprimer un brouillon",
+    "mail.actions.purge.conversations.modal.title": "Supprimer une conversation | Supprimer des conversations",
     "mail.actions.purge": "Supprimer définitivement",
     "mail.actions.remove.aria": "Supprimer le message {subject} | Supprimer les messages sélectionnés",
     "mail.actions.remove.compose.aria": "Supprimer le message en cours de rédaction",
@@ -146,9 +208,11 @@
     "mail.compose.forward.prev.message.info.subject": "Sujet",
     "mail.compose.forward.prev.message.info.to": "\u00C0",
     "mail.compose.reply.body": "Le {date}, {name} a écrit :",
+    "mail.content.alert.ics.dont_exist": "Ce message fait référence à un évènement qui n'existe pas dans votre calendrier",
     "mail.content.alert.images.blocked": "Les images distantes sont bloquées pour protéger votre vie privée.",
     "mail.content.alert.images.show": "Afficher les images.",
     "mail.content.alert.images.trust.sender": "Faire confiance aux contenus provenant de {sender}",
+    "mail.content.alert.readonly": "Message en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles.",
     "mail.content.blindcopy": "copie cachée",
     "mail.content.body": "Contenu du message",
     "mail.content.copy": "copie",
@@ -169,6 +233,10 @@
     "mail.content.reply_all.aria": "Répondre à tous",
     "mail.content.reply.aria": "Répondre",
     "mail.content.to": "pour",
+    "mail.conversation.icon.title": "Conversation de {count} messages",
+    "mail.conversations.selected": "conversations sélectionnées",
+    "mail.conversation.show.middle.messages": "Afficher les {count} messages",
+    "mail.draft.not.sent": "Ce message n'a pas été envoyé",
     "mail.draft.save.date.time": "Brouillon enregistré à {time}",
     "mail.draft.save.date": "Brouillon enregistré le {date}",
     "mail.draft.save.error.reason": "Vous êtes peut-être déconnecté",
@@ -272,5 +340,7 @@
                 "insert_signature": "Insérer ma signature"
             }
         }
-    }
+    },
+    "mail.save.date": "enregistré le {date}",
+    "mail.save.date.time": "enregistré à {time}"
 }

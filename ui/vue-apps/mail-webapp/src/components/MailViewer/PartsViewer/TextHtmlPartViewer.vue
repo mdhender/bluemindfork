@@ -1,5 +1,10 @@
 <template>
-    <iframe-container v-if="value !== undefined" :body="parsed.sanitizedBody" :styles="parsed.styles" />
+    <iframe-container
+        v-if="value !== undefined"
+        :body="parsed.sanitizedBody"
+        :styles="parsed.styles"
+        :message="message"
+    />
     <mail-viewer-content-loading v-else />
 </template>
 
@@ -20,6 +25,10 @@ export default {
             type: String,
             required: false,
             default: undefined
+        },
+        message: {
+            type: Object,
+            required: true
         }
     },
     computed: {

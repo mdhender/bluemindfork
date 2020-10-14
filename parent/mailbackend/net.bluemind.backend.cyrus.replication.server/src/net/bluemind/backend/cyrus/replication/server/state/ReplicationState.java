@@ -20,6 +20,7 @@ package net.bluemind.backend.cyrus.replication.server.state;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -407,8 +408,28 @@ public class ReplicationState {
 	}
 
 	public CompletableFuture<List<MboxRecord>> records(MailboxFolder known) {
-		return storage.mailboxRecords(known.getUniqueId()).thenCompose(recApi -> recApi.all().thenApply(
-				records -> records.stream().map(r -> DtoConverters.from(r.value)).collect(Collectors.toList())));
+		ReplicatedBox userFrom = ReplicatedBoxes.forCyrusMailbox(known.getName());
+		return storage.conversations(userFrom).thenCompose(
+				conversationApi -> storage.mailboxRecords(known.getUniqueId()).thenCompose(recApi -> recApi.all() //
+						.thenCompose(records -> {
+							List<CompletableFuture<MboxRecord>> resolvedRecs = new ArrayList<>(records.size());
+							for (ItemValue<MailboxRecord> singleRecord : records) {
+								CompletableFuture<MboxRecord> composedRec = conversationApi
+										.byConversationId(singleRecord.value.conversationId).thenApply(c -> {
+											MboxRecord convertedRecord = c != null
+													? DtoConverters.from(singleRecord.value, c.value)
+													: DtoConverters.from(singleRecord.value);
+											return convertedRecord;
+										});
+								resolvedRecs.add(composedRec);
+							}
+							return CompletableFuture.allOf(resolvedRecs.toArray(new CompletableFuture[0])).thenApply(
+									(ret) -> resolvedRecs.stream().map(f -> f.join()).collect(Collectors.toList()));
+						})))
+				.exceptionally(e -> {
+					logger.warn("Error while creating MBoxRecords", e);
+					return Collections.emptyList();
+				});
 	}
 
 	public CompletableFuture<Void> expunge(String mbox, List<Long> uid) {

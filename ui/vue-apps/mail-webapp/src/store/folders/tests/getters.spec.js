@@ -1,4 +1,4 @@
-import { FOLDERS_BY_UPPERCASE_PATH, FOLDER_HAS_CHILDREN, FOLDER_GET_CHILDREN } from "~getters";
+import { FOLDERS_BY_UPPERCASE_PATH, FOLDER_HAS_CHILDREN, FOLDER_GET_CHILDREN } from "~/getters";
 import getters from "../getters";
 
 describe("getters", () => {

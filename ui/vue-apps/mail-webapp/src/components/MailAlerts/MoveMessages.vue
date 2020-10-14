@@ -13,8 +13,8 @@
 import { mapState } from "vuex";
 import { AlertMixin } from "@bluemind/alert.store";
 import MailFolderIcon from "../MailFolderIcon";
-import { MailboxType } from "~model/mailbox";
-import { MailRoutesMixin } from "~mixins";
+import { MailboxType } from "~/model/mailbox";
+import { MailRoutesMixin } from "~/mixins";
 
 export default {
     name: "MoveMessages",
@@ -26,17 +26,15 @@ export default {
             return this.mailboxes[this.folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         },
         folder() {
-            return this.payload.folder;
+            return this.payload.folder || this.payload.trash;
         },
         message() {
-            if (Array.isArray(this.payload.messages)) {
-                return this.payload.messages[0];
-            } else {
-                return this.payload.messages;
-            }
+            const messages = this.payload.messages || this.payload.conversations;
+            return Array.isArray(messages) ? messages[0] : messages;
         },
         count() {
-            return Array.isArray(this.payload.messages) ? this.payload.messages.length : 1;
+            const messages = this.payload.messages || this.payload.conversations;
+            return Array.isArray(messages) ? messages.length : 1;
         },
         path() {
             const { name, type } = this.alert;

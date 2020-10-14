@@ -16,6 +16,8 @@
 		<module>net.bluemind.backend.cyrus.bmgroups.tests</module>
 		<module>net.bluemind.backend.cyrus.mailboxesdb</module>
 		<module>net.bluemind.backend.cyrus.mailboxesdb.tests</module>
+		<module>net.bluemind.backend.cyrus.annotationdb</module>
+		<module>net.bluemind.backend.cyrus.annotationdb.tests</module>
 		<module>net.bluemind.backend.cyrus.tests</module>
 		<module>net.bluemind.backend.cyrus.index</module>
 		<module>net.bluemind.backend.cyrus.index.tests</module>

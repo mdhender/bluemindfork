@@ -59,6 +59,9 @@
        <endpoint
              api="net.bluemind.backend.mail.api.IItemsTransfer">
        </endpoint>
+       <endpoint
+            api="net.bluemind.backend.mail.api.IMailConversation">
+      </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
@@ -70,6 +73,12 @@
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.backend.mail.replica.service.DbReplicatedMailboxesServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.backend.mail.replica.service.InternalMailConversationServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.backend.mail.replica.service.MailConversationServiceFactory">
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.backend.mail.replica.service.ImapReplicatedMailboxesServiceFactory">
@@ -124,6 +133,9 @@
       </container>
       <container
             type="replicated_mailboxes">
+      </container>
+      <container
+            type="replicated_conversations">
       </container>
    </extension>
    <extension

@@ -1,5 +1,5 @@
 import { Verb } from "@bluemind/core.container.api";
-import { create } from "../../model/mailbox";
+import { create } from "~/model/mailbox";
 
 export const MailboxAdaptor = {
     fromMailboxContainer(item) {

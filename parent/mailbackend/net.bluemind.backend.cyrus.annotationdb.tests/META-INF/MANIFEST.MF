@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.backend.cyrus.annotationdb.tests
+Bundle-SymbolicName: net.bluemind.backend.cyrus.annotationdb.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Automatic-Module-Name: net.bluemind.backend.cyrus.annotationdb.tests
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.backend.cyrus.annotationdb,
+ org.junit,
+ com.google.guava

@@ -1,7 +1,7 @@
 import { mapGetters, mapState } from "vuex";
 
-import { MY_MAILBOX_KEY, MAILBOXES_ARE_LOADED } from "~getters";
-import { WaitForMixin } from "~mixins";
+import { MY_MAILBOX_KEY, MAILBOXES_ARE_LOADED } from "~/getters";
+import { WaitForMixin } from "~/mixins";
 
 export default {
     mixins: [WaitForMixin],

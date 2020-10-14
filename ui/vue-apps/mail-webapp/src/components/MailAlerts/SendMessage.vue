@@ -16,7 +16,7 @@ export default {
     components: { DefaultAlert },
     mixins: [AlertMixin],
     computed: {
-        ...mapState("mail", ["messages"]),
+        ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
         link() {
             return {
                 name: "v:mail:message",

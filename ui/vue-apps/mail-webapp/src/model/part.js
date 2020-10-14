@@ -8,10 +8,10 @@ export function getPartsFromCapabilities(message, availableCapabilities) {
     return partsByCapabilities ? partsByCapabilities.parts : [];
 }
 
-export function mergePartsForTextarea(partsToMerge, partsDataByAddress) {
+export function mergePartsForTextarea(partsToMerge, parts) {
     let result = "";
     for (const part of partsToMerge) {
-        const partContent = partsDataByAddress[part.address];
+        const partContent = parts[part.address];
         if (MimeType.equals(part.mime, MimeType.TEXT_PLAIN)) {
             result += partContent;
         } else if (MimeType.equals(part.mime, MimeType.TEXT_HTML)) {
@@ -21,10 +21,10 @@ export function mergePartsForTextarea(partsToMerge, partsDataByAddress) {
     return result;
 }
 
-export function mergePartsForRichEditor(partsToMerge, partsDataByAddress, userLang) {
+export function mergePartsForRichEditor(partsToMerge, parts, userLang) {
     let result = "";
     for (const part of partsToMerge) {
-        const partContent = partsDataByAddress[part.address];
+        const partContent = parts[part.address];
         if (MimeType.equals(part.mime, MimeType.TEXT_HTML)) {
             result += partContent;
         } else if (MimeType.equals(part.mime, MimeType.TEXT_PLAIN)) {

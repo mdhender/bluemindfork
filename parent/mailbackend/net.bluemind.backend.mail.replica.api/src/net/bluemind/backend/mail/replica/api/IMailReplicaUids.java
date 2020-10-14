@@ -43,6 +43,7 @@ public interface IMailReplicaUids {
 	public static final String MAILBOX_RECORDS = "mailbox_records";
 	public static final String MAILBOX_RECORDS_PREFIX = "mbox_records_";
 	public static final String REPLICATED_MBOXES = "replicated_mailboxes";
+	public static final String REPLICATED_CONVERSATIONS = "replicated_conversations";
 
 	/**
 	 * Repair operation id for repairing the subtrees containers
@@ -99,6 +100,20 @@ public interface IMailReplicaUids {
 		return subtreeUid(domainUid, mbox);
 	}
 
+	/**
+	 * Returns the unique identifier of the conversation subtree container for the
+	 * given mailbox.
+	 * 
+	 * @param domainUid the domain identifier
+	 * @param mbox      the {@link Mailbox} item
+	 * @return conversation subtree container UID
+	 */
+	@GET
+	@Path("{domain}/_conversation_subtree")
+	public default String getConversationSubtreeUid(@PathParam("domain") String domainUid, ItemValue<Mailbox> mbox) {
+		return conversationSubtreeUid(domainUid, mbox.uid);
+	}
+
 	public static String mboxRecords(@PathParam("uid") String mailboxUniqueId) {
 		return MAILBOX_RECORDS_PREFIX + mailboxUniqueId;
 	}
@@ -109,6 +124,10 @@ public interface IMailReplicaUids {
 
 	public static String subtreeUid(@PathParam("domainUid") String domainUid, ItemValue<Mailbox> mbox) {
 		return "subtree_" + domainUid.replace('.', '_') + "!" + mbox.value.type.nsPrefix + mbox.uid;
+	}
+
+	public static String conversationSubtreeUid(@PathParam("domainUid") String domainUid, String uid) {
+		return "subtree_" + domainUid.replace('.', '_') + "!" + uid + "_conversations";
 	}
 
 }

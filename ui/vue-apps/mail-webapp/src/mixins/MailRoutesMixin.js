@@ -1,6 +1,6 @@
 import { mapGetters, mapState } from "vuex";
 
-import { MY_MAILBOX } from "~getters";
+import { MY_MAILBOX } from "~/getters";
 
 export default {
     computed: {

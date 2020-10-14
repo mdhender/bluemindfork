@@ -2,8 +2,8 @@ import { inject } from "@bluemind/inject";
 import global from "@bluemind/global";
 import UUIDGenerator from "@bluemind/uuid";
 
-import { create, AttachmentStatus } from "~model/attachment";
-import { DEBOUNCED_SAVE_MESSAGE } from "~actions";
+import { create, AttachmentStatus } from "~/model/attachment";
+import { DEBOUNCED_SAVE_MESSAGE } from "~/actions";
 import {
     ADD_ATTACHMENT,
     REMOVE_ATTACHMENT,
@@ -11,7 +11,7 @@ import {
     SET_MESSAGE_HAS_ATTACHMENT,
     SET_ATTACHMENT_PROGRESS,
     SET_ATTACHMENT_STATUS
-} from "~mutations";
+} from "~/mutations";
 
 export default async function ({ commit, dispatch }, { draft, files, messageCompose }) {
     if (files.length > 0) {

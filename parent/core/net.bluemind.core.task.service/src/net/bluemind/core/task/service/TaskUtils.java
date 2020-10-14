@@ -76,7 +76,8 @@ public class TaskUtils {
 		logger.info("task finished");
 	}
 
-	public static TaskStatus waitForInterruptible(IServiceProvider provider, TaskRef ref) throws InterruptedException {
+	public static ExtendedTaskStatus waitForInterruptible(IServiceProvider provider, TaskRef ref)
+			throws InterruptedException {
 		ITask taskApi = provider.instance(ITask.class, ref.id + "");
 		TaskStatus ts = null;
 		long count = 1;
@@ -84,7 +85,7 @@ public class TaskUtils {
 			Thread.sleep(Math.min(1000, 10 * count++));
 			ts = taskApi.status();
 		} while (!ts.state.ended);
-		return ts;
+		return new ExtendedTaskStatus(ts, taskApi.getCurrentLogs());
 	}
 
 	public static String logStreamWait(IServiceProvider provider, TaskRef ref) {
@@ -92,7 +93,7 @@ public class TaskUtils {
 		return GenericStream.streamToString(taskApi.log());
 	}
 
-	public static TaskStatus wait(IServiceProvider provider, TaskRef ref) {
+	public static ExtendedTaskStatus wait(IServiceProvider provider, TaskRef ref) {
 		ITask taskApi = provider.instance(ITask.class, ref.id + "");
 		TaskStatus ts = null;
 		long count = 1;
@@ -109,6 +110,19 @@ public class TaskUtils {
 			}
 			ts = taskApi.status();
 		} while (!ts.state.ended);
-		return ts;
+		return new ExtendedTaskStatus(ts, taskApi.getCurrentLogs());
+	}
+
+	public static class ExtendedTaskStatus extends TaskStatus {
+		public final List<String> logs;
+
+		public ExtendedTaskStatus(TaskStatus status, List<String> logs) {
+			this.logs = logs;
+			super.lastLogEntry = status.lastLogEntry;
+			super.progress = status.progress;
+			super.result = status.result;
+			super.state = status.state;
+			super.steps = status.steps;
+		}
 	}
 }

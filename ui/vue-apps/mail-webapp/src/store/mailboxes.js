@@ -1,7 +1,7 @@
 import Vue from "vue";
 import { inject } from "@bluemind/inject";
 import { MailboxAdaptor } from "./helpers/MailboxAdaptor";
-import { MailboxType } from "~model/mailbox";
+import { MailboxType } from "~/model/mailbox";
 import {
     MAILBOX_BY_NAME,
     MAILBOXES_ARE_LOADED,
@@ -9,10 +9,10 @@ import {
     MAILSHARE_KEYS,
     MY_MAILBOX,
     MY_MAILBOX_KEY
-} from "~getters";
-import { ADD_MAILBOXES, SET_MAILBOX_FOLDERS } from "~mutations";
-import { FETCH_MAILBOXES } from "~actions";
-import { LoadingStatus } from "../model/loading-status";
+} from "~/getters";
+import { ADD_MAILBOXES, SET_MAILBOX_FOLDERS } from "~/mutations";
+import { FETCH_MAILBOXES } from "~/actions";
+import { LoadingStatus } from "~/model/loading-status";
 
 export default {
     state: {},

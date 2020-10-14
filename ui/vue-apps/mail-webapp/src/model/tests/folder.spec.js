@@ -9,6 +9,7 @@ describe("Folder model functions", () => {
             const mailbox = { writable: true, root: "", remoteRef: {}, key: "mailbox-key", type: MailboxType.USER };
             expect(create("123", "name", null, mailbox)).toMatchInlineSnapshot(`
                 Object {
+                  "allowConversations": true,
                   "allowSubfolder": true,
                   "default": false,
                   "expanded": false,
@@ -35,6 +36,7 @@ describe("Folder model functions", () => {
             expect(create("123", "name", { key: "0", path: "parent/folder", uid: "0" }, mailbox))
                 .toMatchInlineSnapshot(`
                 Object {
+                  "allowConversations": true,
                   "allowSubfolder": true,
                   "default": false,
                   "expanded": false,
@@ -56,7 +58,6 @@ describe("Folder model functions", () => {
                 }
             `);
         });
-
         test("root folder inside a mailshare mailbox", () => {
             const mailbox = {
                 writable: true,
@@ -67,6 +68,7 @@ describe("Folder model functions", () => {
             };
             expect(create("123", "name", null, mailbox)).toMatchInlineSnapshot(`
                 Object {
+                  "allowConversations": true,
                   "allowSubfolder": true,
                   "default": true,
                   "expanded": false,
@@ -99,6 +101,7 @@ describe("Folder model functions", () => {
             expect(create("123", "name", { key: "0", path: "mailshare/folder", uid: "0" }, mailbox))
                 .toMatchInlineSnapshot(`
                 Object {
+                  "allowConversations": true,
                   "allowSubfolder": true,
                   "default": false,
                   "expanded": false,
@@ -123,7 +126,7 @@ describe("Folder model functions", () => {
     });
     describe("isDefault", () => {
         const user = { type: MailboxType.USER, remoteRef: {} };
-        const mailshare = { type: MailboxType.MAILSHARE, remoteRef: {} };
+        const mailshare = { type: MailboxType.MAILSHARE, remoteRef: {}, root: "mailshareRoot" };
         test("INBOX in user mailbox is a default folder", () => {
             expect(create(undefined, "INBOX", undefined, user).default).toBeTruthy();
         });

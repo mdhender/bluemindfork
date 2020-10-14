@@ -1,7 +1,8 @@
-import { allowSubfolder, isDefault, translatePath } from "~model/folder";
+import { allowConversations, allowSubfolder, isDefault, translatePath } from "~/model/folder";
 
 function fromMailboxFolder(remotefolder, mailbox) {
     const parent = remotefolder.value.parentUid;
+    const path = remotefolder.value.fullName;
     return {
         key: remotefolder.uid,
         remoteRef: {
@@ -17,8 +18,9 @@ function fromMailboxFolder(remotefolder, mailbox) {
             ? translatePath(remotefolder.value.name)
             : remotefolder.value.name,
         imapName: remotefolder.value.name,
-        path: remotefolder.value.fullName,
+        path,
         writable: mailbox.writable,
+        allowConversations: allowConversations(path),
         allowSubfolder: allowSubfolder(mailbox.writable, !parent, remotefolder.value.name, mailbox),
         default: isDefault(!parent, remotefolder.value.name, mailbox),
         expanded: false,

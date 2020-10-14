@@ -5,7 +5,7 @@
 import { AlertMixin } from "@bluemind/alert.store";
 
 export default {
-    name: "BlockedRemoteContent",
+    name: "VideoConferencing",
     mixins: [AlertMixin]
 };
 </script>

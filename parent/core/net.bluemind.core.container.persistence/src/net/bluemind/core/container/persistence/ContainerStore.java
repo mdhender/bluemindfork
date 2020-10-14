@@ -269,7 +269,7 @@ public class ContainerStore extends JdbcAbstractStore {
 			statement.setString(index++, uid);
 			return index;
 		});
-		invalidateCache(uid);
+		invalidateCache(uid, get(uid).id);
 	}
 
 	public Container get(String uid) throws SQLException {
@@ -280,7 +280,7 @@ public class ContainerStore extends JdbcAbstractStore {
 			c = unique(selectQuery, (rs) -> new Container(),
 					Arrays.<EntityPopulator<Container>>asList(CONTAINER_POPULATOR), new Object[] { uid });
 			if (c != null) {
-				cache.put(uid, c);
+				cache.put(uid, c.id, c);
 				return c.copy();
 			} else {
 				return null;
@@ -290,11 +290,31 @@ public class ContainerStore extends JdbcAbstractStore {
 		}
 	}
 
+	public Container get(long id) throws SQLException {
+		Container c = cache.getIfPresent(id);
+		if (c == null) {
+			String selectQuery = "SELECT id, uid, container_type, name, owner, createdby, updatedby, created, updated, defaultContainer, domain_uid, readonly from t_container where id = ?";
+
+			c = unique(selectQuery, (rs) -> new Container(),
+					Arrays.<EntityPopulator<Container>>asList(CONTAINER_POPULATOR), new Object[] { id });
+			if (c != null) {
+				cache.put(c.uid, c.id, c);
+				return c.copy();
+			} else {
+				return null;
+			}
+		} else {
+			return c.copy();
+		}
+
+	}
+
 	public void deleteAllSubscriptions(Container container) throws SQLException {
 		delete("delete from t_container_sub where container_uid  = ? ", new Object[] { container.uid });
 	}
 
 	public void delete(String uid) throws SQLException {
+		Long id = get(uid).id;
 		// delete container settings
 		delete("DELETE FROM t_container_settings WHERE container_id in (SELECT id from t_container WHERE uid = ? )",
 				new Object[] { uid });
@@ -303,11 +323,11 @@ public class ContainerStore extends JdbcAbstractStore {
 		// delete changelog
 		String query = "DELETE FROM t_container where uid= ? ";
 		delete(query, new Object[] { uid });
-		invalidateCache(uid);
+		invalidateCache(uid, id);
 	}
 
-	public void invalidateCache(String uid) {
-		cache.invalidate(uid);
+	public void invalidateCache(String uid, Long id) {
+		cache.invalidate(uid, id);
 	}
 
 	public List<String> listSubscriptions(Container container) throws SQLException {
@@ -381,9 +401,10 @@ public class ContainerStore extends JdbcAbstractStore {
 	}
 
 	public Set<String> getObsoleteContainers(String location) throws SQLException {
-		List<String> containers = select("select c.uid from t_container c where c.container_type = ?", StringCreator.FIRST,
-				Collections.emptyList(), new Object[] { "t_folder" });
+		List<String> containers = select("select c.uid from t_container c where c.container_type = ?",
+				StringCreator.FIRST, Collections.emptyList(), new Object[] { "t_folder" });
 		containers.addAll(getForeignContainers(location));
 		return new HashSet<>(containers);
 	}
+
 }

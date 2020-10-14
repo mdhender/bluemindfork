@@ -1,4 +1,4 @@
-import { TOGGLE_EDIT_FOLDER } from "~mutations";
+import { TOGGLE_EDIT_FOLDER } from "~/mutations";
 
 export default {
     state: {

@@ -1,6 +1,6 @@
 import { Flag } from "@bluemind/email";
 import Vue from "vue";
-import { RENAME_FOLDER } from "~actions";
+import { RENAME_FOLDER } from "~/actions";
 import {
     ADD_FLAG,
     ADD_FOLDER,
@@ -10,7 +10,7 @@ import {
     SET_FOLDER_EXPANDED,
     SET_MAILBOX_FOLDERS,
     SET_UNREAD_COUNT
-} from "~mutations";
+} from "~/mutations";
 
 export default {
     [ADD_FOLDER]: (state, { key, ...folder }) => {

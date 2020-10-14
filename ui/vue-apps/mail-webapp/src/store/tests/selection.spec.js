@@ -1,88 +1,131 @@
 import {
-    CLEAR_MESSAGE_LIST,
+    CLEAR_CONVERSATION_LIST,
     REMOVE_MESSAGES,
     MOVE_MESSAGES,
-    SELECT_ALL_MESSAGES,
-    SELECT_MESSAGE,
-    SET_MESSAGE_LIST,
-    UNSELECT_ALL_MESSAGES,
-    UNSELECT_MESSAGE
-} from "~mutations";
+    SELECT_ALL_CONVERSATIONS,
+    SELECT_CONVERSATION,
+    SET_CONVERSATION_LIST,
+    UNSELECT_ALL_CONVERSATIONS,
+    UNSELECT_CONVERSATION,
+    REMOVE_CONVERSATIONS
+} from "~/mutations";
 import {
-    MESSAGE_IS_SELECTED,
-    MULTIPLE_MESSAGE_SELECTED,
-    ONE_MESSAGE_SELECTED,
+    CONVERSATION_IS_SELECTED,
+    SEVERAL_CONVERSATIONS_SELECTED,
+    ONE_CONVERSATION_SELECTED,
     SELECTION_IS_EMPTY,
     SELECTION_KEYS
-} from "~getters";
+} from "~/getters";
 import cloneDeep from "lodash.clonedeep";
 import store from "../selection";
+import { default as storeOptions } from "~/store/conversationList";
 
 describe("selection", () => {
     let state;
+    let conversation = {
+        key: 1,
+        folderRef: {
+            key: "inbox"
+        },
+        messages: [
+            { key: 1, folderRef: { key: "inbox" } },
+            { key: 2, folderRef: { key: "sent" } },
+            { key: 3, folderRef: { key: "inbox" } }
+        ]
+    };
     beforeEach(() => {
         state = cloneDeep(store.state);
     });
     describe("mutations", () => {
-        test("SET_MESSAGE_LIST", () => {
+        test("SET_CONVERSATION_LIST", () => {
             state._keys = [1, 2, 3, 4, 5];
             state._removed = [2, 5];
-            store.mutations[SET_MESSAGE_LIST](state, [{ key: 1 }, { key: 2 }, { key: 6 }]);
+            store.mutations[SET_CONVERSATION_LIST](state, [{ key: 1 }, { key: 2 }, { key: 6 }]);
             expect(state._keys).toEqual([1, 2]);
             expect(state._removed).toEqual([2]);
         });
-        test("REMOVE_MESSAGES", () => {
-            state._keys = [1, 2, 3, 4, 5];
-            state._removed = [];
-            store.mutations[REMOVE_MESSAGES](state, [{ key: 1 }, { key: 3 }, { key: 6 }]);
-            expect(state._keys).toEqual([1, 2, 3, 4, 5]);
-            expect(state._removed).toEqual([1, 3]);
+        test("REMOVE_CONVERSATIONS", () => {
+            state._keys = [1, 2, 3, 4];
+            storeOptions.mutations[REMOVE_CONVERSATIONS](state, [{ key: 3 }, { key: 4 }, { key: 5 }]);
+            expect(state._keys).toEqual([1, 2, 3, 4]);
+            expect(state._removed).toEqual([3, 4]);
         });
-        test("MOVE_MESSAGES", () => {
+        test("REMOVE_MESSAGES but not conversation", () => {
+            state._keys = [1, 2, 3, 4];
+            storeOptions.mutations[REMOVE_MESSAGES](state, {
+                conversation,
+                messages: [{ key: 1 }, { key: 2 }]
+            });
+            expect(state._keys).toEqual([1, 2, 3, 4]);
+            expect(state._removed).toEqual([]);
+        });
+        test("REMOVE_MESSAGES then conversation", () => {
+            state._keys = [1, 2, 3, 4];
+            storeOptions.mutations[REMOVE_MESSAGES](state, {
+                conversation,
+                messages: [{ key: 1 }, { key: 3 }]
+            });
+            expect(state._keys).toEqual([1, 2, 3, 4]);
+            expect(state._removed).toEqual([1]);
+        });
+        test("MOVE_MESSAGES but not conversation", () => {
+            state._keys = [1, 2, 3, 4];
+            state._removed = [3];
+            storeOptions.mutations[MOVE_MESSAGES](state, {
+                conversation,
+                messages: [{ key: 1 }, { key: 2 }]
+            });
+            expect(state._keys).toEqual([1, 2, 3, 4]);
+            expect(state._removed).toEqual([3]);
+        });
+        test("MOVE_MESSAGES then conversation", () => {
+            state._keys = [1, 2, 3, 4];
+            state._removed = [3];
+            storeOptions.mutations[MOVE_MESSAGES](state, {
+                conversation,
+                messages: [{ key: 1 }, { key: 3 }]
+            });
+            expect(state._keys).toEqual([1, 2, 3, 4]);
+            expect(state._removed).toEqual([3, 1]);
+        });
+        test("CLEAR_CONVERSATION_LIST", () => {
             state._keys = [1, 2, 3, 4, 5];
             state._removed = [3, 4];
-            store.mutations[MOVE_MESSAGES](state, { messages: [{ key: 1 }, { key: 3 }, { key: 6 }] });
-            expect(state._keys).toEqual([1, 2, 3, 4, 5]);
-            expect(state._removed).toEqual([4, 1]);
-        });
-        test("CLEAR_MESSAGE_LIST", () => {
-            state._keys = [1, 2, 3, 4, 5];
-            state._removed = [3, 4];
-            store.mutations[CLEAR_MESSAGE_LIST](state);
+            store.mutations[CLEAR_CONVERSATION_LIST](state);
             expect(state).toEqual({ _keys: [], _removed: [] });
         });
-        test("UNSELECT_MESSAGE", () => {
+        test("UNSELECT_CONVERSATION", () => {
             state._keys = [1, 2, 3, 4, 5];
-            store.mutations[UNSELECT_MESSAGE](state, 3);
+            store.mutations[UNSELECT_CONVERSATION](state, 3);
             expect(state._keys).toEqual([1, 2, 4, 5]);
         });
-        test("SELECT_MESSAGE", () => {
+        test("SELECT_CONVERSATION", () => {
             state._keys = [1, 2, 3, 4, 5];
-            store.mutations[SELECT_MESSAGE](state, 6);
+            store.mutations[SELECT_CONVERSATION](state, 6);
             expect(state._keys).toEqual([1, 2, 3, 4, 5, 6]);
-            store.mutations[SELECT_MESSAGE](state, 6);
+            store.mutations[SELECT_CONVERSATION](state, 6);
             expect(state._keys).toEqual([1, 2, 3, 4, 5, 6]);
         });
-        test("SELECT_ALL_MESSAGES", () => {
+        test("SELECT_ALL_CONVERSATIONS", () => {
             state._keys = [1, 2, 3, 4, 5];
-            store.mutations[SELECT_ALL_MESSAGES](state, [6, 7, 8, 9]);
+            store.mutations[SELECT_ALL_CONVERSATIONS](state, [6, 7, 8, 9]);
             expect(state._keys).toEqual([6, 7, 8, 9]);
         });
-        test("SELECT_ALL_MESSAGES: Range max size", done => {
+        test("SELECT_ALL_CONVERSATIONS: Range max size", done => {
             state._keys = [];
             const keys = Array(2 ** 16 + 1).fill(0);
             try {
-                store.mutations[SELECT_ALL_MESSAGES](state, keys);
+                store.mutations[SELECT_ALL_CONVERSATIONS](state, keys);
             } catch (e) {
                 done.fail(e);
             }
             expect(state._keys).toEqual(keys);
             done();
         });
-        test("UNSELECT_ALL_MESSAGES", () => {
+        test("UNSELECT_ALL_CONVERSATIONS", () => {
             state._keys = [1, 2, 3, 4, 5];
             state._removed = [4];
-            store.mutations[UNSELECT_ALL_MESSAGES](state);
+            store.mutations[UNSELECT_ALL_CONVERSATIONS](state);
             expect(state._keys).toEqual([]);
             expect(state._removed).toEqual([]);
         });
@@ -96,24 +139,24 @@ describe("selection", () => {
         });
         test("MULTIPLE_MESSAGES_SELECTED", () => {
             let SELECTION_KEYS = [1, 2];
-            expect(store.getters[MULTIPLE_MESSAGE_SELECTED](undefined, { SELECTION_KEYS })).toBeTruthy();
+            expect(store.getters[SEVERAL_CONVERSATIONS_SELECTED](undefined, { SELECTION_KEYS })).toBeTruthy();
             SELECTION_KEYS = [1];
-            expect(store.getters[MULTIPLE_MESSAGE_SELECTED](undefined, { SELECTION_KEYS })).toBeFalsy();
+            expect(store.getters[SEVERAL_CONVERSATIONS_SELECTED](undefined, { SELECTION_KEYS })).toBeFalsy();
             SELECTION_KEYS = [];
-            expect(store.getters[MULTIPLE_MESSAGE_SELECTED](undefined, { SELECTION_KEYS })).toBeFalsy();
+            expect(store.getters[SEVERAL_CONVERSATIONS_SELECTED](undefined, { SELECTION_KEYS })).toBeFalsy();
         });
-        test("ONE_MESSAGE_SELECTED", () => {
+        test("ONE_CONVERSATION_SELECTED", () => {
             let SELECTION_KEYS = [1, 2];
-            expect(store.getters[ONE_MESSAGE_SELECTED](undefined, { SELECTION_KEYS })).toBeFalsy();
+            expect(store.getters[ONE_CONVERSATION_SELECTED](undefined, { SELECTION_KEYS })).toBeFalsy();
             SELECTION_KEYS = [1];
-            expect(store.getters[ONE_MESSAGE_SELECTED](undefined, { SELECTION_KEYS })).toBeTruthy();
+            expect(store.getters[ONE_CONVERSATION_SELECTED](undefined, { SELECTION_KEYS })).toBeTruthy();
             SELECTION_KEYS = [];
-            expect(store.getters[ONE_MESSAGE_SELECTED](undefined, { SELECTION_KEYS })).toBeFalsy();
+            expect(store.getters[ONE_CONVERSATION_SELECTED](undefined, { SELECTION_KEYS })).toBeFalsy();
         });
-        test("MESSAGE_IS_SELECTED", () => {
+        test("CONVERSATION_IS_SELECTED", () => {
             let SELECTION_KEYS = [1, 2];
-            expect(store.getters[MESSAGE_IS_SELECTED](undefined, { SELECTION_KEYS })(1)).toBeTruthy();
-            expect(store.getters[MESSAGE_IS_SELECTED](undefined, { SELECTION_KEYS })(3)).toBeFalsy();
+            expect(store.getters[CONVERSATION_IS_SELECTED](undefined, { SELECTION_KEYS })(1)).toBeTruthy();
+            expect(store.getters[CONVERSATION_IS_SELECTED](undefined, { SELECTION_KEYS })(3)).toBeFalsy();
         });
         test("SELECTION_KEYS", () => {
             state._keys = Array(200)

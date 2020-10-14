@@ -1,5 +1,5 @@
 import { create, createOnlyMetadata } from "../message";
-import MessageAdaptor from "../../store/messages/helpers/MessageAdaptor";
+import MessageAdaptor from "~/store/messages/helpers/MessageAdaptor";
 
 describe("Message model", () => {
     test("message model and message adaptor share same properties", () => {

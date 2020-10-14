@@ -14,8 +14,8 @@
 import { mapState } from "vuex";
 import { AlertMixin, DefaultAlert } from "@bluemind/alert.store";
 import MailFolderIcon from "../MailFolderIcon";
-import { MailboxType } from "~model/mailbox";
-import { MailRoutesMixin } from "~mixins";
+import { MailboxType } from "~/model/mailbox";
+import { MailRoutesMixin } from "~/mixins";
 
 export default {
     name: "RenameFolder",

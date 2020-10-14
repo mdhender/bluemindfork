@@ -5,22 +5,25 @@
             :title="$t('mail.content.body')"
             class="w-100 border-0"
             :srcdoc="iFrameContent"
-            @load="resizeIFrame"
+            @load="
+                resizeIFrame();
+                addClickListener();
+            "
         />
         <div v-if="!scrollbarHeight" ref="scrollbarMeasure" class="scrollbar-measure" />
     </div>
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
 
 import { WARNING, REMOVE } from "@bluemind/alert.store";
 import { hasRemoteImages, blockRemoteImages, unblockRemoteImages } from "@bluemind/html-utils";
 
-import apiAddressbooks from "../../../store/api/apiAddressbooks";
-import { SET_BLOCK_REMOTE_IMAGES } from "~mutations";
+import apiAddressbooks from "~/store/api/apiAddressbooks";
+import { SET_BLOCK_REMOTE_IMAGES } from "~/mutations";
 import brokenImageIcon from "../../../../assets/brokenImageIcon.png";
-import { ACTIVE_MESSAGE } from "~getters";
+
 export default {
     name: "IframeContainer",
     props: {
@@ -32,6 +35,10 @@ export default {
             type: String,
             required: false,
             default: ""
+        },
+        message: {
+            type: Object,
+            required: true
         }
     },
     data() {
@@ -43,11 +50,10 @@ export default {
     inject: ["area"],
     computed: {
         ...mapState("mail", { mustBlockRemoteImages: state => state.consultPanel.remoteImages.mustBeBlocked }),
-        ...mapGetters("mail", { ACTIVE_MESSAGE }),
         ...mapState("session", { settings: ({ settings }) => settings.remote }),
         blockedContentAlert() {
             return {
-                alert: { name: "mail.BLOCK_REMOTE_CONTENT", uid: "BLOCK_REMOTE_CONTENT", payload: this.ACTIVE_MESSAGE },
+                alert: { name: "mail.BLOCK_REMOTE_CONTENT", uid: "BLOCK_REMOTE_CONTENT", payload: this.message },
                 options: { area: this.area, renderer: "BlockedRemoteContent" }
             };
         }
@@ -75,7 +81,7 @@ export default {
 
         if (hasRemoteImages(content) && this.settings.trust_every_remote_content === "false") {
             // check if sender is known (found in any suscribed addressbook)
-            const searchResult = await apiAddressbooks.search(this.ACTIVE_MESSAGE.from.address);
+            const searchResult = await apiAddressbooks.search(this.message.from.address);
             const isSenderKnown = searchResult.total > 0;
             if (!isSenderKnown) {
                 this.WARNING(this.blockedContentAlert);
@@ -131,6 +137,16 @@ export default {
         },
         srollbarHeight() {
             return this.$refs.scrollbarMeasure.offsetHeight - this.$refs.scrollbarMeasure.clientHeight;
+        },
+        addClickListener() {
+            const iFrame = this.$refs.iFrameMailContent;
+            const doc = iFrame.contentDocument?.document || iFrame.contentWindow?.document;
+            if (doc) {
+                const el = this.$el;
+                doc.body.addEventListener("click", function () {
+                    el.click();
+                });
+            }
         }
     }
 };
@@ -187,6 +203,10 @@ const BM_STYLE = `
         a img.blocked-image:before {
             color: #00AAEB !important;
             text-decoration-line: underline;
+        }
+
+        blockquote {
+            width: auto !important;
         }`;
 </script>
 

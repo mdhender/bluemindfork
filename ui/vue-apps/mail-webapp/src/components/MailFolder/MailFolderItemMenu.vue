@@ -34,11 +34,11 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
-import { create, isDefault, isMailshareRoot } from "~model/folder";
-import { SET_FOLDER_EXPANDED, ADD_FOLDER, TOGGLE_EDIT_FOLDER } from "~mutations";
-import { IS_DESCENDANT, FOLDER_HAS_CHILDREN } from "~getters";
-import { EMPTY_FOLDER, MARK_FOLDER_AS_READ, REMOVE_FOLDER } from "~actions";
-import { MailRoutesMixin } from "~mixins";
+import { create, isDefault, isMailshareRoot } from "~/model/folder";
+import { SET_FOLDER_EXPANDED, ADD_FOLDER, TOGGLE_EDIT_FOLDER } from "~/mutations";
+import { IS_DESCENDANT, FOLDER_HAS_CHILDREN } from "~/getters";
+import { EMPTY_FOLDER, MARK_FOLDER_AS_READ, REMOVE_FOLDER } from "~/actions";
+import { MailRoutesMixin } from "~/mixins";
 
 export default {
     name: "MailFolderItemMenu",
