@@ -35,8 +35,10 @@ public class VEventSeries {
 
 	public VEvent main;
 	public List<VEventOccurrence> occurrences = Collections.emptyList();
+	public List<VEventCounter> counters = Collections.emptyList();
 	public Map<String, String> properties;
 	public String icsUid;
+	public boolean acceptCounters = true;
 
 	public VEventOccurrence occurrence(BmDateTime recurid) {
 		return occurrences.stream().filter(r -> r.recurid.equals(recurid)).findFirst().orElse(null);
