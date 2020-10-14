@@ -202,7 +202,7 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 		SearchQuery sq = new SearchQuery();
 		sq.setKeyword(Flag.BMARCHIVED.toString());
 		Collection<Integer> archived = sc.uidSearch(sq);
-		IDSet idset = IDSet.create(archived.iterator());
+		IDSet idset = IDSet.create(archived.iterator(), 100);
 
 		logger.info("Found {} archived entries in folder {} ", archived.size(), folderName);
 		monitor.log(archived.size() + " archived messages in folder " + folderName);

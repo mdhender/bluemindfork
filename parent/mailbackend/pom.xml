@@ -34,6 +34,7 @@
 		<module>net.bluemind.backend.mail.replica.persistence.tests</module>
 		<module>net.bluemind.backend.mail.replica.service</module>
 		<module>net.bluemind.backend.mail.replica.indexing</module>
+		<module>net.bluemind.backend.mail.replica.indexing.tests</module>
 		<module>net.bluemind.backend.mail.parsing</module>
 		<module>net.bluemind.backend.mail.parsing.tests</module>
 		<module>net.bluemind.backend.mail.replica.service.tests</module>

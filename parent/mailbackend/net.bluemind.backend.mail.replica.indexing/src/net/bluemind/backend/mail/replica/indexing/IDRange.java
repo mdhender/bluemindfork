@@ -3,21 +3,8 @@ package net.bluemind.backend.mail.replica.indexing;
 import java.util.ListIterator;
 
 public class IDRange implements Iterable<Long> {
-
 	private long from;
 	private long to;
-
-	public static void main(String[] args) {
-		IDRange range = new IDRange(1, 10);
-
-		ListIterator<Long> it = range.iterator();
-		it = range.iterator();
-		while (it.hasNext()) {
-			it.next();
-			it.previous();
-			System.out.println(it.next());
-		}
-	}
 
 	public IDRange(long from, long to) {
 		this.from = from;
