@@ -110,7 +110,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 			calendar.getProperties().add(method);
 		}
 
-		Set<String> timezones = new HashSet<String>();
+		Set<String> timezones = new HashSet<>();
 
 		for (ItemValue<VEventSeries> eventItem : vevents) {
 			VEventSeries event = eventItem.value;
@@ -122,6 +122,12 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 				timezones.add(occurrence.dtstart.timezone);
 				timezones.add(occurrence.dtend.timezone);
 			});
+		}
+
+		addVTimezone(calendar, timezones);
+
+		for (ItemValue<VEventSeries> eventItem : vevents) {
+			VEventSeries event = eventItem.value;
 			List<net.fortuna.ical4j.model.component.VEvent> evts = convertToIcal4jVEvent(event.icsUid, event);
 
 			if (eventItem.updated != null) {
@@ -151,8 +157,6 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 				calendar.getComponents().add(icalEvent);
 			}
 		}
-
-		addVTimezone(calendar, timezones);
 
 		return calendar;
 	}
