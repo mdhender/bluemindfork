@@ -14,5 +14,4 @@ export * from "./move";
 export * from "./purgeAndRemove";
 export * from "./removeFolder";
 export * from "./renameFolder";
-export * from "./selectFolder";
 export * from "./selectMessage";

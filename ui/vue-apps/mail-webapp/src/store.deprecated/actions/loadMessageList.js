@@ -14,7 +14,8 @@ export async function loadMessageList(
 ) {
     const ROOT = { root: true };
     const locatedFolder = locateFolder(folder, mailshare, rootState, rootGetters);
-    await dispatch("selectFolder", locatedFolder);
+    commit("mail/SET_ACTIVE_FOLDER", locatedFolder.key, ROOT);
+    dispatch("loadUnreadCount", locatedFolder.key);
     expandParents(commit, locatedFolder, rootState);
 
     const searchInfo = SearchHelper.parseQuery(search);

@@ -88,24 +88,28 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
     test("locate folder by folderUid", async () => {
         await loadMessageList(context, { folder: folderUid });
         expect(context.rootGetters["mail/FOLDER_BY_PATH"]).not.toHaveBeenCalled();
-        expect(context.dispatch).toHaveBeenCalledWith("selectFolder", folder);
+        expect(context.commit).toHaveBeenCalledWith("mail/SET_ACTIVE_FOLDER", folder.key, expect.anything());
+        expect(context.dispatch).toHaveBeenCalledWith("loadUnreadCount", folder.key);
 
         await loadMessageList(context, { mailshare: folderUidOfMailshare });
         expect(context.rootGetters["mail/FOLDER_BY_PATH"]).not.toHaveBeenCalled();
-        expect(context.dispatch).toHaveBeenCalledWith("selectFolder", folderOfMailshare);
+        expect(context.commit).toHaveBeenCalledWith("mail/SET_ACTIVE_FOLDER", folderUidOfMailshare, expect.anything());
+        expect(context.dispatch).toHaveBeenCalledWith("loadUnreadCount", folderUidOfMailshare);
     });
 
     test("if locate by key fail, locate folder by path", async () => {
         await loadMessageList(context, { folder: "/my/path" });
         expect(context.rootGetters["mail/FOLDER_BY_PATH"]).toHaveBeenCalled();
         expect(context.rootGetters["mail/FOLDER_BY_PATH"]).toHaveBeenCalledTimes(1);
-        expect(context.dispatch).toHaveBeenCalledWith("selectFolder", folder);
+        expect(context.commit).toHaveBeenCalledWith("mail/SET_ACTIVE_FOLDER", folder.key, expect.anything());
+        expect(context.dispatch).toHaveBeenCalledWith("loadUnreadCount", folder.key);
 
         context.rootGetters["mail/FOLDER_BY_PATH"].mockClear();
         await loadMessageList(context, { mailshare: "/my/mailshare/path" });
         expect(context.rootGetters["mail/FOLDER_BY_PATH"]).toHaveBeenCalled();
         expect(context.rootGetters["mail/FOLDER_BY_PATH"]).toHaveBeenCalledTimes(1);
-        expect(context.dispatch).toHaveBeenCalledWith("selectFolder", folderOfMailshare);
+        expect(context.commit).toHaveBeenCalledWith("mail/SET_ACTIVE_FOLDER", folderUidOfMailshare, expect.anything());
+        expect(context.dispatch).toHaveBeenCalledWith("loadUnreadCount", folderUidOfMailshare);
     });
 
     test("clear the current context", async () => {
@@ -118,7 +122,8 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
     });
     test("fetch messages on folder select folder", async () => {
         await loadMessageList(context, { folder: folderUid, filter: "all" });
-        expect(context.dispatch).toHaveBeenNthCalledWith(1, "selectFolder", folder);
+        expect(context.commit).toHaveBeenCalledWith("mail/SET_ACTIVE_FOLDER", folder.key, expect.anything());
+        expect(context.dispatch).toHaveBeenNthCalledWith(1, "loadUnreadCount", folder.key);
         expect(context.dispatch).toHaveBeenNthCalledWith(
             2,
             "mail/" + actionTypes.FETCH_MESSAGE_LIST_KEYS,
@@ -136,7 +141,8 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
     test("set default folder to inbox by default", async () => {
         context.rootState.activeFolder = folderUid;
         await loadMessageList(context, {});
-        expect(context.dispatch).toHaveBeenNthCalledWith(1, "selectFolder", inbox);
+        expect(context.commit).toHaveBeenCalledWith("mail/SET_ACTIVE_FOLDER", inbox.key, expect.anything());
+        expect(context.dispatch).toHaveBeenNthCalledWith(1, "loadUnreadCount", inbox.key);
         expect(context.dispatch).toHaveBeenNthCalledWith(
             2,
             "mail/" + actionTypes.FETCH_MESSAGE_LIST_KEYS,
