@@ -17,6 +17,8 @@
 		<module>net.bluemind.backend.cyrus.mailboxesdb</module>
 		<module>net.bluemind.backend.cyrus.mailboxesdb.tests</module>
 		<module>net.bluemind.backend.cyrus.tests</module>
+		<module>net.bluemind.backend.cyrus.index</module>
+		<module>net.bluemind.backend.cyrus.index.tests</module>
 		<module>net.bluemind.lmtp.testhelper</module>
 		<module>net.bluemind.lmtp.proxy.tests</module>
 		<module>net.bluemind.backend.postfix</module>
