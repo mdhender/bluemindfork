@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.vertx.core.buffer.Buffer;
@@ -41,15 +42,17 @@ public class CliUtils {
 	}
 
 	public String getDomainUidFromDomain(String domainString) {
+		return getDomainUidFromDomainIfPresent(domainString)
+				.orElseThrow(() -> new CliException("Invalid or unknown domain : " + domainString));
+	}
+
+	public Optional<String> getDomainUidFromDomainIfPresent(String domainString) {
 		if ("global.virt".equals(domainString)) {
-			return "global.virt";
+			return Optional.of("global.virt");
 		}
 		IDomains domainService = cliContext.adminApi().instance(IDomains.class);
 		ItemValue<Domain> domain = domainService.findByNameOrAliases(domainString);
-		if (domain == null) {
-			throw new CliException("Invalid or unknown domain : " + domainString);
-		}
-		return domain.uid;
+		return Optional.ofNullable(domain).map(d -> d.uid);
 	}
 
 	public List<String> getDomainUids() {

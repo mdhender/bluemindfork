@@ -33,7 +33,7 @@ public class GetAnnotationCommand extends SimpleCommand<AnnotationList> {
 
 	public GetAnnotationCommand(String mailbox, String annotation) {
 		super("GETANNOTATION " + toUtf7(mailbox) + " \"" + annotation + "\" (\"value.priv\" \"value.shared\")");
-		this.mailbox = mailbox;
+		this.mailbox = toUtf7(mailbox, false);
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class GetAnnotationCommand extends SimpleCommand<AnnotationList> {
 		IMAPResponse last = rs.get(rs.size() - 1);
 		if (last.isBad()) {
 			for (IMAPResponse r : rs) {
-				logger.error("ANNOT: " + r.getPayload());
+				logger.error("ANNOT: {}", r.getPayload());
 			}
 			data = new AnnotationList(0);
 			return;
@@ -51,20 +51,30 @@ public class GetAnnotationCommand extends SimpleCommand<AnnotationList> {
 
 		rs.forEach(r -> {
 			String a = r.getPayload();
-
-			int nameIndex = a.indexOf(mailbox);
-			if (nameIndex == -1) {
+			if (!a.startsWith("* ANNOTATION ")) {
+				return;
+			}
+			a = a.substring("* ANNOTATION ".length());
+			int startMbox = 0;
+			int mboxEnd = a.indexOf(' ');
+			int afterMboxShift = 1;
+			if (a.charAt(0) == '"') {
+				startMbox = 1;
+				mboxEnd = a.indexOf('"', 1);
+				afterMboxShift = 2;
+			}
+			if (mboxEnd == -1) {
 				return;
 			}
 
-			nameIndex += mailbox.length() + 1;
-			if (nameIndex > a.length()) {
+			String parsedMbox = a.substring(startMbox, mboxEnd);
+			if (!parsedMbox.equals(mailbox)) {
+				logger.warn("{} and {} seems unrelated.", parsedMbox, mailbox);
 				return;
 			}
+			a = a.substring(mboxEnd + afterMboxShift);
 
-			a = a.substring(nameIndex);
-
-			nameIndex = 0;
+			int nameIndex = 0;
 			int annotationValueIndex = a.indexOf(" (");
 			if (annotationValueIndex == -1) {
 				return;

@@ -88,7 +88,7 @@ public class IcsUrlCheckHandler implements Handler<HttpServerRequest>, NeedVertx
 		final String fetchUrl = fullpath;
 		File tmpFile = new File(System.getProperty("java.io.tmpdir"), System.currentTimeMillis() + ".ics");
 
-		client.getNow(urlp.getPath(), response -> {
+		client.getNow(fetchUrl, response -> {
 			logger.info("handler ret url {}", url);
 			if (response.statusCode() == 301) {
 				String location = response.headers().get("Location");

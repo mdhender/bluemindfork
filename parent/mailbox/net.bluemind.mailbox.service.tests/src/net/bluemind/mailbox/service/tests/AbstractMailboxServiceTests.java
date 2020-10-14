@@ -31,6 +31,8 @@ import com.google.common.collect.Lists;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import net.bluemind.addressbook.api.VCard;
+import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.backend.cyrus.CyrusAdmins;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.config.InstallationId;
@@ -58,6 +60,7 @@ import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.user.api.User;
 
 public abstract class AbstractMailboxServiceTests {
 
@@ -194,4 +197,19 @@ public abstract class AbstractMailboxServiceTests {
 		return mailbox;
 	}
 
+	protected User defaultUser(String login) {
+		User user = new User();
+		user.login = login;
+		Email em = new Email();
+		em.address = login + "@" + domainUid;
+		em.isDefault = true;
+		em.allAliases = false;
+		user.emails = Arrays.asList(em);
+		user.password = "password";
+		user.routing = Routing.internal;
+		user.contactInfos = new VCard();
+		user.contactInfos.identification.name = Name.create("Doe", "John", null, null, null, null);
+		user.dataLocation = dataLocation.uid;
+		return user;
+	}
 }

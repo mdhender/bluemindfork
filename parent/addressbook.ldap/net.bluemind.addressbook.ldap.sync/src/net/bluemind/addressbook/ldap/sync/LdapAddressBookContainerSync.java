@@ -28,8 +28,12 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
@@ -188,42 +192,20 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 		if (Strings.isNullOrEmpty(modifyTimestampString)) {
 			modifyTimestampString = "19700101000000.0Z";
 		}
-		if(sd.syncTokens == null) {
+		if (sd.syncTokens == null) {
 			sd.syncTokens = new HashMap<>();
 		}
 		sd.syncTokens.put(SYNC_TOKEN_MODIFY_TIMESTAMP, modifyTimestampString);
 
 		try (LdapConProxy con = LdapHelper.connectLdap(lp)) {
+			getLdapUuids(monitor, con, lp, sd);
+
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss'.0Z'");
 			long modifyTimestamp = sdf.parse(modifyTimestampString).getTime();
+
 			PagedResults pagedSearchControl = new PagedResultsDecorator(con.getCodecService());
-
-			// Fetch all ldap uids
-			SearchRequest searchRequest = new SearchRequestImpl();
-			searchRequest.setBase(new Dn(lp.baseDn));
-			searchRequest.setFilter(lp.filter);
-			searchRequest.setScope(SearchScope.SUBTREE);
-			searchRequest.addAttributes(lp.entryUUID);
-			searchRequest.setSizeLimit(0);
-			searchRequest.setDerefAliases(AliasDerefMode.NEVER_DEREF_ALIASES);
-
-			SearchCursor cursor = con.search(searchRequest);
-			while (cursor.next()) {
-				Response response = cursor.get();
-				if (response.getType() != MessageTypeEnum.SEARCH_RESULT_ENTRY) {
-					continue;
-				}
-
-				Entry entry = cursor.getEntry();
-				String uid = InetOrgPersonAdapter.getUid(lp.type, entry, lp.entryUUID);
-				if (!Strings.isNullOrEmpty(uid)) {
-					sd.ldapUids.add(uid);
-				}
-			}
-
-			monitor.log("Found " + sd.ldapUids.size() + " ldap entries for entryUid " + lp.entryUUID);
-			logger.info("Found {} ldap entries for entryUid {}", sd.ldapUids.size(), lp.entryUUID);
-
+			SearchRequest searchRequest;
+			SearchCursor cursor;
 			int pages = 0;
 			do {
 				pages++;
@@ -294,6 +276,51 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 		}
 
 		return ret;
+	}
+
+	private void getLdapUuids(IServerTaskMonitor monitor, LdapConProxy con, LdapParameters lp, SyncData sd)
+			throws LdapInvalidDnException, LdapException, CursorException, LdapInvalidAttributeValueException {
+		PagedResults pagedSearchControl = new PagedResultsDecorator(con.getCodecService());
+		SearchRequest searchRequest;
+		SearchCursor cursor;
+		do {
+			pagedSearchControl.setSize(100);
+
+			// Fetch ldap UUIDs
+			searchRequest = new SearchRequestImpl();
+			searchRequest.setBase(new Dn(lp.baseDn));
+			searchRequest.setFilter(lp.filter);
+			searchRequest.setScope(SearchScope.SUBTREE);
+			searchRequest.addAttributes(lp.entryUUID);
+			searchRequest.setDerefAliases(AliasDerefMode.NEVER_DEREF_ALIASES);
+			searchRequest.addControl(pagedSearchControl);
+
+			cursor = con.search(searchRequest);
+			while (cursor.next()) {
+				Response response = cursor.get();
+				if (response.getType() != MessageTypeEnum.SEARCH_RESULT_ENTRY) {
+					continue;
+				}
+
+				Entry entry = cursor.getEntry();
+				String uid = InetOrgPersonAdapter.getUid(lp.type, entry, lp.entryUUID);
+				if (!Strings.isNullOrEmpty(uid)) {
+					sd.ldapUids.add(uid);
+				}
+			}
+
+			SearchResultDone result = cursor.getSearchResultDone();
+			LdapResult ldapResult = result.getLdapResult();
+			if (ldapResult.getResultCode() != ResultCodeEnum.SUCCESS) {
+				logger.info("{} {}", ldapResult.getResultCode(), ldapResult.getDiagnosticMessage());
+				break;
+			}
+
+			pagedSearchControl = (PagedResults) result.getControl(PagedResults.OID);
+		} while (pagedSearchControl != null && pagedSearchControl.getCookie() != null);
+
+		monitor.log("Found " + sd.ldapUids.size() + " ldap entries for entryUid " + lp.entryUUID);
+		logger.info("Found {} ldap entries for entryUid {}", sd.ldapUids.size(), lp.entryUUID);
 	}
 
 }

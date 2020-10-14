@@ -1,9 +1,9 @@
 package net.bluemind.directory.hollow.datamodel.consumer;
 
+import com.netflix.hollow.api.consumer.HollowConsumer;
+import com.netflix.hollow.api.consumer.index.UniqueKeyIndex;
 import com.netflix.hollow.api.objects.HollowObject;
 import com.netflix.hollow.core.schema.HollowObjectSchema;
-
-import com.netflix.hollow.tools.stringifier.HollowRecordStringifier;
 
 @SuppressWarnings("all")
 public class AddressBookRecord extends HollowObject {
@@ -12,25 +12,20 @@ public class AddressBookRecord extends HollowObject {
         super(delegate, ordinal);
     }
 
-    public OfflineAddressBook getAddressBook() {
-        int refOrdinal = delegate().getAddressBookOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getOfflineAddressBook(refOrdinal);
+    public String getUid() {
+        return delegate().getUid(ordinal);
     }
 
-    public HString getUid() {
-        int refOrdinal = delegate().getUidOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getHString(refOrdinal);
+    public boolean isUidEqual(String testValue) {
+        return delegate().isUidEqual(ordinal, testValue);
     }
 
-    public HString getDistinguishedName() {
-        int refOrdinal = delegate().getDistinguishedNameOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getHString(refOrdinal);
+    public String getDistinguishedName() {
+        return delegate().getDistinguishedName(ordinal);
+    }
+
+    public boolean isDistinguishedNameEqual(String testValue) {
+        return delegate().isDistinguishedNameEqual(ordinal, testValue);
     }
 
     public HString getDomain() {
@@ -68,11 +63,12 @@ public class AddressBookRecord extends HollowObject {
         return  api().getDate(refOrdinal);
     }
 
-    public HString getEmail() {
-        int refOrdinal = delegate().getEmailOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getHString(refOrdinal);
+    public String getEmail() {
+        return delegate().getEmail(ordinal);
+    }
+
+    public boolean isEmailEqual(String testValue) {
+        return delegate().isEmailEqual(ordinal, testValue);
     }
 
     public long getMinimalid() {
@@ -83,25 +79,28 @@ public class AddressBookRecord extends HollowObject {
         return delegate().getMinimalidBoxed(ordinal);
     }
 
-    public HString getName() {
-        int refOrdinal = delegate().getNameOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getHString(refOrdinal);
+    public String getName() {
+        return delegate().getName(ordinal);
     }
 
-    public HString getSurname() {
-        int refOrdinal = delegate().getSurnameOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getHString(refOrdinal);
+    public boolean isNameEqual(String testValue) {
+        return delegate().isNameEqual(ordinal, testValue);
     }
 
-    public HString getGivenName() {
-        int refOrdinal = delegate().getGivenNameOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getHString(refOrdinal);
+    public String getSurname() {
+        return delegate().getSurname(ordinal);
+    }
+
+    public boolean isSurnameEqual(String testValue) {
+        return delegate().isSurnameEqual(ordinal, testValue);
+    }
+
+    public String getGivenName() {
+        return delegate().getGivenName(ordinal);
+    }
+
+    public boolean isGivenNameEqual(String testValue) {
+        return delegate().isGivenNameEqual(ordinal, testValue);
     }
 
     public HString getTitle() {
@@ -306,6 +305,13 @@ public class AddressBookRecord extends HollowObject {
         return delegate().getHiddenBoxed(ordinal);
     }
 
+    public ListOfAnrToken getAnr() {
+        int refOrdinal = delegate().getAnrOrdinal(ordinal);
+        if(refOrdinal == -1)
+            return null;
+        return  api().getListOfAnrToken(refOrdinal);
+    }
+
     public OfflineDirectoryAPI api() {
         return typeApi().getAPI();
     }
@@ -316,6 +322,24 @@ public class AddressBookRecord extends HollowObject {
 
     protected AddressBookRecordDelegate delegate() {
         return (AddressBookRecordDelegate)delegate;
+    }
+
+    /**
+     * Creates a unique key index for {@code AddressBookRecord} that has a primary key.
+     * The primary key is represented by the class {@link String}.
+     * <p>
+     * By default the unique key index will not track updates to the {@code consumer} and thus
+     * any changes will not be reflected in matched results.  To track updates the index must be
+     * {@link HollowConsumer#addRefreshListener(HollowConsumer.RefreshListener) registered}
+     * with the {@code consumer}
+     *
+     * @param consumer the consumer
+     * @return the unique key index
+     */
+    public static UniqueKeyIndex<AddressBookRecord, String> uniqueIndex(HollowConsumer consumer) {
+        return UniqueKeyIndex.from(consumer, AddressBookRecord.class)
+            .bindToPrimaryKey()
+            .usingPath("uid", String.class);
     }
 
 }

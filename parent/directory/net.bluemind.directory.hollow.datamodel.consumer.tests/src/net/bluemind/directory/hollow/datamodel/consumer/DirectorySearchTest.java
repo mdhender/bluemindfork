@@ -30,7 +30,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
@@ -44,6 +43,7 @@ import com.netflix.hollow.api.producer.fs.HollowFilesystemAnnouncer;
 import com.netflix.hollow.api.producer.fs.HollowFilesystemPublisher;
 
 import net.bluemind.directory.hollow.datamodel.AddressBookRecord;
+import net.bluemind.directory.hollow.datamodel.AnrToken;
 import net.bluemind.directory.hollow.datamodel.Email;
 import net.bluemind.directory.hollow.datamodel.OfflineAddressBook;
 
@@ -103,8 +103,8 @@ public class DirectorySearchTest {
 				.byUid(rec2.uid);
 
 		assertTrue(byUid.isPresent());
-		assertEquals(rec2.uid, byUid.get().getUid().getValue());
-		assertEquals(rec2.name, byUid.get().getName().getValue());
+		assertEquals(rec2.uid, byUid.get().getUid());
+		assertEquals(rec2.name, byUid.get().getName());
 
 		byUid = filteredSearch.byUid(rec2.uid);
 		assertTrue(byUid.isPresent());
@@ -118,8 +118,8 @@ public class DirectorySearchTest {
 				.byEmail(rec3.email);
 
 		assertTrue(byEmail.isPresent());
-		assertEquals(rec3.uid, byEmail.get().getUid().getValue());
-		assertEquals(rec3.email, byEmail.get().getEmail().getValue());
+		assertEquals(rec3.uid, byEmail.get().getUid());
+		assertEquals(rec3.email, byEmail.get().getEmail());
 
 		byEmail = filteredSearch.byEmail(rec3.email);
 		assertFalse(byEmail.isPresent());
@@ -138,11 +138,11 @@ public class DirectorySearchTest {
 		boolean found2 = false;
 		boolean found3 = false;
 		for (net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord ar : byKind) {
-			if (ar.getUid().getValue().equals(rec1.uid)) {
+			if (ar.getUid().equals(rec1.uid)) {
 				found1 = true;
-			} else if (ar.getUid().getValue().equals(rec2.uid)) {
+			} else if (ar.getUid().equals(rec2.uid)) {
 				found2 = true;
-			} else if (ar.getUid().getValue().equals(rec3.uid)) {
+			} else if (ar.getUid().equals(rec3.uid)) {
 				found3 = true;
 			}
 		}
@@ -160,9 +160,9 @@ public class DirectorySearchTest {
 		found1 = false;
 		found2 = false;
 		for (net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord ar : byKind) {
-			if (ar.getUid().getValue().equals(rec1.uid)) {
+			if (ar.getUid().equals(rec1.uid)) {
 				found1 = true;
-			} else if (ar.getUid().getValue().equals(rec2.uid)) {
+			} else if (ar.getUid().equals(rec2.uid)) {
 				found2 = true;
 			}
 		}
@@ -180,17 +180,17 @@ public class DirectorySearchTest {
 		Query query = Query.contentQuery("name", rec1.name);
 		List<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> result = defaultSearch.search(query);
 		assertEquals(1, result.size());
-		assertEquals(rec1.uid, result.get(0).getUid().getValue());
+		assertEquals(rec1.uid, result.get(0).getUid());
 
 		query = Query.contentQuery("name", rec2.name);
 		result = defaultSearch.search(query);
 		assertEquals(1, result.size());
-		assertEquals(rec2.uid, result.get(0).getUid().getValue());
+		assertEquals(rec2.uid, result.get(0).getUid());
 
 		query = Query.contentQuery("name", rec3.name);
 		result = defaultSearch.search(query);
 		assertEquals(1, result.size());
-		assertEquals(rec3.uid, result.get(0).getUid().getValue());
+		assertEquals(rec3.uid, result.get(0).getUid());
 
 		query = Query.contentQuery("name", rec3.name);
 		result = filteredSearch.search(query);
@@ -199,7 +199,7 @@ public class DirectorySearchTest {
 		query = Query.contentQuery("name", rec2.name);
 		result = filteredSearch.search(query);
 		assertEquals(1, result.size());
-		assertEquals(rec2.uid, result.get(0).getUid().getValue());
+		assertEquals(rec2.uid, result.get(0).getUid());
 	}
 
 	@Test
@@ -210,7 +210,7 @@ public class DirectorySearchTest {
 		Query query = Query.andQuery(Arrays.asList(query1, query2));
 		List<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> result = defaultSearch.search(query);
 		assertEquals(1, result.size());
-		assertEquals(rec2.uid, result.get(0).getUid().getValue());
+		assertEquals(rec2.uid, result.get(0).getUid());
 	}
 
 	@Test
@@ -224,7 +224,7 @@ public class DirectorySearchTest {
 	}
 
 	private void serialize(List<AddressBookRecord> records, CountDownLatch wait) {
-		HollowFilesystemPublisher publisher = new HollowFilesystemPublisher(file);
+		HollowFilesystemPublisher publisher = new HollowFilesystemPublisher(file.toPath());
 		Announcer announcer = new Announcer(file);
 		announcer.setWait(wait);
 		HollowProducer producer = HollowProducer.withPublisher(publisher).withAnnouncer(announcer).build();
@@ -243,9 +243,10 @@ public class DirectorySearchTest {
 		record.email = record.uid + "@bm.loc";
 		record.emails = Arrays.asList(Email.create(record.email, true, true),
 				Email.create("alt-" + record.email, false, false));
-		record.addressBook = new OfflineAddressBook();
-		record.addressBook.domainName = "bm.loc";
-		record.addressBook.domainAliases = new HashSet<>(Arrays.asList("bm.lan"));
+		record.domain = "bm.loc";
+		AnrToken anr = new AnrToken();
+		anr.token = record.uid;
+		record.anr = Arrays.asList(anr);
 		return record;
 
 	}
@@ -255,7 +256,7 @@ public class DirectorySearchTest {
 		private CountDownLatch wait;
 
 		public Announcer(File publishDir) {
-			super(publishDir);
+			super(publishDir.toPath());
 		}
 
 		@Override

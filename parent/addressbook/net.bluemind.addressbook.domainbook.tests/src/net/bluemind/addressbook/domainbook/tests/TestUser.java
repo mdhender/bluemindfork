@@ -27,6 +27,7 @@ import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.core.api.Email;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.User;
 
 public class TestUser {
@@ -42,6 +43,7 @@ public class TestUser {
 		defaultEmail();
 		value.password = "password";
 		value.routing = Routing.internal;
+		value.dataLocation = PopulateHelper.FAKE_CYRUS_IP;
 	}
 
 	private void defaultEmail() {
@@ -80,11 +82,11 @@ public class TestUser {
 			value.emails = Arrays.asList(em);
 		} else {
 			value.emails = new ArrayList<>(value.emails.size() + 1);
-			value.emails.add(em) ;
+			value.emails.add(em);
 		}
 		return this;
 	}
-	
+
 	public TestUser names(String firstname, String lastname) {
 		value.contactInfos.identification.name = Name.create(lastname, firstname, null, null, null, null);
 		value.contactInfos.identification.formatedName.value = firstname + " " + lastname;

@@ -13,8 +13,12 @@ public class EmailDelegateLookupImpl extends HollowObjectAbstractDelegate implem
         this.typeAPI = typeAPI;
     }
 
-    public int getAddressOrdinal(int ordinal) {
-        return typeAPI.getAddressOrdinal(ordinal);
+    public String getAddress(int ordinal) {
+        return typeAPI.getAddress(ordinal);
+    }
+
+    public boolean isAddressEqual(int ordinal, String testValue) {
+        return typeAPI.isAddressEqual(ordinal, testValue);
     }
 
     public boolean getAllAliases(int ordinal) {

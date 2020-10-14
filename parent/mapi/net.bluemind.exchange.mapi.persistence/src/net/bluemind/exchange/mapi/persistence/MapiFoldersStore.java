@@ -49,9 +49,11 @@ public class MapiFoldersStore extends JdbcAbstractStore {
 		delete("DELETE FROM t_mapi_folders WHERE container_uid = ?", new Object[] { containerUid });
 	}
 
+	private static final String SELECT_FOLDER = "SELECT " + MapiFoldersColumns.cols.names()
+			+ " FROM t_mapi_folders WHERE container_uid=?";
+
 	public MapiFolder get(String containerUid) throws SQLException {
-		String query = "SELECT " + MapiFoldersColumns.cols.names() + " FROM t_mapi_folders WHERE container_uid=?";
-		return unique(query, rs -> new MapiFolder(), MapiFoldersColumns.populator(), new Object[] { containerUid });
+		return unique(SELECT_FOLDER, rs -> new MapiFolder(), MapiFoldersColumns.populator(), containerUid);
 	}
 
 }

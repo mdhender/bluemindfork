@@ -19,11 +19,14 @@ import net.bluemind.metrics.registry.client.WebSocketClient;
 import net.bluemind.metrics.registry.json.TimerJson;
 
 public class BMTimer extends AbstractTimer {
+
 	private static final Logger logger = LoggerFactory.getLogger(BMTimer.class);
+
 	private final WebSocketClient webSockClient;
 	private final Id id;
 	private final LongAdder count;
 	private final LongAdder totalTime;
+	private final TimerJson dto;
 
 	/** Create a new instance. */
 	BMTimer(Clock clock, Id id, WebSocketClient webSockClient) {
@@ -32,6 +35,7 @@ public class BMTimer extends AbstractTimer {
 		this.id = id;
 		count = new LongAdder();
 		totalTime = new LongAdder();
+		this.dto = new TimerJson(id, 0);
 	}
 
 	@Override
@@ -51,8 +55,7 @@ public class BMTimer extends AbstractTimer {
 			totalTime.add(nanos);
 			count.increment();
 			try {
-				TimerJson timerJson = new TimerJson(id, nanos);
-				this.webSockClient.sendTextFrame(Mapper.get().writeValueAsString(timerJson));
+				webSockClient.sendTextFrame(dto.withNanos(nanos));
 			} catch (IOException e) {
 				logger.error("IOException : ", e);
 			}

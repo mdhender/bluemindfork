@@ -35,6 +35,7 @@
  * ***** END LICENSE BLOCK ***** */
 package org.columba.ristretto.smtp;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -498,10 +499,11 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 
 			response = readSingleLineResponse();
 			if (response.getCode() == 354) {
+				BufferedOutputStream wrapped = new BufferedOutputStream(out, 65536);
 				try {
-					copyStream(data, new SMTPOutputStream(out));
-					out.write(STOPWORD);
-					out.flush();
+					copyStream(data, new SMTPOutputStream(wrapped));
+					wrapped.write(STOPWORD);
+					wrapped.flush();
 				} catch (IOException e) {
 					state = NOT_CONNECTED;
 					throw e;

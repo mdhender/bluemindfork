@@ -21,7 +21,6 @@ package net.bluemind.todolist.usertodolist;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -36,21 +35,16 @@ import com.google.common.collect.Lists;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
-import net.bluemind.core.container.api.IOwnerSubscriptionUids;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
-import net.bluemind.core.container.persistence.ItemStore;
-import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.tests.BmTestContext;
-import net.bluemind.directory.api.DirEntry;
-import net.bluemind.directory.persistence.DirEntryStore;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -58,7 +52,6 @@ import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.ITodoLists;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.user.api.User;
-import net.bluemind.user.persistence.UserStore;
 
 public class UserTodoListHookTests {
 
@@ -69,8 +62,6 @@ public class UserTodoListHookTests {
 	private String domainUid = "fakeDomainUid";
 	private ItemValue<User> userItem;
 
-	private String datalocation;
-
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
@@ -78,7 +69,6 @@ public class UserTodoListHookTests {
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		domainUid = "bm.lan";
-		datalocation = PopulateHelper.FAKE_CYRUS_IP;
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
@@ -101,45 +91,14 @@ public class UserTodoListHookTests {
 		ElasticsearchTestHelper.getInstance().beforeTest();
 
 		bmContext = BmTestContext.contextWithSession("sid", "admin", domainUid);
-		ContainerStore containerStore = new ContainerStore(bmContext, JdbcActivator.getInstance().getDataSource(),
-				SecurityContext.SYSTEM);
-
 		hook = new UserTodoListHook();
 
-		// Create testUser dirEntry
-		Container container = containerStore.get(domainUid);
-		ItemStore itemStore = new ItemStore(JdbcTestHelper.getInstance().getDataSource(), container,
-				SecurityContext.SYSTEM);
-		DirEntryStore dirEntryStore = new DirEntryStore(JdbcTestHelper.getInstance().getDataSource(), container);
-
-		String userUid = UUID.randomUUID().toString();
-		itemStore.create(Item.create(userUid, null));
-		Item item = itemStore.get(userUid);
-		try {
-			dirEntryStore.create(item, DirEntry.create(null, item.uid, DirEntry.Kind.USER, item.uid, "test", null,
-					false, false, false, datalocation));
-		} catch (SQLException e) {
-			fail("error during create " + e.getMessage());
-		}
-
-		dirEntryStore.get(item);
-
+		String uid = PopulateHelper.addUser(UUID.randomUUID().toString(), domainUid);
 		User user = new User();
-		user.login = userUid;
-		user.dataLocation = datalocation;
-		Item i = Item.create(userUid, null);
-		i.displayName = "test";
+		user.login = uid;
+		Item i = Item.create(uid, null);
 		userItem = ItemValue.<User>create(i, user);
 
-		UserStore store = new UserStore(JdbcTestHelper.getInstance().getDataSource(), container);
-		store.create(item, user);
-
-		Container subContainer = new Container();
-		subContainer.name = "subs of " + userUid;
-		subContainer.owner = userUid;
-		subContainer.type = IOwnerSubscriptionUids.TYPE;
-		subContainer.uid = IOwnerSubscriptionUids.getIdentifier(userUid, domainUid);
-		containerStore.create(subContainer);
 	}
 
 	@Test

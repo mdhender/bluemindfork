@@ -17,8 +17,8 @@
   */
 package net.bluemind.backend.mail.parsing;
 
+import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -118,7 +118,7 @@ public class EmlBuilder {
 			if (split.hasNext()) {
 				dom = split.next();
 			}
-			Mailbox cur = new Mailbox(local, dom);
+			Mailbox cur = new Mailbox(r.dn, local, dom);
 			switch (r.kind) {
 			case BlindCarbonCopy:
 				bcc.add(cur);
@@ -170,7 +170,8 @@ public class EmlBuilder {
 				ae.setContentDisposition(ContentDispositionField.DISPOSITION_TYPE_INLINE, safeEncode(p.fileName));
 			}
 			try {
-				ae.getHeader().addField(LenientFieldParser.parse("Content-ID: <" + p.contentId + ">"));
+				String cid = p.contentId.startsWith("<") ? p.contentId : "<" + p.contentId + ">";
+				ae.getHeader().addField(LenientFieldParser.parse("Content-ID: " + cid));
 			} catch (MimeException e) {
 				logger.warn("Failed to set content-id to {}: {}", p.contentId, e.getMessage());
 			}
@@ -237,6 +238,10 @@ public class EmlBuilder {
 		}
 	}
 
+	private static InputStream stream(File f) throws IOException {
+		return new BufferedInputStream(Files.newInputStream(f.toPath(), StandardOpenOption.READ));
+	}
+
 	public static SizedStream inputStream(Long id, String previousBody, Date date, Part structure, String owner) {
 		Objects.requireNonNull(structure.address, "Part address must not be null");
 		File emlInput = new File(Bodies.STAGING, structure.address + ".part");
@@ -245,7 +250,7 @@ public class EmlBuilder {
 		}
 		if (id == null) {
 			try {
-				InputStream input = Files.newInputStream(emlInput.toPath(), StandardOpenOption.READ);
+				InputStream input = stream(emlInput);
 				SizedStream ss = new SizedStream();
 				ss.input = input;
 				ss.size = (int) emlInput.length();
@@ -254,7 +259,7 @@ public class EmlBuilder {
 				throw Throwables.propagate(e);
 			}
 		}
-		try (InputStream in = new FileInputStream(emlInput); Message asMessage = Mime4JHelper.parse(in)) {
+		try (InputStream in = stream(emlInput); Message asMessage = Mime4JHelper.parse(in)) {
 			net.bluemind.backend.mail.api.MessageBody.Header idHeader = net.bluemind.backend.mail.api.MessageBody.Header
 					.create(MailApiHeaders.X_BM_INTERNAL_ID, owner + "#" + InstallationId.getIdentifier() + ":" + id);
 			List<net.bluemind.backend.mail.api.MessageBody.Header> toAdd = Arrays.asList(idHeader);

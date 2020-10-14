@@ -35,6 +35,11 @@ public class FilteredDirectorySearch implements SerializedDirectorySearch {
 	}
 
 	@Override
+	public Optional<OfflineAddressBook> root() {
+		return deserializer.root();
+	}
+
+	@Override
 	public List<AddressBookRecord> search(List<Predicate<? super AddressBookRecord>> predicates) {
 		return filter(deserializer.search(predicates));
 	}

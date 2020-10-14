@@ -78,7 +78,7 @@ public class JdbcAbstractStore {
 					} else if (param instanceof Byte[]) {
 						st.setArray(i + 1, conn.createArrayOf("bytea", (Byte[]) param));
 					} else {
-						st.setObject(i + 1, parameters[i]);
+						st.setObject(i + 1, param);
 					}
 				}
 			}
@@ -110,9 +110,45 @@ public class JdbcAbstractStore {
 		return ret;
 	}
 
+	protected <T> T unique(String query, Creator<T> creator, EntityPopulator<T> populator, Object param)
+			throws SQLException {
+		Connection conn = getConnection();
+		ResultSet rs = null;
+		T v = null;
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement(query);
+			if (param instanceof Long[]) {
+				st.setArray(1, conn.createArrayOf("int", (Long[]) param));
+			} else if (param instanceof String[]) {
+				st.setArray(1, conn.createArrayOf("text", (String[]) param));
+			} else if (param instanceof Byte[]) {
+				st.setArray(1, conn.createArrayOf("bytea", (Byte[]) param));
+			} else {
+				st.setObject(1, param);
+			}
+			logger.debug("S: {}", st);
+			long time = System.currentTimeMillis();
+			rs = st.executeQuery();
+			long elapsedTime = System.currentTimeMillis() - time;
+			if (elapsedTime > 300) {
+				logger.warn("S: {} took {}ms", st, elapsedTime);
+			} else {
+				logger.trace("S: {} took {}ms", st, elapsedTime);
+			}
+			if (rs.next()) {
+				v = creator.create(rs);
+				populator.populate(rs, 1, v);
+			}
+		} finally {
+			JdbcHelper.cleanup(conn, rs, st);
+		}
+		return v;
+	}
+
 	protected <T> T unique(String query, Creator<T> creator, List<EntityPopulator<T>> populators) throws SQLException {
 		List<T> ret = select(query, creator, populators, null);
-		if (ret.size() > 0) {
+		if (!ret.isEmpty()) {
 			return ret.get(0);
 		} else {
 			return null;
@@ -122,7 +158,7 @@ public class JdbcAbstractStore {
 	protected <T> T unique(String query, Creator<T> creator, List<EntityPopulator<T>> populators, Object[] parameters)
 			throws SQLException {
 		List<T> ret = select(query, creator, populators, parameters);
-		if (ret.size() > 0) {
+		if (!ret.isEmpty()) {
 			return ret.get(0);
 		} else {
 			return null;
@@ -136,7 +172,7 @@ public class JdbcAbstractStore {
 
 	protected <T> T unique(String query, Creator<T> creator, EntityPopulator<T> populator) throws SQLException {
 		List<T> ret = select(query, creator, Arrays.asList(populator), null);
-		if (ret.size() > 0) {
+		if (!ret.isEmpty()) {
 			return ret.get(0);
 		} else {
 			return null;
@@ -149,7 +185,7 @@ public class JdbcAbstractStore {
 				throws SQLException;
 	}
 
-	public static enum DataType {
+	public enum DataType {
 		TEXT, NUMERIC
 	}
 

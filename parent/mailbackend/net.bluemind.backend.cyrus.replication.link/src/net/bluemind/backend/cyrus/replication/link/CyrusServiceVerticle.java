@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.cyrus.replication.link;
 
+import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +42,9 @@ public class CyrusServiceVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(CyrusServiceVerticle.class);
 
+	private static final String PROBE_FN = "/etc/bm/replication.probe.disabled";
+	private static final boolean PROBED_DISABLED = new File(PROBE_FN).exists();
+
 	@Override
 	public void start() {
 		EventBus eventBus = vertx.eventBus();
@@ -64,7 +68,11 @@ public class CyrusServiceVerticle extends AbstractVerticle {
 		servers.forEach(s -> {
 			CyrusService cyrusService = new CyrusService(s.value.address());
 			cyrusService.reload();
-			vertx.setTimer(60000, timer -> buildSharedMailboxProbe(prov, service, s));
+			if (PROBED_DISABLED) {
+				logger.warn("Probe will not start because {} exists.", PROBE_FN);
+			} else {
+				vertx.setTimer(60000, timer -> buildSharedMailboxProbe(prov, service, s));
+			}
 		});
 	}
 

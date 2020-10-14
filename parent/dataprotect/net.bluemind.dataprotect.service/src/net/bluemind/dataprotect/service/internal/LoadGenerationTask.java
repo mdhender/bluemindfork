@@ -109,8 +109,8 @@ public class LoadGenerationTask implements IServerTask {
 
 			dd.all().stream().forEach(abRecord -> {
 				DirEntry de = new DirEntry();
-				de.entryUid = abRecord.getUid().getValue();
-				de.displayName = abRecord.getName().getValue();
+				de.entryUid = abRecord.getUid();
+				de.displayName = abRecord.getName();
 				de.kind = Kind.valueOf(abRecord.getKind().getValue());
 				// ui try to guess the domainUid with the path
 				de.path = domainUid + "/";
@@ -118,15 +118,14 @@ public class LoadGenerationTask implements IServerTask {
 					de.dataLocation = abRecord.getDataLocation().getServer().getValue();
 				}
 				if (abRecord.getEmails() != null && !abRecord.getEmails().isEmpty()) {
-					de.email = abRecord.getEmails().stream().filter(Email::getIsDefault).findFirst().get().getAddress()
-							.getValue();
+					de.email = abRecord.getEmails().stream().filter(Email::getIsDefault).findFirst().get().getAddress();
 				}
 
 				gc.entries.add(ItemValue.create(de.entryUid, de));
 			});
 		}
 
-		logger.info("Sending generation with " + gc.capabilities.size() + " capabilities.");
+		logger.info("Sending generation with {} capabilities", gc.capabilities.size());
 		monitor.end(true, "restored", JsonUtils.asString(gc));
 
 	}

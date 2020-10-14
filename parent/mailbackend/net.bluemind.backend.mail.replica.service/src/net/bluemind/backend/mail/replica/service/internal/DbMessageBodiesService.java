@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +57,9 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 	private static final Logger logger = LoggerFactory.getLogger(DbMessageBodiesService.class);
 
 	protected final MessageBodyStore bodyStore;
-	private final MessageBodyObjectStore bodyObjectStore;
+	private final Supplier<MessageBodyObjectStore> bodyObjectStore;
 
-	public DbMessageBodiesService(MessageBodyStore bodyStore, MessageBodyObjectStore bodyObjectStore) {
+	public DbMessageBodiesService(MessageBodyStore bodyStore, Supplier<MessageBodyObjectStore> bodyObjectStore) {
 		this.bodyStore = bodyStore;
 		this.bodyObjectStore = bodyObjectStore;
 	}
@@ -166,11 +167,12 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 			// check if the unknown bodies are not in our object store
 			// and process them from here if they are
 			long time = System.currentTimeMillis();
-			Set<String> inObjectStore = bodyObjectStore.exist(checkCopy);
+			MessageBodyObjectStore sdsStore = bodyObjectStore.get();
+			Set<String> inObjectStore = sdsStore.exist(checkCopy);
 			Set<String> processedFromObjectStore = new HashSet<>();
 			for (List<String> slice : Lists.partition(new ArrayList<>(inObjectStore), 25)) {
 				String[] guids = slice.toArray(new String[slice.size()]);
-				Path[] fromSds = bodyObjectStore.mopen(guids);
+				Path[] fromSds = sdsStore.mopen(guids);
 				for (int i = 0; i < guids.length; i++) {
 					String guid = guids[i];
 					Path tmpFromSDS = fromSds[i];

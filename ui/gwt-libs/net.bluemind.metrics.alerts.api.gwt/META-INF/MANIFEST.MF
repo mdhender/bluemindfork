@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: net.bluemind.metrics.alerts.api.gwt;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.metrics.alerts.api;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.core.container.api.gwt;bundle-version="4.1.0";visibility:=reexport,
+ com.google.gwt.user;resolution:=optional,
+ net.bluemind.restbus.api.gwt;bundle-version="4.1.0";visibility:=reexport
+Export-Package: net.bluemind.metrics.alerts.api.gwt.endpoint,
+ net.bluemind.metrics.alerts.api.gwt.js,
+ net.bluemind.metrics.alerts.api.gwt.serder
+

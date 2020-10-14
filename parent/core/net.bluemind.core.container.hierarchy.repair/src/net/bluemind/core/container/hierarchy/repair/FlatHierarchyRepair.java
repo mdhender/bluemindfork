@@ -18,7 +18,6 @@
  */
 package net.bluemind.core.container.hierarchy.repair;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -155,22 +154,12 @@ public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 
 	@Override
 	public Set<MaintenanceOperation> availableOperations(Kind kind) {
-		if (kind == Kind.USER || kind == Kind.RESOURCE || kind == Kind.MAILSHARE || kind == Kind.GROUP
-				|| kind == Kind.DOMAIN) {
-			return ImmutableSet.of(flatHierOp);
-		} else {
-			return Collections.emptySet();
-		}
+		return ImmutableSet.of(flatHierOp);
 	}
 
 	@Override
 	public Set<InternalMaintenanceOperation> ops(Kind kind) {
-		if (kind == Kind.USER || kind == Kind.RESOURCE || kind == Kind.MAILSHARE || kind == Kind.GROUP
-				|| kind == Kind.DOMAIN) {
-			return ImmutableSet.of(new FlagHierMaintenance(context));
-		} else {
-			return Collections.emptySet();
-		}
+		return ImmutableSet.of(new FlagHierMaintenance(context));
 	}
 
 }

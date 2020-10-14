@@ -91,6 +91,7 @@ class bm_ics extends rcube_plugin {
   }
 
   function parseEventHeader($header) {
+    $header = is_array($header) ? $header[0]: $header;
     $values = explode(';', $header);
     $ics = trim(array_shift($values));
     if (count($values) > 1) {

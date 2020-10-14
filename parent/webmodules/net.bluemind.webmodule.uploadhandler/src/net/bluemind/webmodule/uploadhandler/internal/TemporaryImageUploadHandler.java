@@ -25,11 +25,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
 import org.slf4j.Logger;
@@ -157,16 +155,8 @@ public class TemporaryImageUploadHandler implements Handler<HttpServerRequest>, 
 			}
 		}
 		try (ImageInputStream iis = ImageIO.createImageInputStream(new FileInputStream(repository.getTempFile(uuid)))) {
-			Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
-			if (!iter.hasNext()) {
-				sendError("error reading image", request.response());
-				return;
-			}
-			ImageReader reader = (ImageReader) iter.next();
-
-			reader.setInput(iis);
-			BufferedImage img = reader.read(0);
-			if (img.getWidth() < maxWidth && img.getHeight() < maxHeight) {
+			BufferedImage img = Subsampling.toBufferredImage(iis);
+			if (img.getWidth() <= maxWidth && img.getHeight() <= maxHeight) {
 				logger.debug("upload succeed, return 200 and uuid {}", uuid);
 				HttpServerResponse resp = request.response();
 				resp.headers().add("Content-Type", "text/plain");
@@ -176,17 +166,22 @@ public class TemporaryImageUploadHandler implements Handler<HttpServerRequest>, 
 
 			double tw = img.getWidth();
 			double th = img.getHeight();
+
 			double ratio = 1.0;
 			if (tw > maxWidth) {
-				ratio = (double) maxWidth / (double) tw;
+				ratio = (double) maxWidth / tw;
 			}
 
 			if (th * ratio > maxHeight) {
-				ratio = (double) maxHeight / (double) th;
+				ratio = (double) maxHeight / th;
 			}
 
 			double sws = ratio * tw;
 			double shs = ratio * th;
+
+			if (tw > 2000 || th > 2000) {
+				logger.warn("Trying to resize big image {} x {} => {} x {}", tw, th, (int) sws, (int) shs);
+			}
 
 			BufferedImage dbi = new BufferedImage((int) sws, (int) shs, img.getType());
 			Graphics2D g = dbi.createGraphics();
@@ -204,7 +199,6 @@ public class TemporaryImageUploadHandler implements Handler<HttpServerRequest>, 
 							HttpServerResponse resp = request.response();
 							resp.setStatusCode(200);
 							resp.end(rf.uuid.toString());
-							return;
 						}
 
 					});

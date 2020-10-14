@@ -21,20 +21,24 @@ package net.bluemind.directory.hollow.datamodel;
 import java.util.Date;
 import java.util.List;
 
+import com.netflix.hollow.core.write.objectmapper.HollowInline;
 import com.netflix.hollow.core.write.objectmapper.HollowPrimaryKey;
 
 @HollowPrimaryKey(fields = { "uid" })
 public class AddressBookRecord {
 
-	public OfflineAddressBook addressBook;
 	/**
 	 * entryUid
 	 */
+	@HollowInline
 	public String uid;
+
 	/**
 	 * PidTagEmailAddress (X500 DN)
 	 */
+	@HollowInline
 	public String distinguishedName;
+
 	/**
 	 * domain
 	 */
@@ -58,22 +62,27 @@ public class AddressBookRecord {
 	/**
 	 * email
 	 */
+	@HollowInline
 	public String email;
 	/**
 	 * internal-id
 	 */
 	public long minimalid;
+
 	/**
 	 * displayName
 	 */
+	@HollowInline
 	public String name;
 	/**
 	 * PidTagSurname
 	 */
+	@HollowInline
 	public String surname;
 	/**
 	 * PidTagGivenName
 	 */
+	@HollowInline
 	public String givenName;
 	/**
 	 * PidTagTitle
@@ -181,4 +190,6 @@ public class AddressBookRecord {
 	public byte[] thumbnail;
 
 	public boolean hidden;
+
+	public List<AnrToken> anr;
 }

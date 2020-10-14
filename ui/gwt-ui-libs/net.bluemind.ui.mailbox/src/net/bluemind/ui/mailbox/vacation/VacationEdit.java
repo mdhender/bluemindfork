@@ -36,8 +36,6 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 import com.google.gwt.user.datepicker.client.DateBox;
 
-import net.bluemind.core.api.date.BmDateTime;
-import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.MailFilter.Vacation;
 
@@ -142,13 +140,13 @@ public class VacationEdit extends Composite {
 		message.setText(vs.text);
 		if (vs.enabled) {
 			allow();
-			from.setValue(asDate(vs.start));
+			from.setValue(vs.start);
 			if (vs.end != null) {
 				cbTo.setEnabled(true);
 				cbTo.setValue(true);
 				to.setEnabled(true);
 
-				Date dateEnd = asDate(vs.end);
+				Date dateEnd = vs.end;
 				CalendarUtil.addDaysToDate(dateEnd, -1);
 				to.setValue(dateEnd);
 			} else {
@@ -167,13 +165,13 @@ public class VacationEdit extends Composite {
 		vs.subject = subject.getText();
 		vs.text = message.getText();
 		if (vs.enabled) {
-			vs.start = asBmDate(from.getValue());
+			vs.start = from.getValue();
 
 			Date dateEnd = to.getValue();
 			if (dateEnd != null) {
 				CalendarUtil.addDaysToDate(dateEnd, 1);
 			}
-			vs.end = asBmDate(dateEnd);
+			vs.end = dateEnd;
 		}
 		return vs;
 	}
@@ -201,26 +199,4 @@ public class VacationEdit extends Composite {
 		message.setEnabled(true);
 	}
 
-	private DateTimeFormat ISO_DATE = DateTimeFormat.getFormat("yyyy-MM-dd");
-	private DateTimeFormat ISO_DATETIME = DateTimeFormat.getFormat(PredefinedFormat.ISO_8601);
-
-	private Date asDate(BmDateTime bmDate) {
-		if (bmDate != null) {
-			if (bmDate.precision == Precision.Date) {
-				return ISO_DATE.parse(bmDate.iso8601);
-			} else {
-				return ISO_DATETIME.parse(bmDate.iso8601);
-			}
-		} else {
-			return null;
-		}
-	}
-
-	private BmDateTime asBmDate(Date value) {
-		if (value != null) {
-			return new BmDateTime(ISO_DATE.format(value), null, Precision.Date);
-		} else {
-			return null;
-		}
-	}
 }

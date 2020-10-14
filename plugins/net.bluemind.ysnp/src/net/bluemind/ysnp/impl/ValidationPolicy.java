@@ -49,19 +49,13 @@ public class ValidationPolicy {
 	/**
 	 * key: token, value: login@domain
 	 */
-	private static final Cache<String, String> tokenCache = CacheBuilder.newBuilder()
-			.recordStats()
-			.initialCapacity(1024)
-			.expireAfterAccess(2, TimeUnit.MINUTES)
-			.build();
+	private static final Cache<String, String> tokenCache = CacheBuilder.newBuilder().recordStats()
+			.initialCapacity(1024).expireAfterAccess(10, TimeUnit.MINUTES).build();
 	/**
 	 * key: login@domain, value: last valid password
 	 */
-	private static final Cache<String, String> pwCache = CacheBuilder.newBuilder()
-			.recordStats()
-			.initialCapacity(1024)
-			.expireAfterAccess(2, TimeUnit.MINUTES)
-			.build();
+	private static final Cache<String, String> pwCache = CacheBuilder.newBuilder().recordStats().initialCapacity(1024)
+			.expireAfterAccess(10, TimeUnit.MINUTES).build();
 
 	private TokenCacheSync tokenSync;
 

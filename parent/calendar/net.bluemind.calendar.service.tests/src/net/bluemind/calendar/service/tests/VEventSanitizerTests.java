@@ -26,6 +26,9 @@ import static org.junit.Assert.assertTrue;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Map;
+
+import javax.sql.DataSource;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,19 +43,27 @@ import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.backend.cyrus.CyrusAdmins;
 import net.bluemind.backend.cyrus.CyrusService;
+import net.bluemind.calendar.api.CalendarSettingsData;
+import net.bluemind.calendar.api.ICalendarSettings;
+import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.service.internal.VEventSanitizer;
 import net.bluemind.core.api.Email;
+import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
@@ -66,6 +77,7 @@ import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
 
 public class VEventSanitizerTests {
@@ -74,6 +86,7 @@ public class VEventSanitizerTests {
 	private String domainUid;
 	private ZoneId defaultTz = ZoneId.systemDefault();
 	private final ZonedDateTime date1 = ZonedDateTime.of(2015, 05, 01, 0, 0, 0, 0, defaultTz);
+	private Container user1DefaultCalendar;
 
 	@Before
 	public void beforeBefore() throws Exception {
@@ -113,6 +126,10 @@ public class VEventSanitizerTests {
 
 		test1Context = new BmTestContext(
 				new SecurityContext("test1", "test1", Arrays.<String>asList("g1"), Arrays.<String>asList(), domainUid));
+
+		DataSource ds = DataSourceRouter.get(test1Context, ICalendarUids.defaultUserCalendar("test1"));
+		ContainerStore containerStore = new ContainerStore(test1Context, ds, test1Context.getSecurityContext());
+		user1DefaultCalendar = containerStore.get(ICalendarUids.defaultUserCalendar("test1"));
 
 		IGroup groups = systemContext.provider().instance(IGroup.class, domainUid);
 		groups.create("g1", defaultGroup("g1", imapServer.ip));
@@ -155,7 +172,7 @@ public class VEventSanitizerTests {
 	@Test
 	public void testSanitizeSimple() throws ServerFault {
 
-		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, this.domainUid);
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
 
 		VEvent vevent = new VEvent();
 
@@ -175,7 +192,7 @@ public class VEventSanitizerTests {
 	@Test
 	public void testPrecisionOfDtendIsSameAsDTstart() throws ServerFault {
 
-		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, this.domainUid);
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
 
 		VEvent vevent = new VEvent();
 
@@ -190,7 +207,7 @@ public class VEventSanitizerTests {
 	@Test
 	public void testOrganizerWithoutEmailCannotCreateMeeting() throws ServerFault {
 
-		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, this.domainUid);
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
 
 		VEvent vevent = new VEvent();
 
@@ -212,7 +229,7 @@ public class VEventSanitizerTests {
 	@Test
 	public void testSanitizeOrganizer() throws ServerFault {
 
-		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, this.domainUid);
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
 
 		VEvent vevent = new VEvent();
 
@@ -284,7 +301,7 @@ public class VEventSanitizerTests {
 	@Test
 	public void testSanitizeOrganizerInvalidMailto() throws ServerFault {
 
-		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, this.domainUid);
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
 
 		VEvent vevent = new VEvent();
 
@@ -313,7 +330,7 @@ public class VEventSanitizerTests {
 	@Test
 	public void testSanitizeAttendee() throws ServerFault {
 
-		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, this.domainUid);
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
 
 		VEvent vevent = new VEvent();
 
@@ -403,7 +420,7 @@ public class VEventSanitizerTests {
 		vevent.attendees = Arrays.asList(attendee);
 		vevent.organizer = new Organizer("chef@bad-company.com");
 
-		new VEventSanitizer(test1Context, this.domainUid).sanitize(vevent, true);
+		new VEventSanitizer(test1Context, user1DefaultCalendar).sanitize(vevent, true);
 		assertEquals("fake_/email.com", attendee.commonName);
 		assertNull(attendee.mailto);
 	}
@@ -411,7 +428,7 @@ public class VEventSanitizerTests {
 	@Test
 	public void testSanitizeExDate() throws ServerFault {
 
-		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, this.domainUid);
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
 
 		VEvent vevent = new VEvent();
 
@@ -429,7 +446,7 @@ public class VEventSanitizerTests {
 
 	@Test
 	public void testSanitizeOrganizerIsTheOnlyAttendee() {
-		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, this.domainUid);
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
 
 		VEvent vevent = new VEvent();
 		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
@@ -451,7 +468,7 @@ public class VEventSanitizerTests {
 
 	@Test
 	public void draftIsSetToFalseIfNotificationsAreSent() throws ServerFault {
-		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, this.domainUid);
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
 		VEvent vevent = new VEvent();
 		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		vevent.summary = "event " + System.currentTimeMillis();
@@ -466,7 +483,7 @@ public class VEventSanitizerTests {
 
 	@Test
 	public void draftExceptionIsADraft() throws ServerFault {
-		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, this.domainUid);
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
 		VEvent vevent = new VEvent();
 		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		vevent.summary = "event " + System.currentTimeMillis();
@@ -477,4 +494,81 @@ public class VEventSanitizerTests {
 		sanitizer.sanitize(series, false);
 		assertTrue(series.main.draft);
 	}
+
+	@Test
+	public void testSanitizeTimezoneUsingCalendarSettings() throws ServerFault {
+		ICalendarSettings settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ICalendarSettings.class, user1DefaultCalendar.uid);
+		CalendarSettingsData calendarSettingsData = settings.get();
+		calendarSettingsData.dayStart = 8;
+		calendarSettingsData.dayEnd = 18;
+		calendarSettingsData.minDuration = 30;
+		calendarSettingsData.workingDays = Arrays.asList(CalendarSettingsData.Day.MO, CalendarSettingsData.Day.TH);
+		calendarSettingsData.timezoneId = "Europe/Berlin";
+		settings.set(calendarSettingsData);
+
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
+		VEvent vevent = new VEvent();
+		vevent.dtstart = new BmDateTime("2019-12-03T10:15:30+01:00", "Europe/Paris", Precision.DateTime);
+		vevent.summary = "event " + System.currentTimeMillis();
+
+		sanitizer.sanitize(vevent, true);
+
+		assertEquals("Europe/Berlin", vevent.dtstart.timezone);
+	}
+
+	@Test
+	public void testSanitizeTimezoneUsingUserSetting() throws ServerFault {
+		IUserSettings settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IUserSettings.class, user1DefaultCalendar.domainUid);
+		Map<String, String> setting = settings.get("test1");
+		setting.put("timezone", "Europe/Oslo");
+		settings.set("test1", setting);
+
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
+		VEvent vevent = new VEvent();
+		vevent.dtstart = new BmDateTime("2019-12-03T10:15:30+01:00", "Europe/Paris", Precision.DateTime);
+		vevent.summary = "event " + System.currentTimeMillis();
+
+		sanitizer.sanitize(vevent, true);
+
+		assertEquals("Europe/Oslo", vevent.dtstart.timezone);
+	}
+
+	@Test
+	public void testSanitizeTimezoneUsingDomainSetting() throws ServerFault {
+		IDomainSettings settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, user1DefaultCalendar.domainUid);
+		Map<String, String> setting = settings.get();
+		setting.put("timezone", "Europe/Ljubljana");
+		settings.set(setting);
+
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
+		VEvent vevent = new VEvent();
+		vevent.dtstart = new BmDateTime("2019-12-03T10:15:30+01:00", "Europe/Paris", Precision.DateTime);
+		vevent.summary = "event " + System.currentTimeMillis();
+
+		sanitizer.sanitize(vevent, true);
+
+		assertEquals("Europe/Ljubljana", vevent.dtstart.timezone);
+	}
+
+	@Test
+	public void testSanitizeNonMatchingTimezoneUsingDomainSettingShouldNotChangeTimezone() throws ServerFault {
+		IDomainSettings settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, user1DefaultCalendar.domainUid);
+		Map<String, String> setting = settings.get();
+		setting.put("timezone", "America/Asuncion");
+		settings.set(setting);
+
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
+		VEvent vevent = new VEvent();
+		vevent.dtstart = new BmDateTime("2019-12-03T10:15:30+01:00", "America/La_Paz", Precision.DateTime);
+		vevent.summary = "event " + System.currentTimeMillis();
+
+		sanitizer.sanitize(vevent, true);
+
+		assertEquals("America/La_Paz", vevent.dtstart.timezone);
+	}
+
 }

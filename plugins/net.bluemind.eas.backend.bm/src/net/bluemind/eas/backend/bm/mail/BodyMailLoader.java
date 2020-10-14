@@ -127,6 +127,14 @@ public class BodyMailLoader extends CoreConnect {
 				if (ret.mime.equals("text/calendar")) {
 					ret = bodyPart(root.children.get(partIdx - 1));
 				}
+				if (ret.mime.equals("text/enriched")) {
+					Optional<Part> part = root.children.stream()
+							.filter(child -> child.mime.equals("text/html") || child.mime.equals("text/plain"))
+							.findFirst();
+					if (part.isPresent()) {
+						ret = part.get();
+					}
+				}
 				return ret;
 			default:
 			case "multipart/related":

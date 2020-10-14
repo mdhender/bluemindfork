@@ -307,7 +307,7 @@ public class IcsHookTests {
 
 		VEventMessage veventMessage = new VEventMessage();
 		veventMessage.securityContext = adminSecurityContext;
-		veventMessage.sendNotifications = false;
+		veventMessage.sendNotifications = true;
 
 		ContainerStore containerHome = new ContainerStore(null, DataSourceRouter
 				.get(new BmTestContext(adminSecurityContext), ICalendarUids.TYPE + ":Default:" + user1.uid),
@@ -347,7 +347,7 @@ public class IcsHookTests {
 		veventMessage.itemUid = event.uid;
 		veventMessage.vevent = event.value;
 		veventMessage.securityContext = adminSecurityContext;
-		veventMessage.sendNotifications = false;
+		veventMessage.sendNotifications = true;
 		veventMessage.container = resourceCalendarContainer;
 
 		FakeSendmail fakeSendmail = new FakeSendmail();
@@ -378,7 +378,7 @@ public class IcsHookTests {
 		veventMessage.vevent = event.value;
 		veventMessage.oldEvent = old.value;
 		veventMessage.securityContext = adminSecurityContext;
-		veventMessage.sendNotifications = false;
+		veventMessage.sendNotifications = true;
 		veventMessage.container = resourceCalendarContainer;
 
 		FakeSendmail fakeSendmail = new FakeSendmail();
@@ -404,7 +404,7 @@ public class IcsHookTests {
 		veventMessage.itemUid = event.uid;
 		veventMessage.vevent = event.value;
 		veventMessage.securityContext = adminSecurityContext;
-		veventMessage.sendNotifications = false;
+		veventMessage.sendNotifications = true;
 		veventMessage.container = resourceCalendarContainer;
 
 		FakeSendmail fakeSendmail = new FakeSendmail();
@@ -438,7 +438,7 @@ public class IcsHookTests {
 		veventMessage.vevent = event.value;
 		veventMessage.oldEvent = old.value;
 		veventMessage.securityContext = adminSecurityContext;
-		veventMessage.sendNotifications = false;
+		veventMessage.sendNotifications = true;
 		veventMessage.container = resourceCalendarContainer;
 
 		FakeSendmail fakeSendmail = new FakeSendmail();

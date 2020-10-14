@@ -8,10 +8,10 @@ if [ -e ${ETC_PATH} ]; then
 fi
 mkdir -p ${ETC_PATH}
 
-if [ -e /etc/bm ]; then
-  echo "/etc/bm"
-  cp -r /etc/bm ${ETC_PATH}
-fi
+for dir in /etc/bm*; do
+  echo ${dir}
+  cp -r ${dir} ${ETC_PATH}
+done
 
 if [ -e /etc/imapd.conf ]; then
   echo "/etc/imapd.conf"
@@ -36,16 +36,6 @@ fi
 if [ -e /etc/postfix ]; then
   echo "/etc/postfix"
   cp -r /etc/postfix ${ETC_PATH}
-fi
-
-if [ -e /etc/bm-hps ]; then
-  echo "/etc/bm-hps"
-  cp -r /etc/bm-hps ${ETC_PATH}
-fi
-
-if [ -e /etc/bm-node ]; then
-  echo "/etc/bm-node"
-  cp -r /etc/bm-node ${ETC_PATH}
 fi
 
 if [ -e /usr/share/bm-elasticsearch/config/elasticsearch.yml ]; then

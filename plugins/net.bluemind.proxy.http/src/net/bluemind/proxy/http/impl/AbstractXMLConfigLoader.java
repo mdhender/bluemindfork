@@ -34,7 +34,6 @@ import org.w3c.dom.NodeList;
 
 import net.bluemind.proxy.http.config.ForwardedLocation;
 import net.bluemind.proxy.http.config.HPSConfiguration;
-import net.bluemind.proxy.http.config.TemplatesConfiguration;
 import net.bluemind.utils.DOMUtils;
 
 public abstract class AbstractXMLConfigLoader implements IConfigLoader {
@@ -67,8 +66,6 @@ public abstract class AbstractXMLConfigLoader implements IConfigLoader {
 			Element templates = DOMUtils.getUniqueElement(r, "templates");
 			String path = templates.getAttribute("path");
 			String url = templates.getAttribute("url");
-			TemplatesConfiguration tc = new TemplatesConfiguration(path, url);
-			conf.setTemplatesConfiguration(tc);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

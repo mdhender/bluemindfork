@@ -17,10 +17,13 @@
   */
 package net.bluemind.cli.hollow;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Strings;
 
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
@@ -28,10 +31,10 @@ import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord;
 import net.bluemind.directory.hollow.datamodel.consumer.DirectorySearchFactory;
 import net.bluemind.directory.hollow.datamodel.consumer.HString;
+import net.bluemind.directory.hollow.datamodel.consumer.ListOfEmail;
 import net.bluemind.directory.hollow.datamodel.consumer.SerializedDirectorySearch;
 
 @Command(name = "directory", description = "List items in hollow directory")
@@ -58,29 +61,46 @@ public class DirectoryDumpCommand implements ICmdLet, Runnable {
 	@Override
 	public void run() {
 		CliUtils cli = new CliUtils(ctx);
-		String domUid = cli.getDomainUidFromDomain(domain);
-		if (domUid == null) {
-			throw new ServerFault("domain " + domain + " not found");
-		}
+		Optional<String> optDom = cli.getDomainUidFromDomainIfPresent(domain);
+		String domUid = optDom.orElseGet(() -> {
+			ctx.error("domain uid for " + domain + " not found, using " + domain);
+			return domain;
+		});
 		SerializedDirectorySearch hollow = DirectorySearchFactory.get(domUid);
+		String version = hollow.root().map(r -> Integer.toString(r.getSequence())).orElse("UNKNOWN");
 		Collection<AddressBookRecord> bookItems = hollow.all();
-		ctx.info("Hollow directory of '" + domUid + "' has " + bookItems.size() + " item(s).");
-		for (AddressBookRecord abr : bookItems) {
+		ctx.info("Hollow directory of '" + domUid + "' has " + bookItems.size() + " item(s) with directory version "
+				+ version + ".");
+		List<AddressBookRecord> sorted = new ArrayList<>(bookItems);
+		sorted.sort((r1, r2) -> Long.compare(r1.getMinimalid(), r2.getMinimalid()));
+		for (AddressBookRecord abr : sorted) {
 			ctx.info(stringify(abr));
 		}
 	}
 
 	private String stringify(AddressBookRecord abr) {
+		String defMail = hstring(abr.getEmail());
 		return MoreObjects.toStringHelper("Rec")//
 				.add("uid", hstring(abr.getUid()))//
-				.add("displayName", hstring(abr.getName()))//
-				.add("email", hstring(abr.getEmail()))//
+				.add("minId", abr.getMinimalid())//
+				.add("name", hstring(abr.getName()))//
+				.add("email", defMail)//
+				.add("otherEmails", emails(abr.getEmails(), defMail))//
 				.add("dn", hstring(abr.getDistinguishedName()))//
 				.toString();
 	}
 
+	private String[] emails(ListOfEmail emails, String filterOut) {
+		return emails.stream().map(e -> hstring(e.getAddress())).filter(s -> !s.equals(filterOut))
+				.toArray(String[]::new);
+	}
+
 	private String hstring(HString s) {
 		return Optional.ofNullable(s).map(HString::getValue).orElse("");
+	}
+
+	private String hstring(String s) {
+		return Strings.nullToEmpty(s);
 	}
 
 	@Override

@@ -35,6 +35,8 @@ import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueEx
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Item;
@@ -64,7 +66,7 @@ public abstract class GroupManager extends EntityManager {
 
 	public abstract String getExternalId(IImportLogger importLogger);
 
-	protected abstract void setNameFromDefaultAttribute(IImportLogger importLogger);
+	protected abstract String getNameFromDefaultAttribute(IImportLogger importLogger);
 
 	protected abstract void manageInfos() throws LdapInvalidAttributeValueException;
 
@@ -102,7 +104,7 @@ public abstract class GroupManager extends EntityManager {
 				group.externalId = getExternalId(importLogger);
 			}
 
-			setName(importLogger);
+			group.value.name = getName(importLogger);
 
 			manageInfos();
 
@@ -128,18 +130,14 @@ public abstract class GroupManager extends EntityManager {
 		}
 	}
 
-	private void setName(IImportLogger importLogger) {
+	private String getName(IImportLogger importLogger) {
 		Optional<String> groupName = Optional.empty();
 		for (IEntityEnhancer iee : getEntityEnhancerHooks()) {
-			groupName = iee.getGroupName(importLogger.withoutStatus(), getDirectoryParameters(), domain, entry);
+			groupName = iee.getGroupName(importLogger.withoutStatus(), getDirectoryParameters(), domain, entry)
+					.map(name -> name.trim().isEmpty() ? null : name);
 		}
 
-		if (groupName.isPresent() && !groupName.get().trim().isEmpty()) {
-			group.value.name = groupName.get().trim();
-			return;
-		}
-
-		setNameFromDefaultAttribute(importLogger);
+		return groupName.orElse(getNameFromDefaultAttribute(importLogger));
 	}
 
 	protected void manageEmails(List<String> groupEmails) {
@@ -196,5 +194,19 @@ public abstract class GroupManager extends EntityManager {
 		}
 
 		return groupMembers;
+	}
+
+	public boolean isSplitDomainGroup(IImportLogger importLogger) {
+		Parameters parameters = getDirectoryParameters();
+		if (!parameters.splitDomain.splitRelayEnabled) {
+			return false;
+		}
+
+		if (Strings.isNullOrEmpty(parameters.splitDomain.relayMailboxGroup)
+				|| !parameters.splitDomain.relayMailboxGroup.equals(getName(importLogger))) {
+			return false;
+		}
+
+		return true;
 	}
 }

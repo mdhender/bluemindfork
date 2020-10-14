@@ -37,6 +37,7 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.mailflow.api.ExecutionMode;
 import net.bluemind.mailflow.api.MailRuleActionAssignment;
+import net.bluemind.mailflow.api.MailflowRouting;
 import net.bluemind.mailflow.common.api.SendingAs;
 import net.bluemind.mailflow.rbe.IClientContext;
 import net.bluemind.mailflow.rbe.MailflowRuleEngine;
@@ -49,6 +50,7 @@ import net.bluemind.milter.IMilterListener.Status;
 import net.bluemind.milter.IMilterListenerFactory;
 import net.bluemind.milter.MilterHeaders;
 import net.bluemind.milter.MilterInstanceID;
+import net.bluemind.milter.SmtpAddress;
 import net.bluemind.milter.SmtpEnvelope;
 import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.MilterAction;
@@ -167,18 +169,6 @@ public class MilterHandler implements JilterHandler {
 			}
 		}
 
-		if (!modifiedMail.newHeaders.isEmpty()) {
-			logger.debug("adding header ({})", modifiedMail.headerChangedBy);
-			for (RawField rf : modifiedMail.newHeaders) {
-				try {
-					eomActions.addheader(rf.getName(), rf.getBody());
-				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
-				}
-
-			}
-		}
-
 		if (!modifiedMail.removeHeaders.isEmpty()) {
 			logger.debug("removing header ({})", modifiedMail.headerChangedBy);
 			for (String header : modifiedMail.removeHeaders) {
@@ -191,35 +181,84 @@ public class MilterHandler implements JilterHandler {
 			}
 		}
 
+		if (!modifiedMail.newHeaders.isEmpty()) {
+			logger.debug("adding header ({})", modifiedMail.headerChangedBy);
+			for (RawField rf : modifiedMail.newHeaders) {
+				try {
+					eomActions.addheader(rf.getName(), rf.getBody());
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
+				}
+
+			}
+		}
 	}
 
 	private int applyActions(SmtpEnvelope smtpEnvelope, Message message, UpdatedMailMessage modifiedMail) {
-		int executedActions = 0;
+		Optional<Integer> executedActions = Optional.empty();
+
 		try {
-			String domainPart = smtpEnvelope.getSender().getDomainPart();
-			ItemValue<Domain> domain = DomainAliasCache.getDomain(domainPart);
-			if (null == domain) {
-				logger.warn("Cannot find domain/alias of sender {}", smtpEnvelope.getSender());
-				return 0;
-			}
-			IClientContext mailflowContext = new ClientContext(domain);
-			List<MailRuleActionAssignment> storedRules = RuleAssignmentCache.getStoredRuleAssignments(mailflowContext,
-					domain.uid);
-			List<RuleAction> matches = new MailflowRuleEngine(mailflowContext).evaluate(storedRules,
-					toBmMessage(smtpEnvelope, message));
-			for (RuleAction ruleAction : matches) {
-				executedActions++;
-				ExecutionMode mode = executeAction(ruleAction, mailflowContext, modifiedMail);
-				if (mode == ExecutionMode.STOP_AFTER_EXECUTION) {
-					logger.debug("Stopping execution of Milter actions after ruleAssignment {}",
-							ruleAction.assignment.uid);
-					return executedActions;
-				}
+			executedActions = getSenderDomain(smtpEnvelope.getSender())
+					.map(d -> applyActions(d, MailflowRouting.OUTGOING, smtpEnvelope, message, modifiedMail));
+
+			if (!executedActions.isPresent()) {
+				executedActions = getRecipientDomain(smtpEnvelope.getRecipients())
+						.map(d -> applyActions(d, MailflowRouting.INCOMING, smtpEnvelope, message, modifiedMail));
 			}
 		} catch (Exception e) {
 			logger.warn("Error while applying milter actions", e);
 		}
+
+		return executedActions.orElse(0);
+	}
+
+	private Integer applyActions(ItemValue<Domain> domain, MailflowRouting mailflowRouting, SmtpEnvelope smtpEnvelope,
+			Message message, UpdatedMailMessage modifiedMail) {
+		Integer executedActions = 0;
+
+		IClientContext mailflowContext = new ClientContext(domain);
+		List<MailRuleActionAssignment> storedRules = RuleAssignmentCache
+				.getStoredRuleAssignments(mailflowContext, domain.uid).stream()
+				.filter(rule -> rule.routing == mailflowRouting || rule.routing == MailflowRouting.ALL)
+				.collect(Collectors.toList());
+
+		List<RuleAction> matches = new MailflowRuleEngine(mailflowContext).evaluate(storedRules,
+				toBmMessage(smtpEnvelope, message));
+		for (RuleAction ruleAction : matches) {
+			executedActions++;
+			ExecutionMode mode = executeAction(ruleAction, mailflowContext, modifiedMail);
+			if (mode == ExecutionMode.STOP_AFTER_EXECUTION) {
+				logger.debug("Stopping execution of Milter actions after ruleAssignment {}", ruleAction.assignment.uid);
+				return executedActions;
+			}
+		}
+
 		return executedActions;
+	}
+
+	private Optional<ItemValue<Domain>> getRecipientDomain(List<SmtpAddress> recipients) {
+		if (recipients.isEmpty()) {
+			logger.warn("No recipients found");
+			return Optional.empty();
+		}
+
+		ItemValue<Domain> domain = DomainAliasCache.getDomain(recipients.get(0).getDomainPart());
+		if (null == domain) {
+			logger.warn("Cannot find domain/alias of recipient {}", recipients.get(0));
+			return Optional.empty();
+		}
+
+		if (recipients.stream().map(recipient -> DomainAliasCache.getDomain(recipient.getDomainPart()))
+				.anyMatch(d -> !d.uid.equals(domain.uid))) {
+			logger.warn("Recipients are not in the same BlueMind domain {}", domain.uid);
+			return Optional.empty();
+		}
+
+		return Optional.of(domain);
+	}
+
+	private Optional<ItemValue<Domain>> getSenderDomain(SmtpAddress sender) {
+		return Optional.ofNullable(DomainAliasCache.getDomain(sender.getDomainPart()));
 	}
 
 	private net.bluemind.mailflow.common.api.Message toBmMessage(SmtpEnvelope smtpEnvelope, Message message) {
@@ -297,6 +336,7 @@ public class MilterHandler implements JilterHandler {
 	@Override
 	public JilterStatus eoh() {
 		logger.debug("eoh");
+		accumulator.eoh();
 
 		return forEachListener(listener -> listener.onEoh());
 	}

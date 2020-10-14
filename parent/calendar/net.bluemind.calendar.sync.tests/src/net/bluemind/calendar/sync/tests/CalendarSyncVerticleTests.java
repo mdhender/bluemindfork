@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -339,15 +338,15 @@ public class CalendarSyncVerticleTests {
 
 		// first sync replaces the initial empty ics
 		this.nextResponse = new PreparedResponse(ICS_FILE_52_EVENTS);
-		this.checkSyncOkWithChanges(20000);
+		this.checkSyncOkWithChanges(3000);
 
 		for (int i = 0; i < CalendarSyncVerticle.syncErrorLimit(); i++) {
 			this.nextResponse = new PreparedResponse(ICS_FILE_52_EVENTS);
-			this.checkSyncOkNoUpdates(20000);
+			this.checkSyncOkNoUpdates(3000);
 		}
 
 		this.nextResponse = new PreparedResponse(ICS_FILE_52_EVENTS);
-		this.checkSyncOkNoUpdates(20000);
+		this.checkSyncOkNoUpdates(3000);
 	}
 
 	/**
@@ -772,52 +771,38 @@ public class CalendarSyncVerticleTests {
 		final List<ContainerSyncStatus> syncStatuses = new ArrayList<>(7);
 		final String syncStatusName = "nameForTests";
 
-		// top priority, min errors, max lastSync
 		final ContainerSyncStatus syncStatusPrio1 = new ContainerSyncStatus();
-		syncStatusPrio1.errors = 0;
 		syncStatusPrio1.lastSync = new Date(0);
 		syncStatusPrio1.syncTokens.put(syncStatusName, "syncStatusPrio1");
 		syncStatuses.add(syncStatusPrio1);
 
-		// just one error, max lastSync
 		final ContainerSyncStatus syncStatusPrio2 = new ContainerSyncStatus();
-		syncStatusPrio2.errors = 1;
-		syncStatusPrio2.lastSync = new Date(0);
+		syncStatusPrio2.lastSync = new Date(1);
 		syncStatusPrio2.syncTokens.put(syncStatusName, "syncStatusPrio2");
 		syncStatuses.add(syncStatusPrio2);
 
-		// just one error, min lastSync
 		final ContainerSyncStatus syncStatusPrio3 = new ContainerSyncStatus();
-		syncStatusPrio3.errors = 1;
-		syncStatusPrio3.lastSync = new Date();
+		syncStatusPrio3.lastSync = new Date(3);
 		syncStatusPrio3.syncTokens.put(syncStatusName, "syncStatusPrio3");
 		syncStatuses.add(syncStatusPrio3);
 
-		// two errors, min lastSync
 		final ContainerSyncStatus syncStatusPrio4 = new ContainerSyncStatus();
-		syncStatusPrio4.errors = 2;
-		syncStatusPrio4.lastSync = new Date();
+		syncStatusPrio4.lastSync = new Date(4);
 		syncStatusPrio4.syncTokens.put(syncStatusName, "syncStatusPrio4");
 		syncStatuses.add(syncStatusPrio4);
 
-		// a lot of errors, max lastSync
 		final ContainerSyncStatus syncStatusPrio5 = new ContainerSyncStatus();
-		syncStatusPrio5.errors = 9999;
-		syncStatusPrio5.lastSync = new Date(0);
+		syncStatusPrio5.lastSync = new Date(5);
 		syncStatusPrio5.syncTokens.put(syncStatusName, "syncStatusPrio5");
 		syncStatuses.add(syncStatusPrio5);
 
-		// a lot of errors, lastSync set to one day ago
 		final ContainerSyncStatus syncStatusPrio6 = new ContainerSyncStatus();
-		syncStatusPrio6.errors = 9999;
-		syncStatusPrio6.lastSync = new Date(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1));
+		syncStatusPrio6.lastSync = new Date(6);
 		syncStatusPrio6.syncTokens.put(syncStatusName, "syncStatusPrio6");
 		syncStatuses.add(syncStatusPrio6);
 
-		// a lot of errors, min lastSync
 		final ContainerSyncStatus syncStatusPrio7 = new ContainerSyncStatus();
-		syncStatusPrio7.errors = 9999;
-		syncStatusPrio7.lastSync = new Date();
+		syncStatusPrio7.lastSync = new Date(7);
 		syncStatusPrio7.syncTokens.put(syncStatusName, "syncStatusPrio7");
 		syncStatuses.add(syncStatusPrio7);
 
@@ -903,6 +888,7 @@ public class CalendarSyncVerticleTests {
 
 		// if the lastSync's date has changed it means we had a sync
 		Assert.assertNotNull("Unexpected NULL sync status", lastSync2);
+
 		Assert.assertTrue("No sync has been done", lastSync2.after(this.lastSync));
 
 		// check calendar has been updated

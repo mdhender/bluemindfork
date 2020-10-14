@@ -52,9 +52,8 @@ public class VertxSockJsCallHandler implements IRestCallHandler {
 	public void call(RestRequest request, final AsyncHandler<RestResponse> response) {
 		sockJsProvider.ws(ws -> {
 			if (ws.writeQueueFull()) {
-				ws.drainHandler((v) -> {
-					doCall(ws, request, response);
-				});
+				logger.warn("WS {} queue full", ws);
+				ws.drainHandler(v -> doCall(ws, request, response));
 			} else {
 				doCall(ws, request, response);
 			}
@@ -97,10 +96,14 @@ public class VertxSockJsCallHandler implements IRestCallHandler {
 	}
 
 	private void handleResponse(AsyncHandler<RestResponse> response, JsonObject data) {
-		sockJsProvider.unregisterHandler(null, data.getString("requestId"));
+		try {
+			sockJsProvider.unregisterHandler(null, data.getString("requestId"));
 
-		RestResponse resp = parseResponse(data);
-		response.success(resp);
+			RestResponse resp = parseResponse(data);
+			response.success(resp);
+		} catch (Exception e) {
+			response.failure(e);
+		}
 	}
 
 	private RestResponse parseResponse(JsonObject msg) {
@@ -114,13 +117,12 @@ public class VertxSockJsCallHandler implements IRestCallHandler {
 		headers.addAll(asMap(msg.getJsonObject("headers")));
 
 		Buffer body = null;
-		byte[] bodyb = msg.getBinary("body");
+		String bodyb = msg.getString("body");
 		if (bodyb != null) {
 			body = Buffer.buffer(bodyb);
 		}
 
-		RestResponse response = RestResponse.ok(headers, msg.getInteger("statusCode"), body);
-		return response;
+		return RestResponse.ok(headers, msg.getInteger("statusCode"), body);
 	}
 
 	private Map<String, String> asMap(JsonObject object) {

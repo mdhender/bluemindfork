@@ -182,12 +182,17 @@ public class DefaultResponseCodecs {
 			if (m != null) {
 				codec = codecsByMimetypes.get(m);
 			}
-
 			if (codec == null) {
 				codec = defaultCodec;
 			}
-
-			return codec.decode(response);
+			try {
+				return codec.decode(response);
+			} catch (CodecParseException cpe) {
+				if (codec != defaultCodec) {
+					return defaultCodec.decode(response);
+				}
+				throw cpe;
+			}
 		}
 	}
 

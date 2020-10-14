@@ -81,6 +81,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.mime4j.common.AddressableEntity;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.OffloadedBodyFactory;
+import net.bluemind.mime4j.common.OffloadedBodyFactory.IStreamTransfer;
 import net.bluemind.mime4j.common.OffloadedBodyFactory.SizedBody;
 
 public class BodyStreamProcessor {
@@ -140,7 +141,8 @@ public class BodyStreamProcessor {
 
 		MessageBody mb = new MessageBody();
 		mb.bodyVersion = BODY_VERSION;
-		try (Message parsed = Mime4JHelper.parse(emlInput, new OffloadedBodyFactory())) {
+		IStreamTransfer transfer = OffloadedBodyFactory.sharedBufferTransfer();
+		try (Message parsed = Mime4JHelper.parse(emlInput, new OffloadedBodyFactory(transfer))) {
 			String subject = parsed.getSubject();
 			if (subject != null) {
 				mb.subject = subject.replace("\u0000", "");

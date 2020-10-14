@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
@@ -62,9 +63,17 @@ public class SdsProxyTests {
 		startResult.get(20, TimeUnit.SECONDS);
 
 		this.root = new File(System.getProperty("user.home"), "dummy-sds");
-		root.mkdirs();
-		Files.createFile(new File(root, "123").toPath());
-		Files.createFile(new File(root, "orig.txt").toPath());
+		if (!root.mkdirs()) {
+			System.err.println("Unable to mkdirs() on " + root);
+		}
+		try {
+			Files.createFile(new File(root, "123").toPath());
+		} catch (FileAlreadyExistsException e) {
+		}
+		try {
+			Files.createFile(new File(root, "orig.txt").toPath());
+		} catch (FileAlreadyExistsException e) {
+		}
 	}
 
 	private HttpClient client() {

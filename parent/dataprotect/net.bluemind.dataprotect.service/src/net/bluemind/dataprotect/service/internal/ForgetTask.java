@@ -22,6 +22,7 @@ package net.bluemind.dataprotect.service.internal;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +83,8 @@ public class ForgetTask implements IServerTask {
 			monitor.log("Removing " + path);
 			String empty = "/tmp/empty" + UUID.randomUUID().toString();
 			NCUtils.execNoOut(nc, "mkdir -p " + empty);
-			NCUtils.execNoOut(nc, "/usr/bin/rsync -a --delete " + empty + " " + path);
+			// run this one over websocket to avoid bm-node polling
+			NCUtils.execNoOut(nc, "/usr/bin/rsync -a --delete " + empty + "/ " + path + "/", 8, TimeUnit.HOURS);
 			NCUtils.execNoOut(nc, "rm -fr " + path);
 			NCUtils.execNoOut(nc, "rmdir " + empty);
 		}

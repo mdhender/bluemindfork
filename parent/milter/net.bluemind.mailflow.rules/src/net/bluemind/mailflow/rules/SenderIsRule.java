@@ -18,6 +18,8 @@
  */
 package net.bluemind.mailflow.rules;
 
+import java.util.Map;
+
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.mailflow.common.api.Message;
@@ -41,14 +43,34 @@ public class SenderIsRule extends DefaultRule implements MailRule {
 	public MailRuleEvaluation evaluate(Message message, IClientContext mailflowContext) {
 		String from = message.sendingAs.from;
 
-		IDirectory dir = mailflowContext.provider().instance(IDirectory.class, mailflowContext.getSenderDomain().uid);
-		DirEntry entry = dir.getByEmail(from);
-
-		if (entry != null && entry.entryUid.equals(configuration.get("dirEntryUid"))) {
+		if (SenderMatcherFactory.get(configuration, mailflowContext).matches(configuration, from)) {
 			return MailRuleEvaluation.accepted();
 		} else {
 			return MailRuleEvaluation.rejected();
 		}
+	}
+
+	static class SenderMatcherFactory {
+
+		static SenderMatcher get(Map<String, String> configuration, IClientContext mailflowContext) {
+			if (configuration.containsKey("dirEntryUid")) {
+				return (config, from) -> {
+					IDirectory dir = mailflowContext.provider().instance(IDirectory.class,
+							mailflowContext.getSenderDomain().uid);
+					DirEntry entry = dir.getByEmail(from);
+
+					return entry != null && entry.entryUid.equals(configuration.get("dirEntryUid"));
+
+				};
+			} else {
+				return (config, from) -> from.equals(configuration.get("email"));
+			}
+		}
+	}
+
+	@FunctionalInterface
+	interface SenderMatcher {
+		boolean matches(Map<String, String> configuration, String from);
 	}
 
 }

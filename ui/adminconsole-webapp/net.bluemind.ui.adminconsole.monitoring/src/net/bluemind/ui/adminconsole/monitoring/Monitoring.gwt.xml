@@ -14,8 +14,8 @@
 	<inherits name="net.bluemind.gwtconsoleapp.base.Notification" />
 	<inherits name="net.bluemind.gwtconsoleapp.base.Eventbus" />
 	<inherits name="net.bluemind.gwtconsoleapp.base.Editor" />
-	<inherits name="net.bluemind.monitoring.MonitoringApi"/>
 	<inherits name="net.bluemind.user.UserApi"/>
+	<inherits name="net.bluemind.metrics.alerts.AlertsApi"/>
 	<inherits name="net.bluemind.domain.DomainApi"/>
 	<inherits name="net.bluemind.group.GroupApi"/>
 	<inherits name="net.bluemind.system.SystemApi"/>

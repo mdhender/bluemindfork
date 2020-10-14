@@ -21,7 +21,7 @@ cp -a /sources/ROOT/* %buildroot
 /*
 
 %post
-systemctl daemon-reload
+[ -d /run/systemd/system ] && systemctl daemon-reload
 systemctl enable postfix
 
 if [ $1 -eq 1 ]; then

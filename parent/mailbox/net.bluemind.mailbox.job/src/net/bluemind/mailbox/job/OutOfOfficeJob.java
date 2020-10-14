@@ -48,8 +48,7 @@ public class OutOfOfficeJob implements IScheduledJob {
 		IScheduledJobRunId rid = sched.requestSlot(domainName, this, startDate);
 		if (rid != null) {
 			try {
-				run(sched, rid);
-				sched.finish(rid, JobExitStatus.SUCCESS);
+				sched.finish(rid, run(sched, rid));
 			} catch (Exception t) {
 				logger.error(t.getMessage(), t);
 				sched.error(rid, "en", t.getMessage());
@@ -60,7 +59,9 @@ public class OutOfOfficeJob implements IScheduledJob {
 
 	}
 
-	private void run(IScheduler sched, IScheduledJobRunId rid) throws ServerFault {
+	private JobExitStatus run(IScheduler sched, IScheduledJobRunId rid) throws ServerFault {
+		JobExitStatus result = JobExitStatus.SUCCESS;
+
 		BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
 
 		IDomains domains = context.provider().instance(IDomains.class);
@@ -71,10 +72,14 @@ public class OutOfOfficeJob implements IScheduledJob {
 			}
 
 			logger.debug("executing outofoffice for domain {}", domain.uid);
-			IInCoreMailboxes mboxes = context.provider().instance(IInCoreMailboxes.class, domain.uid);
-			mboxes.refreshOutOfOffice();
+			JobExitStatus domainResult = context.provider().instance(IInCoreMailboxes.class, domain.uid)
+					.refreshOutOfOffice(sched, rid);
+			if (result == JobExitStatus.SUCCESS || domainResult == JobExitStatus.FAILURE) {
+				result = domainResult;
+			}
 		}
 
+		return result;
 	}
 
 	@Override

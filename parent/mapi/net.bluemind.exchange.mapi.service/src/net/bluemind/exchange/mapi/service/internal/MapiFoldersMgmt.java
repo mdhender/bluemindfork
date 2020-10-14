@@ -21,6 +21,8 @@ package net.bluemind.exchange.mapi.service.internal;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +35,6 @@ import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ContainerModifiableDescriptor;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.directory.api.DirEntry;
 import net.bluemind.exchange.mapi.api.IMapiFolder;
 import net.bluemind.exchange.mapi.api.IMapiFoldersMgmt;
 import net.bluemind.exchange.mapi.api.MapiFolder;
@@ -50,12 +51,11 @@ public class MapiFoldersMgmt implements IMapiFoldersMgmt {
 	private MapiReplica replica;
 	private String domain;
 
-	public MapiFoldersMgmt(BmContext context, String domain, MapiReplica replica, DirEntry de) throws ServerFault {
+	public MapiFoldersMgmt(BmContext context, String domain, MapiReplica replica, DataSource storeDs) {
 		this.context = context;
 		this.replica = replica;
 		this.domain = domain;
-		this.store = new MapiFoldersStore(
-				de != null ? context.getMailboxDataSource(de.dataLocation) : context.getDataSource());
+		this.store = new MapiFoldersStore(storeDs);
 	}
 
 	@Override

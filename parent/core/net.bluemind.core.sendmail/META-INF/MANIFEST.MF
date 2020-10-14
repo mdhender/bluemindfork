@@ -7,13 +7,14 @@ Bundle-Activator: net.bluemind.core.sendmail.Activator
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.mime4j.common;bundle-version="1.0.0",
- net.bluemind.lib.ristretto;bundle-version="1.0.0",
  slf4j.api,
  net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.lib.vertx,
  net.bluemind.core.rest,
  net.bluemind.config,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ com.sun.mail.javax.mail;bundle-version="1.5.2",
+ net.bluemind.lib.ristretto
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.sendmail

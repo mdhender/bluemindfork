@@ -61,6 +61,7 @@ import net.bluemind.eas.data.ContactDecoder;
 import net.bluemind.eas.data.EmailDecoder;
 import net.bluemind.eas.data.IDataDecoder;
 import net.bluemind.eas.data.TaskDecoder;
+import net.bluemind.eas.dto.EasBusEndpoints;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.base.AppData;
@@ -183,31 +184,32 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			return;
 		}
 
-		if (bs.getLastMonitored() == null || bs.getLastMonitored().isEmpty()) {
-			bs.setLastMonitored(sr.collections);
-		}
+		bs.setLastMonitored(sr.collections);
 
 		// tom: when push is enabled, can we have client changes ?
 		// assume NO
-		if (sr.waitIntervalSeconds == null) {
+
+		if (sr.waitIntervalSeconds == null && sr.heartbeatInterval == null) {
 			JsonObject jso = new JsonObject();
 			for (CollectionSyncRequest sc : sr.collections) {
 				jso.put(sc.getCollectionId().getValue(), bs.getDeviceId().getInternalId());
 			}
 			EventBus eb = VertxPlatform.eventBus();
-			eb.request("eas.push.killer." + bs.getUser().getUid(), jso, (AsyncResult<Message<Void>> event) -> {
-				logger.info("Push stopped for {}", bs.getUser().getUid());
-				VertxPlatform.getVertx().executeBlocking(prop -> {
-					executeSync(bs, sr, responseHandler);
-					prop.complete();
-				}, false, res -> {
-				});
-			});
+			eb.request(EasBusEndpoints.PUSH_KILLER + "." + bs.getUniqueIdentifier(), jso,
+					(AsyncResult<Message<Void>> event) -> {
+						logger.info("Push stopped for {}", bs.getUniqueIdentifier());
+						VertxPlatform.getVertx().executeBlocking(prop -> {
+							executeSync(bs, sr, responseHandler);
+							prop.complete();
+						}, false, res -> {
+						});
+					});
 		} else {
 			logger.info("Sync push mode. user: {}, device: {}, collections size: {}", bs.getLoginAtDomain(),
 					bs.getDevId(), bs.getLastMonitored().size());
 
 			bs.setLastWaitSeconds(sr.waitIntervalSeconds);
+			bs.setHeartbeart(new Long(sr.heartbeatInterval));
 			Requests.tagAsync(bs.getRequest());
 			Requests.tag(bs.getRequest(), "timeout", sr.waitIntervalSeconds + "s");
 
@@ -222,17 +224,18 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		final Set<CollectionSyncRequest> collections = new LinkedHashSet<>(bs.getLastMonitored());
 		final List<MessageConsumer<JsonObject>> consumers = new LinkedList<>();
 		final AtomicBoolean responseSent = new AtomicBoolean();
-		long noChangesTimer = VertxPlatform.getVertx().setTimer(TimeUnit.SECONDS.toMillis(sr.waitIntervalSeconds),
-				tid -> {
-					if (responseSent.getAndSet(true)) {
-						return;
-					}
 
-					MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
-					// noChanges
-					consumers.forEach(MessageConsumer::unregister);
-					responseHandler.handle(noChangesResponse(collections));
-				});
+		Integer delayInSec = sr.waitIntervalSeconds != null ? sr.waitIntervalSeconds : sr.heartbeatInterval;
+		long noChangesTimer = VertxPlatform.getVertx().setTimer(TimeUnit.SECONDS.toMillis(delayInSec), tid -> {
+			if (responseSent.getAndSet(true)) {
+				return;
+			}
+
+			MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
+			// noChanges
+			consumers.forEach(MessageConsumer::unregister);
+			responseHandler.handle(noChangesResponse(collections));
+		});
 
 		for (CollectionSyncRequest colId : collections) {
 			MessageConsumer<JsonObject> cons = VertxPlatform.eventBus()
@@ -265,7 +268,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		}
 
 		MessageConsumer<JsonObject> pushKiller = VertxPlatform.eventBus()
-				.consumer("eas.push.killer." + bs.getUser().getUid());
+				.consumer(EasBusEndpoints.PUSH_KILLER + "." + bs.getUniqueIdentifier());
 		consumers.add(pushKiller);
 		pushKiller.handler(msg -> {
 			if (responseSent.getAndSet(true)) {

@@ -25,6 +25,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +35,9 @@ import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
+import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemFlag;
@@ -122,6 +126,25 @@ public class MailItemUpdateTests extends AbstractRollingReplicationTests {
 		Ack ack = mailApi.updateById(mailObject.internalId, mailObject.value);
 		assertTrue(ack.version > mailObject.version);
 		ItemValue<MailboxItem> reloaded = mailApi.getCompleteById(mailObject.internalId);
+		assertEquals(newSubject, reloaded.value.body.subject);
+		assertNotEquals(mailObject.value.imapUid, reloaded.value.imapUid);
+	}
+
+	@Test
+	public void ensureDateRefreshes() {
+		long now = System.currentTimeMillis();
+		String newSubject = "new " + now;
+		long ts = now + TimeUnit.DAYS.toMillis(8);
+		mailObject.value.body.subject = newSubject;
+		mailObject.value.body.headers.add(Header.create(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE, Long.toString(ts)));
+		Ack ack = mailApi.updateById(mailObject.internalId, mailObject.value);
+		assertTrue(ack.version > mailObject.version);
+		ItemValue<MailboxItem> reloaded = mailApi.getCompleteById(mailObject.internalId);
+		Date fetchedDate = reloaded.value.body.date;
+		long hoursDiff = TimeUnit.MILLISECONDS.toHours(fetchedDate.getTime() - now);
+		System.err.println("new date: " + fetchedDate + " diff: " + hoursDiff);
+		// imap date precision is not that good, if we are 7 days away, we're good
+		assertTrue(hoursDiff > 7 * 24);
 		assertEquals(newSubject, reloaded.value.body.subject);
 		assertNotEquals(mailObject.value.imapUid, reloaded.value.imapUid);
 	}

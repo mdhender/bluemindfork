@@ -57,9 +57,11 @@ public class ExternalIcsCalendarActions extends CompositeGwtWidgetElement {
 	private Label icsUrl;
 	private Label syncDeactivated;
 	private Label nextSync;
+	private Label status;
 
 	public ExternalIcsCalendarActions() {
 
+		HorizontalPanel content = new HorizontalPanel();
 		VerticalPanel vp = new VerticalPanel();
 		icsUrl = new Label();
 		vp.add(icsUrl);
@@ -102,7 +104,19 @@ public class ExternalIcsCalendarActions extends CompositeGwtWidgetElement {
 
 		vp.add(hp);
 
-		initWidget(vp);
+		status = new Label();
+
+		status.getElement().getStyle().setProperty("marginLeft", "40px");
+		status.getElement().getStyle().setProperty("marginTop", "18px");
+		status.setVisible(false);
+
+		HorizontalPanel hp2 = new HorizontalPanel();
+		hp2.add(status);
+
+		content.add(vp);
+		content.add(hp2);
+
+		initWidget(content);
 
 		syncAnchor.getElement().getStyle().setPaddingLeft(10, Unit.PX);
 	}
@@ -145,6 +159,7 @@ public class ExternalIcsCalendarActions extends CompositeGwtWidgetElement {
 				TaskWatcher.track(value.id, false).thenAccept(v -> {
 					checkAutoSync();
 					loadNextSync();
+					loadSyncStatus();
 				});
 			}
 
@@ -164,6 +179,7 @@ public class ExternalIcsCalendarActions extends CompositeGwtWidgetElement {
 		icsUrl.setText(m.get("icsUrl"));
 		this.loadNextSync();
 		this.checkAutoSync();
+		this.loadSyncStatus();
 	}
 
 	private void checkAutoSync() {
@@ -196,6 +212,56 @@ public class ExternalIcsCalendarActions extends CompositeGwtWidgetElement {
 			}
 
 		});
+	}
+
+	private void loadSyncStatus() {
+		final IContainerSyncAsync syncService = new ContainerSyncGwtEndpoint(Ajax.TOKEN.getSessionId(), containerUid);
+		syncService.getSyncStatus(new AsyncHandler<String>() {
+
+			@Override
+			public void success(String value) {
+				if (value != null && !value.isEmpty()) {
+					String code = value.substring(0, value.indexOf(":"));
+					switch (code) {
+					case "OK":
+						status.setStyleName("fa fa-lg fa-ok");
+						break;
+					case "NSD": // no sync has been done
+						status.setStyleName("fa fa-lg fa-ok");
+						break;
+					case "NM": // no elements have been modified
+						status.setStyleName("fa fa-lg fa-ok");
+						break;
+					case "OKM": // OK, but many changes
+						status.setStyleName("fa fa-lg fa-warning");
+						break;
+					case "ESE": // external server exception
+						status.getElement().getStyle().setProperty("color", "red");
+						status.setStyleName("fa fa-lg fa-warning");
+						break;
+					case "AUTH": // http auth error
+						status.getElement().getStyle().setProperty("color", "red");
+						status.setStyleName("fa fa-lg fa-warning");
+						break;
+					case "USE": // unknown external server exception
+						status.getElement().getStyle().setProperty("color", "red");
+						status.setStyleName("fa fa-lg fa-warning");
+						break;
+					case "ISE": // unknown internal server exception
+						status.getElement().getStyle().setProperty("color", "red");
+						status.setStyleName("fa fa-lg fa-warning");
+						break;
+					}
+				}
+
+			}
+
+			@Override
+			public void failure(Throwable e) {
+			}
+
+		});
+
 	}
 
 	public void setModel(String containerUid) {

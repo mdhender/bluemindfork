@@ -309,6 +309,78 @@
             </tr>
           {/if}
 
+          {if $event.class == "Private"}
+            <tr>
+              <th>{msg meaning="calendar.event.privacy.label" desc="Privacy"}Privacy{/msg}</th>
+              <td colspan="2">{msg meaning="calendar.event.privacy.private" desc="Private"}Private{/msg}</td>
+            </tr>
+          {else}
+            <tr>
+              <th>{msg meaning="calendar.event.privacy.label" desc="Privacy"}Privacy{/msg}</th>
+              <td colspan="2">{msg meaning="calendar.event.privacy.public" desc="Public"}Public{/msg}</td>
+            </tr>
+          {/if}
+
+          {if isNonnull($event.rrule) and isNonnull($event.rrule.freq)}
+            {let $rrulebyday: $event.rrule.byday /}
+            <tr>
+              <th>{msg meaning="calendar.event.tabs.repeat" desc="Repeat"}Repeat{/msg}</th>
+              <td colspan="2">
+            {if $event.rrule.interval == 1 or $event.rrule.interval == undefined }
+              {switch $event.rrule.freq}
+                {case 'DAILY'}
+                  {msg meaning="calendar.event.repeat.daily" desc="Event will repeat on a day based period"}Daily{/msg}
+                {case 'WEEKLY'}
+                  {msg meaning="calendar.event.repeat.weekly" desc="Event will repeat on a week based period"}Weekly{/msg},&nbsp;
+                  {msg meaning="calendar.event.repeat.weekly.onDay" desc="weekly repeat, days of week"}on {$rrulebyday}{/msg}
+                {case 'MONTHLY'}
+                  {msg meaning="calendar.event.repeat.monthly" desc="Event will repeat on a month based period"}Monthly{/msg}
+                {case 'YEARLY'}
+                  {msg meaning="calendar.event.repeat.yearly" desc="Event will repeat on a year based period"}Yearly{/msg}
+              {/switch}
+            {else}
+              {let $rruleinterval: $event.rrule.interval /}
+              {switch $event.rrule.freq}
+                {case 'DAILY'}
+                  {msg meaning="calendar.event.repeat.daily.everyXdays" desc="Event will repeat every x days"}Every {$rruleinterval} days{/msg}
+                {case 'WEEKLY'}
+                  {msg meaning="calendar.event.repeat.weekly.everyXweeks" desc="Event will repeat every x weeks"}Every {$rruleinterval} weeks{/msg},&nbsp;
+                  {msg meaning="calendar.event.repeat.weekly.onDayOfWeek" desc="weekly repeat, days of week"}on {$rrulebyday}{/msg}
+                {case 'MONTHLY'}
+                  {msg meaning="calendar.event.repeat.monthly.everyXmonths" desc="Event will repeat every x months"}Every {$rruleinterval} months{/msg}
+                {case 'YEARLY'}
+                  {msg meaning="calendar.event.repeat.yearly.everyXyears" desc="Event will repeat every x years"}Every {$rruleinterval} years{/msg}
+              {/switch}
+            {/if}
+            {if isNonnull($event.rrule.until)}
+              ,&nbsp;{msg meaning="calendar.event.repeat.until" desc="Label for repeat end"}until{/msg}&nbsp;{$event.rrule.until}
+            {/if}
+            {if isNonnull($event.rrule.count) and $event.rrule.count > 0}
+              ,&nbsp;{$event.rrule.count}&nbsp;{msg meaning="calendar.event.repeat.times" desc="Label for repeat count"}times{/msg}
+            {/if}
+              </td>
+            </tr>
+          {/if}
+
+          {if $event.alarm and length($event.alarm) > 0}
+            <tr>
+              <th>{msg meaning="calendar.event.reminder" desc="Reminder"}Reminder{/msg}</th>
+              <td colspan="2">
+                {foreach $alarm in $event.alarm}
+                  {$alarm.duration}&nbsp;
+                  {if $alarm.unit == 60}
+                    {msg meaning="general.minutes" desc="minutes"}minutes{/msg}
+                  {elseif $alarm.unit == 3600}
+                    {msg meaning="general.hours" desc="hours"}hours{/msg}
+                  {elseif $alarm.unit == 86400}
+                    {msg meaning="general.days" desc="days"}days{/msg}
+                  {else}
+                  {/if}<br/>
+                {/foreach}
+              </td>
+            </tr>
+          {/if}
+
           {if $event.organizer}
             <tr>
               <th>{msg meaning="calendar.event.organizer" desc="organizer"}Organizer{/msg}</th>
@@ -320,6 +392,31 @@
             <tr>
               <th>{msg meaning="calendar.event.location" desc="event location label"}Location{/msg}</th>
               <td colspan="2">{$event.location}</td>
+            </tr>
+          {/if}
+
+          {if $event.url}
+            <tr>
+              <th>{msg meaning="calendar.event.url" desc="event url label"}URL{/msg}</th>
+              <td colspan="2"><div class="{css bubble-url-container}"><a target="blank" href="{$event.sanitizedUrl}">{$event.prettyUrl}</a></div></td>
+            </tr>
+          {/if}
+
+          {if $event.description}
+            <tr>
+              <th>{msg meaning="calendar.event.description" desc="event description label"}Description{/msg}</th>
+              <td colspan="2"><div class="{css bubble-description-container}">{$event.description |noAutoescape}</div></td>
+            </tr>
+          {/if}
+
+          {if $event.attachments and length($event.attachments) > 0}
+            <tr>
+              <th>{msg meaning="calendar.event.attachments" desc="event attachments label"}Attachments{/msg}</th>
+              <td colspan="2">
+                {foreach $attachment in $event.attachments}
+                    <a href="{$attachment.publicUrl}" target="_blank">{$attachment.name}</a><br/>
+                {/foreach}
+              </td>
             </tr>
           {/if}
 

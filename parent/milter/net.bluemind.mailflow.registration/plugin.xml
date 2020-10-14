@@ -73,6 +73,13 @@
             description="Adds a signature"></action>
    </extension>
    <extension
+         point="net.bluemind.mailflow.actions_extensions">
+      <action
+            actionContext="updatesubject"
+            actionIdentifier="UpdateSubjectAction"
+            description="Update mail subject"></action>
+   </extension>
+   <extension
          point="net.bluemind.mailflow.rules_extensions">
       <rule
             description="Rule matches against sender in given group"

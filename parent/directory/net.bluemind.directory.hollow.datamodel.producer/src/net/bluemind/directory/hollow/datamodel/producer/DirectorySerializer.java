@@ -48,9 +48,9 @@ import com.netflix.hollow.api.consumer.HollowConsumer.AnnouncementWatcher;
 import com.netflix.hollow.api.consumer.HollowConsumer.BlobRetriever;
 import com.netflix.hollow.api.consumer.fs.HollowFilesystemAnnouncementWatcher;
 import com.netflix.hollow.api.consumer.fs.HollowFilesystemBlobRetriever;
-import com.netflix.hollow.api.producer.HollowIncrementalProducer;
 import com.netflix.hollow.api.producer.HollowProducer;
 import com.netflix.hollow.api.producer.HollowProducer.BlobStorageCleaner;
+import com.netflix.hollow.api.producer.HollowProducer.Incremental;
 import com.netflix.hollow.api.producer.fs.HollowFilesystemAnnouncer;
 import com.netflix.hollow.api.producer.fs.HollowFilesystemPublisher;
 import com.netflix.hollow.core.write.objectmapper.RecordPrimaryKey;
@@ -87,11 +87,11 @@ public class DirectorySerializer implements DataSerializer {
 	private static final Logger logger = LoggerFactory.getLogger(DirectorySerializer.class);
 
 	private ServerSideServiceProvider prov;
-	private HollowProducer producer;
+	private Incremental producer;
 	private final String domainUid;
 	private final Object produceLock;
 
-	private HollowIncrementalProducer incremental;
+	private static final boolean DROP_HIDDEN = new File("/etc/bm/hollow.no.hidden").exists();
 
 	public DirectorySerializer(String domainUid) {
 		this.domainUid = domainUid;
@@ -110,18 +110,17 @@ public class DirectorySerializer implements DataSerializer {
 
 		File localPublishDir = createDataDir();
 
-		HollowFilesystemPublisher publisher = new HollowFilesystemPublisher(localPublishDir);
+		HollowFilesystemPublisher publisher = new HollowFilesystemPublisher(localPublishDir.toPath());
 		HollowFilesystemAnnouncer announcer = new HzHollowAnnouncer("directory/" + domainUid, localPublishDir);
-		this.announcementWatcher = new HollowFilesystemAnnouncementWatcher(localPublishDir);
+		this.announcementWatcher = new HollowFilesystemAnnouncementWatcher(localPublishDir.toPath());
 
 		BlobStorageCleaner cleaner = new BmFilesystemBlobStorageCleaner(localPublishDir, 10);
 		this.producer = HollowProducer.withPublisher(publisher).withAnnouncer(announcer) //
-				.withBlobStorageCleaner(cleaner).build();
+				.withBlobStorageCleaner(cleaner).buildIncremental();
 		producer.initializeDataModel(AddressBookRecord.class);
 		producer.initializeDataModel(OfflineAddressBook.class);
 		logger.info("Announcement watcher current version: {}", announcementWatcher.getLatestVersion());
-		this.blobRetriever = new HollowFilesystemBlobRetriever(localPublishDir);
-		this.incremental = new HollowIncrementalProducer(producer);
+		this.blobRetriever = new HollowFilesystemBlobRetriever(localPublishDir.toPath());
 	}
 
 	/**
@@ -143,15 +142,20 @@ public class DirectorySerializer implements DataSerializer {
 		return new File(BASE_DATA_DIR, domainUid);
 	}
 
-	private boolean restoreIfAvailable(HollowProducer producer, BlobRetriever retriever,
+	private boolean restoreIfAvailable(Incremental producer, BlobRetriever retriever,
 			AnnouncementWatcher unpinnableAnnouncementWatcher) {
 
 		long latestVersion = unpinnableAnnouncementWatcher.getLatestVersion();
-		if (latestVersion != AnnouncementWatcher.NO_ANNOUNCEMENT_AVAILABLE) {
-			producer.restore(latestVersion, retriever);
-			return true;
+		try {
+			if (latestVersion != AnnouncementWatcher.NO_ANNOUNCEMENT_AVAILABLE) {
+				producer.restore(latestVersion, retriever);
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			logger.error("Could not restore existing hollow snapshot for {}", domainUid, e);
+			return false;
 		}
-		return false;
 	}
 
 	private long serializeIncrement() {
@@ -168,35 +172,44 @@ public class DirectorySerializer implements DataSerializer {
 		ContainerChangeset<String> changeset = dirApi.changeset(version);
 		List<String> allUids = new ArrayList<>(Sets.newHashSet(Iterables.concat(changeset.created, changeset.updated)));
 		logger.info("Sync from v{} gave +{} / -{} uid(s)", version, allUids.size(), changeset.deleted.size());
-		Map<String, DataLocation> locationCache = new HashMap<>();
-		for (List<String> dirPartition : Lists.partition(allUids, 100)) {
-			List<ItemValue<DirEntry>> entries = loadEntries(dirApi, dirPartition);
-			List<String> uidWithEmails = entries.stream().filter(iv -> iv.value.email != null).map(iv -> iv.uid)
-					.collect(Collectors.toList());
+		final Map<String, DataLocation> locationCache = new HashMap<>();
 
-			List<ItemValue<Mailbox>> mailboxes = mboxApi.multipleGet(uidWithEmails);
-			for (ItemValue<DirEntry> entry : entries) {
-				dirEntryToAddressBookRecord(domain, entry,
-						mailboxes.stream().filter(m -> m.uid.equals(entry.value.entryUid)).findAny().orElse(null),
-						locationCache, installationId).ifPresent(rec -> {
-							rec.addressBook = oabs.computeIfAbsent(domainUid, d -> createOabEntry(domain));
-							if (entry.value.archived) {
-								incremental.delete(new RecordPrimaryKey("AddressBookRecord",
-										new String[] { entry.value.entryUid }));
-							} else {
-								incremental.addOrModify(rec);
-							}
+		long hollowVersion = producer.runIncrementalCycle(populator -> {
+			OfflineAddressBook oab = oabs.computeIfAbsent(domainUid, d -> createOabEntry(domain, changeset.version));
+			oab.sequence = (int) changeset.version;
+			populator.addOrModify(oab);
+			for (List<String> dirPartition : Lists.partition(allUids, 100)) {
+				List<ItemValue<DirEntry>> entries = loadEntries(dirApi, dirPartition);
+				List<String> uidWithEmails = entries.stream().filter(iv -> iv.value.email != null).map(iv -> iv.uid)
+						.collect(Collectors.toList());
 
-						});
+				List<ItemValue<Mailbox>> mailboxes = mboxApi.multipleGet(uidWithEmails);
+				for (ItemValue<DirEntry> entry : entries) {
+					dirEntryToAddressBookRecord(domain, entry,
+							mailboxes.stream().filter(m -> m.uid.equals(entry.value.entryUid)).findAny().orElse(null),
+							locationCache, installationId).ifPresent(rec -> {
+								if (entry.value.archived || dropHiddenEntry(entry)) {
+									populator.delete(new RecordPrimaryKey("AddressBookRecord",
+											new String[] { entry.value.entryUid }));
+								} else {
+									populator.addOrModify(rec);
+								}
+
+							});
+				}
 			}
-		}
-		for (String uidToRm : changeset.deleted) {
-			incremental.delete(new RecordPrimaryKey("AddressBookRecord", new String[] { uidToRm }));
-		}
-		long hollowVersion = incremental.runCycle();
+			for (String uidToRm : changeset.deleted) {
+				populator.delete(new RecordPrimaryKey("AddressBookRecord", new String[] { uidToRm }));
+			}
+		});
+
 		logger.info("Created new incremental hollow snap (dir v{}, hollow v{})", changeset.version, hollowVersion);
 		DomainVersions.get().put(domainUid, changeset.version);
 		return hollowVersion;
+	}
+
+	private boolean dropHiddenEntry(ItemValue<DirEntry> de) {
+		return DROP_HIDDEN && de.value.hidden;
 	}
 
 	private List<ItemValue<DirEntry>> loadEntries(IDirectory dirApi, List<String> dirPartition) {
@@ -296,6 +309,7 @@ public class DirectorySerializer implements DataSerializer {
 		rec.userX509Certificate = serializer.get(DirEntrySerializer.Property.UserX509Certificate).toByteArray();
 		rec.thumbnail = serializer.get(DirEntrySerializer.Property.ThumbnailPhoto).toByteArray();
 		rec.hidden = serializer.get(DirEntrySerializer.Property.Hidden).toBoolean();
+		rec.anr = AnrTokens.compute(rec);
 		return rec;
 	}
 
@@ -317,24 +331,16 @@ public class DirectorySerializer implements DataSerializer {
 		}).collect(Collectors.toList());
 	}
 
-	private OfflineAddressBook createOabEntry(ItemValue<Domain> domain) {
+	private OfflineAddressBook createOabEntry(ItemValue<Domain> domain, long version) {
 		OfflineAddressBook oab = new OfflineAddressBook();
 		oab.containerGuid = UUID.nameUUIDFromBytes((domain.internalId + ":" + domain.uid).getBytes()).toString();
 		oab.hierarchicalRootDepartment = null;
 		oab.distinguishedName = "/";
 		oab.name = "\\Default Global Address List";
-		oab.sequence = 1;
+		oab.sequence = (int) version;
 		oab.domainName = domain.uid;
 		oab.domainAliases = domain.value.aliases;
 		return oab;
-	}
-
-	public HollowProducer getProducer() {
-		return producer;
-	}
-
-	public void setProducer(HollowProducer producer) {
-		this.producer = producer;
 	}
 
 	public void remove() {

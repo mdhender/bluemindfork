@@ -378,6 +378,11 @@ public enum ErrorCode {
 	/**
 	 * 
 	 */
-	TIMEOUT;
+	TIMEOUT,
+
+	/**
+	 * sent when listing ids in a container with the wrong container version
+	 */
+	VERSION_HAS_CHANGED;
 
 }

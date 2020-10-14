@@ -19,7 +19,6 @@ package net.bluemind.mailbox.service.internal.repair;
 
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -31,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.api.report.DiagnosticReport;
@@ -86,14 +86,15 @@ public class MailboxRepairSupport implements IDirEntryRepairSupport {
 			return ImmutableSet.of();
 		}
 
-		return new HashSet<>(Arrays.asList(new MailboxAclsContainerMaintenanceOperation(context),
+		return Sets.newHashSet(new MailboxAclsContainerMaintenanceOperation(context),
 				new MailboxFilesystemMaintenanceOperation(context), new MailboxAclsMaintenanceOperation(context),
 				new MailboxExistsMaintenanceOperation(context), new MailboxFiltersMaintenanceOperation(context),
 				new MailboxImapHierarchyMaintenanceOperation(context), new MailboxQuotaMaintenanceOperation(context),
 				new MailboxIndexExistsMaintenanceOperation(context),
 				new MailboxPostfixMapsMaintenanceOperation(context),
 				new MailboxHsmMigrationMaintenanceOperation(context),
-				new MailboxDefaultFoldersMaintenanceOperation(context)));
+				new MailboxDefaultFoldersMaintenanceOperation(context),
+				new MailboxSharedSeenMaintenanceOperation(context));
 	}
 
 	public abstract static class MailboxMaintenanceOperation extends InternalMaintenanceOperation {
@@ -102,7 +103,14 @@ public class MailboxRepairSupport implements IDirEntryRepairSupport {
 		public enum DiagnosticReportCheckId {
 			mailboxExists(true), mailboxIndexExists(true), mailboxAclsContainer(true), mailboxAcls(true),
 			mailboxHsm(false), mailboxFilesystem(true), mailboxImapHierarchy(true), mailboxQuota(true),
-			mailboxFilters(true), mailboxPostfixMaps(true), mailboxSubscription(true), mailboxDefaultFolders(true);
+			mailboxFilters(true), mailboxPostfixMaps(true), mailboxSubscription(true),
+
+			mailboxDefaultFolders(true),
+
+			/**
+			 * sharedseen true on user mailboxes
+			 */
+			mailboxSharedSeen(true);
 
 			private DiagnosticReportCheckId(boolean sortable) {
 				this.sortable = sortable;

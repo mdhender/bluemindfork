@@ -73,6 +73,9 @@ import net.bluemind.mailbox.service.IMailboxesStorage;
 import net.bluemind.mailbox.service.MailboxesStorageFactory;
 import net.bluemind.mailbox.service.internal.repair.MailboxRepairSupport.MailboxMaintenanceOperation.DiagnosticReportCheckId;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.scheduledjob.api.JobExitStatus;
+import net.bluemind.scheduledjob.scheduler.IScheduledJobRunId;
+import net.bluemind.scheduledjob.scheduler.IScheduler;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
@@ -632,29 +635,71 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	}
 
 	@Override
-	public void refreshOutOfOffice() throws ServerFault {
-		List<String> uids = storeService.outOfOffice();
-		for (String mailboxUid : uids) {
+	public JobExitStatus refreshOutOfOffice(IScheduler sched, IScheduledJobRunId rid) throws ServerFault {
+		int errors = 0;
 
+		List<String> uids = storeService.outOfOffice();
+		int toEnable = uids.size();
+		for (String mailboxUid : uids) {
 			ItemValue<Mailbox> mailbox = storeService.get(mailboxUid, null);
 
 			logger.info("Enable out of office for {} ({})", mailbox.displayName, mailboxUid);
 
 			MailFilter filter = storeService.getFilter(mailboxUid);
-			mailboxStorage().changeFilter(context, domain, mailbox, filter);
+			try {
+				mailboxStorage().changeFilter(context, domain, mailbox, filter);
+			} catch (ServerFault sf) {
+				errors++;
+				sched.error(rid, "en",
+						String.format("Cannot enable out of office for %s: %s", mailbox.displayName, sf.getMessage()));
+				sched.error(rid, "fr", String.format("Impossible d'activer le message d'absence pour %s: %s",
+						mailbox.displayName, sf.getMessage()));
+				continue;
+			}
+
 			storeService.markOutOfOfficeFilterUpToDate(mailbox.uid, true);
 		}
 
 		uids = storeService.inOfOffice();
+		int toDisable = uids.size();
 		for (String mailboxUid : uids) {
 			ItemValue<Mailbox> mailbox = storeService.get(mailboxUid, null);
 
 			logger.info("Disable out of office for {} ({})", mailbox.displayName, mailboxUid);
 
 			MailFilter filter = storeService.getFilter(mailboxUid);
-			mailboxStorage().changeFilter(context, domain, mailbox, filter);
+			try {
+				mailboxStorage().changeFilter(context, domain, mailbox, filter);
+			} catch (ServerFault sf) {
+				errors++;
+				sched.error(rid, "en",
+						String.format("Cannot disable out of office for %s: %s", mailbox.displayName, sf.getMessage()));
+				sched.error(rid, "fr", String.format("Impossible de désactiver le message d'absence pour %s: %s",
+						mailbox.displayName, sf.getMessage()));
+				continue;
+			}
+
 			storeService.markOutOfOfficeFilterUpToDate(mailbox.uid, false);
 		}
+
+		if (errors != 0 && toEnable + toDisable == errors) {
+			sched.info(rid, "en",
+					String.format("All out of office scripts update of domain %s are in errors", domain.value.name));
+			sched.info(rid, "fr",
+					String.format(
+							"Toutes les mises à jour des scripts de message d'absence du domaine %s sont en erreur",
+							domain.value.name));
+			return JobExitStatus.FAILURE;
+		} else if (errors != 0) {
+			sched.info(rid, "en", String.format("%d/%d out of office script update in errors for domain %s", errors,
+					toEnable + toDisable, domain.value.name));
+			sched.info(rid, "fr",
+					String.format("%d/%d erreurs lors de la mise à jour des scripts de message d'absence du domaine %s",
+							errors, toEnable + toDisable, domain.value.name));
+			return JobExitStatus.COMPLETED_WITH_WARNINGS;
+		}
+
+		return JobExitStatus.SUCCESS;
 	}
 
 	@Override

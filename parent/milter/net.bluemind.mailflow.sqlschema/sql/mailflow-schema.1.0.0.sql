@@ -1,5 +1,8 @@
 create type enum_mailflow_execution_mode as enum 
   ('CONTINUE', 'STOP_AFTER_EXECUTION');
+  
+create type enum_mailflow_routing as enum 
+  ('INCOMING', 'OUTGOING', 'ALL');
 
 create table t_mailflow_assignment (
 	domain_uid text not null,
@@ -8,6 +11,7 @@ create table t_mailflow_assignment (
 	position int,
 	action_identifier varchar(64) not null,
 	execution_mode enum_mailflow_execution_mode,
+	routing enum_mailflow_routing not null default 'OUTGOING',
 	action_config hstore,
 	assignment_group text,
 	is_active boolean not null default true

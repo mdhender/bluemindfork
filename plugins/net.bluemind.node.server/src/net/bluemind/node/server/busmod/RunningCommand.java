@@ -18,8 +18,11 @@
  */
 package net.bluemind.node.server.busmod;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Queue;
+
+import com.google.common.collect.EvictingQueue;
+import com.google.common.collect.Queues;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -30,7 +33,7 @@ public final class RunningCommand {
 	public final String group;
 	public final String name;
 	public final String cmd;
-	private ArrayDeque<String> output;
+	private Queue<String> output;
 	private Integer exitValue;
 	private long lastCheck;
 	private Process process;
@@ -40,7 +43,7 @@ public final class RunningCommand {
 		this.group = group;
 		this.name = name;
 		this.cmd = cmd;
-		output = new ArrayDeque<>();
+		output = Queues.synchronizedQueue(EvictingQueue.create(5000));
 	}
 
 	public void out(String s) {
@@ -73,11 +76,12 @@ public final class RunningCommand {
 	public JsonArray drainOutput() {
 		int len = output.size();
 		ArrayList<Object> al = new ArrayList<>(len);
-		for (int i = 0; i < len; i++) {
-			al.add(output.poll());
+		synchronized (output) {
+			for (int i = 0; i < len; i++) {
+				al.add(output.poll());
+			}
 		}
-		JsonArray ja = new JsonArray(al);
-		return ja;
+		return new JsonArray(al);
 	}
 
 	public void setLastCheck(long lastCheck) {

@@ -21,12 +21,12 @@ package net.bluemind.mailbox.api;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import net.bluemind.core.api.BMApi;
-import net.bluemind.core.api.date.BmDateTime;
 
 @BMApi(version = "3")
 public class MailFilter {
@@ -162,8 +162,8 @@ public class MailFilter {
 	@BMApi(version = "3")
 	public static class Vacation {
 		public boolean enabled;
-		public BmDateTime start;
-		public BmDateTime end;
+		public Date start;
+		public Date end;
 		public String text;
 		public String subject;
 

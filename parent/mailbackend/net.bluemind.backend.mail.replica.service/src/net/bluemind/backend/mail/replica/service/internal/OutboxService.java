@@ -3,12 +3,15 @@ package net.bluemind.backend.mail.replica.service.internal;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.james.mime4j.dom.Message;
+import org.apache.james.mime4j.dom.address.AddressList;
+import org.apache.james.mime4j.dom.address.MailboxList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +31,7 @@ import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportedMailboxIte
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.model.SortDescriptor.Direction;
@@ -85,17 +89,23 @@ public class OutboxService implements IOutbox {
 		long sentInternalId = mailboxFoldersService.byName("Sent").internalId;
 
 		IMailboxItems mailboxItemsService = serviceProvider.instance(IMailboxItems.class, outboxUid);
+		long enumerate = System.currentTimeMillis();
 		List<ItemValue<MailboxItem>> mails = retrieveOutboxItems(mailboxItemsService);
-		monitor.begin(mails.size(), "FLUSHING OUTBOX - have " + mails.size() + " mails to send.");
+		int mailCount = mails.size();
+		enumerate = System.currentTimeMillis() - enumerate;
+		logger.info("[{}] Flushing {} outbox item(s), enumerate took {}ms.", context.getSecurityContext().getSubject(),
+				mails.size(), enumerate);
+		monitor.begin(mails.size(), "FLUSHING OUTBOX - have " + mailCount + " mails to send.");
 
 		AuthUser user = serviceProvider.instance(IAuthentication.class).getCurrentUser();
 
-		List<CompletableFuture<Void>> promises = new ArrayList<>();
-		final List<ImportedMailboxItem> importedMailboxItems = new ArrayList<>(mails.size());
+		List<CompletableFuture<Void>> promises = new ArrayList<>(mailCount);
+		final List<ImportedMailboxItem> importedMailboxItems = new ArrayList<>(mailCount);
 		mails.forEach(item -> {
 			promises.add(
 					SyncStreamDownload.read(mailboxItemsService.fetchComplete(item.value.imapUid)).thenAccept(buf -> {
-						InputStream in = new ByteBufInputStream(buf);
+						InputStream in = new ByteBufInputStream(buf.duplicate());
+						InputStream forSend = new ByteBufInputStream(buf);
 						try (Message msg = Mime4JHelper.parse(in)) {
 
 							if (msg.getFrom() == null) {
@@ -103,9 +113,12 @@ public class OutboxService implements IOutbox {
 										.formatAddress(user.displayName, user.value.defaultEmail().address);
 								msg.setFrom(from);
 							}
-
-							mailer.send(SendmailCredentials.as(String.format("%s@%s", user.value.login, domainUid),
-									context.getSecurityContext().getSessionId()), domainUid, msg);
+							String fromMail = msg.getFrom().iterator().next().getAddress();
+							MailboxList rcptTo = allRecipients(msg);
+							mailer.send(
+									SendmailCredentials.as(String.format("%s@%s", user.value.login, domainUid),
+											context.getSecurityContext().getSessionId()),
+									fromMail, domainUid, rcptTo, forSend);
 
 							final ImportMailboxItemsStatus importMailboxItemsStatus = mailboxFoldersService
 									.importItems(sentInternalId, ImportMailboxItemSet.moveIn(outboxInternalId,
@@ -117,13 +130,14 @@ public class OutboxService implements IOutbox {
 							monitor.progress(1,
 									"FLUSHING OUTBOX - mail " + msg.getMessageId() + " sent and moved in Sent folder.");
 						} catch (Exception e) {
-							throw new RuntimeException(e);
+							throw new ServerFault(e);
 						}
 					}));
 		});
 
 		try {
 			CompletableFuture.allOf(Iterables.toArray(promises, CompletableFuture.class)).thenAccept(finished -> {
+				logger.info("[{}] flushed {}", context.getSecurityContext().getSubject(), mailCount);
 				monitor.end(true, "FLUSHING OUTBOX finished successfully",
 						String.format("{\"result\": %s}", JsonUtils.asString(importedMailboxItems)));
 			}).get(30, TimeUnit.SECONDS);
@@ -134,6 +148,26 @@ public class OutboxService implements IOutbox {
 			monitor.end(false, "FLUSHING OUTBOX - finished in error", "{\"result\": \"" + e + "\"}");
 			logger.error("FLUSHING OUTBOX - finished in error", e);
 		}
+	}
+
+	private MailboxList allRecipients(Message m) {
+		LinkedList<org.apache.james.mime4j.dom.address.Mailbox> rcpt = new LinkedList<>();
+		AddressList tos = m.getTo();
+		if (tos != null) {
+			rcpt.addAll(tos.flatten());
+		}
+		AddressList ccs = m.getCc();
+		if (ccs != null) {
+			rcpt.addAll(ccs.flatten());
+		}
+		AddressList bccs = m.getBcc();
+		if (bccs != null) {
+			rcpt.addAll(bccs.flatten());
+		}
+		if (rcpt.isEmpty()) {
+			throw new ServerFault("Empty recipients list.");
+		}
+		return new MailboxList(rcpt, true);
 	}
 
 	private List<ItemValue<MailboxItem>> retrieveOutboxItems(IMailboxItems mailboxItemsService) {

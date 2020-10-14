@@ -21,6 +21,7 @@ package net.bluemind.mime4j.common;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
 
@@ -32,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
-import com.google.common.io.CountingOutputStream;
 
 import net.bluemind.common.io.FileBackedOutputStream;
 
@@ -43,18 +43,17 @@ public class OffloadedBodyFactory implements BodyFactory {
 	private static final String TMP_PREFIX = System.getProperty("net.bluemind.property.product", "unknown-jvm") + "-"
 			+ OffloadedBodyFactory.class.getName();
 
-	public static final class SizeStorage {
+	private static final class SizeStorage {
 
-		private final CountingOutputStream output;
 		private final FileBackedOutputStream fbos;
+		private long size;
 
 		public SizeStorage() {
 			fbos = new FileBackedOutputStream(32768, TMP_PREFIX);
-			output = new CountingOutputStream(fbos);
 		}
 
-		private void store(InputStream in) throws IOException {
-			ByteStreams.copy(in, output);
+		private void store(IStreamTransfer trans, InputStream in) throws IOException {
+			size = trans.transfer(in, fbos);
 		}
 
 		public InputStream getInputStream() throws IOException {
@@ -62,7 +61,7 @@ public class OffloadedBodyFactory implements BodyFactory {
 		}
 
 		public int size() {
-			return (int) output.getCount();
+			return (int) size;
 		}
 
 		public void delete() {
@@ -81,13 +80,48 @@ public class OffloadedBodyFactory implements BodyFactory {
 		int size();
 	}
 
-	public OffloadedBodyFactory() {
+	public interface IStreamTransfer {
 
+		long transfer(InputStream in, OutputStream out) throws IOException;
+	}
+
+	private final IStreamTransfer trans;
+
+	/**
+	 * All body parts transfers will use the same shared buffer.
+	 * 
+	 * If your {@link OffloadedBodyFactory} instance is not shared, it is faster to
+	 * use that.
+	 * 
+	 * @return
+	 */
+	public static IStreamTransfer sharedBufferTransfer() {
+		final byte[] forTransfers = new byte[8192];
+		return (from, to) -> {
+			long total = 0;
+			while (true) {
+				int r = from.read(forTransfers);
+				if (r == -1) {
+					break;
+				}
+				to.write(forTransfers, 0, r);
+				total += r;
+			}
+			return total;
+		};
+	}
+
+	public OffloadedBodyFactory() {
+		this(ByteStreams::copy);
+	}
+
+	public OffloadedBodyFactory(IStreamTransfer trans) {
+		this.trans = trans;
 	}
 
 	private SizeStorage store(InputStream in) throws IOException {
 		SizeStorage ret = new SizeStorage();
-		ret.store(in);
+		ret.store(trans, in);
 		in.close();
 		return ret;
 	}
@@ -198,8 +232,8 @@ public class OffloadedBodyFactory implements BodyFactory {
 	private static Charset toJavaCharset(final String mimeCharset) {
 		Charset charset = CharsetUtil.lookup(mimeCharset);
 		if (charset == null) {
-			logger.warn("MIME charset '" + mimeCharset + "' has no " + "corresponding Java charset",
-					"Using " + FALLBACK_CHARSET + " instead.");
+			logger.warn("MIME charset '{}' has no corresponding Java charset. Using {} instead.", mimeCharset,
+					FALLBACK_CHARSET);
 			return FALLBACK_CHARSET;
 		}
 		return charset;

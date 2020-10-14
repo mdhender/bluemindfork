@@ -60,13 +60,13 @@ public class DPServiceFactory implements ServerSideServiceProvider.IServerSideSe
 			List<RestoreOperation> opList = rap.operations();
 			logger.info("loading rop for kind {}", rap.getClass().getName());
 			for (RestoreOperation op : opList) {
-				logger.info("Loaded op " + op.identifier);
+				logger.info("Loaded op {}", op.identifier);
 			}
 			ret.addAll(opList);
 		}
 		ops = ret;
 		providers = actions;
-		logger.info("LOADED " + ops.size() + " RESTORE OPS.");
+		logger.info("Loaded{} restore ops", ops.size());
 	}
 
 	@Override

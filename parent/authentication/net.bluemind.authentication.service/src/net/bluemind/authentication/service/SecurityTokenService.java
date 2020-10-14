@@ -48,7 +48,7 @@ public class SecurityTokenService implements ISecurityToken {
 			throw ServerFault.notFound("sid '" + sid + "' is missing");
 		}
 		logger.info("{} (Upgrade token)", sid);
-		TokensStore.get().add(new Token(sid, sec.getSubject(), sec.getContainerUid()));
+		TokensStore.get().add(new Token(sid, sec.getSubject(), sec.getContainerUid(), sec.getOrigin()));
 	}
 
 	@Override

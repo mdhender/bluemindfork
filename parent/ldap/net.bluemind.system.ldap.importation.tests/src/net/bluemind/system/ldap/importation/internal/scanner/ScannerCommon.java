@@ -92,6 +92,10 @@ public abstract class ScannerCommon {
 	protected abstract void scanLdap(ImportLogger importLogger, CoreServicesTest coreService,
 			LdapParameters ldapParameters, Optional<String> beforeDate);
 
+	protected boolean isMemberUidAttribute() {
+		return false;
+	}
+
 	protected ImportLogger getImportLogger() {
 		return new ImportLogger(Optional.empty(), Optional.empty(), Optional.of(new RepportStatus()));
 	}
@@ -574,5 +578,77 @@ public abstract class ScannerCommon {
 				break;
 			}
 		}
+	}
+
+	@Test
+	public void splitDomainGroupMemberUpdate() throws LdapException, InterruptedException {
+		// Wait 1s to ensure incremental take care of update only
+		Thread.sleep(1000);
+		CoreServicesTest coreService = new CoreServicesTest();
+
+		Domain domain = getDomain();
+		domain.properties.put(LdapProperties.import_ldap_relay_mailbox_group.name(), "splitgroup");
+
+		Map<String, String> domainSettings = new HashMap<>();
+		domainSettings.put(DomainSettingsKeys.mail_routing_relay.name(), "test.split.tld");
+		domainSettings.put(LdapProperties.import_ldap_group_filter.name(), "(objectclass=bmGroup)");
+
+		LdapParameters ldapParameter = LdapParameters.build(domain, domainSettings);
+
+		Date lastRun = new Date();
+		scanLdap(getImportLogger(), coreService, ldapParameter);
+		ldapParameter = ldapParameter.updateLastUpdate(Optional.of(getDateInGeneralizedTimeFormat(lastRun)));
+
+		assertEquals(2, coreService.createdUsers.size());
+		assertTrue(coreService.createdUsers.values().stream().allMatch(user -> user.value.routing == Routing.internal));
+
+		ItemValue<User> user00 = coreService.createdUsers.values().stream()
+				.filter(user -> user.value.login.equals("user00")).findFirst()
+				.orElseThrow(() -> new ServerFault("user00 not found!"));
+
+		assertEquals(1, coreService.createdGroups.size());
+
+		ItemValue<Group> splitgroup = coreService.createdGroups.values().iterator().next();
+
+		LdapDockerTestHelper.getLdapCon()
+				.modify(isMemberUidAttribute()
+						? new ModifyRequestImpl().setName(new Dn("cn=splitgroup,dc=local")).add("memberUid", "user00")
+						: new ModifyRequestImpl().setName(new Dn("cn=splitgroup,dc=local")).add("member",
+								"uid=user00,dc=local"));
+
+		lastRun = new Date();
+		scanLdap(getImportLogger(), coreService, ldapParameter);
+		ldapParameter = ldapParameter.updateLastUpdate(Optional.of(getDateInGeneralizedTimeFormat(lastRun)));
+
+		assertEquals(0, coreService.groupMembersToRemove.size());
+		assertEquals(1, coreService.groupMembersToAdd.size());
+		assertEquals(splitgroup.uid, coreService.groupMembersToAdd.keySet().iterator().next());
+		assertEquals(1, coreService.memberUpdateToExternal.size());
+		assertEquals(user00.uid, coreService.memberUpdateToExternal.iterator().next());
+		assertEquals(0, coreService.memberUpdateToInternal.size());
+
+		coreService.groupMembersToAdd.clear();
+		coreService.memberUpdateToExternal.clear();
+
+		LdapDockerTestHelper.getLdapCon().modify(new ModifyRequestImpl().setName(new Dn("cn=splitgroup,dc=local"))
+				.remove(isMemberUidAttribute() ? "memberUid" : "member"));
+
+		lastRun = new Date();
+		scanLdap(getImportLogger(), coreService, ldapParameter);
+		ldapParameter = ldapParameter.updateLastUpdate(Optional.of(getDateInGeneralizedTimeFormat(lastRun)));
+
+		assertEquals(0, coreService.groupMembersToAdd.size());
+		assertEquals(1, coreService.groupMembersToRemove.size());
+		assertEquals(splitgroup.uid, coreService.groupMembersToRemove.keySet().iterator().next());
+		assertEquals(1, coreService.memberUpdateToInternal.size());
+		assertEquals(user00.uid, coreService.memberUpdateToInternal.iterator().next());
+		assertEquals(0, coreService.memberUpdateToExternal.size());
+	}
+
+	private static String getDateInGeneralizedTimeFormat(Date date) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss'.0Z'");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		return sdf.format(date);
 	}
 }

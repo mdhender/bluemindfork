@@ -268,11 +268,8 @@ public class StoreClient implements AutoCloseable {
 	}
 
 	public ListResult listSubFoldersMailbox(String mailbox) {
-
 		String mboxTree = mailbox.substring(0, mailbox.indexOf('@')) + "/*" + mailbox.substring(mailbox.indexOf('@'));
-		ListResult mailboxes = cs.listMailbox(mboxTree);
-
-		return mailboxes;
+		return cs.listMailbox(mboxTree);
 	}
 
 	public int append(String mailbox, InputStream in, FlagsList fl) {
@@ -399,10 +396,6 @@ public class StoreClient implements AutoCloseable {
 		return cs.xfer(boxName, serverName, partition);
 	}
 
-	public boolean setAnnotation(String annotation) {
-		return cs.setAnnotation(annotation);
-	}
-
 	public boolean setMailboxAnnotation(String mailbox, String annotationId, Map<String, String> keyValues) {
 		return cs.setAnnotation(mailbox, annotationId, keyValues);
 	}
@@ -450,17 +443,12 @@ public class StoreClient implements AutoCloseable {
 	}
 
 	public boolean isExist(String mbox) {
-		ListResult box = cs.listMailbox(mbox);
-		if (box.size() != 0) {
-			return true;
-		}
-
-		return false;
+		return !cs.listMailbox(mbox).isEmpty();
 	}
 
 	public boolean isExistAndSelectable(String mbox) {
 		ListResult box = cs.listMailbox(mbox);
-		if (box.size() != 0) {
+		if (!box.isEmpty()) {
 			return box.get(0).isSelectable();
 		}
 		return false;

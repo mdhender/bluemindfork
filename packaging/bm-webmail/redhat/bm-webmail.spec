@@ -6,7 +6,7 @@ Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Summary:            BlueMind webmail (Roundcube)
-Requires:           bm-postgresql = 12.3-bluemind116, bm-nginx = 1.18.0-bluemind98, bm-php = 5.6.40-bluemind98, tzdata, epel-release >= 6, memcached
+Requires:           bm-postgresql = 12.4-bluemind131, bm-nginx = 1.18.0-bluemind98, bm-php = 5.6.40-bluemind98, tzdata, epel-release >= 6, memcached
 Conflicts:          bm-apache
 Obsoletes:          bm-apache
 
@@ -36,11 +36,12 @@ if [ -L /usr/share/bm-webmail/logs ]; then
 fi
 
 chkconfig memcached on
-systemctl stop memcached || true
+[ -d /run/systemd/system ] && systemctl stop memcached || true
 cp -f /usr/share/doc/bm-webmail/sysconfig-memcached /etc/sysconfig/memcached
-systemctl start memcached
-
-systemctl stop httpd || true
+if [ -d /run/systemd/system ]; then
+  systemctl start memcached
+  systemctl stop httpd || true
+fi
 systemctl disable httpd || true
 
 if [ ! -e /etc/bm-webmail/bm-php5-fpm.conf ]; then
@@ -54,26 +55,26 @@ ln -s ../sites-available/bm-webmail .
 popd
 
 systemctl enable bm-php-fpm
-systemctl restart bm-php-fpm
-
-systemctl restart bm-nginx
+if [ -d /run/systemd/system ]; then
+  systemctl restart bm-php-fpm
+  systemctl restart bm-nginx
+fi
 
 %postun
 if [ $1 -eq 0 ]; then
-    # Uninstall
-    if [ -e /etc/php-fpm.d/www.conf ]; then
-      rm -rf /etc/php-fpm.d/www.conf
-    fi
-    
-    if [ -e /etc/nginx/sites-available/bm-webmail ]; then
-      rm -rf /etc/nginx/sites-available/bm-webmail
-    fi
-    
-    if [ -e /etc/nginx/sites-enabled/bm-webmail ]; then
-      rm -rf /etc/nginx/sites-enabled/bm-webmail
-    fi
-
-    if [ -e /var/log/bm-webmail ]; then
-        rm -rf /var/log/bm-webmail
-    fi
+  # Uninstall
+  if [ -e /etc/php-fpm.d/www.conf ]; then
+    rm -rf /etc/php-fpm.d/www.conf
+  fi
+  
+  if [ -e /etc/nginx/sites-available/bm-webmail ]; then
+    rm -rf /etc/nginx/sites-available/bm-webmail
+  fi
+  
+  if [ -e /etc/nginx/sites-enabled/bm-webmail ]; then
+    rm -rf /etc/nginx/sites-enabled/bm-webmail
+  fi
+  if [ -e /var/log/bm-webmail ]; then
+    rm -rf /var/log/bm-webmail
+  fi
 fi

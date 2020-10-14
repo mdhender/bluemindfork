@@ -56,6 +56,7 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoginHandler.class);
 	static Configuration cfg;
+	private static final String defaultLanguage = "en";
 
 	static {
 		cfg = new Configuration();
@@ -168,11 +169,12 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 	@Override
 	protected String getLang(HttpServerRequest request) {
 		String acceptLang = request.headers().get("Accept-Language");
-		if (acceptLang != null && acceptLang.startsWith("fr")) {
-			return "fr";
-		} else {
-			return "en";
+		if (acceptLang == null) {
+			return defaultLanguage;
 		}
+		return Locale.LanguageRange.parse(acceptLang).stream() //
+				.map(range -> Locale.forLanguageTag(range.getRange())).findFirst() //
+				.orElse(new Locale.Builder().setLanguage(defaultLanguage).build()).getLanguage().toLowerCase();
 	}
 
 	private ITaggedServiceProvider getProvider() {

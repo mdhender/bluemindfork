@@ -25,14 +25,14 @@ set -e
 chown www-data /usr/share/bm-webmail/temp
 chown www-data /var/log/bm-webmail
 if [ -d /usr/share/bm-webmail/logs ]; then
-  rm -rf /usr/share/bm-webmail/logs
+    rm -rf /usr/share/bm-webmail/logs
 fi
 if [ -L /usr/share/bm-webmail/logs ]; then
-  rm -f /usr/share/bm-webmail/logs
+    rm -f /usr/share/bm-webmail/logs
 fi
 
 if [ ! -e /etc/bm-webmail/bm-php5-fpm.conf ]; then
-  cp -f /usr/share/doc/bm-webmail/bm-php5-fpm.conf /etc/bm-webmail
+    cp -f /usr/share/doc/bm-webmail/bm-php5-fpm.conf /etc/bm-webmail
 fi
 cp -f /usr/share/doc/bm-webmail/bm-webmail /etc/nginx/sites-available/
 
@@ -41,13 +41,13 @@ rm -f bm-webmail
 ln -s ../sites-available/bm-webmail .
 popd
 
-systemctl restart bm-php-fpm
-
-systemctl stop apache2 0>/dev/null 1>/dev/null 2>/dev/null || true
 systemctl disable apache2 0>/dev/null 1>/dev/null 2>/dev/null || true
-
-echo "Trying to restart nginx service"
-systemctl restart bm-nginx 0>/dev/null 1>/dev/null 2>/dev/null || true
+if [ -d /run/systemd/system ]; then
+    systemctl restart bm-php-fpm
+    systemctl stop apache2 0>/dev/null 1>/dev/null 2>/dev/null || true
+    echo "Trying to restart nginx service"
+    systemctl restart bm-nginx 0>/dev/null 1>/dev/null 2>/dev/null || true
+fi
 
 #DEBHELPER#
 

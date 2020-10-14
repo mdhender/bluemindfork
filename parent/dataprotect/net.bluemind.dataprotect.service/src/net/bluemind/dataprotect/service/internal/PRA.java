@@ -30,6 +30,7 @@ import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.service.internal.RBACManager;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.service.IServerTask;
@@ -75,7 +76,7 @@ public class PRA implements IServerTask {
 		GenerationContent gc = new GenerationContent();
 		gc.generationId = pgPart.generationId;
 
-		try (BackupDataProvider backupProvider = new BackupDataProvider(target, pgPart.server, monitor)) {
+		try (BackupDataProvider backupProvider = new BackupDataProvider(target, SecurityContext.SYSTEM, monitor)) {
 			IDataProtect backupApi = ctx.provider().instance(IDataProtect.class);
 
 			String log = "Starting restore from part " + pgPart.tag + " " + pgPart.server;

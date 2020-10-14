@@ -13,6 +13,7 @@ import java.util.Collections;
 
 import org.junit.Test;
 
+import net.bluemind.backend.cyrus.mailboxesdb.MailboxesDb;
 import net.bluemind.backend.cyrus.mailboxesdb.MailboxesDbEntry;
 import net.bluemind.backend.cyrus.mailboxesdb.MailboxesDbEntry.Acl;
 
@@ -416,5 +417,17 @@ public class MailboxesDbEntryTest {
 		// 1533736213 == 8/8/2018 à 15:50:13
 		assertTrue(mdEntry.timestamp > 1533736213);
 		assertEquals(0, mdEntry.acls.size());
+	}
+
+	@Test
+	public void testMailboxesDbContainingEntriesOnDefaultPartitionShouldSkipTheseEntries() throws IOException {
+		String[] lines = new String[] {
+				"etudiant.univ.fr!_admin\t0 my_space_fr anyone<FF><89>p<FF><89>admin0<FF><89>lrswipkxtecda<FF><89>\n",
+				"user.0815\t0 default anyone<FF><89>p<FF><89>admin0<FF><89>lrswipkxtecda<FF><89>",
+				"etudiant2.univ.fr!_admin\t0 my_space_fr anyone<FF><89>p<FF><89>admin0<FF><89>lrswipkxtecda<FF><89>\n" };
+		MailboxesDb db = MailboxesDb.loadFromLineArray(lines);
+
+		assertEquals(2, db.mailboxesDbEntry.size());
+		assertFalse(db.mailboxesDbEntry.stream().filter(entry -> entry.name.equals("user.0815")).findAny().isPresent());
 	}
 }

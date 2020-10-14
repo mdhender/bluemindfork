@@ -85,7 +85,7 @@ public class TaskManager implements Handler<Message<JsonObject>> {
 		this.readers.add(reader);
 		for (JsonObject l : logs) {
 			reader.pushData(l);
-			if (l.getBoolean("end")) {
+			if (Boolean.TRUE.equals(l.getBoolean("end"))) {
 				reader.end();
 			}
 		}
@@ -132,15 +132,17 @@ public class TaskManager implements Handler<Message<JsonObject>> {
 	}
 
 	private void updateStatus(JsonObject body) {
-
 		MessageType type = MessageType.valueOf(body.getString("type"));
-		boolean success = body.getBoolean("success") != null ? body.getBoolean("success") : false;
+		boolean success = body.getBoolean("success", false);
+		/*
+		 * If the current status is ended (success or error), we must not overwrite the
+		 * status of the current task
+		 */
+		boolean ended = status.state.ended || type == MessageType.end;
 		TaskStatus newStatus = TaskStatus.create(steps, currentStep, body.getString("message"),
-				TaskStatus.State.status(success, type == MessageType.end), body.getString("result"));
-
+				TaskStatus.State.status(success, ended), body.getString("result"));
 		logger.debug("update task {} status: {} {} on {}", taskId, newStatus.state, newStatus.progress,
 				newStatus.steps);
-
 		this.status = newStatus;
 	}
 
@@ -152,5 +154,10 @@ public class TaskManager implements Handler<Message<JsonObject>> {
 
 	public String getId() {
 		return taskId;
+	}
+
+	@Override
+	public String toString() {
+		return "TaskManager{id=" + taskId + ", status=" + status + "}";
 	}
 }

@@ -249,9 +249,6 @@ net.bluemind.persistence.DatabaseService.prototype.getOptions_ = function(opt_op
   options.mechanisms = goog.array.filter(options.mechanisms, function(mechanism) {
     return goog.array.contains(this.mechanisms_, mechanism);
   }, this);
-  if (!options.size) {
-    options.size = 200 * 1024 * 1024;
-  }
   return options;
 };
 

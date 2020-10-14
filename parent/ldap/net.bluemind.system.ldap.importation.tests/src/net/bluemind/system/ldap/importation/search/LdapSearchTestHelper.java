@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
@@ -57,16 +58,17 @@ import net.bluemind.system.ldap.tests.helpers.LdapDockerTestHelper;
 public class LdapSearchTestHelper {
 	public static LdapParameters getLdapParameters() {
 		return getLdapParameters(LdapProperties.import_ldap_ext_id_attribute.getDefaultValue(),
-				LdapDockerTestHelper.LDAP_LOGIN_DN, LdapDockerTestHelper.LDAP_LOGIN_PWD, null);
+				Optional.of(LdapDockerTestHelper.LDAP_LOGIN_DN), Optional.of(LdapDockerTestHelper.LDAP_LOGIN_PWD),
+				Optional.empty(), Optional.empty());
 	}
 
 	public static LdapParameters getLdapParametersWithSplitGroup(String splitGroupName) {
-		return getLdapParameters(LdapProperties.import_ldap_ext_id_attribute.getDefaultValue(), null, null,
-				splitGroupName);
+		return getLdapParameters(LdapProperties.import_ldap_ext_id_attribute.getDefaultValue(), Optional.empty(),
+				Optional.empty(), Optional.of(splitGroupName), Optional.empty());
 	}
 
-	public static LdapParameters getLdapParameters(String entryUuid, String login, String password,
-			String splitGroupName) {
+	public static LdapParameters getLdapParameters(String entryUuid, Optional<String> login, Optional<String> password,
+			Optional<String> splitGroupName, Optional<String> baseDn) {
 		Domain domain = Domain.create("", "", "", Collections.<String>emptySet());
 		domain.properties = new HashMap<>();
 		BmConfIni config = new BmConfIni();
@@ -74,20 +76,20 @@ public class LdapSearchTestHelper {
 		domain.properties.put(LdapProperties.import_ldap_hostname.name(),
 				config.get(DockerContainer.LDAP.getHostProperty()));
 		domain.properties.put(LdapProperties.import_ldap_protocol.name(), "plain");
-		domain.properties.put(LdapProperties.import_ldap_base_dn.name(), LdapDockerTestHelper.LDAP_ROOT_DN);
+		domain.properties.put(LdapProperties.import_ldap_base_dn.name(),
+				baseDn.orElse(LdapDockerTestHelper.LDAP_ROOT_DN));
 		domain.properties.put(LdapProperties.import_ldap_group_filter.name(),
 				LdapProperties.import_ldap_group_filter.getDefaultValue());
 		domain.properties.put(LdapProperties.import_ldap_user_filter.name(),
 				LdapProperties.import_ldap_user_filter.getDefaultValue());
 		domain.properties.put(LdapProperties.import_ldap_ext_id_attribute.name(), entryUuid);
 
-		if (splitGroupName != null) {
-			domain.properties.put(LdapProperties.import_ldap_relay_mailbox_group.name(), splitGroupName);
-		}
+		splitGroupName
+				.ifPresent(sgn -> domain.properties.put(LdapProperties.import_ldap_relay_mailbox_group.name(), sgn));
 
-		if (login != null && password != null) {
-			domain.properties.put(LdapProperties.import_ldap_login_dn.name(), login);
-			domain.properties.put(LdapProperties.import_ldap_password.name(), password);
+		if (login.isPresent() && password.isPresent()) {
+			login.ifPresent(l -> domain.properties.put(LdapProperties.import_ldap_login_dn.name(), l));
+			password.ifPresent(p -> domain.properties.put(LdapProperties.import_ldap_password.name(), p));
 		}
 
 		return LdapParameters.build(domain, Collections.<String, String>emptyMap());

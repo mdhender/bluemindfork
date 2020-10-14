@@ -18,6 +18,7 @@
  */
 package net.bluemind.mailbox.service.mailtip;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -25,8 +26,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.core.api.date.BmDateTime;
-import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -45,8 +44,7 @@ public class OOFMailTipEvaluation implements IMailTipEvaluation {
 
 	@Override
 	public List<EvaluationResult> evaluate(String domain, MessageContext messageContext) {
-		return messageContext.recipients.stream().map(r -> process(domain, r))
-				.filter(Objects::nonNull)
+		return messageContext.recipients.stream().map(r -> process(domain, r)).filter(Objects::nonNull)
 				.collect(Collectors.toList());
 	}
 
@@ -81,14 +79,12 @@ public class OOFMailTipEvaluation implements IMailTipEvaluation {
 		}
 	}
 
-	private boolean isActive(BmDateTime start, BmDateTime end) {
+	private boolean isActive(Date start, Date end) {
 		long utcNow = System.currentTimeMillis();
-		long utcStart = new BmDateTimeWrapper(start).toUTCTimestamp();
 		if (end == null) {
-			return utcNow > utcStart;
+			return utcNow > start.getTime();
 		} else {
-			long utcEnd = new BmDateTimeWrapper(end).toUTCTimestamp();
-			return utcNow > utcStart && utcNow < utcEnd;
+			return utcNow > start.getTime() && utcNow < end.getTime();
 		}
 	}
 

@@ -34,6 +34,17 @@ public final class MailApiHeaders {
 	 */
 	public static final String X_BM_PREVIOUS_BODY = "X-Bm-Previous-Body";
 
+	/**
+	 * Message date when using updateById
+	 */
+	public static final String X_BM_DRAFT_REFRESH_DATE = "X-Bm-Draft-Refresh-Date";
+
+	/**
+	 * Used by webmail to keep a reference on original message when draft is a reply
+	 * or a forward
+	 */
+	public static final String X_BM_DRAFT_INFO = "X-Bm-Draft-Info";
+
 	public static class OutlookProps {
 
 		/**
@@ -74,7 +85,7 @@ public final class MailApiHeaders {
 
 	public static final OutlookProps Otlk = new OutlookProps();
 
-	public static final String[] ALL = new String[] { X_BM_INTERNAL_ID, X_BM_PREVIOUS_BODY, //
+	public static final String[] ALL = new String[] { X_BM_INTERNAL_ID, X_BM_PREVIOUS_BODY, X_BM_DRAFT_INFO, //
 			OutlookProps.FLAG_STATUS, OutlookProps.FLAG_COLOR, //
 			OutlookProps.TASK_DUE_DATE, OutlookProps.TASK_ORDINAL_DATE, OutlookProps.COMMON_START, //
 			OutlookProps.REMINDER_DATE, OutlookProps.REMINDER_SET, //

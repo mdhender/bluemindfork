@@ -22,8 +22,12 @@
  */
 package net.bluemind.backend.mail.replica.service;
 
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Suppliers;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
@@ -42,7 +46,8 @@ public class DbMessageBodiesServiceFactory
 	private IDbMessageBodies getService(BmContext context, CyrusPartition partition) {
 		logger.debug("For partition {}...", partition);
 		MessageBodyStore bodyStore = new MessageBodyStore(context.getMailboxDataSource(partition.serverUid));
-		MessageBodyObjectStore bodyObjectStore = new MessageBodyObjectStore(context, partition);
+		Supplier<MessageBodyObjectStore> bodyObjectStore = Suppliers
+				.memoize(() -> new MessageBodyObjectStore(context, partition));
 		return new DbMessageBodiesService(bodyStore, bodyObjectStore);
 	}
 

@@ -106,6 +106,10 @@ public class BackendSession implements IPreviousRequestsKnowledge {
 		return deviceId.getIdentifier();
 	}
 
+	public String getUniqueIdentifier() {
+		return deviceId.getUniqueIdentifier();
+	}
+
 	public double getProtocolVersion() {
 		return protocolVersion;
 	}
@@ -144,10 +148,16 @@ public class BackendSession implements IPreviousRequestsKnowledge {
 		persistentState.setLastWait(lastWait);
 	}
 
+	@Override
+	public Integer getLastWait() {
+		return persistentState.getLastWait();
+	}
+
 	public void setHeartbeart(Long heartbeat) {
 		persistentState.setHeartbeat(heartbeat);
 	}
 
+	@Override
 	public Long getHeartbeart() {
 		return persistentState.getHeartbeat();
 	}

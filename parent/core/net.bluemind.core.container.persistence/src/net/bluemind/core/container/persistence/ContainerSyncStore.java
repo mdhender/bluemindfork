@@ -61,8 +61,8 @@ public class ContainerSyncStore extends JdbcAbstractStore {
 	public void setSyncStatus(final ContainerSyncStatus syncStatus) throws ServerFault {
 		try {
 
-			insert("INSERT INTO t_container_sync (container_id, sync_tokens, next_sync, last_sync, errors) VALUES (?,?,?, NOW(), ?) "
-					+ "ON CONFLICT (container_id) DO UPDATE SET sync_tokens = ?, next_sync = ?, last_sync = NOW(), errors = ?  ",
+			insert("INSERT INTO t_container_sync (container_id, sync_tokens, next_sync, last_sync, status) VALUES (?,?,?, NOW(), ?) "
+					+ "ON CONFLICT (container_id) DO UPDATE SET sync_tokens = ?, next_sync = ?, last_sync = NOW(), status = ?  ",
 					null, (con, statement, index, currentRow, value) -> {
 						statement.setLong(index++, container.id);
 
@@ -78,11 +78,7 @@ public class ContainerSyncStore extends JdbcAbstractStore {
 							statement.setNull(index++, Types.TIMESTAMP);
 						}
 
-						if (syncStatus.errors != null) {
-							statement.setInt(index++, syncStatus.errors);
-						} else {
-							statement.setNull(index++, Types.INTEGER);
-						}
+						statement.setString(index++, syncStatus.syncStatusInfo);
 
 						if (syncStatus.syncTokens != null) {
 							statement.setObject(index++, syncStatus.syncTokens);
@@ -96,11 +92,7 @@ public class ContainerSyncStore extends JdbcAbstractStore {
 							statement.setNull(index++, Types.TIMESTAMP);
 						}
 
-						if (syncStatus.errors != null) {
-							statement.setInt(index++, syncStatus.errors);
-						} else {
-							statement.setNull(index++, Types.INTEGER);
-						}
+						statement.setString(index++, syncStatus.syncStatusInfo);
 
 						return index;
 					});
@@ -132,7 +124,7 @@ public class ContainerSyncStore extends JdbcAbstractStore {
 		try {
 			@SuppressWarnings("unchecked")
 			ContainerSyncStatus status = unique(
-					"SELECT sync_tokens, next_sync, last_sync, errors FROM t_container_sync WHERE container_id = ?",
+					"SELECT sync_tokens, next_sync, last_sync, status FROM t_container_sync WHERE container_id = ?",
 					(Creator<ContainerSyncStatus>) con -> new ContainerSyncStatus(),
 					Arrays.<EntityPopulator<ContainerSyncStatus>>asList((rs, index, value) -> {
 						value.syncTokens = (Map<String, String>) rs.getObject(index++);
@@ -145,9 +137,9 @@ public class ContainerSyncStore extends JdbcAbstractStore {
 						if (ts != null) {
 							value.lastSync = new Date(ts.getTime());
 						}
-						
-						value.errors = rs.getInt(index++);
-						
+
+						value.syncStatusInfo = rs.getString(index++);
+
 						return index;
 					}), new Object[] { container.id });
 

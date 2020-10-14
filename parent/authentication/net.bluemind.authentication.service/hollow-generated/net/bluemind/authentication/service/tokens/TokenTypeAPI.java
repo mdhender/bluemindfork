@@ -13,19 +13,23 @@ public class TokenTypeAPI extends HollowObjectTypeAPI {
             "key",
             "subjectUid",
             "subjectDomain",
+            "origin",
             "expiresTimestamp"
         });
         this.delegateLookupImpl = new TokenDelegateLookupImpl(this);
     }
 
-    public int getKeyOrdinal(int ordinal) {
+    public String getKey(int ordinal) {
         if(fieldIndex[0] == -1)
-            return missingDataHandler().handleReferencedOrdinal("Token", ordinal, "key");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[0]);
+            return missingDataHandler().handleString("Token", ordinal, "key");
+        boxedFieldAccessSampler.recordFieldAccess(fieldIndex[0]);
+        return getTypeDataAccess().readString(ordinal, fieldIndex[0]);
     }
 
-    public StringTypeAPI getKeyTypeAPI() {
-        return getAPI().getStringTypeAPI();
+    public boolean isKeyEqual(int ordinal, String testValue) {
+        if(fieldIndex[0] == -1)
+            return missingDataHandler().handleStringEquals("Token", ordinal, "key", testValue);
+        return getTypeDataAccess().isStringFieldEqual(ordinal, fieldIndex[0], testValue);
     }
 
     public int getSubjectUidOrdinal(int ordinal) {
@@ -48,19 +52,32 @@ public class TokenTypeAPI extends HollowObjectTypeAPI {
         return getAPI().getStringTypeAPI();
     }
 
-    public long getExpiresTimestamp(int ordinal) {
+    public String getOrigin(int ordinal) {
         if(fieldIndex[3] == -1)
+            return missingDataHandler().handleString("Token", ordinal, "origin");
+        boxedFieldAccessSampler.recordFieldAccess(fieldIndex[3]);
+        return getTypeDataAccess().readString(ordinal, fieldIndex[3]);
+    }
+
+    public boolean isOriginEqual(int ordinal, String testValue) {
+        if(fieldIndex[3] == -1)
+            return missingDataHandler().handleStringEquals("Token", ordinal, "origin", testValue);
+        return getTypeDataAccess().isStringFieldEqual(ordinal, fieldIndex[3], testValue);
+    }
+
+    public long getExpiresTimestamp(int ordinal) {
+        if(fieldIndex[4] == -1)
             return missingDataHandler().handleLong("Token", ordinal, "expiresTimestamp");
-        return getTypeDataAccess().readLong(ordinal, fieldIndex[3]);
+        return getTypeDataAccess().readLong(ordinal, fieldIndex[4]);
     }
 
     public Long getExpiresTimestampBoxed(int ordinal) {
         long l;
-        if(fieldIndex[3] == -1) {
+        if(fieldIndex[4] == -1) {
             l = missingDataHandler().handleLong("Token", ordinal, "expiresTimestamp");
         } else {
-            boxedFieldAccessSampler.recordFieldAccess(fieldIndex[3]);
-            l = getTypeDataAccess().readLong(ordinal, fieldIndex[3]);
+            boxedFieldAccessSampler.recordFieldAccess(fieldIndex[4]);
+            l = getTypeDataAccess().readLong(ordinal, fieldIndex[4]);
         }
         if(l == Long.MIN_VALUE)
             return null;

@@ -20,23 +20,29 @@ package net.bluemind.authentication.service;
 
 import java.util.concurrent.TimeUnit;
 
+import com.netflix.hollow.core.write.objectmapper.HollowInline;
 import com.netflix.hollow.core.write.objectmapper.HollowPrimaryKey;
 
 @HollowPrimaryKey(fields = { "key" })
 public class Token {
 
+	@HollowInline
 	public String key;
 
 	public String subjectUid;
 
 	public String subjectDomain;
 
+	@HollowInline
+	public String origin;
+
 	public long expiresTimestamp;
 
-	public Token(String key, String subject, String subjectDomain) {
+	public Token(String key, String subject, String subjectDomain, String origin) {
 		this.key = key;
 		this.subjectUid = subject;
 		this.subjectDomain = subjectDomain;
+		this.origin = origin;
 		expiresTimestamp = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7);
 	}
 

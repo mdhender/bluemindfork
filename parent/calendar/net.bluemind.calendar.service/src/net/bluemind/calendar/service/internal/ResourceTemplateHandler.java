@@ -66,8 +66,8 @@ public final class ResourceTemplateHandler {
 	private static final IResourceTemplateHelper RESOURCE_TEMPLATE_HELPER = ResourceTemplateHelpers.getInstance();
 
 	/**
-	 * Process resources templates, if any, of a newly created event. Then
-	 * append the result to the event description.
+	 * Process resources templates, if any, of a newly created event. Then append
+	 * the result to the event description.
 	 */
 	public void handleCreatedEvent(final VEventSeries vEventSeries, final String domainUid) {
 		final long start = System.currentTimeMillis();
@@ -109,8 +109,8 @@ public final class ResourceTemplateHandler {
 
 	/**
 	 * Detect attendee of kind 'resource', then pick a localized template, then
-	 * transform it using {@link ResourceTypeDescriptor#properties}, then add it
-	 * to the event description.
+	 * transform it using {@link ResourceTypeDescriptor#properties}, then add it to
+	 * the event description.
 	 */
 	private void addToDescription(final VEvent vEvent, final Attendee resourceAttendee, final String domainUid) {
 		final String resourceId = this.toResourceId(resourceAttendee);
@@ -120,7 +120,7 @@ public final class ResourceTemplateHandler {
 				localeLanguageTag, organizerName);
 		// append the result of the template to the event's description
 		// avoid to add it multiple times (in case of an update)
-		if (!RESOURCE_TEMPLATE_HELPER.containsTemplate(vEvent.description, resourceId)) {
+		if (vEvent.description != null && !RESOURCE_TEMPLATE_HELPER.containsTemplate(vEvent.description, resourceId)) {
 			vEvent.description = RESOURCE_TEMPLATE_HELPER.addTemplate(vEvent.description, descriptionToAdd);
 		}
 	}

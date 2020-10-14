@@ -18,6 +18,7 @@
  */
 package net.bluemind.node.server.busmod;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,7 @@ public class SysCommand extends AbstractVerticle {
 	private static final Map<Long, RunningCommand> activeUnwatched = new ConcurrentHashMap<>();
 	private static final AtomicLong pid = new AtomicLong();
 
+	@Override
 	public void start() {
 		EventBus eb = vertx.eventBus();
 		Handler<Message<JsonObject>> crHandler = new Handler<Message<JsonObject>>() {
@@ -301,10 +303,11 @@ public class SysCommand extends AbstractVerticle {
 		String[] cmdAndArgs = CmdParser.args(cmd);
 		ProcessBuilder ps = new ProcessBuilder(cmdAndArgs);
 		ps.redirectErrorStream(true);
-		long procId = pid.incrementAndGet();
 		try {
-			RunningCommand rc = new RunningCommand(group, name == null ? "cmd_" + procId : name, cmd, procId);
 			Process proc = ps.start();
+			long procId = getPid(proc);
+			RunningCommand rc = new RunningCommand(group, name == null ? "cmd_" + procId : name, cmd, procId);
+
 			rc.setProcess(proc);
 			if (wsEP != null) {
 				wsEP.write("start", new JsonObject().put("task", procId));
@@ -319,6 +322,16 @@ public class SysCommand extends AbstractVerticle {
 		} catch (Exception t) {
 			logger.error(t.getMessage());
 			return null;
+		}
+	}
+
+	private long getPid(Process p) {
+		try {
+			Field field = p.getClass().getDeclaredField("pid");
+			field.setAccessible(true); // NOSONAR
+			return Integer.class.cast(field.get(p)).intValue();
+		} catch (Exception e) {
+			throw new RuntimeException(e); // NOSONAR
 		}
 	}
 }

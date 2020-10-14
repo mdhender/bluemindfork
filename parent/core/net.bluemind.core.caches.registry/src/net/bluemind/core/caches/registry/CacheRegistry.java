@@ -68,11 +68,11 @@ public class CacheRegistry {
 	}
 
 	private final Map<String, Cache<?, ?>> caches;
-	private final List<Cache<?, ?>> readonly_caches;
+	private final List<Cache<?, ?>> readonlyCaches;
 
 	private CacheRegistry() {
-		caches = new HashMap<String, Cache<?, ?>>();
-		readonly_caches = new ArrayList<Cache<?, ?>>();
+		caches = new HashMap<>();
+		readonlyCaches = new ArrayList<>();
 	}
 
 	public void register(Class<?> idKlass, Cache<?, ?> cache) {
@@ -89,12 +89,12 @@ public class CacheRegistry {
 
 	// Read only caches will not be touched by invalidate
 	public void registerReadOnly(Class<?> idKlass, Cache<?, ?> cache) {
-		readonly_caches.add(cache);
+		readonlyCaches.add(cache);
 		register(idKlass, cache);
 	}
 
 	public void registerReadOnly(String id, Cache<?, ?> cache) {
-		readonly_caches.add(cache);
+		readonlyCaches.add(cache);
 		register(id, cache);
 	}
 
@@ -104,17 +104,17 @@ public class CacheRegistry {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <K, V> Cache<K, V> get(Class idKlass) {
-		return (Cache<K, V>) caches.get(idKlass);
+	public <K, V> Cache<K, V> get(Class<?> idKlass) {
+		return (Cache<K, V>) caches.get(idKlass.getName());
 	}
 
 	public void invalidateAll() {
 		for (Cache<?, ?> c : caches.values()) {
-			if (! readonly_caches.contains(c)) {
+			if (!readonlyCaches.contains(c)) {
 				c.invalidateAll();
 			}
 		}
-		logger.info("Cleared {} cache(s)", caches.size() - readonly_caches.size());
+		logger.info("Cleared {} cache(s)", caches.size() - readonlyCaches.size());
 	}
 
 	public void forEach(Consumer<Cache<?, ?>> action) {

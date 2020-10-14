@@ -65,9 +65,10 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 		public final String user;
 		public final String latd;
 		public final long time;
+		public int attempt;
 
 		private QueryParameters(String clientIp, String protocol, String user, String latd, String password,
-				String backendPort, long time) {
+				String backendPort, long time, int attempt) {
 			this.clientIp = clientIp;
 			this.protocol = protocol;
 			this.user = user;
@@ -75,12 +76,14 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 			this.password = password;
 			this.backendPort = backendPort;
 			this.time = time;
+			this.attempt = attempt;
 		}
 
 		public static QueryParameters fromRequest(HttpServerRequest req, long time) {
 			String clientIp = req.headers().get("Client-IP");
 			String backendPort = req.headers().get("X-Auth-Port");
 			String protocol = req.headers().get("Auth-Protocol");
+			int attempt = Optional.ofNullable(req.headers().get("Auth-Login-Attempt")).map(Integer::parseInt).orElse(0);
 
 			String user = req.headers().get("Auth-User");
 			if (user == null || "".equals(user)) {
@@ -94,7 +97,7 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 
 			String password = decode(req.headers().get("Auth-Pass"));
 
-			return new QueryParameters(clientIp, protocol, user, latd, password, backendPort, time);
+			return new QueryParameters(clientIp, protocol, user, latd, password, backendPort, time, attempt);
 		}
 
 	}
@@ -219,7 +222,9 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 	private void fail(QueryParameters qp, HttpServerResponse resp) {
 		logger.error("[{}] Denied auth from {}", qp == null ? null : qp.latd, qp == null ? null : qp.clientIp);
 		resp.headers().add("Auth-Status", "Invalid login or password");
-		resp.headers().add("Auth-Wait", "2");
+		if (qp != null && qp.attempt < 10) {
+			resp.headers().add("Auth-Wait", "2");
+		}
 	}
 
 	private void succeed(HttpServerResponse resp, QueryParameters qp, String backendSrv, String backendLatd) {

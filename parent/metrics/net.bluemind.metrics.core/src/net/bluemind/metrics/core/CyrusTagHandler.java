@@ -25,7 +25,7 @@ public class CyrusTagHandler extends TickInputConfigurator {
 			TagHelper.jarToFS(getClass(), "/configs/bm-imapd.conf", "/etc/telegraf/telegraf.d/bm-imapd.conf", itemValue,
 					context.provider().instance(IServer.class, InstallationId.getIdentifier()));
 		} catch (IOException e) {
-			logger.error("Error copying file : {}", e);
+			logger.error("Error copying file : {}", e.toString());
 			return;
 		}
 

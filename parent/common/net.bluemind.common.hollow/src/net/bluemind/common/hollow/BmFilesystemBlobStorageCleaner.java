@@ -20,6 +20,7 @@ package net.bluemind.common.hollow;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,14 +70,23 @@ public class BmFilesystemBlobStorageCleaner extends HollowProducer.BlobStorageCl
 		}
 
 		sortByLastModified(files);
-
+		int del = 0;
+		long now = System.currentTimeMillis();
 		for (int i = kept; i < files.length; i++) {
 			File file = files[i];
+
+			if (now - file.lastModified() < TimeUnit.MINUTES.toMillis(1)) {
+				// when doing fast writes, leave room to the consumers to catch up
+				continue;
+			}
 			boolean deleted = file.delete(); // NOSONAR
 			if (!deleted) {
 				logger.warn("Could not delete delta {}", file.getPath());
+			} else {
+				del++;
 			}
 		}
+		logger.info("Cleared {} old {} file(s)", del, type);
 	}
 
 	private void sortByLastModified(File[] files) {
@@ -89,6 +99,6 @@ public class BmFilesystemBlobStorageCleaner extends HollowProducer.BlobStorageCl
 	}
 
 	private File[] getFilesByType(final String blobType) {
-		return blobStoreDir.listFiles((File dir, String name) -> name.contains(blobType));
+		return blobStoreDir.listFiles((File dir, String name) -> name.startsWith(blobType));
 	}
 }

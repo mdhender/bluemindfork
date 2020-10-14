@@ -20,6 +20,9 @@ package net.bluemind.cli.inject.imap;
 import java.io.ByteArrayInputStream;
 import java.util.concurrent.Semaphore;
 
+import net.bluemind.cli.inject.common.GOTMessageProducer;
+import net.bluemind.cli.inject.common.MailExchangeInjector;
+import net.bluemind.cli.inject.common.TargetMailbox;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.StoreClient;
@@ -53,7 +56,6 @@ public class ImapInjector extends MailExchangeInjector {
 				logger.debug("Added {} to {}", added, email);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
-				System.exit(1);
 			} finally {
 				lock.release();
 			}
@@ -61,7 +63,7 @@ public class ImapInjector extends MailExchangeInjector {
 	}
 
 	public ImapInjector(IServiceProvider provider, String domainUid) {
-		super(provider, domainUid, ImapTargetMailbox::new);
+		super(provider, domainUid, ImapTargetMailbox::new, new GOTMessageProducer());
 
 	}
 

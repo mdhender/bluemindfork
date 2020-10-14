@@ -21,6 +21,7 @@ package net.bluemind.lib.ical4j.util;
 import java.time.DateTimeException;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -48,7 +49,8 @@ public class IcalConverter {
 		return BmDateTimeWrapper.fromTimestamp(date.getTime(), timezone, precision);
 	}
 
-	public static BmDateTime convertToDateTime(DateProperty property, Optional<String> globalTZ) {
+	public static BmDateTime convertToDateTime(DateProperty property, Optional<String> globalTZ,
+			Map<String, String> tzMapping) {
 		if (property == null) {
 			return null;
 		}
@@ -61,7 +63,7 @@ public class IcalConverter {
 		if (property.getTimeZone() == null && precision == Precision.DateTime) {
 			timezone = detectTimeZone(property, globalTZ);
 		} else if (property.getTimeZone() != null) {
-			timezone = sanitizeTimeZone(property);
+			timezone = sanitizeTimeZone(property, tzMapping);
 		}
 
 		BmDateTime bmDate = BmDateTimeWrapper.create(date.toString(), timezone, precision);
@@ -75,9 +77,10 @@ public class IcalConverter {
 
 	/**
 	 * @param property
+	 * @param tzMapping
 	 * @return
 	 */
-	private static String sanitizeTimeZone(DateProperty property) {
+	private static String sanitizeTimeZone(DateProperty property, Map<String, String> tzMapping) {
 		TimeZone timeZone = property.getTimeZone();
 		Date date = property.getDate();
 		String id = TimezoneExtensions.translate(timeZone.getID());
@@ -89,6 +92,9 @@ public class IcalConverter {
 			ZoneId.of(id);
 			return id;
 		} catch (DateTimeException e) {
+			if (tzMapping.containsKey(timeZone.getID())) {
+				return tzMapping.get(timeZone.getID());
+			}
 			int offset = timeZone.getOffset(date.getTime()) / 1000;
 			logger.error("unknow timezone {} with offset {}", property, offset);
 			ZoneOffset zo = ZoneOffset.ofTotalSeconds(offset);

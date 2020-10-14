@@ -83,7 +83,6 @@ import net.bluemind.imap.command.QuotaRootCommand;
 import net.bluemind.imap.command.RenameCommand;
 import net.bluemind.imap.command.SelectCommand;
 import net.bluemind.imap.command.SetAclCommand;
-import net.bluemind.imap.command.SetAnnotationCommand;
 import net.bluemind.imap.command.SetMailboxAnnotationCommand;
 import net.bluemind.imap.command.SetQuotaCommand;
 import net.bluemind.imap.command.SubscribeCommand;
@@ -453,10 +452,6 @@ public final class ClientSupport {
 
 	public Collection<Summary> uidFetchSummary(String uidSet) {
 		return run(new UIDFetchSummaryCommand(uidSet));
-	}
-
-	public boolean setAnnotation(String annotation) {
-		return run(new SetAnnotationCommand(annotation));
 	}
 
 	public boolean setAnnotation(String mbox, String annotation, Map<String, String> kv) {

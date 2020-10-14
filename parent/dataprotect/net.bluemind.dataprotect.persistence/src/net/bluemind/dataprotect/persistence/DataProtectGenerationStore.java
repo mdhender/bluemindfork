@@ -160,7 +160,7 @@ public class DataProtectGenerationStore extends JdbcAbstractStore {
 						seqMax = Math.max(seqMax, part.id);
 					}
 				} catch (Exception e) {
-					logger.warn("Cannot write generation " + gen.id, e);
+					logger.warn("Cannot write generation: {} ", gen.id, e);
 				}
 
 			}

@@ -87,7 +87,7 @@ public class MailFlowStore extends JdbcAbstractStore {
 	public MailRuleActionAssignment get(String uid) {
 		return doOrFail(() -> {
 
-			String sql = "SELECT uid, description, position, action_identifier, execution_mode, action_config, assignment_group, is_active"
+			String sql = "SELECT uid, description, position, action_identifier, execution_mode, routing, action_config, assignment_group, is_active"
 					+ " from t_mailflow_assignment where domain_uid = ? and uid = ?";
 
 			MailRuleActionAssignment assignment = unique(sql, (rs) -> new MailRuleActionAssignment(),
@@ -106,7 +106,7 @@ public class MailFlowStore extends JdbcAbstractStore {
 
 		return doOrFail(() -> {
 
-			String sql = "SELECT uid, description, position, action_identifier, execution_mode, action_config, assignment_group, is_active"
+			String sql = "SELECT uid, description, position, action_identifier, execution_mode, routing, action_config, assignment_group, is_active"
 					+ " from t_mailflow_assignment where domain_uid = ?";
 
 			List<MailRuleActionAssignment> assignments = select(sql, (rs) -> new MailRuleActionAssignment(),

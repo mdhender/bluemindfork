@@ -20,11 +20,11 @@ package net.bluemind.serialization.client;
  */
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,13 +34,6 @@ import com.netflix.hollow.api.consumer.HollowConsumer.Blob;
 import com.netflix.hollow.api.consumer.HollowConsumer.BlobRetriever;
 
 public class BmHollowContext {
-
-	private static File tmpDir;
-
-	static {
-		BmHollowContext.tmpDir = new File(System.getProperty("java.io.tmpdir"), "bm-hollowed");
-		tmpDir.mkdirs();
-	}
 
 	public HollowContext create(String set, String subset) {
 		AnnouncementWatcher announcementWatcher = new BmAnnouncementWatcher(set, subset);
@@ -57,20 +50,17 @@ public class BmHollowContext {
 			this.subset = subset;
 		}
 
-		private String getPath(BmHollowClient.Type type, long desiredVersion) {
-			return new File(tmpDir,
-					type + "-" + set + "-" + subset + "-" + desiredVersion + "-" + System.currentTimeMillis())
-							.getAbsolutePath();
+		private Path getPath(BmHollowClient.Type type, long desiredVersion) throws IOException {
+			return Files.createTempFile(type.name(), ".v" + desiredVersion);
 		}
 
 		@Override
 		public Blob retrieveSnapshotBlob(long desiredVersion) {
 			try {
-				String path = getPath(BmHollowClient.Type.snapshot, desiredVersion);
-				Path file = new File(path).toPath();
+				Path file = getPath(BmHollowClient.Type.snapshot, desiredVersion);
 				try (BmHollowClient client = new BmHollowClient(BmHollowClient.Type.snapshot, set, subset,
-						desiredVersion)) {
-					Files.copy(client.openStream(), file);
+						desiredVersion); InputStream in = client.openStream()) {
+					Files.copy(in, file, StandardCopyOption.REPLACE_EXISTING);
 				}
 				return new HollowConsumer.Blob(desiredVersion) {
 
@@ -94,12 +84,11 @@ public class BmHollowContext {
 		@Override
 		public Blob retrieveDeltaBlob(long currentVersion) {
 			try {
-				String path = getPath(BmHollowClient.Type.delta, currentVersion);
+				Path file = getPath(BmHollowClient.Type.delta, currentVersion);
 				long newVersion = 0;
-				Path file = new File(path).toPath();
-				try (BmHollowClient client = new BmHollowClient(BmHollowClient.Type.delta, set, subset,
-						currentVersion)) {
-					Files.copy(client.openStream(), file);
+				try (BmHollowClient client = new BmHollowClient(BmHollowClient.Type.delta, set, subset, currentVersion);
+						InputStream in = client.openStream()) {
+					Files.copy(in, file, StandardCopyOption.REPLACE_EXISTING);
 					newVersion = client.getVersionHeader();
 				}
 				return new HollowConsumer.Blob(currentVersion, newVersion) {
@@ -153,7 +142,7 @@ public class BmHollowContext {
 		@Override
 		public void onUpdate(String set, String subset, long version) {
 			if (set.equals(this.set) && subset.equals(this.subset)) {
-				observers.forEach(o -> o.triggerAsyncRefresh());
+				observers.forEach(HollowConsumer::triggerAsyncRefresh);
 			}
 		}
 

@@ -13,12 +13,13 @@
 		<module>net.bluemind.cli.calendar</module>
 		<module>net.bluemind.cli.contact</module>
 		<module>net.bluemind.cli.launcher</module>
+		<module>net.bluemind.cli.launcher.tests</module>
 		<module>net.bluemind.cli.utils</module>
 		<module>net.bluemind.cli.metrics</module>
 		<module>net.bluemind.cli.mail</module>
 		<module>net.bluemind.cli.metrics.tests</module>
 		<module>net.bluemind.cli.directory.common</module>
-                <module>net.bluemind.cli.adm</module>
+		<module>net.bluemind.cli.adm</module>
 		<module>net.bluemind.cli.index</module>
 		<module>net.bluemind.cli.job</module>
 		<module>net.bluemind.cli.node</module>
@@ -29,6 +30,7 @@
 		<module>net.bluemind.cli.todolist</module>
 		<module>net.bluemind.cli.sysconf</module>
 		<module>net.bluemind.cli.filehosting</module>
+		<module>net.bluemind.cli.inject.common</module>
 		<module>net.bluemind.cli.inject.imap</module>
 		<module>net.bluemind.cli.inject.imap.tests</module>
 	</modules>

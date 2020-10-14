@@ -51,6 +51,8 @@ import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.system.api.IInstallation;
+import net.bluemind.system.api.PublicInfos;
 
 @Command(name = "indexreplicated", description = "Index pre-replicated messages")
 public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
@@ -64,6 +66,9 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 
 	@Override
 	public void run() {
+		PublicInfos infos = CliContext.get().adminApi().instance(IInstallation.class).getInfos();
+		ctx.info("infos: " + infos.softwareVersion + " " + infos.releaseName);
+
 		File file = new File(tar);
 		if (!file.exists()) {
 			ctx.info("File " + tar + " not found");

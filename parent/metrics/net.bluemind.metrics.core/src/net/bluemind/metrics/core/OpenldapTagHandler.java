@@ -45,10 +45,10 @@ public class OpenldapTagHandler extends TickInputConfigurator {
 			temp.process(map, out);
 			serverApi.writeFile(itemValue.uid, "/etc/telegraf/telegraf.d/bm-openldap.conf", out.toString().getBytes());
 		} catch (IOException e1) {
-			logger.error("Can't open ftl template : {}", e1);
+			logger.error("Can't open ftl template : {}", e1.toString());
 			return;
 		} catch (TemplateException e2) {
-			logger.error("Exception during template processing : {}", e2);
+			logger.error("Exception during template processing : {}", e2.toString());
 			return;
 		}
 		TagHelper.reloadTelegraf(itemValue.value.address());
@@ -61,7 +61,7 @@ public class OpenldapTagHandler extends TickInputConfigurator {
 			return;
 		}
 		TagHelper.deleteRemote(itemValue.value.address(), "/etc/telegraf/telegraf.d/bm-openldap.conf");
-		logger.info("Deleted file /etc/telegraf/telegraf.d/bm-openldap.conf at " + itemValue.value.address());
+		logger.info("Deleted file /etc/telegraf/telegraf.d/bm-openldap.conf at {}", itemValue.value.address());
 		TagHelper.reloadTelegraf(itemValue.value.address());
 	}
 }

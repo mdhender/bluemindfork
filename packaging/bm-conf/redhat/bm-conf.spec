@@ -77,12 +77,14 @@ if [ -e /etc/bm/bm-core.tok ]; then
     chown root:bluemind /etc/bm/bm-core.tok
 fi
 
-systemctl daemon-reload
 systemctl enable bluemind.target
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload
 
-if [ $1 -eq 1 ]; then
-    # Installation
-    systemctl start bluemind.target
+    if [ $1 -eq 1 ]; then
+        # Installation
+        systemctl start bluemind.target
+    fi
 fi
 
 for service in $(grep "enable" /lib/systemd/system-preset/10-bluemind.preset |cut -d ' ' -f 2); do
@@ -93,10 +95,11 @@ for service in $(grep "enable" /lib/systemd/system-preset/10-bluemind.preset |cu
     fi
 done
 
+
 %preun
 if [ $1 -eq 0 ]; then
     # Uninstall
-    systemctl stop bluemind.target
+    [ -d /run/systemd/system ] && systemctl stop bluemind.target
 fi
 
 %postun
@@ -108,6 +111,6 @@ if [ $1 -eq 0 ]; then
 fi
 
 if [ $1 -eq 1 ]; then
-    # Upgrade
-    systemctl start bluemind.target
+    # Upgrade
+    [ -d /run/systemd/system ] && systemctl start bluemind.target
 fi

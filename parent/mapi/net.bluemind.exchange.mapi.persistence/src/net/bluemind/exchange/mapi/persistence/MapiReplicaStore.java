@@ -55,14 +55,18 @@ public class MapiReplicaStore extends JdbcAbstractStore {
 		delete("DELETE FROM t_mapi_replica WHERE mailbox_uid = ?", new Object[] { mailboxUid });
 	}
 
+	private static final String GET_REPLICA_BY_UID = "SELECT " + MapiReplicaColumns.cols.names()
+			+ " FROM t_mapi_replica WHERE mailbox_uid=?";
+
 	public MapiReplica get(String mailboxUid) throws SQLException {
-		String query = "SELECT " + MapiReplicaColumns.cols.names() + " FROM t_mapi_replica WHERE mailbox_uid=?";
-		return unique(query, rs -> new MapiReplica(), MapiReplicaColumns.populator(), new Object[] { mailboxUid });
+		return unique(GET_REPLICA_BY_UID, rs -> new MapiReplica(), MapiReplicaColumns.populator(), mailboxUid);
 	}
 
+	private static final String GET_REPLICA_BY_GUID = "SELECT " + MapiReplicaColumns.cols.names()
+			+ " FROM t_mapi_replica WHERE mailbox_guid=?";
+
 	public MapiReplica byMailboxGuid(String mailboxGuid) throws SQLException {
-		String query = "SELECT " + MapiReplicaColumns.cols.names() + " FROM t_mapi_replica WHERE mailbox_guid=?";
-		return unique(query, rs -> new MapiReplica(), MapiReplicaColumns.populator(), new Object[] { mailboxGuid });
+		return unique(GET_REPLICA_BY_GUID, rs -> new MapiReplica(), MapiReplicaColumns.populator(), mailboxGuid);
 	}
 
 }

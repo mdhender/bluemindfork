@@ -51,6 +51,7 @@ import net.bluemind.group.api.Member;
 import net.bluemind.lib.ldap.GroupMemberAttribute;
 import net.bluemind.lib.ldap.LdapConProxy;
 import net.bluemind.mailbox.api.MailFilter;
+import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.system.importation.commons.CoreServices;
 import net.bluemind.system.importation.commons.ICoreServices;
 import net.bluemind.system.importation.commons.Parameters;
@@ -326,11 +327,19 @@ public abstract class Scanner {
 		SetView<Member> membersToRemove = Sets.difference(bmGroupMembers, ldapGroupMembers);
 		if (!membersToRemove.isEmpty()) {
 			coreService.removeMembers(groupManager.group.uid, new ArrayList<>(membersToRemove));
+			if (groupManager.isSplitDomainGroup(importLogger)) {
+				membersToRemove.stream().filter(member -> member.type == Member.Type.user)
+						.forEach(member -> coreService.setUserMailRouting(Routing.internal, member.uid));
+			}
 		}
 
 		SetView<Member> membersToAdd = Sets.difference(ldapGroupMembers, bmGroupMembers);
 		if (!membersToAdd.isEmpty()) {
 			coreService.addMembers(groupManager.group.uid, new ArrayList<>(membersToAdd));
+			if (groupManager.isSplitDomainGroup(importLogger)) {
+				membersToAdd.stream().filter(member -> member.type == Member.Type.user)
+						.forEach(member -> coreService.setUserMailRouting(Routing.external, member.uid));
+			}
 		}
 	}
 

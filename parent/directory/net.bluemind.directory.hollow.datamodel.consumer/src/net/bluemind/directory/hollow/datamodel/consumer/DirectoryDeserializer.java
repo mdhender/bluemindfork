@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +39,9 @@ import org.slf4j.LoggerFactory;
 
 import com.netflix.hollow.api.consumer.HollowConsumer;
 import com.netflix.hollow.api.consumer.HollowConsumer.AnnouncementWatcher;
+import com.netflix.hollow.api.consumer.HollowConsumer.ObjectLongevityConfig;
+import com.netflix.hollow.api.consumer.HollowConsumer.ObjectLongevityDetector;
+import com.netflix.hollow.api.consumer.index.UniqueKeyIndex;
 import com.netflix.hollow.core.index.HollowHashIndex;
 import com.netflix.hollow.core.index.HollowHashIndexResult;
 import com.netflix.hollow.core.index.HollowPrefixIndex;
@@ -47,43 +49,131 @@ import com.netflix.hollow.core.read.iterator.HollowOrdinalIterator;
 import com.netflix.hollow.tools.query.HollowFieldMatchQuery;
 
 import net.bluemind.directory.hollow.datamodel.consumer.Query.QueryType;
+import net.bluemind.directory.hollow.datamodel.consumer.internal.BmPrefixIndex;
+import net.bluemind.directory.hollow.datamodel.consumer.internal.LoggingRefreshListener;
 import net.bluemind.serialization.client.HollowContext;
 
 public class DirectoryDeserializer {
 
+	/**
+	 * system property used to override the filesystem folder holding hollow
+	 * directory data.
+	 */
+	public static final String BASE_DIR_PROP = "hollow.serdes.folder.directory";
+
 	private static final Logger logger = LoggerFactory.getLogger(DirectoryDeserializer.class);
-	private static final String BASE_DATA_DIR = "/var/spool/bm-hollowed/directory";
-	protected AddressBookRecordPrimaryKeyIndex uidIndex;
-	protected AddressBookRecordPrimaryKeyIndex distinguishedNameIndex;
-	protected AddressBookRecordPrimaryKeyIndex minimalIndex;
+	protected UniqueKeyIndex<AddressBookRecord, String> uidIndex;
+	protected UniqueKeyIndex<AddressBookRecord, String> distinguishedNameIndex;
+	protected UniqueKeyIndex<AddressBookRecord, Long> minimalIndex;
 	protected HollowHashIndex kindIndex;
-	protected HollowConsumer consumer;
-	private HollowPrefixIndex nameIndex;
-	private HollowPrefixIndex emailIndex;
+	protected final HollowConsumer consumer;
+	private final HollowPrefixIndex nameIndex;
+	private final HollowHashIndex anrIndex;
+	private final HollowPrefixIndex emailIndex;
+
+	private UniqueKeyIndex<OfflineAddressBook, String> rootByDomainUidIndex;
+
+	private final String domainUid;
+
 	private static final Set<String> complexQueryKeys = new HashSet<>(Arrays.asList("anr", "office"));
 
-	public DirectoryDeserializer(String domain) {
-		this(new File(BASE_DATA_DIR, domain));
+	public static final String baseDataDir() {
+		return System.getProperty(BASE_DIR_PROP, "/var/spool/bm-hollowed/directory");
 	}
 
+	public DirectoryDeserializer(String domain) {
+		this(new File(baseDataDir(), domain));
+	}
+
+	private static class LongevityConfig implements ObjectLongevityConfig {
+
+		@Override
+		public boolean enableLongLivedObjectSupport() {
+			return true;
+		}
+
+		@Override
+		public boolean enableExpiredUsageStackTraces() {
+			return false;
+		}
+
+		@Override
+		public long gracePeriodMillis() {
+			return 5000;
+		}
+
+		@Override
+		public long usageDetectionPeriodMillis() {
+			return 60000;
+		}
+
+		@Override
+		public boolean dropDataAutomatically() {
+			return true;
+		}
+
+		@Override
+		public boolean forceDropData() {
+			return false;
+		}
+
+	}
+
+	private static class LongevityDetector implements ObjectLongevityDetector {
+
+		@Override
+		public void staleReferenceExistenceDetected(int count) {
+			if (count > 0) {
+				logger.warn("staleReferenceExistenceDetected({})", count);
+			}
+		}
+
+		@Override
+		public void staleReferenceUsageDetected(int count) {
+			if (count > 0) {
+				logger.warn("staleReferenceUsageDetected({})", count);
+			}
+		}
+
+	}
+
+	/**
+	 * Caching of hollow objects is forbidden
+	 */
+	private static final ObjectLongevityConfig longevity = new LongevityConfig();
+	private static final ObjectLongevityDetector detector = new LongevityDetector();
+
 	public DirectoryDeserializer(File dir) {
-		logger.info("Consuming from directory {}", dir.getAbsolutePath());
+		this.domainUid = dir.getName();
+		logger.info("Consuming from directory {} for domain {}", dir.getAbsolutePath(), domainUid);
 		HollowContext context = HollowContext.get(dir, "directory");
-		this.consumer = HollowConsumer.withBlobRetriever(context.blobRetriever)
-				.withAnnouncementWatcher(watcher(context)).withGeneratedAPIClass(OfflineDirectoryAPI.class).build();
+		AnnouncementWatcher watcher = watcher(context);
+		this.consumer = new HollowConsumer.Builder<>()//
+				.withBlobRetriever(context.blobRetriever).withAnnouncementWatcher(watcher)//
+				.withObjectLongevityConfig(longevity).withObjectLongevityDetector(detector)//
+				.withGeneratedAPIClass(OfflineDirectoryAPI.class).build();
+		this.consumer.addRefreshListener(new LoggingRefreshListener(
+				dir.getName() + " ctx:" + context.toString().replace("net.bluemind.serialization.client.", "")));
 
 		this.consumer.triggerRefresh();
 		logger.info("Current version: {}", consumer.getCurrentVersionId());
 
-		this.minimalIndex = new AddressBookRecordPrimaryKeyIndex(consumer, "minimalid");
-		minimalIndex.listenToDataRefresh();
-		this.distinguishedNameIndex = new AddressBookRecordPrimaryKeyIndex(consumer, "distinguishedName");
-		distinguishedNameIndex.listenToDataRefresh();
-		this.uidIndex = new AddressBookRecordPrimaryKeyIndex(consumer, "uid");
-		uidIndex.listenToDataRefresh();
-		this.nameIndex = new HollowPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "name.value");
+		this.rootByDomainUidIndex = OfflineAddressBook.uniqueIndex(consumer);
+		this.consumer.addRefreshListener(rootByDomainUidIndex);
+
+		this.minimalIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class).usingPath("minimalid", Long.class);
+		this.consumer.addRefreshListener(minimalIndex);
+		this.distinguishedNameIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class)
+				.usingPath("distinguishedName", String.class);
+		this.consumer.addRefreshListener(distinguishedNameIndex);
+		this.uidIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class).usingPath("uid", String.class);
+		this.consumer.addRefreshListener(uidIndex);
+		this.nameIndex = new BmPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "name");
 		nameIndex.listenForDeltaUpdates();
-		this.emailIndex = new HollowPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "emails.address.value");
+		this.anrIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "", "anr.element.token");
+		anrIndex.listenForDeltaUpdates();
+		this.emailIndex = new BmPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "emails.element.address",
+				1);
 		emailIndex.listenForDeltaUpdates();
 		this.kindIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "", "kind.value");
 		kindIndex.listenForDeltaUpdates();
@@ -96,6 +186,10 @@ public class DirectoryDeserializer {
 	public Collection<AddressBookRecord> all() {
 		OfflineDirectoryAPI api = (OfflineDirectoryAPI) consumer.getAPI();
 		return api.getAllAddressBookRecord();
+	}
+
+	public Optional<OfflineAddressBook> root() {
+		return Optional.ofNullable(rootByDomainUidIndex.findMatch(domainUid));
 	}
 
 	public List<AddressBookRecord> search(List<Predicate<? super AddressBookRecord>> predicates) {
@@ -118,19 +212,12 @@ public class DirectoryDeserializer {
 		return Optional.ofNullable(minimalIndex.findMatch(minimalId));
 	}
 
-	public Collection<AddressBookRecord> byNameOrEmailPrefix(String value) {
-		Map<Integer, AddressBookRecord> results = new HashMap<>();
-		results.putAll(byNamePrefix(value).stream().collect(Collectors.toMap(a -> a.getOrdinal(), a -> a)));
-		results.putAll(byEmailPrefix(value).stream().collect(Collectors.toMap(a -> a.getOrdinal(), a -> a)));
-		return results.values();
+	public List<AddressBookRecord> byNameOrEmailPrefix(String value) {
+		return byHash(anrIndex, value);
 	}
 
 	public Optional<AddressBookRecord> byEmail(String email) {
 		return byEmailPrefix(email).stream().findFirst();
-	}
-
-	private List<AddressBookRecord> byNamePrefix(String name) {
-		return byPrefix(nameIndex, name);
 	}
 
 	private List<AddressBookRecord> byEmailPrefix(String email) {
@@ -149,8 +236,12 @@ public class DirectoryDeserializer {
 		return results;
 	}
 
-	public Collection<AddressBookRecord> byKind(String kind) {
-		HollowHashIndexResult findMatches = kindIndex.findMatches(kind);
+	public List<AddressBookRecord> byKind(String kind) {
+		return byHash(kindIndex, kind);
+	}
+
+	private List<AddressBookRecord> byHash(HollowHashIndex hash, String kind) {
+		HollowHashIndexResult findMatches = hash.findMatches(kind);
 		if (findMatches == null) {
 			return Collections.emptyList();
 		}
@@ -183,8 +274,7 @@ public class DirectoryDeserializer {
 	}
 
 	private List<AddressBookRecord> order(List<AddressBookRecord> list) {
-		return list.stream().sorted((a, b) -> a.getName().getValue().compareTo(b.getName().getValue()))
-				.collect(Collectors.toList());
+		return list.stream().sorted((a, b) -> a.getName().compareTo(b.getName())).collect(Collectors.toList());
 	}
 
 	public List<AddressBookRecord> search(Query query) {
@@ -225,7 +315,7 @@ public class DirectoryDeserializer {
 	}
 
 	private boolean evalValue(String key, String value, AddressBookRecord record) {
-		return AddressBookMatcher.matches(key, value, record);
+		return AddressBookMatcher.matches(key, value, root(), record);
 	}
 
 	private List<AddressBookRecord> simpleQuery(String key, String value) {

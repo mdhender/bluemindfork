@@ -5,11 +5,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.junit.After;
@@ -18,8 +19,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
@@ -36,6 +35,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mailbox.service.IMailboxesStorage.CheckAndRepairStatus;
 import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.mailbox.service.common.DefaultFolder.Status;
 import net.bluemind.mailshare.api.IMailshare;
@@ -54,14 +54,7 @@ public class CyrusMailboxesStorageTests {
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(10, TimeUnit.SECONDS);
 
 		imapServerAddress = new BmConfIni().get("imap-role");
 		assertNotNull(imapServerAddress);
@@ -83,6 +76,50 @@ public class CyrusMailboxesStorageTests {
 	@After
 	public void after() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
+	}
+
+	@Test
+	public void checkAndRepairSharedSeen() throws IOException, IMAPException {
+		String userLogin = "testsharedseen." + System.currentTimeMillis();
+		String userUid = PopulateHelper.addUser(userLogin, domainUid);
+
+		ItemValue<Mailbox> userMailbox = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IMailboxes.class, domainUid).getComplete(userUid);
+
+		String strangeFN = "La fille du bédoin... " + System.currentTimeMillis();
+		try (StoreClient sc = new StoreClient(imapServerAddress, 1143, userLogin + "@" + domainUid, "password")) {
+			assertTrue(sc.login());
+
+			assertTrue(sc.create(strangeFN));
+		}
+
+		CyrusMailboxesStorage cms = new CyrusMailboxesStorage();
+		int toFix = 0;
+		try {
+			CheckAndRepairStatus status = cms.checkAndRepairSharedSeen(new BmTestContext(SecurityContext.SYSTEM),
+					domainUid, userMailbox, false);
+			toFix = status.broken;
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		try {
+			CheckAndRepairStatus status = cms.checkAndRepairSharedSeen(new BmTestContext(SecurityContext.SYSTEM),
+					domainUid, userMailbox, true);
+			assertTrue(status.checked > 0);
+			assertEquals(toFix, status.fixed);
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+		try {
+			CheckAndRepairStatus status = cms.checkAndRepairSharedSeen(new BmTestContext(SecurityContext.SYSTEM),
+					domainUid, userMailbox, true);
+			assertTrue(status.checked > 0);
+			assertEquals("A second repair run should have nothing to do.", 0, status.fixed);
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
 	}
 
 	@Test

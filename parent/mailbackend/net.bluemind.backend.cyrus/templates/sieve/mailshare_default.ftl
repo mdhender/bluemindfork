@@ -6,7 +6,9 @@ require ["body", "copy", "fileinto", "imapflags", "vacation", "include" ];
 
 # vacation
 <#if vacation.enabled>
-if allof (not header :contains "Precedence" ["bulk", "list"],
+if allof (not address :contains "from" "noreply@",
+		  not address :contains "from" "no-reply@",
+		  not header :contains "Precedence" ["bulk", "list"],
 		  not header :contains "X-Spam-Flag" "YES",
 		  not header :contains "X-DSPAM-Result" "Spam") {
 	vacation :days 3 :from "${from}" :addresses [<#list mails as mail>"${mail}"<#if mail_has_next>,</#if></#list>] :subject "${vacation.subject?replace("\"", "\\\"")?replace("'", "\\'")}" "${vacation.text?replace("\"", "\\\"")?replace("'", "\\'")}";

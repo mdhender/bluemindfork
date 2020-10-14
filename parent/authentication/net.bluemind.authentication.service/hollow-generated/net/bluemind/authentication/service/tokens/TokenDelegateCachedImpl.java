@@ -9,22 +9,30 @@ import com.netflix.hollow.api.objects.delegate.HollowCachedDelegate;
 @SuppressWarnings("all")
 public class TokenDelegateCachedImpl extends HollowObjectAbstractDelegate implements HollowCachedDelegate, TokenDelegate {
 
-    private final int keyOrdinal;
+    private final String key;
     private final int subjectUidOrdinal;
     private final int subjectDomainOrdinal;
+    private final String origin;
     private final Long expiresTimestamp;
     private TokenTypeAPI typeAPI;
 
     public TokenDelegateCachedImpl(TokenTypeAPI typeAPI, int ordinal) {
-        this.keyOrdinal = typeAPI.getKeyOrdinal(ordinal);
+        this.key = typeAPI.getKey(ordinal);
         this.subjectUidOrdinal = typeAPI.getSubjectUidOrdinal(ordinal);
         this.subjectDomainOrdinal = typeAPI.getSubjectDomainOrdinal(ordinal);
+        this.origin = typeAPI.getOrigin(ordinal);
         this.expiresTimestamp = typeAPI.getExpiresTimestampBoxed(ordinal);
         this.typeAPI = typeAPI;
     }
 
-    public int getKeyOrdinal(int ordinal) {
-        return keyOrdinal;
+    public String getKey(int ordinal) {
+        return key;
+    }
+
+    public boolean isKeyEqual(int ordinal, String testValue) {
+        if(testValue == null)
+            return key == null;
+        return testValue.equals(key);
     }
 
     public int getSubjectUidOrdinal(int ordinal) {
@@ -33,6 +41,16 @@ public class TokenDelegateCachedImpl extends HollowObjectAbstractDelegate implem
 
     public int getSubjectDomainOrdinal(int ordinal) {
         return subjectDomainOrdinal;
+    }
+
+    public String getOrigin(int ordinal) {
+        return origin;
+    }
+
+    public boolean isOriginEqual(int ordinal, String testValue) {
+        if(testValue == null)
+            return origin == null;
+        return testValue.equals(origin);
     }
 
     public long getExpiresTimestamp(int ordinal) {

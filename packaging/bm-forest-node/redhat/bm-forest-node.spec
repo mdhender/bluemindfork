@@ -7,7 +7,7 @@ Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Requires(post):     systemd systemd-sysv
-Requires:           bm-jdk = 8u252-bluemind34, bm-kafka = 2.4.0-bluemind9
+Requires:           bm-jdk = 8u265-bluemind36, bm-kafka = 2.4.0-bluemind9
 Requires(post):     /bin/bash, initscripts
 
 %description
@@ -31,26 +31,28 @@ install -m 644 /sources/stretch/bm-forest-node.service %{buildroot}%{_unitdir}
 %pre
 if [ $1 -gt 1 ]; then
     # Upgrade
-    systemctl stop bm-forest-node
+    [ -d /run/systemd/system ] && systemctl stop bm-forest-node
 fi
 
 %post -p /bin/bash
-systemctl daemon-reload
 systemctl enable bm-forest-node
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload
 
-if [ $1 -eq 1 ]; then
-    # Installation
-    systemctl start bm-forest-node
+    if [ $1 -eq 1 ]; then
+        # Installation
+        systemctl start bm-forest-node
+    fi
 fi
 
 %preun
 if [ $1 -eq 0 ]; then
     # Uninstall
-    systemctl stop bm-forest-node
+    [ -d /run/systemd/system ] && systemctl stop bm-forest-node
 fi
 
 %postun
 if [ $1 -eq 1 ]; then
-    # Upgrade
-    systemctl start bm-forest-node
+    # Upgrade
+    [ -d /run/systemd/system ] && systemctl start bm-forest-node
 fi

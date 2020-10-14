@@ -108,7 +108,7 @@ public class ResourceFilter implements IMessageFilter {
 
 	private String getCoreUrl() {
 		if (coreUrl == null) {
-				coreUrl = "http://" + Topology.get().core().value.address() + ":8090";
+			coreUrl = "http://" + Topology.get().core().value.address() + ":8090";
 		}
 		return coreUrl;
 	}
@@ -163,7 +163,7 @@ public class ResourceFilter implements IMessageFilter {
 			}
 
 			DirEntry entry = directoryService.findByEntryUid(acl.subject);
-			if (entry != null) {
+			if (entry != null && !entry.archived) {
 				if (entry.kind == BaseDirEntry.Kind.GROUP) {
 					List<Member> users = groupService.getExpandedUserMembers(entry.entryUid);
 					for (Member user : users) {

@@ -30,6 +30,7 @@ import net.bluemind.core.jdbc.JdbcAbstractStore.StatementValues;
 import net.bluemind.mailflow.api.ExecutionMode;
 import net.bluemind.mailflow.api.MailRuleActionAssignment;
 import net.bluemind.mailflow.api.MailRuleActionAssignmentDescriptor;
+import net.bluemind.mailflow.api.MailflowRouting;
 
 public class MailFlowAssignmentColumns {
 
@@ -38,6 +39,7 @@ public class MailFlowAssignmentColumns {
 			.col("position") //
 			.col("action_identifier") //
 			.col("execution_mode", "enum_mailflow_execution_mode") //
+			.col("routing", "enum_mailflow_routing") //
 			.col("action_config") //
 			.col("assignment_group") //
 			.col("is_active");
@@ -53,6 +55,7 @@ public class MailFlowAssignmentColumns {
 				statement.setInt(index++, value.position);
 				statement.setString(index++, value.actionIdentifier);
 				statement.setString(index++, value.mode.name());
+				statement.setString(index++, value.routing.name());
 				statement.setObject(index++, value.actionConfiguration);
 				statement.setString(index++, value.group);
 				statement.setBoolean(index++, value.isActive);
@@ -75,6 +78,7 @@ public class MailFlowAssignmentColumns {
 				value.position = rs.getInt(index++);
 				value.actionIdentifier = rs.getString(index++);
 				value.mode = ExecutionMode.valueOf(rs.getString(index++));
+				value.routing = MailflowRouting.valueOf(rs.getString(index++));
 				value.actionConfiguration = (Map<String, String>) rs.getObject(index++);
 				value.group = rs.getString(index++);
 				value.isActive = rs.getBoolean(index++);

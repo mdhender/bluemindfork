@@ -60,13 +60,12 @@ public class BmHollowClient implements AutoCloseable {
 			con.setRequestMethod("GET");
 			this.inputStream = con.getInputStream();
 		} catch (Exception e) {
-			logger.warn("Cannot connect to hollow endpoint", e);
-			throw new RuntimeException(e);
+			throw new HollowRetrievalException(e);
 		}
 		return this.inputStream;
 	}
 
-	private String getBaseUrl() {
+	private static String getBaseUrl() {
 		if (null == host) {
 			BmHollowClient.host = Topology.getIfAvailable().map(t -> t.core().value.address()).orElse("127.0.0.1");
 		}

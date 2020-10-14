@@ -58,46 +58,10 @@ var gBMPreferences = {
     reset: function() {
         this._logger.info("RESET");
         bmService.reset();
-        this._clearCacheAndCookies();
-        this._clearIndexedDB();
         let observerService = Components.classes["@mozilla.org/observer-service;1"]
                         .getService(Components.interfaces.nsIObserverService);
         observerService.notifyObservers(null, "reload-bm-tabs", "please");
     },
-    _clearCacheAndCookies: function() {
-        this._logger.info("Clear cookies and cache");
-        try {
-            Services.prefs.setBoolPref("privacy.cpd.cache", true);
-            Services.prefs.setBoolPref("privacy.cpd.cookies", true);
-            Services.prefs.setBoolPref("privacy.cpd.offlineApps", true);
-            let s = new Sanitizer();
-            s.prefDomain = "privacy.cpd.";
-            s.range = Sanitizer.getClearRange(Sanitizer.TIMESPAN_EVERYTHING);
-            s.ignoreTimespan = !s.range;
-            s.sanitize();
-        } catch(e) {
-            this._logger.error(e);
-        }
-    },
-    _clearIndexedDB: function() {
-		try {
-			//clear indexedDB
-			let serverUrl = bmUtils.getCharPref("extensions.bm.server", null);
-			if (serverUrl) {
-				this._logger.info("Clear indexedDB for uri:" + serverUrl);
-				let baseURI = Services.io.newURI(serverUrl, null, null);
-				let principal = Services.scriptSecurityManager.createCodebasePrincipal(baseURI, {});
-                try {
-                    Services.qms.clearStoragesForPrincipal(principal, null, true);
-                } catch(e) {
-                    //TB 68.3.1
-                    Services.qms.clearStoragesForPrincipal(principal);
-                }
-			}
-		} catch(e) {
-			this._logger.error(e);
-		}
-	},
     showLog: function() {
         let file = Components.classes["@mozilla.org/file/directory_service;1"]
                             .getService(Components.interfaces.nsIProperties)

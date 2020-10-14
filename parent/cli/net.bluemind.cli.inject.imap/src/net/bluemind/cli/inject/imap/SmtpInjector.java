@@ -25,6 +25,9 @@ import org.columba.ristretto.message.Address;
 import org.columba.ristretto.smtp.SMTPProtocol;
 import org.columba.ristretto.smtp.SMTPResponse;
 
+import net.bluemind.cli.inject.common.GOTMessageProducer;
+import net.bluemind.cli.inject.common.MailExchangeInjector;
+import net.bluemind.cli.inject.common.TargetMailbox;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.network.topology.Topology;
@@ -68,7 +71,6 @@ public class SmtpInjector extends MailExchangeInjector {
 				logger.debug("Added {} to {}", sendResp.getMessage(), email);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
-				System.exit(1);
 			} finally {
 				lock.release();
 			}
@@ -76,7 +78,7 @@ public class SmtpInjector extends MailExchangeInjector {
 	}
 
 	public SmtpInjector(IServiceProvider provider, String domainUid) {
-		super(provider, domainUid, SmtpTargetMailbox::new);
+		super(provider, domainUid, SmtpTargetMailbox::new, new GOTMessageProducer());
 
 	}
 

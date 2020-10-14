@@ -72,7 +72,7 @@ public class VEventSeriesStoreTests {
 
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 		String containerId = "test_" + System.nanoTime();
 		Container container = Container.create(containerId, "test", "test", "me", true);
@@ -885,14 +885,50 @@ public class VEventSeriesStoreTests {
 	@Test
 	public void testFindByIcsUid() throws SQLException {
 		ItemValue<VEventSeries> event = defaultVEvent();
-		event.value.icsUid = "tot";
+		event.value.icsUid = "uid";
 		event.value.main.alarm = new ArrayList<VAlarm>();
 
 		itemStore.create(Item.create(event.uid, UUID.randomUUID().toString()));
 		Item item = itemStore.get(event.uid);
 		vEventStore.create(item, event.value);
 
-		List<String> res = vEventStore.findByIcsUid("tot");
+		List<String> res = vEventStore.findByIcsUid("uid");
+		assertEquals(1, res.size());
+		assertEquals(event.uid, res.get(0));
+
+		event = defaultVEvent();
+		event.value.icsUid = "UID1";
+		event.value.main.alarm = new ArrayList<VAlarm>();
+
+		itemStore.create(Item.create(event.uid, UUID.randomUUID().toString()));
+		item = itemStore.get(event.uid);
+		vEventStore.create(item, event.value);
+
+		res = vEventStore.findByIcsUid("UID1");
+		assertEquals(1, res.size());
+		assertEquals(event.uid, res.get(0));
+
+		event = defaultVEvent();
+		event.value.icsUid = "UID2";
+		event.value.main.alarm = new ArrayList<VAlarm>();
+
+		itemStore.create(Item.create(event.uid, UUID.randomUUID().toString()));
+		item = itemStore.get(event.uid);
+		vEventStore.create(item, event.value);
+
+		res = vEventStore.findByIcsUid("uid2");
+		assertEquals(1, res.size());
+		assertEquals(event.uid, res.get(0));
+
+		event = defaultVEvent();
+		event.value.icsUid = "uid3";
+		event.value.main.alarm = new ArrayList<VAlarm>();
+
+		itemStore.create(Item.create(event.uid, UUID.randomUUID().toString()));
+		item = itemStore.get(event.uid);
+		vEventStore.create(item, event.value);
+
+		res = vEventStore.findByIcsUid("UID3");
 		assertEquals(1, res.size());
 		assertEquals(event.uid, res.get(0));
 	}

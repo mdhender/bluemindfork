@@ -39,11 +39,15 @@ package net.bluemind.core.sendmail;
 import org.columba.ristretto.smtp.SMTPResponse;
 
 public class SendmailResponse {
-	private final int code;
+	public final int code;
 	private final String message;
 
 	public static SendmailResponse success() {
 		return new SendmailResponse(200);
+	}
+
+	public int code() {
+		return code;
 	}
 
 	public static SendmailResponse fail(String message) {
@@ -60,9 +64,9 @@ public class SendmailResponse {
 		this.message = message;
 	}
 
-	public SendmailResponse(SMTPResponse smtpResponse) {
-		this.code = smtpResponse.getCode();
-		this.message = smtpResponse.getMessage();
+	SendmailResponse(SMTPResponse resp) {
+		this.code = resp.getCode();
+		this.message = resp.getMessage();
 	}
 
 	@Override

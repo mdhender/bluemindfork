@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
+<?xml-stylesheet href="chrome://bm/content/skin/style.css" type="text/css"?>
+
+<dialog xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        id="bmprefs"
+        title="__BM_bm.preferences.tab.label__"
+        onload="gBMPreferences.init();">
+
+    <script type="application/x-javascript" src="chrome://messenger/content/sanitize.js"/>
+    <script type="application/x-javascript" src="chrome://bm/content/preferences/bmPreferences.js"/>
+    <script type="application/x-javascript" src="chrome://bm/content/apply-locales.js" />
+    
+    <vbox flex="1">
+        <groupbox>
+            <hbox class="groupbox-title">
+                <label class="header" value="__BM_bm.preferences.server.label__"/>
+            </hbox>
+            <hbox align="center" class="input-container">
+                <label value="__BM_bm.preferences.server.address.label__"/>
+                <html:input id="bmserver"/>
+                <button label="__BM_bm.preferences.server.button.label__" oncommand="gBMPreferences.promptUsernameAndPassword();"/>
+            </hbox>
+        </groupbox>
+        <groupbox>
+            <hbox class="groupbox-title">
+                <label class="header" value="__BM_bm.preferences.settings.label__"/>
+            </hbox>
+            <hbox align="center">
+                <label value="__BM_bm.preferences.settings.settings.label__"/>
+                <spacer flex="1"/>
+                <button label="__BM_bm.preferences.settings.button.label__" oncommand="gBMPreferences.openSettingsTab();"/>
+            </hbox>
+        </groupbox>
+        <groupbox>
+            <hbox class="groupbox-title">
+                <label class="header" value="__BM_bm.preferences.im.label__"/>
+            </hbox>
+            <hbox align="center">
+                <label value="__BM_bm.preferences.im.add.label__"/>
+                <spacer flex="1"/>
+                <button label="__BM_bm.preferences.im.button.add.label__" oncommand="gBMPreferences.addXMPPAccount();"
+                    disabled="true"/>
+            </hbox>
+        </groupbox>
+        <groupbox>
+            <hbox class="groupbox-title">
+                <label class="header" value="__BM_bm.preferences.log.label__"/>
+            </hbox>
+            <hbox align="center">
+                <checkbox id="bm-checkbox-debug"
+                     label="__BM_bm.preferences.log.pref.label__"
+                     onclick="gBMPreferences.toggleDebug();"/>
+                <spacer flex="1"/>
+                <button id="bm-button-showlog"
+                        label="__BM_bm.preferences.showlog.button.label__"
+                        tooltiptext="__BM_bm.preferences.showlog.button.tooltiptext__"
+                        oncommand="gBMPreferences.showLog();" align="right"/>
+            </hbox>
+        </groupbox>
+	    <hbox align="left">
+	      <button id="bm-button-reset"
+		      label="__BM_bm.preferences.reset.button.label__"
+		      tooltiptext="__BM_bm.preferences.reset.button.tooltiptext__"
+		      oncommand="gBMPreferences.reset();"/>
+	      <button id="bm-button-import"
+		      label="__BM_bm.preferences.import.button.label__"
+		      tooltiptext="__BM_bm.preferences.import.button.tooltiptext__"
+		      oncommand="gBMPreferences.importCollected();"/>
+	    </hbox>
+    </vbox>
+</dialog>

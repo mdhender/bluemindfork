@@ -18,14 +18,14 @@
  */
 package net.bluemind.directory.hollow.datamodel.consumer;
 
-import java.util.Collection;
+import java.util.List;
 
 public class SearchResults {
 
 	public final int totalCount;
-	public final Collection<AddressBookRecord> records;
+	public final List<AddressBookRecord> records;
 
-	public SearchResults(int totalCount, Collection<AddressBookRecord> records) {
+	public SearchResults(int totalCount, List<AddressBookRecord> records) {
 		this.totalCount = totalCount;
 		this.records = records;
 	}

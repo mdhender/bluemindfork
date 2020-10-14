@@ -13,28 +13,18 @@ Require-Bundle: net.bluemind.commons.ui.closure;bundle-version="4.1.0",
  net.bluemind.lib.vertx;bundle-version="4.1.0",
  net.bluemind.system.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.core.commons,
- net.bluemind.authentication.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.ui.gwtcommon.icons;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.core.context,
  net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.ui.extensions.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.ui.gwtcommon.forms;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.core.container.api;bundle-version="4.1.0",
- net.bluemind.user.api.gwt;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.tag.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.domain.api.gwt;visibility:=reexport,
  net.bluemind.ui.adminconsole.base;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.gwtconsoleapp.base;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.directory.api,
- net.bluemind.directory.api.gwt;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.addressbook.api,
- net.bluemind.group.api.gwt;visibility:=reexport,
  com.google.gwt.user;resolution:=optional,
- net.bluemind.monitoring.api;bundle-version="4.1.0",
- net.bluemind.monitoring.api.gwt;bundle-version="4.1.0",
- net.bluemind.role.api;bundle-version="1.0.0",
- net.bluemind.mailshare.api.gwt;visibility:=reexport,
- com.google.jsinterop.annotations;bundle-version="1.0.1"
+ com.google.jsinterop.annotations;bundle-version="1.0.1",
+ net.bluemind.metrics.alerts.api.gwt;bundle-version="4.1.0"
 Export-Package: net.bluemind.ui.adminconsole.monitoring
+Automatic-Module-Name: net.bluemind.ui.adminconsole.monitoring
 
 

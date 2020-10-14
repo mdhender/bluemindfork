@@ -26,6 +26,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.Member;
 import net.bluemind.mailbox.api.MailFilter;
+import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.user.api.User;
 
 /**
@@ -180,4 +181,11 @@ public interface ICoreServices {
 	 * @param mailboxQuota
 	 */
 	public void setMailboxQuota(String uid, int mailboxQuota);
+
+	/**
+	 * @param internal
+	 * @param member
+	 * @return
+	 */
+	public void setUserMailRouting(Routing routing, String userUid);
 }

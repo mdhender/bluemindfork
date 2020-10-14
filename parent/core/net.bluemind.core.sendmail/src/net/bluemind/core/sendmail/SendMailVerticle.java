@@ -33,6 +33,7 @@ public class SendMailVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
+
 		final ISendmail mailer = new Sendmail();
 		vertx.eventBus().consumer(SendMailAddress.SEND, new Handler<Message<LocalJsonObject<Mail>>>() {
 			public void handle(Message<LocalJsonObject<Mail>> message) {

@@ -488,6 +488,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		JsonObject js = new JsonObject();
 		js.put("title", from).put("body", idxAndNotif.value.body.subject);
 		js.put("uid", Long.toString(idxAndNotif.value.imapUid));
+		js.put("internalId", Long.toString(idxAndNotif.internalId));
 		if (logger.isDebugEnabled()) {
 			logger.debug("HTML5 Notification attempt with {}", js.encode());
 		}

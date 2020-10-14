@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.InputStream;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -244,5 +245,12 @@ class MockedSendmail implements ISendmail {
 
 	public boolean hasBeenCalled() {
 		return wasCalled;
+	}
+
+	@Override
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+			InputStream inStream) {
+		wasCalled();
+		return SendmailResponse.success();
 	}
 }

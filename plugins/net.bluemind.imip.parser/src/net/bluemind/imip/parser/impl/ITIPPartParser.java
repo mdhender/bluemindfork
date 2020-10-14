@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.james.mime4j.dom.Entity;
@@ -42,6 +43,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.parser.ICal4jEventHelper;
 import net.bluemind.icalendar.parser.ICal4jHelper;
+import net.bluemind.icalendar.parser.ObservanceMapper;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.lib.ical4j.util.IcalConverter;
 import net.bluemind.todolist.api.VTodo;
@@ -95,6 +97,9 @@ public class ITIPPartParser {
 		Organizer orga = null;
 		Sequence seq = null;
 
+		Map<String, String> tzMapping = ObservanceMapper.fromCalendarComponents(calendarComponents)
+				.getTimezoneMapping();
+
 		for (CalendarComponent part : calendarComponents) {
 			if ((part instanceof net.fortuna.ical4j.model.component.VEvent)) {
 				net.fortuna.ical4j.model.component.VEvent icalVEvent = (net.fortuna.ical4j.model.component.VEvent) part;
@@ -103,11 +108,11 @@ public class ITIPPartParser {
 				orga = icalVEvent.getOrganizer();
 				seq = icalVEvent.getSequence();
 				VEvent calElement = new VEvent();
-				calElement = new ICal4jEventHelper<VEvent>().parseIcs(calElement, part, globalTZ,
+				calElement = new ICal4jEventHelper<VEvent>().parseIcs(calElement, part, globalTZ, tzMapping,
 						Optional.empty()).value;
 
 				// DTEND
-				calElement.dtend = IcalConverter.convertToDateTime(icalVEvent.getEndDate(), globalTZ);
+				calElement.dtend = IcalConverter.convertToDateTime(icalVEvent.getEndDate(), globalTZ, tzMapping);
 
 				// TRANSPARANCY
 				if (icalVEvent.getTransparency() != null) {
@@ -136,28 +141,31 @@ public class ITIPPartParser {
 				imip.iCalendarElements.add(calElement);
 			} else {
 				// VToDo
-				VToDo icalVTodo = (VToDo) part;
-				summary = icalVTodo.getSummary();
-				uid = icalVTodo.getUid();
-				orga = icalVTodo.getOrganizer();
-				seq = icalVTodo.getSequence();
-				VTodo calElement = new VTodo();
-				new ICal4jHelper<VTodo>().parseIcs(calElement, part, globalTZ, Optional.empty());
+				if ((part instanceof net.fortuna.ical4j.model.component.VToDo)) {
+					VToDo icalVTodo = (VToDo) part;
+					summary = icalVTodo.getSummary();
+					uid = icalVTodo.getUid();
+					orga = icalVTodo.getOrganizer();
+					seq = icalVTodo.getSequence();
+					VTodo calElement = new VTodo();
+					new ICal4jHelper<VTodo>().parseIcs(calElement, part, globalTZ, tzMapping, Optional.empty());
 
-				// DUE
-				calElement.due = IcalConverter.convertToDateTime(icalVTodo.getDue(), globalTZ);
+					// DUE
+					calElement.due = IcalConverter.convertToDateTime(icalVTodo.getDue(), globalTZ, tzMapping);
 
-				// PERCENT
-				if (icalVTodo.getPercentComplete() != null) {
-					calElement.percent = new Integer(icalVTodo.getPercentComplete().getValue());
+					// PERCENT
+					if (icalVTodo.getPercentComplete() != null) {
+						calElement.percent = new Integer(icalVTodo.getPercentComplete().getValue());
+					}
+
+					// COMPLETE
+					if (icalVTodo.getDateCompleted() != null) {
+						calElement.completed = IcalConverter.convertToDateTime(icalVTodo.getDateCompleted(), globalTZ,
+								tzMapping);
+					}
+					imip.iCalendarElements.add(calElement);
+					break;
 				}
-
-				// COMPLETE
-				if (icalVTodo.getDateCompleted() != null) {
-					calElement.completed = IcalConverter.convertToDateTime(icalVTodo.getDateCompleted(), globalTZ);
-				}
-				imip.iCalendarElements.add(calElement);
-				break;
 			}
 
 		}

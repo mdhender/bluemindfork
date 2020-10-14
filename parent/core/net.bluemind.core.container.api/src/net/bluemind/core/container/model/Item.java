@@ -88,4 +88,18 @@ public class Item {
 		return ret;
 	}
 
+	public boolean match(ItemFlagFilter filter) {
+		for (ItemFlag f : filter.must) {
+			if (!flags.contains(f)) {
+				return false;
+			}
+		}
+		for (ItemFlag f : filter.mustNot) {
+			if (flags.contains(f)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 }

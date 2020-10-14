@@ -151,7 +151,6 @@ public class ResourceTypeGrid extends DataGrid<ResourceType>implements IBmGrid<R
 		};
 		labelColumn.setSortable(true);
 		addColumn(labelColumn, ResourceTypeConstants.INST.label(), ResourceTypeConstants.INST.label());
-		setColumnWidth(labelColumn, 25.0, Unit.PCT);
 
 		// FIXME
 		// if (Ajax.TOKEN.isDomainGlobal()) {

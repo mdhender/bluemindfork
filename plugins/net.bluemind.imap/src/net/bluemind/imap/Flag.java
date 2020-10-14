@@ -45,14 +45,19 @@ public enum Flag {
 	public static Flag from(String s) {
 		switch (s.toLowerCase()) {
 		case "\\seen":
+		case "seen":
 			return SEEN;
 		case "\\draft":
-			return SEEN;
+		case "draft":
+			return DRAFT;
 		case "\\deleted":
+		case "deleted":
 			return DELETED;
 		case "\\flagged":
+		case "flagged":
 			return FLAGGED;
 		case "\\answered":
+		case "answered":
 			return ANSWERED;
 		case "$forwarded":
 			return FORWARDED;

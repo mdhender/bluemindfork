@@ -16,30 +16,39 @@ import net.bluemind.server.api.Server;
 public class PostgresqlDataTagHandler extends TickInputConfigurator {
 	private static final Logger logger = LoggerFactory.getLogger(PostgresqlDataTagHandler.class);
 
+	private final String[] telegrafConfigs = {
+		"bm-postgres-data.conf",
+		"bm-postgres-size-data.conf",
+		"bm-postgres-statio-data.conf"
+	};
+
 	@Override
-	public void onServerTagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
+	public void onServerTagged(BmContext context, ItemValue<Server> server, String tag) throws ServerFault {
 		if (!tag.equals("bm/pgsql-data")) {
 			return;
 		}
-		try {
-			TagHelper.jarToFS(getClass(), "/configs/bm-postgres-data.conf",
-					"/etc/telegraf/telegraf.d/bm-postgres-data.conf", itemValue,
-					context.provider().instance(IServer.class, InstallationId.getIdentifier()));
-		} catch (IOException e) {
-			logger.error("Error copying file : {}", e);
-			return;
+		IServer serverApi = context.provider().instance(IServer.class, InstallationId.getIdentifier());
+		for (String telegrafConfig: telegrafConfigs) {
+			try {
+				TagHelper.jarToFS(getClass(), "/configs/" + telegrafConfig,
+						"/etc/telegraf/telegraf.d/" + telegrafConfig, server, serverApi);
+			} catch (IOException e) {
+				logger.error("Error copying file : {}", telegrafConfig, e);
+			}
 		}
 
-		TagHelper.reloadTelegraf(itemValue.value.address());
-		monitor.ifPresent(mon -> mon.log("Telegraf input for " + tag + " configured on " + itemValue.value.address()));
+		TagHelper.reloadTelegraf(server.value.address());
+		monitor.ifPresent(mon -> mon.log("Telegraf input for " + tag + " configured on " + server.value.address()));
 	}
 
 	@Override
-	public void onServerUntagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals("bm/pgsql")) {
+	public void onServerUntagged(BmContext context, ItemValue<Server> server, String tag) throws ServerFault {
+		if (!tag.equals("bm/pgsql-data")) {
 			return;
 		}
-		TagHelper.deleteRemote(itemValue.value.address(), "/etc/telegraf/telegraf.d/bm-postgres-data.conf");
-		TagHelper.reloadTelegraf(itemValue.value.address());
+		for (String telegrafConfig: telegrafConfigs) {
+			TagHelper.deleteRemote(server.value.address(), "/etc/telegraf/telegraf.d/" + telegrafConfig);
+		}
+		TagHelper.reloadTelegraf(server.value.address());
 	}
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://bm/content/skin/style.css" type="text/css"?>
+
+<overlay id="bm-abListOverlay" xmlns:html="http://www.w3.org/1999/xhtml"
+  onremove="gBMAbList.onremove();">
+  <script type="application/x-javascript" src="chrome://bm/content/abList.js" />
+  <script type="application/x-javascript" src="chrome://bm/content/apply-locales.js" />
+
+  <hbox id="bmInError" insertafter="ListDescriptionContainer" hidden="true" appendto="editlist">
+      <label id="bmError" class="red" value="" />
+  </hbox>
+  
+</overlay>

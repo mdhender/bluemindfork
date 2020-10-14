@@ -56,7 +56,7 @@ public class HollowVersion extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		vertx.eventBus().consumer(HollowMessageForwarder.dataSetChanged, (message) -> {
+		vertx.eventBus().consumer(HollowMessageForwarder.dataSetChanged, message -> {
 			JsonObject data = (JsonObject) message.body();
 			String dataset = data.getString("dataset");
 			String set = dataset.substring(0, dataset.indexOf("/"));

@@ -39,6 +39,7 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.eas.backend.BackendSession;
+import net.bluemind.eas.dto.EasBusEndpoints;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.base.Callback;
@@ -62,8 +63,7 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 	private static final Logger logger = LoggerFactory.getLogger(PingProtocol.class);
 	private static HeartbeatSync heartbeatSync;
 	private final ISyncStorage store;
-	private static final Cache<String, Integer> heartbeat = CacheBuilder.newBuilder()
-			.recordStats().build();
+	private static final Cache<String, Integer> heartbeat = CacheBuilder.newBuilder().recordStats().build();
 
 	static {
 		heartbeatSync = new HeartbeatSync();
@@ -221,7 +221,7 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 			hierCons.handler(hierChangeHandler);
 
 			MessageConsumer<JsonObject> pushKiller = VertxPlatform.eventBus()
-					.consumer("eas.push.killer." + bs.getUser().getUid());
+					.consumer(EasBusEndpoints.PUSH_KILLER + "." + bs.getUniqueIdentifier());
 			consumers.add(pushKiller);
 			pushKiller.handler(msg -> {
 				if (responseSent.getAndSet(true)) {

@@ -1,0 +1,79 @@
+{
+  "manifest_version": 2,
+  "applications": {
+    "gecko": {
+      "id": "bm-connector-tb@blue-mind.net",
+      "strict_min_version": "78.0",
+      "strict_max_version": "78.*",
+      "update_url": "https://forge.blue-mind.net/mozilla/update.json"
+    }
+  },
+  "name": "__MSG_extensionName__",
+  "version": "1.0.0-dev",
+  "author": "BlueMind",
+  "default_locale": "en-US",
+  "description": "__MSG_extensionDescription__ (1.0.0-dev)",
+  "icons": {
+    "48": "content/skin/BM_Icone01_48.png",
+    "32": "content/skin/BM_Icone01_32.png",
+    "24": "content/skin/BM_Icone01_24.png",
+    "16": "content/skin/BM_Icone01_16.png"
+  },
+  "permissions": [
+    "storage",
+    "addressBooks",
+    "cookies",
+    "tabs",
+    "webNavigation",
+    "webRequest",
+    "webRequestBlocking",
+    "https://*/*"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "experiment_apis": {
+    "ConversionHelper": {
+      "schema": "content/api/ConversionHelper/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["ConversionHelper"]],
+        "script": "content/api/ConversionHelper/implementation.js"
+      }
+    },
+    "DefaultPrefsApi": {
+      "schema": "content/api/DefaultPrefs/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["DefaultPrefsApi"]],
+        "script": "content/api/DefaultPrefs/defaultprefs-impl.js"
+      }
+    },
+    "LoggerApi": {
+      "schema": "content/api/Logger/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["LoggerApi"]],
+        "script": "content/api/Logger/logger-impl.js"
+      }
+    },
+    "RPCClientApi": {
+      "schema": "content/api/RPCClient/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["RPCClientApi"]],
+        "script": "content/api/RPCClient/rpcclient-impl.js"
+      }
+    },
+    "AutocompleteApi": {
+      "schema": "content/api/Autocomplete/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["AutocompleteApi"]],
+        "script": "content/api/Autocomplete/autocomplete-impl.js"
+      }
+    }
+  }
+}

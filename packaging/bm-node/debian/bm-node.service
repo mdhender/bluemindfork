@@ -17,6 +17,7 @@ ExecStart=/usr/share/bm-node/bm-node /var/run/bm-node.pid
 
 # enabling on one component enables accounting on the whole slice, which is what we want
 CPUAccounting=yes
+MemoryAccounting=yes
 
 [Install]
 WantedBy=bluemind.target

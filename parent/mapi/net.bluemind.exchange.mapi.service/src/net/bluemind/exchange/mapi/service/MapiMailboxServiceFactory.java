@@ -42,8 +42,7 @@ public class MapiMailboxServiceFactory implements ServerSideServiceProvider.ISer
 	}
 
 	private IMapiMailbox getService(BmContext context, String domainUid, String mailboxUid) throws ServerFault {
-		MapiMailboxService service = new MapiMailboxService(context, domainUid, mailboxUid);
-		return service;
+		return new MapiMailboxService(context, domainUid, mailboxUid);
 	}
 
 	@Override

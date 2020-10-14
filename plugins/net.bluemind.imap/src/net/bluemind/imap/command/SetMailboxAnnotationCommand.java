@@ -20,40 +20,26 @@ package net.bluemind.imap.command;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import net.bluemind.imap.impl.IMAPResponse;
 
 public class SetMailboxAnnotationCommand extends SimpleCommand<Boolean> {
 
 	public SetMailboxAnnotationCommand(String mbox, String annoId, Map<String, String> keyValues) {
-		super("SETANNOTATION " + toUtf7(mbox) + " \"" + annoId + "\" (" + flatten(keyValues) + ")");
+		super("SETANNOTATION " + toUtf7(mbox) + " \"" + annoId + "\" " + flatten(keyValues));
 	}
 
 	private static String flatten(Map<String, String> keyValues) {
-		boolean first = true;
-		StringBuilder sb = new StringBuilder();
-		for (Entry<String, String> entry : keyValues.entrySet()) {
-			if (!first) {
-				sb.append(' ');
-				first = false;
-			}
-			String k = entry.getKey();
+		return keyValues.entrySet().stream().map(e -> {
+			String k = e.getKey();
 			if (!k.endsWith(".priv") && !k.endsWith(".shared")) {
 				k = k + ".priv";
 			}
-			sb.append('"').append(k).append('"');
-
-			sb.append(' ');
-
-			String v = entry.getValue();
-			if (v == null) {
-				sb.append("NIL");
-			} else {
-				sb.append('"').append(v).append('"');
-			}
-		}
-		return sb.toString();
+			String v = Optional.ofNullable(e.getValue()).map(val -> String.format("\"%s\"", val)).orElse("NIL");
+			return String.format("\"%s\" %s", k, v);
+		}).collect(Collectors.joining(" ", "(", ")"));
 	}
 
 	@Override

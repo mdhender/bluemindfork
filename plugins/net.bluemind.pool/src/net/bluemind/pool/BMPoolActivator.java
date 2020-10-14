@@ -127,7 +127,7 @@ public class BMPoolActivator extends Plugin {
 
 			IJDBCDriver cf = getDriver(dbType);
 			if (cf == null) {
-				logger.error("No connection factory found for dbtype " + dbType);
+				logger.error("No connection factory found for dbtype {}", dbType);
 				throw new Exception("No connection factory found for dbtype " + dbType);
 			} else {
 				String jdbcUrl = cf.getJDBCUrl(dbHost, dbName, login, password);

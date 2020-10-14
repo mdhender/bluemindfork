@@ -32,7 +32,7 @@ public class HzHollowAnnouncer extends HollowFilesystemAnnouncer implements Holl
 	public final String dataset;
 
 	public HzHollowAnnouncer(String dataset, File publishDir) {
-		super(publishDir);
+		super(publishDir.toPath());
 		this.dataset = dataset;
 	}
 

@@ -145,7 +145,7 @@ public class LdapSearchTests {
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
 			Dn groupDn = new Dn("cn=grptest00," + LdapDockerTestHelper.LDAP_ROOT_DN);
-			PagedSearchResult findGroupName = search.getGroupUUID(connection, groupDn);
+			PagedSearchResult findGroupName = search.getGroupFromDn(connection, groupDn);
 
 			Assert.assertTrue(findGroupName.next());
 			Entry entry = findGroupName.getEntry();

@@ -5,6 +5,18 @@ import com.netflix.hollow.api.consumer.index.AbstractHollowUniqueKeyIndex;
 import com.netflix.hollow.api.consumer.index.HollowUniqueKeyIndex;
 import com.netflix.hollow.core.schema.HollowObjectSchema;
 
+/**
+ * @deprecated see {@link com.netflix.hollow.api.consumer.index.UniqueKeyIndex} which can be built as follows:
+ * <pre>{@code
+ *     UniqueKeyIndex<DataLocation, K> uki = UniqueKeyIndex.from(consumer, DataLocation.class)
+ *         .usingBean(k);
+ *     DataLocation m = uki.findMatch(k);
+ * }</pre>
+ * where {@code K} is a class declaring key field paths members, annotated with
+ * {@link com.netflix.hollow.api.consumer.index.FieldPath}, and {@code k} is an instance of
+ * {@code K} that is the key to find the unique {@code DataLocation} object.
+ */
+@Deprecated
 @SuppressWarnings("all")
 public class DataLocationPrimaryKeyIndex extends AbstractHollowUniqueKeyIndex<OfflineDirectoryAPI, DataLocation> implements HollowUniqueKeyIndex<DataLocation> {
 

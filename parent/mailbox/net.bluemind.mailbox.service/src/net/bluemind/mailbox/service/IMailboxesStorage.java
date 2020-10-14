@@ -73,6 +73,11 @@ public interface IMailboxesStorage {
 	public List<MailFolder> listFolders(BmContext context, String domainUid, ItemValue<Mailbox> mailbox)
 			throws ServerFault;
 
+	// One method per repair feels horribly wrong here as most repair are only
+	// relevant for cyrus
+	// The check & repair monitor to track progress is not even given which prevent
+	// progress reporting
+
 	/**
 	 * Fill gaps between folders
 	 * 
@@ -130,8 +135,31 @@ public interface IMailboxesStorage {
 	public List<MailFolder> checkAndRepairAcl(BmContext context, String domainUid, ItemValue<Mailbox> mailbox,
 			List<AccessControlEntry> acls, boolean repair) throws ServerFault;
 
+	public static class CheckAndRepairStatus {
+		public CheckAndRepairStatus(int checked, int broken, int fixed) {
+			this.checked = checked;
+			this.broken = broken;
+			this.fixed = fixed;
+		}
+
+		public int checked;
+		public int broken;
+		public int fixed;
+	}
+
+	/**
+	 * 
+	 * @param context
+	 * @param domainUid
+	 * @param mailbox
+	 * @param repair
+	 */
+	CheckAndRepairStatus checkAndRepairSharedSeen(BmContext context, String domainUid, ItemValue<Mailbox> mailbox,
+			boolean repair);
+
 	public void move(String domainUid, ItemValue<Mailbox> mailbox, ItemValue<Server> sourceServer,
 			ItemValue<Server> dstServer);
 
 	public void rewriteCyrusConfiguration(String serverUid);
+
 }

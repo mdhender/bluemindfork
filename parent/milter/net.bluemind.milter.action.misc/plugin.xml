@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.milter.actionfactory">
+      <action_factory
+            impl="net.bluemind.milter.action.misc.updatesubject.UpdateSubjectAction$UpdateSubjectActionFactory">
+      </action_factory>
+   </extension>
+
+</plugin>

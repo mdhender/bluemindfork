@@ -18,6 +18,10 @@
  */
 package net.bluemind.ui.adminconsole.directory.addressbook;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONObject;
 
@@ -25,6 +29,7 @@ import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
+import net.bluemind.ui.common.client.forms.acl.AclConstants;
 import net.bluemind.ui.gwtsharing.client.BaseSharingEditor;
 
 public class AddressBookSharingEditor extends BaseSharingEditor {
@@ -43,6 +48,16 @@ public class AddressBookSharingEditor extends BaseSharingEditor {
 				return new AddressBookSharingEditor();
 			}
 		});
+	}
+
+	protected Map<String, String> getVerbs() {
+		Map<String, String> verbs = new HashMap<>();
+		AclConstants constants = GWT.create(AclConstants.class);
+
+		verbs.put("read", constants.aclBookRead());
+		verbs.put("write", constants.aclBookWrite());
+		verbs.put("admin", constants.aclBookAdmin());
+		return verbs;
 	}
 
 	@Override

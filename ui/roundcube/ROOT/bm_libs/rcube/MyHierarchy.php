@@ -60,8 +60,12 @@ class MyHierarchy {
       $token, $_SESSION['bm_sso']['bmDomain']);
   }
 
+  private function _isInitialized() {
+    return isset($_SESSION['bm']['hierarchy']);
+  }
+
   private function _initialize() {
-    if (!isset($_SESSION['bm']['hierarchy'])) {
+    if (!$this->_isInitialized()) {
       $mailboxes = $this->_loadMboxes();
       if (!empty($mailboxes)) {
         $_SESSION['bm']['hierarchy'] = array (
@@ -70,7 +74,7 @@ class MyHierarchy {
         );
       }
     }
-    if (isset($_SESSION['bm']['hierarchy'])) {
+    if ($this->_isInitialized()) {
       $this->mailboxes = $_SESSION['bm']['hierarchy']['mailboxes'];
       $this->folders = $_SESSION['bm']['hierarchy']['folders'];
     }
@@ -95,6 +99,33 @@ class MyHierarchy {
       $mailboxes[$mailbox->uid] = $mailbox;
     }
     return $this->_loadMailboxData($mailboxes);
+  }
+
+  private function _loadMailbox($uid) {
+    if (!$this->_isInitialized()) {
+      $this->_initialize();
+    }
+    if (!$this->mailboxes[$uid]) {
+      $query = new \BM\ContainerQuery();
+      $query->owner = $uid;
+      $query->name = null;
+      $query->type = 'mailboxacl';
+      $query->verb = null; 
+      $container = $this->_containers()->allLight($query);
+      $container = $container[0];
+      if ($container) {
+        $mailbox = new \stdClass;
+        $mailbox->uid = $container->owner;
+        $this->_loadMailboxData(array($uid => $mailbox));
+        $_SESSION['bm']['hierarchy']['mailboxes'][$mailbox->uid] = $mailbox;
+        $folders = $this->_loadFolders(array($mailbox));
+        foreach($folders as $uid => $folder) {
+          $_SESSION['bm']['hierarchy']['folders'][$uid] = $folder;
+        }
+        $this->mailboxes = $_SESSION['bm']['hierarchy']['mailboxes'];
+        $this->folders = $_SESSION['bm']['hierarchy']['folders'];
+      }
+    }
   }
 
   private function _loadMailboxData($mailboxes) {
@@ -123,6 +154,13 @@ class MyHierarchy {
     return $mailboxes;    
   }
 
+  private function _loadFolder($uid) {
+    // subtle..
+    unset($_SESSION['bm']['hierarchy']);
+    $this->_initialize();
+  }
+
+  
   private function _loadFolders($mailboxes) {
     $folders = array();
     foreach($mailboxes as $uid => $mailbox) {
@@ -156,17 +194,7 @@ class MyHierarchy {
     return $folders;
   }
 
-  private function _loadFolder($uid) {
-    // subtle..
-    unset($_SESSION['bm']['hierarchy']);
-    $this->_initialize();
-  }
 
-  private function _loadMailbox($uid) {
-    // subtle..
-    unset($_SESSION['bm']['hierarchy']);
-    $this->_initialize();
-  }
 
 
   protected function getMailboxByUid($uid) {

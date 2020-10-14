@@ -21,7 +21,8 @@ Require-Bundle: org.junit,
  net.bluemind.role.api,
  net.bluemind.domain.hook,
  net.bluemind.core.rest.http,
- net.bluemind.core.container.service
+ net.bluemind.core.container.service,
+ net.bluemind.core.caches.registry
 Automatic-Module-Name: net.bluemind.domain.service.tests
 
 

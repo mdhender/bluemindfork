@@ -91,7 +91,7 @@ public class JsonObjectCodec {
 				try {
 					return (T) JsonUtils.read(response.data.toString(), type);
 				} catch (Exception e) {
-					throw new RuntimeException(e);
+					throw new CodecParseException(e);
 				}
 			}
 		}

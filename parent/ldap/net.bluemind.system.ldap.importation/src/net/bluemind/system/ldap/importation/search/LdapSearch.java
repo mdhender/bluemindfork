@@ -62,7 +62,7 @@ public class LdapSearch extends DirectorySearch<LdapParameters> {
 				ldapParameters.ldapDirectory.extIdAttribute);
 	}
 
-	public PagedSearchResult getGroupUUID(LdapConnection ldapCon, Dn groupDn) throws LdapException {
+	public PagedSearchResult getGroupFromDn(LdapConnection ldapCon, Dn groupDn) throws LdapException {
 		return super.findByFilterAndBaseDnAndScopeAndAttributes(ldapCon,
 				groupFilter.getSearchFilter(ldapParameters, Optional.empty(), null, null), groupDn, SearchScope.OBJECT,
 				ldapParameters.ldapDirectory.extIdAttribute);

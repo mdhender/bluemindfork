@@ -43,6 +43,7 @@
       <plugin id="net.bluemind.eclipse.common"/>
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.metrics.registry"/>
+      <plugin id="net.bluemind.node.metrics.aggregator"/>
       <plugin id="net.bluemind.node.server"/>
       <plugin id="net.bluemind.node.shared"/>
       <plugin id="net.bluemind.osgi.log"/>
@@ -69,8 +70,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.noShutdown" value="true" />
       <property name="osgi.configuration.area" value="/var/lib/bm-node/" />
+      <property name="osgi.noShutdown" value="true" />
    </configurations>
 
 </product>

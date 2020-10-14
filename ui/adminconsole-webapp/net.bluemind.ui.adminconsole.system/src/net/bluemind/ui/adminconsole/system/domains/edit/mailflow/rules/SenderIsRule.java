@@ -51,17 +51,21 @@ public class SenderIsRule extends RuleTreeItem {
 	private Grid tbl;
 	private ListBox selectedValue = new ListBox();
 	private Map<String, String> dirEntryMapping = new HashMap<>();
+	TextBox widgetFreeText = new TextBox();
 
 	public SenderIsRule(RuleAssignmentWidget parent, MailRuleDescriptor descriptor,
 			List<MailRuleDescriptor> ruleIdentifiers, Panel config, String domainUid) {
 		super(parent, descriptor, config, domainUid);
 		selectedValue.getElement().setAttribute("style", "width: 200px");
-		tbl = new Grid(2, 2);
+		tbl = new Grid(3, 2);
 		tbl.setCellPadding(10);
 		tbl.setWidget(0, 0, new Label("Directory entry"));
 		TextBox widget = new TextBox();
 		tbl.setWidget(0, 1, widget);
 		tbl.setWidget(1, 1, selectedValue);
+
+		tbl.setWidget(2, 0, new Label("Email"));
+		tbl.setWidget(2, 1, widgetFreeText);
 
 		disclaimerConfig.add(tbl);
 		widget.addKeyPressHandler((e) -> {
@@ -107,6 +111,7 @@ public class SenderIsRule extends RuleTreeItem {
 			selectedValue.removeItem(0);
 		}
 		dirEntryMapping.clear();
+		widgetFreeText.setText("");
 	}
 
 	private void addListener() {
@@ -123,15 +128,19 @@ public class SenderIsRule extends RuleTreeItem {
 
 	@Override
 	public MailflowRule toRule() {
-		if (dirEntryMapping.isEmpty()) {
+		if (dirEntryMapping.isEmpty() && widgetFreeText.getText().isEmpty()) {
 			return null;
 		}
 		MailflowRule rule = new MailflowRule();
 		rule.ruleIdentifier = super.ruleIdentifier;
 		rule.configuration = new HashMap<>();
 		String selectedItemText = ((ListBox) tbl.getWidget(1, 1)).getSelectedItemText();
-		rule.configuration.put("dirEntryUid", dirEntryMapping.get(selectedItemText));
-		rule.configuration.put("dirEntryEmail", selectedItemText);
+		if (selectedItemText == null || selectedItemText.isEmpty()) {
+			rule.configuration.put("email", widgetFreeText.getText());
+		} else {
+			rule.configuration.put("dirEntryUid", dirEntryMapping.get(selectedItemText));
+			rule.configuration.put("dirEntryEmail", selectedItemText);
+		}
 		return rule;
 	}
 
@@ -143,6 +152,11 @@ public class SenderIsRule extends RuleTreeItem {
 			String dirEntryEmail = configuration.get("dirEntryEmail");
 			selectedValue.addItem(dirEntryEmail);
 			dirEntryMapping.put(dirEntryEmail, dirEntryUid);
+		} else {
+			String email = configuration.get("email");
+			if (email != null) {
+				widgetFreeText.setText(email);
+			}
 		}
 	}
 

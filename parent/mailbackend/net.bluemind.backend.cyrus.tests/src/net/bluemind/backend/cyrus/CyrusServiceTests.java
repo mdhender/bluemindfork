@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.Before;
@@ -43,6 +44,8 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.imap.Acl;
+import net.bluemind.imap.Annotation;
+import net.bluemind.imap.AnnotationList;
 import net.bluemind.imap.CreateMailboxResult;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.ListInfo;
@@ -153,6 +156,36 @@ public class CyrusServiceTests {
 			service.createBox("test" + System.nanoTime(), "notpart");
 			fail();
 		} catch (ServerFault e) {
+		}
+	}
+
+	@Test
+	public void testUserMboxHasShareSeenEnabled() throws ServerFault {
+
+		String partition = "bm" + System.nanoTime() + ".lan";
+		service.createPartition(partition);
+		service.refreshPartitions(Arrays.asList(partition));
+		service.reload();
+
+		String n = "user/test" + System.nanoTime();
+		try {
+			service.createBox(n, partition);
+			Optional<Annotation> sharedSeen = checkAnnotations(n, "/vendor/cmu/cyrus-imapd/sharedseen");
+			assertTrue(sharedSeen.isPresent());
+			assertEquals("true", sharedSeen.map(s -> s.valueShared).orElse("false"));
+		} catch (ServerFault e) {
+			fail(e.getMessage());
+		} catch (IMAPException ie) {
+			fail(ie.getMessage());
+		}
+	}
+
+	private Optional<Annotation> checkAnnotations(String boxName, String annot) throws IMAPException {
+		try (StoreClient sc = new StoreClient(imapServerAddress, 1143, "admin0", Token.admin0())) {
+			sc.login();
+
+			AnnotationList annots = sc.getAnnotation(boxName, annot);
+			return Optional.ofNullable(annots.get(annot));
 		}
 	}
 

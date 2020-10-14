@@ -3051,7 +3051,7 @@ function rcube_webmail()
 
     if (this.contact_list && this.contact_list.selection.length) {
       for (var id, n=0; n < this.contact_list.selection.length; n++) {
-        id = this.contact_list.selection[n];
+        id = this.html_identifier_decode(this.contact_list.selection[n]);
         if (id && this.env.contactdata[id]) {
           recipients.push(this.env.contactdata[id]);
 
@@ -4249,7 +4249,7 @@ function rcube_webmail()
     var c, list = this.contact_list,
       row = document.createElement('tr');
 
-    row.id = 'rcmrow'+this.html_identifier(cid);
+    row.id = 'rcmrow'+this.html_identifier(cid, true);
     row.className = 'contact ' + (classes || '');
 
     if (list.in_selection(cid))

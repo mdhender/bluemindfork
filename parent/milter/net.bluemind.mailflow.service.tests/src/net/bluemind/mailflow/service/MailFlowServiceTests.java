@@ -46,6 +46,7 @@ import net.bluemind.mailflow.api.MailActionDescriptor;
 import net.bluemind.mailflow.api.MailRuleActionAssignment;
 import net.bluemind.mailflow.api.MailRuleActionAssignmentDescriptor;
 import net.bluemind.mailflow.api.MailRuleDescriptor;
+import net.bluemind.mailflow.api.MailflowRouting;
 import net.bluemind.mailflow.api.MailflowRule;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
@@ -337,6 +338,7 @@ public class MailFlowServiceTests {
 		assignment.actionIdentifier = "action1";
 		assignment.description = id + "Add a disclaimer when my rule matches";
 		assignment.mode = ExecutionMode.CONTINUE;
+		assignment.routing = MailflowRouting.OUTGOING;
 		assignment.position = 3;
 		assignment.rules = createSampleRuleHierarchy(id);
 		return assignment;

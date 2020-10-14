@@ -43,11 +43,13 @@ import net.bluemind.system.api.SysConfKeys;
 public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
 
 	private static final Logger logger = LoggerFactory.getLogger(CasAuthEnforcer.class);
-	private Supplier<String> casURL;
-	private Supplier<String> casDomain;
-	private Supplier<String> callbackURL;
-	private Supplier<Boolean> casEnabled;
-	private HttpClient httpClient;
+	private final Supplier<String> casURL;
+	private final Supplier<String> casDomain;
+	private final Supplier<String> callbackURL;
+	private final Supplier<Boolean> casEnabled;
+	private Vertx vertx;
+	private Optional<HttpClient> httpClient = Optional.empty();
+	private boolean wasEnabled;
 
 	public CasAuthEnforcer() {
 		AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
@@ -75,21 +77,21 @@ public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
 
 		Supplier<Boolean> casAuthType = () -> Optional.ofNullable(sysconf.get())
 				.map(sm -> sm.get(SysConfKeys.auth_type.name()) != null
-						&& !sm.get(SysConfKeys.auth_type.name()).equalsIgnoreCase("cas") ? true : false)
+						&& sm.get(SysConfKeys.auth_type.name()).equalsIgnoreCase("cas"))
 				.orElse(false);
 
 		casEnabled = () -> (casAuthType.get() && casURL.get() != null && casDomain.get() != null
 				&& callbackURL.get() != null);
-
-		logger.info("[CAS] casEnabled={}, casURL={}, casDomain={}, callBackURL={}", casEnabled.get(), casURL.get(),
-				casDomain.get(), callbackURL.get());
 	}
 
 	@Override
 	public AuthRequirements enforce(ISessionStore checker, HttpServerRequest req) {
 		if (!casEnabled.get()) {
+			logStatus(false);
 			return AuthRequirements.notHandle();
 		}
+
+		logStatus(true);
 
 		// make /login/native happy ( and login public ressources available )
 		if (req.path().startsWith("/login/") && !req.path().equals("/login/index.html")) {
@@ -97,37 +99,50 @@ public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
 		}
 		if (io.vertx.core.http.HttpMethod.GET == req.method()) {
 			// only redirect GET to not pass
-			CasProtocol protocol = new CasProtocol(httpClient, casURL.get(), casDomain.get(), callbackURL.get());
+			CasProtocol protocol = new CasProtocol(httpClient.orElseGet(() -> initHttpClient()), casURL.get(),
+					casDomain.get(), callbackURL.get());
 			return AuthRequirements.needSession(protocol);
 		} else {
 			return AuthRequirements.notHandle();
 		}
 	}
 
+	private void logStatus(boolean enabled) {
+		if (enabled != wasEnabled) {
+			logger.info("[CAS] casEnabled={}, casURL={}, casDomain={}, callBackURL={}", casEnabled.get(), casURL.get(),
+					casDomain.get(), callbackURL.get());
+			wasEnabled = enabled;
+		}
+	}
+
 	@Override
 	public void setVertx(Vertx vertx) {
-		if (casEnabled.get()) {
-			URL url = null;
-			try {
-				url = new URL(casURL.get());
-			} catch (MalformedURLException e) {
-				logger.error("Invalid CAS URL {} ?!", casURL.get());
-				throw new RuntimeException(e);
-			}
+		this.vertx = vertx;
+	}
 
-			HttpClientOptions opts = new HttpClientOptions();
-			opts.setDefaultHost(url.getHost());
-			opts.setSsl(url.getProtocol().equalsIgnoreCase("https"));
-			opts.setDefaultPort(
-					url.getPort() != -1 ? url.getPort() : (url.getProtocol().equalsIgnoreCase("https") ? 443 : 80));
-			if (opts.isSsl()) {
-				opts.setTrustAll(true);
-				opts.setVerifyHost(false);
-			}
-
-			logger.info("CAS client {} {}", opts.getDefaultHost(), opts.getDefaultPort());
-
-			httpClient = vertx.createHttpClient(opts);
+	private HttpClient initHttpClient() {
+		URL url = null;
+		try {
+			url = new URL(casURL.get());
+		} catch (MalformedURLException e) {
+			logger.error("Invalid CAS URL {} ?!", casURL.get());
+			throw new RuntimeException(e);
 		}
+
+		HttpClientOptions opts = new HttpClientOptions();
+		opts.setDefaultHost(url.getHost());
+		opts.setSsl(url.getProtocol().equalsIgnoreCase("https"));
+		opts.setDefaultPort(
+				url.getPort() != -1 ? url.getPort() : (url.getProtocol().equalsIgnoreCase("https") ? 443 : 80));
+		if (opts.isSsl()) {
+			opts.setTrustAll(true);
+			opts.setVerifyHost(false);
+		}
+
+		logger.info("CAS client {} {}", opts.getDefaultHost(), opts.getDefaultPort());
+
+		HttpClient httpClient = vertx.createHttpClient(opts);
+		this.httpClient = Optional.of(httpClient);
+		return httpClient;
 	}
 }

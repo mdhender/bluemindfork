@@ -39,6 +39,7 @@
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.web"/>
+      <plugin id="javax.mail-api"/>
       <plugin id="javax.validation.api"/>
       <plugin id="javax.ws.rs"/>
       <plugin id="javax.xml"/>
@@ -85,6 +86,7 @@
       <plugin id="net.bluemind.mailshare.api"/>
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.milter"/>
+      <plugin id="net.bluemind.milter.action.misc"/>
       <plugin id="net.bluemind.milter.action.signature"/>
       <plugin id="net.bluemind.milter.metrics"/>
       <plugin id="net.bluemind.mime4j.common"/>

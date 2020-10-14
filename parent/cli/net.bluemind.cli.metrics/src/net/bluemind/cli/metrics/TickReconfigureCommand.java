@@ -17,6 +17,7 @@
   */
 package net.bluemind.cli.metrics;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -28,8 +29,13 @@ import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.Tasks;
+import net.bluemind.config.InstallationId;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.metrics.alerts.api.ITickConfiguration;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.CommandStatus;
+import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.TagDescriptor;
 
 @Command(name = "reconfigure", description = "update the TICK configuration on all servers")
 public class TickReconfigureCommand implements ICmdLet, Runnable {
@@ -55,9 +61,6 @@ public class TickReconfigureCommand implements ICmdLet, Runnable {
 	@Option(name = "--dry", description = "Dry-run (do nothing)")
 	public boolean dry = false;
 
-	public TickReconfigureCommand() {
-	}
-
 	@Override
 	public Runnable forContext(CliContext ctx) {
 		this.ctx = ctx;
@@ -71,7 +74,21 @@ public class TickReconfigureCommand implements ICmdLet, Runnable {
 			ITickConfiguration tickApi = ctx.adminApi().instance(ITickConfiguration.class);
 			TaskRef ref = tickApi.reconfigure();
 			Tasks.follow(ctx, ref, "Fail to update tick configuration");
+			IServer srvApi = ctx.adminApi().instance(IServer.class, InstallationId.getIdentifier());
+
+			reload(srvApi, TagDescriptor.bm_nginx);
+			reload(srvApi, TagDescriptor.bm_nginx_edge);
 		}
+	}
+
+	private void reload(IServer srvApi, TagDescriptor nginxTag) {
+		Topology.getIfAvailable().flatMap(t -> t.anyIfPresent(nginxTag.getTag())).ifPresent(srv -> {
+			ctx.info("Reloading nginx " + srv + "...");
+			CommandStatus status = srvApi.submitAndWait(srv.uid, "service bm-nginx reload");
+			if (!status.successful) {
+				ctx.error(Arrays.toString(status.output.toArray()));
+			}
+		});
 	}
 
 }

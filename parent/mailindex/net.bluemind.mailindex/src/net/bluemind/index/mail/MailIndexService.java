@@ -16,8 +16,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.apache.james.mime4j.dom.address.MailboxList;
-import org.apache.james.mime4j.field.address.LenientAddressBuilder;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.DocWriteRequest.OpType;
@@ -40,6 +41,7 @@ import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
@@ -880,7 +882,9 @@ public class MailIndexService implements IMailIndexService {
 
 	private BoolQueryBuilder addSearchQuery(BoolQueryBuilder bq, String query) {
 		if (!Strings.isNullOrEmpty(query)) {
-			return bq.must(JoinQueryBuilders.hasParentQuery(PARENT_TYPE, QueryBuilders.queryStringQuery(query), false));
+			return bq.must(JoinQueryBuilders.hasParentQuery(PARENT_TYPE,
+					QueryBuilders.queryStringQuery(query).defaultField("content").defaultOperator(Operator.AND),
+					false));
 		} else {
 			return bq;
 		}
@@ -929,17 +933,23 @@ public class MailIndexService implements IMailIndexService {
 		Map<String, String> headers = (Map<String, String>) source.get("headers");
 
 		Mbox to = Mbox.create("unknown", "unknown");
-		MailboxList addrList = LenientAddressBuilder.DEFAULT
-				.parseAddressList(Optional.ofNullable(headers.get("to")).orElse("")).flatten();
-		if (!addrList.isEmpty()) {
-			org.apache.james.mime4j.dom.address.Mailbox mboxFrom = addrList.get(0);
-			to = Mbox.create(mboxFrom.getName(), mboxFrom.getAddress());
+		try {
+			InternetAddress[] addrList = InternetAddress.parse(Optional.ofNullable(headers.get("to")).orElse(""));
+			if (addrList.length > 0) {
+				InternetAddress mboxTo = addrList[0];
+				to = Mbox.create(mboxTo.getPersonal(), mboxTo.getAddress());
+			}
+		} catch (AddressException e) {
+			logger.warn("Failed to parse TO " + headers.get("to"));
 		}
 
-		org.apache.james.mime4j.dom.address.Mailbox mboxFrom = LenientAddressBuilder.DEFAULT
-				.parseMailbox(headers.get("from"));
-		Mbox from = Mbox.create(mboxFrom.getName(), mboxFrom.getAddress(), "SMTP");
-
+		Mbox from = Mbox.create("unknown", "unknown");
+		try {
+			EmailAddress mboxFrom = new EmailAddress(headers.get("from"));
+			from = Mbox.create(mboxFrom.getPersonal(), mboxFrom.getAddress(), "SMTP");
+		} catch (AddressException e) {
+			logger.warn("Failed to parse FROM " + headers.get("from"));
+		}
 		boolean hasAttachment = !((List<String>) source.get("has")).isEmpty();
 
 		String preview = Strings.nullToEmpty((String) source.get("preview"));

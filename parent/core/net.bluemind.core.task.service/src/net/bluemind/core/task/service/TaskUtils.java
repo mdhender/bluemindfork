@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
@@ -78,19 +79,26 @@ public class TaskUtils {
 	public static TaskStatus waitForInterruptible(IServiceProvider provider, TaskRef ref) throws InterruptedException {
 		ITask taskApi = provider.instance(ITask.class, ref.id + "");
 		TaskStatus ts = null;
+		long count = 1;
 		do {
-			Thread.sleep(100);
+			Thread.sleep(Math.min(1000, 10 * count++));
 			ts = taskApi.status();
 		} while (!ts.state.ended);
 		return ts;
 	}
 
+	public static String logStreamWait(IServiceProvider provider, TaskRef ref) {
+		ITask taskApi = provider.instance(ITask.class, ref.id + "");
+		return GenericStream.streamToString(taskApi.log());
+	}
+
 	public static TaskStatus wait(IServiceProvider provider, TaskRef ref) {
 		ITask taskApi = provider.instance(ITask.class, ref.id + "");
 		TaskStatus ts = null;
+		long count = 1;
 		do {
 			try {
-				Thread.sleep(100);
+				Thread.sleep(Math.min(1000, 10 * count++));
 			} catch (InterruptedException e) {
 				logger.warn("Task has been interrupted");
 				Thread.currentThread().interrupt();

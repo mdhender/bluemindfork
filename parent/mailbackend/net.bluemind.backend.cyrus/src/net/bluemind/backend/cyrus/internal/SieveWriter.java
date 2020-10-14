@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
@@ -45,7 +46,6 @@ import net.bluemind.backend.cyrus.Sudo;
 import net.bluemind.config.InstallationId;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.Email;
-import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -190,13 +190,8 @@ public class SieveWriter {
 			// scheduled
 			if (vac.start != null) {
 				long now = new Date().getTime();
-				Long start = new BmDateTimeWrapper(vac.start).toUTCTimestamp();
-				Long end = null;
-				if (vac.end != null) {
-					end = new BmDateTimeWrapper(vac.end).toUTCTimestamp();
-				}
 				// and in range
-				if (start <= now && (end == null || end > now)) {
+				if (vac.start.getTime() <= now && (vac.end == null || vac.end.getTime() > now)) {
 					// we are scheduled & in range, so we are enabled
 				} else {
 					// we are scheduled & out of range => disable
@@ -349,8 +344,9 @@ public class SieveWriter {
 			SieveConnectionData sieveConnectionData) throws IMAPException, Exception {
 		try (StoreClient storeClient = new StoreClient(sieveConnectionData.host, 1143, sieveConnectionData.login,
 				sieveConnectionData.password)) {
-			if (storeClient.login() && !storeClient.setAnnotation("\"" + mailbox.value.name + "@" + domain.value.name
-					+ "\" \"/vendor/cmu/cyrus-imapd/sieve\" (\"value.shared\" \"" + scriptName + "\")")) {
+			;
+			if (storeClient.login() && !storeClient.setMailboxAnnotation(mailbox.value.name + "@" + domain.uid,
+					"/vendor/cmu/cyrus-imapd/sieve", ImmutableMap.of("value.shared", scriptName))) {
 				String errorMsg = String.format(
 						"Unable to set IMAP annotation /vendor/cmu/cyrus-imapd/sieve on mailbox: %s@%s",
 						mailbox.value.name, domain.value.name);

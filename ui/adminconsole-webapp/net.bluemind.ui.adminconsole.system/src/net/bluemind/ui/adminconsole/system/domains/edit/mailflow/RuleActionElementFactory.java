@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Panel;
 import net.bluemind.mailflow.api.MailRuleDescriptor;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.actions.AddSignatureConfig;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.actions.MailflowActionConfig;
+import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.actions.UpdateSubjectConfig;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.rules.CompositeTreeItem;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.rules.DateBasedRule;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.rules.RuleTreeItem;
@@ -52,7 +53,7 @@ public class RuleActionElementFactory {
 			return new SenderInOuRule(parent, descriptor, ruleIdentifiers, config, domainUid);
 		case "SenderInGroupRule":
 			return new SenderInGroupRule(parent, descriptor, ruleIdentifiers, config, domainUid);
-		case "SenderIsRule": 
+		case "SenderIsRule":
 			return new SenderIsRule(parent, descriptor, ruleIdentifiers, config, domainUid);
 		case "SendDateIsBefore":
 		case "SendDateIsAfter":
@@ -72,6 +73,9 @@ public class RuleActionElementFactory {
 		switch (identifier) {
 		case "AddSignatureAction":
 			return new AddSignatureConfig();
+
+		case "UpdateSubjectAction":
+			return new UpdateSubjectConfig();
 
 		default:
 			throw new IllegalArgumentException("Unknown identifier " + identifier);

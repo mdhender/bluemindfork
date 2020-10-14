@@ -8,6 +8,8 @@ Require-Bundle: org.junit,
  com.netflix.hollow,
  net.bluemind.core.serialization,
  net.bluemind.directory.hollow.datamodel,
- net.bluemind.directory.hollow.datamodel.consumer
+ net.bluemind.directory.hollow.datamodel.consumer,
+ jul.to.slf4j,
+ net.bluemind.common.hollow
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.directory.hollow.datamodel.consumer.tests

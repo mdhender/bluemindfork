@@ -20,6 +20,9 @@ package net.bluemind.directory.hollow.datamodel;
 
 import java.util.Set;
 
+import com.netflix.hollow.core.write.objectmapper.HollowPrimaryKey;
+
+@HollowPrimaryKey(fields = { "domainName" })
 public class OfflineAddressBook {
 
 	public String domainName;

@@ -194,10 +194,10 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 
 	public List<String> findByIcsUid(String uid) throws SQLException {
 		return select(
-				"SELECT item.uid FROM t_container_item item, t_calendar_series series WHERE item.id = series.item_id AND item.container_id = ? AND series.ics_uid = ? ",
+				"SELECT item.uid FROM t_container_item item, t_calendar_series series WHERE item.id = series.item_id AND item.container_id = ? AND lower(series.ics_uid) = ? ",
 				(rs) -> {
 					return rs.getString(1);
-				}, Collections.emptyList(), new Object[] { container.id, uid });
+				}, Collections.emptyList(), new Object[] { container.id, uid.toLowerCase() });
 	}
 
 	public List<Long> sortedIds(SortDescriptor sorted) throws SQLException {

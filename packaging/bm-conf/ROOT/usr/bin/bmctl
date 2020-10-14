@@ -65,7 +65,7 @@ function memory_report() {
   echo "Total Blue Mind JVM memory: $total_mem ($mega MB)"
 }
 
-# Wainting for https://github.com/systemd/systemd/issues/3174
+# Wainting for https://github.com/systemd/systemd/issues/3174
 function status_bm() {
   if systemctl status bluemind.target > /dev/null 2>&1; then
     status_bm_started

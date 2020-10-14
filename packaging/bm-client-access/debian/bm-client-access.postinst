@@ -25,7 +25,9 @@ set -e
 
 /usr/share/bm-client-access/bin/configure-nginx.sh
 
-echo "Restart nginx service"
-systemctl restart bm-nginx
+if [ -d /run/systemd/system ]; then
+	echo "Restart nginx service"
+	systemctl restart bm-nginx
+fi
 
 exit 0

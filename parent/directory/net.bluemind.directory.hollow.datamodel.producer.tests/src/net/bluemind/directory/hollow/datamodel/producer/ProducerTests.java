@@ -27,7 +27,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -47,6 +49,7 @@ import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord;
+import net.bluemind.directory.hollow.datamodel.consumer.AnrToken;
 import net.bluemind.directory.hollow.datamodel.consumer.DirectorySearchFactory;
 import net.bluemind.directory.hollow.datamodel.consumer.SerializedDirectorySearch;
 import net.bluemind.domain.api.Domain;
@@ -186,21 +189,21 @@ public class ProducerTests {
 
 		Collection<AddressBookRecord> all = search.all();
 		all.forEach(ab -> {
-			System.err.println("***************** " + ab.getUid().getValue() + " - " + ab.getMinimalid() + " -> "
-					+ ab.getDistinguishedName().getValue());
+			System.err.println("***************** " + ab.getUid() + " - " + ab.getMinimalid() + " -> "
+					+ ab.getDistinguishedName());
 		});
 
 		String user7dn = "/o=mapi/ou=" + domainUid + "/cn=recipients/cn=user:" + "user7";
 
 		Optional<AddressBookRecord> byUid = search.byUid("uSeR7");
 		assertTrue(byUid.isPresent());
-		assertEquals(user7dn, byUid.get().getDistinguishedName().getValue());
-		assertEquals("uSeR7", byUid.get().getUid().getValue());
+		assertEquals(user7dn, byUid.get().getDistinguishedName());
+		assertEquals("uSeR7", byUid.get().getUid());
 
 		byUid = search.byDistinguishedName(user7dn);
 		assertTrue(byUid.isPresent());
-		assertEquals(user7dn, byUid.get().getDistinguishedName().getValue());
-		assertEquals("uSeR7", byUid.get().getUid().getValue());
+		assertEquals(user7dn, byUid.get().getDistinguishedName());
+		assertEquals("uSeR7", byUid.get().getUid());
 	}
 
 	@Test
@@ -216,8 +219,24 @@ public class ProducerTests {
 
 		consumer.refreshTo(snap);
 
+		Thread.sleep(500);
+
 		Collection<AddressBookRecord> ret = search.byNameOrEmailPrefix("user");
+		System.err.println("size: " + ret.size());
+
+		Set<Long> matched = new HashSet<>();
+		for (AddressBookRecord rec : ret) {
+			System.out.println("MATCH " + rec.getName() + " " + rec.getEmail());
+			matched.add(rec.getMinimalidBoxed());
+		}
+		for (AddressBookRecord rec : search.all()) {
+			if (!matched.contains(rec.getMinimalidBoxed())) {
+				System.out.println("MISSMATCH " + rec.getOrdinal() + " '" + rec.getName() + "' '" + rec.getEmail()
+						+ "' ANRs: " + rec.getAnr().stream().map(AnrToken::getToken).collect(Collectors.joining(", ")));
+			}
+		}
 		assertEquals(4, ret.size());
+
 	}
 
 	@Test
@@ -279,7 +298,7 @@ public class ProducerTests {
 		consumer.refreshTo(producer.produce());
 
 		byEmail = search.byEmail("g1@" + domainUid);
-		assertFalse(byEmail.isPresent());
+		assertFalse("g1@" + domainUid + " should not be in the index", byEmail.isPresent());
 	}
 
 	@Test

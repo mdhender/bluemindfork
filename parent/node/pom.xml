@@ -12,6 +12,8 @@
 		<module>net.bluemind.node.api</module>
 		<module>net.bluemind.node.shared</module>
 		<module>net.bluemind.node.tests</module>
+		<module>net.bluemind.node.metrics.aggregator</module>
+		<module>net.bluemind.node.metrics.aggregator.tests</module>
 		<module>net.bluemind.ahc2.lib.tests</module>
 	</modules>
 

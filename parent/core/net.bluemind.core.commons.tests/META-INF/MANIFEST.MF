@@ -4,4 +4,6 @@ Bundle-Name: Context
 Bundle-SymbolicName: net.bluemind.core.commons.tests
 Bundle-Version: 4.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.junit, net.bluemind.core.commons
+Require-Bundle: org.junit,
+ net.bluemind.core.commons,
+ com.google.guava

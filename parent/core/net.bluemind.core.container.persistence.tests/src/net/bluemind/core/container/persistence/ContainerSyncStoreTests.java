@@ -40,7 +40,6 @@ public class ContainerSyncStoreTests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		
 
 		ContainerStore cs = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
 		String uid = UUID.randomUUID().toString();
@@ -61,14 +60,14 @@ public class ContainerSyncStoreTests {
 		ContainerSyncStatus ss = new ContainerSyncStatus();
 		ss.syncTokens.put("Tata", "Suzanne");
 		ss.nextSync = System.currentTimeMillis();
-		ss.errors = 666;
+		ss.syncStatusInfo = "OK";
 		store.initSync();
 		store.setSyncStatus(ss);
 
 		ContainerSyncStatus ret = store.getSyncStatus();
 		assertEquals(ss.nextSync, ret.nextSync);
 		assertEquals("Suzanne", ret.syncTokens.get("Tata"));
-		assertEquals(666, ret.errors.intValue());
+		assertEquals("OK", ret.syncStatusInfo);
 
 		ss.nextSync = System.currentTimeMillis();
 		store.setSyncStatus(ss);
@@ -76,7 +75,7 @@ public class ContainerSyncStoreTests {
 		ret = store.getSyncStatus();
 		assertEquals(ss.nextSync, ret.nextSync);
 		assertEquals("Suzanne", ret.syncTokens.get("Tata"));
-		assertEquals(666, ret.errors.intValue());
+		assertEquals("OK", ret.syncStatusInfo);
 
 		store = new ContainerSyncStore(JdbcTestHelper.getInstance().getDataSource(),
 				Container.create(UUID.randomUUID().toString(), "calendar", "osef", ""));

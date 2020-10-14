@@ -34,6 +34,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -41,8 +42,10 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.persistence.ContainerCache;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
@@ -594,6 +597,12 @@ public class DomainsServiceTests {
 
 		try {
 			getService(sameDomainSC).get("bm.lan");
+			CacheRegistry reg = ServerSideServiceProvider.getProvider(sameDomainSC).instance(CacheRegistry.class);
+			assertNotNull(reg);
+			Cache<String, Object> cache = reg.get(ContainerCache.class);
+			assertNotNull(cache);
+			cache.asMap().forEach((k, v) -> System.err.println(k + " => " + v));
+			assertTrue(cache.asMap().containsKey("domains_bluemind-noid"));
 		} catch (ServerFault e) {
 			fail("should be able to retrieve this domain");
 		}

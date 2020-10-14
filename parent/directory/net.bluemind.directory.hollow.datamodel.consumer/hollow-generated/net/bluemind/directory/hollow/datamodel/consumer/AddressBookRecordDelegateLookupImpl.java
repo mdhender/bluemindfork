@@ -13,16 +13,20 @@ public class AddressBookRecordDelegateLookupImpl extends HollowObjectAbstractDel
         this.typeAPI = typeAPI;
     }
 
-    public int getAddressBookOrdinal(int ordinal) {
-        return typeAPI.getAddressBookOrdinal(ordinal);
+    public String getUid(int ordinal) {
+        return typeAPI.getUid(ordinal);
     }
 
-    public int getUidOrdinal(int ordinal) {
-        return typeAPI.getUidOrdinal(ordinal);
+    public boolean isUidEqual(int ordinal, String testValue) {
+        return typeAPI.isUidEqual(ordinal, testValue);
     }
 
-    public int getDistinguishedNameOrdinal(int ordinal) {
-        return typeAPI.getDistinguishedNameOrdinal(ordinal);
+    public String getDistinguishedName(int ordinal) {
+        return typeAPI.getDistinguishedName(ordinal);
+    }
+
+    public boolean isDistinguishedNameEqual(int ordinal, String testValue) {
+        return typeAPI.isDistinguishedNameEqual(ordinal, testValue);
     }
 
     public int getDomainOrdinal(int ordinal) {
@@ -45,8 +49,12 @@ public class AddressBookRecordDelegateLookupImpl extends HollowObjectAbstractDel
         return typeAPI.getUpdatedOrdinal(ordinal);
     }
 
-    public int getEmailOrdinal(int ordinal) {
-        return typeAPI.getEmailOrdinal(ordinal);
+    public String getEmail(int ordinal) {
+        return typeAPI.getEmail(ordinal);
+    }
+
+    public boolean isEmailEqual(int ordinal, String testValue) {
+        return typeAPI.isEmailEqual(ordinal, testValue);
     }
 
     public long getMinimalid(int ordinal) {
@@ -57,16 +65,28 @@ public class AddressBookRecordDelegateLookupImpl extends HollowObjectAbstractDel
         return typeAPI.getMinimalidBoxed(ordinal);
     }
 
-    public int getNameOrdinal(int ordinal) {
-        return typeAPI.getNameOrdinal(ordinal);
+    public String getName(int ordinal) {
+        return typeAPI.getName(ordinal);
     }
 
-    public int getSurnameOrdinal(int ordinal) {
-        return typeAPI.getSurnameOrdinal(ordinal);
+    public boolean isNameEqual(int ordinal, String testValue) {
+        return typeAPI.isNameEqual(ordinal, testValue);
     }
 
-    public int getGivenNameOrdinal(int ordinal) {
-        return typeAPI.getGivenNameOrdinal(ordinal);
+    public String getSurname(int ordinal) {
+        return typeAPI.getSurname(ordinal);
+    }
+
+    public boolean isSurnameEqual(int ordinal, String testValue) {
+        return typeAPI.isSurnameEqual(ordinal, testValue);
+    }
+
+    public String getGivenName(int ordinal) {
+        return typeAPI.getGivenName(ordinal);
+    }
+
+    public boolean isGivenNameEqual(int ordinal, String testValue) {
+        return typeAPI.isGivenNameEqual(ordinal, testValue);
     }
 
     public int getTitleOrdinal(int ordinal) {
@@ -191,6 +211,10 @@ public class AddressBookRecordDelegateLookupImpl extends HollowObjectAbstractDel
 
     public Boolean getHiddenBoxed(int ordinal) {
         return typeAPI.getHiddenBoxed(ordinal);
+    }
+
+    public int getAnrOrdinal(int ordinal) {
+        return typeAPI.getAnrOrdinal(ordinal);
     }
 
     public AddressBookRecordTypeAPI getTypeAPI() {

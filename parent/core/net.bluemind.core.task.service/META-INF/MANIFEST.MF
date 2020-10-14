@@ -13,6 +13,7 @@ Require-Bundle: net.bluemind.core.context;bundle-version="1.0.0",
  net.bluemind.core.task.api;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.core.task.spi;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.lib.vertx,
- io.vertx.core
+ io.vertx.core,
+ com.google.guava
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.core.task.service

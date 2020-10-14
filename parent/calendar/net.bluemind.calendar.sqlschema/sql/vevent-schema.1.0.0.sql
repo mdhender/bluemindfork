@@ -148,4 +148,5 @@ create table t_calendar_series (
   item_id int4 references t_container_item(id) on delete cascade UNIQUE
 );
 CREATE INDEX idx_calendar_series_itemid ON t_calendar_series(item_id);
-CREATE INDEX idx_calendar_series_icsuid ON t_calendar_series(ics_uid);
+CREATE INDEX idx_calendar_series_lowercase_icsuid ON t_calendar_series (lower(ics_uid));
+

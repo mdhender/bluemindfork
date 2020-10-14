@@ -51,6 +51,7 @@ import net.bluemind.backend.mail.api.SearchQuery.HeaderQuery;
 import net.bluemind.backend.mail.api.SearchQuery.LogicalOperator;
 import net.bluemind.backend.mail.api.SearchQuery.SearchScope;
 import net.bluemind.backend.mail.api.SearchResult;
+import net.bluemind.backend.mail.api.SearchSort;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.indexing.MailSummary;
 import net.bluemind.core.container.model.ItemValue;
@@ -59,6 +60,110 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.mailbox.api.ShardStats;
 
 public class MailIndexServiceTests extends AbstractSearchTests {
+
+	@Test
+	public void testSort() throws Exception {
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+
+		storeBody("body1", eml);
+		storeMessage("inbox", userUid, "body1", 1, Collections.emptyList());
+
+		String data = new String(eml);
+		data = data.replace("12 Feb", "13 Feb");
+
+		storeBody("body2", data.getBytes());
+		storeMessage("inbox", userUid, "body2", 2, Collections.emptyList());
+
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.recordQuery = null;
+		query.query = "drug";
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		SearchResult sr = MailIndexActivator.getService().searchItems(userUid, q);
+		assertEquals(2, sr.totalResults);
+
+		// no sort criteria, default is by date DESC
+		assertTrue(sr.results.get(0).date.after(sr.results.get(1).date));
+
+		// by date ASC
+		q.sort = SearchSort.byField("date", SearchSort.Order.Asc);
+		sr = MailIndexActivator.getService().searchItems(userUid, q);
+		assertEquals(2, sr.totalResults);
+		assertTrue(sr.results.get(0).date.before(sr.results.get(1).date));
+
+		// by date DESC
+		q.sort = SearchSort.byField("date", SearchSort.Order.Desc);
+		sr = MailIndexActivator.getService().searchItems(userUid, q);
+		assertEquals(2, sr.totalResults);
+		assertTrue(sr.results.get(0).date.after(sr.results.get(1).date));
+	}
+
+	@Test
+	public void testSortMultiFolder() throws Exception {
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+
+		storeBody("body1", eml);
+		storeMessage("inbox", userUid, "body1", 1, Collections.emptyList());
+
+		String data = new String(eml);
+		data = data.replace("12 Feb", "13 Feb");
+
+		storeBody("body2", data.getBytes());
+		storeMessage("sent", userUid, "body2", 2, Collections.emptyList());
+
+		data = data.replace("13 Feb", "14 Feb");
+
+		storeBody("body3", data.getBytes());
+		storeMessage("sent", userUid, "body3", 3, Collections.emptyList());
+
+		data = data.replace("14 Feb", "1 Feb");
+
+		storeBody("body4", data.getBytes());
+		storeMessage("toto", userUid, "body4", 4, Collections.emptyList());
+
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.recordQuery = null;
+		query.query = "drug";
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		SearchResult sr = MailIndexActivator.getService().searchItems(userUid, q);
+		assertEquals(4, sr.totalResults);
+
+		// no sort criteria, default is by date DESC
+		assertTrue(sr.results.get(0).date.after(sr.results.get(1).date));
+		assertTrue(sr.results.get(1).date.after(sr.results.get(2).date));
+		assertTrue(sr.results.get(2).date.after(sr.results.get(3).date));
+
+		// by date ASC
+		q.sort = SearchSort.byField("date", SearchSort.Order.Asc);
+		sr = MailIndexActivator.getService().searchItems(userUid, q);
+		assertEquals(4, sr.totalResults);
+		assertTrue(sr.results.get(0).date.before(sr.results.get(1).date));
+		assertTrue(sr.results.get(1).date.before(sr.results.get(2).date));
+		assertTrue(sr.results.get(2).date.before(sr.results.get(3).date));
+
+		// by date DESC
+		q.sort = SearchSort.byField("date", SearchSort.Order.Desc);
+		sr = MailIndexActivator.getService().searchItems(userUid, q);
+		assertEquals(4, sr.totalResults);
+		assertTrue(sr.results.get(0).date.after(sr.results.get(1).date));
+		assertTrue(sr.results.get(1).date.after(sr.results.get(2).date));
+		assertTrue(sr.results.get(2).date.after(sr.results.get(3).date));
+	}
 
 	@Test
 	public void testSimpleSearch() throws MimeIOException, IOException, InterruptedException, ExecutionException {
@@ -582,6 +687,36 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		results = MailIndexActivator.getService().searchItems(userUid, q);
 
 		assertEquals(0, results.totalResults);
+	}
+
+	@Test
+	public void testSearchCheckCyrillicRecipient() throws IOException {
+		long imapUid = 1;
+		byte[] eml = Files.toByteArray(new File("data/testRecipient.eml"));
+		storeBody(bodyUid, eml);
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList());
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.headerQuery = new HeaderQuery();
+		query.headerQuery.logicalOperator = LogicalOperator.AND;
+		Header headerQueryElement = new Header();
+		headerQueryElement.name = "From";
+		headerQueryElement.value = "Антон Плескановский <osef@gmail.com>";
+		query.headerQuery.query = Arrays.asList(headerQueryElement);
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(1, results.totalResults);
+		MessageSearchResult messageSearchResult = results.results.get(0);
+
+		assertEquals("Антон Плескановский", messageSearchResult.from.displayName);
+		assertEquals("osef@gmail.com", messageSearchResult.from.address);
 	}
 
 }

@@ -119,8 +119,8 @@ public class ReplicationSession {
 	}
 
 	public void start() {
-		logger.info("Starting session with {} ({})", client.remoteAddress(), client.writeHandlerID());
-		activeSessions.incrementAndGet();
+		long sessNumber = activeSessions.incrementAndGet();
+		logger.info("Starting session {} with {}", sessNumber, client.remoteAddress());
 		client.handler(clientFramesParser);
 		client.closeHandler(nothing -> {
 			long currentSessions = activeSessions.decrementAndGet();
@@ -130,7 +130,7 @@ public class ReplicationSession {
 			downlink();
 			stopFuture.complete(null);
 		});
-		client.exceptionHandler(t -> logger.error(t.getMessage(), t));
+		client.exceptionHandler(t -> logger.error("session {}: {}", sessNumber, t.getMessage(), t));
 		client.write(banner("SASL PLAIN", "STARTTLS", "X-REPLICATION"));
 		uplink(storage.remoteIp());
 	}

@@ -1,9 +1,8 @@
 package net.bluemind.directory.hollow.datamodel.consumer;
 
+import com.netflix.hollow.api.consumer.HollowConsumer;
 import com.netflix.hollow.api.objects.HollowObject;
 import com.netflix.hollow.core.schema.HollowObjectSchema;
-
-import com.netflix.hollow.tools.stringifier.HollowRecordStringifier;
 
 @SuppressWarnings("all")
 public class Email extends HollowObject {
@@ -12,11 +11,12 @@ public class Email extends HollowObject {
         super(delegate, ordinal);
     }
 
-    public HString getAddress() {
-        int refOrdinal = delegate().getAddressOrdinal(ordinal);
-        if(refOrdinal == -1)
-            return null;
-        return  api().getHString(refOrdinal);
+    public String getAddress() {
+        return delegate().getAddress(ordinal);
+    }
+
+    public boolean isAddressEqual(String testValue) {
+        return delegate().isAddressEqual(ordinal, testValue);
     }
 
     public boolean getAllAliases() {

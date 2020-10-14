@@ -326,7 +326,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	private Ack mailRewrite(ItemValue<MailboxItem> current, MailboxItem newValue) {
 		logger.warn("Full EML rewrite expected with subject '{}'", newValue.body.subject);
-		newValue.body.date = current.value.body.date;
+		newValue.body.date = newValue.body.headers.stream()
+				.filter(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)).findAny()
+				.map(h -> new Date(Long.parseLong(h.firstValue()))).orElse(current.value.body.date);
 		Part currentStruct = current.value.body.structure;
 		Part expectedStruct = newValue.body.structure;
 		logger.info("Shoud go from:\n{} to\n{}", JsonUtils.asString(currentStruct), JsonUtils.asString(expectedStruct));
@@ -370,8 +372,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 			List<String> allFlags = newValue.flags.stream().map(item -> item.flag).collect(Collectors.toList());
 			ReadStream<Buffer> asStream = new VertxInputReadStream(fast.vertx(), updatedEml.input);
-			CompletableFuture<ImapResponseStatus<AppendResponse>> append = fast.append(imapFolder,
-					current.value.body.date, allFlags, updatedEml.size, asStream);
+			CompletableFuture<ImapResponseStatus<AppendResponse>> append = fast.append(imapFolder, newValue.body.date,
+					allFlags, updatedEml.size, asStream);
 			try {
 				return append.thenCompose(appendResult -> {
 					FlagsList fl = new FlagsList();
@@ -462,6 +464,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	private CompletableFuture<ItemIdentifier> createAsync(long id, MailboxItem value) {
 		logger.info("create 'draft' {}", id);
+		SizedStream sizedStream = createEmlStructure(id, null, value.body);
+
 		CompletableFuture<ItemChange> completion = ReplicationEvents.onRecordCreate(mailboxUniqueId, id);
 
 		int addedUid = imapContext.withImapClient((sc, fast) -> {
@@ -482,7 +486,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				}
 			});
 
-			SizedStream sizedStream = createEmlStructure(id, null, value.body);
 			logger.info("Append {}bytes EML into {}", sizedStream.size, imapFolder);
 			int added = sc.append(imapFolder, sizedStream.input, fl, value.body.date);
 			logger.info("Added IMAP UID: {} with date {}", added, value.body.date);
@@ -560,6 +563,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 						v.value.imapUid);
 				return null;
 			}
+
 			if (v.value.internalDate != null) {
 				adapted.value.body.date = v.value.internalDate;
 			}

@@ -31,6 +31,7 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ComponentList;
 import net.fortuna.ical4j.model.component.CalendarComponent;
 import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.component.VTimeZone;
 import net.fortuna.ical4j.model.component.VToDo;
 
 public class IMIPParserHelper {
@@ -50,6 +51,8 @@ public class IMIPParserHelper {
 				calendarComponents.add((VEvent) component);
 			} else if (component instanceof VToDo) {
 				calendarComponents.add((VToDo) component);
+			} else if (component instanceof VTimeZone) {
+				calendarComponents.add((VTimeZone) component);
 			}
 		}
 

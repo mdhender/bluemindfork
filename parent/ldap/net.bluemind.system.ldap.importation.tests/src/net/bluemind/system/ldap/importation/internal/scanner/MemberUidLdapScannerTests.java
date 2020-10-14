@@ -103,4 +103,8 @@ public class MemberUidLdapScannerTests extends ScannerCommon {
 		ldapScanner.scan();
 	}
 
+	@Override
+	protected boolean isMemberUidAttribute() {
+		return true;
+	}
 }

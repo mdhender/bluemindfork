@@ -79,6 +79,12 @@
    <extension
          point="net.bluemind.core.rest.apiEndpoint">
       <endpoint
+            api="net.bluemind.metrics.alerts.api.IMonitoring">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
             api="net.bluemind.metrics.alerts.api.ITickConfiguration">
       </endpoint>
       <endpoint
@@ -90,6 +96,12 @@
          point="net.bluemind.core.rest.serviceFactory">
       <serviceFactory
             class="net.bluemind.metrics.core.service.AlertsServiceFactory">
+      </serviceFactory>
+   </extension>
+    <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.metrics.core.service.MonitoringServiceFactory">
       </serviceFactory>
    </extension>
    <extension
@@ -112,6 +124,9 @@
      <verticle
          impl="net.bluemind.metrics.core.healing.SafeRestartOnHprofVerticle$Factory">
      </verticle>
+     <verticle
+         impl="net.bluemind.metrics.core.healing.HealElasticSearchOnDiskUsage$Factory">
+      </verticle>
    </extension>
    <extension
        point="net.bluemind.lib.vertx.verticles">
@@ -148,6 +163,12 @@
          <tick_template_provider
                impl="net.bluemind.metrics.core.tick.scripts.RunningCyrusReplication">
          </tick_template_provider>
+         <tick_template_provider
+               impl="net.bluemind.metrics.core.tick.scripts.ElasticSearchClusterHealth">
+         </tick_template_provider>
+         <tick_template_provider
+               impl="net.bluemind.metrics.core.tick.scripts.ElasticSearchDiskFree">
+         </tick_template_provider>
    </extension>
    <extension
          point="net.bluemind.metrics.core.tickDashboardProvider">
@@ -172,6 +193,15 @@
      </tick_dashboard_provider>
      <tick_dashboard_provider
            impl="net.bluemind.metrics.core.tick.dashboards.CachesDashboard">
+     </tick_dashboard_provider>
+     <tick_dashboard_provider
+           impl="net.bluemind.metrics.core.tick.dashboards.EASDashboard">
+     </tick_dashboard_provider>
+     <tick_dashboard_provider
+           impl="net.bluemind.metrics.core.tick.dashboards.PostgresqlDashboard">
+     </tick_dashboard_provider>
+     <tick_dashboard_provider
+           impl="net.bluemind.metrics.core.tick.dashboards.ElasticSearchDashboard">
      </tick_dashboard_provider>
    </extension>
    <extension

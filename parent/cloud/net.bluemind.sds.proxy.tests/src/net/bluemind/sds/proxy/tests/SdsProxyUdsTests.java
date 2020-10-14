@@ -17,12 +17,21 @@
   */
 package net.bluemind.sds.proxy.tests;
 
+import java.io.File;
+
 import io.vertx.core.net.SocketAddress;
 
 public class SdsProxyUdsTests extends SdsProxyTests {
 
 	@Override
 	protected SocketAddress socket() {
+		File f = new File("/var/run/cyrus/socket/bm-sds");
+		if (!f.canRead()) {
+			System.err.println("Unable to read on " + f);
+		}
+		if (!f.canWrite()) {
+			System.err.println("Unable to write on " + f);
+		}
 		return SocketAddress.domainSocketAddress("/var/run/cyrus/socket/bm-sds");
 	}
 

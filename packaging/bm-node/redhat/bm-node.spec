@@ -7,7 +7,7 @@ Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Requires(post):     systemd systemd-sysv
-Requires:           bm-jdk = 8u252-bluemind34, tar, gzip, bzip2, rsync, bm-conf = %{version}-%{release}, bm-pimp = %{version}-%{release}, iptables, sudo, httpd-tools, bm-maintenance-tools = %{version}-%{release}, bm-cli = %{version}-%{release}
+Requires:           bm-jdk = 8u265-bluemind36, tar, gzip, bzip2, rsync, bm-conf = %{version}-%{release}, bm-pimp = %{version}-%{release}, iptables, sudo, httpd-tools, bm-maintenance-tools = %{version}-%{release}, bm-cli = %{version}-%{release}
 Requires(post):     /bin/bash, initscripts
 Conflicts:          bm-mq, bm-plugin-node-monitoring
 Obsoletes:          bm-mq, bm-plugin-node-monitoring
@@ -34,26 +34,28 @@ mkdir -p %{buildroot}/var/lib/bm-ca
 %pre
 if [ $1 -gt 1 ]; then
     # Upgrade
-    systemctl stop bm-node
+    [ -d /run/systemd/system ] && systemctl stop bm-node
 fi
 
 %post -p /bin/bash
-systemctl daemon-reload
 systemctl enable bm-node
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload
 
-if [ $1 -eq 1 ]; then
-    # Installation
-    systemctl start bm-node
+    if [ $1 -eq 1 ]; then
+        # Installation
+        systemctl start bm-node
+    fi
 fi
 
 %preun
 if [ $1 -eq 0 ]; then
     # Uninstall
-    systemctl stop bm-node
+    [ -d /run/systemd/system ] && systemctl stop bm-node
 fi
 
 %postun
 if [ $1 -eq 1 ]; then
-    # Upgrade
-    systemctl start bm-node
+    # Upgrade
+    [ -d /run/systemd/system ] && systemctl start bm-node
 fi

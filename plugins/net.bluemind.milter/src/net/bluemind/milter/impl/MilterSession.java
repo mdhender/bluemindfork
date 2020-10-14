@@ -17,6 +17,7 @@
   */
 package net.bluemind.milter.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
@@ -46,7 +47,16 @@ public class MilterSession {
 	private final JilterProcessor jp;
 	private Buffer buffer;
 
+	private static final boolean RECORD_TRAFFIC = new File("/etc/bm", "milter.record").exists();
+	private final ITrafficRecorder rec;
+
 	public MilterSession(NetSocket socket) {
+		if (RECORD_TRAFFIC) {
+			rec = new TrafficRecorder(socket.writeHandlerID());
+		} else {
+			rec = buf -> {
+			};
+		}
 		this.start = registry.clock().monotonicTime();
 		this.socket = socket;
 		MilterHandler handler = new MilterHandler(MLRegistry.getFactories());
@@ -82,6 +92,7 @@ public class MilterSession {
 			doWrite();
 		});
 		socket.handler(buf -> {
+			rec.record(buf);
 			ByteBuf nettyBuffer = buf.getByteBuf();
 			logger.debug("Process {}", nettyBuffer);
 			ByteBuffer nioBuffer = nettyBuffer.nioBuffer();
@@ -101,7 +112,9 @@ public class MilterSession {
 			logger.info("{} closed.", socket.writeHandlerID());
 			stop();
 		});
-		logger.info("Session started for {}", socket.writeHandlerID());
+		if (logger.isInfoEnabled()) {
+			logger.info("Session started for {}", socket.writeHandlerID());
+		}
 	}
 
 	public void doWrite() {

@@ -69,7 +69,6 @@ public class MapiMailboxService implements IMapiMailbox {
 		this.context = context;
 		this.domainUid = domainUid;
 		this.mailboxUid = mailboxUid;
-		this.context = context;
 		this.mapiReplicaStore = new MapiReplicaStore(context.getDataSource());
 		this.pfMailbox = mailboxUid.equals(PublicFolders.mailboxGuid(domainUid));
 	}

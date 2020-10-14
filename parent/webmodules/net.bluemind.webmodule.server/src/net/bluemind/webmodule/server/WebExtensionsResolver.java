@@ -18,9 +18,11 @@
  */
 package net.bluemind.webmodule.server;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -36,20 +38,22 @@ public class WebExtensionsResolver {
 
 	private static final Logger logger = LoggerFactory.getLogger(WebExtensionsResolver.class);
 
-	private String lang;
+	private final String lang;
 
-	private String module;
+	private final String module;
+
+	private static final Map<String, JsonObject> extensions = new ConcurrentHashMap<>();
 
 	public WebExtensionsResolver(String lang, String module) {
 		this.module = module;
-		if (lang == null) {
-			lang = "en";
-
-		}
-		this.lang = lang;
+		this.lang = Optional.ofNullable(lang).orElse("en");
 	}
 
-	public JsonObject loadExtensions() throws IOException {
+	public JsonObject loadExtensions() {
+		return extensions.computeIfAbsent(lang + ":" + module, k -> loadExtensionsImpl(lang, module));
+	}
+
+	private static JsonObject loadExtensionsImpl(String l, String m) {
 		IExtensionPoint point = Platform.getExtensionRegistry().getExtensionPoint("net.bluemind.extensions");
 		if (point == null) {
 			return new JsonObject();
@@ -61,7 +65,7 @@ public class WebExtensionsResolver {
 			for (IConfigurationElement ce : ie.getConfigurationElements()) {
 				String pointId = ce.getAttribute("id");
 				String epModule = ce.getAttribute("module");
-				if (epModule == null || epModule.equals(module)) {
+				if (epModule == null || epModule.equals(m)) {
 					IExtensionPoint export = Platform.getExtensionRegistry().getExtensionPoint(pointId);
 					if (export != null) {
 						points.add(export);
@@ -69,7 +73,7 @@ public class WebExtensionsResolver {
 						logger.warn("export point {} not found", pointId);
 					}
 				} else {
-					logger.debug("extension point {} not activated for module {}", pointId, module);
+					logger.debug("extension point {} not activated for module {}", pointId, m);
 				}
 			}
 
@@ -82,7 +86,7 @@ public class WebExtensionsResolver {
 			for (IExtension extension : export.getExtensions()) {
 				JsonObject jsonExt = new JsonObject();
 				jsonExt.put("bundle", extension.getContributor().getName());
-				loadConfiguration(jsonExt, extension.getConfigurationElements());
+				loadConfiguration(l, jsonExt, extension.getConfigurationElements());
 				jsExtensions.add(jsonExt);
 			}
 
@@ -92,7 +96,7 @@ public class WebExtensionsResolver {
 		return ret;
 	}
 
-	private void loadConfiguration(JsonObject jsonExt, IConfigurationElement[] elts) {
+	private static void loadConfiguration(String lang, JsonObject jsonExt, IConfigurationElement[] elts) {
 		if (elts.length == 0)
 			return;
 		for (IConfigurationElement ce : elts) {
@@ -106,7 +110,7 @@ public class WebExtensionsResolver {
 
 			if (ce.getChildren() != null) {
 				JsonObject child = new JsonObject();
-				loadConfiguration(child, ce.getChildren());
+				loadConfiguration(lang, child, ce.getChildren());
 				jsonCe.put("children", child);
 			}
 			jsonExt.put(ce.getName(), jsonCe);

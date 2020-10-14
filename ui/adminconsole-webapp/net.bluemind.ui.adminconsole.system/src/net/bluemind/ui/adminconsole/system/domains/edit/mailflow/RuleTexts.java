@@ -47,6 +47,8 @@ public class RuleTexts {
 			return TEXTS.senderIsRule();
 		case "AddSignatureAction":
 			return TEXTS.signatureAction();
+		case "UpdateSubjectAction":
+			return TEXTS.updateSubjectAction();
 		case "RecipientIsExternalRule":
 			return TEXTS.recipientIsExternalRule();
 		case "RecipientIsInternalRule":

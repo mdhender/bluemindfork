@@ -30,8 +30,6 @@ pref("extensions.bm.log.level", 1);
 pref("extensions.bm.log.debug", false);
 /* Auto sync every x min */
 pref("extensions.bm.refresh.delay", 2);
-pref("extensions.install.requireBuiltInCerts", false);
-pref("extensions.update.requireBuiltInCerts", false);
 /* Open BlueMind in tab ?*/
 pref("extensions.bm.openInTab", true);
 /* Workaround DHE keys less than 1023-bit are no longer accepted

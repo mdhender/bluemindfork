@@ -230,16 +230,22 @@ public class WebModuleProtocol implements IAuthProtocol {
 		MultiMap attributes = req.formAttributes();
 		final String askedUri = checkAskedUri(attributes);
 
-		String code = "10";
+		int code = 10;
 		if (e instanceof ServerFault) {
 			ServerFault sf = (ServerFault) e;
 			if (sf.getCode() == ErrorCode.INVALID_PARAMETER) {
-				code = "1";
+				code = 1;
 			} else if (sf.getCode() == ErrorCode.INVALID_PASSWORD) {
-				code = "2";
+				code = 2;
 			}
 		}
-		logger.warn("Auth failure ({}), display login page.", e.getMessage(), e);
+
+		if (code == 2) {
+			logger.warn("Invalid password ({}), display login page.", e.getMessage());
+		} else {
+			logger.warn("Auth failure ({}), display login page.", e.getMessage(), e);
+		}
+
 		String q = "?authErrorCode=" + code;
 		if (askedUri != null) {
 			try {

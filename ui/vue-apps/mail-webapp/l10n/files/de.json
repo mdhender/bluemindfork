@@ -1,6 +1,5 @@
 {
     "alert.folder.create.error": "Fehler beim Erstellen des Ordners \"{name}\".",
-    "alert.folder.create.loading": "Erstelle Ordner \"{name}\"...",
     "alert.folder.create.success": "Ordner {folderNameWithLink} erstellt!",
     "alert.folder.mark_as_read.error": "Fehler beim Markieren des Ordners {folderNameWithLink} als Gelesen.",
     "alert.folder.mark_as_read.loading": "Markiere Ordner {folderNameWithLink} als Gelesen...",
@@ -9,7 +8,6 @@
     "alert.folder.remove.loading": "Lösche Ordner {oldFolderName}...",
     "alert.folder.remove.success": "Order {oldFolderName} gelöscht!",
     "alert.folder.rename.error": "Fehler beim Umbenennen von \"{oldName}\" in \"{newName}\".",
-    "alert.folder.rename.loading": "Benenne Ordner \"{oldName}\" in \"{newName}\" um...",
     "alert.folder.rename.success": "Ordner {oldFolderName} wurde in {folderNameWithLink} umbenannt!",
     "alert.mail.create_folder.ok": "Ordner \"{folderName}\" wurde erstellt.",
     "alert.mail.message.draft.attach.error": "Fehler beim Anhängen. Bitte erneut versuchen.",

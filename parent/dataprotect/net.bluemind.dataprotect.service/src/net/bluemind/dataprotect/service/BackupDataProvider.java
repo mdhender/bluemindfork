@@ -19,6 +19,9 @@
 
 package net.bluemind.dataprotect.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.ByteStreams;
 
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.VersionInfo;
@@ -54,6 +58,9 @@ import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.service.internal.DPContext;
 import net.bluemind.dataprotect.service.internal.PgContext;
 import net.bluemind.dataprotect.service.internal.Workers;
+import net.bluemind.node.api.INodeClient;
+import net.bluemind.node.api.NCUtils;
+import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.BMPoolActivator;
 import net.bluemind.pool.Pool;
 import net.bluemind.pool.impl.BmConfIni;
@@ -91,9 +98,15 @@ public class BackupDataProvider implements AutoCloseable {
 		this.targetDatabase = target != null ? target : "dp" + UUID.randomUUID().toString().replace("-", "");
 		this.sc = sc;
 		this.monitor = monitor;
-		pgContext = new ArrayList<PgContext>();
+		pgContext = new ArrayList<>();
 	}
 
+	/**
+	 * @param server: This field is ignored
+	 * @deprecated: use BackupDataProvider(String target, SecurityContext sc,
+	 *              IServerTaskMonitor monitor)
+	 */
+	@Deprecated
 	public BackupDataProvider(String target, String server, IServerTaskMonitor monitor) {
 		this(target, SecurityContext.SYSTEM, monitor);
 	}
@@ -134,15 +147,17 @@ public class BackupDataProvider implements AutoCloseable {
 
 	public BmContext createContextWithData(DataProtectGeneration dpg, Restorable restorable) throws Exception {
 		VersionInfo dpVersion = dpg.blueMind;
-
 		monitor.progress(1, "Fetching data from temporary database...");
 
-		PgContext pgContext = restorePg(dpg, pgsqlTag, targetDatabase, restorable);
-		PgContext pgDataContext = restorePg(dpg, pgsqlDataTag, targetDatabase + "data", restorable);
+		cleanupOldTemporaryDatabases(dpg, Arrays.asList(pgsqlTag, pgsqlDataTag));
+		PgContext restorePgContext = restorePg(dpg, pgsqlTag, targetDatabase);
+		PgContext restorePgDataContext = restorePg(dpg, pgsqlDataTag, targetDatabase + "data");
 		String bjDataDatalocation = dpg.parts.stream().filter(g -> g.tag.equals(pgsqlDataTag)).findFirst().get().server;
-		String bjDatalocation = dpg.parts.stream().filter(g -> g.tag.equals(pgsqlTag)).findFirst().get().server;
+		// This seems weird, but we force the servername aka datalocation to be master
+		// for bj
+		String bjDatalocation = "master";
 
-		UpgraderStore store = new UpgraderStore(pgContext.pool.getDataSource());
+		UpgraderStore store = new UpgraderStore(restorePgContext.pool.getDataSource());
 		try {
 			boolean needsMigration = store.needsMigration();
 			if (needsMigration) {
@@ -150,15 +165,16 @@ public class BackupDataProvider implements AutoCloseable {
 				UpgraderMigration.migrate(store, dpVersion, servers);
 			}
 		} catch (SQLException e) {
-			logger.warn("Could not migrate backup database from version {}", dpVersion.toString());
-			throw new ServerFault(
-					String.format("Could not migrate backup database from version %s", dpVersion.toString()));
+			logger.warn("Could not migrate backup database from version {}", dpVersion);
+			throw new ServerFault(String.format("Could not migrate backup database from version %s", dpVersion));
 		}
 
-		upgradeSchema(dpVersion, Database.SHARD, bjDataDatalocation, pgDataContext.pool.getDataSource(), true, store);
-		upgradeSchema(dpVersion, Database.DIRECTORY, bjDatalocation, pgContext.pool.getDataSource(), false, store);
+		upgradeSchema(dpVersion, Database.SHARD, bjDataDatalocation, restorePgDataContext.pool.getDataSource(), true,
+				store);
+		upgradeSchema(dpVersion, Database.DIRECTORY, bjDatalocation, restorePgContext.pool.getDataSource(), false,
+				store);
 
-		return new BackupContext(pgContext.pool.getDataSource(), pgDataContext.pool.getDataSource(), sc);
+		return new BackupContext(restorePgContext.pool.getDataSource(), restorePgDataContext.pool.getDataSource(), sc);
 	}
 
 	private void upgradeSchema(VersionInfo dpVersion, Database database, String datalocation, DataSource ds,
@@ -174,9 +190,9 @@ public class BackupDataProvider implements AutoCloseable {
 				list -> partialUpgrade(list, handledActions, store, onlySchema, database, datalocation, ds, report));
 
 		if (report.status == Status.FAILED) {
-			logger.warn("Could not upgrade backup database from version {} to {}", dpVersion.toString(), to.toString());
-			throw new ServerFault(String.format("Could not upgrade backup database from version %s to %s",
-					dpVersion.toString(), to.toString()));
+			logger.warn("Could not upgrade backup database from version {} to {}", dpVersion, to);
+			throw new ServerFault(
+					String.format("Could not upgrade backup database from version %s to %s", dpVersion, to));
 		}
 	}
 
@@ -195,8 +211,35 @@ public class BackupDataProvider implements AutoCloseable {
 		}
 	}
 
-	private PgContext restorePg(DataProtectGeneration dpg, String tag, String dbName, Restorable restorable)
-			throws Exception {
+	private void cleanupOldTemporaryDatabases(DataProtectGeneration dpg, List<String> tags) {
+		final String script;
+		try (InputStream in = BackupDataProvider.class.getClassLoader().getResourceAsStream("scripts/cleanup.sh")) {
+			script = new String(ByteStreams.toByteArray(in));
+		} catch (IOException ioe) {
+			logger.error("Unable to load scripts/cleanup.sh: {}", ioe.getMessage());
+			throw new ServerFault("Unable to load scripts/cleanup.sh: " + ioe.getMessage());
+		}
+
+		final List<PartGeneration> pgParts = dpg.parts.stream().filter(g -> tags.contains(g.tag))
+				.collect(Collectors.toList());
+		for (PartGeneration pgPart : pgParts) {
+			String serverUid = pgPart.server;
+			ItemValue<Server> server = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IServer.class, InstallationId.getIdentifier()).getComplete(serverUid);
+			INodeClient nc = NodeActivator.get(server.value.address());
+			String scriptPath = "/tmp/cleanup_dataprotect_" + System.nanoTime() + ".sh";
+			nc.writeFile(scriptPath, new ByteArrayInputStream(script.getBytes()));
+			NCUtils.exec(nc, "chmod +x " + scriptPath);
+			List<String> output = NCUtils.exec(nc, scriptPath);
+			for (String s : output) {
+				logger.info("[cleanup_dataprotect]: {}", s);
+				monitor.log("[cleanup_dataprotect]: " + s);
+			}
+			NCUtils.exec(nc, "rm -f " + scriptPath);
+		}
+	}
+
+	private PgContext restorePg(DataProtectGeneration dpg, String tag, String dbName) throws Exception {
 		Optional<PartGeneration> pgPart = dpg.parts.stream().filter(g -> g.tag.equals(tag)).findFirst();
 		if (!pgPart.isPresent()) {
 			throw ServerFault.notFound("This backup lacks a " + tag + " part.");

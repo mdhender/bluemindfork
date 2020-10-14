@@ -18,6 +18,7 @@
  */
 package net.bluemind.core.sendmail;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.util.LinkedList;
@@ -40,6 +41,8 @@ import net.bluemind.network.topology.Topology;
 public class Sendmail implements ISendmail {
 
 	private static final Logger logger = LoggerFactory.getLogger(Sendmail.class);
+	public static final String SMTP_SUBMIT_PORT_PROP = "bm.smtp.submit.port";
+	public static String SMTP_STARTTLS_PROP = "bm.smtp.submit.tls";
 
 	/*
 	 * (non-Javadoc)
@@ -117,16 +120,32 @@ public class Sendmail implements ISendmail {
 	@Override
 	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
 			Message m) {
+		try (InputStream in = Mime4JHelper.asStream(m)) {
+			return send(creds, fromEmail, userDomain, rcptTo, in);
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+			return SendmailResponse.fail(e.getMessage());
+		}
+	}
+
+	@Override
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+			InputStream inStream) {
 		if (rcptTo == null) {
 			throw new ServerFault("null To: field in message");
 		}
-
 		SendmailResponse sendmailResponse = null;
 
 		String ip = Topology.get().any("mail/smtp").value.address();
-		try (SMTPProtocol smtp = new SMTPProtocol(ip, 587)) {
+		try (SMTPProtocol smtp = new SMTPProtocol(ip,
+				Integer.parseInt(System.getProperty(SMTP_SUBMIT_PORT_PROP, "587")))) {
+			boolean useTls = Boolean.parseBoolean(System.getProperty(SMTP_STARTTLS_PROP, "true"));
 			smtp.openPort();
-			smtp.startTLS();
+			if (useTls) {
+				smtp.startTLS();
+			} else {
+				logger.warn("TLS disabled by system property {}", SMTP_STARTTLS_PROP);
+			}
 			smtp.auth("PLAIN", creds.loginAtDomain, creds.authKey.toCharArray());
 			smtp.ehlo(InetAddress.getLocalHost());
 			smtp.mail(new Address(fromEmail));
@@ -134,10 +153,8 @@ public class Sendmail implements ISendmail {
 			for (Mailbox to : rcptTo) {
 				smtp.rcpt(new Address(to.getAddress()));
 			}
-			try (InputStream inStream = Mime4JHelper.asStream(m)) {
-				sendmailResponse = new SendmailResponse(smtp.data(inStream));
-				smtp.quit();
-			}
+			sendmailResponse = new SendmailResponse(smtp.data(inStream));
+			smtp.quit();
 
 			logger.info("Email sent {}", getLog(creds, fromEmail, rcptTo, sendmailResponse, Optional.empty()));
 			return sendmailResponse;

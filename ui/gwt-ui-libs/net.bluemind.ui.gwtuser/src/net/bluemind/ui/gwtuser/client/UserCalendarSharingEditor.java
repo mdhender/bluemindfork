@@ -18,6 +18,10 @@
  */
 package net.bluemind.ui.gwtuser.client;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 
 import net.bluemind.calendar.api.ICalendarUids;
@@ -27,6 +31,7 @@ import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
+import net.bluemind.ui.common.client.forms.acl.AclConstants;
 import net.bluemind.ui.gwtsharing.client.BaseSharingEditor;
 
 public class UserCalendarSharingEditor extends BaseSharingEditor {
@@ -39,6 +44,17 @@ public class UserCalendarSharingEditor extends BaseSharingEditor {
 	protected String getContainerUid(JavaScriptObject model) {
 		JsMapStringJsObject map = model.cast();
 		return ICalendarUids.TYPE + ":" + UserCalendarType.Default + ":" + map.getString("userId");
+	}
+
+	protected Map<String, String> getVerbs() {
+		Map<String, String> verbs = new HashMap<>();
+		AclConstants constants = GWT.create(AclConstants.class);
+
+		verbs.put("access", constants.aclCalendarAccess());
+		verbs.put("read", constants.aclCalendarRead());
+		verbs.put("write", constants.aclCalendarWrite());
+		verbs.put("admin", constants.aclCalendarAdmin());
+		return verbs;
 	}
 
 	public static void registerType() {

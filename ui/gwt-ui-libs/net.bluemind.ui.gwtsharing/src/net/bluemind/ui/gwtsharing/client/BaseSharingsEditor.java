@@ -135,7 +135,9 @@ public class BaseSharingsEditor extends CompositeGwtWidgetElement {
 						verbs.put("admin", constants.aclBookAdmin());
 					}
 				} else if ("mailboxacl".equals(type)) {
-					verbs.put("send-on-behalf", constants.aclMailSendOnBehalf());
+					if (!value.ownerDirEntryPath.startsWith(value.domainUid + "/groups/")) {
+						verbs.put("send-on-behalf", constants.aclMailSendOnBehalf());
+					}
 					verbs.put("read", constants.aclMailRead());
 					if (!value.readOnly) {
 						verbs.put("write", constants.aclMailWrite());

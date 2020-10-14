@@ -302,12 +302,9 @@
       <plugin id="net.bluemind.metrics.annotations"/>
       <plugin id="net.bluemind.metrics.core"/>
       <plugin id="net.bluemind.metrics.registry"/>
+      <plugin id="net.bluemind.metrics.ui.role"/>
       <plugin id="net.bluemind.mime4j.bodies"/>
       <plugin id="net.bluemind.mime4j.common"/>
-      <plugin id="net.bluemind.monitoring.api"/>
-      <plugin id="net.bluemind.monitoring.handler.services"/>
-      <plugin id="net.bluemind.monitoring.handler.system"/>
-      <plugin id="net.bluemind.monitoring.service"/>
       <plugin id="net.bluemind.neko.common"/>
       <plugin id="net.bluemind.network.topology"/>
       <plugin id="net.bluemind.network.topology.producer"/>
@@ -469,8 +466,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
       <property name="osgi.noShutdown" value="true" />
+      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
    </configurations>
 
    <preferencesInfo>

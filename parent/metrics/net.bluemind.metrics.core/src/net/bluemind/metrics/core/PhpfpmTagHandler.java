@@ -25,7 +25,7 @@ public class PhpfpmTagHandler extends TickInputConfigurator {
 			TagHelper.jarToFS(getClass(), "/configs/bm-phpfpm.conf", "/etc/telegraf/telegraf.d/bm-phpfpm.conf",
 					itemValue, context.provider().instance(IServer.class, InstallationId.getIdentifier()));
 		} catch (IOException e) {
-			logger.error("Error copying file : {}", e);
+			logger.error("Error copying file : {}", e.toString());
 		}
 		TagHelper.reloadTelegraf(itemValue.value.address());
 		monitor.ifPresent(mon -> mon.log("Telegraf input for " + tag + " configured on " + itemValue.value.address()));
@@ -37,7 +37,7 @@ public class PhpfpmTagHandler extends TickInputConfigurator {
 			return;
 		}
 		TagHelper.deleteRemote(itemValue.value.address(), "/etc/telegraf/telegraf.d/bm-phpfpm.conf");
-		logger.info("Deleted file /etc/telegraf/telegraf.d/bm-phpfpm.conf at " + itemValue.value.address());
+		logger.info("Deleted file /etc/telegraf/telegraf.d/bm-phpfpm.conf at {}", itemValue.value.address());
 		TagHelper.reloadTelegraf(itemValue.value.address());
 	}
 }

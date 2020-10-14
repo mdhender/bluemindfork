@@ -109,7 +109,7 @@ public class CalendarService implements IInternalCalendar {
 		this.container = container;
 		this.context = context;
 		this.auditor = auditor;
-		sanitizer = new VEventSanitizer(context, container.domainUid);
+		sanitizer = new VEventSanitizer(context, container);
 
 		veventStore = new VEventSeriesStore(pool, container);
 		storeService = new VEventContainerStoreService(context, pool, context.getSecurityContext(), container,
@@ -122,7 +122,8 @@ public class CalendarService implements IInternalCalendar {
 
 		final String origin = context.getSecurityContext().getOrigin();
 		final boolean isRemote = this.isRemoteCalendar(context, container);
-		calendarEventProducer.serviceAccessed(container.uid, origin, isRemote);
+		calendarEventProducer.serviceAccessed(container.uid, origin, context.getSecurityContext().isInteractive(),
+				isRemote);
 
 		extSanitizer = new Sanitizer(context);
 		extValidator = new Validator(context);
@@ -699,10 +700,7 @@ public class CalendarService implements IInternalCalendar {
 
 	@Override
 	public boolean isAutoSyncActivated() throws ServerFault {
-		final ContainerSyncStore containerSyncStore = new ContainerSyncStore(
-				DataSourceRouter.get(context, container.uid), container);
-		final ContainerSyncStatus containerSyncStatus = containerSyncStore.getSyncStatus();
-		return containerSyncStatus != null ? containerSyncStatus.errors < SYNC_ERRORS_LIMIT : true;
+		return true;
 	}
 
 	@Override

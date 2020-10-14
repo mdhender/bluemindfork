@@ -20,6 +20,6 @@
 ?>
 <?php
 $labels['invalidcontactemaildomain']='E-Mail Domain des Kontaktes nicht zulässig';
-$labels['users']='Directory';
-$labels['contacts']='My contacts';
+$labels['users']='Globales Addressbuch';
+$labels['contacts']='Meine Kontakte';
 $labels['collected_contacts']='Gesammelte Kontakte';

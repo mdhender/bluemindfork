@@ -7,7 +7,7 @@ Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Requires(post):     systemd systemd-sysv
-Requires:           bm-jdk = 8u252-bluemind34
+Requires:           bm-jdk = 8u265-bluemind36
 Requires(post):     /bin/bash, initscripts
 
 %description
@@ -27,16 +27,18 @@ install -m 644 /sources/stretch/bm-pimp.service %{buildroot}%{_unitdir}
 /*
 
 %post
-systemctl daemon-reload
 systemctl enable bm-pimp
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload
 
-if [ $1 -eq 1 ]; then
-    # Installation
-    systemctl start bm-pimp
+    if [ $1 -eq 1 ]; then
+        # Installation
+        systemctl start bm-pimp
+    fi
 fi
 
 %postun
 if [ $1 -eq 1 ]; then
-    # Upgrade
-    systemctl start bm-pimp
+    # Upgrade
+    [ -d /run/systemd/system ] && systemctl start bm-pimp
 fi

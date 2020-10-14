@@ -13,8 +13,12 @@ public class TokenDelegateLookupImpl extends HollowObjectAbstractDelegate implem
         this.typeAPI = typeAPI;
     }
 
-    public int getKeyOrdinal(int ordinal) {
-        return typeAPI.getKeyOrdinal(ordinal);
+    public String getKey(int ordinal) {
+        return typeAPI.getKey(ordinal);
+    }
+
+    public boolean isKeyEqual(int ordinal, String testValue) {
+        return typeAPI.isKeyEqual(ordinal, testValue);
     }
 
     public int getSubjectUidOrdinal(int ordinal) {
@@ -23,6 +27,14 @@ public class TokenDelegateLookupImpl extends HollowObjectAbstractDelegate implem
 
     public int getSubjectDomainOrdinal(int ordinal) {
         return typeAPI.getSubjectDomainOrdinal(ordinal);
+    }
+
+    public String getOrigin(int ordinal) {
+        return typeAPI.getOrigin(ordinal);
+    }
+
+    public boolean isOriginEqual(int ordinal, String testValue) {
+        return typeAPI.isOriginEqual(ordinal, testValue);
     }
 
     public long getExpiresTimestamp(int ordinal) {

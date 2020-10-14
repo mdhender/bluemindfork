@@ -30,7 +30,6 @@ import net.bluemind.gwtconsoleapp.base.menus.MenuContribution;
 import net.bluemind.gwtconsoleapp.base.menus.MenuContributorUnwrapped;
 import net.bluemind.gwtconsoleapp.base.menus.Screen;
 import net.bluemind.gwtconsoleapp.base.menus.Section;
-import net.bluemind.monitoring.api.MonitoringRoles;
 import net.bluemind.ui.adminconsole.monitoring.l10n.MonitoringMenuConstants;
 
 public class MonitoringMenusContributor implements MenuContributorUnwrapped {
@@ -47,10 +46,10 @@ public class MonitoringMenusContributor implements MenuContributorUnwrapped {
 
 		// rajouter la nouvelle section à la console d'administration
 		sections.push(Contributed.create(null, Section.create("monitoring", v.monitoringGeneralTitle(), 97,
-				"fa-pie-chart", JsArray.createArray().<JsArray<Screen>> cast(), ssections)));
+				"fa-pie-chart", JsArray.createArray().<JsArray<Screen>>cast(), ssections)));
 
-		screens.push(Contributed.create("bmHealth", Screen.create("checkGlobalStatus", v.globalStatusScreenTitle(),
-				MonitoringRoles.ROLE_MONITORING, true)));
+		screens.push(Contributed.create("bmHealth",
+				Screen.create("checkGlobalStatus", v.globalStatusScreenTitle(), "bmMonitoring", true)));
 
 		return MenuContribution.create(sections, screens);
 	}

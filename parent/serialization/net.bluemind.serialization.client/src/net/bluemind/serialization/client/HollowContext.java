@@ -42,7 +42,7 @@ public class HollowContext {
 			logger.info("HOLLOW local strategy selected for set {} and dir {}.", set, dir.getAbsolutePath());
 			return new LocalHollowContext().create(dir);
 		} else {
-			logger.info("HOLLOW remote strategy selected for set {}.", set);
+			logger.info("HOLLOW remote strategy selected for set {} as '{}' is missing.", set, dir.getAbsolutePath());
 			return new BmHollowContext().create(set, dir.getName());
 		}
 	}

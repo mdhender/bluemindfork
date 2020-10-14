@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.cli.launcher.tests
+Bundle-SymbolicName: net.bluemind.cli.launcher.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ io.airlift.airline,
+ javax.inject,
+ net.bluemind.cli.job,
+ net.bluemind.cli.launcher,
+ org.junit
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.cli.launcher.tests
+Bundle-ActivationPolicy: lazy

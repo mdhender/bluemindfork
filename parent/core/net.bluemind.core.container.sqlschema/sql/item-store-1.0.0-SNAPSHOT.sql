@@ -58,7 +58,7 @@ CREATE TABLE t_container_changelog (
 );
 
 CREATE INDEX tcc_container_id_fkey ON t_container_changelog(container_id);
-
+CREATE INDEX t_container_changelog_container_id_item_id_version_idx ON t_container_changelog(container_id, item_id, version);
 
 CREATE TABLE t_container_acl (
 	container_id int4 references t_container(id),
@@ -88,9 +88,6 @@ CREATE TABLE t_container_location (
   location text,
   PRIMARY KEY(container_uid)
 );
-
-
-CREATE INDEX idx_container_changelog_sort ON t_container_changelog(item_id, version);
 
 /** Changeset */
 

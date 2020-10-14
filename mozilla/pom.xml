@@ -47,6 +47,9 @@
 						</goals>
 						<configuration>
 							<target>
+							
+                <!-- Legacy extension -->
+                
 								<copy todir="${project.build.directory}/tbird" failonerror="no">
 									<fileset dir="bm-connector-tb/src">
 										<exclude name="**/.gitignore" />
@@ -63,26 +66,59 @@
 									</patternset>
 									<mapper type="flatten" />
 								</unzip>
-								<copy todir="${project.build.directory}/tbird" failonerror="no">
-									<fileset dir="bm-connector-tb/src">
-										<exclude name="**/.gitignore" />
-									</fileset>
-								</copy>
 
+                <!-- Add .0 to legacy version and .1 to webext version
+                  to handle update from legacy extension to webext when updating to TB 78.
+                  Sample scenario:
+                  - TB 68 with legacy connector v 4.3.2000
+                  - update BM to v 4.3.2030
+                  - TB 68 update connector to v 4.3.2030.0
+                  - TB 68 update to TB 78
+                  - TB 78 update connector to v 4.3.2030.1 -->
+                    
 								<replace file="${project.build.directory}/tbird/install.rdf">
 									<replacetoken>1.0.0-dev</replacetoken>
-									<replacevalue>${project.version}</replacevalue>
+									<replacevalue>${project.version}.0</replacevalue>
 								</replace>
 								
 								<replace file="${project.build.directory}/tbird/manifest.json">
 									<replacetoken>1.0.0-dev</replacetoken>
-									<replacevalue>${project.version}</replacevalue>
+									<replacevalue>${project.version}.0</replacevalue>
 								</replace>
 
 								<zip destfile="${project.build.directory}/bm-connector-tb.xpi"
 									basedir="${project.build.directory}/tbird" update="true" />
 								<attachartifact file="${project.build.directory}/bm-connector-tb.xpi"
 									type="xpi" />
+
+                <!-- WebExtension -->
+                
+								<copy todir="${project.build.directory}/tbird-webext" failonerror="no">
+									<fileset dir="bm-connector-tb-webext/src">
+										<exclude name="**/.gitignore" />
+									</fileset>
+								</copy>
+								<!-- unzip generated client -->
+								<unzip
+									dest="${project.build.directory}/tbird-webext/content/core2/client/">
+									<fileset dir="${project.build.directory}/dependency">
+										<include name="**/net.bluemind.core.api.mozjs*.jar" />
+									</fileset>
+									<patternset>
+                    <include name="**/*.js" />
+									</patternset>
+									<mapper type="flatten" />
+								</unzip>
+								
+								<replace file="${project.build.directory}/tbird-webext/manifest.json">
+									<replacetoken>1.0.0-dev</replacetoken>
+									<replacevalue>${project.version}.1</replacevalue>
+								</replace>
+
+								<zip destfile="${project.build.directory}/bm-connector-tb-webext.xpi"
+									basedir="${project.build.directory}/tbird-webext" update="true" />
+								<attachartifact file="${project.build.directory}/bm-connector-tb-webext.xpi"
+									type="xpi-webext" />
 							</target>
 						</configuration>
 					</execution>

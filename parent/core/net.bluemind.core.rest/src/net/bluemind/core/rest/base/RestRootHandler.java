@@ -144,12 +144,18 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 
 			@Override
 			public void success(RestResponse value) {
-				metrics.countSuccess.increment();
-				metrics.registry.counter(metrics.idFactory.name("callsByRPC", "status", "success", "rpc", leaf.name()))
-						.increment();
-				metrics.handlingTimer.record(metrics.registry.clock().monotonicTime() - start, TimeUnit.NANOSECONDS);
 				rh.success(value);
+				long elapsed = metrics.registry.clock().monotonicTime() - start;
+				vertx.executeBlocking(prom -> {
+					metrics.countSuccess.increment();
+					metrics.registry
+							.counter(metrics.idFactory.name("callsByRPC", "status", "success", "rpc", leaf.name()))
+							.increment();
+					metrics.handlingTimer.record(elapsed, TimeUnit.NANOSECONDS);
+					prom.complete();
+				}, false, ar -> {
 
+				});
 			}
 
 			@Override

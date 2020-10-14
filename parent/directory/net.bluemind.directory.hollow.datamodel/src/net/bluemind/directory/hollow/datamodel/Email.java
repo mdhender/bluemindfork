@@ -19,9 +19,13 @@
 
 package net.bluemind.directory.hollow.datamodel;
 
+import com.netflix.hollow.core.write.objectmapper.HollowInline;
+
 public class Email {
 
+	@HollowInline
 	public String address;
+
 	public boolean allAliases;
 	public boolean isDefault;
 

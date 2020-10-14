@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://bm/content/skin/style.css" type="text/css"?>
+
+<overlay id="bm-overlay" xmlns:html="http://www.w3.org/1999/xhtml"
+    onremove="gBMOverlay.onremove();">
+
+  <script type="application/x-javascript" src="chrome://bm/content/messenger.js" />
+  <script type="application/x-javascript" src="chrome://bm/content/bmContentTab.js" />
+  <script type="application/x-javascript" src="chrome://bm/content/bmIcsBandal.js" />
+  <script type="application/x-javascript" src="chrome://bm/content/apply-locales.js" />
+
+  <!--Status bar-->
+  <hbox id="bm-status" class="statusbarpanel"
+                       appendto="status-bar">
+    <label id="bm-sync-status"
+           class="statusbarpanel"
+           value="" />
+  </hbox>
+  <!--Mail toolbox-->
+  <toolbarbutton id="bm-button-open-calendar"
+                  class="toolbarbutton-1"
+                  label="__BM_bm.button.open.calendar.label__"
+                  tooltiptext="__BM_bm.button.open.calendar.tooltiptext__"
+                  oncommand="gBMOverlay.openBmApp('/cal', false);"
+                  insertbefore="gloda-search"
+                  appendto="mail-bar3"/>
+  <toolbarbutton id="bm-button-open-todolist"
+                  class="toolbarbutton-1"
+                  label="__BM_bm.button.open.todolist.label__"
+                  tooltiptext="__BM_bm.button.open.todolist.tooltiptext__"
+                  oncommand="gBMOverlay.openBmApp('/task', false);"
+                  insertbefore="gloda-search"
+                  appendto="mail-bar3"/>
+  <toolbarbutton id="bm-button-sync"
+                  class="toolbarbutton-1"
+                  label="__BM_bm.button.sync.label__"
+                  tooltiptext="__BM_bm.button.sync.tooltiptext__"
+                  oncommand="gBMOverlay.doSync();"
+                  insertbefore="gloda-search"
+                  appendto="mail-bar3"/>
+  <!--Tasks menu-->
+  <menu id="menu-task-bm" label="BlueMind"
+        accesskey="B"
+        class="menu-iconic"
+        image="chrome://bm/content/skin/BM_Icone01_16.png"
+        appendto="taskPopup">
+    <menupopup>
+      <menuitem id="bm-button-sync-menu"
+                label="__BM_bm.button.sync.label__"
+                accesskey="S"
+                oncommand="gBMOverlay.doSync();"/>
+      <menuitem id="bm-button-open-calendar-menu"
+                label="__BM_bm.button.open.calendar.label__"
+                accesskey="C"
+                oncommand="gBMOverlay.openBmApp('/cal', false);"/>
+      <menuitem id="bm-button-open-todolist-menu"
+                label="__BM_bm.button.open.todolist.label__"
+                accesskey="T"
+                oncommand="gBMOverlay.openBmApp('/task', false);"/>
+      <menuseparator/>
+      <menuitem id="bm-button-open-settings-menu"
+                label="__BM_bm.button.open.settings.label__"
+                accesskey="B"
+                oncommand="gBMOverlay.openBmApp('/settings', false);"/>
+      <menuitem id="bm-button-open-preferences-menu"
+                label="__BM_bm.button.open.preferences.label__"
+                accesskey="c"
+                oncommand="gBMOverlay.openPreferences();"/>
+    </menupopup>
+  </menu>
+  <!--Main app menu-->
+  <toolbarseparator id="menup-app-seperator-bm"
+                    appendto="appMenu-mainViewItems"
+                    insertbefore="appmenu-quit" />
+  <toolbarbutton id="menu-app-bm"
+                   class="subviewbutton subviewbutton-iconic subviewbutton-nav"
+                   image="chrome://bm/content/skin/BM_Icone01_16.png"
+                   label="BlueMind"
+                   closemenu="none"
+                   oncommand="PanelUI.showSubView('menu-app-bm-View', this)"
+                   appendto="appMenu-mainViewItems"
+                   insertbefore="menup-app-seperator-bm" />
+  <panelview id="menu-app-bm-View"
+             title="BlueMind"
+             class="PanelUI-subView">
+    <vbox class="panel-subview-body">
+        <toolbarbutton id="bm-button-open-calendar"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="__BM_bm.button.open.calendar.label__"
+                       accesskey="C"
+                       tooltiptext="__BM_bm.button.open.calendar.tooltiptext__"
+                       oncommand="gBMOverlay.openBmApp('/cal', false);" />
+        <toolbarbutton id="bm-button-open-todolist"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="__BM_bm.button.open.todolist.label__"
+                       accesskey="T"
+                       tooltiptext="__BM_bm.button.open.todolist.tooltiptext__"
+                       oncommand="gBMOverlay.openBmApp('/task', false);" />
+        <toolbarbutton id="bm-button-sync"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="__BM_bm.button.sync.label__"
+                       accesskey="S"
+                       tooltiptext="__BM_bm.button.sync.tooltiptext__"
+                       oncommand="gBMOverlay.doSync();" />
+        <toolbarseparator />
+        <toolbarbutton id="bm-button-open-settings-menu"
+                       label="__BM_bm.button.open.settings.label__"
+                       class="subviewbutton subviewbutton-iconic"
+                       accesskey="B"
+                       oncommand="gBMOverlay.openBmApp('/settings', false);"/>
+        <toolbarbutton id="bm-button-open-preferences-menu"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="__BM_bm.button.open.preferences.label__"
+                       accesskey="c"
+                       oncommand="gBMOverlay.openPreferences();"/>
+    </vbox>
+  </panelview>
+  <!--Message view-->
+  <hbox id="bm-ics-bandal"
+          collapsed="true"
+          insertbefore="messagepanewrapper"
+          appendto="singlemessage">
+      <description class="msgNotificationBarText" value="__BM_bm.icsbandal.description__"/>
+      <grid>
+          <columns>
+              <column></column>
+              <column></column>
+          </columns>
+          <rows>
+              <row>
+                  <label value="__BM_bm.icsbandal.title__"/>
+                  <label id="bm-ics-bandal-title" value=""/>
+              </row>
+              <row>
+                  <label value="__BM_bm.icsbandal.when__"/>
+                  <label id="bm-ics-bandal-when" value=""/>
+              </row>
+              <row>
+                  <label value="__BM_bm.icsbandal.where__"/>
+                  <label id="bm-ics-bandal-where" value=""/>
+              </row>
+              <row id="bm-ics-bandal-partRow">
+                  <label id="bm-ics-bandal-participation" value=""/>
+                  <hbox>
+                      <label id="bm-ics-bandal-accept" class="text-link"
+                              onclick="" value="__BM_bm.icsbandal.accept__"/>
+                      <label value="-"/>
+                      <label id="bm-ics-bandal-tentative" class="text-link"
+                              onclick="" value="__BM_bm.icsbandal.tentative__"/>
+                      <label value="-"/>
+                      <label id="bm-ics-bandal-decline" class="text-link"
+                              onclick="" value="__BM_bm.icsbandal.decline__"/>
+                  </hbox>
+              </row>
+          </rows>
+      </grid>
+  </hbox>
+</overlay>

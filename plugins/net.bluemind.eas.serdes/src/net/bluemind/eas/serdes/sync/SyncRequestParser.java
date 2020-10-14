@@ -51,6 +51,17 @@ public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 			if (previousKnowledge.getLastMonitored() != null) {
 				sr.collections = previousKnowledge.getLastMonitored();
 			}
+
+			Integer wait = previousKnowledge.getLastWait();
+			if (wait != null && wait > 0) {
+				sr.waitIntervalSeconds = wait;
+			}
+
+			Long heartbeat = previousKnowledge.getHeartbeart();
+			if (heartbeat != null && heartbeat > 0) {
+				sr.heartbeatInterval = heartbeat.intValue();
+			}
+
 		} else {
 			Element query = doc.getDocumentElement();
 			NodeList nl = query.getElementsByTagName("Collection");

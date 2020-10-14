@@ -1,0 +1,72 @@
+var datalocation string
+
+var bmProduct string
+
+var alertsEndPoint string
+
+var name string
+
+var db = 'telegraf'
+
+var rp = 'autogen'
+
+var measurement = 'elasticsearch_cluster_health'
+
+var groupBy = ['host']
+
+var whereFilter = lambda: ("datalocation" == datalocation)
+
+var message = 'cluster is red'
+
+var idTag = 'alertID'
+
+var levelTag = 'level'
+
+var messageField = 'message'
+
+var durationField = 'duration'
+
+var outputDB = 'chronograf'
+
+var outputRP = 'autogen'
+
+var outputMeasurement = 'alerts'
+
+var triggerType = 'state'
+
+var data = stream
+    |from()
+        .database(db)
+        .retentionPolicy(rp)
+        .measurement(measurement)
+        .groupBy(groupBy)
+        .where(whereFilter)
+    |eval(lambda: "status")
+        .as('status')
+
+var trigger = data
+    |alert()
+        .crit(lambda: "status" == 'red')
+        .message(message)
+        .id(name)
+        .idTag(idTag)
+        .levelTag(levelTag)
+        .messageField(messageField)
+        .durationField(durationField)
+        .stateChangesOnly()
+        .post(alertsEndPoint)
+
+trigger
+    |eval(lambda: float(1))
+        .as('value')
+        .keep()
+    |influxDBOut()
+        .create()
+        .database(outputDB)
+        .retentionPolicy(outputRP)
+        .measurement(outputMeasurement)
+        .tag('alertName', name)
+        .tag('triggerType', triggerType)
+
+trigger
+    |httpOut('output')

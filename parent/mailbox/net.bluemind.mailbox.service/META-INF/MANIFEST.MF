@@ -6,6 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.rest,
+ net.bluemind.authentication.api,
  net.bluemind.mailbox.api,
  net.bluemind.core.container.api,
  net.bluemind.core.container.persistence,
@@ -49,7 +50,8 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.backend.mail.replica.api,
  net.bluemind.core.sessions,
  net.bluemind.network.topology,
- net.bluemind.user.hook
+ net.bluemind.user.hook,
+ net.bluemind.scheduledjob.scheduler
 Export-Package: net.bluemind.mailbox.service,
  net.bluemind.mailbox.service.common,
  net.bluemind.mailbox.service.hook,

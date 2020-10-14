@@ -18,9 +18,10 @@
  */
 package net.bluemind.webmodule.epfilter;
 
-import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+import io.netty.util.AsciiString;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.webmodule.server.IWebFilter;
@@ -28,20 +29,17 @@ import net.bluemind.webmodule.server.WebExtensionsResolver;
 
 public class EpWebFilter implements IWebFilter {
 
+	private static final CharSequence JSON_MIME = new AsciiString("application/json");
+
 	@Override
 	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
 		String path = request.path();
 		if (path.endsWith("uiextension")) {
 			String lang = request.headers().get("BMLang");
 			String module = request.params().get("module");
-			try {
-				JsonObject eps = new WebExtensionsResolver(lang, module).loadExtensions();
-				request.response().putHeader("Content-type", "application/json; charset=utf-8");
-				request.response().setStatusCode(200).end(eps.encode());
-			} catch (IOException e) {
-				request.response().setStatusCode(500).end();
-			}
-
+			JsonObject eps = new WebExtensionsResolver(lang, module).loadExtensions();
+			request.response().putHeader(HttpHeaders.CONTENT_TYPE, JSON_MIME);
+			request.response().setStatusCode(200).end(eps.toBuffer());
 			return CompletableFuture.completedFuture(null);
 		} else {
 			return CompletableFuture.completedFuture(request);

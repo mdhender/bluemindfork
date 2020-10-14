@@ -21,13 +21,14 @@ package net.bluemind.mailbox.service.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 
 import org.junit.Test;
 
-import net.bluemind.core.api.date.BmDateTime;
-import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -63,6 +64,19 @@ public class MailFilterValidatorTest {
 
 		// empty list
 		filter.forwarding.emails = new HashSet<>();
+		checkFail(SecurityContext.SYSTEM, filter, ErrorCode.INVALID_PARAMETER);
+	}
+
+	@Test
+	public void testInvalidateComposedFilter() {
+		MailFilter filter = new MailFilter();
+		MailFilter.Rule rule1 = new MailFilter.Rule();
+		rule1 = new MailFilter.Rule();
+		rule1.criteria = "FROM:IS: toto@yahoo.fr\nbad header:IS: fdss";
+		rule1.active = true;
+		rule1.read = true;
+		filter.rules = Arrays.asList(rule1);
+
 		checkFail(SecurityContext.SYSTEM, filter, ErrorCode.INVALID_PARAMETER);
 	}
 
@@ -179,8 +193,8 @@ public class MailFilterValidatorTest {
 		checkFail(SecurityContext.SYSTEM, filter, ErrorCode.INVALID_PARAMETER);
 
 		filter.vacation = fullVacation();
-		filter.vacation.start = new BmDateTime("20200102", null, Precision.Date);
-		filter.vacation.end = new BmDateTime("20200101", null, Precision.Date);
+		filter.vacation.start = Date.from(LocalDate.of(2020, 01, 02).atStartOfDay(ZoneId.of("UTC")).toInstant());
+		filter.vacation.end = Date.from(LocalDate.of(2020, 01, 01).atStartOfDay(ZoneId.of("UTC")).toInstant());
 		// begin date after end date is not valid
 		checkFail(SecurityContext.SYSTEM, filter, ErrorCode.INVALID_PARAMETER);
 
@@ -197,8 +211,8 @@ public class MailFilterValidatorTest {
 	private Vacation fullVacation() {
 		Vacation vacation = new MailFilter.Vacation();
 		vacation.enabled = true;
-		vacation.start = new BmDateTime("20200101", null, Precision.Date);
-		vacation.end = new BmDateTime("20200102", null, Precision.Date);
+		vacation.start = Date.from(LocalDate.of(2020, 01, 01).atStartOfDay(ZoneId.of("UTC")).toInstant());
+		vacation.end = Date.from(LocalDate.of(2020, 01, 02).atStartOfDay(ZoneId.of("UTC")).toInstant());
 		vacation.subject = "toto";
 		vacation.text = "toto";
 		return vacation;

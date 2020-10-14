@@ -58,19 +58,12 @@ public class TBirdDownloadHandler implements Handler<HttpServerRequest> {
 	@Override
 	public void handle(HttpServerRequest request) {
 		String externalUrl = getExternalUrl();
-
-		StringBuilder sb = new StringBuilder(40);
-		sb.append("https://");
-		sb.append(externalUrl);
-		String url = sb.toString();
-		logger.info("external-url: " + url);
-
 		try {
 			Buffer repacked = repack(externalUrl);
 			request.response().setStatusCode(200);
 
 			request.response().headers().add("Content-Disposition",
-					"attachment; filename=bm-connector-thunderbird.xpi");
+					"attachment; filename=bm-connector-thunderbird-legacy.xpi");
 			request.response().headers().add("Content-Type", "application/x-download");
 			request.response().end(repacked);
 		} catch (IOException e) {

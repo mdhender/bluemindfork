@@ -25,11 +25,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
 import org.slf4j.Logger;
@@ -78,15 +76,7 @@ public class TemporaryImageUploadAndCropHandler implements Handler<HttpServerReq
 		}
 
 		try (ImageInputStream iis = ImageIO.createImageInputStream(new FileInputStream(f))) {
-			Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
-			if (!iter.hasNext()) {
-				sendError("error reading image", request.response());
-				return;
-			}
-			ImageReader reader = (ImageReader) iter.next();
-
-			reader.setInput(iis);
-			BufferedImage img = reader.read(0);
+			BufferedImage img = Subsampling.toBufferredImage(iis);
 			BufferedImage dbi = new BufferedImage(sws, sws, img.getType());
 			Graphics2D g = dbi.createGraphics();
 			double xscale = (double) sws / (double) ws;

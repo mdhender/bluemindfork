@@ -1,8 +1,5 @@
 package net.bluemind.core.rest.sockjs.vertx;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +15,6 @@ public class RestSockJSProxyServer implements Handler<SockJSSocket> {
 	private Vertx vertx;
 	private IRestCallHandler proxy;
 	private IRestBusHandler restbus;
-	private Set<RestSockJsProxyHandler> clients = new HashSet<>();
 
 	public RestSockJSProxyServer(Vertx vertx, IRestCallHandler proxy, IRestBusHandler restbus) {
 		this.vertx = vertx;
@@ -28,26 +24,23 @@ public class RestSockJSProxyServer implements Handler<SockJSSocket> {
 
 	@Override
 	public void handle(SockJSSocket sock) {
+		io.vertx.core.parsetools.JsonParser jsonParser = io.vertx.core.parsetools.JsonParser.newParser()
+				.objectValueMode();
 		RestSockJsProxyHandler client = new RestSockJsProxyHandler(vertx, sock, proxy, restbus);
-		clients.add(client);
-
-		logger.debug("connected clients {}", clients.size());
 
 		sock.exceptionHandler((Throwable e) -> {
 			logger.error("error in sock {}: {}", sock, e);
 			sock.close();
 		});
-		sock.endHandler(v -> {
-			handleSocketClosed(client);
-		});
+		sock.endHandler(v -> handleSocketClosed(client));
 
-		sock.handler(client);
+		jsonParser.exceptionHandler(t -> handleSocketClosed(client));
+		jsonParser.handler(client);
+		sock.handler(jsonParser);
 	}
 
 	protected void handleSocketClosed(RestSockJsProxyHandler client) {
 		client.close();
-		clients.remove(client);
-		logger.debug("socket closed, connected clients {}", clients.size());
 	}
 
 }

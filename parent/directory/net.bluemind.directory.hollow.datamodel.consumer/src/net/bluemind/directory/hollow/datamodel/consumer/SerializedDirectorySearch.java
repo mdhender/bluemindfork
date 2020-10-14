@@ -27,6 +27,8 @@ public interface SerializedDirectorySearch {
 
 	public List<AddressBookRecord> search(List<Predicate<? super AddressBookRecord>> predicates);
 
+	Optional<OfflineAddressBook> root();
+
 	/**
 	 * The given name will be lower cased for case insensitive matches
 	 * 

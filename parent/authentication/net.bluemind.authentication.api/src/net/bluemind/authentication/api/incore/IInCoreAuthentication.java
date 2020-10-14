@@ -24,10 +24,19 @@ import net.bluemind.core.context.SecurityContext;
 
 public interface IInCoreAuthentication extends IAuthentication {
 
-	public SecurityContext buildContext(String sid, String domainUid, String userUid) throws ServerFault;
+	public SecurityContext buildContext(String sid, String origin, String domainUid, String userUid) throws ServerFault;
+
+	default SecurityContext buildContext(String sid, String domainUid, String userUid) throws ServerFault {
+		return buildContext(sid, "unknown-origin", domainUid, userUid);
+	}
 
 	default SecurityContext buildContext(String domainUid, String userUid) throws ServerFault {
-		return buildContext(null, domainUid, userUid);
+		return buildContext(null, "unknown-origin", domainUid, userUid);
 	}
+
+	/**
+	 * Delete all stored tokens
+	 */
+	public void resetTokens();
 
 }

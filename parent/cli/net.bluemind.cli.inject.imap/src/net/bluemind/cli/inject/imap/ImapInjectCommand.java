@@ -27,6 +27,7 @@ import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
+import net.bluemind.cli.inject.common.MailExchangeInjector;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.lib.vertx.VertxPlatform;

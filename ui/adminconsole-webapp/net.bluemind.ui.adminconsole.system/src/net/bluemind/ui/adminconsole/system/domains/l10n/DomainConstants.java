@@ -209,6 +209,8 @@ public interface DomainConstants extends Messages {
 
 	String executionMode();
 
+	String routing();
+
 	String delete();
 
 	String position();
@@ -254,4 +256,10 @@ public interface DomainConstants extends Messages {
 	String passwordLifetimeTooltip();
 
 	String invalidPasswordLifetime();
+
+	String addSubjectPrefix();
+
+	String addSubjectSuffix();
+
+	String updateSubjectAction();
 }

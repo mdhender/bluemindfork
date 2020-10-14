@@ -10,7 +10,6 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
 
     public AddressBookRecordTypeAPI(OfflineDirectoryAPI api, HollowObjectTypeDataAccess typeDataAccess) {
         super(api, typeDataAccess, new String[] {
-            "addressBook",
             "uid",
             "distinguishedName",
             "domain",
@@ -52,45 +51,42 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
             "addressBookX509Certificate",
             "userX509Certificate",
             "thumbnail",
-            "hidden"
+            "hidden",
+            "anr"
         });
         this.delegateLookupImpl = new AddressBookRecordDelegateLookupImpl(this);
     }
 
-    public int getAddressBookOrdinal(int ordinal) {
+    public String getUid(int ordinal) {
         if(fieldIndex[0] == -1)
-            return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "addressBook");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[0]);
+            return missingDataHandler().handleString("AddressBookRecord", ordinal, "uid");
+        boxedFieldAccessSampler.recordFieldAccess(fieldIndex[0]);
+        return getTypeDataAccess().readString(ordinal, fieldIndex[0]);
     }
 
-    public OfflineAddressBookTypeAPI getAddressBookTypeAPI() {
-        return getAPI().getOfflineAddressBookTypeAPI();
+    public boolean isUidEqual(int ordinal, String testValue) {
+        if(fieldIndex[0] == -1)
+            return missingDataHandler().handleStringEquals("AddressBookRecord", ordinal, "uid", testValue);
+        return getTypeDataAccess().isStringFieldEqual(ordinal, fieldIndex[0], testValue);
     }
 
-    public int getUidOrdinal(int ordinal) {
+    public String getDistinguishedName(int ordinal) {
         if(fieldIndex[1] == -1)
-            return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "uid");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[1]);
+            return missingDataHandler().handleString("AddressBookRecord", ordinal, "distinguishedName");
+        boxedFieldAccessSampler.recordFieldAccess(fieldIndex[1]);
+        return getTypeDataAccess().readString(ordinal, fieldIndex[1]);
     }
 
-    public StringTypeAPI getUidTypeAPI() {
-        return getAPI().getStringTypeAPI();
-    }
-
-    public int getDistinguishedNameOrdinal(int ordinal) {
-        if(fieldIndex[2] == -1)
-            return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "distinguishedName");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[2]);
-    }
-
-    public StringTypeAPI getDistinguishedNameTypeAPI() {
-        return getAPI().getStringTypeAPI();
+    public boolean isDistinguishedNameEqual(int ordinal, String testValue) {
+        if(fieldIndex[1] == -1)
+            return missingDataHandler().handleStringEquals("AddressBookRecord", ordinal, "distinguishedName", testValue);
+        return getTypeDataAccess().isStringFieldEqual(ordinal, fieldIndex[1], testValue);
     }
 
     public int getDomainOrdinal(int ordinal) {
-        if(fieldIndex[3] == -1)
+        if(fieldIndex[2] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "domain");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[3]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[2]);
     }
 
     public StringTypeAPI getDomainTypeAPI() {
@@ -98,9 +94,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getKindOrdinal(int ordinal) {
-        if(fieldIndex[4] == -1)
+        if(fieldIndex[3] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "kind");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[4]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[3]);
     }
 
     public StringTypeAPI getKindTypeAPI() {
@@ -108,9 +104,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getEmailsOrdinal(int ordinal) {
-        if(fieldIndex[5] == -1)
+        if(fieldIndex[4] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "emails");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[5]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[4]);
     }
 
     public ListOfEmailTypeAPI getEmailsTypeAPI() {
@@ -118,9 +114,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getCreatedOrdinal(int ordinal) {
-        if(fieldIndex[6] == -1)
+        if(fieldIndex[5] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "created");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[6]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[5]);
     }
 
     public DateTypeAPI getCreatedTypeAPI() {
@@ -128,38 +124,41 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getUpdatedOrdinal(int ordinal) {
-        if(fieldIndex[7] == -1)
+        if(fieldIndex[6] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "updated");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[7]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[6]);
     }
 
     public DateTypeAPI getUpdatedTypeAPI() {
         return getAPI().getDateTypeAPI();
     }
 
-    public int getEmailOrdinal(int ordinal) {
-        if(fieldIndex[8] == -1)
-            return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "email");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[8]);
+    public String getEmail(int ordinal) {
+        if(fieldIndex[7] == -1)
+            return missingDataHandler().handleString("AddressBookRecord", ordinal, "email");
+        boxedFieldAccessSampler.recordFieldAccess(fieldIndex[7]);
+        return getTypeDataAccess().readString(ordinal, fieldIndex[7]);
     }
 
-    public StringTypeAPI getEmailTypeAPI() {
-        return getAPI().getStringTypeAPI();
+    public boolean isEmailEqual(int ordinal, String testValue) {
+        if(fieldIndex[7] == -1)
+            return missingDataHandler().handleStringEquals("AddressBookRecord", ordinal, "email", testValue);
+        return getTypeDataAccess().isStringFieldEqual(ordinal, fieldIndex[7], testValue);
     }
 
     public long getMinimalid(int ordinal) {
-        if(fieldIndex[9] == -1)
+        if(fieldIndex[8] == -1)
             return missingDataHandler().handleLong("AddressBookRecord", ordinal, "minimalid");
-        return getTypeDataAccess().readLong(ordinal, fieldIndex[9]);
+        return getTypeDataAccess().readLong(ordinal, fieldIndex[8]);
     }
 
     public Long getMinimalidBoxed(int ordinal) {
         long l;
-        if(fieldIndex[9] == -1) {
+        if(fieldIndex[8] == -1) {
             l = missingDataHandler().handleLong("AddressBookRecord", ordinal, "minimalid");
         } else {
-            boxedFieldAccessSampler.recordFieldAccess(fieldIndex[9]);
-            l = getTypeDataAccess().readLong(ordinal, fieldIndex[9]);
+            boxedFieldAccessSampler.recordFieldAccess(fieldIndex[8]);
+            l = getTypeDataAccess().readLong(ordinal, fieldIndex[8]);
         }
         if(l == Long.MIN_VALUE)
             return null;
@@ -168,40 +167,49 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
 
 
 
-    public int getNameOrdinal(int ordinal) {
+    public String getName(int ordinal) {
+        if(fieldIndex[9] == -1)
+            return missingDataHandler().handleString("AddressBookRecord", ordinal, "name");
+        boxedFieldAccessSampler.recordFieldAccess(fieldIndex[9]);
+        return getTypeDataAccess().readString(ordinal, fieldIndex[9]);
+    }
+
+    public boolean isNameEqual(int ordinal, String testValue) {
+        if(fieldIndex[9] == -1)
+            return missingDataHandler().handleStringEquals("AddressBookRecord", ordinal, "name", testValue);
+        return getTypeDataAccess().isStringFieldEqual(ordinal, fieldIndex[9], testValue);
+    }
+
+    public String getSurname(int ordinal) {
         if(fieldIndex[10] == -1)
-            return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "name");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[10]);
+            return missingDataHandler().handleString("AddressBookRecord", ordinal, "surname");
+        boxedFieldAccessSampler.recordFieldAccess(fieldIndex[10]);
+        return getTypeDataAccess().readString(ordinal, fieldIndex[10]);
     }
 
-    public StringTypeAPI getNameTypeAPI() {
-        return getAPI().getStringTypeAPI();
+    public boolean isSurnameEqual(int ordinal, String testValue) {
+        if(fieldIndex[10] == -1)
+            return missingDataHandler().handleStringEquals("AddressBookRecord", ordinal, "surname", testValue);
+        return getTypeDataAccess().isStringFieldEqual(ordinal, fieldIndex[10], testValue);
     }
 
-    public int getSurnameOrdinal(int ordinal) {
+    public String getGivenName(int ordinal) {
         if(fieldIndex[11] == -1)
-            return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "surname");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[11]);
+            return missingDataHandler().handleString("AddressBookRecord", ordinal, "givenName");
+        boxedFieldAccessSampler.recordFieldAccess(fieldIndex[11]);
+        return getTypeDataAccess().readString(ordinal, fieldIndex[11]);
     }
 
-    public StringTypeAPI getSurnameTypeAPI() {
-        return getAPI().getStringTypeAPI();
-    }
-
-    public int getGivenNameOrdinal(int ordinal) {
-        if(fieldIndex[12] == -1)
-            return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "givenName");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[12]);
-    }
-
-    public StringTypeAPI getGivenNameTypeAPI() {
-        return getAPI().getStringTypeAPI();
+    public boolean isGivenNameEqual(int ordinal, String testValue) {
+        if(fieldIndex[11] == -1)
+            return missingDataHandler().handleStringEquals("AddressBookRecord", ordinal, "givenName", testValue);
+        return getTypeDataAccess().isStringFieldEqual(ordinal, fieldIndex[11], testValue);
     }
 
     public int getTitleOrdinal(int ordinal) {
-        if(fieldIndex[13] == -1)
+        if(fieldIndex[12] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "title");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[13]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[12]);
     }
 
     public StringTypeAPI getTitleTypeAPI() {
@@ -209,9 +217,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getOfficeLocationOrdinal(int ordinal) {
-        if(fieldIndex[14] == -1)
+        if(fieldIndex[13] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "officeLocation");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[14]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[13]);
     }
 
     public StringTypeAPI getOfficeLocationTypeAPI() {
@@ -219,9 +227,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getDepartmentNameOrdinal(int ordinal) {
-        if(fieldIndex[15] == -1)
+        if(fieldIndex[14] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "departmentName");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[15]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[14]);
     }
 
     public StringTypeAPI getDepartmentNameTypeAPI() {
@@ -229,9 +237,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getCompanyNameOrdinal(int ordinal) {
-        if(fieldIndex[16] == -1)
+        if(fieldIndex[15] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "companyName");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[16]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[15]);
     }
 
     public StringTypeAPI getCompanyNameTypeAPI() {
@@ -239,9 +247,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getAssistantOrdinal(int ordinal) {
-        if(fieldIndex[17] == -1)
+        if(fieldIndex[16] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "assistant");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[17]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[16]);
     }
 
     public StringTypeAPI getAssistantTypeAPI() {
@@ -249,9 +257,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getAddressBookManagerDistinguishedNameOrdinal(int ordinal) {
-        if(fieldIndex[18] == -1)
+        if(fieldIndex[17] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "addressBookManagerDistinguishedName");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[18]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[17]);
     }
 
     public StringTypeAPI getAddressBookManagerDistinguishedNameTypeAPI() {
@@ -259,9 +267,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getAddressBookPhoneticGivenNameOrdinal(int ordinal) {
-        if(fieldIndex[19] == -1)
+        if(fieldIndex[18] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "addressBookPhoneticGivenName");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[19]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[18]);
     }
 
     public StringTypeAPI getAddressBookPhoneticGivenNameTypeAPI() {
@@ -269,9 +277,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getAddressBookPhoneticSurnameOrdinal(int ordinal) {
-        if(fieldIndex[20] == -1)
+        if(fieldIndex[19] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "addressBookPhoneticSurname");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[20]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[19]);
     }
 
     public StringTypeAPI getAddressBookPhoneticSurnameTypeAPI() {
@@ -279,9 +287,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getAddressBookPhoneticCompanyNameOrdinal(int ordinal) {
-        if(fieldIndex[21] == -1)
+        if(fieldIndex[20] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "addressBookPhoneticCompanyName");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[21]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[20]);
     }
 
     public StringTypeAPI getAddressBookPhoneticCompanyNameTypeAPI() {
@@ -289,9 +297,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getAddressBookPhoneticDepartmentNameOrdinal(int ordinal) {
-        if(fieldIndex[22] == -1)
+        if(fieldIndex[21] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "addressBookPhoneticDepartmentName");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[22]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[21]);
     }
 
     public StringTypeAPI getAddressBookPhoneticDepartmentNameTypeAPI() {
@@ -299,9 +307,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getStreetAddressOrdinal(int ordinal) {
-        if(fieldIndex[23] == -1)
+        if(fieldIndex[22] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "streetAddress");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[23]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[22]);
     }
 
     public StringTypeAPI getStreetAddressTypeAPI() {
@@ -309,9 +317,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getPostOfficeBoxOrdinal(int ordinal) {
-        if(fieldIndex[24] == -1)
+        if(fieldIndex[23] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "postOfficeBox");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[24]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[23]);
     }
 
     public StringTypeAPI getPostOfficeBoxTypeAPI() {
@@ -319,9 +327,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getLocalityOrdinal(int ordinal) {
-        if(fieldIndex[25] == -1)
+        if(fieldIndex[24] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "locality");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[25]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[24]);
     }
 
     public StringTypeAPI getLocalityTypeAPI() {
@@ -329,9 +337,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getStateOrProvinceOrdinal(int ordinal) {
-        if(fieldIndex[26] == -1)
+        if(fieldIndex[25] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "stateOrProvince");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[26]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[25]);
     }
 
     public StringTypeAPI getStateOrProvinceTypeAPI() {
@@ -339,9 +347,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getPostalCodeOrdinal(int ordinal) {
-        if(fieldIndex[27] == -1)
+        if(fieldIndex[26] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "postalCode");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[27]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[26]);
     }
 
     public StringTypeAPI getPostalCodeTypeAPI() {
@@ -349,9 +357,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getCountryOrdinal(int ordinal) {
-        if(fieldIndex[28] == -1)
+        if(fieldIndex[27] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "country");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[28]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[27]);
     }
 
     public StringTypeAPI getCountryTypeAPI() {
@@ -359,9 +367,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getDataLocationOrdinal(int ordinal) {
-        if(fieldIndex[29] == -1)
+        if(fieldIndex[28] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "dataLocation");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[29]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[28]);
     }
 
     public DataLocationTypeAPI getDataLocationTypeAPI() {
@@ -369,9 +377,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getBusinessTelephoneNumberOrdinal(int ordinal) {
-        if(fieldIndex[30] == -1)
+        if(fieldIndex[29] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "businessTelephoneNumber");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[30]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[29]);
     }
 
     public StringTypeAPI getBusinessTelephoneNumberTypeAPI() {
@@ -379,9 +387,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getHomeTelephoneNumberOrdinal(int ordinal) {
-        if(fieldIndex[31] == -1)
+        if(fieldIndex[30] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "homeTelephoneNumber");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[31]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[30]);
     }
 
     public StringTypeAPI getHomeTelephoneNumberTypeAPI() {
@@ -389,9 +397,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getBusiness2TelephoneNumbersOrdinal(int ordinal) {
-        if(fieldIndex[32] == -1)
+        if(fieldIndex[31] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "business2TelephoneNumbers");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[32]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[31]);
     }
 
     public StringTypeAPI getBusiness2TelephoneNumbersTypeAPI() {
@@ -399,9 +407,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getHome2TelephoneNumberOrdinal(int ordinal) {
-        if(fieldIndex[33] == -1)
+        if(fieldIndex[32] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "home2TelephoneNumber");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[33]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[32]);
     }
 
     public StringTypeAPI getHome2TelephoneNumberTypeAPI() {
@@ -409,9 +417,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getMobileTelephoneNumberOrdinal(int ordinal) {
-        if(fieldIndex[34] == -1)
+        if(fieldIndex[33] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "mobileTelephoneNumber");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[34]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[33]);
     }
 
     public StringTypeAPI getMobileTelephoneNumberTypeAPI() {
@@ -419,9 +427,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getPagerTelephoneNumberOrdinal(int ordinal) {
-        if(fieldIndex[35] == -1)
+        if(fieldIndex[34] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "pagerTelephoneNumber");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[35]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[34]);
     }
 
     public StringTypeAPI getPagerTelephoneNumberTypeAPI() {
@@ -429,9 +437,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getPrimaryFaxNumberOrdinal(int ordinal) {
-        if(fieldIndex[36] == -1)
+        if(fieldIndex[35] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "primaryFaxNumber");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[36]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[35]);
     }
 
     public StringTypeAPI getPrimaryFaxNumberTypeAPI() {
@@ -439,9 +447,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getAssistantTelephoneNumberOrdinal(int ordinal) {
-        if(fieldIndex[37] == -1)
+        if(fieldIndex[36] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "assistantTelephoneNumber");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[37]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[36]);
     }
 
     public StringTypeAPI getAssistantTelephoneNumberTypeAPI() {
@@ -449,9 +457,9 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public int getUserCertificateOrdinal(int ordinal) {
-        if(fieldIndex[38] == -1)
+        if(fieldIndex[37] == -1)
             return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "userCertificate");
-        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[38]);
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[37]);
     }
 
     public StringTypeAPI getUserCertificateTypeAPI() {
@@ -459,45 +467,55 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
     }
 
     public byte[] getAddressBookX509Certificate(int ordinal) {
-        if(fieldIndex[39] == -1)
+        if(fieldIndex[38] == -1)
             return missingDataHandler().handleBytes("AddressBookRecord", ordinal, "addressBookX509Certificate");
+        boxedFieldAccessSampler.recordFieldAccess(fieldIndex[38]);
+        return getTypeDataAccess().readBytes(ordinal, fieldIndex[38]);
+    }
+
+
+
+    public byte[] getUserX509Certificate(int ordinal) {
+        if(fieldIndex[39] == -1)
+            return missingDataHandler().handleBytes("AddressBookRecord", ordinal, "userX509Certificate");
         boxedFieldAccessSampler.recordFieldAccess(fieldIndex[39]);
         return getTypeDataAccess().readBytes(ordinal, fieldIndex[39]);
     }
 
 
 
-    public byte[] getUserX509Certificate(int ordinal) {
+    public byte[] getThumbnail(int ordinal) {
         if(fieldIndex[40] == -1)
-            return missingDataHandler().handleBytes("AddressBookRecord", ordinal, "userX509Certificate");
+            return missingDataHandler().handleBytes("AddressBookRecord", ordinal, "thumbnail");
         boxedFieldAccessSampler.recordFieldAccess(fieldIndex[40]);
         return getTypeDataAccess().readBytes(ordinal, fieldIndex[40]);
     }
 
 
 
-    public byte[] getThumbnail(int ordinal) {
-        if(fieldIndex[41] == -1)
-            return missingDataHandler().handleBytes("AddressBookRecord", ordinal, "thumbnail");
-        boxedFieldAccessSampler.recordFieldAccess(fieldIndex[41]);
-        return getTypeDataAccess().readBytes(ordinal, fieldIndex[41]);
-    }
-
-
-
     public boolean getHidden(int ordinal) {
-        if(fieldIndex[42] == -1)
+        if(fieldIndex[41] == -1)
             return Boolean.TRUE.equals(missingDataHandler().handleBoolean("AddressBookRecord", ordinal, "hidden"));
-        return Boolean.TRUE.equals(getTypeDataAccess().readBoolean(ordinal, fieldIndex[42]));
+        return Boolean.TRUE.equals(getTypeDataAccess().readBoolean(ordinal, fieldIndex[41]));
     }
 
     public Boolean getHiddenBoxed(int ordinal) {
-        if(fieldIndex[42] == -1)
+        if(fieldIndex[41] == -1)
             return missingDataHandler().handleBoolean("AddressBookRecord", ordinal, "hidden");
-        return getTypeDataAccess().readBoolean(ordinal, fieldIndex[42]);
+        return getTypeDataAccess().readBoolean(ordinal, fieldIndex[41]);
     }
 
 
+
+    public int getAnrOrdinal(int ordinal) {
+        if(fieldIndex[42] == -1)
+            return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "anr");
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[42]);
+    }
+
+    public ListOfAnrTokenTypeAPI getAnrTypeAPI() {
+        return getAPI().getListOfAnrTokenTypeAPI();
+    }
 
     public AddressBookRecordDelegateLookupImpl getDelegateLookupImpl() {
         return delegateLookupImpl;

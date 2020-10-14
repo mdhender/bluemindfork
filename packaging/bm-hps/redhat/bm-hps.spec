@@ -7,7 +7,7 @@ Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Requires(post):     systemd systemd-sysv
-Requires:           bm-jdk = 8u252-bluemind34, bm-conf = %{version}-%{release}
+Requires:           bm-jdk = 8u265-bluemind36, bm-conf = %{version}-%{release}
 Requires(post):     /bin/bash, initscripts
 
 %description
@@ -31,26 +31,28 @@ install -m 644 /sources/stretch/bm-hps.service %{buildroot}%{_unitdir}
 %pre
 if [ $1 -gt 1 ]; then
     # Upgrade
-    systemctl stop bm-hps
+    [ -d /run/systemd/system ] && systemctl stop bm-hps
 fi
 
 %post -p /bin/bash
-systemctl daemon-reload
 systemctl enable bm-hps
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload
 
-if [ $1 -eq 1 ]; then
-    # Installation
-    systemctl start bm-hps
+    if [ $1 -eq 1 ]; then
+        # Installation
+        systemctl start bm-hps
+    fi
 fi
 
 %preun
 if [ $1 -eq 0 ]; then
     # Uninstall
-    systemctl stop bm-hps
+    [ -d /run/systemd/system ] && systemctl stop bm-hps
 fi
 
 %postun
 if [ $1 -eq 1 ]; then
-    # Upgrade
-    systemctl start bm-hps
+    # Upgrade
+    [ -d /run/systemd/system ] && systemctl start bm-hps
 fi

@@ -6,7 +6,9 @@ import com.netflix.hollow.api.objects.delegate.HollowObjectDelegate;
 @SuppressWarnings("all")
 public interface EmailDelegate extends HollowObjectDelegate {
 
-    public int getAddressOrdinal(int ordinal);
+    public String getAddress(int ordinal);
+
+    public boolean isAddressEqual(int ordinal, String testValue);
 
     public boolean getAllAliases(int ordinal);
 

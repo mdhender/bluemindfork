@@ -39,9 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.Email;
-import net.bluemind.core.api.date.BmDateTime;
-import net.bluemind.core.api.date.BmDateTime.Precision;
-import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -126,17 +123,18 @@ public class MailFilterStoreTests {
 
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-		updated.vacation.start = new BmDateTime("1950-06-30", null, Precision.Date);
-		updated.vacation.end = new BmDateTime("1950-07-31", null, Precision.Date);
+
+		Date start = Date.from(LocalDate.of(1950, 06, 30).atStartOfDay(ZoneId.of("UTC")).toInstant());
+		Date end = Date.from(LocalDate.of(1950, 07, 31).atStartOfDay(ZoneId.of("UTC")).toInstant());
+		updated.vacation.start = start;
+		updated.vacation.end = end;
 		mailfilterStore.set(item, updated);
 		updated = mailfilterStore.get(item);
 		calendar.set(Calendar.MILLISECOND, 0);
 		calendar.set(1950, Calendar.JUNE, 30, 00, 00, 0);
-		assertEquals(calendar.getTime().toInstant(),
-				new BmDateTimeWrapper(updated.vacation.start).toDateTime().toInstant());
+		assertEquals(calendar.getTime().toInstant().toEpochMilli(), updated.vacation.start.getTime());
 		calendar.set(1950, Calendar.JULY, 31, 00, 00, 0);
-		assertEquals(calendar.getTime().toInstant(),
-				new BmDateTimeWrapper(updated.vacation.end).toDateTime().toInstant());
+		assertEquals(calendar.getTime().toInstant().toEpochMilli(), updated.vacation.end.getTime());
 	}
 
 	private static Date d1 = Date.from(LocalDate.of(2020, 02, 01).atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -157,8 +155,9 @@ public class MailFilterStoreTests {
 		mailfilterStore.set(item, filter);
 
 		filter.vacation.enabled = true;
-		filter.vacation.start = new BmDateTime("2020-02-01", null, Precision.Date);
-		filter.vacation.end = new BmDateTime("2020-02-02", null, Precision.Date);
+		filter.vacation.start = d1;
+		Date end = Date.from(LocalDate.of(2020, 02, 02).atStartOfDay(ZoneId.systemDefault()).toInstant());
+		filter.vacation.end = end;
 		mailfilterStore.set(item, filter);
 
 		// activate filter
@@ -168,10 +167,10 @@ public class MailFilterStoreTests {
 		// should return 0 because already activate
 		assertEquals(0, res.size());
 
-		res = mailfilterStore.findInOfOffice(d1);
+		res = mailfilterStore.findInOffice(d1);
 		// should return 0 because nothing to do
 		assertEquals(0, res.size());
-		res = mailfilterStore.findInOfOffice(d2);
+		res = mailfilterStore.findInOffice(d2);
 		// should return 1, need to deactivate
 		assertEquals(1, res.size());
 
@@ -194,8 +193,10 @@ public class MailFilterStoreTests {
 		mailfilterStore.set(item, filter);
 
 		filter.vacation.enabled = true;
-		filter.vacation.start = new BmDateTime("2020-02-01", null, Precision.Date);
-		filter.vacation.end = new BmDateTime("2020-02-21", null, Precision.Date);
+		Date start = Date.from(LocalDate.of(2020, 02, 01).atStartOfDay(ZoneId.systemDefault()).toInstant());
+		Date end = Date.from(LocalDate.of(2020, 02, 21).atStartOfDay(ZoneId.systemDefault()).toInstant());
+		filter.vacation.start = start;
+		filter.vacation.end = end;
 		mailfilterStore.set(item, filter);
 
 		filter = mailfilterStore.get(item);
@@ -210,21 +211,21 @@ public class MailFilterStoreTests {
 		res = mailfilterStore.findOutOfOffice(d2);
 		assertEquals(0, res.size());
 
-		res = mailfilterStore.findInOfOffice(d2);
+		res = mailfilterStore.findInOffice(d2);
 		assertEquals(0, res.size());
 
-		res = mailfilterStore.findInOfOffice(d3);
+		res = mailfilterStore.findInOffice(d3);
 		assertEquals(1, res.size());
 
 		mailfilterStore.markOutOfOffice(item, false);
 		res = mailfilterStore.findOutOfOffice(d2);
 		assertEquals(1, res.size());
-		res = mailfilterStore.findInOfOffice(d3);
+		res = mailfilterStore.findInOffice(d3);
 		assertEquals(0, res.size());
 
 		filter.vacation.enabled = false;
-		filter.vacation.start = new BmDateTime("2020-02-01", null, Precision.Date);
-		filter.vacation.end = new BmDateTime("2020-02-21", null, Precision.Date);
+		filter.vacation.start = start;
+		filter.vacation.end = end;
 		mailfilterStore.set(item, filter);
 		res = mailfilterStore.findOutOfOffice(d2);
 		assertEquals(0, res.size());

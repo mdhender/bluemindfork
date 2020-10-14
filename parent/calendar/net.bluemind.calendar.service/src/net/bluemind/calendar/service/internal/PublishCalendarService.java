@@ -71,7 +71,7 @@ public class PublishCalendarService implements IPublishCalendar {
 	public PublishCalendarService(BmContext context, DataSource ds, Container container) throws ServerFault {
 		BmContext admin = context.su();
 
-		sanitizer = new VEventSanitizer(admin, container.domainUid);
+		sanitizer = new VEventSanitizer(admin, container);
 		veventStore = new VEventSeriesStore(ds, container);
 		storeService = new VEventContainerStoreService(context, ds, admin.getSecurityContext(), container, veventStore);
 		this.container = container;
