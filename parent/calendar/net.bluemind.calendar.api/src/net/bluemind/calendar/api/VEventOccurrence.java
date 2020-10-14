@@ -52,6 +52,10 @@ public class VEventOccurrence extends VEvent {
 		return occurrence;
 	}
 
+	public VEvent toEvent() {
+		return super.copy();
+	}
+
 	@Override
 	public VEventOccurrence copy() {
 		VEvent evt = super.copy();

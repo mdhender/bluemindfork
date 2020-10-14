@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.date.BmDateTime;
@@ -52,11 +54,13 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 
 	private VEventOccurrenceStore recurringStore;
 	private VEventStore eventStore;
+	private VEventCounterStore counterStore;
 
 	public VEventSeriesStore(DataSource pool, Container container) {
 		super(pool);
 		this.container = container;
 		this.recurringStore = new VEventOccurrenceStore(pool, container);
+		this.counterStore = new VEventCounterStore(pool, container);
 		this.eventStore = new VEventStore(pool, container);
 	}
 
@@ -68,6 +72,7 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 			eventStore.create(item, series.main);
 		}
 		recurringStore.create(item, series.occurrences);
+		counterStore.create(item, series.counters);
 	}
 
 	@Override
@@ -95,12 +100,13 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 		public String icsUid;
 		public Map<String, String> properties;
 		public boolean main;
+		public boolean acceptCounters;
 		public VEvent occurrence;
 	}
 
 	private List<VEventSeries> loadSeries(List<Item> items) throws SQLException {
 
-		String query = "select series.item_id, series.ics_uid, properties, recurid_timestamp IS NULL, "
+		String query = "select series.item_id, series.ics_uid, properties, accept_counters, recurid_timestamp IS NULL, "
 				+ VEventOccurrenceColumns.ALL.names()
 				+ " from t_calendar_series series, t_calendar_vevent v where series.item_id = ANY(?::int4[]) and series.item_id = v.item_id order by series.item_id ";
 
@@ -117,6 +123,7 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 			} else {
 				event.properties = Collections.emptyMap();
 			}
+			event.acceptCounters = rs.getBoolean(index++);
 			event.main = rs.getBoolean(index++);
 
 			if (event.main) {
@@ -129,10 +136,42 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 
 		}, new Object[] { itemsId });
 
-		return asSeries(values, items);
+		return asSeries(values, items, loadCounters(itemsId));
 	}
 
-	private List<VEventSeries> asSeries(List<VEventDB> values, List<Item> items) {
+	public class VEventCounterDB {
+		public long itemId;
+		public VEventCounter counter;
+	}
+
+	private Map<Long, List<VEventCounter>> loadCounters(Long[] items) throws SQLException {
+		String query = "select series.item_id, " + VEventCounterColumns.SELECT_ALL.names()
+				+ " from t_calendar_series series, t_calendar_vevent_counter v where series.item_id = ANY(?::int4[]) and series.item_id = (v.vevent).item_id order by series.item_id ";
+
+		List<VEventCounterDB> values = select(query, (ResultSet con) -> {
+			return new VEventCounterDB();
+		}, (ResultSet rs, int index, VEventCounterDB event) -> {
+			event.itemId = rs.getLong(index++);
+			VEventCounter vEventCounter = new VEventCounter();
+			vEventCounter.originator = new VEventCounter.CounterOriginator();
+			vEventCounter.counter = new VEventOccurrence();
+			event.counter = vEventCounter;
+			return VEventCounterColumns.populator().populate(rs, index, event.counter);
+		}, new Object[] { items });
+
+		Map<Long, List<VEventCounter>> asMap = values.stream().collect(Collectors.toMap(counter -> counter.itemId,
+				counter -> Arrays.asList(counter.counter), (counter1, counter2) -> {
+					List<VEventCounter> mergedCounters = new ArrayList<>();
+					mergedCounters.addAll(counter1);
+					mergedCounters.addAll(counter2);
+					return mergedCounters;
+				}));
+
+		return asMap;
+	}
+
+	private List<VEventSeries> asSeries(List<VEventDB> values, List<Item> items,
+			Map<Long, List<VEventCounter>> counters) {
 
 		List<VEventSeries> ret = new ArrayList<>(items.size());
 
@@ -146,7 +185,8 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 				series = new VEventSeries();
 				series.icsUid = dbV.icsUid;
 				series.properties = dbV.properties;
-				series.occurrences = new ArrayList<>(values.size());
+				series.acceptCounters = dbV.acceptCounters;
+				series.occurrences = new ArrayList<>(1);
 				m.put(current, series);
 			}
 			if (dbV.main) {
@@ -157,7 +197,11 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 		}
 
 		for (Item i : items) {
-			ret.add(m.get(i.id));
+			VEventSeries s = m.get(i.id);
+			if (s != null) { // don't fail when requesting an non-existing item
+				s.counters = counters.computeIfAbsent(i.id, id -> Collections.<VEventCounter>emptyList());
+			}
+			ret.add(s);
 		}
 		return ret;
 	}
@@ -166,6 +210,7 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 	public void delete(Item item) throws SQLException {
 		delete("delete from t_calendar_series where item_id = ?", new Object[] { item.id });
 		delete("delete from t_calendar_vevent where item_id = ?", new Object[] { item.id });
+		delete("delete from t_calendar_vevent_counter where (vevent).item_id = ?", new Object[] { item.id });
 	}
 
 	@Override
@@ -175,7 +220,7 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 		delete("delete from t_calendar_vevent where item_id in ( select id from t_container_item where container_id = ?) and recurid_timestamp is null",
 				new Object[] { container.id });
 		recurringStore.deleteAll();
-		;
+		counterStore.deleteAll();
 	}
 
 	@Override

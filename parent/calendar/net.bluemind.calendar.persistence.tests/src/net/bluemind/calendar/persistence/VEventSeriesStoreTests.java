@@ -30,12 +30,14 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -45,6 +47,8 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventCounter;
+import net.bluemind.calendar.api.VEventCounter.CounterOriginator;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.date.BmDateTime;
@@ -958,6 +962,82 @@ public class VEventSeriesStoreTests {
 		vEventStore.update(item, event.value);
 		evt = vEventStore.get(item);
 		assertFalse(evt.main.draft);
+	}
+
+	@Test
+	public void testCounters() throws SQLException {
+		ItemValue<VEventSeries> event = defaultVEvent();
+		event.value.acceptCounters = true;
+		event.value.counters = new ArrayList<>();
+		VEvent counterEvent1 = defaultVEvent().value.main;
+		BmDateTime dtstart = BmDateTimeWrapper.create(ZonedDateTime.now().plusDays(1), Precision.DateTime);
+		counterEvent1.dtstart = dtstart;
+		counterEvent1.dtend = BmDateTimeWrapper.create(ZonedDateTime.now().plusDays(1), Precision.DateTime);
+		event.value.counters
+				.add(counter("myName", "myName@bluemind.loc", VEventOccurrence.fromEvent(counterEvent1, null)));
+		itemStore.create(Item.create(event.uid, UUID.randomUUID().toString()));
+		Item item = itemStore.get(event.uid);
+
+		vEventStore.create(item, event.value);
+		VEventSeries evt = vEventStore.get(item);
+
+		assertTrue(evt.acceptCounters);
+		assertEquals(1, evt.counters.size());
+
+		VEventCounter.CounterOriginator originator = evt.counters.get(0).originator;
+		assertEquals("myName", originator.commonName);
+		assertEquals("myName@bluemind.loc", originator.email);
+		VEvent counter = evt.counters.get(0).counter;
+		assertEquals(dtstart.iso8601, counter.dtstart.iso8601);
+
+		VEvent counterEvent2 = defaultVEvent().value.main;
+		BmDateTime dtstart2 = BmDateTimeWrapper.create(ZonedDateTime.now().plusDays(1), Precision.DateTime);
+		counterEvent2.dtstart = dtstart2;
+		counterEvent2.dtend = BmDateTimeWrapper.create(ZonedDateTime.now().plusDays(1), Precision.DateTime);
+		event.value.counters
+				.add(counter("myName2", "myName2@bluemind.loc", VEventOccurrence.fromEvent(counterEvent2, null)));
+
+		vEventStore.update(item, event.value);
+		evt = vEventStore.get(item);
+
+		assertTrue(evt.acceptCounters);
+		assertEquals(2, evt.counters.size());
+
+		event.value.counters = event.value.counters.stream().filter(c -> c.originator.commonName.equals("myName2"))
+				.collect(Collectors.toList());
+
+		vEventStore.update(item, event.value);
+		evt = vEventStore.get(item);
+
+		assertTrue(evt.acceptCounters);
+		assertEquals(1, evt.counters.size());
+
+		originator = evt.counters.get(0).originator;
+		assertEquals("myName2", originator.commonName);
+		assertEquals("myName2@bluemind.loc", originator.email);
+
+		event.value.counters = Collections.emptyList();
+
+		vEventStore.update(item, event.value);
+		evt = vEventStore.get(item);
+
+		assertTrue(evt.acceptCounters);
+		assertEquals(0, evt.counters.size());
+
+		event.value.acceptCounters = false;
+		vEventStore.update(item, event.value);
+		evt = vEventStore.get(item);
+
+		assertFalse(evt.acceptCounters);
+	}
+
+	private VEventCounter counter(String cn, String email, VEventOccurrence counterEvent) {
+		VEventCounter counter = new VEventCounter();
+		counter.originator = new CounterOriginator();
+		counter.originator.commonName = cn;
+		counter.originator.email = email;
+		counter.counter = counterEvent;
+		return counter;
 	}
 
 	private ItemValue<VEventSeries> defaultVEvent() {

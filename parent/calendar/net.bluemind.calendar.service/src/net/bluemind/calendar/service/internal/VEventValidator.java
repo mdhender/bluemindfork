@@ -19,13 +19,16 @@
 package net.bluemind.calendar.service.internal;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
 
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeValidator;
@@ -58,6 +61,7 @@ public class VEventValidator implements IValidator<VEventSeries> {
 			validate(vevent.main);
 		}
 		vevent.occurrences.forEach(this::validate);
+		validateCounters(vevent);
 	}
 
 	/**
@@ -155,6 +159,25 @@ public class VEventValidator implements IValidator<VEventSeries> {
 			}
 		}
 
+	}
+
+	private void validateCounters(VEventSeries vevent) {
+		if (vevent.counters == null || vevent.counters.isEmpty()) {
+			return;
+		}
+
+		if (!vevent.acceptCounters) {
+			throw new ServerFault("Event accepts no counter propositions", ErrorCode.EVENT_ACCEPTS_NO_COUNTERS);
+		}
+
+		Set<VEventCounter> seen = new HashSet<>();
+
+		for (VEventCounter counter : vevent.counters) {
+			if (seen.contains(counter)) {
+				throw new ServerFault("Multiple event counter of one participant", ErrorCode.MULTIPLE_EVENT_COUNTERS);
+			}
+			seen.add(counter);
+		}
 	}
 
 	private void checkIntegerList(List<Integer> intList, int min, int max) throws ServerFault {

@@ -20,6 +20,22 @@
    <extension
          point="net.bluemind.core.jdbc.schema">
       <schema
+            name="vevent-counter-schema"
+            resource="sql/vevent-counter-schema.1.0.0.sql">
+         <compose
+               id="item-store">
+         </compose>
+         <compose
+               id="datetime">
+         </compose>
+         <compose
+               id="icalendar-schema">
+         </compose>
+      </schema>
+   </extension>
+   <extension
+         point="net.bluemind.core.jdbc.schema">
+      <schema
             name="calendarview-schema"
             resource="sql/calendarview-schema.1.0.0.sql">
          <compose
@@ -34,5 +50,5 @@
             resource="sql/freebusy-schema.1.0.0.sql">
       </schema>
    </extension>
-
+   
 </plugin>

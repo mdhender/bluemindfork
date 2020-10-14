@@ -383,6 +383,9 @@ public enum ErrorCode {
 	/**
 	 * sent when listing ids in a container with the wrong container version
 	 */
-	VERSION_HAS_CHANGED;
-
+	VERSION_HAS_CHANGED,
+	/**
+	 * 
+	 */
+	MULTIPLE_EVENT_COUNTERS, EVENT_ACCEPTS_NO_COUNTERS;
 }

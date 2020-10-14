@@ -24,5 +24,40 @@ import net.bluemind.core.api.BMApi;
 public class VEventCounter {
 
 	public CounterOriginator originator;
-	public VEvent counter;
+	public VEventOccurrence counter;
+
+	public String id() {
+		String evtId = counter.recurid == null ? "0" : counter.recurid.iso8601;
+		String cn = originator.commonName == null ? "" : originator.commonName;
+		String email = originator.email == null ? "" : originator.email;
+		return String.format("%s#%s#%s", cn, email, evtId);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + id().hashCode();
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		VEventCounter other = (VEventCounter) obj;
+		return id().equals(other.id());
+	}
+
+	@BMApi(version = "3")
+	public static class CounterOriginator {
+
+		public String commonName;
+		public String email;
+
+	}
 }

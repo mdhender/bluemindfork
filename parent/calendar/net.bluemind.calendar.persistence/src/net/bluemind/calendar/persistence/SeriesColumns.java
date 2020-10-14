@@ -28,12 +28,14 @@ public class SeriesColumns {
 
 	public static final Columns cols = Columns.create() //
 			.col("ics_uid") //
-			.col("properties");
+			.col("properties") //
+			.col("accept_counters");
 
 	public static VEventStore.StatementValues<VEventSeries> values(long itemId) {
 		return (conn, statement, index, currentRow, value) -> {
 			statement.setString(index++, value.icsUid);
 			statement.setObject(index++, value.properties);
+			statement.setBoolean(index++, value.acceptCounters);
 			statement.setLong(index++, itemId);
 			return index;
 
@@ -51,6 +53,7 @@ public class SeriesColumns {
 			} else {
 				value.properties = Collections.emptyMap();
 			}
+			value.acceptCounters = rs.getBoolean(index++);
 			return index;
 		};
 

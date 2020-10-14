@@ -23,9 +23,9 @@ import java.util.List;
  */
 public final class Columns {
 
-	private List<Column> cols;
+	public List<Column> cols;
 
-	private static final class Column {
+	public static final class Column {
 		public String name;
 		public String enumType;
 

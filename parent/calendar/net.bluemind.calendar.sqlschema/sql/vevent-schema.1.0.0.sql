@@ -1,7 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS hstore WITH schema pg_catalog;
 
-create type t_calendar_transparency as enum
-('Opaque', 'Transparent');
+create type t_calendar_transparency as enum ('Opaque', 'Transparent');
 
 create table t_calendar_vevent (
 
@@ -145,6 +144,7 @@ CREATE INDEX idx_calendar_vevent_valarm_trigger ON t_calendar_vevent (valarm_tri
 create table t_calendar_series (
   ics_uid text NOT NULL,
   properties hstore,
+  accept_counters boolean,
   item_id int4 references t_container_item(id) on delete cascade UNIQUE
 );
 CREATE INDEX idx_calendar_series_itemid ON t_calendar_series(item_id);
