@@ -141,7 +141,6 @@ public class IDSet implements Iterable<IDRange> {
 
 		if (state == RANGE_STATE) {
 			ranges.add(new IDRange(lastNumber, parseNumber(value, begin, value.length - begin)));
-			state = SEQUENCE_STATE;
 		} else {
 			long number = parseNumber(value, begin, value.length - begin);
 			ranges.add(new IDRange(number, number));
