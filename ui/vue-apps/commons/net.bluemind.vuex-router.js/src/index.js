@@ -33,7 +33,7 @@ async function executeLeaveActions(route, to, from, store) {
 }
 
 async function executeParamsActions(route, to, from, store) {
-    if (route.meta.watch) {
+    if (route.meta.watch && includes(from, route.path)) {
         for (const parameter in route.meta.watch) {
             const action = route.meta.watch[parameter];
             await executeParamAction(action, parameter, to, from, store);
@@ -42,8 +42,9 @@ async function executeParamsActions(route, to, from, store) {
 }
 
 async function executeParamAction(action, parameter, to, from, store) {
-    if (!(parameter in from.params) || from.params[parameter] !== to.params[parameter])
+    if (from.params[parameter] !== to.params[parameter]) {
         await action(store, to.params[parameter], from.params[parameter], to, from);
+    }
 }
 
 function includes(route, path) {

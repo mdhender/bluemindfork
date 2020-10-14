@@ -12,9 +12,12 @@ export default [
         path: "/mail/:messagequery*",
         component: MailApp,
         meta: {
-            onEnter: store =>
+            onEnter: (store, to) =>
                 store
                     .dispatch("mail-webapp/bootstrap", inject("UserSession").userId)
+                    .then(() =>
+                        store.dispatch("mail-webapp/loadMessageList", MessageQueryParam.parse(to.params.messagequery))
+                    )
                     .then(() => store.commit("root-app/SET_APP_STATE", "success"))
                     .catch(() => store.commit("root-app/SET_APP_STATE", "error")),
             watch: {
