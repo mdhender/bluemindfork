@@ -12,9 +12,7 @@
                 <div class="bg-white py-3 d-table">
                     <div class="d-table-cell px-4">
                         <div class="pb-2">{{ $t("mail.message.starter.write") }}</div>
-                        <bm-button :to="{ name: 'mail:new' }" variant="primary">
-                            <bm-label-icon icon="plus">{{ $t("mail.main.new") }}</bm-label-icon>
-                        </bm-button>
+                        <new-message />
                     </div>
                     <div class="d-table-cell px-4">
                         <div class="pb-2">{{ $t("mail.message.starter.display") }}</div>
@@ -39,12 +37,14 @@
 import { BmButton, BmLabelIcon } from "@bluemind/styleguide";
 import { mapGetters } from "vuex";
 import emptyMessageIllustration from "../../assets/home-page.png";
+import NewMessage from "./NewMessage";
 
 export default {
     name: "MailMessageStarter",
     components: {
         BmButton,
-        BmLabelIcon
+        BmLabelIcon,
+        NewMessage
     },
     data() {
         return {

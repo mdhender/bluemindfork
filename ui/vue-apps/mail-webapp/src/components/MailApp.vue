@@ -15,9 +15,7 @@
                 <bm-button variant="inline-light" class="d-inline-block d-lg-none w-100" @click.stop="toggleFolders">
                     <bm-icon icon="burger-menu" size="2x" />
                 </bm-button>
-                <bm-button variant="primary" class="text-nowrap d-lg-inline-block d-none" @click="composeNewMessage">
-                    <bm-label-icon icon="plus">{{ $t("mail.main.new") }}</bm-label-icon>
-                </bm-button>
+                <new-message />
             </bm-col>
             <bm-col
                 cols="8"
@@ -69,31 +67,14 @@
                 <router-view />
             </bm-col>
         </bm-row>
-        <bm-button
-            v-bm-clip-path="'hexagon'"
-            variant="primary"
-            class="d-lg-none position-absolute mail-app-responsive-btn z-index-110"
-            :class="hideListInResponsiveMode ? 'd-none' : 'd-block'"
-            @click="composeNewMessage"
-        >
-            <bm-icon icon="plus" size="2x" />
-        </bm-button>
+        <new-message mobile :class="hideListInResponsiveMode ? 'd-none' : 'd-block'" />
     </main>
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
-import {
-    BmFormCheckbox,
-    BmLabelIcon,
-    BmButton,
-    BmCol,
-    BmIcon,
-    BmRow,
-    MakeUniq,
-    BmClipPath
-} from "@bluemind/styleguide";
+import { BmFormCheckbox, BmButton, BmCol, BmIcon, BmRow, MakeUniq } from "@bluemind/styleguide";
 import { inject } from "@bluemind/inject";
 
 import FaviconHelper from "../FaviconHelper";
@@ -103,8 +84,7 @@ import MailMessageList from "./MailMessageList/MailMessageList";
 import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
 import MessagesOptionsForMobile from "./MessagesOptionsForMobile";
-import actionTypes from "../store/actionTypes";
-import { MessageCreationModes } from "../model/message";
+import NewMessage from "./NewMessage";
 
 export default {
     name: "MailApp",
@@ -112,7 +92,6 @@ export default {
         BmFormCheckbox,
         BmButton,
         BmCol,
-        BmLabelIcon,
         BmIcon,
         BmRow,
         GlobalEvents,
@@ -120,9 +99,9 @@ export default {
         MailMessageList,
         MailSearchForm,
         MailToolbar,
-        MessagesOptionsForMobile
+        MessagesOptionsForMobile,
+        NewMessage
     },
-    directives: { BmClipPath },
     mixins: [MakeUniq],
     componentI18N: { messages: MailAppL10N },
     data() {
@@ -137,7 +116,6 @@ export default {
         ...mapState("mail-webapp", ["selectedMessageKeys"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["messages"]),
-        ...mapGetters("mail", ["MY_DRAFTS"]),
         isMessageComposerDisplayed() {
             return this.currentMessageKey && this.messages[this.currentMessageKey]
                 ? this.messages[this.currentMessageKey].composing
@@ -167,14 +145,6 @@ export default {
         FaviconHelper.handleUnreadNotifInFavicon(this.userSession, documentTitle);
     },
     methods: {
-        ...mapActions("mail", [actionTypes.CREATE_MESSAGE]),
-        async composeNewMessage() {
-            const messageKey = await this.CREATE_MESSAGE({
-                myDraftsFolder: this.MY_DRAFTS,
-                creationMode: MessageCreationModes.NEW
-            });
-            return this.$router.navigate({ name: "v:mail:message", params: { message: messageKey } });
-        },
         toggleFolders() {
             this.showFolders = !this.showFolders;
         },
