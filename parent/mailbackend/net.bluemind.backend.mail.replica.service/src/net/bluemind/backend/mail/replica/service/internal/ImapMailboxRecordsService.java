@@ -337,24 +337,12 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			logger.info("Prepare for part @ {}", p.address);
 			if (isImapAddress(p.address)) {
 				logger.info("*** preload part {}", p.address);
-				ImapResponseStatus<FetchResponse> fetched = imapContext.withImapClient((sc, fast) -> {
-					try {
-						return fast.select(imapFolder)
-								.thenCompose(selec -> fast.fetch(current.value.imapUid, p.address))
-								.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-					} catch (TimeoutException e) {
-						throw new ServerFault("Failed to fetch part " + p.address + " from current. Timeout occured",
-								ErrorCode.TIMEOUT);
-					}
-
-				});
-				if (fetched.status != Status.Ok) {
-					throw new ServerFault("Failed to fetch part " + p.address + " from current.");
-				}
+				ByteBuf decodedFetch = fetchAndDecode(current.value.imapUid, p.address, p.encoding, p.mime, p.charset,
+						null);
 				String replacedPartUid = UUID.randomUUID().toString();
 				File output = partFile(replacedPartUid);
 				try (OutputStream out = Files.newOutputStream(output.toPath());
-						ByteBufInputStream in = new ByteBufInputStream(fetched.result.get().data, true)) {
+						ByteBufInputStream in = new ByteBufInputStream(decodedFetch, true)) {
 					ByteStreams.copy(in, out);
 					logger.info("YEAH Replaced part address from {} to {}", p.address, replacedPartUid);
 					p.address = replacedPartUid;
@@ -615,21 +603,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	@Override
 	public Stream fetch(long imapUid, String address, String encoding, String mime, String charset, String filename) {
 		rbac.check(Verb.Read.name());
-		ByteBuf downloaded = fetch(imapUid, address);
-
-		Buffer buffer = null;
-		if (encoding != null) {
-			try (InputStream in = dec(downloaded, encoding)) {
-				buffer = Buffer.buffer(Unpooled.wrappedBuffer(ByteStreams.toByteArray(in)));
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-				buffer = Buffer.buffer();
-			}
-		} else {
-			buffer = Buffer.buffer(downloaded);
-		}
-
-		return VertxStream.stream(buffer, mime, charset, filename);
+		return VertxStream.stream(Buffer.buffer(fetchAndDecode(imapUid, address, encoding, mime, charset, filename)),
+				mime, charset, filename);
 	}
 
 	private InputStream dec(ByteBuf downloaded, String encoding) {
@@ -640,6 +615,22 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			ret = new QuotedPrintableInputStream(ret);
 		}
 		return ret;
+	}
+
+	private ByteBuf fetchAndDecode(long imapUid, String address, String encoding, String mime, String charset,
+			String filename) {
+		ByteBuf downloaded = fetch(imapUid, address);
+
+		ByteBuf returned = downloaded;
+		if (encoding != null) {
+			try (InputStream in = dec(downloaded, encoding)) {
+				returned = Unpooled.wrappedBuffer(ByteStreams.toByteArray(in));
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				returned = Unpooled.EMPTY_BUFFER;
+			}
+		}
+		return returned;
 	}
 
 	private ByteBuf fetch(long imapUid, String address) {

@@ -130,7 +130,7 @@ public class HttpFetchPartWithFilenameTests extends AbstractRollingReplicationTe
 		String expectedContentDisposition = "attachment; filename=\"blabla.pdf\";";
 
 		assertEquals(200, resp.getStatusCode());
-		assertEquals(resp.getHeader("Content-Disposition"), expectedContentDisposition);
+		assertEquals(expectedContentDisposition, resp.getHeader("Content-Disposition"));
 
 		// Ask for an encoding
 		requestBuilder.setUrl("http://localhost:8090/api/mail_items/" + inbox.uid + "/part/" + item.value.imapUid + "/"
@@ -138,7 +138,7 @@ public class HttpFetchPartWithFilenameTests extends AbstractRollingReplicationTe
 		resp = httpClient.executeRequest(requestBuilder.build()).get(10, TimeUnit.SECONDS);
 
 		assertEquals(200, resp.getStatusCode());
-		assertEquals(resp.getHeader("Content-Disposition"), expectedContentDisposition);
+		assertEquals(expectedContentDisposition, resp.getHeader("Content-Disposition"));
 
 		httpClient.close();
 	}
