@@ -33,6 +33,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.ExistsQueryBuilder;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -131,7 +132,8 @@ public class VEventIndexStore {
 		}
 
 		if (!Strings.nullToEmpty(query.query).trim().isEmpty()) {
-			filters.add(QueryBuilders.queryStringQuery(query.escapeQuery ? escape(query.query) : query.query));
+			filters.add(QueryBuilders.queryStringQuery(query.escapeQuery ? escape(query.query) : query.query)
+					.defaultOperator(Operator.AND));
 		}
 
 		if (query.dateMin != null || query.dateMax != null) {

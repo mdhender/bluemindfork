@@ -529,4 +529,32 @@ public class VEventIndexStoreTests {
 		assertEquals(1, res.values.size());
 	}
 
+	@Test
+	public void testSearchSentence() {
+		ItemValue<VEventSeries> event = defaultVEvent();
+		event.value.main.summary = "comité de direction";
+		indexStore.create(event.uid, event.value);
+
+		ItemValue<VEventSeries> event2 = defaultVEvent();
+		event2.value.main.summary = "COMITE DE DIRECTION";
+		indexStore.create(event2.uid, event2.value);
+
+		ItemValue<VEventSeries> event3 = defaultVEvent();
+		event3.value.main.summary = "trop de résultats";
+		indexStore.create(event3.uid, event3.value);
+
+		indexStore.refresh();
+
+		ListResult<String> res = indexStore.search(VEventQuery.create("value.summary:comité de direction"));
+		assertEquals(2, res.values.size());
+		assertFalse(res.values.stream().filter(uid -> uid.equals(event3.uid)).findFirst().isPresent());
+
+		res = indexStore.search(VEventQuery.create("value.summary:comité"));
+		assertEquals(2, res.values.size());
+		assertFalse(res.values.stream().filter(uid -> uid.equals(event3.uid)).findFirst().isPresent());
+
+		res = indexStore.search(VEventQuery.create("value.summary:de"));
+		assertEquals(3, res.values.size());
+	}
+
 }
