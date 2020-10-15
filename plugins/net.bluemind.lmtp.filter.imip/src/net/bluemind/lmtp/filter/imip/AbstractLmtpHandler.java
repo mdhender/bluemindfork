@@ -22,10 +22,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventCounter;
+import net.bluemind.calendar.api.VEventCounter.CounterOriginator;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.config.Token;
@@ -38,6 +42,7 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.icalendar.api.ICalendarElement;
+import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.lmtp.backend.LmtpAddress;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -156,6 +161,32 @@ public abstract class AbstractLmtpHandler {
 		series.occurrences = mutableList.stream().map(v -> (VEventOccurrence) v).collect(Collectors.toList());
 		series.icsUid = icsUid;
 		return series;
+	}
+
+	protected List<ItemValue<VEventSeries>> getAndValidateExistingSeries(ICalendar cal, IMIPInfos imip) {
+		List<ItemValue<VEventSeries>> items = cal.getByIcsUid(imip.uid);
+		if (items.size() != 1 || items.get(0).value.main == null) {
+			throw new ServerFault(String.format("Cannot find series event for %s-%s", imip.messageId, imip.uid));
+		}
+		return items;
+	}
+
+	protected Optional<VEventCounter> getExistingCounter(List<VEventCounter> counters, VEventOccurrence event,
+			CounterOriginator counterOriginator) {
+		VEventCounter check = new VEventCounter();
+		check.counter = event;
+		check.originator = counterOriginator;
+		if (counters == null || counters.isEmpty()) {
+			return Optional.empty();
+		}
+		return counters.stream().filter(counter -> counter.equals(check)).findAny();
+	}
+
+	protected void validateItemCount(IMIPInfos imip, int count) {
+		if (imip.iCalendarElements.size() != count) {
+			throw new ServerFault(String.format("%s for %s-%s contains %d events", imip.method.name(), imip.messageId,
+					imip.uid, imip.iCalendarElements.size()));
+		}
 	}
 
 }

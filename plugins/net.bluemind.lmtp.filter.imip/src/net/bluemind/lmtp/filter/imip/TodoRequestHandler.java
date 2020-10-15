@@ -32,7 +32,7 @@ import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.user.api.User;
 
-public class TodoRequestHandler extends RequestHandler implements IIMIPHandler {
+public class TodoRequestHandler extends AbstractLmtpHandler implements IIMIPHandler {
 
 	public TodoRequestHandler(LmtpAddress recipient, LmtpAddress sender) {
 		super(recipient, sender);
@@ -43,10 +43,6 @@ public class TodoRequestHandler extends RequestHandler implements IIMIPHandler {
 	@Override
 	public IMIPResponse handle(IMIPInfos imip, LmtpAddress recipient, ItemValue<Domain> domain,
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {
-
-		if (!super.validate(imip)) {
-			return new IMIPResponse();
-		}
 
 		try {
 

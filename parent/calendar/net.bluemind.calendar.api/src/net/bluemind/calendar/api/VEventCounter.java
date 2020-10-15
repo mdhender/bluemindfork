@@ -59,5 +59,12 @@ public class VEventCounter {
 		public String commonName;
 		public String email;
 
+		public static CounterOriginator from(String commonName, String email) {
+			CounterOriginator originator = new CounterOriginator();
+			originator.commonName = commonName;
+			originator.email = email;
+			return originator;
+		}
+
 	}
 }

@@ -46,9 +46,11 @@ import net.bluemind.icalendar.parser.ICal4jEventHelper;
 import net.bluemind.icalendar.parser.ICal4jHelper;
 import net.bluemind.icalendar.parser.ObservanceMapper;
 import net.bluemind.imip.parser.IMIPInfos;
+import net.bluemind.imip.parser.ITIPMethod;
 import net.bluemind.lib.ical4j.util.IcalConverter;
 import net.bluemind.todolist.api.VTodo;
 import net.fortuna.ical4j.data.ParserException;
+import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.CalendarComponent;
 import net.fortuna.ical4j.model.component.VToDo;
 import net.fortuna.ical4j.model.property.Organizer;
@@ -92,6 +94,12 @@ public class ITIPPartParser {
 		Optional<String> globalTZ = calendarComponents.get(0).getProperty("X-WR-TIMEZONE") != null
 				? Optional.of(calendarComponents.get(0).getProperty("X-WR-TIMEZONE").getValue())
 				: Optional.empty();
+
+		// METHOD
+		Property method = calendarComponents.get(0).getProperty("METHOD");
+		if (method != null) {
+			imip.method = ITIPMethod.valueOf(method.getValue().toUpperCase());
+		}
 
 		Summary summary = null;
 		Uid uid = null;

@@ -25,8 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.imip.parser.IMIPInfos;
-import net.bluemind.imip.parser.ITIPMethod;
-import net.bluemind.lmtp.backend.LmtpAddress;
 
 public abstract class ReplyHandler extends AbstractLmtpHandler {
 
@@ -37,10 +35,6 @@ public abstract class ReplyHandler extends AbstractLmtpHandler {
 	private static final Logger logger = LoggerFactory.getLogger(ReplyHandler.class);
 
 	protected boolean validate(IMIPInfos imip, List<Attendee> atts) {
-		if (imip.method != ITIPMethod.REPLY) {
-			logger.error("Invalid method {} for message {}", imip.method, imip.messageId);
-			return false;
-		}
 
 		if (imip.iCalendarElements.isEmpty()) {
 			logger.warn("[" + imip.messageId + "] can't handle reply, no VEvents/VTodos found");

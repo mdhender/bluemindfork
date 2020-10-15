@@ -60,10 +60,7 @@ public class EventReplyHandler extends ReplyHandler implements IIMIPHandler {
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {
 		String calUid = getCalendarUid(recipientMailbox);
 		ICalendar cal = provider().instance(ICalendar.class, calUid);
-		List<ItemValue<VEventSeries>> items = cal.getByIcsUid(imip.uid);
-		if (items.size() != 1 || items.get(0).value.main == null) {
-			throw new ServerFault(String.format("Cannot find series event for %s-%s", imip.messageId, imip.uid));
-		}
+		List<ItemValue<VEventSeries>> items = getAndValidateExistingSeries(cal, imip);
 		ItemValue<VEventSeries> series = items.get(0);
 		for (ICalendarElement element : imip.iCalendarElements) {
 			VEvent vevent = (VEvent) element;

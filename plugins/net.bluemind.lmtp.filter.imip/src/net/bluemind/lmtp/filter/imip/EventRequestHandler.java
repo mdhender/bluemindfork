@@ -77,7 +77,7 @@ import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
 import net.fortuna.ical4j.model.property.Method;
 
-public class EventRequestHandler extends RequestHandler implements IIMIPHandler {
+public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHandler {
 	private static final Logger logger = LoggerFactory.getLogger(EventRequestHandler.class);
 	private static final Cache<String, ItemValue<User>> senderCache = Caffeine.newBuilder().recordStats()
 			.expireAfterAccess(2, TimeUnit.MINUTES).build();
@@ -107,10 +107,6 @@ public class EventRequestHandler extends RequestHandler implements IIMIPHandler 
 	@Override
 	public IMIPResponse handle(IMIPInfos imip, LmtpAddress recipient, ItemValue<Domain> domain,
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {
-
-		if (!super.validate(imip)) {
-			return new IMIPResponse();
-		}
 
 		try {
 			String calUid = getCalendarUid(recipientMailbox);

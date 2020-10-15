@@ -22,8 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.imip.parser.IMIPInfos;
-import net.bluemind.imip.parser.ITIPMethod;
-import net.bluemind.lmtp.backend.LmtpAddress;
 
 public abstract class CancelHandler extends AbstractLmtpHandler {
 
@@ -34,11 +32,6 @@ public abstract class CancelHandler extends AbstractLmtpHandler {
 	private static final Logger logger = LoggerFactory.getLogger(CancelHandler.class);
 
 	protected boolean validate(IMIPInfos imip) {
-
-		if (imip.method != ITIPMethod.CANCEL) {
-			logger.error("Invalid method {} for message {}", imip.method, imip.messageId);
-			return false;
-		}
 
 		if (imip.iCalendarElements.isEmpty()) {
 			logger.info("[" + imip.messageId + "] Event does not exist in BM, nothing to do.");

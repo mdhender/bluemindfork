@@ -55,6 +55,7 @@ import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
@@ -89,6 +90,8 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.lmtp.backend.LmtpAddress;
 import net.bluemind.lmtp.backend.PermissionDeniedException.MailboxInvitationDeniedException;
 import net.bluemind.lmtp.filter.imip.EventCancelHandler;
+import net.bluemind.lmtp.filter.imip.EventCounterHandler;
+import net.bluemind.lmtp.filter.imip.EventDeclineCounterHandler;
 import net.bluemind.lmtp.filter.imip.EventReplyHandler;
 import net.bluemind.lmtp.filter.imip.FakeEventRequestHandlerFactory;
 import net.bluemind.lmtp.filter.imip.IIMIPHandler;
@@ -1573,4 +1576,53 @@ public class ImipFilterVEventTests {
 		assertEquals(ParticipationStatus.Accepted, ext.partStatus);
 
 	}
+
+	@Test
+	public void testCounter_DeclineEvent() throws Exception {
+		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+
+		// REQUEST
+		List<ItemValue<VEventSeries>> events = getVEventsFromIcs("bluemind.request.ics");
+		ItemValue<VEventSeries> event = events.get(0);
+		String imipUid = events.get(0).uid;
+		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
+		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), imipUid);
+		imip.iCalendarElements = Arrays.asList(event.value.main);
+		handler.handle(imip, recipient, domain, user1Mailbox);
+
+		ItemValue<VEventSeries> evt = user1Calendar.getComplete(imipUid);
+		assertNotNull(evt);
+
+		// COUNTER
+		events = getVEventsFromIcs("bluemind.counter.ics");
+		VEvent e = events.get(0).value.flatten().get(0);
+		imipUid = events.get(0).uid;
+		imip = imip(ITIPMethod.COUNTER, defaultExternalSenderVCard(), imipUid);
+		imip.iCalendarElements = Arrays.asList(e);
+		handler = new EventCounterHandler();
+		handler.handle(imip, recipient, domain, user1Mailbox);
+
+		evt = user1Calendar.getComplete(imipUid);
+
+		assertEquals(1, evt.value.counters.size());
+		VEventCounter counter = evt.value.counters.get(0);
+		assertEquals(1, counter.counter.attendees.size());
+		assertEquals("user1 DOMAIN.LAN", counter.counter.attendees.get(0).commonName);
+		assertEquals("user1@domain.lan", counter.counter.attendees.get(0).mailto);
+		assertEquals("2022-02-14T00:00:00.000+07:00", counter.counter.dtstart.iso8601);
+		assertEquals("2022-02-14T02:00:00.000+07:00", counter.counter.dtend.iso8601);
+
+		// DECLINECOUNTER
+		events = getVEventsFromIcs("bluemind.declinecounter.ics");
+		e = events.get(0).value.flatten().get(0);
+		imipUid = events.get(0).uid;
+		imip = imip(ITIPMethod.DECLINECOUNTER, defaultExternalSenderVCard(), imipUid);
+		imip.iCalendarElements = Arrays.asList(e);
+		handler = new EventDeclineCounterHandler();
+		handler.handle(imip, recipient, domain, user1Mailbox);
+
+		evt = user1Calendar.getComplete(imipUid);
+		assertEquals(0, evt.value.counters.size());
+	}
+
 }

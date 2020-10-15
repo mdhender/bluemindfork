@@ -29,6 +29,7 @@ import net.bluemind.calendar.api.VEventChanges;
 import net.bluemind.calendar.api.VEventChanges.ItemAdd;
 import net.bluemind.calendar.api.VEventChanges.ItemDelete;
 import net.bluemind.calendar.api.VEventChanges.ItemModify;
+import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.fault.ServerFault;
@@ -63,6 +64,10 @@ public class EventChangesMerge {
 				List<VEventOccurrence> occ = vevent.value.occurrences.stream()
 						.filter(r -> !r.recurid.equals(imipEvent.recurid)).collect(Collectors.toList());
 				occ.add(imipEvent);
+				List<VEventCounter> counters = vevent.value.counters.stream()
+						.filter(r -> r.counter.recurid == null || !r.counter.recurid.equals(imipEvent.recurid))
+						.collect(Collectors.toList());
+				vevent.value.counters = counters;
 				vevent.value.occurrences = occ;
 			}
 			return VEventChanges.create(null, Arrays.asList(ItemModify.create(vevent.uid, vevent.value, false)), null);
@@ -72,6 +77,7 @@ public class EventChangesMerge {
 			if (main == null) {
 				return series;
 			}
+			series.counters = new ArrayList<>();
 			if (eventDatesChanged(series.main, main)) {
 				main.exdate = null;
 				series.occurrences = Collections.emptyList();
