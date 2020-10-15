@@ -16,16 +16,21 @@ import brokenImageIcon from "../../../../assets/brokenImageIcon.png";
 export default {
     name: "IframeContainer",
     props: {
-        value: {
+        body: {
             type: String,
             required: true
+        },
+        styles: {
+            type: String,
+            required: false,
+            default: ""
         }
     },
     computed: {
         ...mapGetters("mail-webapp", ["areRemoteImagesUnblocked"]),
         ...mapState("mail-webapp/currentMessage", { messageKey: "key" }),
         iFrameContent() {
-            let content = this.value;
+            let content = this.body;
 
             if (this.areRemoteImagesUnblocked(this.messageKey)) {
                 content = unblockRemoteImages(content);
@@ -37,7 +42,7 @@ export default {
             }
 
             const label = this.$t("mail.application.region.messagecontent");
-            return buildHtml(content, label);
+            return buildHtml(content, label, this.styles + BM_STYLE);
         }
     },
     methods: {
@@ -65,8 +70,7 @@ export default {
     }
 };
 
-function buildHtml(content, label) {
-    const style = `
+const BM_STYLE = `
         body {  
             font-family: 'Montserrat', sans-serif;     
             font-size: 0.75rem;
@@ -117,7 +121,7 @@ function buildHtml(content, label) {
             text-decoration-line: underline;
         }`;
 
-    // FIXME: as we add our own <head> tag, we should parse existing <head> in content variable
+function buildHtml(content, label, style) {
     return `<html>
                 <head><base target="_blank"><style>${style}</style></head>
                 <body><main aria-label="${label}">${content}</main></body>
