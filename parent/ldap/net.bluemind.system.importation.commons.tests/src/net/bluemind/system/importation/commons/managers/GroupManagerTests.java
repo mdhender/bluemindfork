@@ -92,6 +92,11 @@ public class GroupManagerTests {
 		protected Set<String> getRangedGroupMembers() {
 			return Collections.emptySet();
 		}
+
+		@Override
+		protected boolean isSplitDomainNestedGroup() {
+			return false;
+		}
 	}
 
 	private ItemValue<Domain> getDomain() {

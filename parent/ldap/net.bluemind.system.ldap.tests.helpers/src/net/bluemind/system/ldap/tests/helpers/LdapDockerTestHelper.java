@@ -132,6 +132,7 @@ public class LdapDockerTestHelper {
 	public static void deleteTree(LdapConnection ldapCon, String dn) throws DeleteTreeException {
 		SearchCursor cursor = null;
 		Entry entry = null;
+		PagedSearchResult pagesSearchResult = null;
 		try {
 			SearchRequest searchRequest = new SearchRequestImpl();
 			searchRequest.setBase(new Dn(dn));
@@ -140,7 +141,7 @@ public class LdapDockerTestHelper {
 			searchRequest.addAttributes("dn");
 			searchRequest.setDerefAliases(AliasDerefMode.NEVER_DEREF_ALIASES);
 
-			PagedSearchResult pagesSearchResult = new PagedSearchResult(ldapCon, searchRequest);
+			pagesSearchResult = new PagedSearchResult(ldapCon, searchRequest);
 
 			cursor = ldapCon.search(searchRequest);
 
@@ -164,6 +165,13 @@ public class LdapDockerTestHelper {
 			try {
 				cursor.close();
 			} catch (Exception e) {
+			}
+
+			if (pagesSearchResult != null) {
+				try {
+					pagesSearchResult.close();
+				} catch (Exception e) {
+				}
 			}
 		}
 	}

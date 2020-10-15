@@ -1,4 +1,6 @@
 dn: cn=grptest00,dc=local
+objectClass: inetLocalMailRecipient
+objectClass: bmGroup
 objectClass: top
 objectClass: posixGroup
 cn: grptest00

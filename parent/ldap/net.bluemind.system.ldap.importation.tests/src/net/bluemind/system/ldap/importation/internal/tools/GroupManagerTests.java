@@ -27,7 +27,11 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
@@ -52,6 +56,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.group.api.Group;
 import net.bluemind.lib.ldap.LdapConProxy;
 import net.bluemind.pool.impl.BmConfIni;
@@ -122,7 +127,7 @@ public class GroupManagerTests {
 		try {
 			GroupManager groupManager = GroupManagerImpl
 					.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()), domain,
-							testGroupEntry)
+							testGroupEntry, Optional.empty())
 					.get();
 			groupManager.update(importLogger, null);
 			fail("Test must thrown an excpetion");
@@ -137,7 +142,7 @@ public class GroupManagerTests {
 		try {
 			GroupManager groupManager = GroupManagerImpl
 					.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()), domain,
-							testGroupEntry)
+							testGroupEntry, Optional.empty())
 					.get();
 			groupManager.update(importLogger, null);
 			fail("Test must thrown an excpetion");
@@ -158,7 +163,7 @@ public class GroupManagerTests {
 		try {
 			GroupManager groupManager = GroupManagerImpl
 					.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()), domain,
-							testGroupEntry)
+							testGroupEntry, Optional.empty())
 					.get();
 			groupManager.update(importLogger, null);
 
@@ -174,7 +179,7 @@ public class GroupManagerTests {
 		try {
 			GroupManager groupManager = GroupManagerImpl
 					.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()), domain,
-							testGroupEntry)
+							testGroupEntry, Optional.empty())
 					.get();
 			groupManager.update(importLogger, null);
 
@@ -194,7 +199,7 @@ public class GroupManagerTests {
 		ImportLogger importLogger = getImportLogger();
 		GroupManager groupManager = GroupManagerImpl
 				.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()), domain,
-						testGroupEntry)
+						testGroupEntry, Optional.empty())
 				.get();
 		assertNotNull(groupManager);
 
@@ -234,7 +239,7 @@ public class GroupManagerTests {
 		ImportLogger importLogger = getImportLogger();
 		GroupManager groupManager = GroupManagerImpl
 				.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()), domain,
-						testGroupEntry)
+						testGroupEntry, Optional.empty())
 				.get();
 		assertNotNull(groupManager);
 
@@ -281,7 +286,7 @@ public class GroupManagerTests {
 		ImportLogger importLogger = getImportLogger();
 		GroupManager groupManager = GroupManagerImpl
 				.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()), domain,
-						testGroupEntry)
+						testGroupEntry, Optional.empty())
 				.get();
 		assertNotNull(groupManager);
 
@@ -321,7 +326,7 @@ public class GroupManagerTests {
 		ImportLogger importLogger = getImportLogger();
 		GroupManager groupManager = GroupManagerImpl
 				.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()), domain,
-						testGroupEntry)
+						testGroupEntry, Optional.empty())
 				.get();
 		assertNotNull(groupManager);
 
@@ -384,7 +389,7 @@ public class GroupManagerTests {
 		ImportLogger importLogger = getImportLogger();
 		GroupManager groupManager = GroupManagerImpl
 				.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()), domain,
-						testGroupEntry)
+						testGroupEntry, Optional.empty())
 				.get();
 		assertNotNull(groupManager);
 
@@ -431,12 +436,127 @@ public class GroupManagerTests {
 		ImportLogger importLogger = getImportLogger();
 		GroupManager groupManager = GroupManagerImpl
 				.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()), domain,
-						testGroupEntry)
+						testGroupEntry, Optional.empty())
 				.get();
 		assertNotNull(groupManager);
 
 		groupManager.update(importLogger, null);
 
 		assertEquals("hook value", groupManager.group.value.dataLocation);
+	}
+
+	@Test
+	public void isSplitDomainGroup_splitDomainDisabled() throws LdapInvalidDnException, ServerFault, LdapException,
+			CursorException, IOException, LdapSearchException {
+		Entry testGroupEntry = getTestGroupEntry(
+				"cn=grptest00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
+
+		LdapParameters ldapParameters = LdapParameters.build(domain.value, Collections.<String, String>emptyMap());
+		assertFalse(ldapParameters.splitDomain.splitRelayEnabled);
+
+		GroupManager groupManager = GroupManagerImpl.build(ldapParameters, domain, testGroupEntry, Optional.empty())
+				.get();
+		assertNotNull(groupManager);
+
+		assertFalse(groupManager.isSplitDomainGroup(getImportLogger()));
+	}
+
+	@Test
+	public void isSplitDomainGroup_nullOrEmptyGroup() throws LdapInvalidDnException, ServerFault, LdapException,
+			CursorException, IOException, LdapSearchException {
+		Entry testGroupEntry = getTestGroupEntry(
+				"cn=grptest00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
+
+		Map<String, String> domainSettings = new HashMap<>();
+		domainSettings.put(DomainSettingsKeys.mail_routing_relay.name(), "splitrelay");
+		LdapParameters ldapParameters = LdapParameters.build(domain.value, domainSettings);
+		assertTrue(ldapParameters.splitDomain.splitRelayEnabled);
+
+		GroupManager groupManager = GroupManagerImpl.build(ldapParameters, domain, testGroupEntry, Optional.empty())
+				.get();
+		assertNotNull(groupManager);
+
+		assertFalse(groupManager.isSplitDomainGroup(getImportLogger()));
+
+		domain.value.properties.put(LdapProperties.import_ldap_relay_mailbox_group.name(), "");
+		ldapParameters = LdapParameters.build(domain.value, domainSettings);
+		assertTrue(ldapParameters.splitDomain.splitRelayEnabled);
+
+		groupManager = GroupManagerImpl.build(ldapParameters, domain, testGroupEntry, Optional.empty()).get();
+		assertNotNull(groupManager);
+
+		assertFalse(groupManager.isSplitDomainGroup(getImportLogger()));
+	}
+
+	@Test
+	public void isSplitDomainGroup_no() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
+		Entry testGroupEntry = getTestGroupEntry(
+				"cn=grptest00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
+
+		Map<String, String> domainSettings = new HashMap<>();
+		domainSettings.put(DomainSettingsKeys.mail_routing_relay.name(), "splitrelay");
+
+		domain.value.properties.put(LdapProperties.import_ldap_relay_mailbox_group.name(), "relaygroup");
+		LdapParameters ldapParameters = LdapParameters.build(domain.value, domainSettings);
+		assertTrue(ldapParameters.splitDomain.splitRelayEnabled);
+
+		Set<UuidMapper> splitGroupUuids = new HashSet<>();
+		splitGroupUuids.add(new LdapUuidMapper("member"));
+
+		GroupManager groupManager = GroupManagerImpl
+				.build(ldapParameters, domain, testGroupEntry, Optional.of(splitGroupUuids)).get();
+		assertNotNull(groupManager);
+
+		assertFalse(groupManager.isSplitDomainGroup(getImportLogger()));
+	}
+
+	@Test
+	public void isSplitDomainGroup_myself() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
+		Entry testGroupEntry = getTestGroupEntry(
+				"cn=grptest00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
+
+		Map<String, String> domainSettings = new HashMap<>();
+		domainSettings.put(DomainSettingsKeys.mail_routing_relay.name(), "splitrelay");
+
+		domain.value.properties.put(LdapProperties.import_ldap_relay_mailbox_group.name(), "grptest00");
+		LdapParameters ldapParameters = LdapParameters.build(domain.value, domainSettings);
+		assertTrue(ldapParameters.splitDomain.splitRelayEnabled);
+
+		GroupManager groupManager = GroupManagerImpl.build(ldapParameters, domain, testGroupEntry, Optional.empty())
+				.get();
+		assertNotNull(groupManager);
+
+		assertTrue(groupManager.isSplitDomainGroup(getImportLogger()));
+	}
+
+	@Test
+	public void isSplitDomainGroup_nested() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
+		Entry grpTest00 = getTestGroupEntry(
+				"cn=grptest00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
+		Entry grpTest01 = getTestGroupEntry(
+				"cn=grptest01," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
+
+		Set<UuidMapper> splitGroupUuids = new HashSet<>();
+		splitGroupUuids.add(
+				LdapUuidMapper.fromEntry(LdapProperties.import_ldap_ext_id_attribute.getDefaultValue(), grpTest01));
+
+		Map<String, String> domainSettings = new HashMap<>();
+		domainSettings.put(DomainSettingsKeys.mail_routing_relay.name(), "splitrelay");
+
+		domain.value.properties.put(LdapProperties.import_ldap_relay_mailbox_group.name(), "splitgroup");
+		LdapParameters ldapParameters = LdapParameters.build(domain.value, domainSettings);
+		assertTrue(ldapParameters.splitDomain.splitRelayEnabled);
+
+		GroupManager groupManager = GroupManagerImpl
+				.build(ldapParameters, domain, grpTest00, Optional.of(splitGroupUuids)).get();
+		assertNotNull(groupManager);
+		assertFalse(groupManager.isSplitDomainGroup(getImportLogger()));
+
+		groupManager = GroupManagerImpl.build(ldapParameters, domain, grpTest01, Optional.of(splitGroupUuids)).get();
+		assertNotNull(groupManager);
+		assertTrue(groupManager.isSplitDomainGroup(getImportLogger()));
 	}
 }
