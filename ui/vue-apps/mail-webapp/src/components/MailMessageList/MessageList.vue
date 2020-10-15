@@ -6,7 +6,9 @@
         @keyup.shift.delete.exact.prevent="purge($event)"
         @keyup.delete.exact.prevent="remove($event)"
         @keyup.up.exact="goToByDiff(-1)"
+        @keydown.up.prevent
         @keyup.down.exact="goToByDiff(+1)"
+        @keydown.down.prevent
         @keyup.page-down.exact="goToByDiff(+PAGE)"
         @keyup.page-up.exact="goToByDiff(-PAGE)"
         @keyup.home.exact="goToByIndex(0)"
