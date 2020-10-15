@@ -116,7 +116,7 @@ export async function fetch(messageImapUid, service, part, isAttachment) {
     if (!isAttachment && (MimeType.isText(part) || MimeType.isHtml(part) || MimeType.isCalendar(part))) {
         return new Promise(resolve => {
             const reader = new FileReader();
-            reader.readAsText(stream, part.encoding);
+            reader.readAsText(stream, part.charset);
             reader.addEventListener("loadend", e => {
                 resolve(e.target.result);
             });
