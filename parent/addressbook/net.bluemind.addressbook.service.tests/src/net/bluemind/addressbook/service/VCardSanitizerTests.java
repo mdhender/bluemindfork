@@ -24,7 +24,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,6 +37,7 @@ import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Kind;
 import net.bluemind.addressbook.api.VCard.Organizational.Member;
+import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.addressbook.persistence.VCardStore;
 import net.bluemind.addressbook.service.internal.AddressBookService;
 import net.bluemind.addressbook.service.internal.VCardSanitizer;
@@ -162,6 +165,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 	@Test
 	public void testTrimName() {
 		VCard card = defaultVCard();
+		card.identification.formatedName = null;
 		card.identification.name = VCard.Identification.Name.create("familyNames  ", "givenNames  ",
 				" additionnalNames  ", " prefix ", "suffix ", Arrays.<VCard.Parameter>asList());
 		try {
@@ -176,6 +180,83 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 		assertEquals("additionnalNames", card.identification.name.additionalNames);
 		assertEquals("prefix", card.identification.name.prefixes);
 		assertEquals("suffix", card.identification.name.suffixes);
+	}
+
+	@Test
+	public void formatedName_unset() {
+		VCard card = defaultVCard();
+		card.identification.formatedName = null;
+		card.identification.name = VCard.Identification.Name.create("familyNames", "givenNames", "additionnalNames",
+				"prefix", "suffix ", Arrays.<VCard.Parameter>asList());
+		try {
+			new VCardSanitizer(testContext).sanitize(card, Optional.empty());
+		} catch (ServerFault e) {
+			fail(e.getMessage());
+		}
+
+		assertEquals("givenNames additionnalNames familyNames", card.identification.formatedName.value);
+	}
+
+	@Test
+	public void formatedName_emptyNullOrSpaceOnlyValue() {
+		VCard card = defaultVCard();
+		card.identification.formatedName.value = null;
+		card.identification.name = VCard.Identification.Name.create("familyNames", "givenNames", "additionnalNames",
+				"prefix", "suffix ", Arrays.<VCard.Parameter>asList());
+		try {
+			new VCardSanitizer(testContext).sanitize(card, Optional.empty());
+		} catch (ServerFault e) {
+			fail(e.getMessage());
+		}
+
+		assertEquals("givenNames additionnalNames familyNames", card.identification.formatedName.value);
+
+		card = defaultVCard();
+		card.identification.formatedName.value = "";
+		card.identification.name = VCard.Identification.Name.create("familyNames", "givenNames", "additionnalNames",
+				"prefix", "suffix ", Arrays.<VCard.Parameter>asList());
+		try {
+			new VCardSanitizer(testContext).sanitize(card, Optional.empty());
+		} catch (ServerFault e) {
+			fail(e.getMessage());
+		}
+
+		assertEquals("givenNames additionnalNames familyNames", card.identification.formatedName.value);
+
+		card = defaultVCard();
+		card.identification.formatedName.value = "  ";
+		card.identification.name = VCard.Identification.Name.create("familyNames", "givenNames", "additionnalNames",
+				"prefix", "suffix ", Arrays.<VCard.Parameter>asList());
+		try {
+			new VCardSanitizer(testContext).sanitize(card, Optional.empty());
+		} catch (ServerFault e) {
+			fail(e.getMessage());
+		}
+
+		assertEquals("givenNames additionnalNames familyNames", card.identification.formatedName.value);
+	}
+
+	@Test
+	public void formatedName_set() {
+		VCard card = defaultVCard();
+		List<Parameter> origParameters = new ArrayList<>(card.identification.formatedName.parameters);
+		card.identification.formatedName.value = "Formated Name";
+		card.identification.name = VCard.Identification.Name.create("familyNames", "givenNames", "additionnalNames",
+				"prefix", "suffix", Arrays.<VCard.Parameter>asList());
+		try {
+			new VCardSanitizer(testContext).sanitize(card, Optional.empty());
+		} catch (ServerFault e) {
+			fail(e.getMessage());
+		}
+
+		assertEquals("Formated Name", card.identification.formatedName.value);
+
+		assertEquals(origParameters.size(), card.identification.formatedName.parameters.size());
+		card.identification.formatedName.parameters.stream().forEach(parameter -> {
+			assertTrue(origParameters.stream()
+					.anyMatch(previousParameter -> previousParameter.label.equals(parameter.label)
+							&& previousParameter.value.equals(parameter.value)));
+		});
 	}
 
 	@Test
