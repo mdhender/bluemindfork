@@ -6,6 +6,7 @@ objectClass: inetLocalMailRecipient
 objectClass: inetOrgPerson
 uid: user00
 sn: Nom00
+displayName: Prenom00 Nom00 displayname
 cn: Prenom00 Nom00
 givenName: Prenom00
 description: Description Prenom00 Nom00
