@@ -53,6 +53,7 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.config.InstallationId;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.context.SecurityContext;
@@ -69,6 +70,7 @@ import net.bluemind.imap.ListResult;
 import net.bluemind.imap.NameSpaceInfo;
 import net.bluemind.imap.QuotaInfo;
 import net.bluemind.imap.StoreClient;
+import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Type;
@@ -88,6 +90,8 @@ import net.bluemind.server.api.Server;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
@@ -595,6 +599,19 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		int checked = 0;
 		int fixed = 0;
 		List<String> toFix = new LinkedList<>();
+
+		if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
+			// we are probably running from an upgrade, so we want to limit the scope of
+			// operations to speed it up
+			IContainerManagement cmApi = context.provider().instance(IContainerManagement.class,
+					IMailboxAclUids.uidForMailbox(mailbox.uid));
+			List<AccessControlEntry> acls = cmApi.getAccessControlList();
+			long extraPermissions = acls.stream().filter(ace -> !mailbox.uid.equals(ace.subject)).count();
+			if (extraPermissions == 0) {
+				logger.info("Mailbox {} is not shared, skip expensive repair while upgrading.", mailbox);
+				return new CheckAndRepairStatus(0, 0, 0);
+			}
+		}
 
 		try (StoreClient sc = new StoreClient(server.value.address(), 1143, "admin0", Token.admin0())) {
 			if (!sc.login()) {

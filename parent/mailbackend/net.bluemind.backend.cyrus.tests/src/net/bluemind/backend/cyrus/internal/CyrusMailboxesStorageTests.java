@@ -42,6 +42,7 @@ import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class CyrusMailboxesStorageTests {
@@ -80,6 +81,7 @@ public class CyrusMailboxesStorageTests {
 
 	@Test
 	public void checkAndRepairSharedSeen() throws IOException, IMAPException {
+
 		String userLogin = "testsharedseen." + System.currentTimeMillis();
 		String userUid = PopulateHelper.addUser(userLogin, domainUid);
 
@@ -102,6 +104,22 @@ public class CyrusMailboxesStorageTests {
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
+		System.err.println("toFix: " + toFix);
+		assertEquals(0, toFix);
+
+		StateContext.setState("core.started");
+		StateContext.setState("core.upgrade.start");
+		StateContext.setState("core.upgrade.end");
+
+		try {
+			CheckAndRepairStatus status = cms.checkAndRepairSharedSeen(new BmTestContext(SecurityContext.SYSTEM),
+					domainUid, userMailbox, false);
+			toFix = status.broken;
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+		System.err.println("toFix: " + toFix);
+		assertEquals(6, toFix);
 
 		try {
 			CheckAndRepairStatus status = cms.checkAndRepairSharedSeen(new BmTestContext(SecurityContext.SYSTEM),
