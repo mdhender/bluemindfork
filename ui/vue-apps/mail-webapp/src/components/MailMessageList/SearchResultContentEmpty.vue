@@ -1,10 +1,19 @@
 <template>
     <div class="text-center pr-0 d-flex flex-column">
         <div class="py-4 font-size-lg">
-            {{ $t("mail.list.search.no_result") }} <br />
-            <div class="search-pattern">"{{ pattern }}"</div>
-            {{ $t("mail.list.search.no_result.found") }} <br /><br />
-            {{ $t("mail.list.search.no_result.try_otherwise") }}
+            <p>
+                {{ $t("mail.list.search.no_result") }}<br />
+                <span class="search-pattern">"{{ pattern }}"</span><br />
+                {{ $t("mail.list.search.no_result.found") }}
+            </p>
+            <p>
+                {{ $t("mail.list.search.no_result.try_otherwise") }}
+            </p>
+            <p v-if="MESSAGE_LIST_FILTERED">
+                <router-link :to="$router.relative({ name: 'v:mail:home', params: { filter: null } }, $route)">
+                    {{ $t("mail.list.filter.remove") }}
+                </router-link>
+            </p>
         </div>
         <div
             class="no-search-results-illustration"
@@ -15,6 +24,7 @@
 
 <script>
 import noSearchResultsIllustration from "../../../assets/no-search-result.png";
+import { mapGetters } from "vuex";
 
 export default {
     name: "SearchResultContentEmpty",
@@ -28,6 +38,9 @@ export default {
         return {
             noSearchResultsIllustration
         };
+    },
+    computed: {
+        ...mapGetters("mail", ["MESSAGE_LIST_FILTERED"])
     }
 };
 </script>
