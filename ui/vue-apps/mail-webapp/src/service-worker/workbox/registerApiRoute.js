@@ -1,111 +1,115 @@
 import { registerRoute } from "workbox-routing";
 import { MailDB } from "../MailDB";
 import { MailAPI } from "../MailAPI";
-import { updateIdStack } from "../periodicSync";
+import { sync } from "../periodicSync";
+import { logger } from "../logger";
 
 const db = new MailDB();
 
 const apiRoutes = [
     {
         capture: /\/api\/mail_items\/([a-f0-9-]+)\/_multipleById/,
-        handler: multipleByIdHandler
+        handler: multipleById
     },
     {
         capture: /\/api\/mail_items\/([a-f0-9-]+)\/_filteredChangesetById\?since=0/,
-        handler: filteredChangesetByIdHandler
+        handler: filteredChangesetById
     },
     {
         capture: /\/api\/mail_items\/([a-f0-9-]+)\/_unread/,
-        handler: unreadItemsHandler
+        handler: unreadItems
     }
 ];
-
-function prehandler(handler) {
-    return async options => {
-        const {
-            request: { headers },
-            params: [folderUid]
-        } = options;
-        const sid = headers.get("x-bm-apikey");
-        if (await db.isLocalFolder(folderUid)) {
-            await updateIdStack(new MailAPI(sid), folderUid);
-        }
-        return handler(options);
-    };
-}
 
 export default function () {
     for (const { capture, handler } of apiRoutes) {
         for (const method of ["GET", "POST", "PUT", "DELETE"]) {
-            registerRoute(capture, prehandler(handler), method);
+            registerRoute(capture, handler, method);
         }
     }
 }
 
-async function multipleByIdHandler({ request, params: [folderUid] }) {
-    if (await db.isLocalFolder(folderUid)) {
-        const ids = await request.clone().json();
-        if (Array.isArray(ids) && ids.length > 0) {
-            const { localMailItems, localIds, remoteIds } = await db.getMixedMailItems(folderUid, ids);
-            const response = await fetch(new Request(request.clone(), { body: JSON.stringify(remoteIds) }));
-            const mailItems = await response.json();
-            await db.putMailItems(mailItems, folderUid);
-            const data = localMailItems.concat(mailItems);
-            const headers = new Headers(response.headers);
-            headers.append("X-BM-Fromcache", true);
-            headers.append("X-BM-LocalIds", JSON.stringify(localIds));
-            headers.append("X-BM-RemoteIds", JSON.stringify(remoteIds));
-            return new Response(JSON.stringify(data), { headers });
-        }
-    }
-    return await fetch(request);
-}
-
-async function filteredChangesetByIdHandler({ request, params: [folderUid] }) {
-    const expectedFlags = await request.clone().json();
-    const isUptodate = await db.isUptodate(folderUid);
+async function multipleById({ request, params: [folderUid] }) {
     try {
-        if (isUptodate) {
-            return fromIndexedDB(expectedFlags, folderUid);
-        } else {
-            return fetch(request);
+        const ids = await request.clone().json();
+        if (await db.isSubscribed(folderUid)) {
+            return await fetchIndexedDB.multipleById(folderUid, ids);
         }
+        return fetch(request);
     } catch (error) {
-        return fromIndexedDB(expectedFlags, folderUid);
+        logger.error("Error with local data", { error, folderUid });
+        return fetch(request);
     }
 }
 
-async function fromIndexedDB(expectedFlags, folderUid) {
-    const allMailItems = await db.getAllMailItems(folderUid);
-    const data = {
-        created: allMailItems
-            .filter(item => filterByFlags(expectedFlags, item))
-            .sort(sortMessageByDate)
-            .map(({ internalId: id, version }) => ({ id, version })),
-        delete: [],
-        updated: [],
-        version: 0
-    };
-    const headers = new Headers();
-    headers.append("X-BM-Fromcache", true);
-    return new Response(JSON.stringify(data), { status: 200, headers });
+async function filteredChangesetById({ request, params: [folderUid] }) {
+    try {
+        const expectedFlags = await request.clone().json();
+        const { headers } = await request.clone();
+        const sid = headers.get("x-bm-apikey");
+        if (await db.isSubscribed(folderUid)) {
+            await sync(new MailAPI({ sid }), folderUid);
+            return fetchIndexedDB.filteredChangesetById(expectedFlags, folderUid);
+        }
+        return fetch(request);
+    } catch (error) {
+        logger.error("Error with local data", { error, folderUid });
+        return fetch(request);
+    }
 }
 
-async function unreadItemsHandler({ request, params: [folderUid] }) {
-    if (await db.isUptodate(folderUid)) {
+async function unreadItems({ request, params: [folderUid] }) {
+    try {
+        const { headers } = await request.clone();
+        const sid = headers.get("x-bm-apikey");
         const expectedFlags = { must: [], mustNot: ["Deleted", "Seen"] };
+        if (await db.isSubscribed(folderUid)) {
+            await sync(new MailAPI({ sid }), folderUid);
+            return await fetchIndexedDB.unreadItems(folderUid, expectedFlags);
+        }
+        return fetch(request);
+    } catch (error) {
+        logger.error("Error with local data", { error, folderUid });
+        return fetch(request);
+    }
+}
+
+const fetchIndexedDB = {
+    async filteredChangesetById(expectedFlags, folderUid) {
+        const allMailItems = await db.getAllMailItems(folderUid);
+        const data = {
+            created: allMailItems
+                .filter(item => filterByFlags(expectedFlags, item))
+                .sort(sortMessageByDate)
+                .map(({ internalId: id, version }) => ({ id, version })),
+            delete: [],
+            updated: [],
+            version: 0
+        };
+        const headers = new Headers();
+        headers.append("X-BM-Fromcache", true);
+        return new Response(JSON.stringify(data), { status: 200, headers });
+    },
+
+    async multipleById(folderUid, ids) {
+        const mailItems = await db.getAllMailItems(folderUid, ids);
+        const headers = new Headers();
+        headers.append("X-BM-Fromcache", true);
+        return new Response(JSON.stringify(mailItems), { headers });
+    },
+
+    async unreadItems(folderUid, expectedFlags) {
         const allMailItems = await db.getAllMailItems(folderUid);
         const data = allMailItems
             .filter(item => filterByFlags(expectedFlags, item))
             .sort(sortMessageByDate)
             .map(item => item.internalId);
-
         const headers = new Headers();
         headers.append("X-BM-Fromcache", true);
         return new Response(JSON.stringify(data), { headers });
     }
-    return await fetch(request);
-}
+};
+
 function filterByFlags(expectedFlags, item) {
     return (
         expectedFlags.must.every(flag => item.flags.includes(flag)) &&

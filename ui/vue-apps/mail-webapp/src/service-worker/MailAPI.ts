@@ -1,65 +1,64 @@
 import { MailFolder, ChangeSet, MailItem } from "./entry";
 
-enum Route {
-    mail_folders,
-    mail_items
-}
-type RouteName = keyof typeof Route;
+//@FIXME: it might be possible to force certain methods depending on the route.
+type Route = "mail_folders" | "mail_items";
+type Method = "_all" | "_filteredChangesetById" | "_multipleById";
 
-enum Method {
-    _all,
-    _filteredChangesetById,
-    _multipleById
-}
-type MethodName = keyof typeof Method;
-
-export interface BMResponse<T> extends Response {
-    json(): Promise<T>;
+interface MailAPIOptions {
+    sid: string;
 }
 
 export class MailAPI {
     requestInit: RequestInit;
-    constructor(sid: string) {
+
+    constructor(options: MailAPIOptions) {
         this.requestInit = {
             headers: {
-                "x-bm-apikey": sid
+                "x-bm-apikey": options.sid
             },
             mode: "cors",
             credentials: "include"
         };
     }
 
-    async fetchMailFolders(domain: string, userId: string, init: RequestInit = {}): Promise<BMResponse<MailFolder[]>> {
-        const route: RouteName = "mail_folders";
-        const method: MethodName = "_all";
-        return fetch(`/api/${route}/${domain.replace(".", "_")}/${`user.${userId}`}/${method}`, {
-            ...this.requestInit,
-            ...init
-        });
+    async fetchMailFolders(domain: string, userId: string) {
+        const route: Route = "mail_folders";
+        const method: Method = "_all";
+        return fetchAPI<MailFolder[]>(
+            `/api/${route}/${domain.replace(".", "_")}/${`user.${userId}`}/${method}`,
+            this.requestInit
+        );
     }
 
-    fetchMailItems(uid: string, ids: number[]): Promise<BMResponse<MailItem[]>> {
-        const route: RouteName = "mail_items";
-        const method: MethodName = "_multipleById";
-        return fetch(`/api/${route}/${uid}/${method}`, {
+    fetchMailItems(uid: string, ids: number[]) {
+        const route: Route = "mail_items";
+        const method: Method = "_multipleById";
+        return fetchAPI<MailItem[]>(`/api/${route}/${uid}/${method}`, {
             ...this.requestInit,
             body: JSON.stringify(ids),
             method: "POST"
         });
     }
 
-    async fetchChangeset(uid: string, version: number): Promise<BMResponse<ChangeSet>> {
-        const method: MethodName = "_filteredChangesetById";
-        const route: RouteName = "mail_items";
-        return fetch(`/api/${route}/${uid}/${method}?since=${version}`, {
+    async fetchChangeset(uid: string, version: number) {
+        const method: Method = "_filteredChangesetById";
+        const route: Route = "mail_items";
+        return fetchAPI<ChangeSet>(`/api/${route}/${uid}/${method}?since=${version}`, {
             ...this.requestInit,
-            method: "POST",
-            body: JSON.stringify({ must: [], mustNot: ["Deleted"] })
+            body: JSON.stringify({ must: [], mustNot: ["Deleted"] }),
+            method: "POST"
         });
     }
 }
 
-export async function getSessionInfos(): Promise<{ sid: string; userId: string; domain: string }> {
-    const response = await fetch("/session-infos");
-    return response.json();
+async function fetchAPI<T>(url: string, requestInit?: RequestInit): Promise<T> {
+    const response = await fetch(url, requestInit);
+    if (response.ok) {
+        return response.json();
+    }
+    return Promise.reject(response.statusText);
+}
+
+export async function getSessionInfos() {
+    return fetchAPI<{ sid: string; userId: string; domain: string }>("/session-infos");
 }

@@ -51,3 +51,9 @@ export interface ChangeSet {
     updated: { id: number; version: number }[];
     version: number;
 }
+
+export interface Reconciliation<T> {
+    uid: string;
+    items: T[];
+    deletedIds: number[];
+}
