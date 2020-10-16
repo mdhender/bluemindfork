@@ -130,7 +130,8 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         }
     });
 
-    test("With inline images", async () => {
+    // FIXME: unskip me once https://forge.bluemind.net/jira/browse/FEATWEBML-1251 is done
+    test.skip("With inline images", async () => {
         UUIDGenerator.generate = jest
             .fn()
             .mockReturnValueOnce(mockedCidUid)

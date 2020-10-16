@@ -19,7 +19,7 @@ export default {
     },
     computed: {
         sanitized() {
-            return sanitizeHtml(this.value);
+            return sanitizeHtml(this.value, true);
         }
     }
 };

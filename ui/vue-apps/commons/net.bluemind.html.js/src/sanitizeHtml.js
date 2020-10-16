@@ -34,7 +34,11 @@ const ADDITIONAL_ALLOWED_ATTRIBUTES_FOR_ANY_TAG = [
 
 const ALLOWED_LINK_PROTOCOLS = ["http", "https"];
 
-export default function (html) {
+export default function (html, useInIframe = false) {
+    if (!useInIframe) {
+        html = preventStyleInvading(html);
+    }
+
     const customWhiteList = {
         ...xss.whiteList,
         ...ADDITIONAL_ALLOWED_TAGS
@@ -81,4 +85,56 @@ function customSafeAttrValue(tag, name, value) {
 
 function hasAllowedProtocol(url) {
     return ALLOWED_LINK_PROTOCOLS.map(p => new RegExp("^" + p + "://", "i").test(url)).reduce((a, b) => a || b);
+}
+
+/**
+ * WARNING: this is an internal const, it's exported just for testing purpose
+ */
+export const WRAPPER_ID = "bm-composer-content-wrapper";
+
+/**
+ * WARNING: this is an internal method, it's exported just for testing purpose
+ */
+export function preventStyleInvading(html) {
+    const tmpDoc = new DOMParser().parseFromString(html, "text/html");
+
+    const styleRules = getStyleRules(tmpDoc);
+
+    const rootDiv = tmpDoc.createElement("div");
+    rootDiv.id = WRAPPER_ID;
+    rootDiv.innerHTML = tmpDoc.body.innerHTML;
+
+    const rootDivStyleTags = rootDiv.getElementsByTagName("style");
+    while (rootDivStyleTags.length > 0) {
+        rootDivStyleTags.item(0).remove();
+    }
+
+    const styleNode = document.createElement("style");
+    styleNode.innerHTML = styleRules;
+    rootDiv.appendChild(styleNode);
+
+    return rootDiv.outerHTML;
+}
+
+function getStyleRules(doc) {
+    let styleRules = "";
+    const styleTags = doc.styleSheets;
+    for (let tag of styleTags) {
+        for (let rule of tag.cssRules) {
+            rule.selectorText = computeNewSelector(rule.selectorText);
+            styleRules += "\n" + rule.cssText;
+        }
+    }
+    return styleRules;
+}
+
+/**
+ * WARNING: this is an internal method, it's exported just for testing purpose
+ */
+export function computeNewSelector(selectorText) {
+    let selectors = selectorText.split(",");
+    return selectors
+        .map(selector => selector.trim().replace(/^([\s>+~]*(html|body)(\.[^\s>]*)?[\s]*)*/g, ""))
+        .map(selector => "#" + WRAPPER_ID + " " + selector)
+        .join(",");
 }

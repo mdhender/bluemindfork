@@ -32,6 +32,7 @@ describe("Store session", () => {
 
         await sessionStore.actions.FETCH_ALL_SETTINGS(context);
         expect(context.commit).toHaveBeenCalledWith("SET_USER_SETTINGS", {
+            insert_signature: "true",
             mySetting: "MY_SETTING",
             mail_message_list_style: "compact",
             mail_thread: "false"

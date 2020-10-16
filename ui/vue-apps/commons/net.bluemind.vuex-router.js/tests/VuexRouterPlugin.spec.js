@@ -49,7 +49,7 @@ const ENTERING = createRoute("/in"),
 
 const from = {
     params: {
-        neo: "New",
+        old: "Old",
         updated: "Old",
         unchanged: "Constant"
     },
@@ -57,7 +57,7 @@ const from = {
 };
 const to = {
     params: {
-        old: "Old",
+        neo: "New",
         updated: "New",
         unchanged: "Constant"
     },
@@ -110,7 +110,7 @@ describe("VuexRouterPlugin", () => {
     });
     test("execute watch hook when a parameter changes on matched route", async () => {
         await VueRouterMock.navigate(from, to);
-        expect(ENTERING.meta.watch.updated).toHaveBeenCalled();
+        expect(ENTERING.meta.watch.updated).not.toHaveBeenCalled();
         expect(UPDATING.meta.watch.updated).toHaveBeenCalled();
         expect(LEAVING.meta.watch.updated).not.toHaveBeenCalled();
         expect(NEVER.meta.watch.updated).not.toHaveBeenCalled();
@@ -120,17 +120,17 @@ describe("VuexRouterPlugin", () => {
         expect(LEAVING.meta.watch.unchanged).not.toHaveBeenCalled();
         expect(NEVER.meta.watch.unchanged).not.toHaveBeenCalled();
 
-        expect(ENTERING.meta.watch.absent).toHaveBeenCalled();
-        expect(UPDATING.meta.watch.absent).toHaveBeenCalled();
+        expect(ENTERING.meta.watch.absent).not.toHaveBeenCalled();
+        expect(UPDATING.meta.watch.absent).not.toHaveBeenCalled();
         expect(LEAVING.meta.watch.absent).not.toHaveBeenCalled();
         expect(NEVER.meta.watch.absent).not.toHaveBeenCalled();
 
-        expect(ENTERING.meta.watch.old).toHaveBeenCalled();
+        expect(ENTERING.meta.watch.old).not.toHaveBeenCalled();
         expect(UPDATING.meta.watch.old).toHaveBeenCalled();
         expect(LEAVING.meta.watch.old).not.toHaveBeenCalled();
         expect(NEVER.meta.watch.old).not.toHaveBeenCalled();
 
-        expect(ENTERING.meta.watch.neo).toHaveBeenCalled();
+        expect(ENTERING.meta.watch.neo).not.toHaveBeenCalled();
         expect(UPDATING.meta.watch.neo).toHaveBeenCalled();
         expect(LEAVING.meta.watch.neo).not.toHaveBeenCalled();
         expect(NEVER.meta.watch.neo).not.toHaveBeenCalled();
