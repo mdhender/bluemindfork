@@ -16,7 +16,7 @@ export function create(address, charset, fileName, encoding, mime, size, isUploa
         mime,
         size,
         dispositionType: "ATTACHMENT",
-        headers: getAttachmentHeaders(name, size),
+        headers: getAttachmentHeaders(fileName, size),
         progress,
         status,
         contentUrl: null
