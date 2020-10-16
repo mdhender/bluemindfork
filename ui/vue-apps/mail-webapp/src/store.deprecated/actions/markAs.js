@@ -11,6 +11,11 @@ export function markAsRead(context, messageKeys) {
         SUCCESS: "MSG_MULTIPLE_MARK_AS_READ_SUCCESS",
         ERROR: "MSG_MULTIPLE_MARK_AS_READ_ERROR"
     };
+
+    if (context.rootGetters["mail/MESSAGE_LIST_UNREAD_FILTER_ENABLED"]) {
+        context.dispatch("filterSelectedMessageKeys", { excludes: messageKeys });
+    }
+
     const onSuccess = onSuccessForMarkAsReadOrUnread(messageKeys, context, updateAction);
     return markAs(context, updateAction, Flag.SEEN, unreadMessageFilter, alertCodes, messageKeys, onSuccess);
 }
@@ -46,6 +51,11 @@ export function markAsUnflagged(context, messageKeys) {
         SUCCESS: "MSG_MULTIPLE_MARK_AS_UNFLAGGED_SUCCESS",
         ERROR: "MSG_MULTIPLE_MARK_AS_UNFLAGGED_ERROR"
     };
+
+    if (context.rootGetters["mail/MESSAGE_LIST_FLAGGED_FILTER_ENABLED"]) {
+        context.dispatch("filterSelectedMessageKeys", { excludes: messageKeys });
+    }
+
     return markAs(context, updateAction, Flag.FLAGGED, flaggedMessageFilter, alertCodes, messageKeys);
 }
 

@@ -9,6 +9,7 @@ export async function $_Vuebus_mailboxRecordsChanged({ dispatch, rootState }) {
     const folder = rootState.mail.folders[activeFolderKey];
     const conversationsEnabled = rootState.session.userSettings.mail_thread === "true";
     await dispatch("mail/" + actionTypes.REFRESH_MESSAGE_LIST_KEYS, { folder, conversationsEnabled }, { root: true });
+    dispatch("filterSelectedMessageKeys", { includes: rootState.mail.messageList.messageKeys });
 
     const sorted = rootState.mail.messageList.messageKeys.slice(0, 200);
     await dispatch("mail/" + actionTypes.FETCH_MESSAGE_METADATA, { messageKeys: sorted }, { root: true });
