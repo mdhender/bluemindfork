@@ -36,7 +36,7 @@ $shadow-width: 240px;
 
 /** @see dragAndDrop/plugins/tooltip.js */
 .bm-drag-tooltip {
-    max-width: $shadow-width;
+    max-width: $shadow-width * 2;
     @include text-overflow;
 }
 </style>

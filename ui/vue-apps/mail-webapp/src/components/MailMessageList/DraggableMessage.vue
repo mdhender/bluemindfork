@@ -72,7 +72,9 @@ export default {
                     });
                     this.tooltip.cursor = "forbidden";
                 } else {
-                    this.tooltip.text = this.$t("mail.actions.move.item", { path: folder.path });
+                    this.tooltip.text = this.$tc("mail.actions.move.item", this.selectedMessageKeys.length, {
+                        path: folder.path
+                    });
                     this.tooltip.cursor = "cursor";
                 }
             }
