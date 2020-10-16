@@ -127,17 +127,40 @@ function registerAPIClients() {
     });
 }
 
+async function showNotification(message) {
+    const result = await Notification.requestPermission();
+    if (result === "granted") {
+        navigator.serviceWorker.ready.then(function (registration) {
+            registration.showNotification("Periodic Sync", {
+                body: message
+            });
+        });
+    }
+}
+
 (async () => {
     if ("serviceWorker" in navigator) {
         const wb = new Workbox("service-worker.js");
         try {
             const registration = await wb.register();
-            console.log("Service Worker registered. ", registration);
+
+            showNotification("Service Worker registered. ", registration);
             wb.messageSW({
                 type: "INIT_PERIODIC_SYNC"
             });
         } catch (error) {
             console.error("Service Worker registered failed. ", error);
         }
+        wb.addEventListener("message", event => {
+            if (event.data.type === "ERROR") {
+                showNotification(event.data.payload.message);
+            }
+        });
+
+        wb.addEventListener("installed", event => {
+            if (event.isUpdate) {
+                showNotification("A new version of the site is available, please refresh the page.");
+            }
+        });
     }
 })();

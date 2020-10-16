@@ -15,7 +15,8 @@ const conf = {
     plugins: [
         new InjectManifest({
             swSrc: "./src/service-worker/service-worker.js",
-            maximumFileSizeToCacheInBytes: 200000000
+            maximumFileSizeToCacheInBytes: 200000000,
+            exclude: [/net.bluemind.webapp.mail/]
         })
     ],
     module: {
