@@ -83,6 +83,7 @@ public abstract class AbstractPgWorker extends DefaultWorker {
 
 		logger.info("Should do the dump of {} ...", dbName);
 		String s = dataString("scripts/dump.sh");
+		s = s.replace("${format}", "custom");
 		s = s.replace("${file}", dir + "/dump.sql");
 		s = s.replace("${user}", dbUser);
 		s = s.replace("${pass}", dbPassword);
