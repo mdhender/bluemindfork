@@ -327,6 +327,10 @@ export function prepareDraft(draft, messageCompose, userPrefTextOnly) {
             .parts.filter(part => part.dispositionType === "INLINE" && part.mime.startsWith(MimeType.IMAGE));
         const insertCidsResults = InlineImageHelper.insertCid(editorContent, previousInlineImages);
         inlineImages = insertCidsResults.inlineImages;
+        // if image is not referenced in one html part and is not a new one, ignore it
+        inlineImages = inlineImages.filter(
+            part => !part.address || insertCidsResults.alreadyUploaded.includes(part.address)
+        );
         const inlineImagesToUpload = inlineImages.filter(part => !part.address);
 
         const html = insertCidsResults.html;

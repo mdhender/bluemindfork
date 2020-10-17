@@ -43,7 +43,8 @@ export default {
     },
 
     insertCid(html, inlineImages) {
-        const streamByCid = {};
+        const streamByCid = {},
+            alreadyUploaded = [];
 
         const imageTags = new DOMParser().parseFromString(html, "text/html").querySelectorAll("img[src]");
         imageTags.forEach(img => {
@@ -67,11 +68,13 @@ export default {
             } else if (dataSrc.startsWith("blob:")) {
                 // already fetched inlines
                 const imapAddress = img.attributes.getNamedItem("data-bm-imap-address").nodeValue;
+                alreadyUploaded.push(imapAddress);
+
                 const cid = inlineImages.find(part => part.address === imapAddress).contentId;
                 html = html.replace(dataSrc, "cid:" + cid.substring(1, cid.length - 1));
             }
         });
-        return { html, inlineImages, streamByCid };
+        return { html, inlineImages, streamByCid, alreadyUploaded };
     }
 };
 

@@ -175,7 +175,7 @@ export default {
                         myDraftsFolderKey: this.MY_DRAFTS.key,
                         messageCompose: this.messageCompose
                     }),
-                1500 // FIXME: was useful for testing purpose but for prod ? 10s ?
+                3000 // FIXME: was useful for testing purpose but for prod ? 10s ?
             ),
             userPrefIsMenuBarOpened: false, // TODO: initialize this with user setting
             userPrefTextOnly: false, // TODO: initialize this with user setting
