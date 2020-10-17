@@ -2,15 +2,18 @@ import UUIDGenerator from "@bluemind/uuid";
 
 export default {
     /**
-     * Replace the CID references found in partsWithReferences by the corresponding images found in imageParts.
+     * Replace the CID references found in partsContainingCids by the corresponding images.
      *
-     * @param partsWithReferences parts with CID references inside an image markup
+     * @param partsContainingCids parts with CID references inside an image markup
      * @param imageParts parts with base64 images and a CID identifier
      */
-    insertInlineImages(partsWithReferences = [], imageParts = [], partContentByAddress) {
+    insertInlineImages(partsContainingCids = [], imageParts = [], partContentByAddress) {
         const inlineReferenceRegex = /<img[^>]+?src\s*=\s*['"]cid:([^'"]*)['"][^>]*?>{1}?/gim;
-        const inlined = [];
-        partsWithReferences.forEach(part => {
+
+        const inlined = [],
+            blobsUrl = [];
+
+        partsContainingCids.forEach(part => {
             let inlineReferences;
             while ((inlineReferences = inlineReferenceRegex.exec(partContentByAddress[part.address])) !== null) {
                 const cid = inlineReferences[1];
@@ -19,24 +22,24 @@ export default {
                     "gmi"
                 );
                 const imagePart = imageParts.find(
-                    part =>
-                        part.contentId && part.contentId.toUpperCase() === "<" + inlineReferences[1].toUpperCase() + ">"
+                    imgPart =>
+                        imgPart.contentId &&
+                        imgPart.contentId.toUpperCase() === "<" + inlineReferences[1].toUpperCase() + ">"
                 );
                 if (imagePart) {
                     // FIXME: mutate state here..
+                    const blobUrl = URL.createObjectURL(partContentByAddress[imagePart.address]);
+                    blobsUrl.push(blobUrl);
+
                     partContentByAddress[part.address] = partContentByAddress[part.address].replace(
                         replaceRegex,
-                        "$1" +
-                            URL.createObjectURL(partContentByAddress[imagePart.address]) +
-                            '" data-bm-imap-address="' +
-                            imagePart.address +
-                            "$2"
+                        "$1" + blobUrl + '" data-bm-imap-address="' + imagePart.address + "$2"
                     );
                     inlined.push(imagePart.contentId);
                 }
             }
         });
-        return inlined;
+        return { inlined, blobsUrl };
     },
 
     insertCid(html, inlineImages) {

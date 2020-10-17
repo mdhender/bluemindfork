@@ -68,7 +68,8 @@ export default {
 
                 const html = inlines.filter(part => part.mime === MimeType.TEXT_HTML);
                 const images = inlines.filter(part => MimeType.isImage(part) && part.contentId);
-                const inlined = InlineImageHelper.insertInlineImages(html, images, this.message.partContentByAddress);
+                const inlined = InlineImageHelper.insertInlineImages(html, images, this.message.partContentByAddress)
+                    .inlined;
                 const others = inlines.filter(
                     part => part.mime !== MimeType.TEXT_HTML && !inlined.includes(part.contentId)
                 );

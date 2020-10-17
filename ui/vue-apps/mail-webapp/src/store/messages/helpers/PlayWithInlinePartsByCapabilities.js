@@ -1,4 +1,4 @@
-import { html2text, sanitizeHtml } from "@bluemind/html-utils";
+import { html2text } from "@bluemind/html-utils";
 import { mailText2Html, MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 
@@ -66,7 +66,7 @@ export default {
 
             for (const part of byCapabilities.parts) {
                 if (MimeType.equals(part.mime, MimeType.TEXT_HTML)) {
-                    html += await fetch(imapUid, service, part, false); // FIXME: HTML needs to be sanitized here
+                    html += await fetch(imapUid, service, part, false);
                 } else if (MimeType.equals(part.mime, MimeType.TEXT_PLAIN)) {
                     html += mailText2Html(await fetch(imapUid, service, part, false));
                 } else if (MimeType.isImage(part)) {
@@ -74,7 +74,6 @@ export default {
                 }
             }
         }
-        html = sanitizeHtml(html);
         return { html, inlineImageParts };
     }
 };

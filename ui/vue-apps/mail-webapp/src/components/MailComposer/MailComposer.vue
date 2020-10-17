@@ -116,7 +116,9 @@
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import debounce from "lodash/debounce";
 
-import { MimeType } from "@bluemind/email";
+import { InlineImageHelper, MimeType } from "@bluemind/email";
+import { sanitizeHtml } from "@bluemind/html-utils";
+import { inject } from "@bluemind/inject";
 import {
     BmButton,
     BmCol,
@@ -136,7 +138,7 @@ import MailComposerFooter from "./MailComposerFooter";
 import MailComposerPanel from "./MailComposerPanel";
 import actionTypes from "../../store/actionTypes";
 import mutationTypes from "../../store/mutationTypes";
-import { isEmpty, MessageForwardAttributeSeparator, MessageReplyAttributeSeparator } from "../../model/message";
+import { fetch, isEmpty, MessageForwardAttributeSeparator, MessageReplyAttributeSeparator } from "../../model/message";
 import PlayWithInlinePartsByCapabilities from "../../store/messages/helpers/PlayWithInlinePartsByCapabilities";
 
 export default {
@@ -173,13 +175,14 @@ export default {
                         myDraftsFolderKey: this.MY_DRAFTS.key,
                         messageCompose: this.messageCompose
                     }),
-                1500
+                1500 // FIXME: was useful for testing purpose but for prod ? 10s ?
             ),
             userPrefIsMenuBarOpened: false, // TODO: initialize this with user setting
             userPrefTextOnly: false, // TODO: initialize this with user setting
             draggedFilesCount: -1,
             isReplyOrForward: false,
-            lockUpdateHtmlComposer: false
+            lockUpdateHtmlComposer: false,
+            blobsUrl: []
         };
     },
     computed: {
@@ -196,6 +199,7 @@ export default {
     watch: {
         messageKey: {
             handler: async function () {
+                this.cleanComposer();
                 await this.initEditorContent();
                 if (this.message.to.length > 0) {
                     this.setCursorInEditor();
@@ -220,6 +224,7 @@ export default {
             this.debouncedSave.cancel();
             this.purge(this.messageKey);
         }
+        this.cleanComposer();
     },
     methods: {
         ...mapActions("mail", { save: actionTypes.SAVE_MESSAGE }),
@@ -236,13 +241,8 @@ export default {
             this.saveDraft();
         },
         async initEditorContent() {
-            this.SET_DRAFT_EDITOR_CONTENT("");
-            this.SET_DRAFT_COLLAPSED_CONTENT(null);
-
             let newContent = await this.computeContent();
-
             this.SET_DRAFT_EDITOR_CONTENT(newContent);
-
             this.updateHtmlComposer();
         },
         async computeContent() {
@@ -259,9 +259,10 @@ export default {
                     newContent = htmlContent;
                 } else {
                     const result = await PlayWithInlinePartsByCapabilities.getHtmlFromStructure(this.message);
-                    newContent = result.html;
+                    newContent = await this.handleInlineImages(result.html, result.inlineImageParts);
                 }
 
+                newContent = sanitizeHtml(newContent);
                 newContent = this.handleSeparator(newContent);
             }
             return newContent;
@@ -279,6 +280,33 @@ export default {
                 return doc.body.innerHTML;
             }
             return content;
+        },
+        async handleInlineImages(html, inlineImageParts) {
+            const partsWithCid = inlineImageParts.filter(part => part.contentId);
+            const fakeHtmlPartAddress = "dontcare";
+            const partContentsByAddress = {
+                [fakeHtmlPartAddress]: html
+            };
+            const service = inject("MailboxItemsPersistence", this.message.folderRef.uid);
+            await Promise.all(
+                partsWithCid.map(async part => {
+                    const content = await fetch(this.message.remoteRef.imapUid, service, part, false);
+                    partContentsByAddress[part.address] = content;
+                    return Promise.resolve();
+                })
+            );
+
+            this.blobsUrl = InlineImageHelper.insertInlineImages(
+                [{ address: fakeHtmlPartAddress }],
+                partsWithCid,
+                partContentsByAddress
+            ).blobsUrl;
+            return partContentsByAddress[fakeHtmlPartAddress];
+        },
+        cleanComposer() {
+            this.SET_DRAFT_EDITOR_CONTENT("");
+            this.SET_DRAFT_COLLAPSED_CONTENT(null);
+            this.blobsUrl.forEach(url => URL.revokeObjectURL(url));
         },
         async expandContent() {
             this.SET_DRAFT_EDITOR_CONTENT(this.messageCompose.editorContent + this.messageCompose.collapsedContent);

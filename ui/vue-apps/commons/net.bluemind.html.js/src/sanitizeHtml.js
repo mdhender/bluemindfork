@@ -28,7 +28,8 @@ const ADDITIONAL_ALLOWED_ATTRIBUTES_FOR_ANY_TAG = [
     "marginwidth",
     "marginheight",
     "data-bm-reply-separator",
-    "data-bm-forward-separator"
+    "data-bm-forward-separator",
+    "data-bm-imap-address"
 ];
 
 const ALLOWED_LINK_PROTOCOLS = ["http", "https"];
