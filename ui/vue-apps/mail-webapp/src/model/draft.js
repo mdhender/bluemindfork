@@ -168,7 +168,8 @@ function setMultipartAddresses(structure, multipartAddresses) {
 }
 
 export async function uploadInlineParts(creationMode, previousMessage, service, userPrefTextOnly, vueI18n) {
-    const partContentByMimeType = {};
+    const partContentByMimeType = { [MimeType.IMAGE]: [] },
+        inlineImageParts = [];
     const inlinePartAddresses = { [MimeType.TEXT_PLAIN]: [], [MimeType.TEXT_HTML]: [] };
     let text = "",
         html = "";
@@ -182,7 +183,17 @@ export async function uploadInlineParts(creationMode, previousMessage, service, 
     inlinePartAddresses[MimeType.TEXT_PLAIN].push(textAddress);
     if (!userPrefTextOnly) {
         if (creationMode !== MessageCreationModes.NEW) {
-            html = (await PlayWithInlinePartsByCapabilities.getHtmlFromStructure(previousMessage)).html;
+            const result = await PlayWithInlinePartsByCapabilities.getHtmlFromStructure(previousMessage);
+            html = result.html;
+            await Promise.all(
+                result.inlineImageParts.map(async (part, index) => {
+                    const partContent = result.inlineImagePartsContent[index];
+                    partContentByMimeType[MimeType.IMAGE].push(partContent);
+                    part.address = await service.uploadPart(partContent);
+                    inlineImageParts.push(part);
+                    return Promise.resolve();
+                })
+            );
             html = addSeparator(html, previousMessage, creationMode, MimeType.TEXT_HTML, vueI18n);
             html = sanitizeForCyrus(html);
         }
@@ -190,7 +201,7 @@ export async function uploadInlineParts(creationMode, previousMessage, service, 
         partContentByMimeType[MimeType.TEXT_HTML] = html;
         inlinePartAddresses[MimeType.TEXT_HTML].push(htmlAddress);
     }
-    return { partContentByMimeType, inlinePartAddresses };
+    return { partContentByMimeType, inlinePartAddresses, inlineImageParts };
 }
 
 export async function uploadAttachments(previousMessage, service) {

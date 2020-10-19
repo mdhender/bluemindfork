@@ -118,7 +118,6 @@ import debounce from "lodash/debounce";
 
 import { InlineImageHelper, MimeType } from "@bluemind/email";
 import { sanitizeHtml } from "@bluemind/html-utils";
-import { inject } from "@bluemind/inject";
 import {
     BmButton,
     BmCol,
@@ -138,7 +137,7 @@ import MailComposerFooter from "./MailComposerFooter";
 import MailComposerPanel from "./MailComposerPanel";
 import actionTypes from "../../store/actionTypes";
 import mutationTypes from "../../store/mutationTypes";
-import { fetch, isEmpty, MessageForwardAttributeSeparator, MessageReplyAttributeSeparator } from "../../model/message";
+import { isEmpty, MessageForwardAttributeSeparator, MessageReplyAttributeSeparator } from "../../model/message";
 import PlayWithInlinePartsByCapabilities from "../../store/messages/helpers/PlayWithInlinePartsByCapabilities";
 
 export default {
@@ -175,7 +174,7 @@ export default {
                         myDraftsFolderKey: this.MY_DRAFTS.key,
                         messageCompose: this.messageCompose
                     }),
-                3000 // FIXME: was useful for testing purpose but for prod ? 10s ?
+                3000
             ),
             userPrefIsMenuBarOpened: false, // TODO: initialize this with user setting
             userPrefTextOnly: false, // TODO: initialize this with user setting
@@ -256,10 +255,18 @@ export default {
             } else {
                 const htmlContent = this.message.partContentByMimeType[MimeType.TEXT_HTML];
                 if (htmlContent || htmlContent === "") {
-                    newContent = htmlContent;
+                    newContent = this.handleInlineImages(
+                        htmlContent,
+                        this.message.inlineImageParts,
+                        this.message.partContentByMimeType[MimeType.IMAGE]
+                    );
                 } else {
                     const result = await PlayWithInlinePartsByCapabilities.getHtmlFromStructure(this.message);
-                    newContent = await this.handleInlineImages(result.html, result.inlineImageParts);
+                    newContent = this.handleInlineImages(
+                        result.html,
+                        result.inlineImageParts,
+                        result.inlineImagePartsContent
+                    );
                 }
 
                 newContent = sanitizeHtml(newContent);
@@ -281,26 +288,21 @@ export default {
             }
             return content;
         },
-        async handleInlineImages(html, inlineImageParts) {
-            const partsWithCid = inlineImageParts.filter(part => part.contentId);
+        handleInlineImages(html, inlineImageParts, inlineImagePartsContent) {
             const fakeHtmlPartAddress = "dontcare";
-            const partContentsByAddress = {
-                [fakeHtmlPartAddress]: html
-            };
-            const service = inject("MailboxItemsPersistence", this.message.folderRef.uid);
-            await Promise.all(
-                partsWithCid.map(async part => {
-                    const content = await fetch(this.message.remoteRef.imapUid, service, part, false);
-                    partContentsByAddress[part.address] = content;
-                    return Promise.resolve();
-                })
-            );
+            const partContentsByAddress = { [fakeHtmlPartAddress]: html };
 
+            inlineImageParts.forEach((part, index) => {
+                partContentsByAddress[part.address] = inlineImagePartsContent[index];
+            });
+
+            const partsWithCid = inlineImageParts.filter(part => part.contentId);
             this.blobsUrl = InlineImageHelper.insertInlineImages(
                 [{ address: fakeHtmlPartAddress }],
                 partsWithCid,
                 partContentsByAddress
             ).blobsUrl;
+
             return partContentsByAddress[fakeHtmlPartAddress];
         },
         cleanComposer() {

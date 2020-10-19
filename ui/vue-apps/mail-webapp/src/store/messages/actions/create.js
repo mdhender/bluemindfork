@@ -13,7 +13,7 @@ export default async function ({ commit, state }, { myDraftsFolder, creationMode
     const service = inject("MailboxItemsPersistence", myDraftsFolder.remoteRef.uid);
     const previousMessage = state[previousMessageKey];
 
-    const { partContentByMimeType, inlinePartAddresses } = await uploadInlineParts(
+    const { partContentByMimeType, inlinePartAddresses, inlineImageParts } = await uploadInlineParts(
         creationMode,
         previousMessage,
         service,
@@ -28,7 +28,8 @@ export default async function ({ commit, state }, { myDraftsFolder, creationMode
     const structure = createDraftStructure(
         { attachments, multipartAddresses: [] },
         userPrefTextOnly,
-        inlinePartAddresses
+        inlinePartAddresses,
+        inlineImageParts
     );
 
     const metadata = { internalId: null, folder: { key: myDraftsFolder.key, uid: myDraftsFolder.remoteRef.uid } };
@@ -46,6 +47,7 @@ export default async function ({ commit, state }, { myDraftsFolder, creationMode
         createOnlyMetadata(metadata)
     );
     messageInState.partContentByMimeType = partContentByMimeType;
+    messageInState.inlineImageParts = inlineImageParts;
     messageInState.remoteRef.imapUid = imapUid;
     commit(mutationTypes.ADD_MESSAGES, [messageInState]);
 

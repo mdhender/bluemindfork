@@ -48,7 +48,8 @@ export default {
             folderUid = message.folderRef.uid;
         const service = inject("MailboxItemsPersistence", folderUid);
         let html = "",
-            inlineImageParts = [];
+            inlineImageParts = [],
+            inlineImagePartsContent = [];
         if (hasOnlyTextPlain(inlinePartsByCapabilities)) {
             const part = getTextPlainAlternative(inlinePartsByCapabilities);
             html = mailText2Html(await fetch(imapUid, service, part, false));
@@ -61,20 +62,22 @@ export default {
             if (!byCapabilities) {
                 // FIXME support more structure
                 console.error("Need to support more structure type..");
-                return { html, inlineImageParts };
+                return { html, inlineImageParts, inlineImagePartsContent };
             }
 
             for (const part of byCapabilities.parts) {
+                const partContent = await fetch(imapUid, service, part, false);
                 if (MimeType.equals(part.mime, MimeType.TEXT_HTML)) {
-                    html += await fetch(imapUid, service, part, false);
+                    html += partContent;
                 } else if (MimeType.equals(part.mime, MimeType.TEXT_PLAIN)) {
-                    html += mailText2Html(await fetch(imapUid, service, part, false));
+                    html += mailText2Html(partContent);
                 } else if (MimeType.isImage(part)) {
                     inlineImageParts.push(part);
+                    inlineImagePartsContent.push(partContent);
                 }
             }
         }
-        return { html, inlineImageParts };
+        return { html, inlineImageParts, inlineImagePartsContent };
     }
 };
 
