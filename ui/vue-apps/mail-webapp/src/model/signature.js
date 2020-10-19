@@ -51,6 +51,6 @@ export function addTextSignature(raw, content) {
 }
 
 export function removeSignatureIds(content) {
-    const regexp = new RegExp("id\\s*=\\s*['\"]\\s*" + HTML_SIGNATURE_ID + "\\s*['\"]");
-    return content.replaceAll(regexp, "");
+    const regexp = new RegExp("id\\s*=\\s*['\"]\\s*" + HTML_SIGNATURE_ID + "\\s*['\"]", "g");
+    return content.replace(regexp, "");
 }

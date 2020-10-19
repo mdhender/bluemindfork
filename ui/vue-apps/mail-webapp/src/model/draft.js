@@ -252,7 +252,7 @@ function addSeparator(inlinePartContent, previousMessage, creationMode, expected
         const attribute = MessageCreationModes.FORWARD
             ? MessageForwardAttributeSeparator
             : MessageReplyAttributeSeparator;
-        content = "<div " + attribute + ">" + content + "</div>";
+        content = "<div " + attribute + ">" + removeSignatureIds(content) + "</div>";
     }
     return content;
 }
@@ -287,7 +287,7 @@ function adaptPreviousMessageForReply(expectedMimeType, content) {
                 }
             </style>
             <blockquote class="reply">` +
-            removeSignatureIds(content) +
+            content +
             "</blockquote>"
         );
     }
