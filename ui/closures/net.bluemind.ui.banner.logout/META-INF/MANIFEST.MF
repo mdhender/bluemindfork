@@ -7,5 +7,6 @@ Bundle-Vendor: bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Closure-Bundle-Type: Application
 Closure-Inputs: net/bluemind/ui/banner/logout/run.js
+Require-Bundle: net.bluemind.commons.closure;bundle-version="1.0.0"
 Web-Resources: web-resources
 Bundle-ClassPath: js.jar, .
