@@ -47,6 +47,8 @@ import com.google.gwt.user.client.ui.Label;
 import net.bluemind.calendar.api.IPublishCalendarPromise;
 import net.bluemind.calendar.api.PublishMode;
 import net.bluemind.calendar.api.gwt.endpoint.PublishCalendarGwtEndpoint;
+import net.bluemind.core.container.api.IContainersPromise;
+import net.bluemind.core.container.api.gwt.endpoint.ContainersGwtEndpoint;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
@@ -291,14 +293,16 @@ public class AclEdit extends CommonForm implements IEntitySelectTarget {
 	}
 
 	private void reloadPublishedCalendarUrls() {
-		if (!containerUid.contains("calendar")) {
-			return;
-		}
-		IPublishCalendarPromise service = new PublishCalendarGwtEndpoint(Ajax.TOKEN.getSessionId(), containerUid)
-				.promiseApi();
+		IContainersPromise cservice = new ContainersGwtEndpoint(Ajax.TOKEN.getSessionId()).promiseApi();
+		cservice.get(containerUid).thenAccept(container -> {
+			if (container.type.equals("calendar")) {
+				IPublishCalendarPromise service = new PublishCalendarGwtEndpoint(Ajax.TOKEN.getSessionId(),
+						containerUid).promiseApi();
 
-		loadUrls(service, PublishMode.PUBLIC, pubAddress);
-		loadUrls(service, PublishMode.PRIVATE, privAddress);
+				loadUrls(service, PublishMode.PUBLIC, pubAddress);
+				loadUrls(service, PublishMode.PRIVATE, privAddress);
+			}
+		});
 	}
 
 	private void loadUrls(IPublishCalendarPromise service, PublishMode mode, FlexTable tbl) {
