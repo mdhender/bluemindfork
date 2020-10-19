@@ -125,6 +125,17 @@ public interface IAddressBook
 	public List<ItemValue<VCard>> multipleGet(List<String> uids) throws ServerFault;
 
 	/**
+	 * Fetch multiple {@link VCard}s from theirs uniques ids
+	 * 
+	 * @param ids
+	 * @return {@link List<ItemValue<VCard>>}
+	 * @throws ServerFault
+	 */
+	@POST
+	@Path("_mgetById")
+	public List<ItemValue<VCard>> multipleGetById(List<Long> ids) throws ServerFault;
+
+	/**
 	 * Fetch a {@link VCardInfo} from its unique uid
 	 * 
 	 * @param uid

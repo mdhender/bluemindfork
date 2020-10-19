@@ -110,7 +110,7 @@ public class CalendarBackend extends CoreConnect {
 			HierarchyNode folder = storage.getHierarchyNode(bs, collectionId);
 			ICalendar service = getService(bs, folder.containerUid);
 
-			ContainerChangeset<String> changeset = service.changeset(version);
+			ContainerChangeset<Long> changeset = service.changesetById(version);
 			logger.debug(
 					"[{}][{}] get calendar changes. created: {}, updated: {}, deleted: {}, folder: {}, version: {}",
 					bs.getLoginAtDomain(), bs.getDevId(), changeset.created.size(), changeset.updated.size(),
@@ -118,16 +118,16 @@ public class CalendarBackend extends CoreConnect {
 
 			changes.version = changeset.version;
 
-			for (String uid : changeset.created) {
-				changes.items.add(getItemChange(collectionId, uid, ItemDataType.CALENDAR, ChangeType.ADD));
+			for (long id : changeset.created) {
+				changes.items.add(getItemChange(collectionId, id, ItemDataType.CALENDAR, ChangeType.ADD));
 			}
 
-			for (String uid : changeset.updated) {
-				changes.items.add(getItemChange(collectionId, uid, ItemDataType.CALENDAR, ChangeType.CHANGE));
+			for (long id : changeset.updated) {
+				changes.items.add(getItemChange(collectionId, id, ItemDataType.CALENDAR, ChangeType.CHANGE));
 			}
 
-			for (String del : changeset.deleted) {
-				ItemChangeReference ic = getItemChange(collectionId, del, ItemDataType.CALENDAR, ChangeType.DELETE);
+			for (long id : changeset.deleted) {
+				ItemChangeReference ic = getItemChange(collectionId, id, ItemDataType.CALENDAR, ChangeType.DELETE);
 				changes.items.add(ic);
 			}
 
@@ -160,14 +160,14 @@ public class CalendarBackend extends CoreConnect {
 		try {
 			if (sid.isPresent()) {
 				String serverId = sid.get();
-				String uid = getItemUid(serverId);
+				Long id = getItemId(serverId);
 
-				if (uid != null && !uid.isEmpty()) {
-					ItemValue<VEventSeries> item = service.getComplete(uid);
+				if (id != null) {
+					ItemValue<VEventSeries> item = service.getCompleteById(id);
 
 					if (item == null) {
-						logger.debug("Fail to find VEvent {}", uid);
-						return CollectionItem.of(collectionId, uid);
+						logger.debug("Fail to find VEvent {}", id);
+						return CollectionItem.of(collectionId, id);
 					}
 
 					if (conflictPolicy == ConflicResolution.SERVER_WINS && item.version > syncState.version) {
@@ -239,8 +239,8 @@ public class CalendarBackend extends CoreConnect {
 					event.main.categories = oldEvent.main.categories;
 
 					try {
-						service.update(uid, event, true);
-						ret = CollectionItem.of(collectionId, uid);
+						service.update(item.uid, event, true);
+						ret = CollectionItem.of(collectionId, id);
 						logger.info("Update event bs:" + bs.getLoginAtDomain() + ", collection: " + folder.containerUid
 								+ ", serverId: " + serverId + ", event title:" + event.main.summary);
 					} catch (Exception e) {
@@ -249,7 +249,7 @@ public class CalendarBackend extends CoreConnect {
 						logger.error("Fail to update event bs:" + bs.getLoginAtDomain() + ", collection: "
 								+ folder.containerUid + ", serverId: " + serverId + ", event title:"
 								+ event.main.summary, e);
-						service.touch(uid);
+						service.touch(item.uid);
 					}
 				}
 
@@ -283,7 +283,10 @@ public class CalendarBackend extends CoreConnect {
 				String uid = UUID.randomUUID().toString();
 				event.main.sequence = 0;
 				service.create(uid, event, true);
-				ret = CollectionItem.of(collectionId, uid);
+
+				ItemValue<VEventSeries> created = service.getComplete(uid);
+				ret = CollectionItem.of(collectionId, created.internalId);
+
 				logger.info("Create event bs:" + bs.getLoginAtDomain() + ", collection: " + folder.containerUid
 						+ ", serverId: " + ret + ", event title:" + event.main.summary);
 
@@ -312,7 +315,12 @@ public class CalendarBackend extends CoreConnect {
 					HierarchyNode folder = storage.getHierarchyNode(bs, serverId.collectionId);
 					ICalendar service = getService(bs, folder.containerUid);
 
-					service.delete(serverId.itemId, true);
+					// fixme deleteById(long itemid, boolean notification)
+					ItemValue<VEventSeries> evt = service.getCompleteById(serverId.itemId);
+					if (evt != null) {
+						service.delete(evt.uid, true);
+					}
+
 				}
 			} catch (ServerFault e) {
 				if (e.getCode() == ErrorCode.PERMISSION_DENIED) {
@@ -325,11 +333,12 @@ public class CalendarBackend extends CoreConnect {
 
 	/**
 	 * @param bs
-	 * @param data
+	 * @param itemId
 	 * @param status
+	 * @param instanceId
 	 * @return
 	 */
-	public String updateUserStatus(BackendSession bs, String eventUid, AttendeeStatus status, Date instanceId) {
+	public String updateUserStatus(BackendSession bs, long itemId, AttendeeStatus status, Date instanceId) {
 		try {
 			ICalendar cs = getService(bs, ICalendar.class, ICalendarUids.defaultUserCalendar(bs.getUser().getUid()));
 
@@ -337,7 +346,7 @@ public class CalendarBackend extends CoreConnect {
 					ContainerHierarchyNode.uidFor(ICalendarUids.defaultUserCalendar(bs.getUser().getUid()), "calendar",
 							bs.getUser().getDomain()));
 
-			ItemValue<VEventSeries> vevent = cs.getComplete(eventUid);
+			ItemValue<VEventSeries> vevent = cs.getCompleteById(itemId);
 			ParticipationStatus partStatus = fromStatus(status);
 			boolean rsvp = (partStatus == ParticipationStatus.NeedsAction);
 			if (instanceId == null) {
@@ -392,7 +401,7 @@ public class CalendarBackend extends CoreConnect {
 
 			}
 
-			return CollectionItem.of(f.collectionId, vevent.uid).toString();
+			return CollectionItem.of(f.collectionId, itemId).toString();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -404,7 +413,7 @@ public class CalendarBackend extends CoreConnect {
 			HierarchyNode folder = storage.getHierarchyNode(bs, ic.getServerId().collectionId);
 			ICalendar service = getService(bs, folder.containerUid);
 
-			ItemValue<VEventSeries> event = service.getComplete(ic.getServerId().itemId);
+			ItemValue<VEventSeries> event = service.getCompleteById(ic.getServerId().itemId);
 			AppData data = toAppData(bs, ic.getServerId().collectionId, event);
 
 			return data;
@@ -413,17 +422,17 @@ public class CalendarBackend extends CoreConnect {
 		}
 	}
 
-	public Map<String, AppData> fetchMultiple(BackendSession bs, CollectionId collectionId, List<String> uids)
+	public Map<Long, AppData> fetchMultiple(BackendSession bs, CollectionId collectionId, List<Long> ids)
 			throws ActiveSyncException {
 		HierarchyNode folder = storage.getHierarchyNode(bs, collectionId);
 		ICalendar service = getService(bs, folder.containerUid);
 
-		List<ItemValue<VEventSeries>> events = service.multipleGet(uids);
-		Map<String, AppData> res = new HashMap<String, AppData>(uids.size());
+		List<ItemValue<VEventSeries>> events = service.multipleGetById(ids);
+		Map<Long, AppData> res = new HashMap<>(ids.size());
 		events.stream().forEach(event -> {
 			try {
 				AppData data = toAppData(bs, collectionId, event);
-				res.put(event.uid, data);
+				res.put(event.internalId, data);
 			} catch (Exception e) {
 				logger.error("Fail to convert event {}", event.uid, e);
 			}
@@ -540,7 +549,7 @@ public class CalendarBackend extends CoreConnect {
 
 			try {
 				ICalendar service = getService(bs, srcFolder.containerUid);
-				ItemValue<VEventSeries> evt = service.getComplete(item.itemId);
+				ItemValue<VEventSeries> evt = service.getCompleteById(item.itemId);
 
 				if (evt == null) {
 					logger.error("Failed to find event {} in {}", item.itemId, srcFolder.containerUid);
@@ -560,7 +569,7 @@ public class CalendarBackend extends CoreConnect {
 				resp.dstMsgId = dstFolder.collectionId.getValue() + ":" + uid;
 				ret.add(resp);
 
-				service.delete(item.itemId, false);
+				service.delete(evt.uid, false);
 
 			} catch (ServerFault sf) {
 				logger.error(sf.getMessage());

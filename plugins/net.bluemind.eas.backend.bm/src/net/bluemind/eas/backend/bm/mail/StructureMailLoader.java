@@ -72,7 +72,7 @@ public class StructureMailLoader extends CoreConnect {
 		this.bs = bs;
 	}
 
-	public EmailResponse fetch(int id) {
+	public EmailResponse fetch(long id) {
 		IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 		ItemValue<MailboxItem> item = service.getCompleteById(id);
 		if (item == null) {
@@ -182,7 +182,7 @@ public class StructureMailLoader extends CoreConnect {
 			MSEvent msEvent = converter.convert(bs.getUser(), vevent);
 			// FIXME add meetingMessageType into MeetingRequest
 			ret.meetingRequest = OldFormats.update(msEvent, bs.getUser());
-			ret.meetingRequest.itemUid = vevent.uid;
+			ret.meetingRequest.itemUid = vevent.internalId;
 			ret.contentClass = "urn:content-classes:calendarmessage";
 			ret.messageClass = MessageClass.ScheduleMeetingRequest;
 			// msm.meetingMessageType =

@@ -36,9 +36,9 @@ public class BodyLoaderFactory {
 
 		private BackendSession bs;
 		private MailFolder folder;
-		private int id;
+		private long id;
 
-		public MimeBodyLoader(BackendSession bs, MailFolder folder, int id, BodyOptions query) {
+		public MimeBodyLoader(BackendSession bs, MailFolder folder, long id, BodyOptions query) {
 			super(query);
 			this.bs = bs;
 			this.folder = folder;
@@ -63,7 +63,7 @@ public class BodyLoaderFactory {
 
 	}
 
-	public static LazyLoaded<BodyOptions, AirSyncBaseResponse> from(BackendSession bs, MailFolder folder, int id,
+	public static LazyLoaded<BodyOptions, AirSyncBaseResponse> from(BackendSession bs, MailFolder folder, long id,
 			BodyOptions bodyOpts) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("[{}] {}:{} Should get body loader for {}", bs.getLoginAtDomain(), folder.fullName, id,

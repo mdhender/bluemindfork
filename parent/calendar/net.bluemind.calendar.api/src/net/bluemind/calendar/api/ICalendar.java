@@ -52,13 +52,10 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	/**
 	 * Creates a {@link VEvent}.
 	 * 
-	 * @param uid
-	 *            the unique identifier for the new event
-	 * @param event
-	 *            the {@link VEventSeries} to store
-	 * @param sendNotifications
-	 *            if <code>true</code> then notify this event creation on the
-	 *            events bus
+	 * @param uid               the unique identifier for the new event
+	 * @param event             the {@link VEventSeries} to store
+	 * @param sendNotifications if <code>true</code> then notify this event creation
+	 *                          on the events bus
 	 */
 	@PUT
 	@Path("{uid}")
@@ -68,12 +65,9 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	/**
 	 * Update the event identified by the given <i>item identifier</i>.
 	 * 
-	 * @param id
-	 *            the <i>item identifier</i> of the {@link VEventSeries}
-	 * @param value
-	 *            the new value to set
-	 * @return the acknowledgement object with the new version of the updated
-	 *         item
+	 * @param id    the <i>item identifier</i> of the {@link VEventSeries}
+	 * @param value the new value to set
+	 * @return the acknowledgement object with the new version of the updated item
 	 */
 	@POST
 	@Path("id/{id}")
@@ -82,8 +76,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	/**
 	 * Delete the event identified by the given <i>item identifier</i>.
 	 * 
-	 * @param the
-	 *            <i>item identifier</i> of the {@link VEventSeries}
+	 * @param the <i>item identifier</i> of the {@link VEventSeries}
 	 */
 	@DELETE
 	@Path("id/{id}")
@@ -92,12 +85,9 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	/**
 	 * Creates a {@link VEventSeries}.
 	 * 
-	 * @param id
-	 *            the <i>item identifier</i> of the {@link VEventSeries}
-	 * @param event
-	 *            the {@link VEventSeries} to store
-	 * @return the acknowledgement object with the new version of the updated
-	 *         item
+	 * @param id    the <i>item identifier</i> of the {@link VEventSeries}
+	 * @param event the {@link VEventSeries} to store
+	 * @return the acknowledgement object with the new version of the updated item
 	 */
 	@PUT
 	@Path("id/{id}")
@@ -106,13 +96,10 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	/**
 	 * Updates a {@link VEventSeries}.
 	 * 
-	 * @param uid
-	 *            the unique identifier of the event
-	 * @param event
-	 *            the {@link VEventSeries} to update
-	 * @param sendNotifications
-	 *            if <code>true</code> then notify this event creation on the
-	 *            events bus
+	 * @param uid               the unique identifier of the event
+	 * @param event             the {@link VEventSeries} to update
+	 * @param sendNotifications if <code>true</code> then notify this event creation
+	 *                          on the events bus
 	 */
 	@POST
 	@Path("{uid}")
@@ -120,11 +107,9 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 			@QueryParam(value = "sendNotifications") Boolean sendNotifications) throws ServerFault;
 
 	/**
-	 * Returns the {@link VEventSeries} identified by the given unique
-	 * identifier.
+	 * Returns the {@link VEventSeries} identified by the given unique identifier.
 	 * 
-	 * @param uid
-	 *            the unique identifier of the event
+	 * @param uid the unique identifier of the event
 	 * @return a {@link VEventSeries} if successful
 	 */
 	@GET
@@ -132,11 +117,9 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	public ItemValue<VEventSeries> getComplete(@PathParam(value = "uid") String uid) throws ServerFault;
 
 	/**
-	 * Returns all {@link VEventSeries} matching the given ICS unique
-	 * identifier.
+	 * Returns all {@link VEventSeries} matching the given ICS unique identifier.
 	 * 
-	 * @param uid
-	 *            the ICS unique identifier
+	 * @param uid the ICS unique identifier
 	 * @return the list of matching {@link VEventSeries}
 	 */
 	@GET
@@ -146,8 +129,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	/**
 	 * Retrieve the {@link VEventSeries} identified by the given identifier.
 	 * 
-	 * @param id
-	 *            the identifier of the event
+	 * @param id the identifier of the event
 	 * @return a {@link VEventSeries} if successfulSortDescriptor
 	 */
 	@GET
@@ -158,8 +140,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 * Fetch multiple {@link VEventSeries} identified by the given unique
 	 * identifiers.
 	 * 
-	 * @param uids
-	 *            the list of unique identifiers
+	 * @param uids the list of unique identifiers
 	 * @return all matching {@link VEventSeries}
 	 */
 	@POST
@@ -167,14 +148,21 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	public List<ItemValue<VEventSeries>> multipleGet(List<String> uids) throws ServerFault;
 
 	/**
-	 * Deletes the {@link VEventSeries} identified by the given unique
-	 * identifier.
+	 * Fetch multiple {@link VEventSeries} from theirs uniques ids
 	 * 
-	 * @param uid
-	 *            the unique identifier of the event
-	 * @param sendNotifications
-	 *            if <code>true</code> then notify this event deletion on the
-	 *            events bus
+	 * @param ids the list of unique id
+	 * @return all matching {@link VEventSeries}
+	 */
+	@POST
+	@Path("_mgetById")
+	public List<ItemValue<VEventSeries>> multipleGetById(List<Long> ids) throws ServerFault;
+
+	/**
+	 * Deletes the {@link VEventSeries} identified by the given unique identifier.
+	 * 
+	 * @param uid               the unique identifier of the event
+	 * @param sendNotifications if <code>true</code> then notify this event deletion
+	 *                          on the events bus
 	 * @throws ServerFault
 	 */
 	@DELETE
@@ -185,8 +173,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	/**
 	 * Touch a {@link VEvent}.
 	 * 
-	 * @param uid
-	 *            the unique identifier of the event
+	 * @param uid the unique identifier of the event
 	 */
 	@POST
 	@Path("{uid}/_touch")
@@ -196,8 +183,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 * Applies changes (create, update, delete) to a calendar specified by its
 	 * <code>containerUid</code>.
 	 * 
-	 * @param changes
-	 *            the changes to apply
+	 * @param changes the changes to apply
 	 */
 	@PUT
 	@Path("_mupdates")
@@ -206,8 +192,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	/**
 	 * Search for events matching the given query.
 	 * 
-	 * @param query
-	 *            the {@link VEventQuery} to match against
+	 * @param query the {@link VEventQuery} to match against
 	 * @return the matching {@link VEventSeries}
 	 */
 	@POST
@@ -218,10 +203,8 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 * Apply the given changes and return the differences since the given time.
 	 * CLIENT_WIN style.
 	 * 
-	 * @param since
-	 *            the time from wich compare changes
-	 * @param changes
-	 *            the changes to apply
+	 * @param since   the time from wich compare changes
+	 * @param changes the changes to apply
 	 * @return the {@link ContainerChangeset} of the difSortDescriptorferences
 	 */
 	@PUT
@@ -259,8 +242,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 * Sort the events item identifiers in function of the given
 	 * {@link SortDescriptor}.
 	 * 
-	 * @param the
-	 *            sort directive
+	 * @param the sort directive
 	 * @return the sorted event items identifiers
 	 */
 	@POST

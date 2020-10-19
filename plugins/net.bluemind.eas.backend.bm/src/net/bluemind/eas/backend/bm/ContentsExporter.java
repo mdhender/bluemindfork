@@ -140,17 +140,17 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 	}
 
 	@Override
-	public Map<String, AppData> loadStructures(BackendSession bs, BodyOptions bodyOptions, ItemDataType type,
-			CollectionId collectionId, List<String> uids) throws ActiveSyncException {
+	public Map<Long, AppData> loadStructures(BackendSession bs, BodyOptions bodyOptions, ItemDataType type,
+			CollectionId collectionId, List<Long> ids) throws ActiveSyncException {
 		switch (type) {
 		case CALENDAR:
-			return calBackend.fetchMultiple(bs, collectionId, uids);
+			return calBackend.fetchMultiple(bs, collectionId, ids);
 		case CONTACTS:
-			return contactsBackend.fetchMultiple(bs, collectionId, uids);
+			return contactsBackend.fetchMultiple(bs, collectionId, ids);
 		case TASKS:
-			return taskBackend.fetchMultiple(bs, collectionId, uids);
+			return taskBackend.fetchMultiple(bs, collectionId, ids);
 		case EMAIL:
-			return mailBackend.fetchMultiple(bs, bodyOptions, collectionId, uids);
+			return mailBackend.fetchMultiple(bs, bodyOptions, collectionId, ids);
 		default:
 			throw new ActiveSyncException("Unsupported dataType " + type);
 

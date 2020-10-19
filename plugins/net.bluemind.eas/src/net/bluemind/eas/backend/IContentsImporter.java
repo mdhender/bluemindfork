@@ -58,7 +58,7 @@ public interface IContentsImporter {
 	void replyEmail(BackendSession bs, ByteSource mailContent, Boolean saveInSent, String collectionId, String serverId,
 			boolean includePrevious) throws ActiveSyncException;
 
-	String importCalendarUserStatus(BackendSession bs, String eventUid, AttendeeStatus userResponse, Date instanceId);
+	String importCalendarUserStatus(BackendSession bs, long itemId, AttendeeStatus userResponse, Date instanceId);
 
 	void forwardEmail(BackendSession bs, ByteSource mailContent, Boolean saveInSent, String collectionId,
 			String serverId, boolean includePrevious) throws ActiveSyncException;

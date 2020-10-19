@@ -135,13 +135,13 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 								break;
 							}
 
-							String itemUid = itemRef.getServerId().itemId;
+							long itemId = itemRef.getServerId().itemId;
 							if (itemRef.getType() == ItemDataType.EMAIL) {
-								itemUid = invitation.itemUid;
+								itemId = invitation.itemUid;
 							}
 
 							IContentsImporter importer = backend.getContentsImporter(bs);
-							String calendarId = importer.importCalendarUserStatus(bs, itemUid, attendeeStatus,
+							String calendarId = importer.importCalendarUserStatus(bs, itemId, attendeeStatus,
 									request.instanceId);
 
 							// 2.2.3.18 CalendarId

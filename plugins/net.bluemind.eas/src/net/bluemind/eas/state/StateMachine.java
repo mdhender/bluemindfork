@@ -40,7 +40,7 @@ public class StateMachine {
 
 	protected static final Logger logger = LoggerFactory.getLogger(StateMachine.class);
 
-	private static final String SYNCKEY_VERSION = "4_1";
+	private static final String SYNCKEY_VERSION = "4_3";
 
 	private ISyncStorage store;
 

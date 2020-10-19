@@ -312,6 +312,12 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
+	public List<ItemValue<VCard>> multipleGetById(List<Long> ids) throws ServerFault {
+		rbacManager.check(Verb.Read.name());
+		return storeService.getMultipleById(ids);
+	}
+
+	@Override
 	public ItemValue<VCardInfo> getInfo(String uid) throws ServerFault {
 		rbacManager.check(Verb.Read.name());
 		return adapt(storeService.get(uid, null));

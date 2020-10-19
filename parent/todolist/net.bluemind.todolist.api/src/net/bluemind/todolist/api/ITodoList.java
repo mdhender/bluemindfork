@@ -111,6 +111,18 @@ public interface ITodoList
 	public List<ItemValue<VTodo>> multipleGet(List<String> uids) throws ServerFault;
 
 	/**
+	 * Fetch multiple {@link VTodo}s by their unique IDs
+	 * 
+	 * @param ids list of unique IDs
+	 * @return list of {@link net.bluemind.core.container.model.ItemValue}s
+	 *         containing {@link VTodo}s
+	 * @throws ServerFault common error object
+	 */
+	@POST
+	@Path("_mgetById")
+	public List<ItemValue<VTodo>> multipleGetById(List<Long> ids) throws ServerFault;
+
+	/**
 	 * Delete a {@link VTodo}
 	 * 
 	 * @param uid unique UID

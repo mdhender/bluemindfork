@@ -190,6 +190,12 @@ public class TodoListService implements ITodoList {
 	}
 
 	@Override
+	public List<ItemValue<VTodo>> multipleGetById(List<Long> ids) throws ServerFault {
+		rbacManager.check(Verb.Read.name());
+		return storeService.getMultipleById(ids);
+	}
+
+	@Override
 	public void delete(String uid) throws ServerFault {
 		rbacManager.check(Verb.Write.name());
 		ItemValue<VTodo> previousItemValue = doDelete(uid);

@@ -159,26 +159,26 @@ public class CoreConnect {
 		return provider(bs).instance(ITodoList.class, containerUid);
 	}
 
-	protected ItemChangeReference getItemChange(CollectionId collectionId, String uid, ItemDataType type,
+	protected ItemChangeReference getItemChange(CollectionId collectionId, long id, ItemDataType type,
 			ChangeType changeType) {
 		ItemChangeReference ret = new ItemChangeReference(type);
 		ret.setChangeType(changeType);
-		ret.setServerId(CollectionItem.of(collectionId, uid));
+		ret.setServerId(CollectionItem.of(collectionId, id));
 		return ret;
 	}
 
 	/**
-	 * returns itemUid from colletionId:itemUid
+	 * returns itemId from colletionId:itemId
 	 * 
 	 * @param serverId
 	 * @return
 	 */
-	protected String getItemUid(String serverId) {
+	protected Long getItemId(String serverId) {
 		if (serverId == null || serverId.isEmpty()) {
 			return null;
 		}
 		int idx = serverId.indexOf(':');
-		return serverId.substring(idx + 1);
+		return Long.parseLong(serverId.substring(idx + 1));
 	}
 
 }

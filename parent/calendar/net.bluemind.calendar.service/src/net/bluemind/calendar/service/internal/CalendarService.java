@@ -349,6 +349,15 @@ public class CalendarService implements IInternalCalendar {
 		return filterValues(values);
 	}
 
+	@Override
+	public List<ItemValue<VEventSeries>> multipleGetById(List<Long> ids) throws ServerFault {
+		rbacManager.check(Verb.Read.name());
+
+		List<ItemValue<VEventSeries>> values = storeService.getMultipleById(ids);
+
+		return filterValues(values);
+	}
+
 	private List<ItemValue<VEventSeries>> filterValues(List<ItemValue<VEventSeries>> values) throws ServerFault {
 
 		// tom: what the fuck does this do ?

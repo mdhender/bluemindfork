@@ -263,10 +263,10 @@ public class CalendarResponse {
 	}
 
 	/**
-	 * The InstanceType element is a required child element of the
-	 * MeetingRequest element (section 2.2.2.48) that specifies whether the
-	 * calendar item is a single or recurring appointment. It is defined as an
-	 * element in the Email namespace.
+	 * The InstanceType element is a required child element of the MeetingRequest
+	 * element (section 2.2.2.48) that specifies whether the calendar item is a
+	 * single or recurring appointment. It is defined as an element in the Email
+	 * namespace.
 	 *
 	 */
 	public static enum InstanceType {
@@ -291,8 +291,8 @@ public class CalendarResponse {
 		exceptionToRecurring(3),
 
 		/**
-		 * An orphan instance of a recurring appointment. The value 4 is not
-		 * supported by protocol versions 2.5, 12.0, 12.1, 14.0 and 14.1.
+		 * An orphan instance of a recurring appointment. The value 4 is not supported
+		 * by protocol versions 2.5, 12.0, 12.1, 14.0 and 14.1.
 		 */
 		orphanInstance(4);
 
@@ -335,7 +335,7 @@ public class CalendarResponse {
 	public Boolean disallowNewTimeProposal;
 	public String onlineMeetingConfLink;
 	public String onlineMeetingExternalLink;
-	public String itemUid;
+	public long itemUid;
 
 	public InstanceType instanceType;
 	public Date recurrenceId;

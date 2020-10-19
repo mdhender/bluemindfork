@@ -49,8 +49,8 @@ public interface IContentsExporter {
 	AppData loadStructure(BackendSession bs, BodyOptions bodyOptions, ItemChangeReference ir)
 			throws ActiveSyncException;
 
-	Map<String, AppData> loadStructures(BackendSession bs, BodyOptions bodyOptions, ItemDataType type,
-			CollectionId collectionId, List<String> uids) throws ActiveSyncException;
+	Map<Long, AppData> loadStructures(BackendSession bs, BodyOptions bodyOptions, ItemDataType type,
+			CollectionId collectionId, List<Long> ids) throws ActiveSyncException;
 
 	AttachmentResponse getAttachmentMetadata(BackendSession bs, String attachmentName) throws ObjectNotFoundException;
 
