@@ -2,14 +2,14 @@
     <div class="container">
         <bm-container class="mail-attachment-item bg-white border border-light text-condensed py-1 px-2 mt-2">
             <bm-row class="pt-1">
-                <bm-col cols="12" class="px-1">
+                <bm-col cols="12" class="px-1 text-center">
                     <img
                         v-if="hasPreview && attachment.contentUrl"
                         :src="attachment.contentUrl"
-                        class="w-100 preview mb-1"
+                        class="preview mb-1"
                         :alt="$tc('common.attachmentPreview')"
                     />
-                    <div v-else class="preview w-100 d-flex align-items-center mb-1 bg-light p-1">
+                    <div v-else class="preview w-100 text-center mb-1 bg-light p-1">
                         <bm-icon :icon="fileTypeIcon" size="6x" class="m-auto bg-white preview-file-type" />
                     </div>
                 </bm-col>
