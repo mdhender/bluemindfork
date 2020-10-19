@@ -98,6 +98,7 @@ import net.bluemind.mailbox.api.ShardStats;
 import net.bluemind.mailbox.api.ShardStats.MailboxStats;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
+import net.bluemind.utils.EmailAddress;
 
 public class MailIndexService implements IMailIndexService {
 	public static final int SIZE = 200;

@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.index.mail;
+package net.bluemind.utils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,6 +33,10 @@ public class EmailAddress extends InternetAddress {
 	}
 
 	private static String sanitizeAddress(String address) {
+		if (address.startsWith("'") && address.endsWith("'")) {
+			address = address.substring(1, address.length() - 1);
+		}
+
 		Matcher m = emailAddress.matcher(address);
 		if (m.matches()) {
 			String dn = m.group(1);
@@ -40,6 +44,7 @@ public class EmailAddress extends InternetAddress {
 				address = address.replace(dn.trim(), "\"" + dn.trim() + "\"");
 			}
 		}
+
 		return address;
 	}
 }
