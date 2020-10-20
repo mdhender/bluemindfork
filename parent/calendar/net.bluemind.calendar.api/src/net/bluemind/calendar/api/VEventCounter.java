@@ -30,7 +30,7 @@ public class VEventCounter {
 		String evtId = counter.recurid == null ? "0" : counter.recurid.iso8601;
 		String cn = originator.commonName == null ? "" : originator.commonName;
 		String email = originator.email == null ? "" : originator.email;
-		return String.format("%s#%s#%s", cn, email, evtId);
+		return cn + "#" + email + "#" + evtId;
 	}
 
 	@Override

@@ -176,7 +176,7 @@ public abstract class AbstractLmtpHandler {
 		VEventCounter check = new VEventCounter();
 		check.counter = event;
 		check.originator = counterOriginator;
-		if (counters == null || counters.isEmpty()) {
+		if (counters.isEmpty()) {
 			return Optional.empty();
 		}
 		return counters.stream().filter(counter -> counter.equals(check)).findAny();

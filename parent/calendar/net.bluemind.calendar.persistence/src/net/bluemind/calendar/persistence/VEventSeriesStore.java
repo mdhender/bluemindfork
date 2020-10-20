@@ -199,7 +199,7 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 		for (Item i : items) {
 			VEventSeries s = m.get(i.id);
 			if (s != null) { // don't fail when requesting an non-existing item
-				s.counters = counters.computeIfAbsent(i.id, id -> Collections.<VEventCounter>emptyList());
+				s.counters = counters.computeIfAbsent(i.id, id -> new ArrayList<>());
 			}
 			ret.add(s);
 		}

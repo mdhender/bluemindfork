@@ -163,7 +163,7 @@ public class VEventValidator implements IValidator<VEventSeries> {
 
 	private void validateCounters(VEventSeries vevent) {
 		if (vevent.counters == null || vevent.counters.isEmpty()) {
-			return;
+			vevent.counters = new ArrayList<>();
 		}
 
 		if (!vevent.acceptCounters) {

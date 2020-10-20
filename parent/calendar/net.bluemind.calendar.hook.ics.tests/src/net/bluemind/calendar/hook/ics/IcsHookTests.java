@@ -66,6 +66,7 @@ import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
@@ -473,6 +474,64 @@ public class IcsHookTests {
 				String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
 				in.close();
 				assertTrue(icsContent.contains("X-RESPONSE-COMMENT=" + u2Accepted.responseComment));
+				return;
+			}
+		}
+		fail("Did not find any ics part in the message.");
+	}
+
+	@Test
+	public void counter() throws ServerFault, SQLException, UnsupportedEncodingException, IOException {
+		ItemValue<VEventSeries> event = defaultVEvent("counter");
+		event.value.main.status = ICalendarElement.Status.Tentative;
+		event.value.main.attendees.add(VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan"));
+
+		SecurityContext securityContext = Sessions.get().getIfPresent(user2.login);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		eventSanitizer.sanitize(event.value, true);
+
+		VEvent countered = (VEvent) event.value.main.copy();
+		countered.attendees = new ArrayList<>(1);
+		Attendee u2 = event.value.main.attendees.iterator().next();
+		Attendee u2Accepted = Attendee.create(u2.cutype, u2.member, u2.role, ParticipationStatus.Accepted, u2.rsvp,
+				u2.delTo, u2.delFrom, u2.sentBy, u2.commonName, u2.dir, u2.lang, u2.uri, u2.mailto);
+		u2Accepted.responseComment = "no no, not at this time";
+		countered.attendees.add(u2Accepted);
+
+		VEventSeries acceptedSeries = new VEventSeries();
+		acceptedSeries.main = countered;
+		VEventCounter counterObj = new VEventCounter();
+		counterObj.counter = VEventOccurrence.fromEvent(countered, null);
+		acceptedSeries.counters = Arrays.asList(counterObj);
+
+		// user2 counters meeting
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = event.uid;
+		veventMessage.vevent = acceptedSeries;
+		veventMessage.oldEvent = event.value;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = containerHome.get(ICalendarUids.TYPE + ":Default:" + user2.login);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventUpdated(veventMessage);
+		assertTrue(fakeSendmail.mailSent);
+
+		assertEquals(1, fakeSendmail.messages.size());
+		TestMail tm = fakeSendmail.messages.get(0);
+		assertEquals(1, tm.to.size());
+		Message m = tm.message;
+		assertTrue(m.getSubject().contains(countered.summary));
+		assertTrue(m.getBody() instanceof Multipart);
+		Multipart body = (Multipart) m.getBody();
+		for (Entity part : body.getBodyParts()) {
+			if ("event.ics".equals(part.getFilename())) {
+				TextBody tb = (TextBody) part.getBody();
+				InputStream in = tb.getInputStream();
+				String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
+				in.close();
+				assertTrue(icsContent.contains("COUNTER"));
 				return;
 			}
 		}

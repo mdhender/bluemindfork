@@ -280,6 +280,15 @@ public class IcsHook implements ICalendarHook {
 	private void onAttendeeVersionUpdated(VEventMessage message, VEventSeries oldEventSeries, List<VEvent> flatten) {
 		DirEntry dirEntry = getMyDirEntry(message);
 
+		if (oldEventSeries.counters.size() < message.vevent.counters.size()) {
+			onCounterProposalAdded(message, dirEntry);
+		} else {
+			onAttendeeEventVersionUpdated(message, oldEventSeries, flatten, dirEntry);
+		}
+	}
+
+	private void onAttendeeEventVersionUpdated(VEventMessage message, VEventSeries oldEventSeries, List<VEvent> flatten,
+			DirEntry dirEntry) {
 		for (VEvent evt : flatten) {
 			VEvent oldEvent = findCorrespondingEvent(oldEventSeries, evt);
 			Optional<EventAttendeeTuple> attendee = getMatchingAttendeeForEvent(evt, dirEntry);
@@ -298,6 +307,12 @@ public class IcsHook implements ICalendarHook {
 				}
 			}
 		}
+	}
+
+	private void onCounterProposalAdded(VEventMessage message, DirEntry dirEntry) {
+		VEventOccurrence evt = message.vevent.counters.get(0).counter;
+		Optional<EventAttendeeTuple> attendee = getMatchingAttendeeForEvent(evt, dirEntry);
+		sendCounterProposalToOrganizer(message, attendee.get(), evt);
 	}
 
 	@Override
@@ -402,6 +417,45 @@ public class IcsHook implements ICalendarHook {
 			return new MessagesResolver(Messages.getEventDetailMessages(locale),
 					Messages.getEventOrganizationMessages(locale));
 		}, Method.REQUEST, md.from, recipient, ics, md.data);
+	}
+
+	private void sendCounterProposalToOrganizer(VEventMessage message, EventAttendeeTuple event, VEventOccurrence evt) {
+		Organizer organizer = event.event.organizer;
+		if (attendeeIsOrganizer(event.attendee, organizer)) {
+			return;
+		}
+
+		String subject = "EventCounterProposalUpdateSubject.ftl";
+		String body = "EventCounterProposal.ftl";
+		Method method = Method.COUNTER;
+
+		Mailbox from = SendmailHelper.formatAddress(event.attendee.commonName, event.attendee.mailto);
+		DirEntry fromDirEntry = provider().instance(IDirectory.class, message.container.domainUid)
+				.getEntry(event.attendee.dir.substring("bm://".length()));
+
+		Mailbox recipient = SendmailHelper.formatAddress(organizer.commonName, organizer.mailto);
+
+		Map<String, Object> data = new HashMap<>();
+		data.put("attendee", event.attendee.commonName);
+		data.put("state", CalendarMailHelper.extractPartState(event.attendee.partStatus));
+		data.putAll(new CalendarMailHelper().extractVEventData(event.event));
+		if (event.attendee.responseComment != null && !event.attendee.responseComment.trim().isEmpty()) {
+			data.put("note", event.attendee.responseComment);
+		} else {
+			data.put("note", "");
+		}
+
+		String ics = null;
+		VEventOccurrence eventForAttendee = evt.copy();
+		eventForAttendee.attendees = Arrays.asList(event.attendee);
+		ics = VEventServiceHelper.convertToIcs(message.vevent.icsUid, method, eventForAttendee);
+
+		Map<String, String> senderSettings = getSenderSettings(message, fromDirEntry);
+		sendNotificationToOrganizer(message, evt, senderSettings, subject, body, (locale) -> {
+			return new MessagesResolver(Messages.getEventCounterMessages(locale),
+					Messages.getEventUpdateMessages(locale), Messages.getEventParitipactionUpdateMessages(locale));
+		}, method, from, recipient, ics, data);
+
 	}
 
 	private void sendInvitationToAttendees(VEventMessage message, List<Attendee> attendees, VEvent event, String ics)

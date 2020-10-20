@@ -50,6 +50,7 @@ import org.apache.commons.lang.StringUtils;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEvent.Transparency;
+import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.fault.ServerFault;
@@ -124,6 +125,10 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 			event.occurrences.forEach(occurrence -> {
 				timezones.add(occurrence.dtstart.timezone);
 				timezones.add(occurrence.dtend.timezone);
+			});
+			event.counters.forEach(counter -> {
+				timezones.add(counter.counter.dtstart.timezone);
+				timezones.add(counter.counter.dtend.timezone);
 			});
 		}
 
@@ -473,6 +478,9 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		}
 		for (VEventOccurrence occurrence : vevent.occurrences) {
 			ret.add(parse(uid, occurrence));
+		}
+		for (VEventCounter counter : vevent.counters) {
+			ret.add(parse(uid, counter.counter));
 		}
 
 		return ret;

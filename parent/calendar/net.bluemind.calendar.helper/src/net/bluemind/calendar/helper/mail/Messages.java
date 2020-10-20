@@ -63,4 +63,8 @@ public class Messages {
 		return ResourceBundle.getBundle("resourceEvent", locale);
 	}
 
+	public static ResourceBundle getEventCounterMessages(Locale locale) {
+		return ResourceBundle.getBundle("eventCounter", locale);
+	}
+
 }

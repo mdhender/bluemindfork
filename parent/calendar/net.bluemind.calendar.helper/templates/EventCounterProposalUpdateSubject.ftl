@@ -1,0 +1,2 @@
+<#assign participation = {"ACCEPTED": msg("participation.ACCEPTED"), "DECLINED": msg("participation.DECLINED"), "NEEDS-ACTION":msg("participation.NEEDS-ACTION"), "TENTATIVE":msg("participation.TENTATIVE")}>
+${msg("counter.subject", attendee,participation[state],title)}<#if exdate??> of ${exdate?string(date_format)}</#if>
