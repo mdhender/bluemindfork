@@ -175,14 +175,13 @@ export default {
         },
         async setContentUrl() {
             if (!this.attachment.contentUrl) {
-                const contentUrl = URL.createObjectURL(
-                    await fetch(
-                        this.message.remoteRef.imapUid,
-                        inject("MailboxItemsPersistence", this.message.folderRef.uid),
-                        this.attachment,
-                        true
-                    )
+                const attachmentContent = await fetch(
+                    this.message.remoteRef.imapUid,
+                    inject("MailboxItemsPersistence", this.message.folderRef.uid),
+                    this.attachment,
+                    true
                 );
+                const contentUrl = URL.createObjectURL(attachmentContent);
                 this.SET_ATTACHMENT_CONTENT_URL({
                     messageKey: this.message.key,
                     address: this.attachment.address,
@@ -232,9 +231,9 @@ export default {
     .muted {
         opacity: 0.5;
     }
-}
 
-.preview-file-type {
-    color: $light !important;
+    .preview-file-type {
+        color: $light !important;
+    }
 }
 </style>

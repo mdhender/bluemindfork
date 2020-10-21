@@ -74,9 +74,6 @@ export default {
             state[key].partContentByAddress = {};
         }
     },
-    [mutationTypes.SET_MESSAGE_ATTACHMENTS]: (state, { messageKey, attachments }) => {
-        state[messageKey].attachments = attachments;
-    },
     [mutationTypes.ADD_ATTACHMENT]: (state, { messageKey, attachment }) => {
         state[messageKey].attachments.push(attachment);
     },

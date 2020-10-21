@@ -28,9 +28,11 @@ export default async function ({ commit, state }, { userPrefTextOnly, draftKey, 
         const newAttachments = draft.attachments.filter(attachment => attachment.address.length > 5); // new part addresses are uuid
 
         if (newAttachments.length > 0) {
-            // needed to get new attachment addresses
+            // needed to get new attachment addresses and new imapUid
             const message = (await apiMessages.multipleById([draft]))[0];
-            commit(mutationTypes.SET_MESSAGE_ATTACHMENTS, { messageKey: draft.key, attachments: message.attachments });
+            message.key = draft.key;
+            message.composing = true;
+            commit(mutationTypes.ADD_MESSAGES, [message]);
         }
 
         commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
