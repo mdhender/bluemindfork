@@ -1,4 +1,4 @@
-import { EmailExtractor, EmailValidator, MimeType, PartsBuilder, InlineImageHelper } from "@bluemind/email";
+import { EmailExtractor, EmailValidator, Flag, MimeType, PartsBuilder, InlineImageHelper } from "@bluemind/email";
 import { html2text, sanitizeHtml } from "@bluemind/html-utils";
 
 import {
@@ -21,6 +21,7 @@ export function adaptDraft(creationMode, previousMessage, userSession) {
             address: userSession.defaultEmail,
             dn: userSession.formatedName
         },
+        flags: [Flag.SEEN],
         composing: true
     };
 
