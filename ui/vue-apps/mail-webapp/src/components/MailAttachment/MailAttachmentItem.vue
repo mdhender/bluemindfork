@@ -6,7 +6,7 @@
                     <img
                         v-if="hasPreview && attachment.contentUrl"
                         :src="attachment.contentUrl"
-                        class="preview mb-1"
+                        class="preview mb-1 mw-100"
                         :alt="$tc('common.attachmentPreview')"
                     />
                     <div v-else class="preview w-100 text-center mb-1 bg-light p-1">
