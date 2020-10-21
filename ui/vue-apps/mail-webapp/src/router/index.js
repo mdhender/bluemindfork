@@ -19,7 +19,10 @@ export default [
                         store.dispatch("mail-webapp/loadMessageList", MessageQueryParam.parse(to.params.messagequery))
                     )
                     .then(() => store.commit("root-app/SET_APP_STATE", "success"))
-                    .catch(() => store.commit("root-app/SET_APP_STATE", "error")),
+                    .catch(error => {
+                        console.error("Error when bootstraping application... ", error);
+                        store.commit("root-app/SET_APP_STATE", "error");
+                    }),
             watch: {
                 messagequery: (store, value) =>
                     store.dispatch("mail-webapp/loadMessageList", MessageQueryParam.parse(value))
