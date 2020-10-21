@@ -78,6 +78,16 @@
             <div v-for="attendee in currentEvent.attendees" :key="attendee.mail">
                 <span class="font-weight-bold">{{ attendee.name }}</span> &lt;{{ attendee.mail }}&gt;
             </div>
+            <template v-if="currentEvent.sanitizedDescription">
+                <hr />
+                <div>
+                    <bm-label-icon icon="pencil" class="font-weight-bold d-block">
+                        {{ $t("common.description") }}
+                    </bm-label-icon>
+                    <!-- eslint-disable-next-line vue/no-v-html -->
+                    <span v-html="currentEvent.sanitizedDescription" />
+                </div>
+            </template>
         </div>
     </div>
 </template>

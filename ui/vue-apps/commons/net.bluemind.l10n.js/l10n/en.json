@@ -38,6 +38,7 @@
     "common.when": "When :",
     "common.organizer": "Organizer :",
     "common.attendees": "Attendee : | Attendees : ",
+    "common.description": "Description :",
     "common.accept": "Accept",
     "common.accept.tentatively": "Tentatively accept",
     "common.refuse": "Refuse",

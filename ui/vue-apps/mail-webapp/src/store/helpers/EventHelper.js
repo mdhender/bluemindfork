@@ -1,6 +1,7 @@
 import { DateComparator } from "@bluemind/date";
 import { WeekDay } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
+import { sanitizeHtml } from "@bluemind/html-utils";
 
 export default {
     adapt(event, uid) {
@@ -15,7 +16,8 @@ export default {
             attendees: main.attendees.map(attendee => ({ name: attendee.commonName, mail: attendee.mailto })),
             status: adaptStatus(main.attendees, uid),
             uid: event.uid,
-            serverEvent: event
+            serverEvent: event,
+            sanitizedDescription: main.description ? sanitizeHtml(main.description) : undefined
         };
     }
 };

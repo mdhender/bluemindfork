@@ -37,6 +37,7 @@
     "common.when": "Datum :",
     "common.organizer": "Organisator :",
     "common.attendees": "Teilnehmer : | Teilnehmer : ",
+    "common.description": "Beschreibung :",
     "common.accept": "Bestätigen",
     "common.accept.tentatively": "Mit Vorbehalt akzeptieren",
     "common.refuse": "Ablehnen",
