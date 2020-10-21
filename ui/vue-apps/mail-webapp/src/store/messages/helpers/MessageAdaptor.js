@@ -78,7 +78,10 @@ export default {
 };
 
 function computeRecipients(remote) {
-    const from = remote.value.body.recipients.find(rcpt => rcpt.kind === RecipientKind.Originator);
+    const from = remote.value.body.recipients.find(rcpt => rcpt.kind === RecipientKind.Originator) || {
+        dn: "Anonymous",
+        address: "no-reply@no-reply.com"
+    };
     return {
         from: { dn: from.dn, address: from.address },
         to: remote.value.body.recipients
