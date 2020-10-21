@@ -17,6 +17,8 @@ export default class LocalDate {
         if (env) {
             this.firstDayOfWeek = env.firstDayOfWeek;
         }
+
+        this.firstDayOfWeek = this.firstDayOfWeek >= 0 ? this.firstDayOfWeek : 1;
     }
 
     minus(days) {
@@ -56,6 +58,10 @@ export default class LocalDate {
     // 0 = Sunday, 6 = Saturday
     setFirstDayOfWeek(day) {
         this.firstDayOfWeek = day;
+    }
+
+    toLocaleString(locale, options) {
+        return this.date.toLocaleString(locale, options);
     }
 }
 

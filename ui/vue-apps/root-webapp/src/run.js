@@ -61,7 +61,8 @@ function initStore() {
 
 function registerDependencies(userSession) {
     // if no lang defined, use monday as fdow
-    const firstDayOfWeek = FirstDayOfWeek[userSession.lang.toUpperCase()] || 1;
+    let firstDayOfWeek = FirstDayOfWeek[userSession.lang.toUpperCase()];
+    firstDayOfWeek = firstDayOfWeek >= 0 ? firstDayOfWeek : 1;
 
     injector.register({
         provide: "Environment",

@@ -44,5 +44,8 @@ export default {
         year: "numeric",
         hour: "2-digit",
         minute: "2-digit"
+    },
+    month: {
+        month: "long"
     }
 };

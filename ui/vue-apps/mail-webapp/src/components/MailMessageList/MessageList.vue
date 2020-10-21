@@ -31,8 +31,8 @@
         @keyup.shift.ctrl.exact.home="selectRange(messageKeys[0])"
         @keyup.shift.ctrl.exact.end="selectRange(messageKeys[MESSAGE_LIST_COUNT - 1])"
     >
-        <div v-for="message in messages" :key="message.key">
-            <date-separator :message="message" />
+        <div v-for="(message, index) in messages" :key="message.key">
+            <date-separator :message="message" :force="index === 0" />
             <draggable-message
                 :ref="'message-' + message.key"
                 :message="message"
@@ -54,17 +54,17 @@
 import { BmListGroup, BmListGroupItem } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 import { TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
-import DateSeparator from "./DateSeparator";
 import DraggableMessage from "./DraggableMessage";
+import DateSeparator from "./DateSeparator";
 
 const PAGE = 9;
 
 export default {
     name: "MessageList",
     components: {
-        DateSeparator,
         BmListGroup,
         BmListGroupItem,
+        DateSeparator,
         DraggableMessage
     },
     data() {

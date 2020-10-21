@@ -98,7 +98,8 @@ describe("DateRange", () => {
         test("future range to match all next days", () => {
             const today = new Date("2019-01-01");
             expect(DateRange.future(today).contains(new Date("2018-12-31"))).toBe(false);
-            expect(DateRange.future(today).contains(new Date("2019-01-01"))).toBe(true);
+            expect(DateRange.future(today).contains(new Date("2019-01-01"))).toBe(false);
+            expect(DateRange.future(today).contains(new Date("2019-01-02"))).toBe(true);
             expect(DateRange.future(today).contains(new Date("2020-12-30"))).toBe(true);
         }),
         test("past range to match all previous days", () => {
@@ -106,5 +107,66 @@ describe("DateRange", () => {
             expect(DateRange.past(today).contains(new Date("2019-01-01"))).toBe(false);
             expect(DateRange.past(today).contains(new Date("2018-12-31"))).toBe(true);
             expect(DateRange.past(today).contains(new Date("2015-01-01"))).toBe(true);
+        }),
+        test("match last week", () => {
+            const today = new Date("2019-01-01");
+            expect(DateRange.lastWeek(today).contains(new Date("2018-12-31"))).toBe(false);
+            expect(DateRange.lastWeek(today).contains(new Date("2018-12-30"))).toBe(true);
+            expect(DateRange.lastWeek(today).contains(new Date("2018-12-24"))).toBe(true);
+            expect(DateRange.lastWeek(today).contains(new Date("2018-12-23"))).toBe(false);
+        }),
+        test("match this month", () => {
+            const today = new Date("2019-01-01");
+            expect(DateRange.thisMonth(today).contains(new Date("2018-12-31"))).toBe(false);
+            expect(DateRange.thisMonth(today).contains(new Date("2019-01-01"))).toBe(true);
+            expect(DateRange.thisMonth(today).contains(new Date("2019-01-31"))).toBe(true);
+            expect(DateRange.thisMonth(today).contains(new Date("2019-02-01"))).toBe(false);
+        }),
+        test("match last month", () => {
+            const today = new Date("2019-01-01");
+            expect(DateRange.lastMonth(today).contains(new Date("2019-01-01"))).toBe(false);
+            expect(DateRange.lastMonth(today).contains(new Date("2018-12-31"))).toBe(true);
+            expect(DateRange.lastMonth(today).contains(new Date("2018-12-01"))).toBe(true);
+            expect(DateRange.lastMonth(today).contains(new Date("2018-11-30"))).toBe(false);
+        }),
+        test("match past months", () => {
+            const today = new Date("2019-04-01");
+            const pastMonths = DateRange.pastMonths(today);
+
+            const feb2019 = pastMonths[1];
+            expect(feb2019.contains(new Date("2019-04-01"))).toBe(false);
+            expect(feb2019.contains(new Date("2019-03-01"))).toBe(false);
+            expect(feb2019.contains(new Date("2019-02-28"))).toBe(true);
+            expect(feb2019.contains(new Date("2019-02-01"))).toBe(true);
+            expect(feb2019.contains(new Date("2019-01-31"))).toBe(false);
+
+            const jan2019 = pastMonths[2];
+            expect(jan2019.contains(new Date("2019-03-01"))).toBe(false);
+            expect(jan2019.contains(new Date("2019-02-01"))).toBe(false);
+            expect(jan2019.contains(new Date("2019-01-28"))).toBe(true);
+            expect(jan2019.contains(new Date("2019-01-01"))).toBe(true);
+            expect(jan2019.contains(new Date("2018-12-31"))).toBe(false);
+        }),
+        test("match past years", () => {
+            const today = new Date("2019-01-01");
+            const pastYears = DateRange.pastYears(today);
+
+            const year2018 = pastYears[0];
+            expect(year2018.contains(new Date("2019-01-01"))).toBe(false);
+            expect(year2018.contains(new Date("2018-12-31"))).toBe(true);
+            expect(year2018.contains(new Date("2018-01-01"))).toBe(true);
+            expect(year2018.contains(new Date("2017-12-31"))).toBe(false);
+
+            const year2016 = pastYears[2];
+            expect(year2016.contains(new Date("2017-01-01"))).toBe(false);
+            expect(year2016.contains(new Date("2016-12-31"))).toBe(true);
+            expect(year2016.contains(new Date("2016-01-01"))).toBe(true);
+            expect(year2016.contains(new Date("2015-12-31"))).toBe(false);
+
+            const year1970 = pastYears[pastYears.length - 1];
+            expect(year1970.contains(new Date("1971-01-01"))).toBe(false);
+            expect(year1970.contains(new Date("1970-12-31"))).toBe(true);
+            expect(year1970.contains(new Date("1970-01-01"))).toBe(true);
+            expect(year1970.contains(new Date("1969-12-31"))).toBe(false);
         });
 });
