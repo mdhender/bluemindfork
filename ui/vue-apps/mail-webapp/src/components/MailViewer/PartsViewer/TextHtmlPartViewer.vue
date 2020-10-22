@@ -22,18 +22,36 @@ export default {
         parsed() {
             const root = new DOMParser().parseFromString(this.value, "text/html");
 
-            const rootStyle = root.documentElement.getAttribute("style") || "";
-            const bodyStyle = root.body.getAttribute("style") || "";
-            const headStyle = [...root.head.getElementsByTagName("style")].reduce(
-                (all, current) => all + " " + current.innerText,
-                ""
-            );
+            const styleNotInBody = extractStyleNotInBody(root);
 
             return {
                 sanitizedBody: sanitizeHtml(linkifyHtml(root.body.innerHTML), true),
-                styles: rootStyle + bodyStyle + headStyle
+                styles: styleNotInBody
             };
         }
     }
 };
+
+function extractStyleNotInBody(doc) {
+    let result = "";
+
+    let rootStyle = doc.documentElement.getAttribute("style");
+    if (rootStyle) {
+        result += " body { " + rootStyle + "} ";
+    }
+
+    let bodyStyle = doc.body.getAttribute("style");
+    if (bodyStyle) {
+        result += " body { " + bodyStyle + "} ";
+    }
+
+    const headStyle = [...doc.head.getElementsByTagName("style")].reduce(
+        (all, current) => all + " " + current.innerText,
+        ""
+    );
+
+    result += " " + headStyle;
+
+    return result;
+}
 </script>
