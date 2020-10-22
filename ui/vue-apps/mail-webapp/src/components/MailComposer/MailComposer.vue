@@ -271,6 +271,7 @@ export default {
 
                 newContent = sanitizeHtml(newContent);
                 newContent = this.handleSeparator(newContent);
+                newContent = "<div><br/></div>" + newContent;
             }
             return newContent;
         },

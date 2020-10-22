@@ -258,7 +258,12 @@ function addSeparator(inlinePartContent, previousMessage, creationMode, expected
         creationMode === MessageCreationModes.FORWARD
             ? buildSeparatorForForward(previousMessage, lineBreakSeparator, vueI18n)
             : buildSeparatorForReply(previousMessage, vueI18n);
-    content = lineBreakSeparator + lineBreakSeparator + lineBreakSeparator + separator + content;
+
+    content = separator + content;
+    if (creationMode === MessageCreationModes.FORWARD) {
+        content = '<div style="margin-left: 1rem; padding-left: 1rem; color: purple;">' + content + "</div>";
+    }
+    content = lineBreakSeparator + lineBreakSeparator + lineBreakSeparator + content;
 
     if (expectedMimeType === MimeType.TEXT_HTML) {
         const attribute = MessageCreationModes.FORWARD
@@ -291,14 +296,7 @@ function adaptPreviousMessageForReply(expectedMimeType, content) {
     } else if (MimeType.equals(expectedMimeType, MimeType.TEXT_HTML)) {
         return (
             `<br>
-            <style>
-                .reply {
-                    margin-left: 1rem;
-                    padding-left: 1rem;
-                    border-left: 2px solid black;
-                }
-            </style>
-            <blockquote class="reply">` +
+            <blockquote style="margin-left: 1rem; padding-left: 1rem; border-left: 2px solid black;">` +
             content +
             "</blockquote>"
         );
