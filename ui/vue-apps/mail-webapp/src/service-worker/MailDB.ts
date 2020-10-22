@@ -92,6 +92,11 @@ export class MailDB {
         return (await this.dbPromise).getAllFromIndex("mail_items", "by-folderUid", folderUid);
     }
 
+    async getMailItems(folderUid: string, ids: number[]) {
+        const tx = (await this.dbPromise).transaction(["mail_items"], "readonly");
+        return Promise.all(ids.map(id => tx.objectStore("mail_items").get([folderUid, id])));
+    }
+
     async reconciliate(data: Reconciliation<MailItem>, syncOptions: SyncOptions) {
         const { items, uid, deletedIds } = data;
         const tx = (await this.dbPromise).transaction(["sync_options", "mail_items"], "readwrite");
