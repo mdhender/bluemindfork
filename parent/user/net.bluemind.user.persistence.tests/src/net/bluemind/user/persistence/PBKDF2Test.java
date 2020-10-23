@@ -49,7 +49,7 @@ public class PBKDF2Test {
 		int total = 0;
 		String hash = HashFactory.getDefault().create("this is password");
 
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 200; i++) {
 			long ts = System.currentTimeMillis();
 			HashFactory.getDefault().validate("this is password", hash);
 			long done = System.currentTimeMillis() - ts;
@@ -59,6 +59,6 @@ public class PBKDF2Test {
 		}
 
 		System.err.println(
-				PBKDF2Hash.PBKDF2_ITERATIONS + " iterations, 20 runs. Validate average time: " + (total / 20) + " ms");
+				PBKDF2Hash.PBKDF2_ITERATIONS + " iterations, 200 runs. Validate average time: " + (total / 20) + " ms");
 	}
 }
