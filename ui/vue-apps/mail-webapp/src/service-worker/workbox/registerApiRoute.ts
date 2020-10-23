@@ -1,9 +1,9 @@
 import { registerRoute } from "workbox-routing";
+import { RouteHandlerCallbackOptions } from "workbox-core/types";
 import { MailDB } from "../MailDB";
 import { MailAPI } from "../MailAPI";
 import { sync } from "../periodicSync";
 import { logger } from "../logger";
-import { RouteHandlerCallbackOptions } from "workbox-core/types";
 import { MailItem } from "../entry";
 
 interface Flags {

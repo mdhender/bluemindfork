@@ -1,5 +1,4 @@
 import Vue from "vue";
-import { Workbox } from "workbox-window";
 import { AddressBooksClient } from "@bluemind/addressbook.api";
 import { AlertFactory } from "@bluemind/alert.store";
 import { CalendarClient } from "@bluemind/calendar.api";
@@ -140,27 +139,34 @@ async function showNotification(message) {
 
 (async () => {
     if ("serviceWorker" in navigator) {
-        const wb = new Workbox("service-worker.js");
         try {
-            const registration = await wb.register();
-
-            showNotification("Service Worker registered. ", registration);
-            wb.messageSW({
-                type: "INIT_PERIODIC_SYNC"
-            });
+            const registration = await navigator.serviceWorker.register("service-worker.js");
+            console.log("Registration succeeded. Scope is " + registration.scope);
         } catch (error) {
-            console.error("Service Worker registered failed. ", error);
+            console.log("Registration failed with " + error);
         }
-        wb.addEventListener("message", event => {
+
+        navigator.serviceWorker.addEventListener("message", event => {
             if (event.data.type === "ERROR") {
                 showNotification(event.data.payload.message);
             }
         });
 
-        wb.addEventListener("installed", event => {
+        navigator.serviceWorker.addEventListener("waiting", () => {
+            console.warn(
+                "A new service worker has installed, but it can't activate until all tabs running the current version have fully unloaded."
+            );
+        });
+
+        navigator.serviceWorker.addEventListener("installed", event => {
             if (event.isUpdate) {
                 showNotification("A new version of the site is available, please refresh the page.");
             }
         });
+        if (!navigator.serviceWorker.controller) {
+            console.error("error: no controller");
+        } else {
+            navigator.serviceWorker.controller.postMessage({ type: "INIT_PERIODIC_SYNC" });
+        }
     }
 })();

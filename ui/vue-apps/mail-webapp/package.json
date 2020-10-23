@@ -28,7 +28,6 @@
         "@bluemind/styleguide": "^0.1.0",
         "@bluemind/user.api": "^4.1.52881",
         "@bluemind/uuid": "^4.1.0",
-        "@types/workbox-core": "^4.3.0",
         "bottleneck": "^2.19.5",
         "idb": "^5.0.4",
         "lodash.clonedeep": "^4.5.0",
@@ -41,7 +40,11 @@
         "lodash.pick": "^4.4.0",
         "lodash.sortedindexby": "^4.6.0",
         "lucene-query-parser": "^1.2.0",
-        "vue-global-events": "^1.1.2"
+        "vue-global-events": "^1.1.2",
+        "workbox-core": "^5.1.4",
+        "workbox-expiration": "^5.1.4",
+        "workbox-routing": "^5.1.4",
+        "workbox-strategies": "^5.1.4"
     },
     "devDependencies": {
         "@bluemind/conf": "^4.1.0",
