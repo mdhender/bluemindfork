@@ -9,7 +9,7 @@
    <launcherArgs>
       <programArgs>-consoleLog -debug
       </programArgs>
-      <vmArgs>-Dosgi.noShutdown=true
+      <vmArgs>-Dosgi.noShutdown=true -Dnet.bluemind.property.product=bm-lmtpd
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
@@ -149,8 +149,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.configuration.area" value="/var/lib/bm-lmtpd/" />
       <property name="osgi.noShutdown" value="true" />
+      <property name="osgi.configuration.area" value="/var/lib/bm-lmtpd/" />
    </configurations>
 
 </product>
