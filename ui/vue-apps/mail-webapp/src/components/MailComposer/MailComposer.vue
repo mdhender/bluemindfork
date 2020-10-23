@@ -114,7 +114,6 @@
 
 <script>
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
-import debounce from "lodash/debounce";
 
 import { InlineImageHelper, MimeType } from "@bluemind/email";
 import { sanitizeHtml } from "@bluemind/html-utils";
@@ -166,16 +165,6 @@ export default {
     },
     data() {
         return {
-            debouncedSave: debounce(
-                () =>
-                    this.save({
-                        userPrefTextOnly: this.userPrefTextOnly,
-                        draftKey: this.messageKey,
-                        myDraftsFolderKey: this.MY_DRAFTS.key,
-                        messageCompose: this.messageCompose
-                    }),
-                3000
-            ),
             userPrefIsMenuBarOpened: false, // TODO: initialize this with user setting
             userPrefTextOnly: false, // TODO: initialize this with user setting
             draggedFilesCount: -1,
@@ -220,7 +209,6 @@ export default {
     },
     destroyed: function () {
         if (isEmpty(this.message, this.messageCompose.editorContent)) {
-            this.debouncedSave.cancel();
             this.purge(this.messageKey);
         }
         this.cleanComposer();
@@ -343,7 +331,6 @@ export default {
             });
         },
         send() {
-            this.debouncedSave.cancel();
             this.SEND_MESSAGE({
                 userPrefTextOnly: this.userPrefTextOnly,
                 draftKey: this.messageKey,
@@ -356,11 +343,15 @@ export default {
             this.$router.navigate("v:mail:home");
         },
         saveDraft() {
-            this.debouncedSave.cancel();
-            this.debouncedSave();
+            this.save({
+                userPrefTextOnly: this.userPrefTextOnly,
+                draftKey: this.messageKey,
+                myDraftsFolderKey: this.MY_DRAFTS.key,
+                messageCompose: this.messageCompose,
+                debounceTime: 3000
+            });
         },
         async deleteDraft() {
-            this.debouncedSave.cancel();
             if (isEmpty(this.message, this.messageCompose.editorContent)) {
                 this.purge(this.messageKey);
                 this.$router.navigate("v:mail:home");

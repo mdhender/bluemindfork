@@ -1,25 +1,47 @@
 import { inject } from "@bluemind/inject";
 
 import apiMessages from "../../api/apiMessages";
+import debounce from "lodash/debounce";
 import MessageAdaptor from "../helpers/MessageAdaptor";
 import { MessageStatus, clean } from "../../../model/message";
 import { createDraftStructure, forceMailRewriteOnServer, prepareDraft } from "../../../model/draft";
 import mutationTypes from "../../mutationTypes";
 
-export default async function ({ commit, state }, { userPrefTextOnly, draftKey, myDraftsFolderKey, messageCompose }) {
+let debouncedSave = { cancel: () => {} };
+
+export default async function save(
+    context,
+    { userPrefTextOnly, draftKey, myDraftsFolderKey, messageCompose, debounceTime }
+) {
+    debouncedSave.cancel();
+    return new Promise(resolve => {
+        debouncedSave = debounce(
+            () => resolve(doSave(context, userPrefTextOnly, draftKey, myDraftsFolderKey, messageCompose)),
+            debounceTime
+        );
+        debouncedSave();
+    });
+}
+
+async function doSave(context, userPrefTextOnly, draftKey, myDraftsFolderKey, messageCompose) {
     try {
-        await waitUntilDraftNotSaving(state[draftKey], 250, 5); // only one saveDraft at a time
+        await waitUntilDraftNotSaving(context.state, draftKey, 250, 5); // only one saveDraft at a time
+        const draft = context.state[draftKey];
 
-        commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SAVING }]);
+        if (!draft) {
+            // draft may have been deleted
+            return;
+        }
 
-        const draft = state[draftKey];
+        context.commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SAVING }]);
+
         const service = inject("MailboxItemsPersistence", myDraftsFolderKey);
         const { saveDate, headers } = forceMailRewriteOnServer(draft);
 
-        commit(mutationTypes.SET_MESSAGE_HEADERS, { messageKey: draft.key, headers });
-        commit(mutationTypes.SET_MESSAGE_DATE, { messageKey: draft.key, date: saveDate });
+        context.commit(mutationTypes.SET_MESSAGE_HEADERS, { messageKey: draft.key, headers });
+        context.commit(mutationTypes.SET_MESSAGE_DATE, { messageKey: draft.key, date: saveDate });
 
-        const { partsToUpload, inlineImages } = prepareDraft(draft, messageCompose, userPrefTextOnly, commit);
+        const { partsToUpload, inlineImages } = prepareDraft(draft, messageCompose, userPrefTextOnly, context.commit);
 
         const inlinePartAddresses = await uploadInlineParts(service, partsToUpload);
         const structure = createDraftStructure(draft, userPrefTextOnly, inlinePartAddresses, inlineImages);
@@ -32,10 +54,10 @@ export default async function ({ commit, state }, { userPrefTextOnly, draftKey, 
             const message = (await apiMessages.multipleById([draft]))[0];
             message.key = draft.key;
             message.composing = true;
-            commit(mutationTypes.ADD_MESSAGES, [message]);
+            context.commit(mutationTypes.ADD_MESSAGES, [message]);
         }
 
-        commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
+        context.commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
 
         clean(
             inlinePartAddresses,
@@ -43,7 +65,7 @@ export default async function ({ commit, state }, { userPrefTextOnly, draftKey, 
             service
         );
     } catch (e) {
-        commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SAVE_ERROR }]);
+        context.commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SAVE_ERROR }]);
         throw e;
     }
 }
@@ -75,15 +97,16 @@ async function uploadInlineParts(service, partsToUpload) {
  * @param {Number} maxTries the maximum number of checks
  * @param {Number} iteration DO NOT SET. Only used internally for recursivity
  */
-function waitUntilDraftNotSaving(draft, delayTime, maxTries, iteration = 1) {
-    if (draft.status === MessageStatus.SAVING) {
+function waitUntilDraftNotSaving(state, draftKey, delayTime, maxTries, iteration = 1) {
+    const draft = state[draftKey];
+    if (draft && draft.status === MessageStatus.SAVING) {
         return new Promise(resolve => setTimeout(() => resolve(draft.status), delayTime)).then(status => {
             if (status !== MessageStatus.SAVING) {
                 return Promise.resolve();
             } else {
                 if (iteration < maxTries) {
                     // 'smart' delay: add 250ms each retry
-                    return waitUntilDraftNotSaving(draft.status, delayTime + 250, maxTries, ++iteration);
+                    return waitUntilDraftNotSaving(state, draftKey, delayTime + 250, maxTries, ++iteration);
                 } else {
                     return Promise.reject("Timeout while waiting for the draft to be saved");
                 }
