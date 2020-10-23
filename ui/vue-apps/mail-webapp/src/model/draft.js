@@ -260,10 +260,6 @@ function addSeparator(inlinePartContent, previousMessage, creationMode, expected
             : buildSeparatorForReply(previousMessage, vueI18n);
 
     content = separator + content;
-    if (creationMode === MessageCreationModes.FORWARD) {
-        content = '<div style="margin-left: 1rem; padding-left: 1rem; color: purple;">' + content + "</div>";
-    }
-    content = lineBreakSeparator + lineBreakSeparator + lineBreakSeparator + content;
 
     if (expectedMimeType === MimeType.TEXT_HTML) {
         const attribute = MessageCreationModes.FORWARD
@@ -278,10 +274,14 @@ function addSeparator(inlinePartContent, previousMessage, creationMode, expected
  *  A separator before the previous message (reply).
  */
 function buildSeparatorForReply(message, vueI18n) {
-    return vueI18n.t("mail.compose.reply.body", {
-        date: vueI18n.d(message.date, "full_date_time"),
-        name: nameAndAddress(message.from)
-    });
+    return (
+        "<p>" +
+        vueI18n.t("mail.compose.reply.body", {
+            date: vueI18n.d(message.date, "full_date_time"),
+            name: nameAndAddress(message.from)
+        }) +
+        "</p>"
+    );
 }
 
 function adaptPreviousMessageForReply(expectedMimeType, content) {
@@ -316,7 +316,7 @@ function buildSeparatorForForward(message, lineBreakSeparator, vueI18n) {
     separator += ": " + vueI18n.d(message.date, "full_date_time") + lineBreakSeparator;
     separator += vueI18n.t("mail.compose.forward.prev.message.info.from");
     separator += ": " + nameAndAddress(message.from) + lineBreakSeparator + lineBreakSeparator;
-    return separator;
+    return '<p style="color: purple;">' + separator + "</p>";
 }
 
 /** @return like "John Doe <jdoe@bluemind.net>" */
