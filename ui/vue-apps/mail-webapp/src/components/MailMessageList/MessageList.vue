@@ -115,6 +115,12 @@ export default {
     created() {
         this.focusByKey(this.currentMessageKey);
     },
+    mounted() {
+        this.onScroll();
+    },
+    updated() {
+        this.onScroll();
+    },
     bus: {
         [TOGGLE_SELECTION_ALL]: function () {
             this.toggleAll();
@@ -136,9 +142,9 @@ export default {
                 this.length = end;
             }
         },
-        onScroll(event) {
-            const total = event.target.scrollHeight;
-            const current = event.target.scrollTop + event.target.offsetHeight;
+        onScroll() {
+            const total = this.$el.scrollHeight;
+            const current = this.$el.scrollTop + this.$el.offsetHeight;
             if (current >= total) {
                 this.loadMore();
             }
