@@ -19,12 +19,18 @@
 package net.bluemind.eas.timezone;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Year;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.temporal.WeekFields;
 import java.time.zone.ZoneOffsetTransitionRule;
 import java.time.zone.ZoneRules;
 import java.time.zone.ZoneRulesException;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -167,9 +173,29 @@ public class EASTimeZoneHelper {
 	}
 
 	private static SystemTime asSystemTime(ZoneOffsetTransitionRule rule) {
-		return new SystemTime(0, rule.getMonth().getValue(), 0, 5,
-				(rule.getStandardOffset().getTotalSeconds() + rule.getOffsetBefore().getTotalSeconds()) / 3600, 0, 0,
-				0);
+		int month = rule.getMonth().getValue();
+		YearMonth yearMonth = YearMonth.of(Year.now().getValue(), month);
+		int daysInMonth = yearMonth.lengthOfMonth();
+		int dayOfMonthIndicator = rule.getDayOfMonthIndicator();
+		int dayOfMonth = dayOfMonthIndicator;
+		if (dayOfMonthIndicator == -1) {
+			dayOfMonth = daysInMonth;
+		} else {
+			if (dayOfMonthIndicator < 0) {
+				dayOfMonth = daysInMonth - dayOfMonthIndicator;
+			}
+		}
+		WeekFields weekFields = WeekFields.of(Locale.getDefault());
+
+		// adjust week 0
+		LocalDate date = LocalDate.of(Year.now().getValue(), month, 1);
+		int addToWeek = date.get(weekFields.weekOfMonth()) == 0 ? 1 : 0;
+
+		date = LocalDate.of(Year.now().getValue(), month, dayOfMonth);
+		int weekOfMonth = date.get(weekFields.weekOfMonth()) + addToWeek;
+		LocalTime localTime = rule.getLocalTime();
+		return new SystemTime(0, month, rule.getDayOfWeek().getValue(), weekOfMonth, localTime.getHour(),
+				localTime.getMinute(), localTime.getSecond(), 0);
 	}
 
 }
