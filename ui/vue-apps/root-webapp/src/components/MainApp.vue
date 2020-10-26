@@ -137,8 +137,10 @@ body {
 @include media-breakpoint-up(lg) {
     .main-app .bm-application-alert {
         bottom: $sp-4;
-        left: $sp-4;
-        right: $sp-4;
+        padding-left: $sp-4;
+        padding-right: $sp-4;
+        left: initial;
+        right: initial;
     }
 }
 </style>
