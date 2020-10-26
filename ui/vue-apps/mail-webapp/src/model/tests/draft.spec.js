@@ -63,7 +63,9 @@ function checkBuildSubject(message, creationMode, prefix) {
 describe("uploadInlineParts", () => {
     const messageContent = "messageContent";
     PlayWithInlinePartsByCapabilities.getTextFromStructure = jest.fn().mockReturnValue(messageContent);
-    PlayWithInlinePartsByCapabilities.getHtmlFromStructure = jest.fn().mockReturnValue({ html: messageContent });
+    PlayWithInlinePartsByCapabilities.getHtmlFromStructure = jest
+        .fn()
+        .mockReturnValue({ html: messageContent, inlineImageParts: [] });
 
     let itemsService = {};
     itemsService.uploadPart = jest.fn().mockReturnValue("2");
@@ -86,10 +88,7 @@ describe("uploadInlineParts", () => {
 
     test("for Reply and ReplyAll with userPrefTextOnly", async () => {
         const expectedContent =
-            "\r\n\r\n\r\nOn " +
-            previousMessage.date +
-            ", Some One <someone@vm40.net> wrote:\r\n\r\n> " +
-            messageContent;
+            "<p>On " + previousMessage.date + ", Some One <someone@vm40.net> wrote:</p>\r\n\r\n> " + messageContent;
 
         const { partContentByMimeType } = await uploadInlineParts(
             MessageCreationModes.REPLY,
@@ -112,11 +111,11 @@ describe("uploadInlineParts", () => {
 
     test("for Forward with userPrefTextOnly", async () => {
         const expectedContent =
-            "\r\n\r\n\r\n---- Original Message ----\r\nSubject: " +
+            '<p style="color: purple;">---- Original Message ----\r\nSubject: ' +
             previousMessage.subject +
             "\r\nTo: John Doe <jdoe@vm40.net>,Toto Matic <tmatic@vm40.net>,Georges Abitbol <gabitbol@vm40.net>\r\nDate: " +
             previousMessage.date +
-            "\r\nFrom: Some One <someone@vm40.net>\r\n\r\nmessageContent";
+            "\r\nFrom: Some One <someone@vm40.net>\r\n\r\n</p>messageContent";
         const { partContentByMimeType } = await uploadInlineParts(
             MessageCreationModes.FORWARD,
             previousMessage,
@@ -129,17 +128,10 @@ describe("uploadInlineParts", () => {
 
     test("for Reply without userPrefTextOnly", async () => {
         const expectedContent = sanitizeForCyrus(
-            "<div data-bm-forward-separator><br><br><br>On " +
+            "<div data-bm-forward-separator><p>On " +
                 previousMessage.date +
-                `, Some One <someone@vm40.net> wrote:<br>
-            <style>
-                .reply {
-                    margin-left: 1rem;
-                    padding-left: 1rem;
-                    border-left: 2px solid black;
-                }
-            </style>
-            <blockquote class="reply">` +
+                `, Some One <someone@vm40.net> wrote:</p><br>
+            <blockquote style="margin-left: 1rem; padding-left: 1rem; border-left: 2px solid black;">` +
                 messageContent +
                 "</blockquote></div>"
         );
