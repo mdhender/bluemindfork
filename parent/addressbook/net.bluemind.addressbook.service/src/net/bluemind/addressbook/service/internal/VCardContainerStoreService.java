@@ -66,7 +66,13 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 
 	@Override
 	protected void decorate(List<Item> items, List<ItemValue<VCard>> values) throws ServerFault {
-		List<List<TagRef>> refs = tagRefService.getMultiple(items);
+		List<List<TagRef>> refs;
+		try {
+			refs = tagRefService.getMultiple(items);
+		} catch (ServerFault sf) {
+			logger.error(sf.getMessage(), sf);
+			return;
+		}
 
 		Iterator<Item> itItems = items.iterator();
 		Iterator<ItemValue<VCard>> itValues = values.iterator();
@@ -89,8 +95,12 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 			return;
 		}
 
-		List<TagRef> tags = tagRefService.get(item);
-		value.value.explanatory.categories = tags;
+		try {
+			value.value.explanatory.categories = tagRefService.get(item);
+		} catch (ServerFault sf) {
+			logger.error(sf.getMessage(), sf);
+		}
+
 		value.value.identification.photo = hasPhoto(item.uid);
 
 	}

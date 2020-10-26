@@ -62,7 +62,13 @@ public class VEventContainerStoreService extends ContainerStoreService<VEventSer
 
 	@Override
 	protected void decorate(List<Item> items, List<ItemValue<VEventSeries>> values) throws ServerFault {
-		List<List<TagRef>> refs = tagRefService.getMultiple(items);
+		List<List<TagRef>> refs;
+		try {
+			refs = tagRefService.getMultiple(items);
+		} catch (ServerFault sf) {
+			logger.error(sf.getMessage(), sf);
+			return;
+		}
 
 		Iterator<Item> itItems = items.iterator();
 		Iterator<ItemValue<VEventSeries>> itValues = values.iterator();
@@ -99,7 +105,14 @@ public class VEventContainerStoreService extends ContainerStoreService<VEventSer
 			return;
 		}
 
-		List<TagRef> tags = tagRefService.get(item);
+		List<TagRef> tags;
+		try {
+			tags = tagRefService.get(item);
+		} catch (ServerFault sf) {
+			logger.error(sf.getMessage(), sf);
+			return;
+		}
+
 		value.value.main.categories = tags != null ? tags : Collections.emptyList();
 		value.value.occurrences.forEach(occurrence -> {
 			occurrence.categories = tags != null ? tags : Collections.emptyList();
