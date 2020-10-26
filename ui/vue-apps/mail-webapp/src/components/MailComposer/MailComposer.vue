@@ -15,7 +15,7 @@
                         @save-draft="saveDraft"
                     />
                     <bm-form-input
-                        :value="message.subject"
+                        :value="message.subject.trim()"
                         class="mail-composer-subject d-flex align-items-center"
                         :placeholder="$t('mail.new.subject.placeholder')"
                         :aria-label="$t('mail.new.subject.aria')"
@@ -192,7 +192,7 @@ export default {
             return this.messages[this.messageKey];
         },
         panelTitle() {
-            return this.message.subject ? this.message.subject : this.$t("mail.main.new");
+            return this.message.subject.trim() ? this.message.subject : this.$t("mail.main.new");
         }
     },
     watch: {
