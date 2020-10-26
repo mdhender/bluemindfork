@@ -1,80 +1,97 @@
 import { MailDB, SyncOptions } from "./MailDB";
-import { MailAPI, getSessionInfos } from "./MailAPI";
+import { createFolderId, mailapi, sessionInfos } from "./MailAPI";
 import { MailItem } from "./entry";
 import { logger } from "./logger";
 
 declare const self: ServiceWorkerGlobalScope;
 const db = new MailDB();
 
-function createSyncOptions(uid: string, fullName: string): SyncOptions {
+export function registerPeriodicSync(fn: Function, interval = 60 * 1000, ...args: any[]) {
+    fn(...args);
+    return setInterval(fn, interval, ...args);
+}
+
+export async function syncMailFolders() {
+    await syncMyMailbox();
+    const folders = await db.getAllMailFolders();
+    for (const folder of folders) {
+        await syncMailFolder(folder.uid, folder.value.fullName);
+    }
+}
+
+export async function syncMailFolder(uid: string, fullName?: string) {
+    const syncOptions = await getSyncOptions(uid);
+    const { created, updated, deleted, version } = await (await mailapi.getInstance()).mailItem.changeset(
+        uid,
+        syncOptions.version
+    );
+    if (version !== syncOptions.version) {
+        if (fullName) {
+            showNotification(`Synchronization of the "${fullName}" folder.`);
+        }
+        logger.log("version updated");
+        const ids = created
+            .reverse()
+            .concat(updated.reverse())
+            .map(({ id }) => id);
+        const mailItems = await fetchMailItemsByChunks(ids, uid);
+        db.reconciliate(
+            { uid, items: mailItems, deletedIds: deleted.map(({ id }) => id) },
+            { ...syncOptions, version }
+        );
+        db.updateSyncOptions({ ...syncOptions, version });
+    } else {
+        logger.log("up to date");
+    }
+}
+
+export async function syncMyMailbox() {
+    const { domain, userId } = await sessionInfos.getInstance();
+    await syncMailbox(domain, userId);
+}
+
+async function syncMailbox(domain: string, userId: string, login?: string) {
+    const api = await mailapi.getInstance();
+    const syncOptions = await getSyncOptions(createFolderId({ userId, domain }));
+    const { version } = await api.mailFolder.changeset({ domain, userId }, syncOptions.version);
+    if (version !== syncOptions.version) {
+        if (login) {
+            showNotification(`Synchronization of the email box "${login}".`);
+        }
+        logger.log("version updated");
+        const mailFolders = await api.mailFolder.fetch({ domain, userId });
+        db.putMailFolders(mailFolders);
+        db.updateSyncOptions({ ...syncOptions, version });
+    } else {
+        logger.log("up to date");
+    }
+}
+
+async function fetchMailItemsByChunks(ids: number[], uid: string) {
+    const chunks = [...chunk(ids, 200)];
+    const responses = await Promise.all(
+        chunks.map(async chunk => (await mailapi.getInstance()).mailItem.fetch(uid, chunk))
+    );
+    const result: MailItem[] = [];
+    return result.concat(...responses);
+}
+
+function createSyncOptions(uid: string, type: "mail_item" | "mail_folder"): SyncOptions {
     return {
-        fullName,
         uid,
         version: 0,
-        minInterval: 60 * 1000,
-        type: "mail_item"
+        type
     };
 }
 
-export async function registerPeriodicSync() {
-    try {
-        const { sid, domain, userId } = await getSessionInfos();
-        const mailapi = new MailAPI({ sid });
-        const folders = await mailapi.fetchMailFolders(domain, userId);
-        const foldersSyncOptions = folders.map(folder => createSyncOptions(folder.uid, folder.value.fullName));
-
-        for (const syncOptions of foldersSyncOptions) {
-            await db.updateSyncOptions(syncOptions);
-            interval(sync, syncOptions.minInterval, mailapi, syncOptions.uid, true);
-        }
-    } catch (error) {
-        logger.error("Oops!", { error });
+async function getSyncOptions(uid: string) {
+    const syncOptions = await db.getSyncOptions(uid);
+    if (!syncOptions) {
+        const syncOptions = createSyncOptions(uid, "mail_folder");
+        db.updateSyncOptions(syncOptions);
+        return syncOptions;
     }
-}
-
-function interval(fn: Function, timeout?: number, ...args: any[]) {
-    fn(...args);
-    return setInterval(fn, timeout, ...args);
-}
-
-export async function sync(mailapi: MailAPI, uid: string, scheduled?: boolean) {
-    const syncOptions = (await db.getSyncOptions(uid)) || createSyncOptions(uid, "unknown");
-    if (scheduled) {
-        logger.log(
-            `[${syncOptions.fullName}] Checking, next check in ${syncOptions.minInterval / 1000} seconds…`,
-            syncOptions
-        );
-    }
-    const { created, updated, deleted, version } = await fetchChanges(mailapi, syncOptions);
-    const outofdate = version !== syncOptions.version;
-    if (!outofdate) {
-        return;
-    }
-    const time = Date.now();
-    const ids = created
-        .reverse()
-        .concat(updated.reverse())
-        .map(({ id }) => id);
-    const mailItems = await fetchMailItems(mailapi, ids, uid);
-    if (mailItems.length > 0) {
-        showNotification(
-            `[${syncOptions.fullName}] Fetch ${mailItems.length} mails in ${(Date.now() - time) / 1000} seconds.`
-        );
-    }
-    db.reconciliate({ uid, items: mailItems, deletedIds: deleted.map(({ id }) => id) }, { ...syncOptions, version });
-    if (deleted.length > 0) {
-        showNotification(
-            `[${syncOptions.fullName}] Delete ${deleted.length} mails in ${(Date.now() - time) / 1000} seconds.`
-        );
-    }
-    showNotification(`[${syncOptions.fullName}] Database updated.`);
-}
-
-async function fetchMailItems(mailapi: MailAPI, ids: number[], uid: string) {
-    const chunks = [...chunk(ids, 200)];
-    const responses = await Promise.all(chunks.map(chunk => mailapi.fetchMailItems(uid, chunk)));
-    const result: MailItem[] = [];
-    return result.concat(...responses);
+    return syncOptions;
 }
 
 function showNotification(message: string) {
@@ -87,8 +104,4 @@ function* chunk<T>(array: T[], chunk_size: number) {
     for (let i = 0; i < array.length; i += chunk_size) {
         yield array.slice(i, i + chunk_size);
     }
-}
-
-async function fetchChanges(mailapi: MailAPI, syncOptions: SyncOptions) {
-    return mailapi.fetchChangeset(syncOptions.uid, syncOptions.version);
 }

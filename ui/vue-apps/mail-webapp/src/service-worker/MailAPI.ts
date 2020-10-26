@@ -1,53 +1,77 @@
-import { MailFolder, ChangeSet, MailItem } from "./entry";
+import { MailFolder, ChangeSet, MailItem, SessionInfo } from "./entry";
 
 //@FIXME: it might be possible to force certain methods depending on the route.
 type Route = "mail_folders" | "mail_items";
-type Method = "_all" | "_filteredChangesetById" | "_multipleById";
+type Method = "_all" | "_filteredChangesetById" | "_multipleById" | "_changesetById";
 
 interface MailAPIOptions {
     sid: string;
 }
 
-export class MailAPI {
-    requestInit: RequestInit;
+interface MailItemAPI {
+    fetch: (uid: string, ids: number[]) => Promise<MailItem[]>;
+    changeset: (uid: string, version: number) => Promise<ChangeSet>;
+}
+
+interface MailFolderAPI {
+    fetch: ({ userId, domain }: { userId: string; domain: string }) => Promise<MailFolder[]>;
+    changeset: ({ userId, domain }: { userId: string; domain: string }, version: number) => Promise<ChangeSet>;
+}
+
+class MailAPI {
+    mailItem: MailItemAPI;
+    mailFolder: MailFolderAPI;
 
     constructor(options: MailAPIOptions) {
-        this.requestInit = {
+        const requestInit: RequestInit = {
             headers: {
                 "x-bm-apikey": options.sid
             },
             mode: "cors",
             credentials: "include"
         };
-    }
 
-    async fetchMailFolders(domain: string, userId: string) {
-        const route: Route = "mail_folders";
-        const method: Method = "_all";
-        return fetchAPI<MailFolder[]>(
-            `/api/${route}/${domain.replace(".", "_")}/${`user.${userId}`}/${method}`,
-            this.requestInit
-        );
-    }
+        this.mailItem = {
+            fetch(uid: string, ids: number[]) {
+                const route: Route = "mail_items";
+                const method: Method = "_multipleById";
+                return fetchAPI<MailItem[]>(`/api/${route}/${uid}/${method}`, {
+                    ...requestInit,
+                    body: JSON.stringify(ids),
+                    method: "POST"
+                });
+            },
 
-    fetchMailItems(uid: string, ids: number[]) {
-        const route: Route = "mail_items";
-        const method: Method = "_multipleById";
-        return fetchAPI<MailItem[]>(`/api/${route}/${uid}/${method}`, {
-            ...this.requestInit,
-            body: JSON.stringify(ids),
-            method: "POST"
-        });
-    }
+            async changeset(uid: string, version: number) {
+                const method: Method = "_filteredChangesetById";
+                const route: Route = "mail_items";
+                return fetchAPI<ChangeSet>(`/api/${route}/${uid}/${method}?since=${version}`, {
+                    ...requestInit,
+                    body: JSON.stringify({ must: [], mustNot: ["Deleted"] }),
+                    method: "POST"
+                });
+            }
+        };
 
-    async fetchChangeset(uid: string, version: number) {
-        const method: Method = "_filteredChangesetById";
-        const route: Route = "mail_items";
-        return fetchAPI<ChangeSet>(`/api/${route}/${uid}/${method}?since=${version}`, {
-            ...this.requestInit,
-            body: JSON.stringify({ must: [], mustNot: ["Deleted"] }),
-            method: "POST"
-        });
+        this.mailFolder = {
+            async fetch({ userId, domain }: { userId: string; domain: string }) {
+                const route: Route = "mail_folders";
+                const method: Method = "_all";
+                return fetchAPI<MailFolder[]>(
+                    `/api/${route}/${domain.replace(".", "_")}/${`user.${userId}`}/${method}`,
+                    requestInit
+                );
+            },
+
+            async changeset({ userId, domain }: { userId: string; domain: string }, version: number) {
+                const method: Method = "_changesetById";
+                const route: Route = "mail_folders";
+                return fetchAPI<ChangeSet>(
+                    `/api/${route}/${domain.replace(".", "_")}/${`user.${userId}`}/${method}?since=${version}`,
+                    requestInit
+                );
+            }
+        };
     }
 }
 
@@ -59,6 +83,40 @@ async function fetchAPI<T>(url: string, requestInit?: RequestInit): Promise<T> {
     return Promise.reject(response.statusText);
 }
 
-export async function getSessionInfos() {
-    return fetchAPI<{ sid: string; userId: string; domain: string }>("/session-infos");
+export const sessionInfos = (function () {
+    let instance: SessionInfo;
+
+    function init() {
+        return fetchAPI<SessionInfo>("/session-infos");
+    }
+    return {
+        getInstance: async function () {
+            if (!instance) {
+                instance = await init();
+            }
+            return instance;
+        }
+    };
+})();
+
+export const mailapi = (function () {
+    let instance: MailAPI;
+
+    async function init() {
+        const { sid } = await sessionInfos.getInstance();
+        return new MailAPI({ sid });
+    }
+
+    return {
+        getInstance: async function () {
+            if (!instance) {
+                instance = await init();
+            }
+            return instance;
+        }
+    };
+})();
+
+export function createFolderId({ userId, domain }: { userId: string; domain: string }) {
+    return `user.${userId}@${domain.replace(".", "_")}`;
 }

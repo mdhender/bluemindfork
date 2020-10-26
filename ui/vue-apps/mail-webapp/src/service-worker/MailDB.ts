@@ -1,16 +1,15 @@
 import { openDB, DBSchema, IDBPDatabase, IDBPTransaction, StoreNames, StoreValue } from "idb";
-import { MailFolder, UID, MailItem, Reconciliation } from "./entry";
+import { MailFolder, MailItem, Reconciliation } from "./entry";
 
+type SyncOptionsType = "mail_folder" | "mail_item";
 export interface SyncOptions {
     uid: string;
-    fullName: string;
     version: number;
-    minInterval: number;
-    type: "mail_folder" | "mail_item";
+    type: SyncOptionsType;
 }
 interface MailSchema extends DBSchema {
     mail_folders: {
-        key: UID;
+        key: string;
         value: MailFolder;
         indexes: { "by-fullName": string };
     };
@@ -29,7 +28,7 @@ interface MailSchema extends DBSchema {
 export class MailDB {
     dbPromise: Promise<IDBPDatabase<MailSchema>>;
     constructor() {
-        const schemaVersion = 4;
+        const schemaVersion = 5;
         this.dbPromise = openDB<MailSchema>("webapp/mail", schemaVersion, {
             upgrade(db, oldVersion) {
                 if (oldVersion < schemaVersion) {
@@ -47,22 +46,25 @@ export class MailDB {
         });
     }
 
-    async getSyncOptions(uid: string, type?: "mail_items") {
+    async getSyncOptions(uid: string) {
         return (await this.dbPromise).get("sync_options", uid);
     }
 
-    async getAllSyncOptions(type?: "mail_items") {
+    async getAllSyncOptions(type?: SyncOptionsType) {
+        if (type) {
+            return (await this.dbPromise).getAllFromIndex("sync_options", "by-type", type);
+        }
         return (await this.dbPromise).getAll("sync_options");
     }
 
-    async updateSyncOptions(syncOptions: SyncOptions, type?: "mail_items") {
-        const actual = await this.getSyncOptions(syncOptions.uid, type);
+    async updateSyncOptions(syncOptions: SyncOptions) {
+        const actual = await this.getSyncOptions(syncOptions.uid);
         if (actual === undefined || actual.version < syncOptions.version) {
             return (await this.dbPromise).put("sync_options", syncOptions);
         }
     }
 
-    async isSubscribed(uid: string, type?: "mail_items") {
+    async isSubscribed(uid: string) {
         const key = await (await this.dbPromise).getKey("sync_options", uid);
         return key !== undefined;
     }
@@ -95,6 +97,10 @@ export class MailDB {
     async getMailItems(folderUid: string, ids: number[]) {
         const tx = (await this.dbPromise).transaction(["mail_items"], "readonly");
         return Promise.all(ids.map(id => tx.objectStore("mail_items").get([folderUid, id])));
+    }
+
+    async getAllMailFolders() {
+        return (await this.dbPromise).getAll("mail_folders");
     }
 
     async reconciliate(data: Reconciliation<MailItem>, syncOptions: SyncOptions) {

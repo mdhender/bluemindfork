@@ -1,10 +1,10 @@
 import { registerRoute } from "workbox-routing";
 import { RouteHandlerCallbackOptions } from "workbox-core/types";
+import { syncMailFolder } from "../periodicSync";
 import { MailDB } from "../MailDB";
-import { MailAPI } from "../MailAPI";
-import { sync } from "../periodicSync";
 import { logger } from "../logger";
 import { MailItem } from "../entry";
+import { createFolderId } from "../MailAPI";
 
 interface Flags {
     must: string[];
@@ -25,6 +25,10 @@ const apiRoutes = [
     {
         capture: /\/api\/mail_items\/([a-f0-9-]+)\/_unread/,
         handler: unreadItems
+    },
+    {
+        capture: /\/api\/mail_folders\/(.+)\/(.+)\/_all/,
+        handler: allMailFolders
     }
 ];
 
@@ -38,15 +42,30 @@ export default function () {
     }
 }
 
+async function allMailFolders({ request, params: [domain, userId] }: RouteHandlerCallbackOptions) {
+    try {
+        request = request as Request;
+        const uid = createFolderId({ userId, domain });
+        logger.log("cache or network?");
+        if (await db.isSubscribed(uid)) {
+            logger.log("cache", { uid });
+            return await fetchIndexedDB.allMailFolders();
+        }
+        logger.log("network", { uid });
+        return fetch(request);
+    } catch (error) {
+        logger.error("Error with local data", { error, domain, userId });
+        return fetch(request);
+    }
+}
+
 async function multipleById({ request, params: [folderUid] }: RouteHandlerCallbackOptions) {
     try {
         if (request instanceof Request) {
             const clonedRequest = request.clone();
-            const { headers } = clonedRequest;
-            const sid = headers.get("x-bm-apikey");
             const ids = (await clonedRequest.json()) as number[];
-            if ((await db.isSubscribed(folderUid)) && sid !== null) {
-                await sync(new MailAPI({ sid }), folderUid);
+            if (await db.isSubscribed(folderUid)) {
+                await syncMailFolder(folderUid);
                 return await fetchIndexedDB.multipleById(folderUid, ids);
             }
         }
@@ -61,10 +80,8 @@ async function filteredChangesetById({ request, params: [folderUid] }: RouteHand
     try {
         if (request instanceof Request) {
             const expectedFlags = (await request.clone().json()) as Flags;
-            const { headers } = await request.clone();
-            const sid = headers.get("x-bm-apikey");
-            if ((await db.isSubscribed(folderUid)) && sid !== null) {
-                await sync(new MailAPI({ sid }), folderUid);
+            if (await db.isSubscribed(folderUid)) {
+                await syncMailFolder(folderUid);
                 return fetchIndexedDB.filteredChangesetById(expectedFlags, folderUid);
             }
         }
@@ -78,11 +95,9 @@ async function filteredChangesetById({ request, params: [folderUid] }: RouteHand
 async function unreadItems({ request, params: [folderUid] }: RouteHandlerCallbackOptions) {
     try {
         if (request instanceof Request) {
-            const { headers } = await request.clone();
-            const sid = headers.get("x-bm-apikey");
             const expectedFlags: Flags = { must: [], mustNot: ["Deleted", "Seen"] };
-            if ((await db.isSubscribed(folderUid)) && sid !== null) {
-                await sync(new MailAPI({ sid }), folderUid);
+            if (await db.isSubscribed(folderUid)) {
+                await syncMailFolder(folderUid);
                 return await fetchIndexedDB.unreadItems(folderUid, expectedFlags);
             }
         }
@@ -130,6 +145,12 @@ const fetchIndexedDB = {
         const headers = new Headers();
         headers.append("X-BM-Fromcache", "true");
         return new Response(JSON.stringify(data), { headers });
+    },
+    async allMailFolders() {
+        const folders = await db.getAllMailFolders();
+        const headers = new Headers();
+        headers.append("X-BM-Fromcache", "true");
+        return new Response(JSON.stringify(folders), { headers });
     }
 };
 

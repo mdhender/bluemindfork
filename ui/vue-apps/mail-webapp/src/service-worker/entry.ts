@@ -1,5 +1,3 @@
-export type UID = string;
-
 interface ItemValue<T> {
     created: number;
     createdBy: string;
@@ -7,7 +5,7 @@ interface ItemValue<T> {
     externalId?: any;
     flags: any[];
     internalId: number;
-    uid: UID;
+    uid: string;
     updated: number;
     updatedBy: string;
     version: number;
@@ -56,4 +54,19 @@ export interface Reconciliation<T> {
     uid: string;
     items: T[];
     deletedIds: number[];
+}
+
+export interface SessionInfo {
+    login: string;
+    accountType: string;
+    defaultEmail: string;
+    sid: string;
+    userId: string;
+    hasIM: string;
+    lang: string;
+    domain: string;
+    roles: string;
+    formatedName: string;
+    bmVersion: string;
+    bmBrandVersion: string;
 }

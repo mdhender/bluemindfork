@@ -5,7 +5,8 @@ import registerCSSRoute from "./workbox/registerCSSRoute";
 import registerImageRoute from "./workbox/registerImageRoute";
 import registerScriptRoute from "./workbox/registerScriptRoute";
 
-import { registerPeriodicSync } from "./periodicSync";
+import { logger } from "./logger";
+import { registerPeriodicSync, syncMailFolders, syncMyMailbox } from "./periodicSync";
 
 skipWaiting();
 
@@ -16,6 +17,27 @@ registerScriptRoute();
 
 self.addEventListener("message", event => {
     if (event.data.type === "INIT_PERIODIC_SYNC") {
-        registerPeriodicSync();
+        const interval = registerPeriodicSync(syncMailFolders);
+        logger.log(`Synchronization registered with the interval id ${interval}.`);
+        logger.log(
+            `To stop the synchronization, use "navigator.serviceWorker.controller.postMessage({type:"STOP_PERIODIC_SYNC", payload: { interval: ${interval} }})".`
+        );
+    }
+    if (event.data.type === "STOP_PERIODIC_SYNC") {
+        const interval = event.data.payload?.interval;
+        if (interval) {
+            clearInterval(interval);
+        } else {
+            logger.error("Need an interval in the payload object.");
+            logger.warn(
+                `To stop the synchronization, use "navigator.serviceWorker.controller.postMessage({type:"STOP_PERIODIC_SYNC", payload: { interval: ${interval} }})".`
+            );
+        }
+    }
+    if (event.data.type === "SYNC_MY_MAILBOX") {
+        syncMyMailbox();
+    }
+    if (event.data.type === "SYNC_MY_FOLDERS") {
+        syncMailFolders();
     }
 });
