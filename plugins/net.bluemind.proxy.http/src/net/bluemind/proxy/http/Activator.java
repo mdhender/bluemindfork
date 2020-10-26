@@ -40,15 +40,14 @@ public class Activator implements BundleActivator {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext
-	 * )
+	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext )
 	 */
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
 
-		authProviders = new ConcurrentHashMap<String, IAuthProviderFactory>();
-		RunnableExtensionLoader<IAuthProviderFactory> rel = new RunnableExtensionLoader<IAuthProviderFactory>();
+		authProviders = new ConcurrentHashMap<>();
+		RunnableExtensionLoader<IAuthProviderFactory> rel = new RunnableExtensionLoader<>();
 		List<IAuthProviderFactory> aps = rel.loadExtensions("net.bluemind.proxy.http", "authprovider", "auth_provider",
 				"implementation");
 		for (IAuthProviderFactory apf : aps) {
