@@ -46,12 +46,9 @@ async function allMailFolders({ request, params: [domain, userId] }: RouteHandle
     try {
         request = request as Request;
         const uid = createFolderId({ userId, domain });
-        logger.log("cache or network?");
         if (await db.isSubscribed(uid)) {
-            logger.log("cache", { uid });
             return await fetchIndexedDB.allMailFolders();
         }
-        logger.log("network", { uid });
         return fetch(request);
     } catch (error) {
         logger.error("Error with local data", { error, domain, userId });
@@ -61,13 +58,16 @@ async function allMailFolders({ request, params: [domain, userId] }: RouteHandle
 
 async function multipleById({ request, params: [folderUid] }: RouteHandlerCallbackOptions) {
     try {
-        if (request instanceof Request) {
-            const clonedRequest = request.clone();
-            const ids = (await clonedRequest.json()) as number[];
-            if (await db.isSubscribed(folderUid)) {
+        request = request as Request;
+        const clonedRequest = request.clone();
+        const ids = (await clonedRequest.json()) as number[];
+        if (await db.isSubscribed(folderUid)) {
+            try {
                 await syncMailFolder(folderUid);
-                return await fetchIndexedDB.multipleById(folderUid, ids);
+            } catch (err) {
+                logger.error("Impossible to reach the server: using local data, they may be outdated.");
             }
+            return await fetchIndexedDB.multipleById(folderUid, ids);
         }
         return fetch(request);
     } catch (error) {
@@ -78,12 +78,15 @@ async function multipleById({ request, params: [folderUid] }: RouteHandlerCallba
 
 async function filteredChangesetById({ request, params: [folderUid] }: RouteHandlerCallbackOptions) {
     try {
-        if (request instanceof Request) {
-            const expectedFlags = (await request.clone().json()) as Flags;
-            if (await db.isSubscribed(folderUid)) {
+        request = request as Request;
+        const expectedFlags = (await request.clone().json()) as Flags;
+        if (await db.isSubscribed(folderUid)) {
+            try {
                 await syncMailFolder(folderUid);
-                return fetchIndexedDB.filteredChangesetById(expectedFlags, folderUid);
+            } catch (err) {
+                logger.error("Impossible to reach the server: using local data, they may be outdated.");
             }
+            return fetchIndexedDB.filteredChangesetById(expectedFlags, folderUid);
         }
         return fetch(request);
     } catch (error) {
@@ -94,12 +97,15 @@ async function filteredChangesetById({ request, params: [folderUid] }: RouteHand
 
 async function unreadItems({ request, params: [folderUid] }: RouteHandlerCallbackOptions) {
     try {
-        if (request instanceof Request) {
-            const expectedFlags: Flags = { must: [], mustNot: ["Deleted", "Seen"] };
-            if (await db.isSubscribed(folderUid)) {
+        request = request as Request;
+        const expectedFlags: Flags = { must: [], mustNot: ["Deleted", "Seen"] };
+        if (await db.isSubscribed(folderUid)) {
+            try {
                 await syncMailFolder(folderUid);
-                return await fetchIndexedDB.unreadItems(folderUid, expectedFlags);
+            } catch (err) {
+                logger.error("Impossible to reach the server: using local data, they may be outdated.");
             }
+            return await fetchIndexedDB.unreadItems(folderUid, expectedFlags);
         }
         return fetch(request);
     } catch (error) {
