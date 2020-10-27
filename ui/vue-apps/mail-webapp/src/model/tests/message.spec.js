@@ -6,9 +6,9 @@ test("check emptiness (basic)", () => {
     const message = create();
     expect(isEmpty(message, emptyContent)).toBe(true);
 });
-test("check emptiness (with content considered as empty)", () => {
+test("check content emptiness", () => {
     const message = create();
-    const content = "<div><br><br><br></div>";
+    const content = '<div id="bm-composer-content-wrapper"><style></style></div>';
     expect(isEmpty(message, content)).toBe(true);
     expect(isEmpty(message, emptyContent)).toBe(true);
 });

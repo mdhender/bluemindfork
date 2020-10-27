@@ -44,7 +44,7 @@ export function create() {
 
         // parts
         hasAttachment: false,
-        hasIcs: false,
+        hasICS: false,
 
         partContentByMimeType: {}, // REMOVE ME and use byAddress
         partContentByAddress: {},
@@ -102,7 +102,7 @@ export function isEmpty(message, content) {
 }
 
 function isEmptyContent(content) {
-    const consideredAsEmptyRegex = /^<div>(<br>)*<\/div>$/;
+    const consideredAsEmptyRegex = /^<div id="bm-composer-content-wrapper"><style><\/style><\/div>$/;
     return !content || consideredAsEmptyRegex.test(content) || content === "";
 }
 

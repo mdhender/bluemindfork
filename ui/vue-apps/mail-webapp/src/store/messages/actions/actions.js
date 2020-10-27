@@ -1,4 +1,4 @@
-import mutationsTypes from "../../mutationTypes";
+import mutationTypes from "../../mutationTypes";
 import { MessageStatus, partialCopy } from "../../../model/message";
 import apiMessages from "../../api/apiMessages";
 
@@ -7,11 +7,11 @@ export async function addFlag({ commit, getters, state }, { messageKeys, flag })
     const messages = keys
         .map(key => state[key])
         .filter(message => !getters.isLoaded(message.key) || !message.flags.includes(flag));
-    commit(mutationsTypes.ADD_FLAG, { keys, flag });
+    commit(mutationTypes.ADD_FLAG, { keys, flag });
     try {
         await apiMessages.addFlag(messages, flag);
     } catch (e) {
-        commit(mutationsTypes.DELETE_FLAG, { keys, flag });
+        commit(mutationTypes.DELETE_FLAG, { keys, flag });
         throw e;
     }
 }
@@ -21,11 +21,11 @@ export async function deleteFlag({ commit, state, getters }, { messageKeys, flag
     const messages = keys
         .map(key => state[key])
         .filter(message => !getters.isLoaded(message.key) || message.flags.includes(flag));
-    commit(mutationsTypes.DELETE_FLAG, { keys: messages.map(({ key }) => key), flag });
+    commit(mutationTypes.DELETE_FLAG, { keys: messages.map(({ key }) => key), flag });
     try {
         await apiMessages.deleteFlag(messages, flag);
     } catch (e) {
-        commit(mutationsTypes.ADD_FLAG, { keys: messages.map(({ key }) => key), flag });
+        commit(mutationTypes.ADD_FLAG, { keys: messages.map(({ key }) => key), flag });
         throw e;
     }
 }
@@ -38,24 +38,24 @@ export async function fetchMessageMetadata({ commit, state }, { messageKeys }) {
         message.partContentByAddress = state[message.key].partContentByAddress;
         return message;
     });
-    commit(mutationsTypes.ADD_MESSAGES, fullMessages);
+    commit(mutationTypes.ADD_MESSAGES, fullMessages);
 }
 
 export async function removeMessages({ commit, state }, messageKeys) {
     const messages = (Array.isArray(messageKeys) ? messageKeys : [messageKeys]).map(key => partialCopy(state[key]));
     commit(
-        mutationsTypes.SET_MESSAGES_STATUS,
+        mutationTypes.SET_MESSAGES_STATUS,
         messages.map(({ key }) => ({ key, status: MessageStatus.REMOVED }))
     );
 
     try {
         await apiMessages.multipleDeleteById(messages);
         commit(
-            mutationsTypes.REMOVE_MESSAGES,
+            mutationTypes.REMOVE_MESSAGES,
             messages.map(({ key }) => key)
         );
     } catch (e) {
-        commit(mutationsTypes.SET_MESSAGES_STATUS, messages);
+        commit(mutationTypes.SET_MESSAGES_STATUS, messages);
         throw e;
     }
 }

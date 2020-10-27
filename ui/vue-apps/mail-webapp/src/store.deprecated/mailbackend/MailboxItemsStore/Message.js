@@ -18,8 +18,6 @@
 import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mail.api";
 import { Flag } from "@bluemind/email";
 
-import { MessageHeader } from "../../../model/message";
-
 /**
  * Holds data and methods for displaying a mail message and respond to it.
  *
@@ -55,21 +53,7 @@ function fromMailboxItem(item, message) {
     message.uid = item.uid;
     message.id = item.internalId;
     message.imapUid = mailboxItem.imapUid;
-    message.ics = {
-        isEmpty: !mailboxItem.body.headers.map(header => header.name).includes(MessageHeader.X_BM_EVENT)
-    };
 
-    if (!message.ics.isEmpty) {
-        const icsHeaderValue = mailboxItem.body.headers.find(header => header.name === MessageHeader.X_BM_EVENT)
-            .values[0];
-        message.ics.needsReply = icsHeaderValue.includes('rsvp="true"') || icsHeaderValue.includes("rsvp='true'");
-        const semiColonIndex = icsHeaderValue.indexOf(";");
-        message.ics.eventUid = semiColonIndex === -1 ? icsHeaderValue : icsHeaderValue.substring(0, semiColonIndex);
-    }
-
-    if (!message.ics.isEmpty) {
-        message.states.push("is-ics");
-    }
     if (mailboxItem.body.smartAttach) {
         message.states.push("has-attachment");
     }

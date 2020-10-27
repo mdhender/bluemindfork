@@ -2,34 +2,31 @@ import { inject } from "@bluemind/inject";
 import ItemUri from "@bluemind/item-uri";
 
 import mutationTypes from "../../store/mutationTypes";
+import { MessageHeader } from "../../model/message";
 
-export function selectMessage({ dispatch, commit, state, rootState, rootGetters }, messageKey) {
+export async function selectMessage({ dispatch, commit, state, rootState, rootGetters }, messageKey) {
     if (rootState.mail.activeFolder && !ItemUri.isItemUri(messageKey)) {
         messageKey = ItemUri.encode(parseInt(messageKey), rootState.mail.activeFolder);
     }
 
     if (state.currentMessage.key !== messageKey) {
-        if (rootState.mail.messages[messageKey].composing) {
-            commit("currentMessage/update", { key: messageKey });
-        } else {
-            return dispatch("$_getIfNotPresent", [messageKey]).then(messages => {
-                const message = messages[0];
-                const promises = [];
-                commit("currentMessage/update", { key: messageKey });
+        await dispatch("$_getIfNotPresent", [messageKey]);
+        const message = rootState.mail.messages[messageKey];
 
-                if (inject("UserSession").roles.includes("hasCalendar") && !message.ics.isEmpty) {
-                    promises.push(dispatch("mail/FETCH_EVENT", message.ics.eventUid, { root: true }));
-                }
+        if (!message.composing) {
+            if (inject("UserSession").roles.includes("hasCalendar") && message.hasICS) {
+                const icsHeaderValue = message.headers.find(header => header.name === MessageHeader.X_BM_EVENT)
+                    .values[0];
+                const semiColonIndex = icsHeaderValue.indexOf(";");
+                const eventUid = semiColonIndex === -1 ? icsHeaderValue : icsHeaderValue.substring(0, semiColonIndex);
+                await dispatch("mail/FETCH_EVENT", eventUid, { root: true });
+            }
 
-                if (ItemUri.container(messageKey) === rootGetters["mail/MY_DRAFTS"].key) {
-                    commit(
-                        "mail/" + mutationTypes.SET_MESSAGE_COMPOSING,
-                        { messageKey, composing: true },
-                        { root: true }
-                    );
-                }
-            });
+            if (ItemUri.container(messageKey) === rootGetters["mail/MY_DRAFTS"].key) {
+                commit("mail/" + mutationTypes.SET_MESSAGE_COMPOSING, { messageKey, composing: true }, { root: true });
+            }
         }
+
+        commit("currentMessage/update", { key: messageKey });
     }
-    return Promise.resolve();
 }
