@@ -19,11 +19,12 @@ package net.bluemind.cli.contact;
 
 import java.util.Optional;
 
-import io.airlift.airline.Arguments;
+import com.google.common.base.Strings;
+
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
-import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.IAddressBook;
+import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -31,13 +32,15 @@ import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.Regex;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.model.ContainerDescriptor;
 
 /**
  * This command is here to ensure our that the default maintenance op does
  * nothing
  *
  */
-@Command(name = "reset", description = "Reset a addressbook")
+@Command(name = "reset", description = "Reset an addressbook")
 public class ResetAddressBookCommand implements ICmdLet, Runnable {
 
 	public static class Reg implements ICmdLetRegistration {
@@ -54,15 +57,15 @@ public class ResetAddressBookCommand implements ICmdLet, Runnable {
 
 	}
 
-	@Arguments(required = true, description = "email address")
+	@Option(name = "--email", description = "email address")
 	public String email;
-	
-	@Option(name = "--addressbook-uid", description = "the addressbook uid to reset. default is ContactsCollected addressbook")
+
+	@Option(name = "--addressbook-uid", description = "The addressbook uid to reset. Default is ContactsCollected addressbook of the specified email")
 	public String addressBookUid;
-	
+
 	@Option(name = "--dry", description = "Dry-run (do nothing)")
 	public boolean dry = false;
-	
+
 	private CliContext ctx;
 	protected CliUtils cliUtils;
 
@@ -75,24 +78,42 @@ public class ResetAddressBookCommand implements ICmdLet, Runnable {
 
 	@Override
 	public void run() {
-		if (!Regex.EMAIL.validate(email)) {
-			throw new CliException("Invalid email : " + email);
+		if (addressBookUid == null && Strings.isNullOrEmpty(email)) {
+			ctx.error("At least email or address book UID must be present");
+			throw new CliException("At least email or address book UID must be present");
 		}
 
-		String userUid = cliUtils.getUserUidFromEmail(email);
+		if (addressBookUid == null) {
+			if (!Regex.EMAIL.validate(email)) {
+				ctx.error(String.format("Invalid email : %s", email));
+				throw new CliException(String.format("Invalid email : %s", email));
+			}
 
-		if(addressBookUid == null) {
-			addressBookUid = IAddressBookUids.collectedContactsUserAddressbook(userUid); 
+			try {
+				addressBookUid = IAddressBookUids.collectedContactsUserAddressbook(cliUtils.getUserUidFromEmail(email));
+			} catch (CliException cli) {
+				ctx.error(cli.getMessage());
+				throw cli;
+			}
 		}
+
 		try {
+			ContainerDescriptor addressBook = ctx.adminApi().instance(IContainers.class).get(addressBookUid);
+
 			if (!dry) {
 				ctx.adminApi().instance(IAddressBook.class, addressBookUid).reset();
-				System.out.println("Addressbook " + addressBookUid + " of " + email + " was reset.");
+				ctx.info(String.format("Addressbook %s was reset.", addressBook));
 			} else {
-				System.out.println("DRY : Addressbook " + addressBookUid + " of " + email + " was reset.");
+				ctx.info(String.format("DRY: Addressbook %s was reset.", addressBook));
 			}
 		} catch (ServerFault e) {
-			throw new CliException("ERROR resseting addressbook for : " + email, e);
+			if (Strings.isNullOrEmpty(email)) {
+				ctx.error(String.format("ERROR reseting addressbook %s: %s", addressBookUid, e.getMessage()));
+				throw new CliException("ERROR reseting addressbook " + addressBookUid, e);
+			}
+
+			ctx.error(String.format("ERROR reseting addressbook %s of %s: %s", addressBookUid, email, e.getMessage()));
+			throw new CliException("ERROR reseting addressbook " + addressBookUid + " of " + email, e);
 		}
 	}
 
