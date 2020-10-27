@@ -13,6 +13,7 @@ Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "sanitizedDescription": undefined,
   "serverEvent": Object {
     "created": 1597336484841,
     "createdBy": "system",
@@ -113,6 +114,7 @@ Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "sanitizedDescription": undefined,
   "serverEvent": Object {
     "created": 1597336498670,
     "createdBy": "system",
@@ -213,6 +215,7 @@ Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "sanitizedDescription": undefined,
   "serverEvent": Object {
     "created": 1597336529234,
     "createdBy": "system",
@@ -326,6 +329,7 @@ Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "sanitizedDescription": undefined,
   "serverEvent": Object {
     "created": 1597336586337,
     "createdBy": "system",
@@ -444,6 +448,7 @@ Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "sanitizedDescription": undefined,
   "serverEvent": Object {
     "created": 1597336616186,
     "createdBy": "system",
@@ -562,6 +567,7 @@ Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "sanitizedDescription": undefined,
   "serverEvent": Object {
     "created": 1597336556578,
     "createdBy": "system",
