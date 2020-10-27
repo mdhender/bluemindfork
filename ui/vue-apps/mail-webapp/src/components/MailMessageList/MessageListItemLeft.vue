@@ -1,9 +1,9 @@
 <template>
     <div class="message-list-item-left d-flex flex-column align-items-center">
-        <bm-avatar :alt="fromOrTo" :class="[anyMessageSelected ? 'd-none' : '']" />
+        <bm-avatar :alt="fromOrTo" :class="[IS_SELECTION_EMPTY ? '' : 'd-none']" />
         <bm-check
-            :checked="isMessageSelected(message.key)"
-            :class="[anyMessageSelected ? 'd-block' : 'd-none']"
+            :checked="IS_MESSAGE_SELECTED(message.key)"
+            :class="[IS_SELECTION_EMPTY ? 'd-none' : 'd-block']"
             @change="$emit('toggle-select', message.key, true)"
             @click.exact.native.stop
             @keyup.native.space.stop
@@ -15,8 +15,9 @@
 
 <script>
 import { BmAvatar, BmCheck, BmIcon } from "@bluemind/styleguide";
-import { mapGetters, mapState } from "vuex";
+import { mapGetters } from "vuex";
 
+import { IS_MESSAGE_SELECTED, IS_SELECTION_EMPTY } from "../../store/types/getters";
 export default {
     name: "MessageListItemLeft",
     components: {
@@ -31,12 +32,8 @@ export default {
         }
     },
     computed: {
-        ...mapState("mail-webapp", ["selectedMessageKeys"]),
-        ...mapGetters("mail-webapp", ["isMessageSelected"]),
+        ...mapGetters("mail", { IS_MESSAGE_SELECTED, IS_SELECTION_EMPTY }),
         ...mapGetters("mail", ["MY_DRAFTS", "MY_SENT"]),
-        anyMessageSelected() {
-            return this.selectedMessageKeys.length > 0;
-        },
 
         fromOrTo() {
             const messageFolder = this.message.folderRef.key;

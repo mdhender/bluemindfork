@@ -36,7 +36,7 @@
             <draggable-message
                 :ref="'message-' + message.key"
                 :message="message"
-                :is-muted="!!draggedMessage && isMessageSelected(draggedMessage) && isMessageSelected(message.key)"
+                :is-muted="!!draggedMessage && IS_MESSAGE_SELECTED(draggedMessage) && IS_MESSAGE_SELECTED(message.key)"
                 @toggle-select="toggleSelect"
                 @click.exact.native="unselectAllIfNeeded(message.key)"
                 @click.ctrl.exact.native.capture.prevent.stop="toggleSelect(message.key)"
@@ -56,6 +56,18 @@ import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 import { TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
 import DraggableMessage from "./DraggableMessage";
 import DateSeparator from "./DateSeparator";
+import {
+    MULTIPLE_MESSAGE_SELECTED,
+    IS_SELECTION_EMPTY,
+    IS_MESSAGE_SELECTED,
+    ALL_MESSAGES_ARE_SELECTED
+} from "../../store/types/getters";
+import {
+    SELECT_MESSAGE,
+    UNSELECT_MESSAGE,
+    SELECT_ALL_MESSAGES,
+    UNSELECT_ALL_MESSAGES
+} from "../../store/types/mutations";
 
 const PAGE = 9;
 
@@ -77,12 +89,17 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["nextMessageKey", "isMessageSelected", "areAllMessagesSelected"]),
-        ...mapState("mail-webapp", ["selectedMessageKeys"]),
+        ...mapGetters("mail-webapp", ["nextMessageKey"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail", ["MY_TRASH", "MESSAGE_LIST_COUNT", "isLoaded"]),
+        ...mapGetters("mail", {
+            MULTIPLE_MESSAGE_SELECTED,
+            IS_SELECTION_EMPTY,
+            IS_MESSAGE_SELECTED,
+            ALL_MESSAGES_ARE_SELECTED
+        }),
+        ...mapState("mail", ["selection", "activeFolder", "selection"]),
         ...mapState("mail", {
-            activeFolder: "activeFolder",
             messageKeys: state => state.messageList.messageKeys
         }),
         messages() {
@@ -96,9 +113,6 @@ export default {
         },
         hasMore: function () {
             return this.length < this.MESSAGE_LIST_COUNT;
-        },
-        isSelectionMultiple() {
-            return this.selectedMessageKeys.length > 1;
         }
     },
     watch: {
@@ -128,13 +142,9 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", ["loadRange"]),
-        ...mapMutations("mail-webapp", [
-            "addSelectedMessageKey",
-            "deleteSelectedMessageKey",
-            "addAllToSelectedMessages",
-            "deleteAllSelectedMessages"
-        ]),
         ...mapMutations("mail-webapp/currentMessage", { clearCurrentMessage: "clear" }),
+        ...mapMutations("mail", { SELECT_MESSAGE, UNSELECT_MESSAGE, SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES }),
+
         async loadMore() {
             if (this.hasMore) {
                 const end = Math.min(this.length + 20, this.MESSAGE_LIST_COUNT);
@@ -159,9 +169,9 @@ export default {
                     const nextMessageKey = this.nextMessageKey;
                     this.$store.dispatch(
                         "mail-webapp/remove",
-                        this.selectedMessageKeys.length ? this.selectedMessageKeys : this.currentMessageKey
+                        this.IS_SELECTION_EMPTY ? this.currentMessageKey : this.selection
                     );
-                    if (!this.isSelectionMultiple) {
+                    if (!this.MULTIPLE_MESSAGE_SELECTED) {
                         this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
                     }
                 }
@@ -171,11 +181,11 @@ export default {
             // '.delete' modifier captures both 'Delete' and 'Backspace' keys, we just want 'Delete'
             if (event.key === "Delete") {
                 const confirm = await this.$bvModal.msgBoxConfirm(
-                    this.$tc("mail.actions.purge.modal.content", this.selectedMessageKeys.length || 1, {
+                    this.$tc("mail.actions.purge.modal.content", this.selection.length || 1, {
                         subject: this.currentMessage && this.currentMessage.subject
                     }),
                     {
-                        title: this.$tc("mail.actions.purge.modal.title", this.selectedMessageKeys.length || 1),
+                        title: this.$tc("mail.actions.purge.modal.title", this.selection.length || 1),
                         okTitle: this.$t("common.delete"),
                         cancelVariant: "outline-secondary",
                         cancelTitle: this.$t("common.cancel"),
@@ -188,9 +198,9 @@ export default {
                     const nextMessageKey = this.nextMessageKey;
                     this.$store.dispatch(
                         "mail-webapp/purge",
-                        this.selectedMessageKeys.length ? this.selectedMessageKeys : this.currentMessageKey
+                        this.IS_SELECTION_EMPTY ? this.currentMessageKey : this.selection
                     );
-                    if (!this.isSelectionMultiple) {
+                    if (!this.MULTIPLE_MESSAGE_SELECTED) {
                         this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
                     }
                 }
@@ -205,7 +215,7 @@ export default {
         },
         goToByKey(key) {
             this.$router.navigate({ name: "v:mail:message", params: { message: key } });
-            this.deleteAllSelectedMessages();
+            this.UNSELECT_ALL_MESSAGES();
         },
         focusByKey(key) {
             if (key) {
@@ -247,13 +257,13 @@ export default {
         },
         checkReset(shouldReset) {
             if (shouldReset) {
-                this.deleteAllSelectedMessages();
+                this.UNSELECT_ALL_MESSAGES();
             }
         },
         addMessageKeysBetween(start, end) {
             const realStart = start < end ? start : end;
             const realEnd = start < end ? end : start;
-            return this.messageKeys.slice(realStart, realEnd + 1).forEach(key => this.addSelectedMessageKey(key));
+            return this.messageKeys.slice(realStart, realEnd + 1).forEach(key => this.SELECT_MESSAGE(key));
         },
         initAnchored() {
             if (!this.anchoredMessageForShift) {
@@ -261,24 +271,24 @@ export default {
             }
         },
         toggleAll() {
-            if (this.areAllMessagesSelected) {
-                this.deleteAllSelectedMessages();
+            if (this.ALL_MESSAGES_ARE_SELECTED) {
+                this.UNSELECT_ALL_MESSAGES();
                 this.clearCurrentMessage();
             } else {
-                this.addAllToSelectedMessages(this.messageKeys);
+                this.SELECT_ALL_MESSAGES(this.messageKeys);
             }
             this.navigateAfterSelection();
         },
         toggleSelect(messageKey, force = false) {
-            if (this.isMessageSelected(messageKey)) {
-                this.deleteSelectedMessageKey(messageKey);
+            if (this.IS_MESSAGE_SELECTED(messageKey)) {
+                this.UNSELECT_MESSAGE(messageKey);
                 if (this.currentMessageKey === messageKey) {
                     this.clearCurrentMessage();
                 }
             } else if (this.currentMessageKey === messageKey && !force) {
                 this.clearCurrentMessage();
             } else {
-                this.addSelectedMessageKey(messageKey);
+                this.SELECT_MESSAGE(messageKey);
                 this.anchoredMessageForShift = messageKey;
             }
             this.focusByKey(messageKey);
@@ -288,8 +298,8 @@ export default {
             this.$router.navigate("mail:home");
         },
         unselectAllIfNeeded(messageKey) {
-            if (this.selectedMessageKeys.length !== 1 || this.selectedMessageKeys[0] !== messageKey) {
-                this.deleteAllSelectedMessages();
+            if (this.selection.length !== 1 || this.selection[0] !== messageKey) {
+                this.UNSELECT_ALL_MESSAGES();
             }
         }
     }

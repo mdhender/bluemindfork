@@ -39,7 +39,7 @@ describe("MailApp Store: Purge message action", () => {
         expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [messageKey]);
         expect(context.dispatch).toHaveBeenCalledWith("messages/remove", [messageKey]);
 
-        expect(context.commit).toHaveBeenCalledTimes(2);
+        expect(context.commit).toHaveBeenCalledTimes(1);
 
         expect(context.commit).toHaveBeenCalledWith(
             "addApplicationAlert",

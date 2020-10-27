@@ -14,7 +14,7 @@
     >
         <message-list-item :message="message" @toggle-select="$emit('toggle-select', message.key)" />
         <template v-slot:shadow>
-            <mail-message-list-item-shadow :message="message" :count="selectedMessageKeys.length" />
+            <mail-message-list-item-shadow :message="message" :count="selection.length" />
         </template>
     </bm-draggable>
 </template>
@@ -24,6 +24,7 @@ import { BmTooltip, BmDraggable } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
 import MailMessageListItemShadow from "./MailMessageListItemShadow";
 import MessageListItem from "./MessageListItem";
+import { IS_MESSAGE_SELECTED } from "../../store/types/getters";
 
 export default {
     name: "DraggableMessage",
@@ -53,9 +54,9 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail", ["folders"]),
-        ...mapState("mail-webapp", ["selectedMessageKeys"]),
-        ...mapGetters("mail-webapp", ["nextMessageKey", "isMessageSelected"])
+        ...mapState("mail", ["folders", "selection"]),
+        ...mapGetters("mail", { IS_MESSAGE_SELECTED }),
+        ...mapGetters("mail-webapp", ["nextMessageKey"])
     },
     methods: {
         ...mapActions("mail-webapp", ["move"]),
@@ -72,7 +73,7 @@ export default {
                     });
                     this.tooltip.cursor = "forbidden";
                 } else {
-                    this.tooltip.text = this.$tc("mail.actions.move.item", this.selectedMessageKeys.length, {
+                    this.tooltip.text = this.$tc("mail.actions.move.item", this.selection.length, {
                         path: folder.path
                     });
                     this.tooltip.cursor = "cursor";
@@ -88,8 +89,8 @@ export default {
                 if (this.message.key === this.currentMessageKey) {
                     this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
                 }
-                if (this.isMessageSelected(this.message.key)) {
-                    this.move({ messageKey: [...this.selectedMessageKeys], folder: this.folders[folder.key] });
+                if (this.IS_MESSAGE_SELECTED(this.message.key)) {
+                    this.move({ messageKey: this.selection, folder: this.folders[folder.key] });
                 } else {
                     this.move({ messageKey: this.message.key, folder: this.folders[folder.key] });
                 }

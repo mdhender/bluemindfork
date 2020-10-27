@@ -4,7 +4,6 @@ export * from "./$_move";
 export * from "./$_Vuebus_mailboxRecordsChanged";
 export * from "./bootstrap";
 export * from "./createFolder";
-export * from "./filterSelectedMessageKeys";
 export * from "./loadMailboxConfig";
 export * from "./loadMessageList";
 export * from "./loadRange";

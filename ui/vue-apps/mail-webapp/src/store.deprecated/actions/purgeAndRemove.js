@@ -52,7 +52,6 @@ function cleanUp(messageKeys, context) {
         context.dispatch("loadUnreadCount", folderKey);
         const keys = messageKeysByFolder[folderKey];
         keys.forEach(messageKey => {
-            context.commit("deleteSelectedMessageKey", messageKey);
             if (context.state.currentMessage.key === messageKey) {
                 context.state.currentMessage.key = null;
             }

@@ -6,6 +6,7 @@ import messages from "./messages";
 import * as folderList from "./folderList";
 import messageList from "./messageList";
 import * as mailboxes from "./mailboxes";
+import selection from "./selection";
 
 export default {
     namespaced: true,
@@ -22,6 +23,7 @@ export default {
     modules: {
         folders,
         messages,
-        messageList
+        messageList,
+        selection
     }
 };

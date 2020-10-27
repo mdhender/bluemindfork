@@ -199,7 +199,8 @@ describe("[MailWebAppStore] Vuex store", () => {
                 }
             },
             messages: {},
-            messageList: {}
+            messageList: {},
+            selection: []
         };
 
         const folderUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";

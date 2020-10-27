@@ -11,8 +11,6 @@ describe("[Mail-WebappStore][mutactions] : _removeMessages", () => {
     });
     test("Basic", () => {
         _removeMessages(context, [1, 2]);
-        expect(context.commit).toHaveBeenCalledWith("deleteSelectedMessageKey", 1);
-        expect(context.commit).toHaveBeenCalledWith("deleteSelectedMessageKey", 2);
         expect(context.commit).toHaveBeenCalledWith("mail/" + mutationTypes.REMOVE_MESSAGES, [1, 2], { root: true });
     });
 });

@@ -138,6 +138,7 @@ import actionTypes from "../../store/actionTypes";
 import mutationTypes from "../../store/mutationTypes";
 import { isEmpty, MessageForwardAttributeSeparator, MessageReplyAttributeSeparator } from "../../model/message";
 import PlayWithInlinePartsByCapabilities from "../../store/messages/helpers/PlayWithInlinePartsByCapabilities";
+import { UNSELECT_ALL_MESSAGES } from "../../store/types/mutations";
 
 export default {
     name: "MailComposer",
@@ -205,7 +206,7 @@ export default {
         }
     },
     created: function () {
-        this.deleteAllSelectedMessages();
+        this.UNSELECT_ALL_MESSAGES();
     },
     destroyed: function () {
         if (isEmpty(this.message, this.messageCompose.editorContent)) {
@@ -217,12 +218,12 @@ export default {
         ...mapActions("mail", { save: actionTypes.SAVE_MESSAGE }),
         ...mapActions("mail", [actionTypes.SEND_MESSAGE, actionTypes.ADD_ATTACHMENTS]),
         ...mapActions("mail-webapp", ["purge"]),
-        ...mapMutations("mail-webapp", ["deleteAllSelectedMessages"]),
         ...mapMutations("mail", [
             mutationTypes.SET_DRAFT_EDITOR_CONTENT,
             mutationTypes.SET_DRAFT_COLLAPSED_CONTENT,
             mutationTypes.SET_MESSAGE_SUBJECT
         ]),
+        ...mapMutations("mail", { UNSELECT_ALL_MESSAGES }),
         updateSubject(subject) {
             this.SET_MESSAGE_SUBJECT({ messageKey: this.messageKey, subject });
             this.saveDraft();

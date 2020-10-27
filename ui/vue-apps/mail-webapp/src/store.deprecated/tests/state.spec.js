@@ -6,7 +6,6 @@ describe("[Mail-WebappStore][state]", () => {
             Object {
               "maxMessageSize": undefined,
               "messagesWithUnblockedRemoteImages": Array [],
-              "selectedMessageKeys": Array [],
               "showBlockedImagesAlert": false,
               "status": "idle",
               "userUid": undefined,

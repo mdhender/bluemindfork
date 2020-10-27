@@ -6,17 +6,18 @@
         <mail-toolbar-compose-message
             v-if="currentMessageKey && messages[currentMessageKey] && messages[currentMessageKey].composing"
         />
-        <mail-toolbar-selected-messages v-else-if="message || selectedMessageKeys.length > 1" />
+        <mail-toolbar-selected-messages v-else-if="message || MULTIPLE_MESSAGE_SELECTED" />
     </bm-button-toolbar>
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 
 import { BmButton, BmIcon, BmButtonToolbar } from "@bluemind/styleguide";
 
 import MailToolbarComposeMessage from "./MailToolbarComposeMessage";
 import MailToolbarSelectedMessages from "./MailToolbarSelectedMessages";
+import { MULTIPLE_MESSAGE_SELECTED } from "../../store/types/getters";
 
 export default {
     name: "MailToolbar",
@@ -29,7 +30,7 @@ export default {
     },
     computed: {
         ...mapState("mail", ["messages"]),
-        ...mapState("mail-webapp", ["selectedMessageKeys"]),
+        ...mapGetters("mail", { MULTIPLE_MESSAGE_SELECTED }),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         message() {
             return this.messages[this.currentMessageKey];

@@ -40,7 +40,6 @@ export async function loadMessageList(
     commit("mail/" + mutationTypes.SET_SEARCH_FOLDER, searchFolder, ROOT);
 
     commit("currentMessage/clear");
-    commit("deleteAllSelectedMessages");
 
     const prefix = "mbox_records_";
     const previousFolderKey = rootState.mail.activeFolder;

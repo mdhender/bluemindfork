@@ -22,6 +22,7 @@ import ItemUri from "@bluemind/item-uri";
 import MailFolderIcon from "../MailFolderIcon";
 import { mapGetters, mapState } from "vuex";
 import { MailboxType } from "../../model/mailbox";
+import { IS_MESSAGE_SELECTED } from "../../store/types/getters";
 
 export default {
     name: "MessageListItemFolderName",
@@ -41,14 +42,14 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail-webapp", ["isMessageSelected"]),
+        ...mapGetters("mail", { IS_MESSAGE_SELECTED }),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["folders", "mailboxes"]),
         folder() {
             return this.folders[ItemUri.container(this.message.key)];
         },
         isActive() {
-            return this.isMessageSelected(this.message.key) || this.message.key === this.currentMessageKey;
+            return this.IS_MESSAGE_SELECTED(this.message.key) || this.message.key === this.currentMessageKey;
         }
     },
     methods: {

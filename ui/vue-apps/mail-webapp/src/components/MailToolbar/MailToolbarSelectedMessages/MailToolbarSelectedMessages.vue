@@ -5,28 +5,28 @@
             v-bm-tooltip.bottom
             variant="simple-dark"
             class="unread"
-            :title="$tc('mail.actions.mark_read.aria', selectedMessageKeys.length || 1)"
-            :aria-label="$tc('mail.actions.mark_read.aria', selectedMessageKeys.length || 1)"
+            :title="$tc('mail.actions.mark_read.aria', selection.length || 1)"
+            :aria-label="$tc('mail.actions.mark_read.aria', selection.length || 1)"
             @click="doMarkAsRead"
         >
             <bm-icon icon="read" size="2x" />
-            <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_read", selectedMessageKeys.length || 1) }}</span>
+            <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_read", selection.length || 1) }}</span>
         </bm-button>
         <bm-button
             v-show="displayMarkAsUnread"
             v-bm-tooltip.bottom
             variant="simple-dark"
             class="read"
-            :title="$tc('mail.actions.mark_unread.aria', selectedMessageKeys.length || 1)"
-            :aria-label="$tc('mail.actions.mark_unread.aria', selectedMessageKeys.length || 1)"
+            :title="$tc('mail.actions.mark_unread.aria', selection.length || 1)"
+            :aria-label="$tc('mail.actions.mark_unread.aria', selection.length || 1)"
             @click="doMarkAsUnread"
         >
             <bm-icon icon="unread" size="2x" />
-            <span class="d-none d-lg-block">{{
-                $tc("mail.actions.mark_unread", selectedMessageKeys.length || 1)
-            }}</span>
+            <span class="d-none d-lg-block">{{ $tc("mail.actions.mark_unread", selection.length || 1) }}</span>
         </bm-button>
-        <mail-toolbar-selected-messages-move-action v-show="!isSelectionMultiple && !selectionHasReadOnlyFolders" />
+        <mail-toolbar-selected-messages-move-action
+            v-show="!MULTIPLE_MESSAGE_SELECTED && !selectionHasReadOnlyFolders"
+        />
         <bm-button
             v-show="!selectionHasReadOnlyFolders"
             v-bm-tooltip.bottom
@@ -44,8 +44,8 @@
             v-bm-tooltip.bottom
             variant="simple-dark"
             class="flagged"
-            :title="$tc('mail.actions.mark_flagged.aria', selectedMessageKeys.length)"
-            :aria-label="$tc('mail.actions.mark_flagged.aria', selectedMessageKeys.length)"
+            :title="$tc('mail.actions.mark_flagged.aria', selection.length)"
+            :aria-label="$tc('mail.actions.mark_flagged.aria', selection.length)"
             @click="doMarkAsFlagged"
         >
             <bm-icon icon="flag-outline" size="2x" />
@@ -56,8 +56,8 @@
             v-bm-tooltip.bottom
             variant="simple-dark"
             class="unflagged"
-            :title="$tc('mail.actions.mark_unflagged.aria', selectedMessageKeys.length)"
-            :aria-label="$tc('mail.actions.mark_unflagged.aria', selectedMessageKeys.length)"
+            :title="$tc('mail.actions.mark_unflagged.aria', selection.length)"
+            :aria-label="$tc('mail.actions.mark_unflagged.aria', selection.length)"
             @click="doMarkAsUnflagged"
         >
             <bm-icon icon="flag-fill" size="2x" class="text-warning" />
@@ -68,12 +68,20 @@
 </template>
 
 <script>
+import { mapActions, mapGetters, mapState } from "vuex";
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { ItemUri } from "@bluemind/item-uri";
-import { mapActions, mapGetters, mapState } from "vuex";
+import { Flag } from "@bluemind/email";
 import MailToolbarSelectedMessagesMoveAction from "./MailToolbarSelectedMessagesMoveAction";
 import MailToolbarSelectedMessagesOtherActions from "./MailToolbarSelectedMessagesOtherActions";
-import { Flag } from "@bluemind/email";
+import {
+    ALL_MESSAGES_ARE_SELECTED,
+    ALL_SELECTED_MESSAGES_ARE_FLAGGED,
+    ALL_SELECTED_MESSAGES_ARE_READ,
+    ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
+    ALL_SELECTED_MESSAGES_ARE_UNREAD,
+    MULTIPLE_MESSAGE_SELECTED
+} from "../../../store/types/getters";
 
 export default {
     name: "MailToolbarSelectedMessages",
@@ -85,34 +93,31 @@ export default {
     },
     directives: { BmTooltip },
     computed: {
-        ...mapState("mail-webapp", ["selectedMessageKeys"]),
-        ...mapGetters("mail-webapp", [
-            "areAllMessagesSelected",
-            "areAllSelectedMessagesFlagged",
-            "areAllSelectedMessagesRead",
-            "areAllSelectedMessagesUnflagged",
-            "areAllSelectedMessagesUnread",
-            "nextMessageKey"
-        ]),
+        ...mapGetters("mail-webapp", ["nextMessageKey"]),
+        ...mapGetters("mail", {
+            ALL_MESSAGES_ARE_SELECTED,
+            ALL_SELECTED_MESSAGES_ARE_FLAGGED,
+            ALL_SELECTED_MESSAGES_ARE_READ,
+            ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
+            ALL_SELECTED_MESSAGES_ARE_UNREAD,
+            MULTIPLE_MESSAGE_SELECTED
+        }),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail", ["folders", "activeFolder", "messages"]),
+        ...mapState("mail", ["folders", "activeFolder", "messages", "selection"]),
         ...mapGetters("mail", ["MY_TRASH", "MESSAGE_LIST_FILTERED", "MESSAGE_LIST_IS_SEARCH_MODE"]),
         message() {
             return this.messages[this.currentMessageKey];
         },
-        isSelectionMultiple() {
-            return this.selectedMessageKeys.length > 1;
-        },
         displayMarkAsRead() {
-            if (this.isSelectionMultiple) {
-                return !this.areAllSelectedMessagesRead;
+            if (this.MULTIPLE_MESSAGE_SELECTED) {
+                return !this.ALL_SELECTED_MESSAGES_ARE_READ;
             } else {
                 return !this.message.flags.includes(Flag.SEEN);
             }
         },
         displayMarkAsUnread() {
-            if (this.isSelectionMultiple) {
-                return !this.areAllSelectedMessagesUnread;
+            if (this.MULTIPLE_MESSAGE_SELECTED) {
+                return !this.ALL_SELECTED_MESSAGES_ARE_UNREAD;
             } else {
                 return this.message.flags.includes(Flag.SEEN);
             }
@@ -120,8 +125,8 @@ export default {
         displayMarkAsFlagged() {
             if (this.selectionHasReadOnlyFolders) {
                 return false;
-            } else if (this.isSelectionMultiple) {
-                return !this.areAllSelectedMessagesFlagged;
+            } else if (this.MULTIPLE_MESSAGE_SELECTED) {
+                return !this.ALL_SELECTED_MESSAGES_ARE_FLAGGED;
             } else {
                 return !this.message.flags.includes(Flag.FLAGGED);
             }
@@ -129,14 +134,14 @@ export default {
         displayMarkAsUnflagged() {
             if (this.selectionHasReadOnlyFolders) {
                 return false;
-            } else if (this.isSelectionMultiple) {
-                return !this.areAllSelectedMessagesUnflagged;
+            } else if (this.MULTIPLE_MESSAGE_SELECTED) {
+                return !this.ALL_SELECTED_MESSAGES_ARE_UNFLAGGED;
             } else {
                 return this.message.flags.includes(Flag.FLAGGED);
             }
         },
         selectionHasReadOnlyFolders() {
-            const selection = this.selectedMessageKeys.length ? this.selectedMessageKeys : [this.currentMessageKey];
+            const selection = this.selection.length ? this.selection : [this.currentMessageKey];
             return selection.some(messageKey => !this.folders[ItemUri.container(messageKey)].writable);
         }
     },
@@ -150,11 +155,11 @@ export default {
         }),
         async purge() {
             const confirm = await this.$bvModal.msgBoxConfirm(
-                this.$tc("mail.actions.purge.modal.content", this.selectedMessageKeys.length || 1, {
-                    subject: this.selectedMessageKeys.length > 0 ? "" : this.message.subject
+                this.$tc("mail.actions.purge.modal.content", this.selection.length || 1, {
+                    subject: this.message && this.message.subject
                 }),
                 {
-                    title: this.$tc("mail.actions.purge.modal.title", this.selectedMessageKeys.length || 1),
+                    title: this.$tc("mail.actions.purge.modal.title", this.selection.length || 1),
                     okTitle: this.$t("common.delete"),
                     cancelVariant: "outline-secondary",
                     cancelTitle: this.$t("common.cancel"),
@@ -167,9 +172,9 @@ export default {
                 const nextMessageKey = this.nextMessageKey;
                 this.$store.dispatch(
                     "mail-webapp/purge",
-                    this.selectedMessageKeys.length > 1 ? this.selectedMessageKeys : this.currentMessageKey
+                    this.selection.length > 1 ? this.selection : this.currentMessageKey
                 );
-                if (!this.isSelectionMultiple) {
+                if (!this.MULTIPLE_MESSAGE_SELECTED) {
                     this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
                 }
             }
@@ -182,26 +187,26 @@ export default {
                 const nextMessageKey = this.nextMessageKey;
                 this.$store.dispatch(
                     "mail-webapp/remove",
-                    this.selectedMessageKeys.length > 1 ? this.selectedMessageKeys : this.currentMessageKey
+                    this.selection.length > 1 ? this.selection : this.currentMessageKey
                 );
-                if (!this.isSelectionMultiple) {
+                if (!this.MULTIPLE_MESSAGE_SELECTED) {
                     this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
                 }
             }
         },
         selectedKeys() {
-            return this.isSelectionMultiple ? this.selectedMessageKeys : [this.currentMessageKey];
+            return this.MULTIPLE_MESSAGE_SELECTED ? this.selection : [this.currentMessageKey];
         },
         doMarkAsRead() {
             const areAllMessagesInFolderSelected =
-                this.areAllMessagesSelected && !this.MESSAGE_LIST_FILTERED && !this.MESSAGE_LIST_IS_SEARCH_MODE;
+                this.ALL_MESSAGES_ARE_SELECTED && !this.MESSAGE_LIST_FILTERED && !this.MESSAGE_LIST_IS_SEARCH_MODE;
             areAllMessagesInFolderSelected
                 ? this.markFolderAsRead(this.activeFolder)
                 : this.markMessagesAsRead(this.selectedKeys());
         },
         doMarkAsUnread() {
-            if (this.isSelectionMultiple) {
-                this.markAsUnread(this.selectedMessageKeys);
+            if (this.MULTIPLE_MESSAGE_SELECTED) {
+                this.markAsUnread(this.selection);
             } else {
                 this.markAsUnread([this.currentMessageKey]);
             }

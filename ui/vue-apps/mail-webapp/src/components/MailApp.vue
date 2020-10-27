@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import { BmFormCheckbox, BmButton, BmCol, BmIcon, BmRow, MakeUniq } from "@bluemind/styleguide";
 import { inject } from "@bluemind/inject";
@@ -85,6 +85,7 @@ import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
 import MessagesOptionsForMobile from "./MessagesOptionsForMobile";
 import NewMessage from "./NewMessage";
+import { MULTIPLE_MESSAGE_SELECTED } from "../store/types/getters";
 
 export default {
     name: "MailApp",
@@ -113,16 +114,16 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["selectedMessageKeys"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail", ["messages"]),
+        ...mapState("mail", ["messages", "selection"]),
+        ...mapGetters("mail", { MULTIPLE_MESSAGE_SELECTED }),
         isMessageComposerDisplayed() {
             return this.currentMessageKey && this.messages[this.currentMessageKey]
                 ? this.messages[this.currentMessageKey].composing
                 : false;
         },
         hideListInResponsiveMode() {
-            return this.isMessageComposerDisplayed || (this.currentMessageKey && this.selectedMessageKeys.length === 0);
+            return this.isMessageComposerDisplayed || (this.currentMessageKey && this.selection.length === 0);
         },
         composerOrMessageIsDisplayed() {
             return this.isMessageComposerDisplayed || !!this.currentMessageKey;
@@ -135,7 +136,7 @@ export default {
             );
         },
         displayToolbarInResponsiveMode() {
-            return this.composerOrMessageIsDisplayed || this.selectedMessageKeys.length > 1;
+            return this.composerOrMessageIsDisplayed || this.MULTIPLE_MESSAGE_SELECTED;
         }
     },
     created() {

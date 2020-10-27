@@ -1,7 +1,7 @@
 export function nextMessageKey(state, getters, rootState) {
     const messageListKeys = rootState.mail.messageList.messageKeys;
     const count = getters["messages/count"];
-    let selection = state.selectedMessageKeys.length ? state.selectedMessageKeys : [state.currentMessage.key];
+    let selection = rootState.mail.selection.length ? rootState.mail.selection : [state.currentMessage.key];
     const otherMessageAvailable = selection.length < count;
 
     if (otherMessageAvailable) {

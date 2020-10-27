@@ -6,7 +6,7 @@
             ['message-list-item-' + userSettings.mail_message_list_style]: true,
             'not-seen': !message.flags.includes(Flag.SEEN),
             'warning-custom': message.flags.includes(Flag.FLAGGED),
-            active: isMessageSelected(message.key) || currentMessageKey === message.key
+            active: IS_MESSAGE_SELECTED(message.key) || currentMessageKey === message.key
         }"
         role="link"
         @click="navigateTo"
@@ -28,12 +28,13 @@
 
 <script>
 import { BmListGroupItem, BmTooltip } from "@bluemind/styleguide";
+import { Flag } from "@bluemind/email";
 import { mapGetters, mapState } from "vuex";
 import MessageListItemLeft from "./MessageListItemLeft";
 import MessageListItemMiddle from "./MessageListItemMiddle";
 import MessageListItemQuickActionButtons from "./MessageListItemQuickActionButtons";
 import ScreenReaderOnlyMessageInformation from "./ScreenReaderOnlyMessageInformation";
-import { Flag } from "@bluemind/email";
+import { IS_MESSAGE_SELECTED } from "../../store/types/getters";
 
 export default {
     name: "MessageListItem",
@@ -67,20 +68,20 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail", ["folders", "activeFolder"]),
-        ...mapGetters("mail-webapp", ["isMessageSelected", "nextMessageKey"]),
-        ...mapState("mail-webapp", ["selectedMessageKeys"]),
+        ...mapState("mail", ["folders", "activeFolder", "selection"]),
+        ...mapGetters("mail", { IS_MESSAGE_SELECTED }),
+        ...mapGetters("mail-webapp", ["nextMessageKey"]),
         ...mapState("session", ["userSettings"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" })
     },
     methods: {
         async purge() {
             const confirm = await this.$bvModal.msgBoxConfirm(
-                this.$tc("mail.actions.purge.modal.content", this.selectedMessageKeys.length || 1, {
+                this.$tc("mail.actions.purge.modal.content", this.selection.length || 1, {
                     subject: this.message.subject
                 }),
                 {
-                    title: this.$tc("mail.actions.purge.modal.title", this.selectedMessageKeys.length || 1),
+                    title: this.$tc("mail.actions.purge.modal.title", this.selection.length || 1),
                     okTitle: this.$t("common.delete"),
                     cancelVariant: "outline-secondary",
                     cancelTitle: this.$t("common.cancel"),

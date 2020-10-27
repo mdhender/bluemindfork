@@ -62,6 +62,7 @@ import { mapGetters, mapState } from "vuex";
 import ItemUri from "@bluemind/item-uri";
 import MailFolderIcon from "../MailFolderIcon";
 import { MailboxType } from "../../model/mailbox";
+import { IS_MESSAGE_SELECTED } from "../../store/types/getters";
 
 const FLAG_COMPONENT = {
     [Flag.FLAGGED]: {
@@ -109,8 +110,8 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["isMessageSelected"]),
         ...mapGetters("mail", ["MY_DRAFTS", "MY_SENT", "MESSAGE_LIST_IS_SEARCH_MODE"]),
+        ...mapGetters("mail", { IS_MESSAGE_SELECTED }),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["mailboxes", "folders", "messages"]),
         displayedDate: function () {
@@ -136,7 +137,7 @@ export default {
             return Object.values(this.folders).find(folder => folder.key === ItemUri.container(this.message.key));
         },
         isActive() {
-            return this.isMessageSelected(this.message.key) || this.message.key === this.currentMessageKey;
+            return this.IS_MESSAGE_SELECTED(this.message.key) || this.message.key === this.currentMessageKey;
         },
         fromOrTo() {
             const messageFolder = this.message.folderRef.key;

@@ -1,6 +1,6 @@
 <template>
-    <mail-thread v-if="selectedMessageKeys.length === 1" />
-    <mail-multiple-selection-actions v-else-if="selectedMessageKeys.length > 1" />
+    <mail-thread v-if="ONE_MESSAGE_SELECTED" />
+    <mail-multiple-selection-actions v-else-if="MULTIPLE_MESSAGE_SELECTED" />
     <mail-message-starter v-else />
 </template>
 
@@ -8,7 +8,8 @@
 import MailMessageStarter from "./MailMessageStarter";
 import MailMultipleSelectionActions from "./MailMultipleSelectionActions";
 import MailThread from "./MailThread/MailThread";
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
+import { MULTIPLE_MESSAGE_SELECTED, ONE_MESSAGE_SELECTED } from "../store/types/getters";
 
 export default {
     name: "MailActionsPanel",
@@ -18,13 +19,14 @@ export default {
         MailThread
     },
     computed: {
-        ...mapState("mail-webapp", ["selectedMessageKeys"])
+        ...mapGetters("mail", { ONE_MESSAGE_SELECTED, MULTIPLE_MESSAGE_SELECTED }),
+        ...mapState("mail", ["selection"])
     },
     watch: {
-        selectedMessageKeys: {
+        selection: {
             handler: function () {
-                if (this.selectedMessageKeys.length === 1) {
-                    this.selectMessage(this.selectedMessageKeys[0]);
+                if (this.ONE_MESSAGE_SELECTED) {
+                    this.selectMessage(this.selection[0]);
                 }
             },
             immediate: true

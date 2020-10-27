@@ -3,8 +3,8 @@
         <bm-row align-v="center" class="no-gutters">
             <bm-col cols="1">
                 <bm-check
-                    :checked="areAllMessagesSelected"
-                    :indeterminate="!areAllMessagesSelected && selectedMessageKeys.length > 0"
+                    :checked="ALL_MESSAGES_ARE_SELECTED"
+                    :indeterminate="!ALL_MESSAGES_ARE_SELECTED && !IS_SELECTION_EMPTY"
                     @change="$bus.$emit(TOGGLE_SELECTION_ALL)"
                 />
             </bm-col>
@@ -26,7 +26,7 @@
 import { BmCheck, BmCol, BmRow, BmChoiceGroup, BmTooltip } from "@bluemind/styleguide";
 import { mapState, mapGetters } from "vuex";
 import { TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
-
+import { ALL_MESSAGES_ARE_SELECTED, IS_SELECTION_EMPTY } from "../../store/types/getters";
 const FILTER_INDEXES = { all: 0, unread: 1, flagged: 2 };
 
 export default {
@@ -45,8 +45,7 @@ export default {
     },
     computed: {
         ...mapState("mail", { filter: ({ messageList }) => messageList.filter }),
-        ...mapState("mail-webapp", ["selectedMessageKeys"]),
-        ...mapGetters("mail-webapp", ["areAllMessagesSelected"]),
+        ...mapGetters("mail", { ALL_MESSAGES_ARE_SELECTED, IS_SELECTION_EMPTY }),
         filters() {
             return [
                 {
