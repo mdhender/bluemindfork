@@ -43,6 +43,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.rest.base.ExecutorHolder;
 import net.bluemind.deferredaction.api.DeferredAction;
 import net.bluemind.deferredaction.api.IDeferredAction;
 import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
@@ -95,8 +96,8 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 				.map(action -> ItemValue.create(action.uid, action.value.get())).forEach(action -> {
 					VertxPlatform.getVertx().setTimer(
 							Math.max(1, action.value.executionDate.getTime() - new Date().getTime()),
-							(timerId) -> executeAction(deferredActionService, action, mailboxesService,
-									userSettingsService, directoryService));
+							timerId -> ExecutorHolder.getAsService().execute(() -> executeAction(deferredActionService,
+									action, mailboxesService, userSettingsService, directoryService)));
 				});
 	}
 

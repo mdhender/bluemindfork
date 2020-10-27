@@ -72,7 +72,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 	private final List<IRestFilter> filters;
 	private final boolean directExec;
 
-	private static final BMExecutor executor = new BMExecutor("BM-Core");
+	private static final BMExecutor executor = ExecutorHolder.get();
 
 	private static class MetricsHolder {
 		final Registry registry;
