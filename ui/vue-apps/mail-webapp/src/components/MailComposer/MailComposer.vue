@@ -30,7 +30,7 @@
                         <bm-file-drop-zone
                             class="z-index-110 attachments"
                             file-type-regex="image/(jpeg|jpg|png|gif)"
-                            @dropFiles="addAttachments($event)"
+                            @drop-files="addAttachments($event)"
                         >
                             <template #dropZone>
                                 <bm-icon icon="paper-clip" size="2x" />
@@ -46,8 +46,8 @@
                     class="z-index-110 as-attachments"
                     file-type-regex="^(?!.*image/(jpeg|jpg|png|gif)).*$"
                     at-least-one-match
-                    @filesCount="draggedFilesCount = $event"
-                    @dropFiles="addAttachments($event)"
+                    @files-count="draggedFilesCount = $event"
+                    @drop-files="addAttachments($event)"
                 >
                     <template #dropZone>
                         <h2 class="text-center p-2">{{ $tc("mail.new.attachments.drop.zone", draggedFilesCount) }}</h2>
