@@ -154,6 +154,16 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 		// FIXME delete emails ?!
 	}
 
+	private static final String EMAIL_SEARCH_QUERY = "SELECT item.uid " //
+			+ " FROM t_mailbox_email e" //
+			+ " JOIN t_container_item item ON (item.id = e.item_id)" //
+			+ " WHERE container_id = ?" //
+			+ " AND (" //
+			+ "   e.left_address || '@' || e.right_address = ?" //
+			+ "   OR" //
+			+ "   (e.all_aliases = true AND e.left_address = ?::text)" //
+			+ " ) LIMIT 1";
+
 	/**
 	 * @param q
 	 * @return
@@ -161,16 +171,8 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 	 */
 	public String emailSearch(String email) throws SQLException {
 		String leftPart = email.split("@")[0];
-		String query = "SELECT DISTINCT item.uid" //
-				+ " FROM t_container_item item, t_mailbox_email e " + " WHERE e.item_id = item.id AND " //
-				+ " ( " //
-				+ "    ( e.left_address || '@' || e.right_address = ? OR ( e.all_aliases = true AND e.left_address= ?::text))" //
-				+ "    OR lower(item.uid) = lower(?) " //
-				+ "  )" //
-				+ " AND item.container_id = ?";
-
-		return unique(query, StringCreator.FIRST, Collections.emptyList(),
-				new Object[] { email, leftPart, leftPart, container.id });
+		return unique(EMAIL_SEARCH_QUERY, StringCreator.FIRST, Collections.emptyList(),
+				new Object[] { container.id, email, leftPart });
 	}
 
 	/**
