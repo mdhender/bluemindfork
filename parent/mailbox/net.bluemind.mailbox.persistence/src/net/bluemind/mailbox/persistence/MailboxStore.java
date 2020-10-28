@@ -91,15 +91,16 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 		setEmails(item, value.emails);
 	}
 
+	private static final String DELETE_MAILBOX_QUERY = "DELETE FROM t_mailbox WHERE item_id = ?";
+
 	@Override
 	public void delete(Item item) throws SQLException {
-
 		deleteEmails(item);
-		delete("DELETE FROM t_mailbox WHERE item_id = ?", new Object[] { item.id });
+		delete(DELETE_MAILBOX_QUERY, new Object[] { item.id });
 
 	}
 
-	private static final String MBOX_GET = "SELECT " //
+	private static final String MBOX_GET_QUERY = "SELECT " //
 			+ MailboxColumns.cols.names() //
 			+ ", t_directory_entry.datalocation "//
 			+ ", la,ra,all_aliases,is_def " //
@@ -116,7 +117,7 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 
 	@Override
 	public Mailbox get(Item item) throws SQLException {
-		Mailbox m = unique(MBOX_GET, MAILBOX_CREATOR,
+		Mailbox m = unique(MBOX_GET_QUERY, MAILBOX_CREATOR,
 				Arrays.asList(MailboxColumns.populator(), EmailColumns.aggPopulator(container.domainUid)),
 				new Object[] { item.id });
 		if (m == null)
@@ -125,8 +126,10 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 		return m;
 	}
 
+	private static final String DELETE_EMAILS_QUERY = "DELETE FROM t_mailbox_email WHERE item_id = ?";
+
 	private void deleteEmails(Item item) throws SQLException {
-		delete("DELETE FROM t_mailbox_email WHERE item_id = ?", new Object[] { item.id });
+		delete(DELETE_EMAILS_QUERY, new Object[] { item.id });
 	}
 
 	private void setEmails(Item item, Collection<Email> emails) throws SQLException {
@@ -175,15 +178,15 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 	 * @return
 	 * @throws SQLException
 	 */
+	private static final String EMAIL_TYPE_SEARCH_QUERY = "SELECT item.uid" //
+			+ " FROM t_mailbox m" //
+			+ " INNER JOIN t_container_item item ON m.item_id = item.id" //
+			+ " WHERE m.type = ?::enum_mailbox_type" //
+			+ " AND item.container_id = ?";
+
 	public List<String> typeSearch(Type type) throws SQLException {
-
-		String query = "SELECT item.uid" //
-				+ " FROM t_mailbox m" //
-				+ " INNER JOIN t_container_item item ON m.item_id = item.id" //
-				+ " WHERE m.type = ?::enum_mailbox_type" //
-				+ " AND item.container_id = ?";
-
-		return select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { type.name(), container.id });
+		return select(EMAIL_TYPE_SEARCH_QUERY, StringCreator.FIRST, Collections.emptyList(),
+				new Object[] { type.name(), container.id });
 	}
 
 	/**
@@ -191,15 +194,15 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 	 * @return
 	 * @throws SQLException
 	 */
+	private static final String NAME_SEARCH_QUERY = "SELECT item.uid" //
+			+ " FROM t_mailbox e" //
+			+ " INNER JOIN t_container_item item ON e.item_id = item.id" //
+			+ " WHERE e.name = ?" //
+			+ " AND item.container_id = ?";
+
 	public String nameSearch(String name) throws SQLException {
-
-		String query = "SELECT item.uid" //
-				+ " FROM t_mailbox e" //
-				+ " INNER JOIN t_container_item item ON e.item_id = item.id" //
-				+ " WHERE e.name = ?" //
-				+ " AND item.container_id = ?";
-
-		return unique(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { name, container.id });
+		return unique(NAME_SEARCH_QUERY, StringCreator.FIRST, Collections.emptyList(),
+				new Object[] { name, container.id });
 	}
 
 	public boolean nameAlreadyUsed(Long itemId, Mailbox mailbox) throws SQLException {
@@ -268,42 +271,44 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 		return emailAlreadyUsed(null, emails);
 	}
 
-	public List<String> listQuota() throws SQLException {
-		String query = "SELECT item.uid FROM t_mailbox "
-				+ " INNER JOIN t_container_item item ON item_id = item.id WHERE container_id = ? AND quota > 0";
+	private static final String LIST_QUOTA_QUERY = "SELECT item.uid FROM t_mailbox "
+			+ " INNER JOIN t_container_item item ON item_id = item.id WHERE container_id = ? AND quota > 0";
 
-		return select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
+	public List<String> listQuota() throws SQLException {
+		return select(LIST_QUOTA_QUERY, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
 	}
 
-	public List<String> routingSearch(Routing routing) throws SQLException {
-		String query = "SELECT item.uid" //
-				+ " FROM t_mailbox m" //
-				+ " INNER JOIN t_container_item item ON m.item_id = item.id" //
-				+ " WHERE m.routing = ?::enum_mailbox_routing" //
-				+ " AND item.container_id = ?";
+	private static final String ROUTING_SEARCH_QUERY = "SELECT item.uid" //
+			+ " FROM t_mailbox m" //
+			+ " INNER JOIN t_container_item item ON m.item_id = item.id" //
+			+ " WHERE m.routing = ?::enum_mailbox_routing" //
+			+ " AND item.container_id = ?";
 
-		return select(query, StringCreator.FIRST, Collections.emptyList(),
+	public List<String> routingSearch(Routing routing) throws SQLException {
+		return select(ROUTING_SEARCH_QUERY, StringCreator.FIRST, Collections.emptyList(),
 				new Object[] { routing.name(), container.id });
 	}
 
+	private static final String DELETE_BY_ALIAS_QUERY = "DELETE FROM t_mailbox_email WHERE right_address = ?";
+
 	public void deleteEmailByAlias(String alias) throws SQLException {
-		String query = "DELETE FROM t_mailbox_email WHERE right_address = ?";
-		delete(query, new Object[] { alias });
+		delete(DELETE_BY_ALIAS_QUERY, new Object[] { alias });
 	}
+
+	private static final String ALLUIDS_QUERY = "SELECT i.uid FROM t_container_item i JOIN t_mailbox m ON m.item_id = i.id WHERE i.container_id = ?";
 
 	public List<String> allUids() throws SQLException {
-		final String query = "SELECT i.uid FROM t_container_item i JOIN t_mailbox m ON m.item_id = i.id WHERE i.container_id = ?";
-
-		return select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
+		return select(ALLUIDS_QUERY, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
 	}
 
-	public Boolean isQuotaGreater(int quotaMax) throws SQLException {
-		String query = "SELECT EXISTS(" //
-				+ " SELECT m.item_id FROM t_mailbox m " //
-				+ " INNER JOIN t_container_item item ON m.item_id = item.id " //
-				+ " WHERE m.quota > ? AND item.container_id = ?)";
+	private static final String IS_QUOTA_GREATER_QUERY = "SELECT EXISTS(" //
+			+ " SELECT m.item_id FROM t_mailbox m " //
+			+ " INNER JOIN t_container_item item ON m.item_id = item.id " //
+			+ " WHERE m.quota > ? AND item.container_id = ?)";
 
-		return unique(query, BooleanCreator.FIRST, Collections.emptyList(), new Object[] { quotaMax, container.id });
+	public Boolean isQuotaGreater(int quotaMax) throws SQLException {
+		return unique(IS_QUOTA_GREATER_QUERY, BooleanCreator.FIRST, Collections.emptyList(),
+				new Object[] { quotaMax, container.id });
 	}
 
 }
