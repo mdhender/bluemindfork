@@ -10,12 +10,16 @@
         @keyup.down.exact="goToByDiff(+1)"
         @keydown.down.prevent
         @keyup.page-down.exact="goToByDiff(+PAGE)"
+        @keydown.page-down.prevent
         @keyup.page-up.exact="goToByDiff(-PAGE)"
+        @keydown.page-up.prevent
         @keyup.home.exact="goToByIndex(0)"
         @keyup.end.exact="goToByIndex(MESSAGE_LIST_COUNT - 1)"
         @keyup.space.exact="goToByKey(lastFocusedMessage)"
-        @keyup.ctrl.exact.space="toggleSelect(lastFocusedMessage, true)"
+        @keydown.space.prevent
+        @keyup.ctrl.exact.space="toggleInSelection(lastFocusedMessage)"
         @keyup.ctrl.exact.65="toggleAll()"
+        @keydown.ctrl.exact.65.prevent
         @keyup.ctrl.exact.up="focusByDiff(-1)"
         @keyup.ctrl.exact.down="focusByDiff(+1)"
         @keyup.ctrl.exact.home="focusByIndex(0)"
@@ -39,9 +43,9 @@
                 :is-muted="!!draggedMessage && IS_MESSAGE_SELECTED(draggedMessage) && IS_MESSAGE_SELECTED(message.key)"
                 @toggle-select="toggleSelect"
                 @click.exact.native="unselectAllIfNeeded(message.key)"
-                @click.ctrl.exact.native.capture.prevent.stop="toggleSelect(message.key)"
-                @click.shift.exact.native.prevent.stop="selectRange(message.key, true)"
-                @click.shift.exact.ctrl.exact.native.capture.prevent.stop="selectRange(message.key)"
+                @click.ctrl.exact.native.capture.prevent.stop="toggleInSelection(message.key)"
+                @click.shift.exact.native.capture.prevent.prevent.stop="selectRange(message.key, true)"
+                @click.shift.exact.ctrl.native.capture.prevent.stop="selectRange(message.key)"
                 @dragstart="draggedMessage = message.key"
                 @dragend="draggedMessage = null"
             />
@@ -109,7 +113,7 @@ export default {
                 .filter(({ key }) => this.isLoaded(key));
         },
         currentMessage() {
-            return this.messages[this.currentMessageKey];
+            return this.$store.state.mail.messages[this.currentMessageKey];
         },
         hasMore: function () {
             return this.length < this.MESSAGE_LIST_COUNT;
@@ -119,6 +123,7 @@ export default {
         currentMessageKey() {
             if (this.currentMessageKey) {
                 this.focusByKey(this.currentMessageKey);
+                this.anchoredMessageForShift = this.currentMessageKey;
             }
         },
         activeFolder() {
@@ -240,8 +245,9 @@ export default {
         },
         selectRangeByDiff(diff, shouldReset = false) {
             const index = this.messageKeys.indexOf(this.lastFocusedMessage) + diff;
+
             if (this.messageKeys[index]) {
-                this.selectRange(this.messageKeys[index].key, shouldReset);
+                this.selectRange(this.messageKeys[index], shouldReset);
             }
         },
         selectRange(destinationMessageKey, shouldReset = false) {
@@ -279,14 +285,18 @@ export default {
             }
             this.navigateAfterSelection();
         },
-        toggleSelect(messageKey, force = false) {
+        toggleInSelection(messageKey) {
+            if (this.IS_SELECTION_EMPTY && this.currentMessageKey && this.currentMessageKey !== messageKey) {
+                this.SELECT_MESSAGE(this.currentMessageKey);
+            }
+            this.toggleSelect(messageKey);
+        },
+        toggleSelect(messageKey) {
             if (this.IS_MESSAGE_SELECTED(messageKey)) {
                 this.UNSELECT_MESSAGE(messageKey);
                 if (this.currentMessageKey === messageKey) {
                     this.clearCurrentMessage();
                 }
-            } else if (this.currentMessageKey === messageKey && !force) {
-                this.clearCurrentMessage();
             } else {
                 this.SELECT_MESSAGE(messageKey);
                 this.anchoredMessageForShift = messageKey;
