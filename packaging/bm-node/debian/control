@@ -6,7 +6,7 @@ Standards-Version: 3.9.1
 
 Package: bm-node
 Architecture: amd64
-Depends: bm-jdk (= 8u265-bluemind36), tar, gzip, bzip2, rsync, gnupg, bm-conf (= ${binary:Version}), bm-pimp (= ${binary:Version}), iptables, sudo, apt-transport-https, bm-maintenance-tools (= ${binary:Version}), bm-cli (= ${binary:Version})
+Depends: bm-jdk (= 8u272-bluemind37), tar, gzip, bzip2, rsync, gnupg, bm-conf (= ${binary:Version}), bm-pimp (= ${binary:Version}), iptables, sudo, apt-transport-https, bm-maintenance-tools (= ${binary:Version}), bm-cli (= ${binary:Version})
 Description: BlueMind Node Daemon
  BlueMind Node handles all the remote tasks for BlueMind Core
 
