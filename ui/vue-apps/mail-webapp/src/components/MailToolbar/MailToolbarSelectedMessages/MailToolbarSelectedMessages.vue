@@ -151,7 +151,7 @@ export default {
         async purge() {
             const confirm = await this.$bvModal.msgBoxConfirm(
                 this.$tc("mail.actions.purge.modal.content", this.selectedMessageKeys.length || 1, {
-                    subject: this.message.subject
+                    subject: this.selectedMessageKeys.length > 0 ? "" : this.message.subject
                 }),
                 {
                     title: this.$tc("mail.actions.purge.modal.title", this.selectedMessageKeys.length || 1),
