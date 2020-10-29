@@ -1,7 +1,7 @@
 {
     "settings.manage.account": "my account",
     "settings.mail.thread": "Show replies to the same message together (conversations)",
-    "settings.mail.thread.disable": "Do not show messages grouped by conversation",
+    "settings.mail.thread.disable": "Show messages individually",
     "settings.mail.thread.enable": "Show messages grouped by conversation",
     "settings.mail.message.list.display": "Display density",
     "settings.mail.message.list.display.full": "Full",

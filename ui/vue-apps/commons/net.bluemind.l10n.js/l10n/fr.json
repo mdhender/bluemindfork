@@ -75,5 +75,6 @@
     "common.application.bootstrap.error": "Erreur lors de l'initialisation de l'application...",
     "common.application.bootstrap.error.solution": "Veuillez réessayer dans quelques instants ou contacter votre administrateur.",
     "common.settings": "Préférences",
-    "common.general": "Général"
+    "common.general": "Général",
+    "common.available_soon": "Bientôt disponible !"
 }

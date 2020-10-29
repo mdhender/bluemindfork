@@ -15,8 +15,11 @@
         </div>
         <div class="border-bottom border-secondary" />
         <div class="pl-5 py-4 overflow-auto">
-            <h2 class="pb-4">{{ $t("settings.mail.thread") }}</h2>
-            <bm-form-group :aria-label="$t('settings.mail.thread')">
+            <!-- TODO remove 'disabled' and 'available soon' once conversations are ready -->
+            <h2 class="pb-4">
+                {{ $t("settings.mail.thread") }} <span class="available-soon">{{ $t("common.available_soon") }}</span>
+            </h2>
+            <bm-form-group :aria-label="$t('settings.mail.thread')" disabled>
                 <bm-form-radio-group v-model="localUserSettings.mail_thread" class="d-flex flex-wrap">
                     <bm-form-radio value="true" class="ml-5" :aria-label="$t('settings.mail.thread.enable')">
                         <!-- eslint-disable-next-line vue/no-v-html -->
@@ -203,6 +206,17 @@ export default {
     }
     .bm-settings-navbar .bm-app-icon svg {
         height: 2rem;
+    }
+    [disabled] {
+        opacity: 0.5;
+    }
+    .available-soon {
+        color: white;
+        background-color: $yellow;
+        &::before,
+        &::after {
+            content: "\00a0";
+        }
     }
 }
 </style>
