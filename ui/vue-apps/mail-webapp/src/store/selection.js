@@ -42,7 +42,8 @@ const mutations = {
         if (!state.includes(key)) state.push(key);
     },
     [SELECT_ALL_MESSAGES]: (state, keys) => {
-        state.splice(0, state.length, ...keys);
+        state.splice(0);
+        keys.forEach(key => state.push(key));
     },
     [UNSELECT_ALL_MESSAGES]: state => {
         state.splice(0);

@@ -54,6 +54,17 @@ describe("selection", () => {
             store.mutations[SELECT_ALL_MESSAGES](state, [6, 7, 8, 9]);
             expect(state).toEqual([6, 7, 8, 9]);
         });
+        test("SELECT_ALL_MESSAGES: Range max size", done => {
+            state = [];
+            const keys = Array(2 ** 16 + 1).fill(0);
+            try {
+                store.mutations[SELECT_ALL_MESSAGES](state, keys);
+            } catch (e) {
+                done.fail(e);
+            }
+            expect(state).toEqual(keys);
+            done();
+        });
         test("UNSELECT_ALL_MESSAGES", () => {
             state = [1, 2, 3, 4, 5];
             store.mutations[UNSELECT_ALL_MESSAGES](state);
