@@ -212,7 +212,6 @@ export default {
         if (isEmpty(this.message, this.messageCompose.editorContent)) {
             this.purge(this.messageKey);
         }
-        this.cleanComposer();
     },
     methods: {
         ...mapActions("mail", { save: actionTypes.SAVE_MESSAGE }),
