@@ -146,6 +146,10 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
+.bm-banner {
+    min-height: fit-content;
+}
+
 .bm-banner .app-title {
     color: $primary;
 }
