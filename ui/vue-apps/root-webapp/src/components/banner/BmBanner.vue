@@ -58,7 +58,7 @@
         >
             <bm-icon icon="interrogation" size="lg"
         /></a>
-        <bm-banner-user :user="user" @openPreferences="$emit('openPreferences')" />
+        <bm-banner-user :user="user" />
     </bm-navbar>
 </template>
 

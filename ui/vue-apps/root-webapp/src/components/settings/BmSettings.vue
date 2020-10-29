@@ -1,5 +1,5 @@
 <template>
-    <div class="bm-settings position-absolute w-100 h-100 overlay d-flex" @click="$emit('close')">
+    <div class="bm-settings position-absolute w-100 h-100 overlay d-flex" @click="TOGGLE_SETTINGS()">
         <div
             v-if="status === 'loading'"
             class="position-absolute h-100 w-100 d-flex align-items-center z-index-200 text-center overlay"
@@ -15,7 +15,7 @@
                     :selected-app="selectedApp"
                     :class="selectedApp ? 'd-none' : ''"
                     @change="selectedApp = $event"
-                    @close="$emit('close')"
+                    @close="TOGGLE_SETTINGS()"
                 />
                 <bm-settings-content
                     :class="selectedApp ? 'd-flex' : 'd-none'"
@@ -23,7 +23,7 @@
                     :available-apps="availableApps"
                     :status="status"
                     :applications="applications"
-                    @close="$emit('close')"
+                    @close="TOGGLE_SETTINGS()"
                     @change="selectedApp = $event"
                     @changeStatus="newStatus => (status = newStatus)"
                     @save="save"
@@ -38,7 +38,7 @@ import SettingsL10N from "../../../l10n/settings/";
 import { BmContainer, BmRow, BmSpinner } from "@bluemind/styleguide";
 import BmSettingsLeftSidebar from "./BmSettingsLeftSidebar";
 import BmSettingsContent from "./BmSettingsContent";
-import { mapActions } from "vuex";
+import { mapActions, mapMutations } from "vuex";
 
 export default {
     name: "BmSettings",
@@ -76,6 +76,7 @@ export default {
     },
     methods: {
         ...mapActions("session", ["UPDATE_ALL_SETTINGS"]),
+        ...mapMutations("root-app", ["TOGGLE_SETTINGS"]),
         async save(userSettings) {
             this.status = "loading";
             try {

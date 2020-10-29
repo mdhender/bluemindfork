@@ -1,32 +1,40 @@
 <template>
-    <nav class="mail-folder-sidebar h-100 scroller-y scroller-visible-on-hover">
-        <mail-folder-tree
-            :tree="buildTree(myMailboxFolders)"
-            :collapse-name="mailboxEmail"
-            show-input
-            @toggle-folders="$emit('toggle-folders')"
-        />
-        <mail-folder-tree
-            v-if="mailshareKeys.length > 0"
-            :tree="buildTree(mailshareFolders)"
-            :collapse-name="$t('common.mailshares')"
-            @toggle-folders="$emit('toggle-folders')"
-        />
-    </nav>
+    <bm-col cols="10" lg="12" class="mail-folder-sidebar-wrapper bg-surface h-100">
+        <mail-folder-sidebar-header />
+        <nav class="mail-folder-sidebar h-100 scroller-y scroller-visible-on-hover">
+            <mail-folder-tree
+                :tree="buildTree(myMailboxFolders)"
+                :collapse-name="mailboxEmail"
+                show-input
+                @toggle-folders="$emit('toggle-folders')"
+            />
+            <mail-folder-tree
+                v-if="mailshareKeys.length > 0"
+                :tree="buildTree(mailshareFolders)"
+                :collapse-name="$t('common.mailshares')"
+                @toggle-folders="$emit('toggle-folders')"
+            />
+        </nav>
+    </bm-col>
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
 import injector from "@bluemind/inject";
+import { BmCol } from "@bluemind/styleguide";
 import { DEFAULT_FOLDERS } from "../../store/folders/helpers/DefaultFolders";
 import MailFolderTree from "./MailFolderTree";
+import MailFolderSidebarHeader from "./MailFolderSidebarHeader";
 
 export default {
     name: "MailFolderSidebar",
-    components: { MailFolderTree },
+    components: { MailFolderTree, BmCol, MailFolderSidebarHeader },
     data() {
+        const userSession = injector.getProvider("UserSession").get();
+        const mailboxEmail = userSession.defaultEmail;
+
         return {
-            mailboxEmail: injector.getProvider("UserSession").get().defaultEmail
+            mailboxEmail
         };
     },
     computed: {
@@ -90,7 +98,7 @@ function compare(f1, f2) {
     }
 }
 </script>
-<style lang="scss">
+<style>
 .mail-folder-sidebar {
     min-width: 100%;
 }

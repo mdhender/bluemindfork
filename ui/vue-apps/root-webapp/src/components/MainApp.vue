@@ -1,19 +1,8 @@
 <template>
     <div class="main-app d-flex flex-column h-100 bg-light">
         <global-events target="self" @resize="appHeight" />
-        <bm-banner
-            :applications="applications"
-            :widgets="widgets"
-            :user="user"
-            :software="software"
-            @openPreferences="areSettingsOpened = true"
-        />
-        <bm-settings
-            v-if="areSettingsOpened"
-            :user="user"
-            :applications="applications"
-            @close="areSettingsOpened = false"
-        />
+        <bm-banner :applications="applications" :widgets="widgets" :user="user" :software="software" />
+        <bm-settings v-if="showSettings" :user="user" :applications="applications" />
         <bm-spinner v-if="appState == 'loading'" :size="2" class="d-flex flex-fill align-self-center" />
         <div
             v-else-if="appState == 'error'"
@@ -22,7 +11,7 @@
             {{ $t("common.application.bootstrap.error") }}<br />
             {{ $t("common.application.bootstrap.error.solution") }}
         </div>
-        <router-view v-else :class="areSettingsOpened ? 'd-none' : 'd-flex'" />
+        <router-view v-else :class="showSettings ? 'd-none' : 'd-flex'" />
         <bm-application-alert :alerts="applicationAlerts" class="z-index-250 position-absolute">
             <template v-slot="slotProps">
                 <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
@@ -97,12 +86,11 @@ export default {
         };
         data.user = user;
         data.software = software;
-        data.areSettingsOpened = false;
         return data;
     },
     computed: {
         ...mapState({ applicationAlerts: state => state.alert.applicationAlerts }),
-        ...mapState("root-app", ["appState"])
+        ...mapState("root-app", ["appState", "showSettings"])
     },
     created() {
         this.appHeight();

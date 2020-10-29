@@ -10,7 +10,7 @@
             {{ this.$t("mail.list.menu.filter") + " " + this.$t("mail.list.menu.filter.unread") }}
         </bm-dropdown-item-button>
         <bm-dropdown-divider v-if="!MESSAGE_LIST_UNREAD_FILTER_ENABLED" />
-        <bm-dropdown-item-button v-if="MESSAGE_LIST_FLAGGED_FILTER_ENABLED" variant="dark" @click="filterFlagged">
+        <bm-dropdown-item-button v-if="!MESSAGE_LIST_FLAGGED_FILTER_ENABLED" variant="dark" @click="filterFlagged">
             {{ this.$t("mail.list.menu.filter") + " " + this.$t("mail.list.menu.filter.flagged") }}
         </bm-dropdown-item-button>
         <bm-dropdown-divider v-if="!MESSAGE_LIST_UNREAD_FILTER_ENABLED" />

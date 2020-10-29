@@ -49,16 +49,14 @@
                 </bm-form-checkbox>
             </bm-col>
         </section>
-        <bm-row class="flex-fill position-relative flex-nowrap">
+        <bm-row class="flex-fill flex-nowrap">
             <!-- v-show is overridden by d-lg-block in large devices -->
             <section
                 v-show="showFolders"
                 :aria-label="$t('mail.application.region.folderlist')"
-                class="row position-lg-static position-absolute d-lg-block px-0 col-12 col-lg-2 z-index-200 overlay top-0 bottom-0"
+                class="folders-section row position-lg-static position-absolute d-lg-block px-0 col-12 col-lg-2 overlay top-0 bottom-0"
             >
-                <bm-col cols="10" lg="12" class="mail-folder-sidebar-wrapper bg-surface h-100">
-                    <mail-folder-sidebar @toggle-folders="toggleFolders" />
-                </bm-col>
+                <mail-folder-sidebar @toggle-folders="toggleFolders" />
             </section>
             <bm-col cols="12" lg="3" class="pl-lg-2 px-0 d-lg-block" :class="hideListInResponsiveMode ? 'd-none' : ''">
                 <mail-message-list class="h-100" />
@@ -179,6 +177,13 @@ export default {
         }
         &::after {
             top: #{($custom-switch-indicator-size + $custom-control-indicator-size) / 2} !important;
+        }
+    }
+
+    .folders-section {
+        z-index: 200;
+        @media (max-width: map-get($grid-breakpoints, "lg")) {
+            z-index: 300;
         }
     }
     .mail-folder-sidebar-wrapper {

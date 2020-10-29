@@ -1,8 +1,8 @@
 <template>
     <bm-navbar-nav class="bm-banner-user order-0 order-lg-1 align-items-center">
-        <bm-nav-item-dropdown right offset="5">
+        <bm-nav-item-dropdown right offset="5" class="bm-dropdown-info-dark">
             <template slot="button-content">
-                <bm-avatar :alt="user.displayname" class="flex-shrink-0" />
+                <bm-avatar :alt="user.displayname" class="flex-shrink-0" width="2em" />
                 <span v-bm-tooltip.left class="pr-4 username text-truncate m-auto" :title="user.displayname">
                     {{ user.displayname }}
                 </span>
@@ -10,7 +10,7 @@
             <bm-dropdown-item
                 v-bm-tooltip.left="$t('banner.menu.settings.aria')"
                 :aria-label="$t('banner.menu.settings.aria')"
-                @click="$emit('openPreferences')"
+                @click="TOGGLE_SETTINGS()"
             >
                 <bm-label-icon icon="preferences">{{ $t("common.settings") }} </bm-label-icon>
             </bm-dropdown-item>
@@ -23,6 +23,7 @@
 
 <script>
 import { BmAvatar, BmDropdownItem, BmLabelIcon, BmNavbarNav, BmNavItemDropdown, BmTooltip } from "@bluemind/styleguide";
+import { mapMutations } from "vuex";
 
 export default {
     name: "BmBannerUser",
@@ -39,31 +40,20 @@ export default {
             required: true,
             type: Object
         }
-    }
+    },
+    methods: { ...mapMutations("root-app", ["TOGGLE_SETTINGS"]) }
 };
 </script>
 
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
 
-$contrasted-color: color-yiq(theme-color("info-dark")) !important;
-
 .bm-banner-user .bm-avatar {
     position: relative;
     left: -1em;
 }
 
-.bm-banner-user .username {
-    color: $contrasted-color;
-}
-
-.bm-banner-user,
 .bm-banner-user .dropdown-menu {
-    background-color: theme-color-level("info-dark", 4) !important;
-}
-
-.bm-banner-user .dropdown-menu {
-    color: $contrasted-color;
     margin-top: 0 !important;
 }
 
@@ -77,18 +67,9 @@ $contrasted-color: color-yiq(theme-color("info-dark")) !important;
     display: flex;
     align-items: center;
     padding-left: 0 !important;
-    text-decoration: none;
-    &:active,
-    &:visited,
-    &:hover,
-    &:focus {
-        text-decoration: none;
-    }
     &:after {
         position: absolute;
         right: $sp-3;
-        border-top-color: $contrasted-color;
-        border-bottom-color: $contrasted-color;
         vertical-align: middle;
     }
 }
@@ -96,13 +77,5 @@ $contrasted-color: color-yiq(theme-color("info-dark")) !important;
 .bm-banner-user .dropdown-item {
     padding-right: $sp-3;
     padding-left: $sp-3;
-    color: $contrasted-color;
-    &:focus,
-    &:hover,
-    &:active,
-    &:active:focus {
-        background-color: unset;
-        color: $primary !important;
-    }
 }
 </style>

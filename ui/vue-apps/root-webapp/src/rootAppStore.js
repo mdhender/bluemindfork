@@ -1,9 +1,11 @@
 const state = {
-    appState: "loading"
+    appState: "loading",
+    showSettings: false
 };
 
 const mutations = {
-    SET_APP_STATE: (state, appState) => (state.appState = appState)
+    SET_APP_STATE: (state, appState) => (state.appState = appState),
+    TOGGLE_SETTINGS: state => (state.showSettings = !state.showSettings)
 };
 
 export default {
