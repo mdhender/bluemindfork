@@ -141,8 +141,12 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 .mail-viewer {
     z-index: 20;
+
+    .row {
+        min-height: fit-content;
+    }
 }
 </style>
