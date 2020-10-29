@@ -57,7 +57,6 @@ public class BridgeApplication implements IApplication {
 				pm.deployVerticle(HornetQBridge::new, new DeploymentOptions().setInstances(instances).setWorker(true),
 						depDone);
 				pm.deployVerticle(ConsumerStart::new, new DeploymentOptions().setInstances(1).setWorker(true), depDone);
-
 			}
 		});
 

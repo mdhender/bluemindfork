@@ -18,14 +18,10 @@ BlueMind XiVO bridge sends cti events to BlueMind components
 %install
 cp -a %{_rootdir}/* %{buildroot}
 
-mkdir -p %{buildroot}%{_initrddir}
-cp /sources/stretch/bm-xivobridge.init %{buildroot}%{_initrddir}/bm-xivobridge
-
 mkdir -p %{buildroot}%{_unitdir}
 install -m 644 /sources/stretch/bm-xivobridge.service %{buildroot}%{_unitdir}
 
 %files
-%attr(0755, root, root) %{_initrddir}/bm-xivobridge
 %exclude %dir /usr
 %exclude %dir /usr/lib
 %exclude %dir /usr/lib/systemd
