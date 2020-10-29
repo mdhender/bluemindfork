@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -189,7 +190,7 @@ public class SieveWriterTests {
 
 		ItemValue<Domain> domain = getTestDomain();
 		domain.value.aliases = new HashSet<>(Arrays.asList("test.fr", "test.net"));
-		String sieveScript = writer.generateSieveScript(Type.User, mbox, domain, filter);
+		String sieveScript = writer.generateSieveScript(Type.USER, mbox, domain, filter);
 		Results r = check(sieveScript);
 		assertActionKeep(r);
 
@@ -215,7 +216,7 @@ public class SieveWriterTests {
 
 		mbox.value.emails = Arrays.asList(Email.create("test@test.com", true));
 
-		System.out.println(writer.generateSieveScript(Type.User, mbox, getTestDomain(), filter));
+		System.out.println(writer.generateSieveScript(Type.USER, mbox, getTestDomain(), filter));
 	}
 
 	@Test
@@ -237,7 +238,7 @@ public class SieveWriterTests {
 		rule3.deliver = "toto";
 
 		Results r = check(
-				writer.generateSieveScript(Type.User, mbox, getTestDomain(), MailFilter.create(rule, rule2, rule3)));
+				writer.generateSieveScript(Type.USER, mbox, getTestDomain(), MailFilter.create(rule, rule2, rule3)));
 		assertAction(ActionRedirect.class, r);
 
 	}
@@ -248,11 +249,11 @@ public class SieveWriterTests {
 		rule.active = true;
 		rule.criteria = "FROM:IS: roger.water@pinkfloyd.net";
 		rule.deliver = "test";
-		Results r = check(writer.generateSieveScript(Type.User, mbox, getTestDomain(), MailFilter.create(rule)));
+		Results r = check(writer.generateSieveScript(Type.USER, mbox, getTestDomain(), MailFilter.create(rule)));
 		assertAction(ActionFileInto.class, r);
 
 		rule.criteria = "FROM:IS: sid.barrett@pinkfloyd.net";
-		r = check(writer.generateSieveScript(Type.User, mbox, getTestDomain(), MailFilter.create(rule)));
+		r = check(writer.generateSieveScript(Type.USER, mbox, getTestDomain(), MailFilter.create(rule)));
 		assertActionKeep(r);
 	}
 
@@ -264,12 +265,12 @@ public class SieveWriterTests {
 		rule.criteria = "SUBJECT:IS: SubjectTest";
 		rule.deliver = "test";
 
-		Results r = check(writer.generateSieveScript(Type.User, mbox, getTestDomain(), MailFilter.create(rule)));
+		Results r = check(writer.generateSieveScript(Type.USER, mbox, getTestDomain(), MailFilter.create(rule)));
 
 		assertAction(ActionFileInto.class, r);
 
 		rule.criteria = "SUBJECT:IS: FalseSub";
-		r = check(writer.generateSieveScript(Type.User, mbox, getTestDomain(), MailFilter.create(rule)));
+		r = check(writer.generateSieveScript(Type.USER, mbox, getTestDomain(), MailFilter.create(rule)));
 		assertActionKeep(r);
 
 	}
@@ -281,7 +282,7 @@ public class SieveWriterTests {
 		rule.criteria = "MATCHALL";
 		rule.discard = true;
 
-		Results r = check(writer.generateSieveScript(Type.User, mbox, getTestDomain(), MailFilter.create(rule)));
+		Results r = check(writer.generateSieveScript(Type.USER, mbox, getTestDomain(), MailFilter.create(rule)));
 
 		assertAction(DiscardAction.class, r);
 	}
@@ -320,6 +321,50 @@ public class SieveWriterTests {
 			assertTrue(found);
 		}
 
+	}
+
+	@Test
+	public void testPutVacation() throws Exception {
+
+		MailFilter filter = new MailFilter();
+		filter.vacation = new MailFilter.Vacation();
+		filter.vacation.enabled = true;
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.DAY_OF_YEAR, -1);
+		filter.vacation.start = new Date(c.getTimeInMillis());
+
+		c.add(Calendar.DAY_OF_YEAR, 3);
+		filter.vacation.end = new Date(c.getTimeInMillis());
+		filter.vacation.subject = "blabla";
+		filter.vacation.textHtml = "<html><body><b>test content<b></body></html>";
+		filter.vacation.text = "test content";
+		mbox.value.emails = Arrays.asList(Email.create("test@test.com", true), Email.create("toto@test.com", false),
+				Email.create("alias@test.com", false, true));
+
+		ItemValue<Domain> domain = getTestDomain();
+		domain.value.aliases = new HashSet<>(Arrays.asList("test.fr", "test.net"));
+		String sieveName = mbox.uid + ".sieve";
+		String sieveScriptContent = writer.generateSieveScript(Type.USER, mbox, domain, filter);
+
+		InputStream contentStream = new ByteArrayInputStream(sieveScriptContent.getBytes());
+
+		SieveConnectionData connectionData = new SieveConnectionData("admin0", Token.admin0(),
+				new BmConfIni().get("imap-role"));
+		try (SieveClient sc = new SieveClient(connectionData)) {
+			assertTrue(sc.login());
+
+			boolean res = sc.putscript(sieveName, contentStream);
+			assertTrue(res);
+
+			Optional<String> maybeSieveContent = sc.listscripts().stream()
+					.filter(script -> script.getName().equals(sieveName))
+					.map(sieveScript -> sc.getScript(sieveScript.getName())).findFirst();
+
+			assertTrue(maybeSieveContent.isPresent());
+
+			maybeSieveContent.ifPresent(
+					savedContent -> assertEquals(sieveScriptContent.replace("\r", ""), savedContent.replace("\r", "")));
+		}
 	}
 
 	@Test
@@ -400,13 +445,13 @@ public class SieveWriterTests {
 		rule.active = true;
 		rule.criteria = "FROM:IS: sid@pinkfloyd.net";
 		rule.deliver = "test";
-		assertFalse(writer.generateSieveScript(Type.User, mbox, getTestDomain(), MailFilter.create(rule))
+		assertFalse(writer.generateSieveScript(Type.USER, mbox, getTestDomain(), MailFilter.create(rule))
 				.contains("redirect"));
 
-		assertFalse(writer.generateSieveScript(Type.Shared, mbox, getTestDomain(), MailFilter.create(rule))
+		assertFalse(writer.generateSieveScript(Type.SHARED, mbox, getTestDomain(), MailFilter.create(rule))
 				.contains("redirect"));
 
-		assertFalse(writer.generateSieveScript(Type.Domain, mbox, getTestDomain(), MailFilter.create(rule))
+		assertFalse(writer.generateSieveScript(Type.DOMAIN, mbox, getTestDomain(), MailFilter.create(rule))
 				.contains("redirect"));
 	}
 
@@ -416,19 +461,19 @@ public class SieveWriterTests {
 		rule.active = true;
 		rule.criteria = "FROM:IS: david.gilmour@pinkfloyd.net";
 		rule.deliver = "test";
-		assertTrue(writer.generateSieveScript(Type.User, mbox, getTestDomain(), MailFilter.create(rule))
+		assertTrue(writer.generateSieveScript(Type.USER, mbox, getTestDomain(), MailFilter.create(rule))
 				.contains("fileinto \"test\""));
 
 		rule.deliver = null;
-		assertFalse(writer.generateSieveScript(Type.User, mbox, getTestDomain(), MailFilter.create(rule))
+		assertFalse(writer.generateSieveScript(Type.USER, mbox, getTestDomain(), MailFilter.create(rule))
 				.contains("fileinto \"\""));
 
 		rule.deliver = "";
-		assertFalse(writer.generateSieveScript(Type.User, mbox, getTestDomain(), MailFilter.create(rule))
+		assertFalse(writer.generateSieveScript(Type.USER, mbox, getTestDomain(), MailFilter.create(rule))
 				.contains("fileinto \"\""));
 
 		rule.deliver = "   ";
-		assertFalse(writer.generateSieveScript(Type.User, mbox, getTestDomain(), MailFilter.create(rule))
+		assertFalse(writer.generateSieveScript(Type.USER, mbox, getTestDomain(), MailFilter.create(rule))
 				.contains("fileinto \"\""));
 
 	}
@@ -441,11 +486,11 @@ public class SieveWriterTests {
 		rule.forward.localCopy = true;
 		rule.forward.emails.add("fwd@bm.com");
 
-		String s = writer.generateSieveScript(Type.User, mbox, getTestDomain(), MailFilter.create(rule));
+		String s = writer.generateSieveScript(Type.USER, mbox, getTestDomain(), MailFilter.create(rule));
 		assertTrue(s.contains("redirect :copy \"fwd@bm.com\";"));
 
 		rule.forward.localCopy = false;
-		s = writer.generateSieveScript(Type.User, mbox, getTestDomain(), MailFilter.create(rule));
+		s = writer.generateSieveScript(Type.USER, mbox, getTestDomain(), MailFilter.create(rule));
 		assertTrue(s.contains("redirect  \"fwd@bm.com\";"));
 	}
 

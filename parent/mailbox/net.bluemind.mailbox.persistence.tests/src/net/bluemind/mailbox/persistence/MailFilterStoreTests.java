@@ -97,11 +97,15 @@ public class MailFilterStoreTests {
 		filter.forwarding = new MailFilter.Forwarding();
 		filter.forwarding.enabled = true;
 		filter.vacation = new MailFilter.Vacation();
+		filter.vacation.text = "à la plage";
+		filter.vacation.textHtml = "<html>à la plage</html>";
 		mailfilterStore.set(item, filter);
 
 		MailFilter created = mailfilterStore.get(item);
 		assertNotNull("Nothing found", created);
 		assertNotNull(created.vacation);
+		assertEquals("à la plage", created.vacation.text);
+		assertEquals("<html>à la plage</html>", created.vacation.textHtml);
 		assertNotNull(created.forwarding);
 		assertTrue(created.forwarding.enabled);
 		assertTrue(created.forwarding.emails.isEmpty());
