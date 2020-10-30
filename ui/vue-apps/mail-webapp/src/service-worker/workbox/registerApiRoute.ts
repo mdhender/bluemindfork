@@ -4,7 +4,6 @@ import { syncMailFolder } from "../periodicSync";
 import { MailDB } from "../MailDB";
 import { logger } from "../logger";
 import { MailItem } from "../entry";
-import { createFolderId } from "../MailAPI";
 
 interface Flags {
     must: string[];
