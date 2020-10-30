@@ -121,34 +121,4 @@ public class CodecTests {
 
 	}
 
-	@Test
-	public void parseAmericaTorontoTz() {
-		// from iOS
-		String hardcoded = "LAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsAAAABAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAACAAIAAAAAAAAAxP///w==";
-
-		EASTimeZone decoded = TimeZoneCodec.decode(hardcoded);
-		assertNotNull(decoded);
-
-		assertEquals(0, decoded.standardDate.year);
-		assertEquals(11, decoded.standardDate.month); // november
-		assertEquals(0, decoded.standardDate.dayOfWeek); // sunday
-		assertEquals(1, decoded.standardDate.day); // 1st
-		assertEquals(2, decoded.standardDate.hour);
-		assertEquals(0, decoded.standardDate.minute);
-		assertEquals(0, decoded.standardDate.second);
-		assertEquals(0, decoded.standardDate.ms);
-
-		assertEquals(0, decoded.daylightDate.year);
-		assertEquals(3, decoded.daylightDate.month); // march
-		assertEquals(0, decoded.daylightDate.dayOfWeek); // sunday
-		assertEquals(2, decoded.daylightDate.day); // 2nd
-		assertEquals(2, decoded.daylightDate.hour);
-		assertEquals(0, decoded.daylightDate.minute);
-		assertEquals(0, decoded.daylightDate.second);
-		assertEquals(0, decoded.daylightDate.ms);
-
-		System.out.println("tz: " + decoded.toString());
-
-	}
-
 }

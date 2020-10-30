@@ -87,8 +87,7 @@ public class SystemTime {
 		int minute = buf.readShort();
 		int second = buf.readShort();
 		int ms = buf.readShort();
-		SystemTime st = new SystemTime(year, month, dayOfWeek, day, hour, minute, second, ms);
-		return st;
+		return new SystemTime(year, month, dayOfWeek, day, hour, minute, second, ms);
 	}
 
 	public JsonObject toJson() {
@@ -117,8 +116,6 @@ public class SystemTime {
 
 	private String dayOfWeek(int dayOfWeek) {
 		switch (dayOfWeek) {
-		case 0:
-			return "SUNDAY";
 		case 1:
 			return "MONDAY";
 		case 2:
@@ -129,9 +126,11 @@ public class SystemTime {
 			return "THURSDAY";
 		case 5:
 			return "FRIDAY";
-		default:
 		case 6:
 			return "SATURDAY";
+		default:
+		case 7:
+			return "SUNDAY";
 		}
 	}
 
@@ -144,6 +143,55 @@ public class SystemTime {
 		f.writeShort(minute);
 		f.writeShort(second);
 		f.writeShort(ms);
+	}
+
+	@Override
+	public String toString() {
+		return "SystemTime [year=" + year + ", month=" + month + ", dayOfWeek=" + dayOfWeek + ", day=" + day + ", hour="
+				+ hour + ", minute=" + minute + ", second=" + second + ", ms=" + ms + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + day;
+		result = prime * result + dayOfWeek;
+		result = prime * result + hour;
+		result = prime * result + minute;
+		result = prime * result + month;
+		result = prime * result + ms;
+		result = prime * result + second;
+		result = prime * result + year;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SystemTime other = (SystemTime) obj;
+		if (day != other.day)
+			return false;
+		if (dayOfWeek != other.dayOfWeek)
+			return false;
+		if (hour != other.hour)
+			return false;
+		if (minute != other.minute)
+			return false;
+		if (month != other.month)
+			return false;
+		if (ms != other.ms)
+			return false;
+		if (second != other.second)
+			return false;
+		if (year != other.year)
+			return false;
+		return true;
 	}
 
 }

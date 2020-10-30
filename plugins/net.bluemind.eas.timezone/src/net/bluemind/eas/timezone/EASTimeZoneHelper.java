@@ -27,6 +27,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.WeekFields;
 import java.time.zone.ZoneOffsetTransitionRule;
+import java.time.zone.ZoneOffsetTransitionRule.TimeDefinition;
 import java.time.zone.ZoneRules;
 import java.time.zone.ZoneRulesException;
 import java.util.List;
@@ -154,16 +155,9 @@ public class EASTimeZoneHelper {
 			if (stdRule == null || daylightRule == null) {
 				throw new NullPointerException("rules not found std: " + stdRule + ", day: " + daylightRule);
 			}
+			SystemTime std = asSystemTime(stdRule);
+			SystemTime daylight = asSystemTime(daylightRule);
 
-			SystemTime std = asSystemTime(stdRule); // new SystemTime(0, 10, 0,
-													// 5,
-													// 3, 0, 0, 0);
-			SystemTime daylight = asSystemTime(daylightRule);// new
-																// SystemTime(0,
-																// 3,
-																// 0, 5, 2, 0,
-																// 0,
-																// 0);
 			int daylightBiasSeconds = 0 - (daylightRule.getOffsetAfter().getTotalSeconds()
 					- daylightRule.getOffsetBefore().getTotalSeconds());
 			int daylightBias = daylightBiasSeconds / 60;
@@ -185,17 +179,33 @@ public class EASTimeZoneHelper {
 				dayOfMonth = daysInMonth - dayOfMonthIndicator;
 			}
 		}
-		WeekFields weekFields = WeekFields.of(Locale.getDefault());
 
-		// adjust week 0
-		LocalDate date = LocalDate.of(Year.now().getValue(), month, 1);
-		int addToWeek = date.get(weekFields.weekOfMonth()) == 0 ? 1 : 0;
+		int dayPositionInMonth = 0;
+		if (dayOfMonth + 7 > daysInMonth) {
+			// fix day position in month
+			// day position in month is not week number.
+			// ex: Sunday, 25th October 2020 is the last Sunday but on week number 4
+			// add 7 to dayOfMonth. if > daysInMonth we assume it is the last of month
+			dayPositionInMonth = 5; // last
+		} else {
+			WeekFields weekFields = WeekFields.of(Locale.getDefault());
+			LocalDate date = LocalDate.of(Year.now().getValue(), month, 1);
+			int addToWeek = date.get(weekFields.weekOfMonth()) == 0 ? 1 : 0;
+			date = LocalDate.of(Year.now().getValue(), month, dayOfMonth);
+			dayPositionInMonth = date.get(WeekFields.of(Locale.getDefault()).weekOfMonth()) + addToWeek;
+		}
 
-		date = LocalDate.of(Year.now().getValue(), month, dayOfMonth);
-		int weekOfMonth = date.get(weekFields.weekOfMonth()) + addToWeek;
 		LocalTime localTime = rule.getLocalTime();
-		return new SystemTime(0, month, rule.getDayOfWeek().getValue(), weekOfMonth, localTime.getHour(),
+		int hour = localTime.getHour();
+
+		if (rule.getTimeDefinition() != TimeDefinition.WALL) {
+			// "WALL" hour
+			hour = hour + rule.getOffsetBefore().getTotalSeconds() / 3600;
+		}
+
+		return new SystemTime(0, month, rule.getDayOfWeek().getValue() % 7, dayPositionInMonth, hour,
 				localTime.getMinute(), localTime.getSecond(), 0);
+
 	}
 
 }
