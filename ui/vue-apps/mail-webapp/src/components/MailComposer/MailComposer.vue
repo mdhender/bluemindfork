@@ -102,10 +102,13 @@
                     :message="message"
                     :user-pref-text-only="userPrefTextOnly"
                     :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
+                    :signature="signature"
+                    :is-signature-inserted="isSignatureInserted"
                     @toggle-text-format="userPrefIsMenuBarOpened = !userPrefIsMenuBarOpened"
                     @delete="deleteDraft"
                     @send="send"
                     @add-attachments="addAttachments"
+                    @toggle-signature="toggleSignature"
                 />
             </template>
         </mail-composer-panel>
@@ -116,6 +119,7 @@
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 
 import { InlineImageHelper, MimeType } from "@bluemind/email";
+import { inject } from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
 import {
     BmButton,
@@ -137,6 +141,14 @@ import MailComposerPanel from "./MailComposerPanel";
 import actionTypes from "../../store/actionTypes";
 import mutationTypes from "../../store/mutationTypes";
 import { isEmpty, MessageForwardAttributeSeparator, MessageReplyAttributeSeparator } from "../../model/message";
+import {
+    addHtmlSignature,
+    addTextSignature,
+    isHtmlSignaturePresent,
+    isTextSignaturePresent,
+    removeHtmlSignature,
+    removeTextSignature
+} from "../../model/signature";
 import PlayWithInlinePartsByCapabilities from "../../store/messages/helpers/PlayWithInlinePartsByCapabilities";
 import { UNSELECT_ALL_MESSAGES } from "../../store/types/mutations";
 
@@ -171,18 +183,28 @@ export default {
             draggedFilesCount: -1,
             isReplyOrForward: false,
             lockUpdateHtmlComposer: false,
-            blobsUrl: []
+            blobsUrl: [],
+            signature: ""
         };
     },
     computed: {
         ...mapGetters("mail-webapp", ["lastRecipients"]),
         ...mapState("mail", ["messages", "messageCompose"]),
+        ...mapState("session", { settings: "userSettings" }),
         ...mapGetters("mail", ["MY_DRAFTS", "MY_OUTBOX", "MY_SENT", "MY_MAILBOX_KEY"]),
         message() {
             return this.messages[this.messageKey];
         },
         panelTitle() {
             return this.message.subject.trim() ? this.message.subject : this.$t("mail.main.new");
+        },
+        isSignatureInserted() {
+            return (
+                this.signature &&
+                (this.userPrefTextOnly
+                    ? isTextSignaturePresent(this.messageCompose.editorContent, this.signature)
+                    : isHtmlSignaturePresent(this.messageCompose.editorContent, this.signature))
+            );
         }
     },
     watch: {
@@ -205,8 +227,11 @@ export default {
             this.lockUpdateHtmlComposer = false;
         }
     },
-    created: function () {
+    async created() {
         this.UNSELECT_ALL_MESSAGES();
+        const identities = await inject("IUserMailIdentities").getIdentities();
+        const defaultIdentity = identities.find(identity => identity.isDefault);
+        this.signature = defaultIdentity && defaultIdentity.signature;
     },
     destroyed: function () {
         if (isEmpty(this.message, this.messageCompose.editorContent)) {
@@ -260,7 +285,27 @@ export default {
                 newContent = sanitizeHtml(newContent);
                 newContent = this.handleSeparator(newContent);
             }
+            if (this.signature && this.settings.insert_signature === "true") {
+                newContent = this.addSignature(newContent);
+            }
             return newContent;
+        },
+        toggleSignature() {
+            if (!this.isSignatureInserted) {
+                this.SET_DRAFT_EDITOR_CONTENT(this.addSignature(this.messageCompose.editorContent));
+            } else {
+                this.SET_DRAFT_EDITOR_CONTENT(this.removeSignature(this.messageCompose.editorContent));
+            }
+        },
+        addSignature(content) {
+            return this.userPrefTextOnly
+                ? addTextSignature(content, this.signature)
+                : addHtmlSignature(content, this.signature);
+        },
+        removeSignature(content) {
+            return this.userPrefTextOnly
+                ? removeTextSignature(content, this.signature)
+                : removeHtmlSignature(content, this.signature);
         },
         handleSeparator(content) {
             const doc = new DOMParser().parseFromString(content, "text/html");
@@ -366,7 +411,7 @@ export default {
                 hideHeaderClose: false
             });
             if (confirm) {
-                // delete the draft then close the composer
+                // delete draft then close the composer
                 this.purge(this.messageKey);
                 this.$router.navigate("v:mail:home");
             }

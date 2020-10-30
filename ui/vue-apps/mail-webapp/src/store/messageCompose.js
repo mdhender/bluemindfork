@@ -12,7 +12,6 @@ export const mutations = {
 export const state = {
     messageCompose: {
         editorContent: "",
-        collapsedContent: null,
-        partContent: null
+        collapsedContent: null
     }
 };

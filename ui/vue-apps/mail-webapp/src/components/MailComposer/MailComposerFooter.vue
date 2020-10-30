@@ -60,11 +60,11 @@
             >
                 <bm-icon icon="paper-clip" size="lg" />
             </bm-button>
-            <bm-dropdown v-if="hasSignature" dropup right no-caret variant="simple-dark">
+            <bm-dropdown v-if="signature" dropup right no-caret variant="simple-dark">
                 <template #button-content>
                     <bm-icon icon="3dots-v" size="lg" />
                 </template>
-                <bm-dropdown-item-toggle :checked="isSignatureInserted" @click="toggleSignature">{{
+                <bm-dropdown-item-toggle :checked="isSignatureInserted" @click="$emit('toggle-signature')">{{
                     $t("mail.compose.toolbar.insert_signature")
                 }}</bm-dropdown-item-toggle>
             </bm-dropdown>
@@ -74,19 +74,9 @@
 
 <script>
 import { DateComparator } from "@bluemind/date";
-import { inject } from "@bluemind/inject";
 import { BmButton, BmIcon, BmTooltip, BmDropdown, BmDropdownItemToggle } from "@bluemind/styleguide";
 import { MessageStatus } from "../../model/message";
-import {
-    addHtmlSignature,
-    addTextSignature,
-    isHtmlSignaturePresent,
-    isTextSignaturePresent,
-    removeHtmlSignature,
-    removeTextSignature
-} from "../../model/signature";
-import { mapMutations, mapState } from "vuex";
-const USER_PREF_TEXT_ONLY = false;
+import { mapState } from "vuex";
 
 export default {
     name: "MailComposerFooter",
@@ -109,11 +99,17 @@ export default {
         message: {
             type: Object,
             required: true
+        },
+        signature: {
+            type: String,
+            required: true
+        },
+        isSignatureInserted: {
+            type: Boolean,
+            required: true
         }
     },
-    data: () => ({ signature: "" }),
     computed: {
-        ...mapState("session", { settings: "userSettings" }),
         ...mapState("mail", { editorContent: ({ messageCompose }) => messageCompose.editorContent }),
         hasRecipient() {
             return this.message.to.length > 0 || this.message.cc.length > 0 || this.message.bcc.length > 0;
@@ -123,17 +119,6 @@ export default {
         },
         isSaving() {
             return this.message.status === MessageStatus.SAVING;
-        },
-        hasSignature() {
-            return !!this.signature;
-        },
-        isSignatureInserted() {
-            return (
-                this.hasSignature &&
-                (USER_PREF_TEXT_ONLY
-                    ? isTextSignaturePresent(this.editorContent, this.signature)
-                    : isHtmlSignaturePresent(this.editorContent, this.signature))
-            );
         },
         errorOccuredOnSave() {
             return this.message.status === MessageStatus.SAVE_ERROR;
@@ -160,42 +145,9 @@ export default {
                 : this.$tc("mail.actions.textformat.show.aria");
         }
     },
-    async created() {
-        const identities = await inject("IUserMailIdentities").getIdentities();
-        const defaultIdentity = identities.find(identity => identity.isDefault);
-        this.signature = defaultIdentity && defaultIdentity.signature;
-        if (this.signature && this.settings.insert_signature === "true") {
-            this.addSignature();
-        }
-    },
-    mounted() {
-        if (this.signature && this.settings.insert_signature === "true") {
-            this.addSignature();
-        }
-    },
     methods: {
-        ...mapMutations("mail", ["SET_DRAFT_EDITOR_CONTENT"]),
         openFilePicker() {
             this.$refs.attachInputRef.click();
-        },
-        toggleSignature() {
-            if (!this.isSignatureInserted) {
-                this.addSignature();
-            } else {
-                this.removeSignature();
-            }
-        },
-        addSignature() {
-            const content = USER_PREF_TEXT_ONLY
-                ? addTextSignature(this.editorContent, this.signature)
-                : addHtmlSignature(this.editorContent, this.signature);
-            this.SET_DRAFT_EDITOR_CONTENT(content);
-        },
-        removeSignature() {
-            const content = USER_PREF_TEXT_ONLY
-                ? removeTextSignature(this.editorContent, this.signature)
-                : removeHtmlSignature(this.editorContent, this.signature);
-            this.SET_DRAFT_EDITOR_CONTENT(content);
         }
     }
 };

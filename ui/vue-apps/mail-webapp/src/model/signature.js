@@ -4,7 +4,7 @@ const TEXT_SIGNATURE_PREFIX = "--\n";
 export function isHtmlSignaturePresent(raw) {
     const fragment = htmlAsFragment(raw);
     const signature = fragment.getElementById(HTML_SIGNATURE_ID);
-    return signature && !!signature.innerHTML;
+    return !!signature && !!signature.innerHTML;
 }
 
 export function removeHtmlSignature(raw) {
@@ -20,7 +20,7 @@ export function addHtmlSignature(raw, signatureContent) {
     const fragment = htmlAsFragment(raw);
     let signature = fragment.getElementById(HTML_SIGNATURE_ID);
     if (!signature) {
-        signature = document.createElement("div");
+        signature = document.createElement("p");
         signature.id = HTML_SIGNATURE_ID;
         fragment.firstElementChild.appendChild(signature);
     }
@@ -31,7 +31,7 @@ export function addHtmlSignature(raw, signatureContent) {
 
 function htmlAsFragment(content) {
     const fragment = document.createDocumentFragment();
-    fragment.appendChild(document.createElement("div"));
+    fragment.appendChild(document.createElement("p"));
     fragment.firstElementChild.innerHTML = content;
     return fragment;
 }
