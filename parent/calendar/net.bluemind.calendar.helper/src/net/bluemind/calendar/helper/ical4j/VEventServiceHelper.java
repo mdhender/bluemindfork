@@ -75,6 +75,7 @@ import net.fortuna.ical4j.model.property.DtEnd;
 import net.fortuna.ical4j.model.property.LastModified;
 import net.fortuna.ical4j.model.property.Method;
 import net.fortuna.ical4j.model.property.ProdId;
+import net.fortuna.ical4j.model.property.Status;
 import net.fortuna.ical4j.model.property.Transp;
 import net.fortuna.ical4j.model.property.Version;
 import net.fortuna.ical4j.model.property.XProperty;
@@ -154,6 +155,22 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 						}
 					}
 				}
+				if (method == Method.CANCEL) {
+					PropertyList props = icalEvent.getProperties();
+					Property val = props.getProperty("STATUS");
+					if (val != null) {
+						props.remove(val);
+					}
+					props.add(Status.VEVENT_CANCELLED);
+
+					val = props.getProperty("TRANSP");
+					if (val != null) {
+						props.remove(val);
+					}
+					props.add(Transp.TRANSPARENT);
+
+				}
+
 				calendar.getComponents().add(icalEvent);
 			}
 		}
