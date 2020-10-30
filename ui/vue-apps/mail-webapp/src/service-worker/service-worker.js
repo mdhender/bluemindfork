@@ -4,6 +4,7 @@ import registerApiRoute from "./workbox/registerApiRoute";
 import registerCSSRoute from "./workbox/registerCSSRoute";
 import registerImageRoute from "./workbox/registerImageRoute";
 import registerScriptRoute from "./workbox/registerScriptRoute";
+import registerPartRoute from "./workbox/registerPartRoute";
 
 import { logger } from "./logger";
 import { registerPeriodicSync, syncMailFolders, syncMyMailbox } from "./periodicSync";
@@ -11,6 +12,7 @@ import { mailapi, sessionInfos } from "./MailAPI";
 
 skipWaiting();
 
+registerPartRoute();
 registerApiRoute();
 registerCSSRoute();
 registerImageRoute();
