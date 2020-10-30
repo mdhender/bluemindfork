@@ -45,7 +45,7 @@ export default function () {
 async function allMailFolders({ request, params: [domain, userId] }: RouteHandlerCallbackOptions) {
     try {
         request = request as Request;
-        const uid = createFolderId({ userId, domain });
+        const uid = `${userId}@${domain}`;
         if (await db.isSubscribed(uid)) {
             return await fetchIndexedDB.allMailFolders();
         }
