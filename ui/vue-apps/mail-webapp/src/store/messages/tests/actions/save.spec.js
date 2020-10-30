@@ -89,13 +89,13 @@ describe("[Mail-WebappStore][actions] :  save", () => {
                             mime: "multipart/alternative",
                             children: [
                                 {
-                                    address: undefined,
+                                    address: "1.1",
                                     charset: "utf-8",
                                     encoding: "quoted-printable",
                                     mime: "text/plain"
                                 },
                                 {
-                                    address: undefined,
+                                    address: "1.2",
                                     charset: "utf-8",
                                     encoding: "quoted-printable",
                                     mime: "text/html"
@@ -130,8 +130,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         }
     });
 
-    // FIXME: unskip me once https://forge.bluemind.net/jira/browse/FEATWEBML-1251 is done
-    test.skip("With inline images", async () => {
+    test("With inline images", async () => {
         UUIDGenerator.generate = jest
             .fn()
             .mockReturnValueOnce(mockedCidUid)
@@ -141,7 +140,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         const expectedStructureInlineImages = {
             children: [
                 {
-                    address: undefined,
+                    address: "1",
                     charset: "utf-8",
                     encoding: "quoted-printable",
                     mime: "text/plain"
@@ -149,20 +148,20 @@ describe("[Mail-WebappStore][actions] :  save", () => {
                 {
                     children: [
                         {
-                            address: undefined,
+                            address: "2.1",
                             charset: "utf-8",
                             encoding: "quoted-printable",
                             mime: "text/html"
                         },
                         {
-                            address: undefined,
+                            address: "2.2",
                             contentId: mockedCidUid + "@bluemind.net",
                             dispositionType: "INLINE",
                             encoding: "base64",
                             mime: "image/png"
                         },
                         {
-                            address: undefined,
+                            address: "2.3",
                             contentId: mockedCidUid + "2@bluemind.net",
                             dispositionType: "INLINE",
                             encoding: "base64",
@@ -190,10 +189,10 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         ]);
         expect(itemsService.uploadPart).toBeCalledTimes(4);
         expect(itemsService.uploadPart).toHaveBeenCalledWith(
-            expect.stringContaining('<img src="cid:' + mockedCidUid + '@bluemind.net" />')
+            expect.stringContaining('<img src="cid:' + mockedCidUid + '@bluemind.net">')
         );
         expect(itemsService.uploadPart).toHaveBeenCalledWith(
-            expect.stringContaining('<img src="cid:' + mockedCidUid + '2@bluemind.net" />')
+            expect.stringContaining('<img src="cid:' + mockedCidUid + '2@bluemind.net">')
         );
 
         expect(itemsService.updateById).toHaveBeenCalledWith(draftInternalId, expect.anything());

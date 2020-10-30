@@ -50,8 +50,7 @@ export function create() {
         partContentByAddress: {},
 
         attachments: [],
-        inlinePartsByCapabilities: [],
-        multipartAddresses: {}
+        inlinePartsByCapabilities: []
     };
     return merge(createOnlyMetadata({ folder: {} }), emptyData);
 }
@@ -130,13 +129,13 @@ export async function fetchAll(messageImapUid, service, parts, isAttachment) {
     return Promise.all(parts.map(part => fetch(messageImapUid, service, part, isAttachment)));
 }
 
-export async function clean(partAddresses, attachmentAddresses, service) {
+export async function clean(partAddresses, newAttachments, service) {
     const promises = [];
     Object.keys(partAddresses).forEach(mimeType => {
         partAddresses[mimeType].forEach(address => {
             promises.push(service.removePart(address));
         });
     });
-    attachmentAddresses.forEach(address => promises.push(service.removePart(address)));
+    newAttachments.forEach(attachment => promises.push(service.removePart(attachment.address)));
     return Promise.all(promises);
 }

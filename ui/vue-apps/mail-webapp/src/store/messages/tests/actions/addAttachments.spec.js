@@ -38,7 +38,7 @@ describe("addAttachments action", () => {
         await addAttachments(context, actionParams);
         expect(mockedClient.uploadPart).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.anything());
         expect(context.commit).toHaveBeenNthCalledWith(1, mutationTypes.ADD_ATTACHMENT, expect.anything());
-        expect(context.commit).toHaveBeenNthCalledWith(2, mutationTypes.UPDATE_ATTACHMENT, expect.anything());
+        expect(context.commit).toHaveBeenNthCalledWith(2, mutationTypes.SET_ATTACHMENT_ADDRESS, expect.anything());
     });
 
     test("With error", async () => {

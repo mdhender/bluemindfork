@@ -1,5 +1,4 @@
 import ContainerObserver from "@bluemind/containerobserver";
-import ItemUri from "@bluemind/item-uri";
 import SearchHelper from "../SearchHelper";
 import router from "@bluemind/router";
 import { FOLDER_BY_PATH } from "../../store/folders/getters";
@@ -62,9 +61,6 @@ function locateFolder(local, mailshare, rootState, rootGetters) {
         let keyOrPath = local || mailshare;
         if (rootState.mail.folders[keyOrPath]) {
             folder = rootState.mail.folders[keyOrPath];
-        } else if (ItemUri.isItemUri(keyOrPath)) {
-            console.error("SHOULD NOT HAPPEN ANYMORE, use folderUid instead of folderKey in router");
-            folder = rootState.mail.folders[ItemUri.item(keyOrPath)];
         } else {
             folder = rootGetters["mail/" + FOLDER_BY_PATH](keyOrPath);
         }

@@ -34,6 +34,7 @@ async function addAttachment({ commit }, messageKey, file, myDraftsFolderUid) {
         file.size,
         false
     );
+    attachment.contentUrl = URL.createObjectURL(file);
 
     // this will contain a function for cancelling the upload, do not store it in Vuex
     global.cancellers = global.cancellers || {};
@@ -49,11 +50,10 @@ async function addAttachment({ commit }, messageKey, file, myDraftsFolderUid) {
             createOnUploadProgress(commit, messageKey, attachment)
         );
 
-        commit(mutationTypes.UPDATE_ATTACHMENT, {
+        commit(mutationTypes.SET_ATTACHMENT_ADDRESS, {
             messageKey,
             oldAddress: attachment.address,
-            address,
-            contentUrl: URL.createObjectURL(file)
+            address
         });
     } catch (event) {
         const error = event.target && event.target.error ? event.target.error : event;

@@ -2,7 +2,6 @@ import merge from "lodash.merge";
 
 import { inject } from "@bluemind/inject";
 
-import apiMessages from "../../api/apiMessages";
 import mutationTypes from "../../mutationTypes";
 import MessageAdaptor from "../helpers/MessageAdaptor";
 import { MessageCreationModes, createOnlyMetadata, createWithMetadata, clean } from "../../../model/message";
@@ -25,12 +24,7 @@ export default async function ({ commit, state }, { myDraftsFolder, creationMode
         attachments = await uploadAttachments(previousMessage, service);
     }
 
-    const structure = createDraftStructure(
-        { attachments, multipartAddresses: [] },
-        userPrefTextOnly,
-        inlinePartAddresses,
-        inlineImageParts
-    );
+    const structure = createDraftStructure(attachments, userPrefTextOnly, inlinePartAddresses, inlineImageParts);
 
     const metadata = { internalId: null, folder: { key: myDraftsFolder.key, uid: myDraftsFolder.remoteRef.uid } };
     const messageForCreate = merge(
@@ -39,7 +33,6 @@ export default async function ({ commit, state }, { myDraftsFolder, creationMode
     );
     metadata.internalId = (await service.create(MessageAdaptor.realToMailboxItem(messageForCreate, structure))).id;
     messageForCreate.remoteRef.internalId = metadata.internalId;
-    const imapUid = (await apiMessages.multipleById([messageForCreate]))[0].remoteRef.imapUid;
 
     const messageInState = merge(
         messageForCreate,
@@ -48,14 +41,10 @@ export default async function ({ commit, state }, { myDraftsFolder, creationMode
     );
     messageInState.partContentByMimeType = partContentByMimeType;
     messageInState.inlineImageParts = inlineImageParts;
-    messageInState.remoteRef.imapUid = imapUid;
+    messageInState.remoteRef.imapUid = "1"; // fake imapUid, needed for updateById
     commit(mutationTypes.ADD_MESSAGES, [messageInState]);
 
-    clean(
-        inlinePartAddresses,
-        attachments.map(({ address }) => address),
-        service
-    );
+    clean(inlinePartAddresses, attachments, service);
 
     return messageInState.key;
 }

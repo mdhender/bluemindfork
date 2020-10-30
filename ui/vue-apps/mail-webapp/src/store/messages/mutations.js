@@ -85,14 +85,20 @@ export default {
         }
         attachments.splice(index, 1);
     },
-    [mutationTypes.UPDATE_ATTACHMENT]: (state, { messageKey, oldAddress, address, contentUrl }) => {
+    [mutationTypes.SET_ATTACHMENT_ADDRESS]: (state, { messageKey, oldAddress, address }) => {
         const attachment = state[messageKey].attachments.find(a => a.address === oldAddress);
-        attachment.contentUrl = contentUrl;
-        attachment.address = address;
+        if (attachment) {
+            attachment.address = address;
+        }
     },
     [mutationTypes.SET_ATTACHMENT_STATUS]: (state, { messageKey, address, status }) => {
         const attachment = state[messageKey].attachments.find(a => a.address === address);
         attachment.status = status;
+    },
+    [mutationTypes.SET_ATTACHMENT_ENCODING]: (state, { messageKey, address, charset, encoding }) => {
+        const attachment = state[messageKey].attachments.find(a => a.address === address);
+        attachment.charset = charset;
+        attachment.encoding = encoding;
     },
     [mutationTypes.SET_ATTACHMENT_PROGRESS]: (state, { messageKey, address, loaded, total }) => {
         const attachment = state[messageKey].attachments.find(a => a.address === address);

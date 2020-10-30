@@ -9,6 +9,7 @@ import {
     fetch
 } from "./message";
 import { create as createAttachment } from "./attachment";
+import { setAddresses } from "./part";
 
 // FIXME: must remove this import, model must depend only of other models and commons packages
 import PlayWithInlinePartsByCapabilities from "../store/messages/helpers/PlayWithInlinePartsByCapabilities";
@@ -127,12 +128,7 @@ function extractAddressesFromHeader(header, isReplyAll) {
     }
 }
 
-export function createDraftStructure(
-    { attachments, multipartAddresses },
-    userPrefTextOnly,
-    inlinePartAddresses,
-    inlineImages = []
-) {
+export function createDraftStructure(attachments, userPrefTextOnly, inlinePartAddresses, inlineImages = []) {
     let structure;
     const textPart = PartsBuilder.createTextPart(inlinePartAddresses[MimeType.TEXT_PLAIN][0]);
 
@@ -145,27 +141,9 @@ export function createDraftStructure(
     }
     structure = PartsBuilder.createAttachmentParts(attachments, structure);
 
-    setMultipartAddresses(structure, multipartAddresses);
+    setAddresses(structure);
 
     return structure;
-}
-
-function setMultipartAddresses(structure, multipartAddresses) {
-    let alternativePart;
-    if (MimeType.isMultipart(structure)) {
-        structure.address = "TEXT";
-    }
-
-    if (structure.mime === MimeType.MULTIPART_MIXED) {
-        alternativePart = structure.children[0];
-        alternativePart.address = multipartAddresses[MimeType.MULTIPART_ALTERNATIVE] || "1";
-    } else {
-        alternativePart = structure;
-    }
-
-    if (alternativePart.children && alternativePart.children[1].mime === MimeType.MULTIPART_RELATED) {
-        alternativePart.children[1].address = multipartAddresses[MimeType.MULTIPART_RELATED] || "2";
-    }
 }
 
 export async function uploadInlineParts(creationMode, previousMessage, service, userPrefTextOnly, vueI18n) {

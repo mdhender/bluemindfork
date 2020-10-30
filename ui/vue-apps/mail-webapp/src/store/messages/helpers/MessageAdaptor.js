@@ -4,7 +4,6 @@ import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mai
 
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
-import GetMultiPartAddressesVisitor from "./GetMultiPartAddressesVisitor";
 import { createWithMetadata, MessageHeader, MessageStatus } from "../../../model/message";
 import TreeWalker from "./TreeWalker";
 
@@ -64,15 +63,13 @@ export default {
     computeParts(structure) {
         const inlineVisitor = new GetInlinePartsVisitor();
         const attachmentVisitor = new GetAttachmentPartsVisitor();
-        const multipartAddressesVisitor = new GetMultiPartAddressesVisitor();
 
-        const walker = new TreeWalker(structure, [inlineVisitor, attachmentVisitor, multipartAddressesVisitor]);
+        const walker = new TreeWalker(structure, [inlineVisitor, attachmentVisitor]);
         walker.walk();
 
         return {
             attachments: attachmentVisitor.result(),
-            inlinePartsByCapabilities: inlineVisitor.result(),
-            multipartAddresses: multipartAddressesVisitor.result()
+            inlinePartsByCapabilities: inlineVisitor.result()
         };
     }
 };

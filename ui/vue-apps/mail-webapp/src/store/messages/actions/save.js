@@ -1,10 +1,11 @@
 import { inject } from "@bluemind/inject";
 
-import apiMessages from "../../api/apiMessages";
 import debounce from "lodash/debounce";
 import MessageAdaptor from "../helpers/MessageAdaptor";
 import { MessageStatus, clean } from "../../../model/message";
 import { createDraftStructure, forceMailRewriteOnServer, prepareDraft } from "../../../model/draft";
+import { isTemporaryPart, setAddresses } from "../../../model/part";
+import { isAttachment } from "../../../model/attachment";
 import mutationTypes from "../../mutationTypes";
 
 let debouncedSave = { cancel: () => {} };
@@ -44,30 +45,43 @@ async function doSave(context, userPrefTextOnly, draftKey, myDraftsFolderKey, me
         const { partsToUpload, inlineImages } = prepareDraft(draft, messageCompose, userPrefTextOnly, context.commit);
 
         const inlinePartAddresses = await uploadInlineParts(service, partsToUpload);
-        const structure = createDraftStructure(draft, userPrefTextOnly, inlinePartAddresses, inlineImages);
+        const structure = createDraftStructure(draft.attachments, userPrefTextOnly, inlinePartAddresses, inlineImages);
         await service.updateById(draft.remoteRef.internalId, MessageAdaptor.realToMailboxItem(draft, structure));
-
-        const newAttachments = draft.attachments.filter(attachment => attachment.address.length > 5); // new part addresses are uuid
-
-        if (newAttachments.length > 0) {
-            // needed to get new attachment addresses and new imapUid
-            const message = (await apiMessages.multipleById([draft]))[0];
-            message.key = draft.key;
-            message.composing = true;
-            context.commit(mutationTypes.ADD_MESSAGES, [message]);
-        }
 
         context.commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
 
-        clean(
-            inlinePartAddresses,
-            newAttachments.map(a => a.address),
-            service
-        );
+        const newAttachments = [...draft.attachments.filter(isTemporaryPart)];
+        await clean(inlinePartAddresses, newAttachments, service);
+        updateAddresses(structure, draft.attachments, newAttachments, draftKey, context.commit);
     } catch (e) {
         context.commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SAVE_ERROR }]);
         throw e;
     }
+}
+
+// FIXME: remove me once FEATWEBML-1253 is done ?
+function updateAddresses(structure, attachments, newAttachments, draftKey, commit) {
+    structure.children.forEach(part => {
+        part.uid = part.address;
+        part.address = "";
+    });
+    setAddresses(structure);
+    structure.children.forEach(part => {
+        if (part.uid !== part.address && isAttachment(part)) {
+            commit(mutationTypes.SET_ATTACHMENT_ADDRESS, {
+                messageKey: draftKey,
+                oldAddress: part.uid,
+                address: part.address
+            });
+            // default values set by server
+            commit(mutationTypes.SET_ATTACHMENT_ENCODING, {
+                messageKey: draftKey,
+                address: part.address,
+                charset: "us-ascii",
+                encoding: "base64"
+            });
+        }
+    });
 }
 
 async function uploadInlineParts(service, partsToUpload) {

@@ -31,10 +31,11 @@ export async function deleteFlag({ commit, state, getters }, { messageKeys, flag
 }
 
 export async function fetchMessageMetadata({ commit, state }, { messageKeys }) {
-    const messages = (Array.isArray(messageKeys) ? messageKeys : [messageKeys]).map(key => state[key]);
+    const messages = (Array.isArray(messageKeys) ? messageKeys : [messageKeys])
+        .map(key => state[key])
+        .filter(({ composing }) => !composing);
     let fullMessages = await apiMessages.multipleById(messages);
     fullMessages = fullMessages.map(message => {
-        message.composing = state[message.key].composing;
         message.partContentByAddress = state[message.key].partContentByAddress;
         return message;
     });
