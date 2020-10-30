@@ -7,6 +7,7 @@ import registerScriptRoute from "./workbox/registerScriptRoute";
 
 import { logger } from "./logger";
 import { registerPeriodicSync, syncMailFolders, syncMyMailbox } from "./periodicSync";
+import { mailapi, sessionInfos } from "./MailAPI";
 
 skipWaiting();
 
@@ -17,7 +18,14 @@ registerScriptRoute();
 
 self.addEventListener("message", event => {
     if (event.data.type === "INIT_PERIODIC_SYNC") {
-        const interval = registerPeriodicSync(syncMailFolders);
+        const interval = registerPeriodicSync(() => {
+            syncMailFolders().catch(() => {
+                logger.log(`Sync stopped.`);
+                clearInterval(interval);
+                mailapi.clear();
+                sessionInfos.clear();
+            });
+        });
         logger.log(`Synchronization registered with the interval id ${interval}.`);
         logger.log(
             `To stop the synchronization, use "navigator.serviceWorker.controller.postMessage({type:"STOP_PERIODIC_SYNC", payload: { interval: ${interval} }})".`
@@ -26,6 +34,7 @@ self.addEventListener("message", event => {
     if (event.data.type === "STOP_PERIODIC_SYNC") {
         const interval = event.data.payload?.interval;
         if (interval) {
+            logger.log(`Sync stopped.`);
             clearInterval(interval);
         } else {
             logger.error("Need an interval in the payload object.");

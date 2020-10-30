@@ -80,11 +80,14 @@ async function fetchAPI<T>(url: string, requestInit?: RequestInit): Promise<T> {
     if (response.ok) {
         return response.json();
     }
-    return Promise.reject(response.statusText);
+    if (response.status === 401) {
+        return Promise.reject(`${response.status} Unauthorized`);
+    }
+    return Promise.reject(`Error in BM API ${response.status}`);
 }
 
 export const sessionInfos = (function () {
-    let instance: SessionInfo;
+    let instance: SessionInfo | null;
 
     function init() {
         return fetchAPI<SessionInfo>("/session-infos");
@@ -95,12 +98,15 @@ export const sessionInfos = (function () {
                 instance = await init();
             }
             return instance;
+        },
+        clear: function () {
+            instance = null;
         }
     };
 })();
 
 export const mailapi = (function () {
-    let instance: MailAPI;
+    let instance: MailAPI | null;
 
     async function init() {
         const { sid } = await sessionInfos.getInstance();
@@ -113,6 +119,9 @@ export const mailapi = (function () {
                 instance = await init();
             }
             return instance;
+        },
+        clear: function () {
+            instance = null;
         }
     };
 })();
