@@ -1,7 +1,6 @@
 import { MailDB, SyncOptions } from "./MailDB";
 import { createFolderId, mailapi, sessionInfos } from "./MailAPI";
 import { MailItem } from "./entry";
-import { logger } from "./logger";
 
 declare const self: ServiceWorkerGlobalScope;
 const db = new MailDB();
@@ -15,21 +14,17 @@ export async function syncMailFolders() {
     await syncMyMailbox();
     const folders = await db.getAllMailFolders();
     for (const folder of folders) {
-        await syncMailFolder(folder.uid, folder.value.fullName);
+        await syncMailFolder(folder.uid);
     }
 }
 
-export async function syncMailFolder(uid: string, fullName?: string) {
+export async function syncMailFolder(uid: string) {
     const syncOptions = await getSyncOptions(uid);
     const { created, updated, deleted, version } = await (await mailapi.getInstance()).mailItem.changeset(
         uid,
         syncOptions.version
     );
     if (version !== syncOptions.version) {
-        if (fullName) {
-            showNotification(`Synchronization of the "${fullName}" folder.`);
-        }
-        logger.log("version updated");
         const ids = created
             .reverse()
             .concat(updated.reverse())
@@ -40,8 +35,6 @@ export async function syncMailFolder(uid: string, fullName?: string) {
             { ...syncOptions, version }
         );
         db.updateSyncOptions({ ...syncOptions, version });
-    } else {
-        logger.log("up to date");
     }
 }
 
@@ -50,20 +43,14 @@ export async function syncMyMailbox() {
     await syncMailbox(domain, userId);
 }
 
-async function syncMailbox(domain: string, userId: string, login?: string) {
+async function syncMailbox(domain: string, userId: string) {
     const api = await mailapi.getInstance();
     const syncOptions = await getSyncOptions(createFolderId({ userId, domain }));
     const { version } = await api.mailFolder.changeset({ domain, userId }, syncOptions.version);
     if (version !== syncOptions.version) {
-        if (login) {
-            showNotification(`Synchronization of the email box "${login}".`);
-        }
-        logger.log("version updated");
         const mailFolders = await api.mailFolder.fetch({ domain, userId });
         db.putMailFolders(mailFolders);
         db.updateSyncOptions({ ...syncOptions, version });
-    } else {
-        logger.log("up to date");
     }
 }
 
@@ -92,12 +79,6 @@ async function getSyncOptions(uid: string) {
         return syncOptions;
     }
     return syncOptions;
-}
-
-function showNotification(message: string) {
-    self.registration.showNotification("BMail Sync", {
-        body: message
-    });
 }
 
 function* chunk<T>(array: T[], chunk_size: number) {
