@@ -112,10 +112,9 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 	private void executeAction(IDeferredAction deferredActionService, ItemValue<EventDeferredAction> deferredAction,
 			IMailboxes mailboxesService, IUserSettings userSettingsService, IDirectory directoryService) {
 		try {
-			if (userIsNotArchived(directoryService, deferredAction.value.ownerUid)) {
-				ItemValue<net.bluemind.mailbox.api.Mailbox> userMailbox = mailboxesService
-						.getComplete(deferredAction.value.ownerUid);
-
+			ItemValue<net.bluemind.mailbox.api.Mailbox> userMailbox = mailboxesService
+					.getComplete(deferredAction.value.ownerUid);
+			if (!userMailbox.value.archived) {
 				VEvent event = deferredAction.value.vevent;
 				VAlarm alarm = deferredAction.value.valarm;
 
@@ -145,10 +144,6 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 				deferredActionService.delete(deferredAction.uid);
 			}
 		}
-	}
-
-	private boolean userIsNotArchived(IDirectory directoryService, String ownerUid) {
-		return !directoryService.findByEntryUid(ownerUid).archived;
 	}
 
 	private void storeTrigger(EventDeferredAction deferredAction, IDeferredAction service) {
