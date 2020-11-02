@@ -43,7 +43,7 @@
                     </bm-col>
                 </bm-row>
                 <bm-file-drop-zone
-                    class="z-index-110 as-attachments"
+                    class="z-index-110 as-attachments flex-grow-1"
                     file-type-regex="^(?!.*image/(jpeg|jpg|png|gif)).*$"
                     at-least-one-match
                     @files-count="draggedFilesCount = $event"
@@ -53,7 +53,11 @@
                         <h2 class="text-center p-2">{{ $tc("mail.new.attachments.drop.zone", draggedFilesCount) }}</h2>
                         <bm-icon icon="arrow-up" size="2x" />
                     </template>
-                    <bm-file-drop-zone class="z-index-110" inline file-type-regex="image/(jpeg|jpg|png|gif)">
+                    <bm-file-drop-zone
+                        class="z-index-110 flex-grow-1"
+                        inline
+                        file-type-regex="image/(jpeg|jpg|png|gif)"
+                    >
                         <template #dropZone>
                             <bm-icon class="text-dark" icon="file-type-image" size="2x" />
                             <h2 class="text-center p-2">{{ $tc("mail.new.images.drop.zone", draggedFilesCount) }}</h2>
@@ -74,7 +78,7 @@
                             ref="message-content"
                             :value="messageCompose.editorContent"
                             :is-menu-bar-opened="userPrefIsMenuBarOpened"
-                            class="h-100"
+                            class="flex-grow-1"
                             @input="updateEditorContent"
                         >
                             <bm-button
@@ -422,6 +426,10 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-composer {
+    .row {
+        min-height: fit-content;
+    }
+
     .mail-composer-subject input,
     .bm-contact-input input,
     textarea {
