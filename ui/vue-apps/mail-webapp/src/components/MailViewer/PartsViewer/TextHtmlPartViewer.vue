@@ -25,7 +25,7 @@ export default {
             const styleNotInBody = extractStyleNotInBody(root);
 
             return {
-                sanitizedBody: sanitizeHtml(linkifyHtml(root.body.innerHTML), true),
+                sanitizedBody: linkifyHtml(sanitizeHtml(root.body.innerHTML, true)),
                 styles: styleNotInBody
             };
         }
