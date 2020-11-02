@@ -92,7 +92,7 @@ public class UserUpdateCommand extends SingleOrDomainOperation {
 		List<UpdateCommand> commandsToRun = commands.stream().filter(UpdateCommand::mustBeExecuted)
 				.map(command -> command.setContext(ctx)).collect(Collectors.toList());
 
-		if (commandsToRun.size() == 0) {
+		if (commandsToRun.isEmpty()) {
 			return;
 		}
 
