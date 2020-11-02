@@ -18,7 +18,7 @@ export async function syncMailFolders() {
 }
 
 export async function syncMailFolder(uid: string) {
-    const syncOptions = await getSyncOptions(uid);
+    const syncOptions = await getSyncOptions(uid, "mail_item");
     const { created, updated, deleted, version } = await (await mailapi.getInstance()).mailItem.changeset(
         uid,
         syncOptions.version
@@ -44,7 +44,7 @@ export async function syncMyMailbox() {
 
 async function syncMailbox(domain: string, userId: string) {
     const api = await mailapi.getInstance();
-    const syncOptions = await getSyncOptions(userAtDomain({ userId, domain }));
+    const syncOptions = await getSyncOptions(userAtDomain({ userId, domain }), "mail_folder");
     const { version } = await api.mailFolder.changeset({ domain, userId }, syncOptions.version);
     if (version !== syncOptions.version) {
         const mailFolders = await api.mailFolder.fetch({ domain, userId });
@@ -70,10 +70,10 @@ function createSyncOptions(uid: string, type: "mail_item" | "mail_folder"): Sync
     };
 }
 
-async function getSyncOptions(uid: string) {
+async function getSyncOptions(uid: string, type: "mail_item" | "mail_folder") {
     const syncOptions = await (await maildb.getInstance()).getSyncOptions(uid);
     if (!syncOptions) {
-        const syncOptions = createSyncOptions(uid, "mail_folder");
+        const syncOptions = createSyncOptions(uid, type);
         (await maildb.getInstance()).updateSyncOptions(syncOptions);
         return syncOptions;
     }
