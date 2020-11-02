@@ -17,7 +17,12 @@
  * END LICENSE
  */
 using System;
+using System.Collections;
 using System.ComponentModel.Design.Serialization;
+using System.IO;
+using System.Runtime.Serialization.Json;
+using System.Text;
+using System.Web.Script.Serialization;
 using core2client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using net.bluemind.authentication.api;
@@ -84,6 +89,23 @@ namespace TestCore2client
             Assert.IsNotNull(token.authKey);
 
             auth.logout();
+        }
+
+        /// <summary>
+        ///A test for AuthUser json parsing
+        ///</summary>
+        [TestMethod()]
+        [DeploymentItem("resources")]
+        public void AuthUserParsing()
+        {
+            String json = File.ReadAllText(@"resources\login-response.json");
+            using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(json)))
+            {
+                DataContractJsonSerializer dcr = new DataContractJsonSerializer(typeof(LoginResponse));
+                LoginResponse resp = (LoginResponse)dcr.ReadObject(ms);
+                Assert.IsNotNull(resp);
+                Assert.IsNotNull(resp.authUser.rolesByOU);
+            }
         }
 
         public class MyLogger : BMClient.ILogger
