@@ -1,7 +1,7 @@
 import { registerRoute } from "workbox-routing";
 import { RouteHandlerCallbackOptions } from "workbox-core/types";
 import { syncMailFolder } from "../periodicSync";
-import { MailDB } from "../MailDB";
+import { maildb } from "../MailDB";
 import { logger } from "../logger";
 import { MailItem } from "../entry";
 
@@ -9,8 +9,6 @@ interface Flags {
     must: string[];
     mustNot: string[];
 }
-
-const db = new MailDB();
 
 const apiRoutes = [
     {
@@ -45,7 +43,7 @@ async function allMailFolders({ request, params: [domain, userId] }: RouteHandle
     try {
         request = request as Request;
         const uid = `${userId}@${domain}`;
-        if (await db.isSubscribed(uid)) {
+        if (await (await maildb.getInstance()).isSubscribed(uid)) {
             return await fetchIndexedDB.allMailFolders();
         }
         return fetch(request);
@@ -60,7 +58,7 @@ async function multipleById({ request, params: [folderUid] }: RouteHandlerCallba
         request = request as Request;
         const clonedRequest = request.clone();
         const ids = (await clonedRequest.json()) as number[];
-        if (await db.isSubscribed(folderUid)) {
+        if (await (await maildb.getInstance()).isSubscribed(folderUid)) {
             try {
                 await syncMailFolder(folderUid);
             } catch (err) {
@@ -79,7 +77,7 @@ async function filteredChangesetById({ request, params: [folderUid] }: RouteHand
     try {
         request = request as Request;
         const expectedFlags = (await request.clone().json()) as Flags;
-        if (await db.isSubscribed(folderUid)) {
+        if (await (await maildb.getInstance()).isSubscribed(folderUid)) {
             try {
                 await syncMailFolder(folderUid);
             } catch (err) {
@@ -98,7 +96,7 @@ async function unreadItems({ request, params: [folderUid] }: RouteHandlerCallbac
     try {
         request = request as Request;
         const expectedFlags: Flags = { must: [], mustNot: ["Deleted", "Seen"] };
-        if (await db.isSubscribed(folderUid)) {
+        if (await (await maildb.getInstance()).isSubscribed(folderUid)) {
             try {
                 await syncMailFolder(folderUid);
             } catch (err) {
@@ -115,7 +113,7 @@ async function unreadItems({ request, params: [folderUid] }: RouteHandlerCallbac
 
 const fetchIndexedDB = {
     async filteredChangesetById(expectedFlags: Flags, folderUid: string) {
-        const allMailItems = await db.getAllMailItems(folderUid);
+        const allMailItems = await (await maildb.getInstance()).getAllMailItems(folderUid);
         const data = {
             created: allMailItems
                 .filter(item => filterByFlags(expectedFlags, item))
@@ -131,7 +129,7 @@ const fetchIndexedDB = {
     },
 
     async multipleById(folderUid: string, ids: number[]) {
-        const mailItems = await db.getMailItems(folderUid, ids);
+        const mailItems = await (await maildb.getInstance()).getMailItems(folderUid, ids);
         const actualMailItems = mailItems.filter(Boolean);
         if (mailItems.length !== actualMailItems.length) {
             logger.error("Missing some mails in DB");
@@ -142,7 +140,7 @@ const fetchIndexedDB = {
     },
 
     async unreadItems(folderUid: string, expectedFlags: Flags) {
-        const allMailItems = await db.getAllMailItems(folderUid);
+        const allMailItems = await (await maildb.getInstance()).getAllMailItems(folderUid);
         const data = allMailItems
             .filter(item => filterByFlags(expectedFlags, item))
             .sort(sortMessageByDate)
@@ -152,7 +150,7 @@ const fetchIndexedDB = {
         return new Response(JSON.stringify(data), { headers });
     },
     async allMailFolders() {
-        const folders = await db.getAllMailFolders();
+        const folders = await (await maildb.getInstance()).getAllMailFolders();
         const headers = new Headers();
         headers.append("X-BM-Fromcache", "true");
         return new Response(JSON.stringify(folders), { headers });

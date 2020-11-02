@@ -126,6 +126,6 @@ export const mailapi = (function () {
     };
 })();
 
-export function createFolderId({ userId, domain }: { userId: string; domain: string }) {
+export function userAtDomain({ userId, domain }: { userId: string; domain: string }) {
     return `user.${userId}@${domain.replace(".", "_")}`;
 }

@@ -1,5 +1,6 @@
 import { openDB, DBSchema, IDBPDatabase, IDBPTransaction, StoreNames, StoreValue } from "idb";
 import { MailFolder, MailItem, Reconciliation } from "./entry";
+import { userAtDomain, sessionInfos } from "./MailAPI";
 
 type SyncOptionsType = "mail_folder" | "mail_item";
 export interface SyncOptions {
@@ -25,11 +26,27 @@ interface MailSchema extends DBSchema {
     };
 }
 
-export class MailDB {
+export const maildb = (function () {
+    let instance: MailDB | null;
+
+    async function init() {
+        return new MailDB(userAtDomain(await sessionInfos.getInstance()));
+    }
+    return {
+        getInstance: async function () {
+            if (!instance) {
+                instance = await init();
+            }
+            return instance;
+        }
+    };
+})();
+
+class MailDB {
     dbPromise: Promise<IDBPDatabase<MailSchema>>;
-    constructor() {
-        const schemaVersion = 5;
-        this.dbPromise = openDB<MailSchema>("webapp/mail", schemaVersion, {
+    constructor(userAtDomain: string) {
+        const schemaVersion = 6;
+        this.dbPromise = openDB<MailSchema>(`${userAtDomain}:webapp/mail`, schemaVersion, {
             upgrade(db, oldVersion) {
                 if (oldVersion < schemaVersion) {
                     for (const name of Object.values(db.objectStoreNames)) {
