@@ -512,4 +512,5 @@
    <bundle id="net.bluemind.linkify"/>
    <bundle id="net.bluemind.vertx.core.patch"/>
    <bundle id="net.bluemind.common.hollow"/>
+   <bundle id="net.bluemind.system.sysconf.helper"/>
 </site>

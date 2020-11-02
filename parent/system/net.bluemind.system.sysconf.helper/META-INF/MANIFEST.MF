@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.system.sysconf.helper
+Bundle-SymbolicName: net.bluemind.system.sysconf.helper;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.hornetq.client,
+ net.bluemind.system.api,
+ net.bluemind.core.rest,
+ net.bluemind.system.hook,
+ slf4j.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.system.sysconf.helper
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.system.sysconf.helper

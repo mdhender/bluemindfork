@@ -36,6 +36,7 @@ import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
+import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class MessageBodyObjectStore {
 
@@ -84,8 +85,7 @@ public class MessageBodyObjectStore {
 	}
 
 	private SystemConf sharedSysConf() {
-		SharedMap<String, String> content = MQ.sharedMap(Shared.MAP_SYSCONF);
-		return SystemConf.create(content.keys().stream().collect(Collectors.toMap(k -> k, content::get)));
+		return LocalSysconfCache.get();
 	}
 
 	private static Map<String, Factory> loadStores() {

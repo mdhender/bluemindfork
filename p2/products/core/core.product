@@ -362,6 +362,7 @@
       <plugin id="net.bluemind.system.sqlschema"/>
       <plugin id="net.bluemind.system.state"/>
       <plugin id="net.bluemind.system.subscriptionprovider"/>
+      <plugin id="net.bluemind.system.sysconf.helper"/>
       <plugin id="net.bluemind.system.validation"/>
       <plugin id="net.bluemind.system.webmail"/>
       <plugin id="net.bluemind.systemd.notify"/>

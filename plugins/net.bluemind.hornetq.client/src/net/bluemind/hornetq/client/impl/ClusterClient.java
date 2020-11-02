@@ -26,12 +26,14 @@ import com.hazelcast.client.config.ClientConnectionStrategyConfig.ReconnectMode;
 import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.client.config.ClientReliableTopicConfig;
 import com.hazelcast.config.GroupConfig;
+import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.internal.diagnostics.HealthMonitorLevel;
 import com.hazelcast.spi.properties.GroupProperty;
 import com.hazelcast.topic.TopicOverloadPolicy;
 
 import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.Shared;
 
 public final class ClusterClient extends ClusterNode {
 
@@ -59,8 +61,10 @@ public final class ClusterClient extends ClusterNode {
 
 		cfg.getConnectionStrategyConfig().setReconnectMode(ReconnectMode.ASYNC);
 
-		HazelcastInstance hz = HazelcastClient.newHazelcastClient(cfg);
-		return hz;
+		NearCacheConfig nc = new NearCacheConfig(Shared.MAP_SYSCONF).setInvalidateOnChange(true);
+		cfg.getNearCacheConfigMap().put(Shared.MAP_SYSCONF, nc);
+
+		return HazelcastClient.newHazelcastClient(cfg);
 	}
 
 	private void configureTopics(ClientConfig cfg) {
