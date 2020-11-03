@@ -223,12 +223,22 @@ public class HelperTests {
 		assertEquals(decoded.daylightDate, easTz.daylightDate);
 	}
 
-	private void compare(String mobileTimezone, String timezone) {
+	private void compare(String mobileTimezone, String expectedTimezone) {
 		EASTimeZone decoded = TimeZoneCodec.decode(mobileTimezone);
 		System.out.println(decoded.toString());
+		TimeZone decodedTimezone = EASTimeZoneHelper.from(decoded);
 
-		TimeZone javaTz = TimeZone.getTimeZone(timezone);
+		// test from decoded tz
+		System.err.println("DECODED " + decodedTimezone.getID());
+		TimeZone javaTz = TimeZone.getTimeZone(decodedTimezone.getID());
 		EASTimeZone easTz = EASTimeZoneHelper.from(javaTz);
+		System.out.println(easTz.toString());
+		assertEquals(decoded.standardDate, easTz.standardDate);
+		assertEquals(decoded.daylightDate, easTz.daylightDate);
+
+		// test expected timezone
+		javaTz = TimeZone.getTimeZone(expectedTimezone);
+		easTz = EASTimeZoneHelper.from(javaTz);
 		System.out.println(easTz.toString());
 
 		assertEquals(decoded.standardDate, easTz.standardDate);

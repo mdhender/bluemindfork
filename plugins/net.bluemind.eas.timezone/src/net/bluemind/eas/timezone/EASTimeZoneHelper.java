@@ -38,6 +38,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.util.internal.StringUtil;
+
 public class EASTimeZoneHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(EASTimeZoneHelper.class);
@@ -47,61 +49,48 @@ public class EASTimeZoneHelper {
 		if (easZone.bias == -60 && easZone.standardBias == 0 && easZone.daylightBias == -60
 				&& easZone.standardDate.month != 0) {
 			return EUROPE_PARIS;
-		} else if (easZone.standardName == null || easZone.standardName.isEmpty()) {
-			String[] maybe = TimeZone.getAvailableIDs(0 - (easZone.bias * 60 * 1000));
-			if (maybe == null || maybe.length == 0) {
-				logger.warn("Null standard name, failed bias method returning Europe/Paris");
-				return EUROPE_PARIS;
-			} else {
-				TimeZone best = TimeZone.getTimeZone(maybe[0]);
-				boolean fixedOffset = false;
-				if (easZone.standardDate.month == 0 && easZone.daylightDate.month == 0) {
-					fixedOffset = true;
-					logger.debug("Fixed offset zone lookup");
-				}
-				for (String tzId : maybe) {
-					TimeZone javaTz = TimeZone.getTimeZone(tzId);
-					try {
-						ZoneId zid = ZoneId.of(javaTz.getID());
-						ZoneOffsetTransitionRule dayRule = null;
-						List<ZoneOffsetTransitionRule> rules = zid.getRules().getTransitionRules();
-						if (fixedOffset) {
-							if (rules.isEmpty()) {
-								best = javaTz;
-								break;
-							}
-						} else {
-							for (ZoneOffsetTransitionRule rule : rules) {
-								boolean isStandardTime = rule.getStandardOffset().getTotalSeconds() == rule
-										.getOffsetAfter().getTotalSeconds();
-								if (!isStandardTime) {
-									dayRule = rule;
-									break;
-								}
-							}
-							if (dayRule != null) {
-								printRule(dayRule);
-								int dayBias = 0 - ((dayRule.getOffsetAfter().getTotalSeconds()
-										- dayRule.getOffsetBefore().getTotalSeconds()) / 60);
-								logger.debug("dayBias {} for {}, looking for {}", dayBias, javaTz.getID(),
-										easZone.daylightBias);
-								if (dayBias == easZone.daylightBias) {
-									logger.debug("Got match");
-									best = javaTz;
-									break;
-								}
-							}
-						}
-					} catch (ZoneRulesException zre) {
-						logger.warn(zre.getMessage());
-					}
-				}
-				logger.warn("Bias method found {}", best.getID());
-				return best;
-			}
-		} else {
+		}
+
+		if (!StringUtil.isNullOrEmpty(easZone.standardName)) {
 			return TimeZone.getTimeZone(easZone.standardName);
 		}
+
+		String[] maybe = TimeZone.getAvailableIDs(0 - (easZone.bias * 60 * 1000));
+		if (maybe == null || maybe.length == 0) {
+			logger.warn("Null standard name, failed bias method returning Europe/Paris");
+			return EUROPE_PARIS;
+		}
+
+		TimeZone best = TimeZone.getTimeZone(maybe[0]);
+		boolean fixedOffset = false;
+		if (easZone.standardDate.month == 0 && easZone.daylightDate.month == 0) {
+			fixedOffset = true;
+			logger.debug("Fixed offset zone lookup");
+		}
+		for (String tzId : maybe) {
+			TimeZone javaTz = TimeZone.getTimeZone(tzId);
+			try {
+				if (fixedOffset) {
+					ZoneId zid = ZoneId.of(javaTz.getID());
+					List<ZoneOffsetTransitionRule> rules = zid.getRules().getTransitionRules();
+					if (rules.isEmpty()) {
+						best = javaTz;
+						break;
+					}
+				} else {
+					EASTimeZone guess = EASTimeZoneHelper.from(javaTz);
+					if (guess.equals(easZone)) {
+						best = javaTz;
+						break;
+					}
+				}
+			} catch (ZoneRulesException zre) {
+				logger.warn(zre.getMessage());
+			}
+		}
+
+		logger.debug("Bias method found {}", best.getID());
+		return best;
 	}
 
 	private static void printRule(ZoneOffsetTransitionRule dayRule) {
