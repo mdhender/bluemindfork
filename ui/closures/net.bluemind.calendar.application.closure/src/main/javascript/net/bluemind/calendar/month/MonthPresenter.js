@@ -122,6 +122,11 @@ net.bluemind.calendar.month.MonthPresenter.prototype.init = function() {
       this.actions_.details(e);
     }
   });
+
+  this.handler.listen(this.view_, net.bluemind.calendar.vevent.EventType.COUNTER_DETAILS, function(e) {
+    this.actions_.counter(e);
+  });
+
   this.handler.listen(this.view_, net.bluemind.calendar.vevent.EventType.REFRESH, function() {
     this.ctx.helper('url').reload();
   });

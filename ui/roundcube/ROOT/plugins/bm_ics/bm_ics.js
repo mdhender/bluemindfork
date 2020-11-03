@@ -16,6 +16,20 @@ function decline(container, id, recurid, me) {
   }
 }
 
+function acceptCounter(container, id, recurid, originator) {
+  rcmail.http_post('plugin.bm_ics.updateCounter', '_uid='+id+'&_recurid='+recurid+'&_container='+container+'&_status=ACCEPTED&_originator='+originator);
+  $('#ics-toolbar-declined').removeClass('highlight');
+  $('#ics-toolbar-declined').addClass('disable-link');
+  $('#ics-toolbar-accepted').addClass('highlight');
+}
+
+function declineCounter(container, id, recurid, originator) {
+  rcmail.http_post('plugin.bm_ics.updateCounter', '_uid='+id+'&_recurid='+recurid+'&_container='+container+'&_status=DECLINED&_originator='+originator);
+  $('#ics-toolbar-accepted').removeClass('highlight');
+  $('#ics-toolbar-accepted').addClass('disable-link');
+  $('#ics-toolbar-declined').addClass('highlight');
+}
+
 function update(container, id, recurid, me, part) {
   rcmail.http_post('plugin.bm_ics.update', '_uid='+id+'&_recurid='+recurid+'&_me='+me+'&_part='+part+'&_container='+container);
   $('#ics-toolbar-accepted').removeClass('highlight');

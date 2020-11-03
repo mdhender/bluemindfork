@@ -32,6 +32,8 @@ class bm_ics extends rcube_plugin {
   private $resource_id;
   private $other;
   private $shared;
+  private $evtType;
+  private $originator;
 
   function init() {
     $this->event_uid = null;
@@ -40,8 +42,11 @@ class bm_ics extends rcube_plugin {
     $this->other = $_SESSION['imap_namespace']['other'][0][0];
     $this->shared = $_SESSION['imap_namespace']['shared'][0][0];
     $this->rcmail = rcmail::get_instance();
+    $this->evtType = null;
+    $this->originator = null;
     $this->add_hook('startup', array($this, 'startup'));
     $this->register_action('plugin.bm_ics.update', array($this, 'update'));
+    $this->register_action('plugin.bm_ics.updateCounter', array($this, 'updateCounter'));
     $this->hierarchy = new rcube\MyHierarchy();    
   }
 
@@ -80,14 +85,46 @@ class bm_ics extends rcube_plugin {
   function message_load($p) {
     $this->rsvp_event_uids = array();
     $eventHeader = $p['object']->get_header('x-bm-event');
-    if ($eventHeader){
+    
+    if (!$eventHeader){
+      $eventHeader = $p['object']->get_header('x-bm-event-countered');
+      if ($eventHeader){
+        $evtType = 'COUNTER';
+        $this->resource_id = $p['object']->get_header('x-bm-resourcebooking');
+        list($icsUid, $recurid, $originator) = $this->parseCounterEventHeader($eventHeader);
+        $this->series = $this->getSeriesByIcsUid($icsUid, $recurid);
+        $this->recurid = $recurid;
+        $this->originator = $originator;
+        $this->evtType = $evtType;
+      }
+    } else {
+      $evtType = 'INVITE';
       $this->resource_id = $p['object']->get_header('x-bm-resourcebooking');
       list($icsUid, $recurid, $rsvp) = $this->parseEventHeader($eventHeader);
       $this->series = $this->getSeriesByIcsUid($icsUid, $recurid);
       $this->recurid = $recurid;
       $this->rsvp = $rsvp;
+      $this->evtType = $evtType;
     }
     return $p;
+  }
+
+  function parseCounterEventHeader($header) {
+    $header = is_array($header) ? $header[0]: $header;
+    $values = explode(';', $header);
+    $ics = trim(array_shift($values));
+    if (count($values) > 1) {
+      preg_match_all('/"([^"]+)"/', array_shift($values), $matches);
+      $originator = $matches[0][0];
+      $originator = str_replace("\"", "", $originator);
+      preg_match_all('/"([^"]+)"/', array_shift($values), $matches);
+      $recurid = $matches[0][0];
+      $recurid = str_replace("\"", "", $recurid);
+    } else {
+      $originator = substr(trim(array_shift($values)), 12);
+      $originator = str_replace("\"", "", $originator);
+    }
+    return array($ics, $recurid, $originator);
   }
 
   function parseEventHeader($header) {
@@ -143,6 +180,16 @@ class bm_ics extends rcube_plugin {
     }
   }
 
+ function getCounter($series, $recurid) {
+    foreach($series->value->counters as $counter) {
+      if ($counter->originator->email == $this->originator){
+        if (($recurid == null && $counter->counter->recurid == null) || ($recurid != null && $counter->counter->recurid != null && $counter->counter->recurid->iso8601 == $recurid)) {
+          return $counter->counter;
+        }
+      }
+    }
+  }
+
   public function message_list($args) {
     $count = count($args['messages']);
     for ($i=0;$i<$count;$i++) {
@@ -152,18 +199,149 @@ class bm_ics extends rcube_plugin {
         $invitation = ($header->get('x-bm-event') != null);
         $invitation = $invitation || ($header->get('x-bm-resourcebooking') != null);
         if ($invitation) {
-	  $header->list_flags['extra_flags']['invitation'] = $invitation;
+          $header->list_flags['extra_flags']['invitation'] = $invitation;
           $args['messages'][$i]->list_cols['attachment'] = "<span class=\"fa fa-calendar\"></span>";
-        }
-        
+        } else {
+          $counter = ($header->get('x-bm-event-countered') != null);
+          if ($invitation) {
+            $header->list_flags['extra_flags']['counter'] = $counter;
+            $args['messages'][$i]->list_cols['attachment'] = "<span class=\"fa fa-calendar\"></span>";
+          }
+        }   
       }
     }
     return $args;
   }
 
-  function template_object_messagebody($p ){
-    if ($this->rsvp && $this->series != null && !(strpos($_SESSION['mbox'], $this->shared) === 0)) {
+  function template_object_messagebody($p){
+    if ($this->rsvp && $this->evtType == 'INVITE' && !(strpos($_SESSION['mbox'], $this->shared) === 0)) {
+      return $this->template_invite($p);
+    } else if ($this->evtType == 'COUNTER' && !(strpos($_SESSION['mbox'], $this->shared) === 0)){
+      return $this->template_counter($p);
+    }
+  }
+
+  public function template_counter($p){
       $evt = $this->getVEvent($this->series, $this->recurid);
+      $counter = $this->getCounter($this->series, $this->recurid);
+      $recurid = urlencode($this->recurid);
+
+      if ($evt == null){
+        $p['content'] = "<div class='ics-toolbar-error'>
+          ".$this->gettext('deletedEvent')."
+        </div> 
+        $p[content]";
+        return $p;
+      } 
+      if ($counter == null){
+        $p['content'] = "<div class='ics-toolbar-error'>
+          ".$this->gettext('deletedCounter')."
+        </div> 
+        $p[content]";
+        return $p;
+      }
+  
+      $container = $this->getContainer();
+      $id = $this->series->uid;  
+      if ($this->resource_id != null) {
+        $me = 'bm://'.$_SESSION['bm_sso']['bmDomain'].'/resources/'.$this->resource_id;
+      } else {
+        if ((strpos($_SESSION['mbox'], $this->other) === 0)) {
+          $writable = $this->getContainerManagement($container)->getDescriptor()->writable;
+          if (!$writable) {
+            return; 
+          }
+          $mailbox = $this->hierarchy->getMailboxByPath($_SESSION['mbox']);
+          $user = $mailbox->uid;
+          $name = $mailbox->displayName;
+        } else {
+          $user = $_SESSION['bm_sso']['bmUserId'];
+        }
+        $me = 'bm://'.$_SESSION['bm_sso']['bmDomain'].'/users/'.$user;
+      }
+
+      $accept = "<a id='ics-toolbar-accepted' href='#' onClick='acceptCounter(\"$container\", \"$id\", \"$recurid\", \"$this->originator\"); return false'>".$this->gettext('accepted')."</a>";
+      $decline = "<a id='ics-toolbar-declined' href='#' onClick='declineCounter(\"$container\", \"$id\", \"$recurid\", \"$this->originator\"); return false'>".$this->gettext('declined')."</a>";
+
+      $dateformat = $_SESSION['bm']['settings']['date'] == 'yyyy-MM-dd' ? 'Y-m-d' : 'd/m/Y';
+      $timeformat = $_SESSION['bm']['settings']['timeformat'] == 'HH:mm' ? 'H:i':'h:i a';
+      $tz = $_SESSION['bm']['settings']['timezone'];
+
+      $dtstart = new DateTime($tz);
+      $dtstart->setTimestamp(date("U",strtotime($evt->dtstart->iso8601)));
+      if ($evt->dtstart->precision == 'DateTime') {
+        $dtstartStr = $dtstart->format("$dateformat, $timeformat");
+      } else {
+        $dtstartStr = $dtstart->format($dateformat);
+      }
+
+      $dtend = new DateTime($tz);
+      $dtend->setTimestamp(date("U",strtotime($evt->dtend->iso8601)));
+      $dtendStr = $dtend->format($dateformat);
+      if ($evt->dtend->precision == 'DateTime') {
+        $dtendStr = $dtend->format("$dateformat, $timeformat");
+      } else {
+        $dtendStr = $dtend->format($dateformat);
+      }
+
+
+      $dtstartCounter = new DateTime($tz);
+      $dtstartCounter->setTimestamp(date("U",strtotime($counter->dtstart->iso8601)));
+      if ($counter->dtstart->precision == 'DateTime') {
+        $dtstartStrCounter = $dtstartCounter->format("$dateformat, $timeformat");
+      } else {
+        $dtstartStrCounter = $dtstartCounter->format($dateformat);
+      }
+
+      $dtendCounter = new DateTime($tz);
+      $dtendCounter->setTimestamp(date("U",strtotime($counter->dtend->iso8601)));
+      $dtendStrCounter = $dtendCounter->format($dateformat);
+      if ($counter->dtend->precision == 'DateTime') {
+        $dtendStrCounter = $dtendCounter->format("$dateformat, $timeformat");
+      } else {
+        $dtendStrCounter = $dtendCounter->format($dateformat);
+      }
+
+      $location = "";
+      if ($evt->location) {
+        $location = "<tr>
+            <td class='header-title'>".$this->gettext('where')."</td>
+            <td class='header'>".$evt->location."</td>
+          </tr>";
+      }
+      if ($name) {
+        $label = $this->gettext(array('name' => 'participationof', 'vars' => array('$name' => $name)));
+      } else {
+        $label = $this->gettext('participation');
+      }
+      $p['content'] = "<div class='ics-toolbar'>
+        <table class='headers-table'>
+          <tr>
+            <td class='header-title'>".$this->gettext('title')."</td>
+            <td class='header'>".$evt->summary."</td>
+          </tr>
+          <tr>
+            <td class='header-title'>".$this->gettext('when')."</td>
+            <td class='header'>$dtstartStr - $dtendStr, $tz</td>
+          </tr>
+          <tr>
+            <td class='header-title'>".$this->gettext('proposition')."</td>
+            <td class='header'>$dtstartStrCounter - $dtendStrCounter, $tz</td>
+          </tr>
+          $location
+          <tr>
+            <td class='header-title'>".$this->gettext('applyProposition')." </td>
+            <td class='header'>$accept - $decline</td>
+          </tr>
+        </table>
+      </div>
+      $p[content]";
+
+      return $p;
+  }
+
+  public function template_invite($p){
+    $evt = $this->getVEvent($this->series, $this->recurid);
       $recurid = urlencode($this->recurid);
       if ($evt != null) {
         $container = $this->getContainer();
@@ -272,7 +450,54 @@ class bm_ics extends rcube_plugin {
         $p[content]";
         return $p;
       }
+  }
+
+  public function updateCounter() {
+    $uid = get_input_value('_uid', RCUBE_INPUT_POST);
+    $recurid = get_input_value('_recurid', RCUBE_INPUT_POST);
+    $container = get_input_value('_container', RCUBE_INPUT_POST);
+    $status = get_input_value('_status', RCUBE_INPUT_POST);
+    $this->originator = get_input_value('_originator', RCUBE_INPUT_POST);
+
+    $cli = $this->getCalendarClient($container);
+
+    $series = $cli->getComplete($uid);
+    $evt = $this->getVEvent($series, $recurid);
+    $counter = $this->getCounter($series, $recurid);  
+    
+    if ($status == 'ACCEPTED'){
+      $evt->dtstart = $counter->dtstart;
+      $evt->dtend = $counter->dtend;
+      $series->value->counters = array();
+      if ($series->value->main != null && $series->value->main->rrule != null && $recurid == null){
+        $series->value->main->exdate = array();
+        $series->value->occurrences = array();
+      }
+      $series->value->counters = array();
+      foreach($evt->attendees as $attendee) {
+          $attendee->partStatus = 'NeedsAction';
+          $attendee->rsvp = true;
+      }  
+    } else {
+      $i = 0;
+      foreach($series->value->counters as $c) {
+        if ($c->originator->email == $this->originator){
+          if (($recurid == null && $c->counter->recurid == null) || ($recurid != null && $c->counter->recurid != null && $c->counter->recurid->iso8601 == $recurid)) {
+            array_splice($series->value->counters, $i, 1);
+            break;
+          }
+          $i++;
+        }
+      }
     }
+    $serializable = new BMSerializableObject((array) $series->value);
+    $cli->update($uid, $serializable, 'true');
+    if ($status == 'ACCEPTED'){
+      $this->rcmail->output->command('display_message', $this->gettext('propositionApplied'), 'confirmation');
+    } else {
+      $this->rcmail->output->command('display_message', $this->gettext('propositionRefused'), 'confirmation');
+    }
+    $this->rcmail->output->send();  
   }
 
   public function update() {
@@ -286,7 +511,6 @@ class bm_ics extends rcube_plugin {
 
     $series = $cli->getComplete($uid);
     $evt = $this->getVEvent($series, $recurid);
-
 
     foreach($evt->attendees as $attendee) {
       if ($me == $attendee->dir) {

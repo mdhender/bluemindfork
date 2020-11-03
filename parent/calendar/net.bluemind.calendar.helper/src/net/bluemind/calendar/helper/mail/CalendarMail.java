@@ -38,8 +38,8 @@ import org.apache.james.mime4j.message.BodyPart;
 import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.message.MultipartImpl;
 
+import net.bluemind.calendar.helper.ical4j.Method;
 import net.bluemind.core.api.fault.ServerFault;
-import net.fortuna.ical4j.model.property.Method;
 
 public class CalendarMail {
 	public final Mailbox from;

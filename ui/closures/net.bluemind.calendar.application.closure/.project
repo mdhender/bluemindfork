@@ -1,7 +1,7 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>net.bluemind.calendar.application.closure</name>
-	<comment/>
+	<comment></comment>
 	<projects>
 	</projects>
 	<buildSpec>
@@ -35,14 +35,12 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
-		
 	</buildSpec>
 	<natures>
 		<nature>net.vtst.ow.eclipse.soy.nature</nature>
 		<nature>org.eclipse.xtext.ui.shared.xtextNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.pde.PluginNature</nature>
-		
 		<nature>org.eclipse.wst.jsdt.core.jsNature</nature>
 		<nature>com.digiarea.gct.core.ClosureNature</nature>
 	</natures>

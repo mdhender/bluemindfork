@@ -100,6 +100,9 @@ net.bluemind.calendar.list.PendingEventsPresenter.prototype.init = function() {
   this.handler.listen(net.bluemind.net.OnlineHandler.getInstance(), goog.net.NetworkStatusMonitor.EventType.ONLINE, this.setup);
   this.handler.listen(net.bluemind.net.OnlineHandler.getInstance(), goog.net.NetworkStatusMonitor.EventType.OFFLINE, this.setup);
   this.handler.listen(this.ctx.service("pendingEventsMgmt"), 'change', this.setup);
+  this.handler.listen(this.view_, net.bluemind.calendar.vevent.EventType.COUNTER_DETAILS, function(e) {
+    this.actions_.counter(e);
+  });
   return goog.Promise.resolve();
 };
 

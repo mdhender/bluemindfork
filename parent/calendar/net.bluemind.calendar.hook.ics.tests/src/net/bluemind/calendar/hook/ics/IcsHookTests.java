@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.james.mime4j.dom.Entity;
@@ -67,6 +68,7 @@ import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventCounter;
+import net.bluemind.calendar.api.VEventCounter.CounterOriginator;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
@@ -90,6 +92,8 @@ import net.bluemind.core.sendmail.testhelper.FakeSendmail;
 import net.bluemind.core.sendmail.testhelper.TestMail;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.IDirEntryPath;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
@@ -247,8 +251,7 @@ public class IcsHookTests {
 		event.description = "Lorem ipsum";
 		event.priority = 1;
 		event.organizer = new VEvent.Organizer(null, user1.defaultEmail().address);
-		// event.organizer.uri = ICalendarUids.TYPE + ":Default:" +
-		// "u1";
+		event.organizer.dir = "bm://" + IDirEntryPath.path(domainUid, "u1", Kind.USER);
 		event.attendees = new ArrayList<>();
 		event.categories = new ArrayList<TagRef>(0);
 
@@ -258,6 +261,31 @@ public class IcsHookTests {
 		VEventSeries series = new VEventSeries();
 		series.main = event;
 		return ItemValue.create(UUID.randomUUID().toString(), series);
+	}
+
+	private ItemValue<VEventSeries> defaultRecurrentVEvent(String title) {
+		ItemValue<VEventSeries> series = defaultVEvent(title);
+		RRule rrule = new RRule();
+		rrule.frequency = Frequency.DAILY;
+		rrule.interval = 1;
+		series.value.main.rrule = rrule;
+		return series;
+	}
+
+	private ItemValue<VEventSeries> defaultRecurrentVEventWithException(String title) {
+		ItemValue<VEventSeries> series = defaultVEvent(title);
+		RRule rrule = new RRule();
+		rrule.frequency = Frequency.DAILY;
+		rrule.interval = 1;
+		series.value.main.rrule = rrule;
+
+		BmDateTime dtstart = series.value.main.dtstart;
+		long exc = BmDateTimeWrapper.toTimestamp(dtstart.iso8601, dtstart.timezone);
+		BmDateTime exceptionDate = BmDateTimeWrapper.fromTimestamp(exc + TimeUnit.DAYS.toMillis(2));
+		VEventOccurrence exception = VEventOccurrence.fromEvent(series.value.main.copy(), exceptionDate);
+		series.value.occurrences = Arrays.asList(exception);
+
+		return series;
 	}
 
 	@After
@@ -536,6 +564,693 @@ public class IcsHookTests {
 			}
 		}
 		fail("Did not find any ics part in the message.");
+	}
+
+	@Test
+	public void counterOnMain_DeclineCounter_Should_SendDecline() throws Exception {
+		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
+		ItemValue<VEventSeries> event = defaultVEvent("counterOnMain_DeclineCounter_Should_SendDecline");
+		event.value.main.status = ICalendarElement.Status.NeedsAction;
+		Attendee attendee = VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan");
+		attendee.responseComment = "yeah yeah ok gg";
+		event.value.main.attendees.add(attendee);
+
+		VEventOccurrence counterEvent = VEventOccurrence.fromEvent(event.value.main.copy(), null);
+		counterEvent.dtstart = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 3532);
+		counterEvent.dtend = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 4533);
+		VEventCounter counter = new VEventCounter();
+		counter.originator = CounterOriginator.from(attendee.commonName, attendee.mailto);
+		counter.counter = counterEvent;
+
+		VEventSeries oldSeries = new VEventSeries();
+		oldSeries.counters = Arrays.asList(counter);
+		oldSeries.main = event.value.main;
+
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = event.uid;
+		veventMessage.vevent = event.value;
+		veventMessage.oldEvent = oldSeries;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = containerHome.get(ICalendarUids.TYPE + ":Default:" + user1.login);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventUpdated(veventMessage);
+		assertTrue(fakeSendmail.mailSent);
+
+		assertEquals(1, fakeSendmail.messages.size());
+		Message m = fakeSendmail.messages.get(0).message;
+		Multipart body = (Multipart) m.getBody();
+		boolean checked = false;
+		for (Entity part : body.getBodyParts()) {
+			if ("event.ics".equals(part.getFilename())) {
+				TextBody tb = (TextBody) part.getBody();
+				try (InputStream in = tb.getInputStream()) {
+					String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
+					assertTrue(icsContent.contains("DECLINECOUNTER"));
+					checked = true;
+				}
+				break;
+			}
+		}
+		assertTrue(checked);
+
+	}
+
+	@Test
+	public void counterOnNonExistingOccurrence_DeclineCounter_Should_SendDecline() throws Exception {
+		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
+		ItemValue<VEventSeries> event = defaultRecurrentVEvent(
+				"counterOnNonExistingOccurrence_DeclineCounter_Should_SendDecline");
+		event.value.main.status = ICalendarElement.Status.NeedsAction;
+		Attendee attendee = VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan");
+		attendee.responseComment = "yeah yeah ok gg";
+		event.value.main.attendees.add(attendee);
+
+		BmDateTime dtstart = event.value.main.dtstart;
+		long exc = BmDateTimeWrapper.toTimestamp(dtstart.iso8601, dtstart.timezone);
+		BmDateTime exceptionDate = BmDateTimeWrapper.fromTimestamp(exc + TimeUnit.DAYS.toMillis(2));
+		VEventOccurrence counterEvent = VEventOccurrence.fromEvent(event.value.main.copy(), exceptionDate);
+		counterEvent.dtstart = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 3532);
+		counterEvent.dtend = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 4533);
+		VEventCounter counter = new VEventCounter();
+		counter.originator = CounterOriginator.from(attendee.commonName, attendee.mailto);
+		counter.counter = counterEvent;
+
+		VEventSeries oldSeries = new VEventSeries();
+		oldSeries.counters = Arrays.asList(counter);
+		oldSeries.main = event.value.main;
+
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = event.uid;
+		veventMessage.vevent = event.value;
+		veventMessage.oldEvent = oldSeries;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = containerHome.get(ICalendarUids.TYPE + ":Default:" + user1.login);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventUpdated(veventMessage);
+		assertTrue(fakeSendmail.mailSent);
+
+		assertEquals(1, fakeSendmail.messages.size());
+		Message m = fakeSendmail.messages.get(0).message;
+		Multipart body = (Multipart) m.getBody();
+		boolean checked = false;
+		for (Entity part : body.getBodyParts()) {
+			if ("event.ics".equals(part.getFilename())) {
+				TextBody tb = (TextBody) part.getBody();
+				try (InputStream in = tb.getInputStream()) {
+					String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
+					assertTrue(icsContent.contains("DECLINE"));
+					checked = true;
+				}
+				break;
+			}
+		}
+		assertTrue(checked);
+
+	}
+
+	@Test
+	public void counterOnExistingOccurrence_DeclineCounter_Should_SendDecline() throws Exception {
+		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
+		ItemValue<VEventSeries> event = defaultRecurrentVEventWithException(
+				"counterOnExistingOccurrence_DeclineCounter_Should_SendDecline");
+		event.value.main.status = ICalendarElement.Status.NeedsAction;
+		Attendee attendee = VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan");
+		attendee.responseComment = "yeah yeah ok gg";
+		event.value.main.attendees.add(attendee);
+
+		VEventOccurrence counterEvent = event.value.occurrences.get(0).copy();
+		counterEvent.dtstart = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 3532);
+		counterEvent.dtend = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 4533);
+		VEventCounter counter = new VEventCounter();
+		counter.originator = CounterOriginator.from(attendee.commonName, attendee.mailto);
+		counter.counter = counterEvent;
+		counter.counter.attendees.add(attendee);
+
+		VEventSeries oldSeries = new VEventSeries();
+		oldSeries.counters = Arrays.asList(counter);
+		oldSeries.occurrences = event.value.occurrences;
+		oldSeries.main = event.value.main;
+
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = event.uid;
+		veventMessage.vevent = event.value;
+		veventMessage.oldEvent = oldSeries;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = containerHome.get(ICalendarUids.TYPE + ":Default:" + user1.login);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventUpdated(veventMessage);
+		assertTrue(fakeSendmail.mailSent);
+
+		assertEquals(1, fakeSendmail.messages.size());
+		Message m = fakeSendmail.messages.get(0).message;
+		Multipart body = (Multipart) m.getBody();
+		boolean checked = false;
+		for (Entity part : body.getBodyParts()) {
+			if ("event.ics".equals(part.getFilename())) {
+				TextBody tb = (TextBody) part.getBody();
+				try (InputStream in = tb.getInputStream()) {
+					String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
+					assertTrue(icsContent.contains("DECLINE"));
+					checked = true;
+				}
+				break;
+			}
+		}
+		assertTrue(checked);
+
+	}
+
+	@Test
+	public void counterOnMain_UpdateMain_Should_NOT_SendDecline() throws Exception {
+		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
+		ItemValue<VEventSeries> event = defaultVEvent("counterOnMain_UpdateMain_Should_NOT_SendDecline");
+		event.value.main.status = ICalendarElement.Status.NeedsAction;
+		Attendee attendee = VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan");
+		attendee.responseComment = "yeah yeah ok gg";
+		event.value.main.attendees.add(attendee);
+
+		VEventOccurrence counterEvent = VEventOccurrence.fromEvent(event.value.main.copy(), null);
+		counterEvent.dtstart = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 3532);
+		counterEvent.dtend = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 4533);
+		VEventCounter counter = new VEventCounter();
+		counter.originator = CounterOriginator.from(attendee.commonName, attendee.mailto);
+		counter.counter = counterEvent;
+
+		event.value.counters = Arrays.asList(counter);
+
+		VEventSeries oldSeries = new VEventSeries();
+		oldSeries.counters = Arrays.asList(counter);
+		oldSeries.main = event.value.main.copy();
+
+		// update main
+		event.value.main.summary = "updated";
+
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = event.uid;
+		veventMessage.vevent = event.value;
+		veventMessage.oldEvent = oldSeries;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = containerHome.get(ICalendarUids.TYPE + ":Default:" + user1.login);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventUpdated(veventMessage);
+		assertTrue(fakeSendmail.mailSent);
+
+		assertEquals(1, fakeSendmail.messages.size());
+		Message m = fakeSendmail.messages.get(0).message;
+		Multipart body = (Multipart) m.getBody();
+		boolean checked = false;
+		for (Entity part : body.getBodyParts()) {
+			if ("event.ics".equals(part.getFilename())) {
+				TextBody tb = (TextBody) part.getBody();
+				try (InputStream in = tb.getInputStream()) {
+					String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
+					assertTrue(icsContent.contains("REQUEST"));
+					checked = true;
+				}
+				break;
+			}
+		}
+		assertTrue(checked);
+	}
+
+	@Test
+	public void counterOnMain_UpdateException_ShouldSendDecline() throws Exception {
+		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
+		ItemValue<VEventSeries> event = defaultRecurrentVEventWithException(
+				"counterOnMain_UpdateException_ShouldSendDecline");
+		event.value.main.status = ICalendarElement.Status.NeedsAction;
+		Attendee attendee = VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan");
+		attendee.responseComment = "yeah yeah ok gg";
+		event.value.main.attendees.add(attendee);
+		event.value.occurrences.get(0).attendees.add(attendee);
+
+		VEventOccurrence counterEvent = VEventOccurrence.fromEvent(event.value.main.copy(), null);
+		counterEvent.dtstart = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 3532);
+		counterEvent.dtend = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 4533);
+		VEventCounter counter = new VEventCounter();
+		counter.originator = CounterOriginator.from(attendee.commonName, attendee.mailto);
+		counter.counter = counterEvent;
+
+		VEventSeries oldSeries = new VEventSeries();
+		oldSeries.counters = Arrays.asList(counter);
+		oldSeries.main = event.value.main.copy();
+		oldSeries.occurrences = Arrays.asList(event.value.occurrences.get(0).copy());
+
+		// update exception
+		event.value.occurrences.get(0).summary = "updated";
+
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = event.uid;
+		veventMessage.vevent = event.value;
+		veventMessage.oldEvent = oldSeries;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = containerHome.get(ICalendarUids.TYPE + ":Default:" + user1.login);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventUpdated(veventMessage);
+		assertTrue(fakeSendmail.mailSent);
+
+		assertEquals(2, fakeSendmail.messages.size());
+		boolean checkedRequest = false;
+		boolean checkedDecline = false;
+
+		for (TestMail mail : fakeSendmail.messages) {
+			Message m = mail.message;
+			Multipart body = (Multipart) m.getBody();
+			for (Entity part : body.getBodyParts()) {
+				if ("event.ics".equals(part.getFilename())) {
+					TextBody tb = (TextBody) part.getBody();
+					try (InputStream in = tb.getInputStream()) {
+						String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
+						if (icsContent.contains("REQUEST")) {
+							checkedRequest = true;
+						} else if (icsContent.contains("DECLINECOUNTER")) {
+							checkedDecline = true;
+						}
+					}
+				}
+			}
+		}
+		assertTrue(checkedRequest);
+		assertTrue(checkedDecline);
+	}
+
+	@Test
+	public void counterOnExistingException_UpdateMain_ShouldSendDecline() throws Exception {
+		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
+		ItemValue<VEventSeries> event = defaultRecurrentVEventWithException(
+				"counterOnExistingException_UpdateMain_ShouldSendDecline");
+		event.value.main.status = ICalendarElement.Status.NeedsAction;
+		Attendee attendee = VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan");
+		attendee.responseComment = "yeah yeah ok gg";
+		event.value.main.attendees.add(attendee);
+		event.value.occurrences.get(0).attendees.add(attendee);
+
+		VEventOccurrence counterEvent = event.value.occurrences.get(0).copy();
+		counterEvent.dtstart = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 3532);
+		counterEvent.dtend = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 4533);
+		VEventCounter counter = new VEventCounter();
+		counter.originator = CounterOriginator.from(attendee.commonName, attendee.mailto);
+		counter.counter = counterEvent;
+
+		VEventSeries oldSeries = new VEventSeries();
+		oldSeries.counters = Arrays.asList(counter);
+		oldSeries.main = event.value.main.copy();
+		oldSeries.occurrences = Arrays.asList(event.value.occurrences.get(0).copy());
+
+		// update main
+		event.value.main.summary = "updated";
+
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = event.uid;
+		veventMessage.vevent = event.value;
+		veventMessage.oldEvent = oldSeries;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = containerHome.get(ICalendarUids.TYPE + ":Default:" + user1.login);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventUpdated(veventMessage);
+		assertTrue(fakeSendmail.mailSent);
+
+		assertEquals(2, fakeSendmail.messages.size());
+		boolean checkedRequest = false;
+		boolean checkedDecline = false;
+
+		for (TestMail mail : fakeSendmail.messages) {
+			Message m = mail.message;
+			Multipart body = (Multipart) m.getBody();
+			for (Entity part : body.getBodyParts()) {
+				if ("event.ics".equals(part.getFilename())) {
+					TextBody tb = (TextBody) part.getBody();
+					try (InputStream in = tb.getInputStream()) {
+						String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
+						if (icsContent.contains("REQUEST")) {
+							checkedRequest = true;
+						} else if (icsContent.contains("DECLINECOUNTER")) {
+							checkedDecline = true;
+						}
+					}
+				}
+			}
+		}
+		assertTrue(checkedRequest);
+		assertTrue(checkedDecline);
+	}
+
+	@Test
+	public void counterOnExistingException_UpdateThisException_Should_NOT_SendDecline() throws Exception {
+		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
+		ItemValue<VEventSeries> event = defaultRecurrentVEventWithException(
+				"counterOnExistingException_UpdateThisException_Should_NOT_SendDecline");
+		event.value.main.status = ICalendarElement.Status.NeedsAction;
+		Attendee attendee = VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan");
+		attendee.responseComment = "yeah yeah ok gg";
+		event.value.main.attendees.add(attendee);
+		event.value.occurrences.get(0).attendees.add(attendee);
+
+		VEventOccurrence counterEvent = event.value.occurrences.get(0).copy();
+		counterEvent.dtstart = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 3532);
+		counterEvent.dtend = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 4533);
+		VEventCounter counter = new VEventCounter();
+		counter.originator = CounterOriginator.from(attendee.commonName, attendee.mailto);
+		counter.counter = counterEvent;
+
+		VEventSeries oldSeries = new VEventSeries();
+		oldSeries.counters = Arrays.asList(counter);
+		oldSeries.main = event.value.main.copy();
+		oldSeries.occurrences = Arrays.asList(event.value.occurrences.get(0).copy());
+
+		// update exception
+		event.value.occurrences.get(0).summary = "updated";
+
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = event.uid;
+		veventMessage.vevent = event.value;
+		veventMessage.oldEvent = oldSeries;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = containerHome.get(ICalendarUids.TYPE + ":Default:" + user1.login);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventUpdated(veventMessage);
+		assertTrue(fakeSendmail.mailSent);
+
+		assertEquals(1, fakeSendmail.messages.size());
+		boolean checkedRequest = false;
+
+		for (TestMail mail : fakeSendmail.messages) {
+			Message m = mail.message;
+			Multipart body = (Multipart) m.getBody();
+			for (Entity part : body.getBodyParts()) {
+				if ("event.ics".equals(part.getFilename())) {
+					TextBody tb = (TextBody) part.getBody();
+					try (InputStream in = tb.getInputStream()) {
+						String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
+						if (icsContent.contains("REQUEST")) {
+							checkedRequest = true;
+						}
+					}
+				}
+			}
+		}
+		assertTrue(checkedRequest);
+	}
+
+	@Test
+	public void counterOnExistingException_UpdateOtherException_ShouldSendDecline() throws Exception {
+		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
+		ItemValue<VEventSeries> event = defaultRecurrentVEventWithException(
+				"counterOnExistingException_UpdateOtherException_ShouldSendDecline");
+		Attendee attendee = VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan");
+		attendee.responseComment = "yeah yeah ok gg";
+
+		BmDateTime dtstart = event.value.main.dtstart;
+		long exc = BmDateTimeWrapper.toTimestamp(dtstart.iso8601, dtstart.timezone);
+		BmDateTime exceptionDate = BmDateTimeWrapper.fromTimestamp(exc + TimeUnit.DAYS.toMillis(4));
+		VEventOccurrence exception = VEventOccurrence.fromEvent(event.value.main.copy(), exceptionDate);
+		event.value.occurrences = new ArrayList<>(event.value.occurrences);
+		exception.attendees.add(attendee);
+		event.value.occurrences.add(exception);
+		event.value.main.status = ICalendarElement.Status.NeedsAction;
+
+		event.value.main.attendees.add(attendee);
+		event.value.occurrences.get(0).attendees.add(attendee);
+
+		VEventOccurrence counterEvent = event.value.occurrences.get(0).copy();
+		counterEvent.dtstart = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 333);
+		counterEvent.dtend = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 4533);
+		VEventCounter counter = new VEventCounter();
+		counter.originator = CounterOriginator.from(attendee.commonName, attendee.mailto);
+		counter.counter = counterEvent;
+
+		VEventSeries oldSeries = new VEventSeries();
+		oldSeries.counters = Arrays.asList(counter);
+		oldSeries.main = event.value.main.copy();
+		oldSeries.occurrences = Arrays.asList(event.value.occurrences.get(0).copy(),
+				event.value.occurrences.get(1).copy());
+
+		// update other exception
+		event.value.occurrences.get(1).summary = "updated";
+
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = event.uid;
+		veventMessage.vevent = event.value;
+		veventMessage.oldEvent = oldSeries;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = containerHome.get(ICalendarUids.TYPE + ":Default:" + user1.login);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventUpdated(veventMessage);
+		assertTrue(fakeSendmail.mailSent);
+
+		assertEquals(2, fakeSendmail.messages.size());
+		boolean checkedRequest = false;
+		boolean checkedDecline = false;
+
+		for (TestMail mail : fakeSendmail.messages) {
+			Message m = mail.message;
+			Multipart body = (Multipart) m.getBody();
+			for (Entity part : body.getBodyParts()) {
+				if ("event.ics".equals(part.getFilename())) {
+					TextBody tb = (TextBody) part.getBody();
+					try (InputStream in = tb.getInputStream()) {
+						String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
+						if (icsContent.contains("REQUEST")) {
+							checkedRequest = true;
+						} else if (icsContent.contains("DECLINECOUNTER")) {
+							checkedDecline = true;
+						}
+					}
+				}
+			}
+		}
+		assertTrue(checkedRequest);
+		assertTrue(checkedDecline);
+
+	}
+
+	@Test
+	public void counterOnNonExistingException_UpdateMain_Should_SendDecline() throws Exception {
+		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
+		ItemValue<VEventSeries> event = defaultRecurrentVEventWithException(
+				"counterOnNonExistingException_UpdateMain_Should_SendDecline");
+
+		event.value.main.status = ICalendarElement.Status.NeedsAction;
+		Attendee attendee = VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan");
+		attendee.responseComment = "yeah yeah ok gg";
+		event.value.main.attendees.add(attendee);
+		event.value.occurrences.get(0).attendees.add(attendee);
+
+		BmDateTime dtstart = event.value.main.dtstart;
+		long exc = BmDateTimeWrapper.toTimestamp(dtstart.iso8601, dtstart.timezone);
+		BmDateTime exceptionDate = BmDateTimeWrapper.fromTimestamp(exc + TimeUnit.DAYS.toMillis(4));
+		VEventOccurrence exception = VEventOccurrence.fromEvent(event.value.main.copy(), exceptionDate);
+		VEventOccurrence counterEvent = exception;
+		counterEvent.dtstart = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 3532);
+		counterEvent.dtend = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 4533);
+		VEventCounter counter = new VEventCounter();
+		counter.originator = CounterOriginator.from(attendee.commonName, attendee.mailto);
+		counter.counter = counterEvent;
+
+		VEventSeries oldSeries = new VEventSeries();
+		oldSeries.counters = Arrays.asList(counter);
+		oldSeries.main = event.value.main.copy();
+		oldSeries.occurrences = Arrays.asList(event.value.occurrences.get(0).copy());
+
+		// update other exception
+		event.value.main.summary = "updated";
+
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = event.uid;
+		veventMessage.vevent = event.value;
+		veventMessage.oldEvent = oldSeries;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = containerHome.get(ICalendarUids.TYPE + ":Default:" + user1.login);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventUpdated(veventMessage);
+		assertTrue(fakeSendmail.mailSent);
+
+		assertEquals(2, fakeSendmail.messages.size());
+		boolean checkedRequest = false;
+		boolean checkedDecline = false;
+
+		for (TestMail mail : fakeSendmail.messages) {
+			Message m = mail.message;
+			Multipart body = (Multipart) m.getBody();
+			for (Entity part : body.getBodyParts()) {
+				if ("event.ics".equals(part.getFilename())) {
+					TextBody tb = (TextBody) part.getBody();
+					try (InputStream in = tb.getInputStream()) {
+						String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
+						if (icsContent.contains("REQUEST")) {
+							checkedRequest = true;
+						} else if (icsContent.contains("DECLINECOUNTER")) {
+							checkedDecline = true;
+						}
+					}
+				}
+			}
+		}
+		assertTrue(checkedRequest);
+		assertTrue(checkedDecline);
+	}
+
+	@Test
+	public void counterOnNonExistingException_AddingThisException_Should_NOT_SendDecline() throws Exception {
+		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
+		ItemValue<VEventSeries> event = defaultRecurrentVEventWithException(
+				"counterOnNonExistingException_AddingThisException_Should_NOT_SendDecline");
+
+		event.value.main.status = ICalendarElement.Status.NeedsAction;
+		Attendee attendee = VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan");
+		attendee.responseComment = "yeah yeah ok gg";
+		event.value.main.attendees.add(attendee);
+		event.value.occurrences.get(0).attendees.add(attendee);
+
+		BmDateTime dtstart = event.value.main.dtstart;
+		long exc = BmDateTimeWrapper.toTimestamp(dtstart.iso8601, dtstart.timezone);
+		BmDateTime exceptionDate = BmDateTimeWrapper.fromTimestamp(exc + TimeUnit.DAYS.toMillis(4));
+		VEventOccurrence exception = VEventOccurrence.fromEvent(event.value.main.copy(), exceptionDate);
+		VEventOccurrence counterEvent = exception;
+		counterEvent.attendees.add(attendee);
+		counterEvent.dtstart = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 3532);
+		counterEvent.dtend = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 4533);
+		VEventCounter counter = new VEventCounter();
+		counter.originator = CounterOriginator.from(attendee.commonName, attendee.mailto);
+		counter.counter = counterEvent;
+
+		VEventSeries oldSeries = new VEventSeries();
+		oldSeries.counters = Arrays.asList(counter);
+		oldSeries.main = event.value.main.copy();
+		oldSeries.occurrences = Arrays.asList(event.value.occurrences.get(0).copy());
+
+		// adding exception
+		event.value.occurrences = new ArrayList<>(event.value.occurrences);
+		event.value.occurrences.add(counter.counter);
+
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = event.uid;
+		veventMessage.vevent = event.value;
+		veventMessage.oldEvent = oldSeries;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = containerHome.get(ICalendarUids.TYPE + ":Default:" + user1.login);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventUpdated(veventMessage);
+		assertTrue(fakeSendmail.mailSent);
+
+		assertEquals(2, fakeSendmail.messages.size());
+		int checkedRequest = 0;
+
+		for (TestMail mail : fakeSendmail.messages) {
+			Message m = mail.message;
+			Multipart body = (Multipart) m.getBody();
+			for (Entity part : body.getBodyParts()) {
+				if ("event.ics".equals(part.getFilename())) {
+					TextBody tb = (TextBody) part.getBody();
+					try (InputStream in = tb.getInputStream()) {
+						String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
+						if (icsContent.contains("REQUEST")) {
+							checkedRequest++;
+						}
+					}
+				}
+			}
+		}
+		assertEquals(2, checkedRequest);
+	}
+
+	@Test
+	public void counterOnNonExistingException_UpdateOtherException_ShouldSendDecline() throws Exception {
+		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
+		ItemValue<VEventSeries> event = defaultRecurrentVEventWithException(
+				"counterOnNonExistingException_UpdateOtherException_ShouldSendDecline");
+
+		event.value.main.status = ICalendarElement.Status.NeedsAction;
+		Attendee attendee = VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan");
+		attendee.responseComment = "yeah yeah ok gg";
+		event.value.main.attendees.add(attendee);
+		event.value.occurrences.get(0).attendees.add(attendee);
+
+		BmDateTime dtstart = event.value.main.dtstart;
+		long exc = BmDateTimeWrapper.toTimestamp(dtstart.iso8601, dtstart.timezone);
+		BmDateTime exceptionDate = BmDateTimeWrapper.fromTimestamp(exc + TimeUnit.DAYS.toMillis(4));
+		VEventOccurrence exception = VEventOccurrence.fromEvent(event.value.main.copy(), exceptionDate);
+		VEventOccurrence counterEvent = exception;
+		counterEvent.attendees.add(attendee);
+		counterEvent.dtstart = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 3532);
+		counterEvent.dtend = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis() + 4533);
+		VEventCounter counter = new VEventCounter();
+		counter.originator = CounterOriginator.from(attendee.commonName, attendee.mailto);
+		counter.counter = counterEvent;
+
+		VEventSeries oldSeries = new VEventSeries();
+		oldSeries.counters = Arrays.asList(counter);
+		oldSeries.main = event.value.main.copy();
+		oldSeries.occurrences = Arrays.asList(event.value.occurrences.get(0).copy());
+
+		// update exception
+		event.value.occurrences.get(0).summary = "update";
+
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = event.uid;
+		veventMessage.vevent = event.value;
+		veventMessage.oldEvent = oldSeries;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = containerHome.get(ICalendarUids.TYPE + ":Default:" + user1.login);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventUpdated(veventMessage);
+		assertEquals(2, fakeSendmail.messages.size());
+		boolean checkedRequest = false;
+		boolean checkedDecline = false;
+
+		for (TestMail mail : fakeSendmail.messages) {
+			Message m = mail.message;
+			Multipart body = (Multipart) m.getBody();
+			for (Entity part : body.getBodyParts()) {
+				if ("event.ics".equals(part.getFilename())) {
+					TextBody tb = (TextBody) part.getBody();
+					try (InputStream in = tb.getInputStream()) {
+						String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
+						if (icsContent.contains("REQUEST")) {
+							checkedRequest = true;
+						} else if (icsContent.contains("DECLINECOUNTER")) {
+							checkedDecline = true;
+						}
+					}
+				}
+			}
+		}
+		assertTrue(checkedRequest);
+		assertTrue(checkedDecline);
+
 	}
 
 	@Test

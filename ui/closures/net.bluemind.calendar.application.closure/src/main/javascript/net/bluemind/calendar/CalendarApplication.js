@@ -47,6 +47,7 @@ goog.require('net.bluemind.calendar.search.SearchHandler');
 goog.require('net.bluemind.calendar.sync.CalendarSync');
 goog.require('net.bluemind.calendar.toolbar.ToolbarHandler');
 goog.require('net.bluemind.calendar.vevent.VEventHandler');
+goog.require('net.bluemind.calendar.vevent.VEventCounterHandler');
 goog.require('net.bluemind.core.container.api.ContainersClient');
 goog.require('net.bluemind.i18n.DateTimeHelper');
 goog.require('net.bluemind.mvp.Router');
@@ -144,6 +145,9 @@ net.bluemind.calendar.CalendarApplication = function() {
       }, {
         path : '/vevent/',
         handlers : [net.bluemind.calendar.vevent.VEventHandler ]
+      }, {
+        path : '/vevent-counter/',
+        handlers : [net.bluemind.calendar.vevent.VEventCounterHandler ]
       }, {
         path : '/vtodo/consult',
         handlers : [net.bluemind.calendar.vtodo.consult.VTodoConsultHandler ]

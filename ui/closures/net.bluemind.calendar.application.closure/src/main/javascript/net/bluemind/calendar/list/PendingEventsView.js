@@ -59,7 +59,7 @@ net.bluemind.calendar.list.PendingEventsView = function(ctx, opt_domHelper) {
   goog.base(this, opt_domHelper);
   this.ctx = ctx;
 
-  var child = new goog.ui.Control();
+  var child = new goog.ui.Component();
   child.setId('list');
   this.addChild(child, true);
   var element = goog.soy.renderAsElement(net.bluemind.calendar.list.templates.list);

@@ -49,9 +49,19 @@ net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.toModelView = functio
   model.calendar = vseries['container'];
 
   model.states = {};
+  model.acceptCounters = vseries['value']['acceptCounters'];
   model.main = this.veventToModelView(vseries['value']['main'], calendar, model);
   model.occurrences = goog.array.map(vseries['value']['occurrences'], function(occurrence) {
     return this.veventToModelView(occurrence, calendar, model);
+  }, this);
+  vseries['value']['counters'] = vseries['value']['counters'] ? vseries['value']['counters'] : [];
+  model.counters = goog.array.map(vseries['value']['counters'], function(counter) {
+    var counterModel = {};
+    counterModel.originator = {};
+    counterModel.originator.commonName = counter['originator']['commonName'];
+    counterModel.originator.email = counter['originator']['email'];
+    counterModel.counter = this.veventToModelView(counter['counter'], calendar, model);
+    return counterModel;
   }, this);
   model.flat = goog.array.clone(model.occurrences);
   if (goog.isDefAndNotNull(model.main)) {
@@ -100,6 +110,74 @@ net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.getOccurrence = funct
   }
   return vseries.main;
 };
+
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.getOccurrenceApi = function(recurrence, vseries) {
+  if (recurrence != null && goog.isString(recurrence)) {
+    return goog.array.find(vseries['occurrences'], function(occurrence) {
+      return this.ctx_.helper('date').fromIsoString(recurrence).getTime() == occurrence['recurid'].getTime();
+    }, this);
+  } else if (recurrence != null && goog.isDateLike(recurrence)) {
+    return goog.array.find(vseries['occurrences'], function(occurrence) {
+      if (!occurrence['recurid']){
+        return false;
+      }
+      return this.veventAdaptor_.dateToModel(occurrence['recurid']).getTime() == recurrence.getTime();
+    }, this);
+  }
+  return vseries['main'];
+};
+
+/**
+ * 
+ * @param recurrence
+ * @param vseries
+ * @returns
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.getCounterByOccurrence = function(recurrence, vseries) {
+  if (recurrence != null && goog.isString(recurrence)) {
+    var recTime = this.ctx_.helper('date').fromIsoString(recurrence).getTime();
+    return goog.array.filter(vseries.counters, function(counter) {
+      if (!counter.counter.recurrenceId){
+        return false;
+      }
+      return recTime == counter.counter.recurrenceId.getTime();
+    }, this);
+  } else if (recurrence != null && goog.isDateLike(recurrence)) {
+    return goog.array.filter(vseries.counters, function(counter) {
+      if (!counter.counter.recurrenceId){
+        return false;
+      }
+      return counter.counter.recurrenceId.getTime() == recurrence.getTime();
+    }, this);
+  } else {
+    return goog.array.filter(vseries.counters, function(counter) {
+      return counter.counter.recurrenceId == null;
+    });
+  }
+};
+
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.getCounterByOccurrenceApi = function(recurrence, vseries) {
+  if (recurrence != null && goog.isString(recurrence)) {
+    return goog.array.filter(vseries['counters'], function(counter) {
+      if (!counter['counter']['recurid']){
+        return false;
+      }
+      return this.ctx_.helper('date').fromIsoString(recurrence).getTime() == counter['counter']['recurid'].getTime();
+    }, this);
+  } else if (recurrence != null && goog.isDateLike(recurrence)) {
+    return goog.array.filter(vseries['counters'], function(counter) {
+      if (!counter['counter']['recurid']){
+        return false;
+      }
+      return this.ctx_.helper('date').create(counter['counter']['recurid']).getTime() == recurrence.getTime();
+    }, this);
+  } else {
+    return goog.array.filter(vseries['counters'], function(counter) {
+      return counter['counter']['recurid'] == null;
+    });
+  }
+};
+
 
 /**
  * 
@@ -218,6 +296,50 @@ net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.fromVEventModelView =
   }
   return vseries;
 };
+
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.adaptCounterChanges_ = function(vseries, counter, calendar) {
+  var existingCounter = this.getCounterByOccurrenceApi(counter.counter.recurrenceId, vseries['value']);
+
+  var adaptedCounter = this.veventAdaptor_.fromModelView(counter.counter);
+  if (existingCounter.length == 0){
+    var veventCounter = {
+      "originator" : {
+        "commonName" : counter.originator.commonName,
+        "email" : counter.originator.email
+      },
+      "counter" : adaptedCounter
+    };
+    vseries['value']['counters'].push(veventCounter);  
+  } else {
+    existingCounter[0]['counter']['dtstart'] = this.ctx_.helper('date').toBMDateTime(counter.counter.dtstart, counter.counter.dtstart.timezone);
+    existingCounter[0]['counter']['dtend'] = this.ctx_.helper('date').toBMDateTime(counter.counter.dtend, counter.counter.dtend.timezone);
+    existingCounter[0]['counter']['attendees'][0]['partStatus'] = counter.counter.attendees[0].partStatus;
+  }
+  
+  var correspondingEvent = this.getOccurrenceApi(counter.counter.recurrenceId, vseries['value']);
+  if (correspondingEvent){
+    var seriesAttendee = goog.array.find(correspondingEvent['attendees'], function(att) {
+      return att.dir == counter.counter.attendees[0].dir;
+    });
+    seriesAttendee['partStatus'] = counter.counter.attendees[0].partStatus;
+  } else {
+    var utc = net.bluemind.timezone.UTC;
+    var occurrence = JSON.parse(JSON.stringify(adaptedCounter));
+    var start = this.ctx_.helper("date").create(vseries['value']['main']["dtstart"]);
+    var end = this.ctx_.helper("date").create(vseries['value']['main']['dtend']);
+    var duration = end.getTime(utc) - start.getTime(utc);
+    occurrence['dtstart'] = occurrence['recurid'];
+    start = this.ctx_.helper("date").create(occurrence["dtstart"]);
+    var date = start.clone();
+    date.setTime(date.getTime() + duration);
+    occurrence["dtend"]["timezone"] = occurrence['dtstart']['timezone'];
+    occurrence["dtend"]["precision"] = occurrence['dtstart']['precision'];
+    occurrence["dtend"]["iso8601"] = date.toIsoString(true, true);
+    vseries['value']['occurrences'] = vseries['value']['occurrences'] ? vseries['value']['occurrences'] : []; 
+    vseries['value']['occurrences'].push(occurrence); 
+  }
+  return vseries;
+}
 
 /**
  * Use the main event modification to modify exception

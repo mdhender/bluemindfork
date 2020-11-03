@@ -105,6 +105,7 @@
       <tr>
         <td>
           <div class="{css goog-tab-bar} {css goog-tab-bar-top} {css _details}">
+            <div style="display: none" id='bm-ui-form-tab-counters' class="{css goog-tab}">{msg meaning="calendar.event.tabs.counters" desc="Event form counters panel"}Date propositions{/msg}</div>
             <div id='bm-ui-form-tab-details' class="{css goog-tab} {css goog-tab-selected}">{msg meaning="calendar.event.tabs.details" desc="Event form information panel"}Informations{/msg}</div>
             <div id='bm-ui-form-tab-repeat' class="{css goog-tab}">{msg meaning="calendar.event.tabs.repeat" desc="Event form repeation panel"}Repeat{/msg}</div>
             <div id='bm-ui-form-tab-freebusy' class="{css goog-tab}">{msg meaning="calendar.event.tabs.findAtime" desc="Event form freebusy panel"}Find a time{/msg}</div>
@@ -341,6 +342,71 @@
                       </div>
                     </div>
                     <div id="freebusy-south-toolbar" class="{css freebusy-toolbar}"></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </fieldset>
+          <fieldset id="bm-ui-form-fieldset-counters" class="{css goog-tab-content} {css fiedset-content}" style="display: none">
+            <div>
+              <p id="counterSelectionP" class="{css counterSelectionP}">
+                <select id="bm-ui-form-counterselection" name="counterselection" class="{css bm-ui-form-counterselection}">
+                </select>
+                <span style="padding-left:20px" id='selected-counter-date'></span>
+              </p>
+            </div>
+            <div id="counters-root-panel" class={css counters-root-panel}>
+              <table class="{css counters-root-table}">
+                <tr>
+                  <td colspan="2">
+                    <div id="counters-north-toolbar" class="{css counters-toolbar}"></div>
+                  </td>
+                </tr>
+                <tr height="100%">
+                  <td class="{css counters-root-table-sidebar}">
+                    <div id="counters-sidebar" class="{css counters-sidebar}">
+                      <table id="counters-attendees-container" class="{css counters-attendees-container}">
+                        <tbody id="counters-attendees-container-tbody">
+                          <tr><td class="{css empty}"></td></tr>
+                          <tr><td class="{css empty}"></td></tr>
+                          <tr id="counters-empty-all-attendees" class="{css counters-empty-all-attendees}"><td></td></tr>
+                        </tbody>
+                        <tfoot>
+                          <tr><td class="{css empty}"></td></tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </td>
+                  <td class="{css counters-root-table-timeline}">
+                    <div id="counters-container" class="{css counters-container}">
+                      <div id="counters-dummy-event" class="{css counters-dummy-event}">
+                        <div id="counters-dummy-event-resizer-begin" class="{css counters-dummy-event-resizer} {css counters-dummy-event-resizer-begin}"></div>
+                        <div id="counters-dummy-event-resizer-end" class="{css counters-dummy-event-resizer} {css counters-dummy-event-resizer-end}"></div>
+                      </div>
+                      <table id="counters-data-container" class="{css counters} {css counters-timeline-container}">
+                        <tbody id="counters-timeline-container">
+                        </tbody>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2">
+                    <div id="counters-legend-container" class="{css counters-legend-container}">
+                      <div class="{css counters-legend}">
+                        <div class="{css outOfWorkFreeBusy}"></div>
+                         <span>{msg meaning="calendar.event.freeBusy.outOfWork" desc="out of work"}Out of work{/msg}</span>
+                      </div>
+                      <div class="{css counters-legend}">
+                        <div class="{css Busy}"></div>
+                        <span>{msg meaning="calendar.event.freeBusy.busy" desc="Busy state for event opacity"}Busy{/msg}</span>
+                      </div>
+                      <div class="{css counters-legend}">
+                        <div class="{css NotAvailable}"></div>
+                        <span>{msg meaning="calendar.event.freeBusy.noInformation" desc="freebusy no information"}No information{/msg}</span>
+                      </div>
+                    </div>
+                    <div id="counters-south-toolbar" class="{css counters-toolbar}"></div>
                   </td>
                 </tr>
               </table>
@@ -702,5 +768,143 @@
     <br>
 </div>
 {/template}
+
+/**
+ * Event counterform
+ * @param longweekdays English weekdays fullname
+ * @param narrowweekdays Translated weekdays shortname
+ * @param event Event data
+ */
+{template .counterform}
+  <form class="{css bm-ui-form}" id="bm-ui-form">
+    <div id="bm-ui-mainform" style="height: 500px">
+    <table>
+      <tr>
+        <td>
+          <div>
+            <span id="bm-ui-form-notification-popup-btn" class="{css form-notification-btn}"></span>
+            <div id="bm-ui-form-notification" class="{css form-notification}"></div>
+          </div>
+          <div id="bm-ui-form-notification-popup" class="{css popup}"></div>
+          <fieldset id="bm-ui-form-fieldset-main">
+            <div class="{css event-infos-container}">
+          </div>
+
+          <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label>{msg meaning="calendar.event.eventdate" desc="eventdate label"}Event date{/msg}</label>
+              <div class="{css bm-ui-form-input}" style="padding-top:6px">
+                <div class="{css bm-ui-form-inline}">
+                  {$eventDate}
+                </div>
+              </div>
+          </div>
+
+          </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-participation">{msg meaning="calendar.event.participation" desc="participation label"}Participation{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <div class="{css bm-ui-form-inline}">
+                  <select id="bm-ui-form-participation" name="participation" class="{css bm_counterparticipation}" style="padding-top: 3px; padding-bottom: 3px;">
+                    <option value="Declined">{msg meaning="general.no" desc="participation no label"}No{/msg}</option>
+                    <option value="Tentative">{msg meaning="calendar.event.participation.maybe" desc="participation maybe label"}Tentative{/msg}</option>
+                  </select>
+                </div>
+              </div>
+          </div>
+
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-datebegin">{msg meaning="calendar.event.your_date" desc="event date label"}Your proposition{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <div class="{css bm-ui-form-inline}">
+                  <input id="bm-ui-form-datebegin" class="{css bm-mini} {css _dstart}" name="datebegin" type="text" value="" />
+                  <div id="bm-ui-form-timebegin" class="{css bm-mini} {css bm-ui-form-inline} {css _tstart}"></div>
+                  <label for="bm-ui-form-dateend">{msg meaning="calendar.event.dateEnd" desc="event date range separator"}to{/msg}</label>
+                  <input id="bm-ui-form-dateend" class="{css bm-mini} {css _dend}" name="dateend" type="text" value="" />
+                  <div id="bm-ui-form-timeend" class="{css bm-mini} {css bm-ui-form-inline} {css _tend}"></div>
+                </div>
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}" id="bm-ui-form-allday-block" class="{css bm-ui-form-allday-block}">
+              <div class="{css bm-ui-form-input}">
+                <ul class="{css bm-ui-form-inline}">
+                  <li>
+                    <label class="{css bm-ui-form-prepend}" for="bm-ui-form-allday">
+                      <input class="{css bm-ui-form-checkbox}" type="checkbox" id="bm-ui-form-allday" name="allday" />
+                    </label>
+                    <label class="{css bm-ui-form-append}" for="bm-ui-form-allday">{msg meaning="calendar.event.allDay" desc="event allday label"}All day{/msg}</label>
+                  </li>
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <div id="bm-ui-form-repeat-sentence" class="{css bm-ui-form-input} {css bm-ui-form-repeat-sentence}">
+              </div>
+            </div>
+          </fieldset>
+          <fieldset id="bm-ui-form-fieldset-freebusy" class="{css goog-tab-content} {css fiedset-content}">
+            <div id="freebusy-root-panel" class="{css freebusy-root-panel}" style="width: 90%; height: 200px; padding: 10px">
+              <table class="{css freebusy-root-table}">
+                <tr>
+                  <td colspan="2">
+                    <div id="freebusy-north-toolbar" class="{css freebusy-toolbar}"></div>
+                  </td>
+                </tr>
+                <tr height="100%">
+                  <td class="{css freebusy-root-table-sidebar}">
+                    <div id="freebusy-sidebar" class="{css freebusy-sidebar}">
+                      <table id="freebusy-attendees-container" class="{css fb-attendees-container}">
+                        <tbody id="freebusy-attendees-container-tbody">
+                          <tr><td class="{css empty}"></td></tr>
+                          <tr><td class="{css empty}"></td></tr>
+                          <tr id="empty-all-attendees" class="{css empty-all-attendees}"><td></td></tr>
+                        </tbody>
+                        <tfoot>
+                          <tr><td class="{css empty}"></td></tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </td>
+                  <td class="{css freebusy-root-table-timeline}">
+                    <div id="freebusy-container" class="{css freebusy-container}">
+                      <div id="fb-dummy-event" class="{css fb-dummy-event}">
+                        <div id="fb-dummy-event-resizer-begin" class="{css fb-dummy-event-resizer} {css fb-dummy-event-resizer-begin}"></div>
+                        <div id="fb-dummy-event-resizer-end" class="{css fb-dummy-event-resizer} {css fb-dummy-event-resizer-end}"></div>
+                      </div>
+                      <table id="freebusy-data-container" class="{css freebusy} {css fb-timeline-container}">
+                        <tbody id="freebusy-timeline-container">
+                        </tbody>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2">
+                    <div id="legend-container" class="{css legend-container}">
+                      <div class="{css legend}">
+                        <div class="{css outOfWorkFreeBusy}"></div>
+                         <span>{msg meaning="calendar.event.freeBusy.outOfWork" desc="out of work"}Out of work{/msg}</span>
+                      </div>
+                      <div class="{css legend}">
+                        <div class="{css Busy}"></div>
+                        <span>{msg meaning="calendar.event.freeBusy.busy" desc="Busy state for event opacity"}Busy{/msg}</span>
+                      </div>
+                      <div class="{css legend}">
+                        <div class="{css NotAvailable}"></div>
+                        <span>{msg meaning="calendar.event.freeBusy.noInformation" desc="freebusy no information"}No information{/msg}</span>
+                      </div>
+                    </div>
+                    <div id="freebusy-south-toolbar" class="{css freebusy-toolbar}"></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </fieldset>
+        </td>
+      </tr>
+    </table>
+    </div>
+  </form>
+{/template}
+
 
 

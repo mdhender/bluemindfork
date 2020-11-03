@@ -59,7 +59,6 @@ import net.bluemind.icalendar.parser.ICal4jHelper;
 import net.bluemind.lib.ical4j.util.IcalConverter;
 import net.bluemind.utils.FileUtils;
 import net.fortuna.ical4j.model.Date;
-import net.fortuna.ical4j.model.property.Method;
 import net.fortuna.ical4j.util.Configurator;
 
 public class VEventServiceHelperTest {

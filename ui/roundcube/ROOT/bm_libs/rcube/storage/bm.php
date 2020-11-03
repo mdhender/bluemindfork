@@ -75,6 +75,7 @@ class rcube_storage_bm extends rcube_imap {
     "headers.list-post" => "list-post",
     "headers.x-priority" => "x-priority",
     "headers.x-bm-event" => "x-bm-event",
+    "headers.x-bm-event-countered" => "x-bm-event-countered",
     "headers.x-bm-rsvp" => "x-bm-rsvp",
     "headers.x-bm-resourcebooking" => "x-bm-resourcebooking",
     "headers.x-bm-folderuid" => "x-bm-folderuid",

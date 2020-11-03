@@ -21,6 +21,7 @@ package net.bluemind.lmtp.filter.imip;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.occurrence.OccurrenceHelper;
+import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -92,7 +94,10 @@ public class EventReplyHandler extends ReplyHandler implements IIMIPHandler {
 				ref = series.value.main;
 			}
 			for (VEvent.Attendee attendee : atts) {
-				mergeAttendeesPartStatus(ref, attendee);
+				boolean changed = mergeAttendeesPartStatus(ref, attendee);
+				if (changed) {
+					removeAttendeesProposition(series, vevent, attendee);
+				}
 			}
 
 		}
@@ -101,21 +106,43 @@ public class EventReplyHandler extends ReplyHandler implements IIMIPHandler {
 		return new IMIPResponse();
 	}
 
-	private void mergeAttendeesPartStatus(VEvent event, Attendee attendee) {
+	private void removeAttendeesProposition(ItemValue<VEventSeries> series, VEvent vevent, Attendee attendee) {
+		if (series.value.counters != null) {
+			series.value.counters = series.value.counters.stream().filter(c -> {
+				if (c.originator.email.equals(attendee.mailto)) {
+					BmDateTime recurid = null;
+					if (vevent.exception()) {
+						VEventOccurrence occ = (VEventOccurrence) vevent;
+						recurid = occ.recurid;
+					}
+					if ((recurid == null && c.counter.recurid == null)
+							|| recurid != null && recurid.equals(c.counter.recurid)) {
+						return false;
+					}
+				}
+				return true;
+			}).collect(Collectors.toList());
+		}
+	}
+
+	private boolean mergeAttendeesPartStatus(VEvent event, Attendee attendee) {
+		boolean changed = false;
 		for (Attendee a : event.attendees) {
 			if (a.mailto.equals(attendee.mailto)) {
 				if (a.partStatus != attendee.partStatus) {
 					logger.info("[{}] Update participation of {}: {} => {}", event.summary, attendee.mailto,
 							a.partStatus, attendee.partStatus);
+					changed = true;
 				}
 				a.partStatus = attendee.partStatus;
 				a.responseComment = attendee.responseComment;
 				a.rsvp = false;
-				return;
+				break;
 			}
 		}
 		event.attendees = new ArrayList<>(event.attendees);
 		event.attendees.add(attendee);
+		return changed;
 	}
 
 }

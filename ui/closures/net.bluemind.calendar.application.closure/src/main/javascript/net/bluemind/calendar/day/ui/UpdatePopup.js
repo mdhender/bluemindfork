@@ -154,6 +154,13 @@ net.bluemind.calendar.day.ui.UpdatePopup.prototype.setModelListeners = function(
     this.removeAutoHidePartner(e.target.getElement());
   });
 
+  this.getHandler().listen(this.getChild('reply-invite').getChild('counter-selection').getMenu(), goog.ui.Component.EventType.SHOW, function(e) {
+    this.addAutoHidePartner(e.target.getElement());
+  });
+  this.getHandler().listen(this.getChild('reply-invite').getChild('counter-selection').getMenu(), goog.ui.Component.EventType.HIDE, function(e) {
+    this.removeAutoHidePartner(e.target.getElement());
+  });
+
 };
 
 /**

@@ -50,10 +50,35 @@ goog.inherits(net.bluemind.calendar.day.ui.ReplyInvitation, goog.ui.Component);
 net.bluemind.calendar.day.ui.ReplyInvitation.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
+  if (this.getChild('counter-selection')){
+    this.removeChild('counter-selection');
+  }
+
   if (!this.getModel().attendee) {
     // nothing to do
     return;
   }
+  var model = this.getModel();
+
+  var menu = new goog.ui.Menu();
+  if (model.rrule){
+    /** @meaning calendar.action.proposition.series */
+    var MSG_PROPOSE_DATE_SERIES = goog.getMsg('Propose a date for the series');
+    child = new goog.ui.MenuItem(MSG_PROPOSE_DATE_SERIES);
+    child.setId('propositionSeries');
+    menu.addChild(child, true);
+  }
+
+  /** @meaning calendar.action.proposition */
+  var MSG_PROPOSE_DATE = goog.getMsg('Propose a date');
+  var child = new goog.ui.MenuItem(MSG_PROPOSE_DATE);
+  child.setId('proposition');
+  menu.addChild(child, true);
+  
+  child = new goog.ui.MenuButton(goog.dom.createDom('div', [ goog.getCssName('goog-button-icon'),
+  goog.getCssName('fa'), goog.getCssName('fa-ellipsis-v'), goog.getCssNam ]), menu, goog.ui.style.app.MenuButtonRenderer.getInstance());
+  child.setId('counter-selection');
+  this.addChild(child);
 
   var invitButtons = goog.soy.renderAsFragment(net.bluemind.calendar.day.templates.participation_, this.getModel());
   var dom = this.getDomHelper();
@@ -92,13 +117,24 @@ net.bluemind.calendar.day.ui.ReplyInvitation.prototype.enterDocument = function(
         this.updateSeriesPartStatus_('Accepted', null, true);
       });
 
+  this.getChild('counter-selection').exitDocument();
+  this.getChild('counter-selection').render(this.getElementByClass('counterselect'));
+  
+  this.getHandler().listen(this.getChild('counter-selection'), goog.ui.Component.EventType.ACTION, function(e){
+    var action = e.target.getId();
+    if (action == 'proposition'){
+      this.proposeACounter_('event');
+    } else {
+      this.proposeACounter_('series');
+    }
+  });
+
   var pmNeedsAction = new goog.ui.PopupMenu();
   pmNeedsAction.setToggleMode(true);
   pmNeedsAction.decorate(this.getElementByClass('partstat-tentative-menu'));
   pmNeedsAction.attach(this.getElementByClass('eb-btn-tentative-menu'), goog.positioning.Corner.BOTTOM_LEFT,
       goog.positioning.Corner.TOP_LEFT);
 
-  // Tentative
   // Tentative
   this.getHandler().listen(this.getElementByClass('eb-btn-event-tentative-default-notification'),
       goog.events.EventType.MOUSEDOWN, function(e) {
@@ -190,4 +226,16 @@ net.bluemind.calendar.day.ui.ReplyInvitation.prototype.updateSeriesPartStatus_ =
   model.states.main = true;
   var evt = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.PART, model);
   this.dispatchEvent(evt);
+};
+
+/**
+ * Add a counter proposition
+ * 
+ * @private
+ */
+net.bluemind.calendar.day.ui.ReplyInvitation.prototype.proposeACounter_ = function(target) {
+  this.getModel().selectedPartStatus = 'Tentative';
+  this.getModel().target = target;
+  var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.COUNTER_DETAILS, this.getModel());
+  this.dispatchEvent(e)
 };

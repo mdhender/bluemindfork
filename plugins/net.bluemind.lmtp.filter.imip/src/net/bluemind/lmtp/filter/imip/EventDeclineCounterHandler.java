@@ -33,6 +33,10 @@ import net.bluemind.mailbox.api.Mailbox;
 
 public class EventDeclineCounterHandler extends AbstractLmtpHandler implements IIMIPHandler {
 
+	public EventDeclineCounterHandler(LmtpAddress recipient, LmtpAddress sender) {
+		super(recipient, sender);
+	}
+
 	@Override
 	public IMIPResponse handle(IMIPInfos imip, LmtpAddress recipient, ItemValue<Domain> domain,
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {

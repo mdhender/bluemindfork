@@ -47,9 +47,11 @@ import com.google.common.collect.Sets;
 
 import freemarker.template.TemplateException;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.auditlog.CalendarAuditor;
+import net.bluemind.calendar.helper.ical4j.Method;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.calendar.helper.mail.CalendarMail.CalendarMailBuilder;
 import net.bluemind.calendar.helper.mail.CalendarMailHelper;
@@ -89,7 +91,6 @@ import net.bluemind.system.api.SystemConf;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
-import net.fortuna.ical4j.model.property.Method;
 
 /**
  * Send an email to attendees {@link ICalendarElement.Attendee} when a
@@ -166,6 +167,35 @@ public class IcsHook implements ICalendarHook {
 			sendInvitationToOrganizer(message);
 		}
 
+		logger.info("update on master event, oldc: {}, newC: {}", oldEventSeries.counters.size(),
+				updatedEvent.counters.size());
+
+		if (oldEventSeries != null && oldEventSeries.counters.size() > updatedEvent.counters.size()) {
+			for (VEventCounter counter : oldEventSeries.counters) {
+				logger.info("checking counter {}", counter.id());
+				if (!updatedEvent.counters.contains(counter)) {
+					logger.info("checking counter has been deleted", counter.id());
+					// counter has either been accepted or refused. If the counter has been
+					// accepted, the standard update request will be send, if it has been
+					// refused, we send a declinecounter here
+					VEventOccurrence correspondingEvent = getCorrespondingEvent(counter.counter, updatedEvent);
+					VEvent correspondingOldEvent = getCorrespondingEvent(counter.counter, oldEventSeries);
+					if (correspondingEvent == null && correspondingOldEvent == null) {
+						sendDeclineCounterToAttendee(message, counter);
+					} else if (correspondingEvent != null && correspondingOldEvent == null) {
+						if (!correspondingEvent.dtstart.equals(counter.counter.dtstart)
+								|| !correspondingEvent.dtend.equals(counter.counter.dtend)) {
+							sendDeclineCounterToAttendee(message, counter);
+						}
+					} else if (!VEventUtil.eventChanged(correspondingEvent, correspondingOldEvent)
+							&& (!correspondingEvent.dtstart.equals(counter.counter.dtstart)
+									|| !correspondingEvent.dtend.equals(counter.counter.dtend))) {
+						sendDeclineCounterToAttendee(message, counter);
+					}
+				}
+			}
+		}
+
 		if (updatedEvent.main != null) {
 			// exdate stuff
 			Set<BmDateTime> newExdates = getNewExceptionList(oldEventSeries.main, updatedEvent.main);
@@ -216,12 +246,24 @@ public class IcsHook implements ICalendarHook {
 
 	}
 
+	private VEventOccurrence getCorrespondingEvent(VEventOccurrence evt, VEventSeries series) {
+		if (evt.recurid == null) {
+			return VEventOccurrence.fromEvent(series.main, null);
+		} else {
+			return series.occurrence(evt.recurid);
+		}
+	}
+
 	private void handleUpdatedAttendees(VEventMessage message, Set<Attendee> userAttendingToSeries, VEvent evt,
 			VEvent oldEvent, List<ICalendarElement.Attendee> oldEventAttendees,
 			List<ICalendarElement.Attendee> updatedEventAttendees) {
 		// Update invitation to other attendees
 		List<ICalendarElement.Attendee> updatedAttendees = ICalendarElement.same(updatedEventAttendees,
 				oldEventAttendees);
+
+		logger.info("checking {} -- {} -- {}", updatedAttendees.size(), oldEvent.dtstart, oldEvent.summary);
+		logger.info("nhecking {} -- {} -- {}", updatedAttendees.size(), evt.dtstart, evt.summary);
+
 		if (!updatedAttendees.isEmpty() && VEventUtil.eventChanged(oldEvent, evt)) {
 			updatedAttendees = updatedAttendees.stream().filter(a -> !userAttendingToSeries.contains(a))
 					.collect(Collectors.toList());
@@ -280,11 +322,27 @@ public class IcsHook implements ICalendarHook {
 	private void onAttendeeVersionUpdated(VEventMessage message, VEventSeries oldEventSeries, List<VEvent> flatten) {
 		DirEntry dirEntry = getMyDirEntry(message);
 
-		if (oldEventSeries.counters.size() < message.vevent.counters.size()) {
-			onCounterProposalAdded(message, dirEntry);
-		} else {
+		boolean counterHandled = false;
+		for (VEventCounter currentCounter : message.vevent.counters) {
+			Optional<VEventCounter> oldVersion = oldEventSeries.counters.stream().filter(c -> {
+				return ((currentCounter.counter.recurid == null && c.counter.recurid == null)
+						|| (currentCounter.counter.recurid != null
+								&& currentCounter.counter.recurid.equals(c.counter.recurid)));
+			}).findAny();
+			if (!oldVersion.isPresent() || counterUpdated(currentCounter, oldVersion.get())) {
+				counterHandled = true;
+				onCounterProposalAdded(message, currentCounter, dirEntry);
+			}
+		}
+
+		if (!counterHandled) {
 			onAttendeeEventVersionUpdated(message, oldEventSeries, flatten, dirEntry);
 		}
+	}
+
+	private boolean counterUpdated(VEventCounter currentCounter, VEventCounter oldCounter) {
+		return (!currentCounter.counter.dtstart.equals(oldCounter.counter.dtstart))
+				|| (!currentCounter.counter.dtend.equals(oldCounter.counter.dtend));
 	}
 
 	private void onAttendeeEventVersionUpdated(VEventMessage message, VEventSeries oldEventSeries, List<VEvent> flatten,
@@ -309,10 +367,9 @@ public class IcsHook implements ICalendarHook {
 		}
 	}
 
-	private void onCounterProposalAdded(VEventMessage message, DirEntry dirEntry) {
-		VEventOccurrence evt = message.vevent.counters.get(0).counter;
-		Optional<EventAttendeeTuple> attendee = getMatchingAttendeeForEvent(evt, dirEntry);
-		sendCounterProposalToOrganizer(message, attendee.get(), evt);
+	private void onCounterProposalAdded(VEventMessage message, VEventCounter counter, DirEntry dirEntry) {
+		Optional<EventAttendeeTuple> attendee = getMatchingAttendeeForEvent(counter.counter, dirEntry);
+		sendCounterProposalToOrganizer(message, attendee.get(), counter.counter);
 	}
 
 	@Override
@@ -403,6 +460,20 @@ public class IcsHook implements ICalendarHook {
 		}
 	}
 
+	private void sendDeclineCounterToAttendee(VEventMessage message, VEventCounter counter) {
+		MailData md = MailData.declineCounter(message, counter.counter);
+
+		String ics = getIcsPart(message.vevent.icsUid, Method.DECLINE_COUNTER, counter.counter);
+		Attendee attendee = counter.counter.attendees.get(0);
+		Mailbox recipient = SendmailHelper.formatAddress(attendee.commonName, attendee.mailto);
+
+		sendNotificationToAttendee(message, counter.counter, md.senderSettings, md.subject, md.body, (locale) -> {
+			return new MessagesResolver(Messages.getEventDetailMessages(locale),
+					Messages.getDeclineCounterMessages(locale));
+		}, Method.DECLINE_COUNTER, md.from, recipient, ics, md.data);
+
+	}
+
 	/**
 	 * @param message
 	 * @throws ServerFault
@@ -419,7 +490,8 @@ public class IcsHook implements ICalendarHook {
 		}, Method.REQUEST, md.from, recipient, ics, md.data);
 	}
 
-	private void sendCounterProposalToOrganizer(VEventMessage message, EventAttendeeTuple event, VEventOccurrence evt) {
+	private void sendCounterProposalToOrganizer(VEventMessage message, EventAttendeeTuple event,
+			VEventOccurrence counter) {
 		Organizer organizer = event.event.organizer;
 		if (attendeeIsOrganizer(event.attendee, organizer)) {
 			return;
@@ -446,12 +518,12 @@ public class IcsHook implements ICalendarHook {
 		}
 
 		String ics = null;
-		VEventOccurrence eventForAttendee = evt.copy();
-		eventForAttendee.attendees = Arrays.asList(event.attendee);
-		ics = VEventServiceHelper.convertToIcs(message.vevent.icsUid, method, eventForAttendee);
+		VEventOccurrence attendeeCounter = counter.copy();
+		attendeeCounter.attendees = Arrays.asList(event.attendee);
+		ics = VEventServiceHelper.convertToIcs(message.vevent.icsUid, method, attendeeCounter);
 
 		Map<String, String> senderSettings = getSenderSettings(message, fromDirEntry);
-		sendNotificationToOrganizer(message, evt, senderSettings, subject, body, (locale) -> {
+		sendNotificationToOrganizer(message, attendeeCounter, senderSettings, subject, body, (locale) -> {
 			return new MessagesResolver(Messages.getEventCounterMessages(locale),
 					Messages.getEventUpdateMessages(locale), Messages.getEventParitipactionUpdateMessages(locale));
 		}, method, from, recipient, ics, data);
@@ -1188,6 +1260,12 @@ public class IcsHook implements ICalendarHook {
 		private static MailData exception(VEventMessage message, VEvent event) {
 			String subject = "NewExceptionSubject.ftl";
 			String body = "NewException.ftl";
+			return get(message, event, subject, body);
+		}
+
+		private static MailData declineCounter(VEventMessage message, VEvent event) {
+			String subject = "DeclineCounterSubject.ftl";
+			String body = "DeclineCounter.ftl";
 			return get(message, event, subject, body);
 		}
 

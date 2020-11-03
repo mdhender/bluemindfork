@@ -30,11 +30,19 @@ import net.bluemind.icalendar.api.ICalendarElement.RRule;
 public class VEventUtil {
 
 	public static <T extends VEvent> boolean eventChanged(T oldEvent, T newEvent) {
-		
+
+		if (oldEvent == null && newEvent != null || oldEvent != null && newEvent == null) {
+			return true;
+		}
+
+		if (oldEvent == null && newEvent == null) {
+			return false;
+		}
+
 		if (changed(oldEvent.sequence, newEvent.sequence)) {
 			return true;
 		}
-		
+
 		if (changed(oldEvent.url, newEvent.url)) {
 			return true;
 		}

@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.imip.parser.IMIPInfos;
+import net.bluemind.lmtp.backend.LmtpAddress;
 
 public abstract class ReplyHandler extends AbstractLmtpHandler {
 

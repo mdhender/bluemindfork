@@ -230,8 +230,9 @@ net.bluemind.calendar.vevent.ui.Freebusy.prototype.updateBusySlots = function() 
  * check attendees availabilities. warn if one of attendees is unavailable
  */
 net.bluemind.calendar.vevent.ui.Freebusy.prototype.checkAvailability = function() {
-  var start = this.dummyEvent_.getSlot(this.getParent().getModel().dtstart);
-  var end = this.dummyEvent_.getSlot(this.getParent().getModel().dtend);
+  var parentModel = this.getParentModel_();
+  var start = this.dummyEvent_.getSlot(parentModel.dtstart);
+  var end = this.dummyEvent_.getSlot(parentModel.dtend);
   var available = true;
   this.getParent().availabilityWarn(this.isFreeInterval_(start, end));
 };
@@ -640,13 +641,21 @@ net.bluemind.calendar.vevent.ui.Freebusy.prototype.today = function() {
 };
 
 /**
+ * get the parent model
+ * 
+ * @private
+ */
+net.bluemind.calendar.vevent.ui.Freebusy.prototype.getParentModel_ = function() {
+  return this.getParent().getModel().counter ? this.getParent().getModel().counter : this.getParent().getModel();
+}
+/**
  * AutoPick Prev
  * 
  * @private
  */
 net.bluemind.calendar.vevent.ui.Freebusy.prototype.autoPickPrev_ = function() {
   this.setLock_(true);
-  var begin = this.getParent().getModel().dtstart;
+  var begin = this.getParentModel_().dtstart;
   var step = 1;
   if (this.getModel().states.allday) {
     step = 48;
@@ -692,7 +701,7 @@ net.bluemind.calendar.vevent.ui.Freebusy.prototype.autoPickPrev_ = function() {
  */
 net.bluemind.calendar.vevent.ui.Freebusy.prototype.autoPickNext_ = function() {
   this.setLock_(true);
-  var begin = this.getParent().getModel().dtstart;
+  var begin = this.getParentModel_().dtstart;
   var step = 1;
   if (this.getModel().states.allday) {
     step = 48;
@@ -755,7 +764,6 @@ net.bluemind.calendar.vevent.ui.Freebusy.prototype.autoPickNextWeek = function()
  * @param {Object} opt_callback Optional callback.
  */
 net.bluemind.calendar.vevent.ui.Freebusy.prototype.gotoDate = function(date, opt_callback) {
-
   goog.array.forEach(this.tooltips_.getKeys(), function(k) {
     this.tooltips_.set(k, new goog.structs.Map());
   }, this);
@@ -764,7 +772,6 @@ net.bluemind.calendar.vevent.ui.Freebusy.prototype.gotoDate = function(date, opt
   for (var i = 0; i < busySlots.length; i++) {
     goog.dom.removeNode(busySlots[i]);
   }
-
   this.range = net.bluemind.date.DateRange.thisWeek(new net.bluemind.date.Date(date))
   this.updateGrid();
   var promises = [];
@@ -1136,7 +1143,8 @@ net.bluemind.calendar.vevent.ui.Freebusy.DummyEvent.prototype.enterDocument = fu
         this.fb_.getParent().setDTEnd(dateend);
         goog.dispose(this.scroll_);
 
-        this.setDuration((this.fb_.getParent().getModel().dtend.getTime() - this.fb_.getParent().getModel().dtstart
+        var parentModel = this.fb_.getParentModel_();
+        this.setDuration((parentModel.dtend.getTime() - parentModel.dtstart
             .getTime()) / 1000);
 
         this.fb_.setLock_(false);
@@ -1181,8 +1189,8 @@ net.bluemind.calendar.vevent.ui.Freebusy.DummyEvent.prototype.enterDocument = fu
 
     goog.dispose(this.scroll_);
 
-    this.setDuration((this.fb_.getParent().getModel().dtend.getTime() - datebegin.getTime()) / 1000);
-    var dtend = this.fb_.getParent().getModel().dtend.clone();
+    this.setDuration((this.getParentModel_().dtend.getTime() - datebegin.getTime()) / 1000);
+    var dtend = this.getParentModel_().dtend.clone();
     this.fb_.getParent().setDTStart(datebegin);
     this.fb_.getParent().setDTEnd(dtend);
     this.fb_.setLock_(false);

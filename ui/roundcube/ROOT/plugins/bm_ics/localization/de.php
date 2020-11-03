@@ -28,5 +28,10 @@ $labels['title']='Anrede';
 $labels['where']='Wo';
 $labels['when']='Wann';
 $labels['invitation']='Diese Nachricht beinhaltet eine Einladung';
-$labels['deletedEvent'] = 'This event has been deleted';
+$labels['deletedEvent'] = 'Dieses Ereignis wurde gelöscht';
+$labels['deletedCounter'] = 'Dieser Vorschlag wurde bereits behandelt';
+$labels['proposition'] = 'Vorgeschlagenes Datum';
+$labels['applyProposition'] = 'Vorschlag übernehmen';
+$labels['propositionApplied'] ='Vorschlag wurde übernehmen';
+$labels['propositionRefused'] ='Vorschlag wurde abgelehnt';
 

@@ -18,6 +18,7 @@
  */
 package net.bluemind.lmtp.filter.imip;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +26,8 @@ import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.core.api.date.BmDateTime;
+import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
@@ -34,6 +37,10 @@ import net.bluemind.lmtp.backend.LmtpAddress;
 import net.bluemind.mailbox.api.Mailbox;
 
 public class EventCounterHandler extends AbstractLmtpHandler implements IIMIPHandler {
+
+	public EventCounterHandler(LmtpAddress recipient, LmtpAddress sender) {
+		super(recipient, sender);
+	}
 
 	@Override
 	public IMIPResponse handle(IMIPInfos imip, LmtpAddress recipient, ItemValue<Domain> domain,
@@ -49,8 +56,40 @@ public class EventCounterHandler extends AbstractLmtpHandler implements IIMIPHan
 		VEventOccurrence counterEvent = null;
 		if (propositionSeries.main != null) {
 			counterEvent = VEventOccurrence.fromEvent(propositionSeries.main, null);
+			for (Attendee att : currentSeries.value.main.attendees) {
+				if (counterEvent.attendees.get(0).mailto.equals(att.mailto)) {
+					att.partStatus = counterEvent.attendees.get(0).partStatus;
+				}
+			}
 		} else {
 			counterEvent = propositionSeries.occurrences.get(0);
+			if (currentSeries.value.occurrence(counterEvent.recurid) == null) {
+				// counter on non-existing exception
+				List<VEventOccurrence> occurrences = new ArrayList<>(currentSeries.value.occurrences);
+				VEventOccurrence newOccurrence = VEventOccurrence.fromEvent(counterEvent.copy(), counterEvent.recurid);
+
+				for (Attendee att : currentSeries.value.main.attendees) {
+					if (!counterEvent.attendees.get(0).mailto.equals(att.mailto)) {
+						newOccurrence.attendees.add(att);
+					}
+				}
+				newOccurrence.dtstart = newOccurrence.recurid;
+				long duration = new BmDateTimeWrapper(currentSeries.value.main.dtend).toUTCTimestamp()
+						- new BmDateTimeWrapper(currentSeries.value.main.dtstart).toUTCTimestamp();
+				long timestamp = BmDateTimeWrapper.toTimestamp(newOccurrence.dtstart.iso8601,
+						newOccurrence.dtstart.timezone);
+				timestamp += duration;
+				BmDateTime dtend = BmDateTimeWrapper.fromTimestamp(timestamp, newOccurrence.dtstart.timezone);
+				newOccurrence.dtend = dtend;
+				occurrences.add(newOccurrence);
+				currentSeries.value.occurrences = occurrences;
+			} else {
+				for (Attendee att : currentSeries.value.occurrence(counterEvent.recurid).attendees) {
+					if (counterEvent.attendees.get(0).mailto.equals(att.mailto)) {
+						att.partStatus = counterEvent.attendees.get(0).partStatus;
+					}
+				}
+			}
 		}
 
 		Attendee originator = counterEvent.attendees.get(0);
@@ -72,10 +111,9 @@ public class EventCounterHandler extends AbstractLmtpHandler implements IIMIPHan
 			currentSeries.value.counters.add(newCounter);
 		}
 
-
 		cal.update(currentSeries.uid, currentSeries.value, false);
 
-		return new IMIPResponse();
+		return IMIPResponse.createCounterResponse(imip.uid, email, counterEvent);
 	}
 
 }

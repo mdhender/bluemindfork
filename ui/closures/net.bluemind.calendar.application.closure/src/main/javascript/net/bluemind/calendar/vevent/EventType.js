@@ -35,6 +35,6 @@ net.bluemind.calendar.vevent.EventType = {
   REMOVE : goog.events.getUniqueId('remove'),
   DETAILS : goog.events.getUniqueId('details'),
   DUPLICATE : goog.events.getUniqueId('duplicate'),
-  PART : goog.events.getUniqueId('participation')
-
+  PART : goog.events.getUniqueId('participation'),
+  COUNTER_DETAILS : goog.events.getUniqueId('counter')
 };

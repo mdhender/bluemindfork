@@ -211,7 +211,7 @@ net.bluemind.sync.SyncEngine.prototype.doSync_ = function(services) {
       var list = [];
       for (var i = 0; i < services.length; i++) {
         var service = services[i];
-        var frequency = this.frequency_.get(service.getName()) || 1;
+        var frequency = this.frequency_.get(service.getName()) || 1;
         if (!service.isEnabled()) {
           goog.log.fine(this.logger, '[Global] : ' + service.getName() + ' synchronization service is not enabled');
         } else if (this.executions_ % frequency != 0) {

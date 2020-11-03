@@ -16,7 +16,7 @@ require_once('bm.inc.php');
 
 $rcmail_config = array();
 
-$rcmail_config['show_additional_headers'] = array('x-bm-event', 'x-bm-resourcebooking', 'x-bm-rsvp', 'x-bm-folderuid', 'x-bm-foldertype', 'x-asterisk-callerid');
+$rcmail_config['show_additional_headers'] = array('x-bm-event', 'x-bm-event-countered', 'x-bm-resourcebooking', 'x-bm-rsvp', 'x-bm-folderuid', 'x-bm-foldertype', 'x-asterisk-callerid');
 $rcmail_config['storage_driver'] = 'storage_bm';
 $rcmail_config['storage_bm_cache'] = 'memcache';
 $rcmail_config['outbox_mbox'] = 'Outbox';

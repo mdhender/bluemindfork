@@ -94,7 +94,9 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.setup = function() {
   }, null, this).then(function(vseries) {
     return this.loadModelView_(vseries, data.container);
   }, null, this).then(function(mv) {
-    data.model = mv;
+    var evt = this.adaptor_.getOccurrence(this.ctx.params.get('recurrence-id'), mv);
+    data.model = evt;
+    data.counters = this.adaptor_.getCounterByOccurrence(this.ctx.params.get('recurrence-id'), mv);
     return tagsService.getTags();
   }, null, this).then(function(tags) {
     data.tags = goog.array.map(tags, this.tagToMV_, this);
@@ -114,6 +116,7 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.loadView_ = function(data
   if (data.model.states.updatable) {
     this.view_ = new net.bluemind.calendar.vevent.ui.Form(this.ctx);
     this.view_.getChild('freebusy').freebusyRequest = goog.bind(this.freeBusyRequest, this)
+    this.view_.getChild('counters').freebusyRequest = goog.bind(this.freeBusyRequest, this)
     this.handler.listen(this.view_, 'history', this.handleLoadHistory);
     var e = net.bluemind.calendar.vevent.EventType.SAVE;
     this.handler.listen(this.view_, e, this.saveDraft_);
@@ -143,8 +146,10 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.loadView_ = function(data
   this.registerDisposable(this.view_);
   this.view_.range = this.ctx.session.get('range');
   this.view_.calendars = calendars;
+  this.view_.counters = data.counters;
   this.view_.tags = data.tags;
   this.view_.getChild('freebusy').range = this.view_.range;
+  this.view_.getChild('counters').range = this.view_.range;
   this.view_.date = this.ctx.session.get('date');
   this.view_.setModel(data.model);
   this.view_.render(goog.dom.getElement('full'));
@@ -223,10 +228,10 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.loadModelView_ = function
     changes = veventChanges;
     return this.vseriesToMV_(calendar, vseries);
   }, null, this).then(function (model) {
-    model = this.adaptModelView_(changes, model)
-    return this.adaptor_.getOccurrence(this.ctx.params.get('recurrence-id'), model);
+    return this.adaptModelView_(changes, model)
   }, null, this);
 };
+
 
 /**
  * Tear down current view on navigate
@@ -300,7 +305,6 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.adaptModelView_ = functio
   var change = goog.array.find(changes, function(change) {
     return change['itemId'] == model.uid && change['container'] == model.calendar;
   });
-
   model.states.synced = !goog.isDefAndNotNull(change);
   model.states.error = !model.states.synced && change['type'] == 'error';
   model.error = model.states.error && {

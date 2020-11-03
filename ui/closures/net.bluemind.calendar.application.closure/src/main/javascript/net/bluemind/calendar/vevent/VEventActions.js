@@ -256,6 +256,21 @@ net.bluemind.calendar.vevent.VEventActions.prototype.save = function(e) {
 };
 
 /**
+ * Save event counter
+ * 
+ * @param {net.bluemind.calendar.vevent.VEventEvent} e
+ */
+
+net.bluemind.calendar.vevent.VEventActions.prototype.saveCounter = function(e) {
+  var model = e.vevent;
+  return this.ctx_.service('calendar').getItem(model.counter.calendar, model.counter.uid).then(
+    function(vseries) {
+      vseries = this.adaptor_.adaptCounterChanges_(vseries, model);
+      return this.doUpdate_(vseries, true).then(this.resolve_, this.reject_, this);
+    }, null, this);
+};
+
+/**
  * Remove event actions
  * 
  * @param {goog.events.Event} e
@@ -302,6 +317,17 @@ net.bluemind.calendar.vevent.VEventActions.prototype.details = function(e) {
   }, null, this);
 };
 
+/**
+ * Show event details actions
+ * 
+ * @param {goog.events.Event} e
+ */
+net.bluemind.calendar.vevent.VEventActions.prototype.counter = function(e) {
+  var model = e.vevent;
+  this.ctx_.service('calendar').getItem(model.calendar, model.uid).then(function(vseries) {
+      this.goToCounterForm_(model, vseries);
+  }, null, this);
+};
 
 /**
  * Show event details actions
@@ -424,6 +450,9 @@ net.bluemind.calendar.vevent.VEventActions.prototype.update_ = function(e, vseri
   } else {
     var old = this.adaptor_.getRawOccurrence(model.recurrenceId, vseries);
     var adaptor = new net.bluemind.calendar.vevent.VEventAdaptor(this.ctx_);
+    if (model.states.master){
+      vseries['value']['counters'] = [];
+    }
     if (model.states.master && adaptor.isSignificantlyModified(old, model)) {    
       this.resetAttendeesStatus_(model.attendees);
     }
@@ -599,6 +628,28 @@ net.bluemind.calendar.vevent.VEventActions.prototype.goToForm_ = function(model,
     uri.getQueryData().set('recurrence-id', model.recurrenceId.toIsoString(true, true))
   }
   uri.getQueryData().set('container', model.calendar);
+
+  if (model.states.updatable) {
+    var vseries = this.adaptor_.fromVEventModelView(model, opt_vseries);
+    var storage = bluemind.storage.StorageHelper.getExpiringStorage();
+    storage.set(model.uid, vseries, goog.now() + 60000);
+    uri.getQueryData().set('draft', true);
+  }
+  this.ctx_.helper('url').goTo(uri, false, true);
+};
+
+/**
+ * @param {*} model
+ * @private
+ */
+net.bluemind.calendar.vevent.VEventActions.prototype.goToCounterForm_ = function(model, opt_vseries) {
+  var uri = new goog.Uri('/vevent-counter/');
+  uri.getQueryData().set('uid', model.uid);
+  if (model.recurrenceId && model.target == 'event') {
+    uri.getQueryData().set('recurrence-id', model.recurrenceId.toIsoString(true, true));
+  }
+  uri.getQueryData().set('container', model.calendar);
+  uri.getQueryData().set('selected-part-status', model.selectedPartStatus);
 
   if (model.states.updatable) {
     var vseries = this.adaptor_.fromVEventModelView(model, opt_vseries);

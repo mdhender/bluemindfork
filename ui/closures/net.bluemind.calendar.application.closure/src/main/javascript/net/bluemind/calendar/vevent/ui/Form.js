@@ -66,6 +66,7 @@ goog.require("net.bluemind.calendar.vevent.EventType");
 goog.require("net.bluemind.calendar.vevent.ac.AttendeeAutocomplete");
 goog.require("net.bluemind.calendar.vevent.templates");
 goog.require("net.bluemind.calendar.vevent.ui.Freebusy");
+goog.require("net.bluemind.calendar.vevent.ui.Counters");
 goog.require("net.bluemind.calendar.vevent.ui.TimePicker");
 goog.require("net.bluemind.calendar.vevent.ui.TimePicker.EventType");
 goog.require("net.bluemind.date.Date");
@@ -281,6 +282,10 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
   child.setId('freebusy');
   this.addChild(child);
 
+  child = new net.bluemind.calendar.vevent.ui.Counters(ctx);
+  child.setId('counters');
+  this.addChild(child);
+
   child = new goog.ui.TabBar();
   child.setId('details');
   this.addChild(child);
@@ -361,6 +366,15 @@ net.bluemind.calendar.vevent.ui.Form.prototype.warnings_;
  * @private
  */
 net.bluemind.calendar.vevent.ui.Form.prototype.calendars;
+
+/**
+ * counters
+ * 
+ * @type {Array.<Object>}
+ * @private
+ */
+net.bluemind.calendar.vevent.ui.Form.prototype.counters;
+
 
 /**
  * Tags
@@ -454,6 +468,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
   var dom = this.getDomHelper();
   var handler = this.getHandler();
   this.getChild('freebusy').decorate(this.getElementByClass(goog.getCssName('freebusy-root-panel')));
+  this.getChild('counters').decorate(this.getElementByClass(goog.getCssName('counters-root-panel')));
 
   this.getChild('notifications').render(this.getElement());
 
@@ -795,6 +810,29 @@ net.bluemind.calendar.vevent.ui.Form.prototype.delAttachment = function(attachme
    }
 }
 
+net.bluemind.calendar.vevent.ui.Form.prototype.applyCounterDates = function(dateBegin, dateEnd) {
+  var dom = this.getDomHelper();
+
+  var startCloned = dateBegin.clone();
+  var endCloned = dateEnd.clone();
+
+  if (!endCloned.date.getHours()){
+    endCloned.add(new goog.date.Interval(0, 0, -1));
+  }
+  this.getChild('dstart').setDate(startCloned);
+  this.getChild('dend').setDate(endCloned);
+  if (!startCloned.date.getHours()){
+    dom.getElement('bm-ui-form-allday').checked = true;
+  } else {
+    this.getChild('tstart').setTime(startCloned);
+    this.getChild('tend').setTime(endCloned);
+    dom.getElement('bm-ui-form-allday').checked = false;
+  }
+  this.onDStartChange_();
+  this.onDEndChange_();
+}
+
+
 /**
  * @private
  */
@@ -934,9 +972,9 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setModelValues_ = function() {
     }
     goog.style.setElementShown(goog.dom.getElement('bm-ui-form-tab-repeat'), model.states.repeatable);
     this.getChild('freebusy').setModel(model);
-
     this.getChild('freebusy').initToolbar();
     this.getChild('freebusy').initGrid();
+
     if (model.states.meeting) {
       goog.array.forEach(model.attendees, function(attendee) {
         this.addAttendee_(attendee);
@@ -983,7 +1021,23 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setModelValues_ = function() {
       var MSG_WARN_MASTER = goog.getMsg('Those changes will remain private');
       this.addWarn_('master', [ 'master' ], MSG_WARN_MASTER);
     }
-  }
+
+    if (model.states.meeting && model.states.master){
+      if (this.counters.length > 0){
+        this.getChild('counters').setModel(model);
+        this.getChild('counters').initialDtstart = model.dtstart.clone();
+        this.getChild('counters').initialDtend = model.dtend.clone();
+        this.getChild('counters').initToolbar();
+        this.getChild('counters').initGrid();
+        this.getChild('counters').setCounters(this.counters);
+        this.getChild('counters').setAttendees(model.attendees);
+        var el = this.getDomHelper().getElement('bm-ui-form-tab-counters');
+        goog.style.setElementShown(el, true);
+        this.getChild('details').setSelectedTabIndex(0);
+        this.switchTabById_('bm-ui-form-tab-counters');
+      }
+    }
+  }  
 
 };
 
@@ -1067,24 +1121,37 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setFormValue_ = function(id, valu
  * @private
  */
 net.bluemind.calendar.vevent.ui.Form.prototype.switchTab_ = function(tabSelected) {
-  switch (tabSelected.getElement().id) {
-  case 'bm-ui-form-tab-repeat':
-    goog.style.showElement(goog.dom.getElement('bm-ui-form-fieldset-details'), false);
-    goog.style.showElement(goog.dom.getElement('bm-ui-form-fieldset-repeat'), true);
-    this.getChild('freebusy').setVisible(false);
-    break;
-  case 'bm-ui-form-tab-freebusy':
-    goog.style.showElement(goog.dom.getElement('bm-ui-form-fieldset-details'), false);
-    goog.style.showElement(goog.dom.getElement('bm-ui-form-fieldset-repeat'), false);
-    this.getChild('freebusy').setVisible(true);
-    break;
-  case 'bm-ui-form-tab-details':
-  default:
-    goog.style.showElement(goog.dom.getElement('bm-ui-form-fieldset-repeat'), false);
-    goog.style.showElement(goog.dom.getElement('bm-ui-form-fieldset-details'), true);
-    this.getChild('freebusy').setVisible(false);
-  }
+  this.switchTabById_(tabSelected.getElement().id);
 };
+
+net.bluemind.calendar.vevent.ui.Form.prototype.switchTabById_ = function(tabId) {
+  switch (tabId) {
+    case 'bm-ui-form-tab-repeat':
+      goog.style.showElement(goog.dom.getElement('bm-ui-form-fieldset-details'), false);
+      goog.style.showElement(goog.dom.getElement('bm-ui-form-fieldset-repeat'), true);
+      this.getChild('counters').setVisible(false);
+      this.getChild('freebusy').setVisible(false);
+      break;
+    case 'bm-ui-form-tab-freebusy':
+      goog.style.showElement(goog.dom.getElement('bm-ui-form-fieldset-details'), false);
+      goog.style.showElement(goog.dom.getElement('bm-ui-form-fieldset-repeat'), false);
+      this.getChild('counters').setVisible(false);
+      this.getChild('freebusy').setVisible(true);
+      break;
+    case 'bm-ui-form-tab-counters':
+      this.getChild('freebusy').setVisible(false);
+      goog.style.showElement(goog.dom.getElement('bm-ui-form-fieldset-details'), false);
+      goog.style.showElement(goog.dom.getElement('bm-ui-form-fieldset-repeat'), false);
+      this.getChild('counters').setVisible(true);
+      break;
+    case 'bm-ui-form-tab-details':
+    default:
+      goog.style.showElement(goog.dom.getElement('bm-ui-form-fieldset-repeat'), false);
+      goog.style.showElement(goog.dom.getElement('bm-ui-form-fieldset-details'), true);
+      this.getChild('freebusy').setVisible(false);
+      this.getChild('counters').setVisible(false);
+    }
+}
 
 /**
  * @return {goog.events.Event} e Change event.
@@ -1118,7 +1185,9 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onDStartChange_ = function(e) {
  * @return {goog.events.Event} e Change event.
  */
 net.bluemind.calendar.vevent.ui.Form.prototype.onTStartChange_ = function(e) {
-  e.stopPropagation();
+  if (e){
+    e.stopPropagation();
+  }
   var model = this.getModel();
   if (!model.states.allday) {
     var old = model.dtstart.clone();
@@ -1135,7 +1204,9 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onTStartChange_ = function(e) {
  * @return {goog.events.Event} e Change event.
  */
 net.bluemind.calendar.vevent.ui.Form.prototype.onDEndChange_ = function(e) {
-  e.stopPropagation();
+  if (e){
+    e.stopPropagation();
+  }
   var model = this.getModel();
   var date = this.getChild('dend').getDate();
   if (!date) {
@@ -1143,12 +1214,12 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onDEndChange_ = function(e) {
     var MSG_DATE_FORMAT_ERROR = goog.getMsg('Invalid date format');
     this.addError_('dates', [], MSG_DATE_FORMAT_ERROR);
     date = model.dtend.clone();
-    if (model.states.allday) {
+    if (model.states.allday || !date.date.getHours()) {
       date.add(new goog.date.Interval(goog.date.Interval.DAYS, -1));
     }
     this.getChild('dend').setDate(date)
   } else {
-    if (model.states.allday) {
+    if (model.states.allday || !date.date.getHours()) {
       date.add(new goog.date.Interval(0, 0, 1));
     }
     var old = model.dtend.clone();
@@ -1546,8 +1617,6 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onAllDayChangeAndReminderUpdate_ 
 
 /**
  * Apply check and modification when the all day status change
- * 
- * @private
  */
 net.bluemind.calendar.vevent.ui.Form.prototype.onAllDayChange_ = function() {
   var dom = this.getDomHelper();
@@ -1749,7 +1818,9 @@ net.bluemind.calendar.vevent.ui.Form.prototype.autoSetEndRepeat_ = function() {
     model.rrule.until = end;
     this.getChild('until').setDate(end);
   } else {
-    model.rrule.until = new net.bluemind.date.DateTime(model.rrule.until);
+    var date = model.rrule.until;
+    model.rrule.until = model.dtstart.clone();
+    model.rrule.until.setDatePart(date);
   }
   this.setFormActions_();
 

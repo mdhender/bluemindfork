@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.imip.parser.IMIPInfos;
+import net.bluemind.lmtp.backend.LmtpAddress;
 
 public abstract class CancelHandler extends AbstractLmtpHandler {
 

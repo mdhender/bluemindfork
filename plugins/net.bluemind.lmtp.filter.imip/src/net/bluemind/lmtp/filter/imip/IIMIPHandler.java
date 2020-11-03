@@ -35,7 +35,7 @@ public interface IIMIPHandler {
 	 * 
 	 * @param imip
 	 * @param recipient
-	 * @param domain
+	 * @param domain                   TODO
 	 * @param iCalendarElement
 	 * @param recipientDefaultCalendar
 	 * @throws ServerFault

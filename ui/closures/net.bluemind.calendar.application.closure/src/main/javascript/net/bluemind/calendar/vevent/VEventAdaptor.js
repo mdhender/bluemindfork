@@ -109,6 +109,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(veve
       model.attendee = {
         id : attendee['dir'],
         name : attendee['commonName'],
+        mailto : attendee['mailto'],
         responseComment : attendee['responseComment'],
         rsvp : attendee['rsvp']
       }
@@ -133,6 +134,11 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(veve
 
   return model;
 };
+
+net.bluemind.calendar.vevent.VEventAdaptor.prototype.dateToModel = function(date) {
+  var helper = this.ctx_.helper("date");
+  return helper.create(date, this.ctx_.helper('timezone').getDefaultTimeZone());
+}
 
 net.bluemind.calendar.vevent.VEventAdaptor.prototype.attendeeToModelView = function(attendee) {
   var ret = {
@@ -430,7 +436,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.composeRRule_ = function(mo
   }
 
   if (goog.isDefAndNotNull(model.rrule.interval)) {
-    rrule['interval'] = model.rrule.interval; 
+    rrule['interval'] = parseInt(model.rrule.interval); 
   }
 
   if (goog.isDefAndNotNull(model.rrule.freqbysecond)) {
@@ -491,6 +497,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.composeRRule_ = function(mo
  */
 net.bluemind.calendar.vevent.VEventAdaptor.prototype.adaptUntil = function(dtstart, until) {
   if (dtstart instanceof goog.date.DateTime) {
+    until = new net.bluemind.date.DateTime(until);
     until.setHours(dtstart.getHours());
     until.setMinutes(dtstart.getMinutes());
     until.setSeconds(dtstart.getSeconds());
@@ -498,6 +505,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.adaptUntil = function(dtsta
     var date = this.ctx_.helper('date').toTimeZone(until, 'UTC');
     return this.ctx_.helper('date').toBMDateTime(date);
   } else {
+    until = new net.bluemind.date.Date(until);
     var value = this.ctx_.helper('date').toBMDateTime(until);
     value['timezone'] = null;
     return value;

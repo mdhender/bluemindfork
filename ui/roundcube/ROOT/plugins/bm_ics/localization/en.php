@@ -30,5 +30,10 @@ $labels['title'] = 'Title';
 $labels['where'] = 'Where';
 $labels['when'] = 'When';
 $labels['invitation'] = 'This message contains an invitation';
+$labels['deletedCounter'] = 'This proposition has already been handled';
 $labels['deletedEvent'] = 'This event has been deleted';
+$labels['proposition'] = 'Proposed date';
+$labels['applyProposition'] = 'Accept the proposition';
+$labels['propositionApplied'] ='Proposition has been applied';
+$labels['propositionRefused'] ='Proposition has been refused';
 ?>

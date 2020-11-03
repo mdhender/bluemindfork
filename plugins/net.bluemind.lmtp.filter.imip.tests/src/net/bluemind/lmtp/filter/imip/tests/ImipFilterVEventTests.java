@@ -1599,7 +1599,7 @@ public class ImipFilterVEventTests {
 		imipUid = events.get(0).uid;
 		imip = imip(ITIPMethod.COUNTER, defaultExternalSenderVCard(), imipUid);
 		imip.iCalendarElements = Arrays.asList(e);
-		handler = new EventCounterHandler();
+		handler = new EventCounterHandler(null, null);
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
 		evt = user1Calendar.getComplete(imipUid);
@@ -1618,7 +1618,7 @@ public class ImipFilterVEventTests {
 		imipUid = events.get(0).uid;
 		imip = imip(ITIPMethod.DECLINECOUNTER, defaultExternalSenderVCard(), imipUid);
 		imip.iCalendarElements = Arrays.asList(e);
-		handler = new EventDeclineCounterHandler();
+		handler = new EventDeclineCounterHandler(null, null);
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
 		evt = user1Calendar.getComplete(imipUid);

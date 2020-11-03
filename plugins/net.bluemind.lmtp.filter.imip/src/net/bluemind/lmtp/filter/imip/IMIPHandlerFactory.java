@@ -55,9 +55,9 @@ public abstract class IMIPHandlerFactory {
 			case CANCEL:
 				return new EventCancelHandler(recip, sender);
 			case DECLINECOUNTER:
-				return new EventDeclineCounterHandler();
+				return new EventDeclineCounterHandler(recip, sender);
 			case COUNTER:
-				return new EventCounterHandler();
+				return new EventCounterHandler(recip, sender);
 			case ADD:
 			case PUBLISH:
 			case REFRESH:

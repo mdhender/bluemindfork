@@ -129,6 +129,9 @@ net.bluemind.calendar.day.DayPresenter.prototype.init = function() {
       this.actions_.details(e);
     }
   });
+  this.handler.listen(this.view_, net.bluemind.calendar.vevent.EventType.COUNTER_DETAILS, function(e) {
+    this.actions_.counter(e);
+  });
 
   this.handler.listen(this.view_, net.bluemind.calendar.vevent.EventType.REFRESH, function() {
       this.ctx.helper('url').reload();
@@ -367,7 +370,7 @@ net.bluemind.calendar.day.DayPresenter.prototype.adaptVEvent_ = function(vevent,
   vevent.states.synced = vseries.states.synced;
   vevent.states.error = vseries.states.error;
   vevent.tooltip = vseries.tooltip || vevent.summary;
-
+  vevent.acceptCounters = vseries.acceptCounters;
 
   if (vevent.rrule && vevent.rrule.until) {
     vevent.formatted.until = formatter.formatDate(vevent.rrule.until);

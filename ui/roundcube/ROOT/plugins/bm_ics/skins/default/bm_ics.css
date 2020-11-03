@@ -16,6 +16,10 @@ a.highlight {
   cursor: default;
 }
 
+a.disable-link {
+  pointer-events: none;
+}
+
 div.ics-toolbar-error {
   margin: 8px;
   padding: 5px;

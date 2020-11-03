@@ -68,4 +68,21 @@ public class IMIPResponse {
 		return ret;
 	}
 
+	public static IMIPResponse createCounterResponse(String itemUid, String email, VEventOccurrence counterEvent) {
+		IMIPResponse ret = new IMIPResponse();
+
+		StringBuilder eventIcsUid = new StringBuilder(itemUid);
+		eventIcsUid.append("; originator=\"" + email + "\"");
+
+		if (counterEvent.recurid != null) {
+			eventIcsUid.append("; recurid=\"" + counterEvent.recurid.iso8601 + "\"");
+		}
+
+		RawField rf = new RawField("X-BM-Event-Countered", eventIcsUid.toString());
+		UnstructuredField bmExtId = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
+		ret.headerFields = Arrays.asList(bmExtId);
+		return ret;
+
+	}
+
 }

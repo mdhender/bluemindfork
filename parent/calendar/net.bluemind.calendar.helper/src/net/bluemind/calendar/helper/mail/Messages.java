@@ -67,4 +67,8 @@ public class Messages {
 		return ResourceBundle.getBundle("eventCounter", locale);
 	}
 
+	public static ResourceBundle getDeclineCounterMessages(Locale locale) {
+		return ResourceBundle.getBundle("declineCounter", locale);
+	}
+
 }
