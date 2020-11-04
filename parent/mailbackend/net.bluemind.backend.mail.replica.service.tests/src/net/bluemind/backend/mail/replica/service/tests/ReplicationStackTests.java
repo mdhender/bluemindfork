@@ -2755,6 +2755,52 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		mailboxItemsService.multipleById(messageIds).forEach(message -> checkMessageIsSeen(message, sharedSent.uid));
 	}
 
+	@Test
+	public void deleteFlag() throws IOException, InterruptedException {
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> inbox = mboxesApi.byName("INBOX");
+
+		ItemValue<MailboxItem> mail = addDraft(inbox);
+
+		IMailboxItems itemsApi = provider().instance(IMailboxItems.class, inbox.uid);
+		ItemValue<MailboxItem> mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertFalse(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+
+		itemsApi.addFlag(FlagUpdate.of(mail.internalId, MailboxItemFlag.System.Seen.value()));
+		mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertTrue(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+
+		itemsApi.deleteFlag(FlagUpdate.of(mail.internalId, MailboxItemFlag.System.Seen.value()));
+		mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertFalse(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+	}
+
+	@Test
+	public void deleteUnsetFlag() throws IOException, InterruptedException {
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> inbox = mboxesApi.byName("INBOX");
+
+		ItemValue<MailboxItem> mail = addDraft(inbox);
+
+		IMailboxItems itemsApi = provider().instance(IMailboxItems.class, inbox.uid);
+		ItemValue<MailboxItem> mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertFalse(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+
+		itemsApi.deleteFlag(FlagUpdate.of(mail.internalId, MailboxItemFlag.System.Seen.value()));
+
+		mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertFalse(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+	}
+
+	@Test
+	public void deleteFlagUnknownMail() {
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> inbox = mboxesApi.byName("INBOX");
+		IMailboxItems itemsApi = provider().instance(IMailboxItems.class, inbox.uid);
+		Ack ack = itemsApi.deleteFlag(FlagUpdate.of(98765432L, MailboxItemFlag.System.Seen.value()));
+		assertEquals(0L, ack.version);
+	}
+
 	private boolean messageIsSeen(ItemValue<MailboxItem> message) {
 		return message.value.flags.contains(MailboxItemFlag.System.Seen.value());
 	}
