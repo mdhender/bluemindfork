@@ -1,6 +1,5 @@
 package net.bluemind.metrics.registry.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
@@ -50,12 +49,8 @@ public class BMDistributionSummary implements DistributionSummary {
 			totalAmount.add(amount);
 			count.increment();
 		}
-		try {
-			DistributionSummaryJson distributionSummaryJson = new DistributionSummaryJson(id, amount);
-			this.webSockClient.sendTextFrame(distributionSummaryJson);
-		} catch (IOException e) {
-			logger.error("IOException : ", e);
-		}
+		DistributionSummaryJson distributionSummaryJson = new DistributionSummaryJson(id, amount);
+		this.webSockClient.queue(distributionSummaryJson);
 	}
 
 	@Override

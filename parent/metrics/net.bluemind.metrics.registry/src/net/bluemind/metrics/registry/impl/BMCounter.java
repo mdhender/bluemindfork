@@ -1,6 +1,5 @@
 package net.bluemind.metrics.registry.impl;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -58,11 +57,7 @@ public class BMCounter implements Counter {
 	}
 
 	private void propagateUpdate() {
-		try {
-			webSockClient.sendTextFrame(dto.withCount(count.longValue()));
-		} catch (IOException e) {
-			logger.error("IOException", e);
-		}
+		webSockClient.queue(dto.withCount(count.longValue()));
 	}
 
 	@Override

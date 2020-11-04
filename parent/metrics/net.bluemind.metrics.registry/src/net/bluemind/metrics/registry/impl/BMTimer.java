@@ -1,6 +1,5 @@
 package net.bluemind.metrics.registry.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -54,11 +53,7 @@ public class BMTimer extends AbstractTimer {
 			final long nanos = TimeUnit.NANOSECONDS.convert(amount, unit);
 			totalTime.add(nanos);
 			count.increment();
-			try {
-				webSockClient.sendTextFrame(dto.withNanos(nanos));
-			} catch (IOException e) {
-				logger.error("IOException : ", e);
-			}
+			webSockClient.queue(dto.withNanos(nanos));
 		}
 	}
 

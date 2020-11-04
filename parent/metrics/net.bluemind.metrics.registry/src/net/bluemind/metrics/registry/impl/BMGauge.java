@@ -1,6 +1,5 @@
 package net.bluemind.metrics.registry.impl;
 
-import java.io.IOException;
 import java.util.Collections;
 
 import org.slf4j.Logger;
@@ -49,12 +48,8 @@ public class BMGauge implements Gauge {
 	@Override
 	public void set(double v) {
 		value.set(v);
-		try {
-			GaugeJson gaugeJson = new GaugeJson(id, this.value.get());
-			this.webSockClient.sendTextFrame(gaugeJson);
-		} catch (IOException e) {
-			logger.error("IOException : ", e);
-		}
+		GaugeJson gaugeJson = new GaugeJson(id, this.value.get());
+		this.webSockClient.queue(gaugeJson);
 	}
 
 	@Override
