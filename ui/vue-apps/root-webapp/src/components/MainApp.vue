@@ -115,6 +115,7 @@ export default {
 body {
     height: 100vh;
     height: var(--app-height);
+    overflow: hidden;
 }
 
 .main-app .bm-application-alert {
