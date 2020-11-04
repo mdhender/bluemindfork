@@ -12,6 +12,6 @@ public interface IScannerEnhancer {
 
 	void afterImport(IImportLogger importLogger, Parameters parameter, ItemValue<Domain> domain, LdapConProxy ldapCon);
 
-	void groupMembershipUpdates(ImportLogger withoutStatus, Parameters parameter, ItemValue<Domain> domain,
+	void groupMembershipUpdates(ImportLogger importLogger, Parameters parameter, ItemValue<Domain> domain,
 			LdapConProxy ldapCon, GroupMembershipData groupMembershipData);
 }
