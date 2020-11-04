@@ -56,6 +56,7 @@ import net.bluemind.system.importation.commons.CoreServices;
 import net.bluemind.system.importation.commons.ICoreServices;
 import net.bluemind.system.importation.commons.Parameters;
 import net.bluemind.system.importation.commons.UuidMapper;
+import net.bluemind.system.importation.commons.enhancer.GroupMembershipData;
 import net.bluemind.system.importation.commons.enhancer.IScannerEnhancer;
 import net.bluemind.system.importation.commons.managers.GroupManager;
 import net.bluemind.system.importation.commons.managers.UserManager;
@@ -341,6 +342,32 @@ public abstract class Scanner {
 						.forEach(member -> coreService.setUserMailRouting(Routing.external, member.uid));
 			}
 		}
+
+		groupMembershipEnhancer(groupManager.group, membersToAdd, membersToRemove);
+	}
+
+	private void groupMembershipEnhancer(ItemValue<Group> group, SetView<Member> membersToAdd,
+			SetView<Member> membersToRemove) {
+		List<IScannerEnhancer> hooks = getScannerEnhancerHooks();
+
+		if (hooks.isEmpty()) {
+			return;
+		}
+
+		long timeBefore = System.currentTimeMillis();
+		// Use dedicated directory connection for hook as connection parameters may be
+		// altered by hook.
+		try (LdapConProxy ldapCon = getConnection()) {
+			for (IScannerEnhancer iee : hooks) {
+				iee.groupMembershipUpdates(importLogger.withoutStatus(), getParameter(), domain, ldapCon,
+						new GroupMembershipData(group, membersToAdd, membersToRemove));
+			}
+		} catch (IOException e) {
+			logger.error("Directory connection error", e);
+		}
+
+		logger.info(String.format("Ending group %s (%s) member add/delete enhancement in %dms", group.value.name,
+				group.uid, System.currentTimeMillis() - timeBefore));
 	}
 
 	private Set<Member> getGroupMembers(GroupManager groupManager) {
@@ -561,7 +588,7 @@ public abstract class Scanner {
 				iee.beforeImport(importLogger.withoutStatus(), getParameter(), domain, ldapCon);
 			}
 		} catch (IOException e) {
-			logger.warn("Closing directory connexion failed!", e);
+			logger.error("Directory connection error", e);
 		}
 
 		importLogger.info(Messages.beforeEndImport(getKind(), System.currentTimeMillis() - timeBefore));
