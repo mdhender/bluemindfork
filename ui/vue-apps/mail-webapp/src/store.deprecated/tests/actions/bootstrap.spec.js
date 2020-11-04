@@ -1,4 +1,5 @@
 import { bootstrap } from "../../actions/bootstrap";
+import { FETCH_SIGNATURE } from "../../../store/types/actions";
 
 const myMailbox = { key: "mailbox:uid" },
     mailshareKeys = ["A", "B"],
@@ -46,5 +47,10 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
     test("set user uid", () => {
         bootstrap(context, "userUid");
         expect(context.commit).toHaveBeenCalledWith("setUserUid", "userUid");
+    });
+
+    test("fetch signature", async () => {
+        await bootstrap(context);
+        expect(context.dispatch).toHaveBeenNthCalledWith(9, "mail/" + FETCH_SIGNATURE, {}, { root: true });
     });
 });

@@ -1,4 +1,5 @@
 import { FETCH_FOLDERS } from "../../store/folders/actions";
+import { FETCH_SIGNATURE } from "../../store/types/actions";
 
 export async function bootstrap({ dispatch, commit, rootGetters, rootState }, userUid) {
     commit("setUserUid", userUid);
@@ -11,4 +12,5 @@ export async function bootstrap({ dispatch, commit, rootGetters, rootState }, us
         )
     );
     dispatch("loadMailboxConfig");
+    dispatch("mail/" + FETCH_SIGNATURE, {}, { root: true });
 }

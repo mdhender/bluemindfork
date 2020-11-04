@@ -11,7 +11,7 @@ import selection from "./selection";
 export default {
     namespaced: true,
     state: { ...app.state, ...consultPanel.state, ...messageCompose.state, ...folderList.state, ...mailboxes.state },
-    actions: { ...consultPanel.actions, ...mailboxes.actions },
+    actions: { ...consultPanel.actions, ...mailboxes.actions, ...messageCompose.actions },
     mutations: {
         ...app.mutations,
         ...consultPanel.mutations,

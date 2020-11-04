@@ -12,3 +12,6 @@ export const SEND_MESSAGE = "SEND_MESSAGE";
 // messageList
 export const FETCH_MESSAGE_LIST_KEYS = "FETCH_MESSAGE_LIST_KEYS";
 export const REFRESH_MESSAGE_LIST_KEYS = "REFRESH_MESSAGE_LIST_KEYS";
+
+// messageCompose
+export const FETCH_SIGNATURE = "FETCH_SIGNATURE";

@@ -119,7 +119,6 @@
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 
 import { InlineImageHelper, MimeType } from "@bluemind/email";
-import { inject } from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
 import {
     BmButton,
@@ -183,8 +182,7 @@ export default {
             draggedFilesCount: -1,
             isReplyOrForward: false,
             lockUpdateHtmlComposer: false,
-            blobsUrl: [],
-            signature: ""
+            blobsUrl: []
         };
     },
     computed: {
@@ -194,6 +192,9 @@ export default {
         ...mapGetters("mail", ["MY_DRAFTS", "MY_OUTBOX", "MY_SENT", "MY_MAILBOX_KEY"]),
         message() {
             return this.messages[this.messageKey];
+        },
+        signature() {
+            return this.messageCompose.signature;
         },
         panelTitle() {
             return this.message.subject.trim() ? this.message.subject : this.$t("mail.main.new");
@@ -229,9 +230,6 @@ export default {
     },
     async created() {
         this.UNSELECT_ALL_MESSAGES();
-        const identities = await inject("IUserMailIdentities").getIdentities();
-        const defaultIdentity = identities.find(identity => identity.isDefault);
-        this.signature = defaultIdentity && defaultIdentity.signature;
     },
     destroyed: function () {
         if (isEmpty(this.message, this.messageCompose.editorContent)) {

@@ -9,3 +9,4 @@ export { default as MockMailboxFoldersClient } from "./mocks/MockMailboxFoldersC
 export { default as MockMailboxItemsClient } from "./mocks/MockMailboxItemsClient";
 export { default as MockOwnerSubscriptionsClient } from "./mocks/MockOwnerSubscriptionsClient";
 export { default as MockUserSettingsClient } from "./mocks/MockUserSettingsClient";
+export { default as MockUserIdentitiesClient } from "./mocks/MockUserIdentitiesClient";
