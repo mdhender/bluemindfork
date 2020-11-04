@@ -27,7 +27,7 @@
 		<module>externaluser</module>
 		<module>group</module>
 		<module>hps</module>
-	        <module>mailapp</module>
+	    <module>mailapp</module>
 		<module>mailbackend</module>
 		<module>mailbox</module>
 		<module>server</module>
@@ -70,6 +70,7 @@
 		<module>cloud</module>
 		<module>deferredaction</module>
 		<module>custom</module>
+		<module>proxy</module>
 	</modules>
 
 	<build>

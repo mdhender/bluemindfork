@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.proxy.support
+Bundle-SymbolicName: net.bluemind.proxy.support
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Automatic-Module-Name: net.bluemind.proxy.support
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.system.api,
+ org.asynchttpclient.async-http-client;visibility:=reexport
+Export-Package: net.bluemind.proxy.support
