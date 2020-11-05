@@ -41,8 +41,10 @@ import net.bluemind.ui.mailbox.identity.UserMailIdentitiesModelHandler;
 import net.bluemind.ui.mailbox.sharing.MailboxesSharingsEditor;
 import net.bluemind.ui.mailbox.sharing.MailboxesSharingsModelHandler;
 import net.bluemind.ui.mailbox.vacation.MailVacationEditor;
+import net.bluemind.ui.settings.mail.appswitch.MailAppSwitchEditor;
 
 public class MailScreensContributor implements ScreenElementContributorUnwrapper {
+	private static final String ROLE_MAIL_WEBAPP = "hasMailWebapp";
 	private static final MailMessages messages = GWT.create(MailMessages.class);
 
 	@Override
@@ -50,6 +52,10 @@ public class MailScreensContributor implements ScreenElementContributorUnwrapper
 
 		DomainFilters.registerType();
 		JsArray<ScreenElement> generalEtls = JsArray.createArray().cast();
+		if (Ajax.TOKEN.getRoles().contains(ROLE_MAIL_WEBAPP)
+				&& Ajax.TOKEN.getRoles().contains(BasicRoles.ROLE_WEBMAIL)) {
+			generalEtls.push(ScreenElement.create(null, MailAppSwitchEditor.TYPE));
+		}
 		generalEtls.push(ScreenElement.create(null, MailVacationEditor.TYPE));
 		generalEtls.push(ScreenElement.create(null, MailForwardEditor.TYPE).withRole(BasicRoles.ROLE_MAIL_FORWARDING));
 		generalEtls.push(ScreenElement.create(null, AdvancedLink.TYPE));

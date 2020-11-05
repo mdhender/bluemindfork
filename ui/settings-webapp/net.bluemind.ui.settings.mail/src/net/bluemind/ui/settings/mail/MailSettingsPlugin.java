@@ -31,6 +31,7 @@ import net.bluemind.ui.mailbox.identity.UserMailIdentitiesModelHandler;
 import net.bluemind.ui.mailbox.sharing.MailboxesSharingsEditor;
 import net.bluemind.ui.mailbox.sharing.MailboxesSharingsModelHandler;
 import net.bluemind.ui.mailbox.vacation.MailVacationEditor;
+import net.bluemind.ui.settings.mail.appswitch.MailAppSwitchEditor;
 
 public class MailSettingsPlugin {
 
@@ -55,6 +56,7 @@ public class MailSettingsPlugin {
 		UserBooksSubscriptionModelHandler.registerType();
 		MailboxesSharingsModelHandler.registerType();
 		MailForwardEditor.registerType();
+		MailAppSwitchEditor.registerType();
 
 		MailboxSubscriptionsEditor.registerType();
 		MailboxSubscriptionsModelHandler.registerType();

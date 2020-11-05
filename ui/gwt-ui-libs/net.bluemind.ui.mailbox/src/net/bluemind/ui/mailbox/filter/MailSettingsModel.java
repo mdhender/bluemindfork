@@ -42,6 +42,11 @@ public class MailSettingsModel extends JavaScriptObject {
 		}
 	}
 
+	public static void populate(JavaScriptObject mainModel, String mailApplication) {
+		MailSettingsModel model = mainModel.cast();
+		model.setMailApplication(mailApplication);
+	}
+
 	public static MailSettingsModel get(JavaScriptObject mainModel) {
 		return mainModel.cast();
 	}
@@ -64,5 +69,15 @@ public class MailSettingsModel extends JavaScriptObject {
 			return new MailFilterGwtSerDer().deserialize(new JSONObject(r));
 		}
 	}
+
+	public final native void setMailApplication(String mailApplication)
+	/*-{
+		this['mail-application'] = mailApplication;
+	}-*/;
+
+	public final native String getMailApplication()
+	/*-{
+		return this['mail-application'];
+	}-*/;
 
 }
