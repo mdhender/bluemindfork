@@ -927,9 +927,9 @@
     axios "^0.18.0"
 
 "@bluemind/calendar.api@^4.1.0":
-  version "4.1.50839"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/calendar.api/-/calendar.api-4.1.50839.tgz#bbf71334cbcad33f14928cf872d0e236c91f6c43"
-  integrity sha512-fanE3BJQn1kD+gpL/zu3XF2V/8gyW5/IHp2SFgT6ZcIyK0qi55nSJzd5bxt/ze/6NoCzsjWK1CNOQh+HW9ltcA==
+  version "4.1.52881"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/calendar.api/-/calendar.api-4.1.52881.tgz#0ed923ba69c5527058dcb31fd397b7dda30a3276"
+  integrity sha512-v71pGiJ/UMhEuj5QMQXTO2E8ijHJBFZR80iQtnj+oh1o5gNWuqzUw/+6r0q+kLwzd/DFGVX+h/juQbbztBlcfQ==
   dependencies:
     axios "^0.18.0"
 
