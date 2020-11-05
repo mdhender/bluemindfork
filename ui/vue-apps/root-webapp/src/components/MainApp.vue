@@ -12,7 +12,7 @@
             {{ $t("common.application.bootstrap.error.solution") }}
         </div>
         <router-view v-else :class="showSettings ? 'd-none' : 'd-flex'" />
-        <bm-application-alert :alerts="applicationAlerts" class="z-index-250 position-absolute">
+        <bm-application-alert :alerts="alerts.concat(applicationAlerts)" class="z-index-250 position-absolute">
             <template v-slot="slotProps">
                 <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
             </template>
@@ -90,6 +90,7 @@ export default {
     },
     computed: {
         ...mapState({ applicationAlerts: state => state.alert.applicationAlerts }),
+        ...mapState({ alerts: "alert" }),
         ...mapState("root-app", ["appState", "showSettings"])
     },
     created() {

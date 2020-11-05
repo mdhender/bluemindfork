@@ -1,4 +1,5 @@
 // messages
+export const MARK_MESSAGE_AS_READ = "MARK_MESSAGE_AS_READ";
 export const ADD_ATTACHMENTS = "ADD_ATTACHMENTS";
 export const ADD_FLAG = "ADD_FLAG";
 export const CREATE_MESSAGE = "CREATE_MESSAGE";

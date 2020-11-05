@@ -1,4 +1,18 @@
 {
+    "alert": {
+        "mail": {
+            "mark_message_as_read": {
+                "loading": "Marking selected messages as read...",
+                "success": "Successfully marked selected messages as read.",
+                "error": "Failed to mark selected messages as read."
+            },
+            "send_message": {
+                "loading": "Sending \"{subject}\" in progress...",
+                "error": "\"{subject}\" has not been sent: {reason}",
+                "success": "\"{subject}\" successfully sent!"
+            }
+        }
+    },
     "alert.folder.create.error": "Error while creating folder \"{name}\".",
     "alert.folder.create.success": "Folder {folderNameWithLink} created!",
     "alert.folder.mark_as_read.error": "Error while marking folder {folderNameWithLink} as read.",

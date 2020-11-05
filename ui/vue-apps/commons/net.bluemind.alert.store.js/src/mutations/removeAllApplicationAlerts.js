@@ -1,3 +1,3 @@
 export function removeAllApplicationAlerts(state) {
-    state.applicationAlerts = [];
+    state.splice(0);
 }

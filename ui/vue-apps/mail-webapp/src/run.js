@@ -13,6 +13,8 @@ import injector from "@bluemind/inject";
 import router from "@bluemind/router";
 import store from "@bluemind/store";
 import MailAlertRenderer from "./components/MailAlertRenderer";
+import DefaultAlert from "./components/MailAlerts/DefaultAlert";
+import SendMessage from "./components/MailAlerts/SendMessage";
 import MailApp from "./components/MailApp";
 import MailAppAlerts from "./alerts";
 import { MailboxItemsClientProxy, MailboxFoldersClientProxy } from "./store.deprecated/mailbackend/APIClientsProxy";
@@ -33,6 +35,8 @@ router.addRoutes(mailRoutes);
 
 Vue.component("mail-webapp", MailApp);
 Vue.component("MailAlertRenderer", MailAlertRenderer);
+Vue.component("DefaultAlert", DefaultAlert);
+Vue.component("SendMessage", SendMessage);
 
 function registerAPIClients() {
     injector.register({

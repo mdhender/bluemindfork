@@ -1,4 +1,18 @@
 {
+    "alert": {
+        "mail": {
+            "mark_message_as_read": {
+                "loading": "Les messages sélectionnés sont en train d'être marqués comme lus...",
+                "success": "Les messages sélectionnés ont bien été marqués comme lus.",
+                "error": "Les messages sélectionnés n'ont pas pu être marqués comme lus."
+            },
+            "send_message": {
+                "loading": "Envoi de \"{subject}\" en cours...",
+                "success": "\"{subject}\" a bien été envoyé !",
+                "error": "\"{subject}\" n'a pu être envoyé : {reason}"
+            }
+        }
+    },
     "alert.folder.create.error": "Erreur lors de la création du dossier \"{name}\".",
     "alert.folder.create.success": "Le dossier {folderNameWithLink} a bien été créé !",
     "alert.folder.mark_as_read.error": "Erreur lors du marquage du dossier {folderNameWithLink} comme lu.",
