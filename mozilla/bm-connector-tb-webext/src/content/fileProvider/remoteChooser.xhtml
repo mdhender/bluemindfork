@@ -4,11 +4,12 @@
 <window id="BMRemoteChooser"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        title="bm.remotechooser.title;"
+        title="__BM_bm.remotechooser.title__"
         onload="gBMRemoteChooser.loadWindow();"
         onkeypress="if (event.keyCode == event.DOM_VK_ESCAPE) { window.close(); }"
         persist="screenX screenY">
     <script type="application/x-javascript" src="chrome://bm/content/fileProvider/remoteChooser.js" />
+    <script type="application/x-javascript" src="chrome://bm/content/apply-locales.js" />
     <vbox flex="1">
         <browser id="remote-browser"
                  autofind="false"

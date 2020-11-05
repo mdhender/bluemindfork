@@ -53,6 +53,7 @@
 			// do we need to load the ConversionHelper?
 			try {
 				if (browser) this.i18n = browser.i18n;
+				if (!this.i18n) throw "no i18n";
 			} catch (e) {
 				let { ConversionHelper } = ChromeUtils.import(pathToConversionHelperJSM);
 				// Since the TB68 built in OverlayLoader could run/finish before background.js has finished,
