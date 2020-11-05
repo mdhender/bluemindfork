@@ -2,6 +2,7 @@ package net.bluemind.metrics.registry.tests;
 
 import java.io.FileNotFoundException;
 import java.util.concurrent.CompletableFuture;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,6 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.codec.http.HttpVersion;
-import net.bluemind.metrics.registry.client.ClientBootstrap;
 
 public class HttpClient {
 	private static final Logger logger = LoggerFactory.getLogger(HttpClient.class);

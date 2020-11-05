@@ -11,7 +11,7 @@ import com.netflix.spectator.api.Id;
 import com.netflix.spectator.api.Measurement;
 import com.netflix.spectator.impl.AtomicDouble;
 
-import net.bluemind.metrics.registry.client.WebSocketClient;
+import net.bluemind.metrics.registry.client.AgentPushClient;
 import net.bluemind.metrics.registry.json.GaugeJson;
 
 public class BMMaxGauge implements Gauge {
@@ -19,10 +19,10 @@ public class BMMaxGauge implements Gauge {
 	private final Clock clock;
 	private final Id id;
 	private final AtomicDouble value;
-	private final WebSocketClient webSockClient;
+	private final AgentPushClient webSockClient;
 
 	/** Create a new instance. */
-	BMMaxGauge(Clock clock, Id id, WebSocketClient webSockClient) {
+	BMMaxGauge(Clock clock, Id id, AgentPushClient webSockClient) {
 		this.webSockClient = webSockClient;
 		this.clock = clock;
 		this.id = id;

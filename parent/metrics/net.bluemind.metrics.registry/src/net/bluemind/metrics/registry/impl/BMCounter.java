@@ -11,7 +11,7 @@ import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Id;
 import com.netflix.spectator.api.Measurement;
 
-import net.bluemind.metrics.registry.client.WebSocketClient;
+import net.bluemind.metrics.registry.client.AgentPushClient;
 import net.bluemind.metrics.registry.json.CounterJson;
 
 public class BMCounter implements Counter {
@@ -21,11 +21,11 @@ public class BMCounter implements Counter {
 	private final Clock clock;
 	private final Id id;
 	private final LongAdder count;
-	private final WebSocketClient webSockClient;
+	private final AgentPushClient webSockClient;
 	private final CounterJson dto;
 
 	/** Create a new instance. */
-	BMCounter(Clock clock, Id id, WebSocketClient webSockClient) {
+	BMCounter(Clock clock, Id id, AgentPushClient webSockClient) {
 		this.webSockClient = webSockClient;
 		this.clock = clock;
 		this.id = id;

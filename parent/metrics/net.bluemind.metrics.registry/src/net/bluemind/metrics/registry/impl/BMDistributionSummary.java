@@ -13,7 +13,7 @@ import com.netflix.spectator.api.Id;
 import com.netflix.spectator.api.Measurement;
 import com.netflix.spectator.api.Statistic;
 
-import net.bluemind.metrics.registry.client.WebSocketClient;
+import net.bluemind.metrics.registry.client.AgentPushClient;
 import net.bluemind.metrics.registry.json.DistributionSummaryJson;
 
 public class BMDistributionSummary implements DistributionSummary {
@@ -22,10 +22,10 @@ public class BMDistributionSummary implements DistributionSummary {
 	private final Id id;
 	private final LongAdder count;
 	private final LongAdder totalAmount;
-	private final WebSocketClient webSockClient;
+	private final AgentPushClient webSockClient;
 
 	/** Create a new instance. */
-	BMDistributionSummary(Clock clock, Id id, WebSocketClient webSockClient) {
+	BMDistributionSummary(Clock clock, Id id, AgentPushClient webSockClient) {
 		this.webSockClient = webSockClient;
 		this.clock = clock;
 		this.id = id;

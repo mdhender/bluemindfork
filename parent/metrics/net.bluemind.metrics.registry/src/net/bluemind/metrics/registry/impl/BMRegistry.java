@@ -1,7 +1,6 @@
 package net.bluemind.metrics.registry.impl;
 
-import java.io.FileNotFoundException;
-import java.net.URISyntaxException;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,20 +13,20 @@ import com.netflix.spectator.api.Gauge;
 import com.netflix.spectator.api.Id;
 import com.netflix.spectator.api.Timer;
 
-import net.bluemind.metrics.registry.client.WebSocketClient;
+import net.bluemind.metrics.agent.api.BluemindAgent;
+import net.bluemind.metrics.registry.client.AgentPushClient;
 
 public class BMRegistry extends AbstractRegistry {
 	private static final Logger logger = LoggerFactory.getLogger(BMRegistry.class);
-	private final WebSocketClient webSockClient;
+	private final AgentPushClient webSockClient;
+	private ArrayBlockingQueue<byte[]> comQueue;
 
-	public BMRegistry() throws FileNotFoundException, URISyntaxException {
+	public BMRegistry() {
 		super(Clock.SYSTEM);
-		webSockClient = new WebSocketClient();
-		try {
-			webSockClient.open();
-		} catch (InterruptedException e) {
-			logger.info("Metrics server interrupted {}", e);
-		}
+		comQueue = new ArrayBlockingQueue<>(64);
+		BluemindAgent.setupMessageQueue(comQueue);
+		webSockClient = new AgentPushClient(comQueue);
+		logger.info("Registry setup with {}", webSockClient);
 	}
 
 	@Override

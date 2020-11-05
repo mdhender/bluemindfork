@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.metrics.registry.client;
+package net.bluemind.metrics.registry.tests;
 
 import java.io.File;
 import java.io.FileNotFoundException;
