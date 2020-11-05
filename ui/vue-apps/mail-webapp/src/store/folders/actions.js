@@ -48,13 +48,16 @@ const removeFolder = async function ({ state, commit }, { key, mailbox }) {
 
 export const RENAME_FOLDER = "RENAME_FOLDER";
 const renameFolder = async function ({ commit, state }, { folder, mailbox }) {
-    const { name: oldName, path: oldPath } = state[folder.key];
-    commit(MUTATION_RENAME_FOLDER, { name: folder.name, key: folder.key, path: folder.path });
+    const key = folder.key;
+    const { name: oldName, path: oldPath } = state[key];
+
+    commit(MUTATION_RENAME_FOLDER, { name: folder.name, key, path: folder.path });
+
     const item = FolderAdaptor.toMailboxFolder(folder, mailbox);
     try {
         await api.updateFolder(mailbox, item);
     } catch (e) {
-        commit(MUTATION_RENAME_FOLDER, { name: oldName, key: folder.key, path: oldPath });
+        commit(MUTATION_RENAME_FOLDER, { name: oldName, key, path: oldPath });
         throw e;
     }
 };
