@@ -49,6 +49,8 @@ net.bluemind.sync.SyncEngine = function() {
   this.delay_ = new goog.async.Delay(this.sync_, net.bluemind.sync.SyncEngine.INTERVAL, this);
   this.services_ = new Array();
   this.attempt_ = 1;
+  this.executions_ = 0;
+  this.frequency_ = new goog.structs.Map();
   var that = this;
   this.handler = new goog.events.EventHandler(this);
   restClient.addListener(function(connected) {
@@ -152,9 +154,18 @@ net.bluemind.sync.SyncEngine.prototype.execute = function() {
  * @param {net.bluemind.sync.SyncService} service Service to register.
  * @return {net.bluemind.sync.SyncEngine} current object for chaining commands
  */
-net.bluemind.sync.SyncEngine.prototype.registerService = function(service) {
+net.bluemind.sync.SyncEngine.prototype.registerService = function(service, opt_frequency) {
   goog.log.info(this.logger, "Register sync service" + service.getName());
   goog.array.insert(this.services_, service);
+  var frequency = this.frequency_.get(service.getName());
+  if (opt_frequency && frequency) {
+    frequency = Math.min(opt_frequency, frequency);
+  } else if (opt_frequency || frequency) {
+    frequency = opt_frequency || frequency;
+  } else {
+    frequency = 1;
+  }
+  this.frequency_.set(service.getName(), frequency);
   this.handler.listen(service, 'needsync', this.partialSync_);
   return this;
 };
@@ -200,11 +211,15 @@ net.bluemind.sync.SyncEngine.prototype.doSync_ = function(services) {
       var list = [];
       for (var i = 0; i < services.length; i++) {
         var service = services[i];
-        if (service.isEnabled()) {
+        var frequency = this.frequency_.get(service.getName()) || 1;
+        if (!service.isEnabled()) {
+          goog.log.fine(this.logger, '[Global] : ' + service.getName() + ' synchronization service is not enabled');
+        } else if (this.executions_ % frequency != 0) {
+          var delay = (frequency - (this.executions_ % frequency)) * net.bluemind.sync.SyncEngine.INTERVAL / 1000;
+          goog.log.fine(this.logger, '[Global] : ' + service.getName() + ' will be executed in ' + delay + ' seconds');
+        } else {
           list.push(service.sync());
           goog.log.fine(this.logger, '[Global] : ' + service.getName() + ' synchronization service started');
-        } else {
-          goog.log.fine(this.logger, '[Global] : ' + service.getName() + ' synchronization service is not enabled');
         }
       }
       new goog.async.DeferredList(list).addCallback(function(r) {
@@ -213,6 +228,7 @@ net.bluemind.sync.SyncEngine.prototype.doSync_ = function(services) {
       }, this);
 
       this.attempt_++;
+      this.executions_ ++;
     } catch (e) {
       this.notifyStop_();
       goog.log.error(this.logger, '[Global] : Error during sync scheduling', e);
