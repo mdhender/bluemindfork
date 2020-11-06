@@ -31,7 +31,7 @@ export default async function ({ commit, state }, { myDraftsFolder, creationMode
         createWithMetadata(metadata),
         adaptDraft(creationMode, previousMessage, inject("UserSession"))
     );
-    metadata.internalId = (await service.create(MessageAdaptor.realToMailboxItem(messageForCreate, structure))).id;
+    metadata.internalId = (await service.create(MessageAdaptor.toMailboxItem(messageForCreate, structure))).id;
     messageForCreate.remoteRef.internalId = metadata.internalId;
 
     const messageInState = merge(

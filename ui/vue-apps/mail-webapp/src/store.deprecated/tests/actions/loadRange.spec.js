@@ -2,27 +2,28 @@ import { loadRange } from "../../actions/loadRange";
 
 jest.useFakeTimers();
 
+const keys = new Array(1000).fill(0).map((val, index) => index);
 const context = {
     dispatch: jest.fn().mockReturnValue(Promise.resolve()),
-    getters: {
-        "messages/messages": {}
-    },
     rootState: {
         mail: {
             messageList: {
-                messageKeys: new Array(1000).fill(0).map((val, index) => index)
-            }
+                messageKeys: []
+            },
+            messages: {}
         }
     }
 };
 describe("[Mail-WebappStore][actions] : loadRange", () => {
     beforeEach(() => {
-        context.getters["messages/messages"] = {};
+        context.rootState.mail.messageList.messageKeys = keys;
+        context.rootState.mail.messages = {};
     });
     afterEach(() => {
         jest.runOnlyPendingTimers();
         context.dispatch.mockClear();
     });
+
     test("load messages depending on sorted key order", async () => {
         await loadRange(context, { start: 100, end: 200 });
 
@@ -33,7 +34,7 @@ describe("[Mail-WebappStore][actions] : loadRange", () => {
     });
     test("do not load messages already loaded", async () => {
         context.rootState.mail.messageList.messageKeys.slice(100, 150).forEach(key => {
-            context.getters["messages/messages"][key] = {};
+            context.rootState.mail.messages[key] = { key };
         });
         await loadRange(context, { start: 100, end: 200 });
         expect(context.dispatch).toHaveBeenCalledWith(
@@ -59,7 +60,7 @@ describe("[Mail-WebappStore][actions] : loadRange", () => {
     });
     test("Pre-load next range if not loaded", async () => {
         context.rootState.mail.messageList.messageKeys.slice(100, 200).forEach(key => {
-            context.getters["messages/messages"][key] = {};
+            context.rootState.mail.messages[key] = { key };
         });
         await loadRange(context, { start: 125, end: 150 });
         expect(context.dispatch).not.toHaveBeenCalled();

@@ -210,9 +210,6 @@ describe("[MailWebAppStore] Vuex store", () => {
         initializeMessages(store, aliceInbox, folderUid);
         await store.dispatch("mail-webapp/selectMessage", messageKey, { root: true });
 
-        expect(store.getters["mail-webapp/currentMessage/message"]).toStrictEqual(
-            store.getters["mail-webapp/messages/getMessagesByKey"]([messageKey])[0]
-        );
         const attachment = createAttachment("2", "us-ascii", "api.rb", "7bit", "text/x-ruby-script", 28, true);
         expect(store.state["mail"].messages[messageKey].attachments).toEqual([attachment]);
     });

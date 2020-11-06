@@ -5,7 +5,7 @@ import { SET_UNREAD_COUNT } from "../../store/folders/mutations";
 
 export function markAsRead(context, messageKeys) {
     const updateAction = "messages/addFlag";
-    const unreadMessageFilter = message => message.states.includes("not-seen");
+    const unreadMessageFilter = message => !message.flags.includes(Flag.SEEN);
     const alertCodes = {
         LOADING: "MSG_MULTIPLE_MARK_AS_READ_LOADING",
         SUCCESS: "MSG_MULTIPLE_MARK_AS_READ_SUCCESS",
@@ -18,7 +18,7 @@ export function markAsRead(context, messageKeys) {
 
 export function markAsUnread(context, messageKeys) {
     const updateAction = "messages/deleteFlag";
-    const readMessageFilter = message => !message.states.includes("not-seen");
+    const readMessageFilter = message => message.flags.includes(Flag.SEEN);
     const alertCodes = {
         LOADING: "MSG_MULTIPLE_MARK_AS_UNREAD_LOADING",
         SUCCESS: "MSG_MULTIPLE_MARK_AS_UNREAD_SUCCESS",
@@ -52,9 +52,9 @@ export function markAsUnflagged(context, messageKeys) {
 }
 
 function onSuccessForMarkAsReadOrUnread(messageKeys, context, updateAction) {
-    const messages = context.getters["messages/getMessagesByKey"](messageKeys);
+    const messages = messageKeys.map(key => context.rootState.mail.messages[key]);
     const filteredMessageKeys = filterMessages(messages, message => {
-        const unread = message.states.includes("not-seen");
+        const unread = !message.flags.includes(Flag.SEEN);
         return updateAction === "messages/deleteFlag" ? !unread : unread;
     });
     return () => {
@@ -97,7 +97,7 @@ function markAsWhenMessagesMissingInState(messageKeys, updateAction, flagType, d
 }
 
 function markAsWhenAllMessagesAreInState(context, messageKeys, updateAction, flagType, messageFilter) {
-    const messages = context.getters["messages/getMessagesByKey"](messageKeys);
+    const messages = messageKeys.map(key => context.rootState.mail.messages[key]);
     const filteredMessageKeys = filterMessages(messages, messageFilter);
     return updateFlag(updateAction, flagType, context.dispatch, filteredMessageKeys);
 }

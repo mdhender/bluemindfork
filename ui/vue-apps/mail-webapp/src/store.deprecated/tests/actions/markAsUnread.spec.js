@@ -13,19 +13,7 @@ const messageKeyOtherFolder = ItemUri.encode(messageId + "9", folderUid2);
 const mailboxItemFlag = Flag.SEEN;
 const context = {
     commit: jest.fn(),
-    dispatch: jest.fn().mockReturnValue(Promise.resolve([{ states: ["not-seen"], key: messageKey1 }])),
-    state: {
-        messages: {
-            items: { [messageKey1]: {}, [messageKey3]: {} }
-        }
-    },
-    getters: {
-        "messages/getMessagesByKey": messageKeys =>
-            [
-                { key: messageKey1, states: ["not-seen"] },
-                { key: messageKey3, states: ["seen"] }
-            ].filter(message => messageKeys.includes(message.key))
-    },
+    dispatch: jest.fn().mockReturnValue(Promise.resolve([{ flags: [], key: messageKey1 }])),
     rootState: {
         mail: {
             folders: {
@@ -37,6 +25,13 @@ const context = {
                     key: folderUid2,
                     unread: 1
                 }
+            },
+            messages: {
+                [messageKey1]: { key: messageKey1, flags: [] },
+                [messageKey2]: { key: messageKey2, flags: [] },
+                [messageKey3]: { key: messageKey3, flags: [Flag.SEEN] },
+                [messageKey4]: { key: messageKey4, flags: [] },
+                [messageKeyOtherFolder]: { key: messageKeyOtherFolder, flags: [] }
             }
         }
     },

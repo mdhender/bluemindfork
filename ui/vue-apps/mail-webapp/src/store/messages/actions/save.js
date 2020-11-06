@@ -46,7 +46,7 @@ async function doSave(context, userPrefTextOnly, draftKey, myDraftsFolderKey, me
 
         const inlinePartAddresses = await uploadInlineParts(service, partsToUpload);
         const structure = createDraftStructure(draft.attachments, userPrefTextOnly, inlinePartAddresses, inlineImages);
-        await service.updateById(draft.remoteRef.internalId, MessageAdaptor.realToMailboxItem(draft, structure));
+        await service.updateById(draft.remoteRef.internalId, MessageAdaptor.toMailboxItem(draft, structure));
 
         context.commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
 

@@ -26,24 +26,12 @@ export default {
             status: MessageStatus.LOADED,
             preview: remote.value.body.preview,
             hasAttachment: remote.value.body.smartAttach,
-            hasICS: remote.value.body.headers.some(({ name }) => name === MessageHeader.X_BM_EVENT),
-            remote // FIXME: remove me once messages getter is deleted
+            hasICS: remote.value.body.headers.some(({ name }) => name === MessageHeader.X_BM_EVENT)
         };
         return merge(message, adapted);
     },
 
-    // DELETE ME ONCE deprecated messages getter is removed
-    toMailboxItem(local) {
-        return {
-            ...local.remote,
-            value: {
-                ...local.remote.value,
-                flags: local.flags
-            }
-        };
-    },
-
-    realToMailboxItem(local, structure) {
+    toMailboxItem(local, structure) {
         return {
             body: {
                 date: local.date.getTime(),
@@ -59,7 +47,6 @@ export default {
         };
     },
 
-    // FIXME: remove DUPLICATED FUNCTION once MailViewer use new store (see Message.js in deprecated store)
     computeParts(structure) {
         const inlineVisitor = new GetInlinePartsVisitor();
         const attachmentVisitor = new GetAttachmentPartsVisitor();

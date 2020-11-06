@@ -165,8 +165,6 @@ export default {
             }
             if (this.autocompleteResults.length > 0) {
                 return this.autocompleteResults;
-            } else {
-                return this.lastRecipients;
             }
         },
         updateTo(contacts) {

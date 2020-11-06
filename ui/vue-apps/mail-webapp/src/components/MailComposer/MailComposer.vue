@@ -190,7 +190,6 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["lastRecipients"]),
         ...mapState("mail", ["messages", "messageCompose"]),
         ...mapState("session", { settings: "userSettings" }),
         ...mapGetters("mail", ["MY_DRAFTS", "MY_OUTBOX", "MY_SENT", "MY_MAILBOX_KEY"]),

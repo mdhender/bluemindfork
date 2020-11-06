@@ -9,9 +9,6 @@ const folderKey = "folder-key";
 const context = {
     dispatch: jest.fn().mockResolvedValue(),
     commit: jest.fn(),
-    getters: {
-        "messages/messages": []
-    },
     rootState: {
         mail: {
             folders: {
