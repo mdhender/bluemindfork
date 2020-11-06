@@ -40,11 +40,11 @@ public class PimpMyRam implements IApplication {
 	private void pimpPostgresql(long totalMemMB) {
 		// this would be better if we include a file in the package
 		boolean isShard = new File("/usr/share/doc/bm-mailbox-role/").isDirectory();
-		if (totalMemMB > 48000) {
+		if (totalMemMB > 47000) {
 			writePg(isShard ? "mem.shard.48g" : "mem.48g");
-		} else if (totalMemMB > 32000) {
+		} else if (totalMemMB > 31000) {
 			writePg(isShard ? "mem.shard.32g" : "mem.32g");
-		} else if (totalMemMB > 16000) {
+		} else if (totalMemMB > 15000) {
 			writePg(isShard ? "mem.shard.16g" : "mem.16g");
 		}
 	}
@@ -61,14 +61,15 @@ public class PimpMyRam implements IApplication {
 	}
 
 	private Rule[] loadRules() {
-		Rule[] rules = new RulesBuilder().build();
-		return rules;
+		return new RulesBuilder().build();
 	}
 
 	private void configureProductMemory(Rule[] rules, int spareMb) throws IOException {
 		File parent = new File("/etc/bm/default");
 		parent.mkdirs();
+		int sparePercentAlloc = 0;
 		for (Rule r : rules) {
+			sparePercentAlloc += r.getSparePercent();
 			if (!productEnabled(r.getProduct())) {
 				logger.info("{} {}is not installed or disabled, not configuring.", r.getProduct(),
 						r.isOptional() ? "(optional) " : "");
@@ -82,7 +83,7 @@ public class PimpMyRam implements IApplication {
 				logger.info("CPU boost is {}MB", cpuBoostMb);
 			}
 			int memMb = r.getDefaultHeap() + fromSpare + cpuBoostMb;
-			int dmemMb = r.getDefaultDirect() + fromSpare;
+			int dmemMb = Math.min(512, r.getDefaultDirect() + fromSpare);
 			String content = "MEM=" + memMb + "\nDMEM=" + dmemMb + "\n";
 
 			logger.info("  * {} gets +{}MB for a total of {}MB", r.getProduct(), fromSpare, memMb);
@@ -97,11 +98,12 @@ public class PimpMyRam implements IApplication {
 				}
 			}
 		}
+		logger.info("Spare percent allocation is set at {}% in rules.json", sparePercentAlloc);
 	}
 
 	private int configureSpareMemory(Rule[] rules, long totalMemMB) {
-		// give 30% of memory above 6GB to our JVMs
-		int spareMb = (int) ((totalMemMB - 6144) * 0.30);
+		// give 40% of memory above 6GB to our JVMs
+		int spareMb = (int) ((totalMemMB - 6144) * 0.40);
 		logger.info("{}MB initial spare.", spareMb);
 		int reallocated = 0;
 		for (Rule r : rules) {
