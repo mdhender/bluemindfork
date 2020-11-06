@@ -6,6 +6,8 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  org.junit,
+ org.apache.commons.io,
+ org.apache.commons.lang,
  net.bluemind.backend.mail.parsing,
  net.bluemind.mime4j.common,
  com.google.guava

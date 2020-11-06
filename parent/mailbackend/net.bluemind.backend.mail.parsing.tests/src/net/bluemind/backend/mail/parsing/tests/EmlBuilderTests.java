@@ -17,18 +17,25 @@
  */
 package net.bluemind.backend.mail.parsing.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang.SystemUtils;
 import org.apache.james.mime4j.dom.Message;
+import org.apache.james.mime4j.message.BasicBodyFactory;
 import org.junit.After;
 import org.junit.Test;
 
@@ -87,6 +94,33 @@ public class EmlBuilderTests {
 		// attach filename encoding
 		assertFalse(eml.contains("coptère"));
 		assertTrue(eml.contains("zizi"));
+	}
+
+	@Test
+	public void testMessageCreationShouldNotLeakOpenFileDescriptor() throws IOException {
+		assumeTrue(!SystemUtils.IS_OS_WINDOWS);
+		long openFileDescriptorCountBefore = getOpenFileDescriptorCount();
+		final BasicBodyFactory bbf = new BasicBodyFactory();
+		for (int x = 0; x < 100; x++) {
+			final MessageBody mb = new MessageBody();
+			mb.subject = "un mail réaliste";
+			mb.structure = text("avec presque rien dedans", TextStyle.plain);
+			final Message message = EmlBuilder.of(mb, "john.doe@devenv.blue");
+		}
+		long openFileDescriptorCountAfter = getOpenFileDescriptorCount();
+		assertEquals(openFileDescriptorCountBefore, openFileDescriptorCountAfter);
+
+	}
+
+	private long getOpenFileDescriptorCount() {
+		OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
+		try {
+			Method getOpenFileDescriptorCountField = os.getClass().getDeclaredMethod("getOpenFileDescriptorCount");
+			getOpenFileDescriptorCountField.setAccessible(true);
+			return (long) getOpenFileDescriptorCountField.invoke(os);
+		} catch (Exception e) {
+			return -1l;
+		}
 	}
 
 	public enum TextStyle {
