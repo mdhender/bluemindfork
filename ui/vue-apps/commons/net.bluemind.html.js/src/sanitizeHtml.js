@@ -116,13 +116,18 @@ export function preventStyleInvading(html) {
     return rootDiv.outerHTML;
 }
 
-function getStyleRules(doc) {
+/**
+ * WARNING: this is an internal method, it's exported just for testing purpose
+ */
+export function getStyleRules(doc) {
     let styleRules = "";
     const styleTags = doc.styleSheets;
     for (let tag of styleTags) {
         for (let rule of tag.cssRules) {
-            rule.selectorText = computeNewSelector(rule.selectorText);
-            styleRules += "\n" + rule.cssText;
+            if (rule.selectorText) {
+                rule.selectorText = computeNewSelector(rule.selectorText);
+                styleRules += "\n" + rule.cssText;
+            }
         }
     }
     return styleRules;
