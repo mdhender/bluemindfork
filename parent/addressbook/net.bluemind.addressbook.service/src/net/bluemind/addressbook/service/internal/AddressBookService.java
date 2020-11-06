@@ -366,7 +366,7 @@ public class AddressBookService implements IInCoreAddressBook {
 			Collections.sort(values, new Comparator<ItemValue<VCardInfo>>() {
 				@Override
 				public int compare(ItemValue<VCardInfo> o1, ItemValue<VCardInfo> o2) {
-					return o1.displayName.compareTo(o2.displayName);
+					return o1.displayName.compareToIgnoreCase(o2.displayName);
 				}
 			});
 		}
