@@ -77,10 +77,16 @@ net.bluemind.calendar.PendingEventsMgmt.prototype.observeCalendars = function() 
     'type' : 'calendar',
     'verb' : [ 'All' ]
   }).then(function(containers) {
-    var cals = goog.array.map(containers, function(container) {
+
+    var defaultCalendars = goog.array.filter(containers, function(cal) {
+      return cal['defaultContainer'];
+    });
+
+    var cals = goog.array.map(defaultCalendars, function(container) {
       return container['uid'];
     });
-    this.calendars = containers;
+
+    this.calendars = defaultCalendars;
     this.calendarsCounts = [];
     goog.array.forEach(this.calendars, function(container) {
       this.calendarsCounts[container['uid']] = 0;
@@ -141,7 +147,6 @@ net.bluemind.calendar.PendingEventsMgmt.prototype.retrievePendingActionsForOne =
 
     return total;
   }, null, this).then(function(total) {
-    this.totalCache_ = total;
     this.totalCache_ = total;
   }, null, this);
 }
