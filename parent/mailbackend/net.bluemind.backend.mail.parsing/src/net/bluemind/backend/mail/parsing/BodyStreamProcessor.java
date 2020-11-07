@@ -35,6 +35,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.mail.internet.MimeUtility;
@@ -436,13 +437,25 @@ public class BodyStreamProcessor {
 		mb.recipients = output;
 	}
 
+	private static final Pattern STILL_ENCODED = Pattern.compile("=\\?[^\\?]+\\?[Qq]\\?[^\\?]+\\?=");
+
 	private static void addRecips(List<Recipient> output, RecipientKind kind, MailboxList mailboxes) {
 		if (mailboxes == null) {
 			return;
 		}
 		mailboxes.forEach(mailbox -> {
 			if (!">".equals(mailbox.getAddress())) {
-				Recipient recip = Recipient.create(kind, mailbox.getName(), mailbox.getAddress());
+				String dn = mailbox.getName();
+				if (dn != null && STILL_ENCODED.matcher(dn).matches()) {
+					logger.warn("Email name part is still encoded '{}'", dn);
+					try {
+						dn = MimeUtility.decodeText(dn.replace(" ", "_"));
+					} catch (UnsupportedEncodingException e) {
+						logger.warn("Failed to decode '{}': {}", dn, e.getMessage());
+					}
+				}
+
+				Recipient recip = Recipient.create(kind, dn, mailbox.getAddress());
 				output.add(recip);
 			}
 		});

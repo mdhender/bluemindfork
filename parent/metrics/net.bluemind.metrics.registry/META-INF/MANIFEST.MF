@@ -10,7 +10,7 @@ Require-Bundle: slf4j.api;bundle-version="1.7.5",
  com.fasterxml.jackson.core.jackson-core,
  com.fasterxml.jackson.core.jackson-databind,
  com.fasterxml.jackson.module.jackson-module-afterburner,
- net.bluemind.metrics.agent-api;bundle-version="1.22.0"
+ net.bluemind.metrics.agent-api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.metrics.registry
 Bundle-ActivationPolicy: lazy
