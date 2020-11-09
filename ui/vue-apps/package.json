@@ -58,6 +58,9 @@
     "peerDependencies": {
         "vue": "^2.6.0"
     },
+    "resolutions": {
+        "prosemirror-model": "1.9.1"
+    },
     "scripts": {
         "test": "jest --config node_modules/@bluemind/conf/jest.config.js",
         "root": "cd root-webapp && yarn dev",
