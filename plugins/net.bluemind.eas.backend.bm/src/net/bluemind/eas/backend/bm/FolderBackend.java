@@ -534,8 +534,9 @@ public class FolderBackend extends CoreConnect {
 			folder.parentId = OTHER_MAILBOXES;
 			folder.changeType = ChangeType.ADD;
 			ret.add(folder);
-			items.removeIf(item -> item.internalId == rootFolder.internalId);
 		}
+
+		items.removeIf(item -> item.internalId == rootFolder.internalId);
 
 		items.stream().filter(item -> IMailReplicaUids.MAILBOX_RECORDS.equals(item.value.containerType))
 				.forEach(item -> {
