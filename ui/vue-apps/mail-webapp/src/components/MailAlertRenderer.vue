@@ -9,7 +9,7 @@ export default {
     props: {
         alert: {
             type: Object,
-            default: () => {}
+            default: () => ({})
         }
     },
     /** Build the component via javascript. It avoids unwanted spaces when rendered. */
