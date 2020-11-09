@@ -48,7 +48,7 @@ public enum BMCalColor {
 	private final String rgb;
 
 	private BMCalColor(String symbolic, String rgb) {
-		this.symbolic = symbolic;
+		this.symbolic = "custom";
 		this.rgb = rgb + "FF";
 	}
 
