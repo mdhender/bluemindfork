@@ -1,19 +1,21 @@
 <template>
     <div class="container">
-        <bm-container class="mail-attachment-item bg-white border border-light text-condensed py-1 px-2 mt-2">
-            <bm-row class="pt-1">
-                <bm-col cols="12" class="px-1 text-center">
-                    <img
-                        v-if="hasPreview && attachment.contentUrl"
-                        :src="attachment.contentUrl"
-                        class="preview mb-1 mw-100"
-                        :alt="$tc('common.attachmentPreview')"
-                    />
-                    <div v-else class="preview w-100 text-center mb-1 bg-light p-1">
-                        <bm-icon :icon="fileTypeIcon" size="6x" class="m-auto bg-white preview-file-type" />
-                    </div>
-                </bm-col>
-            </bm-row>
+        <bm-container
+            class="mail-attachment-item bg-white border border-light text-condensed py-2 px-2 mt-2"
+            :class="isDownloadable ? 'cursor-pointer' : ''"
+            @click="isDownloadable ? download() : null"
+        >
+            <div class="px-1 text-center">
+                <img
+                    v-if="hasPreview && attachment.contentUrl"
+                    :src="attachment.contentUrl"
+                    class="preview mb-1 mw-100"
+                    :alt="$tc('common.attachmentPreview')"
+                />
+                <div v-else class="preview w-100 text-center mb-1 bg-light p-1">
+                    <bm-icon :icon="fileTypeIcon" size="6x" class="m-auto bg-white preview-file-type" />
+                </div>
+            </div>
             <bm-row class="no-gutters align-items-center">
                 <bm-col
                     class="col-auto align-self-start"
@@ -41,7 +43,7 @@
                                 name: attachment.fileName
                             })
                         "
-                        @click="download"
+                        @click.stop="download"
                     >
                         <bm-icon icon="download" size="2x" class="p-1" />
                     </bm-button>
@@ -71,6 +73,7 @@
             class="d-none"
             :download="attachment.fileName"
             :href="attachment.contentUrl"
+            @click.stop
         ></a>
     </div>
 </template>
@@ -214,6 +217,10 @@ export default {
 
 .mail-attachment-item {
     position: relative;
+
+    &.cursor-pointer {
+        cursor: pointer;
+    }
 
     .progress {
         position: absolute;
