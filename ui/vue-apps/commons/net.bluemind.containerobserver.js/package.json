@@ -8,6 +8,6 @@
     "dependencies": {
         "@bluemind/sockjs": "^4.1.0",
         "@bluemind/inject": "^4.1.0",
-        "lodash.throttle": "^4.1.1"
+        "lodash.debounce": "^4.0.8"
     }
 }

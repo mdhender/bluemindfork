@@ -1,10 +1,10 @@
-import throttle from "lodash.throttle";
+import debounce from "lodash.debounce";
 
 import injector from "@bluemind/inject";
 import WebsocketClient from "@bluemind/sockjs";
 
 const socket = new WebsocketClient();
-const NOTIFY_THROTTLE = 5000;
+const NOTIFY_DEBOUNCE = 2000;
 
 export default {
     observe(type, uid) {
@@ -20,9 +20,9 @@ export default {
         }
     },
 
-    notify: throttle(({ data }) => {
+    notify: debounce(({ data }) => {
         const bus = injector.getProvider("GlobalEventBus").get();
         const [, type, uid] = data.requestId.match(/^bm\.([^.]*).hook.(.*).changed$/);
         bus.$emit(type + "_changed", { container: uid });
-    }, NOTIFY_THROTTLE)
+    }, NOTIFY_DEBOUNCE)
 };
