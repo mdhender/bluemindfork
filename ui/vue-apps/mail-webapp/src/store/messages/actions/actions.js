@@ -36,7 +36,9 @@ export async function fetchMessageMetadata({ commit, state }, { messageKeys }) {
         .filter(({ composing }) => !composing);
     let fullMessages = await apiMessages.multipleById(messages);
     fullMessages = fullMessages.map(message => {
-        message.partContentByAddress = state[message.key].partContentByAddress;
+        if (state[message.key]) {
+            message.partContentByAddress = state[message.key].partContentByAddress;
+        }
         return message;
     });
     commit(mutationTypes.ADD_MESSAGES, fullMessages);
