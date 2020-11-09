@@ -136,7 +136,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		this.namespace = recordsLocation.namespace();
 		this.imapContext = ImapContext.of(context);
 
-		logger.debug("imapContext {}, namespace {}, subtree {}", imapContext, namespace, recordsLocation.toString());
+		logger.debug("imapContext {}, namespace {}, subtree {}", imapContext, namespace, recordsLocation);
 
 		this.seenOverlays = new SeenOverlayStore(ds);
 		bodyStore = new MessageBodyStore(ds);
@@ -244,7 +244,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			sc.select(imapFolder);
 			return sc.uidSearch(new SearchQuery());
 		});
-		Set<Long> knownUids = imapUids.stream().map(Long::new).collect(Collectors.toSet());
+		Set<Long> knownUids = imapUids.stream().map(Integer::longValue).collect(Collectors.toSet());
 		List<String> allUids = storeService.allUids();
 		List<ItemValue<MailboxRecord>> extraRecords = new ArrayList<>(allUids.size());
 		List<ItemValue<MailboxRecord>> unlinkedRecords = new ArrayList<>(allUids.size());
@@ -331,14 +331,16 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				.map(h -> new Date(Long.parseLong(h.firstValue()))).orElse(current.value.body.date);
 		Part currentStruct = current.value.body.structure;
 		Part expectedStruct = newValue.body.structure;
-		logger.info("Shoud go from:\n{} to\n{}", JsonUtils.asString(currentStruct), JsonUtils.asString(expectedStruct));
+		if (logger.isInfoEnabled()) {
+			logger.info("Shoud go from:\n{} to\n{}", JsonUtils.asString(currentStruct),
+					JsonUtils.asString(expectedStruct));
+		}
 		PartsWalker<Object> walker = new PartsWalker<>(null);
 		walker.visit((Object c, Part p) -> {
 			logger.info("Prepare for part @ {}", p.address);
 			if (isImapAddress(p.address)) {
 				logger.info("*** preload part {}", p.address);
-				ByteBuf decodedFetch = fetchAndDecode(current.value.imapUid, p.address, p.encoding, p.mime, p.charset,
-						null);
+				ByteBuf decodedFetch = fetchAndDecode(current.value.imapUid, p.address, p.encoding);
 				String replacedPartUid = UUID.randomUUID().toString();
 				File output = partFile(replacedPartUid);
 				try (OutputStream out = Files.newOutputStream(output.toPath());
@@ -603,8 +605,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	@Override
 	public Stream fetch(long imapUid, String address, String encoding, String mime, String charset, String filename) {
 		rbac.check(Verb.Read.name());
-		return VertxStream.stream(Buffer.buffer(fetchAndDecode(imapUid, address, encoding, mime, charset, filename)),
-				mime, charset, filename);
+		return VertxStream.stream(Buffer.buffer(fetchAndDecode(imapUid, address, encoding)), mime, charset, filename);
 	}
 
 	private InputStream dec(ByteBuf downloaded, String encoding) {
@@ -617,8 +618,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		return ret;
 	}
 
-	private ByteBuf fetchAndDecode(long imapUid, String address, String encoding, String mime, String charset,
-			String filename) {
+	private ByteBuf fetchAndDecode(long imapUid, String address, String encoding) {
 		ByteBuf downloaded = fetch(imapUid, address);
 
 		ByteBuf returned = downloaded;
@@ -637,21 +637,18 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		return imapContext.withImapClient((sc, fast) -> {
 			try {
 				ImapResponseStatus<FetchResponse> fetchResp = null;
-				try {
-					fetchResp = fast.select(imapFolder).thenCompose(selected -> {
-						if (selected.status == Status.Ok) {
-							return fast.fetch(imapUid, address);
-						}
-						logger.warn("Selection status is invalid for folder '{}'", imapFolder);
-						ImapResponseStatus<FetchResponse> emptyResp = new ImapResponseStatus<>(Status.Ok,
-								new FetchResponse(Unpooled.EMPTY_BUFFER));
-						return CompletableFuture.completedFuture(emptyResp);
-					}).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-				} catch (TimeoutException e) {
-					throw new ServerFault("Failed to fetch " + imapUid + " .Timeout occured", ErrorCode.TIMEOUT);
-				}
-
+				fetchResp = fast.select(imapFolder).thenCompose(selected -> {
+					if (selected.status == Status.Ok) {
+						return fast.fetch(imapUid, address);
+					}
+					logger.warn("Selection status is invalid for folder '{}'", imapFolder);
+					ImapResponseStatus<FetchResponse> emptyResp = new ImapResponseStatus<>(Status.Ok,
+							new FetchResponse(Unpooled.EMPTY_BUFFER));
+					return CompletableFuture.completedFuture(emptyResp);
+				}).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 				return fetchResp.result.get().data;
+			} catch (TimeoutException e) {
+				throw new ServerFault("Failed to fetch " + imapUid + " .Timeout occured", ErrorCode.TIMEOUT);
 			} catch (CompletionException ce) {
 				logger.error(ce.getMessage());
 				return Unpooled.EMPTY_BUFFER;
@@ -664,16 +661,12 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		long time = System.currentTimeMillis();
 		String addr = UUID.randomUUID().toString();
 		logger.info("[{}] Upload starts {}...", addr, part);
-		try (ReadInputStream ri = new ReadInputStream(VertxStream.read(part))) {
-			File output = partFile(addr);
-			try (OutputStream out = Files.newOutputStream(output.toPath())) {
-				ByteStreams.copy(ri, out);
-				time = System.currentTimeMillis() - time;
-				logger.info("[{}] Upload tooks {}ms", addr, time);
-				return addr;
-			} catch (Exception e) {
-				throw new ServerFault(e);
-			}
+		try (ReadInputStream ri = new ReadInputStream(VertxStream.read(part));
+				OutputStream out = Files.newOutputStream(partFile(addr).toPath())) {
+			ByteStreams.copy(ri, out);
+			time = System.currentTimeMillis() - time;
+			logger.info("[{}] Upload tooks {}ms", addr, time);
+			return addr;
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
@@ -696,7 +689,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		return new File(Bodies.STAGING, partId + ".part");
 	}
 
-	private Ack doImapCommand(String imapCommand) throws ServerFault {
+	private Ack doImapCommand(String imapCommand) {
 		CompletableFuture<Long> repEvent = ReplicationEvents.onMailboxChanged(mailboxUniqueId);
 		imapContext.withImapClient((sc, fast) -> {
 			boolean select = sc.select(imapFolder);
@@ -780,7 +773,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			} else {
 				int value = total.total;
 				for (UidRange r : ranges) {
-					value = value - (int) r.size();
+					value = value - r.size();
 				}
 				if (value < 0) {
 					value = 0;
@@ -793,7 +786,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	@Override
-	public void multipleDeleteById(List<Long> ids) throws ServerFault {
+	public void multipleDeleteById(List<Long> ids) {
 		if (ids.isEmpty()) {
 			logger.info("ids list is empty, nothing to delete");
 			return;
