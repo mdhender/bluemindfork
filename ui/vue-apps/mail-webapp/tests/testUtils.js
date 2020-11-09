@@ -20,35 +20,16 @@ export function createStore(overrides) {
             "mail-webapp": {
                 namespaced: true,
                 state: {
-                    maxMessageSize: 10,
-                    selectedMessageKeys: []
-                },
-                getters: {
-                    my: jest.fn(() => ({})),
-                    currentMessageAttachments: jest.fn(() => [{ mime: "" }]),
-                    draft: jest.fn(() => {}),
-                    matchingFolders: jest.fn(() => () => [])
+                    maxMessageSize: 10
                 },
                 modules: {
                     currentMessage: {
                         namespaced: true,
                         state: {
                             key: messageKey
-                        },
-                        getters: {
-                            message: jest.fn(() => {
-                                return {
-                                    key: messageKey,
-                                    states: [],
-                                    flags: []
-                                };
-                            })
                         }
-                    },
-                    draft: cloneDeep(MessageStore),
-                    messages: cloneDeep(MailboxItemsStore)
-                },
-                actions: {}
+                    }
+                }
             },
             mail: {
                 namespaced: true,
@@ -60,7 +41,8 @@ export function createStore(overrides) {
                     },
                     messages: {
                         [messageKey]: { flags: [] }
-                    }
+                    },
+                    selection: []
                 },
                 getters: {
                     MY_TRASH: () => {},

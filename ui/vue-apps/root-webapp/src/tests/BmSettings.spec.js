@@ -32,7 +32,8 @@ describe("BmSettings", () => {
         await wrapper.vm.save("updated !");
         expect(mockedStore.modules.session.actions.UPDATE_ALL_SETTINGS).toHaveBeenCalledWith(
             expect.anything(),
-            "updated !"
+            "updated !",
+            undefined
         );
         expect(wrapper.vm.$data.status).toBe("saved");
     });
@@ -43,7 +44,8 @@ describe("BmSettings", () => {
         await wrapper.vm.save("updated !");
         expect(mockedStore.modules.session.actions.UPDATE_ALL_SETTINGS).toHaveBeenCalledWith(
             expect.anything(),
-            "updated !"
+            "updated !",
+            undefined
         );
         expect(wrapper.vm.$data.status).toBe("error");
     });
