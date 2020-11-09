@@ -32,13 +32,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.core.api.Stream;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.lib.vertx.VertxPlatform;
 
 public abstract class GenericStream<T> implements ReadStream<Buffer> {
 
@@ -89,37 +92,69 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 	}
 
 	private void read() {
-		if (paused) {
+		if (paused || ended) {
 			return;
 		}
+		readSome(VertxPlatform.getVertx().getOrCreateContext());
+	}
 
-		while (!ended && !paused) {
-			T n;
-			try {
-				StreamState<T> currentState = next();
-				if (currentState.state == State.ENDED) {
-					ended = true;
-					if (endHandler != null) {
-						endHandler.handle(null);
-					}
-				} else {
-					n = currentState.value;
-					dataHandler.handle(serialize(n));
-				}
-
-			} catch (Exception e) {
-				error(e);
-			}
-
+	private CompletableFuture<Void> readSome(Context ctx) {
+		if (ended || paused) {
+			return CompletableFuture.completedFuture(null);
 		}
 
+		return nextAsync(ctx).thenCompose(currentState -> {
+			if (currentState.state == State.ENDED) {
+				ended = true;
+				if (endHandler != null) {
+					endHandler.handle(null);
+				}
+			} else {
+				try {
+					dataHandler.handle(serialize(currentState.value));
+				} catch (ServerFault sf) {
+					throw sf;
+				} catch (Exception e) {
+					throw new ServerFault(e);
+				}
+			}
+			return readSome(ctx);
+		}).exceptionally(e -> {
+			error(e);
+			return null;
+		});
+
+	}
+
+	private CompletableFuture<StreamState<T>> nextAsync(Context vxContext) {
+		CompletableFuture<StreamState<T>> rightThread = new CompletableFuture<>();
+		CompletableFuture<StreamState<T>> futureState = CompletableFuture.supplyAsync(this::safeNext,
+				ExecutorHolder.getAsService());
+		futureState.whenComplete((state, ex) -> vxContext.runOnContext(v -> {
+			if (ex != null) {
+				rightThread.completeExceptionally(ex);
+			} else {
+				rightThread.complete(state);
+			}
+		}));
+		return rightThread;
+	}
+
+	private final StreamState<T> safeNext() {
+		try {
+			return next();
+		} catch (ServerFault sf) {
+			throw sf;
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
 	}
 
 	protected abstract Buffer serialize(T n) throws Exception;
 
 	protected abstract StreamState<T> next() throws Exception;
 
-	private void error(Exception e) {
+	private void error(Throwable e) {
 		if (exceptionHandler != null) {
 			exceptionHandler.handle(e);
 		}
