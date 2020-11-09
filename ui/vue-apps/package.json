@@ -59,7 +59,7 @@
         "vue": "^2.6.0"
     },
     "resolutions": {
-        "prosemirror-model": "1.9.1"
+        "prosemirror-model": "1.11.2"
     },
     "scripts": {
         "test": "jest --config node_modules/@bluemind/conf/jest.config.js",
