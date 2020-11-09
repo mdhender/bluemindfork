@@ -1,6 +1,8 @@
 import ServiceLocator from "@bluemind/inject";
 
 import { createOnlyMetadata } from "../../model/message";
+import { CURRENT_MAILBOX } from "~getters";
+import { SET_MESSAGE_LIST } from "~mutations";
 
 const MAX_SEARCH_RESULTS = 500;
 export const STATUS = {
@@ -60,7 +62,7 @@ async function search({ commit, dispatch, rootState, rootGetters }, { pattern, f
         commit("setStatus", STATUS.LOADING);
         const mailboxUid = folderKey
             ? rootState.mail.folders[folderKey].mailboxRef.uid
-            : rootGetters["mail/CURRENT_MAILBOX"].key;
+            : rootGetters["mail/" + CURRENT_MAILBOX].key;
         const searchPayload = buildPayload(pattern, filter, folderKey ? folderKey : undefined);
         const searchResults = await ServiceLocator.getProvider("MailboxFoldersPersistence")
             .get(mailboxUid)
@@ -72,7 +74,7 @@ async function search({ commit, dispatch, rootState, rootGetters }, { pattern, f
             const folderUid = res.containerUid.substring(offset);
             return createOnlyMetadata({ internalId: res.itemId, folder: { key: folderUid, uid: folderUid } });
         });
-        commit("mail/SET_MESSAGE_LIST", messages, { root: true });
+        commit("mail/" + SET_MESSAGE_LIST, messages, { root: true });
         const result = await dispatch(
             "mail-webapp/messages/multipleByKey",
             messages.slice(0, 40).map(m => m.key),

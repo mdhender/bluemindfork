@@ -23,7 +23,7 @@ import { fetchAll } from "../../../model/message";
 import ImagePartViewer from "./ImagePartViewer";
 import TextHtmlPartViewer from "./TextHtmlPartViewer";
 import TextPlainPartViewer from "./TextPlainPartViewer";
-import mutationTypes from "../../../store/mutationTypes";
+import { REMOVE_MESSAGE_PART_CONTENTS, SET_MESSAGE_PART_CONTENTS } from "~mutations";
 
 const CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
 
@@ -82,7 +82,7 @@ export default {
         this.cleanPartsContent(this.messageKey);
     },
     methods: {
-        ...mapMutations("mail", [mutationTypes.SET_MESSAGE_PART_CONTENTS, mutationTypes.REMOVE_MESSAGE_PART_CONTENTS]),
+        ...mapMutations("mail", { SET_MESSAGE_PART_CONTENTS, REMOVE_MESSAGE_PART_CONTENTS }),
         isHtmlPart(part) {
             return MimeType.isHtml(part);
         },

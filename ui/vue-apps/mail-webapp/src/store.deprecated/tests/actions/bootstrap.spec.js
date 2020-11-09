@@ -1,3 +1,5 @@
+import { FETCH_FOLDERS, FETCH_MAILBOXES } from "~actions";
+import { MAILSHARE_KEYS, MY_MAILBOX, MY_MAILBOX_FOLDERS } from "~getters";
 import { bootstrap } from "../../actions/bootstrap";
 import { FETCH_SIGNATURE } from "../../../store/types/actions";
 
@@ -8,9 +10,9 @@ const context = {
     dispatch: jest.fn().mockReturnValue(Promise.resolve()),
     commit: jest.fn(),
     rootGetters: {
-        "mail/MY_MAILBOX": myMailbox,
-        "mail/MY_MAILBOX_FOLDERS": myMailboxFolderKeys,
-        "mail/MAILSHARE_KEYS": mailshareKeys
+        ["mail/" + MY_MAILBOX]: myMailbox,
+        ["mail/" + MY_MAILBOX_FOLDERS]: myMailboxFolderKeys,
+        ["mail/" + MAILSHARE_KEYS]: mailshareKeys
     },
     rootState: { mail: { mailboxes: { [myMailbox.key]: myMailbox, A: { key: "A" }, B: { key: "B" } } } }
 };
@@ -23,8 +25,8 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
 
     test("load all folders from my mailbox and get unread count", done => {
         bootstrap(context).then(() => {
-            expect(context.dispatch).toHaveBeenNthCalledWith(1, "mail/FETCH_MAILBOXES", null, { root: true });
-            expect(context.dispatch).toHaveBeenNthCalledWith(2, "mail/FETCH_FOLDERS", myMailbox, { root: true });
+            expect(context.dispatch).toHaveBeenNthCalledWith(1, "mail/" + FETCH_MAILBOXES, null, { root: true });
+            expect(context.dispatch).toHaveBeenNthCalledWith(2, "mail/" + FETCH_FOLDERS, myMailbox, { root: true });
             myMailboxFolderKeys.forEach(key => expect(context.dispatch).toHaveBeenCalledWith("loadUnreadCount", key));
             done();
         });
@@ -32,10 +34,10 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
 
     test("load all folders from mailshares", done => {
         bootstrap(context).then(() => {
-            expect(context.dispatch).toHaveBeenNthCalledWith(1, "mail/FETCH_MAILBOXES", null, { root: true });
+            expect(context.dispatch).toHaveBeenNthCalledWith(1, "mail/" + FETCH_MAILBOXES, null, { root: true });
             mailshareKeys.forEach(key =>
                 expect(context.dispatch).toHaveBeenCalledWith(
-                    "mail/FETCH_FOLDERS",
+                    "mail/" + FETCH_FOLDERS,
                     context.rootState.mail.mailboxes[key],
                     { root: true }
                 )

@@ -2,10 +2,10 @@ import merge from "lodash.merge";
 
 import { inject } from "@bluemind/inject";
 
-import mutationTypes from "../../mutationTypes";
 import MessageAdaptor from "../helpers/MessageAdaptor";
 import { MessageCreationModes, createOnlyMetadata, createWithMetadata, clean } from "../../../model/message";
 import { adaptDraft, uploadAttachments, uploadInlineParts, createDraftStructure } from "../../../model/draft";
+import { ADD_MESSAGES } from "~mutations";
 
 export default async function ({ commit, state }, { myDraftsFolder, creationMode, previousMessageKey = null }) {
     const userPrefTextOnly = false; // FIXME with userSettings state
@@ -42,7 +42,7 @@ export default async function ({ commit, state }, { myDraftsFolder, creationMode
     messageInState.partContentByMimeType = partContentByMimeType;
     messageInState.inlineImageParts = inlineImageParts;
     messageInState.remoteRef.imapUid = "1"; // fake imapUid, needed for updateById
-    commit(mutationTypes.ADD_MESSAGES, [messageInState]);
+    commit(ADD_MESSAGES, [messageInState]);
 
     clean(inlinePartAddresses, attachments, service);
 

@@ -1,10 +1,25 @@
 import { inject } from "@bluemind/inject";
 import { createOnlyMetadata } from "../model/message";
-import mutationTypes from "./mutationTypes";
-import actionTypes from "./actionTypes";
 import apiMessages from "./api/apiMessages";
 import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
 import searchModule from "./search";
+import { FETCH_MESSAGE_LIST_KEYS, REFRESH_MESSAGE_LIST_KEYS } from "~actions";
+import {
+    MESSAGE_LIST_COUNT,
+    MESSAGE_LIST_FILTERED,
+    MESSAGE_LIST_FLAGGED_FILTER_ENABLED,
+    MESSAGE_LIST_IS_LOADING,
+    MESSAGE_LIST_IS_REJECTED,
+    MESSAGE_LIST_IS_RESOLVED,
+    MESSAGE_LIST_UNREAD_FILTER_ENABLED
+} from "~getters";
+import {
+    CLEAR_MESSAGE_LIST,
+    REMOVE_MESSAGES,
+    SET_MESSAGE_LIST,
+    SET_MESSAGE_LIST_FILTER,
+    SET_MESSAGE_LIST_STATUS
+} from "~mutations";
 
 export const MessageListStatus = {
     IDLE: Symbol("idle"),
@@ -26,39 +41,39 @@ const state = {
 };
 
 const mutations = {
-    [mutationTypes.CLEAR_MESSAGE_LIST]: state => {
+    [CLEAR_MESSAGE_LIST]: state => {
         state.messageKeys = [];
     },
-    [mutationTypes.REMOVE_MESSAGES]: (state, messageKeys) => {
+    [REMOVE_MESSAGES]: (state, messageKeys) => {
         state.messageKeys = state.messageKeys.filter(key => !messageKeys.includes(key));
     },
-    [mutationTypes.SET_MESSAGE_LIST]: (state, messages) => {
+    [SET_MESSAGE_LIST]: (state, messages) => {
         state.messageKeys = messages.map(m => m.key);
     },
-    [mutationTypes.SET_MESSAGE_LIST_STATUS]: (state, status) => {
+    [SET_MESSAGE_LIST_STATUS]: (state, status) => {
         state.status = status;
     },
-    [mutationTypes.SET_MESSAGE_LIST_FILTER]: (state, filter) => {
+    [SET_MESSAGE_LIST_FILTER]: (state, filter) => {
         state.filter = filter;
     }
 };
 
 const actions = {
-    async [actionTypes.FETCH_MESSAGE_LIST_KEYS]({ commit, dispatch }, { folder, conversationsEnabled }) {
-        commit(mutationTypes.SET_MESSAGE_LIST_STATUS, MessageListStatus.LOADING);
+    async [FETCH_MESSAGE_LIST_KEYS]({ commit, dispatch }, { folder, conversationsEnabled }) {
+        commit(SET_MESSAGE_LIST_STATUS, MessageListStatus.LOADING);
         try {
-            await dispatch(actionTypes.REFRESH_MESSAGE_LIST_KEYS, { folder, conversationsEnabled });
-            commit(mutationTypes.SET_MESSAGE_LIST_STATUS, MessageListStatus.SUCCESS);
+            await dispatch(REFRESH_MESSAGE_LIST_KEYS, { folder, conversationsEnabled });
+            commit(SET_MESSAGE_LIST_STATUS, MessageListStatus.SUCCESS);
         } catch (e) {
-            commit(mutationTypes.SET_MESSAGE_LIST_STATUS, MessageListStatus.ERROR);
+            commit(SET_MESSAGE_LIST_STATUS, MessageListStatus.ERROR);
             throw e;
         }
     },
-    async [actionTypes.REFRESH_MESSAGE_LIST_KEYS]({ commit, state, getters }, { folder, conversationsEnabled }) {
+    async [REFRESH_MESSAGE_LIST_KEYS]({ commit, state, getters }, { folder, conversationsEnabled }) {
         const messages = getters.MESSAGE_LIST_IS_SEARCH_MODE
             ? await search(state, folder)
             : await list(state, folder, conversationsEnabled);
-        commit(mutationTypes.SET_MESSAGE_LIST, messages);
+        commit(SET_MESSAGE_LIST, messages);
     }
 };
 
@@ -90,13 +105,13 @@ async function conversationFilter(folder, ids) {
 }
 
 const getters = {
-    MESSAGE_LIST_IS_LOADING: ({ status }) => status === MessageListStatus.LOADING,
-    MESSAGE_LIST_IS_RESOLVED: ({ status }) => status === MessageListStatus.SUCCESS,
-    MESSAGE_LIST_IS_REJECTED: ({ status }) => status === MessageListStatus.ERROR,
-    MESSAGE_LIST_COUNT: ({ messageKeys }) => messageKeys.length,
-    MESSAGE_LIST_FILTERED: ({ filter }) => filter && filter !== MessageListFilter.ALL,
-    MESSAGE_LIST_UNREAD_FILTER_ENABLED: ({ filter }) => filter === MessageListFilter.UNREAD,
-    MESSAGE_LIST_FLAGGED_FILTER_ENABLED: ({ filter }) => filter === MessageListFilter.FLAGGED
+    [MESSAGE_LIST_IS_LOADING]: ({ status }) => status === MessageListStatus.LOADING,
+    [MESSAGE_LIST_IS_RESOLVED]: ({ status }) => status === MessageListStatus.SUCCESS,
+    [MESSAGE_LIST_IS_REJECTED]: ({ status }) => status === MessageListStatus.ERROR,
+    [MESSAGE_LIST_COUNT]: ({ messageKeys }) => messageKeys.length,
+    [MESSAGE_LIST_FILTERED]: ({ filter }) => filter && filter !== MessageListFilter.ALL,
+    [MESSAGE_LIST_UNREAD_FILTER_ENABLED]: ({ filter }) => filter === MessageListFilter.UNREAD,
+    [MESSAGE_LIST_FLAGGED_FILTER_ENABLED]: ({ filter }) => filter === MessageListFilter.FLAGGED
 };
 export default {
     actions,

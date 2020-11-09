@@ -1,8 +1,8 @@
-import actionTypes from "../../../../store/actionTypes";
+import { FETCH_MESSAGE_LIST_KEYS } from "~actions";
 
 export function list({ dispatch, rootState }, { folderUid, filter }) {
     return dispatch(
-        "mail/" + actionTypes.FETCH_MESSAGE_LIST_KEYS,
+        "mail/" + FETCH_MESSAGE_LIST_KEYS,
         {
             folder: rootState.mail.folders[folderUid],
             filter,

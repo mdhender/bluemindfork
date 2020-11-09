@@ -1,4 +1,5 @@
-import mutations, { SET_UNREAD_COUNT, RENAME_FOLDER, REMOVE_FOLDER, ADD_FOLDERS, ADD_FOLDER } from "../mutations";
+import mutations from "../mutations";
+import { SET_UNREAD_COUNT, RENAME_FOLDER, REMOVE_FOLDER, ADD_FOLDERS, ADD_FOLDER } from "~mutations";
 
 describe("folder mutations", () => {
     describe("ADD_FOLDER", () => {

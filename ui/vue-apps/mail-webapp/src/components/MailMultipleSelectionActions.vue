@@ -105,9 +105,12 @@ import {
     ALL_SELECTED_MESSAGES_ARE_READ,
     ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
     ALL_SELECTED_MESSAGES_ARE_UNREAD,
-    MULTIPLE_MESSAGE_SELECTED
-} from "../store/types/getters";
-import { SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES } from "../store/types/mutations";
+    MULTIPLE_MESSAGE_SELECTED,
+    MY_TRASH,
+    MESSAGE_LIST_FILTERED,
+    MESSAGE_LIST_IS_SEARCH_MODE
+} from "~getters";
+import { SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES } from "~mutations";
 
 export default {
     name: "MailMultipleSelectionActions",
@@ -133,9 +136,11 @@ export default {
             ALL_SELECTED_MESSAGES_ARE_READ,
             ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
             ALL_SELECTED_MESSAGES_ARE_UNREAD,
-            MULTIPLE_MESSAGE_SELECTED
+            MULTIPLE_MESSAGE_SELECTED,
+            MY_TRASH,
+            MESSAGE_LIST_FILTERED,
+            MESSAGE_LIST_IS_SEARCH_MODE
         }),
-        ...mapGetters("mail", ["MY_TRASH", "MESSAGE_LIST_FILTERED", "MESSAGE_LIST_IS_SEARCH_MODE"]),
         anyMessageReadOnly() {
             return this.selection
                 .map(messageKey => ItemUri.container(messageKey))

@@ -3,14 +3,14 @@
         <mail-folder-sidebar-header />
         <nav class="mail-folder-sidebar h-100 scroller-y scroller-visible-on-hover">
             <mail-folder-tree
-                :tree="buildTree(myMailboxFolders)"
+                :tree="buildTree(MY_MAILBOX_FOLDERS)"
                 :collapse-name="mailboxEmail"
                 show-input
                 @toggle-folders="$emit('toggle-folders')"
             />
             <mail-folder-tree
-                v-if="mailshareKeys.length > 0"
-                :tree="buildTree(mailshareFolders)"
+                v-if="MAILSHARE_KEYS.length > 0"
+                :tree="buildTree(MAILSHARE_FOLDERS)"
                 :collapse-name="$t('common.mailshares')"
                 @toggle-folders="$emit('toggle-folders')"
             />
@@ -23,6 +23,7 @@ import { mapGetters, mapState } from "vuex";
 import injector from "@bluemind/inject";
 import { BmCol } from "@bluemind/styleguide";
 import { DEFAULT_FOLDERS } from "../../store/folders/helpers/DefaultFolders";
+import { MAILSHARE_FOLDERS, MY_MAILBOX_FOLDERS, MAILSHARE_KEYS, FOLDER_HAS_CHILDREN } from "~getters";
 import MailFolderTree from "./MailFolderTree";
 import MailFolderSidebarHeader from "./MailFolderSidebarHeader";
 
@@ -39,10 +40,10 @@ export default {
     },
     computed: {
         ...mapGetters("mail", {
-            hasChildrenGetter: "HAS_CHILDREN_GETTER",
-            mailshareFolders: "MAILSHARE_FOLDERS",
-            myMailboxFolders: "MY_MAILBOX_FOLDERS",
-            mailshareKeys: "MAILSHARE_KEYS"
+            FOLDER_HAS_CHILDREN,
+            MAILSHARE_FOLDERS,
+            MY_MAILBOX_FOLDERS,
+            MAILSHARE_KEYS
         }),
         ...mapState("mail", ["folders"])
     },
@@ -51,20 +52,20 @@ export default {
             const adaptedFolders = foldersKey
                 .map(key => this.folders[key])
                 .filter(folder => !folder.parent || (folder.parent && this.folders[folder.parent].expanded)) // treat only displayed folders
-                .map(folder => toTreeItem(folder, this.hasChildrenGetter));
+                .map(folder => toTreeItem(folder, this.FOLDER_HAS_CHILDREN));
             return buildTreeMap(adaptedFolders);
         }
     }
 };
 
-function toTreeItem(folder, hasChildrenGetter) {
+function toTreeItem(folder, FOLDER_HAS_CHILDREN) {
     return {
         key: folder.key,
         name: folder.name,
         imapName: folder.imapName,
         expanded: folder.expanded,
         children: [],
-        hasChildren: hasChildrenGetter(folder.key),
+        hasChildren: FOLDER_HAS_CHILDREN(folder.key),
         parent: folder.parent
     };
 }

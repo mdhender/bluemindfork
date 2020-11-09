@@ -26,10 +26,20 @@ import Vuex from "vuex";
 import WebsocketClient from "@bluemind/sockjs";
 import { Flag } from "@bluemind/email";
 import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
-import mutationTypes from "../../store/mutationTypes";
 import MessageAdaptor from "../../store/messages/helpers/MessageAdaptor";
 import { createOnlyMetadata } from "../../model/message";
 import { create as createAttachment } from "../../model/attachment";
+import {
+    CURRENT_MAILBOX,
+    MAILSHARE_FOLDERS,
+    MAILSHARE_KEYS,
+    MY_INBOX,
+    MY_MAILBOX_FOLDERS,
+    MY_MAILBOX_KEY,
+    MY_TRASH
+} from "~getters";
+import { FETCH_FOLDERS, FETCH_MAILBOXES } from "~actions";
+import { ADD_MAILBOXES, ADD_MESSAGES, SET_ACTIVE_FOLDER, SET_MESSAGE_LIST } from "~mutations";
 
 jest.mock("@bluemind/sockjs");
 jest.mock("@bluemind/mailbox.api");
@@ -64,9 +74,9 @@ function initializeMessages({ commit }, messages, folderUid) {
     const messagesMetadata = messages.map(({ internalId }) =>
         createOnlyMetadata({ internalId, folder: { key: folderUid, uid: folderUid } })
     );
-    commit("mail/" + mutationTypes.SET_MESSAGE_LIST, messagesMetadata);
+    commit("mail/" + SET_MESSAGE_LIST, messagesMetadata);
     const adapted = messages.map(m => MessageAdaptor.fromMailboxItem(m, { key: folderUid }));
-    commit("mail/" + mutationTypes.ADD_MESSAGES, adapted);
+    commit("mail/" + ADD_MESSAGES, adapted);
 }
 
 describe("[MailWebAppStore] Vuex store", () => {
@@ -108,23 +118,23 @@ describe("[MailWebAppStore] Vuex store", () => {
 
         await store.dispatch("mail-webapp/bootstrap", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
         expect(store.state["mail-webapp"].userUid).toBe("6793466E-F5D4-490F-97BF-DF09D3327BF4");
-        expect(store.getters["mail/MY_MAILBOX_KEY"]).toEqual("user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
-        expect(store.getters["mail/MY_INBOX"].key).toEqual("f1c3f42f-551b-446d-9682-cfe0574b3205");
-        expect(store.getters["mail/MY_TRASH"].key).toEqual("98a9383e-5156-44eb-936a-e6b0825b0809");
-        expect(store.getters["mail/MY_MAILBOX_FOLDERS"].length).toEqual(aliceFolders.length);
+        expect(store.getters["mail/" + MY_MAILBOX_KEY]).toEqual("user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
+        expect(store.getters["mail/" + MY_INBOX].key).toEqual("f1c3f42f-551b-446d-9682-cfe0574b3205");
+        expect(store.getters["mail/" + MY_TRASH].key).toEqual("98a9383e-5156-44eb-936a-e6b0825b0809");
+        expect(store.getters["mail/" + MY_MAILBOX_FOLDERS].length).toEqual(aliceFolders.length);
 
         await awaitForLastCall;
-        expect(store.getters["mail/MAILSHARE_KEYS"].length).toBe(2);
-        expect(store.getters["mail/MAILSHARE_FOLDERS"].length).toBe(4);
+        expect(store.getters["mail/" + MAILSHARE_KEYS].length).toBe(2);
+        expect(store.getters["mail/" + MAILSHARE_FOLDERS].length).toBe(4);
     });
 
     test("select a folder", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch("mail/FETCH_MAILBOXES");
+        await store.dispatch("mail/" + FETCH_MAILBOXES);
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
         await store.dispatch(
-            "mail/FETCH_FOLDERS",
+            "mail/" + FETCH_FOLDERS,
             store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
         );
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
@@ -148,10 +158,10 @@ describe("[MailWebAppStore] Vuex store", () => {
     test("select a folder with 'unread' filter", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch("mail/FETCH_MAILBOXES");
+        await store.dispatch("mail/" + FETCH_MAILBOXES);
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
         await store.dispatch(
-            "mail/FETCH_FOLDERS",
+            "mail/" + FETCH_FOLDERS,
             store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
         );
 
@@ -181,7 +191,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         );
         expect(store.state.mail.messages[store.state.mail.messageList.messageKeys[0]]).not.toBeUndefined();
         expect(store.state.mail.folders[folderUid].unread).toBe(5);
-        expect(store.getters["mail/CURRENT_MAILBOX"].key).toEqual("user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
+        expect(store.getters["mail/" + CURRENT_MAILBOX].key).toEqual("user.6793466E-F5D4-490F-97BF-DF09D3327BF4");
     });
 
     test("select a message", async () => {
@@ -217,10 +227,10 @@ describe("[MailWebAppStore] Vuex store", () => {
     test("remove a message from my mailbox", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch("mail/FETCH_MAILBOXES");
+        await store.dispatch("mail/" + FETCH_MAILBOXES);
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
         await store.dispatch(
-            "mail/FETCH_FOLDERS",
+            "mail/" + FETCH_FOLDERS,
             store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
         );
 
@@ -230,7 +240,7 @@ describe("[MailWebAppStore] Vuex store", () => {
 
         initializeMessages(store, aliceInbox, folderUid);
 
-        store.commit("mail/SET_ACTIVE_FOLDER", folderUid, { root: true });
+        store.commit("mail/" + SET_ACTIVE_FOLDER, folderUid, { root: true });
         expect(store.state.mail.messageList.messageKeys).toEqual(expect.arrayContaining([messageKey]));
 
         await store.dispatch("mail-webapp/remove", messageKey, { root: true });
@@ -242,14 +252,17 @@ describe("[MailWebAppStore] Vuex store", () => {
     test("remove a message from a mailshare", async () => {
         //load data
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch("mail/FETCH_MAILBOXES");
+        await store.dispatch("mail/" + FETCH_MAILBOXES);
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
         await store.dispatch(
-            "mail/FETCH_FOLDERS",
+            "mail/" + FETCH_FOLDERS,
             store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
         );
         foldersService.all.mockReturnValueOnce(Promise.resolve(sharedFolders));
-        await store.dispatch("mail/FETCH_FOLDERS", store.state.mail.mailboxes["2814CC5D-D372-4F66-A434-89863E99B8CD"]);
+        await store.dispatch(
+            "mail/" + FETCH_FOLDERS,
+            store.state.mail.mailboxes["2814CC5D-D372-4F66-A434-89863E99B8CD"]
+        );
 
         const folderUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";
         store.state.mail.folders[folderUid].mailboxRef.key = "2814CC5D-D372-4F66-A434-89863E99B8CD";
@@ -257,10 +270,10 @@ describe("[MailWebAppStore] Vuex store", () => {
         itemsService.fetchComplete.mockReturnValueOnce(Promise.resolve("eml"));
         itemsService.uploadPart.mockReturnValueOnce(Promise.resolve("addr"));
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
-        store.commit("mail/ADD_MAILBOXES", containers, { root: true });
+        store.commit("mail/" + ADD_MAILBOXES, containers, { root: true });
 
         initializeMessages(store, aliceInbox, folderUid);
-        store.commit("mail/SET_ACTIVE_FOLDER", folderUid, { root: true });
+        store.commit("mail/" + SET_ACTIVE_FOLDER, folderUid, { root: true });
         expect(store.state.mail.messageList.messageKeys).toEqual(expect.arrayContaining([messageKey]));
         await store.dispatch("mail-webapp/remove", messageKey, { root: true });
         expect(store.state.mail.messageList.messageKeys).toEqual(expect.not.arrayContaining([messageKey]));
@@ -270,10 +283,10 @@ describe("[MailWebAppStore] Vuex store", () => {
     test("remove a message from trash", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch("mail/FETCH_MAILBOXES");
+        await store.dispatch("mail/" + FETCH_MAILBOXES);
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
         await store.dispatch(
-            "mail/FETCH_FOLDERS",
+            "mail/" + FETCH_FOLDERS,
             store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
         );
 
@@ -301,10 +314,10 @@ describe("[MailWebAppStore] Vuex store", () => {
     test("move a message", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch("mail/FETCH_MAILBOXES");
+        await store.dispatch("mail/" + FETCH_MAILBOXES);
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
         await store.dispatch(
-            "mail/FETCH_FOLDERS",
+            "mail/" + FETCH_FOLDERS,
             store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
         );
 
@@ -312,7 +325,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         const archive2017Uid = "050ca560-37ae-458a-bd52-c40fedf4068d";
         let messageKey = ItemUri.encode(872, inboxUid);
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
-        store.commit("mail/SET_ACTIVE_FOLDER", inboxUid, { root: true });
+        store.commit("mail/" + SET_ACTIVE_FOLDER, inboxUid, { root: true });
         initializeMessages(store, aliceInbox, inboxUid);
         const destination = store.state.mail.folders[archive2017Uid];
         expect(store.state.mail.messageList.messageKeys).toEqual(expect.arrayContaining([messageKey]));
@@ -324,14 +337,17 @@ describe("[MailWebAppStore] Vuex store", () => {
     test("move a message across mailboxes", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch("mail/FETCH_MAILBOXES");
+        await store.dispatch("mail/" + FETCH_MAILBOXES);
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
         await store.dispatch(
-            "mail/FETCH_FOLDERS",
+            "mail/" + FETCH_FOLDERS,
             store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
         );
         foldersService.all.mockReturnValueOnce(Promise.resolve(sharedFolders));
-        await store.dispatch("mail/FETCH_FOLDERS", store.state.mail.mailboxes["2814CC5D-D372-4F66-A434-89863E99B8CD"]);
+        await store.dispatch(
+            "mail/" + FETCH_FOLDERS,
+            store.state.mail.mailboxes["2814CC5D-D372-4F66-A434-89863E99B8CD"]
+        );
 
         const folderUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";
         const archive2017Uid = "050ca560-37ae-458a-bd52-c40fedf4068d";
@@ -341,8 +357,8 @@ describe("[MailWebAppStore] Vuex store", () => {
         itemsService.uploadPart.mockReturnValueOnce(Promise.resolve("addr"));
 
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
-        store.commit("mail/ADD_MAILBOXES", containers, { root: true });
-        store.commit("mail/SET_ACTIVE_FOLDER", folderUid, { root: true });
+        store.commit("mail/" + ADD_MAILBOXES, containers, { root: true });
+        store.commit("mail/" + SET_ACTIVE_FOLDER, folderUid, { root: true });
         initializeMessages(store, aliceInbox, folderUid);
         store.state.mail.folders[archive2017Uid].mailboxRef.key = "2814CC5D-D372-4F66-A434-89863E99B8CD";
         const destination = store.state.mail.folders[archive2017Uid];
@@ -355,10 +371,10 @@ describe("[MailWebAppStore] Vuex store", () => {
     test("move a message in a new folder", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch("mail/FETCH_MAILBOXES");
+        await store.dispatch("mail/" + FETCH_MAILBOXES);
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
         await store.dispatch(
-            "mail/FETCH_FOLDERS",
+            "mail/" + FETCH_FOLDERS,
             store.state.mail.mailboxes["user.6793466E-F5D4-490F-97BF-DF09D3327BF4"]
         );
 
@@ -391,7 +407,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         foldersService.getComplete.mockReturnValue(Promise.resolve(destination));
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
         initializeMessages(store, aliceInbox, inboxUid);
-        store.commit("mail/SET_ACTIVE_FOLDER", folderUid, { root: true });
+        store.commit("mail/" + SET_ACTIVE_FOLDER, folderUid, { root: true });
 
         await store.dispatch("mail-webapp/move", { messageKey, folder: adaptedDestination }, { root: true });
 

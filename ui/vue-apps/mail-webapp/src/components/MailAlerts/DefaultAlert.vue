@@ -1,5 +1,5 @@
 <template functional>
-    <span>{{ parent.$t($options.i18n(props.alert, options)) }}</span>
+    <span>{{ parent.$t($options.i18n(props.alert), props.options) }}</span>
 </template>
 <script>
 // import alertTexts from "../../alertTexts";

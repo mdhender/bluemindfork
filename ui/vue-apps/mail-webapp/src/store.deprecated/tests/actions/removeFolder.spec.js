@@ -1,3 +1,4 @@
+import { REMOVE_FOLDER } from "~actions";
 import { removeFolder } from "../../actions/removeFolder";
 
 const folderKey = "folder:key";
@@ -22,19 +23,19 @@ describe("[Mail-WebappStore][actions] : removeFolder", () => {
     test("Basic", async () => {
         await removeFolder(context, folderKey);
         expect(context.dispatch).toHaveBeenCalledWith(
-            "mail/REMOVE_FOLDER",
+            "mail/" + REMOVE_FOLDER,
             { key: folderKey, mailbox },
             { root: true }
         );
         expect(context.commit).toHaveBeenCalledWith(
-            "addApplicationAlert",
+            "alert/addApplicationAlert",
             expect.objectContaining({
                 code: "MSG_FOLDER_REMOVE_SUCCESS"
             }),
             expect.anything()
         );
         expect(context.commit).not.toHaveBeenCalledWith(
-            "addApplicationAlert",
+            "alert/addApplicationAlert",
             expect.objectContaining({
                 code: "MSG_FOLDER_REMOVE_ERROR"
             }),
@@ -46,19 +47,19 @@ describe("[Mail-WebappStore][actions] : removeFolder", () => {
         context.dispatch.mockRejectedValueOnce();
         await removeFolder(context, folderKey);
         expect(context.dispatch).toHaveBeenCalledWith(
-            "mail/REMOVE_FOLDER",
+            "mail/" + REMOVE_FOLDER,
             { key: folderKey, mailbox },
             { root: true }
         );
         expect(context.commit).not.toHaveBeenCalledWith(
-            "addApplicationAlert",
+            "alert/addApplicationAlert",
             expect.objectContaining({
                 code: "MSG_FOLDER_REMOVE_SUCCESS"
             }),
             expect.anything()
         );
         expect(context.commit).toHaveBeenCalledWith(
-            "addApplicationAlert",
+            "alert/addApplicationAlert",
             expect.objectContaining({
                 code: "MSG_FOLDER_REMOVE_ERROR"
             }),

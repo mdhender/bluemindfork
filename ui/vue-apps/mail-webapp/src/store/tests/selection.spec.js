@@ -6,13 +6,8 @@ import {
     SET_MESSAGE_LIST,
     UNSELECT_ALL_MESSAGES,
     UNSELECT_MESSAGE
-} from "../types/mutations";
-import {
-    IS_MESSAGE_SELECTED,
-    IS_SELECTION_EMPTY,
-    MULTIPLE_MESSAGE_SELECTED,
-    ONE_MESSAGE_SELECTED
-} from "../types/getters";
+} from "~mutations";
+import { MESSAGE_IS_SELECTED, SELECTION_IS_EMPTY, MULTIPLE_MESSAGE_SELECTED, ONE_MESSAGE_SELECTED } from "~getters";
 import cloneDeep from "lodash.clonedeep";
 import store from "../selection";
 
@@ -72,11 +67,11 @@ describe("selection", () => {
         });
     });
     describe("getters", () => {
-        test("IS_SELECTION_EMPTY", () => {
+        test("SELECTION_IS_EMPTY", () => {
             state = [1, 2];
-            expect(store.getters[IS_SELECTION_EMPTY](state)).toBeFalsy();
+            expect(store.getters[SELECTION_IS_EMPTY](state)).toBeFalsy();
             state = [];
-            expect(store.getters[IS_SELECTION_EMPTY](state)).toBeTruthy();
+            expect(store.getters[SELECTION_IS_EMPTY](state)).toBeTruthy();
         });
         test("MULTIPLE_MESSAGES_SELECTED", () => {
             state = [1, 2];
@@ -94,10 +89,10 @@ describe("selection", () => {
             state = [];
             expect(store.getters[ONE_MESSAGE_SELECTED](state)).toBeFalsy();
         });
-        test("IS_MESSAGE_SELECTED", () => {
+        test("MESSAGE_IS_SELECTED", () => {
             state = [1, 2];
-            expect(store.getters[IS_MESSAGE_SELECTED](state)(1)).toBeTruthy();
-            expect(store.getters[IS_MESSAGE_SELECTED](state)(3)).toBeFalsy();
+            expect(store.getters[MESSAGE_IS_SELECTED](state)(1)).toBeTruthy();
+            expect(store.getters[MESSAGE_IS_SELECTED](state)(3)).toBeFalsy();
         });
     });
 });

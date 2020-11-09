@@ -141,8 +141,6 @@ import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 import MailComposerRecipients from "./MailComposerRecipients";
 import MailComposerFooter from "./MailComposerFooter";
 import MailComposerPanel from "./MailComposerPanel";
-import actionTypes from "../../store/actionTypes";
-import mutationTypes from "../../store/mutationTypes";
 import { isEmpty, MessageForwardAttributeSeparator, MessageReplyAttributeSeparator } from "../../model/message";
 import {
     addHtmlSignature,
@@ -153,7 +151,14 @@ import {
     removeTextSignature
 } from "../../model/signature";
 import PlayWithInlinePartsByCapabilities from "../../store/messages/helpers/PlayWithInlinePartsByCapabilities";
-import { UNSELECT_ALL_MESSAGES } from "../../store/types/mutations";
+import {
+    SET_DRAFT_COLLAPSED_CONTENT,
+    SET_DRAFT_EDITOR_CONTENT,
+    SET_MESSAGE_SUBJECT,
+    UNSELECT_ALL_MESSAGES
+} from "~mutations";
+import { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE } from "~actions";
+import { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~getters";
 
 export default {
     name: "MailComposer",
@@ -192,7 +197,7 @@ export default {
     computed: {
         ...mapState("mail", ["messages", "messageCompose"]),
         ...mapState("session", { settings: "userSettings" }),
-        ...mapGetters("mail", ["MY_DRAFTS", "MY_OUTBOX", "MY_SENT", "MY_MAILBOX_KEY"]),
+        ...mapGetters("mail", { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY }),
         message() {
             return this.messages[this.messageKey];
         },
@@ -240,15 +245,14 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", { save: actionTypes.SAVE_MESSAGE }),
-        ...mapActions("mail", [actionTypes.SEND_MESSAGE, actionTypes.ADD_ATTACHMENTS]),
+        ...mapActions("mail", { SAVE_MESSAGE, SEND_MESSAGE, ADD_ATTACHMENTS }),
         ...mapActions("mail-webapp", ["purge"]),
-        ...mapMutations("mail", [
-            mutationTypes.SET_DRAFT_EDITOR_CONTENT,
-            mutationTypes.SET_DRAFT_COLLAPSED_CONTENT,
-            mutationTypes.SET_MESSAGE_SUBJECT
-        ]),
-        ...mapMutations("mail", { UNSELECT_ALL_MESSAGES }),
+        ...mapMutations("mail", {
+            SET_DRAFT_EDITOR_CONTENT,
+            SET_DRAFT_COLLAPSED_CONTENT,
+            SET_MESSAGE_SUBJECT,
+            UNSELECT_ALL_MESSAGES
+        }),
         updateSubject(subject) {
             this.SET_MESSAGE_SUBJECT({ messageKey: this.messageKey, subject });
             this.saveDraft();
@@ -389,7 +393,7 @@ export default {
             this.$router.navigate("v:mail:home");
         },
         saveDraft() {
-            this.save({
+            this.SAVE_MESSAGE({
                 userPrefTextOnly: this.userPrefTextOnly,
                 draftKey: this.messageKey,
                 myDraftsFolderKey: this.MY_DRAFTS.key,

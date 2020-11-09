@@ -22,6 +22,11 @@
 <script>
 import { BmDropdown, BmDropdownItemButton, BmDropdownDivider, BmIcon } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
+import {
+    MESSAGE_LIST_UNREAD_FILTER_ENABLED,
+    MESSAGE_LIST_FLAGGED_FILTER_ENABLED,
+    MESSAGE_LIST_FILTERED
+} from "~getters";
 
 export default {
     name: "MessagesOptionsForMobile",
@@ -32,11 +37,11 @@ export default {
         BmIcon
     },
     computed: {
-        ...mapGetters("mail", [
-            "MESSAGE_LIST_UNREAD_FILTER_ENABLED",
-            "MESSAGE_LIST_FLAGGED_FILTER_ENABLED",
-            "MESSAGE_LIST_FILTERED"
-        ]),
+        ...mapGetters("mail", {
+            MESSAGE_LIST_UNREAD_FILTER_ENABLED,
+            MESSAGE_LIST_FLAGGED_FILTER_ENABLED,
+            MESSAGE_LIST_FILTERED
+        }),
         ...mapState("mail", { filter: state => state.messageList.filter })
     },
     methods: {

@@ -34,7 +34,8 @@ import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import { BmButton, BmCollapse, BmIcon, BmTree } from "@bluemind/styleguide";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItem from "./MailFolderItem";
-import { TOGGLE_FOLDER } from "../../store/folders/mutations";
+import { TOGGLE_FOLDER } from "~mutations";
+import { MY_MAILBOX_KEY } from "~getters";
 
 export default {
     name: "MailFolderMyMailbox",
@@ -66,12 +67,12 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", ["MY_MAILBOX_KEY"]),
+        ...mapGetters("mail", { MY_MAILBOX_KEY }),
         ...mapState("mail", ["folders", "activeFolder"])
     },
     methods: {
         ...mapActions("mail-webapp", ["createFolder"]),
-        ...mapMutations("mail", [TOGGLE_FOLDER]),
+        ...mapMutations("mail", { TOGGLE_FOLDER }),
         add(newFolderName) {
             const folder = {
                 name: newFolderName,

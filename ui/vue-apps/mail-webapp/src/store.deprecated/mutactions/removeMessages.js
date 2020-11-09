@@ -1,5 +1,5 @@
-import mutationTypes from "../../store/mutationTypes";
+import { REMOVE_MESSAGES } from "~mutations";
 
 export function _removeMessages({ commit }, messageKeys) {
-    commit("mail/" + mutationTypes.REMOVE_MESSAGES, messageKeys, { root: true });
+    commit("mail/" + REMOVE_MESSAGES, messageKeys, { root: true });
 }

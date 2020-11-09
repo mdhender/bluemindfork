@@ -29,6 +29,7 @@
 import { mapGetters } from "vuex";
 import { BmFormInput, BmIcon, BmNotice } from "@bluemind/styleguide";
 import { FolderAdaptor } from "../store/folders/helpers/FolderAdaptor";
+import { FOLDER_BY_PATH } from "~getters";
 
 export default {
     name: "MailFolderInput",
@@ -61,7 +62,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", ["FOLDER_BY_PATH"]),
+        ...mapGetters("mail", { FOLDER_BY_PATH }),
         isNewFolderNameValid() {
             if ((this.folder && this.folder.name === this.newFolderName) || this.newFolderName === "") {
                 return true;

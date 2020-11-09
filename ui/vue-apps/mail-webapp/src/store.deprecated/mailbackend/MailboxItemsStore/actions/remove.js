@@ -1,5 +1,5 @@
-import actionTypes from "../../../../store/actionTypes";
+import { REMOVE_MESSAGES } from "~actions";
 
 export function remove({ dispatch }, messageKeys) {
-    return dispatch("mail/" + actionTypes.REMOVE_MESSAGES, messageKeys, { root: true });
+    return dispatch("mail/" + REMOVE_MESSAGES, messageKeys, { root: true });
 }

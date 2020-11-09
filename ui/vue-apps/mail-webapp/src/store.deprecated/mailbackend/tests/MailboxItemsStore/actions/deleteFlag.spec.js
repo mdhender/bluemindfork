@@ -1,6 +1,6 @@
 import { deleteFlag } from "../../../MailboxItemsStore/actions/deleteFlag";
 import { Flag } from "@bluemind/email";
-import actionTypes from "../../../../../store/actionTypes";
+import { DELETE_FLAG } from "~actions";
 
 const context = {
     dispatch: jest.fn().mockResolvedValue()
@@ -17,7 +17,7 @@ describe("[MailItemsStore][actions] : deleteFlag", () => {
     test("call delete flag for a given messageId and folderUid  and mutate state", () => {
         deleteFlag(context, { messageKeys: [messageKey], mailboxItemFlag });
         expect(context.dispatch).toHaveBeenCalledWith(
-            "mail/" + actionTypes.DELETE_FLAG,
+            "mail/" + DELETE_FLAG,
             { messageKeys: [messageKey], flag: mailboxItemFlag },
             { root: true }
         );

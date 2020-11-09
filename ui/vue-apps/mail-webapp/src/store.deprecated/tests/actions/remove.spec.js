@@ -1,5 +1,6 @@
 import { remove } from "../../actions/purgeAndRemove";
 import ItemUri from "@bluemind/item-uri";
+import { MY_TRASH } from "~getters";
 
 const messageKey = ItemUri.encode("message-id", "source-uid");
 let mockMessage;
@@ -15,7 +16,7 @@ const context = {
         currentMessage: { key: messageKey }
     },
     rootGetters: {
-        "mail/MY_TRASH": { key: "trash-key" }
+        ["mail/" + MY_TRASH]: { key: "trash-key" }
     },
     rootState: {
         mail: {
@@ -45,7 +46,7 @@ describe("[Mail-WebappStore][actions] : remove", () => {
     test("display alerts", async () => {
         await remove(context, messageKey);
         expect(context.commit).toHaveBeenCalledWith(
-            "addApplicationAlert",
+            "alert/addApplicationAlert",
             {
                 code: "MSG_REMOVED_OK",
                 props: { subject: "dummy" },

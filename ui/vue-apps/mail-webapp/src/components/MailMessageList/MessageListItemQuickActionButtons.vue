@@ -67,7 +67,7 @@
 import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
 import { Flag } from "@bluemind/email";
-
+import { MY_TRASH } from "~getters";
 export default {
     name: "MessageListItemQuickActionButtons",
     components: {
@@ -92,7 +92,7 @@ export default {
         ...mapGetters("mail-webapp", ["nextMessageKey"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["folders", "activeFolder"]),
-        ...mapGetters("mail", ["MY_TRASH"]),
+        ...mapGetters("mail", { MY_TRASH }),
         folderOfMessage() {
             return this.folders[this.message.folderRef.key];
         }

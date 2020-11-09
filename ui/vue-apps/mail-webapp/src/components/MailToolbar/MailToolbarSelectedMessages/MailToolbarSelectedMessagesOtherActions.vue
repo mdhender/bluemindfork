@@ -21,7 +21,7 @@
 <script>
 import { BmDropdown, BmDropdownItem, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
-import { MULTIPLE_MESSAGE_SELECTED } from "../../../store/types/getters";
+import { MULTIPLE_MESSAGE_SELECTED } from "~getters";
 
 export default {
     name: "MailToolbarConsultMessageOtherActions",

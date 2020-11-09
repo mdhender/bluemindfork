@@ -2,18 +2,30 @@ import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
 import { Flag } from "@bluemind/email";
-import storeData from "../";
+import storeData from "..";
 
 import {
     ALL_MESSAGES_ARE_SELECTED,
     ALL_SELECTED_MESSAGES_ARE_FLAGGED,
     ALL_SELECTED_MESSAGES_ARE_READ,
     ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
-    ALL_SELECTED_MESSAGES_ARE_UNREAD
-} from "../types/getters";
+    ALL_SELECTED_MESSAGES_ARE_UNREAD,
+    MAILSHARE_FOLDERS,
+    MY_DRAFTS,
+    MY_INBOX,
+    MY_MAILBOX_FOLDERS,
+    MY_OUTBOX,
+    MY_SENT,
+    MY_TRASH
+} from "~getters";
 import { MessageStatus } from "../../model/message";
+import { DEFAULT_FOLDER_NAMES } from "../folders/helpers/DefaultFolders";
+import { MailboxType } from "../../model/mailbox";
+import injector from "@bluemind/inject";
+import { SET_ACTIVE_FOLDER } from "~mutations";
 
 Vue.use(Vuex);
+
 describe("Mail store", () => {
     let store;
     beforeEach(() => {
@@ -21,10 +33,10 @@ describe("Mail store", () => {
     });
     describe("store.mutations", () => {
         test("SET_ACTIVE_FOLDER: define the active folder", () => {
-            store.commit("SET_ACTIVE_FOLDER", "1");
+            store.commit(SET_ACTIVE_FOLDER, "1");
             expect(store.state.activeFolder).toEqual("1");
 
-            store.commit("SET_ACTIVE_FOLDER", "2");
+            store.commit(SET_ACTIVE_FOLDER, "2");
             expect(store.state.activeFolder).toEqual("2");
         });
     });
@@ -39,7 +51,7 @@ describe("Mail store", () => {
                 1: { key: "1", mailboxRef: { key: "B" } },
                 2: { key: "2", mailboxRef: { key: "A" } }
             };
-            store.commit("SET_ACTIVE_FOLDER", "1");
+            store.commit(SET_ACTIVE_FOLDER, "1");
             expect(store.getters.CURRENT_MAILBOX).toEqual({ key: "B" });
         });
         test("ALL_SELECTED_MESSAGES_ARE_UNREAD", () => {
@@ -107,6 +119,61 @@ describe("Mail store", () => {
             store.state.selection = [];
             store.state.messageList = { messageKeys: [] };
             expect(store.getters[ALL_MESSAGES_ARE_SELECTED]).toBeFalsy();
+        });
+
+        test("MAILSHARE_FOLDERS", async () => {
+            store.state.folders = {
+                "1": { key: "1", mailboxRef: { key: "A" } },
+                "2": { key: "2", mailboxRef: { key: "unknown" } },
+                "3": { key: "3", mailboxRef: { key: "B" } },
+                "4": { key: "4", mailboxRef: { key: "C" } }
+            };
+            store.state.mailboxes = {
+                A: { key: "A", type: MailboxType.MAILSHARE },
+                C: { key: "C", type: MailboxType.MAILSHARE }
+            };
+            expect(store.getters[MAILSHARE_FOLDERS]).toEqual(["1", "4"]);
+        });
+
+        test("MY_MAILBOX_FOLDERS", async () => {
+            store.state.folders = {
+                "1": { key: "1", mailboxRef: { key: "A" } },
+                "2": { key: "2", mailboxRef: { key: "unknown" } },
+                "3": { key: "3", mailboxRef: { key: "B" } },
+                "4": { key: "4", mailboxRef: { key: "C" } }
+            };
+            store.state.mailboxes = {
+                B: { key: "B", owner: "B" }
+            };
+            injector.register({
+                provide: "UserSession",
+                use: { userId: "B" }
+            });
+            expect(store.getters[MY_MAILBOX_FOLDERS]).toEqual(["3"]);
+        });
+
+        test("DEFAULT FOLDERS", async () => {
+            store.state.folders = {
+                "1": { key: "1", imapName: "whatever", mailboxRef: { key: "myMailbox" } },
+                "1bis": { key: "1bis", imapName: DEFAULT_FOLDER_NAMES.INBOX, mailboxRef: { key: "other" } },
+                "2": { key: "2", imapName: DEFAULT_FOLDER_NAMES.INBOX, mailboxRef: { key: "myMailbox" } },
+                "3": { key: "3", imapName: DEFAULT_FOLDER_NAMES.OUTBOX, mailboxRef: { key: "myMailbox" } },
+                "4": { key: "4", imapName: DEFAULT_FOLDER_NAMES.SENT, mailboxRef: { key: "myMailbox" } },
+                "5": { key: "5", imapName: DEFAULT_FOLDER_NAMES.TRASH, mailboxRef: { key: "myMailbox" } },
+                "6": { key: "6", imapName: DEFAULT_FOLDER_NAMES.DRAFTS, mailboxRef: { key: "myMailbox" } }
+            };
+            store.state.mailboxes = {
+                myMailbox: { key: "myMailbox", owner: "me" }
+            };
+            injector.register({
+                provide: "UserSession",
+                use: { userId: "me" }
+            });
+            expect(store.getters[MY_INBOX].key).toEqual("2");
+            expect(store.getters[MY_OUTBOX].key).toEqual("3");
+            expect(store.getters[MY_DRAFTS].key).toEqual("6");
+            expect(store.getters[MY_SENT].key).toEqual("4");
+            expect(store.getters[MY_TRASH].key).toEqual("5");
         });
     });
 });

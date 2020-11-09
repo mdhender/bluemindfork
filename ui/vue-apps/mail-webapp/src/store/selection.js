@@ -6,13 +6,8 @@ import {
     UNSELECT_MESSAGE,
     SELECT_ALL_MESSAGES,
     UNSELECT_ALL_MESSAGES
-} from "./types/mutations";
-import {
-    IS_MESSAGE_SELECTED,
-    MULTIPLE_MESSAGE_SELECTED,
-    ONE_MESSAGE_SELECTED,
-    IS_SELECTION_EMPTY
-} from "./types/getters";
+} from "~mutations";
+import { MESSAGE_IS_SELECTED, MULTIPLE_MESSAGE_SELECTED, ONE_MESSAGE_SELECTED, SELECTION_IS_EMPTY } from "~getters";
 
 const state = [];
 
@@ -51,10 +46,10 @@ const mutations = {
 };
 
 const getters = {
-    [IS_SELECTION_EMPTY]: state => state.length === 0,
+    [SELECTION_IS_EMPTY]: state => state.length === 0,
     [ONE_MESSAGE_SELECTED]: state => state.length === 1,
     [MULTIPLE_MESSAGE_SELECTED]: state => state.length > 1,
-    [IS_MESSAGE_SELECTED]: state => key => state.includes(key)
+    [MESSAGE_IS_SELECTED]: state => key => state.includes(key)
 };
 
 export default {

@@ -1,8 +1,8 @@
 import { inject } from "@bluemind/inject";
 
-import actionTypes from "../../actionTypes";
-import mutationTypes from "../../mutationTypes";
 import { AttachmentStatus } from "../../../model/attachment";
+import { SAVE_MESSAGE } from "~actions";
+import { REMOVE_ATTACHMENT } from "~mutations";
 
 export default async function (
     { commit, dispatch, state },
@@ -14,9 +14,9 @@ export default async function (
     if (status !== AttachmentStatus.ERROR) {
         await inject("MailboxItemsPersistence", message.folderRef.uid).removePart(attachmentAddress);
     }
-    commit(mutationTypes.REMOVE_ATTACHMENT, { messageKey, address: attachmentAddress });
+    commit(REMOVE_ATTACHMENT, { messageKey, address: attachmentAddress });
 
-    await dispatch(actionTypes.SAVE_MESSAGE, {
+    await dispatch(SAVE_MESSAGE, {
         userPrefTextOnly,
         draftKey: messageKey,
         myDraftsFolderKey,

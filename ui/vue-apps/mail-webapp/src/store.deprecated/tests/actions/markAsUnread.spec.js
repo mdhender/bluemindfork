@@ -1,5 +1,7 @@
 import { Flag } from "@bluemind/email";
 import ItemUri from "@bluemind/item-uri";
+import { MESSAGE_IS_LOADED } from "~getters";
+import { SET_UNREAD_COUNT } from "~mutations";
 import { markAsUnread } from "../../actions/markAs";
 
 const messageId = "74515";
@@ -36,7 +38,7 @@ const context = {
         }
     },
     rootGetters: {
-        "mail/isLoaded": key => [messageKey1, messageKey3].includes(key)
+        ["mail/" + MESSAGE_IS_LOADED]: key => [messageKey1, messageKey3].includes(key)
     }
 };
 
@@ -53,7 +55,7 @@ describe("[Mail-WebappStore][actions] : markAsUnead", () => {
             mailboxItemFlag
         });
         expect(context.commit).toHaveBeenCalledWith(
-            "mail/SET_UNREAD_COUNT",
+            "mail/" + SET_UNREAD_COUNT,
             { key: folderUid, count: 11 },
             { root: true }
         );
@@ -86,7 +88,7 @@ describe("[Mail-WebappStore][actions] : markAsUnead", () => {
             mailboxItemFlag
         });
         expect(context.commit).toHaveBeenCalledWith(
-            "mail/SET_UNREAD_COUNT",
+            "mail/" + SET_UNREAD_COUNT,
             { key: folderUid, count: 11 },
             { root: true }
         );

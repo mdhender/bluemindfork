@@ -1,15 +1,16 @@
-export const state = {
-    folderList: {
-        editing: undefined
-    }
-};
+import { TOGGLE_EDIT_FOLDER } from "~mutations";
 
-export const mutations = {
-    TOGGLE_EDIT_FOLDER: (state, key) => {
-        if (state.folderList.editing && state.folderList.editing === key) {
-            state.folderList.editing = undefined;
-        } else {
-            state.folderList.editing = key;
+export default {
+    state: {
+        editing: undefined
+    },
+    mutations: {
+        [TOGGLE_EDIT_FOLDER]: (state, key) => {
+            if (state.editing && state.editing === key) {
+                state.editing = undefined;
+            } else {
+                state.editing = key;
+            }
         }
     }
 };

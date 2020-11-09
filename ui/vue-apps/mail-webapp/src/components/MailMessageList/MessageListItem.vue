@@ -6,7 +6,7 @@
             ['message-list-item-' + userSettings.mail_message_list_style]: true,
             'not-seen': !message.flags.includes(Flag.SEEN),
             'warning-custom': message.flags.includes(Flag.FLAGGED),
-            active: IS_MESSAGE_SELECTED(message.key) || currentMessageKey === message.key
+            active: MESSAGE_IS_SELECTED(message.key) || currentMessageKey === message.key
         }"
         role="link"
         @click="navigateTo"
@@ -34,7 +34,7 @@ import MessageListItemLeft from "./MessageListItemLeft";
 import MessageListItemMiddle from "./MessageListItemMiddle";
 import MessageListItemQuickActionButtons from "./MessageListItemQuickActionButtons";
 import ScreenReaderOnlyMessageInformation from "./ScreenReaderOnlyMessageInformation";
-import { IS_MESSAGE_SELECTED } from "../../store/types/getters";
+import { MESSAGE_IS_SELECTED } from "~getters";
 
 export default {
     name: "MessageListItem",
@@ -69,7 +69,7 @@ export default {
     },
     computed: {
         ...mapState("mail", ["folders", "activeFolder", "selection"]),
-        ...mapGetters("mail", { IS_MESSAGE_SELECTED }),
+        ...mapGetters("mail", { MESSAGE_IS_SELECTED }),
         ...mapGetters("mail-webapp", ["nextMessageKey"]),
         ...mapState("session", ["userSettings"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" })

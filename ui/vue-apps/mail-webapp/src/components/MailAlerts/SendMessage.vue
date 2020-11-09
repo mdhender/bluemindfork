@@ -23,19 +23,18 @@ export default {
         }
     },
     data() {
-        return { AlertTypes };
+        return {
+            AlertTypes,
+            subject: null
+        };
     },
     computed: {
         ...mapState("mail", ["messages"]),
-        subject() {
-            return this.messages[this.alert.payload.draftKey].subject;
-        },
         link() {
             //FIXME : Dans l'idée :
             // - Soit send devrait renvoyer un message déjà formatté (pas de raison de gérer des données au format server);
             // - Soit send devrait renvoyer uniquement la clé du message
             // - Soit (et ça me parait limite le plus coherent) on devrait juste afficher un lien vers le dossier Sent...
-            console.log(this.alert);
             const message = ItemUri.encode(this.alert.result.internalId, this.alert.payload.sentFolder.remoteRef.uid);
             return {
                 name: "v:mail:message",
@@ -46,6 +45,9 @@ export default {
             const { name, type } = this.alert;
             return "alert." + name.toLowerCase() + "." + type.toLowerCase();
         }
+    },
+    created() {
+        this.subject = this.messages[this.alert.payload.draftKey].subject;
     }
 };
 </script>

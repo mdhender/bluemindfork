@@ -1,11 +1,17 @@
 import ContainerObserver from "@bluemind/containerobserver";
 import SearchHelper from "../SearchHelper";
 import router from "@bluemind/router";
-import { FOLDER_BY_PATH } from "../../store/folders/getters";
-import { TOGGLE_FOLDER } from "../../store/folders/mutations";
-import mutationTypes from "../../store/mutationTypes";
-import actionTypes from "../../store/actionTypes";
+import { FOLDER_BY_PATH, MESSAGE_LIST_IS_SEARCH_MODE, MY_INBOX } from "~getters";
+import {
+    CLEAR_MESSAGE_LIST,
+    SET_MESSAGE_LIST_FILTER,
+    SET_SEARCH_FOLDER,
+    SET_SEARCH_PATTERN,
+    TOGGLE_FOLDER
+} from "~mutations";
 import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
+import { SET_ACTIVE_FOLDER } from "~mutations";
+import { FETCH_MESSAGE_LIST_KEYS, FETCH_MESSAGE_METADATA } from "~actions";
 
 export async function loadMessageList(
     { dispatch, commit, rootState, rootGetters },
@@ -13,7 +19,7 @@ export async function loadMessageList(
 ) {
     const ROOT = { root: true };
     const locatedFolder = locateFolder(folder, mailshare, rootState, rootGetters);
-    commit("mail/SET_ACTIVE_FOLDER", locatedFolder.key, ROOT);
+    commit("mail/" + SET_ACTIVE_FOLDER, locatedFolder.key, ROOT);
     dispatch("loadUnreadCount", locatedFolder.key);
     expandParents(commit, locatedFolder, rootState);
 
@@ -33,10 +39,10 @@ export async function loadMessageList(
         }
     }
     const searchFolder = searchInfo.folder ? FolderAdaptor.toRef(rootState.mail.folders[searchInfo.folder]) : undefined;
-    commit("mail/" + mutationTypes.SET_MESSAGE_LIST_FILTER, filter, ROOT);
-    commit("mail/" + mutationTypes.CLEAR_MESSAGE_LIST, null, ROOT);
-    commit("mail/" + mutationTypes.SET_SEARCH_PATTERN, searchInfo.pattern, ROOT);
-    commit("mail/" + mutationTypes.SET_SEARCH_FOLDER, searchFolder, ROOT);
+    commit("mail/" + SET_MESSAGE_LIST_FILTER, filter, ROOT);
+    commit("mail/" + CLEAR_MESSAGE_LIST, null, ROOT);
+    commit("mail/" + SET_SEARCH_PATTERN, searchInfo.pattern, ROOT);
+    commit("mail/" + SET_SEARCH_FOLDER, searchFolder, ROOT);
 
     commit("currentMessage/clear");
 
@@ -45,14 +51,14 @@ export async function loadMessageList(
     if (previousFolderKey) {
         ContainerObserver.forget("mailbox_records", prefix + previousFolderKey);
     }
-    if (!rootGetters["mail/MESSAGE_LIST_IS_SEARCH_MODE"]) {
+    if (!rootGetters["mail/" + MESSAGE_LIST_IS_SEARCH_MODE]) {
         ContainerObserver.observe("mailbox_records", prefix + rootState.mail.activeFolder);
     }
     const f = rootState.mail.folders[locatedFolder.key];
     const conversationsEnabled = rootState.session.userSettings.mail_thread === "true";
-    await dispatch("mail/" + actionTypes.FETCH_MESSAGE_LIST_KEYS, { folder: f, conversationsEnabled }, ROOT);
+    await dispatch("mail/" + FETCH_MESSAGE_LIST_KEYS, { folder: f, conversationsEnabled }, ROOT);
     const sorted = rootState.mail.messageList.messageKeys;
-    await dispatch("mail/" + actionTypes.FETCH_MESSAGE_METADATA, { messageKeys: sorted.slice(0, 40) }, ROOT);
+    await dispatch("mail/" + FETCH_MESSAGE_METADATA, { messageKeys: sorted.slice(0, 40) }, ROOT);
 }
 
 function locateFolder(local, mailshare, rootState, rootGetters) {
@@ -68,7 +74,7 @@ function locateFolder(local, mailshare, rootState, rootGetters) {
             router.push({ name: "mail:root" });
         }
     }
-    return folder || rootGetters["mail/MY_INBOX"];
+    return folder || rootGetters["mail/" + MY_INBOX];
 }
 
 function expandParents(commit, folder, rootState) {

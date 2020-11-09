@@ -1,7 +1,8 @@
 import { Flag } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
-import { SET_UNREAD_COUNT } from "../../store/folders/mutations";
-import mutationTypes from "../../store/mutationTypes";
+import { SET_UNREAD_COUNT } from "~mutations";
+import { MESSAGE_IS_LOADED } from "~getters";
+import { ADD_FLAG, DELETE_FLAG } from "~mutations";
 
 export async function markFolderAsRead(context, folderKey) {
     const folder = context.rootState.mail.folders[folderKey];
@@ -11,21 +12,21 @@ export async function markFolderAsRead(context, folderKey) {
     };
     try {
         await optimisticMarkFolderAsRead(context, folder);
-        context.commit("addApplicationAlert", { code: "MSG_FOLDER_MARKASREAD_SUCCESS", props }, { root: true });
+        context.commit("alert/addApplicationAlert", { code: "MSG_FOLDER_MARKASREAD_SUCCESS", props }, { root: true });
     } catch (e) {
-        context.commit("addApplicationAlert", { code: "MSG_FOLDER_MARKASREAD_ERROR", props }, { root: true });
+        context.commit("alert/addApplicationAlert", { code: "MSG_FOLDER_MARKASREAD_ERROR", props }, { root: true });
     }
 }
 
 async function optimisticMarkFolderAsRead(context, folder) {
     const keys = unseenMessagesInFolder(context.rootState, context.rootGetters, folder.key);
-    context.commit("mail/" + mutationTypes.ADD_FLAG, { keys, flag: Flag.SEEN }, { root: true });
+    context.commit("mail/" + ADD_FLAG, { keys, flag: Flag.SEEN }, { root: true });
     const unreadCount = folder.unread;
     context.commit("mail/" + SET_UNREAD_COUNT, { key: folder.key, count: 0 }, { root: true });
     try {
         await inject("MailboxFoldersPersistence", folder.mailboxRef.uid).markFolderAsRead(folder.remoteRef.internalId);
     } catch (e) {
-        context.commit("mail/" + mutationTypes.DELETE_FLAG, { keys, flag: Flag.SEEN }, { root: true });
+        context.commit("mail/" + DELETE_FLAG, { keys, flag: Flag.SEEN }, { root: true });
         context.commit("mail/" + SET_UNREAD_COUNT, { key: folder.key, count: unreadCount }, { root: true });
         throw e;
     }
@@ -36,7 +37,7 @@ function unseenMessagesInFolder(rootState, rootGetters, folderKey) {
         .filter(
             message =>
                 message.folderRef.key === folderKey &&
-                rootGetters["mail/isLoaded"](message.key) &&
+                rootGetters["mail/" + MESSAGE_IS_LOADED](message.key) &&
                 !message.flags.includes(Flag.SEEN)
         )
         .map(message => message.key);

@@ -1,37 +1,50 @@
+import Vue from "vue";
+import Vuex from "vuex";
+import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
 import { MockUserIdentitiesClient } from "@bluemind/test-utils";
-
-import { actions, state, mutations } from "../messageCompose";
-import { SET_SIGNATURE } from "../types/mutations";
+import storeOptions from "../messageCompose";
+import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT, SET_SIGNATURE } from "~mutations";
+import { FETCH_SIGNATURE } from "~actions";
 
 const mySignature = "My Signature";
+Vue.use(Vuex);
 
-describe("messageCompose store", () => {
+describe("messageCompose", () => {
+    let store;
+    beforeEach(() => {
+        store = new Vuex.Store(cloneDeep(storeOptions));
+    });
     describe("mutations", () => {
+        test("SET_DRAFT_EDITOR_CONTENT", () => {
+            store.commit(SET_DRAFT_EDITOR_CONTENT, "Content");
+            expect(store.state.editorContent).toEqual("Content");
+        });
+        test("SET_DRAFT_COLLAPSED_CONTENT", () => {
+            store.commit(SET_DRAFT_COLLAPSED_CONTENT, true);
+            expect(store.state.collapsedContent).toBeTruthy();
+            store.commit(SET_DRAFT_COLLAPSED_CONTENT, false);
+            expect(store.state.collapsedContent).toBeFalsy();
+        });
         test("SET_SIGNATURE", () => {
-            expect(state.messageCompose.signature).toBe("");
-            mutations.SET_SIGNATURE(state, mySignature);
-            expect(state.messageCompose.signature).toBe(mySignature);
+            expect(store.state.signature).toBe("");
+            store.commit(SET_SIGNATURE, mySignature);
+            expect(store.state.signature).toBe(mySignature);
         });
     });
-
     describe("actions", () => {
-        const context = {
-            state,
-            commit: jest.fn()
-        };
-
         const userIdentitiesService = new MockUserIdentitiesClient();
-        inject.register({ provide: "IUserMailIdentities", factory: () => userIdentitiesService });
-        userIdentitiesService.getIdentities.mockReturnValue([
-            { isDefault: false },
-            { isDefault: true, signature: mySignature }
-        ]);
-
+        beforeEach(() => {
+            inject.register({ provide: "IUserMailIdentities", factory: () => userIdentitiesService });
+            userIdentitiesService.getIdentities.mockReturnValue([
+                { isDefault: false },
+                { isDefault: true, signature: mySignature }
+            ]);
+        });
         test("FETCH_SIGNATURE", async () => {
-            await actions.FETCH_SIGNATURE(context);
+            await store.dispatch(FETCH_SIGNATURE);
             expect(userIdentitiesService.getIdentities).toHaveBeenCalled();
-            expect(context.commit).toHaveBeenCalledWith(SET_SIGNATURE, mySignature);
+            expect(store.state.signature).toBe(mySignature);
         });
     });
 });

@@ -5,8 +5,9 @@ import UUIDGenerator from "@bluemind/uuid";
 
 import save from "../../actions/save";
 import { MessageStatus, createWithMetadata } from "../../../../model/message";
-import mutationTypes from "../../../mutationTypes";
 import htmlWithBase64Images from "../data/htmlWithBase64Images";
+import { MY_DRAFTS } from "~getters";
+import { SET_MESSAGES_STATUS } from "~mutations";
 
 const mockedCidUid = "myCid";
 let itemsService, draft, context;
@@ -41,7 +42,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
                 [draftMessageKey]: draft
             },
             rootGetters: {
-                "mail/MY_DRAFTS": {
+                ["mail/" + MY_DRAFTS]: {
                     key: draftFolderKey
                 }
             }
@@ -50,13 +51,13 @@ describe("[Mail-WebappStore][actions] :  save", () => {
 
     test("Save new draft", async () => {
         await save(context, saveParams);
-        expect(context.commit).toHaveBeenNthCalledWith(1, mutationTypes.SET_MESSAGES_STATUS, [
+        expect(context.commit).toHaveBeenNthCalledWith(1, SET_MESSAGES_STATUS, [
             {
                 key: draftMessageKey,
                 status: MessageStatus.SAVING
             }
         ]);
-        expect(context.commit).toHaveBeenNthCalledWith(4, mutationTypes.SET_MESSAGES_STATUS, [
+        expect(context.commit).toHaveBeenNthCalledWith(4, SET_MESSAGES_STATUS, [
             {
                 key: draftMessageKey,
                 status: MessageStatus.LOADED
@@ -120,7 +121,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         } catch (e) {
             expect(itemsService.updateById).toHaveBeenCalledWith(draftInternalId, expect.anything());
             expect(itemsService.updateById).toThrow(new Error());
-            expect(context.commit).toHaveBeenNthCalledWith(4, mutationTypes.SET_MESSAGES_STATUS, [
+            expect(context.commit).toHaveBeenNthCalledWith(4, SET_MESSAGES_STATUS, [
                 {
                     key: draftMessageKey,
                     status: MessageStatus.SAVE_ERROR
@@ -175,13 +176,13 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         };
 
         await save(context, saveParams);
-        expect(context.commit).toHaveBeenNthCalledWith(1, mutationTypes.SET_MESSAGES_STATUS, [
+        expect(context.commit).toHaveBeenNthCalledWith(1, SET_MESSAGES_STATUS, [
             {
                 key: draftMessageKey,
                 status: MessageStatus.SAVING
             }
         ]);
-        expect(context.commit).toHaveBeenNthCalledWith(4, mutationTypes.SET_MESSAGES_STATUS, [
+        expect(context.commit).toHaveBeenNthCalledWith(4, SET_MESSAGES_STATUS, [
             {
                 key: draftMessageKey,
                 status: MessageStatus.LOADED

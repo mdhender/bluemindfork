@@ -1,7 +1,8 @@
 import ContainerObserver from "@bluemind/containerobserver";
 import { loadMessageList } from "../../actions/loadMessageList";
-import mutationTypes from "../../../store/mutationTypes";
-import actionTypes from "../../../store/actionTypes";
+import { FOLDER_BY_PATH, MY_INBOX } from "~getters";
+import { CLEAR_MESSAGE_LIST, SET_ACTIVE_FOLDER, SET_MESSAGE_LIST_FILTER, SET_SEARCH_PATTERN } from "~mutations";
+import { FETCH_MESSAGE_LIST_KEYS, FETCH_MESSAGE_METADATA } from "~actions";
 
 jest.mock("@bluemind/containerobserver");
 
@@ -60,7 +61,7 @@ const context = {
         }
     },
     rootGetters: {
-        "mail/FOLDER_BY_PATH": jest.fn().mockImplementation(path => {
+        ["mail/" + FOLDER_BY_PATH]: jest.fn().mockImplementation(path => {
             if (path === "/my/path") {
                 return folder;
             } else if (path === "/my/mailshare/path") {
@@ -69,7 +70,7 @@ const context = {
                 return undefined;
             }
         }),
-        "mail/MY_INBOX": inbox
+        ["mail/" + MY_INBOX]: inbox
     }
 };
 
@@ -77,7 +78,7 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
     beforeEach(() => {
         context.dispatch.mockClear();
         context.commit.mockClear();
-        context.rootGetters["mail/FOLDER_BY_PATH"].mockClear();
+        context.rootGetters["mail/" + FOLDER_BY_PATH].mockClear();
         context.rootState.mail.activeFolder = inboxUid;
         context.state.messages.itemKeys = [1, 2, 3];
         context.state.messageFilter = null;
@@ -87,52 +88,60 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
 
     test("locate folder by folderUid", async () => {
         await loadMessageList(context, { folder: folderUid });
-        expect(context.rootGetters["mail/FOLDER_BY_PATH"]).not.toHaveBeenCalled();
-        expect(context.commit).toHaveBeenCalledWith("mail/SET_ACTIVE_FOLDER", folder.key, expect.anything());
+        expect(context.rootGetters["mail/" + FOLDER_BY_PATH]).not.toHaveBeenCalled();
+        expect(context.commit).toHaveBeenCalledWith("mail/" + SET_ACTIVE_FOLDER, folder.key, expect.anything());
         expect(context.dispatch).toHaveBeenCalledWith("loadUnreadCount", folder.key);
 
         await loadMessageList(context, { mailshare: folderUidOfMailshare });
-        expect(context.rootGetters["mail/FOLDER_BY_PATH"]).not.toHaveBeenCalled();
-        expect(context.commit).toHaveBeenCalledWith("mail/SET_ACTIVE_FOLDER", folderUidOfMailshare, expect.anything());
+        expect(context.rootGetters["mail/" + FOLDER_BY_PATH]).not.toHaveBeenCalled();
+        expect(context.commit).toHaveBeenCalledWith(
+            "mail/" + SET_ACTIVE_FOLDER,
+            folderUidOfMailshare,
+            expect.anything()
+        );
         expect(context.dispatch).toHaveBeenCalledWith("loadUnreadCount", folderUidOfMailshare);
     });
 
     test("if locate by key fail, locate folder by path", async () => {
         await loadMessageList(context, { folder: "/my/path" });
-        expect(context.rootGetters["mail/FOLDER_BY_PATH"]).toHaveBeenCalled();
-        expect(context.rootGetters["mail/FOLDER_BY_PATH"]).toHaveBeenCalledTimes(1);
-        expect(context.commit).toHaveBeenCalledWith("mail/SET_ACTIVE_FOLDER", folder.key, expect.anything());
+        expect(context.rootGetters["mail/" + FOLDER_BY_PATH]).toHaveBeenCalled();
+        expect(context.rootGetters["mail/" + FOLDER_BY_PATH]).toHaveBeenCalledTimes(1);
+        expect(context.commit).toHaveBeenCalledWith("mail/" + SET_ACTIVE_FOLDER, folder.key, expect.anything());
         expect(context.dispatch).toHaveBeenCalledWith("loadUnreadCount", folder.key);
 
-        context.rootGetters["mail/FOLDER_BY_PATH"].mockClear();
+        context.rootGetters["mail/" + FOLDER_BY_PATH].mockClear();
         await loadMessageList(context, { mailshare: "/my/mailshare/path" });
-        expect(context.rootGetters["mail/FOLDER_BY_PATH"]).toHaveBeenCalled();
-        expect(context.rootGetters["mail/FOLDER_BY_PATH"]).toHaveBeenCalledTimes(1);
-        expect(context.commit).toHaveBeenCalledWith("mail/SET_ACTIVE_FOLDER", folderUidOfMailshare, expect.anything());
+        expect(context.rootGetters["mail/" + FOLDER_BY_PATH]).toHaveBeenCalled();
+        expect(context.rootGetters["mail/" + FOLDER_BY_PATH]).toHaveBeenCalledTimes(1);
+        expect(context.commit).toHaveBeenCalledWith(
+            "mail/" + SET_ACTIVE_FOLDER,
+            folderUidOfMailshare,
+            expect.anything()
+        );
         expect(context.dispatch).toHaveBeenCalledWith("loadUnreadCount", folderUidOfMailshare);
     });
 
     test("clear the current context", async () => {
         await loadMessageList(context, {});
-        expect(context.commit).toHaveBeenCalledWith("mail/" + mutationTypes.SET_SEARCH_PATTERN, undefined, {
+        expect(context.commit).toHaveBeenCalledWith("mail/" + SET_SEARCH_PATTERN, undefined, {
             root: true
         });
         expect(context.commit).toHaveBeenCalledWith("currentMessage/clear");
-        expect(context.commit).toHaveBeenCalledWith("mail/" + mutationTypes.CLEAR_MESSAGE_LIST, null, { root: true });
+        expect(context.commit).toHaveBeenCalledWith("mail/" + CLEAR_MESSAGE_LIST, null, { root: true });
     });
     test("fetch messages on folder select folder", async () => {
         await loadMessageList(context, { folder: folderUid, filter: "all" });
-        expect(context.commit).toHaveBeenCalledWith("mail/SET_ACTIVE_FOLDER", folder.key, expect.anything());
+        expect(context.commit).toHaveBeenCalledWith("mail/" + SET_ACTIVE_FOLDER, folder.key, expect.anything());
         expect(context.dispatch).toHaveBeenNthCalledWith(1, "loadUnreadCount", folder.key);
         expect(context.dispatch).toHaveBeenNthCalledWith(
             2,
-            "mail/" + actionTypes.FETCH_MESSAGE_LIST_KEYS,
+            "mail/" + FETCH_MESSAGE_LIST_KEYS,
             { conversationsEnabled: false, folder },
             { root: true }
         );
         expect(context.dispatch).toHaveBeenNthCalledWith(
             3,
-            "mail/" + actionTypes.FETCH_MESSAGE_METADATA,
+            "mail/" + FETCH_MESSAGE_METADATA,
             { messageKeys: [1, 2, 3] },
             { root: true }
         );
@@ -141,17 +150,17 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
     test("set default folder to inbox by default", async () => {
         context.rootState.activeFolder = folderUid;
         await loadMessageList(context, {});
-        expect(context.commit).toHaveBeenCalledWith("mail/SET_ACTIVE_FOLDER", inbox.key, expect.anything());
+        expect(context.commit).toHaveBeenCalledWith("mail/" + SET_ACTIVE_FOLDER, inbox.key, expect.anything());
         expect(context.dispatch).toHaveBeenNthCalledWith(1, "loadUnreadCount", inbox.key);
         expect(context.dispatch).toHaveBeenNthCalledWith(
             2,
-            "mail/" + actionTypes.FETCH_MESSAGE_LIST_KEYS,
+            "mail/" + FETCH_MESSAGE_LIST_KEYS,
             { conversationsEnabled: false, folder: inbox },
             { root: true }
         );
         expect(context.dispatch).toHaveBeenNthCalledWith(
             3,
-            "mail/" + actionTypes.FETCH_MESSAGE_METADATA,
+            "mail/" + FETCH_MESSAGE_METADATA,
             { messageKeys: [1, 2, 3] },
             { root: true }
         );
@@ -161,7 +170,7 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
         context.rootState.mail.messageList.messageKeys = new Array(200).fill(0).map((zero, i) => i);
         await loadMessageList(context, { folder: folderUid });
         expect(context.dispatch).toHaveBeenCalledWith(
-            "mail/" + actionTypes.FETCH_MESSAGE_METADATA,
+            "mail/" + FETCH_MESSAGE_METADATA,
             {
                 messageKeys: context.rootState.mail.messageList.messageKeys.slice(0, 40)
             },
@@ -171,7 +180,7 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
 
     test("Call search action only if a search pattern is set", async () => {
         await loadMessageList(context, { folder: folderUid, search: '"search pattern"' });
-        expect(context.commit).toHaveBeenCalledWith("mail/" + mutationTypes.SET_SEARCH_PATTERN, "search pattern", {
+        expect(context.commit).toHaveBeenCalledWith("mail/" + SET_SEARCH_PATTERN, "search pattern", {
             root: true
         });
     });
@@ -179,7 +188,7 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
     test("Use filter for search or folder fetching if a filter is given", async () => {
         let messageQuery = { folder: folderUid, filter: "unread" };
         await loadMessageList(context, messageQuery);
-        expect(context.commit).toHaveBeenCalledWith("mail/" + mutationTypes.SET_MESSAGE_LIST_FILTER, "unread", {
+        expect(context.commit).toHaveBeenCalledWith("mail/" + SET_MESSAGE_LIST_FILTER, "unread", {
             root: true
         });
     });

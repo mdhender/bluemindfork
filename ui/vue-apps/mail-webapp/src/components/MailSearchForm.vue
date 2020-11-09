@@ -90,9 +90,10 @@ import debounce from "lodash.debounce";
 import GlobalEvents from "vue-global-events";
 import { SearchHelper } from "../store.deprecated/SearchHelper";
 import { FolderAdaptor } from "../store/folders/helpers/FolderAdaptor";
+import { MY_SENT, MY_INBOX, MY_TRASH } from "~getters";
 import { MailboxType } from "../model/mailbox";
-import mutationTypes from "../store/mutationTypes";
 import { MessageListStatus } from "../store/messageList";
+import { SET_MESSAGE_LIST_STATUS } from "~mutations";
 
 const SPINNER_TIMEOUT = 250;
 const UPDATE_ROUTE_TIMEOUT = 1000;
@@ -146,7 +147,7 @@ export default {
     computed: {
         ...mapState("mail", { currentSearch: ({ messageList }) => messageList.search }),
         ...mapState("mail", ["folders", "mailboxes", "activeFolder"]),
-        ...mapGetters("mail", ["MY_INBOX", "MY_SENT", "MY_TRASH"]),
+        ...mapGetters("mail", { MY_INBOX, MY_SENT, MY_TRASH }),
         filteredFolders() {
             if (this.folderPattern !== "") {
                 const filtered = Object.values(this.folders).filter(folder =>
@@ -181,7 +182,7 @@ export default {
         this.setFolderFromKeyOrInitial(this.currentSearch.folder);
     },
     methods: {
-        ...mapMutations("mail", [mutationTypes.SET_MESSAGE_LIST_STATUS]),
+        ...mapMutations("mail", { SET_MESSAGE_LIST_STATUS }),
         filter(folder, { root }) {
             return folder.path.match(this.folderPattern, root);
         },

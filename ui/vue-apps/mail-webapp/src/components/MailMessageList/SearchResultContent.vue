@@ -11,6 +11,7 @@ import { mapGetters, mapState } from "vuex";
 import SearchResultContentHeader from "./SearchResultContentHeader";
 import SearchResultContentEmpty from "./SearchResultContentEmpty";
 import MessageList from "./MessageList";
+import { MESSAGE_LIST_COUNT } from "~getters";
 
 export default {
     name: "SearchResultContent",
@@ -20,7 +21,7 @@ export default {
         MessageList
     },
     computed: {
-        ...mapGetters("mail", ["MESSAGE_LIST_COUNT"]),
+        ...mapGetters("mail", { MESSAGE_LIST_COUNT }),
         ...mapState("mail", { search: state => state.messageList.search })
     }
 };

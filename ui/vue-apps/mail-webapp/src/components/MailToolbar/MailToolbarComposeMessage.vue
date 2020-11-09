@@ -74,8 +74,9 @@ import { mapActions, mapGetters, mapState } from "vuex";
 
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 
-import actionTypes from "../../store/actionTypes";
 import { MessageStatus, isEmpty } from "../../model/message";
+import { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~getters";
+import { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE } from "~actions";
 
 export default {
     name: "MailToolbarComposeMessage",
@@ -92,7 +93,7 @@ export default {
     computed: {
         ...mapState("mail-webapp/currentMessage", { messageKey: "key" }),
         ...mapState("mail", ["messageCompose", "messages"]),
-        ...mapGetters("mail", ["MY_DRAFTS", "MY_OUTBOX", "MY_SENT", "MY_MAILBOX_KEY"]),
+        ...mapGetters("mail", { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY }),
         message() {
             return this.messages[this.messageKey];
         },
@@ -111,7 +112,7 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", ["purge"]),
-        ...mapActions("mail", [actionTypes.ADD_ATTACHMENTS, actionTypes.SAVE_MESSAGE, actionTypes.SEND_MESSAGE]),
+        ...mapActions("mail", { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE }),
         async doDelete() {
             if (isEmpty(this.message, this.messageCompose.editorContent)) {
                 this.purge(this.messageKey);

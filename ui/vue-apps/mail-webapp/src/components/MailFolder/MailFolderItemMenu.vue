@@ -33,7 +33,8 @@ import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
 import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
 import { create } from "../../model/folder";
-import { TOGGLE_FOLDER, ADD_FOLDER } from "../../store/folders/mutations";
+import { TOGGLE_FOLDER, ADD_FOLDER, TOGGLE_EDIT_FOLDER } from "~mutations";
+import { FOLDER_HAS_CHILDREN } from "~getters";
 
 export default {
     name: "MailFolderItemMenu",
@@ -48,7 +49,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", { hasChildren: "HAS_CHILDREN_GETTER" }),
+        ...mapGetters("mail", { FOLDER_HAS_CHILDREN }),
         ...mapState("mail", ["mailboxes", "folders", "activeFolder"]),
         isMailshareRoot() {
             return FolderAdaptor.isMailshareRoot(this.folder, this.mailboxes[this.folder.mailboxRef.key]);
@@ -62,9 +63,9 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", ["removeFolder", "markFolderAsRead"]),
-        ...mapMutations("mail", [ADD_FOLDER, "TOGGLE_EDIT_FOLDER", TOGGLE_FOLDER]),
+        ...mapMutations("mail", { ADD_FOLDER, TOGGLE_EDIT_FOLDER, TOGGLE_FOLDER }),
         async deleteFolder() {
-            const modalTitleKey = this.hasChildren(this.folder.key)
+            const modalTitleKey = this.FOLDER_HAS_CHILDREN(this.folder.key)
                 ? "mail.folder.delete.dialog.question.with_subfolders"
                 : "mail.folder.delete.dialog.question";
             const confirm = await this.$bvModal.msgBoxConfirm(this.$t(modalTitleKey, { name: this.folder.name }), {

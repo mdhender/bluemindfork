@@ -34,14 +34,14 @@ describe("[Mail-WebappStore][actions] : markFolderAsRead", () => {
         await markFolderAsRead(context, folderKey);
         expect(foldersService.markFolderAsRead).toHaveBeenCalledWith("id");
         expect(context.commit).toHaveBeenCalledWith(
-            "addApplicationAlert",
+            "alert/addApplicationAlert",
             expect.objectContaining({
                 code: "MSG_FOLDER_MARKASREAD_SUCCESS"
             }),
             expect.anything()
         );
         expect(context.commit).not.toHaveBeenCalledWith(
-            "addApplicationAlert",
+            "alert/addApplicationAlert",
             expect.objectContaining({
                 code: "MSG_FOLDER_MARKASREAD_ERROR"
             }),
@@ -54,14 +54,14 @@ describe("[Mail-WebappStore][actions] : markFolderAsRead", () => {
         await markFolderAsRead(context, folderKey);
         expect(foldersService.markFolderAsRead).toHaveBeenCalledWith("id");
         expect(context.commit).not.toHaveBeenCalledWith(
-            "addApplicationAlert",
+            "alert/addApplicationAlert",
             expect.objectContaining({
                 code: "MSG_FOLDER_MARKASREAD_SUCCESS"
             }),
             expect.anything()
         );
         expect(context.commit).toHaveBeenCalledWith(
-            "addApplicationAlert",
+            "alert/addApplicationAlert",
             expect.objectContaining({
                 code: "MSG_FOLDER_MARKASREAD_ERROR"
             }),

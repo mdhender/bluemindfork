@@ -1,7 +1,8 @@
 import { Flag } from "@bluemind/email";
 import ItemUri from "@bluemind/item-uri";
 import UUIDGenerator from "@bluemind/uuid";
-import { SET_UNREAD_COUNT } from "../../store/folders/mutations";
+import { SET_UNREAD_COUNT } from "~mutations";
+import { MESSAGE_IS_LOADED } from "~getters";
 
 export function markAsRead(context, messageKeys) {
     const updateAction = "messages/addFlag";
@@ -72,7 +73,7 @@ function markAs(context, updateAction, flagType, messageFilter, alertCodes, mess
     let promise;
 
     if (messageKeys.length > 1) {
-        context.commit("addApplicationAlert", { code: alertCodes.LOADING, uid: alertUid }, { root: true });
+        context.commit("alert/addApplicationAlert", { code: alertCodes.LOADING, uid: alertUid }, { root: true });
     }
 
     if (anyMessageMissingInState(context.rootGetters, messageKeys)) {
@@ -85,9 +86,9 @@ function markAs(context, updateAction, flagType, messageFilter, alertCodes, mess
 
     if (messageKeys.length > 1) {
         promise = promise
-            .then(() => context.commit("addApplicationAlert", { code: alertCodes.SUCCESS }, { root: true }))
-            .catch(() => context.commit("addApplicationAlert", { code: alertCodes.ERROR }, { root: true }))
-            .finally(() => context.commit("removeApplicationAlert", alertUid, { root: true }));
+            .then(() => context.commit("alert/addApplicationAlert", { code: alertCodes.SUCCESS }, { root: true }))
+            .catch(() => context.commit("alert/addApplicationAlert", { code: alertCodes.ERROR }, { root: true }))
+            .finally(() => context.commit("alert/removeApplicationAlert", alertUid, { root: true }));
     }
     return promise;
 }
@@ -127,7 +128,7 @@ function setUnreadCount(context, messageKeys, updateAction) {
 }
 
 function anyMessageMissingInState(rootGetters, messageKeys) {
-    return messageKeys.some(messageKey => !rootGetters["mail/isLoaded"](messageKey));
+    return messageKeys.some(messageKey => !rootGetters["mail/" + MESSAGE_IS_LOADED](messageKey));
 }
 
 function updateFlag(action, flagType, dispatch, messageKeys) {

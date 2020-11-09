@@ -1,5 +1,7 @@
 import { $_createFolder } from "../../actions/$_createFolder";
 import UUIDGenerator from "@bluemind/uuid";
+import { CREATE_FOLDER } from "~actions";
+import { ADD_FOLDER, REMOVE_FOLDER } from "~mutations";
 
 const mailboxUid = "mailbox-uid";
 const anotherMailboxUid = "another-mailbox-uid";
@@ -78,7 +80,7 @@ describe("[Mail-WebappStore][actions]: $_createFolder", () => {
 
         expect(context.dispatch).toHaveBeenNthCalledWith(
             1,
-            "mail/CREATE_FOLDER",
+            "mail/" + CREATE_FOLDER,
             {
                 mailbox: { key: mailboxUid },
                 parent: null,
@@ -87,10 +89,10 @@ describe("[Mail-WebappStore][actions]: $_createFolder", () => {
             },
             { root: true }
         );
-        expect(context.commit).toHaveBeenNthCalledWith(1, "mail/REMOVE_FOLDER", mockedGeneratedUid, { root: true });
+        expect(context.commit).toHaveBeenNthCalledWith(1, "mail/" + REMOVE_FOLDER, mockedGeneratedUid, { root: true });
         expect(context.commit).toHaveBeenNthCalledWith(
             2,
-            "mail/ADD_FOLDER",
+            "mail/" + ADD_FOLDER,
             {
                 key: serverUid,
                 remoteRef: { uid: serverUid },
@@ -112,7 +114,7 @@ describe("[Mail-WebappStore][actions]: $_createFolder", () => {
         let folder = { path: "Another/one/again" };
         await $_createFolder(context, { folder, mailboxUid });
         expect(context.dispatch).toHaveBeenCalledWith(
-            "mail/CREATE_FOLDER",
+            "mail/" + CREATE_FOLDER,
             {
                 mailbox: { key: mailboxUid },
                 parent: parent.key,
@@ -126,7 +128,7 @@ describe("[Mail-WebappStore][actions]: $_createFolder", () => {
         folder = { path: "My/beautifull/things" };
         await $_createFolder(context, { folder, mailboxUid });
         expect(context.dispatch).toHaveBeenCalledWith(
-            "mail/CREATE_FOLDER",
+            "mail/" + CREATE_FOLDER,
             {
                 mailbox: { key: mailboxUid },
                 parent: parent.key,
@@ -161,7 +163,7 @@ describe("[Mail-WebappStore][actions]: $_createFolder", () => {
         let key = await $_createFolder(context, { folder, mailboxUid });
         expect(context.dispatch).toHaveBeenNthCalledWith(
             1,
-            "mail/CREATE_FOLDER",
+            "mail/" + CREATE_FOLDER,
             {
                 mailbox: { key: mailboxUid },
                 parent: null,
@@ -173,7 +175,7 @@ describe("[Mail-WebappStore][actions]: $_createFolder", () => {
 
         expect(context.dispatch).toHaveBeenNthCalledWith(
             2,
-            "mail/CREATE_FOLDER",
+            "mail/" + CREATE_FOLDER,
             {
                 mailbox: { key: mailboxUid },
                 parent: "key1",
@@ -184,7 +186,7 @@ describe("[Mail-WebappStore][actions]: $_createFolder", () => {
         );
         expect(context.dispatch).toHaveBeenNthCalledWith(
             3,
-            "mail/CREATE_FOLDER",
+            "mail/" + CREATE_FOLDER,
             {
                 mailbox: { key: mailboxUid },
                 parent: "key2",
@@ -199,7 +201,7 @@ describe("[Mail-WebappStore][actions]: $_createFolder", () => {
         key = await $_createFolder(context, { folder, mailboxUid });
         expect(context.dispatch).toHaveBeenNthCalledWith(
             4,
-            "mail/CREATE_FOLDER",
+            "mail/" + CREATE_FOLDER,
             {
                 mailbox: { key: mailboxUid },
                 parent: Object.keys(context.rootState.mail.folders)[0],
@@ -210,7 +212,7 @@ describe("[Mail-WebappStore][actions]: $_createFolder", () => {
         );
         expect(context.dispatch).toHaveBeenNthCalledWith(
             5,
-            "mail/CREATE_FOLDER",
+            "mail/" + CREATE_FOLDER,
             {
                 mailbox: { key: mailboxUid },
                 parent: "key4",
@@ -230,7 +232,7 @@ describe("[Mail-WebappStore][actions]: $_createFolder", () => {
         let folder = { path: "Mailshare1/subFolder/folder", name: "folder" };
         await $_createFolder(context, { folder, mailboxUid: anotherMailboxUid });
         expect(context.dispatch).toHaveBeenCalledWith(
-            "mail/CREATE_FOLDER",
+            "mail/" + CREATE_FOLDER,
             {
                 mailbox: { key: anotherMailboxUid },
                 parent: expect.anything(),

@@ -1,9 +1,9 @@
 <template>
     <div class="message-list-item-left d-flex flex-column align-items-center">
-        <bm-avatar :alt="fromOrTo" :class="[IS_SELECTION_EMPTY ? '' : 'd-none']" />
+        <bm-avatar :alt="fromOrTo" :class="[SELECTION_IS_EMPTY ? '' : 'd-none']" />
         <bm-check
-            :checked="IS_MESSAGE_SELECTED(message.key)"
-            :class="[IS_SELECTION_EMPTY ? 'd-none' : 'd-block']"
+            :checked="MESSAGE_IS_SELECTED(message.key)"
+            :class="[SELECTION_IS_EMPTY ? 'd-none' : 'd-block']"
             @change="$emit('toggle-select', message.key, true)"
             @click.exact.native.stop
             @keyup.native.space.stop
@@ -16,8 +16,9 @@
 <script>
 import { BmAvatar, BmCheck, BmIcon } from "@bluemind/styleguide";
 import { mapGetters } from "vuex";
+import { MY_DRAFTS, MY_SENT } from "~getters";
 
-import { IS_MESSAGE_SELECTED, IS_SELECTION_EMPTY } from "../../store/types/getters";
+import { MESSAGE_IS_SELECTED, SELECTION_IS_EMPTY } from "~getters";
 export default {
     name: "MessageListItemLeft",
     components: {
@@ -32,8 +33,8 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", { IS_MESSAGE_SELECTED, IS_SELECTION_EMPTY }),
-        ...mapGetters("mail", ["MY_DRAFTS", "MY_SENT"]),
+        ...mapGetters("mail", { MESSAGE_IS_SELECTED, SELECTION_IS_EMPTY }),
+        ...mapGetters("mail", { MY_DRAFTS, MY_SENT }),
 
         fromOrTo() {
             const messageFolder = this.message.folderRef.key;

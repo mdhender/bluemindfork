@@ -72,7 +72,7 @@ import { VCardInfoAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
 import { BmButton, BmCol, BmContactInput, BmIcon, BmRow } from "@bluemind/styleguide";
 import { mapMutations } from "vuex";
-import mutationTypes from "../../store/mutationTypes";
+import { SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~mutations";
 
 const recipientModes = { TO: 1, CC: 2, BCC: 4 }; // flags for the display mode of MailComposer's recipients fields
 
@@ -118,11 +118,11 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("mail", [
-            mutationTypes.SET_MESSAGE_TO,
-            mutationTypes.SET_MESSAGE_CC,
-            mutationTypes.SET_MESSAGE_BCC
-        ]),
+        ...mapMutations("mail", {
+            SET_MESSAGE_TO,
+            SET_MESSAGE_CC,
+            SET_MESSAGE_BCC
+        }),
         computeDisplayedFields() {
             if (this.isReplyOrForward && this.message.cc.length === 0) {
                 return recipientModes.TO;

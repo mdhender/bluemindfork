@@ -1,104 +1,88 @@
-import { actions, mutations } from "../consultPanel";
-import EventHelper from "../helpers/EventHelper";
+import Vue from "vue";
+import Vuex from "vuex";
+import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
 import { MockCalendarClient } from "@bluemind/test-utils";
+import storeOptions from "../consultPanel";
+import EventHelper from "../helpers/EventHelper";
+import { FETCH_EVENT, SET_EVENT_STATUS } from "~actions";
+import { SET_CURRENT_EVENT, SET_CURRENT_EVENT_STATUS } from "~mutations";
 
 const calendarService = new MockCalendarClient();
 inject.register({ provide: "CalendarPersistence", factory: () => calendarService });
+Vue.use(Vuex);
 
 describe("consultPanel node", () => {
-    let context;
     const userUid = "user:uid",
         eventUid = "event:uid",
         newStatus = "ACCEPTED",
-        previousStatus = "NO-NO-NO";
-
-    beforeEach(() => {
-        context = {
-            state: { consultPanel: { currentEvent: {} } },
-            getters: {
-                CURRENT_MAILBOX: { owner: userUid }
-            },
-            commit: jest.fn()
+        previousStatus = "NO-NO-NO",
+        serverEvent = {
+            value: {
+                main: {
+                    attendees: [
+                        { dir: "my-domain/user/3/dezdez" },
+                        { dir: "my/contact/book/3/" + userUid, partStatus: previousStatus }
+                    ]
+                }
+            }
         };
+    let store;
+    beforeEach(() => {
+        store = new Vuex.Store(cloneDeep(storeOptions));
     });
 
     describe("currentEvent", () => {
         test("FETCH_EVENT action", async () => {
             calendarService.getComplete.mockReturnValue("event");
             EventHelper.adapt = jest.fn().mockReturnValue("adaptedEvent");
-
-            await actions.FETCH_EVENT(context, eventUid);
+            await store.dispatch(FETCH_EVENT, { eventUid, mailbox: { owner: userUid } });
             expect(calendarService.getComplete).toHaveBeenCalledWith(eventUid);
             expect(EventHelper.adapt).toHaveBeenCalledWith("event", userUid);
-            expect(context.commit).toHaveBeenCalledWith("SET_CURRENT_EVENT", "adaptedEvent");
+            expect(store.state.currentEvent).toEqual("adaptedEvent");
         });
 
         test("SET_EVENT_STATUS action is a success", async () => {
-            const serverEventValue = { example: "example" };
-            context.state.consultPanel.currentEvent = {
+            store.state.currentEvent = {
                 uid: eventUid,
                 status: previousStatus,
-                serverEvent: { value: serverEventValue }
+                serverEvent
             };
 
-            await actions.SET_EVENT_STATUS(context, newStatus);
-            expect(context.commit).toHaveBeenCalledWith("SET_CURRENT_EVENT_STATUS", {
-                status: newStatus,
-                uid: userUid
-            });
-            expect(calendarService.update).toHaveBeenCalledWith(eventUid, serverEventValue, true);
-            expect(context.commit).toHaveBeenCalledTimes(1);
+            await store.dispatch(SET_EVENT_STATUS, { status: newStatus, mailbox: { owner: userUid } });
+            expect(calendarService.update).toHaveBeenCalledWith(eventUid, serverEvent.value, true);
+            expect(store.state.currentEvent.status).toEqual(newStatus);
         });
 
         test("SET_EVENT_STATUS action, optimistic rendering and revert changes if client fails to answer", async () => {
-            const serverEventValue = { example: "example" };
-            context.state.consultPanel.currentEvent = {
+            store.state.currentEvent = {
                 uid: eventUid,
                 status: previousStatus,
-                serverEvent: { value: serverEventValue }
+                serverEvent
             };
             calendarService.update.mockReturnValue(Promise.reject());
-
-            await actions.SET_EVENT_STATUS(context, newStatus);
-            expect(context.commit).toHaveBeenNthCalledWith(1, "SET_CURRENT_EVENT_STATUS", {
-                status: newStatus,
-                uid: userUid
-            });
-            expect(calendarService.update).toHaveBeenCalledWith(eventUid, serverEventValue, true);
-            expect(context.commit).toHaveBeenCalledTimes(2);
-            expect(context.commit).toHaveBeenNthCalledWith(2, "SET_CURRENT_EVENT_STATUS", {
-                status: previousStatus,
-                uid: userUid
-            });
+            const promise = store.dispatch(SET_EVENT_STATUS, { status: newStatus, mailbox: { owner: userUid } });
+            expect(store.state.currentEvent.status).toEqual(newStatus);
+            expect(calendarService.update).toHaveBeenCalledWith(eventUid, serverEvent.value, true);
+            await promise;
+            expect(store.state.currentEvent.status).toEqual(previousStatus);
         });
 
-        test("SET_CURRENT_EVENT mutation", async () => {
+        test("SET_CURRENT_EVENT mutation", () => {
             const event = { example: "example" };
-            await mutations.SET_CURRENT_EVENT(context.state, event);
-            expect(context.state.consultPanel.currentEvent).toBe(event);
+            storeOptions.mutations[SET_CURRENT_EVENT](store.state, event);
+            expect(store.state.currentEvent).toBe(event);
         });
 
         test("SET_CURRENT_EVENT_STATUS mutation, mutate status but also serverEvent attendee matching my userUid", async () => {
-            context.state.consultPanel.currentEvent = {
+            store.state.currentEvent = {
                 status: previousStatus,
-                serverEvent: {
-                    value: {
-                        main: {
-                            attendees: [
-                                { dir: "bullshit/user/3/dezdez" },
-                                { dir: "my/contact/book/3/" + userUid, partStatus: previousStatus }
-                            ]
-                        }
-                    }
-                }
+                serverEvent
             };
 
-            await mutations.SET_CURRENT_EVENT_STATUS(context.state, { status: newStatus, uid: userUid });
-            expect(context.state.consultPanel.currentEvent.status).toBe(newStatus);
-            expect(context.state.consultPanel.currentEvent.serverEvent.value.main.attendees[1].partStatus).toBe(
-                newStatus
-            );
+            storeOptions.mutations[SET_CURRENT_EVENT_STATUS](store.state, { status: newStatus, uid: userUid });
+            expect(store.state.currentEvent.status).toBe(newStatus);
+            expect(store.state.currentEvent.serverEvent.value.main.attendees[1].partStatus).toBe(newStatus);
         });
     });
 });

@@ -9,6 +9,7 @@
 import { mapGetters } from "vuex";
 import FolderResultContent from "./FolderResultContent";
 import FolderResultSpinner from "./FolderResultSpinner";
+import { MESSAGE_LIST_IS_LOADING, MESSAGE_LIST_IS_RESOLVED } from "~getters";
 
 export default {
     name: "FolderResult",
@@ -17,7 +18,7 @@ export default {
         FolderResultSpinner
     },
     computed: {
-        ...mapGetters("mail", ["MESSAGE_LIST_IS_LOADING", "MESSAGE_LIST_IS_RESOLVED"])
+        ...mapGetters("mail", { MESSAGE_LIST_IS_LOADING, MESSAGE_LIST_IS_RESOLVED })
     }
 };
 </script>

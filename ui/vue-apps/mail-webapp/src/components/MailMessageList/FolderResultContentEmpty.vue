@@ -7,6 +7,8 @@
 import { mapGetters } from "vuex";
 import FolderResultContentEmptyFolder from "./FolderResultContentEmptyFolder";
 import FolderResultContentEmptyFilter from "./FolderResultContentEmptyFilter";
+import { MESSAGE_LIST_FILTERED } from "~getters";
+
 export default {
     name: "FolderResultContentEmpty",
     components: {
@@ -14,7 +16,7 @@ export default {
         FolderResultContentEmptyFilter
     },
     computed: {
-        ...mapGetters("mail", ["MESSAGE_LIST_FILTERED"])
+        ...mapGetters("mail", { MESSAGE_LIST_FILTERED })
     }
 };
 </script>

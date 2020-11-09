@@ -11,6 +11,7 @@ import { mapGetters } from "vuex";
 import MailMessageListHeader from "./MailMessageListHeader";
 import SearchResult from "./SearchResult";
 import FolderResult from "./FolderResult";
+import { MESSAGE_LIST_IS_SEARCH_MODE } from "~getters";
 
 export default {
     name: "MailMessageList",
@@ -20,7 +21,7 @@ export default {
         FolderResult
     },
     computed: {
-        ...mapGetters("mail", ["MESSAGE_LIST_IS_SEARCH_MODE"])
+        ...mapGetters("mail", { MESSAGE_LIST_IS_SEARCH_MODE })
     }
 };
 </script>

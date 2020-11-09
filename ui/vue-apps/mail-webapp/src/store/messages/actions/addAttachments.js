@@ -2,9 +2,15 @@ import { inject } from "@bluemind/inject";
 import global from "@bluemind/global";
 import UUIDGenerator from "@bluemind/uuid";
 
-import actionTypes from "../../actionTypes";
 import { create, AttachmentStatus } from "../../../model/attachment";
-import mutationTypes from "../../mutationTypes";
+import { SAVE_MESSAGE } from "~actions";
+import {
+    ADD_ATTACHMENT,
+    REMOVE_ATTACHMENT,
+    SET_ATTACHMENT_ADDRESS,
+    SET_ATTACHMENT_PROGRESS,
+    SET_ATTACHMENT_STATUS
+} from "~mutations";
 
 export default async function ({ commit, dispatch, state }, { messageKey, files, userPrefTextOnly, messageCompose }) {
     const myDraftsFolderRef = state[messageKey].folderRef;
@@ -15,7 +21,7 @@ export default async function ({ commit, dispatch, state }, { messageKey, files,
         }
         await Promise.all(promises);
 
-        return dispatch(actionTypes.SAVE_MESSAGE, {
+        return dispatch(SAVE_MESSAGE, {
             userPrefTextOnly,
             draftKey: messageKey,
             myDraftsFolderKey: myDraftsFolderRef.key,
@@ -42,7 +48,7 @@ async function addAttachment({ commit }, messageKey, file, myDraftsFolderUid) {
 
     try {
         // this will make the attachment component appear in the UI
-        commit(mutationTypes.ADD_ATTACHMENT, { messageKey, attachment });
+        commit(ADD_ATTACHMENT, { messageKey, attachment });
 
         const address = await inject("MailboxItemsPersistence", myDraftsFolderUid).uploadPart(
             file,
@@ -50,7 +56,7 @@ async function addAttachment({ commit }, messageKey, file, myDraftsFolderUid) {
             createOnUploadProgress(commit, messageKey, attachment)
         );
 
-        commit(mutationTypes.SET_ATTACHMENT_ADDRESS, {
+        commit(SET_ATTACHMENT_ADDRESS, {
             messageKey,
             oldAddress: attachment.address,
             address
@@ -63,7 +69,7 @@ async function addAttachment({ commit }, messageKey, file, myDraftsFolderUid) {
 
 function createOnUploadProgress(commit, messageKey, attachment) {
     return progress => {
-        commit(mutationTypes.SET_ATTACHMENT_PROGRESS, {
+        commit(SET_ATTACHMENT_PROGRESS, {
             messageKey,
             address: attachment.address,
             loaded: progress.loaded,
@@ -74,15 +80,15 @@ function createOnUploadProgress(commit, messageKey, attachment) {
 
 function handleError(commit, error, attachment, messageKey) {
     if (error.message === "CANCELLED_BY_CLIENT") {
-        commit(mutationTypes.REMOVE_ATTACHMENT, { messageKey, address: attachment.address });
+        commit(REMOVE_ATTACHMENT, { messageKey, address: attachment.address });
     } else {
-        commit(mutationTypes.SET_ATTACHMENT_PROGRESS, {
+        commit(SET_ATTACHMENT_PROGRESS, {
             messageKey,
             address: attachment.address,
             loaded: 100,
             total: 100
         });
-        commit(mutationTypes.SET_ATTACHMENT_STATUS, {
+        commit(SET_ATTACHMENT_STATUS, {
             messageKey,
             address: attachment.address,
             status: AttachmentStatus.ERROR

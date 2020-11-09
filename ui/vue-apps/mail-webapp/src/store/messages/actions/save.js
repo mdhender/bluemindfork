@@ -6,7 +6,13 @@ import { MessageStatus, clean } from "../../../model/message";
 import { createDraftStructure, forceMailRewriteOnServer, prepareDraft } from "../../../model/draft";
 import { isTemporaryPart, setAddresses } from "../../../model/part";
 import { isAttachment } from "../../../model/attachment";
-import mutationTypes from "../../mutationTypes";
+import {
+    SET_ATTACHMENT_ADDRESS,
+    SET_MESSAGES_STATUS,
+    SET_MESSAGE_DATE,
+    SET_MESSAGE_HEADERS,
+    SET_ATTACHMENT_ENCODING
+} from "~mutations";
 
 let debouncedSave = { cancel: () => {} };
 
@@ -34,13 +40,13 @@ async function doSave(context, userPrefTextOnly, draftKey, myDraftsFolderKey, me
             return;
         }
 
-        context.commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SAVING }]);
+        context.commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SAVING }]);
 
         const service = inject("MailboxItemsPersistence", myDraftsFolderKey);
         const { saveDate, headers } = forceMailRewriteOnServer(draft);
 
-        context.commit(mutationTypes.SET_MESSAGE_HEADERS, { messageKey: draft.key, headers });
-        context.commit(mutationTypes.SET_MESSAGE_DATE, { messageKey: draft.key, date: saveDate });
+        context.commit(SET_MESSAGE_HEADERS, { messageKey: draft.key, headers });
+        context.commit(SET_MESSAGE_DATE, { messageKey: draft.key, date: saveDate });
 
         const { partsToUpload, inlineImages } = prepareDraft(draft, messageCompose, userPrefTextOnly, context.commit);
 
@@ -48,13 +54,13 @@ async function doSave(context, userPrefTextOnly, draftKey, myDraftsFolderKey, me
         const structure = createDraftStructure(draft.attachments, userPrefTextOnly, inlinePartAddresses, inlineImages);
         await service.updateById(draft.remoteRef.internalId, MessageAdaptor.toMailboxItem(draft, structure));
 
-        context.commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
+        context.commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
 
         const newAttachments = [...draft.attachments.filter(isTemporaryPart)];
         await clean(inlinePartAddresses, newAttachments, service);
         updateAddresses(structure, draft.attachments, newAttachments, draftKey, context.commit);
     } catch (e) {
-        context.commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SAVE_ERROR }]);
+        context.commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SAVE_ERROR }]);
         throw e;
     }
 }
@@ -68,13 +74,13 @@ function updateAddresses(structure, attachments, newAttachments, draftKey, commi
     setAddresses(structure);
     structure.children.forEach(part => {
         if (part.uid !== part.address && isAttachment(part)) {
-            commit(mutationTypes.SET_ATTACHMENT_ADDRESS, {
+            commit(SET_ATTACHMENT_ADDRESS, {
                 messageKey: draftKey,
                 oldAddress: part.uid,
                 address: part.address
             });
             // default values set by server
-            commit(mutationTypes.SET_ATTACHMENT_ENCODING, {
+            commit(SET_ATTACHMENT_ENCODING, {
                 messageKey: draftKey,
                 address: part.address,
                 charset: "us-ascii",

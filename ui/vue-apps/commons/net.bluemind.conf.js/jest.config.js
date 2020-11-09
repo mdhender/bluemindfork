@@ -10,6 +10,12 @@ module.exports = {
         ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2|svg)$": "jest-transform-stub",
         ".*\\.(vue)$": "vue-jest"
     },
+    moduleNameMapper: {
+        "^~/$": "<rootDir>/mail-webapp/src/",
+        "^~actions$": "<rootDir>/mail-webapp/src/store/types/actions",
+        "^~getters$": "<rootDir>/mail-webapp/src/store/types/getters",
+        "^~mutations$": "<rootDir>/mail-webapp/src/store/types/mutations"
+    },
     transformIgnorePatterns: ["/node_modules/(?!@bluemind/|storybook-addon-vue-info|storybook-addon-designs)"],
     testURL: "http://localhost",
     setupFiles: ["./.jest/register-context.js"]

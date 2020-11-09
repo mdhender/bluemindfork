@@ -1,4 +1,5 @@
-import mutationTypes from "./mutationTypes";
+import { MESSAGE_LIST_IS_SEARCH_MODE } from "~getters";
+import { SET_SEARCH_FOLDER, SET_SEARCH_PATTERN } from "~mutations";
 
 const state = {
     pattern: null,
@@ -6,16 +7,16 @@ const state = {
 };
 
 const mutations = {
-    [mutationTypes.SET_SEARCH_PATTERN](state, pattern) {
+    [SET_SEARCH_PATTERN](state, pattern) {
         state.pattern = pattern;
     },
-    [mutationTypes.SET_SEARCH_FOLDER](state, folder) {
+    [SET_SEARCH_FOLDER](state, folder) {
         state.folder = folder;
     }
 };
 
 const getters = {
-    MESSAGE_LIST_IS_SEARCH_MODE: ({ pattern }) => pattern && pattern.trim().length > 0
+    [MESSAGE_LIST_IS_SEARCH_MODE]: ({ pattern }) => pattern && pattern.trim().length > 0
 };
 
 export default { state, mutations, getters };

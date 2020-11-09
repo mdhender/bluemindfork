@@ -5,12 +5,14 @@ import {
     ADD_FOLDER,
     //TODO: change mutation names
     REMOVE_FOLDER as MUTATION_REMOVE_FOLDER,
-    RENAME_FOLDER as MUTATION_RENAME_FOLDER
-} from "./mutations";
+    RENAME_FOLDER as MUTATION_RENAME_FOLDER,
+    REMOVE_FOLDER,
+    RENAME_FOLDER
+} from "~mutations";
 import { FolderAdaptor } from "./helpers/FolderAdaptor";
 import { create } from "../../model/folder";
+import { CREATE_FOLDER, FETCH_FOLDERS } from "~actions";
 
-export const FETCH_FOLDERS = "FETCH_FOLDERS";
 const fetchFolders = async function ({ commit }, mailbox) {
     const items = await api.getAllFolders(mailbox);
     const folders = items
@@ -20,7 +22,6 @@ const fetchFolders = async function ({ commit }, mailbox) {
     commit(ADD_FOLDERS, folders);
 };
 
-export const CREATE_FOLDER = "CREATE_FOLDER";
 const createFolder = async function ({ commit, state }, { key, name, parent, mailbox }) {
     const foldertoadd = create(key, name, parent && state[parent], mailbox);
     commit(ADD_FOLDER, foldertoadd);
@@ -34,7 +35,6 @@ const createFolder = async function ({ commit, state }, { key, name, parent, mai
     }
 };
 
-export const REMOVE_FOLDER = "REMOVE_FOLDER";
 const removeFolder = async function ({ state, commit }, { key, mailbox }) {
     const folder = state[key];
     commit(MUTATION_REMOVE_FOLDER, folder.key);
@@ -46,7 +46,6 @@ const removeFolder = async function ({ state, commit }, { key, mailbox }) {
     }
 };
 
-export const RENAME_FOLDER = "RENAME_FOLDER";
 const renameFolder = async function ({ commit, state }, { folder, mailbox }) {
     const key = folder.key;
     const { name: oldName, path: oldPath } = state[key];

@@ -1,5 +1,6 @@
 import UUIDGenerator from "@bluemind/uuid";
 import ItemUri from "@bluemind/item-uri";
+import { MY_TRASH } from "~getters";
 
 export function purge(context, messageKeys) {
     return action(context, messageKeys, "PURGE", purgeMessages);
@@ -30,7 +31,7 @@ async function action(context, messageKeys, action, actionFunction) {
         errorAlert(action, context.commit, messageKeys, subject);
     } finally {
         if (messageKeys.length > 1) {
-            context.commit("removeApplicationAlert", loadingAlertUid, { root: true });
+            context.commit("alert/removeApplicationAlert", loadingAlertUid, { root: true });
         }
     }
 }
@@ -42,7 +43,7 @@ function purgeMessages(context, messageKeys) {
 function removeMessages(context, messageKeys) {
     return context.dispatch("$_move", {
         messageKeys: messageKeys,
-        destinationKey: context.rootGetters["mail/MY_TRASH"].key
+        destinationKey: context.rootGetters["mail/" + MY_TRASH].key
     });
 }
 
@@ -86,7 +87,7 @@ function doAlert(action, type, commit, messageKeys, subject, uid) {
         };
     }
 
-    commit("addApplicationAlert", alert, { root: true });
+    commit("alert/addApplicationAlert", alert, { root: true });
 }
 
 function loadingAlert(action, commit, messageKeys, subject) {
@@ -105,5 +106,5 @@ function errorAlert(action, commit, messageKeys, subject) {
 
 function allMessagesInTrash(rootGetters, messageKeys) {
     messageKeys = Array.isArray(messageKeys) ? messageKeys : [messageKeys];
-    return messageKeys.every(key => ItemUri.container(key) === rootGetters["mail/MY_TRASH"].key);
+    return messageKeys.every(key => ItemUri.container(key) === rootGetters["mail/" + MY_TRASH].key);
 }

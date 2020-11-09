@@ -1,29 +1,26 @@
-import * as app from "./app";
-import * as consultPanel from "./consultPanel";
-import * as messageCompose from "./messageCompose";
+import { state, getters, mutations } from "./store";
+import messageCompose from "./messageCompose";
 import folders from "./folders";
 import messages from "./messages";
-import * as folderList from "./folderList";
+import consultPanel from "./consultPanel";
 import messageList from "./messageList";
-import * as mailboxes from "./mailboxes";
+import folderList from "./folderList";
+import mailboxes from "./mailboxes";
 import selection from "./selection";
 
 export default {
     namespaced: true,
-    state: { ...app.state, ...consultPanel.state, ...messageCompose.state, ...folderList.state, ...mailboxes.state },
-    actions: { ...consultPanel.actions, ...mailboxes.actions, ...messageCompose.actions },
-    mutations: {
-        ...app.mutations,
-        ...consultPanel.mutations,
-        ...messageCompose.mutations,
-        ...folderList.mutations,
-        ...mailboxes.mutations
-    },
-    getters: { ...app.getters, ...mailboxes.getters },
+    state,
+    getters,
+    mutations,
     modules: {
         folders,
+        mailboxes,
         messages,
+        selection,
+        folderList,
         messageList,
-        selection
+        messageCompose,
+        consultPanel
     }
 };

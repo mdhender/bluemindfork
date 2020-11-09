@@ -25,6 +25,7 @@
 <script>
 import noSearchResultsIllustration from "../../../assets/no-search-result.png";
 import { mapGetters } from "vuex";
+import { MESSAGE_LIST_FILTERED } from "~getters";
 
 export default {
     name: "SearchResultContentEmpty",
@@ -40,7 +41,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", ["MESSAGE_LIST_FILTERED"])
+        ...mapGetters("mail", { MESSAGE_LIST_FILTERED })
     }
 };
 </script>

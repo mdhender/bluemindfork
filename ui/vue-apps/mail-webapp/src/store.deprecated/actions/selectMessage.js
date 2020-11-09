@@ -1,8 +1,10 @@
 import { inject } from "@bluemind/inject";
 import ItemUri from "@bluemind/item-uri";
 
-import mutationTypes from "../../store/mutationTypes";
 import { MessageHeader } from "../../model/message";
+import { CURRENT_MAILBOX, MY_DRAFTS } from "~getters";
+import { FETCH_EVENT } from "~actions";
+import { SET_MESSAGE_COMPOSING } from "~mutations";
 
 export async function selectMessage({ dispatch, commit, state, rootState, rootGetters }, messageKey) {
     if (rootState.mail.activeFolder && !ItemUri.isItemUri(messageKey)) {
@@ -19,11 +21,15 @@ export async function selectMessage({ dispatch, commit, state, rootState, rootGe
                     .values[0];
                 const semiColonIndex = icsHeaderValue.indexOf(";");
                 const eventUid = semiColonIndex === -1 ? icsHeaderValue : icsHeaderValue.substring(0, semiColonIndex);
-                await dispatch("mail/FETCH_EVENT", eventUid, { root: true });
+                await dispatch(
+                    "mail/" + FETCH_EVENT,
+                    { eventUid, mailbox: rootGetters["mail/" + CURRENT_MAILBOX] },
+                    { root: true }
+                );
             }
 
-            if (ItemUri.container(messageKey) === rootGetters["mail/MY_DRAFTS"].key) {
-                commit("mail/" + mutationTypes.SET_MESSAGE_COMPOSING, { messageKey, composing: true }, { root: true });
+            if (ItemUri.container(messageKey) === rootGetters["mail/" + MY_DRAFTS].key) {
+                commit("mail/" + SET_MESSAGE_COMPOSING, { messageKey, composing: true }, { root: true });
             }
         }
 

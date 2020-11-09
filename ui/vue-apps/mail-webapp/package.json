@@ -5,6 +5,12 @@
     "author": "Blue Mind SAS",
     "main": "src/run.js",
     "license": "AGPL-3.0-only",
+    "browser": {
+        "~/": "./src/",
+        "~actions": "./src/store/types/actions",
+        "~getters": "./src/store/types/getters",
+        "~mutations": "./src/store/types/mutations"
+    },
     "dependencies": {
         "@bluemind/addressbook.api": "^4.1.0",
         "@bluemind/alert.store": "^4.1.0",

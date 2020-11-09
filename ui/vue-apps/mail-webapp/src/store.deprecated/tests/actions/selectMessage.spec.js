@@ -2,6 +2,7 @@ import { selectMessage } from "../../actions/selectMessage";
 import { ItemUri } from "@bluemind/item-uri";
 import { MimeType } from "@bluemind/email";
 import ServiceLocator from "@bluemind/inject";
+import { MY_DRAFTS } from "~getters";
 
 ServiceLocator.register({
     provide: "UserSession",
@@ -49,7 +50,7 @@ const context = {
         }
     },
     rootGetters: {
-        "mail/MY_DRAFTS": {}
+        ["mail/" + MY_DRAFTS]: {}
     }
 };
 

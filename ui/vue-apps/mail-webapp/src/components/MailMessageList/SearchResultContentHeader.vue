@@ -9,6 +9,8 @@
 <script>
 import { mapGetters } from "vuex";
 import { BmListGroup, BmListGroupItem } from "@bluemind/styleguide";
+import { MESSAGE_LIST_COUNT } from "~getters";
+
 export default {
     name: "SearchResultContent",
     components: {
@@ -16,7 +18,7 @@ export default {
         BmListGroupItem
     },
     computed: {
-        ...mapGetters("mail", ["MESSAGE_LIST_COUNT"])
+        ...mapGetters("mail", { MESSAGE_LIST_COUNT })
     }
 };
 </script>

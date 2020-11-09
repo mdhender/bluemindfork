@@ -1,6 +1,6 @@
 import { multipleByKey } from "../../../MailboxItemsStore/actions/multipleByKey";
 import { ItemUri } from "@bluemind/item-uri";
-import actionTypes from "../../../../../store/actionTypes";
+import { FETCH_MESSAGE_METADATA } from "~actions";
 
 const context = {
     dispatch: jest.fn(),
@@ -30,7 +30,7 @@ describe("[MailItemsStore][actions] : multipleByKey", () => {
         );
         multipleByKey(context, keys);
         expect(context.dispatch).toHaveBeenCalledWith(
-            "mail/" + actionTypes.FETCH_MESSAGE_METADATA,
+            "mail/" + FETCH_MESSAGE_METADATA,
             {
                 folders: [],
                 messageKeys: keys

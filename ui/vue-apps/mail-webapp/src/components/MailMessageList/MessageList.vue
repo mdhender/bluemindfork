@@ -40,7 +40,7 @@
             <draggable-message
                 :ref="'message-' + message.key"
                 :message="message"
-                :is-muted="!!draggedMessage && IS_MESSAGE_SELECTED(draggedMessage) && IS_MESSAGE_SELECTED(message.key)"
+                :is-muted="!!draggedMessage && MESSAGE_IS_SELECTED(draggedMessage) && MESSAGE_IS_SELECTED(message.key)"
                 @toggle-select="toggleSelect"
                 @click.exact.native="unselectAllIfNeeded(message.key)"
                 @click.ctrl.exact.native.capture.prevent.stop="toggleInSelection(message.key)"
@@ -62,16 +62,14 @@ import DraggableMessage from "./DraggableMessage";
 import DateSeparator from "./DateSeparator";
 import {
     MULTIPLE_MESSAGE_SELECTED,
-    IS_SELECTION_EMPTY,
-    IS_MESSAGE_SELECTED,
-    ALL_MESSAGES_ARE_SELECTED
-} from "../../store/types/getters";
-import {
-    SELECT_MESSAGE,
-    UNSELECT_MESSAGE,
-    SELECT_ALL_MESSAGES,
-    UNSELECT_ALL_MESSAGES
-} from "../../store/types/mutations";
+    SELECTION_IS_EMPTY,
+    MESSAGE_IS_SELECTED,
+    ALL_MESSAGES_ARE_SELECTED,
+    MY_TRASH,
+    MESSAGE_LIST_COUNT,
+    MESSAGE_IS_LOADED
+} from "~getters";
+import { SELECT_MESSAGE, UNSELECT_MESSAGE, SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES } from "~mutations";
 
 const PAGE = 9;
 
@@ -95,12 +93,14 @@ export default {
     computed: {
         ...mapGetters("mail-webapp", ["nextMessageKey"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapGetters("mail", ["MY_TRASH", "MESSAGE_LIST_COUNT", "isLoaded"]),
         ...mapGetters("mail", {
             MULTIPLE_MESSAGE_SELECTED,
-            IS_SELECTION_EMPTY,
-            IS_MESSAGE_SELECTED,
-            ALL_MESSAGES_ARE_SELECTED
+            SELECTION_IS_EMPTY,
+            MESSAGE_IS_SELECTED,
+            ALL_MESSAGES_ARE_SELECTED,
+            MY_TRASH,
+            MESSAGE_LIST_COUNT,
+            MESSAGE_IS_LOADED
         }),
         ...mapState("mail", ["selection", "activeFolder", "selection"]),
         ...mapState("mail", {
@@ -110,7 +110,7 @@ export default {
             return this.messageKeys
                 .slice(0, this.length)
                 .map(key => this.$store.state.mail.messages[key])
-                .filter(({ key }) => this.isLoaded(key));
+                .filter(({ key }) => this.MESSAGE_IS_LOADED(key));
         },
         currentMessage() {
             return this.$store.state.mail.messages[this.currentMessageKey];
@@ -174,7 +174,7 @@ export default {
                     const nextMessageKey = this.nextMessageKey;
                     this.$store.dispatch(
                         "mail-webapp/remove",
-                        this.IS_SELECTION_EMPTY ? this.currentMessageKey : this.selection
+                        this.SELECTION_IS_EMPTY ? this.currentMessageKey : this.selection
                     );
                     if (!this.MULTIPLE_MESSAGE_SELECTED) {
                         this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
@@ -203,7 +203,7 @@ export default {
                     const nextMessageKey = this.nextMessageKey;
                     this.$store.dispatch(
                         "mail-webapp/purge",
-                        this.IS_SELECTION_EMPTY ? this.currentMessageKey : this.selection
+                        this.SELECTION_IS_EMPTY ? this.currentMessageKey : this.selection
                     );
                     if (!this.MULTIPLE_MESSAGE_SELECTED) {
                         this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
@@ -286,13 +286,13 @@ export default {
             this.navigateAfterSelection();
         },
         toggleInSelection(messageKey) {
-            if (this.IS_SELECTION_EMPTY && this.currentMessageKey && this.currentMessageKey !== messageKey) {
+            if (this.SELECTION_IS_EMPTY && this.currentMessageKey && this.currentMessageKey !== messageKey) {
                 this.SELECT_MESSAGE(this.currentMessageKey);
             }
             this.toggleSelect(messageKey);
         },
         toggleSelect(messageKey) {
-            if (this.IS_MESSAGE_SELECTED(messageKey)) {
+            if (this.MESSAGE_IS_SELECTED(messageKey)) {
                 this.UNSELECT_MESSAGE(messageKey);
                 if (this.currentMessageKey === messageKey) {
                     this.clearCurrentMessage();

@@ -2,20 +2,17 @@ import { removeAllApplicationAlerts } from "../../src/mutations/removeAllApplica
 
 describe("[AlertStore][mutations] : remove all alerts", () => {
     test("remove all alerts from the state", () => {
-        const state = {
-            applicationAlerts: [
-                {
-                    code: "PREVIOUS_ALERT",
-                    uid: "454484e-d484eed"
-                },
-                {
-                    code: "ALERT_TO_DELETE"
-                }
-            ]
-        };
-
+        const state = [
+            {
+                code: "PREVIOUS_ALERT",
+                uid: "454484e-d484eed"
+            },
+            {
+                code: "ALERT_TO_DELETE"
+            }
+        ];
         removeAllApplicationAlerts(state);
 
-        expect(state.applicationAlerts.length).toEqual(0);
+        expect(state.length).toEqual(0);
     });
 });

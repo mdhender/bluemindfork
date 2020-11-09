@@ -83,7 +83,7 @@ import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
 import MessagesOptionsForMobile from "./MessagesOptionsForMobile";
 import NewMessage from "./NewMessage";
-import { MULTIPLE_MESSAGE_SELECTED } from "../store/types/getters";
+import { MULTIPLE_MESSAGE_SELECTED } from "~getters";
 
 export default {
     name: "MailApp",

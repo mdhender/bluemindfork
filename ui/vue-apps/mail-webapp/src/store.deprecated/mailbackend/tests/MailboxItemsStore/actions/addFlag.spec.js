@@ -3,7 +3,7 @@ import { Flag } from "@bluemind/email";
 import { MailboxItemsClient } from "@bluemind/backend.mail.api";
 import ItemUri from "@bluemind/item-uri";
 import ServiceLocator from "@bluemind/inject";
-import actionTypes from "../../../../../store/actionTypes";
+import { ADD_FLAG } from "~actions";
 jest.mock("@bluemind/inject");
 jest.mock("@bluemind/backend.mail.api");
 
@@ -37,7 +37,7 @@ describe("[MailItemsStore][actions] : addFlag", () => {
     test("call add flag for a given messageId and folderUid  and mutate state", () => {
         addFlag(context, { messageKeys: [messageKey], mailboxItemFlag });
         expect(context.dispatch).toHaveBeenCalledWith(
-            "mail/" + actionTypes.ADD_FLAG,
+            "mail/" + ADD_FLAG,
             { messageKeys: [messageKey], flag: mailboxItemFlag },
             { root: true }
         );

@@ -1,6 +1,6 @@
 import UUIDGenerator from "@bluemind/uuid";
-import { REMOVE_FOLDER, ADD_FOLDER } from "../../store/folders/mutations";
-import { CREATE_FOLDER } from "../../store/folders/actions";
+import { REMOVE_FOLDER, ADD_FOLDER } from "~mutations";
+import { CREATE_FOLDER } from "~actions";
 
 export function $_createFolder(context, { folder, mailboxUid }) {
     if (folder.key) {

@@ -18,7 +18,8 @@
 import { mapActions, mapGetters } from "vuex";
 import { BmButton, BmClipPath, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 import { MessageCreationModes } from "../model/message";
-import actionTypes from "../store/actionTypes";
+import { MY_DRAFTS } from "~getters";
+import { CREATE_MESSAGE } from "~actions";
 
 export default {
     name: "NewMessage",
@@ -36,10 +37,10 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", ["MY_DRAFTS"])
+        ...mapGetters("mail", { MY_DRAFTS })
     },
     methods: {
-        ...mapActions("mail", [actionTypes.CREATE_MESSAGE]),
+        ...mapActions("mail", { CREATE_MESSAGE }),
         async composeNewMessage() {
             const messageKey = await this.CREATE_MESSAGE({
                 myDraftsFolder: this.MY_DRAFTS,

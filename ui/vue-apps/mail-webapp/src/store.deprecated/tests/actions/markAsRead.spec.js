@@ -1,5 +1,7 @@
 import { Flag } from "@bluemind/email";
 import ItemUri from "@bluemind/item-uri";
+import { MESSAGE_IS_LOADED } from "~getters";
+import { SET_UNREAD_COUNT } from "~mutations";
 import { markAsRead } from "../../actions/markAs";
 
 const messageId = "74515";
@@ -36,7 +38,7 @@ const context = {
         }
     },
     rootGetters: {
-        "mail/isLoaded": key => [messageKey1, messageKey3].includes(key)
+        ["mail/" + MESSAGE_IS_LOADED]: key => [messageKey1, messageKey3].includes(key)
     }
 };
 
@@ -53,7 +55,7 @@ describe("[Mail-WebappStore][actions] : markAsRead", () => {
             mailboxItemFlag
         });
         expect(context.commit).toHaveBeenCalledWith(
-            "mail/SET_UNREAD_COUNT",
+            "mail/" + SET_UNREAD_COUNT,
             { key: folderUid, count: 9 },
             { root: true }
         );
@@ -104,12 +106,14 @@ describe("[Mail-WebappStore][actions] : markAsRead", () => {
     });
 
     function checkAlertsHaveNotBeenCalled() {
-        expect(context.commit).not.toHaveBeenCalledWith("addApplicationAlert", expect.anything(), { root: true });
-        expect(context.commit).not.toHaveBeenCalledWith("removeApplicationAlert", expect.anything(), { root: true });
+        expect(context.commit).not.toHaveBeenCalledWith("alert/addApplicationAlert", expect.anything(), { root: true });
+        expect(context.commit).not.toHaveBeenCalledWith("alert/removeApplicationAlert", expect.anything(), {
+            root: true
+        });
     }
 
     function checkAlertsHaveBeenCalled() {
-        expect(context.commit).toHaveBeenCalledWith("addApplicationAlert", expect.anything(), { root: true });
-        expect(context.commit).toHaveBeenCalledWith("removeApplicationAlert", expect.anything(), { root: true });
+        expect(context.commit).toHaveBeenCalledWith("alert/addApplicationAlert", expect.anything(), { root: true });
+        expect(context.commit).toHaveBeenCalledWith("alert/removeApplicationAlert", expect.anything(), { root: true });
     }
 });

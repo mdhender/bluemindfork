@@ -1,4 +1,4 @@
-import actionTypes from "../../store/actionTypes";
+import { FETCH_MESSAGE_METADATA, REFRESH_MESSAGE_LIST_KEYS } from "~actions";
 
 export async function $_Vuebus_mailboxRecordsChanged({ dispatch, rootState }) {
     const activeFolderKey = rootState.mail.activeFolder;
@@ -8,8 +8,8 @@ export async function $_Vuebus_mailboxRecordsChanged({ dispatch, rootState }) {
     }
     const folder = rootState.mail.folders[activeFolderKey];
     const conversationsEnabled = rootState.session.userSettings.mail_thread === "true";
-    await dispatch("mail/" + actionTypes.REFRESH_MESSAGE_LIST_KEYS, { folder, conversationsEnabled }, { root: true });
+    await dispatch("mail/" + REFRESH_MESSAGE_LIST_KEYS, { folder, conversationsEnabled }, { root: true });
 
     const sorted = rootState.mail.messageList.messageKeys.slice(0, 200);
-    await dispatch("mail/" + actionTypes.FETCH_MESSAGE_METADATA, { messageKeys: sorted }, { root: true });
+    await dispatch("mail/" + FETCH_MESSAGE_METADATA, { messageKeys: sorted }, { root: true });
 }

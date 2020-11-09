@@ -24,7 +24,7 @@ import { BmTooltip, BmDraggable } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
 import MailMessageListItemShadow from "./MailMessageListItemShadow";
 import MessageListItem from "./MessageListItem";
-import { IS_MESSAGE_SELECTED } from "../../store/types/getters";
+import { MESSAGE_IS_SELECTED } from "~getters";
 
 export default {
     name: "DraggableMessage",
@@ -55,7 +55,7 @@ export default {
     },
     computed: {
         ...mapState("mail", ["folders", "selection"]),
-        ...mapGetters("mail", { IS_MESSAGE_SELECTED }),
+        ...mapGetters("mail", { MESSAGE_IS_SELECTED }),
         ...mapGetters("mail-webapp", ["nextMessageKey"])
     },
     methods: {
@@ -89,7 +89,7 @@ export default {
                 if (this.message.key === this.currentMessageKey) {
                     this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
                 }
-                if (this.IS_MESSAGE_SELECTED(this.message.key)) {
+                if (this.MESSAGE_IS_SELECTED(this.message.key)) {
                     this.move({ messageKey: this.selection, folder: this.folders[folder.key] });
                 } else {
                     this.move({ messageKey: this.message.key, folder: this.folders[folder.key] });

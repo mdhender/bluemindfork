@@ -80,8 +80,11 @@ import {
     ALL_SELECTED_MESSAGES_ARE_READ,
     ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
     ALL_SELECTED_MESSAGES_ARE_UNREAD,
-    MULTIPLE_MESSAGE_SELECTED
-} from "../../../store/types/getters";
+    MESSAGE_LIST_FILTERED,
+    MESSAGE_LIST_IS_SEARCH_MODE,
+    MULTIPLE_MESSAGE_SELECTED,
+    MY_TRASH
+} from "~getters";
 
 export default {
     name: "MailToolbarSelectedMessages",
@@ -100,11 +103,13 @@ export default {
             ALL_SELECTED_MESSAGES_ARE_READ,
             ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
             ALL_SELECTED_MESSAGES_ARE_UNREAD,
-            MULTIPLE_MESSAGE_SELECTED
+            MULTIPLE_MESSAGE_SELECTED,
+            MY_TRASH,
+            MESSAGE_LIST_FILTERED,
+            MESSAGE_LIST_IS_SEARCH_MODE
         }),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["folders", "activeFolder", "messages", "selection"]),
-        ...mapGetters("mail", ["MY_TRASH", "MESSAGE_LIST_FILTERED", "MESSAGE_LIST_IS_SEARCH_MODE"]),
         message() {
             return this.messages[this.currentMessageKey];
         },

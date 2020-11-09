@@ -1,30 +1,27 @@
 import Vue from "vue";
+import { RENAME_FOLDER } from "~actions";
+import { ADD_FOLDER, ADD_FOLDERS, REMOVE_FOLDER, SET_UNREAD_COUNT, TOGGLE_FOLDER } from "~mutations";
 
-export const ADD_FOLDER = "ADD_FOLDER";
 const addFolder = (state, { key, ...folder }) => {
     Vue.set(state, key, { ...folder, key });
 };
 
-export const ADD_FOLDERS = "ADD_FOLDERS";
 const addFolders = (state, folders) => {
     folders.forEach(folder => {
         addFolder(state, folder);
     });
 };
 
-export const RENAME_FOLDER = "RENAME_FOLDER";
 const renameFolder = (state, { key, name, path }) => {
     state[key].name = name;
     state[key].path = path;
 };
 
-export const REMOVE_FOLDER = "REMOVE_FOLDER";
 const removeFolder = function (state, key) {
     Vue.delete(state, key);
 };
 
 //TODO: change parameter name s/count/unread/
-export const SET_UNREAD_COUNT = "SET_UNREAD_COUNT";
 const setUnreadCount = (state, { key, count }) => {
     // FIXME: [inconsistency] With `ADD_FOLDER` we can set a negative value for the `unread` property
     if (count >= 0 && state[key].unread !== count) {
@@ -32,7 +29,6 @@ const setUnreadCount = (state, { key, count }) => {
     }
 };
 
-export const TOGGLE_FOLDER = "TOGGLE_FOLDER";
 const toggleFolder = (state, key) => {
     state[key].expanded = !state[key].expanded;
 };

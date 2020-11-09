@@ -2,10 +2,10 @@ import { Flag } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import ItemUri from "@bluemind/item-uri";
 
-import actionTypes from "../../actionTypes";
-import mutationTypes from "../../mutationTypes";
 import { MessageStatus, MessageHeader, MessageCreationModes } from "../../../model/message";
 import { validateDraft } from "../../../model/draft";
+import { ADD_FLAG, SAVE_MESSAGE } from "~actions";
+import { SET_MESSAGES_STATUS } from "~mutations";
 
 /** Send the last draft: move it to the Outbox then flush. */
 export default async function (
@@ -15,18 +15,18 @@ export default async function (
     const draft = state[draftKey];
     let draftId = draft.remoteRef.internalId;
 
-    await dispatch(actionTypes.SAVE_MESSAGE, {
+    await dispatch(SAVE_MESSAGE, {
         userPrefTextOnly,
         draftKey,
         myDraftsFolderKey: myDraftsFolder.key,
         messageCompose
     });
 
-    commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENDING }]);
+    commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENDING }]);
     validateDraft(draft, inject("i18n"));
     draftId = await moveToOutbox(draftId, myMailboxKey, outboxId, myDraftsFolder.remoteRef.internalId);
     const taskResult = await flush(); // flush means send mail + move to sentbox
-    commit(mutationTypes.SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
+    commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
 
     manageFlagOnPreviousMessage(draft, dispatch, state);
 
@@ -86,7 +86,7 @@ function manageFlagOnPreviousMessage(draft, dispatch, state) {
 
         const messageKey = ItemUri.encode(parseInt(messageInternalId), folderUid);
         if (state[messageKey]) {
-            dispatch(actionTypes.ADD_FLAG, {
+            dispatch(ADD_FLAG, {
                 messageKeys: [messageKey],
                 flag: mailboxItemFlag
             });

@@ -1,5 +1,5 @@
+import { REMOVE_MESSAGES } from "~actions";
 import { remove } from "../../../MailboxItemsStore/actions/remove";
-import actionTypes from "../../../../../store/actionTypes";
 
 jest.mock("@bluemind/inject");
 
@@ -16,7 +16,7 @@ describe("[MailItemsStore][actions] : remove", () => {
 
     test("call remove service for a given messageId and folderUid  and mutate state", () => {
         remove(context, messageKey);
-        expect(context.dispatch).toHaveBeenCalledWith("mail/" + actionTypes.REMOVE_MESSAGES, messageKey, {
+        expect(context.dispatch).toHaveBeenCalledWith("mail/" + REMOVE_MESSAGES, messageKey, {
             root: true
         });
     });

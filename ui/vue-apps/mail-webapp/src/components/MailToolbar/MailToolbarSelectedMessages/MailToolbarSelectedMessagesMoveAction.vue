@@ -83,6 +83,7 @@ import { FolderAdaptor } from "../../../store/folders/helpers/FolderAdaptor";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailFolderInput from "../../MailFolderInput";
 import { MailboxType } from "../../../model/mailbox";
+import { MY_INBOX, MY_TRASH, FOLDER_BY_PATH } from "~getters";
 
 export default {
     name: "MailToolbarConsultMessageMoveAction",
@@ -108,7 +109,7 @@ export default {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail-webapp", ["nextMessageKey"]),
         ...mapState("mail", ["folders", "mailboxes", "activeFolder"]),
-        ...mapGetters("mail", ["MY_TRASH", "MY_INBOX", "FOLDER_BY_PATH"]),
+        ...mapGetters("mail", { MY_TRASH, MY_INBOX, FOLDER_BY_PATH }),
         displayCreateFolderBtnFromPattern() {
             let pattern = this.pattern;
             if (pattern !== "") {

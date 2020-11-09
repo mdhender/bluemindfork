@@ -1,5 +1,6 @@
 import { purge as purgeAction } from "../../actions/purgeAndRemove";
 import ItemUri from "@bluemind/item-uri";
+import { MY_TRASH } from "~getters";
 
 let isMessageRemoveActionSuccessfull = true;
 let mockMessage;
@@ -17,7 +18,7 @@ const context = {
         currentMessage: { key: messageKey }
     },
     rootGetters: {
-        "mail/MY_TRASH": { key: "trash-key" }
+        ["mail/" + MY_TRASH]: { key: "trash-key" }
     },
     rootState: {
         mail: {
@@ -42,7 +43,7 @@ describe("MailApp Store: Purge message action", () => {
         expect(context.commit).toHaveBeenCalledTimes(1);
 
         expect(context.commit).toHaveBeenCalledWith(
-            "addApplicationAlert",
+            "alert/addApplicationAlert",
             expect.objectContaining({
                 code: "MSG_PURGE_OK",
                 props: { subject: undefined }
@@ -60,7 +61,7 @@ describe("MailApp Store: Purge message action", () => {
 
         expect(context.commit).toHaveBeenCalledTimes(1);
         expect(context.commit).toHaveBeenCalledWith(
-            "addApplicationAlert",
+            "alert/addApplicationAlert",
             expect.objectContaining({
                 code: "MSG_PURGE_ERROR",
                 props: { subject: undefined, reason: undefined }

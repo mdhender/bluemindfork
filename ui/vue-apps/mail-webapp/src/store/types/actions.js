@@ -1,5 +1,17 @@
+// mailboxes
+
+export const FETCH_MAILBOXES = "FETCH_MAILBOXES";
+
+// folders
+
+export const FETCH_FOLDERS = "FETCH_FOLDERS";
+export const CREATE_FOLDER = "CREATE_FOLDER";
+export const REMOVE_FOLDER = "REMOVE_FOLDER";
+export const RENAME_FOLDER = "RENAME_FOLDER";
+
 // messages
 export const MARK_MESSAGE_AS_READ = "MARK_MESSAGE_AS_READ";
+export const MARK_MESSAGES_AS_READ = "MARK_MESSAGES_AS_READ";
 export const ADD_ATTACHMENTS = "ADD_ATTACHMENTS";
 export const ADD_FLAG = "ADD_FLAG";
 export const CREATE_MESSAGE = "CREATE_MESSAGE";
@@ -16,3 +28,7 @@ export const REFRESH_MESSAGE_LIST_KEYS = "REFRESH_MESSAGE_LIST_KEYS";
 
 // messageCompose
 export const FETCH_SIGNATURE = "FETCH_SIGNATURE";
+
+// consultPanel
+export const FETCH_EVENT = "FETCH_EVENT";
+export const SET_EVENT_STATUS = "SET_EVENT_STATUS";

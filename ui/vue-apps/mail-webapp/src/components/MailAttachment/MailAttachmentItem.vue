@@ -95,9 +95,10 @@ import {
 } from "@bluemind/styleguide";
 
 import { AttachmentStatus } from "../../model/attachment";
-import actionTypes from "../../store/actionTypes";
-import mutationTypes from "../../store/mutationTypes";
 import { fetch } from "../../model/message";
+import { MY_DRAFTS } from "~getters";
+import { SET_ATTACHMENT_CONTENT_URL } from "~mutations";
+import { REMOVE_ATTACHMENT } from "~actions";
 
 export default {
     name: "MailAttachmentItem",
@@ -123,7 +124,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", ["MY_DRAFTS"]),
+        ...mapGetters("mail", { MY_DRAFTS }),
         ...mapState("mail", ["messageCompose"]),
         isRemovable() {
             return this.message.composing;
@@ -168,8 +169,8 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", [actionTypes.REMOVE_ATTACHMENT]),
-        ...mapMutations("mail", [mutationTypes.SET_ATTACHMENT_CONTENT_URL]),
+        ...mapActions("mail", { REMOVE_ATTACHMENT }),
+        ...mapMutations("mail", { SET_ATTACHMENT_CONTENT_URL }),
         cancel() {
             global.cancellers[this.attachment.address + this.message.key].cancel();
         },

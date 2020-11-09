@@ -1,31 +1,30 @@
 import { inject } from "@bluemind/inject";
 
-import mutationTypes from "./mutationTypes";
-import { FETCH_SIGNATURE } from "./types/actions";
-import { SET_SIGNATURE } from "./types/mutations";
+import { FETCH_SIGNATURE } from "~actions";
+import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT, SET_SIGNATURE } from "~mutations";
 
-export const mutations = {
-    [mutationTypes.SET_DRAFT_EDITOR_CONTENT]: (state, content) => {
-        state.messageCompose.editorContent = content;
+export default {
+    mutations: {
+        [SET_DRAFT_EDITOR_CONTENT]: (state, content) => {
+            state.editorContent = content;
+        },
+        [SET_DRAFT_COLLAPSED_CONTENT]: (state, collapsed) => {
+            state.collapsedContent = collapsed;
+        },
+        [SET_SIGNATURE]: (state, signature) => {
+            state.signature = signature;
+        }
     },
-    [mutationTypes.SET_DRAFT_COLLAPSED_CONTENT]: (state, content) => {
-        state.messageCompose.collapsedContent = content;
+
+    actions: {
+        async [FETCH_SIGNATURE]({ commit }) {
+            const identities = await inject("IUserMailIdentities").getIdentities();
+            const defaultIdentity = identities.find(identity => identity.isDefault);
+            commit(SET_SIGNATURE, defaultIdentity && defaultIdentity.signature);
+        }
     },
-    [SET_SIGNATURE]: (state, signature) => {
-        state.messageCompose.signature = signature;
-    }
-};
 
-export const actions = {
-    async [FETCH_SIGNATURE]({ commit }) {
-        const identities = await inject("IUserMailIdentities").getIdentities();
-        const defaultIdentity = identities.find(identity => identity.isDefault);
-        commit(SET_SIGNATURE, defaultIdentity && defaultIdentity.signature);
-    }
-};
-
-export const state = {
-    messageCompose: {
+    state: {
         editorContent: "",
         collapsedContent: null,
         signature: ""

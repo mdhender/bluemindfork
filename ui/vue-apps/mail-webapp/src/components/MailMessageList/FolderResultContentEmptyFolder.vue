@@ -18,6 +18,7 @@ import { mapGetters, mapState } from "vuex";
 import emptyFolderIllustration from "../../../assets/empty-folder.png";
 import MailFolderIcon from "../MailFolderIcon";
 import MailMessageListEmpty from "./MailMessageListEmpty";
+import { CURRENT_MAILBOX } from "~getters";
 
 export default {
     name: "FolderResultContentEmptyFolder",
@@ -33,7 +34,7 @@ export default {
     },
     computed: {
         ...mapState("mail", ["folders", "activeFolder"]),
-        ...mapGetters("mail", ["CURRENT_MAILBOX"]),
+        ...mapGetters("mail", { CURRENT_MAILBOX }),
         currentFolder() {
             return this.folders[this.activeFolder];
         }

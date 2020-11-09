@@ -4,7 +4,7 @@ import { CLEAR, ERROR, LOADING, REMOVE, SUCCESS } from "./types";
 export { default as Alert } from "./Alert";
 export { default as AlertFactory } from "./AlertFactory";
 export { default as AlertTypes } from "./AlertTypes";
-export { default as withAlert } from "./actionWithAlert";
+export { withAlert } from "./withAlert";
 export * from "./types";
 
 export default {

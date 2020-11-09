@@ -17,7 +17,7 @@ import { BmButton, BmIcon, BmButtonToolbar } from "@bluemind/styleguide";
 
 import MailToolbarComposeMessage from "./MailToolbarComposeMessage";
 import MailToolbarSelectedMessages from "./MailToolbarSelectedMessages";
-import { MULTIPLE_MESSAGE_SELECTED } from "../../store/types/getters";
+import { MULTIPLE_MESSAGE_SELECTED } from "~getters";
 
 export default {
     name: "MailToolbar",

@@ -1,28 +1,51 @@
 import Vue from "vue";
-import mutationTypes from "../mutationTypes";
 import { MessageStatus } from "../../model/message";
+import {
+    ADD_ATTACHMENT,
+    ADD_FLAG,
+    ADD_MESSAGES,
+    DELETE_FLAG,
+    REMOVE_ATTACHMENT,
+    REMOVE_MESSAGES,
+    REMOVE_MESSAGE_PART_CONTENTS,
+    SET_ATTACHMENT_ADDRESS,
+    SET_ATTACHMENT_CONTENT_URL,
+    SET_ATTACHMENT_ENCODING,
+    SET_ATTACHMENT_PROGRESS,
+    SET_ATTACHMENT_STATUS,
+    SET_MESSAGES_STATUS,
+    SET_MESSAGE_BCC,
+    SET_MESSAGE_CC,
+    SET_MESSAGE_COMPOSING,
+    SET_MESSAGE_DATE,
+    SET_MESSAGE_HEADERS,
+    SET_MESSAGE_LIST,
+    SET_MESSAGE_PART_CONTENTS,
+    SET_MESSAGE_SUBJECT,
+    SET_MESSAGE_TO
+} from "~mutations";
 
 export default {
-    [mutationTypes.ADD_MESSAGES]: (state, messages) => {
+    [ADD_MESSAGES]: (state, messages) => {
         messages.forEach(message => {
             Vue.set(state, message.key, message);
         });
     },
-    [mutationTypes.ADD_FLAG]: (state, { keys, flag }) => {
+    [ADD_FLAG]: (state, { keys, flag }) => {
         keys.forEach(key => {
             if (state[key].status === MessageStatus.LOADED && !state[key].flags.includes(flag)) {
                 state[key].flags.push(flag);
             }
         });
     },
-    [mutationTypes.DELETE_FLAG]: (state, { keys, flag }) => {
+    [DELETE_FLAG]: (state, { keys, flag }) => {
         keys.forEach(key => {
             if (state[key].status === MessageStatus.LOADED && state[key].flags.includes(flag)) {
                 state[key].flags = state[key].flags.filter(f => f !== flag);
             }
         });
     },
-    [mutationTypes.REMOVE_MESSAGES]: (state, keys) => {
+    [REMOVE_MESSAGES]: (state, keys) => {
         keys.forEach(key => {
             if (state[key] && state[key].attachments) {
                 state[key].attachments
@@ -34,34 +57,34 @@ export default {
             Vue.delete(state, key);
         });
     },
-    [mutationTypes.SET_MESSAGES_STATUS]: (state, messages) => {
+    [SET_MESSAGES_STATUS]: (state, messages) => {
         messages.forEach(m => (state[m.key].status = m.status));
     },
-    [mutationTypes.SET_MESSAGE_LIST]: (state, messages) => {
+    [SET_MESSAGE_LIST]: (state, messages) => {
         messages.filter(message => !state[message.key]).forEach(message => Vue.set(state, message.key, message));
     },
-    [mutationTypes.SET_MESSAGE_COMPOSING]: (state, { messageKey, composing }) => {
+    [SET_MESSAGE_COMPOSING]: (state, { messageKey, composing }) => {
         state[messageKey].composing = composing;
     },
-    [mutationTypes.SET_MESSAGE_SUBJECT]: (state, { messageKey, subject }) => {
+    [SET_MESSAGE_SUBJECT]: (state, { messageKey, subject }) => {
         state[messageKey].subject = subject;
     },
-    [mutationTypes.SET_MESSAGE_DATE]: (state, { messageKey, date }) => {
+    [SET_MESSAGE_DATE]: (state, { messageKey, date }) => {
         state[messageKey].date = date;
     },
-    [mutationTypes.SET_MESSAGE_HEADERS]: (state, { messageKey, headers }) => {
+    [SET_MESSAGE_HEADERS]: (state, { messageKey, headers }) => {
         state[messageKey].headers = headers;
     },
-    [mutationTypes.SET_MESSAGE_TO]: (state, { messageKey, to }) => {
+    [SET_MESSAGE_TO]: (state, { messageKey, to }) => {
         state[messageKey].to = to;
     },
-    [mutationTypes.SET_MESSAGE_CC]: (state, { messageKey, cc }) => {
+    [SET_MESSAGE_CC]: (state, { messageKey, cc }) => {
         state[messageKey].cc = cc;
     },
-    [mutationTypes.SET_MESSAGE_BCC]: (state, { messageKey, bcc }) => {
+    [SET_MESSAGE_BCC]: (state, { messageKey, bcc }) => {
         state[messageKey].bcc = bcc;
     },
-    [mutationTypes.SET_MESSAGE_PART_CONTENTS]: (state, { key, contents, parts }) => {
+    [SET_MESSAGE_PART_CONTENTS]: (state, { key, contents, parts }) => {
         if (!state[key].partContentByAddress) {
             state[key].partContentByAddress = {};
         }
@@ -69,15 +92,15 @@ export default {
             Vue.set(state[key].partContentByAddress, part.address, contents[index]);
         });
     },
-    [mutationTypes.REMOVE_MESSAGE_PART_CONTENTS]: (state, key) => {
+    [REMOVE_MESSAGE_PART_CONTENTS]: (state, key) => {
         if (state[key]) {
             state[key].partContentByAddress = {};
         }
     },
-    [mutationTypes.ADD_ATTACHMENT]: (state, { messageKey, attachment }) => {
+    [ADD_ATTACHMENT]: (state, { messageKey, attachment }) => {
         state[messageKey].attachments.push(attachment);
     },
-    [mutationTypes.REMOVE_ATTACHMENT]: (state, { messageKey, address }) => {
+    [REMOVE_ATTACHMENT]: (state, { messageKey, address }) => {
         const attachments = state[messageKey].attachments;
         const index = attachments.findIndex(a => a.address === address);
         if (attachments[index].contentUrl) {
@@ -85,26 +108,26 @@ export default {
         }
         attachments.splice(index, 1);
     },
-    [mutationTypes.SET_ATTACHMENT_ADDRESS]: (state, { messageKey, oldAddress, address }) => {
+    [SET_ATTACHMENT_ADDRESS]: (state, { messageKey, oldAddress, address }) => {
         const attachment = state[messageKey].attachments.find(a => a.address === oldAddress);
         if (attachment) {
             attachment.address = address;
         }
     },
-    [mutationTypes.SET_ATTACHMENT_STATUS]: (state, { messageKey, address, status }) => {
+    [SET_ATTACHMENT_STATUS]: (state, { messageKey, address, status }) => {
         const attachment = state[messageKey].attachments.find(a => a.address === address);
         attachment.status = status;
     },
-    [mutationTypes.SET_ATTACHMENT_ENCODING]: (state, { messageKey, address, charset, encoding }) => {
+    [SET_ATTACHMENT_ENCODING]: (state, { messageKey, address, charset, encoding }) => {
         const attachment = state[messageKey].attachments.find(a => a.address === address);
         attachment.charset = charset;
         attachment.encoding = encoding;
     },
-    [mutationTypes.SET_ATTACHMENT_PROGRESS]: (state, { messageKey, address, loaded, total }) => {
+    [SET_ATTACHMENT_PROGRESS]: (state, { messageKey, address, loaded, total }) => {
         const attachment = state[messageKey].attachments.find(a => a.address === address);
         attachment.progress = { loaded, total };
     },
-    [mutationTypes.SET_ATTACHMENT_CONTENT_URL]: (state, { messageKey, address, url }) => {
+    [SET_ATTACHMENT_CONTENT_URL]: (state, { messageKey, address, url }) => {
         if (state[messageKey]) {
             const attachment = state[messageKey].attachments.find(a => a.address === address);
             attachment.contentUrl = url;

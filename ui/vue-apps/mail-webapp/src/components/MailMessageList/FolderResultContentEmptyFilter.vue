@@ -13,10 +13,11 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import emptyFolderIllustrationUnreadFilter from "../../../assets/empty-folder-unread-filter.png";
 import emptyFolderIllustrationFlaggedFilter from "../../../assets/empty-folder-flagged-filter.png";
 import MailMessageListEmpty from "./MailMessageListEmpty";
-import { mapGetters } from "vuex";
+import { MESSAGE_LIST_UNREAD_FILTER_ENABLED, MESSAGE_LIST_FLAGGED_FILTER_ENABLED } from "~getters";
 
 export default {
     name: "FolderResultContentEmptyFilter",
@@ -30,7 +31,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", ["MESSAGE_LIST_UNREAD_FILTER_ENABLED", "MESSAGE_LIST_FLAGGED_FILTER_ENABLED"]),
+        ...mapGetters("mail", { MESSAGE_LIST_UNREAD_FILTER_ENABLED, MESSAGE_LIST_FLAGGED_FILTER_ENABLED }),
         image() {
             if (this.MESSAGE_LIST_UNREAD_FILTER_ENABLED) {
                 return this.emptyFolderIllustrationUnreadFilter;

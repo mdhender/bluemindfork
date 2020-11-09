@@ -8,9 +8,9 @@ import { MockMailboxItemsClient } from "@bluemind/test-utils";
 
 import messageStore from "../../index";
 import MessageAdaptor from "../../helpers/MessageAdaptor";
-import mutationsTypes from "../../../mutationTypes";
-import actionTypes from "../../../actionTypes";
 import { MessageStatus, createOnlyMetadata } from "../../../../model/message";
+import { ADD_MESSAGES } from "~mutations";
+import { ADD_FLAG, DELETE_FLAG, FETCH_MESSAGE_METADATA, REMOVE_MESSAGES } from "~actions";
 
 Vue.use(Vuex);
 
@@ -31,9 +31,9 @@ describe("Messages actions", () => {
                 .filter(({ value: { flags } }) => !flags.includes(Flag.SEEN))
                 .slice(0, 5)
                 .map(m => MessageAdaptor.fromMailboxItem(m, folder));
-            store.commit(mutationsTypes.ADD_MESSAGES, adapted);
+            store.commit(ADD_MESSAGES, adapted);
             const messageKeys = adapted.map(message => message.key);
-            await store.dispatch(actionTypes.ADD_FLAG, {
+            await store.dispatch(ADD_FLAG, {
                 messageKeys,
                 flag: Flag.SEEN
             });
@@ -48,9 +48,9 @@ describe("Messages actions", () => {
                 .filter(({ value: { flags } }) => flags.includes(Flag.SEEN))
                 .slice(0, 5)
                 .map(m => MessageAdaptor.fromMailboxItem(m, folder));
-            store.commit(mutationsTypes.ADD_MESSAGES, adapted);
+            store.commit(ADD_MESSAGES, adapted);
             const messageKeys = adapted.map(message => message.key);
-            await store.dispatch(actionTypes.ADD_FLAG, {
+            await store.dispatch(ADD_FLAG, {
                 messageKeys,
                 flag: Flag.SEEN
             });
@@ -58,9 +58,9 @@ describe("Messages actions", () => {
         });
         test("Call add flag remote API for messages not yet loaded", async () => {
             const adapted = [1, 2].map(id => createOnlyMetadata({ internalId: id, folder }));
-            store.commit(mutationsTypes.ADD_MESSAGES, adapted);
+            store.commit(ADD_MESSAGES, adapted);
             const messageKeys = adapted.map(message => message.key);
-            await store.dispatch(actionTypes.ADD_FLAG, {
+            await store.dispatch(ADD_FLAG, {
                 messageKeys,
                 flag: Flag.SEEN
             });
@@ -74,8 +74,8 @@ describe("Messages actions", () => {
                 messages.find(({ value: { flags } }) => !flags.includes(Flag.SEEN)),
                 folder
             );
-            store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
-            const promise = store.dispatch(actionTypes.ADD_FLAG, {
+            store.commit(ADD_MESSAGES, [adapted]);
+            const promise = store.dispatch(ADD_FLAG, {
                 messageKeys: [adapted.key],
                 flag: Flag.SEEN
             });
@@ -85,8 +85,8 @@ describe("Messages actions", () => {
         });
         test("Only add flag to loaded items", () => {
             const adapted = createOnlyMetadata({ internalId: 1, folder });
-            store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
-            store.dispatch(actionTypes.ADD_FLAG, {
+            store.commit(ADD_MESSAGES, [adapted]);
+            store.dispatch(ADD_FLAG, {
                 messageKeys: [1],
                 flag: Flag.SEEN
             });
@@ -97,8 +97,8 @@ describe("Messages actions", () => {
                 messages.find(({ value: { flags } }) => flags.includes(Flag.SEEN)),
                 folder
             );
-            store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
-            store.dispatch(actionTypes.ADD_FLAG, {
+            store.commit(ADD_MESSAGES, [adapted]);
+            store.dispatch(ADD_FLAG, {
                 messageKeys: [adapted.key],
                 flag: Flag.SEEN
             });
@@ -109,10 +109,10 @@ describe("Messages actions", () => {
                 messages.find(({ value: { flags } }) => !flags.includes(Flag.SEEN)),
                 folder
             );
-            store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
+            store.commit(ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").addFlag.mockRejectedValueOnce("Failure");
             try {
-                await store.dispatch(actionTypes.ADD_FLAG, {
+                await store.dispatch(ADD_FLAG, {
                     messageKeys: [adapted.key],
                     flag: Flag.SEEN
                 });
@@ -127,10 +127,10 @@ describe("Messages actions", () => {
                 messages.find(({ value: { flags } }) => flags.includes(Flag.SEEN)),
                 folder
             );
-            store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
+            store.commit(ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").addFlag.mockRejectedValueOnce("Failure");
             try {
-                await store.dispatch(actionTypes.ADD_FLAG, {
+                await store.dispatch(ADD_FLAG, {
                     messageKeys: [adapted.key],
                     flag: Flag.SEEN
                 });
@@ -145,9 +145,9 @@ describe("Messages actions", () => {
                 .filter(({ value: { flags } }) => flags.includes(Flag.SEEN))
                 .slice(0, 5)
                 .map(m => MessageAdaptor.fromMailboxItem(m, folder));
-            store.commit(mutationsTypes.ADD_MESSAGES, adapted);
+            store.commit(ADD_MESSAGES, adapted);
             const messageKeys = adapted.map(message => message.key);
-            await store.dispatch(actionTypes.DELETE_FLAG, {
+            await store.dispatch(DELETE_FLAG, {
                 messageKeys,
                 flag: Flag.SEEN
             });
@@ -162,9 +162,9 @@ describe("Messages actions", () => {
                 .filter(({ value: { flags } }) => !flags.includes(Flag.SEEN))
                 .slice(0, 5)
                 .map(m => MessageAdaptor.fromMailboxItem(m, folder));
-            store.commit(mutationsTypes.ADD_MESSAGES, adapted);
+            store.commit(ADD_MESSAGES, adapted);
             const messageKeys = adapted.map(message => message.key);
-            await store.dispatch(actionTypes.DELETE_FLAG, {
+            await store.dispatch(DELETE_FLAG, {
                 messageKeys,
                 flag: Flag.SEEN
             });
@@ -172,9 +172,9 @@ describe("Messages actions", () => {
         });
         test("Call delete flag remote API for messages not yet loaded", async () => {
             const adapted = [1, 2].map(id => createOnlyMetadata({ internalId: id, folder }));
-            store.commit(mutationsTypes.ADD_MESSAGES, adapted);
+            store.commit(ADD_MESSAGES, adapted);
             const messageKeys = adapted.map(message => message.key);
-            await store.dispatch(actionTypes.DELETE_FLAG, {
+            await store.dispatch(DELETE_FLAG, {
                 messageKeys,
                 flag: Flag.SEEN
             });
@@ -188,8 +188,8 @@ describe("Messages actions", () => {
                 messages.find(({ value: { flags } }) => flags.includes(Flag.SEEN)),
                 folder
             );
-            store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
-            const promise = store.dispatch(actionTypes.DELETE_FLAG, {
+            store.commit(ADD_MESSAGES, [adapted]);
+            const promise = store.dispatch(DELETE_FLAG, {
                 messageKeys: [adapted.key],
                 flag: Flag.SEEN
             });
@@ -203,10 +203,10 @@ describe("Messages actions", () => {
                 messages.find(({ value: { flags } }) => flags.includes(Flag.SEEN)),
                 folder
             );
-            store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
+            store.commit(ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").deleteFlag.mockRejectedValueOnce("Failure");
             try {
-                await store.dispatch(actionTypes.DELETE_FLAG, {
+                await store.dispatch(DELETE_FLAG, {
                     messageKeys: [adapted.key],
                     flag: Flag.SEEN
                 });
@@ -221,10 +221,10 @@ describe("Messages actions", () => {
                 messages.find(({ value: { flags } }) => !flags.includes(Flag.SEEN)),
                 folder
             );
-            store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
+            store.commit(ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").deleteFlag.mockRejectedValueOnce("Failure");
             try {
-                await store.dispatch(actionTypes.DELETE_FLAG, {
+                await store.dispatch(DELETE_FLAG, {
                     messageKeys: [adapted.key],
                     flag: Flag.SEEN
                 });
@@ -236,8 +236,8 @@ describe("Messages actions", () => {
     describe("FETCH_MESSAGE_METADATA", () => {
         test("Call fetch message API", () => {
             const adapted = [1, 2, 3].map(id => createOnlyMetadata({ internalId: id, folder }));
-            store.commit(mutationsTypes.ADD_MESSAGES, adapted);
-            store.dispatch(actionTypes.FETCH_MESSAGE_METADATA, {
+            store.commit(ADD_MESSAGES, adapted);
+            store.dispatch(FETCH_MESSAGE_METADATA, {
                 messageKeys: adapted.map(message => message.key)
             });
             expect(inject("MailboxItemsPersistence").multipleById).toHaveBeenCalledWith([1, 2, 3]);
@@ -245,9 +245,9 @@ describe("Messages actions", () => {
         test("Add LOADED status to messages", async () => {
             const message = messages.pop();
             const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
-            store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
+            store.commit(ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").multipleById.mockResolvedValueOnce([message]);
-            await store.dispatch(actionTypes.FETCH_MESSAGE_METADATA, {
+            await store.dispatch(FETCH_MESSAGE_METADATA, {
                 messageKeys: [adapted.key]
             });
             expect(store.state[adapted.key].status).toEqual(MessageStatus.LOADED);
@@ -256,9 +256,9 @@ describe("Messages actions", () => {
     describe("REMOVE_MESSAGES", () => {
         test("Call remove message remote API", () => {
             const adapted = messages.slice(0, 5).map(m => MessageAdaptor.fromMailboxItem(m, folder));
-            store.commit(mutationsTypes.ADD_MESSAGES, adapted);
+            store.commit(ADD_MESSAGES, adapted);
             store.dispatch(
-                actionTypes.REMOVE_MESSAGES,
+                REMOVE_MESSAGES,
                 adapted.map(message => message.key)
             );
             expect(inject("MailboxItemsPersistence").multipleDeleteById).toHaveBeenCalledWith(
@@ -268,35 +268,35 @@ describe("Messages actions", () => {
 
         test("To synchronously mark messages as removed in state", () => {
             const adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
-            store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
-            store.dispatch(actionTypes.REMOVE_MESSAGES, adapted.key);
+            store.commit(ADD_MESSAGES, [adapted]);
+            store.dispatch(REMOVE_MESSAGES, adapted.key);
             expect(store.state[adapted.key].status).toEqual(MessageStatus.REMOVED);
         });
 
         test("To remove message from store if api call is successfull", async () => {
             const adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
-            store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
+            store.commit(ADD_MESSAGES, [adapted]);
             expect(store.state[adapted.key]).toBeDefined();
-            await store.dispatch(actionTypes.REMOVE_MESSAGES, adapted.key);
+            await store.dispatch(REMOVE_MESSAGES, adapted.key);
             expect(store.state[adapted.key]).toBeUndefined();
         });
 
         test("To restore old status if api call fail", async () => {
             let adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
-            store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
+            store.commit(ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").multipleDeleteById.mockRejectedValueOnce("Failure");
             try {
-                await store.dispatch(actionTypes.REMOVE_MESSAGES, adapted.key);
+                await store.dispatch(REMOVE_MESSAGES, adapted.key);
             } catch {
                 // Nothing to do
             } finally {
                 expect(store.state[adapted.key].status).toEqual(MessageStatus.LOADED);
             }
             adapted = createOnlyMetadata({ internalId: 1, folder });
-            store.commit(mutationsTypes.ADD_MESSAGES, [adapted]);
+            store.commit(ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").multipleDeleteById.mockRejectedValueOnce("Failure");
             try {
-                await store.dispatch(actionTypes.REMOVE_MESSAGES, adapted.key);
+                await store.dispatch(REMOVE_MESSAGES, adapted.key);
             } catch {
                 // Nothing to do
             } finally {

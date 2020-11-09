@@ -9,7 +9,7 @@ import MailMessageStarter from "./MailMessageStarter";
 import MailMultipleSelectionActions from "./MailMultipleSelectionActions";
 import MailThread from "./MailThread/MailThread";
 import { mapActions, mapGetters, mapState } from "vuex";
-import { MULTIPLE_MESSAGE_SELECTED, ONE_MESSAGE_SELECTED } from "../store/types/getters";
+import { MULTIPLE_MESSAGE_SELECTED, ONE_MESSAGE_SELECTED } from "~getters";
 
 export default {
     name: "MailActionsPanel",

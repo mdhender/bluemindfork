@@ -2,6 +2,8 @@ import { MockMailboxFoldersClient } from "@bluemind/test-utils";
 import { getters, mutations, actions, STATUS } from "../modules/search";
 import ItemUri from "@bluemind/item-uri";
 import ServiceLocator from "@bluemind/inject";
+import { CURRENT_MAILBOX } from "~getters";
+import { SET_MESSAGE_LIST } from "~mutations";
 
 describe("[Mail-WebappStore][search]", () => {
     describe("mutations", () => {
@@ -66,7 +68,7 @@ describe("[Mail-WebappStore][search]", () => {
                     }
                 },
                 rootGetters: {
-                    "mail/CURRENT_MAILBOX": { key: mailboxUid }
+                    ["mail/" + CURRENT_MAILBOX]: { key: mailboxUid }
                 },
                 dispatch: jest.fn(),
                 state: {
@@ -82,7 +84,7 @@ describe("[Mail-WebappStore][search]", () => {
                     payload: STATUS.LOADING
                 },
                 {
-                    type: "mail/SET_MESSAGE_LIST",
+                    type: "mail/" + SET_MESSAGE_LIST,
                     payload: [
                         {
                             folderRef: { uid: folderUid, key: folderUid },
@@ -116,7 +118,7 @@ describe("[Mail-WebappStore][search]", () => {
                     }
                 },
                 rootGetters: {
-                    "mail/CURRENT_MAILBOX": { key: "abcdef" }
+                    ["mail/" + CURRENT_MAILBOX]: { key: "abcdef" }
                 },
                 state: {
                     pattern: ""

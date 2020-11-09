@@ -1,4 +1,5 @@
 import ItemUri from "@bluemind/item-uri";
+import { MESSAGE_IS_LOADED } from "~getters";
 
 import { $_getIfNotPresent } from "../../actions/$_getIfNotPresent";
 
@@ -14,7 +15,7 @@ describe("[Mail-WebappStore][actions] : $_getIfNotPresent", () => {
                 return Promise.resolve();
             }),
             rootGetters: {
-                "mail/isLoaded": jest
+                ["mail/" + MESSAGE_IS_LOADED]: jest
                     .fn()
                     .mockImplementation(key =>
                         Object.prototype.hasOwnProperty.call(context.rootState.mail.messages, key)
@@ -52,7 +53,7 @@ describe("[Mail-WebappStore][actions] : $_getIfNotPresent", () => {
     test("load only missing messages", async () => {
         const keyNotLoaded = ItemUri.encode("item", "folder");
         const keys = [keyNotLoaded, "key", "miam"];
-        context.rootGetters["mail/isLoaded"].mockImplementation(key => key !== keyNotLoaded);
+        context.rootGetters["mail/" + MESSAGE_IS_LOADED].mockImplementation(key => key !== keyNotLoaded);
         keys.forEach(key => {
             if (key !== keyNotLoaded) {
                 context.rootState.mail.messages[key] = { key };

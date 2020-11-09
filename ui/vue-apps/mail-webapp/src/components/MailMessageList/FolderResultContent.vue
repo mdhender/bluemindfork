@@ -9,6 +9,7 @@
 import { mapGetters } from "vuex";
 import FolderResultContentEmpty from "./FolderResultContentEmpty";
 import MessageList from "./MessageList";
+import { MESSAGE_LIST_COUNT } from "~getters";
 
 export default {
     components: {
@@ -16,7 +17,7 @@ export default {
         MessageList
     },
     computed: {
-        ...mapGetters("mail", ["MESSAGE_LIST_COUNT"])
+        ...mapGetters("mail", { MESSAGE_LIST_COUNT })
     }
 };
 </script>

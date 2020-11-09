@@ -1,6 +1,7 @@
 import { move } from "../../actions/move";
 import ItemUri from "@bluemind/item-uri";
 import { MailboxType } from "../../../store/helpers/MailboxAdaptor";
+import { MY_MAILBOX_KEY } from "~getters";
 
 ItemUri.container = jest.fn().mockReturnValue("");
 
@@ -30,7 +31,7 @@ const context = {
         }
     },
     rootGetters: {
-        "mail/MY_MAILBOX_KEY": mailboxUid
+        ["mail/" + MY_MAILBOX_KEY]: mailboxUid
     }
 };
 
@@ -65,7 +66,7 @@ describe("[Mail-WebappStore][actions] : move", () => {
         move(context, { messageKey, folder }).then(() => {
             expect(context.commit).toHaveBeenNthCalledWith(
                 1,
-                "addApplicationAlert",
+                "alert/addApplicationAlert",
                 {
                     code: "MSG_MOVE_OK",
                     props: {

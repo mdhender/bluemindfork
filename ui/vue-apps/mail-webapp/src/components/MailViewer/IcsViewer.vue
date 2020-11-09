@@ -93,12 +93,14 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 
 import { BmButton, BmChoiceGroup, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 
 import PartsViewer from "./PartsViewer/PartsViewer";
 import { MessageHeader } from "../../model/message";
+import { SET_EVENT_STATUS } from "~actions";
+import { CURRENT_MAILBOX } from "~getters";
 
 export default {
     name: "IcsViewer",
@@ -122,6 +124,7 @@ export default {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
         ...mapState("mail", ["messages"]),
+        ...mapGetters("mail", { CURRENT_MAILBOX }),
         message() {
             return this.messages[this.currentMessageKey];
         },
@@ -154,9 +157,9 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", ["SET_EVENT_STATUS"]),
+        ...mapActions("mail", { SET_EVENT_STATUS }),
         answer(status) {
-            this.SET_EVENT_STATUS(status);
+            this.SET_EVENT_STATUS({ status, mailbox: this.CURRENT_MAILBOX });
         }
     }
 };

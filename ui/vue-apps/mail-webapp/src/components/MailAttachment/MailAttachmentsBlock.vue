@@ -85,7 +85,7 @@ import { displayWithUnit } from "@bluemind/file-utils";
 import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmTooltip, BmProgress } from "@bluemind/styleguide";
 
 import MailAttachmentItem from "./MailAttachmentItem";
-import mutationTypes from "../../store/mutationTypes";
+import { SET_ATTACHMENT_CONTENT_URL } from "~mutations";
 
 export default {
     name: "MailAttachmentsBlock",
@@ -172,7 +172,7 @@ export default {
         });
     },
     methods: {
-        ...mapMutations("mail", [mutationTypes.SET_ATTACHMENT_CONTENT_URL]),
+        ...mapMutations("mail", { SET_ATTACHMENT_CONTENT_URL }),
         async toggleExpand() {
             this.isExpanded = !this.isExpanded;
         },

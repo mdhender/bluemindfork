@@ -3,8 +3,8 @@ import Vuex from "vuex";
 import deepClone from "lodash.clonedeep";
 import api from "../../api/apiFolders";
 import storeConfig from "../index";
-import { FETCH_FOLDERS, CREATE_FOLDER, REMOVE_FOLDER, RENAME_FOLDER } from "../actions";
-import { ADD_FOLDER } from "../mutations";
+import { FETCH_FOLDERS, CREATE_FOLDER, REMOVE_FOLDER, RENAME_FOLDER } from "~actions";
+import { ADD_FOLDER } from "~mutations";
 import injector from "@bluemind/inject";
 
 Vue.use(Vuex);

@@ -1,5 +1,6 @@
 import { loadUnreadCount } from "../../actions/loadUnreadCount";
 import ServiceLocator from "@bluemind/inject";
+import { SET_UNREAD_COUNT } from "~mutations";
 
 jest.mock("@bluemind/inject");
 
@@ -22,7 +23,7 @@ describe("[Mail-WebappStore][actions] : loadUnreadCount", () => {
     test("Call getPerUnserUnread for the given folder and mutate state with result", done => {
         loadUnreadCount(context, "folderUid").then(() => {
             expect(context.commit).toHaveBeenCalledWith(
-                "mail/SET_UNREAD_COUNT",
+                "mail/" + SET_UNREAD_COUNT,
                 { key: "folderUid", count: 10 },
                 { root: true }
             );

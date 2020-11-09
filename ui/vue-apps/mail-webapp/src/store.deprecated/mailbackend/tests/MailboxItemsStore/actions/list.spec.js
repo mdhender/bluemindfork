@@ -1,5 +1,5 @@
+import { FETCH_MESSAGE_LIST_KEYS } from "~actions";
 import { list } from "../../../MailboxItemsStore/actions/list";
-import actionTypes from "../../../../../store/actionTypes";
 
 //FIXME: Something is wrong if I need to mock dispatch
 const context = {
@@ -22,7 +22,7 @@ describe("[MailItemsStore][actions] : list", () => {
     test("call sortedIds for the given folder and mutate state with result", () => {
         list(context, { folderUid: "containerUid" });
         expect(context.dispatch).toHaveBeenCalledWith(
-            "mail/" + actionTypes.FETCH_MESSAGE_LIST_KEYS,
+            "mail/" + FETCH_MESSAGE_LIST_KEYS,
             { folder: {}, filter: undefined, conversationsEnabled: false },
             { root: true }
         );
@@ -34,7 +34,7 @@ describe("[MailItemsStore][actions] : list", () => {
     test("call sortedIds when 'all' filter is set", () => {
         list(context, { folderUid: "containerUid", filter: "all" });
         expect(context.dispatch).toHaveBeenCalledWith(
-            "mail/" + actionTypes.FETCH_MESSAGE_LIST_KEYS,
+            "mail/" + FETCH_MESSAGE_LIST_KEYS,
             { folder: {}, filter: "all", conversationsEnabled: false },
             { root: true }
         );

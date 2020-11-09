@@ -75,6 +75,7 @@ import MailViewerFrom from "./MailViewerFrom";
 import MailViewerRecipient from "./MailViewerRecipient";
 import MailViewerToolbar from "./MailViewerToolbar";
 import PartsViewer from "./PartsViewer/PartsViewer";
+import { MESSAGE_LIST_UNREAD_FILTER_ENABLED } from "~getters";
 
 export default {
     name: "MailViewer",
@@ -101,7 +102,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", ["MESSAGE_LIST_UNREAD_FILTER_ENABLED"]),
+        ...mapGetters("mail", { MESSAGE_LIST_UNREAD_FILTER_ENABLED }),
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
         ...mapState("mail", ["messages"]),
         subject() {

@@ -11,6 +11,7 @@ import { mapGetters } from "vuex";
 import SearchResultSpinner from "./SearchResultSpinner";
 import SearchResultError from "./SearchResultError";
 import SearchResultContent from "./SearchResultContent";
+import { MESSAGE_LIST_IS_LOADING, MESSAGE_LIST_IS_RESOLVED, MESSAGE_LIST_IS_REJECTED } from "~getters";
 
 export default {
     name: "SearchResult",
@@ -20,7 +21,7 @@ export default {
         SearchResultContent
     },
     computed: {
-        ...mapGetters("mail", ["MESSAGE_LIST_IS_LOADING", "MESSAGE_LIST_IS_RESOLVED", "MESSAGE_LIST_IS_REJECTED"])
+        ...mapGetters("mail", { MESSAGE_LIST_IS_LOADING, MESSAGE_LIST_IS_RESOLVED, MESSAGE_LIST_IS_REJECTED })
     }
 };
 </script>
