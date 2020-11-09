@@ -42,15 +42,17 @@ public class WebExtensionsResolver {
 
 	private final String module;
 
-	private static final Map<String, JsonObject> extensions = new ConcurrentHashMap<>();
+	private static final Map<String, PreEncodedObject> extensions = new ConcurrentHashMap<>();
 
 	public WebExtensionsResolver(String lang, String module) {
 		this.module = module;
 		this.lang = Optional.ofNullable(lang).orElse("en");
 	}
 
-	public JsonObject loadExtensions() {
-		return extensions.computeIfAbsent(lang + ":" + module, k -> loadExtensionsImpl(lang, module));
+	public PreEncodedObject loadExtensions() {
+		String cacheKey = lang + ":" + module;
+		logger.debug("loadExt for {}", cacheKey);
+		return extensions.computeIfAbsent(cacheKey, k -> new PreEncodedObject(loadExtensionsImpl(lang, module)));
 	}
 
 	private static JsonObject loadExtensionsImpl(String l, String m) {
