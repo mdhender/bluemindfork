@@ -28,6 +28,7 @@ describe("ContainerObserver", () => {
     test("When an observed container changes, a message is broadcasted on VueBus", () => {
         ContainerObserver.observe("container_type", "uid");
         ContainerObserver.notify({ data: { requestId: "bm.container_type.hook.uid.changed" } });
+        ContainerObserver.notify.flush();
         expect(VueBus.$emit).toHaveBeenCalledWith("container_type_changed", { container: "uid" });
     });
 });
