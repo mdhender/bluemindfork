@@ -113,12 +113,12 @@ async function unreadItems({ request, params: [folderUid] }: RouteHandlerCallbac
 
 const fetchIndexedDB = {
     async filteredChangesetById(expectedFlags: Flags, folderUid: string) {
-        const allMailItems = await (await maildb.getInstance()).getAllMailItems(folderUid);
+        const allMailItems = await (await maildb.getInstance()).getAllMailItemLight(folderUid);
         const data = {
             created: allMailItems
-                .filter(item => filterByFlags(expectedFlags, item))
-                .sort(sortMessageByDate)
-                .map(({ internalId: id, version }) => ({ id, version })),
+                .filter(item => filterByFlags(expectedFlags, item.flags))
+                .sort((i1, i2) => i2.date - i1.date)
+                .map(({ internalId: id }) => ({ id })),
             delete: [],
             updated: [],
             version: 0
@@ -142,7 +142,7 @@ const fetchIndexedDB = {
     async unreadItems(folderUid: string, expectedFlags: Flags) {
         const allMailItems = await (await maildb.getInstance()).getAllMailItems(folderUid);
         const data = allMailItems
-            .filter(item => filterByFlags(expectedFlags, item))
+            .filter(item => filterByFlags(expectedFlags, item.flags))
             .sort(sortMessageByDate)
             .map(item => item.internalId);
         const headers = new Headers();
@@ -157,10 +157,10 @@ const fetchIndexedDB = {
     }
 };
 
-function filterByFlags(expectedFlags: Flags, item: MailItem) {
+function filterByFlags(expectedFlags: Flags, flags: any[]) {
     return (
-        expectedFlags.must.every(flag => item.flags.includes(flag)) &&
-        !expectedFlags.mustNot.some(flag => item.flags.includes(flag))
+        expectedFlags.must.every(flag => flags.includes(flag)) &&
+        !expectedFlags.mustNot.some(flag => flags.includes(flag))
     );
 }
 

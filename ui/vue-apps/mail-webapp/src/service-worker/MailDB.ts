@@ -1,5 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase, IDBPTransaction, StoreNames, StoreValue } from "idb";
-import { MailFolder, MailItem, Reconciliation } from "./entry";
+import { MailFolder, MailItem, MailItemLight, Reconciliation } from "./entry";
 import { userAtDomain, sessionInfos } from "./MailAPI";
 
 type SyncOptionsType = "mail_folder" | "mail_item";
@@ -24,6 +24,11 @@ interface MailSchema extends DBSchema {
         value: MailItem;
         indexes: { "by-folderUid": string };
     };
+    mail_item_light: {
+        key: [string, number];
+        value: MailItemLight;
+        indexes: { "by-folderUid": string };
+    }
 }
 
 export const maildb = (function () {
@@ -59,6 +64,10 @@ class MailDB {
                     "folderUid"
                 );
                 db.createObjectStore("mail_folders", { keyPath: "uid" }).createIndex("by-fullName", "value.fullName");
+                db.createObjectStore("mail_item_light", { keyPath: ["folderUid", "internalId"] }).createIndex(
+                    "by-folderUid",
+                    "folderUid"
+                );
             }
         });
     }
@@ -97,6 +106,10 @@ class MailDB {
         await this.putItems(items, "mail_items", optionalTransaction);
     }
 
+    async putMailItemLight(items: MailItemLight[], optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>) {
+        await this.putItems(items, "mail_item_light", optionalTransaction);
+    }
+
     async putItems<T extends StoreValue<MailSchema, StoreName>, StoreName extends StoreNames<MailSchema>>(
         items: T[],
         storeName: StoreName,
@@ -111,6 +124,10 @@ class MailDB {
         return (await this.dbPromise).getAllFromIndex("mail_items", "by-folderUid", folderUid);
     }
 
+    async getAllMailItemLight(folderUid: string) {
+        return (await this.dbPromise).getAllFromIndex("mail_item_light", "by-folderUid", folderUid);
+    }
+
     async getMailItems(folderUid: string, ids: number[]) {
         const tx = (await this.dbPromise).transaction(["mail_items"], "readonly");
         return Promise.all(ids.map(id => tx.objectStore("mail_items").get([folderUid, id])));
@@ -122,13 +139,27 @@ class MailDB {
 
     async reconciliate(data: Reconciliation<MailItem>, syncOptions: SyncOptions) {
         const { items, uid, deletedIds } = data;
-        const tx = (await this.dbPromise).transaction(["sync_options", "mail_items"], "readwrite");
+        const tx = (await this.dbPromise).transaction(["sync_options", "mail_items", "mail_item_light"], "readwrite");
         this.putMailItems(
             items.map(mailItem => ({ ...mailItem, folderUid: uid })),
             tx
         );
-        await Promise.all(deletedIds.map(id => tx.objectStore("mail_items").delete([uid, id])));
+        this.putMailItemLight(
+            items.map(mailItem => (
+                {
+                    internalId: mailItem.internalId,
+                    flags: mailItem.flags,
+                    date: mailItem.value.body.date,
+                    folderUid: uid
+                })),
+            tx);
+        const deleteMailItemPromises = Promise.all(
+            deletedIds.map(id => tx.objectStore("mail_items").delete([uid, id])));
+        const deleteMailItemLightPromises = Promise.all(
+            deletedIds.map(id => tx.objectStore("mail_item_light").delete([uid, id])));
+        await Promise.all([deleteMailItemPromises, deleteMailItemLightPromises]);
         tx.objectStore("sync_options").put(syncOptions);
         tx.done;
     }
 }
+

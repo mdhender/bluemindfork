@@ -43,6 +43,9 @@ interface MailItemValue {
 }
 
 export type MailItem = ItemValue<MailItemValue>;
+
+export type MailItemLight = { internalId: number, flags: "Seen"[], date: number };
+
 export interface ChangeSet {
     created: { id: number; version: number }[];
     deleted: { id: number; version: number }[];
