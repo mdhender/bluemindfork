@@ -15,7 +15,6 @@ export default async function (
     { userPrefTextOnly, draftKey, myMailboxKey, outboxId, myDraftsFolder, sentFolder, messageCompose }
 ) {
     const draft = state[draftKey];
-    let draftId = draft.remoteRef.internalId;
 
     await dispatch(SAVE_MESSAGE, {
         userPrefTextOnly,
@@ -23,6 +22,8 @@ export default async function (
         myDraftsFolderKey: myDraftsFolder.key,
         messageCompose
     });
+
+    let draftId = draft.remoteRef.internalId;
 
     commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENDING }]);
     validateDraft(draft, inject("i18n"));

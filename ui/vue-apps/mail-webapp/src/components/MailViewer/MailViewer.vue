@@ -125,7 +125,6 @@ export default {
         messageKey: {
             handler: function () {
                 this.resetScroll();
-                // FIXME: remove this if once https://forge.bluemind.net/jira/browse/FEATWEBML-1017 is fixed
                 if (!this.MESSAGE_LIST_UNREAD_FILTER_ENABLED) {
                     this.MARK_MESSAGE_AS_READ([this.message]);
                 }

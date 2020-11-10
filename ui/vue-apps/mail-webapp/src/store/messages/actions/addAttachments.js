@@ -8,6 +8,7 @@ import {
     ADD_ATTACHMENT,
     REMOVE_ATTACHMENT,
     SET_ATTACHMENT_ADDRESS,
+    SET_MESSAGE_HAS_ATTACHMENT,
     SET_ATTACHMENT_PROGRESS,
     SET_ATTACHMENT_STATUS
 } from "~mutations";
@@ -30,7 +31,7 @@ export default async function ({ commit, dispatch, state }, { messageKey, files,
     }
 }
 
-async function addAttachment({ commit }, messageKey, file, myDraftsFolderUid) {
+async function addAttachment({ commit, state }, messageKey, file, myDraftsFolderUid) {
     const attachment = create(
         UUIDGenerator.generate(),
         null,
@@ -49,6 +50,7 @@ async function addAttachment({ commit }, messageKey, file, myDraftsFolderUid) {
     try {
         // this will make the attachment component appear in the UI
         commit(ADD_ATTACHMENT, { messageKey, attachment });
+        commit(SET_MESSAGE_HAS_ATTACHMENT, { key: messageKey, hasAttachment: true });
 
         const address = await inject("MailboxItemsPersistence", myDraftsFolderUid).uploadPart(
             file,
@@ -63,7 +65,7 @@ async function addAttachment({ commit }, messageKey, file, myDraftsFolderUid) {
         });
     } catch (event) {
         const error = event.target && event.target.error ? event.target.error : event;
-        handleError(commit, error, attachment, messageKey);
+        handleError(commit, state, error, attachment, messageKey);
     }
 }
 
@@ -78,9 +80,13 @@ function createOnUploadProgress(commit, messageKey, attachment) {
     };
 }
 
-function handleError(commit, error, attachment, messageKey) {
+function handleError(commit, state, error, attachment, messageKey) {
     if (error.message === "CANCELLED_BY_CLIENT") {
         commit(REMOVE_ATTACHMENT, { messageKey, address: attachment.address });
+        commit(SET_MESSAGE_HAS_ATTACHMENT, {
+            key: messageKey,
+            hasAttachment: state[messageKey].attachments.length > 0
+        });
     } else {
         commit(SET_ATTACHMENT_PROGRESS, {
             messageKey,

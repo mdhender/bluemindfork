@@ -27,7 +27,6 @@ export async function selectMessage({ dispatch, commit, state, rootState, rootGe
                 commit("mail/" + SET_MESSAGE_COMPOSING, { messageKey, composing: true }, { root: true });
             }
         }
-
         commit("currentMessage/update", { key: messageKey });
     }
 }

@@ -11,6 +11,7 @@ import {
     SET_MESSAGES_STATUS,
     SET_MESSAGE_DATE,
     SET_MESSAGE_HEADERS,
+    SET_MESSAGE_INTERNAL_ID,
     SET_ATTACHMENT_ENCODING
 } from "~mutations";
 
@@ -51,8 +52,15 @@ async function doSave(context, userPrefTextOnly, draftKey, myDraftsFolderKey, me
         const { partsToUpload, inlineImages } = prepareDraft(draft, messageCompose, userPrefTextOnly, context.commit);
 
         const inlinePartAddresses = await uploadInlineParts(service, partsToUpload);
+
         const structure = createDraftStructure(draft.attachments, userPrefTextOnly, inlinePartAddresses, inlineImages);
-        await service.updateById(draft.remoteRef.internalId, MessageAdaptor.toMailboxItem(draft, structure));
+        const remoteMessage = MessageAdaptor.toMailboxItem(draft, structure);
+        if (draft.remoteRef.internalId === "faked-internal-id") {
+            const internalId = (await service.create(remoteMessage)).id;
+            context.commit(SET_MESSAGE_INTERNAL_ID, { key: draftKey, internalId });
+        } else {
+            await service.updateById(draft.remoteRef.internalId, remoteMessage);
+        }
 
         context.commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
 

@@ -11,7 +11,7 @@
                     <mail-composer-recipients
                         ref="recipients"
                         :message="message"
-                        :is-reply-or-forward="isReplyOrForward"
+                        :is-reply-or-forward="!!messageCompose.collapsedContent"
                         @save-draft="saveDraft"
                     />
                     <bm-form-input
@@ -122,8 +122,8 @@
 <script>
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 
-import { InlineImageHelper, MimeType } from "@bluemind/email";
-import { sanitizeHtml } from "@bluemind/html-utils";
+import { inject } from "@bluemind/inject";
+import ItemUri from "@bluemind/item-uri";
 import {
     BmButton,
     BmCol,
@@ -140,19 +140,16 @@ import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 import MailComposerRecipients from "./MailComposerRecipients";
 import MailComposerFooter from "./MailComposerFooter";
 import MailComposerPanel from "./MailComposerPanel";
-import { isEmpty, MessageForwardAttributeSeparator, MessageReplyAttributeSeparator } from "../../model/message";
+import { fetchAll, updateKey } from "../../model/message";
+import { getPartsFromCapabilities } from "../../model/part";
+import { getEditorContent, COMPOSER_CAPABILITIES, handleSeparator } from "../../model/draft";
+import { addSignature, isHtmlSignaturePresent, isTextSignaturePresent, removeSignature } from "../../model/signature";
 import {
-    addHtmlSignature,
-    addTextSignature,
-    isHtmlSignaturePresent,
-    isTextSignaturePresent,
-    removeHtmlSignature,
-    removeTextSignature
-} from "../../model/signature";
-import PlayWithInlinePartsByCapabilities from "../../store/messages/helpers/PlayWithInlinePartsByCapabilities";
-import {
+    ADD_MESSAGES,
+    REMOVE_MESSAGES,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
+    SET_MESSAGE_PART_CONTENTS,
     SET_MESSAGE_SUBJECT,
     UNSELECT_ALL_MESSAGES
 } from "~mutations";
@@ -187,9 +184,7 @@ export default {
             userPrefIsMenuBarOpened: false, // TODO: initialize this with user setting
             userPrefTextOnly: false, // TODO: initialize this with user setting
             draggedFilesCount: -1,
-            isReplyOrForward: false,
-            lockUpdateHtmlComposer: false,
-            blobsUrl: []
+            blobsUrl: [] // FIXME: yet it's always empty
         };
     },
     computed: {
@@ -212,41 +207,42 @@ export default {
                     ? isTextSignaturePresent(this.messageCompose.editorContent, this.signature)
                     : isHtmlSignaturePresent(this.messageCompose.editorContent, this.signature))
             );
+        },
+        isMessageOnlyLocal() {
+            return this.message.remoteRef.internalId === "faked-internal-id";
         }
     },
     watch: {
         messageKey: {
-            handler: async function () {
-                this.cleanComposer();
-                await this.initEditorContent();
-                if (this.message.to.length > 0) {
-                    this.setCursorInEditor();
-                } else {
-                    this.$refs.recipients.focus();
+            handler: async function (newKey, oldKey) {
+                // when route changes due to an internalId update, preserve component state
+                if (oldKey) {
+                    if (ItemUri.item(oldKey) === "faked-internal-id") {
+                        this.REMOVE_MESSAGES([oldKey]); // delete obsolete message
+                        return;
+                    }
+                    this.cleanComposer();
                 }
+                await this.initEditorContent();
+                await this.focus();
             },
             immediate: true
-        },
-        "messageCompose.editorContent"() {
-            if (!this.lockUpdateHtmlComposer) {
-                this.updateHtmlComposer();
-            }
-            this.lockUpdateHtmlComposer = false;
         }
     },
-    async created() {
+    created() {
         this.UNSELECT_ALL_MESSAGES();
     },
-    destroyed: function () {
-        if (isEmpty(this.message, this.messageCompose.editorContent)) {
-            this.REMOVE_MESSAGES(this.message);
-        }
+    destroyed() {
+        this.cleanComposer();
     },
     methods: {
         ...mapActions("mail", { SAVE_MESSAGE, SEND_MESSAGE, ADD_ATTACHMENTS, REMOVE_MESSAGES }),
         ...mapMutations("mail", {
-            SET_DRAFT_EDITOR_CONTENT,
+            ADD_MESSAGES,
+            REMOVE_MESSAGES,
             SET_DRAFT_COLLAPSED_CONTENT,
+            SET_DRAFT_EDITOR_CONTENT,
+            SET_MESSAGE_PART_CONTENTS,
             SET_MESSAGE_SUBJECT,
             UNSELECT_ALL_MESSAGES
         }),
@@ -255,90 +251,38 @@ export default {
             this.saveDraft();
         },
         async initEditorContent() {
-            let newContent = await this.computeContent();
-            this.SET_DRAFT_EDITOR_CONTENT(newContent);
-            this.updateHtmlComposer();
-        },
-        async computeContent() {
-            let newContent;
-            if (this.userPrefTextOnly) {
-                const textContent = this.message.partContentByMimeType[MimeType.TEXT_PLAIN];
-                newContent =
-                    textContent || textContent === ""
-                        ? textContent
-                        : await PlayWithInlinePartsByCapabilities.getTextFromStructure(this.message);
-            } else {
-                const htmlContent = this.message.partContentByMimeType[MimeType.TEXT_HTML];
-                if (htmlContent || htmlContent === "") {
-                    newContent = this.handleInlineImages(
-                        htmlContent,
-                        this.message.inlineImageParts,
-                        this.message.partContentByMimeType[MimeType.IMAGE]
-                    );
-                } else {
-                    const result = await PlayWithInlinePartsByCapabilities.getHtmlFromStructure(this.message);
-                    newContent = this.handleInlineImages(
-                        result.html,
-                        result.inlineImageParts,
-                        result.inlineImagePartsContent
-                    );
+            if (!this.isMessageOnlyLocal) {
+                const parts = getPartsFromCapabilities(this.message, COMPOSER_CAPABILITIES);
+                // FIXME: move fetchAll as an action
+                const notLoaded = parts.filter(
+                    part => !Object.prototype.hasOwnProperty.call(this.message.partContentByAddress, part.address)
+                );
+                const service = inject("MailboxItemsPersistence", this.message.folderRef.uid);
+                const contents = await fetchAll(this.message.remoteRef.imapUid, service, notLoaded, false);
+                this.SET_MESSAGE_PART_CONTENTS({ key: this.message.key, contents, parts: notLoaded });
+
+                const content = getEditorContent(this.userPrefTextOnly, parts, this.message);
+                const editorData = handleSeparator(content);
+
+                if (this.signature && this.settings.insert_signature === "true") {
+                    editorData.content = addSignature(editorData.content, this.userPrefTextOnly, this.signature);
                 }
 
-                newContent = sanitizeHtml(newContent);
-                newContent = this.handleSeparator(newContent);
+                this.SET_DRAFT_COLLAPSED_CONTENT(editorData.collapsed);
+                this.SET_DRAFT_EDITOR_CONTENT(editorData.content);
+                this.updateHtmlComposer();
             }
-            if (this.signature && this.settings.insert_signature === "true") {
-                newContent = this.addSignature(newContent);
-            }
-            return newContent;
         },
         toggleSignature() {
             if (!this.isSignatureInserted) {
-                this.SET_DRAFT_EDITOR_CONTENT(this.addSignature(this.messageCompose.editorContent));
+                this.SET_DRAFT_EDITOR_CONTENT(
+                    addSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
+                );
             } else {
-                this.SET_DRAFT_EDITOR_CONTENT(this.removeSignature(this.messageCompose.editorContent));
+                this.SET_DRAFT_EDITOR_CONTENT(
+                    removeSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
+                );
             }
-        },
-        addSignature(content) {
-            return this.userPrefTextOnly
-                ? addTextSignature(content, this.signature)
-                : addHtmlSignature(content, this.signature);
-        },
-        removeSignature(content) {
-            return this.userPrefTextOnly
-                ? removeTextSignature(content, this.signature)
-                : removeHtmlSignature(content, this.signature);
-        },
-        handleSeparator(content) {
-            const doc = new DOMParser().parseFromString(content, "text/html");
-            const separator =
-                doc.querySelector("div[" + MessageReplyAttributeSeparator + "]") ||
-                doc.querySelector("div[" + MessageForwardAttributeSeparator + "]");
-
-            if (separator) {
-                this.isReplyOrForward = true;
-                this.SET_DRAFT_COLLAPSED_CONTENT(separator.outerHTML);
-                separator.remove();
-                return doc.body.innerHTML;
-            }
-            return content;
-        },
-        handleInlineImages(html, inlineImageParts, inlineImagePartsContent) {
-            const fakeHtmlPartAddress = "dontcare";
-            const partContentsByAddress = { [fakeHtmlPartAddress]: html };
-
-            inlineImageParts.forEach((part, index) => {
-                partContentsByAddress[part.address] = inlineImagePartsContent[index];
-            });
-
-            const partsWithCid = inlineImageParts.filter(part => part.contentId);
-            this.blobsUrl = InlineImageHelper.insertInlineImages(
-                [{ address: fakeHtmlPartAddress }],
-                partsWithCid,
-                partContentsByAddress
-            ).blobsUrl;
-
-            return partContentsByAddress[fakeHtmlPartAddress];
         },
         cleanComposer() {
             this.SET_DRAFT_EDITOR_CONTENT("");
@@ -348,7 +292,15 @@ export default {
         async expandContent() {
             this.SET_DRAFT_EDITOR_CONTENT(this.messageCompose.editorContent + this.messageCompose.collapsedContent);
             this.SET_DRAFT_COLLAPSED_CONTENT(null);
-            this.setCursorInEditor();
+            await this.setCursorInEditor();
+        },
+        async focus() {
+            if (this.message.to.length > 0) {
+                await this.setCursorInEditor();
+            } else {
+                await this.$nextTick();
+                this.$refs.recipients.focus();
+            }
         },
         async setCursorInEditor() {
             if (this.userPrefTextOnly) {
@@ -364,7 +316,6 @@ export default {
             this.$refs["message-content"].updateContent();
         },
         async updateEditorContent(newContent) {
-            this.lockUpdateHtmlComposer = true;
             this.SET_DRAFT_EDITOR_CONTENT(newContent);
             this.saveDraft();
         },
@@ -389,34 +340,39 @@ export default {
             });
             this.$router.navigate("v:mail:home");
         },
-        saveDraft() {
-            this.SAVE_MESSAGE({
+        async saveDraft() {
+            const wasMessageOnlyLocal = this.isMessageOnlyLocal;
+            await this.SAVE_MESSAGE({
                 userPrefTextOnly: this.userPrefTextOnly,
                 draftKey: this.messageKey,
                 myDraftsFolderKey: this.MY_DRAFTS.key,
                 messageCompose: this.messageCompose,
                 debounceTime: 3000
             });
+            if (wasMessageOnlyLocal) {
+                const message = updateKey(this.message, this.message.remoteRef.internalId, this.MY_DRAFTS);
+                this.ADD_MESSAGES([message]);
+
+                this.$router.navigate({ name: "v:mail:message", params: { message: message.key } });
+            }
         },
         async deleteDraft() {
-            if (isEmpty(this.message, this.messageCompose.editorContent)) {
-                this.REMOVE_MESSAGES(this.message);
+            if (this.isMessageOnlyLocal) {
                 this.$router.navigate("v:mail:home");
-                return;
-            }
-            const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.draft.delete.confirm.content"), {
-                title: this.$t("mail.draft.delete.confirm.title"),
-                okTitle: this.$t("common.delete"),
-                cancelVariant: "outline-secondary",
-                cancelTitle: this.$t("common.cancel"),
-                centered: true,
-                hideHeaderClose: false,
-                autoFocusButton: "ok"
-            });
-            if (confirm) {
-                // delete draft then close the composer
-                this.REMOVE_MESSAGES(this.message);
-                this.$router.navigate("v:mail:home");
+            } else {
+                const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.draft.delete.confirm.content"), {
+                    title: this.$t("mail.draft.delete.confirm.title"),
+                    okTitle: this.$t("common.delete"),
+                    cancelVariant: "outline-secondary",
+                    cancelTitle: this.$t("common.cancel"),
+                    centered: true,
+                    hideHeaderClose: false,
+                    autoFocusButton: "ok"
+                });
+                if (confirm) {
+                    this.purge(this.messageKey);
+                    this.$router.navigate("v:mail:home");
+                }
             }
         }
     }

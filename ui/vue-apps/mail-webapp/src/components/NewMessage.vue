@@ -15,11 +15,15 @@
     </bm-button>
 </template>
 <script>
-import { mapActions, mapGetters } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
+
 import { BmButton, BmClipPath, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
-import { MessageCreationModes } from "../model/message";
+import { inject } from "@bluemind/inject";
+
 import { MY_DRAFTS } from "~getters";
-import { CREATE_MESSAGE } from "~actions";
+import { ADD_MESSAGES, SET_DRAFT_EDITOR_CONTENT } from "~mutations";
+import { createEmpty } from "../model/draft";
+import { addSignature } from "../model/signature";
 
 export default {
     name: "NewMessage",
@@ -37,16 +41,22 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", { MY_DRAFTS })
+        ...mapGetters("mail", { MY_DRAFTS }),
+        ...mapState("mail", ["messageCompose"]),
+        ...mapState("session", { settings: "userSettings" })
     },
     methods: {
-        ...mapActions("mail", { CREATE_MESSAGE }),
+        ...mapMutations("mail", [ADD_MESSAGES, SET_DRAFT_EDITOR_CONTENT]),
         async composeNewMessage() {
-            const messageKey = await this.CREATE_MESSAGE({
-                myDraftsFolder: this.MY_DRAFTS,
-                creationMode: MessageCreationModes.NEW
-            });
-            return this.$router.navigate({ name: "v:mail:message", params: { message: messageKey } });
+            const message = createEmpty(this.MY_DRAFTS, inject("UserSession"));
+            this.ADD_MESSAGES([message]);
+            let content = "";
+            const userPrefTextOnly = false; // FIXME with user settings
+            if (this.messageCompose.signature && this.settings.insert_signature === "true") {
+                content = addSignature(content, userPrefTextOnly, this.messageCompose.signature);
+            }
+            this.SET_DRAFT_EDITOR_CONTENT(content);
+            return this.$router.navigate({ name: "v:mail:message", params: { message: message.key } });
         }
     }
 };

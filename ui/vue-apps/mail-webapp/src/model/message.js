@@ -98,25 +98,6 @@ export const MessageHeader = {
 export const MessageReplyAttributeSeparator = "data-bm-reply-separator";
 export const MessageForwardAttributeSeparator = "data-bm-forward-separator";
 
-export function isEmpty(message, content) {
-    return (
-        message.to.length === 0 &&
-        message.cc.length === 0 &&
-        message.bcc.length === 0 &&
-        isSubjectEmpty(message.subject) &&
-        isEmptyContent(content)
-    );
-}
-
-function isEmptyContent(content) {
-    const consideredAsEmptyRegex = /^<div id="bm-composer-content-wrapper"><style><\/style><\/div>$/;
-    return !content || consideredAsEmptyRegex.test(content) || content === "";
-}
-
-function isSubjectEmpty(subject) {
-    return subject === "" || subject === " ";
-}
-
 // FIXME: move it like a message action because it must store parts in state ?
 export async function fetch(messageImapUid, service, part, isAttachment) {
     const stream = await service.fetch(messageImapUid, part.address, part.encoding, part.mime, part.charset);
@@ -146,4 +127,13 @@ export async function clean(partAddresses, newAttachments, service) {
     });
     newAttachments.forEach(attachment => promises.push(service.removePart(attachment.address)));
     return Promise.all(promises);
+}
+
+export function updateKey(message, internalId, folder) {
+    const newKey = ItemUri.encode(internalId, folder.key);
+    const newMessage = { ...message };
+    newMessage.key = newKey;
+    newMessage.remoteRef.internalId = internalId;
+    newMessage.folderRef = { key: folder.key, uid: folder.remoteRef.uid };
+    return newMessage;
 }

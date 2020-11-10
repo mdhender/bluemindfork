@@ -34,7 +34,7 @@ export async function fetchMessageMetadata({ commit, state }, messages) {
     const toFetch = messages.filter(({ composing }) => !composing);
     let fullMessages = await apiMessages.multipleById(toFetch);
     fullMessages = fullMessages.map(message => {
-        if (state[message.key]) {
+        if (state[message.key] && state[message.key].status === MessageStatus.LOADED) {
             message.partContentByAddress = state[message.key].partContentByAddress;
         }
         return message;

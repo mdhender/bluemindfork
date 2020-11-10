@@ -74,7 +74,7 @@ import { mapActions, mapGetters, mapState } from "vuex";
 
 import { BmButton, BmIcon } from "@bluemind/styleguide";
 
-import { MessageStatus, isEmpty } from "../../model/message";
+import { MessageStatus } from "../../model/message";
 import { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~getters";
 import { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE, REMOVE_MESSAGES } from "~actions";
 
@@ -112,23 +112,22 @@ export default {
     methods: {
         ...mapActions("mail", { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE, REMOVE_MESSAGES }),
         async doDelete() {
-            if (isEmpty(this.message, this.messageCompose.editorContent)) {
-                this.REMOVE_MESSAGES(this.message);
+            if (this.message.remoteRef.internalId === "faked-internal-id") {
                 this.$router.navigate("v:mail:home");
-                return;
-            }
-            const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.draft.delete.confirm.content"), {
-                title: this.$t("mail.draft.delete.confirm.title"),
-                okTitle: this.$t("common.delete"),
-                cancelVariant: "outline-secondary",
-                cancelTitle: this.$t("common.cancel"),
-                centered: true,
-                hideHeaderClose: false,
-                autoFocusButton: "ok"
-            });
-            if (confirm) {
-                this.REMOVE_MESSAGES(this.message);
-                this.$router.navigate("v:mail:home");
+            } else {
+                const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.draft.delete.confirm.content"), {
+                    title: this.$t("mail.draft.delete.confirm.title"),
+                    okTitle: this.$t("common.delete"),
+                    cancelVariant: "outline-secondary",
+                    cancelTitle: this.$t("common.cancel"),
+                    centered: true,
+                    hideHeaderClose: false,
+                    autoFocusButton: "ok"
+                });
+                if (confirm) {
+                    this.purge(this.messageKey);
+                    this.$router.navigate("v:mail:home");
+                }
             }
         },
         doSend() {

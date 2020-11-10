@@ -6,7 +6,7 @@
                 <component
                     :is="computePartComponent(part.mime)"
                     :key="part.address"
-                    :value="message.partContentByAddress[part.address]"
+                    :value="getPartContent(part, index)"
                 />
             </template>
         </template>
@@ -20,12 +20,13 @@ import { inject } from "@bluemind/inject";
 import { MimeType, InlineImageHelper } from "@bluemind/email";
 
 import { fetchAll } from "../../../model/message";
+import { getPartsFromCapabilities } from "../../../model/part";
 import ImagePartViewer from "./ImagePartViewer";
 import TextHtmlPartViewer from "./TextHtmlPartViewer";
 import TextPlainPartViewer from "./TextPlainPartViewer";
 import { REMOVE_MESSAGE_PART_CONTENTS, SET_MESSAGE_PART_CONTENTS } from "~mutations";
 
-const CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
+const VIEWER_CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
 
 export default {
     name: "PartsViewer",
@@ -42,7 +43,8 @@ export default {
     },
     data() {
         return {
-            parts: []
+            parts: [],
+            htmlWithBlobs: []
         };
     },
     computed: {
@@ -58,21 +60,24 @@ export default {
                     this.cleanPartsContent(oldKey);
                 }
 
-                const service = inject("MailboxItemsPersistence", this.message.folderRef.uid);
-                const inlines = this.message.inlinePartsByCapabilities.find(part =>
-                    part.capabilities.every(capability => CAPABILITIES.includes(capability))
-                ).parts;
+                const inlines = getPartsFromCapabilities(this.message, VIEWER_CAPABILITIES);
 
+                // FIXME: move fetchAll as an action
+                const service = inject("MailboxItemsPersistence", this.message.folderRef.uid);
                 const contents = await fetchAll(this.message.remoteRef.imapUid, service, inlines, false);
                 this.SET_MESSAGE_PART_CONTENTS({ key: this.message.key, contents, parts: inlines });
 
-                const html = inlines.filter(part => part.mime === MimeType.TEXT_HTML);
+                const html = inlines.filter(MimeType.isHtml);
                 const images = inlines.filter(part => MimeType.isImage(part) && part.contentId);
-                const inlined = InlineImageHelper.insertInlineImages(html, images, this.message.partContentByAddress)
-                    .inlined;
-                const others = inlines.filter(
-                    part => part.mime !== MimeType.TEXT_HTML && !inlined.includes(part.contentId)
+                const insertionResult = InlineImageHelper.insertInlineImages(
+                    html.map(part => this.message.partContentByAddress[part.address]),
+                    images,
+                    this.message.partContentByAddress
                 );
+                const others = inlines.filter(
+                    part => part.mime !== MimeType.TEXT_HTML && !insertionResult.imageInlined.includes(part.contentId)
+                );
+                this.htmlWithBlobs = insertionResult.contentsWithBlob;
                 this.parts = [...html, ...others];
             },
             immediate: true
@@ -83,17 +88,8 @@ export default {
     },
     methods: {
         ...mapMutations("mail", { SET_MESSAGE_PART_CONTENTS, REMOVE_MESSAGE_PART_CONTENTS }),
-        isHtmlPart(part) {
-            return MimeType.isHtml(part);
-        },
-        isTextPart(part) {
-            return MimeType.isText(part);
-        },
-        isImagePart(part) {
-            return MimeType.isImage(part);
-        },
         isSupportedPart(part) {
-            return this.isHtmlPart(part) || this.isTextPart(part) || this.isImagePart(part);
+            return MimeType.isHtml(part) || MimeType.isText(part) || MimeType.isImage(part);
         },
         computePartComponent(mimeType) {
             let name;
@@ -110,6 +106,12 @@ export default {
         cleanPartsContent(messageKey) {
             this.parts = [];
             this.REMOVE_MESSAGE_PART_CONTENTS(messageKey);
+        },
+        getPartContent(part, index) {
+            if (MimeType.isHtml(part)) {
+                return this.htmlWithBlobs[index];
+            }
+            return this.message.partContentByAddress[part.address];
         }
     }
 };

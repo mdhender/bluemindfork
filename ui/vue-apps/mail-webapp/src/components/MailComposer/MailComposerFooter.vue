@@ -120,6 +120,8 @@ export default {
                 return this.$t("mail.draft.save.inprogress");
             } else if (this.errorOccuredOnSave) {
                 return this.$t("mail.draft.save.error");
+            } else if (this.message.remoteRef.internalId === "faked-internal-id") {
+                return "";
             } else {
                 return this.formattedDraftSaveDate;
             }

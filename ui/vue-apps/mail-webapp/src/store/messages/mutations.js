@@ -19,7 +19,9 @@ import {
     SET_MESSAGE_CC,
     SET_MESSAGE_COMPOSING,
     SET_MESSAGE_DATE,
+    SET_MESSAGE_HAS_ATTACHMENT,
     SET_MESSAGE_HEADERS,
+    SET_MESSAGE_INTERNAL_ID,
     SET_MESSAGE_LIST,
     SET_MESSAGE_PART_CONTENTS,
     SET_MESSAGE_SUBJECT,
@@ -67,6 +69,9 @@ export default {
     [SET_MESSAGE_DATE]: (state, { messageKey, date }) => {
         state[messageKey].date = date;
     },
+    [SET_MESSAGE_HAS_ATTACHMENT]: (state, { key, hasAttachment }) => {
+        state[key].hasAttachment = hasAttachment;
+    },
     [SET_MESSAGE_HEADERS]: (state, { messageKey, headers }) => {
         state[messageKey].headers = headers;
     },
@@ -78,6 +83,9 @@ export default {
     },
     [SET_MESSAGE_BCC]: (state, { messageKey, bcc }) => {
         state[messageKey].bcc = bcc;
+    },
+    [SET_MESSAGE_INTERNAL_ID]: (state, { key, internalId }) => {
+        state[key].remoteRef.internalId = internalId;
     },
     [SET_MESSAGE_PART_CONTENTS]: (state, { key, contents, parts }) => {
         if (!state[key].partContentByAddress) {

@@ -7,7 +7,7 @@ export function isHtmlSignaturePresent(raw) {
     return !!signature && !!signature.innerHTML;
 }
 
-export function removeHtmlSignature(raw) {
+function removeHtmlSignature(raw) {
     const fragment = htmlAsFragment(raw);
     const signature = fragment.getElementById(HTML_SIGNATURE_ID);
     if (signature) {
@@ -16,16 +16,16 @@ export function removeHtmlSignature(raw) {
     return fragment.firstElementChild.innerHTML;
 }
 
-export function addHtmlSignature(raw, signatureContent) {
+function addHtmlSignature(raw, signatureContent) {
     const fragment = htmlAsFragment(raw);
     let signature = fragment.getElementById(HTML_SIGNATURE_ID);
     if (!signature) {
         signature = document.createElement("p");
         signature.id = HTML_SIGNATURE_ID;
+        fragment.firstElementChild.appendChild(document.createElement("br"));
         fragment.firstElementChild.appendChild(signature);
     }
     signature.innerHTML = signatureContent;
-    fragment.firstElementChild.insertBefore(document.createElement("br"), signature);
     return fragment.firstElementChild.innerHTML;
 }
 
@@ -41,11 +41,11 @@ export function isTextSignaturePresent(raw, content) {
     return regexp.test(raw);
 }
 
-export function removeTextSignature(raw, content) {
+function removeTextSignature(raw, content) {
     const regexp = new RegExp("^" + TEXT_SIGNATURE_PREFIX + content, "mi");
     return raw.replace(regexp, "");
 }
-export function addTextSignature(raw, content) {
+function addTextSignature(raw, content) {
     const regexp = new RegExp("^" + TEXT_SIGNATURE_PREFIX + content, "mi");
     return raw.replace(regexp, TEXT_SIGNATURE_PREFIX + content);
 }
@@ -53,4 +53,12 @@ export function addTextSignature(raw, content) {
 export function removeSignatureIds(content) {
     const regexp = new RegExp("id\\s*=\\s*['\"]\\s*" + HTML_SIGNATURE_ID + "\\s*['\"]", "g");
     return content.replace(regexp, "");
+}
+
+export function addSignature(content, userPrefTextOnly, signature) {
+    return userPrefTextOnly ? addTextSignature(content, signature) : addHtmlSignature(content, signature);
+}
+
+export function removeSignature(content, userPrefTextOnly, signature) {
+    return userPrefTextOnly ? removeTextSignature(content, signature) : removeHtmlSignature(content, signature);
 }
