@@ -1,0 +1,149 @@
+Return-Path: <Test.Secretaire@urgences-sante.qc.ca>
+Received: from bm-prod.blue-mind.net (localhost.localdomain [127.0.0.1])
+	 by bm-prod with LMTPA;
+	 Fri, 06 Nov 2020 16:38:09 +0100
+X-Cyrus-Session-Id: cyrus-31904-1604677089-2-11016779533117398881
+X-Sieve: CMU Sieve 3.0
+Received: from 192.168.231.2 (LHLO bm-prod.blue-mind.net) by unknown with
+ LMTP; 11/6/20 3:38 PM
+Received: from smtp.bluemind.net (unknown [192.168.231.1])
+	by bm-prod.blue-mind.net (Postfix) with ESMTPS id 5E44880423
+	for <tom@blue-mind.net>; Fri,  6 Nov 2020 16:38:09 +0100 (CET)
+Received: from k11.altospam.com (k11.altospam.com [62.210.162.60])
+	by smtp.bluemind.net (Postfix) with ESMTPS id 4C62880F68
+	for <thomas.cataldo@bluemind.net>; Fri,  6 Nov 2020 16:38:09 +0100 (CET)
+Received: from mx1.urgences-sante.qc.ca ([207.96.146.208])
+	by k11.altospam.com with esmtp (Altospam)
+	id 1kb3oU-0004tS-50 
+	for thomas.cataldo@bluemind.net; Fri, 06 Nov 2020 16:38:08 +0100
+X-ASG-Debug-ID: 1604677077-0f28014f2c106e60001-DGUziW
+Received: from ssmail02.urgences-sante.local ([10.193.8.196]) by mx1.urgences-sante.qc.ca with ESMTP id 3G4lSHmTav58b7E0 for <thomas.cataldo@bluemind.net>; Fri, 06 Nov 2020 10:37:57 -0500 (EST)
+X-Barracuda-Envelope-From: Test.Secretaire@urgences-sante.qc.ca
+X-Barracuda-RBL-Trusted-Forwarder: 10.193.8.196
+X-ASG-Whitelist: Client
+x-mimeole: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:calendarmessage
+MIME-Version: 1.0
+Date: Fri, 6 Nov 2020 10:38:42 -0500
+X-ASG-Orig-Subj: =?iso-8859-1?Q?Rencontre_EX2003_du_canada_acentu=E9ee?=
+Message-ID: <F539857C03B1B949948E52C47C557EBA1373105A@ssmail02>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: =?iso-8859-1?Q?Rencontre_EX2003_du_canada_acentu=E9ee?=
+Thread-Index: Ada0Ur55HUjqSnKpSnyIcPKxLZaz/AAACljQ
+From: "Test Secretaire" <Test.Secretaire@urgences-sante.qc.ca>
+To: <thomas.cataldo@bluemind.net>
+X-Barracuda-Connect: UNKNOWN[10.193.8.196]
+X-Barracuda-Start-Time: 1604677077
+X-Barracuda-URL: https://207.96.146.208:443/cgi-mod/mark.cgi
+X-Virus-Scanned: by bsmtpd at urgences-sante.qc.ca
+X-Barracuda-Scan-Msg-Size: 571
+X-Barracuda-BRTS-Status: 1
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01D6B452.E7FEC7B5"
+Subject: =?iso-8859-1?Q?Rencontre_EX2003_du_canada_acentu=E9ee?=
+X-ALTOSPAM-STATUT: senderok mailok serverok spfok
+X-ALTOSPAM-HOST: k11.altospam.com
+X-Bm-Milter-Handled: 52acf897-5139-43fe-84a9-84d1b56d2ade
+X-Bm-Transport-Timestamp: 1604677089334
+X-BM-Event:
+ 040000008200E00074C5B7101A82E00800000000A05DCAF528B4D601000000000000000010000000AC72788CFD78144EBF3A4BA1AECCA140;
+ rsvp="true"
+
+This is a multi-part message in MIME format.
+
+------_=_NextPart_001_01D6B452.E7FEC7B5
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+Op l=E0 boum EUR
+
+------_=_NextPart_001_01D6B452.E7FEC7B5
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3=2E2//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859=
+-1">
+<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version 6=2E5=2E765=
+4=2E12">
+<TITLE>Rencontre EX2003 du canada acentu=E9ee</TITLE>
+</HEAD>
+<BODY>
+<!-- Converted from text/rtf format -->
+
+<P DIR=3DLTR><SPAN LANG=3D"fr-ca"></SPAN><SPAN LANG=3D"fr"><FONT FACE=3D"C=
+alibri">Op l=E0 boum &#8364;</FONT></SPAN><SPAN LANG=3D"fr-ca"></SPAN><SPAN=
+ LANG=3D"fr"></SPAN></P>
+
+</BODY>
+</HTML>
+------_=_NextPart_001_01D6B452.E7FEC7B5
+Content-class: urn:content-classes:calendarmessage
+Content-Type: text/calendar;
+	method=REQUEST;
+	name="meeting.ics"
+Content-Transfer-Encoding: 8bit
+
+BEGIN:VCALENDAR
+METHOD:REQUEST
+PRODID:Microsoft CDO for Microsoft Exchange
+VERSION:2.0
+BEGIN:VTIMEZONE
+TZID:(GMT-05.00) Eastern Time (US & Canada)
+X-MICROSOFT-CDO-TZID:10
+BEGIN:STANDARD
+DTSTART:16010101T020000
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+RRULE:FREQ=YEARLY;WKST=MO;INTERVAL=1;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:16010101T020000
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+RRULE:FREQ=YEARLY;WKST=MO;INTERVAL=1;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTAMP:20201106T153842Z
+DTSTART;TZID="(GMT-05.00) Eastern Time (US & Canada)":20201106T170000
+SUMMARY:Rencontre EX2003 du canada acentuéee
+UID:040000008200E00074C5B7101A82E00800000000A05DCAF528B4D601000000000000000
+ 010000000AC72788CFD78144EBF3A4BA1AECCA140
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN="'thomas.c
+ ataldo@bluemind.net'":MAILTO:thomas.cataldo@bluemind.net
+ORGANIZER;CN="Test Secretaire":MAILTO:Test.Secretaire@urgences-sante.qc.ca
+LOCATION:Toronto
+DTEND;TZID="(GMT-05.00) Eastern Time (US & Canada)":20201106T180000
+DESCRIPTION:Op là boum €\N
+SEQUENCE:0
+PRIORITY:5
+CLASS:
+CREATED:20201106T153842Z
+LAST-MODIFIED:20201106T153842Z
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+X-MICROSOFT-CDO-INSTTYPE:0
+X-MICROSOFT-CDO-INTENDEDSTATUS:BUSY
+X-MICROSOFT-CDO-ALLDAYEVENT:FALSE
+X-MICROSOFT-CDO-IMPORTANCE:1
+X-MICROSOFT-CDO-OWNERAPPTID:-1211713564
+X-MICROSOFT-CDO-APPT-SEQUENCE:0
+X-MICROSOFT-CDO-ATTENDEE-CRITICAL-CHANGE:20201106T153842Z
+X-MICROSOFT-CDO-OWNER-CRITICAL-CHANGE:20201106T153842Z
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:REMINDER
+TRIGGER;RELATED=START:-PT00H15M00S
+END:VALARM
+END:VEVENT
+END:VCALENDAR
+
+------_=_NextPart_001_01D6B452.E7FEC7B5--
+

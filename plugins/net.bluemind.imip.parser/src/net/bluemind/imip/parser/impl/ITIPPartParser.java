@@ -73,7 +73,7 @@ public class ITIPPartParser {
 	public IMIPInfos parse(Entity e) throws IOException, ParserException, ServerFault {
 		TextBody body = (TextBody) e.getBody();
 		Reader reader = null;
-		if ("us-ascii".equals(body.getMimeCharset())) {
+		if ("us-ascii".equalsIgnoreCase(body.getMimeCharset())) {
 			// outlook does not set the charset on its ICS parts
 			// and if it is really us-ascii we don't care as utf-8 == ascii for
 			// ascii chars

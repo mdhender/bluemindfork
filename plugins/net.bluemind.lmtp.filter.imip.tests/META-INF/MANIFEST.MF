@@ -37,4 +37,5 @@ Require-Bundle: org.junit,
  net.bluemind.lmtp,
  org.apache.james.apache-mime4j-core,
  net.bluemind.calendar.helper,
- net.bluemind.icalendar.parser;bundle-version="4.1.0"
+ net.bluemind.icalendar.parser;bundle-version="4.1.0",
+ net.bluemind.mime4j.common
