@@ -51,7 +51,7 @@
         </bm-row>
         <bm-row class="px-lg-5">
             <bm-col cols="12">
-                <hr class="bg-dark my-0" />
+                <hr class="mail-viewer-splitter my-0" />
                 <mail-attachments-block v-if="message.attachments.length > 0" :message="message" />
             </bm-col>
         </bm-row>
@@ -143,11 +143,16 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
 .mail-viewer {
     z-index: 20;
 
     .row {
         min-height: fit-content;
+    }
+
+    .mail-viewer-splitter {
+        border-top-color: $alternate-light;
     }
 }
 </style>

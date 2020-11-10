@@ -24,8 +24,8 @@
                         @keydown.enter.native.prevent
                     />
                 </div>
-                <bm-row class="d-block m-0"><hr class="bg-dark m-0" /></bm-row>
-                <bm-row class="mt-1 mb-2">
+                <hr class="mail-composer-splitter m-0" />
+                <bm-row class="mb-2">
                     <bm-col cols="12">
                         <bm-file-drop-zone
                             class="z-index-110 attachments"
@@ -431,6 +431,10 @@ export default {
 .mail-composer {
     .row {
         min-height: fit-content;
+    }
+
+    .mail-composer-splitter {
+        border-top-color: $alternate-light;
     }
 
     .mail-composer-subject input,

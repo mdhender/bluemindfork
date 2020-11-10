@@ -20,9 +20,9 @@ describe("MailAttachmentsBlock", () => {
         const wrapper = mountAttachmentBlock(7);
         expect(wrapper.findComponent(BmProgress).props().variant).toBe("warning");
     });
-    test("should display a primary bar if attachments are less than 50% than the authorized weight", async () => {
+    test("should display a success bar if attachments are less than 50% than the authorized weight", async () => {
         const wrapper = mountAttachmentBlock(3);
-        expect(wrapper.findComponent(BmProgress).props().variant).toBe("primary");
+        expect(wrapper.findComponent(BmProgress).props().variant).toBe("success");
     });
 });
 

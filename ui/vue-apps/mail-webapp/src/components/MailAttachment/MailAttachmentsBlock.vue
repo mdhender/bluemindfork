@@ -131,7 +131,7 @@ export default {
             return (this.attachmentsWeight * 100) / this.attachmentsMaxWeight;
         },
         attachmentsWeightColor() {
-            let color = "primary";
+            let color = "success";
             if (this.attachmentsWeightInPercent > 100) {
                 color = "danger";
             } else if (this.isHeavy) {
