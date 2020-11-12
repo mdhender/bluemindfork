@@ -46,8 +46,6 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.TaskUtils;
-import net.bluemind.directory.api.DirEntry;
-import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord;
 import net.bluemind.directory.hollow.datamodel.consumer.AnrToken;
 import net.bluemind.directory.hollow.datamodel.consumer.DirectorySearchFactory;
@@ -283,17 +281,12 @@ public class ProducerTests {
 		Optional<AddressBookRecord> byEmail = search.byEmail("g1@" + domainUid);
 		assertTrue(byEmail.isPresent());
 
+		System.err.println("Deleting group...");
 		IGroup groupService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IGroup.class,
 				domain.uid);
-		System.err.println("Deleting group...");
-		groupService.delete("group1");
-		IDirectory dir = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDirectory.class,
-				domain.uid);
-		DirEntry fetch = null;
-		do {
-			Thread.sleep(100);
-			fetch = dir.findByEntryUid("group1");
-		} while (fetch != null);
+		TaskRef taskRef = groupService.delete("group1");
+
+		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), taskRef);
 
 		consumer.refreshTo(producer.produce());
 
