@@ -54,10 +54,9 @@ public class MembersFinder implements SimpleBaseDirEntryFinder {
 			return;
 		}
 
-		int to = Math.min(tQuery.from + tQuery.size, members.size());
-		tQuery.entryUidFilter = members.subList(tQuery.from, to).stream() //
-				.map(m -> m.getUid()) //
-				.collect(Collectors.toList());
+		List<String> membersUid = members.stream().map(m -> m.getUid()).collect(Collectors.toList());
+		int from = tQuery.from;
+		int to = Math.min(from + tQuery.size, members.size());
 
 		// Don't use query pagination as we filter expected members
 		tQuery.from = 0;
@@ -67,14 +66,15 @@ public class MembersFinder implements SimpleBaseDirEntryFinder {
 
 			@Override
 			public void success(ListResult<ItemValue<DirEntry>> value) {
+
+				List<DirEntry> allMembers = value.values.stream()
+						.filter(member -> membersUid.contains(member.value.entryUid)
+								|| (filterOut != null && !filterOut.contains(member.value.entryUid)))
+						.map(d -> d.value).collect(Collectors.toList());
+
 				ListResult<DirEntry> ret = new ListResult<>();
-				ret.total = members.size();
-				if (filterOut != null && !filterOut.isEmpty()) {
-					ret.values = value.values.stream().filter(v -> !filterOut.contains(v.value.entryUid))
-							.map(d -> d.value).collect(Collectors.toList());
-				} else {
-					ret.values = value.values.stream().map(d -> d.value).collect(Collectors.toList());
-				}
+				ret.values = allMembers.subList(from, Math.min(to, allMembers.size()));
+				ret.total = allMembers.size();
 
 				cb.success(ret);
 			}
