@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -328,6 +330,14 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 		};
 
 		Pump.pump(s, stream).start();
+		CompletableFuture<Void> v = new CompletableFuture<>();
+		s.endHandler(v::complete);
+		s.exceptionHandler(v::completeExceptionally);
+		try {
+			v.get(1, TimeUnit.MINUTES);
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
 
 	}
 

@@ -190,6 +190,7 @@ public class MgntTests extends AbstractServiceTests {
 
 			@Override
 			protected StreamState<ChangesetItem> next() throws Exception {
+				System.err.println("next " + Thread.currentThread().getName());
 				if (itemsIt.hasNext()) {
 					return StreamState.data(itemsIt.next());
 				} else {
