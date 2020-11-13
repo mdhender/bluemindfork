@@ -37,6 +37,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
+import net.bluemind.addressbook.api.VCard;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.container.model.ItemValue;
@@ -52,6 +53,8 @@ import net.bluemind.directory.hollow.datamodel.consumer.DirectorySearchFactory;
 import net.bluemind.directory.hollow.datamodel.consumer.SerializedDirectorySearch;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
+import net.bluemind.externaluser.api.ExternalUser;
+import net.bluemind.externaluser.api.IExternalUser;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.locator.LocatorVerticle;
@@ -107,12 +110,15 @@ public class ProducerTests {
 				domain.uid);
 		IMailshare mailshareService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IMailshare.class, domain.uid);
+		IExternalUser externalUserService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IExternalUser.class, domain.uid);
 
 		groupService.create("group1", defaultGroup("g1", cyrusIp));
 		groupService.create("group2", defaultGroup("g2", cyrusIp));
 
 		mailshareService.create("share1", defaultMailshare(cyrusIp));
 
+		externalUserService.create("external1", defaultExternalUser("external", "user1"));
 	}
 
 	@After
@@ -133,11 +139,11 @@ public class ProducerTests {
 
 		consumer.refreshTo(snap);
 		Collection<AddressBookRecord> dir = search.all();
-		assertEquals(8, dir.size());
+		assertEquals(9, dir.size());
 
 		assertTrue(producer.file.listFiles().length > 0);
 		dir = search.all();
-		assertEquals(8, dir.size());
+		assertEquals(9, dir.size());
 
 		PopulateHelper.addUserWithRoles("user3", domainUid);
 		PopulateHelper.addUserWithRoles("user7", domainUid);
@@ -146,7 +152,7 @@ public class ProducerTests {
 
 		assertTrue(producer.file.listFiles().length > 0);
 		dir = search.all();
-		assertEquals(11, dir.size());
+		assertEquals(12, dir.size());
 
 		String uid5 = PopulateHelper.addUserWithRoles("user5", domainUid);
 		PopulateHelper.addUserWithRoles("user6", domainUid);
@@ -154,7 +160,7 @@ public class ProducerTests {
 		consumer.refreshTo(producer.produce());
 		assertTrue(producer.file.listFiles().length > 0);
 		dir = search.all();
-		assertEquals(13, dir.size());
+		assertEquals(14, dir.size());
 
 		IUser user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domain.uid);
 		TaskRef tr = user.delete(uid5);
@@ -163,7 +169,7 @@ public class ProducerTests {
 		consumer.refreshTo(producer.produce());
 		assertTrue(producer.file.listFiles().length > 0);
 		dir = search.all();
-		assertEquals(12, dir.size());
+		assertEquals(13, dir.size());
 
 	}
 
@@ -202,6 +208,18 @@ public class ProducerTests {
 		assertTrue(byUid.isPresent());
 		assertEquals(user7dn, byUid.get().getDistinguishedName());
 		assertEquals("uSeR7", byUid.get().getUid());
+
+		String external1dn = "/o=mapi/ou=" + domainUid + "/cn=recipients/cn=externaluser:" + "external1";
+		byUid = search.byUid("external1");
+		assertTrue(byUid.isPresent());
+		assertEquals("external1", byUid.get().getUid());
+		assertEquals(external1dn, byUid.get().getDistinguishedName());
+
+		byUid = search.byDistinguishedName(external1dn);
+		assertTrue(byUid.isPresent());
+		assertEquals(external1dn, byUid.get().getDistinguishedName());
+		assertEquals("external1", byUid.get().getUid());
+
 	}
 
 	@Test
@@ -233,7 +251,11 @@ public class ProducerTests {
 						+ "' ANRs: " + rec.getAnr().stream().map(AnrToken::getToken).collect(Collectors.joining(", ")));
 			}
 		}
-		assertEquals(4, ret.size());
+		assertEquals(5, ret.size());
+
+		ret = search.byNameOrEmailPrefix("external");
+		assertEquals(1, ret.size());
+		assertEquals("external user1", ret.iterator().next().getName());
 
 	}
 
@@ -338,6 +360,8 @@ public class ProducerTests {
 		assertTrue(byEmail.isPresent());
 		byEmail = search.byEmail("imuser2@" + d2);
 		assertTrue(byEmail.isPresent());
+		byEmail = search.byEmail("external.user1@outside.org");
+		assertTrue(byEmail.isPresent());
 	}
 
 	private Group defaultGroup(String name, String cyrusIp) {
@@ -374,6 +398,22 @@ public class ProducerTests {
 		ms.emails = Arrays.asList(Email.create("test@bm.lan", true, true));
 		ms.routing = Routing.internal;
 		return ms;
+	}
+
+	private ExternalUser defaultExternalUser(String firstName, String name) {
+		ExternalUser externalUser = new ExternalUser();
+		String address = firstName + "." + name + "@outside.org";
+		externalUser.dataLocation = null;
+		externalUser.contactInfos = new VCard();
+		externalUser.contactInfos.identification.formatedName = VCard.Identification.FormatedName
+				.create(firstName + " " + name);
+		externalUser.contactInfos.identification.name.familyNames = name;
+		externalUser.contactInfos.identification.name.additionalNames = firstName;
+		externalUser.contactInfos.communications.emails = Arrays.asList(VCard.Communications.Email.create(address));
+		externalUser.emails = Arrays.asList(Email.create(address, true));
+		externalUser.hidden = false;
+
+		return externalUser;
 	}
 
 }

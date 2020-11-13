@@ -185,9 +185,10 @@ public class DirectorySerializer implements DataSerializer {
 
 				List<ItemValue<Mailbox>> mailboxes = mboxApi.multipleGet(uidWithEmails);
 				for (ItemValue<DirEntry> entry : entries) {
-					dirEntryToAddressBookRecord(domain, entry,
-							mailboxes.stream().filter(m -> m.uid.equals(entry.value.entryUid)).findAny().orElse(null),
-							locationCache, installationId).ifPresent(rec -> {
+					ItemValue<Mailbox> mailbox = mailboxes.stream().filter(m -> m.uid.equals(entry.value.entryUid))
+							.findAny().orElse(null);
+					dirEntryToAddressBookRecord(domain, entry, mailbox, locationCache, installationId)
+							.ifPresent(rec -> {
 								if (entry.value.archived || dropHiddenEntry(entry)) {
 									populator.delete(new RecordPrimaryKey("AddressBookRecord",
 											new String[] { entry.value.entryUid }));
@@ -230,14 +231,14 @@ public class DirectorySerializer implements DataSerializer {
 	}
 
 	private boolean supportedType(ItemValue<DirEntry> iv) {
-		return !iv.value.system && (iv.value.kind == Kind.USER || iv.value.kind == Kind.GROUP
-				|| iv.value.kind == Kind.MAILSHARE || iv.value.kind == Kind.RESOURCE);
+		return !iv.value.system
+				&& (iv.value.kind == Kind.USER || iv.value.kind == Kind.GROUP || iv.value.kind == Kind.MAILSHARE
+						|| iv.value.kind == Kind.RESOURCE || iv.value.kind == Kind.EXTERNALUSER);
 	}
 
 	private Optional<AddressBookRecord> dirEntryToAddressBookRecord(ItemValue<Domain> domain, ItemValue<DirEntry> entry,
 			ItemValue<Mailbox> box, Map<String, DataLocation> datalocationCache, String installationId) {
 		AddressBookRecord rec = new AddressBookRecord();
-
 		String tmpDom = domain.uid;
 		Optional<AddressBookRecord> optRec = DirEntrySerializer.get(tmpDom, entry)
 				.map(serializer -> prepareRecord(domain, entry, box, datalocationCache, installationId, rec, tmpDom,
@@ -272,7 +273,7 @@ public class DirectorySerializer implements DataSerializer {
 		List<String> aliases = new ArrayList<>();
 		aliases.add(tmpDom);
 		aliases.addAll(domain.value.aliases);
-		rec.emails = toEmails(box, aliases);
+		rec.emails = entry.value.kind != Kind.EXTERNALUSER ? toEmails(box, aliases) : toEmails(entry.value.email);
 		rec.name = serializer.get(DirEntrySerializer.Property.DisplayName).toString();
 		rec.email = serializer.get(DirEntrySerializer.Property.Email).toString();
 		rec.kind = serializer.get(DirEntrySerializer.Property.Kind).toString();
@@ -329,6 +330,10 @@ public class DirectorySerializer implements DataSerializer {
 						.create(left + "@" + d, e.isDefault, e.allAliases));
 			}
 		}).collect(Collectors.toList());
+	}
+
+	private List<net.bluemind.directory.hollow.datamodel.Email> toEmails(String address) {
+		return Arrays.asList(net.bluemind.directory.hollow.datamodel.Email.create(address, true, false));
 	}
 
 	private OfflineAddressBook createOabEntry(ItemValue<Domain> domain, long version) {

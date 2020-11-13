@@ -36,6 +36,8 @@ import net.bluemind.directory.hollow.datamodel.producer.Value.ListValue;
 import net.bluemind.directory.hollow.datamodel.producer.Value.NullValue;
 import net.bluemind.directory.hollow.datamodel.producer.Value.StringValue;
 import net.bluemind.directory.hollow.datamodel.utils.JPEGThumbnail;
+import net.bluemind.externaluser.api.ExternalUser;
+import net.bluemind.externaluser.api.IExternalUser;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.mailshare.api.IMailshare;
@@ -92,6 +94,13 @@ public abstract class DirEntrySerializer {
 			ItemValue<Mailshare> mailshare = provider().instance(IMailshare.class, domainUid).getComplete(dirEntry.uid);
 			if (mailshare != null) {
 				ret = new MailshareSerializer(mailshare, dirEntry, domainUid);
+			}
+			break;
+		case EXTERNALUSER:
+			ItemValue<ExternalUser> externalUser = provider().instance(IExternalUser.class, domainUid)
+					.getComplete(dirEntry.uid);
+			if (externalUser != null) {
+				ret = new ExternalUserSerializer(externalUser, dirEntry, domainUid);
 			}
 			break;
 		default:
