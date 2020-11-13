@@ -2,19 +2,18 @@ package net.bluemind.metrics.core.healing;
 
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.Verticle;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -46,10 +45,7 @@ public class HealElasticSearchOnDiskUsage extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		final IServer serverApi = prov.instance(IServer.class, InstallationId.getIdentifier());
 		final EventBus eb = vertx.eventBus();
-
 		eb.consumer("kapacitor.alert", (Message<JsonObject> msg) -> {
 			JsonObject obj = msg.body();
 			String newLevel = obj.getString("level");
@@ -80,8 +76,14 @@ public class HealElasticSearchOnDiskUsage extends AbstractVerticle {
 					// Restart elasticsearch
 					logger.info("Restarting {} for healing after diskfull on {} (cluster status is RED)", product.name,
 							alert.datalocation);
+					final ServerSideServiceProvider prov = ServerSideServiceProvider
+							.getProvider(SecurityContext.SYSTEM);
+					final IServer serverApi = prov.instance(IServer.class, InstallationId.getIdentifier());
 					CommandStatus status = serverApi.submitAndWait(alert.datalocation,
 							"service " + product.name + " restart");
+					if (!status.successful) {
+						logger.error("Unable to restart '{}': {}", product.name, String.join("\n", status.output));
+					}
 				} else {
 					logger.info("CLUSTER STATUS is {}, no need to heal", response.getStatus());
 				}
