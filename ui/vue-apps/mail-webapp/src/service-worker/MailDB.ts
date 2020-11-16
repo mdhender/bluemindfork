@@ -28,7 +28,7 @@ interface MailSchema extends DBSchema {
         key: [string, number];
         value: MailItemLight;
         indexes: { "by-folderUid": string };
-    }
+    };
 }
 
 export const maildb = (function () {
@@ -50,7 +50,7 @@ export const maildb = (function () {
 class MailDB {
     dbPromise: Promise<IDBPDatabase<MailSchema>>;
     constructor(userAtDomain: string) {
-        const schemaVersion = 6;
+        const schemaVersion = 7;
         this.dbPromise = openDB<MailSchema>(`${userAtDomain}:webapp/mail`, schemaVersion, {
             upgrade(db, oldVersion) {
                 if (oldVersion < schemaVersion) {
@@ -106,7 +106,10 @@ class MailDB {
         await this.putItems(items, "mail_items", optionalTransaction);
     }
 
-    async putMailItemLight(items: MailItemLight[], optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>) {
+    async putMailItemLight(
+        items: MailItemLight[],
+        optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>
+    ) {
         await this.putItems(items, "mail_item_light", optionalTransaction);
     }
 
@@ -145,21 +148,22 @@ class MailDB {
             tx
         );
         this.putMailItemLight(
-            items.map(mailItem => (
-                {
-                    internalId: mailItem.internalId,
-                    flags: mailItem.flags,
-                    date: mailItem.value.body.date,
-                    folderUid: uid
-                })),
-            tx);
+            items.map(mailItem => ({
+                internalId: mailItem.internalId,
+                flags: mailItem.flags,
+                date: mailItem.value.body.date,
+                folderUid: uid
+            })),
+            tx
+        );
         const deleteMailItemPromises = Promise.all(
-            deletedIds.map(id => tx.objectStore("mail_items").delete([uid, id])));
+            deletedIds.map(id => tx.objectStore("mail_items").delete([uid, id]))
+        );
         const deleteMailItemLightPromises = Promise.all(
-            deletedIds.map(id => tx.objectStore("mail_item_light").delete([uid, id])));
+            deletedIds.map(id => tx.objectStore("mail_item_light").delete([uid, id]))
+        );
         await Promise.all([deleteMailItemPromises, deleteMailItemLightPromises]);
         tx.objectStore("sync_options").put(syncOptions);
         tx.done;
     }
 }
-
