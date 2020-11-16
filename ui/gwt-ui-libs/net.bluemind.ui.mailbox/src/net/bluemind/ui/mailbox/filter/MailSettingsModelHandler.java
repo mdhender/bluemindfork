@@ -36,22 +36,16 @@ import net.bluemind.mailbox.api.IMailboxesPromise;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.gwt.endpoint.MailboxesGwtEndpoint;
 import net.bluemind.ui.common.client.forms.Ajax;
-import net.bluemind.user.api.IUserSettingsPromise;
-import net.bluemind.user.api.gwt.endpoint.UserSettingsGwtEndpoint;
 
 public class MailSettingsModelHandler implements IGwtModelHandler {
 
-	private static final String MAIL_APPLICATION = "mail-application";
 	private MailboxesGwtEndpoint mailboxes;
 	private String mailboxUid;
-	private String userId;
-	private UserSettingsGwtEndpoint userSettings;
 
 	@Override
 	public void load(final JavaScriptObject model, final AsyncHandler<Void> handler) {
 		JsMapStringString m = model.cast();
 		this.mailboxUid = m.get("mailboxUid");
-		this.userId = m.get("userId");
 		final String domainUid = m.get("domainUid");
 		final String entryUid = m.get("entryUid");
 		final JsMapStringJsObject map = model.cast();
@@ -68,18 +62,10 @@ public class MailSettingsModelHandler implements IGwtModelHandler {
 			MailSettingsModel.populate(model, value);
 		});
 
-		userSettings = new UserSettingsGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid);
-		IUserSettingsPromise userSettingsService = userSettings.promiseApi();
-		CompletableFuture<Void> userSettingsLoad = userSettingsService.getOne(userId, MAIL_APPLICATION)
-				.thenAccept(value -> {
-					MailSettingsModel.populate(model, value);
-				});
-
-		CompletableFuture.allOf(dirEntryLoad, mailboxLoad, userSettingsLoad).thenRun(() -> handler.success(null))
-				.exceptionally(t -> {
-					handler.failure(t);
-					return null;
-				});
+		CompletableFuture.allOf(dirEntryLoad, mailboxLoad).thenRun(() -> handler.success(null)).exceptionally(t -> {
+			handler.failure(t);
+			return null;
+		});
 
 	}
 
@@ -91,24 +77,15 @@ public class MailSettingsModelHandler implements IGwtModelHandler {
 		}
 		MailSettingsModel mm = MailSettingsModel.get(model);
 		MailFilter mf = mm.getMailFilter();
-		String mailApplication = mm.getMailApplication();
-		if (mf == null || mailApplication == null) {
+		if (mf == null) {
 			handler.success(null);
 		} else {
 			mailboxes.setMailboxFilter(mailboxUid, mf, new DefaultAsyncHandler<Void>(handler) {
 				@Override
 				public void success(Void value) {
-					userSettings.setOne(userId, MAIL_APPLICATION, mailApplication,
-							new DefaultAsyncHandler<Void>(handler) {
-								@Override
-								public void success(Void value) {
-									handler.success(null);
-								}
-							});
-
+					handler.success(null);
 				}
 			});
-
 		}
 	}
 
