@@ -13,6 +13,10 @@
                class="net.bluemind.webmodules.webapp.handlers.WebAppHandler"
                path="index.html">
          </handler>
+         <handler
+               class="net.bluemind.webmodules.webapp.handlers.PartContentUrlHandler"
+               path="part/url/">
+         </handler>
       </web-module>
       
    </extension>

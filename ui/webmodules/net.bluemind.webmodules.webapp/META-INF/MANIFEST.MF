@@ -15,6 +15,7 @@ Require-Bundle: net.bluemind.webmodule,
  net.bluemind.core.rest.http,
  io.vertx.core,
  net.bluemind.config,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ net.bluemind.backend.mail.api
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.webmodules.webapp
