@@ -6,6 +6,7 @@ const MULTIPART_ALTERNATIVE = "multipart/alternative";
 const MULTIPART_MIXED = "multipart/mixed";
 const MULTIPART = "multipart/";
 
+const ICS = "application/ics";
 const IMAGE = "image/";
 const AUDIO = "audio/";
 const VIDEO = "video/";
@@ -162,6 +163,8 @@ function matchingIcon(mimeType) {
         equals(mimeType, TEXT_HTML)
     ) {
         return "file-type-code";
+    } else if (equals(mimeType, ICS)) {
+        return "file-type-ics";
     } else {
         return "file-type-unknown";
     }
