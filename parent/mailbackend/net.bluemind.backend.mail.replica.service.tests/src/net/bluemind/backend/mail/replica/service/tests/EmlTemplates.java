@@ -43,7 +43,7 @@ public class EmlTemplates {
 	}
 
 	public static InputStream withRandomMessageId(String tplName) {
-		Configuration fmCfg = new Configuration();
+		Configuration fmCfg = new Configuration(Configuration.VERSION_2_3_30);
 		fmCfg.setClassForTemplateLoading(EmlTemplates.class, "/data");
 		fmCfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

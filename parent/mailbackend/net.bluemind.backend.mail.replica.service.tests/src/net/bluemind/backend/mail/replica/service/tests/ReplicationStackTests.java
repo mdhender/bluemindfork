@@ -56,7 +56,6 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
-import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.IItemsTransfer;
 import net.bluemind.backend.mail.api.IMailboxFolders;
@@ -134,10 +133,6 @@ import net.bluemind.mailshare.api.Mailshare;
 
 public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
-	private String apiKey;
-	protected String partition;
-	protected String mboxRoot;
-
 	@Before
 	@Override
 	public void before() throws Exception {
@@ -152,14 +147,6 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 			System.out.println("Mail " + added + " added:\n" + tree);
 			return null;
 		});
-		CyrusPartition part = CyrusPartition.forServerAndDomain(cyrusReplication.server(), domainUid);
-		this.partition = part.name;
-		this.mboxRoot = "user." + userUid.replace('.', '^');
-
-		this.apiKey = "sid";
-		SecurityContext secCtx = new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(),
-				domainUid);
-		Sessions.get().put(apiKey, secCtx);
 
 		IServiceProvider prov = provider();
 
