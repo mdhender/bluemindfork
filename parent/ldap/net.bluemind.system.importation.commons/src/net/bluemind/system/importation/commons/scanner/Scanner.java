@@ -40,6 +40,7 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
@@ -177,9 +178,9 @@ public abstract class Scanner {
 
 	protected abstract PagedSearchResult groupsDnByLastModification(Optional<String> lastUpdate) throws LdapException;
 
-	protected abstract PagedSearchResult getUserFromDn(Dn dn) throws LdapException;
+	protected abstract Optional<Entry> getUserFromDn(Dn dn) throws LdapException;
 
-	protected abstract PagedSearchResult getGroupFromDn(Dn dn) throws LdapException;
+	protected abstract Optional<Entry> getGroupFromDn(Dn dn) throws LdapException;
 
 	protected abstract void manageUserGroups(UserManager userManager);
 
@@ -413,35 +414,23 @@ public abstract class Scanner {
 		}
 	}
 
-	protected Optional<UuidMapper> getUserUuidMapper(Dn userDn) {
-		Entry entry = null;
+	private Optional<Member> getUserMember(GroupManager groupManager, Dn userDn) {
+		Optional<UuidMapper> uuidMapper = Optional.empty();
 
-		try (PagedSearchResult cursor = getUserFromDn(userDn)) {
-			if (!cursor.next()) {
-				return Optional.empty();
-			}
-
-			entry = cursor.getEntry();
-
-			if (doNotImportUser(entry)) {
-				return Optional.empty();
-			}
-		} catch (Exception e) {
-			throw new ServerFault(e);
+		try {
+			uuidMapper = getUserFromDn(userDn).map(this::getUuidMapperFromEntry).orElse(Optional.empty());
+		} catch (LdapException le) {
+			importLogger.warning(Messages.groupMemberNotFound(userDn.getName()));
 		}
 
-		return getUuidMapperFromEntry(entry);
-	}
-
-	private Optional<Member> getUserMember(GroupManager groupManager, Dn userDn) {
-		Optional<UuidMapper> uuidMapper = getUserUuidMapper(userDn);
-		if (!uuidMapper.isPresent()) {
+		String extId = uuidMapper.map(UuidMapper::getExtId).orElse(null);
+		if (Strings.isNullOrEmpty(extId)) {
 			return Optional.empty();
 		}
 
-		ItemValue<User> itemUser = coreService.getUserByExtId(uuidMapper.get().getExtId());
+		ItemValue<User> itemUser = coreService.getUserByExtId(extId);
 		if (itemUser == null) {
-			importLogger.info(Messages.failedToFindUserByExtId(groupManager.group, uuidMapper.get().getExtId()));
+			importLogger.info(Messages.failedToFindUserByExtId(groupManager.group, extId));
 			return Optional.empty();
 		}
 
@@ -453,29 +442,22 @@ public abstract class Scanner {
 	}
 
 	private Optional<Member> getGroupMember(GroupManager groupManager, Dn groupDn) {
-		Entry entry = null;
-		try (PagedSearchResult cursor = getGroupFromDn(groupDn)) {
-			if (!cursor.next()) {
-				return Optional.empty();
-			}
+		Optional<UuidMapper> uuidMapper = Optional.empty();
 
-			entry = cursor.getEntry();
-
-			if (doNotImportGroup(entry)) {
-				return Optional.empty();
-			}
-		} catch (Exception e) {
-			throw new ServerFault(e);
+		try {
+			uuidMapper = getGroupFromDn(groupDn).map(this::getUuidMapperFromEntry).orElse(Optional.empty());
+		} catch (LdapException le) {
+			importLogger.warning(Messages.groupMemberNotFound(groupDn.getName()));
 		}
 
-		Optional<UuidMapper> uuidMapper = getUuidMapperFromEntry(entry);
-		if (!uuidMapper.isPresent()) {
+		String extId = uuidMapper.map(UuidMapper::getExtId).orElse(null);
+		if (Strings.isNullOrEmpty(extId)) {
 			return Optional.empty();
 		}
 
-		ItemValue<Group> itemGroup = coreService.getGroupByExtId(uuidMapper.get().getExtId());
+		ItemValue<Group> itemGroup = coreService.getGroupByExtId(extId);
 		if (itemGroup == null) {
-			importLogger.info(Messages.failedToFindGroupByExtId(groupManager.group, uuidMapper.get().getExtId()));
+			importLogger.info(Messages.failedToFindGroupByExtId(groupManager.group, extId));
 			return Optional.empty();
 		}
 

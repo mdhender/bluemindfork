@@ -185,12 +185,12 @@ public abstract class LdapScanner extends Scanner {
 	}
 
 	@Override
-	protected PagedSearchResult getUserFromDn(Dn userDn) throws LdapException {
+	protected Optional<Entry> getUserFromDn(Dn userDn) throws LdapException {
 		return getLdapSearch().getUserUUID(ldapCon, userDn);
 	}
 
 	@Override
-	protected PagedSearchResult getGroupFromDn(Dn groupDn) throws LdapException {
+	protected Optional<Entry> getGroupFromDn(Dn groupDn) throws LdapException {
 		return getLdapSearch().getGroupFromDn(ldapCon, groupDn);
 	}
 

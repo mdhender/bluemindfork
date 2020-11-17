@@ -24,7 +24,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -35,8 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.system.importation.commons.UuidMapper;
-import net.bluemind.system.importation.search.PagedSearchResult;
-import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchException;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.importation.internal.tools.LdapUuidMapper;
 import net.bluemind.system.ldap.importation.internal.tools.UserManagerImpl;
@@ -70,17 +67,12 @@ public class MemberOfLdapSearch extends LdapSearch {
 			String memberOfValue) {
 		Entry entry = null;
 
-		try (PagedSearchResult group = new LdapSearch(ldapParameters).getGroupFromDn(ldapCon, new Dn(memberOfValue))) {
-			if (!group.next()) {
-				logger.warn("Cannot find group {}", memberOfValue);
-				return Optional.empty();
-			}
-
-			entry = group.getEntry();
+		try {
+			entry = ldapCon.lookup(new Dn(memberOfValue), ldapParameters.ldapDirectory.extIdAttribute);
 		} catch (LdapInvalidDnException e) {
 			logger.warn("Invalid group DN {}", memberOfValue, e);
 			return Optional.empty();
-		} catch (LdapSearchException | CursorException | LdapException e) {
+		} catch (LdapException e) {
 			logger.warn("Cannot find group {}", memberOfValue, e);
 			return Optional.empty();
 		}
