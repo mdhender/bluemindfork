@@ -1,4 +1,4 @@
-import { ChangeSet, MailFolder, MailItem, SessionInfo } from "./entry";
+import { ChangeSet, FilteredChangeSet, MailFolder, MailItem, SessionInfo } from "./entry";
 
 //@FIXME: it might be possible to force certain methods depending on the route.
 type Route = "mail_folders" | "mail_items";
@@ -10,15 +10,12 @@ interface MailAPIOptions {
 
 interface MailItemAPI {
     fetch: (uid: string, ids: number[]) => Promise<MailItem[]>;
-    changeset: (uid: string, version: number) => Promise<ChangeSet>;
+    changeset: (uid: string, version: number) => Promise<FilteredChangeSet>;
 }
 
 interface MailFolderAPI {
     fetch: ({ userId, domain }: { userId: string; domain: string }) => Promise<MailFolder[]>;
-    changeset: (
-        { userId, domain }: { userId: string; domain: string },
-        version: number
-    ) => Promise<ChangeSet>;
+    changeset: ({ userId, domain }: { userId: string; domain: string }, version: number) => Promise<ChangeSet>;
 }
 
 class MailAPI {
@@ -48,7 +45,7 @@ class MailAPI {
             async changeset(uid: string, version: number) {
                 const method: Method = "_filteredChangesetById";
                 const route: Route = "mail_items";
-                return fetchAPI<ChangeSet>(`/api/${route}/${uid}/${method}?since=${version}`, {
+                return fetchAPI<FilteredChangeSet>(`/api/${route}/${uid}/${method}?since=${version}`, {
                     ...requestInit,
                     body: JSON.stringify({ must: [], mustNot: ["Deleted"] }),
                     method: "POST"
@@ -67,14 +64,14 @@ class MailAPI {
             },
 
             async changeset({ userId, domain }: { userId: string; domain: string }, version: number) {
-                const method: Method = "_filteredChangesetById";
+                const method: Method = "_changesetById";
                 const route: Route = "mail_folders";
                 return fetchAPI<ChangeSet>(
-                    `/api/${route}/${domain.replace(".", "_")}/${`user.${userId}`}/${method}?since=${version}`, {
-                    ...requestInit,
-                    body: JSON.stringify({ must: [], mustNot: ["Deleted"] }),
-                    method: "POST"
-                });
+                    `/api/${route}/${domain.replace(".", "_")}/${`user.${userId}`}/${method}?since=${version}`,
+                    {
+                        ...requestInit
+                    }
+                );
             }
         };
     }

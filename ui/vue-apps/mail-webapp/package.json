@@ -57,6 +57,7 @@
         "@bluemind/conf": "^4.1.0",
         "@bluemind/test-utils": "^4.1.0",
         "@vue/test-utils": "^1.0.0-beta.25",
+        "fetch-mock": "^9.10.7",
         "lodash.clonedeep": "^4.5.0",
         "lodash.merge": "^4.6.2",
         "vue-router": "^3.0.3",

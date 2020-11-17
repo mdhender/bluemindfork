@@ -50,11 +50,11 @@ async function syncMailbox(domain: string, userId: string) {
         syncOptions.version
     );
     if (version !== syncOptions.version) {
-        const toBeUpdated = created.concat(updated).map(({id}) => id);
+        const toBeUpdated = created.concat(updated);
         const mailFolders = (await api.mailFolder.fetch({ domain, userId })).filter(mailfolder =>
             toBeUpdated.includes(mailfolder.internalId)
         );
-        await (await maildb.getInstance()).deleteMailFolders(deleted.map(({id}) => id));
+        await (await maildb.getInstance()).deleteMailFolders(deleted);
         await (await maildb.getInstance()).putMailFolders(mailFolders);
         await (await maildb.getInstance()).updateSyncOptions({ ...syncOptions, version });
     }
