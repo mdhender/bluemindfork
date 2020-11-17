@@ -222,7 +222,27 @@ public class ItemStore extends JdbcAbstractStore {
 			statement.setLong(index++, container.id);
 			statement.setString(index++, uid1);
 			return index;
-		}), (rs) -> new Item(), ITEM_POPULATOR);
+		}), rs -> new Item(), ITEM_POPULATOR);
+	}
+
+	public Item update(long id, final String displayName, Collection<ItemFlag> flags) throws SQLException {
+		String updateQuery = ""//
+				+ NEXTVERSION_QUERY //
+				+ "UPDATE t_container_item set " //
+				+ " ( version, updatedby,  updated,displayname,flags) " + " = " //
+				+ "( nv.seq, ?,  'now', ?, ?) FROM nv WHERE container_id = ? AND id = ? RETURNING " + COLUMNS.names();
+
+		return insertAndReturn(updateQuery, id, Arrays.asList((con, statement, index, rowIndex, id1) -> {
+			String principal = getPrincipal();
+			statement.setLong(index++, container.id);
+			statement.setString(index++, principal);
+			statement.setString(index++, displayName);
+			statement.setLong(index++, ItemFlag.value(flags));
+
+			statement.setLong(index++, container.id);
+			statement.setLong(index++, id1);
+			return index;
+		}), rs -> new Item(), ITEM_POPULATOR);
 	}
 
 	public Item touch(String uid) throws SQLException {

@@ -337,15 +337,20 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	public ItemVersion update(String uid, String displayName, T value) throws ServerFault {
 		return doOrFail(() -> {
 
-			Item item = itemStore.getForUpdate(uid);
+			String dnToApply = displayName;
+			if (dnToApply == null) {
+				// try to preserve the existing display name
+				Item existing = itemStore.getForUpdate(uid);
+				if (existing == null) {
+					throw ServerFault.notFound("entry[" + uid + "]@" + container.uid + " not found");
+				}
+
+				dnToApply = existing.displayName;
+			}
+			Item item = itemStore.update(uid, dnToApply, flagsProvider.flags(value));
 			if (item == null) {
 				throw ServerFault.notFound("entry[" + uid + "]@" + container.uid + " not found");
 			}
-
-			if (displayName != null) {
-				item.displayName = displayName;
-			}
-			item = itemStore.update(uid, item.displayName, flagsProvider.flags(value));
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
@@ -360,16 +365,21 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	public ItemVersion update(long itemId, String displayName, T value) throws ServerFault {
 		return doOrFail(() -> {
 
-			Item item = itemStore.getForUpdate(itemId);
+			String dnToApply = displayName;
+			if (dnToApply == null) {
+				// try to preserve the existing display name
+				Item existing = itemStore.getForUpdate(itemId);
+				if (existing == null) {
+					throw ServerFault.notFound("entry[id: " + itemId + "]@" + container.uid + " not found");
+				}
+
+				dnToApply = existing.displayName;
+			}
+
+			Item item = itemStore.update(itemId, dnToApply, flagsProvider.flags(value));
 			if (item == null) {
-				throw ServerFault.notFound("entry[" + itemId + "]@" + container.uid + " not found");
+				throw ServerFault.notFound("entry[id: " + itemId + "]@" + container.uid + " not found");
 			}
-
-			if (displayName != null) {
-				item.displayName = displayName;
-			}
-
-			item = itemStore.update(item.uid, item.displayName, flagsProvider.flags(value));
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
