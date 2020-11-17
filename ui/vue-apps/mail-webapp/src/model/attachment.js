@@ -18,8 +18,7 @@ export function create(address, charset, fileName, encoding, mime, size, isUploa
         dispositionType: "ATTACHMENT",
         headers: getAttachmentHeaders(fileName, size),
         progress,
-        status,
-        contentUrl: null
+        status
     };
 }
 

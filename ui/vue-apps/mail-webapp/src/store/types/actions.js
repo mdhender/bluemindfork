@@ -1,9 +1,10 @@
-// mailboxes
+// root
+export const FETCH_ACTIVE_MESSAGE_INLINE_PARTS = "FETCH_ACTIVE_MESSAGE_INLINE_PARTS";
 
+// mailboxes
 export const FETCH_MAILBOXES = "FETCH_MAILBOXES";
 
 // folders
-
 export const FETCH_FOLDERS = "FETCH_FOLDERS";
 export const CREATE_FOLDER = "CREATE_FOLDER";
 export const CREATE_FOLDER_HIERARCHY = "CREATE_FOLDER_HIERARCHY";

@@ -8,9 +8,7 @@ import {
     REMOVE_ATTACHMENT,
     REMOVE_MESSAGES,
     MOVE_MESSAGES,
-    REMOVE_MESSAGE_PART_CONTENTS,
     SET_ATTACHMENT_ADDRESS,
-    SET_ATTACHMENT_CONTENT_URL,
     SET_ATTACHMENT_ENCODING,
     SET_ATTACHMENT_PROGRESS,
     SET_ATTACHMENT_STATUS,
@@ -23,7 +21,6 @@ import {
     SET_MESSAGE_HEADERS,
     SET_MESSAGE_INTERNAL_ID,
     SET_MESSAGE_LIST,
-    SET_MESSAGE_PART_CONTENTS,
     SET_MESSAGE_SUBJECT,
     SET_MESSAGE_TO,
     SET_UNREAD_COUNT
@@ -87,28 +84,12 @@ export default {
     [SET_MESSAGE_INTERNAL_ID]: (state, { key, internalId }) => {
         state[key].remoteRef.internalId = internalId;
     },
-    [SET_MESSAGE_PART_CONTENTS]: (state, { key, contents, parts }) => {
-        if (!state[key].partContentByAddress) {
-            state[key].partContentByAddress = {};
-        }
-        parts.forEach((part, index) => {
-            Vue.set(state[key].partContentByAddress, part.address, contents[index]);
-        });
-    },
-    [REMOVE_MESSAGE_PART_CONTENTS]: (state, key) => {
-        if (state[key]) {
-            state[key].partContentByAddress = {};
-        }
-    },
     [ADD_ATTACHMENT]: (state, { messageKey, attachment }) => {
         state[messageKey].attachments.push(attachment);
     },
     [REMOVE_ATTACHMENT]: (state, { messageKey, address }) => {
         const attachments = state[messageKey].attachments;
         const index = attachments.findIndex(a => a.address === address);
-        if (attachments[index].contentUrl) {
-            URL.revokeObjectURL(attachments[index].contentUrl);
-        }
         attachments.splice(index, 1);
     },
     [SET_ATTACHMENT_ADDRESS]: (state, { messageKey, oldAddress, address }) => {
@@ -129,23 +110,10 @@ export default {
     [SET_ATTACHMENT_PROGRESS]: (state, { messageKey, address, loaded, total }) => {
         const attachment = state[messageKey].attachments.find(a => a.address === address);
         attachment.progress = { loaded, total };
-    },
-    [SET_ATTACHMENT_CONTENT_URL]: (state, { messageKey, address, url }) => {
-        if (state[messageKey]) {
-            const attachment = state[messageKey].attachments.find(a => a.address === address);
-            attachment.contentUrl = url;
-        }
     }
 };
 function removeMessages(state, messages) {
     messages.forEach(({ key }) => {
-        if (state[key] && state[key].attachments) {
-            state[key].attachments
-                .filter(attachment => attachment.contentUrl)
-                .forEach(attachment => {
-                    URL.revokeObjectURL(attachment.contentUrl);
-                });
-        }
         Vue.delete(state, key);
     });
 }

@@ -1,18 +1,20 @@
 import { inject } from "@bluemind/inject";
+import { html2text, sanitizeHtml } from "@bluemind/html-utils";
+import { InlineImageHelper, MimeType, PartsBuilder } from "@bluemind/email";
 
 import debounce from "lodash/debounce";
 import MessageAdaptor from "../helpers/MessageAdaptor";
 import { MessageStatus, clean } from "../../../model/message";
-import { createDraftStructure, forceMailRewriteOnServer, prepareDraft } from "../../../model/draft";
+import { forceMailRewriteOnServer, isInternalIdFaked, sanitizeForCyrus } from "../../../model/draft";
 import { isTemporaryPart, setAddresses } from "../../../model/part";
 import { isAttachment } from "../../../model/attachment";
 import {
     SET_ATTACHMENT_ADDRESS,
+    SET_ATTACHMENT_ENCODING,
     SET_MESSAGES_STATUS,
     SET_MESSAGE_DATE,
     SET_MESSAGE_HEADERS,
-    SET_MESSAGE_INTERNAL_ID,
-    SET_ATTACHMENT_ENCODING
+    SET_MESSAGE_INTERNAL_ID
 } from "~mutations";
 
 let debouncedSave = { cancel: () => {} };
@@ -55,7 +57,7 @@ async function doSave(context, userPrefTextOnly, draftKey, myDraftsFolderKey, me
 
         const structure = createDraftStructure(draft.attachments, userPrefTextOnly, inlinePartAddresses, inlineImages);
         const remoteMessage = MessageAdaptor.toMailboxItem(draft, structure);
-        if (draft.remoteRef.internalId === "faked-internal-id") {
+        if (isInternalIdFaked(draft.remoteRef.internalId)) {
             const internalId = (await service.create(remoteMessage)).id;
             context.commit(SET_MESSAGE_INTERNAL_ID, { key: draftKey, internalId });
         } else {
@@ -143,4 +145,54 @@ function waitUntilDraftNotSaving(state, draftKey, delayTime, maxTries, iteration
     } else {
         return Promise.resolve();
     }
+}
+
+function prepareDraft(draft, messageCompose, userPrefTextOnly) {
+    const partsToUpload = {};
+    let inlineImages = [];
+    const content = prepareEditorContent(messageCompose);
+
+    if (userPrefTextOnly) {
+        partsToUpload[MimeType.TEXT_PLAIN] = [content];
+    } else {
+        const previousInlineImages = messageCompose.inlineImagesSaved;
+
+        const { html, newParts: inlineImagesToUpload, newContentByCid } = InlineImageHelper.insertCid(
+            content,
+            previousInlineImages
+        );
+
+        inlineImages = inlineImagesToUpload.concat(previousInlineImages);
+
+        partsToUpload[MimeType.TEXT_HTML] = [sanitizeForCyrus(html)];
+        partsToUpload[MimeType.TEXT_PLAIN] = [sanitizeForCyrus(html2text(html))];
+        partsToUpload[MimeType.IMAGE] = inlineImagesToUpload.map(part => newContentByCid[part.contentId]);
+    }
+    return { partsToUpload, inlineImages };
+}
+
+function prepareEditorContent(messageCompose) {
+    let editorContent = messageCompose.collapsedContent
+        ? messageCompose.editorContent + messageCompose.collapsedContent
+        : messageCompose.editorContent;
+    editorContent = sanitizeHtml(editorContent);
+    return editorContent;
+}
+
+function createDraftStructure(attachments, userPrefTextOnly, inlinePartAddresses, inlineImages = []) {
+    let structure;
+    const textPart = PartsBuilder.createTextPart(inlinePartAddresses[MimeType.TEXT_PLAIN][0]);
+
+    if (userPrefTextOnly) {
+        structure = textPart;
+    } else {
+        const htmlPart = PartsBuilder.createHtmlPart(inlinePartAddresses[MimeType.TEXT_HTML][0]);
+        structure = PartsBuilder.createAlternativePart(textPart, htmlPart);
+        structure = PartsBuilder.createInlineImageParts(structure, inlineImages, inlinePartAddresses[MimeType.IMAGE]);
+    }
+    structure = PartsBuilder.createAttachmentParts(attachments, structure);
+
+    setAddresses(structure);
+
+    return structure;
 }

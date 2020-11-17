@@ -66,10 +66,12 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 import { DateComparator } from "@bluemind/date";
 import { BmButton, BmIcon, BmDropdown, BmDropdownItemToggle } from "@bluemind/styleguide";
 import { MessageStatus } from "../../model/message";
-import { mapState } from "vuex";
+import { isInternalIdFaked } from "../../model/draft";
 
 export default {
     name: "MailComposerFooter",
@@ -120,7 +122,7 @@ export default {
                 return this.$t("mail.draft.save.inprogress");
             } else if (this.errorOccuredOnSave) {
                 return this.$t("mail.draft.save.error");
-            } else if (this.message.remoteRef.internalId === "faked-internal-id") {
+            } else if (isInternalIdFaked(this.message.remoteRef.internalId)) {
                 return "";
             } else {
                 return this.formattedDraftSaveDate;

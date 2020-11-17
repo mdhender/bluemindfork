@@ -27,15 +27,16 @@ export function isTemporaryPart(part) {
 }
 
 export function getPartsFromCapabilities(message, availableCapabilities) {
-    return message.inlinePartsByCapabilities.find(part =>
+    const partsByCapabilities = message.inlinePartsByCapabilities.find(part =>
         part.capabilities.every(capability => availableCapabilities.includes(capability))
-    ).parts;
+    );
+    return partsByCapabilities ? partsByCapabilities.parts : [];
 }
 
-export function mergePartsForTextarea(message, partsToMerge) {
+export function mergePartsForTextarea(message, partsToMerge, partsDataByAddress) {
     let result = "";
     for (const part of partsToMerge) {
-        const partContent = message.partContentByAddress[part.address];
+        const partContent = partsDataByAddress[part.address];
         if (MimeType.equals(part.mime, MimeType.TEXT_PLAIN)) {
             result += partContent;
         } else if (MimeType.equals(part.mime, MimeType.TEXT_HTML)) {
@@ -45,10 +46,10 @@ export function mergePartsForTextarea(message, partsToMerge) {
     return result;
 }
 
-export function mergePartsForRichEditor(message, partsToMerge) {
+export function mergePartsForRichEditor(message, partsToMerge, partsDataByAddress) {
     let result = "";
     for (const part of partsToMerge) {
-        const partContent = message.partContentByAddress[part.address];
+        const partContent = partsDataByAddress[part.address];
         if (MimeType.equals(part.mime, MimeType.TEXT_HTML)) {
             result += partContent;
         } else if (MimeType.equals(part.mime, MimeType.TEXT_PLAIN)) {

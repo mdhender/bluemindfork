@@ -1,4 +1,5 @@
-import { state, getters, mutations } from "./store";
+import { state, actions, getters, mutations } from "./store";
+import activeMessage from "./activeMessage";
 import messageCompose from "./messageCompose";
 import folders from "./folders";
 import messages from "./messages";
@@ -10,10 +11,12 @@ import selection from "./selection";
 
 export default {
     namespaced: true,
+    actions,
     state,
     getters,
     mutations,
     modules: {
+        activeMessage,
         folders,
         mailboxes,
         messages,

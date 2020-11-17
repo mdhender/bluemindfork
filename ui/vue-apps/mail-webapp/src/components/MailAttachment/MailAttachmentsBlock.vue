@@ -77,13 +77,12 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from "vuex";
+import { mapState } from "vuex";
 
 import { displayWithUnit } from "@bluemind/file-utils";
 import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmProgress } from "@bluemind/styleguide";
 
 import MailAttachmentItem from "./MailAttachmentItem";
-import { SET_ATTACHMENT_CONTENT_URL } from "~mutations";
 
 export default {
     name: "MailAttachmentsBlock",
@@ -156,20 +155,7 @@ export default {
             this.isExpanded = this.expanded;
         }
     },
-    destroyed() {
-        this.attachments.forEach(attachment => {
-            if (attachment.contentUrl) {
-                URL.revokeObjectURL(attachment.contentUrl);
-                this.SET_ATTACHMENT_CONTENT_URL({
-                    messageKey: this.message.key,
-                    address: attachment.address,
-                    url: null
-                });
-            }
-        });
-    },
     methods: {
-        ...mapMutations("mail", { SET_ATTACHMENT_CONTENT_URL }),
         async toggleExpand() {
             this.isExpanded = !this.isExpanded;
         },

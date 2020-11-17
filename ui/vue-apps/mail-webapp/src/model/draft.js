@@ -1,5 +1,4 @@
-import { EmailExtractor, EmailValidator, Flag, MimeType, PartsBuilder, InlineImageHelper } from "@bluemind/email";
-import { html2text, sanitizeHtml } from "@bluemind/html-utils";
+import { EmailExtractor, EmailValidator, Flag, MimeType } from "@bluemind/email";
 
 import {
     MessageHeader,
@@ -10,27 +9,14 @@ import {
     MessageReplyAttributeSeparator
 } from "./message";
 // import { create as createAttachment } from "./attachment";
-import { mergePartsForRichEditor, mergePartsForTextarea, setAddresses } from "./part";
+import { mergePartsForRichEditor, mergePartsForTextarea } from "./part";
 import { removeSignatureIds } from "./signature";
 
-export function createDraftStructure(attachments, userPrefTextOnly, inlinePartAddresses, inlineImages = []) {
-    let structure;
-    const textPart = PartsBuilder.createTextPart(inlinePartAddresses[MimeType.TEXT_PLAIN][0]);
+const FAKED_INTERNAL_ID = "faked-internal-id";
 
-    if (userPrefTextOnly) {
-        structure = textPart;
-    } else {
-        const htmlPart = PartsBuilder.createHtmlPart(inlinePartAddresses[MimeType.TEXT_HTML][0]);
-        structure = PartsBuilder.createAlternativePart(textPart, htmlPart);
-        structure = PartsBuilder.createInlineImageParts(structure, inlineImages, inlinePartAddresses[MimeType.IMAGE]);
-    }
-    structure = PartsBuilder.createAttachmentParts(attachments, structure);
-
-    setAddresses(structure);
-
-    return structure;
+export function isInternalIdFaked(internalId) {
+    return internalId === FAKED_INTERNAL_ID;
 }
-
 // FIXME once attachments are forwarded
 // export async function uploadAttachments(previousMessage, service) {
 //     const attachments = [];
@@ -54,44 +40,6 @@ export function createDraftStructure(attachments, userPrefTextOnly, inlinePartAd
 
 export function sanitizeForCyrus(text) {
     return text.replace(/\r?\n/g, "\r\n");
-}
-
-export function prepareDraft(draft, messageCompose, userPrefTextOnly) {
-    const partsToUpload = {};
-    let inlineImages = [];
-    const editorContent = prepareEditorContent(messageCompose);
-
-    if (userPrefTextOnly) {
-        partsToUpload[MimeType.TEXT_PLAIN] = [editorContent];
-    } else {
-        // FIXME inline images
-        // const previousInlineImages = draft.inlinePartsByCapabilities
-        //     .find(byCapabilities => byCapabilities.capabilities[0] === MimeType.TEXT_HTML)
-        //     .parts.filter(part => part.dispositionType === "INLINE" && part.mime.startsWith(MimeType.IMAGE));
-        // const insertCidsResults = InlineImageHelper.insertCid(editorContent, previousInlineImages);
-        // inlineImages = insertCidsResults.inlineImages;
-        // // if image is not referenced in one html part and is not a new one, ignore it
-        // inlineImages = inlineImages.filter(
-        //     part => !part.address || insertCidsResults.alreadyUploaded.includes(part.address)
-        // );
-        // const inlineImagesToUpload = inlineImages.filter(part => !part.address);
-
-        // const html = insertCidsResults.html;
-        partsToUpload[MimeType.TEXT_HTML] = [editorContent];
-        partsToUpload[MimeType.TEXT_PLAIN] = [html2text(editorContent).replace(/\r?\n/g, "\r\n")];
-        partsToUpload[MimeType.IMAGE] = [];
-        // partsToUpload[MimeType.IMAGE] = inlineImagesToUpload.map(part => insertCidsResults.streamByCid[part.contentId]);
-    }
-    return { partsToUpload, inlineImages };
-}
-
-function prepareEditorContent(messageCompose) {
-    let editorContent = messageCompose.collapsedContent
-        ? messageCompose.editorContent + messageCompose.collapsedContent
-        : messageCompose.editorContent;
-    editorContent = sanitizeHtml(editorContent);
-    editorContent = sanitizeForCyrus(editorContent);
-    return editorContent;
 }
 
 /**
@@ -123,9 +71,8 @@ export function validateDraft(draft, vueI18n) {
 }
 
 export function createEmpty(myDraftsFolder, userSession) {
-    const fakedInternalId = "faked-internal-id";
     const metadata = {
-        internalId: fakedInternalId,
+        internalId: FAKED_INTERNAL_ID,
         folder: { key: myDraftsFolder.key, uid: myDraftsFolder.remoteRef.uid }
     };
     const message = createMessage(metadata);
@@ -250,27 +197,15 @@ export function computeSubject(creationMode, previousMessage) {
     return previousMessage.subject;
 }
 
-export function getEditorContent(userPrefTextOnly, parts, message) {
+// FIXME: refactor ..
+export function getEditorContent(userPrefTextOnly, parts, message, partsDataByAddress) {
     let content;
     if (userPrefTextOnly) {
-        content = mergePartsForTextarea(message, parts);
+        content = mergePartsForTextarea(message, parts, partsDataByAddress);
     } else {
-        content = mergePartsForRichEditor(message, parts);
-        content = handleInlineImages(message, parts, content);
-        content = sanitizeHtml(content);
+        content = mergePartsForRichEditor(message, parts, partsDataByAddress);
     }
     return content;
-}
-
-function handleInlineImages(message, parts, html) {
-    const partsWithCid = parts.filter(part => MimeType.isImage(part) && part.contentId);
-
-    const insertionResult = InlineImageHelper.insertInlineImages([html], partsWithCid, message.partContentByAddress);
-
-    // FIXME !!
-    // const blobsUrl = insertionResult.blobsUrl;
-
-    return insertionResult.contentsWithBlob[0];
 }
 
 export function handleSeparator(content) {

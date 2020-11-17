@@ -122,7 +122,8 @@
 <script>
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 
-import { inject } from "@bluemind/inject";
+import { InlineImageHelper, MimeType } from "@bluemind/email";
+import { sanitizeHtml } from "@bluemind/html-utils";
 import ItemUri from "@bluemind/item-uri";
 import {
     BmButton,
@@ -140,20 +141,20 @@ import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 import MailComposerRecipients from "./MailComposerRecipients";
 import MailComposerFooter from "./MailComposerFooter";
 import MailComposerPanel from "./MailComposerPanel";
-import { fetchAll, updateKey } from "../../model/message";
+import { updateKey } from "../../model/message";
 import { getPartsFromCapabilities } from "../../model/part";
-import { getEditorContent, COMPOSER_CAPABILITIES, handleSeparator } from "../../model/draft";
+import { getEditorContent, COMPOSER_CAPABILITIES, handleSeparator, isInternalIdFaked } from "../../model/draft";
 import { addSignature, isHtmlSignaturePresent, isTextSignaturePresent, removeSignature } from "../../model/signature";
 import {
     ADD_MESSAGES,
     REMOVE_MESSAGES,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
-    SET_MESSAGE_PART_CONTENTS,
     SET_MESSAGE_SUBJECT,
+    SET_SAVED_INLINE_IMAGES,
     UNSELECT_ALL_MESSAGES
 } from "~mutations";
-import { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE, REMOVE_MESSAGES } from "~actions";
+import { ADD_ATTACHMENTS, FETCH_ACTIVE_MESSAGE_INLINE_PARTS, SAVE_MESSAGE, SEND_MESSAGE } from "~actions";
 import { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~getters";
 
 export default {
@@ -183,12 +184,11 @@ export default {
         return {
             userPrefIsMenuBarOpened: false, // TODO: initialize this with user setting
             userPrefTextOnly: false, // TODO: initialize this with user setting
-            draggedFilesCount: -1,
-            blobsUrl: [] // FIXME: yet it's always empty
+            draggedFilesCount: -1
         };
     },
     computed: {
-        ...mapState("mail", ["messages", "messageCompose"]),
+        ...mapState("mail", ["messages", "messageCompose", "activeMessage"]),
         ...mapState("session", { settings: "userSettings" }),
         ...mapGetters("mail", { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY }),
         message() {
@@ -209,15 +209,15 @@ export default {
             );
         },
         isMessageOnlyLocal() {
-            return this.message.remoteRef.internalId === "faked-internal-id";
+            return isInternalIdFaked(this.message.remoteRef.internalId);
         }
     },
     watch: {
         messageKey: {
             handler: async function (newKey, oldKey) {
-                // when route changes due to an internalId update, preserve component state
                 if (oldKey) {
-                    if (ItemUri.item(oldKey) === "faked-internal-id") {
+                    // when route changes due to an internalId update, preserve component state
+                    if (isInternalIdFaked(ItemUri.item(oldKey))) {
                         this.REMOVE_MESSAGES([oldKey]); // delete obsolete message
                         return;
                     }
@@ -236,14 +236,15 @@ export default {
         this.cleanComposer();
     },
     methods: {
-        ...mapActions("mail", { SAVE_MESSAGE, SEND_MESSAGE, ADD_ATTACHMENTS, REMOVE_MESSAGES }),
+        ...mapActions("mail", { ADD_ATTACHMENTS, FETCH_ACTIVE_MESSAGE_INLINE_PARTS, SAVE_MESSAGE, SEND_MESSAGE }),
+        ...mapActions("mail-webapp", ["purge"]),
         ...mapMutations("mail", {
             ADD_MESSAGES,
             REMOVE_MESSAGES,
             SET_DRAFT_COLLAPSED_CONTENT,
             SET_DRAFT_EDITOR_CONTENT,
-            SET_MESSAGE_PART_CONTENTS,
             SET_MESSAGE_SUBJECT,
+            SET_SAVED_INLINE_IMAGES,
             UNSELECT_ALL_MESSAGES
         }),
         updateSubject(subject) {
@@ -253,15 +254,32 @@ export default {
         async initEditorContent() {
             if (!this.isMessageOnlyLocal) {
                 const parts = getPartsFromCapabilities(this.message, COMPOSER_CAPABILITIES);
-                // FIXME: move fetchAll as an action
-                const notLoaded = parts.filter(
-                    part => !Object.prototype.hasOwnProperty.call(this.message.partContentByAddress, part.address)
-                );
-                const service = inject("MailboxItemsPersistence", this.message.folderRef.uid);
-                const contents = await fetchAll(this.message.remoteRef.imapUid, service, notLoaded, false);
-                this.SET_MESSAGE_PART_CONTENTS({ key: this.message.key, contents, parts: notLoaded });
 
-                const content = getEditorContent(this.userPrefTextOnly, parts, this.message);
+                await this.FETCH_ACTIVE_MESSAGE_INLINE_PARTS({
+                    folderUid: this.message.folderRef.uid,
+                    imapUid: this.message.remoteRef.imapUid,
+                    inlines: parts.filter(part => MimeType.isHtml(part) || MimeType.isText(part))
+                });
+
+                let content = getEditorContent(
+                    this.userPrefTextOnly,
+                    parts,
+                    this.message,
+                    this.activeMessage.partsDataByAddress
+                );
+                if (!this.userPrefTextOnly) {
+                    const partsWithCid = parts.filter(part => MimeType.isImage(part) && part.contentId);
+
+                    const insertionResult = await InlineImageHelper.insertAsUrl(
+                        [content],
+                        partsWithCid,
+                        this.message.folderRef.uid,
+                        this.message.remoteRef.imapUid
+                    );
+                    this.SET_SAVED_INLINE_IMAGES(insertionResult.imageInlined);
+                    content = insertionResult.contentsWithImageInserted[0];
+                    content = sanitizeHtml(content);
+                }
                 const editorData = handleSeparator(content);
 
                 if (this.signature && this.settings.insert_signature === "true") {
@@ -287,7 +305,6 @@ export default {
         cleanComposer() {
             this.SET_DRAFT_EDITOR_CONTENT("");
             this.SET_DRAFT_COLLAPSED_CONTENT(null);
-            this.blobsUrl.forEach(url => URL.revokeObjectURL(url));
         },
         async expandContent() {
             this.SET_DRAFT_EDITOR_CONTENT(this.messageCompose.editorContent + this.messageCompose.collapsedContent);

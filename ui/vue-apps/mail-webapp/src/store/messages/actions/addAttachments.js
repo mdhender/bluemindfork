@@ -41,7 +41,6 @@ async function addAttachment({ commit, state }, messageKey, file, myDraftsFolder
         file.size,
         false
     );
-    attachment.contentUrl = URL.createObjectURL(file);
 
     // this will contain a function for cancelling the upload, do not store it in Vuex
     global.cancellers = global.cancellers || {};

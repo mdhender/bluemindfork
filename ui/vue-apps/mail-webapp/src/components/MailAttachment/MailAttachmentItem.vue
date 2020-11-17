@@ -7,8 +7,8 @@
         >
             <div v-if="!compact" class="px-1 text-center">
                 <img
-                    v-if="hasPreview && attachment.contentUrl"
-                    :src="attachment.contentUrl"
+                    v-if="hasPreview"
+                    :src="previewUrl"
                     class="preview mb-1 mw-100"
                     :alt="$tc('common.attachmentPreview')"
                 />
@@ -42,7 +42,9 @@
                                 name: attachment.fileName
                             })
                         "
-                        @click.stop="download"
+                        :href="previewUrl"
+                        :download="attachment.fileName"
+                        @click.stop
                     >
                         <bm-icon icon="download" size="2x" class="p-1" />
                     </bm-button>
@@ -66,29 +68,19 @@
             />
         </bm-container>
         <div v-if="errorMessage" class="row px-1"><bm-notice class="w-100" :text="errorMessage" /></div>
-        <a
-            ref="download-attachment-link"
-            class="d-none"
-            :download="attachment.fileName"
-            :href="attachment.contentUrl"
-            @click.stop
-        ></a>
     </div>
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 
-import { MimeType } from "@bluemind/email";
+import { MimeType, computePreviewOrDownloadUrl } from "@bluemind/email";
 import { computeUnit } from "@bluemind/file-utils";
-import { inject } from "@bluemind/inject";
 import global from "@bluemind/global";
 import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmProgress, BmButtonClose, BmNotice } from "@bluemind/styleguide";
 
 import { AttachmentStatus } from "../../model/attachment";
-import { fetch } from "../../model/message";
 import { MY_DRAFTS } from "~getters";
-import { SET_ATTACHMENT_CONTENT_URL } from "~mutations";
 import { REMOVE_ATTACHMENT } from "~actions";
 
 export default {
@@ -151,39 +143,22 @@ export default {
         },
         isUploaded() {
             return this.attachment.progress.loaded === this.attachment.progress.total;
-        }
-    },
-    watch: {
-        attachment: {
-            handler: function () {
-                if (this.hasPreview && this.isUploaded) {
-                    this.setContentUrl();
-                }
-            },
-            immediate: true
+        },
+        previewUrl() {
+            return computePreviewOrDownloadUrl(
+                this.message.folderRef.uid,
+                this.message.remoteRef.imapUid,
+                this.attachment
+            );
         }
     },
     methods: {
         ...mapActions("mail", { REMOVE_ATTACHMENT }),
-        ...mapMutations("mail", { SET_ATTACHMENT_CONTENT_URL }),
         cancel() {
             global.cancellers[this.attachment.address + this.message.key].cancel();
         },
-        async setContentUrl() {
-            if (!this.attachment.contentUrl) {
-                const attachmentContent = await fetch(
-                    this.message.remoteRef.imapUid,
-                    inject("MailboxItemsPersistence", this.message.folderRef.uid),
-                    this.attachment,
-                    true
-                );
-                const contentUrl = URL.createObjectURL(attachmentContent);
-                this.SET_ATTACHMENT_CONTENT_URL({
-                    messageKey: this.message.key,
-                    address: this.attachment.address,
-                    url: contentUrl
-                });
-            }
+        download() {
+            location.assign(this.previewUrl);
         },
         removeAttachment() {
             // FIXME userPrefTextOnly setting
@@ -194,11 +169,6 @@ export default {
                 myDraftsFolderKey: this.MY_DRAFTS.key,
                 messageCompose: this.messageCompose
             });
-        },
-        async download() {
-            await this.setContentUrl();
-            await this.$nextTick();
-            this.$refs["download-attachment-link"].click();
         }
     }
 };

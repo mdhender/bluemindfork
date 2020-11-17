@@ -1,6 +1,8 @@
 // @see https://www.npmjs.com/package/xss
 import xss from "xss";
 
+import { WEBSERVER_HANDLER_BASE_URL } from "@bluemind/email";
+
 // since we are writing the email content in an iframe, we need to add some tags to the whitelist
 // some other tags like 'resourcetemplate' are very specific to Bluemind and need to be kept
 const ADDITIONAL_ALLOWED_TAGS = {
@@ -77,6 +79,11 @@ function customSafeAttrValue(tag, name, value) {
     if (/^img$/i.test(tag) && /^src$/i.test(name) && /^blob:https?:\/\//i.test(value)) {
         return value;
     }
+    // allow image if src matches our webserver handler url (see PartContentUrlHandler.java)
+    if (/^img$/i.test(tag) && /^src$/i.test(name) && value.startsWith(WEBSERVER_HANDLER_BASE_URL)) {
+        return value;
+    }
+
     if (/^img$/i.test(tag) && /^src$/i.test(name) && /^data:image\//i.test(value)) {
         return value;
     }

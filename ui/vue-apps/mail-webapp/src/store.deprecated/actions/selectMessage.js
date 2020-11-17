@@ -3,7 +3,7 @@ import ItemUri from "@bluemind/item-uri";
 
 import { CURRENT_MAILBOX, MY_DRAFTS } from "~getters";
 import { FETCH_EVENT } from "~actions";
-import { SET_MESSAGE_COMPOSING } from "~mutations";
+import { RESET_ACTIVE_MESSAGE, SET_MESSAGE_COMPOSING } from "~mutations";
 
 export async function selectMessage({ dispatch, commit, state, rootState, rootGetters }, messageKey) {
     if (rootState.mail.activeFolder && !ItemUri.isItemUri(messageKey)) {
@@ -27,6 +27,7 @@ export async function selectMessage({ dispatch, commit, state, rootState, rootGe
                 commit("mail/" + SET_MESSAGE_COMPOSING, { messageKey, composing: true }, { root: true });
             }
         }
+        commit("mail/" + RESET_ACTIVE_MESSAGE, null, { root: true });
         commit("currentMessage/update", { key: messageKey });
     }
 }

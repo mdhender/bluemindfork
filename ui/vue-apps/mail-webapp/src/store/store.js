@@ -1,4 +1,5 @@
 import { Flag } from "@bluemind/email";
+
 import { DEFAULT_FOLDER_NAMES } from "./folders/helpers/DefaultFolders";
 import {
     ALL_MESSAGES_ARE_SELECTED,

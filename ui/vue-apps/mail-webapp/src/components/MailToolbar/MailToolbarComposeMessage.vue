@@ -75,6 +75,7 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import { BmButton, BmIcon } from "@bluemind/styleguide";
 
 import { MessageStatus } from "../../model/message";
+import { isInternalIdFaked } from "../../model/draft";
 import { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~getters";
 import { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE, REMOVE_MESSAGES } from "~actions";
 
@@ -112,7 +113,7 @@ export default {
     methods: {
         ...mapActions("mail", { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE, REMOVE_MESSAGES }),
         async doDelete() {
-            if (this.message.remoteRef.internalId === "faked-internal-id") {
+            if (isInternalIdFaked(this.message.remoteRef.internalId)) {
                 this.$router.navigate("v:mail:home");
             } else {
                 const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.draft.delete.confirm.content"), {

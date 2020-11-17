@@ -40,6 +40,7 @@ const TYPESCRIPT = "application/typescript";
 const OPEN_DOCUMENT_TEXT = "application/vnd.oasis.opendocument.text";
 const OPEN_DOCUMENT_CALC = "application/vnd.oasis.opendocument.spreadsheet";
 const OPEN_DOCUMENT_PRESENTATION = "application/vnd.oasis.opendocument.presentation";
+const SVG = "image/svg+xml";
 
 export default {
     TEXT_PLAIN,
@@ -170,7 +171,10 @@ function matchingIcon(mimeType) {
     }
 }
 
+/* 
+    At the moment, preview is available only for images.
+    Svg preview has been removed since we use webserver URL instead of blob to make preview, it seems browsers dont accept to display SVG in this case
+ */
 function previewAvailable(mimeType) {
-    // At the moment, preview is available only for images
-    return mimeType.startsWith(IMAGE);
+    return mimeType.startsWith(IMAGE) && !equals(mimeType, SVG);
 }

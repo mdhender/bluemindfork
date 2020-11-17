@@ -3,7 +3,6 @@ import cloneDeep from "lodash.clonedeep";
 import pick from "lodash.pick";
 
 import ItemUri from "@bluemind/item-uri";
-import { MimeType } from "@bluemind/email";
 
 export function createOnlyMetadata({ internalId, folder: { key, uid } }) {
     return {
@@ -30,6 +29,7 @@ export function create() {
         preview: "",
         composing: false,
 
+        // sender & recipients
         from: {
             address: "",
             dn: ""
@@ -97,26 +97,6 @@ export const MessageHeader = {
 
 export const MessageReplyAttributeSeparator = "data-bm-reply-separator";
 export const MessageForwardAttributeSeparator = "data-bm-forward-separator";
-
-// FIXME: move it like a message action because it must store parts in state ?
-export async function fetch(messageImapUid, service, part, isAttachment) {
-    const stream = await service.fetch(messageImapUid, part.address, part.encoding, part.mime, part.charset);
-    if (!isAttachment && (MimeType.isText(part) || MimeType.isHtml(part) || MimeType.isCalendar(part))) {
-        return new Promise(resolve => {
-            const reader = new FileReader();
-            reader.readAsText(stream, part.charset);
-            reader.addEventListener("loadend", e => {
-                resolve(e.target.result);
-            });
-        });
-    } else {
-        return stream;
-    }
-}
-
-export async function fetchAll(messageImapUid, service, parts, isAttachment) {
-    return Promise.all(parts.map(part => fetch(messageImapUid, service, part, isAttachment)));
-}
 
 export async function clean(partAddresses, newAttachments, service) {
     const promises = [];
