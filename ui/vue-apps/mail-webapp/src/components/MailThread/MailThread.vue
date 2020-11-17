@@ -67,6 +67,7 @@ export default {
     watch: {
         message() {
             this.isReadOnlyAlertDismissed = false;
+            this.setShowBlockedImagesAlert(false);
         }
     },
     methods: {

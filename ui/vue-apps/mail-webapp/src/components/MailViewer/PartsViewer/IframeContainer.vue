@@ -37,8 +37,6 @@ export default {
             } else if (hasRemoteImages(content)) {
                 content = blockRemoteImages(content);
                 this.setShowBlockedImagesAlert(true);
-            } else {
-                this.setShowBlockedImagesAlert(false);
             }
 
             const label = this.$t("mail.application.region.messagecontent");
