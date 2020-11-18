@@ -18,23 +18,30 @@
  */
 package net.bluemind.proxy.support;
 
+import java.util.concurrent.TimeUnit;
+
 import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 
 import net.bluemind.system.api.SystemConf;
 
 public class AHCWithProxy {
-	private static final int TIMEOUT = 30000;
-	private static final int DEFAULT_IDLE_TIMEOUT = 30000;
+	private static final int TIMEOUT = (int) TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
+	private static final int DEFAULT_IDLE_TIMEOUT = (int) TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
 	private static final int MAX_REDIRECT = 5;
 
+	public static DefaultAsyncHttpClientConfig.Builder defaultConfig() {
+		return new DefaultAsyncHttpClientConfig.Builder().setFollowRedirect(true).setMaxRedirects(MAX_REDIRECT)
+				.setPooledConnectionIdleTimeout(60000).setMaxRequestRetry(0).setRequestTimeout(TIMEOUT)
+				.setReadTimeout(DEFAULT_IDLE_TIMEOUT);
+	}
+
 	public static AsyncHttpClient build(SystemConf systemConf) {
-		AsyncHttpClientConfig config = new DefaultAsyncHttpClientConfig.Builder().setFollowRedirect(true)
-				.setMaxRedirects(MAX_REDIRECT).setPooledConnectionIdleTimeout(60000).setMaxRequestRetry(0)
-				.setRequestTimeout(TIMEOUT).setReadTimeout(DEFAULT_IDLE_TIMEOUT)
-				.setProxyServerSelector(new BMProxyServerSelector(systemConf)).build();
-		return new DefaultAsyncHttpClient(config);
+		return build(defaultConfig(), systemConf);
+	}
+
+	public static AsyncHttpClient build(DefaultAsyncHttpClientConfig.Builder config, SystemConf systemConf) {
+		return new DefaultAsyncHttpClient(config.setProxyServerSelector(new BMProxyServerSelector(systemConf)).build());
 	}
 }

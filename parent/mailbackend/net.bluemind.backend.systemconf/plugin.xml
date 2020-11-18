@@ -21,12 +21,6 @@
       <sanitizor
             class="net.bluemind.backend.systemconf.internal.CyrusMaxChildSanitizor">
       </sanitizor>
-      <sanitizor
-            class="net.bluemind.backend.systemconf.internal.ProxySanitizor">
-      </sanitizor>
-      <validator
-            class="net.bluemind.backend.systemconf.internal.ProxyValidator">
-      </validator>
    </extension>
    <extension
          point="net.bluemind.server.hook.serverhook">

@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.backend.systemconf;
+package net.bluemind.system.config;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -30,16 +30,15 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import net.bluemind.backend.systemconf.internal.ProxySanitizor;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 
-public class ProxySanitizorTest {
+public class HttpProxyHookSanitizorTest {
 	@Test
 	public void sanitizeNullPrevious() throws ServerFault {
-		ProxySanitizor proxySanitizor = new ProxySanitizor();
+		HttpProxyHook proxySanitizor = new HttpProxyHook();
 
 		try {
 			proxySanitizor.sanitize(null, new HashMap<String, String>());
@@ -51,7 +50,7 @@ public class ProxySanitizorTest {
 
 	@Test
 	public void sanitizeNullModifications() {
-		ProxySanitizor proxySanitizor = new ProxySanitizor();
+		HttpProxyHook proxySanitizor = new HttpProxyHook();
 
 		SystemConf systemConf = new SystemConf();
 		systemConf.values = new HashMap<String, String>();
@@ -66,7 +65,7 @@ public class ProxySanitizorTest {
 
 	@Test
 	public void noModifications() {
-		ProxySanitizor proxySanitizor = new ProxySanitizor();
+		HttpProxyHook proxySanitizor = new HttpProxyHook();
 
 		SystemConf systemConf = new SystemConf();
 		systemConf.values = new HashMap<>();
@@ -81,7 +80,7 @@ public class ProxySanitizorTest {
 
 	@Test
 	public void sanitizeDefineDefaultNoPrevious() throws ServerFault {
-		ProxySanitizor proxySanitizor = new ProxySanitizor();
+		HttpProxyHook proxySanitizor = new HttpProxyHook();
 
 		SystemConf systemConf = new SystemConf();
 		systemConf.values = new HashMap<>();
@@ -98,7 +97,7 @@ public class ProxySanitizorTest {
 
 	@Test
 	public void sanitizeDefineDefaultNullOrEmptyPrevious() throws ServerFault {
-		ProxySanitizor proxySanitizor = new ProxySanitizor();
+		HttpProxyHook proxySanitizor = new HttpProxyHook();
 
 		SystemConf systemConf = new SystemConf();
 		systemConf.values = new HashMap<>();
@@ -131,7 +130,7 @@ public class ProxySanitizorTest {
 
 	@Test
 	public void sanitizeDefineDefaultNullOrEmptyPreviousEmptyModification() throws ServerFault {
-		ProxySanitizor proxySanitizor = new ProxySanitizor();
+		HttpProxyHook proxySanitizor = new HttpProxyHook();
 
 		SystemConf systemConf = new SystemConf();
 		systemConf.values = new HashMap<>();
@@ -168,7 +167,7 @@ public class ProxySanitizorTest {
 
 	@Test
 	public void sanitizeInvalidPort() throws ServerFault {
-		ProxySanitizor proxySanitizor = new ProxySanitizor();
+		HttpProxyHook proxySanitizor = new HttpProxyHook();
 
 		Map<String, String> modifications = new HashMap<>();
 		modifications.put(SysConfKeys.http_proxy_port.name(), "invalid");
@@ -181,7 +180,7 @@ public class ProxySanitizorTest {
 
 	@Test
 	public void sanitizeValues() {
-		ProxySanitizor proxySanitizor = new ProxySanitizor();
+		HttpProxyHook proxySanitizor = new HttpProxyHook();
 
 		SystemConf systemConf = new SystemConf();
 		systemConf.values = new HashMap<>();
@@ -208,7 +207,7 @@ public class ProxySanitizorTest {
 
 	@Test
 	public void sanitizeNullValues() {
-		ProxySanitizor proxySanitizor = new ProxySanitizor();
+		HttpProxyHook proxySanitizor = new HttpProxyHook();
 
 		SystemConf systemConf = new SystemConf();
 		systemConf.values = new HashMap<>();
@@ -235,7 +234,7 @@ public class ProxySanitizorTest {
 
 	@Test
 	public void sanitizeLoginPasswword() {
-		ProxySanitizor proxySanitizor = new ProxySanitizor();
+		HttpProxyHook proxySanitizor = new HttpProxyHook();
 
 		SystemConf systemConf = new SystemConf();
 		systemConf.values = new HashMap<>();

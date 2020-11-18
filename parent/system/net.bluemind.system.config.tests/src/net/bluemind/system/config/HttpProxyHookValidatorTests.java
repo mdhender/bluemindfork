@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.backend.systemconf;
+package net.bluemind.system.config;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -28,18 +28,21 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import net.bluemind.backend.systemconf.internal.ProxyValidator;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 
-public class ProxyValidatorTest {
+public class HttpProxyHookValidatorTests {
+	private static final String DOCKER_PROXY = new BmConfIni().get("proxy");
+	private static final String DOCKER_PROXY_PORT = "3128";
+
 	private SystemConf getSystemConf() {
 		Map<String, String> systemConf = new HashMap<>();
 		systemConf.put(SysConfKeys.http_proxy_enabled.name(), "false");
-		systemConf.put(SysConfKeys.http_proxy_hostname.name(), "hostname");
-		systemConf.put(SysConfKeys.http_proxy_port.name(), "3128");
+		systemConf.put(SysConfKeys.http_proxy_hostname.name(), DOCKER_PROXY);
+		systemConf.put(SysConfKeys.http_proxy_port.name(), DOCKER_PROXY_PORT);
 		systemConf.put(SysConfKeys.http_proxy_login.name(), "login");
 		systemConf.put(SysConfKeys.http_proxy_password.name(), "password");
 		systemConf.put(SysConfKeys.http_proxy_exceptions.name(), "e1,e2");
@@ -54,10 +57,36 @@ public class ProxyValidatorTest {
 		Map<String, String> modifications = new HashMap<>();
 		modifications.put(SysConfKeys.http_proxy_port.name(), "invalid");
 
-		new ProxyValidator().validate(systemConf, modifications);
+		new HttpProxyHook().validate(systemConf, modifications);
 
 		systemConf.values.remove(SysConfKeys.http_proxy_enabled.name());
-		new ProxyValidator().validate(systemConf, modifications);
+		new HttpProxyHook().validate(systemConf, modifications);
+	}
+
+	@Test
+	public void proxyUnreachable() {
+		SystemConf systemConf = getSystemConf();
+		systemConf.values.put(SysConfKeys.http_proxy_enabled.name(), "true");
+
+		Map<String, String> modifications = new HashMap<>();
+		modifications.put(SysConfKeys.http_proxy_hostname.name(), "127.0.0.1");
+
+		try {
+			new HttpProxyHook().validate(systemConf, modifications);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+			assertEquals("Unable to get https://bo.bluemind.net/bo4/ping using proxy parameters", sf.getMessage());
+		}
+	}
+
+	@Test
+	public void proxyUnreachableButNotUpdated() {
+		SystemConf systemConf = getSystemConf();
+		systemConf.values.put(SysConfKeys.http_proxy_enabled.name(), "true");
+		systemConf.values.put(SysConfKeys.http_proxy_hostname.name(), "127.0.0.1");
+
+		new HttpProxyHook().validate(systemConf, new HashMap<>());
 	}
 
 	@Test
@@ -68,7 +97,7 @@ public class ProxyValidatorTest {
 		modifications.put(SysConfKeys.http_proxy_hostname.name(), "");
 
 		// Invalid but disabled
-		new ProxyValidator().validate(systemConf, modifications);
+		new HttpProxyHook().validate(systemConf, modifications);
 
 		modifications.put(SysConfKeys.http_proxy_enabled.name(), "true");
 
@@ -76,7 +105,7 @@ public class ProxyValidatorTest {
 		for (String invalidValues : Arrays.asList("", null)) {
 			modifications.put(SysConfKeys.http_proxy_hostname.name(), invalidValues);
 			try {
-				new ProxyValidator().validate(systemConf, modifications);
+				new HttpProxyHook().validate(systemConf, modifications);
 				fail("Test must thrown an exception");
 			} catch (ServerFault sf) {
 				assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
@@ -85,8 +114,8 @@ public class ProxyValidatorTest {
 		}
 
 		// Valid and enabled
-		modifications.put(SysConfKeys.http_proxy_hostname.name(), "valid");
-		new ProxyValidator().validate(systemConf, modifications);
+		modifications.put(SysConfKeys.http_proxy_hostname.name(), DOCKER_PROXY);
+		new HttpProxyHook().validate(systemConf, modifications);
 	}
 
 	@Test
@@ -97,7 +126,7 @@ public class ProxyValidatorTest {
 		modifications.put(SysConfKeys.http_proxy_port.name(), "");
 
 		// Invalid but disabled
-		new ProxyValidator().validate(systemConf, modifications);
+		new HttpProxyHook().validate(systemConf, modifications);
 
 		modifications.put(SysConfKeys.http_proxy_enabled.name(), "true");
 
@@ -105,7 +134,7 @@ public class ProxyValidatorTest {
 		for (String invalidValues : Arrays.asList("", "invalid", null)) {
 			modifications.put(SysConfKeys.http_proxy_port.name(), invalidValues);
 			try {
-				new ProxyValidator().validate(systemConf, modifications);
+				new HttpProxyHook().validate(systemConf, modifications);
 				fail("Test must thrown an exception");
 			} catch (ServerFault sf) {
 				assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
@@ -116,7 +145,7 @@ public class ProxyValidatorTest {
 		for (String invalidValues : Arrays.asList("-12", "0", "65536")) {
 			modifications.put(SysConfKeys.http_proxy_port.name(), invalidValues);
 			try {
-				new ProxyValidator().validate(systemConf, modifications);
+				new HttpProxyHook().validate(systemConf, modifications);
 				fail("Test must thrown an exception");
 			} catch (ServerFault sf) {
 				assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
@@ -125,8 +154,8 @@ public class ProxyValidatorTest {
 		}
 
 		// Valid and enabled
-		modifications.put(SysConfKeys.http_proxy_port.name(), "12345");
-		new ProxyValidator().validate(systemConf, modifications);
+		modifications.put(SysConfKeys.http_proxy_port.name(), DOCKER_PROXY_PORT);
+		new HttpProxyHook().validate(systemConf, modifications);
 	}
 
 	@Test
@@ -139,7 +168,7 @@ public class ProxyValidatorTest {
 		modifications.put(SysConfKeys.http_proxy_login.name(), "loginupd");
 
 		try {
-			new ProxyValidator().validate(systemConf, modifications);
+			new HttpProxyHook().validate(systemConf, modifications);
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
@@ -151,7 +180,7 @@ public class ProxyValidatorTest {
 		modifications.put(SysConfKeys.http_proxy_enabled.name(), "true");
 
 		try {
-			new ProxyValidator().validate(systemConf, modifications);
+			new HttpProxyHook().validate(systemConf, modifications);
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
@@ -170,7 +199,7 @@ public class ProxyValidatorTest {
 		modifications.put(SysConfKeys.http_proxy_password.name(), "passwordupd");
 
 		try {
-			new ProxyValidator().validate(systemConf, modifications);
+			new HttpProxyHook().validate(systemConf, modifications);
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
@@ -181,7 +210,7 @@ public class ProxyValidatorTest {
 		modifications.put(SysConfKeys.http_proxy_enabled.name(), "true");
 
 		try {
-			new ProxyValidator().validate(systemConf, modifications);
+			new HttpProxyHook().validate(systemConf, modifications);
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
@@ -198,7 +227,7 @@ public class ProxyValidatorTest {
 		Map<String, String> modifications = new HashMap<>();
 		modifications.put(SysConfKeys.http_proxy_enabled.name(), "true");
 
-		new ProxyValidator().validate(systemConf, modifications);
+		new HttpProxyHook().validate(systemConf, modifications);
 	}
 
 	@Test
@@ -212,6 +241,6 @@ public class ProxyValidatorTest {
 		systemConf.values.put(SysConfKeys.http_proxy_login.name(), "login");
 		systemConf.values.put(SysConfKeys.http_proxy_password.name(), "password");
 
-		new ProxyValidator().validate(systemConf, modifications);
+		new HttpProxyHook().validate(systemConf, modifications);
 	}
 }
