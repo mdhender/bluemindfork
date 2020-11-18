@@ -50,10 +50,9 @@ public class DomainStoreTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 
 		String installationId = InstallationId.getIdentifier();
