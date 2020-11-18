@@ -13,10 +13,9 @@ export default {
             type: Object,
             required: true
         },
-        force: {
-            type: Boolean,
-            required: false,
-            default: false
+        index: {
+            type: Number,
+            required: true
         }
     },
     data() {
@@ -26,31 +25,54 @@ export default {
         };
     },
     created() {
-        while (!DATE_RANGES[dateRangeIndex].contains(this.message.date)) {
-            separatorAdded = false;
-            dateRangeIndex++;
-            if (dateRangeIndex === DATE_RANGES.length) {
-                dateRangeIndex = 0;
-            }
-        }
-
-        const range = DATE_RANGES[dateRangeIndex];
-        if (!separatorAdded || this.force) {
-            this.text = range.i18n
-                ? this.$t(range.i18n)
-                : range.date
-                ? this.$d(range.date, range.dateFormat)
-                : range.text;
-            separatorAdded = true;
-            this.needSeparator = true;
-        }
+        allSeparators.splice(this.index, 0, this);
+        computeVisibilities();
+    },
+    beforeDestroy() {
+        allSeparators.splice(this.index, 1);
+        computeVisibilities();
     }
 };
 
-let dateRangeIndex = 0;
-let separatorAdded = false;
+const allSeparators = [];
+let dateRangeIndex;
+let separatorAdded;
 
-/** Warning: keep these ranges mutually exclusives for the global dateRangeIndex to works correctly. */
+function computeVisibilities() {
+    dateRangeIndex = 0;
+    separatorAdded = false;
+    let index = 0;
+    let dateSeparator = allSeparators[index];
+    while (dateSeparator) {
+        computeVisibility(dateSeparator);
+        dateSeparator = allSeparators[++index];
+    }
+}
+
+function computeVisibility(dateSeparator) {
+    dateSeparator.needSeparator = false;
+
+    while (!DATE_RANGES[dateRangeIndex].contains(dateSeparator.message.date)) {
+        separatorAdded = false;
+        dateRangeIndex++;
+        if (dateRangeIndex === DATE_RANGES.length) {
+            dateRangeIndex = 0;
+        }
+    }
+
+    const range = DATE_RANGES[dateRangeIndex];
+    if (!separatorAdded || dateSeparator.index === 0) {
+        dateSeparator.text = range.i18n
+            ? dateSeparator.$t(range.i18n)
+            : range.date
+            ? dateSeparator.$d(range.date, range.dateFormat)
+            : range.text;
+        separatorAdded = true;
+        dateSeparator.needSeparator = true;
+    }
+}
+
+/** Warning: keep these ranges mutually exclusives for the global dateRangeIndex to work correctly. */
 const FUTURE = DateRange.future();
 FUTURE.i18n = "mail.list.range.future";
 const TODAY = DateRange.today();

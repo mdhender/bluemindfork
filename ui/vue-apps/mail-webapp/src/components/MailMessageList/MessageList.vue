@@ -36,7 +36,7 @@
         @keyup.shift.ctrl.exact.end="selectRange(messageKeys[MESSAGE_LIST_COUNT - 1])"
     >
         <div v-for="(message, index) in messages" :key="message.key">
-            <date-separator :message="message" :force="index === 0" />
+            <date-separator :message="message" :index="index" />
             <draggable-message
                 :ref="'message-' + message.key"
                 :message="message"
