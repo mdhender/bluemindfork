@@ -56,7 +56,9 @@ public class ImapProtocolListener<T> {
 	 * @param s the status response
 	 */
 	public void onStatusResponse(ByteBuf s) {
-		logger.info("S: {}", s);
+		if (logger.isDebugEnabled()) {
+			logger.debug("S: {} => {}", s, s.toString(StandardCharsets.US_ASCII));
+		}
 	}
 
 	/**

@@ -325,28 +325,28 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	private Ack mailRewrite(ItemValue<MailboxItem> current, MailboxItem newValue) {
-		logger.warn("Full EML rewrite expected with subject '{}'", newValue.body.subject);
+		logger.info("Full EML rewrite expected with subject '{}'", newValue.body.subject);
 		newValue.body.date = newValue.body.headers.stream()
 				.filter(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)).findAny()
 				.map(h -> new Date(Long.parseLong(h.firstValue()))).orElse(current.value.body.date);
 		Part currentStruct = current.value.body.structure;
 		Part expectedStruct = newValue.body.structure;
-		if (logger.isInfoEnabled()) {
-			logger.info("Shoud go from:\n{} to\n{}", JsonUtils.asString(currentStruct),
+		if (logger.isDebugEnabled()) {
+			logger.debug("Shoud go from:\n{} to\n{}", JsonUtils.asString(currentStruct),
 					JsonUtils.asString(expectedStruct));
 		}
 		PartsWalker<Object> walker = new PartsWalker<>(null);
 		walker.visit((Object c, Part p) -> {
-			logger.info("Prepare for part @ {}", p.address);
+			logger.debug("Prepare for part @ {}", p.address);
 			if (isImapAddress(p.address)) {
-				logger.info("*** preload part {}", p.address);
+				logger.debug("*** preload part {}", p.address);
 				ByteBuf decodedFetch = fetchAndDecode(current.value.imapUid, p.address, p.encoding);
 				String replacedPartUid = UUID.randomUUID().toString();
 				File output = partFile(replacedPartUid);
 				try (OutputStream out = Files.newOutputStream(output.toPath());
 						ByteBufInputStream in = new ByteBufInputStream(decodedFetch, true)) {
 					ByteStreams.copy(in, out);
-					logger.info("YEAH Replaced part address from {} to {}", p.address, replacedPartUid);
+					logger.info("Replaced imap part address '{}' with '{}'", p.address, replacedPartUid);
 					p.address = replacedPartUid;
 				} catch (Exception e) {
 					throw new ServerFault(e);
