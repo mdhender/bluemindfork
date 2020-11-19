@@ -73,11 +73,10 @@ public class ScheduledJobStoreTests {
 	public void before() throws Exception {
 
 		JdbcTestHelper.getInstance().beforeTest();
-		
 
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 
 		String installationId = InstallationId.getIdentifier();
@@ -130,7 +129,7 @@ public class ScheduledJobStoreTests {
 	@Test
 	public void testSearchExecutionResultsAreOrderedByStartExecutionDate() throws InterruptedException, SQLException {
 		Domain domain = createDomain();
-		
+
 		// create 2 executions
 		long nowInMillis = Calendar.getInstance().getTimeInMillis();
 		JobExecution jobExec1 = defaultJobExecution(domain);
@@ -142,7 +141,7 @@ public class ScheduledJobStoreTests {
 
 		store.createExecution(jobExec1);
 		store.createExecution(jobExec2);
-		
+
 		// check results are well ordered by start execution date
 		JobExecutionQuery query = new JobExecutionQuery();
 		query.from = 0;
@@ -401,7 +400,7 @@ public class ScheduledJobStoreTests {
 	}
 
 	private void createExecution(Domain domain) {
-		
+
 		JobExecution je = defaultJobExecution(domain);
 		store.ensureDefaultPlan(domain.name, je.jobId);
 		store.createExecution(je);

@@ -60,7 +60,6 @@ public class Domain {
 	public Set<String> aliases = Collections.emptySet();
 
 	/**
-	 * 
 	 * Create a domain object.
 	 * 
 	 * @param name

@@ -40,6 +40,7 @@ import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.DirectoryContainerType;
@@ -65,7 +66,7 @@ public class DirItemStoreTests {
 
 		securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 
 		String containerId2 = "zob.com";
@@ -98,13 +99,13 @@ public class DirItemStoreTests {
 
 	@Test
 	public void testGetByEmail() throws Exception {
-		creates(DirEntry.create(null, "test1", DirEntry.Kind.DOMAIN, "test1", "domain", null, true, false, false)
+		creates(DirEntry.create(null, "test1", BaseDirEntry.Kind.DOMAIN, "test1", "domain", null, true, false, false)
 				.withEmails(Arrays.asList(Email.create("zob@test.com", true, true))),
-				DirEntry.create(null, "test2", DirEntry.Kind.USER, "jojo", "jojo", "jojo@test.com", false, false, false)
-						.withEmails("1jojo@test.com", "test2@test.com", "jojo@test.com"),
-				DirEntry.create(null, "test3", DirEntry.Kind.USER, "test3", "zozo", "test3@test.com", true, false, true)
-						.withEmails("1test3@test.com", "2test3@test.com", "test3@test.com"),
-				DirEntry.create(null, "test4", DirEntry.Kind.USER, "test4", "", "test4@test.com", true, false, true)
+				DirEntry.create(null, "test2", BaseDirEntry.Kind.USER, "jojo", "jojo", "jojo@test.com", false, false,
+						false).withEmails("1jojo@test.com", "test2@test.com", "jojo@test.com"),
+				DirEntry.create(null, "test3", BaseDirEntry.Kind.USER, "test3", "zozo", "test3@test.com", true, false,
+						true).withEmails("1test3@test.com", "2test3@test.com", "test3@test.com"),
+				DirEntry.create(null, "test4", BaseDirEntry.Kind.USER, "test4", "", "test4@test.com", true, false, true)
 						.withEmails(Arrays.asList(Email.create("test4@test.com", true, true))));
 
 		DirItemStore dirItemStore = new DirItemStore(JdbcTestHelper.getInstance().getDataSource(), container,
