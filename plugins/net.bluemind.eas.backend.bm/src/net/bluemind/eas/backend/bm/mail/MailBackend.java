@@ -279,16 +279,9 @@ public class MailBackend extends CoreConnect {
 
 			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 
-			ItemValue<MailboxItem> item = service.getCompleteById(ci.itemId);
-			if (item == null) {
-				logger.warn("[{}] Fail to fetch mailboxItem {} in {}", bs.getUser().getDefaultEmail(), ci.itemId,
-						folder.fullName);
-				return null;
-			}
-
 			MSEmail email = (MSEmail) data;
-			validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, item);
-			validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, item);
+			validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, ci.itemId);
+			validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, ci.itemId);
 
 			return ci;
 		}
@@ -296,13 +289,12 @@ public class MailBackend extends CoreConnect {
 		return null;
 	}
 
-	private void validateFlag(Boolean property, MailboxItemFlag flag, IMailboxItems service,
-			ItemValue<MailboxItem> item) {
+	private void validateFlag(Boolean property, MailboxItemFlag flag, IMailboxItems service, long itemId) {
 		if (property != null) {
-			if (property.booleanValue() && !item.value.flags.contains(flag)) {
-				service.addFlag(FlagUpdate.of(item.internalId, flag));
-			} else if (!property.booleanValue() && item.value.flags.contains(flag)) {
-				service.deleteFlag(FlagUpdate.of(item.internalId, flag));
+			if (property.booleanValue()) {
+				service.addFlag(FlagUpdate.of(itemId, flag));
+			} else {
+				service.deleteFlag(FlagUpdate.of(itemId, flag));
 			}
 		}
 
@@ -421,8 +413,7 @@ public class MailBackend extends CoreConnect {
 				}
 			}
 			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
-			ItemValue<MailboxItem> item = service.getCompleteById(id);
-			service.addFlag(FlagUpdate.of(item.internalId, MailboxItemFlag.System.Answered.value()));
+			service.addFlag(FlagUpdate.of(id, MailboxItemFlag.System.Answered.value()));
 
 			send(bs, mailContent, rewriter, saveInSent);
 		} catch (Exception e) {
@@ -452,8 +443,7 @@ public class MailBackend extends CoreConnect {
 			}
 
 			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
-			ItemValue<MailboxItem> item = service.getCompleteById(id);
-			service.addFlag(FlagUpdate.of(item.internalId, new MailboxItemFlag("$Forwarded")));
+			service.addFlag(FlagUpdate.of(id, new MailboxItemFlag("$Forwarded")));
 
 			send(bs, mailContent, rewriter, saveInSent);
 		} catch (Exception e) {
