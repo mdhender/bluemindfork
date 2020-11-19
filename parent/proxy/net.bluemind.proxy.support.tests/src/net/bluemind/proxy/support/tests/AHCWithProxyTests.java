@@ -134,6 +134,19 @@ public class AHCWithProxyTests {
 	}
 
 	@Test
+	public void validProxy_noAuth_invalidExceptions() throws InterruptedException, ExecutionException {
+		Response response = AHCWithProxy.build(SystemConf.create(getProxyConf())).prepareGet(NEEDAUTH_URL).execute()
+				.get();
+		assertEquals(407, response.getStatusCode());
+
+		Map<String, String> proxyConf = getProxyConf();
+		proxyConf.put(SysConfKeys.http_proxy_exceptions.name(), "other.dst,invalid exception,10.3.4.5.invalid");
+
+		response = AHCWithProxy.build(SystemConf.create(proxyConf)).prepareGet(NEEDAUTH_URL).execute().get();
+		assertEquals(407, response.getStatusCode());
+	}
+
+	@Test
 	public void validProxy_auth_noException() throws InterruptedException, ExecutionException {
 		Response response = AHCWithProxy.build(SystemConf.create(getProxyConf())).prepareGet(NEEDAUTH_URL).execute()
 				.get();
