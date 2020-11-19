@@ -156,6 +156,16 @@ public interface IMailboxItems
 			@QueryParam("charset") String charset, @QueryParam("filename") String filename);
 
 	/**
+	 * Re-injects a deleted item into the current folder
+	 * 
+	 * @param itemId the item id of a deleted or deleted+expunged message
+	 * @return
+	 */
+	@POST
+	@Path("_unexpunge/{itemId}")
+	Ack unexpunge(@PathParam("itemId") long itemId);
+
+	/**
 	 * @param imapUid
 	 * @return
 	 */

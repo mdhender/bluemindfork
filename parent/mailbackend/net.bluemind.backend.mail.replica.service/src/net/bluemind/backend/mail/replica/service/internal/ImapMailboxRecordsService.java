@@ -596,6 +596,34 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		}).collect(Collectors.toList());
 	}
 
+	public Ack unexpunge(long itemId) {
+		rbac.check(Verb.Write.name());
+
+		ItemValue<MailboxRecord> item = storeService.get(itemId, null);
+		if (item == null) {
+			throw ServerFault.notFound("itemId " + itemId + " not found for unexpunge");
+		}
+		long imapUid = item.value.imapUid;
+		InputStream directRead = fetchCompleteOIO(imapUid);
+		CompletableFuture<Long> completion = ReplicationEvents.onMailboxChanged(mailboxUniqueId);
+		int readded = imapContext.withImapClient((sc, fast) -> {
+			int newUid = sc.append(imapFolder, directRead, new FlagsList());
+			logger.info("Previous body re-injected in {} with imapUid {}", imapFolder, newUid);
+			return newUid;
+		});
+		if (readded > 0) {
+			try {
+				return completion.thenApply(Ack::create).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+			} catch (TimeoutException e) {
+				throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
+			} catch (Exception e) {
+				throw new ServerFault(e);
+			}
+		} else {
+			throw new ServerFault("Failed to re-add message " + item);
+		}
+	}
+
 	@Override
 	public Stream fetchComplete(long imapUid) {
 		rbac.check(Verb.Read.name());
