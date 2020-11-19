@@ -143,7 +143,6 @@ export default {
             maxFolders: 10
         };
     },
-
     computed: {
         ...mapState("mail", { currentSearch: ({ messageList }) => messageList.search }),
         ...mapState("mail", ["folders", "mailboxes", "activeFolder"]),
@@ -174,6 +173,15 @@ export default {
                 searchQuery += " AND in:" + this.selectedFolder.key;
             }
             return searchQuery;
+        }
+    },
+    watch: {
+        currentSearch: {
+            handler: function ({ pattern, folder }) {
+                this.pattern = pattern;
+                this.setFolderFromKeyOrInitial(folder);
+            },
+            deep: true
         }
     },
     created() {
