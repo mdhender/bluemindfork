@@ -1,6 +1,11 @@
+import Vue from "vue";
+import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
-import initialStore, { AlertTypes, CLEAR, ERROR, REMOVE, SUCCESS } from "../src";
+import initialStore, { ADD, AlertTypes, ERROR, REMOVE, SUCCESS, WARNING } from "../src";
 import { LOADING } from "../src";
+jest.useFakeTimers();
+
+Vue.use(Vuex);
 
 describe("alert", () => {
     const uid = "UID",
@@ -9,85 +14,157 @@ describe("alert", () => {
         error = "Error",
         result = "Result",
         renderer = "Renderer";
-    let store, fullAlert;
+    let store, alert, options;
     beforeEach(() => {
-        fullAlert = { uid, name, payload, error, renderer, result };
-        store = cloneDeep(initialStore);
+        alert = { uid, name, payload, error, result };
+        options = { renderer };
+        store = new Vuex.Store(cloneDeep(initialStore));
     });
-    describe("LOADING", () => {
-        test("LOADING: Set alert in loading state", () => {
-            store.mutations[LOADING](store.state, fullAlert);
-            expect(store.state).toEqual([{ uid, name, payload, renderer, type: AlertTypes.LOADING }]);
+    describe("actions", () => {
+        describe("LOADING", () => {
+            test("LOADING: Set alert in loading state", async () => {
+                await store.dispatch(LOADING, { alert, options });
+                jest.runAllTimers();
+                expect(store.state[0]).toEqual(
+                    expect.objectContaining({ uid, name, payload, renderer, type: AlertTypes.LOADING })
+                );
+            });
+
+            test("LOADING: Loading alert are not dismissible", async () => {
+                await store.dispatch(LOADING, { alert, options });
+                jest.runAllTimers();
+                expect(store.state[0]).toEqual(expect.objectContaining({ dismissible: false }));
+            });
+
+            test("LOADING: display is delayed", async () => {
+                await store.dispatch(LOADING, { alert, options });
+                expect(store.state.length).toEqual(0);
+                jest.runAllTimers();
+                expect(store.state.length).toEqual(1);
+            });
         });
-        test("LOADING: Remove alert with same uid", () => {
-            store.mutations[LOADING](store.state, fullAlert);
-            store.mutations[LOADING](store.state, fullAlert);
-            expect(store.state).toEqual([{ uid, name, payload, renderer, type: AlertTypes.LOADING }]);
+        describe("SUCCESS", () => {
+            test("SUCCESS: Set alert in success state", async () => {
+                await store.dispatch(SUCCESS, { alert, options });
+                expect(store.state[0]).toEqual(
+                    expect.objectContaining({ uid, name, payload, result, renderer, type: AlertTypes.SUCCESS })
+                );
+            });
+
+            test("SUCCESS: alert is dismissible", async () => {
+                await store.dispatch(SUCCESS, { alert, options });
+                expect(store.state[0]).toEqual(expect.objectContaining({ dismissible: true }));
+            });
+
+            test("SUCCESS: alert is automatically discarded", async () => {
+                await store.dispatch(SUCCESS, { alert, options });
+                expect(store.state.length).toEqual(1);
+                jest.runAllTimers();
+                expect(store.state.length).toEqual(0);
+            });
         });
-        test("LOADING: Add alert if not same uid", () => {
-            store.mutations[LOADING](store.state, fullAlert);
-            fullAlert.uid = "UID2";
-            store.mutations[LOADING](store.state, fullAlert);
-            expect(store.state).toEqual([
-                { uid, name, payload, renderer, type: AlertTypes.LOADING },
-                { uid: "UID2", name, payload, renderer, type: AlertTypes.LOADING }
-            ]);
+        describe("ERROR", () => {
+            test("ERROR: Set alert in error state", async () => {
+                await store.dispatch(ERROR, { alert, options });
+                expect(store.state[0]).toEqual(
+                    expect.objectContaining({ uid, name, payload, error, renderer, type: AlertTypes.ERROR })
+                );
+            });
+
+            test("ERROR: alert is dismissible", async () => {
+                await store.dispatch(ERROR, { alert, options });
+                expect(store.state[0]).toEqual(expect.objectContaining({ dismissible: true }));
+            });
+        });
+        describe("WARNING", () => {
+            test("WARNING: Set alert in waring state", async () => {
+                await store.dispatch(WARNING, { alert, options });
+                expect(store.state[0]).toEqual(
+                    expect.objectContaining({ uid, name, payload, renderer, type: AlertTypes.WARNING })
+                );
+            });
+
+            test("WARNING: alert is dismissible", async () => {
+                await store.dispatch(WARNING, { alert, options });
+                expect(store.state[0]).toEqual(expect.objectContaining({ dismissible: true }));
+            });
+        });
+        describe("ADD", () => {
+            test("ADD: add alert", async () => {
+                await store.dispatch(ADD, { alert, options: {} });
+                expect(store.state[0]).toEqual(expect.objectContaining(alert));
+            });
+
+            test("ADD: renderer option set alert renderer", async () => {
+                await store.dispatch(ADD, { alert, options: { renderer } });
+                expect(store.state[0]).toEqual(expect.objectContaining({ ...alert, renderer }));
+            });
+
+            test("ADD: dismissible option set alert dismissible state", async () => {
+                await store.dispatch(ADD, { alert, options: { dismissible: true } });
+                expect(store.state[0]).toEqual(expect.objectContaining({ ...alert, dismissible: true }));
+            });
+            test("ADD: delay option delay alert display", async () => {
+                await store.dispatch(ADD, { alert, options: { delay: 1000 } });
+                expect(store.state.length).toEqual(0);
+                jest.runAllTimers();
+                expect(store.state.length).toEqual(1);
+            });
+
+            test("ADD: countDown option automatically remove alert", async () => {
+                await store.dispatch(ADD, { alert, options: { countDown: 1000 } });
+                expect(store.state.length).toEqual(1);
+                jest.runAllTimers();
+                expect(store.state.length).toEqual(0);
+            });
+        });
+        describe("REMOVE", () => {
+            test("REMOVE: remove alert from store", async () => {
+                store.state.push(alert);
+                store.state.push({ ...alert, uid: "Another" });
+                await store.dispatch(REMOVE, alert);
+                expect(store.state.length).toEqual(1);
+            });
+            test("REMOVE: remove alerts from store", async () => {
+                store.state.push(alert);
+                store.state.push({ ...alert, uid: "Another" });
+                store.state.push({ ...alert, uid: "Another One" });
+                await store.dispatch(REMOVE, [alert, { ...alert, uid: "Another" }]);
+                expect(store.state.length).toEqual(1);
+            });
+            test("REMOVE: clear timers", async () => {
+                store.state.push(alert);
+                await store.dispatch(ADD, { alert, options: { delay: 1000 } });
+                await store.dispatch(REMOVE, alert);
+                jest.runAllTimers();
+                expect(store.state.length).toEqual(0);
+            });
         });
     });
-    describe("SUCCESS", () => {
-        test("SUCCESS: Set alert in success state", () => {
-            store.mutations[SUCCESS](store.state, fullAlert);
-            expect(store.state).toEqual([{ uid, name, payload, renderer, result, type: AlertTypes.SUCCESS }]);
+    describe("mutations", () => {
+        test("ADD", () => {
+            store.commit(ADD, alert);
+            expect([...store.state]).toEqual([alert]);
         });
-        test("SUCCESS: Remove alert with same uid", () => {
-            store.mutations[LOADING](store.state, fullAlert);
-            store.mutations[SUCCESS](store.state, fullAlert);
-            expect(store.state).toEqual([{ uid, name, payload, renderer, result, type: AlertTypes.SUCCESS }]);
+        test("ADD: Remove alert with same uid", () => {
+            store.commit(ADD, alert);
+            store.commit(ADD, alert);
+            expect([...store.state]).toEqual([alert]);
         });
-        test("SUCCESS: Add alert if not same uid", () => {
-            store.mutations[LOADING](store.state, fullAlert);
-            fullAlert.uid = "UID2";
-            store.mutations[SUCCESS](store.state, fullAlert);
-            expect(store.state).toEqual([
-                { uid, name, payload, renderer, type: AlertTypes.LOADING },
-                { uid: "UID2", name, result, payload, renderer, type: AlertTypes.SUCCESS }
-            ]);
+        test("ADD: Add alert if not same uid", () => {
+            store.commit(ADD, alert);
+            let alert2 = { ...alert, uid: "UID2" };
+            store.commit(ADD, alert2);
+            expect([...store.state]).toEqual([alert, alert2]);
         });
-    });
-    describe("ERROR", () => {
-        test("ERROR: Set alert in loading state", () => {
-            store.mutations[ERROR](store.state, fullAlert);
-            expect(store.state).toEqual([{ uid, name, payload, error, renderer, type: AlertTypes.ERROR }]);
+        test("REMOVE", () => {
+            const alert1 = cloneDeep(alert);
+            const alert2 = cloneDeep(alert);
+            alert2.uid = "UID2";
+            store.state.push(alert1);
+            store.state.push(alert2);
+            store.commit(REMOVE, uid);
+            expect([...store.state]).toEqual([alert2]);
         });
-        test("ERROR: Remove alert with same uid", () => {
-            store.mutations[LOADING](store.state, fullAlert);
-            store.mutations[ERROR](store.state, fullAlert);
-            expect(store.state).toEqual([{ uid, name, payload, error, renderer, type: AlertTypes.ERROR }]);
-        });
-        test("ERROR: Add alert if not same uid", () => {
-            store.mutations[LOADING](store.state, fullAlert);
-            fullAlert.uid = "UID2";
-            store.mutations[ERROR](store.state, fullAlert);
-            expect(store.state).toEqual([
-                { uid, name, payload, renderer, type: AlertTypes.LOADING },
-                { uid: "UID2", name, payload, error, renderer, type: AlertTypes.ERROR }
-            ]);
-        });
-    });
-    test("REMOVE", () => {
-        const alert1 = cloneDeep(fullAlert);
-        const alert2 = cloneDeep(fullAlert);
-        alert2.uid = "UID2";
-        store.state = [alert1, alert2];
-        store.mutations[REMOVE](store.state, uid);
-        expect(store.state).toEqual([alert2]);
-    });
-    test("CLEAR", () => {
-        const alert1 = cloneDeep(fullAlert);
-        const alert2 = cloneDeep(fullAlert);
-        alert2.uid = "UID2";
-        store.state = [alert1, alert2];
-        store.mutations[CLEAR](store.state, uid);
-        expect(store.state).toEqual([]);
     });
 });

@@ -7,6 +7,7 @@ import {
     DELETE_FLAG,
     REMOVE_ATTACHMENT,
     REMOVE_MESSAGES,
+    MOVE_MESSAGES,
     REMOVE_MESSAGE_PART_CONTENTS,
     SET_ATTACHMENT_ADDRESS,
     SET_ATTACHMENT_CONTENT_URL,
@@ -22,8 +23,10 @@ import {
     SET_MESSAGE_LIST,
     SET_MESSAGE_PART_CONTENTS,
     SET_MESSAGE_SUBJECT,
-    SET_MESSAGE_TO
+    SET_MESSAGE_TO,
+    SET_UNREAD_COUNT
 } from "~mutations";
+import { Flag } from "@bluemind/email";
 
 export default {
     [ADD_MESSAGES]: (state, messages) => {
@@ -31,31 +34,23 @@ export default {
             Vue.set(state, message.key, message);
         });
     },
-    [ADD_FLAG]: (state, { keys, flag }) => {
-        keys.forEach(key => {
-            if (state[key].status === MessageStatus.LOADED && !state[key].flags.includes(flag)) {
-                state[key].flags.push(flag);
-            }
-        });
+    [ADD_FLAG]: (state, { messages, flag }) => {
+        messages.forEach(({ key }) => state[key].flags.push(flag));
     },
-    [DELETE_FLAG]: (state, { keys, flag }) => {
-        keys.forEach(key => {
-            if (state[key].status === MessageStatus.LOADED && state[key].flags.includes(flag)) {
-                state[key].flags = state[key].flags.filter(f => f !== flag);
-            }
-        });
+    [DELETE_FLAG]: (state, { messages, flag }) => {
+        messages.forEach(({ key }) => (state[key].flags = state[key].flags.filter(f => f !== flag)));
     },
-    [REMOVE_MESSAGES]: (state, keys) => {
-        keys.forEach(key => {
-            if (state[key] && state[key].attachments) {
-                state[key].attachments
-                    .filter(attachment => attachment.contentUrl)
-                    .forEach(attachment => {
-                        URL.revokeObjectURL(attachment.contentUrl);
-                    });
-            }
-            Vue.delete(state, key);
-        });
+    [REMOVE_MESSAGES]: removeMessages,
+    [MOVE_MESSAGES]: (state, { messages }) => removeMessages(state, messages),
+    [SET_UNREAD_COUNT]: (state, { key, unread }) => {
+        if (unread === 0) {
+            //FIXME: This cannot be rolled back...
+            Object.values(state).forEach(({ status, folderRef, flags }) => {
+                if (status === MessageStatus.LOADED && folderRef.key === key && !flags.includes(Flag.SEEN)) {
+                    flags.push(Flag.SEEN);
+                }
+            });
+        }
     },
     [SET_MESSAGES_STATUS]: (state, messages) => {
         messages.forEach(m => (state[m.key].status = m.status));
@@ -134,3 +129,15 @@ export default {
         }
     }
 };
+function removeMessages(state, messages) {
+    messages.forEach(({ key }) => {
+        if (state[key] && state[key].attachments) {
+            state[key].attachments
+                .filter(attachment => attachment.contentUrl)
+                .forEach(attachment => {
+                    URL.revokeObjectURL(attachment.contentUrl);
+                });
+        }
+        Vue.delete(state, key);
+    });
+}

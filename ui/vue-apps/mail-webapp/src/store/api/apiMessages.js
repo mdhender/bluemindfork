@@ -34,6 +34,12 @@ export default {
         const requests = map(byFolder, ({ itemsId }, folder) => api(folder).multipleDeleteById(itemsId));
         return Promise.all(requests);
     },
+    async move(messages, destination) {
+        const destinationUid = destination.remoteRef.uid;
+        const byFolder = groupByFolder(messages);
+        const requests = map(byFolder, ({ itemsId }, sourceUid) => importApi(sourceUid, destinationUid).move(itemsId));
+        return Promise.all(requests);
+    },
     async sortedIds(filter, folder) {
         const service = inject("MailboxItemsPersistence", folder.remoteRef.uid);
         switch (filter) {
@@ -69,6 +75,10 @@ function api(folderUid) {
 
 function folderApi(mailboxUid) {
     return inject("MailboxFoldersPersistence", mailboxUid);
+}
+
+function importApi(sourceUid, destinationUid) {
+    return inject("ItemsTransferPersistence", sourceUid, destinationUid);
 }
 
 function groupByFolder(messages) {

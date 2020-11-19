@@ -1,6 +1,7 @@
 import {
     CLEAR_MESSAGE_LIST,
     REMOVE_MESSAGES,
+    MOVE_MESSAGES,
     SELECT_ALL_MESSAGES,
     SELECT_MESSAGE,
     SET_MESSAGE_LIST,
@@ -24,7 +25,12 @@ describe("selection", () => {
         });
         test("REMOVE_MESSAGES", () => {
             state = [1, 2, 3, 4, 5];
-            store.mutations[REMOVE_MESSAGES](state, [1, 3, 6]);
+            store.mutations[REMOVE_MESSAGES](state, [{ key: 1 }, { key: 3 }, { key: 6 }]);
+            expect(state).toEqual([2, 4, 5]);
+        });
+        test("MOVE_MESSAGES", () => {
+            state = [1, 2, 3, 4, 5];
+            store.mutations[MOVE_MESSAGES](state, { messages: [{ key: 1 }, { key: 3 }, { key: 6 }] });
             expect(state).toEqual([2, 4, 5]);
         });
         test("CLEAR_MESSAGE_LIST", () => {

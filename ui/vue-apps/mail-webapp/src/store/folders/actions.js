@@ -7,11 +7,15 @@ import {
     REMOVE_FOLDER as MUTATION_REMOVE_FOLDER,
     RENAME_FOLDER as MUTATION_RENAME_FOLDER,
     REMOVE_FOLDER,
-    RENAME_FOLDER
+    RENAME_FOLDER,
+    SET_UNREAD_COUNT
 } from "~mutations";
+import { FOLDER_BY_PATH } from "~getters";
+
 import { FolderAdaptor } from "./helpers/FolderAdaptor";
-import { create } from "../../model/folder";
-import { CREATE_FOLDER, FETCH_FOLDERS } from "~actions";
+import { create, rename } from "../../model/folder";
+import { withAlert } from "../helpers/withAlert";
+import { CREATE_FOLDER, FETCH_FOLDERS, CREATE_FOLDER_HIERARCHY, MARK_FOLDER_AS_READ } from "~actions";
 
 const fetchFolders = async function ({ commit }, mailbox) {
     const items = await api.getAllFolders(mailbox);
@@ -22,22 +26,25 @@ const fetchFolders = async function ({ commit }, mailbox) {
     commit(ADD_FOLDERS, folders);
 };
 
-const createFolder = async function ({ commit, state }, { key, name, parent, mailbox }) {
-    const foldertoadd = create(key, name, parent && state[parent], mailbox);
-    commit(ADD_FOLDER, foldertoadd);
-    const item = FolderAdaptor.toMailboxFolder(foldertoadd, mailbox);
-    try {
-        const { uid, id: internalId } = await api.createNewFolder(mailbox, item);
-        commit(ADD_FOLDER, { ...foldertoadd, remoteRef: { uid, internalId } });
-    } catch (e) {
-        commit(MUTATION_REMOVE_FOLDER, foldertoadd.key);
-        throw e;
+const createFolderHierarchy = async function ({ commit, getters, dispatch }, { name, parent, mailbox }) {
+    const hierarchy = name.split("/").filter(Boolean);
+    name = hierarchy.pop();
+    if (hierarchy.length > 0) {
+        parent = await dispatch(CREATE_FOLDER_HIERARCHY, { name: hierarchy.join("/"), parent, mailbox });
     }
+    const folder = create(undefined, name, parent, mailbox);
+    let created = getters[FOLDER_BY_PATH](folder.path);
+    if (!created) {
+        const item = FolderAdaptor.toMailboxFolder(folder, mailbox);
+        const { uid, id: internalId } = await api.createNewFolder(mailbox, item);
+        created = { ...folder, key: uid, remoteRef: { uid, internalId } };
+        commit(ADD_FOLDER, created);
+    }
+    return created;
 };
 
-const removeFolder = async function ({ state, commit }, { key, mailbox }) {
-    const folder = state[key];
-    commit(MUTATION_REMOVE_FOLDER, folder.key);
+const removeFolder = async function ({ commit }, { folder, mailbox }) {
+    commit(MUTATION_REMOVE_FOLDER, folder);
     try {
         await api.deleteFolder(mailbox, folder);
     } catch (e) {
@@ -46,24 +53,36 @@ const removeFolder = async function ({ state, commit }, { key, mailbox }) {
     }
 };
 
-const renameFolder = async function ({ commit, state }, { folder, mailbox }) {
-    const key = folder.key;
-    const { name: oldName, path: oldPath } = state[key];
+const renameFolder = async function ({ commit }, { folder, name, mailbox }) {
+    const { name: oldName, path: oldPath } = folder;
+    const renamed = rename(folder, name);
+    commit(MUTATION_RENAME_FOLDER, renamed);
 
-    commit(MUTATION_RENAME_FOLDER, { name: folder.name, key, path: folder.path });
-
-    const item = FolderAdaptor.toMailboxFolder(folder, mailbox);
+    const item = FolderAdaptor.toMailboxFolder(renamed, mailbox);
     try {
         await api.updateFolder(mailbox, item);
     } catch (e) {
-        commit(MUTATION_RENAME_FOLDER, { name: oldName, key, path: oldPath });
+        commit(MUTATION_RENAME_FOLDER, { name: oldName, key: folder.key, path: oldPath });
+        throw e;
+    }
+};
+
+const markFolderAsRead = async function ({ commit }, { folder, mailbox }) {
+    const unread = folder.unread;
+    commit(SET_UNREAD_COUNT, { ...folder, unread: 0 });
+    try {
+        await api.markAsRead(mailbox, folder);
+    } catch (e) {
+        commit(SET_UNREAD_COUNT, { key: folder.key, unread });
         throw e;
     }
 };
 export default {
     [FETCH_FOLDERS]: fetchFolders,
-    [CREATE_FOLDER]: createFolder,
+    [CREATE_FOLDER]: withAlert(createFolderHierarchy, CREATE_FOLDER, "CreateFolder"),
+    [CREATE_FOLDER_HIERARCHY]: createFolderHierarchy,
     // FIXME: when deleting a folder having children, it is not deleted in UI & we got errors in the console..
-    [REMOVE_FOLDER]: removeFolder,
-    [RENAME_FOLDER]: renameFolder
+    [REMOVE_FOLDER]: withAlert(removeFolder, REMOVE_FOLDER, "RemoveFolder"),
+    [RENAME_FOLDER]: withAlert(renameFolder, RENAME_FOLDER, "RenameFolder"),
+    [MARK_FOLDER_AS_READ]: withAlert(markFolderAsRead, MARK_FOLDER_AS_READ, "MarkFolderAsRead")
 };

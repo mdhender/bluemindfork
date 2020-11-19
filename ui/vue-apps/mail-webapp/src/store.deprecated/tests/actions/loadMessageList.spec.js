@@ -44,7 +44,7 @@ const context = {
                 [folderUid]: folder,
                 [folderUidOfMailshare]: folderOfMailshare
             },
-            messages: {},
+            messages: { 1: { key: 1 }, 2: { key: 2 }, 3: { key: 3 } },
             messageList: {
                 messageKeys: [1, 2, 3],
                 filter: null,
@@ -142,7 +142,7 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
         expect(context.dispatch).toHaveBeenNthCalledWith(
             3,
             "mail/" + FETCH_MESSAGE_METADATA,
-            { messageKeys: [1, 2, 3] },
+            [{ key: 1 }, { key: 2 }, { key: 3 }],
             { root: true }
         );
     });
@@ -161,19 +161,22 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
         expect(context.dispatch).toHaveBeenNthCalledWith(
             3,
             "mail/" + FETCH_MESSAGE_METADATA,
-            { messageKeys: [1, 2, 3] },
+            [{ key: 1 }, { key: 2 }, { key: 3 }],
             { root: true }
         );
     });
 
     test("fetch only the 40 first mails of the selected folder", async () => {
         context.rootState.mail.messageList.messageKeys = new Array(200).fill(0).map((zero, i) => i);
+        context.rootState.mail.messageList.messageKeys.forEach(key => {
+            context.rootState.mail.messages[key] = { key };
+        });
         await loadMessageList(context, { folder: folderUid });
         expect(context.dispatch).toHaveBeenCalledWith(
             "mail/" + FETCH_MESSAGE_METADATA,
-            {
-                messageKeys: context.rootState.mail.messageList.messageKeys.slice(0, 40)
-            },
+            context.rootState.mail.messageList.messageKeys
+                .slice(0, 40)
+                .map(key => context.rootState.mail.messages[key]),
             { root: true }
         );
     });

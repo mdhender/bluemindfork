@@ -1,6 +1,5 @@
 import Vue from "vue";
 import { AddressBooksClient } from "@bluemind/addressbook.api";
-import { AlertFactory } from "@bluemind/alert.store";
 import { CalendarClient } from "@bluemind/calendar.api";
 import { ContainersClient } from "@bluemind/core.container.api";
 import { ItemsTransferClient } from "@bluemind/backend.mail.api";
@@ -13,10 +12,8 @@ import injector from "@bluemind/inject";
 import router from "@bluemind/router";
 import store from "@bluemind/store";
 import MailAlertRenderer from "./components/MailAlertRenderer";
-import DefaultAlert from "./components/MailAlerts/DefaultAlert";
-import SendMessage from "./components/MailAlerts/SendMessage";
+import * as AlertComponents from "./components/MailAlerts";
 import MailApp from "./components/MailApp";
-import MailAppAlerts from "./alerts";
 import { MailboxItemsClientProxy, MailboxFoldersClientProxy } from "./store.deprecated/mailbackend/APIClientsProxy";
 import mailRoutes from "./router";
 import Scheduler from "./scheduler";
@@ -30,13 +27,13 @@ store.registerModule("mail-webapp", MailWebAppStore);
 
 Scheduler.startUnreadCountersUpdater();
 
-AlertFactory.register(MailAppAlerts);
 router.addRoutes(mailRoutes);
 
 Vue.component("mail-webapp", MailApp);
 Vue.component("MailAlertRenderer", MailAlertRenderer);
-Vue.component("DefaultAlert", DefaultAlert);
-Vue.component("SendMessage", SendMessage);
+for (let component in AlertComponents) {
+    Vue.component(component, AlertComponents[component]);
+}
 
 function registerAPIClients() {
     injector.register({

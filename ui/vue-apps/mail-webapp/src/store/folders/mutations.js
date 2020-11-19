@@ -1,43 +1,66 @@
+import { Flag } from "@bluemind/email";
 import Vue from "vue";
 import { RENAME_FOLDER } from "~actions";
-import { ADD_FOLDER, ADD_FOLDERS, REMOVE_FOLDER, SET_UNREAD_COUNT, TOGGLE_FOLDER } from "~mutations";
-
-const addFolder = (state, { key, ...folder }) => {
-    Vue.set(state, key, { ...folder, key });
-};
-
-const addFolders = (state, folders) => {
-    folders.forEach(folder => {
-        addFolder(state, folder);
-    });
-};
-
-const renameFolder = (state, { key, name, path }) => {
-    state[key].name = name;
-    state[key].path = path;
-};
-
-const removeFolder = function (state, key) {
-    Vue.delete(state, key);
-};
-
-//TODO: change parameter name s/count/unread/
-const setUnreadCount = (state, { key, count }) => {
-    // FIXME: [inconsistency] With `ADD_FOLDER` we can set a negative value for the `unread` property
-    if (count >= 0 && state[key].unread !== count) {
-        state[key].unread = count;
-    }
-};
-
-const toggleFolder = (state, key) => {
-    state[key].expanded = !state[key].expanded;
-};
+import {
+    ADD_FOLDER,
+    ADD_FLAG,
+    ADD_FOLDERS,
+    DELETE_FLAG,
+    REMOVE_FOLDER,
+    REMOVE_MESSAGES,
+    MOVE_MESSAGES,
+    SET_UNREAD_COUNT,
+    SET_FOLDER_EXPANDED
+} from "~mutations";
 
 export default {
-    [ADD_FOLDER]: addFolder,
-    [ADD_FOLDERS]: addFolders,
-    [RENAME_FOLDER]: renameFolder,
-    [REMOVE_FOLDER]: removeFolder,
-    [SET_UNREAD_COUNT]: setUnreadCount,
-    [TOGGLE_FOLDER]: toggleFolder
+    [ADD_FOLDER]: (state, { key, ...folder }) => {
+        Vue.set(state, key, { ...folder, key });
+    },
+    [ADD_FOLDERS]: (state, folders) => {
+        folders.forEach(folder => {
+            Vue.set(state, folder.key, folder);
+        });
+    },
+    [RENAME_FOLDER]: (state, { key, name, path }) => {
+        state[key].name = name;
+        state[key].path = path;
+    },
+    [REMOVE_FOLDER]: (state, { key }) => {
+        Vue.delete(state, key);
+    },
+    [SET_UNREAD_COUNT]: (state, { key, unread }) => {
+        state[key].unread = unread;
+    },
+    [SET_FOLDER_EXPANDED]: (state, { key, expanded }) => {
+        state[key].expanded = expanded;
+    },
+    [ADD_FLAG]: (state, { messages, flag }) => {
+        if (flag === Flag.SEEN) {
+            messages.forEach(({ folderRef: { key } }) => state[key] && state[key].unread--);
+        }
+    },
+    [DELETE_FLAG]: (state, { messages, flag }) => {
+        if (flag === Flag.SEEN) {
+            messages.forEach(({ folderRef: { key } }) => state[key] && state[key].unread++);
+        }
+    },
+    [REMOVE_MESSAGES]: (state, messages) => {
+        messages.forEach(message => {
+            // FIXME: FEATWEBML-1387 (crappy NOT_LOADED hack)
+            if (message.date && !message.flags.includes(Flag.SEEN)) {
+                const folder = state[message.folderRef.key];
+                folder.unread--;
+            }
+        });
+    },
+    [MOVE_MESSAGES]: (state, { messages, folder }) => {
+        messages.forEach(message => {
+            // FIXME: FEATWEBML-1387
+            if (message.date && !message.flags.includes(Flag.SEEN)) {
+                state[message.folderRef.key].unread--;
+                state[folder.key].unread++;
+            }
+        });
+    }
 };

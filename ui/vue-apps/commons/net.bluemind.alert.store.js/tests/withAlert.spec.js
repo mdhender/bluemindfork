@@ -1,5 +1,8 @@
+import UUIDGenerator from "@bluemind/uuid";
 import { ERROR, LOADING, SUCCESS } from "../src";
 import { withAlert } from "../src/withAlert";
+
+jest.mock("@bluemind/uuid");
 
 const ROOT = { root: true };
 describe("withAlert", () => {
@@ -14,49 +17,52 @@ describe("withAlert", () => {
         store.commit.mockClear();
         store.dispatch.mockClear();
         action.mockClear();
+        UUIDGenerator.generate.mockReturnValue(Math.random());
     });
     test("LOADING", () => {
-        const actionWithAlert = withAlert(action, "ActionName", "Renderer");
+        const actionWithAlert = withAlert(action, "ActionName", { renderer: "Renderer" });
         actionWithAlert(store, payload);
-        expect(store.commit).toHaveBeenCalledWith(
+        expect(store.dispatch).toHaveBeenCalledWith(
             "alert/" + LOADING,
-            { name: "ActionName", payload, renderer: "Renderer", uid: expect.anything() },
+            {
+                alert: { name: "ActionName", payload, uid: expect.anything() },
+                options: { renderer: "Renderer" }
+            },
             ROOT
         );
     });
     test("SUCCESS", async () => {
-        const actionWithAlert = withAlert(action, "ActionName", "Renderer");
+        const actionWithAlert = withAlert(action, "ActionName", { renderer: "Renderer" });
         const value = await actionWithAlert(store, payload);
-        expect(store.commit).toHaveBeenCalledWith(
+        expect(store.dispatch).toHaveBeenCalledWith(
             "alert/" + SUCCESS,
             {
-                name: "ActionName",
-                payload,
-                result,
-                renderer: "Renderer",
-                uid: expect.anything()
+                alert: {
+                    name: "ActionName",
+                    payload,
+                    result,
+                    uid: expect.anything()
+                },
+                options: { renderer: "Renderer" }
             },
             ROOT
         );
         expect(value).toBe(result);
-        expect(store.commit).not.toHaveBeenCalledWith("alert/" + ERROR, expect.anything());
+        expect(store.dispatch).not.toHaveBeenCalledWith("alert/" + ERROR, expect.anything());
     });
     test("ERROR", async () => {
         const error = "ERROR";
         action.mockRejectedValueOnce(error);
-        const actionWithAlert = withAlert(action, "ActionName", "Renderer");
+        const actionWithAlert = withAlert(action, "ActionName", { renderer: "Renderer" });
         try {
             await actionWithAlert(store, payload);
             throw new Error("action should have throw an exception");
         } catch (error) {
-            expect(store.commit).toHaveBeenCalledWith(
+            expect(store.dispatch).toHaveBeenCalledWith(
                 "alert/" + ERROR,
                 {
-                    name: "ActionName",
-                    payload,
-                    error,
-                    renderer: "Renderer",
-                    uid: expect.anything()
+                    alert: { name: "ActionName", payload, error, uid: expect.anything() },
+                    options: { renderer: "Renderer" }
                 },
                 ROOT
             );
@@ -64,55 +70,49 @@ describe("withAlert", () => {
         }
     });
     test("Alert uid must be the same for loading and success", async () => {
-        let currentUid;
-        store.commit.mockImplementation((dummy, { uid }) => {
-            if (!currentUid) currentUid = uid;
-        });
+        const currentUid = "UID";
+        UUIDGenerator.generate.mockReturnValueOnce(currentUid);
         await withAlert(action, "ActionName", "Renderer")(store, payload);
-        expect(store.commit).toHaveBeenCalledWith(
+        expect(store.dispatch).toHaveBeenCalledWith(
             "alert/" + LOADING,
-            expect.objectContaining({ uid: currentUid }),
+            expect.objectContaining({ alert: expect.objectContaining({ uid: currentUid }) }),
             ROOT
         );
-        expect(store.commit).toHaveBeenCalledWith(
+        expect(store.dispatch).toHaveBeenCalledWith(
             "alert/" + SUCCESS,
-            expect.objectContaining({ uid: currentUid }),
+            expect.objectContaining({ alert: expect.objectContaining({ uid: currentUid }) }),
             ROOT
         );
     });
     test("Alert uid must be the same for loading and error", async () => {
-        let currentUid;
-        store.commit.mockImplementation((dummy, { uid }) => {
-            if (!currentUid) currentUid = uid;
-        });
+        const currentUid = "UID";
+        UUIDGenerator.generate.mockReturnValueOnce(currentUid);
         action.mockRejectedValueOnce();
         try {
             await withAlert(action, "ActionName", "Renderer")(store, payload);
             throw new Error("action should have throw an exception");
         } catch (error) {
-            expect(store.commit).toHaveBeenCalledWith(
+            expect(store.dispatch).toHaveBeenCalledWith(
                 "alert/" + LOADING,
-                expect.objectContaining({ uid: currentUid }),
+                expect.objectContaining({ alert: expect.objectContaining({ uid: currentUid }) }),
                 ROOT
             );
-            expect(store.commit).toHaveBeenCalledWith(
+            expect(store.dispatch).toHaveBeenCalledWith(
                 "alert/" + ERROR,
-                expect.objectContaining({ uid: currentUid }),
+                expect.objectContaining({ alert: expect.objectContaining({ uid: currentUid }) }),
                 ROOT
             );
         }
     });
     test("Alert uid must be unique per action execution", async () => {
-        let currentUid;
-        store.commit.mockImplementation((dummy, { uid }) => {
-            if (!currentUid) currentUid = uid;
-        });
+        const currentUid = "UID";
+        UUIDGenerator.generate.mockReturnValueOnce(currentUid);
         withAlert(action, "ActionName", "Renderer")(store, payload);
         withAlert(action, "ActionName", "Renderer")(store, payload);
-        expect(store.commit).toHaveBeenNthCalledWith(
+        expect(store.dispatch).toHaveBeenNthCalledWith(
             2,
             "alert/" + LOADING,
-            expect.not.objectContaining({ uid: currentUid }),
+            expect.not.objectContaining({ alert: expect.objectContaining({ uid: currentUid }) }),
             ROOT
         );
     });
@@ -120,9 +120,9 @@ describe("withAlert", () => {
         let action = () => {};
         withAlert(action)(store);
 
-        expect(store.commit).toHaveBeenCalledWith(
+        expect(store.dispatch).toHaveBeenCalledWith(
             "alert/" + LOADING,
-            expect.objectContaining({ name: "action" }),
+            expect.objectContaining({ alert: expect.objectContaining({ name: "action" }) }),
             ROOT
         );
     });

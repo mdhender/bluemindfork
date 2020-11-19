@@ -78,13 +78,14 @@ import {
     BmIcon,
     BmTooltip
 } from "@bluemind/styleguide";
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import { FolderAdaptor } from "../../../store/folders/helpers/FolderAdaptor";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailFolderInput from "../../MailFolderInput";
 import { MailboxType } from "../../../model/mailbox";
 import { MY_INBOX, MY_TRASH, FOLDER_BY_PATH } from "~getters";
+import MoveMixin from "../../../store/mixins/MoveMixin";
 
 export default {
     name: "MailToolbarConsultMessageMoveAction",
@@ -100,6 +101,7 @@ export default {
         MailFolderInput
     },
     directives: { BmTooltip },
+    mixins: [MoveMixin],
     data() {
         return {
             maxFolders: 10,
@@ -109,7 +111,7 @@ export default {
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail-webapp", ["nextMessageKey"]),
-        ...mapState("mail", ["folders", "mailboxes", "activeFolder"]),
+        ...mapState("mail", ["activeFolder", "folders", "mailboxes", "messages"]),
         ...mapGetters("mail", { MY_TRASH, MY_INBOX, FOLDER_BY_PATH }),
         displayCreateFolderBtnFromPattern() {
             let pattern = this.pattern;
@@ -135,10 +137,8 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["move"]),
         selectFolder(item) {
-            this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
-            this.move({ messageKey: this.currentMessageKey, folder: item });
+            this.MOVE_MESSAGES({ messages: this.messages[this.currentMessageKey], folder: item });
             this.$refs["move-dropdown"].hide(true);
         },
         openMoveAutocomplete() {

@@ -50,6 +50,7 @@ import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItemMenu from "./MailFolderItemMenu";
 import { REMOVE_FOLDER, TOGGLE_EDIT_FOLDER } from "~mutations";
+import { RENAME_FOLDER, CREATE_FOLDER } from "~actions";
 import { MailboxType } from "../../model/mailbox";
 
 export default {
@@ -94,32 +95,29 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["renameFolder", "createFolder"]),
+        ...mapActions("mail", { RENAME_FOLDER, CREATE_FOLDER }),
         ...mapMutations("mail", { REMOVE_FOLDER, TOGGLE_EDIT_FOLDER }),
         toggleEditFolder(folderUid) {
             this.TOGGLE_EDIT_FOLDER(folderUid);
         },
-        submit(newFolderName) {
-            if (this.folder && this.folder.name !== "") {
-                this.renameFolder({ folderKey: this.folder.key, newFolderName }).then(() => {
-                    if (this.activeFolder === this.folder.key) {
-                        this.$router.navigate({ name: "v:mail:message", params: { folder: this.folder.key } });
-                    }
-                });
-            } else {
-                const folder = {
-                    name: newFolderName,
-                    path: this.folder.path + "/" + newFolderName,
-                    parent: this.folder.parent
-                };
-                this.createFolder({ folder, mailboxUid: this.folder.mailboxRef.uid });
+        submit(name) {
+            const mailbox = this.mailboxes[this.folder.mailboxRef.key];
+            if (this.folder && this.folder.remoteRef.uid) {
+                this.RENAME_FOLDER({ folder: this.folder, name, mailbox });
+                if (this.activeFolder === this.folder.key) {
+                    this.$router.navigate({ name: "v:mail:message", params: { folder: this.folder.key } });
+                }
+            } else if (this.folder) {
+                const parent = this.folders[this.folder.parent];
+                this.CREATE_FOLDER({ name, parent, mailbox });
+                this.REMOVE_FOLDER(this.folder);
             }
         },
         closeInput() {
-            if (this.folder && this.folder.name !== "") {
+            if (this.folder && this.folder.remoteRef.uid) {
                 this.toggleEditFolder(this.folder.key);
-            } else {
-                this.REMOVE_FOLDER(this.folder.key);
+            } else if (this.folder) {
+                this.REMOVE_FOLDER(this.folder);
             }
         }
     }

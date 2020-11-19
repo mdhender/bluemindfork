@@ -1,10 +1,78 @@
 {
     "alert": {
         "mail": {
-            "mark_message_as_read": {
-                "loading": "Les messages sélectionnés sont en train d'être marqués comme lus...",
-                "success": "Les messages sélectionnés ont bien été marqués comme lus.",
+            "create_folder": {
+                "loading": "Le dossier \"{name}\" est en cours de création...",
+                "success": "Le dossier {name} a bien été créé !",
+                "error": "Erreur lors de la création du dossier \"{name}\" !"
+            },
+            "mark_folder_as_read": {
+                "loading": "Le dossier {name} est en train d'être marqué comme lu...",
+                "success": "Le dossier {name} a été marqué comme lu.",
+                "error": "Le dossier {name} n'a pas pu etre marqué comme lu."
+            },
+            "mark_messages_as_flagged": {
+                "loading": "Un suivi est en train d'être assuré pour {count} messages...",
+                "success": "{count}  messages sont dorénavant suivis.",
+                "error": "Le suivi n'a pas pu être assuré pour les messages sélectionnés."
+            },
+            "mark_messages_as_read": {
+                "loading": "{count} messages sont en train d'être marqués comme lus...",
+                "success": "{count} messages ont bien été marqués comme lus.",
                 "error": "Les messages sélectionnés n'ont pas pu être marqués comme lus."
+            },
+            "mark_messages_as_unflagged": {
+                "loading": "L'indicateur de suivi est train d'être retiré de {count} messages...",
+                "success": "{count} messages ne sont plus suivis.",
+                "error": "L'indicateur de suivi n'a pas pu être retiré des messages sélectionnés."
+            },
+            "mark_messages_as_unread": {
+                "loading": "{count} messages sont en train d'être marqués comme non-lus...",
+                "success": "{count} messages ont bien été marqués comme non-lus.",
+                "error": "Les messages sélectionnés n'ont pas pu être marqués comme non-lus."
+            },
+            "move_messages": {
+                "loading": {
+                    "single": "\"{subject}\" est en train d'être déplacé vers {folder}...",
+                    "plural": "{count} messages sont en train d'être déplacés vers {folder}..."
+                },
+                "success": {
+                    "single": "\"{subject}\" a bien été déplacé vers {folder}.",
+                    "plural": "{count} messages ont bien été déplacés dans {folder}."
+                },
+                "error": {
+                    "single": "\"{subject}\" n'a pas pu être déplacé vers {folder}.",
+                    "plural": "Les messages sélectionnés n'ont pas pu être déplacés dans {folder}."
+                }
+            },
+            "move_messages_to_trash": {
+                "loading": {
+                    "single": "\"{subject}\" est en train d'être déplacé vers la {folder}...",
+                    "plural": "{count} messages sont en train d'être déplacés vers la {folder}..."
+                },
+                "success": {
+                    "single": "\"{subject}\" a bien été déplacé vers la {folder}.",
+                    "plural": "{count} messages ont bien été déplacés dans la {folder}."
+                },
+                "error": {
+                    "single": "\"{subject}\" n'a pas pu être déplacé vers la {folder}.",
+                    "plural": "Les messages sélectionnés n'ont pas pu être déplacés dans la {folder}."
+                }
+            },
+            "rename_folder": {
+                "loading": "Le dossier \"{previousName}\" est en train d'être renommé en \"{name}\"...",
+                "success": "Le dossier \"{previousName}\" a bien été renommé en {name}.",
+                "error": "Le dossier \"{previousName}\" n'a pas pu être renommé."
+            },
+            "remove_folder": {
+                "loading": "Le dossier \"{name}\" est en cours de suppression...",
+                "success": "Le dossier \"{name}\" a bien été supprimé.",
+                "error": "Le dossier \"{name}\" n'a pas pu être supprimé."
+            },
+            "remove_messages": {
+                "loading": "\"{subject}\" est en train d'être supprimé définitivement...|Les messages sélectionnés sont en train d'être supprimés définitivement...",
+                "success": "\"{subject}\" a bien été supprimé définitivement.|Les messages sélectionnés ont bien été supprimés définitivement.",
+                "error": "\"{subject}\" n'a pas pu être supprimé définitivement.|Les messages sélectionnés n'ont pas pu être supprimés définitivement."
             },
             "send_message": {
                 "loading": "Envoi de \"{subject}\" en cours...",
@@ -13,48 +81,7 @@
             }
         }
     },
-    "alert.folder.create.error": "Erreur lors de la création du dossier \"{name}\".",
-    "alert.folder.create.success": "Le dossier {folderNameWithLink} a bien été créé !",
-    "alert.folder.mark_as_read.error": "Erreur lors du marquage du dossier {folderNameWithLink} comme lu.",
-    "alert.folder.mark_as_read.success": "Le dossier {folderNameWithLink} a bien été marqué comme lu !",
-    "alert.folder.remove.error": "Erreur lors de la suppression du dossier {oldFolderName}.",
-    "alert.folder.remove.success": "Le dossier {oldFolderName} a bien été supprimé !",
-    "alert.folder.rename.error": "Erreur lors du renommage du dossier \"{oldName}\" en \"{newName}\".",
-    "alert.folder.rename.success": "Le dossier {oldFolderName} a bien été renommé en {folderNameWithLink} !",
-    "alert.mail.create_folder.ok": "Le dossier \"{folderName}\" a bien été créé.",
     "alert.mail.message.draft.attach.error": "Pièce-jointe en erreur. Réessayez.",
-    "alert.mail.message.draft.delete.error": "\"{subject}\" n'a pas été supprimé.{br}{reason}",
-    "alert.mail.message.draft.delete.ok": "\"{subject}\" a bien été supprimé !",
-    "alert.mail.message.multiple.purge.error": "Les messages sélectionnés n'ont pas pu être supprimés définitivement.{br}Veuillez {reloadLink} l'application.",
-    "alert.mail.message.multiple.purge.loading": "Suppression définitive des messages sélectionnés en cours...",
-    "alert.mail.message.multiple.purge.ok": "Les messages sélectionnés ont bien été supprimés définitivement.",
-    "alert.mail.message.multiple.remove.error": "Les messages sélectionnés n'ont pas pu être supprimés.{br}Veuillez {reloadLink} l'application.",
-    "alert.mail.message.multiple.remove.loading": "Suppression des messages sélectionnés en cours...",
-    "alert.mail.message.multiple.remove.ok": "Les messages sélectionnés ont bien été supprimés.",
-    "alert.mail.message.purge.error": "\"{subject}\" n'a pas pu être supprimé définitivement.{br}{reason}",
-    "alert.mail.message.purge.ok": "\"{subject}\" a bien été supprimé définitivement.",
-    "alert.mail.message.remove.error": "\"{subject}\" n'a pas pu être supprimé.{br}{reason}",
-    "alert.mail.message.remove.ok": "\"{subject}\" a bien été supprimé.",
-    "alert.mail.message.sent.error": "\"{subject}\" n'a pu être envoyé.{br}{reason}",
-    "alert.mail.message.sent.ok": "\"{subjectWithLink}\" a bien été envoyé !",
-    "alert.mail.move.error": "\"{subject}\" n'a pas pu être déplacé dans \"{folderName}\".{br}{reason}",
-    "alert.mail.move.multiple.error": "Les messages n'ont pas pu être déplacés dans \"{folderName}\".{br}Veuillez {reloadLink} l'application.",
-    "alert.mail.move.multiple.loading": "Déplacement de {count} messages en cours...",
-    "alert.mail.move.multiple.ok": "{count} messages ont bien été déplacés dans {icon} {folderNameWithLink} ! ",
-    "alert.mail.move.ok": "\"{subject}\" a bien été déplacé dans {icon} {folderNameWithLink} !",
-    "alert.mail.multiple.markasflagged.error": "Le suivi n'a pas pu être assuré pour les messages sélectionnés, merci de recharger l'application.",
-    "alert.mail.multiple.markasflagged.loading": "Un suivi est en train d'être assuré pour les messages sélectionnés...",
-    "alert.mail.multiple.markasflagged.success": "Les messages sélectionnés sont dorénavant suivis.",
-    "alert.mail.multiple.markasread.error": "Les messages sélectionnés n'ont pas pu être marqués comme lus, merci de recharger l'application.",
-    "alert.mail.multiple.markasread.loading": "Les messages sélectionnés sont en train d'être marqués comme lus...",
-    "alert.mail.multiple.markasread.success": "Les messages sélectionnés ont bien été marqués comme lus.",
-    "alert.mail.multiple.markasunflagged.error": "L'indicateur de suivi n'a pas pu être retiré des messages sélectionnés , merci de recharger l'application.",
-    "alert.mail.multiple.markasunflagged.loading": "L'indicateur de suivi est train d'être retiré des messages sélectionnés...",
-    "alert.mail.multiple.markasunflagged.success": "Les messages sélectionnés ne sont plus suivis.",
-    "alert.mail.multiple.markasunread.error": "Les messages sélectionnés n'ont pas pu être marqués comme non-lus, merci de recharger l'application.",
-    "alert.mail.multiple.markasunread.loading": "Les messages sélectionnés sont en train d'être marqués comme non-lus...",
-    "alert.mail.multiple.markasunread.success": "Les messages sélectionnés ont bien été marqués comme non-lus.",
-    "alert.mail.send.loading": "Envoi de \"{subject}\" en cours...",
     "mail.actions.attach.aria": "Joindre un fichier",
     "mail.actions.attach": "Joindre",
     "mail.actions.create.folder": "Créer un nouveau dossier",

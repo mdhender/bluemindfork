@@ -1,11 +1,12 @@
 import {
     CLEAR_MESSAGE_LIST,
+    MOVE_MESSAGES,
     REMOVE_MESSAGES,
-    SET_MESSAGE_LIST,
-    SELECT_MESSAGE,
-    UNSELECT_MESSAGE,
     SELECT_ALL_MESSAGES,
-    UNSELECT_ALL_MESSAGES
+    SELECT_MESSAGE,
+    SET_MESSAGE_LIST,
+    UNSELECT_ALL_MESSAGES,
+    UNSELECT_MESSAGE
 } from "~mutations";
 import { MESSAGE_IS_SELECTED, MULTIPLE_MESSAGE_SELECTED, ONE_MESSAGE_SELECTED, SELECTION_IS_EMPTY } from "~getters";
 
@@ -19,9 +20,18 @@ const mutations = {
             keySet.has(state[index]) || state.splice(index, 1);
         }
     },
-    [REMOVE_MESSAGES]: (state, keys) => {
+    [REMOVE_MESSAGES]: (state, messages) => {
+        const keySet = new Set();
+        messages.forEach(({ key }) => keySet.add(key));
         for (let index = state.length - 1; index >= 0; index--) {
-            keys.includes(state[index]) && state.splice(index, 1);
+            keySet.has(state[index]) && state.splice(index, 1);
+        }
+    },
+    [MOVE_MESSAGES]: (state, { messages }) => {
+        const keySet = new Set();
+        messages.forEach(({ key }) => keySet.add(key));
+        for (let index = state.length - 1; index >= 0; index--) {
+            keySet.has(state[index]) && state.splice(index, 1);
         }
     },
     [CLEAR_MESSAGE_LIST]: state => {

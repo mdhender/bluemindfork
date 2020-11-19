@@ -1,5 +1,6 @@
 import mutations from "../mutations";
 import { MessageStatus } from "../../../model/message";
+import { Flag } from "@bluemind/email";
 
 describe("mutations", () => {
     describe("ADD_MESSAGES", () => {
@@ -33,7 +34,7 @@ describe("mutations", () => {
             const message = { key: "key1", subject: "mySubject" };
             const message2 = { key: "key2", subject: "anotherSubject" };
             const state = { [message.key]: message, [message2.key]: message2 };
-            mutations.REMOVE_MESSAGES(state, [message2.key]);
+            mutations.REMOVE_MESSAGES(state, [message2]);
             expect(state).toEqual({ [message.key]: message });
         });
 
@@ -46,24 +47,10 @@ describe("mutations", () => {
     });
 
     describe("ADD_FLAG", () => {
-        test("dont add flag if it's already set", () => {
-            const message = { key: "key1", status: MessageStatus.LOADED, flags: ["READ"] };
-            const state = { [message.key]: message };
-            mutations.ADD_FLAG(state, { keys: [message.key], flag: "READ" });
-            expect(state[message.key].flags).toEqual(["READ"]);
-        });
-
-        test("dont add flag if message metadata are not loaded", () => {
-            const message = { key: "key1", status: MessageStatus.NOT_LOADED };
-            const state = { [message.key]: message };
-            mutations.ADD_FLAG(state, { keys: [message.key], flag: "READ" });
-            expect(state[message.key].flags).toEqual(undefined);
-        });
-
         test("dont change other flag", () => {
             const message = { key: "key1", status: MessageStatus.LOADED, flags: ["OTHER"] };
             const state = { [message.key]: message };
-            mutations.ADD_FLAG(state, { keys: [message.key], flag: "READ" });
+            mutations.ADD_FLAG(state, { messages: [message], flag: "READ" });
             expect(state[message.key].flags).toEqual(["OTHER", "READ"]);
         });
 
@@ -71,7 +58,7 @@ describe("mutations", () => {
             const message = { key: "key1", status: MessageStatus.LOADED, flags: [] };
             const message2 = { key: "key2", status: MessageStatus.LOADED, flags: [] };
             const state = { [message.key]: message, [message2.key]: message2 };
-            mutations.ADD_FLAG(state, { keys: [message.key, message2.key], flag: "READ" });
+            mutations.ADD_FLAG(state, { messages: [message, message2], flag: "READ" });
             expect(state[message.key].flags).toEqual(["READ"]);
             expect(state[message2.key].flags).toEqual(["READ"]);
         });
@@ -81,14 +68,14 @@ describe("mutations", () => {
         test("do nothing if flag is not set", () => {
             const message = { key: "key1", status: MessageStatus.LOADED, flags: ["OTHER"] };
             const state = { [message.key]: message };
-            mutations.DELETE_FLAG(state, { keys: [message.key], flag: "READ" });
+            mutations.DELETE_FLAG(state, { messages: [message], flag: "READ" });
             expect(state[message.key].flags).toEqual(["OTHER"]);
         });
 
         test("dont change other flag", () => {
             const message = { key: "key1", status: MessageStatus.LOADED, flags: ["OTHER", "READ"] };
             const state = { [message.key]: message };
-            mutations.DELETE_FLAG(state, { keys: [message.key], flag: "READ" });
+            mutations.DELETE_FLAG(state, { messages: [message], flag: "READ" });
             expect(state[message.key].flags).toEqual(["OTHER"]);
         });
 
@@ -96,7 +83,7 @@ describe("mutations", () => {
             const message = { key: "key1", status: MessageStatus.LOADED, flags: ["READ"] };
             const message2 = { key: "key2", status: MessageStatus.LOADED, flags: ["READ"] };
             const state = { [message.key]: message, [message2.key]: message2 };
-            mutations.DELETE_FLAG(state, { keys: [message.key, message2.key], flag: "READ" });
+            mutations.DELETE_FLAG(state, { messages: [message, message2], flag: "READ" });
             expect(state[message.key].flags).toEqual([]);
             expect(state[message2.key].flags).toEqual([]);
         });
@@ -111,20 +98,59 @@ describe("mutations", () => {
         });
     });
 
-    describe("SET_MESSAGE_LIST", () => {
-        test("messages are added to the state", () => {
-            const state = {};
-            const message = { key: "key1", status: MessageStatus.NOT_LOADED };
-            const message2 = { key: "key2", status: MessageStatus.NOT_LOADED };
-            mutations.SET_MESSAGE_LIST(state, [message, message2]);
-            expect(state).toEqual({ [message.key]: message, [message2.key]: message2 });
+    describe("MOVE_MESSAGES", () => {
+        test("dont delete other messages in state", () => {
+            const message = { key: "key1", subject: "mySubject" };
+            const message2 = { key: "key2", subject: "anotherSubject" };
+            const state = { [message.key]: message, [message2.key]: message2 };
+            mutations.MOVE_MESSAGES(state, { messages: [message2] });
+            expect(state).toEqual({ [message.key]: message });
         });
 
-        test("dont update message if it's already set", () => {
-            const message = { key: "key1" };
+        test("do nothing if key dont exist", () => {
+            const message = { key: "key1", subject: "mySubject" };
             const state = { [message.key]: message };
-            mutations.SET_MESSAGE_LIST(state, [{ key: message.key, status: MessageStatus.LOADED }]);
-            expect(state[message.key].status).toEqual(undefined);
+            mutations.MOVE_MESSAGES(state, { messages: ["UNKNOWN-KEY"] });
+            expect(state).toEqual({ [message.key]: message });
+        });
+    });
+
+    describe("SET_UNREAD_COUNT", () => {
+        test("Mark message from folder as read if unread count is 0", () => {
+            const message = {
+                key: "key1",
+                subject: "mySubject",
+                folderRef: { key: "folder" },
+                flags: [],
+                status: MessageStatus.LOADED
+            };
+            const state = { [message.key]: message };
+            mutations.SET_UNREAD_COUNT(state, { key: "folder", unread: 0 });
+            expect(state[message.key].flags).toEqual([Flag.SEEN]);
+        });
+        test("do not mark message from other folder", () => {
+            const message = {
+                key: "key1",
+                subject: "mySubject",
+                folderRef: { key: "another folder" },
+                flags: [],
+                status: MessageStatus.LOADED
+            };
+            const state = { [message.key]: message };
+            mutations.SET_UNREAD_COUNT(state, { key: "folder", unread: 0 });
+            expect(state[message.key].flags).toEqual([]);
+        });
+        test("do not mark message not loaded", () => {
+            const message = { key: "key1", subject: "mySubject", folderRef: { key: "folder" }, flags: [] };
+            const state = { [message.key]: message };
+            mutations.SET_UNREAD_COUNT(state, { key: "folder", unread: 0 });
+            expect(state[message.key].flags).toEqual([]);
+        });
+        test("do nothing if unread is not equal to 0", () => {
+            const message = { key: "key1", subject: "mySubject", folderRef: { key: "folder" }, flags: [] };
+            const state = { [message.key]: message };
+            mutations.SET_UNREAD_COUNT(state, { key: "folder", unread: 10 });
+            expect(state[message.key].flags).toEqual([]);
         });
     });
 });

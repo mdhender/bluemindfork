@@ -157,7 +157,7 @@ import {
     SET_MESSAGE_SUBJECT,
     UNSELECT_ALL_MESSAGES
 } from "~mutations";
-import { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE } from "~actions";
+import { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE, REMOVE_MESSAGES } from "~actions";
 import { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~getters";
 
 export default {
@@ -241,12 +241,11 @@ export default {
     },
     destroyed: function () {
         if (isEmpty(this.message, this.messageCompose.editorContent)) {
-            this.purge(this.messageKey);
+            this.REMOVE_MESSAGES(this.message);
         }
     },
     methods: {
-        ...mapActions("mail", { SAVE_MESSAGE, SEND_MESSAGE, ADD_ATTACHMENTS }),
-        ...mapActions("mail-webapp", ["purge"]),
+        ...mapActions("mail", { SAVE_MESSAGE, SEND_MESSAGE, ADD_ATTACHMENTS, REMOVE_MESSAGES }),
         ...mapMutations("mail", {
             SET_DRAFT_EDITOR_CONTENT,
             SET_DRAFT_COLLAPSED_CONTENT,
@@ -403,7 +402,7 @@ export default {
         },
         async deleteDraft() {
             if (isEmpty(this.message, this.messageCompose.editorContent)) {
-                this.purge(this.messageKey);
+                this.REMOVE_MESSAGES(this.message);
                 this.$router.navigate("v:mail:home");
                 return;
             }
@@ -418,7 +417,7 @@ export default {
             });
             if (confirm) {
                 // delete draft then close the composer
-                this.purge(this.messageKey);
+                this.REMOVE_MESSAGES(this.message);
                 this.$router.navigate("v:mail:home");
             }
         }

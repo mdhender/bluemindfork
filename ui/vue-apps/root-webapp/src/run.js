@@ -1,7 +1,7 @@
 import { BmModalPlugin } from "@bluemind/styleguide";
 import { extend } from "@bluemind/vuex-router";
 import { DateTimeFormats, FirstDayOfWeek, InheritTranslationsMixin } from "@bluemind/i18n";
-import AlertStore from "@bluemind/alert.store";
+import { default as AlertStore, DefaultAlert } from "@bluemind/alert.store";
 import RootAppStore from "./rootAppStore";
 import { UserSettingsClient } from "@bluemind/user.api";
 import SessionStore from "./sessionStore";
@@ -25,7 +25,7 @@ function initWebApp() {
     initStore();
     setVuePlugins();
     const i18n = initI18N(userSession);
-
+    Vue.component("DefaultAlert", DefaultAlert);
     new Vue({
         el: "#app",
         i18n,

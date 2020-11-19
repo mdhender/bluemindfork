@@ -16,6 +16,7 @@ import { FETCH_MESSAGE_LIST_KEYS } from "~actions";
 import {
     CLEAR_MESSAGE_LIST,
     REMOVE_MESSAGES,
+    MOVE_MESSAGES,
     SET_MESSAGE_LIST,
     SET_MESSAGE_LIST_FILTER,
     SET_MESSAGE_LIST_STATUS,
@@ -105,7 +106,12 @@ describe("messageList", () => {
         });
         test("REMOVE_MESSAGES", () => {
             state.messageKeys = [1, 2, 3, 4];
-            storeOptions.mutations[REMOVE_MESSAGES](state, [3, 4, 5]);
+            storeOptions.mutations[REMOVE_MESSAGES](state, [{ key: 3 }, { key: 4 }, { key: 5 }]);
+            expect(state.messageKeys).toEqual([1, 2]);
+        });
+        test("MOVE_MESSAGES", () => {
+            state.messageKeys = [1, 2, 3, 4];
+            storeOptions.mutations[MOVE_MESSAGES](state, { messages: [{ key: 3 }, { key: 4 }, { key: 5 }] });
             expect(state.messageKeys).toEqual([1, 2]);
         });
         test("SET_MESSAGE_LIST", () => {

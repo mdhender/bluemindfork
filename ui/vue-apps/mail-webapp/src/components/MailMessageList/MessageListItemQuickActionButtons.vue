@@ -8,8 +8,8 @@
                 :title="$tc('mail.actions.remove.aria')"
                 class="p-1 mr-2"
                 variant="inline-secondary"
-                @click.shift.exact.prevent.stop="$emit('purge')"
-                @click.exact.prevent.stop="remove"
+                @click.shift.exact.prevent.stop="REMOVE_MESSAGES(message)"
+                @click.exact.prevent.stop="MOVE_MESSAGES_TO_TRASH(message)"
             >
                 <bm-icon icon="trash" size="lg" />
             </bm-button>
@@ -20,7 +20,7 @@
                 :aria-label="$tc('mail.actions.mark_read.aria')"
                 :title="$tc('mail.actions.mark_read.aria')"
                 variant="inline-secondary"
-                @click.prevent.stop="markAsRead([message.key])"
+                @click.prevent.stop="MARK_MESSAGE_AS_READ(message)"
             >
                 <bm-icon icon="read" size="lg" />
             </bm-button>
@@ -31,7 +31,7 @@
                 :aria-label="$tc('mail.actions.mark_unread.aria')"
                 :title="$tc('mail.actions.mark_unread.aria')"
                 variant="inline-secondary"
-                @click.prevent.stop="markAsUnread([message.key])"
+                @click.prevent.stop="MARK_MESSAGE_AS_UNREAD(message)"
             >
                 <bm-icon icon="unread" size="lg" />
             </bm-button>
@@ -43,7 +43,7 @@
                     :aria-label="$tc('mail.actions.mark_flagged.aria')"
                     :title="$tc('mail.actions.mark_flagged.aria')"
                     variant="inline-secondary"
-                    @click.prevent.stop="markAsFlagged([message.key])"
+                    @click.prevent.stop="MARK_MESSAGE_AS_FLAGGED(message)"
                 >
                     <bm-icon icon="flag-outline" size="lg" />
                 </bm-button>
@@ -54,7 +54,7 @@
                     :aria-label="$tc('mail.actions.mark_unflagged.aria')"
                     :title="$tc('mail.actions.mark_unflagged.aria')"
                     variant="inline-secondary"
-                    @click.prevent.stop="markAsUnflagged([message.key])"
+                    @click.prevent.stop="MARK_MESSAGE_AS_UNFLAGGED(message)"
                 >
                     <bm-icon class="text-warning" icon="flag-fill" size="lg" />
                 </bm-button>
@@ -68,6 +68,14 @@ import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon, BmTooltip } from "@bl
 import { mapActions, mapGetters, mapState } from "vuex";
 import { Flag } from "@bluemind/email";
 import { MY_TRASH } from "~getters";
+import RemoveMixin from "../../store/mixins/RemoveMixin";
+
+import {
+    MARK_MESSAGE_AS_FLAGGED,
+    MARK_MESSAGE_AS_READ,
+    MARK_MESSAGE_AS_UNFLAGGED,
+    MARK_MESSAGE_AS_UNREAD
+} from "~actions";
 export default {
     name: "MessageListItemQuickActionButtons",
     components: {
@@ -77,6 +85,7 @@ export default {
         BmIcon
     },
     directives: { BmTooltip },
+    mixins: [RemoveMixin],
     props: {
         message: {
             type: Object,
@@ -89,7 +98,6 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["nextMessageKey"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["folders", "activeFolder"]),
         ...mapGetters("mail", { MY_TRASH }),
@@ -98,19 +106,12 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["markAsRead", "markAsUnread", "markAsFlagged", "markAsUnflagged"]),
-        remove() {
-            if (this.activeFolder === this.MY_TRASH.key) {
-                this.$emit("purge");
-                return;
-            }
-            // do this before followed async operations
-            const nextMessageKey = this.nextMessageKey;
-            this.$store.dispatch("mail-webapp/remove", this.message.key);
-            if (this.currentMessageKey === this.message.key) {
-                this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
-            }
-        }
+        ...mapActions("mail", {
+            MARK_MESSAGE_AS_FLAGGED,
+            MARK_MESSAGE_AS_READ,
+            MARK_MESSAGE_AS_UNFLAGGED,
+            MARK_MESSAGE_AS_UNREAD
+        })
     }
 };
 </script>

@@ -12,16 +12,16 @@
             {{ $t("common.application.bootstrap.error.solution") }}
         </div>
         <router-view v-else :class="showSettings ? 'd-none' : 'd-flex'" />
-        <bm-application-alert :alerts="alerts.concat(applicationAlerts)" class="z-index-250 position-absolute">
-            <template v-slot="slotProps">
-                <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
+        <bm-alert-area :alerts="alerts" class="z-index-250 position-absolute" @remove="REMOVE">
+            <template v-slot="context">
+                <component :is="context.alert.renderer" :alert="context.alert" />
             </template>
-        </bm-application-alert>
+        </bm-alert-area>
     </div>
 </template>
 
 <script>
-import { BmApplicationAlert, BmSpinner } from "@bluemind/styleguide";
+import { BmSpinner, BmAlertArea } from "@bluemind/styleguide";
 import { mapActions, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import "@bluemind/styleguide/css/bluemind.scss";
@@ -32,11 +32,11 @@ import BmSettings from "./settings/BmSettings";
 
 export default {
     components: {
-        BmApplicationAlert,
         BmBanner,
         BmSpinner,
         BmSettings,
-        GlobalEvents
+        GlobalEvents,
+        BmAlertArea
     },
     componentI18N: { messages: CommonL10N },
 
@@ -100,6 +100,7 @@ export default {
     },
     methods: {
         ...mapActions("session", ["FETCH_ALL_SETTINGS"]),
+        ...mapActions("alert", ["REMOVE"]),
         appHeight() {
             /*
             Fix for mobile : 100vh is too tall, it doesn't count the mobile toolbar
@@ -119,13 +120,15 @@ body {
     overflow: hidden;
 }
 
-.main-app .bm-application-alert {
+.main-app .bm-application-alert,
+.main-app .bm-alert-area {
     bottom: $sp-5;
     left: $sp-2;
     right: $sp-2;
 }
 @include media-breakpoint-up(lg) {
-    .main-app .bm-application-alert {
+    .main-app .bm-application-alert,
+    .main-app .bm-alert-area {
         bottom: $sp-4;
         padding-left: $sp-4;
         padding-right: $sp-4;

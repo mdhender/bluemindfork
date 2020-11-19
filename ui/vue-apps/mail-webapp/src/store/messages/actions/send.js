@@ -6,6 +6,8 @@ import { MessageStatus, MessageHeader, MessageCreationModes } from "../../../mod
 import { validateDraft } from "../../../model/draft";
 import { ADD_FLAG, SAVE_MESSAGE } from "~actions";
 import { SET_MESSAGES_STATUS } from "~mutations";
+import MessageAdaptor from "../helpers/MessageAdaptor";
+import { FolderAdaptor } from "../../folders/helpers/FolderAdaptor";
 
 /** Send the last draft: move it to the Outbox then flush. */
 export default async function (
@@ -43,13 +45,7 @@ async function getSentMessage(taskResult, draftId, sentFolder) {
     } else {
         throw "Unable to retrieve task result";
     }
-    // add necessary data to build a link to the newly created message in Sent box
-    mailItem.subjectLink = {
-        name: "v:mail:message",
-        params: { message: ItemUri.encode(mailItem.internalId, sentFolder.remoteRef.uid), folder: sentFolder.path }
-    };
-
-    return mailItem;
+    return MessageAdaptor.fromMailboxItem(mailItem, FolderAdaptor.toRef(sentFolder));
 }
 
 function flush() {

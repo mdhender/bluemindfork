@@ -5,5 +5,5 @@ export function loadUnreadCount({ commit }, folderUid) {
     return ServiceLocator.getProvider("MailboxItemsPersistence")
         .get(folderUid)
         .getPerUserUnread()
-        .then(count => commit("mail/" + SET_UNREAD_COUNT, { key: folderUid, count: count.total }, { root: true }));
+        .then(count => commit("mail/" + SET_UNREAD_COUNT, { key: folderUid, unread: count.total }, { root: true }));
 }

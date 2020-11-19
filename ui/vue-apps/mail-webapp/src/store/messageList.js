@@ -15,6 +15,7 @@ import {
 } from "~getters";
 import {
     CLEAR_MESSAGE_LIST,
+    MOVE_MESSAGES,
     REMOVE_MESSAGES,
     SET_MESSAGE_LIST,
     SET_MESSAGE_LIST_FILTER,
@@ -44,8 +45,15 @@ const mutations = {
     [CLEAR_MESSAGE_LIST]: state => {
         state.messageKeys = [];
     },
-    [REMOVE_MESSAGES]: (state, messageKeys) => {
-        state.messageKeys = state.messageKeys.filter(key => !messageKeys.includes(key));
+    [REMOVE_MESSAGES]: (state, messages) => {
+        const keys = new Set();
+        messages.forEach(({ key }) => keys.add(key));
+        state.messageKeys = state.messageKeys.filter(key => !keys.has(key));
+    },
+    [MOVE_MESSAGES]: (state, { messages }) => {
+        const keys = new Set();
+        messages.forEach(({ key }) => keys.add(key));
+        state.messageKeys = state.messageKeys.filter(key => !keys.has(key));
     },
     [SET_MESSAGE_LIST]: (state, messages) => {
         state.messageKeys = messages.map(m => m.key);

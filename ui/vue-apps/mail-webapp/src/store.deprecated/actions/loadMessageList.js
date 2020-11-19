@@ -7,7 +7,7 @@ import {
     SET_MESSAGE_LIST_FILTER,
     SET_SEARCH_FOLDER,
     SET_SEARCH_PATTERN,
-    TOGGLE_FOLDER
+    SET_FOLDER_EXPANDED
 } from "~mutations";
 import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
 import { SET_ACTIVE_FOLDER } from "~mutations";
@@ -57,8 +57,8 @@ export async function loadMessageList(
     const f = rootState.mail.folders[locatedFolder.key];
     const conversationsEnabled = rootState.session.userSettings.mail_thread === "true";
     await dispatch("mail/" + FETCH_MESSAGE_LIST_KEYS, { folder: f, conversationsEnabled }, ROOT);
-    const sorted = rootState.mail.messageList.messageKeys;
-    await dispatch("mail/" + FETCH_MESSAGE_METADATA, { messageKeys: sorted.slice(0, 40) }, ROOT);
+    const sorted = rootState.mail.messageList.messageKeys.slice(0, 40).map(key => rootState.mail.messages[key]);
+    await dispatch("mail/" + FETCH_MESSAGE_METADATA, sorted, ROOT);
 }
 
 function locateFolder(local, mailshare, rootState, rootGetters) {
@@ -80,9 +80,7 @@ function locateFolder(local, mailshare, rootState, rootGetters) {
 function expandParents(commit, folder, rootState) {
     if (folder.parent) {
         const parentFolder = rootState.mail.folders[folder.parent];
-        if (!parentFolder.expanded) {
-            commit("mail/" + TOGGLE_FOLDER, folder.parent, { root: true });
-        }
+        commit("mail/" + SET_FOLDER_EXPANDED, { ...parentFolder, expanded: true }, { root: true });
         expandParents(commit, parentFolder, rootState);
     }
 }

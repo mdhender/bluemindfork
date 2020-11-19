@@ -1107,9 +1107,9 @@
     axios "^0.18.0"
 
 "@bluemind/styleguide@^0.1.0":
-  version "0.1.1387"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1387.tgz#ea0a3b1ad80a3fb1c1769575ac4c5e5e3f5a79cc"
-  integrity sha512-wTfNdLkVPP8GxHujbOm32NTYJ1pRGRuZm//uXOn4GH3RgRs2cMzxp2dwNavR+udV77SimgZpZwSuZ49xwEGT1Q==
+  version "0.1.1396"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1396.tgz#a35daa41218855ac85dbca83f2cef037131e9cb2"
+  integrity sha512-1B7kWkwCxyG1qNsaMJ3RP/TsUwh8X9UQiNUrDLP+MOBNyOSffVnXrfy0fL8vPtPw3/0DjHA1xkV9Zb5tsB8mfA==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"
@@ -6435,6 +6435,11 @@ locate-path@^5.0.0:
   integrity sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==
   dependencies:
     p-locate "^4.1.0"
+
+lodash.clone@^4.5.0:
+  version "4.5.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.clone/-/lodash.clone-4.5.0.tgz#195870450f5a13192478df4bc3d23d2dea1907b6"
+  integrity sha1-GVhwRQ9aExkkeN9Lw9I9LeoZB7Y=
 
 lodash.clonedeep@4.5.0, lodash.clonedeep@^4.5.0:
   version "4.5.0"

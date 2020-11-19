@@ -8,46 +8,29 @@
     </i18n>
 </template>
 <script>
-import DefaultAlert from "./DefaultAlert";
-import { AlertTypes } from "@bluemind/alert.store";
+import { AlertMixin, DefaultAlert } from "@bluemind/alert.store";
 import { mapState } from "vuex";
-import ItemUri from "@bluemind/item-uri";
 
 export default {
     name: "SendMessage",
     components: { DefaultAlert },
-    props: {
-        alert: {
-            type: Object,
-            required: true
-        }
-    },
-    data() {
-        return {
-            AlertTypes,
-            subject: null
-        };
-    },
+    mixins: [AlertMixin],
     computed: {
         ...mapState("mail", ["messages"]),
         link() {
-            //FIXME : Dans l'idée :
-            // - Soit send devrait renvoyer un message déjà formatté (pas de raison de gérer des données au format server);
-            // - Soit send devrait renvoyer uniquement la clé du message
-            // - Soit (et ça me parait limite le plus coherent) on devrait juste afficher un lien vers le dossier Sent...
-            const message = ItemUri.encode(this.alert.result.internalId, this.alert.payload.sentFolder.remoteRef.uid);
             return {
                 name: "v:mail:message",
-                params: { message, folder: this.alert.payload.sentFolder.path }
+                params: { message: this.result.key, folder: this.alert.payload.sentFolder.path }
             };
         },
-        path() {
-            const { name, type } = this.alert;
-            return "alert." + name.toLowerCase() + "." + type.toLowerCase();
+        subject() {
+            if (this.messages[this.payload.draftKey]) {
+                return this.messages[this.alert.payload.draftKey].subject;
+            } else if (this.result) {
+                return this.result.subject;
+            }
+            return "";
         }
-    },
-    created() {
-        this.subject = this.messages[this.alert.payload.draftKey].subject;
     }
 };
 </script>

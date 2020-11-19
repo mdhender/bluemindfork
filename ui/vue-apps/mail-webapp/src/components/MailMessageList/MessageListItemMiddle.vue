@@ -101,14 +101,6 @@ export default {
             required: true
         }
     },
-    data() {
-        return {
-            tooltip: {
-                cursor: "cursor",
-                text: this.$t("mail.actions.move")
-            }
-        };
-    },
     computed: {
         ...mapGetters("mail", { MY_DRAFTS, MY_SENT, MESSAGE_LIST_IS_SEARCH_MODE, MESSAGE_IS_SELECTED }),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),

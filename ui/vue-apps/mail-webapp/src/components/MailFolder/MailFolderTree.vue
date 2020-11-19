@@ -17,7 +17,7 @@
                 node-id-key="key"
                 class="text-nowrap"
                 breakpoint="xl"
-                @toggle="toggle"
+                @toggle="key => SET_FOLDER_EXPANDED({ ...folders[key], expanded: !folders[key].expanded })"
                 @select="selectFolder"
             >
                 <template v-slot="{ value }">
@@ -34,8 +34,9 @@ import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import { BmButton, BmCollapse, BmIcon, BmTree } from "@bluemind/styleguide";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItem from "./MailFolderItem";
-import { TOGGLE_FOLDER } from "~mutations";
-import { MY_MAILBOX_KEY } from "~getters";
+import { SET_FOLDER_EXPANDED } from "~mutations";
+import { CREATE_FOLDER } from "~actions";
+import { MY_MAILBOX } from "~getters";
 
 export default {
     name: "MailFolderMyMailbox",
@@ -67,32 +68,23 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { MY_MAILBOX_KEY }),
+        ...mapGetters("mail", { MY_MAILBOX }),
         ...mapState("mail", ["folders", "activeFolder"])
     },
     methods: {
-        ...mapActions("mail-webapp", ["createFolder"]),
-        ...mapMutations("mail", { TOGGLE_FOLDER }),
-        add(newFolderName) {
-            const folder = {
-                name: newFolderName,
-                path: newFolderName,
-                parent: null
-            };
-            this.createFolder({ folder, mailboxUid: this.MY_MAILBOX_KEY });
+        ...mapActions("mail", { CREATE_FOLDER }),
+        ...mapMutations("mail", { SET_FOLDER_EXPANDED }),
+        add(name) {
+            this.CREATE_FOLDER({ name, parent: null, mailbox: this.MY_MAILBOX });
         },
         selectFolder(key) {
             this.$emit("toggle-folders");
             const folder = this.folders[key];
-            if (folder.mailboxRef.key === this.MY_MAILBOX_KEY) {
+            if (folder.mailboxRef.key === this.MY_MAILBOX.key) {
                 this.$router.push({ name: "v:mail:home", params: { folder: folder.path } });
             } else {
                 this.$router.push({ name: "v:mail:home", params: { mailshare: folder.path } });
             }
-        },
-
-        toggle(folderKey) {
-            this.TOGGLE_FOLDER(folderKey);
         }
     }
 };

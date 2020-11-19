@@ -15,26 +15,17 @@ describe("MailToolbarSelectedMessages", () => {
     });
 
     test("should display 'mark unread' button if the message is read", () => {
-        const storeWithReadMessage = createStore({
-            modules: {
-                mail: {
-                    state: {
-                        namespaced: true,
-                        messages: {
-                            [messageKey]: { flags: [Flag.SEEN] }
-                        }
-                    }
-                }
-            }
-        });
-        const wrapper = createWrapper(MailToolbarSelectedMessages, { store: storeWithReadMessage });
-        expect(wrapper.find(".read").isVisible()).toBe(true);
-        expect(wrapper.find(".unread").isVisible()).toBe(false);
+        const store = createStore();
+        store.commit("mail/ADD_FLAG", { messages: [store.state.mail.messages[messageKey]], flag: Flag.SEEN });
+
+        const wrapper = createWrapper(MailToolbarSelectedMessages, { store });
+        expect(wrapper.find(".unread").isVisible()).toBe(true);
+        expect(wrapper.find(".read").isVisible()).toBe(false);
     });
 
     test("should display 'mark read' button if the message is unread", () => {
         const wrapper = createWrapper(MailToolbarSelectedMessages);
-        expect(wrapper.find(".unread").isVisible()).toBe(true);
         expect(wrapper.find(".read").isVisible()).toBe(false);
+        expect(wrapper.find(".unread").isVisible()).toBe(true);
     });
 });

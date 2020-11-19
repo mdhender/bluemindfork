@@ -6,9 +6,9 @@
         name="message"
         :data="message"
         disable-touch
-        @dragenter="e => setTooltip(e.relatedData)"
+        @dragenter="({ relatedData }) => setTooltip(relatedData)"
         @dragleave="resetTooltip"
-        @drop="e => moveMessage(e.relatedData)"
+        @drop="({ relatedData: folder }) => isValidFolder(folder) && MOVE_MESSAGES({ messages: dragged, folder })"
         @dragstart="$emit('dragstart', $event)"
         @dragend="$emit('dragend', $event)"
     >
@@ -21,10 +21,11 @@
 
 <script>
 import { BmTooltip, BmDraggable } from "@bluemind/styleguide";
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import MailMessageListItemShadow from "./MailMessageListItemShadow";
 import MessageListItem from "./MessageListItem";
 import { MESSAGE_IS_SELECTED } from "~getters";
+import MoveMixin from "../../store/mixins/MoveMixin";
 
 export default {
     name: "DraggableMessage",
@@ -34,6 +35,7 @@ export default {
         MessageListItem
     },
     directives: { BmTooltip },
+    mixins: [MoveMixin],
     props: {
         message: {
             type: Object,
@@ -54,12 +56,16 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail", ["folders", "selection"]),
+        ...mapState("mail", ["messages", "selection"]),
         ...mapGetters("mail", { MESSAGE_IS_SELECTED }),
-        ...mapGetters("mail-webapp", ["nextMessageKey"])
+        ...mapGetters("mail-webapp", ["nextMessageKey"]),
+        dragged() {
+            return this.MESSAGE_IS_SELECTED(this.message.key)
+                ? this.selection.map(key => this.messages[key])
+                : this.message;
+        }
     },
     methods: {
-        ...mapActions("mail-webapp", ["move"]),
         setTooltip(folder) {
             if (folder) {
                 if (this.message.folderRef.key === folder.key) {
@@ -84,17 +90,8 @@ export default {
             this.tooltip.text = this.$t("mail.actions.move");
             this.tooltip.cursor = "cursor";
         },
-        moveMessage(folder) {
-            if (this.message.folderRef.key !== folder.key && folder.writable) {
-                if (this.message.key === this.currentMessageKey) {
-                    this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
-                }
-                if (this.MESSAGE_IS_SELECTED(this.message.key)) {
-                    this.move({ messageKey: this.selection, folder: this.folders[folder.key] });
-                } else {
-                    this.move({ messageKey: this.message.key, folder: this.folders[folder.key] });
-                }
-            }
+        isValidFolder(folder) {
+            return this.message.folderRef.key !== folder.key && folder.writable;
         }
     }
 };

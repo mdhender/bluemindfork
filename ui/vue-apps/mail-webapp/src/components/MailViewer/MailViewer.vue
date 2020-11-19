@@ -76,6 +76,7 @@ import MailViewerRecipient from "./MailViewerRecipient";
 import MailViewerToolbar from "./MailViewerToolbar";
 import PartsViewer from "./PartsViewer/PartsViewer";
 import { MESSAGE_LIST_UNREAD_FILTER_ENABLED } from "~getters";
+import { MARK_MESSAGE_AS_READ } from "~actions";
 
 export default {
     name: "MailViewer",
@@ -118,7 +119,7 @@ export default {
                 this.resetScroll();
                 // FIXME: remove this if once https://forge.bluemind.net/jira/browse/FEATWEBML-1017 is fixed
                 if (!this.MESSAGE_LIST_UNREAD_FILTER_ENABLED) {
-                    this.markAsRead([this.messageKey]);
+                    this.MARK_MESSAGE_AS_READ([this.message]);
                 }
                 if (this.isIcsAlertBlocked) {
                     this.isIcsAlertBlocked = false;
@@ -128,7 +129,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["markAsRead"]),
+        ...mapActions("mail", { MARK_MESSAGE_AS_READ }),
         resetScroll() {
             this.$nextTick(() => {
                 this.$refs.scrollableContainer.scrollTop = 0;

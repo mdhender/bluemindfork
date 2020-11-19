@@ -6,7 +6,8 @@ const context = {
     dispatch: jest.fn(),
     rootState: {
         mail: {
-            folders: []
+            folders: [],
+            messages: {}
         }
     }
 };
@@ -28,14 +29,16 @@ describe("[MailItemsStore][actions] : multipleByKey", () => {
             generateKeys(10, 20, "container2"),
             generateKeys(20, 30, "container3")
         );
+        context.rootState.mail.messages = keys.map(key => {
+            key;
+        });
         multipleByKey(context, keys);
         expect(context.dispatch).toHaveBeenCalledWith(
             "mail/" + FETCH_MESSAGE_METADATA,
+            context.rootState.mail.messages,
             {
-                folders: [],
-                messageKeys: keys
-            },
-            { root: true }
+                root: true
+            }
         );
     });
     test("fail if multipleById call fail", async () => {

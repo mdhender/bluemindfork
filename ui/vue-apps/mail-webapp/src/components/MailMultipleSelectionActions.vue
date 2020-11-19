@@ -26,7 +26,7 @@
                 <bm-button
                     v-if="!ALL_SELECTED_MESSAGES_ARE_UNREAD"
                     variant="outline-secondary"
-                    @click="markAsUnread(selection)"
+                    @click="MARK_MESSAGES_AS_UNREAD(selection.map(key => messages[key]))"
                 >
                     <bm-label-icon icon="unread">
                         {{ $tc("mail.actions.mark_as_unread", selection.length) }}
@@ -35,7 +35,7 @@
                 <bm-button
                     v-if="!ALL_SELECTED_MESSAGES_ARE_FLAGGED && !anyMessageReadOnly"
                     variant="outline-secondary"
-                    @click="markAsFlagged(selection)"
+                    @click="MARK_MESSAGES_AS_FLAGGED(selection.map(key => messages[key]))"
                 >
                     <bm-label-icon icon="flag-outline">
                         {{ $tc("mail.actions.mark_flagged", selection.length) }}
@@ -44,7 +44,7 @@
                 <bm-button
                     v-if="!ALL_SELECTED_MESSAGES_ARE_UNFLAGGED && !anyMessageReadOnly"
                     variant="outline-secondary"
-                    @click="markAsUnflagged(selection)"
+                    @click="MARK_MESSAGES_AS_UNFLAGGED(selection.map(key => messages[key]))"
                 >
                     <bm-label-icon icon="flag-fill">
                         {{ $tc("mail.actions.mark_unflagged", selection.length) }}
@@ -53,8 +53,8 @@
                 <bm-button
                     v-if="!anyMessageReadOnly"
                     variant="outline-secondary"
-                    @click.exact="removeSelectedMessages"
-                    @click.shift.exact="purgeSelectedMessages"
+                    @click.exact="MOVE_MESSAGES_TO_TRASH(selection.map(key => messages[key]))"
+                    @click.shift.exact="REMOVE_MESSAGES(selection.map(key => messages[key]))"
                 >
                     <bm-label-icon icon="trash">
                         {{ $tc("mail.actions.remove", selection.length) }}
@@ -99,6 +99,8 @@ import MailComponentAlert from "./MailComponentAlert";
 import MailFolderIcon from "./MailFolderIcon";
 import multipleSelectionIllustration from "../../assets/multiple-selection.png";
 import { MailboxType } from "../model/mailbox";
+import RemoveMixin from "../store/mixins/RemoveMixin";
+
 import {
     ALL_MESSAGES_ARE_SELECTED,
     ALL_SELECTED_MESSAGES_ARE_FLAGGED,
@@ -111,6 +113,13 @@ import {
     MESSAGE_LIST_IS_SEARCH_MODE
 } from "~getters";
 import { SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES } from "~mutations";
+import {
+    MARK_FOLDER_AS_READ,
+    MARK_MESSAGES_AS_FLAGGED,
+    MARK_MESSAGES_AS_READ,
+    MARK_MESSAGES_AS_UNFLAGGED,
+    MARK_MESSAGES_AS_UNREAD
+} from "~actions";
 
 export default {
     name: "MailMultipleSelectionActions",
@@ -121,6 +130,7 @@ export default {
         MailComponentAlert,
         MailFolderIcon
     },
+    mixins: [RemoveMixin],
     data() {
         return {
             isReadOnlyAlertDismissed: false,
@@ -128,8 +138,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["nextMessageKey"]),
-        ...mapState("mail", ["folders", "mailboxes", "activeFolder", "messageList", "selection"]),
+        ...mapState("mail", ["activeFolder", "folders", "mailboxes", "messages", "messageList", "selection"]),
         ...mapGetters("mail", {
             ALL_MESSAGES_ARE_SELECTED,
             ALL_SELECTED_MESSAGES_ARE_FLAGGED,
@@ -151,14 +160,12 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", {
-            markAsFlagged: "markAsFlagged",
-            markAsUnflagged: "markAsUnflagged",
-            markAsUnread: "markAsUnread",
-            markFolderAsRead: "markFolderAsRead",
-            markMessagesAsRead: "markAsRead",
-            purge: "purge",
-            remove: "remove"
+        ...mapActions("mail", {
+            MARK_FOLDER_AS_READ,
+            MARK_MESSAGES_AS_READ,
+            MARK_MESSAGES_AS_UNREAD,
+            MARK_MESSAGES_AS_FLAGGED,
+            MARK_MESSAGES_AS_UNFLAGGED
         }),
         ...mapMutations("mail", { SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES }),
         ...mapMutations("mail-webapp/currentMessage", { clearCurrentMessage: "clear" }),
@@ -167,48 +174,15 @@ export default {
             this.clearCurrentMessage();
         },
         markAsRead() {
+            const mailbox = this.mailboxes[this.currentFolder.mailboxRef.key];
             const areAllMessagesInFolderSelected =
                 this.ALL_MESSAGES_ARE_SELECTED && !this.MESSAGE_LIST_FILTERED && !this.MESSAGE_LIST_IS_SEARCH_MODE;
             areAllMessagesInFolderSelected
-                ? this.markFolderAsRead(this.activeFolder)
-                : this.markMessagesAsRead(this.selection);
+                ? this.MARK_FOLDER_AS_READ({ folder: this.currentFolder, mailbox })
+                : this.MARK_MESSAGES_AS_READ(this.selection.map(key => this.messages[key]));
         },
         isFolderOfMailshare(folder) {
             return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
-        },
-        async purgeSelectedMessages() {
-            const confirm = await this.$bvModal.msgBoxConfirm(
-                this.$tc("mail.actions.purge.modal.content", this.selection.length),
-                {
-                    title: this.$tc("mail.actions.purge.modal.title", this.selection.length),
-                    okTitle: this.$t("common.delete"),
-                    cancelVariant: "outline-secondary",
-                    cancelTitle: this.$t("common.cancel"),
-                    centered: true,
-                    hideHeaderClose: false,
-                    autoFocusButton: "ok"
-                }
-            );
-            if (confirm) {
-                // do this before followed async operations
-                const nextMessageKey = this.nextMessageKey;
-                this.purge(this.selection);
-                if (!this.MULTIPLE_MESSAGE_SELECTED) {
-                    this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
-                }
-            }
-        },
-        async removeSelectedMessages() {
-            if (this.activeFolder === this.MY_TRASH.key) {
-                this.purgeSelectedMessages();
-            } else {
-                // do this before followed async operations
-                const nextMessageKey = this.nextMessageKey;
-                this.remove(this.selection);
-                if (!this.MULTIPLE_MESSAGE_SELECTED) {
-                    this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
-                }
-            }
         }
     }
 };

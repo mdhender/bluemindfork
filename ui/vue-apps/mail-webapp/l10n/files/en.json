@@ -1,10 +1,78 @@
 {
     "alert": {
         "mail": {
+            "create_folder": {
+                "loading": "Folder \"{name}\" is being created...",
+                "success": "Folder {name} created!",
+                "error": "Failed to create folder \"{name}\" !"
+            },
+            "mark_folder_as_read": {
+                "loading": "Folder {name} is beeing been marked as read...",
+                "success": "Folder {name} has been marked as read!",
+                "error": "Failed to mark folder {name} as read!"
+            },
+            "mark_messages_as_flagged": {
+                "loading": "{count} messages are being flagged...",
+                "success": "Successfully flagged {count} messages.",
+                "error": "Failed to flag selected messages."
+            },
             "mark_message_as_read": {
-                "loading": "Marking selected messages as read...",
-                "success": "Successfully marked selected messages as read.",
+                "loading": "Marking selected {count} as read...",
+                "success": "Successfully marked {count} messages as read.",
                 "error": "Failed to mark selected messages as read."
+            },
+            "mark_messages_as_unflagged": {
+                "loading": "Removing flag from {count} messages...",
+                "success": "Successfully removed flag from {count} messages.",
+                "error": "Failed to remove flag from selected messages."
+            },
+            "mark_messages_as_unread": {
+                "loading": "Marking {count} messages as unread...",
+                "success": "Successfully marked {count} messages as unread.",
+                "error": "Failed to mark selected messages as unread."
+            },
+            "move_messages": {
+                "loading": {
+                    "single": "\"{subject}\" is beeing moved in {folder}...",
+                    "plural": "Moving {count} messages in {folder}..."
+                },
+                "success": {
+                    "single": "\"{subject}\" has been successfully moved in {folder}.",
+                    "plural": "{count} messages have been successfully moved in {folder}."
+                },
+                "error": {
+                    "single": "Failed to move \"{subject}\" in {folder}.",
+                    "plural": "Failed to move selected messages in {folder}."
+                }
+            },
+            "move_messages_to_trash": {
+                "loading": {
+                    "single": "\"{subject}\" is beeing moved to {folder}...",
+                    "plural": "Moving {count} messages to {folder}..."
+                },
+                "success": {
+                    "single": "\"{subject}\" has been moved to {folder}.",
+                    "plural": "{count} messages have been successfully moved to {folder}."
+                },
+                "error": {
+                    "single": "Failed to move \"{subject}\" to {folder}.",
+                    "plural": "Failed to move selected messages in {folder}."
+                }
+            },
+            "rename_folder": {
+                "loading": "Folder {previousName} is being renamed into {name}...",
+                "success": "Folder {previousName} renamed to {name}!",
+                "error": "Failed to renaming folder \"{previousName}\" to \"{name}\"."
+            },
+            "remove_folder": {
+                "loading": "Folder \"{name}\" is being removed...",
+                "success": "Folder {name} removed!",
+                "error": "Failed to remove folder \"{name}\"!"
+            },
+            "remove_messages": {
+                "loading": "\"{subject}\" is being removed permanently...|{count} messages are being removed permanently...",
+                "success": "\"{subject}\" has been removed permanently.|{count} messages have been successfully removed permanently..",
+                "error": "Failed to remove \"{subject}\".| Failed to remove selected messages."
             },
             "send_message": {
                 "loading": "Sending \"{subject}\" in progress...",
@@ -13,48 +81,7 @@
             }
         }
     },
-    "alert.folder.create.error": "Error while creating folder \"{name}\".",
-    "alert.folder.create.success": "Folder {folderNameWithLink} created!",
-    "alert.folder.mark_as_read.error": "Error while marking folder {folderNameWithLink} as read.",
-    "alert.folder.mark_as_read.success": "Folder {folderNameWithLink} has been marked as read!",
-    "alert.folder.remove.error": "Error while removing folder {oldFolderName}.",
-    "alert.folder.remove.success": "Folder {oldFolderName} removed!",
-    "alert.folder.rename.error": "Error while renaming folder \"{oldName}\" to \"{newName}\".",
-    "alert.folder.rename.success": "Folder {oldFolderName} renamed to {folderNameWithLink}!",
-    "alert.mail.create_folder.ok": "Folder \"{folderName}\" has been created.",
     "alert.mail.message.draft.attach.error": "Attachment error. Try again.",
-    "alert.mail.message.draft.delete.error": "\"{subject}\" has not been deleted.{br}{reason}",
-    "alert.mail.message.draft.delete.ok": "\"{subject}\" successfully deleted!",
-    "alert.mail.message.multiple.purge.error": "Selected messages could not be permanently deleted.{br} Please {reloadLink} the application.",
-    "alert.mail.message.multiple.purge.loading": "Permanently deleting selected messages...",
-    "alert.mail.message.multiple.purge.ok": "Selected messages have been permanently deleted.",
-    "alert.mail.message.multiple.remove.error": "Selected messages could not be deleted.{br}Please {reloadLink} the application.",
-    "alert.mail.message.multiple.remove.loading": "Deleting selected messages...",
-    "alert.mail.message.multiple.remove.ok": "Selected messages have been deleted.",
-    "alert.mail.message.purge.error": "\"{subject}\" could not be permanently deleted.{br}{reason}",
-    "alert.mail.message.purge.ok": "\"{subject}\" has been permanently deleted.",
-    "alert.mail.message.remove.error": "\"{subject}\" could not be deleted.{br}{reason}",
-    "alert.mail.message.remove.ok": "\"{subject}\" has been deleted.",
-    "alert.mail.message.sent.error": "\"{subject}\" has not been sent.{br}{reason}",
-    "alert.mail.message.sent.ok": "\"{subjectWithLink}\" successfully sent!",
-    "alert.mail.move.error": "\"{subject}\" could not be moved in \"{folderName}\".{br}{reason}",
-    "alert.mail.move.multiple.error": "Messages could not be moved in \"{folderName}\".{br}Please {reloadLink} the application.",
-    "alert.mail.move.multiple.loading": "Moving {count} messages in progress...",
-    "alert.mail.move.multiple.ok": "{count} messages have been successfully moved in {icon} {folderNameWithLink}!",
-    "alert.mail.move.ok": "\"{subject}\" has been moved in {icon} {folderNameWithLink}!",
-    "alert.mail.multiple.markasflagged.error": "Failed to flag selected messages, please reload the application.",
-    "alert.mail.multiple.markasflagged.loading": "Selected messages are being flagged...",
-    "alert.mail.multiple.markasflagged.success": "Successfully flagged selected messages.",
-    "alert.mail.multiple.markasread.error": "Failed to mark selected messages as read, please reload the application.",
-    "alert.mail.multiple.markasread.loading": "Marking selected messages as read...",
-    "alert.mail.multiple.markasread.success": "Successfully marked selected messages as read.",
-    "alert.mail.multiple.markasunflagged.error": "Failed to remove flag from selected messages, please reload the application.",
-    "alert.mail.multiple.markasunflagged.loading": "Removing flag from selected messages...",
-    "alert.mail.multiple.markasunflagged.success": "Successfully removed flag from selected messages.",
-    "alert.mail.multiple.markasunread.error": "Failed to mark selected messages as unread, please reload the application.",
-    "alert.mail.multiple.markasunread.loading": "Marking selected messages as unread...",
-    "alert.mail.multiple.markasunread.success": "Successfully marked selected messages as unread.",
-    "alert.mail.send.loading": "Sending \"{subject}\" in progress...",
     "mail.actions.attach.aria": "Attach a file",
     "mail.actions.attach": "Attach",
     "mail.actions.create.folder": "Create a new folder",
@@ -92,13 +119,13 @@
     "mail.actions.spam": "Spam",
     "mail.actions.textformat.hide.aria": "Hide the text formatting toolbar",
     "mail.actions.textformat.show.aria": "Show the text formatting toolbar",
-    "mail.application.title": "Mail",
-    "mail.application.region.mailtools": "Message tools",
     "mail.application.region.folderlist": "Folder list",
+    "mail.application.region.mailtools": "Message tools",
+    "mail.application.region.messagecontent": "Message Content",
+    "mail.application.region.messagedetails": "Message",
     "mail.application.region.messagelist": "Message list",
     "mail.application.region.messagethread": "Message thread",
-    "mail.application.region.messagedetails": "Message",
-    "mail.application.region.messagecontent": "Message Content",
+    "mail.application.title": "Mail",
     "mail.attachment.untitled": "Untitled - ({mimeType})",
     "mail.compose.forward.body": "---- Original Message ----",
     "mail.compose.forward.prev.message.info.date": "Date",
@@ -115,30 +142,30 @@
     "mail.content.copy": "copy",
     "mail.content.date.at": "at",
     "mail.content.download": "Download {fileType} '{name}'.",
-    "mail.content.file-type": "File type : {fileType}.",
-    "mail.content.file-type-image": "Image",
     "mail.content.file-type-audio": "Audio",
-    "mail.content.file-type-pdf": "PDF",
-    "mail.content.file-type-video": "Video",
+    "mail.content.file-type-code": "Code",
     "mail.content.file-type-compressed": "Archive",
     "mail.content.file-type-data": "Binary",
     "mail.content.file-type-excel": "Spreadsheet",
+    "mail.content.file-type-image": "Image",
+    "mail.content.file-type-pdf": "PDF",
     "mail.content.file-type-presentation": "Presentation",
-    "mail.content.file-type-word": "Document",
     "mail.content.file-type-system": "System",
-    "mail.content.file-type-code": "Code",
     "mail.content.file-type-unknown": "Unknown",
+    "mail.content.file-type-video": "Video",
+    "mail.content.file-type-word": "Document",
+    "mail.content.file-type": "File type : {fileType}.",
     "mail.content.forward.aria": "Forward",
     "mail.content.reply_all.aria": "Reply all",
     "mail.content.reply.aria": "Reply",
     "mail.content.to": "to",
+    "mail.draft.delete.confirm.content": "Are you sure to delete this draft?",
+    "mail.draft.delete.confirm.title": "Delete draft",
     "mail.draft.save.date.time": "Draft saved at {time}",
     "mail.draft.save.date": "Draft saved on {date}",
     "mail.draft.save.error.reason": "You may be disconnected",
     "mail.draft.save.error": "Error when saving draft",
     "mail.draft.save.inprogress": "Saving...",
-    "mail.draft.delete.confirm.title": "Delete draft",
-    "mail.draft.delete.confirm.content": "Are you sure to delete this draft?",
     "mail.empty": "is empty",
     "mail.error.email.address.invalid": "Invalid email address.",
     "mail.folder.access.limited": "Limited access",
@@ -150,8 +177,8 @@
     "mail.folder.new.from_pattern": "{0} (New folder)",
     "mail.folder.new.from_scratch": "New folder",
     "mail.folder.rename": "Rename folder",
-    "mail.folder": "Folder",
     "mail.folder.unread": "Unread messages counter: ",
+    "mail.folder": "Folder",
     "mail.ics.accepted.tentatively": "Invitation tentatively accepted",
     "mail.ics.accepted": "Invitation accepted",
     "mail.ics.declined": "Invitation declined",
@@ -164,8 +191,8 @@
     "mail.list.filter.tooltip": "Message filtering option",
     "mail.list.filter.unread": "Unread",
     "mail.list.flagged.aria": "Flagged",
-    "mail.list.forwarded.aria": "Forwarded",
     "mail.list.flagged.none": "No flagged messages.",
+    "mail.list.forwarded.aria": "Forwarded",
     "mail.list.menu.filter.flagged": "flagged",
     "mail.list.menu.filter.unread": "unread",
     "mail.list.menu.filter": "Filter",
@@ -181,16 +208,16 @@
     "mail.list.search.no_result.found": "has been found.",
     "mail.list.search.no_result.try_otherwise": "Please retry using a more generic search term.",
     "mail.list.search.no_result": "No message containing",
-    "mail.list.sr_info": "{title}{props}",
-    "mail.list.sr_info.props": "{flagged}{unread}{read}{event}{attachment}{replied}{forwarded}",
     "mail.list.sr_info.attachment": "Contains one or more attachments.",
     "mail.list.sr_info.event": "Contains an event.",
     "mail.list.sr_info.flagged": "Flagged.",
     "mail.list.sr_info.forwarded": "Forwarded.",
+    "mail.list.sr_info.props": "{flagged}{unread}{read}{event}{attachment}{replied}{forwarded}",
     "mail.list.sr_info.read": "Already read.",
     "mail.list.sr_info.replied": "Replied.",
     "mail.list.sr_info.title": "Message:",
     "mail.list.sr_info.unread": "Unread.",
+    "mail.list.sr_info": "{title}{props}",
     "mail.list.unread.none": "No unread messages.",
     "mail.main.new": "New message",
     "mail.main.switch.webmail": "Try the new webmail",
@@ -217,8 +244,8 @@
     "mail.toolbar.more.aria": "Others actions for selected messages",
     "mail.toolbar.more": "Others",
     "mail.toolbar.move.tooltip": "Move message",
-    "mail.viewer.no.subject": "(No subject)",
     "mail.viewer.no.preview": "(No preview available)",
+    "mail.viewer.no.subject": "(No subject)",
     "mail": {
         "compose": {
             "toolbar": {

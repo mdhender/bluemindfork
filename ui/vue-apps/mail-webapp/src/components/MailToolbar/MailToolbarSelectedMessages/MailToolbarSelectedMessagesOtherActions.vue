@@ -13,7 +13,7 @@
             <bm-icon icon="3dots" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.toolbar.more") }}</span>
         </template>
-        <bm-dropdown-item class="shadow-sm" :shortcut="$t('mail.shortcuts.purge')" @click="deletionConfirmed">
+        <bm-dropdown-item class="shadow-sm" :shortcut="$t('mail.shortcuts.purge')" @click="REMOVE_MESSAGES(selected)">
             {{ $t("mail.actions.purge") }}
         </bm-dropdown-item>
     </bm-dropdown>
@@ -21,8 +21,8 @@
 
 <script>
 import { BmDropdown, BmDropdownItem, BmIcon, BmTooltip } from "@bluemind/styleguide";
-import { mapActions, mapGetters, mapState } from "vuex";
-import { MULTIPLE_MESSAGE_SELECTED } from "~getters";
+import { mapState } from "vuex";
+import RemoveMixin from "../../../store/mixins/RemoveMixin";
 
 export default {
     name: "MailToolbarConsultMessageOtherActions",
@@ -32,24 +32,13 @@ export default {
         BmIcon
     },
     directives: { BmTooltip },
+    mixins: [RemoveMixin],
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapGetters("mail-webapp", ["nextMessageKey"]),
-        ...mapState("mail", ["selection"]),
-        ...mapGetters("mail", { MULTIPLE_MESSAGE_SELECTED }),
-        MULTIPLE_MESSAGE_SELECTED() {
-            return this.selection.length > 1;
-        }
-    },
-    methods: {
-        ...mapActions("mail-webapp", ["purge"]),
-        deletionConfirmed() {
-            // do this before followed async operations
-            const nextMessageKey = this.nextMessageKey;
-            this.purge(this.selection.length ? this.selection : this.currentMessageKey);
-            if (!this.MULTIPLE_MESSAGE_SELECTED) {
-                this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
-            }
+        ...mapState("mail", ["selection", "messages"]),
+        selected() {
+            const message = this.messages[this.currentMessageKey];
+            return this.selection.length ? this.selection.map(key => this.messages[key]) : message;
         }
     }
 };

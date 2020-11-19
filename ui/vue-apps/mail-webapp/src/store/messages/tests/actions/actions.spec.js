@@ -4,24 +4,35 @@ import cloneDeep from "lodash.clonedeep";
 
 import { Flag } from "@bluemind/email";
 import ServiceLocator, { inject } from "@bluemind/inject";
-import { MockMailboxItemsClient } from "@bluemind/test-utils";
+import { MockMailboxItemsClient, MockItemsTransferClient } from "@bluemind/test-utils";
 
 import messageStore from "../../index";
 import MessageAdaptor from "../../helpers/MessageAdaptor";
 import { MessageStatus, createOnlyMetadata } from "../../../../model/message";
 import { ADD_MESSAGES } from "~mutations";
-import { ADD_FLAG, DELETE_FLAG, FETCH_MESSAGE_METADATA, REMOVE_MESSAGES } from "~actions";
+import {
+    ADD_FLAG,
+    DELETE_FLAG,
+    FETCH_MESSAGE_METADATA,
+    REMOVE_MESSAGES,
+    MOVE_MESSAGES,
+    MARK_MESSAGES_AS_FLAGGED,
+    MARK_MESSAGES_AS_READ,
+    MARK_MESSAGES_AS_UNFLAGGED,
+    MARK_MESSAGES_AS_UNREAD
+} from "~actions";
 
 Vue.use(Vuex);
 
 describe("Messages actions", () => {
     let store;
-    let folder = { key: "folder-key", uid: "folder-key" };
+    let folder = { key: "folder-key", remoteRef: { uid: "folder-key" } };
     let messages;
 
     beforeEach(() => {
         store = new Vuex.Store(cloneDeep(messageStore));
         ServiceLocator.register({ provide: "MailboxItemsPersistence", use: new MockMailboxItemsClient(messages) });
+        ServiceLocator.register({ provide: "ItemsTransferPersistence", use: new MockItemsTransferClient() });
         messages = cloneDeep(require("../../../tests/data/users/alice/messages.json"));
     });
 
@@ -32,9 +43,8 @@ describe("Messages actions", () => {
                 .slice(0, 5)
                 .map(m => MessageAdaptor.fromMailboxItem(m, folder));
             store.commit(ADD_MESSAGES, adapted);
-            const messageKeys = adapted.map(message => message.key);
             await store.dispatch(ADD_FLAG, {
-                messageKeys,
+                messages: adapted,
                 flag: Flag.SEEN
             });
             const itemsId = adapted.map(message => message.remoteRef.internalId);
@@ -49,9 +59,8 @@ describe("Messages actions", () => {
                 .slice(0, 5)
                 .map(m => MessageAdaptor.fromMailboxItem(m, folder));
             store.commit(ADD_MESSAGES, adapted);
-            const messageKeys = adapted.map(message => message.key);
             await store.dispatch(ADD_FLAG, {
-                messageKeys,
+                messages: adapted,
                 flag: Flag.SEEN
             });
             expect(inject("MailboxItemsPersistence").addFlag).not.toHaveBeenCalled();
@@ -59,9 +68,8 @@ describe("Messages actions", () => {
         test("Call add flag remote API for messages not yet loaded", async () => {
             const adapted = [1, 2].map(id => createOnlyMetadata({ internalId: id, folder }));
             store.commit(ADD_MESSAGES, adapted);
-            const messageKeys = adapted.map(message => message.key);
             await store.dispatch(ADD_FLAG, {
-                messageKeys,
+                messages: adapted,
                 flag: Flag.SEEN
             });
             expect(inject("MailboxItemsPersistence").addFlag).toHaveBeenCalledWith({
@@ -76,7 +84,7 @@ describe("Messages actions", () => {
             );
             store.commit(ADD_MESSAGES, [adapted]);
             const promise = store.dispatch(ADD_FLAG, {
-                messageKeys: [adapted.key],
+                messages: adapted,
                 flag: Flag.SEEN
             });
             expect(store.state[adapted.key].flags).toEqual(expect.arrayContaining([Flag.SEEN]));
@@ -87,7 +95,7 @@ describe("Messages actions", () => {
             const adapted = createOnlyMetadata({ internalId: 1, folder });
             store.commit(ADD_MESSAGES, [adapted]);
             store.dispatch(ADD_FLAG, {
-                messageKeys: [1],
+                message: adapted,
                 flag: Flag.SEEN
             });
             expect(store.state[adapted.key].flags).not.toEqual(expect.arrayContaining([Flag.SEEN]));
@@ -99,7 +107,7 @@ describe("Messages actions", () => {
             );
             store.commit(ADD_MESSAGES, [adapted]);
             store.dispatch(ADD_FLAG, {
-                messageKeys: [adapted.key],
+                messages: adapted,
                 flag: Flag.SEEN
             });
             expect(store.state[adapted.key].flags.filter(flag => flag === Flag.SEEN).length).toEqual(1);
@@ -113,7 +121,7 @@ describe("Messages actions", () => {
             inject("MailboxItemsPersistence").addFlag.mockRejectedValueOnce("Failure");
             try {
                 await store.dispatch(ADD_FLAG, {
-                    messageKeys: [adapted.key],
+                    messages: adapted,
                     flag: Flag.SEEN
                 });
             } catch (e) {
@@ -131,7 +139,7 @@ describe("Messages actions", () => {
             inject("MailboxItemsPersistence").addFlag.mockRejectedValueOnce("Failure");
             try {
                 await store.dispatch(ADD_FLAG, {
-                    messageKeys: [adapted.key],
+                    messages: adapted,
                     flag: Flag.SEEN
                 });
             } finally {
@@ -146,9 +154,8 @@ describe("Messages actions", () => {
                 .slice(0, 5)
                 .map(m => MessageAdaptor.fromMailboxItem(m, folder));
             store.commit(ADD_MESSAGES, adapted);
-            const messageKeys = adapted.map(message => message.key);
             await store.dispatch(DELETE_FLAG, {
-                messageKeys,
+                messages: adapted,
                 flag: Flag.SEEN
             });
             const itemsId = adapted.map(message => message.remoteRef.internalId);
@@ -163,9 +170,8 @@ describe("Messages actions", () => {
                 .slice(0, 5)
                 .map(m => MessageAdaptor.fromMailboxItem(m, folder));
             store.commit(ADD_MESSAGES, adapted);
-            const messageKeys = adapted.map(message => message.key);
             await store.dispatch(DELETE_FLAG, {
-                messageKeys,
+                messages: adapted,
                 flag: Flag.SEEN
             });
             expect(inject("MailboxItemsPersistence").deleteFlag).not.toHaveBeenCalled();
@@ -173,9 +179,8 @@ describe("Messages actions", () => {
         test("Call delete flag remote API for messages not yet loaded", async () => {
             const adapted = [1, 2].map(id => createOnlyMetadata({ internalId: id, folder }));
             store.commit(ADD_MESSAGES, adapted);
-            const messageKeys = adapted.map(message => message.key);
             await store.dispatch(DELETE_FLAG, {
-                messageKeys,
+                messages: adapted,
                 flag: Flag.SEEN
             });
             expect(inject("MailboxItemsPersistence").deleteFlag).toHaveBeenCalledWith({
@@ -190,7 +195,7 @@ describe("Messages actions", () => {
             );
             store.commit(ADD_MESSAGES, [adapted]);
             const promise = store.dispatch(DELETE_FLAG, {
-                messageKeys: [adapted.key],
+                messages: adapted,
                 flag: Flag.SEEN
             });
             expect(store.state[adapted.key].flags).not.toEqual(expect.arrayContaining([Flag.SEEN]));
@@ -207,7 +212,7 @@ describe("Messages actions", () => {
             inject("MailboxItemsPersistence").deleteFlag.mockRejectedValueOnce("Failure");
             try {
                 await store.dispatch(DELETE_FLAG, {
-                    messageKeys: [adapted.key],
+                    messages: adapted,
                     flag: Flag.SEEN
                 });
             } catch (e) {
@@ -225,7 +230,7 @@ describe("Messages actions", () => {
             inject("MailboxItemsPersistence").deleteFlag.mockRejectedValueOnce("Failure");
             try {
                 await store.dispatch(DELETE_FLAG, {
-                    messageKeys: [adapted.key],
+                    messages: adapted,
                     flag: Flag.SEEN
                 });
             } finally {
@@ -237,9 +242,7 @@ describe("Messages actions", () => {
         test("Call fetch message API", () => {
             const adapted = [1, 2, 3].map(id => createOnlyMetadata({ internalId: id, folder }));
             store.commit(ADD_MESSAGES, adapted);
-            store.dispatch(FETCH_MESSAGE_METADATA, {
-                messageKeys: adapted.map(message => message.key)
-            });
+            store.dispatch(FETCH_MESSAGE_METADATA, adapted);
             expect(inject("MailboxItemsPersistence").multipleById).toHaveBeenCalledWith([1, 2, 3]);
         });
         test("Add LOADED status to messages", async () => {
@@ -247,9 +250,7 @@ describe("Messages actions", () => {
             const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
             store.commit(ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").multipleById.mockResolvedValueOnce([message]);
-            await store.dispatch(FETCH_MESSAGE_METADATA, {
-                messageKeys: [adapted.key]
-            });
+            await store.dispatch(FETCH_MESSAGE_METADATA, adapted);
             expect(store.state[adapted.key].status).toEqual(MessageStatus.LOADED);
         });
     });
@@ -257,10 +258,7 @@ describe("Messages actions", () => {
         test("Call remove message remote API", () => {
             const adapted = messages.slice(0, 5).map(m => MessageAdaptor.fromMailboxItem(m, folder));
             store.commit(ADD_MESSAGES, adapted);
-            store.dispatch(
-                REMOVE_MESSAGES,
-                adapted.map(message => message.key)
-            );
+            store.dispatch(REMOVE_MESSAGES, adapted);
             expect(inject("MailboxItemsPersistence").multipleDeleteById).toHaveBeenCalledWith(
                 adapted.map(message => message.remoteRef.internalId)
             );
@@ -269,7 +267,7 @@ describe("Messages actions", () => {
         test("To synchronously mark messages as removed in state", () => {
             const adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
             store.commit(ADD_MESSAGES, [adapted]);
-            store.dispatch(REMOVE_MESSAGES, adapted.key);
+            store.dispatch(REMOVE_MESSAGES, adapted);
             expect(store.state[adapted.key].status).toEqual(MessageStatus.REMOVED);
         });
 
@@ -277,7 +275,7 @@ describe("Messages actions", () => {
             const adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
             store.commit(ADD_MESSAGES, [adapted]);
             expect(store.state[adapted.key]).toBeDefined();
-            await store.dispatch(REMOVE_MESSAGES, adapted.key);
+            await store.dispatch(REMOVE_MESSAGES, adapted);
             expect(store.state[adapted.key]).toBeUndefined();
         });
 
@@ -286,7 +284,7 @@ describe("Messages actions", () => {
             store.commit(ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").multipleDeleteById.mockRejectedValueOnce("Failure");
             try {
-                await store.dispatch(REMOVE_MESSAGES, adapted.key);
+                await store.dispatch(REMOVE_MESSAGES, adapted);
             } catch {
                 // Nothing to do
             } finally {
@@ -296,12 +294,107 @@ describe("Messages actions", () => {
             store.commit(ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").multipleDeleteById.mockRejectedValueOnce("Failure");
             try {
-                await store.dispatch(REMOVE_MESSAGES, adapted.key);
+                await store.dispatch(REMOVE_MESSAGES, adapted);
             } catch {
                 // Nothing to do
             } finally {
                 expect(store.state[adapted.key].status).toEqual(MessageStatus.NOT_LOADED);
             }
+        });
+    });
+    describe("MOVE_MESSAGES", () => {
+        const anotherFolder = { key: "folder-key2", remoteRef: { uid: "folder-key2" } };
+        test("Call move message remote API", () => {
+            const adapted = messages.slice(0, 5).map(m => MessageAdaptor.fromMailboxItem(m, folder));
+            store.commit(ADD_MESSAGES, adapted);
+            store.dispatch(MOVE_MESSAGES, { messages: adapted, folder: anotherFolder });
+            expect(inject("ItemsTransferPersistence").move).toHaveBeenCalledWith(
+                adapted.map(message => message.remoteRef.internalId)
+            );
+        });
+        test("Not to move message from the same folder", async () => {
+            const adapted = messages.slice(0, 5).map(m => MessageAdaptor.fromMailboxItem(m, anotherFolder));
+            store.commit(ADD_MESSAGES, adapted);
+            store.dispatch(MOVE_MESSAGES, { messages: adapted, folder: anotherFolder });
+            expect(inject("ItemsTransferPersistence").move).not.toHaveBeenCalled();
+        });
+        test("To synchronously mark messages as removed in state", () => {
+            const adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
+            store.commit(ADD_MESSAGES, [adapted]);
+            store.dispatch(MOVE_MESSAGES, { messages: adapted, folder: anotherFolder });
+            expect(store.state[adapted.key].status).toEqual(MessageStatus.REMOVED);
+        });
+
+        test("To remove message from store if api call is successfull", async () => {
+            const adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
+            store.commit(ADD_MESSAGES, [adapted]);
+            expect(store.state[adapted.key]).toBeDefined();
+            await store.dispatch(MOVE_MESSAGES, { messages: adapted, folder: anotherFolder });
+            expect(store.state[adapted.key]).toBeUndefined();
+        });
+
+        test("To restore old status if api call fail", async () => {
+            let adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
+            store.commit(ADD_MESSAGES, [adapted]);
+            inject("ItemsTransferPersistence").move.mockRejectedValueOnce("Failure");
+            try {
+                await store.dispatch(MOVE_MESSAGES, { messages: adapted, folder: anotherFolder });
+            } catch {
+                // Nothing to do
+            } finally {
+                expect(store.state[adapted.key].status).toEqual(MessageStatus.LOADED);
+            }
+            adapted = createOnlyMetadata({ internalId: 1, folder });
+            store.commit(ADD_MESSAGES, [adapted]);
+            inject("ItemsTransferPersistence").move.mockRejectedValueOnce("Failure");
+            try {
+                await store.dispatch(MOVE_MESSAGES, { messages: adapted, folder: anotherFolder });
+            } catch {
+                // Nothing to do
+            } finally {
+                expect(store.state[adapted.key].status).toEqual(MessageStatus.NOT_LOADED);
+            }
+        });
+    });
+    describe("MARK_MESSAGES_AS_", () => {
+        test("MARK_MESSAGES_AS_READ", async () => {
+            const flag = Flag.SEEN;
+            const adapted = messages
+                .filter(({ value: { flags } }) => !flags.includes(flag))
+                .map(m => MessageAdaptor.fromMailboxItem(m, folder));
+            store.commit(ADD_MESSAGES, adapted);
+            await store.dispatch(MARK_MESSAGES_AS_READ, adapted);
+            expect(Object.values(store.state).some(({ flags }) => !flags.includes(flag))).toBeFalsy();
+        });
+        test("MARK_MESSAGES_AS_UNREAD", async () => {
+            const flag = Flag.SEEN;
+            const adapted = messages
+                .filter(({ value: { flags } }) => flags.includes(flag))
+                .slice(0, 5)
+                .map(m => MessageAdaptor.fromMailboxItem(m, folder));
+            store.commit(ADD_MESSAGES, adapted);
+            await store.dispatch(MARK_MESSAGES_AS_UNREAD, adapted);
+            expect(Object.values(store.state).some(({ flags }) => flags.includes(flag))).toBeFalsy();
+        });
+        test("MARK_MESSAGES_AS_FLAGGED", async () => {
+            const flag = Flag.FLAGGED;
+            const adapted = messages
+                .filter(({ value: { flags } }) => !flags.includes(flag))
+                .slice(0, 5)
+                .map(m => MessageAdaptor.fromMailboxItem(m, folder));
+            store.commit(ADD_MESSAGES, adapted);
+            await store.dispatch(MARK_MESSAGES_AS_FLAGGED, adapted);
+            expect(Object.values(store.state).some(({ flags }) => !flags.includes(flag))).toBeFalsy();
+        });
+        test("MARK_MESSAGES_AS_UNFLAGGED", async () => {
+            const flag = Flag.FLAGGED;
+            const adapted = messages
+                .filter(({ value: { flags } }) => flags.includes(flag))
+                .slice(0, 5)
+                .map(m => MessageAdaptor.fromMailboxItem(m, folder));
+            store.commit(ADD_MESSAGES, adapted);
+            await store.dispatch(MARK_MESSAGES_AS_UNFLAGGED, adapted);
+            expect(Object.values(store.state).some(({ flags }) => flags.includes(flag))).toBeFalsy();
         });
     });
 });

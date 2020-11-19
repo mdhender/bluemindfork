@@ -9,7 +9,7 @@
             active: MESSAGE_IS_SELECTED(message.key) || currentMessageKey === message.key
         }"
         role="link"
-        @click="navigateTo"
+        @click.exact="navigateTo"
         @keyup.enter.exact="navigateTo"
         @mouseenter="mouseIn = true"
         @mouseleave="mouseIn = false"
@@ -22,7 +22,7 @@
             :is-important="message.flags.includes(Flag.FLAGGED)"
             :mouse-in="mouseIn"
         />
-        <message-list-item-quick-action-buttons v-if="mouseIn" :message="message" @purge="purge" />
+        <message-list-item-quick-action-buttons v-show="mouseIn" :message="message" />
     </bm-list-group-item>
 </template>
 
@@ -59,10 +59,6 @@ export default {
     },
     data() {
         return {
-            tooltip: {
-                cursor: "cursor",
-                text: this.$t("mail.actions.move")
-            },
             mouseIn: false,
             Flag
         };
@@ -70,35 +66,10 @@ export default {
     computed: {
         ...mapState("mail", ["folders", "activeFolder", "selection"]),
         ...mapGetters("mail", { MESSAGE_IS_SELECTED }),
-        ...mapGetters("mail-webapp", ["nextMessageKey"]),
         ...mapState("session", ["userSettings"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" })
     },
     methods: {
-        async purge() {
-            const confirm = await this.$bvModal.msgBoxConfirm(
-                this.$tc("mail.actions.purge.modal.content", this.selection.length || 1, {
-                    subject: this.message.subject
-                }),
-                {
-                    title: this.$tc("mail.actions.purge.modal.title", this.selection.length || 1),
-                    okTitle: this.$t("common.delete"),
-                    cancelVariant: "outline-secondary",
-                    cancelTitle: this.$t("common.cancel"),
-                    centered: true,
-                    hideHeaderClose: false,
-                    autoFocusButton: "ok"
-                }
-            );
-            if (confirm) {
-                // do this before followed async operations
-                const nextMessageKey = this.nextMessageKey;
-                this.$store.dispatch("mail-webapp/purge", this.message.key);
-                if (this.currentMessageKey === this.message.key) {
-                    this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
-                }
-            }
-        },
         onTouch() {
             this.$emit("toggleSelect", this.message.key);
         },

@@ -80,7 +80,7 @@ import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 
 import { MessageStatus, isEmpty } from "../../model/message";
 import { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~getters";
-import { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE } from "~actions";
+import { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE, REMOVE_MESSAGES } from "~actions";
 
 export default {
     name: "MailToolbarComposeMessage",
@@ -115,11 +115,10 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["purge"]),
-        ...mapActions("mail", { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE }),
+        ...mapActions("mail", { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE, REMOVE_MESSAGES }),
         async doDelete() {
             if (isEmpty(this.message, this.messageCompose.editorContent)) {
-                this.purge(this.messageKey);
+                this.REMOVE_MESSAGES(this.message);
                 this.$router.navigate("v:mail:home");
                 return;
             }
@@ -133,7 +132,7 @@ export default {
                 autoFocusButton: "ok"
             });
             if (confirm) {
-                this.purge(this.messageKey);
+                this.REMOVE_MESSAGES(this.message);
                 this.$router.navigate("v:mail:home");
             }
         },

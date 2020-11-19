@@ -1,12 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`actions Create fetched folder 1`] = `
+exports[`actions CREATE_FOLDER Create folder 1`] = `
 Object {
-  "foo": Object {
+  "bar-baz": Object {
     "default": true,
     "expanded": false,
     "imapName": "bar",
-    "key": "foo",
+    "key": "bar-baz",
     "mailboxRef": Object {
       "key": undefined,
       "uid": undefined,
@@ -24,7 +24,7 @@ Object {
 }
 `;
 
-exports[`actions Fetch folders 1`] = `
+exports[`actions FETCH_FOLDERS Fetch folders 1`] = `
 Object {
   "050ca560-37ae-458a-bd52-c40fedf4068d": Object {
     "default": false,

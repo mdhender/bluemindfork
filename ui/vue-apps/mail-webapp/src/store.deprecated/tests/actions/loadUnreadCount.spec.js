@@ -24,7 +24,7 @@ describe("[Mail-WebappStore][actions] : loadUnreadCount", () => {
         loadUnreadCount(context, "folderUid").then(() => {
             expect(context.commit).toHaveBeenCalledWith(
                 "mail/" + SET_UNREAD_COUNT,
-                { key: "folderUid", count: 10 },
+                { key: "folderUid", unread: 10 },
                 { root: true }
             );
             done();

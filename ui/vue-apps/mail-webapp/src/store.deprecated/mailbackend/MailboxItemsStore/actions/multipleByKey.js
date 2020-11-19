@@ -1,5 +1,6 @@
 import { FETCH_MESSAGE_METADATA } from "~actions";
 
 export function multipleByKey({ dispatch, rootState }, messageKeys) {
-    return dispatch("mail/" + FETCH_MESSAGE_METADATA, { messageKeys, folders: rootState.mail.folders }, { root: true });
+    const messages = messageKeys.map(key => rootState.mail.messages[key]);
+    return dispatch("mail/" + FETCH_MESSAGE_METADATA, messages, { root: true });
 }

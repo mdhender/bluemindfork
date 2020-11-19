@@ -3,8 +3,8 @@
         class="message-list bg-extra-light"
         tabindex="0"
         @scroll="onScroll"
-        @keyup.shift.delete.exact.prevent="purge($event)"
-        @keyup.delete.exact.prevent="remove($event)"
+        @keyup.shift.delete.exact.prevent="REMOVE_MESSAGES(selected)"
+        @keyup.delete.exact.prevent="MOVE_MESSAGES_TO_TRASH(selected)"
         @keyup.up.exact="goToByDiff(-1)"
         @keydown.up.prevent
         @keyup.down.exact="goToByDiff(+1)"
@@ -35,7 +35,7 @@
         @keyup.shift.ctrl.exact.home="selectRange(messageKeys[0])"
         @keyup.shift.ctrl.exact.end="selectRange(messageKeys[MESSAGE_LIST_COUNT - 1])"
     >
-        <div v-for="(message, index) in messages" :key="message.key">
+        <div v-for="(message, index) in _messages" :key="message.key">
             <date-separator :message="message" :index="index" />
             <draggable-message
                 :ref="'message-' + message.key"
@@ -43,9 +43,9 @@
                 :is-muted="!!draggedMessage && MESSAGE_IS_SELECTED(draggedMessage) && MESSAGE_IS_SELECTED(message.key)"
                 @toggle-select="toggleSelect"
                 @click.exact.native="unselectAllIfNeeded(message.key)"
-                @click.ctrl.exact.native.capture.prevent.stop="toggleInSelection(message.key)"
-                @click.shift.exact.native.capture.prevent.prevent.stop="selectRange(message.key, true)"
-                @click.shift.exact.ctrl.native.capture.prevent.stop="selectRange(message.key)"
+                @click.ctrl.exact.native.prevent.stop="toggleInSelection(message.key)"
+                @click.shift.exact.native.prevent.stop="selectRange(message.key, true)"
+                @click.ctrl.shift.exact.native.prevent.stop="selectRange(message.key)"
                 @dragstart="draggedMessage = message.key"
                 @dragend="draggedMessage = null"
             />
@@ -70,6 +70,7 @@ import {
     MESSAGE_IS_LOADED
 } from "~getters";
 import { SELECT_MESSAGE, UNSELECT_MESSAGE, SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES } from "~mutations";
+import RemoveMixin from "../../store/mixins/RemoveMixin";
 
 const PAGE = 9;
 
@@ -81,6 +82,7 @@ export default {
         DateSeparator,
         DraggableMessage
     },
+    mixins: [RemoveMixin],
     data() {
         return {
             PAGE,
@@ -91,7 +93,6 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["nextMessageKey"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail", {
             MULTIPLE_MESSAGE_SELECTED,
@@ -102,21 +103,24 @@ export default {
             MESSAGE_LIST_COUNT,
             MESSAGE_IS_LOADED
         }),
-        ...mapState("mail", ["selection", "activeFolder", "selection"]),
+        ...mapState("mail", ["activeFolder", "messages", "selection"]),
         ...mapState("mail", {
             messageKeys: state => state.messageList.messageKeys
         }),
-        messages() {
+        _messages() {
             return this.messageKeys
                 .slice(0, this.length)
-                .map(key => this.$store.state.mail.messages[key])
+                .map(key => this.messages[key])
                 .filter(({ key }) => this.MESSAGE_IS_LOADED(key));
         },
         currentMessage() {
-            return this.$store.state.mail.messages[this.currentMessageKey];
+            return this.messages[this.currentMessageKey];
         },
-        hasMore: function () {
+        hasMore() {
             return this.length < this.MESSAGE_LIST_COUNT;
+        },
+        selected() {
+            return this.SELECTION_IS_EMPTY ? this.currentMessage : this.selection.map(key => this.messages[key]);
         }
     },
     watch: {
@@ -162,54 +166,6 @@ export default {
             const current = this.$el.scrollTop + this.$el.offsetHeight;
             if (current >= total) {
                 this.loadMore();
-            }
-        },
-        remove(event) {
-            // '.delete' modifier captures both 'Delete' and 'Backspace' keys, we just want 'Delete'
-            if (event.key === "Delete") {
-                if (this.activeFolder === this.MY_TRASH.key) {
-                    this.purge(event);
-                } else {
-                    // do this before followed async operations
-                    const nextMessageKey = this.nextMessageKey;
-                    this.$store.dispatch(
-                        "mail-webapp/remove",
-                        this.SELECTION_IS_EMPTY ? this.currentMessageKey : this.selection
-                    );
-                    if (!this.MULTIPLE_MESSAGE_SELECTED) {
-                        this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
-                    }
-                }
-            }
-        },
-        async purge(event) {
-            // '.delete' modifier captures both 'Delete' and 'Backspace' keys, we just want 'Delete'
-            if (event.key === "Delete") {
-                const confirm = await this.$bvModal.msgBoxConfirm(
-                    this.$tc("mail.actions.purge.modal.content", this.selection.length || 1, {
-                        subject: this.currentMessage && this.currentMessage.subject
-                    }),
-                    {
-                        title: this.$tc("mail.actions.purge.modal.title", this.selection.length || 1),
-                        okTitle: this.$t("common.delete"),
-                        cancelVariant: "outline-secondary",
-                        cancelTitle: this.$t("common.cancel"),
-                        centered: true,
-                        hideHeaderClose: false,
-                        autoFocusButton: "ok"
-                    }
-                );
-                if (confirm) {
-                    // do this before followed async operations
-                    const nextMessageKey = this.nextMessageKey;
-                    this.$store.dispatch(
-                        "mail-webapp/purge",
-                        this.SELECTION_IS_EMPTY ? this.currentMessageKey : this.selection
-                    );
-                    if (!this.MULTIPLE_MESSAGE_SELECTED) {
-                        this.$router.navigate({ name: "v:mail:message", params: { message: nextMessageKey } });
-                    }
-                }
             }
         },
         goToByDiff(diff) {

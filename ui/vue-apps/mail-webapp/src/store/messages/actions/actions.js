@@ -1,41 +1,38 @@
 import { MessageStatus, partialCopy } from "../../../model/message";
 import apiMessages from "../../api/apiMessages";
 import { MESSAGE_IS_LOADED } from "~getters";
-import { ADD_FLAG, ADD_MESSAGES, DELETE_FLAG, REMOVE_MESSAGES, SET_MESSAGES_STATUS } from "~mutations";
+import { ADD_FLAG, ADD_MESSAGES, DELETE_FLAG, MOVE_MESSAGES, REMOVE_MESSAGES, SET_MESSAGES_STATUS } from "~mutations";
 
-export async function addFlag({ commit, getters, state }, { messageKeys, flag }) {
-    const keys = Array.isArray(messageKeys) ? messageKeys : [messageKeys];
-    const messages = keys
-        .map(key => state[key])
-        .filter(message => !getters[MESSAGE_IS_LOADED](message.key) || !message.flags.includes(flag));
-    commit(ADD_FLAG, { keys, flag });
+export async function addFlag({ commit, getters }, { messages, flag }) {
+    messages = Array.isArray(messages) ? messages : [messages];
+    const toUpdate = messages.filter(({ key, flags }) => !getters[MESSAGE_IS_LOADED](key) || !flags.includes(flag));
+    const locals = toUpdate.filter(({ key }) => getters[MESSAGE_IS_LOADED](key));
+    commit(ADD_FLAG, { messages: locals, flag });
     try {
-        await apiMessages.addFlag(messages, flag);
+        await apiMessages.addFlag(toUpdate, flag);
     } catch (e) {
-        commit(DELETE_FLAG, { keys, flag });
+        commit(DELETE_FLAG, { messages: locals, flag });
         throw e;
     }
 }
 
-export async function deleteFlag({ commit, state, getters }, { messageKeys, flag }) {
-    const keys = Array.isArray(messageKeys) ? messageKeys : [messageKeys];
-    const messages = keys
-        .map(key => state[key])
-        .filter(message => !getters[MESSAGE_IS_LOADED](message.key) || message.flags.includes(flag));
-    commit(DELETE_FLAG, { keys: messages.map(({ key }) => key), flag });
+export async function deleteFlag({ commit, getters }, { messages, flag }) {
+    messages = Array.isArray(messages) ? messages : [messages];
+    const toUpdate = messages.filter(({ key, flags }) => !getters[MESSAGE_IS_LOADED](key) || flags.includes(flag));
+    const locals = toUpdate.filter(({ key }) => getters[MESSAGE_IS_LOADED](key));
+    commit(DELETE_FLAG, { messages: locals, flag });
     try {
-        await apiMessages.deleteFlag(messages, flag);
+        await apiMessages.deleteFlag(toUpdate, flag);
     } catch (e) {
-        commit(ADD_FLAG, { keys: messages.map(({ key }) => key), flag });
+        commit(ADD_FLAG, { messages: locals, flag });
         throw e;
     }
 }
 
-export async function fetchMessageMetadata({ commit, state }, { messageKeys }) {
-    const messages = (Array.isArray(messageKeys) ? messageKeys : [messageKeys])
-        .map(key => state[key])
-        .filter(({ composing }) => !composing);
-    let fullMessages = await apiMessages.multipleById(messages);
+export async function fetchMessageMetadata({ commit, state }, messages) {
+    messages = Array.isArray(messages) ? messages : [messages];
+    const toFetch = messages.filter(({ composing }) => !composing);
+    let fullMessages = await apiMessages.multipleById(toFetch);
     fullMessages = fullMessages.map(message => {
         if (state[message.key]) {
             message.partContentByAddress = state[message.key].partContentByAddress;
@@ -45,21 +42,43 @@ export async function fetchMessageMetadata({ commit, state }, { messageKeys }) {
     commit(ADD_MESSAGES, fullMessages);
 }
 
-export async function removeMessages({ commit, state }, messageKeys) {
-    const messages = (Array.isArray(messageKeys) ? messageKeys : [messageKeys]).map(key => partialCopy(state[key]));
+export async function removeMessages({ commit, state }, messages) {
+    messages = Array.isArray(messages) ? messages : [messages];
+    const partial = messages.map(message => partialCopy(message));
     commit(
         SET_MESSAGES_STATUS,
-        messages.map(({ key }) => ({ key, status: MessageStatus.REMOVED }))
+        messages.map(message => ({ ...message, status: MessageStatus.REMOVED }))
     );
 
     try {
         await apiMessages.multipleDeleteById(messages);
-        commit(
-            REMOVE_MESSAGES,
-            messages.map(({ key }) => key)
-        );
+        commit(REMOVE_MESSAGES, messages);
     } catch (e) {
-        commit(SET_MESSAGES_STATUS, messages);
+        commit(
+            SET_MESSAGES_STATUS,
+            partial.map(({ key, status }) => ({ ...state[key], status: status }))
+        );
+        throw e;
+    }
+}
+
+export async function moveMessages({ commit, state }, { messages, folder }) {
+    messages = Array.isArray(messages) ? messages : [messages];
+    messages = messages.filter(({ folderRef: { key } }) => key !== folder.key);
+    const partial = messages.map(message => partialCopy(message));
+    commit(
+        SET_MESSAGES_STATUS,
+        messages.map(message => ({ ...message, status: MessageStatus.REMOVED }))
+    );
+
+    try {
+        await apiMessages.move(messages, folder);
+        commit(MOVE_MESSAGES, { messages, folder });
+    } catch (e) {
+        commit(
+            SET_MESSAGES_STATUS,
+            partial.map(({ key, status }) => ({ ...state[key], status: status }))
+        );
         throw e;
     }
 }

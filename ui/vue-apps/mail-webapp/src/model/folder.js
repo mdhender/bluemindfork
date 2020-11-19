@@ -22,6 +22,11 @@ export function create(key, name, parent, mailbox) {
     };
 }
 
+export function rename(folder, name) {
+    const path = folder.path.replace(new RegExp(folder.name + "$"), name);
+    return { ...folder, name, path };
+}
+
 export const DEFAULT_FOLDERS = {
     INBOX: "INBOX",
     SENT: "Sent",
