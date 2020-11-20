@@ -23,8 +23,13 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.ITIPMethod;
+import net.bluemind.lmtp.backend.LmtpAddress;
 
 public abstract class CancelHandler extends AbstractLmtpHandler {
+
+	public CancelHandler(LmtpAddress recipient, LmtpAddress sender) {
+		super(recipient, sender);
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(CancelHandler.class);
 

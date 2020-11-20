@@ -612,7 +612,7 @@ public class ImipFilterVEventTests {
 
 		imip.method = ITIPMethod.CANCEL;
 		imip.iCalendarElements = Arrays.asList(exception);
-		IIMIPHandler cancelHandler = new EventCancelHandler();
+		IIMIPHandler cancelHandler = new EventCancelHandler(recipient, null);
 		cancelHandler.handle(imip, recipient, domain, user1Mailbox);
 
 		imip.method = ITIPMethod.REQUEST;
@@ -790,7 +790,7 @@ public class ImipFilterVEventTests {
 		evt = user1Calendar.getComplete(event.uid);
 		assertNotNull(evt);
 
-		IIMIPHandler cancelHandler = new EventCancelHandler();
+		IIMIPHandler cancelHandler = new EventCancelHandler(recipient, null);
 
 		imip.method = ITIPMethod.CANCEL;
 
@@ -832,7 +832,7 @@ public class ImipFilterVEventTests {
 		evt = resourceCalendar.getComplete(event.uid);
 		assertNotNull(evt);
 
-		IIMIPHandler cancelHandler = new EventCancelHandler();
+		IIMIPHandler cancelHandler = new EventCancelHandler(recipient, null);
 
 		imip.method = ITIPMethod.CANCEL;
 
@@ -870,7 +870,7 @@ public class ImipFilterVEventTests {
 		imip.iCalendarElements = Arrays.asList(event.value);
 
 		imip.method = ITIPMethod.REPLY;
-		IIMIPHandler replyHandler = new EventReplyHandler();
+		IIMIPHandler replyHandler = new EventReplyHandler(recipient, null);
 		replyHandler.handle(imip, recipient, domain, user1Mailbox);
 
 		evt = user1Calendar.getComplete(event.uid);
@@ -932,7 +932,7 @@ public class ImipFilterVEventTests {
 		requestHandler.handle(imip, recipient, domain, user1Mailbox);
 
 		imip.method = ITIPMethod.REPLY;
-		IIMIPHandler replyHandler = new EventReplyHandler();
+		IIMIPHandler replyHandler = new EventReplyHandler(recipient, null);
 		replyHandler.handle(imip, recipient, domain, user1Mailbox);
 
 		evt = user1Calendar.getComplete(event.uid);
@@ -995,7 +995,7 @@ public class ImipFilterVEventTests {
 		requestHandler.handle(imip, recipient, domain, user1Mailbox);
 
 		imip.method = ITIPMethod.REPLY;
-		IIMIPHandler replyHandler = new EventReplyHandler();
+		IIMIPHandler replyHandler = new EventReplyHandler(recipient, null);
 		replyHandler.handle(imip, recipient, domain, user1Mailbox);
 
 		evt = user1Calendar.getComplete(event.uid);
@@ -1054,7 +1054,7 @@ public class ImipFilterVEventTests {
 		imip.iCalendarElements = Arrays.asList(event.value);
 
 		imip.method = ITIPMethod.REPLY;
-		IIMIPHandler replyHandler = new EventReplyHandler();
+		IIMIPHandler replyHandler = new EventReplyHandler(recipient, null);
 
 		VertxEventChecker<?> msg = new VertxEventChecker<>(CalendarHookAddress.EVENT_UPDATED);
 		replyHandler.handle(imip, recipient, domain, resourceMailbox);
@@ -1194,7 +1194,7 @@ public class ImipFilterVEventTests {
 		assertEquals(1, evt.value.occurrences.size());
 
 		// cancel exception
-		IIMIPHandler cancelHandler = new EventCancelHandler();
+		IIMIPHandler cancelHandler = new EventCancelHandler(recipient, null);
 		imip = imip(ITIPMethod.CANCEL, defaultExternalSenderVCard(), exception.uid);
 		imip.iCalendarElements = Arrays.asList(exception.value.occurrences.get(0));
 		cancelHandler.handle(imip, recipient, domain, user1Mailbox);
@@ -1241,7 +1241,7 @@ public class ImipFilterVEventTests {
 		assertEquals(1, all.get(0).value.occurrences.size());
 
 		// cancel (new attendee)
-		IIMIPHandler cancelHandler = new EventCancelHandler();
+		IIMIPHandler cancelHandler = new EventCancelHandler(recipient, null);
 		imip = imip(ITIPMethod.CANCEL, defaultExternalSenderVCard(), imipUid);
 		imip.iCalendarElements = Arrays.asList(exception);
 		cancelHandler.handle(imip, recipient, domain, user2Mailbox);
@@ -1276,7 +1276,7 @@ public class ImipFilterVEventTests {
 		VEventOccurrence exception = events.get(0).value.occurrences.get(0);
 
 		// cancel exception
-		IIMIPHandler cancelHandler = new EventCancelHandler();
+		IIMIPHandler cancelHandler = new EventCancelHandler(recipient, null);
 		imip = imip(ITIPMethod.CANCEL, defaultExternalSenderVCard(), events.get(0).uid);
 		imip.iCalendarElements = Arrays.asList(exception);
 		cancelHandler.handle(imip, recipient, domain, user1Mailbox);
@@ -1428,7 +1428,7 @@ public class ImipFilterVEventTests {
 		imip.iCalendarElements = Arrays.asList(exception);
 		LmtpAddress recipient = new LmtpAddress("<external@ext-domain.lan>", null, null);
 
-		IIMIPHandler replyHandler = new EventReplyHandler();
+		IIMIPHandler replyHandler = new EventReplyHandler(recipient, null);
 		replyHandler.handle(imip, recipient, domain, user1Mailbox);
 
 		evt = user1Calendar.getComplete(event.uid);
@@ -1493,7 +1493,7 @@ public class ImipFilterVEventTests {
 		imip.iCalendarElements = Arrays.asList(exception);
 		LmtpAddress recipient = new LmtpAddress("<external@ext-domain.lan>", null, null);
 
-		IIMIPHandler replyHandler = new EventReplyHandler();
+		IIMIPHandler replyHandler = new EventReplyHandler(recipient, null);
 		replyHandler.handle(imip, recipient, domain, user1Mailbox);
 
 		evt = user1Calendar.getComplete(event.uid);
@@ -1558,7 +1558,7 @@ public class ImipFilterVEventTests {
 		imip.iCalendarElements = Arrays.asList(exception);
 		LmtpAddress recipient = new LmtpAddress("<external@ext-domain.lan>", null, null);
 
-		IIMIPHandler replyHandler = new EventReplyHandler();
+		IIMIPHandler replyHandler = new EventReplyHandler(recipient, null);
 		replyHandler.handle(imip, recipient, domain, user1Mailbox);
 
 		evt = user1Calendar.getComplete(event.uid);

@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2018
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,17 +16,13 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.lmtp.filter.imip;
+package net.bluemind.core.container.service;
 
-import net.bluemind.core.sendmail.ISendmail;
-import net.bluemind.core.sendmail.testhelper.FakeSendmail;
+import net.bluemind.core.container.model.ItemChangelog;
+import net.bluemind.core.context.SecurityContext;
 
-public class FakeEventRequestHandlerFactory {
-	public EventRequestHandler create() {
-		return create(new FakeSendmail());
-	}
+public interface IChangelogOriginRenderer {
 
-	public EventRequestHandler create(ISendmail mailer) {
-		return new EventRequestHandler(mailer, null, null);
-	}
+	ItemChangelog render(SecurityContext sc, ItemChangelog raw);
+
 }

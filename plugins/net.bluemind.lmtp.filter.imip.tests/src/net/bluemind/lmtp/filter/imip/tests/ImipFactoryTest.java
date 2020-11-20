@@ -46,7 +46,7 @@ public class ImipFactoryTest {
 		info.method = ITIPMethod.REQUEST;
 		info.iCalendarElements = Arrays.asList(new VEvent());
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
 
 		assertTrue(handler instanceof EventRequestHandler);
 	}
@@ -57,7 +57,7 @@ public class ImipFactoryTest {
 		info.method = ITIPMethod.CANCEL;
 		info.iCalendarElements = Arrays.asList(new VEvent());
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
 
 		assertTrue(handler instanceof EventCancelHandler);
 	}
@@ -68,7 +68,7 @@ public class ImipFactoryTest {
 		info.method = ITIPMethod.REPLY;
 		info.iCalendarElements = Arrays.asList(new VEvent());
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
 
 		assertTrue(handler instanceof EventReplyHandler);
 	}
@@ -79,7 +79,7 @@ public class ImipFactoryTest {
 		info.method = ITIPMethod.REQUEST;
 		info.iCalendarElements = Arrays.asList(new VTodo());
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
 
 		assertTrue(handler instanceof TodoRequestHandler);
 	}
@@ -90,7 +90,7 @@ public class ImipFactoryTest {
 		info.method = ITIPMethod.CANCEL;
 		info.iCalendarElements = Arrays.asList(new VTodo());
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
 
 		assertTrue(handler instanceof TodoCancelHandler);
 	}
@@ -101,7 +101,7 @@ public class ImipFactoryTest {
 		info.method = ITIPMethod.REPLY;
 		info.iCalendarElements = Arrays.asList(new VTodo());
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
 
 		assertTrue(handler instanceof TodoReplyHandler);
 
@@ -113,7 +113,7 @@ public class ImipFactoryTest {
 		info.method = ITIPMethod.ADD;
 		info.iCalendarElements = Arrays.asList(new VTodo());
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
 
 		assertNull(handler);
 	}
@@ -123,7 +123,7 @@ public class ImipFactoryTest {
 		IMIPInfos info = new IMIPInfos();
 		info.method = ITIPMethod.ADD;
 
-		IIMIPHandler handler = IMIPHandlerFactory.get(info);
+		IIMIPHandler handler = IMIPHandlerFactory.get(info, null, null);
 
 		assertNull(handler);
 	}

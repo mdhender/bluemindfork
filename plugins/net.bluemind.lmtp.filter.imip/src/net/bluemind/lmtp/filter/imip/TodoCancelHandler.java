@@ -38,6 +38,10 @@ import net.bluemind.todolist.api.VTodo;
  */
 public class TodoCancelHandler extends CancelHandler implements IIMIPHandler {
 
+	public TodoCancelHandler(LmtpAddress recipient, LmtpAddress sender) {
+		super(recipient, sender);
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(TodoCancelHandler.class);
 
 	@Override

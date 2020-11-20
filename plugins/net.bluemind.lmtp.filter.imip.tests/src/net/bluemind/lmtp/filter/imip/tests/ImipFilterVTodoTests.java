@@ -156,7 +156,7 @@ public class ImipFilterVTodoTests {
 
 	@Test
 	public void requestHandler() throws Exception {
-		IIMIPHandler handler = new TodoRequestHandler();
+		IIMIPHandler handler = new TodoRequestHandler(null, null);
 
 		ItemValue<VTodo> event = defaultVTodo();
 
@@ -193,7 +193,7 @@ public class ImipFilterVTodoTests {
 		ItemValue<Mailbox> resourceMailbox = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IMailboxes.class, domainUid).getComplete(resource.uid);
 
-		IIMIPHandler handler = new TodoRequestHandler();
+		IIMIPHandler handler = new TodoRequestHandler(null, null);
 
 		ItemValue<VTodo> event = defaultVTodo();
 		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
@@ -237,7 +237,7 @@ public class ImipFilterVTodoTests {
 
 	@Test
 	public void cancelHandler() throws Exception {
-		IIMIPHandler handler = new TodoRequestHandler();
+		IIMIPHandler handler = new TodoRequestHandler(null, null);
 
 		ItemValue<VTodo> event = defaultVTodo();
 		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
@@ -254,7 +254,7 @@ public class ImipFilterVTodoTests {
 		todo = adminTodolist.getComplete(event.uid);
 		assertNotNull(todo);
 
-		IIMIPHandler cancelHandler = new TodoCancelHandler();
+		IIMIPHandler cancelHandler = new TodoCancelHandler(recipient, null);
 
 		imip.method = ITIPMethod.CANCEL;
 		cancelHandler.handle(imip, recipient, null, adminMailbox);
@@ -264,7 +264,7 @@ public class ImipFilterVTodoTests {
 
 	@Test
 	public void replyHandler() throws Exception {
-		IIMIPHandler handler = new TodoRequestHandler();
+		IIMIPHandler handler = new TodoRequestHandler(null, null);
 
 		ItemValue<VTodo> event = defaultVTodo();
 		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
@@ -290,7 +290,7 @@ public class ImipFilterVTodoTests {
 
 		ElasticsearchTestHelper.getInstance().refresh("todo");
 		imip.method = ITIPMethod.REPLY;
-		IIMIPHandler replyHandler = new TodoReplyHandler();
+		IIMIPHandler replyHandler = new TodoReplyHandler(null, null);
 		replyHandler.handle(imip, recipient, null, adminMailbox);
 
 		ElasticsearchTestHelper.getInstance().refresh("todo");

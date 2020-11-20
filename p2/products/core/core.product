@@ -109,6 +109,7 @@
       <plugin id="net.bluemind.calendar.api"/>
       <plugin id="net.bluemind.calendar.auditlog"/>
       <plugin id="net.bluemind.calendar.helper"/>
+      <plugin id="net.bluemind.calendar.history.renderer"/>
       <plugin id="net.bluemind.calendar.hook"/>
       <plugin id="net.bluemind.calendar.hook.acl"/>
       <plugin id="net.bluemind.calendar.hook.ics"/>

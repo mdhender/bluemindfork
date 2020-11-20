@@ -57,6 +57,7 @@ import net.bluemind.core.container.persistence.ChangelogStore.LogEntry;
 import net.bluemind.core.container.persistence.IItemValueStore;
 import net.bluemind.core.container.persistence.IWeightProvider;
 import net.bluemind.core.container.persistence.ItemStore;
+import net.bluemind.core.container.service.ChangelogRenderers;
 import net.bluemind.core.container.service.IContainerStoreService;
 import net.bluemind.core.container.service.ItemUpdate;
 import net.bluemind.core.context.SecurityContext;
@@ -143,9 +144,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			throw new ServerFault("no changelog for this container");
 		}
 		final Long since = null == from ? 0L : from;
-		return doOrFail(() -> {
+		return ChangelogRenderers.render(securityContext, doOrFail(() -> {
 			return changelogStore.itemChangelog(itemUid, since, to);
-		});
+		}));
 	}
 
 	public ContainerChangeset<String> changeset(Long from, long to) throws ServerFault {

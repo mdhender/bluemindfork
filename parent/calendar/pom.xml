@@ -31,6 +31,8 @@
 		<module>net.bluemind.calendar.sync</module>
 		<module>net.bluemind.calendar.sync.tests</module>
                 <module>net.bluemind.calendar.auditlog</module>
+		<module>net.bluemind.calendar.history.renderer</module>
+		<module>net.bluemind.calendar.history.renderer.tests</module>
 	</modules>
 
 </project>

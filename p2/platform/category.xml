@@ -513,4 +513,5 @@
    <bundle id="net.bluemind.vertx.core.patch"/>
    <bundle id="net.bluemind.common.hollow"/>
    <bundle id="net.bluemind.system.sysconf.helper"/>
+   <bundle id="net.bluemind.calendar.history.renderer"/>
 </site>
