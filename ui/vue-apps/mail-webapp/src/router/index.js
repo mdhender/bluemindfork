@@ -34,7 +34,11 @@ export default [
                 path: ".t/:message",
                 component: MailThread,
                 meta: {
-                    onUpdate: (store, to) => store.dispatch("mail-webapp/selectMessage", to.params.message),
+                    onUpdate: (store, to, from, next) => {
+                        store.dispatch("mail-webapp/selectMessage", to.params.message).catch(() => {
+                            next({ path: "/mail" });
+                        });
+                    },
                     onLeave: store => store.commit("mail-webapp/currentMessage/clear")
                 }
             },

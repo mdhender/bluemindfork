@@ -8,7 +8,7 @@ async function executeActions(store, to, from, next) {
     }
     for (const route of to.matched) {
         await executeEnterActions(route, to, from, store);
-        await executeEachActions(route, to, from, store);
+        await executeEachActions(route, to, from, store, next);
         await executeParamsActions(route, to, from, store);
     }
     next();
@@ -20,9 +20,9 @@ async function executeEnterActions(route, to, from, store) {
     }
 }
 
-async function executeEachActions(route, to, from, store) {
+async function executeEachActions(route, to, from, store, next) {
     if (route.meta.onUpdate) {
-        await route.meta.onUpdate(store, to, from);
+        await route.meta.onUpdate(store, to, from, next);
     }
 }
 
