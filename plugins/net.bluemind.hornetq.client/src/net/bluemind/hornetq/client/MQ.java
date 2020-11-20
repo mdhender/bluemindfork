@@ -20,6 +20,7 @@ package net.bluemind.hornetq.client;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -116,6 +117,12 @@ public final class MQ {
 		Set<K> keys();
 
 		void remove(K k);
+
+		default Map<K, V> asMap() {
+			// Can't use Collectors.toMap as value may be null
+			// https://bugs.openjdk.java.net/browse/JDK-8148463
+			return keys().stream().collect(HashMap::new, (map, key) -> map.put(key, get(key)), HashMap::putAll);
+		}
 	}
 
 	public static <K, V> SharedMap<K, V> sharedMap(String name) {
