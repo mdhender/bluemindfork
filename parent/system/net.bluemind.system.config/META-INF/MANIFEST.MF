@@ -18,5 +18,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  org.ini4j,
  net.bluemind.node.api,
- net.bluemind.proxy.support
+ net.bluemind.proxy.support,
+ net.bluemind.config
 Export-Package: net.bluemind.system.config

@@ -3,4 +3,7 @@
 },
 {
     "name":"bluemind/proxy"
+},
+{
+    "name":"bluemind/node-tests"
 }]

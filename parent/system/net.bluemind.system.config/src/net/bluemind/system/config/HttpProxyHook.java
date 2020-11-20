@@ -18,10 +18,12 @@
  */
 package net.bluemind.system.config;
 
+import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -31,20 +33,27 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
+import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.ParametersValidator;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.rest.BmContext;
+import net.bluemind.node.api.NodeActivator;
 import net.bluemind.proxy.support.AHCWithProxy;
+import net.bluemind.server.api.IServer;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
+import net.bluemind.system.hook.ISystemConfigurationObserver;
 import net.bluemind.system.hook.ISystemConfigurationSanitizor;
 import net.bluemind.system.hook.ISystemConfigurationValidator;
 
-public class HttpProxyHook implements ISystemConfigurationSanitizor, ISystemConfigurationValidator {
+public class HttpProxyHook
+		implements ISystemConfigurationSanitizor, ISystemConfigurationValidator, ISystemConfigurationObserver {
 	private static final Logger logger = LoggerFactory.getLogger(HttpProxyHook.class);
 
 	private static final String BO_PING_URL = "https://bo.bluemind.net/bo4/ping";
 	private static final String DEFAULT_PORT = "3128";
+	private static final String PROXYVARS = "/etc/bm/proxy-vars";
 
 	private static final List<SysConfKeys> proxySysconfKeys = Arrays.asList(SysConfKeys.http_proxy_enabled,
 			SysConfKeys.http_proxy_hostname, SysConfKeys.http_proxy_port, SysConfKeys.http_proxy_login,
@@ -171,5 +180,47 @@ public class HttpProxyHook implements ISystemConfigurationSanitizor, ISystemConf
 		if (password != null) {
 			modifications.put(SysConfKeys.http_proxy_password.name(), password.trim());
 		}
+	}
+
+	@Override
+	public void onUpdated(BmContext context, SystemConf previous, SystemConf conf) throws ServerFault {
+		if (!proxySysconfKeys.stream()
+				.anyMatch(proxySysconfKey -> (previous.values.get(proxySysconfKey.name()) == null
+						&& conf.values.get(proxySysconfKey.name()) != null)
+						|| (previous.values.get(proxySysconfKey.name()) != null && !previous.values
+								.get(proxySysconfKey.name()).equals(conf.values.get(proxySysconfKey.name()))))) {
+			// Same new and old proxy configuration
+			return;
+		}
+
+		if (!Boolean.valueOf(conf.booleanValue(SysConfKeys.http_proxy_enabled.name()))) {
+			context.getServiceProvider().instance(IServer.class, InstallationId.getIdentifier()).allComplete().stream()
+					.forEach(server -> NodeActivator.get(server.value.address()).writeFile(PROXYVARS,
+							new ByteArrayInputStream("".getBytes())));
+			return;
+		}
+
+		StringBuilder content = new StringBuilder("# DO NOT EDIT").append("\n")
+				.append("# Setup proxy using bm-cli or AC").append("\n");
+
+		Optional<String> auth = Optional.empty();
+		if (!Strings.isNullOrEmpty(conf.stringValue(SysConfKeys.http_proxy_login.name()))
+				&& !Strings.isNullOrEmpty(conf.stringValue(SysConfKeys.http_proxy_password.name()))) {
+			auth = Optional.of(String.format("%s:%s@", conf.stringValue(SysConfKeys.http_proxy_login.name()),
+					conf.stringValue(SysConfKeys.http_proxy_password.name())));
+		}
+
+		content.append(String.format("http_proxy=http://%s%s:%s/", auth.orElse(""),
+				conf.stringValue(SysConfKeys.http_proxy_hostname.name()),
+				conf.stringValue(SysConfKeys.http_proxy_port.name()))).append("\n");
+		content.append(String.format("https_proxy=http://%s%s:%s/", auth.orElse(""),
+				conf.stringValue(SysConfKeys.http_proxy_hostname.name()),
+				conf.stringValue(SysConfKeys.http_proxy_port.name()))).append("\n");
+		content.append(String.format("no_proxy=\"%s\"",
+				conf.stringValue(SysConfKeys.http_proxy_exceptions.name()).replaceAll("\\*", ""))).append("\n");
+
+		context.getServiceProvider().instance(IServer.class, InstallationId.getIdentifier()).allComplete().stream()
+				.forEach(server -> NodeActivator.get(server.value.address()).writeFile(PROXYVARS,
+						new ByteArrayInputStream(content.toString().getBytes())));
 	}
 }

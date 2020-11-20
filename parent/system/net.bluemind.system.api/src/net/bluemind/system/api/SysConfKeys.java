@@ -116,6 +116,8 @@ public enum SysConfKeys {
 
 	/**
 	 * HTTP proxy exceptions
+	 * 
+	 * @see {@link org.asynchttpclient.proxy.ProxyServer#isIgnoredForHost(String)}
 	 */
 	http_proxy_exceptions;
 
