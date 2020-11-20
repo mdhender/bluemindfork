@@ -1,11 +1,14 @@
 <template>
-    <iframe
-        ref="iFrameMailContent"
-        :title="$t('mail.content.body')"
-        class="w-100 border-0"
-        :srcdoc="iFrameContent"
-        @load="resizeIFrame"
-    />
+    <div>
+        <iframe
+            ref="iFrameMailContent"
+            :title="$t('mail.content.body')"
+            class="w-100 border-0"
+            :srcdoc="iFrameContent"
+            @load="resizeIFrame"
+        />
+        <div v-if="!scrollbarHeight" ref="scrollbarMeasure" class="scrollbar-measure" />
+    </div>
 </template>
 
 <script>
@@ -31,7 +34,10 @@ export default {
         }
     },
     data() {
-        return { iFrameContent: "" };
+        return {
+            iFrameContent: "",
+            scrollbarHeight: null
+        };
     },
     computed: {
         ...mapState("mail-webapp/currentMessage", { messageKey: "key" }),
@@ -71,13 +77,21 @@ export default {
             }
         }
 
+        this.scrollbarHeight = this.srollbarHeight();
         this.iFrameContent = this.buildHtml(content);
     },
     methods: {
         ...mapMutations("mail", [SET_BLOCK_REMOTE_IMAGES, SET_SHOW_REMOTE_IMAGES_ALERT]),
         resizeIFrame() {
-            let htmlRootNode = this.$refs.iFrameMailContent.contentDocument.documentElement;
-            this.$refs.iFrameMailContent.style.height = this.computeIFrameHeight(htmlRootNode) + "px";
+            const resizeObserver = new ResizeObserver(entries => {
+                if (this.$refs.iFrameMailContent) {
+                    entries.forEach(() => {
+                        let htmlRootNode = this.$refs.iFrameMailContent.contentDocument.documentElement;
+                        this.$refs.iFrameMailContent.style.height = this.computeIFrameHeight(htmlRootNode) + "px";
+                    });
+                }
+            });
+            resizeObserver.observe(this.$refs.iFrameMailContent);
         },
         /** get max offset height between root, body and body children nodes */
         computeIFrameHeight(htmlRootNode) {
@@ -93,7 +107,7 @@ export default {
                     }
                 });
             }
-            return maxHeight + 11;
+            return maxHeight + this.scrollbarHeight;
         },
         buildHtml(content) {
             const label = this.$t("mail.application.region.messagecontent");
@@ -102,13 +116,16 @@ export default {
                 <head><base target="_blank"><style>${style}</style></head>
                 <body><main aria-label="${label}">${content}</main></body>
             </html>`;
+        },
+        srollbarHeight() {
+            return this.$refs.scrollbarMeasure.offsetHeight - this.$refs.scrollbarMeasure.clientHeight;
         }
     }
 };
 
 const BM_STYLE = `
-        body {  
-            font-family: 'Montserrat', sans-serif;     
+        body {
+            font-family: 'Montserrat', sans-serif;
             font-size: 0.75rem;
             font-weight: 400;
             color: #1f1f1f;
@@ -158,3 +175,13 @@ const BM_STYLE = `
             text-decoration-line: underline;
         }`;
 </script>
+
+<style lang="scss">
+.scrollbar-measure {
+    width: 100px;
+    height: 100px;
+    overflow: scroll;
+    position: absolute;
+    top: -9999px;
+}
+</style>

@@ -58,12 +58,18 @@
             >
                 <mail-folder-sidebar @toggle-folders="toggleFolders" />
             </section>
-            <bm-col cols="12" lg="3" class="pl-lg-2 px-0 d-lg-block" :class="hideListInResponsiveMode ? 'd-none' : ''">
-                <mail-message-list class="h-100" />
-            </bm-col>
-            <bm-col lg="7" class="overflow-auto d-flex flex-column">
-                <router-view />
-            </bm-col>
+            <multipane class="w-100" layout="vertical">
+                <div
+                    class="pl-lg-2 px-0 d-lg-block mail-message-list-div"
+                    :class="hideListInResponsiveMode ? 'd-none' : ''"
+                >
+                    <mail-message-list class="h-100" />
+                </div>
+                <multipane-resizer />
+                <div class="flex-grow-1 overflow-auto flex-basis-0">
+                    <router-view />
+                </div>
+            </multipane>
         </bm-row>
         <new-message mobile :class="hideListInResponsiveMode ? 'd-none' : 'd-block'" />
     </main>
@@ -84,6 +90,7 @@ import MailSearchForm from "./MailSearchForm";
 import MessagesOptionsForMobile from "./MessagesOptionsForMobile";
 import NewMessage from "./NewMessage";
 import { MULTIPLE_MESSAGE_SELECTED } from "~getters";
+import { Multipane, MultipaneResizer } from "vue-multipane";
 
 export default {
     name: "MailApp",
@@ -99,6 +106,8 @@ export default {
         MailSearchForm,
         MailToolbar,
         MessagesOptionsForMobile,
+        Multipane,
+        MultipaneResizer,
         NewMessage
     },
     mixins: [MakeUniq],
@@ -195,8 +204,8 @@ export default {
         position: absolute;
         content: "";
         background: black;
-        top: 0px;
-        bottom: 0px;
+        top: 0;
+        bottom: 0;
         width: 100%;
         opacity: 0.5;
         z-index: 1;
@@ -208,5 +217,45 @@ export default {
         height: 4em;
         width: 4em;
     }
+
+    .mail-message-list-div {
+        min-width: 100%;
+        width: 100%;
+    }
+
+    .multipane {
+        overflow-x: hidden;
+    }
+
+    .multipane-resizer {
+        visibility: hidden;
+    }
+
+    /* Large devices (laptops/desktops, 992px and up) */
+    @media only screen and (min-width: 992px) {
+        .mail-message-list-div {
+            min-width: 20%;
+            max-width: 70%;
+            width: 30%;
+        }
+        .multipane-resizer {
+            visibility: visible;
+            margin: 0 0 0 -5px;
+            left: 0;
+            width: 5px;
+            min-width: 5px;
+
+            &:active {
+                background-color: $dark;
+                margin-left: 0;
+                width: 2px;
+                min-width: 2px;
+            }
+        }
+    }
+}
+
+.flex-basis-0 {
+    flex-basis: 0;
 }
 </style>

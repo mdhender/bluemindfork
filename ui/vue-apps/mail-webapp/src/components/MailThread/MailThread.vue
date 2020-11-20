@@ -1,7 +1,7 @@
 <template>
     <article
         v-if="(currentMessageKey && isADraft) || (message && !isADraft)"
-        class="mail-thread d-flex flex-column"
+        class="mail-thread d-flex flex-column overflow-x-hidden"
         :aria-label="$t('mail.application.region.messagethread')"
     >
         <mail-component-alert
@@ -114,5 +114,9 @@ export default {
             height: auto !important;
         }
     }
+}
+
+.overflow-x-hidden {
+    overflow-x: hidden;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
     <section
-        class="mail-viewer d-flex flex-column flex-grow-1 bg-surface"
+        class="mail-viewer d-flex flex-column flex-grow-1 bg-surface overflow-auto"
         :aria-label="$t('mail.application.region.messagedetails')"
     >
         <mail-component-alert
@@ -17,7 +17,7 @@
         </bm-row>
         <bm-row class="px-lg-5 px-4">
             <bm-col cols="12">
-                <h1>{{ subject }}</h1>
+                <h1 class="subject">{{ subject }}</h1>
             </bm-col>
         </bm-row>
         <bm-row class="d-flex px-lg-5 px-4">
@@ -161,6 +161,10 @@ export default {
 
     .mail-viewer-splitter {
         border-top-color: $alternate-light;
+    }
+
+    .subject {
+        word-break: break-word;
     }
 }
 </style>
