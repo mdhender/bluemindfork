@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -116,6 +117,11 @@ public class MboxRestoreServiceTests {
 	private ItemValue<Mailbox> sharedMbox;
 	private String subFolder;
 	private String subFolderWithSpace;
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("ahcnode.fail.https.ok", "true");
+	}
 
 	@Before
 	public void before() throws Exception {
