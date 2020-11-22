@@ -8,5 +8,6 @@ Automatic-Module-Name: net.bluemind.proxy.support
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.system.api,
  org.asynchttpclient.async-http-client;visibility:=reexport,
- org.reactivestreams.reactive-streams;visibility:=reexport
+ org.reactivestreams.reactive-streams;visibility:=reexport,
+ slf4j.api
 Export-Package: net.bluemind.proxy.support

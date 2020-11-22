@@ -19,12 +19,16 @@
 package net.bluemind.proxy.support.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+
+import javax.net.ssl.SSLHandshakeException;
 
 import org.asynchttpclient.Response;
 import org.junit.Test;
@@ -40,6 +44,8 @@ public class AHCWithProxyTests {
 	private final String ALLOWED_URL = String.format("%sallowed", HTTP_TEST_ROOT_URL);
 	private final String FORBIDDEN_URL = String.format("%sforbidden", HTTP_TEST_ROOT_URL);
 	private final String NEEDAUTH_URL = String.format("%sneed-auth", HTTP_TEST_ROOT_URL);
+
+	private final String HTTPS_ALLOWED_URL = String.format("https://%s/allowed", new BmConfIni().get("proxy"));
 
 	private final String AUTH_ALLOWEDUSER = "alloweduser";
 	private final String AUTH_ALLOWEDUSERPASSWORD = "password";
@@ -181,5 +187,26 @@ public class AHCWithProxyTests {
 		proxyConf.put(SysConfKeys.http_proxy_exceptions.name(), new BmConfIni().get("proxy"));
 		response = AHCWithProxy.build(SystemConf.create(proxyConf)).prepareGet(NEEDAUTH_URL).execute().get();
 		assertEquals(200, response.getStatusCode());
+	}
+
+	@Test
+	public void acceptAllCertificate() throws InterruptedException, ExecutionException {
+		Response response = AHCWithProxy.build(SystemConf.create(getProxyConf())).prepareGet(HTTPS_ALLOWED_URL)
+				.execute().get();
+		assertEquals(200, response.getStatusCode());
+
+		try {
+			AHCWithProxy.build(AHCWithProxy.defaultConfig().setSslContext(null), getProxyConf())
+					.prepareGet(HTTPS_ALLOWED_URL).execute().get();
+			fail("Test must thrown an exception");
+		} catch (ExecutionException e) {
+			assertTrue(e.getCause() instanceof SSLHandshakeException);
+
+			Throwable last = e.getCause();
+			while (last.getCause() != null) {
+				last = last.getCause();
+			}
+			assertTrue(last instanceof CertificateException);
+		}
 	}
 }

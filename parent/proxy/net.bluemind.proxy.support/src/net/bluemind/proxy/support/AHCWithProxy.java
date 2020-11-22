@@ -22,14 +22,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLException;
+
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig.Builder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 
 public class AHCWithProxy {
+	private static final Logger logger = LoggerFactory.getLogger(AHCWithProxy.class);
+
 	private static final int TIMEOUT = (int) TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
 	private static final int DEFAULT_READ_TIMEOUT = (int) TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
 	private static final int MAX_REDIRECT = 5;
@@ -40,12 +49,21 @@ public class AHCWithProxy {
 	 * Get BlueMind default configuration
 	 * 
 	 * @return DefaultAsyncHttpClientConfig.Builder set with 5 max redirect, no
-	 *         retry and 30s timeout
+	 *         retry and 30s timeout, accepting all certificates
 	 */
 	public static DefaultAsyncHttpClientConfig.Builder defaultConfig() {
-		return new DefaultAsyncHttpClientConfig.Builder().setFollowRedirect(true).setMaxRedirects(MAX_REDIRECT)
-				.setPooledConnectionIdleTimeout(DEFAULT_POOLED_CONN_IDLE_TIMEOUT).setMaxRequestRetry(0)
-				.setRequestTimeout(TIMEOUT).setReadTimeout(DEFAULT_READ_TIMEOUT);
+		Builder configBuilder = new DefaultAsyncHttpClientConfig.Builder().setFollowRedirect(true)
+				.setMaxRedirects(MAX_REDIRECT).setPooledConnectionIdleTimeout(DEFAULT_POOLED_CONN_IDLE_TIMEOUT)
+				.setMaxRequestRetry(0).setRequestTimeout(TIMEOUT).setReadTimeout(DEFAULT_READ_TIMEOUT);
+
+		try {
+			configBuilder.setSslContext(
+					SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build());
+		} catch (SSLException e) {
+			logger.warn("Unable to init insecure SslContext, continue with default", e);
+		}
+
+		return configBuilder;
 	}
 
 	/**
