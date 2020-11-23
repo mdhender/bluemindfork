@@ -58,11 +58,11 @@ public class ImportAddressBookCommand implements ICmdLet, Runnable {
 
 	@Option(name = "--email", description = "email address")
 	public String email;
-
+	
 	@Option(required = true, name = "--vcf-file-path", description = "The path of the vcf file.")
 	public String vcfFilePath;
 
-	@Option(name = "--addressbook-uid", description = "Target addressbook uid. Default value: default address book of the specified email")
+	@Option(name = "--addressbook-uid", description = "Target addressbook uid or domainAddressBookUid. Default value for User: default address book of the specified email.")
 	public String addressBookUid;
 
 	@Option(name = "--dry", description = "Dry-run (do nothing)")
@@ -81,16 +81,16 @@ public class ImportAddressBookCommand implements ICmdLet, Runnable {
 	@Override
 	public void run() {
 		if (addressBookUid == null && Strings.isNullOrEmpty(email)) {
-			ctx.error("At least email or address book UID must be present");
-			throw new CliException("At least email or address book UID must be present");
+			ctx.error("At least email or addressbook UID must be present");
+			throw new CliException("At least email or addressbook UID must be present");
 		}
-
-		if (addressBookUid == null) {
+					
+		if (addressBookUid == null && !Strings.isNullOrEmpty(email)) {
 			if (!Regex.EMAIL.validate(email)) {
 				ctx.error(String.format("Invalid email : %s", email));
 				throw new CliException(String.format("Invalid email : %s", email));
 			}
-
+			
 			try {
 				addressBookUid = IAddressBookUids.defaultUserAddressbook(cliUtils.getUserUidFromEmail(email));
 			} catch (CliException cli) {

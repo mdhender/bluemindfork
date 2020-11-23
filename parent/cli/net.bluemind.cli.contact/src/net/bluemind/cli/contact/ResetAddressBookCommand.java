@@ -60,7 +60,7 @@ public class ResetAddressBookCommand implements ICmdLet, Runnable {
 	@Option(name = "--email", description = "email address")
 	public String email;
 
-	@Option(name = "--addressbook-uid", description = "The addressbook uid to reset. Default is ContactsCollected addressbook of the specified email")
+	@Option(name = "--addressbook-uid", description = "The addressbook uid to reset. Default is ContactsCollected addressbook of the specified email. Default DomainAddressBook is domainAddressbook uid.")
 	public String addressBookUid;
 
 	@Option(name = "--dry", description = "Dry-run (do nothing)")
@@ -83,7 +83,7 @@ public class ResetAddressBookCommand implements ICmdLet, Runnable {
 			throw new CliException("At least email or address book UID must be present");
 		}
 
-		if (addressBookUid == null) {
+		if (addressBookUid == null && !Strings.isNullOrEmpty(email)) {
 			if (!Regex.EMAIL.validate(email)) {
 				ctx.error(String.format("Invalid email : %s", email));
 				throw new CliException(String.format("Invalid email : %s", email));
