@@ -39,7 +39,9 @@ describe("[Mail-WebappStore][actions] : move", () => {
     beforeEach(() => {
         context.commit.mockClear();
         context.dispatch.mockClear();
-        context.dispatch.mockReturnValueOnce(Promise.resolve([{ subject: "dummy" }]));
+        context.dispatch.mockReturnValueOnce(
+            Promise.resolve([{ subject: "dummy", flags: [], folderRef: { key: "folder-key" } }])
+        );
         context.dispatch.mockReturnValueOnce("folder-key");
     });
 
@@ -65,7 +67,7 @@ describe("[Mail-WebappStore][actions] : move", () => {
             };
         move(context, { messageKey, folder }).then(() => {
             expect(context.commit).toHaveBeenNthCalledWith(
-                1,
+                3,
                 "alert/addApplicationAlert",
                 {
                     code: "MSG_MOVE_OK",

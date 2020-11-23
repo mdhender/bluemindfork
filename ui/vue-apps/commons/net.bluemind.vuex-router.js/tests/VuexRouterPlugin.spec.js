@@ -1,15 +1,16 @@
 import { extend } from "../src/";
 
 const store = "Store!";
+const next = jest.fn();
 const VueRouterMock = {
     callbacks: [],
-    next: jest.fn(),
+    next,
     beforeEach(callback) {
         this.callbacks.push(callback);
     },
     async navigate(from, to) {
         for (let callback of this.callbacks) {
-            await callback(to, from, this.next);
+            await callback(to, from, next);
         }
     }
 };
@@ -63,6 +64,7 @@ const to = {
     },
     matched: [UPDATING, ENTERING]
 };
+// const next = () => {};
 
 describe("VuexRouterPlugin", () => {
     beforeAll(() => {
@@ -87,14 +89,14 @@ describe("VuexRouterPlugin", () => {
     test("execute onUpdate hook each time a route is matched", async () => {
         await VueRouterMock.navigate(from, to);
         expect(ENTERING.meta.onUpdate).toHaveBeenCalledTimes(1);
-        expect(ENTERING.meta.onUpdate).toHaveBeenNthCalledWith(1, store, to, from);
+        expect(ENTERING.meta.onUpdate).toHaveBeenNthCalledWith(1, store, to, from, next);
         expect(UPDATING.meta.onUpdate).toHaveBeenCalledTimes(1);
-        expect(UPDATING.meta.onUpdate).toHaveBeenNthCalledWith(1, store, to, from);
+        expect(UPDATING.meta.onUpdate).toHaveBeenNthCalledWith(1, store, to, from, next);
         expect(LEAVING.meta.onUpdate).not.toHaveBeenCalled();
         expect(NEVER.meta.onUpdate).not.toHaveBeenCalled();
         await VueRouterMock.navigate(to, to);
         expect(UPDATING.meta.onUpdate).toHaveBeenCalledTimes(2);
-        expect(UPDATING.meta.onUpdate).toHaveBeenNthCalledWith(2, store, to, to);
+        expect(UPDATING.meta.onUpdate).toHaveBeenNthCalledWith(2, store, to, to, next);
         expect(NEVER.meta.onUpdate).not.toHaveBeenCalled();
     });
     test("execute onLeave hook when a route is not matched anymore", async () => {
