@@ -22,8 +22,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-import org.elasticsearch.action.admin.indices.stats.IndexStats;
-
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
@@ -47,9 +45,8 @@ public class IndexedMailCountCommand implements ICmdLet, Runnable {
 		PublicInfos infos = CliContext.get().adminApi().instance(IInstallation.class).getInfos();
 		ctx.info("infos: " + infos.softwareVersion + " " + infos.releaseName);
 		do {
-			IndexStats stat = ESearchActivator.getClient().admin().indices().prepareStats("mailspool_pending").get()
-					.getIndex("mailspool_pending");
-			docs = stat.getTotal().docs.getCount();
+			docs = ESearchActivator.getClient().admin().indices().prepareStats("mailspool_pending_alias").get()
+					.getTotal().docs.getCount();
 			ctx.info("Found " + docs + " indexed mails");
 			if (progress != null) {
 				double perc = (double) docs / progress * 100;
