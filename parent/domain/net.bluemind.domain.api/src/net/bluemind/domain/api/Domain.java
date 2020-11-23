@@ -60,6 +60,12 @@ public class Domain {
 	public Set<String> aliases = Collections.emptySet();
 
 	/**
+	 * Default alias to use on this domain (must be contained in aliases or equals
+	 * to name)
+	 */
+	public String defaultAlias;
+
+	/**
 	 * Create a domain object.
 	 * 
 	 * @param name
@@ -69,28 +75,39 @@ public class Domain {
 	 * @return a new domain object
 	 */
 	public static Domain create(String name, String label, String description, Set<String> aliases) {
+		return create(name, label, description, aliases, name);
+	}
+
+	/**
+	 * Create a domain object.
+	 * 
+	 * @param name
+	 * @param label
+	 * @param description
+	 * @param aliases
+	 * @param defaultAlias
+	 * @return a new domain object
+	 */
+	public static Domain create(String name, String label, String description, Set<String> aliases,
+			String defaultAlias) {
 		Domain ret = new Domain();
 		ret.name = name;
 		ret.label = label;
 		ret.description = description;
 		ret.aliases = aliases;
+		ret.defaultAlias = defaultAlias;
 		return ret;
 	}
 
 	/**
-	 * 
 	 * Copy this domain object.
 	 * 
 	 * @return duplicated domain object
 	 */
 	public Domain copy() {
-		Domain d = new Domain();
-		d.label = label;
-		d.name = name;
-		d.description = description;
+		Domain d = create(name, label, description, new HashSet<>(aliases), defaultAlias);
 		d.properties = new HashMap<>(properties);
 		d.global = global;
-		d.aliases = new HashSet<>(aliases);
 		return d;
 	}
 

@@ -31,12 +31,13 @@ import net.bluemind.domain.api.Domain;
 
 public class DomainColumns {
 
-	public static Columns cols = Columns.create() //
+	public static final Columns cols = Columns.create() //
 			.col("label")//
 			.col("name") //
 			.col("description")//
 			.col("global") //
 			.col("aliases") //
+			.col("default_alias") //
 			.col("properties");
 
 	/**
@@ -44,35 +45,31 @@ public class DomainColumns {
 	 */
 	public static DomainStore.StatementValues<Domain> statementValues(final long itemId) {
 		return (con, statement, index, currentRow, domain) -> {
-
 			statement.setString(index++, domain.label);
 			statement.setString(index++, domain.name);
 			statement.setString(index++, domain.description);
 			statement.setBoolean(index++, domain.global);
 			statement.setArray(index++, con.createArrayOf("text", domain.aliases.toArray(new String[0])));
-
+			statement.setString(index++, domain.defaultAlias);
 			statement.setObject(index++, domain.properties);
-
 			statement.setLong(index++, itemId);
-
 			return index;
 		};
 	}
 
 	public static DomainStore.EntityPopulator<Domain> populator() {
 		return (rs, index, domain) -> {
-
 			domain.label = rs.getString(index++);
 			domain.name = rs.getString(index++);
 			domain.description = rs.getString(index++);
 			domain.global = rs.getBoolean(index++);
 			domain.aliases = new HashSet<>(Arrays.asList(arrayOfString(rs.getArray(index++))));
+			domain.defaultAlias = rs.getString(index++);
 			domain.properties = new HashMap<String, String>();
 			Object properties = rs.getObject(index++);
 			if (properties != null) {
 				domain.properties.putAll((Map<String, String>) properties);
 			}
-
 			return index;
 		};
 	}
