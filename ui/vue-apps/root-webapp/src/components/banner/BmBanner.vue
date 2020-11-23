@@ -8,7 +8,7 @@
         <bm-button
             id="all-apps-popover"
             v-bm-tooltip
-            variant="link"
+            variant="inline-light"
             class="px-3 align-self-center"
             :title="$t('banner.reach.all_apps')"
             :aria-label="$t('banner.reach.all_apps')"
@@ -54,7 +54,7 @@
             href="https://forge.bluemind.net/confluence/display/BM4/La+messagerie"
             target="_blank"
             :title="$t('banner.reach.help')"
-            class="align-self-center text-white mr-4"
+            class="align-self-center mr-4 btn btn-inline-light"
         >
             <bm-icon icon="interrogation" size="lg"
         /></a>
@@ -159,21 +159,12 @@ export default {
     cursor: pointer;
 }
 
-.bm-banner .fa-9dots {
-    color: color-yiq(theme-color("info-dark")) !important;
-}
-
 .bm-banner .navbar-brand {
     margin-right: 0;
 }
 
-.bm-banner #all-apps-popover:focus {
-    outline: 1px dotted $white;
-}
-
 .bm-banner #all-apps-popover:focus,
 .bm-banner #all-apps-popover:hover {
-    background-color: unset;
     &::before {
         opacity: 0;
     }
@@ -199,6 +190,10 @@ export default {
 .apps-popover a:focus,
 .apps-popover .bm-app.router-link-active {
     color: $primary;
+}
+
+.apps-popover a:visited {
+    color: $white;
 }
 
 .apps-popover .bm-app.router-link-active {

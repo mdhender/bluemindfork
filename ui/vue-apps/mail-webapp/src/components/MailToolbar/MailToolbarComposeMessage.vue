@@ -2,7 +2,8 @@
     <div>
         <bm-button
             v-bm-tooltip.bottom
-            variant="simple-dark"
+            variant="inline-light"
+            class="btn-lg-simple-dark"
             :aria-label="$tc('mail.actions.send.aria')"
             :title="$tc('mail.actions.send.aria')"
             :disabled="isSending || !hasRecipient"
@@ -13,7 +14,8 @@
         </bm-button>
         <bm-button
             v-bm-tooltip.bottom
-            variant="simple-dark"
+            variant="inline-light"
+            class="btn-lg-simple-dark"
             :aria-label="$tc('mail.actions.attach.aria')"
             :title="$tc('mail.actions.attach.aria')"
             :disabled="isSending"
@@ -39,7 +41,8 @@
         />
         <bm-button
             v-bm-tooltip.bottom
-            variant="simple-dark"
+            variant="inline-light"
+            class="btn-lg-simple-dark"
             :aria-label="$tc('mail.actions.save.aria')"
             :title="$tc('mail.actions.save.aria')"
             :disabled="isSaving || isSending"
@@ -57,7 +60,8 @@
         </bm-button>
         <bm-button
             v-bm-tooltip.bottom
-            variant="simple-dark"
+            variant="inline-light"
+            class="btn-lg-simple-dark"
             :aria-label="$tc('mail.actions.remove.compose.aria')"
             :title="$tc('mail.actions.remove.compose.aria')"
             :disabled="isSaving || isSending"

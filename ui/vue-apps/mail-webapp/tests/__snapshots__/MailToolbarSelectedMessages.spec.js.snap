@@ -5,7 +5,7 @@ exports[`MailToolbarSelectedMessages should match snapshot 1`] = `
   class="mail-toolbar-consult-message"
 >
   <button
-    class="btn unread btn-simple-dark"
+    class="btn unread btn-lg-simple-dark btn-inline-light"
     type="button"
   >
     <svg
@@ -33,7 +33,7 @@ exports[`MailToolbarSelectedMessages should match snapshot 1`] = `
   </button>
    
   <button
-    class="btn read btn-simple-dark"
+    class="btn read btn-lg-simple-dark btn-inline-light"
     style="display: none;"
     type="button"
   >
@@ -69,7 +69,7 @@ exports[`MailToolbarSelectedMessages should match snapshot 1`] = `
     <button
       aria-expanded="false"
       aria-haspopup="true"
-      class="btn dropdown-toggle btn-simple-dark dropdown-toggle-no-caret"
+      class="btn dropdown-toggle btn-inline-light btn-lg-simple-dark dropdown-toggle-no-caret"
       type="button"
     >
       <svg
@@ -224,7 +224,7 @@ exports[`MailToolbarSelectedMessages should match snapshot 1`] = `
   </div>
    
   <button
-    class="btn btn-simple-dark"
+    class="btn btn-lg-simple-dark btn-inline-light"
     style="display: none;"
     type="button"
   >
@@ -253,7 +253,7 @@ exports[`MailToolbarSelectedMessages should match snapshot 1`] = `
   </button>
    
   <button
-    class="btn flagged btn-simple-dark"
+    class="btn flagged btn-lg-simple-dark btn-inline-light"
     style="display: none;"
     type="button"
   >
@@ -282,7 +282,7 @@ exports[`MailToolbarSelectedMessages should match snapshot 1`] = `
   </button>
    
   <button
-    class="btn unflagged btn-simple-dark"
+    class="btn unflagged btn-lg-simple-dark btn-inline-light"
     style="display: none;"
     type="button"
   >

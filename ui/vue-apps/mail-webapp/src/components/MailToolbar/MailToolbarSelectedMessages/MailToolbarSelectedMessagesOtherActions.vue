@@ -2,9 +2,10 @@
     <bm-dropdown
         v-bm-tooltip.bottom
         :no-caret="true"
-        variant="simple-dark"
+        variant="inline-light"
         :aria-label="$tc('mail.toolbar.more.aria')"
         :title="$tc('mail.toolbar.more.aria')"
+        toggle-class="btn-lg-simple-dark"
         class="other_actions h-100"
         right
     >

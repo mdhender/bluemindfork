@@ -4,7 +4,8 @@
         v-bm-tooltip.bottom
         no-caret
         class="h-100 move-message"
-        variant="simple-dark"
+        variant="inline-light"
+        toggle-class="btn-lg-simple-dark"
         :title="$t('mail.toolbar.move.tooltip')"
         :aria-label="$t('mail.actions.move.aria')"
         @shown="openMoveAutocomplete"

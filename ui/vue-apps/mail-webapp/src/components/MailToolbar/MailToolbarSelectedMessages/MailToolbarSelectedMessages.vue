@@ -3,8 +3,8 @@
         <bm-button
             v-show="displayMarkAsRead"
             v-bm-tooltip.bottom
-            variant="simple-dark"
-            class="unread"
+            variant="inline-light"
+            class="unread btn-lg-simple-dark"
             :title="$tc('mail.actions.mark_read.aria', selection.length || 1)"
             :aria-label="$tc('mail.actions.mark_read.aria', selection.length || 1)"
             @click="doMarkAsRead"
@@ -15,8 +15,8 @@
         <bm-button
             v-show="displayMarkAsUnread"
             v-bm-tooltip.bottom
-            variant="simple-dark"
-            class="read"
+            variant="inline-light"
+            class="read btn-lg-simple-dark"
             :title="$tc('mail.actions.mark_unread.aria', selection.length || 1)"
             :aria-label="$tc('mail.actions.mark_unread.aria', selection.length || 1)"
             @click="doMarkAsUnread"
@@ -30,7 +30,8 @@
         <bm-button
             v-show="!selectionHasReadOnlyFolders"
             v-bm-tooltip.bottom
-            variant="simple-dark"
+            variant="inline-light"
+            class="btn-lg-simple-dark"
             :title="$tc('mail.actions.remove.aria')"
             :aria-label="$tc('mail.actions.remove.aria')"
             @click.exact="remove"
@@ -42,8 +43,8 @@
         <bm-button
             v-show="displayMarkAsFlagged"
             v-bm-tooltip.bottom
-            variant="simple-dark"
-            class="flagged"
+            variant="inline-light"
+            class="flagged btn-lg-simple-dark"
             :title="$tc('mail.actions.mark_flagged.aria', selection.length)"
             :aria-label="$tc('mail.actions.mark_flagged.aria', selection.length)"
             @click="doMarkAsFlagged"
@@ -54,8 +55,8 @@
         <bm-button
             v-show="displayMarkAsUnflagged"
             v-bm-tooltip.bottom
-            variant="simple-dark"
-            class="unflagged"
+            variant="inline-light"
+            class="unflagged btn-lg-simple-dark"
             :title="$tc('mail.actions.mark_unflagged.aria', selection.length)"
             :aria-label="$tc('mail.actions.mark_unflagged.aria', selection.length)"
             @click="doMarkAsUnflagged"
