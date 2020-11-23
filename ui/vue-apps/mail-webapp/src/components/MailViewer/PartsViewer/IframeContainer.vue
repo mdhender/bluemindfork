@@ -75,6 +75,7 @@ const BM_STYLE = `
             font-weight: 400;
             color: #1f1f1f;
             margin: 0;
+            word-break: break-word !important;
         }
 
         pre {

@@ -429,6 +429,8 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-composer {
+    word-break: break-word !important;
+
     .row {
         min-height: fit-content;
     }
