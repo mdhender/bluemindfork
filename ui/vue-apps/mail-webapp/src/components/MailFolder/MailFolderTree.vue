@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="mail-folder-tree">
         <bm-button
             variant="inline-info-dark"
             class="collapse-tree-btn d-flex align-items-center pb-2 pt-3 border-0 pl-2 w-100"
@@ -101,9 +101,7 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
-.mail-folder-tree {
-    button.collapse-tree-btn {
-        border-bottom: 1px solid $light !important;
-    }
+.mail-folder-tree .mail-folder-input svg {
+    margin-left: $sp-1;
 }
 </style>
