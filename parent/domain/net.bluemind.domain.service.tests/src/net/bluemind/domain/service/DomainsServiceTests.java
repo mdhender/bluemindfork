@@ -571,18 +571,48 @@ public class DomainsServiceTests {
 	public void testDefaultAliasInvalidValue() throws ServerFault {
 		IDomains domains = getService();
 		Domain d = Domain.create("test.lan", "label", "desc", new HashSet<>(Arrays.asList("test1.lan", "test2.lan")));
-		d.defaultAlias = "";
-		try {
-			domains.create("test.lan", d);
-			fail("domain creation with empty default alias should not be permitted");
-		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-		}
 
 		d.defaultAlias = "not.existent";
 		try {
 			domains.create("test.lan", d);
 			fail("domain creation with default alias not equal to domain name or present in aliases should not be permitted");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+	}
+
+	@Test
+	public void testUpdateDefaultAliasForbidden() throws ServerFault {
+		IDomains domains = getService();
+		Domain domain = createDomain("test.lan", new HashSet<>(Arrays.asList("moto.becane")));
+		ItemValue<Domain> created = domains.get("test.lan");
+		assertNotNull(created);
+
+		domain.defaultAlias = "moto.becane";
+		try {
+			domains.update(domain.name, domain);
+			fail("domain update of defaultAlias should not be permitted");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+	}
+
+	@Test
+	public void testSetDefaultAlias() throws ServerFault {
+		IDomains domains = getService();
+		Domain domain = createDomain("test.lan", new HashSet<>(Arrays.asList("moto.guzzy")));
+		domains.setDefaultAlias(domain.name, "moto.guzzy");
+		ItemValue<Domain> created = domains.get("test.lan");
+		assertEquals(created.value.defaultAlias, "moto.guzzy");
+	}
+
+	@Test
+	public void testSetDefaultAliasInvalidAlias() throws ServerFault {
+		IDomains domains = getService();
+		Domain domain = createDomain("test.lan");
+		try {
+			domains.setDefaultAlias(domain.name, "not.valid");
+			fail("domainAlias must be part of aliases only");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
 		}
