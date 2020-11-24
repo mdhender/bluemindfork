@@ -144,7 +144,7 @@ public interface IDomains {
 	 * @throws ServerFault standard error object
 	 */
 	@POST
-	@Path("{uid}/_defaultAlias")
+	@Path("{uid}/_default_alias")
 	public void setDefaultAlias(@PathParam("uid") String uid, String defaultAlias) throws ServerFault;
 
 	/**

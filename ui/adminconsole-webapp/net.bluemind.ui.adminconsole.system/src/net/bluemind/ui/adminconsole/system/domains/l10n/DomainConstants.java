@@ -29,6 +29,10 @@ public interface DomainConstants extends Messages {
 
 	String nameColumn();
 
+	String defaultAlias();
+
+	String defaultAliasColumn();
+
 	String mailServices();
 
 	String shouldCreateAdmin();

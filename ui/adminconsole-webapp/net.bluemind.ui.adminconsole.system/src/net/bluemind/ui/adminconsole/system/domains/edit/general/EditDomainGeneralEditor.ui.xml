@@ -17,7 +17,15 @@
 					<g:Label text="{c.name}:"></g:Label>
 				</td>
 				<td style='width:400px'>
-					<g:TextBox readOnly="true" width="400px" ui:field="name" />
+					<g:Label width="400px" ui:field="name" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.defaultAlias}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox visibleItemCount="1" width="400px" ui:field="defaultAlias" />
 				</td>
 			</tr>
 			<tr>

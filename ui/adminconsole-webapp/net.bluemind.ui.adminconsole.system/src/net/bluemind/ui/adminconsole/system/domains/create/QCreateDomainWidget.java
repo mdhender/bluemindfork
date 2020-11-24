@@ -62,7 +62,7 @@ public class QCreateDomainWidget extends CompositeGwtWidgetElement {
 	Label errorLabel;
 
 	@UiField
-	TextBox name;
+	TextBox defaultAlias;
 
 	@UiField
 	ListBox mailServices;
@@ -118,7 +118,7 @@ public class QCreateDomainWidget extends CompositeGwtWidgetElement {
 
 		mmodel.domainUid = Long.toHexString(System.currentTimeMillis()) + ".internal";
 		mmodel.name = mmodel.domainUid;
-		mmodel.domainAlias = name.getText();
+		mmodel.domainAlias = defaultAlias.getText();
 		mmodel.selectedServer = serverMapping.get(mailServices.getSelectedValue());
 
 		Boolean ca = createAdmin.getValue();
