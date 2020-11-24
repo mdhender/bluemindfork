@@ -50,6 +50,15 @@ public class DomainValidator {
 
 		checkAliasesFormat(domain.aliases);
 		checkAliasUniquity(store, domain.name, domain.aliases);
+		checkDefaultAlias(domain);
+	}
+
+	private void checkDefaultAlias(Domain domain) throws ServerFault {
+		ParametersValidator.notNullAndNotEmpty(domain.defaultAlias);
+		if (!domain.aliases.contains(domain.defaultAlias) && !domain.defaultAlias.equals(domain.name)) {
+			throw new ServerFault("defaultAlias is neither equals to domain name or contained in domain aliases",
+					ErrorCode.INVALID_PARAMETER);
+		}
 	}
 
 	private void checkAliasUniquity(DomainStoreService store, String name, Set<String> aliases) throws ServerFault {

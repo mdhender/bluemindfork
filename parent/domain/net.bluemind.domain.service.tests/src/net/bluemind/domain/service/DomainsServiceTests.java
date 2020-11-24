@@ -649,4 +649,41 @@ public class DomainsServiceTests {
 			fail("should be able to retrieve this domain");
 		}
 	}
+
+	@Test
+	public void testDefaultAliasDefaultValue() throws ServerFault {
+		IDomains domains = getService();
+		Domain d = createDomain("test.lan", new HashSet<>(Arrays.asList("test1.lan", "test2.lan")));
+		ItemValue<Domain> created = domains.get("test.lan");
+		assertEquals(created.value.defaultAlias, d.name);
+
+		d = Domain.create("test.lan", "label", "desc", new HashSet<>(Arrays.asList("test1.lan", "test2.lan")));
+		assertEquals(d.name, d.defaultAlias);
+
+		d = Domain.create("test.lan", "label", "desc", new HashSet<>(Arrays.asList("test1.lan", "test2.lan")),
+				"test2.lan");
+		assertEquals("test2.lan", d.defaultAlias);
+	}
+
+	@Test
+	public void testDefaultAliasInvalidValue() throws ServerFault {
+		IDomains domains = getService();
+		Domain d = Domain.create("test.lan", "label", "desc", new HashSet<>(Arrays.asList("test1.lan", "test2.lan")));
+		d.defaultAlias = "";
+		try {
+			domains.create("test.lan", d);
+			fail("domain creation with empty default alias should not be permitted");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		d.defaultAlias = "not.existent";
+		try {
+			domains.create("test.lan", d);
+			fail("domain creation with default alias not equal to domain name or present in aliases should not be permitted");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+	}
+
 }

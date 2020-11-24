@@ -54,7 +54,7 @@ public class DomainStoreService extends ContainerStoreService<Domain> {
 	protected void deleteValue(Item item) throws ServerFault, SQLException {
 		super.deleteValue(item);
 		try {
-			roleStore.set(item, new HashSet<String>());
+			roleStore.set(item, new HashSet<>());
 			domainSettingsStore.delete(item);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
