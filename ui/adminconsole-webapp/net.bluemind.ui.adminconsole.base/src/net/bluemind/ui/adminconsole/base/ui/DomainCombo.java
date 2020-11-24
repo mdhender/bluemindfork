@@ -40,7 +40,7 @@ public class DomainCombo extends ListBox {
 	}
 
 	public void init(ItemValue<Domain> d) {
-		GWT.log("init with domain: " + d.value.name + " g: " + d.value.global);
+		GWT.log("init with domain: " + d.value.defaultAlias + " g: " + d.value.global);
 		if (d.value.global) {
 			setVisible(true);
 
@@ -51,7 +51,7 @@ public class DomainCombo extends ListBox {
 				if (dom.value.global) {
 					domainName = dcc.allDomain();
 				} else {
-					domainName = dom.value.name;
+					domainName = dom.value.defaultAlias;
 				}
 				addItem(domainName, dom.uid);
 			}
