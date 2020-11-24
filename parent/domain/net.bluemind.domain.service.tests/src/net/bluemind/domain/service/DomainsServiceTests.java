@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
@@ -116,13 +117,7 @@ public class DomainsServiceTests {
 
 	@Test
 	public void testCreate() throws ServerFault {
-		IDomains domains = getService();
-		Domain d = new Domain();
-		d.name = "test.lan";
-		d.label = "label";
-		d.description = "desc";
-		d.aliases = Collections.emptySet();
-		domains.create("test.lan", d);
+		createDomain("test.lan");
 
 		DomainStoreService domainStoreService = new DomainStoreService(JdbcTestHelper.getInstance().getDataSource(),
 				SecurityContext.SYSTEM, domainsContainer);
@@ -137,16 +132,9 @@ public class DomainsServiceTests {
 
 	@Test
 	public void testCreateAlreadyExists() throws ServerFault {
-		IDomains domains = getService();
-		Domain d = new Domain();
-		d.name = "test.lan";
-		d.label = "label";
-		d.description = "desc";
-		d.aliases = Collections.emptySet();
-		domains.create("test.lan", d);
-
+		createDomain("test.lan");
 		try {
-			domains.create("test.lan", d);
+			createDomain("test.lan");
 			fail();
 		} catch (ServerFault e) {
 
@@ -155,15 +143,10 @@ public class DomainsServiceTests {
 
 	@Test
 	public void testCreateRight() throws ServerFault {
-
 		SecurityContext testSC = new SecurityContext("admSess", "admTest", Collections.<String>emptyList(),
 				Arrays.asList(SecurityContext.ROLE_ADMIN), "test2.lan");
 		Sessions.get().put("admSess", testSC);
-		Domain d = new Domain();
-		d.name = "test2.lan";
-		d.label = "label";
-		d.description = "desc";
-		d.aliases = Collections.emptySet();
+		Domain d = domain("test2.lan");
 		try {
 			getService(testSC).create("test2.lan", d);
 			fail();
@@ -370,16 +353,19 @@ public class DomainsServiceTests {
 	}
 
 	private Domain domain(String name) {
-		Domain d = new Domain();
-		d.name = name;
-		d.label = name;
-		d.description = "desc";
-		d.aliases = Collections.emptySet();
-		return d;
+		return Domain.create(name, "label", "desc", Collections.emptySet());
+	}
+
+	private Domain domain(String name, Set<String> aliases) {
+		return Domain.create(name, "label", "desc", aliases);
 	}
 
 	private Domain createDomain(String name) throws ServerFault {
-		Domain d = domain(name);
+		return createDomain(name, Collections.emptySet());
+	}
+
+	private Domain createDomain(String name, Set<String> aliases) throws ServerFault {
+		Domain d = domain(name, aliases);
 		getService().create(d.name, d);
 		return d;
 	}
@@ -395,19 +381,10 @@ public class DomainsServiceTests {
 	@Test
 	public void testCreateDomainNameIsAliasOnAnotherDomain() throws ServerFault {
 		IDomains domains = getService();
-		Domain d = new Domain();
-		d.name = "test.lan";
-		d.label = "label";
-		d.description = "desc";
-		d.aliases = new HashSet<String>(Arrays.asList("test2.lan"));
+		Domain d = domain("test.lan", new HashSet<>(Arrays.asList("test2.lan")));
 		domains.create("test.lan", d);
 
-		Domain d2 = new Domain();
-		d2.name = "test2.lan";
-		d2.label = "label";
-		d2.description = "desc";
-		d2.aliases = Collections.emptySet();
-
+		Domain d2 = domain("test2.lan");
 		try {
 			domains.create("test2.lan", d2);
 			fail();
@@ -419,18 +396,8 @@ public class DomainsServiceTests {
 	@Test
 	public void testCreateDomainAliasIsNameOnAnotherDomain() throws ServerFault {
 		IDomains domains = getService();
-		Domain d = new Domain();
-		d.name = "test.lan";
-		d.label = "label";
-		d.description = "desc";
-		d.aliases = Collections.emptySet();
-		domains.create("test.lan", d);
-
-		Domain d2 = new Domain();
-		d2.name = "test2.lan";
-		d2.label = "label";
-		d2.description = "desc";
-		d2.aliases = new HashSet<String>(Arrays.asList("test.lan"));
+		createDomain("test.lan");
+		Domain d2 = domain("test2.lan", new HashSet<>(Arrays.asList("test.lan")));
 
 		try {
 			domains.create("test2.lan", d2);
@@ -443,18 +410,8 @@ public class DomainsServiceTests {
 	@Test
 	public void testCreateDomainAliasIsAliasOnAnotherDomain() throws ServerFault {
 		IDomains domains = getService();
-		Domain d = new Domain();
-		d.name = "test.lan";
-		d.label = "label";
-		d.description = "desc";
-		d.aliases = new HashSet<String>(Arrays.asList("test2.lan"));
-		domains.create("test.lan", d);
-
-		Domain d2 = new Domain();
-		d2.name = "test3.lan";
-		d2.label = "label";
-		d2.description = "desc";
-		d2.aliases = new HashSet<String>(Arrays.asList("test2.lan"));
+		createDomain("test.lan", new HashSet<String>(Arrays.asList("test2.lan")));
+		Domain d2 = domain("test3.lan", new HashSet<String>(Arrays.asList("test2.lan")));
 
 		try {
 			domains.create("test3.lan", d2);
@@ -467,20 +424,8 @@ public class DomainsServiceTests {
 	@Test
 	public void testUpdateDomainAliasIsNameOnAnotherDomain() throws ServerFault {
 		IDomains domains = getService();
-		Domain d = new Domain();
-		d.name = "test.lan";
-		d.label = "label";
-		d.description = "desc";
-		d.aliases = Collections.emptySet();
-		domains.create("test.lan", d);
-
-		Domain d2 = new Domain();
-		d2.name = "test2.lan";
-		d2.label = "label";
-		d2.description = "desc";
-		d2.aliases = Collections.emptySet();
-		domains.create("test2.lan", d2);
-
+		createDomain("test.lan");
+		Domain d2 = createDomain("test2.lan");
 		d2.aliases = new HashSet<String>(Arrays.asList("test.lan"));
 		try {
 			domains.update(d2.name, d2);
@@ -493,20 +438,8 @@ public class DomainsServiceTests {
 	@Test
 	public void testUpdateDomainAliasIsAliasOnAnotherDomain() throws ServerFault {
 		IDomains domains = getService();
-		Domain d = new Domain();
-		d.name = "test.lan";
-		d.label = "label";
-		d.description = "desc";
-		d.aliases = new HashSet<String>(Arrays.asList("test3.lan"));
-		domains.create("test.lan", d);
-
-		Domain d2 = new Domain();
-		d2.name = "test2.lan";
-		d2.label = "label";
-		d2.description = "desc";
-		d2.aliases = Collections.emptySet();
-		domains.create("test2.lan", d2);
-
+		createDomain("test.lan", new HashSet<String>(Arrays.asList("test3.lan")));
+		Domain d2 = createDomain("test2.lan");
 		d2.aliases = new HashSet<String>(Arrays.asList("test3.lan"));
 		try {
 			domains.update(d2.name, d2);
@@ -519,20 +452,8 @@ public class DomainsServiceTests {
 	@Test
 	public void testAddAliasIsNameOnAnotherDomain() throws ServerFault {
 		IDomains domains = getService();
-		Domain d = new Domain();
-		d.name = "test.lan";
-		d.label = "label";
-		d.description = "desc";
-		d.aliases = Collections.emptySet();
-		domains.create("test.lan", d);
-
-		Domain d2 = new Domain();
-		d2.name = "test2.lan";
-		d2.label = "label";
-		d2.description = "desc";
-		d2.aliases = Collections.emptySet();
-		domains.create("test2.lan", d2);
-
+		createDomain("test.lan");
+		Domain d2 = createDomain("test2.lan");
 		try {
 			domains.setAliases(d2.name, new HashSet<>(Arrays.asList("test.lan")));
 			fail();
@@ -544,19 +465,8 @@ public class DomainsServiceTests {
 	@Test
 	public void testAddAliasIsAliasOnAnotherDomain() throws ServerFault {
 		IDomains domains = getService();
-		Domain d = new Domain();
-		d.name = "test.lan";
-		d.label = "label";
-		d.description = "desc";
-		d.aliases = new HashSet<>(Arrays.asList("test3.lan"));
-		domains.create("test.lan", d);
-
-		Domain d2 = new Domain();
-		d2.name = "test2.lan";
-		d2.label = "label";
-		d2.description = "desc";
-		d2.aliases = Collections.emptySet();
-		domains.create("test2.lan", d2);
+		createDomain("test.lan", new HashSet<>(Arrays.asList("test3.lan")));
+		Domain d2 = createDomain("test2.lan");
 
 		try {
 			domains.setAliases(d2.name, new HashSet<>(Arrays.asList("test3.lan")));
@@ -568,11 +478,7 @@ public class DomainsServiceTests {
 
 	@Test
 	public void testGetDomain() throws ServerFault {
-		Domain d = new Domain();
-		d.name = "bm.lan";
-		d.label = "label";
-		d.description = "desc";
-		d.aliases = new HashSet<>(Arrays.asList("test3.lan"));
+		Domain d = domain("bm.lan", new HashSet<>(Arrays.asList("test3.lan")));
 		storeService.create("bm.lan", "bm.lan", d);
 
 		assertNotNull(getService().get("bm.lan"));
@@ -610,11 +516,7 @@ public class DomainsServiceTests {
 
 	@Test
 	public void testFindByNameOrAliases() throws ServerFault {
-		Domain d = new Domain();
-		d.name = "bm.lan";
-		d.label = "label";
-		d.description = "desc";
-		d.aliases = new HashSet<>(Arrays.asList("test3.lan"));
+		Domain d = domain("bm.lan", new HashSet<>(Arrays.asList("test3.lan")));
 		storeService.create("bm.lan", "bm.lan", d);
 
 		assertNotNull(getService().findByNameOrAliases("bm.lan"));

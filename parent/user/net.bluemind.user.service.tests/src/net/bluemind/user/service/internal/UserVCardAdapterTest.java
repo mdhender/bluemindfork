@@ -40,9 +40,8 @@ public class UserVCardAdapterTest {
 
 	@Test
 	public void testAliases() {
-		Domain d = new Domain();
-		d.aliases = ImmutableSet.<String>builder().add("a.net").add("b.net").add("c.net").build();
-		d.name = "origin.net";
+		Domain d = Domain.create("origin.net", "label", "description",
+				ImmutableSet.<String>builder().add("a.net").add("b.net").add("c.net").build());
 		ItemValue<Domain> domain = ItemValue.create("origin.net", d);
 
 		User user = new User();
@@ -66,8 +65,8 @@ public class UserVCardAdapterTest {
 
 	@Test
 	public void tesAliasesAndDefault() {
-		Domain d = new Domain();
-		d.aliases = ImmutableSet.<String>builder().add("a.net").add("b.net").add("c.net").build();
+		Domain d = Domain.create("origin.net", "label", "description",
+				ImmutableSet.<String>builder().add("a.net").add("b.net").add("c.net").build());
 		d.name = "origin.net";
 		ItemValue<Domain> domain = ItemValue.create("origin.net", d);
 
@@ -92,9 +91,8 @@ public class UserVCardAdapterTest {
 
 	@Test
 	public void tesNoAliasesAndDefault() {
-		Domain d = new Domain();
-		d.aliases = ImmutableSet.<String>builder().add("a.net").add("b.net").add("c.net").build();
-		d.name = "origin.net";
+		Domain d = Domain.create("origin.net", "label", "description",
+				ImmutableSet.<String>builder().add("a.net").add("b.net").add("c.net").build());
 		ItemValue<Domain> domain = ItemValue.create("origin.net", d);
 
 		User user = new User();
@@ -111,9 +109,8 @@ public class UserVCardAdapterTest {
 
 	@Test
 	public void testUserWithRoutingNoneShouldHaveNoInternalEmailsInVCard() {
-		Domain d = new Domain();
-		d.aliases = ImmutableSet.<String>builder().add("a.net").add("b.net").add("c.net").build();
-		d.name = "origin.net";
+		Domain d = Domain.create("origin.net", "label", "description",
+				ImmutableSet.<String>builder().add("a.net").add("b.net").add("c.net").build());
 		ItemValue<Domain> domain = ItemValue.create("origin.net", d);
 
 		User user = new User();
@@ -134,9 +131,8 @@ public class UserVCardAdapterTest {
 
 	@Test
 	public void test_BM_10296() {
-		Domain d = new Domain();
-		d.aliases = ImmutableSet.<String>builder().add("a.net").add("b.net").add("c.net").build();
-		d.name = "origin.net";
+		Domain d = Domain.create("origin.net", "label", "description",
+				ImmutableSet.<String>builder().add("a.net").add("b.net").add("c.net").build());
 		ItemValue<Domain> domain = ItemValue.create("origin.net", d);
 
 		User user = new User();

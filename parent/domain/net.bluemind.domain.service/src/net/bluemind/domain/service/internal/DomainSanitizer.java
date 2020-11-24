@@ -19,7 +19,6 @@
 
 package net.bluemind.domain.service.internal;
 
-import java.util.HashSet;
 import java.util.Optional;
 
 import net.bluemind.core.rest.BmContext;
@@ -43,31 +42,17 @@ public class DomainSanitizer implements ISanitizer<Domain> {
 
 	@Override
 	public void create(Domain domain) {
-		setMissingAlias(domain);
 		setMissingDefaultAlias(domain);
 	}
 
 	@Override
 	public void update(Domain current, Domain updated) {
-		setMissingAlias(updated);
 		setMissingDefaultAlias(updated);
-	}
-
-	private void setMissingAlias(Domain domain) {
-		// For unit testing, we are not using the .internal domain uid
-		// but we want a default alias to match domain name.
-		if (!domain.name.endsWith(".internal") && !domain.aliases.contains(domain.name)) {
-			domain.aliases = new HashSet<String>(domain.aliases);
-			domain.aliases.add(domain.name);
-		}
 	}
 
 	private void setMissingDefaultAlias(Domain domain) {
 		if (domain.defaultAlias == null || domain.defaultAlias.isEmpty()) {
-			Optional<String> defaultAlias = domain.aliases.stream().findFirst();
-			if (defaultAlias.isPresent()) {
-				domain.defaultAlias = defaultAlias.get();
-			}
+			domain.defaultAlias = domain.aliases.stream().findFirst().orElse(domain.name);
 		}
 	}
 }

@@ -79,10 +79,7 @@ public class DirItemStoreTests {
 		Item domainItem = Item.create("zob.com", null);
 		domainItem = itemStore.create(domainItem);
 		DomainStore d = new DomainStore(JdbcTestHelper.getInstance().getDataSource());
-		Domain domain = new Domain();
-		domain.name = "zob.com";
-		domain.label = "zob.com";
-		domain.aliases = new HashSet<>(Arrays.asList("boom.com"));
+		Domain domain = Domain.create("zob.com", "zob.com", "zob.com", new HashSet<>(Arrays.asList("boom.com")));
 		d.create(domainItem, domain);
 
 		dirEntryStore = new DirEntryStore(JdbcTestHelper.getInstance().getDataSource(), container);

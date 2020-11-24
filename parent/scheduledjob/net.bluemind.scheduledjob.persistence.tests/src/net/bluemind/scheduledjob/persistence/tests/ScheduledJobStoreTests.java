@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -427,10 +428,7 @@ public class ScheduledJobStoreTests {
 		domainItemStore.create(Item.create("osef", null));
 		Item item = domainItemStore.get("osef");
 
-		Domain domain = new Domain();
-		domain.name = "bm.lan";
-		domain.label = "BlueMind";
-
+		Domain domain = Domain.create("bm.lan", "BlueMind", "description", Collections.emptySet());
 		domainStore.create(item, domain);
 		assertNotNull(domainStore.get(item));
 		return domain;
