@@ -25,7 +25,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.editor.client.IsEditor;
 import com.google.gwt.editor.client.LeafValueEditor;
-import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.dom.client.HasChangeHandlers;
@@ -70,13 +69,7 @@ public class DomainsListBox extends Composite implements IsEditor<LeafValueEdito
 
 	public DomainsListBox() {
 		box = new ListBox();
-		box.addChangeHandler(new ChangeHandler() {
-
-			@Override
-			public void onChange(ChangeEvent event) {
-				updateValue();
-			}
-		});
+		box.addChangeHandler(evt -> updateValue());
 		loadDomains();
 		initWidget(box);
 	}
