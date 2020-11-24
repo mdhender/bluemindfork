@@ -610,15 +610,13 @@ public class FolderBackend extends CoreConnect {
 				dn = getTranslatedDisplayName(bs, h.displayName);
 				break;
 			default:
+				if (Translate.isTranslated(bs.getLang(), dn)) {
+					logger.error("Folder '{}' conflicts with system folder, rename it", dn);
+					dn = dn + " (1)";
+				}
 				folderChangeRef.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
 				break;
 			}
-		} else {
-			if (Translate.isTranslated(bs.getLang(), dn)) {
-				logger.error("Folder '{}' conflicts with system folder, skip it", dn);
-				return null;
-			}
-			folderChangeRef.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
 		}
 
 		folderChangeRef.displayName = dn;
