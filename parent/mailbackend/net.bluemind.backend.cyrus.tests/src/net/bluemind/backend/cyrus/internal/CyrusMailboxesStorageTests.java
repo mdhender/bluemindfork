@@ -8,7 +8,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -28,6 +30,8 @@ import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.imap.Annotation;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.StoreClient;
@@ -77,6 +81,54 @@ public class CyrusMailboxesStorageTests {
 	@After
 	public void after() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
+	}
+
+	@Test
+	public void userMailboxExists_noneRouting() throws SQLException, ServerFault, IOException {
+		String userLogin = "test" + System.nanoTime();
+		PopulateHelper.addUser(userLogin, domainUid, Routing.none);
+
+		try (StoreClient sc = new StoreClient(imapServerAddress, 1143, "admin0", "password")) {
+			assertTrue(sc.login());
+			assertTrue(sc.isExist("user/" + userLogin + "@" + domainUid));
+
+			DefaultFolder.USER_FOLDERS.forEach(
+					df -> assertTrue(sc.isExist(String.format("user/%s/%s@%s", userLogin, df.name, domainUid))));
+		}
+	}
+
+	@Test
+	public void userMailboxExists_internalRouting() throws SQLException, ServerFault, IOException {
+		String userLogin = "test" + System.nanoTime();
+		PopulateHelper.addUser(userLogin, domainUid, Routing.internal);
+
+		try (StoreClient sc = new StoreClient(imapServerAddress, 1143, "admin0", "password")) {
+			assertTrue(sc.login());
+			assertTrue(sc.isExist("user/" + userLogin + "@" + domainUid));
+
+			DefaultFolder.USER_FOLDERS.forEach(
+					df -> assertTrue(sc.isExist(String.format("user/%s/%s@%s", userLogin, df.name, domainUid))));
+		}
+	}
+
+	@Test
+	public void userMailboxExists_externalRouting() throws SQLException, ServerFault, IOException {
+		Map<String, String> domainSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid).get();
+		domainSettings.put(DomainSettingsKeys.mail_routing_relay.name(), "mail.routing.tld");
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomainSettings.class, domainUid)
+				.set(domainSettings);
+
+		String userLogin = "test" + System.nanoTime();
+		PopulateHelper.addUser(userLogin, domainUid, Routing.external);
+
+		try (StoreClient sc = new StoreClient(imapServerAddress, 1143, "admin0", "password")) {
+			assertTrue(sc.login());
+			assertTrue(sc.isExist("user/" + userLogin + "@" + domainUid));
+
+			DefaultFolder.USER_FOLDERS.forEach(
+					df -> assertTrue(sc.isExist(String.format("user/%s/%s@%s", userLogin, df.name, domainUid))));
+		}
 	}
 
 	@Test

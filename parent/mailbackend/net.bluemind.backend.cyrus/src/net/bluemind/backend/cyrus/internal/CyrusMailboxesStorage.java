@@ -110,13 +110,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 
 	@Override
 	public void create(BmContext context, String domainUid, ItemValue<Mailbox> mbox) throws ServerFault {
-
 		logger.info("mailbox created, going to configure it in cyrus");
-
-		if (mbox.value.routing == Mailbox.Routing.external) {
-			logger.info("mailbox is routing == external. No cyrus mbox needed for {}", mbox.uid);
-			return;
-		}
 
 		if (mbox.value.dataLocation == null) {
 			logger.warn("no datalocation for {}", mbox.uid);
