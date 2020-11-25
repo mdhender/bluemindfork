@@ -413,7 +413,8 @@ export default {
                 cancelVariant: "outline-secondary",
                 cancelTitle: this.$t("common.cancel"),
                 centered: true,
-                hideHeaderClose: false
+                hideHeaderClose: false,
+                autoFocusButton: "ok"
             });
             if (confirm) {
                 // delete draft then close the composer
