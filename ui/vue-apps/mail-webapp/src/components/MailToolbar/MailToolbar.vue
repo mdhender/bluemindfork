@@ -5,6 +5,7 @@
         </bm-button>
         <mail-toolbar-compose-message
             v-if="currentMessageKey && messages[currentMessageKey] && messages[currentMessageKey].composing"
+            :message-key="currentMessageKey"
         />
         <mail-toolbar-selected-messages v-else-if="message || MULTIPLE_MESSAGE_SELECTED" />
     </bm-button-toolbar>

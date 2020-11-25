@@ -1,19 +1,14 @@
 <template>
-    <div class="mail-composer-footer d-flex justify-content-between align-items-center">
+    <div class="mail-composer-footer p-2 border-top justify-content-between align-items-center">
         <div>
-            <bm-button
-                type="submit"
-                variant="primary"
-                :disabled="isSending || !hasRecipient"
-                @click.prevent="$emit('send')"
-            >
+            <bm-button type="submit" variant="primary" :disabled="isSending || !hasRecipient" @click.prevent="send">
                 {{ $t("common.send") }}
             </bm-button>
             <bm-button
                 variant="simple-dark"
                 class="ml-2"
                 :disabled="isSaving || isSending"
-                @click.prevent="$emit('delete')"
+                @click.prevent="deleteDraft"
             >
                 {{ $t("common.delete") }}
             </bm-button>
@@ -42,7 +37,7 @@
                 type="file"
                 multiple
                 hidden
-                @change="$emit('add-attachments', $event.target.files)"
+                @change="addAttachments($event.target.files)"
             />
             <bm-button
                 variant="simple-dark"
@@ -70,6 +65,7 @@ import { mapState } from "vuex";
 
 import { DateComparator } from "@bluemind/date";
 import { BmButton, BmIcon, BmDropdown, BmDropdownItemToggle } from "@bluemind/styleguide";
+import ComposerActionsMixin from "../ComposerActionsMixin";
 import { MessageStatus } from "../../model/message";
 import { isInternalIdFaked } from "../../model/draft";
 
@@ -81,17 +77,14 @@ export default {
         BmDropdownItemToggle,
         BmIcon
     },
+    mixins: [ComposerActionsMixin],
     props: {
-        userPrefTextOnly: {
-            type: Boolean,
-            default: false
-        },
         userPrefIsMenuBarOpened: {
             type: Boolean,
             default: false
         },
-        message: {
-            type: Object,
+        messageKey: {
+            type: String,
             required: true
         },
         signature: {
@@ -104,7 +97,10 @@ export default {
         }
     },
     computed: {
-        ...mapState("mail", { editorContent: ({ messageCompose }) => messageCompose.editorContent }),
+        ...mapState("mail", ["messages"]),
+        message() {
+            return this.messages[this.messageKey];
+        },
         hasRecipient() {
             return this.message.to.length > 0 || this.message.cc.length > 0 || this.message.bcc.length > 0;
         },
@@ -151,9 +147,16 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
+
 .mail-composer-footer {
     .toolbar .btn {
         padding: $sp-2;
+    }
+
+    display: none;
+
+    @include media-breakpoint-up(lg) {
+        display: flex;
     }
 }
 </style>

@@ -6,7 +6,7 @@
             :aria-label="$tc('mail.actions.send.aria')"
             :title="$tc('mail.actions.send.aria')"
             :disabled="isSending || !hasRecipient"
-            @click="doSend()"
+            @click="send()"
         >
             <bm-icon icon="send" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.send") }}</span>
@@ -22,35 +22,14 @@
             <bm-icon icon="paper-clip" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.attach") }}</span>
         </bm-button>
-        <input
-            ref="attachInputRef"
-            type="file"
-            multiple
-            hidden
-            @change="
-                ADD_ATTACHMENTS({
-                    messageKey,
-                    files: $event.target.files,
-                    userPrefTextOnly,
-                    myDraftsFolderKey: MY_DRAFTS.key,
-                    messageCompose
-                })
-            "
-        />
+        <input ref="attachInputRef" type="file" multiple hidden @change="addAttachments($event.target.files)" />
         <bm-button
             variant="inline-light"
             class="btn-lg-simple-dark"
             :aria-label="$tc('mail.actions.save.aria')"
             :title="$tc('mail.actions.save.aria')"
             :disabled="isSaving || isSending"
-            @click="
-                SAVE_MESSAGE({
-                    userPrefTextOnly,
-                    draftKey: messageKey,
-                    myDraftsFolderKey: MY_DRAFTS.key,
-                    messageCompose
-                })
-            "
+            @click="save(false)"
         >
             <bm-icon icon="save" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.save") }}</span>
@@ -61,7 +40,7 @@
             :aria-label="$tc('mail.actions.remove.compose.aria')"
             :title="$tc('mail.actions.remove.compose.aria')"
             :disabled="isSaving || isSending"
-            @click="doDelete()"
+            @click="deleteDraft"
         >
             <bm-icon icon="trash" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.remove") }}</span>
@@ -70,14 +49,12 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapState } from "vuex";
 
 import { BmButton, BmIcon } from "@bluemind/styleguide";
 
+import ComposerActionsMixin from "../ComposerActionsMixin";
 import { MessageStatus } from "../../model/message";
-import { isInternalIdFaked } from "../../model/draft";
-import { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~getters";
-import { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE, REMOVE_MESSAGES } from "~actions";
 
 export default {
     name: "MailToolbarComposeMessage",
@@ -85,15 +62,15 @@ export default {
         BmButton,
         BmIcon
     },
-    data() {
-        return {
-            userPrefTextOnly: false // TODO: initialize this with user setting
-        };
+    mixins: [ComposerActionsMixin],
+    props: {
+        messageKey: {
+            type: String,
+            required: true
+        }
     },
     computed: {
-        ...mapState("mail-webapp/currentMessage", { messageKey: "key" }),
-        ...mapState("mail", ["messageCompose", "messages"]),
-        ...mapGetters("mail", { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY }),
+        ...mapState("mail", ["messages"]),
         message() {
             return this.messages[this.messageKey];
         },
@@ -111,38 +88,6 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE, REMOVE_MESSAGES }),
-        async doDelete() {
-            if (isInternalIdFaked(this.message.remoteRef.internalId)) {
-                this.$router.navigate("v:mail:home");
-            } else {
-                const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.draft.delete.confirm.content"), {
-                    title: this.$t("mail.draft.delete.confirm.title"),
-                    okTitle: this.$t("common.delete"),
-                    cancelVariant: "outline-secondary",
-                    cancelTitle: this.$t("common.cancel"),
-                    centered: true,
-                    hideHeaderClose: false,
-                    autoFocusButton: "ok"
-                });
-                if (confirm) {
-                    this.purge(this.messageKey);
-                    this.$router.navigate("v:mail:home");
-                }
-            }
-        },
-        doSend() {
-            this.SEND_MESSAGE({
-                userPrefTextOnly: this.userPrefTextOnly,
-                draftKey: this.messageKey,
-                myMailboxKey: this.MY_MAILBOX_KEY,
-                outboxId: this.MY_OUTBOX.remoteRef.internalId,
-                myDraftsFolder: this.MY_DRAFTS,
-                sentFolder: this.MY_SENT,
-                messageCompose: this.messageCompose
-            });
-            this.$router.navigate("v:mail:home");
-        },
         openFilePicker() {
             this.$refs.attachInputRef.click();
         }
