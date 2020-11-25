@@ -25,8 +25,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.editor.client.IsEditor;
 import com.google.gwt.editor.client.LeafValueEditor;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.logical.shared.HasValueChangeHandlers;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -135,20 +133,10 @@ public class MailAddress extends Composite
 		addOrRemoveIcon.setTitle(constants.removeEmail());
 
 		textBox.getElement().setId("mail-alias-localpart-" + pos);
-		textBox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event) {
-				ValueChangeEvent.fire(MailAddress.this, asEditor().getValue());
-			}
-		});
+		textBox.addChangeHandler(evt -> ValueChangeEvent.fire(MailAddress.this, asEditor().getValue()));
 
 		listBox.getElement().setId("mail-alias-domainpart-" + pos);
-		listBox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event) {
-				ValueChangeEvent.fire(MailAddress.this, asEditor().getValue());
-			}
-		});
+		listBox.addChangeHandler(evt -> ValueChangeEvent.fire(MailAddress.this, asEditor().getValue()));
 
 		initWidget(panel);
 	}

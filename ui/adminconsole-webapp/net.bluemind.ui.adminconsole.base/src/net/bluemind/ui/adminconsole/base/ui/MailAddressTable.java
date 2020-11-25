@@ -29,10 +29,6 @@ import java.util.stream.Collectors;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.Constants;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
@@ -130,29 +126,20 @@ public class MailAddressTable extends Composite {
 	private MailAddress createNewAddressElement(int pos) {
 		final MailAddress ma = new MailAddress(mailAdressList.size());
 		ma.setDomain(domain);
-		ma.addValueChangeHandler(new ValueChangeHandler<JsEmail>() {
-
-			@Override
-			public void onValueChange(ValueChangeEvent<JsEmail> event) {
-				updateDefaultAddressList(null);
-			}
-		});
+		ma.addValueChangeHandler(evt -> updateDefaultAddressList(null));
 		mailAdressList.add(ma);
 		emailPanel.add(ma);
 
 		if (pos == 0) {
 			ma.setFirst();
 			if (sizeLimit > 1) {
-				mailAdressList.get(0).getImage().addClickHandler(new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-						if (mailAdressList.size() < sizeLimit) {
-							createNewAddressElement(mailAdressList.size());
-						}
+				mailAdressList.get(0).getImage().addClickHandler(evt -> {
+					if (mailAdressList.size() < sizeLimit) {
+						createNewAddressElement(mailAdressList.size());
+					}
 
-						if (mailAdressList.size() == sizeLimit) {
-							mailAdressList.get(0).getImage().setVisible(false);
-						}
+					if (mailAdressList.size() == sizeLimit) {
+						mailAdressList.get(0).getImage().setVisible(false);
 					}
 				});
 			} else {
@@ -165,14 +152,11 @@ public class MailAddressTable extends Composite {
 
 		} else {
 			ma.setFollowing();
-			ma.getImage().addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					emailPanel.remove(ma);
-					mailAdressList.remove(ma);
-					mailAdressList.get(0).getImage().setVisible(true);
-					updateDefaultAddressList(null);
-				}
+			ma.getImage().addClickHandler(evt -> {
+				emailPanel.remove(ma);
+				mailAdressList.remove(ma);
+				mailAdressList.get(0).getImage().setVisible(true);
+				updateDefaultAddressList(null);
 			});
 		}
 		return ma;
@@ -204,7 +188,7 @@ public class MailAddressTable extends Composite {
 		JsArray<JsEmail> mapMail = JsArray.createArray().cast();
 		Map<String, Integer> allAdded = new HashMap<>();
 
-		List<JsEmail> emails = mailAdressList.stream().map(ma -> ma.asEditor().getValue()).filter(v -> v != null)
+		List<JsEmail> emails = mailAdressList.stream().map(ma -> ma.asEditor().getValue()).filter(Objects::nonNull)
 				.collect(Collectors.toList());
 		String defaultMail = defaultEmailList.getSelectedValue();
 

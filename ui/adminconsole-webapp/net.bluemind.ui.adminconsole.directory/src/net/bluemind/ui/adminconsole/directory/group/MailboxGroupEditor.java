@@ -21,8 +21,6 @@ package net.bluemind.ui.adminconsole.directory.group;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Document;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.json.client.JSONObject;
@@ -134,26 +132,19 @@ public class MailboxGroupEditor extends CompositeGwtWidgetElement {
 		if (group.getDataLocation() != null) {
 			mailBackend.asEditor().setValue(group.getDataLocation());
 		}
-
-		messaging.addChangeHandler(new ChangeHandler() {
-
-			@Override
-			public void onChange(ChangeEvent event) {
-				if (messaging.getSelectedIndex() == 1) {
-					mailTable.asWidget().setValue(group.getName().toLowerCase(), "all");
-					mailTable.setVisible(true);
-					emailLabel.setVisible(true);
-					archiveMail.setVisible(true);
-				} else {
-					mailTable.asWidget().reset();
-					mailTable.setVisible(false);
-					emailLabel.setVisible(false);
-					archiveMail.setVisible(false);
-				}
-
+		messaging.addChangeHandler(evt -> {
+			if (messaging.getSelectedIndex() == 1) {
+				mailTable.asWidget().setValue(group.getName().toLowerCase(), "all");
+				mailTable.setVisible(true);
+				emailLabel.setVisible(true);
+				archiveMail.setVisible(true);
+			} else {
+				mailTable.asWidget().reset();
+				mailTable.setVisible(false);
+				emailLabel.setVisible(false);
+				archiveMail.setVisible(false);
 			}
 		});
-
 	}
 
 	public static void registerType() {

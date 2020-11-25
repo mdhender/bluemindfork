@@ -161,15 +161,8 @@ public class EditResource extends CompositeGwtWidgetElement {
 		delegation.setReadOnly(widgetModel.isReadOnly());
 		description.setReadOnly(widgetModel.isReadOnly());
 		mailTable.asWidget().setReadOnly(widgetModel.isReadOnly());
-		ClickHandler clickHandler = new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				validateReservationMode();
-			}
-		};
-		reservationModeOwner.addClickHandler(clickHandler);
-		reservationModeAutoAccept.addClickHandler(clickHandler);
+		reservationModeOwner.addClickHandler(evt -> validateReservationMode());
+		reservationModeAutoAccept.addClickHandler(evt -> validateReservationMode());
 	}
 
 	protected void loadResourceProperties(String resourceTypeIdentifier) {

@@ -24,8 +24,6 @@ import java.util.List;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -109,14 +107,7 @@ public class UserMailEditor extends GwtContainerElement {
 		super(model);
 		HTMLPanel panel = uiBinder.createAndBindUi(this);
 		initWidget(panel);
-		mailRoutingSel.addChangeHandler(new ChangeHandler() {
-
-			@Override
-			public void onChange(ChangeEvent event) {
-				routingChanged();
-			}
-		});
-
+		mailRoutingSel.addChangeHandler(evt -> routingChanged());
 	}
 
 	protected void routingChanged() {

@@ -20,8 +20,6 @@ package net.bluemind.ui.adminconsole.base.ui;
 
 import java.util.Set;
 
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.ListBox;
 
 public class MailAddressDefault extends ListBox {
@@ -29,13 +27,7 @@ public class MailAddressDefault extends ListBox {
 	public MailAddressDefault() {
 		super();
 		getElement().setId("default-mail-address");
-
-		addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event) {
-				updateTitle();
-			}
-		});
+		addChangeHandler(evt -> updateTitle());
 	}
 
 	public void updateDefaultAddressList(Set<String> mailAddresses, String defaultEmail) {
