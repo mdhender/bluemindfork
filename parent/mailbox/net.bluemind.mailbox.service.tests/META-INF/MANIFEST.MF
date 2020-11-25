@@ -36,6 +36,7 @@ Require-Bundle: org.junit,
  net.bluemind.role.api;bundle-version="4.1.0",
  net.bluemind.system.api,
  net.bluemind.config,
- net.bluemind.scheduledjob.scheduler
+ net.bluemind.scheduledjob.scheduler,
+ net.bluemind.core.task.service
 Automatic-Module-Name: net.bluemind.mailbox.service.tests
 
