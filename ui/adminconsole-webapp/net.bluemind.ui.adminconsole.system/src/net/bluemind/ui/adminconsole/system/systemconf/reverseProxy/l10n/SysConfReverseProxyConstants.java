@@ -32,4 +32,22 @@ public interface SysConfReverseProxyConstants extends Messages {
 	String reverseProxyTab();
 
 	String nginxWorker();
+
+	String httpProxy();
+
+	String httpProxyHelp();
+
+	String httpProxyEnabled();
+
+	String httpProxyHostname();
+
+	String httpProxyPort();
+
+	String httpProxyLogin();
+
+	String httpProxyPassword();
+
+	String httpProxyExceptions();
+
+	String httpProxyExceptionsHelp();
 }
