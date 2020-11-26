@@ -23,6 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import io.vertx.core.AsyncResult;
@@ -44,6 +45,10 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class DomainServerHookTests {
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("ahcnode.fail.https.ok", "true");
+	}
 
 	@Before
 	public void before() throws Exception {

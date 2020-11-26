@@ -28,6 +28,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -58,6 +59,11 @@ public class DomainSettingsValidatorTests {
 	private String domainUid;
 	private ContainerStoreService<Mailbox> mailboxStoreService;
 
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("ahcnode.fail.https.ok", "true");
+	}
+
 	@Before
 	public void before() throws Exception {
 
@@ -75,7 +81,7 @@ public class DomainSettingsValidatorTests {
 
 		PopulateHelper.createTestDomain(domainUid, esServer);
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				SecurityContext.SYSTEM);
 		Container mailboxContainer = containerStore.get(domainUid);
 

@@ -33,6 +33,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.cache.Cache;
@@ -75,6 +76,11 @@ public class DomainsServiceTests {
 	private Container domainsContainer;
 	private BmContext testContext;
 	private DomainStoreService storeService;
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("ahcnode.fail.https.ok", "true");
+	}
 
 	@Before
 	public void before() throws Exception {
