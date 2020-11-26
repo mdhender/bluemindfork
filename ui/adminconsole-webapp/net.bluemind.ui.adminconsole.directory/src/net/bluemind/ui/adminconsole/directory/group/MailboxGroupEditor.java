@@ -112,6 +112,8 @@ public class MailboxGroupEditor extends CompositeGwtWidgetElement {
 		ItemValue<Domain> domain = new ItemValueGwtSerDer<>(new DomainGwtSerDer())
 				.deserialize(new JSONObject(map.get("domain")));
 		mailTable.setDomain(domain);
+		mailTable.asWidget().setDefaultLogin(group.getName().toLowerCase());
+
 		if (group.getEmails().length() == 0) {
 			messaging.setSelectedIndex(0);
 			mailTable.asWidget().setReadOnly(true);

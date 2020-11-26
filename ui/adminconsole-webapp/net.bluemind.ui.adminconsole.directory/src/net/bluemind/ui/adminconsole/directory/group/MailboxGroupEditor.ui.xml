@@ -126,7 +126,7 @@
 									</td>
 									<td class="form">
 										<ff:MailAddressTableEditor ui:field="mailTable"
-											size="-1" hasImplicitEmail="false" />
+											size="-1" isUserMailbox="false" />
 									</td>
 									<td></td>
 								</tr>

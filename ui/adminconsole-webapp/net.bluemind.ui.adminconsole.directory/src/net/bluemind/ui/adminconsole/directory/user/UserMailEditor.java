@@ -25,7 +25,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.DOM;
@@ -34,11 +33,11 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.ListBox;
 
-import net.bluemind.core.api.Email;
 import net.bluemind.core.api.gwt.js.JsEmail;
-import net.bluemind.core.api.gwt.serder.EmailGwtSerDer;
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.gwt.serder.ItemValueGwtSerDer;
+import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.gwt.serder.DomainGwtSerDer;
 import net.bluemind.gwtconsoleapp.base.editor.ContainerElement;
@@ -126,17 +125,15 @@ public class UserMailEditor extends GwtContainerElement {
 			mailFieldsets.setVisible(false);
 			extMailFieldsets.setVisible(false);
 			noMailFieldsets.setVisible(true);
-
 		}
 	}
 
 	private void addDefaultMail() {
-		if (null != this.login) {
-			JsArray<JsEmail> value = mailTable.asEditor().getValue();
-			if (value == null || value.length() == 0) {
-				mailTable.asWidget().setValue(login, "all");
-				extMailTable.asWidget().setValue(login, "all");
-			}
+		if (login != null) {
+			mailTable.asWidget().setDefaultLogin(login);
+			mailTable.asWidget().setValue(login, "all");
+			extMailTable.asWidget().setDefaultLogin(login);
+			extMailTable.asWidget().setValue(login, "all");
 		}
 	}
 
@@ -153,9 +150,10 @@ public class UserMailEditor extends GwtContainerElement {
 
 	@Override
 	public void loadModel(JavaScriptObject model) {
-		this.login = null;
+		login = null;
 		JsMapStringJsObject map = model.cast();
 		JsUser user = map.get("user").cast();
+		login = user.getLogin();
 
 		String splitRelay = map.getString(DomainSettingsKeys.mail_routing_relay.name());
 
@@ -166,7 +164,6 @@ public class UserMailEditor extends GwtContainerElement {
 		}
 
 		mailRoutingSel.setSelectedIndex(ordinal);
-		routingChanged();
 
 		mailBackend.setDirEntryUid(map.getString("entryUid"));
 		mailBackend.setDomainUid(map.getString("domainUid"));
@@ -177,65 +174,32 @@ public class UserMailEditor extends GwtContainerElement {
 		quota.asEditor().setValue(user.getQuota() != null ? Integer.parseInt(String.valueOf(user.getQuota())) : null);
 		quota.setMailboxAndDomain(map.getString("userId"), map.getString("domainUid"));
 
-		if (map.get("domain") != null) {
-			mailTable.setDomain(
-					new ItemValueGwtSerDer<>(new DomainGwtSerDer()).deserialize(new JSONObject(map.get("domain"))));
+		ItemValue<Domain> domain = new ItemValueGwtSerDer<>(new DomainGwtSerDer())
+				.deserialize(new JSONObject(map.get("domain")));
+		mailTable.setDomain(domain);
+		extMailTable.setDomain(domain);
+		GWT.log("[ume] loadModel domain:" + domain + " login: " + login);
+		routingChanged();
 
-			extMailTable.setDomain(
-					new ItemValueGwtSerDer<>(new DomainGwtSerDer()).deserialize(new JSONObject(map.get("domain"))));
-		}
-
-		if (!user.getRouting().value().equals("none")) {
-			if (user.getEmails().length() == 0) {
-				mailTable.asWidget().setValue(user.getLogin(), "all");
-				extMailTable.asWidget().setValue(user.getLogin(), "all");
-			} else {
-				mailTable.asEditor().setValue(prepareUserEmails(user, map.getString("domainUid")));
-				extMailTable.asEditor().setValue(prepareUserEmails(user, map.getString("domainUid")));
-			}
-		} else {
+		if (user.getRouting().value().equals("none")) {
 			if (user.getEmails().length() > 0) {
 				customEmail.setStringValue(user.getEmails().get(0).getAddress());
 			}
+		} else {
+			mailTable.asEditor().setValue(prepareUserEmails(user));
+			extMailTable.asEditor().setValue(prepareUserEmails(user));
 		}
-		this.login = user.getLogin();
+		mailTable.asWidget().setDefaultLogin(login);
+		extMailTable.asWidget().setDefaultLogin(login);
 		hidden.setValue(user.getHidden());
 	}
 
-	private JsArray<JsEmail> prepareUserEmails(JsUser user, String domain) {
+	private JsArray<JsEmail> prepareUserEmails(JsUser user) {
 		List<JsEmail> preparedMails = new ArrayList<>();
 		JsArray<JsEmail> userMails = user.getEmails();
-		String latd = user.getLogin() + "@" + domain;
 
-		boolean latdAdded = false;
 		for (int i = 0; i < userMails.length(); i++) {
-			JsEmail e = userMails.get(i);
-			if (e.getAddress().equals(latd)) {
-				latdAdded = true;
-				if (e.getAllAliases()) {
-					Email email = new Email();
-					email.address = latd;
-					email.allAliases = false;
-					email.isDefault = e.getIsDefault();
-					JSONValue serialized = new EmailGwtSerDer().serialize(email);
-					preparedMails.add(0, (JsEmail) serialized.isObject().getJavaScriptObject().cast());
-					e.setIsDefault(false);
-					preparedMails.add(1, e);
-				} else {
-					preparedMails.add(0, e);
-				}
-			} else {
-				preparedMails.add(e);
-			}
-		}
-
-		if (!latdAdded) {
-			Email email = new Email();
-			email.address = latd;
-			email.allAliases = false;
-			email.isDefault = false;
-			JSONValue serialized = new EmailGwtSerDer().serialize(email);
-			preparedMails.add(0, (JsEmail) serialized.isObject().getJavaScriptObject().cast());
+			preparedMails.add(userMails.get(i));
 		}
 
 		JsArray<JsEmail> mapMail = JsArray.createArray().cast();

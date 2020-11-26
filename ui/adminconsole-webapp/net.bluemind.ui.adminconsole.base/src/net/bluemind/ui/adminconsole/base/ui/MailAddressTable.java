@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -49,7 +50,8 @@ public class MailAddressTable extends Composite {
 	private MailAddressDefault defaultEmailList;
 	private VerticalPanel emailPanel;
 	private ItemValue<Domain> domain;
-	private boolean hasImplicitEmail;
+	private boolean isUserMailbox;
+	private String defaultLogin;
 
 	public static interface Resources extends ClientBundle {
 		@Source("MailAddress.css")
@@ -74,6 +76,8 @@ public class MailAddressTable extends Composite {
 		String icon();
 
 		String prependedText();
+
+		String invalid();
 	}
 
 	public static interface MailAddressTableConstants extends Constants {
@@ -83,75 +87,66 @@ public class MailAddressTable extends Composite {
 	private static final MailAddressTableConstants constants = GWT.create(MailAddressTableConstants.class);
 
 	private static final Resources RES = GWT.create(Resources.class);
-	private Style s;
+	private Style style;
 
 	public static interface MailAddressConstants extends Constants {
 		String allAliases();
 	}
 
 	@UiConstructor
-	public MailAddressTable(int size, boolean hasImplicitEmail) {
-		s = RES.mailAddressStyle();
-		s.ensureInjected();
+	public MailAddressTable(int size, boolean isUserMailbox) {
+		style = RES.mailAddressStyle();
+		style.ensureInjected();
 
-		this.hasImplicitEmail = hasImplicitEmail;
+		this.isUserMailbox = isUserMailbox;
 		sizeLimit = size == -1 ? Integer.MAX_VALUE : size;
 		emailPanel = new VerticalPanel();
-		emailPanel.setStyleName(s.emailPanel());
+		emailPanel.setStyleName(style.emailPanel());
 		initWidget(emailPanel);
 
 		mailAdressList = new ArrayList<>();
-
 		initPanel();
 	}
 
 	private void initPanel() {
 		FlowPanel emailDefaultPanel = new FlowPanel();
-		emailDefaultPanel.setStyleName(s.defaultListBoxLine());
+		emailDefaultPanel.setStyleName(style.defaultListBoxLine());
 		Label prependedText = new Label();
 		prependedText.setText(constants.defaultEmail());
-		prependedText.setStyleName(s.prependedText());
+		prependedText.setStyleName(style.prependedText());
 		emailDefaultPanel.add(prependedText);
 
 		defaultEmailList = new MailAddressDefault();
-		defaultEmailList.addStyleName(s.defaultListBox());
+		defaultEmailList.addStyleName(style.defaultListBox());
 		emailDefaultPanel.add(defaultEmailList);
 		emailPanel.add(emailDefaultPanel);
 	}
 
-	public void setReadOnly(boolean readOnly) {
+	public void setReadOnly(boolean enabled) {
 		// FIXME
 	}
 
-	private MailAddress createNewAddressElement(int pos) {
-		final MailAddress ma = new MailAddress(mailAdressList.size());
-		ma.setDomain(domain);
-		ma.addValueChangeHandler(evt -> updateDefaultAddressList(null));
+	private MailAddress createNewAddressElement() {
+		final int pos = mailAdressList.size();
+		final MailAddress ma = new MailAddress(mailAdressList.size(), domain.value, isUserMailbox, defaultLogin);
+
 		mailAdressList.add(ma);
 		emailPanel.add(ma);
 
 		if (pos == 0) {
-			ma.setFirst();
+			ma.setIconAdd();
 			if (sizeLimit > 1) {
 				mailAdressList.get(0).getImage().addClickHandler(evt -> {
 					if (mailAdressList.size() < sizeLimit) {
-						createNewAddressElement(mailAdressList.size());
-					}
-
-					if (mailAdressList.size() == sizeLimit) {
-						mailAdressList.get(0).getImage().setVisible(false);
+						createNewAddressElement();
 					}
 				});
-			} else {
+			}
+			if (mailAdressList.size() >= sizeLimit) {
 				mailAdressList.get(0).getImage().setVisible(false);
 			}
-
-			if (hasImplicitEmail) {
-				ma.setImplicit();
-			}
-
 		} else {
-			ma.setFollowing();
+			ma.setIconRemove();
 			ma.getImage().addClickHandler(evt -> {
 				emailPanel.remove(ma);
 				mailAdressList.remove(ma);
@@ -159,6 +154,9 @@ public class MailAddressTable extends Composite {
 				updateDefaultAddressList(null);
 			});
 		}
+
+		ma.addValueChangeHandler(evt -> updateDefaultAddressList(null));
+
 		return ma;
 	}
 
@@ -178,10 +176,8 @@ public class MailAddressTable extends Composite {
 	}
 
 	public void setDomain(ItemValue<Domain> d) {
+		reset();
 		domain = d;
-		for (MailAddress ma : mailAdressList) {
-			ma.setDomain(d);
-		}
 	}
 
 	public JsArray<JsEmail> getValue() {
@@ -189,12 +185,17 @@ public class MailAddressTable extends Composite {
 		Map<String, Integer> allAdded = new HashMap<>();
 
 		List<JsEmail> emails = mailAdressList.stream().map(ma -> ma.asEditor().getValue()).filter(Objects::nonNull)
-				.collect(Collectors.toList());
+				.filter(jsmail -> MailAddress.isValid(jsmail.getAddress())).collect(Collectors.toList());
 		String defaultMail = defaultEmailList.getSelectedValue();
 
 		for (JsEmail email : emails) {
 			String address = email.getAddress();
 			String[] split = address.split("@");
+
+			// Empty login
+			if (split[0].isEmpty()) {
+				continue;
+			}
 			if (email.getAllAliases()) {
 				List<String> xemails = expandMail(email);
 				JsEmail mail;
@@ -221,7 +222,7 @@ public class MailAddressTable extends Composite {
 		for (JsEmail email : emails) {
 			String address = email.getAddress();
 			String[] split = address.split("@");
-			if (allAdded.containsKey(split[0])) {
+			if (allAdded.containsKey(split[0]) || split[0].isEmpty()) {
 				if (defaultMail.equals(address)) {
 					JsEmail jsEmail = mapMail.get(allAdded.get(split[0]));
 					jsEmail.setAddress(address);
@@ -245,45 +246,51 @@ public class MailAddressTable extends Composite {
 		}
 
 		return mapMail;
-
 	}
 
 	void setValue(JsArray<JsEmail> emails) {
 		reset();
-
 		if (emails.length() == 0) {
 			return;
 		}
 
-		if (mailAdressList.isEmpty()) {
-			createNewAddressElement(0);
-		}
-
-		mailAdressList.get(0).asEditor().setValue(emails.get(0));
-
-		String defaultEmail = null;
-		if (emails.get(0).getIsDefault()) {
-			defaultEmail = emails.get(0).getAddress();
-		}
-		for (int i = 1; i < emails.length(); i++) {
+		List<JsEmail> filteredEmails = new ArrayList<>(emails.length());
+		for (int i = 0; i < emails.length(); i++) {
 			JsEmail email = emails.get(i);
-			if (email.getIsDefault()) {
-				defaultEmail = email.getAddress();
+			String[] mailpart = email.getAddress().split("@");
+			if (!email.getAllAliases() && !domain.value.aliases.contains(mailpart[1])) {
+				// this is the implicit email address (@domain.uid)
+				GWT.log("ignore implicit email " + email.getAddress());
+			} else {
+				filteredEmails.add(email);
 			}
-			MailAddress ma = createNewAddressElement(i);
-			ma.asEditor().setValue(email);
 		}
-		updateDefaultAddressList(defaultEmail);
+
+		// This is the logic for adding an empty element to the list
+		// if we want to create a new user, without an email address
+		// or we change the routing from None/External to Internal.
+		if (mailAdressList.isEmpty()) {
+			createNewAddressElement();
+		}
+
+		if (!filteredEmails.isEmpty()) {
+			String defaultEmail = filteredEmails.stream().filter(JsEmail::getIsDefault).map(JsEmail::getAddress)
+					.findAny().orElse(null);
+			JsEmail firstEmail = filteredEmails.get(0);
+			mailAdressList.get(0).asEditor().setValue(firstEmail);
+			for (int i = 1; i < filteredEmails.size(); i++) {
+				createNewAddressElement().asEditor().setValue(filteredEmails.get(i));
+			}
+			updateDefaultAddressList(defaultEmail);
+		}
 	}
 
 	private List<String> expandMail(JsEmail email) {
 		List<String> ret = new ArrayList<>();
-
 		String leftPart = email.getAddress().split("@")[0];
-		ret.add(leftPart + "@" + domain.value.name);
-
-		for (String al : domain.value.aliases) {
-			ret.add(leftPart + "@" + al);
+		ret.add(leftPart + "@" + domain.value.defaultAlias);
+		for (String alias : domain.value.aliases) {
+			ret.add(leftPart + "@" + alias);
 		}
 		return ret;
 	}
@@ -302,23 +309,32 @@ public class MailAddressTable extends Composite {
 		initPanel();
 	}
 
-	public void setValue(String login, String domain) {
-		String email = login + "@" + domain;
-		reset();
-		MailAddress ma = createNewAddressElement(0);
-		JsEmail jemail = JavaScriptObject.createObject().cast();
-		jemail.setAddress(email);
-		jemail.setAllAliases(false);
-		jemail.setIsDefault(false);
-		ma.asEditor().setValue(jemail);
-		updateDefaultAddressList(email);
+	public static native String unaccent(String str)
+	/*-{
+		return str.normalize('NFKD').replace(/[\u0300-\u036f]/g, "");
+	}-*/;
+
+	private static String sanitizeLoginForEmail(final String login) {
+		String newname = login;
+		if (login != null && !login.isEmpty()) {
+			newname = unaccent(login.toLowerCase()).replaceAll("[^a-z0-9!#$%&'*+/=?^_`{|}~-]", "");
+		}
+		return newname;
 	}
 
-	public void setSingleValue(String login, String domain) {
-		hasImplicitEmail = true;
-		setValue(login, domain);
-		mailAdressList.get(0).implicit = false;
-		mailAdressList.get(0).textBox.setEnabled(true);
-		mailAdressList.get(0).listBox.setEnabled(true);
+	public void setValue(String login, String domain) {
+		boolean isDefaultAlias = false;
+		if ("all".equals(domain)) {
+			domain = this.domain.value.defaultAlias;
+			isDefaultAlias = true;
+		}
+		String email = sanitizeLoginForEmail(login) + "@" + domain;
+		JsArray<JsEmail> emails = JavaScriptObject.createArray().cast();
+		emails.push(asJsEmail(email, true, isDefaultAlias));
+		setValue(emails);
+	}
+
+	public void setDefaultLogin(String login) {
+		defaultLogin = sanitizeLoginForEmail(login);
 	}
 }

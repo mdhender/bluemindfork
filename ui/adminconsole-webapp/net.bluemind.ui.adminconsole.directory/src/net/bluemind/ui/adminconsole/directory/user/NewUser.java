@@ -128,7 +128,6 @@ public class NewUser extends CompositeGwtWidgetElement {
 	Label errorLabel;
 
 	ServerFinder serverFinder = new ServerFinder("mail/imap");
-	boolean defaultMailSet = false;
 
 	private NewUser() {
 		HTMLPanel dlp = uiBinder.createAndBindUi(this);
@@ -155,7 +154,7 @@ public class NewUser extends CompositeGwtWidgetElement {
 			accountType.addItem(UserConstants.INST.accountTypeFull(), "FULL");
 			accountType.addItem(UserConstants.INST.accountTypeSimple(), "SIMPLE");
 		}
-
+		login.addChangeHandler(evt -> mailAddressTab.setDefaultLogin(login.getValue()));
 		updateDomainChange(DomainsHolder.get().getSelectedDomain());
 	}
 
@@ -180,7 +179,7 @@ public class NewUser extends CompositeGwtWidgetElement {
 	@UiHandler("login")
 	void loginKeyboard(KeyUpEvent e) {
 		if (mailperms.getValue()) {
-			mailAddressTab.setValue(login.getText(), this.domain.uid);
+			mailAddressTab.setValue(login.getText(), domain.value.defaultAlias);
 		}
 	}
 
@@ -194,10 +193,7 @@ public class NewUser extends CompositeGwtWidgetElement {
 		errorLabel.setText("");
 		if (mailperms.getValue()) {
 			updateMailTable(domain);
-			if (!defaultMailSet) {
-				mailAddressTab.setValue(login.getText(), this.domain.uid);
-				defaultMailSet = true;
-			}
+			mailAddressTab.setValue(login.getText(), domain.value.defaultAlias);
 		} else {
 			updateMailTable(domain);
 		}

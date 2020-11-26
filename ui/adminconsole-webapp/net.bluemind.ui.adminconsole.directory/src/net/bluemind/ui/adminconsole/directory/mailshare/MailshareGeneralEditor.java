@@ -136,6 +136,7 @@ public class MailshareGeneralEditor extends CompositeGwtWidgetElement {
 
 		routing.setSelectedIndex(ordinal);
 
+		mailTable.asWidget().setDefaultLogin(name.getStringValue());
 		mailTable.setDomain(domain);
 
 		JsArray<JsEmail> emails = mailshare.getEmails();

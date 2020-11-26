@@ -209,6 +209,7 @@ public class EditResource extends CompositeGwtWidgetElement {
 					new ItemValueGwtSerDer<>(new DomainGwtSerDer()).deserialize(new JSONObject(map.get("domain"))));
 		}
 		mailTable.asEditor().setValue(resourceDescriptor.getEmails());
+		mailTable.asWidget().setDefaultLogin(name.getStringValue());
 
 		if (resourceDescriptor.getReservationMode().toString()
 				.equals(JsResourceReservationMode.OWNER_MANAGED().toString())) {

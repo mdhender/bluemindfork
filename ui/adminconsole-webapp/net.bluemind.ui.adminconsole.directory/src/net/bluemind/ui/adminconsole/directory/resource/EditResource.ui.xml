@@ -133,7 +133,7 @@
 				</td>
 				<td class="form">
 					<a:MailAddressTableEditor ui:field="mailTable" size="1"
-						hasImplicitEmail="false" />
+						isUserMailbox="false" />
 				</td>
 				<td></td>
 			</tr>

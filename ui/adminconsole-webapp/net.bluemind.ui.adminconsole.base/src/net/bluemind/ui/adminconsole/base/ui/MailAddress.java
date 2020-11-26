@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.editor.client.IsEditor;
 import com.google.gwt.editor.client.LeafValueEditor;
 import com.google.gwt.event.logical.shared.HasValueChangeHandlers;
@@ -31,6 +30,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.i18n.client.Constants;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.Composite;
@@ -40,13 +40,15 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 
 import net.bluemind.core.api.gwt.js.JsEmail;
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 
 public class MailAddress extends Composite
 		implements HasValueChangeHandlers<JsEmail>, IsEditor<LeafValueEditor<JsEmail>> {
 
 	private final List<ValueChangeHandler<JsEmail>> valueChangeHandlers = new ArrayList<ValueChangeHandler<JsEmail>>();
+
+	private static final String EMAIL = "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(([a-z0-9-]+\\.)+[a-z]{2,}|all)$";
+	public static final RegExp emailPattern = RegExp.compile(EMAIL);
 
 	public static interface Resources extends ClientBundle {
 		@Source("MailAddress.css")
@@ -66,6 +68,8 @@ public class MailAddress extends Composite
 
 		String at();
 
+		String invalid();
+
 		String mailContainer();
 
 		String icon();
@@ -74,6 +78,8 @@ public class MailAddress extends Composite
 	}
 
 	public static interface MailAddressConstants extends Constants {
+		String invalidEmail();
+
 		String allAliases();
 
 		String addEmail();
@@ -86,124 +92,102 @@ public class MailAddress extends Composite
 
 	private static final Resources RES = GWT.create(Resources.class);
 
-	private Style s;
-
 	TextBox textBox = new TextBox();
 	ListBox listBox = new ListBox();
+
+	private Label invalidIcon = new Label();
 	private Label addOrRemoveIcon = new Label();
 	private Domain domain;
-	boolean implicit = false;
+	boolean userMailbox = false;
 
-	public MailAddress() {
-		addOrRemoveIcon.setStyleName("fa fa-lg fa-minus-square-o");
-	}
-
-	public MailAddress(Domain d, int pos) {
-		this();
+	public MailAddress(int pos, Domain d, boolean userMailbox, String login) {
 		domain = d;
-
-		initMailAddress(pos);
-		fillAliasesListBox(domain.name);
+		this.userMailbox = userMailbox;
+		fillAliasesListBox();
+		initMailAddressWidget(pos);
+		// Initialize "initial" login part, set from MailAdressTable
+		textBox.setText(login);
+		this.addValueChangeHandler(evt -> {
+			JsEmail jsemail = evt.getValue();
+			invalidIcon.setVisible(!isValid(jsemail.getAddress()));
+		});
 	}
 
-	public MailAddress(int pos) {
-		this();
-		initMailAddress(pos);
-	}
-
-	private void initMailAddress(int pos) {
-		s = RES.mailAddressStyle();
-		s.ensureInjected();
+	private void initMailAddressWidget(int pos) {
+		Style style = RES.mailAddressStyle();
+		style.ensureInjected();
 
 		FlowPanel panel = new FlowPanel();
-		panel.setStyleName(s.mailContainer());
+		panel.setStyleName(style.mailContainer());
 
-		textBox.addStyleName(s.textBox());
-		textBox.getElement().setId("mail-" + pos);
-		listBox.addStyleName(s.listBox());
+		textBox.addStyleName(style.textBox());
+		listBox.addStyleName(style.listBox());
 		Label at = new Label("@");
-		at.addStyleName(s.at());
+		at.addStyleName(style.at());
 
+		panel.add(invalidIcon);
 		panel.add(textBox);
 		panel.add(at);
 		panel.add(listBox);
 		panel.add(addOrRemoveIcon);
 
-		addOrRemoveIcon.setStyleName(s.icon());
+		invalidIcon.addStyleName(style.invalid());
+		invalidIcon.addStyleName("fa fa-lg fa-exclamation-triangle");
+		invalidIcon.setVisible(false);
+		invalidIcon.setTitle(constants.invalidEmail());
+
+		addOrRemoveIcon.setStyleName("fa fa-lg fa-minus-square-o");
 		addOrRemoveIcon.setTitle(constants.removeEmail());
 
-		textBox.getElement().setId("mail-alias-localpart-" + pos);
-		textBox.addChangeHandler(evt -> ValueChangeEvent.fire(MailAddress.this, asEditor().getValue()));
-
-		listBox.getElement().setId("mail-alias-domainpart-" + pos);
-		listBox.addChangeHandler(evt -> ValueChangeEvent.fire(MailAddress.this, asEditor().getValue()));
+		textBox.addChangeHandler(evt -> fireChangeEvent());
+		listBox.addChangeHandler(evt -> fireChangeEvent());
 
 		initWidget(panel);
+	}
+
+	public static boolean isValid(String emailAddress) {
+		return emailPattern.test(emailAddress);
 	}
 
 	public Label getImage() {
 		return addOrRemoveIcon;
 	}
 
-	public void setFirst() {
+	public void setIconAdd() {
 		addOrRemoveIcon.setStyleName("alias-icon fa fa-lg fa-plus-square-o");
 		addOrRemoveIcon.setTitle(constants.addEmail());
 	}
 
-	public void setFollowing() {
+	public void setIconRemove() {
 		addOrRemoveIcon.setStyleName("alias-icon fa fa-lg fa-minus-square-o");
 		addOrRemoveIcon.setTitle(constants.removeEmail());
 	}
 
-	public void setDomain(ItemValue<Domain> d) {
-		if (d == null) {
-			throw new IllegalArgumentException("should not be null..");
-		}
-		domain = d.value;
-		fillAliasesListBox(domain.name);
-	}
-
-	private void fillAliasesListBox(String domainName) {
+	private void fillAliasesListBox() {
 		listBox.clear();
-		if (!implicit) {
+		// Only use mailbox have "all" aliases option
+		if (userMailbox) {
 			listBox.addItem(constants.allAliases(), "all");
 		}
 
-		listBox.addItem(domain.name, domain.name);
-		if (!implicit && domain.aliases != null) {
+		if (domain.aliases != null) {
 			for (String alias : domain.aliases) {
 				listBox.addItem(alias, alias);
-			}
-		}
-
-		selectDomainBox(domainName);
-	}
-
-	private void selectDomainBox(String domainName) {
-		int count = listBox.getItemCount();
-		for (int i = 0; i < count; i++) {
-			if (listBox.getValue(i).equals(domainName)) {
-				listBox.setSelectedIndex(i);
-				break;
 			}
 		}
 	}
 
 	private LeafValueEditor<JsEmail> editor = new LeafValueEditor<JsEmail>() {
-
 		@Override
 		public void setValue(JsEmail value) {
 			String[] mail = value.getAddress().split("@");
-			if (mail.length != 2) {
-				throw new RuntimeException("Invalid email without 2 parts: " + value);
-			}
 			textBox.setValue(mail[0]);
 			if (value.getAllAliases()) {
 				listBox.setSelectedIndex(0);
 			} else {
-				selectDomainBox(mail[1]);
+				selectDomain(mail[1]);
 			}
-
+			invalidIcon.setVisible(!emailPattern.test(value.getAddress()));
 		}
 
 		@Override
@@ -212,17 +196,26 @@ public class MailAddress extends Composite
 			if (textBox.getValue() != null && !textBox.getValue().isEmpty()) {
 				left = textBox.getValue();
 			}
-
-			JsEmail ret = JavaScriptObject.createObject().cast();
+			String domainName = listBox.getSelectedValue();
+			JsEmail ret = JsEmail.create();
+			ret.setAddress(left + "@" + domainName);
 			ret.setIsDefault(false);
-			ret.setAllAliases(false);
-			if (listBox.getSelectedIndex() == 0) {
-				ret.setAllAliases(true);
-				ret.setAddress(left + "@" + domain.name);
+			// Only user mailbox have an "all" aliases option
+			if (userMailbox) {
+				ret.setAllAliases("all".equals(domainName));
 			} else {
-				ret.setAddress(left + "@" + listBox.getSelectedValue());
+				ret.setAllAliases(false);
 			}
 			return ret;
+		}
+
+		private void selectDomain(String domainName) {
+			for (int i = 0; i < listBox.getItemCount(); i++) {
+				if (listBox.getValue(i).equals(domainName)) {
+					listBox.setSelectedIndex(i);
+					break;
+				}
+			}
 		}
 	};
 
@@ -244,10 +237,8 @@ public class MailAddress extends Composite
 		};
 	}
 
-	public void setImplicit() {
-		implicit = true;
-		textBox.setEnabled(false);
-		listBox.setEnabled(false);
+	private void fireChangeEvent() {
+		ValueChangeEvent.fire(MailAddress.this, asEditor().getValue());
 	}
 
 	public void fireEvent(GwtEvent<?> event) {
@@ -257,14 +248,6 @@ public class MailAddress extends Composite
 			}
 		} else {
 			super.fireEvent(event);
-		}
-	}
-
-	public static String getAddress(JsEmail jsEmail) {
-		if (jsEmail.getAllAliases()) {
-			return jsEmail.getAddress().split("@")[0] + "@all";
-		} else {
-			return jsEmail.getAddress();
 		}
 	}
 }

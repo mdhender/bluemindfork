@@ -20,13 +20,13 @@ package net.bluemind.ui.adminconsole.base.ui;
 
 import java.util.Set;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.ListBox;
 
 public class MailAddressDefault extends ListBox {
 
 	public MailAddressDefault() {
 		super();
-		getElement().setId("default-mail-address");
 		addChangeHandler(evt -> updateTitle());
 	}
 

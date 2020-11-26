@@ -65,7 +65,7 @@
 								</td>
 								<td style="form">
 									<ff:MailAddressTableEditor ui:field="mailTable"
-										size="-1" hasImplicitEmail="true" />
+										size="-1" isUserMailbox="true" />
 								</td>
 							</tr>
 						</table>
@@ -107,7 +107,7 @@
 							<td style="label"></td>
 							<td style="form">
 								<ff:MailAddressTableEditor ui:field="extMailTable"
-									size="-1" hasImplicitEmail="true" />
+									size="-1" isUserMailbox="true" />
 							</td>
 						</tr>
 

@@ -48,6 +48,10 @@
 	cursor: pointer;
 }
 
+.invalid {
+	color: red;
+}
+
 .prependedText {
 	vertical-align: top;
 	background-color: whiteSmoke;

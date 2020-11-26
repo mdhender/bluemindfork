@@ -93,7 +93,8 @@ public class EditMailshareScreen extends BaseDirEntryEditScreen {
 				.withRole(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER).<ModelHandler>cast());
 		screenRoot.getHandlers().push(ModelHandler.create(null, IdentitiesModelHandler.TYPE)
 				.withRole(BasicRoles.ROLE_MANAGE_MAILBOX_IDENTITIES).<ModelHandler>cast());
-		screenRoot.getHandlers().push(ModelHandler.create(null, MailshareMailboxSharingModelHandler.TYPE).<ModelHandler>cast());
+		screenRoot.getHandlers()
+				.push(ModelHandler.create(null, MailshareMailboxSharingModelHandler.TYPE).<ModelHandler>cast());
 		screenRoot.getHandlers().push(ModelHandler.create(null, DomainLoader.TYPE).<ModelHandler>cast());
 
 		JsArray<Tab> tabs = JavaScriptObject.createArray().cast();
@@ -114,7 +115,8 @@ public class EditMailshareScreen extends BaseDirEntryEditScreen {
 		tabs.push(Tab.create(null, c.identitiesTab(), ScreenElement.create(null, IdentityManagement.TYPE)
 				.withRole(BasicRoles.ROLE_MANAGE_MAILBOX_IDENTITIES)));
 
-		tabs.push(Tab.create(null, c.mailboxSharingTab(), ScreenElement.create(null, MailshareMailboxSharingEditor.TYPE)));
+		tabs.push(Tab.create(null, c.mailboxSharingTab(),
+				ScreenElement.create(null, MailshareMailboxSharingEditor.TYPE)));
 
 		// maintenance
 		JsArray<ScreenElement> maintenanceContents = JsArray.createArray().cast();

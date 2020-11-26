@@ -46,8 +46,8 @@ public class MailAddressTableEditor extends Composite implements IsEditor<LeafVa
 	};
 
 	@UiConstructor
-	public MailAddressTableEditor(int size, boolean hasImplicitEmail) {
-		widget = new MailAddressTable(size, hasImplicitEmail);
+	public MailAddressTableEditor(int size, boolean isUserMailbox) {
+		widget = new MailAddressTable(size, isUserMailbox);
 
 		initWidget(widget);
 	}

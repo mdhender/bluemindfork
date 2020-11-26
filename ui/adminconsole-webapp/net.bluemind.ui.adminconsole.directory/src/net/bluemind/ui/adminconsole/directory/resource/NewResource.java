@@ -24,8 +24,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiFactory;
@@ -51,7 +49,6 @@ import net.bluemind.resource.api.gwt.js.JsResourceDescriptor;
 import net.bluemind.resource.api.gwt.js.JsResourceDescriptorPropertyValue;
 import net.bluemind.ui.admin.client.forms.TextEdit;
 import net.bluemind.ui.adminconsole.base.ui.DelegationEdit;
-import net.bluemind.ui.adminconsole.base.ui.MailAddressTable;
 import net.bluemind.ui.adminconsole.base.ui.MailAddressTableEditor;
 import net.bluemind.ui.adminconsole.base.ui.UserOrGroupEntityEdit;
 import net.bluemind.ui.adminconsole.directory.resource.l10n.ResourceConstants;
@@ -109,7 +106,13 @@ public class NewResource extends CompositeGwtWidgetElement {
 
 		desc.getElement().setId("new-resource-description");
 		name.setId("new-resource-name");
-
+		name.addValueChangeHandler(evt -> {
+			// This is not really required, but hey, why not?
+			mailTable.asWidget().setDefaultLogin(evt.getValue());
+			if (this.domain != null) {
+				mailTable.asWidget().setValue(evt.getValue(), domain.value.defaultAlias);
+			}
+		});
 	}
 
 	private void updateDomainChange(ItemValue<Domain> active) {
@@ -127,34 +130,14 @@ public class NewResource extends CompositeGwtWidgetElement {
 		serverFinder.find(this.domain.uid, mailBackend, mailBackendPanel);
 	}
 
-	public static native String unaccent(String str)
-	/*-{
-		return str.normalize('NFKD').replace(/[\u0300-\u036f]/g, "");
-	}-*/;
-
 	@Override
 	public void loadModel(JavaScriptObject model) {
 		JsMapStringJsObject map = model.cast();
 		if (map.get("domain") != null) {
-			JsItemValue<JsDomain> domain = map.get("domain").cast();
-
-			ItemValue<Domain> d = new ItemValueGwtSerDer<>(new DomainGwtSerDer()).deserialize(new JSONObject(domain));
+			JsItemValue<JsDomain> jsdomain = map.get("domain").cast();
+			ItemValue<Domain> d = new ItemValueGwtSerDer<>(new DomainGwtSerDer()).deserialize(new JSONObject(jsdomain));
 			updateDomainChange(d);
 		}
-
-		name.addKeyUpHandler(new KeyUpHandler() {
-
-			@Override
-			public void onKeyUp(KeyUpEvent event) {
-				MailAddressTable mailAddressTable = mailTable.asWidget();
-				if (null != name.getStringValue() && name.getStringValue().length() > 0) {
-					mailAddressTable.setSingleValue(unaccent(name.getStringValue().toLowerCase())
-							.replaceAll("[^a-z0-9!#$%&'*+/=?^_`{|}~-]", ""), name.getStringValue());
-				}
-			}
-
-		});
-
 	}
 
 	@Override

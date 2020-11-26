@@ -66,7 +66,7 @@ public class NewMailshare extends CompositeGwtWidgetElement {
 
 	private HTMLPanel dlp;
 
-	private ItemValue<Domain> d;
+	private ItemValue<Domain> domain;
 
 	@UiField
 	DelegationEdit delegation;
@@ -95,7 +95,7 @@ public class NewMailshare extends CompositeGwtWidgetElement {
 	void clickMailPerms(ClickEvent e) {
 		boolean mail = mailperms.getValue();
 		if (mail) {
-			mailTable.asWidget().setValue(name.asEditor().getValue(), d.uid);
+			mailTable.asWidget().setValue(name.asEditor().getValue(), domain.value.defaultAlias);
 		} else {
 			mailTable.asWidget().reset();
 		}
@@ -109,6 +109,12 @@ public class NewMailshare extends CompositeGwtWidgetElement {
 		// needed to embed a docklayoutpanel
 		dlp.setHeight("100%");
 		name.setId("new-mailshare-name");
+		name.addValueChangeHandler(evt -> {
+			mailTable.asWidget().setDefaultLogin(evt.getValue());
+			if (this.domain != null) {
+				mailTable.asWidget().setValue(evt.getValue(), domain.value.defaultAlias);
+			}
+		});
 	}
 
 	@Override
@@ -116,22 +122,22 @@ public class NewMailshare extends CompositeGwtWidgetElement {
 		JsMapStringJsObject map = model.cast();
 
 		if (map.get("domain") != null) {
-			JsItemValue<JsDomain> domain = map.get("domain").cast();
+			JsItemValue<JsDomain> jsdomain = map.get("domain").cast();
 
-			d = new ItemValueGwtSerDer<>(new DomainGwtSerDer()).deserialize(new JSONObject(domain));
-			mailTable.setDomain(d);
+			domain = new ItemValueGwtSerDer<>(new DomainGwtSerDer()).deserialize(new JSONObject(jsdomain));
+			mailTable.setDomain(domain);
 			mailTable.setVisible(false);
-			if (d.value.global) {
+			if (domain.value.global) {
 				errorLabel.setText(ErrorCodeTexts.INST.getString("NOT_IN_GLOBAL_DOMAIN"));
 			} else {
 				errorLabel.setText("");
 			}
-			delegation.setDomain(d.uid);
+			delegation.setDomain(domain.uid);
 		}
 		JsMailshare mailshare = map.get("mailshare").cast();
 		name.asEditor().setValue(mailshare.getName());
 		mailTable.asEditor().setValue(mailshare.getEmails());
-		serverFinder.find(d.uid, mailBackend, mailBackendPanel);
+		serverFinder.find(domain.uid, mailBackend, mailBackendPanel);
 	}
 
 	@Override

@@ -188,7 +188,7 @@
 			<g:ScrollPanel height="150px">
 				<g:HTMLPanel>
 					<f:MailAddressTable ui:field="mailAddressTab"
-						size="-1" hasImplicitEmail="true" />
+						size="-1" isUserMailbox="true" />
 				</g:HTMLPanel>
 			</g:ScrollPanel>
 			
