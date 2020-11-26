@@ -45,11 +45,18 @@ export async function syncMyMailbox() {
 async function syncMailbox(domain: string, userId: string) {
     const api = await mailapi.getInstance();
     const syncOptions = await getSyncOptions(userAtDomain({ userId, domain }), "mail_folder");
-    const { version } = await api.mailFolder.changeset({ domain, userId }, syncOptions.version);
+    const { created, updated, deleted, version } = await api.mailFolder.changeset(
+        { domain, userId },
+        syncOptions.version
+    );
     if (version !== syncOptions.version) {
-        const mailFolders = await api.mailFolder.fetch({ domain, userId });
-        (await maildb.getInstance()).putMailFolders(mailFolders);
-        (await maildb.getInstance()).updateSyncOptions({ ...syncOptions, version });
+        const toBeUpdated = created.concat(updated).map(({id}) => id);
+        const mailFolders = (await api.mailFolder.fetch({ domain, userId })).filter(mailfolder =>
+            toBeUpdated.includes(mailfolder.internalId)
+        );
+        await (await maildb.getInstance()).deleteMailFolders(deleted.map(({id}) => id));
+        await (await maildb.getInstance()).putMailFolders(mailFolders);
+        await (await maildb.getInstance()).updateSyncOptions({ ...syncOptions, version });
     }
 }
 

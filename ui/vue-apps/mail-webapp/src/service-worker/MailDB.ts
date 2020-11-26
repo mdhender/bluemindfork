@@ -95,6 +95,17 @@ class MailDB {
         return key !== undefined;
     }
 
+    async deleteMailFolders(deletedIds: number[]) {
+        const uids = (await this.getAllMailFolders())
+            .filter(mailFolder => deletedIds.includes(mailFolder.internalId))
+            .map(mailFolder => mailFolder.uid);
+        for (let uid of uids) {
+            const tx = (await this.dbPromise).transaction("mail_folders", "readwrite");
+            await tx.objectStore("mail_folders").delete(uid);
+            tx.done;
+        }
+    }
+
     async putMailFolders(
         items: MailFolder[],
         optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>

@@ -1,4 +1,4 @@
-import { MailFolder, ChangeSet, MailItem, SessionInfo } from "./entry";
+import { ChangeSet, MailFolder, MailItem, SessionInfo } from "./entry";
 
 //@FIXME: it might be possible to force certain methods depending on the route.
 type Route = "mail_folders" | "mail_items";
@@ -15,7 +15,10 @@ interface MailItemAPI {
 
 interface MailFolderAPI {
     fetch: ({ userId, domain }: { userId: string; domain: string }) => Promise<MailFolder[]>;
-    changeset: ({ userId, domain }: { userId: string; domain: string }, version: number) => Promise<ChangeSet>;
+    changeset: (
+        { userId, domain }: { userId: string; domain: string },
+        version: number
+    ) => Promise<ChangeSet>;
 }
 
 class MailAPI {
@@ -64,12 +67,14 @@ class MailAPI {
             },
 
             async changeset({ userId, domain }: { userId: string; domain: string }, version: number) {
-                const method: Method = "_changesetById";
+                const method: Method = "_filteredChangesetById";
                 const route: Route = "mail_folders";
                 return fetchAPI<ChangeSet>(
-                    `/api/${route}/${domain.replace(".", "_")}/${`user.${userId}`}/${method}?since=${version}`,
-                    requestInit
-                );
+                    `/api/${route}/${domain.replace(".", "_")}/${`user.${userId}`}/${method}?since=${version}`, {
+                    ...requestInit,
+                    body: JSON.stringify({ must: [], mustNot: ["Deleted"] }),
+                    method: "POST"
+                });
             }
         };
     }

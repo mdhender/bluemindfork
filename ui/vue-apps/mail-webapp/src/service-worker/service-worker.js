@@ -21,8 +21,8 @@ registerScriptRoute();
 self.addEventListener("message", event => {
     if (event.data.type === "INIT_PERIODIC_SYNC") {
         const interval = registerPeriodicSync(() => {
-            syncMailFolders().catch(() => {
-                logger.log(`Sync stopped.`);
+            syncMailFolders().catch(e => {
+                logger.error(`Sync stopped due to following exception : `, e);
                 clearInterval(interval);
                 mailapi.clear();
                 sessionInfos.clear();
