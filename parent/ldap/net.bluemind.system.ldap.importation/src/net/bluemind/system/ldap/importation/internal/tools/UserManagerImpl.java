@@ -196,7 +196,12 @@ public class UserManagerImpl extends UserManager {
 		user.value.contactInfos.organizational.org.department = getAttributeValue(entry, LDAP_DEPARTMENTNUMBER);
 
 		if (entry.containsAttribute(LDAP_PHOTO)) {
-			userPhoto = entry.get(LDAP_PHOTO).getBytes();
+			try {
+				userPhoto = entry.get(LDAP_PHOTO).getBytes();
+			} catch (LdapInvalidAttributeValueException liave) {
+				logger.warn("Unable to retrieve {} for {}: {} - ignoring attribute", LDAP_PHOTO,
+						entry.getDn().getName(), liave.getMessage());
+			}
 		}
 
 		manageUserPhones();
