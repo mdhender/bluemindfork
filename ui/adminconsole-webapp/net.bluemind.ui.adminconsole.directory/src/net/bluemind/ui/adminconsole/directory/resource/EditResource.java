@@ -25,6 +25,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiFactory;
@@ -109,11 +110,13 @@ public class EditResource extends CompositeGwtWidgetElement {
 	private JsResourceDescriptor resourceDescriptor;
 	private String domainUid;
 
-	// FIXME
-	private String locale = "fr";
+	private String locale;
 
 	public EditResource(WidgetElement widgetModel) {
-
+		locale = LocaleInfo.getCurrentLocale().getLocaleName();
+		if (locale.length() > 2) {
+			locale = locale.substring(0, 2);
+		}
 		HTMLPanel dlp = binder.createAndBindUi(this);
 		dlp.setHeight("100%");
 		initWidget(dlp);
@@ -240,7 +243,7 @@ public class EditResource extends CompositeGwtWidgetElement {
 
 	native String atob(String encoded)
 	/*-{
-    return atob(encoded);
+		return atob(encoded);
 	}-*/;
 
 	private void loadIcon(String rUid) {
