@@ -25,6 +25,9 @@ import com.google.gwt.editor.ui.client.adapters.ValueBoxEditor;
 import com.google.gwt.event.dom.client.HasKeyPressHandlers;
 import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.event.logical.shared.HasValueChangeHandlers;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -34,13 +37,15 @@ import com.google.gwt.user.client.ui.Widget;
  * 
  * 
  */
-public class StringEdit extends AbstractTextEdit<String> implements HasKeyPressHandlers {
+public class StringEdit extends AbstractTextEdit<String>
+		implements HasKeyPressHandlers, HasValueChangeHandlers<String> {
 
 	private TextBox tb;
 
 	@Override
 	public ITextEditor<String> createTextBox() {
 		tb = new TextBox();
+		tb.addValueChangeHandler(evt -> ValueChangeEvent.fire(StringEdit.this, evt.getValue()));
 		return new ITextEditor<String>() {
 
 			@Override
@@ -79,6 +84,11 @@ public class StringEdit extends AbstractTextEdit<String> implements HasKeyPressH
 	}
 
 	@Override
+	public HandlerRegistration addValueChangeHandler(final ValueChangeHandler<String> handler) {
+		return addHandler(handler, ValueChangeEvent.getType());
+	}
+
+	@Override
 	public void setStringValue(String v) {
 		if (v != null) {
 			asEditor().setValue(v);
@@ -109,6 +119,7 @@ public class StringEdit extends AbstractTextEdit<String> implements HasKeyPressH
 		return null;
 	}
 
+	@Override
 	public void setId(String id) {
 		tb.getElement().setId(id);
 
