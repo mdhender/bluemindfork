@@ -92,7 +92,7 @@ public class CliContext {
 	 * @param msg
 	 */
 	public void warn(String msg) {
-		System.out.println(ansi().fgYellow().a(msg).reset()); // NOSONAR
+		System.err.println(ansi().fgYellow().a(msg).reset()); // NOSONAR
 	}
 
 	/**
@@ -101,7 +101,7 @@ public class CliContext {
 	 * @param msg
 	 */
 	public void info(String msg) {
-		System.out.println(msg); // NOSONAR
+		System.err.println(msg); // NOSONAR
 	}
 
 	public void info(String msg, Object... args) {
@@ -112,7 +112,7 @@ public class CliContext {
 	}
 
 	public void progress(int total, int current) {
-		System.out.println(ansi().fgGreen()
+		System.err.println(ansi().fgGreen()
 				.a(String.format("Global progress %d/%d (%s%%)", current, total, current * 100 / total)).reset());
 	}
 
