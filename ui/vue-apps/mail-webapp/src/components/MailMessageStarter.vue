@@ -1,6 +1,6 @@
 <template>
     <section
-        class="mail-message-starter h-100 d-none d-md-flex"
+        class="mail-message-starter h-100 d-none d-lg-flex"
         aria-labelledby="mail-message-starter mail-message-starter-or"
     >
         <div class="d-flex flex-column justify-content-center h-100 text-center w-100">

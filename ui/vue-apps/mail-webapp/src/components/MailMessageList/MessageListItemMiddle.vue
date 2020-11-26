@@ -43,10 +43,10 @@
                 </div>
             </div>
             <div v-show="!mouseIn" class="mail-message-list-item-date text-secondary align-self-end">
-                <span class="d-none d-sm-block d-md-none d-xl-block">
+                <span class="d-none d-lg-block">
                     {{ displayedDate }}
                 </span>
-                <span class="d-sm-none d-md-block d-xl-none">
+                <span class="d-block d-lg-none">
                     {{ smallerDisplayedDate }}
                 </span>
             </div>
