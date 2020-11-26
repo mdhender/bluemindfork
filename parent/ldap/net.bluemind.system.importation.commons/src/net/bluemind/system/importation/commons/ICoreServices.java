@@ -35,111 +35,117 @@ import net.bluemind.user.api.User;
  */
 public interface ICoreServices {
 
-	public Map<String, String> getUserStats();
+	Map<String, String> getUserStats();
 
-	public Map<String, String> getGroupStats();
+	Map<String, String> getGroupStats();
 
 	/**
 	 * @param deletedGroupExtId
 	 * @throws ServerFault
 	 */
-	public void deleteGroup(String deletedGroupUid) throws ServerFault;
+	void deleteGroup(String deletedGroupUid);
 
 	/**
 	 * @param uid
 	 * @param value
 	 * @throws ServerFault
 	 */
-	public void createGroup(ItemValue<Group> group) throws ServerFault;
+	void createGroup(ItemValue<Group> group);
 
 	/**
 	 * @param uid
 	 * @param value
 	 * @throws ServerFault
 	 */
-	public void updateGroup(ItemValue<Group> group) throws ServerFault;
-
-	/**
-	 * @param userUid
-	 * @throws ServerFault
-	 */
-	public void suspendUser(ItemValue<User> user) throws ServerFault;
+	void updateGroup(ItemValue<Group> group);
 
 	/**
 	 * @param user
 	 * @throws ServerFault
 	 */
-	public void createUser(ItemValue<User> user) throws ServerFault;
+	void suspendUser(ItemValue<User> user);
 
 	/**
 	 * @param user
 	 * @throws ServerFault
 	 */
-	public void updateUser(ItemValue<User> user) throws ServerFault;
+	void createUser(ItemValue<User> user);
+
+	/**
+	 * @param user
+	 * @throws ServerFault
+	 */
+	void updateUser(ItemValue<User> user);
 
 	/**
 	 * @param extIdPrefix
 	 * @return
 	 * @throws ServerFault
 	 */
-	public List<String> getImportedGroupsExtId() throws ServerFault;
+	List<String> getImportedGroupsExtId();
 
 	/**
 	 * @param extIdPrefix
 	 * @return
 	 * @throws ServerFault
 	 */
-	public List<String> getImportedUsersExtId() throws ServerFault;
+	List<String> getImportedUsersExtId();
 
 	/**
 	 * @param uuid
 	 * @return
 	 * @throws ServerFault
 	 */
-	public MailFilter getMailboxFilter(String uuid) throws ServerFault;
+	MailFilter getMailboxFilter(String uuid);
 
 	/**
 	 * @param uid
 	 * @param mailFilter
 	 * @throws ServerFault
 	 */
-	public void setMailboxFilter(String mailboxUid, MailFilter filter) throws ServerFault;
+	void setMailboxFilter(String mailboxUid, MailFilter filter);
 
 	/**
-	 * @param uuid
+	 * @param extId
 	 * @return
 	 * @throws ServerFault
 	 */
-	public ItemValue<Group> getGroupByExtId(String extId) throws ServerFault;
+	ItemValue<Group> getGroupByExtId(String extId);
+
+	/**
+	 * @param name
+	 * @return
+	 * @throws ServerFault
+	 */
+	ItemValue<Group> getGroupByName(String name);
 
 	/**
 	 * @param uid
 	 * @return
-	 * @return
 	 * @throws ServerFault
 	 */
-	public List<Member> getGroupMembers(String uid) throws ServerFault;
+	List<Member> getGroupMembers(String uid);
 
 	/**
 	 * @param uid
 	 * @param groupsToRemove
 	 * @throws ServerFault
 	 */
-	public void removeMembers(String uid, List<Member> membersToRemove) throws ServerFault;
+	void removeMembers(String uid, List<Member> membersToRemove);
 
 	/**
 	 * @param uid
 	 * @param groupsToAdd
 	 * @throws ServerFault
 	 */
-	public void addMembers(String uid, List<Member> membersToAdd) throws ServerFault;
+	void addMembers(String uid, List<Member> membersToAdd);
 
 	/**
 	 * @param uuid
 	 * @return
 	 * @throws ServerFault
 	 */
-	public ItemValue<User> getUserByExtId(String extId) throws ServerFault;
+	ItemValue<User> getUserByExtId(String extId);
 
 	/**
 	 * @param uid
@@ -147,45 +153,45 @@ public interface ICoreServices {
 	 * @return
 	 * @throws ServerFault
 	 */
-	public List<ItemValue<Group>> memberOf(String uid) throws ServerFault;
+	List<ItemValue<Group>> memberOf(String uid);
 
 	/**
 	 * @param uid
 	 * @return
 	 * @throws ServerFault
 	 */
-	public String userExternalId(String uid) throws ServerFault;
+	String userExternalId(String uid);
 
 	/**
 	 * @param uid
 	 * @return
 	 * @throws ServerFault
 	 */
-	public String groupExternalId(String uid) throws ServerFault;
+	String groupExternalId(String uid);
 
 	/**
 	 * @param uid
 	 * @param photo
 	 * @throws ServerFault
 	 */
-	public void userSetPhoto(String uid, byte[] photo) throws ServerFault;
+	void userSetPhoto(String uid, byte[] photo);
 
 	/**
 	 * @param uid
 	 * @throws ServerFault
 	 */
-	public void userDeletePhoto(String uid) throws ServerFault;
+	void userDeletePhoto(String uid);
 
 	/**
 	 * @param uid
 	 * @param mailboxQuota
 	 */
-	public void setMailboxQuota(String uid, int mailboxQuota);
+	void setMailboxQuota(String uid, int mailboxQuota);
 
 	/**
 	 * @param internal
 	 * @param member
 	 * @return
 	 */
-	public void setUserMailRouting(Routing routing, String userUid);
+	void setUserMailRouting(Routing routing, String userUid);
 }

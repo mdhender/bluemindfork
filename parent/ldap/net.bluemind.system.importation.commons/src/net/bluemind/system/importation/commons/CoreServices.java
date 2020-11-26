@@ -60,7 +60,7 @@ public class CoreServices implements ICoreServices {
 	private Map<String, String> userUidExtId = new HashMap<>();
 	private Map<String, String> groupUidExtId = new HashMap<>();
 
-	public static ICoreServices build(String domainUid) throws ServerFault {
+	public static ICoreServices build(String domainUid) {
 		if (domainUid == null || domainUid.trim().isEmpty()) {
 			throw new IllegalArgumentException();
 		}
@@ -131,7 +131,7 @@ public class CoreServices implements ICoreServices {
 	 * deleteGroup (java.lang.String)
 	 */
 	@Override
-	public void deleteGroup(String groupUid) throws ServerFault {
+	public void deleteGroup(String groupUid) {
 		groupService.delete(groupUid);
 		groupStats.deleted++;
 	}
@@ -143,7 +143,7 @@ public class CoreServices implements ICoreServices {
 	 * createGroup (net.bluemind.core.container.model.ItemValue)
 	 */
 	@Override
-	public void createGroup(ItemValue<Group> group) throws ServerFault {
+	public void createGroup(ItemValue<Group> group) {
 		groupService.createWithExtId(group.uid, group.externalId, group.value);
 		groupStats.created++;
 	}
@@ -155,7 +155,7 @@ public class CoreServices implements ICoreServices {
 	 * updateGroup (net.bluemind.core.container.model.ItemValue)
 	 */
 	@Override
-	public void updateGroup(ItemValue<Group> group) throws ServerFault {
+	public void updateGroup(ItemValue<Group> group) {
 		groupService.update(group.uid, group.value);
 		groupStats.updated++;
 	}
@@ -167,7 +167,7 @@ public class CoreServices implements ICoreServices {
 	 * deleteUser (java.lang.String)
 	 */
 	@Override
-	public void suspendUser(ItemValue<User> user) throws ServerFault {
+	public void suspendUser(ItemValue<User> user) {
 		user.value.archived = true;
 		userService.update(user.uid, user.value);
 		userStats.suspended++;
@@ -180,7 +180,7 @@ public class CoreServices implements ICoreServices {
 	 * createUser (net.bluemind.core.container.model.ItemValue)
 	 */
 	@Override
-	public void createUser(ItemValue<User> user) throws ServerFault {
+	public void createUser(ItemValue<User> user) {
 		userService.createWithExtId(user.uid, user.externalId, user.value);
 		userStats.created++;
 	}
@@ -192,7 +192,7 @@ public class CoreServices implements ICoreServices {
 	 * updateUser (net.bluemind.core.container.model.ItemValue)
 	 */
 	@Override
-	public void updateUser(ItemValue<User> user) throws ServerFault {
+	public void updateUser(ItemValue<User> user) {
 		userService.update(user.uid, user.value);
 		userStats.updated++;
 	}
@@ -204,7 +204,7 @@ public class CoreServices implements ICoreServices {
 	 * getAllGroupItems()
 	 */
 	@Override
-	public List<String> getImportedGroupsExtId() throws ServerFault {
+	public List<String> getImportedGroupsExtId() {
 		List<String> groupsExtIds = new ArrayList<>();
 
 		for (String groupUid : groupService.allUids()) {
@@ -232,7 +232,7 @@ public class CoreServices implements ICoreServices {
 	 * getAllUserItems()
 	 */
 	@Override
-	public List<String> getImportedUsersExtId() throws ServerFault {
+	public List<String> getImportedUsersExtId() {
 		List<String> usersExtIds = new ArrayList<>();
 
 		for (String userUid : userService.allUids()) {
@@ -260,7 +260,7 @@ public class CoreServices implements ICoreServices {
 	 * getMailboxFilter(java.lang.String)
 	 */
 	@Override
-	public MailFilter getMailboxFilter(String uuid) throws ServerFault {
+	public MailFilter getMailboxFilter(String uuid) {
 		return mailboxService.getMailboxFilter(uuid);
 
 	}
@@ -272,7 +272,7 @@ public class CoreServices implements ICoreServices {
 	 * setMailboxFilter(java.lang.String, net.bluemind.mailbox.api.MailFilter)
 	 */
 	@Override
-	public void setMailboxFilter(String mailboxUid, MailFilter filter) throws ServerFault {
+	public void setMailboxFilter(String mailboxUid, MailFilter filter) {
 		mailboxService.setMailboxFilter(mailboxUid, filter);
 
 	}
@@ -284,8 +284,19 @@ public class CoreServices implements ICoreServices {
 	 * getGroupComplete(java.lang.String)
 	 */
 	@Override
-	public ItemValue<Group> getGroupByExtId(String extId) throws ServerFault {
+	public ItemValue<Group> getGroupByExtId(String extId) {
 		return groupService.getByExtId(extId);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
+	 * byName(java.lang.String)
+	 */
+	@Override
+	public ItemValue<Group> getGroupByName(String name) {
+		return groupService.byName(name);
 	}
 
 	/*
@@ -295,7 +306,7 @@ public class CoreServices implements ICoreServices {
 	 * getGroupMembers(java.lang.String)
 	 */
 	@Override
-	public List<Member> getGroupMembers(String uid) throws ServerFault {
+	public List<Member> getGroupMembers(String uid) {
 		return groupService.getMembers(uid);
 	}
 
@@ -306,7 +317,7 @@ public class CoreServices implements ICoreServices {
 	 * removeMembers(java.lang.String, java.util.List)
 	 */
 	@Override
-	public void removeMembers(String uid, List<Member> membersToRemove) throws ServerFault {
+	public void removeMembers(String uid, List<Member> membersToRemove) {
 		groupService.remove(uid, membersToRemove);
 
 	}
@@ -318,7 +329,7 @@ public class CoreServices implements ICoreServices {
 	 * addMembers (java.lang.String, java.util.List)
 	 */
 	@Override
-	public void addMembers(String uid, List<Member> membersToAdd) throws ServerFault {
+	public void addMembers(String uid, List<Member> membersToAdd) {
 		groupService.add(uid, membersToAdd);
 
 	}
@@ -330,7 +341,7 @@ public class CoreServices implements ICoreServices {
 	 * getUserComplete(java.lang.String)
 	 */
 	@Override
-	public ItemValue<User> getUserByExtId(String extId) throws ServerFault {
+	public ItemValue<User> getUserByExtId(String extId) {
 		return userService.byExtId(extId);
 
 	}
@@ -342,7 +353,7 @@ public class CoreServices implements ICoreServices {
 	 * memberOf (java.lang.String)
 	 */
 	@Override
-	public List<ItemValue<Group>> memberOf(String uid) throws ServerFault {
+	public List<ItemValue<Group>> memberOf(String uid) {
 		return userService.memberOf(uid);
 	}
 
@@ -353,7 +364,7 @@ public class CoreServices implements ICoreServices {
 	 * userExternalId(java.lang.String)
 	 */
 	@Override
-	public String userExternalId(String uid) throws ServerFault {
+	public String userExternalId(String uid) {
 		if (userUidExtId.containsKey(uid)) {
 			return userUidExtId.get(uid);
 		}
@@ -374,7 +385,7 @@ public class CoreServices implements ICoreServices {
 	 * groupExternalId(java.lang.String)
 	 */
 	@Override
-	public String groupExternalId(String uid) throws ServerFault {
+	public String groupExternalId(String uid) {
 		if (groupUidExtId.containsKey(uid)) {
 			return groupUidExtId.get(uid);
 		}
@@ -395,7 +406,7 @@ public class CoreServices implements ICoreServices {
 	 * lang.String, byte[])
 	 */
 	@Override
-	public void userSetPhoto(String uid, byte[] photo) throws ServerFault {
+	public void userSetPhoto(String uid, byte[] photo) {
 		userService.setPhoto(uid, photo);
 	}
 
@@ -406,7 +417,7 @@ public class CoreServices implements ICoreServices {
 	 * java.lang.String)
 	 */
 	@Override
-	public void userDeletePhoto(String uid) throws ServerFault {
+	public void userDeletePhoto(String uid) {
 		userService.deletePhoto(uid);
 	}
 

@@ -27,11 +27,7 @@ public class ImportLogger implements IImportLogger {
 	}
 
 	private boolean logEnabled() {
-		if (!sched.isPresent() || !rid.isPresent()) {
-			return false;
-		}
-
-		return true;
+		return (sched.isPresent() && rid.isPresent());
 	}
 
 	@Override
@@ -40,8 +36,8 @@ public class ImportLogger implements IImportLogger {
 			return;
 		}
 
-		for (String locale : messages.keySet()) {
-			sched.get().info(rid.get(), locale, messages.get(locale));
+		for (Map.Entry<String, String> entry : messages.entrySet()) {
+			sched.get().info(rid.get(), entry.getKey(), entry.getValue());
 		}
 	}
 
@@ -53,8 +49,8 @@ public class ImportLogger implements IImportLogger {
 			return;
 		}
 
-		for (String locale : messages.keySet()) {
-			sched.get().warn(rid.get(), locale, messages.get(locale));
+		for (Map.Entry<String, String> entry : messages.entrySet()) {
+			sched.get().warn(rid.get(), entry.getKey(), entry.getValue());
 		}
 	}
 
@@ -66,8 +62,8 @@ public class ImportLogger implements IImportLogger {
 			return;
 		}
 
-		for (String locale : messages.keySet()) {
-			sched.get().error(rid.get(), locale, messages.get(locale));
+		for (Map.Entry<String, String> entry : messages.entrySet()) {
+			sched.get().error(rid.get(), entry.getKey(), entry.getValue());
 		}
 	}
 

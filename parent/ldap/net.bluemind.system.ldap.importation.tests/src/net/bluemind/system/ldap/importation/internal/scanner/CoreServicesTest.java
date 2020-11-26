@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -444,5 +445,11 @@ public class CoreServicesTest implements ICoreServices {
 			memberUpdateToExternal.add(userUid);
 			return;
 		}
+	}
+
+	@Override
+	public ItemValue<Group> getGroupByName(String name) {
+		return groups.entrySet().stream().filter(entry -> entry.getValue().value.name.equals(name)).findFirst()
+				.map(Entry::getValue).orElse(null);
 	}
 }
