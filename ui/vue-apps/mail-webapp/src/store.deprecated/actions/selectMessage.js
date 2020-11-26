@@ -17,8 +17,9 @@ export async function selectMessage({ dispatch, commit, state, rootState, rootGe
 
         if (!message.composing) {
             if (inject("UserSession").roles.includes("hasCalendar") && message.hasICS) {
-                const icsHeaderValue = message.headers.find(header => header.name === MessageHeader.X_BM_EVENT)
-                    .values[0];
+                const icsHeaderValue = message.headers
+                    .find(header => header.name === MessageHeader.X_BM_EVENT)
+                    .values[0].trim();
                 const semiColonIndex = icsHeaderValue.indexOf(";");
                 const eventUid = semiColonIndex === -1 ? icsHeaderValue : icsHeaderValue.substring(0, semiColonIndex);
                 await dispatch(
