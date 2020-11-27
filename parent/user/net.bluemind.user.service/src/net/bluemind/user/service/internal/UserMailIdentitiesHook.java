@@ -180,6 +180,7 @@ public class UserMailIdentitiesHook extends DefaultMailboxHook implements IAclHo
 		umi.sentFolder = "Sent";
 		umi.displayname = dirEntry.displayName;
 		umi.name = umi.displayname;
+		umi.isDefault = true;
 		return umi;
 	}
 

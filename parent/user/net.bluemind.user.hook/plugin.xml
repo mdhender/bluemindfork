@@ -3,4 +3,5 @@
 <plugin>
    <extension-point id="net.bluemind.user.hook.userhook" name="userhook" schema="schema/net.bluemind.user.hook.userhook.exsd"/>
    <extension-point id="net.bluemind.user.hook.passwordvalidatorfactory" name="passwordvalidatorfactory" schema="schema/net.bluemind.user.hook.passwordvalidatorfactory.exsd"/>
+   <extension-point id="net.bluemind.user.hook.usermailidentity" name="usermailidentity" schema="schema/net.bluemind.user.hook.usermailidentity.exsd"/>
 </plugin>

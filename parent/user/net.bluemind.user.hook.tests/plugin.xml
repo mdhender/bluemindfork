@@ -7,5 +7,11 @@
             impl="net.bluemind.user.hook.TestHook">
       </hook>
    </extension>
+   <extension
+         point="net.bluemind.user.hook.usermailidentity">
+      <hook
+            impl="net.bluemind.user.hook.identity.IdentityHook">
+      </hook>
+   </extension>
 
 </fragment>
