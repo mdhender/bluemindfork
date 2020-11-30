@@ -104,7 +104,7 @@ public class MgntTests extends AbstractServiceTests {
 		refreshIndexes();
 		assertEquals(1, getService(container, defaultSecurityContext).search(VCardQuery.create("GGtestUid")).total);
 
-		new VCardIndexStore(ElasticsearchTestHelper.getInstance().getClient(), container).deleteAll();
+		new VCardIndexStore(ElasticsearchTestHelper.getInstance().getClient(), container, null).deleteAll();
 
 		refreshIndexes();
 		assertEquals(0, getService(container, defaultSecurityContext).search(VCardQuery.create("GGtestUid")).total);

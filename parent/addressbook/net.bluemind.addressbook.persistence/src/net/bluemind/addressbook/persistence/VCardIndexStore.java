@@ -44,19 +44,23 @@ import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCardQuery;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.network.topology.Topology;
 
 public class VCardIndexStore {
 
 	private static final Logger logger = LoggerFactory.getLogger(VCardIndexStore.class);
 
+	public static final String VCARD_INDEX = "contact";
 	public static final String VCARD_TYPE = "vcard";
 
 	private Client esearchClient;
 
 	private Container container;
+	private long shardId;
 
 	public static class ItemHolder {
 		public String uid;
@@ -66,26 +70,22 @@ public class VCardIndexStore {
 		public String sortName;
 	}
 
-	public VCardIndexStore(Client esearchClient, Container container) {
+	public VCardIndexStore(Client esearchClient, Container container, String loc) {
 		this.esearchClient = esearchClient;
 		this.container = container;
+		this.shardId = loc == null ? 0 : Topology.get().datalocation(loc).internalId;
 	}
 
-	public void create(String uid, VCard card) {
+	public void create(Item item, VCard card) {
 		byte[] json = null;
 		try {
-			json = asJson(uid, card);
+			json = asJson(item.uid, card);
 		} catch (JsonProcessingException e) {
 			logger.error("error during vcard serialization to json before indexation", e);
 			return;
 		}
-		String id = container.uid + ":" + uid;
-		if (id.length() < 512) {
-			esearchClient.prepareIndex("contact", VCARD_TYPE).setSource(json, XContentType.JSON).setId(id).execute()
-					.actionGet();
-		} else {
-			logger.warn("Skipping too long key for ES {}", id);
-		}
+		esearchClient.prepareIndex(VCARD_INDEX, VCARD_TYPE).setSource(json, XContentType.JSON).setId(getId(item.id))
+				.execute().actionGet();
 
 	}
 
@@ -99,21 +99,16 @@ public class VCardIndexStore {
 		return JsonUtils.asBytes(holder);
 	}
 
-	public void update(String uid, VCard value) {
+	public void update(Item item, VCard value) {
 		byte[] json = null;
 		try {
-			json = asJson(uid, value);
+			json = asJson(item.uid, value);
 		} catch (JsonProcessingException e) {
 			logger.error("error during vcard serialization to json before indexation", e);
 			return;
 		}
-		String id = container.uid + ":" + uid;
-		if (id.length() < 512) {
-			esearchClient.prepareIndex("contact", VCARD_TYPE).setSource(json, XContentType.JSON).setId(id).execute()
-					.actionGet();
-		} else {
-			logger.warn("Skipping too long key for ES {}", id);
-		}
+		esearchClient.prepareIndex(VCARD_INDEX, VCARD_TYPE).setSource(json, XContentType.JSON).setId(getId(item.id))
+				.execute().actionGet();
 	}
 
 	public void updates(List<ItemValue<VCard>> cards) {
@@ -127,26 +122,21 @@ public class VCardIndexStore {
 				logger.error("error during vcard serialization to json before indexation", e);
 				return;
 			}
-			String id = container.uid + ":" + card.uid;
-			if (id.length() < 512) {
-				IndexRequestBuilder op = esearchClient.prepareIndex("contact", VCARD_TYPE)
-						.setSource(json, XContentType.JSON).setId(id);
-				bulk.add(op);
-			} else {
-				logger.warn("Skipping too long key for ES {}", id);
-			}
+			IndexRequestBuilder op = esearchClient.prepareIndex(VCARD_INDEX, VCARD_TYPE)
+					.setSource(json, XContentType.JSON).setId(getId(card.internalId));
+			bulk.add(op);
 		});
 		bulk.execute().actionGet();
 	}
 
 	public void delete(String uid) {
-		ESearchActivator.deleteByQuery("contact",
+		ESearchActivator.deleteByQuery(VCARD_INDEX,
 				QueryBuilders.boolQuery().must(QueryBuilders.termQuery("containerUid", container.uid))
 						.must(QueryBuilders.termQuery("uid", uid)));
 	}
 
 	public void deleteAll() {
-		ESearchActivator.deleteByQuery("contact",
+		ESearchActivator.deleteByQuery(VCARD_INDEX,
 				QueryBuilders.boolQuery().must(QueryBuilders.termQuery("containerUid", container.uid)));
 	}
 
@@ -170,7 +160,8 @@ public class VCardIndexStore {
 		} else {
 			sort = SortBuilders.scoreSort();
 		}
-		SearchRequestBuilder preparedSearch = esearchClient.prepareSearch("contact").setTypes(VCARD_TYPE).setQuery(qb);
+		SearchRequestBuilder preparedSearch = esearchClient.prepareSearch(VCARD_INDEX).setTypes(VCARD_TYPE)
+				.setQuery(qb);
 		if (query.size > 0) {
 			preparedSearch = preparedSearch.setFrom(query.from).setSize(query.size);
 		}
@@ -207,6 +198,10 @@ public class VCardIndexStore {
 	}
 
 	public void refresh() {
-		esearchClient.admin().indices().prepareRefresh("contact").execute().actionGet();
+		esearchClient.admin().indices().prepareRefresh(VCARD_INDEX).execute().actionGet();
+	}
+
+	private String getId(long itemId) {
+		return shardId + ":" + container.id + ":" + itemId;
 	}
 }

@@ -121,7 +121,9 @@ public class TodoListsService implements ITodoLists {
 
 		VTodoContainerStoreService storeService = new VTodoContainerStoreService(ctx, ds, ctx.getSecurityContext(),
 				container);
-		VTodoIndexStore indexStore = new VTodoIndexStore(ESearchActivator.getClient(), container);
+
+		VTodoIndexStore indexStore = new VTodoIndexStore(ESearchActivator.getClient(), container,
+				DataSourceRouter.location(ctx, container.uid));
 
 		storeService.prepareContainerDelete();
 		indexStore.deleteAll();

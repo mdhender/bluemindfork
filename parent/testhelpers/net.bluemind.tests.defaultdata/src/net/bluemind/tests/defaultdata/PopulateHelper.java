@@ -131,7 +131,6 @@ public class PopulateHelper {
 		}
 
 		createServers(servers);
-		dispatchTopology(servers);
 
 		boolean createFakeImap = true;
 		for (Server s : servers) {
@@ -147,12 +146,15 @@ public class PopulateHelper {
 			fakeImapServer.ip = FAKE_CYRUS_IP;
 			fakeImapServer.tags = Lists.newArrayList("mail/imap");
 			createServers(fakeImapServer);
+
 		}
+
+		dispatchTopology();
 
 		logger.info("GLOBAL.VIRT INITIALIZED");
 	}
 
-	private static void dispatchTopology(Server... servers) {
+	private static void dispatchTopology() {
 		IServer yeahApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
 				"default");
 		List<ItemValue<Server>> allSrvs = yeahApi.allComplete();

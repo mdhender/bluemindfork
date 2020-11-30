@@ -150,10 +150,11 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 
 	private void reindex(Container container, IServerTaskMonitor monitor) throws ServerFault {
 		DataSource ds = DataSourceRouter.get(context, container.uid);
+		VCardIndexStore indexStore = new VCardIndexStore(ESearchActivator.getClient(), container,
+				DataSourceRouter.location(context, container.uid));
+
 		VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
-				context.getSecurityContext(), container, new VCardStore(ds, container),
-				new VCardIndexStore(ESearchActivator.getClient(), container));
-		VCardIndexStore indexStore = new VCardIndexStore(ESearchActivator.getClient(), container);
+				context.getSecurityContext(), container, new VCardStore(ds, container), indexStore);
 
 		logger.info("reindexing addressbook {}", container.uid);
 		// reinit container index
@@ -233,8 +234,8 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 		}
 
 		VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
-				context.getSecurityContext(), container, new VCardStore(ds, container),
-				new VCardIndexStore(ESearchActivator.getClient(), container));
+				context.getSecurityContext(), container, new VCardStore(ds, container), new VCardIndexStore(
+						ESearchActivator.getClient(), container, DataSourceRouter.location(context, container.uid)));
 
 		ContainerChangeset<String> changeset = storeService.changeset(since, Long.MAX_VALUE);
 
@@ -305,8 +306,8 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 		}
 
 		final VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
-				context.getSecurityContext(), container, new VCardStore(ds, container),
-				new VCardIndexStore(ESearchActivator.getClient(), container));
+				context.getSecurityContext(), container, new VCardStore(ds, container), new VCardIndexStore(
+						ESearchActivator.getClient(), container, DataSourceRouter.location(context, container.uid)));
 
 		if (resetBeforeRestore) {
 			storeService.deleteAll();
@@ -370,9 +371,10 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+
 		VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
-				context.getSecurityContext(), container, new VCardStore(ds, container),
-				new VCardIndexStore(ESearchActivator.getClient(), container));
+				context.getSecurityContext(), container, new VCardStore(ds, container), new VCardIndexStore(
+						ESearchActivator.getClient(), container, DataSourceRouter.location(context, container.uid)));
 
 		storeService.prepareContainerDelete();
 		context.su().provider().instance(IContainers.class).delete(uid);
@@ -441,7 +443,7 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 		}
 
 		DataSource ds = DataSourceRouter.get(context, abContainerDescriptor.uid);
-		ContainerStore cs = new ContainerStore(ds, SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(null, ds, SecurityContext.SYSTEM);
 		Container container = null;
 		try {
 			container = cs.get(abContainerDescriptor.uid);

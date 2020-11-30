@@ -54,7 +54,8 @@ public class CalendarsMgntTests extends AbstractCalendarTests {
 		assertEquals(1, getCalendarService(userSecurityContext, userCalendarContainer)
 				.search(VEventQuery.create("testUid")).total);
 
-		new VEventIndexStore(ElasticsearchTestHelper.getInstance().getClient(), userCalendarContainer).deleteAll();
+		new VEventIndexStore(ElasticsearchTestHelper.getInstance().getClient(), userCalendarContainer, null)
+				.deleteAll();
 
 		refreshIndexes();
 		assertEquals(0, getCalendarService(userSecurityContext, userCalendarContainer)

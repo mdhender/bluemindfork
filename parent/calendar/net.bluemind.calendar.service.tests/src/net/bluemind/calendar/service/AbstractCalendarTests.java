@@ -64,6 +64,7 @@ import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.AclStore;
@@ -295,18 +296,18 @@ public abstract class AbstractCalendarTests {
 				SecurityContext.SYSTEM, contactsContainer,
 				new VCardStore(JdbcTestHelper.getInstance().getDataSource(), contactsContainer));
 		VCardIndexStore vcardIndex = new VCardIndexStore(ElasticsearchTestHelper.getInstance().getClient(),
-				contactsContainer);
+				contactsContainer, null);
 
 		String member1Uid = UUID.randomUUID().toString();
 		String member1Email = "email" + UUID.randomUUID().toString() + "@vcard.lan";
 		VCard member1 = defaultVCard("Member 1", member1Email);
-		vcardStore.create(member1Uid, "Member 1", member1);
-		vcardIndex.create(member1Uid, member1);
+		ItemVersion iv = vcardStore.create(member1Uid, "Member 1", member1);
+		vcardIndex.create(Item.create(member1Uid, iv.id), member1);
 		String member2Uid = UUID.randomUUID().toString();
 		String member2Email = "email" + UUID.randomUUID().toString() + "@vcard.lan";
 		VCard member2 = defaultVCard("Member 2", member2Email);
-		vcardStore.create(member2Uid, "Member 2", member2);
-		vcardIndex.create(member2Uid, member2);
+		iv = vcardStore.create(member2Uid, "Member 2", member2);
+		vcardIndex.create(Item.create(member2Uid, iv.id), member2);
 
 		VCard dlist = defaultVCard("DLIST", "dlist" + UUID.randomUUID().toString() + "@vcard.lan");
 		dlist.kind = Kind.group;
@@ -314,8 +315,8 @@ public abstract class AbstractCalendarTests {
 		dlist.organizational.member = Arrays.asList(
 				VCard.Organizational.Member.create(contactsContainer.uid, member1Uid, "Member 1", member1Email),
 				VCard.Organizational.Member.create(contactsContainer.uid, member2Uid, "Member 2", member2Email));
-		vcardStore.create(dlistUid, "DLIST", dlist);
-		vcardIndex.create(dlistUid, dlist);
+		iv = vcardStore.create(dlistUid, "DLIST", dlist);
+		vcardIndex.create(Item.create(dlistUid, iv.id), dlist);
 
 		dlistItemValue = vcardStore.get(dlistUid, null);
 

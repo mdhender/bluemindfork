@@ -89,7 +89,9 @@ public class TodoListRepairSupport {
 	private void reindex(String containerUid) {
 		RepairContext ctx = RepairContext.create(context, containerUid);
 		List<String> all = ctx.vStore.allUids();
-		VTodoIndexStore indexStore = new VTodoIndexStore(ESearchActivator.getClient(), ctx.container);
+
+		VTodoIndexStore indexStore = new VTodoIndexStore(ESearchActivator.getClient(), ctx.container,
+				DataSourceRouter.location(context, containerUid));
 
 		indexStore.deleteAll();
 

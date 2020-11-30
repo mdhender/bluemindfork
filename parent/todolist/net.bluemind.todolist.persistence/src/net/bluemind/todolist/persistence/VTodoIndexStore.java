@@ -44,10 +44,12 @@ import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.Queries;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.todolist.api.VTodoQuery;
 
@@ -60,6 +62,7 @@ public class VTodoIndexStore {
 
 	private Client esearchClient;
 	private Container container;
+	private long shardId;
 
 	public static class ItemHolder {
 		public String uid;
@@ -67,22 +70,22 @@ public class VTodoIndexStore {
 		public VTodo value;
 	}
 
-	public VTodoIndexStore(Client esearchClient, Container container) {
+	public VTodoIndexStore(Client esearchClient, Container container, String loc) {
 		this.esearchClient = esearchClient;
 		this.container = container;
+		this.shardId = loc == null ? 0 : Topology.get().datalocation(loc).internalId;
 	}
 
-	public void create(String uid, VTodo todo) {
-		store(uid, todo);
+	public void create(Item item, VTodo todo) {
+		store(item, todo);
 	}
 
-	public void update(String uid, VTodo todo) {
-		store(uid, todo);
+	public void update(Item item, VTodo todo) {
+		store(item, todo);
 	}
 
-	public void delete(String uid) {
-		esearchClient.prepareDelete().setIndex(VTODO_INDEX).setType(VTODO_TYPE).setId(container.uid + ":" + uid)
-				.execute().actionGet();
+	public void delete(long id) {
+		esearchClient.prepareDelete().setIndex(VTODO_INDEX).setType(VTODO_TYPE).setId(getId(id)).execute().actionGet();
 	}
 
 	public void deleteAll() {
@@ -177,18 +180,17 @@ public class VTodoIndexStore {
 		return Queries.and(QueryBuilders.existsQuery(field), Queries.or(inRangeNoTz, inRangeWithTz));
 	}
 
-	private void store(String uid, VTodo todo) {
+	private void store(Item item, VTodo todo) {
 		byte[] json = null;
 		try {
-			json = asJson(uid, todo);
+			json = asJson(item.uid, todo);
 		} catch (JsonProcessingException e) {
 			logger.error("error during vtodo serialization", e);
 			return;
 		}
 
-		String id = container.uid + ":" + uid;
-		esearchClient.prepareIndex(VTODO_INDEX, VTODO_TYPE).setSource(json, XContentType.JSON).setId(id).execute()
-				.actionGet();
+		esearchClient.prepareIndex(VTODO_INDEX, VTODO_TYPE).setSource(json, XContentType.JSON).setId(getId(item.id))
+				.execute().actionGet();
 
 	}
 
@@ -203,9 +205,8 @@ public class VTodoIndexStore {
 				logger.error("error during vtodo serialization", e);
 				return;
 			}
-			String id = container.uid + ":" + task.uid;
 			IndexRequestBuilder op = esearchClient.prepareIndex(VTODO_INDEX, VTODO_TYPE)
-					.setSource(json, XContentType.JSON).setId(id);
+					.setSource(json, XContentType.JSON).setId(getId(task.internalId));
 			bulk.add(op);
 		});
 		bulk.execute().actionGet();
@@ -230,7 +231,7 @@ public class VTodoIndexStore {
 	 * @param query
 	 * @return
 	 */
-	String escape(String query) {
+	private String escape(String query) {
 		String alreadyEscaped = ".*?\\\\[\\[\\]+!-&|!(){}^\"~*?].*";
 		if (Pattern.matches(alreadyEscaped, query)) {
 			logger.warn("Escaping already escaped query {}", query);
@@ -239,5 +240,9 @@ public class VTodoIndexStore {
 		String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?\\\\]|[&\\|]{2})";
 		query = query.replaceAll(regex, "\\\\$1");
 		return query.replaceAll("##", "\\\\:");
+	}
+
+	private String getId(long itemId) {
+		return shardId + ":" + container.id + ":" + itemId;
 	}
 }

@@ -106,7 +106,8 @@ public class AddressBookService implements IInCoreAddressBook {
 
 		this.vcardStore = new VCardStore(dataSource, container);
 		this.eventProducer = new AddressBookEventProducer(container, securityContext, VertxPlatform.eventBus());
-		indexStore = new VCardIndexStore(esearchClient, container);
+
+		indexStore = new VCardIndexStore(esearchClient, container, DataSourceRouter.location(context, container.uid));
 		this.storeService = new VCardContainerStoreService(context, dataSource, securityContext, container, vcardStore,
 				indexStore);
 

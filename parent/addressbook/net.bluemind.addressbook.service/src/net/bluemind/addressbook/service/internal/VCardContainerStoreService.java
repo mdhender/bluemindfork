@@ -34,6 +34,7 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.persistence.IItemValueStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
@@ -53,7 +54,8 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 	public VCardContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
 			Container container) {
 		this(context, dataSource, securityContext, container, new VCardStore(dataSource, container),
-				new VCardIndexStore(ESearchActivator.getClient(), container));
+				new VCardIndexStore(ESearchActivator.getClient(), container,
+						DataSourceRouter.location(context, container.uid)));
 	}
 
 	public VCardContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
@@ -114,7 +116,7 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 		}
 		tagRefService.create(item, tags);
 
-		indexStore.create(item.uid, value);
+		indexStore.create(item, value);
 
 	}
 
@@ -127,7 +129,7 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 		}
 		tagRefService.update(item, tags);
 
-		indexStore.update(item.uid, value);
+		indexStore.update(item, value);
 	}
 
 	@Override

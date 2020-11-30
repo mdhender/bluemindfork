@@ -52,11 +52,13 @@ import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.Queries;
+import net.bluemind.network.topology.Topology;
 
 public class VEventIndexStore {
 
@@ -67,6 +69,7 @@ public class VEventIndexStore {
 
 	private Client esearchClient;
 	private Container container;
+	private long shardId;
 
 	public static class ItemHolder {
 		public String uid;
@@ -74,22 +77,23 @@ public class VEventIndexStore {
 		public List<VEvent> value;
 	}
 
-	public VEventIndexStore(Client esearchClient, Container container) {
+	public VEventIndexStore(Client esearchClient, Container container, String loc) {
 		this.esearchClient = esearchClient;
 		this.container = container;
+		this.shardId = loc == null ? 0 : Topology.get().datalocation(loc).internalId;
 	}
 
-	public void create(String uid, VEventSeries event) {
-		store(uid, event);
+	public void create(Item item, VEventSeries event) {
+		store(item, event);
 	}
 
-	public void update(String uid, VEventSeries event) {
-		store(uid, event);
+	public void update(Item item, VEventSeries event) {
+		store(item, event);
 	}
 
-	public void delete(String uid) {
-		esearchClient.prepareDelete().setIndex(VEVENT_INDEX).setType(VEVENT_TYPE).setId(container.uid + ":" + uid)
-				.execute().actionGet();
+	public void delete(long id) {
+		esearchClient.prepareDelete().setIndex(VEVENT_INDEX).setType(VEVENT_TYPE).setId(getId(id)).execute()
+				.actionGet();
 	}
 
 	public void deleteAll() {
@@ -225,12 +229,11 @@ public class VEventIndexStore {
 		return Queries.and(QueryBuilders.existsQuery(field), Queries.or(inRangeNoTz, inRangeWithTz));
 	}
 
-	private void store(String uid, VEventSeries event) {
-		Optional<byte[]> jsonValue = eventToJson(uid, event);
+	private void store(Item item, VEventSeries event) {
+		Optional<byte[]> jsonValue = eventToJson(item.uid, event);
 		jsonValue.ifPresent(json -> {
-			String id = container.uid + ":" + uid;
-			esearchClient.prepareIndex(VEVENT_INDEX, VEVENT_TYPE).setSource(json, XContentType.JSON).setId(id).execute()
-					.actionGet();
+			esearchClient.prepareIndex(VEVENT_INDEX, VEVENT_TYPE).setSource(json, XContentType.JSON)
+					.setId(getId(item.id)).execute().actionGet();
 		});
 
 	}
@@ -241,9 +244,8 @@ public class VEventIndexStore {
 		events.forEach(ev -> {
 			Optional<byte[]> jsonValue = eventToJson(ev.uid, ev.value);
 			jsonValue.ifPresent(json -> {
-				String id = container.uid + ":" + ev.uid;
 				IndexRequestBuilder op = esearchClient.prepareIndex(VEVENT_INDEX, VEVENT_TYPE)
-						.setSource(json, XContentType.JSON).setId(id);
+						.setSource(json, XContentType.JSON).setId(getId(ev.internalId));
 				bulk.add(op);
 			});
 		});
@@ -291,7 +293,7 @@ public class VEventIndexStore {
 	 * @param query
 	 * @return
 	 */
-	String escape(String query) {
+	private String escape(String query) {
 		String alreadyEscaped = ".*?\\\\[\\[\\]+!-&|!(){}^\"~*?].*";
 		if (Pattern.matches(alreadyEscaped, query)) {
 			logger.warn("Escaping already escaped query {}", query);
@@ -300,5 +302,9 @@ public class VEventIndexStore {
 		String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?\\\\]|[&\\|]{2})";
 		query = query.replaceAll(regex, "\\\\$1");
 		return query.replaceAll("##", "\\\\:");
+	}
+
+	private String getId(long itemId) {
+		return shardId + ":" + container.id + ":" + itemId;
 	}
 }

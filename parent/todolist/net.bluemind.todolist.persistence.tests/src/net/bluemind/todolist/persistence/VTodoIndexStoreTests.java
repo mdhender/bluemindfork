@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
@@ -41,6 +42,7 @@ import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
@@ -65,7 +67,7 @@ public class VTodoIndexStoreTests {
 
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 		String containerId = "test" + System.nanoTime();
 		container = Container.create(containerId, "test", "test", "me", true);
@@ -77,7 +79,7 @@ public class VTodoIndexStoreTests {
 
 		client = ElasticsearchTestHelper.getInstance().getClient();
 
-		indexStore = new VTodoIndexStore(client, container);
+		indexStore = new VTodoIndexStore(client, container, null);
 
 	}
 
@@ -92,9 +94,9 @@ public class VTodoIndexStoreTests {
 		String uid = "test" + System.nanoTime();
 		todo.uid = uid;
 		Item item = Item.create(uid, UUID.randomUUID().toString());
-		itemStore.create(item);
+		Item created = itemStore.create(item);
 
-		indexStore.create(item.uid, todo);
+		indexStore.create(created, todo);
 		indexStore.refresh();
 
 		SearchResponse resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
@@ -118,9 +120,9 @@ public class VTodoIndexStoreTests {
 		VTodo todo = defaultVTodo();
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
-		itemStore.create(item);
+		Item created = itemStore.create(item);
 
-		indexStore.create(item.uid, todo);
+		indexStore.create(created, todo);
 		indexStore.refresh();
 
 		SearchResponse resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
@@ -133,7 +135,7 @@ public class VTodoIndexStoreTests {
 
 		String updatedSummary = "updated" + System.currentTimeMillis();
 		todo.summary = updatedSummary;
-		indexStore.update(uid, todo);
+		indexStore.update(created, todo);
 		indexStore.refresh();
 
 		resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
@@ -155,9 +157,9 @@ public class VTodoIndexStoreTests {
 		VTodo todo = defaultVTodo();
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
-		itemStore.create(item);
+		Item created = itemStore.create(item);
 
-		indexStore.create(item.uid, todo);
+		indexStore.create(created, todo);
 		indexStore.refresh();
 
 		SearchResponse resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
@@ -167,7 +169,7 @@ public class VTodoIndexStoreTests {
 		SearchHit hit = resp.getHits().getAt(0);
 		assertNotNull(hit);
 
-		indexStore.delete(item.uid);
+		indexStore.delete(created.id);
 		indexStore.refresh();
 		resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
@@ -180,17 +182,17 @@ public class VTodoIndexStoreTests {
 		VTodo todo = defaultVTodo();
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
-		itemStore.create(item);
+		Item created = itemStore.create(item);
 
-		indexStore.create(item.uid, todo);
+		indexStore.create(created, todo);
 		indexStore.refresh();
 
 		VTodo todo2 = defaultVTodo();
 		String uid2 = "test" + System.nanoTime();
 		Item item2 = Item.create(uid2, UUID.randomUUID().toString());
-		itemStore.create(item2);
+		Item created2 = itemStore.create(item2);
 
-		indexStore.create(item2.uid, todo2);
+		indexStore.create(created2, todo2);
 		indexStore.refresh();
 
 		SearchResponse resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
@@ -211,9 +213,9 @@ public class VTodoIndexStoreTests {
 		todo.summary = "Yellow Summary";
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
-		itemStore.create(item);
+		Item created = itemStore.create(item);
 
-		indexStore.create(item.uid, todo);
+		indexStore.create(created, todo);
 		indexStore.refresh();
 
 		ListResult<String> res = indexStore.search(VTodoQuery.create("value.summary:Yellow"));
@@ -227,9 +229,9 @@ public class VTodoIndexStoreTests {
 		VTodo todo2 = defaultVTodo();
 		String uid2 = "test" + System.nanoTime();
 		Item item2 = Item.create(uid2, UUID.randomUUID().toString());
-		itemStore.create(item2);
+		Item created2 = itemStore.create(item2);
 
-		indexStore.create(item2.uid, todo2);
+		indexStore.create(created2, todo2);
 		indexStore.refresh();
 
 		res = indexStore.search(VTodoQuery.create("value.location:Toulouse"));
@@ -246,9 +248,9 @@ public class VTodoIndexStoreTests {
 
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
-		itemStore.create(item);
+		Item created = itemStore.create(item);
 
-		indexStore.create(item.uid, todo);
+		indexStore.create(created, todo);
 		indexStore.refresh();
 
 		ListResult<String> res = indexStore.search(VTodoQuery.create("value.organizer.mailto:mehdi@bm.lan"));
@@ -271,9 +273,9 @@ public class VTodoIndexStoreTests {
 		todo.organizer = null;
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
-		itemStore.create(item);
+		Item created = itemStore.create(item);
 
-		indexStore.create(item.uid, todo);
+		indexStore.create(created, todo);
 		indexStore.refresh();
 
 		ListResult<String> res = indexStore.search(VTodoQuery.create("value.organizer.mailto:John"));
@@ -291,8 +293,8 @@ public class VTodoIndexStoreTests {
 		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(1979, 2, 15, 0, 0, 0, 0, defaultTz), Precision.Date);
 		String uid = "test_" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
-		itemStore.create(item);
-		indexStore.create(item.uid, todo);
+		Item created = itemStore.create(item);
+		indexStore.create(created, todo);
 		indexStore.refresh();
 
 		ZonedDateTime from = ZonedDateTime.of(1979, 2, 1, 0, 0, 0, 0, defaultTz);
@@ -309,8 +311,8 @@ public class VTodoIndexStoreTests {
 
 		String uid2 = "test_" + System.nanoTime();
 		Item item2 = Item.create(uid2, UUID.randomUUID().toString());
-		itemStore.create(item2);
-		indexStore.create(item2.uid, todo2);
+		Item created2 = itemStore.create(item2);
+		indexStore.create(created2, todo2);
 		indexStore.refresh();
 
 		res = indexStore.search(query);
@@ -322,8 +324,8 @@ public class VTodoIndexStoreTests {
 		todo3.due = BmDateTimeWrapper.create(ZonedDateTime.of(1979, 2, 22, 0, 0, 0, 0, defaultTz), Precision.Date);
 		String uid3 = "test_" + System.nanoTime();
 		Item item3 = Item.create(uid3, UUID.randomUUID().toString());
-		itemStore.create(item3);
-		indexStore.create(item3.uid, todo3);
+		Item created3 = itemStore.create(item3);
+		indexStore.create(created3, todo3);
 		indexStore.refresh();
 
 		res = indexStore.search(query);
@@ -357,8 +359,8 @@ public class VTodoIndexStoreTests {
 
 		String uid = "test_" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
-		itemStore.create(item);
-		indexStore.create(item.uid, todo);
+		Item created = itemStore.create(item);
+		indexStore.create(created, todo);
 		indexStore.refresh();
 
 		ListResult<String> res = indexStore
@@ -387,6 +389,46 @@ public class VTodoIndexStoreTests {
 		res = indexStore.search(query);
 		assertEquals(1, res.values.size());
 		assertEquals(uid, res.values.get(0));
+	}
+
+	@Test
+	public void testUpdates() throws SQLException {
+		VTodo todo1 = defaultVTodo();
+		todo1.summary = "coucou";
+		String uid = "test_" + System.nanoTime();
+		Item item = Item.create(uid, UUID.randomUUID().toString());
+		Item created = itemStore.create(item);
+		indexStore.create(created, todo1);
+
+		VTodo todo2 = defaultVTodo();
+		todo2.summary = "yeah";
+		String uid2 = "test_" + System.nanoTime();
+		Item item2 = Item.create(uid2, UUID.randomUUID().toString());
+		Item created2 = itemStore.create(item2);
+		indexStore.create(created2, todo2);
+		indexStore.refresh();
+
+		ListResult<String> res = indexStore.search(VTodoQuery.create("value.summary:coucou"));
+		assertEquals(1, res.total);
+
+		res = indexStore.search(VTodoQuery.create("value.summary:yeah"));
+		assertEquals(1, res.total);
+
+		todo1.summary = "yata";
+		todo2.summary = "yolo";
+
+		indexStore.updates(Arrays.asList(ItemValue.create(created, todo1), ItemValue.create(created2, todo2)));
+		indexStore.refresh();
+
+		res = indexStore.search(VTodoQuery.create("value.summary:coucou"));
+		assertEquals(0, res.total);
+		res = indexStore.search(VTodoQuery.create("value.summary:yata"));
+		assertEquals(1, res.total);
+
+		res = indexStore.search(VTodoQuery.create("value.summary:yeah"));
+		assertEquals(0, res.total);
+		res = indexStore.search(VTodoQuery.create("value.summary:yolo"));
+		assertEquals(1, res.total);
 	}
 
 	private VTodo defaultVTodo() {

@@ -156,7 +156,7 @@ public abstract class AbstractServiceTests {
 		future.get();
 		cardStoreService = new VCardContainerStoreService(context, dataDataSource, SecurityContext.SYSTEM, container,
 				new VCardStore(dataDataSource, container),
-				new VCardIndexStore(ElasticsearchTestHelper.getInstance().getClient(), container));
+				new VCardIndexStore(ElasticsearchTestHelper.getInstance().getClient(), container, null));
 	}
 
 	private void initTags(String userUid) throws SQLException, ServerFault {
