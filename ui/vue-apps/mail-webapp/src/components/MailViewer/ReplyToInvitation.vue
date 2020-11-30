@@ -1,5 +1,5 @@
 <template>
-    <div class="ics-viewer">
+    <div class="reply-to-invitation">
         <div class="header px-3 pt-2 pb-3 bg-extra-light">
             <div class="font-weight-bold mb-1 d-block top">
                 <template v-if="!currentEvent.status || currentEvent.status === 'NeedsAction'">
@@ -14,7 +14,7 @@
                     <template v-else-if="currentEvent.status === 'Declined'">{{ $t("mail.ics.declined") }}</template>
                 </template>
             </div>
-            <div v-if="needsReply && currentEvent.status" class="mt-3">
+            <div v-if="message.eventInfo.needsReply && currentEvent.status" class="mt-3">
                 <bm-button
                     variant="outline-primary"
                     class="mr-2 px-1"
@@ -43,82 +43,23 @@
                 </bm-button>
             </div>
         </div>
-        <bm-choice-group
-            class="border-bottom my-3"
-            :options="choices"
-            :selected="choices[selectedChoice]"
-            @select="index => (selectedChoice = index)"
-        />
-        <parts-viewer v-if="selectedChoice === 0" :message-key="message.key" />
-        <div v-else class="invitation pl-5">
-            <h1>
-                {{ currentEvent.organizer.name }} {{ $t("mail.ics.got_invited") }}
-                <span class="font-weight-bold">&laquo;{{ currentEvent.summary }}&raquo;</span>
-            </h1>
-            <hr />
-            <div class="font-weight-bold">
-                <bm-label-icon icon="event" class="d-block">{{ $t("common.title") }}</bm-label-icon>
-                {{ currentEvent.summary }}
-            </div>
-            <hr />
-            <div class="font-weight-bold">
-                <bm-label-icon icon="clock" class="d-block">{{ $t("common.when") }}</bm-label-icon>
-                {{ currentEvent.date }}
-            </div>
-            <hr />
-            <div>
-                <bm-label-icon icon="user" class="font-weight-bold d-block">{{ $t("common.organizer") }}</bm-label-icon>
-                <span class="font-weight-bold">{{ currentEvent.organizer.name }}</span>
-                &lt;{{ currentEvent.organizer.mail }}&gt;
-            </div>
-            <hr />
-            <bm-label-icon icon="group" class="font-weight-bold d-block">{{
-                $tc("common.attendees", currentEvent.attendees.length)
-            }}</bm-label-icon>
-            <div v-for="attendee in currentEvent.attendees" :key="attendee.mail">
-                <span class="font-weight-bold">{{ attendee.name }}</span> &lt;{{ attendee.mail }}&gt;
-            </div>
-            <template v-if="currentEvent.sanitizedDescription">
-                <hr />
-                <div>
-                    <bm-label-icon icon="pencil" class="font-weight-bold d-block">
-                        {{ $t("common.description") }}
-                    </bm-label-icon>
-                    <!-- eslint-disable-next-line vue/no-v-html -->
-                    <span v-html="currentEvent.sanitizedDescription" />
-                </div>
-            </template>
-        </div>
     </div>
 </template>
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 
-import { BmButton, BmChoiceGroup, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
+import { BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 
-import PartsViewer from "./PartsViewer/PartsViewer";
-import { MessageHeader } from "../../model/message";
 import { SET_EVENT_STATUS } from "~actions";
 import { CURRENT_MAILBOX } from "~getters";
 
 export default {
-    name: "IcsViewer",
+    name: "ReplyToInvitation",
     components: {
         BmButton,
-        BmChoiceGroup,
         BmIcon,
-        BmLabelIcon,
-        PartsViewer
-    },
-    data() {
-        return {
-            choices: [
-                { text: this.$t("common.message"), value: "message" },
-                { text: this.$t("common.invitation"), value: "invitation" }
-            ],
-            selectedChoice: 0
-        };
+        BmLabelIcon
     },
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
@@ -144,16 +85,6 @@ export default {
                 }
             }
             return icon;
-        },
-        needsReply() {
-            const icsHeaderValue = this.message.headers.find(header => header.name === MessageHeader.X_BM_EVENT)
-                .values[0];
-            return icsHeaderValue.includes('rsvp="true"') || icsHeaderValue.includes("rsvp='true'");
-        }
-    },
-    watch: {
-        currentEvent() {
-            this.selectedChoice = 0;
         }
     },
     methods: {
@@ -168,14 +99,7 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
-.ics-viewer {
-    hr {
-        border-color: $calendar-color;
-        margin-bottom: $sp-1;
-        max-width: 66%;
-        margin-left: 0;
-    }
-
+.reply-to-invitation {
     .header .top {
         .fa-check {
             color: $green;
@@ -185,17 +109,6 @@ export default {
         }
         .fa-interrogation {
             color: $purple;
-        }
-    }
-
-    .invitation {
-        .bm-label-icon {
-            color: $calendar-color;
-            margin-left: #{-1rem - $sp-3};
-
-            svg {
-                margin-right: $sp-3 !important;
-            }
         }
     }
 }

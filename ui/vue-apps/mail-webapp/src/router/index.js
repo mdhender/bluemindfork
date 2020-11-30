@@ -35,7 +35,8 @@ export default [
                 component: MailThread,
                 meta: {
                     onUpdate: (store, to, from, next) => {
-                        store.dispatch("mail-webapp/selectMessage", to.params.message).catch(() => {
+                        store.dispatch("mail-webapp/selectMessage", to.params.message).catch(e => {
+                            console.error("Unable to select message.", e);
                             next({ path: "/mail" });
                         });
                     },

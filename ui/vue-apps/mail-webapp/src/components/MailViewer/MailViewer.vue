@@ -57,7 +57,11 @@
         </bm-row>
         <bm-row ref="scrollableContainer" class="pt-1 flex-fill px-lg-5 px-4">
             <bm-col col>
-                <ics-viewer v-if="message.hasICS && currentEvent" />
+                <template v-if="currentEvent && message.eventInfo.needsReply">
+                    <reply-to-counter-proposal v-if="message.eventInfo.isCounterEvent" />
+                    <reply-to-invitation v-else />
+                </template>
+                <event-viewer v-if="message.hasICS && currentEvent" :current-event="currentEvent" :message="message" />
                 <parts-viewer v-else :message-key="message.key" />
             </bm-col>
         </bm-row>
@@ -68,13 +72,15 @@
 <script>
 import { mapState, mapActions, mapGetters } from "vuex";
 import { BmCol, BmRow } from "@bluemind/styleguide";
-import IcsViewer from "./IcsViewer";
+import EventViewer from "./EventViewer.vue";
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 import MailComponentAlert from "../MailComponentAlert";
 import MailViewerFrom from "./MailViewerFrom";
 import MailViewerRecipient from "./MailViewerRecipient";
 import MailViewerToolbar from "./MailViewerToolbar";
 import PartsViewer from "./PartsViewer/PartsViewer";
+import ReplyToCounterProposal from "./ReplyToCounterProposal";
+import ReplyToInvitation from "./ReplyToInvitation";
 import { MESSAGE_LIST_UNREAD_FILTER_ENABLED } from "~getters";
 import { MARK_MESSAGE_AS_READ } from "~actions";
 
@@ -83,13 +89,15 @@ export default {
     components: {
         BmCol,
         BmRow,
-        IcsViewer,
+        EventViewer,
         MailAttachmentsBlock,
         MailComponentAlert,
         MailViewerFrom,
         MailViewerRecipient,
         MailViewerToolbar,
-        PartsViewer
+        PartsViewer,
+        ReplyToInvitation,
+        ReplyToCounterProposal
     },
     props: {
         messageKey: {

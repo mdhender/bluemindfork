@@ -1,7 +1,6 @@
 import { inject } from "@bluemind/inject";
 import ItemUri from "@bluemind/item-uri";
 
-import { MessageHeader } from "../../model/message";
 import { CURRENT_MAILBOX, MY_DRAFTS } from "~getters";
 import { FETCH_EVENT } from "~actions";
 import { SET_MESSAGE_COMPOSING } from "~mutations";
@@ -17,14 +16,9 @@ export async function selectMessage({ dispatch, commit, state, rootState, rootGe
 
         if (!message.composing) {
             if (inject("UserSession").roles.includes("hasCalendar") && message.hasICS) {
-                const icsHeaderValue = message.headers
-                    .find(header => header.name === MessageHeader.X_BM_EVENT)
-                    .values[0].trim();
-                const semiColonIndex = icsHeaderValue.indexOf(";");
-                const eventUid = semiColonIndex === -1 ? icsHeaderValue : icsHeaderValue.substring(0, semiColonIndex);
                 await dispatch(
                     "mail/" + FETCH_EVENT,
-                    { eventUid, mailbox: rootGetters["mail/" + CURRENT_MAILBOX] },
+                    { message, mailbox: rootGetters["mail/" + CURRENT_MAILBOX] },
                     { root: true }
                 );
             }

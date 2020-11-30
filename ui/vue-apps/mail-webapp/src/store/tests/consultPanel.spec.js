@@ -36,9 +36,24 @@ describe("consultPanel node", () => {
         test("FETCH_EVENT action", async () => {
             calendarService.getComplete.mockReturnValue("event");
             EventHelper.adapt = jest.fn().mockReturnValue("adaptedEvent");
-            await store.dispatch(FETCH_EVENT, { eventUid, mailbox: { owner: userUid } });
+            await store.dispatch(FETCH_EVENT, {
+                message: { eventInfo: { eventUid }, from: { address: "ori@gina.tor" } },
+                mailbox: { owner: userUid }
+            });
             expect(calendarService.getComplete).toHaveBeenCalledWith(eventUid);
-            expect(EventHelper.adapt).toHaveBeenCalledWith("event", userUid);
+            expect(EventHelper.adapt).toHaveBeenCalledWith("event", userUid, "ori@gina.tor", undefined);
+            expect(store.state.currentEvent).toEqual("adaptedEvent");
+        });
+
+        test("FETCH_EVENT action with icsUid", async () => {
+            calendarService.getByIcsUid.mockReturnValue(["event"]);
+            EventHelper.adapt = jest.fn().mockReturnValue("adaptedEvent");
+            await store.dispatch(FETCH_EVENT, {
+                message: { eventInfo: { icsUid: "myICS" }, from: { address: "ori@gina.tor" } },
+                mailbox: { owner: userUid }
+            });
+            expect(calendarService.getByIcsUid).toHaveBeenCalledWith("myICS");
+            expect(EventHelper.adapt).toHaveBeenCalledWith("event", userUid, "ori@gina.tor", undefined);
             expect(store.state.currentEvent).toEqual("adaptedEvent");
         });
 

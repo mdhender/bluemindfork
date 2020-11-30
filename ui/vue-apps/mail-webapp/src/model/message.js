@@ -46,6 +46,13 @@ export function create() {
         hasAttachment: false,
         hasICS: false,
 
+        eventInfo: {
+            isCounterEvent: false,
+            eventUid: "",
+            icsUid: "",
+            needsReply: false
+        },
+
         partContentByMimeType: {}, // REMOVE ME and use byAddress
         partContentByAddress: {},
 
@@ -84,7 +91,8 @@ export const MessageHeader = {
 
     X_BM_DRAFT_INFO: "X-Bm-Draft-Info",
     X_BM_DRAFT_REFRESH_DATE: "X-Bm-Draft-Refresh-Date",
-    X_BM_EVENT: "X-BM-Event"
+    X_BM_EVENT: "X-BM-Event",
+    X_BM_EVENT_COUNTERED: "X-BM-Event-Countered"
 };
 
 export const MessageReplyAttributeSeparator = "data-bm-reply-separator";

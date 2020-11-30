@@ -10,6 +10,7 @@ import TreeWalker from "./TreeWalker";
 export default {
     fromMailboxItem(remote, { key, uid }) {
         const message = createWithMetadata({ internalId: remote.internalId, folder: { key, uid } });
+        const { hasICS, isCounterEvent, eventUid, icsUid, needsReply, recuridIsoDate } = eventInfo(remote);
         const adapted = {
             remoteRef: {
                 imapUid: remote.value.imapUid
@@ -26,7 +27,8 @@ export default {
             status: MessageStatus.LOADED,
             preview: remote.value.body.preview,
             hasAttachment: remote.value.body.smartAttach,
-            hasICS: remote.value.body.headers.some(({ name }) => name === MessageHeader.X_BM_EVENT)
+            hasICS,
+            eventInfo: { isCounterEvent, eventUid, icsUid, needsReply, recuridIsoDate }
         };
         return merge(message, adapted);
     },
@@ -95,4 +97,36 @@ function buildRecipientsForKind(kind, recipients) {
         address: recipient.address,
         dn: recipient.dn
     }));
+}
+
+// TODO move to EventHelper ?
+function eventInfo(message) {
+    let isCounterEvent = false;
+    const icsHeader = message.value.body.headers.find(({ name }) => {
+        if (MessageHeader.X_BM_EVENT_COUNTERED.toUpperCase() === name.toUpperCase()) {
+            isCounterEvent = true;
+            return true;
+        }
+        if (MessageHeader.X_BM_EVENT.toUpperCase() === name.toUpperCase()) {
+            return true;
+        }
+    });
+
+    if (!icsHeader) {
+        return { hasICS: false };
+    }
+
+    const icsHeaderValue = icsHeader.values[0].trim();
+    const semiColonIndex = icsHeaderValue.indexOf(";");
+    const uid = semiColonIndex === -1 ? icsHeaderValue : icsHeaderValue.substring(0, semiColonIndex);
+    let recuridIsoDate = icsHeaderValue.match(/recurid="(.*?)"/i);
+    recuridIsoDate = recuridIsoDate && recuridIsoDate[1];
+
+    const hasICS = !!uid;
+    const eventUid = isCounterEvent ? null : uid;
+    const icsUid = isCounterEvent ? uid : null;
+    const needsReply =
+        isCounterEvent || icsHeaderValue.includes('rsvp="true"') || icsHeaderValue.includes("rsvp='true'"); //TODO regexp
+
+    return { hasICS, isCounterEvent, eventUid, icsUid, needsReply, recuridIsoDate };
 }
