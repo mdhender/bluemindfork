@@ -63,28 +63,9 @@ let BMFolderHome = {
             let uri;
             if (dir) {
                 this._logger.debug(" -> already exist");
-                //directoriesById.remove(folder.id); FIXME no remote dir
                 if (!isCollected) dir.dirName = dirName;
                 uri = dir.URI;
-                /*if (this._isRemoteDir(uri) && folder.isSync) {
-                    this._logger.debug(" type changed from Remote to Local");
-                    MailServices.ab.deleteAddressBook(uri);
-                    bmUtils.deletePrefBranch(uri);
-                    if (isCollected) {
-                        uri = historyDir;
-                    } else {
-                        uri = this._createLocalDir(dirName);
-                    }
-                } else if (!this._isRemoteDir(uri) && !folder.isSync) {
-                    this._logger.debug(" type changed from Local to Remote");
-                    if (!isCollected) {
-                        MailServices.ab.deleteAddressBook(uri);
-                    }
-                    bmUtils.deletePrefBranch(uri);
-                    uri = this._createRemoteDir(dirName, folder.id);
-                }*/
-                //FIXME no remote dir
-                if (!folder.isSync && !isBmDomainAb) {
+                if (!folder.isSync) {
                     this._logger.debug(" sync disabled: remove");
                 } else {
                     directoriesById.remove(folder.id);
@@ -94,12 +75,6 @@ let BMFolderHome = {
                 if (isCollected && folder.isSync) {
                     uri = historyDir;
                 } else {
-                    // FIXME no remote dir
-                    /*if (folder.isSync) {
-                        uri = this._createLocalDir(dirName);
-                    } else {
-                        uri = this._createRemoteDir(dirName, folder.id);
-                    }*/
                     if (folder.isSync) {
                         uri = this._createLocalDir(dirName);
                     } else {
