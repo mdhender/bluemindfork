@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-import javax.xml.transform.TransformerException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -39,8 +37,8 @@ import net.bluemind.eas.dto.NamespaceMapping;
 import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.base.DisposableByteSource;
 import net.bluemind.eas.serdes.IResponseBuilder;
+import net.bluemind.eas.utils.DOMDumper;
 import net.bluemind.eas.utils.DOMUtils;
-import net.bluemind.eas.utils.FastByteArrayOutputStream;
 import net.bluemind.eas.validation.ValidationException;
 import net.bluemind.eas.validation.Validator;
 import net.bluemind.eas.wbxml.WbxmlOutput;
@@ -360,14 +358,8 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 			logger.error("rid: " + requestId + ", EAS sent a non-conforming response: " + ve.getMessage(), ve);
 		}
 		if (GlobalConfig.DATA_IN_LOGS) {
-			try {
-				FastByteArrayOutputStream fbos = new FastByteArrayOutputStream(256);
-				DOMUtils.serialise(debugDom, fbos, true);
-				debugDom = null;
-				logger.info("rid: {}, {} wbxml sent to PDA:\n{}", requestId, valid ? "VALID" : "INVALID",
-						fbos.toString());
-			} catch (TransformerException e) {
-			}
+			DOMDumper.dumpXml(logger, "rid: " + requestId + (valid ? ", VALID" : ", INVALID") + " wbxml sent to PDA:\n",
+					debugDom);
 		}
 	}
 
