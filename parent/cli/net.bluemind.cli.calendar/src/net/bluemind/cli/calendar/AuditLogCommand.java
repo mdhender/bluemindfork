@@ -18,9 +18,9 @@
  */
 package net.bluemind.cli.calendar;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,15 +37,15 @@ import com.github.freva.asciitable.AsciiTable;
 import com.github.freva.asciitable.Column;
 import com.github.freva.asciitable.HorizontalAlign;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import io.netty.util.internal.StringUtil;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "log", description = "Pretty-Print an auditlog file")
 public class AuditLogCommand implements ICmdLet, Runnable {
@@ -57,40 +57,29 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 	 */
 	private Set<String> filteredActionSet;
 
-	@Arguments(required = true, description = "Path to the auditlog file")
-	public String file;
+	@Parameters(paramLabel = "<file>", description = "Path to the auditlog file")
+	public Path file;
 
-	@Option(name = "--data", required = false, description = "Show data")
+	@Option(names = "--data", required = false, description = "Show data")
 	public boolean data;
 
-	@Option(name = "--show-ro", required = false, description = "Show read-only data")
+	@Option(names = "--show-ro", required = false, description = "Show read-only data")
 	public boolean readOnly;
 
-	@Option(name = "--data-by-date", required = false, description = "Show data only on a specific date (yyyy-MM-ddThh:mm:ss). Matching also works with substrings of this pattern")
+	@Option(names = "--data-by-date", required = false, description = "Show data only on a specific date (yyyy-MM-ddThh:mm:ss). Matching also works with substrings of this pattern")
 	public String dataByDate;
 
-	@Option(name = "--event-query", required = false, description = "Event query string (Columns Action and Event)")
+	@Option(names = "--event-query", required = false, description = "Event query string (Columns Action and Event)")
 	public String eventQuery;
 
-	@Option(name = "--event-uid", required = false, description = "Event UID query string")
+	@Option(names = "--event-uid", required = false, description = "Event UID query string")
 	public String eventUid;
 
-	@Option(name = "--calendar-query", required = false, description = "Calendar query string (Column Calendar)")
+	@Option(names = "--calendar-query", required = false, description = "Calendar query string (Column Calendar)")
 	public String calendarQuery;
 
-	@Option(name = "--filtered-actions", required = false, description = "Comma-separated list of actions which should not appear in the output")
+	@Option(names = "--filtered-actions", required = false, description = "Comma-separated list of actions which should not appear in the output")
 	public String filteredActions;
-
-	public static void main(String[] args) {
-		String file = args[0];
-		AuditLogCommand auditLogCommand = new AuditLogCommand();
-		auditLogCommand.ctx = CliContext.get();
-		auditLogCommand.file = file;
-		auditLogCommand.data = true;
-		auditLogCommand.readOnly = true;
-
-		auditLogCommand.run();
-	}
 
 	@Override
 	public void run() {
@@ -101,7 +90,7 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 				filteredActionSet = new HashSet<>(Arrays.asList(filteredActions.split(",")).stream().map(s -> s.trim())
 						.collect(Collectors.toList()));
 			}
-			content = Files.readAllLines(new File(file).toPath());
+			content = Files.readAllLines(file);
 		} catch (IOException e) {
 			throw new CliException("Cannot read file " + file + ":" + e.getMessage());
 		}

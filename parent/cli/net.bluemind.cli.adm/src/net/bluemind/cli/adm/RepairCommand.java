@@ -24,8 +24,6 @@ import java.util.stream.Collectors;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.NoopException;
@@ -36,6 +34,8 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirEntryMaintenance;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "repair", description = "Run repair maintenance operation")
 public class RepairCommand extends SingleOrDomainOperation {
@@ -54,10 +54,10 @@ public class RepairCommand extends SingleOrDomainOperation {
 
 	}
 
-	@Option(name = "--dry", description = "Dry-run (run check instead of repair)")
+	@Option(names = "--dry", description = "Dry-run (run check instead of repair)")
 	public boolean dry = false;
 
-	@Option(name = "--ops", description = "Just include the (comma separated) ops, (eg. mailboxPostfixMaps,)")
+	@Option(names = "--ops", description = "Just include the (comma separated) ops, (eg. mailboxPostfixMaps,)")
 	public String ops;
 
 	@Override

@@ -17,11 +17,11 @@
   */
 package net.bluemind.cli.hz;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.hornetq.client.Consumer;
 import net.bluemind.hornetq.client.MQ;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "listen", description = "Listen to message(s) on a topic")
 public class HzListenCommand extends AbstractHzOperation {
@@ -35,7 +35,7 @@ public class HzListenCommand extends AbstractHzOperation {
 
 	}
 
-	@Arguments(required = true, description = "hazelcast topic")
+	@Parameters(paramLabel = "<topic>", description = "hazelcast topic")
 	public String topic;
 
 	@Override

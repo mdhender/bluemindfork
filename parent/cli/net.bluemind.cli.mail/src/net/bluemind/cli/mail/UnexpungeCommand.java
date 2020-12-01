@@ -28,9 +28,6 @@ import java.util.function.Predicate;
 
 import com.github.freva.asciitable.AsciiTable;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
@@ -53,26 +50,29 @@ import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.mailbox.api.Mailbox.Type;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "unexpunge", description = "Recover deleted emails into their original mailbox")
 public class UnexpungeCommand implements ICmdLet, Runnable {
 
-	@Option(name = "--folder", description = "Search deleted items in the given folder, defaults to INBOX (eg. 'Sub/Fol/Der')")
+	@Option(names = "--folder", description = "Search deleted items in the given folder, defaults to INBOX (eg. 'Sub/Fol/Der')")
 	public String folder;
 
-	@Option(name = "--days", description = "Recover all deleted messages in the last X days")
+	@Option(names = "--days", description = "Recover all deleted messages in the last X days")
 	public int days = 0;
 
-	@Option(name = "--id", description = "The id of the mail to recover")
+	@Option(names = "--id", description = "The id of the mail to recover")
 	public long id = 0;
 
-	@Option(name = "--dry", description = "Do not run the recovery for real")
+	@Option(names = "--dry", description = "Do not run the recovery for real")
 	public boolean dry = false;
 
-	@Arguments(required = true, description = "email address (might be an alias) of the mailbox to recover from")
+	@Parameters(paramLabel = "<email_address>", description = "email address (might be an alias) of the mailbox to recover from")
 	public String target;
 
-	@Option(name = "--authn", description = "When recovering from a mailshare, you need to authenticate as someone with perms on the shared folder")
+	@Option(names = "--authn", description = "When recovering from a mailshare, you need to authenticate as someone with perms on the shared folder")
 	public String authN;
 
 	private CliContext ctx;

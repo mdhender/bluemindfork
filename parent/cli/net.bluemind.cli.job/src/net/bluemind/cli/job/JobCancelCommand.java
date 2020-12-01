@@ -19,15 +19,15 @@ package net.bluemind.cli.job;
 
 import java.util.Optional;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.scheduledjob.api.Job;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "cancel", description = "Cancel a job on global.virt or domain.tld")
 public class JobCancelCommand extends JobCommand implements ICmdLet, Runnable {
@@ -45,10 +45,10 @@ public class JobCancelCommand extends JobCommand implements ICmdLet, Runnable {
 		}
 	}
 
-	@Arguments(required = true, description = "global.virt or domain.tld")
+	@Parameters(paramLabel = "<domain_uid>", description = "global.virt or domain.tld")
 	public String target;
 
-	@Option(required = true, name = "--job", description = "Job name")
+	@Option(required = true, names = "--job", description = "Job name")
 	public String job;
 
 	protected CliContext ctx;

@@ -21,9 +21,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -31,6 +28,9 @@ import net.bluemind.cli.inject.common.MailExchangeInjector;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.lib.vertx.VertxPlatform;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "smtp", description = "Injects a batch of emails through SMTP")
 public class SmtpInjectCommand implements ICmdLet, Runnable {
@@ -48,10 +48,10 @@ public class SmtpInjectCommand implements ICmdLet, Runnable {
 		}
 	}
 
-	@Arguments(required = true, description = "the domain (uid or alias)")
+	@Parameters(paramLabel = "<domain_name>", description = "the domain (uid or alias)")
 	public String domain;
 
-	@Option(name = "--msg", description = "The number of messages to add (defaults to 100)")
+	@Option(names = "--msg", description = "The number of messages to add (defaults to 100)")
 	public int cycles = 100;
 
 	private CliContext ctx;

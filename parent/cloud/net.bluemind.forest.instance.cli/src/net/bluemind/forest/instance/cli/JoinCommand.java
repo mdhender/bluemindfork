@@ -20,9 +20,6 @@ package net.bluemind.forest.instance.cli;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -40,6 +37,9 @@ import net.bluemind.forest.cloud.api.Instance.Partition;
 import net.bluemind.forest.cloud.api.Instance.Version;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.system.api.IInstallation;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "join", description = "Join bluemind instance to forest servers")
 public class JoinCommand implements ICmdLet, Runnable {
@@ -60,10 +60,10 @@ public class JoinCommand implements ICmdLet, Runnable {
 
 	private CliContext ctx;
 
-	@Arguments(title = "address", description = "Address of one forest node", required = true)
+	@Parameters(description = "Address of one forest node")
 	public String address;
 
-	@Option(name = "--alias", description = "The forest 'shared' alias", required = true)
+	@Option(names = "--alias", description = "The forest 'shared' alias", required = true)
 	public String alias;
 
 	@Override

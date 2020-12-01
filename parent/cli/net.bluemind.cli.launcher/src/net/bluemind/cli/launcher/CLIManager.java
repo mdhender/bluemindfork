@@ -18,27 +18,76 @@
 package net.bluemind.cli.launcher;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.osgi.framework.Version;
 
 import com.google.common.collect.ArrayListMultimap;
 
-import io.airlift.airline.Cli;
-import io.airlift.airline.Cli.CliBuilder;
-import io.airlift.airline.ParseArgumentsUnexpectedException;
-import io.airlift.airline.ParseCommandUnrecognizedException;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.CmdLets;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
+import picocli.AutoComplete.GenerateCompletion;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.IExecutionExceptionHandler;
+import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.ParseResult;
+import picocli.CommandLine.RunLast;
+import picocli.CommandLine.Spec;
 
 public class CLIManager {
-	private final Cli<ICmdLet> airliftCli;
+	private final CommandLine mainCommand;
+
+	@Command(mixinStandardHelpOptions = true, subcommands = { HelpCommand.class,
+			GenerateCompletion.class }, exitCodeOnInvalidInput = 51, exitCodeOnExecutionException = 50, exitCodeListHeading = "Exit Codes:%n", exitCodeList = {
+					" 0:Successful program execution",
+					" 1:Internal software error: an exception occurred when invoking "
+							+ "the business logic of this command.",
+					"51:Usage error: user input for the command was incorrect, "
+							+ "e.g., the wrong number of arguments, a bad flag, "
+							+ "a bad syntax in a parameter, etc.", }, sortOptions = true)
+	static class ParentCommand implements Runnable {
+		@Spec
+		CommandSpec spec;
+
+		@Override
+		public void run() {
+			spec.commandLine().usage(System.err); // NOSONAR
+		}
+	}
+
+	static class PrintExceptionMessageHandler implements IExecutionExceptionHandler {
+		public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
+			cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
+			if (!(ex instanceof CliException)) {
+				ex.printStackTrace(cmd.getErr());
+			}
+			return cmd.getExitCodeExceptionMapper() != null ? cmd.getExitCodeExceptionMapper().getExitCode(ex)
+					: cmd.getCommandSpec().exitCodeOnExecutionException();
+		}
+	}
 
 	public CLIManager(Version v) {
-		CliBuilder<ICmdLet> builder = Cli.builder("bm-cli");
-		builder.withDescription("BlueMind CLI " + v.toString());
+		CliContext ctx = CliContext.get();
+
+		mainCommand = new CommandLine(new ParentCommand());
+		CommandSpec spec = mainCommand.getCommandSpec();
+		spec.version(v.toString());
+		spec.name("bm-cli");
+
+		mainCommand.setExecutionExceptionHandler(new PrintExceptionMessageHandler());
+		mainCommand.setCommandName("bm-cli");
+		mainCommand.setExecutionStrategy(new RunLast());
+		mainCommand.setAbbreviatedOptionsAllowed(true);
+		mainCommand.setAbbreviatedSubcommandsAllowed(true);
+
+		// Hide generate-completion from the help list
+		CommandLine gen = mainCommand.getSubcommands().get("generate-completion");
+		gen.getCommandSpec().usageMessage().hidden(true);
 
 		List<ICmdLetRegistration> registrations = CmdLets.commands();
 		ArrayListMultimap<String, Class<? extends ICmdLet>> commandByGroup = ArrayListMultimap.create();
@@ -46,35 +95,35 @@ public class CLIManager {
 			commandByGroup.put(reg.group().orElse("ROOT_COMMANDS"), reg.commandClass());
 		});
 		List<Class<? extends ICmdLet>> rootCommands = commandByGroup.get("ROOT_COMMANDS");
-		rootCommands.forEach(klass -> builder.withCommand(klass));
-		builder.withDefaultCommand(rootCommands.get(0));
 
-		commandByGroup.keySet().stream().filter(group -> !"ROOT_COMMANDS".equals(group)).forEach(group -> {
-			List<Class<? extends ICmdLet>> commands = commandByGroup.get(group);
-			builder.withGroup(group).withDescription(group + " task(s)").withCommands(commands)
-					.withDefaultCommand(commands.get(0));
+		commandByGroup.keySet().stream().sorted().filter(group -> !"ROOT_COMMANDS".equals(group)).forEach(group -> {
+			List<Class<? extends ICmdLet>> commands = commandByGroup.get(group).stream()
+					.sorted((c1, c2) -> c1.getName().compareTo(c2.getName())).collect(Collectors.toList());
+			ParentCommand parentCmd = new ParentCommand();
+			CommandLine groupCommand = new CommandLine(parentCmd);
+			groupCommand.setCommandName(group);
+			for (Class<? extends ICmdLet> cmd : commands) {
+				try {
+					groupCommand.addSubcommand(cmd.getDeclaredConstructor().newInstance().forContext(ctx));
+				} catch (Exception e) {
+					System.err.println("Unable to register subcommand: " + e); // NOSONAR
+				}
+			}
+			mainCommand.addSubcommand(group, groupCommand);
 		});
 
-		airliftCli = builder.build();
+		rootCommands.forEach(cmd -> {
+			try {
+				mainCommand.addSubcommand(cmd.getDeclaredConstructor().newInstance().forContext(ctx));
+			} catch (Exception e) {
+				System.err.println("Unable to register subcommand: " + e); // NOSONAR
+			}
+		});
+
 	}
 
-	public void processArgs(String... args) {
-		CliContext ctx = CliContext.get();
-
-		try {
-			ICmdLet parsed = airliftCli.parse(args);
-			Runnable toRun = parsed.forContext(ctx);
-			toRun.run();
-		} catch (ParseArgumentsUnexpectedException | ParseCommandUnrecognizedException e) {
-			ctx.error(String.format("Invalid input: %s", e.getMessage()));
-			airliftCli.parse().forContext(null).run();
-			throw e;
-		} catch (CliException c) {
-			ctx.error(c.getMessage());
-		} catch (Exception e) {
-			ctx.error(e.getMessage());
-			throw e;
-		}
+	public int processArgs(String... args) {
+		return mainCommand.execute(args);
 	}
 
 }

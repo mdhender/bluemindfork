@@ -21,19 +21,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Option;
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.system.api.ISystemConfiguration;
-
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "set", description = "Set a value by using a parameter")
 public class SysconfUpdateCommand implements ICmdLet, Runnable {
-	
+
 	public static class Reg implements ICmdLetRegistration {
 
 		@Override
@@ -46,35 +45,32 @@ public class SysconfUpdateCommand implements ICmdLet, Runnable {
 			return SysconfUpdateCommand.class;
 		}
 	}
-	
+
 	protected CliContext ctx;
 	protected CliUtils cliUtils;
-	
+
 	@Override
 	public Runnable forContext(CliContext ctx) {
 		this.ctx = ctx;
 		this.cliUtils = new CliUtils(ctx);
 		return this;
 	}
-	
-	@Arguments(title="key", required = true, description = "key")
+
+	@Parameters(paramLabel = "<key>", description = "key")
 	public String key = null;
-	
-	@Option(name={"--value", "-v"},required = true, description = "value")
+
+	@Option(names = { "--value", "-v" }, required = true, description = "value")
 	public String value = null;
 
-	
 	@Override
 	public void run() {
 		ISystemConfiguration configurationApi = ctx.adminApi().instance(ISystemConfiguration.class);
 
 		Map<String, String> map = new HashMap<>();
 		map.put(key, value);
-		if (!map.isEmpty()){
+		if (!map.isEmpty()) {
 			configurationApi.updateMutableValues(map);
 		}
 	}
-
-
 
 }

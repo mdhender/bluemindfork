@@ -19,7 +19,6 @@ package net.bluemind.cli.metrics;
 
 import java.util.Optional;
 
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -28,6 +27,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
+import picocli.CommandLine.Command;
 
 @Command(name = "status", description = "display the TICK stack status")
 public class TickStatusCommand implements ICmdLet, Runnable {

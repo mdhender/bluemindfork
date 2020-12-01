@@ -23,8 +23,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -36,6 +34,8 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.CommandStatus;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.TagDescriptor;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "reconfigure", description = "update the TICK configuration on all servers")
 public class TickReconfigureCommand implements ICmdLet, Runnable {
@@ -58,7 +58,7 @@ public class TickReconfigureCommand implements ICmdLet, Runnable {
 
 	private CliContext ctx;
 
-	@Option(name = "--dry", description = "Dry-run (do nothing)")
+	@Option(names = "--dry", description = "Dry-run (do nothing)")
 	public boolean dry = false;
 
 	@Override

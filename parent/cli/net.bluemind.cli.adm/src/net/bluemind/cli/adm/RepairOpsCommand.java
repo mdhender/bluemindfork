@@ -22,7 +22,6 @@ import java.util.Set;
 
 import com.github.freva.asciitable.AsciiTable;
 
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.SingleOrDomainOperation;
@@ -31,6 +30,7 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.directory.api.MaintenanceOperation;
+import picocli.CommandLine.Command;
 
 @Command(name = "ops", description = "List available maintenance operations")
 public class RepairOpsCommand extends SingleOrDomainOperation {

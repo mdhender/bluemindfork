@@ -28,8 +28,6 @@ import java.util.stream.Stream;
 
 import org.iq80.snappy.SnappyInputStream;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.cli.cmd.api.CliContext;
@@ -42,6 +40,8 @@ import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @SuppressWarnings("deprecation")
 @Command(name = "hsm-to-cyrus", description = "Converts HSM snappy spool to a cyrus maildir folder")
@@ -60,16 +60,16 @@ public class HsmToCyrus implements ICmdLet, Runnable {
 		}
 	}
 
-	@Option(name = "--foldername", description = "Folder name wanted for the restoration. Defaults to hsm-orphaned")
+	@Option(names = "--foldername", description = "Folder name wanted for the restoration. Defaults to hsm-orphaned")
 	public String foldername = "hsm_orphaned";
 
-	@Option(name = "--user", description = "User uid or email to convert", required = true)
+	@Option(names = "--user", description = "User uid or email to convert", required = true)
 	public String useridentifier;
 
-	@Option(name = "--domain", description = "Domain uid of the user", required = true)
+	@Option(names = "--domain", description = "Domain uid of the user", required = true)
 	public String domainUid;
 
-	@Option(name = "--delete", description = "Remove successfully migrated orphan emails")
+	@Option(names = "--delete", description = "Remove successfully migrated orphan emails")
 	public boolean deletesuccess = false;
 
 	private CliContext ctx;

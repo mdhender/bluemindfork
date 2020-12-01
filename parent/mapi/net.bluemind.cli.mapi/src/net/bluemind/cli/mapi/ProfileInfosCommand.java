@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
@@ -56,6 +54,8 @@ import net.bluemind.exchange.publicfolders.common.PublicFolders;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.todolist.api.ITodoUids;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "infos", description = "Show profile infos")
 public class ProfileInfosCommand implements ICmdLet, Runnable {
@@ -141,7 +141,7 @@ public class ProfileInfosCommand implements ICmdLet, Runnable {
 
 	private CliContext ctx;
 
-	@Arguments(required = true, description = "email address or mail domain")
+	@Parameters(paramLabel = "<email_or_domain>", description = "email address or mail domain")
 	public String target;
 
 	@Override

@@ -21,8 +21,6 @@ import java.util.Optional;
 
 import com.google.common.base.Strings;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.cli.cmd.api.CliContext;
@@ -34,6 +32,8 @@ import net.bluemind.core.api.Regex;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 /**
  * This command is here to ensure our that the default maintenance op does
@@ -57,13 +57,13 @@ public class ResetAddressBookCommand implements ICmdLet, Runnable {
 
 	}
 
-	@Option(name = "--email", description = "email address")
+	@Option(names = "--email", description = "email address")
 	public String email;
 
-	@Option(name = "--addressbook-uid", description = "The addressbook uid to reset. Default is ContactsCollected addressbook of the specified email. Default DomainAddressBook is domainAddressbook uid.")
+	@Option(names = "--addressbook-uid", description = "The addressbook uid to reset. Default is ContactsCollected addressbook of the specified email. Default DomainAddressBook is domainAddressbook uid.")
 	public String addressBookUid;
 
-	@Option(name = "--dry", description = "Dry-run (do nothing)")
+	@Option(names = "--dry", description = "Dry-run (do nothing)")
 	public boolean dry = false;
 
 	private CliContext ctx;

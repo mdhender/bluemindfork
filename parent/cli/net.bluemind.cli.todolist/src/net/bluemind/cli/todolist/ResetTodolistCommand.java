@@ -19,9 +19,6 @@ package net.bluemind.cli.todolist;
 
 import java.util.Optional;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -31,6 +28,9 @@ import net.bluemind.core.api.Regex;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.ITodoUids;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 /**
  * This command is here to ensure our that the default maintenance op does
@@ -54,15 +54,15 @@ public class ResetTodolistCommand implements ICmdLet, Runnable {
 
 	}
 
-	@Arguments(required = true, description = "email address")
+	@Parameters(paramLabel = "<email>", description = "email address")
 	public String email;
-	
-	@Option(name = "--todolistUid", description = "todolist uid, default value is user default todolist")
+
+	@Option(names = "--todolistUid", description = "todolist uid, default value is user default todolist")
 	public String todolistUid;
-	
-	@Option(name = "--dry", description = "Dry-run (do nothing)")
+
+	@Option(names = "--dry", description = "Dry-run (do nothing)")
 	public boolean dry = false;
-	
+
 	private CliContext ctx;
 	protected CliUtils cliUtils;
 
@@ -75,16 +75,16 @@ public class ResetTodolistCommand implements ICmdLet, Runnable {
 
 	@Override
 	public void run() {
-		if (!Regex.EMAIL.validate(email) ) {
+		if (!Regex.EMAIL.validate(email)) {
 			throw new CliException("invalid email : " + email);
 		}
-						
+
 		String userUid = cliUtils.getUserUidFromEmail(email);
-			
-		if(todolistUid == null) {
-			todolistUid = ITodoUids.defaultUserTodoList(userUid); 
+
+		if (todolistUid == null) {
+			todolistUid = ITodoUids.defaultUserTodoList(userUid);
 		}
-			
+
 		try {
 			if (!dry) {
 				ctx.adminApi().instance(ITodoList.class, todolistUid).reset();

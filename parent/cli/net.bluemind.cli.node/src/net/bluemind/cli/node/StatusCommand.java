@@ -19,13 +19,13 @@ package net.bluemind.cli.node;
 
 import java.util.Optional;
 
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import picocli.CommandLine.Command;
 
 /**
  * This is the defaut command on node related stuff to ensure we don't run a

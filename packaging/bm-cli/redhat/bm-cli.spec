@@ -38,6 +38,16 @@ fi
 find /usr/share/bm-cli/main -name '*.jar' -exec ln -f {} /usr/share/bm-cli/plugins \;
 /usr/lib/jvm/bm-jdk/bin/java -Xshare:dump
 
+# Generate autocompletion map
+if [ -d /etc/bash_completion.d/ ]; then
+/usr/bin/bm-cli generate-completion >/usr/share/bm-cli/bm-cli.bash-completion 2>/dev/null
+cat >/etc/bash_completion.d/bm-cli <<EOF
+if [[ -e /usr/share/bm-cli/bm-cli.bash-completion ]]; then
+    . /usr/share/bm-cli/bm-cli.bash-completion
+fi
+EOF
+fi
+
 %preun
 if [ $1 -eq 0 ]; then
     # Uninstall

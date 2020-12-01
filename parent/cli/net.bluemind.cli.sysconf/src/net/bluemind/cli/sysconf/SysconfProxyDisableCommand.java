@@ -21,12 +21,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
+import picocli.CommandLine.Command;
 
 @Command(name = "proxy-disable", description = "Disable HTTP proxy")
 public class SysconfProxyDisableCommand implements ICmdLet, Runnable {

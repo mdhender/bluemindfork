@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
@@ -105,6 +106,10 @@ public class CliUtils {
 		} catch (UnsupportedEncodingException e) {
 			throw new CliException("Decoding error : " + e.getMessage());
 		}
+	}
+
+	public Stream getStreamFromFile(Path path) {
+		return getStreamFromFile(path.toString());
 	}
 
 	public Stream getStreamFromFile(String filename) {

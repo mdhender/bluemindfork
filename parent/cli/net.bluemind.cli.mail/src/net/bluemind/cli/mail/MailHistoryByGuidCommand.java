@@ -28,20 +28,20 @@ import java.util.stream.Collectors;
 import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesMgmt;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "history-guid", description = "Show mail history by body GUID")
 public class MailHistoryByGuidCommand extends MailHistoryCommand implements ICmdLet, Runnable {
 
-	@Option(name = "--body-guid", description = "Body-GUID (Email hashed using SHA-1)")
+	@Option(names = "--body-guid", description = "Body-GUID (Email hashed using SHA-1)")
 	public String guid;
 
-	@Option(name = "--eml", description = "Path to an eml file")
+	@Option(names = "--eml", description = "Path to an eml file")
 	public String eml;
 
 	@Override

@@ -21,13 +21,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "proxy-enable", description = "Set HTTP proxy parameters. Used to join bo.bluemind.net (checking"
 		+ " subscription validity on upgrade, getting available new versions, hosting kind subscription report...)"
@@ -55,19 +55,19 @@ public class SysconfProxyEnableCommand implements ICmdLet, Runnable {
 		return this;
 	}
 
-	@Option(name = { "--hostname", "-h" }, required = true, description = "Proxy hostname")
+	@Option(names = { "--hostname", "-h" }, required = true, description = "Proxy hostname")
 	public String hostname = null;
 
-	@Option(name = { "--port", "-p" }, required = false, description = "Proxy port. Default: 3128")
+	@Option(names = { "--port", "-p" }, required = false, description = "Proxy port. Default: 3128")
 	public String port = null;
 
-	@Option(name = { "--login" }, required = false, description = "Proxy login. Default: none")
+	@Option(names = { "--login" }, required = false, description = "Proxy login. Default: none")
 	public String login = null;
 
-	@Option(name = { "--password" }, required = false, description = "Proxy password. Default: none")
+	@Option(names = { "--password" }, required = false, description = "Proxy password. Default: none")
 	public String password = null;
 
-	@Option(name = {
+	@Option(names = {
 			"--exceptions" }, required = false, description = "Proxy exceptions. Comma separated list of FQDN/IP/IP range. Default: none")
 	public String exceptions = null;
 

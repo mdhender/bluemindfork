@@ -34,7 +34,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 
-import io.airlift.airline.Command;
 import net.bluemind.cli.calendar.ExportCalendarCommand;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -47,6 +46,7 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.user.api.IUser;
 import net.bluemind.utils.FileUtils;
+import picocli.CommandLine.Command;
 
 @Command(name = "export", description = "export user data to an archive file")
 public class UserExportCommand extends SingleOrDomainOperation {

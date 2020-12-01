@@ -19,8 +19,6 @@ package net.bluemind.cli.user;
 
 import java.util.Optional;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
 import net.bluemind.authentication.mgmt.api.ISessionsMgmt;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
@@ -31,6 +29,8 @@ import net.bluemind.core.api.Regex;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "logout", description = "close all user sessions")
 public class UserLogoutCommand implements ICmdLet, Runnable {
@@ -52,7 +52,7 @@ public class UserLogoutCommand implements ICmdLet, Runnable {
 	private CliContext ctx;
 	protected CliUtils cliUtils;
 
-	@Arguments(required = true, description = "email address")
+	@Parameters(paramLabel = "<email>", description = "email address")
 	public String email;
 
 	public UserLogoutCommand() {
@@ -69,14 +69,14 @@ public class UserLogoutCommand implements ICmdLet, Runnable {
 		if (!Regex.EMAIL.validate(email)) {
 			throw new CliException(String.format("Invalid email : %", email));
 		}
-		
+
 		String domainUid = cliUtils.getDomainUidFromEmail(email);
 		IUser userApi = ctx.adminApi().instance(IUser.class, domainUid);
 		ItemValue<User> user = userApi.byEmail(email);
-		if ( user == null) {
+		if (user == null) {
 			throw new CliException(String.format("User %s not found", email));
 		}
-		
+
 		ISessionsMgmt sessionApi = ctx.adminApi().instance(ISessionsMgmt.class);
 		sessionApi.logoutUser(user.value.login + '@' + domainUid);
 	}

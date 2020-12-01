@@ -24,12 +24,12 @@ package net.bluemind.cli.calendar;
 
 import java.util.Optional;
 
-import io.airlift.airline.Command;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.ListCommand;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
+import picocli.CommandLine.Command;
 
 @Command(name = "list", description = "List user or whole domain calendars")
 public class ListCalendarsCommand extends ListCommand {

@@ -22,9 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -39,9 +36,12 @@ import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
 import net.bluemind.group.api.Member.Type;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "update", description = "update users")
-public class GroupUpdateCommand implements ICmdLet, Runnable   {
+public class GroupUpdateCommand implements ICmdLet, Runnable {
 
 	public static class Reg implements ICmdLetRegistration {
 
@@ -55,23 +55,23 @@ public class GroupUpdateCommand implements ICmdLet, Runnable   {
 			return GroupUpdateCommand.class;
 		}
 	}
-	
-	@Arguments(required = true, description = "groupName@domain")
+
+	@Parameters(paramLabel = "<target>", description = "groupName@domain")
 	public String target;
-	
-	@Option(name = "--add-members", description = "Add Members, use uid separated by spaces")
+
+	@Option(names = "--add-members", description = "Add Members, use uid separated by spaces")
 	public String appendMembers;
-	
-	@Option(name = "--remove-members", description = "Remove Members, use 'all' to empty group"
+
+	@Option(names = "--remove-members", description = "Remove Members, use 'all' to empty group"
 			+ "OR uid separated by spaces.")
 	public String deleteMembers;
-	
-	@Option(name = "--extId", description = "update group externalId")
+
+	@Option(names = "--extId", description = "update group externalId")
 	public String extId;
-	
-	@Option(name = "--description", description = "update group description")
+
+	@Option(names = "--description", description = "update group description")
 	public String description;
-	
+
 	protected CliContext ctx;
 	protected CliUtils cliUtils;
 
@@ -81,16 +81,16 @@ public class GroupUpdateCommand implements ICmdLet, Runnable   {
 		this.cliUtils = new CliUtils(ctx);
 		return this;
 	}
-	
+
 	@Override
 	public void run() {
-		if(target.contains("@")) {
+		if (target.contains("@")) {
 			String domainUid = target.split("@")[1];
-			String name = target.split("@")[0];			
-		
+			String name = target.split("@")[0];
+
 			IGroup groupApi = ctx.adminApi().instance(IGroup.class, domainUid);
 			ItemValue<Group> group = groupApi.byName(name);
-			
+
 			if (extId != null) {
 				groupApi.setExtId(group.uid, extId.trim().isEmpty() ? null : extId);
 			}
@@ -108,43 +108,42 @@ public class GroupUpdateCommand implements ICmdLet, Runnable   {
 			ctx.info("Group not found.");
 		}
 	}
-	
-	private void addMembers(IGroup groupApi, ItemValue<Group> group, String domainUid){
+
+	private void addMembers(IGroup groupApi, ItemValue<Group> group, String domainUid) {
 		List<String> uids = Arrays.asList(appendMembers.split(" "));
 		List<Member> allMembers = new ArrayList<>();
-		
+
 		allMembers.addAll(getMembersList(uids, domainUid));
 		groupApi.add(group.uid, allMembers);
 	}
-	
-	private void removeMembers(IGroup groupApi, ItemValue<Group> group, String domainUid){
+
+	private void removeMembers(IGroup groupApi, ItemValue<Group> group, String domainUid) {
 		if (deleteMembers.equalsIgnoreCase("all")) {
 			groupApi.remove(group.uid, groupApi.getMembers(group.uid));
 		} else {
-			List<String> uids = Arrays.asList(deleteMembers.split(" "));			
+			List<String> uids = Arrays.asList(deleteMembers.split(" "));
 			groupApi.remove(group.uid, getMembersList(uids, domainUid));
 		}
 	}
-	
-	
-	private List<Member> getMembersList(List<String> entryUids, String domainUid){
+
+	private List<Member> getMembersList(List<String> entryUids, String domainUid) {
 		List<Member> memberList = new ArrayList<>();
 		IDirectory dirApi = ctx.adminApi().instance(IDirectory.class, domainUid);
 		DirEntryQuery dirQuery = new DirEntryQuery();
 		dirQuery.entryUidFilter = entryUids;
 		ListResult<ItemValue<DirEntry>> entries = dirApi.search(dirQuery);
-		for(ItemValue<DirEntry> entry : entries.values) {
+		for (ItemValue<DirEntry> entry : entries.values) {
 			Member member = new Member();
 			member.uid = entry.uid;
-			if(entry.value.kind == Kind.USER) {
+			if (entry.value.kind == Kind.USER) {
 				member.type = Type.user;
 			}
-			if(entry.value.kind == Kind.GROUP) {
+			if (entry.value.kind == Kind.GROUP) {
 				member.type = Type.group;
 			}
-			if(entry.value.kind == Kind.EXTERNALUSER) {
+			if (entry.value.kind == Kind.EXTERNALUSER) {
 				member.type = Type.external_user;
-			}	
+			}
 			memberList.add(member);
 		}
 		return memberList;

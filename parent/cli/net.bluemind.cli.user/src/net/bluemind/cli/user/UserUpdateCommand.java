@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -39,6 +37,8 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "update", description = "update users")
 public class UserUpdateCommand extends SingleOrDomainOperation {
@@ -56,25 +56,25 @@ public class UserUpdateCommand extends SingleOrDomainOperation {
 		}
 	}
 
-	@Option(name = "--password", description = "update user password")
+	@Option(names = "--password", description = "update user password")
 	public String password = null;
 
-	@Option(name = "--set-password-must-change", description = "set user password must change")
+	@Option(names = "--set-password-must-change", description = "set user password must change")
 	public boolean setPasswordMustChange = false;
 
-	@Option(name = "--unset-password-must-change", description = "unset user password must change")
+	@Option(names = "--unset-password-must-change", description = "unset user password must change")
 	public boolean unsetPasswordMustChange = false;
 
-	@Option(name = "--set-password-never-expires", description = "set user password never expires")
+	@Option(names = "--set-password-never-expires", description = "set user password never expires")
 	public boolean setPasswordNeverExpires = false;
 
-	@Option(name = "--unset-password-never-expires", description = "unset user password never expires")
+	@Option(names = "--unset-password-never-expires", description = "unset user password never expires")
 	public boolean unsetPasswordNeverExpires = false;
 
-	@Option(name = "--external-id", description = "update user external id (used by AD/LDAP synchronisaion), empty to unset")
+	@Option(names = "--external-id", description = "update user external id (used by AD/LDAP synchronisaion), empty to unset")
 	public String extId = null;
 
-	@Option(name = "--quota", description = "update user mailbox quota")
+	@Option(names = "--quota", description = "update user mailbox quota")
 	public Integer quota = null;
 
 	private List<UpdateCommand> commands = new ArrayList<>();

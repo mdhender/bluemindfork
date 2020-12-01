@@ -7,14 +7,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "s3cmd", description = "configure s3cmd, or s4cmd")
 public class S3CmdCommand implements ICmdLet, Runnable {
@@ -43,7 +43,7 @@ public class S3CmdCommand implements ICmdLet, Runnable {
 		return this;
 	}
 
-	@Option(name = "--dry", description = "Dry-run (do nothing)")
+	@Option(names = "--dry", description = "Dry-run (do nothing)")
 	public boolean dry = false;
 
 	@Override

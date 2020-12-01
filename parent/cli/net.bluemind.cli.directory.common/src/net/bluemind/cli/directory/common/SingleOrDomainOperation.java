@@ -18,8 +18,6 @@ import java.util.stream.Stream;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -33,6 +31,8 @@ import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 	private class DirEntryWithDomain {
@@ -76,16 +76,16 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 	protected CliContext ctx;
 	protected CliUtils cliUtils;
 
-	@Arguments(required = true, description = "email address, domain name or 'all' for all domains")
+	@Parameters(paramLabel = "<target>", description = "email address, domain name or 'all' for all domains")
 	public String target;
 
-	@Option(name = "--workers", description = "run with X workers")
+	@Option(names = "--workers", description = "run with X workers")
 	public int workers = 1;
 
-	@Option(name = "--match", description = "regex that entity must match, for example : [a-c].*")
+	@Option(names = "--match", description = "regex that entity must match, for example : [a-c].*")
 	public String match = "";
 
-	@Option(name = "--no-progress", description = "don't display progress messages")
+	@Option(names = "--no-progress", description = "don't display progress messages")
 	public boolean noProgress = false;
 
 	public abstract void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) throws Exception;

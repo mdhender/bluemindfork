@@ -1,7 +1,5 @@
-package net.bluemind.cli.directory.common;
-
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2018
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -17,36 +15,38 @@ package net.bluemind.cli.directory.common;
  * See LICENSE.txt
  * END LICENSE
  */
+
+package net.bluemind.cli.directory.common;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.airlift.airline.Option;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.DirEntry;
+import picocli.CommandLine.Option;
 
 public abstract class ExportCommand extends SingleOrDomainOperation {
 
-	@Option(name = "--output-directory", description = "The output directory path, files will be save in an email named subdirectory, default is /tmp")
+	@Option(names = "--output-directory", description = "The output directory path, files will be save in an email named subdirectory, default is /tmp")
 	public String rootDir = "/tmp";
 
-	@Option(name = "--dry", description = "Dry-run (do nothing)")
+	@Option(names = "--dry", description = "Dry-run (do nothing)")
 	public boolean dry = false;
-	
 
 	public abstract String getcontainerUid();
-	
+
 	public abstract String getcontainerType();
 
 	public abstract String getFileExtension();
 
-    public abstract void writeFile(File outputFile, String containerUid);
+	public abstract void writeFile(File outputFile, String containerUid);
 
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) throws IOException {
@@ -76,12 +76,11 @@ public abstract class ExportCommand extends SingleOrDomainOperation {
 				}
 				ctx.info("container " + container.uid + " of " + de.value.email + " was exported to " + filename);
 			}
-        }
+		}
 	}
-	
+
 	@Override
 	public Kind[] getDirEntryKind() {
-		return new Kind[] {Kind.USER};
+		return new Kind[] { Kind.USER };
 	}
 }
-

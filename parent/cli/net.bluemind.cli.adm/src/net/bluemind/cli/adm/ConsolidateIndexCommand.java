@@ -19,7 +19,6 @@ package net.bluemind.cli.adm;
 
 import java.util.Optional;
 
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.SingleOrDomainOperation;
@@ -29,6 +28,7 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.mailbox.api.IMailboxMgmt;
+import picocli.CommandLine.Command;
 
 @Command(name = "consolidateIndex", description = "Consolidate a mailbox index")
 public class ConsolidateIndexCommand extends SingleOrDomainOperation {

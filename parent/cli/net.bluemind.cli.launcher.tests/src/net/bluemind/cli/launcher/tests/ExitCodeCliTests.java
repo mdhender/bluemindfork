@@ -17,16 +17,13 @@
 	*/
 package net.bluemind.cli.launcher.tests;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgi.framework.Version;
 
-import io.airlift.airline.ParseArgumentsUnexpectedException;
-import io.airlift.airline.ParseCommandUnrecognizedException;
-
 import net.bluemind.cli.launcher.CLIManager;
-
 
 public class ExitCodeCliTests {
 	private static CLIManager cli;
@@ -38,19 +35,11 @@ public class ExitCodeCliTests {
 
 	@Test
 	public void testUnrecognizedCommandArguments() {
-		try {
-			cli.processArgs("invalid", "command");
-			fail("should have raised ParseCommandUnrecognizedException.");
-		} catch (ParseArgumentsUnexpectedException | ParseCommandUnrecognizedException e) {}
+		assertEquals(51, cli.processArgs("invalid", "command"));
 	}
 
 	@Test
 	public void testException() {
-		try {
-			cli.processArgs("job", "status", "bm.tralala", "--job", "42");
-			fail("should have failed with connection refused.");
-		} catch (ParseArgumentsUnexpectedException | ParseCommandUnrecognizedException e) {
-			fail("should have raised another exception (ServerFault ?)");
-		} catch (Exception e) {}
+		assertEquals(1, cli.processArgs("job", "status", "bm.tralala", "--job", "42"));
 	}
 }

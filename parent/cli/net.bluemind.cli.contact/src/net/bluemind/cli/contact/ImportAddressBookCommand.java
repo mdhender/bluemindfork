@@ -20,13 +20,11 @@ package net.bluemind.cli.contact;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import com.google.common.base.Strings;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.IVCardService;
 import net.bluemind.cli.cmd.api.CliContext;
@@ -38,6 +36,8 @@ import net.bluemind.core.api.Regex;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "import", description = "Import a VCF File to an address book")
 public class ImportAddressBookCommand implements ICmdLet, Runnable {
@@ -56,16 +56,16 @@ public class ImportAddressBookCommand implements ICmdLet, Runnable {
 
 	}
 
-	@Option(name = "--email", description = "email address")
+	@Option(names = "--email", description = "email address")
 	public String email;
-	
-	@Option(required = true, name = "--vcf-file-path", description = "The path of the vcf file.")
-	public String vcfFilePath;
 
-	@Option(name = "--addressbook-uid", description = "Target addressbook uid or domainAddressBookUid. Default value for User: default address book of the specified email.")
+	@Option(required = true, names = "--vcf-file-path", description = "The path of the vcf file.")
+	public Path vcfFilePath;
+
+	@Option(names = "--addressbook-uid", description = "Target addressbook uid or domainAddressBookUid. Default value for User: default address book of the specified email.")
 	public String addressBookUid;
 
-	@Option(name = "--dry", description = "Dry-run (do nothing)")
+	@Option(names = "--dry", description = "Dry-run (do nothing)")
 	public boolean dry = false;
 
 	private CliContext ctx;
@@ -84,13 +84,13 @@ public class ImportAddressBookCommand implements ICmdLet, Runnable {
 			ctx.error("At least email or addressbook UID must be present");
 			throw new CliException("At least email or addressbook UID must be present");
 		}
-					
+
 		if (addressBookUid == null && !Strings.isNullOrEmpty(email)) {
 			if (!Regex.EMAIL.validate(email)) {
 				ctx.error(String.format("Invalid email : %s", email));
 				throw new CliException(String.format("Invalid email : %s", email));
 			}
-			
+
 			try {
 				addressBookUid = IAddressBookUids.defaultUserAddressbook(cliUtils.getUserUidFromEmail(email));
 			} catch (CliException cli) {
@@ -127,13 +127,13 @@ public class ImportAddressBookCommand implements ICmdLet, Runnable {
 	}
 
 	private String readVcfFileContent() {
-		File file = new File(vcfFilePath);
+		File file = vcfFilePath.toFile();
 		if (!file.exists() || file.isDirectory()) {
 			ctx.error("File " + vcfFilePath + " not found.");
 			throw new CliException("File " + vcfFilePath + " not found.");
 		} else {
 			try {
-				return new String(Files.readAllBytes(Paths.get(vcfFilePath)));
+				return new String(Files.readAllBytes(vcfFilePath));
 			} catch (IOException e) {
 				ctx.error("Unable to read file " + vcfFilePath + ": " + e.getMessage());
 				throw new CliException(e);

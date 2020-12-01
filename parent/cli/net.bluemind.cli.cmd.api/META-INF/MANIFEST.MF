@@ -7,13 +7,13 @@ Bundle-Activator: net.bluemind.cli.cmd.api.Activator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eclipse.common,
- io.airlift.airline;bundle-version="0.8.0";visibility:=reexport,
  net.bluemind.config;bundle-version="4.1.0",
  net.bluemind.core.rest;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.core.rest.http;bundle-version="4.1.0",
  org.fusesource.jansi;visibility:=reexport,
  net.bluemind.network.topology,
- com.google.guava
+ com.google.guava,
+ picocli;bundle-version="4.5.2";visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.cmd.api
 Bundle-ActivationPolicy: lazy

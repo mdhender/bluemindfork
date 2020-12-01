@@ -18,11 +18,9 @@
 package net.bluemind.cli.calendar;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Optional;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.IVEvent;
 import net.bluemind.cli.cmd.api.CliContext;
@@ -31,6 +29,9 @@ import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.Regex;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "import", description = "import an ICS File")
 public class ImportCalendarCommand implements ICmdLet, Runnable {
@@ -49,16 +50,16 @@ public class ImportCalendarCommand implements ICmdLet, Runnable {
 
 	}
 
-	@Arguments(required = true, description = "email address")
+	@Parameters(paramLabel = "<email>", description = "email address")
 	public String email;
 
-	@Option(required = true, name = "--ics-file-path", description = "The path of the ics file. ex: </tmp/my_calendar.ics>")
-	public String icsFilePath;
+	@Option(required = true, names = "--ics-file-path", description = "The path of the ics file. ex: </tmp/my_calendar.ics>")
+	public Path icsFilePath;
 
-	@Option(name = "--calendarUid", description = "calendar uid, default value is user default calendar")
+	@Option(names = "--calendarUid", description = "calendar uid, default value is user default calendar")
 	public String calendarUid;
 
-	@Option(name = "--dry", description = "Dry-run (do nothing)")
+	@Option(names = "--dry", description = "Dry-run (do nothing)")
 	public boolean dry = false;
 
 	private CliContext ctx;
@@ -79,7 +80,7 @@ public class ImportCalendarCommand implements ICmdLet, Runnable {
 
 		String userUid = cliUtils.getUserUidFromEmail(email);
 
-		File file = new File(icsFilePath);
+		File file = icsFilePath.toFile();
 		if (!file.exists() || file.isDirectory()) {
 			throw new CliException("File " + icsFilePath + " doesn't exist.");
 		}

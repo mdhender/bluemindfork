@@ -43,7 +43,6 @@
       <plugin id="com.netflix.spectator.api"/>
       <plugin id="com.sun.mail.javax.mail"/>
       <plugin id="com.typesafe.netty.reactive-streams"/>
-      <plugin id="io.airlift.airline"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.web"/>
@@ -182,6 +181,7 @@
       <plugin id="org.mnode.ical4j.zoneinfo-outlook"/>
       <plugin id="org.reactivestreams.reactive-streams"/>
       <plugin id="org.yaml.snakeyaml"/>
+      <plugin id="picocli"/>
       <plugin id="slf4j.api"/>
    </plugins>
 

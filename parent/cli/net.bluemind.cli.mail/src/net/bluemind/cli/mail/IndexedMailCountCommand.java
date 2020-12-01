@@ -22,21 +22,23 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
+import org.elasticsearch.action.admin.indices.stats.IndexStats;
+
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.PublicInfos;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "indexed", description = "Shows the number of indexed messages")
 public class IndexedMailCountCommand implements ICmdLet, Runnable {
 	private CliContext ctx;
 	DateTimeFormatter df = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
-	@Option(required = false, name = "--progress", description = "Value indicating the total mails waiting to be indexed")
+	@Option(required = false, names = "--progress", description = "Value indicating the total mails waiting to be indexed")
 	public Long progress;
 
 	@Override

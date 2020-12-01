@@ -26,11 +26,5 @@
          </property>
       </product>
    </extension>
-   <extension
-         point="net.bluemind.cli.cmd.api.cmdlet">
-      <registration
-            impl="net.bluemind.cli.launcher.CliHelp$Reg">
-      </registration>
-   </extension>
 
 </plugin>

@@ -25,8 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -39,6 +37,8 @@ import net.bluemind.group.api.IGroup;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "activate", description = "Activate Filehosting")
 public class ActivateFileHostingInfoCommand implements ICmdLet, Runnable {
@@ -53,13 +53,13 @@ public class ActivateFileHostingInfoCommand implements ICmdLet, Runnable {
 		return this;
 	}
 
-	@Option(name = "--domain", description = "domain name, filehosting is actived on all domains if not specified")
+	@Option(names = "--domain", description = "domain name, filehosting is actived on all domains if not specified")
 	public String domain;
 
-	@Option(name = "--server-uid", description = "Sets the responsible server. Checks for an existing server or uses the core server if not specified")
+	@Option(names = "--server-uid", description = "Sets the responsible server. Checks for an existing server or uses the core server if not specified")
 	public String server;
 
-	@Option(name = "--group", description = "Adds the necessary role to this group if the group exists")
+	@Option(names = "--group", description = "Adds the necessary role to this group if the group exists")
 	public String group;
 
 	@Override

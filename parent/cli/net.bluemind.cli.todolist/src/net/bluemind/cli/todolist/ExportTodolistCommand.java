@@ -20,14 +20,14 @@ package net.bluemind.cli.todolist;
 import java.io.File;
 import java.util.Optional;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.ExportCommand;
 import net.bluemind.core.rest.base.GenericStream;
-import net.bluemind.todolist.api.IVTodo;
 import net.bluemind.todolist.api.ITodoUids;
+import net.bluemind.todolist.api.IVTodo;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "export", description = "Export a todolist to an ICS file")
 public class ExportTodolistCommand extends ExportCommand {
@@ -45,7 +45,7 @@ public class ExportTodolistCommand extends ExportCommand {
 		}
 	}
 
-	@Option(name = "--todolistUid", description = "todolist uid, export all todolists if not specified")
+	@Option(names = "--todolistUid", description = "todolist uid, export all todolists if not specified")
 	public String todolistUid;
 
 	@Override

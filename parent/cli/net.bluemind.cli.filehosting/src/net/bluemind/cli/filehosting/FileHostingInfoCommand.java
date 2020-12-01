@@ -31,7 +31,6 @@ import com.github.freva.asciitable.AsciiTable;
 import com.github.freva.asciitable.Column;
 import com.github.freva.asciitable.HorizontalAlign;
 
-import io.airlift.airline.Command;
 import net.bluemind.attachment.api.Configuration;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -46,6 +45,7 @@ import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.GlobalSettingsKeys;
 import net.bluemind.system.api.IGlobalSettings;
+import picocli.CommandLine.Command;
 
 @Command(name = "info", description = "Show Filehosting implementation details")
 public class FileHostingInfoCommand implements ICmdLet, Runnable {

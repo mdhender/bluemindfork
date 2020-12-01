@@ -27,20 +27,12 @@ import java.util.stream.Stream;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Color;
 import org.fusesource.jansi.AnsiConsole;
 import org.osgi.framework.Version;
-
-import io.airlift.airline.ParseArgumentsUnexpectedException;
-import io.airlift.airline.ParseCommandUnrecognizedException;
 
 import com.google.common.base.Splitter;
 
 public class CLIEntryPoint implements IApplication {
-
-	public static final Integer EXIT_FAIL = new Integer(50);
-	public static final Integer EXIT_INVALID_ARGUMENTS = new Integer(51);
-
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		Integer returncode = EXIT_OK;
@@ -49,38 +41,22 @@ public class CLIEntryPoint implements IApplication {
 			Version version = context.getBrandingBundle().getVersion();
 
 			String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
-			if (args.length == 0) {
-				System.out.println(
-						Ansi.ansi().fgBrightBlue().a("Blue").fgBrightCyan().a("Mind").reset().a(" CLI " + version));
-			} else if (isCliScript(args)) {
+			if (isCliScript(args)) {
 				Path script = Paths.get(args[0]);
 				CLIManager cm = new CLIManager(version);
 				try (Stream<String> linesStream = Files.lines(script)) {
 					Optional<Integer> returncodes = linesStream.map(this::asArguments).map(cmdargs -> {
-							try {
-								cm.processArgs(cmdargs);
-								return EXIT_OK;
-							} catch (ParseArgumentsUnexpectedException | ParseCommandUnrecognizedException e) {
-								return EXIT_INVALID_ARGUMENTS;
-							} catch (Exception e) {
-								return EXIT_FAIL;
-							}
-						}).filter(ret -> !EXIT_OK.equals(ret)).findAny();
+						System.err.println(Ansi.ansi().fgBrightBlue()// NOSONAR
+								.a("Execute from " + script + ": ").reset().a(String.join(" ", cmdargs)));
+						return cm.processArgs(cmdargs);
+					}).filter(ret -> !EXIT_OK.equals(ret)).findAny();
 					if (returncodes.isPresent()) {
 						returncode = returncodes.get();
 					}
 				}
 			} else {
-				CLIManager cm = new CLIManager(version);
-				cm.processArgs(args);
+				returncode = new CLIManager(version).processArgs(args);
 			}
-		} catch (ParseArgumentsUnexpectedException | ParseCommandUnrecognizedException e) {
-			System.err.println(Ansi.ansi().fg(Color.RED).a(e.getMessage()).reset());
-			returncode = EXIT_INVALID_ARGUMENTS;
-		} catch (Exception e) {
-			System.err.println(Ansi.ansi().fg(Color.RED).a(e.getMessage()).reset());
-			e.printStackTrace();
-			returncode = EXIT_FAIL;
 		} finally {
 			AnsiConsole.systemUninstall();
 		}
@@ -97,6 +73,6 @@ public class CLIEntryPoint implements IApplication {
 
 	@Override
 	public void stop() {
-		System.out.println("CLI stopped.");
+		System.err.println("CLI stopped."); // NOSONAR
 	}
 }

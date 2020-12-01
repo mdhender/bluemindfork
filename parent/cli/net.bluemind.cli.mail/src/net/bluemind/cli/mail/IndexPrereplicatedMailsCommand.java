@@ -45,14 +45,14 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.PublicInfos;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "indexreplicated", description = "Index pre-replicated messages")
 public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
@@ -61,7 +61,7 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 	private static final String PENDING_TYPE = "eml";
 	public static final String INDEX_PENDING_ALIAS = "mailspool_pending_alias";
 
-	@Option(required = false, name = "--progress", description = "Value indicating the total mails waiting to be indexed")
+	@Option(required = false, names = "--progress", description = "Value indicating the total mails waiting to be indexed")
 	public Long progress;
 
 	@Override

@@ -20,14 +20,14 @@ package net.bluemind.cli.calendar;
 import java.io.File;
 import java.util.Optional;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.IVEvent;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.ExportCommand;
 import net.bluemind.core.rest.base.GenericStream;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "export", description = "Export a calendar to an ICS file")
 public class ExportCalendarCommand extends ExportCommand {
@@ -45,7 +45,7 @@ public class ExportCalendarCommand extends ExportCommand {
 		}
 	}
 
-	@Option(name = "--calendarUid", description = "calendar uid, export all calendars if not specified")
+	@Option(names = "--calendarUid", description = "calendar uid, export all calendars if not specified")
 	public String calendarUid;
 
 	@Override
