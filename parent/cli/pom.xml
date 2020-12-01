@@ -33,6 +33,7 @@
 		<module>net.bluemind.cli.inject.common</module>
 		<module>net.bluemind.cli.inject.imap</module>
 		<module>net.bluemind.cli.inject.imap.tests</module>
+		<module>net.bluemind.cli.inject.node</module>
 	</modules>
 
 </project>

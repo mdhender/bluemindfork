@@ -64,7 +64,6 @@ public class ImapInjector extends MailExchangeInjector {
 
 	public ImapInjector(IServiceProvider provider, String domainUid) {
 		super(provider, domainUid, ImapTargetMailbox::new, new GOTMessageProducer());
-
 	}
 
 }

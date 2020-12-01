@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -18,27 +18,19 @@
  */
 package net.bluemind.node.client.impl;
 
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+@SuppressWarnings("serial")
+public class NodeRuntimeException extends RuntimeException {
 
-import net.bluemind.common.io.FileBackedOutputStream;
-
-public final class FBOSInput {
-
-	private FBOSInput() {
+	public NodeRuntimeException(Throwable t) {
+		super(t);
 	}
 
-	public static final InputStream from(final FileBackedOutputStream fbos) throws IOException {
-		InputStream in = fbos.asByteSource().openStream();
-		return new FilterInputStream(in) {
-
-			@Override
-			public void close() throws IOException {
-				super.close();
-				fbos.reset();
-			}
-
-		};
+	public static RuntimeException wrap(Throwable t) {
+		if (t instanceof RuntimeException) {
+			throw (RuntimeException) t;
+		} else {
+			throw new NodeRuntimeException(t);
+		}
 	}
+
 }

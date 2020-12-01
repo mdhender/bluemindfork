@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.http.ClientAuth;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
@@ -57,9 +56,6 @@ public class BlueMindNode extends AbstractVerticle {
 	// ugly hack to restart the server's in ssl mode
 	private static List<BlueMindNode> selfRefs = new LinkedList<>();
 
-	public BlueMindNode() {
-	}
-
 	@Override
 	public void start() {
 		reconfigure();
@@ -74,7 +70,7 @@ public class BlueMindNode extends AbstractVerticle {
 			logger.debug("{} {}...", event.method(), event.path());
 			rm.handle(event);
 		});
-		srv.websocketHandler(new WebSocketProcessHandler(vertx));
+		srv.webSocketHandler(new WebSocketProcessHandler(vertx));
 		logger.info("NODE is SSL: {}", options.isSsl());
 		srv.listen(options.isSsl() ? Activator.NODE_PORT : 8021);
 	}
@@ -98,44 +94,31 @@ public class BlueMindNode extends AbstractVerticle {
 		return options;
 	}
 
+	private static final String FS_OPS_RE = "/fs(/.*)";
+
 	private RouteMatcher createRouter(boolean ssl) {
 		RouteMatcher rm = new RouteMatcher(vertx);
 		rm.post("/cmd", new SubmitCommand());
 		rm.get("/cmd/:reqId", new GetStatus());
 		rm.get("/cmd", new Executions());
 		rm.delete("/cmd/:reqId", new Interrupt());
-		rm.regex(HttpMethod.GET, "/fs(/.*)", new SendFile());
-		rm.regex(HttpMethod.PUT, "/fs(/.*)", new WriteFile());
-		rm.regex(HttpMethod.DELETE, "/fs(/.*)", new DeleteFile());
+		rm.regex(HttpMethod.GET, FS_OPS_RE, new SendFile());
+		rm.regex(HttpMethod.PUT, FS_OPS_RE, new WriteFile());
+		rm.regex(HttpMethod.DELETE, FS_OPS_RE, new DeleteFile());
 		rm.regex(HttpMethod.GET, "/list(/.*)", new ListFiles());
 		rm.regex(HttpMethod.GET, "/match/([^/]*)(/.*)", new ListMatches());
-		rm.options("/", new Handler<HttpServerRequest>() {
-
-			@Override
-			public void handle(HttpServerRequest event) {
-				logger.info("OPTIONS / => OK");
-				event.response().end();
-			}
+		rm.options("/", (HttpServerRequest event) -> {
+			logger.info("{} / => OK", event.method());
+			event.response().end();
 		});
 		if (ssl) {
-			rm.options("/ping", new Handler<HttpServerRequest>() {
-
-				@Override
-				public void handle(HttpServerRequest event) {
-					logger.info("PONG");
-					event.response().end();
-				}
-			});
+			rm.options("/ping", (HttpServerRequest event) -> event.response().end());
 		} else {
 			plainTextPing(rm);
 		}
-		rm.noMatch(new Handler<HttpServerRequest>() {
-
-			@Override
-			public void handle(HttpServerRequest event) {
-				logger.error("No match for {} {}", event.method(), event.path());
-				event.response().setStatusCode(404).end();
-			}
+		rm.noMatch((HttpServerRequest event) -> {
+			logger.error("No match for {} {}", event.method(), event.path());
+			event.response().setStatusCode(404).end();
 		});
 		return rm;
 	}

@@ -7,7 +7,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-consoleLog mail unexpunge partage@devenv.blue
+      <programArgs>-consoleLog inject node --msg 100000 --workers 16 devenv.blue
       </programArgs>
       <vmArgs>-Duser.timezone=GMT -Djava.awt.headless=true -Dnet.bluemind.property.product=bm-cli
       </vmArgs>
@@ -75,6 +75,7 @@
       <plugin id="net.bluemind.cli.index"/>
       <plugin id="net.bluemind.cli.inject.common"/>
       <plugin id="net.bluemind.cli.inject.imap"/>
+      <plugin id="net.bluemind.cli.inject.node"/>
       <plugin id="net.bluemind.cli.job"/>
       <plugin id="net.bluemind.cli.launcher"/>
       <plugin id="net.bluemind.cli.mail"/>
@@ -134,6 +135,9 @@
       <plugin id="net.bluemind.network.topology"/>
       <plugin id="net.bluemind.network.topology.consumer"/>
       <plugin id="net.bluemind.network.utils"/>
+      <plugin id="net.bluemind.node.api"/>
+      <plugin id="net.bluemind.node.client"/>
+      <plugin id="net.bluemind.node.shared"/>
       <plugin id="net.bluemind.resource.api"/>
       <plugin id="net.bluemind.role.api"/>
       <plugin id="net.bluemind.scheduledjob.api"/>

@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,29 +16,15 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.node.client.impl;
+package net.bluemind.cli.inject.common;
 
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+public class MinimalMessageProducer implements IMessageProducer {
 
-import net.bluemind.common.io.FileBackedOutputStream;
+	private static final byte[] MIN_EML = "From: tom@bluemind.net\r\n".getBytes();
 
-public final class FBOSInput {
-
-	private FBOSInput() {
+	@Override
+	public byte[] createEml(TargetMailbox from, TargetMailbox to) {
+		return MIN_EML;
 	}
 
-	public static final InputStream from(final FileBackedOutputStream fbos) throws IOException {
-		InputStream in = fbos.asByteSource().openStream();
-		return new FilterInputStream(in) {
-
-			@Override
-			public void close() throws IOException {
-				super.close();
-				fbos.reset();
-			}
-
-		};
-	}
 }

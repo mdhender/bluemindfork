@@ -38,6 +38,8 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.node.api.ProcessHandler;
+import net.bluemind.node.client.impl.ahc.JsonHelper;
+import net.bluemind.node.shared.ExecRequest;
 
 public class WebsocketLink {
 
@@ -176,7 +178,7 @@ public class WebsocketLink {
 
 	}
 
-	public void startWsAction(JsonObject wsReq, ProcessHandler ph) {
+	public void startWsAction(ExecRequest wsReq, ProcessHandler ph) {
 		WebSocket ws = webSocket.get();
 		if (ws == null) {
 			logger.error("Error command as websocket is missing");
@@ -187,9 +189,8 @@ public class WebsocketLink {
 				ph.completed(1);
 			} else {
 				long rid = wsIdGen.incrementAndGet();
-				wsReq.put("ws-rid", rid);
 				execHandlers.put(rid, ph);
-				ws.sendTextFrame(wsReq.encode());
+				ws.sendTextFrame(JsonHelper.toJson(wsReq, rid), true, 0);
 			}
 		}
 

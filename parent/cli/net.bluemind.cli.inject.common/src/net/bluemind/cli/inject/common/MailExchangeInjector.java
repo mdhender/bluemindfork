@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
@@ -31,10 +30,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
 
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
@@ -74,6 +69,9 @@ public class MailExchangeInjector {
 			if (em == null) {
 				return null;
 			}
+			if (iv.value.archived) {
+				return null;
+			}
 			MailboxQuota quota = mboxApi.getMailboxQuota(iv.value.entryUid);
 			if (quota.quota != null && quota.quota > 0) {
 				logger.info("Skip user {} with quota", iv.value.entryUid);
@@ -93,28 +91,33 @@ public class MailExchangeInjector {
 	}
 
 	public void runCycle(int msg) {
-		ExecutorService pool = Executors.newFixedThreadPool(4);
-		ListeningExecutorService lPool = MoreExecutors.listeningDecorator(pool);
-		Executor compPool = MoreExecutors.directExecutor();
+		runCycle(msg, 4);
+	}
+
+	public void runCycle(int msg, int workers) {
+		ExecutorService pool = Executors.newFixedThreadPool(workers);
 		CompletableFuture<?>[] proms = new CompletableFuture<?>[msg];
+
 		for (int i = 0; i < msg; i++) {
-			CompletableFuture<Void> cur = new CompletableFuture<>();
-			ListenableFuture<?> lFuture = lPool.submit(this::oneMsg);
-			proms[i] = cur;
-			lFuture.addListener(() -> cur.complete(null), compPool);
+			proms[i] = CompletableFuture.supplyAsync(this::oneMsg, pool);
 		}
 		CompletableFuture<Void> globalProm = CompletableFuture.allOf(proms);
 		logger.info("{} Waiting for completion of {} task(s)...", domain, proms.length);
 		globalProm.join();
-
+		end();
 	}
 
-	private void oneMsg() {
+	protected void end() {
+		// override to implement post injection
+	}
+
+	private Object oneMsg() {
 		try {
 			sendRandom();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
+		return null;
 	}
 
 	private void sendRandom() {

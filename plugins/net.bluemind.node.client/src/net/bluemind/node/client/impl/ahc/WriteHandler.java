@@ -40,7 +40,7 @@ public class WriteHandler extends DefaultAsyncHandler<Void> {
 	private final String path;
 
 	public WriteHandler(String path, InputStream source) {
-		super(false);
+		super("W '" + path + "'", false);
 		this.path = path;
 		this.source = source;
 	}

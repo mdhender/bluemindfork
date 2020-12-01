@@ -27,13 +27,12 @@ import org.asynchttpclient.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Throwables;
-
 import io.netty.handler.codec.http.HttpHeaders;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.node.client.impl.DoesNotExist;
+import net.bluemind.node.client.impl.NodeRuntimeException;
 import net.bluemind.node.shared.ActiveExecQuery;
 import net.bluemind.node.shared.ExecDescriptor;
 
@@ -78,7 +77,7 @@ public class ActiveExecutionsHandler extends DefaultAsyncHandler<List<ExecDescri
 			}
 			return ret;
 		} catch (IOException e) {
-			throw Throwables.propagate(e);
+			throw NodeRuntimeException.wrap(e);
 		} finally {
 			try {
 				body.reset();

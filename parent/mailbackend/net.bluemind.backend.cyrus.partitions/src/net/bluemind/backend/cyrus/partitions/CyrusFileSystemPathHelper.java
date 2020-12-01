@@ -29,8 +29,7 @@ public class CyrusFileSystemPathHelper {
 	/**
 	 * Map letter to cyrus folder name. Used for domain or mailboxname
 	 * 
-	 * @param uid
-	 *                domain or mailboxname first letter
+	 * @param uid domain or mailboxname first letter
 	 * @return cyrus folder name
 	 */
 	public static char mapLetter(char letter) {
@@ -54,20 +53,18 @@ public class CyrusFileSystemPathHelper {
 	}
 
 	private static String getPath(String domainUid, MailboxDescriptor mboxDescriptor, CyrusPartition partition,
-			long imapUid, String root) {
+			String suffix, String root) {
 
 		char mboxLetter = mboxDescriptor.mailboxName.charAt(0);
 		if (mboxDescriptor.type.sharedNs) {
-			return sharedPath(domainUid, mboxDescriptor, partition, imapUid, root, mapLetter(domainUid.charAt(0)),
-					mboxLetter);
+			return sharedPath(domainUid, mboxDescriptor, partition, suffix, root, mboxLetter);
 		} else {
-			return userPath(domainUid, mboxDescriptor, partition, imapUid, root, mapLetter(domainUid.charAt(0)),
-					mboxLetter);
+			return userPath(domainUid, mboxDescriptor, partition, suffix, root, mboxLetter);
 		}
 	}
 
 	private static String userPath(String domainUid, MailboxDescriptor mboxDescriptor, CyrusPartition partition,
-			long imapUid, String root, char domainLetter, char mboxLetter) {
+			String suffix, String root, char mboxLetter) {
 		mboxLetter = mapLetter(mboxLetter);
 
 		String boxName = mboxDescriptor.mailboxName.replace('.', '^');
@@ -83,14 +80,13 @@ public class CyrusFileSystemPathHelper {
 			path.append(mboxDescriptor.utf7FolderPath.replace('.', '^'));
 		}
 		path.append("/");
-		path.append(imapUid);
-		path.append(".");
+		path.append(suffix);
 
 		return path.toString();
 	}
 
 	private static String sharedPath(String domainUid, MailboxDescriptor mboxDescriptor, CyrusPartition partition,
-			long imapUid, String root, char domainLetter, char mboxLetter) {
+			String suffix, String root, char mboxLetter) {
 		if (!mboxDescriptor.mailboxName.equals(mboxDescriptor.utf7FolderPath)) {
 			mboxLetter = mboxDescriptor.utf7FolderPath.substring(mboxDescriptor.mailboxName.length() + 1).toLowerCase()
 					.charAt(0);
@@ -104,20 +100,24 @@ public class CyrusFileSystemPathHelper {
 		path.append("/");
 		path.append(mboxDescriptor.utf7FolderPath.replace('.', '^'));
 		path.append("/");
-		path.append(imapUid);
-		path.append(".");
+		path.append(suffix);
 
 		return path.toString();
 	}
 
 	public static String getFileSystemPath(String domainUid, MailboxDescriptor mboxDescriptor, CyrusPartition partition,
 			long imapUid) {
-		return getPath(domainUid, mboxDescriptor, partition, imapUid, MAIN_ROOT);
+		return getPath(domainUid, mboxDescriptor, partition, imapUid + ".", MAIN_ROOT);
+	}
+
+	public static String getMetaFileSystemPath(String domainUid, MailboxDescriptor mboxDescriptor,
+			CyrusPartition partition, String suffix) {
+		return getPath(domainUid, mboxDescriptor, partition, suffix, META_ROOT);
 	}
 
 	public static String getHSMFileSystemPath(String domainUid, MailboxDescriptor mboxDescriptor,
 			CyrusPartition partition, long imapUid) {
-		return getPath(domainUid, mboxDescriptor, partition, imapUid, ARCHIVE_ROOT);
+		return getPath(domainUid, mboxDescriptor, partition, imapUid + ".", ARCHIVE_ROOT);
 	}
 
 	public static String getDomainDataFileSystemPath(CyrusPartition partition, String domainUid) {
