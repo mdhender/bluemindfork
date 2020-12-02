@@ -617,6 +617,8 @@ public class FolderBackend extends CoreConnect {
 				folderChangeRef.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
 				break;
 			}
+		} else {
+			folderChangeRef.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
 		}
 
 		folderChangeRef.displayName = dn;
