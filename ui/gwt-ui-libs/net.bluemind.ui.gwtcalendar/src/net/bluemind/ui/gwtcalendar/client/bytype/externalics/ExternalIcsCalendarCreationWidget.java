@@ -97,14 +97,14 @@ public class ExternalIcsCalendarCreationWidget extends CompositeGwtWidgetElement
 
 			@Override
 			public void onValueChange(ValueChangeEvent<String> event) {
-				checkUrl();
+				checkUrl(1000);
 			}
 		});
 		url.addChangeHandler(new ChangeHandler() {
 
 			@Override
 			public void onChange(ChangeEvent event) {
-				checkUrl();
+				checkUrl(1000);
 
 			}
 
@@ -114,7 +114,7 @@ public class ExternalIcsCalendarCreationWidget extends CompositeGwtWidgetElement
 
 	@UiHandler("url")
 	void urlChanged(KeyUpEvent e) {
-		checkUrl();
+		checkUrl(2000);
 	}
 
 	private void doCheckUrl() {
@@ -162,10 +162,10 @@ public class ExternalIcsCalendarCreationWidget extends CompositeGwtWidgetElement
 		}
 	}
 
-	private void checkUrl() {
+	private void checkUrl(int ms) {
 		String urlv = url.getValue();
 		if (urlv != null && urlv.length() > 0) {
-			timer.schedule(100);
+			timer.schedule(ms);
 		}
 	}
 
