@@ -20,7 +20,9 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0",
  net.bluemind.webmodule.server,
  net.bluemind.core.rest.http,
  net.bluemind.utils,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ net.bluemind.hornetq.client,
+ net.bluemind.proxy.support
 Export-Package: net.bluemind.ui.gwtcalendar.client,
  net.bluemind.ui.gwtcalendar.client.bytype,
  net.bluemind.ui.gwtcalendar.client.bytype.externalics,
