@@ -18,8 +18,13 @@
  */
 package net.bluemind.webmodules.webapp.handlers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -39,12 +44,16 @@ import net.bluemind.webmodule.server.NeedVertx;
 
 public class PartContentUrlHandler implements Handler<HttpServerRequest>, NeedVertx {
 
-	private static Logger logger = LoggerFactory.getLogger(PartContentUrlHandler.class);
+	private static Cache<String, Semaphore> lockBySession = CacheBuilder.newBuilder()
+			.expireAfterAccess(1, TimeUnit.MINUTES).build();
+
 	private HttpClientProvider prov;
+	private Vertx vertx;
 
 	@Override
 	public void setVertx(Vertx vertx) {
-		prov = new HttpClientProvider(vertx);
+		this.vertx = vertx;
+		this.prov = new HttpClientProvider(vertx);
 	}
 
 	private static final ILocator locator = (String service, AsyncHandler<String[]> asyncHandler) -> {
@@ -56,6 +65,48 @@ public class PartContentUrlHandler implements Handler<HttpServerRequest>, NeedVe
 	@Override
 	public void handle(final HttpServerRequest request) {
 		String sessionId = request.headers().get("BMSessionId");
+
+		Semaphore sem;
+		try {
+			sem = lockBySession.get(sessionId, () -> {
+				return new Semaphore(1);
+			});
+		} catch (ExecutionException e1) {
+			request.response().setStatusCode(500);
+			request.response().setStatusMessage("Failed to get semaphore for session " + sessionId);
+			request.response().end();
+			return;
+		}
+
+		vertx.executeBlocking(v -> {
+			try {
+				sem.acquire();
+				v.complete();
+			} catch (InterruptedException e) {
+				v.fail("sem.acquire failed, cant response to request.. " + e);
+			}
+		}, res -> {
+			if (res.failed()) {
+				request.response().setStatusCode(500);
+				request.response().setStatusMessage(res.cause().toString());
+				request.response().end();
+				sem.release();
+			} else {
+				fetchFromCore(request, sessionId).thenAccept(v -> {
+					sem.release();
+				}).exceptionally(e -> {
+					request.response().setStatusCode(500);
+					request.response().setStatusMessage(e.getMessage());
+					request.response().end();
+					sem.release();
+					return null;
+				});
+			}
+		});
+
+	}
+
+	private CompletableFuture<Void> fetchFromCore(final HttpServerRequest request, String sessionId) {
 		final VertxPromiseServiceProvider clientProvider = new VertxPromiseServiceProvider(prov, locator, sessionId);
 
 		String folderUid = request.params().get("folderUid");
@@ -68,27 +119,20 @@ public class PartContentUrlHandler implements Handler<HttpServerRequest>, NeedVe
 		String charset = request.params().get("charset");
 		String filename = request.params().get("filename");
 
-		service.fetch(Long.parseLong(imapUid), address, encoding, mime, charset, filename).thenAccept(partContent -> {
-			HttpServerResponse resp = request.response();
-			resp.setChunked(true);
+		return service.fetch(Long.parseLong(imapUid), address, encoding, mime, charset, filename)
+				.thenAccept(partContent -> {
+					HttpServerResponse resp = request.response();
+					resp.setChunked(true);
 
-			resp.headers().set("Content-Type", mime + ";charset=" + charset);
-			resp.headers().set("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-			resp.headers().set("Cache-Control", "max-age=15768000, private"); // 6 months
+					resp.headers().set("Content-Type", mime + ";charset=" + charset);
+					resp.headers().set("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+					resp.headers().set("Cache-Control", "max-age=15768000, private"); // 6 months
 
-			ReadStream<Buffer> read = VertxStream.read(partContent);
-			Pump pump = Pump.pump(read, resp);
-			pump.start();
-			read.endHandler(v -> resp.end());
-		}).exceptionally(e -> {
-			logger.error("error when fetching part, {}, {}, {}, {}, {}, {}, {}, {}", folderUid, imapUid, address,
-					encoding, mime, charset, filename, e);
-			request.response().setStatusCode(500);
-			request.response().setStatusMessage(e.getMessage());
-			request.response().end();
-			return null;
-		});
-
+					ReadStream<Buffer> read = VertxStream.read(partContent);
+					Pump pump = Pump.pump(read, resp);
+					pump.start();
+					read.endHandler(v -> resp.end());
+				});
 	}
 
 }

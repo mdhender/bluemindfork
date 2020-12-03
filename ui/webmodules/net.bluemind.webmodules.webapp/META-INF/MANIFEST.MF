@@ -16,6 +16,7 @@ Require-Bundle: net.bluemind.webmodule,
  io.vertx.core,
  net.bluemind.config,
  net.bluemind.network.topology,
- net.bluemind.backend.mail.api
+ net.bluemind.backend.mail.api,
+ com.google.guava
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.webmodules.webapp
