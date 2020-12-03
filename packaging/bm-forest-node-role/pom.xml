@@ -9,7 +9,7 @@
 		<service.name>bm-forest-node-role</service.name>
 		<shortDescription>BlueMind Forest central server node</shortDescription>
 		<description>All the services for building a mailbox storage server</description>
-		<dependencies>bm-forest-node bm-kafka=2.4.0-bluemind9 bm-sds-storage-s3-minio=2019.10.12-bluemind9</dependencies>
+		<dependencies>bm-forest-node bm-kafka=2.6.0-bluemind10 bm-sds-storage-s3-minio=2020.12.03-bluemind10</dependencies>
 	</properties>
 	
 	<parent>
