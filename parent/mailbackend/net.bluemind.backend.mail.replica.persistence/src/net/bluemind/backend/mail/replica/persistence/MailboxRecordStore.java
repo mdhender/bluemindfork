@@ -64,21 +64,21 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	}
 
 	private static final String REC_CREATE_QUERY = "INSERT INTO t_mailbox_record (message_body_guid, "
-			+ MailboxRecordColumns.COLUMNS.names() + ", item_id) VALUES (decode(?, 'hex'), "
-			+ MailboxRecordColumns.COLUMNS.values() + ", ? )";
+			+ MailboxRecordColumns.COLUMNS.names() + ", container_id, item_id) VALUES (decode(?, 'hex'), "
+			+ MailboxRecordColumns.COLUMNS.values() + ", ?, ?)";
 
 	@Override
 	public void create(Item item, MailboxRecord value) throws SQLException {
-		insert(REC_CREATE_QUERY, value, MailboxRecordColumns.values(item));
+		insert(REC_CREATE_QUERY, value, MailboxRecordColumns.values(container.id, item));
 	}
 
 	private static final String REC_UPDATE_QUERY = "UPDATE t_mailbox_record SET (message_body_guid, "
 			+ MailboxRecordColumns.COLUMNS.names() + ") = (decode(?, 'hex'), " + MailboxRecordColumns.COLUMNS.values()
-			+ " )" + " WHERE item_id = ? ";
+			+ " )" + " WHERE container_id=? AND item_id = ? ";
 
 	@Override
 	public void update(Item item, MailboxRecord value) throws SQLException {
-		update(REC_UPDATE_QUERY, value, MailboxRecordColumns.values(item));
+		update(REC_UPDATE_QUERY, value, MailboxRecordColumns.values(container.id, item));
 	}
 
 	@Override
@@ -129,8 +129,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("DELETE FROM t_mailbox_record WHERE item_id IN ( SELECT id FROM t_container_item WHERE container_id = ?)",
-				new Object[] { container.id });
+		delete("DELETE FROM t_mailbox_record WHERE container_id = ?", new Object[] { container.id });
 	}
 
 	/**
@@ -146,9 +145,8 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		}
 		String inString = Arrays.stream(uidArrays).mapToObj(Long::toString).collect(Collectors.joining(","));
 		String query = "" + //
-				"SELECT mr.imap_uid, mr.mod_seq, ci.uid FROM t_mailbox_record mr "
-				+ "INNER JOIN t_container_item ci ON ci.id=mr.item_id " + "WHERE ci.container_id=? AND mr.imap_uid IN ("
-				+ inString + ")";
+				"SELECT mr.imap_uid, mr.item_id FROM t_mailbox_record mr "
+				+ "WHERE mr.container_id=? AND mr.imap_uid IN (" + inString + ")";
 		List<RecordID> found = select(query, RecordID.CREATOR, RecordID.POPULATOR, new Object[] { container.id });
 		return new HashSet<>(found);
 	}
@@ -160,8 +158,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		String inString = itemIds.stream().map(Object::toString).collect(Collectors.joining(","));
 		String query = "" + //
 				"SELECT item_id, imap_uid, encode(message_body_guid, 'hex') FROM t_mailbox_record "
-				+ "INNER JOIN t_container_item ci ON ci.id=item_id " + "WHERE ci.container_id=? AND item_id IN ("
-				+ inString + ")";
+				+ "WHERE container_id=? AND item_id IN (" + inString + ")";
 		List<ImapBinding> notSorted = select(query, rs -> new ImapBinding(), (rs, index, value) -> {
 			value.itemId = rs.getInt(index++);
 			value.imapUid = rs.getInt(index++);

@@ -41,9 +41,11 @@ create table IF NOT EXISTS t_mailbox_record (
 	internal_date timestamp not null,
 	system_flags int4 not null,
 	other_flags text[],
+	container_id int4 not null references t_container(id) ON UPDATE CASCADE  on delete cascade,
 	item_id int4 references t_container_item(id) ON UPDATE CASCADE  on delete cascade
 );
 create index IF NOT EXISTS t_mailbox_record_imap_uid ON t_mailbox_record (imap_uid);
+create index IF NOT EXISTS i_mailbox_record_cid_imap_uid ON t_mailbox_record (container_id, imap_uid);
 create index IF NOT EXISTS t_mailbox_record_body_guid ON t_mailbox_record (message_body_guid);
 create index IF NOT EXISTS i_mailbox_record on t_mailbox_record (item_id);
 
