@@ -281,6 +281,7 @@
    <bundle id="net.bluemind.mailbox.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailindex" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.mailindex.schema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailshare.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailshare.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailshare.api.php" version="4.1.0.qualifier"/>

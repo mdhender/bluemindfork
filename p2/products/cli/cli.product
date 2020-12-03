@@ -63,6 +63,7 @@
       <plugin id="net.bluemind.backend.cyrus.partitions"/>
       <plugin id="net.bluemind.backend.mail.api"/>
       <plugin id="net.bluemind.backend.mail.replica.api"/>
+      <plugin id="net.bluemind.mailindex.schema"/>
       <plugin id="net.bluemind.calendar.api"/>
       <plugin id="net.bluemind.cli.adm"/>
       <plugin id="net.bluemind.cli.calendar"/>

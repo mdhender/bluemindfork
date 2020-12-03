@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.index.mail;
+package net.bluemind.index.schema;
 
 import net.bluemind.lib.elasticsearch.ISchemaMatcher;
 

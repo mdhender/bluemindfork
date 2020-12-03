@@ -2,23 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="net.bluemind.elasticsearch.schema">
-      <schema
-            count="25"
-            index="mailspool"
-            schema="mailspool.json"
-            schemamatcher="net.bluemind.index.mail.MailspoolSchemaMatcher">
-      </schema>
-   </extension>
-   <extension
-         point="net.bluemind.elasticsearch.schema">
-      <schema
-            count="1"
-            index="mailspool_pending"
-            schema="mailspool_pending.json">
-      </schema>
-   </extension>
-   <extension
          point="net.bluemind.mailbox.hook">
       <hook
             class="net.bluemind.index.mail.ESMailboxHook">

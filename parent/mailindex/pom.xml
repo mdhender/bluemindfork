@@ -12,6 +12,7 @@
 		<module>net.bluemind.mailindex</module>
 		<module>net.bluemind.mailindex.tests</module>
 		<module>net.bluemind.mailindex.hook</module>
+		<module>net.bluemind.mailindex.schema</module>
 	</modules>
 
 	<profiles>

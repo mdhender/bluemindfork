@@ -31,6 +31,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.cli.contact;bundle-version="4.1.0",
  net.bluemind.core.context,
  net.bluemind.core.rest,
+ net.bluemind.mailindex.schema,
  net.bluemind.user.api,
  net.bluemind.locator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
