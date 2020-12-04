@@ -52,6 +52,12 @@ create index IF NOT EXISTS i_mailbox_record_cid_imap_uid ON t_mailbox_record (co
 create index IF NOT EXISTS t_mailbox_record_body_guid ON t_mailbox_record (message_body_guid);
 create index IF NOT EXISTS i_mailbox_record on t_mailbox_record (item_id);
 
+-- Expunged flag specialized index
+-- used in MailboxRecordStore.getExpiredItems()
+CREATE INDEX ON t_mailbox_record (last_updated)
+	INCLUDE (message_body_guid, item_id)
+	WHERE (((system_flags)::bit(32) & (1<<31)::bit(32)) = (1<<31)::bit(32));
+
 create table IF NOT EXISTS t_seen_overlay (
 	user_id text not null,
 	unique_id text not null,
