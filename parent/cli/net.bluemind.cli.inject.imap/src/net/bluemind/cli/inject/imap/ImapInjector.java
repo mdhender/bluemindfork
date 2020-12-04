@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.util.concurrent.Semaphore;
 
 import net.bluemind.cli.inject.common.GOTMessageProducer;
+import net.bluemind.cli.inject.common.IMessageProducer;
 import net.bluemind.cli.inject.common.MailExchangeInjector;
 import net.bluemind.cli.inject.common.TargetMailbox;
 import net.bluemind.core.rest.IServiceProvider;
@@ -62,8 +63,12 @@ public class ImapInjector extends MailExchangeInjector {
 		}
 	}
 
+	public ImapInjector(IServiceProvider provider, String domainUid, IMessageProducer prod) {
+		super(provider, domainUid, ImapTargetMailbox::new, prod);
+	}
+
 	public ImapInjector(IServiceProvider provider, String domainUid) {
-		super(provider, domainUid, ImapTargetMailbox::new, new GOTMessageProducer());
+		this(provider, domainUid, new GOTMessageProducer());
 	}
 
 }

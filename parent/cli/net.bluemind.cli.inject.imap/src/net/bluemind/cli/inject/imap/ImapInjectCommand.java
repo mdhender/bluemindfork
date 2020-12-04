@@ -18,22 +18,17 @@
 package net.bluemind.cli.inject.imap;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
+import net.bluemind.cli.inject.common.AbstractMailInjectCommand;
+import net.bluemind.cli.inject.common.IMessageProducer;
 import net.bluemind.cli.inject.common.MailExchangeInjector;
-import net.bluemind.cli.utils.CliUtils;
-import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.lib.vertx.VertxPlatform;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 @Command(name = "imap", description = "Injects a batch of emails through IMAP")
-public class ImapInjectCommand implements ICmdLet, Runnable {
+public class ImapInjectCommand extends AbstractMailInjectCommand {
 
 	public static class Reg implements ICmdLetRegistration {
 
@@ -48,48 +43,9 @@ public class ImapInjectCommand implements ICmdLet, Runnable {
 		}
 	}
 
-	@Parameters(paramLabel = "<domain_name>", description = "the domain (uid or alias)")
-	public String domain;
-
-	@Option(names = "--msg", description = "The number of messages to add (defaults to 100)")
-	public int cycles = 100;
-
-	private CliContext ctx;
-
 	@Override
-	public void run() {
-		CliUtils cli = new CliUtils(ctx);
-		String domUid = cli.getDomainUidFromDomain(domain);
-		if (domUid == null) {
-			throw new ServerFault("domain " + domain + " not found");
-		}
-		CompletableFuture<Void> cf = new CompletableFuture<>();
-		VertxPlatform.spawnVerticles(v -> {
-			if (v.succeeded()) {
-				cf.complete(null);
-			} else {
-				cf.completeExceptionally(v.cause());
-			}
-
-		});
-		try {
-			cf.get(20, TimeUnit.SECONDS);
-			MailExchangeInjector inject = new ImapInjector(ctx.adminApi(), domUid);
-			long time = System.currentTimeMillis();
-			ctx.info("Starting injection of " + cycles + " message(s)");
-			inject.runCycle(cycles);
-			ctx.info("Injection of " + cycles + " message(s) finished in " + (System.currentTimeMillis() - time)
-					+ "ms.");
-		} catch (Exception e) {
-			e.printStackTrace();
-			ctx.error(e.getMessage());
-		}
-	}
-
-	@Override
-	public Runnable forContext(CliContext ctx) {
-		this.ctx = ctx;
-		return this;
+	protected MailExchangeInjector createInjector(CliContext ctx, String domUid, IMessageProducer prod) {
+		return new ImapInjector(ctx.adminApi(), domUid, prod);
 	}
 
 }

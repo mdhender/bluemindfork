@@ -7,7 +7,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-consoleLog inject node --msg 100000 --workers 16 devenv.blue
+      <programArgs>-consoleLog inject smtp --msg 50 --prod small devenv.blue
       </programArgs>
       <vmArgs>-Duser.timezone=GMT -Djava.awt.headless=true -Dnet.bluemind.property.product=bm-cli
       </vmArgs>
@@ -37,6 +37,7 @@
       <plugin id="com.github.javafaker"/>
       <plugin id="com.github.mifmif.generex"/>
       <plugin id="com.google.guava"/>
+      <plugin id="com.google.guava.failureaccess"/>
       <plugin id="com.hazelcast"/>
       <plugin id="com.hazelcast.client" fragment="true"/>
       <plugin id="com.netflix.hollow"/>

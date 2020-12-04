@@ -11,7 +11,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.mailbox.api,
  net.bluemind.authentication.api,
  com.google.guava,
- com.github.javafaker
+ com.github.javafaker,
+ net.bluemind.cli.cmd.api,
+ net.bluemind.cli.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.inject.common
 Bundle-ActivationPolicy: lazy
