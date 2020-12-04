@@ -54,13 +54,18 @@ public class ExternalUserValidator {
 		DirEntry dirEntry = bmContext.provider().instance(IDirectory.class, domainUid)
 				.getByEmail(eu.defaultEmailAddress());
 		if (dirEntry != null && !dirEntry.entryUid.equals(externalUserUid)) {
-			ItemValue<Mailbox> mbox = bmContext.provider().instance(IMailboxes.class, domainUid)
-					.byEmail(eu.defaultEmailAddress());
-			if (mbox != null) {
-				throw new ServerFault(
-						"Can't create external user: An entry with the same email address already exists in this domain",
-						ErrorCode.EMAIL_ALREADY_USED);
-			}
+			throw new ServerFault(
+					"Can't create external user: An entry with the same email address already exists in this domain",
+					ErrorCode.EMAIL_ALREADY_USED);
 		}
+
+		ItemValue<Mailbox> mbox = bmContext.provider().instance(IMailboxes.class, domainUid)
+				.byEmail(eu.defaultEmailAddress());
+		if (mbox != null) {
+			throw new ServerFault(
+					"Can't create external user: A mailbox with the same email address already exists in this domain",
+					ErrorCode.EMAIL_ALREADY_USED);
+		}
+
 	}
 }
