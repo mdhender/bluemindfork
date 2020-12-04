@@ -58,6 +58,37 @@ CREATE INDEX ON t_mailbox_record (last_updated)
 	INCLUDE (message_body_guid, item_id)
 	WHERE (((system_flags)::bit(32) & (1<<31)::bit(32)) = (1<<31)::bit(32));
 
+
+-- t_message_body orphan purge system
+-- see MessageBodyStore.deleteOrphanBodies()
+CREATE TABLE IF NOT EXISTS t_message_body_purge_queue (
+	message_body_guid bytea UNIQUE PRIMARY KEY not null,
+	created TIMESTAMP NOT NULL default now()
+);
+CREATE INDEX ON t_message_body_purge_queue (created, message_body_guid);
+
+CREATE OR REPLACE FUNCTION trigger_message_record_purge() RETURNS trigger AS
+$$
+DECLARE
+	IF TG_OP = 'DELETE' THEN
+		-- Find references to other t_mailbox_record
+		-- we want to add to the purge body queue unreferenced messages
+		PERFORM 1 FROM t_mailbox_record WHERE message_body_guid = OLD.message_body_guid;
+		IF NOT FOUND THEN
+			INSERT INTO t_message_body_purge_queue (message_body_guid) VALUES (OLD.message_body_guid)
+				ON CONFLICT(message_body_guid) DO NOTHING;
+		END IF;
+	ELSIF TG_OP = 'INSERT' THEN
+		-- delete from the purge queue if present
+		DELETE FROM t_message_body_purge_queue WHERE message_body_guid = NEW.message_body_guid;
+	END IF;
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_message_record_purge AFTER DELETE OR INSERT ON t_mailbox_record
+	FOR EACH ROW EXECUTE PROCEDURE trigger_message_record_purge();
+
 create table IF NOT EXISTS t_seen_overlay (
 	user_id text not null,
 	unique_id text not null,
