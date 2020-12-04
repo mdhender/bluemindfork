@@ -28,10 +28,13 @@ create table IF NOT EXISTS t_mailbox_replica (
 	options varchar(32) not null,
 	sync_crc int8 not null,
 	quotaroot text,
+	unique_id text not null,
+	container_id int4 not null references t_container(id) ON UPDATE CASCADE  on delete cascade,
 	item_id int4 references t_container_item(id) on delete cascade UNIQUE
 );
 
 create index IF NOT EXISTS i_mailbox_replica on t_mailbox_replica (item_id);
+create index IF NOT EXISTS i_mailbox_replica_names on t_mailbox_replica (container_id, name);
 
 create table IF NOT EXISTS t_mailbox_record (
 	message_body_guid bytea not null, 

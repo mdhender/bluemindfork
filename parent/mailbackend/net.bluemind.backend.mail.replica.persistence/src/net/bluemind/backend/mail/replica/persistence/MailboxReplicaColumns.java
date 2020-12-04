@@ -30,6 +30,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplica.Acl;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.jdbc.Columns;
 import net.bluemind.core.jdbc.JdbcAbstractStore.EntityPopulator;
@@ -81,7 +82,7 @@ public class MailboxReplicaColumns {
 		};
 	}
 
-	public static StatementValues<MailboxReplica> values(final Item item) {
+	public static StatementValues<MailboxReplica> values(Container cont, final Item item) {
 		return new StatementValues<MailboxReplica>() {
 
 			@Override
@@ -104,8 +105,10 @@ public class MailboxReplicaColumns {
 				statement.setString(index++, value.options);
 				statement.setLong(index++, value.syncCRC);
 				statement.setString(index++, value.quotaRoot);
+				statement.setString(index++, item.uid);
+				statement.setLong(index++, cont.id);
 				statement.setLong(index++, item.id);
-				return 0;
+				return index;
 			}
 		};
 	}
