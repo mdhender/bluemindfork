@@ -11,7 +11,7 @@
             <bm-col class="d-none d-lg-block">
                 <bm-choice-group
                     ref="filterChoiceGroup"
-                    v-bm-tooltip.hover
+                    v-bm-tooltip
                     :options="filters"
                     :selected="filters[filterIndex]"
                     :aria-label="$t('mail.list.filter.aria')"
