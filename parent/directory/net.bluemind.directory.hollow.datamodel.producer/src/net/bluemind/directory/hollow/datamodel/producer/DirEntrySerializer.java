@@ -40,6 +40,8 @@ import net.bluemind.externaluser.api.ExternalUser;
 import net.bluemind.externaluser.api.IExternalUser;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
+import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
 import net.bluemind.resource.api.IResources;
@@ -100,7 +102,11 @@ public abstract class DirEntrySerializer {
 			ItemValue<ExternalUser> externalUser = provider().instance(IExternalUser.class, domainUid)
 					.getComplete(dirEntry.uid);
 			if (externalUser != null) {
-				ret = new ExternalUserSerializer(externalUser, dirEntry, domainUid);
+				ItemValue<Mailbox> mbox = provider().instance(IMailboxes.class, domainUid)
+						.byEmail(dirEntry.value.email);
+				if (mbox == null) {
+					ret = new ExternalUserSerializer(externalUser, dirEntry, domainUid);
+				}
 			}
 			break;
 		default:
