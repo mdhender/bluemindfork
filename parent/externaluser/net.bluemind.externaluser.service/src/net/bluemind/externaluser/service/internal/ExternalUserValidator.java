@@ -22,11 +22,14 @@ import com.google.common.base.Strings;
 import net.bluemind.core.api.ParametersValidator;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.email.EmailHelper;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.externaluser.api.ExternalUser;
+import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
 
 public class ExternalUserValidator {
 
@@ -51,9 +54,13 @@ public class ExternalUserValidator {
 		DirEntry dirEntry = bmContext.provider().instance(IDirectory.class, domainUid)
 				.getByEmail(eu.defaultEmailAddress());
 		if (dirEntry != null && !dirEntry.entryUid.equals(externalUserUid)) {
-			throw new ServerFault(
-					"Can't create external user: An entry with the same email address already exists in this domain",
-					ErrorCode.EMAIL_ALREADY_USED);
+			ItemValue<Mailbox> mbox = bmContext.provider().instance(IMailboxes.class, domainUid)
+					.byEmail(eu.defaultEmailAddress());
+			if (mbox != null) {
+				throw new ServerFault(
+						"Can't create external user: An entry with the same email address already exists in this domain",
+						ErrorCode.EMAIL_ALREADY_USED);
+			}
 		}
 	}
 }
