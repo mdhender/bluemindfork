@@ -65,7 +65,8 @@ import { mapState } from "vuex";
 
 import { DateComparator } from "@bluemind/date";
 import { BmButton, BmIcon, BmDropdown, BmDropdownItemToggle } from "@bluemind/styleguide";
-import ComposerActionsMixin from "../ComposerActionsMixin";
+
+import { ComposerActionsMixin } from "~mixins";
 import { MessageStatus } from "../../model/message";
 import { isInternalIdFaked } from "../../model/draft";
 

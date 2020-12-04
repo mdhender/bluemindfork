@@ -3,11 +3,12 @@ import { withAlert } from "../../helpers/withAlert";
 import { addFlag, deleteFlag, fetchMessageMetadata, moveMessages, removeMessages } from "./actions";
 import addAttachments from "./addAttachments";
 import removeAttachment from "./removeAttachment";
-import save from "./save";
+import { debouncedSave, saveAsap } from "./save";
 import send from "./send";
 import {
     ADD_ATTACHMENTS,
     ADD_FLAG,
+    DEBOUNCED_SAVE_MESSAGE,
     DELETE_FLAG,
     FETCH_MESSAGE_METADATA,
     MARK_MESSAGE_AS_FLAGGED,
@@ -35,6 +36,7 @@ const markAsUnflagged = ({ dispatch }, messages) => dispatch(DELETE_FLAG, { mess
 export default {
     [ADD_ATTACHMENTS]: addAttachments,
     [ADD_FLAG]: addFlag,
+    [DEBOUNCED_SAVE_MESSAGE]: debouncedSave,
     [DELETE_FLAG]: deleteFlag,
     [FETCH_MESSAGE_METADATA]: fetchMessageMetadata,
     [MARK_MESSAGE_AS_FLAGGED]: markAsFlagged,
@@ -49,6 +51,6 @@ export default {
     [MOVE_MESSAGES_TO_TRASH]: withAlert(moveMessages, MOVE_MESSAGES_TO_TRASH, "MoveMessages"),
     [REMOVE_ATTACHMENT]: removeAttachment,
     [REMOVE_MESSAGES]: withAlert(removeMessages, REMOVE_MESSAGES, "RemoveMessages"),
-    [SAVE_MESSAGE]: save,
+    [SAVE_MESSAGE]: saveAsap,
     [SEND_MESSAGE]: withAlert(send, SEND_MESSAGE, "SendMessage")
 };

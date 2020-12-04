@@ -1,23 +1,29 @@
 import { mailText2Html, MimeType } from "@bluemind/email";
 import { html2text } from "@bluemind/html-utils";
 
-export function setAddresses(structure) {
+export function setAddresses(structure, keepTmpAddress = false) {
+    const tmpAddresses = [];
     structure.address = "TEXT";
-    setAddressesForChildren(structure.children);
+    setAddressesForChildren(structure.children, keepTmpAddress, tmpAddresses);
+    return tmpAddresses;
 }
 
-function setAddressesForChildren(children, base = "") {
-    children
-        .filter(part => !isTemporaryPart(part))
-        .forEach((part, index) => {
+function setAddressesForChildren(children, keepTmpAddress, tmpAddresses, base = "") {
+    children.forEach((part, index) => {
+        const isAddressTemporary = isTemporaryPart(part);
+        if (isAddressTemporary) {
+            tmpAddresses.push(part.address);
+        }
+        if (!keepTmpAddress || !isAddressTemporary) {
             part.address = base ? base + "." + (index + 1) : index + 1 + "";
-            if (part.children) {
-                setAddressesForChildren(part.children, part.address);
-            }
-        });
+        }
+        if (part.children) {
+            setAddressesForChildren(part.children, keepTmpAddress, tmpAddresses, part.address);
+        }
+    });
 }
 
-export function isTemporaryPart(part) {
+function isTemporaryPart(part) {
     /*
      * if part is only uploaded, its address is an UID
      * if part is built in EML, its address is something like "1.1"

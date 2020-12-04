@@ -68,12 +68,12 @@ export function partialCopy(message, properties = []) {
 
 export const MessageStatus = {
     NOT_LOADED: "NOT-LOADED",
-    PENDING: "PENDING",
     LOADED: "LOADED",
     REMOVED: "REMOVED",
     SAVING: "SAVING",
     SAVE_ERROR: "SAVE_ERROR",
-    SENDING: "SENDING"
+    SENDING: "SENDING",
+    SENT: "SENT"
 };
 
 export const MessageCreationModes = {
@@ -98,22 +98,11 @@ export const MessageHeader = {
 export const MessageReplyAttributeSeparator = "data-bm-reply-separator";
 export const MessageForwardAttributeSeparator = "data-bm-forward-separator";
 
-export async function clean(partAddresses, newAttachments, service) {
-    const promises = [];
-    Object.keys(partAddresses).forEach(mimeType => {
-        partAddresses[mimeType].forEach(address => {
-            promises.push(service.removePart(address));
-        });
-    });
-    newAttachments.forEach(attachment => promises.push(service.removePart(attachment.address)));
-    return Promise.all(promises);
-}
-
-export function updateKey(message, internalId, folder) {
-    const newKey = ItemUri.encode(internalId, folder.key);
+export function updateKey(message, internalId, folderRef) {
+    const newKey = ItemUri.encode(internalId, folderRef.key);
     const newMessage = { ...message };
     newMessage.key = newKey;
     newMessage.remoteRef.internalId = internalId;
-    newMessage.folderRef = { key: folder.key, uid: folder.remoteRef.uid };
+    newMessage.folderRef = folderRef;
     return newMessage;
 }

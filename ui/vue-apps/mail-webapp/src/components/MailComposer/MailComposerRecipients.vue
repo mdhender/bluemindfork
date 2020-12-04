@@ -66,13 +66,15 @@
 
 <script>
 import debounce from "lodash/debounce";
+import { mapMutations, mapState } from "vuex";
 
 import { OrderBy } from "@bluemind/addressbook.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
 import { BmButton, BmCol, BmContactInput, BmIcon, BmRow } from "@bluemind/styleguide";
-import { mapMutations } from "vuex";
+
 import { SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~mutations";
+import { ComposerActionsMixin } from "~mixins";
 
 const recipientModes = { TO: 1, CC: 2, BCC: 4 }; // flags for the display mode of MailComposer's recipients fields
 
@@ -85,9 +87,10 @@ export default {
         BmIcon,
         BmRow
     },
+    mixins: [ComposerActionsMixin],
     props: {
-        message: {
-            type: Object,
+        messageKey: {
+            type: String,
             required: true
         },
         isReplyOrForward: {
@@ -103,12 +106,18 @@ export default {
              * displayedRecipientFields = (TO|CC|BCC) means we want to display all 3 fields
              * displayedRecipientFields = TO means we want to display TO field only
              */
-            displayedRecipientFields: this.computeDisplayedFields(), // FIXME: init it if a separator is detected in content
+            displayedRecipientFields: recipientModes.TO | recipientModes.CC | recipientModes.BCC,
             autocompleteResults: [],
             autocompleteResultsTo: [],
             autocompleteResultsCc: [],
             autocompleteResultsBcc: []
         };
+    },
+    computed: {
+        ...mapState("mail", ["messages"]),
+        message() {
+            return this.messages[this.messageKey];
+        }
     },
     watch: {
         autocompleteResults: function () {
@@ -117,18 +126,18 @@ export default {
             this.autocompleteResultsBcc = this.getAutocompleteResults("bcc");
         }
     },
+    mounted() {
+        this.displayedRecipientFields =
+            this.isReplyOrForward && this.message.cc.length === 0
+                ? recipientModes.TO
+                : recipientModes.TO | recipientModes.CC;
+    },
     methods: {
         ...mapMutations("mail", {
             SET_MESSAGE_TO,
             SET_MESSAGE_CC,
             SET_MESSAGE_BCC
         }),
-        computeDisplayedFields() {
-            if (this.isReplyOrForward && this.message.cc.length === 0) {
-                return recipientModes.TO;
-            }
-            return recipientModes.TO | recipientModes.CC;
-        },
         focus() {
             this.$refs.to.focus();
         },
@@ -169,15 +178,15 @@ export default {
         },
         updateTo(contacts) {
             this.SET_MESSAGE_TO({ messageKey: this.message.key, to: contacts });
-            this.$emit("save-draft");
+            this.debouncedSave();
         },
         updateCc(contacts) {
             this.SET_MESSAGE_CC({ messageKey: this.message.key, cc: contacts });
-            this.$emit("save-draft");
+            this.debouncedSave();
         },
         updateBcc(contacts) {
             this.SET_MESSAGE_BCC({ messageKey: this.message.key, bcc: contacts });
-            this.$emit("save-draft");
+            this.debouncedSave();
         }
     }
 };

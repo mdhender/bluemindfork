@@ -15,6 +15,7 @@
                 <bm-icon class="text-dark" icon="file-type-image" size="2x" />
                 <h2 class="text-center p-2">{{ $tc("mail.new.images.drop.zone", draggedFilesCount) }}</h2>
             </template>
+            <!-- FIXME: https://forge.bluemind.net/jira/browse/FEATWEBML-88
             <template v-if="userPrefTextOnly">
                 <bm-form-textarea
                     ref="message-content"
@@ -34,9 +35,8 @@
                 >
                     <bm-icon icon="3dots" size="sm" />
                 </bm-button>
-            </template>
+            </template> -->
             <bm-rich-editor
-                v-else
                 ref="message-content"
                 :value="messageCompose.editorContent"
                 :is-menu-bar-opened="userPrefIsMenuBarOpened"
@@ -60,12 +60,11 @@
 import { mapMutations, mapState } from "vuex";
 
 import ItemUri from "@bluemind/item-uri";
-import { BmButton, BmFileDropZone, BmIcon, BmFormTextarea, BmRichEditor } from "@bluemind/styleguide";
+import { BmButton, BmFileDropZone, BmIcon, BmRichEditor } from "@bluemind/styleguide";
 
 import { REMOVE_MESSAGES, SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~mutations";
 import { isInternalIdFaked } from "../../model/draft";
-import ComposerActionsMixin from "../ComposerActionsMixin";
-import ComposerInitMixin from "../ComposerInitMixin";
+import { ComposerActionsMixin, ComposerInitMixin } from "~mixins";
 
 export default {
     name: "MailComposerContent",
@@ -73,7 +72,6 @@ export default {
         BmButton,
         BmFileDropZone,
         BmIcon,
-        BmFormTextarea,
         BmRichEditor
     },
     mixins: [ComposerActionsMixin, ComposerInitMixin],
@@ -99,61 +97,43 @@ export default {
     watch: {
         messageKey: {
             handler: async function (newKey, oldKey) {
-                if (oldKey) {
+                if (oldKey && isInternalIdFaked(ItemUri.item(oldKey))) {
                     // when route changes due to an internalId update, preserve component state
-                    if (isInternalIdFaked(ItemUri.item(oldKey))) {
-                        this.REMOVE_MESSAGES([oldKey]); // delete obsolete message
-                        return;
-                    }
-                    this.cleanComposer();
+                    return;
                 }
                 if (!isInternalIdFaked(this.message.remoteRef.internalId)) {
                     await this.initFromRemoteMessage(this.message);
-                    this.updateHtmlComposer();
+                    await this.updateHtmlComposer();
+                    this.focus();
+                } else {
+                    await this.updateHtmlComposer();
                 }
-                await this.focus();
             },
             immediate: true
         }
-    },
-    destroyed() {
-        this.cleanComposer();
     },
     methods: {
         ...mapMutations("mail", [REMOVE_MESSAGES, SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT]),
         async updateEditorContent(newContent) {
             this.SET_DRAFT_EDITOR_CONTENT(newContent);
-            this.save();
+            this.debouncedSave();
         },
         async expandContent() {
             this.SET_DRAFT_EDITOR_CONTENT(this.messageCompose.editorContent + this.messageCompose.collapsedContent);
             this.SET_DRAFT_COLLAPSED_CONTENT(null);
-            await this.setCursorInEditor();
+            this.updateHtmlComposer();
         },
-        async setCursorInEditor() {
-            if (this.userPrefTextOnly) {
-                this.$refs["message-content"].focus();
-                this.$refs["message-content"].setSelectionRange(0, 0);
-            } else {
-                await this.updateHtmlComposer();
-                this.$refs["message-content"].focus("start");
-            }
+        focus() {
+            // FIXME: https://forge.bluemind.net/jira/browse/FEATWEBML-88
+            // if (this.userPrefTextOnly) {
+            //     this.$refs["message-content"].focus();
+            //     this.$refs["message-content"].setSelectionRange(0, 0);
+            // }
+            this.$refs["message-content"].focus("start");
         },
         async updateHtmlComposer() {
             await this.$nextTick();
             this.$refs["message-content"].updateContent();
-        },
-        cleanComposer() {
-            this.SET_DRAFT_EDITOR_CONTENT("");
-            this.SET_DRAFT_COLLAPSED_CONTENT(null);
-        },
-        async focus() {
-            if (this.message.to.length > 0) {
-                await this.setCursorInEditor();
-            } else {
-                await this.$nextTick();
-                this.$refs.recipients.focus();
-            }
         }
     }
 };

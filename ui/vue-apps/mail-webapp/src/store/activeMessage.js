@@ -1,3 +1,4 @@
+import { MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 
 import { FETCH_ACTIVE_MESSAGE_INLINE_PARTS } from "~actions";
@@ -23,8 +24,11 @@ export default {
             return Promise.all(
                 notLoaded.map(async part => {
                     const blob = await service.fetch(imapUid, part.address, part.encoding, part.mime, part.charset);
-                    const text = await convertAsText(blob, part);
-                    commit(SET_ACTIVE_MESSAGE_PART_DATA, { data: text, address: part.address });
+                    let converted =
+                        MimeType.isHtml(part) || MimeType.isText(part)
+                            ? await convertAsText(blob, part)
+                            : await convertToBase64(blob);
+                    commit(SET_ACTIVE_MESSAGE_PART_DATA, { data: converted, address: part.address });
                     return Promise.resolve();
                 })
             );
@@ -36,12 +40,22 @@ export default {
     }
 };
 
-function convertAsText(stream, part) {
+function convertAsText(blob, part) {
     return new Promise(resolve => {
         const reader = new FileReader();
-        reader.readAsText(stream, part.charset);
+        reader.readAsText(blob, part.charset);
         reader.addEventListener("loadend", e => {
             resolve(e.target.result);
         });
+    });
+}
+
+function convertToBase64(blob) {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    return new Promise(resolve => {
+        reader.onloadend = () => {
+            resolve(reader.result);
+        };
     });
 }

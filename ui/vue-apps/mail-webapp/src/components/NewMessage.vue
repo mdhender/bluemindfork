@@ -16,7 +16,7 @@
 </template>
 <script>
 import { BmButton, BmClipPath, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
-import ComposerInitMixin from "./ComposerInitMixin";
+import { ComposerInitMixin } from "~mixins";
 
 export default {
     name: "NewMessage",

@@ -1,0 +1,194 @@
+import { html2text, sanitizeHtml } from "@bluemind/html-utils";
+import { InlineImageHelper, PartsBuilder } from "@bluemind/email";
+import { inject } from "@bluemind/inject";
+
+import { isInternalIdFaked } from "../../../model/draft";
+import { AttachmentStatus, isAttachment } from "../../../model/attachment";
+import { MessageHeader, MessageStatus } from "../../../model/message";
+import { setAddresses } from "../../../model/part";
+import {
+    RESET_ATTACHMENTS_FORWARDED,
+    SET_MESSAGE_DATE,
+    SET_MESSAGE_HEADERS,
+    SET_MESSAGE_INTERNAL_ID,
+    SET_MESSAGE_IMAP_UID,
+    SET_MESSAGES_STATUS,
+    SET_SAVED_INLINE_IMAGES,
+    SET_ATTACHMENT_ADDRESS,
+    SET_ATTACHMENT_STATUS,
+    SET_MESSAGE_PREVIEW
+} from "~mutations";
+import MessageAdaptor from "../helpers/MessageAdaptor";
+import apiMessages from "../../api/apiMessages";
+
+export function isReadyToBeSaved(draft, messageCompose) {
+    const checkAttachments =
+        draft.attachments.every(a => a.status === AttachmentStatus.UPLOADED || a.status === AttachmentStatus.LOADED) ||
+        (isInternalIdFaked(draft.remoteRef.internalId) && messageCompose.forwardedAttachments.length > 0); // due to attachments forward cases
+    return draft.status === MessageStatus.LOADED && checkAttachments;
+}
+
+export async function save(context, draft, messageCompose) {
+    if (!draft || draft.status === MessageStatus.REMOVED) {
+        return;
+    }
+    console.log("start to save message");
+    try {
+        context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVING }]);
+
+        const service = inject("MailboxItemsPersistence", draft.folderRef.uid);
+        const structure = await prepareDraft(context, service, draft, messageCompose);
+        await createEmlOnServer(context, draft, service, messageCompose, structure);
+
+        context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.LOADED }]);
+    } catch (e) {
+        console.error(e);
+        context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVE_ERROR }]);
+    }
+}
+
+async function prepareDraft(context, service, draft, messageCompose) {
+    let editorContent = messageCompose.collapsedContent
+        ? messageCompose.editorContent + messageCompose.collapsedContent
+        : messageCompose.editorContent;
+    editorContent = sanitizeHtml(editorContent);
+
+    const insertionResult = InlineImageHelper.insertCid(editorContent, messageCompose.inlineImagesSaved);
+
+    const textHtml = sanitizeForCyrus(insertionResult.htmlWithCids);
+    const textPlain = sanitizeForCyrus(html2text(insertionResult.htmlWithCids));
+    context.commit(SET_MESSAGE_PREVIEW, { key: draft.key, preview: textPlain });
+    const addresses = await uploadParts(service, textPlain, textHtml, insertionResult.newContentByCid);
+
+    const newInlineImages = insertionResult.newParts.map((part, index) => ({
+        ...part,
+        address: addresses[index + 2]
+    }));
+    const inlineImages = insertionResult.alreadySaved.concat(newInlineImages);
+    context.commit(SET_SAVED_INLINE_IMAGES, inlineImages);
+
+    await handleAttachmentsForForward(draft, service, messageCompose, context.commit);
+
+    return createDraftStructure(addresses[0], addresses[1], draft.attachments, inlineImages);
+}
+
+async function createEmlOnServer(context, draft, service, messageCompose, structure) {
+    const { saveDate, headers } = forceMailRewriteOnServer(draft);
+    context.commit(SET_MESSAGE_HEADERS, { messageKey: draft.key, headers });
+    context.commit(SET_MESSAGE_DATE, { messageKey: draft.key, date: saveDate });
+
+    const remoteMessage = MessageAdaptor.toMailboxItem(draft, structure);
+    if (isInternalIdFaked(draft.remoteRef.internalId)) {
+        const internalId = (await service.create(remoteMessage)).id;
+        context.commit(SET_MESSAGE_INTERNAL_ID, { key: draft.key, internalId });
+
+        // FIXME: we should not need to make a multipleById request there..
+        const imapUid = (await apiMessages.multipleById([draft]))[0].remoteRef.imapUid;
+        context.commit(SET_MESSAGE_IMAP_UID, { key: draft.key, imapUid });
+    } else {
+        await service.updateById(draft.remoteRef.internalId, remoteMessage);
+
+        // FIXME: we should not need to make a multipleById request there..
+        const imapUid = (await apiMessages.multipleById([draft]))[0].remoteRef.imapUid;
+        context.commit(SET_MESSAGE_IMAP_UID, { key: draft.key, imapUid });
+    }
+
+    const tmpAddresses = updateAddresses(messageCompose, draft, structure, service, context.commit);
+    tmpAddresses.map(address => service.removePart(address));
+}
+
+// when attachments are forwarded, we have to upload them at first save
+async function handleAttachmentsForForward(draft, service, messageCompose, commit) {
+    if (
+        isInternalIdFaked(draft.remoteRef.internalId) &&
+        messageCompose.forwardedAttachments.length > 0 &&
+        draft.attachments.length >= messageCompose.forwardedAttachments.length
+    ) {
+        const addresses = await Promise.all(
+            messageCompose.forwardedAttachments.map(content => service.uploadPart(content))
+        );
+
+        addresses.forEach((newAddress, index) => {
+            const attachment = draft.attachments[index];
+            commit(SET_ATTACHMENT_ADDRESS, {
+                messageKey: draft.key,
+                oldAddress: attachment.address,
+                address: newAddress
+            });
+            commit(SET_ATTACHMENT_STATUS, {
+                messageKey: draft.key,
+                address: newAddress,
+                status: AttachmentStatus.UPLOADED
+            });
+        });
+
+        commit(RESET_ATTACHMENTS_FORWARDED);
+    }
+}
+
+function updateAddresses(messageCompose, draft, structure, service, commit) {
+    const tmpAddresses = setAddresses(structure);
+
+    // FIXME: this method dont work if attachments are not direct children
+    const attachmentAddresses = structure.children.filter(isAttachment).map(({ address }) => address);
+
+    draft.attachments.forEach((attachment, index) => {
+        commit(SET_ATTACHMENT_ADDRESS, {
+            messageKey: draft.key,
+            oldAddress: attachment.address,
+            address: attachmentAddresses[index]
+        });
+        commit(SET_ATTACHMENT_STATUS, {
+            messageKey: draft.key,
+            address: attachmentAddresses[index],
+            status: AttachmentStatus.LOADED
+        });
+    });
+    return tmpAddresses;
+}
+
+function uploadParts(service, textPlain, textHtml, newContentByCid) {
+    const promises = [];
+    promises.push(service.uploadPart(textPlain));
+    promises.push(service.uploadPart(textHtml));
+    promises.push(...Object.values(newContentByCid).map(imgContent => service.uploadPart(imgContent)));
+    return Promise.all(promises);
+}
+
+function createDraftStructure(textPlainAddress, textHtmlAddress, attachments, inlineImages) {
+    let structure;
+
+    const textPart = PartsBuilder.createTextPart(textPlainAddress);
+    const htmlPart = PartsBuilder.createHtmlPart(textHtmlAddress);
+    structure = PartsBuilder.createAlternativePart(textPart, htmlPart);
+    structure = PartsBuilder.createInlineImageParts(structure, inlineImages);
+    structure = PartsBuilder.createAttachmentParts(attachments, structure);
+
+    setAddresses(structure, true);
+
+    return structure;
+}
+
+function sanitizeForCyrus(text) {
+    return text.replace(/\r?\n/g, "\r\n");
+}
+
+/**
+ * Needed by BM core to detect if mail has changed when using IMailboxItems.updateById
+ */
+function forceMailRewriteOnServer(draft) {
+    const headers = JSON.parse(JSON.stringify(draft.headers));
+    const saveDate = new Date();
+
+    const hasXBmDraftKeyHeader = headers.find(header => header.name === MessageHeader.X_BM_DRAFT_REFRESH_DATE);
+    if (hasXBmDraftKeyHeader) {
+        hasXBmDraftKeyHeader.values = [saveDate.getTime()];
+    } else {
+        headers.push({
+            name: MessageHeader.X_BM_DRAFT_REFRESH_DATE,
+            values: [saveDate.getTime()]
+        });
+    }
+
+    return { saveDate, headers };
+}

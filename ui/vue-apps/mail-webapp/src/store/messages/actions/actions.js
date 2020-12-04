@@ -1,6 +1,6 @@
-import { MessageStatus, partialCopy } from "../../../model/message";
-import apiMessages from "../../api/apiMessages";
 import { MESSAGE_IS_LOADED } from "~getters";
+import { MessageStatus, partialCopy } from "~model/message";
+import apiMessages from "../../api/apiMessages";
 import { ADD_FLAG, ADD_MESSAGES, DELETE_FLAG, MOVE_MESSAGES, REMOVE_MESSAGES, SET_MESSAGES_STATUS } from "~mutations";
 
 export async function addFlag({ commit, getters }, { messages, flag }) {

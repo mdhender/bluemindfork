@@ -37,10 +37,10 @@
         </div>
         <bm-row v-if="seeMoreAttachments" class="ml-3 mr-1">
             <bm-col lg="4" cols="12">
-                <mail-attachment-item :attachment="attachments[0]" :message="message" :compact="true" />
+                <mail-attachment-item :attachment="attachments[0]" :message-key="message.key" :compact="true" />
             </bm-col>
             <bm-col lg="4" cols="12">
-                <mail-attachment-item :attachment="attachments[1]" :message="message" :compact="true" />
+                <mail-attachment-item :attachment="attachments[1]" :message-key="message.key" :compact="true" />
             </bm-col>
             <bm-col lg="4" cols="12" class="pt-2 border-transparent">
                 <bm-button
@@ -61,7 +61,7 @@
         </bm-row>
         <bm-row v-else class="ml-3 mr-1">
             <bm-col v-for="attachment in attachments" :key="attachment.address" lg="4" cols="12" :compact="!isExpanded">
-                <mail-attachment-item :attachment="attachment" :message="message" :compact="!isExpanded" />
+                <mail-attachment-item :attachment="attachment" :message-key="message.key" :compact="!isExpanded" />
             </bm-col>
         </bm-row>
         <!-- Save all button with i18n, please dont delete it 

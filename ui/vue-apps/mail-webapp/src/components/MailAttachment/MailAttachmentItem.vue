@@ -55,7 +55,7 @@
                         size="md"
                         :title="isCancellable ? $tc('common.cancel') : $tc('common.removeAttachment')"
                         :aria-label="isCancellable ? $tc('common.cancel') : $tc('common.removeAttachment')"
-                        @click="isCancellable ? cancel() : removeAttachment()"
+                        @click="isCancellable ? cancel() : removeAttachment(attachment.address)"
                     />
                 </bm-col>
             </bm-row>
@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapState } from "vuex";
 
 import { MimeType, computePreviewOrDownloadUrl } from "@bluemind/email";
 import { computeUnit } from "@bluemind/file-utils";
@@ -80,8 +80,7 @@ import global from "@bluemind/global";
 import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmProgress, BmButtonClose, BmNotice } from "@bluemind/styleguide";
 
 import { AttachmentStatus } from "../../model/attachment";
-import { MY_DRAFTS } from "~getters";
-import { REMOVE_ATTACHMENT } from "~actions";
+import { ComposerActionsMixin } from "~mixins";
 
 export default {
     name: "MailAttachmentItem",
@@ -95,13 +94,14 @@ export default {
         BmButtonClose,
         BmNotice
     },
+    mixins: [ComposerActionsMixin],
     props: {
         attachment: {
             type: Object,
             required: true
         },
-        message: {
-            type: Object,
+        messageKey: {
+            type: String,
             required: true
         },
         compact: {
@@ -111,8 +111,10 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", { MY_DRAFTS }),
-        ...mapState("mail", ["messageCompose"]),
+        ...mapState("mail", ["messages"]),
+        message() {
+            return this.messages[this.messageKey];
+        },
         isRemovable() {
             return this.message.composing;
         },
@@ -131,7 +133,9 @@ export default {
             return computeUnit(this.attachment.size);
         },
         hasPreview() {
-            return MimeType.previewAvailable(this.attachment.mime);
+            return (
+                MimeType.previewAvailable(this.attachment.mime) && this.attachment.status === AttachmentStatus.LOADED
+            );
         },
         errorMessage() {
             return this.attachment.status === AttachmentStatus.ERROR
@@ -153,22 +157,11 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", { REMOVE_ATTACHMENT }),
         cancel() {
             global.cancellers[this.attachment.address + this.message.key].cancel();
         },
         download() {
             location.assign(this.previewUrl);
-        },
-        removeAttachment() {
-            // FIXME userPrefTextOnly setting
-            this.REMOVE_ATTACHMENT({
-                messageKey: this.message.key,
-                attachmentAddress: this.attachment.address,
-                userPrefTextOnly: false,
-                myDraftsFolderKey: this.MY_DRAFTS.key,
-                messageCompose: this.messageCompose
-            });
         }
     }
 };

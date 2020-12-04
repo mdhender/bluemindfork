@@ -1,3 +1,4 @@
+// FIXME: must call part creator with some additional properties
 export function create(address, charset, fileName, encoding, mime, size, isUploaded) {
     let progress, status;
     if (!isUploaded) {
@@ -24,6 +25,7 @@ export function create(address, charset, fileName, encoding, mime, size, isUploa
 
 export const AttachmentStatus = {
     NOT_LOADED: "NOT-LOADED",
+    UPLOADED: "UPLOADED",
     LOADED: "LOADED",
     ERROR: "ERROR"
 };

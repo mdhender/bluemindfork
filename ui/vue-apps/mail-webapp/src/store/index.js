@@ -1,4 +1,4 @@
-import { state, actions, getters, mutations } from "./store";
+import { state, getters, mutations } from "./store";
 import activeMessage from "./activeMessage";
 import messageCompose from "./messageCompose";
 import folders from "./folders";
@@ -11,7 +11,6 @@ import selection from "./selection";
 
 export default {
     namespaced: true,
-    actions,
     state,
     getters,
     mutations,

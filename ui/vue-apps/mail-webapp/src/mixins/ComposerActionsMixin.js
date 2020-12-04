@@ -1,16 +1,21 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
-import { ADD_ATTACHMENTS, SAVE_MESSAGE, SEND_MESSAGE } from "~actions";
+import {
+    ADD_ATTACHMENTS,
+    DEBOUNCED_SAVE_MESSAGE,
+    REMOVE_ATTACHMENT,
+    REMOVE_MESSAGES,
+    SAVE_MESSAGE,
+    SEND_MESSAGE
+} from "~actions";
 import { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~getters";
 import { ADD_MESSAGES } from "~mutations";
 import { isInternalIdFaked } from "../model/draft";
-import { updateKey } from "../model/message";
+import { updateKey, MessageStatus } from "../model/message";
 
 /**
- * Contains logic regarding composition : call actions with right parameter, etc.
+ * Provide composition Vuex actions to components
  */
-const SAVE_DRAFT_DEBOUNCE_TIME = 3000;
-
 export default {
     props: {
         messageKey: {
@@ -36,39 +41,54 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", { $_ComposerActionsMixin_purge: "purge" }),
         ...mapActions("mail", {
             $_ComposerActionsMixin_ADD_ATTACHMENTS: ADD_ATTACHMENTS,
             $_ComposerActionsMixin_SAVE_MESSAGE: SAVE_MESSAGE,
-            $_ComposerActionsMixin_SEND_MESSAGE: SEND_MESSAGE
+            $_ComposerActionsMixin_SEND_MESSAGE: SEND_MESSAGE,
+            $_ComposerActionsMixin_DEBOUNCED_SAVE: DEBOUNCED_SAVE_MESSAGE,
+            $_ComposerActionsMixin_REMOVE_ATTACHMENT: REMOVE_ATTACHMENT,
+            $_ComposerActionsMixin_REMOVE_MESSAGES: REMOVE_MESSAGES
         }),
         ...mapMutations("mail", { $_ComposerActionsMixin_ADD_MESSAGES: ADD_MESSAGES }),
-        async save(hasDebounce = true) {
+        async debouncedSave() {
+            const wasMessageOnlyLocal = isInternalIdFaked(this.$_ComposerActionsMixin_message.remoteRef.internalId);
+            await this.$_ComposerActionsMixin_DEBOUNCED_SAVE({
+                draft: this.$_ComposerActionsMixin_message,
+                messageCompose: this.$_ComposerActionsMixin_messageCompose
+            });
+            this.updateRoute(wasMessageOnlyLocal);
+        },
+        async saveAsap() {
             const wasMessageOnlyLocal = isInternalIdFaked(this.$_ComposerActionsMixin_message.remoteRef.internalId);
             await this.$_ComposerActionsMixin_SAVE_MESSAGE({
-                userPrefTextOnly: this.userPrefTextOnly,
-                draftKey: this.$_ComposerActionsMixin_message.key,
-                myDraftsFolderKey: this.$_ComposerActionsMixin_MY_DRAFTS.key,
-                messageCompose: this.$_ComposerActionsMixin_messageCompose,
-                debounceTime: hasDebounce ? SAVE_DRAFT_DEBOUNCE_TIME : 0
+                draft: this.$_ComposerActionsMixin_message,
+                messageCompose: this.$_ComposerActionsMixin_messageCompose
             });
+            this.updateRoute(wasMessageOnlyLocal);
+        },
+        updateRoute(wasMessageOnlyLocal) {
             if (wasMessageOnlyLocal) {
                 const message = updateKey(
                     this.$_ComposerActionsMixin_message,
                     this.$_ComposerActionsMixin_message.remoteRef.internalId,
-                    this.$_ComposerActionsMixin_MY_DRAFTS
+                    this.$_ComposerActionsMixin_message.folderRef
                 );
+                message.status = MessageStatus.LOADED; // when internalId is changed, message still got "SAVING" status..
                 this.$_ComposerActionsMixin_ADD_MESSAGES([message]);
-
                 this.$router.navigate({ name: "v:mail:message", params: { message: message.key } });
             }
         },
         addAttachments(files) {
             this.$_ComposerActionsMixin_ADD_ATTACHMENTS({
-                messageKey: this.$_ComposerActionsMixin_message.key,
+                draft: this.$_ComposerActionsMixin_message,
                 files,
-                userPrefTextOnly: this.userPrefTextOnly,
-                myDraftsFolderKey: this.$_ComposerActionsMixin_MY_DRAFTS.key,
+                messageCompose: this.$_ComposerActionsMixin_messageCompose
+            });
+        },
+        removeAttachment(address) {
+            this.$_ComposerActionsMixin_REMOVE_ATTACHMENT({
+                messageKey: this.$_ComposerActionsMixin_message.key,
+                attachmentAddress: address,
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
             });
         },
@@ -86,14 +106,13 @@ export default {
                     autoFocusButton: "ok"
                 });
                 if (confirm) {
-                    this.$_ComposerActionsMixin_purge(this.$_ComposerActionsMixin_message.key);
+                    this.$_ComposerActionsMixin_REMOVE_MESSAGES([this.$_ComposerActionsMixin_message]);
                     this.$router.navigate("v:mail:home");
                 }
             }
         },
         send() {
             this.$_ComposerActionsMixin_SEND_MESSAGE({
-                userPrefTextOnly: this.userPrefTextOnly,
                 draftKey: this.$_ComposerActionsMixin_message.key,
                 myMailboxKey: this.$_ComposerActionsMixin_MY_MAILBOX_KEY,
                 outboxId: this.$_ComposerActionsMixin_MY_OUTBOX.remoteRef.internalId,

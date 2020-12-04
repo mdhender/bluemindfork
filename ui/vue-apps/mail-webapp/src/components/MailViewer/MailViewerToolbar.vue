@@ -38,8 +38,8 @@ import { mapState } from "vuex";
 
 import { BmButton, BmButtonToolbar, BmIcon } from "@bluemind/styleguide";
 
-import { MessageCreationModes } from "../../model/message";
-import ComposerInitMixin from "../ComposerInitMixin";
+import { MessageCreationModes } from "~model/message";
+import { ComposerInitMixin } from "~mixins";
 
 export default {
     name: "MailViewerToolbar",

@@ -24,9 +24,10 @@ function addHtmlSignature(raw, signatureContent) {
         signature.id = HTML_SIGNATURE_ID;
         fragment.firstElementChild.appendChild(document.createElement("br"));
         fragment.firstElementChild.appendChild(signature);
+        signature.innerHTML = signatureContent;
+        return fragment.firstElementChild.innerHTML;
     }
-    signature.innerHTML = signatureContent;
-    return fragment.firstElementChild.innerHTML;
+    return raw;
 }
 
 function htmlAsFragment(content) {

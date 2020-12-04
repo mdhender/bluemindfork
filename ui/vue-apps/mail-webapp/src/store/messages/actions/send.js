@@ -1,37 +1,31 @@
-import { Flag } from "@bluemind/email";
+import { EmailValidator, Flag } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import ItemUri from "@bluemind/item-uri";
 
-import { MessageStatus, MessageHeader, MessageCreationModes } from "../../../model/message";
-import { validateDraft } from "../../../model/draft";
 import { ADD_FLAG, SAVE_MESSAGE } from "~actions";
+import { MessageStatus, MessageHeader, MessageCreationModes } from "~model/message";
 import { SET_MESSAGES_STATUS } from "~mutations";
 import MessageAdaptor from "../helpers/MessageAdaptor";
 import { FolderAdaptor } from "../../folders/helpers/FolderAdaptor";
 
 /** Send the last draft: move it to the Outbox then flush. */
 export default async function (
-    { commit, dispatch, state },
-    { userPrefTextOnly, draftKey, myMailboxKey, outboxId, myDraftsFolder, sentFolder, messageCompose }
+    context,
+    { draftKey, myMailboxKey, outboxId, myDraftsFolder, sentFolder, messageCompose }
 ) {
-    const draft = state[draftKey];
+    const draft = context.state[draftKey];
 
-    await dispatch(SAVE_MESSAGE, {
-        userPrefTextOnly,
-        draftKey,
-        myDraftsFolderKey: myDraftsFolder.key,
-        messageCompose
-    });
+    await context.dispatch(SAVE_MESSAGE, { draft, messageCompose });
 
     let draftId = draft.remoteRef.internalId;
 
-    commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENDING }]);
+    context.commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENDING }]);
     validateDraft(draft, inject("i18n"));
     draftId = await moveToOutbox(draftId, myMailboxKey, outboxId, myDraftsFolder.remoteRef.internalId);
     const taskResult = await flush(); // flush means send mail + move to sentbox
-    commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.LOADED }]);
+    context.commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENT }]);
 
-    manageFlagOnPreviousMessage(draft, dispatch, state);
+    manageFlagOnPreviousMessage(context, draft);
 
     return await getSentMessage(taskResult, draftId, sentFolder);
 }
@@ -72,7 +66,7 @@ async function moveToOutbox(draftId, myMailboxKey, outboxId, myDraftsFolderId) {
     return moveResult.doneIds[0].destination;
 }
 
-function manageFlagOnPreviousMessage(draft, dispatch, state) {
+function manageFlagOnPreviousMessage({ dispatch, state }, draft) {
     const hasDraftInfoHeader = draft.headers.find(header => header.name === MessageHeader.X_BM_DRAFT_INFO);
     if (hasDraftInfoHeader) {
         const draftInfoHeader = JSON.parse(hasDraftInfoHeader.values[0]);
@@ -110,4 +104,12 @@ function retrieveTaskResult(taskService, delayTime = 500, maxTries = 60, iterati
             }
         }
     });
+}
+
+function validateDraft(draft, vueI18n) {
+    let recipients = draft.to.concat(draft.cc).concat(draft.bcc);
+    const allRecipientsAreValid = recipients.some(recipient => EmailValidator.validateAddress(recipient.address));
+    if (!allRecipientsAreValid) {
+        throw vueI18n.t("mail.error.email.address.invalid");
+    }
 }

@@ -1,3 +1,5 @@
+import UUIDGenerator from "@bluemind/uuid";
+
 import EmailExtractor from "./EmailExtractor";
 import EmailValidator from "./EmailValidator";
 import Flag from "./Flag";
@@ -33,4 +35,8 @@ export function computePreviewOrDownloadUrl(folderUid, imapUid, part) {
         baseUrl
     );
     return url.href.replace(baseUrl, "");
+}
+
+export function createCid() {
+    return "<" + UUIDGenerator.generate() + "@bluemind.net>";
 }

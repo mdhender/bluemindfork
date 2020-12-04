@@ -8,12 +8,14 @@ import { FETCH_ACTIVE_MESSAGE_INLINE_PARTS } from "~actions";
 import { MY_DRAFTS } from "~getters";
 import {
     ADD_MESSAGES,
+    SET_ATTACHMENTS_FORWARDED,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
     SET_SAVED_INLINE_IMAGES
 } from "~mutations";
 import { addSignature } from "../model/signature";
 import { getPartsFromCapabilities } from "../model/part";
+// FIXME: all those methods are helper of mixin, not model..
 import {
     addSeparator,
     COMPOSER_CAPABILITIES,
@@ -22,6 +24,7 @@ import {
     getEditorContent,
     handleSeparator
 } from "../model/draft";
+import { MessageCreationModes } from "../model/message";
 
 /**
  * Manage different cases of composer initialization
@@ -48,7 +51,8 @@ export default {
             $_ComposerInitMixin_ADD_MESSAGES: ADD_MESSAGES,
             $_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT: SET_DRAFT_COLLAPSED_CONTENT,
             $_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT: SET_DRAFT_EDITOR_CONTENT,
-            $_ComposerInitMixin_SET_SAVED_INLINE_IMAGES: SET_SAVED_INLINE_IMAGES
+            $_ComposerInitMixin_SET_SAVED_INLINE_IMAGES: SET_SAVED_INLINE_IMAGES,
+            $_ComposerInitMixin_SET_ATTACHMENTS_FORWARDED: SET_ATTACHMENTS_FORWARDED
         }),
 
         // case when user clicks on a message in MY_DRAFTS folder
@@ -103,6 +107,8 @@ export default {
                 content = addSignature(content, this.userPrefTextOnly, this.$_ComposerInitMixin_signature);
             }
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
+            this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(null);
+            this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
             return this.$router.navigate({ name: "v:mail:message", params: { message: message.key } });
         },
 
@@ -132,6 +138,7 @@ export default {
                 previousMessage,
                 this.$_ComposerInitMixin_activeMessage.partsDataByAddress
             );
+
             if (!this.userPrefTextOnly) {
                 const partsWithCid = parts.filter(part => MimeType.isImage(part) && part.contentId);
                 const insertionResult = await InlineImageHelper.insertAsBase64(
@@ -156,8 +163,29 @@ export default {
                     : "";
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(collapsed);
+            this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
+
+            if (creationMode === MessageCreationModes.FORWARD) {
+                const forwardedAttachments = await uploadAttachments(previousMessage);
+                this.$_ComposerInitMixin_SET_ATTACHMENTS_FORWARDED(forwardedAttachments);
+            }
 
             this.$router.navigate({ name: "v:mail:message", params: { message: message.key } });
         }
     }
 };
+
+function uploadAttachments(previousMessage) {
+    const service = inject("MailboxItemsPersistence", previousMessage.folderRef.uid);
+    return Promise.all(
+        previousMessage.attachments.map(attachment =>
+            service.fetch(
+                previousMessage.remoteRef.imapUid,
+                attachment.address,
+                attachment.encoding,
+                attachment.mime,
+                attachment.charset
+            )
+        )
+    );
+}

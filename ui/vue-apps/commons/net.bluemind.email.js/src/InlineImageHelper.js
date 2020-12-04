@@ -1,57 +1,69 @@
-import UUIDGenerator from "@bluemind/uuid";
-
 import { computePreviewOrDownloadUrl, WEBSERVER_HANDLER_BASE_URL } from "./index";
 
-const DATA_ATTRIBUTE_FOR_IMAP_ADDRESS = "data-bm-imap-address";
+const CID_DATA_ATTRIBUTE = "data-bm-cid";
 
 export default {
     async insertAsUrl(contentsWithCids, imageParts, folderUid, imapUid) {
         const getNewSrcFn = part => computePreviewOrDownloadUrl(folderUid, imapUid, part);
-        return insertInHtml(contentsWithCids, imageParts, false, getNewSrcFn);
+        return insertInHtml(contentsWithCids, imageParts, true, getNewSrcFn);
     },
 
     async insertAsBase64(contentsWithCids, imageParts, contentByAddress) {
         const getNewSrcFn = part => contentByAddress[part.address];
-        return insertInHtml(contentsWithCids, imageParts, true, getNewSrcFn);
+        return insertInHtml(contentsWithCids, imageParts, false, getNewSrcFn);
     },
 
-    insertCid(html, previousInlineImages) {
-        const newContentByCid = {},
-            newParts = [];
+    insertCid(html, inlineImagesSaved) {
+        const result = {
+            htmlWithCids: html,
+            newParts: [],
+            newContentByCid: {},
+            alreadySaved: []
+        };
 
-        // FIXME: use fragment and innerHtml instead of DOMParser.parseFromString
-        const imageTags = new DOMParser().parseFromString(html, "text/html").querySelectorAll("img[src]");
+        const imageTags = new DOMParser()
+            .parseFromString(result.htmlWithCids, "text/html")
+            .querySelectorAll("img[src]");
         imageTags.forEach(img => {
-            const dataSrc = img.src;
-            if (dataSrc.startsWith("data:image")) {
-                // new inlines
-                const cid = UUIDGenerator.generate() + "@bluemind.net";
+            const cid = img.attributes[CID_DATA_ATTRIBUTE].nodeValue;
+            const cidSrc = "cid:" + cid.slice(1, -1);
+            if (img.src.startsWith("data:image")) {
+                if (!isImgAlreadySaved(cid, inlineImagesSaved)) {
+                    const extractDataRegex = /data:image(.*)base64,/g;
+                    const metadatas = img.src.match(extractDataRegex)[0];
+                    const data = img.src.replace(metadatas, "");
+                    result.newParts.push({
+                        address: null,
+                        mime: metadatas.substring(5, metadatas.length - 8),
+                        dispositionType: "INLINE",
+                        encoding: "base64",
+                        contentId: cid
+                    });
+                    result.newContentByCid[cid] = convertData(data);
+                } else {
+                    result.alreadySaved.push(inlineImagesSaved.find(part => part.contentId === cid));
+                }
 
-                // modify tag.src instead (once base64 data are retrieved)
-                html = html.replace(dataSrc, "cid:" + cid);
-
-                const extractDataRegex = /data:image(.*)base64,/g;
-                const metadatas = dataSrc.match(extractDataRegex)[0];
-                const data = dataSrc.replace(metadatas, "");
-                // FIXME: use a part create function
-                newParts.push({
-                    address: null,
-                    mime: metadatas.substring(5, metadatas.length - 8),
-                    dispositionType: "INLINE",
-                    encoding: "base64",
-                    contentId: cid
-                });
-                newContentByCid[cid] = convertData(data);
-            } else if (dataSrc.startsWith(WEBSERVER_HANDLER_BASE_URL)) {
-                // already fetched inlines
-                const imapAddress = img.attributes.getNamedItem(DATA_ATTRIBUTE_FOR_IMAP_ADDRESS).nodeValue;
-                const cid = previousInlineImages.find(part => part.address === imapAddress).contentId;
-                html = html.replace(dataSrc, "cid:" + cid.substring(1, cid.length - 1));
+                result.htmlWithCids = result.htmlWithCids.replace(img.src, cidSrc);
+            } else if (img.attributes.src.nodeValue.startsWith(WEBSERVER_HANDLER_BASE_URL)) {
+                const encoded = encodeHtmlEntities(img.attributes.src.nodeValue);
+                result.alreadySaved.push(inlineImagesSaved.find(part => part.contentId === cid));
+                result.htmlWithCids = result.htmlWithCids.replace(encoded, cidSrc);
             }
         });
-        return { html, newParts, newContentByCid };
+        return result;
     }
 };
+
+function isImgAlreadySaved(cid, inlineImagesSaved) {
+    return inlineImagesSaved.findIndex(part => part.contentId === cid) !== -1;
+}
+
+function encodeHtmlEntities(str) {
+    let tmp = document.createElement("p");
+    tmp.innerHTML = str;
+    return tmp.innerHTML;
+}
 
 function convertData(b64Data) {
     const byteCharacters = atob(b64Data);
@@ -61,16 +73,6 @@ function convertData(b64Data) {
     }
     return new Uint8Array(byteNumbers);
 }
-
-// function convertToBase64(blob) {
-//     const reader = new FileReader();
-//     reader.readAsDataURL(blob);
-//     return new Promise(resolve => {
-//         reader.onloadend = () => {
-//             resolve(reader.result);
-//         };
-//     });
-// }
 
 /**
  * Replace the CID references found in htmlWithCids by the corresponding images.
@@ -82,7 +84,7 @@ function convertData(b64Data) {
  *          imageInlined: cids for which we found at least one reference in contents
  *          contentsWithImageInserted: modified contents
  */
-function insertInHtml(htmlWithCids = [], imageParts = [], removeImapAddress, getNewSrcFn) {
+function insertInHtml(htmlWithCids = [], imageParts = [], setImapAddress, getNewSrcFn) {
     const result = { imageInlined: [], contentsWithImageInserted: [] };
     const inlineReferenceRegex = /<img[^>]+?src\s*=\s*['"]cid:([^'"]*)['"][^>]*?>{1}?/gim;
 
@@ -98,7 +100,10 @@ function insertInHtml(htmlWithCids = [], imageParts = [], removeImapAddress, get
             );
 
             if (imagePart) {
-                const newSrc = getNewSrcFn(imagePart);
+                let newSrc = getNewSrcFn(imagePart);
+                if (setImapAddress) {
+                    newSrc += '" ' + CID_DATA_ATTRIBUTE + '="' + imagePart.contentId;
+                }
                 modifiedHtml = modifiedHtml.replace(replaceRegex, "$1" + newSrc + "$2");
                 result.imageInlined.push(imagePart);
             }

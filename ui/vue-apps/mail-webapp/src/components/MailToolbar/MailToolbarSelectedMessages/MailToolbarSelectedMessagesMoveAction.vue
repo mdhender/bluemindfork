@@ -78,7 +78,7 @@ import GlobalEvents from "vue-global-events";
 import { FolderAdaptor } from "../../../store/folders/helpers/FolderAdaptor";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailFolderInput from "../../MailFolderInput";
-import { MailboxType } from "../../../model/mailbox";
+import { MailboxType } from "~model/mailbox";
 import { MY_INBOX, MY_TRASH, FOLDER_BY_PATH } from "~getters";
 import MoveMixin from "../../../store/mixins/MoveMixin";
 

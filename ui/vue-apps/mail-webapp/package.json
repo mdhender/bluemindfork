@@ -6,7 +6,14 @@
     "main": "src/run.js",
     "license": "AGPL-3.0-only",
     "browser": {
-        "~/": "./src/",
+        "~mixins": "./src/mixins",
+        "~model/attachment": "./src/model/attachment",
+        "~model/draft": "./src/model/draft",
+        "~model/folder": "./src/model/folder",
+        "~model/mailbox": "./src/model/mailbox",
+        "~model/message": "./src/model/message",
+        "~model/part": "./src/model/part",
+        "~model/signature": "./src/model/signature",
         "~actions": "./src/store/types/actions",
         "~getters": "./src/store/types/getters",
         "~mutations": "./src/store/types/mutations"

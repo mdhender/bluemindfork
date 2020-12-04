@@ -29,7 +29,7 @@
             :aria-label="$tc('mail.actions.save.aria')"
             :title="$tc('mail.actions.save.aria')"
             :disabled="isSaving || isSending"
-            @click="save(false)"
+            @click="saveAsap"
         >
             <bm-icon icon="save" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.save") }}</span>
@@ -53,7 +53,7 @@ import { mapState } from "vuex";
 
 import { BmButton, BmIcon } from "@bluemind/styleguide";
 
-import ComposerActionsMixin from "../ComposerActionsMixin";
+import { ComposerActionsMixin } from "~mixins";
 import { MessageStatus } from "../../model/message";
 
 export default {

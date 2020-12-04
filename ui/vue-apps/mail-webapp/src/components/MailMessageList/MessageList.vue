@@ -71,6 +71,7 @@ import {
 } from "~getters";
 import { SELECT_MESSAGE, UNSELECT_MESSAGE, SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES } from "~mutations";
 import RemoveMixin from "../../store/mixins/RemoveMixin";
+import { MessageStatus } from "../../model/message";
 
 const PAGE = 9;
 
@@ -111,7 +112,7 @@ export default {
             return this.messageKeys
                 .slice(0, this.length)
                 .map(key => this.messages[key])
-                .filter(({ key }) => this.MESSAGE_IS_LOADED(key));
+                .filter(message => this.MESSAGE_IS_LOADED(message.key) || message.status === MessageStatus.SAVING);
         },
         currentMessage() {
             return this.messages[this.currentMessageKey];
@@ -179,16 +180,13 @@ export default {
             this.$router.navigate({ name: "v:mail:message", params: { message: key } });
             this.UNSELECT_ALL_MESSAGES();
         },
-        focusByKey(key) {
+        async focusByKey(key) {
             if (key) {
-                this.$nextTick(() => {
-                    const htmlElement = this.$refs["message-" + key];
-                    if (htmlElement && htmlElement[0] && htmlElement[0].$el) {
-                        htmlElement[0].$el.focus();
-                    } else {
-                        console.log("not in DOM..");
-                    }
-                });
+                await this.$nextTick();
+                const htmlElement = this.$refs["message-" + key];
+                if (htmlElement && htmlElement[0] && htmlElement[0].$el) {
+                    htmlElement[0].$el.focus();
+                }
                 this.lastFocusedMessage = key;
             }
         },

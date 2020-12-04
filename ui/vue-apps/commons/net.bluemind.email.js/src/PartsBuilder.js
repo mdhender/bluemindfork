@@ -58,9 +58,8 @@ function createRelatedPart(children) {
     };
 }
 
-function createInlineImageParts(structure, inlineImages, newAddresses) {
+function createInlineImageParts(structure, inlineImages) {
     if (inlineImages && inlineImages.length > 0) {
-        inlineImages.forEach(part => (part.address = part.address ? part.address : newAddresses.pop()));
         const childrenOfRelatedPart = [structure.children[1]].concat(inlineImages);
         structure.children[1] = createRelatedPart(childrenOfRelatedPart);
     }

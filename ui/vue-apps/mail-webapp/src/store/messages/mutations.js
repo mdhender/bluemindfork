@@ -20,6 +20,8 @@ import {
     SET_MESSAGE_HAS_ATTACHMENT,
     SET_MESSAGE_HEADERS,
     SET_MESSAGE_INTERNAL_ID,
+    SET_MESSAGE_IMAP_UID,
+    SET_MESSAGE_PREVIEW,
     SET_MESSAGE_LIST,
     SET_MESSAGE_SUBJECT,
     SET_MESSAGE_TO,
@@ -50,6 +52,9 @@ export default {
                 }
             });
         }
+    },
+    [SET_MESSAGE_PREVIEW]: (state, { key, preview }) => {
+        state[key].preview = preview;
     },
     [SET_MESSAGES_STATUS]: (state, messages) => {
         messages.forEach(m => (state[m.key].status = m.status));
@@ -83,6 +88,9 @@ export default {
     },
     [SET_MESSAGE_INTERNAL_ID]: (state, { key, internalId }) => {
         state[key].remoteRef.internalId = internalId;
+    },
+    [SET_MESSAGE_IMAP_UID]: (state, { key, imapUid }) => {
+        state[key].remoteRef.imapUid = imapUid;
     },
     [ADD_ATTACHMENT]: (state, { messageKey, attachment }) => {
         state[messageKey].attachments.push(attachment);

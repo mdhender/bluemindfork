@@ -2,8 +2,8 @@ import { inject } from "@bluemind/inject";
 import global from "@bluemind/global";
 import UUIDGenerator from "@bluemind/uuid";
 
-import { create, AttachmentStatus } from "../../../model/attachment";
-import { SAVE_MESSAGE } from "~actions";
+import { create, AttachmentStatus } from "~model/attachment";
+import { DEBOUNCED_SAVE_MESSAGE } from "~actions";
 import {
     ADD_ATTACHMENT,
     REMOVE_ATTACHMENT,
@@ -13,30 +13,25 @@ import {
     SET_ATTACHMENT_STATUS
 } from "~mutations";
 
-export default async function ({ commit, dispatch, state }, { messageKey, files, userPrefTextOnly, messageCompose }) {
-    const myDraftsFolderRef = state[messageKey].folderRef;
+export default async function ({ commit, dispatch, state }, { draft, files, messageCompose }) {
     if (files.length > 0) {
         const promises = [];
         for (let file of files) {
-            promises.push(addAttachment({ commit }, messageKey, file, myDraftsFolderRef.uid));
+            promises.push(addAttachment({ commit, state }, draft, file));
         }
         await Promise.all(promises);
 
-        return dispatch(SAVE_MESSAGE, {
-            userPrefTextOnly,
-            draftKey: messageKey,
-            myDraftsFolderKey: myDraftsFolderRef.key,
-            messageCompose
-        });
+        dispatch(DEBOUNCED_SAVE_MESSAGE, { draft, messageCompose });
     }
 }
 
-async function addAttachment({ commit, state }, messageKey, file, myDraftsFolderUid) {
+async function addAttachment({ commit }, draft, file) {
+    // default encoding and charset set by server
     const attachment = create(
         UUIDGenerator.generate(),
-        null,
+        "us-ascii",
         file.name,
-        null,
+        "base64",
         file.type || "application/octet-stream",
         file.size,
         false
@@ -44,27 +39,33 @@ async function addAttachment({ commit, state }, messageKey, file, myDraftsFolder
 
     // this will contain a function for cancelling the upload, do not store it in Vuex
     global.cancellers = global.cancellers || {};
-    global.cancellers[attachment.address + messageKey] = { cancel: undefined };
+    global.cancellers[attachment.address + draft.key] = { cancel: undefined };
 
     try {
         // this will make the attachment component appear in the UI
-        commit(ADD_ATTACHMENT, { messageKey, attachment });
-        commit(SET_MESSAGE_HAS_ATTACHMENT, { key: messageKey, hasAttachment: true });
+        commit(ADD_ATTACHMENT, { messageKey: draft.key, attachment });
+        commit(SET_MESSAGE_HAS_ATTACHMENT, { key: draft.key, hasAttachment: true });
 
-        const address = await inject("MailboxItemsPersistence", myDraftsFolderUid).uploadPart(
+        const service = inject("MailboxItemsPersistence", draft.folderRef.uid);
+        const address = await service.uploadPart(
             file,
-            global.cancellers[attachment.address + messageKey],
-            createOnUploadProgress(commit, messageKey, attachment)
+            global.cancellers[attachment.address + draft.key],
+            createOnUploadProgress(commit, draft.key, attachment)
         );
 
         commit(SET_ATTACHMENT_ADDRESS, {
-            messageKey,
+            messageKey: draft.key,
             oldAddress: attachment.address,
             address
         });
+        commit(SET_ATTACHMENT_STATUS, {
+            messageKey: draft.key,
+            address: attachment.address,
+            status: AttachmentStatus.UPLOADED
+        });
     } catch (event) {
         const error = event.target && event.target.error ? event.target.error : event;
-        handleError(commit, state, error, attachment, messageKey);
+        handleError(commit, draft, error, attachment);
     }
 }
 
@@ -79,22 +80,22 @@ function createOnUploadProgress(commit, messageKey, attachment) {
     };
 }
 
-function handleError(commit, state, error, attachment, messageKey) {
+function handleError(commit, draft, error, attachment) {
     if (error.message === "CANCELLED_BY_CLIENT") {
-        commit(REMOVE_ATTACHMENT, { messageKey, address: attachment.address });
+        commit(REMOVE_ATTACHMENT, { messageKey: draft.key, address: attachment.address });
         commit(SET_MESSAGE_HAS_ATTACHMENT, {
-            key: messageKey,
-            hasAttachment: state[messageKey].attachments.length > 0
+            key: draft.key,
+            hasAttachment: draft.attachments.length > 0
         });
     } else {
         commit(SET_ATTACHMENT_PROGRESS, {
-            messageKey,
+            messageKey: draft.key,
             address: attachment.address,
             loaded: 100,
             total: 100
         });
         commit(SET_ATTACHMENT_STATUS, {
-            messageKey,
+            messageKey: draft.key,
             address: attachment.address,
             status: AttachmentStatus.ERROR
         });

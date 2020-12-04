@@ -6,9 +6,8 @@
         <mail-composer-recipients
             ref="recipients"
             class="pl-3"
-            :message="message"
+            :message-key="messageKey"
             :is-reply-or-forward="!!messageCompose.collapsedContent"
-            @save-draft="save"
         />
         <bm-form-input
             :value="message.subject.trim()"
@@ -34,7 +33,11 @@
             </template>
             <mail-attachments-block v-if="message.attachments.length > 0" :message="message" expanded />
         </bm-file-drop-zone>
-        <mail-composer-content :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened" :message-key="messageKey" />
+        <mail-composer-content
+            ref="content"
+            :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
+            :message-key="messageKey"
+        />
         <mail-composer-footer
             :message-key="messageKey"
             :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
@@ -51,14 +54,15 @@ import { mapMutations, mapState } from "vuex";
 
 import { BmFormInput, BmForm, BmIcon, BmFileDropZone } from "@bluemind/styleguide";
 
-import ComposerActionsMixin from "../ComposerActionsMixin";
+import { ComposerActionsMixin } from "~mixins";
+import { SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT, UNSELECT_ALL_MESSAGES } from "~mutations";
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 import MailComposerContent from "./MailComposerContent";
 import MailComposerRecipients from "./MailComposerRecipients";
 import MailComposerFooter from "./MailComposerFooter";
-
-import { addSignature, isHtmlSignaturePresent, isTextSignaturePresent, removeSignature } from "../../model/signature";
-import { SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT, UNSELECT_ALL_MESSAGES } from "~mutations";
+import { addSignature, isHtmlSignaturePresent, isTextSignaturePresent, removeSignature } from "~model/signature";
+import { isInternalIdFaked } from "~model/draft";
+import { MessageStatus } from "../../model/message";
 
 export default {
     name: "MailComposer",
@@ -108,15 +112,31 @@ export default {
     created() {
         this.UNSELECT_ALL_MESSAGES();
     },
+    mounted() {
+        this.focus();
+    },
+    destroyed() {
+        if (!isInternalIdFaked(this.message.remoteRef.internalId) && this.message.status !== MessageStatus.REMOVED) {
+            this.saveAsap();
+        }
+    },
     methods: {
         ...mapMutations("mail", {
             SET_DRAFT_EDITOR_CONTENT,
             SET_MESSAGE_SUBJECT,
             UNSELECT_ALL_MESSAGES
         }),
+        async focus() {
+            await this.$nextTick();
+            if (this.message.to.length > 0) {
+                this.$refs.content.focus();
+            } else {
+                this.$refs.recipients.focus();
+            }
+        },
         updateSubject(subject) {
             this.SET_MESSAGE_SUBJECT({ messageKey: this.messageKey, subject });
-            this.save();
+            this.debouncedSave();
         },
         toggleSignature() {
             if (!this.isSignatureInserted) {
@@ -128,6 +148,7 @@ export default {
                     removeSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
                 );
             }
+            this.$refs.content.updateHtmlComposer();
         }
     }
 };
@@ -138,10 +159,6 @@ export default {
 
 .mail-composer {
     word-break: break-word !important;
-
-    .row {
-        min-height: fit-content;
-    }
 
     .mail-composer-splitter {
         border-top-color: $alternate-light;

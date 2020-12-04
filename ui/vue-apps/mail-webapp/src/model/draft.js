@@ -1,14 +1,15 @@
-import { EmailExtractor, EmailValidator, Flag, MimeType } from "@bluemind/email";
+import { EmailExtractor, Flag, MimeType } from "@bluemind/email";
 
+import { AttachmentStatus } from "./attachment";
 import {
     MessageHeader,
     // fetch,
     createWithMetadata as createMessage,
     MessageCreationModes,
     MessageForwardAttributeSeparator,
-    MessageReplyAttributeSeparator
+    MessageReplyAttributeSeparator,
+    MessageStatus
 } from "./message";
-// import { create as createAttachment } from "./attachment";
 import { mergePartsForRichEditor, mergePartsForTextarea } from "./part";
 import { removeSignatureIds } from "./signature";
 
@@ -16,58 +17,6 @@ const FAKED_INTERNAL_ID = "faked-internal-id";
 
 export function isInternalIdFaked(internalId) {
     return internalId === FAKED_INTERNAL_ID;
-}
-// FIXME once attachments are forwarded
-// export async function uploadAttachments(previousMessage, service) {
-//     const attachments = [];
-//     for (const attachment of previousMessage.attachments) {
-//         const stream = await fetch(previousMessage.remoteRef.imapUid, service, attachment, true);
-//         const address = await service.uploadPart(stream);
-//         attachments.push(
-//             createAttachment(
-//                 address,
-//                 attachment.charset,
-//                 attachment.fileName,
-//                 attachment.encoding,
-//                 attachment.mime,
-//                 attachment.size,
-//                 true
-//             )
-//         );
-//     }
-//     return attachments;
-// }
-
-export function sanitizeForCyrus(text) {
-    return text.replace(/\r?\n/g, "\r\n");
-}
-
-/**
- * Needed by BM core to detect if mail has changed when using IMailboxItems.updateById
- */
-export function forceMailRewriteOnServer(draft) {
-    const headers = JSON.parse(JSON.stringify(draft.headers));
-    const saveDate = new Date();
-
-    const hasXBmDraftKeyHeader = headers.find(header => header.name === MessageHeader.X_BM_DRAFT_REFRESH_DATE);
-    if (hasXBmDraftKeyHeader) {
-        hasXBmDraftKeyHeader.values = [saveDate.getTime()];
-    } else {
-        headers.push({
-            name: MessageHeader.X_BM_DRAFT_REFRESH_DATE,
-            values: [saveDate.getTime()]
-        });
-    }
-
-    return { saveDate, headers };
-}
-
-export function validateDraft(draft, vueI18n) {
-    let recipients = draft.to.concat(draft.cc).concat(draft.bcc);
-    const allRecipientsAreValid = recipients.some(recipient => EmailValidator.validateAddress(recipient.address));
-    if (!allRecipientsAreValid) {
-        throw vueI18n.t("mail.error.email.address.invalid");
-    }
 }
 
 export function createEmpty(myDraftsFolder, userSession) {
@@ -83,7 +32,9 @@ export function createEmpty(myDraftsFolder, userSession) {
         dn: userSession.formatedName
     };
     message.flags = [Flag.SEEN];
+    message.status = MessageStatus.LOADED;
     message.composing = true;
+    message.remoteRef.imapUid = "1"; // faked imapUid because updateById needs it
     return message;
 }
 
@@ -105,6 +56,12 @@ export function createReplyOrForward(previousMessage, myDraftsFolder, userSessio
             userSession.formatedName
         );
         message.cc = computeCcRecipients(creationMode, previousMessage);
+    }
+    if (creationMode === MessageCreationModes.FORWARD) {
+        message.attachments = previousMessage.attachments.map(attachment => ({
+            ...attachment,
+            status: AttachmentStatus.NOT_LOADED
+        }));
     }
 
     message.subject = computeSubject(creationMode, previousMessage);
@@ -197,7 +154,6 @@ export function computeSubject(creationMode, previousMessage) {
     return previousMessage.subject;
 }
 
-// FIXME: refactor ..
 export function getEditorContent(userPrefTextOnly, parts, message, partsDataByAddress) {
     let content;
     if (userPrefTextOnly) {
@@ -214,8 +170,8 @@ export function handleSeparator(content) {
 
     const doc = new DOMParser().parseFromString(content, "text/html");
     const separator =
-        doc.querySelector("div[" + MessageReplyAttributeSeparator + "]") ||
-        doc.querySelector("div[" + MessageForwardAttributeSeparator + "]");
+        doc.querySelector('div[id="' + MessageReplyAttributeSeparator + '"]') ||
+        doc.querySelector('div[id="' + MessageForwardAttributeSeparator + '"]');
 
     if (separator) {
         collapsed = separator.outerHTML;
@@ -260,10 +216,8 @@ export function addSeparator(content, previousMessage, creationMode, userPrefTex
     newContent = separator + newContent;
 
     if (!userPrefTextOnly) {
-        const attribute = MessageCreationModes.FORWARD
-            ? MessageForwardAttributeSeparator
-            : MessageReplyAttributeSeparator;
-        newContent = "<p " + attribute + ">" + removeSignatureIds(newContent) + "</p>";
+        const id = MessageCreationModes.FORWARD ? MessageForwardAttributeSeparator : MessageReplyAttributeSeparator;
+        newContent = '<div id="' + id + '">' + removeSignatureIds(newContent) + "</div>";
     }
     return newContent;
 }

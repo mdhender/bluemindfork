@@ -42,7 +42,7 @@ export default {
                 recipients: buildRecipients(local),
                 messageId: local.messageId,
                 references: local.references,
-                structure
+                structure: structure
             },
             imapUid: local.remoteRef.imapUid,
             flags: local.flags
