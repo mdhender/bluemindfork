@@ -47,12 +47,6 @@
       </serviceFactory>
    </extension>
    <extension
-         point="net.bluemind.system.schemaupgrader.javacode">
-      <java
-            code="net.bluemind.system.ldap.importation.upg.UpgradeExtId">
-      </java>
-   </extension>
-   <extension
          point="net.bluemind.user.passwordupdater">
       <password_updater
             impl="net.bluemind.system.ldap.importation.hooks.LdapPasswordUpdater"
