@@ -76,7 +76,7 @@ public class FakeMetricsSockets extends AbstractVerticle {
 				resp.appendString(s + ".hprof,meterType=Gauge value=0\n");
 				resp.appendString(s + ".jvm.nonHeapMemory.used,meterType=Gauge value=48054344\n");
 				req.response().end(resp);
-				System.err.println("resp sent for " + s);
+				// System.err.println("resp sent for " + s);
 			});
 
 			srv.listen(addr, result -> {
@@ -87,6 +87,22 @@ public class FakeMetricsSockets extends AbstractVerticle {
 				}
 			});
 		}
+
+		String blockSock = dir + "/metrics-blocking.sock";
+		SocketAddress addr = SocketAddress.domainSocketAddress(blockSock);
+		HttpServer srv = vertx.createHttpServer(new HttpServerOptions().setTcpNoDelay(true));
+
+		srv.requestHandler(req -> {
+			// just block
+		});
+
+		srv.listen(addr, result -> {
+			if (result.failed()) {
+				result.cause().printStackTrace();
+			} else {
+				System.err.println("Blocking socket on " + addr);
+			}
+		});
 	}
 
 }

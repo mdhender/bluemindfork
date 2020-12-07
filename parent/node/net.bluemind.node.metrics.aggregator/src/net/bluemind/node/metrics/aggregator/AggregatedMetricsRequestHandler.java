@@ -50,7 +50,9 @@ public class AggregatedMetricsRequestHandler implements Handler<HttpServerReques
 
 	public AggregatedMetricsRequestHandler(Vertx vertx, Path path) {
 		this.metricsPath = path;
-		this.httpClient = vertx.createHttpClient(new HttpClientOptions());
+		HttpClientOptions opts = new HttpClientOptions();
+		opts.setConnectTimeout(1000).setIdleTimeout(1000);
+		this.httpClient = vertx.createHttpClient(opts);
 	}
 
 	@Override
@@ -70,12 +72,15 @@ public class AggregatedMetricsRequestHandler implements Handler<HttpServerReques
 					CompletableFuture<Void> ret = new CompletableFuture<>();
 					httpClient.request(HttpMethod.GET, sock, unixSockReqOpts, clientResponse -> {
 						clientResponse.exceptionHandler(t -> {
-							logger.error("Error with sock {}", sock, t);
+							logger.error("Resp error with sock {}", sock, t);
 							ret.complete(null);
 						});
 						Pump pump = Pump.pump(clientResponse, resp);
 						clientResponse.endHandler(v -> ret.complete(null));
 						pump.start();
+					}).setTimeout(1000).exceptionHandler(t -> {
+						logger.error("Req error with sock {}", sock, t);
+						ret.complete(null);
 					}).end();
 					return ret;
 				});
