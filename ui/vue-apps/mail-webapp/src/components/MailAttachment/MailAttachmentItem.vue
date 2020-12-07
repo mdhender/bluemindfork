@@ -5,7 +5,7 @@
             :class="isDownloadable ? 'cursor-pointer' : ''"
             @click="isDownloadable ? download() : null"
         >
-            <div class="px-1 text-center">
+            <div v-if="!compact" class="px-1 text-center">
                 <img
                     v-if="hasPreview && attachment.contentUrl"
                     :src="attachment.contentUrl"
@@ -124,6 +124,11 @@ export default {
         message: {
             type: Object,
             required: true
+        },
+        compact: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
     computed: {

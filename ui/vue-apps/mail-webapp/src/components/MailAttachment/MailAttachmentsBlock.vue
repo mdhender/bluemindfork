@@ -37,13 +37,13 @@
             </template>
         </div>
         <bm-row v-if="seeMoreAttachments" class="ml-3 mr-1">
-            <bm-col cols="4">
-                <mail-attachment-item :attachment="attachments[0]" :message="message" />
+            <bm-col lg="4" cols="12">
+                <mail-attachment-item :attachment="attachments[0]" :message="message" :compact="true" />
             </bm-col>
-            <bm-col cols="4">
-                <mail-attachment-item :attachment="attachments[1]" :message="message" />
+            <bm-col lg="4" cols="12">
+                <mail-attachment-item :attachment="attachments[1]" :message="message" :compact="true" />
             </bm-col>
-            <bm-col cols="4" class="pt-2 border-transparent">
+            <bm-col lg="4" cols="12" class="pt-2 border-transparent">
                 <bm-button
                     v-bm-tooltip
                     variant="outline-secondary"
@@ -62,8 +62,8 @@
             </bm-col>
         </bm-row>
         <bm-row v-else class="ml-3 mr-1">
-            <bm-col v-for="attachment in attachments" :key="attachment.address" cols="4">
-                <mail-attachment-item :attachment="attachment" :message="message" />
+            <bm-col v-for="attachment in attachments" :key="attachment.address" lg="4" cols="12" :compact="!isExpanded">
+                <mail-attachment-item :attachment="attachment" :message="message" :compact="!isExpanded" />
             </bm-col>
         </bm-row>
         <!-- Save all button with i18n, please dont delete it 
@@ -187,7 +187,8 @@ export default {
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
 
-.mail-attachments-block .col-4 {
+.mail-attachments-block .col-4,
+.mail-attachments-block .col-lg-4 {
     padding-right: $sp-1 !important;
     padding-left: $sp-1 !important;
 }
