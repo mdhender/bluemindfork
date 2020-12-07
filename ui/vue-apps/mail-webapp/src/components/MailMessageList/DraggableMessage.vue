@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { BmTooltip, BmDraggable } from "@bluemind/styleguide";
+import { BmDraggable } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
 import MailMessageListItemShadow from "./MailMessageListItemShadow";
 import MessageListItem from "./MessageListItem";
@@ -34,7 +34,6 @@ export default {
         BmDraggable,
         MessageListItem
     },
-    directives: { BmTooltip },
     mixins: [MoveMixin],
     props: {
         message: {

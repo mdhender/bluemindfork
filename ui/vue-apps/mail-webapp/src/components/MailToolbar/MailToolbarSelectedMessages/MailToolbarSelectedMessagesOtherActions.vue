@@ -1,6 +1,5 @@
 <template>
     <bm-dropdown
-        v-bm-tooltip.bottom
         :no-caret="true"
         variant="inline-light"
         :aria-label="$tc('mail.toolbar.more.aria')"
@@ -20,7 +19,7 @@
 </template>
 
 <script>
-import { BmDropdown, BmDropdownItem, BmIcon, BmTooltip } from "@bluemind/styleguide";
+import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
 import { mapState } from "vuex";
 import RemoveMixin from "../../../store/mixins/RemoveMixin";
 
@@ -31,7 +30,6 @@ export default {
         BmDropdownItem,
         BmIcon
     },
-    directives: { BmTooltip },
     mixins: [RemoveMixin],
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),

@@ -12,7 +12,7 @@
             class="flex-fill"
             :class="folder.unread > 0 ? 'font-weight-bold' : ''"
         />
-        <div v-if="!folder.writable" v-bm-tooltip.top.viewport :title="$t('mail.folder.access.limited')" class="pr-1">
+        <div v-if="!folder.writable" :title="$t('mail.folder.access.limited')" class="pr-1">
             <bm-icon icon="info-circle" />
         </div>
         <mail-folder-item-menu
@@ -45,7 +45,7 @@
 
 <script>
 import { mapActions, mapMutations, mapState } from "vuex";
-import { BmCounterBadge, BmDropzone, BmIcon, BmTooltip } from "@bluemind/styleguide";
+import { BmCounterBadge, BmDropzone, BmIcon } from "@bluemind/styleguide";
 import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItemMenu from "./MailFolderItemMenu";
@@ -63,7 +63,6 @@ export default {
         MailFolderInput,
         MailFolderItemMenu
     },
-    directives: { BmTooltip },
     props: {
         folderKey: {
             type: String,

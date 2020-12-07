@@ -25,14 +25,13 @@
                     <bm-icon :icon="fileTypeIcon" size="2x" class="align-bottom pt-1" />
                 </bm-col>
                 <bm-col class="text-nowrap text-truncate flex-grow-1 px-1" :class="{ muted: !isUploaded }">
-                    <span v-bm-tooltip :title="attachment.fileName" class="font-weight-bold">{{ fileName }} </span>
+                    <span :title="attachment.fileName" class="font-weight-bold">{{ fileName }} </span>
                     <br />
                     {{ fileSize }}
                 </bm-col>
                 <bm-col class="col-auto py-1">
                     <bm-button
                         v-if="isDownloadable"
-                        v-bm-tooltip
                         variant="light"
                         class="p-0"
                         size="md"
@@ -49,7 +48,6 @@
                     </bm-button>
                     <bm-button-close
                         v-if="isRemovable"
-                        v-bm-tooltip
                         variant="light"
                         class="p-0"
                         size="md"
@@ -85,17 +83,7 @@ import { MimeType } from "@bluemind/email";
 import { computeUnit } from "@bluemind/file-utils";
 import { inject } from "@bluemind/inject";
 import global from "@bluemind/global";
-import {
-    BmButton,
-    BmCol,
-    BmContainer,
-    BmIcon,
-    BmRow,
-    BmTooltip,
-    BmProgress,
-    BmButtonClose,
-    BmNotice
-} from "@bluemind/styleguide";
+import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmProgress, BmButtonClose, BmNotice } from "@bluemind/styleguide";
 
 import { AttachmentStatus } from "../../model/attachment";
 import { fetch } from "../../model/message";
@@ -115,7 +103,6 @@ export default {
         BmButtonClose,
         BmNotice
     },
-    directives: { BmTooltip },
     props: {
         attachment: {
             type: Object,

@@ -3,15 +3,11 @@
         <bm-nav-item-dropdown right offset="5" class="bm-dropdown-info-dark">
             <template slot="button-content">
                 <bm-avatar :alt="user.displayname" class="flex-shrink-0" width="2em" />
-                <span v-bm-tooltip.left class="pr-4 username text-truncate m-auto" :title="user.displayname">
+                <span class="pr-4 username text-truncate m-auto">
                     {{ user.displayname }}
                 </span>
             </template>
-            <bm-dropdown-item
-                v-bm-tooltip.left="$t('banner.menu.settings.aria')"
-                :aria-label="$t('banner.menu.settings.aria')"
-                @click="TOGGLE_SETTINGS()"
-            >
+            <bm-dropdown-item :title="$t('banner.menu.settings.aria')" @click="TOGGLE_SETTINGS()">
                 <bm-label-icon icon="preferences">{{ $t("common.settings") }} </bm-label-icon>
             </bm-dropdown-item>
             <bm-dropdown-item href="/bluemind_sso_logout">
@@ -22,7 +18,7 @@
 </template>
 
 <script>
-import { BmAvatar, BmDropdownItem, BmLabelIcon, BmNavbarNav, BmNavItemDropdown, BmTooltip } from "@bluemind/styleguide";
+import { BmAvatar, BmDropdownItem, BmLabelIcon, BmNavbarNav, BmNavItemDropdown } from "@bluemind/styleguide";
 import { mapMutations } from "vuex";
 
 export default {
@@ -34,7 +30,6 @@ export default {
         BmNavbarNav,
         BmNavItemDropdown
     },
-    directives: { BmTooltip },
     props: {
         user: {
             required: true,

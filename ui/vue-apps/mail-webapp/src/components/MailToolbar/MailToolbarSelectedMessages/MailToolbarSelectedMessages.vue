@@ -2,7 +2,6 @@
     <div class="mail-toolbar-consult-message">
         <bm-button
             v-show="displayMarkAsRead"
-            v-bm-tooltip.bottom
             variant="inline-light"
             class="unread btn-lg-simple-dark"
             :title="$tc('mail.actions.mark_read.aria', selection.length || 1)"
@@ -14,7 +13,6 @@
         </bm-button>
         <bm-button
             v-show="displayMarkAsUnread"
-            v-bm-tooltip.bottom
             variant="inline-light"
             class="read btn-lg-simple-dark"
             :title="$tc('mail.actions.mark_unread.aria', selection.length || 1)"
@@ -29,7 +27,6 @@
         />
         <bm-button
             v-show="!selectionHasReadOnlyFolders"
-            v-bm-tooltip.bottom
             variant="inline-light"
             class="btn-lg-simple-dark"
             :title="$tc('mail.actions.remove.aria')"
@@ -42,7 +39,6 @@
         </bm-button>
         <bm-button
             v-show="displayMarkAsFlagged"
-            v-bm-tooltip.bottom
             variant="inline-light"
             class="flagged btn-lg-simple-dark"
             :title="$tc('mail.actions.mark_flagged.aria', selection.length)"
@@ -54,7 +50,6 @@
         </bm-button>
         <bm-button
             v-show="displayMarkAsUnflagged"
-            v-bm-tooltip.bottom
             variant="inline-light"
             class="unflagged btn-lg-simple-dark"
             :title="$tc('mail.actions.mark_unflagged.aria', selection.length)"
@@ -70,7 +65,7 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
+import { BmButton, BmIcon } from "@bluemind/styleguide";
 import { Flag } from "@bluemind/email";
 import MailToolbarSelectedMessagesMoveAction from "./MailToolbarSelectedMessagesMoveAction";
 import MailToolbarSelectedMessagesOtherActions from "./MailToolbarSelectedMessagesOtherActions";
@@ -106,7 +101,6 @@ export default {
         MailToolbarSelectedMessagesMoveAction,
         MailToolbarSelectedMessagesOtherActions
     },
-    directives: { BmTooltip },
     mixins: [RemoveMixin],
     computed: {
         ...mapGetters("mail", {

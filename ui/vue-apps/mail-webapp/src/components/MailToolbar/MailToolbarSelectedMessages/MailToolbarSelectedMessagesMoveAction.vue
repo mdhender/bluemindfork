@@ -1,7 +1,6 @@
 <template>
     <bm-dropdown
         ref="move-dropdown"
-        v-bm-tooltip.bottom
         no-caret
         class="h-100 move-message"
         variant="inline-light"
@@ -27,7 +26,6 @@
             @keydown.esc.native="resetPattern"
         >
             <bm-dropdown-item-button
-                v-bm-tooltip.left
                 class="text-nowrap text-truncate w-100"
                 :title="$tc('mail.actions.move.item', 1, { path: item.path })"
                 @click="selectFolder(item)"
@@ -41,7 +39,6 @@
         <bm-dropdown-divider />
         <bm-dropdown-form
             v-if="pattern === ''"
-            v-bm-tooltip.left
             class="new-folder position-relative"
             :aria-label="$t('mail.actions.create.folder')"
             :title="$t('mail.actions.create.folder')"
@@ -57,7 +54,6 @@
         </bm-dropdown-form>
         <bm-dropdown-item-button
             v-else-if="displayCreateFolderBtnFromPattern"
-            v-bm-tooltip.left
             :aria-label="$tc('mail.actions.move.item', 1, { path: pattern })"
             :title="$tc('mail.actions.move.item', 1, { path: pattern })"
             icon="plus"
@@ -75,8 +71,7 @@ import {
     BmDropdownDivider,
     BmDropdownForm,
     BmDropdownItemButton,
-    BmIcon,
-    BmTooltip
+    BmIcon
 } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
@@ -100,7 +95,6 @@ export default {
         MailFolderIcon,
         MailFolderInput
     },
-    directives: { BmTooltip },
     mixins: [MoveMixin],
     data() {
         return {

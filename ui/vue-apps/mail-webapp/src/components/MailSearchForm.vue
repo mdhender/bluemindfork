@@ -17,7 +17,7 @@
             </bm-form-input>
             <bm-button
                 ref="toggleButton"
-                v-bm-tooltip
+                :title="$t('common.searchAdvanced')"
                 class="toggle-button no-border-left no-box-shadow text-truncate"
                 variant="outline-secondary"
                 @click="showForm = !showForm"
@@ -82,8 +82,7 @@ import {
     BmFormGroup,
     BmFormInput,
     BmIcon,
-    BmToggle,
-    BmTooltip
+    BmToggle
 } from "@bluemind/styleguide";
 import { mapGetters, mapMutations, mapState } from "vuex";
 import debounce from "lodash.debounce";
@@ -111,8 +110,7 @@ export default {
         GlobalEvents
     },
     directives: {
-        BmToggle,
-        BmTooltip
+        BmToggle
     },
     data() {
         return {

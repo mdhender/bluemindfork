@@ -2,7 +2,6 @@
     <bm-container class="mail-attachments-block p-2 bg-extra-light">
         <div class="d-flex align-items-center">
             <bm-button
-                v-bm-tooltip
                 variant="inline-dark"
                 :aria-label="$t('common.toggleAttachments')"
                 :title="$t('common.toggleAttachments')"
@@ -45,7 +44,6 @@
             </bm-col>
             <bm-col lg="4" cols="12" class="pt-2 border-transparent">
                 <bm-button
-                    v-bm-tooltip
                     variant="outline-secondary"
                     class="w-100 h-100 py-2"
                     :title="$t('common.toggleAttachments')"
@@ -82,7 +80,7 @@
 import { mapMutations, mapState } from "vuex";
 
 import { displayWithUnit } from "@bluemind/file-utils";
-import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmTooltip, BmProgress } from "@bluemind/styleguide";
+import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmProgress } from "@bluemind/styleguide";
 
 import MailAttachmentItem from "./MailAttachmentItem";
 import { SET_ATTACHMENT_CONTENT_URL } from "~mutations";
@@ -98,7 +96,6 @@ export default {
         BmRow,
         MailAttachmentItem
     },
-    directives: { BmTooltip },
     props: {
         message: {
             type: Object,

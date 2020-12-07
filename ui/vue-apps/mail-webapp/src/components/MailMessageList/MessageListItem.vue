@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { BmListGroupItem, BmTooltip } from "@bluemind/styleguide";
+import { BmListGroupItem } from "@bluemind/styleguide";
 import { Flag } from "@bluemind/email";
 import { mapGetters, mapState } from "vuex";
 import MessageListItemLeft from "./MessageListItemLeft";
@@ -45,7 +45,6 @@ export default {
         MessageListItemQuickActionButtons,
         ScreenReaderOnlyMessageInformation
     },
-    directives: { BmTooltip },
     props: {
         message: {
             type: Object,

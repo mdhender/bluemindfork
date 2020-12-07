@@ -2,10 +2,8 @@
     <mail-message-list-empty v-if="currentFolder" :image="emptyFolderIllustration" class="content-empty-folder">
         {{ $t("mail.folder") }}
         <mail-folder-icon
-            v-bm-tooltip.viewport
             :shared="CURRENT_MAILBOX.type == 'mailshares'"
             :folder="currentFolder"
-            :title="currentFolder.name"
             class="font-weight-bold"
         />
         {{ $t("mail.empty") }}
@@ -13,7 +11,6 @@
 </template>
 
 <script>
-import { BmTooltip } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
 import emptyFolderIllustration from "../../../assets/empty-folder.png";
 import MailFolderIcon from "../MailFolderIcon";
@@ -26,7 +23,6 @@ export default {
         MailFolderIcon,
         MailMessageListEmpty
     },
-    directives: { BmTooltip },
     data() {
         return {
             emptyFolderIllustration

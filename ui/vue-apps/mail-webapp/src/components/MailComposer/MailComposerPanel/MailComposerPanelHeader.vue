@@ -1,17 +1,16 @@
 <template>
     <div class="mail-composer-panel-header card-header d-flex justify-content-between align-items-center rounded-top">
-        <span v-bm-tooltip.hover.ds500 class="text-nowrap text-truncate" :title="title">{{ title }}</span>
+        <span class="text-nowrap text-truncate" :title="title">{{ title }}</span>
         <bm-button-close v-if="closeable" text-variant="light" @click="$emit('remove')" />
     </div>
 </template>
 
 <script>
-import { BmButtonClose, BmTooltip } from "@bluemind/styleguide";
+import { BmButtonClose } from "@bluemind/styleguide";
 
 export default {
     name: "MailComposerPanelHeader",
     components: { BmButtonClose },
-    directives: { BmTooltip },
     props: {
         title: {
             type: String,

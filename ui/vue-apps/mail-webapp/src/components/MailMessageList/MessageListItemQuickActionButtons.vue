@@ -3,7 +3,6 @@
         <bm-button-group>
             <bm-button
                 v-if="folderOfMessage.writable"
-                v-bm-tooltip.top.viewport
                 :aria-label="$tc('mail.actions.remove.aria')"
                 :title="$tc('mail.actions.remove.aria')"
                 class="p-1 mr-2"
@@ -15,7 +14,6 @@
             </bm-button>
             <bm-button
                 v-if="!message.flags.includes(Flag.SEEN)"
-                v-bm-tooltip.top.viewport
                 class="p-1"
                 :aria-label="$tc('mail.actions.mark_read.aria')"
                 :title="$tc('mail.actions.mark_read.aria')"
@@ -26,7 +24,6 @@
             </bm-button>
             <bm-button
                 v-else
-                v-bm-tooltip.top.viewport
                 class="p-1"
                 :aria-label="$tc('mail.actions.mark_unread.aria')"
                 :title="$tc('mail.actions.mark_unread.aria')"
@@ -38,7 +35,6 @@
             <template v-if="folderOfMessage.writable">
                 <bm-button
                     v-if="!message.flags.includes(Flag.FLAGGED)"
-                    v-bm-tooltip.top.viewport
                     class="p-1 ml-2"
                     :aria-label="$tc('mail.actions.mark_flagged.aria')"
                     :title="$tc('mail.actions.mark_flagged.aria')"
@@ -49,7 +45,6 @@
                 </bm-button>
                 <bm-button
                     v-else
-                    v-bm-tooltip.top.viewport
                     class="p-1 ml-2"
                     :aria-label="$tc('mail.actions.mark_unflagged.aria')"
                     :title="$tc('mail.actions.mark_unflagged.aria')"
@@ -64,7 +59,7 @@
 </template>
 
 <script>
-import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
+import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
 import { Flag } from "@bluemind/email";
 import { MY_TRASH } from "~getters";
@@ -84,7 +79,6 @@ export default {
         BmButton,
         BmIcon
     },
-    directives: { BmTooltip },
     mixins: [RemoveMixin],
     props: {
         message: {

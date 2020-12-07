@@ -24,6 +24,7 @@
     "common.sort_by": "sort by",
     "common.date": "Date",
     "common.search": "Search",
+    "common.searchAdvanced": "Advanced search",
     "common.searching": "Searching...",
     "common.messages": "0 message | 1 message | {count} messages",
     "common.message": "message",

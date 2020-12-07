@@ -4,7 +4,6 @@
         class="mail-viewer-toolbar float-right mail-viewer-mobile-actions bg-white position-sticky"
     >
         <bm-button
-            v-bm-tooltip
             variant="simple-primary"
             :aria-label="$t('mail.content.reply.aria')"
             :title="$t('mail.content.reply.aria')"
@@ -14,7 +13,6 @@
             <span class="d-lg-none">{{ $t("mail.content.reply.aria") }}</span>
         </bm-button>
         <bm-button
-            v-bm-tooltip
             variant="simple-primary"
             :aria-label="$t('mail.content.reply_all.aria')"
             :title="$t('mail.content.reply_all.aria')"
@@ -24,7 +22,6 @@
             <span class="d-lg-none">{{ $t("mail.content.reply_all.aria") }}</span>
         </bm-button>
         <bm-button
-            v-bm-tooltip
             variant="simple-primary"
             :aria-label="$t('mail.content.forward.aria')"
             :title="$t('mail.content.forward.aria')"
@@ -39,7 +36,7 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 
-import { BmButton, BmButtonToolbar, BmIcon, BmTooltip } from "@bluemind/styleguide";
+import { BmButton, BmButtonToolbar, BmIcon } from "@bluemind/styleguide";
 
 import { MessageCreationModes } from "../../model/message";
 import { CREATE_MESSAGE } from "~actions";
@@ -52,7 +49,6 @@ export default {
         BmButtonToolbar,
         BmIcon
     },
-    directives: { BmTooltip },
     data() {
         return {
             MessageCreationModes

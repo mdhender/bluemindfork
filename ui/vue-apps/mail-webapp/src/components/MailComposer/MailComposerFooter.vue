@@ -19,12 +19,7 @@
             </bm-button>
         </div>
         <div class="d-flex align-items-center toolbar">
-            <span
-                v-if="errorOccuredOnSave"
-                v-bm-tooltip.bottom
-                class="pr-2 text-danger"
-                :title="$t('mail.draft.save.error.reason')"
-            >
+            <span v-if="errorOccuredOnSave" class="pr-2 text-danger" :title="$t('mail.draft.save.error.reason')">
                 <!-- trick: modify the viewBox attribute to have a correct vertical alignment -->
                 <!-- eslint-disable-next-line vue/attribute-hyphenation -->
                 <bm-icon icon="exclamation-circle" class="mr-1" viewBox="0 -1 12 12" />{{ saveMessage }}
@@ -32,7 +27,6 @@
             <span v-else class="text-muted pr-2">{{ saveMessage }}</span>
             <bm-button
                 v-if="!userPrefTextOnly"
-                v-bm-tooltip.left
                 variant="simple-dark"
                 :aria-label="textFormatterLabel"
                 :title="textFormatterLabel"
@@ -51,7 +45,6 @@
                 @change="$emit('add-attachments', $event.target.files)"
             />
             <bm-button
-                v-bm-tooltip.bottom
                 variant="simple-dark"
                 :aria-label="$tc('mail.actions.attach.aria')"
                 :title="$tc('mail.actions.attach.aria')"
@@ -74,7 +67,7 @@
 
 <script>
 import { DateComparator } from "@bluemind/date";
-import { BmButton, BmIcon, BmTooltip, BmDropdown, BmDropdownItemToggle } from "@bluemind/styleguide";
+import { BmButton, BmIcon, BmDropdown, BmDropdownItemToggle } from "@bluemind/styleguide";
 import { MessageStatus } from "../../model/message";
 import { mapState } from "vuex";
 
@@ -86,7 +79,6 @@ export default {
         BmDropdownItemToggle,
         BmIcon
     },
-    directives: { BmTooltip },
     props: {
         userPrefTextOnly: {
             type: Boolean,

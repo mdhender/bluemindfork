@@ -1,7 +1,6 @@
 <template>
     <div>
         <bm-button
-            v-bm-tooltip.bottom
             variant="inline-light"
             class="btn-lg-simple-dark"
             :aria-label="$tc('mail.actions.send.aria')"
@@ -13,7 +12,6 @@
             <span class="d-none d-lg-block">{{ $tc("mail.actions.send") }}</span>
         </bm-button>
         <bm-button
-            v-bm-tooltip.bottom
             variant="inline-light"
             class="btn-lg-simple-dark"
             :aria-label="$tc('mail.actions.attach.aria')"
@@ -40,7 +38,6 @@
             "
         />
         <bm-button
-            v-bm-tooltip.bottom
             variant="inline-light"
             class="btn-lg-simple-dark"
             :aria-label="$tc('mail.actions.save.aria')"
@@ -59,7 +56,6 @@
             <span class="d-none d-lg-block">{{ $tc("mail.actions.save") }}</span>
         </bm-button>
         <bm-button
-            v-bm-tooltip.bottom
             variant="inline-light"
             class="btn-lg-simple-dark"
             :aria-label="$tc('mail.actions.remove.compose.aria')"
@@ -76,7 +72,7 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 
-import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
+import { BmButton, BmIcon } from "@bluemind/styleguide";
 
 import { MessageStatus, isEmpty } from "../../model/message";
 import { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~getters";
@@ -88,7 +84,6 @@ export default {
         BmButton,
         BmIcon
     },
-    directives: { BmTooltip },
     data() {
         return {
             userPrefTextOnly: false // TODO: initialize this with user setting

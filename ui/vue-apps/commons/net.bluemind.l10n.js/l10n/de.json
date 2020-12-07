@@ -24,6 +24,7 @@
     "common.sort_by": "sortieren",
     "common.date": "Datum",
     "common.search": "Suche",
+    "common.searchAdvanced": "Erweiterte Suche",
     "common.searching": "Suche...",
     "common.messages": "0 Emails | 1 Email | {count} Emails",
     "common.message": "Email",

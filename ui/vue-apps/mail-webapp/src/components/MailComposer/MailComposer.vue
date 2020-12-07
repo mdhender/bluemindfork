@@ -133,7 +133,6 @@ import {
     BmIcon,
     BmRichEditor,
     BmRow,
-    BmTooltip,
     BmFileDropZone
 } from "@bluemind/styleguide";
 
@@ -177,7 +176,6 @@ export default {
         MailComposerRecipients,
         MailAttachmentsBlock
     },
-    directives: { BmTooltip },
     props: {
         messageKey: {
             type: String,

@@ -11,7 +11,6 @@
             <bm-col class="d-none d-lg-block">
                 <bm-choice-group
                     ref="filterChoiceGroup"
-                    v-bm-tooltip
                     :options="filters"
                     :selected="filters[filterIndex]"
                     :aria-label="$t('mail.list.filter.aria')"
@@ -23,7 +22,7 @@
 </template>
 
 <script>
-import { BmCheck, BmCol, BmRow, BmChoiceGroup, BmTooltip } from "@bluemind/styleguide";
+import { BmCheck, BmCol, BmRow, BmChoiceGroup } from "@bluemind/styleguide";
 import { mapState, mapGetters } from "vuex";
 import { TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
 import { ALL_MESSAGES_ARE_SELECTED, SELECTION_IS_EMPTY } from "~getters";
@@ -37,7 +36,6 @@ export default {
         BmRow,
         BmChoiceGroup
     },
-    directives: { BmTooltip },
     data() {
         return {
             TOGGLE_SELECTION_ALL

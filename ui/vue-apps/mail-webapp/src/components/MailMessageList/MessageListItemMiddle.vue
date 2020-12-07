@@ -4,11 +4,7 @@
             <div v-if="MY_DRAFTS.key === message.folderRef.key" class="text-danger mx-1 font-italic">
                 [{{ $t("common.folder.draft") }}]
             </div>
-            <div
-                v-bm-tooltip.viewport
-                :title="fromOrTo"
-                class="mail-message-list-item-sender h3 text-dark text-truncate flex-fill"
-            >
+            <div :title="fromOrTo" class="mail-message-list-item-sender h3 text-dark text-truncate flex-fill">
                 {{ fromOrTo }}
             </div>
             <div v-if="MESSAGE_LIST_IS_SEARCH_MODE && !mouseIn" class="d-flex slide">
@@ -27,15 +23,10 @@
         </div>
         <div class="d-flex flex-row">
             <div class="d-flex flex-column flex-fill overflow-hidden">
-                <div
-                    v-bm-tooltip.viewport
-                    :title="displayedSubject"
-                    class="mail-message-list-item-subject text-secondary text-truncate"
-                >
+                <div :title="displayedSubject" class="mail-message-list-item-subject text-secondary text-truncate">
                     {{ displayedSubject }}
                 </div>
                 <div
-                    v-bm-tooltip.viewport
                     :title="displayedPreview"
                     class="mail-message-list-item-preview text-dark text-condensed text-truncate"
                 >
@@ -55,7 +46,7 @@
 </template>
 
 <script>
-import { BmIcon, BmTooltip } from "@bluemind/styleguide";
+import { BmIcon } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
 import { Flag } from "@bluemind/email";
 import { mapGetters, mapState } from "vuex";
@@ -85,7 +76,6 @@ const FLAG_COMPONENT = {
 
 export default {
     name: "MessageListItemMiddle",
-    directives: { BmTooltip },
     components: { BmIcon, MailFolderIcon },
     props: {
         message: {

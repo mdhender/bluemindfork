@@ -7,7 +7,6 @@
     >
         <bm-button
             id="all-apps-popover"
-            v-bm-tooltip
             variant="inline-light"
             class="px-3 align-self-center"
             :title="$t('banner.reach.all_apps')"
@@ -40,7 +39,7 @@
                 </bm-col>
             </bm-row>
         </bm-popover>
-        <bm-navbar-brand v-bm-tooltip href="#" :to="logoLink" :title="$t('banner.main.brand')">
+        <bm-navbar-brand href="#" :to="logoLink" :title="$t('banner.main.brand')">
             <!-- eslint-disable-next-line vue/no-v-html -->
             <svg height="30" width="120" v-html="logo" />
         </bm-navbar-brand>
@@ -50,7 +49,6 @@
         </div>
         <component :is="widget.component" v-for="widget in widgets" :key="widget.component" />
         <a
-            v-bm-tooltip
             href="https://forge.bluemind.net/confluence/display/BM4/La+messagerie"
             target="_blank"
             :title="$t('banner.reach.help')"
@@ -67,17 +65,7 @@ import BannerL10N from "../../../l10n/banner/";
 import BmBannerApplications from "./BmBannerApplications";
 import BmAppIcon from "../BmAppIcon";
 import BmBannerUser from "./BmBannerUser";
-import {
-    BmButton,
-    BmCol,
-    BmIcon,
-    BmLogo,
-    BmNavbar,
-    BmNavbarBrand,
-    BmPopover,
-    BmRow,
-    BmTooltip
-} from "@bluemind/styleguide";
+import { BmButton, BmCol, BmIcon, BmLogo, BmNavbar, BmNavbarBrand, BmPopover, BmRow } from "@bluemind/styleguide";
 
 export default {
     name: "BmBanner",
@@ -93,7 +81,6 @@ export default {
         BmPopover,
         BmRow
     },
-    directives: { BmTooltip },
     componentI18N: { messages: BannerL10N },
     props: {
         applications: {
