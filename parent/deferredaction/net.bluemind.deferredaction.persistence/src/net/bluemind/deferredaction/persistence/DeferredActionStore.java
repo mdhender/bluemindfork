@@ -80,7 +80,7 @@ public class DeferredActionStore extends AbstractItemValueStore<DeferredAction> 
 	@Override
 	public void deleteAll() throws SQLException {
 		delete("DELETE FROM " + TABLE_NAME
-				+ " WHERE item_id IN (SELECT id FROM t_container_item WHERE container_id = ?)",
+				+ " USING t_container_item WHERE item_id = t_container_item.id AND container_id = ?",
 				new Object[] { container.id });
 	}
 
