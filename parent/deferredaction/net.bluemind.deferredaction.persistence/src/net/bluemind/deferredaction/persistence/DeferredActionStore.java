@@ -87,11 +87,13 @@ public class DeferredActionStore extends AbstractItemValueStore<DeferredAction> 
 	public List<Long> getByActionId(String actionId, Date to) throws SQLException {
 		StringBuilder query = new StringBuilder("SELECT ").append("item_id");
 		query.append(" FROM ").append(TABLE_NAME);
+		query.append(" JOIN t_container_item ci ON (ci.id = item_id) ");
 		query.append(" WHERE ").append("action_id = ?");
+		query.append(" AND ").append("container_id = ?");
 		query.append(" AND ").append("execution_date <= ?");
 		Timestamp executionDate = new Timestamp(to.getTime());
 		return select(query.toString(), LongCreator.FIRST, Collections.emptyList(),
-				new Object[] { actionId, executionDate });
+				new Object[] { actionId, container.id, executionDate });
 	}
 
 	public List<Long> getByReference(String reference) throws SQLException {
