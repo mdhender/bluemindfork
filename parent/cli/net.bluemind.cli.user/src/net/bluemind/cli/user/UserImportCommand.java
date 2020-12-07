@@ -112,7 +112,7 @@ public class UserImportCommand extends SingleOrDomainOperation {
 			FileUtils.delete(tempDir.toFile());
 		}
 	}
-
+	
 	private void extractArchive(Path archivePath, Path tempDir) throws IOException {
 
 		try (InputStream in = Files.newInputStream(archivePath)) {
@@ -276,14 +276,18 @@ public class UserImportCommand extends SingleOrDomainOperation {
 
 	private void importMail(ItemValue<DirEntry> de, Path directory) {
 		String type = directory.getFileName().toString();
-
+		String filename = directory.getFileName().toString();
+		
 		ctx.info("Importing mail " + type);
 		String login = ctx.adminApi().instance(IUser.class, domainUid).getComplete(de.uid).value.login;
-
-		String cyrusPath = "/var/spool/cyrus/" + type + "/" + de.value.dataLocation + "__" + domainUid.replace('.', '_')
-				+ "/domain/" + domainUid.charAt(0) + "/" + domainUid + "/" + firstLetterMailbox(login) + "/user/"
-				+ login.replace('.', '^');
-
+		
+		char firstDomainLetter= (Character.isLetter(domainUid.charAt(0))) ? domainUid.charAt(0) : 'q';
+		
+		String basePath = filename.equalsIgnoreCase("data") || filename.equalsIgnoreCase("meta") ? "/var/spool/cyrus/" + filename : "/var/spool/bm-hsm/cyrus-archives"; 
+		String cyrusPath = basePath + "/" + de.value.dataLocation + "__" + domainUid.replace('.', '_')
+					+ "/domain/" + firstDomainLetter + "/" + domainUid + "/" + firstLetterMailbox(login) + "/user/"
+					+ login.replace('.', '^');
+		
 		copyEmails(de, directory, cyrusPath);
 	}
 
