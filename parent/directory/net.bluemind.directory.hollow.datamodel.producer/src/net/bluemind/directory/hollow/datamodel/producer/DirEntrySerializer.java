@@ -23,6 +23,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
@@ -62,6 +65,8 @@ public abstract class DirEntrySerializer {
 		ThumbnailPhoto, postOfficeBox, AddressBookManagerDistinguishedName, Kind, DataLocation, Created, Updated, Hidden
 
 	}
+
+	final static Logger logger = LoggerFactory.getLogger(DirEntrySerializer.class);
 
 	protected final ItemValue<DirEntry> dirEntry;
 	protected final String domainUid;
@@ -104,8 +109,12 @@ public abstract class DirEntrySerializer {
 			if (externalUser != null) {
 				ItemValue<Mailbox> mbox = provider().instance(IMailboxes.class, domainUid)
 						.byEmail(dirEntry.value.email);
+				logger.info("External user found {},  mailbox exists? {}", dirEntry.value.email, mbox != null);
 				if (mbox == null) {
 					ret = new ExternalUserSerializer(externalUser, dirEntry, domainUid);
+				} else {
+					logger.warn("Skip external user {}. Email conflicts with internal dirEntry {}", dirEntry.uid,
+							dirEntry.value.email);
 				}
 			}
 			break;
