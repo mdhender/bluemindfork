@@ -69,7 +69,7 @@ CREATE INDEX ON t_message_body_purge_queue (created, message_body_guid);
 
 CREATE OR REPLACE FUNCTION trigger_message_record_purge() RETURNS trigger AS
 $$
-DECLARE
+BEGIN
 	IF TG_OP = 'DELETE' THEN
 		-- Find references to other t_mailbox_record
 		-- we want to add to the purge body queue unreferenced messages
