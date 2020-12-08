@@ -1,5 +1,6 @@
 package net.bluemind.pimp;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,12 +50,18 @@ public class PimpMyRam implements IApplication {
 		}
 	}
 
-	private void writePg(String tpl) {
-		try (InputStream in = PimpMyRam.class.getClassLoader().getResourceAsStream("data/pg/" + tpl)) {
-			File tgt = new File("/etc/postgresql/12/main/postgresql.conf.local");
-			byte[] data = ByteStreams.toByteArray(in);
-			Files.write(data, tgt);
-			logger.info("PostgreSQL memory configured with template {}", tpl);
+	private void writePg(String tplName) {
+		try (InputStream in = PimpMyRam.class.getClassLoader().getResourceAsStream("data/pg/" + tplName);
+				ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+			logger.info("PostgreSQL memory configured with template {}", tplName);
+
+			bos.write(
+					"# DO NOT MODIFY\n# OVERWRITED BY bm-pimp\n# use postgresql.conf.local for specific configuration\n"
+							.getBytes());
+			bos.write(ByteStreams.toByteArray(in));
+
+			Files.write(bos.toByteArray(), new File("/etc/postgresql/12/main/postgresql.conf.pimp"));
+			logger.info("PostgreSQL memory configured");
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		}

@@ -98,6 +98,9 @@ public class PostgreSQLService {
 		logger.info(".. stop postgresql");
 		NCUtils.execOrFail(nc, "service postgresql stop");
 
+		logger.info(".. touch postgresql.conf.pimp");
+		NCUtils.execOrFail(nc, "touch " + PG_CONF_PATH + "/postgresql.conf.pimp");
+
 		logger.info(".. touch postgresql.conf.local");
 		NCUtils.execOrFail(nc, "touch " + PG_CONF_PATH + "/postgresql.conf.local");
 
