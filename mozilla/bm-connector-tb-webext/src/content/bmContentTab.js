@@ -156,6 +156,9 @@ specialTabs.bmTabType = {
             if (!win.tbirdOnLoadCalled) {
               aArgs.onLoad(event, aTab.browser);
               win.tbirdOnLoadCalled = true;
+              if (!aArgs.openInBackGround) {
+                win.focus();
+              }
             }
           }, true);
       }
