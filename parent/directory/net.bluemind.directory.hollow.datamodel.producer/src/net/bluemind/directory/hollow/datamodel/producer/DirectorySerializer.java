@@ -30,9 +30,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -239,10 +241,8 @@ public class DirectorySerializer implements DataSerializer {
 	private Optional<AddressBookRecord> dirEntryToAddressBookRecord(ItemValue<Domain> domain, ItemValue<DirEntry> entry,
 			ItemValue<Mailbox> box, Map<String, DataLocation> datalocationCache, String installationId) {
 		AddressBookRecord rec = new AddressBookRecord();
-		String tmpDom = domain.uid;
-		Optional<AddressBookRecord> optRec = DirEntrySerializer.get(tmpDom, entry)
-				.map(serializer -> prepareRecord(domain, entry, box, datalocationCache, installationId, rec, tmpDom,
-						serializer));
+		Optional<AddressBookRecord> optRec = DirEntrySerializer.get(domain.uid, entry).map(
+				serializer -> prepareRecord(domain, entry, box, datalocationCache, installationId, rec, serializer));
 		if (!optRec.isPresent()) {
 			logger.warn("Integrity problem on entry {}", entry);
 		}
@@ -250,14 +250,14 @@ public class DirectorySerializer implements DataSerializer {
 	}
 
 	private AddressBookRecord prepareRecord(ItemValue<Domain> domain, ItemValue<DirEntry> entry, ItemValue<Mailbox> box,
-			Map<String, DataLocation> datalocationCache, String installationId, AddressBookRecord rec, String tmpDom,
+			Map<String, DataLocation> datalocationCache, String installationId, AddressBookRecord rec,
 			DirEntrySerializer serializer) {
 		rec.uid = entry.uid;
-		rec.distinguishedName = entryDN(entry.value.kind, rec.uid, tmpDom, installationId);
+		rec.distinguishedName = entryDN(entry.value.kind, rec.uid, domain.uid, installationId);
 		rec.minimalid = entry.internalId;
 		rec.created = serializer.get(DirEntrySerializer.Property.Created).toDate();
 		rec.updated = serializer.get(DirEntrySerializer.Property.Updated).toDate();
-		rec.domain = tmpDom;
+		rec.domain = domain.uid;
 		String server = entry.value.dataLocation;
 		if (server != null) {
 			rec.dataLocation = datalocationCache.computeIfAbsent(server, s -> {
@@ -270,8 +270,8 @@ public class DirectorySerializer implements DataSerializer {
 				return location;
 			});
 		}
-		List<String> aliases = new ArrayList<>();
-		aliases.add(tmpDom);
+		Set<String> aliases = new HashSet<>();
+		aliases.add(domain.uid);
 		aliases.addAll(domain.value.aliases);
 		rec.emails = entry.value.kind != Kind.EXTERNALUSER ? toEmails(box, aliases) : toEmails(entry.value.email);
 		rec.name = serializer.get(DirEntrySerializer.Property.DisplayName).toString();
@@ -315,7 +315,7 @@ public class DirectorySerializer implements DataSerializer {
 	}
 
 	private List<net.bluemind.directory.hollow.datamodel.Email> toEmails(ItemValue<Mailbox> box,
-			List<String> domainAliases) {
+			Set<String> domainAliases) {
 		if (box == null || box.value == null || box.value.emails == null) {
 			return Collections.emptyList();
 		}
