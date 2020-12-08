@@ -40,6 +40,7 @@
       <plugin id="com.fasterxml.jackson.module.jackson-module-afterburner"/>
       <plugin id="com.github.lookfirst.sardine"/>
       <plugin id="com.google.guava"/>
+      <plugin id="com.google.guava.failureaccess"/>
       <plugin id="com.hazelcast"/>
       <plugin id="com.lowagie.itext"/>
       <plugin id="com.netflix.hollow"/>
@@ -317,6 +318,7 @@
       <plugin id="net.bluemind.osgi.log"/>
       <plugin id="net.bluemind.outlook.clientcheck"/>
       <plugin id="net.bluemind.pool"/>
+      <plugin id="net.bluemind.proxy.support"/>
       <plugin id="net.bluemind.resource.api"/>
       <plugin id="net.bluemind.resource.helper"/>
       <plugin id="net.bluemind.resource.hook.ics"/>
@@ -435,7 +437,6 @@
       <plugin id="org.eclipse.core.runtime"/>
       <plugin id="org.eclipse.equinox.app"/>
       <plugin id="org.eclipse.equinox.common"/>
-      <plugin id="org.eclipse.equinox.ds"/>
       <plugin id="org.eclipse.equinox.preferences"/>
       <plugin id="org.eclipse.equinox.registry"/>
       <plugin id="org.eclipse.equinox.util"/>
@@ -469,8 +470,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.noShutdown" value="true" />
       <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
+      <property name="osgi.noShutdown" value="true" />
    </configurations>
 
    <preferencesInfo>
