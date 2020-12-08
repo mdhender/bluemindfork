@@ -134,12 +134,17 @@ var gBMIcsBandal = {
         MsgHdrToMimeMessage(dispMessage, null, function(aMsgHdr, aMimeMsg) {
             if (aMimeMsg) {
                 let uids = aMimeMsg.headers["x-bm-event"];
-                gBMIcsBandal._logger.debug("x-bm-event:" + uids);
-                let rsvpEventUids = gBMIcsBandal._getRsvpEventUids(uids);
+                let cancel = aMimeMsg.headers["x-bm-canceled"];
                 let resourceId = aMimeMsg.headers["x-bm-resourcebooking"];
+                gBMIcsBandal._logger.debug("x-bm-event:" + uids);
+                gBMIcsBandal._logger.debug("x-bm-canceled:" + cancel);
+                gBMIcsBandal._logger.debug("x-bm-resourcebooking:" + resourceId);
+                if (uids || cancel || resourceId) {
+                   gBMIcsBandal._hideLightingImipBar();
+                }
+                let rsvpEventUids = gBMIcsBandal._getRsvpEventUids(uids);
                 if (rsvpEventUids && rsvpEventUids.length > 0) {
                     gBMIcsBandal._logger.info("rsvpEventUids:" + rsvpEventUids);
-                    gBMIcsBandal._logger.info("resourceId:" + resourceId);
                     let msg = {};
                     msg.bmRsvpEventUids = rsvpEventUids;
                     msg.bmResourceId = resourceId;
@@ -148,6 +153,15 @@ var gBMIcsBandal = {
                 }
             }
         }, true, {saneBodySize: true, partsOnDemand: true});
+    },
+    _hideLightingImipBar: function() {
+        window.setTimeout(function() {
+            let imipBar = document.getElementById("imip-bar");
+            if (imipBar) {
+                gBMIcsBandal._logger.debug("hide lightning imip bar");
+                imipBar.collapsed = true;
+            }
+        }, 100);
     },
     _getRsvpEventUids: function(aHeaders) {
         if (!aHeaders) return null;
@@ -366,11 +380,6 @@ var gBMIcsBandal = {
         });
     },
     _fillBandal: function(aEvent) {
-        let imipBar = document.getElementById("imip-bar");
-        if (imipBar) {
-            this._logger.debug("hide lightning imip bar");
-            imipBar.collapsed = true;
-        }
         let start = new Date(aEvent.dtstart.iso8601);
         let end = new Date(aEvent.dtend.iso8601);
         let dwhen = "";
