@@ -49,9 +49,6 @@ public abstract class MailHistoryCommand implements ICmdLet, Runnable {
 	protected CliContext ctx;
 	private IContainers containerService;
 
-	@Override
-	public abstract void run();
-
 	protected void printTable(List<ItemHistory> items) {
 		Map<ItemChangeLogEntry, ItemHistory> changelog = new TreeMap<>(this::compareChangeLogEntry);
 		items.forEach(item -> item.itemChangelog.entries.forEach(entry -> changelog.put(entry, item)));

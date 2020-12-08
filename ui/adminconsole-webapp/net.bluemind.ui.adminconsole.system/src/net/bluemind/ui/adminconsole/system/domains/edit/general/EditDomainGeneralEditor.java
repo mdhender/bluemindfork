@@ -32,20 +32,17 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.TextBox;
 
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.gwt.js.JsDomain;
 import net.bluemind.domain.api.gwt.serder.DomainGwtSerDer;
-import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.ui.admin.client.forms.MultiStringEditContainer;
 import net.bluemind.ui.adminconsole.system.SettingsModel;
 import net.bluemind.ui.adminconsole.system.domains.DomainKeys;
@@ -56,7 +53,10 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 	public static final String TYPE = "bm.ac.EditDomainGeneralEditor";
 
 	@UiField
-	TextBox name;
+	ListBox defaultAlias;
+
+	@UiField
+	Label name;
 
 	@UiField
 	TextArea description;
@@ -69,6 +69,8 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 
 	private HashMap<String, Integer> languageMapping;
 
+	private HashMap<String, Integer> defaultAliasesMapping;
+
 	private static EditDomainGeneralUiBinder uiBinder = GWT.create(EditDomainGeneralUiBinder.class);
 
 	interface EditDomainGeneralUiBinder extends UiBinder<HTMLPanel, EditDomainGeneralEditor> {
@@ -78,6 +80,8 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		HTMLPanel panel = uiBinder.createAndBindUi(this);
 		initWidget(panel);
 		setLanguages();
+		aliases.addChangeHandler(evt -> setAvailableDefaultAliases());
+		aliases.setMinimumLength(48);
 	}
 
 	private void setLanguages() {
@@ -93,14 +97,34 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		}
 	}
 
-	public static void registerType() {
-		GwtWidgetElement.register(TYPE, new IGwtDelegateFactory<IGwtWidgetElement, WidgetElement>() {
-
-			@Override
-			public IGwtWidgetElement create(WidgetElement e) {
-				return new EditDomainGeneralEditor();
+	private void setAvailableDefaultAliases() {
+		String currentDefaultAlias = defaultAlias.getSelectedValue();
+		int currentDefaultIndex = defaultAlias.getSelectedIndex();
+		defaultAlias.clear();
+		defaultAliasesMapping = new HashMap<>();
+		int index = 0;
+		for (String alias : aliases.getValues()) {
+			if (!alias.trim().isEmpty()) {
+				defaultAliasesMapping.put(alias, index);
+				defaultAlias.addItem(alias);
+				if (alias.equals(currentDefaultAlias)) {
+					// Modified the list (add, remove, the "currentIndex" can be a different entry
+					defaultAlias.setSelectedIndex(index);
+				} else {
+					// We have modified the aliasName, so use the index instead
+					defaultAlias.setSelectedIndex(currentDefaultIndex);
+				}
+				index++;
 			}
-		});
+		}
+		// If we have deleted the newly added alias, ensure we select one
+		if (defaultAlias.getSelectedValue() == null) {
+			defaultAlias.setSelectedIndex(0);
+		}
+	}
+
+	public static void registerType() {
+		GwtWidgetElement.register(TYPE, w -> new EditDomainGeneralEditor());
 	}
 
 	@Override
@@ -108,7 +132,7 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		JsMapStringJsObject map = model.cast();
 		JsDomain jsDomain = map.get(DomainKeys.domain.name()).cast();
 
-		Set<String> domainAliases = new HashSet<String>();
+		Set<String> domainAliases = new HashSet<>();
 		JsArrayString jsAliases = jsDomain.getAliases();
 		for (int i = 0; i < jsAliases.length(); i++) {
 			domainAliases.add(jsAliases.get(i));
@@ -116,19 +140,24 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		aliases.setValues(domainAliases);
 
 		Domain domain = new DomainGwtSerDer().deserialize(new JSONObject(jsDomain));
-		name.setText(domain.name);
 		description.setText(domain.description);
+		name.setText(domain.name);
 		String domainLanguage = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.lang.name());
 		domainLanguage = null != domainLanguage ? domainLanguage : LocaleIdTranslation.DEFAULT_ID;
 		language.setSelectedIndex(languageMapping.get(domainLanguage));
-
+		setAvailableDefaultAliases();
+		if (defaultAliasesMapping.containsKey(domain.defaultAlias)) {
+			defaultAlias.setSelectedIndex(defaultAliasesMapping.get(domain.defaultAlias));
+		} else {
+			defaultAlias.setSelectedIndex(0);
+		}
+		aliases.setReadOnly(defaultAlias.getSelectedValue(), true);
 	}
 
 	@Override
 	public void saveModel(JavaScriptObject model) {
 		JsMapStringJsObject map = model.cast();
 		JsDomain jsDomain = map.get(DomainKeys.domain.name()).cast();
-		jsDomain.setName(name.getText());
 		jsDomain.setDescription(description.getText());
 		map.put(DomainKeys.domain.name(), jsDomain);
 
@@ -137,10 +166,11 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		JSONArray updatedAliasValues = new JSONArray();
 		int index = 0;
 		for (String alias : aliases.getValues()) {
-			if (alias.trim().length() > 0) {
+			if (!alias.trim().isEmpty()) {
 				updatedAliasValues.set(index++, new JSONString(alias));
 			}
 		}
 		map.put(DomainKeys.aliases.name(), updatedAliasValues.getJavaScriptObject());
+		map.put(DomainKeys.defaultAlias.name(), defaultAlias.getSelectedValue());
 	}
 }

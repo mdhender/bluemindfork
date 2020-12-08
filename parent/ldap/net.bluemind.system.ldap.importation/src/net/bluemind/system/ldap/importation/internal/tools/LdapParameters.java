@@ -90,7 +90,7 @@ public class LdapParameters extends Parameters {
 						domain.properties.get(LdapProperties.import_ldap_user_filter.name()),
 						domain.properties.get(LdapProperties.import_ldap_group_filter.name()),
 						domain.properties.get(LdapProperties.import_ldap_ext_id_attribute.name())),
-				new SplitDomain(splitDomainRelayHostname != null && !splitDomainRelayHostname.trim().isEmpty(),
+				new SplitDomain(!Strings.isNullOrEmpty(splitDomainRelayHostname),
 						domain.properties.get(LdapProperties.import_ldap_relay_mailbox_group.name())),
 				Optional.ofNullable(domain.properties.get(LdapProperties.import_ldap_lastupdate.name())));
 	}

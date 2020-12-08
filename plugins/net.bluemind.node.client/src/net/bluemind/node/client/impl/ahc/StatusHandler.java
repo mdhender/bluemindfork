@@ -55,8 +55,7 @@ public class StatusHandler extends DefaultAsyncHandler<TaskStatus> {
 			JsonArray output = jso.getJsonArray("output", EMPTY_ARRAY);
 			String lastLogEntry = Joiner.on('\n').join(output);
 			TaskStatus.State state = fromBooleans(complete, successfull);
-			TaskStatus ts = TaskStatus.create(10, state.ended ? 10 : 1, lastLogEntry, state, "" + exitCode);
-			return ts;
+			return TaskStatus.create(10, state.ended ? 10 : 1, lastLogEntry, state, "" + exitCode);
 		} catch (Exception e) {
 			logger.error("[{}] Status check failure.", pid);
 			throw Throwables.propagate(e);

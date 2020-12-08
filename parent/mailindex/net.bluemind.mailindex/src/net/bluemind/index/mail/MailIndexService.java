@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import javax.mail.internet.AddressException;
@@ -28,7 +30,6 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRespon
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -98,6 +99,7 @@ import net.bluemind.mailbox.api.ShardStats;
 import net.bluemind.mailbox.api.ShardStats.MailboxStats;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
+import net.bluemind.utils.EmailAddress;
 
 public class MailIndexService implements IMailIndexService {
 	public static final int SIZE = 200;
@@ -109,6 +111,7 @@ public class MailIndexService implements IMailIndexService {
 	public static final String PARENT_TYPE = "body";
 	public static final String CHILD_TYPE = "record";
 	public static final String INDEX_PENDING = "mailspool_pending";
+	public static final String INDEX_PENDING_ALIAS = "mailspool_pending_alias";
 
 	private Registry metricRegistry;
 	private IdFactory idFactory;
@@ -138,17 +141,21 @@ public class MailIndexService implements IMailIndexService {
 		content.put("subject_kw", body.subject.toString());
 		content.put("headers", body.headers());
 		content.putAll(body.data);
-		client.prepareIndex(INDEX_PENDING, PENDING_TYPE).setId(body.uid).setSource(content).execute().actionGet();
+		client.prepareIndex(INDEX_PENDING_ALIAS, PENDING_TYPE).setId(body.uid).setSource(content).execute().actionGet();
 		return content;
+	}
+
+	private List<String> filterMailspoolIndexNames(GetIndexResponse indexResponse) {
+		return Arrays.asList(indexResponse.indices()).stream().filter(i -> !i.equals(INDEX_PENDING))
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public void deleteBodyEntries(List<String> bodyIds) {
 		Client client = getIndexClient();
-		deleteBodiesFromIndex(bodyIds, INDEX_PENDING, PENDING_TYPE);
+		deleteBodiesFromIndex(bodyIds, INDEX_PENDING_ALIAS, PENDING_TYPE);
 		GetIndexResponse resp = client.admin().indices().prepareGetIndex().addIndices("mailspool*").get();
-		List<String> shards = Arrays.asList(resp.indices()).stream().filter(i -> !i.equals(INDEX_PENDING))
-				.collect(Collectors.toList());
+		List<String> shards = filterMailspoolIndexNames(resp);
 		for (String index : shards) {
 			deleteBodiesFromIndex(bodyIds, index, MAILSPOOL_TYPE);
 		}
@@ -207,7 +214,7 @@ public class MailIndexService implements IMailIndexService {
 		Set<String> is = MessageFlagsHelper.asFlags(mail.flags);
 
 		Map<String, Object> parentDoc = null;
-		GetResponse response = client.prepareGet(INDEX_PENDING, PENDING_TYPE, parentUid).get();
+		GetResponse response = client.prepareGet(INDEX_PENDING_ALIAS, PENDING_TYPE, parentUid).get();
 		if (response.isSourceEmpty()) {
 			try {
 				logger.warn("Pending index misses parent {} for imapUid {} in mailbox {}", parentUid,
@@ -267,8 +274,7 @@ public class MailIndexService implements IMailIndexService {
 			IndexRequestBuilder parentIdxReq = client.prepareIndex(userAlias, MAILSPOOL_TYPE).setSource(parentDoc)//
 					.setId(parentUid).setRouting(route);
 			if (bulk.isPresent()) {
-				EsBulk bulkImpl = bulk.map(b -> EsBulk.class.cast(b)).get();
-				bulkImpl.bulk.add(parentIdxReq);
+				bulk.map(EsBulk.class::cast).ifPresent(bulkImpl -> bulkImpl.bulk.add(parentIdxReq));
 			} else {
 				parentIdxReq.execute().actionGet();
 			}
@@ -277,14 +283,14 @@ public class MailIndexService implements IMailIndexService {
 		IndexRequestBuilder childIdxReq = client.prepareIndex(userAlias, MAILSPOOL_TYPE).setSource(mutableContent)//
 				.setId(id).setRouting(route);
 		if (bulk.isPresent()) {
-			EsBulk bulkImpl = bulk.map(b -> EsBulk.class.cast(b)).get();
-			bulkImpl.bulk.add(childIdxReq);
+			bulk.map(EsBulk.class::cast).ifPresent(bulkImpl -> bulkImpl.bulk.add(childIdxReq));
 		} else {
 			childIdxReq.execute().actionGet();
 		}
 	}
 
-	private Map<String, Object> reloadFromDb(String uid, String mailboxUniqueId, MailboxRecord mail) throws Exception {
+	private Map<String, Object> reloadFromDb(String uid, String mailboxUniqueId, MailboxRecord mail)
+			throws InterruptedException, ExecutionException, TimeoutException {
 		IDbMailboxRecords service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDbMailboxRecords.class, mailboxUniqueId);
 		Stream eml = service.fetchComplete(mail.imapUid);
@@ -389,8 +395,7 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	private QueryBuilder asFilter(String uid) {
-		QueryBuilder f = QueryBuilders.termQuery("in", uid);
-		return f;
+		return QueryBuilders.termQuery("in", uid);
 	}
 
 	private QueryBuilder asFilter(IDSet set) {
@@ -402,7 +407,7 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	private void orBuilder(BoolQueryBuilder orBuilder, IDRange range) {
-		logger.debug("range {}", range.toString());
+		logger.debug("range {}", range);
 		if (range.isUnique()) {
 			orBuilder.should(QueryBuilders.termQuery("uid", range.from()));
 		} else if (range.to() < 0) {
@@ -499,7 +504,7 @@ public class MailIndexService implements IMailIndexService {
 					.setType(MAILSPOOL_TYPE).setId(id);
 			urb.setParent(sum.parentId);
 			if (logger.isDebugEnabled()) {
-				logger.debug("update  " + id + " flags " + sum.flags + " parentId " + sum.parentId);
+				logger.debug("update {} flags {} parentId {}", id, sum.flags, sum.parentId);
 			}
 			urb.setDoc("is", sum.flags);
 			bulk.add(urb);
@@ -542,9 +547,7 @@ public class MailIndexService implements IMailIndexService {
 
 		StringTerms values = r.getAggregations().get("in");
 
-		return values.getBuckets().stream().map(a -> {
-			return (String) a.getKey();
-		}).collect(Collectors.toSet());
+		return values.getBuckets().stream().map(a -> (String) a.getKey()).collect(Collectors.toSet());
 	}
 
 	@Override
@@ -555,18 +558,14 @@ public class MailIndexService implements IMailIndexService {
 
 		QueryBuilder q = QueryBuilders.termQuery("owner", entityId);
 
-		long deletedCount = bulkDelete(getIndexAliasName(entityId), q, new UnitDelete() {
+		long deletedCount = bulkDelete(getIndexAliasName(entityId), q, (Client indexClient, SearchHit hit) -> {
+			String pid = (String) hit.getSourceAsMap().get("parentId");
 
-			@Override
-			public DeleteRequestBuilder build(Client client, SearchHit hit) {
-				String pid = (String) hit.getSourceAsMap().get("parentId");
-
-				return client.prepareDelete()//
-						.setIndex(indexName) //
-						.setType(MAILSPOOL_TYPE) //
-						.setId(hit.getId()) //
-						.setParent(pid);
-			}
+			return indexClient.prepareDelete()//
+					.setIndex(indexName) //
+					.setType(MAILSPOOL_TYPE) //
+					.setId(hit.getId()) //
+					.setParent(pid);
 		});
 		logger.debug("deleteBox {} : {} deleted", entityId, deletedCount);
 
@@ -590,15 +589,12 @@ public class MailIndexService implements IMailIndexService {
 		GetAliasesResponse t = client.admin().indices().prepareGetAliases(getIndexAliasName(entityId)).execute()
 				.actionGet();
 
-		if (t != null && t.getAliases().isEmpty()) {
-			// no alias
-			// is index ?
-			if (client.admin().indices().prepareExists(getIndexAliasName(entityId)).execute().actionGet().isExists()) {
-				// an index has been created, we need an alias here
-				logger.info("indice {} is not an alias, delete it ", getIndexAliasName(entityId));
-				client.admin().indices().prepareDelete(getIndexAliasName(entityId)).execute().actionGet();
-				monitor.log(String.format("indice %s is not an alias, delete it ", getIndexAliasName(entityId)));
-			}
+		if (t != null && t.getAliases().isEmpty() && client.admin().indices().prepareExists(getIndexAliasName(entityId))
+				.execute().actionGet().isExists()) {
+			// an index has been created, we need an alias here
+			logger.info("indice {} is not an alias, delete it ", getIndexAliasName(entityId));
+			client.admin().indices().prepareDelete(getIndexAliasName(entityId)).execute().actionGet();
+			monitor.log(String.format("indice %s is not an alias, delete it ", getIndexAliasName(entityId)));
 		}
 
 		if (t == null || t.getAliases().isEmpty()) {
@@ -606,8 +602,7 @@ public class MailIndexService implements IMailIndexService {
 			monitor.progress(1, String.format("create alias %s from mailspool ", getIndexAliasName(entityId)));
 
 			GetIndexResponse resp = client.admin().indices().prepareGetIndex().addIndices("mailspool*").get();
-			List<String> shards = Arrays.asList(resp.indices()).stream().filter(i -> !i.equals(INDEX_PENDING))
-					.collect(Collectors.toList());
+			List<String> shards = filterMailspoolIndexNames(resp);
 
 			String indexName = MailIndexActivator.getMailIndexHook().getMailspoolIndexName(client, shards, entityId);
 
@@ -630,11 +625,7 @@ public class MailIndexService implements IMailIndexService {
 		GetAliasesResponse t = client.admin().indices().prepareGetAliases(getIndexAliasName(entityId)).execute()
 				.actionGet();
 
-		if (t == null || t.getAliases().isEmpty()) {
-			return false;
-		} else {
-			return true;
-		}
+		return (t != null && !t.getAliases().isEmpty());
 	}
 
 	@Override
@@ -649,7 +640,7 @@ public class MailIndexService implements IMailIndexService {
 					.setSource(ESearchActivator.getIndexSchema("mailspool"), XContentType.JSON).execute().actionGet();
 			ClusterHealthResponse healthResp = client.admin().cluster().prepareHealth(indexName).setWaitForGreenStatus()
 					.execute().actionGet();
-			logger.debug("index health", healthResp);
+			logger.debug("index health response: {}", healthResp);
 
 		}
 
@@ -673,7 +664,7 @@ public class MailIndexService implements IMailIndexService {
 		if (!copyResp.getBulkFailures().isEmpty()) {
 			logger.error("copy failure : {}", copyResp.getBulkFailures());
 		}
-		logger.info("bulk copy of msgBody response {}", copyResp.toString());
+		logger.info("bulk copy of msgBody response {}", copyResp);
 
 		// copy msg
 		builder = ReindexAction.INSTANCE.newRequestBuilder(client).source(fromIndex).destination(indexName);
@@ -686,20 +677,16 @@ public class MailIndexService implements IMailIndexService {
 			logger.error("copy failure : {}", copyResp.getBulkFailures());
 		}
 
-		logger.info("bulk copy of msg response {}", copyResp.toString());
+		logger.info("bulk copy of msg response {}", copyResp);
 
-		bulkDelete(fromIndex, QueryBuilders.termQuery("owner", mailboxUid), new UnitDelete() {
+		bulkDelete(fromIndex, QueryBuilders.termQuery("owner", mailboxUid), (Client indexClient, SearchHit hit) -> {
+			String pid = hit.getFields().get("parentId").getValue();
 
-			@Override
-			public DeleteRequestBuilder build(Client client, SearchHit hit) {
-				String pid = hit.getFields().get("parentId").getValue();
-
-				return client.prepareDelete() //
-						.setIndex(fromIndex) //
-						.setType(MAILSPOOL_TYPE) //
-						.setId(hit.getId()) //
-						.setParent(pid);
-			}
+			return indexClient.prepareDelete() //
+					.setIndex(fromIndex) //
+					.setType(MAILSPOOL_TYPE) //
+					.setId(hit.getId()) //
+					.setParent(pid);
 		});
 	}
 
@@ -712,8 +699,7 @@ public class MailIndexService implements IMailIndexService {
 
 		long worstResponseTime = 0;
 
-		for (String indexName : Arrays.asList(resp.indices()).stream().filter(i -> !i.equals(INDEX_PENDING))
-				.collect(Collectors.toList())) {
+		for (String indexName : filterMailspoolIndexNames(resp)) {
 			ShardStats is = new ShardStats();
 
 			IndexStats stat = client.admin().indices().prepareStats(indexName).get().getIndex(indexName);
@@ -940,7 +926,7 @@ public class MailIndexService implements IMailIndexService {
 				to = Mbox.create(mboxTo.getPersonal(), mboxTo.getAddress());
 			}
 		} catch (AddressException e) {
-			logger.warn("Failed to parse TO " + headers.get("to"));
+			logger.warn("Failed to parse TO {}", headers.get("to"));
 		}
 
 		Mbox from = Mbox.create("unknown", "unknown");
@@ -948,7 +934,7 @@ public class MailIndexService implements IMailIndexService {
 			EmailAddress mboxFrom = new EmailAddress(headers.get("from"));
 			from = Mbox.create(mboxFrom.getPersonal(), mboxFrom.getAddress(), "SMTP");
 		} catch (AddressException e) {
-			logger.warn("Failed to parse FROM " + headers.get("from"));
+			logger.warn("Failed to parse FROM {}", headers.get("from"));
 		}
 		boolean hasAttachment = !((List<String>) source.get("has")).isEmpty();
 

@@ -26,12 +26,11 @@ import org.w3c.dom.NodeList;
 import net.bluemind.eas.config.global.GlobalConfig;
 
 public class DOMDumper {
-
 	private static boolean withData = GlobalConfig.DATA_IN_LOGS;
 
 	/**
-	 * Seeing email/cal/contact data is a security issue for some
-	 * administrators. Remove data from a copy of the DOM before printing.
+	 * Seeing email/cal/contact data is a security issue for some administrators.
+	 * Remove data from a copy of the DOM before printing.
 	 * 
 	 * @param doc
 	 */
@@ -48,6 +47,9 @@ public class DOMDumper {
 
 			// always trim Mime data (ComposeMail)
 			trim(c, "Mime");
+
+			// contact picture
+			trim(c, "Picture");
 
 			DOMUtils.serialise(c, out, true);
 			logger.info(prefix + out.toString());

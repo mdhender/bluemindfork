@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +30,16 @@ public class CliUtils {
 		this.cliContext = cliContext;
 	}
 
+	public static class ResolvedMailbox {
+		public final String domainUid;
+		public final ItemValue<Mailbox> mailbox;
+
+		public ResolvedMailbox(String dom, ItemValue<Mailbox> resolved) {
+			this.domainUid = dom;
+			this.mailbox = resolved;
+		}
+	}
+
 	public String getDomainUidFromEmailOrDomain(String s) {
 		if (s != null && s.contains("@")) {
 			return getDomainUidFromEmail(s);
@@ -48,7 +59,7 @@ public class CliUtils {
 
 	public Optional<String> getDomainUidFromDomainIfPresent(String domainString) {
 		if ("global.virt".equals(domainString)) {
-			return Optional.of("global.virt");
+			return Optional.of(domainString);
 		}
 		IDomains domainService = cliContext.adminApi().instance(IDomains.class);
 		ItemValue<Domain> domain = domainService.findByNameOrAliases(domainString);
@@ -71,6 +82,16 @@ public class CliUtils {
 		return resolved.uid;
 	}
 
+	public ResolvedMailbox getMailboxFromEmail(String email) {
+		String domainUid = getDomainUidFromEmail(email);
+		IMailboxes mboxApi = cliContext.adminApi().instance(IMailboxes.class, domainUid);
+		ItemValue<Mailbox> resolved = mboxApi.byEmail(email);
+		if (resolved == null) {
+			throw new CliException("user " + email + " not found");
+		}
+		return new ResolvedMailbox(domainUid, resolved);
+	}
+
 	public String encodeFilename(String name) {
 		try {
 			return java.net.URLEncoder.encode(name, "UTF-8");
@@ -85,6 +106,10 @@ public class CliUtils {
 		} catch (UnsupportedEncodingException e) {
 			throw new CliException("Decoding error : " + e.getMessage());
 		}
+	}
+
+	public Stream getStreamFromFile(Path path) {
+		return getStreamFromFile(path.toString());
 	}
 
 	public Stream getStreamFromFile(String filename) {
@@ -121,6 +146,7 @@ public class CliUtils {
 			try {
 				in.close();
 			} catch (IOException e) {
+				// don't care
 			}
 		});
 		return VertxStream.stream(stream);

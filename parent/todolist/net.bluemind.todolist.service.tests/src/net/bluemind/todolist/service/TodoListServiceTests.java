@@ -1078,6 +1078,66 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		assertNull(vtodo.dtstart);
 	}
 
+	@Test
+	public void testMultipleGet() throws ServerFault {
+		VTodo todo = defaultVTodo();
+		String uid = UUID.randomUUID().toString();
+		getService(defaultSecurityContext).create(uid, todo);
+
+		todo = defaultVTodo();
+		String uid2 = UUID.randomUUID().toString();
+		getService(defaultSecurityContext).create(uid2, todo);
+
+		List<ItemValue<VTodo>> items = getService(defaultSecurityContext).multipleGet(Arrays.asList(uid, uid2));
+		assertNotNull(items);
+		assertEquals(2, items.size());
+
+		items = getService(defaultSecurityContext).multipleGet(Arrays.asList("nonExistant"));
+
+		assertNotNull(items);
+		assertEquals(0, items.size());
+
+		try {
+			getService(SecurityContext.ANONYMOUS).multipleGet(Arrays.asList(uid, uid2));
+			fail();
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+	}
+
+	@Test
+	public void testMultipleGetById() throws ServerFault {
+		VTodo todo = defaultVTodo();
+		String uid = UUID.randomUUID().toString();
+		getService(defaultSecurityContext).create(uid, todo);
+
+		todo = defaultVTodo();
+		String uid2 = UUID.randomUUID().toString();
+		getService(defaultSecurityContext).create(uid2, todo);
+
+		List<ItemValue<VTodo>> items = getService(defaultSecurityContext).multipleGet(Arrays.asList(uid, uid2));
+		assertNotNull(items);
+		assertEquals(2, items.size());
+
+		try {
+			getService(SecurityContext.ANONYMOUS)
+					.multipleGetById(Arrays.asList(items.get(0).internalId, items.get(1).internalId));
+			fail();
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+
+		items = getService(defaultSecurityContext)
+				.multipleGetById(Arrays.asList(items.get(0).internalId, items.get(1).internalId));
+		assertNotNull(items);
+		assertEquals(2, items.size());
+
+		items = getService(defaultSecurityContext).multipleGetById(Arrays.asList(9876543L, 34567L));
+		assertNotNull(items);
+		assertEquals(0, items.size());
+
+	}
+
 	@Override
 	protected ITodoList getService(SecurityContext context) throws ServerFault {
 		return ServerSideServiceProvider.getProvider(context).instance(ITodoList.class, container.uid);

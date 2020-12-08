@@ -34,6 +34,7 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.persistence.IItemValueStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
@@ -53,7 +54,8 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 	public VCardContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
 			Container container) {
 		this(context, dataSource, securityContext, container, new VCardStore(dataSource, container),
-				new VCardIndexStore(ESearchActivator.getClient(), container));
+				new VCardIndexStore(ESearchActivator.getClient(), container,
+						DataSourceRouter.location(context, container.uid)));
 	}
 
 	public VCardContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
@@ -66,7 +68,13 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 
 	@Override
 	protected void decorate(List<Item> items, List<ItemValue<VCard>> values) throws ServerFault {
-		List<List<TagRef>> refs = tagRefService.getMultiple(items);
+		List<List<TagRef>> refs;
+		try {
+			refs = tagRefService.getMultiple(items);
+		} catch (ServerFault sf) {
+			logger.error(sf.getMessage(), sf);
+			return;
+		}
 
 		Iterator<Item> itItems = items.iterator();
 		Iterator<ItemValue<VCard>> itValues = values.iterator();
@@ -89,8 +97,12 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 			return;
 		}
 
-		List<TagRef> tags = tagRefService.get(item);
-		value.value.explanatory.categories = tags;
+		try {
+			value.value.explanatory.categories = tagRefService.get(item);
+		} catch (ServerFault sf) {
+			logger.error(sf.getMessage(), sf);
+		}
+
 		value.value.identification.photo = hasPhoto(item.uid);
 
 	}
@@ -104,7 +116,7 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 		}
 		tagRefService.create(item, tags);
 
-		indexStore.create(item.uid, value);
+		indexStore.create(item, value);
 
 	}
 
@@ -117,7 +129,7 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 		}
 		tagRefService.update(item, tags);
 
-		indexStore.update(item.uid, value);
+		indexStore.update(item, value);
 	}
 
 	@Override

@@ -7,10 +7,10 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: slf4j.api;bundle-version="1.7.5",
  org.eclipse.core.runtime,
  com.netflix.spectator.api;bundle-version="0.62.0";visibility:=reexport,
- io.netty;bundle-version="4.1.45",
  com.fasterxml.jackson.core.jackson-core,
  com.fasterxml.jackson.core.jackson-databind,
- com.fasterxml.jackson.module.jackson-module-afterburner
+ com.fasterxml.jackson.module.jackson-module-afterburner,
+ net.bluemind.metrics.agent-api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.metrics.registry
 Bundle-ActivationPolicy: lazy

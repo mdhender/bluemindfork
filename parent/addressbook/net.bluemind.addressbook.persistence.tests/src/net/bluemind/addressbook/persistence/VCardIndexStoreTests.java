@@ -38,6 +38,7 @@ import net.bluemind.addressbook.api.VCardQuery;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
@@ -51,6 +52,7 @@ public class VCardIndexStoreTests {
 	private Container container;
 	private ItemStore itemStore;
 	private Container container2;
+	private VCardIndexStore indexStore;
 
 	@Before
 	public void setup() throws Exception {
@@ -59,7 +61,7 @@ public class VCardIndexStoreTests {
 
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 		String containerId = "test" + System.nanoTime();
 		container = Container.create(containerId, "test", "test", "me", true);
@@ -79,6 +81,8 @@ public class VCardIndexStoreTests {
 		} catch (Exception e) {
 		}
 
+		indexStore = new VCardIndexStore(client, container, null);
+
 	}
 
 	@After
@@ -88,8 +92,6 @@ public class VCardIndexStoreTests {
 
 	@Test
 	public void testCreate() throws InterruptedException, SQLException {
-		VCardIndexStore indexStore = new VCardIndexStore(client, container);
-
 		VCard card = new VCard();
 
 		card.identification = new VCard.Identification();
@@ -100,7 +102,7 @@ public class VCardIndexStoreTests {
 		Item item = Item.create(uid, UUID.randomUUID().toString());
 		itemStore.create(item);
 
-		indexStore.create(item.uid, card);
+		indexStore.create(item, card);
 
 		client.admin().indices().prepareRefresh("contact").execute().actionGet();
 		SearchResponse resp = client.prepareSearch("contact").setTypes(VCardIndexStore.VCARD_TYPE)
@@ -111,8 +113,6 @@ public class VCardIndexStoreTests {
 
 	@Test
 	public void testDelete() throws InterruptedException, SQLException {
-		VCardIndexStore indexStore = new VCardIndexStore(client, container);
-
 		VCard card = new VCard();
 
 		card.identification = new VCard.Identification();
@@ -123,7 +123,7 @@ public class VCardIndexStoreTests {
 		Item item = Item.create(uid, UUID.randomUUID().toString());
 		itemStore.create(item);
 
-		indexStore.create(item.uid, card);
+		indexStore.create(item, card);
 		indexStore.refresh();
 		indexStore.delete(item.uid);
 
@@ -136,8 +136,6 @@ public class VCardIndexStoreTests {
 
 	@Test
 	public void testDeleteAll() throws SQLException {
-		VCardIndexStore indexStore = new VCardIndexStore(client, container);
-
 		VCard card = new VCard();
 
 		card.identification = new VCard.Identification();
@@ -148,7 +146,7 @@ public class VCardIndexStoreTests {
 		Item item = Item.create(uid, UUID.randomUUID().toString());
 		itemStore.create(item);
 
-		indexStore.create(item.uid, card);
+		indexStore.create(item, card);
 		indexStore.refresh();
 		indexStore.deleteAll();
 		indexStore.refresh();
@@ -161,8 +159,7 @@ public class VCardIndexStoreTests {
 
 	@Test
 	public void testSearch() {
-		VCardIndexStore indexStore = new VCardIndexStore(client, container);
-		VCardIndexStore indexStore2 = new VCardIndexStore(client, container2);
+		VCardIndexStore indexStore2 = new VCardIndexStore(client, container2, null);
 
 		VCard card = new VCard();
 
@@ -172,7 +169,7 @@ public class VCardIndexStoreTests {
 				Arrays.<VCard.Parameter>asList());
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
-		indexStore.create(item.uid, card);
+		indexStore.create(item, card);
 
 		card = new VCard();
 
@@ -186,9 +183,9 @@ public class VCardIndexStoreTests {
 		uid = "test" + System.nanoTime();
 		item = Item.create(uid, UUID.randomUUID().toString());
 
-		indexStore.create(item.uid, card);
+		indexStore.create(item, card);
 
-		indexStore2.create("test2" + System.nanoTime(), card);
+		indexStore2.create(Item.create("test2" + System.nanoTime(), System.nanoTime()), card);
 
 		refreshIndexes();
 		// check that filter on container is ok
@@ -214,20 +211,19 @@ public class VCardIndexStoreTests {
 
 	@Test
 	public void testSearchByCategory() {
-		VCardIndexStore indexStore = new VCardIndexStore(client, container);
 		VCard card1 = new VCard();
 		TagRef tag1 = new TagRef();
 		tag1.label = "tag1";
 		String uid1 = "test" + System.nanoTime();
 		card1.explanatory.categories = Arrays.asList(tag1);
-		indexStore.create(uid1, card1);
+		indexStore.create(Item.create(uid1, System.nanoTime()), card1);
 
 		VCard card2 = new VCard();
 		TagRef tag2 = new TagRef();
 		tag2.label = "tag2";
 		String uid2 = "test" + System.nanoTime();
 		card1.explanatory.categories = Arrays.asList(tag2);
-		indexStore.create(uid2, card2);
+		indexStore.create(Item.create(uid2, System.nanoTime()), card2);
 
 		refreshIndexes();
 
@@ -243,7 +239,6 @@ public class VCardIndexStoreTests {
 
 	@Test
 	public void testSearchByEmail() {
-		VCardIndexStore indexStore = new VCardIndexStore(client, container);
 		VCard card = new VCard();
 
 		String email = "email" + System.currentTimeMillis() + "@domain.lan";
@@ -252,7 +247,7 @@ public class VCardIndexStoreTests {
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
 
-		indexStore.create(item.uid, card);
+		indexStore.create(item, card);
 		refreshIndexes();
 
 		ListResult<String> res = indexStore.search(VCardQuery.create("value.communications.emails.value:" + email));
@@ -264,7 +259,6 @@ public class VCardIndexStoreTests {
 
 	@Test
 	public void testSearchByLongEmail() {
-		VCardIndexStore indexStore = new VCardIndexStore(client, container);
 		VCard card = new VCard();
 
 		String email = "pref-publique-cartesgrises@haute-garonne.gouv.fr";
@@ -273,7 +267,7 @@ public class VCardIndexStoreTests {
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
 
-		indexStore.create(item.uid, card);
+		indexStore.create(item, card);
 		refreshIndexes();
 
 		ListResult<String> res = indexStore.search(VCardQuery.create("value.communications.emails.value:" + email));
@@ -282,15 +276,13 @@ public class VCardIndexStoreTests {
 
 	@Test
 	public void testSearchMatchAll() {
-		VCardIndexStore indexStore = new VCardIndexStore(client, container);
-		indexStore.deleteAll();
 		VCard card = new VCard();
 		card.identification.formatedName.value = "john";
 
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
 
-		indexStore.create(item.uid, card);
+		indexStore.create(item, card);
 		refreshIndexes();
 
 		ListResult<String> res = indexStore.search(VCardQuery.create(null));
@@ -299,23 +291,21 @@ public class VCardIndexStoreTests {
 
 	@Test
 	public void testSearchSort() {
-		VCardIndexStore indexStore = new VCardIndexStore(client, container);
-		indexStore.deleteAll();
 
 		VCard card = new VCard();
 		card.identification.formatedName.value = "john";
 		String uid1 = "test" + System.nanoTime();
-		indexStore.create(uid1, card);
+		indexStore.create(Item.create(uid1, System.nanoTime()), card);
 
 		card = new VCard();
 		card.identification.formatedName.value = "albator";
 		String uid2 = "test" + System.nanoTime();
-		indexStore.create(uid2, card);
+		indexStore.create(Item.create(uid2, System.nanoTime()), card);
 
 		card = new VCard();
 		card.identification.formatedName.value = "zorro";
 		String uid3 = "test" + System.nanoTime();
-		indexStore.create(uid3, card);
+		indexStore.create(Item.create(uid3, System.nanoTime()), card);
 
 		refreshIndexes();
 
@@ -328,23 +318,84 @@ public class VCardIndexStoreTests {
 
 	@Test
 	public void testSearchFormatedName() {
-		VCardIndexStore indexStore = new VCardIndexStore(client, container);
-		indexStore.deleteAll();
-
 		VCard card = new VCard();
 		card.identification = new VCard.Identification();
 		card.identification.formatedName = VCard.Identification.FormatedName.create("Thomas",
 				Arrays.<VCard.Parameter>asList());
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
-		indexStore.create(item.uid, card);
+		indexStore.create(item, card);
 
 		item = Item.create(uid, UUID.randomUUID().toString());
-		indexStore.create(item.uid, card);
+		indexStore.create(item, card);
 
 		refreshIndexes();
 		ListResult<String> res = indexStore.search(VCardQuery.create("value.identification.formatedName.value:tho"));
 		assertEquals(1, res.total);
+	}
+
+	@Test
+	public void testUpdate() throws SQLException {
+		VCard card = new VCard();
+		card.identification.formatedName.value = "batman";
+		Item item1 = itemStore.create(Item.create("uid" + System.nanoTime(), UUID.randomUUID().toString()));
+		indexStore.create(item1, card);
+
+		refreshIndexes();
+
+		ListResult<String> res = indexStore.search(VCardQuery.create("value.identification.formatedName.value:batman"));
+		assertEquals(1, res.total);
+
+		card.identification.formatedName.value = "robin";
+
+		indexStore.update(item1, card);
+
+		refreshIndexes();
+
+		res = indexStore.search(VCardQuery.create("value.identification.formatedName.value:batman"));
+		assertEquals(0, res.total);
+		res = indexStore.search(VCardQuery.create("value.identification.formatedName.value:robin"));
+		assertEquals(1, res.total);
+
+	}
+
+	@Test
+	public void testUpdates() throws SQLException {
+		VCard card = new VCard();
+		card.identification.formatedName.value = "batman";
+		Item item1 = itemStore.create(Item.create("uid" + System.nanoTime(), UUID.randomUUID().toString()));
+		indexStore.create(item1, card);
+
+		VCard card2 = new VCard();
+		card2.identification.formatedName.value = "robin";
+		Item item2 = itemStore.create(Item.create("uid" + System.nanoTime(), UUID.randomUUID().toString()));
+		indexStore.create(item2, card2);
+
+		refreshIndexes();
+
+		ListResult<String> res = indexStore.search(VCardQuery.create("value.identification.formatedName.value:batman"));
+		assertEquals(1, res.total);
+
+		res = indexStore.search(VCardQuery.create("value.identification.formatedName.value:robin"));
+		assertEquals(1, res.total);
+
+		card.identification.formatedName.value = "wallace";
+		card2.identification.formatedName.value = "gromit";
+
+		indexStore.updates(Arrays.asList(ItemValue.create(item1, card), ItemValue.create(item2, card2)));
+
+		refreshIndexes();
+
+		res = indexStore.search(VCardQuery.create("value.identification.formatedName.value:batman"));
+		assertEquals(0, res.total);
+		res = indexStore.search(VCardQuery.create("value.identification.formatedName.value:wallace"));
+		assertEquals(1, res.total);
+
+		res = indexStore.search(VCardQuery.create("value.identification.formatedName.value:robin"));
+		assertEquals(0, res.total);
+		res = indexStore.search(VCardQuery.create("value.identification.formatedName.value:gromit"));
+		assertEquals(1, res.total);
+
 	}
 
 	private void refreshIndexes() {

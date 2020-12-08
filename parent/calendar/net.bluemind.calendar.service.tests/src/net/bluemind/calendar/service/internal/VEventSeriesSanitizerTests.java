@@ -277,6 +277,33 @@ public class VEventSeriesSanitizerTests {
 		assertFalse(item.value.main.draft);
 	}
 
+	@Test
+	public void onEventCreatedUnknownResource() {
+		final String subject = "onEventCreatedUnknownResource";
+		final List<Attendee> attendees = new ArrayList<>(3);
+
+		final Attendee toto = new Attendee();
+		toto.commonName = "Toto toto";
+		toto.cutype = CUType.Individual;
+		toto.mailto = "toto" + System.nanoTime() + "@" + this.domainUid;
+		attendees.add(toto);
+
+		final Attendee res = new Attendee();
+		res.commonName = "res" + UUID.randomUUID();
+		res.cutype = CUType.Resource;
+		res.mailto = "res" + System.nanoTime() + "@" + this.domainUid;
+		attendees.add(res);
+
+		VEventMessage vEventMessage = this.buildEvent(subject, "onEventCreatedUnknownResource desc", attendees);
+
+		final Map<String, String> params = new HashMap<>(2);
+		params.put("owner", vEventMessage.container.owner);
+		params.put("domainUid", this.domainUid);
+		new VEventSeriesSanitizer(new BmTestContext(Sessions.get().getIfPresent(user.login)))
+				.create(vEventMessage.vevent, params);
+
+	}
+
 	private void checkDescription(final List<VEvent> vEvents, final String expectedResult) {
 		vEvents.forEach(vEvent -> {
 			Assert.assertNotNull(vEvent.description);

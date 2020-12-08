@@ -24,7 +24,7 @@ import javax.mail.internet.AddressException;
 
 import org.junit.Test;
 
-import net.bluemind.index.mail.EmailAddress;
+import net.bluemind.utils.EmailAddress;
 
 public class EmailAddressTest {
 
@@ -49,6 +49,22 @@ public class EmailAddressTest {
 		String address = "\"David Phan, yeah\" <david@bm.lan>";
 		EmailAddress emailAddress = new EmailAddress(address);
 		assertEquals("David Phan, yeah", emailAddress.getPersonal());
+		assertEquals("david@bm.lan", emailAddress.getAddress());
+	}
+
+	@Test
+	public void testSingleQuotedDisplayNameAndEmailAddress() throws AddressException {
+		String address = "'David Phan, yeah <david@bm.lan>'";
+		EmailAddress emailAddress = new EmailAddress(address);
+		assertEquals("David Phan, yeah", emailAddress.getPersonal());
+		assertEquals("david@bm.lan", emailAddress.getAddress());
+	}
+
+	@Test
+	public void testSingleQuotedEmailAddress() throws AddressException {
+		String address = "'david@bm.lan'";
+		EmailAddress emailAddress = new EmailAddress(address);
+		assertNull(emailAddress.getPersonal());
 		assertEquals("david@bm.lan", emailAddress.getAddress());
 	}
 

@@ -1722,4 +1722,68 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 	}
 
+	@Test
+	public void testMultipleGet() throws ServerFault {
+		VEventSeries event = defaultVEvent();
+		String uid = UUID.randomUUID().toString();
+		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, false);
+
+		event = defaultVEvent();
+		String uid2 = UUID.randomUUID().toString();
+		getCalendarService(userSecurityContext, userCalendarContainer).create(uid2, event, false);
+
+		List<ItemValue<VEventSeries>> items = getCalendarService(userSecurityContext, userCalendarContainer)
+				.multipleGet(Arrays.asList(uid, uid2));
+		assertNotNull(items);
+		assertEquals(2, items.size());
+
+		items = getCalendarService(userSecurityContext, userCalendarContainer)
+				.multipleGet(Arrays.asList("nonExistant"));
+
+		assertNotNull(items);
+		assertEquals(0, items.size());
+
+		try {
+			getCalendarService(SecurityContext.ANONYMOUS, userCalendarContainer).multipleGet(Arrays.asList(uid, uid2));
+			fail();
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+	}
+
+	@Test
+	public void testMultipleGetById() throws ServerFault {
+		VEventSeries event = defaultVEvent();
+		String uid = UUID.randomUUID().toString();
+		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, false);
+
+		event = defaultVEvent();
+		String uid2 = UUID.randomUUID().toString();
+		getCalendarService(userSecurityContext, userCalendarContainer).create(uid2, event, false);
+
+		List<ItemValue<VEventSeries>> items = getCalendarService(userSecurityContext, userCalendarContainer)
+				.multipleGet(Arrays.asList(uid, uid2));
+		assertNotNull(items);
+		assertEquals(2, items.size());
+
+		try {
+			getCalendarService(SecurityContext.ANONYMOUS, userCalendarContainer)
+					.multipleGetById(Arrays.asList(items.get(0).internalId, items.get(1).internalId));
+			fail();
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+
+		items = getCalendarService(userSecurityContext, userCalendarContainer)
+				.multipleGetById(Arrays.asList(items.get(0).internalId, items.get(1).internalId));
+		assertNotNull(items);
+		assertEquals(2, items.size());
+
+		items = getCalendarService(userSecurityContext, userCalendarContainer)
+				.multipleGetById(Arrays.asList(9876543L, 34567L));
+		assertNotNull(items);
+		assertEquals(0, items.size());
+
+	}
+
 }

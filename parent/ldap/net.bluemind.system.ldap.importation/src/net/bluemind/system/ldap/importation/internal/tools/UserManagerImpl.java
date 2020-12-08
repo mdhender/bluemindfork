@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.addressbook.api.VCard.DeliveryAddressing;
+import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -54,6 +55,7 @@ public class UserManagerImpl extends UserManager {
 	private static final Logger logger = LoggerFactory.getLogger(UserManagerImpl.class);
 
 	public static final String LDAP_LOGIN = "uid";
+	private static final String LDAP_DISPLAYNAME = "displayName";
 	private static final String LDAP_FIRSTNAME = "givenName";
 	private static final String LDAP_LASTNAME = "sn";
 	private static final String LDAP_DESCRIPTION = "description";
@@ -179,6 +181,12 @@ public class UserManagerImpl extends UserManager {
 	@Override
 	protected void manageContactInfos() throws LdapInvalidAttributeValueException {
 		user.value.contactInfos.explanatory.note = getAttributeValue(entry, LDAP_DESCRIPTION);
+
+		if (entry.containsAttribute(LDAP_DISPLAYNAME)) {
+			user.value.contactInfos.identification.formatedName = FormatedName
+					.create(getAttributeValue(entry, LDAP_DISPLAYNAME));
+		}
+
 		user.value.contactInfos.identification.name.givenNames = getAttributeValue(entry, LDAP_FIRSTNAME);
 		user.value.contactInfos.identification.name.familyNames = getAttributeValue(entry, LDAP_LASTNAME);
 
@@ -188,7 +196,12 @@ public class UserManagerImpl extends UserManager {
 		user.value.contactInfos.organizational.org.department = getAttributeValue(entry, LDAP_DEPARTMENTNUMBER);
 
 		if (entry.containsAttribute(LDAP_PHOTO)) {
-			userPhoto = entry.get(LDAP_PHOTO).getBytes();
+			try {
+				userPhoto = entry.get(LDAP_PHOTO).getBytes();
+			} catch (LdapInvalidAttributeValueException liave) {
+				logger.warn("Unable to retrieve {} for {}: {} - ignoring attribute", LDAP_PHOTO,
+						entry.getDn().getName(), liave.getMessage());
+			}
 		}
 
 		manageUserPhones();

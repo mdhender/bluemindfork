@@ -7,7 +7,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-consoleLog hollow directory armary.fr
+      <programArgs>-consoleLog inject smtp --msg 50 --prod small devenv.blue
       </programArgs>
       <vmArgs>-Duser.timezone=GMT -Djava.awt.headless=true -Dnet.bluemind.property.product=bm-cli
       </vmArgs>
@@ -37,17 +37,18 @@
       <plugin id="com.github.javafaker"/>
       <plugin id="com.github.mifmif.generex"/>
       <plugin id="com.google.guava"/>
+      <plugin id="com.google.guava.failureaccess"/>
       <plugin id="com.hazelcast"/>
       <plugin id="com.hazelcast.client" fragment="true"/>
       <plugin id="com.netflix.hollow"/>
       <plugin id="com.netflix.spectator.api"/>
       <plugin id="com.sun.mail.javax.mail"/>
       <plugin id="com.typesafe.netty.reactive-streams"/>
-      <plugin id="io.airlift.airline"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.web"/>
       <plugin id="javax.inject"/>
+      <plugin id="javax.mail-api"/>
       <plugin id="javax.servlet"/>
       <plugin id="javax.transaction" fragment="true"/>
       <plugin id="javax.validation.api"/>
@@ -75,6 +76,7 @@
       <plugin id="net.bluemind.cli.index"/>
       <plugin id="net.bluemind.cli.inject.common"/>
       <plugin id="net.bluemind.cli.inject.imap"/>
+      <plugin id="net.bluemind.cli.inject.node"/>
       <plugin id="net.bluemind.cli.job"/>
       <plugin id="net.bluemind.cli.launcher"/>
       <plugin id="net.bluemind.cli.mail"/>
@@ -127,12 +129,16 @@
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.mailbox.api"/>
       <plugin id="net.bluemind.mailbox.identity.api"/>
+      <plugin id="net.bluemind.metrics.agent-api"/>
       <plugin id="net.bluemind.metrics.alerts.api"/>
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.neko.common"/>
       <plugin id="net.bluemind.network.topology"/>
       <plugin id="net.bluemind.network.topology.consumer"/>
       <plugin id="net.bluemind.network.utils"/>
+      <plugin id="net.bluemind.node.api"/>
+      <plugin id="net.bluemind.node.client"/>
+      <plugin id="net.bluemind.node.shared"/>
       <plugin id="net.bluemind.resource.api"/>
       <plugin id="net.bluemind.role.api"/>
       <plugin id="net.bluemind.scheduledjob.api"/>
@@ -180,6 +186,7 @@
       <plugin id="org.mnode.ical4j.zoneinfo-outlook"/>
       <plugin id="org.reactivestreams.reactive-streams"/>
       <plugin id="org.yaml.snakeyaml"/>
+      <plugin id="picocli"/>
       <plugin id="slf4j.api"/>
    </plugins>
 

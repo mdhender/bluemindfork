@@ -133,6 +133,21 @@ public interface IDomains {
 	public TaskRef setAliases(@PathParam("uid") String uid, Set<String> aliases) throws ServerFault;
 
 	/**
+	 * Define the domain default alias. The default alias is the name which appears
+	 * in the adminconsole when adding/modifying a domain "name". The default alias
+	 * is used as the default domain name to use when creating a new email account.
+	 * 
+	 * The default alias must be contained within the domain aliases.
+	 * 
+	 * @param uid          {@link Domain}'s unique id
+	 * @param defaultAlias default domain name
+	 * @throws ServerFault standard error object
+	 */
+	@POST
+	@Path("{uid}/_default_alias")
+	public void setDefaultAlias(@PathParam("uid") String uid, String defaultAlias) throws ServerFault;
+
+	/**
 	 * Fetch a {@link Domain} by its name or one of its alias.
 	 * 
 	 * @param name {@link Domain}'s name or alias

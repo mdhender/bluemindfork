@@ -42,5 +42,14 @@
       <observer
             class="net.bluemind.system.config.WorkerConnectionHook">
       </observer>
+      <sanitizor
+            class="net.bluemind.system.config.HttpProxyHook">
+      </sanitizor>
+      <validator
+            class="net.bluemind.system.config.HttpProxyHook">
+      </validator>
+      <observer
+            class="net.bluemind.system.config.HttpProxyHook">
+      </observer>
    </extension>
 </plugin>

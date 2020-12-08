@@ -72,23 +72,23 @@ public class TaskBackend extends CoreConnect {
 			HierarchyNode folder = storage.getHierarchyNode(bs, collectionId);
 			ITodoList service = getService(bs, folder.containerUid);
 
-			ContainerChangeset<String> changeset = service.changeset(version);
+			ContainerChangeset<Long> changeset = service.changesetById(version);
 			logger.debug("[{}][{}] get task changes. created: {}, updated: {}, deleted: {}, folder: {}, version: {}",
 					bs.getLoginAtDomain(), bs.getDevId(), changeset.created.size(), changeset.updated.size(),
 					changeset.deleted.size(), folder.containerUid, version);
 
 			changes.version = changeset.version;
 
-			for (String uid : changeset.created) {
-				changes.items.add(getItemChange(collectionId, uid, ItemDataType.TASKS, ChangeType.ADD));
+			for (long id : changeset.created) {
+				changes.items.add(getItemChange(collectionId, id, ItemDataType.TASKS, ChangeType.ADD));
 			}
 
-			for (String uid : changeset.updated) {
-				changes.items.add(getItemChange(collectionId, uid, ItemDataType.TASKS, ChangeType.CHANGE));
+			for (long id : changeset.updated) {
+				changes.items.add(getItemChange(collectionId, id, ItemDataType.TASKS, ChangeType.CHANGE));
 			}
 
-			for (String del : changeset.deleted) {
-				changes.items.add(getItemChange(collectionId, del, ItemDataType.TASKS, ChangeType.DELETE));
+			for (long id : changeset.deleted) {
+				changes.items.add(getItemChange(collectionId, id, ItemDataType.TASKS, ChangeType.DELETE));
 			}
 
 		} catch (ServerFault e) {
@@ -117,13 +117,13 @@ public class TaskBackend extends CoreConnect {
 		try {
 			if (sid.isPresent()) {
 				String serverId = sid.get();
-				String uid = getItemUid(serverId);
+				Long id = getItemId(serverId);
 
-				if (uid != null && !uid.isEmpty()) {
-					ItemValue<VTodo> item = service.getComplete(uid);
+				if (id != null) {
+					ItemValue<VTodo> item = service.getCompleteById(id);
 					if (item == null) {
-						logger.debug("Fail to find VTodo {}", uid);
-						return CollectionItem.of(collectionId, uid);
+						logger.debug("Fail to find VTodo {}", id);
+						return CollectionItem.of(collectionId, id);
 					}
 
 					if (conflictPolicy == ConflicResolution.SERVER_WINS && item.version > syncState.version) {
@@ -144,8 +144,8 @@ public class TaskBackend extends CoreConnect {
 					todo.categories = oldTodo.categories;
 
 					try {
-						service.update(uid, todo);
-						ret = CollectionItem.of(collectionId, uid);
+						service.updateById(id, todo);
+						ret = CollectionItem.of(collectionId, id);
 						logger.info("Update todo bs: {}, collection: {}, serverId: {}, summary: {}, completed: {}",
 								bs.getLoginAtDomain(), folder.containerUid, serverId, todo.summary, todo.completed);
 					} catch (Exception e) {
@@ -158,7 +158,9 @@ public class TaskBackend extends CoreConnect {
 				VTodo event = converter.convert(data);
 				String uid = UUID.randomUUID().toString();
 				service.create(uid, event);
-				ret = CollectionItem.of(collectionId, uid);
+
+				ItemValue<VTodo> created = service.getComplete(uid);
+				ret = CollectionItem.of(collectionId, created.internalId);
 			}
 
 		} catch (ServerFault e) {
@@ -179,7 +181,7 @@ public class TaskBackend extends CoreConnect {
 					HierarchyNode folder = storage.getHierarchyNode(bs, serverId.collectionId);
 					ITodoList service = getService(bs, folder.containerUid);
 
-					service.delete(serverId.itemId);
+					service.deleteById(serverId.itemId);
 				}
 			} catch (ServerFault e) {
 				if (e.getCode() == ErrorCode.PERMISSION_DENIED) {
@@ -196,7 +198,7 @@ public class TaskBackend extends CoreConnect {
 			HierarchyNode folder = storage.getHierarchyNode(bs, ic.getServerId().collectionId);
 			ITodoList service = getService(bs, folder.containerUid);
 
-			ItemValue<VTodo> todo = service.getComplete(ic.getServerId().itemId);
+			ItemValue<VTodo> todo = service.getCompleteById(ic.getServerId().itemId);
 			AppData ret = toAppData(bs, todo);
 
 			return ret;
@@ -205,17 +207,17 @@ public class TaskBackend extends CoreConnect {
 		}
 	}
 
-	public Map<String, AppData> fetchMultiple(BackendSession bs, CollectionId collectionId, List<String> uids)
+	public Map<Long, AppData> fetchMultiple(BackendSession bs, CollectionId collectionId, List<Long> ids)
 			throws ActiveSyncException {
 		HierarchyNode folder = storage.getHierarchyNode(bs, collectionId);
 		ITodoList service = getService(bs, folder.containerUid);
 
-		List<ItemValue<VTodo>> todos = service.multipleGet(uids);
-		Map<String, AppData> res = new HashMap<String, AppData>(uids.size());
+		List<ItemValue<VTodo>> todos = service.multipleGetById(ids);
+		Map<Long, AppData> res = new HashMap<>(ids.size());
 		todos.stream().forEach(todo -> {
 			try {
 				AppData data = toAppData(bs, todo);
-				res.put(todo.uid, data);
+				res.put(todo.internalId, data);
 			} catch (Exception e) {
 				logger.error("Fail to convert todo {}", todo.uid, e);
 			}

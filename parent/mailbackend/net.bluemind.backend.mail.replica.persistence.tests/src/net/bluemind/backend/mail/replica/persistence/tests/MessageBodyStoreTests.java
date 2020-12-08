@@ -209,9 +209,19 @@ public class MessageBodyStoreTests {
 		mb = simpleTextBody(guid2);
 		mb.subject = "expired";
 		bodyStore.store(mb);
-		adjustCreationDate(mb.subject);
 		reloaded = bodyStore.get(guid2);
 		assertNotNull(reloaded);
+
+		MailboxRecord record2 = new MailboxRecord();
+		record2.imapUid = 43;
+		record2.messageBody = guid2;
+		record2.internalDate = new Date();
+		record2.lastUpdated = new Date();
+		record2.flags = Collections.emptyList();
+		String uniqueId2 = "rec2" + System.currentTimeMillis();
+		itemStore.create(Item.create(uniqueId2, null));
+		Item it2 = itemStore.get(uniqueId2);
+		boxRecordStore.create(it2, record2);
 
 		String guid3 = CyrusGUID.randomGuid();
 		mb = simpleTextBody(guid3);
@@ -219,6 +229,19 @@ public class MessageBodyStoreTests {
 		reloaded = bodyStore.get(guid3);
 		assertNotNull(reloaded);
 
+		MailboxRecord record3 = new MailboxRecord();
+		record3.imapUid = 44;
+		record3.messageBody = guid3;
+		record3.internalDate = new Date();
+		record3.lastUpdated = new Date();
+		record3.flags = Collections.emptyList();
+		String uniqueId3 = "rec3" + System.currentTimeMillis();
+		itemStore.create(Item.create(uniqueId3, null));
+		Item it3 = itemStore.get(uniqueId3);
+		boxRecordStore.create(it3, record3);
+
+		boxRecordStore.delete(it2);
+		adjustCreationDate(guid2);
 		bodyStore.deleteOrphanBodies();
 
 		assertNotNull(bodyStore.get(guid));
@@ -226,11 +249,11 @@ public class MessageBodyStoreTests {
 		assertNotNull(bodyStore.get(guid3));
 	}
 
-	private void adjustCreationDate(String subject) throws SQLException {
+	private void adjustCreationDate(String guid) throws SQLException {
 		try (Connection con = JdbcTestHelper.getInstance().getDataSource().getConnection();
 				PreparedStatement stm = con.prepareStatement(
-						"update t_message_body set created = NOW() - INTERVAL '1 year' where subject = ?")) {
-			stm.setString(1, subject);
+						"update t_message_body_purge_queue set created = now() - '1 year'::interval where encode(message_body_guid, 'hex') = ? ")) {
+			stm.setString(1, guid);
 			stm.executeUpdate();
 		}
 	}

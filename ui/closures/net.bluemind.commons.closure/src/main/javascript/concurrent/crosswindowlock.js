@@ -111,7 +111,7 @@ net.bluemind.concurrent.CrossWindowLock.prototype.tryLock =
   function(opt_timeout) {
   var lock = this.storage_.get(this.key_);
   if (! lock  || lock == this.uid_) {
-    var t = net.bluemind.concurrent.CrossWindowLock.TIMEOUT;
+    var t = opt_timeout || net.bluemind.concurrent.CrossWindowLock.TIMEOUT;
     t += goog.now();
     this.storage_.set(this.key_, this.uid_, t);
     return true;

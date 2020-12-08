@@ -37,6 +37,7 @@ import net.bluemind.addressbook.api.VCard.Communications.Tel;
 import net.bluemind.addressbook.api.VCard.DeliveryAddressing;
 import net.bluemind.addressbook.api.VCard.DeliveryAddressing.Address;
 import net.bluemind.addressbook.api.VCard.Explanatory.Url;
+import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Organizational.Member;
 import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.addressbook.service.internal.VCardSanitizer;
@@ -57,7 +58,26 @@ public class BasicVCardSanitizerTest {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}
+		assertEquals("default", card.identification.formatedName.value);
 
+		card.identification.formatedName = null;
+
+		try {
+			getSanitizer().sanitize(card, Optional.empty());
+		} catch (ServerFault e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+		assertEquals("Ferris Hilton", card.identification.formatedName.value);
+
+		card.identification.formatedName = FormatedName.create("  ");
+
+		try {
+			getSanitizer().sanitize(card, Optional.empty());
+		} catch (ServerFault e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
 		assertEquals("Ferris Hilton", card.identification.formatedName.value);
 	}
 
@@ -75,7 +95,26 @@ public class BasicVCardSanitizerTest {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}
+		assertEquals("default", card.identification.formatedName.value);
 
+		card.identification.formatedName = null;
+
+		try {
+			getSanitizer().sanitize(card, Optional.empty());
+		} catch (ServerFault e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+		assertEquals(company, card.identification.formatedName.value);
+
+		card.identification.formatedName = FormatedName.create("  ");
+
+		try {
+			getSanitizer().sanitize(card, Optional.empty());
+		} catch (ServerFault e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
 		assertEquals(company, card.identification.formatedName.value);
 	}
 
@@ -97,9 +136,27 @@ public class BasicVCardSanitizerTest {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}
+		assertEquals("default", card.identification.formatedName.value);
 
+		card.identification.formatedName = null;
+
+		try {
+			getSanitizer().sanitize(card, Optional.empty());
+		} catch (ServerFault e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
 		assertEquals(email, card.identification.formatedName.value);
 
+		card.identification.formatedName = FormatedName.create("   ");
+
+		try {
+			getSanitizer().sanitize(card, Optional.empty());
+		} catch (ServerFault e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+		assertEquals(email, card.identification.formatedName.value);
 	}
 
 	@Test

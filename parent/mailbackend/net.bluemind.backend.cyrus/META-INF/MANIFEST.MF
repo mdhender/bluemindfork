@@ -43,7 +43,12 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.backend.cyrus.partitions;visibility:=reexport,
  net.bluemind.network.utils,
  net.bluemind.lib.jutf7,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ net.bluemind.system.state,
+ com.sun.mail.javax.mail;bundle-version="1.5.2",
+ org.apache.james.apache-mime4j-dom;bundle-version="0.7.3",
+ org.apache.james.apache-mime4j-core;bundle-version="0.7.3",
+ org.apache.james.apache-mime4j-storage;bundle-version="0.7.3"
 Automatic-Module-Name: net.bluemind.backend.cyrus
 
 

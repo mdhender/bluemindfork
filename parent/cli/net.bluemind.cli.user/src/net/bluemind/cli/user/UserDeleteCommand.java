@@ -19,8 +19,6 @@ package net.bluemind.cli.user;
 
 import java.util.Optional;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.SingleOrDomainOperation;
@@ -31,6 +29,8 @@ import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.user.api.IUser;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "delete", description = "delete user")
 public class UserDeleteCommand extends SingleOrDomainOperation {
@@ -48,7 +48,7 @@ public class UserDeleteCommand extends SingleOrDomainOperation {
 		}
 	}
 
-	@Option(name = "--dry", description = "Dry-run (do nothing)")
+	@Option(names = "--dry", description = "Dry-run (do nothing)")
 	public boolean dry = false;
 
 	@Override

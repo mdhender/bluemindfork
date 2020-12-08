@@ -67,7 +67,8 @@ CREATE TABLE t_mailfilter_vacation (
     start_date  timestamp,
     end_date    timestamp,
     subject		text,
-    body		text,
+    body_plain	text,
+    body_html	text,
     vacation_marker	boolean default false
 );
 

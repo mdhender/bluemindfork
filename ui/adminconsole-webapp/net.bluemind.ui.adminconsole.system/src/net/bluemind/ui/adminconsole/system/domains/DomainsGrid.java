@@ -56,12 +56,12 @@ public class DomainsGrid extends DataGrid<ItemValue<Domain>> implements IBmGrid<
 
 	public DomainsGrid() {
 		this.keyProvider = createKeyProvider();
-		selectionModel = new MultiSelectionModel<ItemValue<Domain>>(keyProvider);
+		selectionModel = new MultiSelectionModel<>(keyProvider);
 
 		IEditHandler<ItemValue<Domain>> editHandler = createEditHandler();
 
 		RowSelectionEventManager<ItemValue<Domain>> rowSelectionEventManager = RowSelectionEventManager
-				.<ItemValue<Domain>> createRowManager(editHandler);
+				.<ItemValue<Domain>>createRowManager(editHandler);
 		setSelectionModel(selectionModel, rowSelectionEventManager);
 
 		createColums();
@@ -88,14 +88,14 @@ public class DomainsGrid extends DataGrid<ItemValue<Domain>> implements IBmGrid<
 		addColumn(checkColumn, selHead, selHead);
 		setColumnWidth(checkColumn, 40, Unit.PX);
 
-		TextColumn<ItemValue<Domain>> name = new TextColumn<ItemValue<Domain>>() {
+		TextColumn<ItemValue<Domain>> defaultAlias = new TextColumn<ItemValue<Domain>>() {
 			@Override
 			public String getValue(ItemValue<Domain> domain) {
-				return domain.value.name;
+				return domain.value.defaultAlias;
 			}
 		};
-		addColumn(name, DomainConstants.INST.name(), DomainConstants.INST.name());
-		setColumnWidth(name, 40, Unit.PCT);
+		addColumn(defaultAlias, DomainConstants.INST.defaultAlias(), DomainConstants.INST.defaultAlias());
+		setColumnWidth(defaultAlias, 40, Unit.PCT);
 
 		TextColumn<ItemValue<Domain>> description = new TextColumn<ItemValue<Domain>>() {
 			@Override
@@ -105,6 +105,15 @@ public class DomainsGrid extends DataGrid<ItemValue<Domain>> implements IBmGrid<
 		};
 		addColumn(description, DomainConstants.INST.description(), DomainConstants.INST.description());
 		setColumnWidth(description, 40, Unit.PCT);
+
+		TextColumn<ItemValue<Domain>> uid = new TextColumn<ItemValue<Domain>>() {
+			@Override
+			public String getValue(ItemValue<Domain> domain) {
+				return domain.uid;
+			}
+		};
+		addColumn(uid, DomainConstants.INST.name(), DomainConstants.INST.name());
+		setColumnWidth(uid, 20, Unit.PCT);
 
 		Column<ItemValue<Domain>, Collection<String>> aliases = new Column<ItemValue<Domain>, Collection<String>>(
 				new BulletListCell()) {

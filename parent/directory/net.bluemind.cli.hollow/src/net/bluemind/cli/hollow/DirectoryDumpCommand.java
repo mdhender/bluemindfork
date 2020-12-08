@@ -25,8 +25,6 @@ import java.util.Optional;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -36,6 +34,8 @@ import net.bluemind.directory.hollow.datamodel.consumer.DirectorySearchFactory;
 import net.bluemind.directory.hollow.datamodel.consumer.HString;
 import net.bluemind.directory.hollow.datamodel.consumer.ListOfEmail;
 import net.bluemind.directory.hollow.datamodel.consumer.SerializedDirectorySearch;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "directory", description = "List items in hollow directory")
 public class DirectoryDumpCommand implements ICmdLet, Runnable {
@@ -55,7 +55,7 @@ public class DirectoryDumpCommand implements ICmdLet, Runnable {
 
 	private CliContext ctx;
 
-	@Arguments(required = true, description = "the domain (uid or alias)")
+	@Parameters(paramLabel = "<domain>", description = "the domain (uid or alias)")
 	public String domain;
 
 	@Override

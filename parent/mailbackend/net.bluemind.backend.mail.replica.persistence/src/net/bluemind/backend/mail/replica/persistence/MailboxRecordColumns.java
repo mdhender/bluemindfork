@@ -91,7 +91,7 @@ public class MailboxRecordColumns {
 		}
 	}
 
-	public static StatementValues<MailboxRecord> values(final Item item) {
+	public static StatementValues<MailboxRecord> values(long containerId, final Item item) {
 		return new StatementValues<MailboxRecord>() {
 
 			@Override
@@ -115,6 +115,7 @@ public class MailboxRecordColumns {
 				compoundFlags |= InternalFlag.valueOf(value.internalFlags);
 				statement.setInt(index++, compoundFlags);
 				statement.setArray(index++, con.createArrayOf("text", otherFlags.toArray()));
+				statement.setLong(index++, containerId);
 				statement.setLong(index++, item.id);
 				return 0;
 			}

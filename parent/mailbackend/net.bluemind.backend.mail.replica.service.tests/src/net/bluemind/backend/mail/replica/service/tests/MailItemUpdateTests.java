@@ -31,11 +31,13 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody.Header;
+import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.core.container.api.Ack;
@@ -48,6 +50,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
+import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.mime.MimeTree;
 
@@ -61,6 +64,7 @@ public class MailItemUpdateTests extends AbstractRollingReplicationTests {
 	private ItemValue<MailboxItem> mailObject;
 
 	@Before
+	@Override
 	public void before() throws Exception {
 		super.before();
 
@@ -128,6 +132,27 @@ public class MailItemUpdateTests extends AbstractRollingReplicationTests {
 		ItemValue<MailboxItem> reloaded = mailApi.getCompleteById(mailObject.internalId);
 		assertEquals(newSubject, reloaded.value.body.subject);
 		assertNotEquals(mailObject.value.imapUid, reloaded.value.imapUid);
+	}
+
+	@Test
+	public void updateEmailAndMaintainExistingAttachments() {
+		mailObject.value.body.headers.add(Header.create("John", "Bang" + System.currentTimeMillis()));
+		Part tree = mailObject.value.body.structure;
+		printMimeTree(tree);
+
+		Ack ack = mailApi.updateById(mailObject.internalId, mailObject.value);
+		assertTrue(ack.version > mailObject.version);
+		ItemValue<MailboxItem> reloaded = mailApi.getCompleteById(mailObject.internalId);
+		Part newTree = reloaded.value.body.structure;
+		printMimeTree(newTree);
+
+		// existing attachments should still have the same size
+		assertEquals(tree.children.get(1).size, newTree.children.get(1).size);
+
+	}
+
+	private void printMimeTree(Part tree) {
+		System.err.println(new JsonObject(JsonUtils.asString(tree)).encodePrettily());
 	}
 
 	@Test

@@ -24,19 +24,20 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.IMIPInfos.IMIPType;
 import net.bluemind.imip.parser.ITIPMethod;
+import net.bluemind.lmtp.backend.LmtpAddress;
 
 public abstract class IMIPHandlerFactory {
 
 	private static final Logger logger = LoggerFactory.getLogger(IMIPHandlerFactory.class);
 
-	public static IIMIPHandler get(IMIPInfos imip) {
+	public static IIMIPHandler get(IMIPInfos imip, LmtpAddress recip, LmtpAddress sender) {
 		IMIPType type = imip.type();
 		if (null != type) {
 			switch (type) {
 			case VEVENT:
-				return EventIMIPHandlerFactory.get(imip.method);
+				return EventIMIPHandlerFactory.get(imip.method, recip, sender);
 			case VTODO:
-				return TodoIMIPHandlerFactory.get(imip.method);
+				return TodoIMIPHandlerFactory.get(imip.method, recip, sender);
 			}
 		}
 		logger.warn("No handler for imip info found");
@@ -45,14 +46,14 @@ public abstract class IMIPHandlerFactory {
 
 	private static abstract class EventIMIPHandlerFactory {
 
-		public static IIMIPHandler get(ITIPMethod method) {
+		public static IIMIPHandler get(ITIPMethod method, LmtpAddress recip, LmtpAddress sender) {
 			switch (method) {
 			case REQUEST:
-				return new EventRequestHandler();
+				return new EventRequestHandler(recip, sender);
 			case REPLY:
-				return new EventReplyHandler();
+				return new EventReplyHandler(recip, sender);
 			case CANCEL:
-				return new EventCancelHandler();
+				return new EventCancelHandler(recip, sender);
 			case ADD:
 			case COUNTER:
 			case DECLINECOUNTER:
@@ -67,14 +68,14 @@ public abstract class IMIPHandlerFactory {
 
 	private static abstract class TodoIMIPHandlerFactory {
 
-		public static IIMIPHandler get(ITIPMethod method) {
+		public static IIMIPHandler get(ITIPMethod method, LmtpAddress recip, LmtpAddress sender) {
 			switch (method) {
 			case REQUEST:
-				return new TodoRequestHandler();
+				return new TodoRequestHandler(recip, sender);
 			case REPLY:
-				return new TodoReplyHandler();
+				return new TodoReplyHandler(recip, sender);
 			case CANCEL:
-				return new TodoCancelHandler();
+				return new TodoCancelHandler(recip, sender);
 			case ADD:
 			case COUNTER:
 			case DECLINECOUNTER:

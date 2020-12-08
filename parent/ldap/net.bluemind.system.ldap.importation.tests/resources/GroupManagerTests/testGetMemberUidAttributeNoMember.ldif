@@ -1,6 +1,0 @@
-dn: cn=grptest00,dc=local
-objectClass: top
-objectClass: posixGroup
-cn: grptest00
-gidNumber: 10000
-description: Test group 00

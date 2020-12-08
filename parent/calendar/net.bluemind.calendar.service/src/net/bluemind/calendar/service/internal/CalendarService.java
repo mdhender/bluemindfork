@@ -55,6 +55,7 @@ import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerSyncStatus;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
+import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
@@ -115,7 +116,7 @@ public class CalendarService implements IInternalCalendar {
 		storeService = new VEventContainerStoreService(context, pool, context.getSecurityContext(), container,
 				veventStore);
 
-		indexStore = new VEventIndexStore(esearchClient, container);
+		indexStore = new VEventIndexStore(esearchClient, container, DataSourceRouter.location(context, container.uid));
 
 		EventBus eventBus = VertxPlatform.eventBus();
 		calendarEventProducer = new CalendarEventProducer(auditor, container, context.getSecurityContext(), eventBus);
@@ -194,7 +195,7 @@ public class CalendarService implements IInternalCalendar {
 
 		String summary = event.displayName();
 		ItemVersion version = storeService.createWithId(uid, internalId, null, summary, event);
-		indexStore.create(uid, event);
+		indexStore.create(Item.create(uid, version.id), event);
 		calendarEventProducer.veventCreated(event, uid, sendNotifications);
 
 		return version.version;
@@ -292,7 +293,7 @@ public class CalendarService implements IInternalCalendar {
 
 		String summary = event.displayName();
 		ItemVersion upd = storeService.update(uid, summary, event);
-		indexStore.update(uid, event);
+		indexStore.update(Item.create(uid, upd.id), event);
 		calendarEventProducer.veventUpdated(old.value, event, uid, sendNotifications);
 		return upd;
 	}
@@ -349,6 +350,15 @@ public class CalendarService implements IInternalCalendar {
 		return filterValues(values);
 	}
 
+	@Override
+	public List<ItemValue<VEventSeries>> multipleGetById(List<Long> ids) throws ServerFault {
+		rbacManager.check(Verb.Read.name());
+
+		List<ItemValue<VEventSeries>> values = storeService.getMultipleById(ids);
+
+		return filterValues(values);
+	}
+
 	private List<ItemValue<VEventSeries>> filterValues(List<ItemValue<VEventSeries>> values) throws ServerFault {
 
 		// tom: what the fuck does this do ?
@@ -383,13 +393,12 @@ public class CalendarService implements IInternalCalendar {
 			logger.warn("Failed to delete, event not found {}/{}", optUid, itemId);
 			return;
 		}
-		String uid = item.uid;
 
 		auditor.previousValue(item.value);
-		storeService.delete(uid);
-		indexStore.delete(uid);
+		storeService.delete(item.uid);
+		indexStore.delete(item.internalId);
 
-		calendarEventProducer.veventDeleted(item.value, uid, sendNotifications);
+		calendarEventProducer.veventDeleted(item.value, item.uid, sendNotifications);
 
 	}
 

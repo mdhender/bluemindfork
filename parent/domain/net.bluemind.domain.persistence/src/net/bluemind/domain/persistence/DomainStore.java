@@ -46,7 +46,7 @@ public class DomainStore extends AbstractItemValueStore<Domain> {
 		String query = "INSERT INTO t_domain ( " + DomainColumns.cols.names() + ", item_id)" + " VALUES ( "
 				+ DomainColumns.cols.values() + ", ?)";
 
-		insert(query.toString(), value, DomainColumns.statementValues(item.id));
+		insert(query, value, DomainColumns.statementValues(item.id));
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class DomainStore extends AbstractItemValueStore<Domain> {
 		String query = "UPDATE t_domain SET (  " + DomainColumns.cols.names() + " " + ") = ( "
 				+ DomainColumns.cols.values() + ") WHERE item_id = ?";
 
-		insert(query.toString(), value, DomainColumns.statementValues(item.id));
+		insert(query, value, DomainColumns.statementValues(item.id));
 
 	}
 
@@ -83,8 +83,8 @@ public class DomainStore extends AbstractItemValueStore<Domain> {
 	}
 
 	public String findByNameOrAliases(String name) throws SQLException {
-		String query = "SELECT item.uid FROM t_container_item item , t_domain domain WHERE domain.item_id = item.id AND "
-				+ " ( domain.name = ? or ?::text = ANY (domain.aliases )) ";
+		String query = "SELECT item.uid FROM t_container_item item, t_domain domain WHERE domain.item_id = item.id AND "
+				+ " ( domain.name = ? or ?::text = ANY (domain.aliases)) ";
 
 		return unique(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { name, name });
 	}

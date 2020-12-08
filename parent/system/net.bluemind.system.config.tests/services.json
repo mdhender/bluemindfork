@@ -1,3 +1,9 @@
 [{ 
  	"name":"bluemind/postgres-tests" 
+},
+{
+    "name":"bluemind/proxy"
+},
+{
+    "name":"bluemind/node-tests"
 }]

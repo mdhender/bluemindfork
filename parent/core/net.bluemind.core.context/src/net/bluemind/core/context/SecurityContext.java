@@ -149,11 +149,25 @@ public class SecurityContext {
 				+ ", roles=" + roles + ", domainUid=" + domainUid + ", lang=" + lang + "]";
 	}
 
-	public SecurityContext from(List<String> remoteAddresses) {
+	public final SecurityContext from(List<String> remoteAddresses) {
+		return from(remoteAddresses, null);
+	}
+
+	public SecurityContext from(List<String> remoteAddresses, String headerOrigin) {
 		SecurityContext ret = new SecurityContext(sessionId, subject, memberOf, roles, orgUnitsRoles, domainUid, lang,
-				origin, interactive);
+				bestOrigin(origin, headerOrigin), interactive);
 		ret.remoteAddresses = remoteAddresses;
 		return ret;
+	}
+
+	private String bestOrigin(String cur, String headerOrigin) {
+		if (headerOrigin == null) {
+			return cur;
+		}
+		if (SYSTEM.origin.equals(cur)) {
+			return headerOrigin;
+		}
+		return cur;
 	}
 
 	public boolean isInteractive() {

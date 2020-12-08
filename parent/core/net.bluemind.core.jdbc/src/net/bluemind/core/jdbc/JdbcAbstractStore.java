@@ -275,8 +275,49 @@ public class JdbcAbstractStore {
 			return st.executeUpdate();
 		} finally {
 			JdbcHelper.cleanup(conn, null, st);
-
 		}
+	}
+
+	protected <T> List<T> delete(String query, Creator<T> creator, List<EntityPopulator<T>> populators)
+			throws SQLException {
+		return delete(query, creator, populators, null);
+	}
+
+	protected <T> List<T> delete(String query, Creator<T> creator, List<EntityPopulator<T>> populators,
+			Object[] parameters) throws SQLException {
+		Connection conn = getConnection();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		List<T> ret = new ArrayList<>();
+		try {
+			st = conn.prepareStatement(query);
+			if (parameters != null) {
+				for (int i = 0; i < parameters.length; i++) {
+					Object param = parameters[i];
+					if (param instanceof String[]) {
+						st.setArray(i + 1, conn.createArrayOf("text", (String[]) param));
+					} else if (param instanceof Long[]) {
+						st.setArray(i + 1, conn.createArrayOf("int4", (Long[]) param));
+					} else if (param instanceof Byte[]) {
+						st.setArray(i + 1, conn.createArrayOf("bytea", (Byte[]) param));
+					} else {
+						st.setObject(i + 1, parameters[i]);
+					}
+				}
+			}
+			rs = st.executeQuery();
+			while (rs.next()) {
+				int index = 1;
+				T v = creator.create(rs);
+				for (EntityPopulator<T> populator : populators) {
+					index = populator.populate(rs, index, v);
+				}
+				ret.add(v);
+			}
+		} finally {
+			JdbcHelper.cleanup(conn, null, st);
+		}
+		return ret;
 	}
 
 	protected <T> void batchInsert(String query, Collection<T> values, StatementValues<T> statementValues)

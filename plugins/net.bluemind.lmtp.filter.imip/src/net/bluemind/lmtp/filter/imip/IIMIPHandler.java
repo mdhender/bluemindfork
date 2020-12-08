@@ -36,12 +36,11 @@ public interface IIMIPHandler {
 	 * @param imip
 	 * @param recipient
 	 * @param domain
-	 *            TODO
 	 * @param iCalendarElement
 	 * @param recipientDefaultCalendar
 	 * @throws ServerFault
 	 */
 	IMIPResponse handle(IMIPInfos imip, LmtpAddress recipient, ItemValue<Domain> domain,
-			ItemValue<Mailbox> recipientMailbox) throws ServerFault;
+			ItemValue<Mailbox> recipientMailbox);
 
 }

@@ -26,9 +26,12 @@ import net.bluemind.common.io.FileBackedOutputStream;
 
 public final class FBOSInput {
 
+	private FBOSInput() {
+	}
+
 	public static final InputStream from(final FileBackedOutputStream fbos) throws IOException {
 		InputStream in = fbos.asByteSource().openStream();
-		FilterInputStream fin = new FilterInputStream(in) {
+		return new FilterInputStream(in) {
 
 			@Override
 			public void close() throws IOException {
@@ -37,6 +40,5 @@ public final class FBOSInput {
 			}
 
 		};
-		return fin;
 	}
 }

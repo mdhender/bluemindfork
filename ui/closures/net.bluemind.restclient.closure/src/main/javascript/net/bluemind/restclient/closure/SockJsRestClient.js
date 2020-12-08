@@ -228,7 +228,7 @@ net.bluemind.restclient.SockJsRestClient.prototype.handleConnect_ = function() {
 	    console.log("hearbeat fail, disconnect!");
             this.hearbeatId = null;
             this.sockJSConn_.close();
-        }, 1000 * 20, that);
+        }, 1000 * 100, that);
 
     };
 

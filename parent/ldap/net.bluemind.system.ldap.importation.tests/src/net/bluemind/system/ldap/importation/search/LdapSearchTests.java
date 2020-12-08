@@ -128,13 +128,13 @@ public class LdapSearchTests {
 		LdapSearch search = new LdapSearch(ldapParameters);
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
-			PagedSearchResult findUser = search.getUserUUID(connection,
+			Optional<Entry> entry = search.getUserUUID(connection,
 					new Dn("uid=user00," + LdapDockerTestHelper.LDAP_ROOT_DN));
 
-			Assert.assertTrue(findUser.next());
-			Entry entry = findUser.getEntry();
-			Assert.assertNotNull(entry.get(ldapParameters.ldapDirectory.extIdAttribute).getString());
-			Assert.assertFalse(entry.get(ldapParameters.ldapDirectory.extIdAttribute).getString().trim().isEmpty());
+			Assert.assertTrue(entry.isPresent());
+			Assert.assertNotNull(entry.get().get(ldapParameters.ldapDirectory.extIdAttribute).getString());
+			Assert.assertFalse(
+					entry.get().get(ldapParameters.ldapDirectory.extIdAttribute).getString().trim().isEmpty());
 		}
 	}
 
@@ -145,12 +145,12 @@ public class LdapSearchTests {
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
 			Dn groupDn = new Dn("cn=grptest00," + LdapDockerTestHelper.LDAP_ROOT_DN);
-			PagedSearchResult findGroupName = search.getGroupFromDn(connection, groupDn);
+			Optional<Entry> entry = search.getGroupFromDn(connection, groupDn);
 
-			Assert.assertTrue(findGroupName.next());
-			Entry entry = findGroupName.getEntry();
-			Assert.assertNotNull(entry.get(ldapParameters.ldapDirectory.extIdAttribute).getString());
-			Assert.assertFalse(entry.get(ldapParameters.ldapDirectory.extIdAttribute).getString().trim().isEmpty());
+			Assert.assertTrue(entry.isPresent());
+			Assert.assertNotNull(entry.get().get(ldapParameters.ldapDirectory.extIdAttribute).getString());
+			Assert.assertFalse(
+					entry.get().get(ldapParameters.ldapDirectory.extIdAttribute).getString().trim().isEmpty());
 		}
 	}
 

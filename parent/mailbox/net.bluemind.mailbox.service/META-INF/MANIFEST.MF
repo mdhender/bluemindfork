@@ -56,6 +56,7 @@ Export-Package: net.bluemind.mailbox.service,
  net.bluemind.mailbox.service.common,
  net.bluemind.mailbox.service.hook,
  net.bluemind.mailbox.service.internal,
+ net.bluemind.mailbox.service.internal.repair,
  net.bluemind.mailbox.service.mailtip
 Automatic-Module-Name: net.bluemind.mailbox.service
 Bundle-Activator: net.bluemind.mailbox.service.MailboxServiceActivator

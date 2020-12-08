@@ -73,13 +73,14 @@ public class CalendarColor implements IPropertyValue {
 			int idx = stringColor.indexOf('#');
 			symbolic = stringColor.substring(0, idx);
 			rgb = stringColor.substring(idx);
+			logger.info("[{}] will use custom color {}{} ", dr.getPath(), symbolic, rgb);
 		} else {
 			// generate & update
 			int index = Math.abs(dr.getPath().hashCode()) % allColors.length;
 			BMCalColor cc = allColors[index];
 			symbolic = cc.getSymbolic();
 			rgb = cc.getRgb();
-			logger.info("[{}] will use generated color {} ({})", dr.getPath(), cc, index);
+			logger.info("[{}] will use generated color {} ({}) {}{}", dr.getPath(), cc, index, symbolic, rgb);
 		}
 	}
 

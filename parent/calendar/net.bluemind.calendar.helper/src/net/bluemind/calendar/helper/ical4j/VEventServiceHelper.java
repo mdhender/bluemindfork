@@ -75,6 +75,7 @@ import net.fortuna.ical4j.model.property.DtEnd;
 import net.fortuna.ical4j.model.property.LastModified;
 import net.fortuna.ical4j.model.property.Method;
 import net.fortuna.ical4j.model.property.ProdId;
+import net.fortuna.ical4j.model.property.Status;
 import net.fortuna.ical4j.model.property.Transp;
 import net.fortuna.ical4j.model.property.Version;
 import net.fortuna.ical4j.model.property.XProperty;
@@ -110,7 +111,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 			calendar.getProperties().add(method);
 		}
 
-		Set<String> timezones = new HashSet<String>();
+		Set<String> timezones = new HashSet<>();
 
 		for (ItemValue<VEventSeries> eventItem : vevents) {
 			VEventSeries event = eventItem.value;
@@ -122,6 +123,12 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 				timezones.add(occurrence.dtstart.timezone);
 				timezones.add(occurrence.dtend.timezone);
 			});
+		}
+
+		addVTimezone(calendar, timezones);
+
+		for (ItemValue<VEventSeries> eventItem : vevents) {
+			VEventSeries event = eventItem.value;
 			List<net.fortuna.ical4j.model.component.VEvent> evts = convertToIcal4jVEvent(event.icsUid, event);
 
 			if (eventItem.updated != null) {
@@ -148,11 +155,25 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 						}
 					}
 				}
+				if (method == Method.CANCEL) {
+					PropertyList props = icalEvent.getProperties();
+					Property val = props.getProperty("STATUS");
+					if (val != null) {
+						props.remove(val);
+					}
+					props.add(Status.VEVENT_CANCELLED);
+
+					val = props.getProperty("TRANSP");
+					if (val != null) {
+						props.remove(val);
+					}
+					props.add(Transp.TRANSPARENT);
+
+				}
+
 				calendar.getComponents().add(icalEvent);
 			}
 		}
-
-		addVTimezone(calendar, timezones);
 
 		return calendar;
 	}

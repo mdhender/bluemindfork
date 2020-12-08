@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.proxy.support.tests
+Bundle-SymbolicName: net.bluemind.proxy.support.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Automatic-Module-Name: net.bluemind.proxy.support.tests
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.system.api,
+ net.bluemind.proxy.support,
+ org.junit,
+ org.asynchttpclient.async-http-client,
+ net.bluemind.pool

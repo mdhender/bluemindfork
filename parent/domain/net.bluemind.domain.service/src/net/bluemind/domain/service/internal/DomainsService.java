@@ -21,10 +21,10 @@ package net.bluemind.domain.service.internal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.concurrent.TimeUnit;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.PathParam;
 
@@ -55,6 +55,7 @@ import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.utils.UIDGenerator;
 import net.bluemind.core.validator.Validator;
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.service.DirEntryHandlers;
@@ -90,10 +91,8 @@ public class DomainsService implements IDomains {
 
 	private static final List<IDomainHook> hooks = getHooks();
 
-	protected static final Cache<String, ItemValue<Domain>> cache = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterWrite(10, TimeUnit.MINUTES)
-			.build();
+	protected static final Cache<String, ItemValue<Domain>> cache = CacheBuilder.newBuilder().recordStats()
+			.expireAfterWrite(10, TimeUnit.MINUTES).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override
@@ -136,8 +135,8 @@ public class DomainsService implements IDomains {
 			containers.create(uid, ContainerDescriptor.create(uid, "directory of " + domain.name,
 					context.getSecurityContext().getSubject(), "dir", uid, true));
 
-			DirEntryHandlers.byKind(DirEntry.Kind.DOMAIN).create(context, uid,
-					DirEntry.create(null, uid, DirEntry.Kind.DOMAIN, uid, domain.label, null, true, true, false));
+			DirEntryHandlers.byKind(BaseDirEntry.Kind.DOMAIN).create(context, uid,
+					DirEntry.create(null, uid, BaseDirEntry.Kind.DOMAIN, uid, domain.label, null, true, true, false));
 			return store.get(uid, null);
 		});
 
@@ -207,12 +206,16 @@ public class DomainsService implements IDomains {
 		if (!domain.aliases.equals(currentDomain.value.aliases)) {
 			throw new ServerFault("Domain aliases should be modified via setAliases method",
 					ErrorCode.INVALID_PARAMETER);
-
 		}
+		if (!domain.defaultAlias.equals(currentDomain.value.defaultAlias)) {
+			throw new ServerFault("Domain default alias should be modified via setDefaultAliases method",
+					ErrorCode.INVALID_PARAMETER);
+		}
+
 		ItemValue<Domain> value = store.doOrFail(() -> {
 			store.update(uid, domain.label, domain);
-			DirEntryHandlers.byKind(DirEntry.Kind.DOMAIN).update(context, uid,
-					DirEntry.create(null, uid, DirEntry.Kind.DOMAIN, uid, domain.label, null, true, true, false));
+			DirEntryHandlers.byKind(BaseDirEntry.Kind.DOMAIN).update(context, uid,
+					DirEntry.create(null, uid, BaseDirEntry.Kind.DOMAIN, uid, domain.label, null, true, true, false));
 
 			ItemValue<Domain> updated = store.get(uid, null);
 			domainsCache.put(uid, updated);
@@ -419,6 +422,36 @@ public class DomainsService implements IDomains {
 			monitor.progress(1, "calling hook (" + (i + 1) + " on " + hooks.size() + ")");
 			i++;
 		}
+	}
+
+	@Override
+	public void setDefaultAlias(String uid, String defaultAlias) {
+		rbacManager.forDomain(uid).check(BasicRoles.ROLE_ADMIN);
+		ParametersValidator.notNullAndNotEmpty(uid);
+
+		final ItemValue<Domain> currentDomainItem = get(uid);
+		if (currentDomainItem == null) {
+			throw new ServerFault("Domain " + uid + " doesnt exists", ErrorCode.NOT_FOUND);
+		}
+		final Domain domain = currentDomainItem.value.copy();
+
+		domain.defaultAlias = defaultAlias;
+		validator.validate(store, domain);
+
+		ItemValue<Domain> updatedDomainItem = store.doOrFail(() -> {
+			store.update(uid, domain.label, domain);
+			DirEntryHandlers.byKind(BaseDirEntry.Kind.DOMAIN).update(context, uid,
+					DirEntry.create(null, uid, BaseDirEntry.Kind.DOMAIN, uid, domain.label, null, true, true, false));
+
+			ItemValue<Domain> updated = store.get(uid, null);
+			domainsCache.put(uid, updated);
+			return updated;
+		});
+
+		for (IDomainHook hook : hooks) {
+			hook.onUpdated(context, currentDomainItem, updatedDomainItem);
+		}
+		notify("domain.updated", domain.name);
 	}
 
 	@Override

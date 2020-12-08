@@ -20,8 +20,6 @@ package net.bluemind.cli.metrics;
 import java.util.Optional;
 import java.util.Set;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -30,6 +28,8 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.metrics.alerts.api.CheckResult;
 import net.bluemind.metrics.alerts.api.IProductChecks;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "run", description = "display the TICK stack status")
 public class CheckRunCommand implements ICmdLet, Runnable {
@@ -50,7 +50,7 @@ public class CheckRunCommand implements ICmdLet, Runnable {
 
 	private CliContext ctx;
 
-	@Arguments(title = "check-name", description = "Triggers the execution a check with the given name")
+	@Parameters(paramLabel = "<check-name>", description = "Triggers the execution a check with the given name")
 	public String check;
 
 	public CheckRunCommand() {

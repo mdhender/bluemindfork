@@ -26,6 +26,15 @@ import com.github.javafaker.GameOfThrones;
 public class GOTMessageProducer implements IMessageProducer {
 
 	private static final GameOfThrones gotFaker = Faker.instance().gameOfThrones();
+	private final int loops;
+
+	public GOTMessageProducer() {
+		this(1024);
+	}
+
+	public GOTMessageProducer(int loops) {
+		this.loops = loops;
+	}
 
 	@Override
 	public byte[] createEml(TargetMailbox from, TargetMailbox to) {
@@ -35,7 +44,7 @@ public class GOTMessageProducer implements IMessageProducer {
 		sb.append("Content-Type: text/html; charset=utf-8\r\n");
 		sb.append("Subject: Rand Message ").append(UUID.randomUUID()).append("\r\n\r\n");
 		sb.append("<html><body><p>Yeah this is   body   </p>\r\n");
-		for (int i = 0; i < 1024; i++) {
+		for (int i = 0; i < loops; i++) {
 			sb.append("<p>").append(gotFaker.quote()).append("</p>\r\n");
 			sb.append("<div>Written by <em>").append(gotFaker.character()).append("</em> of ").append(gotFaker.house())
 					.append("</div>");

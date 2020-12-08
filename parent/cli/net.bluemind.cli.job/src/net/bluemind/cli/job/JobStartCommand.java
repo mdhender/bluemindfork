@@ -17,22 +17,20 @@
   */
 package net.bluemind.cli.job;
 
-
 import java.util.Optional;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.scheduledjob.api.Job;
-
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "start", description = "Start a job on global.virt or domain.tld")
-public class JobStartCommand extends JobCommand  implements ICmdLet, Runnable {
+public class JobStartCommand extends JobCommand implements ICmdLet, Runnable {
 
 	public static class Reg implements ICmdLetRegistration {
 
@@ -46,13 +44,13 @@ public class JobStartCommand extends JobCommand  implements ICmdLet, Runnable {
 			return JobStartCommand.class;
 		}
 	}
-	
-	@Arguments(required = true, description = "global.virt or domain.tld")
+
+	@Parameters(paramLabel = "<domain_uid>", description = "global.virt or domain.tld")
 	public String target;
-	
-	@Option(required=true, name = "--job", description = "Job name")
+
+	@Option(required = true, names = "--job", description = "Job name")
 	public String job;
-	
+
 	protected CliContext ctx;
 	protected CliUtils cliUtils;
 
@@ -62,24 +60,24 @@ public class JobStartCommand extends JobCommand  implements ICmdLet, Runnable {
 		this.cliUtils = new CliUtils(ctx);
 		return this;
 	}
-	
+
 	@Override
 	public void run() {
 		ListResult<Job> jobs = super.getjobs(ctx, target);
 		runJob(jobs, target);
 	}
-	
-	private void runJob( ListResult<Job> jobs, String domain) {
+
+	private void runJob(ListResult<Job> jobs, String domain) {
 		Boolean found = false;
 		for (Job entry : jobs.values) {
 			if (entry.id.toLowerCase().contains(job.toLowerCase())) {
 				this.getJobsApi().start(entry.id, domain);
 				found = true;
-				ctx.info("Starting " + job + " on " + domain );
+				ctx.info("Starting " + job + " on " + domain);
 			}
 		}
 		if (Boolean.FALSE.equals(found)) {
-			ctx.error("Job " + job + " unknown or not found on " + domain );
+			ctx.error("Job " + job + " unknown or not found on " + domain);
 		}
-	}	
+	}
 }

@@ -168,6 +168,20 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 	}
 
 	public Stream fetchComplete(long imapUid) {
+		final InputStream constStream = fetchCompleteOIO(imapUid);
+		InputReadStream streamAdapter = new InputReadStream(constStream);
+		streamAdapter.exceptionHandler(t -> {
+			try {
+				constStream.close();
+			} catch (IOException e) {
+				// that's ok
+			}
+		});
+		return VertxStream.stream(streamAdapter);
+
+	}
+
+	protected InputStream fetchCompleteOIO(long imapUid) {
 		SubtreeLocation recordsLocation = optRecordsLocation
 				.orElseThrow(() -> new ServerFault("Missing subtree location"));
 		String datalocation = DataSourceRouter.location(context, recordsLocation.subtreeContainer);
@@ -217,17 +231,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 				throw new ServerFault("body for uid " + imapUid + " not found", ErrorCode.NOT_FOUND);
 			}
 		}
-		final InputStream constStream = oioStream;
-		InputReadStream streamAdapter = new InputReadStream(constStream);
-		streamAdapter.exceptionHandler(t -> {
-			try {
-				constStream.close();
-			} catch (IOException e) {
-				// that's ok
-			}
-		});
-		return VertxStream.stream(streamAdapter);
-
+		return oioStream;
 	}
 
 	protected boolean checkExistOnBackend(long imapUid) {

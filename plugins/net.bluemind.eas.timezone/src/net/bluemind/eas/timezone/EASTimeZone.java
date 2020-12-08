@@ -84,4 +84,44 @@ public class EASTimeZone {
 		return toJson().encodePrettily();
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + bias;
+		result = prime * result + daylightBias;
+		result = prime * result + ((daylightDate == null) ? 0 : daylightDate.hashCode());
+		result = prime * result + standardBias;
+		result = prime * result + ((standardDate == null) ? 0 : standardDate.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		EASTimeZone other = (EASTimeZone) obj;
+		if (bias != other.bias)
+			return false;
+		if (daylightBias != other.daylightBias)
+			return false;
+		if (daylightDate == null) {
+			if (other.daylightDate != null)
+				return false;
+		} else if (!daylightDate.equals(other.daylightDate))
+			return false;
+		if (standardBias != other.standardBias)
+			return false;
+		if (standardDate == null) {
+			if (other.standardDate != null)
+				return false;
+		} else if (!standardDate.equals(other.standardDate))
+			return false;
+		return true;
+	}
+
 }

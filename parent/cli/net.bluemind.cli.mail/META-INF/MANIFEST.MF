@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.cli.mail
 Bundle-SymbolicName: net.bluemind.cli.mail;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-Activator: net.bluemind.cli.mail.MailCliActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.cli.cmd.api,
@@ -17,7 +16,10 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.elastic.client,
  net.bluemind.lib.elasticsearch,
  org.apache.commons.compress,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ net.bluemind.authentication.api,
+ net.bluemind.network.topology,
+ net.bluemind.backend.cyrus.partitions
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.mail
 Bundle-ActivationPolicy: lazy

@@ -48,16 +48,18 @@ public class MailboxReplicaStore extends AbstractItemValueStore<MailboxReplica> 
 	@Override
 	public void create(Item item, MailboxReplica value) throws SQLException {
 		String query = "INSERT INTO t_mailbox_replica ( " + MailboxReplicaColumns.COLUMNS.names()
-				+ ", item_id) VALUES (" + MailboxReplicaColumns.COLUMNS.values() + ", ? )";
-		insert(query, value, MailboxReplicaColumns.values(item));
+				+ ", unique_id, container_id, item_id) VALUES (" + MailboxReplicaColumns.COLUMNS.values()
+				+ ", ?, ?, ? )";
+		insert(query, value, MailboxReplicaColumns.values(container, item));
 	}
 
 	@Override
 	public void update(Item item, MailboxReplica value) throws SQLException {
-		String query = "UPDATE t_mailbox_replica SET ( " + MailboxReplicaColumns.COLUMNS.names() + ") = ("
-				+ MailboxReplicaColumns.COLUMNS.values() + " )" + " WHERE item_id = ? ";
+		String query = "UPDATE t_mailbox_replica SET ( " + MailboxReplicaColumns.COLUMNS.names()
+				+ ", unique_id, container_id) = (" + MailboxReplicaColumns.COLUMNS.values() + ", ?, ?)"
+				+ " WHERE item_id = ? ";
 
-		update(query, value, MailboxReplicaColumns.values(item));
+		update(query, value, MailboxReplicaColumns.values(container, item));
 	}
 
 	@Override
@@ -75,13 +77,11 @@ public class MailboxReplicaStore extends AbstractItemValueStore<MailboxReplica> 
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("DELETE FROM t_mailbox_replica WHERE item_id IN ( SELECT id FROM t_container_item WHERE container_id = ?)",
-				new Object[] { container.id });
+		delete("DELETE FROM t_mailbox_replica WHERE container_id = ?", new Object[] { container.id });
 	}
 
 	public String byName(String name) throws SQLException {
-		String query = "SELECT item.uid FROM t_mailbox_replica mr INNER JOIN t_container_item item ON mr.item_id = item.id"
-				+ " WHERE item.container_id = ? and mr.name = ?";
+		String query = "SELECT unique_id FROM t_mailbox_replica WHERE container_id = ? and name = ?";
 		String ret = unique(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, name });
 		if (logger.isDebugEnabled()) {
 			logger.debug("byName({}) in container {} => {}", name, container.id, ret);

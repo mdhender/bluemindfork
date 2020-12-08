@@ -20,30 +20,34 @@ package net.bluemind.calendar.sync;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Response;
+import org.asynchttpclient.handler.BodyDeferringAsyncHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import net.bluemind.calendar.api.internal.IInternalCalendar;
 import net.bluemind.calendar.service.internal.ICSImportTask;
 import net.bluemind.calendar.service.internal.SingleCalendarICSImport;
@@ -65,7 +69,8 @@ import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.icalendar.parser.CalendarOwner;
-import net.bluemind.utils.Trust;
+import net.bluemind.proxy.support.AHCWithProxy;
+import net.bluemind.system.api.ISystemConfiguration;
 
 public class CalendarContainerSync implements ISyncableContainer {
 
@@ -95,7 +100,7 @@ public class CalendarContainerSync implements ISyncableContainer {
 		private String modifiedSince;
 		private String etag;
 		private long nextSync;
-		private HttpURLConnection con;
+		private InputStream body;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(CalendarContainerSync.class);
@@ -207,8 +212,8 @@ public class CalendarContainerSync implements ISyncableContainer {
 	}
 
 	private void syncCalendar(SyncData data, ContainerSyncResult ret) {
-		if (data.con != null) {
-			try (InputStream in = data.con.getInputStream()) {
+		if (data.body != null) {
+			try (InputStream in = data.body) {
 				IInternalCalendar service = context.provider().instance(IInternalCalendar.class, container.uid);
 				TaskStatus status = TaskUtils.wait(context.provider(), syncIcs(service, in));
 
@@ -230,8 +235,6 @@ public class CalendarContainerSync implements ISyncableContainer {
 			} catch (Exception e) {
 				logger.warn("Cannot sync ics", e);
 				ret.status.syncStatus = Status.ERROR;
-			} finally {
-				data.con.disconnect();
 			}
 		}
 	}
@@ -276,7 +279,7 @@ public class CalendarContainerSync implements ISyncableContainer {
 			// GET returns a Last-Modified header
 			syncData.modifiedSince = Long.toString(get.lastModified);
 			syncData.etag = get.etag;
-			syncData.con = get.con;
+			syncData.body = get.body;
 			return syncData;
 		} else if (originalIcsUrlHasWebcalProtocol && icsUrl.startsWith(HTTP_PREFIX)) {
 			// try now with https
@@ -303,30 +306,20 @@ public class CalendarContainerSync implements ISyncableContainer {
 		return response.status == 304 || (response.lastModified > 0 && response.lastModified <= lastModification);
 	}
 
-	private ResponseData requestIcs(String icsUrl, String method, String syncToken, String etag) throws IOException {
+	private ResponseData requestIcs(String icsUrl, String method, String syncToken, String etag)
+			throws IOException, InterruptedException {
 		return call(icsUrl, method, syncToken, etag);
 	}
 
-	private ResponseData call(String icsUrl, String method, String modifiedSince, String etag) throws IOException {
-		URL url = new URL(icsUrl);
-
-		HttpURLConnection conn = null;
-
-		conn = (HttpURLConnection) url.openConnection();
-		if (conn instanceof HttpsURLConnection) {
-			((HttpsURLConnection) conn).setHostnameVerifier(Trust.acceptAllVerifier());
-			SSLContext sc = Trust.createSSLContext();
-			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-			((HttpsURLConnection) conn).setSSLSocketFactory(sc.getSocketFactory());
-
-		}
-		conn.setRequestMethod(method);
-
-		conn.setRequestProperty("User-Agent",
-				"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0.2 Safari/604.4.7");
+	private ResponseData call(String icsUrl, String method, String modifiedSince, String etag)
+			throws IOException, InterruptedException {
+		BoundRequestBuilder request = AHCWithProxy
+				.build(context.provider().instance(ISystemConfiguration.class).getValues()).prepare(method, icsUrl)
+				.addHeader("User-Agent",
+						"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0.2 Safari/604.4.7");
 
 		if (etag != null) {
-			conn.setRequestProperty("If-None-Match", etag);
+			request = request.addHeader("If-None-Match", etag);
 		}
 
 		if (modifiedSince != null) {
@@ -334,32 +327,46 @@ public class CalendarContainerSync implements ISyncableContainer {
 				final ZonedDateTime modifiedSinceDate = ZonedDateTime.ofInstant(
 						Instant.ofEpochMilli(Long.parseLong(modifiedSince)), ZoneId.ofOffset("UTC", ZoneOffset.UTC));
 				final String formattedModifiedSince = DateTimeFormatter.RFC_1123_DATE_TIME.format(modifiedSinceDate);
-				conn.setRequestProperty("If-Modified-Since", formattedModifiedSince);
+				request.setHeader("If-Modified-Since", formattedModifiedSince);
 			} catch (NumberFormatException e) {
 				// nothing to do
 			}
 		}
 
-		long lastModified = conn.getLastModified();
-		if (lastModified == 0) {
-			lastModified = this.extractModificationDate(conn);
-		}
-		String newEtag = conn.getHeaderField("etag");
-		int status = conn.getResponseCode();
+		PipedInputStream pipedInputStream = new PipedInputStream();
+		PipedOutputStream pipedOutputStream = new PipedOutputStream(pipedInputStream);
+		BodyDeferringAsyncHandler bodyDeferringAsyncHandler = new BodyDeferringAsyncHandler(pipedOutputStream);
+		ListenableFuture<Response> futureResponse = request.execute(bodyDeferringAsyncHandler);
 
-		// Cache-Control/max-age has precedence over Expires
-		long nextSync = this.extractCacheControlMaxAge(conn);
-		if (nextSync == 0) {
-			nextSync = this.extractExpires(conn);
-		}
+		Response response = bodyDeferringAsyncHandler.getResponse();
 
-		if (status == 200 && "GET".equals(method)) {
-			return new ResponseData(conn, status, lastModified, newEtag, nextSync);
-		} else {
-			conn.disconnect();
+		long lastModified = Optional.ofNullable(response.getHeader("Last-Modified")).map(this::parseRFC1123DateTime)
+				.orElseGet(() -> Optional.ofNullable(response.getHeader("Content-Disposition"))
+						.map(this::extractModificationDate).orElse((long) 0));
+		String newEtag = response.getHeader("etag");
+		int status = response.getStatusCode();
+		long nextSync = extractCacheControlMaxAge(response.getHeaders())
+				.orElseGet(() -> extractExpires(response.getHeader("Expires")).orElse((long) 0));
+
+		if (status != 200 || !"GET".equals(method)) {
+			if (!futureResponse.isDone() || !futureResponse.isCancelled()) {
+				futureResponse.cancel(true);
+			}
+
 			return new ResponseData(null, status, lastModified, newEtag, nextSync);
 		}
 
+		return new ResponseData(new BodyDeferringAsyncHandler.BodyDeferringInputStream(futureResponse,
+				bodyDeferringAsyncHandler, pipedInputStream), status, lastModified, newEtag, nextSync);
+	}
+
+	private Long parseRFC1123DateTime(String dateTime) {
+		try {
+			return Instant.from(DateTimeFormatter.RFC_1123_DATE_TIME.parse(dateTime)).toEpochMilli();
+		} catch (NullPointerException | DateTimeParseException dtpe) {
+		}
+
+		return null;
 	}
 
 	public TaskRef syncIcs(IInternalCalendar calendarService, InputStream stream) throws ServerFault {
@@ -370,32 +377,25 @@ public class CalendarContainerSync implements ISyncableContainer {
 	/** @see RFC-2183 https://tools.ietf.org/html/rfc2183 */
 	private static final Pattern CONTENT_DISPO_MODIF_DATE_PATTERN = Pattern.compile("modification-date=\"(.*?)\";?");
 
-	private long extractModificationDate(final HttpURLConnection connection) {
-		final String contentDispo = connection.getHeaderField("Content-Disposition");
-		if (contentDispo != null) {
-			final Matcher matcher = CONTENT_DISPO_MODIF_DATE_PATTERN.matcher(contentDispo);
-			if (matcher.find()) {
-				final String dateString = matcher.group(1);
-				return Instant.from(DateTimeFormatter.RFC_1123_DATE_TIME.parse(dateString)).toEpochMilli();
-			}
+	private Long extractModificationDate(String contentDisposition) {
+		final Matcher matcher = CONTENT_DISPO_MODIF_DATE_PATTERN.matcher(contentDisposition);
+		if (matcher.find()) {
+			return parseRFC1123DateTime(matcher.group(1));
 		}
-		return 0;
+
+		return null;
 	}
 
 	/**
 	 * @return the time in milliseconds when the response is considered as obsolete
 	 *         or zero if not found
 	 */
-	private long extractExpires(final HttpURLConnection connection) {
-		final String expiresString = connection.getHeaderField("Expires");
-		if (expiresString != null) {
-			try {
-				return Instant.from(DateTimeFormatter.RFC_1123_DATE_TIME.parse(expiresString)).toEpochMilli();
-			} catch (Exception e) {
-				logger.info("Expires header \"{}\" is invalid, defaulting to 0", expiresString);
-			}
+	private Optional<Long> extractExpires(String expiresString) {
+		if (Strings.isNullOrEmpty(expiresString)) {
+			return Optional.empty();
 		}
-		return 0;
+
+		return Optional.ofNullable(parseRFC1123DateTime(expiresString));
 	}
 
 	/**
@@ -408,20 +408,17 @@ public class CalendarContainerSync implements ISyncableContainer {
 	 * @return the time in milliseconds when the content's cache expires or zero if
 	 *         not found
 	 */
-	private long extractCacheControlMaxAge(final HttpURLConnection connection) {
-		// retrieve Cache-Control directives and extract max-age if present
-		final Optional<String> cacheControlWithMaxAge = connection.getHeaderFields().entrySet().stream()
-				.filter(entry -> entry.getKey() != null ? entry.getKey().equalsIgnoreCase("Cache-Control")
-						: Boolean.FALSE)
-				.flatMap(entry -> entry.getValue().stream()).filter(v -> MAX_AGE_PATTERN.matcher(v).find()).findFirst();
+	private Optional<Long> extractCacheControlMaxAge(HttpHeaders headers) {
+		String maxAge = Optional.ofNullable(headers.get("Cache-Control")).map(value -> MAX_AGE_PATTERN.matcher(value))
+				.filter(Matcher::find).map(m -> m.group(1)).filter(Objects::nonNull).filter(s -> !s.isEmpty())
+				.orElse(null);
 
-		if (cacheControlWithMaxAge.isPresent()) {
-			// may contain other directives, comma separated
-			final Matcher matcher = MAX_AGE_PATTERN.matcher(cacheControlWithMaxAge.get());
-			final String maxAgeValueString = matcher.find() ? matcher.group(1) : "0";
-			return System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Long.valueOf(maxAgeValueString));
+		try {
+			return Optional.of(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Long.parseLong(maxAge)));
+		} catch (NumberFormatException nfe) {
 		}
-		return 0;
+
+		return Optional.empty();
 	}
 
 	class ResponseData {
@@ -429,10 +426,10 @@ public class CalendarContainerSync implements ISyncableContainer {
 		public final long lastModified;
 		public final String etag;
 		public final long nextSync;
-		public final HttpURLConnection con;
+		public final InputStream body;
 
-		public ResponseData(HttpURLConnection con, int status, long lastModified, String etag, long nextSync) {
-			this.con = con;
+		public ResponseData(InputStream body, int status, long lastModified, String etag, long nextSync) {
+			this.body = body;
 			this.status = status;
 			this.lastModified = lastModified;
 			this.etag = etag;

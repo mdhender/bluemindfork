@@ -87,7 +87,39 @@ public enum SysConfKeys {
 	/**
 	 * Illustrates the release date of the initial installation version
 	 */
-	installation_release_date;
+	installation_release_date,
+
+	/**
+	 * HTTP proxy support enabled
+	 */
+	http_proxy_enabled,
+
+	/**
+	 * HTTP proxy host
+	 */
+	http_proxy_hostname,
+
+	/**
+	 * HTTP proxy port
+	 */
+	http_proxy_port,
+
+	/**
+	 * HTTP proxy login
+	 */
+	http_proxy_login,
+
+	/**
+	 * HTTP proxy password
+	 */
+	http_proxy_password,
+
+	/**
+	 * HTTP proxy exceptions
+	 * 
+	 * @see {@link org.asynchttpclient.proxy.ProxyServer.isIgnoredForHost}
+	 */
+	http_proxy_exceptions;
 
 	public static boolean isSysConfigKey(String key) {
 		for (SysConfKeys k : SysConfKeys.values()) {

@@ -1,0 +1,69 @@
+Return-Path: <Sys_Srv_Sql@urgences-sante.qc.ca>
+Received: from srv-pr-bluemindv1.ipa.urgences-sante.qc.ca (localhost [127.0.0.1])
+	 by srv-pr-bluemindv1.ipa.urgences-sante.qc.ca with LMTPA;
+	 Thu, 05 Nov 2020 15:46:23 +0000
+X-Cyrus-Session-Id: cyrus-2007-1604591183-1-15261567348322533792
+X-Sieve: CMU Sieve 3.0
+Received: from 10.193.41.42 (LHLO
+ srv-pr-bluemindv1.ipa.urgences-sante.qc.ca) by unknown with LMTP; 11/5/20
+ 3:46 PM
+Received: from smtp-ext.urgences-sante.qc.ca (srv-pr-bluemindedgev1.ipa.urgences-sante.qc.ca [10.193.41.41])
+	by srv-pr-bluemindv1.ipa.urgences-sante.qc.ca (Postfix) with ESMTPS id C2B2A8A10A2
+	for <aubuts@urgences-sante.qc.ca>; Thu,  5 Nov 2020 15:46:22 +0000 (UTC)
+Received: from mx1.urgences-sante.qc.ca (mx1.urgences-sante.qc.ca [207.96.146.208])
+	by smtp-ext.urgences-sante.qc.ca (Postfix) with ESMTP id BF9CF84DD27
+	for <Sebastien.Aubut@bluemind.lan>; Thu,  5 Nov 2020 10:46:22 -0500 (EST)
+X-ASG-Debug-ID: 1604591182-0f280121ab1cf720001-PSKSUN
+Received: from ssmail02.urgences-sante.local ([10.193.8.196]) by mx1.urgences-sante.qc.ca with ESMTP id buyzcAQDagGwiZ2w; Thu, 05 Nov 2020 10:46:22 -0500 (EST)
+X-Barracuda-Envelope-From: Sys_Srv_Sql@urgences-sante.qc.ca
+X-Barracuda-RBL-Trusted-Forwarder: 10.193.8.196
+X-ASG-Whitelist: Client
+Received: from mx2.urgences-sante.qc.ca ([207.96.146.229]) by ssmail02.urgences-sante.local with Microsoft SMTPSVC(6.0.3790.3959);
+	 Thu, 5 Nov 2020 10:46:18 -0500
+X-Barracuda-RBL-IP: 207.96.146.229
+X-Barracuda-Effective-Source-IP: mx2.urgences-sante.qc.ca[207.96.146.229]
+X-Barracuda-Apparent-Source-IP: 207.96.146.229
+Received: from ssspu01 ([10.193.8.196]) by mx2.urgences-sante.qc.ca with ESMTP id 7dItel2zeIcAngkC for <Support_Entrepot@urgences-sante.qc.ca>; Thu, 05 Nov 2020 10:46:21 -0500 (EST)
+Sensitivity: Normal
+Importance: Normal
+MIME-Version: 1.0
+From: "=?utf-8?Q?Serveur d'entrep=C3=B4t?=" <Sys_Srv_Sql@urgences-sante.qc.ca>
+To: Support_Entrepot@urgences-sante.qc.ca
+Date: 5 Nov 2020 10:47:08 -0500
+Subject: Vigie zzLog
+Content-Type: text/html; charset=utf-8
+X-ASG-Orig-Subj: Vigie zzLog
+Content-Transfer-Encoding: base64
+X-Virus-Scanned: by bsmtpd at urgences-sante.qc.ca
+Message-ID: <SSMAIL02glcWy1g6wjK0000005a@ssmail02.urgences-sante.local>
+X-OriginalArrivalTime: 05 Nov 2020 15:46:18.0670 (UTC) FILETIME=[CD633CE0:01D6B38A]
+X-Barracuda-Connect: UNKNOWN[10.193.8.196]
+X-Barracuda-Start-Time: 1604591182
+X-Barracuda-URL: https://207.96.146.208:443/cgi-mod/mark.cgi
+X-Virus-Scanned: by bsmtpd at urgences-sante.qc.ca
+X-Barracuda-Scan-Msg-Size: 1050
+X-Barracuda-BRTS-Status: 1
+X-Bm-Milter-Handled: 7b8be8be-d606-4529-adba-7ab79b9cf948
+X-Bm-Transport-Timestamp: 1604591182790
+
+PGh0bWwgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxoZWFkPjxtZXRh
+IGh0dHAtZXF1aXY9IkNvbnRlbnQtVHlwZSIgY29udGVudD0idGV4dC9odG1sOyBjaGFyc2V0
+PWlzby04ODU5LTEiLz48L2hlYWQ+PGJvZHk+PHRhYmxlIGJvcmRlcj0iMSIgYm9yZGVyY29s
+b3I9ImJsYWNrIj48dHIgeG1sbnM9IiIgYmdjb2xvcj0iIzAwRkYwMCI+PGI+PHRkIGNvbHNw
+YW49IjIiPlRow6htZTwvdGQ+PHRkPk1pbmltdW08L3RkPjx0ZD5NYXhpbXVtPC90ZD48dGQg
+Y29sc3Bhbj0iNCIgcm93c3Bhbj0iMiI+TGEgc8OpY3VyaXTDqSBhIGludGVyY2VwdMOpIHVu
+ZSBkZW1hbmRlLjwvdGQ+PC9iPjwvdHI+PHRyIHhtbG5zPSIiIGJnY29sb3I9IiMwMEZGMDAi
+Pjx0ZCBjb2xzcGFuPSIyIj5FbnJlZ2lzdHJlbWVudHPCoDwvdGQ+PHRkPjEKCQkJwqA8L3Rk
+Pjx0ZD4KCQkJwqA8L3RkPjwvdHI+PHRyIHhtbG5zPSIiPjxiPjx0ZD5Mb2dfaWQ8L3RkPjx0
+ZD5Nb21lbnQ8L3RkPjx0ZD5PYmpldDwvdGQ+PHRkPkluZm88L3RkPjx0ZD5EdXLDqWU8L3Rk
+Pjx0ZD5Ob21icmU8L3RkPjx0ZD5CRDwvdGQ+PHRkPlByb2Nlc3N1czwvdGQ+PC9iPjwvdHI+
+PHRyIHhtbG5zPSIiPjx0ZD4zODM2MTk5PC90ZD48dGQ+MjAyMC0xMS0wNcKgMTA6NDA6NDku
+MDk3PC90ZD48dGQ+c3BfUmVjaGVyY2hlQXBwZWzCoDwvdGQ+PHRkPlJlY2hlcmNoZSByZWpl
+dMOpZcKgPC90ZD48dGQ+CgkJCQnCoAoJCQkJPC90ZD48dGQ+MMKgPC90ZD48dGQ+U0FJX1Jh
+cHBvcnTCoDwvdGQ+PHRkPlbDqXJpZmljYXRpb24gZGUgbGEgZGVtYW5kZcKgPC90ZD48L3Ry
+Pjx0ciB4bWxucz0iIj48dGQ+MzgzNjIwMTwvdGQ+PHRkPjIwMjAtMTEtMDXCoDEwOjQwOjQ5
+LjE2MzwvdGQ+PHRkPnNwX1JlY2hlcmNoZUFwcGVswqA8L3RkPjx0ZD5SZWNoZXJjaGUgcmVq
+ZXTDqWXCoDwvdGQ+PHRkPgoJCQkJwqAKCQkJCTwvdGQ+PHRkPjDCoDwvdGQ+PHRkPlNBSV9S
+YXBwb3J0wqA8L3RkPjx0ZD5Ww6lyaWZpY2F0aW9uIGRlIGxhIGRlbWFuZGXCoDwvdGQ+PC90
+cj48L3RhYmxlPjwvYm9keT48L2h0bWw+
+

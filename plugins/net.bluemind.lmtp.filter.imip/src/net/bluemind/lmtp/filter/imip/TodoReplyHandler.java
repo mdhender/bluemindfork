@@ -39,6 +39,10 @@ import net.bluemind.todolist.api.VTodo;
  */
 public class TodoReplyHandler extends ReplyHandler implements IIMIPHandler {
 
+	public TodoReplyHandler(LmtpAddress recipient, LmtpAddress sender) {
+		super(recipient, sender);
+	}
+
 	@Override
 	public IMIPResponse handle(IMIPInfos imip, LmtpAddress recipient, ItemValue<Domain> domain,
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {

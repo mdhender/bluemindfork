@@ -5,7 +5,7 @@ import com.netflix.spectator.api.Id;
 public abstract class RegJson {
 
 	private final String metricType;
-	private final String id;
+	protected final String id;
 
 	protected RegJson(String metricType, Id id) {
 		this.metricType = metricType;

@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -336,7 +335,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				csr.responses = clientChangeResults;
 				csr.forceResponse = sc.forceResponse;
 
-				List<String> commands = serverChanges.commands.stream().map(cmd -> cmd.item.itemId)
+				List<Long> commands = serverChanges.commands.stream().map(cmd -> cmd.item.itemId)
 						.collect(Collectors.toList());
 				if (!clientConflictedServerIds.isEmpty()) {
 					IContentsExporter contentExporter = backend.getContentsExporter(bs);
@@ -484,12 +483,12 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 
 		BodyOptions baseRequest = asBaseRequest(c);
 
-		List<String> toLoad = changes.items.stream().filter(
+		List<Long> toLoad = changes.items.stream().filter(
 				change -> (change.getChangeType() == ChangeType.ADD || change.getChangeType() == ChangeType.CHANGE))
 				.map(i -> i.getServerId().itemId).collect(Collectors.toList());
 
 		if (!toLoad.isEmpty()) {
-			Map<String, AppData> data = contentExporter.loadStructures(bs, baseRequest, state.type, c.getCollectionId(),
+			Map<Long, AppData> data = contentExporter.loadStructures(bs, baseRequest, state.type, c.getCollectionId(),
 					toLoad);
 
 			Iterator<ItemChangeReference> it = changes.items.iterator();
@@ -704,7 +703,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		} catch (ActiveSyncException e) {
 			ServerResponse sr = new ServerResponse();
 			sr.clientId = clientId;
-			sr.item = CollectionItem.of(collection.getCollectionId(), UUID.randomUUID().toString());
+			sr.item = CollectionItem.of(collection.getCollectionId(), System.currentTimeMillis());
 			sr.ackStatus = SyncStatus.SERVER_ERROR;
 			return sr;
 		}

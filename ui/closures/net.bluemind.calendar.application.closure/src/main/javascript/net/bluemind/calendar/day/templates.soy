@@ -322,7 +322,7 @@
           {/if}
 
           {if isNonnull($event.rrule) and isNonnull($event.rrule.freq)}
-            {let $rrulebyday: $event.rrule.byday /}
+            {let $rrulebyday: $event.formatted.byday /}
             <tr>
               <th>{msg meaning="calendar.event.tabs.repeat" desc="Repeat"}Repeat{/msg}</th>
               <td colspan="2">
@@ -353,7 +353,7 @@
               {/switch}
             {/if}
             {if isNonnull($event.rrule.until)}
-              ,&nbsp;{msg meaning="calendar.event.repeat.until" desc="Label for repeat end"}until{/msg}&nbsp;{$event.rrule.until}
+              ,&nbsp;{msg meaning="calendar.event.repeat.until" desc="Label for repeat end"}until{/msg}&nbsp;{$event.formatted.until}
             {/if}
             {if isNonnull($event.rrule.count) and $event.rrule.count > 0}
               ,&nbsp;{$event.rrule.count}&nbsp;{msg meaning="calendar.event.repeat.times" desc="Label for repeat count"}times{/msg}
@@ -362,11 +362,11 @@
             </tr>
           {/if}
 
-          {if $event.alarm and length($event.alarm) > 0}
+          {if $event.formatted.alarm and length($event.formatted.alarm) > 0}
             <tr>
               <th>{msg meaning="calendar.event.reminder" desc="Reminder"}Reminder{/msg}</th>
               <td colspan="2">
-                {foreach $alarm in $event.alarm}
+                {foreach $alarm in $event.formatted.alarm}
                   {$alarm.duration}&nbsp;
                   {if $alarm.unit == 60}
                     {msg meaning="general.minutes" desc="minutes"}minutes{/msg}
@@ -640,7 +640,7 @@
  * @param summary Event title.
  * @param states Event states.
  * @param location event location.
- * @param formatted event formated date
+ * @param formatted event formatted date
  */
 {template .overflow}
   {if not $states.busy}
@@ -679,7 +679,7 @@
 
 /**
  * Event
- * @param formatted event formated date
+ * @param formatted event formatted date
  */
 {template .overflowExtension}
   <div class="{css extension} {css FR} {css right}">

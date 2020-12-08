@@ -32,6 +32,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import javax.crypto.SecretKeyFactory;
@@ -43,6 +45,9 @@ import org.bouncycastle.jcajce.spec.PBKDF2KeySpec;
 import org.bouncycastle.jcajce.util.JcaJceHelper;
 import org.bouncycastle.jcajce.util.ProviderJcaJceHelper;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.core.api.fault.ServerFault;
 
@@ -76,16 +81,26 @@ public class PBKDF2Hash implements Hash {
 		return PBKDF2_ITERATIONS + ":" + toHex(salt) + ":" + toHex(hash);
 	}
 
+	private static final Cache<String, Boolean> hashCache = CacheBuilder.newBuilder()
+			.expireAfterAccess(1, TimeUnit.HOURS).build();
+
 	@Override
 	public boolean validate(String plaintext, String hash) throws ServerFault {
+		String cacheKey = plaintext + ":" + hash;
 		try {
-			String[] params = hash.split(":");
-			int iterations = Integer.parseInt(params[ITERATION_INDEX]);
-			byte[] salt = fromHex(params[SALT_INDEX]);
-			byte[] hashed = fromHex(params[PBKDF2_INDEX]);
-			byte[] testHash = pbkdf2(plaintext.toCharArray(), salt, iterations, hashed.length);
-			return verify(hashed, testHash);
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException e) {
+			return hashCache.get(cacheKey, () -> {
+				try {
+					String[] params = hash.split(":");
+					int iterations = Integer.parseInt(params[ITERATION_INDEX]);
+					byte[] salt = fromHex(params[SALT_INDEX]);
+					byte[] hashed = fromHex(params[PBKDF2_INDEX]);
+					byte[] testHash = pbkdf2(plaintext.toCharArray(), salt, iterations, hashed.length);
+					return verify(hashed, testHash);
+				} catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException e) {
+					throw new ServerFault(e);
+				}
+			});
+		} catch (ExecutionException e) {
 			throw new ServerFault(e);
 		}
 	}

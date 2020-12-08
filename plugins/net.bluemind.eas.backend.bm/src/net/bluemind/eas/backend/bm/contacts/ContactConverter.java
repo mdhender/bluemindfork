@@ -108,11 +108,13 @@ public class ContactConverter {
 			try {
 				byte[] photo = service.getPhoto(vcardItem.uid);
 				if (photo != null) {
-					logger.debug("Syncing photo of uid {}, size: {}", vcardItem.uid, photo.length);
+					if (logger.isDebugEnabled()) {
+						logger.debug("Syncing photo of uid {}, size: {}", vcardItem.uid, photo.length);
+					}
 					msc.setPicture(Base64.getEncoder().encodeToString(photo));
 				}
 			} catch (ServerFault e) {
-				logger.warn("Cannot load contaxt photo of uid {}:{}", vcardItem.uid, e.getMessage());
+				logger.warn("Cannot load contact photo of uid {}:{}", vcardItem.uid, e.getMessage());
 			}
 		}
 

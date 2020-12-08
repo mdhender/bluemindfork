@@ -8,6 +8,23 @@
 	<ui:with field="c"
 		type="net.bluemind.ui.adminconsole.system.systemconf.reverseProxy.l10n.SysConfReverseProxyConstants" />
 
+	<ui:style>
+		.labelMandatory {
+			color: #24638F;
+			font-weight: bold;
+		}
+	
+		.httpProxyHelp {
+			background-color: #DDF4FB;
+			border: 1px solid #C6EDF9;
+			padding: 6px;
+			border-radius: 3px;
+			-webkit-border-radius: 3px;
+			-moz-border-radius: 3px;
+			margin-bottom: 1em;
+			border-collapse: separate;
+		}
+	</ui:style>
 
 	<g:HTMLPanel>
 		<f:FieldSetPanel name="{c.nginx}" />
@@ -23,7 +40,6 @@
 				</td>
 			</tr>
 
-
 			<tr>
 				<td style='width:300px'>
 					<g:Label text="{c.nginxWorker}:"></g:Label>
@@ -32,9 +48,69 @@
 					<g:IntegerBox ui:field="workerConnections"></g:IntegerBox>
 				</td>
 			</tr>
-
 		</table>
 
+		<f:FieldSetPanel name="{c.httpProxy}" />
+		<g:Grid ui:field="proxyHelp" styleName="{style.httpProxyHelp}">
+			<g:row>
+				<g:customCell>
+					<g:Label text="{c.httpProxyHelp}"/>
+				</g:customCell>
+			</g:row>
+		</g:Grid>
+		<table border="0">
+			<tr>
+				<td style='width:300px'>
+					<g:Label text="{c.httpProxyEnabled}:"></g:Label>
+				</td>
+				<td style='width:300px'>
+					<g:CheckBox width="300px" ui:field="httpProxyEnabled" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:300px'>
+					<g:Label styleName="{style.labelMandatory}" text="{c.httpProxyHostname}:"></g:Label>
+				</td>
+				<td style='width:300px'>
+					<g:TextBox width="300px" enabled="false" ui:field="httpProxyHostname" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:300px'>
+					<g:Label styleName="{style.labelMandatory}" text="{c.httpProxyPort}:"></g:Label>
+				</td>
+				<td style='width:300px'>
+					<g:TextBox width="300px" enabled="false" ui:field="httpProxyPort" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:300px'>
+					<g:Label text="{c.httpProxyLogin}:"></g:Label>
+				</td>
+				<td style='width:300px'>
+					<g:TextBox width="300px" enabled="false" ui:field="httpProxyLogin" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:300px'>
+					<g:Label text="{c.httpProxyPassword}:"></g:Label>
+				</td>
+				<td style='width:300px'>
+					<g:PasswordTextBox width="300px" enabled="false" ui:field="httpProxyPassword" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:300px'>
+					<div style="display:flex" title="{c.httpProxyExceptionsHelp}">
+						<g:Label text="{c.httpProxyExceptions}" />
+						<sup><i class="fa fa-info-circle" /></sup>:
+					</div>
+				</td>
+				<td style='width:300px'>
+					<g:TextBox title="{c.httpProxyExceptionsHelp}" width="300px" enabled="false" ui:field="httpProxyExceptions" />
+				</td>
+			</tr>
+		</table>
 	</g:HTMLPanel>
 
 </ui:UiBinder> 

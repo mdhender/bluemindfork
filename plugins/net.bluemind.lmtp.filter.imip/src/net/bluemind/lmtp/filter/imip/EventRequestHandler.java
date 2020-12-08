@@ -79,14 +79,10 @@ import net.fortuna.ical4j.model.property.Method;
 
 public class EventRequestHandler extends RequestHandler implements IIMIPHandler {
 	private static final Logger logger = LoggerFactory.getLogger(EventRequestHandler.class);
-	private static final Cache<String, ItemValue<User>> senderCache = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterAccess(2, TimeUnit.MINUTES)
-			.build();
+	private static final Cache<String, ItemValue<User>> senderCache = CacheBuilder.newBuilder().recordStats()
+			.expireAfterAccess(2, TimeUnit.MINUTES).build();
 	private static final Cache<String, Map<String, String>> senderSettingsCache = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterAccess(2, TimeUnit.MINUTES)
-			.build();
+			.recordStats().expireAfterAccess(2, TimeUnit.MINUTES).build();
 
 	private ISendmail mailer;
 
@@ -98,13 +94,13 @@ public class EventRequestHandler extends RequestHandler implements IIMIPHandler 
 		}
 	}
 
-	public EventRequestHandler() {
-		this(new Sendmail());
+	public EventRequestHandler(LmtpAddress recipient, LmtpAddress sender) {
+		this(new Sendmail(), recipient, sender);
 
 	}
 
-	public EventRequestHandler(ISendmail mailer) {
-		super();
+	public EventRequestHandler(ISendmail mailer, LmtpAddress recipient, LmtpAddress sender) {
+		super(recipient, sender);
 		this.mailer = mailer;
 	}
 

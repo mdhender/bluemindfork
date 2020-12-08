@@ -82,7 +82,7 @@ public class ExternalUserServiceTests {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
-		containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
 
 		PopulateHelper.initGlobalVirt();
 		domain = PopulateHelper.createTestDomain(domainUid);

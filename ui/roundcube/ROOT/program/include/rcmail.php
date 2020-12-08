@@ -421,10 +421,14 @@ class rcmail
     $contacts    = null;
     $ldap_config = (array)$this->config->get('ldap_public');
     $abook_type  = strtolower($this->config->get('address_book_type'));
+    $default_book  = $this->config->get('default_addressbook');
+
 
     // 'sql' is the alias for '0' used by autocomplete
     if ($id == 'sql')
         $id = '0';
+    if ($id == null)
+        $id = $default_book;
 
     // use existing instance
     if (isset($this->address_books[$id]) && is_object($this->address_books[$id])

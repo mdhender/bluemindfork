@@ -58,6 +58,7 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 	private static final Logger logger = LoggerFactory.getLogger(ImipFilter.class);
 
 	public ImipFilter() {
+		super(null, null);
 	}
 
 	@Override
@@ -167,7 +168,7 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 		final ItemValue<Mailbox> recipientMailbox = getRecipientMailbox(recipient, domain);
 
 		try {
-			final IIMIPHandler handler = IMIPHandlerFactory.get(imip);
+			final IIMIPHandler handler = IMIPHandlerFactory.get(imip, recipient, sender);
 			return handler.handle(imip, recipient, domain, recipientMailbox);
 		} catch (ServerFault sf) {
 			if (sf.getCode() == ErrorCode.PERMISSION_DENIED) {

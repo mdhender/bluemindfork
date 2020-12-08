@@ -29,11 +29,11 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
+import picocli.CommandLine.Command;
 
 @Command(name = "count", description = "List the number of unique messages in the cyrus spool on the current server")
 public class MailCountCommand implements ICmdLet, Runnable {

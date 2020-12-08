@@ -44,7 +44,6 @@ public class ContainerSettingsStoreTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
 		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
@@ -109,5 +108,6 @@ public class ContainerSettingsStoreTests {
 		assertEquals("v1", map.get("t1"));
 		assertNull(map.get("t2"));
 		assertEquals("v3", map.get("t3"));
+		map = containerSettingsStore.getSettings();
 	}
 }

@@ -165,6 +165,7 @@ public class MailFilter {
 		public Date start;
 		public Date end;
 		public String text;
+		public String textHtml;
 		public String subject;
 
 		public static Vacation copy(Vacation vacation) {
@@ -173,6 +174,7 @@ public class MailFilter {
 			v.start = vacation.start;
 			v.end = vacation.end;
 			v.text = vacation.text;
+			v.textHtml = vacation.textHtml;
 			v.subject = vacation.subject;
 
 			return v;
@@ -187,6 +189,7 @@ public class MailFilter {
 			result = prime * result + ((start == null) ? 0 : start.hashCode());
 			result = prime * result + ((subject == null) ? 0 : subject.hashCode());
 			result = prime * result + ((text == null) ? 0 : text.hashCode());
+			result = prime * result + ((textHtml == null) ? 0 : textHtml.hashCode());
 			return result;
 		}
 
@@ -220,6 +223,11 @@ public class MailFilter {
 				if (other.text != null)
 					return false;
 			} else if (!text.equals(other.text))
+				return false;
+			if (textHtml == null) {
+				if (other.textHtml != null)
+					return false;
+			} else if (!textHtml.equals(other.textHtml))
 				return false;
 			return true;
 		}

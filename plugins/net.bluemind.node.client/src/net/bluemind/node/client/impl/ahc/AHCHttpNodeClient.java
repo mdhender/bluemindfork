@@ -25,10 +25,12 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.Request;
+import org.asynchttpclient.RequestBuilder;
+import org.asynchttpclient.uri.Uri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.escape.Escaper;
 import com.google.common.net.UrlEscapers;
@@ -43,6 +45,7 @@ import net.bluemind.node.api.ProcessHandler;
 import net.bluemind.node.client.impl.DoesNotExist;
 import net.bluemind.node.client.impl.FBOSInput;
 import net.bluemind.node.client.impl.HostPortClient;
+import net.bluemind.node.client.impl.NodeRuntimeException;
 import net.bluemind.node.client.impl.PingFailed;
 import net.bluemind.node.shared.ActiveExecQuery;
 import net.bluemind.node.shared.ExecDescriptor;
@@ -55,15 +58,22 @@ public final class AHCHttpNodeClient implements INodeClient {
 	private final HostPortClient cli;
 	private final Escaper escaper;
 
+	private final Uri baseUri;
+
 	public AHCHttpNodeClient(HostPortClient cli) {
 		this.cli = cli;
+		this.baseUri = Uri.create(cli.path().toString());
 		this.escaper = UrlEscapers.urlFragmentEscaper();
 	}
 
+	private Uri withPath(String p) {
+		return new Uri(baseUri.getScheme(), null, baseUri.getHost(), baseUri.getPort(), p, null, null);
+	}
+
 	@Override
-	public void ping() throws ServerFault {
-		String p = cli.path().append("/ping").toString();
-		BoundRequestBuilder req = cli.getClient().prepareOptions(p);
+	public void ping() {
+		Request built = new RequestBuilder("OPTIONS", true, false).setUri(withPath("/ping")).build();
+		BoundRequestBuilder req = cli.getClient().prepareRequest(built);
 		try {
 			run(req, new PingHandler());
 		} catch (PingFailed pf) {
@@ -79,15 +89,15 @@ public final class AHCHttpNodeClient implements INodeClient {
 	}
 
 	@Override
-	public byte[] read(String path) throws ServerFault {
+	public byte[] read(String path) {
 		ReadHandler rh = new ReadHandler();
-		String p = cli.path().append("/fs").append(esc(path)).toString();
-		BoundRequestBuilder req = cli.getClient().prepareGet(p);
+		Request built = new RequestBuilder("GET", true, false).setUri(withPath("/fs" + esc(path))).build();
+		BoundRequestBuilder req = cli.getClient().prepareRequest(built);
+
 		FileBackedOutputStream fbos = null;
 		try {
 			fbos = run(req, rh);
-			byte[] ret = fbos.asByteSource().read();
-			return ret;
+			return fbos.asByteSource().read();
 		} catch (DoesNotExist dne) {
 			return new byte[0];
 		} catch (Exception t) {
@@ -97,16 +107,17 @@ public final class AHCHttpNodeClient implements INodeClient {
 				try {
 					fbos.reset();
 				} catch (IOException e) {
+					// bingo
 				}
 			}
 		}
 	}
 
 	@Override
-	public InputStream openStream(String path) throws ServerFault {
+	public InputStream openStream(String path) {
 		ReadHandler rh = new ReadHandler();
-		String p = cli.path().append("/fs").append(esc(path)).toString();
-		BoundRequestBuilder req = cli.getClient().prepareGet(p);
+		Request built = new RequestBuilder("GET", true, false).setUri(withPath("/fs" + esc(path))).build();
+		BoundRequestBuilder req = cli.getClient().prepareRequest(built);
 		FileBackedOutputStream fbos = null;
 		try {
 			fbos = run(req, rh);
@@ -119,9 +130,9 @@ public final class AHCHttpNodeClient implements INodeClient {
 	}
 
 	@Override
-	public void writeFile(String path, InputStream content) throws ServerFault {
-		String p = cli.path().append("/fs").append(esc(path)).toString();
-		BoundRequestBuilder req = cli.getClient().preparePut(p);
+	public void writeFile(String path, InputStream content) {
+		Request built = new RequestBuilder("PUT", true, false).setUri(withPath("/fs" + esc(path))).build();
+		BoundRequestBuilder req = cli.getClient().prepareRequest(built);
 		try {
 			run(req, new WriteHandler(path, content));
 		} catch (Exception t) {
@@ -130,9 +141,9 @@ public final class AHCHttpNodeClient implements INodeClient {
 	}
 
 	@Override
-	public void deleteFile(String path) throws ServerFault {
-		String p = cli.path().append("/fs").append(esc(path)).toString();
-		BoundRequestBuilder req = cli.getClient().prepareDelete(p);
+	public void deleteFile(String path) {
+		Request built = new RequestBuilder("DELETE", true).setUri(withPath("/fs" + esc(path))).build();
+		BoundRequestBuilder req = cli.getClient().prepareRequest(built);
 		try {
 			run(req, new DeleteHandler(path));
 		} catch (Exception t) {
@@ -141,14 +152,14 @@ public final class AHCHttpNodeClient implements INodeClient {
 	}
 
 	@Override
-	public TaskRef executeCommand(String cmd) throws ServerFault {
+	public TaskRef executeCommand(String cmd) {
 		return executeCommand(ExecRequest.anonymous(cmd));
 	}
 
 	@Override
-	public TaskRef executeCommand(ExecRequest tsk) throws ServerFault {
-		String p = cli.path().append("/cmd").toString();
-		BoundRequestBuilder req = cli.getClient().preparePost(p);
+	public TaskRef executeCommand(ExecRequest tsk) {
+		Request built = new RequestBuilder("POST", true, false).setUri(withPath("/cmd")).build();
+		BoundRequestBuilder req = cli.getClient().prepareRequest(built);
 		try {
 			return run(req, new SubmitHandler(tsk));
 		} catch (Exception t) {
@@ -157,15 +168,15 @@ public final class AHCHttpNodeClient implements INodeClient {
 	}
 
 	@Override
-	public TaskRef executeCommandNoOut(String cmd) throws ServerFault {
+	public TaskRef executeCommandNoOut(String cmd) {
 		return executeCommand(ExecRequest.anonymousWithoutOutput(cmd));
 	}
 
 	@Override
-	public TaskStatus getExecutionStatus(TaskRef task) throws ServerFault {
+	public TaskStatus getExecutionStatus(TaskRef task) {
 		String pid = task.id;
-		String p = cli.path().append("/cmd/").append(pid).toString();
-		BoundRequestBuilder req = cli.getClient().prepareGet(p);
+		Request built = new RequestBuilder("GET", true, false).setUri(withPath("/cmd/" + pid)).build();
+		BoundRequestBuilder req = cli.getClient().prepareRequest(built);
 		try {
 			return run(req, new StatusHandler(pid));
 		} catch (Exception t) {
@@ -174,9 +185,10 @@ public final class AHCHttpNodeClient implements INodeClient {
 	}
 
 	@Override
-	public List<FileDescription> listFiles(String path, String extensionPattern) throws ServerFault {
-		String p = cli.path().append("/match/").append(extensionPattern).append(esc(path)).toString();
-		BoundRequestBuilder req = cli.getClient().prepareGet(p);
+	public List<FileDescription> listFiles(String path, String extensionPattern) {
+		Request built = new RequestBuilder("GET", true, false)
+				.setUri(withPath("/match/" + extensionPattern + esc(path))).build();
+		BoundRequestBuilder req = cli.getClient().prepareRequest(built);
 		try {
 			return run(req, new ListFilesHandler());
 		} catch (DoesNotExist dne) {
@@ -185,9 +197,9 @@ public final class AHCHttpNodeClient implements INodeClient {
 	}
 
 	@Override
-	public List<FileDescription> listFiles(String path) throws ServerFault {
-		String p = cli.path().append("/list").append(esc(path)).toString();
-		BoundRequestBuilder req = cli.getClient().prepareGet(p);
+	public List<FileDescription> listFiles(String path) {
+		Request built = new RequestBuilder("GET", true, false).setUri(withPath("/list" + esc(path))).build();
+		BoundRequestBuilder req = cli.getClient().prepareRequest(built);
 		try {
 			return run(req, new ListFilesHandler());
 		} catch (DoesNotExist dne) {
@@ -199,16 +211,16 @@ public final class AHCHttpNodeClient implements INodeClient {
 		try {
 			return handler.prepare(req).execute(handler).get();
 		} catch (ExecutionException e) {
-			throw Throwables.propagate(e.getCause());
+			throw NodeRuntimeException.wrap(e.getCause());
 		} catch (Exception e) {
-			throw Throwables.propagate(e);
+			throw NodeRuntimeException.wrap(e);
 		}
 	}
 
 	@Override
 	public List<ExecDescriptor> getActiveExecutions(ActiveExecQuery query) {
-		String p = cli.path().append("/cmd").toString();
-		BoundRequestBuilder req = cli.getClient().prepareGet(p);
+		Request built = new RequestBuilder("GET", true, false).setUri(withPath("/cmd")).build();
+		BoundRequestBuilder req = cli.getClient().prepareRequest(built);
 		try {
 			return run(req, new ActiveExecutionsHandler(query));
 		} catch (Exception t) {
@@ -218,8 +230,9 @@ public final class AHCHttpNodeClient implements INodeClient {
 
 	@Override
 	public void interrupt(ExecDescriptor runningTask) {
-		String p = cli.path().append("/cmd/").append(runningTask.taskRefId).toString();
-		BoundRequestBuilder req = cli.getClient().prepareDelete(p);
+		Request built = new RequestBuilder("DELETE", true, false).setUri(withPath("/cmd/" + runningTask.taskRefId))
+				.build();
+		BoundRequestBuilder req = cli.getClient().prepareRequest(built);
 		try {
 			run(req, new InterruptHandler(runningTask));
 		} catch (Exception t) {
@@ -229,7 +242,7 @@ public final class AHCHttpNodeClient implements INodeClient {
 
 	@Override
 	public void asyncExecute(ExecRequest req, ProcessHandler ph) {
-		cli.getWebsocketLink().startWsAction(JsonHelper.toJson(req), ph);
+		cli.getWebsocketLink().startWsAction(req, ph);
 
 	}
 

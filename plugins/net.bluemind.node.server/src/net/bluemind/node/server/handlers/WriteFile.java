@@ -19,20 +19,28 @@
 package net.bluemind.node.server.handlers;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.concurrent.atomic.LongAdder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.AsyncResult;
+import io.netty.buffer.ByteBuf;
 import io.vertx.core.Handler;
-import io.vertx.core.file.AsyncFile;
-import io.vertx.core.file.FileSystem;
-import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.streams.Pump;
-import net.bluemind.lib.vertx.VertxPlatform;
 
 public class WriteFile implements Handler<HttpServerRequest> {
+
+	@SuppressWarnings("serial")
+	private static class WriteException extends RuntimeException {
+		public WriteException(IOException ioe) {
+			super(ioe);
+		}
+
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(WriteFile.class);
 
@@ -40,48 +48,49 @@ public class WriteFile implements Handler<HttpServerRequest> {
 	public void handle(final HttpServerRequest req) {
 		final String path = UrlPath.dec(req.params().get("param0"));
 		logger.debug("PUT {}...", path);
-		req.pause();
-		final FileSystem fs = VertxPlatform.getVertx().fileSystem();
-		fs.truncate(path, 0, new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				writeFile(fs, req, path);
-			}
-		});
+		writeFile(req, path);
 	}
 
-	private void writeFile(final FileSystem fs, final HttpServerRequest req, final String path) {
-		// we don't really care about truncate result.
-		new File(path).getParentFile().mkdirs();
-		fs.open(path, new OpenOptions(), ar -> {
-			if (!ar.succeeded()) {
-				logger.error("[" + path + "]: " + ar.cause().getMessage(), ar.cause());
-				req.resume();
-				req.response().setStatusCode(500).end();
-			} else {
-				final AsyncFile af = ar.result();
-				final Pump pump = Pump.pump(req, af);
-				req.endHandler(v -> {
-					af.flush(fh -> {
-						if (!fh.succeeded()) {
-							logger.error("Failed to write file {}", path);
-							req.response().setStatusCode(500).end();
-						} else {
-							af.close(event -> {
-								if (!event.succeeded()) {
-									logger.error("Failed to write file {}", path);
-									req.response().setStatusCode(500).end();
-								} else {
-									logger.info("PUT {} completed, wrote {}bytes.", path, pump.numberPumped());
-									req.response().end();
-								}
-							});
-						}
-					});
-				});
-				req.resume();
-				pump.start();
-			}
-		});
+	private void writeFile(final HttpServerRequest req, final String path) {
+		File asFile = new File(path);
+		asFile.getParentFile().mkdirs();
+		try {
+			SeekableByteChannel chan = Files.newByteChannel(asFile.toPath(), StandardOpenOption.CREATE,
+					StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+			req.exceptionHandler(t -> {
+				safeClose(chan);
+				do500(t, req);
+			});
+			LongAdder len = new LongAdder();
+			req.handler(buf -> {
+				try {
+					ByteBuf netty = buf.getByteBuf();
+					len.add(netty.readableBytes());
+					chan.write(netty.nioBuffer());
+				} catch (IOException e) {
+					throw new WriteException(e);
+				}
+			});
+			req.endHandler(v -> {
+				safeClose(chan);
+				logger.info("PUT {} completed, wrote {} byte(s)", path, len.sum());
+				req.response().end();
+			});
+		} catch (IOException e) {
+			do500(e, req);
+		}
+	}
+
+	private void safeClose(SeekableByteChannel chan) {
+		try {
+			chan.close();
+		} catch (IOException e) {
+			throw new WriteException(e);
+		}
+	}
+
+	private void do500(Throwable t, HttpServerRequest req) {
+		logger.error(t.getMessage(), t);
+		req.response().setStatusCode(500).end();
 	}
 }

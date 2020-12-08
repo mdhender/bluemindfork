@@ -33,8 +33,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -52,12 +50,7 @@ public class DeferredActionServiceTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
+		VertxPlatform.spawnVerticles(evt -> launched.countDown());
 		launched.await();
 		PopulateHelper.initGlobalVirt();
 		String domainUid = "dom" + System.currentTimeMillis() + ".test";

@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -73,11 +74,10 @@ public class ScheduledJobStoreTests {
 	public void before() throws Exception {
 
 		JdbcTestHelper.getInstance().beforeTest();
-		
 
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 
 		String installationId = InstallationId.getIdentifier();
@@ -130,7 +130,7 @@ public class ScheduledJobStoreTests {
 	@Test
 	public void testSearchExecutionResultsAreOrderedByStartExecutionDate() throws InterruptedException, SQLException {
 		Domain domain = createDomain();
-		
+
 		// create 2 executions
 		long nowInMillis = Calendar.getInstance().getTimeInMillis();
 		JobExecution jobExec1 = defaultJobExecution(domain);
@@ -142,7 +142,7 @@ public class ScheduledJobStoreTests {
 
 		store.createExecution(jobExec1);
 		store.createExecution(jobExec2);
-		
+
 		// check results are well ordered by start execution date
 		JobExecutionQuery query = new JobExecutionQuery();
 		query.from = 0;
@@ -401,7 +401,7 @@ public class ScheduledJobStoreTests {
 	}
 
 	private void createExecution(Domain domain) {
-		
+
 		JobExecution je = defaultJobExecution(domain);
 		store.ensureDefaultPlan(domain.name, je.jobId);
 		store.createExecution(je);
@@ -428,10 +428,7 @@ public class ScheduledJobStoreTests {
 		domainItemStore.create(Item.create("osef", null));
 		Item item = domainItemStore.get("osef");
 
-		Domain domain = new Domain();
-		domain.name = "bm.lan";
-		domain.label = "BlueMind";
-
+		Domain domain = Domain.create("bm.lan", "BlueMind", "description", Collections.emptySet());
 		domainStore.create(item, domain);
 		assertNotNull(domainStore.get(item));
 		return domain;

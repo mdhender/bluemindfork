@@ -295,7 +295,6 @@ public class RuleAssignmentWidget extends Composite {
 			assignment.position = Integer.parseInt(positionSelect.getSelectedItemText());
 			assignment.uid = uid;
 		} catch (Exception e) {
-			GWT.log("popopopo " + e.getMessage());
 			return Optional.empty();
 		}
 		return Optional.of(assignment);

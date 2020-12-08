@@ -21,5 +21,6 @@ Require-Bundle: com.google.gwt.user;resolution:=optional,
  net.bluemind.role.api,
  net.bluemind.gwtconsoleapp.base;visibility:=reexport,
  net.bluemind.ui.settings.api;bundle-version="1.0.0";visibility:=reexport
-Export-Package: net.bluemind.ui.settings.mail
+Export-Package: net.bluemind.ui.settings.mail,
+ net.bluemind.ui.settings.mail.appswitch
 Automatic-Module-Name: net.bluemind.ui.settings.mail

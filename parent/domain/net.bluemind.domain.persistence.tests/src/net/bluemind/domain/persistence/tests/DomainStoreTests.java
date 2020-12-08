@@ -21,6 +21,7 @@ package net.bluemind.domain.persistence.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -50,10 +51,9 @@ public class DomainStoreTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 
 		String installationId = InstallationId.getIdentifier();
@@ -79,11 +79,12 @@ public class DomainStoreTests {
 		Item item = domainItemStore.get("test");
 
 		Domain expected = new Domain();
-		expected.name = "nameTest";
+		expected.name = "testdomain.internal";
 		expected.label = "label test";
 		expected.global = true;
 		expected.description = "ma main dans ta gueule";
 		expected.aliases = new HashSet<>(Arrays.asList("test.fr", "toto.fr", "mel.gibson"));
+		expected.defaultAlias = "test.fr";
 		domainStore.create(item, expected);
 
 		Domain actual = domainStore.get(item);
@@ -93,6 +94,7 @@ public class DomainStoreTests {
 		assertEquals(expected.description, actual.description);
 		assertEquals(expected.aliases, actual.aliases);
 		assertEquals(expected.global, actual.global);
+		assertEquals(expected.defaultAlias, actual.defaultAlias);
 	}
 
 	@Test
@@ -101,12 +103,12 @@ public class DomainStoreTests {
 		Item item = domainItemStore.get("test");
 
 		Domain expected = new Domain();
-		expected.name = "nameTest";
+		expected.name = "testdomain.internal";
 		expected.label = "label test";
 		expected.global = true;
 		expected.description = "ma main dans ta gueule";
 		expected.aliases = new HashSet<>(Arrays.asList("test.fr", "toto.fr", "mel.gibson"));
-
+		expected.defaultAlias = "toto.fr";
 		domainStore.create(item, expected);
 
 		expected.name = "unameTest";
@@ -114,6 +116,7 @@ public class DomainStoreTests {
 		expected.global = false;
 		expected.description = "ma main dans ta bouche";
 		expected.aliases = new HashSet<>(Arrays.asList("jojo.fr"));
+		expected.defaultAlias = "jojo.fr";
 
 		domainStore.update(item, expected);
 
@@ -124,6 +127,7 @@ public class DomainStoreTests {
 		assertEquals(expected.description, actual.description);
 		assertEquals(expected.aliases, actual.aliases);
 		assertEquals(expected.global, actual.global);
+		assertEquals(expected.defaultAlias, actual.defaultAlias);
 	}
 
 	@Test
@@ -137,7 +141,7 @@ public class DomainStoreTests {
 		expected.global = true;
 		expected.description = "ma main dans ta gueule";
 		expected.aliases = new HashSet<>(Arrays.asList("test.fr", "toto.fr", "mel.gibson"));
-
+		expected.defaultAlias = "test.fr";
 		domainStore.create(item, expected);
 
 		domainStore.delete(item);
@@ -158,7 +162,7 @@ public class DomainStoreTests {
 		expected.global = true;
 		expected.description = "ma main dans ta gueule";
 		expected.aliases = new HashSet<>(Arrays.asList("test.fr", "toto.fr", "mel.gibson"));
-
+		expected.defaultAlias = "test.fr";
 		domainStore.create(item, expected);
 
 		assertEquals("test", domainStore.findByNameOrAliases("name.fr"));
@@ -177,7 +181,7 @@ public class DomainStoreTests {
 		expected.global = true;
 		expected.description = "ma main dans ta gueule";
 		expected.aliases = new HashSet<>(Arrays.asList("test.fr", "toto.fr", "mel.gibson"));
-
+		expected.defaultAlias = "test.fr";
 		domainStore.create(item, expected);
 
 		Domain actual = domainStore.get(item);
@@ -195,6 +199,38 @@ public class DomainStoreTests {
 		actual = domainStore.get(item);
 		assertEquals(1, actual.properties.size());
 		assertEquals("polo", actual.properties.get("marco"));
+	}
+
+	@Test
+	public void testInvalidDefaultAlias() throws Exception {
+		domainItemStore.create(Item.create("test", null));
+		Item item = domainItemStore.get("test");
+
+		Domain expected = new Domain();
+		expected.name = "nameTest";
+		expected.label = "label test";
+		expected.global = true;
+		expected.description = "ma main dans ta gueule";
+		expected.aliases = new HashSet<>(Arrays.asList("test.fr", "toto.fr", "mel.gibson"));
+		expected.defaultAlias = "not.in.aliases";
+
+		try {
+			domainStore.create(item, expected);
+			fail("defaultAlias not in aliases should not be allowed");
+		} catch (Exception e) {
+		}
+		expected.defaultAlias = "";
+		try {
+			domainStore.create(item, expected);
+			fail("empty defaultAlias should not be allowed");
+		} catch (Exception e) {
+		}
+		expected.defaultAlias = null;
+		try {
+			domainStore.create(item, expected);
+			fail("null defaultAlias should not be allowed");
+		} catch (Exception e) {
+		}
 	}
 
 }

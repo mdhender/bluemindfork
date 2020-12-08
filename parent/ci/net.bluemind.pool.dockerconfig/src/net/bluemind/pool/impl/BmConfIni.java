@@ -114,6 +114,11 @@ public class BmConfIni extends IniFile {
 
 		}
 
+		String proxy = DockerEnv.getIp(DockerContainer.PROXY.getName());
+		if (proxy != null) {
+			overrideMap.put(DockerContainer.PROXY.getHostProperty(), proxy);
+		}
+
 		if (BmConfIniExtraSettings.settings != null && !BmConfIniExtraSettings.settings.isEmpty()) {
 			overrideMap.putAll(BmConfIniExtraSettings.settings);
 		}

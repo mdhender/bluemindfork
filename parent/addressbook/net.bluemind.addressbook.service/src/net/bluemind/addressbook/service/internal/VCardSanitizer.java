@@ -215,7 +215,6 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 	}
 
 	private void sanitizeFormattedName(VCard card) {
-
 		List<String> names = new ArrayList<>(3);
 		String prefixes = card.identification.name.prefixes;
 		String givenName = card.identification.name.givenNames;
@@ -272,13 +271,10 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 			}
 		}
 
-		if (!names.isEmpty()) {
-			List<Parameter> parameters = new ArrayList<>();
-			if (null != card.identification.formatedName && null != card.identification.formatedName.parameters) {
-				parameters = card.identification.formatedName.parameters;
-			}
-			card.identification.formatedName = FormatedName.create(StringUtils.join(names, " "), parameters);
-
+		if (!names.isEmpty()
+				&& (card.identification.formatedName == null || card.identification.formatedName.value == null
+						|| card.identification.formatedName.value.trim().isEmpty())) {
+			card.identification.formatedName = FormatedName.create(StringUtils.join(names, " "));
 		}
 	}
 

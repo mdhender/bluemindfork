@@ -1,6 +1,5 @@
 package net.bluemind.metrics.registry.impl;
 
-import java.io.IOException;
 import java.util.Collections;
 
 import org.slf4j.Logger;
@@ -12,7 +11,7 @@ import com.netflix.spectator.api.Id;
 import com.netflix.spectator.api.Measurement;
 import com.netflix.spectator.impl.AtomicDouble;
 
-import net.bluemind.metrics.registry.client.WebSocketClient;
+import net.bluemind.metrics.registry.client.AgentPushClient;
 import net.bluemind.metrics.registry.json.GaugeJson;
 
 public class BMGauge implements Gauge {
@@ -20,10 +19,10 @@ public class BMGauge implements Gauge {
 	private final Clock clock;
 	private final Id id;
 	private final AtomicDouble value;
-	private final WebSocketClient webSockClient;
+	private final AgentPushClient webSockClient;
 
 	/** Create a new instance. */
-	BMGauge(Clock clock, Id id, WebSocketClient webSockClient) {
+	BMGauge(Clock clock, Id id, AgentPushClient webSockClient) {
 		this.webSockClient = webSockClient;
 		this.clock = clock;
 		this.id = id;
@@ -49,12 +48,8 @@ public class BMGauge implements Gauge {
 	@Override
 	public void set(double v) {
 		value.set(v);
-		try {
-			GaugeJson gaugeJson = new GaugeJson(id, this.value.get());
-			this.webSockClient.sendTextFrame(gaugeJson);
-		} catch (IOException e) {
-			logger.error("IOException : ", e);
-		}
+		GaugeJson gaugeJson = new GaugeJson(id, this.value.get());
+		this.webSockClient.queue(gaugeJson);
 	}
 
 	@Override

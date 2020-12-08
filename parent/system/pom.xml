@@ -21,6 +21,7 @@
 		<module>net.bluemind.system.schemaupgrader.tests</module>
 		<module>net.bluemind.system.hook</module>
 		<module>net.bluemind.system.config</module>
+		<module>net.bluemind.system.sysconf.helper</module>
 		<module>net.bluemind.system.auth</module>
 		<module>net.bluemind.system.auth.tests</module>
 		<module>net.bluemind.system.service</module>

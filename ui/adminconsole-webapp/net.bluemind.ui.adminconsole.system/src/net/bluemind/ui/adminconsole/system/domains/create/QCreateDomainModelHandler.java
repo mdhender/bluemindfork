@@ -126,11 +126,8 @@ public class QCreateDomainModelHandler implements IGwtModelHandler {
 
 		final JsMapStringJsObject map = model.cast();
 		QCreateDomainModel dmodel = map.getObject("domainModel");
-		Domain domain = new Domain();
-		domain.name = dmodel.name;
-		domain.label = dmodel.name;
-		domain.aliases = new HashSet<>(Arrays.asList(dmodel.domainAlias));
-
+		Domain domain = Domain.create(dmodel.name, dmodel.name, "desc",
+				new HashSet<>(Arrays.asList(dmodel.domainAlias)), dmodel.domainAlias);
 		if (dmodel.createAdmin && !checkAdminUser(wrappedHandler, dmodel)) {
 			return;
 		}

@@ -76,7 +76,12 @@ public final class AHCNodeClientFactory implements INodeClientFactory {
 					hpc.setPort(8022);
 				}
 			} catch (Exception ioe) {
-				logger.info("Error testing SSL connection to {}", hostIpAddress, ioe);
+				// Avoid bombarding tests output with ConnectException
+				if (Boolean.getBoolean("ahcnode.fail.https.ok")) {
+					logger.info("Error testing SSL connection to {}", hostIpAddress);
+				} else {
+					logger.info("Error testing SSL connection to {}", hostIpAddress, ioe);
+				}
 			}
 		}
 		WebsocketLink ws = new WebsocketLink(hpc);

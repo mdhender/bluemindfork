@@ -40,6 +40,7 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
@@ -56,6 +57,7 @@ import net.bluemind.system.importation.commons.CoreServices;
 import net.bluemind.system.importation.commons.ICoreServices;
 import net.bluemind.system.importation.commons.Parameters;
 import net.bluemind.system.importation.commons.UuidMapper;
+import net.bluemind.system.importation.commons.enhancer.GroupMembershipData;
 import net.bluemind.system.importation.commons.enhancer.IScannerEnhancer;
 import net.bluemind.system.importation.commons.managers.GroupManager;
 import net.bluemind.system.importation.commons.managers.UserManager;
@@ -176,9 +178,9 @@ public abstract class Scanner {
 
 	protected abstract PagedSearchResult groupsDnByLastModification(Optional<String> lastUpdate) throws LdapException;
 
-	protected abstract PagedSearchResult getUserFromDn(Dn dn) throws LdapException;
+	protected abstract Optional<Entry> getUserFromDn(Dn dn) throws LdapException;
 
-	protected abstract PagedSearchResult getGroupFromDn(Dn dn) throws LdapException;
+	protected abstract Optional<Entry> getGroupFromDn(Dn dn) throws LdapException;
 
 	protected abstract void manageUserGroups(UserManager userManager);
 
@@ -341,6 +343,32 @@ public abstract class Scanner {
 						.forEach(member -> coreService.setUserMailRouting(Routing.external, member.uid));
 			}
 		}
+
+		groupMembershipEnhancer(groupManager.group, membersToAdd, membersToRemove);
+	}
+
+	private void groupMembershipEnhancer(ItemValue<Group> group, SetView<Member> membersToAdd,
+			SetView<Member> membersToRemove) {
+		List<IScannerEnhancer> hooks = getScannerEnhancerHooks();
+
+		if (hooks.isEmpty()) {
+			return;
+		}
+
+		long timeBefore = System.currentTimeMillis();
+		// Use dedicated directory connection for hook as connection parameters may be
+		// altered by hook.
+		try (LdapConProxy ldapCon = getConnection()) {
+			for (IScannerEnhancer iee : hooks) {
+				iee.groupMembershipUpdates(importLogger.withoutStatus(), getParameter(), domain, ldapCon,
+						new GroupMembershipData(group, membersToAdd, membersToRemove));
+			}
+		} catch (IOException e) {
+			logger.error("Directory connection error", e);
+		}
+
+		logger.info(String.format("Ending group %s (%s) member add/delete enhancement in %dms", group.value.name,
+				group.uid, System.currentTimeMillis() - timeBefore));
 	}
 
 	private Set<Member> getGroupMembers(GroupManager groupManager) {
@@ -386,35 +414,23 @@ public abstract class Scanner {
 		}
 	}
 
-	protected Optional<UuidMapper> getUserUuidMapper(Dn userDn) {
-		Entry entry = null;
+	private Optional<Member> getUserMember(GroupManager groupManager, Dn userDn) {
+		Optional<UuidMapper> uuidMapper = Optional.empty();
 
-		try (PagedSearchResult cursor = getUserFromDn(userDn)) {
-			if (!cursor.next()) {
-				return Optional.empty();
-			}
-
-			entry = cursor.getEntry();
-
-			if (doNotImportUser(entry)) {
-				return Optional.empty();
-			}
-		} catch (Exception e) {
-			throw new ServerFault(e);
+		try {
+			uuidMapper = getUserFromDn(userDn).map(this::getUuidMapperFromEntry).orElse(Optional.empty());
+		} catch (LdapException le) {
+			importLogger.warning(Messages.groupMemberNotFound(userDn.getName()));
 		}
 
-		return getUuidMapperFromEntry(entry);
-	}
-
-	private Optional<Member> getUserMember(GroupManager groupManager, Dn userDn) {
-		Optional<UuidMapper> uuidMapper = getUserUuidMapper(userDn);
-		if (!uuidMapper.isPresent()) {
+		String extId = uuidMapper.map(UuidMapper::getExtId).orElse(null);
+		if (Strings.isNullOrEmpty(extId)) {
 			return Optional.empty();
 		}
 
-		ItemValue<User> itemUser = coreService.getUserByExtId(uuidMapper.get().getExtId());
+		ItemValue<User> itemUser = coreService.getUserByExtId(extId);
 		if (itemUser == null) {
-			importLogger.info(Messages.failedToFindUserByExtId(groupManager.group, uuidMapper.get().getExtId()));
+			importLogger.info(Messages.failedToFindUserByExtId(groupManager.group, extId));
 			return Optional.empty();
 		}
 
@@ -426,29 +442,22 @@ public abstract class Scanner {
 	}
 
 	private Optional<Member> getGroupMember(GroupManager groupManager, Dn groupDn) {
-		Entry entry = null;
-		try (PagedSearchResult cursor = getGroupFromDn(groupDn)) {
-			if (!cursor.next()) {
-				return Optional.empty();
-			}
+		Optional<UuidMapper> uuidMapper = Optional.empty();
 
-			entry = cursor.getEntry();
-
-			if (doNotImportGroup(entry)) {
-				return Optional.empty();
-			}
-		} catch (Exception e) {
-			throw new ServerFault(e);
+		try {
+			uuidMapper = getGroupFromDn(groupDn).map(this::getUuidMapperFromEntry).orElse(Optional.empty());
+		} catch (LdapException le) {
+			importLogger.warning(Messages.groupMemberNotFound(groupDn.getName()));
 		}
 
-		Optional<UuidMapper> uuidMapper = getUuidMapperFromEntry(entry);
-		if (!uuidMapper.isPresent()) {
+		String extId = uuidMapper.map(UuidMapper::getExtId).orElse(null);
+		if (Strings.isNullOrEmpty(extId)) {
 			return Optional.empty();
 		}
 
-		ItemValue<Group> itemGroup = coreService.getGroupByExtId(uuidMapper.get().getExtId());
+		ItemValue<Group> itemGroup = coreService.getGroupByExtId(extId);
 		if (itemGroup == null) {
-			importLogger.info(Messages.failedToFindGroupByExtId(groupManager.group, uuidMapper.get().getExtId()));
+			importLogger.info(Messages.failedToFindGroupByExtId(groupManager.group, extId));
 			return Optional.empty();
 		}
 
@@ -561,7 +570,7 @@ public abstract class Scanner {
 				iee.beforeImport(importLogger.withoutStatus(), getParameter(), domain, ldapCon);
 			}
 		} catch (IOException e) {
-			logger.warn("Closing directory connexion failed!", e);
+			logger.error("Directory connection error", e);
 		}
 
 		importLogger.info(Messages.beforeEndImport(getKind(), System.currentTimeMillis() - timeBefore));

@@ -194,11 +194,7 @@ public abstract class HooksTests {
 	}
 
 	protected Domain domainItem(String domainUid) throws ServerFault {
-		Domain domain = new Domain();
-		domain.name = domainUid;
-		domain.label = domainUid;
-		domain.description = domainUid;
-		return domain;
+		return Domain.create(domainUid, domainUid, domainUid, Collections.emptySet());
 	}
 
 	protected Map<String, String> domainSettings() {

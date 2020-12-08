@@ -92,13 +92,16 @@ public class GroupManagerTests {
 		protected Set<String> getRangedGroupMembers() {
 			return Collections.emptySet();
 		}
+
+		@Override
+		protected boolean isSplitDomainNestedGroup() {
+			return false;
+		}
 	}
 
 	private ItemValue<Domain> getDomain() {
-		Domain domain = new Domain();
-		domain.name = "domain.tld";
-		domain.aliases = new HashSet<>(Arrays.asList("domain-alias1.tld", "domain-alias2.tld"));
-
+		Domain domain = Domain.create("domain.tld", "label", "desc",
+				new HashSet<>(Arrays.asList("domain-alias1.tld", "domain-alias2.tld")));
 		return ItemValue.create(Item.create(domain.name, 0), domain);
 	}
 

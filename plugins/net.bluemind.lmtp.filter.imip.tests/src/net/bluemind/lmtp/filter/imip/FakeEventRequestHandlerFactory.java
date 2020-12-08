@@ -27,6 +27,6 @@ public class FakeEventRequestHandlerFactory {
 	}
 
 	public EventRequestHandler create(ISendmail mailer) {
-		return new EventRequestHandler(mailer);
+		return new EventRequestHandler(mailer, null, null);
 	}
 }

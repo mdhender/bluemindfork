@@ -370,7 +370,7 @@ net.bluemind.calendar.day.DayPresenter.prototype.adaptVEvent_ = function(vevent,
 
 
   if (vevent.rrule && vevent.rrule.until) {
-    vevent.rrule.until = formatter.formatDate(vevent.rrule.until);
+    vevent.formatted.until = formatter.formatDate(vevent.rrule.until);
   }
 
   if (vevent.rrule && vevent.rrule.byday && vevent.rrule.byday.length > 0) {
@@ -396,9 +396,9 @@ net.bluemind.calendar.day.DayPresenter.prototype.adaptVEvent_ = function(vevent,
           });
         }
       }
-      vevent.rrule.byday = byday;
+      vevent.formatted.byday = byday;
   }
-
+  vevent.formatted.alarm = [];
   goog.array.forEach(vevent.alarm, function(a){
     var duration = a.trigger;
     var unit = 1;
@@ -415,8 +415,7 @@ net.bluemind.calendar.day.DayPresenter.prototype.adaptVEvent_ = function(vevent,
       duration = a.trigger / 60;
       unit = 60;
     }
-    a.duration = duration;
-    a.unit = unit;
+    vevent.formatted.alarm.push({duration: duration, unit: unit, trigger: a.trigger});
   });
 
   var url = vevent.url;

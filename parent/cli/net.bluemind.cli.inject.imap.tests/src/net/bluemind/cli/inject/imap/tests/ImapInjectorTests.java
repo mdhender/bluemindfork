@@ -71,8 +71,7 @@ public class ImapInjectorTests {
 		Server imapServer = new Server();
 		imapServer.ip = ini.get("imap-role");
 		imapServer.tags = Lists.newArrayList("mail/imap");
-
-		ItemValue<Server> cyrusServer = ItemValue.create("localhost", imapServer);
+		ItemValue<Server> cyrusServer = ItemValue.create(imapServer.ip, imapServer);
 		CyrusService cyrusService = new CyrusService(cyrusServer);
 		cyrusService.reset();
 
@@ -81,8 +80,8 @@ public class ImapInjectorTests {
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
 
 		this.domainUid = "test" + System.currentTimeMillis() + ".lab";
-
 		PopulateHelper.addDomain(domainUid, Routing.none);
+		cyrusService.createPartition(domainUid);
 
 		System.err.println("Setup replication START");
 		this.cyrusReplication = new CyrusReplicationHelper(imapServer.ip);

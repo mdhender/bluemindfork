@@ -37,7 +37,7 @@ public class UserPasswordValidator implements IPasswordValidator {
 			throw new ServerFault("Password must not be empty", ErrorCode.INVALID_PARAMETER);
 		}
 
-		if (!CharMatcher.ASCII.matchesAllOf(password)) {
+		if (!CharMatcher.ascii().matchesAllOf(password)) {
 			throw new ServerFault("Invalid character in password", ErrorCode.INVALID_PARAMETER);
 		}
 

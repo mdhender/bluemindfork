@@ -178,6 +178,7 @@ net.bluemind.contact.vcard.VCardEditPresenter.prototype.handleSave = function(ev
       return this.ctx.service('addressbook').deletePhoto(vcard['container'], vcard['uid']);
     }
   }, null, this).then(function() {
+    vcard['value']['identification']['formatedName'] = null;
     if (alreadyExists) {
       return this.ctx.service('addressbook').update(vcard);
     } else {

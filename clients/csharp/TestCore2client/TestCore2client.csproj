@@ -72,6 +72,9 @@
     <Content Include="resources\server-vevent-decline.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\login-response.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="App.config.sample" />
     <None Include="App.config">
       <SubType>Designer</SubType>

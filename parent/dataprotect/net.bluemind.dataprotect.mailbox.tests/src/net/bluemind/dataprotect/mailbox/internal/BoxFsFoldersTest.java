@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.bluemind.core.container.model.ItemValue;
@@ -36,6 +37,11 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Type;
 
 public class BoxFsFoldersTest {
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("ahcnode.fail.https.ok", "true");
+	}
 
 	@Test
 	public void testSimpleUserPath() {

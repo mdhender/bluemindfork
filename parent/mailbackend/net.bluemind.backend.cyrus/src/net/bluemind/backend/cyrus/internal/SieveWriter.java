@@ -21,8 +21,9 @@ package net.bluemind.backend.cyrus.internal;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -30,8 +31,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.mail.internet.MimeUtility;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.james.mime4j.MimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +55,6 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.imap.sieve.SieveClient;
 import net.bluemind.imap.sieve.SieveClient.SieveConnectionData;
@@ -67,8 +70,8 @@ import net.bluemind.user.api.User;
 
 public class SieveWriter {
 
-	public static enum Type {
-		Domain, User, Shared;
+	public enum Type {
+		DOMAIN, USER, SHARED;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(SieveWriter.class);
@@ -76,7 +79,7 @@ public class SieveWriter {
 	private final Configuration cfg;
 
 	public SieveWriter() {
-		cfg = new Configuration();
+		cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		BeansWrapper wrapper = new BeansWrapper();
 		wrapper.setExposeFields(true);
 		cfg.setObjectWrapper(wrapper);
@@ -84,18 +87,20 @@ public class SieveWriter {
 	}
 
 	public String generateSieveScript(Type type, ItemValue<Mailbox> mbox, ItemValue<Domain> domain, MailFilter filter)
-			throws IOException, TemplateException, ServerFault {
+			throws IOException, TemplateException {
 		Map<String, Object> data = new HashMap<>();
 
 		data.put("vacation", verifyVacation(filter.vacation));
+		data.put("vacationSubject", mailSafeEncoding(filter.vacation.subject));
+		data.put("vacationText", encodeVacationText(filter.vacation));
 		data.put("forward", filter.forwarding);
 		data.put("domainName", domain.value.name);
 		data.put("filters", getFiltersString(type, mbox, filter));
-		if (type == Type.User) {
+		if (type == Type.USER) {
 			data.put("mailboxUid", mbox.uid);
 		}
 
-		if (type != Type.Domain) {
+		if (type != Type.DOMAIN) {
 			Email defaultEmail = mbox.value.defaultEmail();
 			if (defaultEmail != null) {
 				data.put("from", defaultEmail.address);
@@ -116,9 +121,7 @@ public class SieveWriter {
 
 			String leftPart = email.toString().split("@")[0];
 			expendedEmails.add(leftPart + "@" + domain.value.name);
-			domain.value.aliases.forEach(alias -> {
-				expendedEmails.add(leftPart + "@" + alias);
-			});
+			domain.value.aliases.forEach(alias -> expendedEmails.add(leftPart + "@" + alias));
 		});
 
 		return expendedEmails;
@@ -139,7 +142,7 @@ public class SieveWriter {
 
 				String deliver = f.deliver;
 				if (f.deliver != null && StringUtils.isNotBlank(deliver.trim())) {
-					if (type == Type.Shared) {
+					if (type == Type.SHARED) {
 						String name = mbox.value.name;
 						if (deliver.startsWith(name + "/")) {
 							deliver = deliver.substring(name.length() + 1);
@@ -154,8 +157,7 @@ public class SieveWriter {
 		return filtersWrite;
 	}
 
-	private String applyTemplate(Type type, Map<String, Object> data)
-			throws IOException, ServerFault, TemplateException {
+	private String applyTemplate(Type type, Map<String, Object> data) throws IOException, TemplateException {
 		StringWriter sw = new StringWriter();
 		Template template = getTemplate(type);
 		template.process(data, sw);
@@ -167,13 +169,13 @@ public class SieveWriter {
 		return script;
 	}
 
-	private Template getTemplate(Type type) throws IOException, ServerFault {
+	private Template getTemplate(Type type) throws IOException {
 		switch (type) {
-		case User:
+		case USER:
 			return cfg.getTemplate("default.ftl");
-		case Shared:
+		case SHARED:
 			return cfg.getTemplate("mailshare_default.ftl");
-		case Domain:
+		case DOMAIN:
 			return cfg.getTemplate("domain_default.ftl");
 		default:
 			throw new ServerFault("Invalid type " + type);
@@ -201,11 +203,40 @@ public class SieveWriter {
 			}
 		}
 
-		if (vac.subject != null && !vac.subject.trim().isEmpty()) {
-			vac.subject = "=?UTF-8?b?" + Base64.getEncoder().encodeToString(vac.subject.getBytes()) + "?=";
+		return vac;
+	}
+
+	private String encodeVacationText(Vacation vacation) {
+		if (Strings.isNullOrEmpty(vacation.textHtml)) {
+			return "\"" + escapeVacationContent(vacation.text) + "\"";
 		}
 
-		return vac;
+		MultipartVacationMessage msg = new MultipartVacationMessage(vacation.textHtml, vacation.text,
+				StandardCharsets.UTF_8);
+
+		String encodedText;
+		try {
+			encodedText = ":mime \"" + escapeVacationContent(msg.getContent()) + "\"";
+		} catch (MimeException | IOException e) {
+			encodedText = "\"" + escapeVacationContent(vacation.text) + "\"";
+		}
+		return encodedText;
+	}
+
+	private String mailSafeEncoding(String text) {
+		if (text == null || text.trim().isEmpty()) {
+			return "";
+		}
+		try {
+			return escapeVacationContent(MimeUtility.encodeWord(text));
+		} catch (UnsupportedEncodingException e) {
+			logger.error("Fail to encode text content while writing sieve: {}", text, e);
+			return text;
+		}
+	}
+
+	private String escapeVacationContent(String text) {
+		return (text != null) ? text.replace("\"", "\\\"").replace("'", "\\'") : "";
 	}
 
 	private String getRule(String criteria) {
@@ -279,16 +310,14 @@ public class SieveWriter {
 		} else if (crit.equals("BODY")) {
 			return "anyof (" + not + " body :content \"text\" " + type + " \"" + value + "\", " + not
 					+ " body :content \"text\" " + type + " \"" + StringEscapeUtils.escapeHtml(value) + "\")";
+		} else if (!not.isEmpty()) {
+			return "exists \"" + crit + "\",\n\t" + not + " header " + type + " \"" + crit + "\" \"" + value + "\"";
 		} else {
-			if (!not.isEmpty()) {
-				return "exists \"" + crit + "\",\n\t" + not + " header " + type + " \"" + crit + "\" \"" + value + "\"";
-			}
-
 			return "header " + type + " \"" + crit + "\" \"" + value + "\"";
 		}
 	}
 
-	public void write(ItemValue<Mailbox> mailbox, ItemValue<Domain> domain, MailFilter filter) throws ServerFault {
+	public void write(ItemValue<Mailbox> mailbox, ItemValue<Domain> domain, MailFilter filter) {
 		write(mailbox, domain, filter, 10);
 	}
 
@@ -298,11 +327,10 @@ public class SieveWriter {
 	 * @param filter
 	 * @throws ServerFault
 	 */
-	private void write(ItemValue<Mailbox> mailbox, ItemValue<Domain> domain, MailFilter filter, int count)
-			throws ServerFault {
+	private void write(ItemValue<Mailbox> mailbox, ItemValue<Domain> domain, MailFilter filter, int count) {
 
 		SieveClient.SieveConnectionData clientConnectionData = getSieveConnectionData(mailbox, domain.uid);
-		Type type = mailbox.value.type == Mailbox.Type.user ? Type.User : Type.Shared;
+		Type type = mailbox.value.type == Mailbox.Type.user ? Type.USER : Type.SHARED;
 
 		try (SieveClient sieveClient = new SieveClient(clientConnectionData)) {
 			if (sieveClient.login()) {
@@ -319,7 +347,7 @@ public class SieveWriter {
 					throw new ServerFault("Fail to activate script");
 				}
 
-				if (type == Type.Shared) {
+				if (type == Type.SHARED) {
 					storeShareAnnotation(mailbox, domain, scriptName, clientConnectionData);
 				}
 			} else {
@@ -341,10 +369,9 @@ public class SieveWriter {
 	}
 
 	private void storeShareAnnotation(ItemValue<Mailbox> mailbox, ItemValue<Domain> domain, String scriptName,
-			SieveConnectionData sieveConnectionData) throws IMAPException, Exception {
+			SieveConnectionData sieveConnectionData) throws Exception {
 		try (StoreClient storeClient = new StoreClient(sieveConnectionData.host, 1143, sieveConnectionData.login,
 				sieveConnectionData.password)) {
-			;
 			if (storeClient.login() && !storeClient.setMailboxAnnotation(mailbox.value.name + "@" + domain.uid,
 					"/vendor/cmu/cyrus-imapd/sieve", ImmutableMap.of("value.shared", scriptName))) {
 				String errorMsg = String.format(
@@ -356,7 +383,7 @@ public class SieveWriter {
 		}
 	}
 
-	private SieveConnectionData getSieveConnectionData(ItemValue<Mailbox> mailbox, String domain) throws ServerFault {
+	private SieveConnectionData getSieveConnectionData(ItemValue<Mailbox> mailbox, String domain) {
 		SieveConnectionData connectionData = null;
 		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domain);
 		IServer serverService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
@@ -389,13 +416,13 @@ public class SieveWriter {
 	 * @param filter
 	 * @throws ServerFault
 	 */
-	public void write(String domainUid, MailFilter filter) throws ServerFault {
+	public void write(String domainUid, MailFilter filter) {
 		IServer serverService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
 				InstallationId.getIdentifier());
 
 		List<Assignment> assignments = serverService.getAssignments(domainUid);
 
-		List<ItemValue<Server>> servers = new ArrayList<ItemValue<Server>>(assignments.size());
+		List<ItemValue<Server>> servers = new ArrayList<>(assignments.size());
 		for (Assignment assignment : assignments) {
 			if (assignment.tag.equals("mail/imap")) {
 				ItemValue<Server> s = serverService.getComplete(assignment.serverUid);
@@ -415,7 +442,7 @@ public class SieveWriter {
 				try (SieveClient sieveClient = new SieveClient(sieveConnectionData)) {
 					if (sieveClient.login()) {
 						String scriptName = domainUid + ".sieve";
-						String content = generateSieveScript(Type.Domain, null,
+						String content = generateSieveScript(Type.DOMAIN, null,
 								ItemValue.create(domainUid,
 										Domain.create(domainUid, domainUid, scriptName, Collections.emptySet())),
 								filter);

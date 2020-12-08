@@ -27,9 +27,6 @@ import java.util.concurrent.CountDownLatch;
 
 import com.github.javafaker.Faker;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import io.netty.util.internal.ThreadLocalRandom;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Communications.Tel;
@@ -51,6 +48,9 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.IServer;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "quickcreate", description = "Create a mail-enabled user")
 public class UserQuickCreateCommand implements ICmdLet, Runnable {
@@ -68,13 +68,13 @@ public class UserQuickCreateCommand implements ICmdLet, Runnable {
 		}
 	}
 
-	@Arguments(required = true, description = "login@domain of the user to create")
+	@Parameters(paramLabel = "<login@domain>", description = "login@domain of the user to create")
 	public String loginAtDomain;
 
-	@Option(name = "--pass", description = "password to apply, otherwise localpart will be used")
+	@Option(names = "--pass", description = "password to apply, otherwise localpart will be used")
 	public String password;
 
-	@Option(name = "--random", description = "Generate random infos into the VCard")
+	@Option(names = "--random", description = "Generate random infos into the VCard")
 	public Boolean randomData = false;
 
 	private CliContext ctx;

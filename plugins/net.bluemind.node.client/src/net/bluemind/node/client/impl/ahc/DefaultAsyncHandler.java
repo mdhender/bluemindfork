@@ -19,6 +19,7 @@
 package net.bluemind.node.client.impl.ahc;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.asynchttpclient.AsyncHandler;
 import org.asynchttpclient.BoundRequestBuilder;
@@ -35,11 +36,16 @@ public abstract class DefaultAsyncHandler<T> implements AsyncHandler<T> {
 	private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncHandler.class);
 
 	protected final FileBackedOutputStream body;
+	private final Optional<String> stackInfos;
 	protected int status;
-
 	private HttpHeaders headers;
 
 	protected DefaultAsyncHandler(boolean bodyExpected) {
+		this(null, bodyExpected);
+	}
+
+	protected DefaultAsyncHandler(String stackInfos, boolean bodyExpected) {
+		this.stackInfos = Optional.ofNullable(stackInfos);
 		if (bodyExpected) {
 			this.body = new FileBackedOutputStream(65536, "node-client-async");
 		} else {
@@ -49,12 +55,16 @@ public abstract class DefaultAsyncHandler<T> implements AsyncHandler<T> {
 
 	@Override
 	public void onThrowable(Throwable t) {
-		logger.warn("onThrowable: {} {}", t.getClass(), t.getMessage());
+		if (logger.isWarnEnabled()) {
+			logger.warn("onThrowable for '{}': {} {}", stackInfos.orElseGet(() -> getClass().getCanonicalName()),
+					t.getClass(), t.getMessage());
+		}
 		if (body != null) {
 			try {
 				body.close();
 				body.reset();
 			} catch (IOException e) {
+				// ok
 			}
 		}
 	}

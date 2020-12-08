@@ -59,8 +59,12 @@ public class VTodoContainerStoreService extends ContainerStoreService<VTodo> {
 
 	@Override
 	protected void decorate(Item item, ItemValue<VTodo> value) throws ServerFault {
-		List<TagRef> tags = tagRefService.get(item);
-		value.value.categories = tags;
+		try {
+			value.value.categories = tagRefService.get(item);
+		} catch (ServerFault sf) {
+			logger.error(sf.getMessage(), sf);
+			return;
+		}
 	}
 
 	@Override

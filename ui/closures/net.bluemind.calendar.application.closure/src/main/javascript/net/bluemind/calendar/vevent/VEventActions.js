@@ -458,7 +458,9 @@ net.bluemind.calendar.vevent.VEventActions.prototype.resetAttendeesStatus_ = fun
 
 net.bluemind.calendar.vevent.VEventActions.prototype.sanitizeDraft_ = function(vseries, sendNotification, old, updated) {
   if (sendNotification) {
-    vseries['value']['main']['draft'] = false;
+    if (vseries['value']['main']) {
+      vseries['value']['main']['draft'] = false;
+    }
     goog.array.forEach(vseries['value']['occurrences'], function(occurrence) {
       occurrence['draft'] = false;
     });
@@ -466,7 +468,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.sanitizeDraft_ = function(v
   if (old && !old['draft']) {
     updated['draft'] = false;
   }
-  if (vseries['value']['main']['draft']) {
+  if (vseries['value']['main'] && vseries['value']['main']['draft']) {
     goog.array.forEach(vseries['value']['occurrences'], function(occurrence) {
       occurrence['draft'] = true;
     });

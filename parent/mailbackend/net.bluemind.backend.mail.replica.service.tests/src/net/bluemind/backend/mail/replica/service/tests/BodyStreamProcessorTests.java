@@ -18,6 +18,7 @@
 package net.bluemind.backend.mail.replica.service.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -42,6 +43,7 @@ import com.google.common.io.ByteStreams;
 
 import io.netty.buffer.ByteBufUtil;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.MessageBody;
@@ -124,6 +126,25 @@ public class BodyStreamProcessorTests {
 		assertEquals("<5c9e279abe570_1224111f30dc374c0@spawn.mail>", result.body.messageId);
 		JsonObject asJs = new JsonObject(JsonUtils.asString(result.body.structure));
 		System.out.println("JS: " + asJs.encodePrettily());
+	}
+
+	@Test
+	public void testWorteks195() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+
+		Stream stream = openResource("data/worteks-195.eml");
+		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
+		assertNotNull(result);
+		JsonArray asJs = new JsonArray(JsonUtils.asString(result.body.recipients));
+		System.out.println("JS: " + asJs.encodePrettily());
+
+		asJs.forEach(obj -> {
+			JsonObject o = (JsonObject) obj;
+			String dn = o.getString("dn");
+			if (dn != null) {
+				assertFalse("DN should not contain encoded words: " + dn, dn.contains("=?"));
+			}
+		});
+
 	}
 
 	@Test

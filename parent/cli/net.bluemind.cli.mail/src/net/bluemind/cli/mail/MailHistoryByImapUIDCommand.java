@@ -22,20 +22,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesMgmt;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "history-imap", description = "Show mail history by Imap-UID")
 public class MailHistoryByImapUIDCommand extends MailHistoryCommand implements ICmdLet, Runnable {
 
-	@Option(required = true, name = "--email", description = "User email")
+	@Option(required = true, names = "--email", description = "User email")
 	public String email;
 
-	@Option(required = true, name = "--imapUid", description = "Imap UID")
+	@Option(required = true, names = "--imapUid", description = "Imap UID")
 	public Long imapUid;
 
 	@Override

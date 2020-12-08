@@ -19,14 +19,33 @@
 package net.bluemind.core.container.persistence;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 
 public class ContainerSettingsStore extends JdbcAbstractStore {
+
+	private static final Cache<String, Map<String, String>> cachedSettings = CacheBuilder.newBuilder().recordStats()
+			.expireAfterAccess(10, TimeUnit.MINUTES).build();
+
+	public static class SettingsReg implements ICacheRegistration {
+
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(ContainerSettingsStore.class, cachedSettings);
+		}
+
+	}
 
 	private static final class MapHolder {
 		Map<String, String> value;
@@ -44,32 +63,46 @@ public class ContainerSettingsStore extends JdbcAbstractStore {
 		statement.setObject(index++, value);
 		return index;
 	};
-	private Container container;
+
+	private final Container container;
+	private final String cacheKey;
 
 	public ContainerSettingsStore(DataSource dataSource, Container container) {
 		super(dataSource);
 		this.container = container;
+		this.cacheKey = container.domainUid + "#" + container.uid;
 	}
 
 	public Map<String, String> getSettings() throws SQLException {
+		Map<String, String> existing = cachedSettings.getIfPresent(cacheKey);
+		if (existing != null) {
+			return new HashMap<>(existing);
+		}
 		String query = "SELECT settings FROM t_container_settings WHERE container_id = ?";
 		MapHolder res = unique(query, mapCreator, mapPopulator, container.id);
-		return res != null ? res.value : null;
+		if (res != null) {
+			cachedSettings.put(cacheKey, new HashMap<>(res.value));
+			return res.value;
+		} else {
+			return null;
+		}
 	}
 
 	public void setSettings(Map<String, String> settings) throws SQLException {
+		cachedSettings.invalidate(cacheKey);
 		String query = "UPDATE t_container_settings set settings = ? where container_id = ?";
-
 		update(query, settings, statementValues, new Object[] { container.id });
 	}
 
 	public void mutateSettings(Map<String, String> mutatedValues) throws SQLException {
+		cachedSettings.invalidate(cacheKey);
 		String query = "UPDATE t_container_settings set settings = settings || ? where container_id = ?";
 
 		update(query, mutatedValues, statementValues, new Object[] { container.id });
 	}
 
 	public void delete() throws SQLException {
+		cachedSettings.invalidate(cacheKey);
 		delete("DELETE FROM t_container_settings WHERE container_id = ?", new Object[] { container.id });
 	}
 

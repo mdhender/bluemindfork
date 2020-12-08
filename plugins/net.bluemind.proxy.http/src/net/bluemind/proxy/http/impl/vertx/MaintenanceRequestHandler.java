@@ -47,7 +47,7 @@ public class MaintenanceRequestHandler implements Handler<HttpServerRequest> {
 	public void handle(HttpServerRequest req) {
 		registry.counter(idFactory.name("requestsCount", "kind", "maintenance")).increment();
 		logger.info("current core state on maintenance {}", coreState.state());
-		if (coreState.notInstalled()) {
+		if (coreState.notInstalled() || coreState.needUpgrade()) {
 			HttpServerResponse resp = req.response();
 			resp.headers().add("Location", "/setup/index.html");
 			resp.setStatusCode(302);
@@ -60,11 +60,6 @@ public class MaintenanceRequestHandler implements Handler<HttpServerRequest> {
 		} else if (coreState.ok()) {
 			HttpServerResponse resp = req.response();
 			resp.headers().add("Location", "/");
-			resp.setStatusCode(302);
-			resp.end();
-		} else if (coreState.needUpgrade()) {
-			HttpServerResponse resp = req.response();
-			resp.headers().add("Location", "/setup/index.html");
 			resp.setStatusCode(302);
 			resp.end();
 		} else {

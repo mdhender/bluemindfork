@@ -264,6 +264,13 @@ public class UserManagerImplTests {
 		assertTrue(userManager.getUpdatedMailFilter().isPresent());
 		assertNotNull(userManager.userPhoto);
 		assertTrue(userManager.userPhoto.length > 0);
+
+		testUserEntry.removeAttributes("displayName");
+		userManager = UserManagerImpl.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()),
+				domain, testUserEntry).get();
+		userManager.update(importLogger, null, null);
+		assertNotNull(userManager.user.value.contactInfos.identification.formatedName);
+		assertNull(userManager.user.value.contactInfos.identification.formatedName.value);
 	}
 
 	@Test
@@ -312,6 +319,7 @@ public class UserManagerImplTests {
 		assertEquals("user00", user.value.login);
 		assertNull(user.value.password);
 		assertFalse(user.value.archived);
+		assertEquals("Prenom00 Nom00 displayname", user.value.contactInfos.identification.formatedName.value);
 		assertEquals("Prenom00", user.value.contactInfos.identification.name.givenNames);
 		assertEquals("Nom00", user.value.contactInfos.identification.name.familyNames);
 		assertEquals("Description Prenom00 Nom00", user.value.contactInfos.explanatory.note);

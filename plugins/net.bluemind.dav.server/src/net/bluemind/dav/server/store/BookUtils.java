@@ -1,5 +1,7 @@
 package net.bluemind.dav.server.store;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.regex.Matcher;
 
 import org.slf4j.Logger;
@@ -19,7 +21,12 @@ public final class BookUtils {
 		Matcher m = rt.matcher(dr.getPath());
 		m.find();
 		String bookUid = m.group(2);
-
+		try {
+			bookUid = URLDecoder.decode(bookUid, "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			// utf-8 is always here
+			logger.error(e.getMessage(), e);
+		}
 		ContainerDescriptor ret = lc.getBooks().get(bookUid);
 		logger.info("Lookup of '{}' => {}", bookUid, ret);
 		return ret;

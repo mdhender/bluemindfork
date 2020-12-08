@@ -19,9 +19,9 @@ package net.bluemind.cli.hz;
 
 import java.util.List;
 
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.hornetq.client.MQ;
+import picocli.CommandLine.Command;
 
 @Command(name = "list", description = "Print a list of active cluster topics")
 public class HzListCommand extends AbstractHzOperation {

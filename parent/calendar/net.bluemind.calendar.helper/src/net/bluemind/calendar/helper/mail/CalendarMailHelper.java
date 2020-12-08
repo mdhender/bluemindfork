@@ -46,7 +46,7 @@ public class CalendarMailHelper extends ReminderMailHelper<VEvent> {
 	private Configuration cfg;
 
 	public CalendarMailHelper() {
-		cfg = new Configuration();
+		cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		cfg.setClassForTemplateLoading(this.getClass(), "/");
 	}
 
@@ -64,8 +64,7 @@ public class CalendarMailHelper extends ReminderMailHelper<VEvent> {
 	/**
 	 * Extract {@link VEvent} data
 	 * 
-	 * @param vevent
-	 *                   the {@link VEvent} to extract
+	 * @param vevent the {@link VEvent} to extract
 	 * @return a {@link Map} containing the {@link VEvent} data
 	 */
 	public Map<String, Object> extractVEventDataToMap(VEvent vevent, VAlarm valarm) {

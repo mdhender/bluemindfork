@@ -94,18 +94,18 @@ public class EmailManager extends CoreConnect {
 	 * @param id
 	 * @return
 	 */
-	public EmailResponse loadStructure(BackendSession bs, MailFolder folder, int id) {
+	public EmailResponse loadStructure(BackendSession bs, MailFolder folder, long id) {
 		StructureMailLoader ml = new StructureMailLoader(bs, folder);
 		return ml.fetch(id);
 	}
 
-	public AirSyncBaseResponse loadBody(BackendSession bs, MailFolder folder, int id, BodyOptions options) {
+	public AirSyncBaseResponse loadBody(BackendSession bs, MailFolder folder, long id, BodyOptions options) {
 		BodyMailLoader ml = new BodyMailLoader(bs, folder);
 		return ml.fetch(id, options);
 
 	}
 
-	public InputStream fetchMimeStream(BackendSession bs, MailFolder folder, int id) {
+	public InputStream fetchMimeStream(BackendSession bs, MailFolder folder, long id) {
 		BodyMailLoader ml = new BodyMailLoader(bs, folder);
 		return ml.fetchMimeInputStream(id);
 	}

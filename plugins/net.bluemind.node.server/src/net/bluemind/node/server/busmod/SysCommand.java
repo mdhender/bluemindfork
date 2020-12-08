@@ -19,14 +19,13 @@
 package net.bluemind.node.server.busmod;
 
 import java.lang.reflect.Field;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
@@ -50,47 +48,20 @@ public class SysCommand extends AbstractVerticle {
 
 	private static final Map<Long, RunningCommand> active = new ConcurrentHashMap<>();
 	private static final Map<Long, RunningCommand> activeUnwatched = new ConcurrentHashMap<>();
-	private static final AtomicLong pid = new AtomicLong();
 
 	@Override
 	public void start() {
 		EventBus eb = vertx.eventBus();
-		Handler<Message<JsonObject>> crHandler = new Handler<Message<JsonObject>>() {
+		eb.consumer("cmd.request", (Message<JsonObject> js) -> vertx.executeBlocking(prom -> {
+			Long rc = newRequest(js);
+			prom.complete(rc);
+		}, false, ar -> js.reply(ar.result())));
 
-			@Override
-			public void handle(Message<JsonObject> event) {
-				newRequest(event);
-			}
-		};
-		eb.consumer("cmd.request", crHandler);
+		eb.consumer("cmd.status", this::reqStatus);
 
-		Handler<Message<JsonObject>> csHandler = new Handler<Message<JsonObject>>() {
+		eb.consumer("cmd.interrupt", this::interruptMsg);
 
-			@Override
-			public void handle(Message<JsonObject> event) {
-				reqStatus(event);
-			}
-		};
-		eb.consumer("cmd.status", csHandler);
-
-		Handler<Message<JsonObject>> stopHandler = new Handler<Message<JsonObject>>() {
-
-			@Override
-			public void handle(Message<JsonObject> event) {
-				interrupt(event);
-			}
-
-		};
-		eb.consumer("cmd.interrupt", stopHandler);
-
-		Handler<Message<JsonObject>> queryHandler = new Handler<Message<JsonObject>>() {
-
-			@Override
-			public void handle(Message<JsonObject> event) {
-				executions(event);
-			}
-		};
-		eb.consumer("cmd.executions", queryHandler);
+		eb.consumer("cmd.executions", this::executions);
 
 		setupStaleWatcher();
 	}
@@ -99,33 +70,31 @@ public class SysCommand extends AbstractVerticle {
 	 * The state watcher clears command the client forgot to check
 	 */
 	private void setupStaleWatcher() {
-		vertx.setPeriodic(30000, new Handler<Long>() {
-
-			@Override
-			public void handle(Long event) {
-				int count = 0;
-				long cur = System.currentTimeMillis();
-				for (Entry<Long, RunningCommand> entry : active.entrySet()) {
-					RunningCommand rc = entry.getValue();
-					if (rc != null) {
-						long et = rc.getLastCheck();
-						if (et > 0 && (cur - et > 30000)) {
-							logger.warn("[{}] unchecked for 30sec, dropped.", rc.getPid());
-							interrupt(entry.getKey());
-							count++;
-						}
+		vertx.setPeriodic(30000, (Long event) -> {
+			int count = 0;
+			long cur = System.currentTimeMillis();
+			for (Entry<Long, RunningCommand> entry : active.entrySet()) {
+				RunningCommand rc = entry.getValue();
+				if (rc != null) {
+					long et = rc.getLastCheck();
+					if (et > 0 && (cur - et > 30000)) {
+						logger.warn("[{}] ({}) unchecked for 30sec, dropped.", rc.getPid(), rc.cmd);
+						interrupt(entry.getKey());
+						count++;
 					}
 				}
-				if (count > 0) {
-					logger.warn("Stale commands: {}", count);
-				}
+			}
+			if (count > 0) {
+				logger.warn("Stale commands: {}", count);
 			}
 		});
 	}
 
-	private void interrupt(Message<JsonObject> event) {
+	private void interruptMsg(Message<JsonObject> event) {
 		JsonObject interruptReq = event.body();
-		logger.info("INTERRUPT {}", interruptReq.encodePrettily());
+		if (logger.isInfoEnabled()) {
+			logger.info("INTERRUPT {}", interruptReq.encodePrettily());
+		}
 		long pid = interruptReq.getLong("pid", 0L);
 		interrupt(pid);
 		event.reply(new JsonObject());
@@ -135,22 +104,24 @@ public class SysCommand extends AbstractVerticle {
 		RunningCommand rc = Optional.ofNullable(active.get(pid)).orElse(activeUnwatched.get(pid));
 		if (rc != null) {
 			Process ps = rc.getProcess();
+			active.remove(pid);
+			activeUnwatched.remove(pid);
 			if (ps.isAlive()) {
 				try {
 					ps.destroyForcibly().waitFor();
 					logger.info("Interrupted {}", rc);
 				} catch (InterruptedException ie) {
-					logger.info("interrupt got interrupted {}", ie.getMessage());
+					Thread.currentThread().interrupt();
 				}
 			}
-			active.remove(pid);
-			activeUnwatched.remove(pid);
 		}
 	}
 
 	private void executions(Message<JsonObject> event) {
 		JsonObject req = event.body();
-		logger.info("req: {}", req.encodePrettily());
+		if (logger.isInfoEnabled()) {
+			logger.info("req: {}", req.encodePrettily());
+		}
 		JsonObject js = new JsonObject();
 		JsonArray execs = new JsonArray();
 		js.put("descriptors", execs);
@@ -202,14 +173,17 @@ public class SysCommand extends AbstractVerticle {
 		}
 	}
 
-	private void newRequest(Message<JsonObject> event) {
+	private long newRequest(Message<JsonObject> event) {
 		JsonObject jso = event.body();
-		logger.info("run: {}", jso.encodePrettily());
+		if (logger.isInfoEnabled()) {
+			logger.info("run: {}", jso.encodePrettily());
+		}
 		String cmd = jso.getString("command");
 		JsonArray optionsJs = jso.getJsonArray("options");
-		Set<Options> options = new HashSet<>();
+		Set<Options> options = EnumSet.noneOf(Options.class);
 		if (optionsJs != null) {
-			for (int i = 0; i < optionsJs.size(); i++) {
+			int len = optionsJs.size();
+			for (int i = 0; i < len; i++) {
 				options.add(ExecRequest.Options.valueOf(optionsJs.getString(i)));
 			}
 		} else if (jso.containsKey("withOutput")) {
@@ -228,8 +202,9 @@ public class SysCommand extends AbstractVerticle {
 			wsEP = new WsEndpoint(wsWriteAddress, wsRid);
 		}
 		RunningCommand rc = startCommand(group, name, cmd, options, wsEP);
+		long ret = -1L;
 		if (rc != null) {
-			event.reply(rc.getPid());
+			ret = rc.getPid();
 			// do not setup staled command watcher
 			if (wsEP == null) {
 				active.put(rc.getPid(), rc);
@@ -239,8 +214,8 @@ public class SysCommand extends AbstractVerticle {
 			logger.info("[{}][options: {}] cmd: {}", rc.getPid(), options, cmd);
 		} else {
 			logger.error("[FAILED] cmd: {}", cmd);
-			event.reply(-1l);
 		}
+		return ret;
 	}
 
 	private void reqStatus(Message<JsonObject> event) {

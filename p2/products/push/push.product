@@ -46,6 +46,7 @@
       <plugin id="io.vertx.web"/>
       <plugin id="javax.annotation"/>
       <plugin id="javax.inject"/>
+      <plugin id="javax.mail-api"/>
       <plugin id="javax.servlet"/>
       <plugin id="javax.validation.api"/>
       <plugin id="javax.ws.rs"/>
@@ -119,6 +120,7 @@
       <plugin id="net.bluemind.linkify"/>
       <plugin id="net.bluemind.mailbox.api"/>
       <plugin id="net.bluemind.mailbox.identity.api"/>
+      <plugin id="net.bluemind.metrics.agent-api"/>
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.mime4j.common"/>
       <plugin id="net.bluemind.neko.common"/>

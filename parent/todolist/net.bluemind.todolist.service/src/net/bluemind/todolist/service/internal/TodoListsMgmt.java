@@ -132,7 +132,9 @@ public class TodoListsMgmt implements ITodoListsMgmt, IInCoreTodoListsMgmt {
 		DataSource ds = DataSourceRouter.get(context, container.uid);
 		VTodoContainerStoreService storeService = new VTodoContainerStoreService(context, ds,
 				context.getSecurityContext(), container, new VTodoStore(ds, container));
-		VTodoIndexStore indexStore = new VTodoIndexStore(ESearchActivator.getClient(), container);
+
+		VTodoIndexStore indexStore = new VTodoIndexStore(ESearchActivator.getClient(), container,
+				DataSourceRouter.location(context, container.uid));
 		logger.info("reindexing todolist {}", container.uid);
 		// reinit container index
 		indexStore.deleteAll();

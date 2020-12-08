@@ -11,7 +11,9 @@ CREATE TABLE t_domain (
 	description text     ,
 	global	boolean NOT NULL,
 	aliases	text[] NOT NULL,
+	default_alias text NOT NULL CHECK (default_alias = name OR default_alias = ANY(aliases)),
 	properties hstore,
 	UNIQUE(name)
 );
 
+CREATE INDEX ON t_domain(default_alias);

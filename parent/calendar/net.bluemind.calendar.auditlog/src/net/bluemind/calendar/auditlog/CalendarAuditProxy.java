@@ -219,4 +219,10 @@ public class CalendarAuditProxy implements IInternalCalendar {
 		calendar.emitNotification();
 	}
 
+	@Override
+	public List<ItemValue<VEventSeries>> multipleGetById(List<Long> ids) throws ServerFault {
+		return auditor.action("multipleGetById").readOnly().addActionMetadata("itemIds", ids)
+				.audit(() -> calendar.multipleGetById(ids));
+	}
+
 }

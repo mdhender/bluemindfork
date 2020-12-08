@@ -17,25 +17,56 @@
   */
 package net.bluemind.node.client.impl.ahc;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.node.shared.ExecRequest;
-import net.bluemind.node.shared.ExecRequest.Options;
 
 public class JsonHelper {
 
-	public static JsonObject toJson(ExecRequest execReq) {
-		JsonObject jso = new JsonObject();
-		jso.put("command", execReq.command);
-		jso.put("group", execReq.group).put("name", execReq.name);
-		JsonArray options = new JsonArray();
-		for (ExecRequest.Options opt : execReq.options) {
-			options.add(opt.name());
+	private JsonHelper() {
+	}
+
+	private static final JsonFactory jf = new JsonFactory();
+
+	public static ByteBuf toJson(ExecRequest execReq) {
+		return toJson(execReq, null);
+	}
+
+	public static ByteBuf toJson(ExecRequest execReq, Long wsRid) {
+		ByteBuf buf = Unpooled.buffer();
+		try (OutputStream out = new ByteBufOutputStream(buf);
+				JsonGenerator generator = jf.createGenerator(out, JsonEncoding.UTF8)) {
+			generator.writeStartObject();
+			generator.writeStringField("command", execReq.command);
+			if (execReq.group != null) {
+				generator.writeStringField("group", execReq.group);
+			}
+			if (execReq.name != null) {
+				generator.writeStringField("name", execReq.name);
+			}
+			generator.writeArrayFieldStart("options");
+			for (ExecRequest.Options opt : execReq.options) {
+				generator.writeString(opt.name());
+			}
+			generator.writeEndArray();
+			if (wsRid != null) {
+				generator.writeNumberField("ws-rid", wsRid.longValue());
+			}
+
+			generator.writeEndObject();
+		} catch (IOException e) {
+			throw new ServerFault(e);
 		}
-		jso.put("options", options);
-		// for compat with older server versions
-		jso.put("withOutput", !options.contains(Options.DISCARD_OUTPUT));
-		return jso;
+		return buf;
 	}
 
 }

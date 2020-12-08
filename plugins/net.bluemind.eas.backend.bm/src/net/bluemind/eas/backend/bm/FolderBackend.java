@@ -534,8 +534,9 @@ public class FolderBackend extends CoreConnect {
 			folder.parentId = OTHER_MAILBOXES;
 			folder.changeType = ChangeType.ADD;
 			ret.add(folder);
-			items.removeIf(item -> item.internalId == rootFolder.internalId);
 		}
+
+		items.removeIf(item -> item.internalId == rootFolder.internalId);
 
 		items.stream().filter(item -> IMailReplicaUids.MAILBOX_RECORDS.equals(item.value.containerType))
 				.forEach(item -> {
@@ -609,14 +610,14 @@ public class FolderBackend extends CoreConnect {
 				dn = getTranslatedDisplayName(bs, h.displayName);
 				break;
 			default:
+				if (Translate.isTranslated(bs.getLang(), dn)) {
+					logger.error("Folder '{}' conflicts with system folder, rename it", dn);
+					dn = dn + " (1)";
+				}
 				folderChangeRef.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
 				break;
 			}
 		} else {
-			if (Translate.isTranslated(bs.getLang(), dn)) {
-				logger.error("Folder '{}' conflicts with system folder, skip it", dn);
-				return null;
-			}
 			folderChangeRef.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
 		}
 

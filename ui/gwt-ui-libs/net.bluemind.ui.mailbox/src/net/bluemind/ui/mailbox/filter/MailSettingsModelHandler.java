@@ -49,21 +49,20 @@ public class MailSettingsModelHandler implements IGwtModelHandler {
 		final String domainUid = m.get("domainUid");
 		final String entryUid = m.get("entryUid");
 		final JsMapStringJsObject map = model.cast();
-		
-		IDirectoryPromise directoryService = new DirectoryGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid).promiseApi();
+
+		IDirectoryPromise directoryService = new DirectoryGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid)
+				.promiseApi();
 		CompletableFuture<Void> dirEntryLoad = directoryService.findByEntryUid(entryUid).thenAccept(value -> {
 			map.put("datalocation", value.dataLocation);
 		});
-		
+
 		mailboxes = new MailboxesGwtEndpoint(Ajax.TOKEN.getSessionId(), m.get("domainUid"));
 		IMailboxesPromise mailboxesService = mailboxes.promiseApi();
 		CompletableFuture<Void> mailboxLoad = mailboxesService.getMailboxFilter(mailboxUid).thenAccept(value -> {
 			MailSettingsModel.populate(model, value);
 		});
-				
-				
-		CompletableFuture.allOf(dirEntryLoad, mailboxLoad).thenRun(() -> handler.success(null))
-		.exceptionally(t -> {
+
+		CompletableFuture.allOf(dirEntryLoad, mailboxLoad).thenRun(() -> handler.success(null)).exceptionally(t -> {
 			handler.failure(t);
 			return null;
 		});
@@ -82,7 +81,6 @@ public class MailSettingsModelHandler implements IGwtModelHandler {
 			handler.success(null);
 		} else {
 			mailboxes.setMailboxFilter(mailboxUid, mf, new DefaultAsyncHandler<Void>(handler) {
-
 				@Override
 				public void success(Void value) {
 					handler.success(null);

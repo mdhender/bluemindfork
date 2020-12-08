@@ -23,8 +23,10 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.lib.ldap.LdapConProxy;
 import net.bluemind.system.importation.commons.Parameters;
+import net.bluemind.system.importation.commons.enhancer.GroupMembershipData;
 import net.bluemind.system.importation.commons.enhancer.IScannerEnhancer;
 import net.bluemind.system.importation.commons.scanner.IImportLogger;
+import net.bluemind.system.importation.commons.scanner.ImportLogger;
 
 public class ScannerEnhancerHook implements IScannerEnhancer {
 	public static boolean before;
@@ -52,5 +54,10 @@ public class ScannerEnhancerHook implements IScannerEnhancer {
 
 	public static void initFlags() {
 		before = after = false;
+	}
+
+	@Override
+	public void groupMembershipUpdates(ImportLogger importLogger, Parameters parameter, ItemValue<Domain> domain,
+			LdapConProxy ldapCon, GroupMembershipData groupMembershipData) {
 	}
 }

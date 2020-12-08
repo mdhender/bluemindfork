@@ -22,14 +22,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Optional;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.IVCardService;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.ExportCommand;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "export", description = "Export an addressbook to an VCF file")
 public class ExportAddressBookCommand extends ExportCommand {
@@ -47,7 +47,7 @@ public class ExportAddressBookCommand extends ExportCommand {
 		}
 	}
 
-	@Option(name = "--addressbook-uid", description = "the addressbook uid. , export all addressbooks if not specified")
+	@Option(names = "--addressbook-uid", description = "the addressbook uid. , export all addressbooks if not specified")
 	public String addressBookUid;
 
 	@Override

@@ -20,8 +20,8 @@ package net.bluemind.node.client.impl.ahc;
 
 import org.asynchttpclient.BoundRequestBuilder;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.vertx.core.json.JsonObject;
 import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.node.shared.ExecRequest;
@@ -31,15 +31,15 @@ public class SubmitHandler extends DefaultAsyncHandler<TaskRef> {
 	private final ExecRequest execReq;
 
 	public SubmitHandler(ExecRequest req) {
-		super(false);
+		super("R '" + req.command + "'", false);
 		this.execReq = req;
 	}
 
 	@Override
 	public BoundRequestBuilder prepare(BoundRequestBuilder rb) {
-		rb.addHeader("Content-Type", "application/json; charset=utf-8");
-		JsonObject jso = JsonHelper.toJson(execReq);
-		rb.setBody(jso.encode());
+		rb.addHeader("Content-Type", "application/json");
+		ByteBuf jso = JsonHelper.toJson(execReq);
+		rb.setBody(jso.nioBuffer());
 		return rb;
 	}
 

@@ -45,7 +45,7 @@ public class NestedGroupHelper {
 	private final Dn baseDn;
 	private final GroupMemberAttribute memberAttr;
 	private final String groupFilter;
-	private final String userUuidAttribute;
+	private final String uuidAttribute;
 
 	public NestedGroupHelper(LdapConProxy ldapCon, Dn baseDn, GroupMemberAttribute memberAttr, String groupFilter,
 			String userUuidAttribute) {
@@ -53,28 +53,38 @@ public class NestedGroupHelper {
 		this.baseDn = baseDn;
 		this.memberAttr = memberAttr;
 		this.groupFilter = groupFilter;
-		this.userUuidAttribute = userUuidAttribute;
+		this.uuidAttribute = userUuidAttribute;
 	}
 
-	public Set<String> getUserMembers(Entry group) {
-		Set<String> memberUuids = new HashSet<>();
+	public Set<String> getNestedMembers(Entry group) {
+		Set<String> nestedMembers = new HashSet<>();
 
 		Set<Entry> members = getMembers(group);
 		while (!members.isEmpty()) {
-			members = members.stream().peek(entry -> getUserMemberUuid(entry).ifPresent(memberUuids::add))
-					.map(this::getMembers).flatMap(set -> set.stream()).collect(Collectors.toSet());
+			members = members.stream().peek(entry -> getUserMemberUuid(entry).ifPresent(nestedMembers::add))
+					.peek(entry -> getGroupMemberUuid(entry).ifPresent(nestedMembers::add)).map(this::getMembers)
+					.flatMap(set -> set.stream()).collect(Collectors.toSet());
 		}
 
-		return memberUuids;
+		return nestedMembers;
+	}
+
+	private Optional<String> getGroupMemberUuid(Entry entry) {
+		if (!entry.containsAttribute(uuidAttribute)
+				|| (!entry.containsAttribute(memberAttr.name()) && !isAGroup(entry))) {
+			return Optional.empty();
+		}
+
+		return Optional.ofNullable(entry.get(uuidAttribute).get().toString());
 	}
 
 	private Optional<String> getUserMemberUuid(Entry entry) {
-		if (entry.containsAttribute(memberAttr.name()) || !entry.containsAttribute(userUuidAttribute)
+		if (entry.containsAttribute(memberAttr.name()) || !entry.containsAttribute(uuidAttribute)
 				|| isAGroup(entry)) {
 			return Optional.empty();
 		}
 
-		return Optional.ofNullable(entry.get(userUuidAttribute).get().toString());
+		return Optional.ofNullable(entry.get(uuidAttribute).get().toString());
 	}
 
 	private boolean isAGroup(Entry entry) {
@@ -106,7 +116,7 @@ public class NestedGroupHelper {
 		}
 
 		try {
-			return Optional.ofNullable(ldapCon.lookup(new Dn(value), memberAttr.name(), userUuidAttribute));
+			return Optional.ofNullable(ldapCon.lookup(new Dn(value), memberAttr.name(), uuidAttribute));
 		} catch (LdapException e) {
 			logger.warn("Unable to get entry DN {}, ignoring member...", value, e);
 		}
@@ -118,7 +128,7 @@ public class NestedGroupHelper {
 		try {
 			SearchCursor cursor = ldapCon.search(new SearchRequestImpl().setBase(baseDn).setScope(SearchScope.SUBTREE)
 					.setDerefAliases(AliasDerefMode.NEVER_DEREF_ALIASES).setSizeLimit(1)
-					.setFilter(String.format("(uid=%s)", uid)).addAttributes(memberAttr.name(), userUuidAttribute));
+					.setFilter(String.format("(uid=%s)", uid)).addAttributes(memberAttr.name(), uuidAttribute));
 
 			if (!cursor.next() || !cursor.isEntry()) {
 				logger.warn("Unable to get DN from uid {}, ignoring member...", uid);

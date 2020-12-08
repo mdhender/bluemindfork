@@ -24,7 +24,9 @@ public enum DockerContainer {
 
 	S3("bluemind/s3", "s3"),
 
-	MAILBOX_ROLE("bluemind/mailbox-role", "mailbox-role");
+	MAILBOX_ROLE("bluemind/mailbox-role", "mailbox-role"),
+
+	PROXY("bluemind/proxy", "proxy");
 
 	private final String name;
 	private final String hostProperty;

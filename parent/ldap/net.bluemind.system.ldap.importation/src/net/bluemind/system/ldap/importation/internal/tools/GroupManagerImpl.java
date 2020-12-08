@@ -29,6 +29,7 @@ import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueEx
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.system.importation.commons.Parameters;
+import net.bluemind.system.importation.commons.UuidMapper;
 import net.bluemind.system.importation.commons.enhancer.IEntityEnhancer;
 import net.bluemind.system.importation.commons.managers.GroupManager;
 import net.bluemind.system.importation.commons.scanner.IImportLogger;
@@ -41,14 +42,18 @@ public class GroupManagerImpl extends GroupManager {
 	private static final String[] LDAP_MAIL = { "mail", "mailLocalAddress", "gosaMailAlternateAddress" };
 
 	private final LdapParameters ldapParameters;
+	private final Optional<Set<UuidMapper>> splitGroupMembers;
 
-	private GroupManagerImpl(LdapParameters ldapParameters, ItemValue<Domain> domain, Entry entry) {
+	private GroupManagerImpl(LdapParameters ldapParameters, ItemValue<Domain> domain, Entry entry,
+			Optional<Set<UuidMapper>> splitGroupMembers) {
 		super(domain, entry);
 		this.ldapParameters = ldapParameters;
+		this.splitGroupMembers = splitGroupMembers;
 	}
 
-	public static Optional<GroupManager> build(LdapParameters ldapParameters, ItemValue<Domain> domain, Entry entry) {
-		return Optional.of(new GroupManagerImpl(ldapParameters, domain, entry));
+	public static Optional<GroupManager> build(LdapParameters ldapParameters, ItemValue<Domain> domain, Entry entry,
+			Optional<Set<UuidMapper>> splitGroupMembers) {
+		return Optional.of(new GroupManagerImpl(ldapParameters, domain, entry, splitGroupMembers));
 	}
 
 	@Override
@@ -87,5 +92,12 @@ public class GroupManagerImpl extends GroupManager {
 	@Override
 	protected Set<String> getRangedGroupMembers() {
 		return Collections.emptySet();
+	}
+
+	@Override
+	protected boolean isSplitDomainNestedGroup() {
+		return splitGroupMembers
+				.map(sgm -> sgm.contains(LdapUuidMapper.fromEntry(ldapParameters.ldapDirectory.extIdAttribute, entry)))
+				.orElse(false);
 	}
 }

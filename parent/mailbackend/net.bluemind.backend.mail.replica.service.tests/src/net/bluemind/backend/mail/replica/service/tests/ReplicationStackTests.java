@@ -56,7 +56,6 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
-import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.IItemsTransfer;
 import net.bluemind.backend.mail.api.IMailboxFolders;
@@ -134,10 +133,6 @@ import net.bluemind.mailshare.api.Mailshare;
 
 public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
-	private String apiKey;
-	protected String partition;
-	protected String mboxRoot;
-
 	@Before
 	@Override
 	public void before() throws Exception {
@@ -152,14 +147,6 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 			System.out.println("Mail " + added + " added:\n" + tree);
 			return null;
 		});
-		CyrusPartition part = CyrusPartition.forServerAndDomain(cyrusReplication.server(), domainUid);
-		this.partition = part.name;
-		this.mboxRoot = "user." + userUid.replace('.', '^');
-
-		this.apiKey = "sid";
-		SecurityContext secCtx = new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(),
-				domainUid);
-		Sessions.get().put(apiKey, secCtx);
 
 		IServiceProvider prov = provider();
 
@@ -2753,6 +2740,52 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		IMailboxItems mailboxItemsService = provider().instance(IMailboxItems.class, sharedSent.uid);
 		List<Long> messageIds = messages.stream().map(m -> m.internalId).collect(Collectors.toList());
 		mailboxItemsService.multipleById(messageIds).forEach(message -> checkMessageIsSeen(message, sharedSent.uid));
+	}
+
+	@Test
+	public void deleteFlag() throws IOException, InterruptedException {
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> inbox = mboxesApi.byName("INBOX");
+
+		ItemValue<MailboxItem> mail = addDraft(inbox);
+
+		IMailboxItems itemsApi = provider().instance(IMailboxItems.class, inbox.uid);
+		ItemValue<MailboxItem> mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertFalse(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+
+		itemsApi.addFlag(FlagUpdate.of(mail.internalId, MailboxItemFlag.System.Seen.value()));
+		mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertTrue(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+
+		itemsApi.deleteFlag(FlagUpdate.of(mail.internalId, MailboxItemFlag.System.Seen.value()));
+		mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertFalse(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+	}
+
+	@Test
+	public void deleteUnsetFlag() throws IOException, InterruptedException {
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> inbox = mboxesApi.byName("INBOX");
+
+		ItemValue<MailboxItem> mail = addDraft(inbox);
+
+		IMailboxItems itemsApi = provider().instance(IMailboxItems.class, inbox.uid);
+		ItemValue<MailboxItem> mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertFalse(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+
+		itemsApi.deleteFlag(FlagUpdate.of(mail.internalId, MailboxItemFlag.System.Seen.value()));
+
+		mailboxItem = itemsApi.getCompleteById(mail.internalId);
+		assertFalse(mailboxItem.value.flags.contains(MailboxItemFlag.System.Seen.value()));
+	}
+
+	@Test
+	public void deleteFlagUnknownMail() {
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> inbox = mboxesApi.byName("INBOX");
+		IMailboxItems itemsApi = provider().instance(IMailboxItems.class, inbox.uid);
+		Ack ack = itemsApi.deleteFlag(FlagUpdate.of(98765432L, MailboxItemFlag.System.Seen.value()));
+		assertEquals(0L, ack.version);
 	}
 
 	private boolean messageIsSeen(ItemValue<MailboxItem> message) {

@@ -24,8 +24,6 @@ import java.util.Optional;
 
 import com.github.freva.asciitable.AsciiTable;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.SingleOrDomainOperation;
@@ -36,10 +34,12 @@ import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
-import net.bluemind.group.api.IGroup;
-import net.bluemind.group.api.Member;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.group.api.IGroup;
+import net.bluemind.group.api.Member;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "sharings", description = "Show containers shared for a user")
 public class UserSharingsCommand extends SingleOrDomainOperation {
@@ -56,16 +56,16 @@ public class UserSharingsCommand extends SingleOrDomainOperation {
 			return UserSharingsCommand.class;
 		}
 	}
-	
-	@Option(name = "--given", description = "Show containers shared by the user")
+
+	@Option(names = "--given", description = "Show containers shared by the user")
 	public Boolean given = false;
-	
-	@Option(name = "--received", description = "Show containers Shared by other users")
+
+	@Option(names = "--received", description = "Show containers Shared by other users")
 	public Boolean received = false;
-	
-	@Option(name = "--expand", description = "Expand groups when a Container is shared to a group")
+
+	@Option(names = "--expand", description = "Expand groups when a Container is shared to a group")
 	public Boolean expand = false;
-	
+
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
 		IContainers containersApi = ctx.adminApi().instance(IContainers.class, de.uid);
@@ -74,42 +74,42 @@ public class UserSharingsCommand extends SingleOrDomainOperation {
 		List<ContainerDescriptor> containers = containersApi.allForUser(domainUid, de.uid, query);
 		if (given) {
 			getAclsAndContainers(containers, de, domainUid, true);
-		}
-		else if(received) {
+		} else if (received) {
 			getAclsAndContainers(containers, de, domainUid, false);
 		}
-			
+
 	}
-	
-	private void getAclsAndContainers(List<ContainerDescriptor> containers, ItemValue<DirEntry> de, String domainUid, Boolean owned) {
-		Map<ContainerDescriptor, Map<DirEntry, String>> map = new HashMap<ContainerDescriptor, Map<DirEntry,String>>();
+
+	private void getAclsAndContainers(List<ContainerDescriptor> containers, ItemValue<DirEntry> de, String domainUid,
+			Boolean owned) {
+		Map<ContainerDescriptor, Map<DirEntry, String>> map = new HashMap<ContainerDescriptor, Map<DirEntry, String>>();
 		Map<DirEntry, String> userInfos = new HashMap<DirEntry, String>();
 		int aclsNumbers = 0;
-		
+
 		for (ContainerDescriptor containerDescriptor : containers) {
-			if(containerDescriptor.owner.equalsIgnoreCase(de.uid) == owned) {			
-				IContainerManagement containerManager = ctx.adminApi().instance(IContainerManagement.class, containerDescriptor.uid);
+			if (containerDescriptor.owner.equalsIgnoreCase(de.uid) == owned) {
+				IContainerManagement containerManager = ctx.adminApi().instance(IContainerManagement.class,
+						containerDescriptor.uid);
 				List<AccessControlEntry> acls = containerManager.getAccessControlList();
 				for (AccessControlEntry acl : acls) {
-					//Do not garbage your own shares
-					if(acl.subject.equalsIgnoreCase(de.uid) != owned) {
+					// Do not garbage your own shares
+					if (acl.subject.equalsIgnoreCase(de.uid) != owned) {
 						userInfos = resolvedSubject(acl.subject, acl.verb.toString(), domainUid);
 					}
 				}
 				aclsNumbers += userInfos.size();
-				if(!userInfos.isEmpty()) {
+				if (!userInfos.isEmpty()) {
 					map.put(containerDescriptor, userInfos);
 				}
 			}
 		}
 		display(map, aclsNumbers, domainUid);
 	}
-	
-	
+
 	private void display(Map<ContainerDescriptor, Map<DirEntry, String>> map, int size, String domainUid) {
-		//Used to add a row to include the header
+		// Used to add a row to include the header
 		size++;
-		
+
 		String[][] asTable = new String[size][8];
 		asTable[0][0] = "Owner DisplayName";
 		asTable[0][1] = "Owner";
@@ -119,9 +119,9 @@ public class UserSharingsCommand extends SingleOrDomainOperation {
 		asTable[0][5] = "DisplayName";
 		asTable[0][6] = "Subject";
 		asTable[0][7] = "Verb";
-		
+
 		int i = 1;
-		for (Map.Entry<ContainerDescriptor, Map<DirEntry,String>> entry : map.entrySet()) {
+		for (Map.Entry<ContainerDescriptor, Map<DirEntry, String>> entry : map.entrySet()) {
 			ContainerDescriptor containerInfos = entry.getKey();
 			for (Map.Entry<DirEntry, String> member : entry.getValue().entrySet()) {
 				asTable[i][0] = containerInfos.ownerDisplayname;
@@ -137,19 +137,18 @@ public class UserSharingsCommand extends SingleOrDomainOperation {
 		}
 		ctx.info(AsciiTable.getTable(asTable));
 	}
-	
-	
+
 	private Map<DirEntry, String> resolvedSubject(String subject, String verb, String domainUid) {
 		Map<DirEntry, String> map = new HashMap<DirEntry, String>();
 		IDirectory dirApi = ctx.adminApi().instance(IDirectory.class, domainUid);
 		DirEntry entry = dirApi.findByEntryUid(subject);
-		
-		if(entry == null) {
+
+		if (entry == null) {
 			DirEntry exception = new DirEntry();
 			exception.displayName = "NO ENTRY FOUND";
 			exception.entryUid = subject;
 			map.put(exception, verb);
-		} else if(expand && entry.kind == Kind.GROUP){
+		} else if (expand && entry.kind == Kind.GROUP) {
 			map = expandGroup(entry, verb, domainUid);
 		} else {
 			map.put(entry, verb);
@@ -157,22 +156,20 @@ public class UserSharingsCommand extends SingleOrDomainOperation {
 		return map;
 	}
 
-	private Map<DirEntry,String> expandGroup(DirEntry group, String verb, String domainUid){
-		
+	private Map<DirEntry, String> expandGroup(DirEntry group, String verb, String domainUid) {
+
 		Map<DirEntry, String> map = new HashMap<DirEntry, String>();
 		IGroup groupApi = ctx.adminApi().instance(IGroup.class, domainUid);
 		List<Member> members = groupApi.getExpandedUserMembers(group.entryUid);
-		
-		for (Member member : members) {	
+
+		for (Member member : members) {
 			for (Map.Entry<DirEntry, String> user : resolvedSubject(member.uid, verb, domainUid).entrySet()) {
 				map.put(user.getKey(), verb);
 			}
 		}
 		return map;
 	}
-	
-	
-	
+
 	@Override
 	public Kind[] getDirEntryKind() {
 		return new Kind[] { Kind.USER };

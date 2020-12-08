@@ -17,4 +17,7 @@ Require-Bundle: org.junit,
  net.bluemind.system.nginx,
  org.mockito.mockito-core,
  net.bluemind.core.rest,
- org.objenesis
+ org.objenesis,
+ net.bluemind.pool,
+ net.bluemind.core.tests.testshelper,
+ net.bluemind.node.api

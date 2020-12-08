@@ -34,6 +34,10 @@ import net.bluemind.user.api.User;
 
 public class TodoRequestHandler extends RequestHandler implements IIMIPHandler {
 
+	public TodoRequestHandler(LmtpAddress recipient, LmtpAddress sender) {
+		super(recipient, sender);
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(TodoRequestHandler.class);
 
 	@Override

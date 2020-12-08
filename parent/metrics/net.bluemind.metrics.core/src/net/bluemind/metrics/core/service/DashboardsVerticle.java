@@ -91,7 +91,7 @@ public class DashboardsVerticle extends AbstractVerticle {
 			logger.info("Chronograf server is {}", chronograf.get().value.address());
 		}
 		serverApi.submitAndWait(chronograf.get().uid, "service chronograf restart");
-		new NetworkHelper(chronograf.get().value.address()).waitForListeningPort(8888, 10, TimeUnit.SECONDS);
+		new NetworkHelper(chronograf.get().value.address()).waitForListeningPort(8888, 30, TimeUnit.SECONDS);
 
 		List<ITickDashboardProvider> dashboards = TickDashboards.dashboards();
 		try (ChronografClient chronoClient = new ChronografClient(chronograf.get())) {

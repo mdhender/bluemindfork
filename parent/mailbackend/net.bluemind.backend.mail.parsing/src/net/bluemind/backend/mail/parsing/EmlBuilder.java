@@ -54,7 +54,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
-import com.google.common.base.Throwables;
 
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.MessageBody;
@@ -190,13 +189,15 @@ public class EmlBuilder {
 	private static Body createBody(BasicBodyFactory bbf, Part structure, String owner) throws IOException {
 		Body body = null;
 		if (structure.children.isEmpty()) {
-			switch (structure.mime) {
-			case "text/plain":
-			case "text/html":
-				body = bbf.textBody(inputStream(null, null, null, structure, owner).input, "utf-8");
-				break;
-			default:
-				body = bbf.binaryBody(inputStream(null, null, null, structure, owner).input);
+			try (InputStream structureInputStream = inputStream(structure).input) {
+				switch (structure.mime) {
+				case "text/plain":
+				case "text/html":
+					body = bbf.textBody(structureInputStream, "utf-8");
+					break;
+				default:
+					body = bbf.binaryBody(structureInputStream);
+				}
 			}
 		} else {
 			// multipart
@@ -242,23 +243,26 @@ public class EmlBuilder {
 		return new BufferedInputStream(Files.newInputStream(f.toPath(), StandardOpenOption.READ));
 	}
 
-	public static SizedStream inputStream(Long id, String previousBody, Date date, Part structure, String owner) {
+	private static File emlFile(Part structure) {
 		Objects.requireNonNull(structure.address, "Part address must not be null");
-		File emlInput = new File(Bodies.STAGING, structure.address + ".part");
-		if (!emlInput.exists()) {
-			throw ServerFault.notFound("Missing staging file " + emlInput.getAbsolutePath());
+		File emlFile = new File(Bodies.STAGING, structure.address + ".part");
+		if (!emlFile.exists()) {
+			throw ServerFault.notFound("Missing staging file " + emlFile.getAbsolutePath());
 		}
-		if (id == null) {
-			try {
-				InputStream input = stream(emlInput);
-				SizedStream ss = new SizedStream();
-				ss.input = input;
-				ss.size = (int) emlInput.length();
-				return ss;
-			} catch (IOException e) {
-				throw Throwables.propagate(e);
-			}
-		}
+		return emlFile;
+	}
+
+	private static SizedStream inputStream(Part structure) throws IOException {
+		final File emlInput = emlFile(structure);
+		InputStream input = stream(emlInput);
+		SizedStream ss = new SizedStream();
+		ss.input = input;
+		ss.size = (int) emlInput.length();
+		return ss;
+	}
+
+	public static SizedStream inputStream(Long id, String previousBody, Date date, Part structure, String owner) {
+		final File emlInput = emlFile(structure);
 		try (InputStream in = stream(emlInput); Message asMessage = Mime4JHelper.parse(in)) {
 			net.bluemind.backend.mail.api.MessageBody.Header idHeader = net.bluemind.backend.mail.api.MessageBody.Header
 					.create(MailApiHeaders.X_BM_INTERNAL_ID, owner + "#" + InstallationId.getIdentifier() + ":" + id);

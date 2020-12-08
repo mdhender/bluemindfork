@@ -20,7 +20,6 @@ package net.bluemind.cli.index;
 import java.util.List;
 import java.util.Optional;
 
-import io.airlift.airline.Command;
 import io.vertx.core.json.JsonArray;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -28,6 +27,7 @@ import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.mailbox.api.IMailboxMgmt;
 import net.bluemind.mailbox.api.ShardStats;
+import picocli.CommandLine.Command;
 
 /**
  * This is the defaut command on index related stuff to ensure we don't run a

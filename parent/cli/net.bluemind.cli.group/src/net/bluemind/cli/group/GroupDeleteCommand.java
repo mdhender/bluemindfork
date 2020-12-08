@@ -19,9 +19,6 @@ package net.bluemind.cli.group;
 
 import java.util.Optional;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -32,9 +29,12 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "delete", description = "delete group")
-public class GroupDeleteCommand implements ICmdLet, Runnable  {
+public class GroupDeleteCommand implements ICmdLet, Runnable {
 
 	public static class Reg implements ICmdLetRegistration {
 
@@ -49,42 +49,41 @@ public class GroupDeleteCommand implements ICmdLet, Runnable  {
 		}
 	}
 
-	@Arguments(required = true, description = "groupName@domain or domain name")
+	@Parameters(paramLabel = "<target>", description = "groupName@domain or domain name")
 	public String target;
-	
-	@Option(name = "--dry", description = "Dry-run (do nothing)")
+
+	@Option(names = "--dry", description = "Dry-run (do nothing)")
 	public boolean dry;
 
 	protected CliContext ctx;
 	protected CliUtils cliUtils;
-	
-	
+
 	@Override
-	public void run() {	
-		if(target.contains("@")) {
+	public void run() {
+		if (target.contains("@")) {
 			deleteGroupbyName();
 		} else {
 			deleteAllGroups();
 		}
 	}
-	
+
 	private void deleteGroupbyName() {
 		String domainUid = target.split("@")[1];
 		String name = target.split("@")[0];
-		
+
 		IGroup groupApi = ctx.adminApi().instance(IGroup.class, domainUid);
 		ItemValue<Group> group = groupApi.byName(name);
-		if (group != null){
+		if (group != null) {
 			deleteGroup(groupApi, group.uid);
 		}
-			
+
 	}
-	
+
 	private void deleteAllGroups() {
 		IGroup groupApi = ctx.adminApi().instance(IGroup.class, target);
 		groupApi.allUids().forEach(uid -> deleteGroup(groupApi, uid));
 	}
-	
+
 	private void deleteGroup(IGroup groupApi, String uid) {
 		if (dry) {
 			ctx.info("DRY : delete " + uid);
@@ -95,7 +94,7 @@ public class GroupDeleteCommand implements ICmdLet, Runnable  {
 			if (status == null || status.state != TaskStatus.State.Success) {
 				ctx.error("Failed to delete group " + uid);
 			} else {
-				ctx.info("Group " + uid+ " deleted");
+				ctx.info("Group " + uid + " deleted");
 			}
 		}
 	}

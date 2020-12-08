@@ -200,6 +200,37 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
+	public void testMultipleGetById() throws ServerFault {
+		VCard card = defaultVCard();
+		String uid = create(card);
+
+		card = defaultVCard();
+		String uid2 = create(card);
+
+		List<ItemValue<VCard>> items = getService(defaultSecurityContext).multipleGet(Arrays.asList(uid, uid2));
+		assertNotNull(items);
+		assertEquals(2, items.size());
+
+		try {
+			getService(SecurityContext.ANONYMOUS)
+					.multipleGetById(Arrays.asList(items.get(0).internalId, items.get(1).internalId));
+			fail();
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+
+		items = getService(defaultSecurityContext)
+				.multipleGetById(Arrays.asList(items.get(0).internalId, items.get(1).internalId));
+		assertNotNull(items);
+		assertEquals(2, items.size());
+
+		items = getService(defaultSecurityContext).multipleGetById(Arrays.asList(9876543L, 34567L));
+		assertNotNull(items);
+		assertEquals(0, items.size());
+
+	}
+
+	@Test
 	public void testGetInfo() throws ServerFault {
 		VCard card = defaultVCard();
 		card.communications.emails = Arrays.asList(

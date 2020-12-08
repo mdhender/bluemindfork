@@ -49,6 +49,10 @@ import net.bluemind.mailbox.api.Mailbox;
  */
 public class EventReplyHandler extends ReplyHandler implements IIMIPHandler {
 
+	public EventReplyHandler(LmtpAddress recipient, LmtpAddress sender) {
+		super(recipient, sender);
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(EventReplyHandler.class);
 
 	@Override

@@ -4,6 +4,10 @@
    <extension
          point="net.bluemind.cli.cmd.api.cmdlet">
       <registration
+            impl="net.bluemind.cli.mail.IndexedMailCountCommand$Reg"
+            priority="70">
+      </registration>
+      <registration
             impl="net.bluemind.cli.mail.MailHistoryByGuidCommand$Reg"
             priority="60">
       </registration>
@@ -16,16 +20,16 @@
             priority="60">
       </registration>
       <registration
-            impl="net.bluemind.cli.mail.IndexedMailCountCommand$Reg"
-            priority="60">
-      </registration>
-      <registration
             impl="net.bluemind.cli.mail.MailCountCommand$Reg"
             priority="60">
       </registration>
 	  <registration
             impl="net.bluemind.cli.mail.IndexPrereplicatedMailsCommand$Reg"
             priority="60">
+      </registration>
+	  <registration
+            impl="net.bluemind.cli.mail.UnexpungeCommand$Reg"
+            priority="50">
       </registration>
    </extension>
 

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -84,14 +85,17 @@ public class VCardHelper {
 	 * @return
 	 */
 	public static List<Email> manageEmails(Collection<net.bluemind.core.api.Email> userEmails) {
-		List<Email> emails = new ArrayList<>();
+		List<Parameter> parameters = typeWorkParameter();
+		return userEmails.stream().map(email -> Email.create(email.address, parameters)).collect(Collectors.toList());
+	}
 
+	public static Email manageEmail(net.bluemind.core.api.Email userEmail) {
+		return Email.create(userEmail.address, typeWorkParameter());
+	}
+
+	private static List<Parameter> typeWorkParameter() {
 		List<Parameter> parameters = new ArrayList<>();
 		parameters.add(Parameter.create("TYPE", "work"));
-		for (net.bluemind.core.api.Email userEmail : userEmails) {
-			emails.add(Email.create(userEmail.address, parameters));
-		}
-
-		return emails;
+		return parameters;
 	}
 }

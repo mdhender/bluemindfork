@@ -49,7 +49,7 @@ net.bluemind.ui.eventdeferredaction.EventDeferredAction.prototype.postBootstrap 
         ctx,
         "deferredaction-" + ctx.user["uid"]
     );
-    sync.registerService(deferredaction);
+    sync.registerService(deferredaction, 10);
     sync.start(1);
     new net.bluemind.ui.eventdeferredaction.DeferredActionScheduler(ctx);
 };

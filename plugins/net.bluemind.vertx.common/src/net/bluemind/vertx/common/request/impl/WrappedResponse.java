@@ -22,6 +22,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -76,13 +77,12 @@ final class WrappedResponse implements HttpServerResponse {
 		StringBuilder tags = new StringBuilder();
 		tags.append('[');
 		boolean first = true;
-		for (String s : logAttributes.keySet()) {
-			String v = logAttributes.get(s);
-			tags.append(first ? "" : ", ").append(s).append(": ").append(v);
+		for (Entry<String, String> kv : logAttributes.entrySet()) {
+			tags.append(first ? "" : ", ").append(kv.getKey()).append(": ").append(kv.getValue());
 			first = false;
 		}
 		tags.append(']');
-		logger.info("{} completed in {}ms.", tags.toString(), TimeUnit.NANOSECONDS.toMillis(spent));
+		logger.info("{} completed in {}ms.", tags, TimeUnit.NANOSECONDS.toMillis(spent));
 	}
 
 	public void putLogAttribute(String k, String v) {

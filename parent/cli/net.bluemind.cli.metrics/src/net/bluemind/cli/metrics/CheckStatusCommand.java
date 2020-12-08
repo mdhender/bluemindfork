@@ -22,12 +22,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.metrics.alerts.api.CheckResult;
 import net.bluemind.metrics.alerts.api.IProductChecks;
+import picocli.CommandLine.Command;
 
 @Command(name = "status", description = "display product check results")
 public class CheckStatusCommand implements ICmdLet, Runnable {

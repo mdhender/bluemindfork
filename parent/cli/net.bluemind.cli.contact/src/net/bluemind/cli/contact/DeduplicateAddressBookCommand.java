@@ -31,11 +31,8 @@ import java.util.stream.Collectors;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
-import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.IAddressBook;
+import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Communications.Email;
 import net.bluemind.cli.cmd.api.CliContext;
@@ -45,6 +42,9 @@ import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.Regex;
 import net.bluemind.core.container.model.ItemValue;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "deduplicate", description = "Deduplicate an addressbook")
 public class DeduplicateAddressBookCommand implements ICmdLet, Runnable {
@@ -62,13 +62,13 @@ public class DeduplicateAddressBookCommand implements ICmdLet, Runnable {
 		}
 	}
 
-	@Arguments(required = true, description = "email address")
+	@Parameters(paramLabel = "<email>", description = "email address")
 	public String email;
 
-	@Option(name = "--addressbook-uid", description = "the addressbook uid. Default value: CollectedContacts addressbook")
+	@Option(names = "--addressbook-uid", description = "the addressbook uid. Default value: CollectedContacts addressbook")
 	public String addressBookUid;
 
-	@Option(name = "--dry", description = "Dry-run (do nothing)")
+	@Option(names = "--dry", description = "Dry-run (do nothing)")
 	public boolean dry = false;
 
 	private CliContext ctx;
@@ -86,16 +86,16 @@ public class DeduplicateAddressBookCommand implements ICmdLet, Runnable {
 		if (!Regex.EMAIL.validate(email)) {
 			throw new CliException("Invalid email : " + email);
 		}
-		
+
 		String domain = cliUtils.getDomainUidFromEmailOrDomain(email);
 		String userUid = cliUtils.getUserUidFromEmail(email);
 
 		if (addressBookUid == null) {
 			addressBookUid = IAddressBookUids.collectedContactsUserAddressbook(userUid);
 		}
-		
+
 		ctx.info("deduplicate addressbook : " + addressBookUid);
-		
+
 		deduplicateEntries(addressBookUid, domain);
 
 	}
@@ -126,7 +126,7 @@ public class DeduplicateAddressBookCommand implements ICmdLet, Runnable {
 				ctx.info("DRY: delete " + uid);
 			}
 		});
-		
+
 		deletedContactsCounter = contactsUidsSize - addressBook.allUids().size();
 		ctx.info(Integer.toString(deletedContactsCounter) + " were removed out of "
 				+ Integer.toString(contactsUidsSize));
@@ -166,45 +166,50 @@ public class DeduplicateAddressBookCommand implements ICmdLet, Runnable {
 		List<String> uids = new ArrayList<>();
 		if (!list.isEmpty()) {
 			for (ItemValue<VCard> item : list) {
-				if (item.value.communications.emails.size() == 1 
+				if (item.value.communications.emails.size() == 1
 						&& Strings.isNullOrEmpty(item.value.organizational.role)
 						&& item.value.communications.tels.isEmpty()
 						&& domainEmails.contains(item.value.communications.emails.get(0).value)) {
-						uids.add(item.uid);
+					uids.add(item.uid);
 				}
 			}
 		}
 		return uids;
 	}
-	
-	private List<String> getExternalDuplicatedContacts(List<ItemValue<VCard>> list){
-		
-		List<String> uids = new ArrayList<>();
-		List<ItemValue<VCard>> duplicatedCards = list.stream().filter(vCard -> vCard.value.communications.emails != null 
-				&& vCard.value.communications.emails.size() == 1 ).collect(Collectors.toList());
 
-		Map<String, List<ItemValue<VCard>>> groupByEmailsMap = 
-				duplicatedCards.stream().collect(Collectors.groupingBy(item -> item.value.communications.emails.get(0).value));
-		
-		for(List<ItemValue<VCard>> vCards : groupByEmailsMap.values()) {
-			if (vCards.size() !=1 ) {
-				
-				Map<String,List<ItemValue<VCard>>> vCardsByDisplayName = vCards.stream().collect(Collectors.groupingBy(item -> item.displayName));
+	private List<String> getExternalDuplicatedContacts(List<ItemValue<VCard>> list) {
+
+		List<String> uids = new ArrayList<>();
+		List<ItemValue<VCard>> duplicatedCards = list.stream().filter(
+				vCard -> vCard.value.communications.emails != null && vCard.value.communications.emails.size() == 1)
+				.collect(Collectors.toList());
+
+		Map<String, List<ItemValue<VCard>>> groupByEmailsMap = duplicatedCards.stream()
+				.collect(Collectors.groupingBy(item -> item.value.communications.emails.get(0).value));
+
+		for (List<ItemValue<VCard>> vCards : groupByEmailsMap.values()) {
+			if (vCards.size() != 1) {
+
+				Map<String, List<ItemValue<VCard>>> vCardsByDisplayName = vCards.stream()
+						.collect(Collectors.groupingBy(item -> item.displayName));
 				for (List<ItemValue<VCard>> displayNames : vCardsByDisplayName.values()) {
-					if (displayNames.size() != 1) {						
-						List<ItemValue<VCard>> finalValue = displayNames.stream().filter(vCard -> vCard.value.communications.tels.isEmpty() 
-								&& Strings.isNullOrEmpty(vCard.value.organizational.role) 
-								&& Strings.isNullOrEmpty(vCard.value.organizational.title)
-								&& Strings.isNullOrEmpty(vCard.value.explanatory.note) 
-								&& vCard.value.identification.birthday == null 
-								&& vCard.value.explanatory.urls.isEmpty()).collect(Collectors.toList());
+					if (displayNames.size() != 1) {
+						List<ItemValue<VCard>> finalValue = displayNames.stream()
+								.filter(vCard -> vCard.value.communications.tels.isEmpty()
+										&& Strings.isNullOrEmpty(vCard.value.organizational.role)
+										&& Strings.isNullOrEmpty(vCard.value.organizational.title)
+										&& Strings.isNullOrEmpty(vCard.value.explanatory.note)
+										&& vCard.value.identification.birthday == null
+										&& vCard.value.explanatory.urls.isEmpty())
+								.collect(Collectors.toList());
 						if (finalValue.size() > 1) {
-							uids.addAll(finalValue.subList(1, finalValue.size()).stream().map(item -> item.uid).collect(Collectors.toList()));
+							uids.addAll(finalValue.subList(1, finalValue.size()).stream().map(item -> item.uid)
+									.collect(Collectors.toList()));
 						}
 					}
-						
+
 				}
-			}	
+			}
 		}
 		return uids;
 	}

@@ -19,12 +19,12 @@ package net.bluemind.cli.index;
 
 import java.util.Optional;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.system.api.IInstallation;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
 /**
  * Delete then create an index and its mapping
@@ -47,7 +47,7 @@ public class ResetCommand implements ICmdLet, Runnable {
 
 	}
 
-	@Arguments(required = true, description = "target index (mailspool, event, contact, etc)")
+	@Parameters(paramLabel = "<index_name>", description = "target index (mailspool, event, contact, etc)")
 	public String index;
 
 	private CliContext ctx;

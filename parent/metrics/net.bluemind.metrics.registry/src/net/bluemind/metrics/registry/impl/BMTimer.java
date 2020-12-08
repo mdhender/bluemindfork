@@ -1,6 +1,5 @@
 package net.bluemind.metrics.registry.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -15,21 +14,21 @@ import com.netflix.spectator.api.Id;
 import com.netflix.spectator.api.Measurement;
 import com.netflix.spectator.api.Statistic;
 
-import net.bluemind.metrics.registry.client.WebSocketClient;
+import net.bluemind.metrics.registry.client.AgentPushClient;
 import net.bluemind.metrics.registry.json.TimerJson;
 
 public class BMTimer extends AbstractTimer {
 
 	private static final Logger logger = LoggerFactory.getLogger(BMTimer.class);
 
-	private final WebSocketClient webSockClient;
+	private final AgentPushClient webSockClient;
 	private final Id id;
 	private final LongAdder count;
 	private final LongAdder totalTime;
 	private final TimerJson dto;
 
 	/** Create a new instance. */
-	BMTimer(Clock clock, Id id, WebSocketClient webSockClient) {
+	BMTimer(Clock clock, Id id, AgentPushClient webSockClient) {
 		super(clock);
 		this.webSockClient = webSockClient;
 		this.id = id;
@@ -54,11 +53,7 @@ public class BMTimer extends AbstractTimer {
 			final long nanos = TimeUnit.NANOSECONDS.convert(amount, unit);
 			totalTime.add(nanos);
 			count.increment();
-			try {
-				webSockClient.sendTextFrame(dto.withNanos(nanos));
-			} catch (IOException e) {
-				logger.error("IOException : ", e);
-			}
+			webSockClient.queue(dto.withNanos(nanos));
 		}
 	}
 

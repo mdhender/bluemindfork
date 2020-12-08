@@ -34,6 +34,9 @@ public class CodecTests {
 
 		EASTimeZone decoded = TimeZoneCodec.decode(hardcoded);
 		assertNotNull(decoded);
+		assertEquals(-60, decoded.bias);
+		assertEquals("", decoded.standardName);
+		assertEquals("", decoded.daylightName);
 		System.out.println("tz: " + decoded.toString());
 	}
 
@@ -43,6 +46,31 @@ public class CodecTests {
 
 		EASTimeZone decoded = TimeZoneCodec.decode(hardcoded);
 		assertNotNull(decoded);
+
+		assertEquals(480, decoded.bias);
+
+		assertEquals("Pacific Standard Time", decoded.standardName);
+		assertEquals(0, decoded.standardDate.year);
+		assertEquals(11, decoded.standardDate.month); // november
+		assertEquals(0, decoded.standardDate.dayOfWeek); // sunday
+		assertEquals(1, decoded.standardDate.day); // 1st
+		assertEquals(2, decoded.standardDate.hour);
+		assertEquals(0, decoded.standardDate.minute);
+		assertEquals(0, decoded.standardDate.second);
+		assertEquals(0, decoded.standardDate.ms);
+
+		assertEquals("Pacific Daylight Time", decoded.daylightName);
+		assertEquals(0, decoded.daylightDate.year);
+		assertEquals(3, decoded.daylightDate.month); // march
+		assertEquals(0, decoded.daylightDate.dayOfWeek); // sunday
+		assertEquals(2, decoded.daylightDate.day); // 2nd
+		assertEquals(2, decoded.daylightDate.hour);
+		assertEquals(0, decoded.daylightDate.minute);
+		assertEquals(0, decoded.daylightDate.second);
+		assertEquals(0, decoded.daylightDate.ms);
+
+		assertEquals(-60, decoded.daylightBias);
+
 		System.out.println("tz: " + decoded.toString());
 	}
 
@@ -56,6 +84,41 @@ public class CodecTests {
 		assertNotNull(recoded);
 		System.out.println("recoded: " + recoded);
 		assertEquals(hardcoded, recoded);
+	}
+
+	@Test
+	public void parseOutlookForMobileTz() {
+		String hardcoded = "xP///ygAVQBUAEMAKwAwADEAOgAwADAAKQAgAEIAcgB1AHMAcwBlAGwAcwAsACAAQwBvAHAAZQBuAGgAYQBnAGUAbgAAAAoAAAAFAAMAAAAAAAAAAAAAACgAVQBUAEMAKwAwADEAOgAwADAAKQAgAEIAcgB1AHMAcwBlAGwAcwAsACAAQwBvAHAAZQBuAGgAYQBnAGUAbgAAAAMAAAAFAAIAAAAAAAAAxP///w==";
+
+		EASTimeZone decoded = TimeZoneCodec.decode(hardcoded);
+		assertNotNull(decoded);
+
+		assertEquals(-60, decoded.bias);
+
+		assertEquals("(UTC+01:00) Brussels, Copenhagen", decoded.standardName);
+		assertEquals(0, decoded.standardDate.year);
+		assertEquals(10, decoded.standardDate.month); // october
+		assertEquals(0, decoded.standardDate.dayOfWeek); // sunday
+		assertEquals(5, decoded.standardDate.day); // last
+		assertEquals(3, decoded.standardDate.hour);
+		assertEquals(0, decoded.standardDate.minute);
+		assertEquals(0, decoded.standardDate.second);
+		assertEquals(0, decoded.standardDate.ms);
+
+		assertEquals("(UTC+01:00) Brussels, Copenhagen", decoded.daylightName);
+		assertEquals(0, decoded.daylightDate.year);
+		assertEquals(3, decoded.daylightDate.month); // march
+		assertEquals(0, decoded.daylightDate.dayOfWeek); // sunday
+		assertEquals(5, decoded.daylightDate.day); // last
+		assertEquals(2, decoded.daylightDate.hour);
+		assertEquals(0, decoded.daylightDate.minute);
+		assertEquals(0, decoded.daylightDate.second);
+		assertEquals(0, decoded.daylightDate.ms);
+
+		assertEquals(-60, decoded.daylightBias);
+
+		System.out.println("tz: " + decoded.toString());
+
 	}
 
 }

@@ -37,6 +37,7 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.systemd.notify.SystemD;
 import net.bluemind.xivo.client.XivoClient;
 import net.bluemind.xivo.common.Hosts;
 
@@ -58,6 +59,10 @@ public class DepDoneHandler implements Handler<AsyncResult<String>> {
 		int newValue = handshakeCountdown.decrementAndGet();
 		if (newValue == 0) {
 			VertxPlatform.getVertx().setTimer(10000, tid -> handshakeDomains());
+
+			if (SystemD.isAvailable()) {
+				SystemD.get().notifyReady();
+			}
 		}
 	}
 

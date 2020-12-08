@@ -160,6 +160,33 @@ public abstract class ScannerCommon {
 		assertTrue(coreService.updatedGroups.keySet().contains(existingGroup.uid));
 	}
 
+	@Test
+	public void createAndUpdateGroupsInvalidMember() throws ServerFault, LdapInvalidDnException, LdapException,
+			CursorException, IOException, LdapSearchException {
+		CoreServicesTest coreService = new CoreServicesTest();
+		ItemValue<Group> existingGroup = getExistingGroup("cn=grptest01," + LdapDockerTestHelper.LDAP_ROOT_DN);
+		coreService.groups.put(existingGroup.uid, existingGroup);
+
+		ImportLogger importLogger = getImportLogger();
+		scanLdap(importLogger, coreService, LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()));
+
+		assertEquals(1, coreService.createdGroups.size());
+		for (ItemValue<Group> group : coreService.createdGroups.values()) {
+			UuidMapper uuid = LdapUuidMapper.fromEntry(LdapProperties.import_ldap_ext_id_attribute.getDefaultValue(),
+					getExistingGroupEntry("cn=" + group.value.name + "," + LdapDockerTestHelper.LDAP_ROOT_DN));
+			assertEquals(uuid.getExtId(), group.externalId);
+			assertEquals(1, coreService.groupMembersToAdd.get(group.uid).size());
+			assertNull(coreService.groupMembersToRemove.get(group.uid));
+		}
+
+		assertEquals(1, coreService.updatedGroups.size());
+		assertTrue(coreService.updatedGroups.keySet().contains(existingGroup.uid));
+		coreService.updatedGroups.values()
+				.forEach(group -> assertEquals(1, coreService.groupMembersToAdd.get(group.uid).size()));
+		coreService.updatedGroups.values()
+				.forEach(group -> assertNull(coreService.groupMembersToRemove.get(group.uid)));
+	}
+
 	/**
 	 * @return
 	 * @throws ServerFault

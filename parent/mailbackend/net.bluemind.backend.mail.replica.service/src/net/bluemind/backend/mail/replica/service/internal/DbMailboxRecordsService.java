@@ -26,6 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -35,6 +40,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.MailboxFolder;
@@ -69,7 +75,6 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -237,7 +242,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 				return null;
 			} else {
 				RecordID rec = idSet.iterator().next();
-				return getComplete(rec.itemUid);
+				return getCompleteById(rec.itemId);
 			}
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
@@ -310,10 +315,10 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 			long[] uidArrays = records.stream().mapToLong(rec -> rec.imapUid).toArray();
 			Set<RecordID> ids = recordStore.identifiers(uidArrays);
 			Map<Long, RecordID> dbByUid = ids.stream().collect(Collectors.toMap(r -> r.imapUid, r -> r));
-			Set<RecordID> toUpdateRecords = records.stream().map(mr -> new RecordID(mr.imapUid, mr.modSeq))
+			Set<RecordID> toUpdateRecords = records.stream().map(mr -> new RecordID(mr.imapUid))
 					.collect(Collectors.toSet());
 			Map<Long, MailboxRecord> newRecsByUid = records.stream().collect(Collectors.toMap(r -> r.imapUid, r -> r));
-			Map<String, MailboxRecord> toUpdate = new HashMap<>();
+			Map<Long, MailboxRecord> toUpdate = new HashMap<>();
 			List<MailboxRecord> toCreate = new LinkedList<>();
 
 			for (RecordID createOrUpdate : toUpdateRecords) {
@@ -322,7 +327,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 				if (asRecID == null) {
 					toCreate.add(touchedMailRecord);
 				} else {
-					toUpdate.put(asRecID.itemUid, touchedMailRecord);
+					toUpdate.put(asRecID.itemId, touchedMailRecord);
 				}
 			}
 			// apply the changes
@@ -398,19 +403,19 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 			});
 
 			AtomicInteger softDelete = new AtomicInteger();
-			toUpdate.forEach((String uid, MailboxRecord mr) -> {
+			toUpdate.forEach((Long itemId, MailboxRecord mr) -> {
 				VanishedBody vanished = BodyInternalIdCache.vanishedBody(container.owner, mr.messageBody);
 				if (vanished != null) {
 					logger.info("Using version from vanished item {} and the old imap uid", vanished);
 					expungeIndex(Arrays.asList(mr.imapUid));
 					upNotifs.add(UpdateNotif.of(vanished.version, mr));
 				} else {
-					ItemVersion upd = storeService.update(uid, uid, mr);
+					ItemVersion upd = storeService.update(itemId, "itemId:" + itemId, mr);
 					if (mr.flags.contains(MailboxItemFlag.System.Deleted.value())) {
 						softDelete.incrementAndGet();
 					}
 
-					ItemValue<MailboxRecord> asItem = ItemValue.create(uid, mr);
+					ItemValue<MailboxRecord> asItem = ItemValue.create("dunno", mr);
 					asItem.version = upd.version;
 					asItem.internalId = upd.id;
 					pushToIndex.add(asItem);
@@ -430,7 +435,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		IDbMessageBodies bodiesApi = context.provider().instance(IDbMessageBodies.class, partition);
 		bodiesApi.missing(toCheck);
 
-		updateIndex(contVersion, pushToIndex);
+		updateIndex(pushToIndex);
 		if (!newMailNotification.isEmpty()) {
 			for (ItemValue<MailboxRecord> toNotify : newMailNotification) {
 				newMailNotification(toNotify);
@@ -454,10 +459,12 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 				createdIds);
 	}
 
-	private void updateIndex(long contVersion, List<ItemValue<MailboxRecord>> pushToIndex) {
+	private static final ExecutorService ES_CRUD_POOL = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
+			new ArrayBlockingQueue<>(2), new DefaultThreadFactory("replication-es-crud", true), new CallerRunsPolicy());
+
+	private void updateIndex(List<ItemValue<MailboxRecord>> pushToIndex) {
 		if (!pushToIndex.isEmpty()) {
-			ITasksManager runner = context.provider().instance(ITasksManager.class);
-			runner.run(mailboxUniqueId + "-" + contVersion + "-" + System.nanoTime(), monitor -> {
+			ES_CRUD_POOL.execute(() -> {
 				long esTime = System.currentTimeMillis();
 				Optional<BulkOperation> bulkOp = Optional.of(indexService.startBulk());
 				for (ItemValue<MailboxRecord> forIndex : pushToIndex) {
@@ -467,6 +474,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 				esTime = System.currentTimeMillis() - esTime;
 				logger.info("[{}] Es CRUD op, idx: {} in {}ms", mailboxUniqueId, pushToIndex.size(), esTime);
 			});
+
 		}
 	}
 
@@ -505,7 +513,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		storeService.doOrFail(() -> {
 			Set<RecordID> itemUids = recordStore.identifiers(asArray);
 			itemUids.forEach(rec -> {
-				ItemVersion iv = storeService.delete(rec.itemUid);
+				ItemVersion iv = storeService.delete(rec.itemId);
 				lastVersion.set(iv.version);
 
 			});

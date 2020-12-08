@@ -22,8 +22,6 @@ import java.util.Optional;
 
 import com.github.freva.asciitable.AsciiTable;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -31,10 +29,11 @@ import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.scheduledjob.api.Job;
 import net.bluemind.scheduledjob.api.JobDomainStatus;
-
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "list", description = "List all runnable jobs.")
-public class JobListCommand extends JobCommand implements ICmdLet, Runnable  {
+public class JobListCommand extends JobCommand implements ICmdLet, Runnable {
 
 	public static class Reg implements ICmdLetRegistration {
 
@@ -48,13 +47,12 @@ public class JobListCommand extends JobCommand implements ICmdLet, Runnable  {
 			return JobListCommand.class;
 		}
 	}
-	
+
 	protected CliContext ctx;
 	protected CliUtils cliUtils;
 
-	@Arguments(required = true, description = "global.virt or domain.tld")
+	@Parameters(paramLabel = "<target>", description = "global.virt or domain.tld")
 	public String target;
-
 
 	@Override
 	public Runnable forContext(CliContext ctx) {
@@ -62,18 +60,18 @@ public class JobListCommand extends JobCommand implements ICmdLet, Runnable  {
 		this.cliUtils = new CliUtils(ctx);
 		return this;
 	}
-	
+
 	@Override
 	public void run() {
 		ListResult<Job> jobs = super.getjobs(ctx, target);
 		display(jobs, target);
 	}
-	
+
 	private void display(ListResult<Job> jobs, String domain) {
 		int size = jobs.values.size();
 		String[] headers = { "id", "description", "kind", "status", "sendReport", "recipients" };
-		String[][] asTable= new String[size][headers.length];
-		
+		String[][] asTable = new String[size][headers.length];
+
 		int i = 0;
 		for (Job entry : jobs.values) {
 			asTable[i][0] = entry.id;
@@ -86,16 +84,14 @@ public class JobListCommand extends JobCommand implements ICmdLet, Runnable  {
 		}
 		ctx.info(AsciiTable.getTable(headers, asTable));
 	}
-	
+
 	private String getdomainStatus(List<JobDomainStatus> jobStatus, String domain) {
-		
-		for(JobDomainStatus domainStatus : jobStatus) {
-			if(domainStatus.domain.equalsIgnoreCase(domain)) {	
+
+		for (JobDomainStatus domainStatus : jobStatus) {
+			if (domainStatus.domain.equalsIgnoreCase(domain)) {
 				return domainStatus.status.toString();
 			}
 		}
 		return null;
-	}		
+	}
 }
-
-

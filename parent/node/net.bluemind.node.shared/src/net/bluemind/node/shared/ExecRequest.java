@@ -24,7 +24,7 @@ import java.util.Set;
 
 public class ExecRequest {
 
-	public static enum Options {
+	public enum Options {
 
 		/**
 		 * Process output will be dropped by node server
@@ -32,8 +32,7 @@ public class ExecRequest {
 		DISCARD_OUTPUT,
 
 		/**
-		 * Refuse the execution if a process from the same group is already
-		 * running
+		 * Refuse the execution if a process from the same group is already running
 		 */
 		FAIL_IF_GROUP_EXISTS,
 

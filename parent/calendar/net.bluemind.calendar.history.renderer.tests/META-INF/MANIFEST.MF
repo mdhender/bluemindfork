@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.calendar.history.renderer.tests
+Bundle-SymbolicName: net.bluemind.calendar.history.renderer.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.calendar.history.renderer;bundle-version="4.1.0",
+ org.junit
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.calendar.history.renderer.tests
+Bundle-ActivationPolicy: lazy

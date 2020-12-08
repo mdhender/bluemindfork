@@ -5,7 +5,6 @@ Bundle-SymbolicName: net.bluemind.forest.instance.cli;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
- io.airlift.airline,
  net.bluemind.cli.cmd.api,
  net.bluemind.forest.cloud.api,
  net.bluemind.config,

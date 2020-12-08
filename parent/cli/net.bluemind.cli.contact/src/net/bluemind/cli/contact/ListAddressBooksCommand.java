@@ -24,16 +24,15 @@ package net.bluemind.cli.contact;
 
 import java.util.Optional;
 
-
-import io.airlift.airline.Command;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.ListCommand;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
+import picocli.CommandLine.Command;
 
 @Command(name = "list", description = "List user or whole domain addressbooks")
-public class ListAddressBooksCommand extends ListCommand {	
+public class ListAddressBooksCommand extends ListCommand {
 	public static class Reg implements ICmdLetRegistration {
 
 		@Override
@@ -49,7 +48,7 @@ public class ListAddressBooksCommand extends ListCommand {
 
 	@Override
 	public Kind[] getDirEntryKind() {
-		return new Kind[] {Kind.ADDRESSBOOK, Kind.USER};
+		return new Kind[] { Kind.ADDRESSBOOK, Kind.USER };
 	}
 
 	@Override

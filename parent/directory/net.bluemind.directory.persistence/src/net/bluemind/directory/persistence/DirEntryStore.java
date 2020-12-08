@@ -161,20 +161,20 @@ public class DirEntryStore extends AbstractItemValueStore<DirEntry> {
 		return unique(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, entryUid });
 	}
 
-	public String byEmail(String email, boolean isDomainAlias) throws SQLException {
-		String query = "SELECT item.uid FROM t_container_item item" //
-				+ " JOIN t_directory_entry dir ON item.id = dir.item_id" //
-				+ " LEFT JOIN t_mailbox_email e ON dir.item_id = e.item_id" //
-				+ " WHERE item.container_id = ? AND (" //
-				+ " (dir.email = ?) OR (" //
-				+ "   (e.left_address = ? AND " //
-				+ "    (e.right_address = ? OR (e.all_aliases AND ?))" //
-				+ "   )" //
-				+ " )) LIMIT 1";
+	private static final String BY_EMAIL_QUERY = "SELECT item.uid FROM t_container_item item" //
+			+ " JOIN t_directory_entry dir ON item.id = dir.item_id" //
+			+ " WHERE item.container_id = ? AND dir.email = ?" //
+			+ " UNION " //
+			+ " SELECT item2.uid FROM t_container_item item2" //
+			+ " JOIN (" //
+			+ " SELECT * FROM t_mailbox_email WHERE left_address = ? AND ( right_address = ? OR (all_aliases AND ?))" //
+			+ " ) e ON item2.id = e.item_id" //
+			+ " WHERE item2.container_id = ? LIMIT 1";
 
+	public String byEmail(String email, boolean isDomainAlias) throws SQLException {
 		String[] splittedEmail = email.split("@");
-		return unique(query, StringCreator.FIRST, Collections.emptyList(),
-				new Object[] { container.id, email, splittedEmail[0], splittedEmail[1], isDomainAlias });
+		return unique(BY_EMAIL_QUERY, StringCreator.FIRST, Collections.emptyList(),
+				new Object[] { container.id, email, splittedEmail[0], splittedEmail[1], isDomainAlias, container.id });
 	}
 
 	public ListResult<Item> search(DirEntryQuery q) throws SQLException {

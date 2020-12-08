@@ -35,7 +35,6 @@ public class StringEditItem extends Composite {
 
 		item = new TextBox();
 		item.setText(value);
-
 		ft.setWidget(0, 0, item);
 
 		trash = new Trash();
@@ -43,8 +42,26 @@ public class StringEditItem extends Composite {
 		ft.getFlexCellFormatter().setRowSpan(0, 2, 2);
 	}
 
+	public void setVisibleLength(int length) {
+		item.setVisibleLength(length);
+	}
+
+	public Boolean isReadOnly() {
+		return item.isEnabled();
+	}
+
+	public void setReadOnly(Boolean readOnly) {
+		trash.setVisible(!readOnly);
+		item.setReadOnly(readOnly);
+		item.setEnabled(readOnly);
+	}
+
 	public Trash getTrash() {
 		return trash;
+	}
+
+	public TextBox getTextBox() {
+		return item;
 	}
 
 	public String getStringValue() {

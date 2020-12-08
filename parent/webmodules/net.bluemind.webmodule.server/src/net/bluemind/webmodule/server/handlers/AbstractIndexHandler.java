@@ -42,12 +42,12 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.JsonObject;
 import net.bluemind.common.freemarker.EquinoxTemplateLoader;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.webmodule.server.JsEntry;
+import net.bluemind.webmodule.server.PreEncodedObject;
 import net.bluemind.webmodule.server.WebExtensionsResolver;
 import net.bluemind.webmodule.server.WebModule;
 
@@ -193,8 +193,8 @@ public abstract class AbstractIndexHandler implements IWebModuleConsumer, Handle
 
 		try {
 			String lang = getLang(request);
-			JsonObject exts = new WebExtensionsResolver(lang, module.root).loadExtensions();
-			model.put("extensions", exts.encodePrettily());
+			PreEncodedObject exts = new WebExtensionsResolver(lang, module.root).loadExtensions();
+			model.put("extensions", exts.buffer().toString());
 			model.put("jsLibs", generateJsRuntime(lang));
 			model.put("version", BMVersion.getVersion());
 			model.put("brandVersion", BMVersion.getVersionName());

@@ -51,12 +51,16 @@ import net.bluemind.user.api.User;
 
 public abstract class AbstractLmtpHandler {
 
-	public AbstractLmtpHandler() {
+	private final String origin;
 
+	public AbstractLmtpHandler(LmtpAddress recipient, LmtpAddress sender) {
+		String from = sender != null ? "_from_" + sender.getEmailAddress() : "";
+		String to = recipient != null ? "_to_" + recipient.getEmailAddress() : "";
+		this.origin = "bm-lmtpd" + from + to;
 	}
 
 	protected IServiceProvider provider() {
-		return ClientSideServiceProvider.getProvider(getCoreUrl(), Token.admin0());
+		return ClientSideServiceProvider.getProvider(getCoreUrl(), Token.admin0()).setOrigin(origin);
 	}
 
 	/**

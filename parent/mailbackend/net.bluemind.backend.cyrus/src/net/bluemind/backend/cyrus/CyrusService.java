@@ -110,8 +110,8 @@ public class CyrusService {
 		CyrusPartition cp = CyrusPartition.forServerAndDomain(backend, domainUid);
 		String partition = cp.name;
 
-		NCUtils.execNoOut(nodeClient, "mkdir /var/spool/cyrus/data/" + partition, 1, TimeUnit.SECONDS);
-		NCUtils.execNoOut(nodeClient, "chown cyrus:mail /var/spool/cyrus/data/" + partition, 1, TimeUnit.SECONDS);
+		NCUtils.execNoOut(nodeClient, "mkdir -p /var/spool/cyrus/data/" + partition + "/stage.", 1, TimeUnit.SECONDS);
+		NCUtils.execNoOut(nodeClient, "chown -R cyrus:mail /var/spool/cyrus/data/" + partition, 1, TimeUnit.SECONDS);
 		NCUtils.execNoOut(nodeClient, "mkdir /var/spool/cyrus/meta/" + partition, 1, TimeUnit.SECONDS);
 		NCUtils.execNoOut(nodeClient, "chown cyrus:mail /var/spool/cyrus/meta/" + partition, 1, TimeUnit.SECONDS);
 		NCUtils.execNoOut(nodeClient, "mkdir -p /var/spool/bm-hsm/cyrus-archives/" + partition, 1, TimeUnit.SECONDS);

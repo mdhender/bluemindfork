@@ -22,7 +22,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.domain.api,
  net.bluemind.cti.api,
  net.bluemind.network.topology,
- net.bluemind.network.topology.consumer
+ net.bluemind.network.topology.consumer,
+ net.bluemind.systemd.notify
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx

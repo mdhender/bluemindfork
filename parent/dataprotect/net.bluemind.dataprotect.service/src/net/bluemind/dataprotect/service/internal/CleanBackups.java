@@ -68,11 +68,10 @@ public class CleanBackups {
 		validParts.stream() //
 				.map(p -> p.server) //
 				.collect(Collectors.toSet()).stream() //
-				.map(s -> serverApi.getComplete(s)).forEach(s -> {
-					logger.info("Cleaning backups of server {}", s.value.address());
-					dpCtx.tool().newSession(new ToolConfig(s, null, null)).clean(validIds);
+				.map(s -> serverApi.getComplete(s)).filter(srv -> srv != null && srv.value != null).forEach(srv -> {
+					logger.info("Cleaning backups of server {}", srv.value.address());
+					dpCtx.tool().newSession(new ToolConfig(srv, null, null)).clean(validIds);
 				});
-
 	}
 
 	private void cleanDatabase() {

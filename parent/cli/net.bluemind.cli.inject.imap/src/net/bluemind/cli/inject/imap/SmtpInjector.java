@@ -25,7 +25,7 @@ import org.columba.ristretto.message.Address;
 import org.columba.ristretto.smtp.SMTPProtocol;
 import org.columba.ristretto.smtp.SMTPResponse;
 
-import net.bluemind.cli.inject.common.GOTMessageProducer;
+import net.bluemind.cli.inject.common.IMessageProducer;
 import net.bluemind.cli.inject.common.MailExchangeInjector;
 import net.bluemind.cli.inject.common.TargetMailbox;
 import net.bluemind.core.api.fault.ServerFault;
@@ -46,10 +46,6 @@ public class SmtpInjector extends MailExchangeInjector {
 
 		public boolean prepare() {
 			try {
-				prot.openPort();
-				prot.startTLS();
-				prot.auth("PLAIN", email, sid.toCharArray());
-				prot.helo(InetAddress.getLocalHost());
 				return true;
 			} catch (Exception e) {
 				throw new ServerFault(e);
@@ -64,10 +60,14 @@ public class SmtpInjector extends MailExchangeInjector {
 				return;
 			}
 			try {
+				prot.openPort();
+				prot.startTLS();
+				prot.auth("PLAIN", email, sid.toCharArray());
+				prot.helo(InetAddress.getLocalHost());
 				prot.mail(new Address(from.email));
 				prot.rcpt(new Address(email));
 				SMTPResponse sendResp = prot.data(new ByteArrayInputStream(emlContent));
-
+				prot.quit();
 				logger.debug("Added {} to {}", sendResp.getMessage(), email);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
@@ -77,8 +77,8 @@ public class SmtpInjector extends MailExchangeInjector {
 		}
 	}
 
-	public SmtpInjector(IServiceProvider provider, String domainUid) {
-		super(provider, domainUid, SmtpTargetMailbox::new, new GOTMessageProducer());
+	public SmtpInjector(IServiceProvider provider, String domainUid, IMessageProducer prod) {
+		super(provider, domainUid, SmtpTargetMailbox::new, prod);
 
 	}
 

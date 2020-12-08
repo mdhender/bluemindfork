@@ -216,15 +216,6 @@ public class MailboxRepairSupport implements IDirEntryRepairSupport {
 				return false;
 			}
 
-			if (mailbox.value.routing != Mailbox.Routing.internal) {
-				monitor.log(String.format("Mailbox %s not managed, nothing to do", mailboxToString(domainUid)));
-				monitor.end(true, null, null);
-
-				report.ok(identifier,
-						String.format("Mailbox %s not managed, nothing to do", mailboxToString(domainUid)));
-				return false;
-			}
-
 			monitor.end(true, null, null);
 			return true;
 		}

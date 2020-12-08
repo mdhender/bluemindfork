@@ -62,6 +62,7 @@ public class VEvent extends ICalendarElement {
 		copy.summary = this.summary;
 		copy.classification = this.classification;
 		copy.description = this.description;
+		copy.url = this.url;
 		copy.location = this.location;
 		copy.priority = this.priority;
 		if (null != this.alarm) {
@@ -110,7 +111,9 @@ public class VEvent extends ICalendarElement {
 		f.summary = "Private";
 		f.description = null;
 		f.location = null;
+		f.url = null;
 		f.attendees = Collections.emptyList();
+		f.attachments = Collections.emptyList();
 		f.organizer = null;
 		return f;
 	}

@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +38,7 @@ import com.google.common.io.ByteStreams;
 
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.cyrus.CyrusService;
+import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
 import net.bluemind.backend.cyrus.replication.testhelper.SyncServerHelper;
 import net.bluemind.backend.mail.api.IMailboxItems;
@@ -52,12 +54,14 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.api.IOfflineMgmt;
 import net.bluemind.core.container.api.IdRange;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.core.sessions.Sessions;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -80,6 +84,10 @@ public abstract class AbstractRollingReplicationTests {
 	protected String userUid;
 	protected ReplicationEventsRecorder rec;
 	protected CyrusReplicationHelper cyrusReplication;
+	protected String apiKey;
+
+	protected String partition;
+	protected String mboxRoot;
 
 	protected String uniqueUidPart() {
 		return System.currentTimeMillis() + "";
@@ -146,6 +154,15 @@ public abstract class AbstractRollingReplicationTests {
 
 		System.err.println("Start populate user " + userUid);
 		PopulateHelper.addUser(userUid, domainUid, Routing.internal);
+
+		this.apiKey = "sid";
+		SecurityContext secCtx = new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(),
+				domainUid);
+		Sessions.get().put(apiKey, secCtx);
+
+		CyrusPartition part = CyrusPartition.forServerAndDomain(cyrusReplication.server(), domainUid);
+		this.partition = part.name;
+		this.mboxRoot = "user." + userUid.replace('.', '^');
 	}
 
 	@FunctionalInterface
@@ -223,7 +240,7 @@ public abstract class AbstractRollingReplicationTests {
 	}
 
 	protected IServiceProvider provider() {
-		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", "sid");
+		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", apiKey);
 	}
 
 	@After

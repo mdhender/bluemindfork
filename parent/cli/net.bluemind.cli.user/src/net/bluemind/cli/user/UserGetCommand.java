@@ -25,8 +25,6 @@ import java.util.Set;
 
 import com.google.common.base.Strings;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -38,6 +36,8 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "get", description = "display users")
 public class UserGetCommand extends SingleOrDomainOperation {
@@ -55,14 +55,14 @@ public class UserGetCommand extends SingleOrDomainOperation {
 		}
 	}
 
-	@Option(name = "--display", description = "attributes to display separated by spaces can be :"
+	@Option(names = "--display", description = "attributes to display separated by spaces can be :"
 			+ "email, uid, extId, quota, aliases, familyNames, givenNames")
 	public String display = null;
 
-	@Option(name = "--archived", description = "only get archived users")
+	@Option(names = "--archived", description = "only get archived users")
 	public boolean archived = false;
 
-	@Option(name = "--hidden", description = "only get hidden users")
+	@Option(names = "--hidden", description = "only get hidden users")
 	public boolean hidden = false;
 
 	@Override

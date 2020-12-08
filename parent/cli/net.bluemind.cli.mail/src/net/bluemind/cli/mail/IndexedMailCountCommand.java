@@ -22,23 +22,23 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-import org.elasticsearch.action.admin.indices.stats.IndexStats;
+import org.elasticsearch.client.Client;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.PublicInfos;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "indexed", description = "Shows the number of indexed messages")
 public class IndexedMailCountCommand implements ICmdLet, Runnable {
 	private CliContext ctx;
 	DateTimeFormatter df = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
-	@Option(required = false, name = "--progress", description = "Value indicating the total mails waiting to be indexed")
+	@Option(required = false, names = "--progress", description = "Value indicating the total mails waiting to be indexed")
 	public Long progress;
 
 	@Override
@@ -46,22 +46,24 @@ public class IndexedMailCountCommand implements ICmdLet, Runnable {
 		long docs = 0;
 		PublicInfos infos = CliContext.get().adminApi().instance(IInstallation.class).getInfos();
 		ctx.info("infos: " + infos.softwareVersion + " " + infos.releaseName);
-		do {
-			IndexStats stat = ESearchActivator.getClient().admin().indices().prepareStats("mailspool_pending").get()
-					.getIndex("mailspool_pending");
-			docs = stat.getTotal().docs.getCount();
-			ctx.info("Found " + docs + " indexed mails");
-			if (progress != null) {
-				double perc = (double) docs / progress * 100;
-				ctx.info(df.format(LocalDateTime.now()) + ": Indexed " + docs + " of " + progress + " mails: "
-						+ Math.round(perc) + "%");
-				try {
-					Thread.sleep(60000);
-				} catch (InterruptedException e) {
-					System.exit(0);
+		try (Client esclient = ESearchActivator.getClient()) {
+			do {
+				docs = esclient.admin().indices().prepareStats("mailspool_pending_alias").get().getTotal().docs
+						.getCount();
+				ctx.info("Found " + docs + " indexed mails");
+				if (progress != null) {
+					double perc = (double) docs / progress * 100;
+					ctx.info(df.format(LocalDateTime.now()) + ": Indexed " + docs + " of " + progress + " mails: "
+							+ Math.round(perc) + "%");
+					try {
+						Thread.sleep(60000);
+					} catch (InterruptedException e) {
+						System.exit(0);
+					}
 				}
-			}
-		} while (progress != null && docs < progress);
+			} while (progress != null && docs < progress);
+		}
+
 	}
 
 	@Override

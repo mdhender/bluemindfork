@@ -28,10 +28,13 @@ create table IF NOT EXISTS t_mailbox_replica (
 	options varchar(32) not null,
 	sync_crc int8 not null,
 	quotaroot text,
+	unique_id text not null,
+	container_id int4 not null references t_container(id) ON UPDATE CASCADE  on delete cascade,
 	item_id int4 references t_container_item(id) on delete cascade UNIQUE
 );
 
 create index IF NOT EXISTS i_mailbox_replica on t_mailbox_replica (item_id);
+create index IF NOT EXISTS i_mailbox_replica_names on t_mailbox_replica (container_id, name);
 
 create table IF NOT EXISTS t_mailbox_record (
 	message_body_guid bytea not null, 
@@ -41,11 +44,50 @@ create table IF NOT EXISTS t_mailbox_record (
 	internal_date timestamp not null,
 	system_flags int4 not null,
 	other_flags text[],
+	container_id int4 not null references t_container(id) ON UPDATE CASCADE  on delete cascade,
 	item_id int4 references t_container_item(id) ON UPDATE CASCADE  on delete cascade
 );
 create index IF NOT EXISTS t_mailbox_record_imap_uid ON t_mailbox_record (imap_uid);
+create index IF NOT EXISTS i_mailbox_record_cid_imap_uid ON t_mailbox_record (container_id, imap_uid);
 create index IF NOT EXISTS t_mailbox_record_body_guid ON t_mailbox_record (message_body_guid);
 create index IF NOT EXISTS i_mailbox_record on t_mailbox_record (item_id);
+
+-- Expunged flag specialized index
+-- used in MailboxRecordStore.getExpiredItems()
+CREATE INDEX ON t_mailbox_record (last_updated)
+	INCLUDE (message_body_guid, item_id)
+	WHERE (((system_flags)::bit(32) & (1<<31)::bit(32)) = (1<<31)::bit(32));
+
+
+-- t_message_body orphan purge system
+-- see MessageBodyStore.deleteOrphanBodies()
+CREATE TABLE IF NOT EXISTS t_message_body_purge_queue (
+	message_body_guid bytea UNIQUE PRIMARY KEY not null,
+	created TIMESTAMP NOT NULL default now()
+);
+CREATE INDEX ON t_message_body_purge_queue (created, message_body_guid);
+
+CREATE OR REPLACE FUNCTION trigger_message_record_purge() RETURNS trigger AS
+$$
+BEGIN
+	IF TG_OP = 'DELETE' THEN
+		-- Find references to other t_mailbox_record
+		-- we want to add to the purge body queue unreferenced messages
+		PERFORM 1 FROM t_mailbox_record WHERE message_body_guid = OLD.message_body_guid;
+		IF NOT FOUND THEN
+			INSERT INTO t_message_body_purge_queue (message_body_guid) VALUES (OLD.message_body_guid)
+				ON CONFLICT(message_body_guid) DO NOTHING;
+		END IF;
+	ELSIF TG_OP = 'INSERT' THEN
+		-- delete from the purge queue if present
+		DELETE FROM t_message_body_purge_queue WHERE message_body_guid = NEW.message_body_guid;
+	END IF;
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_message_record_purge AFTER DELETE OR INSERT ON t_mailbox_record
+	FOR EACH ROW EXECUTE PROCEDURE trigger_message_record_purge();
 
 create table IF NOT EXISTS t_seen_overlay (
 	user_id text not null,

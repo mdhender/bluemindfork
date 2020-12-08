@@ -106,7 +106,8 @@ public class AddressBookService implements IInCoreAddressBook {
 
 		this.vcardStore = new VCardStore(dataSource, container);
 		this.eventProducer = new AddressBookEventProducer(container, securityContext, VertxPlatform.eventBus());
-		indexStore = new VCardIndexStore(esearchClient, container);
+
+		indexStore = new VCardIndexStore(esearchClient, container, DataSourceRouter.location(context, container.uid));
 		this.storeService = new VCardContainerStoreService(context, dataSource, securityContext, container, vcardStore,
 				indexStore);
 
@@ -312,6 +313,12 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
+	public List<ItemValue<VCard>> multipleGetById(List<Long> ids) throws ServerFault {
+		rbacManager.check(Verb.Read.name());
+		return storeService.getMultipleById(ids);
+	}
+
+	@Override
 	public ItemValue<VCardInfo> getInfo(String uid) throws ServerFault {
 		rbacManager.check(Verb.Read.name());
 		return adapt(storeService.get(uid, null));
@@ -360,7 +367,7 @@ public class AddressBookService implements IInCoreAddressBook {
 			Collections.sort(values, new Comparator<ItemValue<VCardInfo>>() {
 				@Override
 				public int compare(ItemValue<VCardInfo> o1, ItemValue<VCardInfo> o2) {
-					return o1.displayName.compareTo(o2.displayName);
+					return o1.displayName.compareToIgnoreCase(o2.displayName);
 				}
 			});
 		}

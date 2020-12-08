@@ -95,7 +95,8 @@ public class TagEventConsumer implements ITagEventConsumer {
 
 			VCardContainerStoreService vcardContainerStore = new VCardContainerStoreService(context, dsCards,
 					SecurityContext.SYSTEM, currentContainer, new VCardStore(dsCards, currentContainer),
-					new VCardIndexStore(ESearchActivator.getClient(), currentContainer));
+					new VCardIndexStore(ESearchActivator.getClient(), currentContainer,
+							DataSourceRouter.location(context, currentContainer.uid)));
 
 			try {
 				vcardContainerStore.touch(itemUri.itemUid);

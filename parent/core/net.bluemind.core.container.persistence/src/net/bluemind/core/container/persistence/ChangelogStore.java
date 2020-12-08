@@ -74,7 +74,7 @@ public class ChangelogStore extends JdbcAbstractStore {
 			return index;
 		}
 
-	};
+	}
 
 	private class ChangelogEntryPopulator implements EntityPopulator<ChangeLogEntry> {
 

@@ -17,11 +17,8 @@
   */
 package net.bluemind.cli.sysconf;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,14 +30,14 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.system.api.ISystemConfiguration;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "mset", description = "Set values by using a file")
 public class SysconfMultipleUpdatesCommand implements ICmdLet, Runnable {
@@ -68,22 +65,21 @@ public class SysconfMultipleUpdatesCommand implements ICmdLet, Runnable {
 		return this;
 	}
 
-	@Arguments(required = true, description = "a Json file which contains one or multiple key-value pairs")
-	public String file = null;
+	@Parameters(paramLabel = "<file>", description = "a Json file which contains one or multiple key-value pairs")
+	public Path file = null;
 
-	@Option(required = true, name = "--format", description = "a Json or Properties file which contains one or multiple key-value pairs. Format value : <json|properties>")
+	@Option(required = true, names = "--format", description = "a Json or Properties file which contains one or multiple key-value pairs. Format value : <json|properties>")
 	public String format = null;
 
 	@Override
 	public void run() {
 		ISystemConfiguration configurationApi = ctx.adminApi().instance(ISystemConfiguration.class);
-		Path filepath = Paths.get(file);
-		if (Files.isReadable(filepath)) {
-			Map<String, String> map = new HashMap<>();
+		if (Files.isReadable(file)) {
+			Map<String, String> map;
 			if (format.equalsIgnoreCase("json")) {
-				map = jsonFileToMap(filepath);
+				map = jsonFileToMap(file);
 			} else if (format.equalsIgnoreCase("properties")) {
-				map = propertiesFileToMap(filepath);
+				map = propertiesFileToMap(file);
 			} else {
 				ctx.error(String.format("format unrecognized: %s", format));
 				return;

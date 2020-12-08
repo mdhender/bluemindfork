@@ -16,8 +16,13 @@
     </triggeringPolicy>
   </appender>
 
-  <logger name="org.apache.sshd.server" level="WARN" />
+  <appender name="ASYNC_ALL" class="ch.qos.logback.classic.AsyncAppender">
+    <queueSize>500</queueSize>
+    <discardingThreshold>0</discardingThreshold>
+    <appender-ref ref="R" />
+  </appender>  
+
   <root level="INFO">
-    <appender-ref ref="R"/>
+    <appender-ref ref="ASYNC_ALL"/>
   </root>
 </configuration>

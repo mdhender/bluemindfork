@@ -25,13 +25,13 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import picocli.CommandLine.Option;
 
 public abstract class AbstractNodeOperation implements ICmdLet, Runnable {
 
@@ -43,16 +43,16 @@ public abstract class AbstractNodeOperation implements ICmdLet, Runnable {
 
 	protected CliContext ctx;
 
-	@Option(name = "--tag", description = "select servers tagged X")
+	@Option(names = "--tag", description = "select servers tagged X")
 	public String tag;
 
-	@Option(name = "--uid", description = "select server with given uid")
+	@Option(names = "--uid", description = "select server with given uid")
 	public String uid;
 
-	@Option(name = "--addr", description = "select server with given address")
+	@Option(names = "--addr", description = "select server with given address")
 	public String address;
 
-	@Option(name = "--workers", description = "run with X workers")
+	@Option(names = "--workers", description = "run with X workers")
 	public int workers = 1;
 
 	@Override

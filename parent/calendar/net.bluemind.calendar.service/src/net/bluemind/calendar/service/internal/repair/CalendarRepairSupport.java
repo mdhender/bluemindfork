@@ -165,10 +165,11 @@ public class CalendarRepairSupport {
 		public final VEventContainerStoreService vStore;
 		public final VEventIndexStore indexStore;
 
-		public RepairContext(Container container, VEventContainerStoreService vStore) {
+		public RepairContext(BmContext context, Container container, VEventContainerStoreService vStore) {
 			this.container = container;
 			this.vStore = vStore;
-			this.indexStore = new VEventIndexStore(ESearchActivator.getClient(), container);
+			this.indexStore = new VEventIndexStore(ESearchActivator.getClient(), container,
+					DataSourceRouter.location(context, container.uid));
 		}
 
 		public static RepairContext create(BmContext context, String calUid) {
@@ -177,7 +178,7 @@ public class CalendarRepairSupport {
 			Container container = cStore.doOrFail(() -> cStore.get(calUid));
 			VEventContainerStoreService vStore = new VEventContainerStoreService(context, ds,
 					context.getSecurityContext(), container);
-			RepairContext ctx = new RepairContext(container, vStore);
+			RepairContext ctx = new RepairContext(context, container, vStore);
 
 			return ctx;
 		}

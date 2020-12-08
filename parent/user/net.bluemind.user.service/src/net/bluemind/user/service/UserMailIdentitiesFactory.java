@@ -19,6 +19,7 @@
 package net.bluemind.user.service;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -29,11 +30,14 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.user.api.IUserMailIdentities;
+import net.bluemind.user.hook.identity.IUserMailIdentityHook;
 import net.bluemind.user.service.internal.UserMailIdentities;
 
 public class UserMailIdentitiesFactory
 		implements ServerSideServiceProvider.IServerSideServiceFactory<IUserMailIdentities> {
+	private static final List<IUserMailIdentityHook> identityHooks = getHooks();
 
 	@Override
 	public Class<IUserMailIdentities> factoryClass() {
@@ -41,14 +45,14 @@ public class UserMailIdentitiesFactory
 	}
 
 	@Override
-	public IUserMailIdentities instance(BmContext context, String... params) throws ServerFault {
+	public IUserMailIdentities instance(BmContext context, String... params) {
 		if (params == null || params.length < 2) {
 			throw new ServerFault("wrong number of instance parameters");
 		}
 		return getService(context, params[0], params[1]);
 	}
 
-	private IUserMailIdentities getService(BmContext context, String domainUid, String userUid) throws ServerFault {
+	private IUserMailIdentities getService(BmContext context, String domainUid, String userUid) {
 
 		ContainerStore containerStore = new ContainerStore(context, context.getDataSource(),
 				context.getSecurityContext());
@@ -69,7 +73,12 @@ public class UserMailIdentitiesFactory
 			throw new ServerFault("domain " + domainUid + " not found", ErrorCode.NOT_FOUND);
 		}
 
-		return new UserMailIdentities(context, domainValue, container, userUid);
+		return new UserMailIdentities(context, domainValue, container, userUid, identityHooks);
+	}
+
+	private static List<IUserMailIdentityHook> getHooks() {
+		RunnableExtensionLoader<IUserMailIdentityHook> loader = new RunnableExtensionLoader<>();
+		return loader.loadExtensionsWithPriority("net.bluemind.user.hook", "usermailidentity", "hook", "impl");
 	}
 
 }

@@ -28,7 +28,7 @@ import net.bluemind.eas.dto.sync.CollectionId;
 public final class CollectionItem {
 
 	public final CollectionId collectionId;
-	public final String itemId;
+	public final long itemId;
 
 	/**
 	 * Creates a collection item from the unique identifier of an item in a
@@ -44,23 +44,23 @@ public final class CollectionItem {
 		if (idx <= 0) {
 			throw new RuntimeException("Invalid server id: '" + colAndServer + "'");
 		}
-		return of(colAndServer.substring(0, idx), colAndServer.substring(idx + 1));
+		return of(colAndServer.substring(0, idx), Long.valueOf(colAndServer.substring(idx + 1)));
 	}
 
 	public String toString() {
-		return String.format("%s:%s", collectionId.getValue(), itemId);
+		return String.format("%s:%d", collectionId.getValue(), itemId);
 	}
 
-	private CollectionItem(CollectionId collectionId, String itemId) {
+	private CollectionItem(CollectionId collectionId, long itemId) {
 		this.collectionId = collectionId;
 		this.itemId = itemId;
 	}
 
-	public static CollectionItem of(String collectionId, String itemId) {
+	public static CollectionItem of(String collectionId, long itemId) {
 		return of(CollectionId.of(collectionId), itemId);
 	}
 
-	public static CollectionItem of(CollectionId collectionId, String itemId) {
+	public static CollectionItem of(CollectionId collectionId, long itemId) {
 		return new CollectionItem(collectionId, itemId);
 	}
 
@@ -69,7 +69,7 @@ public final class CollectionItem {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((collectionId == null) ? 0 : collectionId.hashCode());
-		result = prime * result + ((itemId == null) ? 0 : itemId.hashCode());
+		result = prime * result + (int) (itemId ^ (itemId >>> 32));
 		return result;
 	}
 
@@ -87,10 +87,7 @@ public final class CollectionItem {
 				return false;
 		} else if (!collectionId.equals(other.collectionId))
 			return false;
-		if (itemId == null) {
-			if (other.itemId != null)
-				return false;
-		} else if (!itemId.equals(other.itemId))
+		if (itemId != other.itemId)
 			return false;
 		return true;
 	}

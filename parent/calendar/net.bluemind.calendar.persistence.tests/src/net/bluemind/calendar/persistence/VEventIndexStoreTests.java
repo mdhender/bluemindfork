@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -50,6 +51,7 @@ import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
@@ -81,8 +83,7 @@ public class VEventIndexStoreTests {
 
 		client = ElasticsearchTestHelper.getInstance().getClient();
 
-		indexStore = new VEventIndexStore(client, container);
-
+		indexStore = new VEventIndexStore(client, container, null);
 	}
 
 	@After
@@ -94,7 +95,7 @@ public class VEventIndexStoreTests {
 	public void testCreate() throws SQLException {
 		ItemValue<VEventSeries> event = defaultVEvent();
 
-		indexStore.create(event.uid, event.value);
+		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
 		indexStore.refresh();
 
 		SearchResponse resp = client.prepareSearch(VEventIndexStore.VEVENT_INDEX).setTypes(VEventIndexStore.VEVENT_TYPE)
@@ -121,7 +122,9 @@ public class VEventIndexStoreTests {
 	public void testUpdate() throws SQLException {
 		ItemValue<VEventSeries> event = defaultVEvent();
 
-		indexStore.create(event.uid, event.value);
+		Item item = Item.create(event.uid, System.nanoTime());
+
+		indexStore.create(item, event.value);
 		indexStore.refresh();
 
 		SearchResponse resp = client.prepareSearch(VEventIndexStore.VEVENT_INDEX).setTypes(VEventIndexStore.VEVENT_TYPE)
@@ -134,7 +137,7 @@ public class VEventIndexStoreTests {
 
 		String updatedSummary = "updated" + System.currentTimeMillis();
 		event.value.main.summary = updatedSummary;
-		indexStore.update(event.uid, event.value);
+		indexStore.update(item, event.value);
 		indexStore.refresh();
 
 		resp = client.prepareSearch(VEventIndexStore.VEVENT_INDEX).setTypes(VEventIndexStore.VEVENT_TYPE)
@@ -158,7 +161,8 @@ public class VEventIndexStoreTests {
 	public void testDelete() throws SQLException {
 		ItemValue<VEventSeries> event = defaultVEvent();
 
-		indexStore.create(event.uid, event.value);
+		Item item = Item.create(event.uid, System.nanoTime());
+		indexStore.create(item, event.value);
 		indexStore.refresh();
 
 		SearchResponse resp = client.prepareSearch(VEventIndexStore.VEVENT_INDEX).setTypes(VEventIndexStore.VEVENT_TYPE)
@@ -168,7 +172,7 @@ public class VEventIndexStoreTests {
 		SearchHit hit = resp.getHits().getAt(0);
 		assertNotNull(hit);
 
-		indexStore.delete(event.uid);
+		indexStore.delete(item.id);
 		indexStore.refresh();
 
 		resp = client.prepareSearch(VEventIndexStore.VEVENT_INDEX).setTypes(VEventIndexStore.VEVENT_TYPE)
@@ -180,12 +184,12 @@ public class VEventIndexStoreTests {
 	public void testDeleteAll() throws SQLException {
 		ItemValue<VEventSeries> event = defaultVEvent();
 
-		indexStore.create(event.uid, event.value);
+		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
 		indexStore.refresh();
 
 		ItemValue<VEventSeries> event2 = defaultVEvent();
 
-		indexStore.create(event2.uid, event2.value);
+		indexStore.create(Item.create(event2.uid, System.nanoTime()), event2.value);
 		indexStore.refresh();
 
 		SearchResponse resp = client.prepareSearch(VEventIndexStore.VEVENT_INDEX).setTypes(VEventIndexStore.VEVENT_TYPE)
@@ -205,7 +209,7 @@ public class VEventIndexStoreTests {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		event.value.main.summary = "yay";
 
-		indexStore.create(event.uid, event.value);
+		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
 		indexStore.refresh();
 
 		ListResult<String> res = indexStore.search(VEventQuery.create("value.summary:yay"));
@@ -218,11 +222,11 @@ public class VEventIndexStoreTests {
 
 		ItemValue<VEventSeries> event2 = defaultVEvent();
 
-		indexStore.create(event2.uid, event2.value);
+		indexStore.create(Item.create(event2.uid, System.nanoTime()), event2.value);
 
 		ItemValue<VEventSeries> event3 = defaultVEvent();
 		event3.value.main.classification = Classification.Private;
-		indexStore.create(event3.uid, event3.value);
+		indexStore.create(Item.create(event3.uid, System.nanoTime()), event3.value);
 
 		indexStore.refresh();
 
@@ -244,7 +248,7 @@ public class VEventIndexStoreTests {
 
 		event.value.main.organizer = new VEvent.Organizer("David Phan", "david@bm.lan");
 
-		indexStore.create(event.uid, event.value);
+		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
 		indexStore.refresh();
 
 		ListResult<String> res = indexStore.search(VEventQuery.create("value.organizer.mailto:david@bm.lan"));
@@ -266,7 +270,7 @@ public class VEventIndexStoreTests {
 		event.value.main.summary = "testNullOrganizer";
 		event.value.main.organizer = null;
 
-		indexStore.create(event.uid, event.value);
+		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
 		indexStore.refresh();
 
 		ListResult<String> res = indexStore.search(VEventQuery.create("value.organizer.mailto:John"));
@@ -282,7 +286,7 @@ public class VEventIndexStoreTests {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		event.value.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(1983, 2, 13, 0, 0, 0, 0, ZoneId.of("UTC")),
 				Precision.Date);
-		indexStore.create(event.uid, event.value);
+		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
 		indexStore.refresh();
 
 		ZonedDateTime dateMin = ZonedDateTime.of(1983, 2, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
@@ -298,7 +302,7 @@ public class VEventIndexStoreTests {
 		ItemValue<VEventSeries> event2 = defaultVEvent();
 		event2.value.main.dtstart = BmDateTimeWrapper
 				.create(ZonedDateTime.of(1986, 6, 16, 0, 0, 0, 0, ZoneId.of("UTC")), Precision.Date);
-		indexStore.create(event2.uid, event2.value);
+		indexStore.create(Item.create(event2.uid, System.nanoTime()), event2.value);
 		indexStore.refresh();
 
 		res = indexStore.search(query);
@@ -309,7 +313,7 @@ public class VEventIndexStoreTests {
 		ItemValue<VEventSeries> event3 = defaultVEvent();
 		event3.value.main.dtstart = BmDateTimeWrapper
 				.create(ZonedDateTime.of(1983, 2, 22, 0, 0, 0, 0, ZoneId.of("UTC")), Precision.Date);
-		indexStore.create(event3.uid, event3.value);
+		indexStore.create(Item.create(event3.uid, System.nanoTime()), event3.value);
 		indexStore.refresh();
 
 		res = indexStore.search(query);
@@ -318,7 +322,7 @@ public class VEventIndexStoreTests {
 		// create an event at dateEnd (excluded from range)
 		ItemValue<VEventSeries> event4 = defaultVEvent();
 		event4.value.main.dtstart = BmDateTimeWrapper.create(dateMax, Precision.Date);
-		indexStore.create(event4.uid, event4.value);
+		indexStore.create(Item.create(event4.uid, System.nanoTime()), event4.value);
 		indexStore.refresh();
 
 		res = indexStore.search(query);
@@ -327,7 +331,7 @@ public class VEventIndexStoreTests {
 		// create an event at dateBegin (included in range)
 		ItemValue<VEventSeries> event5 = defaultVEvent();
 		event5.value.main.dtstart = BmDateTimeWrapper.create(dateMin, Precision.Date);
-		indexStore.create(event5.uid, event5.value);
+		indexStore.create(Item.create(event5.uid, System.nanoTime()), event5.value);
 		indexStore.refresh();
 
 		res = indexStore.search(query);
@@ -366,7 +370,7 @@ public class VEventIndexStoreTests {
 	@Test
 	public void testSearchByAttendee() throws SQLException, InterruptedException, ExecutionException {
 		ItemValue<VEventSeries> event = defaultVEvent();
-		indexStore.create(event.uid, event.value);
+		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
 
 		GetIndexTemplatesResponse ti = client.admin().indices().prepareGetTemplates("event").execute().actionGet();
 		System.out.println(ti.getIndexTemplates());
@@ -374,7 +378,7 @@ public class VEventIndexStoreTests {
 		System.out.println(resp.getMappings().get("event").get("vevent").source());
 		ItemValue<VEventSeries> event2 = defaultVEvent();
 		event2.value.main.attendees.get(1).partStatus = ParticipationStatus.Accepted;
-		indexStore.create(event2.uid, event2.value);
+		indexStore.create(Item.create(event2.uid, System.nanoTime()), event2.value);
 
 		indexStore.refresh();
 
@@ -426,7 +430,7 @@ public class VEventIndexStoreTests {
 		rrule.byDay = weekDay;
 
 		event.value.main.rrule = rrule;
-		indexStore.create(event.uid, event.value);
+		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
 		indexStore.refresh();
 
 		ZonedDateTime dateMin = ZonedDateTime.of(2014, 5, 26, 0, 0, 0, 0, ZoneId.of("UTC"));
@@ -451,7 +455,7 @@ public class VEventIndexStoreTests {
 
 		event.value.main.rrule = rrule;
 
-		indexStore.create(event.uid, event.value);
+		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
 		indexStore.refresh();
 
 		ListResult<String> res = indexStore
@@ -521,12 +525,76 @@ public class VEventIndexStoreTests {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		event.value.main.summary = "kamoulox";
 
-		indexStore.create(event.uid, event.value);
+		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
 		indexStore.refresh();
 
 		ListResult<String> res = indexStore.search(VEventQuery.create("value.summary:kam"));
 
 		assertEquals(1, res.values.size());
+	}
+
+	@Test
+	public void testSearchSentence() {
+		ItemValue<VEventSeries> event = defaultVEvent();
+		event.value.main.summary = "comité de direction";
+		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
+
+		ItemValue<VEventSeries> event2 = defaultVEvent();
+		event2.value.main.summary = "COMITE DE DIRECTION";
+		indexStore.create(Item.create(event2.uid, System.nanoTime()), event2.value);
+
+		ItemValue<VEventSeries> event3 = defaultVEvent();
+		event3.value.main.summary = "trop de résultats";
+		indexStore.create(Item.create(event3.uid, System.nanoTime()), event3.value);
+
+		indexStore.refresh();
+
+		ListResult<String> res = indexStore.search(VEventQuery.create("value.summary:comité de direction"));
+		assertEquals(2, res.values.size());
+		assertFalse(res.values.stream().filter(uid -> uid.equals(event3.uid)).findFirst().isPresent());
+
+		res = indexStore.search(VEventQuery.create("value.summary:comité"));
+		assertEquals(2, res.values.size());
+		assertFalse(res.values.stream().filter(uid -> uid.equals(event3.uid)).findFirst().isPresent());
+
+		res = indexStore.search(VEventQuery.create("value.summary:de"));
+		assertEquals(3, res.values.size());
+	}
+
+	@Test
+	public void testUpdates() {
+		ItemValue<VEventSeries> event = defaultVEvent();
+		event.internalId = System.nanoTime();
+		event.value.main.summary = "coucou";
+		indexStore.create(Item.create(event.uid, event.internalId), event.value);
+
+		ItemValue<VEventSeries> event2 = defaultVEvent();
+		event2.internalId = System.nanoTime();
+		event2.value.main.summary = "yeah";
+		indexStore.create(Item.create(event2.uid, event2.internalId), event2.value);
+
+		indexStore.refresh();
+		ListResult<String> res = indexStore.search(VEventQuery.create("value.summary:coucou"));
+		assertEquals(1, res.total);
+
+		res = indexStore.search(VEventQuery.create("value.summary:yeah"));
+		assertEquals(1, res.total);
+
+		event.value.main.summary = "yata";
+		event2.value.main.summary = "yolo";
+
+		indexStore.updates(Arrays.asList(event, event2));
+		indexStore.refresh();
+
+		res = indexStore.search(VEventQuery.create("value.summary:coucou"));
+		assertEquals(0, res.total);
+		res = indexStore.search(VEventQuery.create("value.summary:yata"));
+		assertEquals(1, res.total);
+
+		res = indexStore.search(VEventQuery.create("value.summary:yeah"));
+		assertEquals(0, res.total);
+		res = indexStore.search(VEventQuery.create("value.summary:yolo"));
+		assertEquals(1, res.total);
 	}
 
 }

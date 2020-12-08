@@ -27,9 +27,6 @@ import com.github.freva.asciitable.AsciiTable;
 import com.github.freva.asciitable.Column;
 import com.github.freva.asciitable.HorizontalAlign;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.cli.cmd.api.CliContext;
@@ -39,6 +36,9 @@ import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.filehosting.api.FileHostingItem;
 import net.bluemind.filehosting.api.FileType;
 import net.bluemind.filehosting.api.IFileHosting;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "list", description = "List content of the filehosting attachment folder")
 public class FileHostingListCommand implements ICmdLet, Runnable {
@@ -53,10 +53,10 @@ public class FileHostingListCommand implements ICmdLet, Runnable {
 		return this;
 	}
 
-	@Arguments(required = true, description = "user login")
+	@Parameters(paramLabel = "<login>", description = "user login")
 	public String login;
 
-	@Option(name = "--folder", required = false, description = "folder path")
+	@Option(names = "--folder", required = false, description = "folder path")
 	public String folder;
 
 	@Override

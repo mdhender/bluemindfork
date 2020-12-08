@@ -68,7 +68,7 @@ public class BodyMailLoader extends CoreConnect {
 		this.folder = folder;
 	}
 
-	public InputStream fetchMimeInputStream(int id) {
+	public InputStream fetchMimeInputStream(long id) {
 
 		IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 		ItemValue<MailboxItem> item = service.getCompleteById(id);
@@ -93,7 +93,7 @@ public class BodyMailLoader extends CoreConnect {
 
 	}
 
-	public AirSyncBaseResponse fetch(int id, BodyOptions options) {
+	public AirSyncBaseResponse fetch(long id, BodyOptions options) {
 		IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 		ItemValue<MailboxItem> item = service.getCompleteById(id);
 		if (item == null) {

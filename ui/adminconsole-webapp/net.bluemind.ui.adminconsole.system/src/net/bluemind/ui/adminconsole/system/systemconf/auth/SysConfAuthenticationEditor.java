@@ -46,7 +46,6 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.system.api.SysConfKeys;
-import net.bluemind.ui.adminconsole.base.DomainsHelper;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
 import net.bluemind.ui.adminconsole.system.systemconf.SysConfModel;
 import net.bluemind.ui.adminconsole.system.systemconf.auth.l10n.SysConfAuthConstants;
@@ -253,7 +252,7 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 
 		for (ItemValue<Domain> domain : domains) {
 			if (!"global.virt".equals(domain.value.name)) {
-				krbDomain.addItem(DomainsHelper.getDisplayName(domain.value), domain.value.name);
+				krbDomain.addItem(domain.value.defaultAlias, domain.value.name);
 
 				expandDomainAlias(domainList, domain);
 				expandDomainAlias(casDomain, domain);
@@ -332,7 +331,7 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 
 	public static native JSONObject getJsObject(String responseText)
 	/*-{
-    return JSON.parse(responseText);
+	return JSON.parse(responseText);
 	}-*/;
 
 	private static class ValidationResult {

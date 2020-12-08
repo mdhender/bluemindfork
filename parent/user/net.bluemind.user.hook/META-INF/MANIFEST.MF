@@ -5,7 +5,8 @@ Bundle-SymbolicName: net.bluemind.user.hook;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: net.bluemind.user.hook,
- net.bluemind.user.hook.passwordvalidator
+ net.bluemind.user.hook.passwordvalidator,
+ net.bluemind.user.hook.identity
 Require-Bundle: net.bluemind.lib.vertx;bundle-version="1.0.0",
  slf4j.api,
  net.bluemind.eclipse.common;bundle-version="1.0.0",

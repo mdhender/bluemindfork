@@ -23,23 +23,20 @@ import net.bluemind.core.jdbc.JdbcAbstractStore.EntityPopulator;
 public class RecordID {
 
 	public long imapUid;
-	public long modSeq;
-	public String itemUid;
+	public long itemId;
 
 	public static final Creator<RecordID> CREATOR = con -> new RecordID();
 	public static final EntityPopulator<RecordID> POPULATOR = (rs, index, value) -> {
 		value.imapUid = rs.getLong(index++);
-		value.modSeq = rs.getLong(index++);
-		value.itemUid = rs.getString(index++);
+		value.itemId = rs.getLong(index++);
 		return index;
 	};
 
 	private RecordID() {
 	}
 
-	public RecordID(long imapUid, long modSeq) {
+	public RecordID(long imapUid) {
 		this.imapUid = imapUid;
-		this.modSeq = modSeq;
 	}
 
 	@Override
@@ -47,7 +44,6 @@ public class RecordID {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (int) (imapUid ^ (imapUid >>> 32));
-		result = prime * result + (int) (modSeq ^ (modSeq >>> 32));
 		return result;
 	}
 
@@ -60,16 +56,12 @@ public class RecordID {
 		if (getClass() != obj.getClass())
 			return false;
 		RecordID other = (RecordID) obj;
-		if (imapUid != other.imapUid)
-			return false;
-		if (modSeq != other.modSeq)
-			return false;
-		return true;
+		return imapUid == other.imapUid;
 	}
 
 	@Override
 	public String toString() {
-		return "RecordID{imap: " + imapUid + ", item: " + itemUid + "}";
+		return "RecordID{imap: " + imapUid + ", item: " + itemId + "}";
 	}
 
 }

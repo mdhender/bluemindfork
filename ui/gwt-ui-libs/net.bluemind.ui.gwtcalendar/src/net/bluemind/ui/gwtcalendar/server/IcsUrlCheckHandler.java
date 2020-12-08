@@ -19,173 +19,159 @@
  */
 package net.bluemind.ui.gwtcalendar.server;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Files;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.asynchttpclient.AsyncCompletionHandlerBase;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig.Builder;
+import org.asynchttpclient.HttpResponseBodyPart;
+import org.asynchttpclient.HttpResponseStatus;
+import org.asynchttpclient.Response;
+import org.asynchttpclient.uri.Uri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.parsetools.RecordParser;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.SharedMap;
+import net.bluemind.proxy.support.AHCWithProxy;
 import net.bluemind.webmodule.server.NeedVertx;
-import net.fortuna.ical4j.data.CalendarBuilder;
-import net.fortuna.ical4j.data.CalendarParser;
-import net.fortuna.ical4j.data.CalendarParserFactory;
 
 public class IcsUrlCheckHandler implements Handler<HttpServerRequest>, NeedVertx {
 	private static final Logger logger = LoggerFactory.getLogger(IcsUrlCheckHandler.class);
+
+	private final AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
+
+	private final Builder ahcDefaultConfig = AHCWithProxy.defaultConfig()
+			.setRequestTimeout((int) TimeUnit.MILLISECONDS.convert(3, TimeUnit.SECONDS))
+			.setPooledConnectionIdleTimeout((int) TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS));
+
 	private Vertx vertx;
+
+	private class CalendarNameHandler extends AsyncCompletionHandlerBase {
+		private final CompletableFuture<String> calName = new CompletableFuture<>();
+
+		public CalendarNameHandler(Promise<String> calNamePromise, HttpServerRequest request, String url) {
+			calName.whenComplete((calName, e) -> complete(calNamePromise, calName, e));
+		}
+
+		private void complete(Promise<String> calNamePromise, String calName, Throwable e) {
+			if (e != null) {
+				calNamePromise.fail(e);
+				return;
+			}
+
+			calNamePromise.complete(calName);
+		}
+
+		@Override
+		public State onStatusReceived(HttpResponseStatus status) throws Exception {
+			if (status.getStatusCode() >= 400) {
+				calName.completeExceptionally(
+						new Exception(String.format("%s (%d)", status.getStatusText(), status.getStatusCode())));
+				return State.ABORT;
+			}
+
+			return super.onStatusReceived(status);
+		}
+
+		RecordParser lineSplit = RecordParser.newDelimited("\n", event -> {
+			String line = event.toString();
+			if (line.startsWith("X-WR-CALNAME")) {
+				calName.complete(line.substring(line.indexOf(':') + 1).replace("\r", "").trim());
+			}
+		});
+
+		@Override
+		public State onBodyPartReceived(HttpResponseBodyPart content) throws Exception {
+			lineSplit.handle(Buffer.buffer(content.getBodyPartBytes()));
+			return calName.isDone() ? State.ABORT : State.CONTINUE;
+		}
+
+		@Override
+		public void onThrowable(Throwable t) {
+			calName.completeExceptionally(t);
+		}
+
+		@Override
+		public Response onCompleted(Response response) throws Exception {
+			if (!calName.isDone()) {
+				calName.complete(null);
+			}
+
+			return response;
+		}
+	}
+
+	public IcsUrlCheckHandler() {
+		MQ.init().thenAccept(v -> sysconf.set(MQ.sharedMap("system.configuration")));
+	}
 
 	@Override
 	public void handle(final HttpServerRequest request) {
 		String url = request.params().get("url");
-		connect(request, url);
-	}
 
-	@SuppressWarnings("deprecation")
-	private void connect(final HttpServerRequest request, final String url) {
-		URL urlp;
 		try {
-			urlp = new URL(url);
-		} catch (MalformedURLException e) {
-
-			errorHandler(request, null, null).handle(e);
+			Uri.create(url);
+		} catch (Throwable mue) {
+			errorHandler(request, url, mue);
 			return;
 		}
 
-		HttpClientOptions opts = new HttpClientOptions().setDefaultHost(urlp.getHost()).setKeepAlive(false)
-				.setConnectTimeout(3000);
-		if (urlp.getPort() != -1) {
-			opts.setDefaultPort(urlp.getPort());
-		}
-		if (urlp.getProtocol().equals("https")) {
-			opts.setSsl(true);
-			opts.setTrustAll(true);
-			if (urlp.getPort() == -1) {
-				opts.setDefaultPort(443);
-			}
-		}
-		String fullpath = urlp.getPath();
-		if (urlp.getQuery() != null) {
-			fullpath += "?" + urlp.getQuery();
-		}
+		vertx.executeBlocking((Promise<String> calNamePromise) -> AHCWithProxy
+				.build(ahcDefaultConfig,
+						Optional.ofNullable(sysconf.get()).map(SharedMap::asMap).orElse(Collections.emptyMap()))
+				.prepareGet(url)
+				.addHeader("User-Agent",
+						"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0.2 Safari/604.4.7")
+				.execute(new CalendarNameHandler(calNamePromise, request, url)), false,
+				calNameAsync -> completeHandler(request, url, calNameAsync));
 
-		HttpClient client = vertx.createHttpClient(opts);
-
-		final String fetchUrl = fullpath;
-		File tmpFile = new File(System.getProperty("java.io.tmpdir"), System.currentTimeMillis() + ".ics");
-
-		client.getNow(fetchUrl, response -> {
-			logger.info("handler ret url {}", url);
-			if (response.statusCode() == 301) {
-				String location = response.headers().get("Location");
-				logger.debug("ICS url {} has moved permanently to {}", url, location);
-				client.close();
-				connect(request, location);
-			} else {
-				if (response.statusCode() > 301) {
-					logger.debug("Cannot verify ICS url {}:{}:{}", fetchUrl, response.statusCode(),
-							response.statusMessage());
-					request.response().setStatusCode(500);
-					endRequest(request, client);
-				} else {
-					FileWriter out = null;
-					try {
-						out = new FileWriter(tmpFile);
-					} catch (IOException e1) {
-					}
-					BufferedWriter writer = new BufferedWriter(out);
-					request.response().headers().add("X-Location", url);
-					request.response().setStatusCode(200);
-					response.exceptionHandler(errorHandler(request, writer, tmpFile));
-					response.endHandler(h -> {
-						try {
-							writer.close();
-						} catch (IOException e) {
-						}
-						CompletableFuture<Optional<String>> calName = parseCalName(tmpFile);
-						calName.thenAccept(cal -> {
-							if (cal.isPresent()) {
-								request.response().end(cal.get());
-								client.close();
-							} else {
-								endRequest(request, client);
-							}
-							tmpFile.delete();
-						});
-					});
-					response.handler(h -> {
-						try {
-							writer.append(h.toString());
-						} catch (IOException e) {
-
-						}
-					});
-				}
-			}
-		});
 	}
 
-	private void endRequest(final HttpServerRequest request, HttpClient client) {
+	private void completeHandler(HttpServerRequest request, String url, AsyncResult<String> calNameAsync) {
+		if (calNameAsync.failed()) {
+			errorHandler(request, url, calNameAsync.cause());
+			return;
+		}
+
+		logger.info("Found calendar name '{}' at {}", calNameAsync.result(), url);
+		request.response().headers().add("X-Location", url);
+		request.response().setStatusCode(200);
+
+		if (calNameAsync.result() != null) {
+			request.response().end(calNameAsync.result());
+			return;
+		}
+
 		request.response().end();
-		client.close();
 	}
 
-	private CompletableFuture<Optional<String>> parseCalName(File tmpFile) {
-		return CompletableFuture.supplyAsync(() -> {
-			CalendarParser parser = CalendarParserFactory.getInstance().createParser();
-			CalendarBuilder builder = new CalendarBuilder(parser);
-			try (BufferedReader reader = new BufferedReader(
-					new InputStreamReader(Files.newInputStream(tmpFile.toPath())))) {
-				// X-WR-CALNAME
-				String line;
-				while ((line = reader.readLine()) != null) {
-					if (line.contains("X-WR-CALNAME")) {
-						return Optional.of(line.substring(line.indexOf(":") + 1).trim());
-					}
-				}
-			} catch (Exception e) {
-				logger.warn("Cannot parse calendar ics", e);
-			}
-			return Optional.empty();
-		});
+	private void errorHandler(HttpServerRequest request, String url, Throwable e) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Error during URL checking: {}", url, e);
+		} else {
+			logger.error("Error during URL checking: {}: {}", url, e.getMessage());
+		}
 
+		HttpServerResponse resp = request.response();
+		resp.setStatusCode(500);
+		resp.setStatusMessage(e.getMessage() != null ? e.getMessage() : "null");
+		resp.end();
 	}
 
-	private Handler<Throwable> errorHandler(final HttpServerRequest request, BufferedWriter writer, File tmpFile) {
-		return e -> {
-			logger.error("error during url checking", e);
-			HttpServerResponse resp = request.response();
-			resp.setStatusCode(500);
-			resp.setStatusMessage(e.getMessage() != null ? e.getMessage() : "null");
-			resp.end();
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (IOException e1) {
-				}
-			}
-			if (tmpFile != null) {
-				tmpFile.delete();
-			}
-		};
-	}
-
+	@Override
 	public void setVertx(Vertx vertx) {
 		this.vertx = vertx;
 	}
-
 }

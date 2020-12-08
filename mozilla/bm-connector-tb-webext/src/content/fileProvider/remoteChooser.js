@@ -53,7 +53,7 @@ var gBMRemoteChooser = {
     let host = aServer.replace("https://", "");
     let cookies = Services.cookies.getCookiesFromHost(host, {});
     for (let cookie of cookies) {
-      Services.cookies.remove(cookie.host, cookie.name, cookie.path, false, {});
+      Services.cookies.remove(cookie.host, cookie.name, cookie.path, {});
     }
     let url = aServer + "/login/native";
     let self = this;

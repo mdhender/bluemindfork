@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -73,7 +75,7 @@ public class OOFMailTipEvaluation implements IMailTipEvaluation {
 		}
 		MailFilter filter = mailboxes.getMailboxFilter(mailbox.uid);
 		if (filter.vacation.enabled && isActive(filter.vacation.start, filter.vacation.end)) {
-			return filter.vacation.text;
+			return (!Strings.isNullOrEmpty(filter.vacation.textHtml)) ? filter.vacation.textHtml : filter.vacation.text;
 		} else {
 			return null;
 		}

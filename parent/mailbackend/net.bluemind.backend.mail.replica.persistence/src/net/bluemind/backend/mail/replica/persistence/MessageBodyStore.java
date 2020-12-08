@@ -53,7 +53,7 @@ public class MessageBodyStore extends JdbcAbstractStore {
 	}
 
 	public void deleteAll() throws SQLException {
-		delete("DELETE FROM t_message_body", new Object[0]);
+		delete("TRUNCATE t_message_body", new Object[0]);
 	}
 
 	private static final String GET_QUERY = "SELECT " + MessageBodyColumns.COLUMNS.names()
@@ -94,11 +94,11 @@ public class MessageBodyStore extends JdbcAbstractStore {
 	}
 
 	public List<String> deleteOrphanBodies() throws SQLException {
-		String query = "delete from t_message_body where guid = ANY(?::bytea[])";
-		String selectQuery = "select encode(b.guid, 'hex') from t_message_body b where created < NOW() - INTERVAL '2 days' and not exists (select from t_mailbox_record where message_body_guid = b.guid) LIMIT 10000";
-		List<String> selected = select(selectQuery, StringCreator.FIRST, (rs, index, val) -> index);
-		int handled = delete(query, new Object[] { toByteArray(selected) });
-		logger.info("{} orphan bodies purged.", handled);
+		String query = "DELETE FROM t_message_body mb USING t_message_body_purge_queue pq "
+				+ "WHERE pq.message_body_guid = mb.guid AND pq.created <= now() - '2 days'::interval "
+				+ "RETURNING encode(mb.guid, 'hex')";
+		List<String> selected = delete(query, StringCreator.FIRST, Arrays.asList((rs, index, val) -> index));
+		logger.info("{} orphan bodies purged.", selected.size());
 		return selected;
 	}
 

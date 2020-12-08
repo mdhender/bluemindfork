@@ -19,14 +19,14 @@ package net.bluemind.cli.adm;
 
 import java.util.Optional;
 
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.SingleOrDomainOperation;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.JsonUtils;
-import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.DirEntry;
+import picocli.CommandLine.Command;
 
 /**
  * This command is here to ensure our that the default maintenance op does

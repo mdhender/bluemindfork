@@ -54,6 +54,7 @@ import net.bluemind.system.importation.commons.scanner.ImportLogger;
 public abstract class GroupManager extends EntityManager {
 	private static final Logger logger = LoggerFactory.getLogger(GroupManager.class);
 
+	private Optional<Boolean> splitDomainGroup = Optional.empty();
 	protected boolean create = true;
 	public final Entry entry;
 
@@ -75,6 +76,8 @@ public abstract class GroupManager extends EntityManager {
 	protected abstract List<IEntityEnhancer> getEntityEnhancerHooks();
 
 	protected abstract Parameters getDirectoryParameters();
+
+	protected abstract boolean isSplitDomainNestedGroup();
 
 	/**
 	 * https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ldap/searching-using-range-retrieval
@@ -137,7 +140,7 @@ public abstract class GroupManager extends EntityManager {
 					.map(name -> name.trim().isEmpty() ? null : name);
 		}
 
-		return groupName.orElse(getNameFromDefaultAttribute(importLogger));
+		return groupName.orElseGet(() -> getNameFromDefaultAttribute(importLogger));
 	}
 
 	protected void manageEmails(List<String> groupEmails) {
@@ -197,16 +200,20 @@ public abstract class GroupManager extends EntityManager {
 	}
 
 	public boolean isSplitDomainGroup(IImportLogger importLogger) {
+		return splitDomainGroup.orElseGet(() -> setSplitDomainGroup(importLogger));
+	}
+
+	private boolean setSplitDomainGroup(IImportLogger importLogger) {
 		Parameters parameters = getDirectoryParameters();
-		if (!parameters.splitDomain.splitRelayEnabled) {
-			return false;
+		if (!parameters.splitDomain.splitRelayEnabled
+				|| Strings.isNullOrEmpty(parameters.splitDomain.relayMailboxGroup)) {
+			return (splitDomainGroup = Optional.of(false)).get();
 		}
 
-		if (Strings.isNullOrEmpty(parameters.splitDomain.relayMailboxGroup)
-				|| !parameters.splitDomain.relayMailboxGroup.equals(getName(importLogger))) {
-			return false;
+		if (parameters.splitDomain.relayMailboxGroup.equals(getName(importLogger))) {
+			return (splitDomainGroup = Optional.of(true)).get();
 		}
 
-		return true;
+		return (splitDomainGroup = Optional.of(isSplitDomainNestedGroup())).get();
 	}
 }

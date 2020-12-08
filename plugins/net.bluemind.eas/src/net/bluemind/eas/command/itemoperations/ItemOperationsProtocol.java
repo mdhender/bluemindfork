@@ -278,9 +278,9 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 				long l = Long.parseLong(fetchOp.longId);
 				String colId = Integer.toString((int) (l >> 32));
 				String itemId = Integer.toString((int) l);
-				ci = CollectionItem.of(colId, itemId);
+				ci = CollectionItem.of(colId, Long.parseLong(itemId));
 			} else {
-				ci = CollectionItem.of(collectionId, fetchOp.serverId);
+				ci = CollectionItem.of(collectionId, Long.parseLong(fetchOp.serverId));
 			}
 
 			ItemChangeReference itemRef = new ItemChangeReference(ItemDataType.EMAIL);

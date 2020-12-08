@@ -88,9 +88,8 @@ public class EmailHookTests extends AbstractHookTests {
 		assertNotNull(message);
 
 		Mail mail = message.body().getValue();
-		assertEquals("admin " + domainUid.toUpperCase() + " vous a partagé un calendrier", mail.subject);
-		assertEquals("admin " + domainUid.toUpperCase() + " vous a partagé le calendrier \"admin "
-				+ domainUid.toUpperCase() + "\".", mail.html);
+		assertEquals("admin vous a partagé un calendrier", mail.subject);
+		assertEquals("admin vous a partagé le calendrier \"admin\".", mail.html);
 
 		RawField bmHeader = mail.headers.get(0);
 		assertEquals("calendar:Default:" + admin.uid, bmHeader.getBody());

@@ -23,8 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
@@ -40,35 +39,29 @@ public class RestNetVerticle extends AbstractVerticle {
 	private static final int PORT = Integer.parseInt(System.getProperty("bm.rest.net.verticle.port", "8090"));
 
 	@Override
-	public void start(Future<Void> started) {
+	public void start(Promise<Void> started) {
 		HttpServer httpServer = vertx.createHttpServer(new HttpServerOptions().setAcceptBacklog(1024)
-				.setTcpKeepAlive(true).setTcpNoDelay(true).setReuseAddress(true).setUsePooledBuffers(true));
+				.setTcpKeepAlive(true).setTcpNoDelay(true).setReuseAddress(true));
 
 		RouteMatcher routeMatcher = new RouteMatcher(vertx);
 		RestRootHandler rootHandler = new RestRootHandler(vertx);
 		routeMatcher.noMatch(new RestHttpProxyHandler(getVertx(), rootHandler));
-		// new VertxClientCallHandler(vertx)));
-		// add http handlers route
 		HttpRoutes.bindRoutes(vertx, rootHandler.executor(), routeMatcher);
 
 		httpServer.requestHandler(routeMatcher);
 		SockJSHandler wsHandler = routeMatcher.websocket("/eventbus",
 				new SockJSHandlerOptions().setInsertJSESSIONID(false)
 						.setLibraryURL("https://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js")
-						.setHeartbeatInterval(10000));
+						.setHeartbeatInterval(50000));
 		wsHandler.socketHandler(new RestSockJSProxyServer(vertx, rootHandler, rootHandler));
 
-		httpServer.listen(PORT, new Handler<AsyncResult<HttpServer>>() {
-
-			@Override
-			public void handle(AsyncResult<HttpServer> event) {
-				if (event.succeeded()) {
-					logger.info("Bound to port {}.", PORT);
-					started.complete(null);
-				} else {
-					logger.error("Failed to bind to port {}.", PORT, event.cause());
-					started.fail(event.cause());
-				}
+		httpServer.listen(PORT, (AsyncResult<HttpServer> event) -> {
+			if (event.succeeded()) {
+				logger.info("Bound to port {}.", PORT);
+				started.complete(null);
+			} else {
+				logger.error("Failed to bind to port {}.", PORT, event.cause());
+				started.fail(event.cause());
 			}
 		});
 

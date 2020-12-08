@@ -3,7 +3,7 @@
 		"product":"bm-core",
 		"defaultHeap":256,
 		"defaultDirect":128,
-		"sparePercent":24
+		"sparePercent":30
 	},
 	{
 		"product":"bm-node",
@@ -21,7 +21,7 @@
 		"product":"bm-elasticsearch",
 		"defaultHeap":256,
 		"defaultDirect":128,
-		"sparePercent":30
+		"sparePercent":40
 	},
 	{
 		"product":"bm-tika",
@@ -39,7 +39,7 @@
 		"product":"bm-ysnp",
 		"defaultHeap":128,
 		"defaultDirect":128,
-		"sparePercent":0
+		"sparePercent":1
 	},
 	{
 		"product":"bm-lmtpd",

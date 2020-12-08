@@ -26,7 +26,7 @@ public class EsQueryEscapeTest {
 	@Test
 	public void testEscapeNothing() throws Exception {
 		String query = "";
-		String escaped = new VCardIndexStore(null, null).escape(query);
+		String escaped = new VCardIndexStore(null, null, null).escape(query);
 
 		Assert.assertEquals(query, escaped);
 	}
@@ -34,7 +34,7 @@ public class EsQueryEscapeTest {
 	@Test
 	public void testNothingToEscape() throws Exception {
 		String query = "hello";
-		String escaped = new VCardIndexStore(null, null).escape(query);
+		String escaped = new VCardIndexStore(null, null, null).escape(query);
 
 		Assert.assertEquals(query, escaped);
 	}
@@ -42,7 +42,7 @@ public class EsQueryEscapeTest {
 	@Test
 	public void testSimpleEscape() throws Exception {
 		String query = "[test]";
-		String escaped = new VCardIndexStore(null, null).escape(query);
+		String escaped = new VCardIndexStore(null, null, null).escape(query);
 
 		Assert.assertEquals("\\[test\\]", escaped);
 	}
@@ -50,7 +50,7 @@ public class EsQueryEscapeTest {
 	@Test
 	public void testMultipleEscapes() throws Exception {
 		String query = "[te?st]";
-		String escaped = new VCardIndexStore(null, null).escape(query);
+		String escaped = new VCardIndexStore(null, null, null).escape(query);
 
 		Assert.assertEquals("\\[te\\?st\\]", escaped);
 	}
@@ -58,7 +58,7 @@ public class EsQueryEscapeTest {
 	@Test
 	public void testColonDoesNotGetEscaped() throws Exception {
 		String query = "[test]:value";
-		String escaped = new VCardIndexStore(null, null).escape(query);
+		String escaped = new VCardIndexStore(null, null, null).escape(query);
 
 		Assert.assertEquals("\\[test\\]:value", escaped);
 	}
@@ -66,7 +66,7 @@ public class EsQueryEscapeTest {
 	@Test
 	public void testColonDoesNotGetDetectedAsAlreadyEscaped() throws Exception {
 		String query = "[te\\:st]";
-		String escaped = new VCardIndexStore(null, null).escape(query);
+		String escaped = new VCardIndexStore(null, null, null).escape(query);
 
 		Assert.assertEquals("\\[te\\:st\\]", escaped);
 	}
@@ -74,7 +74,7 @@ public class EsQueryEscapeTest {
 	@Test
 	public void testAlreadyEscapedStringGetsEscapedAnyway() throws Exception {
 		String query = "\\[test\\]";
-		String escaped = new VCardIndexStore(null, null).escape(query);
+		String escaped = new VCardIndexStore(null, null, null).escape(query);
 
 		Assert.assertEquals("\\\\\\[test\\\\\\]", escaped);
 	}
@@ -82,7 +82,7 @@ public class EsQueryEscapeTest {
 	@Test
 	public void testColonEscapedAndOtherEscapes() throws Exception {
 		String query = "test:[v]a\\:ue";
-		String escaped = new VCardIndexStore(null, null).escape(query);
+		String escaped = new VCardIndexStore(null, null, null).escape(query);
 
 		Assert.assertEquals("test:\\[v\\]a\\:ue", escaped);
 	}

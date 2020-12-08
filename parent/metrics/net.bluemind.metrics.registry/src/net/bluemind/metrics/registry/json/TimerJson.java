@@ -11,12 +11,17 @@ public class TimerJson extends RegJson {
 		this.amount = amount;
 	}
 
+	private TimerJson(String id, long amount) {
+		super("Timer", id);
+		this.amount = amount;
+	}
+
 	public long getAmount() {
 		return this.amount;
 	}
 
 	public TimerJson withNanos(long ns) {
-		this.amount = ns;
-		return this;
+		// we need to clone the object to avoid queue side effects
+		return new TimerJson(id, ns);
 	}
 }

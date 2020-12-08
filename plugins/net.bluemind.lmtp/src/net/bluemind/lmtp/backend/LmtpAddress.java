@@ -40,7 +40,7 @@ public class LmtpAddress {
 
 	public LmtpAddress(String arg, String[] allowedParameters, String rcptDelim) {
 		this.allowedParameters = allowedParameters;
-		parameters = new HashMap<String, String>();
+		parameters = new HashMap<>();
 		isValid = parse(arg);
 		deliveryReply = LmtpReply.TEMPORARY_FAILURE;
 
@@ -89,7 +89,7 @@ public class LmtpAddress {
 		if (parameters.isEmpty()) {
 			return null;
 		}
-		return (String) parameters.get(key.toUpperCase());
+		return parameters.get(key.toUpperCase());
 	}
 
 	public LmtpReply getDeliveryStatus() {
@@ -102,17 +102,17 @@ public class LmtpAddress {
 
 	/**
 	 * 'offset' is the *index* in the array of the next char that we have not
-	 * processed (other than lookahead). Alternately, this is also the length of
-	 * the part that we have already processed (think about it whichever way
-	 * works for you). For instance if the content is:
+	 * processed (other than lookahead). Alternately, this is also the length of the
+	 * part that we have already processed (think about it whichever way works for
+	 * you). For instance if the content is:
 	 * 
 	 * <x@y.com> 012345678
 	 * 
-	 * After local part processing, offset should be 2. After domain parsing,
-	 * offset should be 8.
+	 * After local part processing, offset should be 2. After domain parsing, offset
+	 * should be 8.
 	 * 
-	 * Yes, the naming convention here takes a break from 'm' prefixing. It's
-	 * just more readable this way.
+	 * Yes, the naming convention here takes a break from 'm' prefixing. It's just
+	 * more readable this way.
 	 */
 	private int offset;
 	private int length;
@@ -136,8 +136,8 @@ public class LmtpAddress {
 	/**
 	 * Return the next unprocessed character, but do NOT advance the offset.
 	 * 
-	 * When checking for the presence of something optional, ie it may or may
-	 * not be there, use peek()
+	 * When checking for the presence of something optional, ie it may or may not be
+	 * there, use peek()
 	 */
 	private int peek() {
 		if (offset < length) {
@@ -150,8 +150,8 @@ public class LmtpAddress {
 	/**
 	 * Advance the offset by one.
 	 * 
-	 * If the optional item was there, and you noticed it via peek(), you might
-	 * want to skip it.
+	 * If the optional item was there, and you noticed it via peek(), you might want
+	 * to skip it.
 	 */
 	private void skip() {
 		offset++;
@@ -238,8 +238,7 @@ public class LmtpAddress {
 	 * 
 	 * Example of what is skipped from RFC 2821/Section 4.1.1.3:
 	 * 
-	 * RCPT TO:
-	 * <@hosta.int,@jkl.org:userc@d.bar.org> _________^^^^^^^^^^^^^^^^^^^^
+	 * RCPT TO: <@hosta.int,@jkl.org:userc@d.bar.org> _________^^^^^^^^^^^^^^^^^^^^
 	 * ________________
 	 */
 	private boolean skipSourceRoutes() {
@@ -358,12 +357,11 @@ public class LmtpAddress {
 		while (!eos()) {
 			int ch = peek();
 			/*
-			 * <c> ::= any one of the 128 ASCII characters, but not any
-			 * <special> or <SP>
+			 * <c> ::= any one of the 128 ASCII characters, but not any <special> or <SP>
 			 * 
-			 * <special> ::= "<" | ">" | "(" | ")" | "[" | "]" | "\" | "." | ","
-			 * | ";" | ":" | "@" """ | the control characters (ASCII codes 0
-			 * through 31 inclusive and 127)
+			 * <special> ::= "<" | ">" | "(" | ")" | "[" | "]" | "\" | "." | "," | ";" | ":"
+			 * | "@" """ | the control characters (ASCII codes 0 through 31 inclusive and
+			 * 127)
 			 */
 			if (ch < 33 || ch > 126) { // 32 is ' '
 				return false; // any one of the 128 ascii characters
@@ -371,9 +369,8 @@ public class LmtpAddress {
 
 			if ("<()[]\\,;:\"".indexOf(ch) > -1) {
 				/*
-				 * Left out '>' and '@' which are terminators in this context.
-				 * Also '.' is valid - there is more to the grammar than quoted
-				 * above.
+				 * Left out '>' and '@' which are terminators in this context. Also '.' is valid
+				 * - there is more to the grammar than quoted above.
 				 */
 				return false;
 			}
@@ -387,9 +384,8 @@ public class LmtpAddress {
 		}
 
 		/*
-		 * Only happens if we abruptly reached end of string. Caller's
-		 * responsibility to make sure that there is the termination character
-		 * of their choice at the end.
+		 * Only happens if we abruptly reached end of string. Caller's responsibility to
+		 * make sure that there is the termination character of their choice at the end.
 		 */
 		localPart = new String(array, soffset, offset - soffset);
 		return true;

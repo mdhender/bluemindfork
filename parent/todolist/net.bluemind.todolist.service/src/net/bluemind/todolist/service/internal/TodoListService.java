@@ -37,6 +37,7 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
+import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
@@ -44,6 +45,7 @@ import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.ChangeLogUtil;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
@@ -84,7 +86,7 @@ public class TodoListService implements ITodoList {
 		storeService = new VTodoContainerStoreService(bmContext, pool, bmContext.getSecurityContext(), container,
 				vtodoStore);
 
-		indexStore = new VTodoIndexStore(esearchClient, container);
+		indexStore = new VTodoIndexStore(esearchClient, container, DataSourceRouter.location(bmContext, container.uid));
 
 		eventProducer = new TodoListEventProducer(container, bmContext.getSecurityContext(), VertxPlatform.eventBus());
 
@@ -119,8 +121,8 @@ public class TodoListService implements ITodoList {
 		extSanitizer.create(todo);
 		validator.validate(todo);
 		extValidator.create(todo);
-		storeService.create(uid, todo.summary, todo);
-		indexStore.create(uid, todo);
+		ItemVersion iv = storeService.create(uid, todo.summary, todo);
+		indexStore.create(Item.create(uid, iv.id), todo);
 	}
 
 	private void doCreateOrUpdate(String uid, VTodo todo) throws ServerFault {
@@ -160,7 +162,7 @@ public class TodoListService implements ITodoList {
 		extValidator.update(previousItemValue.value, todo);
 
 		storeService.update(uid, todo.summary, todo);
-		indexStore.update(uid, todo);
+		indexStore.update(Item.create(uid, previousItemValue.internalId), todo);
 		return previousItemValue;
 	}
 
@@ -190,6 +192,12 @@ public class TodoListService implements ITodoList {
 	}
 
 	@Override
+	public List<ItemValue<VTodo>> multipleGetById(List<Long> ids) throws ServerFault {
+		rbacManager.check(Verb.Read.name());
+		return storeService.getMultipleById(ids);
+	}
+
+	@Override
 	public void delete(String uid) throws ServerFault {
 		rbacManager.check(Verb.Write.name());
 		ItemValue<VTodo> previousItemValue = doDelete(uid);
@@ -202,9 +210,12 @@ public class TodoListService implements ITodoList {
 
 	private ItemValue<VTodo> doDelete(String uid) throws ServerFault {
 		ItemValue<VTodo> previousItemValue = storeService.get(uid, null);
-		storeService.delete(uid);
-		indexStore.delete(uid);
-		return previousItemValue;
+		if (previousItemValue != null) {
+			storeService.delete(uid);
+			indexStore.delete(previousItemValue.internalId);
+			return previousItemValue;
+		}
+		return null;
 	}
 
 	@Override

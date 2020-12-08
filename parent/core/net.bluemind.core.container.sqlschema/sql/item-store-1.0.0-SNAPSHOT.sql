@@ -19,6 +19,7 @@ CREATE TABLE t_container (
 
 CREATE INDEX idx_container_type  ON t_container USING gin(container_type);
 CREATE INDEX idx_container_owner  ON t_container(owner);
+CREATE INDEX idx_container_acl_subject_verb ON t_container_acl (subject, verb);
 
 CREATE TABLE t_container_sequence (
 	container_id int4 PRIMARY KEY references t_container(id),

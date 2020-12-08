@@ -20,26 +20,43 @@
 //goog.provide("net.bluemind.ui.banner.logout.BannerLogout");
 
 goog.require("goog.Timer");
+goog.require("goog.storage.ExpiringStorage");
+goog.require("goog.storage.mechanism.HTML5LocalStorage");
+
+goog.require("net.bluemind.concurrent.CrossWindowLock");
 
 goog.global['bundleResolve']('net.bluemind.restclient.closure', function() {
-    var timer = new goog.Timer(10000);
+    var TICK = 240000;
+    var PREFIX = "LOGOUT-"
+    var timer = new goog.Timer(TICK);
+    var lock = new net.bluemind.concurrent.CrossWindowLock("AuthPing");
+    var storage = new goog.storage.ExpiringStorage(new goog.storage.mechanism.HTML5LocalStorage());
 
     timer.addEventListener(goog.Timer.TICK, function() {
-        goog.global['restClient'].sendMessage({
-            "method" : "GET",
-            "path" : "/api/auth/ping",
-            "headers" : {
-                "X-BM-ApiKey" : goog.global['bmcSessionInfos']['sid']
-            },
-            "params" : {}
-        }, function(res) {
-            if (res["statusCode"] == 401) {
-                var redirectURL = goog.global['location']['protocol'] + "//" + goog.global['location']['host'];
-                redirectURL += goog.global['location']['pathname'].substring(0, window.location.pathname.indexOf('/', 1) + 1);
-                goog.global['location'].assign(redirectURL);
-            }
-        });
+        var sid = goog.global['bmcSessionInfos']['sid'];
+        if (storage.get(PREFIX + sid)) {
+            logout();
+        } else if (lock.tryLock(TICK)) {
+            goog.global['restClient'].sendMessage({
+                "method" : "GET",
+                "path" : "/api/auth/ping",
+                "headers" : {
+                    "X-BM-ApiKey" : sid
+                },
+                "params" : {}
+            }, function(res) {
+                if (res["statusCode"] == 401) {
+                    storage.set(PREFIX + "sid", "true", goog.now() + TICK * 2);
+                    logout();
+                }
+            });
+        }
     });
-
     timer.start(); 
 });
+
+function logout() {
+    var redirectURL = goog.global['location']['protocol'] + "//" + goog.global['location']['host'];
+    redirectURL += goog.global['location']['pathname'].substring(0, window.location.pathname.indexOf('/', 1) + 1);
+    goog.global['location'].assign(redirectURL);
+}

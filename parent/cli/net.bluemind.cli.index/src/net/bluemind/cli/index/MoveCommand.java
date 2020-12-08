@@ -21,9 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -36,6 +33,9 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.mailbox.api.IMailboxMgmt;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.ShardStats;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "move", description = "Move a mailbox to a target index")
 public class MoveCommand implements ICmdLet, Runnable {
@@ -55,10 +55,10 @@ public class MoveCommand implements ICmdLet, Runnable {
 
 	private CliContext ctx;
 
-	@Arguments(required = true, description = "the mailbox uid")
+	@Parameters(paramLabel = "<mailbox_uid>", description = "the mailbox uid")
 	public String mailbox;
 
-	@Option(name = "--dest", description = "index destination. Will select the smallest index if not specified")
+	@Option(names = "--dest", description = "index destination. Will select the smallest index if not specified")
 	public String dest;
 
 	@Override

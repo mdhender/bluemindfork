@@ -34,7 +34,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 
-import io.airlift.airline.Command;
 import net.bluemind.cli.calendar.ExportCalendarCommand;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -47,6 +46,7 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.user.api.IUser;
 import net.bluemind.utils.FileUtils;
+import picocli.CommandLine.Command;
 
 @Command(name = "export", description = "export user data to an archive file")
 public class UserExportCommand extends SingleOrDomainOperation {
@@ -163,17 +163,24 @@ public class UserExportCommand extends SingleOrDomainOperation {
 		File outputMailDir = prepareTmpDir("mail");
 		Path outputDataDir = Paths.get(outputMailDir.getAbsolutePath(), "data");
 		Path outputMetaDir = Paths.get(outputMailDir.getAbsolutePath(), "meta");
+		Path outputHsmDir = Paths.get(outputMailDir.getAbsolutePath(), "hsm");
 
 		String login = ctx.adminApi().instance(IUser.class, domainUid).getComplete(de.uid).value.login;
 
-		String cyrusPath = de.value.dataLocation + "__" + domainUid.replace('.', '_') + "/domain/" + domainUid.charAt(0)
+		
+		char firstDomainLetter = (Character.isLetter(domainUid.charAt(0))) ? domainUid.charAt(0) : 'q';
+		
+		String cyrusPath = de.value.dataLocation + "__" + domainUid.replace('.', '_') + "/domain/" + firstDomainLetter
 				+ "/" + domainUid + "/" + firstLetterMailbox(login) + "/user/" + login.replace('.', '^');
+		
 		String cyrusData = "/var/spool/cyrus/data/" + cyrusPath;
 		String cyrusMeta = "/var/spool/cyrus/meta/" + cyrusPath;
+		String cyrusHsm = "/var/spool/bm-hsm/cyrus-archives/" + cyrusPath;
 
 		try {
 			Files.createSymbolicLink(outputDataDir, new File(cyrusData).toPath());
 			Files.createSymbolicLink(outputMetaDir, new File(cyrusMeta).toPath());
+			Files.createSymbolicLink(outputHsmDir, new File(cyrusHsm).toPath());
 		} catch (Exception e) {
 			throw new CliException("Error when exporting mail", e);
 		}

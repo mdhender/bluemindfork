@@ -26,7 +26,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
 
-import io.airlift.airline.Command;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -37,6 +36,7 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailboxQuota;
+import picocli.CommandLine.Command;
 
 @Command(name = "info", description = "Get mailbox used quota information")
 public class MailboxInfoCommand extends SingleOrDomainOperation {

@@ -134,7 +134,7 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 		logger.debug("handle request {} from {}) with key {}", request.path, request.remoteAddresses, key);
 
 		if (key == null) {
-			securityContext = SecurityContext.ANONYMOUS.from(request.remoteAddresses);
+			securityContext = SecurityContext.ANONYMOUS.from(request.remoteAddresses, null);
 		} else {
 
 			securityContext = Sessions.sessionContext(key);
@@ -143,8 +143,8 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 				response.success(RestResponse.invalidSession(String.format("session id %s is not valid", key)));
 				return;
 			}
-
-			securityContext = securityContext.from(request.remoteAddresses);
+			securityContext = securityContext.from(request.remoteAddresses,
+					request.headers.get(RestHeaders.X_BM_ORIGIN));
 		}
 
 		for (IRestFilter filter : filters) {

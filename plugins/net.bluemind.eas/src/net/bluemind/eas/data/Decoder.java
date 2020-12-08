@@ -77,10 +77,6 @@ public class Decoder {
 		return parseDOMInt(elt, null);
 	}
 
-	public TimeZone parseDOMTimeZone(Element node) {
-		return parseDOMTimeZone(node, null);
-	}
-
 	public TimeZone parseDOMTimeZone(Element node, TimeZone defaultTZ) {
 		if (node != null) {
 			return parseTimeZone(node.getTextContent());
@@ -88,11 +84,9 @@ public class Decoder {
 		return defaultTZ;
 	}
 
-	public TimeZone parseTimeZone(String b64) {
+	private TimeZone parseTimeZone(String b64) {
 		EASTimeZone easTz = TimeZoneCodec.decode(b64);
-		TimeZone tz = EASTimeZoneHelper.from(easTz);
-		return tz;
-
+		return EASTimeZoneHelper.from(easTz);
 	}
 
 	public ArrayList<String> parseDOMStringCollection(Element node, String elementName,

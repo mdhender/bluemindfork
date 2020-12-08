@@ -15,6 +15,12 @@
             impl="net.bluemind.cli.sysconf.SysconfListCommand$Reg"
             priority="102">
       </registration>
+      <registration impl="net.bluemind.cli.sysconf.SysconfProxyEnableCommand$Reg"
+            priority="103">
+      </registration>
+      <registration impl="net.bluemind.cli.sysconf.SysconfProxyDisableCommand$Reg"
+            priority="104">
+      </registration>
    </extension>
 
 </plugin>

@@ -139,7 +139,7 @@ public class MailBackend extends CoreConnect {
 		if (!filteredDate.isPresent()) {
 			changeset.created.forEach(itemVersion -> {
 				ItemChangeReference ic = new ItemChangeReference(ItemDataType.EMAIL);
-				ic.setServerId(CollectionItem.of(collectionId, Long.toString(itemVersion.id)));
+				ic.setServerId(CollectionItem.of(collectionId, itemVersion.id));
 				ic.setChangeType(ChangeType.ADD);
 				changes.items.add(ic);
 			});
@@ -159,7 +159,7 @@ public class MailBackend extends CoreConnect {
 						if (deliveredAfter.isBefore(ZonedDateTime.ofInstant(
 								Instant.ofEpochMilli(item.value.body.date.getTime()), ZoneId.systemDefault()))) {
 							ItemChangeReference ic = new ItemChangeReference(ItemDataType.EMAIL);
-							ic.setServerId(CollectionItem.of(collectionId, Long.toString(item.internalId)));
+							ic.setServerId(CollectionItem.of(collectionId, item.internalId));
 							ic.setChangeType(ChangeType.ADD);
 							changes.items.add(ic);
 							addedToSync++;
@@ -186,7 +186,7 @@ public class MailBackend extends CoreConnect {
 			items.forEach(item -> {
 				if (item != null) {
 					ItemChangeReference ic = new ItemChangeReference(ItemDataType.EMAIL);
-					ic.setServerId(CollectionItem.of(collectionId, Long.toString(item.internalId)));
+					ic.setServerId(CollectionItem.of(collectionId, item.internalId));
 					ic.setChangeType(ChangeType.CHANGE);
 					ic.setData(AppData.of(FlagsChange.asEmailResponse(item.value), LazyLoaded.NOOP));
 					changes.items.add(ic);
@@ -196,7 +196,7 @@ public class MailBackend extends CoreConnect {
 
 		changeset.deleted.forEach(itemVersion -> {
 			ItemChangeReference ic = new ItemChangeReference(ItemDataType.EMAIL);
-			ic.setServerId(CollectionItem.of(collectionId, Long.toString(itemVersion.id)));
+			ic.setServerId(CollectionItem.of(collectionId, itemVersion.id));
 			ic.setChangeType(ChangeType.DELETE);
 			changes.items.add(ic);
 		});
@@ -209,20 +209,19 @@ public class MailBackend extends CoreConnect {
 			throws CollectionNotFoundException {
 		if (serverIds != null && !serverIds.isEmpty()) {
 			HashMap<String, MailFolder> collections = new HashMap<>();
-			HashMap<MailFolder, List<Integer>> items = new HashMap<>();
+			HashMap<MailFolder, List<Long>> items = new HashMap<>();
 			for (CollectionItem serverId : serverIds) {
 				String collectionId = serverId.collectionId.getValue();
 				if (!collections.containsKey(collectionId)) {
 					MailFolder folder = storage.getMailFolder(bs, serverId.collectionId);
 					collections.put(collectionId, folder);
-					items.put(folder, new ArrayList<Integer>());
+					items.put(folder, new ArrayList<Long>());
 				}
 
-				Integer uid = Integer.parseInt(serverId.itemId);
-				items.get(collections.get(collectionId)).add(uid);
+				items.get(collections.get(collectionId)).add(serverId.itemId);
 			}
 
-			for (Entry<MailFolder, List<Integer>> entry : items.entrySet()) {
+			for (Entry<MailFolder, List<Long>> entry : items.entrySet()) {
 				MailFolder folder = entry.getKey();
 				if (moveToTrash) {
 
@@ -280,17 +279,9 @@ public class MailBackend extends CoreConnect {
 
 			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 
-			long id = Long.parseLong(ci.itemId);
-			ItemValue<MailboxItem> item = service.getCompleteById(id);
-			if (item == null) {
-				logger.warn("[{}] Fail to fetch mailboxItem {} in {}", bs.getUser().getDefaultEmail(), id,
-						folder.fullName);
-				return null;
-			}
-
 			MSEmail email = (MSEmail) data;
-			validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, item);
-			validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, item);
+			validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, ci.itemId);
+			validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, ci.itemId);
 
 			return ci;
 		}
@@ -298,13 +289,12 @@ public class MailBackend extends CoreConnect {
 		return null;
 	}
 
-	private void validateFlag(Boolean property, MailboxItemFlag flag, IMailboxItems service,
-			ItemValue<MailboxItem> item) {
+	private void validateFlag(Boolean property, MailboxItemFlag flag, IMailboxItems service, long itemId) {
 		if (property != null) {
-			if (property.booleanValue() && !item.value.flags.contains(flag)) {
-				service.addFlag(FlagUpdate.of(item.internalId, flag));
-			} else if (!property.booleanValue() && item.value.flags.contains(flag)) {
-				service.deleteFlag(FlagUpdate.of(item.internalId, flag));
+			if (property.booleanValue()) {
+				service.addFlag(FlagUpdate.of(itemId, flag));
+			} else {
+				service.deleteFlag(FlagUpdate.of(itemId, flag));
 			}
 		}
 
@@ -313,7 +303,7 @@ public class MailBackend extends CoreConnect {
 	public List<MoveItemsResponse.Response> move(BackendSession bs, HierarchyNode srcFolder, HierarchyNode dstFolder,
 			List<CollectionItem> items) {
 		return emailManager.moveItems(bs, srcFolder, dstFolder,
-				items.stream().map(v -> Long.parseLong(v.itemId)).collect(Collectors.toList()));
+				items.stream().map(v -> v.itemId).collect(Collectors.toList()));
 	}
 
 	/**
@@ -407,11 +397,11 @@ public class MailBackend extends CoreConnect {
 			String serverId, boolean includePrevious) throws ServerErrorException {
 		try {
 			MailFolder folder = storage.getMailFolder(bs, CollectionId.of(collectionId));
-			Integer uid = Integer.parseInt(CollectionItem.of(serverId).itemId);
+			long id = CollectionItem.of(serverId).itemId;
 
 			IMailRewriter rewriter = Mime4JHelper.untouched(getUserEmail(bs));
 			if (includePrevious) {
-				try (InputStream is = emailManager.fetchMimeStream(bs, folder, uid)) {
+				try (InputStream is = emailManager.fetchMimeStream(bs, folder, id)) {
 					if (is != null) {
 						RewriterBuilder rb = new RewriterBuilder();
 						rb.setMode(RewriteMode.REPLY);
@@ -423,8 +413,7 @@ public class MailBackend extends CoreConnect {
 				}
 			}
 			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
-			ItemValue<MailboxItem> item = service.getCompleteById(uid);
-			service.addFlag(FlagUpdate.of(item.internalId, MailboxItemFlag.System.Answered.value()));
+			service.addFlag(FlagUpdate.of(id, MailboxItemFlag.System.Answered.value()));
 
 			send(bs, mailContent, rewriter, saveInSent);
 		} catch (Exception e) {
@@ -437,11 +426,11 @@ public class MailBackend extends CoreConnect {
 			String serverId, boolean includePrevious) {
 		try {
 			MailFolder folder = storage.getMailFolder(bs, CollectionId.of(collectionId));
-			Integer uid = Integer.parseInt(CollectionItem.of(serverId).itemId);
+			long id = CollectionItem.of(serverId).itemId;
 
 			IMailRewriter rewriter = Mime4JHelper.untouched(getUserEmail(bs));
 			if (includePrevious) {
-				try (InputStream is = emailManager.fetchMimeStream(bs, folder, uid)) {
+				try (InputStream is = emailManager.fetchMimeStream(bs, folder, id)) {
 					if (is != null) {
 						RewriterBuilder rb = new RewriterBuilder();
 						rb.setMode(RewriteMode.FORWARD_INLINE);
@@ -454,8 +443,7 @@ public class MailBackend extends CoreConnect {
 			}
 
 			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
-			ItemValue<MailboxItem> item = service.getCompleteById(uid);
-			service.addFlag(FlagUpdate.of(item.internalId, new MailboxItemFlag("$Forwarded")));
+			service.addFlag(FlagUpdate.of(id, new MailboxItemFlag("$Forwarded")));
 
 			send(bs, mailContent, rewriter, saveInSent);
 		} catch (Exception e) {
@@ -554,12 +542,12 @@ public class MailBackend extends CoreConnect {
 		}
 	}
 
-	public Map<String, AppData> fetchMultiple(BackendSession bs, BodyOptions bodyParams, CollectionId collectionId,
-			List<String> ids) throws ActiveSyncException {
+	public Map<Long, AppData> fetchMultiple(BackendSession bs, BodyOptions bodyParams, CollectionId collectionId,
+			List<Long> ids) throws ActiveSyncException {
 
 		MailFolder folder = storage.getMailFolder(bs, collectionId);
 
-		Map<String, AppData> res = new HashMap<>(ids.size());
+		Map<Long, AppData> res = new HashMap<>(ids.size());
 		ids.stream().forEach(id -> {
 			try {
 				AppData data = toAppData(bs, bodyParams, folder, id);
@@ -572,10 +560,9 @@ public class MailBackend extends CoreConnect {
 		return res;
 	}
 
-	private AppData toAppData(BackendSession bs, BodyOptions bodyParams, MailFolder folder, String id) {
-		EmailResponse er = EmailManager.getInstance().loadStructure(bs, folder, Integer.parseInt(id));
-		LazyLoaded<BodyOptions, AirSyncBaseResponse> bodyProvider = BodyLoaderFactory.from(bs, folder,
-				Integer.parseInt(id), bodyParams);
+	private AppData toAppData(BackendSession bs, BodyOptions bodyParams, MailFolder folder, Long id) {
+		EmailResponse er = EmailManager.getInstance().loadStructure(bs, folder, id);
+		LazyLoaded<BodyOptions, AirSyncBaseResponse> bodyProvider = BodyLoaderFactory.from(bs, folder, id, bodyParams);
 		return AppData.of(er, bodyProvider);
 	}
 

@@ -42,10 +42,13 @@ import net.bluemind.user.api.User;
 /**
  * Handles cancellations of meetings
  * 
- * @author tom
  * 
  */
 public class EventCancelHandler extends CancelHandler implements IIMIPHandler {
+
+	public EventCancelHandler(LmtpAddress recipient, LmtpAddress sender) {
+		super(recipient, sender);
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(EventCancelHandler.class);
 

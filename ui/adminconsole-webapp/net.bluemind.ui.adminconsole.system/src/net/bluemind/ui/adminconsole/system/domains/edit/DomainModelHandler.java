@@ -23,10 +23,12 @@ import java.util.Set;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.shared.GWT;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.RootPanel;
 
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
@@ -122,6 +124,12 @@ public class DomainModelHandler implements IGwtModelHandler {
 			public void success(TaskRef value) {
 				TaskGwtEndpoint taskService = new TaskGwtEndpoint(Ajax.TOKEN.getSessionId(), String.valueOf(value.id));
 				waitForTaskRef(taskService);
+				String defaultAlias = map.getString(DomainKeys.defaultAlias.name());
+				JsDomain jsDomain = map.get(DomainKeys.domain.name()).cast();
+				final Domain domain = new DomainGwtSerDer().deserialize(new JSONObject(jsDomain));
+				if (!defaultAlias.equals(domain.defaultAlias)) {
+					saveDefaultAlias(handler, defaultAlias, domainUid);
+				}
 			}
 
 			private void waitForTaskRef(final TaskGwtEndpoint taskService) {
@@ -152,6 +160,18 @@ public class DomainModelHandler implements IGwtModelHandler {
 			}
 
 		});
+	}
+
+	private void saveDefaultAlias(final AsyncHandler<Void> handler, final String defaultAlias, final String domainUid) {
+		final DomainsGwtEndpoint service = new DomainsGwtEndpoint(Ajax.TOKEN.getSessionId());
+		service.setDefaultAlias(domainUid, defaultAlias, new DefaultAsyncHandler<Void>(handler) {
+			@Override
+			public void success(Void value) {
+				RootPanel.get().getElement()
+						.dispatchEvent(Document.get().createHtmlEvent("refresh-domains", true, true));
+			}
+		});
+
 	}
 
 	private void successMessage(String domainUid) {

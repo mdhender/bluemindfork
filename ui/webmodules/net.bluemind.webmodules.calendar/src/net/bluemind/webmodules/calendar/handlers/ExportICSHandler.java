@@ -103,7 +103,7 @@ public class ExportICSHandler implements Handler<HttpServerRequest>, NeedVertx {
 		}).exceptionally(e -> {
 			logger.error("error ics export of calendar {} ", container, e);
 			request.response().setStatusCode(500);
-			request.response().setStatusMessage(e.getMessage() != null ? e.getMessage() : "null");
+			request.response().setStatusMessage(e.getMessage());
 			request.response().end();
 			return null;
 		});

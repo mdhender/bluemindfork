@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -103,6 +104,11 @@ public class MboxRestoreHSMTests {
 	private Server imapServer;
 	private ItemValue<Domain> testDomain;
 	private String hsmId;
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("ahcnode.fail.https.ok", "true");
+	}
 
 	@Before
 	public void before() throws Exception {

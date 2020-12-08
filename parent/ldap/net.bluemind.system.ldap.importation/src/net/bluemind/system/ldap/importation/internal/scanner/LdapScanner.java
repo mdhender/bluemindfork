@@ -116,7 +116,7 @@ public abstract class LdapScanner extends Scanner {
 		splitGroupMembers = Optional
 				.of(new NestedGroupHelper(ldapCon, ldapParameters.ldapDirectory.baseDn, getGroupMembersAttributeName(),
 						ldapParameters.ldapDirectory.groupFilter, ldapParameters.ldapDirectory.extIdAttribute)
-								.getUserMembers(groupEntry).stream().map(LdapUuidMapper::new).collect(Collectors
+								.getNestedMembers(groupEntry).stream().map(LdapUuidMapper::new).collect(Collectors
 										.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet)));
 	}
 
@@ -181,16 +181,16 @@ public abstract class LdapScanner extends Scanner {
 
 	@Override
 	protected Optional<GroupManager> getGroupManager(Entry entry) {
-		return GroupManagerImpl.build(ldapParameters, domain, entry);
+		return GroupManagerImpl.build(ldapParameters, domain, entry, splitGroupMembers);
 	}
 
 	@Override
-	protected PagedSearchResult getUserFromDn(Dn userDn) throws LdapException {
+	protected Optional<Entry> getUserFromDn(Dn userDn) throws LdapException {
 		return getLdapSearch().getUserUUID(ldapCon, userDn);
 	}
 
 	@Override
-	protected PagedSearchResult getGroupFromDn(Dn groupDn) throws LdapException {
+	protected Optional<Entry> getGroupFromDn(Dn groupDn) throws LdapException {
 		return getLdapSearch().getGroupFromDn(ldapCon, groupDn);
 	}
 

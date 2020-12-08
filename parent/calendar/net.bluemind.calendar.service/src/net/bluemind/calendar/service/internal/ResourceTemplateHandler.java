@@ -18,13 +18,13 @@
 package net.bluemind.calendar.service.internal;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -113,22 +113,31 @@ public final class ResourceTemplateHandler {
 	 * the event description.
 	 */
 	private void addToDescription(final VEvent vEvent, final Attendee resourceAttendee, final String domainUid) {
-		final String resourceId = this.toResourceId(resourceAttendee);
+		final Optional<String> resourceId = this.toResourceId(resourceAttendee);
+		if (!resourceId.isPresent()) {
+			LOGGER.warn("Attendee identifier not found {}", JsonUtils.asString(resourceAttendee));
+			return;
+		}
 		final String localeLanguageTag = this.organizerLanguage(vEvent, domainUid);
 		final String organizerName = vEvent.organizer.commonName;
-		final String descriptionToAdd = RESOURCE_TEMPLATE_HELPER.processTemplate(domainUid, resourceId,
+		final String descriptionToAdd = RESOURCE_TEMPLATE_HELPER.processTemplate(domainUid, resourceId.get(),
 				localeLanguageTag, organizerName);
 		// append the result of the template to the event's description
 		// avoid to add it multiple times (in case of an update)
-		if (vEvent.description != null && !RESOURCE_TEMPLATE_HELPER.containsTemplate(vEvent.description, resourceId)) {
+		if (vEvent.description != null
+				&& !RESOURCE_TEMPLATE_HELPER.containsTemplate(vEvent.description, resourceId.get())) {
 			vEvent.description = RESOURCE_TEMPLATE_HELPER.addTemplate(vEvent.description, descriptionToAdd);
 		}
 	}
 
 	/** Remove the transformed template from the description. */
 	private void removeFromDescription(final VEvent vEvent, final Attendee resourceAttendee) {
-		final String resourceId = this.toResourceId(resourceAttendee);
-		vEvent.description = RESOURCE_TEMPLATE_HELPER.removeTemplate(vEvent.description, resourceId);
+		final Optional<String> resourceId = this.toResourceId(resourceAttendee);
+		if (!resourceId.isPresent()) {
+			LOGGER.warn("Attendee identifier not found {}", JsonUtils.asString(resourceAttendee));
+			return;
+		}
+		vEvent.description = RESOURCE_TEMPLATE_HELPER.removeTemplate(vEvent.description, resourceId.get());
 	}
 
 	private String organizerLanguage(final VEvent vEvent, final String domainUid) {
@@ -138,19 +147,14 @@ public final class ResourceTemplateHandler {
 		return userSettingsService.get(userId).get("lang");
 	}
 
-	private String toResourceId(final Attendee resourceAttendee) {
+	private Optional<String> toResourceId(final Attendee resourceAttendee) {
 		String resourceId = this.pathToId(resourceAttendee.dir);
 
 		if (resourceId == null) {
 			resourceId = this.pathToId(resourceAttendee.uri);
 		}
 
-		if (resourceId == null) {
-			throw new ServerFault(
-					String.format("Attendee identifier not found: %s", JsonUtils.asString(resourceAttendee)));
-		}
-
-		return resourceId;
+		return Optional.ofNullable(resourceId);
 	}
 
 	private String pathToId(final String path) {

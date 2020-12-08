@@ -19,9 +19,6 @@ package net.bluemind.cli.mapi;
 
 import java.util.Optional;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -31,6 +28,9 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.exchange.mapi.api.IMapiMailbox;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "logging", description = "Enable/Disable per-user MAPI logs")
 public class LoggingCommand implements ICmdLet, Runnable {
@@ -50,10 +50,10 @@ public class LoggingCommand implements ICmdLet, Runnable {
 
 	private CliContext ctx;
 
-	@Arguments(required = true, description = "email address")
+	@Parameters(paramLabel = "<email>", description = "email address")
 	public String target;
 
-	@Option(name = "--enable", description = "Enable the per-user logs (disable if not specified)")
+	@Option(names = "--enable", description = "Enable the per-user logs (disable if not specified)")
 	public boolean enable = false;
 
 	@Override

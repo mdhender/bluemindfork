@@ -32,8 +32,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.IAddressBooksMgmt;
@@ -59,6 +57,8 @@ import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.todolist.api.IVTodo;
 import net.bluemind.user.api.IUser;
 import net.bluemind.utils.FileUtils;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "import", description = "import user data from an archive file, existing data will be erased.")
 public class UserImportCommand extends SingleOrDomainOperation {
@@ -78,15 +78,15 @@ public class UserImportCommand extends SingleOrDomainOperation {
 
 	private static final int BUFFER_MAX_SIZE = 1024;
 
-	@Option(name = "--archiveFile", required = true, description = "BM user archive path")
-	public String archiveFile = null;
+	@Option(names = "--archiveFile", required = true, description = "BM user archive path")
+	public Path archiveFile = null;
 
 	private String domainUid;
 
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) throws IOException {
 		this.domainUid = domainUid;
-		File archive = new File(archiveFile);
+		File archive = archiveFile.toFile();
 		if (!archive.exists() || archive.isDirectory()) {
 			throw new CliException("Invalid archive file");
 		}
@@ -112,38 +112,39 @@ public class UserImportCommand extends SingleOrDomainOperation {
 			FileUtils.delete(tempDir.toFile());
 		}
 	}
-
+	
 	private void extractArchive(Path archivePath, Path tempDir) throws IOException {
 
-		InputStream in = Files.newInputStream(archivePath);
+		try (InputStream in = Files.newInputStream(archivePath)) {
 
-		GzipCompressorInputStream gzipIn = new GzipCompressorInputStream(in);
-		try (TarArchiveInputStream tarIn = new TarArchiveInputStream(gzipIn)) {
-			TarArchiveEntry entry;
+			GzipCompressorInputStream gzipIn = new GzipCompressorInputStream(in);
+			try (TarArchiveInputStream tarIn = new TarArchiveInputStream(gzipIn)) {
+				TarArchiveEntry entry;
 
-			while ((entry = (TarArchiveEntry) tarIn.getNextEntry()) != null) {
-				Path path = Paths.get(tempDir.toString(), entry.getName());
+				while ((entry = (TarArchiveEntry) tarIn.getNextEntry()) != null) {
+					Path path = Paths.get(tempDir.toString(), entry.getName());
 
-				/** If the entry is a directory, create the directory. **/
-				if (entry.isDirectory()) {
-					Files.createDirectories(path);
-				} else {
-					int size = (int) entry.getSize();
-					if (size == 0) {
-						continue;
-					}
-					byte data[] = new byte[size];
+					/** If the entry is a directory, create the directory. **/
+					if (entry.isDirectory()) {
+						Files.createDirectories(path);
+					} else {
+						int size = (int) entry.getSize();
+						if (size == 0) {
+							continue;
+						}
+						byte data[] = new byte[size];
 
-					try (FileOutputStream fos = new FileOutputStream(path.toString(), false);
-							BufferedOutputStream dest = new BufferedOutputStream(fos, size)) {
-						int count = 0;
-						while ((count = tarIn.read(data, 0, BUFFER_MAX_SIZE)) != -1) {
-							dest.write(data, 0, count);
+						try (FileOutputStream fos = new FileOutputStream(path.toString(), false);
+								BufferedOutputStream dest = new BufferedOutputStream(fos, size)) {
+							int count = 0;
+							while ((count = tarIn.read(data, 0, BUFFER_MAX_SIZE)) != -1) {
+								dest.write(data, 0, count);
+							}
 						}
 					}
 				}
+				ctx.info("Archive file extracted successfully to " + tempDir.toString());
 			}
-			ctx.info("Archive file extracted successfully to " + tempDir.toString());
 		}
 
 	}
@@ -275,14 +276,18 @@ public class UserImportCommand extends SingleOrDomainOperation {
 
 	private void importMail(ItemValue<DirEntry> de, Path directory) {
 		String type = directory.getFileName().toString();
-
+		String filename = directory.getFileName().toString();
+		
 		ctx.info("Importing mail " + type);
 		String login = ctx.adminApi().instance(IUser.class, domainUid).getComplete(de.uid).value.login;
-
-		String cyrusPath = "/var/spool/cyrus/" + type + "/" + de.value.dataLocation + "__" + domainUid.replace('.', '_')
-				+ "/domain/" + domainUid.charAt(0) + "/" + domainUid + "/" + firstLetterMailbox(login) + "/user/"
-				+ login.replace('.', '^');
-
+		
+		char firstDomainLetter= (Character.isLetter(domainUid.charAt(0))) ? domainUid.charAt(0) : 'q';
+		
+		String basePath = filename.equalsIgnoreCase("data") || filename.equalsIgnoreCase("meta") ? "/var/spool/cyrus/" + filename : "/var/spool/bm-hsm/cyrus-archives"; 
+		String cyrusPath = basePath + "/" + de.value.dataLocation + "__" + domainUid.replace('.', '_')
+					+ "/domain/" + firstDomainLetter + "/" + domainUid + "/" + firstLetterMailbox(login) + "/user/"
+					+ login.replace('.', '^');
+		
 		copyEmails(de, directory, cyrusPath);
 	}
 

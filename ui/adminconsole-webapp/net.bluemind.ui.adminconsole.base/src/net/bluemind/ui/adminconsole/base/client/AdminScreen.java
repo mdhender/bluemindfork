@@ -56,7 +56,6 @@ import net.bluemind.gwtconsoleapp.base.eventbus.NotificationEventHandler;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.gwtconsoleapp.base.menus.Section;
 import net.bluemind.ui.adminconsole.base.Actions;
-import net.bluemind.ui.adminconsole.base.DomainsHelper;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
 import net.bluemind.ui.adminconsole.base.HistToken;
 import net.bluemind.ui.adminconsole.base.SubscriptionInfoHolder;
@@ -234,16 +233,12 @@ public final class AdminScreen extends Composite {
 		Set<ItemValue<Domain>> domainSet = new TreeSet<>(new DomainComparator());
 		domainSet.addAll(domList);
 
-		this.domains = new ArrayList<ItemValue<Domain>>();
+		this.domains = new ArrayList<>();
 		this.domains.addAll(domainSet);
 
 		domainSelector.clear();
 		for (ItemValue<Domain> dom : domainSet) {
-			String domainName = dom.value.name;
-			if (domainName.endsWith(".internal") && !dom.value.aliases.isEmpty()) {
-				domainName = dom.value.aliases.iterator().next();
-			}
-			domainSelector.addItem(DomainsHelper.getDisplayName(dom.value), dom.uid);
+			domainSelector.addItem(dom.value.defaultAlias, dom.uid);
 		}
 		if (domList.size() == 1) {
 			domainSelector.setEnabled(false);

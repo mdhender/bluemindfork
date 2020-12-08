@@ -111,7 +111,7 @@ public class PopulateHelper {
 	public static void initGlobalVirt(boolean withCore, Server... servers) throws Exception {
 		CachesTestHelper.invalidate();
 		DataSource dataSource = JdbcActivator.getInstance().getDataSource();
-		ContainerStore cs = new ContainerStore(dataSource, SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(null, dataSource, SecurityContext.SYSTEM);
 		cs.create(Container.create(installationId(), "installation", "installation",
 				SecurityContext.SYSTEM.getSubject(), true));
 
@@ -131,7 +131,6 @@ public class PopulateHelper {
 		}
 
 		createServers(servers);
-		dispatchTopology(servers);
 
 		boolean createFakeImap = true;
 		for (Server s : servers) {
@@ -147,12 +146,15 @@ public class PopulateHelper {
 			fakeImapServer.ip = FAKE_CYRUS_IP;
 			fakeImapServer.tags = Lists.newArrayList("mail/imap");
 			createServers(fakeImapServer);
+
 		}
+
+		dispatchTopology();
 
 		logger.info("GLOBAL.VIRT INITIALIZED");
 	}
 
-	private static void dispatchTopology(Server... servers) {
+	private static void dispatchTopology() {
 		IServer yeahApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
 				"default");
 		List<ItemValue<Server>> allSrvs = yeahApi.allComplete();
@@ -174,7 +176,8 @@ public class PopulateHelper {
 		IDomains domains = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
 		domains.create(domainUid, domain);
 
-		ContainerStore cs = new ContainerStore(JdbcActivator.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(null, JdbcActivator.getInstance().getDataSource(),
+				SecurityContext.SYSTEM);
 
 		ServerStore serverStore = new ServerStore(JdbcActivator.getInstance().getDataSource(),
 				cs.get(installationId()));
@@ -200,7 +203,8 @@ public class PopulateHelper {
 	}
 
 	public static void unAssignFakeCyrus(String domainUid) throws SQLException, IOException {
-		ContainerStore cs = new ContainerStore(JdbcActivator.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(null, JdbcActivator.getInstance().getDataSource(),
+				SecurityContext.SYSTEM);
 		ServerStore serverStore = new ServerStore(JdbcActivator.getInstance().getDataSource(),
 				cs.get(installationId()));
 
@@ -220,8 +224,9 @@ public class PopulateHelper {
 	}
 
 	private static void aclAdmin(String containerUid, String subject) throws Exception {
-		AclStore aclStore = new AclStore(JdbcActivator.getInstance().getDataSource());
-		ContainerStore cs = new ContainerStore(JdbcActivator.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		AclStore aclStore = new AclStore(null, JdbcActivator.getInstance().getDataSource());
+		ContainerStore cs = new ContainerStore(null, JdbcActivator.getInstance().getDataSource(),
+				SecurityContext.SYSTEM);
 		Container c = cs.get(containerUid);
 		if (c != null) {
 			logger.info("Adding Verb.All for {} to {}", subject, containerUid);

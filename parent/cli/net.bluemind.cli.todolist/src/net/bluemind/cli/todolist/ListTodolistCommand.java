@@ -24,15 +24,15 @@ package net.bluemind.cli.todolist;
 
 import java.util.Optional;
 
-import io.airlift.airline.Command;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.ListCommand;
 import net.bluemind.todolist.api.ITodoUids;
+import picocli.CommandLine.Command;
 
 @Command(name = "list", description = "List user or whole domain todolists")
-public class ListTodolistCommand extends ListCommand {	
-	
+public class ListTodolistCommand extends ListCommand {
+
 	public static class Reg implements ICmdLetRegistration {
 
 		@Override

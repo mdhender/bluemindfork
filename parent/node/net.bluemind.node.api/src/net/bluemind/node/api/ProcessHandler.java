@@ -40,6 +40,7 @@ public interface ProcessHandler {
 
 		@Override
 		public void log(String l) {
+			// ok for no out
 		}
 
 		@Override
@@ -57,6 +58,7 @@ public interface ProcessHandler {
 
 		@Override
 		public void starting(String taskRef) {
+			// ok
 		}
 
 	}
@@ -93,6 +95,7 @@ public interface ProcessHandler {
 
 		@Override
 		public void starting(String taskRef) {
+			// ok
 		}
 
 	}

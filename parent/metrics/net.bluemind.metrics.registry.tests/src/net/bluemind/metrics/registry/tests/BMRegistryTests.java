@@ -113,6 +113,7 @@ public class BMRegistryTests {
 
 		int testedMetrics = 0;
 		for (String metric : metrics.split("\n")) {
+			System.err.println("S: " + metric);
 			InfluxMetric met = InfluxMetric.fromLineProtocol(metric);
 			if ("server.requesttimes".equals(met.name)) {
 				for (Tag tag : met.tags) {

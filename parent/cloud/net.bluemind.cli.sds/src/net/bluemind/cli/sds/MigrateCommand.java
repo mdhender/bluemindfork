@@ -16,9 +16,6 @@ import org.asynchttpclient.Response;
 
 import com.google.common.hash.Hashing;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.cli.cmd.api.CliContext;
@@ -26,6 +23,9 @@ import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.fault.ServerFault;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "migrate", description = "Migrates messages from cyrus archive partition to object store")
 public class MigrateCommand implements ICmdLet, Runnable {
@@ -54,10 +54,10 @@ public class MigrateCommand implements ICmdLet, Runnable {
 		return this;
 	}
 
-	@Option(name = "--dry", description = "Dry-run (do not write to object store)")
+	@Option(names = "--dry", description = "Dry-run (do not write to object store)")
 	public boolean dry = false;
 
-	@Arguments(required = true, description = "domain name or alias")
+	@Parameters(paramLabel = "<targetDomain>", description = "domain name or alias")
 	public String targetDomain;
 
 	@Override
