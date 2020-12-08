@@ -94,8 +94,6 @@ public interface StorageApiLink {
 
 	public CompletableFuture<Boolean> validate(String login, String secret);
 
-	public CompletableFuture<Void> delete(MailboxReplicaRootDescriptor root, String partition);
-
 	public CompletableFuture<List<ResolvedMailbox>> resolveNames(List<String> names);
 
 }

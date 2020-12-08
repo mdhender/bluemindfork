@@ -270,4 +270,9 @@ public class SyncClient {
 		server.write(Buffer.buffer(applyReserve));
 		return onResponse("OK", "NO", "BAD");
 	}
+
+	public CompletionStage<UnparsedResponse> applyUnmailbox(String mbox) {
+		String unmailbox = "APPLY UNMAILBOX \"" + mbox + "\"";
+		return rawCommand(unmailbox);
+	}
 }

@@ -35,9 +35,6 @@ public class ApplyUnmailbox implements IAsyncReplicationCommand {
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplyUnmailbox.class);
 
-	public ApplyUnmailbox() {
-	}
-
 	public CompletableFuture<CommandResult> doIt(ReplicationSession session, Token t, ReplicationFrame frame) {
 		String withVerb = t.value();
 		String toDelete = withVerb.substring("APPLY UNMAILBOX ".length());
@@ -50,7 +47,7 @@ public class ApplyUnmailbox implements IAsyncReplicationCommand {
 				logger.error("deletion of missing object ?", rs);
 				return rs.asResult();
 			} else {
-				logger.error("Unmailbox OK even with {}", ex.getMessage());
+				logger.error("Unmailbox OK even with {}", ex.getMessage(), ex);
 				return CommandResult.success();
 			}
 		});

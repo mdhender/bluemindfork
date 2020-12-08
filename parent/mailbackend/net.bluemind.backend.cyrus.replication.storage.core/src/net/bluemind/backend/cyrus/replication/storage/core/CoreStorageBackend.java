@@ -148,45 +148,33 @@ public class CoreStorageBackend implements StorageApiLink {
 	}
 
 	public CompletableFuture<IDbMessageBodiesPromise> bodies(String partition) {
-		CompletableFuture<IDbMessageBodiesPromise> apiProm = new CompletableFuture<>();
 		if (!KnownRoots.validatedPartitions.contains(partition)) {
-			logger.info("Partition {} bodies setup complete.", partition);
-			if (!apiProm.isCompletedExceptionally()) {
-				KnownRoots.validatedPartitions.add(partition);
-				apiProm.complete(asyncProv.instance(IDbMessageBodiesPromise.class, partition));
-			}
+			return CompletableFuture.completedFuture(asyncProv.instance(IDbMessageBodiesPromise.class, partition))
+					.thenApply(v -> {
+						logger.info("Partition {} bodies setup complete.", partition);
+						KnownRoots.validatedPartitions.add(partition);
+						return v;
+					});
 		} else {
-			apiProm.complete(asyncProv.instance(IDbMessageBodiesPromise.class, partition));
+			return CompletableFuture.completedFuture(asyncProv.instance(IDbMessageBodiesPromise.class, partition));
 		}
-
-		return apiProm;
 	}
 
 	public CompletableFuture<IDbReplicatedMailboxesPromise> replicatedMailboxes(String partition,
 			MailboxReplicaRootDescriptor root) {
 		String rootString = partition + "!" + root.fullName();
 		logger.debug("Checking {}...", rootString);
-		CompletableFuture<IDbReplicatedMailboxesPromise> apiProm = new CompletableFuture<>();
 		if (!KnownRoots.validatedRoots.contains(rootString)) {
 			IReplicatedMailboxesRootMgmtPromise mgmtApi = asyncProv.instance(IReplicatedMailboxesRootMgmtPromise.class,
 					partition);
-			mgmtApi.create(root).thenAccept(v -> {
+			return mgmtApi.create(root).thenApply(v -> {
 				logger.info("Root {} setup complete.", rootString);
 				KnownRoots.validatedRoots.add(rootString);
-				apiProm.complete(mboxesApi(partition, root.fullName()));
-			}).exceptionally(t -> {
-				logger.error(t.getMessage(), t);
-				apiProm.completeExceptionally(t);
-				return null;
+				return mboxesApi(partition, root.fullName());
 			});
 		} else {
-			try {
-				apiProm.complete(mboxesApi(partition, root.fullName()));
-			} catch (Exception e) {
-				apiProm.completeExceptionally(e);
-			}
+			return CompletableFuture.completedFuture(mboxesApi(partition, root.fullName()));
 		}
-		return apiProm;
 	}
 
 	private IDbReplicatedMailboxesPromise mboxesApi(String partition, String root) {
@@ -197,9 +185,7 @@ public class CoreStorageBackend implements StorageApiLink {
 	public CompletableFuture<IDbMailboxRecordsPromise> mailboxRecords(String mboxUniqueId) {
 		// this method returns a promise for consistency with the other ones
 		// doing async stuff
-		CompletableFuture<IDbMailboxRecordsPromise> apiProm = new CompletableFuture<>();
-		apiProm.complete(asyncProv.instance(IDbMailboxRecordsPromise.class, mboxUniqueId));
-		return apiProm;
+		return CompletableFuture.completedFuture(asyncProv.instance(IDbMailboxRecordsPromise.class, mboxUniqueId));
 	}
 
 	/**
@@ -209,12 +195,8 @@ public class CoreStorageBackend implements StorageApiLink {
 	 * @return access to db hierarchy api
 	 */
 	public CompletableFuture<ApiDesc> replicatedMailboxes(ReplicatedBox box) {
-		CompletableFuture<ApiDesc> ret = new CompletableFuture<>();
 		MailboxReplicaRootDescriptor root = MailboxReplicaRootDescriptor.create(box.ns, box.local);
-		replicatedMailboxes(box.partition, root).thenAccept(mboxApi -> {
-			ret.complete(new ApiDesc(box.partition, root, mboxApi));
-		});
-		return ret;
+		return replicatedMailboxes(box.partition, root).thenApply(mboxApi -> new ApiDesc(box.partition, root, mboxApi));
 	}
 
 	public CompletableFuture<ICyrusReplicationArtifactsPromise> cyrusArtifacts(String userId) {
@@ -238,11 +220,6 @@ public class CoreStorageBackend implements StorageApiLink {
 				return false;
 			}
 		});
-	}
-
-	public CompletableFuture<Void> delete(MailboxReplicaRootDescriptor root, String partition) {
-		return asyncProv.instance(IReplicatedMailboxesRootMgmtPromise.class, partition).delete(root.ns.name(),
-				root.name);
 	}
 
 	@Override

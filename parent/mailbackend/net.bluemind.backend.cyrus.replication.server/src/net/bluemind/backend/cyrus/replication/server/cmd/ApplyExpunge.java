@@ -45,30 +45,25 @@ public class ApplyExpunge implements IAsyncReplicationCommand {
 	}
 
 	public CompletableFuture<CommandResult> doIt(ReplicationSession session, Token t, ReplicationFrame frame) {
-		CompletableFuture<CommandResult> ret = new CompletableFuture<>();
 		String withVerb = t.value();
 		String toReserve = withVerb.substring("APPLY EXPUNGE ".length());
 		ParenObjectParser parser = ParenObjectParser.create();
 		JsonObject parsed = parser.parse(toReserve).asObject();
 		String mbox = parsed.getString("MBOXNAME");
 		JsonArray uid = parsed.getJsonArray("UID");
-		List<Long> toExpunge = JsUtils.asList(uid, (String s) -> Long.parseLong(s));
-		session.state().expunge(mbox, toExpunge).whenComplete((v, ex) -> {
-			if (ex != null) {
-				ReplicationException rs = ReplicationException.cast(ex);
-				if (rs != null) {
-					ret.complete(rs.asResult());
-				} else {
-					ret.completeExceptionally(ex);
-				}
-			} else {
-				ret.complete(CommandResult.success());
-			}
-		});
+		List<Long> toExpunge = JsUtils.<String, Long>asList(uid, Long::parseLong);
 
 		logger.info("Apply EXPUNGE from {} of {}", mbox, uid);
-
-		return ret;
+		return session.state().expunge(mbox, toExpunge).thenApply(v -> CommandResult.success()).exceptionally(ex -> {
+			ReplicationException rs = ReplicationException.cast(ex);
+			if (rs != null) {
+				logger.error("expunge failed ?", rs);
+				return rs.asResult();
+			} else {
+				logger.error("expunge OK even with {}", ex.getMessage(), ex);
+				return CommandResult.success();
+			}
+		});
 	}
 
 }

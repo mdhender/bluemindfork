@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.backend.cyrus.replication.storage.core
 Bundle-SymbolicName: net.bluemind.backend.cyrus.replication.storage.core;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-Activator: net.bluemind.backend.cyrus.replication.storage.core.Activator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,

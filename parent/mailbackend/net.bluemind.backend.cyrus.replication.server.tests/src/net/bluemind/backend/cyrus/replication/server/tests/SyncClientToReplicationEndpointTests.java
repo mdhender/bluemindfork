@@ -76,6 +76,18 @@ public class SyncClientToReplicationEndpointTests {
 	}
 
 	@Test
+	public void testUnmailboxUnknown() throws InterruptedException, ExecutionException, TimeoutException {
+		SyncClient sc = new SyncClient("127.0.0.1", 2501);
+		sc.connect().thenCompose(v -> {
+			System.out.println("Connected");
+			return sc.applyUnmailbox("devenv.blue!user.unknown");
+		}).thenCompose(unmailboxed -> {
+			System.out.println("mbox: " + unmailboxed);
+			return sc.disconnect();
+		}).get(30, TimeUnit.SECONDS);
+	}
+
+	@Test
 	public void testFetchMissing() throws InterruptedException, ExecutionException, TimeoutException {
 		SyncClient sc = new SyncClient("127.0.0.1", 2501);
 		sc.connect().thenCompose(v -> {

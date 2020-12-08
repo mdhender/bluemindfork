@@ -109,46 +109,19 @@ public class ReplicationState {
 	}
 
 	public CompletableFuture<List<String>> missingGuids(String partition, List<String> guid) {
-		CompletableFuture<List<String>> ret = new CompletableFuture<>();
-		ArrayList<String> missing = new ArrayList<>(guid.size());
-		storage.bodies(partition).thenAccept(bodyApi -> {
+		List<String> missing = new ArrayList<>(guid.size());
+		return storage.bodies(partition).thenCompose(bodyApi -> {
 			CompletableFuture<Void> chain = CompletableFuture.completedFuture(null);
 			for (List<String> part : Lists.partition(guid, 500)) {
 				chain = chain.thenCompose(v -> {
-					CompletableFuture<Void> sub = new CompletableFuture<>();
-					bodyApi.missing(part).thenAccept(partMissing -> {
+					return bodyApi.missing(part).thenAccept(partMissing -> {
 						logger.info("{} bodies missing out of {}", partMissing.size(), part.size());
 						missing.addAll(partMissing);
-						sub.complete(null);
 					});
-					return sub;
 				});
 			}
-			chain.thenAccept(v -> {
-				ret.complete(missing);
-			});
+			return chain.thenApply(v -> missing);
 		});
-		return ret;
-	}
-
-	public CompletableFuture<Void> mailboxRecord(MailboxFolder mf, MboxRecord record) {
-		CompletableFuture<Void> done = new CompletableFuture<>();
-		record.attachToParent(mf);
-
-		storage.mailboxRecords(mf.getUniqueId()).thenAccept(recordsApi -> {
-			MailboxRecord rec = DtoConverters.from(record);
-			String uid = record.uid() + ".";
-			recordsApi.getComplete(uid).thenCompose(recIV -> {
-				if (recIV == null) {
-					return recordsApi.create(uid, rec);
-				} else {
-					return recordsApi.update(uid, rec);
-				}
-			}).thenAccept(v -> {
-				done.complete(null);
-			});
-		});
-		return done;
 	}
 
 	public CompletableFuture<MailboxFolder> folderByName(String name) {

@@ -42,16 +42,13 @@ public class ApplyQuota implements IAsyncReplicationCommand {
 	}
 
 	public CompletableFuture<CommandResult> doIt(ReplicationSession session, Token t, ReplicationFrame frame) {
-		CompletableFuture<CommandResult> ret = new CompletableFuture<>();
-
 		String withVerb = t.value();
 		String mboxAndLimit = withVerb.substring("APPLY QUOTA ".length());
 		ParenObjectParser parser = ParenObjectParser.create();
 		JsonObject parsed = parser.parse(mboxAndLimit).asObject();
 		QuotaRoot qr = QuotaRoot.of(parsed);
 		logger.info("ApplyQuota: {}", qr);
-		session.state().quota(qr).thenAccept(v -> ret.complete(CommandResult.success()));
-		return ret;
+		return session.state().quota(qr).thenApply(v -> CommandResult.success());
 	}
 
 }

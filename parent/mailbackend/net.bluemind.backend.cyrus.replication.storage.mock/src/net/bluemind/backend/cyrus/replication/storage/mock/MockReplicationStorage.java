@@ -60,13 +60,11 @@ public class MockReplicationStorage implements StorageApiLink {
 
 	@Override
 	public void release() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public CompletableFuture<ApiDesc> replicatedMailboxes(ReplicatedBox box) {
-		return null;
+		return BrokenPromises.withServerFault("mock for " + box);
 	}
 
 	@Override
@@ -92,19 +90,11 @@ public class MockReplicationStorage implements StorageApiLink {
 
 	@Override
 	public CompletableFuture<ICyrusReplicationArtifactsPromise> cyrusArtifacts(String userId) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public CompletableFuture<ICyrusReplicationAnnotationsPromise> cyrusAnnotations() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public CompletableFuture<Void> delete(MailboxReplicaRootDescriptor root, String partition) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

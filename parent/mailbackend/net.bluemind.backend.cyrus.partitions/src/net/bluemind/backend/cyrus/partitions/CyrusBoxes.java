@@ -57,6 +57,9 @@ public class CyrusBoxes {
 		}
 	}
 
+	private CyrusBoxes() {
+	}
+
 	/**
 	 * Computes partition from domain part & mailbox name from local part of a fully
 	 * qualified userName.
@@ -80,6 +83,8 @@ public class CyrusBoxes {
 		return box;
 	}
 
+	private static final String EXTRACTED_PART_LOGIN = "Extracted p: {}, l: {}";
+
 	/**
 	 * Input is "ex2016.vmw!user.tom.Deleted Messages" (or without the quotes)
 	 * 
@@ -97,7 +102,7 @@ public class CyrusBoxes {
 		if (deletedMailboxMatch.find()) {
 			String domain = deletedMailboxMatch.group(1);
 			String login = deletedMailboxMatch.group(2);
-			logger.debug("Extracted p: {}, l: {}", domain, login);
+			logger.debug(EXTRACTED_PART_LOGIN, domain, login);
 			ReplicatedBox rb = new ReplicatedBox();
 			rb.local = login;
 			rb.partition = domain.replace('.', '_');
@@ -107,7 +112,7 @@ public class CyrusBoxes {
 		} else if (deletedSharedMailboxMatch.find()) {
 			String domain = deletedSharedMailboxMatch.group(1);
 			String login = deletedSharedMailboxMatch.group(2);
-			logger.debug("Extracted p: {}, l: {}", domain, login);
+			logger.debug(EXTRACTED_PART_LOGIN, domain, login);
 			ReplicatedBox rb = new ReplicatedBox();
 			rb.local = login;
 			rb.partition = domain.replace('.', '_');
@@ -117,7 +122,7 @@ public class CyrusBoxes {
 		} else if (userMatch.find()) {
 			String domain = userMatch.group(1);
 			String login = userMatch.group(2);
-			logger.debug("Extracted p: {}, l: {}", domain, login);
+			logger.debug(EXTRACTED_PART_LOGIN, domain, login);
 			ReplicatedBox rb = new ReplicatedBox();
 			rb.local = login;
 			rb.partition = domain.replace('.', '_');
@@ -128,7 +133,7 @@ public class CyrusBoxes {
 			logger.debug("matched mailbox root for {}", fromMbox);
 			String domain = userRootMatch.group(1);
 			String login = userRootMatch.group(2);
-			logger.debug("Extracted p: {}, l: {}", domain, login);
+			logger.debug(EXTRACTED_PART_LOGIN, domain, login);
 			ReplicatedBox rb = new ReplicatedBox();
 			rb.local = login;
 			rb.partition = domain.replace('.', '_');

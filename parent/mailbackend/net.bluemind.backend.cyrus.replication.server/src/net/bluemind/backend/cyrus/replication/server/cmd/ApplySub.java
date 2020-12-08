@@ -39,19 +39,14 @@ public class ApplySub implements IAsyncReplicationCommand {
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplySub.class);
 
-	public ApplySub() {
-	}
-
 	public CompletableFuture<CommandResult> doIt(ReplicationSession session, Token t, ReplicationFrame frame) {
-		CompletableFuture<CommandResult> ret = new CompletableFuture<>();
 		String withVerb = t.value();
 		String toReserve = withVerb.substring("APPLY SUB ".length());
 		ParenObjectParser parser = ParenObjectParser.create();
 		JsonObject parsed = parser.parse(toReserve).asObject();
 		MailboxSub sub = MailboxSub.of(parsed);
 		logger.info("Apply SUB {}", sub);
-		session.state().sub(sub).thenAccept(v -> ret.complete(CommandResult.success()));
-		return ret;
+		return session.state().sub(sub).thenApply(v -> CommandResult.success());
 	}
 
 }

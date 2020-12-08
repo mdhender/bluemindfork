@@ -44,22 +44,17 @@ public class ApplyAnnotation implements IAsyncReplicationCommand {
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplyAnnotation.class);
 
-	public ApplyAnnotation() {
-	}
-
 	public CompletableFuture<CommandResult> doIt(ReplicationSession session, Token t, ReplicationFrame frame) {
-		CompletableFuture<CommandResult> ret = new CompletableFuture<>();
 
 		String withVerb = t.value();
 		String mboxAndContent = withVerb.substring("APPLY ANNOTATION ".length());
 		ParenObjectParser parser = ParenObjectParser.create();
 		JsonObject annotation = parser.parse(mboxAndContent).asObject();
-		logger.info("Parsed annotation: {}", annotation.encodePrettily());
+		logger.info("Parsed annotation: {}", annotation.encode());
 		MailboxAnnotation ma = MailboxAnnotation.of(annotation);
 		ma.mailbox = Token.atomOrValue(ma.mailbox);
 		ma.value = Token.atomOrValue(ma.value);
-		session.state().annotate(ma).thenAccept(v -> ret.complete(CommandResult.success()));
-		return ret;
+		return session.state().annotate(ma).thenApply(v -> CommandResult.success());
 	}
 
 }
