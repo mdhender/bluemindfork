@@ -18,6 +18,7 @@
  */
 package net.bluemind.ui.adminconsole.system.systemconf.auth;
 
+import java.util.HashSet;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
@@ -232,19 +233,26 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 		List<ItemValue<Domain>> domains = DomainsHolder.get().getDomains();
 		domainList.addItem("---", "");
 
-		for (ItemValue<Domain> domain : domains) {
-			if (!"global.virt".equals(domain.value.name)) {
-				krbDomain.addItem(domain.value.defaultAlias, domain.value.name);
+		expandDomainAlias(domainList, domains);
+		expandDomainAlias(casDomain, domains);
 
-				expandDomainAlias(domainList, domain);
-				expandDomainAlias(casDomain, domain);
+		for (ItemValue<Domain> domain : domains) {
+			if ("global.virt".equals(domain.value.name)) {
+				continue;
 			}
+			krbDomain.addItem(domain.value.defaultAlias, domain.value.name);
 		}
 	}
 
-	private void expandDomainAlias(ListBox domainList, ItemValue<Domain> domain) {
-		domainList.addItem(domain.value.name);
-		domain.value.aliases.stream().forEach(domainList::addItem);
+	private void expandDomainAlias(ListBox domainList, List<ItemValue<Domain>> domains) {
+		HashSet<String> domainNames = new HashSet<>();
+		for (ItemValue<Domain> domain : domains) {
+			if ("global.virt".equals(domain.value.name)) {
+				continue;
+			}
+			domain.value.aliases.stream().forEach(domainNames::add);
+		}
+		domainNames.stream().forEach(domainList::addItem);
 	}
 
 	private void setupUploadForm() {
