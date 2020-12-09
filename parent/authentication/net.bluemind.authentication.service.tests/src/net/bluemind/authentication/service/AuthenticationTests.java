@@ -86,13 +86,7 @@ public class AuthenticationTests {
 		JdbcTestHelper.getInstance().beforeTest();
 
 		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
+		Handler<AsyncResult<Void>> done = ret -> future.set(null);
 		VertxPlatform.spawnVerticles(done);
 		future.get();
 

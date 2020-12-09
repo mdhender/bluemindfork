@@ -23,16 +23,12 @@ import java.util.List;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsonUtils;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
-import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
-import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Label;
@@ -40,11 +36,8 @@ import com.google.gwt.user.client.ui.ListBox;
 
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
 import net.bluemind.ui.adminconsole.system.systemconf.SysConfModel;
@@ -107,12 +100,9 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 		authTypeSel.addItem(SysConfAuthConstants.INST.authInternal());
 		authTypeSel.addItem(SysConfAuthConstants.INST.authCAS());
 		authTypeSel.addItem(SysConfAuthConstants.INST.authKerberos());
-		authTypeSel.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event) {
-				AuthType at = AuthType.getByIndex(authTypeSel.getSelectedIndex());
-				updateAuthType(at, false);
-			}
+		authTypeSel.addChangeHandler(event -> {
+			AuthType at = AuthType.getByIndex(authTypeSel.getSelectedIndex());
+			updateAuthType(at, false);
 		});
 		choicePanel.add(new Label(SysConfAuthConstants.INST.authType()), "label");
 		choicePanel.add(authTypeSel);
@@ -121,13 +111,7 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 	}
 
 	public static void registerType() {
-		GwtWidgetElement.register(TYPE, new IGwtDelegateFactory<IGwtWidgetElement, WidgetElement>() {
-
-			@Override
-			public IGwtWidgetElement create(WidgetElement e) {
-				return new SysConfAuthenticationEditor();
-			}
-		});
+		GwtWidgetElement.register(TYPE, we -> new SysConfAuthenticationEditor());
 	}
 
 	@Override
@@ -135,28 +119,26 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 		SysConfModel map = SysConfModel.from(model);
 
 		if (map.get(SysConfKeys.default_domain.name()) != null) {
-			domainList.setSelectedIndex(
-					detectDomainIndex(domainList, map.get(SysConfKeys.default_domain.name()).toString()));
+			domainList.setSelectedIndex(detectDomainIndex(domainList, map.get(SysConfKeys.default_domain.name())));
 		}
 
 		if (null != map.get(SysConfKeys.cas_url.name())) {
-			casUrl.setStringValue(map.get(SysConfKeys.cas_url.name()).toString());
+			casUrl.setStringValue(map.get(SysConfKeys.cas_url.name()));
 		}
 		if (null != map.get(SysConfKeys.cas_domain.name())) {
-			casDomain.setSelectedIndex(detectDomainIndex(casDomain, map.get(SysConfKeys.cas_domain.name()).toString()));
+			casDomain.setSelectedIndex(detectDomainIndex(casDomain, map.get(SysConfKeys.cas_domain.name())));
 		}
 		if (null != map.get(SysConfKeys.krb_ad_domain.name())) {
-			krbAdDomain.setStringValue(map.get(SysConfKeys.krb_ad_domain.name()).toString());
+			krbAdDomain.setStringValue(map.get(SysConfKeys.krb_ad_domain.name()));
 		}
 		if (null != map.get(SysConfKeys.krb_ad_ip.name())) {
-			krbAdIp.setStringValue(map.get(SysConfKeys.krb_ad_ip.name()).toString());
+			krbAdIp.setStringValue(map.get(SysConfKeys.krb_ad_ip.name()));
 		}
 		if (null != map.get(SysConfKeys.krb_domain.name())) {
-			krbDomain.setSelectedIndex(
-					detectDomainIndexFromValue(krbDomain, map.get(SysConfKeys.krb_domain.name()).toString()));
+			krbDomain.setSelectedIndex(detectDomainIndexFromValue(krbDomain, map.get(SysConfKeys.krb_domain.name())));
 		}
 		if (map.get(SysConfKeys.auth_type.name()) != null) {
-			authTypeSel.setSelectedIndex(detectAuthTypeIndex(map.get(SysConfKeys.auth_type.name()).toString()));
+			authTypeSel.setSelectedIndex(detectAuthTypeIndex(map.get(SysConfKeys.auth_type.name())));
 		} else {
 			authTypeSel.setSelectedIndex(detectAuthTypeIndex(null));
 		}
@@ -181,7 +163,7 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 				map.putString(SysConfKeys.krb_keytab.name(), keyTab);
 			}
 		} else {
-			if (map.get(SysConfKeys.auth_type.name()).toLowerCase().equals("kerberos")) {
+			if (map.get(SysConfKeys.auth_type.name()).equalsIgnoreCase("kerberos")) {
 				throw new RuntimeException(kerberosValidation.message);
 			}
 		}
@@ -191,7 +173,7 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 			map.putString(SysConfKeys.cas_url.name(), casUrl.getStringValue());
 			map.putString(SysConfKeys.cas_domain.name(), casDomain.getSelectedValue());
 		} else {
-			if (map.get(SysConfKeys.auth_type.name()).toLowerCase().equals("cas")) {
+			if (map.get(SysConfKeys.auth_type.name()).equalsIgnoreCase("cas")) {
 				throw new RuntimeException(casValidation.message);
 			}
 		}
@@ -273,25 +255,15 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 		uploadUrl = uploadUrl.substring(0, uploadUrl.lastIndexOf("/"));
 		uploadUrl = uploadUrl.substring(0, uploadUrl.lastIndexOf("/") + 1);
 		keyUploadForm.setAction(uploadUrl + "fileupload");
-		keyUploadForm.addSubmitCompleteHandler(new SubmitCompleteHandler() {
-
-			@Override
-			public void onSubmitComplete(SubmitCompleteEvent event) {
-				keyUploadForm.reset();
-				String fileData = new InlineHTML(event.getResults()).getText();
-				JavaScriptObject safeEval = JsonUtils.safeEval(fileData);
-				JSONObject fileUploadData = new JSONObject(safeEval);
-				keyTab = fileUploadData.get("data").isString().stringValue();
-				keyFilePresent.setValue(true);
-			}
+		keyUploadForm.addSubmitCompleteHandler(event -> {
+			keyUploadForm.reset();
+			String fileData = new InlineHTML(event.getResults()).getText();
+			JavaScriptObject safeEval = JsonUtils.safeEval(fileData);
+			JSONObject fileUploadData = new JSONObject(safeEval);
+			keyTab = fileUploadData.get("data").isString().stringValue();
+			keyFilePresent.setValue(true);
 		});
-		keyUpload.addChangeHandler(new ChangeHandler() {
-
-			@Override
-			public void onChange(ChangeEvent event) {
-				keyUploadForm.submit();
-			}
-		});
+		keyUpload.addChangeHandler(evt -> keyUploadForm.submit());
 	}
 
 	private int detectDomainIndex(ListBox domainList, String domain) {
@@ -331,7 +303,7 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 
 	public static native JSONObject getJsObject(String responseText)
 	/*-{
-	return JSON.parse(responseText);
+		return JSON.parse(responseText);
 	}-*/;
 
 	private static class ValidationResult {

@@ -233,7 +233,7 @@ public class Authentication implements IInCoreAuthentication {
 					securityContext.getRemoteAddresses(), status);
 			resp.authKey = UUID.randomUUID().toString();
 			context = buildSecurityContext(resp.authKey, authContext.user, authContext.domain.uid, settings, origin,
-					status == Status.Expired ? true : false, interactive);
+					status == Status.Expired, interactive);
 
 			for (ILoginSessionValidator v : sessionValidators) {
 				try {
