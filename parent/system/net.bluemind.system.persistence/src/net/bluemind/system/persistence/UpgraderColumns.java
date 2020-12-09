@@ -30,6 +30,9 @@ import net.bluemind.system.persistence.Upgrader.UpgradePhase;
 
 public class UpgraderColumns {
 
+	private UpgraderColumns() {
+	}
+
 	public static final Columns cols = Columns.create().col("server").col("phase", "enum_upgrader_phase")
 			.col("database_name", "enum_database_name").col("upgrader_id").col("success");
 

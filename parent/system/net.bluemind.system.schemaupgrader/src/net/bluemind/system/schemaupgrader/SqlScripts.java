@@ -80,7 +80,7 @@ public class SqlScripts {
 					try {
 						db = (UpgraderDatabase) e.createExecutableExtension("database");
 					} catch (CoreException e1) {
-						logger.warn("Cannot read database attribute of sql upgrader PEXT", e);
+						logger.warn("Cannot read database attribute of sql upgrader PEXT: {}", e1.getMessage());
 						db = new UpgraderDatabase.ALL();
 					}
 					boolean afterSchemaUpgrade = false;

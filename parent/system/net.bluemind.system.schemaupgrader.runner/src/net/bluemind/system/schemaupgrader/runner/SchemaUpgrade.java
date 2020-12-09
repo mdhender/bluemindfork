@@ -60,13 +60,11 @@ public class SchemaUpgrade {
 	private final DataSource pool;
 	private final String server;
 	private final UpgraderStore upgraderStore;
-	private final boolean onlySchema;
 
 	public SchemaUpgrade(Database database, String server, DataSource pool, boolean onlySchema,
 			UpgraderStore upgraderStore) {
 		this.database = database;
 		this.pool = pool;
-		this.onlySchema = onlySchema;
 		this.server = server;
 		this.upgraderStore = upgraderStore;
 	}
@@ -128,8 +126,7 @@ public class SchemaUpgrade {
 	}
 
 	private UpdateResult executeUpdates(IServerTaskMonitor subWork, UpgradeReport report,
-			Set<net.bluemind.system.schemaupgrader.UpdateAction> handledActions, UpgradePhase phase,
-			List<Updater> updates) {
+			Set<UpdateAction> handledActions, UpgradePhase phase, List<Updater> updates) {
 		UpdateResult ur = UpdateResult.noop();
 		for (Updater u : updates) {
 			logger.info("Starting {}", u);
@@ -151,7 +148,6 @@ public class SchemaUpgrade {
 				return ur;
 			} else {
 				report.upgraders.add(UpgradeReport.UpgraderReport.create(UpgradeReport.Status.OK));
-
 			}
 
 			subWork.progress(1, "Updater " + u + " complete (result: " + ur.result.name() + ")");

@@ -61,7 +61,7 @@ public class ComponentVersionExtensionPoint {
 						InstallationVersion cv = (InstallationVersion) e.createExecutableExtension("class");
 						ret.add(new ComponentVersion(e.getAttribute("id"), cv.softwareVersion));
 					} catch (CoreException ce) {
-						logger.error(ie.getNamespaceIdentifier() + ": " + ce.getMessage(), ce);
+						logger.error("{}: {}", ie.getNamespaceIdentifier(), ce.getMessage(), ce);
 					}
 
 				}

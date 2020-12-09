@@ -37,7 +37,7 @@ public class UpdateResult {
 		this(result, Collections.emptySet());
 	}
 
-	public static enum Result {
+	public enum Result {
 		OK, FAILED, NOOP
 	}
 
@@ -70,9 +70,7 @@ public class UpdateResult {
 		if (getClass() != obj.getClass())
 			return false;
 		UpdateResult other = (UpdateResult) obj;
-		if (result != other.result)
-			return false;
-		return true;
+		return result == other.result;
 	}
 
 }
