@@ -23,6 +23,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,27 +48,18 @@ public final class UpgraderStore extends JdbcAbstractStore {
 		super(dataSource);
 	}
 
-	private static final String INSERT = "INSERT INTO t_bm_upgraders (" + UpgraderColumns.cols.names() + ") " //
+	private static final String UPSERT = "INSERT INTO t_bm_upgraders (" + UpgraderColumns.cols.names() + ") " //
 			+ " VALUES" //
-			+ "( " + UpgraderColumns.cols.values() + ") ON CONFLICT DO NOTHING";
+			+ "(" + UpgraderColumns.cols.values() + ") ON CONFLICT ON CONSTRAINT t_bm_upgraders_pkey DO UPDATE SET " //
+			+ "(" + UpgraderColumns.cols.names() + ") = (" + UpgraderColumns.cols.values() + ")";
 
-	private static final String UPDATE = "UPDATE t_upgraders set success = ? WHERE upgrader_id = ?";
-
-	public void add(Upgrader value) {
+	public void store(Upgrader value) {
 		try {
-			insert(INSERT, value, UpgraderColumns.statementValues());
+			insert(UPSERT, value, Arrays.asList(UpgraderColumns.statementValues(), UpgraderColumns.statementValues()));
 		} catch (SQLException e) {
 			logger.warn("Cannot add upgrader status entry", e);
 		}
 		logger.debug("insert complete: {}", value);
-	}
-
-	public void update(String upgraderId, boolean success) {
-		try {
-			update(UPDATE, new Object[] { success, upgraderId });
-		} catch (SQLException e) {
-			logger.warn("Cannot add upgrader status entry", e);
-		}
 	}
 
 	private static final String SELECT_REGISTERED = "SELECT 1 FROM t_bm_upgraders WHERE upgrader_id = ? AND server = ? AND database_name = ?::enum_database_name";

@@ -143,7 +143,7 @@ public class UpgraderMigration {
 				upgrader.server = server;
 				upgrader.success = true;
 				upgrader.upgraderId = id;
-				store.add(upgrader);
+				store.store(upgrader);
 			}
 		}
 	}

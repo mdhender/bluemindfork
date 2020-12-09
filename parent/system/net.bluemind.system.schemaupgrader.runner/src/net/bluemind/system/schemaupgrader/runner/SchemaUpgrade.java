@@ -162,7 +162,7 @@ public class SchemaUpgrade {
 				.server(server) //
 				.upgraderId(updater.date(), updater.sequence()) //
 				.success(!updateResult.equals(UpdateResult.failed()));
-		upgraderStore.add(upgraderStatus);
+		upgraderStore.store(upgraderStatus);
 	}
 
 	public static List<Updater> getUpgradePath() {

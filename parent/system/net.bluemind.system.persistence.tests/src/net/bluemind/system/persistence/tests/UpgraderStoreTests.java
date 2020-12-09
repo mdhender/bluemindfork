@@ -61,7 +61,7 @@ public class UpgraderStoreTests {
 		value1.upgraderId(new Date(), 1);
 		value1.phase = UpgradePhase.POST_SCHEMA_UPGRADE;
 		value1.success = true;
-		schemaVersionStore.add(value1);
+		schemaVersionStore.store(value1);
 
 		Upgrader value2 = new Upgrader();
 		value2.database = Database.DIRECTORY;
@@ -69,7 +69,7 @@ public class UpgraderStoreTests {
 		value2.upgraderId(new Date(), 2);
 		value2.phase = UpgradePhase.POST_SCHEMA_UPGRADE;
 		value2.success = false;
-		schemaVersionStore.add(value2);
+		schemaVersionStore.store(value2);
 
 		assertEquals(true, schemaVersionStore.upgraderCompleted(value1.upgraderId, value1.server, value1.database));
 		assertEquals(false, schemaVersionStore.upgraderCompleted(value2.upgraderId, value2.server, value2.database));
@@ -83,7 +83,7 @@ public class UpgraderStoreTests {
 		value1.upgraderId(new Date(), 1);
 		value1.phase = UpgradePhase.POST_SCHEMA_UPGRADE;
 		value1.success = true;
-		schemaVersionStore.add(value1);
+		schemaVersionStore.store(value1);
 
 		Upgrader value2 = new Upgrader();
 		value2.database = Database.DIRECTORY;
@@ -91,7 +91,7 @@ public class UpgraderStoreTests {
 		value2.upgraderId(new Date(), 1);
 		value2.phase = UpgradePhase.POST_SCHEMA_UPGRADE;
 		value2.success = false;
-		schemaVersionStore.add(value2);
+		schemaVersionStore.store(value2);
 
 		assertEquals(true, schemaVersionStore.upgraderCompleted(value1.upgraderId, value1.server, value1.database));
 		assertEquals(false, schemaVersionStore.upgraderCompleted(value2.upgraderId, value2.server, value2.database));
@@ -105,7 +105,7 @@ public class UpgraderStoreTests {
 		value1.upgraderId(new Date(), 1);
 		value1.phase = UpgradePhase.POST_SCHEMA_UPGRADE;
 		value1.success = true;
-		schemaVersionStore.add(value1);
+		schemaVersionStore.store(value1);
 
 		Upgrader value2 = new Upgrader();
 		value2.database = Database.SHARD;
@@ -113,7 +113,7 @@ public class UpgraderStoreTests {
 		value2.upgraderId(new Date(), 1);
 		value2.phase = UpgradePhase.POST_SCHEMA_UPGRADE;
 		value2.success = false;
-		schemaVersionStore.add(value2);
+		schemaVersionStore.store(value2);
 
 		assertEquals(true, schemaVersionStore.upgraderCompleted(value1.upgraderId, value1.server, value1.database));
 		assertEquals(false, schemaVersionStore.upgraderCompleted(value2.upgraderId, value2.server, value2.database));
@@ -127,14 +127,24 @@ public class UpgraderStoreTests {
 		value1.upgraderId(new Date(), 1);
 		value1.phase = UpgradePhase.POST_SCHEMA_UPGRADE;
 		value1.success = false;
-		schemaVersionStore.add(value1);
+		schemaVersionStore.store(value1);
 
+		Upgrader value2 = new Upgrader();
+		value2.database = Database.DIRECTORY;
+		value2.server = "bm-master";
+		value2.upgraderId(new Date(), 2);
+		value2.phase = UpgradePhase.POST_SCHEMA_UPGRADE;
+		value2.success = false;
+		schemaVersionStore.store(value2);
+
+		assertEquals(false, schemaVersionStore.upgraderCompleted(value2.upgraderId, value2.server, value2.database));
 		assertEquals(false, schemaVersionStore.upgraderCompleted(value1.upgraderId, value1.server, value1.database));
 
 		value1.success = true;
-		schemaVersionStore.update(value1.upgraderId, true);
+		schemaVersionStore.store(value1);
 
-		assertEquals(false, schemaVersionStore.upgraderCompleted(value1.upgraderId, value1.server, value1.database));
+		assertEquals(true, schemaVersionStore.upgraderCompleted(value1.upgraderId, value1.server, value1.database));
+		assertEquals(false, schemaVersionStore.upgraderCompleted(value2.upgraderId, value2.server, value2.database));
 
 	}
 

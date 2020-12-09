@@ -60,7 +60,7 @@ public class UpgraderServerHook extends DefaultServerHook {
 			for (Database db : Database.values()) {
 				upgrader.database = db;
 				if (!store.upgraderRegistered(upgrader.upgraderId, serverUid, updater.database())) {
-					store.add(upgrader);
+					store.store(upgrader);
 				}
 			}
 		} catch (SQLException e) {
