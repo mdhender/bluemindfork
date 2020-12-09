@@ -315,7 +315,7 @@ public class JdbcAbstractStore {
 				ret.add(v);
 			}
 		} finally {
-			JdbcHelper.cleanup(conn, null, st);
+			JdbcHelper.cleanup(conn, rs, st);
 		}
 		return ret;
 	}
