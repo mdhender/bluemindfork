@@ -40,8 +40,9 @@ import net.bluemind.core.api.fault.ServerFault;
 public class JdbcAbstractStore {
 
 	protected static final Logger logger = LoggerFactory.getLogger(JdbcAbstractStore.class);
+	private static final String BYTEA = "bytea";
 
-	protected DataSource datasource;
+	protected final DataSource datasource;
 
 	public JdbcAbstractStore(DataSource dataSource) {
 		this.datasource = dataSource;
@@ -76,7 +77,7 @@ public class JdbcAbstractStore {
 					} else if (param instanceof String[]) {
 						st.setArray(i + 1, conn.createArrayOf("text", (String[]) param));
 					} else if (param instanceof Byte[]) {
-						st.setArray(i + 1, conn.createArrayOf("bytea", (Byte[]) param));
+						st.setArray(i + 1, conn.createArrayOf(BYTEA, (Byte[]) param));
 					} else {
 						st.setObject(i + 1, param);
 					}
@@ -123,7 +124,7 @@ public class JdbcAbstractStore {
 			} else if (param instanceof String[]) {
 				st.setArray(1, conn.createArrayOf("text", (String[]) param));
 			} else if (param instanceof Byte[]) {
-				st.setArray(1, conn.createArrayOf("bytea", (Byte[]) param));
+				st.setArray(1, conn.createArrayOf(BYTEA, (Byte[]) param));
 			} else {
 				st.setObject(1, param);
 			}
@@ -208,7 +209,7 @@ public class JdbcAbstractStore {
 		return update(query, value, Arrays.asList(values), parameters);
 	}
 
-	protected <T> int update(String query, Object[] parameters) throws SQLException {
+	protected int update(String query, Object[] parameters) throws SQLException {
 		return update(query, null, Collections.emptyList(), parameters);
 	}
 
@@ -230,7 +231,7 @@ public class JdbcAbstractStore {
 					} else if (param instanceof Long[]) {
 						st.setArray(index++, conn.createArrayOf("int4", (Long[]) param));
 					} else if (param instanceof Byte[]) {
-						st.setArray(index++, conn.createArrayOf("bytea", (Byte[]) param));
+						st.setArray(index++, conn.createArrayOf(BYTEA, (Byte[]) param));
 					} else {
 						st.setObject(index++, parameters[i]);
 					}
@@ -265,7 +266,7 @@ public class JdbcAbstractStore {
 					} else if (param instanceof Long[]) {
 						st.setArray(i + 1, conn.createArrayOf("int4", (Long[]) param));
 					} else if (param instanceof Byte[]) {
-						st.setArray(i + 1, conn.createArrayOf("bytea", (Byte[]) param));
+						st.setArray(i + 1, conn.createArrayOf(BYTEA, (Byte[]) param));
 					} else {
 						st.setObject(i + 1, parameters[i]);
 					}
@@ -299,7 +300,7 @@ public class JdbcAbstractStore {
 					} else if (param instanceof Long[]) {
 						st.setArray(i + 1, conn.createArrayOf("int4", (Long[]) param));
 					} else if (param instanceof Byte[]) {
-						st.setArray(i + 1, conn.createArrayOf("bytea", (Byte[]) param));
+						st.setArray(i + 1, conn.createArrayOf(BYTEA, (Byte[]) param));
 					} else {
 						st.setObject(i + 1, parameters[i]);
 					}
@@ -352,15 +353,13 @@ public class JdbcAbstractStore {
 		}
 	}
 
-	protected <T> void multiRowInsert(String query, List<DataType> types, List<Object[]> values) throws SQLException {
+	protected void multiRowInsert(String query, List<DataType> types, List<Object[]> values) throws SQLException {
 		Connection conn = getConnection();
 		Statement st = null;
 		try {
 			st = conn.createStatement();
 			StringBuilder multiRowInsert = new StringBuilder(query.concat(" VALUES "));
-			values.forEach(row -> {
-				multiRowInsert.append("(" + toRow(types, row) + "),");
-			});
+			values.forEach(row -> multiRowInsert.append("(" + toRow(types, row) + "),"));
 			multiRowInsert.deleteCharAt(multiRowInsert.length() - 1);
 			String sql = multiRowInsert.toString();
 			logger.debug("multiRow I: {}", sql);
@@ -425,7 +424,7 @@ public class JdbcAbstractStore {
 					} else if (param instanceof Long[]) {
 						st.setArray(index++, conn.createArrayOf("int4", (Long[]) param));
 					} else if (param instanceof Byte[]) {
-						st.setArray(index++, conn.createArrayOf("bytea", (Byte[]) param));
+						st.setArray(index++, conn.createArrayOf(BYTEA, (Byte[]) param));
 					} else {
 						st.setObject(index++, parameters[i]);
 					}
@@ -471,7 +470,7 @@ public class JdbcAbstractStore {
 		}
 	}
 
-	protected <T> int insert(String query, Object[] parameters) throws SQLException {
+	protected int insert(String query, Object[] parameters) throws SQLException {
 		try (Connection conn = getConnection()) {
 			return insertImpl(query, parameters, conn);
 		}
@@ -489,7 +488,7 @@ public class JdbcAbstractStore {
 					} else if (param instanceof Long[]) {
 						st.setArray(index++, conn.createArrayOf("int4", (Long[]) param));
 					} else if (param instanceof Byte[]) {
-						st.setArray(index++, conn.createArrayOf("bytea", (Byte[]) param));
+						st.setArray(index++, conn.createArrayOf(BYTEA, (Byte[]) param));
 					} else {
 						st.setObject(index++, parameters[i]);
 					}
@@ -500,7 +499,7 @@ public class JdbcAbstractStore {
 		}
 	}
 
-	protected <T> int insertWithSerial(String query, Object[] parameters) throws SQLException {
+	protected int insertWithSerial(String query, Object[] parameters) throws SQLException {
 		try (Connection conn = getConnection()) {
 			insertImpl(query, parameters, conn);
 			return lastInsertId(conn);
@@ -528,11 +527,11 @@ public class JdbcAbstractStore {
 	}
 
 	@FunctionalInterface
-	public interface SqlOperation<Res> {
-		Res execute() throws SQLException, ServerFault;
+	public interface SqlOperation<R> {
+		R execute() throws SQLException;
 	}
 
-	public static <Res> Res doOrFail(SqlOperation<Res> op) throws ServerFault {
+	public static <R> R doOrFail(SqlOperation<R> op) {
 		try {
 			return op.execute();
 		} catch (SQLException e) {
@@ -540,7 +539,7 @@ public class JdbcAbstractStore {
 		}
 	}
 
-	public static <Res> Res doOrContinue(String action, SqlOperation<Res> op) {
+	public static <R> R doOrContinue(String action, SqlOperation<R> op) {
 		try {
 			return op.execute();
 		} catch (Exception e) {
