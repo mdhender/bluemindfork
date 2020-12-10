@@ -93,6 +93,7 @@ import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.IUserMailIdentities;
 import net.bluemind.user.api.User;
 
 public class CyrusMailboxesStorage implements IMailboxesStorage {
@@ -338,21 +339,32 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 	}
 
 	@Override
-	public void changeFilter(BmContext context, ItemValue<Domain> domain, ItemValue<Mailbox> mailbox, MailFilter filter)
-			throws ServerFault {
-
-		if (mailbox.value.routing == Mailbox.Routing.external) {
-			logger.info("mailbox is routing == external. No cyrus mbox necessary for {}", mailbox.uid);
+	public void changeFilter(BmContext context, ItemValue<Domain> domain, ItemValue<Mailbox> mailboxItem,
+			MailFilter filter) throws ServerFault {
+		Mailbox mailbox = mailboxItem.value;
+		if (mailbox.routing == Mailbox.Routing.external) {
+			logger.info("mailbox is routing == external. No cyrus mbox necessary for {}", mailboxItem.uid);
 			return;
 		}
 
-		if (mailbox.value.routing == Mailbox.Routing.none && mailbox.value.dataLocation == null) {
-			logger.error("mailbox is routing == none and doesnt have server allocated for {}", mailbox.uid);
+		if (mailbox.routing == Mailbox.Routing.none && mailbox.dataLocation == null) {
+			logger.error("mailbox is routing == none and doesnt have server allocated for {}", mailboxItem.uid);
 			return;
 		}
+
+		String displayName = mailboxDisplayName(context, domain, mailboxItem);
 		SieveWriter sw = new SieveWriter();
-		sw.write(mailbox, domain, filter);
+		sw.write(mailboxItem, displayName, domain, filter);
+	}
 
+	private String mailboxDisplayName(BmContext context, ItemValue<Domain> domain, ItemValue<Mailbox> mailboxItem) {
+		if (!Mailbox.Type.user.equals(mailboxItem.value.type)) {
+			return null;
+		}
+
+		return context.su().provider().instance(IUserMailIdentities.class, domain.uid, mailboxItem.uid).getIdentities()
+				.stream().filter(identity -> identity.isDefault).findFirst().map(identity -> identity.displayname)
+				.orElse(null);
 	}
 
 	private String boxname(Mailbox value, String domainUid) {
@@ -402,7 +414,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 
 		cyrus.reload();
 
-		logger.info("Un-assign " + server.uid + " as a mail/imap backend");
+		logger.info("Un-assign {} as a mail/imap backend", server.uid);
 	}
 
 	@Override
@@ -511,7 +523,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 
 		try (StoreClient sc = new StoreClient(server.value.address(), 1143, "admin0", Token.admin0())) {
 			if (!sc.login()) {
-				throw new ServerFault(String.format("Fail to login: admin0", domainUid));
+				throw new ServerFault(String.format("Fail to login: admin0 on %s", domainUid));
 			}
 			List<MailFolder> ret = new ArrayList<>();
 
@@ -729,10 +741,8 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 				cyrusDomainRoot + "/" + domainLetterPath + "/" + domainUid + "/user", //
 				cyrusDomainRoot + "/" + domainLetterPath + "/" + domainUid + "/user/" + mailboxLetterPath);
 
-		mailboxLibPath.forEach(path -> {
-			shell.append("test -e " + path + " && echo \"Fixing " + path + " directory\" && chown cyrus:mail " + path
-					+ " && chmod 700 " + path + "\n");
-		});
+		mailboxLibPath.forEach(path -> shell.append("test -e " + path + " && echo \"Fixing " + path
+				+ " directory\" && chown cyrus:mail " + path + " && chmod 700 " + path + "\n"));
 
 		String mailboxSubFile = cyrusDomainRoot + "/" + domainLetterPath + "/" + domainUid + "/user/"
 				+ mailboxLetterPath + "/" + mailbox.value.name + ".sub";
@@ -831,7 +841,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		});
 
 		if (repair) {
-			if (status.missing.size() != 0) {
+			if (!status.missing.isEmpty()) {
 				List<String> created = createMissingFolders(domainUid, server.value, mailbox, status.missing);
 
 				status.fixed = status.missing.stream().filter(df -> created.contains(df.name))
@@ -840,7 +850,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 						.collect(Collectors.toSet());
 			}
 
-			if (status.invalidSpecialuse.size() != 0) {
+			if (!status.invalidSpecialuse.isEmpty()) {
 				INodeClient nodeClient = NodeActivator.get(server.value.address());
 
 				Set<DefaultFolder> fixed = new HashSet<>();
@@ -888,13 +898,13 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 
 		if (MigrationPhase.migrationPhase) {
 			logger.info("Skipping checkAndRepairAcl of mailbox {}, system is in migration phase", mailbox);
-			return new ArrayList<MailFolder>();
+			return new ArrayList<>();
 		}
 
 		ItemValue<Server> server = context.provider().instance(IServer.class, InstallationId.getIdentifier())
 				.getComplete(mailbox.value.dataLocation);
 
-		List<MailFolder> ret = new ArrayList<MailFolder>();
+		List<MailFolder> ret = new ArrayList<>();
 		Map<String, Acl> cyrusAcl = new DbAclToCyrusAcl(domainUid, acls, mailbox).get();
 
 		try (StoreClient sc = new StoreClient(server.value.ip, 1143, "admin0", Token.admin0())) {

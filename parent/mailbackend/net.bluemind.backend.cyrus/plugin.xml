@@ -32,5 +32,8 @@
             class="net.bluemind.backend.cyrus.CyrusSysConfObserver">
       </observer>
    </extension>
-
+   <extension point="net.bluemind.user.hook.usermailidentity">
+      <hook impl="net.bluemind.backend.cyrus.hook.CyrusIdentityHook">
+      </hook>
+   </extension>
 </plugin>

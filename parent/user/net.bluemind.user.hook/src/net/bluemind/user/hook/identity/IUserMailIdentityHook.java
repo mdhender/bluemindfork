@@ -18,50 +18,25 @@
  */
 package net.bluemind.user.hook.identity;
 
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.user.api.User;
 import net.bluemind.user.api.UserMailIdentity;
 
 /**
- * Hook interface for {@link User} changes
+ * Hook interface for {@link UserMailIdentities} changes
  *
  */
 public interface IUserMailIdentityHook {
 
-	/**
-	 * This is called before a user create
-	 * 
-	 * @param context
-	 * @param domainUid
-	 * @param uid
-	 * @param identity
-	 * @throws ServerFault
-	 */
 	void beforeCreate(BmContext context, String domainUid, String uid, UserMailIdentity identity);
 
-	/**
-	 * This is called before a user update
-	 * 
-	 * @param context
-	 * @param domainUid
-	 * @param uid
-	 * @param update
-	 * @param previous
-	 * @throws ServerFault
-	 */
 	void beforeUpdate(BmContext context, String domainUid, String uid, UserMailIdentity update,
 			UserMailIdentity previous);
 
-	/**
-	 * This is called before a user delete
-	 * 
-	 * @param context
-	 * @param domainUid
-	 * @param uid
-	 * @param previous
-	 * @throws ServerFault
-	 */
 	void beforeDelete(BmContext context, String domainUid, String uid, UserMailIdentity previous);
+
+	void onIdentityUpdated(BmContext context, String domainUid, String userUid, UserMailIdentity current,
+			UserMailIdentity previous);
+
+	void onIdentityDefault(BmContext context, String domainUid, String userUid, String id);
 
 }

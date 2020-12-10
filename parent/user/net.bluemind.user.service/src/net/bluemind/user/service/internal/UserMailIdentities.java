@@ -96,6 +96,7 @@ public class UserMailIdentities implements IUserMailIdentities {
 		UserMailIdentity previousIdentity = get(id);
 		hooks.forEach(hook -> hook.beforeUpdate(context, domainUid, id, identity, previousIdentity));
 		storeService.updateIdentity(userUid, id, identity);
+		hooks.forEach(hook -> hook.onIdentityUpdated(context, domainUid, userUid, identity, previousIdentity));
 	}
 
 	private void checkMailboxAclContainer(UserMailIdentity identity) {
@@ -173,5 +174,6 @@ public class UserMailIdentities implements IUserMailIdentities {
 	public void setDefault(String id) {
 		rbacManager.forEntry(userUid).check(BasicRoles.ROLE_MANAGE_USER_MAIL_IDENTITIES);
 		storeService.setDefaultIdentify(userUid, id);
+		hooks.forEach(hook -> hook.onIdentityDefault(context, domainUid, userUid, id));
 	}
 }

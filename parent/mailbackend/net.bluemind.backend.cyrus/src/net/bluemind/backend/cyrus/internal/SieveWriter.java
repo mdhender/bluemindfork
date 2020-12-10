@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.mail.internet.MimeUtility;
 
@@ -86,8 +87,8 @@ public class SieveWriter {
 		cfg.setClassForTemplateLoading(getClass(), "/templates/sieve");
 	}
 
-	public String generateSieveScript(Type type, ItemValue<Mailbox> mbox, ItemValue<Domain> domain, MailFilter filter)
-			throws IOException, TemplateException {
+	public String generateSieveScript(Type type, ItemValue<Mailbox> mbox, String displayName, ItemValue<Domain> domain,
+			MailFilter filter) throws IOException, TemplateException {
 		Map<String, Object> data = new HashMap<>();
 
 		data.put("vacation", verifyVacation(filter.vacation));
@@ -101,14 +102,20 @@ public class SieveWriter {
 		}
 
 		if (type != Type.DOMAIN) {
-			Email defaultEmail = mbox.value.defaultEmail();
-			if (defaultEmail != null) {
-				data.put("from", defaultEmail.address);
-			}
+			sieveFrom(mbox, displayName).ifPresent(from -> data.put("from", from));
 			data.put("mails", expandEmails(domain, mbox.value.emails));
 		}
 
 		return applyTemplate(type, data);
+	}
+
+	public Optional<String> sieveFrom(ItemValue<Mailbox> mbox, String displayName) {
+		if (mbox.value.defaultEmail() == null) {
+			return Optional.empty();
+		}
+		String defaultEmail = mbox.value.defaultEmail().address;
+		String from = displayName == null ? defaultEmail : String.format("%s <%s>", displayName, defaultEmail);
+		return Optional.of(from);
 	}
 
 	private Collection<String> expandEmails(ItemValue<Domain> domain, Collection<Email> emails) {
@@ -317,25 +324,26 @@ public class SieveWriter {
 		}
 	}
 
-	public void write(ItemValue<Mailbox> mailbox, ItemValue<Domain> domain, MailFilter filter) {
-		write(mailbox, domain, filter, 10);
+	public void write(ItemValue<Mailbox> mailboxItem, String displayName, ItemValue<Domain> domain, MailFilter filter) {
+		write(mailboxItem, displayName, domain, filter, 10);
 	}
 
 	/**
-	 * @param mailbox
+	 * @param mailboxItem
 	 * @param domain
 	 * @param filter
 	 * @throws ServerFault
 	 */
-	private void write(ItemValue<Mailbox> mailbox, ItemValue<Domain> domain, MailFilter filter, int count) {
+	private void write(ItemValue<Mailbox> mailboxItem, String displayName, ItemValue<Domain> domain, MailFilter filter,
+			int count) {
 
-		SieveClient.SieveConnectionData clientConnectionData = getSieveConnectionData(mailbox, domain.uid);
-		Type type = mailbox.value.type == Mailbox.Type.user ? Type.USER : Type.SHARED;
+		SieveClient.SieveConnectionData clientConnectionData = getSieveConnectionData(mailboxItem, domain.uid);
+		Type type = mailboxItem.value.type == Mailbox.Type.user ? Type.USER : Type.SHARED;
 
 		try (SieveClient sieveClient = new SieveClient(clientConnectionData)) {
 			if (sieveClient.login()) {
-				String scriptName = mailbox.uid + ".sieve";
-				String content = generateSieveScript(type, mailbox, domain, filter);
+				String scriptName = mailboxItem.uid + ".sieve";
+				String content = generateSieveScript(type, mailboxItem, displayName, domain, filter);
 
 				boolean res = sieveClient.putscript(scriptName, new ByteArrayInputStream(content.getBytes()));
 				if (!res) {
@@ -348,7 +356,7 @@ public class SieveWriter {
 				}
 
 				if (type == Type.SHARED) {
-					storeShareAnnotation(mailbox, domain, scriptName, clientConnectionData);
+					storeShareAnnotation(mailboxItem, domain, scriptName, clientConnectionData);
 				}
 			} else {
 				logger.error("Fail to login to sieve. Login: '{}'", clientConnectionData.login);
@@ -363,7 +371,7 @@ public class SieveWriter {
 				throw new ServerFault(e);
 			}
 			logger.info("Cannot write filter {} times. Retrying...", count);
-			write(mailbox, domain, filter, --count);
+			write(mailboxItem, displayName, domain, filter, --count);
 		}
 
 	}
@@ -442,7 +450,7 @@ public class SieveWriter {
 				try (SieveClient sieveClient = new SieveClient(sieveConnectionData)) {
 					if (sieveClient.login()) {
 						String scriptName = domainUid + ".sieve";
-						String content = generateSieveScript(Type.DOMAIN, null,
+						String content = generateSieveScript(Type.DOMAIN, null, null,
 								ItemValue.create(domainUid,
 										Domain.create(domainUid, domainUid, scriptName, Collections.emptySet())),
 								filter);

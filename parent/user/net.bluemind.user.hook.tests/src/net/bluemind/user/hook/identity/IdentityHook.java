@@ -23,12 +23,13 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.concurrent.CountDownLatch;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.user.api.UserMailIdentity;
 
 public class IdentityHook implements IUserMailIdentityHook {
 
-	public static final CountDownLatch latch = new CountDownLatch(3);
+	public static final CountDownLatch latch = new CountDownLatch(5);
 
 	public IdentityHook() {
 		System.out.println("Test hook created");
@@ -60,6 +61,24 @@ public class IdentityHook implements IUserMailIdentityHook {
 		assertNotNull(domainUid);
 		assertNotNull(previous);
 		assertEquals(previous.name, "John Doe Updated");
+		latch.countDown();
+	}
+
+	@Override
+	public void onIdentityUpdated(BmContext context, String domainUid, String userUid, UserMailIdentity current,
+			UserMailIdentity previous) throws ServerFault {
+		// Nothing to do on update
+		assertNotNull(domainUid);
+		assertNotNull(previous);
+		assertEquals(previous.name, "John Doe");
+		assertNotNull(current);
+		assertEquals(current.name, "John Doe Updated");
+		latch.countDown();
+	}
+
+	@Override
+	public void onIdentityDefault(BmContext context, String domainUid, String userUid, String id) {
+		assertNotNull(domainUid);
 		latch.countDown();
 	}
 
