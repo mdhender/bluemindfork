@@ -21,11 +21,12 @@ import net.bluemind.pimp.impl.Rule;
 import net.bluemind.pimp.impl.RulesBuilder;
 
 public class PimpMyRam implements IApplication {
-
 	private static final Logger logger = LoggerFactory.getLogger(PimpMyRam.class);
 
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
+		pimpSysCtl();
+
 		Rule[] rules = loadRules();
 		printMemoryAllocation(rules);
 		long totalMemMB = getTotalSystemMemory();
@@ -36,6 +37,19 @@ public class PimpMyRam implements IApplication {
 
 		System.exit(0);
 		return IApplication.EXIT_OK;
+	}
+
+	private void pimpSysCtl() {
+		try (InputStream in = PimpMyRam.class.getClassLoader().getResourceAsStream("data/sysctl/bm.conf")) {
+			Files.write(ByteStreams.toByteArray(in), new File("/etc/sysctl.d/01-bluemind.conf"));
+
+			int ret = SystemHelper.cmd("sysctl --system");
+			if (ret != 0) {
+				logger.warn("Loading sysctl ending with error code {}", ret);
+			}
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
 
 	private void pimpPostgresql(long totalMemMB) {
