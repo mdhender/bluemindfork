@@ -152,26 +152,28 @@ public class AddressBooksMgmtTests {
 		IAddressBooksMgmt service = service(domainAdmin);
 		service.create(abUid, AddressBookDescriptor.create("test", domainUid, domainUid), false);
 
-		service.delete(abUid);
 		DataSource bookDS = DataSourceRouter.get(testContext, abUid);
-
 		ContainerStore cs = new ContainerStore(null, bookDS, domainAdmin);
+		assertNotNull("container " + abUid + " must exist at this point", cs.get(abUid));
+
+		service.delete(abUid);
 		assertNull(cs.get(abUid));
 
 		// dummy cannot do it
 		abUid = "testdomab" + System.currentTimeMillis();
 		service = service(domainAdmin);
 		service.create(abUid, AddressBookDescriptor.create("test", domainUid, domainUid), false);
+		bookDS = DataSourceRouter.get(testContext, abUid);
+		cs = new ContainerStore(null, bookDS, domainAdmin);
 		assertNotNull("container " + abUid + " must exist at this point", cs.get(abUid));
-		service = service(dummy);
 
+		service = service(dummy);
 		try {
 			service.delete(abUid);
 			fail("should not be possible");
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
-		cs = new ContainerStore(null, bookDS, domainAdmin);
 		assertNotNull("container " + abUid + " must exist at this point", cs.get(abUid));
 
 	}
@@ -215,7 +217,8 @@ public class AddressBooksMgmtTests {
 
 		service.delete(abUid);
 
-		ContainerStore cs = new ContainerStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(), domainAdmin);
+		ContainerStore cs = new ContainerStore(null, JdbcTestHelper.getInstance().getMailboxDataDataSource(),
+				domainAdmin);
 		assertNull(cs.get(abUid));
 
 		// dummy2 cannot do it
@@ -228,7 +231,7 @@ public class AddressBooksMgmtTests {
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
-		cs = new ContainerStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(), domainAdmin);
+		cs = new ContainerStore(null, JdbcTestHelper.getInstance().getMailboxDataDataSource(), domainAdmin);
 		assertNotNull(cs.get(abUid));
 
 	}
