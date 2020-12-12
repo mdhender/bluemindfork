@@ -53,15 +53,13 @@ public class PimpMyRam implements IApplication {
 	private void writePg(String tplName) {
 		try (InputStream in = PimpMyRam.class.getClassLoader().getResourceAsStream("data/pg/" + tplName);
 				ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-			logger.info("PostgreSQL memory configured with template {}", tplName);
-
 			bos.write(
-					"# DO NOT MODIFY\n# OVERWRITED BY bm-pimp\n# use postgresql.conf.local for specific configuration\n"
+					"# DO NOT MODIFY\n# OVERWRITTEN BY bm-pimp\n# use postgresql.conf.local for specific configuration\n"
 							.getBytes());
 			bos.write(ByteStreams.toByteArray(in));
 
 			Files.write(bos.toByteArray(), new File("/etc/postgresql/12/main/postgresql.conf.pimp"));
-			logger.info("PostgreSQL memory configured");
+			logger.info("PostgreSQL memory configured ({})", tplName);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -125,7 +123,7 @@ public class PimpMyRam implements IApplication {
 		if (spareMb > 0) {
 			logger.info("{}MB will be distributed between JVMs", spareMb);
 		} else {
-			logger.warn("No spare memory to distribute to JVMs");
+			logger.warn("No spare memory to distribute to JVMs ({})", spareMb);
 			System.exit(0);
 		}
 		return spareMb;
@@ -172,15 +170,11 @@ public class PimpMyRam implements IApplication {
 
 	@Override
 	public void stop() {
-		System.out.println("Memory ");
+		// ok
 	}
 
 	private boolean productEnabled(String productName) {
 		File productDir = new File("/usr/share/" + productName);
-		if (!productDir.exists() || new File("/etc/bm/" + productName + ".disabled").exists()) {
-			return false;
-		}
-
-		return true;
+		return productDir.exists() && !new File("/etc/bm/" + productName + ".disabled").exists();
 	}
 }
