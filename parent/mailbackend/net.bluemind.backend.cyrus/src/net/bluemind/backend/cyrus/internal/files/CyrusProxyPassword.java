@@ -40,8 +40,8 @@ public class CyrusProxyPassword extends AbstractConfFile {
 		String cyrusReplication = "proxy_password: " + Token.admin0();
 
 		service.writeFile(serverUid, FILE_PATH, cyrusReplication.getBytes());
-		service.submit(serverUid, "chown cyrus:mail " + FILE_PATH);
-		service.submit(serverUid, "chmod 640 " + FILE_PATH);
+		service.submitAndWait(serverUid, "chown cyrus:mail " + FILE_PATH);
+		service.submitAndWait(serverUid, "chmod 640 " + FILE_PATH);
 	}
 
 }
