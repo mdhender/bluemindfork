@@ -50,6 +50,7 @@ public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 	private static final CharSequence HEADER_PRAGMA_VALUE = HttpHeaders.createOptimized("no-cache");
 	private static final List<CharSequence> HEADER_CACHE_CONTROL_VALUE = Arrays.asList("no-cache", "no-store",
 			"must-revalidate");
+	private static final String CALL_CLASS = RestHttpProxyHandler.class.getSimpleName();
 
 	public RestHttpProxyHandler(Vertx vertx, IRestCallHandler proxy) {
 		this.vertx = vertx;
@@ -91,8 +92,7 @@ public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 				request.params(), null, null);
 
 		AsyncHandler<RestResponse> handler = responseHandler(request);
-		AsyncHandler<RestResponse> wrapped = CallLogger.start(RestHttpProxyHandler.class.getSimpleName(), rr)
-				.responseHandler(handler);
+		AsyncHandler<RestResponse> wrapped = CallLogger.start(CALL_CLASS, rr).responseHandler(handler);
 
 		request.exceptionHandler((e) -> {
 			wrapped.failure(e);

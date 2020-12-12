@@ -14,19 +14,18 @@ public class CallLogger {
 	private long startTime;
 	private String component;
 
-	public CallLogger(String component, RestRequest request) {
+	private CallLogger(String component, RestRequest request) {
 		this.component = component;
 		this.request = request;
 	}
 
 	public static CallLogger start(String component, RestRequest request) {
-		CallLogger ret = new CallLogger(component, request);
-		ret.start();
-		return ret;
+		return new CallLogger(component, request).start();
 	}
 
-	public void start() {
+	public CallLogger start() {
 		startTime = System.nanoTime();
+		return this;
 	}
 
 	protected void logResponse(RestResponse value) {
