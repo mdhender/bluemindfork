@@ -322,4 +322,17 @@ public class BodyStreamProcessorTests {
 		System.out.println("JS: " + asJs.encodePrettily());
 
 	}
+
+	@Test
+	public void testEncodedContentType() throws Exception {
+		Stream stream = openResource("data/encoded_contentType.eml");
+		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
+		assertNotNull(result);
+
+		// part 0 is multipart/alternative
+
+		Part attachment = result.body.structure.children.get(1);
+		Assert.assertEquals("application/pdf", attachment.mime);
+
+	}
 }

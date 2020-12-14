@@ -495,8 +495,11 @@ public class BodyStreamProcessor {
 		String curAddr = "TEXT".equals(parent.address) ? "" + i : parent.address + "." + i;
 		Part p = new Part();
 		p.address = curAddr;
-		p.mime = sub.getMimeType();
-
+		try {
+			p.mime = MimeUtility.decodeText(sub.getMimeType());
+		} catch (UnsupportedEncodingException e1) {
+			p.mime = sub.getMimeType();
+		}
 		sub.getHeader().forEach(e -> {
 			if (FieldName.CONTENT_ID.equalsIgnoreCase(e.getName())) {
 				p.contentId = Strings.emptyToNull(e.getBody());
