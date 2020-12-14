@@ -26,6 +26,7 @@ import net.bluemind.eas.dto.base.AirSyncBaseResponse;
 import net.bluemind.eas.dto.base.AppData;
 import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.base.LazyLoaded;
+import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.serdes.IResponseBuilder;
 
 public class InlineBodyOutput implements IBodyOutput {
@@ -50,7 +51,9 @@ public class InlineBodyOutput implements IBodyOutput {
 				@Override
 				public void onResult(AirSyncBaseResponse body) {
 					if (body == null) {
-						logger.error("Missing body for inline fetch");
+						if (ad.type == ItemDataType.EMAIL) {
+							logger.error("Missing body for inline fetch");
+						}
 						done.onResult(builder);
 					} else {
 						AirSyncBaseResponseFormatter formatter = new AirSyncBaseResponseFormatter();
@@ -91,7 +94,9 @@ public class InlineBodyOutput implements IBodyOutput {
 				}
 			});
 		} else {
-			logger.warn("Missing body loader in AppData");
+			if (ad.type == ItemDataType.EMAIL) {
+				logger.warn("Missing body loader in AppData");
+			}
 			done.onResult(builder);
 		}
 	}
