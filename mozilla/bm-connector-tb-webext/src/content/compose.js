@@ -148,6 +148,7 @@ var gBMCompose = {
     init: function() {
         let loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"].getService(Components.interfaces.mozIJSSubScriptLoader);
         loader.loadSubScript("chrome://bm/content/core2/client/MailTipClient.js");
+        loader.loadSubScript("chrome://bm/content/core2/client/UserMailIdentitiesClient.js");
     },
     checkSignature: function() {
         this._timer.cancel();
@@ -251,12 +252,15 @@ var gBMCompose = {
         let self = this;
         return auth.then(function(logged) {
             self._logged = logged;
-            for (let email of self._logged.authUser.value.emails) {
-                if (aEmail == email.address) {
-                    return ;
+            let idClient = new UserMailIdentitiesClient(srv.value, logged.authKey, logged.authUser.domainUid, logged.authUser.uid);
+            return idClient.getIdentities();
+        }).then(function(indentities) {
+            for (let identity of indentities) {
+                if (aEmail == identity.email) {
+                    return;
                 }
             }
-            throw new Error("Sender: " + aEmail + " is not an email of configured user");
+            throw new Error("Sender: " + aEmail + " is not an email of configured user identities");
         });
     },
     _toRecipient: function(aType, aEmail) {
@@ -401,5 +405,9 @@ document.addEventListener("DOMOverlayLoaded_bm-connector-tb@blue-mind.net", () =
                 gBMCompose.checkSignature();
             }
         }
+    });
+    window.addEventListener("compose-from-changed", function() {
+        console.log("compose-from-changed");
+        gBMCompose.checkSignature();
     });
 }, { once: false });
