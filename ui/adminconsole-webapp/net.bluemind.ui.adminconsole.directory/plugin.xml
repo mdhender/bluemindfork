@@ -35,10 +35,6 @@
                class="net.bluemind.ui.adminconsole.directory.server.ResourceIconUploadHandler"
                path="resource/seticon">
          </handler>
-         <handler
-               class="net.bluemind.ui.adminconsole.directory.server.UserPhotoUploadHandler"
-               path="user/setphoto">
-         </handler>
       </web-module-provider>
    </extension>
   

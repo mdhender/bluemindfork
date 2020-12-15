@@ -18,80 +18,31 @@
  */
 package net.bluemind.ui.adminconsole.directory.server;
 
-import java.io.File;
-import java.util.UUID;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.resource.api.type.IResourceTypesAsync;
 
-public class ResourceTypeIconUploadHandler extends BaseUploadHandler {
+public class ResourceTypeIconUploadHandler extends BaseUploadHandler<IResourceTypesAsync> {
 
 	private static Logger logger = LoggerFactory.getLogger(ResourceTypeIconUploadHandler.class);
 
 	@Override
-	public void handle(final HttpServerRequest request) {
-		final String domainUid = request.params().get("domainUid");
-		final String resourceTypeUid = request.params().get("rtId");
-		String iconId = request.params().get("iconId");
-		UUID parsed = null;
-		try {
-			parsed = UUID.fromString(iconId);
-		} catch (IllegalArgumentException e) {
-			request.response().setStatusCode(500).end();
-			return;
-		}
-		if (domainUid == null || resourceTypeUid == null || iconId == null) {
-			request.response().setStatusCode(500);
-			request.response().setStatusMessage("bad paramters");
-			request.response().end();
-			return;
-		}
-
-		File file = repository.getTempFile(parsed);
-		if (file == null || !file.exists()) {
-			request.response().setStatusCode(500);
-			request.response().setStatusMessage("temp file doesnt exists anymore");
-			request.response().end();
-			return;
-		}
-
-		vertx.fileSystem().readFile(file.getPath(), new Handler<AsyncResult<Buffer>>() {
-
-			@Override
-			public void handle(AsyncResult<Buffer> event) {
-				doSetIcon(request, domainUid, resourceTypeUid, event.result().getBytes());
-			}
-		});
-
+	protected String entityIdParameter() {
+		return "rtId";
 	}
 
-	protected void doSetIcon(final HttpServerRequest request, final String domainUid, final String resourceTypeUid,
-			byte[] data) {
-		IResourceTypesAsync rt = getProvider(request).instance("bm/core", IResourceTypesAsync.class, domainUid);
-		rt.setIcon(resourceTypeUid, data, new AsyncHandler<Void>() {
+	@Override
+	protected IResourceTypesAsync entityService(final HttpServerRequest request, final String domainUid) {
+		return getProvider(request).instance("bm/core", IResourceTypesAsync.class, domainUid);
+	}
 
-			@Override
-			public void success(Void value) {
-				request.response().setStatusCode(200);
-				request.response().end();
-			}
-
-			@Override
-			public void failure(Throwable e) {
-				logger.error("error during set image to resource type {}:{} : {}", domainUid, resourceTypeUid,
-						e.getMessage());
-				request.response().setStatusCode(500);
-				request.response().setStatusMessage(e.getMessage() != null ? e.getMessage() : "null");
-				request.response().end();
-			}
-		});
+	@Override
+	protected void setUploadData(IResourceTypesAsync entityService, String entityId, byte[] data,
+			AsyncHandler<Void> handler) {
+		entityService.setIcon(entityId, data, handler);
 	}
 
 }
