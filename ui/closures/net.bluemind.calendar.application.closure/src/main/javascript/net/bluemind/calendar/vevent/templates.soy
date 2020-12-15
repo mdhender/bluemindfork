@@ -493,7 +493,11 @@
               {msg meaning="calendar.event.repeat.daily" desc="Event will repeat on a day based period"}Daily{/msg}
             {case 'WEEKLY'}
               {msg meaning="calendar.event.repeat.weekly" desc="Event will repeat on a week based period"}Weekly{/msg},&nbsp;
-              {msg meaning="calendar.event.repeat.weekly.onDay" desc="weekly repeat, days of week"}on {$rrulebyday}{/msg}
+            {if $rrulebyday.length == 7}
+              {msg meaning="calendar.event.repeat.weekly.onEveryDay" desc="weekly repeat, days of week"}on every day{/msg}
+            {else}
+              {msg meaning="calendar.event.repeat.weekly.onDayOfWeek" desc="weekly repeat, days of week"}on {$rrulebyday}{/msg}
+            {/if}
             {case 'MONTHLY'}
               {msg meaning="calendar.event.repeat.monthly" desc="Event will repeat on a month based period"}Monthly{/msg}
             {case 'YEARLY'}
