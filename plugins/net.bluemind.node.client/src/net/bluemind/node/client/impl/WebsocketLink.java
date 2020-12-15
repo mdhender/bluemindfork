@@ -24,9 +24,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -144,13 +142,30 @@ public class WebsocketLink {
 		ProcessHandler ph = execHandlers.get(rid);
 		if (ph != null) {
 			handleWebSocketFrame(rid, ph, msg);
+		} else {
+			String kind = msg.getString("kind");
+			switch (kind) {
+			case "node-start":
+				logger.info("Node has restarted on {}, dropping {} task handlers.", cli.getHost(), execHandlers.size());
+				execHandlers.forEach((runId, handler) -> {
+					handler.log("Node has restarted.");
+					handler.completed(1);
+				});
+				execHandlers.clear();
+				break;
+			case "notification":
+				// does not exist yet
+				break;
+			default:
+				logger.warn("Unknown frame kind {}", kind);
+			}
 		}
 	}
 
 	public void waitAvailable(long time, TimeUnit unit) {
 		try {
 			firstConnect.get(time, unit);
-		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 	}

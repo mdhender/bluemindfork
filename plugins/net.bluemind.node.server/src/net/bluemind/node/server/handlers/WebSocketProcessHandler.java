@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.ServerWebSocket;
+import io.vertx.core.json.JsonObject;
 
 public class WebSocketProcessHandler implements Handler<ServerWebSocket> {
 
@@ -46,6 +47,8 @@ public class WebSocketProcessHandler implements Handler<ServerWebSocket> {
 		logger.info("Accepted websocket connection {}", ws);
 
 		ws.frameHandler(new SocketFrameHandler(ws, vertx));
+		JsonObject js = new JsonObject().put("kind", "node-start");
+		ws.writeFinalTextFrame(js.encode());
 	}
 
 }
