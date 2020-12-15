@@ -1,6 +1,6 @@
 <template>
     <i18n :path="path" tag="span">
-        <template #count>{{ message.count }}</template>
+        <template #count>{{ count }}</template>
         <template #subject>{{ message.subject }}</template>
         <template #folder>
             <router-link :to="link">

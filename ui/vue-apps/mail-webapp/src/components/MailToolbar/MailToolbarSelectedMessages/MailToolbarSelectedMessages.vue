@@ -22,9 +22,7 @@
             <bm-icon icon="unread" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.mark_unread", selection.length || 1) }}</span>
         </bm-button>
-        <mail-toolbar-selected-messages-move-action
-            v-show="!MULTIPLE_MESSAGE_SELECTED && !selectionHasReadOnlyFolders"
-        />
+        <mail-toolbar-selected-messages-move-action v-show="!selectionHasReadOnlyFolders" />
         <bm-button
             v-show="!selectionHasReadOnlyFolders"
             variant="inline-light"

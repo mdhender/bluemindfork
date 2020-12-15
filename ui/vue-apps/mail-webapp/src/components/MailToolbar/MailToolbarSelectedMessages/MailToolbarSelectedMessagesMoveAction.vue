@@ -28,7 +28,7 @@
             <bm-dropdown-item-button
                 class="text-nowrap text-truncate w-100"
                 :title="$tc('mail.actions.move.item', 1, { path: item.path })"
-                @click="selectFolder(item)"
+                @click="moveToFolder(item)"
             >
                 <template #icon>
                     <mail-folder-icon no-text :shared="isFolderOfMailshare(item)" :folder="item" />
@@ -46,7 +46,7 @@
             <mail-folder-input
                 class="pl-2 pr-1"
                 :submit-on-focusout="false"
-                @submit="newFolderName => selectFolder({ name: newFolderName, path: newFolderName })"
+                @submit="newFolderName => moveToFolder({ name: newFolderName, path: newFolderName })"
                 @keydown.left.native.stop
                 @keydown.right.native.stop
                 @keydown.esc.native.stop
@@ -57,7 +57,7 @@
             :aria-label="$tc('mail.actions.move.item', 1, { path: pattern })"
             :title="$tc('mail.actions.move.item', 1, { path: pattern })"
             icon="plus"
-            @click="selectFolder({ name: pattern, path: pattern })"
+            @click="moveToFolder({ name: pattern, path: pattern })"
         >
             {{ $t("mail.folder.new.from_pattern", [pattern]) }}
         </bm-dropdown-item-button>
@@ -105,7 +105,7 @@ export default {
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail-webapp", ["nextMessageKey"]),
-        ...mapState("mail", ["activeFolder", "folders", "mailboxes", "messages"]),
+        ...mapState("mail", ["activeFolder", "folders", "mailboxes", "messages", "selection"]),
         ...mapGetters("mail", { MY_TRASH, MY_INBOX, FOLDER_BY_PATH }),
         displayCreateFolderBtnFromPattern() {
             let pattern = this.pattern;
@@ -131,8 +131,9 @@ export default {
         }
     },
     methods: {
-        selectFolder(item) {
-            this.MOVE_MESSAGES({ messages: this.messages[this.currentMessageKey], folder: item });
+        moveToFolder(folder) {
+            const toBeMoved = this.selection.map(key => this.messages[key]) || this.messages[this.currentMessageKey];
+            this.MOVE_MESSAGES({ messages: toBeMoved, folder });
             this.$refs["move-dropdown"].hide(true);
         },
         openMoveAutocomplete() {
