@@ -16,7 +16,9 @@ module.exports = {
         "^~getters$": "<rootDir>/mail-webapp/src/store/types/getters",
         "^~mutations$": "<rootDir>/mail-webapp/src/store/types/mutations"
     },
-    transformIgnorePatterns: ["/node_modules/(?!@bluemind/|storybook-addon-vue-info|storybook-addon-designs)"],
+    transformIgnorePatterns: [
+        "/node_modules/(?!(@bluemind/|storybook-addon-vue-info|storybook-addon-designs|workbox-.*))"
+    ],
     testURL: "http://localhost",
     setupFiles: ["./.jest/register-context.js"]
 };

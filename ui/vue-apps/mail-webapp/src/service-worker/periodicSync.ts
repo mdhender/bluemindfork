@@ -1,8 +1,6 @@
 import { maildb, SyncOptions } from "./MailDB";
-import { userAtDomain, mailapi, sessionInfos } from "./MailAPI";
+import { userAtDomain, mailapi, sessionInfos, getDBName } from "./MailAPI";
 import { MailItem } from "./entry";
-
-declare const self: ServiceWorkerGlobalScope;
 
 export function registerPeriodicSync(fn: Function, interval = 60 * 1000, ...args: any[]) {
     fn(...args);
@@ -11,7 +9,7 @@ export function registerPeriodicSync(fn: Function, interval = 60 * 1000, ...args
 
 export async function syncMailFolders() {
     await syncMyMailbox();
-    const folders = await (await maildb.getInstance()).getAllMailFolders();
+    const folders = await (await maildb.getInstance(await getDBName())).getAllMailFolders();
     for (const folder of folders) {
         await syncMailFolder(folder.uid);
     }
@@ -29,11 +27,11 @@ export async function syncMailFolder(uid: string) {
             .concat(updated.reverse())
             .map(({ id }) => id);
         const mailItems = await fetchMailItemsByChunks(ids, uid);
-        (await maildb.getInstance()).reconciliate(
+        (await maildb.getInstance(await getDBName())).reconciliate(
             { uid, items: mailItems, deletedIds: deleted.map(({ id }) => id) },
             { ...syncOptions, version }
         );
-        (await maildb.getInstance()).updateSyncOptions({ ...syncOptions, version });
+        (await maildb.getInstance(await getDBName())).updateSyncOptions({ ...syncOptions, version });
     }
 }
 
@@ -54,9 +52,9 @@ async function syncMailbox(domain: string, userId: string) {
         const mailFolders = (await api.mailFolder.fetch({ domain, userId })).filter(mailfolder =>
             toBeUpdated.includes(mailfolder.internalId)
         );
-        await (await maildb.getInstance()).deleteMailFolders(deleted);
-        await (await maildb.getInstance()).putMailFolders(mailFolders);
-        await (await maildb.getInstance()).updateSyncOptions({ ...syncOptions, version });
+        await (await maildb.getInstance(await getDBName())).deleteMailFolders(deleted);
+        await (await maildb.getInstance(await getDBName())).putMailFolders(mailFolders);
+        await (await maildb.getInstance(await getDBName())).updateSyncOptions({ ...syncOptions, version });
     }
 }
 
@@ -78,10 +76,10 @@ function createSyncOptions(uid: string, type: "mail_item" | "mail_folder"): Sync
 }
 
 async function getSyncOptions(uid: string, type: "mail_item" | "mail_folder") {
-    const syncOptions = await (await maildb.getInstance()).getSyncOptions(uid);
+    const syncOptions = await (await maildb.getInstance(await getDBName())).getSyncOptions(uid);
     if (!syncOptions) {
         const syncOptions = createSyncOptions(uid, type);
-        (await maildb.getInstance()).updateSyncOptions(syncOptions);
+        (await maildb.getInstance(await getDBName())).updateSyncOptions(syncOptions);
         return syncOptions;
     }
     return syncOptions;

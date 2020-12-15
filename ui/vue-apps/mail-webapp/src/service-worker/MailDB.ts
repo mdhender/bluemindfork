@@ -1,6 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase, IDBPTransaction, StoreNames, StoreValue } from "idb";
 import { MailFolder, MailItem, MailItemLight, Reconciliation } from "./entry";
-import { userAtDomain, sessionInfos } from "./MailAPI";
 
 type SyncOptionsType = "mail_folder" | "mail_item";
 export interface SyncOptions {
@@ -34,13 +33,13 @@ interface MailSchema extends DBSchema {
 export const maildb = (function () {
     let instance: MailDB | null;
 
-    async function init() {
-        return new MailDB(userAtDomain(await sessionInfos.getInstance()));
+    async function init(dbname: string) {
+        return new MailDB(dbname);
     }
     return {
-        getInstance: async function () {
+        getInstance: async function (dbname: string) {
             if (!instance) {
-                instance = await init();
+                instance = await init(dbname);
             }
             return instance;
         }

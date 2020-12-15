@@ -1,5 +1,5 @@
 import fetchMock from "fetch-mock";
-import { sessionInfos, mailapi, userAtDomain } from "../MailAPI";
+import { sessionInfos, mailapi, userAtDomain, getDBName } from "../MailAPI";
 
 describe("mailAPI", () => {
     test("userAtDomain", () => {
@@ -11,7 +11,8 @@ describe("mailAPI", () => {
 
     describe("sessionInfos", () => {
         const somesessioninfos = {
-            foo: "bar"
+            userId: "foo",
+            domain: "bar"
         };
         const route = "/session-infos";
         beforeAll(() => {
@@ -36,6 +37,11 @@ describe("mailAPI", () => {
             const secondInstance = await sessionInfos.getInstance();
             expect(secondInstance).toEqual(somesessioninfos);
             expect(fetchMock.calls(route).length).toEqual(1);
+        });
+
+        test("getDBName", async () => {
+            const actual = await getDBName();
+            expect(actual).toEqual("user.foo@bar");
         });
     });
     describe("mailapi", () => {

@@ -1,16 +1,12 @@
 import { registerRoute } from "workbox-routing";
-import { RouteHandlerCallbackOptions } from "workbox-core/types";
+import { RouteHandlerCallback, RouteHandlerCallbackOptions } from "workbox-core/types";
 import { syncMailFolder } from "../periodicSync";
 import { maildb } from "../MailDB";
-import { logger } from "../logger";
-import { MailItem } from "../entry";
+import { FilteredChangeSet, Flags } from "../entry";
+import { getDBName } from "../MailAPI";
+import { HTTPMethod } from "workbox-routing/utils/constants";
 
-interface Flags {
-    must: string[];
-    mustNot: string[];
-}
-
-const apiRoutes = [
+export const apiRoutes = [
     {
         capture: /\/api\/mail_items\/([a-f0-9-]+)\/_multipleById/,
         handler: multipleById
@@ -29,141 +25,122 @@ const apiRoutes = [
     }
 ];
 
-const methods: ("GET" | "POST" | "PUT" | "DELETE")[] = ["GET", "POST", "PUT", "DELETE"];
+const methods: HTTPMethod[] = ["GET", "POST", "PUT", "DELETE"];
 
-export default function () {
-    for (const { capture, handler } of apiRoutes) {
+export default function (routes: { capture: RegExp; handler: RouteHandlerCallback }[]) {
+    for (const { capture, handler } of routes) {
         for (const method of methods) {
             registerRoute(capture, handler, method);
         }
     }
 }
 
-async function allMailFolders({ request, params: [domain, userId] }: RouteHandlerCallbackOptions) {
-    try {
-        request = request as Request;
-        const uid = `${userId}@${domain}`;
-        if (await (await maildb.getInstance()).isSubscribed(uid)) {
-            return await fetchIndexedDB.allMailFolders();
-        }
-        return fetch(request);
-    } catch (error) {
-        logger.error("Error with local data", { error, domain, userId });
-        return fetch(request);
-    }
-}
-
-async function multipleById({ request, params: [folderUid] }: RouteHandlerCallbackOptions) {
-    try {
-        request = request as Request;
-        const clonedRequest = request.clone();
-        const ids = (await clonedRequest.json()) as number[];
-        if (await (await maildb.getInstance()).isSubscribed(folderUid)) {
-            try {
-                await syncMailFolder(folderUid);
-            } catch (err) {
-                logger.error("Impossible to reach the server: using local data, they may be outdated.");
+export async function allMailFolders({ request, params }: RouteHandlerCallbackOptions) {
+    if (params instanceof Array) {
+        const [domain, userId] = params;
+        try {
+            const uid = `${userId}@${domain}`;
+            const db = await maildb.getInstance(await getDBName());
+            if (await db.isSubscribed(uid)) {
+                const allMailFolders = await db.getAllMailFolders();
+                return responseFromCache(allMailFolders);
             }
-            return await fetchIndexedDB.multipleById(folderUid, ids);
+            return fetch(request);
+        } catch (error) {
+            console.debug(error);
+            return fetch(request);
         }
-        return fetch(request);
-    } catch (error) {
-        logger.error("Error with local data", { error, folderUid });
-        return fetch(request);
     }
 }
 
-async function filteredChangesetById({ request, params: [folderUid] }: RouteHandlerCallbackOptions) {
-    try {
-        request = request as Request;
-        const expectedFlags = (await request.clone().json()) as Flags;
-        if (await (await maildb.getInstance()).isSubscribed(folderUid)) {
-            try {
+export async function multipleById({ request, params }: RouteHandlerCallbackOptions) {
+    if (params instanceof Array) {
+        const [folderUid] = params;
+        try {
+            request = request as Request;
+            const clonedRequest = request.clone();
+            const ids = (await clonedRequest.json()) as number[];
+            const db = await maildb.getInstance(await getDBName());
+            if (await db.isSubscribed(folderUid)) {
                 await syncMailFolder(folderUid);
-            } catch (err) {
-                logger.error("Impossible to reach the server: using local data, they may be outdated.");
+                const mailItems = await db.getMailItems(folderUid, ids);
+                const data = mailItems.filter(Boolean);
+                return responseFromCache(data);
             }
-            return fetchIndexedDB.filteredChangesetById(expectedFlags, folderUid);
+            return fetch(request);
+        } catch (error) {
+            console.debug(error);
+            return fetch(request);
         }
-        return fetch(request);
-    } catch (error) {
-        logger.error("Error with local data", { error, folderUid });
-        return fetch(request);
     }
 }
 
-async function unreadItems({ request, params: [folderUid] }: RouteHandlerCallbackOptions) {
-    try {
-        request = request as Request;
-        const expectedFlags: Flags = { must: [], mustNot: ["Deleted", "Seen"] };
-        if (await (await maildb.getInstance()).isSubscribed(folderUid)) {
-            try {
+export async function filteredChangesetById({ request, params }: RouteHandlerCallbackOptions) {
+    if (params instanceof Array) {
+        const [folderUid] = params;
+        try {
+            request = request as Request;
+            const expectedFlags = (await request.clone().json()) as Flags;
+            const db = await maildb.getInstance(await getDBName());
+            if (await db.isSubscribed(folderUid)) {
                 await syncMailFolder(folderUid);
-            } catch (err) {
-                logger.error("Impossible to reach the server: using local data, they may be outdated.");
+                const allMailItems = await db.getAllMailItemLight(folderUid);
+                const data: FilteredChangeSet = {
+                    created: allMailItems
+                        .filter(item => filterByFlags(expectedFlags, item.flags))
+                        .sort(sortMessageByDate)
+                        .map(({ internalId: id }) => ({ id, version: 0 })),
+                    deleted: [],
+                    updated: [],
+                    version: 0
+                };
+                return responseFromCache(data);
             }
-            return await fetchIndexedDB.unreadItems(folderUid, expectedFlags);
+            return fetch(request);
+        } catch (error) {
+            console.debug(error);
+            return fetch(request);
         }
-        return fetch(request);
-    } catch (error) {
-        logger.error("Error with local data", { error, folderUid });
-        return fetch(request);
     }
 }
 
-const fetchIndexedDB = {
-    async filteredChangesetById(expectedFlags: Flags, folderUid: string) {
-        const allMailItems = await (await maildb.getInstance()).getAllMailItemLight(folderUid);
-        const data = {
-            created: allMailItems
-                .filter(item => filterByFlags(expectedFlags, item.flags))
-                .sort((i1, i2) => i2.date - i1.date)
-                .map(({ internalId: id }) => ({ id })),
-            delete: [],
-            updated: [],
-            version: 0
-        };
-        const headers = new Headers();
-        headers.append("X-BM-Fromcache", "true");
-        return new Response(JSON.stringify(data), { status: 200, headers });
-    },
-
-    async multipleById(folderUid: string, ids: number[]) {
-        const mailItems = await (await maildb.getInstance()).getMailItems(folderUid, ids);
-        const actualMailItems = mailItems.filter(Boolean);
-        if (mailItems.length !== actualMailItems.length) {
-            logger.error("Missing some mails in DB");
+export async function unreadItems({ request, params }: RouteHandlerCallbackOptions) {
+    if (params instanceof Array) {
+        const [folderUid] = params;
+        try {
+            request = request as Request;
+            const expectedFlags: Flags = { must: [], mustNot: ["Deleted", "Seen"] };
+            const db = await maildb.getInstance(await getDBName());
+            if (await db.isSubscribed(folderUid)) {
+                await syncMailFolder(folderUid);
+                const allMailItems = await db.getAllMailItems(folderUid);
+                const data = allMailItems
+                    .filter(item => filterByFlags(expectedFlags, item.flags))
+                    .sort((item1, item2) => sortMessageByDate(item1.value.body, item2.value.body))
+                    .map(item => item.internalId);
+                return responseFromCache(data);
+            }
+            return fetch(request);
+        } catch (error) {
+            console.debug(error);
+            return fetch(request);
         }
-        const headers = new Headers();
-        headers.append("X-BM-Fromcache", "true");
-        return new Response(JSON.stringify(actualMailItems), { headers });
-    },
-
-    async unreadItems(folderUid: string, expectedFlags: Flags) {
-        const allMailItems = await (await maildb.getInstance()).getAllMailItems(folderUid);
-        const data = allMailItems
-            .filter(item => filterByFlags(expectedFlags, item.flags))
-            .sort(sortMessageByDate)
-            .map(item => item.internalId);
-        const headers = new Headers();
-        headers.append("X-BM-Fromcache", "true");
-        return new Response(JSON.stringify(data), { headers });
-    },
-    async allMailFolders() {
-        const folders = await (await maildb.getInstance()).getAllMailFolders();
-        const headers = new Headers();
-        headers.append("X-BM-Fromcache", "true");
-        return new Response(JSON.stringify(folders), { headers });
     }
-};
+}
 
-function filterByFlags(expectedFlags: Flags, flags: any[]) {
+function responseFromCache(data: unknown) {
+    const headers = new Headers();
+    headers.append("X-BM-Fromcache", "true");
+    return Promise.resolve(new Response(JSON.stringify(data), { headers }));
+}
+
+export function filterByFlags(expectedFlags: Flags, flags: any[]) {
     return (
         expectedFlags.must.every(flag => flags.includes(flag)) &&
         !expectedFlags.mustNot.some(flag => flags.includes(flag))
     );
 }
 
-function sortMessageByDate(item1: MailItem, item2: MailItem) {
-    return item2.value.body.date - item1.value.body.date;
+export function sortMessageByDate(item1: { date: number }, item2: { date: number }) {
+    return item2.date - item1.date;
 }

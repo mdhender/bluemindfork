@@ -80,3 +80,8 @@ export interface SessionInfo {
     bmVersion: string;
     bmBrandVersion: string;
 }
+
+export interface Flags {
+    must: string[];
+    mustNot: string[];
+}

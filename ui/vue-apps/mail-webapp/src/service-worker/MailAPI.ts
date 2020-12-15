@@ -131,3 +131,7 @@ export const mailapi = (function () {
 export function userAtDomain({ userId, domain }: { userId: string; domain: string }) {
     return `user.${userId}@${domain.replace(".", "_")}`;
 }
+
+export async function getDBName() {
+    return userAtDomain(await sessionInfos.getInstance());
+}
