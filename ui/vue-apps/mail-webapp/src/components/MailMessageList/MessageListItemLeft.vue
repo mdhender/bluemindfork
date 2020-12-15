@@ -56,7 +56,7 @@ export default {
 .message-list-item-left {
     min-width: $sp-2 + 1.3rem;
 
-    $avatar-height: 1.3rem !important;
+    $avatar-height: 2em !important;
 
     .bm-avatar {
         height: $avatar-height;

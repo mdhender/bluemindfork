@@ -77,7 +77,7 @@ export default {
 }
 
 .mail-message-list-header .bm-check {
-    margin-left: 6px;
+    margin-left: 0.85em;
 }
 
 .fake-select {
