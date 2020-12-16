@@ -19,10 +19,12 @@ Require-Bundle: org.junit,
  net.bluemind.system.api,
  net.bluemind.domain.service,
  net.bluemind.role.api,
+ net.bluemind.calendar.api,
  net.bluemind.domain.hook,
  net.bluemind.core.rest.http,
  net.bluemind.core.container.service,
- net.bluemind.core.caches.registry
+ net.bluemind.core.caches.registry,
+ net.bluemind.core.task.service
 Automatic-Module-Name: net.bluemind.domain.service.tests
 
 

@@ -78,6 +78,7 @@ import net.bluemind.user.api.User;
 
 public class DomainsService implements IDomains {
 	private static final Logger logger = LoggerFactory.getLogger(DomainsService.class);
+	private static final String DOMAIN_UPDATED = "domain.updated";
 
 	private DomainStoreService store;
 	private BmContext context;
@@ -113,7 +114,7 @@ public class DomainsService implements IDomains {
 	}
 
 	@Override
-	public void create(String uid, Domain domain) throws ServerFault {
+	public void create(String uid, Domain domain) {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
 		ParametersValidator.notNullAndNotEmpty(uid);
 
@@ -179,12 +180,12 @@ public class DomainsService implements IDomains {
 	}
 
 	@Override
-	public void update(String uid, Domain domain) throws ServerFault {
+	public void update(String uid, Domain domain) {
 		rbacManager.forDomain(uid).check(BasicRoles.ROLE_ADMIN);
 
 		ItemValue<Domain> currentDomain = store.get(uid, null);
 		if (currentDomain == null) {
-			throw new ServerFault("Domain " + uid + " doesnt exists", ErrorCode.NOT_FOUND);
+			throw domainNotFoundServerFault(uid);
 		}
 
 		ParametersValidator.notNullAndNotEmpty(uid);
@@ -226,17 +227,17 @@ public class DomainsService implements IDomains {
 			hook.onUpdated(context, currentDomain, value);
 		}
 
-		notify("domain.updated", domain.name);
+		notify(DOMAIN_UPDATED, domain.name);
 	}
 
 	@Override
-	public void delete(String uid) throws ServerFault {
+	public void delete(String uid) {
 		rbacManager.forDomain(uid).check(BasicRoles.ROLE_ADMIN);
 		ParametersValidator.notNullAndNotEmpty(uid);
 
 		ItemValue<Domain> domainItem = store.get(uid, null);
 		if (domainItem == null) {
-			throw new ServerFault("Domain " + uid + " doesnt exists", ErrorCode.NOT_FOUND);
+			throw domainNotFoundServerFault(uid);
 		}
 
 		IDirectory dir = context.provider().instance(IDirectory.class, uid);
@@ -250,7 +251,7 @@ public class DomainsService implements IDomains {
 		}
 		store.doOrFail(() -> {
 			store.delete(uid);
-			DirEntryHandlers.byKind(DirEntry.Kind.DOMAIN).delete(context, uid, uid);
+			DirEntryHandlers.byKind(BaseDirEntry.Kind.DOMAIN).delete(context, uid, uid);
 			IContainers containers = context.provider().instance(IContainers.class);
 			containers.delete(uid);
 			domainsCache.invalidate(uid);
@@ -264,12 +265,12 @@ public class DomainsService implements IDomains {
 	}
 
 	@Override
-	public TaskRef deleteDomainItems(String uid) throws ServerFault {
+	public TaskRef deleteDomainItems(String uid) {
 		rbacManager.forDomain(uid).check(BasicRoles.ROLE_ADMIN);
 
 		final ItemValue<Domain> domain = store.get(uid, null);
 		if (domain == null) {
-			throw new ServerFault("Domain " + uid + " doesnt exists", ErrorCode.NOT_FOUND);
+			throw domainNotFoundServerFault(uid);
 		}
 
 		ITasksManager tasksMananger = context.provider().instance(ITasksManager.class);
@@ -284,7 +285,7 @@ public class DomainsService implements IDomains {
 
 	}
 
-	private void deepDelete(ItemValue<Domain> domain) throws ServerFault {
+	private void deepDelete(ItemValue<Domain> domain) {
 		try {
 			logger.info("Deleting domain mail filters of domain {}", domain.uid);
 			context.provider().instance(IMailboxes.class, domain.uid).setDomainFilter(new MailFilter());
@@ -312,7 +313,7 @@ public class DomainsService implements IDomains {
 
 			}
 
-			private int kindAsInt(DirEntry.Kind kind) {
+			private int kindAsInt(BaseDirEntry.Kind kind) {
 				switch (kind) {
 				case USER:
 					return 6;
@@ -322,10 +323,10 @@ public class DomainsService implements IDomains {
 					return 4;
 				case MAILSHARE:
 					return 3;
-				case ORG_UNIT:
-					return 2;
 				case ADDRESSBOOK:
 				case CALENDAR:
+					return 2;
+				case ORG_UNIT:
 					return 1;
 				case DOMAIN:
 				default:
@@ -349,7 +350,7 @@ public class DomainsService implements IDomains {
 	}
 
 	@Override
-	public ItemValue<Domain> get(@PathParam("uid") String uid) throws ServerFault {
+	public ItemValue<Domain> get(@PathParam("uid") String uid) {
 		if (!uid.equals(context.getSecurityContext().getContainerUid())) {
 			rbacManager.forDomain(uid).check(BasicRoles.ROLE_ADMIN);
 		}
@@ -368,7 +369,7 @@ public class DomainsService implements IDomains {
 	}
 
 	@Override
-	public List<ItemValue<Domain>> all() throws ServerFault {
+	public List<ItemValue<Domain>> all() {
 		if (RBACManager.forContext(context).can(BasicRoles.ROLE_MANAGE_DOMAIN)) {
 			return store.all();
 		} else {
@@ -377,13 +378,13 @@ public class DomainsService implements IDomains {
 	}
 
 	@Override
-	public TaskRef setAliases(String uid, Set<String> aliases) throws ServerFault {
+	public TaskRef setAliases(String uid, Set<String> aliases) {
 		rbacManager.forDomain(uid).check(BasicRoles.ROLE_ADMIN);
 		ParametersValidator.notNullAndNotEmpty(uid);
 
 		final ItemValue<Domain> domainItem = get(uid);
 		if (domainItem == null) {
-			throw new ServerFault("Domain " + uid + " doesnt exists", ErrorCode.NOT_FOUND);
+			throw domainNotFoundServerFault(uid);
 		}
 
 		final Set<String> previousAliases = domainItem.value.aliases;
@@ -396,15 +397,14 @@ public class DomainsService implements IDomains {
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
 				doSetAliases(domainItem, previousAliases, monitor);
-				DomainsService.this.notify("domain.updated", uid);
+				DomainsService.this.notify(DOMAIN_UPDATED, uid);
 			}
 		});
 	}
 
-	protected void doSetAliases(ItemValue<Domain> domainItem, Set<String> previousAliases, IServerTaskMonitor monitor)
-			throws ServerFault {
+	protected void doSetAliases(ItemValue<Domain> domainItem, Set<String> previousAliases, IServerTaskMonitor monitor) {
 
-		monitor.begin(1 + hooks.size(), "update domain " + domainItem.uid + " aliases");
+		monitor.begin(1d + hooks.size(), "update domain " + domainItem.uid + " aliases");
 
 		boolean update = !previousAliases.equals(domainItem.value.aliases);
 		if (update) {
@@ -431,7 +431,7 @@ public class DomainsService implements IDomains {
 
 		final ItemValue<Domain> currentDomainItem = get(uid);
 		if (currentDomainItem == null) {
-			throw new ServerFault("Domain " + uid + " doesnt exists", ErrorCode.NOT_FOUND);
+			throw domainNotFoundServerFault(uid);
 		}
 		final Domain domain = currentDomainItem.value.copy();
 
@@ -451,11 +451,11 @@ public class DomainsService implements IDomains {
 		for (IDomainHook hook : hooks) {
 			hook.onUpdated(context, currentDomainItem, updatedDomainItem);
 		}
-		notify("domain.updated", domain.name);
+		notify(DOMAIN_UPDATED, domain.name);
 	}
 
 	@Override
-	public ItemValue<Domain> findByNameOrAliases(String name) throws ServerFault {
+	public ItemValue<Domain> findByNameOrAliases(String name) {
 		rbacManager.checkNotAnoynmous();
 
 		ItemValue<Domain> domain = domainsCache.getDomainOrAlias(name);
@@ -476,9 +476,8 @@ public class DomainsService implements IDomains {
 	}
 
 	private static List<IDomainHook> getHooks() {
-		RunnableExtensionLoader<IDomainHook> loader = new RunnableExtensionLoader<IDomainHook>();
-		List<IDomainHook> hooks = loader.loadExtensions("net.bluemind.domain", "domainHook", "hook", "class");
-		return hooks;
+		RunnableExtensionLoader<IDomainHook> loader = new RunnableExtensionLoader<>();
+		return loader.loadExtensions("net.bluemind.domain", "domainHook", "hook", "class");
 	}
 
 	private void notify(String op, String domainName) {
@@ -491,22 +490,26 @@ public class DomainsService implements IDomains {
 			msg.putStringProperty("operation", op);
 			msg.putStringProperty("domain", domainName);
 			MQ.getProducer(Topic.SYSTEM_NOTIFICATIONS).send(msg);
-			logger.info("Notification for " + op + " sent.");
+			logger.info("Notification for {} sent.", op);
 		} catch (Exception e) {
-			logger.warn("Failed notification: " + e.getMessage(), e);
+			logger.warn("Failed notification: {}", e.getMessage(), e);
 		}
 	}
 
 	@Override
-	public void setRoles(String uid, Set<String> roles) throws ServerFault {
+	public void setRoles(String uid, Set<String> roles) {
 		rbacManager.forDomain(uid).check(BasicRoles.ROLE_ADMIN);
 
 		store.setRoles(uid, roles);
 	}
 
 	@Override
-	public Set<String> getRoles(String uid) throws ServerFault {
+	public Set<String> getRoles(String uid) {
 		rbacManager.forDomain(uid).check(BasicRoles.ROLE_ADMIN);
 		return store.getRoles(uid);
+	}
+
+	private ServerFault domainNotFoundServerFault(String uid) {
+		return new ServerFault("Domain " + uid + " doesnt exists", ErrorCode.NOT_FOUND);
 	}
 }

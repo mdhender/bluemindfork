@@ -42,6 +42,8 @@ import com.google.common.collect.Sets;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import net.bluemind.calendar.api.CalendarDescriptor;
+import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.caches.registry.CacheRegistry;
@@ -58,7 +60,11 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.directory.api.IOrgUnits;
+import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.service.internal.DomainStoreService;
@@ -233,11 +239,16 @@ public class DomainsServiceTests {
 	}
 
 	@Test(timeout = 45000)
-	public void testDelete() throws ServerFault {
-		Domain d = createDomain("test" + System.currentTimeMillis() + ".lan");
+	public void testDelete() throws Exception {
+		String domainUid = "test" + System.currentTimeMillis() + ".lan";
+		PopulateHelper.createTestDomain(domainUid);
 
+		User user = PopulateHelper.getUser("test", domainUid, Routing.none);
+		String userUid = PopulateHelper.addUser(domainUid, user);
+		String orgUnitUid = createOrgUnit(domainUid, "organisation");
+		String calendarUid = createCalendar(domainUid, "calendar", domainUid, orgUnitUid);
 		try {
-			getService().delete(d.name);
+			getService().delete(domainUid);
 			fail("should fail");
 		} catch (ServerFault e) {
 			// cant delete doamin because we need to delete dir entries
@@ -245,21 +256,14 @@ public class DomainsServiceTests {
 		}
 
 		// need to delete addressbook
-		TaskRef taskRef = getService().deleteDomainItems(d.name);
+		TaskRef taskRef = getService().deleteDomainItems(domainUid);
 
-		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class,
-				"" + taskRef.id);
-		while (!task.status().state.ended) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-		}
+		TaskStatus status = TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), taskRef);
 
-		assertTrue(task.status().state.succeed);
+		assertTrue(status.state.succeed);
 
 		// now we can delete domain
-		getService().delete(d.name);
+		getService().delete(domainUid);
 	}
 
 	@Test
@@ -374,6 +378,25 @@ public class DomainsServiceTests {
 		Domain d = domain(name, aliases);
 		getService().create(d.name, d);
 		return d;
+	}
+
+	private String createOrgUnit(String domainUid, String name) {
+		IOrgUnits orgUnitService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IOrgUnits.class, domainUid);
+		OrgUnit orgUnit = OrgUnit.create(name, null);
+		String uid = "test-created:" + name;
+		orgUnitService.create(uid, orgUnit);
+		return uid;
+	}
+
+	private String createCalendar(String domainUid, String name, String ownerUid, String orgUnitUid) {
+		ICalendarsMgmt calendarsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ICalendarsMgmt.class, domainUid);
+		CalendarDescriptor calendarDescriptor = CalendarDescriptor.create(name, ownerUid, domainUid);
+		calendarDescriptor.orgUnitUid = orgUnitUid;
+		String uid = "test-created:" + name;
+		calendarsService.create(uid, calendarDescriptor);
+		return uid;
 	}
 
 	private IDomains getService() throws ServerFault {
