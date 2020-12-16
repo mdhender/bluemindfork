@@ -18,6 +18,7 @@
  */
 package net.bluemind.system.schemaupgrader;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
 
@@ -39,5 +40,10 @@ public interface Updater {
 	}
 
 	boolean afterSchemaUpgrade();
+
+	public default String name() {
+		SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
+		return formater.format(date()) + "-" + sequence() + "@" + database().name();
+	}
 
 }

@@ -4,7 +4,7 @@
   <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
     <target>System.err</target>
     <encoder>
-      <pattern>%d c{1} %p - %m\n</pattern>
+      <pattern>%d %c{1} %p - %m\n</pattern>
     </encoder>
   </appender>
   <logger name="org.apache.directory.shared" level="ERROR">

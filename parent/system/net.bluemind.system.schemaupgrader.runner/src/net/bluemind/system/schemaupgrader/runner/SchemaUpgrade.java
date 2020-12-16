@@ -61,6 +61,8 @@ public class SchemaUpgrade {
 	private final String server;
 	private final UpgraderStore upgraderStore;
 
+	private static final Logger logger = LoggerFactory.getLogger(SchemaUpgrade.class);
+
 	public SchemaUpgrade(Database database, String server, DataSource pool, boolean onlySchema,
 			UpgraderStore upgraderStore) {
 		this.database = database;
@@ -69,26 +71,22 @@ public class SchemaUpgrade {
 		this.upgraderStore = upgraderStore;
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(SchemaUpgrade.class);
-
 	public UpdateResult schemaUpgrade(IServerTaskMonitor monitor, UpgradeReport report, List<Updater> phase1,
 			List<Updater> phase2, Set<UpdateAction> handledActions) {
-
 		UpdateResult schemaUpgrade = upgrade(monitor.subWork(1), report, phase1, phase2, handledActions);
 
 		if (schemaUpgrade.equals(UpdateResult.failed())) {
-			monitor.end(false, "Upgrade failed !", "");
+			monitor.end(false, "Upgrade failed", null);
 			return UpdateResult.failed();
-
 		}
 
-		monitor.end(true, "Schema upgrade complete.", "");
+		monitor.end(true, "Schema upgrade complete", "");
 		return UpdateResult.ok();
 
 	}
 
 	public UpdateResult upgrade(IServerTaskMonitor subWork, UpgradeReport report, List<Updater> phase1,
-			List<Updater> phase2, Set<UpdateAction> handledActions) throws ServerFault {
+			List<Updater> phase2, Set<UpdateAction> handledActions) {
 
 		List<Updater> phase1Filtered = phase1.stream().filter(this::updaterPending).collect(Collectors.toList());
 		List<Updater> phase2Filtered = phase2.stream().filter(this::updaterPending).collect(Collectors.toList());
@@ -121,16 +119,17 @@ public class SchemaUpgrade {
 			return UpdateResult.failed();
 		}
 
-		subWork.log("Starting upgrader phase 2");
 		return executeUpdates(subWork, report, handledActions, UpgradePhase.POST_SCHEMA_UPGRADE, phase2Filtered);
 	}
 
-	private UpdateResult executeUpdates(IServerTaskMonitor subWork, UpgradeReport report,
+	private UpdateResult executeUpdates(IServerTaskMonitor monitor, UpgradeReport report,
 			Set<UpdateAction> handledActions, UpgradePhase phase, List<Updater> updates) {
 		UpdateResult ur = UpdateResult.noop();
 		for (Updater u : updates) {
-			logger.info("Starting {}", u);
-			subWork.log("Starting " + u);
+			String updaterName = u.getClass().getSimpleName() + ":" + u.name();
+			IServerTaskMonitor subWork = monitor.subWork(updaterName, 1);
+			logger.info("Starting {}", updaterName);
+			subWork.log("Starting " + updaterName);
 			try {
 				ur = u.executeUpdate(subWork, pool, new HashSet<>(handledActions));
 				handledActions.addAll(ur.actions);
@@ -144,13 +143,13 @@ public class SchemaUpgrade {
 
 			if (ur.equals(UpdateResult.failed())) {
 				report.upgraders.add(UpgradeReport.UpgraderReport.create(UpgradeReport.Status.FAILED));
-				subWork.end(false, "Schema upgrade failed.", "");
+				subWork.end(false, "Schema upgrade failed", "");
 				return ur;
 			} else {
 				report.upgraders.add(UpgradeReport.UpgraderReport.create(UpgradeReport.Status.OK));
 			}
 
-			subWork.progress(1, "Updater " + u + " complete (result: " + ur.result.name() + ")");
+			subWork.progress(1, "success");
 		}
 		return ur;
 	}
