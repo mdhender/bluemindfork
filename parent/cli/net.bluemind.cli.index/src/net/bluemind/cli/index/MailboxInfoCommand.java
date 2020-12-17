@@ -22,6 +22,7 @@ import java.util.Optional;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.index.IndexNotFoundException;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
@@ -83,9 +84,8 @@ public class MailboxInfoCommand extends SingleOrDomainOperation {
 
 	private Optional<Long> getESQuota(String mailboxId) {
 		try {
-
-			SearchResponse sr = ESearchActivator.getClient().prepareSearch(getMailboxAlias(mailboxId))
-					.setQuery(QueryBuilders.matchAllQuery())
+			QueryBuilder qb = QueryBuilders.boolQuery().mustNot(QueryBuilders.termQuery("is", "deleted"));
+			SearchResponse sr = ESearchActivator.getClient().prepareSearch(getMailboxAlias(mailboxId)).setQuery(qb)
 					.addAggregation(AggregationBuilders.sum("used_quota").field("size")).setSize(0).execute()
 					.actionGet();
 
