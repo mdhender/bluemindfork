@@ -22,7 +22,8 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.authentication.provider,
  net.bluemind.domain.api,
  org.apache.commons.lang,
- slf4j.api
+ slf4j.api,
+ com.github.ben-manes.caffeine
 Export-Package: net.bluemind.system.importation.commons,
  net.bluemind.system.importation.commons.enhancer,
  net.bluemind.system.importation.commons.exceptions,

@@ -22,12 +22,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
@@ -54,10 +54,8 @@ public class SenderInOuRule extends DefaultRule implements MailRule {
 
 	private static IClientContext mailflowContext;
 
-	private static LoadingCache<String, Map<String, List<String>>> ouMaouPath = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterWrite(10, TimeUnit.MINUTES)
-			.build(new CacheLoader<String, Map<String, List<String>>>() {
+	private static LoadingCache<String, Map<String, List<String>>> ouMaouPath = Caffeine.newBuilder().recordStats()
+			.expireAfterWrite(10, TimeUnit.MINUTES).build(new CacheLoader<String, Map<String, List<String>>>() {
 				public Map<String, List<String>> load(String domain) throws Exception {
 					return createOuStructure(domain);
 				}
@@ -95,15 +93,8 @@ public class SenderInOuRule extends DefaultRule implements MailRule {
 		if (null == ou) {
 			return Collections.emptyList();
 		}
-		try {
-			List<String> ous = ouMaouPath.get(domain).get(ou);
-			if (null == ous) {
-				return Collections.emptyList();
-			}
-			return ous;
-		} catch (ExecutionException e) {
-			return Collections.emptyList();
-		}
+		List<String> ous = ouMaouPath.get(domain).get(ou);
+		return Optional.ofNullable(ous).orElseGet(Collections::emptyList);
 	}
 
 	private Map<String, String> getOrgUnitMap(String entryUid, String orgUnitId) {

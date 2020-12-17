@@ -24,8 +24,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
@@ -35,10 +35,8 @@ import net.bluemind.xmpp.server.CF;
 import tigase.xmpp.BareJID;
 
 public class VCardProvider implements IDataProvider {
-	private static final Cache<String, String> cache = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterAccess(1, TimeUnit.HOURS)
-			.build();
+	private static final Cache<String, String> cache = Caffeine.newBuilder().recordStats()
+			.expireAfterAccess(1, TimeUnit.HOURS).build();
 	private static final Logger logger = LoggerFactory.getLogger(VCardProvider.class);
 
 	public static class CacheRegistration implements ICacheRegistration {

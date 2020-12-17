@@ -29,8 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -63,7 +63,7 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 	private static final Logger logger = LoggerFactory.getLogger(PingProtocol.class);
 	private static HeartbeatSync heartbeatSync;
 	private final ISyncStorage store;
-	private static final Cache<String, Integer> heartbeat = CacheBuilder.newBuilder().recordStats().build();
+	private static final Cache<String, Integer> heartbeat = Caffeine.newBuilder().recordStats().build();
 
 	static {
 		heartbeatSync = new HeartbeatSync();

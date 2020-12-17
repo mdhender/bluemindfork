@@ -19,8 +19,9 @@ package net.bluemind.backend.mail.replica.service.internal;
 
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
@@ -29,11 +30,8 @@ public class BodiesCache {
 	private BodiesCache() {
 	}
 
-	static final Cache<String, MessageBody> bodies = CacheBuilder.newBuilder()
-			.recordStats()
-			.maximumSize(2048)
-			.expireAfterWrite(5, TimeUnit.MINUTES)
-			.build();
+	static final Cache<String, MessageBody> bodies = Caffeine.newBuilder().recordStats().maximumSize(2048)
+			.expireAfterWrite(5, TimeUnit.MINUTES).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override

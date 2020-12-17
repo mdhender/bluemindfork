@@ -20,8 +20,8 @@ package net.bluemind.eas.impl;
 
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.patterns.PolledMeter;
 
@@ -36,10 +36,8 @@ public class SessionStates {
 	private static final Cache<DeviceId, SessionPersistentState> states = buildCache();
 
 	private static Cache<DeviceId, SessionPersistentState> buildCache() {
-		Cache<DeviceId, SessionPersistentState> s = CacheBuilder.newBuilder()
-				.recordStats()
-				.expireAfterAccess(1, TimeUnit.HOURS)
-				.build();
+		Cache<DeviceId, SessionPersistentState> s = Caffeine.newBuilder().recordStats()
+				.expireAfterAccess(1, TimeUnit.HOURS).build();
 
 		Registry reg = MetricsRegistry.get();
 		IdFactory idf = new IdFactory("activeSessions", reg, SessionStates.class);

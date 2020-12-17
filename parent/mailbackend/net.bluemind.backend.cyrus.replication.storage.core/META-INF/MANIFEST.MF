@@ -14,7 +14,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.config,
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.core.caches.registry,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ com.github.ben-manes.caffeine
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.backend.cyrus.replication.storage.core
 Bundle-ActivationPolicy: lazy

@@ -24,8 +24,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.ValidationKind;
@@ -47,18 +47,15 @@ import tigase.db.TigaseDBException;
 import tigase.xmpp.BareJID;
 
 public final class CF {
+
+	private CF() {
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(CF.class);
-	private static final Cache<BareJID, String> idIndex = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterAccess(20, TimeUnit.MINUTES)
-			.initialCapacity(1024)
-			.build();
-	private static final Cache<String, ItemValue<Domain>> domainCache = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterAccess(1, TimeUnit.HOURS)
-			.initialCapacity(1024)
-			.build();
-	private static String coreIp;
+	private static final Cache<BareJID, String> idIndex = Caffeine.newBuilder().recordStats()
+			.expireAfterAccess(20, TimeUnit.MINUTES).initialCapacity(1024).build();
+	private static final Cache<String, ItemValue<Domain>> domainCache = Caffeine.newBuilder().recordStats()
+			.expireAfterAccess(1, TimeUnit.HOURS).initialCapacity(1024).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override

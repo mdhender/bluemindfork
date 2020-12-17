@@ -19,18 +19,15 @@ package net.bluemind.backend.mail.replica.service.internal;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalCause;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.RemovalCause;
 
 import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAuthentication;
@@ -68,21 +65,16 @@ public class ImapContext {
 	}
 
 	private static final Cache<String, ImapContext> createCache() {
-		Cache<String, ImapContext> ret = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
-				.removalListener(new RemovalListener<String, ImapContext>() {
 
-					@Override
-					public void onRemoval(RemovalNotification<String, ImapContext> notification) {
-						if (notification.getCause() == RemovalCause.EXPIRED) {
-							ImapContext ctx = notification.getValue();
-							ctx.imapClient.ifPresent(psc -> {
-								logger.info("Closing underlying imap connection for {}", notification.getKey());
-								psc.closeImpl();
-								ctx.imapClient = Optional.empty();
-							});
-						}
+		Cache<String, ImapContext> ret = Caffeine.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
+				.removalListener((String key, ImapContext value, RemovalCause cause) -> {
+					if (cause == RemovalCause.EXPIRED) {
+						value.imapClient.ifPresent(psc -> {
+							logger.info("Closing underlying imap connection for {}", key);
+							psc.closeImpl();
+							value.imapClient = Optional.empty();
+						});
 					}
-
 				}) //
 				.recordStats()//
 				.build();
@@ -178,33 +170,25 @@ public class ImapContext {
 		if (key == null) {
 			throw new ServerFault("ImapContext requires a non null sessionId ctx: " + context.getSecurityContext());
 		}
-		try {
-			return sidToCtxCache.get(key, () -> {
-				if (logger.isDebugEnabled()) {
-					logger.debug("ImapContext cache miss for key {}", key);
-				}
-				IServiceProvider srvProv = context.provider();
-				IAuthentication authApi = srvProv.instance(IAuthentication.class);
-				AuthUser curUser = authApi.getCurrentUser();
-				if (curUser != null && curUser.value != null) {
-					String latd = curUser.value.login + "@" + curUser.domainUid;
-					String partition = CyrusPartition.forServerAndDomain(curUser.value.dataLocation,
-							curUser.domainUid).name;
-
-					ItemValue<Server> imap = Topology.get().datalocation(curUser.value.dataLocation);
-					String imapSrv = imap.value.address();
-					return new ImapContext(latd, partition, imapSrv, key, curUser);
-				} else {
-					throw new ServerFault("ImapContext is intended for users with a mailbox");
-				}
-			});
-		} catch (ExecutionException e) {
-			if (e.getCause() instanceof ServerFault) {
-				throw (ServerFault) e.getCause();
-			} else {
-				throw new ServerFault(e);
+		return sidToCtxCache.get(key, k -> {
+			if (logger.isDebugEnabled()) {
+				logger.debug("ImapContext cache miss for key {}", key);
 			}
-		}
+			IServiceProvider srvProv = context.provider();
+			IAuthentication authApi = srvProv.instance(IAuthentication.class);
+			AuthUser curUser = authApi.getCurrentUser();
+			if (curUser != null && curUser.value != null) {
+				String latd = curUser.value.login + "@" + curUser.domainUid;
+				String partition = CyrusPartition.forServerAndDomain(curUser.value.dataLocation,
+						curUser.domainUid).name;
+
+				ItemValue<Server> imap = Topology.get().datalocation(curUser.value.dataLocation);
+				String imapSrv = imap.value.address();
+				return new ImapContext(latd, partition, imapSrv, key, curUser);
+			} else {
+				throw new ServerFault("ImapContext is intended for users with a mailbox");
+			}
+		});
 
 	}
 

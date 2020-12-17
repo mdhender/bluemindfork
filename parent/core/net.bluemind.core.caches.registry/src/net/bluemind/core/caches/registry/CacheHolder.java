@@ -19,8 +19,8 @@ package net.bluemind.core.caches.registry;
 
 import java.util.Optional;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import com.google.common.base.MoreObjects;
-import com.google.common.cache.Cache;
 
 public class CacheHolder<K, V> {
 
@@ -36,7 +36,7 @@ public class CacheHolder<K, V> {
 	}
 
 	public static <K, V> CacheHolder<K, V> of(Cache<K, V> c) {
-		return new CacheHolder<K, V>(c);
+		return new CacheHolder<>(c);
 	}
 
 	public V getIfPresent(K k) {

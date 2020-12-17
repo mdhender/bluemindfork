@@ -20,8 +20,8 @@ package net.bluemind.directory.hollow.datamodel.producer.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.core.caches.registry.CacheHolder;
 import net.bluemind.core.caches.registry.CacheRegistry;
@@ -31,7 +31,7 @@ public class DomainVersions extends CacheHolder<String, Long> {
 	private static final Logger logger = LoggerFactory.getLogger(DomainVersions.class);
 
 	private static Cache<String, Long> build() {
-		return CacheBuilder.newBuilder().recordStats().build();
+		return Caffeine.newBuilder().recordStats().build();
 	}
 
 	private static final DomainVersions VERSIONS = new DomainVersions(build());

@@ -38,6 +38,7 @@
       <plugin id="com.fasterxml.jackson.core.jackson-core"/>
       <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
       <plugin id="com.fasterxml.jackson.module.jackson-module-afterburner"/>
+      <plugin id="com.github.ben-manes.caffeine"/>
       <plugin id="com.github.lookfirst.sardine"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.google.guava.failureaccess"/>
@@ -471,8 +472,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
       <property name="osgi.noShutdown" value="true" />
+      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
    </configurations>
 
    <preferencesInfo>

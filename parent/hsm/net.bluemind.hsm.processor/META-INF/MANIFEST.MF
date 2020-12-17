@@ -28,7 +28,8 @@ Require-Bundle: net.bluemind.hsm.storage,
  net.bluemind.backend.mail.replica.indexing,
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.backend.mail.api,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ com.github.ben-manes.caffeine
 Export-Package: net.bluemind.hsm.processor,
  net.bluemind.hsm.processor.commands
 Automatic-Module-Name: net.bluemind.hsm.processor

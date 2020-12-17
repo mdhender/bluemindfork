@@ -29,8 +29,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
@@ -87,10 +87,8 @@ public class MappingController extends AbstractVerticle {
 		}
 	}
 
-	private static final Cache<String, BoxAndFolder> cyrusToFolder = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterAccess(10, TimeUnit.MINUTES)
-			.build();
+	private static final Cache<String, BoxAndFolder> cyrusToFolder = Caffeine.newBuilder().recordStats()
+			.expireAfterAccess(10, TimeUnit.MINUTES).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override

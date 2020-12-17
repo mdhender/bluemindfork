@@ -40,8 +40,8 @@ import org.apache.james.mime4j.message.BodyPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import freemarker.template.TemplateException;
 import net.bluemind.calendar.EventChangesMerge;
@@ -79,10 +79,10 @@ import net.fortuna.ical4j.model.property.Method;
 
 public class EventRequestHandler extends RequestHandler implements IIMIPHandler {
 	private static final Logger logger = LoggerFactory.getLogger(EventRequestHandler.class);
-	private static final Cache<String, ItemValue<User>> senderCache = CacheBuilder.newBuilder().recordStats()
+	private static final Cache<String, ItemValue<User>> senderCache = Caffeine.newBuilder().recordStats()
 			.expireAfterAccess(2, TimeUnit.MINUTES).build();
-	private static final Cache<String, Map<String, String>> senderSettingsCache = CacheBuilder.newBuilder()
-			.recordStats().expireAfterAccess(2, TimeUnit.MINUTES).build();
+	private static final Cache<String, Map<String, String>> senderSettingsCache = Caffeine.newBuilder().recordStats()
+			.expireAfterAccess(2, TimeUnit.MINUTES).build();
 
 	private ISendmail mailer;
 

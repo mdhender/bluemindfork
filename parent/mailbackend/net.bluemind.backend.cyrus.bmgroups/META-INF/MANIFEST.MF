@@ -18,6 +18,7 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.rest.http,
  net.bluemind.domain.api,
  net.bluemind.hornetq.client,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ com.github.ben-manes.caffeine
 Export-Package: net.bluemind.backend.cyrus.bmgroups
 Automatic-Module-Name: net.bluemind.backend.cyrus.bmgroups

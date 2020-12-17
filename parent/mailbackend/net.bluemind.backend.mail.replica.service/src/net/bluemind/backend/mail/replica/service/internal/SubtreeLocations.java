@@ -19,10 +19,9 @@ package net.bluemind.backend.mail.replica.service.internal;
 
 import java.sql.SQLException;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
@@ -31,9 +30,7 @@ import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
 
 public class SubtreeLocations {
-	static final Cache<String, SubtreeLocation> locations = CacheBuilder.newBuilder()
-			.recordStats()
-			.maximumSize(1024)
+	static final Cache<String, SubtreeLocation> locations = Caffeine.newBuilder().recordStats().maximumSize(1024)
 			.build();
 
 	public static class CacheRegistration implements ICacheRegistration {

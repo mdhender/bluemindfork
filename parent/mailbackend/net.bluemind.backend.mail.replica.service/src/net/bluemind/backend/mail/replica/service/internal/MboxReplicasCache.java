@@ -19,8 +19,8 @@ package net.bluemind.backend.mail.replica.service.internal;
 
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.caches.registry.CacheRegistry;
@@ -28,11 +28,8 @@ import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ItemValue;
 
 public class MboxReplicasCache {
-	private static final Cache<String, ItemValue<MailboxReplica>> replicas = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterWrite(10, TimeUnit.MINUTES)
-			.concurrencyLevel(16)
-			.build();
+	private static final Cache<String, ItemValue<MailboxReplica>> replicas = Caffeine.newBuilder().recordStats()
+			.expireAfterWrite(10, TimeUnit.MINUTES).build();
 
 	private MboxReplicasCache() {
 

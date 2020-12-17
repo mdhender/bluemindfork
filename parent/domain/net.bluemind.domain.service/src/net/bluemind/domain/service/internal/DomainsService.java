@@ -24,23 +24,17 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.PathParam;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.core.api.ParametersValidator;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.caches.registry.CacheRegistry;
-import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -91,16 +85,6 @@ public class DomainsService implements IDomains {
 	private DomainsCache domainsCache;
 
 	private static final List<IDomainHook> hooks = getHooks();
-
-	protected static final Cache<String, ItemValue<Domain>> cache = CacheBuilder.newBuilder().recordStats()
-			.expireAfterWrite(10, TimeUnit.MINUTES).build();
-
-	public static class CacheRegistration implements ICacheRegistration {
-		@Override
-		public void registerCaches(CacheRegistry cr) {
-			cr.register(DomainsService.class, cache);
-		}
-	}
 
 	public DomainsService(BmContext context, Container installationContainer) {
 		this.context = context;

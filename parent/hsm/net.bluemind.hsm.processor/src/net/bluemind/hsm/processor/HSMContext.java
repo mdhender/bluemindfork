@@ -21,8 +21,8 @@ package net.bluemind.hsm.processor;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.caches.registry.CacheRegistry;
@@ -43,11 +43,8 @@ public class HSMContext {
 	private IHSMStorage storage;
 	private String lang;
 
-	private final static Cache<String, HSMContext> hsmCtxCache = CacheBuilder.newBuilder()
-			.recordStats()
-			.initialCapacity(64)
-			.expireAfterAccess(2, TimeUnit.MINUTES)
-			.build();
+	private static final Cache<String, HSMContext> hsmCtxCache = Caffeine.newBuilder().recordStats().initialCapacity(64)
+			.expireAfterAccess(2, TimeUnit.MINUTES).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override

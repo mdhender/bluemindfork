@@ -17,7 +17,8 @@ Require-Bundle: net.bluemind.config,
  slf4j.api,
  com.google.guava,
  net.bluemind.directory.api,
- net.bluemind.group.api
+ net.bluemind.group.api,
+ com.github.ben-manes.caffeine
 Export-Package: net.bluemind.mailflow.rules
 Automatic-Module-Name: net.bluemind.mailflow.rules
 

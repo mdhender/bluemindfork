@@ -24,8 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.authentication.provider.IAuthProvider;
 import net.bluemind.authentication.provider.ILoginValidationListener;
@@ -36,10 +36,8 @@ import net.bluemind.core.caches.registry.ICacheRegistration;
 public class Fail2Ban implements ILoginValidationListener, IAuthProvider {
 	private static final Logger logger = LoggerFactory.getLogger(Fail2Ban.class);
 
-	private static final Cache<String, AtomicInteger> trials = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterAccess(20, TimeUnit.SECONDS)
-			.build();
+	private static final Cache<String, AtomicInteger> trials = Caffeine.newBuilder().recordStats()
+			.expireAfterAccess(20, TimeUnit.SECONDS).build();
 
 	public Fail2Ban() {
 	}

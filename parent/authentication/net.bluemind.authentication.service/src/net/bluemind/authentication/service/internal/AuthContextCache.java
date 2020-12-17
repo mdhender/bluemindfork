@@ -19,16 +19,21 @@ package net.bluemind.authentication.service.internal;
 
 import java.util.Optional;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.authentication.provider.IAuthProvider.IAuthContext;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
 
 public class AuthContextCache {
-	private static final Cache<String, Optional<IAuthContext>> cache = CacheBuilder.newBuilder().recordStats()
-			.softValues().build();
+
+	private AuthContextCache() {
+
+	}
+
+	private static final Cache<String, Optional<IAuthContext>> cache = Caffeine.newBuilder().recordStats().softValues()
+			.build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override

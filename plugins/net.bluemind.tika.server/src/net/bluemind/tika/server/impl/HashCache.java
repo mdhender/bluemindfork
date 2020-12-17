@@ -21,22 +21,26 @@ package net.bluemind.tika.server.impl;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheStats;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
 
 public class HashCache {
-	private static final Cache<String, File> hashes = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterAccess(10, TimeUnit.MINUTES)
-			.maximumSize(1024)
-			.removalListener(new ExpireListener())
-			.build();
+
+	private HashCache() {
+	}
+
+	private static final Cache<String, File> hashes = Caffeine.newBuilder().recordStats()
+			.expireAfterAccess(10, TimeUnit.MINUTES).maximumSize(1024)
+			.removalListener((String k, File v, RemovalCause cause) -> {
+				if (cause == RemovalCause.EXPIRED) {
+					v.delete(); // NOSONAR
+				}
+			}).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override
@@ -44,16 +48,6 @@ public class HashCache {
 			cr.register(HashCache.class, hashes);
 		}
 	}
-
-	private static class ExpireListener implements RemovalListener<String, File> {
-		@Override
-		public void onRemoval(RemovalNotification<String, File> notification) {
-			if (notification.wasEvicted()) {
-				notification.getValue().delete();
-			}
-		}
-
-	};
 
 	public static File getIfPresent(String hash) {
 		return hashes.getIfPresent(hash);

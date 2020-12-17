@@ -23,8 +23,8 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
@@ -37,12 +37,8 @@ public class DirEntriesCache {
 		@Override
 		public void registerCaches(CacheRegistry cr) {
 			logger.debug("Registered DirEntries cache");
-			cr.register(
-				DirEntriesCache.class,
-				CacheBuilder.newBuilder()
-					.recordStats()
-					.expireAfterAccess(1, TimeUnit.MINUTES)
-					.build());
+			cr.register(DirEntriesCache.class,
+					Caffeine.newBuilder().recordStats().expireAfterAccess(1, TimeUnit.MINUTES).build());
 		}
 	}
 

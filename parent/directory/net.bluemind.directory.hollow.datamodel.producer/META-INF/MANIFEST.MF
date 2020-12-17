@@ -29,7 +29,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.caches.registry,
  net.bluemind.directory.service,
  net.bluemind.core.task.spi,
- net.bluemind.common.hollow
+ net.bluemind.common.hollow,
+ com.github.ben-manes.caffeine
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.directory.hollow.datamodel.producer
 Bundle-ActivationPolicy: lazy

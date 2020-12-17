@@ -20,8 +20,8 @@ package net.bluemind.core.container.persistence;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
@@ -33,12 +33,8 @@ public class AclCache {
 
 		@Override
 		public void registerCaches(CacheRegistry cr) {
-			cr.register(
-				AclCache.class,
-				CacheBuilder.newBuilder()
-					.recordStats()
-					.expireAfterWrite(10, TimeUnit.MINUTES)
-					.build());
+			cr.register(AclCache.class,
+					Caffeine.newBuilder().recordStats().expireAfterWrite(10, TimeUnit.MINUTES).build());
 		}
 	}
 

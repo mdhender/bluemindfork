@@ -27,8 +27,8 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
@@ -52,10 +52,8 @@ public class DirectoryCache extends AbstractVerticle {
 	private static Map<String, Long> changesetVersion = new ConcurrentHashMap<>();
 	private static Map<String, VCard> uidToVCard = new ConcurrentHashMap<>();
 	private static Map<String, String> emailToUid = new ConcurrentHashMap<>();
-	private static Cache<String, String> noVCards = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterWrite(20, TimeUnit.MINUTES)
-			.build();
+	private static Cache<String, String> noVCards = Caffeine.newBuilder().recordStats()
+			.expireAfterWrite(20, TimeUnit.MINUTES).build();
 
 	private static final Logger logger = LoggerFactory.getLogger(DirectoryCache.class);
 

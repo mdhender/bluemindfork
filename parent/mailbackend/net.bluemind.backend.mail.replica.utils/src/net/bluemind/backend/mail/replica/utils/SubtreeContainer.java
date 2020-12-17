@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
@@ -38,6 +38,10 @@ import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 
 public class SubtreeContainer {
+
+	private SubtreeContainer() {
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(SubtreeContainer.class);
 
 	public static Subtree mailSubtreeUid(BmContext ctx, String domainUid, MailboxReplicaRootDescriptor mr) {
@@ -60,10 +64,7 @@ public class SubtreeContainer {
 		@Override
 		public void registerCaches(CacheRegistry cr) {
 			cr.register("subtreeContainerMboxes",
-				CacheBuilder.newBuilder()
-					.recordStats()
-					.expireAfterWrite(2, TimeUnit.MINUTES)
-					.build());
+					Caffeine.newBuilder().recordStats().expireAfterWrite(2, TimeUnit.MINUTES).build());
 		}
 	}
 

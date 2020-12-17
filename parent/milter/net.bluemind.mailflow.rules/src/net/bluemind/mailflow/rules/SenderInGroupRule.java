@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
@@ -49,12 +49,8 @@ public class SenderInGroupRule extends DefaultRule implements MailRule {
 		return "Rule matches against sender in given group";
 	}
 
-	private static Cache<String, List<String>> groupMapping = CacheBuilder.newBuilder()
-			.recordStats()
-			.maximumSize(1000)
-			.expireAfterWrite(10, TimeUnit.MINUTES)
-			.build();
-
+	private static Cache<String, List<String>> groupMapping = Caffeine.newBuilder().recordStats().maximumSize(1000)
+			.expireAfterWrite(10, TimeUnit.MINUTES).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override

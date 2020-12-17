@@ -25,8 +25,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
@@ -35,7 +35,7 @@ import net.bluemind.core.jdbc.JdbcAbstractStore;
 
 public class ContainerSettingsStore extends JdbcAbstractStore {
 
-	private static final Cache<String, Map<String, String>> cachedSettings = CacheBuilder.newBuilder().recordStats()
+	private static final Cache<String, Map<String, String>> cachedSettings = Caffeine.newBuilder().recordStats()
 			.expireAfterAccess(10, TimeUnit.MINUTES).build();
 
 	public static class SettingsReg implements ICacheRegistration {

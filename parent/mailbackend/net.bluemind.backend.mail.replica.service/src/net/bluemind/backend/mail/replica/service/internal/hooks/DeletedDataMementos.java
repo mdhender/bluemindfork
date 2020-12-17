@@ -24,8 +24,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
@@ -44,7 +44,7 @@ public class DeletedDataMementos extends CacheHolder<String, Optional<Subtree>> 
 	public static class Registration implements ICacheRegistration {
 
 		private static Cache<String, Optional<Subtree>> buildCache() {
-			return CacheBuilder.newBuilder().recordStats().expireAfterWrite(2, TimeUnit.MINUTES).build();
+			return Caffeine.newBuilder().recordStats().expireAfterWrite(2, TimeUnit.MINUTES).build();
 		}
 
 		@Override

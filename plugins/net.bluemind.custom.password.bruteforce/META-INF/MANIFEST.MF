@@ -11,6 +11,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.authentication.provider;bundle-version="1.0.0",
  net.bluemind.core.caches.registry,
  net.bluemind.core.container.api;bundle-version="1.0.0",
- net.bluemind.core.commons;bundle-version="1.0.0"
+ net.bluemind.core.commons;bundle-version="1.0.0",
+ com.github.ben-manes.caffeine
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

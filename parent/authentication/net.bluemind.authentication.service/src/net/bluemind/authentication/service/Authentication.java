@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -61,6 +60,7 @@ import net.bluemind.directory.api.BaseDirEntry.AccountType;
 import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnitPath;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.role.service.IInternalRoles;
@@ -271,29 +271,22 @@ public class Authentication implements IInCoreAuthentication {
 			return null;
 		}
 
-		try {
-			IAuthContext nakedAuthContext = AuthContextCache.getCache().get(login, () -> {
-				return loadFromDb(login);
-			}).orElse(null);
+		IAuthContext nakedAuthContext = AuthContextCache.getCache().get(login, this::loadFromDb).orElse(null);
 
-			if (nakedAuthContext == null) {
-				return null;
-			}
-
-			return new AuthContext(context.getSecurityContext(), nakedAuthContext.getDomain(),
-					nakedAuthContext.getUser(), nakedAuthContext.getRealUserLogin(), password);
-
-		} catch (ExecutionException e) {
-			throw new ServerFault(e);
+		if (nakedAuthContext == null) {
+			return null;
 		}
+
+		return new AuthContext(context.getSecurityContext(), nakedAuthContext.getDomain(), nakedAuthContext.getUser(),
+				nakedAuthContext.getRealUserLogin(), password);
 
 	}
 
 	private Optional<IAuthContext> loadFromDb(String login) {
 		Iterator<String> splitted = atSplitter.split(login).iterator();
 		String localPart = splitted.next();
-		String domainPart = splitted.hasNext() ? splitted.next() : "global.virt";
-		boolean isStandardDomain = !domainPart.equals("global.virt");
+		String domainPart = splitted.hasNext() ? splitted.next() : IDomainUids.GLOBAL_VIRT;
+		boolean isStandardDomain = !domainPart.equals(IDomainUids.GLOBAL_VIRT);
 
 		ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IDomains domainService = sp.instance(IDomains.class);
@@ -309,9 +302,7 @@ public class Authentication implements IInCoreAuthentication {
 		}
 
 		AuthContext authContext = new AuthContext(null, theDomain, internalUser, localPart, null);
-		Optional<IAuthContext> ret = Optional.of(authContext);
-		AuthContextCache.getCache().put(login, ret);
-		return ret;
+		return Optional.of(authContext);
 	}
 
 	private ItemValue<User> getUser(String login, String localPart, String domainPart, boolean isStandardDomain,
@@ -404,7 +395,7 @@ public class Authentication implements IInCoreAuthentication {
 
 	@Override
 	public LoginResponse suWithParams(String login, Boolean inter) throws ServerFault {
-		boolean interactive = inter != null ? inter : false;
+		boolean interactive = inter != null && inter;
 		String performer = securityContext.getSubject();
 		if (interactive && !securityContext.isDomainGlobal()) {
 			AuthUser currentUser = getCurrentUser();
@@ -504,7 +495,8 @@ public class Authentication implements IInCoreAuthentication {
 		List<String> groups = sp.instance(IUser.class, domainUid).memberOfGroups(user.uid);
 
 		Map<String, Set<String>> rolesByOUs = Collections.emptyMap();
-		if ((!expiredPassword || "global.virt".equals(domainUid)) && user.value.accountType == AccountType.FULL) {
+		if ((!expiredPassword || IDomainUids.GLOBAL_VIRT.equals(domainUid))
+				&& user.value.accountType == AccountType.FULL) {
 			IOrgUnits orgUnits = sp.instance(IOrgUnits.class, domainUid);
 			List<OrgUnitPath> ous = orgUnits.listByAdministrator(user.uid, groups);
 			rolesByOUs = ous.stream() //
@@ -519,7 +511,7 @@ public class Authentication implements IInCoreAuthentication {
 
 	private Set<String> getRoles(String userUid, List<String> groups, String domainUid) throws ServerFault {
 		IServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		if ("global.virt".equals(domainUid)) {
+		if (IDomainUids.GLOBAL_VIRT.equals(domainUid)) {
 			return sp.instance(IInternalRoles.class).resolve(ImmutableSet.<String>builder()
 					.add(SecurityContext.ROLE_SYSTEM).add(BasicRoles.ROLE_SELF_CHANGE_PASSWORD).build());
 		} else {
@@ -548,9 +540,9 @@ public class Authentication implements IInCoreAuthentication {
 		}
 
 		// check session
-		SecurityContext context = Sessions.get().getIfPresent(password);
-		if (context != null && context.getSessionId().equals(password)
-				&& context.getSubject().equals(authContext.user.uid)) {
+		SecurityContext cachedContext = Sessions.get().getIfPresent(password);
+		if (cachedContext != null && cachedContext.getSessionId().equals(password)
+				&& cachedContext.getSubject().equals(authContext.user.uid)) {
 			return ValidationKind.TOKEN;
 		}
 

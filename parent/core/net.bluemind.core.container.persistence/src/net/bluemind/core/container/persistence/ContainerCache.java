@@ -19,8 +19,8 @@ package net.bluemind.core.container.persistence;
 
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
@@ -31,13 +31,8 @@ public final class ContainerCache {
 	public static class Registration implements ICacheRegistration {
 		@Override
 		public void registerCaches(CacheRegistry cr) {
-			cr.register(
-				ContainerCache.class,
-				CacheBuilder.newBuilder()
-					.recordStats()
-					.expireAfterAccess(10, TimeUnit.MINUTES)
-					.build()
-			);
+			cr.register(ContainerCache.class,
+					Caffeine.newBuilder().recordStats().expireAfterAccess(10, TimeUnit.MINUTES).build());
 		}
 	}
 

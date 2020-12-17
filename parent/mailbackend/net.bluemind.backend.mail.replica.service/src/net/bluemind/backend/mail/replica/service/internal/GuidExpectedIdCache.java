@@ -19,18 +19,15 @@ package net.bluemind.backend.mail.replica.service.internal;
 
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
 
 public class GuidExpectedIdCache {
-	private static final Cache<String, Long> cache = CacheBuilder.newBuilder()
-			.recordStats()
-			.maximumSize(512)
-			.expireAfterWrite(1, TimeUnit.MINUTES)
-			.build();
+	private static final Cache<String, Long> cache = Caffeine.newBuilder().recordStats().maximumSize(512)
+			.expireAfterWrite(1, TimeUnit.MINUTES).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override

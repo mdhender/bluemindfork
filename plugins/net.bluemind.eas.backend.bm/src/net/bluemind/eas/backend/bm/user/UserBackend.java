@@ -25,9 +25,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.base.Splitter;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.config.Token;
 import net.bluemind.core.api.Email;
@@ -48,10 +48,8 @@ import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
 
 public class UserBackend extends CoreConnect {
-	private static final Cache<String, MSUser> cache = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterAccess(1, TimeUnit.MINUTES)
-			.build();
+	private static final Cache<String, MSUser> cache = Caffeine.newBuilder().recordStats()
+			.expireAfterAccess(1, TimeUnit.MINUTES).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override

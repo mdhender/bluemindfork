@@ -28,8 +28,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
@@ -49,12 +49,12 @@ public class ValidationPolicy {
 	/**
 	 * key: token, value: login@domain
 	 */
-	private static final Cache<String, String> tokenCache = CacheBuilder.newBuilder().recordStats()
-			.initialCapacity(1024).expireAfterAccess(10, TimeUnit.MINUTES).build();
+	private static final Cache<String, String> tokenCache = Caffeine.newBuilder().recordStats().initialCapacity(1024)
+			.expireAfterAccess(10, TimeUnit.MINUTES).build();
 	/**
 	 * key: login@domain, value: last valid password
 	 */
-	private static final Cache<String, String> pwCache = CacheBuilder.newBuilder().recordStats().initialCapacity(1024)
+	private static final Cache<String, String> pwCache = Caffeine.newBuilder().recordStats().initialCapacity(1024)
 			.expireAfterAccess(10, TimeUnit.MINUTES).build();
 
 	private TokenCacheSync tokenSync;

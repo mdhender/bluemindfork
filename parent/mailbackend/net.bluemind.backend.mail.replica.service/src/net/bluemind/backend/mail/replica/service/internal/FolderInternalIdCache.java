@@ -27,8 +27,8 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.core.caches.registry.CacheRegistry;
@@ -55,7 +55,7 @@ public class FolderInternalIdCache {
 		return k;
 	}
 
-	private static final Cache<String, Long> folderKeyToExpectedInternalId = CacheBuilder.newBuilder().recordStats()
+	private static final Cache<String, Long> folderKeyToExpectedInternalId = Caffeine.newBuilder().recordStats()
 			.maximumSize(512).build();
 
 	public static class CacheRegistration implements ICacheRegistration {

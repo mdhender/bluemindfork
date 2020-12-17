@@ -25,9 +25,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.base.Strings;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.authentication.provider.IAuthProvider;
 import net.bluemind.core.api.fault.ServerFault;
@@ -46,9 +46,9 @@ import net.bluemind.user.api.User;
 public abstract class ImportAuthenticationService implements IAuthProvider {
 	private static final Logger logger = LoggerFactory.getLogger(ImportAuthenticationService.class);
 
-	private static final Cache<UuidMapper, String> uidToDN = CacheBuilder.newBuilder().recordStats()
-			.initialCapacity(1024).expireAfterWrite(20, TimeUnit.MINUTES).build();
-	private static final Cache<String, String> dnToPass = CacheBuilder.newBuilder().recordStats().initialCapacity(1024)
+	private static final Cache<UuidMapper, String> uidToDN = Caffeine.newBuilder().recordStats().initialCapacity(1024)
+			.expireAfterWrite(20, TimeUnit.MINUTES).build();
+	private static final Cache<String, String> dnToPass = Caffeine.newBuilder().recordStats().initialCapacity(1024)
 			.expireAfterWrite(20, TimeUnit.MINUTES).build();
 
 	public static class CacheRegistration implements ICacheRegistration {

@@ -25,9 +25,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.base.Splitter;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.patterns.PolledMeter;
 
@@ -60,14 +60,9 @@ public class PartnershipProvider implements IDevicePartnershipProvider {
 
 	private static final Cache<String, DeviceValidationResponse> cache = PolledMeter.using(MetricsRegistry.get())
 			.withId(new IdFactory(MetricsRegistry.get(), PartnershipProvider.class).name("partnerships"))
-			.monitorValue(
-				CacheBuilder.newBuilder()
-					.expireAfterWrite(10, TimeUnit.MINUTES)
-					.recordStats()
-					.build(), c -> {
-							return c.stats().hitRate() * 100;
-					}
-			);
+			.monitorValue(Caffeine.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).recordStats().build(), c -> {
+				return c.stats().hitRate() * 100;
+			});
 
 	private String coreUrl;
 

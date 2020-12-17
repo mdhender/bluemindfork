@@ -26,8 +26,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
@@ -50,18 +50,13 @@ import net.bluemind.user.api.User;
 
 public class GroupProtocolHandler implements Handler<Buffer> {
 	private static final Logger logger = LoggerFactory.getLogger(GroupProtocolHandler.class);
-	private final HttpClientProvider clientProvider;
 	private final NetSocket socket;
 	private final Handler<Throwable> exceptionHandler;
-	private final ILocator cachingLocator;
-	private static Cache<String, ItemValue<User>> usersCache = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterAccess(10, TimeUnit.MINUTES)
-			.build();
-	private static Cache<String, List<String>> memberOfCache = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterWrite(10, TimeUnit.MINUTES)
-			.build();
+	private final VertxPromiseServiceProvider provider;
+	private static final Cache<String, ItemValue<User>> usersCache = Caffeine.newBuilder().recordStats()
+			.expireAfterAccess(10, TimeUnit.MINUTES).build();
+	private static final Cache<String, List<String>> memberOfCache = Caffeine.newBuilder().recordStats()
+			.expireAfterWrite(10, TimeUnit.MINUTES).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override
@@ -90,9 +85,8 @@ public class GroupProtocolHandler implements Handler<Buffer> {
 	}
 
 	public GroupProtocolHandler(HttpClientProvider clientProvider, NetSocket socket) {
-		this.clientProvider = clientProvider;
 		this.socket = socket;
-		this.cachingLocator = (String service, AsyncHandler<String[]> asyncHandler) -> {
+		ILocator cachingLocator = (String service, AsyncHandler<String[]> asyncHandler) -> {
 			String core = Topology.get().core().value.address();
 			String[] resp = new String[] { core };
 			asyncHandler.success(resp);
@@ -102,6 +96,9 @@ public class GroupProtocolHandler implements Handler<Buffer> {
 			socket.write(ko(String.format("error: %s", e.getMessage())));
 			socket.close();
 		};
+
+		this.provider = new VertxPromiseServiceProvider(clientProvider, cachingLocator, Token.admin0());
+
 		socket.exceptionHandler(this.exceptionHandler);
 	}
 
@@ -125,9 +122,6 @@ public class GroupProtocolHandler implements Handler<Buffer> {
 		String[] splitted = loginAtDomain.split("@");
 		String login = splitted[0];
 		String domain = splitted[1];
-
-		VertxPromiseServiceProvider provider = new VertxPromiseServiceProvider(clientProvider, cachingLocator,
-				Token.admin0());
 
 		if (login.startsWith("group:") && login.substring("group:".length()).equals(domain)) {
 

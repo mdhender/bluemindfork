@@ -20,7 +20,8 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.lib.vertx,
  net.bluemind.deferredaction.registry,
  net.bluemind.deferredaction.api,
- net.bluemind.calendar.api
+ net.bluemind.calendar.api,
+ com.github.ben-manes.caffeine
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.cti.service.CTIActivator

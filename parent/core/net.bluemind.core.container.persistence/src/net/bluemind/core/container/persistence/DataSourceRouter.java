@@ -26,8 +26,8 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.caches.registry.CacheRegistry;
@@ -35,11 +35,14 @@ import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.rest.BmContext;
 
 public class DataSourceRouter {
+
+	private DataSourceRouter() {
+
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(DataSourceRouter.class);
-	private static final Cache<String, Optional<String>> cache = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterAccess(2, TimeUnit.HOURS)
-			.build();
+	private static final Cache<String, Optional<String>> cache = Caffeine.newBuilder().recordStats()
+			.expireAfterAccess(2, TimeUnit.HOURS).build();
 
 	public static class CacheReg implements ICacheRegistration {
 

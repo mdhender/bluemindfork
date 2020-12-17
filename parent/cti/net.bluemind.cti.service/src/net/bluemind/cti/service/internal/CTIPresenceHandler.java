@@ -17,15 +17,15 @@
   */
 package net.bluemind.cti.service.internal;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
@@ -50,11 +50,8 @@ import net.bluemind.user.api.IUserSettings;
 
 public class CTIPresenceHandler extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(CTIPresenceHandler.class);
-	private static final Cache<String, String> uidForEmail = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterAccess(5, TimeUnit.MINUTES)
-			.maximumSize(2048)
-			.build();
+	private static final Cache<String, String> uidForEmail = Caffeine.newBuilder().recordStats()
+			.expireAfterAccess(5, TimeUnit.MINUTES).maximumSize(2048).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override
@@ -81,9 +78,9 @@ public class CTIPresenceHandler extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		Function<Message<JsonObject>, Object> eventToKey = (msg) -> msg.body().getString("user", "anon");
+		Function<Message<JsonObject>, Object> eventToKey = msg -> msg.body().getString("user", "anon");
 		Handler<Message<JsonObject>> presHandler = this::handle;
-		ThrottleMessages<JsonObject> tm = new ThrottleMessages<JsonObject>(eventToKey, presHandler, vertx, 2000);
+		ThrottleMessages<JsonObject> tm = new ThrottleMessages<>(eventToKey, presHandler, vertx, 2000);
 		vertx.eventBus().consumer(ADDR, tm);
 	}
 
@@ -101,7 +98,7 @@ public class CTIPresenceHandler extends AbstractVerticle {
 			if (domainItem == null) {
 				throw new ServerFault("Domain not found " + user.split("@")[1]);
 			}
-			String userUid = uidForEmail.get(user, () -> {
+			String userUid = uidForEmail.get(user, userKey -> {
 				ItemValue<net.bluemind.user.api.User> userItem = core
 						.instance(net.bluemind.user.api.IUser.class, domainItem.uid).byEmail(user);
 				if (userItem == null) {

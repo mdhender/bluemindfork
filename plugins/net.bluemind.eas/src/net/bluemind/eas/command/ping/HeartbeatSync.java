@@ -20,36 +20,21 @@ package net.bluemind.eas.command.ping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
+import com.github.benmanes.caffeine.cache.Cache;
 
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.OOPMessage;
-import net.bluemind.hornetq.client.OutOfProcessMessageHandler;
 import net.bluemind.hornetq.client.Topic;
 
 public class HeartbeatSync {
 
 	private static final Logger logger = LoggerFactory.getLogger(HeartbeatSync.class);
 
-	public HeartbeatSync() {
-
-	}
-
 	public void start(final Cache<String, Integer> cache) {
-		MQ.init(new MQ.IMQConnectHandler() {
-
-			@Override
-			public void connected() {
-				MQ.registerConsumer(Topic.GLOBAL_SETTINGS_NOTIFICATIONS, new OutOfProcessMessageHandler() {
-
-					@Override
-					public void handle(OOPMessage msg) {
-						logger.info("Invalidate cache");
-						cache.invalidateAll();
-					}
-				});
-			}
-		});
+		MQ.init(() -> MQ.registerConsumer(Topic.GLOBAL_SETTINGS_NOTIFICATIONS, (OOPMessage msg) -> {
+			logger.info("Invalidate cache with {} entries", cache.estimatedSize());
+			cache.invalidateAll();
+		}));
 	}
 
 }

@@ -26,9 +26,8 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
+import com.github.benmanes.caffeine.cache.Cache;
 
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider.IServerSideServiceFactory;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
@@ -43,7 +42,7 @@ public class CacheRegistry {
 		}
 
 		@Override
-		public CacheRegistry instance(BmContext context, String... params) throws ServerFault {
+		public CacheRegistry instance(BmContext context, String... params) {
 			return registry;
 		}
 

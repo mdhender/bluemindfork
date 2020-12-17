@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.network.topology,
  net.bluemind.config,
  net.bluemind.mailbox.api;visibility:=reexport,
- net.bluemind.user.api
+ net.bluemind.user.api,
+ com.github.ben-manes.caffeine
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx

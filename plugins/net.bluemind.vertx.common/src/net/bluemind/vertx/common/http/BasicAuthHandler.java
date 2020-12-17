@@ -28,8 +28,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
@@ -75,7 +75,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 
 	}
 
-	private static Cache<String, ValidatedAuth> validated = CacheBuilder.newBuilder().recordStats()
+	private static Cache<String, ValidatedAuth> validated = Caffeine.newBuilder().recordStats()
 			.expireAfterWrite(10, TimeUnit.MINUTES).build();
 
 	public static class CacheRegistration implements ICacheRegistration {

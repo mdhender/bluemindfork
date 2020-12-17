@@ -21,8 +21,8 @@ package net.bluemind.hps.auth.core2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.patterns.PolledMeter;
 
@@ -115,7 +115,7 @@ public class C2ProviderFactory implements IAuthProviderFactory {
 	}
 
 	private static Cache<String, SessionData> sessions() {
-		Cache<String, SessionData> coreSessions = CacheBuilder.newBuilder()//
+		Cache<String, SessionData> coreSessions = Caffeine.newBuilder()//
 				.recordStats()//
 				.build();
 

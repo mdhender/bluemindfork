@@ -24,6 +24,7 @@ Require-Bundle: net.bluemind.milter,
  net.bluemind.addressbook.api,
  net.bluemind.hornetq.client,
  net.bluemind.signature.commons;bundle-version="4.1.0",
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ com.github.ben-manes.caffeine
 Export-Package: net.bluemind.milter.action.signature
 Automatic-Module-Name: net.bluemind.milter.action.signature

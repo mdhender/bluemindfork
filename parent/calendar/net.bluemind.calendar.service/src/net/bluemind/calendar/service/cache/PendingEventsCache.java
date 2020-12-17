@@ -20,8 +20,8 @@ package net.bluemind.calendar.service.cache;
 
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -35,10 +35,8 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class PendingEventsCache implements ICacheRegistration {
-	private static final Cache<String, ListResult<ItemValue<VEventSeries>>> contCache = CacheBuilder.newBuilder()
-			.recordStats()
-			.expireAfterWrite(5, TimeUnit.MINUTES)
-			.build();
+	private static final Cache<String, ListResult<ItemValue<VEventSeries>>> contCache = Caffeine.newBuilder()
+			.recordStats().expireAfterWrite(5, TimeUnit.MINUTES).build();
 
 	@Override
 	public void registerCaches(CacheRegistry cr) {

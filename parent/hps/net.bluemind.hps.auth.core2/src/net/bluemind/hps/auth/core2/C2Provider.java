@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import com.google.common.cache.Cache;
 
 import io.vertx.core.Vertx;
 import net.bluemind.addressbook.api.VCard;
@@ -123,7 +123,7 @@ public class C2Provider implements IAuthProvider {
 		sd.rolesAsString = Joiner.on(",").join(lr.authUser.roles);
 		// for 13k sessions, we end up with 3MB of duplicate strings here
 		sd.rolesAsString = sd.rolesAsString.intern();
-		sd.roles = lr.authUser.roles.stream().map(s -> s.intern()).collect(Collectors.toSet());
+		sd.roles = lr.authUser.roles.stream().map(String::intern).collect(Collectors.toSet());
 		sd.settings = lr.authUser.settings;
 
 		// when creating a new session for a user, expire the oldest ones if he

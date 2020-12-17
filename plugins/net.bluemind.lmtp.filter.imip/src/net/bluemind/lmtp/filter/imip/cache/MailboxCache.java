@@ -26,8 +26,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
@@ -40,12 +40,8 @@ import net.bluemind.mailbox.api.Mailbox;
 
 public class MailboxCache extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(MailboxCache.class);
-	private static final Cache<String, Optional<ItemValue<Mailbox>>> nameToMailbox = CacheBuilder.newBuilder()
-			.recordStats()
-			.concurrencyLevel(4)
-			.expireAfterAccess(30, TimeUnit.MINUTES)
-			.initialCapacity(1024)
-			.build();
+	private static final Cache<String, Optional<ItemValue<Mailbox>>> nameToMailbox = Caffeine.newBuilder().recordStats()
+			.expireAfterAccess(30, TimeUnit.MINUTES).initialCapacity(1024).build();
 	private static Map<String, String> uidToName = new ConcurrentHashMap<>();
 
 	public static class CacheRegistration implements ICacheRegistration {
@@ -72,13 +68,13 @@ public class MailboxCache extends AbstractVerticle {
 
 	public static Optional<ItemValue<Mailbox>> get(IServiceProvider provider, String domain, String box) {
 		try {
-			return nameToMailbox.get(key(box, domain), (() -> {
+			return nameToMailbox.get(key(box, domain), (theKey -> {
 				IMailboxes mailboxService = provider.instance(IMailboxes.class, domain);
 				ItemValue<Mailbox> mailbox = mailboxService.byName(box);
 				if (mailbox == null) {
 					return Optional.empty();
 				}
-				uidToName.put(key(mailbox.uid, domain), key(box, domain));
+				uidToName.put(key(mailbox.uid, domain), theKey);
 				return Optional.of(mailbox);
 			}));
 		} catch (Exception e) {

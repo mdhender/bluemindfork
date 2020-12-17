@@ -28,7 +28,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.api,
  net.bluemind.metrics.registry,
  net.bluemind.systemd.notify,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ com.github.ben-manes.caffeine
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

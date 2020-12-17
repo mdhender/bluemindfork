@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.tika.bundle;bundle-version="1.13.0",
  org.apache.tika.core;bundle-version="1.13.0",
  io.netty,
- net.bluemind.systemd.notify
+ net.bluemind.systemd.notify,
+ com.github.ben-manes.caffeine
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx

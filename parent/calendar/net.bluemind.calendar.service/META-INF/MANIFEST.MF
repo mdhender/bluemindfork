@@ -61,7 +61,8 @@ Require-Bundle: net.bluemind.calendar.api;bundle-version="1.0.0",
  net.bluemind.common.freemarker,
  net.bluemind.core.commons,
  net.bluemind.cti.service,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ com.github.ben-manes.caffeine
 Export-Package: net.bluemind.calendar.service,
  net.bluemind.calendar.service.eventdeferredaction,
  net.bluemind.calendar.service.internal

@@ -3,16 +3,16 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.core.caches.registry
 Bundle-SymbolicName: net.bluemind.core.caches.registry;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-Activator: net.bluemind.core.caches.registry.Activator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
- com.google.guava;bundle-version="24.1.0";visibility:=reexport,
  net.bluemind.eclipse.common,
  slf4j.api;bundle-version="1.7.5",
  net.bluemind.core.commons,
  net.bluemind.core.rest;bundle-version="4.1.0",
  net.bluemind.hornetq.client,
- net.bluemind.metrics.registry
+ net.bluemind.metrics.registry,
+ com.github.ben-manes.caffeine;bundle-version="2.8.6",
+ com.google.guava;bundle-version="30.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.caches.registry
