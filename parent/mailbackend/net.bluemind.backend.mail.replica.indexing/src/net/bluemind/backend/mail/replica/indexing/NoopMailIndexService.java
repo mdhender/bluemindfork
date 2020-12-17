@@ -40,7 +40,7 @@ public class NoopMailIndexService implements IMailIndexService {
 	private static final Logger logger = LoggerFactory.getLogger(NoopMailIndexService.class);
 
 	@Override
-	public void deleteBox(String latd, ItemValue<Mailbox> box, String folderUid) {
+	public void deleteBox(ItemValue<Mailbox> box, String folderUid) {
 		logger.debug("NOOP");
 	}
 
@@ -138,12 +138,7 @@ public class NoopMailIndexService implements IMailIndexService {
 	}
 
 	@Override
-	public void expunge(String latd, ItemValue<Mailbox> box, ItemValue<MailboxFolder> folder) {
-		logger.debug("NOOP");
-	}
-
-	@Override
-	public void expunge(String latd, ItemValue<Mailbox> box, ItemValue<MailboxFolder> folder, IDSet set) {
+	public void expunge(ItemValue<Mailbox> box, ItemValue<MailboxFolder> folder, IDSet set) {
 		logger.debug("NOOP");
 	}
 

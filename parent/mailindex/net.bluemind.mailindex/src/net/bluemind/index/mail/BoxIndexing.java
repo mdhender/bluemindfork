@@ -93,9 +93,7 @@ public class BoxIndexing {
 			Set<String> inIndex = MailIndexActivator.getService().getFolders(mailbox.uid);
 			Set<String> inDatabase = folders.stream().map(f -> f.uid).collect(Collectors.toSet());
 			Set<String> toDelete = Sets.difference(inIndex, inDatabase);
-			toDelete.forEach(fId -> {
-				MailIndexActivator.getService().deleteBox(mailbox.value.name + "@" + domainUid, mailbox, fId);
-			});
+			toDelete.forEach(fId -> MailIndexActivator.getService().deleteBox(mailbox, fId));
 
 		}), monitor.subWork(99));
 	}

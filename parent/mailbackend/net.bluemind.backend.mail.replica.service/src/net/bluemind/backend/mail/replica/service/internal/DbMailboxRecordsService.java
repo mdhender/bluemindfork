@@ -532,7 +532,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		if (folder == null) {
 			return;
 		}
-		indexService.expunge(null, box, folder, set);
+		indexService.expunge(box, folder, set);
 	}
 
 	@Override
@@ -545,7 +545,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		String folderUid = IMailReplicaUids.uniqueId(container.uid);
 		ItemValue<Mailbox> box = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IMailboxes.class, container.domainUid).getComplete(container.owner);
-		indexService.deleteBox(null, box, folderUid);
+		indexService.deleteBox(box, folderUid);
 		storeService.prepareContainerDelete();
 	}
 

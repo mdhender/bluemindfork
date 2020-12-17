@@ -19,18 +19,16 @@
 package net.bluemind.index.mail;
 
 import org.apache.lucene.search.join.ScoreMode;
-import org.elasticsearch.action.delete.DeleteRequestBuilder;
-import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.reindex.DeleteByQueryAction;
 import org.elasticsearch.join.query.JoinQueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
-import net.bluemind.index.mail.BulkData.UnitDelete;
 import net.bluemind.lib.vertx.utils.ThrottleMessages;
 
 public class ExpungeVerticle extends AbstractVerticle {
@@ -52,25 +50,12 @@ public class ExpungeVerticle extends AbstractVerticle {
 		logger.info(" *** cleanup parents begin. indice {}", index);
 
 		long time = System.currentTimeMillis();
-
-		BulkData data = new BulkData(MailIndexService.getIndexClient());
-		data.indexName = index;
-		data.type = MailIndexService.MAILSPOOL_TYPE;
-		data.query = QueryBuilders.boolQuery()
+		QueryBuilder queryBuilder = QueryBuilders.boolQuery()
 				.mustNot(JoinQueryBuilders.hasChildQuery(MailIndexService.CHILD_TYPE, QueryBuilders.matchAllQuery(),
 						ScoreMode.None))//
 				.must(QueryBuilders.termQuery(MailIndexService.JOIN_FIELD, MailIndexService.PARENT_TYPE));
-		data.unitDelete = new UnitDelete() {
-
-			@Override
-			public DeleteRequestBuilder build(Client client, SearchHit hit) {
-				DeleteRequestBuilder drb = client.prepareDelete().setIndex(index)
-						.setType(MailIndexService.MAILSPOOL_TYPE).setId(hit.getId());
-				return drb;
-			}
-		};
-
-		long deleted = data.execute();
+		long deleted = DeleteByQueryAction.INSTANCE.newRequestBuilder(MailIndexService.getIndexClient())
+				.filter(queryBuilder).source(index).get().getDeleted();
 
 		logger.info(" *** cleanup parents ({}) took {} ms", deleted, (System.currentTimeMillis() - time));
 	}

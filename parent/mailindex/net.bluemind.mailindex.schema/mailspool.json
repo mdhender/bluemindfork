@@ -40,168 +40,130 @@
 					}
 				},
 				"parentId": {
-					"type": "keyword",
-					"store": true
+					"type": "keyword"
 				},
 				"content": {
 					"type": "text",
 					"norms": false
 				},
 				"messageId": {
-					"type": "keyword",
-					"store": true
+					"type": "keyword"
 				},
 				"references": {
-					"type": "keyword",
-					"store": true
+					"type": "keyword"
 				},
 				"preview": {
 					"type": "text",
-					"index": false,
-					"store": true
+					"index": false
 				},
 				"subject": {
 					"type": "text",
-					"norms": false,
-					"store": true
+					"norms": false
 				},
 				"subject_kw": {
-					"type": "keyword",
-					"store": false
+					"type": "keyword"
 				},
 				"date": {
-					"type": "date",
-					"store": true
+					"type": "date"
 				},
 				"internalDate": {
-					"type": "date",
-					"store": true
+					"type": "date"
 				},
 				"owner": {
-					"type": "keyword",
-					"store": false
+					"type": "keyword"
 				},
 				"content-type": {
 					"type": "keyword",
-					"index": false,
-					"store": true
+					"index": false
 				},
 				"uid": {
-					"type": "integer",
-					"store": true
+					"type": "integer"
 				},
 				"itemId": {
-					"type": "integer",
-					"store": true
+					"type": "integer"
 				},
 				"size": {
-					"type": "integer",
-					"store": true
+					"type": "integer"
 				},
 				"in": {
-					"type": "keyword",
-					"store": false
+					"type": "keyword"
 				},
 				"is": {
 					"type": "keyword",
-					"store": true,
 					"norms": false
 				},
 				"has": {
-					"type": "keyword",
-					"store": true
+					"type": "keyword"
 				},
 				"filename": {
 					"type": "text",
-					"store": false,
 					"norms": false
 				},
 				"from": {
 					"type": "text",
-					"store": false,
 					"norms": false
 				},
 				"to": {
 					"type": "text",
-					"store": false,
 					"norms": false
 				},
 				"cc": {
 					"type": "text",
-					"store": false,
 					"norms": false
 				},
 				"with": {
 					"type": "text",
-					"store": false,
 					"norms": false
 				},
 				"id": {
-					"type": "keyword",
-					"store": true
+					"type": "keyword"
 				},
 				"headers": {
 					"properties": {
 						"from": {
-							"type": "keyword",
-							"store": true
+							"type": "keyword"
 						},
 						"to": {
-							"type": "keyword",
-							"store": true
+							"type": "keyword"
 						},
 						"cc": {
-							"type": "keyword",
-							"store": true
+							"type": "keyword"
 						},
 						"reply-to": {
 							"type": "keyword",
-							"index": false,
-							"store": true
+							"index": false
 						},
 						"list-post": {
 							"type": "keyword",
-							"index": false,
-							"store": true
+							"index": false
 						},
 						"disposition-notification-to": {
 							"type": "keyword",
-							"index": false,
-							"store": true
-						},
-						"x-bm_hsm_id": {
-							"type": "keyword",
-							"store": true
+							"index": false
 						},
 						"x-bm-event": {
 							"type": "keyword",
-							"index": false,
-							"store": true
+							"index": false
 						},
 						"x-bm-resourcebooking": {
 							"type": "keyword",
-							"index": false,
-							"store": true
+							"index": false
 						},
 						"x-bm-foldersharing": {
 							"type": "keyword",
-							"index": false,
-							"store": true
+							"index": false
 						},
 						"x-bm-folderuid": {
 							"type": "keyword",
-							"index": false,
-							"store": true
+							"index": false
 						},
 						"x-bm-foldertype": {
 							"type": "keyword",
-							"index": false,
-							"store": true
+							"index": false
 						},
 						"x-priority": {
 							"type": "keyword",
-							"index": false,
-							"store": true
+							"index": false
 						}
 					}
 				}

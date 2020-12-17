@@ -729,7 +729,7 @@ class rcube_storage_bm extends rcube_imap {
 
     $fields = array_keys($this->indexMap);
     $fields[] = "is";
-    $query->setStoredFields($fields);
+    $query->setSource($fields);
 
     $page = $this->list_page ? $this->list_page : 1;
     $from  = ($page-1) * $this->page_size;
@@ -759,6 +759,7 @@ class rcube_storage_bm extends rcube_imap {
 
     $this->searchMeta = array ('from' => $from, 'to' => $to, 'sort' => $sort, 'order' => $order, 'messages' => $messages);
     $query->setStoredFields(array());
+    $query->setSource(false);
     $query->setFrom(0);
     $query->setSize($count);
     
@@ -815,7 +816,7 @@ class rcube_storage_bm extends rcube_imap {
 
     $fields = array_keys($this->indexMap);
     $fields[] = "is";
-    $query->setStoredFields($fields);
+    $query->setSource($fields);
 
     $query->setFrom($from);
     $query->setSize($this->page_size);
@@ -827,7 +828,6 @@ class rcube_storage_bm extends rcube_imap {
       $query->setSort(array($this->sortMap[$this->sort_field] => array('order' => strtolower($order))));
     }
     $resultSet = $index->search($query);
-    $count = $resultSet->getTotalHits();
     $results = $resultSet->getResults();
     $messages = array();
     foreach ($results as $result) {
@@ -1132,6 +1132,12 @@ class rcube_storage_bm extends rcube_imap {
     $message->list_flags['extra_flags']['mbox'] = $this->getFolderByUid($folder);
 
     foreach ($this->indexMap as $field => $header) {
+      if (substr_count($field, ".") === 1) {
+        list($doc, $doc_field) = explode(".", $field);
+        if (isset($index[$doc])) {
+            $index[$field] = $index[$doc][$doc_field];
+        }
+      }
       if (is_array($index[$field])) {
         $index[$field] = $index[$field][0];
       }

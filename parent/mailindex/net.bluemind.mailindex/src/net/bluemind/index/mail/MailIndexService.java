@@ -38,7 +38,6 @@ import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
-import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -89,8 +88,6 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.NullTaskMonitor;
 import net.bluemind.index.MailIndexActivator;
-import net.bluemind.index.mail.BulkData.DeleteUnitHelper;
-import net.bluemind.index.mail.BulkData.UnitDelete;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.Queries;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -299,34 +296,20 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	@Override
-	public void deleteBox(String latd, ItemValue<Mailbox> box, String folderUid) {
+	public void deleteBox(ItemValue<Mailbox> box, String folderUid) {
 
 		logger.debug("deleteBox {} {}", box.uid, folderUid);
 
 		QueryBuilder q = QueryBuilders.constantScoreQuery(asFilter(folderUid));
 
-		long count = bulkDelete(getIndexAliasName(box.uid), q, new DeleteUnitHelper(getIndexAliasName(box.uid)));
+		long count = bulkDelete(getIndexAliasName(box.uid), q);
 		logger.info("deleteBox {}:{} :  {} deleted", box.uid, folderUid, count);
 
 		cleanupParents(getIndexAliasName(box.uid));
 	}
 
 	@Override
-	public void expunge(String latd, ItemValue<Mailbox> box, ItemValue<MailboxFolder> f) {
-		logger.debug("expungeBox {}:{}", f.displayName, f.uid);
-
-		TermQueryBuilder flagFilter = QueryBuilders.termQuery("is", "deleted");
-		BoolQueryBuilder deletedInBox = QueryBuilders.boolQuery().must(asFilter(f.uid)).must(flagFilter);
-
-		QueryBuilder qb = QueryBuilders.constantScoreQuery(deletedInBox);
-		long deletedCount = bulkDelete(getIndexAliasName(box.uid), qb,
-				new DeleteUnitHelper(getIndexAliasName(box.uid)));
-
-		logger.info("expungeBox {}:{} : {} deleted", f.displayName, f.uid, deletedCount);
-	}
-
-	@Override
-	public void expunge(String latd, ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, IDSet set) {
+	public void expunge(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, IDSet set) {
 		logger.info("(expunge) expunge: {} {}", f.displayName, set);
 
 		long deletedCount = deleteSet(box, f, set);
@@ -350,7 +333,7 @@ public class MailIndexService implements IMailIndexService {
 		while (iter.hasNext()) {
 			BoolQueryBuilder filter = QueryBuilders.boolQuery().must(asFilter(f.uid)).must(asFilter(iter, 1000));
 			QueryBuilder q = QueryBuilders.constantScoreQuery(filter);
-			deletedCount += bulkDelete(getIndexAliasName(box.uid), q, new DeleteUnitHelper(getIndexAliasName(box.uid)));
+			deletedCount += bulkDelete(getIndexAliasName(box.uid), q);
 		}
 
 		cleanupParents(getIndexAliasName(box.uid));
@@ -373,15 +356,9 @@ public class MailIndexService implements IMailIndexService {
 		return ESearchActivator.getClient();
 	}
 
-	private long bulkDelete(String indexName, QueryBuilder q, UnitDelete unitDelete) {
-		BulkData data = new BulkData(getIndexClient());
-		data.indexName = indexName;
-		data.type = MAILSPOOL_TYPE;
-		data.query = q;
-		data.fields = new String[] { "parentId", "x-bm_hsm_id" };
-		data.unitDelete = unitDelete;
-
-		return data.execute();
+	private long bulkDelete(String indexName, QueryBuilder q) {
+		return DeleteByQueryAction.INSTANCE.newRequestBuilder(getIndexClient()).filter(q).source(indexName).get()
+				.getDeleted();
 	}
 
 	private QueryBuilder asFilter(Iterator<IDRange> iter, int max) {
@@ -456,8 +433,9 @@ public class MailIndexService implements IMailIndexService {
 				QueryBuilders.existsQuery("parentId"), //
 				query);
 
+		String[] sourceIncludeFields = { "uid", "is", "parentId" };
 		SearchResponse r = client.prepareSearch(getIndexAliasName(entityId)).setQuery(withNeededFields)
-				.setFetchSource(false).storedFields("uid", "is", "parentId").setScroll(TimeValue.timeValueSeconds(20))
+				.setFetchSource(sourceIncludeFields, null).setScroll(TimeValue.timeValueSeconds(20))
 				.setTypes(MAILSPOOL_TYPE).setSize(SIZE).execute().actionGet();
 
 		long current = 0;
@@ -466,17 +444,12 @@ public class MailIndexService implements IMailIndexService {
 		while (current < r.getHits().getTotalHits()) {
 
 			for (SearchHit h : r.getHits().getHits()) {
-				Integer uid = h.getFields().get("uid").getValue();
+				Map<String, Object> source = h.getSourceAsMap();
 
-				DocumentField flagsField = h.getFields().get("is");
-				List<String> flags = Collections.emptyList();
-				if (flagsField != null) {
-					flags = (List<String>) ((Object) flagsField.getValues());
-				}
 				MailSummary sum = new MailSummary();
-				sum.uid = uid;
-				sum.flags = new HashSet<>(flags);
-				sum.parentId = h.getFields().get("parentId").getValue();
+				sum.uid = source.get("uid") != null ? (int) source.get("uid") : null;
+				sum.flags = new HashSet<>((List<String>) source.get("is"));
+				sum.parentId = (String) source.get("parentId");
 				ret.add(sum);
 				current++;
 			}
@@ -554,19 +527,9 @@ public class MailIndexService implements IMailIndexService {
 	public void deleteMailbox(String entityId) {
 		final Client client = getIndexClient();
 
-		final String indexName = getIndexAliasName(entityId);
-
 		QueryBuilder q = QueryBuilders.termQuery("owner", entityId);
 
-		long deletedCount = bulkDelete(getIndexAliasName(entityId), q, (Client indexClient, SearchHit hit) -> {
-			String pid = (String) hit.getSourceAsMap().get("parentId");
-
-			return indexClient.prepareDelete()//
-					.setIndex(indexName) //
-					.setType(MAILSPOOL_TYPE) //
-					.setId(hit.getId()) //
-					.setParent(pid);
-		});
+		long deletedCount = bulkDelete(getIndexAliasName(entityId), q);
 		logger.debug("deleteBox {} : {} deleted", entityId, deletedCount);
 
 		try {
@@ -679,15 +642,7 @@ public class MailIndexService implements IMailIndexService {
 
 		logger.info("bulk copy of msg response {}", copyResp);
 
-		bulkDelete(fromIndex, QueryBuilders.termQuery("owner", mailboxUid), (Client indexClient, SearchHit hit) -> {
-			String pid = hit.getFields().get("parentId").getValue();
-
-			return indexClient.prepareDelete() //
-					.setIndex(fromIndex) //
-					.setType(MAILSPOOL_TYPE) //
-					.setId(hit.getId()) //
-					.setParent(pid);
-		});
+		bulkDelete(fromIndex, QueryBuilders.termQuery("owner", mailboxUid));
 	}
 
 	public List<ShardStats> getStats() {
@@ -782,10 +737,6 @@ public class MailIndexService implements IMailIndexService {
 		QueryBuilder bq = buildEsQuery(query);
 
 		searchBuilder.setQuery(bq);
-		searchBuilder.addStoredField("itemId");
-		searchBuilder.addStoredField("uid");
-		searchBuilder.addStoredField("preview");
-		searchBuilder.addStoredField("internalDate");
 		searchBuilder.setFetchSource(true);
 		searchBuilder.setFrom((int) query.offset);
 		searchBuilder.setSize((int) query.maxResults);
@@ -895,8 +846,8 @@ public class MailIndexService implements IMailIndexService {
 
 	@SuppressWarnings({ "unchecked" })
 	private MessageSearchResult createSearchResult(SearchHit sh) {
-		Integer itemId = sh.field("itemId").getValue();
 		Map<String, Object> source = sh.getSourceAsMap();
+		Integer itemId = source.get("itemId") != null ? (int) source.get("itemId") : null;
 		String folderUid = ((String) source.get("id")).split(":")[0];
 		String contUid = "mbox_records_" + folderUid;
 		String subject = (String) source.get("subject");

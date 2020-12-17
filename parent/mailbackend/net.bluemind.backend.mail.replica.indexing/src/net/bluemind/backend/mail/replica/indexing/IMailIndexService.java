@@ -39,7 +39,7 @@ public interface IMailIndexService {
 
 	}
 
-	public void deleteBox(String latd, ItemValue<Mailbox> box, String folderUid);
+	public void deleteBox(ItemValue<Mailbox> box, String folderUid);
 
 	public void cleanupFolder(ItemValue<Mailbox> box, ItemValue<MailboxFolder> folder, Set<Integer> keySet);
 
@@ -81,9 +81,7 @@ public interface IMailIndexService {
 		storeMessage(mailboxUniqueId, mail, user, Optional.empty());
 	}
 
-	public void expunge(String latd, ItemValue<Mailbox> box, ItemValue<MailboxFolder> folder);
-
-	public void expunge(String latd, ItemValue<Mailbox> box, ItemValue<MailboxFolder> folder, IDSet set);
+	public void expunge(ItemValue<Mailbox> box, ItemValue<MailboxFolder> folder, IDSet set);
 
 	public void deleteBodyEntries(List<String> bodyIds);
 
