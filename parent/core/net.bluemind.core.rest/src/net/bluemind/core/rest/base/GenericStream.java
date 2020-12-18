@@ -202,13 +202,7 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 
 	private static <T> CompletableFuture<Void> asyncStream(final ReadStream<T> reader, final WriteStream<T> writer) {
 		CompletableFuture<Void> prom = new CompletableFuture<>();
-		reader.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				prom.complete(null);
-			}
-		});
+		reader.endHandler(evt -> prom.complete(null));
 
 		Pump pump = Pump.pump(reader, writer);
 		pump.start();
@@ -335,7 +329,7 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 		}
 	}
 
-	public static enum State {
+	public enum State {
 		MORE, ENDED
 	}
 

@@ -26,10 +26,8 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.slf4j.Logger;
@@ -88,7 +86,7 @@ public class AddBmHiddenAttribute implements Updater {
 
 				logger.info("Host: " + directoryServer.value.address() + " BlueMind schema updated.");
 				monitorByServer.progress(1, "Host: " + directoryServer.value.address() + " upgraded");
-			} catch (ServerFault | IOException | LdapException | CursorException e) {
+			} catch (ServerFault | IOException | LdapException e) {
 				String errorMsg = String.format("Fail to update LDAP configuration on host %s: %s",
 						directoryServer.value.address(), e.getMessage());
 				logger.error(errorMsg, e);
@@ -100,8 +98,7 @@ public class AddBmHiddenAttribute implements Updater {
 		return UpdateResult.ok();
 	}
 
-	private void modifyOlcDbIndex(LdapConnection ldapCon)
-			throws LdapInvalidDnException, LdapException, CursorException {
+	private void modifyOlcDbIndex(LdapConnection ldapCon) throws LdapException {
 		Entry entry = ldapCon.lookup("cn={4}bluemind,cn=schema,cn=config");
 
 		if (entry != null) {

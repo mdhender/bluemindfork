@@ -55,17 +55,12 @@ public class UpdateResult {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((this.result == null) ? 0 : this.result.hashCode());
-		return result;
+		return 31 + ((this.result == null) ? 0 : this.result.hashCode());
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
+		if (this == obj || obj == null)
 			return false;
 		if (getClass() != obj.getClass())
 			return false;

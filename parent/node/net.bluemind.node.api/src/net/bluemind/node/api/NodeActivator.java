@@ -24,22 +24,26 @@ public class NodeActivator implements BundleActivator {
 		return context;
 	}
 
-	public void start(BundleContext bundleContext) throws Exception {
+	static void setContext(BundleContext bundleContext) {
 		NodeActivator.context = bundleContext;
 	}
 
+	public void start(BundleContext bundleContext) throws Exception {
+		setContext(bundleContext);
+	}
+
 	public void stop(BundleContext bundleContext) throws Exception {
-		NodeActivator.context = null;
+		setContext(null);
 	}
 
 	private static INodeClientFactory ncf = factory();
 
 	private static INodeClientFactory factory() {
-		RunnableExtensionLoader<INodeClientFactory> rel = new RunnableExtensionLoader<INodeClientFactory>();
+		RunnableExtensionLoader<INodeClientFactory> rel = new RunnableExtensionLoader<>();
 		List<INodeClientFactory> ncfs = rel.loadExtensions("net.bluemind.node.api", "nodeclientfactory",
 				"node_client_factory", "impl");
 
-		if (ncfs == null || ncfs.size() == 0) {
+		if (ncfs == null || ncfs.isEmpty()) {
 			logger.warn("no nodeClientFactory plugin. System ops will not be available");
 			return null;
 		}

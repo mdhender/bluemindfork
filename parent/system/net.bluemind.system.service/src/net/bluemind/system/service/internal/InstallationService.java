@@ -61,6 +61,7 @@ import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.DbSchemaService;
+import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -191,7 +192,7 @@ public class InstallationService implements IInstallation {
 
 		UpgraderStore store = new UpgraderStore(JdbcActivator.getInstance().getDataSource());
 
-		store.doOrFail(() -> {
+		JdbcAbstractStore.doOrFail(() -> {
 			for (ComponentVersion cp : ComponentVersionExtensionPoint.getComponentsVersion()) {
 				store.updateComponentVersion(cp.identifier, cp.version);
 			}
@@ -328,7 +329,7 @@ public class InstallationService implements IInstallation {
 			throw new ServerFault("only admin0 can do upgrade", ErrorCode.NOT_GLOBAL_ADMIN);
 		}
 
-		schemaVersionStore.doOrFail(() -> {
+		JdbcAbstractStore.doOrFail(() -> {
 			for (ComponentVersion cp : ComponentVersionExtensionPoint.getComponentsVersion()) {
 				schemaVersionStore.updateComponentVersion(cp.identifier, cp.version);
 			}

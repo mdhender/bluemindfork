@@ -132,7 +132,7 @@ public class SecurityMgmt implements ISecurityMgmt {
 		nc.writeFile("/etc/ssl/certs/bm_cert.pem", new ByteArrayInputStream(certPlusKey.getBytes()));
 	}
 
-	static public void checkCertificate(byte[] caData, byte[] certData, byte[] pkeyData) throws ServerFault {
+	public static void checkCertificate(byte[] caData, byte[] certData, byte[] pkeyData) throws ServerFault {
 		CertificateFactory cf = null;
 		try {
 			cf = CertificateFactory.getInstance("X.509");
@@ -144,14 +144,13 @@ public class SecurityMgmt implements ISecurityMgmt {
 		Collection<? extends Certificate> certificates = null;
 		try {
 			certificates = cf.generateCertificates(new ByteArrayInputStream(caData));
-
 		} catch (CertificateException e) {
-			logger.warn("error during ca read {}", e);
+			logger.error("error during ca read : {}", e.getMessage(), e);
 			throw new ServerFault("Certificate Authority not valid : " + e.getMessage(), e);
 		}
 
-		Set<TrustAnchor> tA = new HashSet<TrustAnchor>();
-		List<X509Certificate> certList = new ArrayList<X509Certificate>();
+		Set<TrustAnchor> tA = new HashSet<>();
+		List<X509Certificate> certList = new ArrayList<>();
 		for (Certificate aCertificate : certificates) {
 			X509Certificate certificate = (X509Certificate) aCertificate;
 
@@ -172,7 +171,7 @@ public class SecurityMgmt implements ISecurityMgmt {
 		try {
 			cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certData));
 		} catch (CertificateException e) {
-			logger.warn("error during cert read {}", e);
+			logger.error("error reading certificate: {}", e.getMessage(), e);
 			throw new ServerFault("Certificate not valid : " + e.getMessage(), e);
 		}
 
@@ -187,17 +186,11 @@ public class SecurityMgmt implements ISecurityMgmt {
 			CertPathValidator cpv = CertPathValidator.getInstance("PKIX");
 
 			cpv.validate(cp, pkixp);
-		} catch (CertificateException e) {
-			logger.warn("error during cert validation {}", e);
+		} catch (CertificateException | InvalidAlgorithmParameterException | NoSuchAlgorithmException e) {
+			logger.error("error during cert validation {}", e.getMessage(), e);
 			throw new ServerFault("Certificate not valid : " + e.getMessage(), e);
-		} catch (InvalidAlgorithmParameterException e) {
-			logger.warn("error during cert validation {}", e);
-			throw new ServerFault("Certificate not valid : " + e.getMessage(), e);
-		} catch (NoSuchAlgorithmException e) {
-			logger.error("error during cert validation {}", e);
-			throw new ServerFault("error during certificate validation", e);
 		} catch (CertPathValidatorException e) {
-			logger.warn("error during cert validation {}", e);
+			logger.error("error during cert validation {}", e.getMessage(), e);
 			throw new ServerFault("Certificate path not valid : " + e.getMessage(), e);
 		}
 
@@ -223,19 +216,20 @@ public class SecurityMgmt implements ISecurityMgmt {
 			} else if (o instanceof PrivateKeyInfo) {
 				privateKeyInfo = (PrivateKeyInfo) o;
 			} else if (o == null) {
-				throw new ServerFault("privatekey format not handled ");
+				throw new ServerFault("privatekey format not handled");
 			} else {
 				throw new ServerFault("privatekey format not handled " + o.getClass().getName());
 			}
 
 			pk = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(privateKeyInfo.getEncoded()));
 		} catch (NoSuchAlgorithmException e) {
-			logger.warn("error during pk validation {}", e);
-			throw new ServerFault("error during private key validation ", e);
+			logger.error("error during pk validation: {}", e.getMessage(), e);
+			throw new ServerFault("error during private key validation", e);
 		} catch (InvalidKeySpecException e) {
-			throw new ServerFault("error during private key loading : " + e.getMessage(), e);
+			logger.error("error loading private key: {}", e.getMessage(), e);
+			throw new ServerFault("error loading private key : " + e.getMessage(), e);
 		} catch (IOException e) {
-			logger.warn("error during pk validation {}", e);
+			logger.error("error during private key validation: {}", e.getMessage(), e);
 			throw new ServerFault("error during private key validation ", e);
 		}
 
@@ -252,16 +246,9 @@ public class SecurityMgmt implements ISecurityMgmt {
 				throw new ServerFault("private key doesnt correspond to certificate");
 			}
 
-		} catch (SignatureException e) {
-			logger.warn("error during pk validation {}", e);
-			throw new ServerFault("error during private key validation : " + e.getMessage(), e);
-		} catch (NoSuchAlgorithmException e) {
-			logger.warn("error during pk validation {}", e);
-			throw new ServerFault("error during private key validation : " + e.getMessage(), e);
-		} catch (InvalidKeyException e) {
-			logger.warn("error during pk validation {}", e);
+		} catch (SignatureException | NoSuchAlgorithmException | InvalidKeyException e) {
+			logger.error("error during private key validation: {}", e.getMessage(), e);
 			throw new ServerFault("error during private key validation : " + e.getMessage(), e);
 		}
-
 	}
 }

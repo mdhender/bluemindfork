@@ -18,10 +18,6 @@
   */
 package net.bluemind.system.service.cache;
 
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
@@ -32,12 +28,9 @@ import net.bluemind.role.api.BasicRoles;
 import net.bluemind.system.api.ICacheMgmt;
 
 public class CacheMgmt implements ICacheMgmt {
-	private static final Logger logger = LoggerFactory.getLogger(CacheMgmt.class);
-	private BmContext context;
 	private RBACManager rbac;
 
 	public CacheMgmt(BmContext context) {
-		this.context = context;
 		rbac = new RBACManager(context);
 	}
 

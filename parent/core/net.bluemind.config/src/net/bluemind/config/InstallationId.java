@@ -21,11 +21,10 @@ package net.bluemind.config;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.io.Files;
 
 public class InstallationId {
 
@@ -49,7 +48,8 @@ public class InstallationId {
 		File mcastIdFile = new File("/etc/bm/mcast.id");
 		if (mcastIdFile.exists()) {
 			try {
-				identifier = "bluemind-" + Files.toString(mcastIdFile, Charset.defaultCharset());
+				identifier = "bluemind-"
+						+ new String(Files.readAllBytes(mcastIdFile.toPath()), Charset.defaultCharset());
 			} catch (IOException e) {
 				logger.error("error during reading mcast.id {}", e.getMessage(), e);
 			}
