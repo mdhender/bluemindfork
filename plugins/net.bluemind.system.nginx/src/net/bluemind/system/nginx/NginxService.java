@@ -221,4 +221,14 @@ public class NginxService {
 				new ByteArrayInputStream(String.format("server %s:8888;", tickIp).getBytes()));
 		reloadHttpd(nc);
 	}
+
+	public void updateAllowBmEmbed(boolean allowBmEmbed) {
+		getTaggedServers().forEach(server -> {
+			logger.info("update bm-nginx-embed.conf on {}", server);
+			INodeClient nc = NodeActivator.get(server);
+			nc.writeFile("/etc/nginx/bm-nginx-embed.conf", new ByteArrayInputStream(
+					("set $bm_nginx_embed " + Boolean.valueOf(allowBmEmbed).toString() + ";").getBytes()));
+			reloadHttpd(nc);
+		});
+	}
 }

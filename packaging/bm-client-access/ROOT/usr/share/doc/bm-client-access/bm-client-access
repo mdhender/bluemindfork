@@ -84,8 +84,18 @@ server {
   ssl_prefer_server_ciphers off;
   ssl_dhparam /etc/nginx/bm_dhparam.pem;
 
+  # Allow througth iFrame
+  include /etc/nginx/bm-nginx-embed.conf;
+  set $bm_xframeoptions SAMEORIGIN;
+  set $bm_proxycookiepath "";
+  if ($bm_nginx_embed = "true") {
+    set $bm_xframeoptions "";
+    set $bm_proxycookiepath "; SameSite=None";
+  }
+  add_header X-Frame-Options $bm_xframeoptions;
+  proxy_cookie_path ~^(.+)$ $1$bm_proxycookiepath;
+
   add_header Strict-Transport-Security max-age=15768000; # six months
-  add_header X-Frame-Options SAMEORIGIN;
   add_header X-Content-Type-Options nosniff;
   add_header 'Referrer-Policy' 'strict-origin-when-cross-origin';
   add_header X-XSS-Protection "1; mode=block";

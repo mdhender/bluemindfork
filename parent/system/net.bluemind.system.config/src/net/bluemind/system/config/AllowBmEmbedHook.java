@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -35,43 +35,39 @@ import net.bluemind.system.hook.ISystemConfigurationObserver;
 import net.bluemind.system.hook.ISystemConfigurationValidator;
 import net.bluemind.system.nginx.NginxService;
 
-public class WorkerConnectionHook implements ISystemConfigurationObserver, ISystemConfigurationValidator {
-	private static Logger logger = LoggerFactory.getLogger(WorkerConnectionHook.class);
+public class AllowBmEmbedHook implements ISystemConfigurationObserver, ISystemConfigurationValidator {
+	private static Logger logger = LoggerFactory.getLogger(AllowBmEmbedHook.class);
 	private Optional<NginxService> nginxService;
 
-	public WorkerConnectionHook() {
+	public AllowBmEmbedHook() {
 		this.nginxService = Optional.empty();
 	}
 
-	public WorkerConnectionHook(NginxService nginxService) {
+	public AllowBmEmbedHook(NginxService nginxService) {
 		this.nginxService = Optional.of(nginxService);
 	}
 
 	@Override
 	public void onUpdated(BmContext context, SystemConf previous, SystemConf conf) throws ServerFault {
-		String workerConnections = conf.values.get(SysConfKeys.nginx_worker_connections.name());
+		boolean previousAllowSiteEmbed = Boolean.parseBoolean(previous.values.get(SysConfKeys.allow_bm_embed.name()));
+		boolean allowSiteEmbed = Boolean.parseBoolean(conf.values.get(SysConfKeys.allow_bm_embed.name()));
 
-		if ((Strings.isNullOrEmpty(workerConnections)
-				&& Strings.isNullOrEmpty(previous.values.get(SysConfKeys.nginx_worker_connections.name())))
-				|| Strings.nullToEmpty(workerConnections).equals(
-						Strings.nullToEmpty(previous.values.get(SysConfKeys.nginx_worker_connections.name())))) {
+		if (allowSiteEmbed == previousAllowSiteEmbed) {
 			return;
 		}
 
-		logger.info("System configuration {} has been updated", SysConfKeys.nginx_worker_connections.name());
-		nginxService.orElseGet(() -> new NginxService()).updateWorkerConnection(workerConnections);
+		logger.info("System configuration {} has been updated", SysConfKeys.allow_bm_embed.name());
+		nginxService.orElseGet(() -> new NginxService()).updateAllowBmEmbed(allowSiteEmbed);
 	}
 
 	@Override
 	public void validate(SystemConf previous, Map<String, String> modifications) throws ServerFault {
-		if (modifications.containsKey(SysConfKeys.nginx_worker_connections.name())) {
-			try {
-				Integer.parseInt(modifications.get(SysConfKeys.nginx_worker_connections.name()));
-			} catch (NumberFormatException nfe) {
-				throw new ServerFault(
-						String.format("%s must be a valid integer", SysConfKeys.nginx_worker_connections.name()),
-						ErrorCode.INVALID_PARAMETER);
-			}
+		if (modifications.containsKey(SysConfKeys.allow_bm_embed.name())
+				&& !Strings.isNullOrEmpty(modifications.get(SysConfKeys.allow_bm_embed.name()))
+				&& !modifications.get(SysConfKeys.allow_bm_embed.name()).equals("true")
+				&& !modifications.get(SysConfKeys.allow_bm_embed.name()).equals("false")) {
+			throw new ServerFault(String.format("%s must be true or false", SysConfKeys.allow_bm_embed.name()),
+					ErrorCode.INVALID_PARAMETER);
 		}
 	}
 }

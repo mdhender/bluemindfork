@@ -51,5 +51,11 @@
       <observer
             class="net.bluemind.system.config.HttpProxyHook">
       </observer>
+      <validator
+            class="net.bluemind.system.config.AllowBmEmbedHook">
+      </validator>
+      <observer
+            class="net.bluemind.system.config.AllowBmEmbedHook">
+      </observer>
    </extension>
 </plugin>
