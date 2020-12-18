@@ -50,11 +50,11 @@ public class PasswordEdit extends TextBox {
 	@Override
 	public void setValue(String value) {
 		password = value;
-		super.setValue(value);
+		super.setValue(generateStars(password.length()));
 	}
 
 	private void blurHandler(BlurEvent event) {
-		password = getValue();
+		password = super.getValue();
 		super.setValue(generateStars(password.length()));
 	}
 
