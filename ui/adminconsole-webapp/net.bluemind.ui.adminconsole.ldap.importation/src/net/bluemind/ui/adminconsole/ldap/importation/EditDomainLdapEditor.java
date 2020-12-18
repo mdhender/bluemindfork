@@ -69,6 +69,7 @@ import net.bluemind.system.ldap.importation.api.gwt.endpoint.LdapImportGwtEndpoi
 import net.bluemind.ui.adminconsole.base.Actions;
 import net.bluemind.ui.adminconsole.ldap.importation.l10n.Ldap;
 import net.bluemind.ui.adminconsole.system.domains.DomainKeys;
+import net.bluemind.ui.common.client.forms.PasswordEdit;
 
 public class EditDomainLdapEditor extends CompositeGwtWidgetElement {
 	static final String TYPE = "bm.ac.EditDomainLdapEditor";
@@ -94,7 +95,7 @@ public class EditDomainLdapEditor extends CompositeGwtWidgetElement {
 	TextBox ldapLoginDn;
 
 	@UiField
-	TextBox ldapLoginPw;
+	PasswordEdit ldapLoginPw;
 
 	@UiField
 	TextBox ldapUserFilter;

@@ -43,6 +43,11 @@ public class PasswordEdit extends TextBox {
 	}
 
 	@Override
+	public String getValue() {
+		return password;
+	}
+
+	@Override
 	public void setValue(String value) {
 		password = value;
 		super.setValue(value);
