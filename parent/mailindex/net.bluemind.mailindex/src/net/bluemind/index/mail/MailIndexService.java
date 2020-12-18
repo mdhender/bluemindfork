@@ -146,7 +146,7 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	private List<String> filterMailspoolIndexNames(GetIndexResponse indexResponse) {
-		return Arrays.asList(indexResponse.indices()).stream().filter(i -> !i.equals(INDEX_PENDING))
+		return Arrays.asList(indexResponse.indices()).stream().filter(i -> !i.startsWith(INDEX_PENDING))
 				.collect(Collectors.toList());
 	}
 
