@@ -21,6 +21,7 @@ package net.bluemind.ui.common.client.forms;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.google.gwt.user.client.ui.TextBox;
 
 public class PasswordEdit extends TextBox {
@@ -50,21 +51,25 @@ public class PasswordEdit extends TextBox {
 	@Override
 	public void setValue(String value) {
 		password = value;
-		super.setValue(generateStars(password.length()));
+		super.setValue(generateStars(password));
 	}
 
 	private void blurHandler(BlurEvent event) {
 		password = super.getValue();
-		super.setValue(generateStars(password.length()));
+		super.setValue(generateStars(password));
 	}
 
 	private void focusHandler(FocusEvent event) {
 		super.setValue(password);
 	}
 
-	private String generateStars(int length) {
+	private String generateStars(String password) {
+		if (Strings.isNullOrEmpty(password)) {
+			return "";
+		}
+
 		String stars = "";
-		for (int i = 0; i < length; i++) {
+		for (int i = 0; i < password.length(); i++) {
 			stars += "\u25CF";
 		}
 
