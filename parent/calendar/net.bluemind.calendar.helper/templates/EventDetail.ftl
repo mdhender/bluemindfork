@@ -130,6 +130,12 @@
       <td class="value">${location} <#if .data_model.old_location??><#if old_location != location><i class="updated">(${msg("generic.updated")})</i></#if></#if></td>
     </tr>
   </#if>
+  <#if url??>
+    <tr>
+      <td class="key">${msg("key.url")}</td>
+      <td class="value">${url} <#if .data_model.old_url??><#if old_url != url><i class="updated">(${msg("generic.updated")})</i></#if></#if></td>
+    </tr>
+  </#if>
   <#if owner??>
   <tr>
     <td class="key">${msg("key.organizer")}</td><td class="value">${owner}</td>

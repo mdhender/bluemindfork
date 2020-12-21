@@ -118,6 +118,10 @@ public class CalendarMailHelper extends ReminderMailHelper<VEvent> {
 			data.put("tz", vevent.dtstart.timezone);
 		}
 
+		if (!Strings.isNullOrEmpty(vevent.url)) {
+			data.put("url", vevent.url);
+		}
+
 		super.addICalendarelementDataToMap(vevent, valarm, data);
 
 		return data;
