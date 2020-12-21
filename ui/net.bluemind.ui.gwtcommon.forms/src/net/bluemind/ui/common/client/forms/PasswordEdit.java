@@ -21,7 +21,6 @@ package net.bluemind.ui.common.client.forms;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.FocusEvent;
-import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.google.gwt.user.client.ui.TextBox;
 
 public class PasswordEdit extends TextBox {
@@ -64,7 +63,7 @@ public class PasswordEdit extends TextBox {
 	}
 
 	private String generateStars(String password) {
-		if (Strings.isNullOrEmpty(password)) {
+		if (password == null || password.equals("")) {
 			return "";
 		}
 
