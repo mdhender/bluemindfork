@@ -20,5 +20,5 @@ module.exports = {
         "/node_modules/(?!(@bluemind/|storybook-addon-vue-info|storybook-addon-designs|workbox-.*))"
     ],
     testURL: "http://localhost",
-    setupFiles: ["./.jest/register-context.js"]
+    setupFiles: ["./.jest/register-context.js", "fake-indexeddb/auto"]
 };
