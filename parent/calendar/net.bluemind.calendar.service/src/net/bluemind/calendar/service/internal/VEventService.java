@@ -18,9 +18,11 @@
  */
 package net.bluemind.calendar.service.internal;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,9 @@ import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.icalendar.parser.CalendarOwner;
+import net.bluemind.tag.api.ITagUids;
+import net.bluemind.tag.api.ITags;
+import net.bluemind.tag.api.TagRef;
 
 public class VEventService implements IVEvent {
 
@@ -82,8 +87,24 @@ public class VEventService implements IVEvent {
 	public TaskRef importIcs(Stream stream) throws ServerFault {
 		rbacManager.check(Verb.Write.name());
 		String ics = GenericStream.streamToString(stream);
-		return context.provider().instance(ITasksManager.class).run(new MultipleCalendarICSImport(calendarService, ics,
-				Optional.of(new CalendarOwner(container.domainUid, container.owner)), ICSImportTask.Mode.IMPORT));
+
+		List<TagRef> allTags = new ArrayList<>();
+
+		// owner tags
+		ITags service = context.provider().instance(ITags.class, ITagUids.defaultUserTags(container.owner));
+		allTags.addAll(service.all().stream().map(tag -> TagRef.create(ITagUids.defaultUserTags(container.owner), tag))
+				.collect(Collectors.toList()));
+
+		// domain tags
+		service = context.provider().instance(ITags.class, ITagUids.defaultUserTags(container.domainUid));
+		allTags.addAll(
+				service.all().stream().map(tag -> TagRef.create(ITagUids.defaultUserTags(container.domainUid), tag))
+						.collect(Collectors.toList()));
+
+		return context.provider().instance(ITasksManager.class)
+				.run(new MultipleCalendarICSImport(calendarService, ics,
+						Optional.of(new CalendarOwner(container.domainUid, container.owner)), allTags,
+						ICSImportTask.Mode.IMPORT));
 	}
 
 	@Override

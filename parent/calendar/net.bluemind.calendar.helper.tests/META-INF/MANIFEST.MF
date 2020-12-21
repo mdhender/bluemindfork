@@ -17,4 +17,5 @@ Require-Bundle: org.junit,
  net.bluemind.common.freemarker,
  net.bluemind.icalendar.parser;bundle-version="4.1.0",
  slf4j.api;bundle-version="1.7.5",
- org.apache.commons.io
+ org.apache.commons.io,
+ net.bluemind.tag.api

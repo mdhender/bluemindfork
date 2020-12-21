@@ -142,7 +142,7 @@ public class VTodoAdapter extends ICal4jHelper<VTodo> {
 				}
 
 				VTodo vtodo = new VTodo();
-				vtodo = parseIcs(vtodo, ical4j, globalTZ, Optional.empty()).value;
+				vtodo = parseIcs(vtodo, ical4j, globalTZ, Optional.empty(), Collections.emptyList()).value;
 
 				// DUE
 				vtodo.due = parseIcsDate(ical4j.getDue(), globalTZ, Collections.emptyMap());

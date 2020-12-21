@@ -1381,6 +1381,24 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertNotNull(vevent);
 	}
 
+	@Test
+	public void testImportCategories() throws IOException {
+		Stream ics = getIcsFromFile("category.ics");
+
+		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer).importIcs(ics);
+		ImportStats stats = waitImportEnd(taskRef);
+
+		assertNotNull(stats);
+		assertEquals(1, stats.importedCount());
+
+		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
+				.getComplete("category-yeah-yeah");
+
+		assertEquals(1, item.value.main.categories.size());
+		assertEquals("Dépannage", item.value.main.categories.get(0).label);
+
+	}
+
 	private ImportStats waitImportEnd(TaskRef taskRef) throws ServerFault {
 		long end = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(1);
 		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class, taskRef.id);

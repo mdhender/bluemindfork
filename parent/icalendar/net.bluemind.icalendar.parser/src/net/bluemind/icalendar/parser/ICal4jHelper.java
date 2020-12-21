@@ -54,6 +54,9 @@ import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.lib.ical4j.util.IcalConverter;
 import net.bluemind.linkify.Linkify;
 import net.bluemind.neko.common.NekoHelper;
+import net.bluemind.tag.api.ITagUids;
+import net.bluemind.tag.api.ITags;
+import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ComponentList;
@@ -123,13 +126,13 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	static ZoneId utcTz = ZoneId.of("UTC");
 
 	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, Optional<String> globalTZ,
-			Optional<CalendarOwner> owner) {
-		return this.parseIcs(iCalendarElement, cc, globalTZ, Collections.emptyMap(), owner);
+			Optional<CalendarOwner> owner, List<TagRef> allTags) {
+		return this.parseIcs(iCalendarElement, cc, globalTZ, Collections.emptyMap(), owner, allTags);
 	}
 
 	// ICS -> BM
 	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, Optional<String> globalTZ,
-			Map<String, String> tzMapping, Optional<CalendarOwner> owner) {
+			Map<String, String> tzMapping, Optional<CalendarOwner> owner, List<TagRef> allTags) {
 
 		// UID
 		String uid = parseIcsUid(cc.getProperty(Property.UID));
@@ -285,10 +288,9 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		}
 
 		// CATEGORIES
-		List<TagRef> categories = parseIcsCategories(cc.getProperties(Property.CATEGORIES));
-		if (categories != null) {
-			// FIXME store tags first
-			// iCalendarElement.categories = categories;
+		List<TagRef> categories = parseIcsCategories(cc.getProperties(Property.CATEGORIES), owner, allTags);
+		if (categories != null && !categories.isEmpty()) {
+			iCalendarElement.categories = categories;
 		}
 
 		// EXDATE
@@ -380,20 +382,50 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 	/**
 	 * @param categoriesPropList
+	 * @param owner
 	 * @return
 	 */
-	private static List<TagRef> parseIcsCategories(PropertyList categoriesPropList) {
+	private static List<TagRef> parseIcsCategories(PropertyList categoriesPropList, Optional<CalendarOwner> owner,
+			List<TagRef> allTags) {
 		if (categoriesPropList != null && categoriesPropList.size() > 0) {
-			List<TagRef> categories = new ArrayList<TagRef>(categoriesPropList.size());
-
-			for (@SuppressWarnings("unchecked")
-			Iterator<Property> it = categoriesPropList.iterator(); it.hasNext();) {
-				Property category = it.next();
-				TagRef tr = new TagRef();
-				tr.label = category.getValue().toString();
-				categories.add(tr);
+			if (!owner.isPresent()) {
+				return null;
 			}
-			return categories;
+
+			CalendarOwner calOwner = owner.get();
+			try (Sudo asUser = new Sudo(calOwner.userUid, calOwner.domainUid)) {
+
+				String containerUid = ITagUids.defaultUserTags(calOwner.userUid);
+				ITags service = ServerSideServiceProvider.getProvider(asUser.context).instance(ITags.class,
+						containerUid);
+
+				List<TagRef> categories = new ArrayList<TagRef>(categoriesPropList.size());
+
+				for (@SuppressWarnings("unchecked")
+				Iterator<Property> it = categoriesPropList.iterator(); it.hasNext();) {
+					Property category = it.next();
+					String label = category.getValue().toString();
+					if (Strings.isNullOrEmpty(label)) {
+						continue;
+					}
+					TagRef tr = new TagRef();
+
+					Optional<TagRef> exsistingTag = allTags.stream().filter(tag -> label.equals(tag.label)).findFirst();
+					if (exsistingTag.isPresent()) {
+						tr = exsistingTag.get();
+					} else {
+						// 3d98ff blue
+						String uid = UUID.randomUUID().toString();
+						service.create(uid, Tag.create(label, "3d98ff"));
+
+						tr = TagRef.create(containerUid, service.getComplete(uid));
+						allTags.add(tr);
+					}
+
+					categories.add(tr);
+				}
+				return categories;
+			}
 		}
 		return null;
 	}

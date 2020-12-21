@@ -39,8 +39,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
@@ -65,8 +63,6 @@ import net.bluemind.tag.service.TagsSanitizer;
 import net.bluemind.user.api.IUserSettings;
 
 public class VEventSanitizer {
-
-	private static Logger logger = LoggerFactory.getLogger(VEventSanitizer.class);
 
 	private final TagsSanitizer tagsSanitizer;
 	private final String domainUid;

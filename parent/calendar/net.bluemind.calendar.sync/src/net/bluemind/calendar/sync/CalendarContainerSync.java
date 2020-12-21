@@ -30,13 +30,16 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.asynchttpclient.BoundRequestBuilder;
 import org.asynchttpclient.ListenableFuture;
@@ -71,6 +74,9 @@ import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.icalendar.parser.CalendarOwner;
 import net.bluemind.proxy.support.AHCWithProxy;
 import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.tag.api.ITagUids;
+import net.bluemind.tag.api.ITags;
+import net.bluemind.tag.api.TagRef;
 
 public class CalendarContainerSync implements ISyncableContainer {
 
@@ -370,8 +376,24 @@ public class CalendarContainerSync implements ISyncableContainer {
 	}
 
 	public TaskRef syncIcs(IInternalCalendar calendarService, InputStream stream) throws ServerFault {
-		return context.provider().instance(ITasksManager.class).run(new SingleCalendarICSImport(calendarService, stream,
-				Optional.of(new CalendarOwner(container.domainUid, container.owner)), ICSImportTask.Mode.SYNC));
+
+		List<TagRef> allTags = new ArrayList<>();
+
+		// owner tags
+		ITags service = context.provider().instance(ITags.class, ITagUids.defaultUserTags(container.owner));
+		allTags.addAll(service.all().stream().map(tag -> TagRef.create(ITagUids.defaultUserTags(container.owner), tag))
+				.collect(Collectors.toList()));
+
+		// domain tags
+		service = context.provider().instance(ITags.class, ITagUids.defaultUserTags(container.domainUid));
+		allTags.addAll(
+				service.all().stream().map(tag -> TagRef.create(ITagUids.defaultUserTags(container.domainUid), tag))
+						.collect(Collectors.toList()));
+
+		return context.provider().instance(ITasksManager.class)
+				.run(new SingleCalendarICSImport(calendarService, stream,
+						Optional.of(new CalendarOwner(container.domainUid, container.owner)), allTags,
+						ICSImportTask.Mode.SYNC));
 	}
 
 	/** @see RFC-2183 https://tools.ietf.org/html/rfc2183 */

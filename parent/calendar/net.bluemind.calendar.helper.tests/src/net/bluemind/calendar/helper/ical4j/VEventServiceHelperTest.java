@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -445,7 +446,7 @@ public class VEventServiceHelperTest {
 		try (InputStream in = VEventServiceHelperTest.class.getClassLoader()
 				.getResourceAsStream("event_invalid_geo.ics")) {
 			String ics = IOUtils.toString(in);
-			List<ItemValue<VEventSeries>> events = toEvents(ics);
+			toEvents(ics);
 		} catch (Exception e) {
 			fail("should not fail " + e.getMessage());
 		}
@@ -464,7 +465,7 @@ public class VEventServiceHelperTest {
 		String ics = IOUtils.toString(in);
 		in.close();
 
-		List<ItemValue<VEventSeries>> events = toEvents(ics);
+		toEvents(ics);
 
 		assertEquals(rawOffset, ICal4jHelper.getTimeZoneRegistry().getTimeZone("Europe/Paris").getRawOffset());
 	}
@@ -472,7 +473,7 @@ public class VEventServiceHelperTest {
 	private List<ItemValue<VEventSeries>> toEvents(String ics) {
 		List<ItemValue<VEventSeries>> ret = new LinkedList<>();
 		Consumer<ItemValue<VEventSeries>> consumer = series -> ret.add(series);
-		VEventServiceHelper.convertToVEventList(ics, Optional.empty(), consumer);
+		VEventServiceHelper.convertToVEventList(ics, Optional.empty(), Collections.emptyList(), consumer);
 		return ret;
 	}
 }

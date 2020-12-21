@@ -18,7 +18,7 @@
  */
 package net.bluemind.icalendar.parser;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,23 +26,19 @@ import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.tag.api.TagRef;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.CalendarComponent;
 import net.fortuna.ical4j.model.property.DateProperty;
 
 public class ICal4jEventHelper<T extends VEvent> extends ICal4jHelper<T> {
 
-	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, Optional<String> globalTZ,
-			Optional<CalendarOwner> owner) {
-		return parseIcs(iCalendarElement, cc, globalTZ, Collections.emptyMap(), owner);
-	}
-
 	@Override
 	@SuppressWarnings("unchecked")
 	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, Optional<String> globalTZ,
-			Map<String, String> tzMapping, Optional<CalendarOwner> owner) {
+			Map<String, String> tzMapping, Optional<CalendarOwner> owner, List<TagRef> allTags) {
 
-		ItemValue<T> parseIcs = super.parseIcs(iCalendarElement, cc, globalTZ, tzMapping, owner);
+		ItemValue<T> parseIcs = super.parseIcs(iCalendarElement, cc, globalTZ, tzMapping, owner, allTags);
 
 		// RECCURID
 		if (cc.getProperty(Property.RECURRENCE_ID) != null) {

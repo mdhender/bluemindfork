@@ -24,9 +24,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.calendar.EventChangesMerge;
 import net.bluemind.calendar.api.VEventChanges;
 import net.bluemind.calendar.api.VEventChanges.ItemDelete;
@@ -41,8 +38,6 @@ import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.icalendar.parser.CalendarOwner;
 
 public abstract class ICSImportTask implements IServerTask {
-
-	private static final Logger logger = LoggerFactory.getLogger(ICSImportTask.class);
 
 	protected final IInternalCalendar service;
 	protected final Optional<CalendarOwner> owner;

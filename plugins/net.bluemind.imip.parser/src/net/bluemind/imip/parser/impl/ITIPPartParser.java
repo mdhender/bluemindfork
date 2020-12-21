@@ -24,6 +24,7 @@ import java.io.Reader;
 import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -109,7 +110,7 @@ public class ITIPPartParser {
 				seq = icalVEvent.getSequence();
 				VEvent calElement = new VEvent();
 				calElement = new ICal4jEventHelper<VEvent>().parseIcs(calElement, part, globalTZ, tzMapping,
-						Optional.empty()).value;
+						Optional.empty(), Collections.emptyList()).value;
 
 				// DTEND
 				calElement.dtend = IcalConverter.convertToDateTime(icalVEvent.getEndDate(), globalTZ, tzMapping);
@@ -148,7 +149,8 @@ public class ITIPPartParser {
 					orga = icalVTodo.getOrganizer();
 					seq = icalVTodo.getSequence();
 					VTodo calElement = new VTodo();
-					new ICal4jHelper<VTodo>().parseIcs(calElement, part, globalTZ, tzMapping, Optional.empty());
+					new ICal4jHelper<VTodo>().parseIcs(calElement, part, globalTZ, tzMapping, Optional.empty(),
+							Collections.emptyList());
 
 					// DUE
 					calElement.due = IcalConverter.convertToDateTime(icalVTodo.getDue(), globalTZ, tzMapping);

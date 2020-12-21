@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
@@ -58,6 +59,7 @@ import net.bluemind.icalendar.parser.ICal4jEventHelper;
 import net.bluemind.icalendar.parser.ICal4jHelper;
 import net.bluemind.icalendar.parser.ObservanceMapper;
 import net.bluemind.lib.ical4j.data.CalendarBuilder;
+import net.bluemind.tag.api.TagRef;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.data.UnfoldingReader;
 import net.fortuna.ical4j.model.Calendar;
@@ -213,17 +215,18 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 	@Deprecated
 	public static List<ItemValue<VEventSeries>> convertToVEventList(String ics, Optional<CalendarOwner> owner) {
 		List<ItemValue<VEventSeries>> ret = new LinkedList<>();
-		VEventServiceHelper.convertToVEventList(ics, Optional.empty(), series -> ret.add(series));
+		VEventServiceHelper.convertToVEventList(ics, Optional.empty(), Collections.emptyList(),
+				series -> ret.add(series));
 		return ret;
 	}
 
-	public static void convertToVEventList(String ics, Optional<CalendarOwner> owner,
+	public static void convertToVEventList(String ics, Optional<CalendarOwner> owner, List<TagRef> allTags,
 			Consumer<ItemValue<VEventSeries>> consumer) {
 
 		List<String> icsCalendarList = splitIcs(ics);
 		for (String cal : icsCalendarList) {
 			InputStream is = new ByteArrayInputStream(cal.getBytes());
-			parseCalendar(is, owner, consumer);
+			parseCalendar(is, owner, allTags, consumer);
 
 		}
 	}
@@ -258,7 +261,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		return sb.toString();
 	}
 
-	public static void parseCalendar(InputStream ics, Optional<CalendarOwner> owner,
+	public static void parseCalendar(InputStream ics, Optional<CalendarOwner> owner, List<TagRef> allTags,
 			Consumer<ItemValue<VEventSeries>> consumer) {
 		File rootFolder = null;
 		try {
@@ -268,7 +271,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 			ObservanceMapper tzMapper = new ObservanceMapper(tzInfo.timezones);
 			Map<String, String> tzMapping = tzMapper.getTimezoneMapping();
 			parseICS(rootFolder, icsFile, tzInfo);
-			parseEvents(owner, tzMapping, consumer, rootFolder, tzInfo);
+			parseEvents(owner, tzMapping, consumer, rootFolder, tzInfo, allTags);
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		} finally {
@@ -286,7 +289,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 	}
 
 	private static void parseEvents(Optional<CalendarOwner> owner, Map<String, String> tzMapping,
-			Consumer<ItemValue<VEventSeries>> consumer, File rootFolder, TimezoneInfo tzInfo) {
+			Consumer<ItemValue<VEventSeries>> consumer, File rootFolder, TimezoneInfo tzInfo, List<TagRef> allTags) {
 		File[] seriesFolders = rootFolder.listFiles(file -> file.isDirectory());
 		for (File seriesFolder : seriesFolders) {
 			List<ItemValue<VEvent>> events = Arrays.asList(seriesFolder.listFiles()).stream().map(asFile -> {
@@ -304,7 +307,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
 				}
-				return fromComponent(ref.get(), tzInfo.globalTZ, tzMapping, owner);
+				return fromComponent(ref.get(), tzInfo.globalTZ, tzMapping, owner, allTags);
 			}).collect(Collectors.toList());
 
 			ItemValue<VEventSeries> series = normalizeEvent(seriesFolder.getName(), events);
@@ -369,11 +372,11 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 	}
 
 	private static ItemValue<VEvent> fromComponent(Component component, Optional<String> globalTZ,
-			Map<String, String> tzMapping, Optional<CalendarOwner> owner) {
+			Map<String, String> tzMapping, Optional<CalendarOwner> owner, List<TagRef> allTags) {
 		net.fortuna.ical4j.model.component.VEvent ical4j = (net.fortuna.ical4j.model.component.VEvent) component;
 
 		ItemValue<VEvent> vevent = (ItemValue<VEvent>) new ICal4jEventHelper<>().parseIcs(new VEvent(), ical4j,
-				globalTZ, tzMapping, owner);
+				globalTZ, tzMapping, owner, allTags);
 		if (ical4j.getCreated() != null) {
 			vevent.created = ical4j.getCreated().getDate();
 		}
