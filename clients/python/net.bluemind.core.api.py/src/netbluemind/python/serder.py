@@ -17,7 +17,7 @@ class ByteArraySerDer:
 		if value == None:
 			return None
 		else:
-			return b64encode(value)
+			return b64encode(value).decode()
 	
 class STRING:
 
