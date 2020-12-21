@@ -103,6 +103,8 @@
       <plugin id="net.bluemind.osgi.log"/>
       <plugin id="net.bluemind.resource.api"/>
       <plugin id="net.bluemind.resource.lmtp.filter"/>
+      <plugin id="net.bluemind.sentry" fragment="true"/>
+      <plugin id="net.bluemind.sentry.settings"/>
       <plugin id="net.bluemind.server.api"/>
       <plugin id="net.bluemind.slf4j"/>
       <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>

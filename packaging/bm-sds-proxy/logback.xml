@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration>
-
+  <!-- Sentry send exceptions -->
+  <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>ERROR</level>
+    </filter>
+  </appender>
   <appender name="SDS" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <File>/var/log/bm-sds-proxy/sds.log</File>
     <encoder>
@@ -22,5 +27,6 @@
   
   <root level="INFO">
     <appender-ref ref="ASYNC_SDS"/>
+    <appender-ref ref="Sentry"/>
   </root>
 </configuration>

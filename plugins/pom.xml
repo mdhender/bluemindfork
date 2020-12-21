@@ -94,6 +94,9 @@
 		<module>net.bluemind.proxy.http.launcher</module>
 		<module>net.bluemind.proxy.http.tests</module>
 		<module>net.bluemind.proxy.http</module>
+		<module>net.bluemind.sentry</module>
+		<module>net.bluemind.sentry.settings</module>
+		<module>net.bluemind.sentry.settings.upgrade</module>
 		<module>net.bluemind.slf4j</module>
 		<module>net.bluemind.slf4j.configuration</module>
 		<module>net.bluemind.system.nginx</module>

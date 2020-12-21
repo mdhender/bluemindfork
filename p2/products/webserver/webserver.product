@@ -121,6 +121,8 @@
       <plugin id="net.bluemind.restclient.api.closure"/>
       <plugin id="net.bluemind.restclient.closure"/>
       <plugin id="net.bluemind.role.api"/>
+      <plugin id="net.bluemind.sentry" fragment="true"/>
+      <plugin id="net.bluemind.sentry.settings"/>
       <plugin id="net.bluemind.server.api"/>
       <plugin id="net.bluemind.server.api.gwt"/>
       <plugin id="net.bluemind.slf4j"/>

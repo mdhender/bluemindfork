@@ -6,6 +6,13 @@
         <resetJUL>true</resetJUL>
     </contextListener>
 
+	<!-- Sentry send exceptions -->
+	<appender name="Sentry" class="io.sentry.logback.SentryAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>WARN</level>
+		</filter>
+	</appender>
+
 	<appender name="R"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
@@ -27,6 +34,7 @@
 	<logger name="org.apache.directory.ldap.client.api.LdapNetworkConnection" level="ERROR" />
 	<root level="INFO">
 		<appender-ref ref="R" />
+		<appender-ref ref="Sentry" />
 	</root>
 
 	<!-- log XMPP -->

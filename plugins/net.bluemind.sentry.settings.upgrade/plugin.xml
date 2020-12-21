@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.system.schemaupgrader.postinst">
+      <java
+            code="net.bluemind.sentry.settings.upgrade.PostUpgradeSentryReconfigure"
+            priority="9999">
+      </java>
+   </extension>
+</plugin>

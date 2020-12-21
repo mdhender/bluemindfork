@@ -15,6 +15,12 @@
       <MaxFileSize>10000KB</MaxFileSize>
     </triggeringPolicy>
   </appender>
+  <!-- Sentry send exceptions -->
+  <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>ERROR</level>
+    </filter>
+  </appender>
 
   <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
     <queueSize>500</queueSize>
@@ -24,5 +30,6 @@
 
   <root level="INFO">
     <appender-ref ref="ASYNC"/>
+    <appender-ref ref="Sentry"/>
   </root>
 </configuration>

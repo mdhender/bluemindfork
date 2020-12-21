@@ -44,7 +44,7 @@
 		<repository>
 			<id>bluemind-deps</id>
 			<layout>p2</layout>
-			<url>http://forge.blue-mind.net/staging/p2/dependencies/514/</url>
+			<url>http://forge.blue-mind.net/staging/p2/dependencies/527/</url>
 		</repository>
 		<repository>
 			<id>tigase</id>

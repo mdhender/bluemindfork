@@ -116,7 +116,7 @@ public enum SysConfKeys {
 
 	/**
 	 * HTTP proxy exceptions
-	 * 
+	 *
 	 * @see {@link org.asynchttpclient.proxy.ProxyServer.isIgnoredForHost}
 	 */
 	http_proxy_exceptions,
@@ -124,7 +124,12 @@ public enum SysConfKeys {
 	/**
 	 * Allow to embed BlueMind into another web site (iFrame...)
 	 */
-	allow_bm_embed;
+	allow_bm_embed,
+
+	/**
+	 * Sentry endpoint. Disabled if not defined
+	 */
+	sentry_endpoint;
 
 	public static boolean isSysConfigKey(String key) {
 		for (SysConfKeys k : SysConfKeys.values()) {
