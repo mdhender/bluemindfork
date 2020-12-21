@@ -260,7 +260,7 @@ public class CalendarService implements IInternalCalendar {
 	private ItemVersion doUpdate(String optUid, Long itemId, VEventSeries event, Boolean sendNotifications)
 			throws ServerFault {
 		ItemValue<VEventSeries> old = itemId != null ? storeService.get(itemId, null) : storeService.get(optUid, null);
-		if (old == null) {
+		if (old == null || old.value == null) {
 			throw ServerFault.notFound("entry[" + optUid + "/" + itemId + "]@" + container.uid + " not found");
 		}
 		String uid = old.uid;
@@ -276,6 +276,7 @@ public class CalendarService implements IInternalCalendar {
 		if (event.icsUid == null) {
 			event.icsUid = old.value.icsUid;
 		}
+
 		if (!old.value.icsUid.equals(event.icsUid)) {
 			logger.error("ics uid was {} and is now {}", old.value.icsUid, event.icsUid);
 			throw new ServerFault("cannot modify ics uid", ErrorCode.INVALID_PARAMETER);
