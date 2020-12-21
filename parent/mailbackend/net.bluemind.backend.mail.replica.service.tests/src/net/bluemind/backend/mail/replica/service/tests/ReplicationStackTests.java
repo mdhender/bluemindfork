@@ -1704,6 +1704,57 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
+	public void removeFirstLevelMessages() throws IMAPException, InterruptedException, IOException {
+		IServiceProvider clientProv = provider();
+		IMailboxFolders mboxesApi = clientProv.instance(IMailboxFolders.class, partition, mboxRoot);
+		List<ItemValue<MailboxFolder>> allBoxes = mboxesApi.all();
+		ItemValue<MailboxFolder> inbox = null;
+		for (ItemValue<MailboxFolder> box : allBoxes) {
+			if (box.value.name.equals("INBOX")) {
+				inbox = box;
+				break;
+			}
+		}
+		assertNotNull(inbox);
+		MailboxReplica toCreate = new MailboxReplica();
+		long time = System.currentTimeMillis() / 1000;
+		toCreate.name = "create" + time;
+		String base = toCreate.name;
+		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
+		IdRange ids = idAllocator.allocateOfflineIds(3);
+		ItemIdentifier created = mboxesApi.createForHierarchy(ids.globalCounter, toCreate);
+		toCreate.name = base + "/a";
+		created = mboxesApi.createForHierarchy(ids.globalCounter + 1, toCreate);
+		toCreate.name = base + "/b";
+		created = mboxesApi.createForHierarchy(ids.globalCounter + 2, toCreate);
+		System.out.println("Got a create of version " + created.version);
+		ItemValue<MailboxFolder> foundItem = mboxesApi.byName(base);
+		System.out.println("Found " + foundItem.value.name);
+
+		CountDownLatch hierUpdLock = expectMessages("mailreplica.hierarchy.updated", 1);
+
+		addDraft(foundItem);
+
+		mboxesApi.removeMessages(foundItem.internalId);
+
+		assertTrue("Expected 1 update to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
+		imapAsUser(sc -> {
+			ListResult foundFolders = sc.listAll();
+			for (ListInfo f : foundFolders) {
+				System.out.println(" * " + f.getName());
+			}
+			return null;
+		});
+		IDbReplicatedMailboxes fullApi = clientProv.instance(IDbReplicatedMailboxes.class, partition, mboxRoot);
+		List<ItemValue<MailboxReplica>> allReplicas = fullApi.allReplicas();
+		System.out.println("--------");
+		for (ItemValue<MailboxReplica> iv : allReplicas) {
+			System.out.println(" * " + iv.uid + " n: " + iv.value.name + " fn: " + iv.value.fullName + ", p: "
+					+ iv.value.parentUid);
+		}
+	}
+
+	@Test
 	public void renameFolderWithMultipleChildren() throws IMAPException, InterruptedException {
 		IServiceProvider clientProv = provider();
 		IMailboxFolders mboxesApi = clientProv.instance(IMailboxFolders.class, partition, mboxRoot);

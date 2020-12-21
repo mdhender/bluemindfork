@@ -3,7 +3,14 @@ import Vuex from "vuex";
 import deepClone from "lodash.clonedeep";
 import api from "../../api/apiFolders";
 import storeConfig from "../index";
-import { FETCH_FOLDERS, CREATE_FOLDER, MARK_FOLDER_AS_READ, REMOVE_FOLDER, RENAME_FOLDER } from "~actions";
+import {
+    FETCH_FOLDERS,
+    CREATE_FOLDER,
+    EMPTY_FOLDER,
+    MARK_FOLDER_AS_READ,
+    REMOVE_FOLDER,
+    RENAME_FOLDER
+} from "~actions";
 import { ADD_FOLDER } from "~mutations";
 import injector from "@bluemind/inject";
 import apiFolders from "../../api/apiFolders";
@@ -238,6 +245,19 @@ describe("actions", () => {
                 expect(failed).toBeTruthy();
                 expect(store.state["1"].unread).toEqual(10);
             }
+        });
+    });
+    describe("EMPTY_FOLDER", () => {
+        test("Set unread to 0", async () => {
+            const mailbox = {
+                type: "users",
+                name: "bar",
+                remoteRef: {}
+            };
+            const folder = { key: "1", name: "foo", path: "baz", remoteRef: {}, unread: 10 };
+            store.commit(ADD_FOLDER, folder);
+            await store.dispatch(EMPTY_FOLDER, { folder: { key: "1", remoteRef: { uid: "uid" } }, mailbox });
+            expect(store.state["1"].unread).toEqual(0);
         });
     });
 });

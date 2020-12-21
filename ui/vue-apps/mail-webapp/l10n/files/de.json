@@ -6,6 +6,11 @@
                 "success": "Der Ordner \"{name}\" wurde erstellt.",
                 "error": "Fehler beim Erstellen des Ordners \"{name}\"."
             },
+            "empty_folder": {
+                "loading": "Der Ordner \"{name}\" wird geleert...",
+                "success": "Der Ordner \"{name}\" wurde geleert.",
+                "error": "Ordner \"{name}\" konnte nicht geleert werden."
+            },
             "mark_folder_as_read": {
                 "loading": "Markiere Ordner {folderNameWithLink} als Gelesen...",
                 "success": "Ordner {name} wurde als Gelesen markiert!",
@@ -169,6 +174,8 @@
     "mail.empty": "hat keinen Inhalt",
     "mail.error.email.address.invalid": "Ungültige E-Mailadresse.",
     "mail.folder.access.limited": "Beschränkter Zugriff",
+    "mail.folder.empty": "Leeren Sie den Ordner",
+    "mail.folder.empty.confirm.content": "Nachrichten dauerhaft aus diesem Ordner löschen?",
     "mail.folder.create.subfolder": "Unterordner erstellen",
     "mail.folder.delete.dialog.question.with_subfolders": "Ordner \"{name}\" rekursiv löschen?",
     "mail.folder.delete.dialog.question": "Ordner \"{name}\" löschen?",

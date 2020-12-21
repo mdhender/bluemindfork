@@ -4,7 +4,7 @@ import cloneDeep from "lodash.clonedeep";
 
 import { Flag } from "@bluemind/email";
 import ServiceLocator, { inject } from "@bluemind/inject";
-import { MockMailboxItemsClient, MockItemsTransferClient } from "@bluemind/test-utils";
+import { MockMailboxItemsClient, MockMailboxFoldersClient, MockItemsTransferClient } from "@bluemind/test-utils";
 
 import messageStore from "../../index";
 import MessageAdaptor from "../../helpers/MessageAdaptor";
@@ -13,6 +13,7 @@ import { ADD_MESSAGES } from "~mutations";
 import {
     ADD_FLAG,
     DELETE_FLAG,
+    EMPTY_FOLDER,
     FETCH_MESSAGE_METADATA,
     REMOVE_MESSAGES,
     MOVE_MESSAGES,
@@ -28,11 +29,17 @@ describe("Messages actions", () => {
     let store;
     let folder = { key: "folder-key", remoteRef: { uid: "folder-key" } };
     let messages;
+    const mailbox = {
+        type: "",
+        name: "",
+        remoteRef: {}
+    };
 
     beforeEach(() => {
         store = new Vuex.Store(cloneDeep(messageStore));
         ServiceLocator.register({ provide: "MailboxItemsPersistence", use: new MockMailboxItemsClient(messages) });
         ServiceLocator.register({ provide: "ItemsTransferPersistence", use: new MockItemsTransferClient() });
+        ServiceLocator.register({ provide: "MailboxFoldersPersistence", use: new MockMailboxFoldersClient() });
         messages = cloneDeep(require("../../../tests/data/users/alice/messages.json"));
     });
 
@@ -395,6 +402,41 @@ describe("Messages actions", () => {
             store.commit(ADD_MESSAGES, adapted);
             await store.dispatch(MARK_MESSAGES_AS_UNFLAGGED, adapted);
             expect(Object.values(store.state).some(({ flags }) => flags.includes(flag))).toBeFalsy();
+        });
+    });
+    describe("EMPTY_FOLDER", () => {
+        test("Call remote API", async () => {
+            const adapted = messages.slice(0, 5).map(m => MessageAdaptor.fromMailboxItem(m, folder));
+            store.commit(ADD_MESSAGES, adapted);
+            store.dispatch(EMPTY_FOLDER, { folder, mailbox });
+            expect(inject("MailboxFoldersPersistence").removeMessages).toHaveBeenCalledWith(
+                folder.remoteRef.internalId
+            );
+        });
+        test("Flag messages as removed while emptying", () => {
+            const adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
+            store.commit(ADD_MESSAGES, [adapted]);
+            store.dispatch(EMPTY_FOLDER, { folder, mailbox });
+            expect(store.state[adapted.key].status).toEqual(MessageStatus.REMOVED);
+        });
+        test("Remove messages from store after the remote call", async () => {
+            const adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
+            store.commit(ADD_MESSAGES, [adapted]);
+            expect(store.state[adapted.key]).toBeDefined();
+            await store.dispatch(EMPTY_FOLDER, { folder, mailbox });
+            expect(store.state[adapted.key]).toBeUndefined();
+        });
+        test("Restore messages status if API call fails", async () => {
+            let adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
+            store.commit(ADD_MESSAGES, [adapted]);
+            inject("MailboxFoldersPersistence").removeMessages.mockRejectedValueOnce("Failure");
+            try {
+                await store.dispatch(EMPTY_FOLDER, { folder, mailbox });
+            } catch {
+                // Nothing to do
+            } finally {
+                expect(store.state[adapted.key].status).toEqual(MessageStatus.LOADED);
+            }
         });
     });
 });

@@ -6,6 +6,11 @@
                 "success": "Folder {name} created!",
                 "error": "Failed to create folder \"{name}\" !"
             },
+            "empty_folder": {
+                "loading": "Folder \"{name}\" is being emptied...",
+                "success": "Folder \"{name}\" has been emptied.",
+                "error": "Failed to empty folder \"{name}\"."
+            },
             "mark_folder_as_read": {
                 "loading": "Folder {name} is beeing been marked as read...",
                 "success": "Folder {name} has been marked as read!",
@@ -169,6 +174,8 @@
     "mail.empty": "is empty",
     "mail.error.email.address.invalid": "Invalid email address.",
     "mail.folder.access.limited": "Limited access",
+    "mail.folder.empty": "Empty folder",
+    "mail.folder.empty.confirm.content": "Permanently delete messages from this folder?",
     "mail.folder.create.subfolder": "Create a subfolder",
     "mail.folder.delete.dialog.question.with_subfolders": "Delete folder \"{name}\" and its subfolders?",
     "mail.folder.delete.dialog.question": "Delete folder \"{name}\"?",

@@ -1,3 +1,4 @@
+import apiFolders from "../../api/apiFolders";
 import { MESSAGE_IS_LOADED } from "~getters";
 import { MessageStatus, partialCopy } from "~model/message";
 import apiMessages from "../../api/apiMessages";
@@ -68,6 +69,27 @@ export async function moveMessages({ commit, state }, { messages, folder }) {
     try {
         await apiMessages.move(messages, folder);
         commit(MOVE_MESSAGES, { messages, folder });
+    } catch (e) {
+        commit(
+            SET_MESSAGES_STATUS,
+            partial.map(({ key, status }) => ({ ...state[key], status: status }))
+        );
+        throw e;
+    }
+}
+
+export async function emptyFolder({ commit, state }, { folder, mailbox }) {
+    const messages = Object.values(state).filter(m => m.folderRef.key === folder.key);
+    const partial = messages.map(message => partialCopy(message));
+
+    commit(
+        SET_MESSAGES_STATUS,
+        messages.map(message => ({ ...message, status: MessageStatus.REMOVED }))
+    );
+
+    try {
+        await apiFolders.emptyFolder(mailbox, folder);
+        commit(REMOVE_MESSAGES, messages);
     } catch (e) {
         commit(
             SET_MESSAGES_STATUS,

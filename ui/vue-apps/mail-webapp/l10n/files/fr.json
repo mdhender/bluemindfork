@@ -6,10 +6,15 @@
                 "success": "Le dossier {name} a bien été créé !",
                 "error": "Erreur lors de la création du dossier \"{name}\" !"
             },
+            "empty_folder": {
+                "loading": "Le dossier \"{name}\" est en train d'être vidé...",
+                "success": "Le dossier \"{name}\" a été vidé.",
+                "error": "Le dossier \"{name}\" n'a pas pu être vidé."
+            },
             "mark_folder_as_read": {
                 "loading": "Le dossier {name} est en train d'être marqué comme lu...",
                 "success": "Le dossier {name} a été marqué comme lu.",
-                "error": "Le dossier {name} n'a pas pu etre marqué comme lu."
+                "error": "Le dossier {name} n'a pas pu être marqué comme lu."
             },
             "mark_messages_as_flagged": {
                 "loading": "Un suivi est en train d'être assuré pour {count} messages...",
@@ -169,6 +174,8 @@
     "mail.empty": "est vide",
     "mail.error.email.address.invalid": "Adresse de courriel invalide.",
     "mail.folder.access.limited": "Droits restreints",
+    "mail.folder.empty": "Vider le dossier",
+    "mail.folder.empty.confirm.content": "Supprimer définitivement les messages de ce dossier ?",
     "mail.folder.create.subfolder": "Créer un sous-dossier",
     "mail.folder.delete.dialog.question.with_subfolders": "Supprimer le dossier \"{name}\" et l'ensemble de ses sous-dossiers ?",
     "mail.folder.delete.dialog.question": "Supprimer le dossier \"{name}\" ?",

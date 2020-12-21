@@ -1,4 +1,5 @@
 export { default as CreateFolder } from "./CreateFolder";
+export { default as EmptyFolder } from "./EmptyFolder";
 export { default as MarkFolderAsRead } from "./MarkFolderAsRead";
 export { default as MoveMessages } from "./MoveMessages";
 export { default as RemoveFolder } from "./RemoveFolder";

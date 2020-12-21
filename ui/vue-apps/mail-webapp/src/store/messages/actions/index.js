@@ -1,6 +1,6 @@
 import { withAlert } from "../../helpers/withAlert";
 
-import { addFlag, deleteFlag, fetchMessageMetadata, moveMessages, removeMessages } from "./actions";
+import { addFlag, deleteFlag, emptyFolder, fetchMessageMetadata, moveMessages, removeMessages } from "./actions";
 import addAttachments from "./addAttachments";
 import removeAttachment from "./removeAttachment";
 import { debouncedSave, saveAsap } from "./save";
@@ -10,6 +10,7 @@ import {
     ADD_FLAG,
     DEBOUNCED_SAVE_MESSAGE,
     DELETE_FLAG,
+    EMPTY_FOLDER,
     FETCH_MESSAGE_METADATA,
     MARK_MESSAGE_AS_FLAGGED,
     MARK_MESSAGE_AS_READ,
@@ -38,6 +39,7 @@ export default {
     [ADD_FLAG]: addFlag,
     [DEBOUNCED_SAVE_MESSAGE]: debouncedSave,
     [DELETE_FLAG]: deleteFlag,
+    [EMPTY_FOLDER]: withAlert(emptyFolder, EMPTY_FOLDER, "EmptyFolder"),
     [FETCH_MESSAGE_METADATA]: fetchMessageMetadata,
     [MARK_MESSAGE_AS_FLAGGED]: markAsFlagged,
     [MARK_MESSAGE_AS_READ]: markAsRead,

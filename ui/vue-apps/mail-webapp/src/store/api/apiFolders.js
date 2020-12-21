@@ -16,6 +16,9 @@ async function updateFolder(mailbox, remoteFolder) {
 async function markAsRead(mailbox, folder) {
     return await apiClient(mailbox).markFolderAsRead(folder.remoteRef.internalId);
 }
+async function emptyFolder(mailbox, folder) {
+    return await apiClient(mailbox).removeMessages(folder.remoteRef.internalId);
+}
 function apiClient({ remoteRef: { uid } }) {
     return inject("MailboxFoldersPersistence", uid);
 }
@@ -24,6 +27,7 @@ export default {
     getAllFolders,
     createNewFolder,
     deleteFolder,
+    emptyFolder,
     markAsRead,
     updateFolder
 };

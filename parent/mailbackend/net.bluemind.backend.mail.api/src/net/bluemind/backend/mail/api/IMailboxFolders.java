@@ -92,23 +92,32 @@ public interface IMailboxFolders extends IBaseMailboxFolders {
 	void deleteById(@PathParam("id") long id);
 
 	/**
-	 * Also delete all known child folders
+	 * Also delete all known child folders.
 	 * 
-	 * @param id
+	 * @param id the folder identifier
 	 */
 	@DELETE
 	@Path("deep/{id}")
 	void deepDelete(@PathParam("id") long id);
 
 	/**
-	 * Empty an email folder including child folders
+	 * Empty an email folder including child folders.
 	 * 
-	 * @param id
+	 * @param id the folder identifier
 	 */
 	@DELETE
 	@Path("empty/{id}")
 	void emptyFolder(@PathParam("id") long id);
-	
+
+	/**
+	 * Empty an email folder keeping child folders.
+	 * 
+	 * @param id the folder identifier
+	 */
+	@DELETE
+	@Path("removeMessages/{id}")
+	void removeMessages(@PathParam("id") long id);
+
 	/**
 	 * Mark folder as read (does not include sub-folders).
 	 * 

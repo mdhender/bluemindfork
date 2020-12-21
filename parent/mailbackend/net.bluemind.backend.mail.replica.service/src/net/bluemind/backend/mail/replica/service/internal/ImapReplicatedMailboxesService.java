@@ -274,16 +274,24 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 	}
 
 	public void emptyFolder(long id) {
+		emptyFolder(id, true);
+	}
+
+	public void removeMessages(long id) {
+		emptyFolder(id, false);
+	}
+
+	private void emptyFolder(long id, boolean deleteChildFolders) {
 		ItemValue<MailboxFolder> folder = getCompleteById(id);
-		logger.info("Start emptying {}...", folder);
+		logger.info("Start emptying {} (deleteChildFolders={})...", folder, deleteChildFolders);
 		imapContext.withImapClient((storeClient, vxStoreClient) -> {
 			selectInbox(storeClient, vxStoreClient);
-			CompletableFuture<?> promise = deleteChildFolders(folder, storeClient);
-			promise = promise.thenCompose(v -> {
+			CompletableFuture<?> promise = deleteChildFolders ? deleteChildFolders(folder, storeClient)
+					: CompletableFuture.completedFuture(null);
+			return promise.thenCompose(v -> {
 				logger.info("On purge of '{}'", folder.value.fullName);
 				return this.flag(storeClient, folder, Flag.DELETED, storeClient::expunge);
-			});
-			return promise.get(15, TimeUnit.SECONDS);
+			}).get(15, TimeUnit.SECONDS);
 		});
 	}
 

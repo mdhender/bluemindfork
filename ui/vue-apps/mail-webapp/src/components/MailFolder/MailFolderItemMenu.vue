@@ -28,6 +28,9 @@
         >
             {{ $t("mail.folder.mark_as_read") }}
         </bm-dropdown-item-button>
+        <bm-dropdown-item-button icon="broom" @click.stop="emptyFolder">
+            {{ $t("mail.folder.empty") }}
+        </bm-dropdown-item-button>
     </bm-contextual-menu>
 </template>
 
@@ -39,7 +42,7 @@ import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
 import { create } from "~model/folder";
 import { SET_FOLDER_EXPANDED, ADD_FOLDER, TOGGLE_EDIT_FOLDER } from "~mutations";
 import { FOLDER_HAS_CHILDREN } from "~getters";
-import { MARK_FOLDER_AS_READ, REMOVE_FOLDER } from "~actions";
+import { EMPTY_FOLDER, MARK_FOLDER_AS_READ, REMOVE_FOLDER } from "~actions";
 
 export default {
     name: "MailFolderItemMenu",
@@ -70,7 +73,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", { REMOVE_FOLDER, MARK_FOLDER_AS_READ }),
+        ...mapActions("mail", { EMPTY_FOLDER, REMOVE_FOLDER, MARK_FOLDER_AS_READ }),
         ...mapMutations("mail", { ADD_FOLDER, TOGGLE_EDIT_FOLDER, SET_FOLDER_EXPANDED }),
         async deleteFolder() {
             const modalTitleKey = this.FOLDER_HAS_CHILDREN(this.folder.key)
@@ -100,6 +103,21 @@ export default {
             // FIXME: FEATWEBML-1386
             this.TOGGLE_EDIT_FOLDER(key);
             this.SET_FOLDER_EXPANDED({ ...this.folder, expanded: true });
+        },
+        async emptyFolder() {
+            const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.folder.empty.confirm.content"), {
+                title: this.$t("mail.folder.empty"),
+                okTitle: this.$t("common.delete"),
+                cancelVariant: "outline-secondary",
+                cancelTitle: this.$t("common.cancel"),
+                centered: true,
+                hideHeaderClose: false,
+                autoFocusButton: "ok"
+            });
+            if (confirm) {
+                this.EMPTY_FOLDER({ folder: this.folder, mailbox: this.mailbox });
+                this.$router.navigate({ name: "v:mail:home", params: { folder: this.folder.path } });
+            }
         }
     }
 };
