@@ -6,6 +6,6 @@ Standards-Version: 3.9.1
 
 Package: bm-eas
 Architecture: amd64
-Depends: bm-jdk (= 8u272-bluemind37), bm-node (= ${binary:Version})
+Depends: bm-jdk (= 8u275-bluemind38), bm-node (= ${binary:Version})
 Description: BlueMind Mobile Synchronization server
  Mobile synchronization server for BlueMind
