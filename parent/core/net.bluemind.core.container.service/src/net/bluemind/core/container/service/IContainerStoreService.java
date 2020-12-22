@@ -34,13 +34,13 @@ import net.bluemind.core.container.persistence.IItemValueStore;
 
 public interface IContainerStoreService<T> {
 
-	public ContainerChangelog changelog(Long from, long to) throws ServerFault;
+	public ContainerChangelog changelog(Long from, long to);
 
-	public ItemChangelog changelog(String itemUid, Long from, long to) throws ServerFault;
+	public ItemChangelog changelog(String itemUid, Long from, long to);
 
-	public ItemValue<T> get(String uid, Long version) throws ServerFault;
+	public ItemValue<T> get(String uid, Long version);
 
-	ItemValue<T> get(long id, Long version) throws ServerFault;
+	ItemValue<T> get(long id, Long version);
 
 	/**
 	 * Get item by external ID
@@ -49,7 +49,7 @@ public interface IContainerStoreService<T> {
 	 * @return null if the given external id is not found
 	 * @throws ServerFault
 	 */
-	public ItemValue<T> getByExtId(String extId) throws ServerFault;
+	public ItemValue<T> getByExtId(String extId);
 
 	/**
 	 * Create item without external ID
@@ -59,9 +59,9 @@ public interface IContainerStoreService<T> {
 	 * @param value
 	 * @throws ServerFault
 	 */
-	ItemVersion create(String uid, String displayName, T value) throws ServerFault;
+	ItemVersion create(String uid, String displayName, T value);
 
-	public void attach(String uid, String displayName, T value) throws ServerFault;
+	public void attach(String uid, String displayName, T value);
 
 	/**
 	 * Create item with external ID
@@ -72,7 +72,7 @@ public interface IContainerStoreService<T> {
 	 * @param value
 	 * @throws ServerFault
 	 */
-	ItemVersion create(String uid, String extId, String displayName, T value) throws ServerFault;
+	ItemVersion create(String uid, String extId, String displayName, T value);
 
 	/**
 	 * Create item with external and a given internal ID.
@@ -89,38 +89,38 @@ public interface IContainerStoreService<T> {
 	 * @param value
 	 * @throws ServerFault
 	 */
-	ItemVersion createWithId(String uid, Long internalId, String extId, String displayName, T value) throws ServerFault;
+	ItemVersion createWithId(String uid, Long internalId, String extId, String displayName, T value);
 
-	ItemVersion update(String uid, String displayName, T value) throws ServerFault;
+	ItemVersion update(String uid, String displayName, T value);
 
-	ItemVersion update(long id, String displayName, T value) throws ServerFault;
+	ItemVersion update(long id, String displayName, T value);
 
 	/**
 	 * @param uid
 	 * @return the id & version of the deleted item or null if nothing was deleted
 	 * @throws ServerFault
 	 */
-	ItemVersion delete(String uid) throws ServerFault;
+	ItemVersion delete(String uid);
 
 	/**
 	 * @param id
 	 * @return the id & version of the deleted item or null if nothing was deleted
 	 * @throws ServerFault
 	 */
-	ItemVersion delete(long id) throws ServerFault;
+	ItemVersion delete(long id);
 
-	public void detach(String uid) throws ServerFault;
+	public void detach(String uid);
 
 	/**
 	 * delete all values ( changelog is available for deleted values )
 	 * 
 	 * @throws ServerFault
 	 */
-	public void deleteAll() throws ServerFault;
+	public void deleteAll();
 
-	public void touch(String uid) throws ServerFault;
+	public void touch(String uid);
 
-	public List<String> allUids() throws ServerFault;
+	public List<String> allUids();
 
 	ListResult<Long> allIds(IdQuery query);
 
@@ -129,12 +129,9 @@ public interface IContainerStoreService<T> {
 	 * 
 	 * @throws ServerFault
 	 */
-	public void prepareContainerDelete() throws ServerFault;
+	public void prepareContainerDelete();
 
-	public List<String> allUidsOrderedByDisplayname() throws ServerFault;
+	public long setExtId(String uid, String extId);
 
-	public long setExtId(String uid, String extId) throws ServerFault;
-
-	public void xfer(DataSource targetDataSource, Container targetContainer, IItemValueStore<T> targetItemValueStore)
-			throws ServerFault;
+	public void xfer(DataSource targetDataSource, Container targetContainer, IItemValueStore<T> targetItemValueStore);
 }

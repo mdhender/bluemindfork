@@ -421,6 +421,8 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 				Collections.emptyList());
 		getService(defaultSecurityContext).create("testUid3", card);
 
+		refreshIndexes();
+
 		VCardQuery query = VCardQuery.create(null);
 		query.from = 0;
 		query.size = 200;
@@ -449,6 +451,8 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		card.identification.name = VCard.Identification.Name.create("bzzzzzzz", null, null, null, null,
 				Collections.emptyList());
 		getService(defaultSecurityContext).create("testUid3", card);
+
+		refreshIndexes();
 
 		VCardQuery query = VCardQuery.create(null);
 		query.from = 0;

@@ -62,7 +62,7 @@ public interface IAddressBook
 	 */
 	@GET
 	@Path("_all")
-	public List<String> allUids() throws ServerFault;
+	public List<String> allUids();
 
 	/**
 	 * Creates a new {@link VCard} entry.
@@ -73,7 +73,7 @@ public interface IAddressBook
 	 */
 	@PUT
 	@Path("{uid}")
-	public void create(@PathParam(value = "uid") String uid, VCard card) throws ServerFault;
+	public void create(@PathParam(value = "uid") String uid, VCard card);
 
 	@PUT
 	@Path("id/{id}")
@@ -100,7 +100,7 @@ public interface IAddressBook
 	 */
 	@POST
 	@Path("{uid}")
-	public void update(@PathParam(value = "uid") String uid, VCard card) throws ServerFault;
+	public void update(@PathParam(value = "uid") String uid, VCard card);
 
 	/**
 	 * Fetch a {@link VCard} from its unique uid
@@ -111,7 +111,7 @@ public interface IAddressBook
 	 */
 	@GET
 	@Path("{uid}/complete")
-	public ItemValue<VCard> getComplete(@PathParam(value = "uid") String uid) throws ServerFault;
+	public ItemValue<VCard> getComplete(@PathParam(value = "uid") String uid);
 
 	/**
 	 * Fetch multiple {@link VCard}s from theirs uniques uids
@@ -122,7 +122,7 @@ public interface IAddressBook
 	 */
 	@POST
 	@Path("_mget")
-	public List<ItemValue<VCard>> multipleGet(List<String> uids) throws ServerFault;
+	public List<ItemValue<VCard>> multipleGet(List<String> uids);
 
 	/**
 	 * Fetch multiple {@link VCard}s from theirs uniques ids
@@ -133,7 +133,7 @@ public interface IAddressBook
 	 */
 	@POST
 	@Path("_mgetById")
-	public List<ItemValue<VCard>> multipleGetById(List<Long> ids) throws ServerFault;
+	public List<ItemValue<VCard>> multipleGetById(List<Long> ids);
 
 	/**
 	 * Fetch a {@link VCardInfo} from its unique uid
@@ -144,7 +144,7 @@ public interface IAddressBook
 	 */
 	@GET
 	@Path("{uid}/info")
-	public ItemValue<VCardInfo> getInfo(@PathParam(value = "uid") String uid) throws ServerFault;
+	public ItemValue<VCardInfo> getInfo(@PathParam(value = "uid") String uid);
 
 	/**
 	 * Delete vcard entry
@@ -154,7 +154,7 @@ public interface IAddressBook
 	 */
 	@DELETE
 	@Path("{uid}")
-	public void delete(@PathParam(value = "uid") String uid) throws ServerFault;
+	public void delete(@PathParam(value = "uid") String uid);
 
 	/**
 	 * ElasticSearch based vcard search
@@ -165,7 +165,7 @@ public interface IAddressBook
 	 */
 	@POST
 	@Path("_search")
-	public ListResult<ItemValue<VCardInfo>> search(VCardQuery query) throws ServerFault;
+	public ListResult<ItemValue<VCardInfo>> search(VCardQuery query);
 
 	/**
 	 * Updates multiples entries at once (should be transactional: if one operation
@@ -176,7 +176,7 @@ public interface IAddressBook
 	 */
 	@PUT
 	@Path("_mupdates")
-	public ContainerUpdatesResult updates(VCardChanges changes) throws ServerFault;
+	public ContainerUpdatesResult updates(VCardChanges changes);
 
 	/**
 	 * CLIENT_WIN style
@@ -188,20 +188,20 @@ public interface IAddressBook
 	 */
 	@POST
 	@Path("_sync")
-	public ContainerChangeset<String> sync(@QueryParam("since") Long since, VCardChanges changes) throws ServerFault;
+	public ContainerChangeset<String> sync(@QueryParam("since") Long since, VCardChanges changes);
 
 	@POST
 	@Path("{uid}/photo")
-	public void setPhoto(@PathParam("uid") String uid, byte[] photo) throws ServerFault;
+	public void setPhoto(@PathParam("uid") String uid, byte[] photo);
 
 	@GET
 	@Path("{uid}/photo")
 	@Produces("image/png")
-	public byte[] getPhoto(@PathParam("uid") String uid) throws ServerFault;
+	public byte[] getPhoto(@PathParam("uid") String uid);
 
 	@DELETE
 	@Path("{uid}/photo")
-	public void deletePhoto(@PathParam("uid") String uid) throws ServerFault;
+	public void deletePhoto(@PathParam("uid") String uid);
 
 	/**
 	 * A scaled-down (22px x 22px) version of the photo
@@ -213,7 +213,7 @@ public interface IAddressBook
 	@GET
 	@Path("{uid}/icon")
 	@Produces("image/png")
-	public byte[] getIcon(@PathParam("uid") String uid) throws ServerFault;
+	public byte[] getIcon(@PathParam("uid") String uid);
 
 	/**
 	 * Copy entries from one AddressBook to another one
@@ -224,7 +224,7 @@ public interface IAddressBook
 	 */
 	@POST
 	@Path("_copy/{destContainerUid}")
-	public void copy(List<String> uids, @PathParam("destContainerUid") String descContainerUid) throws ServerFault;
+	public void copy(List<String> uids, @PathParam("destContainerUid") String descContainerUid);
 
 	/**
 	 * Move entries from one AddressBook to another one
@@ -235,17 +235,17 @@ public interface IAddressBook
 	 */
 	@POST
 	@Path("_move/{destContainerUid}")
-	public void move(List<String> uids, @PathParam("destContainerUid") String descContainerUid) throws ServerFault;
+	public void move(List<String> uids, @PathParam("destContainerUid") String descContainerUid);
 
 	/**
 	 * @throws ServerFault
 	 */
 	@POST
 	@Path("_reset")
-	public void reset() throws ServerFault;
+	public void reset();
 
 	@POST
 	@Path("_sorted")
-	public List<Long> sortedIds(SortDescriptor sorted) throws ServerFault;
+	public List<Long> sortedIds(SortDescriptor sorted);
 
 }

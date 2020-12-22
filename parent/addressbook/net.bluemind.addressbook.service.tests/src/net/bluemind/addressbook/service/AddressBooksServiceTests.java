@@ -74,7 +74,6 @@ public class AddressBooksServiceTests extends AbstractServiceTests {
 
 		aclStore.store(container3,
 				Arrays.asList(AccessControlEntry.create(defaultSecurityContext.getSubject(), Verb.All)));
-
 	}
 
 	@Test
@@ -154,6 +153,17 @@ public class AddressBooksServiceTests extends AbstractServiceTests {
 				Arrays.asList(ContainerSubscription.create(container3.uid, true)));
 
 		res = addressBooks.search(VCardQuery.create("*:*"));
+
+		assertEquals(7, res.total);
+		assertEquals(7, res.values.size());
+
+		VCardQuery query = VCardQuery.create(null);
+		query.size = 100;
+		query.from = 0;
+		res = addressBooks.search(query);
+		for (ItemContainerValue<VCardInfo> v : res.values) {
+			System.out.println("Found " + v.displayName + " from " + v.containerUid);
+		}
 
 		assertEquals(7, res.total);
 		assertEquals(7, res.values.size());

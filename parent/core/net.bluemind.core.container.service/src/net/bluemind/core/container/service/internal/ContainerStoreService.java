@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -31,7 +32,6 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 
 import net.bluemind.core.api.ListResult;
@@ -67,7 +67,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 
 public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
-	public <Res> Res doOrFail(SqlOperation<Res> op) throws ServerFault {
+	public <T> T doOrFail(SqlOperation<T> op) {
 		return JdbcAbstractStore.doOrFail(op);
 	}
 
@@ -116,18 +116,20 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	public ContainerStoreService(DataSource pool, SecurityContext securityContext, Container container,
 			IItemValueStore<T> itemValueStore) {
-		this(pool, securityContext, container, itemValueStore, (v) -> UNFLAGGED, (v) -> 0L, seed -> seed);
+		this(pool, securityContext, container, itemValueStore, v -> UNFLAGGED, v -> 0L, seed -> seed);
 	}
 
-	@Override
-	public ContainerChangelog changelog(Long from, long to) throws ServerFault {
+	private void assertChangeLog() {
 		if (!hasChangeLog) {
 			throw new ServerFault("no changelog for this container");
 		}
+	}
+
+	@Override
+	public ContainerChangelog changelog(Long from, long to) {
+		assertChangeLog();
 		final Long since = null == from ? 0L : from;
-		return doOrFail(() -> {
-			return changelogStore.changelog(since, to);
-		});
+		return doOrFail(() -> changelogStore.changelog(since, to));
 	}
 
 	public Count count(ItemFlagFilter filter) {
@@ -139,20 +141,15 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	@Override
-	public ItemChangelog changelog(String itemUid, Long from, long to) throws ServerFault {
-		if (!hasChangeLog) {
-			throw new ServerFault("no changelog for this container");
-		}
+	public ItemChangelog changelog(String itemUid, Long from, long to) {
+		assertChangeLog();
 		final Long since = null == from ? 0L : from;
-		return ChangelogRenderers.render(securityContext, doOrFail(() -> {
-			return changelogStore.itemChangelog(itemUid, since, to);
-		}));
+		return ChangelogRenderers.render(securityContext,
+				doOrFail(() -> changelogStore.itemChangelog(itemUid, since, to)));
 	}
 
-	public ContainerChangeset<String> changeset(Long from, long to) throws ServerFault {
-		if (!hasChangeLog) {
-			throw new ServerFault("no changelog for this container");
-		}
+	public ContainerChangeset<String> changeset(Long from, long to) {
+		assertChangeLog();
 		final long since = null == from ? 0L : from;
 		return doOrFail(() -> {
 			try {
@@ -163,10 +160,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 	}
 
-	public ContainerChangeset<Long> changesetById(Long from, long to) throws ServerFault {
-		if (!hasChangeLog) {
-			throw new ServerFault("no changelog for this container");
-		}
+	public ContainerChangeset<Long> changesetById(Long from, long to) {
+		assertChangeLog();
 		final long since = null == from ? 0L : from;
 		return doOrFail(() -> {
 			try {
@@ -177,10 +172,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 	}
 
-	public ContainerChangeset<ItemIdentifier> fullChangesetById(Long from, long to) throws ServerFault {
-		if (!hasChangeLog) {
-			throw new ServerFault("no changelog for this container");
-		}
+	public ContainerChangeset<ItemIdentifier> fullChangesetById(Long from, long to) {
+		assertChangeLog();
 		final long since = null == from ? 0L : from;
 		return doOrFail(() -> {
 			try {
@@ -191,10 +184,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 	}
 
-	public ContainerChangeset<ItemVersion> changesetById(long from, ItemFlagFilter filter) throws ServerFault {
-		if (!hasChangeLog) {
-			throw new ServerFault("no changelog for this container");
-		}
+	public ContainerChangeset<ItemVersion> changesetById(long from, ItemFlagFilter filter) {
+		assertChangeLog();
 		return doOrFail(() -> {
 			try {
 				return changelogStore.changesetById(weightProvider, from, Long.MAX_VALUE, filter);
@@ -205,7 +196,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	@Override
-	public ItemValue<T> get(String uid, Long version) throws ServerFault {
+	public ItemValue<T> get(String uid, Long version) {
 		return doOrFail(() -> {
 			Item item = itemStore.get(uid);
 			if (version != null && item != null && item.version != version) {
@@ -221,7 +212,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	@Override
-	public ItemValue<T> get(long id, Long version) throws ServerFault {
+	public ItemValue<T> get(long id, Long version) {
 		return doOrFail(() -> {
 			Item item = itemStore.getById(id);
 			if (version != null && item != null && item.version != version) {
@@ -236,7 +227,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	}
 
-	protected ItemValue<T> getItemValue(Item item) throws ServerFault {
+	protected ItemValue<T> getItemValue(Item item) {
 		if (item == null) {
 			return null;
 		}
@@ -247,7 +238,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	@Override
-	public ItemValue<T> getByExtId(String extId) throws ServerFault {
+	public ItemValue<T> getByExtId(String extId) {
 		return doOrFail(() -> {
 			Item item = itemStore.getByExtId(extId);
 			if (item == null) {
@@ -258,7 +249,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 	}
 
-	protected T getValue(Item item) throws ServerFault {
+	protected T getValue(Item item) {
 		try {
 			return itemValueStore.get(item);
 		} catch (SQLException e) {
@@ -267,18 +258,17 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	@Override
-	public ItemVersion create(String uid, String displayName, T value) throws ServerFault {
+	public ItemVersion create(String uid, String displayName, T value) {
 		return create(uid, null, displayName, value);
 	}
 
 	@Override
-	public ItemVersion create(String uid, String extId, String displayName, T value) throws ServerFault {
+	public ItemVersion create(String uid, String extId, String displayName, T value) {
 		return createWithId(uid, null, extId, displayName, value);
 	}
 
 	@Override
-	public ItemVersion createWithId(String uid, Long internalId, String extId, String displayName, T value)
-			throws ServerFault {
+	public ItemVersion createWithId(String uid, Long internalId, String extId, String displayName, T value) {
 		return doOrFail(() -> {
 
 			Item item = null;
@@ -307,7 +297,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	@Override
-	public void attach(String uid, String displayName, T value) throws ServerFault {
+	public void attach(String uid, String displayName, T value) {
 		doOrFail(() -> {
 
 			Item item = itemStore.getForUpdate(uid);
@@ -330,12 +320,12 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 	}
 
-	protected void createValue(Item item, T value) throws ServerFault, SQLException {
+	protected void createValue(Item item, T value) throws SQLException {
 		itemValueStore.create(item, value);
 	}
 
 	@Override
-	public ItemVersion update(String uid, String displayName, T value) throws ServerFault {
+	public ItemVersion update(String uid, String displayName, T value) {
 		return doOrFail(() -> {
 
 			String dnToApply = displayName;
@@ -363,7 +353,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	@Override
-	public ItemVersion update(long itemId, String displayName, T value) throws ServerFault {
+	public ItemVersion update(long itemId, String displayName, T value) {
 		return doOrFail(() -> {
 
 			String dnToApply = displayName;
@@ -391,12 +381,12 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 	}
 
-	protected void updateValue(Item item, T value) throws ServerFault, SQLException {
+	protected void updateValue(Item item, T value) throws SQLException {
 		itemValueStore.update(item, value);
 	}
 
 	@Override
-	public ItemVersion delete(String uid) throws ServerFault {
+	public ItemVersion delete(String uid) {
 		return doOrFail(() -> {
 			Item item = itemStore.getForUpdate(uid);
 			if (item == null) {
@@ -415,7 +405,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	@Override
-	public ItemVersion delete(long id) throws ServerFault {
+	public ItemVersion delete(long id) {
 		return doOrFail(() -> {
 			Item item = itemStore.getForUpdate(id);
 			if (item == null) {
@@ -434,7 +424,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	@Override
-	public void detach(String uid) throws ServerFault {
+	public void detach(String uid) {
 		doOrFail(() -> {
 			Item item = itemStore.getForUpdate(uid);
 			if (item == null) {
@@ -453,12 +443,12 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 	}
 
-	protected void deleteValue(Item item) throws ServerFault, SQLException {
+	protected void deleteValue(Item item) throws SQLException {
 		itemValueStore.delete(item);
 	}
 
 	@Override
-	public void deleteAll() throws ServerFault {
+	public void deleteAll() {
 		doOrFail(() -> {
 			// delete values
 			deleteValues();
@@ -474,7 +464,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	@Override
-	public void prepareContainerDelete() throws ServerFault {
+	public void prepareContainerDelete() {
 		doOrFail(() -> {
 			// delete acl
 			aclStore.deleteAll(container);
@@ -488,7 +478,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 	}
 
-	protected void deleteValues() throws ServerFault {
+	protected void deleteValues() {
 		try {
 			itemValueStore.deleteAll();
 		} catch (SQLException e) {
@@ -504,7 +494,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		return itemValueStore;
 	}
 
-	public List<ItemValue<T>> getItemsValue(List<Item> items) throws ServerFault {
+	public List<ItemValue<T>> getItemsValue(List<Item> items) {
 
 		List<ItemValue<T>> ret = new ArrayList<>(items.size());
 
@@ -555,18 +545,18 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		return ret;
 	}
 
-	protected void decorate(List<Item> items, List<ItemValue<T>> values) throws ServerFault {
+	protected void decorate(List<Item> items, List<ItemValue<T>> values) {
 		Iterator<ItemValue<T>> it = values.iterator();
 		for (Item item : items) {
 			decorate(item, it.next());
 		}
 	}
 
-	protected void decorate(Item item, ItemValue<T> value) throws ServerFault {
+	protected void decorate(Item item, ItemValue<T> value) {
 		logger.debug("decorate {} {}", item, value);
 	}
 
-	public List<ItemValue<T>> getMultiple(List<String> uids) throws ServerFault {
+	public List<ItemValue<T>> getMultiple(List<String> uids) {
 		return doOrFail(() -> {
 			List<Item> items = null;
 
@@ -580,7 +570,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 	}
 
-	public List<ItemValue<T>> getMultipleById(List<Long> ids) throws ServerFault {
+	public List<ItemValue<T>> getMultipleById(List<Long> ids) {
 		return doOrFail(() -> {
 			List<Item> items = null;
 
@@ -594,7 +584,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 	}
 
-	public List<ItemValue<T>> all() throws ServerFault {
+	public List<ItemValue<T>> all() {
 		return doOrFail(() -> {
 			List<Item> items = null;
 
@@ -609,7 +599,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	@Override
-	public void touch(String uid) throws ServerFault {
+	public void touch(String uid) {
 		doOrFail(() -> {
 			Item item = itemStore.touch(uid);
 
@@ -628,7 +618,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	@Override
-	public List<String> allUids() throws ServerFault {
+	public List<String> allUids() {
 
 		try {
 			List<Item> items = itemStore.all();
@@ -666,18 +656,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	}
 
-	@Override
-	public List<String> allUidsOrderedByDisplayname() throws ServerFault {
-
-		try {
-			return itemStore.allItemUidsOrderedByDisplayname();
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
-		}
-
-	}
-
-	public long getVersion() throws ServerFault {
+	public long getVersion() {
 		try {
 			return itemStore.getVersion();
 		} catch (SQLException e) {
@@ -686,7 +665,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	@Override
-	public long setExtId(String uid, String extId) throws ServerFault {
+	public long setExtId(String uid, String extId) {
 		return doOrFail(() -> {
 			Item item = itemStore.setExtId(uid, extId);
 
@@ -701,7 +680,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public void xfer(javax.sql.DataSource targetDataSource, Container targetContainer,
-			IItemValueStore<T> targetItemValueStore) throws ServerFault {
+			IItemValueStore<T> targetItemValueStore) {
 		logger.info("Starting xfer to {} with {} on db {}", targetContainer, itemStore, targetDataSource);
 		try {
 			List<String> uids = itemStore.allItemUids();

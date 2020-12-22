@@ -21,10 +21,9 @@ package net.bluemind.addressbook.service;
 import java.util.List;
 
 import net.bluemind.addressbook.api.IAddressBook;
-import net.bluemind.core.api.fault.ServerFault;
 
 public interface IInCoreAddressBook extends IAddressBook {
 
-	public List<String> findByEmail(String email) throws ServerFault;
+	public List<String> findByEmail(String email);
 
 }

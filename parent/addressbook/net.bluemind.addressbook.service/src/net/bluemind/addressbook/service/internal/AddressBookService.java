@@ -22,10 +22,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -35,7 +34,6 @@ import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -83,6 +81,8 @@ import net.bluemind.lib.vertx.VertxPlatform;
 public class AddressBookService implements IInCoreAddressBook {
 	private static final Logger logger = LoggerFactory.getLogger(AddressBookService.class);
 
+	private static final String CONTAINER_UID_PARAM = "containerUid";
+
 	private VCardContainerStoreService storeService;
 	private SecurityContext securityContext;
 	private AddressBookEventProducer eventProducer;
@@ -118,13 +118,13 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
-	public List<String> allUids() throws ServerFault {
+	public List<String> allUids() {
 		rbacManager.check(Verb.Read.name());
 		return storeService.allUids();
 	}
 
 	@Override
-	public void create(String uid, VCard card) throws ServerFault {
+	public void create(String uid, VCard card) {
 		rbacManager.check(Verb.Write.name());
 		// ext point sanitizer
 		doCreate(uid, null, card, null);
@@ -133,7 +133,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
-	public Ack createById(long id, VCard card) throws ServerFault {
+	public Ack createById(long id, VCard card) {
 		rbacManager.check(Verb.Write.name());
 
 		String uid = "vcard-by-id:" + id;
@@ -145,15 +145,11 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@SuppressWarnings("serial")
-	private long doCreate(String uid, Long internalId, VCard card, byte[] photo) throws ServerFault {
+	private long doCreate(String uid, Long internalId, VCard card, byte[] photo) {
 		// ext point sanitizer
-		extSanitizer.create(card, new HashMap<String, String>() {
-			{
-				put("containerUid", container.uid);
-			}
-		});
+		extSanitizer.create(card, ImmutableMap.of(CONTAINER_UID_PARAM, container.uid));
 
-		extValidator.create(card, ImmutableMap.of("containerUid", container.uid));
+		extValidator.create(card, ImmutableMap.of(CONTAINER_UID_PARAM, container.uid));
 
 		ItemVersion version = storeService.createWithId(uid, internalId, null, getDisplayName(card), card);
 		if (photo != null) {
@@ -168,14 +164,14 @@ public class AddressBookService implements IInCoreAddressBook {
 		return version.version;
 	}
 
-	private boolean doCreateOrUpdate(String uid, VCard value, byte[] photo) throws ServerFault {
+	private boolean doCreateOrUpdate(String uid, VCard value, byte[] photo) {
 
 		try {
 			doCreate(uid, null, value, photo);
 			return false;
 		} catch (ServerFault sf) {
 			if (sf.getCode() == ErrorCode.ALREADY_EXISTS) {
-				logger.warn("vcard uid {} was sent as created but already exists. We update it", uid);
+				logger.warn("vcard uid {} was sent as created but already exists. We update it", uid);
 				return doUpdate(uid, null, value, photo).dnChanged;
 			} else {
 				throw sf;
@@ -185,7 +181,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
-	public void update(String uid, VCard card) throws ServerFault {
+	public void update(String uid, VCard card) {
 		rbacManager.check(Verb.Write.name());
 		boolean importantChanges = doUpdate(uid, null, card, null).dnChanged;
 
@@ -214,19 +210,16 @@ public class AddressBookService implements IInCoreAddressBook {
 				.getMultiple(storeService.findGroupsContaining(cards.stream().map(c -> c.uid).toArray(String[]::new)));
 
 		for (ItemValue<VCard> gv : groups) {
-			gv.value.organizational.member.stream().forEach(m -> {
-				cards.forEach(card -> {
-					if ((m.containerUid == null || container.uid.equals(m.containerUid))
-							&& card.uid.equals(m.itemUid)) {
-						if (card.value == null) {
-							m.containerUid = null;
-						} else {
-							m.commonName = getDisplayName(card.value);
-							m.mailto = card.value.defaultMail();
-						}
+			gv.value.organizational.member.stream().forEach(m -> cards.forEach(card -> {
+				if ((m.containerUid == null || container.uid.equals(m.containerUid)) && card.uid.equals(m.itemUid)) {
+					if (card.value == null) {
+						m.containerUid = null;
+					} else {
+						m.commonName = getDisplayName(card.value);
+						m.mailto = card.value.defaultMail();
 					}
-				});
-			});
+				}
+			}));
 			storeService.update(gv.uid, getDisplayName(gv.value), gv.value);
 		}
 
@@ -243,7 +236,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	 * @throws ServerFault
 	 */
 	@SuppressWarnings("serial")
-	private Updated doUpdate(String givenUid, Long itemId, VCard card, byte[] photo) throws ServerFault {
+	private Updated doUpdate(String givenUid, Long itemId, VCard card, byte[] photo) {
 
 		ItemValue<VCard> previousItemValue = itemId == null ? storeService.get(givenUid, null)
 				: storeService.get(itemId, null);
@@ -255,17 +248,12 @@ public class AddressBookService implements IInCoreAddressBook {
 
 		boolean emailEquals = card.defaultMail() == null ? previousItemValue.value.defaultMail() == null
 				: card.defaultMail().equals(previousItemValue.value.defaultMail());
-		boolean displayNameEquals = getDisplayName(card) == null ? getDisplayName(previousItemValue.value) == null
-				: getDisplayName(card).equals(getDisplayName(previousItemValue.value));
+
+		boolean displayNameEquals = Objects.equals(getDisplayName(card), getDisplayName(previousItemValue.value));
 		boolean directoryValueChanged = !displayNameEquals || !emailEquals;
 
-		extSanitizer.update(previousItemValue.value, card, new HashMap<String, String>() {
-			{
-				put("containerUid", container.uid);
-			}
-		});
-
-		extValidator.update(previousItemValue.value, card, ImmutableMap.of("containerUid", container.uid));
+		extSanitizer.update(previousItemValue.value, card, ImmutableMap.of(CONTAINER_UID_PARAM, container.uid));
+		extValidator.update(previousItemValue.value, card, ImmutableMap.of(CONTAINER_UID_PARAM, container.uid));
 
 		ItemVersion upd = storeService.update(uid, getDisplayName(card), card);
 		if (photo != null) {
@@ -280,12 +268,12 @@ public class AddressBookService implements IInCoreAddressBook {
 		return new Updated(uid, upd.version, directoryValueChanged);
 	}
 
-	private boolean doUpdateOrCreate(String uid, VCard card, byte[] photo) throws ServerFault {
+	private boolean doUpdateOrCreate(String uid, VCard card, byte[] photo) {
 		try {
 			return doUpdate(uid, null, card, photo).dnChanged;
 		} catch (ServerFault sf) {
 			if (sf.getCode() == ErrorCode.NOT_FOUND) {
-				logger.warn("vcard uid {} was sent as created but already exists. We update it", uid);
+				logger.warn("vcard uid {} was sent as created but already exists. We update it", uid);
 				doCreate(uid, null, card, photo);
 				return false;
 			} else {
@@ -295,31 +283,31 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
-	public ItemValue<VCard> getComplete(String uid) throws ServerFault {
+	public ItemValue<VCard> getComplete(String uid) {
 		rbacManager.check(Verb.Read.name());
 		return storeService.get(uid, null);
 	}
 
 	@Override
-	public ItemValue<VCard> getCompleteById(long uid) throws ServerFault {
+	public ItemValue<VCard> getCompleteById(long uid) {
 		rbacManager.check(Verb.Read.name());
 		return storeService.get(uid, null);
 	}
 
 	@Override
-	public List<ItemValue<VCard>> multipleGet(List<String> uids) throws ServerFault {
+	public List<ItemValue<VCard>> multipleGet(List<String> uids) {
 		rbacManager.check(Verb.Read.name());
 		return storeService.getMultiple(uids);
 	}
 
 	@Override
-	public List<ItemValue<VCard>> multipleGetById(List<Long> ids) throws ServerFault {
+	public List<ItemValue<VCard>> multipleGetById(List<Long> ids) {
 		rbacManager.check(Verb.Read.name());
 		return storeService.getMultipleById(ids);
 	}
 
 	@Override
-	public ItemValue<VCardInfo> getInfo(String uid) throws ServerFault {
+	public ItemValue<VCardInfo> getInfo(String uid) {
 		rbacManager.check(Verb.Read.name());
 		return adapt(storeService.get(uid, null));
 	}
@@ -332,52 +320,26 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
-	public ListResult<ItemValue<VCardInfo>> search(VCardQuery query) throws ServerFault {
+	public ListResult<ItemValue<VCardInfo>> search(VCardQuery query) {
 		rbacManager.check(Verb.Read.name());
-		List<ItemValue<VCardInfo>> values = null;
 		ListResult<ItemValue<VCardInfo>> ret = new ListResult<>();
-		if (Strings.isNullOrEmpty(query.query)) {
+		ListResult<String> res = indexStore.search(query);
 
-			List<String> uids = storeService.allUidsOrderedByDisplayname();
-			int from = query.from;
-			int to = query.from + query.size;
-			from = Math.min(from, uids.size());
-			to = Math.min(to, uids.size());
-			List<String> subUids = uids.subList(from, to);
+		List<ItemValue<VCardInfo>> values = storeService.getMultiple(res.values).stream().map(this::adapt)
+				.collect(Collectors.toList());
 
-			values = new ArrayList<>(subUids.size());
-			ret.total = uids.size();
-
-			List<ItemValue<VCard>> items = storeService.getMultiple(subUids);
-			for (ItemValue<VCard> item : items) {
-				values.add(adapt(item));
-			}
-		} else {
-			ListResult<String> res = indexStore.search(query);
-
-			values = new ArrayList<>(res.values.size());
-
-			List<ItemValue<VCard>> items = storeService.getMultiple(res.values);
-			for (ItemValue<VCard> item : items) {
-				values.add(adapt(item));
-			}
-			ret.total = res.total;
-		}
 		if (query.orderBy != OrderBy.Pertinance) {
-			Collections.sort(values, new Comparator<ItemValue<VCardInfo>>() {
-				@Override
-				public int compare(ItemValue<VCardInfo> o1, ItemValue<VCardInfo> o2) {
-					return o1.displayName.compareToIgnoreCase(o2.displayName);
-				}
-			});
+			Collections.sort(values, (ItemValue<VCardInfo> o1, ItemValue<VCardInfo> o2) -> o1.displayName
+					.compareToIgnoreCase(o2.displayName));
 		}
 
+		ret.total = res.total;
 		ret.values = values;
 		return ret;
 	}
 
 	@Override
-	public void delete(String uid) throws ServerFault {
+	public void delete(String uid) {
 		rbacManager.check(Verb.Write.name());
 		doDelete(uid);
 		refreshGroupsFor(ImmutableList.of(ItemValue.create(uid, null)));
@@ -385,44 +347,44 @@ public class AddressBookService implements IInCoreAddressBook {
 		eventProducer.changed();
 	}
 
-	private void doDelete(String uid) throws ServerFault {
+	private void doDelete(String uid) {
 		storeService.deletePhoto(uid);
 		storeService.deleteIcon(uid);
 		storeService.delete(uid);
 	}
 
 	@Override
-	public ContainerChangelog containerChangelog(Long since) throws ServerFault {
+	public ContainerChangelog containerChangelog(Long since) {
 		rbacManager.check(Verb.Read.name());
 		return storeService.changelog(since, Long.MAX_VALUE);
 	}
 
 	@Override
-	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
+	public ItemChangelog itemChangelog(String itemUid, Long since) {
 		rbacManager.check(Verb.Read.name());
 		return ChangeLogUtil.getItemChangeLog(itemUid, since, context, storeService, container.domainUid);
 	}
 
 	@Override
-	public ContainerChangeset<String> changeset(Long since) throws ServerFault {
+	public ContainerChangeset<String> changeset(Long since) {
 		rbacManager.check(Verb.Read.name());
 		return storeService.changeset(since, Long.MAX_VALUE);
 	}
 
 	@Override
-	public ContainerChangeset<Long> changesetById(Long since) throws ServerFault {
+	public ContainerChangeset<Long> changesetById(Long since) {
 		rbacManager.check(Verb.Read.name());
 		return storeService.changesetById(since, Long.MAX_VALUE);
 	}
 
 	@Override
-	public ContainerChangeset<ItemVersion> filteredChangesetById(Long since, ItemFlagFilter filter) throws ServerFault {
+	public ContainerChangeset<ItemVersion> filteredChangesetById(Long since, ItemFlagFilter filter) {
 		rbacManager.check(Verb.Read.name());
 		return storeService.changesetById(since, filter);
 	}
 
 	@Override
-	public ContainerUpdatesResult updates(VCardChanges changes) throws ServerFault {
+	public ContainerUpdatesResult updates(VCardChanges changes) {
 		rbacManager.check(Verb.Write.name());
 		boolean change = false;
 
@@ -432,8 +394,8 @@ public class AddressBookService implements IInCoreAddressBook {
 		ret.removed = new ArrayList<String>();
 		ret.errors = new ArrayList<>();
 
-		List<ItemValue<VCard>> cards = new ArrayList<ItemValue<VCard>>();
-		if (changes.add != null && changes.add.size() > 0) {
+		List<ItemValue<VCard>> cards = new ArrayList<>();
+		if (changes.add != null && !changes.add.isEmpty()) {
 			change = true;
 			Consumer<ItemAdd> createOrUpdate = add -> {
 				try {
@@ -464,7 +426,7 @@ public class AddressBookService implements IInCoreAddressBook {
 					.forEach(createOrUpdate);
 		}
 
-		if (changes.modify != null && changes.modify.size() > 0) {
+		if (changes.modify != null && !changes.modify.isEmpty()) {
 
 			change = true;
 
@@ -486,7 +448,7 @@ public class AddressBookService implements IInCoreAddressBook {
 			}
 		}
 
-		if (changes.delete != null && changes.delete.size() > 0) {
+		if (changes.delete != null && !changes.delete.isEmpty()) {
 			change = true;
 			for (VCardChanges.ItemDelete item : changes.delete) {
 				try {
@@ -495,7 +457,7 @@ public class AddressBookService implements IInCoreAddressBook {
 					ret.removed.add(item.uid);
 				} catch (ServerFault sf) {
 					if (sf.getCode() == ErrorCode.NOT_FOUND) {
-						logger.warn("vcard uid {} was sent as deleted but does not exist.", item.uid);
+						logger.warn("vcard uid {} was sent as deleted but does not exist.", item.uid);
 						ret.removed.add(item.uid);
 					} else {
 						ret.errors.add(ContainerUpdatesResult.InError.create(sf.getMessage(), sf.getCode(), item.uid));
@@ -521,7 +483,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
-	public ContainerChangeset<String> sync(Long since, VCardChanges changes) throws ServerFault {
+	public ContainerChangeset<String> sync(Long since, VCardChanges changes) {
 		updates(changes);
 		return changeset(since);
 	}
@@ -535,7 +497,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
-	public void copy(List<String> uids, String descContainerUid) throws ServerFault {
+	public void copy(List<String> uids, String descContainerUid) {
 		rbacManager.check(Verb.Read.name());
 		IAddressBook dest = ServerSideServiceProvider.getProvider(securityContext).instance(IAddressBook.class,
 				descContainerUid);
@@ -543,7 +505,7 @@ public class AddressBookService implements IInCoreAddressBook {
 		for (String uid : uids) {
 
 			ItemValue<VCard> value = getComplete(uid);
-			System.out.println("copy " + uid + " value " + value);
+			logger.debug("copy {} value {}", uid, value);
 			if (value != null) {
 				copyVCard(dest, uid, value);
 			}
@@ -551,7 +513,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
-	public void move(List<String> uids, String descContainerUid) throws ServerFault {
+	public void move(List<String> uids, String descContainerUid) {
 		rbacManager.check(Verb.Write.name());
 		IAddressBook dest = ServerSideServiceProvider.getProvider(securityContext).instance(IAddressBook.class,
 				descContainerUid);
@@ -566,7 +528,7 @@ public class AddressBookService implements IInCoreAddressBook {
 
 	}
 
-	private void copyVCard(IAddressBook dest, String uid, ItemValue<VCard> value) throws ServerFault {
+	private void copyVCard(IAddressBook dest, String uid, ItemValue<VCard> value) {
 		dest.create(uid, value.value);
 		byte[] photo = getPhoto(uid);
 		if (null != photo) {
@@ -574,13 +536,13 @@ public class AddressBookService implements IInCoreAddressBook {
 		}
 	}
 
-	public List<ItemValue<VCard>> all() throws ServerFault {
+	public List<ItemValue<VCard>> all() {
 		rbacManager.check(Verb.Read.name());
 		return storeService.all();
 	}
 
 	@Override
-	public void setPhoto(String uid, byte[] photo) throws ServerFault {
+	public void setPhoto(String uid, byte[] photo) {
 		logger.info("setPhoto on {}", uid);
 		rbacManager.check(Verb.Write.name());
 
@@ -596,7 +558,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
-	public void deletePhoto(String uid) throws ServerFault {
+	public void deletePhoto(String uid) {
 		rbacManager.check(Verb.Write.name());
 		ItemValue<VCard> item = storeService.get(uid, null);
 		if (item == null) {
@@ -607,13 +569,13 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
-	public byte[] getPhoto(String uid) throws ServerFault {
+	public byte[] getPhoto(String uid) {
 		// FIXME accessManager.checkReadAccess();
 		return storeService.getPhoto(uid);
 	}
 
 	@Override
-	public byte[] getIcon(String uid) throws ServerFault {
+	public byte[] getIcon(String uid) {
 		// FIXME accessManager.checkReadAccess();
 		byte[] ret = storeService.getIcon(uid);
 		if (ret == null) {
@@ -623,13 +585,13 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
-	public List<String> findByEmail(String email) throws ServerFault {
+	public List<String> findByEmail(String email) {
 		rbacManager.check(Verb.Read.name());
 		return storeService.findByEmail(email);
 	}
 
 	@Override
-	public void reset() throws ServerFault {
+	public void reset() {
 		rbacManager.check(Verb.Manage.name());
 		storeService.deleteAll();
 		eventProducer.changed();
@@ -641,7 +603,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
-	public long getVersion() throws ServerFault {
+	public long getVersion() {
 		rbacManager.check(Verb.Read.name());
 		return storeService.getVersion();
 	}
@@ -665,13 +627,13 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
-	public Count count(ItemFlagFilter filter) throws ServerFault {
+	public Count count(ItemFlagFilter filter) {
 		rbacManager.check(Verb.Read.name());
 		return storeService.count(filter);
 	}
 
 	@Override
-	public List<Long> sortedIds(SortDescriptor sorted) throws ServerFault {
+	public List<Long> sortedIds(SortDescriptor sorted) {
 		rbacManager.check(Verb.Read.name());
 		try {
 			return vcardStore.sortedIds(sorted);
@@ -681,7 +643,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
-	public void xfer(String serverUid) throws ServerFault {
+	public void xfer(String serverUid) {
 
 		DataSource ds = context.getMailboxDataSource(serverUid);
 		ContainerStore cs = new ContainerStore(null, ds, context.getSecurityContext());
@@ -697,8 +659,8 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@Override
-	public void multipleDeleteById(List<Long> ids) throws ServerFault {
-		ids.forEach(id -> deleteById(id));
+	public void multipleDeleteById(List<Long> ids) {
+		ids.forEach(this::deleteById);
 	}
 
 }

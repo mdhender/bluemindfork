@@ -347,13 +347,6 @@ public class ItemStore extends JdbcAbstractStore {
 
 	}
 
-	public List<String> allItemUidsOrderedByDisplayname() throws SQLException {
-		String query = "SELECT uid from t_container_item where container_id = ? ORDER BY displayname";
-
-		return select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
-
-	}
-
 	private static final String GET_FOR_UPDATE = "SELECT " + COLUMNS.names() + " FROM t_container_item "
 			+ " WHERE uid = ? and container_id = ? FOR NO KEY UPDATE ";
 
