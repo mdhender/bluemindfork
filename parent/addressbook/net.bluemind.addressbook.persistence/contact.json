@@ -42,6 +42,13 @@
 						"stem_english_possessive": false
 					}
 				},
+				"normalizer": {
+					"uppercase": {
+						"type": "custom",
+						"char_filter": [],
+						"filter": ["uppercase"]
+					}
+				},
 				"analyzer": {
 					"default": {
 						"type": "custom",
@@ -122,7 +129,8 @@
 				},
 				"sortName": {
 					"type": "keyword",
-					"store": true
+					"store": true,
+					"normalizer": "uppercase"
 				},
 				"displayName": {
 					"type": "text",
