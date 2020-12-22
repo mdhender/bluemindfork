@@ -6,10 +6,10 @@ import { MockContainersClient, MockOwnerSubscriptionsClient } from "@bluemind/te
 import { Verb } from "@bluemind/core.container.api";
 import initialStore from "../mailboxes";
 import aliceContainers from "./data/users/alice/containers";
-import { MailboxType } from "../helpers/MailboxAdaptor";
 import { ADD_MAILBOXES } from "~mutations";
 import { FETCH_MAILBOXES } from "~actions";
 import { MAILSHARES, MAILSHARE_KEYS, MY_MAILBOX, MY_MAILBOX_KEY } from "~getters";
+import { MailboxType } from "../../model/mailbox";
 
 const userId = "6793466E-F5D4-490F-97BF-DF09D3327BF4";
 

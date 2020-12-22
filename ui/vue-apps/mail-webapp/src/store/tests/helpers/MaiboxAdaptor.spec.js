@@ -1,6 +1,7 @@
-import { MailboxAdaptor, MailboxType } from "../../helpers/MailboxAdaptor";
+import { MailboxAdaptor } from "../../helpers/MailboxAdaptor";
 import containers from "../data/users/alice/containers.json";
 import { Verb } from "@bluemind/core.container.api";
+import { MailboxType } from "../../../model/mailbox";
 
 describe("MailboxAdaptor", () => {
     describe("fromMailboxContainer", () => {

@@ -21,12 +21,11 @@ export default {
     actions: {
         [FETCH_MAILBOXES]: async ({ commit }) => {
             const subscriptions = await inject("SubscriptionPersistence").list();
-            const items = await inject("ContainersPersistence").getContainers(
-                subscriptions
-                    .filter(subscription => subscription.value.containerType === "mailboxacl")
-                    .map(subscription => subscription.value.containerUid)
-            );
-            commit(ADD_MAILBOXES, items.map(MailboxAdaptor.fromMailboxContainer).filter(Boolean));
+            const mailboxUids = subscriptions
+                .filter(subscription => subscription.value.containerType === "mailboxacl")
+                .map(subscription => subscription.value.containerUid);
+            const items = await inject("ContainersPersistence").getContainers(mailboxUids);
+            commit(ADD_MAILBOXES, items.map(MailboxAdaptor.fromMailboxContainer));
         }
     }
 };

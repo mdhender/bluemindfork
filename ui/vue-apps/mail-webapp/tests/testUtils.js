@@ -34,7 +34,7 @@ export function createStore() {
             owner: userId
         }
     ]);
-    store.commit("mail/ADD_FOLDERS", [{ key: folderUid, mailboxRef: { key: "MY_MAIBOX" } }]);
+    store.commit("mail/SET_MAILBOX_FOLDERS", [{ key: folderUid, mailboxRef: { key: "MY_MAIBOX" } }]);
     store.commit("mail/ADD_MESSAGES", [{ key: messageKey, flags: [], folderRef: { key: folderUid, uid: folderUid } }]);
     store.commit("mail-webapp/currentMessage/update", { key: messageKey });
 

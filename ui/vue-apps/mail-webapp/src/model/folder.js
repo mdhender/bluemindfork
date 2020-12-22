@@ -1,7 +1,10 @@
+import { inject } from "@bluemind/inject";
 import { MailboxType } from "./mailbox";
 import injector from "@bluemind/inject";
 
 export function create(key, name, parent, mailbox) {
+    const defaultFolder = isDefault(!parent, name, mailbox);
+    const translatedName = defaultFolder ? translate(name) : name;
     return {
         key: key,
         remoteRef: {
@@ -13,12 +16,12 @@ export function create(key, name, parent, mailbox) {
             key: mailbox.key
         },
         parent: parent ? parent.key : null,
-        name: name,
+        name: translatedName,
         imapName: name,
-        path: path(mailbox, name, parent),
+        path: path(mailbox, translatedName, parent),
         writable: mailbox.writable,
         allowSubfolder: allowSubfolder(mailbox.writable, !parent, name, mailbox),
-        default: isDefault(!parent, name, mailbox),
+        default: defaultFolder,
         expanded: false,
         unread: 0
     };
@@ -154,4 +157,25 @@ function isFolderNameValid(name) {
         }
     }
     return true;
+}
+
+function translate(name) {
+    if (DEFAULT_FOLDERS[name.toUpperCase()]) {
+        return inject("i18n").t("common.folder." + name.toLowerCase()) || name;
+    }
+    return name;
+}
+
+export function compare(f1, f2) {
+    const f1Weight = Object.values(DEFAULT_FOLDERS).indexOf(f1.imapName);
+    const f2Weight = Object.values(DEFAULT_FOLDERS).indexOf(f2.imapName);
+    if (f1Weight >= 0 && f2Weight >= 0) {
+        return f1Weight - f2Weight;
+    } else if (f1Weight >= 0 && f2Weight < 0) {
+        return -1;
+    } else if (f1Weight < 0 && f2Weight >= 0) {
+        return 1;
+    } else {
+        return f1.imapName.localeCompare(f2.imapName);
+    }
 }

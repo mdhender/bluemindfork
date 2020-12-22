@@ -11,9 +11,11 @@ import {
     ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
     ALL_SELECTED_MESSAGES_ARE_UNREAD,
     MAILSHARE_FOLDERS,
+    MAILSHARE_ROOT_FOLDERS,
     MY_DRAFTS,
     MY_INBOX,
     MY_MAILBOX_FOLDERS,
+    MY_MAILBOX_ROOT_FOLDERS,
     MY_OUTBOX,
     MY_SENT,
     MY_TRASH
@@ -121,7 +123,7 @@ describe("Mail store", () => {
             expect(store.getters[ALL_MESSAGES_ARE_SELECTED]).toBeFalsy();
         });
 
-        test("MAILSHARE_FOLDERS", async () => {
+        test("MAILSHARE_FOLDERS", () => {
             store.state.folders = {
                 "1": { key: "1", mailboxRef: { key: "A" } },
                 "2": { key: "2", mailboxRef: { key: "unknown" } },
@@ -132,10 +134,10 @@ describe("Mail store", () => {
                 A: { key: "A", type: MailboxType.MAILSHARE },
                 C: { key: "C", type: MailboxType.MAILSHARE }
             };
-            expect(store.getters[MAILSHARE_FOLDERS]).toEqual(["1", "4"]);
+            expect(store.getters[MAILSHARE_FOLDERS]).toEqual([store.state.folders["1"], store.state.folders["4"]]);
         });
 
-        test("MY_MAILBOX_FOLDERS", async () => {
+        test("MY_MAILBOX_FOLDERS", () => {
             store.state.folders = {
                 "1": { key: "1", mailboxRef: { key: "A" } },
                 "2": { key: "2", mailboxRef: { key: "unknown" } },
@@ -149,10 +151,10 @@ describe("Mail store", () => {
                 provide: "UserSession",
                 use: { userId: "B" }
             });
-            expect(store.getters[MY_MAILBOX_FOLDERS]).toEqual(["3"]);
+            expect(store.getters[MY_MAILBOX_FOLDERS]).toEqual([store.state.folders["3"]]);
         });
 
-        test("DEFAULT FOLDERS", async () => {
+        test("DEFAULT FOLDERS", () => {
             store.state.folders = {
                 "1": { key: "1", imapName: "whatever", mailboxRef: { key: "myMailbox" } },
                 "1bis": { key: "1bis", imapName: DEFAULT_FOLDER_NAMES.INBOX, mailboxRef: { key: "other" } },
@@ -174,6 +176,35 @@ describe("Mail store", () => {
             expect(store.getters[MY_DRAFTS].key).toEqual("6");
             expect(store.getters[MY_SENT].key).toEqual("4");
             expect(store.getters[MY_TRASH].key).toEqual("5");
+        });
+        test("MY_MAILBOX_ROOT_FOLDERS", () => {
+            store.state.folders = {
+                "1": { key: "1", mailboxRef: { key: "A" } },
+                "2": { key: "2", mailboxRef: { key: "unknown" } },
+                "3": { key: "3", mailboxRef: { key: "B" }, parent: null },
+                "4": { key: "4", mailboxRef: { key: "B" }, parent: "3" }
+            };
+            store.state.mailboxes = {
+                B: { key: "B", owner: "B" }
+            };
+            injector.register({
+                provide: "UserSession",
+                use: { userId: "B" }
+            });
+            expect(store.getters[MY_MAILBOX_ROOT_FOLDERS]).toEqual([store.state.folders["3"]]);
+        });
+        test("MAILSHARE_ROOT_FOLDERS", () => {
+            store.state.folders = {
+                "1": { key: "1", mailboxRef: { key: "A" }, parent: null },
+                "2": { key: "2", mailboxRef: { key: "unknown" }, parent: null },
+                "3": { key: "3", mailboxRef: { key: "B" }, parent: "1" },
+                "4": { key: "4", mailboxRef: { key: "C" }, parent: "4" }
+            };
+            store.state.mailboxes = {
+                A: { key: "A", type: MailboxType.MAILSHARE },
+                C: { key: "C", type: MailboxType.MAILSHARE }
+            };
+            expect(store.getters[MAILSHARE_ROOT_FOLDERS]).toEqual([store.state.folders["1"]]);
         });
     });
 });

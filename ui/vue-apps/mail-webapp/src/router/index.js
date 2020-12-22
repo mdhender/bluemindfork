@@ -1,4 +1,3 @@
-import { inject } from "@bluemind/inject";
 import MailActionsPanel from "../components/MailActionsPanel";
 import MailApp from "../components/MailApp";
 import MailThread from "../components/MailThread/MailThread";
@@ -12,17 +11,6 @@ export default [
         path: "/mail/:messagequery*",
         component: MailApp,
         meta: {
-            onEnter: (store, to) =>
-                store
-                    .dispatch("mail-webapp/bootstrap", inject("UserSession").userId)
-                    .then(() =>
-                        store.dispatch("mail-webapp/loadMessageList", MessageQueryParam.parse(to.params.messagequery))
-                    )
-                    .then(() => store.commit("root-app/SET_APP_STATE", "success"))
-                    .catch(error => {
-                        console.error("Error when bootstraping application... ", error);
-                        store.commit("root-app/SET_APP_STATE", "error");
-                    }),
             watch: {
                 messagequery: (store, value) =>
                     store.dispatch("mail-webapp/loadMessageList", MessageQueryParam.parse(value))

@@ -1,4 +1,4 @@
-import { MailboxType } from "../../helpers/MailboxAdaptor";
+import { MailboxType } from "../../../model/mailbox";
 import remotefolder from "../../tests/data/remotefolder.json";
 import { FolderAdaptor } from "../helpers/FolderAdaptor";
 import { isDefault } from "~model/folder";
@@ -119,6 +119,20 @@ describe("Folder adaptors", () => {
         test("A sub folder cannot be a default folder ", () => {
             expect(isDefault(false, "INBOX", { type: MailboxType.USER })).not.toBeTruthy();
             expect(isDefault(false, "Root", { type: MailboxType.MAILSHARE })).not.toBeTruthy();
+        });
+    });
+    describe("rename", () => {
+        test("Rename a root folder", () => {
+            expect(FolderAdaptor.rename({ name: "name", path: "name" }, "newName")).toStrictEqual({
+                name: "newName",
+                path: "newName"
+            });
+        });
+        test("Rename a sub folder", () => {
+            expect(FolderAdaptor.rename({ name: "name", path: "parent/name" }, "newName")).toStrictEqual({
+                name: "newName",
+                path: "parent/newName"
+            });
         });
     });
 });

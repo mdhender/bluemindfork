@@ -4,7 +4,7 @@ import { RENAME_FOLDER } from "~actions";
 import {
     ADD_FOLDER,
     ADD_FLAG,
-    ADD_FOLDERS,
+    SET_MAILBOX_FOLDERS,
     DELETE_FLAG,
     REMOVE_FOLDER,
     REMOVE_MESSAGES,
@@ -17,7 +17,7 @@ export default {
     [ADD_FOLDER]: (state, { key, ...folder }) => {
         Vue.set(state, key, { ...folder, key });
     },
-    [ADD_FOLDERS]: (state, folders) => {
+    [SET_MAILBOX_FOLDERS]: (state, { folders }) => {
         folders.forEach(folder => {
             Vue.set(state, folder.key, folder);
         });
@@ -35,6 +35,7 @@ export default {
     [SET_FOLDER_EXPANDED]: (state, { key, expanded }) => {
         state[key].expanded = expanded;
     },
+    // Hooks
     [ADD_FLAG]: (state, { messages, flag }) => {
         if (flag === Flag.SEEN) {
             messages.forEach(({ folderRef: { key } }) => state[key] && state[key].unread--);

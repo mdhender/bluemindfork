@@ -1,6 +1,8 @@
 const { create } = require("../folder");
 const { MailboxType } = require("../mailbox");
+import injector from "@bluemind/inject";
 
+injector.register({ provide: "i18n", use: { t: n => n } });
 describe("Folder model functions", () => {
     describe("create", () => {
         test("root folder inside a user mailbox", () => {
@@ -148,6 +150,40 @@ describe("Folder model functions", () => {
                   "writable": true,
                 }
             `);
+        });
+    });
+    describe("isDefault", () => {
+        const user = { type: MailboxType.USER, remoteRef: {} };
+        const mailshare = { type: MailboxType.MAILSHARE, remoteRef: {} };
+        test("INBOX in user mailbox is a default folder", () => {
+            expect(create(undefined, "INBOX", undefined, user).default).toBeTruthy();
+        });
+        test("Sent in user mailbox is a default folder", () => {
+            expect(create(undefined, "Sent", undefined, user).default).toBeTruthy();
+        });
+        test("Drafts in user mailbox is a default folder", () => {
+            expect(create(undefined, "Drafts", undefined, user).default).toBeTruthy();
+        });
+        test("Trash in user mailbox is a default folder", () => {
+            expect(create(undefined, "Trash", undefined, user).default).toBeTruthy();
+        });
+        test("Junk in user mailbox is a default folder", () => {
+            expect(create(undefined, "Junk", undefined, user).default).toBeTruthy();
+        });
+        test("Outbox in user mailbox is a default folder", () => {
+            expect(create(undefined, "Outbox", undefined, user).default).toBeTruthy();
+        });
+        test("Any other root folder in user mailbox is not a folder", () => {
+            expect(create(undefined, "Any", undefined, user).default).not.toBeTruthy();
+            expect(create(undefined, "inboxe", undefined, user).default).not.toBeTruthy();
+        });
+        test("All root folder are default folder in mailshare mailbox", () => {
+            expect(create(undefined, "Any", undefined, mailshare).default).toBeTruthy();
+            expect(create(undefined, "INBOX", undefined, mailshare).default).toBeTruthy();
+        });
+        test("A sub folder cannot be a default folder ", () => {
+            expect(create(undefined, "INBOX", {}, user).default).not.toBeTruthy();
+            expect(create(undefined, "Root", {}, mailshare).default).not.toBeTruthy();
         });
     });
 });

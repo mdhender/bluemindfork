@@ -3,19 +3,19 @@
         <bm-button
             variant="inline-info-dark"
             class="collapse-tree-btn d-flex align-items-center pb-2 pt-3 border-0 pl-2 w-100"
-            :aria-controls="'collapse-tree-' + collapseName"
+            :aria-controls="'collapse-tree-' + name"
             :aria-expanded="isTreeExpanded"
             @click="isTreeExpanded = !isTreeExpanded"
         >
             <bm-icon :icon="isTreeExpanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" />
-            <span class="font-weight-bold">{{ collapseName }}</span>
+            <span class="font-weight-bold">{{ name }}</span>
         </bm-button>
-        <bm-collapse :id="'collapse-tree-' + collapseName" v-model="isTreeExpanded">
+        <bm-collapse :id="'collapse-tree-' + name" v-model="isTreeExpanded">
             <bm-tree
                 :tree="tree"
                 :selected="activeFolder"
-                node-id-key="key"
                 class="text-nowrap"
+                :children-property="FOLDER_GET_CHILDREN"
                 breakpoint="xl"
                 @toggle="key => SET_FOLDER_EXPANDED({ ...folders[key], expanded: !folders[key].expanded })"
                 @select="selectFolder"
@@ -36,7 +36,7 @@ import MailFolderInput from "../MailFolderInput";
 import MailFolderItem from "./MailFolderItem";
 import { SET_FOLDER_EXPANDED } from "~mutations";
 import { CREATE_FOLDER } from "~actions";
-import { MY_MAILBOX } from "~getters";
+import { MY_MAILBOX, FOLDER_GET_CHILDREN } from "~getters";
 
 export default {
     name: "MailFolderMyMailbox",
@@ -53,7 +53,7 @@ export default {
             type: Array,
             required: true
         },
-        collapseName: {
+        name: {
             type: String,
             required: true
         },
@@ -68,7 +68,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { MY_MAILBOX }),
+        ...mapGetters("mail", { MY_MAILBOX, FOLDER_GET_CHILDREN }),
         ...mapState("mail", ["folders", "activeFolder"])
     },
     methods: {

@@ -1,7 +1,7 @@
 import { ItemFlag } from "@bluemind/core.container.api";
 import api from "../api/apiFolders";
 import {
-    ADD_FOLDERS,
+    SET_MAILBOX_FOLDERS,
     ADD_FOLDER,
     //TODO: change mutation names
     REMOVE_FOLDER as MUTATION_REMOVE_FOLDER,
@@ -29,7 +29,7 @@ const fetchFolders = async function ({ commit }, mailbox) {
         .filter(item => !item.flags.includes(ItemFlag.Deleted))
         .sort((a, b) => a.value.fullName.toLowerCase().localeCompare(b.value.fullName.toLowerCase()))
         .map(item => FolderAdaptor.fromMailboxFolder(item, mailbox));
-    commit(ADD_FOLDERS, folders);
+    commit(SET_MAILBOX_FOLDERS, { folders, mailbox });
 };
 
 const createFolderHierarchy = async function ({ commit, getters, dispatch }, { name, parent, mailbox }) {

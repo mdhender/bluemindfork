@@ -71,7 +71,7 @@ export default {
         ...mapActions("mail", { EMPTY_FOLDER, REMOVE_FOLDER, MARK_FOLDER_AS_READ }),
         ...mapMutations("mail", { ADD_FOLDER, TOGGLE_EDIT_FOLDER, SET_FOLDER_EXPANDED }),
         async deleteFolder() {
-            const modalTitleKey = this.FOLDER_HAS_CHILDREN(this.folder.key)
+            const modalTitleKey = this.FOLDER_HAS_CHILDREN(this.folder)
                 ? "mail.folder.delete.dialog.question.with_subfolders"
                 : "mail.folder.delete.dialog.question";
             const confirm = await this.$bvModal.msgBoxConfirm(this.$t(modalTitleKey, { name: this.folder.name }), {

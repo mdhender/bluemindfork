@@ -44,7 +44,6 @@ function fetchPerUserUnread(folder) {
 
 function getFlatFolders() {
     return store.getters["mail/" + MY_MAILBOX_FOLDERS]
-        .map(folderKey => store.state.mail.folders[folderKey])
         .filter(folder => folder.parent === null)
         .map(addOptions({ priority: 4 }))
         .concat(
