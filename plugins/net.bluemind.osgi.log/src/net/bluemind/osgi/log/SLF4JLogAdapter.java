@@ -57,26 +57,15 @@ public class SLF4JLogAdapter {
 			private void log(int depth, FrameworkLogEntry entry) {
 
 				switch (entry.getSeverity()) {
-				case FrameworkLogEntry.INFO:
-					logger.info(entry.getMessage());
-					break;
 				case FrameworkLogEntry.ERROR:
 					logger.error(entry.getMessage());
 					break;
 				case FrameworkLogEntry.WARNING:
 					logger.warn(entry.getMessage());
-
 					break;
-				case FrameworkLogEntry.CANCEL:
+				default:
 					logger.info(entry.getMessage());
-
 					break;
-
-				case FrameworkLogEntry.OK:
-					logger.info(entry.getMessage());
-
-					break;
-
 				}
 				FrameworkLogEntry[] children = entry.getChildren();
 				if (children != null) {
