@@ -12,13 +12,11 @@ BMNGINX="1.18.0-bluemind98"
 BMPHP="5.6.40-bluemind98"
 BMPHPMEMCACHE="3.0.8-bluemind98"
 
-
 # tick
-TELEGRAF="1.14.4.bm1-1"
-KAPACITOR="1.5.4.bm1~8f674e3b-0"
-CHRONOGRAF="1.8.4.bm1~f1647abb4"
-INFLUXDB="1.8.0.bm1~247d383a3"
-
+TELEGRAF="1.17.0-0"
+KAPACITOR="1.5.7.bm1~f52824ca-0"
+CHRONOGRAF="1.8.9.1.bm1~d5bd22de3"
+INFLUXDB="1.8.3.bm1~247d383a3"
 
 # PostgreSQL
 # Use EXTDEPS-getlastpg.sh if you need to modify (requires python3 + requests for RHEL)
