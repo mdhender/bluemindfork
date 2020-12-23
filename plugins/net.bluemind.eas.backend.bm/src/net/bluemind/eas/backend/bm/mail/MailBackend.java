@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,8 +53,11 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventCounter;
+import net.bluemind.calendar.api.VEventCounter.CounterOriginator;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
@@ -329,7 +333,8 @@ public class MailBackend extends CoreConnect {
 			} else {
 
 				// BM-4930, ACMS-196, and many more...
-				if (infos.method == ITIPMethod.REPLY || infos.method == ITIPMethod.CANCEL) {
+				if (infos.method == ITIPMethod.REPLY || infos.method == ITIPMethod.CANCEL
+						|| infos.method == ITIPMethod.COUNTER) {
 					logger.info(" **** Device {} sends IMIP email, method {}. user {}", bs.getDevId(), infos.method,
 							bs.getUser().getLoginAtDomain());
 					for (ICalendarElement element : infos.iCalendarElements) {
@@ -347,6 +352,7 @@ public class MailBackend extends CoreConnect {
 										VEventOccurrence occu = event.value.occurrence(uOccurr.recurid);
 										if (occu != null) {
 											updateStatus(occu, attendee);
+											updateCounter(infos, attendee, event, occu, element);
 											cs.update(infos.uid, event.value, true);
 										} else {
 											logger.warn("did not found in {} occurrence with recurid {}", infos.uid,
@@ -354,6 +360,8 @@ public class MailBackend extends CoreConnect {
 										}
 									} else {
 										updateStatus(event.value.main, attendee);
+										updateCounter(infos, attendee, event,
+												VEventOccurrence.fromEvent(event.value.main, null), element);
 										cs.update(infos.uid, event.value, true);
 									}
 								} else {
@@ -371,6 +379,34 @@ public class MailBackend extends CoreConnect {
 			}
 		} catch (Exception e) {
 			throw new ServerErrorException(e);
+		}
+	}
+
+	private void updateCounter(IMIPInfos infos, Attendee attendee, ItemValue<VEventSeries> event,
+			VEventOccurrence occurrence, ICalendarElement element) {
+		if (infos.method == ITIPMethod.COUNTER || attendee.counter != null) {
+			VEventCounter counter = new VEventCounter();
+			counter.originator = CounterOriginator.from(attendee.commonName, attendee.mailto);
+
+			// fix dates
+			VEvent vevent = (VEvent) element;
+			if (attendee.counter != null) {
+				long duration = BmDateTimeWrapper.toTimestamp(occurrence.dtend.iso8601, occurrence.dtend.timezone)
+						- BmDateTimeWrapper.toTimestamp(occurrence.dtstart.iso8601, occurrence.dtstart.timezone);
+
+				occurrence.dtstart = BmDateTimeWrapper.fromTimestamp(
+						BmDateTimeWrapper.toTimestamp(attendee.counter.iso8601, attendee.counter.timezone));
+				occurrence.dtend = BmDateTimeWrapper.fromTimestamp(
+						BmDateTimeWrapper.toTimestamp(occurrence.dtstart.iso8601, occurrence.dtstart.timezone)
+								+ duration);
+			} else {
+				occurrence.dtstart = vevent.dtstart;
+				occurrence.dtend = vevent.dtend;
+			}
+
+			counter.counter = occurrence;
+
+			event.value.counters = Arrays.asList(counter);
 		}
 	}
 

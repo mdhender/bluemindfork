@@ -55,6 +55,7 @@ public class MSEvent implements IApplicationData {
 	private Date exceptionStartTime;
 	private boolean deletedException;
 	private int bmUID;
+	private boolean disallowNewTimeProposal;
 
 	public MSEvent() {
 		this.attendees = new HashSet<MSAttendee>();
@@ -244,6 +245,14 @@ public class MSEvent implements IApplicationData {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public boolean isDisallowNewTimeProposal() {
+		return disallowNewTimeProposal;
+	}
+
+	public void setDisallowNewTimeProposal(boolean disallowNewTimeProposal) {
+		this.disallowNewTimeProposal = disallowNewTimeProposal;
 	}
 
 }

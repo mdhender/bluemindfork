@@ -469,6 +469,25 @@ public class VEventServiceHelperTest {
 		assertEquals(rawOffset, ICal4jHelper.getTimeZoneRegistry().getTimeZone("Europe/Paris").getRawOffset());
 	}
 
+	@Test
+	public void counter_iOS() throws Exception {
+		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("counter_ios.ics");
+		String ics = IOUtils.toString(in);
+		in.close();
+
+		List<ItemValue<VEventSeries>> events = toEvents(ics);
+
+		assertEquals(1, events.size());
+		ItemValue<VEventSeries> evt = events.get(0);
+		assertEquals(1, evt.value.main.attendees.size());
+
+		Attendee attendee = evt.value.main.attendees.get(0);
+		assertNotNull(attendee.counter);
+
+		assertEquals("2020-12-25T08:30:00.000", attendee.counter.iso8601);
+
+	}
+
 	private List<ItemValue<VEventSeries>> toEvents(String ics) {
 		List<ItemValue<VEventSeries>> ret = new LinkedList<>();
 		Consumer<ItemValue<VEventSeries>> consumer = series -> ret.add(series);

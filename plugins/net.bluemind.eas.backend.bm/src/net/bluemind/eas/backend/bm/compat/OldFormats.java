@@ -172,6 +172,8 @@ public class OldFormats {
 			cr.responseType = ResponseType.Organizer;
 		}
 
+		cr.disallowNewTimeProposal = event.isDisallowNewTimeProposal();
+
 		return cr;
 
 	}

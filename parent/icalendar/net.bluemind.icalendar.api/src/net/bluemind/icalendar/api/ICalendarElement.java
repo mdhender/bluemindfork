@@ -198,6 +198,9 @@ public class ICalendarElement {
 		 */
 		public String responseComment;
 
+		// iOS "counter" TO-ALL-PROPOSED-NEW-TIME
+		public BmDateTime counter = null;
+
 		public static Attendee create(CUType cuType, String member, Role role, ParticipationStatus partStatus,
 				Boolean rsvp, String delTo, String delFrom, String sentBy, String commonName, String dir, String lang,
 				String uri, String mailto) {

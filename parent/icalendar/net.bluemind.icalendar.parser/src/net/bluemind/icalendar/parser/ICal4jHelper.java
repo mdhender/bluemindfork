@@ -20,6 +20,7 @@ package net.bluemind.icalendar.parser;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +36,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 
 import net.bluemind.attachment.api.AttachedFile;
@@ -558,9 +560,35 @@ public class ICal4jHelper<T extends ICalendarElement> {
 						rsvp, delTo, delFrom, sentBy, commonName, dir, lang, null, mailto);
 
 				Parameter responseComment = prop.getParameter("X-RESPONSE-COMMENT");
-				if (responseComment != null) {
+				if (isParamNotNull(responseComment)) {
 					attendee.responseComment = responseComment.getValue();
 				}
+
+				// iOS style
+				Parameter counter = prop.getParameter("TO-ALL-PROPOSED-NEW-TIME");
+				if (isParamNotNull(counter)) {
+					// TO-ALL-PROPOSED-NEW-TIME=DTSTART:20201223T100005Z;STATUS:;
+
+					Splitter.on(";").split(counter.getValue()).forEach(val -> {
+						if (val.startsWith("DTSTART:")) {
+							Iterator<String> dtstartIt = Splitter.on(":").split(val).iterator();
+							dtstartIt.next();
+							String dtstart = dtstartIt.next();
+
+							DtStart counterDtStart = new DtStart();
+							counterDtStart.getParameters().add(Value.DATE_TIME);
+							try {
+								counterDtStart.setValue(dtstart);
+								attendee.counter = IcalConverter.convertToDateTime(counterDtStart.getDate(), null);
+							} catch (ParseException e) {
+								logger.warn("Failed to parse DTSTART {}", dtstart);
+							}
+
+						}
+					});
+
+				}
+
 				attendees.add(attendee);
 			}
 			return attendees;

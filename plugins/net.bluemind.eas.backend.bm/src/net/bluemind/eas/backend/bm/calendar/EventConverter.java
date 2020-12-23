@@ -182,6 +182,8 @@ public class EventConverter {
 
 		}
 
+		mse.setDisallowNewTimeProposal(!vevent.acceptCounters);
+
 		return mse;
 
 	}
