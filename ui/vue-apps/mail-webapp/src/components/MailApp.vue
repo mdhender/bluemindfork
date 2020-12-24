@@ -58,18 +58,12 @@
             >
                 <mail-folder-sidebar @toggle-folders="toggleFolders" />
             </section>
-            <multipane class="w-100" layout="vertical">
-                <div
-                    class="pl-lg-2 px-0 d-lg-block mail-message-list-div"
-                    :class="hideListInResponsiveMode ? 'd-none' : ''"
-                >
-                    <mail-message-list class="h-100" />
-                </div>
-                <multipane-resizer />
-                <div class="overflow-auto flex-grow-1">
-                    <router-view />
-                </div>
-            </multipane>
+            <bm-col cols="12" lg="3" class="pl-lg-2 px-0 d-lg-block" :class="hideListInResponsiveMode ? 'd-none' : ''">
+                <mail-message-list class="h-100" />
+            </bm-col>
+            <bm-col lg="7" class="overflow-auto d-flex flex-column">
+                <router-view />
+            </bm-col>
         </bm-row>
         <new-message mobile :class="hideListInResponsiveMode ? 'd-none' : 'd-block'" />
     </main>
@@ -90,7 +84,6 @@ import MailSearchForm from "./MailSearchForm";
 import MessagesOptionsForMobile from "./MessagesOptionsForMobile";
 import NewMessage from "./NewMessage";
 import { MULTIPLE_MESSAGE_SELECTED } from "~getters";
-import { Multipane, MultipaneResizer } from "vue-multipane";
 
 export default {
     name: "MailApp",
@@ -106,8 +99,6 @@ export default {
         MailSearchForm,
         MailToolbar,
         MessagesOptionsForMobile,
-        Multipane,
-        MultipaneResizer,
         NewMessage
     },
     mixins: [MakeUniq],
@@ -216,28 +207,6 @@ export default {
         right: $sp-2;
         height: 4em;
         width: 4em;
-    }
-
-    .mail-message-list-div {
-        min-width: 100%;
-        max-width: 100%;
-        width: 100%;
-    }
-
-    .multipane-resizer {
-        visibility: hidden;
-    }
-
-    /* Large devices (laptops/desktops, 992px and up) */
-    @media only screen and (min-width: 992px) {
-        .mail-message-list-div {
-            min-width: 20%;
-            max-width: 70%;
-            width: 30%;
-        }
-        .multipane-resizer {
-            visibility: visible;
-        }
     }
 }
 </style>
