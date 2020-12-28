@@ -41,10 +41,14 @@ public class FileHostingRoleValidator implements IRoleValidator {
 			return false;
 		}
 
-		List<Assignment> assignments = context.provider().instance(IServer.class, InstallationId.getIdentifier())
-				.getAssignments(domain);
+		if (info.info.equals("BlueMind FileHosting")) {
+			List<Assignment> assignments = context.provider().instance(IServer.class, InstallationId.getIdentifier())
+					.getAssignments(domain);
 
-		return assignments.stream().anyMatch(assignment -> assignment.tag.equals("filehosting/data"));
+			return assignments.stream().anyMatch(assignment -> assignment.tag.equals("filehosting/data"));
+		} else {
+			return true;
+		}
 	}
 
 	@Override
