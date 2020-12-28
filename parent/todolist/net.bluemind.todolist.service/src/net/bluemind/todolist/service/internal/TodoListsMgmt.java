@@ -97,8 +97,13 @@ public class TodoListsMgmt implements ITodoListsMgmt, IInCoreTodoListsMgmt {
 
 				for (String uid : all) {
 					IServerTaskMonitor subMonitor = monitor.subWork("todolist [" + uid + "]", 1);
+					try {
+						reindex(uid, subMonitor);
+					} catch (ServerFault sf) {
+						logger.error("Failed to reindex todolist {}: {}", uid, sf.getMessage());
+						monitor.log("Failed to reindex todolist " + uid);
+					}
 
-					reindex(uid, subMonitor);
 				}
 			}
 		};

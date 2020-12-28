@@ -187,7 +187,13 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 
 		for (String uid : all) {
 			IServerTaskMonitor subMonitor = monitor.subWork("addressbook [" + uid + "]", 1);
-			reindex(uid, subMonitor);
+			try {
+				reindex(uid, subMonitor);
+			} catch (ServerFault sf) {
+				logger.error("Failed to reindex AB {}: {}", uid, sf.getMessage());
+				monitor.log("Failed to reindex AB " + uid);
+			}
+
 		}
 
 	}
@@ -205,8 +211,12 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 		for (ContainerDescriptor c : containers) {
 			if (domainUid == null || domainUid.equals(c.domainUid)) {
 				IServerTaskMonitor subMonitor = monitor.subWork("addressbook [" + c.uid + "]", 1);
-
-				reindex(c.uid, subMonitor);
+				try {
+					reindex(c.uid, subMonitor);
+				} catch (ServerFault sf) {
+					logger.error("Failed to reindex AB {}: {}", c.uid, sf.getMessage());
+					monitor.log("Failed to reindex AB " + c.uid);
+				}
 			}
 		}
 	}

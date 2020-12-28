@@ -111,7 +111,13 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 
 		for (String uid : all) {
 			IServerTaskMonitor subMonitor = monitor.subWork("calendar [" + uid + "]", 1);
-			reindex(uid, subMonitor);
+			try {
+				reindex(uid, subMonitor);
+			} catch (ServerFault sf) {
+				logger.error("Failed to reindex calendar {}: {}", uid, sf.getMessage());
+				monitor.log("Failed to reindex calendar " + uid);
+			}
+
 		}
 	}
 
@@ -128,7 +134,13 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 		for (ContainerDescriptor c : containers) {
 			if (domainUid.equals(c.uid)) {
 				IServerTaskMonitor subMonitor = monitor.subWork("calendar [" + c.uid + "]", 1);
-				reindex(c.uid, subMonitor);
+				try {
+					reindex(c.uid, subMonitor);
+				} catch (ServerFault sf) {
+					logger.error("Failed to reindex calendar {}: {}", c.uid, sf.getMessage());
+					monitor.log("Failed to reindex calendar " + c.uid);
+				}
+
 			}
 		}
 
