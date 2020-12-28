@@ -35,25 +35,28 @@ public class PostInstTask implements IServerTask {
 
 	@Override
 	public void run(IServerTaskMonitor monitor) throws Exception {
-		monitor.begin(1, "Running post-installation upgraders...");
+		monitor.begin(2, "Running post-installation upgraders...");
+
+		monitor.progress(1, "Post-installation tasks found");
 
 		List<PostInst> postinst = PostInstTasks.postInstJavaUpdaters();
+		IServerTaskMonitor upgraderMonitor = monitor.subWork(postinst.size());
+
 		try {
-			postinst.stream().forEach(
-					upgrader -> runUpgrader(monitor.subWork(upgrader.getClass().getName(), postinst.size()), upgrader));
+			postinst.stream().forEach(upgrader -> runUpgrader(upgraderMonitor, upgrader));
 		} catch (ServerFault sf) {
 			logger.error(sf.getMessage(), sf);
-			monitor.end(false, "upgrader failed", sf.getMessage());
-			throw sf;
+			monitor.end(false, "Post-installation upgrade failed!", "");
 		}
-		monitor.end(true, "upgraders finished successfully", null);
 	}
 
-	private void runUpgrader(IServerTaskMonitor submonitor, PostInst upgrader) {
-		UpdateResult updateResult = upgrader.executeUpdate(submonitor);
+	private void runUpgrader(IServerTaskMonitor monitor, PostInst upgrader) {
+		UpdateResult updateResult = upgrader.executeUpdate(monitor);
 		if (updateResult.equals(UpdateResult.failed())) {
-			throw new ServerFault("upgrader " + upgrader.getClass().getName() + " failed");
+			monitor.end(false, String.format("Post-installations upgrade %s fail!", upgrader.getClass().getName()), "");
+			throw new ServerFault();
 		}
-		submonitor.end(true, String.format("upgrader %s finished successfully", upgrader.getClass().getName()), null);
+
+		monitor.progress(1, String.format("Post-installation upgrade %s success!", upgrader.getClass().getName()));
 	}
 }

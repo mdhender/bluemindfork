@@ -73,7 +73,7 @@ public class InstallationUpgradeTask implements IServerTask {
 		SchemaUpgrade.splitAndExecuteUpgraders(store, handledActions, upgraders,
 				list -> partialUpgrade(list, handledActions, store, monitor));
 
-		monitor.end(true, "Core upgrade complete", "");
+		monitor.end(true, "Core upgrade complete.", "");
 		logger.info("Core upgrade ended");
 		notifyUpgradeStatus("core.upgrade.end");
 	}
@@ -81,23 +81,25 @@ public class InstallationUpgradeTask implements IServerTask {
 	private void partialUpgrade(List<Updater> upgraders, Set<UpdateAction> handledActions, UpgraderStore store,
 			IServerTaskMonitor monitor) {
 		logger.info("Schema update path contains {} updater(s)", upgraders.size());
+		monitor.log("Starting schema upgrades....");
 
 		List<Updater> phase1 = upgraders.stream().filter(u -> !u.afterSchemaUpgrade()).collect(Collectors.toList());
-		List<Updater> phase2 = upgraders.stream().filter(Updater::afterSchemaUpgrade).collect(Collectors.toList());
+		List<Updater> phase2 = upgraders.stream().filter(u -> u.afterSchemaUpgrade()).collect(Collectors.toList());
 
 		for (Entry<String, DataSource> mbDS : ServerSideServiceProvider.mailboxDataSource.entrySet()) {
-			doUpgradeForDataSource(Database.SHARD, mbDS.getKey(), mbDS.getValue(), true,
-					monitor.subWork(mbDS.getKey(), 1), store, phase1, Collections.emptyList(), handledActions);
+			doUpgradeForDataSource(Database.SHARD, mbDS.getKey(), mbDS.getValue(), true, monitor.subWork(1), store,
+					phase1, Collections.emptyList(), handledActions);
 		}
-		doUpgradeForDataSource(Database.DIRECTORY, "master", pool, false, monitor.subWork("master", 1), store, phase1,
-				phase2, handledActions);
+		doUpgradeForDataSource(Database.DIRECTORY, "master", pool, false, monitor.subWork(1), store, phase1, phase2,
+				handledActions);
+
 	}
 
 	private void checkDatabaseStatus(UpgraderStore store) throws Exception {
 		boolean needsMigration = store.needsMigration();
 		if (needsMigration) {
 			List<String> servers = new ArrayList<>(ServerSideServiceProvider.mailboxDataSource.entrySet().stream()
-					.map(Entry::getKey).collect(Collectors.toList()));
+					.map(s -> s.getKey()).collect(Collectors.toList()));
 			servers.add("master");
 			UpgraderMigration.migrate(store, from, servers);
 		}
@@ -112,7 +114,7 @@ public class InstallationUpgradeTask implements IServerTask {
 		SchemaUpgrade schemaUpgrader = new SchemaUpgrade(database, server, pool, onlySchema, store);
 		UpdateResult schemaUpgrade = schemaUpgrader.schemaUpgrade(monitor, report, phase1, phase2, handledActions);
 		if (schemaUpgrade.equals(UpdateResult.failed())) {
-			throw new ServerFault("Upgrade failed");
+			throw new ServerFault("Upgrade failed !");
 		}
 	}
 

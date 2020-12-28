@@ -58,16 +58,9 @@ public class SqlUpdater implements Updater {
 	}
 
 	@Override
-	public String name() {
-		return this.toString();
-	}
-
-	public String toString() {
-		return Updater.super.name() + " SQL:" + this.file.getFile();
-	}
-
-	@Override
 	public UpdateResult executeUpdate(IServerTaskMonitor monitor, DataSource pool, Set<UpdateAction> handledActions) {
+		monitor.log("On SQL script " + file.toString());
+
 		String schemaValue = null;
 		try (InputStream in = file.openStream()) {
 			byte[] b = ByteStreams.toByteArray(in);
@@ -83,22 +76,27 @@ public class SqlUpdater implements Updater {
 			try {
 				st.execute(schemaValue);
 				con.commit();
-				return UpdateResult.ok();
 			} catch (Exception e) {
 				con.rollback();
 				throw e;
-			} finally {
+			}
+			finally {
 				con.setAutoCommit(true);
 			}
 		} catch (Exception e) {
 			monitor.log(e.getMessage());
-			logger.error("error during execution of script {}", file, e);
+			logger.error("error during execution of script " + file, e);
 			if (!ignoreErrors) {
 				throw new ServerFault(e);
 			}
 		}
 
 		return UpdateResult.noop();
+	}
+
+	public String toString() {
+		return "SQL script (ignoreErrors: " + ignoreErrors + ") v" + database + "." + date.toString() + "." + sequence
+				+ " @ " + file.toString();
 	}
 
 	@Override

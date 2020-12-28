@@ -49,6 +49,7 @@ public class TickConfigurationService implements IInCoreTickConfiguration {
 
 	public TickConfigurationService(BmContext context) {
 		this.context = context;
+		logger.debug("ctx {}", this.context);
 	}
 
 	@Override
@@ -64,11 +65,11 @@ public class TickConfigurationService implements IInCoreTickConfiguration {
 		List<ItemValue<Server>> allServers = Topology.get().nodes();
 		List<TickInputConfigurator> hooks = TickConfigurators.configurators();
 
-		IServerTaskMonitor sub = monitor.subWork("tick", allServers.size());
+		IServerTaskMonitor sub = monitor.subWork(allServers.size());
 		for (ItemValue<Server> server : allServers) {
 			for (String tag : server.value.tags) {
 				for (TickInputConfigurator h : hooks) {
-					h.setMonitor(monitor.subWork(server.value.address(), 1));
+					h.setMonitor(sub);
 					h.onServerTagged(ctx, server, tag);
 					h.setMonitor(null);
 				}
@@ -79,26 +80,25 @@ public class TickConfigurationService implements IInCoreTickConfiguration {
 			} catch (ServerFault sf) {
 				// node is not running on localhost in unit tests...
 			}
-			sub.progress(1, server.value.address() + " configured");
+			sub.progress(1, server.value.address() + " handled.");
 		}
 		CountDownLatch reconf = new CountDownLatch(2);
 		final IServerTaskMonitor kapa = monitor.subWork("kapacitor", 1);
 		VertxPlatform.eventBus().request("kapacitor.configuration", new JsonObject(),
 				(AsyncResult<Message<JsonObject>> reply) -> {
 					reconf.countDown();
-					kapa.progress(1, "Kapacitor reconfigured");
+					kapa.progress(1, "Kapacitor reconfigured.");
 				});
 		final IServerTaskMonitor chrono = monitor.subWork("chronograf", 1);
 		VertxPlatform.eventBus().request("chronograf.configuration", new JsonObject(),
 				(AsyncResult<Message<JsonObject>> reply) -> {
 					reconf.countDown();
-					chrono.progress(1, "Chronograf reconfigured");
+					chrono.progress(1, "Chronograf reconfigured.");
 				});
 		try {
 			reconf.await(1, TimeUnit.MINUTES);
 		} catch (InterruptedException e) {
 			logger.error(e.getMessage(), e);
-			Thread.currentThread().interrupt();
 		}
 	}
 
