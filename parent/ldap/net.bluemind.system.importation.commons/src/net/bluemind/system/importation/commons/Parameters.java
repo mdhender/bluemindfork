@@ -131,11 +131,7 @@ public class Parameters {
 		}
 
 		public List<Host> getLdapHost() {
-			if (host.isPresent()) {
-				return Arrays.asList(host.get());
-			}
-
-			return sortLdapHosts(getAlternativeHosts());
+			return host.map(h -> Arrays.asList(h)).orElseGet(() -> sortLdapHosts(getAlternativeHosts()));
 		}
 
 		protected abstract List<Host> getAlternativeHosts();
