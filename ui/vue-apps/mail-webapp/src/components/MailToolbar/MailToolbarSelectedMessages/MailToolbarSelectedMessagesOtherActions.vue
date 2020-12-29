@@ -21,7 +21,7 @@
 <script>
 import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
 import { mapState } from "vuex";
-import RemoveMixin from "../../../store/mixins/RemoveMixin";
+import { RemoveMixin } from "~mixins";
 
 export default {
     name: "MailToolbarConsultMessageOtherActions",

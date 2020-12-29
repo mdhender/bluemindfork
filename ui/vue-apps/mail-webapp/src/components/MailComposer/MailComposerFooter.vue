@@ -67,8 +67,8 @@ import { DateComparator } from "@bluemind/date";
 import { BmButton, BmIcon, BmDropdown, BmDropdownItemToggle } from "@bluemind/styleguide";
 
 import { ComposerActionsMixin } from "~mixins";
-import { MessageStatus } from "../../model/message";
-import { isInternalIdFaked } from "../../model/draft";
+import { MessageStatus } from "~model/message";
+import { isInternalIdFaked } from "~model/draft";
 
 export default {
     name: "MailComposerFooter",

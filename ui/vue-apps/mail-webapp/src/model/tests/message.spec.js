@@ -1,36 +1,53 @@
-import { create, isEmpty } from "../message";
+import { create, createOnlyMetadata, updateKey } from "../message";
+import MessageAdaptor from "../../store/messages/helpers/MessageAdaptor";
 
-const emptyContent = "";
+describe("Message model", () => {
+    test("message model and message adaptor share same properties", () => {
+        const emptyRemote = { value: { body: { headers: [], recipients: [], structure: { mime: "" } } } };
 
-test("check emptiness (basic)", () => {
-    const message = create();
-    expect(isEmpty(message, emptyContent)).toBe(true);
-});
-test("check content emptiness", () => {
-    const message = create();
-    const content = '<div id="bm-composer-content-wrapper"><style></style></div>';
-    expect(isEmpty(message, content)).toBe(true);
-    expect(isEmpty(message, emptyContent)).toBe(true);
-});
-test("check recipients emptiness", () => {
-    const message = create();
-    message.to = ["aaa@aaa.aaa"];
-    expect(isEmpty(message, emptyContent)).toBe(false);
-    message.to = [];
-    expect(isEmpty(message, emptyContent)).toBe(true);
-    message.cc = ["aaa@aaa.aaa"];
-    expect(isEmpty(message, emptyContent)).toBe(false);
-    message.cc = [];
-    expect(isEmpty(message, emptyContent)).toBe(true);
-    message.bcc = ["aaa@aaa.aaa"];
-    expect(isEmpty(message, emptyContent)).toBe(false);
-});
-test("check subject emptiness", () => {
-    const message = create();
-    message.subject = "Hello world";
-    expect(isEmpty(message, emptyContent)).toBe(false);
-    message.subject = "";
-    expect(isEmpty(message, emptyContent)).toBe(true);
-    message.subject = " ";
-    expect(isEmpty(message, emptyContent)).toBe(true);
+        const message = create();
+        const adapted = MessageAdaptor.fromMailboxItem(emptyRemote, {});
+
+        const messageProperties = Object.keys(message).sort();
+        const adaptedProperties = Object.keys(adapted).sort();
+
+        expect(messageProperties.length).toBe(adaptedProperties.length);
+        messageProperties.forEach((prop, index) => {
+            expect(prop).toBe(adaptedProperties[index]);
+        });
+    });
+
+    test("update key when it's null", () => {
+        const message = create();
+
+        const folderRef = { key: "folderKey", uid: "folderUid" };
+        const messageWithKey = updateKey(message, 123, folderRef);
+
+        expect(messageWithKey.remoteRef.internalId).toBe(123);
+        expect(messageWithKey.folderRef.key).toBe("folderKey");
+        expect(messageWithKey.folderRef.uid).toBe("folderUid");
+    });
+
+    test("update key when it's already set", () => {
+        const oldInternalId = 123;
+        const oldFolderKey = "oldFolderKey";
+        const oldFolderUid = "oldFolderUid";
+
+        const message = createOnlyMetadata({
+            internalId: oldInternalId,
+            folder: { key: oldFolderKey, uid: oldFolderUid }
+        });
+        expect(message.remoteRef.internalId).toBe(oldInternalId);
+        expect(message.folderRef.key).toBe(oldFolderKey);
+        expect(message.folderRef.uid).toBe(oldFolderUid);
+
+        const newInternalId = 321;
+        const newFolderKey = "newFolderKey";
+        const newFolderUid = "newFolderUid";
+
+        const updatedMessage = updateKey(message, newInternalId, { key: newFolderKey, uid: newFolderUid });
+        expect(updatedMessage.remoteRef.internalId).toBe(newInternalId);
+        expect(updatedMessage.folderRef.key).toBe(newFolderKey);
+        expect(updatedMessage.folderRef.uid).toBe(newFolderUid);
+    });
 });

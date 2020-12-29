@@ -24,8 +24,8 @@ import Vuex from "vuex";
 import WebsocketClient from "@bluemind/sockjs";
 import { Flag } from "@bluemind/email";
 import MessageAdaptor from "../../store/messages/helpers/MessageAdaptor";
-import { createOnlyMetadata } from "../../model/message";
-import { create as createAttachment } from "../../model/attachment";
+import { createOnlyMetadata } from "~model/message";
+import { create as createAttachment } from "~model/attachment";
 import {
     CURRENT_MAILBOX,
     MAILSHARE_FOLDERS,
@@ -207,7 +207,10 @@ describe("[MailWebAppStore] Vuex store", () => {
             },
             messages: {},
             messageList: {},
-            selection: []
+            selection: [],
+            activeMessage: {
+                partsDataByAddress: {}
+            }
         };
 
         const folderUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";

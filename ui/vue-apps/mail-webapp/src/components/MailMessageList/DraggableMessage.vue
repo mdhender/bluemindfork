@@ -25,7 +25,7 @@ import { mapGetters, mapState } from "vuex";
 import MailMessageListItemShadow from "./MailMessageListItemShadow";
 import MessageListItem from "./MessageListItem";
 import { MESSAGE_IS_SELECTED } from "~getters";
-import MoveMixin from "../../store/mixins/MoveMixin";
+import { MoveMixin } from "~mixins";
 
 export default {
     name: "DraggableMessage",

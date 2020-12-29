@@ -21,7 +21,7 @@
 import ItemUri from "@bluemind/item-uri";
 import MailFolderIcon from "../MailFolderIcon";
 import { mapGetters, mapState } from "vuex";
-import { MailboxType } from "../../model/mailbox";
+import { MailboxType } from "~model/mailbox";
 import { MESSAGE_IS_SELECTED } from "~getters";
 
 export default {

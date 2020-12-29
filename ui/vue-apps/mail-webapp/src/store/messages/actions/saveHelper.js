@@ -2,10 +2,10 @@ import { html2text, sanitizeHtml } from "@bluemind/html-utils";
 import { InlineImageHelper, PartsBuilder } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 
-import { isInternalIdFaked } from "../../../model/draft";
-import { AttachmentStatus, isAttachment } from "../../../model/attachment";
-import { MessageHeader, MessageStatus } from "../../../model/message";
-import { setAddresses } from "../../../model/part";
+import { isInternalIdFaked } from "~model/draft";
+import { AttachmentStatus, isAttachment } from "~model/attachment";
+import { MessageHeader, MessageStatus } from "~model/message";
+import { setAddresses } from "~model/part";
 import {
     RESET_ATTACHMENTS_FORWARDED,
     SET_MESSAGE_DATE,
@@ -14,6 +14,7 @@ import {
     SET_MESSAGE_IMAP_UID,
     SET_MESSAGES_STATUS,
     SET_SAVED_INLINE_IMAGES,
+    SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES,
     SET_ATTACHMENT_ADDRESS,
     SET_ATTACHMENT_STATUS,
     SET_MESSAGE_PREVIEW
@@ -73,6 +74,9 @@ async function prepareDraft(context, service, draft, messageCompose) {
 }
 
 async function createEmlOnServer(context, draft, service, messageCompose, structure) {
+    const inlinePartsByCapabilities = MessageAdaptor.computeParts(structure).inlinePartsByCapabilities;
+    context.commit(SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES, { key: draft.key, inlinePartsByCapabilities });
+
     const { saveDate, headers } = forceMailRewriteOnServer(draft);
     context.commit(SET_MESSAGE_HEADERS, { messageKey: draft.key, headers });
     context.commit(SET_MESSAGE_DATE, { messageKey: draft.key, date: saveDate });

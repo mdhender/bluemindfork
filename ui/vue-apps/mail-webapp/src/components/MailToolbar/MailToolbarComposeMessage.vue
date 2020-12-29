@@ -54,7 +54,7 @@ import { mapState } from "vuex";
 import { BmButton, BmIcon } from "@bluemind/styleguide";
 
 import { ComposerActionsMixin } from "~mixins";
-import { MessageStatus } from "../../model/message";
+import { MessageStatus } from "~model/message";
 
 export default {
     name: "MailToolbarComposeMessage",

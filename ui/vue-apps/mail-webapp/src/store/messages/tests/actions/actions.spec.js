@@ -8,7 +8,7 @@ import { MockMailboxItemsClient, MockItemsTransferClient } from "@bluemind/test-
 
 import messageStore from "../../index";
 import MessageAdaptor from "../../helpers/MessageAdaptor";
-import { MessageStatus, createOnlyMetadata } from "../../../../model/message";
+import { MessageStatus, createOnlyMetadata } from "~model/message";
 import { ADD_MESSAGES } from "~mutations";
 import {
     ADD_FLAG,

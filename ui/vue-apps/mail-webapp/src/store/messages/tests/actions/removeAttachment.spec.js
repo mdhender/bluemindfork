@@ -2,10 +2,10 @@ import ServiceLocator from "@bluemind/inject";
 import { MockMailboxItemsClient } from "@bluemind/test-utils";
 
 import removeAttachment from "../../actions/removeAttachment";
-import { AttachmentStatus } from "../../../../model/attachment";
+import { AttachmentStatus } from "~model/attachment";
 import { MY_DRAFTS } from "~getters";
 import { REMOVE_ATTACHMENT } from "~mutations";
-import { SAVE_MESSAGE } from "~actions";
+import { DEBOUNCED_SAVE_MESSAGE } from "~actions";
 
 describe("removeAttachment action", () => {
     let mockedClient, context;
@@ -40,9 +40,8 @@ describe("removeAttachment action", () => {
 
     test("Basic remove of an attachment", async () => {
         await removeAttachment(context, actionParams);
-        expect(mockedClient.removePart).toHaveBeenCalledWith(address);
         expect(context.commit).toHaveBeenCalledWith(REMOVE_ATTACHMENT, { messageKey, address });
-        expect(context.dispatch).toHaveBeenCalledWith(SAVE_MESSAGE, expect.anything());
+        expect(context.dispatch).toHaveBeenCalledWith(DEBOUNCED_SAVE_MESSAGE, expect.anything());
     });
 
     test("Remove of an attachment in error", async () => {
@@ -50,6 +49,6 @@ describe("removeAttachment action", () => {
         await removeAttachment(context, actionParams);
         expect(mockedClient.removePart).not.toHaveBeenCalled();
         expect(context.commit).toHaveBeenCalledWith(REMOVE_ATTACHMENT, { messageKey, address });
-        expect(context.dispatch).toHaveBeenCalledWith(SAVE_MESSAGE, expect.anything());
+        expect(context.dispatch).toHaveBeenCalledWith(DEBOUNCED_SAVE_MESSAGE, expect.anything());
     });
 });

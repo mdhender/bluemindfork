@@ -5,12 +5,12 @@ const CID_DATA_ATTRIBUTE = "data-bm-cid";
 export default {
     async insertAsUrl(contentsWithCids, imageParts, folderUid, imapUid) {
         const getNewSrcFn = part => computePreviewOrDownloadUrl(folderUid, imapUid, part);
-        return insertInHtml(contentsWithCids, imageParts, true, getNewSrcFn);
+        return insertInHtml(contentsWithCids, imageParts, getNewSrcFn);
     },
 
     async insertAsBase64(contentsWithCids, imageParts, contentByAddress) {
         const getNewSrcFn = part => contentByAddress[part.address];
-        return insertInHtml(contentsWithCids, imageParts, false, getNewSrcFn);
+        return insertInHtml(contentsWithCids, imageParts, getNewSrcFn);
     },
 
     insertCid(html, inlineImagesSaved) {
@@ -84,26 +84,23 @@ function convertData(b64Data) {
  *          imageInlined: cids for which we found at least one reference in contents
  *          contentsWithImageInserted: modified contents
  */
-function insertInHtml(htmlWithCids = [], imageParts = [], setImapAddress, getNewSrcFn) {
+function insertInHtml(htmlWithCids = [], imageParts = [], getNewSrcFn) {
     const result = { imageInlined: [], contentsWithImageInserted: [] };
     const inlineReferenceRegex = /<img[^>]+?src\s*=\s*['"]cid:([^'"]*)['"][^>]*?>{1}?/gim;
 
     for (const html of htmlWithCids) {
         let inlineReferences,
             modifiedHtml = html;
-        while ((inlineReferences = inlineReferenceRegex.exec(htmlWithCids)) !== null) {
+        while ((inlineReferences = inlineReferenceRegex.exec(modifiedHtml)) !== null) {
             const cid = inlineReferences[1];
             const replaceRegex = new RegExp("(<img[^>]+?src\\s*=\\s*['\"])cid:" + cid + "(['\"][^>]*?>{1}?)", "gmi");
 
             const imagePart = imageParts.find(
                 part => part.contentId && part.contentId.toUpperCase() === "<" + cid.toUpperCase() + ">"
             );
-
             if (imagePart) {
                 let newSrc = getNewSrcFn(imagePart);
-                if (setImapAddress) {
-                    newSrc += '" ' + CID_DATA_ATTRIBUTE + '="' + imagePart.contentId;
-                }
+                newSrc += '" ' + CID_DATA_ATTRIBUTE + '="' + imagePart.contentId;
                 modifiedHtml = modifiedHtml.replace(replaceRegex, "$1" + newSrc + "$2");
                 result.imageInlined.push(imagePart);
             }

@@ -36,7 +36,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
 import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
-import { create } from "../../model/folder";
+import { create } from "~model/folder";
 import { SET_FOLDER_EXPANDED, ADD_FOLDER, TOGGLE_EDIT_FOLDER } from "~mutations";
 import { FOLDER_HAS_CHILDREN } from "~getters";
 import { MARK_FOLDER_AS_READ, REMOVE_FOLDER } from "~actions";

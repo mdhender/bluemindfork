@@ -38,47 +38,6 @@ export function createStore() {
     store.commit("mail/ADD_MESSAGES", [{ key: messageKey, flags: [], folderRef: { key: folderUid, uid: folderUid } }]);
     store.commit("mail-webapp/currentMessage/update", { key: messageKey });
 
-    /*
-    const storeOptions = {
-        state: {},
-        modules: {
-            "mail-webapp": {
-                namespaced: true,
-                state: {
-                    maxMessageSize: 10
-                },
-                modules: {
-                    currentMessage: {
-                        namespaced: true,
-                        state: {
-                            key: messageKey
-                        }
-                    }
-                }
-            },
-            mail: {
-                namespaced: true,
-                state: {
-                    folders: {
-                        [folderUid]: {
-                            key: folderUid
-                        }
-                    },
-                    messages: {
-                        [messageKey]: { flags: [] }
-                    },
-                    selection: []
-                },
-                getters: {
-                    MY_TRASH: () => {},
-                    MY_INBOX: () => {}
-                }
-            }
-        }
-    };
-    const mergedStoreOptions = merge(storeOptions, overrides);
-    return new Vuex.Store(mergedStoreOptions);
-    */
     return store;
 }
 

@@ -193,7 +193,7 @@ export const COMPOSER_CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
  * > it will kill me! Please come back!
  * ...`
  *
- * * @example HTML
+ * @example HTML
  * `On Tuesday 2019 01 01, John Doe wrote:
  * <blockquote>
  * Dear Jane,

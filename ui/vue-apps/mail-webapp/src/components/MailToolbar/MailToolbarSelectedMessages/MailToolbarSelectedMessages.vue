@@ -89,7 +89,7 @@ import {
     MARK_MESSAGE_AS_FLAGGED,
     MARK_MESSAGE_AS_UNFLAGGED
 } from "~actions";
-import RemoveMixin from "../../../store/mixins/RemoveMixin";
+import { RemoveMixin } from "~mixins";
 
 export default {
     name: "MailToolbarSelectedMessages",

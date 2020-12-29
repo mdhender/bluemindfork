@@ -10,8 +10,8 @@ import {
 } from "~actions";
 import { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~getters";
 import { ADD_MESSAGES } from "~mutations";
-import { isInternalIdFaked } from "../model/draft";
-import { updateKey, MessageStatus } from "../model/message";
+import { isInternalIdFaked } from "~model/draft";
+import { updateKey, MessageStatus } from "~model/message";
 
 /**
  * Provide composition Vuex actions to components

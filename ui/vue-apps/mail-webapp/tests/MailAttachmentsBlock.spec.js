@@ -2,7 +2,7 @@ import { BmProgress } from "@bluemind/styleguide";
 jest.mock("@bluemind/styleguide/css/_variables.scss", () => ({ iconsColors: "" }));
 
 import MailAttachmentsBlock from "../src/components/MailAttachment/MailAttachmentsBlock";
-import { createWrapper } from "./testUtils";
+import { createStore, createWrapper, messageKey } from "./testUtils";
 
 describe("MailAttachmentsBlock", () => {
     test("is a Vue instance", () => {
@@ -27,14 +27,20 @@ describe("MailAttachmentsBlock", () => {
 });
 
 function mountAttachmentBlock(attachmentSize) {
+    const message = {
+        key: "truc",
+        composing: true,
+        attachments: [{ mime: "image/jpeg", size: attachmentSize, progress: {} }]
+    };
+    const store = createStore();
+    store.commit("mail/ADD_MESSAGES", [message]);
+    // console.log(store);
+
     return createWrapper(
         MailAttachmentsBlock,
-        {},
+        { store },
         {
-            message: {
-                composing: true,
-                attachments: [{ mime: "image/jpeg", size: attachmentSize, progress: {} }]
-            },
+            message,
             expanded: false
         }
     );

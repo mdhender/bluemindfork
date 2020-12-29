@@ -12,7 +12,7 @@
 <script>
 import { AlertMixin, DefaultAlert } from "@bluemind/alert.store";
 import MailFolderIcon from "../MailFolderIcon";
-import { MailboxType } from "../../model/mailbox";
+import { MailboxType } from "~model/mailbox";
 
 export default {
     name: "CreateFolder",

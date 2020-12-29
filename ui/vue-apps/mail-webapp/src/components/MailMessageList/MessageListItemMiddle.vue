@@ -52,7 +52,7 @@ import { Flag } from "@bluemind/email";
 import { mapGetters, mapState } from "vuex";
 import ItemUri from "@bluemind/item-uri";
 import MailFolderIcon from "../MailFolderIcon";
-import { MailboxType } from "../../model/mailbox";
+import { MailboxType } from "~model/mailbox";
 import { MY_DRAFTS, MY_SENT, MESSAGE_LIST_IS_SEARCH_MODE, MESSAGE_IS_SELECTED } from "~getters";
 
 const FLAG_COMPONENT = {

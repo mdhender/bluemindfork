@@ -239,7 +239,6 @@
     "mail.messages.multiple.drag_shadow": "The selected thread | {count} selected threads",
     "mail.new.attachments.drop.zone": "Drop your file as attachment | Drop your files as attachments",
     "mail.new.attachments.images.drop.zone": "Drop your image as attachment | Drop your images as attachments",
-    "mail.new.content.aria": "Message content",
     "mail.new.images.drop.zone": "Drop your image right into the message | Drop your images right into the message",
     "mail.new.subject.aria": "Message subject",
     "mail.new.subject.placeholder": "Define your message subject",

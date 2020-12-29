@@ -98,8 +98,8 @@ import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
 import MailComponentAlert from "./MailComponentAlert";
 import MailFolderIcon from "./MailFolderIcon";
 import multipleSelectionIllustration from "../../assets/multiple-selection.png";
-import { MailboxType } from "../model/mailbox";
-import RemoveMixin from "../store/mixins/RemoveMixin";
+import { MailboxType } from "~model/mailbox";
+import { RemoveMixin } from "~mixins";
 
 import {
     ALL_MESSAGES_ARE_SELECTED,

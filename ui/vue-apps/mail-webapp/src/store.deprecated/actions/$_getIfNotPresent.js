@@ -1,6 +1,6 @@
 import { ItemUri } from "@bluemind/item-uri";
 
-import { createOnlyMetadata } from "../../model/message";
+import { createOnlyMetadata } from "~model/message";
 import { MESSAGE_IS_LOADED } from "~getters";
 import { ADD_MESSAGES } from "~mutations";
 

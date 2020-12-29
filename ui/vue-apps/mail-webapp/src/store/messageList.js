@@ -1,5 +1,5 @@
 import { inject } from "@bluemind/inject";
-import { createOnlyMetadata } from "../model/message";
+import { createOnlyMetadata } from "~model/message";
 import apiMessages from "./api/apiMessages";
 import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
 import searchModule from "./search";

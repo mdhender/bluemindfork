@@ -51,7 +51,7 @@ import MailFolderInput from "../MailFolderInput";
 import MailFolderItemMenu from "./MailFolderItemMenu";
 import { REMOVE_FOLDER, TOGGLE_EDIT_FOLDER } from "~mutations";
 import { RENAME_FOLDER, CREATE_FOLDER } from "~actions";
-import { MailboxType } from "../../model/mailbox";
+import { MailboxType } from "~model/mailbox";
 
 export default {
     name: "MailFolderItem",

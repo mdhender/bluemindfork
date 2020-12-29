@@ -1,11 +1,8 @@
 import { MockI18NProvider } from "@bluemind/test-utils";
 import ServiceLocator from "@bluemind/inject";
-import { MimeType } from "@bluemind/email";
 
 import { create, MessageCreationModes, MessageHeader } from "../message";
-import { buildRecipients, buildSubject, uploadInlineParts, sanitizeForCyrus } from "../draft";
-
-import PlayWithInlinePartsByCapabilities from "../../store/messages/helpers/PlayWithInlinePartsByCapabilities";
+import { computeCcRecipients, computeToRecipients, computeSubject, addSeparator } from "../draft";
 
 ServiceLocator.register({ provide: "i18n", factory: () => MockI18NProvider });
 const vueI18n = ServiceLocator.getProvider("i18n").get();
@@ -34,7 +31,7 @@ const previousMessage = {
     }
 };
 
-describe("computeSubject", () => {
+describe("Compute subject", () => {
     const message = { subject: "TrucTruc" };
 
     test("computeSubject for Reply", () => {
@@ -51,21 +48,17 @@ describe("computeSubject", () => {
 });
 
 function checkBuildSubject(message, creationMode, prefix) {
-    const subject = buildSubject(creationMode, message);
+    const subject = computeSubject(creationMode, message);
     const expectedSubject = prefix + message.subject;
     expect(subject).toEqual(expectedSubject);
 
     // should not add the prefix again
-    const subject2 = buildSubject(creationMode, message);
+    const subject2 = computeSubject(creationMode, message);
     expect(subject2).toEqual(expectedSubject);
 }
 
-describe("uploadInlineParts", () => {
+describe("Compute reply / forward separators", () => {
     const messageContent = "messageContent";
-    PlayWithInlinePartsByCapabilities.getTextFromStructure = jest.fn().mockReturnValue(messageContent);
-    PlayWithInlinePartsByCapabilities.getHtmlFromStructure = jest
-        .fn()
-        .mockReturnValue({ html: messageContent, inlineImageParts: [] });
 
     let itemsService = {};
     itemsService.uploadPart = jest.fn().mockReturnValue("2");
@@ -86,69 +79,67 @@ describe("uploadInlineParts", () => {
         }
     });
 
-    test("for Reply and ReplyAll with userPrefTextOnly", async () => {
+    test("for Reply and ReplyAll with userPrefTextOnly", () => {
         const expectedContent =
-            "<p>On " + previousMessage.date + ", Some One <someone@vm40.net> wrote:</p>\r\n\r\n> " + messageContent;
+            "<p>On " + previousMessage.date + ", Some One <someone@vm40.net> wrote:</p>\n\n> " + messageContent;
 
-        const { partContentByMimeType } = await uploadInlineParts(
+        let contentWithSeparator = addSeparator(
+            messageContent,
+            previousMessage,
             MessageCreationModes.REPLY,
-            previousMessage,
-            itemsService,
             true,
             vueI18n
         );
-        expect(partContentByMimeType[MimeType.TEXT_PLAIN]).toEqual(expectedContent);
-
-        const result = await uploadInlineParts(
+        expect(contentWithSeparator).toEqual(expectedContent);
+        contentWithSeparator = addSeparator(
+            messageContent,
+            previousMessage,
             MessageCreationModes.REPLY_ALL,
-            previousMessage,
-            itemsService,
             true,
             vueI18n
         );
-        expect(result.partContentByMimeType[MimeType.TEXT_PLAIN]).toEqual(expectedContent);
+        expect(contentWithSeparator).toEqual(expectedContent);
     });
 
     test("for Forward with userPrefTextOnly", async () => {
         const expectedContent =
-            '<p style="color: purple;">---- Original Message ----\r\nSubject: ' +
+            '<p style="color: purple;">---- Original Message ----\nSubject: ' +
             previousMessage.subject +
-            "\r\nTo: John Doe <jdoe@vm40.net>,Toto Matic <tmatic@vm40.net>,Georges Abitbol <gabitbol@vm40.net>\r\nDate: " +
+            "\nTo: John Doe <jdoe@vm40.net>,Toto Matic <tmatic@vm40.net>,Georges Abitbol <gabitbol@vm40.net>\nDate: " +
             previousMessage.date +
-            "\r\nFrom: Some One <someone@vm40.net>\r\n\r\n</p>messageContent";
-        const { partContentByMimeType } = await uploadInlineParts(
-            MessageCreationModes.FORWARD,
+            "\nFrom: Some One <someone@vm40.net>\n\n</p>messageContent";
+
+        const contentWithSeparator = addSeparator(
+            messageContent,
             previousMessage,
-            itemsService,
+            MessageCreationModes.FORWARD,
             true,
             vueI18n
         );
-        expect(partContentByMimeType[MimeType.TEXT_PLAIN]).toEqual(expectedContent);
+        expect(contentWithSeparator).toEqual(expectedContent);
     });
 
     test("for Reply without userPrefTextOnly", async () => {
-        const expectedContent = sanitizeForCyrus(
-            "<div data-bm-forward-separator><p>On " +
-                previousMessage.date +
-                `, Some One <someone@vm40.net> wrote:</p><br>
+        const expectedContent =
+            '<div id="data-bm-forward-separator"><p>On ' +
+            previousMessage.date +
+            `, Some One <someone@vm40.net> wrote:</p><br>
             <blockquote style="margin-left: 1rem; padding-left: 1rem; border-left: 2px solid black;">` +
-                messageContent +
-                "</blockquote></div>"
-        );
+            messageContent +
+            "</blockquote></div>";
 
-        const { partContentByMimeType } = await uploadInlineParts(
-            MessageCreationModes.REPLY,
+        const contentWithSeparator = addSeparator(
+            messageContent,
             previousMessage,
-            itemsService,
+            MessageCreationModes.REPLY,
             false,
             vueI18n
         );
-
-        expect(partContentByMimeType[MimeType.TEXT_HTML]).toEqual(expectedContent);
+        expect(contentWithSeparator).toEqual(expectedContent);
     });
 });
 
-describe("buildRecipients", () => {
+describe("compute To and Cc recipients when replying", () => {
     beforeEach(() => {
         previousMessage.headers = [];
     });
@@ -159,64 +150,80 @@ describe("buildRecipients", () => {
     const otherRecipientsWithDn = otherRecipients.map(address => ({ address, dn: "" }));
 
     test("Reply and no header", () => {
-        const { to, cc } = buildRecipients(MessageCreationModes.REPLY, previousMessage, myEmail, myName);
+        const to = computeToRecipients(MessageCreationModes.REPLY, previousMessage, myEmail, myName);
         expect(to).toEqual([previousMessageFrom]);
+
+        const cc = computeCcRecipients(MessageCreationModes.REPLY, previousMessage);
         expect(cc).toEqual([]);
     });
 
     test("Reply and Mail-Followup-To header", () => {
         previousMessage.headers = [{ name: MessageHeader.MAIL_FOLLOWUP_TO, values: otherRecipients }];
-        const { to, cc } = buildRecipients(MessageCreationModes.REPLY, previousMessage, myEmail, myName);
+
+        const to = computeToRecipients(MessageCreationModes.REPLY, previousMessage, myEmail, myName);
         expect(to).toEqual([previousMessageFrom]);
+
+        const cc = computeCcRecipients(MessageCreationModes.REPLY, previousMessage);
         expect(cc).toEqual([]);
     });
 
     test("Reply and Mail-Reply-To header", () => {
         previousMessage.headers = [{ name: MessageHeader.MAIL_REPLY_TO, values: otherRecipients }];
-        const { to, cc } = buildRecipients(MessageCreationModes.REPLY, previousMessage, myEmail, myName);
+
+        const to = computeToRecipients(MessageCreationModes.REPLY, previousMessage, myEmail, myName);
         expect(to).toEqual([{ address: "azerty@keyboard.com", dn: "" }]);
+
+        const cc = computeCcRecipients(MessageCreationModes.REPLY, previousMessage);
         expect(cc).toEqual([]);
     });
 
     test("Reply and Reply-To header", () => {
         previousMessage.headers = [{ name: MessageHeader.REPLY_TO, values: otherRecipients }];
-        const { to, cc } = buildRecipients(MessageCreationModes.REPLY, previousMessage, myEmail, myName);
+
+        const to = computeToRecipients(MessageCreationModes.REPLY, previousMessage, myEmail, myName);
         expect(to).toEqual([{ address: "azerty@keyboard.com", dn: "" }]);
+
+        const cc = computeCcRecipients(MessageCreationModes.REPLY, previousMessage);
         expect(cc).toEqual([]);
     });
 
     const previousToWithoutMe = previousMessageTo.filter(to => to.address !== myEmail);
 
     test("ReplyAll and no header", () => {
-        const { to, cc } = buildRecipients(MessageCreationModes.REPLY_ALL, previousMessage, myEmail, myName);
+        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, myEmail, myName);
         expect(to).toEqual([previousMessageFrom].concat(previousToWithoutMe));
+
+        const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage);
         expect(cc).toEqual(previousMessageCc);
     });
 
     test("ReplyAll and Mail-Followup-To header", () => {
         previousMessage.headers = [{ name: MessageHeader.MAIL_FOLLOWUP_TO, values: otherRecipients }];
-        const { to, cc } = buildRecipients(MessageCreationModes.REPLY_ALL, previousMessage, myEmail, myName);
+
+        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, myEmail, myName);
         expect(to).toEqual(otherRecipientsWithDn);
+
+        const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage);
         expect(cc).toEqual([]);
     });
 
     test("ReplyAll and Mail-Reply-To header", () => {
         previousMessage.headers = [{ name: MessageHeader.MAIL_REPLY_TO, values: otherRecipients }];
-        const { to, cc } = buildRecipients(MessageCreationModes.REPLY_ALL, previousMessage, myEmail, myName);
+
+        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, myEmail, myName);
         expect(to).toEqual(otherRecipientsWithDn);
+
+        const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage);
         expect(cc).toEqual(previousMessageCc);
     });
 
     test("ReplyAll and Reply-To header", () => {
         previousMessage.headers = [{ name: MessageHeader.REPLY_TO, values: otherRecipients }];
-        const { to, cc } = buildRecipients(MessageCreationModes.REPLY_ALL, previousMessage, myEmail, myName);
-        expect(to).toEqual(otherRecipientsWithDn);
-        expect(cc).toEqual(previousMessageCc);
-    });
 
-    test("Forward", () => {
-        const { to, cc } = buildRecipients(MessageCreationModes.FORWARD, previousMessage, myEmail, myName);
-        expect(to).toEqual([]);
-        expect(cc).toEqual([]);
+        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, myEmail, myName);
+        expect(to).toEqual(otherRecipientsWithDn);
+
+        const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage);
+        expect(cc).toEqual(previousMessageCc);
     });
 });

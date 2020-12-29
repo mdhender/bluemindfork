@@ -18,7 +18,7 @@ import { mapActions, mapState } from "vuex";
 
 import { computePreviewOrDownloadUrl, MimeType, InlineImageHelper } from "@bluemind/email";
 
-import { getPartsFromCapabilities } from "../../../model/part";
+import { getPartsFromCapabilities } from "~model/part";
 import ImagePartViewer from "./ImagePartViewer";
 import TextHtmlPartViewer from "./TextHtmlPartViewer";
 import TextPlainPartViewer from "./TextPlainPartViewer";

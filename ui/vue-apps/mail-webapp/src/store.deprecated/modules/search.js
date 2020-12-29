@@ -1,6 +1,6 @@
 import ServiceLocator from "@bluemind/inject";
 
-import { createOnlyMetadata } from "../../model/message";
+import { createOnlyMetadata } from "~model/message";
 import { CURRENT_MAILBOX } from "~getters";
 import { SET_MESSAGE_LIST } from "~mutations";
 

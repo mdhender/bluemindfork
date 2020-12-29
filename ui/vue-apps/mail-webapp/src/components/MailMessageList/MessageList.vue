@@ -70,8 +70,8 @@ import {
     MESSAGE_IS_LOADED
 } from "~getters";
 import { SELECT_MESSAGE, UNSELECT_MESSAGE, SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES } from "~mutations";
-import RemoveMixin from "../../store/mixins/RemoveMixin";
-import { MessageStatus } from "../../model/message";
+import { RemoveMixin } from "~mixins";
+import { MessageStatus } from "~model/message";
 
 const PAGE = 9;
 

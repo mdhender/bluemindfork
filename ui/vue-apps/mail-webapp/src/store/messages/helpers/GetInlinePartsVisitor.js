@@ -2,7 +2,7 @@ import findLast from "lodash.findlast";
 
 import { MimeType } from "@bluemind/email";
 
-import { isAttachment } from "../../../model/attachment";
+import { isAttachment } from "~model/attachment";
 
 /**
  * Pass this and a body.structure to TreeWalker to build an array of maps of inline parts keyed by capabilities.

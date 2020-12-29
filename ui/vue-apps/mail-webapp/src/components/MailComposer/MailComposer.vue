@@ -62,7 +62,7 @@ import MailComposerRecipients from "./MailComposerRecipients";
 import MailComposerFooter from "./MailComposerFooter";
 import { addSignature, isHtmlSignaturePresent, isTextSignaturePresent, removeSignature } from "~model/signature";
 import { isInternalIdFaked } from "~model/draft";
-import { MessageStatus } from "../../model/message";
+import { MessageStatus } from "~model/message";
 
 export default {
     name: "MailComposer",

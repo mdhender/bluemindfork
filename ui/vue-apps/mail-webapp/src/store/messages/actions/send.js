@@ -76,9 +76,10 @@ function manageFlagOnPreviousMessage({ dispatch, state }, draft) {
         const folderUid = draftInfoHeader.folderUid;
 
         const messageKey = ItemUri.encode(parseInt(messageInternalId), folderUid);
-        if (state[messageKey]) {
+        const message = state[messageKey];
+        if (message) {
             dispatch(ADD_FLAG, {
-                messageKeys: [messageKey],
+                messages: [message],
                 flag: mailboxItemFlag
             });
         } else {

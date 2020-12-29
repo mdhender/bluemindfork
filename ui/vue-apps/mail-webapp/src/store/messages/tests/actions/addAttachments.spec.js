@@ -2,18 +2,19 @@ import ServiceLocator from "@bluemind/inject";
 import { MockMailboxItemsClient } from "@bluemind/test-utils";
 
 import addAttachments from "../../actions/addAttachments";
-import { AttachmentStatus } from "../../../../model/attachment";
+import { AttachmentStatus } from "~model/attachment";
 import {
     ADD_ATTACHMENT,
     REMOVE_ATTACHMENT,
     SET_ATTACHMENT_ADDRESS,
     SET_ATTACHMENT_PROGRESS,
-    SET_ATTACHMENT_STATUS
+    SET_ATTACHMENT_STATUS,
+    SET_MESSAGE_HAS_ATTACHMENT
 } from "~mutations";
 
 describe("addAttachments action", () => {
     global.URL.createObjectURL = jest.fn();
-    const messageKey = "blabla";
+    const draft = { key: "blabla", folderRef: { uid: "folder-uid" }, attachments: [] };
     const files = [
         new Blob(["myfilecontentasastring"], {
             size: 22,
@@ -22,18 +23,13 @@ describe("addAttachments action", () => {
     ];
     files.name = "TestFile.txt";
 
-    const actionParams = { messageKey, files, userPrefTextOnly: false, messageCompose: {} };
+    const actionParams = { draft, files, messageCompose: {} };
     let context, mockedClient;
 
     beforeEach(() => {
         context = {
             commit: jest.fn(),
-            dispatch: jest.fn().mockReturnValue(Promise.resolve()),
-            state: {
-                [messageKey]: {
-                    folderRef: { uid: "folder-uid" }
-                }
-            }
+            dispatch: jest.fn().mockReturnValue(Promise.resolve())
         };
 
         mockedClient = new MockMailboxItemsClient();
@@ -42,25 +38,33 @@ describe("addAttachments action", () => {
 
     test("Attach text file", async () => {
         await addAttachments(context, actionParams);
-        expect(mockedClient.uploadPart).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.anything());
+        expect(mockedClient.uploadPart).toHaveBeenCalled();
         expect(context.commit).toHaveBeenNthCalledWith(1, ADD_ATTACHMENT, expect.anything());
-        expect(context.commit).toHaveBeenNthCalledWith(2, SET_ATTACHMENT_ADDRESS, expect.anything());
+        expect(context.commit).toHaveBeenNthCalledWith(2, SET_MESSAGE_HAS_ATTACHMENT, {
+            key: draft.key,
+            hasAttachment: true
+        });
+        expect(context.commit).toHaveBeenNthCalledWith(3, SET_ATTACHMENT_ADDRESS, expect.anything());
     });
 
     test("With error", async () => {
         mockedClient.uploadPart.mockImplementation(() => Promise.reject("error-reason"));
         await addAttachments(context, actionParams);
-        expect(mockedClient.uploadPart).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.anything());
+        expect(mockedClient.uploadPart).toHaveBeenCalled();
         expect(context.commit).toHaveBeenNthCalledWith(1, ADD_ATTACHMENT, expect.anything());
-        expect(context.commit).toHaveBeenNthCalledWith(
-            2,
-            SET_ATTACHMENT_PROGRESS,
-            expect.objectContaining({ messageKey, loaded: 100, total: 100 })
-        );
+        expect(context.commit).toHaveBeenNthCalledWith(2, SET_MESSAGE_HAS_ATTACHMENT, {
+            key: draft.key,
+            hasAttachment: true
+        });
         expect(context.commit).toHaveBeenNthCalledWith(
             3,
+            SET_ATTACHMENT_PROGRESS,
+            expect.objectContaining({ messageKey: draft.key, loaded: 100, total: 100 })
+        );
+        expect(context.commit).toHaveBeenNthCalledWith(
+            4,
             SET_ATTACHMENT_STATUS,
-            expect.objectContaining({ messageKey, status: AttachmentStatus.ERROR })
+            expect.objectContaining({ messageKey: draft.key, status: AttachmentStatus.ERROR })
         );
     });
 
@@ -71,6 +75,6 @@ describe("addAttachments action", () => {
         expect(mockedClient.uploadPart).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.anything());
         expect(context.commit).toHaveBeenNthCalledWith(1, ADD_ATTACHMENT, expect.anything());
         jest.runAllTimers();
-        expect(context.commit).toHaveBeenNthCalledWith(2, REMOVE_ATTACHMENT, expect.anything());
+        expect(context.commit).toHaveBeenNthCalledWith(3, REMOVE_ATTACHMENT, expect.anything());
     });
 });

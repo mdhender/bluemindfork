@@ -4,7 +4,7 @@ import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mai
 
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
-import { createWithMetadata, MessageHeader, MessageStatus } from "../../../model/message";
+import { createWithMetadata, MessageHeader, MessageStatus } from "~model/message";
 import TreeWalker from "./TreeWalker";
 
 export default {

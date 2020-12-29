@@ -18,9 +18,9 @@ import {
     MY_SENT,
     MY_TRASH
 } from "~getters";
-import { MessageStatus } from "../../model/message";
+import { MessageStatus } from "~model/message";
 import { DEFAULT_FOLDER_NAMES } from "../folders/helpers/DefaultFolders";
-import { MailboxType } from "../../model/mailbox";
+import { MailboxType } from "~model/mailbox";
 import injector from "@bluemind/inject";
 import { SET_ACTIVE_FOLDER } from "~mutations";
 

@@ -80,7 +80,7 @@ import MailFolderIcon from "../../MailFolderIcon";
 import MailFolderInput from "../../MailFolderInput";
 import { MailboxType } from "~model/mailbox";
 import { MY_INBOX, MY_TRASH, FOLDER_BY_PATH } from "~getters";
-import MoveMixin from "../../../store/mixins/MoveMixin";
+import { MoveMixin } from "~mixins";
 
 export default {
     name: "MailToolbarConsultMessageMoveAction",

@@ -15,27 +15,6 @@
                 <bm-icon class="text-dark" icon="file-type-image" size="2x" />
                 <h2 class="text-center p-2">{{ $tc("mail.new.images.drop.zone", draggedFilesCount) }}</h2>
             </template>
-            <!-- FIXME: https://forge.bluemind.net/jira/browse/FEATWEBML-88
-            <template v-if="userPrefTextOnly">
-                <bm-form-textarea
-                    ref="message-content"
-                    :value="messageCompose.editorContent"
-                    :rows="10"
-                    :max-rows="10000"
-                    :aria-label="$t('mail.new.content.aria')"
-                    class="mail-content"
-                    no-resize
-                    @input="updateEditorContent"
-                />
-                <bm-button
-                    v-if="messageCompose.collapsedContent"
-                    variant="outline-dark"
-                    class="align-self-start"
-                    @click="expandContent"
-                >
-                    <bm-icon icon="3dots" size="sm" />
-                </bm-button>
-            </template> -->
             <bm-rich-editor
                 ref="message-content"
                 :value="messageCompose.editorContent"
@@ -63,7 +42,7 @@ import ItemUri from "@bluemind/item-uri";
 import { BmButton, BmFileDropZone, BmIcon, BmRichEditor } from "@bluemind/styleguide";
 
 import { REMOVE_MESSAGES, SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~mutations";
-import { isInternalIdFaked } from "../../model/draft";
+import { isInternalIdFaked } from "~model/draft";
 import { ComposerActionsMixin, ComposerInitMixin } from "~mixins";
 
 export default {
@@ -124,11 +103,6 @@ export default {
             this.updateHtmlComposer();
         },
         focus() {
-            // FIXME: https://forge.bluemind.net/jira/browse/FEATWEBML-88
-            // if (this.userPrefTextOnly) {
-            //     this.$refs["message-content"].focus();
-            //     this.$refs["message-content"].setSelectionRange(0, 0);
-            // }
             this.$refs["message-content"].focus("start");
         },
         async updateHtmlComposer() {

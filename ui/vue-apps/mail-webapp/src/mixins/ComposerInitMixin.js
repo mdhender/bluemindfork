@@ -13,8 +13,8 @@ import {
     SET_DRAFT_EDITOR_CONTENT,
     SET_SAVED_INLINE_IMAGES
 } from "~mutations";
-import { addSignature } from "../model/signature";
-import { getPartsFromCapabilities } from "../model/part";
+import { addSignature } from "~model/signature";
+import { getPartsFromCapabilities } from "~model/part";
 // FIXME: all those methods are helper of mixin, not model..
 import {
     addSeparator,
@@ -23,8 +23,8 @@ import {
     createReplyOrForward,
     getEditorContent,
     handleSeparator
-} from "../model/draft";
-import { MessageCreationModes } from "../model/message";
+} from "~model/draft";
+import { MessageCreationModes } from "~model/message";
 
 /**
  * Manage different cases of composer initialization

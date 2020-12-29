@@ -1,4 +1,4 @@
-import { create, isAttachment } from "../../../model/attachment";
+import { create, isAttachment } from "~model/attachment";
 
 export default class GetAttachmentPartsVisitor {
     constructor() {

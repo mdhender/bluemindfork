@@ -1,7 +1,7 @@
 import Vue from "vue";
 import { inject } from "@bluemind/inject";
 import { MailboxAdaptor } from "./helpers/MailboxAdaptor";
-import { MailboxType } from "../model/mailbox";
+import { MailboxType } from "~model/mailbox";
 import { MAILSHARES, MAILSHARE_KEYS, MY_MAILBOX, MY_MAILBOX_KEY } from "~getters";
 import { ADD_MAILBOXES } from "~mutations";
 import { FETCH_MAILBOXES } from "~actions";

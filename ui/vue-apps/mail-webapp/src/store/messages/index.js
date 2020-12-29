@@ -1,5 +1,5 @@
 import actions from "./actions";
-import { MessageStatus } from "../../model/message";
+import { MessageStatus } from "~model/message";
 import mutations from "./mutations";
 import { MESSAGE_IS_LOADED } from "~getters";
 

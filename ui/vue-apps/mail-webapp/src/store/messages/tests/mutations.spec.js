@@ -1,5 +1,5 @@
 import mutations from "../mutations";
-import { MessageStatus } from "../../../model/message";
+import { MessageStatus } from "~model/message";
 import { Flag } from "@bluemind/email";
 
 describe("mutations", () => {

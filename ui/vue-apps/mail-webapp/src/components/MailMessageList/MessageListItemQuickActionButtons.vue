@@ -63,7 +63,7 @@ import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon } from "@bluemind/styl
 import { mapActions, mapGetters, mapState } from "vuex";
 import { Flag } from "@bluemind/email";
 import { MY_TRASH } from "~getters";
-import RemoveMixin from "../../store/mixins/RemoveMixin";
+import { RemoveMixin } from "~mixins";
 
 import {
     MARK_MESSAGE_AS_FLAGGED,

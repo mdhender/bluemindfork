@@ -1,31 +1,26 @@
 import { MimeType } from "@bluemind/email";
 import { MockMailboxItemsClient } from "@bluemind/test-utils";
 import ServiceLocator from "@bluemind/inject";
-import UUIDGenerator from "@bluemind/uuid";
 
-import save from "../../actions/save";
-import { MessageStatus, createWithMetadata } from "../../../../model/message";
+import apiMessages from "../../../api/apiMessages";
+import { saveAsap } from "../../actions/save";
+import { MessageStatus, createWithMetadata } from "~model/message";
 import htmlWithBase64Images from "../data/htmlWithBase64Images";
 import { MY_DRAFTS } from "~getters";
 import { SET_MESSAGES_STATUS } from "~mutations";
+import { AttachmentStatus } from "~model/attachment";
 
-const mockedCidUid = "myCid";
-let itemsService, draft, context;
+jest.mock("../../../api/apiMessages");
+let itemsService, draft, context, saveParams;
 
-const draftMessageKey = "draft-key";
 const draftInternalId = "draft-internal-id";
 const draftFolderKey = "draft-folder-key";
-const messageCompose = { editorContent: "", collapsedContent: null };
-const saveParams = {
-    userPrefTextOnly: false,
-    draftKey: draftMessageKey,
-    myDraftsFolderKey: draftFolderKey,
-    messageCompose
-};
+const messageCompose = { editorContent: "", collapsedContent: null, inlineImagesSaved: [] };
 
 describe("[Mail-WebappStore][actions] :  save", () => {
     beforeEach(() => {
         itemsService = new MockMailboxItemsClient();
+        apiMessages.multipleById.mockResolvedValueOnce([{ remoteRef: { imapUid: "" } }]);
         ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: () => itemsService });
 
         draft = createWithMetadata({
@@ -34,32 +29,33 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         });
         draft.inlinePartsByCapabilities = [{ capabilities: [MimeType.TEXT_HTML], parts: [] }];
         draft.date = new Date();
+        draft.status = MessageStatus.LOADED;
+
+        saveParams = { draft, messageCompose };
 
         context = {
             dispatch: jest.fn().mockReturnValue(Promise.resolve([1, 2, 3])),
             commit: jest.fn(),
             state: {
-                [draftMessageKey]: draft
+                [draft.key]: draft
             },
             rootGetters: {
-                ["mail/" + MY_DRAFTS]: {
-                    key: draftFolderKey
-                }
+                ["mail/" + MY_DRAFTS]: { key: draftFolderKey }
             }
         };
     });
 
     test("Save new draft", async () => {
-        await save(context, saveParams);
+        await saveAsap(context, saveParams);
         expect(context.commit).toHaveBeenNthCalledWith(1, SET_MESSAGES_STATUS, [
             {
-                key: draftMessageKey,
+                key: draft.key,
                 status: MessageStatus.SAVING
             }
         ]);
-        expect(context.commit).toHaveBeenNthCalledWith(4, SET_MESSAGES_STATUS, [
+        expect(context.commit).toHaveBeenNthCalledWith(8, SET_MESSAGES_STATUS, [
             {
-                key: draftMessageKey,
+                key: draft.key,
                 status: MessageStatus.LOADED
             }
         ]);
@@ -68,7 +64,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
 
     test("Subject is modified", async () => {
         draft.subject = "Modified subject";
-        await save(context, saveParams);
+        await saveAsap(context, saveParams);
 
         expect(itemsService.updateById).toHaveBeenCalledWith(draftInternalId, expect.anything());
         const mailboxItemArg = itemsService.updateById.mock.calls[0][1];
@@ -76,8 +72,11 @@ describe("[Mail-WebappStore][actions] :  save", () => {
     });
 
     test("With attachments, expect a mixed structure", async () => {
-        draft.attachments = [{ address: "2" }, { address: "3" }];
-        await save(context, saveParams);
+        draft.attachments = [
+            { address: "2", status: AttachmentStatus.LOADED, mime: "anything" },
+            { address: "3", status: AttachmentStatus.LOADED, mime: "anything" }
+        ];
+        await saveAsap(context, saveParams);
 
         expect(itemsService.updateById).toHaveBeenCalledWith(draftInternalId, expect.anything());
         const mailboxItemArg = itemsService.updateById.mock.calls[0][1];
@@ -111,32 +110,22 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         });
     });
 
-    test("With error", async done => {
+    test.only("With error", async () => {
         itemsService.updateById.mockImplementation(() => {
             throw new Error();
         });
-        try {
-            await save(context, saveParams);
-            done.fail("should not reach here");
-        } catch (e) {
-            expect(itemsService.updateById).toHaveBeenCalledWith(draftInternalId, expect.anything());
-            expect(itemsService.updateById).toThrow(new Error());
-            expect(context.commit).toHaveBeenNthCalledWith(4, SET_MESSAGES_STATUS, [
-                {
-                    key: draftMessageKey,
-                    status: MessageStatus.SAVE_ERROR
-                }
-            ]);
-            done();
-        }
+        await saveAsap(context, saveParams);
+        expect(itemsService.updateById).toHaveBeenCalledWith(draftInternalId, expect.anything());
+        expect(itemsService.updateById).toThrow(new Error());
+        expect(context.commit).toHaveBeenNthCalledWith(7, SET_MESSAGES_STATUS, [
+            {
+                key: draft.key,
+                status: MessageStatus.SAVE_ERROR
+            }
+        ]);
     });
 
     test("With inline images", async () => {
-        UUIDGenerator.generate = jest
-            .fn()
-            .mockReturnValueOnce(mockedCidUid)
-            .mockReturnValueOnce(mockedCidUid + "2");
-
         messageCompose.editorContent = htmlWithBase64Images;
         const expectedStructureInlineImages = {
             children: [
@@ -156,14 +145,14 @@ describe("[Mail-WebappStore][actions] :  save", () => {
                         },
                         {
                             address: "2.2",
-                            contentId: mockedCidUid + "@bluemind.net",
+                            contentId: "<cid1@bluemind.net>",
                             dispositionType: "INLINE",
                             encoding: "base64",
                             mime: "image/png"
                         },
                         {
                             address: "2.3",
-                            contentId: mockedCidUid + "2@bluemind.net",
+                            contentId: "<cid2@bluemind.net>",
                             dispositionType: "INLINE",
                             encoding: "base64",
                             mime: "image/svg+xml"
@@ -175,25 +164,25 @@ describe("[Mail-WebappStore][actions] :  save", () => {
             mime: "multipart/alternative"
         };
 
-        await save(context, saveParams);
+        await saveAsap(context, saveParams);
         expect(context.commit).toHaveBeenNthCalledWith(1, SET_MESSAGES_STATUS, [
             {
-                key: draftMessageKey,
+                key: draft.key,
                 status: MessageStatus.SAVING
             }
         ]);
-        expect(context.commit).toHaveBeenNthCalledWith(4, SET_MESSAGES_STATUS, [
+        expect(context.commit).toHaveBeenNthCalledWith(8, SET_MESSAGES_STATUS, [
             {
-                key: draftMessageKey,
+                key: draft.key,
                 status: MessageStatus.LOADED
             }
         ]);
         expect(itemsService.uploadPart).toBeCalledTimes(4);
         expect(itemsService.uploadPart).toHaveBeenCalledWith(
-            expect.stringContaining('<img src="cid:' + mockedCidUid + '@bluemind.net">')
+            expect.stringContaining('<img data-bm-cid="<cid1@bluemind.net>" src="cid:cid1@bluemind.net">')
         );
         expect(itemsService.uploadPart).toHaveBeenCalledWith(
-            expect.stringContaining('<img src="cid:' + mockedCidUid + '2@bluemind.net">')
+            expect.stringContaining('<img data-bm-cid="<cid2@bluemind.net>" src="cid:cid2@bluemind.net">')
         );
 
         expect(itemsService.updateById).toHaveBeenCalledWith(draftInternalId, expect.anything());

@@ -13,7 +13,7 @@ import {
 import { FOLDER_BY_PATH } from "~getters";
 
 import { FolderAdaptor } from "./helpers/FolderAdaptor";
-import { create, rename } from "../../model/folder";
+import { create, rename } from "~model/folder";
 import { withAlert } from "../helpers/withAlert";
 import { CREATE_FOLDER, FETCH_FOLDERS, CREATE_FOLDER_HIERARCHY, MARK_FOLDER_AS_READ } from "~actions";
 

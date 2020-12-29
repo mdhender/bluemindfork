@@ -13,11 +13,11 @@ import {
     SET_ATTACHMENT_STATUS
 } from "~mutations";
 
-export default async function ({ commit, dispatch, state }, { draft, files, messageCompose }) {
+export default async function ({ commit, dispatch }, { draft, files, messageCompose }) {
     if (files.length > 0) {
         const promises = [];
         for (let file of files) {
-            promises.push(addAttachment({ commit, state }, draft, file));
+            promises.push(addAttachment(commit, draft, file));
         }
         await Promise.all(promises);
 
@@ -25,7 +25,7 @@ export default async function ({ commit, dispatch, state }, { draft, files, mess
     }
 }
 
-async function addAttachment({ commit }, draft, file) {
+async function addAttachment(commit, draft, file) {
     // default encoding and charset set by server
     const attachment = create(
         UUIDGenerator.generate(),
@@ -44,6 +44,7 @@ async function addAttachment({ commit }, draft, file) {
     try {
         // this will make the attachment component appear in the UI
         commit(ADD_ATTACHMENT, { messageKey: draft.key, attachment });
+
         commit(SET_MESSAGE_HAS_ATTACHMENT, { key: draft.key, hasAttachment: true });
 
         const service = inject("MailboxItemsPersistence", draft.folderRef.uid);

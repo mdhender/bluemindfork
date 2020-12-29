@@ -90,7 +90,7 @@ import GlobalEvents from "vue-global-events";
 import { SearchHelper } from "../store.deprecated/SearchHelper";
 import { FolderAdaptor } from "../store/folders/helpers/FolderAdaptor";
 import { MY_SENT, MY_INBOX, MY_TRASH } from "~getters";
-import { MailboxType } from "../model/mailbox";
+import { MailboxType } from "~model/mailbox";
 import { MessageListStatus } from "../store/messageList";
 import { SET_MESSAGE_LIST_STATUS } from "~mutations";
 
