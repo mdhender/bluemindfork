@@ -27,6 +27,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.filehosting.api.FileHostingInfo;
+import net.bluemind.filehosting.api.FileHostingInfo.Type;
 import net.bluemind.filehosting.api.IFileHosting;
 import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.IServer;
@@ -41,7 +42,7 @@ public class FileHostingRoleValidator implements IRoleValidator {
 			return false;
 		}
 
-		if (info.info.equals("BlueMind FileHosting")) {
+		if (info.type == Type.INTERNAL) {
 			List<Assignment> assignments = context.provider().instance(IServer.class, InstallationId.getIdentifier())
 					.getAssignments(domain);
 

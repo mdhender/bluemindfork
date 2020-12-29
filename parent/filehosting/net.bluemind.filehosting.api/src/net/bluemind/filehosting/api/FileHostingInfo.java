@@ -24,9 +24,15 @@ import net.bluemind.core.api.BMApi;
 public class FileHostingInfo {
 
 	public boolean present;
+	public FileHostingInfo.Type type;
 	public String info;
 
 	public FileHostingInfo() {
 
+	}
+
+	@BMApi(version = "3")
+	public static enum Type {
+		INTERNAL, EXTERNAL
 	}
 }

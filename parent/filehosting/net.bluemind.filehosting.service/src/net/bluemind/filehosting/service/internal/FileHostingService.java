@@ -23,6 +23,7 @@ import static net.bluemind.filehosting.service.internal.PathValidator.validate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
@@ -32,6 +33,7 @@ import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.filehosting.api.Configuration;
 import net.bluemind.filehosting.api.FileHostingInfo;
+import net.bluemind.filehosting.api.FileHostingInfo.Type;
 import net.bluemind.filehosting.api.FileHostingItem;
 import net.bluemind.filehosting.api.FileHostingPublicLink;
 import net.bluemind.filehosting.api.IFileHosting;
@@ -123,6 +125,9 @@ public class FileHostingService implements IFileHosting {
 			info.present = false;
 			return info;
 		}
+		Optional<Type> external = delegates.stream().map(d -> d.info(context).type)
+				.filter(t -> t == null || t == Type.EXTERNAL).findAny();
+		info.type = external.isPresent() ? Type.EXTERNAL : Type.INTERNAL;
 		info.info = delegates.stream().map(d -> d.info(context).info).reduce("",
 				(sum, infoString) -> sum.concat(infoString).concat("\n"));
 		info.present = true;

@@ -48,6 +48,7 @@ import net.bluemind.core.rest.utils.InputReadStream;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.filehosting.api.Configuration;
 import net.bluemind.filehosting.api.FileHostingInfo;
+import net.bluemind.filehosting.api.FileHostingInfo.Type;
 import net.bluemind.filehosting.api.FileHostingItem;
 import net.bluemind.filehosting.api.FileHostingPublicLink;
 import net.bluemind.filehosting.api.ID;
@@ -353,6 +354,7 @@ public class FileSystemFileHostingService implements IFileHostingService {
 	public FileHostingInfo info(SecurityContext context) throws ServerFault {
 		FileHostingInfo info = new FileHostingInfo();
 		info.info = "BlueMind FileHosting";
+		info.type = Type.INTERNAL;
 		return info;
 	}
 

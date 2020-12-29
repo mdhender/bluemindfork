@@ -66,7 +66,7 @@ public class FileHostingInfoCommand implements ICmdLet, Runnable {
 		FileHostingInfo info = filehosting.info();
 		ctx.info("Filehosting present: {}", info.present);
 		if (info.present) {
-			ctx.info("Filehosting info:{}{}{}", "\r\n", info.info, "\r\n");
+			ctx.info("Filehosting info:{}{}{}{}{}", "\r\n", info.type.name(), "\r\n", info.info, "\r\n");
 
 			Set<String> domainsUids = printServers();
 			printSettings(domainsUids);

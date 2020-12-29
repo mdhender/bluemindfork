@@ -10,6 +10,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.filehosting.api.FileHostingInfo;
+import net.bluemind.filehosting.api.FileHostingInfo.Type;
 import net.bluemind.filehosting.api.IFileHosting;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.role.provider.IRolesVerifier;
@@ -28,7 +29,7 @@ public class FileHostingRolesVerifier implements IRolesVerifier {
 
 		verifyServerPresence();
 
-		if (info.info.equals("BlueMind FileHosting") && noServerAssigned(context)) {
+		if (info.type == Type.INTERNAL && noServerAssigned(context)) {
 			return removeRoles();
 		}
 
