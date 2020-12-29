@@ -73,12 +73,13 @@ net.bluemind.calendar.day.ui.ReplyInvitation.prototype.enterDocument = function(
   var MSG_PROPOSE_DATE = goog.getMsg('Propose a date');
   var child = new goog.ui.MenuItem(MSG_PROPOSE_DATE);
   child.setId('proposition');
-  menu.addChild(child, true);
-  
-  child = new goog.ui.MenuButton(goog.dom.createDom('div', [ goog.getCssName('goog-button-icon'),
-  goog.getCssName('fa'), goog.getCssName('fa-ellipsis-v'), goog.getCssNam ]), menu, goog.ui.style.app.MenuButtonRenderer.getInstance());
-  child.setId('counter-selection');
-  this.addChild(child);
+  if (model.acceptCounters){
+    menu.addChild(child, true);
+    child = new goog.ui.MenuButton(goog.dom.createDom('div', [ goog.getCssName('goog-button-icon'),
+    goog.getCssName('fa'), goog.getCssName('fa-ellipsis-v'), goog.getCssNam ]), menu, goog.ui.style.app.MenuButtonRenderer.getInstance());
+    child.setId('counter-selection');
+    this.addChild(child);
+  }
 
   var invitButtons = goog.soy.renderAsFragment(net.bluemind.calendar.day.templates.participation_, this.getModel());
   var dom = this.getDomHelper();
@@ -117,17 +118,19 @@ net.bluemind.calendar.day.ui.ReplyInvitation.prototype.enterDocument = function(
         this.updateSeriesPartStatus_('Accepted', null, true);
       });
 
-  this.getChild('counter-selection').exitDocument();
-  this.getChild('counter-selection').render(this.getElementByClass('counterselect'));
-  
-  this.getHandler().listen(this.getChild('counter-selection'), goog.ui.Component.EventType.ACTION, function(e){
-    var action = e.target.getId();
-    if (action == 'proposition'){
-      this.proposeACounter_('event');
-    } else {
-      this.proposeACounter_('series');
-    }
-  });
+  if (model.acceptCounters){
+    this.getChild('counter-selection').exitDocument();
+    this.getChild('counter-selection').render(this.getElementByClass('counterselect'));
+    
+    this.getHandler().listen(this.getChild('counter-selection'), goog.ui.Component.EventType.ACTION, function(e){
+      var action = e.target.getId();
+      if (action == 'proposition'){
+        this.proposeACounter_('event');
+      } else {
+        this.proposeACounter_('series');
+      }
+    });
+  }
 
   var pmNeedsAction = new goog.ui.PopupMenu();
   pmNeedsAction.setToggleMode(true);

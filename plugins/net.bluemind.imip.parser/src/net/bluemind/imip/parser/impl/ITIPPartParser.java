@@ -18,10 +18,13 @@
  */
 package net.bluemind.imip.parser.impl;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -74,7 +77,14 @@ public class ITIPPartParser {
 	}
 
 	public IMIPInfos parse(Entity e) throws IOException, ParserException, ServerFault {
+
 		TextBody body = (TextBody) e.getBody();
+		// X-MICROSOFT-DISALLOW-COUNTER
+		parseAcceptCounters(body.getInputStream()).ifPresent(disallowCounters -> {
+			logger.info("PARSING: {}", disallowCounters);
+			imip.properties.put("X-MICROSOFT-DISALLOW-COUNTER", Boolean.toString(disallowCounters));
+		});
+
 		Reader reader = null;
 		if ("us-ascii".equalsIgnoreCase(body.getMimeCharset())) {
 			// outlook does not set the charset on its ICS parts
@@ -275,4 +285,15 @@ public class ITIPPartParser {
 
 		return null;
 	}
+
+	private Optional<Boolean> parseAcceptCounters(InputStream in) throws IOException {
+		try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
+			Optional<String> property = bufferedReader.lines()
+					.filter(line -> line.startsWith("X-MICROSOFT-DISALLOW-COUNTER")).findFirst();
+			return property.map(p -> {
+				return Boolean.parseBoolean(p.substring(p.indexOf(":") + 1).trim());
+			});
+		}
+	}
+
 }

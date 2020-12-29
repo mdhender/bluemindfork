@@ -693,6 +693,10 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
 
   // ALLDAY
   handler.listen(dom.getElement('bm-ui-form-allday'), goog.events.EventType.CHANGE, this.onAllDayChangeAndReminderUpdate_);
+
+  // ACCEPT COUNTERS
+  handler.listen(dom.getElement('bm-ui-form-accept-counters'), goog.events.EventType.CHANGE, this.onAcceptCountersUpdate_);
+
   // OPACITY
   handler.listen(dom.getElement('bm-ui-form-opacity-busy'), goog.events.EventType.CHANGE, function(e) {
     this.getModel().transp = 'Opaque';
@@ -904,6 +908,24 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setModelValues_ = function() {
 
     this.setFormValue_('allday', model.states.allday);
     this.onAllDayChange_();
+    
+    if (!model.states.master){
+      var acceptCountersLabel = this.getDomHelper().getElement('bm-ui-form-accept-counters-label');
+      var acceptCountersLabel2 = this.getDomHelper().getElement('bm-ui-form-accept-counters-label2');
+      acceptCountersLabel.style.visibility = 'hidden';
+      acceptCountersLabel2.style.visibility = 'hidden';
+    } else {
+      var acceptCountersElement = this.getDomHelper().getElement('bm-ui-form-accept-counters');
+      if (model.states.master && model.states.main){
+        if (typeof model.acceptCounters !== 'undefined'){
+          this.setFormValue_('accept-counters', model.acceptCounters);
+        } else {
+          this.setFormValue_('accept-counters', true);
+        }
+      } else {
+          acceptCountersElement.disabled = true;
+      }
+    }
 
     this.setFormValue_('location', model.location);
 
@@ -1107,7 +1129,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.getFormValue_ = function(id) {
  * @private
  */
 net.bluemind.calendar.vevent.ui.Form.prototype.setFormValue_ = function(id, value) {
-  var element = this.getDomHelper().getElement('bm-ui-form-' + id);
+var element = this.getDomHelper().getElement('bm-ui-form-' + id);
   goog.dom.forms.setValue(element, value);
   if (element.type.toLowerCase() == 'checkbox') {
     goog.dom.classlist.enable(element.parentNode, goog.getCssName('active'), !!value);
@@ -1614,6 +1636,17 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onAllDayChangeAndReminderUpdate_ 
   }, this);
 
 };
+
+net.bluemind.calendar.vevent.ui.Form.prototype.onAcceptCountersUpdate_ = function() {
+  var dom = this.getDomHelper();
+  
+  var model = this.getModel();
+  var checkbox = dom.getElement('bm-ui-form-accept-counters');
+  var value = goog.dom.forms.getValue(checkbox);
+  model.acceptCounters = !!value;
+
+  console.log('update to ', model.acceptCounters);
+}
 
 /**
  * Apply check and modification when the all day status change

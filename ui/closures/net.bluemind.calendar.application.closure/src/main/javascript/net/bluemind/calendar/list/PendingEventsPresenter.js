@@ -211,11 +211,12 @@ net.bluemind.calendar.list.PendingEventsPresenter.prototype.calendarToMV_ = func
  */
 net.bluemind.calendar.list.PendingEventsPresenter.prototype.vseriesToMV_ = function(vseries, calendar) {
   var model = this.adaptor_.toModelView(vseries, calendar);
-  
+
   var vevents = goog.array.filter(model.flat, function(vevent) {
     return vevent.participation == 'NeedsAction';
   })
   goog.array.forEach(vevents, function(vevent) {
+    vevent.acceptCounters = model.acceptCounters;
     this.adaptVEvent_(vevent);
   }, this);
   return vevents;

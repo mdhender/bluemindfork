@@ -52,7 +52,11 @@ public class EventCounterHandler extends AbstractLmtpHandler implements IIMIPHan
 		validateItemCount(imip, 1);
 		ItemValue<VEventSeries> currentSeries = items.get(0);
 
-		VEventSeries propositionSeries = fromList(imip.iCalendarElements, imip.uid);
+		if (!currentSeries.value.acceptCounters) {
+			throw new ServerFault(String.format("%s does not allow counter propositions", imip.uid));
+		}
+
+		VEventSeries propositionSeries = fromList(imip.properties, imip.iCalendarElements, imip.uid);
 		VEventOccurrence counterEvent = null;
 		if (propositionSeries.main != null) {
 			counterEvent = VEventOccurrence.fromEvent(propositionSeries.main, null);

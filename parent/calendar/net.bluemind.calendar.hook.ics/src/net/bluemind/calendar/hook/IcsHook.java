@@ -261,9 +261,6 @@ public class IcsHook implements ICalendarHook {
 		List<ICalendarElement.Attendee> updatedAttendees = ICalendarElement.same(updatedEventAttendees,
 				oldEventAttendees);
 
-		logger.info("checking {} -- {} -- {}", updatedAttendees.size(), oldEvent.dtstart, oldEvent.summary);
-		logger.info("nhecking {} -- {} -- {}", updatedAttendees.size(), evt.dtstart, evt.summary);
-
 		if (!updatedAttendees.isEmpty() && VEventUtil.eventChanged(oldEvent, evt)) {
 			updatedAttendees = updatedAttendees.stream().filter(a -> !userAttendingToSeries.contains(a))
 					.collect(Collectors.toList());
@@ -313,7 +310,8 @@ public class IcsHook implements ICalendarHook {
 			} else {
 				addedAttendees = addedAttendees.stream().filter(a -> !userAttendingToSeries.contains(a))
 						.collect(Collectors.toSet());
-				String ics = getIcsPart(message.vevent.icsUid, Method.REQUEST, evt);
+				String ics = getIcsPart(Optional.of(updatedEvent.acceptCounters), message.vevent.icsUid, Method.REQUEST,
+						evt);
 				sendInvitationToAttendees(message, new ArrayList<>(addedAttendees), evt, ics);
 			}
 		}
@@ -451,7 +449,8 @@ public class IcsHook implements ICalendarHook {
 					auditor.parentEventId(message.auditEventId).action("send-mail").addActionMetadata("kind", "ics")
 							.addActionMetadata("icsKind", "invitation").addObjectMetadata("attendee", attendee);
 
-					String ics = getIcsPart(message.vevent.icsUid, Method.REQUEST, evt);
+					String ics = getIcsPart(Optional.of(message.vevent.acceptCounters), message.vevent.icsUid,
+							Method.REQUEST, evt);
 
 					auditor.audit(() -> sendInvitationToAttendees(message, Arrays.asList(attendee), evt, ics));
 				}
@@ -463,7 +462,7 @@ public class IcsHook implements ICalendarHook {
 	private void sendDeclineCounterToAttendee(VEventMessage message, VEventCounter counter) {
 		MailData md = MailData.declineCounter(message, counter.counter);
 
-		String ics = getIcsPart(message.vevent.icsUid, Method.DECLINE_COUNTER, counter.counter);
+		String ics = getIcsPart(Optional.empty(), message.vevent.icsUid, Method.DECLINE_COUNTER, counter.counter);
 		Attendee attendee = counter.counter.attendees.get(0);
 		Mailbox recipient = SendmailHelper.formatAddress(attendee.commonName, attendee.mailto);
 
@@ -482,7 +481,7 @@ public class IcsHook implements ICalendarHook {
 		MailData md = MailData.organizer(message, message.vevent.main);
 
 		Mailbox recipient = SendmailHelper.formatAddress(md.organizer.commonName, md.organizer.mailto);
-		String ics = getIcsPart(message.vevent.icsUid, Method.REQUEST, message.vevent.main);
+		String ics = getIcsPart(Optional.empty(), message.vevent.icsUid, Method.REQUEST, message.vevent.main);
 
 		sendNotificationToAttendee(message, message.vevent.main, md.senderSettings, md.subject, md.body, (locale) -> {
 			return new MessagesResolver(Messages.getEventDetailMessages(locale),
@@ -520,7 +519,7 @@ public class IcsHook implements ICalendarHook {
 		String ics = null;
 		VEventOccurrence attendeeCounter = counter.copy();
 		attendeeCounter.attendees = Arrays.asList(event.attendee);
-		ics = VEventServiceHelper.convertToIcs(message.vevent.icsUid, method, attendeeCounter);
+		ics = VEventServiceHelper.convertToIcs(Optional.empty(), message.vevent.icsUid, method, attendeeCounter);
 
 		Map<String, String> senderSettings = getSenderSettings(message, fromDirEntry);
 		sendNotificationToOrganizer(message, attendeeCounter, senderSettings, subject, body, (locale) -> {
@@ -579,7 +578,7 @@ public class IcsHook implements ICalendarHook {
 			}
 
 			Mailbox recipient = SendmailHelper.formatAddress(attendee.commonName, attendee.mailto);
-			String ics = getIcsPart(message.vevent.icsUid, Method.CANCEL, series.main);
+			String ics = getIcsPart(Optional.empty(), message.vevent.icsUid, Method.CANCEL, series.main);
 			sendNotificationToAttendee(message, series.main, md.senderSettings, md.subject, md.body, (locale) -> {
 				return new MessagesResolver(Messages.getEventDetailMessages(locale),
 						Messages.getEventDeleteMessages(locale));
@@ -600,7 +599,7 @@ public class IcsHook implements ICalendarHook {
 			for (Attendee attendee : evt.attendees) {
 				if (!seriesAttendees.contains(attendee)) {
 					MailData md = MailData.cancel(message, evt);
-					String ics = getIcsPart(message.vevent.icsUid, Method.CANCEL, evt);
+					String ics = getIcsPart(Optional.empty(), message.vevent.icsUid, Method.CANCEL, evt);
 
 					Mailbox recipient = SendmailHelper.formatAddress(attendee.commonName, attendee.mailto);
 					sendNotificationToAttendee(message, evt, md.senderSettings, md.subject, md.body, (locale) -> {
@@ -619,7 +618,7 @@ public class IcsHook implements ICalendarHook {
 		for (ICalendarElement.Attendee attendee : deletedAttendees) {
 			Mailbox recipient = SendmailHelper.formatAddress(attendee.commonName, attendee.mailto);
 
-			String ics = getIcsPart(message.vevent.icsUid, Method.CANCEL, evt);
+			String ics = getIcsPart(Optional.empty(), message.vevent.icsUid, Method.CANCEL, evt);
 
 			sendNotificationToAttendee(message, evt, md.senderSettings, md.subject, md.body, (locale) -> {
 				return new MessagesResolver(Messages.getEventDetailMessages(locale),
@@ -638,7 +637,7 @@ public class IcsHook implements ICalendarHook {
 		MailData md = MailData.update(message, event);
 		boolean inPast = occursInThePast(event);
 		String ics = !event.exception() ? getIcsPart(message.vevent.icsUid, Method.REQUEST, message.vevent, null)
-				: getIcsPart(message.vevent.icsUid, Method.REQUEST, event);
+				: getIcsPart(Optional.of(message.vevent.acceptCounters), message.vevent.icsUid, Method.REQUEST, event);
 
 		for (ICalendarElement.Attendee attendee : attendees) {
 			if (attendeeIsOrganizer(attendee, md.organizer)) {
@@ -677,7 +676,8 @@ public class IcsHook implements ICalendarHook {
 			occurrence.dtstart = exdate;
 			occurrence.exdate = null;
 
-			String ics = getIcsPart(message.vevent.icsUid, Method.CANCEL, occurrence);
+			String ics = getIcsPart(Optional.of(message.vevent.acceptCounters), message.vevent.icsUid, Method.CANCEL,
+					occurrence);
 
 			HashMap<String, Object> data = new HashMap<>();
 			data.putAll(new CalendarMailHelper().extractVEventData(occurrence));
@@ -741,7 +741,7 @@ public class IcsHook implements ICalendarHook {
 		} else {
 			VEvent eventForAttendee = evt.copy();
 			eventForAttendee.attendees = Arrays.asList(event.attendee);
-			ics = VEventServiceHelper.convertToIcs(message.vevent.icsUid, method, eventForAttendee);
+			ics = VEventServiceHelper.convertToIcs(Optional.empty(), message.vevent.icsUid, method, eventForAttendee);
 		}
 		Map<String, String> senderSettings = getSenderSettings(message, fromDirEntry);
 		sendNotificationToOrganizer(message, evt, senderSettings, subject, body, (locale) -> {
@@ -1136,6 +1136,7 @@ public class IcsHook implements ICalendarHook {
 			ics = VEventServiceHelper.convertToIcs(uid, method, series);
 		} else {
 			VEventSeries attendeeSeries = new VEventSeries();
+			attendeeSeries.acceptCounters = series.acceptCounters;
 			attendeeSeries.icsUid = uid;
 			VEvent master = series.main;
 			if (master != null) {
@@ -1150,7 +1151,7 @@ public class IcsHook implements ICalendarHook {
 				}
 			});
 			attendeeSeries.occurrences = occurrences;
-			ics = VEventServiceHelper.convertToIcs(uid, method, attendeeSeries);
+			ics = VEventServiceHelper.convertToIcs(method, attendeeSeries);
 		}
 		return ics;
 	}
@@ -1174,8 +1175,8 @@ public class IcsHook implements ICalendarHook {
 		return false;
 	}
 
-	private String getIcsPart(String uid, Method method, VEvent vevent) {
-		return VEventServiceHelper.convertToIcs(uid, method, vevent);
+	private String getIcsPart(Optional<Boolean> acceptCounters, String uid, Method method, VEvent vevent) {
+		return VEventServiceHelper.convertToIcs(acceptCounters, uid, method, vevent);
 	}
 
 	private BodyPart createBodyPart(String summary, String ics) {

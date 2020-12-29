@@ -96,6 +96,7 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.setup = function() {
   }, null, this).then(function(mv) {
     var evt = this.adaptor_.getOccurrence(this.ctx.params.get('recurrence-id'), mv);
     data.model = evt;
+    data.model.acceptCounters = mv.acceptCounters;
     data.counters = this.adaptor_.getCounterByOccurrence(this.ctx.params.get('recurrence-id'), mv);
     return tagsService.getTags();
   }, null, this).then(function(tags) {

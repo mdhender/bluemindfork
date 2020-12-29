@@ -135,7 +135,12 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 
 		for (ItemValue<VEventSeries> eventItem : vevents) {
 			VEventSeries event = eventItem.value;
-			List<net.fortuna.ical4j.model.component.VEvent> evts = convertToIcal4jVEvent(event.icsUid, event);
+			List<net.fortuna.ical4j.model.component.VEvent> evts = null;
+			if (method == Method.COUNTER) {
+				evts = convertCountersToIcal4jVEvent(event.icsUid, event);
+			} else {
+				evts = convertToIcal4jVEvent(event.icsUid, event);
+			}
 
 			if (eventItem.updated != null) {
 				evts.forEach(evt -> {
@@ -468,6 +473,20 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 	 * @param vevent
 	 * @return
 	 */
+	public static List<net.fortuna.ical4j.model.component.VEvent> convertCountersToIcal4jVEvent(String uid,
+			VEventSeries vevent) {
+		List<net.fortuna.ical4j.model.component.VEvent> ret = new ArrayList<>();
+
+		for (VEventCounter counter : vevent.counters) {
+			ret.add(parse(uid, counter.counter));
+		}
+		return ret;
+	}
+
+	/**
+	 * @param vevent
+	 * @return
+	 */
 	public static List<net.fortuna.ical4j.model.component.VEvent> convertToIcal4jVEvent(String uid,
 			VEventSeries vevent) {
 		List<net.fortuna.ical4j.model.component.VEvent> ret = new ArrayList<>();
@@ -481,6 +500,13 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		for (VEventCounter counter : vevent.counters) {
 			ret.add(parse(uid, counter.counter));
 		}
+
+		ret.stream().map(evt -> {
+			XProperty acceptCounters = new XProperty("X-MICROSOFT-DISALLOW-COUNTER",
+					Boolean.toString(!vevent.acceptCounters));
+			evt.getProperties().add(acceptCounters);
+			return evt;
+		}).collect(Collectors.toList());
 
 		return ret;
 	}
@@ -520,8 +546,6 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 	}
 
 	private static void appendXMsProperties(PropertyList properties, VEvent vevent) {
-		XProperty disallowCounter = new XProperty("X-MICROSOFT-DISALLOW-COUNTER", "TRUE");
-		properties.add(disallowCounter);
 
 		if (vevent.transparency != null) {
 			XProperty busyStatus = new XProperty("X-MICROSOFT-CDO-BUSYSTATUS",
@@ -558,10 +582,17 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		return convertToIcs(method, ItemValue.create(uid, series));
 	}
 
-	public static String convertToIcs(String uid, Method method, VEvent vevent) {
+	public static String convertToIcs(Optional<Boolean> acceptCounters, String uid, Method method, VEvent vevent) {
 		VEventSeries series = new VEventSeries();
-		series.main = vevent;
+		if (method == Method.COUNTER) {
+			VEventCounter c = new VEventCounter();
+			c.counter = (VEventOccurrence) vevent;
+			series.counters = Arrays.asList(c);
+		} else {
+			series.main = vevent;
+		}
 		series.icsUid = uid;
+		acceptCounters.ifPresent(acceptCounterPropositions -> series.acceptCounters = acceptCounterPropositions);
 		return convertToIcs(method, ItemValue.create(uid, series));
 	}
 

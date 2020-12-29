@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -146,7 +147,7 @@ public abstract class AbstractLmtpHandler {
 		void handle(String itemUid, VEventOccurrence eventException) throws ServerFault;
 	}
 
-	protected VEventSeries fromList(List<ICalendarElement> elements, String icsUid) {
+	protected VEventSeries fromList(Map<String, String> properties, List<ICalendarElement> elements, String icsUid) {
 		List<ICalendarElement> mutableList = new ArrayList<>(elements);
 		VEvent master = null;
 		for (Iterator<ICalendarElement> iter = mutableList.iterator(); iter.hasNext();) {
@@ -157,6 +158,7 @@ public abstract class AbstractLmtpHandler {
 			}
 		}
 		VEventSeries series = new VEventSeries();
+		series.acceptCounters = !Boolean.parseBoolean(properties.getOrDefault("X-MICROSOFT-DISALLOW-COUNTER", "false"));
 		series.main = null != master ? master : null;
 		series.occurrences = mutableList.stream().map(v -> (VEventOccurrence) v).collect(Collectors.toList());
 		series.icsUid = icsUid;

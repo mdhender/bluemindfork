@@ -46,7 +46,7 @@ public class EventDeclineCounterHandler extends AbstractLmtpHandler implements I
 		List<ItemValue<VEventSeries>> items = getAndValidateExistingSeries(cal, imip);
 		validateItemCount(imip, 1);
 
-		VEventSeries propositionSeries = fromList(imip.iCalendarElements, imip.uid);
+		VEventSeries propositionSeries = fromList(imip.properties, imip.iCalendarElements, imip.uid);
 		VEventOccurrence counterEvent = null;
 		if (propositionSeries.main != null) {
 			counterEvent = VEventOccurrence.fromEvent(propositionSeries.main, null);

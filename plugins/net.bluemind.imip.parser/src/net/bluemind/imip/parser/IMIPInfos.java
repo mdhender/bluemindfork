@@ -19,7 +19,9 @@
 package net.bluemind.imip.parser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import net.bluemind.calendar.api.VEvent;
@@ -41,6 +43,7 @@ public class IMIPInfos {
 	public String uid;
 	public String organizerEmail;
 	public int sequence;
+	public Map<String, String> properties = new HashMap<>();
 	public List<ICalendarElement> iCalendarElements = new ArrayList<>();
 
 	public IMIPInfos() {
@@ -73,6 +76,7 @@ public class IMIPInfos {
 		infos.uid = this.uid;
 		infos.organizerEmail = this.organizerEmail;
 		infos.sequence = this.sequence;
+		infos.properties = this.properties;
 		infos.iCalendarElements = this.iCalendarElements.stream().map(cal -> cal.copy()).collect(Collectors.toList());
 		return infos;
 	}

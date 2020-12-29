@@ -60,6 +60,7 @@ public class EventChangesMerge {
 
 			ItemValue<VEventSeries> vevent = bmSeries.get(0);
 			vevent.value = updateMain(vevent.value, imipSeries.main);
+			vevent.value.acceptCounters = imipSeries.acceptCounters;
 			for (VEventOccurrence imipEvent : imipSeries.occurrences) {
 				List<VEventOccurrence> occ = vevent.value.occurrences.stream()
 						.filter(r -> !r.recurid.equals(imipEvent.recurid)).collect(Collectors.toList());

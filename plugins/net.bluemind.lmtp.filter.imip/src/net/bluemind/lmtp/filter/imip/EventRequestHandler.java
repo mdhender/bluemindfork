@@ -121,7 +121,8 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 				}
 			}
 
-			VEventSeries series = fromList(imip.iCalendarElements, imip.uid);
+			VEventSeries series = fromList(imip.properties, imip.iCalendarElements, imip.uid);
+
 			if (sender != null) {
 				boolean canInvite = checkInvitationRight(recipient, calUid, sender);
 				if (!canInvite) {

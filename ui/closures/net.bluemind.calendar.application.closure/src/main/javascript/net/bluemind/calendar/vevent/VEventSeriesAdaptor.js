@@ -349,6 +349,9 @@ net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.adaptCounterChanges_ 
  * @return {boolean} recurring event exception
  */
 net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.adaptSeriesFromMainChanges_ = function(vseries, modified) {
+  if (typeof modified.acceptCounters !== 'undefined'){
+    vseries['value']['acceptCounters'] = modified.acceptCounters;
+  }
   var old = vseries['value']['main']
   vseries['value']['main'] = this.veventAdaptor_.fromModelView(modified);
   if (!old) {

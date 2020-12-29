@@ -76,7 +76,7 @@ public class EventCancelHandler extends CancelHandler implements IIMIPHandler {
 
 			} // else external, don't care for now
 			ICalendar cal = provider().instance(ICalendar.class, calUid);
-			VEventSeries series = fromList(imip.iCalendarElements, imip.uid);
+			VEventSeries series = fromList(imip.properties, imip.iCalendarElements, imip.uid);
 			List<ItemValue<VEventSeries>> currentSeries = cal.getByIcsUid(imip.uid);
 			if (currentSeries.isEmpty()) {
 				logger.warn("BM VEvent with event uid {} not found in calendar {}", imip.uid, calUid);

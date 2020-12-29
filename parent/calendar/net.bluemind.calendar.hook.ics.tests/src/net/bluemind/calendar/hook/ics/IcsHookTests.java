@@ -331,7 +331,104 @@ public class IcsHookTests {
 	}
 
 	@Test
+	public void inviteShouldIncludeAcceptCounterPropositions() throws Exception {
+		ItemValue<VEventSeries> event = defaultVEvent("invite");
+		event.value.acceptCounters = false;
+		event.value.main.status = ICalendarElement.Status.NeedsAction;
+		event.value.main.attendees.add(VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan"));
+
+		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		eventSanitizer.sanitize(event.value, true);
+
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = event.uid;
+		veventMessage.vevent = event.value;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = containerHome.get(ICalendarUids.TYPE + ":Default:" + user1.login);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventCreated(veventMessage);
+		assertTrue(fakeSendmail.mailSent);
+
+		assertEquals(1, fakeSendmail.messages.size());
+		TestMail tm = fakeSendmail.messages.get(0);
+		assertEquals(1, tm.to.size());
+		Message m = tm.message;
+		assertTrue(m.getSubject().contains(event.value.main.summary));
+		assertTrue(m.getBody() instanceof Multipart);
+		Multipart body = (Multipart) m.getBody();
+		for (Entity part : body.getBodyParts()) {
+			if ("event.ics".equals(part.getFilename())) {
+				TextBody tb = (TextBody) part.getBody();
+				InputStream in = tb.getInputStream();
+				String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
+				in.close();
+				assertTrue(icsContent.contains("X-MICROSOFT-DISALLOW-COUNTER:true"));
+				return;
+			}
+		}
+		fail("Did not find any ics part in the message.");
+	}
+
+	@Test
 	public void update() throws ServerFault, SQLException, UnsupportedEncodingException, IOException {
+		ItemValue<VEventSeries> event = defaultVEvent("update");
+		event.value.acceptCounters = true;
+		event.value.main.status = ICalendarElement.Status.NeedsAction;
+		Attendee attendee = VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan");
+		attendee.responseComment = "yeah yeah ok gg";
+		event.value.main.attendees.add(attendee);
+
+		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		eventSanitizer.sanitize(event.value, true);
+
+		VEvent updated = event.value.main.copy();
+		updated.summary = updated.summary + "-updated";
+		VEventSeries update = new VEventSeries();
+		update.main = updated;
+
+		// organizer update meeting title
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = event.uid;
+		veventMessage.vevent = update;
+		veventMessage.oldEvent = event.value;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = containerHome.get(ICalendarUids.TYPE + ":Default:" + user1.login);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventUpdated(veventMessage);
+		assertTrue(fakeSendmail.mailSent);
+
+		assertEquals(1, fakeSendmail.messages.size());
+		TestMail tm = fakeSendmail.messages.get(0);
+		assertEquals(1, tm.to.size());
+		Message m = tm.message;
+
+		assertTrue(m.getSubject().contains(updated.summary));
+		assertTrue(m.getBody() instanceof Multipart);
+		Multipart body = (Multipart) m.getBody();
+		for (Entity part : body.getBodyParts()) {
+			if ("event.ics".equals(part.getFilename())) {
+				TextBody tb = (TextBody) part.getBody();
+				InputStream in = tb.getInputStream();
+				String icsContent = new String(ByteStreams.toByteArray(in), part.getCharset());
+				in.close();
+				assertTrue(icsContent.contains("X-MICROSOFT-DISALLOW-COUNTER:false"));
+				return;
+			}
+		}
+		fail("Did not find any ics part in the message.");
+	}
+
+	@Test
+	public void updateShouldIncludeAcceptPropositions()
+			throws ServerFault, SQLException, UnsupportedEncodingException, IOException {
 		ItemValue<VEventSeries> event = defaultVEvent("update");
 		event.value.main.status = ICalendarElement.Status.NeedsAction;
 		Attendee attendee = VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,

@@ -196,6 +196,7 @@ public class CalendarService implements IInternalCalendar {
 		String summary = event.displayName();
 		ItemVersion version = storeService.createWithId(uid, internalId, null, summary, event);
 		indexStore.create(Item.create(uid, version.id), event);
+
 		calendarEventProducer.veventCreated(event, uid, sendNotifications);
 
 		return version.version;

@@ -228,7 +228,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(export.contains("END:VEVENT"));
 		assertTrue(export.contains("END:VCALENDAR"));
 
-		assertTrue(export.contains("X-MICROSOFT-DISALLOW-COUNTER:TRUE"));
+		assertTrue(export.contains("X-MICROSOFT-DISALLOW-COUNTER:false"));
 		assertTrue(export.contains("X-MICROSOFT-CDO-BUSYSTATUS:BUSY"));
 		assertTrue(export.contains("X-MOZ-LASTACK:"));
 

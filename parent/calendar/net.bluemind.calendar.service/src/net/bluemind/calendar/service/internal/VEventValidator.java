@@ -166,7 +166,7 @@ public class VEventValidator implements IValidator<VEventSeries> {
 			vevent.counters = new ArrayList<>();
 		}
 
-		if (!vevent.acceptCounters) {
+		if (!vevent.counters.isEmpty() && !vevent.acceptCounters) {
 			throw new ServerFault("Event accepts no counter propositions", ErrorCode.EVENT_ACCEPTS_NO_COUNTERS);
 		}
 
