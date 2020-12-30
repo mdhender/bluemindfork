@@ -44,7 +44,7 @@ public abstract class AbstractVCardAdapter<T> implements VCardAdapter<T> {
 				String addr = splitted[0];
 				List<String> domains = new ArrayList<>(domain.value.aliases);
 				if (domains.remove(splitted[1])) {
-					domains.add(domain.uid);
+					domains.add(domain.value.defaultAlias);
 				}
 				vcardEmails.add(VCard.Communications.Email.create(email.address,
 						Arrays.asList(Parameter.create("DEFAULT", email.isDefault ? "true" : "false"),
@@ -61,6 +61,8 @@ public abstract class AbstractVCardAdapter<T> implements VCardAdapter<T> {
 								Parameter.create("SYSTEM", "false"), Parameter.create("TYPE", "work"))));
 			}
 		}
+
+		vcardEmails.removeIf(e -> e.value.endsWith(".internal"));
 
 		return vcardEmails;
 	}
