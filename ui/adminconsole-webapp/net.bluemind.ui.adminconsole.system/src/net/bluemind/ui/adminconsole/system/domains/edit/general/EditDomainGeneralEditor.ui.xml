@@ -38,10 +38,24 @@
 			</tr>
 			<tr>
 				<td style='width:200px'>
-					<g:Label text="{c.language}:"></g:Label>
+					<div style="display:flex" title="{c.applyToAll}">
+						<g:Label text="{c.language}:" />
+						<sup><i class="fa fa-exclamation-circle" /></sup>
+					</div>
 				</td>
 				<td style='width:400px'>
 					<g:ListBox visibleItemCount="1" width="400px" ui:field="language" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<div style="display:flex" title="{c.applyToAll}">
+						<g:Label text="{c.timezone}:" />
+						<sup><i class="fa fa-exclamation-circle" /></sup>
+					</div>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox visibleItemCount="1" width="400px" ui:field="tz" />
 				</td>
 			</tr>
 			<tr>

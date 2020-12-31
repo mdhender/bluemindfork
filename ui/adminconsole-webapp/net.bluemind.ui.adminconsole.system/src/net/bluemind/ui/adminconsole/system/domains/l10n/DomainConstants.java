@@ -266,4 +266,8 @@ public interface DomainConstants extends Messages {
 	String addSubjectSuffix();
 
 	String updateSubjectAction();
+
+	String timezone();
+
+	String applyToAll();
 }

@@ -26,6 +26,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.i18n.client.LocaleInfo;
+import com.google.gwt.i18n.client.TimeZone;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -47,8 +48,10 @@ import net.bluemind.ui.admin.client.forms.MultiStringEditContainer;
 import net.bluemind.ui.adminconsole.system.SettingsModel;
 import net.bluemind.ui.adminconsole.system.domains.DomainKeys;
 import net.bluemind.ui.adminconsole.system.domains.edit.general.l10n.LocaleIdTranslation;
+import net.bluemind.ui.common.client.forms.GwtTimeZone;
 
 public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
+	private static final String DEFAULT_TZ = "Europe/Paris";
 
 	public static final String TYPE = "bm.ac.EditDomainGeneralEditor";
 
@@ -67,7 +70,12 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 	@UiField
 	ListBox language;
 
+	@UiField
+	ListBox tz;
+
 	private HashMap<String, Integer> languageMapping;
+
+	private HashMap<String, Integer> tzMapping;
 
 	private HashMap<String, Integer> defaultAliasesMapping;
 
@@ -80,8 +88,18 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		HTMLPanel panel = uiBinder.createAndBindUi(this);
 		initWidget(panel);
 		setLanguages();
+		setTimezone();
 		aliases.addChangeHandler(evt -> setAvailableDefaultAliases());
 		aliases.setMinimumLength(48);
+	}
+
+	private void setTimezone() {
+		tzMapping = new HashMap<>();
+		int index = 0;
+		for (TimeZone t : GwtTimeZone.INSTANCE.getTimeZones()) {
+			tzMapping.put(t.getID(), index++);
+			tz.addItem(t.getID(), t.getID());
+		}
 	}
 
 	private void setLanguages() {
@@ -142,9 +160,15 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		Domain domain = new DomainGwtSerDer().deserialize(new JSONObject(jsDomain));
 		description.setText(domain.description);
 		name.setText(domain.name);
+
 		String domainLanguage = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.lang.name());
 		domainLanguage = null != domainLanguage ? domainLanguage : LocaleIdTranslation.DEFAULT_ID;
 		language.setSelectedIndex(languageMapping.get(domainLanguage));
+
+		String domainTz = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.timezone.name());
+		domainTz = null != domainTz ? domainTz : DEFAULT_TZ;
+		tz.setSelectedIndex(tzMapping.get(domainTz));
+
 		setAvailableDefaultAliases();
 		if (defaultAliasesMapping.containsKey(domain.defaultAlias)) {
 			defaultAlias.setSelectedIndex(defaultAliasesMapping.get(domain.defaultAlias));
@@ -163,6 +187,8 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.lang.name(),
 				LocaleIdTranslation.getIdByLanguage(language.getSelectedItemText()));
+		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.timezone.name(), tz.getSelectedItemText());
+
 		JSONArray updatedAliasValues = new JSONArray();
 		int index = 0;
 		for (String alias : aliases.getValues()) {
