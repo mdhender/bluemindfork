@@ -67,4 +67,10 @@ public interface MailshareConstants extends Messages {
 
 	String routingNone();
 
+	String validateMailshare();
+
+	String checkAndRepair();
+
+	String execute();
+
 }

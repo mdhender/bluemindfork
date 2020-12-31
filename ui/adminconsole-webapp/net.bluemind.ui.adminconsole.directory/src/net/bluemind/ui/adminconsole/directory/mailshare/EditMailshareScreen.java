@@ -122,6 +122,11 @@ public class EditMailshareScreen extends BaseDirEntryEditScreen {
 		JsArray<ScreenElement> maintenanceContents = JsArray.createArray().cast();
 		maintenanceContents
 				.push(ScreenElement.create(null, MailboxMaintenance.TYPE).withRole(BasicRoles.ROLE_MANAGE_USER));
+
+		MailshareCheckAndRepair.registerType();
+		maintenanceContents
+				.push(ScreenElement.create(null, MailshareCheckAndRepair.TYPE).withRole(BasicRoles.ROLE_MANAGE_USER));
+
 		tabs.push(Tab.create(null, c.maintenanceTab(), ContainerElement.create(null, maintenanceContents)));
 
 		TabContainer tab = TabContainer.create("editMailshareTabs", tabs);
