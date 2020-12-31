@@ -17,6 +17,9 @@
   */
 package net.bluemind.server.service.internal;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.server.api.Server;
@@ -46,6 +49,7 @@ public class ServerSanitizer implements ISanitizer<Server> {
 		} else if (srv.tags.contains("bm/pgsql-data")) {
 			srv.tags.add("mail/imap");
 		}
+		srv.tags = new ArrayList<String>(new HashSet<>(srv.tags)); 
 	}
 
 }
