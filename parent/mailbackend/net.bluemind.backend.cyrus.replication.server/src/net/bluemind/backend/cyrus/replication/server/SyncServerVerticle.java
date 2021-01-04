@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
@@ -47,17 +47,14 @@ public class SyncServerVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(SyncServerVerticle.class);
 
-	private boolean started = false;
-
 	@Override
 	public void start(Promise<Void> start) {
-		super.vertx.eventBus().consumer(SystemState.BROADCAST, (Message<JsonObject> m) -> {
-			if (!started) {
-				SystemState state = SystemState.fromOperation(m.body().getString("operation"));
-				if (state == SystemState.CORE_STATE_RUNNING) {
-					started = true;
-					startSyncServer();
-				}
+		MessageConsumer<JsonObject> stateConsumer = vertx.eventBus().consumer(SystemState.BROADCAST);
+		stateConsumer.handler(m -> {
+			SystemState state = SystemState.fromOperation(m.body().getString("operation"));
+			if (state == SystemState.CORE_STATE_RUNNING) {
+				stateConsumer.unregister();
+				startSyncServer();
 			}
 		});
 

@@ -35,6 +35,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.container.model.ItemValue;
@@ -108,7 +109,10 @@ public class ApplicationLauncher implements IApplication {
 		loadMailboxDataSource();
 
 		Handler<AsyncResult<Void>> done = (AsyncResult<Void> event) -> {
-			VertxPlatform.getVertx().eventBus().consumer("mailbox.ds.lookup", message -> {
+			EventBus eb = VertxPlatform.eventBus();
+			VertxPlatform.getVertx().setPeriodic(4000,
+					tid -> eb.publish("mailbox.ds.known", JdbcActivator.getInstance().getMailboxDataSource().size()));
+			eb.consumer("mailbox.ds.lookup", message -> {
 				loadMailboxDataSource();
 				message.reply("ok");
 			});

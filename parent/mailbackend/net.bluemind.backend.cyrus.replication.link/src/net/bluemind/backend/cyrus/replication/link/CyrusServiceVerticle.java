@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.MessageConsumer;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.replication.link.probe.ReplicationLatencyTimer;
 import net.bluemind.backend.cyrus.replication.link.probe.SharedMailboxProbe;
@@ -49,9 +50,7 @@ public class CyrusServiceVerticle extends AbstractVerticle {
 	public void start() {
 		EventBus eventBus = vertx.eventBus();
 
-		eventBus.consumer("mailreplica.receiver.ready", message -> {
-			probe(0);
-		});
+		eventBus.consumer("mailreplica.receiver.ready", message -> probe(0));
 	}
 
 	private void probe(long id) {
@@ -65,15 +64,22 @@ public class CyrusServiceVerticle extends AbstractVerticle {
 			return;
 		}
 
-		servers.forEach(s -> {
-			CyrusService cyrusService = new CyrusService(s.value.address());
-			cyrusService.reload();
-			if (PROBED_DISABLED) {
-				logger.warn("Probe will not start because {} exists.", PROBE_FN);
-			} else {
-				vertx.setTimer(60000, timer -> buildSharedMailboxProbe(prov, service, s));
+		MessageConsumer<Integer> mailboxDsConsumer = vertx.eventBus().consumer("mailbox.ds.known");
+		mailboxDsConsumer.handler(message -> {
+			if (message.body().intValue() > 0) {
+				servers.forEach(server -> {
+					CyrusService cyrusService = new CyrusService(server.value.address());
+					cyrusService.reload();
+					if (PROBED_DISABLED) {
+						logger.warn("Probe will not start because {} exists.", PROBE_FN);
+					} else {
+						vertx.setTimer(60000, timer -> buildSharedMailboxProbe(prov, service, server));
+					}
+				});
+				mailboxDsConsumer.unregister();
 			}
 		});
+
 	}
 
 	private void buildSharedMailboxProbe(IServiceProvider prov, IServer service, ItemValue<Server> s) {
