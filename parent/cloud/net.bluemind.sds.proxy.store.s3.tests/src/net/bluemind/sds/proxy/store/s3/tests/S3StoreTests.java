@@ -27,9 +27,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -200,9 +204,45 @@ public class S3StoreTests {
 		assertEquals(LENGTH, downloaded2.length());
 	}
 
+	@Test
+	public void getManyObjects() throws IOException {
+		S3Configuration config = S3Configuration.withEndpointAndBucket("http://" + s3Ip + ":8000",
+				"junit-" + System.currentTimeMillis());
+		ISdsBackingStore store = new S3BackingStoreFactory().create(VertxPlatform.getVertx(), config.asJson());
+
+		int cnt = 100;
+		List<PutRequest> puts = new ArrayList<>(cnt);
+		for (int i = 0; i < cnt; i++) {
+			PutRequest put = new PutRequest();
+			put.mailbox = "titi";
+			put.guid = UUID.randomUUID().toString();
+			Path path = tempContent(256 * 1024);
+			put.filename = path.toFile().getAbsolutePath();
+			assertNull(store.upload(put).join().error);
+			puts.add(put);
+			Files.delete(path);
+		}
+
+		MgetRequest get = new MgetRequest();
+		get.mailbox = "titi";
+		get.transfers = puts.stream().map(p -> Transfer.of(p.guid, p.filename + ".dl")).collect(Collectors.toList());
+		for (int i = 0; i < cnt; i++) {
+			SdsResponse dlResp = store.downloads(get).join();
+			assertNotNull(dlResp);
+			assertNull(dlResp.error);
+			for (Transfer t : get.transfers) {
+				Files.deleteIfExists(Paths.get(t.filename));
+			}
+		}
+	}
+
 	private Path tempContent() throws IOException {
+		return tempContent(LENGTH);
+	}
+
+	private Path tempContent(int len) throws IOException {
 		Path path = Files.createTempFile("object", ".eml");
-		byte[] content = new byte[LENGTH];
+		byte[] content = new byte[len];
 		ThreadLocalRandom.current().nextBytes(content);
 		Files.write(path, content);
 		return path;

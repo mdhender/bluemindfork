@@ -28,7 +28,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.sds.replication;bundle-version="4.1.0",
  net.bluemind.core.rest,
  net.bluemind.system.api,
- net.bluemind.locator
+ net.bluemind.locator,
+ net.bluemind.mailindex.schema;bundle-version="4.1.0",
+ net.bluemind.backend.mail.replica.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.sds.proxy.store.s3.tests
 Bundle-ActivationPolicy: lazy

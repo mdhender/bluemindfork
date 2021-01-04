@@ -17,6 +17,7 @@
  */
 package net.bluemind.sds.proxy.store.s3.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -27,8 +28,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -45,8 +49,11 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import net.bluemind.aws.s3.utils.S3Configuration;
 import net.bluemind.backend.cyrus.CyrusService;
+import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
 import net.bluemind.backend.cyrus.replication.testhelper.SyncServerHelper;
+import net.bluemind.backend.mail.api.MessageBody;
+import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
@@ -83,6 +90,7 @@ public class SdsProxyWithS3IntegrationTests {
 	private String cyrusIp;
 	private String bucket;
 	private S3Configuration config;
+	private CyrusPartition partition;
 
 	@Before
 	public void before() throws Exception {
@@ -138,6 +146,8 @@ public class SdsProxyWithS3IntegrationTests {
 		MQ.init().get(30, TimeUnit.SECONDS);
 		Topology.get();
 
+		this.partition = CyrusPartition.forServerAndDomain(Topology.get().any("mail/imap"), domainUid);
+
 		SyncServerHelper.waitFor();
 
 		cyrusReplication.startReplication().get(5, TimeUnit.SECONDS);
@@ -160,6 +170,7 @@ public class SdsProxyWithS3IntegrationTests {
 
 		System.err.println("Start populate user " + userUid);
 		PopulateHelper.addUser(userUid, domainUid, Routing.internal);
+		System.err.println("Populated.");
 	}
 
 	@After
@@ -227,6 +238,66 @@ public class SdsProxyWithS3IntegrationTests {
 			content = Files.readAllBytes(f.toPath());
 			assertTrue(Arrays.equals(content, emlData));
 			f.delete();
+		}
+
+	}
+
+	private static class ToDeliver {
+		private byte[] emlData;
+		private String sha1;
+
+		@SuppressWarnings("deprecation")
+		public ToDeliver() {
+			StringBuilder eml = new StringBuilder("From: john" + System.currentTimeMillis() + "@junit.test\r\n\r\n");
+			ThreadLocalRandom rand = ThreadLocalRandom.current();
+			int lim = 50 * (1024 + rand.nextInt(2048));
+			for (int i = 0; i < lim; i++) {
+				eml.append("aa");
+			}
+			eml.append("\r\n" + UUID.randomUUID().toString() + "\r\n");
+			this.emlData = eml.toString().getBytes();
+			this.sha1 = Hashing.sha1().hashBytes(emlData).toString();
+		}
+	}
+
+	@Test
+	public void ensureReplicatedBodyIsFine()
+			throws InterruptedException, ExecutionException, TimeoutException, IOException {
+		// configure sds-proxy for s3
+
+		try (SdsProxyManager sdsMgmt = new SdsProxyManager(VertxPlatform.getVertx(), cyrusIp)) {
+			sdsMgmt.applyConfiguration(config.asJson()).get(5, TimeUnit.SECONDS);
+		}
+
+		// prep emails
+		int cnt = 50;
+		List<ToDeliver> mails = new ArrayList<>(cnt);
+		for (int i = 0; i < cnt; i++) {
+			ToDeliver msg = new ToDeliver();
+			mails.add(msg);
+			System.err.println("Prep " + i + " => " + msg.emlData.length);
+		}
+		try (StoreClient sc = new StoreClient(cyrusIp, 1143, userUid + "@" + domainUid, userUid)) {
+			sc.login();
+			for (ToDeliver del : mails) {
+				int added = sc.append("INBOX", new ByteArrayInputStream(del.emlData), new FlagsList());
+				assertTrue(added > 0);
+				System.err.println("Delivered " + added);
+			}
+		}
+		IDbMessageBodies bodyApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDbMessageBodies.class, partition.name);
+
+		System.err.println("Waiting, partition is " + partition.name);
+		for (ToDeliver del : mails) {
+			MessageBody fetched = bodyApi.getComplete(del.sha1);
+			while (fetched == null) {
+				Thread.sleep(100);
+				System.err.println("recheck " + del.sha1);
+				fetched = bodyApi.getComplete(del.sha1);
+			}
+			System.err.println("fetched " + del.sha1 + " " + fetched);
+			assertEquals(del.emlData.length, fetched.size);
 		}
 
 	}
