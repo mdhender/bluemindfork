@@ -76,11 +76,11 @@ public class SqlUpdater implements Updater {
 			try {
 				st.execute(schemaValue);
 				con.commit();
+				return UpdateResult.ok();
 			} catch (Exception e) {
 				con.rollback();
 				throw e;
-			}
-			finally {
+			} finally {
 				con.setAutoCommit(true);
 			}
 		} catch (Exception e) {
