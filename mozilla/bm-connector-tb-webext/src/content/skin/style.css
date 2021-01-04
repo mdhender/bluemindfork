@@ -92,3 +92,10 @@ label.red {
   border-bottom: 1px solid #bfbfbf;
   padding: 3px;
 }
+
+#bm-counter-bandal {
+  background-color: #dbeaf9;
+  color: -moz-dialogtext;
+  border-bottom: 1px solid #bfbfbf;
+  padding: 3px;
+}

@@ -304,5 +304,32 @@
     },
     "extensions.bm.updated.restartAfterUpdate3": {
         "message": "Voulez-vous relancer Thunderbird maintenant ?"
+    },
+    "bm.counter.accept": {
+        "message": "Oui"
+    },
+    "bm.counter.decline": {
+        "message": "Non"
+    },
+    "bm.counter.description": {
+        "message": "Nouveaux horaires pour la réunion"
+    },
+    "bm.counter.title": {
+        "message": "Titre"
+    },
+    "bm.counter.original": {
+        "message": "Actuels"
+    },
+    "bm.counter.where": {
+        "message": "Lieu"
+    },
+    "bm.counter.proposed": {
+        "message": "Proposés"
+    },
+     "extensions.bm.counterbandal.accept": {
+        "message": "Accepter"
+    },
+    "extensions.bm.counterbandal.acceptFor": {
+        "message": "Accepter pour:"
     }
 }

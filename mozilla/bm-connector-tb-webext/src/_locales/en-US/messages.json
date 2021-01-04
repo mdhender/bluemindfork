@@ -307,5 +307,32 @@
     },
     "extensions.bm.updated.restartAfterUpdate3": {
         "message": "Do you want to restart Thunderbird now?"
+    },
+    "bm.counter.accept": {
+        "message": "Accept"
+    },
+    "bm.counter.decline": {
+        "message": "Decline"
+    },
+    "bm.counter.description": {
+        "message": "New times for meeting"
+    },
+    "bm.counter.title": {
+        "message": "Title"
+    },
+    "bm.counter.original": {
+        "message": "Orignal"
+    },
+    "bm.counter.where": {
+        "message": "Location"
+    },
+    "bm.counter.proposed": {
+        "message": "Proposed"
+    },
+    "extensions.bm.counterbandal.accept": {
+        "message": "Accept"
+    },
+    "extensions.bm.counterbandal.acceptFor": {
+        "message": "Accept for:"
     }
 }

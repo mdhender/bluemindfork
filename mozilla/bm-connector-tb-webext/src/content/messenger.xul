@@ -155,4 +155,44 @@
           </rows>
       </grid>
   </hbox>
+  <hbox id="bm-counter-bandal"
+          collapsed="true"
+          insertbefore="messagepanewrapper"
+          appendto="singlemessage">
+      <description class="msgNotificationBarText" value="__BM_bm.counter.description__"/>
+      <grid>
+          <columns>
+              <column></column>
+              <column></column>
+          </columns>
+          <rows>
+              <row>
+                  <label value="__BM_bm.counter.title__"/>
+                  <label id="bm-counter-bandal-title" value=""/>
+              </row>
+              <row>
+                  <label value="__BM_bm.counter.original__"/>
+                  <label id="bm-counter-bandal-original" value=""/>
+              </row>
+              <row>
+                  <label value="__BM_bm.counter.proposed__"/>
+                  <label id="bm-counter-bandal-proposed" value=""/>
+              </row>
+              <row>
+                  <label value="__BM_bm.counter.where__"/>
+                  <label id="bm-counter-bandal-where" value=""/>
+              </row>
+              <row id="bm-counter-bandal-decisionRow">
+                  <label id="bm-counter-bandal-decision" value=""/>
+                  <hbox>
+                      <label id="bm-counter-bandal-accept" class="text-link"
+                              onclick="" value="__BM_bm.counter.accept__"/>
+                      <label value="-"/>
+                      <label id="bm-counter-bandal-decline" class="text-link"
+                              onclick="" value="__BM_bm.counter.decline__"/>
+                  </hbox>
+              </row>
+          </rows>
+      </grid>
+  </hbox>
 </overlay>
