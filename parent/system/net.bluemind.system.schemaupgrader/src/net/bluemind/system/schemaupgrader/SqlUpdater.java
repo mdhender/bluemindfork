@@ -59,6 +59,7 @@ public class SqlUpdater implements Updater {
 
 	@Override
 	public UpdateResult executeUpdate(IServerTaskMonitor monitor, DataSource pool, Set<UpdateAction> handledActions) {
+		logger.info("executeupdate on {}: {}", pool, file.toString());
 		monitor.log("On SQL script " + file.toString());
 
 		String schemaValue = null;

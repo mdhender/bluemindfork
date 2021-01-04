@@ -70,21 +70,20 @@ public class InstallationUpgradeTask implements IServerTask {
 		Set<UpdateAction> handledActions = EnumSet.noneOf(UpdateAction.class);
 		List<Updater> upgraders = SchemaUpgrade.getUpgradePath();
 
-		SchemaUpgrade.splitAndExecuteUpgraders(store, handledActions, upgraders,
-				list -> partialUpgrade(list, handledActions, store, monitor));
+		executeUpgrades(upgraders, handledActions, store, monitor);
 
 		monitor.end(true, "Core upgrade complete.", "");
 		logger.info("Core upgrade ended");
 		notifyUpgradeStatus("core.upgrade.end");
 	}
 
-	private void partialUpgrade(List<Updater> upgraders, Set<UpdateAction> handledActions, UpgraderStore store,
+	private void executeUpgrades(List<Updater> upgraders, Set<UpdateAction> handledActions, UpgraderStore store,
 			IServerTaskMonitor monitor) {
 		logger.info("Schema update path contains {} updater(s)", upgraders.size());
 		monitor.log("Starting schema upgrades....");
 
 		List<Updater> phase1 = upgraders.stream().filter(u -> !u.afterSchemaUpgrade()).collect(Collectors.toList());
-		List<Updater> phase2 = upgraders.stream().filter(u -> u.afterSchemaUpgrade()).collect(Collectors.toList());
+		List<Updater> phase2 = upgraders.stream().filter(Updater::afterSchemaUpgrade).collect(Collectors.toList());
 
 		for (Entry<String, DataSource> mbDS : ServerSideServiceProvider.mailboxDataSource.entrySet()) {
 			doUpgradeForDataSource(Database.SHARD, mbDS.getKey(), mbDS.getValue(), true, monitor.subWork(1), store,
@@ -99,7 +98,7 @@ public class InstallationUpgradeTask implements IServerTask {
 		boolean needsMigration = store.needsMigration();
 		if (needsMigration) {
 			List<String> servers = new ArrayList<>(ServerSideServiceProvider.mailboxDataSource.entrySet().stream()
-					.map(s -> s.getKey()).collect(Collectors.toList()));
+					.map(Entry::getKey).collect(Collectors.toList()));
 			servers.add("master");
 			UpgraderMigration.migrate(store, from, servers);
 		}

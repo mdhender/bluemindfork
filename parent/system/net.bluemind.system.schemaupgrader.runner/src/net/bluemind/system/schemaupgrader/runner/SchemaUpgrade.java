@@ -19,16 +19,13 @@
 package net.bluemind.system.schemaupgrader.runner;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -203,24 +200,4 @@ public class SchemaUpgrade {
 			throw ServerFault.create(ErrorCode.SQL_ERROR, e);
 		}
 	}
-
-	public static void splitAndExecuteUpgraders(UpgraderStore store, Set<UpdateAction> handledActions,
-			List<Updater> upgraders, Consumer<List<Updater>> op) {
-		Date currentDate = null;
-		List<Updater> currentList = new ArrayList<>();
-		for (Updater updater : upgraders) {
-			if (currentDate == null || updater.date().equals(currentDate)) {
-				currentList.add(updater);
-			} else {
-				op.accept(currentList);
-				currentList = new ArrayList<>();
-				currentList.add(updater);
-			}
-			currentDate = updater.date();
-		}
-		if (!currentList.isEmpty()) {
-			op.accept(currentList);
-		}
-	}
-
 }
