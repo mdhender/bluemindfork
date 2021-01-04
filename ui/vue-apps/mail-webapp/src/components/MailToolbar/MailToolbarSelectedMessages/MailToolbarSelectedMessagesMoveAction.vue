@@ -132,7 +132,8 @@ export default {
     },
     methods: {
         moveToFolder(folder) {
-            const toBeMoved = this.selection.map(key => this.messages[key]) || this.messages[this.currentMessageKey];
+            const selectedMessages = this.selection.map(key => this.messages[key]);
+            const toBeMoved = selectedMessages.length > 0 ? selectedMessages : this.messages[this.currentMessageKey];
             this.MOVE_MESSAGES({ messages: toBeMoved, folder });
             this.$refs["move-dropdown"].hide(true);
         },
