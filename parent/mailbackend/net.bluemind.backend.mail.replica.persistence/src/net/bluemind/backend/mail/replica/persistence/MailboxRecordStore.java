@@ -139,16 +139,15 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	 * @return
 	 * @throws SQLException
 	 */
-	public Set<RecordID> identifiers(long[] uidArrays) throws SQLException {
+	public List<RecordID> identifiers(long... uidArrays) throws SQLException {
 		if (uidArrays.length == 0) {
-			return Collections.emptySet();
+			return Collections.emptyList();
 		}
 		String inString = Arrays.stream(uidArrays).mapToObj(Long::toString).collect(Collectors.joining(","));
 		String query = "" + //
 				"SELECT mr.imap_uid, mr.item_id FROM t_mailbox_record mr "
 				+ "WHERE mr.container_id=? AND mr.imap_uid IN (" + inString + ")";
-		List<RecordID> found = select(query, RecordID.CREATOR, RecordID.POPULATOR, new Object[] { container.id });
-		return new HashSet<>(found);
+		return select(query, RecordID.CREATOR, RecordID.POPULATOR, new Object[] { container.id });
 	}
 
 	public List<ImapBinding> bindings(List<Long> itemIds) throws SQLException {

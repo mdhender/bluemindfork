@@ -236,7 +236,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 	@Override
 	public ItemValue<MailboxRecord> getCompleteByImapUid(long imapUid) {
 		try {
-			Set<RecordID> idSet = recordStore.identifiers(new long[] { imapUid });
+			List<RecordID> idSet = recordStore.identifiers(imapUid);
 			if (idSet.isEmpty()) {
 				logger.warn("No record with imap uid {}", imapUid);
 				return null;
@@ -313,7 +313,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 		long contVersion = storeService.doOrFail(() -> {
 			long[] uidArrays = records.stream().mapToLong(rec -> rec.imapUid).toArray();
-			Set<RecordID> ids = recordStore.identifiers(uidArrays);
+			List<RecordID> ids = recordStore.identifiers(uidArrays);
 			Map<Long, RecordID> dbByUid = ids.stream().collect(Collectors.toMap(r -> r.imapUid, r -> r));
 			Set<RecordID> toUpdateRecords = records.stream().map(mr -> new RecordID(mr.imapUid))
 					.collect(Collectors.toSet());
@@ -511,7 +511,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		long[] asArray = uids.stream().mapToLong(Long::longValue).toArray();
 		AtomicLong lastVersion = new AtomicLong();
 		storeService.doOrFail(() -> {
-			Set<RecordID> itemUids = recordStore.identifiers(asArray);
+			List<RecordID> itemUids = recordStore.identifiers(asArray);
 			itemUids.forEach(rec -> {
 				ItemVersion iv = storeService.delete(rec.itemId);
 				lastVersion.set(iv.version);

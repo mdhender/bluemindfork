@@ -43,10 +43,10 @@ import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.cli.utils.CliUtils.ResolvedMailbox;
 import net.bluemind.core.api.ListResult;
-import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
+import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.mailbox.api.Mailbox.Type;
@@ -138,7 +138,7 @@ public class UnexpungeCommand implements ICmdLet, Runnable {
 				} else if (id > 0) {
 					ctx.info("Recover message with id " + id);
 					if (!dry) {
-						Ack ack = itemsApi.unexpunge(id);
+						ItemIdentifier ack = itemsApi.unexpunge(id);
 						ctx.info("ack: " + ack.version);
 					} else {
 						ctx.info("dry mode is ON.");
@@ -208,7 +208,7 @@ public class UnexpungeCommand implements ICmdLet, Runnable {
 
 		@Override
 		public void accept(ItemValue<MailboxItem> t) {
-			Ack unexp = itemsApi.unexpunge(t.internalId);
+			ItemIdentifier unexp = itemsApi.unexpunge(t.internalId);
 			ctx.info("ack received: " + unexp.version);
 		}
 

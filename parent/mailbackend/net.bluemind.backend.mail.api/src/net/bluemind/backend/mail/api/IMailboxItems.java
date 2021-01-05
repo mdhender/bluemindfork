@@ -163,7 +163,7 @@ public interface IMailboxItems
 	 */
 	@POST
 	@Path("_unexpunge/{itemId}")
-	Ack unexpunge(@PathParam("itemId") long itemId);
+	ItemIdentifier unexpunge(@PathParam("itemId") long itemId);
 
 	/**
 	 * @param imapUid

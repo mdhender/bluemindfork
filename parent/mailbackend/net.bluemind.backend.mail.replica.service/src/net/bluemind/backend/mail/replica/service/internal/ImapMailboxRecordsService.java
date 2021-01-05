@@ -80,6 +80,7 @@ import net.bluemind.backend.mail.replica.api.utils.UidRanges;
 import net.bluemind.backend.mail.replica.api.utils.UidRanges.UidRange;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
+import net.bluemind.backend.mail.replica.persistence.RecordID;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
 import net.bluemind.backend.mail.replica.persistence.SeenOverlayStore;
@@ -596,7 +597,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		}).collect(Collectors.toList());
 	}
 
-	public Ack unexpunge(long itemId) {
+	public ItemIdentifier unexpunge(long itemId) {
 		rbac.check(Verb.Write.name());
 
 		ItemValue<MailboxRecord> item = storeService.get(itemId, null);
@@ -613,7 +614,14 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		});
 		if (readded > 0) {
 			try {
-				return completion.thenApply(Ack::create).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+				return completion.thenApply(version -> {
+					try {
+						RecordID itemRec = recordStore.identifiers(readded).iterator().next();
+						return new ItemIdentifier(null, itemRec.itemId, version);
+					} catch (SQLException e) {
+						throw ServerFault.sqlFault(e);
+					}
+				}).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			} catch (TimeoutException e) {
 				throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
 			} catch (Exception e) {
