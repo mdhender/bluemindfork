@@ -8,6 +8,7 @@
 	},
 	"aliases": {
 		"mailspool_pending_alias": {
+		  "is_write_index": true
 		}
 	},
 	"mappings": {

@@ -42,6 +42,8 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
+import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest.AliasActions;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -51,6 +53,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
@@ -270,7 +273,7 @@ public final class ESearchActivator implements BundleActivator {
 			}
 
 			settingsBuilder.put("node.name", "client-" + UUID.randomUUID());
-                        settingsBuilder.put("client.transport.ping_timeout", "20s");
+			settingsBuilder.put("client.transport.ping_timeout", "20s");
 			Settings settings = settingsBuilder.build();
 			TransportClient cli = new PreBuiltTransportClient(settings);
 			StringBuilder hlist = new StringBuilder();
@@ -372,12 +375,7 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	public static void resetIndex(String index) {
-		Collection<String> hosts = hosts("bm/es");
-		if (hosts != null) {
-			for (String host : hosts) {
-				new NetworkHelper(host).waitForListeningPort(9300, 30, TimeUnit.SECONDS);
-			}
-		}
+		waitForElasticsearchHosts();
 		Client client = ESearchActivator.getClient();
 		resetIndex(client, index);
 	}
@@ -403,6 +401,24 @@ public final class ESearchActivator implements BundleActivator {
 		}
 
 		initIndex(client, index, isPrimary(index));
+	}
+
+	public static void addAliasTo(String aliasName, String indexName, boolean isWriteIndex) {
+		waitForElasticsearchHosts();
+		Client client = ESearchActivator.getClient();
+		logger.info("add alias {} to {} (write:{})", aliasName, indexName, isWriteIndex);
+		AliasActions addAliasActions = AliasActions.add().index(indexName).alias(aliasName).writeIndex(isWriteIndex);
+		IndicesAliasesRequest addAliasRequest = Requests.indexAliasesRequest().addAliasAction(addAliasActions);
+		client.admin().indices().aliases(addAliasRequest).actionGet();
+	}
+
+	private static void waitForElasticsearchHosts() {
+		Collection<String> hosts = hosts("bm/es");
+		if (hosts != null) {
+			for (String host : hosts) {
+				new NetworkHelper(host).waitForListeningPort(9300, 30, TimeUnit.SECONDS);
+			}
+		}
 	}
 
 	private static boolean isPrimary(String index) {
