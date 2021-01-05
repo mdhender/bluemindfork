@@ -26,7 +26,13 @@ install -m 644 /sources/stretch/bm-pimp.service %{buildroot}%{_unitdir}
 %exclude %dir %{_unitdir}
 /*
 
-%post
+%pre
+if [ $1 -gt 1 ]; then
+    # Upgrade
+    [ -d /run/systemd/system ] && systemctl stop bm-pimp
+fi
+
+%post -p /bin/bash
 systemctl enable bm-pimp
 if [ -d /run/systemd/system ]; then
     systemctl daemon-reload
@@ -37,8 +43,19 @@ if [ -d /run/systemd/system ]; then
     fi
 fi
 
+%preun
+if [ $1 -eq 0 ]; then
+    # Uninstall
+    [ -d /run/systemd/system ] && systemctl stop bm-core
+fi
+
 %postun
 if [ $1 -eq 1 ]; then
     # Upgrade
-    [ -d /run/systemd/system ] && systemctl start bm-pimp
+    [ -d /run/systemd/system ] && systemctl start bm-core
 fi
+
+%posttrans
+# Need for upgrading from broken package
+# Don't start if already started
+[ -d /run/systemd/system ] && systemctl start bm-pimp

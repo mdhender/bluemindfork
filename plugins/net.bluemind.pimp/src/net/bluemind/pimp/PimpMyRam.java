@@ -61,6 +61,8 @@ public class PimpMyRam implements IApplication {
 			writePg(isShard ? "mem.shard.32g" : "mem.32g");
 		} else if (totalMemMB > 15000) {
 			writePg(isShard ? "mem.shard.16g" : "mem.16g");
+		} else {
+			writePg("mem.default");
 		}
 	}
 
