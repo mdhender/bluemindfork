@@ -45,17 +45,21 @@ public class DirItemStore extends ItemStore {
 	public Item get(String uid) throws SQLException {
 		String selectQuery = "SELECT " + COLUMNS.names("item") + " FROM t_container_item item, t_directory_entry dir "
 				+ " WHERE item.uid = ? and item.container_id = ? AND dir.item_id = item.id AND dir.kind = ?";
-		return unique(selectQuery, (rs) -> new Item(), Arrays.<EntityPopulator<Item>>asList(ITEM_POPULATOR),
+		return unique(selectQuery, (rs) -> new Item(), ITEM_POPULATORS,
 				new Object[] { uid, container.id, kind.name() });
 
 	}
 
 	public Item getByEmail(String email) throws SQLException {
-		if (Strings.isNullOrEmpty(email) || email.split("@").length != 2) {
+		if (Strings.isNullOrEmpty(email)) {
 			return null;
 		}
-		String leftPart = email.split("@")[0];
-		String domain = email.split("@")[1];
+		String[] splitted = email.split("@");
+		if (splitted.length != 2) {
+			return null;
+		}
+		String leftPart = splitted[0];
+		String domain = splitted[1];
 
 		String selectQuery = "SELECT " + COLUMNS.names("item") + " FROM t_container_item item " //
 				+ "  JOIN t_directory_entry dir ON dir.item_id = item.id " //
@@ -66,14 +70,14 @@ public class DirItemStore extends ItemStore {
 				+ " (dom.name = ? OR ? = ANY(dom.aliases)))) " //
 				+ "  AND  item.container_id = ? AND dir.kind = ? ";
 
-		return unique(selectQuery, (rs) -> new Item(), Arrays.<EntityPopulator<Item>>asList(ITEM_POPULATOR),
+		return unique(selectQuery, (rs) -> new Item(), ITEM_POPULATORS,
 				new Object[] { container.uid, email, leftPart, domain, domain, container.id, kind.name() });
 	}
 
 	public Item getByExtId(String extId) throws SQLException {
 		String selectQuery = "SELECT " + COLUMNS.names("item") + " FROM t_container_item item, t_directory_entry dir "
 				+ " WHERE item.external_id = ? and item.container_id = ? AND dir.item_id = item.id AND dir.kind = ?";
-		return unique(selectQuery, (rs) -> new Item(), Arrays.<EntityPopulator<Item>>asList(ITEM_POPULATOR),
+		return unique(selectQuery, (rs) -> new Item(), ITEM_POPULATORS,
 				new Object[] { extId, container.id, kind.name() });
 
 	}
@@ -81,8 +85,7 @@ public class DirItemStore extends ItemStore {
 	public Item getById(long id) throws SQLException {
 		String selectQuery = "SELECT " + COLUMNS.names("item") + " FROM t_container_item item, t_directory_entry dir "
 				+ " WHERE id = ? and container_id = ? AND dir.item_id = item.id AND dir.kind = ?";
-		return unique(selectQuery, (rs) -> new Item(), Arrays.<EntityPopulator<Item>>asList(ITEM_POPULATOR),
-				new Object[] { id, container.id, kind.name() });
+		return unique(selectQuery, (rs) -> new Item(), ITEM_POPULATORS, new Object[] { id, container.id, kind.name() });
 
 	}
 
@@ -91,7 +94,7 @@ public class DirItemStore extends ItemStore {
 				+ " WHERE item.container_id = ? and item.uid = ANY (?) AND dir.item_id = item.id AND dir.kind = ?";
 
 		String[] array = uids.toArray(new String[0]);
-		return select(selectQuery, (rs) -> new Item(), Arrays.<EntityPopulator<Item>>asList(ITEM_POPULATOR),
+		return select(selectQuery, (rs) -> new Item(), ITEM_POPULATORS,
 				new Object[] { container.id, array, kind.name() });
 
 	}
@@ -105,7 +108,7 @@ public class DirItemStore extends ItemStore {
 		}
 		selectQuery.append(")");
 		selectQuery.append(" AND dir.item_id = item.id AND dir.kind = ?");
-		return select(selectQuery.toString(), (rs) -> new Item(), Arrays.<EntityPopulator<Item>>asList(ITEM_POPULATOR),
+		return select(selectQuery.toString(), (rs) -> new Item(), ITEM_POPULATORS,
 				new Object[] { container.id, kind.name() });
 	}
 
@@ -114,8 +117,7 @@ public class DirItemStore extends ItemStore {
 				+ " FROM t_container_item item, t_directory_entry dir " //
 				+ " WHERE container_id = ? AND dir.item_id = item.id AND dir.kind = ? ";
 
-		return select(selectQuery, (rs) -> new Item(), Arrays.<EntityPopulator<Item>>asList(ITEM_POPULATOR),
-				new Object[] { container.id, kind.name() });
+		return select(selectQuery, (rs) -> new Item(), ITEM_POPULATORS, new Object[] { container.id, kind.name() });
 
 	}
 
