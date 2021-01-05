@@ -22,7 +22,7 @@ describe("MailDB", () => {
         });
     });
 
-    describe("API & store", () => {
+    describe("API and store", () => {
         describe("sync_options", () => {
             let dbPromise;
             beforeEach(() => {
