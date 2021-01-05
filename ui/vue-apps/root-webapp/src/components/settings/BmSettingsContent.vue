@@ -14,7 +14,7 @@
             </h2>
         </div>
         <div class="border-bottom border-secondary" />
-        <div class="pl-5 py-4 overflow-auto">
+        <div class="px-5 py-4 overflow-auto">
             <!-- TODO remove 'disabled' and 'available soon' once conversations are ready -->
             <h2 class="pb-4">
                 {{ $t("settings.mail.thread") }} <span class="available-soon">{{ $t("common.available_soon") }}</span>
@@ -79,11 +79,22 @@
                     {{ $t("settings.mail.signature.insert") }}
                 </bm-form-checkbox>
             </bm-form-group>
-            <h2 class="py-4">{{ $t("settings.mail.logout") }}</h2>
+            <h2 class="pb-4">{{ $t("settings.mail.logout") }}</h2>
             <bm-form-group :aria-label="$t('settings.mail.logout')">
                 <bm-form-checkbox v-model="localUserSettings.logout_purge">
                     {{ $t("settings.mail.logout.empty.trash") }}
                 </bm-form-checkbox>
+            <h2 class="py-4">{{ $t("settings.mail.remote.images") }}</h2>
+            <bm-form-group :aria-label="$t('settings.mail.remote.images')">
+                <bm-form-checkbox v-model="localUserSettings.trust_every_remote_content" class="pb-1">
+                    {{ $t("settings.mail.remote.images.trust") }}
+                </bm-form-checkbox>
+                <div class="ml-4 text-secondary">
+                    <bm-icon icon="info-circle" class="mr-1" /> {{ $t("settings.mail.remote.images.explanations") }}
+                    <a href="https://forge.bluemind.net/confluence/display/BM4/La+messagerie" target="_blank">
+                        {{ $t("settings.mail.remote.images.help") }}
+                    </a>
+                </div>
             </bm-form-group>
         </div>
         <div class="d-flex mt-auto pl-5 py-3 border-top border-secondary">
