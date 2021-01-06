@@ -2,7 +2,12 @@
 
 set -e
 
+shopt -s checkjobs
+
 export MALLOC_CHECK_=0
+WORKERS=1
+force=0
+declare -a GRPS
 
 if [ $EUID -ne 0 ]; then
     echo "Error: this script must be run as root"
@@ -14,18 +19,13 @@ if [ -e /etc/bm/no.mail.indexing ]; then
     exit 2
 fi
 
-force=0
-if [ "$1" = "-f" ] || [ "$1" = "--force" ]; then
-    shift
-    force=1
-fi
-
 for cmd in curl jq bm-cli; do
     if ! which ${cmd} >/dev/null 2>&1; then
         echo "Command \"${cmd}\" is not installed."
         exit 1
     fi
 done
+
 
 QUOTA_DUMP=/root/hsm_migration_quota_left.json
 MIGRATED_LOG=/root/hsm_migration_migrated.log
@@ -35,44 +35,169 @@ API_KEY=$(cat /etc/bm/bm-core.tok)
 CURL="curl -s -k -H \"X-BM-ApiKey: ${API_KEY}\""
 
 
-echo "Estimating the progress of replication"
-message_body_count=$(PGPASSWORD=bj psql -qtA -h localhost bj-data bj -c 'select count(*) from t_mailbox_record')
-cyrus_data_count=$(find /var/spool/cyrus/data/ -type f -links 1 -print|wc -l)
-cyrus_archive_count=$(find /var/spool/bm-hsm/cyrus-archives -type f -links 1 -print|wc -l)
-cyrus_total_count=$(($cyrus_data_count + $cyrus_archive_count))
-delta_percent=$(python -c "print(abs(int(((${message_body_count}-${cyrus_total_count})/${cyrus_data_count}.)*100)))")
+usage() {
+    echo "Usage: $0 [-f] [-w worker_count] [-g group] [-g group]"
+    exit 1
+}
 
-echo "Cyrus data: ${cyrus_data_count} archives: ${cyrus_archive_count} total: ${cyrus_total_count}"
-echo "Indexed count: ${message_body_count}"
-echo "Delta percent: ${delta_percent}%"
+while getopts "g:w:f" o; do
+    case "${o}" in
+    w)
+        WORKERS="${OPTARG}"
+        ;;
+    g)
+        GRPS+=("${OPTARG}")
+        ;;
+    f)
+        force=1
+        ;;
+    *)
+        usage
+        ;;
+    esac
+done
+shift $((OPTIND-1))
 
-# if [ "$delta_percent" -ge 5 ]; then
-#     echo
-#     echo "WARNING: the indexation process seems incomplete"
-#     echo "The migration process involves requesting indexes for BMARCHIVED emails."
-#     echo "If you continue, you could miss some archived emails"
-#     echo
-#     echo "NOTE: The count may be erroneous because cyrus does not remove files immediately"
-#     echo "  You can run cyr_expire -X0 in order to remove thoses files and retry the migration script again"
-#     echo
-#     echo "NOTE: you can force the reindexation of the mailspool:"
-#     echo "    bm-cli maintenance repair --ops replication.subtree [domain_uid]"
-#     echo "    bm-cli maintenance repair --ops replication.parentUid [domain_uid]"
-#     echo "  Please note this command is asynchronous, you will need to WAIT for /var/log/bm/replication.log to settle down"
-#     echo "  before running the HSM migration again."
-#     echo
-#     echo "Continue anyway ?"
-#     select yn in Yes No; do
-#         case $yn in
-#             Yes) break;;
-#             No) exit 3;;
-#         esac
-#     done
-# else
-#     echo "Inexation seems fine"
-# fi
+
+# Not used anymore
+replication_progress() {
+    echo "Estimating the progress of replication"
+    message_body_count=$(PGPASSWORD=bj psql -qtA -h localhost bj-data bj -c 'select count(*) from t_mailbox_record')
+    cyrus_data_count=$(find /var/spool/cyrus/data/ -type f -links 1 -print|wc -l)
+    cyrus_archive_count=$(find /var/spool/bm-hsm/cyrus-archives -type f -links 1 -print|wc -l)
+    cyrus_total_count=$(($cyrus_data_count + $cyrus_archive_count))
+    delta_percent=$(python -c "print(abs(int(((${message_body_count}-${cyrus_total_count})/${cyrus_data_count}.)*100)))")
+
+    echo "Cyrus data: ${cyrus_data_count} archives: ${cyrus_archive_count} total: ${cyrus_total_count}"
+    echo "Indexed count: ${message_body_count}"
+    echo "Delta percent: ${delta_percent}%"
+    # if [ "$delta_percent" -ge 5 ]; then
+    #     echo
+    #     echo "WARNING: the indexation process seems incomplete"
+    #     echo "The migration process involves requesting indexes for BMARCHIVED emails."
+    #     echo "If you continue, you could miss some archived emails"
+    #     echo
+    #     echo "NOTE: The count may be erroneous because cyrus does not remove files immediately"
+    #     echo "  You can run cyr_expire -X0 in order to remove thoses files and retry the migration script again"
+    #     echo
+    #     echo "NOTE: you can force the reindexation of the mailspool:"
+    #     echo "    bm-cli maintenance repair --ops replication.subtree [domain_uid]"
+    #     echo "    bm-cli maintenance repair --ops replication.parentUid [domain_uid]"
+    #     echo "  Please note this command is asynchronous, you will need to WAIT for /var/log/bm/replication.log to settle down"
+    #     echo "  before running the HSM migration again."
+    #     echo
+    #     echo "Continue anyway ?"
+    #     select yn in Yes No; do
+    #         case $yn in
+    #             Yes) break;;
+    #             No) exit 3;;
+    #         esac
+    #     done
+    # else
+    #     echo "Indexation seems fine"
+    # fi
+}
+
+get_group_members() {
+    domain="$1"
+    name="$2"
+
+    group_uid=$(curl -s -k -H "X-BM-ApiKey: ${API_KEY}" -XGET ${API_URL}/groups/${domain}/byName/${name} | jq -rc '.uid')
+    if [ -z "$group_uid" ]; then
+        echo "Group ${name} not found in domain ${domain}" 1>&2
+    else
+        group_members=$(curl -s -k -H "X-BM-ApiKey: ${API_KEY}" -XGET ${API_URL}/groups/${domain}/${group_uid}/expandedmembers | jq -rc '.[] | .uid')
+        echo $group_members
+    fi
+}
+
+migrate_user() {
+    job=$1
+    domain="$2"
+    user_email="$3"
+    user_uid="$4"
+    user_login="$5"
+    quota_update="$6"
+
+    if [ "$quota_update" -eq "1" ]; then
+        echo "[$job][${domain}][${user_email}] quota reset is needed"
+        echo "[$job][${domain}][${user_email}] get bluemind user"
+        user_json=$(curl -s -k -H "X-BM-ApiKey: ${API_KEY}" -XGET ${API_URL}/users/${domain}/byEmail/${user_email})
+        user_values=$(echo $user_json | jq -c '.value | .quota=0')
+        if [ -z "$user_values" ] || [ -z "$user_uid" ]; then
+            echo "[${domain}][${user_email}] Unable to find bluemind user"
+            continue
+        fi
+        echo "[$job][${domain}][${user_email}] Setting quota to unlimited"
+        curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
+            -XPOST -d "$user_values" \
+            ${API_URL}/users/${domain}/${user_uid}
+    fi
+
+    if [ "$force" -eq "1" ]; then
+        echo "[$job][${domain}][${user_email}] forced repair (all ops)"
+        bm-cli maintenance repair "${user_email}"
+    else
+        # Light repair
+        echo "[$job][${domain}][${user_email}] Repair ops: mailboxAcls,mailboxHsm"
+        bm-cli maintenance repair --ops mailboxAcls,mailboxHsm "${user_email}"
+    fi
+
+    echo "[$job][${domain}][${user_email}] Migrate orphaned HSM messages"
+    bm-cli maintenance hsm-to-cyrus --domain ${domain} --user ${user_uid} --delete
+
+    echo ${user_email} >> ${MIGRATED_LOG}
+    if [ "$quota_update" -eq "1" ]; then
+        echo "[$job][${domain}][${user_email}] Retrieve used space using quota"
+        used_space=$(quota -J | jq -r -c 'to_entries[] | select(.key == "user/'$user_login'") | .value.STORAGE.used')
+
+        user_before_leftquota=$(jq -a -r -c 'to_entries[] | select(.key == "user/'$user_login'") | .value' ${QUOTA_DUMP})
+        if [ -z "${user_before_leftquota}" ] || [ -z "${used_space}" ]; then
+            echo "[$job][${domain}][${user_email}] Unable to restore quota: can't calculate actual disk usage"
+        else
+            new_quota=$(((${used_space} + ${user_before_leftquota})/1024))
+            new_user_values=$(echo $user_json | jq -c '.value | .quota='${new_quota})
+
+            echo "[$job][${domain}][${user_email}] Setting quota to ${new_quota} KiB"
+            curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
+                -XPOST -d "$user_values" \
+                ${API_URL}/users/${domain}/${user_uid}
+        fi
+    fi
+}
+
+worker() {
+    ID=$1
+    exec 3<$FIFO
+    exec 4<$FIFO_LOCK
+    exec 5<$START_LOCK
+
+    flock 5
+    echo $ID >> $START
+    flock -u 5
+    exec 5<&-
+    echo worker $ID started
+
+    while true; do
+        flock 4
+        read -su 3 work_id domain email uid login quota_update
+        read_status=$?
+        flock -u 4
+
+        if [[ $read_status -eq 0 ]]; then
+            ( migrate_user "$work_id" "$domain" "$email" "$uid" "$login" "$quota_update" )
+        else
+            break
+        fi
+    done
+    exec 3<&-
+    exec 4<&-
+    echo $ID "done"
+}
+
 
 (
+
 echo "[START]: $(date -R) (force: $force)"
 
 if [ "$force" -ne "1" ]; then
@@ -89,15 +214,50 @@ fi
 
 domains=$(PGPASSWORD=bj psql -qtA -h localhost bj bj -c "select array_to_string(array(select name from t_domain where name != 'global.virt'), ' ');")
 
+declare -a migration_list
+
 for domain in ${domains}; do
     echo "Migrating domain ${domain}"
 
+    declare -a vip_uids
+    if [ "${#GRPS[@]}" -gt "0" ]; then
+        for grp in "${GRPS[@]}"; do
+            vip_uids+=($(get_group_members "$domain" "$grp"))
+        done
+    fi
+
     echo "Retrieve all userids in bluemind"
-    all_userids=$(curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
-        -XGET ${API_URL}/users/${domain}/_alluids | jq -r '.[]')
+    all_userids=($(curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
+        -XGET ${API_URL}/users/${domain}/_alluids | jq -r '.[]'))
+    
+    # sort all_userids
+    declare -a sorted_userids=()
+    if [ "${#vip_uids[@]}" -gt 0 ]; then
+        for uid in "${vip_uids[@]}"; do
+            for tmpuid in "${all_userids[@]}"; do
+                if [ "${tmpuid}" = "${uid}" ]; then
+                    sorted_userids+=(${uid})
+                    break
+                fi
+            done
+        done
+        for uid in ${all_userids[@]}; do
+            found=0
+            for tmpuid in "${sorted_userids[@]}"; do
+                if [ "${tmpuid}" = "${uid}" ]; then
+                    found=1
+                    break
+                fi
+            done
+            [ "${found}" -eq "0" ] && sorted_userids+=(${uid})
+        done
+    else
+        sorted_userids=("${all_userids[@]}")
+    fi
+
     echo "Retrieve all user informations"
     allusers=""
-    for userid in $all_userids; do
+    for userid in "${sorted_userids[@]}"; do
         userinfo=$(curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
             -XGET ${API_URL}/users/${domain}/${userid}/complete | jq -c -r '{"email": .value.emails | .[] | select(.isDefault == true).address, "uid": .uid, "login": .value.login}')
         allusers="$allusers $userinfo"
@@ -120,55 +280,71 @@ for domain in ${domains}; do
         else
             quota_update=0
         fi
-
-        if [ "$quota_update" -eq "1" ]; then
-            echo "[${domain}][${user_email}] quota reset is needed"
-
-            echo "[${domain}][${user_email}] get bluemind user"
-            user_json=$(curl -s -k -H "X-BM-ApiKey: ${API_KEY}" -XGET ${API_URL}/users/${domain}/byEmail/${user_email})
-            user_values=$(echo $user_json | jq -c '.value | .quota=0')
-            if [ -z "$user_values" ] || [ -z "$user_uid" ]; then
-                echo "[${domain}][${user_email}] Unable to find bluemind user"
-                continue
-            fi
-            echo "[${domain}][${user_email}] Setting quota to unlimited"
-            curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
-                -XPOST -d "$user_values" \
-                ${API_URL}/users/${domain}/${user_uid}
-        fi
-
-        if [ "$force" -eq "1" ]; then
-            echo "[${domain}][${user_email}] forced repair (all ops)"
-            bm-cli maintenance repair "${user_email}"
-        else
-            # Light repair
-            echo "[${domain}][${user_email}] Repair ops: mailboxAcls,mailboxHsm"
-            bm-cli maintenance repair --ops mailboxAcls,mailboxHsm "${user_email}"
-        fi
-
-        echo "[${domain}][${user_email}] Migrate orphaned HSM messages"
-        bm-cli maintenance hsm-to-cyrus --domain ${domain} --user ${user_uid} --delete
-
-        echo ${user_email} >> ${MIGRATED_LOG}
-        if [ "$quota_update" -eq "1" ]; then
-            echo "[${domain}][${user_email}] Retrieve used space using quota"
-            used_space=$(quota -J | jq -r -c 'to_entries[] | select(.key == "user/'$user_login'") | .value.STORAGE.used')
-
-            user_before_leftquota=$(jq -a -r -c 'to_entries[] | select(.key == "user/'$user_login'") | .value' ${QUOTA_DUMP})
-            if [ -z "${user_before_leftquota}" ] || [ -z "${used_space}" ]; then
-                echo "[${domain}][${user_email}] Unable to restore quota: can't calculate actual disk usage"
-            else
-                new_quota=$(((${used_space} + ${user_before_leftquota})/1024))
-                new_user_values=$(echo $user_json | jq -c '.value | .quota='${new_quota})
-
-                echo "[${domain}][${user_email}] Setting quota to ${new_quota} KiB"
-                curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
-                    -XPOST -d "$user_values" \
-                    ${API_URL}/users/${domain}/${user_uid}
-            fi
-        fi
+        migration_list+=("$domain $user_email $user_uid $user_login $quota_update")
     done
 done
+
+
+if [ "$WORKERS" -gt 1 ]; then
+    START=$(mktemp -t start-XXXX)
+    FIFO=$(mktemp -t fifo-XXXX)
+    FIFO_LOCK=$(mktemp -t lock-XXXX)
+    START_LOCK=$(mktemp -t lock-XXXX)
+
+    rm $FIFO
+    mkfifo $FIFO
+    echo $FIFO
+
+    cleanup() {
+        rm $FIFO
+        rm $START
+        rm $FIFO_LOCK
+        rm $START_LOCK
+    }
+    trap cleanup 0
+
+    for ((i=1;i<=$WORKERS;i++)); do
+        echo will start $i
+        worker $i &
+    done
+
+    exec 3>$FIFO
+    exec 4<$START_LOCK
+
+    while true; do
+        flock 4
+        started=$(wc -l $START | cut -d \  -f 1)
+        flock -u 4
+        if [[ $started -eq $WORKERS ]]; then
+            break
+        else
+            echo waiting, started $started of $WORKERS
+        fi
+    done
+    exec 4<&-
+
+    send() {
+        work_id=$1; shift
+        echo "$work_id" $@ 1>&3
+    }
+
+    i=0
+    for u in "${migration_list[@]}"; do
+        send $i $u
+        i=$((i+1))
+    done
+
+    exec 3<&-
+    trap '' 0
+
+    cleanup
+    wait
+else
+    for u in "${migration_list[@]}"; do
+        migrate_user 1 $u
+    done
+fi
+
 echo "[END]: $(date -R)"
 ) | tee -a ${MIGRATION_LOG}
 
