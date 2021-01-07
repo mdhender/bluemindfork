@@ -75,7 +75,7 @@
             </bm-form-group>
             <h2 class="pb-4">{{ $t("settings.mail.signature") }}</h2>
             <bm-form-group :aria-label="$t('settings.mail.signature')">
-                <bm-form-checkbox v-model="localUserSettings.insert_signature">
+                <bm-form-checkbox v-model="localUserSettings.insert_signature" value="true" unchecked-value="false">
                     {{ $t("settings.mail.signature.insert") }}
                 </bm-form-checkbox>
             </bm-form-group>
@@ -86,7 +86,12 @@
                 </bm-form-checkbox>
             <h2 class="py-4">{{ $t("settings.mail.remote.images") }}</h2>
             <bm-form-group :aria-label="$t('settings.mail.remote.images')">
-                <bm-form-checkbox v-model="localUserSettings.trust_every_remote_content" class="pb-1">
+                <bm-form-checkbox
+                    v-model="localUserSettings.trust_every_remote_content"
+                    class="pb-1"
+                    value="true"
+                    unchecked-value="false"
+                >
                     {{ $t("settings.mail.remote.images.trust") }}
                 </bm-form-checkbox>
                 <div class="ml-4 text-secondary">
