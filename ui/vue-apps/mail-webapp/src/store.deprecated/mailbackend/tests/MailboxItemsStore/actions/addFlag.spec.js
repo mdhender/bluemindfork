@@ -4,9 +4,8 @@ import { MailboxItemsClient } from "@bluemind/backend.mail.api";
 import ItemUri from "@bluemind/item-uri";
 import ServiceLocator from "@bluemind/inject";
 import { ADD_FLAG } from "~actions";
-jest.mock("@bluemind/inject");
-jest.mock("@bluemind/backend.mail.api");
 
+jest.mock("@bluemind/backend.mail.api");
 jest.mock("@bluemind/inject");
 
 const service = new MailboxItemsClient();

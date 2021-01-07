@@ -4,7 +4,6 @@ import {
     MockItemsTransferClient,
     MockMailboxItemsClient,
     MockMailboxFoldersClient,
-    MockOwnerSubscriptionsClient,
     MockContainersClient,
     MockI18NProvider,
     MountComponentUtils
@@ -49,7 +48,6 @@ let containerService = new MockContainersClient(),
     itemsService = new MockMailboxItemsClient(),
     itemsTransferClient = new MockItemsTransferClient();
 ServiceLocator.register({ provide: "ContainersPersistence", factory: () => containerService });
-ServiceLocator.register({ provide: "SubscriptionPersistence", factory: () => new MockOwnerSubscriptionsClient() });
 ServiceLocator.register({ provide: "MailboxesPersistence", factory: () => mailboxesService });
 ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: () => itemsService });
 ServiceLocator.register({ provide: "MailboxFoldersPersistence", factory: () => foldersService });
@@ -61,6 +59,21 @@ ServiceLocator.register({
     }
 });
 ServiceLocator.register({ provide: "i18n", factory: () => MockI18NProvider });
+const userSubscriptions = [
+    {
+        value: {
+            containerUid: "book:Contacts_6793466E-F5D4-490F-97BF-DF09D3327BF4",
+            containerType: "addressbook"
+        }
+    },
+    { value: { containerType: "mailboxacl" } }
+];
+ServiceLocator.register({
+    provide: "SubscriptionPersistence",
+    factory: () => ({
+        list: () => userSubscriptions
+    })
+});
 
 WebsocketClient.register = jest.fn();
 
@@ -128,7 +141,7 @@ describe("[MailWebAppStore] Vuex store", () => {
     test("select a folder", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch("mail/" + FETCH_MAILBOXES);
+        await store.dispatch("mail/" + FETCH_MAILBOXES, userSubscriptions);
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
         await store.dispatch(
             "mail/" + FETCH_FOLDERS,
@@ -155,7 +168,7 @@ describe("[MailWebAppStore] Vuex store", () => {
     test("select a folder with 'unread' filter", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch("mail/" + FETCH_MAILBOXES);
+        await store.dispatch("mail/" + FETCH_MAILBOXES, userSubscriptions);
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
         await store.dispatch(
             "mail/" + FETCH_FOLDERS,
@@ -227,7 +240,7 @@ describe("[MailWebAppStore] Vuex store", () => {
     test("remove a message from my mailbox", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch("mail/" + FETCH_MAILBOXES);
+        await store.dispatch("mail/" + FETCH_MAILBOXES, userSubscriptions);
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
         await store.dispatch(
             "mail/" + FETCH_FOLDERS,
@@ -256,7 +269,7 @@ describe("[MailWebAppStore] Vuex store", () => {
     test("remove a message from a mailshare", async () => {
         //load data
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch("mail/" + FETCH_MAILBOXES);
+        await store.dispatch("mail/" + FETCH_MAILBOXES, userSubscriptions);
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
         await store.dispatch(
             "mail/" + FETCH_FOLDERS,
@@ -298,7 +311,7 @@ describe("[MailWebAppStore] Vuex store", () => {
     test("move a message", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch("mail/" + FETCH_MAILBOXES);
+        await store.dispatch("mail/" + FETCH_MAILBOXES, userSubscriptions);
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
         await store.dispatch(
             "mail/" + FETCH_FOLDERS,
@@ -324,7 +337,7 @@ describe("[MailWebAppStore] Vuex store", () => {
     test("move a message across mailboxes", async () => {
         //load data in new store
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
-        await store.dispatch("mail/" + FETCH_MAILBOXES);
+        await store.dispatch("mail/" + FETCH_MAILBOXES, userSubscriptions);
         foldersService.all.mockReturnValueOnce(Promise.resolve(aliceFolders));
         await store.dispatch(
             "mail/" + FETCH_FOLDERS,
