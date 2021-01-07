@@ -141,7 +141,7 @@
     "mail.content.alert.ics.dont_exist": "This message references an event which does not exist",
     "mail.content.alert.images.blocked": "Remote images have been blocked to protect your privacy.",
     "mail.content.alert.images.show": "Show images.",
-    "mail.content.alert.images.trust.sender": "Trust content from {sender}",
+    "mail.content.alert.images.trust.sender": "Trust content of {sender}",
     "mail.content.alert.readonly": "Read-only message. Some actions (like Move or Remove) may not be available.",
     "mail.content.blindcopy": "blind copy",
     "mail.content.body": "Message content",
