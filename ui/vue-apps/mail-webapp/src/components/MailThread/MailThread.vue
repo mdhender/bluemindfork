@@ -5,13 +5,13 @@
         :aria-label="$t('mail.application.region.messagethread')"
     >
         <mail-component-alert
-            v-if="!areRemoteImagesUnblocked(currentMessageKey) && showBlockedImagesAlert"
+            v-if="showRemoteImagesAlert"
             icon="exclamation-circle"
-            @close="setShowBlockedImagesAlert(false)"
+            @close="SET_SHOW_REMOTE_IMAGES_ALERT(false)"
         >
             {{ $t("mail.content.alert.images.blocked") }}
             &nbsp;
-            <a href="#" @click.prevent="showImages()">{{ $t("mail.content.alert.images.show") }}</a>
+            <a href="#" @click.prevent="showRemoteImages">{{ $t("mail.content.alert.images.show") }}</a>
         </mail-component-alert>
         <mail-component-alert
             v-if="!folderOfCurrentMessage.writable && !isReadOnlyAlertDismissed"
@@ -27,10 +27,11 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapMutations, mapState } from "vuex";
 
 import { ItemUri } from "@bluemind/item-uri";
 
+import { SET_BLOCK_REMOTE_IMAGES, SET_SHOW_REMOTE_IMAGES_ALERT } from "~mutations";
 import MailComponentAlert from "../MailComponentAlert";
 import MailComposer from "../MailComposer";
 import MailViewer from "../MailViewer";
@@ -49,9 +50,8 @@ export default {
     },
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail-webapp", ["showBlockedImagesAlert"]),
-        ...mapGetters("mail-webapp", ["areRemoteImagesUnblocked"]),
         ...mapState("mail", ["folders", "messages"]),
+        ...mapState("mail", { showRemoteImagesAlert: state => state.consultPanel.remoteImages.showAlert }),
         message() {
             return this.messages[this.currentMessageKey];
         },
@@ -69,13 +69,15 @@ export default {
             this.isReadOnlyAlertDismissed = false;
         },
         currentMessageKey() {
-            this.setShowBlockedImagesAlert(false);
+            this.SET_SHOW_REMOTE_IMAGES_ALERT(false);
+            this.SET_BLOCK_REMOTE_IMAGES(false);
         }
     },
     methods: {
-        ...mapMutations("mail-webapp", ["setShowBlockedImagesAlert", "unblockRemoteImages"]),
-        showImages() {
-            this.unblockRemoteImages(this.currentMessageKey);
+        ...mapMutations("mail", { SET_BLOCK_REMOTE_IMAGES, SET_SHOW_REMOTE_IMAGES_ALERT }),
+        showRemoteImages() {
+            this.SET_SHOW_REMOTE_IMAGES_ALERT(false);
+            this.SET_BLOCK_REMOTE_IMAGES(false);
         }
     }
 };

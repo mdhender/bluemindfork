@@ -1,16 +1,16 @@
 import Vue from "vue";
+
 import { AddressBooksClient } from "@bluemind/addressbook.api";
+import { ItemsTransferClient, MailConversationClient, OutboxClient } from "@bluemind/backend.mail.api";
 import { CalendarClient } from "@bluemind/calendar.api";
-import { ContainersClient } from "@bluemind/core.container.api";
-import { ItemsTransferClient } from "@bluemind/backend.mail.api";
-import { MailboxesClient } from "@bluemind/mailbox.api";
-import { OutboxClient } from "@bluemind/backend.mail.api";
-import { OwnerSubscriptionsClient } from "@bluemind/core.container.api";
-import { UserMailIdentitiesClient } from "@bluemind/user.api";
+import { ContainersClient, OwnerSubscriptionsClient } from "@bluemind/core.container.api";
 import { TaskClient } from "@bluemind/core.task.api";
+import { MailboxesClient } from "@bluemind/mailbox.api";
+import { UserMailIdentitiesClient } from "@bluemind/user.api";
 import injector from "@bluemind/inject";
 import router from "@bluemind/router";
 import store from "@bluemind/store";
+
 import MailAlertRenderer from "./components/MailAlertRenderer";
 import * as AlertComponents from "./components/MailAlerts";
 import MailApp from "./components/MailApp";
@@ -19,7 +19,6 @@ import mailRoutes from "./router";
 import Scheduler from "./scheduler";
 import MailStore from "./store/";
 import MailWebAppStore from "./store.deprecated/";
-import { MailConversationClient } from "@bluemind/backend.mail.api";
 
 registerAPIClients();
 store.registerModule("mail", MailStore);

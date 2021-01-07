@@ -1,20 +1,22 @@
-import { BmModalPlugin } from "@bluemind/styleguide";
-import { extend } from "@bluemind/vuex-router";
-import { DateTimeFormats, FirstDayOfWeek, InheritTranslationsMixin } from "@bluemind/i18n";
-import { default as AlertStore, DefaultAlert } from "@bluemind/alert.store";
-import RootAppStore from "./rootAppStore";
-import { UserSettingsClient } from "@bluemind/user.api";
-import SessionStore from "./sessionStore";
-import injector from "@bluemind/inject";
-import MainApp from "./components/MainApp";
-import NotificationManager from "./NotificationManager";
-import router from "@bluemind/router";
-import store from "@bluemind/store";
 import Vue from "vue";
 import Vue2TouchEvents from "vue2-touch-events";
-import VueBus from "@bluemind/vue-bus";
 import VueI18n from "vue-i18n";
+
+import { default as AlertStore, DefaultAlert } from "@bluemind/alert.store";
+import { DateTimeFormats, FirstDayOfWeek, InheritTranslationsMixin } from "@bluemind/i18n";
+import injector from "@bluemind/inject";
+import router from "@bluemind/router";
+import store from "@bluemind/store";
+import { BmModalPlugin } from "@bluemind/styleguide";
+import { UserSettingsClient } from "@bluemind/user.api";
+import VueBus from "@bluemind/vue-bus";
+import { extend } from "@bluemind/vuex-router";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
+
+import RootAppStore from "./rootAppStore";
+import SessionStore from "./sessionStore";
+import MainApp from "./components/MainApp";
+import NotificationManager from "./NotificationManager";
 
 initWebApp();
 

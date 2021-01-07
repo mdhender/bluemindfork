@@ -1,11 +1,20 @@
 import { inject } from "@bluemind/inject";
 import EventHelper from "./helpers/EventHelper";
 import { FETCH_EVENT, SET_EVENT_STATUS, ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~actions";
-import { SET_CURRENT_EVENT, SET_CURRENT_EVENT_STATUS } from "~mutations";
+import {
+    SET_BLOCK_REMOTE_IMAGES,
+    SET_CURRENT_EVENT,
+    SET_CURRENT_EVENT_STATUS,
+    SET_SHOW_REMOTE_IMAGES_ALERT
+} from "~mutations";
 
 export default {
     state: {
-        currentEvent: null
+        currentEvent: null,
+        remoteImages: {
+            showAlert: false,
+            mustBeBlocked: false
+        }
     },
     actions: {
         async [FETCH_EVENT]({ commit }, { message, mailbox }) {
@@ -57,6 +66,13 @@ export default {
             state.currentEvent.serverEvent.value.main.attendees.find(
                 a => a.dir && a.dir.split("/").pop() === uid
             ).partStatus = status;
+        },
+        [SET_SHOW_REMOTE_IMAGES_ALERT](state, showAlert) {
+            console.log("gonna set alert to ", showAlert);
+            state.remoteImages.showAlert = showAlert;
+        },
+        [SET_BLOCK_REMOTE_IMAGES](state, mustBeBlocked) {
+            state.remoteImages.mustBeBlocked = mustBeBlocked;
         }
     }
 };

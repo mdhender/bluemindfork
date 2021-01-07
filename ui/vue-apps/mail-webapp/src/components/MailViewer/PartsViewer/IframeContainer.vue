@@ -9,8 +9,12 @@
 </template>
 
 <script>
+import { mapMutations, mapState } from "vuex";
+
 import { hasRemoteImages, blockRemoteImages, unblockRemoteImages } from "@bluemind/html-utils";
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { inject } from "@bluemind/inject";
+
+import { SET_BLOCK_REMOTE_IMAGES, SET_SHOW_REMOTE_IMAGES_ALERT } from "~mutations";
 import brokenImageIcon from "../../../../assets/brokenImageIcon.png";
 
 export default {
@@ -26,25 +30,50 @@ export default {
             default: ""
         }
     },
+    data() {
+        return { iFrameContent: "" };
+    },
     computed: {
-        ...mapGetters("mail-webapp", ["areRemoteImagesUnblocked"]),
         ...mapState("mail-webapp/currentMessage", { messageKey: "key" }),
-        iFrameContent() {
-            let content = this.body;
-
-            if (this.areRemoteImagesUnblocked(this.messageKey)) {
-                content = unblockRemoteImages(content);
-            } else if (hasRemoteImages(content)) {
-                content = blockRemoteImages(content);
-                this.setShowBlockedImagesAlert(true);
-            }
-
-            const label = this.$t("mail.application.region.messagecontent");
-            return buildHtml(content, label, this.styles + BM_STYLE);
+        ...mapState("mail", { mustBlockRemoteImages: state => state.consultPanel.remoteImages.mustBeBlocked }),
+        ...mapState("mail", ["messages"]),
+        ...mapState("session", { settings: "userSettings" }),
+        message() {
+            return this.messages[this.messageKey];
         }
     },
+    watch: {
+        mustBlockRemoteImages(newValue, oldValue) {
+            if (oldValue && !newValue) {
+                const content = unblockRemoteImages(this.body);
+                this.iFrameContent = this.buildHtml(content);
+            }
+        }
+    },
+    mounted() {
+        let content = this.body;
+
+        // FIXME ? maybe got problem here because checkbox in SettinsApp return false (not as a string)
+        if (hasRemoteImages(content) && this.settings.trust_every_remote_content === "false") {
+            // check if sender is known (found in any suscribed addressbook)
+            const isSenderKnown =
+                inject("AddressBooksPersistence").search({
+                    from: 0,
+                    size: 1,
+                    query: this.message.from.address,
+                    escapeQuery: false
+                }).total > 0;
+            if (!isSenderKnown) {
+                this.SET_SHOW_REMOTE_IMAGES_ALERT(true);
+                this.SET_BLOCK_REMOTE_IMAGES(true);
+                content = blockRemoteImages(content);
+            }
+        }
+
+        this.iFrameContent = this.buildHtml(content);
+    },
     methods: {
-        ...mapMutations("mail-webapp", ["setShowBlockedImagesAlert"]),
+        ...mapMutations("mail", [SET_BLOCK_REMOTE_IMAGES, SET_SHOW_REMOTE_IMAGES_ALERT]),
         resizeIFrame() {
             let htmlRootNode = this.$refs.iFrameMailContent.contentDocument.documentElement;
             this.$refs.iFrameMailContent.style.height = this.computeIFrameHeight(htmlRootNode) + "px";
@@ -64,6 +93,14 @@ export default {
                 });
             }
             return maxHeight + 11;
+        },
+        buildHtml(content) {
+            const label = this.$t("mail.application.region.messagecontent");
+            const style = this.styles + BM_STYLE;
+            return `<html>
+                <head><base target="_blank"><style>${style}</style></head>
+                <body><main aria-label="${label}">${content}</main></body>
+            </html>`;
         }
     }
 };
@@ -119,11 +156,4 @@ const BM_STYLE = `
             color: #00AAEB !important;
             text-decoration-line: underline;
         }`;
-
-function buildHtml(content, label, style) {
-    return `<html>
-                <head><base target="_blank"><style>${style}</style></head>
-                <body><main aria-label="${label}">${content}</main></body>
-            </html>`;
-}
 </script>

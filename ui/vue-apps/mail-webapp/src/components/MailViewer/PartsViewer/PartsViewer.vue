@@ -1,7 +1,7 @@
 <template>
     <div class="parts-viewer py-2">
         <template v-for="(part, index) in parts">
-            <hr v-if="index !== 0" :key="part.address + '-sepatator'" class="part-separator" />
+            <hr v-if="index !== 0" :key="part.address + '-separator'" class="part-separator" />
             <text-html-part-viewer v-if="isHtmlPart(part)" :key="part.address" :value="htmlWithImageInserted[index]" />
             <text-plain-part-viewer
                 v-else-if="isTextPart(part)"
