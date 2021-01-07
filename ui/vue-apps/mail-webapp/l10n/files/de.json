@@ -141,6 +141,7 @@
     "mail.content.alert.ics.dont_exist": "Diese E-Mail referenziert einen nicht mehr existierenden Termin",
     "mail.content.alert.images.blocked": "Externe Bilder wurden deaktiviert, um Ihre Sicherheit zu gewährleisten.",
     "mail.content.alert.images.show": "Bilder anzeigen.",
+    "mail.content.alert.images.trust.sender": "TODO {sender}",
     "mail.content.alert.readonly": "E-Mail im Lesemdodus. Einige Aktionen (z.B. Löschen/Verschieben) sind nicht auswählbar.",
     "mail.content.blindcopy": "Bcc",
     "mail.content.body": "E-Mailinhalt",

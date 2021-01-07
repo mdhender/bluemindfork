@@ -12,6 +12,10 @@
             {{ $t("mail.content.alert.images.blocked") }}
             &nbsp;
             <a href="#" @click.prevent="showRemoteImages">{{ $t("mail.content.alert.images.show") }}</a>
+            <br />
+            <a href="#" @click.prevent="trustSender">{{
+                $t("mail.content.alert.images.trust.sender", { sender: message.from.address })
+            }}</a>
         </mail-component-alert>
         <mail-component-alert
             v-if="!folderOfCurrentMessage.writable && !isReadOnlyAlertDismissed"
@@ -29,6 +33,8 @@
 <script>
 import { mapMutations, mapState } from "vuex";
 
+import { createContact, VCardAdaptor } from "@bluemind/contact";
+import { inject } from "@bluemind/inject";
 import { ItemUri } from "@bluemind/item-uri";
 
 import { SET_BLOCK_REMOTE_IMAGES, SET_SHOW_REMOTE_IMAGES_ALERT } from "~mutations";
@@ -50,7 +56,7 @@ export default {
     },
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail", ["folders", "messages"]),
+        ...mapState("mail", ["folders", "messages", "addressbooks"]),
         ...mapState("mail", { showRemoteImagesAlert: state => state.consultPanel.remoteImages.showAlert }),
         message() {
             return this.messages[this.currentMessageKey];
@@ -78,6 +84,14 @@ export default {
         showRemoteImages() {
             this.SET_SHOW_REMOTE_IMAGES_ALERT(false);
             this.SET_BLOCK_REMOTE_IMAGES(false);
+        },
+        trustSender() {
+            this.showRemoteImages();
+            const contact = createContact(this.message.from);
+            inject("AddressBookPersistence", this.addressbooks.myContacts.containerUid).create(
+                contact.uid,
+                VCardAdaptor.toVCard(contact)
+            );
         }
     }
 };

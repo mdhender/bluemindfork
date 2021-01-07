@@ -141,6 +141,7 @@
     "mail.content.alert.ics.dont_exist": "Ce message fait référence à un évènement qui n'existe pas dans votre calendrier",
     "mail.content.alert.images.blocked": "Les images distantes sont bloquées pour protéger votre vie privée.",
     "mail.content.alert.images.show": "Afficher les images.",
+    "mail.content.alert.images.trust.sender": "Faire confiance aux contenus provenant de {sender}",
     "mail.content.alert.readonly": "Message en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles.",
     "mail.content.blindcopy": "copie cachée",
     "mail.content.body": "Contenu du message",

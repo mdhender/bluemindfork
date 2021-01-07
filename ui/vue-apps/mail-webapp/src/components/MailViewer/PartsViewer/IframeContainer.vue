@@ -50,19 +50,18 @@ export default {
             }
         }
     },
-    mounted() {
+    async mounted() {
         let content = this.body;
 
-        // FIXME ? maybe got problem here because checkbox in SettinsApp return false (not as a string)
         if (hasRemoteImages(content) && this.settings.trust_every_remote_content === "false") {
             // check if sender is known (found in any suscribed addressbook)
-            const isSenderKnown =
-                inject("AddressBooksPersistence").search({
-                    from: 0,
-                    size: 1,
-                    query: this.message.from.address,
-                    escapeQuery: false
-                }).total > 0;
+            const searchResult = await inject("AddressBooksPersistence").search({
+                from: 0,
+                size: 1,
+                query: this.message.from.address,
+                escapeQuery: false
+            });
+            const isSenderKnown = searchResult.total > 0;
             if (!isSenderKnown) {
                 this.SET_SHOW_REMOTE_IMAGES_ALERT(true);
                 this.SET_BLOCK_REMOTE_IMAGES(true);

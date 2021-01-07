@@ -1,6 +1,6 @@
 import Vue from "vue";
 
-import { AddressBooksClient } from "@bluemind/addressbook.api";
+import { AddressBookClient, AddressBooksClient } from "@bluemind/addressbook.api";
 import { ItemsTransferClient, MailConversationClient, OutboxClient } from "@bluemind/backend.mail.api";
 import { CalendarClient } from "@bluemind/calendar.api";
 import { ContainersClient, OwnerSubscriptionsClient } from "@bluemind/core.container.api";
@@ -72,6 +72,11 @@ function registerAPIClients() {
     injector.register({
         provide: "AddressBooksPersistence",
         factory: () => new AddressBooksClient(injector.getProvider("UserSession").get().sid)
+    });
+
+    injector.register({
+        provide: "AddressBookPersistence",
+        factory: containerUid => new AddressBookClient(injector.getProvider("UserSession").get().sid, containerUid)
     });
 
     injector.register({

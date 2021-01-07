@@ -1,13 +1,14 @@
-import { state, getters, mutations } from "./store";
 import activeMessage from "./activeMessage";
-import messageCompose from "./messageCompose";
-import folders from "./folders";
-import messages from "./messages";
+import addressbooks from "./addressbooks";
 import consultPanel from "./consultPanel";
-import messageList from "./messageList";
 import folderList from "./folderList";
+import folders from "./folders";
 import mailboxes from "./mailboxes";
+import messages from "./messages";
+import messageCompose from "./messageCompose";
+import messageList from "./messageList";
 import selection from "./selection";
+import { state, getters, mutations } from "./store";
 
 export default {
     namespaced: true,
@@ -16,13 +17,14 @@ export default {
     mutations,
     modules: {
         activeMessage,
+        addressbooks,
+        consultPanel,
+        folderList,
         folders,
         mailboxes,
-        messages,
-        selection,
-        folderList,
-        messageList,
         messageCompose,
-        consultPanel
+        messageList,
+        messages,
+        selection
     }
 };
