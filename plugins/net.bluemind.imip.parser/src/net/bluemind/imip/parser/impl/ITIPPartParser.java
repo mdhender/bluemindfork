@@ -81,7 +81,6 @@ public class ITIPPartParser {
 		TextBody body = (TextBody) e.getBody();
 		// X-MICROSOFT-DISALLOW-COUNTER
 		parseAcceptCounters(body.getInputStream()).ifPresent(disallowCounters -> {
-			logger.info("PARSING: {}", disallowCounters);
 			imip.properties.put("X-MICROSOFT-DISALLOW-COUNTER", Boolean.toString(disallowCounters));
 		});
 
