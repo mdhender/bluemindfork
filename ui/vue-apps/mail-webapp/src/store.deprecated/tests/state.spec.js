@@ -5,8 +5,6 @@ describe("[Mail-WebappStore][state]", () => {
         expect(state).toMatchInlineSnapshot(`
             Object {
               "maxMessageSize": undefined,
-              "messagesWithUnblockedRemoteImages": Array [],
-              "showBlockedImagesAlert": false,
               "status": "idle",
               "userUid": undefined,
             }

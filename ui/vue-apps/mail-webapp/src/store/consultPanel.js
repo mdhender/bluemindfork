@@ -68,7 +68,6 @@ export default {
             ).partStatus = status;
         },
         [SET_SHOW_REMOTE_IMAGES_ALERT](state, showAlert) {
-            console.log("gonna set alert to ", showAlert);
             state.remoteImages.showAlert = showAlert;
         },
         [SET_BLOCK_REMOTE_IMAGES](state, mustBeBlocked) {
