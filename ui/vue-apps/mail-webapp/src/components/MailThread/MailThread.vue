@@ -37,6 +37,7 @@ import { createContact, VCardAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
 import { ItemUri } from "@bluemind/item-uri";
 
+import apiAddressbooks from "../../store/api/apiAddressbooks";
 import { SET_BLOCK_REMOTE_IMAGES, SET_SHOW_REMOTE_IMAGES_ALERT } from "~mutations";
 import MailComponentAlert from "../MailComponentAlert";
 import MailComposer from "../MailComposer";
@@ -92,6 +93,7 @@ export default {
                 contact.uid,
                 VCardAdaptor.toVCard(contact)
             );
+            apiAddressbooks.invalidateCacheEntry(this.message.from.address);
         }
     }
 };

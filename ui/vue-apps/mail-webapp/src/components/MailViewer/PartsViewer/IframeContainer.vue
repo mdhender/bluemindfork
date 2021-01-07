@@ -12,8 +12,8 @@
 import { mapMutations, mapState } from "vuex";
 
 import { hasRemoteImages, blockRemoteImages, unblockRemoteImages } from "@bluemind/html-utils";
-import { inject } from "@bluemind/inject";
 
+import apiAddressbooks from "../../../store/api/apiAddressbooks";
 import { SET_BLOCK_REMOTE_IMAGES, SET_SHOW_REMOTE_IMAGES_ALERT } from "~mutations";
 import brokenImageIcon from "../../../../assets/brokenImageIcon.png";
 
@@ -55,12 +55,7 @@ export default {
 
         if (hasRemoteImages(content) && this.settings.trust_every_remote_content === "false") {
             // check if sender is known (found in any suscribed addressbook)
-            const searchResult = await inject("AddressBooksPersistence").search({
-                from: 0,
-                size: 1,
-                query: this.message.from.address,
-                escapeQuery: false
-            });
+            const searchResult = await apiAddressbooks.search(this.message.from.address);
             const isSenderKnown = searchResult.total > 0;
             if (!isSenderKnown) {
                 this.SET_SHOW_REMOTE_IMAGES_ALERT(true);
