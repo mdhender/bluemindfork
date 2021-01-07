@@ -33,10 +33,11 @@ describe("Store session", () => {
         await sessionStore.actions.FETCH_ALL_SETTINGS(context);
         expect(context.commit).toHaveBeenCalledWith("SET_USER_SETTINGS", {
             insert_signature: "true",
+            logout_purge: "false",
             mySetting: "MY_SETTING",
             mail_message_list_style: "compact",
-            mail_thread: "false", 
-            logout_purge: "false"
+            mail_thread: "false",
+            trust_every_remote_content: "false"
         });
     });
 
