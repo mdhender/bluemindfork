@@ -604,7 +604,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 
 	@Override
 	public MailboxQuota getMailboxQuota(String uid) throws ServerFault {
-		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGER, BasicRoles.ROLE_MANAGE_MAILBOX);
+		rbacManager.forEntry(uid).check(Verb.Read.name(), BasicRoles.ROLE_MANAGER, BasicRoles.ROLE_MANAGE_MAILBOX);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("[{} @ {}] GET uid: {}", securityContext.getSubject(), securityContext.getContainerUid(), uid);
