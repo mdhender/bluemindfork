@@ -205,6 +205,11 @@ net.bluemind.calendar.list.ListView.prototype.drawEvent = function(event, parent
     dom.appendChild(tdDetail, repeat);
   }
 
+  if (event.states.hasCounters) {
+    var counter = dom.createDom('span', [ goog.getCssName('fa'), goog.getCssName('fa-calendar-plus-o') ]);
+    dom.appendChild(tdDetail, counter);
+  }
+   
   goog.array.forEach(event.tags, function(tag) {
     var tag = dom.createDom('div', {
       'title' : tag.label,

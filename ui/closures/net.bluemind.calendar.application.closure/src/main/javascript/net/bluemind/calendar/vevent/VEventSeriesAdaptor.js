@@ -47,15 +47,14 @@ net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.toModelView = functio
 
   model.uid = vseries['uid'];
   model.calendar = vseries['container'];
-
+  model.counters = vseries['value']['counters'] ? vseries['value']['counters'] : [];
   model.states = {};
   model.acceptCounters = vseries['value']['acceptCounters'];
   model.main = this.veventToModelView(vseries['value']['main'], calendar, model);
   model.occurrences = goog.array.map(vseries['value']['occurrences'], function(occurrence) {
     return this.veventToModelView(occurrence, calendar, model);
   }, this);
-  vseries['value']['counters'] = vseries['value']['counters'] ? vseries['value']['counters'] : [];
-  model.counters = goog.array.map(vseries['value']['counters'], function(counter) {
+  model.counters = goog.array.map(model.counters, function(counter) {
     var counterModel = {};
     counterModel.originator = {};
     counterModel.originator.commonName = counter['originator']['commonName'];
@@ -82,7 +81,7 @@ net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.toModelView = functio
  */
 net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.veventToModelView = function(vevent, calendar, vseries) {
   if (vevent != null) {
-    var model = this.veventAdaptor_.toModelView(vevent, calendar);
+    var model = this.veventAdaptor_.toModelView(vevent, calendar, vseries);
     model.uid = vseries.uid;
     model.calendar = vseries.calendar;
     model.type = vseries.type;

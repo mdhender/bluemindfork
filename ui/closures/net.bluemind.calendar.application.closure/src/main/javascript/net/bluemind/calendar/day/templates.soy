@@ -76,6 +76,9 @@
     {if $states.hasAttachments}
       <span class="{css fa} {css fa-paperclip}"></span>    
   	{/if}
+    {if $states.hasCounters}
+      <span class="{css fa} {css fa-calendar-plus-o}"></span>    
+    {/if}
     {if $states.updatable}
       <span class="{css ev-resizer} {css fa}">
         <span class="{css fa-circle}"></span>
@@ -523,19 +526,25 @@
       {if $attendee['partStatus'] == 'Declined'}
         <li class="{css declined}" title="{if $attendee['mailto']}<{$attendee['mailto']}>{/if}">
       	  {$attendee['commonName']}
-        </li>
       {elseif $attendee['partStatus'] == 'Accepted'}
         <li class="{css accepted}" title="{if $attendee['mailto']}{$attendee['mailto']}{/if}">
       	{$attendee['commonName']}
-        </li>
       {elseif $attendee['partStatus'] == 'Tentative'}
         <li class="{css tentative}" title="{if $attendee['mailto']}{$attendee['mailto']}{/if}">
       	{$attendee['commonName']}        
       {else}
         <li class="{css needsaction}" title="{if $attendee['mailto']}{$attendee['mailto']}{/if}">
       	  {$attendee['commonName']}
-        </li>
       {/if}
+      {if $attendee['counterDate']}
+      &nbsp;<span style="color:orange;">
+      (
+      <span class="{css fa} {css fa-calendar-plus-o}"></span>    
+      {$attendee['counterDate']}
+      )
+      </span>&nbsp;
+      {/if}
+      </li>
     {/foreach}
     </ul>
   </div>

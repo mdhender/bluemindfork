@@ -50,7 +50,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.ctx_;
  * @param {Object} calendar Calendar model view
  * @return {Object} Adapted vevent for usage in the view.
  */
-net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(vevent, calendar) {
+net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(vevent, calendar, vseries) {
   var helper = this.ctx_.helper("date");
 
   var model = {};
@@ -124,12 +124,43 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(veve
   model.attachments = this.parseAttachments_(vevent);
   
   model.states = {};
-  model = this.updateStates(model, calendar);
+  model = this.updateStates(model, calendar, vseries);
 
   if (!(calendar.owner == this.ctx_.user['uid']) && model.class == "Private" && !model.states.updatable) {
     /** @meaning calendar.event.privacy.private */ 
     var MSG_PRIVATE = goog.getMsg('Private');
     model.summary = MSG_PRIVATE;
+  }
+
+  if (model.states.hasCounters) {
+    var df = new goog.i18n.DateTimeFormat(this.ctx_.settings.get('date'));
+    var currentStartDate = df.format(model.dtstart);
+    var currentEndDate = df.format(model.dtend);
+    var tf = new goog.i18n.DateTimeFormat(this.ctx_.settings.get('timeformat'));
+    goog.array.forEach(vseries.counters, function(counter) {
+      var counterAttendee = goog.array.find(model.attendees, function(a){
+        return a['mailto'] == counter['originator']['email'];
+      });
+      if (counterAttendee) {
+        var counterStart = helper.fromIsoString(counter['counter']['dtstart']['iso8601']);
+        var counterEnd = helper.fromIsoString(counter['counter']['dtend']['iso8601']);
+
+        var counterStartDate = df.format(counterStart);        
+        var counterEndDate = df.format(counterEnd);        
+        if (currentStartDate == counterStartDate && currentEndDate == counterEndDate) {
+          counterAttendee['counterDate'] = tf.format(counterStart)+ " - " + tf.format(counterEnd);
+        } else if (currentStartDate != counterStartDate) {
+            if (counterStartDate == counterEndDate) {
+              counterAttendee['counterDate'] = counterStartDate + " " + tf.format(counterStart)+ " - " + tf.format(counterEnd);
+            } else {
+              counterAttendee['counterDate'] = counterStartDate + " " + tf.format(counterStart)+ " - "+ counterEndDate +" " + tf.format(counterEnd);
+            }
+        } else {
+          counterAttendee['counterDate'] = counterStartDate + " " + tf.format(counterStart)+ " - "+ counterEndDate +" " + tf.format(counterEnd);
+        }
+      }
+
+    }, this);
   }
 
   return model;
@@ -163,6 +194,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.attendeeToModelView = funct
     ret['icon'] = '/api/directory/' + this.ctx_.user['domainUid'] + '/_icon/'
         + encodeURIComponent(goog.string.removeAt(attendee['dir'], 0, 5));
   }
+
   return ret;
 }
 
@@ -193,7 +225,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.attendeeFromModelView = fun
  * @param {Object} calendar Calendar model view
  * @return {Object} updated model
  */
-net.bluemind.calendar.vevent.VEventAdaptor.prototype.updateStates = function(model, calendar) {
+net.bluemind.calendar.vevent.VEventAdaptor.prototype.updateStates = function(model, calendar, vseries) {
   model.states.defaultCalendar = calendar.states.defaultCalendar;
   model.states.allday = !(model.dtstart instanceof goog.date.DateTime);
   model.states.private_ = (model.class != 'Public');
@@ -216,6 +248,8 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.updateStates = function(mod
   model.states.removable = model.states.updatable && !!model.id;
   model.states.hasAttachments = model.attachments.length > 0;
   model.states.draft = !!model.draft;
+  model.states.hasCounters = (vseries.counters && vseries.counters.length > 0);
+
   return model;
 };
 
