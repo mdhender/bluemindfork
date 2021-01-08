@@ -117,6 +117,7 @@
       <plugin id="net.bluemind.network.topology"/>
       <plugin id="net.bluemind.network.topology.consumer"/>
       <plugin id="net.bluemind.osgi.log"/>
+      <plugin id="net.bluemind.proxy.support"/>
       <plugin id="net.bluemind.restbus.api.gwt"/>
       <plugin id="net.bluemind.restclient.api.closure"/>
       <plugin id="net.bluemind.restclient.closure"/>
@@ -148,7 +149,6 @@
       <plugin id="net.bluemind.webmodule.server"/>
       <plugin id="net.bluemind.webmodules.launcher"/>
       <plugin id="net.bluemind.webmodules.webapp"/>
-      <plugin id="net.bluemind.proxy.support"/>
       <plugin id="net.java.dev.jna"/>
       <plugin id="net.sourceforge.nekohtml"/>
       <plugin id="org.apache.commons.codec"/>
@@ -166,7 +166,6 @@
       <plugin id="org.eclipse.core.runtime"/>
       <plugin id="org.eclipse.equinox.app"/>
       <plugin id="org.eclipse.equinox.common"/>
-      <plugin id="org.eclipse.equinox.ds"/>
       <plugin id="org.eclipse.equinox.preferences"/>
       <plugin id="org.eclipse.equinox.registry"/>
       <plugin id="org.eclipse.equinox.util"/>
@@ -188,8 +187,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
       <property name="osgi.noShutdown" value="true" />
+      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
    </configurations>
 
 </product>
