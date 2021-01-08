@@ -8,6 +8,7 @@
     "dependencies": {
         "@bluemind/alert.store": "^4.1.0",
         "@bluemind/inject": "^4.1.0",
+        "@bluemind/mailbox.api": "^4.1.0",
         "@bluemind/router": "^4.1.0",
         "@bluemind/sockjs": "^4.1.0",
         "@bluemind/store": "^4.1.0",

@@ -5,7 +5,6 @@ import { ItemsTransferClient, MailConversationClient, OutboxClient } from "@blue
 import { CalendarClient } from "@bluemind/calendar.api";
 import { ContainersClient, OwnerSubscriptionsClient } from "@bluemind/core.container.api";
 import { TaskClient } from "@bluemind/core.task.api";
-import { MailboxesClient } from "@bluemind/mailbox.api";
 import { UserMailIdentitiesClient } from "@bluemind/user.api";
 import injector from "@bluemind/inject";
 import router from "@bluemind/router";
@@ -82,14 +81,6 @@ function registerAPIClients() {
     injector.register({
         provide: "TaskService",
         factory: taskId => new TaskClient(injector.getProvider("UserSession").get().sid, taskId)
-    });
-
-    injector.register({
-        provide: "MailboxesPersistence",
-        factory: () => {
-            const userSession = injector.getProvider("UserSession").get();
-            return new MailboxesClient(userSession.sid, userSession.domain);
-        }
     });
 
     injector.register({

@@ -95,11 +95,12 @@ export default {
     },
     created() {
         this.appHeight();
-        // initialize user settings
-        this.FETCH_ALL_SETTINGS();
+        this.FETCH_ALL_SETTINGS(); // initialize user settings
+        this.FETCH_MY_MAILBOX_QUOTA();
     },
     methods: {
         ...mapActions("session", ["FETCH_ALL_SETTINGS"]),
+        ...mapActions("root-app", ["FETCH_MY_MAILBOX_QUOTA"]),
         ...mapActions("alert", ["REMOVE"]),
         appHeight() {
             /*

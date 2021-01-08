@@ -6,6 +6,7 @@ import { default as AlertStore, DefaultAlert } from "@bluemind/alert.store";
 import { DateTimeFormats, FirstDayOfWeek, InheritTranslationsMixin } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
 import router from "@bluemind/router";
+import { MailboxesClient } from "@bluemind/mailbox.api";
 import store from "@bluemind/store";
 import { BmModalPlugin } from "@bluemind/styleguide";
 import { UserSettingsClient } from "@bluemind/user.api";
@@ -78,9 +79,12 @@ function registerDependencies(userSession) {
 
     injector.register({
         provide: "UserSettingsPersistence",
-        factory: () => {
-            return new UserSettingsClient(userSession.sid, userSession.domain);
-        }
+        factory: () => new UserSettingsClient(userSession.sid, userSession.domain)
+    });
+
+    injector.register({
+        provide: "MailboxesPersistence",
+        factory: () => new MailboxesClient(userSession.sid, userSession.domain)
     });
 }
 
