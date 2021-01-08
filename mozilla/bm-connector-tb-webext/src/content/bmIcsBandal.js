@@ -334,14 +334,16 @@ var gBMIcsBandal = {
         let errorCode = (aErr instanceof BMError) ? aErr.message : "errors.UNKWNOWN_ERROR";
         let errorMessage = bmUtils.getLocalizedString(errorCode);
         let msgNotificationBar = document.getElementById("msgNotificationBar");
-        if (msgNotificationBar) {
-            msgNotificationBar.appendNotification(errorMessage,
-                                errorCode,
-                                "",
-                                msgNotificationBar.PRIORITY_CRITICAL_LOW,
-                                [],
-                                null);
+        if (!msgNotificationBar) {
+            //TB >= 78
+            msgNotificationBar = gMessageNotificationBar.msgNotificationBar;
         }
+        msgNotificationBar.appendNotification(errorMessage,
+                            errorCode,
+                            "",
+                            msgNotificationBar.PRIORITY_CRITICAL_LOW,
+                            [],
+                            null);
     },
     _getSeriesAndEvent: function(aEvent) {
         let cal = new CalendarClient(this._srv.value, this._authKey, this._containerUid);
