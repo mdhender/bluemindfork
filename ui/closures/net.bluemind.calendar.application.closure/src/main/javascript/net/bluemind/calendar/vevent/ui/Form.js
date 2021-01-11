@@ -1645,7 +1645,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onAcceptCountersUpdate_ = functio
   var value = goog.dom.forms.getValue(checkbox);
   model.acceptCounters = !!value;
 
-  console.log('update to ', model.acceptCounters);
+  goog.dom.classlist.enable(checkbox.parentNode, goog.getCssName('active'), model.acceptCounters);
 }
 
 /**
