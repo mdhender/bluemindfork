@@ -52,7 +52,7 @@ export default class GetInlinePartsVisitor {
 
     visit(part, ancestors) {
         this.root = ancestors[0] || part;
-        if (MimeType.isAlternative(part)) {
+        if (this.isFork(part)) {
             this.forkResults(part, ancestors);
         } else if (this.isLeaf(part) && this.isInline(part)) {
             this.add(part, ancestors);
@@ -117,6 +117,9 @@ export default class GetInlinePartsVisitor {
                 result.capabilities.push(capability);
             }
         });
+    }
+    isFork(part) {
+        return MimeType.isAlternative(part) && part.children && part.children.length > 0;
     }
 
     isInline(part) {

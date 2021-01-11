@@ -415,4 +415,32 @@ describe("GetInlinePartsVisitor", () => {
         // compare the actual result and the expected one
         expect(result).toEqual(expected);
     });
+
+    /**
+     *  text/plain
+     */
+    test("BM-1421 : Alternative part without children", () => {
+        // build the input
+        const rootPart = {
+            mime: "multipart/mixed",
+            address: "TEXT",
+            children: [
+                { mime: "multipart/alternative", address: "1" },
+                { mime: "text/plain", address: "2" }
+            ],
+            size: 26903
+        };
+
+        // build the expected result
+        const expected = [{ capabilities: [], parts: [{ mime: "text/plain", address: "2" }] }];
+
+        // run the code
+        const visitor = new GetInlinePartsVisitor();
+        const walker = new TreeWalker(rootPart, [visitor]);
+        walker.walk();
+        const result = visitor.result();
+
+        // compare the actual result and the expected one
+        expect(result).toEqual(expected);
+    });
 });
