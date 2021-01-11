@@ -27,10 +27,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
@@ -43,6 +45,11 @@ import net.bluemind.exchange.mapi.api.IMapiMailbox;
 import net.bluemind.exchange.mapi.api.MapiFolder;
 import net.bluemind.exchange.mapi.api.MapiFolderContainer;
 import net.bluemind.exchange.mapi.api.MapiReplica;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.Producer;
+import net.bluemind.hornetq.client.Topic;
+import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.User;
 
 public class MapiFoldersRepair implements IDirEntryRepairSupport {
 
@@ -124,10 +131,15 @@ public class MapiFoldersRepair implements IDirEntryRepairSupport {
 					List<Long> allIds = contentApi.changesetById(0L).created;
 					if (!allIds.isEmpty()) {
 						monitor.log("Cleaning content of " + c.uid + ": " + allIds.size() + " item(s)");
-						Lists.partition(allIds, 50).forEach(chunk -> contentApi.multipleDeleteById(chunk));
+						Lists.partition(allIds, 50).forEach(contentApi::multipleDeleteById);
 					}
 				}
 			});
+			Producer prod = MQ.getProducer(Topic.MAPI_REPAIRS);
+			ItemValue<User> user = context.provider().instance(IUser.class, domainUid).getComplete(entry.entryUid);
+			String latd = user.value.login + "@" + domainUid;
+			prod.send(new JsonObject().put("owner", latd));
+			prod.close();
 		}
 
 		private void verifyExtraFolders(String domainUid, DirEntry entry, DiagnosticReport report,
