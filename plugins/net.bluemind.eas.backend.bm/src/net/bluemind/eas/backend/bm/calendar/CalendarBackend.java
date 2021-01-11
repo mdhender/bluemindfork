@@ -21,6 +21,7 @@ package net.bluemind.eas.backend.bm.calendar;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -237,6 +238,9 @@ public class CalendarBackend extends CoreConnect {
 						}
 					}
 					event.main.categories = oldEvent.main.categories;
+
+					event.acceptCounters = oldEvent.acceptCounters;
+					event.counters = Collections.emptyList();
 
 					try {
 						service.update(item.uid, event, true);
