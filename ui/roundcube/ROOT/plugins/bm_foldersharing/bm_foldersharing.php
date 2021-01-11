@@ -66,7 +66,7 @@ class bm_foldersharing extends rcube_plugin {
     if (!empty($this->folder_id) && !(strpos($_SESSION['mbox'], $this->shared) === 0) && !(strpos($_SESSION['mbox'], $this->other) === 0)) {
       $user = $_SESSION['bm_sso']['bmUserId'];
 
-      $f = $this->getFolder(); 
+      $f = $this->getFolder();
       if ($f == null) {
         return;
       }
@@ -123,7 +123,11 @@ class bm_foldersharing extends rcube_plugin {
   }
 
   private function getFolder() {
-    return $this->getContainerClient($this->folder_id)->getDescriptor(); 
+    try {
+      return $this->getContainerClient($this->folder_id)->getDescriptor();
+    } catch (Exception $e) {
+      return null;
+    }
   }
 
 
