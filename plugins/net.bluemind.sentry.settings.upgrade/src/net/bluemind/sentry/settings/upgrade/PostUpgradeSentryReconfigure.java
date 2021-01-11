@@ -20,7 +20,7 @@ package net.bluemind.sentry.settings.upgrade;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
-import net.bluemind.sentry.settings.SentryConfiguration;
+import net.bluemind.sentry.settings.core.SentryConfiguration;
 import net.bluemind.system.schemaupgrader.PostInst;
 import net.bluemind.system.schemaupgrader.UpdateResult;
 

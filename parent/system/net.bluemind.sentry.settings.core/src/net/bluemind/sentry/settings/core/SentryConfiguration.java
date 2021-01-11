@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.sentry.settings;
+package net.bluemind.sentry.settings.core;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.config.InstallationId;

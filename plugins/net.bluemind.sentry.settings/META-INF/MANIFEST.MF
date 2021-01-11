@@ -1,19 +1,17 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.sentry.settings
-Bundle-SymbolicName: net.bluemind.sentry.settings;singleton=true
+Bundle-SymbolicName: net.bluemind.sentry.settings;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.sentry.settings.SentrySettingsActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.core.rest,
- net.bluemind.config,
  net.bluemind.hornetq.client,
  net.bluemind.system.api,
- net.bluemind.system.hook,
  net.bluemind.system.stateobserver,
  sentry,
- slf4j.api
+ slf4j.api,
+ net.bluemind.lib.vertx
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.sentry.settings
 Export-Package: net.bluemind.sentry.settings

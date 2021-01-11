@@ -16,7 +16,7 @@
   * END LICENSE
   */
 
-package net.bluemind.sentry.settings;
+package net.bluemind.sentry.settings.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

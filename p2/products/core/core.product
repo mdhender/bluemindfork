@@ -341,6 +341,7 @@
       <plugin id="net.bluemind.sds.proxy.mgmt"/>
       <plugin id="net.bluemind.sentry" fragment="true"/>
       <plugin id="net.bluemind.sentry.settings"/>
+      <plugin id="net.bluemind.sentry.settings.core"/>
       <plugin id="net.bluemind.sentry.settings.upgrade"/>
       <plugin id="net.bluemind.serialization.client"/>
       <plugin id="net.bluemind.server.api"/>

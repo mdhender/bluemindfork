@@ -38,6 +38,7 @@
 		<module>net.bluemind.system.pg.tests</module>
 		<module>net.bluemind.system.helper</module>
 		<module>net.bluemind.system.validation</module>
+		<module>net.bluemind.sentry.settings.core</module>
 		<module>net.bluemind.core.bo.report.provider</module>
 	</modules>
 
