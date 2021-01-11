@@ -417,7 +417,7 @@ describe("GetInlinePartsVisitor", () => {
     });
 
     /**
-     *  text/plain
+     *  Test message with an alternative part without children (https://forge.bluemind.net/jira/browse/FEATWEBML-1421)
      */
     test("BM-1421 : Alternative part without children", () => {
         // build the input
