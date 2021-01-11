@@ -5,7 +5,7 @@
             :class="isDownloadable ? 'cursor-pointer' : ''"
             @click="isDownloadable ? download() : null"
         >
-            <div v-if="!compact" class="px-1 text-center">
+            <div v-if="!compact" class="text-center">
                 <img
                     v-if="hasPreview"
                     :src="previewUrl"
@@ -18,11 +18,11 @@
             </div>
             <bm-row class="no-gutters align-items-center">
                 <bm-col
-                    class="col-auto align-self-start"
+                    class="col-auto"
                     :class="{ muted: !isUploaded }"
                     :title="$t('mail.content.file-type', { fileType: $t('mail.content.' + fileTypeIcon) })"
                 >
-                    <bm-icon :icon="fileTypeIcon" size="2x" class="align-bottom pt-1" />
+                    <bm-icon :icon="fileTypeIcon" size="2x" class="align-bottom" />
                 </bm-col>
                 <bm-col class="text-nowrap text-truncate flex-grow-1 px-1" :class="{ muted: !isUploaded }">
                     <span :title="attachment.fileName" class="font-weight-bold">{{ fileName }} </span>
