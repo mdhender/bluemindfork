@@ -322,6 +322,7 @@ net.bluemind.calendar.month.MonthPresenter.prototype.adaptVEvent_ = function(vev
   if (!vevent.states.allday) {
     vevent.formatted.tstart = formatter.formatTime(vevent.dtstart);
   }
+  vevent.acceptCounters = vseries.acceptCounters;
   vevent.formatted.dstart = formatter.formatDate(vevent.dtstart);
   vevent.formatted.dend = formatter.formatDate(vevent.dtend);
   vevent.states.synced = vseries.states.synced;
