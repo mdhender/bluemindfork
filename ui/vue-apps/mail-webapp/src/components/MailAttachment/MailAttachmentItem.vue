@@ -1,16 +1,23 @@
 <template>
-    <div class="container">
+    <div>
         <bm-container
             class="mail-attachment-item bg-white border border-light text-condensed py-2 px-2 mt-2"
             :class="isDownloadable ? 'cursor-pointer' : ''"
             @click="isDownloadable ? download() : null"
         >
-            <div v-if="!compact" class="text-center">
+            <div
+                v-if="!compact"
+                ref="preview-div"
+                class="text-center preview overflow-hidden d-flex justify-content-center align-items-center"
+            >
                 <img
                     v-if="hasPreview"
+                    ref="preview-image"
                     :src="previewUrl"
-                    class="preview mb-1 mw-100"
+                    class="flex-grow-1"
+                    :class="fitPreviewImage ? 'w-100' : ''"
                     :alt="$tc('common.attachmentPreview')"
+                    @load="previewImageLoaded"
                 />
                 <div v-else class="preview w-100 text-center mb-1 bg-light p-1">
                     <bm-icon :icon="fileTypeIcon" size="6x" class="m-auto bg-white preview-file-type" />
@@ -110,6 +117,11 @@ export default {
             default: false
         }
     },
+    data() {
+        return {
+            fitPreviewImage: false
+        };
+    },
     computed: {
         ...mapState("mail", ["messages"]),
         message() {
@@ -162,6 +174,14 @@ export default {
         },
         download() {
             location.assign(this.previewUrl);
+        },
+        previewImageLoaded() {
+            const width = this.$refs["preview-image"].width;
+            const height = this.$refs["preview-image"].height;
+            const divWidth = this.$refs["preview-div"].clientWidth;
+            const divHeight = this.$refs["preview-div"].clientHeight;
+            const scaleRatio = divWidth / width;
+            this.fitPreviewImage = width > height && height * scaleRatio > divHeight;
         }
     }
 };
