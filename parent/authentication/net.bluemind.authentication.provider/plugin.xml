@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-
-   <extension-point id="net.bluemind.authentication.provider.authprovider" name="authprovider" schema="schema/net.bluemind.authentication.provider.authprovider.exsd"/>
-   <extension-point id="net.bluemind.authentication.provider.loginvalidation" name="loginvalidation" schema="schema/net.bluemind.authentication.provider.loginvalidation.exsd"/>
-   <extension-point id="net.bluemind.authentication.provider.sessionvalidator" name="loginSessionValidator" schema="schema/net.bluemind.authentication.provider.sessionvalidator.exsd"/>
-
+	<extension-point id="net.bluemind.authentication.provider.authprovider" name="authprovider" schema="schema/net.bluemind.authentication.provider.authprovider.exsd"/>
+	<extension-point id="net.bluemind.authentication.provider.loginvalidation" name="loginvalidation" schema="schema/net.bluemind.authentication.provider.loginvalidation.exsd"/>
+	<extension-point id="net.bluemind.authentication.provider.sessionvalidator" name="loginSessionValidator" schema="schema/net.bluemind.authentication.provider.sessionvalidator.exsd"/>
+	<extension-point id="net.bluemind.authentication.provider.logout" name="logout" schema="schema/net.bluemind.authentication.provider.logout.exsd"/>
 </plugin>

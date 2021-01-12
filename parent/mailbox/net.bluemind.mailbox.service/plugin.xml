@@ -76,4 +76,8 @@
                impl="net.bluemind.mailbox.service.hook.MailboxUserHook">
          </hook>
       </extension>
+	  <extension point="net.bluemind.authentication.provider.logout">
+	      <hook impl="net.bluemind.mailbox.service.hook.EmptyTrashLogoutHook">
+	      </hook>
+	   </extension>
 </plugin>

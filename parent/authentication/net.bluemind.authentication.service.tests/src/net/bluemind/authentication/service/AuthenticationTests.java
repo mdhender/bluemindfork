@@ -234,6 +234,7 @@ public class AuthenticationTests {
 
 		authentication = getService(response.authKey);
 		authentication.logout();
+		assertTrue(TestLogoutHook.latch.await(15, TimeUnit.SECONDS));
 
 		authentication = getService(null);
 		response = authentication.login("admin0@global.virt", response.authKey, "junit");

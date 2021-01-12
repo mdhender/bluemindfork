@@ -57,9 +57,12 @@ import net.bluemind.backend.mail.replica.service.ReplicationEvents;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
+import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.api.IOfflineMgmt;
 import net.bluemind.core.container.api.IdRange;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.ItemFlag;
+import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
@@ -71,6 +74,7 @@ import net.bluemind.imap.CreateMailboxResult;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
+import net.bluemind.imap.ListInfo;
 import net.bluemind.imap.ListResult;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.imap.vertx.VXStoreClient;
@@ -166,13 +170,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		return imapContext.withImapClient((sc, fast) -> {
 			boolean ok = sc.create(computedName);
 			if (ok) {
-				ItemIdentifier iid = future.get(10, TimeUnit.SECONDS);
-				// boolean annotated = sc.setMailboxAnnotation(value.name,
-				// "/vendor/blue-mind/replication/id",
-				// ImmutableMap.of("value.priv", Long.toString(iid.id)));
-				// logger.info("Created and tried to annotate, ok: {}",
-				// annotated);
-				return iid;
+				return future.get(10, TimeUnit.SECONDS);
 			} else {
 				throw new ServerFault("IMAP create of '" + value.name + "' failed.");
 			}
@@ -283,6 +281,12 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 	private void emptyFolder(long id, boolean deleteChildFolders) {
 		ItemValue<MailboxFolder> folder = getCompleteById(id);
+		ItemFlagFilter filter = ItemFlagFilter.create().mustNot(ItemFlag.Deleted);
+		Count count = context.provider().instance(IDbMailboxRecords.class, folder.uid).count(filter);
+		if (count.total == 0) {
+			logger.info("Folder {} already empty ..", folder);
+			return;
+		}
 		logger.info("Start emptying {} (deleteChildFolders={})...", folder, deleteChildFolders);
 		imapContext.withImapClient((storeClient, vxStoreClient) -> {
 			selectInbox(storeClient, vxStoreClient);

@@ -1704,6 +1704,19 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
+	public void emptyEmptyFolder() throws IMAPException, InterruptedException, IOException {
+		IServiceProvider clientProv = provider();
+		IMailboxFolders mboxesApi = clientProv.instance(IMailboxFolders.class, partition, mboxRoot);
+		MailboxReplica toCreate = new MailboxReplica();
+		long time = System.currentTimeMillis() / 1000;
+		toCreate.name = "create" + time;
+		ItemIdentifier created = mboxesApi.createBasic(toCreate);
+		ItemValue<MailboxFolder> foundItem = mboxesApi.byName(toCreate.name);
+
+		mboxesApi.emptyFolder(foundItem.internalId);
+	}
+
+	@Test
 	public void removeFirstLevelMessages() throws IMAPException, InterruptedException, IOException {
 		IServiceProvider clientProv = provider();
 		IMailboxFolders mboxesApi = clientProv.instance(IMailboxFolders.class, partition, mboxRoot);

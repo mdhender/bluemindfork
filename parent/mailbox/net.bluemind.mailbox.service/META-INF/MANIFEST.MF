@@ -7,6 +7,7 @@ Bundle-Vendor: blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.rest,
  net.bluemind.authentication.api,
+ net.bluemind.authentication.provider,
  net.bluemind.mailbox.api,
  net.bluemind.core.container.api,
  net.bluemind.core.container.persistence,
