@@ -1,9 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.sentry.settings.core
-Bundle-SymbolicName: net.bluemind.sentry.settings.core
+Bundle-SymbolicName: net.bluemind.sentry.settings.core;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-Activator: net.bluemind.sentry.settings.core.SentrySettingsActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.hornetq.client,
