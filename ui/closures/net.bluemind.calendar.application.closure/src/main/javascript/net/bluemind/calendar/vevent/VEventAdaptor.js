@@ -146,17 +146,36 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(veve
         var counterEnd = helper.fromIsoString(counter['counter']['dtend']['iso8601']);
 
         var counterStartDate = df.format(counterStart);        
-        var counterEndDate = df.format(counterEnd);        
+        var counterEndDate = df.format(counterEnd);
+
+        var counterIsAllDay = !(counterStart instanceof goog.date.DateTime);
+
         if (currentStartDate == counterStartDate && currentEndDate == counterEndDate) {
-          counterAttendee['counterDate'] = tf.format(counterStart)+ " - " + tf.format(counterEnd);
+          if (counterIsAllDay) {
+            counterAttendee['counterDate'] = currentStartDate;
+          } else {
+            counterAttendee['counterDate'] = tf.format(counterStart)+ " - " + tf.format(counterEnd);
+          }
         } else if (currentStartDate != counterStartDate) {
             if (counterStartDate == counterEndDate) {
-              counterAttendee['counterDate'] = counterStartDate + " " + tf.format(counterStart)+ " - " + tf.format(counterEnd);
+              if (counterIsAllDay){
+                counterAttendee['counterDate'] = currentStartDate;
+              } else {
+                counterAttendee['counterDate'] = counterStartDate + " " + tf.format(counterStart)+ " - " + tf.format(counterEnd); 
+              }
             } else {
-              counterAttendee['counterDate'] = counterStartDate + " " + tf.format(counterStart)+ " - "+ counterEndDate +" " + tf.format(counterEnd);
+              if (counterIsAllDay) {
+                counterAttendee['counterDate'] = currentStartDate + " - " + counterEndDate;
+              } else {
+                counterAttendee['counterDate'] = counterStartDate + " " + tf.format(counterStart)+ " - "+ counterEndDate +" " + tf.format(counterEnd);
+              }
             }
         } else {
-          counterAttendee['counterDate'] = counterStartDate + " " + tf.format(counterStart)+ " - "+ counterEndDate +" " + tf.format(counterEnd);
+          if (counterIsAllDay) {
+            counterAttendee['counterDate'] = currentStartDate + " - " + counterEndDate;
+          } else {
+            counterAttendee['counterDate'] = counterStartDate + " " + tf.format(counterStart)+ " - "+ counterEndDate +" " + tf.format(counterEnd);
+          }
         }
       }
 
