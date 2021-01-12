@@ -130,6 +130,7 @@ var gBMIcsBandal = {
     },
     onEndHeaders: function() {
         let dispMessage = gMessageDisplay.displayedMessage;
+        if (!dispMessage) return;
         let f = dispMessage.folder;
         if (!f) return;
         gBMIcsBandal._logger.debug("f.URI:" + f.URI);
@@ -140,20 +141,24 @@ var gBMIcsBandal = {
         } catch(e) {
             this._logger.debug("cannot query interface to IMAP folder: " + f.URI + ", " + e);
         }
-        if (imapFolder) {
-            let folderPart = "\"" + f.URI.split("/")[3] + "/\"";
-            let inComServer = imapFolder.imapIncomingServer;
-            if (folderPart == inComServer.publicNamespace) {
-                gBMIcsBandal._logger.debug("in a shared public folder -> do not display ics bandal");
-                return;
-            } else {
-                if (folderPart == inComServer.otherUsersNamespace) {
-                    //imap://nico%40test.lan@edge.test.lan/Autres%20utilisateurs/mehdi
-                    otherLogin = f.folderURL.split("/")[4];
-                    gBMIcsBandal._logger.debug("in a shared folder of user: " + otherLogin);
-                }
+        if (!imapFolder) {
+            return;
+        }
+        gBMIcsBandal._checkInBmMailAccount(imapFolder);
+
+        let folderPart = "\"" + f.URI.split("/")[3] + "/\"";
+        let inComServer = imapFolder.imapIncomingServer;
+        if (folderPart == inComServer.publicNamespace) {
+            gBMIcsBandal._logger.debug("in a shared public folder -> do not display ics bandal");
+            return;
+        } else {
+            if (folderPart == inComServer.otherUsersNamespace) {
+                //imap://nico%40test.lan@edge.test.lan/Autres%20utilisateurs/mehdi
+                otherLogin = f.folderURL.split("/")[4];
+                gBMIcsBandal._logger.debug("in a shared folder of user: " + otherLogin);
             }
         }
+
         MsgHdrToMimeMessage(dispMessage, null, function(aMsgHdr, aMimeMsg) {
             if (aMimeMsg) {
                 let uids = aMimeMsg.headers["x-bm-event"];
@@ -188,6 +193,20 @@ var gBMIcsBandal = {
                 }
             }
         }, true, {saneBodySize: true, partsOnDemand: true});
+    },
+    _bmAccountUser: null,
+    _checkInBmMailAccount: function(folder) {
+        if (!this._bmAccountUser) {
+            let user = {};
+            if (bmUtils.getSettings(user, {}, {}, false) && user.value.indexOf(folder.username) != -1) {
+                this._bmAccountUser = folder.username;
+                this._logger.debug("BM msg account user is:" + folder.username);
+            }
+        }
+        if (this._bmAccountUser && this._bmAccountUser == folder.username) {
+            this._logger.debug("In BM msg account");
+            this._hideLightingImipBar();
+        }
     },
     _hideLightingImipBar: function() {
         window.setTimeout(function() {
