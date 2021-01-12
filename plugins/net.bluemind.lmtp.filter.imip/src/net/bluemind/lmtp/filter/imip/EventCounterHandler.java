@@ -28,12 +28,14 @@ import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.lmtp.backend.LmtpAddress;
+import net.bluemind.lmtp.backend.PermissionDeniedException.CounterNotAllowedException;
 import net.bluemind.mailbox.api.Mailbox;
 
 public class EventCounterHandler extends AbstractLmtpHandler implements IIMIPHandler {
@@ -53,7 +55,9 @@ public class EventCounterHandler extends AbstractLmtpHandler implements IIMIPHan
 		ItemValue<VEventSeries> currentSeries = items.get(0);
 
 		if (!currentSeries.value.acceptCounters) {
-			throw new ServerFault(String.format("%s does not allow counter propositions", imip.uid));
+			ServerFault fault = new ServerFault(new CounterNotAllowedException(recipientMailbox.uid));
+			fault.setCode(ErrorCode.EVENT_ACCEPTS_NO_COUNTERS);
+			throw fault;
 		}
 
 		VEventSeries propositionSeries = fromList(imip.properties, imip.iCalendarElements, imip.uid);

@@ -49,4 +49,14 @@ public class PermissionDeniedException extends FilterException {
 
 	}
 
+	public static class CounterNotAllowedException extends Exception {
+
+		public final String targetMailbox;
+
+		public CounterNotAllowedException(String targetMailbox) {
+			this.targetMailbox = targetMailbox;
+		}
+
+	}
+
 }

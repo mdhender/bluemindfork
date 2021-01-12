@@ -50,6 +50,7 @@ import net.bluemind.lmtp.backend.IMessageFilter;
 import net.bluemind.lmtp.backend.LmtpAddress;
 import net.bluemind.lmtp.backend.LmtpEnvelope;
 import net.bluemind.lmtp.backend.PermissionDeniedException;
+import net.bluemind.lmtp.backend.PermissionDeniedException.CounterNotAllowedException;
 import net.bluemind.lmtp.backend.PermissionDeniedException.MailboxInvitationDeniedException;
 import net.bluemind.lmtp.filter.imip.cache.MailboxCache;
 import net.bluemind.mailbox.api.Mailbox;
@@ -121,6 +122,8 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 						headers.addAll(resp.headerFields);
 					} catch (MailboxInvitationDeniedException e) {
 						deniedRecipients.add(e.mboxUid);
+					} catch (CounterNotAllowedException e) {
+						deniedRecipients.add(e.targetMailbox);
 					} catch (ServerFault e) {
 						logger.error("[{}] Error while handling imip message: {}", infos.messageId, e.getCode(), e);
 						throw new FilterException();
@@ -157,7 +160,7 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 	 * @throws ServerFault
 	 */
 	private IMIPResponse handleIMIPMessage(LmtpAddress sender, final LmtpAddress recipient, final IMIPInfos imip)
-			throws ServerFault, MailboxInvitationDeniedException {
+			throws ServerFault, MailboxInvitationDeniedException, CounterNotAllowedException {
 		logger.info("[" + imip.messageId + "] IMIP message from: " + sender + " to " + recipient + ". Method: "
 				+ imip.method + ". Organizer: " + imip.organizerEmail);
 
@@ -173,6 +176,9 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 		} catch (ServerFault sf) {
 			if (sf.getCode() == ErrorCode.PERMISSION_DENIED) {
 				throw (MailboxInvitationDeniedException) sf.getCause();
+			}
+			if (sf.getCode() == ErrorCode.EVENT_ACCEPTS_NO_COUNTERS) {
+				throw (CounterNotAllowedException) sf.getCause();
 			}
 			throw sf;
 		} catch (Exception e) {
