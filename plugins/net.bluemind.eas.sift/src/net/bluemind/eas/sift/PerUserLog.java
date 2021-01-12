@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import io.sentry.SentryClientFactory;
+import io.sentry.event.UserBuilder;
 import net.bluemind.eas.http.AuthenticatedEASQuery;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.IEasRequestFilter;
@@ -42,6 +44,8 @@ public class PerUserLog implements IEasRequestFilter {
 	@Override
 	public void filter(AuthenticatedEASQuery query, FilterChain next) {
 		MDC.put("user", query.loginAtDomain().replace("@", "_at_"));
+		SentryClientFactory.sentryClient().getContext()
+				.setUser(new UserBuilder().setUsername(query.loginAtDomain()).build());
 		if (logger.isDebugEnabled()) {
 			logger.debug("Sifting to {}", query.loginAtDomain());
 		}
@@ -51,6 +55,8 @@ public class PerUserLog implements IEasRequestFilter {
 
 	@Override
 	public void filter(AuthorizedDeviceQuery query, FilterChain next) {
+		SentryClientFactory.sentryClient().getContext()
+				.setUser(new UserBuilder().setUsername(query.loginAtDomain()).build());
 		MDC.put("user", query.loginAtDomain().replace("@", "_at_"));
 		next.filter(query);
 		MDC.put("user", ANONYMOUS);
