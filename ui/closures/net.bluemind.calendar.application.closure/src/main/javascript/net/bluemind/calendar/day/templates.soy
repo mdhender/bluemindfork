@@ -524,17 +524,17 @@
     <ul class="{css attendees}">
     {foreach $attendee in $attendees}
       {if $attendee['partStatus'] == 'Declined'}
-        <li class="{css declined}" title="{if $attendee['mailto']}<{$attendee['mailto']}>{/if}">
-      	  {$attendee['commonName']}
+        <li title="{if $attendee['mailto']}<{$attendee['mailto']}>{/if}">
+      	  <span class="{css declined}">{$attendee['commonName']}</span>
       {elseif $attendee['partStatus'] == 'Accepted'}
-        <li class="{css accepted}" title="{if $attendee['mailto']}{$attendee['mailto']}{/if}">
-      	{$attendee['commonName']}
+        <li title="{if $attendee['mailto']}{$attendee['mailto']}{/if}">
+      	  <span class="{css accepted}">{$attendee['commonName']}</span>
       {elseif $attendee['partStatus'] == 'Tentative'}
-        <li class="{css tentative}" title="{if $attendee['mailto']}{$attendee['mailto']}{/if}">
-      	{$attendee['commonName']}        
+        <li title="{if $attendee['mailto']}{$attendee['mailto']}{/if}">
+      	  <span class="{css tentative}">{$attendee['commonName']}</span>
       {else}
-        <li class="{css needsaction}" title="{if $attendee['mailto']}{$attendee['mailto']}{/if}">
-      	  {$attendee['commonName']}
+        <li title="{if $attendee['mailto']}{$attendee['mailto']}{/if}">
+      	  <span class="{css needsaction}">{$attendee['commonName']}</span>
       {/if}
       {if $attendee['counterDate']}
       &nbsp;<span style="color:orange;">
