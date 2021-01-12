@@ -97,6 +97,7 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
+import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.api.IOfflineMgmt;
@@ -2677,9 +2678,23 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		mboxesApi.markFolderAsRead(folderItem.internalId);
 		System.err.println("Mark as read done.");
 
+		Count cnt = recordsApi.getPerUserUnread();
+		System.err.println("perUser: " + cnt);
+
 		assertTrue("Expected 1 update to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
 
 		checkMessageIsSeen(message, folderItem.uid);
+	}
+
+	@Test
+	public void testPerUserUnreadNotContainer() {
+		IMailboxItems restCall = provider().instance(IMailboxItems.class, UUID.randomUUID().toString());
+		try {
+			Count unread = restCall.getPerUserUnread();
+			fail("call should not be possible but got " + unread);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Test
@@ -2738,6 +2753,10 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertTrue("Expected 1 update to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
 
 		IMailboxItems mailboxItemsService = provider().instance(IMailboxItems.class, sharedSent.uid);
+
+		Count perUser = mailboxItemsService.getPerUserUnread();
+		System.err.println("perUserUnread is " + perUser);
+
 		List<Long> messageIds = messages.stream().map(m -> m.internalId).collect(Collectors.toList());
 		mailboxItemsService.multipleById(messageIds).forEach(message -> checkMessageIsSeen(message, sharedSent.uid));
 	}

@@ -68,7 +68,7 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 			Container recordsContainer = cs.get(uid);
 			if (recordsContainer == null) {
 				LoggerFactory.getLogger(this.getClass()).warn("Missing container {}", uid);
-				return (T) new NoopMailboxRecordService();
+				return createNoopService();
 			}
 			MailboxRecordStore recordStore = new MailboxRecordStore(ds, recordsContainer);
 			ContainerStoreService<MailboxRecord> storeService = new ContainerStoreService<>(ds,
@@ -78,6 +78,11 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	protected T createNoopService() {
+		return (T) new NoopMailboxRecordService();
 	}
 
 	@Override

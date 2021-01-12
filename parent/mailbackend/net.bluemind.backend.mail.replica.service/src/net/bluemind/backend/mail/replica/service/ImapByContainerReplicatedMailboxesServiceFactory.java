@@ -32,7 +32,7 @@ import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
 
-public class ImapByContainerReplicatedMailboxesServiceFactory<T>
+public class ImapByContainerReplicatedMailboxesServiceFactory
 		extends AbstractByContainerReplicatedMailboxesServiceFactory<IMailboxFoldersByContainer> {
 
 	protected IMailboxFoldersByContainer create(MailboxReplicaRootDescriptor mailboxRoot, Container foldersContainer,
