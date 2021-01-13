@@ -3,10 +3,6 @@ import { MAILSHARE_KEYS, MY_MAILBOX, MY_MAILBOX_FOLDERS } from "~getters";
 import { bootstrap } from "../../actions/bootstrap";
 import { FETCH_SIGNATURE } from "../../../store/types/actions";
 
-import { inject } from "@bluemind/inject";
-jest.mock("@bluemind/inject");
-inject.mockReturnValue({ list: () => ["subscriptions"] });
-
 const myMailbox = { key: "mailbox:uid" },
     mailshareKeys = ["A", "B"],
     myMailboxFolderKeys = ["1", "2", "3"];
@@ -29,7 +25,7 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
 
     test("load all folders from my mailbox and get unread count", done => {
         bootstrap(context).then(() => {
-            expect(context.dispatch).toHaveBeenNthCalledWith(1, "mail/" + FETCH_MAILBOXES, ["subscriptions"], {
+            expect(context.dispatch).toHaveBeenNthCalledWith(1, "mail/" + FETCH_MAILBOXES, null, {
                 root: true
             });
             expect(context.dispatch).toHaveBeenNthCalledWith(2, "mail/" + FETCH_FOLDERS, myMailbox, { root: true });
@@ -40,7 +36,7 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
 
     test("load all folders from mailshares", done => {
         bootstrap(context).then(() => {
-            expect(context.dispatch).toHaveBeenNthCalledWith(1, "mail/" + FETCH_MAILBOXES, ["subscriptions"], {
+            expect(context.dispatch).toHaveBeenNthCalledWith(1, "mail/" + FETCH_MAILBOXES, null, {
                 root: true
             });
             mailshareKeys.forEach(key =>

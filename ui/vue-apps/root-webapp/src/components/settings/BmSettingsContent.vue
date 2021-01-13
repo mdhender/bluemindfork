@@ -79,11 +79,12 @@
                     {{ $t("settings.mail.signature.insert") }}
                 </bm-form-checkbox>
             </bm-form-group>
-            <h2 class="pb-4">{{ $t("settings.mail.logout") }}</h2>
+            <h2 class="py-4">{{ $t("settings.mail.logout") }}</h2>
             <bm-form-group :aria-label="$t('settings.mail.logout')">
-                <bm-form-checkbox v-model="localUserSettings.logout_purge">
+                <bm-form-checkbox v-model="localUserSettings.logout_purge" value="true" unchecked-value="false">
                     {{ $t("settings.mail.logout.empty.trash") }}
                 </bm-form-checkbox>
+            </bm-form-group>
             <h2 class="py-4">{{ $t("settings.mail.remote.images") }}</h2>
             <bm-form-group :aria-label="$t('settings.mail.remote.images')">
                 <bm-form-checkbox
@@ -94,11 +95,14 @@
                 >
                     {{ $t("settings.mail.remote.images.trust") }}
                 </bm-form-checkbox>
-                <div class="ml-4 text-secondary">
-                    <bm-icon icon="info-circle" class="mr-1" /> {{ $t("settings.mail.remote.images.explanations") }}
-                    <a href="https://forge.bluemind.net/confluence/display/BM4/La+messagerie" target="_blank">
-                        {{ $t("settings.mail.remote.images.help") }}
-                    </a>
+                <div class="ml-4 text-secondary d-flex">
+                    <bm-icon icon="info-circle" class="mr-1 mt-1 align-items-start" />
+                    <span>
+                        {{ $t("settings.mail.remote.images.explanations") }}
+                        <a href="https://forge.bluemind.net/confluence/display/BM4/La+messagerie" target="_blank">
+                            {{ $t("settings.mail.remote.images.help") }}
+                        </a>
+                    </span>
                 </div>
             </bm-form-group>
         </div>

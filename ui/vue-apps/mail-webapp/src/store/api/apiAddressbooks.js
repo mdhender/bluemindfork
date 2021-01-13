@@ -12,12 +12,10 @@ async function search(address) {
         query: address,
         escapeQuery: false
     });
-    searchByAddressCache[address] = result;
+    if (result.total > 0) {
+        searchByAddressCache[address] = result;
+    }
     return result;
 }
 
-export async function invalidateCacheEntry(address) {
-    searchByAddressCache[address] = undefined;
-}
-
-export default { invalidateCacheEntry, search };
+export default { search };

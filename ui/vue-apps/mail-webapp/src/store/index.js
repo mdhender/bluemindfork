@@ -1,5 +1,4 @@
 import activeMessage from "./activeMessage";
-import addressbooks from "./addressbooks";
 import consultPanel from "./consultPanel";
 import folderList from "./folderList";
 import folders from "./folders";
@@ -17,7 +16,6 @@ export default {
     mutations,
     modules: {
         activeMessage,
-        addressbooks,
         consultPanel,
         folderList,
         folders,

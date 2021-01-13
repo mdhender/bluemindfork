@@ -2,7 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
-import { MockContainersClient } from "@bluemind/test-utils";
+import { MockContainersClient, MockOwnerSubscriptionsClient } from "@bluemind/test-utils";
 import { Verb } from "@bluemind/core.container.api";
 import initialStore from "../mailboxes";
 import aliceContainers from "./data/users/alice/containers";
@@ -15,6 +15,7 @@ const userId = "6793466E-F5D4-490F-97BF-DF09D3327BF4";
 
 const containersService = new MockContainersClient();
 inject.register({ provide: "ContainersPersistence", factory: () => containersService });
+inject.register({ provide: "SubscriptionPersistence", factory: () => new MockOwnerSubscriptionsClient() });
 inject.register({ provide: "UserSession", use: { userId } });
 Vue.use(Vuex);
 

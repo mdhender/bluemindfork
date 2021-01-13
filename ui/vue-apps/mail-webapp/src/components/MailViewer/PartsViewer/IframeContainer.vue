@@ -48,6 +48,13 @@ export default {
                 const content = unblockRemoteImages(this.body);
                 this.iFrameContent = this.buildHtml(content);
             }
+        },
+        "settings.trust_every_remote_content"(newValue) {
+            if (newValue === "true") {
+                const content = unblockRemoteImages(this.body);
+                this.iFrameContent = this.buildHtml(content);
+                this.SET_SHOW_REMOTE_IMAGES_ALERT(false);
+            }
         }
     },
     async mounted() {

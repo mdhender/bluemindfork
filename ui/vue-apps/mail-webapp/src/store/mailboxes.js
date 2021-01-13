@@ -19,7 +19,8 @@ export default {
         [ADD_MAILBOXES]: (state, mailboxes) => mailboxes.forEach(mailbox => Vue.set(state, mailbox.key, mailbox))
     },
     actions: {
-        [FETCH_MAILBOXES]: async ({ commit }, subscriptions) => {
+        [FETCH_MAILBOXES]: async ({ commit }) => {
+            const subscriptions = await inject("SubscriptionPersistence").list();
             const items = await inject("ContainersPersistence").getContainers(
                 subscriptions
                     .filter(subscription => subscription.value.containerType === "mailboxacl")

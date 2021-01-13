@@ -33,11 +33,10 @@
 <script>
 import { mapMutations, mapState } from "vuex";
 
-import { createContact, VCardAdaptor } from "@bluemind/contact";
+import { createFromRecipient, VCardAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
 import { ItemUri } from "@bluemind/item-uri";
 
-import apiAddressbooks from "../../store/api/apiAddressbooks";
 import { SET_BLOCK_REMOTE_IMAGES, SET_SHOW_REMOTE_IMAGES_ALERT } from "~mutations";
 import MailComponentAlert from "../MailComponentAlert";
 import MailComposer from "../MailComposer";
@@ -57,7 +56,7 @@ export default {
     },
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail", ["folders", "messages", "addressbooks"]),
+        ...mapState("mail", ["folders", "messages"]),
         ...mapState("mail", { showRemoteImagesAlert: state => state.consultPanel.remoteImages.showAlert }),
         message() {
             return this.messages[this.currentMessageKey];
@@ -88,12 +87,12 @@ export default {
         },
         trustSender() {
             this.showRemoteImages();
-            const contact = createContact(this.message.from);
-            inject("AddressBookPersistence", this.addressbooks.myContacts.containerUid).create(
+            const contact = createFromRecipient(this.message.from);
+            const myContactsAddressbookContainerUid = "book:Contacts_" + inject("UserSession").userId;
+            inject("AddressBookPersistence", myContactsAddressbookContainerUid).create(
                 contact.uid,
                 VCardAdaptor.toVCard(contact)
             );
-            apiAddressbooks.invalidateCacheEntry(this.message.from.address);
         }
     }
 };
