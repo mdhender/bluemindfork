@@ -1,6 +1,6 @@
 <template>
     <bm-navbar-nav class="bm-banner-user order-0 order-lg-1 align-items-center">
-        <bm-nav-item-dropdown right offset="5" class="bm-dropdown-info-dark">
+        <bm-nav-item-dropdown right offset="5" class="bm-dropdown-info-dark h-100">
             <template slot="button-content">
                 <bm-avatar :alt="user.displayname" class="flex-shrink-0" width="2em" />
                 <span class="pr-4 username text-truncate m-auto">
