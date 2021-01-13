@@ -2,7 +2,6 @@ import { inject } from "@bluemind/inject";
 
 const state = {
     appState: "loading",
-    showSettings: false,
     quota: {
         used: null,
         total: null
@@ -16,9 +15,6 @@ const mutations = {
     SET_QUOTA: (state, { used, total }) => {
         state.quota.used = used;
         state.quota.total = total;
-    },
-    TOGGLE_SETTINGS: state => {
-        state.showSettings = !state.showSettings;
     }
 };
 

@@ -21,15 +21,40 @@ export default {
     mockSessionStore() {
         return {
             state: {},
+            getters: {
+                "preferences/SECTIONS": () => [
+                    { code: "main", href: "/main/", icon: "wrench", categories: [{ code: "main" }] }
+                ]
+            },
             modules: {
                 session: {
                     namespaced: true,
                     state: {
-                        userSettings: {}
+                        settings: { remote: {}, local: {} }
                     },
                     actions: {
                         FETCH_ALL_SETTINGS: jest.fn(),
-                        UPDATE_ALL_SETTINGS: jest.fn()
+                        SAVE_SETTINGS: jest.fn(),
+                        ROLLBACK_SETTINGS: jest.fn()
+                    },
+                    mutations: {
+                        SET_SETTINGS: jest.fn(),
+                        UPDATE_SETTINGS: jest.fn()
+                    }
+                },
+                preferences: {
+                    namespaced: true,
+                    state: {
+                        offset: 0,
+                        showPreferences: false,
+                        selectedSectionCode: "mail",
+                        sectionByCode: { main: {} }
+                    },
+                    mutations: {
+                        SET_OFFSET: jest.fn(),
+                        TOGGLE_PREFERENCES: jest.fn(),
+                        SET_SECTIONS: jest.fn(),
+                        SET_SELECTED_SECTION: jest.fn()
                     }
                 },
                 "root-app": {

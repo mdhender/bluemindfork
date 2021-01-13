@@ -14,6 +14,7 @@ import { UserSettingsClient } from "@bluemind/user.api";
 import VueBus from "@bluemind/vue-bus";
 import { extend } from "@bluemind/vuex-router";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
+import PreferencesStore from "./preferencesStore";
 
 import RootAppStore from "./rootAppStore";
 import SessionStore from "./sessionStore";
@@ -62,6 +63,7 @@ function initStore() {
     store.registerModule("alert", AlertStore);
     store.registerModule("root-app", RootAppStore);
     store.registerModule("session", SessionStore);
+    store.registerModule("preferences", PreferencesStore);
 }
 
 function registerDependencies(userSession) {

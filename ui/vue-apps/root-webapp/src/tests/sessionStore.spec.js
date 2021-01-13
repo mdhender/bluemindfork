@@ -12,7 +12,7 @@ describe("Store session", () => {
 
     beforeEach(() => {
         context = {
-            state: {},
+            state: { settings: { local: {}, remote: {} } },
             commit: jest.fn()
         };
     });
@@ -23,7 +23,7 @@ describe("Store session", () => {
 
         await sessionStore.actions.FETCH_ALL_SETTINGS(context);
         expect(userSettingsClient.get).toHaveBeenCalledWith(userId);
-        expect(context.commit).toHaveBeenCalledWith("SET_USER_SETTINGS", expect.anything());
+        expect(context.commit).toHaveBeenCalledWith("SET_SETTINGS", expect.anything());
     });
 
     test("FETCH_ALL_SETTINGS action set default settings if needed", async () => {
@@ -31,7 +31,7 @@ describe("Store session", () => {
         userSettingsClient.get.mockReturnValue(mockedSettings);
 
         await sessionStore.actions.FETCH_ALL_SETTINGS(context);
-        expect(context.commit).toHaveBeenCalledWith("SET_USER_SETTINGS", {
+        expect(context.commit).toHaveBeenCalledWith("SET_SETTINGS", {
             always_show_quota: "false",
             insert_signature: "true",
             logout_purge: "false",
@@ -42,18 +42,45 @@ describe("Store session", () => {
         });
     });
 
-    test("UPDATE_ALL_SETTINGS action", async () => {
+    test("SAVE_SETTINGS action", async () => {
         const settings = { mySetting: "MY_SETTING" };
-
-        await sessionStore.actions.UPDATE_ALL_SETTINGS(context, settings);
+        context.state.settings.local = settings;
+        await sessionStore.actions.SAVE_SETTINGS(context);
         expect(userSettingsClient.set).toHaveBeenCalledWith(userId, settings);
-        expect(context.commit).toHaveBeenCalledWith("SET_USER_SETTINGS", settings);
+        expect(context.commit).toHaveBeenCalledWith("SET_SETTINGS", settings);
     });
 
-    test("SET_USER_SETTINGS mutation", async () => {
-        const settings = { mySetting: "MY_SETTING" };
+    test("ROLLBACK_SETTINGS action", async () => {
+        context.state.settings.local = { mySetting: "MY_SETTING_NEW" };
+        context.state.settings.remote = { mySetting: "MY_SETTING_OLD" };
+        await sessionStore.actions.ROLLBACK_SETTINGS(context);
+        expect(context.commit).toHaveBeenCalledWith("SET_SETTINGS", { mySetting: "MY_SETTING_OLD" });
+    });
 
-        sessionStore.mutations.SET_USER_SETTINGS(context.state, settings);
-        expect(context.state).toEqual({ userSettings: settings });
+    test("SET_SETTINGS mutation", () => {
+        const settings = { mySetting: "MY_SETTING" };
+        sessionStore.mutations.SET_SETTINGS(context.state, settings);
+        expect(context.state).toEqual({
+            settings: { local: { mySetting: "MY_SETTING" }, remote: { mySetting: "MY_SETTING" } }
+        });
+    });
+
+    test("UPDATE_SETTINGS mutation", () => {
+        sessionStore.mutations.UPDATE_SETTINGS(context.state, { mySetting: "MY_SETTING" });
+        expect(context.state).toEqual({
+            settings: { local: { mySetting: "MY_SETTING" }, remote: {} }
+        });
+        sessionStore.mutations.UPDATE_SETTINGS(context.state, { mySetting2: "MY_SETTING2" });
+        expect(context.state).toEqual({
+            settings: { local: { mySetting: "MY_SETTING", mySetting2: "MY_SETTING2" }, remote: {} }
+        });
+    });
+
+    test("SETTINGS_CHANGED getter", () => {
+        context.state.settings.local = { settingOne: "blue" };
+        context.state.settings.remote = { settingOne: "mind" };
+        expect(sessionStore.getters.SETTINGS_CHANGED(context.state)).toBeTruthy();
+        context.state.settings.remote = { settingOne: "blue" };
+        expect(sessionStore.getters.SETTINGS_CHANGED(context.state)).toBeFalsy();
     });
 });

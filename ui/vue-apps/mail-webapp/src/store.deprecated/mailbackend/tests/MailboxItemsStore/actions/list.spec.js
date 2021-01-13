@@ -11,7 +11,7 @@ const context = {
                 containerUid: {}
             }
         },
-        session: { userSettings: {} }
+        session: { settings: { remote: {}, local: {} } }
     }
 };
 

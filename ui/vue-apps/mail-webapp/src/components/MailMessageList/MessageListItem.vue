@@ -65,7 +65,7 @@ export default {
     computed: {
         ...mapState("mail", ["folders", "activeFolder", "selection"]),
         ...mapGetters("mail", { MESSAGE_IS_SELECTED }),
-        ...mapState("session", ["userSettings"]),
+        ...mapState("session", { userSettings: ({ settings }) => settings.local }),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" })
     },
     methods: {

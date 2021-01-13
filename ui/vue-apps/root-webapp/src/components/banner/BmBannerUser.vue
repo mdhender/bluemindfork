@@ -7,8 +7,8 @@
                     {{ user.displayname }}
                 </span>
             </template>
-            <bm-dropdown-item :title="$t('banner.menu.settings.aria')" @click="TOGGLE_SETTINGS()">
-                <bm-label-icon icon="preferences">{{ $t("common.settings") }} </bm-label-icon>
+            <bm-dropdown-item :title="$t('banner.menu.preferences.aria')" @click="TOGGLE_PREFERENCES()">
+                <bm-label-icon icon="preferences">{{ $t("common.preference") }} </bm-label-icon>
             </bm-dropdown-item>
             <bm-dropdown-item href="/bluemind_sso_logout">
                 <bm-label-icon icon="sign-out">{{ $t("banner.menu.logout") }} </bm-label-icon>
@@ -36,7 +36,7 @@ export default {
             type: Object
         }
     },
-    methods: { ...mapMutations("root-app", ["TOGGLE_SETTINGS"]) }
+    methods: { ...mapMutations("preferences", ["TOGGLE_PREFERENCES"]) }
 };
 </script>
 

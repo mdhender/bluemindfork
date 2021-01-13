@@ -2,7 +2,8 @@
     <div class="main-app d-flex flex-column h-100 bg-light">
         <global-events target="self" @resize="appHeight" />
         <bm-banner :applications="applications" :widgets="widgets" :user="user" :software="software" />
-        <bm-settings v-if="showSettings" :user="user" :applications="applications" />
+        <preferences v-if="showPreferences" :user="user" :applications="applications" />
+        <bm-spinner v-if="appState == 'loading'" :size="2" class="d-flex flex-fill align-self-center" />
         <div
             v-if="appState == 'error'"
             class="text-danger text-center h2 d-flex flex-fill align-self-center align-items-center"
@@ -10,7 +11,7 @@
             {{ $t("common.application.bootstrap.error") }}<br />
             {{ $t("common.application.bootstrap.error.solution") }}
         </div>
-        <router-view v-else :class="showSettings ? 'd-none' : 'd-flex'" />
+        <router-view v-else :class="showPreferences ? 'd-none' : 'd-flex'" />
         <bm-alert-area :alerts="alerts" class="z-index-250 position-absolute" @remove="REMOVE">
             <template v-slot="context">
                 <component :is="context.alert.renderer" :alert="context.alert" />
@@ -27,13 +28,13 @@ import "@bluemind/styleguide/css/bluemind.scss";
 import CommonL10N from "@bluemind/l10n";
 import injector from "@bluemind/inject";
 import BmBanner from "./banner/BmBanner";
-import BmSettings from "./settings/BmSettings";
+import Preferences from "./preferences/Preferences";
 
 export default {
     components: {
         BmBanner,
         BmSpinner,
-        BmSettings,
+        Preferences,
         GlobalEvents,
         BmAlertArea
     },
@@ -90,7 +91,8 @@ export default {
     computed: {
         ...mapState({ applicationAlerts: state => state.alert.applicationAlerts }),
         ...mapState({ alerts: "alert" }),
-        ...mapState("root-app", ["appState", "showSettings"])
+        ...mapState("root-app", ["appState"]),
+        ...mapState("preferences", ["showPreferences"])
     },
     created() {
         this.appHeight();

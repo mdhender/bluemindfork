@@ -6,7 +6,7 @@ export function list({ dispatch, rootState }, { folderUid, filter }) {
         {
             folder: rootState.mail.folders[folderUid],
             filter,
-            conversationsEnabled: rootState.session.userSettings.mail_thread === "true"
+            conversationsEnabled: rootState.session.settings.local.mail_thread === "true"
         },
         { root: true }
     );

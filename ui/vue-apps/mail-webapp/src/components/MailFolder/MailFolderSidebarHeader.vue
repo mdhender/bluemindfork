@@ -7,8 +7,8 @@
             </div>
         </div>
         <bm-contextual-menu boundary="viewport" variant="inline-light" size="lg" class="bm-dropdown-info-dark">
-            <bm-dropdown-item-button icon="preferences" @click="TOGGLE_SETTINGS()">
-                {{ $t("common.settings") }}
+            <bm-dropdown-item-button icon="preferences" @click="TOGGLE_PREFERENCES()">
+                {{ $t("common.preference") }}
             </bm-dropdown-item-button>
             <bm-dropdown-item icon="sign-out" href="/bluemind_sso_logout">
                 {{ $t("banner.menu.logout") }}
@@ -34,7 +34,7 @@ export default {
         };
     },
     methods: {
-        ...mapMutations("root-app", ["TOGGLE_SETTINGS"])
+        ...mapMutations("preferences", ["TOGGLE_PREFERENCES"])
     }
 };
 </script>

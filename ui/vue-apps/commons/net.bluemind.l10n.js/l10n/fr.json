@@ -75,7 +75,7 @@
     "common.folder.trash": "Corbeille",
     "common.application.bootstrap.error": "Erreur lors de l'initialisation de l'application...",
     "common.application.bootstrap.error.solution": "Veuillez réessayer dans quelques instants ou contacter votre administrateur.",
-    "common.settings": "Préférences",
+    "common.preference": "Préférences",
     "common.general": "Général",
     "common.available_soon": "Bientôt disponible !",
     "common.every_year": "Chaque année"

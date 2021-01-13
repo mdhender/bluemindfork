@@ -41,7 +41,7 @@ export default {
         ...mapState("mail", { $_ComposerInitMixin_activeMessage: "activeMessage" }),
         ...mapState("mail", { $_ComposerInitMixin_signature: ({ messageCompose }) => messageCompose.signature }),
         ...mapState("session", {
-            $_ComposerInitMixin_insertSignaturePref: ({ userSettings }) => userSettings.insert_signature
+            $_ComposerInitMixin_insertSignaturePref: ({ settings }) => settings.local.insert_signature
         })
     },
     methods: {

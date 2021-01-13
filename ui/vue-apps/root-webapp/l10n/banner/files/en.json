@@ -3,7 +3,7 @@
     "banner.main.brand": "Go back to the application home page",
     "banner.main.apps": "Bluemind applications",
     "banner.menu.logout": "Logout",
-    "banner.menu.settings.aria": "Access account settings",
+    "banner.menu.preferences.aria": "Access account settings",
     "banner.reach.all_apps": "Access to all Bluemind applications",
     "banner.reach.help": "Access to Bluemind webmail help"
 }
