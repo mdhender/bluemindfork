@@ -27,11 +27,12 @@ export async function syncMailFolder(uid: string) {
             .concat(updated.reverse())
             .map(({ id }) => id);
         const mailItems = await fetchMailItemsByChunks(ids, uid);
-        (await maildb.getInstance(await getDBName())).reconciliate(
+        const db = await maildb.getInstance(await getDBName());
+        await db.reconciliate(
             { uid, items: mailItems, deletedIds: deleted.map(({ id }) => id) },
             { ...syncOptions, version }
         );
-        (await maildb.getInstance(await getDBName())).updateSyncOptions({ ...syncOptions, version });
+        await db.updateSyncOptions({ ...syncOptions, version });
     }
 }
 
@@ -52,9 +53,10 @@ async function syncMailbox(domain: string, userId: string) {
         const mailFolders = (await api.mailFolder.fetch({ domain, userId })).filter(mailfolder =>
             toBeUpdated.includes(mailfolder.internalId)
         );
-        await (await maildb.getInstance(await getDBName())).deleteMailFolders(deleted);
-        await (await maildb.getInstance(await getDBName())).putMailFolders(mailFolders);
-        await (await maildb.getInstance(await getDBName())).updateSyncOptions({ ...syncOptions, version });
+        const db = await maildb.getInstance(await getDBName());
+        await db.deleteMailFolders(deleted);
+        await db.putMailFolders(mailFolders);
+        await db.updateSyncOptions({ ...syncOptions, version });
     }
 }
 
@@ -76,10 +78,11 @@ function createSyncOptions(uid: string, type: "mail_item" | "mail_folder"): Sync
 }
 
 async function getSyncOptions(uid: string, type: "mail_item" | "mail_folder") {
-    const syncOptions = await (await maildb.getInstance(await getDBName())).getSyncOptions(uid);
+    const db = await maildb.getInstance(await getDBName());
+    const syncOptions = await db.getSyncOptions(uid);
     if (!syncOptions) {
         const syncOptions = createSyncOptions(uid, type);
-        (await maildb.getInstance(await getDBName())).updateSyncOptions(syncOptions);
+        await db.updateSyncOptions(syncOptions);
         return syncOptions;
     }
     return syncOptions;
