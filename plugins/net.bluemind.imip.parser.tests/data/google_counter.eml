@@ -1,0 +1,166 @@
+Return-Path: <3Z8r-XwcJEfwkjvmxswkqemp.gsqrmgspew.pewgsqfiwfpyiqmrh.rix@calendar-server.bounces.google.com>
+Received: from bm-prod.blue-mind.net (localhost.localdomain [127.0.0.1])
+         by bm-prod with LMTPA;
+         Wed, 13 Jan 2021 11:24:44 +0100
+X-Cyrus-Session-Id: cyrus-31221-1610533484-2-14264714559082779096
+X-Sieve: CMU Sieve 3.0
+Received: from 192.168.231.1 (LHLO bm-prod.blue-mind.net) by unknown with
+ LMTP; 1/13/21 10:24 AM
+Received: from smtp.bluemind.net (unknown [192.168.231.1])
+        by bm-prod.blue-mind.net (Postfix) with ESMTPS id 3FADF8042C
+        for <max@blue-mind.net>; Wed, 13 Jan 2021 11:24:44 +0100 (CET)
+Received: from k11.altospam.com (k11.altospam.com [62.210.162.60])
+        by smtp.bluemind.net (Postfix) with ESMTPS id 2CCBF80ED5
+        for <max.mustermann@bluemind.net>; Wed, 13 Jan 2021 11:24:44 +0100 (CET)
+Received: from mail-lj1-f202.google.com ([209.85.208.202])
+        by k11.altospam.com with esmtps (TLS1.3:TLS_AES_256_GCM_SHA384:256) (Altospam)
+        id 1kzdKS-000FkC-7q 
+        for max.mustermann@bluemind.net; Wed, 13 Jan 2021 11:24:43 +0100
+Received: by mail-lj1-f202.google.com with SMTP id h25so699852ljb.11
+        for <max.mustermann@bluemind.net>; Wed, 13 Jan 2021 02:24:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:reply-to:sender:auto-submitted:message-id:date:subject
+         :from:to;
+        bh=tl//LuAwAV+8sotVYsuda/1qqIZFzZ3RXxUX/KcnlDY=;
+        b=AhgmgFvuAP9tt6ZsmPB6BCdXTC8nT8e+O3kXdZxLT3rP9jJdusysT2ZQBpVyoW0860
+         7clNlHY7rkkPzstrr6Tjthlv9CUbelsC4C4tdxtj+7hmtKyTDTiEyz6kICpyvzmsRcZY
+         vd5edVE4tdbrHLcyot3vkqEL7ZpR2dfWEIFax0NBoAbDe63CIwkfFlUfQr2uSvQtXkKk
+         TqGrbehNiJr98FaLvASPQpyEtk6QljUO2uXchvi1bguGdVa+GcYIPoAvvA9pZXrrVeeu
+         qNtpqKn7hapJ/BzjHokfVcVcyDgPKSov1Xh9Ig4atkeZ1Bfad7ClVjMHwgD/0zA0NV3m
+         JP7Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:auto-submitted:message-id:date:subject
+         :from:to;
+        bh=tl//LuAwAV+8sotVYsuda/1qqIZFzZ3RXxUX/KcnlDY=;
+        b=tJa6AudP1RqjsThzFhhXt+rbjUa3G6xqbObwoBCQ+OStL0Z3Qleg9At69h2ujluE4d
+         u4KANr0OCnvRdDNxGZnRI+GBi4kK9QqXUK1S69Wme4O1ExeTCvnRBeStBpOzCtJ+wykN
+         WXaU2yUO1siIbIAPbQqhWlFsGHnUPbEbPXwlfOhYW4BlXAfLESIcynqM6e+mFbEF30wT
+         oJJ40Gcj5EOz52T5I7KoY13skTfF2PSxs2jOUVhKf4HYLP/zMbvjoThNsRXFRwvPxoaX
+         sZg78ROC8JOJaq2uogS6R7Un32w4JUSWRdMquPwShZobN2pQcPrL8ZK0Nm6hlPh1zMyz
+         FIug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:auto-submitted
+         :message-id:date:subject:from:to;
+        bh=tl//LuAwAV+8sotVYsuda/1qqIZFzZ3RXxUX/KcnlDY=;
+        b=T06gXCSgHRCCoIgI8byrq8pc6TcuZEfw/qwHmKrulggGW96H4NSci1Cf9wx6dKTuex
+         JHa74kP8tLVHm4ZT5SN6e1GVqRTLeW58GudNUmdkknGBObXuQd/jdWk/anNV72gzVjeE
+         mLgZGLx49LESgoauumlV9vV63R9wZRt/UCaDLB1PTJP7NgbsDOUbLwqBp3kRb6KtHF5z
+         4BWaGqFgowcovPl8oOsTF+aqfkZn6swbFgtQWZ0DwnHCE4hhyHS0sH+anzdF6MXmY/Yp
+         1TDxOYs59nJXHG68uYSvHqNDtlp9Iy3S1kMcxhI3D12Ilwuw7FveAqHLIRzCPHJvMQ7i
+         +ARw==
+X-Gm-Message-State: AOAM5313hD05+lXISnZId6RjutLPNXJvA0dk13fs6SCoFfHc3i1OkAZS
+        by2VO7lIIuxNN83vk+6ZbEgtUMUOheUvaD3oalfJ
+X-Google-Smtp-Source: ABdhPJwxZUzuXF4TAl7whIYkzNMa4UjDajyWJzuhH86CobmBYNUobKcqg6RyOM1vpE7VURGlCdhk7IKA/ysIqztJEUm1
+MIME-Version: 1.0
+X-Received: by 2002:a2e:6a04:: with SMTP id f4mr631644ljc.255.1610533479682;
+ Wed, 13 Jan 2021 02:24:39 -0800 (PST)
+Reply-To: max@gmail.com
+Sender: Google Agenda <calendar-notification@google.com>
+Auto-Submitted: auto-generated
+Message-ID: <000000000000f4987905b8c58baa@google.com>
+Date: Wed, 13 Jan 2021 10:24:39 +0000
+From: max@gmail.com
+To: Max Mustermann <max.mustermann@bluemind.net>
+Subject: =?UTF-8?Q?Nouvel_horaire_propos=C3=A9=3A_Invite_BM_=2D_mer=2E_13_janv=2E_2?=
+        =?UTF-8?Q?021_6pm_=2D_7pm_=28CET=29_=28Nicolas_Lascombes=29?=
+Content-Type: multipart/mixed; boundary="000000000000f4986305b8c58ba9"
+X-ALTOSPAM-STATUT: senderok mailok serverok spfok dkimok
+X-ALTOSPAM-HOST: k11.altospam.com
+X-Bm-Milter-Handled: d891dff8-afe9-48f5-b212-a48e8ecc236b
+X-Bm-Transport-Timestamp: 1610533484213
+
+--000000000000f4986305b8c58ba9
+Content-Type: multipart/alternative; boundary="000000000000f4986105b8c58ba7"
+
+--000000000000f4986105b8c58ba7
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Content-Transfer-Encoding: base64
+
+Y291Y291
+
+--000000000000f4986105b8c58ba7
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<span itemscope itemtype=3D"http://schema=2Eorg/InformAction"></span>
+
+--000000000000f4986105b8c58ba7
+Content-Type: text/calendar; charset="UTF-8"; method=REPLY
+Content-Transfer-Encoding: 7bit
+
+BEGIN:VCALENDAR
+PRODID:-//Google Inc//Google Calendar 70.9054//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:COUNTER
+BEGIN:VEVENT
+DTSTART:20210113T184500Z
+DTEND:20210113T194500Z
+DTSTAMP:20210113T102439Z
+ORGANIZER;CN=Max Mustermann:mailto:max.mustermann@bluemind.net
+UID:36da4919-6cf5-4ce9-aa18-6e56c1da2298
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE;CN=gfrit
+ os@gmail.com;X-NUM-GUESTS=0:mailto:max@gmail.com
+CREATED:20210113T102411Z
+DESCRIPTION:
+LAST-MODIFIED:20210113T102437Z
+LOCATION:
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:Invite BM
+TRANSP:OPAQUE
+ATTACH;FILENAME=x-disclaimer-913671643-0.png:?view=att&th=176fb463ad2fed5e&
+ attid=0.0.0.1&disp=attd&zw
+ATTACH;FILENAME=x-disclaimer-913671643-1.png:?view=att&th=176fb463ad2fed5e&
+ attid=0.0.0.2&disp=attd&zw
+ATTACH;FILENAME=x-disclaimer-913671643-2.png:?view=att&th=176fb463ad2fed5e&
+ attid=0.0.0.3&disp=attd&zw
+ATTACH;FILENAME=x-disclaimer-913671643-3.png:?view=att&th=176fb463ad2fed5e&
+ attid=0.0.0.4&disp=attd&zw
+ATTACH;FILENAME=x-disclaimer-913671643-4.png:?view=att&th=176fb463ad2fed5e&
+ attid=0.0.0.5&disp=attd&zw
+ATTACH;FILENAME=x-disclaimer-913671643-5.png:?view=att&th=176fb463ad2fed5e&
+ attid=0.0.0.6&disp=attd&zw
+X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+X-MICROSOFT-DISALLOW-COUNTER:false
+X-MOZ-LASTACK:20210113T102411Z
+END:VEVENT
+END:VCALENDAR
+
+--000000000000f4986105b8c58ba7--
+
+--000000000000f4986305b8c58ba9
+Content-Type: application/ics; name="invite.ics"
+Content-Disposition: attachment; filename="invite.ics"
+Content-Transfer-Encoding: base64
+
+QkVHSU46VkNBTEVOREFSDQpQUk9ESUQ6LS8vR29vZ2xlIEluYy8vR29vZ2xlIENhbGVuZGFyIDcw
+LjkwNTQvL0VODQpWRVJTSU9OOjIuMA0KQ0FMU0NBTEU6R1JFR09SSUFODQpNRVRIT0Q6Q09VTlRF
+Ug0KQkVHSU46VkVWRU5UDQpEVFNUQVJUOjIwMjEwMTEzVDE4NDUwMFoNCkRURU5EOjIwMjEwMTEz
+VDE5NDUwMFoNCkRUU1RBTVA6MjAyMTAxMTNUMTAyNDM5Wg0KT1JHQU5JWkVSO0NOPU5pY29sYXMg
+TGFzY29tYmVzOm1haWx0bzpuaWNvbGFzLmxhc2NvbWJlc0BibHVlbWluZC5uZXQNClVJRDozNmRh
+NDkxOS02Y2Y1LTRjZTktYWExOC02ZTU2YzFkYTIyOTgNCkFUVEVOREVFO0NVVFlQRT1JTkRJVklE
+VUFMO1JPTEU9UkVRLVBBUlRJQ0lQQU5UO1BBUlRTVEFUPVRFTlRBVElWRTtDTj1nZnJpdA0KIG9z
+QGdtYWlsLmNvbTtYLU5VTS1HVUVTVFM9MDptYWlsdG86Z2ZyaXRvc0BnbWFpbC5jb20NCkNSRUFU
+RUQ6MjAyMTAxMTNUMTAyNDExWg0KREVTQ1JJUFRJT046DQpMQVNULU1PRElGSUVEOjIwMjEwMTEz
+VDEwMjQzN1oNCkxPQ0FUSU9OOg0KU0VRVUVOQ0U6MA0KU1RBVFVTOkNPTkZJUk1FRA0KU1VNTUFS
+WTpJbnZpdGUgQk0NClRSQU5TUDpPUEFRVUUNCkFUVEFDSDtGSUxFTkFNRT14LWRpc2NsYWltZXIt
+OTEzNjcxNjQzLTAucG5nOj92aWV3PWF0dCZ0aD0xNzZmYjQ2M2FkMmZlZDVlJg0KIGF0dGlkPTAu
+MC4wLjEmZGlzcD1hdHRkJnp3DQpBVFRBQ0g7RklMRU5BTUU9eC1kaXNjbGFpbWVyLTkxMzY3MTY0
+My0xLnBuZzo/dmlldz1hdHQmdGg9MTc2ZmI0NjNhZDJmZWQ1ZSYNCiBhdHRpZD0wLjAuMC4yJmRp
+c3A9YXR0ZCZ6dw0KQVRUQUNIO0ZJTEVOQU1FPXgtZGlzY2xhaW1lci05MTM2NzE2NDMtMi5wbmc6
+P3ZpZXc9YXR0JnRoPTE3NmZiNDYzYWQyZmVkNWUmDQogYXR0aWQ9MC4wLjAuMyZkaXNwPWF0dGQm
+encNCkFUVEFDSDtGSUxFTkFNRT14LWRpc2NsYWltZXItOTEzNjcxNjQzLTMucG5nOj92aWV3PWF0
+dCZ0aD0xNzZmYjQ2M2FkMmZlZDVlJg0KIGF0dGlkPTAuMC4wLjQmZGlzcD1hdHRkJnp3DQpBVFRB
+Q0g7RklMRU5BTUU9eC1kaXNjbGFpbWVyLTkxMzY3MTY0My00LnBuZzo/dmlldz1hdHQmdGg9MTc2
+ZmI0NjNhZDJmZWQ1ZSYNCiBhdHRpZD0wLjAuMC41JmRpc3A9YXR0ZCZ6dw0KQVRUQUNIO0ZJTEVO
+QU1FPXgtZGlzY2xhaW1lci05MTM2NzE2NDMtNS5wbmc6P3ZpZXc9YXR0JnRoPTE3NmZiNDYzYWQy
+ZmVkNWUmDQogYXR0aWQ9MC4wLjAuNiZkaXNwPWF0dGQmencNClgtTUlDUk9TT0ZULUNETy1CVVNZ
+U1RBVFVTOkJVU1kNClgtTUlDUk9TT0ZULURJU0FMTE9XLUNPVU5URVI6ZmFsc2UNClgtTU9aLUxB
+U1RBQ0s6MjAyMTAxMTNUMTAyNDExWg0KRU5EOlZFVkVOVA0KRU5EOlZDQUxFTkRBUg0K
+
+--000000000000f4986305b8c58ba9--
+

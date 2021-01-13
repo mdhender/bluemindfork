@@ -95,7 +95,7 @@ public class PureICSRewriter {
 		TextBody calB = (TextBody) m.getBody();
 		InputStream in = calB.getInputStream();
 		InputStreamReader reader = new InputStreamReader(in);
-		List<CalendarComponent> edv = IMIPParserHelper.fromICS(reader);
+		List<CalendarComponent> edv = IMIPParserHelper.fromICS(reader).components;
 
 		BodyPart htmlPart = new BodyPart();
 		Header htmlh = new HeaderImpl();

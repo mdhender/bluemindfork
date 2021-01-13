@@ -23,12 +23,15 @@ import java.io.Reader;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
+import net.bluemind.calendar.helper.ical4j.Method;
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.data.UnfoldingReader;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ComponentList;
+import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.CalendarComponent;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.component.VTimeZone;
@@ -36,11 +39,13 @@ import net.fortuna.ical4j.model.component.VToDo;
 
 public class IMIPParserHelper {
 
-	public static List<CalendarComponent> fromICS(Reader reader) throws IOException, ParserException {
+	public static CalendarComponentList fromICS(Reader reader) throws IOException, ParserException {
 		CalendarBuilder builder = new CalendarBuilder();
 		UnfoldingReader ur = new UnfoldingReader(reader, true);
 		Calendar calendar = builder.build(ur);
 		ComponentList clist = calendar.getComponents();
+
+		Property methodProperty = calendar.getProperty("METHOD");
 
 		@SuppressWarnings("unchecked")
 		Iterator<CalendarComponent> it = clist.iterator();
@@ -56,7 +61,19 @@ public class IMIPParserHelper {
 			}
 		}
 
-		return calendarComponents;
+		return new CalendarComponentList(methodProperty, calendarComponents);
+	}
+
+	public static class CalendarComponentList {
+		public final Optional<Method> method;
+		public final List<CalendarComponent> components;
+
+		public CalendarComponentList(Property methodProperty, List<CalendarComponent> calendarComponents) {
+			this.method = methodProperty != null ? Optional.of(new Method(methodProperty.getValue()))
+					: Optional.empty();
+			this.components = calendarComponents;
+		}
+
 	}
 
 }
