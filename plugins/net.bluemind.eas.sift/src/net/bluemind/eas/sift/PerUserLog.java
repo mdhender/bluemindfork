@@ -22,17 +22,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import io.sentry.event.User;
+import io.sentry.event.UserBuilder;
 import net.bluemind.eas.http.AuthenticatedEASQuery;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.IEasRequestFilter;
+import net.bluemind.sentry.settings.ClientAccess;
 
 public class PerUserLog implements IEasRequestFilter {
 
 	private static final Logger logger = LoggerFactory.getLogger(PerUserLog.class);
 	private static final String ANONYMOUS = "anonymous";
-
-	public PerUserLog() {
-	}
 
 	@Override
 	public int priority() {
@@ -45,6 +45,11 @@ public class PerUserLog implements IEasRequestFilter {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Sifting to {}", query.loginAtDomain());
 		}
+		ClientAccess.get().ifPresent(sc -> {
+			User user = new UserBuilder().setUsername(query.loginAtDomain()).build();
+			sc.getContext().setUser(user);
+		});
+
 		next.filter(query);
 		MDC.put("user", ANONYMOUS);
 	}
@@ -52,6 +57,11 @@ public class PerUserLog implements IEasRequestFilter {
 	@Override
 	public void filter(AuthorizedDeviceQuery query, FilterChain next) {
 		MDC.put("user", query.loginAtDomain().replace("@", "_at_"));
+		ClientAccess.get().ifPresent(sc -> {
+			User user = new UserBuilder().setUsername(query.loginAtDomain()).build();
+			sc.getContext().setUser(user);
+		});
+
 		next.filter(query);
 		MDC.put("user", ANONYMOUS);
 	}

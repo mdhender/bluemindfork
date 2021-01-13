@@ -152,6 +152,7 @@ public class SentryProperties {
 		if (Files.exists(sentryConfigurationPath)) {
 			try (InputStream in = Files.newInputStream(sentryConfigurationPath)) {
 				props.load(in);
+				updateSystem();
 			}
 		}
 	}

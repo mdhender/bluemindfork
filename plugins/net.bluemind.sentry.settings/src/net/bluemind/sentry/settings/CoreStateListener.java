@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.sentry.Sentry;
+import io.sentry.SentryClient;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.stateobserver.IStateListener;
 
@@ -33,7 +34,8 @@ public class CoreStateListener implements IStateListener {
 			if (sentryProps.enabled()) {
 				logger.info("Sentry enabled");
 				Sentry.close();
-				Sentry.init();
+				SentryClient client = Sentry.init();
+				ClientAccess.client = client;
 			} else {
 				logger.info("Sentry disabled");
 				Sentry.close();
