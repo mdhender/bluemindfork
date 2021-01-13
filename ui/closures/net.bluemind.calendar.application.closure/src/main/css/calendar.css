@@ -1005,23 +1005,23 @@ td.btn-detail {
   margin: 0px;
 }
 
-.attendees li.declined {
+.attendees span.declined {
   text-decoration:line-through;
 }
 
-.attendees li.needsaction {
+.attendees span.needsaction {
   color: #ccc;
 }
 
-.attendees li.accepted {
+.attendees span.accepted {
   font-weight: bold;
 }
 
-.attendees li.tentative:after {
+.attendees span.tentative:after {
   content: "(?)";
 }
 
-.attendees li.tentative {
+.attendees span.tentative {
   font-style: italic;
 }
 
