@@ -242,11 +242,11 @@
     "extensions.bm.errors.role": {
         "message": "You cannot use Thunderbird connector, please contact your administrator."
     },
-    "extensions.bm.errors.vacation.end": {
-        "message": "End cannot be before start"
+    "extensions.bm.errors.imip.part-event-not-found": {
+        "message": "Meeting not found."
     },
-    "extensions.bm.errors.vacation.message": {
-        "message": "Message cannot be empty"
+    "extensions.bm.errors.imip.counter-event-not-found": {
+        "message": "Meeting not found or proposition already handled."
     },
     "extensions.bm.filehosting.expireOn": {
         "message": "expires on"

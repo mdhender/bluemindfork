@@ -239,11 +239,11 @@
     "extensions.bm.errors.role": {
         "message": "Vous ne pouvez pas utiliser le connecteur Thunderbird. Veuillez contacter votre administrateur."
     },
-    "extensions.bm.errors.vacation.end": {
-        "message": "La date de fin ne peut être avant le début"
+    "extensions.bm.errors.imip.part-event-not-found": {
+        "message": "Réunion non trouvée."
     },
-    "extensions.bm.errors.vacation.message": {
-        "message": "Le message ne peut être vide"
+    "extensions.bm.errors.imip.counter-event-not-found": {
+        "message": "Réunion non trouvée ou proposition déjà traitée."
     },
     "extensions.bm.filehosting.expireOn": {
         "message": "expire le"
@@ -326,7 +326,7 @@
     "bm.counter.proposed": {
         "message": "Proposés"
     },
-     "extensions.bm.counterbandal.accept": {
+    "extensions.bm.counterbandal.accept": {
         "message": "Accepter"
     },
     "extensions.bm.counterbandal.acceptFor": {

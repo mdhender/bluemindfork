@@ -293,8 +293,13 @@ var gBMIcsBandal = {
                 return self._getSeriesAndEvent(self._events[0]);
             }).then(function(seriesAndEvent) {
                 if (seriesAndEvent == null) {
-                    // TODO: event not found
-                    return Promise.reject();
+                    self._logger.debug("series not found");
+                    if (self._bandalKind == "PART") {
+                        self._showNotification(new BMError("errors.imip.part-event-not-found"), "WARNING");
+                    } else {
+                        self._showNotification(new BMError("errors.imip.counter-event-not-found"), "INFO");
+                    }
+                    return;
                 }
                 if (self._bandalKind == "PART") {
                     self._participationBandal(seriesAndEvent);
@@ -303,7 +308,7 @@ var gBMIcsBandal = {
                 }
             }).catch(function(err) {
                 self._logger.error(err);
-                self._showError(err);
+                self._showNotification(err, "ERROR");
             });
         } else {
             this._logger.debug("not enouth settings");
@@ -349,7 +354,7 @@ var gBMIcsBandal = {
             return Promise.resolve();
         });
     },
-    _showError: function(aErr) {
+    _showNotification: function(aErr, aPriority) {
         let errorCode = (aErr instanceof BMError) ? aErr.message : "errors.UNKWNOWN_ERROR";
         let errorMessage = bmUtils.getLocalizedString(errorCode);
         let msgNotificationBar = document.getElementById("msgNotificationBar");
@@ -357,10 +362,22 @@ var gBMIcsBandal = {
             //TB >= 78
             msgNotificationBar = gMessageNotificationBar.msgNotificationBar;
         }
+        let priority;
+        switch (aPriority) {
+            case "INFO":
+                priority = msgNotificationBar.PRIORITY_INFO_LOW;
+                break;
+            case "WARNING":
+                priority = msgNotificationBar.PRIORITY_WARNING_LOW;
+            case "ERROR":
+            default:
+                priority = msgNotificationBar.PRIORITY_ERROR_LOW;
+                break;
+        }
         msgNotificationBar.appendNotification(errorMessage,
                             errorCode,
                             "",
-                            msgNotificationBar.PRIORITY_CRITICAL_LOW,
+                            priority,
                             [],
                             null);
     },
@@ -492,7 +509,7 @@ var gBMIcsBandal = {
             self._setParticipation(aState, aAttDir);
         }).catch(function(err) {
             self._logger.error(err);
-            self._showError(err);
+            self._showNotification(err, "ERROR");
         });
     },
     _setParticipation: function(aState, aAttDir) {
@@ -545,7 +562,7 @@ var gBMIcsBandal = {
             self.changeBandalLinksOnclick(aState);
         }).catch(function(err) {
             self._logger.error(err);
-            self._showError(err);
+            self._showNotification(err, "ERROR");
         });
     },
     _counterBandal: function(seriesAndEvent, event) {
@@ -656,7 +673,7 @@ var gBMIcsBandal = {
             }
         }).catch(function(err) {
             self._logger.error(err);
-            self._showError(err);
+            self._showNotification(err, "ERROR");
         });
     },
     onUnload: function() {
