@@ -167,14 +167,9 @@ public class IcsHook implements ICalendarHook {
 			sendInvitationToOrganizer(message);
 		}
 
-		logger.info("update on master event, oldc: {}, newC: {}", oldEventSeries.counters.size(),
-				updatedEvent.counters.size());
-
 		if (oldEventSeries != null && oldEventSeries.counters.size() > updatedEvent.counters.size()) {
 			for (VEventCounter counter : oldEventSeries.counters) {
-				logger.info("checking counter {}", counter.id());
 				if (!updatedEvent.counters.contains(counter)) {
-					logger.info("checking counter has been deleted", counter.id());
 					// counter has either been accepted or refused. If the counter has been
 					// accepted, the standard update request will be send, if it has been
 					// refused, we send a declinecounter here
@@ -1288,9 +1283,16 @@ public class IcsHook implements ICalendarHook {
 				throw new NullPointerException("Organizer is null");
 			}
 			Mailbox from = SendmailHelper.formatAddress(organizer.commonName, organizer.mailto);
-			DirEntry fromDirEntry = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(IDirectory.class, message.securityContext.getContainerUid())
-					.getEntry(organizer.dir.substring("bm://".length()));
+			DirEntry fromDirEntry = null;
+			if (organizer.dir != null) {
+				fromDirEntry = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+						.instance(IDirectory.class, message.securityContext.getContainerUid())
+						.getEntry(organizer.dir.substring("bm://".length()));
+			} else {
+				fromDirEntry = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+						.instance(IDirectory.class, message.securityContext.getContainerUid())
+						.getByEmail(organizer.mailto);
+			}
 			Map<String, String> senderSettings = getSenderSettings(message, fromDirEntry);
 
 			HashMap<String, Object> data = new HashMap<>();
