@@ -9,6 +9,8 @@
     "settings.mail.message.list.display.compact": "Compact",
     "settings.mail.signature": "Signature",
     "settings.mail.signature.insert": "Automatically insert the signature",
+    "settings.mail.logout": "On logout",
+    "settings.mail.logout.empty.trash": "Empty Trash",
     "settings.save.error": "Error when saving, check your network connection",
     "settings.save.success": "Successfully saved",
     "settings.menu.apps": "Applications preferences menu"

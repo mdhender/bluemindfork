@@ -79,6 +79,12 @@
                     {{ $t("settings.mail.signature.insert") }}
                 </bm-form-checkbox>
             </bm-form-group>
+            <h2 class="py-4">{{ $t("settings.mail.logout") }}</h2>
+            <bm-form-group :aria-label="$t('settings.mail.logout')">
+                <bm-form-checkbox v-model="localUserSettings.logout_purge">
+                    {{ $t("settings.mail.logout.empty.trash") }}
+                </bm-form-checkbox>
+            </bm-form-group>
         </div>
         <div class="d-flex mt-auto pl-5 py-3 border-top border-secondary">
             <bm-button

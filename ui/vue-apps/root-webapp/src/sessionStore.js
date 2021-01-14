@@ -10,7 +10,7 @@ const actions = {
         let settings = await inject("UserSettingsPersistence").get(userSession.userId);
 
         // set default settings if needed
-        settings = { insert_signature: "true", mail_message_list_style: "normal", mail_thread: "false", ...settings };
+        settings = { insert_signature: "true", mail_message_list_style: "normal", mail_thread: "false", logout_purge: "false", ...settings };
 
         commit("SET_USER_SETTINGS", settings);
     },

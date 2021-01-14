@@ -170,6 +170,12 @@ class rcube_user
                 unset($save_prefs[$key]);
         }
 
+        $rcmail = \rcmail::get_instance();
+        $sc = new \BM\UserSettingsClient($_SESSION['bm']['core'],
+        $rcmail->decrypt($_SESSION['password']), $_SESSION['bm_sso']['bmDomain']);
+        $logout_purge_value = isset($save_prefs['logout_purge']) && $save_prefs['logout_purge'] ? 'true' : 'false';
+        $sc->setOne($_SESSION['bm_sso']['bmUserId'], 'logout_purge', $logout_purge_value);
+
         $save_prefs = serialize($save_prefs);
 
         $this->db->query(

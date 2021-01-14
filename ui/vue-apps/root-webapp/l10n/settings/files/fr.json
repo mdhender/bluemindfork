@@ -9,6 +9,8 @@
     "settings.mail.message.list.display.compact": "Dense",
     "settings.mail.signature": "Signature",
     "settings.mail.signature.insert": "Ajouter la signature automatiquement",
+    "settings.mail.logout": "Lors de la déconnexion",
+    "settings.mail.logout.empty.trash": "Vider la Corbeille",
     "settings.save.error": "Erreur lors de l'enregistrement, vérifiez votre connexion internet",
     "settings.save.success": "Modifications enregistrées",
     "settings.menu.apps": "Menu des préférences d'application"
