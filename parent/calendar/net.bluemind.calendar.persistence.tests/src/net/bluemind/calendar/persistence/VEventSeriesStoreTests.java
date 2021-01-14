@@ -129,6 +129,8 @@ public class VEventSeriesStoreTests {
 		assertNull(evt.main.rrule);
 		assertEquals(2, evt.main.attendees.size());
 		assertEquals(2, evt.main.attachments.size());
+		assertEquals("https://www.bluemind.net", evt.main.url);
+		assertEquals("https//vi.sio.com/xxx", evt.main.conference);
 
 		List<AttachedFile> attachments = evt.main.attachments;
 		int checked = 0;
@@ -146,6 +148,8 @@ public class VEventSeriesStoreTests {
 		evt.main.summary = "updated summary";
 		evt.main.location = "updated location";
 		evt.main.priority = null;
+		evt.main.url = "https://www.blue-mind.net";
+		evt.main.conference = "https//vi.sio.com/UPDATED";
 
 		evt.main.alarm = new ArrayList<ICalendarElement.VAlarm>(1);
 		evt.main.alarm.add(ICalendarElement.VAlarm.create(Action.Email, -600, "alarm desc", 15, 1, "w00t"));
@@ -180,6 +184,8 @@ public class VEventSeriesStoreTests {
 		assertEquals(VEvent.Transparency.Opaque, updated.main.transparency);
 		assertEquals(VEvent.Status.Confirmed, updated.main.status);
 		assertNull(updated.main.priority);
+		assertEquals("https://www.blue-mind.net", updated.main.url);
+		assertEquals("https//vi.sio.com/UPDATED", updated.main.conference);
 
 		assertEquals(1, updated.main.alarm.size());
 		VAlarm alarm = updated.main.alarm.get(0);
@@ -1051,6 +1057,9 @@ public class VEventSeriesStoreTests {
 		event.classification = VEvent.Classification.Private;
 		event.status = VEvent.Status.Confirmed;
 		event.priority = 42;
+
+		event.url = "https://www.bluemind.net";
+		event.conference = "https//vi.sio.com/xxx";
 
 		event.attachments = new ArrayList<>();
 		AttachedFile attachment1 = new AttachedFile();

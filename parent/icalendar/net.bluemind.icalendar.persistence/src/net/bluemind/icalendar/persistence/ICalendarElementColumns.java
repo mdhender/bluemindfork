@@ -200,7 +200,7 @@ public class ICalendarElementColumns {
 				value.draft = rs.getBoolean(index++);
 
 				value.sequence = rs.getInt(index++);
-				
+
 				return index;
 			}
 

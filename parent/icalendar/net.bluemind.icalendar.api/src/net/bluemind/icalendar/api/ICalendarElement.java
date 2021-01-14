@@ -50,6 +50,7 @@ public class ICalendarElement {
 	public Set<BmDateTime> rdate;
 	public RRule rrule;
 	public String url;
+	public String conference;
 	public List<AttachedFile> attachments = new ArrayList<>();
 
 	/**

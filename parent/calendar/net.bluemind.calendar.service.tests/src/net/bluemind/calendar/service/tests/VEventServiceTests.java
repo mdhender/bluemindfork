@@ -103,6 +103,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(1983, 2, 13, 2, 0, 0, 0, hoChiMinhTz));
 		vevent.main.summary = "testExport à 4€";
+		vevent.main.url = "https://www.bluemind.net";
+		vevent.main.conference = "https://video.conf.url/XXX";
 		vevent.main.alarm = new ArrayList<>(1);
 
 		vevent.main.alarm.add(ICalendarElement.VAlarm.create(Action.Email, -600, "alarm", 30, 0, "yaaaaay"));
@@ -237,6 +239,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(export.contains("ATTACH;X-FILE-NAME=test.gif:http://somewhere/1"));
 		assertTrue(export.contains("ATTACH;X-FILE-NAME=test.png:http://somewhere/2"));
 
+		assertTrue(export.contains("X-CONFERENCE:https://video.conf.url/XXX"));
+		assertTrue(export.contains("URL:https://www.bluemind.net"));
 	}
 
 	private boolean mozStackIsValid(String export) {
@@ -619,6 +623,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertEquals("Europe/Paris", vevent.timezone());
 		assertEquals(2, vevent.attendees.size());
 		assertEquals(2, vevent.sequence.intValue());
+		assertEquals("https://video.conf.url/xxx", vevent.conference);
+		assertEquals("https://www.bluemind.net", vevent.url);
 
 		boolean johnFound = false;
 		boolean janeFound = false;

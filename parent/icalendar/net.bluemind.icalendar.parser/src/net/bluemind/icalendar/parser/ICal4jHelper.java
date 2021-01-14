@@ -134,6 +134,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	protected static Logger logger = LoggerFactory.getLogger(ICal4jHelper.class);
 
 	private static final TimeZoneRegistry tzRegistry = TimeZoneRegistryFactory.getInstance().createRegistry();
+	public static final String CONFERENCE = "X-CONFERENCE";
 
 	static ZoneId utcTz = ZoneId.of("UTC");
 
@@ -324,6 +325,11 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		// SEQUENCE
 		iCalendarElement.sequence = parseIcsSequence(cc.getProperty(Property.SEQUENCE));
 
+		Property videoConfUrl = cc.getProperty(CONFERENCE);
+		if (videoConfUrl != null) {
+			iCalendarElement.conference = videoConfUrl.getValue();
+
+		}
 		return ItemValue.create(uid, iCalendarElement);
 	}
 
@@ -1006,6 +1012,10 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 		// SEQUENCE
 		parseICalendarElementSequence(properties, iCalendarElement);
+
+		if (StringUtils.isNotBlank(iCalendarElement.conference)) {
+			properties.add(new XProperty(CONFERENCE, iCalendarElement.conference));
+		}
 
 		return properties;
 	}

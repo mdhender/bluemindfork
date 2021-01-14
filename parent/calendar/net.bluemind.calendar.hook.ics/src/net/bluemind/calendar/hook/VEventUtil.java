@@ -47,6 +47,10 @@ public class VEventUtil {
 			return true;
 		}
 
+		if (changed(oldEvent.conference, newEvent.conference)) {
+			return true;
+		}
+
 		if (changed(oldEvent.summary, newEvent.summary)) {
 			return true;
 		}

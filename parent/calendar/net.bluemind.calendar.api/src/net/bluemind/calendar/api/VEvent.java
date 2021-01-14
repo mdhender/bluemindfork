@@ -103,6 +103,7 @@ public class VEvent extends ICalendarElement {
 		copy.transparency = transparency;
 		copy.sequence = sequence;
 		copy.draft = draft;
+		copy.conference = conference;
 		return copy;
 	}
 
@@ -115,6 +116,7 @@ public class VEvent extends ICalendarElement {
 		f.attendees = Collections.emptyList();
 		f.attachments = Collections.emptyList();
 		f.organizer = null;
+		f.conference = null;
 		return f;
 	}
 

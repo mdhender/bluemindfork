@@ -422,6 +422,8 @@ public abstract class AbstractCalendarTests {
 		event.classification = VEvent.Classification.Private;
 		event.status = VEvent.Status.Confirmed;
 		event.priority = 3;
+		event.url = "https://www.bluemind.net";
+		event.conference = "https//vi.sio.com/xxx";
 
 		event.attachments = new ArrayList<>();
 		AttachedFile attachment1 = new AttachedFile();

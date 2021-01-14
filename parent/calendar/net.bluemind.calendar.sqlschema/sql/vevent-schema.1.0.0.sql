@@ -132,7 +132,9 @@ create table t_calendar_vevent (
    */
   sequence int,
 
-  draft boolean, 
+  draft boolean,
+  
+  conference text,
 
   item_id int4 references t_container_item(id) on delete cascade
 );

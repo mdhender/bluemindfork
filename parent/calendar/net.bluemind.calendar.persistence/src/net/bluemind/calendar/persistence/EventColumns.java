@@ -34,7 +34,9 @@ public class EventColumns {
 			//
 			.col("dtend_precision", "e_datetime_precision")
 			//
-			.col("transparency", "t_calendar_transparency");
+			.col("transparency", "t_calendar_transparency")
+			//
+			.col("conference");
 
 	public static VEventStore.StatementValues<VEvent> values() {
 		return (conn, statement, index, currentRow, value) -> {
@@ -47,6 +49,8 @@ public class EventColumns {
 			} else {
 				statement.setNull(index++, Types.VARCHAR);
 			}
+
+			statement.setString(index++, value.conference);
 
 			return index;
 
@@ -63,6 +67,7 @@ public class EventColumns {
 			if (transparency != null) {
 				value.transparency = VEvent.Transparency.valueOf(transparency);
 			}
+			value.conference = rs.getString(index++);
 
 			return index;
 		};

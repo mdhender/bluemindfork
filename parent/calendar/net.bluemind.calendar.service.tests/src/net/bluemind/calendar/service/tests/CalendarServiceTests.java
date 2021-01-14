@@ -1824,4 +1824,26 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 	}
 
+	@Test
+	public void testEventUrl() throws ServerFault {
+		ICalendar service = getCalendarService(userSecurityContext, userCalendarContainer);
+
+		VEventSeries event = defaultVEvent();
+		String uid = "testEventUrl_" + System.nanoTime();
+		service.create(uid, event, sendNotifications);
+
+		ItemValue<VEventSeries> created = service.getComplete(uid);
+		assertEquals(event.main.url, created.value.main.url);
+		assertEquals(event.main.conference, created.value.main.conference);
+
+		created.value.main.url = "https://updated.url";
+		created.value.main.conference = "https//visio.url/updated";
+
+		service.update(uid, created.value, null);
+
+		ItemValue<VEventSeries> updated = service.getComplete(uid);
+		assertEquals(updated.value.main.url, created.value.main.url);
+		assertEquals(updated.value.main.conference, created.value.main.conference);
+	}
+
 }
