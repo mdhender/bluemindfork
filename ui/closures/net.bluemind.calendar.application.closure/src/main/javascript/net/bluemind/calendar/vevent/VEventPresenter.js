@@ -136,6 +136,7 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.loadView_ = function(data
       return calendar.states.writable;
     });
     this.handler.listen(this.view_, 'create-tag', this.handleCreateTag);
+    this.view_.getChild('counters').range = this.view_.range;
   } else {
     var calendars = data.calendars;
     this.view_ = new net.bluemind.calendar.vevent.ui.Card(this.ctx);
@@ -150,7 +151,6 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.loadView_ = function(data
   this.view_.counters = data.counters;
   this.view_.tags = data.tags;
   this.view_.getChild('freebusy').range = this.view_.range;
-  this.view_.getChild('counters').range = this.view_.range;
   this.view_.date = this.ctx.session.get('date');
   this.view_.setModel(data.model);
   this.view_.render(goog.dom.getElement('full'));
