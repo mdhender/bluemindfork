@@ -170,7 +170,12 @@ describe("periodicSync", () => {
               Object {
                 "type": "mail_item",
                 "uid": 1,
-                "version": 0,
+                "version": 1,
+              },
+              Object {
+                "type": "mail_item",
+                "uid": 2,
+                "version": 1,
               },
               Object {
                 "type": "mail_folder",
