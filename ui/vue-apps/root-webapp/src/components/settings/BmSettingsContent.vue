@@ -1,5 +1,4 @@
 <template>
-    <!-- eslint-disable vue/no-v-html -->
     <bm-col lg="10" cols="12" class="bm-settings-content d-lg-flex flex-column h-100">
         <div class="d-lg-none d-block bm-settings-content-header py-2 px-3">
             <bm-button variant="inline-light" class="d-lg-none btn-sm mr-auto" @click="$emit('change', null)">
@@ -23,14 +22,12 @@
             <bm-form-group :aria-label="$t('settings.mail.thread')" disabled>
                 <bm-form-radio-group v-model="localUserSettings.mail_thread" class="d-flex flex-wrap">
                     <bm-form-radio value="true" class="ml-5" :aria-label="$t('settings.mail.thread.enable')">
-                        <!-- eslint-disable-next-line vue/no-v-html -->
                         <template #img><div v-html="threadSettingImageOn" /></template>
                         <template>
                             {{ $t("settings.mail.thread.enable") }}
                         </template>
                     </bm-form-radio>
                     <bm-form-radio value="false" class="ml-5" :aria-label="$t('settings.mail.thread.disable')">
-                        <!-- eslint-disable-next-line vue/no-v-html -->
                         <template #img><div v-html="threadSettingImageOff" /></template>
                         <template> {{ $t("settings.mail.thread.disable") }}</template>
                     </bm-form-radio>
@@ -112,16 +109,22 @@
                     {{ $t("settings.mail.quota.always.display") }}
                 </bm-form-checkbox>
                 <div class="mt-4 d-flex align-items-center">
-                    <bm-circular-progress-bar
-                        :value="(quota.used / quota.total) * 100"
-                        :warning-value="USED_QUOTA_PERCENTAGE_WARNING"
+                    <bm-progress
+                        circular
+                        :value="quota.used"
+                        :max="quota.total"
                         class="d-inline-block mr-3"
-                    />
-                    <span
-                        v-html="
-                            $t('settings.mail.quota.used', { used: displayedUsedQuota, total: displayedTotalQuota })
-                        "
-                    />
+                        :variant="usedQuotaPercentage > USED_QUOTA_PERCENTAGE_WARNING ? 'danger' : 'primary'"
+                        show-progress
+                    >
+                        <template v-if="hasNoQuota">{{ $t("settings.mail.quota.unlimited") }}</template>
+                    </bm-progress>
+                    <i18n v-if="!hasNoQuota" path="settings.mail.quota.used">
+                        <template #used
+                            ><strong>{{ displayedUsedQuota }}</strong></template
+                        >
+                        <template #total>{{ displayedTotalQuota }}</template>
+                    </i18n>
                 </div>
             </bm-form-group>
         </div>
@@ -155,14 +158,14 @@ import { computeUnit } from "@bluemind/file-utils";
 import {
     BmButton,
     BmButtonClose,
-    BmCircularProgressBar,
     BmCol,
     BmIcon,
     BmLabelIcon,
     BmFormCheckbox,
     BmFormGroup,
     BmFormRadio,
-    BmFormRadioGroup
+    BmFormRadioGroup,
+    BmProgress
 } from "@bluemind/styleguide";
 
 import BmAppIcon from "../BmAppIcon";
@@ -177,7 +180,6 @@ export default {
     components: {
         BmButton,
         BmButtonClose,
-        BmCircularProgressBar,
         BmCol,
         BmIcon,
         BmLabelIcon,
@@ -185,7 +187,8 @@ export default {
         BmFormCheckbox,
         BmFormRadio,
         BmFormRadioGroup,
-        BmFormGroup
+        BmFormGroup,
+        BmProgress
     },
     props: {
         selectedApp: {
@@ -216,6 +219,12 @@ export default {
     computed: {
         ...mapState("session", ["userSettings"]),
         ...mapState("root-app", ["quota"]),
+        usedQuotaPercentage() {
+            return (this.quota.used / this.quota.total) * 100;
+        },
+        hasNoQuota() {
+            return this.quota && !this.quota.total;
+        },
         hasChanged() {
             return JSON.stringify(this.localUserSettings) !== JSON.stringify(this.userSettings);
         },

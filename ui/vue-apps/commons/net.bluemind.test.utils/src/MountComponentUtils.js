@@ -31,6 +31,12 @@ export default {
                         FETCH_ALL_SETTINGS: jest.fn(),
                         UPDATE_ALL_SETTINGS: jest.fn()
                     }
+                },
+                "root-app": {
+                    namespaced: true,
+                    state: {
+                        quota: {}
+                    }
                 }
             }
         };

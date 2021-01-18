@@ -32,6 +32,7 @@ describe("Store session", () => {
 
         await sessionStore.actions.FETCH_ALL_SETTINGS(context);
         expect(context.commit).toHaveBeenCalledWith("SET_USER_SETTINGS", {
+            always_show_quota: "false",
             insert_signature: "true",
             logout_purge: "false",
             mySetting: "MY_SETTING",
@@ -52,7 +53,7 @@ describe("Store session", () => {
     test("SET_USER_SETTINGS mutation", async () => {
         const settings = { mySetting: "MY_SETTING" };
 
-        await sessionStore.mutations.SET_USER_SETTINGS(context.state, settings);
+        sessionStore.mutations.SET_USER_SETTINGS(context.state, settings);
         expect(context.state).toEqual({ userSettings: settings });
     });
 });
