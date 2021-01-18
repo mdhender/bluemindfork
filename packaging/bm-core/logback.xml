@@ -9,7 +9,7 @@
 	<!-- Sentry send exceptions -->
 	<appender name="Sentry" class="io.sentry.logback.SentryAppender">
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>WARN</level>
+			<level>ERROR</level>
 		</filter>
 	</appender>
 
