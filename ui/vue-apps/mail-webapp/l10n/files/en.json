@@ -236,6 +236,7 @@
     "mail.list.sr_info.unread": "Unread.",
     "mail.list.sr_info": "{title}{props}",
     "mail.list.unread.none": "No unread messages.",
+    "mail.mailbox.quota.used": "{usedQuotaPercentage} % storage used",
     "mail.main.new": "New message",
     "mail.main.switch.webmail": "Try the new webmail",
     "mail.message.select.all.folder": "Select all messages from",

@@ -8,11 +8,11 @@ import mailText2Html from "./mailText2Html";
 import MimeType from "./MimeType";
 import PartsBuilder from "./PartsBuilder";
 
-export { EmailExtractor, EmailValidator, Flag, InlineImageHelper, mailText2Html, MimeType, PartsBuilder };
+const USED_QUOTA_PERCENTAGE_WARNING = 80; // quota usage is considered as "to be watched" if it's more than 80%
 
-export const WEBSERVER_HANDLER_BASE_URL = "part/url/";
+const WEBSERVER_HANDLER_BASE_URL = "part/url/";
 
-export function computePreviewOrDownloadUrl(folderUid, imapUid, part) {
+function computePreviewOrDownloadUrl(folderUid, imapUid, part) {
     const filename = part.fileName ? "&filename=" + part.fileName : "";
 
     const baseUrl = document.baseURI;
@@ -37,6 +37,20 @@ export function computePreviewOrDownloadUrl(folderUid, imapUid, part) {
     return url.href.replace(baseUrl, "");
 }
 
-export function createCid() {
+function createCid() {
     return "<" + UUIDGenerator.generate() + "@bluemind.net>";
 }
+
+export {
+    createCid,
+    computePreviewOrDownloadUrl,
+    EmailExtractor,
+    EmailValidator,
+    Flag,
+    InlineImageHelper,
+    mailText2Html,
+    MimeType,
+    PartsBuilder,
+    USED_QUOTA_PERCENTAGE_WARNING,
+    WEBSERVER_HANDLER_BASE_URL
+};

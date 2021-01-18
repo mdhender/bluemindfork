@@ -11,6 +11,7 @@ const actions = {
 
         // set default settings if needed
         settings = {
+            always_show_quota: "false",
             insert_signature: "true",
             logout_purge: "false",
             mail_message_list_style: "normal",

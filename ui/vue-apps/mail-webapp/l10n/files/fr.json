@@ -236,6 +236,7 @@
     "mail.list.sr_info.title": "Message:",
     "mail.list.sr_info.unread": "Non lu.",
     "mail.list.unread.none": "Aucun message non lu.",
+    "mail.mailbox.quota.used": "{usedQuotaPercentage} % de stockage utilisé",
     "mail.main.new": "Nouveau message",
     "mail.main.switch.webmail": "Essayer le nouveau webmail",
     "mail.message.select.all.folder": "Sélectionner tous les messages de",

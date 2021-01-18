@@ -1,7 +1,7 @@
 <template>
-    <bm-col cols="10" lg="12" class="mail-folder-sidebar-wrapper bg-surface h-100">
+    <bm-col cols="10" lg="12" class="mail-folder-sidebar-wrapper bg-surface h-100 d-flex flex-column">
         <mail-folder-sidebar-header />
-        <nav class="mail-folder-sidebar h-100 scroller-y scroller-visible-on-hover">
+        <nav class="mail-folder-sidebar scroller-y scroller-visible-on-hover flex-grow-1">
             <mail-folder-tree
                 :tree="buildTree(MY_MAILBOX_FOLDERS)"
                 :collapse-name="mailboxEmail"
@@ -15,13 +15,23 @@
                 @toggle-folders="$emit('toggle-folders')"
             />
         </nav>
+        <div v-if="mustDisplayQuota" class="my-1" :class="showQuotaWarning ? 'text-danger' : ''">
+            <hr class="my-1" />
+            <bm-icon v-if="showQuotaWarning" icon="exclamation-circle" class="ml-2 align-middle" />
+            <span :class="showQuotaWarning ? 'pl-1' : 'pl-2'" class="align-middle">{{
+                $t("mail.mailbox.quota.used", { usedQuotaPercentage })
+            }}</span>
+        </div>
     </bm-col>
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
+
+import { USED_QUOTA_PERCENTAGE_WARNING } from "@bluemind/email";
 import injector from "@bluemind/inject";
-import { BmCol } from "@bluemind/styleguide";
+import { BmCol, BmIcon } from "@bluemind/styleguide";
+
 import { DEFAULT_FOLDERS } from "../../store/folders/helpers/DefaultFolders";
 import { MAILSHARE_FOLDERS, MY_MAILBOX_FOLDERS, MAILSHARE_KEYS, FOLDER_HAS_CHILDREN } from "~getters";
 import MailFolderTree from "./MailFolderTree";
@@ -29,7 +39,7 @@ import MailFolderSidebarHeader from "./MailFolderSidebarHeader";
 
 export default {
     name: "MailFolderSidebar",
-    components: { MailFolderTree, BmCol, MailFolderSidebarHeader },
+    components: { BmCol, BmIcon, MailFolderSidebarHeader, MailFolderTree },
     data() {
         const userSession = injector.getProvider("UserSession").get();
         const mailboxEmail = userSession.defaultEmail;
@@ -45,7 +55,22 @@ export default {
             MY_MAILBOX_FOLDERS,
             MAILSHARE_KEYS
         }),
-        ...mapState("mail", ["folders"])
+        ...mapState("mail", ["folders"]),
+        ...mapState("root-app", ["quota"]),
+        ...mapState("session", { settings: "userSettings" }),
+        usedQuotaPercentage() {
+            return Math.ceil((this.quota.used / this.quota.total) * 100);
+        },
+        mustDisplayQuota() {
+            return (
+                this.quota.used &&
+                this.quota.total &&
+                (this.settings.always_show_quota === "true" || this.showQuotaWarning)
+            );
+        },
+        showQuotaWarning() {
+            return this.usedQuotaPercentage >= USED_QUOTA_PERCENTAGE_WARNING;
+        }
     },
     methods: {
         buildTree(foldersKey) {
