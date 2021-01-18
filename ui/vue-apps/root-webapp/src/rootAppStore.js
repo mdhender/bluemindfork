@@ -26,7 +26,6 @@ const actions = {
     async FETCH_MY_MAILBOX_QUOTA({ commit }) {
         const userId = inject("UserSession").userId;
         const mailboxQuota = await inject("MailboxesPersistence").getMailboxQuota(userId);
-        console.log("quota retrieved is : ", mailboxQuota);
         commit("SET_QUOTA", { used: mailboxQuota.used, total: mailboxQuota.quota });
     }
 };

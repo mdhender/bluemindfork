@@ -97,6 +97,7 @@ export default {
         this.appHeight();
         this.FETCH_ALL_SETTINGS(); // initialize user settings
         this.FETCH_MY_MAILBOX_QUOTA();
+        window.setInterval(() => this.FETCH_MY_MAILBOX_QUOTA(), 1000 * 60 * 30);
     },
     methods: {
         ...mapActions("session", ["FETCH_ALL_SETTINGS"]),
