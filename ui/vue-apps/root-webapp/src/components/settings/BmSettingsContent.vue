@@ -1,4 +1,5 @@
 <template>
+    <!-- eslint-disable vue/no-v-html -->
     <bm-col lg="10" cols="12" class="bm-settings-content d-lg-flex flex-column h-100">
         <div class="d-lg-none d-block bm-settings-content-header py-2 px-3">
             <bm-button variant="inline-light" class="d-lg-none btn-sm mr-auto" @click="$emit('change', null)">
@@ -73,7 +74,7 @@
                     </bm-form-radio>
                 </bm-form-radio-group>
             </bm-form-group>
-            <h2 class="pb-4">{{ $t("settings.mail.signature") }}</h2>
+            <h2 class="pt-4 pb-3">{{ $t("settings.mail.signature") }}</h2>
             <bm-form-group :aria-label="$t('settings.mail.signature')">
                 <bm-form-checkbox v-model="localUserSettings.insert_signature" value="true" unchecked-value="false">
                     {{ $t("settings.mail.signature.insert") }}
@@ -105,6 +106,24 @@
                     </span>
                 </div>
             </bm-form-group>
+            <h2 class="pt-4 pb-3">{{ $t("settings.mail.quota") }}</h2>
+            <bm-form-group :aria-label="$t('settings.mail.quota')">
+                <bm-form-checkbox v-model="localUserSettings.always_show_quota" value="true" unchecked-value="false">
+                    {{ $t("settings.mail.quota.always.display") }}
+                </bm-form-checkbox>
+                <div class="mt-4 d-flex align-items-center">
+                    <bm-circular-progress-bar
+                        :value="(quota.used / quota.total) * 100"
+                        :warning-value="USED_QUOTA_PERCENTAGE_WARNING"
+                        class="d-inline-block mr-3"
+                    />
+                    <span
+                        v-html="
+                            $t('settings.mail.quota.used', { used: displayedUsedQuota, total: displayedTotalQuota })
+                        "
+                    />
+                </div>
+            </bm-form-group>
         </div>
         <div class="d-flex mt-auto pl-5 py-3 border-top border-secondary">
             <bm-button
@@ -129,14 +148,14 @@
 </template>
 
 <script>
-import listStyleCompact from "../../../assets/list-style-compact.png";
-import listStyleFull from "../../../assets/list-style-full.png";
-import listStyleNormal from "../../../assets/list-style-normal.png";
-import threadSettingImageOn from "../../../assets/setting-thread-on.svg";
-import threadSettingImageOff from "../../../assets/setting-thread-off.svg";
+import { mapState } from "vuex";
+
+import { USED_QUOTA_PERCENTAGE_WARNING } from "@bluemind/email";
+import { computeUnit } from "@bluemind/file-utils";
 import {
     BmButton,
     BmButtonClose,
+    BmCircularProgressBar,
     BmCol,
     BmIcon,
     BmLabelIcon,
@@ -145,14 +164,20 @@ import {
     BmFormRadio,
     BmFormRadioGroup
 } from "@bluemind/styleguide";
+
 import BmAppIcon from "../BmAppIcon";
-import { mapState } from "vuex";
+import listStyleCompact from "../../../assets/list-style-compact.png";
+import listStyleFull from "../../../assets/list-style-full.png";
+import listStyleNormal from "../../../assets/list-style-normal.png";
+import threadSettingImageOn from "../../../assets/setting-thread-on.svg";
+import threadSettingImageOff from "../../../assets/setting-thread-off.svg";
 
 export default {
     name: "BmSettingsContent",
     components: {
         BmButton,
         BmButtonClose,
+        BmCircularProgressBar,
         BmCol,
         BmIcon,
         BmLabelIcon,
@@ -184,13 +209,21 @@ export default {
             listStyleNormal,
             listStyleFull,
             listStyleCompact,
-            localUserSettings: {}
+            localUserSettings: {},
+            USED_QUOTA_PERCENTAGE_WARNING
         };
     },
     computed: {
         ...mapState("session", ["userSettings"]),
+        ...mapState("root-app", ["quota"]),
         hasChanged() {
             return JSON.stringify(this.localUserSettings) !== JSON.stringify(this.userSettings);
+        },
+        displayedUsedQuota() {
+            return computeUnit(this.quota.used * 1000);
+        },
+        displayedTotalQuota() {
+            return computeUnit(this.quota.total * 1000);
         }
     },
     watch: {
