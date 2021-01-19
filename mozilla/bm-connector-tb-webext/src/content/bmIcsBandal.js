@@ -627,9 +627,7 @@ var gBMIcsBandal = {
                 // TODO: counter not found
                 return Promise.reject();
             }
-            let sendNotif = false;
             if (accepted) {
-                sendNotif = true;
                 series.counters = [];
                 vevent.dtstart = counter.counter.dtstart;
                 vevent.dtend = counter.counter.dtend;
@@ -658,7 +656,7 @@ var gBMIcsBandal = {
             changes.modify.push({
                 uid: seriesAndEvent.itemUid,
                 value: series,
-                sendNotification: sendNotif
+                sendNotification: true
             });
             return cal.updates(changes);
         }).then(function() {
