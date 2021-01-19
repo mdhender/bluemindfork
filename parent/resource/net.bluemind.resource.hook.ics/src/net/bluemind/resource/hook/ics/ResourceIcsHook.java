@@ -19,6 +19,7 @@
 package net.bluemind.resource.hook.ics;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -52,7 +53,9 @@ import net.bluemind.calendar.helper.mail.CalendarMailHelper;
 import net.bluemind.calendar.helper.mail.Messages;
 import net.bluemind.calendar.hook.ICalendarHook;
 import net.bluemind.calendar.hook.internal.VEventMessage;
+import net.bluemind.calendar.occurrence.OccurrenceHelper;
 import net.bluemind.common.freemarker.MessagesResolver;
+import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.Container;
@@ -345,10 +348,6 @@ public class ResourceIcsHook implements ICalendarHook {
 	 * @return
 	 */
 	private boolean sendNotification(VEventMessage message) {
-		if (!message.sendNotifications) {
-			return false;
-		}
-
 		VEvent event = message.vevent.main;
 		if (null == event) {
 			event = message.vevent.occurrences.get(0);
@@ -372,6 +371,17 @@ public class ResourceIcsHook implements ICalendarHook {
 			logger.debug("Event {} status isn't {} but {}", message.itemUid, ICalendarElement.Status.NeedsAction,
 					event.status);
 			return false;
+		}
+
+		if (event.rrule == null) {
+			if (LocalDateTime.now().isAfter(new BmDateTimeWrapper(event.dtend).toDateTime().toLocalDateTime())) {
+				return false;
+			}
+		} else {
+			if (!OccurrenceHelper.getNextOccurrence(BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis()), event)
+					.isPresent()) {
+				return false;
+			}
 		}
 
 		return true;

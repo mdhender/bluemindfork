@@ -22,4 +22,5 @@ Require-Bundle: net.bluemind.calendar.hook,
  slf4j.api,
  org.freemarker.freemarker;bundle-version="2.3.20",
  org.apache.james.apache-mime4j-core;bundle-version="0.7.3",
- net.bluemind.common.freemarker
+ net.bluemind.common.freemarker,
+ net.bluemind.calendar.occurrence
