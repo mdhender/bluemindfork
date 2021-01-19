@@ -19,6 +19,7 @@
 package net.bluemind.addressbook.service.internal;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -77,6 +78,7 @@ import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.service.DirEntryHandlers;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
@@ -426,7 +428,10 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 		}
 
 		if (entry.kind == DirEntry.Kind.DOMAIN) {
+
 			checkCanManageBook(descriptor, DirEntry.Kind.ADDRESSBOOK);
+			checkDomainAbDoesNotExist(descriptor, dir);
+
 			DirEntryHandlers.byKind(DirEntry.Kind.ADDRESSBOOK).create(context, descriptor.domainUid,
 					asDirEntry(uid, descriptor));
 			descriptor.owner = uid;
@@ -464,6 +469,16 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 		ContainerSyncStore syncStore = new ContainerSyncStore(ds, container);
 		syncStore.initSync();
 
+	}
+
+	private void checkDomainAbDoesNotExist(AddressBookDescriptor descriptor, IDirectory dir) {
+		DirEntryQuery query = DirEntryQuery.filterName(descriptor.name);
+		query.kindsFilter = Arrays.asList(Kind.ADDRESSBOOK);
+		query.systemFilter = false;
+
+		if (dir.search(query).total > 0) {
+			throw new ServerFault("addressbook " + descriptor.name + " already exists", ErrorCode.ALREADY_EXISTS);
+		}
 	}
 
 	@Override

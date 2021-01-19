@@ -76,9 +76,7 @@ public class AddressBooksMgmtTests {
 
 	@BeforeClass
 	public static void beforeClass() {
-		System.err.println("BEFORE_CLASS...........");
 		LdapDockerTestHelper.initLdapServer();
-		System.err.println("AFTER_CLASS...........");
 	}
 
 	@Before
@@ -143,6 +141,39 @@ public class AddressBooksMgmtTests {
 			fail("should not be possible");
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+	}
+
+	@Test
+	public void testCreatingDomainABShouldNotAllowDuplicates() throws ServerFault, SQLException {
+		String abUid = "testdomab" + System.currentTimeMillis();
+		String abUidUser = "testuserab" + System.currentTimeMillis();
+		IAddressBooksMgmt service = service(domainAdmin);
+
+		// AB domain "test"
+		AddressBookDescriptor abDomain = AddressBookDescriptor.create("test", domainUid, domainUid);
+		abDomain.system = true;
+		service.create(abUid, abDomain, false);
+
+		// test the creation of another domain AB
+		AddressBookDescriptor abDomain2 = AddressBookDescriptor.create("test2", domainUid, domainUid);
+		abDomain2.system = true;
+		service.create("anothertestdomab" + System.currentTimeMillis(), abDomain2, false);
+
+		// user can create AB using the same name
+		AddressBookDescriptor userDomain = AddressBookDescriptor.create("test", dummy.getSubject(), domainUid);
+		userDomain.system = false;
+		service.create(abUidUser, userDomain, false);
+
+		// duplicate
+		abDomain = AddressBookDescriptor.create("test", domainUid, domainUid);
+		abDomain.system = true;
+
+		try {
+			service.create("secondtestdomab" + System.currentTimeMillis(), abDomain, false);
+			fail();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
