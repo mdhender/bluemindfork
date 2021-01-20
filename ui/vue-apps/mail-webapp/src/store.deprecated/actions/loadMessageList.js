@@ -18,6 +18,7 @@ export async function loadMessageList(
     { folder, mailshare, filter, search }
 ) {
     const ROOT = { root: true };
+    const previousFolderKey = rootState.mail.activeFolder;
     const locatedFolder = locateFolder(folder, mailshare, rootState, rootGetters);
     commit("mail/" + SET_ACTIVE_FOLDER, locatedFolder.key, ROOT);
     dispatch("loadUnreadCount", locatedFolder.key);
@@ -47,7 +48,6 @@ export async function loadMessageList(
     commit("currentMessage/clear");
 
     const prefix = "mbox_records_";
-    const previousFolderKey = rootState.mail.activeFolder;
     if (previousFolderKey) {
         ContainerObserver.forget("mailbox_records", prefix + previousFolderKey);
     }
