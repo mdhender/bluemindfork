@@ -298,7 +298,7 @@
           <tr>
             <th>{msg meaning="calendar.event.title" desc="event title label"}Title{/msg}</th>
             <td>
-              <input class="consult-title" type="text" id="ecb-update-title" value="{$event.summary}" />
+              <input class="consult-title" type="text" id="ecb-update-title" value="{$event.summary|escapeHtml}" />
             </td>
             <td>
               <input type="submit" class="{css goog-button-base}" id="eb-btn-update" value="{msg meaning="general.save" desc="save button"}Save{/msg}" style="visibility:hidden;" />
