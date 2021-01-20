@@ -19,13 +19,19 @@
 package net.bluemind.user.service.internal;
 
 import java.util.ArrayList;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
 import net.bluemind.directory.service.DirDomainValue;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.user.api.User;
 
@@ -66,12 +72,39 @@ public class UserEmailSanitizer implements ISanitizer<DirDomainValue<User>> {
 			return;
 		}
 
+		String defaultAlias = getDomainDefaultAlias(domainName);
+
+		if (domainName.endsWith(".internal")) {
+			// clean eventual old_login@.internal
+			user.emails = user.emails.stream().filter(e -> {
+				String[] parts = e.address.split("@");
+				return !(parts[1].equals(domainName) && !parts[0].equals(user.login));
+			}).collect(Collectors.toList());
+		}
+
+		sanitizeEmail(user, defaultAlias, false);
+		if (domainName.endsWith(".internal")) {
+			sanitizeEmail(user, domainName, true);
+		}
+
+	}
+
+	protected String getDomainDefaultAlias(String domainName) {
+		Domain domain = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class)
+				.get(domainName).value;
+		String defaultAlias = domain.defaultAlias;
+		return defaultAlias;
+	}
+
+	private void sanitizeEmail(User user, String domainPart, boolean explicit) {
+		Function<Boolean, Boolean> allAliasesCheck = (allAliases) -> !explicit && allAliases;
 		if (user.emails.stream().filter(e -> {
 			String[] parts = e.address.split("@");
-			return parts[0].equals(user.login) && (e.allAliases || (parts.length == 2 && parts[1].equals(domainName)));
+			return parts[0].equals(user.login)
+					&& (allAliasesCheck.apply(e.allAliases) || (parts.length == 2 && parts[1].equals(domainPart)));
 		}).count() == 0) {
 			user.emails = new ArrayList<Email>(user.emails);
-			user.emails.add(Email.create(user.login + "@" + domainName, false, false));
+			user.emails.add(Email.create(user.login + "@" + domainPart, false, false));
 		}
 	}
 

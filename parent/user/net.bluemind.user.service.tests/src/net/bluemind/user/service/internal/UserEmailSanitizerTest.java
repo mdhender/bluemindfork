@@ -38,49 +38,49 @@ public class UserEmailSanitizerTest {
 		u1.routing = Routing.internal;
 
 		u1.emails = Arrays.asList(Email.create(u1.login + "@" + domainUid, false, false));
-		new UserEmailSanitizer().create(new DirDomainValue<User>(domainUid, null, u1));
+		new TestUserEmailSanitizer(domainUid).create(new DirDomainValue<User>(domainUid, null, u1));
 		assertEquals(1, u1.emails.size());
 		assertEquals(1,
 				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@" + domainUid) && !e.allAliases).count());
 
 		u1.emails = Arrays.asList(Email.create(u1.login + "@" + domainUid, false, false));
-		new UserEmailSanitizer().update(null, new DirDomainValue<User>(domainUid, null, u1));
+		new TestUserEmailSanitizer(domainUid).update(null, new DirDomainValue<User>(domainUid, null, u1));
 		assertEquals(1, u1.emails.size());
 		assertEquals(1,
 				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@" + domainUid) && !e.allAliases).count());
 
 		u1.emails = Arrays.asList(Email.create(u1.login + "@domain.tld", false, false));
-		new UserEmailSanitizer().create(new DirDomainValue<User>(domainUid, null, u1));
+		new TestUserEmailSanitizer(domainUid).create(new DirDomainValue<User>(domainUid, null, u1));
 		assertEquals(2, u1.emails.size());
 		assertEquals(1,
 				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@" + domainUid) && !e.allAliases).count());
 
 		u1.emails = Arrays.asList(Email.create(u1.login + "@domain.tld", false, false));
-		new UserEmailSanitizer().update(null, new DirDomainValue<User>(domainUid, null, u1));
+		new TestUserEmailSanitizer(domainUid).update(null, new DirDomainValue<User>(domainUid, null, u1));
 		assertEquals(2, u1.emails.size());
 		assertEquals(1,
 				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@" + domainUid) && !e.allAliases).count());
 
 		u1.emails = Arrays.asList(Email.create(u1.login + "@domain.tld", false, true));
-		new UserEmailSanitizer().create(new DirDomainValue<User>(domainUid, null, u1));
+		new TestUserEmailSanitizer(domainUid).create(new DirDomainValue<User>(domainUid, null, u1));
 		assertEquals(1, u1.emails.size());
 		assertEquals(1,
 				u1.emails.stream().filter(e -> e.address.split("@")[0].equals(u1.login) && e.allAliases).count());
 
 		u1.emails = Arrays.asList(Email.create(u1.login + "@domain.tld", false, true));
-		new UserEmailSanitizer().update(null, new DirDomainValue<User>(domainUid, null, u1));
+		new TestUserEmailSanitizer(domainUid).update(null, new DirDomainValue<User>(domainUid, null, u1));
 		assertEquals(1, u1.emails.size());
 		assertEquals(1,
 				u1.emails.stream().filter(e -> e.address.split("@")[0].equals(u1.login) && e.allAliases).count());
 
 		u1.emails = Arrays.asList(Email.create(u1.login + "@" + domainUid, false, true));
-		new UserEmailSanitizer().create(new DirDomainValue<User>(domainUid, null, u1));
+		new TestUserEmailSanitizer(domainUid).create(new DirDomainValue<User>(domainUid, null, u1));
 		assertEquals(1, u1.emails.size());
 		assertEquals(1,
 				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@" + domainUid) && e.allAliases).count());
 
 		u1.emails = Arrays.asList(Email.create(u1.login + "@" + domainUid, false, true));
-		new UserEmailSanitizer().update(null, new DirDomainValue<User>(domainUid, null, u1));
+		new TestUserEmailSanitizer(domainUid).update(null, new DirDomainValue<User>(domainUid, null, u1));
 		assertEquals(1, u1.emails.size());
 		assertEquals(1,
 				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@" + domainUid) && e.allAliases).count());
@@ -93,13 +93,13 @@ public class UserEmailSanitizerTest {
 		u1.routing = Routing.external;
 
 		u1.emails = Arrays.asList(Email.create(u1.login + "@domain.tld", false, false));
-		new UserEmailSanitizer().create(new DirDomainValue<User>(domainUid, null, u1));
+		new TestUserEmailSanitizer().create(new DirDomainValue<User>(domainUid, null, u1));
 		assertEquals(1, u1.emails.size());
 		assertEquals(1,
 				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@domain.tld") && !e.allAliases).count());
 
 		u1.emails = Arrays.asList(Email.create(u1.login + "@domain.tld", false, false));
-		new UserEmailSanitizer().update(null, new DirDomainValue<User>(domainUid, null, u1));
+		new TestUserEmailSanitizer().update(null, new DirDomainValue<User>(domainUid, null, u1));
 		assertEquals(1, u1.emails.size());
 		assertEquals(1,
 				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@domain.tld") && !e.allAliases).count());
@@ -107,15 +107,67 @@ public class UserEmailSanitizerTest {
 		u1.routing = Routing.none;
 
 		u1.emails = Arrays.asList(Email.create(u1.login + "@domain.tld", false, false));
-		new UserEmailSanitizer().create(new DirDomainValue<User>(domainUid, null, u1));
+		new TestUserEmailSanitizer().create(new DirDomainValue<User>(domainUid, null, u1));
 		assertEquals(1, u1.emails.size());
 		assertEquals(1,
 				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@domain.tld") && !e.allAliases).count());
 
 		u1.emails = Arrays.asList(Email.create(u1.login + "@domain.tld", false, false));
-		new UserEmailSanitizer().update(null, new DirDomainValue<User>(domainUid, null, u1));
+		new TestUserEmailSanitizer().update(null, new DirDomainValue<User>(domainUid, null, u1));
 		assertEquals(1, u1.emails.size());
 		assertEquals(1,
 				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@domain.tld") && !e.allAliases).count());
 	}
+
+	@Test
+	public void internalDomain_login_at_internal_MustExist() {
+		String internalDomain = "0123456789.internal";
+		User u1 = new User();
+		u1.login = "user-" + System.nanoTime();
+		u1.routing = Routing.internal;
+
+		u1.emails = Arrays.asList(Email.create(u1.login + "@domain.tld", false, false));
+		new TestUserEmailSanitizer("domain.tld").create(new DirDomainValue<User>(internalDomain, null, u1));
+
+		assertEquals(2, u1.emails.size());
+		assertEquals(1,
+				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@domain.tld") && !e.allAliases).count());
+		assertEquals(1, u1.emails.stream()
+				.filter(e -> e.address.equals(u1.login + "@" + internalDomain) && !e.allAliases).count());
+	}
+
+	@Test
+	public void internalDomain_onlyOneInternalEmailShouldExist() {
+		String internalDomain = "0123456789.internal";
+		User u1 = new User();
+		u1.login = "user-" + System.nanoTime();
+		u1.routing = Routing.internal;
+
+		u1.emails = Arrays.asList(Email.create(u1.login + "@domain.tld", false, false),
+				Email.create("myOldLogin" + "@" + internalDomain, false, false));
+		new TestUserEmailSanitizer("domain.tld").create(new DirDomainValue<User>(internalDomain, null, u1));
+
+		assertEquals(2, u1.emails.size());
+		assertEquals(1,
+				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@domain.tld") && !e.allAliases).count());
+		assertEquals(1, u1.emails.stream()
+				.filter(e -> e.address.equals(u1.login + "@" + internalDomain) && !e.allAliases).count());
+	}
+
+	@Test
+	public void NO_internalDomain_login_at_domain_MustExist() {
+		User u1 = new User();
+		u1.login = "user-" + System.nanoTime();
+		u1.routing = Routing.internal;
+
+		u1.emails = Arrays.asList(Email.create("notMyLogin@domain.tld", false, false));
+		new TestUserEmailSanitizer("domain.tld").create(new DirDomainValue<User>("domain.tld", null, u1));
+
+		assertEquals(2, u1.emails.size());
+		assertEquals(1,
+				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@domain.tld") && !e.allAliases).count());
+		assertEquals(1,
+				u1.emails.stream().filter(e -> e.address.equals("notMyLogin@domain.tld") && !e.allAliases).count());
+	}
+
 }
