@@ -42,6 +42,7 @@ import net.bluemind.core.jdbc.JdbcHelper;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsHelper;
+import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.Mailbox.Type;
@@ -145,10 +146,7 @@ public class MapRow {
 					rowsByItemId.get(itemId).addEmail(rs.getString("left_address"), rs.getString("right_address"),
 							rs.getBoolean("all_aliases"), rs.getBoolean("is_default"));
 				} else {
-					MapRow row = build(servers, domainInfoByUid, rs);
-					if (row != null) {
-						rowsByItemId.put(row.itemId, row);
-					}
+					build(servers, domainInfoByUid, rs).ifPresent(row -> rowsByItemId.put(row.itemId, row));
 				}
 			}
 		} finally {
@@ -160,12 +158,12 @@ public class MapRow {
 		return rowsByItemId.values().stream().filter(r -> r.recipients != null).collect(Collectors.toList());
 	}
 
-	private static MapRow build(List<ItemValue<Server>> servers, Map<String, DomainInfo> domainInfoByUid, ResultSet rs)
-			throws SQLException {
+	private static Optional<MapRow> build(List<ItemValue<Server>> servers, Map<String, DomainInfo> domainInfoByUid,
+			ResultSet rs) throws SQLException {
 		String dataLocationUid = rs.getString("datalocation");
 		if (EXTERNALUSER_DATALOCATION.equals(dataLocationUid)) {
 			// External user
-			return new MapRow(rs.getInt("item_id"), rs.getString("left_address"));
+			return Optional.of(new MapRow(rs.getInt("item_id"), rs.getString("left_address")));
 		}
 
 		int itemId = rs.getInt("item_id");
@@ -187,8 +185,11 @@ public class MapRow {
 		}
 
 		if (!domainInfoByUid.containsKey(domainUid)) {
-			logger.warn(String.format("Unknown domain '%s' for item ID %d", domainUid, itemId));
-			return null;
+			if (!IDomainUids.GLOBAL_VIRT.equals(domainUid)) {
+				logger.error(String.format("Unknown domain '%s' for item ID %d", domainUid, itemId));
+			}
+
+			return Optional.empty();
 		}
 
 		DomainInfo domainInfo = domainInfoByUid.get(domainUid);
@@ -197,7 +198,7 @@ public class MapRow {
 		if (routing == Routing.internal) {
 			if (dataLocationUid == null) {
 				logger.warn(String.format("datalocation is null for item ID %d, domain '%s'", itemId, domainUid));
-				return null;
+				return Optional.empty();
 			}
 
 			Optional<ItemValue<Server>> server = servers.stream().filter(s -> dataLocationUid.equals(s.uid))
@@ -227,7 +228,7 @@ public class MapRow {
 				membersItemsIds);
 		mp.addEmail(emailLeft, emailRight, allAliases, isDefault);
 
-		return mp;
+		return Optional.of(mp);
 	}
 
 	public void addEmail(String emailLeft, String emailRight, boolean allAliases, boolean isDefault) {
