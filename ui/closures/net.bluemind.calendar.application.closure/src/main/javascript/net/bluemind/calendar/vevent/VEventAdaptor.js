@@ -267,7 +267,11 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.updateStates = function(mod
   model.states.removable = model.states.updatable && !!model.id;
   model.states.hasAttachments = model.attachments.length > 0;
   model.states.draft = !!model.draft;
-  model.states.hasCounters = (vseries && vseries.counters && vseries.counters.length > 0);
+  model.states.hasCounters = false;
+  if (vseries && vseries.counters && vseries.counters.length > 0){
+    var seriesAdaptor_ = new net.bluemind.calendar.vevent.VEventSeriesAdaptor(this.ctx_);
+    model.states.hasCounters = seriesAdaptor_.getCounterByOccurrenceApi(model.recurrenceId, vseries).length > 0;
+  }
 
   return model;
 };
