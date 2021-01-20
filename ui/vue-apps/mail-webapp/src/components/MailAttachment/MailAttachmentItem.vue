@@ -31,7 +31,10 @@
                 >
                     <bm-icon :icon="fileTypeIcon" size="2x" class="align-bottom" />
                 </bm-col>
-                <bm-col class="text-nowrap text-truncate flex-grow-1 px-1" :class="{ muted: !isUploaded }">
+                <bm-col
+                    class="text-nowrap text-truncate flex-grow-1 px-2 attachment-text"
+                    :class="{ muted: !isUploaded }"
+                >
                     <span :title="attachment.fileName" class="font-weight-bold">{{ fileName }} </span>
                     <br />
                     {{ fileSize }}
@@ -217,6 +220,10 @@ export default {
 
     .preview-file-type {
         color: $light !important;
+    }
+
+    .attachment-text {
+        line-height: 1.085em;
     }
 }
 </style>
