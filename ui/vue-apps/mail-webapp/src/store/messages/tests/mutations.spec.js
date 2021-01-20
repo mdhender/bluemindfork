@@ -1,6 +1,5 @@
 import mutations from "../mutations";
 import { MessageStatus } from "~model/message";
-import { Flag } from "@bluemind/email";
 
 describe("mutations", () => {
     describe("ADD_MESSAGES", () => {
@@ -112,45 +111,6 @@ describe("mutations", () => {
             const state = { [message.key]: message };
             mutations.MOVE_MESSAGES(state, { messages: ["UNKNOWN-KEY"] });
             expect(state).toEqual({ [message.key]: message });
-        });
-    });
-
-    describe("SET_UNREAD_COUNT", () => {
-        test("Mark message from folder as read if unread count is 0", () => {
-            const message = {
-                key: "key1",
-                subject: "mySubject",
-                folderRef: { key: "folder" },
-                flags: [],
-                status: MessageStatus.LOADED
-            };
-            const state = { [message.key]: message };
-            mutations.SET_UNREAD_COUNT(state, { key: "folder", unread: 0 });
-            expect(state[message.key].flags).toEqual([Flag.SEEN]);
-        });
-        test("do not mark message from other folder", () => {
-            const message = {
-                key: "key1",
-                subject: "mySubject",
-                folderRef: { key: "another folder" },
-                flags: [],
-                status: MessageStatus.LOADED
-            };
-            const state = { [message.key]: message };
-            mutations.SET_UNREAD_COUNT(state, { key: "folder", unread: 0 });
-            expect(state[message.key].flags).toEqual([]);
-        });
-        test("do not mark message not loaded", () => {
-            const message = { key: "key1", subject: "mySubject", folderRef: { key: "folder" }, flags: [] };
-            const state = { [message.key]: message };
-            mutations.SET_UNREAD_COUNT(state, { key: "folder", unread: 0 });
-            expect(state[message.key].flags).toEqual([]);
-        });
-        test("do nothing if unread is not equal to 0", () => {
-            const message = { key: "key1", subject: "mySubject", folderRef: { key: "folder" }, flags: [] };
-            const state = { [message.key]: message };
-            mutations.SET_UNREAD_COUNT(state, { key: "folder", unread: 10 });
-            expect(state[message.key].flags).toEqual([]);
         });
     });
 });

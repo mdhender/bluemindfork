@@ -12,6 +12,8 @@ export const EMPTY_FOLDER = "EMPTY_FOLDER";
 export const REMOVE_FOLDER = "REMOVE_FOLDER";
 export const RENAME_FOLDER = "RENAME_FOLDER";
 export const MARK_FOLDER_AS_READ = "MARK_FOLDER_AS_READ";
+export const UNREAD_FOLDER_COUNT = "UNREAD_FOLDER_COUNT";
+export const BUS_FOLDER_CHANGE = "$_VueBus_mailreplica.mailboxes.updated";
 
 // messages
 export const ADD_ATTACHMENTS = "ADD_ATTACHMENTS";

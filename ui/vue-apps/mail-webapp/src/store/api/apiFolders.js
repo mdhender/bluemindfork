@@ -19,8 +19,14 @@ async function markAsRead(mailbox, folder) {
 async function emptyFolder(mailbox, folder) {
     return await apiClient(mailbox).removeMessages(folder.remoteRef.internalId);
 }
+async function unreadCount(folder) {
+    return apiItems(folder).getPerUserUnread();
+}
 function apiClient({ remoteRef: { uid } }) {
     return inject("MailboxFoldersPersistence", uid);
+}
+function apiItems({ remoteRef: { uid } }) {
+    return inject("MailboxItemsPersistence", uid);
 }
 
 export default {
@@ -29,5 +35,6 @@ export default {
     deleteFolder,
     emptyFolder,
     markAsRead,
-    updateFolder
+    updateFolder,
+    unreadCount
 };

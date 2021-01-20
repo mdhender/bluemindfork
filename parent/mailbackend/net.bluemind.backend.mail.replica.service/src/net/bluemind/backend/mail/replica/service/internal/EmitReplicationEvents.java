@@ -66,6 +66,7 @@ public class EmitReplicationEvents {
 		payload.put("mailbox", mboxUniqueId);
 		payload.put("container", IMailReplicaUids.mboxRecords(mboxUniqueId));
 		payload.put("version", version);
+		payload.put("owner", c.owner);
 		JsonArray changedIds = new JsonArray();
 		for (long l : allChangedIds) {
 			changedIds.add(l);

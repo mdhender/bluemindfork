@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 import org.junit.After;
 import org.junit.Before;
@@ -36,7 +38,11 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
@@ -248,6 +254,35 @@ public abstract class AbstractRollingReplicationTests {
 		System.err.println("test is over, time for after()");
 		cyrusReplication.stopReplication().get(5, TimeUnit.SECONDS);
 		JdbcTestHelper.getInstance().afterTest();
+	}
+
+	protected CountDownLatch expectMessage(String vertxAddress) {
+		return expectMessages(vertxAddress, 1, msg -> true);
+	}
+
+	protected CountDownLatch expectMessages(String vertxAddress, int count) {
+		return expectMessages(vertxAddress, count, msg -> true);
+	}
+
+	protected CountDownLatch expectMessages(String vertxAddress, int count, Predicate<JsonObject> msgFilter) {
+		CountDownLatch msgLock = new CountDownLatch(count);
+		AtomicReference<Handler<Message<JsonObject>>> ref = new AtomicReference<>();
+		MessageConsumer<JsonObject> cons = VertxPlatform.eventBus().consumer(vertxAddress);
+		Handler<Message<JsonObject>> h = (Message<JsonObject> msg) -> {
+			JsonObject payload = msg.body();
+			boolean matches = msgFilter.test(payload);
+			System.out.println("GOT 1 (match: " + matches + ") (still expects "
+					+ (msgLock.getCount() - (matches ? 1 : 0)) + "): " + payload.encodePrettily());
+			if (matches) {
+				msgLock.countDown();
+				if (msgLock.getCount() == 0) {
+					cons.unregister();
+				}
+			}
+		};
+		ref.set(h);
+		cons.handler(h);
+		return msgLock;
 	}
 
 }

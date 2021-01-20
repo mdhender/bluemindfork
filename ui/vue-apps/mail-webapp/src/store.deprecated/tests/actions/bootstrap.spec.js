@@ -1,18 +1,23 @@
 import { FETCH_FOLDERS, FETCH_MAILBOXES } from "~actions";
-import { MAILSHARE_KEYS, MY_MAILBOX, MY_MAILBOX_FOLDERS } from "~getters";
+import { MAILSHARE_KEYS, MY_MAILBOX, MY_MAILBOX_FOLDERS, MAILSHARES } from "~getters";
 import { bootstrap } from "../../actions/bootstrap";
 import { FETCH_SIGNATURE } from "../../../store/types/actions";
+import WebsocketClient from "@bluemind/sockjs";
 
-const myMailbox = { key: "mailbox:uid" },
+jest.mock("@bluemind/sockjs");
+
+const myMailbox = { key: "mailbox:uid", owner: "mailbox:uid" },
     mailshareKeys = ["A", "B"],
-    myMailboxFolderKeys = ["1", "2", "3"];
+    myMailboxFolderKeys = ["1", "2", "3"],
+    mailshares = [{ owner: "A" }, { owner: "B" }];
 const context = {
     dispatch: jest.fn().mockReturnValue(Promise.resolve()),
     commit: jest.fn(),
     rootGetters: {
         ["mail/" + MY_MAILBOX]: myMailbox,
         ["mail/" + MY_MAILBOX_FOLDERS]: myMailboxFolderKeys,
-        ["mail/" + MAILSHARE_KEYS]: mailshareKeys
+        ["mail/" + MAILSHARE_KEYS]: mailshareKeys,
+        ["mail/" + MAILSHARES]: mailshares
     },
     rootState: { mail: { mailboxes: { [myMailbox.key]: myMailbox, A: { key: "A" }, B: { key: "B" } } } }
 };
@@ -21,6 +26,7 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
     beforeEach(() => {
         context.dispatch.mockClear();
         context.commit.mockClear();
+        WebsocketClient.mockClear();
     });
 
     test("load all folders from my mailbox and get unread count", done => {
@@ -46,6 +52,16 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
                     { root: true }
                 )
             );
+            done();
+        });
+    });
+
+    test("register to mailbox events", done => {
+        bootstrap(context).then(() => {
+            const instance = WebsocketClient.mock.instances[0].register;
+            expect(instance).toHaveBeenCalledWith(`mailreplica.${myMailbox.owner}.updated`, expect.anything());
+            expect(instance).toHaveBeenCalledWith(`mailreplica.${mailshares[0].owner}.updated`, expect.anything());
+            expect(instance).toHaveBeenCalledWith(`mailreplica.${mailshares[1].owner}.updated`, expect.anything());
             done();
         });
     });

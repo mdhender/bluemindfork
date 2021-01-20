@@ -138,6 +138,9 @@
       <access-rule
             class="net.bluemind.backend.mail.replica.service.internal.hooks.SessionMailsNotifRuleAccess">
       </access-rule>
+      <access-rule
+            class="net.bluemind.backend.mail.replica.service.internal.PerOwnerMailboxEventProducer$RuleAccess">
+      </access-rule>
    </extension>
    <extension
          point="net.bluemind.directory.repairSupport">
@@ -185,6 +188,8 @@
          point="net.bluemind.lib.vertx.verticles">
       <verticle
             impl="net.bluemind.backend.mail.replica.service.internal.ReplicatedDataExpirationTimerFactory">
+      </verticle>
+      <verticle impl="net.bluemind.backend.mail.replica.service.internal.PerOwnerMailboxEventProducer$Factory">
       </verticle>
    </extension>
    <extension

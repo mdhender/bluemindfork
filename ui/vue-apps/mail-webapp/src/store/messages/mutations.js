@@ -1,5 +1,4 @@
 import Vue from "vue";
-import { MessageStatus } from "~model/message";
 import {
     ADD_ATTACHMENT,
     ADD_FLAG,
@@ -25,10 +24,8 @@ import {
     SET_MESSAGE_PREVIEW,
     SET_MESSAGE_LIST,
     SET_MESSAGE_SUBJECT,
-    SET_MESSAGE_TO,
-    SET_UNREAD_COUNT
+    SET_MESSAGE_TO
 } from "~mutations";
-import { Flag } from "@bluemind/email";
 
 export default {
     [ADD_MESSAGES]: (state, messages) => {
@@ -44,16 +41,6 @@ export default {
     },
     [REMOVE_MESSAGES]: removeMessages,
     [MOVE_MESSAGES]: (state, { messages }) => removeMessages(state, messages),
-    [SET_UNREAD_COUNT]: (state, { key, unread }) => {
-        if (unread === 0) {
-            //FIXME: This cannot be rolled back...
-            Object.values(state).forEach(({ status, folderRef, flags }) => {
-                if (status === MessageStatus.LOADED && folderRef.key === key && !flags.includes(Flag.SEEN)) {
-                    flags.push(Flag.SEEN);
-                }
-            });
-        }
-    },
     [SET_MESSAGE_PREVIEW]: (state, { key, preview }) => {
         state[key].preview = preview;
     },

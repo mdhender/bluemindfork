@@ -9,7 +9,8 @@ import {
     EMPTY_FOLDER,
     MARK_FOLDER_AS_READ,
     REMOVE_FOLDER,
-    RENAME_FOLDER
+    RENAME_FOLDER, 
+    UNREAD_FOLDER_COUNT
 } from "~actions";
 import { ADD_FOLDER } from "~mutations";
 import injector from "@bluemind/inject";
@@ -258,6 +259,35 @@ describe("actions", () => {
             store.commit(ADD_FOLDER, folder);
             await store.dispatch(EMPTY_FOLDER, { folder: { key: "1", remoteRef: { uid: "uid" } }, mailbox });
             expect(store.state["1"].unread).toEqual(0);
+        });
+    });
+    describe("UNREAD_FOLDER_COUNT", () => {
+        test("Api is called", () => {
+            const folder = { key: "1", name: "foo", path: "baz", remoteRef: { uid: "uid" }, unread: 10 };
+            store.commit(ADD_FOLDER, folder);
+            store.dispatch(UNREAD_FOLDER_COUNT, folder);
+            expect(api.unreadCount).toHaveBeenCalledWith(folder);
+        });
+        test("Set unread count on success", async () => {
+            const folder = { key: "1", name: "foo", path: "baz", remoteRef: {}, unread: 10 };
+            store.commit(ADD_FOLDER, folder);
+            api.unreadCount.mockReturnValue({ total: 12 })
+            await store.dispatch(UNREAD_FOLDER_COUNT, folder);
+            expect(store.state["1"].unread).toEqual(12);
+        });
+        test("Keep unread count on error", async () => {
+            const folder = { key: "1", name: "foo", path: "baz", remoteRef: {}, unread: 10 };
+            store.commit(ADD_FOLDER, folder);
+            api.unreadCount.mockRejectedValue(new Error("Mocked rejection"));
+            let failed = false;
+            try {
+                await store.dispatch(UNREAD_FOLDER_COUNT, folder);
+            } catch (e) {
+                failed = true;
+            } finally {
+                expect(failed).toBeTruthy();
+                expect(store.state["1"].unread).toEqual(10);
+            }
         });
     });
 });

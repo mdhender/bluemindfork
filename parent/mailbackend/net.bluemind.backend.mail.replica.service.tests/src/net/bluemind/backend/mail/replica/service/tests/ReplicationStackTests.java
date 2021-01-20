@@ -40,8 +40,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.junit.Before;
@@ -49,11 +47,8 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.eventbus.Message;
-import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.mail.api.DispositionType;
@@ -1564,35 +1559,6 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		Ack updated = mboxesApi.updateById(foundItem.internalId, foundItem.value);
 		System.err.println("version after update: " + updated.version + " for " + foundItem.value.name);
 		assertTrue(updated.version > foundItem.version);
-	}
-
-	private CountDownLatch expectMessage(String vertxAddress) {
-		return expectMessages(vertxAddress, 1, msg -> true);
-	}
-
-	private CountDownLatch expectMessages(String vertxAddress, int count) {
-		return expectMessages(vertxAddress, count, msg -> true);
-	}
-
-	private CountDownLatch expectMessages(String vertxAddress, int count, Predicate<JsonObject> msgFilter) {
-		CountDownLatch msgLock = new CountDownLatch(count);
-		AtomicReference<Handler<Message<JsonObject>>> ref = new AtomicReference<>();
-		MessageConsumer<JsonObject> cons = VertxPlatform.eventBus().consumer(vertxAddress);
-		Handler<Message<JsonObject>> h = (Message<JsonObject> msg) -> {
-			JsonObject payload = msg.body();
-			boolean matches = msgFilter.test(payload);
-			System.out.println("GOT 1 (match: " + matches + ") (still expects "
-					+ (msgLock.getCount() - (matches ? 1 : 0)) + "): " + payload.encodePrettily());
-			if (matches) {
-				msgLock.countDown();
-				if (msgLock.getCount() == 0) {
-					cons.unregister();
-				}
-			}
-		};
-		ref.set(h);
-		cons.handler(h);
-		return msgLock;
 	}
 
 	@Test

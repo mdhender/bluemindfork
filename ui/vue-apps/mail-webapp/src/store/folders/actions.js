@@ -15,7 +15,15 @@ import { FOLDER_BY_PATH } from "~getters";
 import { FolderAdaptor } from "./helpers/FolderAdaptor";
 import { create, rename } from "~model/folder";
 import { withAlert } from "../helpers/withAlert";
-import { CREATE_FOLDER, EMPTY_FOLDER, FETCH_FOLDERS, CREATE_FOLDER_HIERARCHY, MARK_FOLDER_AS_READ } from "~actions";
+import {
+    CREATE_FOLDER,
+    EMPTY_FOLDER,
+    FETCH_FOLDERS,
+    CREATE_FOLDER_HIERARCHY,
+    MARK_FOLDER_AS_READ,
+    UNREAD_FOLDER_COUNT,
+    BUS_FOLDER_CHANGE
+} from "~actions";
 
 const fetchFolders = async function ({ commit }, mailbox) {
     const items = await api.getAllFolders(mailbox);
@@ -82,6 +90,11 @@ const emptyFolder = async function ({ commit }, { folder }) {
     commit(SET_UNREAD_COUNT, { ...folder, unread: 0 });
 };
 
+const unreadFolderCount = async function ({ commit }, folder) {
+    const unread = await api.unreadCount(folder);
+    commit(SET_UNREAD_COUNT, { ...folder, unread: unread.total });
+};
+
 export default {
     [FETCH_FOLDERS]: fetchFolders,
     [CREATE_FOLDER]: withAlert(createFolderHierarchy, CREATE_FOLDER, "CreateFolder"),
@@ -90,5 +103,9 @@ export default {
     // FIXME: when deleting a folder having children, it is not deleted in UI & we got errors in the console..
     [REMOVE_FOLDER]: withAlert(removeFolder, REMOVE_FOLDER, "RemoveFolder"),
     [RENAME_FOLDER]: withAlert(renameFolder, RENAME_FOLDER, "RenameFolder"),
-    [MARK_FOLDER_AS_READ]: withAlert(markFolderAsRead, MARK_FOLDER_AS_READ, "MarkFolderAsRead")
+    [MARK_FOLDER_AS_READ]: withAlert(markFolderAsRead, MARK_FOLDER_AS_READ, "MarkFolderAsRead"),
+    [UNREAD_FOLDER_COUNT]: unreadFolderCount,
+    [BUS_FOLDER_CHANGE]({ state, dispatch }, event) {
+        return dispatch(UNREAD_FOLDER_COUNT, state[event.body.mailbox]);
+    }
 };
