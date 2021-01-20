@@ -7,7 +7,7 @@ export default {
 
         if (VueBus) {
             const client = new VueBus.Client();
-            socket.onOnline(event => {
+            socket.onOnlineChange(event => {
                 client.$emit(event.type, event.online);
             });
             socket.ping(event => {

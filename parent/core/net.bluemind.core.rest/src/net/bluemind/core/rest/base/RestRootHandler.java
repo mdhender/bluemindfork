@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,9 @@ import com.netflix.spectator.api.Timer;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
@@ -379,59 +381,45 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 	}
 
 	@Override
-	public <T> MessageConsumer<T> register(RestRequest request, Function<Void, Handler<Message<T>>> msgHandler,
+	public <T> Future<MessageConsumer<T>> register(RestRequest request, Supplier<Handler<Message<T>>> handlerSupplier,
 			Handler<ServerFault> reject) {
-		// FIXME to remove
 		MessageConsumer<T> cons = vertx.eventBus().consumer(request.path);
-		applyRules(request, reject, v -> cons.handler(msgHandler.apply(null)));
-		return cons;
-
+		return applyRules(request, reject, () -> cons.handler(handlerSupplier.get())).map(succeed -> cons);
 	}
 
-	private void applyRules(RestRequest request, Handler<ServerFault> reject, Function<Object, Object> toApply) {
+	private Future<Boolean> applyRules(RestRequest request, Handler<ServerFault> reject, Runnable toApply) {
+		Promise<Boolean> promise = Promise.promise();
 		SecurityContext securityContext = null;
 		try {
 			securityContext = getSecurityContext(request);
 		} catch (ServerFault e) {
 			reject.handle(e);
-			return;
+			promise.complete(false);
+			return promise.future();
 		}
 		SecurityContext ctx = securityContext;
 
 		Context vertxCtx = Vertx.currentContext();
-		for (IEventBusAccessRule r : rules) {
-			if (r.match(request.path)) {
-				executor.execute(new BMTask() {
-
-					@Override
-					public void run(BMTaskMonitor monitor) {
-						try {
-							if (r.authorize(ServerSideServiceProvider.getProvider(ctx).getContext(), request.path)) {
-								vertxCtx.runOnContext((v) -> toApply.apply(null));
-							} else {
-								vertxCtx.runOnContext((v) -> reject
-										.handle(new ServerFault(String.format("path %s not accessible", request.path),
-												ErrorCode.PERMISSION_DENIED)));
-							}
-						} catch (Exception e) {
-							logger.error("error during registring handler", e);
-							vertxCtx.runOnContext((v) -> reject.handle(new ServerFault(
-									String.format("error %s accessing path %s", e.getMessage(), request.path),
-									ErrorCode.UNKNOWN)));
+		for (IEventBusAccessRule rule : rules) {
+			if (rule.match(request.path)) {
+				vertxCtx.runOnContext(v -> {
+					try {
+						if (rule.authorize(ServerSideServiceProvider.getProvider(ctx).getContext(), request.path)) {
+							toApply.run();
+							promise.complete(true);
+						} else {
+							reject.handle(new ServerFault(String.format("path %s not accessible", request.path),
+									ErrorCode.PERMISSION_DENIED));
+							promise.complete(false);
 						}
-					}
-
-					@Override
-					public void cancelled() {
-
-					}
-
-					@Override
-					public String toString() {
-						return "Handling request " + request.toString();
+					} catch (Exception e) {
+						logger.error("error during registring handler", e);
+						reject.handle(new ServerFault(
+								String.format("error %s accessing path %s", e.getMessage(), request.path),
+								ErrorCode.UNKNOWN));
 					}
 				});
-				return;
+				return promise.future();
 			}
 
 		}
@@ -439,6 +427,8 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 		reject.handle(
 				new ServerFault(String.format("path %s not accessible", request.path), ErrorCode.PERMISSION_DENIED));
 
+		promise.complete(false);
+		return promise.future();
 	}
 
 	private SecurityContext getSecurityContext(RestRequest request) {
@@ -466,31 +456,25 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 
 	@Override
 	public void sendEvent(RestRequest request, JsonObject evt) {
-		// FIXME to remove
 		logger.debug("send event to {} : {}", request.path, evt);
-		applyRules(request, f -> {
-			logger.error("cannot send event to {}", request.path);
-		}, v -> vertx.eventBus().send(request.path, evt));
+		applyRules(request, f -> logger.error("cannot send event to {}", request.path),
+				() -> vertx.eventBus().send(request.path, evt));
 	}
 
 	@Override
 	public void sendEvent(RestRequest request, JsonObject evt, Handler<Message<JsonObject>> handler) {
-		// FIXME to remove
 		logger.debug("send event to {} : {}", request.path, evt);
 		applyRules(request, f -> {
 			logger.error("cannot send event to {}", request.path);
 			handler.handle(null);
-		}, v -> {
-			vertx.eventBus().request(request.path, evt, new DeliveryOptions().setSendTimeout(10000),
-					(AsyncResult<Message<JsonObject>> m) -> {
-						if (m.failed()) {
-							handler.handle(null);
-						} else {
-							handler.handle(m.result());
-						}
-					});
-			return null;
-		});
+		}, () -> vertx.eventBus().request(request.path, evt, new DeliveryOptions().setSendTimeout(10000),
+				(AsyncResult<Message<JsonObject>> m) -> {
+					if (m.failed()) {
+						handler.handle(null);
+					} else {
+						handler.handle(m.result());
+					}
+				}));
 	}
 
 }

@@ -18,8 +18,9 @@
  */
 package net.bluemind.core.rest.base;
 
-import java.util.function.Function;
+import java.util.function.Supplier;
 
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
@@ -28,7 +29,7 @@ import net.bluemind.core.api.fault.ServerFault;
 
 public interface IRestBusHandler {
 
-	<T> MessageConsumer<T> register(RestRequest request, Function<Void, Handler<Message<T>>> msgHandler,
+	<T> Future<MessageConsumer<T>> register(RestRequest request, Supplier<Handler<Message<T>>> msgHandler,
 			Handler<ServerFault> reject);
 
 	void sendEvent(RestRequest request, JsonObject evt);

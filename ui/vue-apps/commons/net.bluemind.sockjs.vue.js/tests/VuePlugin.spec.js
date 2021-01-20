@@ -13,7 +13,7 @@ const VueBus = {
 };
 
 const socket = {
-    onOnline(listener) {
+    onOnlineChange(listener) {
         listener({ type: "online", online: true });
     },
     ping(listener) {

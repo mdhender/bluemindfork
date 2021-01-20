@@ -17,10 +17,13 @@ const websocket = (global.$websocket = global.$websocket || createWebsocket());
  *
  */
 export default class WebSocketClient {
+
     constructor(url = WEBSOCKET_DEFAULT_URL) {
         this.persistentRegistrations = [];
-        this.onOnline(() => {
-            this.persistentRegistrations.forEach(({ path, listener }) => this.register(path, listener));
+        this.onOnlineChange(({ online }) => {
+            if (online) {
+                this.persistentRegistrations.forEach(({ path, listener }) => this.register(path, listener));
+            }
         });
 
         if (!isInit(url)) {
@@ -58,7 +61,7 @@ export default class WebSocketClient {
         return websocket.online;
     }
 
-    onOnline(listener) {
+    onOnlineChange(listener) {
         websocket.handler.register(OnlineEvent.TYPE, listener);
         return new Promise((resolve, reject) => (websocket.online ? reject() : resolve()));
     }
@@ -112,7 +115,7 @@ function createSockJsClient() {
 
     client.onheartbeat = function () {
         clearTimeout(websocket.timers.heartbeat);
-        websocket.timers.heartbeat = setTimeout(() => websocket.client.close(), 20 * 1000);
+        websocket.timers.heartbeat = setTimeout(() => websocket.client.close(), 100 * 1000);
     };
 
     client.onclose = function () {

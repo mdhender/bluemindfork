@@ -500,7 +500,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		if (logger.isDebugEnabled()) {
 			logger.debug("HTML5 Notification attempt with {}", js.encode());
 		}
-		VertxPlatform.eventBus().send(container.owner + ".notifications.mails", js);
+		VertxPlatform.eventBus().publish(container.owner + ".notifications.mails", js);
 	}
 
 	@Override

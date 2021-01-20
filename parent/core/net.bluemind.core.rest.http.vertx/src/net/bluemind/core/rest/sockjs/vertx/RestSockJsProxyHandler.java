@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -30,7 +31,7 @@ import net.bluemind.core.utils.JsonUtils;
 public class RestSockJsProxyHandler implements Handler<JsonEvent> {
 	private static final Logger logger = LoggerFactory.getLogger(RestSockJsProxyHandler.class);
 	final SockJSSocket sock;
-	final Map<String, MessageConsumer<JsonObject>> handlers = new HashMap<>();
+	final Map<String, Future<MessageConsumer<JsonObject>>> handlers = new HashMap<>();
 	private final List<String> remoteAddress;
 	private final IRestBusHandler restbus;
 	private final Vertx vertx;
@@ -138,9 +139,7 @@ public class RestSockJsProxyHandler implements Handler<JsonEvent> {
 	}
 
 	public void sendFault(Optional<String> id, Throwable e) {
-		id.ifPresent(requestId -> {
-			sendResponse(id, RestResponse.fault(e));
-		});
+		sendResponse(id, RestResponse.fault(e));
 	}
 
 	private String response(String id, RestResponse response) {
@@ -169,9 +168,9 @@ public class RestSockJsProxyHandler implements Handler<JsonEvent> {
 	}
 
 	public void unregisterHandler(String path) {
-		MessageConsumer<JsonObject> handler = handlers.remove(path);
+		Future<MessageConsumer<JsonObject>> handler = handlers.remove(path);
 		if (handler != null) {
-			handler.unregister();
+			handler.onSuccess(MessageConsumer::unregister);
 		} else if (logger.isDebugEnabled()) {
 			logger.debug("Handler '{}' not found for unregistration", path);
 		}
@@ -182,8 +181,7 @@ public class RestSockJsProxyHandler implements Handler<JsonEvent> {
 
 		handlers.forEach((path, handler) -> {
 			logger.debug("unregister handler on {}", path);
-			handler.unregister();
-
+			handler.onSuccess(MessageConsumer::unregister);
 		});
 		handlers.clear();
 	}
@@ -192,22 +190,18 @@ public class RestSockJsProxyHandler implements Handler<JsonEvent> {
 		logger.debug("register handler at {} for {}", request.path, request.id);
 		String path = request.path;
 		if (handlers.containsKey(path)) {
-			handlers.get(path).unregister();
+			handlers.get(path).onSuccess(MessageConsumer::unregister);
 			handlers.remove(path);
 		}
 		Handler<Message<JsonObject>> handler = msg -> {
 			JsonObject body = msg.body();
 			dispatchEventBusMessage(path, body);
 		};
-		MessageConsumer<JsonObject> cons = restbus.register(request, v -> {
+		Future<MessageConsumer<JsonObject>> cons = restbus.register(request, () -> {
 			sendResponse(request.id, RestResponse.ok(200, null));
 			return handler;
 		}, e -> {
-			if (logger.isDebugEnabled()) {
-				logger.warn("Cannot register sock handler, path: {}", request.path, e);
-			} else {
-				logger.warn("Cannot register sock handler: {}", request.path, e);
-			}
+			logger.warn("Cannot register sock handler, path: {}", request.path, e);
 			sendFault(request.id, e);
 		});
 		handlers.put(path, cons);
@@ -215,11 +209,7 @@ public class RestSockJsProxyHandler implements Handler<JsonEvent> {
 
 	public void sendEvent(RestRequestWithId request) {
 		JsonObject jsBody = null;
-		if (request.body != null) {
-			jsBody = new JsonObject(request.body.toString());
-		} else {
-			jsBody = new JsonObject();
-		}
+		jsBody = (request.body != null) ? new JsonObject(request.body.toString()) : new JsonObject();
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("send event {} to {} , {}", request.id.orElse("<unknown id>"), request.path, jsBody);

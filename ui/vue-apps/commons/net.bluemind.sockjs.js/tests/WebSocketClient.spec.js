@@ -102,7 +102,7 @@ xdescribe("WebSocketClient", () => {
         const socket = new WebSocketClient("server.local.host");
         let state = true;
         const online = event => expect(event.online).toBe(state);
-        socket.onOnline(online);
+        socket.onOnlineChange(online);
         websocket.open();
         expect(socket.isOnline()).toBe(state);
         state = false;
@@ -139,7 +139,7 @@ xdescribe("WebSocketClient", () => {
             bus = jest.fn();
         let socket = new WebSocketClient("server.local.host");
         websocket.open();
-        socket.onOnline(online);
+        socket.onOnlineChange(online);
         socket.register("/dummy", bus);
         socket.ping(ping);
         socket.reset();
