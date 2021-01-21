@@ -243,7 +243,7 @@ public class BodyStreamProcessor {
 	}
 
 	private static List<Part> partsWithContentIds(Part structure, Part parent, List<Part> attach) {
-		if (parent != null && structure.contentId != null) {
+		if (parent != null && structure.contentId != null && parent.mime.startsWith(Mime4JHelper.M_RELATED)) {
 			attach.add(structure);
 		}
 		for (Part p : structure.children) {

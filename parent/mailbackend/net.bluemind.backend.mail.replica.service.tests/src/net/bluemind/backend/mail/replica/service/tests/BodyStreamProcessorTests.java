@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -126,6 +127,12 @@ public class BodyStreamProcessorTests {
 		assertEquals("<5c9e279abe570_1224111f30dc374c0@spawn.mail>", result.body.messageId);
 		JsonObject asJs = new JsonObject(JsonUtils.asString(result.body.structure));
 		System.out.println("JS: " + asJs.encodePrettily());
+
+		Optional<Part> excelPart = result.body.structure.children.stream()
+				.filter(p -> p.fileName != null && p.fileName.endsWith(".xlsx")).findFirst();
+		Assert.assertTrue(excelPart.isPresent());
+		DispositionType excelPartDispoType = excelPart.isPresent() ? excelPart.get().dispositionType : null;
+		Assert.assertEquals(DispositionType.ATTACHMENT, excelPartDispoType);
 	}
 
 	@Test
@@ -174,6 +181,12 @@ public class BodyStreamProcessorTests {
 		}
 		JsonObject asJs = new JsonObject(JsonUtils.asString(result.body.structure));
 		System.out.println("JS: " + asJs.encodePrettily());
+
+		Optional<Part> excelPart = result.body.structure.children.stream()
+				.filter(p -> p.fileName != null && p.fileName.endsWith(".xlsx")).findFirst();
+		Assert.assertTrue(excelPart.isPresent());
+		DispositionType excelPartDispoType = excelPart.isPresent() ? excelPart.get().dispositionType : null;
+		Assert.assertEquals(DispositionType.ATTACHMENT, excelPartDispoType);
 	}
 
 	@Test
@@ -232,6 +245,27 @@ public class BodyStreamProcessorTests {
 		// should have real attachments (it is based on disposition type)
 		Assert.assertTrue(result.body.structure.hasRealAttachments());
 		Assert.assertEquals(2, result.body.structure.nonInlineAttachments().size());
+	}
+
+	/**
+	 * When Content-Id is set without CID nor Disposition-Type then we should keep a
+	 * NULL disposition type (Linkedin mails).
+	 */
+	@Test
+	public void testDispositionTypeFixed2()
+			throws InterruptedException, ExecutionException, TimeoutException, IOException {
+		Stream stream = openResource("data/BM-16700-contentid-no-cid-no-dispotype.eml");
+
+		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
+		assertNotNull(result);
+
+		JsonObject asJs = new JsonObject(JsonUtils.asString(result.body.structure));
+		System.out.println("JS: " + asJs.encodePrettily());
+
+		final DispositionType firstChildDispositionType = result.body.structure.children.get(0).dispositionType;
+		Assert.assertEquals(null, firstChildDispositionType);
+		final DispositionType secondChildDispositionType = result.body.structure.children.get(1).dispositionType;
+		Assert.assertEquals(null, secondChildDispositionType);
 	}
 
 	/**
