@@ -25,6 +25,7 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Map;
@@ -160,12 +161,11 @@ public class SentryProperties {
 	private void updatePropertiesFile() throws IOException {
 		Path sentryConfigurationPath = getConfigurationPath();
 		Set<PosixFilePermission> propertiesPermissions = PosixFilePermissions.fromString(PERMISSIONS_PROPERTIES);
-		Files.deleteIfExists(sentryConfigurationPath);
-		Path fp = Files.createFile(sentryConfigurationPath,
-				PosixFilePermissions.asFileAttribute(propertiesPermissions));
-		try (OutputStream out = Files.newOutputStream(fp)) {
+		try (OutputStream out = Files.newOutputStream(sentryConfigurationPath, StandardOpenOption.CREATE,
+				StandardOpenOption.TRUNCATE_EXISTING)) {
 			props.store(out, null);
 		}
+		Files.setPosixFilePermissions(sentryConfigurationPath, propertiesPermissions);
 	}
 
 	public void close() {
