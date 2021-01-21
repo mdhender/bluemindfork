@@ -136,7 +136,7 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.loadView_ = function(data
       return calendar.states.writable;
     });
     this.handler.listen(this.view_, 'create-tag', this.handleCreateTag);
-    this.view_.getChild('counters').range = this.view_.range;
+    this.view_.getChild('counters').range = this.ctx.session.get('range');
   } else {
     var calendars = data.calendars;
     this.view_ = new net.bluemind.calendar.vevent.ui.Card(this.ctx);
