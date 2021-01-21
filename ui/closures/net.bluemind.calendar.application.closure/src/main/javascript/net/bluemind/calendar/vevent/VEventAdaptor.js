@@ -270,7 +270,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.updateStates = function(mod
   model.states.hasCounters = false;
   if (vseries && vseries.counters && vseries.counters.length > 0){
     var seriesAdaptor_ = new net.bluemind.calendar.vevent.VEventSeriesAdaptor(this.ctx_);
-    model.states.hasCounters = seriesAdaptor_.getCounterByOccurrenceApi(model.recurrenceId, vseries).length > 0;
+    model.states.hasCounters = seriesAdaptor_.getCounterByOccurrenceMixed(model.recurrenceId, vseries).length > 0;
   }
 
   return model;

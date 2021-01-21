@@ -177,6 +177,28 @@ net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.getCounterByOccurrenc
   }
 };
 
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.getCounterByOccurrenceMixed = function(recurrence, vseries) {
+  if (recurrence != null && goog.isString(recurrence)) {
+    return goog.array.filter(vseries.counters, function(counter) {
+      if (!counter['counter']['recurid']){
+        return false;
+      }
+      return this.ctx_.helper('date').fromIsoString(recurrence).getTime() == counter['counter']['recurid'].getTime();
+    }, this);
+  } else if (recurrence != null && goog.isDateLike(recurrence)) {
+    return goog.array.filter(vseries.counters, function(counter) {
+      if (!counter['counter']['recurid']){
+        return false;
+      }
+      return this.ctx_.helper('date').create(counter['counter']['recurid']).getTime() == recurrence.getTime();
+    }, this);
+  } else {
+    return goog.array.filter(vseries.counters, function(counter) {
+      return counter['counter']['recurid'] == null;
+    });
+  }
+};
+
 
 /**
  * 
