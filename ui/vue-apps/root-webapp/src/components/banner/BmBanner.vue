@@ -49,7 +49,7 @@
         </div>
         <component :is="widget.component" v-for="widget in widgets" :key="widget.component" />
         <a
-            href="https://forge.bluemind.net/confluence/display/BM4/La+messagerie"
+            href="https://forge.bluemind.net/confluence/display/BM4/Messagerie+BlueMind"
             target="_blank"
             :title="$t('banner.reach.help')"
             class="align-self-center mr-4 btn btn-inline-light"
