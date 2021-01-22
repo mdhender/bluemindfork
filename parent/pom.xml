@@ -72,6 +72,7 @@
 		<module>webmodules</module>
 		<module>xivo</module>
 	    <module>mailapp</module>
+		<module>videoconferencing</module>
 	</modules>
 
 	<build>
