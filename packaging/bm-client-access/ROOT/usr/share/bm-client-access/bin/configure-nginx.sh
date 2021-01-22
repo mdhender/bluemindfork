@@ -1,17 +1,22 @@
 #!/bin/bash
 
 generateDhParam() {
-    if [ -e /etc/nginx/bm_dhparam.pem ]; then
+    if $(openssl dhparam -check -in /etc/nginx/bm_dhparam.pem -noout > /dev/null 2>&1); then
         chmod 640 /etc/nginx/bm_dhparam.pem
         return
     fi
-    
+
+    if [ -e /etc/nginx/bm_dhparam.pem ]; then
+        rm -f /etc/nginx/bm_dhparam.pem
+    fi
+
     char=("-" "\\" "|" "/")
     charCount=0;
     elapsedTime=0;
     
     openssl dhparam -out /etc/nginx/bm_dhparam.pem 2048 > /dev/null 2>&1 &
-    while $(kill -0 $! > /dev/null 2>&1); do
+    opensslpid=$!
+    while $(kill -0 ${opensslpid} > /dev/null 2>&1); do
         echo -en "\rGenerate 2048 dhparams. This may take some time: "${char[$charCount]}" ("$((elapsedTime/2))"s)"
         
         elapsedTime=$((elapsedTime+1))
