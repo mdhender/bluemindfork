@@ -269,8 +269,15 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.updateStates = function(mod
   model.states.draft = !!model.draft;
   model.states.hasCounters = false;
   if (vseries && vseries.counters && vseries.counters.length > 0){
-    var seriesAdaptor_ = new net.bluemind.calendar.vevent.VEventSeriesAdaptor(this.ctx_);
-    model.states.hasCounters = seriesAdaptor_.getCounterByOccurrenceMixed(model.recurrenceId, vseries).length > 0;
+    var seriesCounters = goog.array.filter(vseries.counters, function(counter) {
+      return counter['counter']['recurid'] == null;
+    });
+    if (seriesCounters && seriesCounters.length > 0){
+      model.states.hasCounters = true;
+    } else {
+      var seriesAdaptor_ = new net.bluemind.calendar.vevent.VEventSeriesAdaptor(this.ctx_);
+      model.states.hasCounters = seriesAdaptor_.getCounterByOccurrenceMixed(model.recurrenceId, vseries).length > 0;
+    }
   }
 
   return model;
