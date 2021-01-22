@@ -568,7 +568,7 @@ var gBMIcsBandal = {
     _counterBandal: function(seriesAndEvent, event) {
         let counter = this._getCounter(seriesAndEvent, event);
         if (counter == null) {
-            //TODO counter already accepted or declined
+            this._showNotification(new BMError("errors.imip.counter-counter-not-found"), "INFO");
             return;
         }
         this._fillCounterBandal(seriesAndEvent.vevent, counter);
@@ -617,15 +617,13 @@ var gBMIcsBandal = {
             return self._getSeriesAndEvent(event);
         }).then(function(seriesAndEvent) {
             if (seriesAndEvent == null) {
-                // TODO: event not found
-                return Promise.reject();
+                return Promise.reject(new BMError("errors.imip.counter-event-not-found"));
             }
             let series = seriesAndEvent.series;
             let vevent = seriesAndEvent.vevent;
             let counter = self._getCounter(seriesAndEvent, event);
             if (counter == null) {
-                // TODO: counter not found
-                return Promise.reject();
+                return Promise.reject(new BMError("errors.imip.counter-event-not-found"));
             }
             if (accepted) {
                 series.counters = [];

@@ -245,6 +245,9 @@
     "extensions.bm.errors.imip.counter-event-not-found": {
         "message": "Réunion non trouvée ou proposition déjà traitée."
     },
+    "extensions.bm.errors.imip.counter-counter-not-found": {
+        "message": "Proposition déjà traitée."
+    },
     "extensions.bm.filehosting.expireOn": {
         "message": "expire le"
     },
