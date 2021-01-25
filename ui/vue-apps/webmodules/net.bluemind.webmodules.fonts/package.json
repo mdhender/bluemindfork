@@ -5,7 +5,7 @@
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "scripts": {
-        "build": "rm -fr ./web-resources/* && mkdir -p ./web-resources/css/montserrat && cp -r ./node_modules/typeface-montserrat/* ./web-resources/css/montserrat/"
+        "build": "rm -fr ./web-resources/* && mkdir -p ./web-resources/css/montserrat && cp -r ./node_modules/typeface-montserrat/* ./web-resources/css/montserrat/ && cp ./src/index.css ./web-resources/css/montserrat/"
     },
     "dependencies": {
         "typeface-montserrat": "0.0.75"
