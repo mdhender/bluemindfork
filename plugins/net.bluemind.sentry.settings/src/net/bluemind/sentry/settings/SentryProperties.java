@@ -32,9 +32,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.sentry.Sentry;
 
 public class SentryProperties {
+	private static final Logger logger = LoggerFactory.getLogger(SentryProperties.class);
+
 	private static final Path SENTRY_CONF_DIR = Paths.get("/etc/bm/sentry");
 	private static final Path SENTRY_TEMP_PARENT_DIR = Paths.get("/tmp/sentry");
 	private static final String SENTRY_CONF_FMT = "%s/%s.properties";
@@ -90,6 +95,12 @@ public class SentryProperties {
 	}
 
 	public static void checkOrCreateFolders() throws IOException {
+		/* posix filesystem required */
+		if (!SENTRY_TEMP_PARENT_DIR.getFileSystem().supportedFileAttributeViews().contains("posix")) {
+			logger.error("Unsupported filesystem: not a posix filesystem");
+			return;
+		}
+
 		Set<PosixFilePermission> sentryTempPermissions = PosixFilePermissions.fromString(PERMISSIONS_TEMPEVENTS);
 		Set<PosixFilePermission> sentryConfdirPermissions = PosixFilePermissions
 				.fromString(PERMISSIONS_SENTRY_SETTINGS_FOLDER);
@@ -159,6 +170,12 @@ public class SentryProperties {
 	}
 
 	private void updatePropertiesFile() throws IOException {
+		/* posix filesystem required */
+		if (!SENTRY_TEMP_PARENT_DIR.getFileSystem().supportedFileAttributeViews().contains("posix")) {
+			logger.error("Unsupported filesystem: not a posix filesystem");
+			return;
+		}
+
 		Path sentryConfigurationPath = getConfigurationPath();
 		Set<PosixFilePermission> propertiesPermissions = PosixFilePermissions.fromString(PERMISSIONS_PROPERTIES);
 		try (OutputStream out = Files.newOutputStream(sentryConfigurationPath, StandardOpenOption.CREATE,
