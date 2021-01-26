@@ -870,6 +870,11 @@ public class IcsHook implements ICalendarHook {
 					if (!data.containsKey("old_url")) {
 						data.put("old_url", "");
 					}
+
+					// Fix highlight new conference url
+					if (!data.containsKey("old_conference")) {
+						data.put("old_conference", "");
+					}
 				}
 
 				ItemValue<User> user = userService.byEmail(recipient.getAddress());

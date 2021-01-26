@@ -133,7 +133,13 @@
   <#if url??>
     <tr>
       <td class="key">${msg("key.url")}</td>
-      <td class="value">${url} <#if .data_model.old_url??><#if old_url != url><i class="updated">(${msg("generic.updated")})</i></#if></#if></td>
+      <td class="value"><a href="${url}" target="_blank">${url}</a> <#if .data_model.old_url??><#if old_url != url><i class="updated">(${msg("generic.updated")})</i></#if></#if></td>
+    </tr>
+  </#if>
+    <#if conference??>
+    <tr>
+      <td class="key">${msg("key.conference")}</td>
+      <td class="value"><a href="${conference}" target="_blank">${conference}</a> <#if .data_model.old_conference??><#if old_conference != conference><i class="updated">(${msg("generic.updated")})</i></#if></#if></td>
     </tr>
   </#if>
   <#if owner??>

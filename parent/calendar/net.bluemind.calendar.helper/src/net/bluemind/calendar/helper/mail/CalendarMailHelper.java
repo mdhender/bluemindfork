@@ -123,7 +123,7 @@ public class CalendarMailHelper extends ReminderMailHelper<VEvent> {
 		}
 
 		if (!Strings.isNullOrEmpty(vevent.conference)) {
-			data.put("videoConferencing", vevent.conference);
+			data.put("conference", vevent.conference);
 		}
 
 		super.addICalendarelementDataToMap(vevent, valarm, data);
