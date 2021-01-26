@@ -71,6 +71,11 @@ function customOnTagAttr(tag, name, value) {
     if (/^a$/i.test(tag) && /^href$/i.test(name) && !hasAllowedProtocol(value)) {
         return "";
     }
+    // remove viewport height based styles
+    if (/^style$/i.test(name)) {
+        const newValue = value.replaceAll(/\s*(min-)?(max-)?height\s*:\s*[0-9]+vh\s*;/g, "");
+        return name + '="' + newValue + '"';
+    }
     return xss.onTagAttr(tag, name, value);
 }
 
