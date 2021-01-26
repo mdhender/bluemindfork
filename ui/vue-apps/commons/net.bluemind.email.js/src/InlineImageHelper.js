@@ -25,30 +25,33 @@ export default {
             .parseFromString(result.htmlWithCids, "text/html")
             .querySelectorAll("img[src]");
         imageTags.forEach(img => {
-            const cid = img.attributes[CID_DATA_ATTRIBUTE].nodeValue;
-            const cidSrc = "cid:" + cid.slice(1, -1);
-            if (img.src.startsWith("data:image")) {
-                if (!isImgAlreadySaved(cid, inlineImagesSaved)) {
-                    const extractDataRegex = /data:image(.*)base64,/g;
-                    const metadatas = img.src.match(extractDataRegex)[0];
-                    const data = img.src.replace(metadatas, "");
-                    result.newParts.push({
-                        address: null,
-                        mime: metadatas.substring(5, metadatas.length - 8),
-                        dispositionType: "INLINE",
-                        encoding: "base64",
-                        contentId: cid
-                    });
-                    result.newContentByCid[cid] = convertData(data);
-                } else {
-                    result.alreadySaved.push(inlineImagesSaved.find(part => part.contentId === cid));
-                }
+            const cidDataAttribute = img.attributes[CID_DATA_ATTRIBUTE];
+            if (cidDataAttribute) {
+                const cid = cidDataAttribute.nodeValue;
+                const cidSrc = "cid:" + cid.slice(1, -1);
+                if (img.src.startsWith("data:image")) {
+                    if (!isImgAlreadySaved(cid, inlineImagesSaved)) {
+                        const extractDataRegex = /data:image(.*)base64,/g;
+                        const metadatas = img.src.match(extractDataRegex)[0];
+                        const data = img.src.replace(metadatas, "");
+                        result.newParts.push({
+                            address: null,
+                            mime: metadatas.substring(5, metadatas.length - 8),
+                            dispositionType: "INLINE",
+                            encoding: "base64",
+                            contentId: cid
+                        });
+                        result.newContentByCid[cid] = convertData(data);
+                    } else {
+                        result.alreadySaved.push(inlineImagesSaved.find(part => part.contentId === cid));
+                    }
 
-                result.htmlWithCids = result.htmlWithCids.replace(img.src, cidSrc);
-            } else if (img.attributes.src.nodeValue.startsWith(WEBSERVER_HANDLER_BASE_URL)) {
-                const encoded = encodeHtmlEntities(img.attributes.src.nodeValue);
-                result.alreadySaved.push(inlineImagesSaved.find(part => part.contentId === cid));
-                result.htmlWithCids = result.htmlWithCids.replace(encoded, cidSrc);
+                    result.htmlWithCids = result.htmlWithCids.replace(img.src, cidSrc);
+                } else if (img.attributes.src.nodeValue.startsWith(WEBSERVER_HANDLER_BASE_URL)) {
+                    const encoded = encodeHtmlEntities(img.attributes.src.nodeValue);
+                    result.alreadySaved.push(inlineImagesSaved.find(part => part.contentId === cid));
+                    result.htmlWithCids = result.htmlWithCids.replace(encoded, cidSrc);
+                }
             }
         });
         return result;
