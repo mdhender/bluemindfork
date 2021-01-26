@@ -107,8 +107,6 @@ public class ReplicationEvents {
 				logger.info("itemCreated id {}, version {}", itemId, version);
 				cons.unregister();
 				done.complete(new ItemChange(version, itemId, latency));
-			} else {
-				logger.info("We got a create, but it is for {} instead of {}", itemId, expectedId);
 			}
 		};
 		cons.handler(handler);

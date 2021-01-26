@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
@@ -86,6 +88,8 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 	private Optional<ItemValue<MailboxFolder>> mboxFolder = Optional.empty();
 
 	private final IMailIndexService indexService;
+
+	private static final Map<String, BlockingQueue<List<MailboxRecord>>> updateQueue = new ConcurrentHashMap<>();
 
 	public DbMailboxRecordsService(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
 			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService,
@@ -301,6 +305,28 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 	@Override
 	public void updates(List<MailboxRecord> recs) {
+		BlockingQueue<List<MailboxRecord>> queue = updateQueue.computeIfAbsent(mailboxUniqueId,
+				k -> new ArrayBlockingQueue<List<MailboxRecord>>(500));
+		try {
+			boolean queued = queue.offer(recs, 10, TimeUnit.SECONDS);
+			if (!queued) {
+				throw new ServerFault("busy");
+			}
+			VertxPlatform.getVertx().executeBlocking(prom -> {
+				List<List<MailboxRecord>> toProcess = new ArrayList<>();
+				queue.drainTo(toProcess);
+				for (List<MailboxRecord> slice : toProcess) {
+					updatesImpl(slice);
+				}
+			}, ar -> {
+			});
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new ServerFault(e);
+		}
+	}
+
+	private void updatesImpl(List<MailboxRecord> recs) {
 		List<MailboxRecord> records = fixFlags(recs);
 		logger.info("[{}] Update with {} record(s)", mailboxUniqueId, records.size());
 		long time = System.currentTimeMillis();
