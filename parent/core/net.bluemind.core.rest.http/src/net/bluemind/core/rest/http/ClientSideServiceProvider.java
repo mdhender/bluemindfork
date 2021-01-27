@@ -18,6 +18,7 @@
  */
 package net.bluemind.core.rest.http;
 
+import java.io.File;
 import java.util.List;
 
 import org.asynchttpclient.AsyncHttpClient;
@@ -45,9 +46,11 @@ public class ClientSideServiceProvider implements IServiceProvider {
 		defaultClient = createClient(40);
 	}
 
+	private static final boolean EPOLL_DISABLED = new File("/etc/bm/netty.epoll.disabled").exists();
+
 	private static AsyncHttpClient createClient(int timeoutInSeconds) {
 		DefaultAsyncHttpClientConfig.Builder builder = new DefaultAsyncHttpClientConfig.Builder();
-		builder.setUseNativeTransport(Epoll.isAvailable() || KQueue.isAvailable());
+		builder.setUseNativeTransport((Epoll.isAvailable() || KQueue.isAvailable()) && !EPOLL_DISABLED);
 		int to = timeoutInSeconds * 1000;
 		builder.setConnectTimeout(to).setReadTimeout(to).setRequestTimeout(to).setFollowRedirect(false);
 		builder.setTcpNoDelay(true).setThreadPoolName("client-side-provider-ahc").setUseInsecureTrustManager(true);

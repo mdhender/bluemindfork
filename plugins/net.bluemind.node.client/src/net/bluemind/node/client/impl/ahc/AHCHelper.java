@@ -49,6 +49,8 @@ public final class AHCHelper {
 	public static final File TRUSTSTORE = new File("/etc/bm/bm.jks");
 	public static final File KEYSTORE = new File("/etc/bm/nodeclient_keystore.jks");
 
+	private static final boolean EPOLL_DISABLED = new File("/etc/bm/netty.epoll.disabled").exists();
+
 	static {
 		client = newClient();
 	}
@@ -60,7 +62,7 @@ public final class AHCHelper {
 		AsyncHttpClientConfig config = new DefaultAsyncHttpClientConfig.Builder().setFollowRedirect(false)
 				.setMaxRedirects(0).setPooledConnectionIdleTimeout(10000).setMaxRequestRetry(0)
 				.setRequestTimeout(TIMEOUT).setReadTimeout(DEFAULT_IDLE_TIMEOUT).setSslContext(buildSSLContext())
-				.setUseNativeTransport(true).build();
+				.setUseNativeTransport(!EPOLL_DISABLED).build();
 		return new DefaultAsyncHttpClient(config);
 	}
 

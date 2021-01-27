@@ -18,6 +18,7 @@
  */
 package net.bluemind.lib.vertx;
 
+import java.io.File;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -60,6 +61,8 @@ public final class VertxPlatform implements BundleActivator {
 		System.setProperty("vertx.logger-delegate-factory-class-name", "io.vertx.core.logging.SLF4JLogDelegateFactory");
 	}
 
+	private static final boolean EPOLL_DISABLED = new File("/etc/bm/netty.epoll.disabled").exists();
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -72,7 +75,7 @@ public final class VertxPlatform implements BundleActivator {
 		}
 		logger.info("Starting vertx platform");
 
-		vertx = Vertx.vertx(new VertxOptions().setPreferNativeTransport(true));
+		vertx = Vertx.vertx(new VertxOptions().setPreferNativeTransport(!EPOLL_DISABLED));
 		VertxPlatform.context = bundleContext;
 	}
 
