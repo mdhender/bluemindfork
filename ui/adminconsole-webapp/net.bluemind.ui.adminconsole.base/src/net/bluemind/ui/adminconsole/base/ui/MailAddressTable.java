@@ -311,13 +311,13 @@ public class MailAddressTable extends Composite {
 
 	public static native String unaccent(String str)
 	/*-{
-		return str.normalize('NFKD').replace(/[\u0300-\u036f]/g, "");
+    return str.normalize('NFKD').replace(/[\u0300-\u036f]/g, "");
 	}-*/;
 
 	private static String sanitizeLoginForEmail(final String login) {
 		String newname = login;
 		if (login != null && !login.isEmpty()) {
-			newname = unaccent(login.toLowerCase()).replaceAll("[^a-z0-9!#$%&'*+/=?^_`{|}~-]", "");
+			newname = unaccent(login.toLowerCase()).replaceAll("[^\\.a-z0-9!#$%&'*+/=?^_`{|}~-]", "");
 		}
 		return newname;
 	}
