@@ -90,7 +90,7 @@ class MyHierarchy {
     $query->owner = null;
     $query->name = null;
     $query->type = 'mailboxacl';
-    $query->verb = null; 
+    $query->verb = array('Read', 'Write', 'All');
     $containers = $this->_containers()->allLight($query);
     $mailboxes = array();
     foreach($containers as $container) {
