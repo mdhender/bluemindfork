@@ -34,7 +34,6 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetSocket;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.imap.vertx.ImapResponseStatus.Status;
 import net.bluemind.imap.vertx.cmd.AppendCommandHelper;
@@ -169,12 +168,10 @@ public class VXStoreClient {
 
 		Runnable onGoAhead = () -> setupFuture.thenAccept(conState -> {
 			conState.context.runOnContext(v -> {
-				literal.endHandler(end -> {
+				literal.pipe().endOnSuccess(false).to(conState.socket, ar -> {
 					logger.debug("Finished streaming literal {}.", literal);
 					conState.socket.write("\r\n");
 				});
-				Pump pump = Pump.pump(literal, conState.socket);
-				pump.start();
 			});
 		});
 

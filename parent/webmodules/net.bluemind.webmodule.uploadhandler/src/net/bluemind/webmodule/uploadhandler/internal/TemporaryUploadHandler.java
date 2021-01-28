@@ -33,7 +33,6 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerFileUpload;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.streams.Pump;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.uploadhandler.TemporaryUploadRepository;
@@ -121,16 +120,18 @@ public class TemporaryUploadHandler implements Handler<HttpServerRequest>, NeedV
 				sendError("system error", request.response());
 				return;
 			}
-			upload.endHandler(v -> {
-				doResize(request, file.uuid);
-				logger.debug("upload succeed, return 200 and uuid {}", file.uuid);
-				HttpServerResponse resp = request.response();
-				resp.headers().add("Content-Type", "text/plain");
-				resp.setStatusCode(200).end(file.uuid.toString());
+			upload.pipe().endOnComplete(false).to(res.result(), ar -> {
+				if (ar.succeeded()) {
+					doResize(request, file.uuid);
+					logger.debug("upload succeed, return 200 and uuid {}", file.uuid);
+					HttpServerResponse resp = request.response();
+					resp.headers().add("Content-Type", "text/plain");
+					resp.setStatusCode(200).end(file.uuid.toString());
+				} else {
+					sendError("unknown error", request.response());
+				}
 			});
-			Pump.pump(upload, res.result()).start();
 			upload.resume();
-
 		});
 
 	}

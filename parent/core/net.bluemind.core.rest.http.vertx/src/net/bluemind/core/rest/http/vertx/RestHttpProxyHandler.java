@@ -30,7 +30,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.streams.Pump;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -125,15 +124,8 @@ public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 				headers.add(HttpHeaders.CACHE_CONTROL, HEADER_CACHE_CONTROL_VALUE);
 				headers.add(HEADER_PRAGMA, HEADER_PRAGMA_VALUE);
 				if (value.responseStream != null) {
-					value.responseStream.endHandler(new Handler<Void>() {
-
-						@Override
-						public void handle(Void event) {
-							request.response().end();
-						}
-					});
 					request.response().setChunked(true);
-					Pump.pump(value.responseStream, request.response()).start();
+					value.responseStream.pipeTo(request.response());
 					value.responseStream.resume();
 				} else {
 					logger.debug("send response {}", value);

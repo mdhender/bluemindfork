@@ -31,7 +31,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.calendar.api.IVEventPromise;
 import net.bluemind.core.api.AsyncHandler;
@@ -92,13 +91,8 @@ public class ExportICSHandler implements Handler<HttpServerRequest>, NeedVertx {
 			}
 
 			ReadStream<Buffer> read = VertxStream.read(ics);
-			Pump pump = Pump.pump(read, resp);
 			resp.setChunked(true);
-			pump.start();
-			read.endHandler((v) -> {
-				resp.end();
-			});
-
+			read.pipeTo(resp);
 			return null;
 		}).exceptionally(e -> {
 			logger.error("error ics export of calendar {} ", container, e);

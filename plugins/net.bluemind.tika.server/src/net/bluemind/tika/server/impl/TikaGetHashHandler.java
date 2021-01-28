@@ -27,7 +27,6 @@ import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.streams.Pump;
 
 public class TikaGetHashHandler implements Handler<HttpServerRequest> {
 
@@ -49,15 +48,7 @@ public class TikaGetHashHandler implements Handler<HttpServerRequest> {
 			headers.add("X-BM-TikaHash", hash);
 			resp.setChunked(true);
 			AsyncFile asyncFile = vertx.fileSystem().openBlocking(f.getAbsolutePath(), new OpenOptions());
-			Pump pump = Pump.pump(asyncFile, resp);
-			pump.start();
-			asyncFile.endHandler(new Handler<Void>() {
-
-				@Override
-				public void handle(Void event) {
-					resp.end();
-				}
-			});
+			asyncFile.pipeTo(resp);
 		} else {
 			resp.setStatusCode(404).end();
 		}

@@ -35,12 +35,12 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.lib.vertx.Result;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public abstract class GenericStream<T> implements ReadStream<Buffer> {
@@ -191,10 +191,7 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 
 	private static <T> void stream(final ReadStream<T> reader, final WriteStream<T> writer) {
 		final CountDownLatch latch = new CountDownLatch(1);
-		reader.endHandler(v -> latch.countDown());
-
-		Pump pump = Pump.pump(reader, writer);
-		pump.start();
+		reader.pipeTo(writer, ar -> latch.countDown());
 		reader.resume();
 		try {
 			latch.await();
@@ -206,10 +203,7 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 
 	private static <T> CompletableFuture<Void> asyncStream(final ReadStream<T> reader, final WriteStream<T> writer) {
 		CompletableFuture<Void> prom = new CompletableFuture<>();
-		reader.endHandler(evt -> prom.complete(null));
-
-		Pump pump = Pump.pump(reader, writer);
-		pump.start();
+		reader.pipeTo(writer, ar -> prom.complete(null));
 		reader.resume();
 		return prom;
 	}
@@ -252,7 +246,7 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 
 		@Override
 		public void end(Handler<AsyncResult<Void>> handler) {
-			handler.handle(null);
+			handler.handle(Result.success());
 		}
 
 	}

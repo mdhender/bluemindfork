@@ -32,7 +32,6 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.streams.Pump;
 import net.bluemind.addressbook.api.IAddressBookPromise;
 import net.bluemind.addressbook.api.IAddressBooksPromise;
 import net.bluemind.addressbook.api.VCardInfo;
@@ -143,20 +142,12 @@ public class ExportVCardHandler implements Handler<HttpServerRequest>, NeedVertx
 			}
 		}
 		VCardStream vcardStream = new VCardStream(clientProvider, cards);
-		vcardStream.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void arg0) {
-				request.response().setStatusCode(200);
-				request.response().end();
-			}
-		});
-		Pump.pump(vcardStream, request.response()).start();
+		vcardStream.pipeTo(request.response());
 	}
 
 	private void prepareResponse(final HttpServerRequest request, String filename) {
 		request.response().headers().add("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-		request.response().setChunked(true);
+		request.response().setChunked(true).setStatusCode(200);
 	}
 
 	@Override

@@ -43,7 +43,6 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerFileUpload;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.streams.Pump;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.uploadhandler.TemporaryUploadRepository;
 import net.bluemind.webmodule.uploadhandler.TemporaryUploadRepository.UniqueFile;
@@ -121,15 +120,13 @@ public class TemporaryImageUploadHandler implements Handler<HttpServerRequest>, 
 						sendError("system error", request.response());
 						return;
 					}
-					upload.endHandler(new Handler<Void>() {
-
-						@Override
-						public void handle(Void arg0) {
+					upload.pipe().endOnComplete(false).to(res.result(), ar -> {
+						if (ar.failed()) {
+							sendError("unknown error", request.response());
+						} else {
 							doResize(request, file.uuid);
 						}
-
 					});
-					Pump.pump(upload, res.result()).start();
 					upload.resume();
 				});
 

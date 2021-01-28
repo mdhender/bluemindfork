@@ -42,11 +42,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
-import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.OpenOptions;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.config.InstallationId;
@@ -376,21 +374,17 @@ public class InstallationService implements IInstallation {
 		final AsyncFile aFile = VertxPlatform.getVertx().fileSystem().openBlocking(archiveFile.getAbsolutePath(),
 				new OpenOptions());
 
-		read.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
+		read.pipeTo(aFile, ar -> {
+			if (ar.succeeded()) {
 				ArchiveHelper.checkFileSize(archiveFile);
-
 				logger.info("Subscription archive has been submitted.");
 				Distribution serverOs = OsVersionDetectionFactory.create().detect();
 				byte[] licence = ArchiveHelper.getSubscriptionFile(archiveFile, serverOs);
 				SubscriptionProviders.getSubscriptionProvider().updateSubscription(licence, serverOs);
+			} else {
+				logger.error("Subscription archive read/write error", ar.cause());
 			}
 		});
-
-		Pump pump = Pump.pump(read, aFile);
-		pump.start();
 	}
 
 	@Override

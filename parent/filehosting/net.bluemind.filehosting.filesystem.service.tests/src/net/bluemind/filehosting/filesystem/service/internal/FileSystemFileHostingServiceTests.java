@@ -55,7 +55,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.OpenOptions;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
@@ -606,17 +605,7 @@ public class FileSystemFileHostingServiceTests {
 		final CountDownLatch latch = new CountDownLatch(1);
 		final ReadStream<Buffer> reader = VertxStream.read(stream);
 		final AccumulatorStream writer = new AccumulatorStream();
-
-		reader.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				latch.countDown();
-			}
-		});
-
-		Pump pump = Pump.pump(reader, writer);
-		pump.start();
+		reader.pipeTo(writer, h -> latch.countDown());
 		reader.resume();
 		try {
 			latch.await();

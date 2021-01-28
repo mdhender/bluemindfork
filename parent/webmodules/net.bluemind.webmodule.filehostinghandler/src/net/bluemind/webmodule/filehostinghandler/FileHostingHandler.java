@@ -25,12 +25,10 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.Stream;
@@ -104,15 +102,7 @@ public class FileHostingHandler implements IWebFilter, NeedVertx {
 	private void streamFile(final HttpServerResponse resp, final Stream stream) {
 		resp.setStatusCode(200);
 		ReadStream<Buffer> readStream = (ReadStream) stream;
-		Handler<Void> endHandler = new Handler<Void>() {
-			@Override
-			public void handle(Void v) {
-				resp.end();
-			}
-		};
-		readStream.endHandler(endHandler);
-		Pump pump = Pump.pump(readStream, resp);
-		pump.start();
+		readStream.pipeTo(resp);
 	}
 
 	private void errorHandling(HttpServerResponse resp, String uid, Throwable e) {

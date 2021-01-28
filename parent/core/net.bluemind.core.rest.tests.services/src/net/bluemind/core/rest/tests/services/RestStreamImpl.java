@@ -23,7 +23,6 @@ import java.util.concurrent.CountDownLatch;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.vertx.VertxStream;
@@ -46,16 +45,7 @@ public class RestStreamImpl implements IRestStreamTestService {
 		if (stream == null) {
 			throw new RuntimeException("no stream!");
 		}
-		reader.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				latch.countDown();
-			}
-		});
-
-		Pump pump = Pump.pump(reader, writer);
-		pump.start();
+		reader.pipeTo(writer, ar -> latch.countDown());
 		reader.resume();
 		try {
 			latch.await();
@@ -135,16 +125,7 @@ public class RestStreamImpl implements IRestStreamTestService {
 		if (stream == null) {
 			throw new RuntimeException("no stream!");
 		}
-		reader.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				latch.countDown();
-			}
-		});
-
-		Pump pump = Pump.pump(reader, writer);
-		pump.start();
+		reader.pipeTo(writer, ar -> latch.countDown());
 		reader.resume();
 		try {
 			latch.await();

@@ -26,7 +26,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.Stream;
@@ -114,17 +113,13 @@ public class ExportVTodoHandler implements Handler<HttpServerRequest>, NeedVertx
 	}
 
 	protected void stream(ReadStream<Buffer> exportStream, final HttpServerRequest request) {
-		exportStream.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void arg0) {
-				request.response().setStatusCode(200);
-				request.response().end();
+		exportStream.pipe().endOnComplete(false).to(request.response(), ar -> {
+			if (ar.failed()) {
+				request.response().setStatusCode(500).end();
+			} else {
+				request.response().setStatusCode(200).end();
 			}
 		});
-
-		Pump.pump(exportStream, request.response()).start();
-
 	}
 
 	@Override

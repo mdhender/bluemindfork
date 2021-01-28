@@ -26,7 +26,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 
 public class VertxStreamProducerControlHandler {
@@ -85,21 +84,11 @@ public class VertxStreamProducerControlHandler {
 	}
 
 	protected void stream(final Vertx vertx, final String addr, final boolean resume) {
-
 		producer = new VertxStreamProducer(vertx, addr);
-
-		bodyStream.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				producer.sendEnd();
-				close();
-			}
+		bodyStream.pipe().endOnComplete(false).to(producer, h -> {
+			producer.sendEnd();
+			close();
 		});
-
-		Pump pump = Pump.pump(bodyStream, producer);
-		pump.start();
-
 		if (resume) {
 			bodyStream.resume();
 		}

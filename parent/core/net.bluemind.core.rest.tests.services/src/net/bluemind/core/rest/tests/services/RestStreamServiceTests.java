@@ -34,7 +34,6 @@ import org.junit.Test;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.base.GenericStream;
@@ -175,18 +174,7 @@ public class RestStreamServiceTests {
 
 		final ReadStream<Buffer> readStream = VertxStream.read(out);
 
-		Handler<Void> endHandler = new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				latch.countDown();
-			}
-
-		};
-		readStream.endHandler(endHandler);
-
-		Pump.pump(readStream, accu).start();
-		// readStream.resume();
+		readStream.pipeTo(accu, ar -> latch.countDown());
 
 		assertTrue(latch.await(4, TimeUnit.SECONDS));
 		long f = System.nanoTime();
@@ -260,17 +248,7 @@ public class RestStreamServiceTests {
 
 		final ReadStream<Buffer> readStream = VertxStream.read(in);
 
-		Handler<Void> endHandler = new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				latch.countDown();
-			}
-
-		};
-		readStream.endHandler(endHandler);
-
-		Pump.pump(readStream, accu).start();
+		readStream.pipeTo(accu, h -> latch.countDown());
 		latch.await();
 
 		assertEquals("123456789", accu.buffer().toString());

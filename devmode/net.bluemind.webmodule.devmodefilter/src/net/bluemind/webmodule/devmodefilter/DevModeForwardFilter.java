@@ -33,7 +33,6 @@ import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.streams.Pump;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.eclipse.common.IHasPriority;
 import net.bluemind.webmodule.devmodefilter.DevModeState.ServerPort;
@@ -98,15 +97,16 @@ public class DevModeForwardFilter implements IWebFilter, NeedVertx, IHasPriority
 				request.response().setStatusCode(500).setStatusMessage(e.getMessage() != null ? e.getMessage() : "null")
 						.end();
 			});
-
-			r.exceptionHandler(e -> {
-				logger.error("Client response error", e);
-				request.response().setStatusCode(500).setStatusMessage(e.getMessage() != null ? e.getMessage() : "null")
-						.end();
+			r.pipe().endOnComplete(false).to(request.response(), ar -> {
+				if (ar.succeeded()) {
+					request.response().end();
+				} else {
+					Throwable t = ar.cause();
+					logger.error("Client response error", t);
+					request.response().setStatusCode(500)
+							.setStatusMessage(t.getMessage() != null ? t.getMessage() : "null").end();
+				}
 			});
-			Pump p = Pump.pump(r, request.response());
-			r.endHandler(v -> request.response().end());
-			p.start();
 		});
 
 		remoteRequest.headers().addAll(request.headers());
@@ -116,12 +116,7 @@ public class DevModeForwardFilter implements IWebFilter, NeedVertx, IHasPriority
 					.end();
 		});
 		remoteRequest.setChunked(HttpHeaders.CHUNKED.equals(request.headers().get(HttpHeaders.TRANSFER_ENCODING)));
-
-		request.endHandler(v -> {
-			remoteRequest.end();
-		});
-
-		Pump.pump(request, remoteRequest).start();
+		request.pipeTo(remoteRequest);
 		return CompletableFuture.completedFuture(null);
 	}
 

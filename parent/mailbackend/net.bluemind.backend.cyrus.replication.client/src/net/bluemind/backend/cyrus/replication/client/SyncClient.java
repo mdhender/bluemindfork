@@ -41,7 +41,6 @@ import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.parsetools.RecordParser;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 
@@ -166,12 +165,7 @@ public class SyncClient {
 	public CompletableFuture<UnparsedResponse> applyMessages(ReadStream<Buffer> stream) {
 		String start = "APPLY MESSAGE (";
 		server.write(start);
-		Pump pump = Pump.pump(stream, server);
-		stream.endHandler(v -> {
-			server.write(END_OF_COMMAND);
-		});
-		pump.start();
-
+		stream.pipe().endOnComplete(false).to(server, v -> server.write(END_OF_COMMAND));
 		return onResponse("OK", "NO", "BAD");
 	}
 

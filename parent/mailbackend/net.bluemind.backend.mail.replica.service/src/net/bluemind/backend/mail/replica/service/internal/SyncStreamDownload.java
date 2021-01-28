@@ -24,7 +24,6 @@ import io.netty.buffer.Unpooled;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.core.api.Stream;
@@ -89,10 +88,13 @@ public class SyncStreamDownload {
 		CompletableFuture<ByteBuf> ret = new CompletableFuture<>();
 		TargetStream out = new TargetStream();
 		ReadStream<Buffer> toRead = VertxStream.read(s);
-		toRead.exceptionHandler(ret::completeExceptionally);
-		toRead.endHandler(v -> ret.complete(out.out));
-		Pump pump = Pump.pump(toRead, out);
-		pump.start();
+		toRead.pipeTo(out, ar -> {
+			if (ar.succeeded()) {
+				ret.complete(out.out);
+			} else {
+				ret.completeExceptionally(ar.cause());
+			}
+		});
 		toRead.resume();
 		return ret;
 	}

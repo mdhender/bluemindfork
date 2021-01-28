@@ -31,7 +31,6 @@ import io.netty.buffer.Unpooled;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.lib.vertx.Result;
@@ -49,15 +48,13 @@ public class BodyGeneratorStream extends QueueBasedFeedableBodyGenerator<Concurr
 
 	@Override
 	public Body createBody() {
-		bodyStream.endHandler((Void event) -> {
-			logger.debug("send end of stream {}", event);
+		bodyStream.pipeTo(this, ar -> {
 			try {
 				feed(Unpooled.EMPTY_BUFFER, true);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
 		});
-		Pump.pump(bodyStream, this).start();
 		return super.createBody();
 	}
 

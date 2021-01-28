@@ -39,7 +39,6 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.http.RequestOptions;
 import io.vertx.core.net.SocketAddress;
-import io.vertx.core.streams.Pump;
 
 public class AggregatedMetricsRequestHandler implements Handler<HttpServerRequest> {
 
@@ -71,13 +70,12 @@ public class AggregatedMetricsRequestHandler implements Handler<HttpServerReques
 				root = root.thenCompose(prev -> {
 					CompletableFuture<Void> ret = new CompletableFuture<>();
 					httpClient.request(HttpMethod.GET, sock, unixSockReqOpts, clientResponse -> {
-						clientResponse.exceptionHandler(t -> {
-							logger.error("Resp error with sock {}", sock, t);
+						clientResponse.pipe().endOnComplete(false).to(resp, ar -> {
+							if (ar.failed()) {
+								logger.error("Resp error with sock {}", sock, ar.cause());
+							}
 							ret.complete(null);
 						});
-						Pump pump = Pump.pump(clientResponse, resp);
-						clientResponse.endHandler(v -> ret.complete(null));
-						pump.start();
 					}).setTimeout(1000).exceptionHandler(t -> {
 						logger.error("Req error with sock {}", sock, t);
 						ret.complete(null);

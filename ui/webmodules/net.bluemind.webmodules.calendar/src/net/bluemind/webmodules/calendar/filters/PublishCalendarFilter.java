@@ -29,7 +29,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.calendar.api.IPublishCalendarAsync;
 import net.bluemind.core.api.AsyncHandler;
@@ -92,10 +91,8 @@ public class PublishCalendarFilter implements IWebFilter, NeedVertx {
 				resp.headers().set("Content-Type", "text/calendar;charset=UTF-8");
 				resp.headers().set("Content-Disposition", "attachment; filename=\"calendar.ics\"");
 				ReadStream<Buffer> read = VertxStream.read(value);
-				Pump pump = Pump.pump(read, resp);
 				resp.setChunked(true);
-				pump.start();
-				read.endHandler(v -> resp.end());
+				read.pipeTo(resp);
 			}
 
 			@Override

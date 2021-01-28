@@ -11,7 +11,6 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetSocket;
-import io.vertx.core.streams.Pump;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.webmodule.devmodefilter.DevModeState.ServerPort;
 
@@ -73,18 +72,18 @@ public class PortsForward extends AbstractVerticle {
 	}
 
 	protected void biPump(NetSocket a, NetSocket b) {
-		Pump p1 = Pump.pump(a, b);
-		Pump p2 = Pump.pump(b, a);
-		a.closeHandler(v -> b.close());
-		b.closeHandler(v -> a.close());
-		a.exceptionHandler(v -> a.close());
-		b.exceptionHandler(v -> b.close());
-		p1.start();
-		p2.start();
+		a.pipe().endOnComplete(false).to(b, h -> {
+			a.close();
+			b.close();
+		});
+		b.pipe().endOnComplete(false).to(a, h -> {
+			a.close();
+			b.close();
+		});
 	}
 
 	private void stopState() {
-		servers.forEach((s) -> s.close());
+		servers.forEach(NetServer::close);
 	}
 
 }

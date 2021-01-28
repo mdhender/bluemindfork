@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.core.api.Stream;
@@ -156,9 +155,13 @@ public class SyncStreamDownload {
 		CompletableFuture<Buffer> ret = new CompletableFuture<>();
 		TargetStream out = new TargetStream();
 		ReadStream<Buffer> toRead = VertxStream.read(s);
-		toRead.endHandler(v -> ret.complete(out.out));
-		Pump pump = Pump.pump(toRead, out);
-		pump.start();
+		toRead.pipeTo(out, ar -> {
+			if (ar.failed()) {
+				ret.completeExceptionally(ar.cause());
+			} else {
+				ret.complete(null);
+			}
+		});
 		toRead.resume();
 		return ret;
 	}
@@ -167,9 +170,13 @@ public class SyncStreamDownload {
 		CompletableFuture<Void> ret = new CompletableFuture<>();
 		OIOTargetStream out = new OIOTargetStream(target);
 		ReadStream<Buffer> toRead = VertxStream.read(s);
-		toRead.endHandler(v -> ret.complete(null));
-		Pump pump = Pump.pump(toRead, out);
-		pump.start();
+		toRead.pipeTo(out, ar -> {
+			if (ar.failed()) {
+				ret.completeExceptionally(ar.cause());
+			} else {
+				ret.complete(null);
+			}
+		});
 		toRead.resume();
 		return ret;
 	}

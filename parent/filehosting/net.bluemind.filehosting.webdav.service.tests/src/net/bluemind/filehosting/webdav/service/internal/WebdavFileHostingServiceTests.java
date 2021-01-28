@@ -36,7 +36,6 @@ import org.junit.Test;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
@@ -196,16 +195,7 @@ public class WebdavFileHostingServiceTests {
 		final ReadStream<Buffer> reader = VertxStream.read(stream);
 		final AccumulatorStream writer = new AccumulatorStream();
 
-		reader.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				latch.countDown();
-			}
-		});
-
-		Pump pump = Pump.pump(reader, writer);
-		pump.start();
+		reader.pipeTo(writer, h -> latch.countDown());
 		reader.resume();
 		try {
 			boolean ok = latch.await(10, TimeUnit.MINUTES);

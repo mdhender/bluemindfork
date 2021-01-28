@@ -26,7 +26,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpClientResponse;
-import io.vertx.core.streams.Pump;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.base.IRestCallHandler;
 import net.bluemind.core.rest.base.RestRequest;
@@ -93,8 +92,7 @@ public class VertxHttpCallHandler implements IRestCallHandler {
 			req.end(request.body);
 		} else if (request.bodyStream != null) {
 			req.setChunked(true);
-			request.bodyStream.endHandler(v -> req.end());
-			Pump.pump(request.bodyStream, req).start();
+			request.bodyStream.pipeTo(req);
 		} else {
 			req.end();
 		}

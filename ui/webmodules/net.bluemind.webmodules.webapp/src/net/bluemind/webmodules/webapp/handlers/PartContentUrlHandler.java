@@ -31,7 +31,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.mail.api.IMailboxItemsPromise;
 import net.bluemind.core.api.AsyncHandler;
@@ -129,9 +128,7 @@ public class PartContentUrlHandler implements Handler<HttpServerRequest>, NeedVe
 					resp.headers().set("Cache-Control", "max-age=15768000, private"); // 6 months
 
 					ReadStream<Buffer> read = VertxStream.read(partContent);
-					Pump pump = Pump.pump(read, resp);
-					pump.start();
-					read.endHandler(v -> resp.end());
+					read.pipeTo(resp);
 				});
 	}
 

@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.addressbook.api.IAddressBookUids;
@@ -341,11 +340,15 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 
 			}
 		};
-
-		Pump.pump(s, stream).start();
 		CompletableFuture<Void> v = new CompletableFuture<>();
-		s.endHandler(v::complete);
-		s.exceptionHandler(v::completeExceptionally);
+		s.pipeTo(stream, ar -> {
+			if (ar.succeeded()) {
+				v.complete(null);
+			} else {
+				v.completeExceptionally(ar.cause());
+			}
+		});
+
 		try {
 			v.get(1, TimeUnit.MINUTES);
 		} catch (Exception e) {
