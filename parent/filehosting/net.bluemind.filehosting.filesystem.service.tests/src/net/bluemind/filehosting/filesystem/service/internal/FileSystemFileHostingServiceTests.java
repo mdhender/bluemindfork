@@ -21,6 +21,7 @@ package net.bluemind.filehosting.filesystem.service.internal;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -321,9 +322,45 @@ public class FileSystemFileHostingServiceTests {
 		Stream retreived = service.get(path);
 		System.err.println("Got " + retreived);
 		CompletableFuture<Buffer> futBuf = GenericStream.asyncStreamToBuffer(retreived);
-		Buffer content = futBuf.get(40, TimeUnit.SECONDS);
-		assertEquals(tmpStuff.toFile().length(), content.length());
-		Files.delete(tmpStuff);
+		futBuf.whenComplete((v, ex) -> {
+			assertNull(ex);
+			assertEquals(tmpStuff.toFile().length(), v.length());
+			try {
+				Files.delete(tmpStuff);
+			} catch (IOException e) {
+			}
+		}).get(40, TimeUnit.SECONDS);
+		assertFalse(futBuf.isCompletedExceptionally());
+	}
+
+	@Test
+	public void testSlowGet() throws Exception {
+		System.err.println("testSlowGet starts....");
+		Path tmpStuff = Files.createTempFile("yeah", ".bin");
+		tmpStuff.toFile().deleteOnExit();
+		Random rd = ThreadLocalRandom.current();
+		byte[] holder = new byte[1024];
+		for (int i = 0; i < 100; i++) {
+			rd.nextBytes(holder);
+			Files.write(tmpStuff, holder, StandardOpenOption.APPEND);
+		}
+		AsyncFile stream = VertxPlatform.getVertx().fileSystem().openBlocking(tmpStuff.toFile().getAbsolutePath(),
+				new OpenOptions());
+		String path = "/test.txt";
+		long time = System.currentTimeMillis();
+		service.store(path, VertxStream.stream(stream));
+		System.out.println("took " + (System.currentTimeMillis() - time) + " ms to write " + tmpStuff.toFile().length()
+				+ " bytes");
+		System.err.println("Getting file " + path);
+		Stream retreived = service.get(path);
+		System.err.println("Got " + retreived);
+		CompletableFuture<Void> futBuf = GenericStream.slowRead(retreived);
+		futBuf.whenComplete((v, ex) -> {
+			try {
+				Files.delete(tmpStuff);
+			} catch (IOException e) {
+			}
+		}).get(40, TimeUnit.SECONDS);
 	}
 
 	@Test

@@ -178,6 +178,12 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 		return asyncStream(reader, writer).thenApply(v -> writer.buffer());
 	}
 
+	public static CompletableFuture<Void> slowRead(Stream stream) {
+		final ReadStream<Buffer> reader = VertxStream.read(stream);
+		final SlowWriteStream slow = new SlowWriteStream();
+		return asyncStream(reader, slow);
+	}
+
 	public static <T> void streamToFile(Stream stream, File file) {
 		streamToFile(stream, file, StandardOpenOption.CREATE_NEW);
 	}
