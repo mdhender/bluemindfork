@@ -93,6 +93,7 @@
     "mail.actions.folder.invalid.already_exist": "Der Ordnername ist bereits vergeben",
     "mail.actions.folder.invalid.character": "Folgendes Zeichen ist invalid : \"{character}\"",
     "mail.actions.folder.invalid.too_long": "Ordnername überschreitet die maximale Länge",
+    "mail.actions.folder.subfolder.forbidden": "Verbotene Unterordner",
     "mail.actions.followup": "Nachverfolgung",
     "mail.actions.mark_as_read": "als Gelesen markieren",
     "mail.actions.mark_as_unflagged": "Markierung löschen",

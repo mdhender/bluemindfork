@@ -10,8 +10,7 @@ import {
     RENAME_FOLDER,
     SET_UNREAD_COUNT
 } from "~mutations";
-import { FOLDER_BY_PATH } from "~getters";
-
+import { FOLDERS_BY_UPPERCASE_PATH } from "~getters";
 import { FolderAdaptor } from "./helpers/FolderAdaptor";
 import { create, rename } from "~model/folder";
 import { withAlert } from "../helpers/withAlert";
@@ -41,7 +40,7 @@ const createFolderHierarchy = async function ({ commit, getters, dispatch }, { n
         parent = await dispatch(CREATE_FOLDER_HIERARCHY, { name: hierarchy.join("/"), parent, mailbox });
     }
     const folder = create(undefined, name, parent, mailbox);
-    let created = getters[FOLDER_BY_PATH](folder.path);
+    let created = getters[FOLDERS_BY_UPPERCASE_PATH][folder.path.toUpperCase()];
     if (!created) {
         const item = FolderAdaptor.toMailboxFolder(folder, mailbox);
         const { uid, id: internalId } = await api.createNewFolder(mailbox, item);

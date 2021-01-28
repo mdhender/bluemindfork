@@ -93,6 +93,7 @@
     "mail.actions.folder.invalid.already_exist": "This folder name is already used",
     "mail.actions.folder.invalid.character": "This character is not valid : \"{character}\"",
     "mail.actions.folder.invalid.too_long": "Folder name is too long",
+    "mail.actions.folder.subfolder.forbidden": "Forbidden subfolders",
     "mail.actions.followup": "Follow-up",
     "mail.actions.mark_as_read": "Mark as read",
     "mail.actions.mark_as_unflagged": "Remove flag",

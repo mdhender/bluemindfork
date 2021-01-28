@@ -7,6 +7,7 @@ describe("Folder model functions", () => {
             const mailbox = { writable: true, root: "", remoteRef: {}, key: "mailbox-key", type: MailboxType.USER };
             expect(create("123", "name", null, mailbox)).toMatchInlineSnapshot(`
                 Object {
+                  "allowSubfolder": true,
                   "default": false,
                   "expanded": false,
                   "imapName": "name",
@@ -32,6 +33,7 @@ describe("Folder model functions", () => {
             expect(create("123", "name", { key: "0", path: "parent/folder", uid: "0" }, mailbox))
                 .toMatchInlineSnapshot(`
                 Object {
+                  "allowSubfolder": true,
                   "default": false,
                   "expanded": false,
                   "imapName": "name",
@@ -62,6 +64,7 @@ describe("Folder model functions", () => {
             };
             expect(create("123", "name", null, mailbox)).toMatchInlineSnapshot(`
                 Object {
+                  "allowSubfolder": false,
                   "default": true,
                   "expanded": false,
                   "imapName": "name",
@@ -93,6 +96,7 @@ describe("Folder model functions", () => {
             };
             expect(create("123", "name", null, mailbox)).toMatchInlineSnapshot(`
                 Object {
+                  "allowSubfolder": false,
                   "default": true,
                   "expanded": false,
                   "imapName": "name",
@@ -124,6 +128,7 @@ describe("Folder model functions", () => {
             expect(create("123", "name", { key: "0", path: "mailshare/folder", uid: "0" }, mailbox))
                 .toMatchInlineSnapshot(`
                 Object {
+                  "allowSubfolder": true,
                   "default": false,
                   "expanded": false,
                   "imapName": "name",

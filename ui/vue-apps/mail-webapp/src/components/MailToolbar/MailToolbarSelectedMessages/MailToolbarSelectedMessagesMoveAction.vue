@@ -33,7 +33,7 @@
                 <template #icon>
                     <mail-folder-icon no-text :shared="isFolderOfMailshare(item)" :folder="item" />
                 </template>
-                {{ item.path }}
+                {{ translatePath(item.path) }}
             </bm-dropdown-item-button>
         </bm-dropdown-autocomplete>
         <bm-dropdown-divider />
@@ -75,11 +75,11 @@ import {
 } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
-import { FolderAdaptor } from "../../../store/folders/helpers/FolderAdaptor";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailFolderInput from "../../MailFolderInput";
 import { MailboxType } from "~model/mailbox";
-import { MY_INBOX, MY_TRASH, FOLDER_BY_PATH } from "~getters";
+import { isNameValid, translatePath } from "~model/folder";
+import { MY_INBOX, MY_TRASH, FOLDERS_BY_UPPERCASE_PATH } from "~getters";
 import { MoveMixin } from "~mixins";
 
 export default {
@@ -106,12 +106,12 @@ export default {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail-webapp", ["nextMessageKey"]),
         ...mapState("mail", ["activeFolder", "folders", "mailboxes", "messages", "selection"]),
-        ...mapGetters("mail", { MY_TRASH, MY_INBOX, FOLDER_BY_PATH }),
+        ...mapGetters("mail", { MY_TRASH, MY_INBOX, FOLDERS_BY_UPPERCASE_PATH }),
         displayCreateFolderBtnFromPattern() {
             let pattern = this.pattern;
             if (pattern !== "") {
                 pattern = pattern.replace(/\/+/, "/").replace(/^\/?(.*)\/?$/g, "$1");
-                return pattern && FolderAdaptor.isNameValid(pattern, pattern, this.FOLDER_BY_PATH) === true;
+                return pattern && isNameValid(pattern, pattern, this.FOLDERS_BY_UPPERCASE_PATH) === true;
             }
             return false;
         },
@@ -121,7 +121,8 @@ export default {
                     folder =>
                         folder.key !== this.activeFolder &&
                         folder.writable &&
-                        folder.path.toLowerCase().includes(this.pattern.toLowerCase())
+                        (folder.path.toLowerCase().includes(this.pattern.toLowerCase()) ||
+                            folder.name.toLowerCase().includes(this.pattern.toLowerCase()))
                 );
                 if (filtered) {
                     return filtered.slice(0, this.maxFolders);
@@ -149,6 +150,12 @@ export default {
         },
         isFolderOfMailshare(folder) {
             return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
+        },
+        translatePath(path) {
+            return translatePath(path);
+        },
+        mailbox(folder) {
+            return this.mailboxes[folder.mailboxRef.key];
         }
     }
 };

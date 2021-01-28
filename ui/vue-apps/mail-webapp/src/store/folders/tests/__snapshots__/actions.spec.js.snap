@@ -3,6 +3,7 @@
 exports[`actions CREATE_FOLDER Create folder 1`] = `
 Object {
   "bar-baz": Object {
+    "allowSubfolder": undefined,
     "default": true,
     "expanded": false,
     "imapName": "bar",
@@ -27,6 +28,7 @@ Object {
 exports[`actions FETCH_FOLDERS Fetch folders 1`] = `
 Object {
   "050ca560-37ae-458a-bd52-c40fedf4068d": Object {
+    "allowSubfolder": undefined,
     "default": false,
     "expanded": false,
     "imapName": "2017",
@@ -46,6 +48,7 @@ Object {
     "writable": undefined,
   },
   "135adc10-db84-440e-aebc-e10d185fa227": Object {
+    "allowSubfolder": undefined,
     "default": false,
     "expanded": false,
     "imapName": "Archives",
@@ -65,6 +68,7 @@ Object {
     "writable": undefined,
   },
   "65b51768-8544-4bb3-9950-c6f4fc32a52e": Object {
+    "allowSubfolder": undefined,
     "default": false,
     "expanded": false,
     "imapName": "Clients",
@@ -84,6 +88,7 @@ Object {
     "writable": undefined,
   },
   "67201a3a-91cb-4198-a153-85a8174be9e6": Object {
+    "allowSubfolder": undefined,
     "default": true,
     "expanded": false,
     "imapName": "Drafts",
@@ -92,7 +97,7 @@ Object {
       "key": undefined,
       "uid": undefined,
     },
-    "name": "Drafts",
+    "name": "",
     "parent": null,
     "path": "Drafts",
     "remoteRef": Object {
@@ -103,6 +108,7 @@ Object {
     "writable": undefined,
   },
   "7998fa63-3854-4ecb-8558-9596065c0128": Object {
+    "allowSubfolder": undefined,
     "default": true,
     "expanded": false,
     "imapName": "Sent",
@@ -111,7 +117,7 @@ Object {
       "key": undefined,
       "uid": undefined,
     },
-    "name": "Sent",
+    "name": "",
     "parent": null,
     "path": "Sent",
     "remoteRef": Object {
@@ -122,6 +128,7 @@ Object {
     "writable": undefined,
   },
   "98a9383e-5156-44eb-936a-e6b0825b0809": Object {
+    "allowSubfolder": undefined,
     "default": true,
     "expanded": false,
     "imapName": "Trash",
@@ -130,7 +137,7 @@ Object {
       "key": undefined,
       "uid": undefined,
     },
-    "name": "Trash",
+    "name": "",
     "parent": null,
     "path": "Trash",
     "remoteRef": Object {
@@ -141,6 +148,7 @@ Object {
     "writable": undefined,
   },
   "eb4cc101-60bf-48ac-91ce-7698bd29ba73": Object {
+    "allowSubfolder": undefined,
     "default": true,
     "expanded": false,
     "imapName": "Outbox",
@@ -149,7 +157,7 @@ Object {
       "key": undefined,
       "uid": undefined,
     },
-    "name": "Outbox",
+    "name": "",
     "parent": null,
     "path": "Outbox",
     "remoteRef": Object {
@@ -160,6 +168,7 @@ Object {
     "writable": undefined,
   },
   "f1c3f42f-551b-446d-9682-cfe0574b3205": Object {
+    "allowSubfolder": undefined,
     "default": true,
     "expanded": false,
     "imapName": "INBOX",
@@ -168,7 +177,7 @@ Object {
       "key": undefined,
       "uid": undefined,
     },
-    "name": "INBOX",
+    "name": "",
     "parent": null,
     "path": "INBOX",
     "remoteRef": Object {
@@ -179,6 +188,7 @@ Object {
     "writable": undefined,
   },
   "fd965e68-c276-4db0-a298-01a92d3c9822": Object {
+    "allowSubfolder": undefined,
     "default": true,
     "expanded": false,
     "imapName": "Junk",
@@ -187,7 +197,7 @@ Object {
       "key": undefined,
       "uid": undefined,
     },
-    "name": "Junk",
+    "name": "",
     "parent": null,
     "path": "Junk",
     "remoteRef": Object {

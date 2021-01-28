@@ -1,7 +1,7 @@
-import injector from "@bluemind/inject";
-import { DEFAULT_FOLDERS } from "./DefaultFolders";
+import { allowSubfolder, isDefault, translatePath } from "~model/folder";
 
 function fromMailboxFolder(remotefolder, mailbox) {
+    const parent = remotefolder.value.parentUid;
     return {
         key: remotefolder.uid,
         remoteRef: {
@@ -12,14 +12,15 @@ function fromMailboxFolder(remotefolder, mailbox) {
             uid: mailbox.remoteRef.uid,
             key: mailbox.key
         },
-        parent: remotefolder.value.parentUid,
-        name: isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox)
-            ? translateDefaults(remotefolder.value.name)
+        parent,
+        name: isDefault(!parent, remotefolder.value.name, mailbox)
+            ? translatePath(remotefolder.value.name)
             : remotefolder.value.name,
         imapName: remotefolder.value.name,
         path: computePathFromRemote(remotefolder, mailbox),
         writable: mailbox.writable,
-        default: isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox),
+        allowSubfolder: allowSubfolder(mailbox.writable, !parent, remotefolder.value.name, mailbox),
+        default: isDefault(!parent, remotefolder.value.name, mailbox),
         expanded: false,
         unread: 0
     };
@@ -37,45 +38,6 @@ function toMailboxFolder(localfolder, mailbox) {
     };
 }
 
-function isMyMailboxDefaultFolder(folder) {
-    return !folder.parent && DEFAULT_FOLDERS.includes(folder.imapName);
-}
-
-function isMailshareRoot(folder, mailbox) {
-    return mailbox.type === "mailshares" && !folder.parent;
-}
-
-function rename(folder, name) {
-    const path = folder.path.replace(new RegExp(folder.name + "$"), name);
-    return { ...folder, name, path };
-}
-
-function isDefault(isRootFolder, name, mailbox) {
-    return isRootFolder && (mailbox.type !== "users" || DEFAULT_FOLDERS.includes(name));
-}
-
-// return true or an explanation about why it's not valid
-function isNameValid(name, path, FOLDER_BY_PATH) {
-    const vueI18n = injector.getProvider("i18n").get();
-
-    if (path.length > FOLDER_PATH_MAX_LENGTH) {
-        return vueI18n.t("mail.actions.folder.invalid.too_long");
-    }
-
-    const checkValidity = isFolderNameValid(name.toLowerCase());
-    if (checkValidity !== true) {
-        return vueI18n.t("mail.actions.folder.invalid.character", {
-            character: checkValidity
-        });
-    }
-
-    if (FOLDER_BY_PATH(path) || DEFAULT_FOLDERS.includes(path)) {
-        return vueI18n.t("mail.actions.folder.invalid.already_exist");
-    }
-
-    return true;
-}
-
 function toRef(payload) {
     if (typeof payload === "string") {
         const uid = payload;
@@ -86,42 +48,14 @@ function toRef(payload) {
     }
 }
 
-const FOLDER_PATH_MAX_LENGTH = 250;
-
-const FORBIDDEN_FOLDER_CHARACTERS = '/@%*"`;^<>{}|';
-
-/**
- * return invalid character if name is invalid
- */
-function isFolderNameValid(name) {
-    for (let i = 0; i < name.length; i++) {
-        if (FORBIDDEN_FOLDER_CHARACTERS.includes(name.charAt(i))) {
-            return name.charAt(i);
-        }
-    }
-    return true;
-}
-
 function computePathFromRemote(remotefolder, mailbox) {
-    const folderPath = FolderAdaptor.isDefault(!remotefolder.parentUid, remotefolder.value.name, mailbox)
-        ? translateDefaults(remotefolder.value.name)
-        : remotefolder.value.fullName;
-
     if (mailbox.type === "mailshares") {
         if (!remotefolder.value.parentUid) {
             return mailbox.root;
         }
-        return path(mailbox.root, folderPath);
+        return path(mailbox.root, remotefolder.value.fullName);
     }
-    return folderPath;
-}
-
-function translateDefaults(name) {
-    if (DEFAULT_FOLDERS.includes(name)) {
-        const vueI18n = injector.getProvider("i18n").get();
-        return vueI18n.t("common.folder." + name.toLowerCase()) || name;
-    }
-    return name;
+    return remotefolder.value.fullName;
 }
 
 function path() {
@@ -131,10 +65,5 @@ function path() {
 export const FolderAdaptor = {
     fromMailboxFolder,
     toMailboxFolder,
-    isMyMailboxDefaultFolder,
-    isMailshareRoot,
-    rename,
-    isDefault,
-    isNameValid,
     toRef
 };

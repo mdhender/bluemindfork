@@ -1,4 +1,5 @@
 import { MailboxType } from "./mailbox";
+import injector from "@bluemind/inject";
 
 export function create(key, name, parent, mailbox) {
     return {
@@ -16,7 +17,8 @@ export function create(key, name, parent, mailbox) {
         imapName: name,
         path: path(mailbox, name, parent),
         writable: mailbox.writable,
-        default: isDefault(parent, name, mailbox),
+        allowSubfolder: allowSubfolder(mailbox.writable, !parent, name, mailbox),
+        default: isDefault(!parent, name, mailbox),
         expanded: false,
         unread: 0
     };
@@ -46,6 +48,110 @@ function path(mailbox, name, parent) {
     }
 }
 
-function isDefault(parent, name, mailbox) {
-    return !parent && (mailbox.type !== MailboxType.USER || !!DEFAULT_FOLDERS[name]);
+export function isDefault(isRoot, name, mailbox) {
+    return isRoot && (mailbox.type !== MailboxType.USER || !!DEFAULT_FOLDERS[name.toUpperCase()]);
+}
+
+export function isMailshareRoot(folder, mailbox) {
+    return mailbox.type === MailboxType.MAILSHARE && !folder.parent;
+}
+
+export function allowSubfolder(writable, isRoot, name, mailbox) {
+    return (
+        writable && (!isDefault(isRoot, name, mailbox) || DEFAULT_FOLDERS.INBOX.toUpperCase() === name.toUpperCase())
+    );
+}
+
+export function translatePath(path) {
+    const splitPath = path.split("/");
+    const rootFolder = splitPath[0];
+    const defaultFolder = DEFAULT_FOLDERS[rootFolder.toUpperCase()];
+
+    if (defaultFolder) {
+        splitPath.splice(0, 1, translateDefaultName(defaultFolder));
+    }
+
+    return splitPath.join("/");
+}
+
+function translateDefaultName(name) {
+    const vueI18n = injector.getProvider("i18n").get();
+    return vueI18n.t("common.folder." + name.toLowerCase());
+}
+
+export function normalize(folderPath, foldersByUpperCasePath) {
+    let fixedPath = "";
+    folderPath.split("/").forEach(pathPart => {
+        fixedPath += pathPart;
+        fixedPath = fixExistingFolderName(fixedPath, foldersByUpperCasePath);
+        fixedPath += "/";
+    });
+    return removeTrailingSlashes(fixedPath);
+}
+
+function fixExistingFolderName(folderName, foldersByUpperCasePath) {
+    let folder = foldersByUpperCasePath[folderName.toUpperCase()];
+    if (!folder) {
+        const defaultFolder = Object.values(DEFAULT_FOLDERS).find(
+            f => translateDefaultName(f).toUpperCase() === folderName.toUpperCase()
+        );
+        folder = defaultFolder ? { path: defaultFolder } : null;
+    }
+    return folder ? folder.path : folderName;
+}
+
+function removeTrailingSlashes(path) {
+    return path.replace(/\/+$/, "");
+}
+
+const FOLDER_PATH_MAX_LENGTH = 250;
+
+/** @return true or an explanation about why it's not valid */
+export function isNameValid(name, path, foldersByUpperCasePath) {
+    const vueI18n = injector.getProvider("i18n").get();
+
+    path = removeTrailingSlashes(path);
+
+    if (path.length > FOLDER_PATH_MAX_LENGTH) {
+        return vueI18n.t("mail.actions.folder.invalid.too_long");
+    }
+
+    const checkValidity = isFolderNameValid(name.toLowerCase());
+    if (checkValidity !== true) {
+        return vueI18n.t("mail.actions.folder.invalid.character", {
+            character: checkValidity
+        });
+    }
+
+    const normalizedPath = normalize(path, foldersByUpperCasePath);
+    if (foldersByUpperCasePath[normalizedPath.toUpperCase()]) {
+        return vueI18n.t("mail.actions.folder.invalid.already_exist");
+    }
+
+    if (!ascendantsAllowSubfolder(normalizedPath, foldersByUpperCasePath)) {
+        return vueI18n.t("mail.actions.folder.subfolder.forbidden");
+    }
+
+    return true;
+}
+
+function ascendantsAllowSubfolder(normalizedPath, foldersByUpperCasePath) {
+    const parentPath = normalizedPath.substring(0, normalizedPath.lastIndexOf("/"));
+    const parentFolder = foldersByUpperCasePath[parentPath.toUpperCase()];
+    return (
+        !parentPath ||
+        (ascendantsAllowSubfolder(parentPath, foldersByUpperCasePath) && (!parentFolder || parentFolder.allowSubfolder))
+    );
+}
+
+const FORBIDDEN_FOLDER_CHARACTERS = '@%*"`;^<>{}|';
+
+/** @return invalid character if name is invalid */
+function isFolderNameValid(name) {
+    for (let i = 0; i < name.length; i++) {
+        if (FORBIDDEN_FOLDER_CHARACTERS.includes(name.charAt(i))) {
+            return name.charAt(i);
+        }
+    }
+    return true;
 }

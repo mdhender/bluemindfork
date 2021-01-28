@@ -20,7 +20,8 @@ export const MAILSHARE_KEYS = "MAILSHARE_KEYS";
 export const MAILSHARES = "MAILSHARES";
 
 // folders
-export const FOLDER_BY_PATH = "FOLDER_BY_PATH";
+export const IS_DESCENDANT = "IS_DESCENDANT";
+export const FOLDERS_BY_UPPERCASE_PATH = "FOLDERS_BY_UPPERCASE_PATH";
 export const FOLDER_HAS_CHILDREN = "FOLDER_HAS_CHILDREN";
 
 // messages

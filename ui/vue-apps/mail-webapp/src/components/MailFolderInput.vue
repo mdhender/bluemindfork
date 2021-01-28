@@ -28,8 +28,8 @@
 <script>
 import { mapGetters } from "vuex";
 import { BmFormInput, BmIcon, BmNotice } from "@bluemind/styleguide";
-import { FolderAdaptor } from "../store/folders/helpers/FolderAdaptor";
-import { FOLDER_BY_PATH } from "~getters";
+import { isNameValid, normalize } from "~model/folder";
+import { FOLDERS_BY_UPPERCASE_PATH } from "~getters";
 
 export default {
     name: "MailFolderInput",
@@ -62,12 +62,12 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { FOLDER_BY_PATH }),
+        ...mapGetters("mail", { FOLDERS_BY_UPPERCASE_PATH }),
         isNewFolderNameValid() {
             if ((this.folder && this.folder.name === this.newFolderName) || this.newFolderName === "") {
                 return true;
             }
-            return FolderAdaptor.isNameValid(this.newFolderName, this.path, this.FOLDER_BY_PATH);
+            return isNameValid(this.newFolderName, this.path, this.FOLDERS_BY_UPPERCASE_PATH);
         },
         path() {
             let path = "";
@@ -117,7 +117,8 @@ export default {
                 if (this.folder && this.folder.name === this.newFolderName) {
                     return;
                 }
-                this.$emit("submit", this.newFolderName);
+                const normalizedName = normalize(this.newFolderName, this.FOLDERS_BY_UPPERCASE_PATH);
+                this.$emit("submit", normalizedName);
                 this.closeInput();
             }
         },

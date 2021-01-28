@@ -93,6 +93,7 @@
     "mail.actions.folder.invalid.already_exist": "Ce nom de dossier est déjà utilisé",
     "mail.actions.folder.invalid.character": "Ce caractère n'est pas valide : \"{character}\"",
     "mail.actions.folder.invalid.too_long": "Nom de dossier trop long",
+    "mail.actions.folder.subfolder.forbidden": "Sous-dossiers interdits",
     "mail.actions.followup": "Assurer un suivi",
     "mail.actions.mark_as_read": "Marquer comme lu | Marquer comme lus",
     "mail.actions.mark_as_unflagged": "Ne plus suivre",

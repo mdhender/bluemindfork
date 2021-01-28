@@ -20,7 +20,7 @@ export default {
     mixins: [AlertMixin],
     computed: {
         link() {
-            return { name: "v:mail:home", params: { folder: this.alert.result.path } };
+            return { name: "v:mail:home", params: { folder: this.alert.payload.folder.path } };
         },
         shared() {
             return this.alert.payload.mailbox.type === MailboxType.MAILSHARE;

@@ -1,8 +1,8 @@
-import { FOLDER_BY_PATH, FOLDER_HAS_CHILDREN } from "~getters";
+import { FOLDERS_BY_UPPERCASE_PATH, FOLDER_HAS_CHILDREN } from "~getters";
 import getters from "../getters";
 
 describe("getters", () => {
-    test("FOLDER_BY_PATH", () => {
+    test("FOLDERS_BY_UPPERCASE_PATH", () => {
         const folder = {
             name: "foo",
             path: "foo",
@@ -11,8 +11,8 @@ describe("getters", () => {
         const state = {
             "123": folder
         };
-        expect(getters[FOLDER_BY_PATH](state)("foo")).toEqual(folder);
-        expect(getters[FOLDER_BY_PATH](state)("whatever")).toEqual(undefined);
+        expect(getters[FOLDERS_BY_UPPERCASE_PATH](state)["foo".toUpperCase()]).toEqual(folder);
+        expect(getters[FOLDERS_BY_UPPERCASE_PATH](state)["whatever".toUpperCase()]).toEqual(undefined);
     });
 
     test("FOLDER_HAS_CHILDREN", () => {

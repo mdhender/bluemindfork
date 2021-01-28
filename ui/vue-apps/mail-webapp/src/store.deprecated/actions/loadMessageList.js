@@ -1,7 +1,7 @@
 import ContainerObserver from "@bluemind/containerobserver";
 import SearchHelper from "../SearchHelper";
 import router from "@bluemind/router";
-import { FOLDER_BY_PATH, MESSAGE_LIST_IS_SEARCH_MODE, MY_INBOX } from "~getters";
+import { FOLDERS_BY_UPPERCASE_PATH, MESSAGE_LIST_IS_SEARCH_MODE, MY_INBOX } from "~getters";
 import {
     CLEAR_MESSAGE_LIST,
     SET_MESSAGE_LIST_FILTER,
@@ -68,7 +68,7 @@ function locateFolder(local, mailshare, rootState, rootGetters) {
         if (rootState.mail.folders[keyOrPath]) {
             folder = rootState.mail.folders[keyOrPath];
         } else {
-            folder = rootGetters["mail/" + FOLDER_BY_PATH](keyOrPath);
+            folder = rootGetters["mail/" + FOLDERS_BY_UPPERCASE_PATH][keyOrPath.toUpperCase()];
         }
         if (!folder) {
             router.push({ name: "mail:root" });

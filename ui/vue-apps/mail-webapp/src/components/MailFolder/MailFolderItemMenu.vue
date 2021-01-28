@@ -1,10 +1,6 @@
 <template>
     <bm-contextual-menu class="mail-folder-item-menu" boundary="viewport">
-        <bm-dropdown-item-button
-            :disabled="isDefaultFolder || isReadOnly"
-            icon="plus"
-            @click.stop.prevent="createSubFolder"
-        >
+        <bm-dropdown-item-button :disabled="!folder.allowSubfolder" icon="plus" @click.stop.prevent="createSubFolder">
             {{ $t("mail.folder.create.subfolder") }}
         </bm-dropdown-item-button>
         <bm-dropdown-item-button
@@ -38,10 +34,9 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
-import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
-import { create } from "~model/folder";
+import { create, isDefault, isMailshareRoot } from "~model/folder";
 import { SET_FOLDER_EXPANDED, ADD_FOLDER, TOGGLE_EDIT_FOLDER } from "~mutations";
-import { FOLDER_HAS_CHILDREN } from "~getters";
+import { IS_DESCENDANT, FOLDER_HAS_CHILDREN } from "~getters";
 import { EMPTY_FOLDER, MARK_FOLDER_AS_READ, REMOVE_FOLDER } from "~actions";
 
 export default {
@@ -57,13 +52,13 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", { FOLDER_HAS_CHILDREN }),
+        ...mapGetters("mail", { IS_DESCENDANT, FOLDER_HAS_CHILDREN }),
         ...mapState("mail", ["mailboxes", "folders", "activeFolder"]),
         isMailshareRoot() {
-            return FolderAdaptor.isMailshareRoot(this.folder, this.mailbox);
+            return isMailshareRoot(this.folder, this.mailbox);
         },
         isDefaultFolder() {
-            return FolderAdaptor.isMyMailboxDefaultFolder(this.folder);
+            return isDefault(!this.folder.parent, this.folder.imapName, this.mailbox);
         },
         isReadOnly() {
             return !this.folder.writable;
@@ -89,11 +84,10 @@ export default {
                 autoFocusButton: "ok"
             });
             if (confirm) {
-                const keyBeingRemoved = this.folder.key;
-                this.REMOVE_FOLDER({ folder: this.folder, mailbox: this.mailbox });
-                if (this.activeFolder === keyBeingRemoved) {
+                if (this.IS_DESCENDANT(this.folder.key, this.activeFolder)) {
                     this.$router.push({ name: "mail:home" });
                 }
+                this.REMOVE_FOLDER({ folder: this.folder, mailbox: this.mailbox });
             }
         },
         async createSubFolder() {
