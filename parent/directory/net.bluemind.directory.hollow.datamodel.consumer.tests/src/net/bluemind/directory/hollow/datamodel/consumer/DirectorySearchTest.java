@@ -129,6 +129,13 @@ public class DirectorySearchTest {
 	}
 
 	@Test
+	public void testSearchByEmptyPrefix() throws Exception {
+		Optional<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> byEmail = defaultSearch
+				.byEmail("");
+		assertFalse(byEmail.isPresent());
+	}
+
+	@Test
 	public void testSearchByKind() throws Exception {
 		Collection<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> byKind = defaultSearch
 				.byKind("user");

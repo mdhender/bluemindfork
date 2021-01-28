@@ -37,6 +37,7 @@ import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.netflix.hollow.api.consumer.HollowConsumer;
 import com.netflix.hollow.api.consumer.HollowConsumer.AnnouncementWatcher;
 import com.netflix.hollow.api.consumer.HollowConsumer.ObjectLongevityConfig;
@@ -225,6 +226,9 @@ public class DirectoryDeserializer {
 	}
 
 	private List<AddressBookRecord> byPrefix(HollowPrefixIndex index, String value) {
+		if (Strings.isNullOrEmpty(value)) {
+			return Collections.emptyList();
+		}
 		List<AddressBookRecord> results = new ArrayList<>();
 		HollowOrdinalIterator it = index.findKeysWithPrefix(value);
 		OfflineDirectoryAPI api = (OfflineDirectoryAPI) consumer.getAPI();
