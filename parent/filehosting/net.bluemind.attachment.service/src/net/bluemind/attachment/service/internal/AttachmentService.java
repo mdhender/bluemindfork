@@ -18,7 +18,10 @@
  */
 package net.bluemind.attachment.service.internal;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -27,6 +30,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.hash.Hashing;
+import com.google.common.io.Files;
+
+import io.vertx.core.file.AsyncFile;
+import io.vertx.core.file.OpenOptions;
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.attachment.api.Configuration;
 import net.bluemind.attachment.api.IAttachment;
@@ -36,9 +44,12 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.rest.base.GenericStream;
+import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.filehosting.api.FileHostingPublicLink;
 import net.bluemind.filehosting.api.IFileHosting;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.api.GlobalSettingsKeys;
 
 public class AttachmentService implements IAttachment {
@@ -60,6 +71,40 @@ public class AttachmentService implements IAttachment {
 	public AttachedFile share(String name, Stream document) {
 		String path = findName(service, name);
 		service.store(path, document);
+
+		return finishSharing(path);
+	}
+
+	@Override
+	public AttachedFile shareDedup(String extension, Stream document) {
+		String ext = extension;
+		if (ext.startsWith(".")) {
+			ext = ext.substring(1);
+		}
+		File tmp = null;
+		try {
+			tmp = File.createTempFile("dedup", "." + ext);
+			GenericStream.streamToFile(document, tmp, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+			String hash = Files.asByteSource(tmp).hash(Hashing.goodFastHash(64)).toString();
+			String path = FOLDER + hash + "." + ext;
+			if (!service.exists(path)) {
+				AsyncFile readStream = VertxPlatform.getVertx().fileSystem().openBlocking(tmp.getAbsolutePath(),
+						new OpenOptions().setRead(true));
+				Stream asStream = VertxStream.stream(readStream);
+				service.store(path, asStream);
+			}
+
+			return finishSharing(path);
+		} catch (IOException e) {
+			throw new ServerFault(e);
+		} finally {
+			if (tmp != null) {
+				tmp.delete();// NOSONAR
+			}
+		}
+	}
+
+	private AttachedFile finishSharing(String path) {
 		Calendar expiration = getDefaultExpiration();
 
 		FileHostingPublicLink publicLink = service.share(path, -1,

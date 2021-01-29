@@ -141,6 +141,21 @@ public class AttachmentServiceTests {
 	}
 
 	@Test
+	public void testDetachingDedup() throws Exception {
+		String testString = "test";
+
+		AttachedFile file = service.shareDedup("txt", bytesToStream(testString.getBytes()));
+		AttachedFile another = service.shareDedup("txt", bytesToStream(testString.getBytes()));
+		System.err.println("file " + file.publicUrl + " " + file.name);
+		System.err.println("anot " + another.publicUrl + " " + another.name);
+
+		Assert.assertNotNull(file.publicUrl);
+		Assert.assertNotEquals(file.publicUrl, another.publicUrl);
+		Assert.assertEquals(file.name, another.name);
+		Assert.assertTrue(fileExists(file.name));
+	}
+
+	@Test
 	public void testDetachingMultipleFilesWithSameFilename() throws Exception {
 		String name = "test.txt";
 		String testString = "test";

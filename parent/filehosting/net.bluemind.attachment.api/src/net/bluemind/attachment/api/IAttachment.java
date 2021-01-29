@@ -52,6 +52,20 @@ public interface IAttachment {
 	public AttachedFile share(@PathParam(value = "name") String name, Stream document) throws ServerFault;
 
 	/**
+	 * Share a mail attachment. If a document with the same hash already exists, it
+	 * will not be uploaded.
+	 * 
+	 * @param extension the extension to use for the file (eg. 'png')
+	 * @param document  {@link net.bluemind.core.api.Stream} of the file data
+	 * @return {@link AttachedFile} containg informations about the shared file
+	 * @throws ServerFault common error object
+	 */
+	@PUT
+	@Path("{extension}/share_dedup")
+	public AttachedFile shareDedup(@PathParam(value = "extension") String extension, Stream document)
+			throws ServerFault;
+
+	/**
 	 * Deactivate a link to a shared file
 	 * 
 	 * @param url Link to the shared file

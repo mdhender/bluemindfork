@@ -13,4 +13,5 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.filehosting.filesystem.sqlschema;bundle-version="4.1.0",
  slf4j.api,
  net.bluemind.system.api,
- net.bluemind.domain.api
+ net.bluemind.domain.api,
+ com.google.guava

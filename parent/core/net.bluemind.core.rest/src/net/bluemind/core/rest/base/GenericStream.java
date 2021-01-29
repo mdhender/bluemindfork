@@ -179,8 +179,12 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 	}
 
 	public static <T> void streamToFile(Stream stream, File file) {
+		streamToFile(stream, file, StandardOpenOption.CREATE_NEW);
+	}
+
+	public static <T> void streamToFile(Stream stream, File file, StandardOpenOption... opts) {
 		final ReadStream<Buffer> reader = VertxStream.read(stream);
-		try (FileWriterStream writer = new FileWriterStream(file)) {
+		try (FileWriterStream writer = new FileWriterStream(file, opts)) {
 			stream(reader, writer);
 		}
 	}
@@ -279,9 +283,9 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 		private OutputStream out;
 		private Logger logger = LoggerFactory.getLogger(FileWriterStream.class);
 
-		public FileWriterStream(File file) {
+		public FileWriterStream(File file, StandardOpenOption... opts) {
 			try {
-				out = Files.newOutputStream(file.toPath(), StandardOpenOption.CREATE_NEW);
+				out = Files.newOutputStream(file.toPath(), opts);
 			} catch (IOException e) {
 				logger.warn("Cannot open new file {} for writing", file.getAbsolutePath(), e);
 			}
