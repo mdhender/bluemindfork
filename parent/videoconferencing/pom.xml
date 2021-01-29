@@ -10,6 +10,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.videoconferencing</module>
+		<module>net.bluemind.videoconferencing.tests</module>
 	</modules>
 
 </project>

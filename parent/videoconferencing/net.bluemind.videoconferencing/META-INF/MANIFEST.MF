@@ -6,4 +6,12 @@ Bundle-Version: 4.1.0.qualifier
 Automatic-Module-Name: net.bluemind.videoconferencing
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.calendar.api,
- net.bluemind.core.commons
+ net.bluemind.core.commons,
+ org.eclipse.osgi,
+ net.bluemind.eclipse.common,
+ net.bluemind.domain.hook,
+ net.bluemind.core.rest,
+ slf4j.api;bundle-version="1.7.30",
+ net.bluemind.resource.api,
+ net.bluemind.core.sanitizer
+Export-Package: net.bluemind.videoconferencing.api

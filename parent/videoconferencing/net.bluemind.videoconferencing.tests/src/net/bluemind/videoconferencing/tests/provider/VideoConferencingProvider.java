@@ -15,18 +15,33 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.videoconferencing.api;
+package net.bluemind.videoconferencing.tests.provider;
 
 import net.bluemind.icalendar.api.ICalendarElement;
+import net.bluemind.videoconferencing.api.IVideoConferencing;
 
-public interface IVideoConferencing {
+public class VideoConferencingProvider implements IVideoConferencing {
 
-	public String id();
+	@Override
+	public String id() {
+		return "this-is-video-conferencing";
+	}
 
-	public String name();
+	@Override
+	public String name() {
+		return "Video Conferenring";
+	}
 
-	public ICalendarElement add(ICalendarElement vevent);
+	@Override
+	public ICalendarElement add(ICalendarElement vevent) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-	public ICalendarElement remove(ICalendarElement vevent);
+	@Override
+	public ICalendarElement remove(ICalendarElement vevent) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

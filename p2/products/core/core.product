@@ -405,6 +405,7 @@
       <plugin id="net.bluemind.user.sqlschema"/>
       <plugin id="net.bluemind.utils"/>
       <plugin id="net.bluemind.vertx.core.patch" fragment="true"/>
+      <plugin id="net.bluemind.videoconferencing"/>
       <plugin id="net.bluemind.webmail.sqlschema"/>
       <plugin id="net.bluemind.xivo.client"/>
       <plugin id="net.bluemind.xivo.common"/>
