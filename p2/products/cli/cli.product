@@ -33,6 +33,7 @@
       <plugin id="com.fasterxml.jackson.core.jackson-core"/>
       <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
       <plugin id="com.fasterxml.jackson.module.jackson-module-afterburner"/>
+      <plugin id="com.github.ben-manes.caffeine"/>
       <plugin id="com.github.freva.ascii-table"/>
       <plugin id="com.github.javafaker"/>
       <plugin id="com.github.mifmif.generex"/>
@@ -63,7 +64,6 @@
       <plugin id="net.bluemind.backend.cyrus.partitions"/>
       <plugin id="net.bluemind.backend.mail.api"/>
       <plugin id="net.bluemind.backend.mail.replica.api"/>
-      <plugin id="net.bluemind.mailindex.schema"/>
       <plugin id="net.bluemind.calendar.api"/>
       <plugin id="net.bluemind.cli.adm"/>
       <plugin id="net.bluemind.cli.calendar"/>
@@ -85,8 +85,8 @@
       <plugin id="net.bluemind.cli.metrics"/>
       <plugin id="net.bluemind.cli.node"/>
       <plugin id="net.bluemind.cli.sds"/>
-      <plugin id="net.bluemind.cli.sysconf"/>
       <plugin id="net.bluemind.cli.server"/>
+      <plugin id="net.bluemind.cli.sysconf"/>
       <plugin id="net.bluemind.cli.todolist"/>
       <plugin id="net.bluemind.cli.user"/>
       <plugin id="net.bluemind.cli.utils"/>
@@ -131,6 +131,7 @@
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.mailbox.api"/>
       <plugin id="net.bluemind.mailbox.identity.api"/>
+      <plugin id="net.bluemind.mailindex.schema"/>
       <plugin id="net.bluemind.metrics.agent-api"/>
       <plugin id="net.bluemind.metrics.alerts.api"/>
       <plugin id="net.bluemind.metrics.registry"/>
