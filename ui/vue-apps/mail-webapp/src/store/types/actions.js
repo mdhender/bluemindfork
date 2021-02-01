@@ -13,7 +13,7 @@ export const REMOVE_FOLDER = "REMOVE_FOLDER";
 export const RENAME_FOLDER = "RENAME_FOLDER";
 export const MARK_FOLDER_AS_READ = "MARK_FOLDER_AS_READ";
 export const UNREAD_FOLDER_COUNT = "UNREAD_FOLDER_COUNT";
-export const BUS_FOLDER_CHANGE = "$_VueBus_mailreplica.mailboxes.updated";
+export const PUSHED_FOLDER_CHANGES = "$_VueBus_mail-webapp_pushed_folder_changes";
 
 // messages
 export const ADD_ATTACHMENTS = "ADD_ATTACHMENTS";

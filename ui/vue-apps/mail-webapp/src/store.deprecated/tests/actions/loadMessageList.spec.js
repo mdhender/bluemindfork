@@ -2,7 +2,7 @@ import ContainerObserver from "@bluemind/containerobserver";
 import { loadMessageList } from "../../actions/loadMessageList";
 import { FOLDERS_BY_UPPERCASE_PATH, MY_INBOX } from "~getters";
 import { CLEAR_MESSAGE_LIST, SET_ACTIVE_FOLDER, SET_MESSAGE_LIST_FILTER, SET_SEARCH_PATTERN } from "~mutations";
-import { FETCH_MESSAGE_LIST_KEYS, FETCH_MESSAGE_METADATA } from "~actions";
+import { FETCH_MESSAGE_LIST_KEYS, FETCH_MESSAGE_METADATA  } from "~actions";
 
 jest.mock("@bluemind/containerobserver");
 

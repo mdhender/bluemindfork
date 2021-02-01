@@ -21,7 +21,7 @@ import {
     CREATE_FOLDER_HIERARCHY,
     MARK_FOLDER_AS_READ,
     UNREAD_FOLDER_COUNT,
-    BUS_FOLDER_CHANGE
+    PUSHED_FOLDER_CHANGES
 } from "~actions";
 
 const fetchFolders = async function ({ commit }, mailbox) {
@@ -94,6 +94,10 @@ const unreadFolderCount = async function ({ commit }, folder) {
     commit(SET_UNREAD_COUNT, { ...folder, unread: unread.total });
 };
 
+const pushedFolderChange = async function ({ state, dispatch }, data) {
+    return data.body.mailbox in state ? dispatch(UNREAD_FOLDER_COUNT, state[data.body.mailbox]) : Promise.resolve();
+};
+
 export default {
     [FETCH_FOLDERS]: fetchFolders,
     [CREATE_FOLDER]: withAlert(createFolderHierarchy, CREATE_FOLDER, "CreateFolder"),
@@ -104,7 +108,5 @@ export default {
     [RENAME_FOLDER]: withAlert(renameFolder, RENAME_FOLDER, "RenameFolder"),
     [MARK_FOLDER_AS_READ]: withAlert(markFolderAsRead, MARK_FOLDER_AS_READ, "MarkFolderAsRead"),
     [UNREAD_FOLDER_COUNT]: unreadFolderCount,
-    [BUS_FOLDER_CHANGE]({ state, dispatch }, event) {
-        return dispatch(UNREAD_FOLDER_COUNT, state[event.body.mailbox]);
-    }
+    [PUSHED_FOLDER_CHANGES]: pushedFolderChange
 };

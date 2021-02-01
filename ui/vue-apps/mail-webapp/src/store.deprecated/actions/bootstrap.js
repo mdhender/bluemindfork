@@ -7,9 +7,15 @@ export async function bootstrap({ dispatch, commit, rootGetters, rootState }, us
     commit("setUserUid", userUid);
     await dispatch("mail/" + FETCH_MAILBOXES, null, { root: true });
     const socket = new WebsocketClient();
+    const bus = injector.getProvider("GlobalEventBus").get();
     [rootGetters["mail/" + MY_MAILBOX], ...rootGetters["mail/" + MAILSHARES]].forEach(mailbox => {
         socket.register(`mailreplica.${mailbox.owner}.updated`, ({ data }) => {
-            injector.getProvider("GlobalEventBus").get().$emit("mailreplica.mailboxes.updated", data);
+            if (data.body.isHierarchy) {
+                toServiceWorker("SYNC_MAILBOX", data.body);
+            } else {
+                bus.$emit("mail-webapp/pushed_folder_changes", data);
+                toServiceWorker("SYNC_CONTAINER", data.body);
+            }
         });
     });
     await dispatch("mail/" + FETCH_FOLDERS, rootGetters["mail/" + MY_MAILBOX], { root: true });
@@ -22,3 +28,9 @@ export async function bootstrap({ dispatch, commit, rootGetters, rootState }, us
     dispatch("loadMailboxConfig");
     dispatch("mail/" + FETCH_SIGNATURE, {}, { root: true });
 }
+
+const toServiceWorker = (type, body) => {
+    if (navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({ type, body });
+    }
+};

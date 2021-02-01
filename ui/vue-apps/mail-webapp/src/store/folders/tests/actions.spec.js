@@ -9,7 +9,7 @@ import {
     EMPTY_FOLDER,
     MARK_FOLDER_AS_READ,
     REMOVE_FOLDER,
-    RENAME_FOLDER, 
+    RENAME_FOLDER,
     UNREAD_FOLDER_COUNT
 } from "~actions";
 import { ADD_FOLDER } from "~mutations";
@@ -271,7 +271,7 @@ describe("actions", () => {
         test("Set unread count on success", async () => {
             const folder = { key: "1", name: "foo", path: "baz", remoteRef: {}, unread: 10 };
             store.commit(ADD_FOLDER, folder);
-            api.unreadCount.mockReturnValue({ total: 12 })
+            api.unreadCount.mockReturnValue({ total: 12 });
             await store.dispatch(UNREAD_FOLDER_COUNT, folder);
             expect(store.state["1"].unread).toEqual(12);
         });

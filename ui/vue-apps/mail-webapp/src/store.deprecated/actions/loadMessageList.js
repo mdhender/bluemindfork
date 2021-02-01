@@ -1,7 +1,6 @@
-import ContainerObserver from "@bluemind/containerobserver";
 import SearchHelper from "../SearchHelper";
 import router from "@bluemind/router";
-import { FOLDERS_BY_UPPERCASE_PATH, MESSAGE_LIST_IS_SEARCH_MODE, MY_INBOX } from "~getters";
+import { FOLDERS_BY_UPPERCASE_PATH, MY_INBOX } from "~getters";
 import {
     CLEAR_MESSAGE_LIST,
     SET_MESSAGE_LIST_FILTER,
@@ -18,7 +17,6 @@ export async function loadMessageList(
     { folder, mailshare, filter, search }
 ) {
     const ROOT = { root: true };
-    const previousFolderKey = rootState.mail.activeFolder;
     const locatedFolder = locateFolder(folder, mailshare, rootState, rootGetters);
     commit("mail/" + SET_ACTIVE_FOLDER, locatedFolder.key, ROOT);
     dispatch("loadUnreadCount", locatedFolder.key);
@@ -47,13 +45,6 @@ export async function loadMessageList(
 
     commit("currentMessage/clear");
 
-    const prefix = "mbox_records_";
-    if (previousFolderKey) {
-        ContainerObserver.forget("mailbox_records", prefix + previousFolderKey);
-    }
-    if (!rootGetters["mail/" + MESSAGE_LIST_IS_SEARCH_MODE]) {
-        ContainerObserver.observe("mailbox_records", prefix + rootState.mail.activeFolder);
-    }
     const f = rootState.mail.folders[locatedFolder.key];
     const conversationsEnabled = rootState.session.userSettings.mail_thread === "true";
     await dispatch("mail/" + FETCH_MESSAGE_LIST_KEYS, { folder: f, conversationsEnabled }, ROOT);

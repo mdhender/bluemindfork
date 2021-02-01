@@ -168,6 +168,7 @@ async function showNotification(message) {
                 showNotification("A new version of the site is available, please refresh the page.");
             }
         });
+
         if (navigator.serviceWorker.controller) {
             navigator.serviceWorker.controller.postMessage({ type: "INIT_PERIODIC_SYNC" });
         }

@@ -1,54 +1,37 @@
-import { skipWaiting } from "workbox-core";
+import { skipWaiting, clientsClaim } from "workbox-core";
 
 import registerApiRoute, { apiRoutes } from "./workbox/registerApiRoute";
 import registerCSSRoute from "./workbox/registerCSSRoute";
-// import registerImageRoute from "./workbox/registerImageRoute";
 import registerScriptRoute from "./workbox/registerScriptRoute";
 import registerPartRoute from "./workbox/registerPartRoute";
 
+import { syncMailbox, syncMailFolders, syncMailFolder } from "./sync";
+import { sessionInfos } from "./MailAPI";
 import { logger } from "./logger";
-import { registerPeriodicSync, syncMailFolders, syncMyMailbox } from "./periodicSync";
-import { mailapi, sessionInfos } from "./MailAPI";
 
+clientsClaim();
 skipWaiting();
 
 registerPartRoute();
 registerApiRoute(apiRoutes);
 registerCSSRoute();
-// registerImageRoute();
 registerScriptRoute();
 
-self.addEventListener("message", event => {
-    if (event.data.type === "INIT_PERIODIC_SYNC") {
-        const interval = registerPeriodicSync(() => {
-            syncMailFolders().catch(e => {
-                logger.error(`Sync stopped due to following exception : `, e);
-                clearInterval(interval);
-                mailapi.clear();
-                sessionInfos.clear();
-            });
-        });
-        logger.log(`Synchronization registered with the interval id ${interval}.`);
-        logger.log(
-            `To stop the synchronization, use "navigator.serviceWorker.controller.postMessage({type:"STOP_PERIODIC_SYNC", payload: { interval: ${interval} }})".`
-        );
+self.addEventListener("message", async ({ data }) => {
+    if (data.type === "INIT_PERIODIC_SYNC") {
+        logger.debug("Synchronization begins");
+        await syncMailFolders();
+        logger.debug("Synchronization ends");
     }
-    if (event.data.type === "STOP_PERIODIC_SYNC") {
-        const interval = event.data.payload?.interval;
-        if (interval) {
-            logger.log(`Sync stopped.`);
-            clearInterval(interval);
-        } else {
-            logger.error("Need an interval in the payload object.");
-            logger.warn(
-                `To stop the synchronization, use "navigator.serviceWorker.controller.postMessage({type:"STOP_PERIODIC_SYNC", payload: { interval: ${interval} }})".`
-            );
+    if (data.type === "SYNC_CONTAINER") {
+        logger.debug(`Synchronization of container ${data.body.mailbox} for ${data.body.version}`);
+        await syncMailFolder(data.body.mailbox, data.body.version);
+    }
+    if (data.type === "SYNC_MAILBOX") {
+        const { domain, userId } = await sessionInfos.getInstance();
+        if (data.body.owner === userId) {
+            logger.debug(`Synchronization of mailbox ${data.body.owner} for ${data.body.version}`);
+            await syncMailbox(domain, userId, data.body.version);
         }
-    }
-    if (event.data.type === "SYNC_MY_MAILBOX") {
-        syncMyMailbox();
-    }
-    if (event.data.type === "SYNC_MY_FOLDERS") {
-        syncMailFolders();
     }
 });

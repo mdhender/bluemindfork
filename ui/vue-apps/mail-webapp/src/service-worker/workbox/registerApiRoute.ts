@@ -1,6 +1,6 @@
 import { registerRoute } from "workbox-routing";
 import { RouteHandlerCallback, RouteHandlerCallbackOptions } from "workbox-core/types";
-import { syncMailFolder } from "../periodicSync";
+import { syncMailFolder, syncMailbox } from "../sync";
 import { maildb } from "../MailDB";
 import { FilteredChangeSet, Flags } from "../entry";
 import { getDBName } from "../MailAPI";
@@ -42,6 +42,7 @@ export async function allMailFolders({ request, params }: RouteHandlerCallbackOp
             const uid = `${userId}@${domain}`;
             const db = await maildb.getInstance(await getDBName());
             if (await db.isSubscribed(uid)) {
+                await syncMailbox(domain, uid);
                 const allMailFolders = await db.getAllMailFolders();
                 return responseFromCache(allMailFolders);
             }

@@ -14,11 +14,10 @@ import registerApiRoute, {
     filteredChangesetById
 } from "../workbox/registerApiRoute";
 import { maildb } from "../MailDB";
-import "../periodicSync";
 
 jest.mock("workbox-routing");
 jest.mock("../MailDB");
-jest.mock("../periodicSync");
+jest.mock("../sync");
 
 describe("workbox", () => {
     describe("register API Route", () => {
