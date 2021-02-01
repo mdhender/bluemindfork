@@ -39,6 +39,7 @@ import net.bluemind.proxy.http.auth.api.IAuthEnforcer.ISessionStore;
 import net.bluemind.proxy.http.auth.api.SecurityConfig;
 
 public class SudoProtocol implements IAuthProtocol {
+	public static final String KIND = "SUDO";
 
 	private static final Logger logger = LoggerFactory.getLogger(SudoProtocol.class);
 
@@ -121,5 +122,10 @@ public class SudoProtocol implements IAuthProtocol {
 		resp.headers().add("Location", "/");
 		resp.setStatusCode(302);
 		resp.end();
+	}
+
+	@Override
+	public String getKind() {
+		return KIND;
 	}
 }

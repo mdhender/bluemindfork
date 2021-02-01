@@ -124,6 +124,7 @@
       <plugin id="net.bluemind.calendar.usercalendar"/>
       <plugin id="net.bluemind.common.freemarker"/>
       <plugin id="net.bluemind.common.hollow"/>
+      <plugin id="net.bluemind.common.cache.persistence"/>
       <plugin id="net.bluemind.common.io"/>
       <plugin id="net.bluemind.common.reflect"/>
       <plugin id="net.bluemind.config"/>

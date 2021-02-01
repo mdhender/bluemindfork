@@ -436,4 +436,9 @@ public class WebModuleProtocol implements IAuthProtocol {
 					return;
 				});
 	}
+
+	@Override
+	public String getKind() {
+		return "WEB";
+	}
 }

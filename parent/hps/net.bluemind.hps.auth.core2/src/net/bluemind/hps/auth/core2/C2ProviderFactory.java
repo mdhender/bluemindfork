@@ -18,10 +18,12 @@
  */
 package net.bluemind.hps.auth.core2;
 
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.patterns.PolledMeter;
@@ -30,6 +32,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.common.cache.persistence.CacheBackingStore;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.hornetq.client.Topic;
@@ -43,15 +46,15 @@ import net.bluemind.system.api.SystemState;
 import net.bluemind.system.stateobserver.IStateListener;
 
 public class C2ProviderFactory implements IAuthProviderFactory {
-
 	private static final Logger logger = LoggerFactory.getLogger(C2ProviderFactory.class);
 
-	private static final Cache<String, SessionData> sessions = sessions();
+	public static final String KIND = "CORE2";
+	public static final CacheBackingStore<SessionData> sessions = sessions();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override
 		public void registerCaches(CacheRegistry cr) {
-			cr.registerReadOnly(C2ProviderFactory.class, sessions);
+			cr.registerReadOnly(C2ProviderFactory.class, sessions.getCache());
 		}
 	}
 
@@ -70,19 +73,17 @@ public class C2ProviderFactory implements IAuthProviderFactory {
 							String sid = cm.getString("sid");
 							SessionData toRemove = sessions.getIfPresent(sid);
 							if (toRemove != null) {
-								sessions.invalidate(sid);
+								sessions.getCache().invalidate(sid);
 								logoutListener.loggedOut(sid);
 								logger.info("[{}] Logged-out {}", toRemove.loginAtDomain, sid);
 							} else {
 								logger.warn("[{}] not found for mq logout", sid);
 							}
 						}
-
 					}
 				});
 
 		VertxPlatform.eventBus().consumer(IStateListener.STATE_BUS_ADDRESS, new Handler<Message<String>>() {
-
 			@Override
 			public void handle(Message<String> event) {
 				String stateAsString = event.body();
@@ -94,9 +95,8 @@ public class C2ProviderFactory implements IAuthProviderFactory {
 				case CORE_STATE_MAINTENANCE:
 				case CORE_STATE_STOPPING:
 				case CORE_STATE_UPGRADE:
-					sessions.invalidateAll();
-					logoutListener.loggedOutAll();
-					logger.warn("all sessions was cleared (core not ready or forgot sessions : {})", newState);
+					logoutListener.checkAll();
+					logger.warn("All sessions was set to check (core not ready or forgot sessions : {})", newState);
 					break;
 				case CORE_STATE_RUNNING:
 					break;
@@ -111,18 +111,20 @@ public class C2ProviderFactory implements IAuthProviderFactory {
 
 	@Override
 	public IAuthProvider get(Vertx vertx) {
+		// Every day, remove sessions files from disk that are not in cache
+		vertx.setPeriodic(TimeUnit.DAYS.toMillis(1), i -> sessions.cleanUp());
+
 		return new C2Provider(vertx, sessions);
 	}
 
-	private static Cache<String, SessionData> sessions() {
-		Cache<String, SessionData> coreSessions = Caffeine.newBuilder()//
-				.recordStats()//
-				.build();
+	private static CacheBackingStore<SessionData> sessions() {
+		CacheBackingStore<SessionData> cachePersistence = new CacheBackingStore<>(Caffeine.newBuilder().recordStats(),
+				"/var/cache/bm-hps/core2", SessionData::toJson, SessionData::fromJson, Optional.empty());
 
 		Registry reg = MetricsRegistry.get();
 		IdFactory idf = new IdFactory("activeSessions", reg, C2ProviderFactory.class);
-		PolledMeter.using(reg).withId(idf.name("distinctUsers")).monitorSize(coreSessions.asMap());
-		return coreSessions;
+		PolledMeter.using(reg).withId(idf.name("distinctUsers")).monitorSize(cachePersistence.getCache().asMap());
+		return cachePersistence;
 	}
 
 	@Override
@@ -132,7 +134,7 @@ public class C2ProviderFactory implements IAuthProviderFactory {
 
 	@Override
 	public String getKind() {
-		return "CORE2";
+		return KIND;
 	}
 
 }

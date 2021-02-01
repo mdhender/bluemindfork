@@ -19,21 +19,23 @@
 package net.bluemind.hps.auth.core2;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.google.common.base.Joiner;
+
+import io.vertx.core.json.JsonObject;
 import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.user.api.User;
 
 @SuppressWarnings("serial")
 public class SessionData implements Serializable {
-
 	public String authKey;
 	public Status passwordStatus;
-	public User user;
-	public String allowedRpcs;
-	public String availableHandlers;
-	public String coreUrl;
+
 	public Map<String, String> settings;
 	public boolean privateComputer;
 
@@ -45,37 +47,71 @@ public class SessionData implements Serializable {
 	protected String userUid;
 	public final long createStamp;
 
-	public SessionData() {
+	public final String accountType;
+	public final String login;
+	public final String defaultEmail;
+	public final String givenNames;
+	public final String familyNames;
+	public final String formatedName;
+	public final String dataLocation;
+
+	private SessionData(String authKey, //
+			Status passwordStatus, //
+			Map<String, String> settings, //
+			boolean privateComputer, //
+			String loginAtDomain, //
+			String domainUid, //
+			String rolesAsString, //
+			String userUid, //
+			long createStamp, //
+			String accountType, //
+			String login, //
+			String defaultEmail, //
+			String givenNames, //
+			String familyNames, //
+			String formatedName, //
+			String dataLocation //
+	) {
+		this.authKey = authKey;
+		this.passwordStatus = passwordStatus;
+
+		this.settings = settings;
+		this.privateComputer = privateComputer;
+
+		this.lastPing = System.currentTimeMillis();
+		this.loginAtDomain = loginAtDomain;
+		this.domainUid = domainUid;
+		this.rolesAsString = rolesAsString;
+		this.userUid = userUid;
+		this.createStamp = createStamp;
+
+		this.accountType = accountType;
+		this.login = login;
+		this.defaultEmail = defaultEmail;
+		this.givenNames = givenNames;
+		this.familyNames = familyNames;
+		this.formatedName = formatedName;
+		this.dataLocation = dataLocation;
+	}
+
+	public SessionData(User user) {
 		this.createStamp = System.currentTimeMillis();
 		lastPing = createStamp;
+
+		this.login = user.login;
+		this.accountType = user.accountType.name();
+
+		this.defaultEmail = user.defaultEmail() != null ? user.defaultEmail().address : null;
+
+		this.givenNames = user.contactInfos != null ? user.contactInfos.identification.name.givenNames : null;
+		this.familyNames = user.contactInfos != null ? user.contactInfos.identification.name.familyNames : null;
+		this.formatedName = user.contactInfos != null ? user.contactInfos.identification.formatedName.value : null;
+
+		this.dataLocation = user.dataLocation;
 	}
 
 	public String getUserUid() {
 		return userUid;
-	}
-
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-	public String getAllowedRpcs() {
-		return allowedRpcs;
-	}
-
-	public void setAllowedRpcs(String allowedRpcs) {
-		this.allowedRpcs = allowedRpcs;
-	}
-
-	public String getCoreUrl() {
-		return coreUrl;
-	}
-
-	public void setCoreUrl(String coreUrl) {
-		this.coreUrl = coreUrl;
 	}
 
 	public Map<String, String> getSettings() {
@@ -102,19 +138,76 @@ public class SessionData implements Serializable {
 		this.lastPing = lastPing;
 	}
 
-	public String getAvailableHandlers() {
-		return availableHandlers;
+	public void setRole(Set<String> roles) {
+		// for 13k sessions, we end up with 3MB of duplicate strings here
+		rolesAsString = Joiner.on(",").join(roles).intern();
+		this.roles = roles.stream().map(String::intern).collect(Collectors.toSet());
 	}
 
-	public void setAvailableHandlers(String availableHandlers) {
-		this.availableHandlers = availableHandlers;
+	public void setRole(String rolesAsString) {
+		// for 13k sessions, we end up with 3MB of duplicate strings here
+		this.rolesAsString = rolesAsString.intern();
+		roles = Arrays.asList(rolesAsString.split(",")).stream().map(String::intern).collect(Collectors.toSet());
 	}
 
-	public String getRoles() {
-		return rolesAsString;
+	public static JsonObject toJson(SessionData sd) {
+		JsonObject jsonObject = new JsonObject();
+
+		jsonObject.put("authKey", sd.authKey);
+		jsonObject.put("passwordStatus", sd.passwordStatus);
+
+		JsonObject settingsAsJson = new JsonObject();
+		sd.settings.forEach((k, v) -> settingsAsJson.put(k, v));
+		jsonObject.put("settings", settingsAsJson);
+
+		jsonObject.put("privateComputer", sd.privateComputer);
+
+		jsonObject.put("loginAtDomain", sd.loginAtDomain);
+		jsonObject.put("domainUid", sd.domainUid);
+		jsonObject.put("rolesAsString", sd.rolesAsString);
+		jsonObject.put("userUid", sd.userUid);
+		jsonObject.put("createStamp", sd.createStamp);
+
+		jsonObject.put("accountType", sd.accountType);
+		jsonObject.put("login", sd.login);
+		jsonObject.put("defaultEmail", sd.defaultEmail);
+		jsonObject.put("givenNames", sd.givenNames);
+		jsonObject.put("familyNames", sd.familyNames);
+		jsonObject.put("formatedName", sd.formatedName);
+		jsonObject.put("dataLocation", sd.dataLocation);
+
+		return jsonObject;
 	}
 
-	public void setRoles(String roles) {
-		this.rolesAsString = roles;
+	public static SessionData fromJson(JsonObject jsonObject) {
+		String authKey = jsonObject.getString("authKey");
+
+		Status passwordStatus = Status.valueOf(jsonObject.getString("passwordStatus"));
+
+		JsonObject settingsAsJson = jsonObject.getJsonObject("settings");
+		Map<String, String> settings = new HashMap<>();
+		settingsAsJson.forEach(e -> settings.put(e.getKey(), (String) e.getValue()));
+
+		boolean privateComputer = jsonObject.getBoolean("privateComputer");
+
+		String loginAtDomain = jsonObject.getString("loginAtDomain");
+		String domainUid = jsonObject.getString("domainUid");
+		String rolesAsString = jsonObject.getString("rolesAsString");
+		String userUid = jsonObject.getString("userUid");
+		long createStamp = jsonObject.getLong("createStamp");
+
+		String accountType = jsonObject.getString("accountType");
+		String login = jsonObject.getString("login");
+		String defaultEmail = jsonObject.getString("defaultEmail");
+		String givenNames = jsonObject.getString("givenNames");
+		String familyNames = jsonObject.getString("familyNames");
+		String formatedName = jsonObject.getString("formatedName");
+		String dataLocation = jsonObject.getString("dataLocation");
+
+		SessionData sessionData = new SessionData(authKey, passwordStatus, settings, privateComputer, loginAtDomain,
+				domainUid, rolesAsString, userUid, createStamp, accountType, login, defaultEmail, givenNames,
+				familyNames, formatedName, dataLocation);
+		sessionData.setRole(rolesAsString);
+		return sessionData;
 	}
 }

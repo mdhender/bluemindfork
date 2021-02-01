@@ -41,7 +41,6 @@ import net.bluemind.proxy.http.auth.api.IAuthEnforcer;
 import net.bluemind.system.api.SysConfKeys;
 
 public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
-
 	private static final Logger logger = LoggerFactory.getLogger(CasAuthEnforcer.class);
 	private final Supplier<String> casURL;
 	private final Supplier<String> casDomain;
@@ -99,9 +98,7 @@ public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
 		}
 		if (io.vertx.core.http.HttpMethod.GET == req.method()) {
 			// only redirect GET to not pass
-			CasProtocol protocol = new CasProtocol(httpClient.orElseGet(() -> initHttpClient()), casURL.get(),
-					casDomain.get(), callbackURL.get());
-			return AuthRequirements.needSession(protocol);
+			return AuthRequirements.needSession(getProtocol());
 		} else {
 			return AuthRequirements.notHandle();
 		}
@@ -144,5 +141,11 @@ public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
 		HttpClient httpClient = vertx.createHttpClient(opts);
 		this.httpClient = Optional.of(httpClient);
 		return httpClient;
+	}
+
+	@Override
+	public IAuthProtocol getProtocol() {
+		return new CasProtocol(httpClient.orElseGet(() -> initHttpClient()), casURL.get(), casDomain.get(),
+				callbackURL.get());
 	}
 }

@@ -178,4 +178,9 @@ public class KrbProtocol implements IAuthProtocol {
 		resp.setStatusCode(302);
 		resp.end();
 	}
+
+	@Override
+	public String getKind() {
+		return "KRB";
+	}
 }

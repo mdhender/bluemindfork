@@ -32,7 +32,6 @@ import net.bluemind.proxy.http.auth.api.AuthRequirements;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer;
 
 public class KrbAuthEnforcer implements IAuthEnforcer {
-
 	private static final Logger logger = LoggerFactory.getLogger(KrbAuthEnforcer.class);
 	private boolean kerberosEnabled;
 	private Map<String, String> domainMappings;
@@ -73,12 +72,16 @@ public class KrbAuthEnforcer implements IAuthEnforcer {
 
 		String authHeader = req.headers().get("Authorization");
 		if (authHeader != null && authHeader.startsWith("Negotiate ")) {
-			KrbProtocol protocol = new KrbProtocol(domainMappings);
-			return AuthRequirements.needSession(protocol);
+			return AuthRequirements.needSession(getProtocol());
 		} else {
 			// /login/index.html will replay here
 			req.response().headers().add("WWW-Authenticate", "Negotiate");
 			return AuthRequirements.notHandle();
 		}
+	}
+
+	@Override
+	public IAuthProtocol getProtocol() {
+		return new KrbProtocol(domainMappings);
 	}
 }

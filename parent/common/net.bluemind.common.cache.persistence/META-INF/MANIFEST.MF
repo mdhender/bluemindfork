@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.common.cache.persistence
+Bundle-SymbolicName: net.bluemind.common.cache.persistence
+Bundle-Version: 4.1.0.qualifier
+Automatic-Module-Name: net.bluemind.common.cache.persistence
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: bluemind.net
+Require-Bundle: slf4j.api,
+ com.github.ben-manes.caffeine,
+ io.vertx.core,
+ com.google.guava
+Export-Package: net.bluemind.common.cache.persistence

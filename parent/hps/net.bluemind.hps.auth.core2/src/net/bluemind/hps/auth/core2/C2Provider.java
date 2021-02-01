@@ -18,28 +18,27 @@
  */
 package net.bluemind.hps.auth.core2;
 
+import java.net.ConnectException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 
 import io.vertx.core.Vertx;
-import net.bluemind.addressbook.api.VCard;
 import net.bluemind.authentication.api.IAuthenticationPromise;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.common.cache.persistence.CacheBackingStore;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.BMVersion;
@@ -66,11 +65,11 @@ public class C2Provider implements IAuthProvider {
 	public static final int DEFAULT_MAX_SESSIONS_PER_USER = 5;
 
 	private static final Logger logger = LoggerFactory.getLogger(C2Provider.class);
-	private final Cache<String, SessionData> sessions;
+	private final CacheBackingStore<SessionData> sessions;
 	private HttpClientProvider clientProvider;
 	private Supplier<Integer> maxSessionsPerUser;
 
-	public C2Provider(Vertx vertx, Cache<String, SessionData> sessions) {
+	public C2Provider(Vertx vertx, CacheBackingStore<SessionData> sessions) {
 		this.sessions = sessions;
 		clientProvider = new HttpClientProvider(vertx);
 
@@ -112,23 +111,19 @@ public class C2Provider implements IAuthProvider {
 	}
 
 	private void handlerLoginSuccess(LoginResponse lr, List<String> remoteIps, AsyncHandler<String> handler) {
-		final SessionData sd = new SessionData();
+		final SessionData sd = new SessionData(lr.authUser.value);
 
 		sd.authKey = lr.authKey;
 		sd.passwordStatus = lr.status;
 		sd.userUid = lr.authUser.uid;
-		sd.user = lr.authUser.value;
 		sd.loginAtDomain = lr.latd;
 		sd.domainUid = lr.authUser.domainUid;
-		sd.rolesAsString = Joiner.on(",").join(lr.authUser.roles);
-		// for 13k sessions, we end up with 3MB of duplicate strings here
-		sd.rolesAsString = sd.rolesAsString.intern();
-		sd.roles = lr.authUser.roles.stream().map(String::intern).collect(Collectors.toSet());
+		sd.setRole(lr.authUser.roles);
 		sd.settings = lr.authUser.settings;
 
 		// when creating a new session for a user, expire the oldest ones if he
 		// already has MAX_SESSIONS_PER_USER.
-		SessionData[] existingSessionForSameUser = sessions.asMap().values().stream()
+		SessionData[] existingSessionForSameUser = sessions.getCache().asMap().values().stream()
 				.filter(existingSession -> existingSession.userUid.equals(sd.userUid))
 				.sorted((s1, s2) -> Long.compare(s1.createStamp, s2.createStamp)).toArray(SessionData[]::new);
 
@@ -141,7 +136,7 @@ public class C2Provider implements IAuthProvider {
 			}
 		}
 
-		sessions.put(sd.authKey, sd);
+		sessions.getCache().put(sd.authKey, sd);
 		handler.success(sd.authKey);
 	}
 
@@ -256,22 +251,16 @@ public class C2Provider implements IAuthProvider {
 
 		proxyReq.addHeader("BMUserId", "" + sd.getUserUid());
 
-		proxyReq.addHeader("BMUserLogin", sd.getUser().login);
-		proxyReq.addHeader("BMAccountType", sd.getUser().accountType.name());
+		proxyReq.addHeader("BMUserLogin", sd.login);
+		proxyReq.addHeader("BMAccountType", sd.accountType);
 		proxyReq.addHeader("BMUserLATD", sd.loginAtDomain);
-		if (sd.getUser().defaultEmail() != null) {
-			proxyReq.addHeader("BMUserDefaultEmail", sd.getUser().defaultEmail().address);
-		}
+		addIfPresent(proxyReq, sd.defaultEmail, "BMUserDefaultEmail");
+
 		proxyReq.addHeader("BMUserDomainId", sd.domainUid);
 
-		if (sd.getUser().contactInfos != null) {
-			VCard card = sd.getUser().contactInfos;
-			addIfPresent(proxyReq, card.identification.name.givenNames, "BMUserFirstName");
-			addIfPresent(proxyReq, card.identification.name.familyNames, "BMUserLastName");
-			addIfPresent(proxyReq, card.identification.formatedName.value, sd.getUser().login, "BMUserFormatedName");
-		} else {
-			proxyReq.addHeader("BMUserFormatedName", sd.getUser().login);
-		}
+		addIfPresent(proxyReq, sd.givenNames, "BMUserFirstName");
+		addIfPresent(proxyReq, sd.familyNames, "BMUserLastName");
+		addIfPresent(proxyReq, sd.formatedName, sd.login, "BMUserFormatedName");
 
 		proxyReq.addHeader("BMRoles", sd.rolesAsString);
 
@@ -295,10 +284,9 @@ public class C2Provider implements IAuthProvider {
 		proxyReq.addHeader("BMVersion", BMVersion.getVersion());
 		proxyReq.addHeader("BMBrandVersion", BMVersion.getVersionName());
 
-		if (sd.getUser().dataLocation != null) {
-			proxyReq.addHeader("BMDataLocation", sd.getUser().dataLocation);
-			proxyReq.addHeader("BMPartition",
-					CyrusPartition.forServerAndDomain(sd.getUser().dataLocation, sd.domainUid).name);
+		if (sd.dataLocation != null) {
+			proxyReq.addHeader("BMDataLocation", sd.dataLocation);
+			proxyReq.addHeader("BMPartition", CyrusPartition.forServerAndDomain(sd.dataLocation, sd.domainUid).name);
 		}
 
 	}
@@ -319,25 +307,28 @@ public class C2Provider implements IAuthProvider {
 	}
 
 	@Override
-	public void ping(String sessionId, final AsyncHandler<Boolean> handler) {
-
+	public CompletableFuture<Boolean> ping(String sessionId) {
 		final SessionData sess = sessions.getIfPresent(sessionId);
 		if (sess == null) {
-			handler.success(Boolean.FALSE);
-			return;
+			logger.error("error during ping session for SID {} not found", sessionId);
+			return CompletableFuture.completedFuture(null).handle((v, t) -> Boolean.FALSE);
 		}
 		String apiKey = sess.authKey;
 
 		VertxPromiseServiceProvider sp = getProvider(apiKey, Collections.emptyList());
-		sp.instance(IAuthenticationPromise.class).ping().exceptionally(e -> {
-			logger.error("error during ping", e);
-			handler.success(Boolean.FALSE);
-			return null;
-		}).thenAccept(v -> {
-			logger.debug("ping ok for {}:{}", sess.loginAtDomain, sess.authKey);
-			handler.success(Boolean.TRUE);
-		});
+		return sp.instance(IAuthenticationPromise.class).ping().handle((v, t) -> {
+			if (t instanceof ConnectException) {
+				throw new CompletionException(t);
+			}
 
+			if (t != null) {
+				logger.error("error during ping for {}:{}", sess.loginAtDomain, sess.authKey, t);
+				return Boolean.FALSE;
+			}
+
+			logger.debug("ping ok for {}:{}", sess.loginAtDomain, sess.authKey);
+			return Boolean.TRUE;
+		});
 	}
 
 	@Override
@@ -375,7 +366,7 @@ public class C2Provider implements IAuthProvider {
 					if (fn != null) {
 						logger.error(fn.getMessage(), fn);
 					}
-					sessions.invalidate(sessionId);
+					sessions.getCache().invalidate(sessionId);
 				});
 	}
 

@@ -32,7 +32,6 @@ import net.bluemind.lib.vertx.RouteMatcher;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer;
-import net.bluemind.proxy.http.auth.impl.Enforcers;
 import net.bluemind.proxy.http.config.ForwardedLocation;
 import net.bluemind.proxy.http.config.HPSConfiguration;
 import net.bluemind.proxy.http.impl.SessionStore;
@@ -46,11 +45,11 @@ public final class HpsReqHandler implements Handler<HttpServerRequest> {
 	private static final Registry registry = MetricsRegistry.get();
 	private static final IdFactory idFactory = new IdFactory(MetricsRegistry.get(), HpsReqHandler.class);
 
-	public HpsReqHandler(Vertx vertx, HPSConfiguration conf, SessionStore ss, CoreState coreState) {
+	public HpsReqHandler(Vertx vertx, HPSConfiguration conf, List<IAuthEnforcer> authEnforcers, SessionStore ss,
+			CoreState coreState) {
 		rm = new RouteMatcher(vertx);
-		List<IAuthEnforcer> enforcers = Enforcers.enforcers(vertx);
 		for (ForwardedLocation fl : conf.getForwardedLocations()) {
-			ProtectedLocationHandler plh = new ProtectedLocationHandler(vertx, enforcers, fl, ss, coreState);
+			ProtectedLocationHandler plh = new ProtectedLocationHandler(vertx, authEnforcers, fl, ss, coreState);
 			rm.regex(fl.getPathPrefix(), plh);
 			if (!fl.getPathPrefix().endsWith("/")) {
 				rm.regex(fl.getPathPrefix() + "/.*", plh);

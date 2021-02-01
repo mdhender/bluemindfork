@@ -1,5 +1,6 @@
 package net.bluemind.tests.defaultdata;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -58,12 +59,14 @@ import net.bluemind.server.api.Server;
 import net.bluemind.server.persistence.ServerStore;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
+import net.bluemind.utils.FileUtils;
 
 public class PopulateHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(PopulateHelper.class);
 
 	static {
+		FileUtils.delete(new File("/var/cache/bm-core"));
 		System.setProperty("throttle.disabled", "true");
 		System.setProperty("net.fortuna.ical4j.timezone.cache.impl", "net.fortuna.ical4j.util.MapTimeZoneCache");
 	}

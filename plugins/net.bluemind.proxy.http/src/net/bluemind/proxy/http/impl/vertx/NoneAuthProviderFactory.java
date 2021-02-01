@@ -65,8 +65,8 @@ public class NoneAuthProviderFactory implements IAuthProviderFactory, IAuthProvi
 	}
 
 	@Override
-	public void ping(String sessionId, AsyncHandler<Boolean> handler) {
-		handler.success(true);
+	public CompletableFuture<Boolean> ping(String sessionId) {
+		return CompletableFuture.completedFuture(Boolean.TRUE);
 	}
 
 	/*

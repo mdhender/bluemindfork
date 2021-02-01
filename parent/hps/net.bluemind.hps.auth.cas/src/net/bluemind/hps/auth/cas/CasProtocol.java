@@ -281,4 +281,9 @@ public class CasProtocol implements IAuthProtocol {
 	private String getCasLogoutUrl() {
 		return String.format("%slogout", casURL).toLowerCase();
 	}
+
+	@Override
+	public String getKind() {
+		return "CAS";
+	}
 }

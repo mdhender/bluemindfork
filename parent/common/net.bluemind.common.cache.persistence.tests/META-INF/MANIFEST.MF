@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.common.cache.persistence.tests
+Bundle-SymbolicName: net.bluemind.common.cache.persistence.tests
+Bundle-Version: 4.1.0.qualifier
+Automatic-Module-Name: net.bluemind.common.cache.persistence.tests
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.junit,
+ com.github.ben-manes.caffeine,
+ net.bluemind.common.cache.persistence,
+ io.vertx.core

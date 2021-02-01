@@ -18,15 +18,22 @@
  */
 package net.bluemind.proxy.http.impl;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.google.common.base.Strings;
+
+import io.vertx.core.json.JsonObject;
+import net.bluemind.common.cache.persistence.CacheBackingStore;
+import net.bluemind.proxy.http.auth.api.IAuthEnforcer;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer.IAuthProtocol;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer.ISessionStore;
+import net.bluemind.proxy.http.impl.vertx.SudoProtocol;
 
 /**
  * Stores mapping between our cookie and the custom auth session id.
@@ -34,63 +41,118 @@ import net.bluemind.proxy.http.auth.api.IAuthEnforcer.ISessionStore;
  * 
  */
 public class SessionStore implements ISessionStore {
+	@SuppressWarnings("serial")
+	public class SidDataNotFound extends RuntimeException {
+	}
 
-	private ConcurrentMap<String, String> cookieSids;
-	private ConcurrentMap<String, String> sidCookies;
-	private ConcurrentMap<String, IAuthProtocol> sidProtocol;
+	public static class SidData {
+		public final String cookie;
+		public final IAuthProtocol protocol;
+		public boolean needcheck = false;
+
+		public SidData(String cookie, IAuthProtocol protocol) {
+			this.cookie = cookie;
+			this.protocol = protocol;
+		}
+
+		public SidData(String cookie, IAuthProtocol protocol, boolean needCheck) {
+			this.cookie = cookie;
+			this.protocol = protocol;
+			this.needcheck = needCheck;
+		}
+
+		public SidData checked() {
+			this.needcheck = false;
+			return this;
+		}
+	}
+
+	private Optional<List<IAuthEnforcer>> authEnforcers = Optional.empty();
+
+	private final CacheBackingStore<String> cookieSids = new CacheBackingStore<>(Caffeine.newBuilder(),
+			"/var/cache/bm-hps/cookies", this::cookieToJson, this::cookieFromJson, Optional.empty());
+	private final CacheBackingStore<SidData> sidSidData = new CacheBackingStore<>(Caffeine.newBuilder(),
+			"/var/cache/bm-hps/sids", this::sidDataToJson, this::sidDataFromJson, Optional.empty());
 
 	private static final Logger logger = LoggerFactory.getLogger(SessionStore.class);
 
-	public SessionStore() {
+	private JsonObject cookieToJson(String sid) {
+		return new JsonObject().put("s", sid);
+	}
 
-		cookieSids = new ConcurrentHashMap<>();
-		sidCookies = new ConcurrentHashMap<>();
-		sidProtocol = new ConcurrentHashMap<>();
+	private String cookieFromJson(JsonObject jsonObject) {
+		return jsonObject.getString("s");
+	}
+
+	private JsonObject sidDataToJson(SidData sidData) {
+		return new JsonObject().put("c", sidData.cookie).put("p", sidData.protocol.getKind());
+	}
+
+	private SidData sidDataFromJson(JsonObject jsonObject) {
+		String cookie = jsonObject.getString("c");
+		if (Strings.isNullOrEmpty(cookie)) {
+			return null;
+		}
+
+		return loadProtocol(jsonObject.getString("p")).map(protocol -> new SidData(cookie, protocol, true))
+				.orElse(null);
+	}
+
+	private Optional<IAuthProtocol> loadProtocol(String protocolId) {
+		if (Strings.isNullOrEmpty(protocolId)) {
+			return Optional.empty();
+		}
+
+		if (SudoProtocol.KIND.equals(protocolId)) {
+			return Optional.of(new SudoProtocol());
+		}
+
+		return authEnforcers.flatMap(aes -> aes.stream().map(ae -> ae.getProtocol())
+				.filter(p -> p.getKind().equals(protocolId)).findFirst());
+	}
+
+	public void addAuthEnforcers(List<IAuthEnforcer> authEnforcers) {
+		this.authEnforcers = Optional.ofNullable(authEnforcers);
 	}
 
 	public String getOrAllocateCookie(String sessionId, IAuthProtocol protocol) {
-		String ret = sidCookies.get(sessionId);
+		SidData ret = sidSidData.getIfPresent(sessionId);
 
-		if (ret == null) {
-			StringBuilder cookie = new StringBuilder();
-			cookie.append(UUID.randomUUID().toString());
-			// cookie.append(System.currentTimeMillis());
-			ret = cookie.toString();
-
-			cookieSids.put(ret, sessionId);
-			sidCookies.put(sessionId, ret);
-			sidProtocol.put(sessionId, protocol);
+		if (ret != null) {
+			return ret.cookie;
 		}
 
-		return ret;
+		String cookie = UUID.randomUUID().toString();
+
+		cookieSids.getCache().put(cookie, sessionId);
+		sidSidData.getCache().put(sessionId, new SidData(cookie, protocol));
+
+		return cookie;
 	}
 
 	public String getSessionId(String cookie) {
-		String ret = cookieSids.get(cookie);
-		if (ret == null) {
+		String ret = cookieSids.getIfPresent(cookie);
+
+		if (ret == null && logger.isDebugEnabled()) {
 			logger.debug("No session for cookie {}", cookie);
 		}
 		return ret;
 	}
 
 	public void purgeSession(String sessionId) {
-		String cookie = sidCookies.remove(sessionId);
-		logger.info("purge session {} with cookie {}", sessionId, cookie);
-		if (cookie != null) {
-			cookieSids.remove(cookie);
+		SidData sidData = sidSidData.getIfPresent(sessionId);
+		if (sidData == null) {
+			return;
 		}
-		sidProtocol.remove(sessionId);
+
+		logger.info("purge session {} with cookie {}", sessionId, sidData.cookie);
+		sidSidData.getCache().invalidate(sessionId);
+		cookieSids.getCache().invalidate(sidData.cookie);
 	}
 
 	@Override
 	public String newSession(String providerSession, IAuthProtocol protocol) {
 		return getOrAllocateCookie(providerSession, protocol);
-	}
-
-	public void purgeAllSessions() {
-		cookieSids.clear();
-		sidCookies.clear();
-		sidProtocol.clear();
 	}
 
 	@Override
@@ -99,11 +161,36 @@ public class SessionStore implements ISessionStore {
 			return null;
 		}
 
-		IAuthProtocol protocol = sidProtocol.get(sessionId);
-		if (protocol == null) {
-			logger.warn("No protocol for session " + sessionId);
+		SidData sidData = sidSidData.getIfPresent(sessionId);
+		if (sidData == null || sidData.protocol == null) {
+			logger.warn("No authentication protocol for session: {}", sessionId);
+			return null;
 		}
 
-		return protocol;
+		return sidData.protocol;
+	}
+
+	@Override
+	public boolean needCheck(String sessionId) {
+		return Optional.ofNullable(sidSidData.getIfPresent(sessionId)).map(sidData -> sidData.needcheck)
+				.orElseThrow(() -> new SidDataNotFound());
+	}
+
+	public void checkAll() {
+		sidSidData.getCache().asMap().values().forEach(sidData -> sidData.needcheck = true);
+	}
+
+	@Override
+	public void checked(String sessionId) {
+		Optional.ofNullable(sidSidData.getCache().getIfPresent(sessionId)).map(SidData::checked)
+				.ifPresent(sidData -> sidSidData.getCache().put(sessionId, sidData));
+	}
+
+	public void cleanUp() {
+		sidSidData.cleanUp();
+		sidSidData.cleanUpStore();
+
+		cookieSids.cleanUp();
+		sidSidData.cleanUpStore();
 	}
 }

@@ -46,4 +46,8 @@ public class AuthEnforcer implements IAuthEnforcer, NeedVertx {
 		protocol = new WebModuleProtocol(vertx);
 	}
 
+	@Override
+	public IAuthProtocol getProtocol() {
+		return protocol;
+	}
 }

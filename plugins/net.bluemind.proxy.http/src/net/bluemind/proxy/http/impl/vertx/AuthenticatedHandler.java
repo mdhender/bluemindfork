@@ -41,7 +41,6 @@ import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.http.RequestOptions;
-import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.proxy.http.InvalidSession;
 import net.bluemind.proxy.http.config.ForwardedLocation;
@@ -232,28 +231,15 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 	}
 
 	private void pingSession(final UserReq userReq) {
-		userReq.provider.ping(userReq.sessionId, new AsyncHandler<Boolean>() {
-
-			@Override
-			public void success(Boolean value) {
-				if (Boolean.TRUE.equals(value)) {
-					userReq.fromClient.response().headers().add("BMAuth", "OK");
-					userReq.fromClient.response().setStatusCode(200);
-					userReq.fromClient.response().end("OK");
-				} else {
-					userReq.fromClient.response().headers().set("Location", "/");
-					userReq.fromClient.response().setStatusCode(302);
-					userReq.fromClient.response().end();
-				}
+		userReq.provider.ping(userReq.sessionId).whenComplete((v, t) -> {
+			if (Boolean.TRUE.equals(v)) {
+				userReq.fromClient.response().headers().add("BMAuth", "OK");
+				userReq.fromClient.response().setStatusCode(200).end("OK");
+				return;
 			}
 
-			@Override
-			public void failure(Throwable e) {
-				logger.error("error during ping of session {} ", userReq.sessionId, e);
-				userReq.fromClient.response().headers().set("Location", "/");
-				userReq.fromClient.response().setStatusCode(302);
-				userReq.fromClient.response().end();
-			}
+			userReq.fromClient.response().headers().set("Location", "/");
+			userReq.fromClient.response().setStatusCode(302).end();
 		});
 	}
 

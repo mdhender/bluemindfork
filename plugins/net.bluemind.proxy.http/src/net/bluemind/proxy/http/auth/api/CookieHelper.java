@@ -85,8 +85,9 @@ public final class CookieHelper {
 			}
 		}
 
-		if (bmhps != null && ss.getSessionId(bmhps) != null) {
-			return CookieStatus.ok(bmhps, ss.getSessionId(bmhps));
+		String sid;
+		if (bmhps != null && ((sid = ss.getSessionId(bmhps)) != null)) {
+			return CookieStatus.ok(bmhps, sid);
 		}
 
 		return CookieStatus.none();

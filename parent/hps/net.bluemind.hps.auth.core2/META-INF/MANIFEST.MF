@@ -24,7 +24,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.metrics.registry,
  net.bluemind.network.topology,
- com.github.ben-manes.caffeine
+ com.github.ben-manes.caffeine,
+ net.bluemind.common.cache.persistence
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.hps.auth.core2

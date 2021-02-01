@@ -72,19 +72,15 @@ public class C2ProviderTests {
 	}
 
 	public static class TestListener implements ILogoutListener {
-
 		@Override
 		public void loggedOut(String sessionId) {
-			// TODO Auto-generated method stub
-
+			// Do nothing
 		}
 
 		@Override
-		public void loggedOutAll() {
-			// TODO Auto-generated method stub
-
+		public void checkAll() {
+			// Do nothing
 		}
-
 	}
 
 	@Test

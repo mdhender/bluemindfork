@@ -20,6 +20,7 @@ package net.bluemind.proxy.http;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import net.bluemind.core.api.AsyncHandler;
 
@@ -30,7 +31,14 @@ public interface IAuthProvider {
 
 	void decorate(String sessionId, IDecorableRequest proxyReq);
 
-	void ping(String sessionId, AsyncHandler<Boolean> handler);
+	/**
+	 * Ping core
+	 * 
+	 * @param sessionId
+	 * @return true on success, {@link CompletionException} on core connection
+	 *         failure, false otherwise
+	 */
+	CompletableFuture<Boolean> ping(String sessionId);
 
 	void reload(String sessionId);
 

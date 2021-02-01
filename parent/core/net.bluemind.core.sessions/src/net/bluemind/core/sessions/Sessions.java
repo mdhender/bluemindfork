@@ -1,7 +1,6 @@
 package net.bluemind.core.sessions;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.osgi.framework.BundleActivator;
@@ -9,64 +8,27 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalCause;
-import com.google.common.cache.RemovalNotification;
-
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.common.cache.persistence.CacheBackingStore;
 import net.bluemind.config.Token;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.api.SystemState;
 
 public class Sessions implements BundleActivator {
-	private static final Cache<String, SecurityContext> STORE = buildCache();
-
-	private static final String IDENTITY = UUID.randomUUID().toString();
-
-	private static Cache<String, SecurityContext> buildCache() {
-		return CacheBuilder.newBuilder().recordStats().expireAfterAccess(20, TimeUnit.MINUTES)
-				.removalListener((RemovalNotification<String, SecurityContext> notification) -> {
-					if (notification.getCause() != RemovalCause.REPLACED && notification.getValue().isInteractive()) {
-						notifySessionRemovalListeners(notification.getKey(), notification.getValue());
-					}
-				}).build();
-	}
-
-	private static void notifySessionRemovalListeners(String sessionId, SecurityContext securityContext) {
-		for (ISessionDeletionListener listener : SessionDeletionListeners.get()) {
-			notifySessionRemovalListener(listener, sessionId, securityContext);
-		}
-	}
-
-	private static void notifySessionRemovalListener(ISessionDeletionListener listener, String sessionId,
-			SecurityContext securityContext) {
-		VertxPlatform.getVertx().executeBlocking(promise -> {
-			try {
-				listener.deleted(IDENTITY, sessionId, securityContext);
-				promise.complete();
-			} catch (Exception e) {
-				promise.fail(e);
-			}
-		}, true, asyncResult -> {
-			if (!asyncResult.succeeded()) {
-				logger.error("Session deletion listener {} failed", listener.getClass().getName(), asyncResult.cause());
-			}
-		});
-	}
+	private static final CacheBackingStore<SecurityContext> STORE = SessionsBackingStore.build();
 
 	private static final Logger logger = LoggerFactory.getLogger(Sessions.class);
 
-	public static final Cache<String, SecurityContext> get() {
+	public static final CacheBackingStore<SecurityContext> get() {
 		return STORE;
 	}
 
 	private long timerId;
-
 	private long logStatsTimerId;
+	private long storeCleanUpTimerId;
 
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
@@ -75,26 +37,31 @@ public class Sessions implements BundleActivator {
 			String op = event.body().getString("operation");
 			SystemState state = SystemState.fromOperation(op);
 			if (state == SystemState.CORE_STATE_MAINTENANCE) {
-				STORE.invalidateAll();
+				STORE.getCache().invalidateAll();
 			}
 		});
 
-		timerId = vx.setPeriodic(5000, i -> STORE.cleanUp());
+		timerId = vx.setPeriodic(5000, i -> STORE.getCache().cleanUp());
 
-		logStatsTimerId = vx.setPeriodic(60000,
-				i -> logger.info("STATS size: {}, stats: {}", STORE.size(), STORE.stats()));
+		logStatsTimerId = vx.setPeriodic(60000, i -> logger.info("STATS size: {}, stats: {}",
+				STORE.getCache().estimatedSize(), STORE.getCache().stats()));
+
+		// Every day, remove sessions files from disk that are not in cache
+		storeCleanUpTimerId = vx.setPeriodic(TimeUnit.DAYS.toMillis(1), i -> STORE.cleanUp());
 	}
 
 	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		VertxPlatform.getVertx().cancelTimer(timerId);
 		VertxPlatform.getVertx().cancelTimer(logStatsTimerId);
+		VertxPlatform.getVertx().cancelTimer(storeCleanUpTimerId);
 	}
 
 	public static SecurityContext sessionContext(String key) {
 		if (key == null) {
 			return null;
 		}
+
 		if (key.equals(Token.admin0())) {
 			return SecurityContext.SYSTEM;
 		}

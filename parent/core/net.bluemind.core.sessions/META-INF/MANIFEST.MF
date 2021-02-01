@@ -6,13 +6,14 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.core.sessions.Sessions
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
- com.google.guava;bundle-version="19.0.0",
  net.bluemind.core.context,
  slf4j.api,
  net.bluemind.config;bundle-version="1.0.0",
  net.bluemind.lib.vertx,
  net.bluemind.system.api;bundle-version="4.1.0",
- net.bluemind.eclipse.common
+ net.bluemind.eclipse.common,
+ com.github.ben-manes.caffeine;visibility:=reexport,
+ net.bluemind.common.cache.persistence;visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.sessions

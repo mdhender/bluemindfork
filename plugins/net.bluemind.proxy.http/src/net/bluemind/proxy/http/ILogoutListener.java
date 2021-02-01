@@ -33,6 +33,5 @@ public interface ILogoutListener {
 	 */
 	void loggedOut(String sessionId);
 
-	void loggedOutAll();
-
+	void checkAll();
 }

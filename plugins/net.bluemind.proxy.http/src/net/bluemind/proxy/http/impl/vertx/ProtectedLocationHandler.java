@@ -44,6 +44,7 @@ import net.bluemind.proxy.http.auth.api.IAuthEnforcer;
 import net.bluemind.proxy.http.auth.api.SecurityConfig;
 import net.bluemind.proxy.http.config.ForwardedLocation;
 import net.bluemind.proxy.http.impl.SessionStore;
+import net.bluemind.proxy.http.impl.SessionStore.SidDataNotFound;
 
 public final class ProtectedLocationHandler implements Handler<HttpServerRequest> {
 
@@ -148,6 +149,17 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 	}
 
 	private void handleAuthenticated(HttpServerRequest event, AuthRequirements reqs) {
+		try {
+			if (ss.needCheck(reqs.sessionId)) {
+				checkSession(event, reqs.sessionId);
+				return;
+			}
+		} catch (SidDataNotFound sdnf) {
+			logger.error("Invalid session ID {}, re-authentication needed needed", reqs.sessionId);
+			event.response().headers().set("Location", "/bluemind_sso_logout");
+			event.response().setStatusCode(302).end();
+			return;
+		}
 
 		if (fl.getRole() == null || authProv.inRole(reqs.sessionId, fl.getRole())) {
 			UserReq ur = new UserReq(reqs.sessionId, event, authProv, ss);
@@ -163,6 +175,30 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 			// TODO forbidden may be handled by IAuthEnforcer ?
 			event.response().setStatusCode(403).end();
 		}
+	}
+
+	private void checkSession(HttpServerRequest event, String sessionId) {
+		authProv.ping(sessionId).whenComplete((v, t) -> {
+			if (t != null) {
+				// On core connection fail, send HTTP unavailable as session may be loaded from
+				// disk after core start
+				event.response().setStatusCode(503).end();
+				return;
+			}
+
+			if (Boolean.TRUE.equals(v)) {
+				ss.checked(sessionId);
+				event.response().headers().set("Location", event.uri());
+				event.response().setStatusCode(302).end();
+				return;
+			}
+
+			logger.warn("Session {} is invalid, re-authentication needed", sessionId);
+			authProv.logout(sessionId).whenComplete((vl, tl) -> {
+				event.response().headers().set("Location", "/bluemind_sso_logout");
+				event.response().setStatusCode(302).end();
+			});
+		});
 	}
 
 	private boolean isFromLogin(HttpServerRequest req) {

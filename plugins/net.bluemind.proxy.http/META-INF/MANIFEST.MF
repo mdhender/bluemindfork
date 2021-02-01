@@ -22,7 +22,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.config,
  net.bluemind.system.stateobserver;bundle-version="4.1.0",
  net.bluemind.metrics.registry;bundle-version="4.1.0",
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ net.bluemind.common.cache.persistence,
+ com.github.ben-manes.caffeine
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.proxy.http,

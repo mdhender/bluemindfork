@@ -18,6 +18,8 @@
  */
 package net.bluemind.proxy.http.impl.vertx;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -32,6 +34,8 @@ import io.vertx.core.http.HttpServerOptions;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.proxy.http.Activator;
 import net.bluemind.proxy.http.ILogoutListener;
+import net.bluemind.proxy.http.auth.api.IAuthEnforcer;
+import net.bluemind.proxy.http.auth.impl.Enforcers;
 import net.bluemind.proxy.http.config.ConfigBuilder;
 import net.bluemind.proxy.http.config.HPSConfiguration;
 import net.bluemind.proxy.http.impl.SessionStore;
@@ -41,10 +45,10 @@ public class ProxyVerticle extends AbstractVerticle {
 	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(ProxyVerticle.class);
 
-	private CoreState coreState;
+	private CoreState coreState = new CoreState(vertx);
 
 	private static Supplier<HPSConfiguration> conf;
-	private static SessionStore ss;
+	static SessionStore ss = new SessionStore();
 
 	static {
 		sharedStuff();
@@ -52,9 +56,8 @@ public class ProxyVerticle extends AbstractVerticle {
 
 	private static void sharedStuff() {
 		conf = Suppliers.memoize(ConfigBuilder::build);
-		ss = new SessionStore();
-		Activator.registerSessionListener(new ILogoutListener() {
 
+		Activator.registerSessionListener(new ILogoutListener() {
 			@Override
 			public void loggedOut(String sessionId) {
 				// FIXME what is that ?!
@@ -62,8 +65,8 @@ public class ProxyVerticle extends AbstractVerticle {
 			}
 
 			@Override
-			public void loggedOutAll() {
-				ss.purgeAllSessions();
+			public void checkAll() {
+				ss.checkAll();
 			}
 		});
 	}
@@ -74,18 +77,21 @@ public class ProxyVerticle extends AbstractVerticle {
 			logger.warn("Topology missing for {}", this);
 		}
 
-		coreState = new CoreState(vertx);
-		coreState.start();
+		// Every day, remove sessions files from disk that are not in cache
+		vertx.setPeriodic(TimeUnit.DAYS.toMillis(1), i -> ss.cleanUp());
+
 		HttpServerOptions opts = new HttpServerOptions();
 		opts.setTcpNoDelay(true);
 		opts.setUsePooledBuffers(true);
 		opts.setTcpKeepAlive(true);
 		HttpServer proxy = vertx.createHttpServer(opts);
 
-		HpsReqHandler rh = new HpsReqHandler(vertx, conf.get(), ss, coreState);
+		List<IAuthEnforcer> authEnforcers = Enforcers.enforcers(vertx);
+		ss.addAuthEnforcers(authEnforcers);
+
+		HpsReqHandler rh = new HpsReqHandler(vertx, conf.get(), authEnforcers, ss, coreState);
 		proxy.requestHandler(rh);
 		proxy.listen(8079);
 		p.complete();
 	}
-
 }
