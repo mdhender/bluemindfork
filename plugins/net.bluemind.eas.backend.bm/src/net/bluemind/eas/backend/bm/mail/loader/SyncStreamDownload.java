@@ -160,7 +160,7 @@ public class SyncStreamDownload {
 			if (ar.failed()) {
 				ret.completeExceptionally(ar.cause());
 			} else {
-				ret.complete(null);
+				ret.complete(out.out);
 			}
 		});
 		toRead.resume();
