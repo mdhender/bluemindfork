@@ -22,6 +22,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +38,8 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil.Leniency;
 import android.util.Patterns;
 
 public class Linkify {
+
+	private static final ExecutorService executor = Executors.newCachedThreadPool();
 
 	/**
 	 * MatchFilter enables client code to have more control over what is allowed to
@@ -147,6 +153,16 @@ public class Linkify {
 	 * @return
 	 */
 	public static String toHtml(String s) {
+		Future<String> future = executor.submit(() -> toHtmlImpl(s));
+		try {
+			return future.get(10, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			future.cancel(true);
+			return s;
+		}
+	}
+
+	private static String toHtmlImpl(String s) {
 		if (s.contains("</div>") || s.contains("</table>")) {
 			return s;
 		}
@@ -189,7 +205,6 @@ public class Linkify {
 		result.append(trans.substring(start));
 
 		return result.toString();
-
 	}
 
 	private static final void gatherLinks(List<LinkSpec> links, LinkKind k, CharSequence s, Pattern pattern,
