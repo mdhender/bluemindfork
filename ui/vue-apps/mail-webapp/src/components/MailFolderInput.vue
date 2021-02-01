@@ -85,7 +85,7 @@ export default {
             return this.folder && this.folder.name !== "";
         },
         computeIconName() {
-            return this.isActive ? (this.shared ? "folder-shared" : "folder") : "plus";
+            return this.isActive ? (this.shared ? "plus-folder-shared" : "plus-folder") : "plus-folder";
         },
         computeClassNames() {
             if (!this.isActive) {
