@@ -60,16 +60,34 @@ public class PerOwnerMailboxEventProducer extends AbstractVerticle {
 		EventBus eb = vertx.eventBus();
 		vertx.eventBus().consumer(ReplicationEvents.MBOX_UPD_ADDR, (Message<JsonObject> msg) -> {
 			String owner = msg.body().getString("owner");
-			JsonObject ownerEvent = createEvent(msg, owner);
-			logger.debug("publishing to mailreplica.{}.updated {}", owner, ownerEvent);
+			JsonObject ownerEvent = createMailboxEvent(msg, owner);
 			eb.publish(ADDRESS_PREFIX + owner + ADDRESS_SUFFIX, ownerEvent);
+		});
+		vertx.eventBus().consumer(ReplicationEvents.HIER_UPD_ADDR, (Message<JsonObject> msg) -> {
+			if (!msg.body().getBoolean("minor")) {
+				String owner = msg.body().getString("owner");
+				JsonObject ownerEvent = createHierarchyEvent(msg, owner);
+				eb.publish(ADDRESS_PREFIX + owner + ADDRESS_SUFFIX, ownerEvent);
+			}
 		});
 	}
 
-	private JsonObject createEvent(Message<JsonObject> msg, String owner) {
+	private JsonObject createMailboxEvent(Message<JsonObject> msg, String owner) {
 		JsonObject ownerEvent = new JsonObject();
+		ownerEvent.put("isHierarchy", false);
 		ownerEvent.put("mailbox", msg.body().getString("mailbox"));
 		ownerEvent.put("container", msg.body().getString("container"));
+		ownerEvent.put("version", msg.body().getLong("version"));
+		ownerEvent.put("owner", owner);
+		return ownerEvent;
+	}
+
+	private JsonObject createHierarchyEvent(Message<JsonObject> msg, String owner) {
+		JsonObject ownerEvent = new JsonObject();
+		ownerEvent.put("isHierarchy", true);
+		ownerEvent.put("mailbox", msg.body().getString("uid"));
+		ownerEvent.put("itemUid", msg.body().getString("itemUid"));
+		ownerEvent.put("itemId", msg.body().getLong("itemId"));
 		ownerEvent.put("version", msg.body().getLong("version"));
 		ownerEvent.put("owner", owner);
 		return ownerEvent;

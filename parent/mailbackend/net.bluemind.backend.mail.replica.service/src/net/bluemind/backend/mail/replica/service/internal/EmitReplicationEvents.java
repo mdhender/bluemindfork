@@ -98,15 +98,16 @@ public class EmitReplicationEvents {
 		eb.publish(ReplicationEvents.MBOX_CREATE_ADDR + "." + subtreeContainerUid + "." + folderName, js);
 	}
 
-	public static void subtreeUpdated(String subtreeContainerUid, ItemIdentifier item) {
-		subtreeUpdated(subtreeContainerUid, item, false);
+	public static void subtreeUpdated(String subtreeContainerUid, String owner, ItemIdentifier item) {
+		subtreeUpdated(subtreeContainerUid, owner, item, false);
 	}
 
-	public static void subtreeUpdated(String subtreeContainerUid, ItemIdentifier item, boolean minorChange) {
+	public static void subtreeUpdated(String subtreeContainerUid, String owner, ItemIdentifier item,
+			boolean minorChange) {
 		logger.debug("****** Subtree updated {}, minorChange: {}", subtreeContainerUid, minorChange);
 		JsonObject js = new JsonObject().put("uid", subtreeContainerUid)//
 				.put("itemUid", item.uid).put("itemId", item.id).put("version", item.version)//
-				.put("minor", minorChange);
+				.put("owner", owner).put("minor", minorChange);
 		eb.publish(ReplicationEvents.HIER_UPD_ADDR + "." + subtreeContainerUid, js);
 		eb.publish(ReplicationEvents.HIER_UPD_ADDR, js);
 	}

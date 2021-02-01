@@ -111,7 +111,7 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		}
 
 		EmitReplicationEvents.mailboxCreated(container.uid, fn, iid);
-		EmitReplicationEvents.subtreeUpdated(container.uid, iid);
+		EmitReplicationEvents.subtreeUpdated(container.uid, container.owner, iid);
 	}
 
 	@Override
@@ -142,8 +142,8 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 				contApi.update(recordsContainerUid, cmd);
 			}
 
-			EmitReplicationEvents.subtreeUpdated(container.uid, ItemIdentifier.of(uid, upd.id, upd.version),
-					minorChange);
+			EmitReplicationEvents.subtreeUpdated(container.uid, container.owner,
+					ItemIdentifier.of(uid, upd.id, upd.version), minorChange);
 		}
 	}
 
@@ -178,7 +178,8 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 
 			context.provider().instance(IContainers.class).delete(toDelete);
 
-			EmitReplicationEvents.subtreeUpdated(container.uid, ItemIdentifier.of(uid, deleted.id, deleted.version));
+			EmitReplicationEvents.subtreeUpdated(container.uid, container.owner,
+					ItemIdentifier.of(uid, deleted.id, deleted.version));
 		}
 
 	}
