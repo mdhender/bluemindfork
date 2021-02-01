@@ -26,6 +26,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.lib.vertx.Result;
 
 public abstract class GenericJsonObjectWriteStream<T> implements WriteStream<Buffer> {
 
@@ -69,13 +70,13 @@ public abstract class GenericJsonObjectWriteStream<T> implements WriteStream<Buf
 	@Override
 	public GenericJsonObjectWriteStream<T> write(Buffer buffer, Handler<AsyncResult<Void>> res) {
 		write(buffer);
-		res.handle(null);
+		res.handle(Result.success());
 		return this;
 	}
 
 	@Override
 	public void end(Handler<AsyncResult<Void>> res) {
-		res.handle(null);
+		res.handle(Result.success());
 	}
 
 	@Override

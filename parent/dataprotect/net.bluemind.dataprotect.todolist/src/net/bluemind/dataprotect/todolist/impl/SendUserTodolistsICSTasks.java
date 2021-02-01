@@ -62,6 +62,7 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.service.BackupDataProvider;
+import net.bluemind.lib.vertx.Result;
 import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.todolist.api.IVTodo;
 import net.bluemind.user.api.IUser;
@@ -184,7 +185,7 @@ public class SendUserTodolistsICSTasks implements IServerTask {
 		@Override
 		public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
 			write(data);
-			handler.handle(null);
+			handler.handle(Result.success());
 			return this;
 		}
 
@@ -194,7 +195,7 @@ public class SendUserTodolistsICSTasks implements IServerTask {
 
 		@Override
 		public void end(Handler<AsyncResult<Void>> handler) {
-			handler.handle(null);
+			handler.handle(Result.success());
 		}
 	}
 

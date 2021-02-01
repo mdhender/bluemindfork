@@ -28,6 +28,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.streams.WriteStream;
+import net.bluemind.lib.vertx.Result;
 
 public class BusWriteStream implements WriteStream<Buffer> {
 	private static final Logger logger = LoggerFactory.getLogger(BusWriteStream.class);
@@ -149,7 +150,7 @@ public class BusWriteStream implements WriteStream<Buffer> {
 	@Override
 	public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
 		write(data);
-		handler.handle(null);
+		handler.handle(Result.success());
 		return this;
 	}
 
@@ -159,6 +160,6 @@ public class BusWriteStream implements WriteStream<Buffer> {
 
 	@Override
 	public void end(Handler<AsyncResult<Void>> handler) {
-		handler.handle(null);
+		handler.handle(Result.success());
 	}
 }

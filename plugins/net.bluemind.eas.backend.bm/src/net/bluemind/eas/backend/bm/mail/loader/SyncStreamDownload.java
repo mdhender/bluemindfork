@@ -31,6 +31,7 @@ import io.vertx.core.streams.ReadStream;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.lib.vertx.Result;
 
 public class SyncStreamDownload {
 
@@ -73,7 +74,7 @@ public class SyncStreamDownload {
 		@Override
 		public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
 			write(data);
-			handler.handle(null);
+			handler.handle(Result.success());
 			return this;
 		}
 
@@ -84,7 +85,7 @@ public class SyncStreamDownload {
 
 		@Override
 		public void end(Handler<AsyncResult<Void>> handler) {
-			handler.handle(null);
+			handler.handle(Result.success());
 		}
 
 	}
@@ -130,7 +131,7 @@ public class SyncStreamDownload {
 		@Override
 		public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
 			write(data);
-			handler.handle(null);
+			handler.handle(Result.success());
 			return this;
 		}
 
@@ -146,7 +147,7 @@ public class SyncStreamDownload {
 		@Override
 		public void end(Handler<AsyncResult<Void>> handler) {
 			end();
-			handler.handle(null);
+			handler.handle(Result.success());
 		}
 
 	}

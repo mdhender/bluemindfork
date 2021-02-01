@@ -242,7 +242,7 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 		@Override
 		public BaseStream<T> write(T data, Handler<AsyncResult<Void>> handler) {
 			write(data);
-			handler.handle(null);
+			handler.handle(Result.success());
 			return this;
 		}
 
