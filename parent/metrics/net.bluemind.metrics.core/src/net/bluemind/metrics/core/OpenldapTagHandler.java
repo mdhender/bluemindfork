@@ -35,12 +35,12 @@ public class OpenldapTagHandler extends TickInputConfigurator {
 
 		String passwd = Token.admin0();
 
-		Configuration cfg = new Configuration();
+		Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		cfg.setTemplateLoader(new ClassTemplateLoader(InfluxTagHandler.class, "/templates/"));
 		try {
 			Template temp = cfg.getTemplate("bm-openldap.ftl");
 			StringWriter out = new StringWriter();
-			Map<String, String> map = new HashMap<String, String>();
+			Map<String, String> map = new HashMap<>();
 			map.put("password", passwd);
 			temp.process(map, out);
 			serverApi.writeFile(itemValue.uid, "/etc/telegraf/telegraf.d/bm-openldap.conf", out.toString().getBytes());

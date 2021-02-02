@@ -243,7 +243,7 @@ public class PopulateHelper {
 		DataSource dataSource = JdbcActivator.getInstance().getDataSource();
 		CachesTestHelper.invalidate();
 
-		ContainerStore cs = new ContainerStore(dataSource, SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(null, dataSource, SecurityContext.SYSTEM);
 		try {
 			Container container = cs.get(InstallationId.getIdentifier());
 
@@ -269,7 +269,7 @@ public class PopulateHelper {
 	}
 
 	public static void addGlobalVirt(DataSource pool) throws Exception {
-		ContainerStore cs = new ContainerStore(pool, SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(null, pool, SecurityContext.SYSTEM);
 		cs.create(Container.create(installationId(), "installation", "installation",
 				SecurityContext.SYSTEM.getSubject(), true));
 
@@ -415,7 +415,7 @@ public class PopulateHelper {
 	public static void assign(DataSource pool, String serverUid, String tag, String domainUid)
 			throws ServerFault, IOException {
 
-		ContainerStore cs = new ContainerStore(pool, SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(null, pool, SecurityContext.SYSTEM);
 		try {
 			Container container = cs.get(InstallationId.getIdentifier());
 

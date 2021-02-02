@@ -2,9 +2,6 @@ package net.bluemind.metrics.registry.impl;
 
 import java.util.Collections;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.netflix.spectator.api.Clock;
 import com.netflix.spectator.api.Gauge;
 import com.netflix.spectator.api.Id;
@@ -15,7 +12,6 @@ import net.bluemind.metrics.registry.client.AgentPushClient;
 import net.bluemind.metrics.registry.json.GaugeJson;
 
 public class BMMaxGauge implements Gauge {
-	private static final Logger logger = LoggerFactory.getLogger(BMMaxGauge.class);
 	private final Clock clock;
 	private final Id id;
 	private final AtomicDouble value;

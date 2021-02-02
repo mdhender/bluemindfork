@@ -74,7 +74,7 @@ public class QuotaGatheringJob implements IScheduledJob {
 		if (jobRunId != null) {
 			try {
 				boolean warning = false;
-				Map<String, ItemValue<Server>> servers = new HashMap<String, ItemValue<Server>>();
+				Map<String, ItemValue<Server>> servers = new HashMap<>();
 
 				IMailboxes service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 						.instance(IMailboxes.class, domainName);

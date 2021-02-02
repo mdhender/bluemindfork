@@ -31,6 +31,7 @@ import javax.sql.DataSource;
 import org.elasticsearch.client.transport.TransportClient;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,6 +108,11 @@ public abstract class AbstractServiceTests {
 	protected String datalocation;
 
 	protected DataSource dataDataSource;
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("ahcnode.fail.https.ok", "true");
+	}
 
 	@Before
 	public void before() throws Exception {

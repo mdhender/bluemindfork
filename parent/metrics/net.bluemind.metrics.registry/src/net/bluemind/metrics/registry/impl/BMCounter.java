@@ -3,9 +3,6 @@ package net.bluemind.metrics.registry.impl;
 import java.util.Collections;
 import java.util.concurrent.atomic.LongAdder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.netflix.spectator.api.Clock;
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Id;
@@ -15,8 +12,6 @@ import net.bluemind.metrics.registry.client.AgentPushClient;
 import net.bluemind.metrics.registry.json.CounterJson;
 
 public class BMCounter implements Counter {
-
-	private static final Logger logger = LoggerFactory.getLogger(BMCounter.class);
 
 	private final Clock clock;
 	private final Id id;

@@ -74,7 +74,7 @@ public class DataProtectJob implements IScheduledJob {
 			GregorianCalendar gc = new GregorianCalendar();
 			gc.setTime(startDate);
 			if (gc.get(Calendar.MINUTE) != 0 || gc.get(Calendar.HOUR_OF_DAY) != 1) {
-				logger.info("automatic mode, not running at {}", gc.getTime().toString());
+				logger.info("automatic mode, not running at {}", gc.getTime());
 				return;
 			}
 		}
@@ -87,7 +87,7 @@ public class DataProtectJob implements IScheduledJob {
 
 			IServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 			IDataProtect dpApi = sp.instance(IDataProtect.class);
-			AtomicReference<JobExitStatus> status = new AtomicReference<JobExitStatus>(JobExitStatus.SUCCESS);
+			AtomicReference<JobExitStatus> status = new AtomicReference<>(JobExitStatus.SUCCESS);
 			try {
 				ref = dpApi.saveAll();
 				ITask taskApi = sp.instance(ITask.class, String.format("%s", ref.id));

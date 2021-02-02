@@ -114,7 +114,7 @@ public class BmContextImpl implements BmContext {
 
 	@Override
 	public List<DataSource> getAllMailboxDataSource() {
-		List<DataSource> ret = new ArrayList<DataSource>();
+		List<DataSource> ret = new ArrayList<>();
 		ret.addAll(mailboxDataSource.values());
 		return ret;
 	}

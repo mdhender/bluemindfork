@@ -34,7 +34,7 @@ import net.bluemind.core.rest.internal.BmContextImpl;
 public class ServerSideServiceProvider implements IServiceProvider {
 
 	public static DataSource defaultDataSource = null;
-	public static Map<String, DataSource> mailboxDataSource = new HashMap<String, DataSource>();
+	public static Map<String, DataSource> mailboxDataSource = new HashMap<>();
 
 	public interface IServerSideServiceFactory<T> {
 		public Class<T> factoryClass();

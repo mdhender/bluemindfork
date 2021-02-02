@@ -72,7 +72,7 @@ public class InfluxTagHandler extends TickInputConfigurator {
 		List<ItemValue<Server>> allServers = serverApi.allComplete();
 		for (ItemValue<Server> srvItem : allServers) {
 			try {
-				Configuration cfg = new Configuration();
+				Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 				cfg.setTemplateLoader(new ClassTemplateLoader(InfluxTagHandler.class, "/templates/"));
 				Template temp = cfg.getTemplate("output.ftl");
 				StringWriter out = new StringWriter();
@@ -112,7 +112,7 @@ public class InfluxTagHandler extends TickInputConfigurator {
 		List<ItemValue<Server>> allServers = serverApi.allComplete();
 		for (ItemValue<Server> srvItem : allServers) {
 			try {
-				Configuration cfg = new Configuration();
+				Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 				cfg.setTemplateLoader(new ClassTemplateLoader(InfluxTagHandler.class, "/templates/"));
 				Template temp = cfg.getTemplate("output-influxdb_local.ftl");
 				StringWriter out = new StringWriter();

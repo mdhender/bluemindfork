@@ -16,3 +16,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.dataprotect.ou.Activator
 Export-Package: net.bluemind.dataprotect.ou
+Automatic-Module-Name: net.bluemind.dataprotect.ou

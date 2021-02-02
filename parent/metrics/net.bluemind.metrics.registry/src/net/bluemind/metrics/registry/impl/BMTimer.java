@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.netflix.spectator.api.AbstractTimer;
 import com.netflix.spectator.api.Clock;
 import com.netflix.spectator.api.Id;
@@ -18,9 +15,6 @@ import net.bluemind.metrics.registry.client.AgentPushClient;
 import net.bluemind.metrics.registry.json.TimerJson;
 
 public class BMTimer extends AbstractTimer {
-
-	private static final Logger logger = LoggerFactory.getLogger(BMTimer.class);
-
 	private final AgentPushClient webSockClient;
 	private final Id id;
 	private final LongAdder count;

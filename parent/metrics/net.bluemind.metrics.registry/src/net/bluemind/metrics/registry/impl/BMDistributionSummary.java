@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.netflix.spectator.api.Clock;
 import com.netflix.spectator.api.DistributionSummary;
 import com.netflix.spectator.api.Id;
@@ -17,7 +14,6 @@ import net.bluemind.metrics.registry.client.AgentPushClient;
 import net.bluemind.metrics.registry.json.DistributionSummaryJson;
 
 public class BMDistributionSummary implements DistributionSummary {
-	private static final Logger logger = LoggerFactory.getLogger(BMDistributionSummary.class);
 	private final Clock clock;
 	private final Id id;
 	private final LongAdder count;
