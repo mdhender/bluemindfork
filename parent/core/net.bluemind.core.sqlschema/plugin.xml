@@ -23,5 +23,12 @@
                 id="schema-version">
             </compose>
         </schema>
+        <schema
+            name="pg_repack"
+            resource="sql/pg_repack.sql">
+            <compose
+                id="schema-version">
+            </compose>
+        </schema>
     </extension>
 </plugin>
