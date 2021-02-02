@@ -234,12 +234,9 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 			LdapConnectionContext ldapConCtx) {
 		Timer relTimer = metrics.forOperation("release");
 		long time = metrics.clock.monotonicTime();
-		try {
-			ldapPoolByDomain.releaseConnectionContext(ldapConCtx);
-			relTimer.record(metrics.clock.monotonicTime() - time, TimeUnit.NANOSECONDS);
-		} catch (Exception e) {
-			logger.error(String.format("Unable to release LDAP connection for %s, closing this connection", parameters),
-					e);
-		}
+
+		ldapPoolByDomain.releaseConnectionContext(ldapConCtx);
+
+		relTimer.record(metrics.clock.monotonicTime() - time, TimeUnit.NANOSECONDS);
 	}
 }

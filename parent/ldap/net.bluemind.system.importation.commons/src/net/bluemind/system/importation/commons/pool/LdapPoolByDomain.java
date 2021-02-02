@@ -18,6 +18,7 @@
  */
 package net.bluemind.system.importation.commons.pool;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -153,30 +154,62 @@ public class LdapPoolByDomain {
 		return Optional.of(ldapConCtx);
 	}
 
-	public void releaseConnectionContext(LdapConnectionContext ldapConCtx) throws Exception {
+	public void releaseConnectionContext(LdapConnectionContext ldapConCtx) {
 		if (ldapConCtx == null || ldapConCtx.ldapCon == null) {
 			return;
 		}
 
-		LdapPoolWrapper pool = poolByDomain.get(ldapConCtx.ldapParameters);
-		if (pool == null) {
-			logger.warn("No LDAP connection pool for: {}, closing connection", ldapConCtx.ldapParameters);
+		getPoolOrCloseLdapConnexion(ldapConCtx.ldapParameters, ldapConCtx.ldapCon)
+				.ifPresent(pool -> doReleaseConnection(pool, ldapConCtx)
+						.ifPresent(lcc -> invalidateConnectionOrResetPool(pool, lcc)));
+	}
 
-			ldapConCtx.ldapCon.close();
-			return;
+	private Optional<LdapPoolWrapper> getPoolOrCloseLdapConnexion(Parameters ldapParameters, LdapConnection ldapCon) {
+		LdapPoolWrapper pool = poolByDomain.get(ldapParameters);
+
+		if (pool != null) {
+			return Optional.of(pool);
 		}
 
-		if (ldapConCtx.isError()) {
-			logger.warn("Invalidate LDAP connection from pool {}", ldapConCtx.ldapParameters);
+		logger.warn("No LDAP connection pool for: {}, closing connection", ldapParameters);
+		try {
+			ldapCon.close();
+		} catch (IOException ioe) {
+			// No pool found, and unable to close orphan LDAP connection...
+			logger.warn("Unable to close LDAP connection for {}", ldapParameters, ioe);
+		}
+
+		return Optional.empty();
+	}
+
+	private void invalidateConnectionOrResetPool(LdapPoolWrapper pool, LdapConnectionContext ldapConCtx) {
+		logger.warn("Invalidate LDAP connection from pool {}", ldapConCtx.ldapParameters);
+		try {
 			pool.getPool().invalidateObject(ldapConCtx.ldapCon);
-			return;
+		} catch (Exception e) {
+			logger.error("Unable to invalidate connection from pool {}", ldapConCtx.ldapParameters, e);
+			resetPool(ldapConCtx.ldapParameters);
+		}
+	}
+
+	private Optional<LdapConnectionContext> doReleaseConnection(LdapPoolWrapper pool,
+			LdapConnectionContext ldapConCtx) {
+		if (ldapConCtx.isError()) {
+			return Optional.of(ldapConCtx);
 		}
 
-		if (ldapConCtx.ldapCon.isAuthenticated()) {
-			ldapConCtx.ldapCon.anonymousBind();
+		try {
+			if (ldapConCtx.ldapCon.isAuthenticated()) {
+				ldapConCtx.ldapCon.anonymousBind();
+			}
+
+			pool.getPool().releaseConnection(ldapConCtx.ldapCon);
+			return Optional.empty();
+		} catch (LdapException le) {
+			logger.error("Unable to release connection from pool {}", ldapConCtx.ldapParameters, le);
 		}
 
-		pool.getPool().releaseConnection(ldapConCtx.ldapCon);
+		return Optional.of(ldapConCtx.setError());
 	}
 
 	public void resetPool(Parameters ldapParameters) {
