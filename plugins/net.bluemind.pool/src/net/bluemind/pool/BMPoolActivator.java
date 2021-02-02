@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.Plugin;
@@ -108,15 +109,26 @@ public class BMPoolActivator extends Plugin {
 		String password = oci.get("password");
 		String dbName = oci.get("db");
 		String dbHost = oci.get("host");
+		int poolSize = Optional.ofNullable(oci.get("dbpoolsize")).map(this::poolSizeAsInt)
+				.orElseGet(() -> 2 + 2 * Runtime.getRuntime().availableProcessors());
 
-		return startPool(dbType, login, password, dbHost, dbName);
+		return startPool(dbType, login, password, dbHost, dbName, poolSize);
 	}
 
-	public Pool startPool(String dbType, String login, String password, String dbHost, String dbName) throws Exception {
+	private Integer poolSizeAsInt(String poolSize) {
+		try {
+			return Integer.valueOf(poolSize);
+		} catch (NumberFormatException e) {
+		}
+
+		return null;
+	}
+
+	public Pool startPool(String dbType, String login, String password, String dbHost, String dbName, int poolSize)
+			throws Exception {
 		String schemaName = defaultInSchema ? InstallationId.getIdentifier().replace('-', '_') : null;
 		logger.info("startPool with schema {}", schemaName);
-		return newPool(dbType, login, password, dbName, dbHost, 2 + 2 * Runtime.getRuntime().availableProcessors(),
-				schemaName);
+		return newPool(dbType, login, password, dbName, dbHost, poolSize, schemaName);
 	}
 
 	public Pool newPool(String dbType, String login, String password, String dbName, String dbHost, int poolSize,
