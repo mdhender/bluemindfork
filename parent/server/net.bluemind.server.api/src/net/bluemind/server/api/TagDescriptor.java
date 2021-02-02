@@ -32,6 +32,7 @@ public enum TagDescriptor {
 	bm_nginx_edge("bm/nginx-edge"), //
 	bm_xmpp("bm/xmpp"), //
 	bm_pgsql("bm/pgsql"), //
+	bm_pgsql_data("bm/pgsql-data"), //
 	bm_contact("bm/contact"), //
 	mail_smtp_edge("mail/smtp-edge"), //
 	bm_metrics_influx("metrics/influxdb"), //
