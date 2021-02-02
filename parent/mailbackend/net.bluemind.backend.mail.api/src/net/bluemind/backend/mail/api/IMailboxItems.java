@@ -69,8 +69,7 @@ public interface IMailboxItems
 	String uploadPart(Stream part);
 
 	/**
-	 * Get the unread items count, applying the per-user overlay when dealing with a
-	 * shared folder.
+	 * Get the unread items count
 	 * 
 	 * @return a {@link Count} of unread items
 	 */

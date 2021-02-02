@@ -27,8 +27,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
-
+import net.bluemind.backend.cyrus.internal.MailboxOps;
 import net.bluemind.backend.cyrus.internal.files.Annotations;
 import net.bluemind.backend.cyrus.internal.files.CyrusPartitions;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
@@ -157,16 +156,8 @@ public class CyrusService {
 					logger.info("mbox " + boxName + " already exists, that's fine.");
 				}
 			}
-			if (boxName.startsWith("user/")) {
-				// we want shared seen flags for user mailboxes
-				boolean annotated = sc.setMailboxAnnotation(boxName, "/vendor/cmu/cyrus-imapd/sharedseen",
-						ImmutableMap.of("value.shared", "true"));
-				if (!annotated) {
-					logger.warn("Mailbox {} annotation for sharedseen FAILURE.", boxName);
-				} else {
-					logger.info("Mailbox {} annotation for sharedseen SUCCESS.", boxName);
-				}
-			}
+
+			MailboxOps.addSharedSeenAnnotation(sc, boxName);
 		} catch (IMAPException e) {
 			logger.error(e.getMessage(), e);
 			throw new ServerFault(

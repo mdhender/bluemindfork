@@ -46,14 +46,10 @@ public class MailboxSharedSeenMaintenanceOperation extends MailboxMaintenanceOpe
 		monitor.begin(1, String.format("%s mailbox %s sharedseen status", repair ? "Repair" : "Check",
 				mailboxToString(domainUid)));
 
-		if (mailbox.value.type == Type.user) {
-			CheckAndRepairStatus status = MailboxesStorageFactory.getMailStorage().checkAndRepairSharedSeen(context,
-					domainUid, mailbox, repair);
+		CheckAndRepairStatus status = MailboxesStorageFactory.getMailStorage().checkAndRepairSharedSeen(context,
+				domainUid, mailbox, repair);
 
-			monitor.end(status.broken == status.fixed, "sharedseen " + mailbox.value.name + "@" + domainUid
-					+ " checked: " + status.checked + ", broken: " + status.broken + ", fixed: " + status.fixed, null);
-		} else {
-			monitor.end(true, "nothing to do for shared mailbox " + mailbox.value.name, null);
-		}
+		monitor.end(status.broken == status.fixed, "sharedseen " + mailbox.value.name + "@" + domainUid
+				+ " checked: " + status.checked + ", broken: " + status.broken + ", fixed: " + status.fixed, null);
 	}
 }

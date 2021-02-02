@@ -126,8 +126,12 @@ public class CyrusMailboxesStorageTests {
 			assertTrue(sc.login());
 			assertTrue(sc.isExist("user/" + userLogin + "@" + domainUid));
 
-			DefaultFolder.USER_FOLDERS.forEach(
-					df -> assertTrue(sc.isExist(String.format("user/%s/%s@%s", userLogin, df.name, domainUid))));
+			DefaultFolder.USER_FOLDERS.forEach(df -> {
+				String folderName = String.format("user/%s/%s@%s", userLogin, df.name, domainUid);
+				String sharedSeenAnnotation = "/vendor/cmu/cyrus-imapd/sharedseen";
+				assertTrue(sc.isExist(folderName));
+				sc.getAnnotation(folderName, sharedSeenAnnotation).get(sharedSeenAnnotation);
+			});
 		}
 	}
 
@@ -143,7 +147,6 @@ public class CyrusMailboxesStorageTests {
 		String strangeFN = "La fille du bédoin... " + System.currentTimeMillis();
 		try (StoreClient sc = new StoreClient(imapServerAddress, 1143, userLogin + "@" + domainUid, "password")) {
 			assertTrue(sc.login());
-
 			assertTrue(sc.create(strangeFN));
 		}
 
@@ -171,7 +174,7 @@ public class CyrusMailboxesStorageTests {
 			fail(e.getMessage());
 		}
 		System.err.println("toFix: " + toFix);
-		assertEquals(6, toFix);
+		assertEquals(1, toFix);
 
 		try {
 			CheckAndRepairStatus status = cms.checkAndRepairSharedSeen(new BmTestContext(SecurityContext.SYSTEM),

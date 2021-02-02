@@ -64,6 +64,8 @@ import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.imap.Acl;
 import net.bluemind.imap.Annotation;
 import net.bluemind.imap.AnnotationList;
+import net.bluemind.imap.Flag;
+import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.ListInfo;
 import net.bluemind.imap.ListResult;
@@ -640,12 +642,13 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 			}
 
 			if (repair) {
+				FlagsList seenFlag = new FlagsList();
+				seenFlag.add(Flag.SEEN);
 				for (String boxName : toFix) {
-					boolean repaired = sc.setMailboxAnnotation(boxName, "/vendor/cmu/cyrus-imapd/sharedseen",
-							ImmutableMap.of("value.shared", "true"));
-					if (!repaired) {
-						logger.warn("Could not annotate '{}'", boxName);
-					} else {
+					Map<String, String> annotations = ImmutableMap.of("value.shared", "true");
+					boolean annotated = annotate(sc, boxName, "/vendor/cmu/cyrus-imapd/sharedseen", annotations);
+					boolean markedAsSeen = flag(sc, boxName, seenFlag);
+					if (annotated && markedAsSeen) {
 						fixed++;
 					}
 				}
@@ -654,6 +657,32 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 					domainUid, checked, toFix.size(), fixed, System.currentTimeMillis() - start);
 		}
 		return new CheckAndRepairStatus(checked, toFix.size(), fixed);
+	}
+
+	private boolean flag(StoreClient storeClient, String folderName, FlagsList flags) {
+		boolean flagApplied = false;
+		try {
+			if (storeClient.select(folderName)) {
+				flagApplied = storeClient.uidStore("1:*", flags, true);
+				if (!flagApplied) {
+					logger.warn("Could not apply flag {} to folder '{}'", flags, folderName);
+				}
+			} else {
+				logger.warn("Could not select folder '{}', flag {} not applied", folderName, flags);
+			}
+		} catch (IMAPException e) {
+			logger.error("Could not select folder '{}', flag {} not applied", folderName, flags, e);
+		}
+		return flagApplied;
+	}
+
+	private boolean annotate(StoreClient storeClient, String folderName, String annotation,
+			Map<String, String> values) {
+		boolean annotated = storeClient.setMailboxAnnotation(folderName, annotation, values);
+		if (!annotated) {
+			logger.warn("Could not annotate '{}'", folderName);
+		}
+		return annotated;
 	}
 
 	private boolean checkAnnotation(StoreClient sc, String boxName, String annot, String expectedShared) {

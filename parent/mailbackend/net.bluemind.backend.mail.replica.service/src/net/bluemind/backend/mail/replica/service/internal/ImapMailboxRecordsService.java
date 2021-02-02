@@ -75,9 +75,6 @@ import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
-import net.bluemind.backend.mail.replica.api.SeenOverlay;
-import net.bluemind.backend.mail.replica.api.utils.UidRanges;
-import net.bluemind.backend.mail.replica.api.utils.UidRanges.UidRange;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
 import net.bluemind.backend.mail.replica.persistence.RecordID;
@@ -204,22 +201,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		}
 		ItemValue<MailboxItem> adapted = adapt(record);
 		adapted.value.body = body;
-		if (namespace == Namespace.shared) {
-			try {
-				SeenOverlay overlay = seenOverlays.byUser(imapContext.latd, mailboxUniqueId);
-				logger.debug("Apply overlay {} to {}", overlay, adapted);
-				if (overlay != null) {
-					List<UidRange> ranges = UidRanges.from(overlay.seenUids);
-					if (UidRanges.contains(ranges, adapted.value.imapUid)) {
-						adapted.value.flags.add(MailboxItemFlag.System.Seen.value());
-					} else {
-						adapted.value.flags.remove(MailboxItemFlag.System.Seen.value());
-					}
-				}
-			} catch (SQLException e) {
-				throw ServerFault.sqlFault(e);
-			}
-		}
 		return adapted;
 	}
 
@@ -523,18 +504,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			throw new ServerFault("multipleById is limited to 500 ids per-call, you asked for " + ids.size());
 		}
 		rbac.check(Verb.Read.name());
-		List<UidRange> rangesTmp = null;
-		if (namespace == Namespace.shared) {
-			try {
-				SeenOverlay overlay = seenOverlays.byUser(imapContext.latd, mailboxUniqueId);
-				if (overlay != null) {
-					rangesTmp = UidRanges.from(overlay.seenUids);
-				}
-			} catch (SQLException e) {
-				throw ServerFault.sqlFault(e);
-			}
-		}
-		final List<UidRange> ranges = rangesTmp;
 		List<ItemValue<MailboxRecord>> records = storeService.getMultipleById(ids);
 		List<String> bodiesToLoad = records.stream().map(iv -> iv.value.messageBody).distinct()
 				.collect(Collectors.toList());
@@ -559,42 +528,12 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				adapted.value.body.date = v.value.internalDate;
 			}
 
-			if (namespace == Namespace.shared && ranges != null) {
-				if (UidRanges.contains(ranges, adapted.value.imapUid)) {
-					adapted.value.flags.add(MailboxItemFlag.System.Seen.value());
-				} else {
-					adapted.value.flags.remove(MailboxItemFlag.System.Seen.value());
-				}
-			}
-
 			return adapted;
 		}).filter(Objects::nonNull).collect(Collectors.toList());
 	}
 
 	private List<ItemValue<MailboxItem>> multipleByIdWithoutBody(List<Long> ids) {
-		List<UidRange> rangesTmp = null;
-		if (namespace == Namespace.shared) {
-			try {
-				SeenOverlay overlay = seenOverlays.byUser(imapContext.latd, mailboxUniqueId);
-				if (overlay != null) {
-					rangesTmp = UidRanges.from(overlay.seenUids);
-				}
-			} catch (SQLException e) {
-				throw ServerFault.sqlFault(e);
-			}
-		}
-		final List<UidRange> ranges = rangesTmp;
-		return storeService.getMultipleById(ids).stream().map(v -> {
-			ItemValue<MailboxItem> adapted = adapt(v);
-			if (namespace == Namespace.shared && ranges != null) {
-				if (UidRanges.contains(ranges, adapted.value.imapUid)) {
-					adapted.value.flags.add(MailboxItemFlag.System.Seen.value());
-				} else {
-					adapted.value.flags.remove(MailboxItemFlag.System.Seen.value());
-				}
-			}
-			return adapted;
-		}).collect(Collectors.toList());
+		return storeService.getMultipleById(ids).stream().map(v -> adapt(v)).collect(Collectors.toList());
 	}
 
 	public ItemIdentifier unexpunge(long itemId) {
@@ -762,15 +701,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		List<ImapBinding> unreadBindings = Collections.emptyList();
 		try {
 			unreadBindings = recordStore.unreadItems();
-			if (namespace == Namespace.shared) {
-				SeenOverlay overlay = seenOverlays.byUser(imapContext.latd, mailboxUniqueId);
-				if (overlay != null) {
-					List<UidRange> ranges = UidRanges.from(overlay.seenUids);
-					int sizeBefore = unreadBindings.size();
-					unreadBindings = UidRanges.notInRange(ranges, unreadBindings);
-					logger.info("Unread before overlay {}, after {}", sizeBefore, unreadBindings.size());
-				}
-			}
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
@@ -792,33 +722,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	@Override
 	public Count getPerUserUnread() {
 		rbac.check(Verb.Read.name());
-		if (namespace == Namespace.shared) {
-			SeenOverlay overlay = null;
-			try {
-				overlay = seenOverlays.byUser(imapContext.latd, mailboxUniqueId);
-			} catch (SQLException e) {
-				throw ServerFault.sqlFault(e);
-			}
-			if (overlay == null) {
-				return Count.of(0);
-			}
-			Count total = count(NOT_DELETED);
-			List<UidRange> ranges = UidRanges.from(overlay.seenUids);
-			if (ranges.isEmpty()) {
-				return total;
-			} else {
-				int value = total.total;
-				for (UidRange r : ranges) {
-					value = value - r.size();
-				}
-				if (value < 0) {
-					value = 0;
-				}
-				return Count.of(value);
-			}
-		} else {
-			return count(UNREAD_NOT_DELETED);
-		}
+		return count(UNREAD_NOT_DELETED);
 	}
 
 	@Override

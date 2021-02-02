@@ -161,7 +161,6 @@ public class CyrusServiceTests {
 
 	@Test
 	public void testUserMboxHasShareSeenEnabled() throws ServerFault {
-
 		String partition = "bm" + System.nanoTime() + ".lan";
 		service.createPartition(partition);
 		service.refreshPartitions(Arrays.asList(partition));
@@ -175,12 +174,29 @@ public class CyrusServiceTests {
 			assertEquals("true", sharedSeen.map(s -> s.valueShared).orElse("false"));
 		} catch (ServerFault e) {
 			fail(e.getMessage());
-		} catch (IMAPException ie) {
-			fail(ie.getMessage());
 		}
 	}
 
-	private Optional<Annotation> checkAnnotations(String boxName, String annot) throws IMAPException {
+	@Test
+	public void testSharedMboxHasShareSeenEnabled() throws ServerFault {
+
+		String partition = "bm" + System.nanoTime() + ".lan";
+		service.createPartition(partition);
+		service.refreshPartitions(Arrays.asList(partition));
+		service.reload();
+
+		String n = "shared" + System.nanoTime();
+		try {
+			service.createBox(n, partition);
+			Optional<Annotation> sharedSeen = checkAnnotations(n, "/vendor/cmu/cyrus-imapd/sharedseen");
+			assertTrue(sharedSeen.isPresent());
+			assertEquals("true", sharedSeen.map(s -> s.valueShared).orElse("false"));
+		} catch (ServerFault e) {
+			fail(e.getMessage());
+		}
+	}
+
+	private Optional<Annotation> checkAnnotations(String boxName, String annot) {
 		try (StoreClient sc = new StoreClient(imapServerAddress, 1143, "admin0", Token.admin0())) {
 			sc.login();
 

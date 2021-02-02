@@ -2709,7 +2709,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		System.err.println("Mark as read done.");
 
 		Count cnt = recordsApi.getPerUserUnread();
-		System.err.println("perUser: " + cnt);
+		System.err.println("perUser: " + cnt.total);
 
 		assertTrue("Expected 1 update to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
 
@@ -2785,7 +2785,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		IMailboxItems mailboxItemsService = provider().instance(IMailboxItems.class, sharedSent.uid);
 
 		Count perUser = mailboxItemsService.getPerUserUnread();
-		System.err.println("perUserUnread is " + perUser);
+		System.err.println("perUserUnread is " + perUser.total);
 
 		List<Long> messageIds = messages.stream().map(m -> m.internalId).collect(Collectors.toList());
 		mailboxItemsService.multipleById(messageIds).forEach(message -> checkMessageIsSeen(message, sharedSent.uid));

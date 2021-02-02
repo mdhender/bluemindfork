@@ -27,6 +27,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
+
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.Sudo;
 import net.bluemind.config.InstallationId;
@@ -96,6 +98,7 @@ public final class MailboxOps {
 				for (DefaultFolder defaultFolder : folders) {
 					if (sc.create(defaultFolder.name, defaultFolder.specialuse)) {
 						created.add(defaultFolder.name);
+						addSharedSeenAnnotation(sc, defaultFolder.name);
 						sc.subscribe(defaultFolder.name);
 					} else {
 						logger.error("Fail to create {} for login {} ", defaultFolder.name, login);
@@ -127,6 +130,7 @@ public final class MailboxOps {
 					String folder = mailshareName + "/" + f.name + "@" + domainUid;
 					if (sc.create(folder)) {
 						created.add(f.name);
+						addSharedSeenAnnotation(sc, folder);
 					} else {
 						created.add(f.name);
 						logger.error("Fail to create folder {} for mailshare {} ", f.name, mailshareName);
@@ -140,5 +144,15 @@ public final class MailboxOps {
 		}
 		logger.info("user imap folders of {}@{} initialized : {}", mailshareName, domainUid, created);
 		return created;
+	}
+
+	public static void addSharedSeenAnnotation(StoreClient sc, String folder) {
+		boolean annotated = sc.setMailboxAnnotation(folder, "/vendor/cmu/cyrus-imapd/sharedseen",
+				ImmutableMap.of("value.shared", "true"));
+		if (!annotated) {
+			logger.warn("Mailbox {} annotation for sharedseen FAILURE.", folder);
+		} else {
+			logger.info("Mailbox {} annotation for sharedseen SUCCESS.", folder);
+		}
 	}
 }
