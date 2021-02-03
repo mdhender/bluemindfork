@@ -119,7 +119,7 @@ public class DETable extends DataGrid<DirEntry> {
 	}
 
 	public void refresh() {
-		Range range = new Range(0, getPageSize());
+		Range range = new Range(0, DEDataProvider.PAGE_SIZE);
 		setVisibleRangeAndClearData(range, true);
 	}
 

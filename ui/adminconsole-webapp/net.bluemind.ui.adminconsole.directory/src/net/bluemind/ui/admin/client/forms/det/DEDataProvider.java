@@ -39,8 +39,7 @@ import net.bluemind.directory.api.DirEntryQuery.Dir;
 import net.bluemind.directory.api.DirEntryQuery.OrderBy;
 
 public class DEDataProvider extends AsyncDataProvider<DirEntry> {
-
-	private static final int PAGE_SIZE = 25;
+	public static final int PAGE_SIZE = 25;
 
 	private DETable cellTable;
 	private MultiSelectionModel<DirEntry> selectionModel;
