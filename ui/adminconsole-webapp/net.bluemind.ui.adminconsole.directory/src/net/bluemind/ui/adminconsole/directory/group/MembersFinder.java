@@ -40,7 +40,6 @@ public class MembersFinder implements SimpleBaseDirEntryFinder {
 
 	private List<JsMember> members = new LinkedList<>();
 	private DirectoryGwtEndpoint directory;
-	private List<String> filterOut;
 
 	public MembersFinder() {
 		directory = new DirectoryGwtEndpoint(Ajax.TOKEN.getSessionId(), Ajax.TOKEN.getContainerUid());
@@ -54,27 +53,17 @@ public class MembersFinder implements SimpleBaseDirEntryFinder {
 			return;
 		}
 
-		List<String> membersUid = members.stream().map(m -> m.getUid()).collect(Collectors.toList());
-		int from = tQuery.from;
-		int to = Math.min(from + tQuery.size, members.size());
-
-		// Don't use query pagination as we filter expected members
-		tQuery.from = 0;
-		tQuery.size = 0;
+		tQuery.entryUidFilter = members.stream().map(m -> m.getUid()).collect(Collectors.toList());
 
 		directory.search(tQuery, new AsyncHandler<ListResult<ItemValue<DirEntry>>>() {
 
 			@Override
 			public void success(ListResult<ItemValue<DirEntry>> value) {
-
-				List<DirEntry> allMembers = value.values.stream()
-						.filter(member -> membersUid.contains(member.value.entryUid)
-								|| (filterOut != null && !filterOut.contains(member.value.entryUid)))
-						.map(d -> d.value).collect(Collectors.toList());
+				List<DirEntry> allMembers = value.values.stream().map(d -> d.value).collect(Collectors.toList());
 
 				ListResult<DirEntry> ret = new ListResult<>();
-				ret.values = allMembers.subList(from, Math.min(to, allMembers.size()));
-				ret.total = allMembers.size();
+				ret.values = allMembers;
+				ret.total = value.total;
 
 				cb.success(ret);
 			}
@@ -115,6 +104,6 @@ public class MembersFinder implements SimpleBaseDirEntryFinder {
 
 	@Override
 	public void setFilterOut(List<String> filterOut) {
-		this.filterOut = filterOut;
+		// Not implemented for member list
 	}
 }

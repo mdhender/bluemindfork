@@ -349,6 +349,16 @@ public class DirEntryStoreTests {
 		res = dirEntryStore.search(query);
 		assertEquals(3, res.total);
 		assertEquals(3, res.values.size());
+
+		// entries UID
+		query = DirEntryQuery.filterEntryUid("test2", "test3", "invalid");
+		query.hiddenFilter = false;
+		query.from = 1;
+		query.size = 1;
+		res = dirEntryStore.search(query);
+		assertEquals(2, res.total);
+		assertEquals(1, res.values.size());
+		assertEquals("test3", res.values.get(0).uid);
 	}
 
 	@Test
