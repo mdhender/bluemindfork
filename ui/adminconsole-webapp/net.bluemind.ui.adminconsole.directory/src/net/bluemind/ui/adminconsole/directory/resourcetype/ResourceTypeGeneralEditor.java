@@ -131,7 +131,6 @@ public class ResourceTypeGeneralEditor extends CompositeGwtWidgetElement {
 			public void onChange(ChangeEvent event) {
 				// store the current template
 				storeCurrentTemplate();
-				
 				// update the selected index
 				selectedTemplateIndex = templateLanguagesComboBox.getSelectedIndex();
 

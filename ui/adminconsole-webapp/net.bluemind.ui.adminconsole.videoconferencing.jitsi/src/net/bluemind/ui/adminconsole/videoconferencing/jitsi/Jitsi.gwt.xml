@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module
+	rename-to="net.bluemind.ui.adminconsole.videoconferencing.jitsi">
+
+	<inherits name='com.google.gwt.user.User' />
+
+	<inherits name="net.bluemind.ui.adminconsole.AdminConsoleBase" />
+	<inherits name="net.bluemind.ui.extensions.GWTExtensions" />
+
+	<inherits name="net.bluemind.gwtconsoleapp.base.Menus" />
+	<inherits name="net.bluemind.gwtconsoleapp.base.Editor" />
+	<inherits name="net.bluemind.gwtconsoleapp.base.I18n" />
+
+	<inherits name="net.bluemind.core.CoreApi" />
+
+	<inherits name="net.bluemind.ui.common.CommonIcons" />
+	<inherits name="net.bluemind.ui.common.client.CommonForms" />
+	<inherits
+		name="net.bluemind.ui.adminconsole.directory.Directory" />
+	<inherits name="net.bluemind.resource.ResourceApi" />
+
+	<source path=''></source>
+
+	<!-- Internationalization support. -->
+	<extend-property name="locale" values="en" />
+	<extend-property name="locale" values="fr" />
+	<extend-property name="locale" values="de" />
+	<set-property-fallback name="locale" value="en" />
+
+	<entry-point
+		class='net.bluemind.ui.adminconsole.videoconferencing.jitsi.JitsiPlugin' />
+
+
+</module>
