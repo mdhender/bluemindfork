@@ -125,9 +125,9 @@ public class FileHostingService implements IFileHosting {
 			info.present = false;
 			return info;
 		}
-		Optional<Type> external = delegates.stream().map(d -> d.info(context).type)
-				.filter(t -> t == null || t == Type.EXTERNAL).findAny();
-		info.type = external.isPresent() ? Type.EXTERNAL : Type.INTERNAL;
+		int externalSystems = delegates.stream().map(d -> d.info(context).type)
+				.filter(t -> t == null || t == Type.EXTERNAL).collect(Collectors.toList()).size();
+		info.type = externalSystems > 0 ? Type.EXTERNAL : Type.INTERNAL;
 		info.info = delegates.stream().map(d -> d.info(context).info).reduce("",
 				(sum, infoString) -> sum.concat(infoString).concat("\n"));
 		info.present = true;
