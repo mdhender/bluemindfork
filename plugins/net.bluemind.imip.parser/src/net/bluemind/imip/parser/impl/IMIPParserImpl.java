@@ -18,12 +18,9 @@
  */
 package net.bluemind.imip.parser.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.james.mime4j.dom.BinaryBody;
 import org.apache.james.mime4j.dom.Body;
 import org.apache.james.mime4j.dom.Entity;
 import org.apache.james.mime4j.dom.Header;
@@ -37,13 +34,10 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.imip.parser.IIMIPParser;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.ITIPMethod;
-import net.freeutils.tnef.Attr;
-import net.freeutils.tnef.TNEFInputStream;
 
 public class IMIPParserImpl implements IIMIPParser {
 
 	public static final String TEXT_CALENDAR = "text/calendar";
-	public static final String MS_TNEF = "application/ms-tnef";
 	public static final String M_ALTERNATIVE = "multipart/alternative";
 
 	private static final Logger logger = LoggerFactory.getLogger(IMIPParserImpl.class);
@@ -71,10 +65,6 @@ public class IMIPParserImpl implements IIMIPParser {
 
 		for (Entity e : parts) {
 			String mime = e.getMimeType();
-			if (!TEXT_CALENDAR.equals(mime) && !MS_TNEF.equals(mime)) {
-				continue;
-			}
-
 			if (TEXT_CALENDAR.equals(mime)) {
 				logger.info("[" + mid + "] Found " + TEXT_CALENDAR + " part.");
 				Header h = e.getHeader();
@@ -93,28 +83,6 @@ public class IMIPParserImpl implements IIMIPParser {
 				imip.messageId = mid;
 				IMIPInfos parseiTIP = parseiTIP(imip, e);
 				return parseiTIP;
-			} else {
-				// BM-5591
-				// Outlook sends application/tnef for vTodo
-				logger.info("MS-TNEF part is not supported");
-				BinaryBody bb = (BinaryBody) e.getBody();
-				try (InputStream partStream = bb.getInputStream()) {
-					TNEFInputStream tnefIs = new TNEFInputStream(partStream);
-					net.freeutils.tnef.Message tnef = new net.freeutils.tnef.Message(tnefIs);
-
-					ITIPMethod method = null;
-					Attr msgClass = tnef.getAttribute(Attr.attMessageClass);
-					if (msgClass != null && "IPM.TaskRequest".equals((String) msgClass.getValue())) {
-						method = ITIPMethod.REQUEST;
-					}
-
-					IMIPInfos imip = new IMIPInfos();
-					imip.method = method;
-					imip.messageId = mid;
-					return parseiTIP(imip, tnef);
-				} catch (IOException e1) {
-					// Ok
-				}
 			}
 		}
 
@@ -133,16 +101,6 @@ public class IMIPParserImpl implements IIMIPParser {
 			}
 		}
 		return ret;
-	}
-
-	private IMIPInfos parseiTIP(IMIPInfos imip, net.freeutils.tnef.Message tnef) {
-		ITIPPartParser partParser = new ITIPPartParser(imip);
-		try {
-			return partParser.parse(tnef);
-		} catch (Exception ioe) {
-			logger.error("[" + imip.messageId + "] Parsing error", ioe);
-			return null;
-		}
 	}
 
 	private IMIPInfos parseiTIP(IMIPInfos imip, Entity e) {

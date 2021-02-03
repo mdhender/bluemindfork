@@ -25,10 +25,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,9 +39,7 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEvent.Transparency;
 import net.bluemind.core.api.Regex;
-import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.parser.ICal4jEventHelper;
 import net.bluemind.icalendar.parser.ICal4jHelper;
 import net.bluemind.icalendar.parser.ObservanceMapper;
@@ -61,11 +56,6 @@ import net.fortuna.ical4j.model.property.Organizer;
 import net.fortuna.ical4j.model.property.Sequence;
 import net.fortuna.ical4j.model.property.Summary;
 import net.fortuna.ical4j.model.property.Uid;
-import net.freeutils.tnef.Attachment;
-import net.freeutils.tnef.Attr;
-import net.freeutils.tnef.MAPIProp;
-import net.freeutils.tnef.MAPIPropName;
-import net.freeutils.tnef.MAPIProps;
 
 public class ITIPPartParser {
 
@@ -219,75 +209,6 @@ public class ITIPPartParser {
 		}
 
 		return imip;
-	}
-
-	public IMIPInfos parse(net.freeutils.tnef.Message tnef) throws IOException {
-
-		if (tnef.getAttribute(Attr.attMessageClass) != null
-				&& "IPM.TaskRequest".equals(tnef.getAttribute(Attr.attMessageClass).getValue())) {
-
-			for (Attachment att : tnef.getAttachments()) {
-
-				MAPIProps mapiProps = att.getNestedMessage().getMAPIProps();
-				MAPIProp taskStatus = mapiProps.getProp(new MAPIPropName(MAPIProp.GUID_CDOPROPSETID2, 0x8101));
-				if (taskStatus != null) {
-
-					VTodo vtodo = new VTodo();
-					MAPIProp percent = mapiProps.getProp(new MAPIPropName(MAPIProp.GUID_CDOPROPSETID2, 0x8102));
-					MAPIProp startDate = mapiProps.getProp(new MAPIPropName(MAPIProp.GUID_CDOPROPSETID2, 0x8104));
-					MAPIProp dueDate = mapiProps.getProp(new MAPIPropName(MAPIProp.GUID_CDOPROPSETID2, 0x8105));
-					MAPIProp owner = mapiProps.getProp(new MAPIPropName(MAPIProp.GUID_CDOPROPSETID2, 0x811F));
-
-					MAPIProp uid = mapiProps.getProp(new MAPIPropName(MAPIProp.GUID_CDOPROPSETID4, 0x8519));
-					// MAPIProp subject = mapiProps.getProp(3613);
-
-					// MAPIProp complete = mapiProps.getProp(new
-					// MAPIPropName(MAPIProp.GUID_CDOPROPSETID2, 0x811C));
-					// MAPIProp completeDate = mapiProps.getProp(new
-					// MAPIPropName(MAPIProp.GUID_CDOPROPSETID2, 0x810F));
-
-					// FIXME
-					for (MAPIProp p : mapiProps.getProps()) {
-						if (p.toString().contains("PR_NORMALIZED_SUBJECT")) {
-							vtodo.summary = p.getValue().toString();
-						}
-					}
-
-					vtodo.organizer = new ICalendarElement.Organizer(owner.getValue().toString());
-
-					SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss z yyyy");
-					try {
-						Date dtstart = sdf.parse(startDate.getValue().toString());
-						vtodo.dtstart = BmDateTimeWrapper.fromTimestamp(dtstart.getTime());
-					} catch (ParseException e) {
-						logger.error("Fail to parse start date {}", startDate.getValue());
-					}
-
-					try {
-						Date due = sdf.parse(dueDate.getValue().toString());
-						vtodo.due = BmDateTimeWrapper.fromTimestamp(due.getTime());
-					} catch (ParseException e) {
-						logger.error("Fail to parse due date {}", dueDate.getValue());
-					}
-
-					vtodo.percent = new Float(percent.getValue().toString()).intValue();
-
-					imip.iCalendarElements.add(vtodo);
-					imip.uid = uid.getValue().toString();
-
-					return imip;
-
-				} else {
-					continue;
-				}
-
-			}
-
-		} else {
-			return null;
-		}
-
-		return null;
 	}
 
 	private Optional<Boolean> parseAcceptCounters(InputStream in) throws IOException {

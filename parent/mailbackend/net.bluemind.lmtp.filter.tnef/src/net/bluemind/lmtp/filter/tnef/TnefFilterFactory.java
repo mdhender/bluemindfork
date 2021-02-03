@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2021
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,21 +16,27 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.lmtp.filter.imip;
+package net.bluemind.lmtp.filter.tnef;
 
 import net.bluemind.lmtp.backend.ILmtpFilterFactory;
 import net.bluemind.lmtp.backend.IMessageFilter;
 
-public class FilterFactory implements ILmtpFilterFactory {
+public class TnefFilterFactory implements ILmtpFilterFactory {
+
+	private TnefFilter filter;
+
+	public TnefFilterFactory() {
+		this.filter = new TnefFilter();
+	}
 
 	@Override
 	public int getPriority() {
-		return Integer.MAX_VALUE - 1;
+		return Integer.MAX_VALUE;
 	}
 
 	@Override
 	public IMessageFilter getEngine() {
-		return new ImipFilter();
+		return filter;
 	}
 
 }

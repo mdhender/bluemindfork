@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.lmtp.filter.tnef.MapiEndpointListener$Factory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.lmtp.lmtpfilterfactory">
+      <lmtp_filter_factory
+            implementation="net.bluemind.lmtp.filter.tnef.TnefFilterFactory">
+      </lmtp_filter_factory>
+   </extension>
+
+</plugin>

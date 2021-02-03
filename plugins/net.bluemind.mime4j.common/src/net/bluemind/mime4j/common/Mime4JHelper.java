@@ -77,6 +77,13 @@ public class Mime4JHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(Mime4JHelper.class);
 
+	/**
+	 * This one will choose only one between multipart/alternative parts. See
+	 * {@link #expandTree(List)} for the other behaviour.
+	 * 
+	 * @param parts
+	 * @return
+	 */
 	public static List<AddressableEntity> expandParts(List<Entity> parts) {
 		if (parts.isEmpty()) {
 			return new LinkedList<>();
@@ -359,7 +366,9 @@ public class Mime4JHelper {
 	}
 
 	/**
-	 * This one will NOT chose only one between multipart/alternative parts
+	 * This one will keep every parts, including all inside
+	 * <code>multipart/alternative
+	 * containers</code>. See {@link #expandParts(List)} for the other behavior.
 	 * 
 	 * @param parts
 	 * @return
