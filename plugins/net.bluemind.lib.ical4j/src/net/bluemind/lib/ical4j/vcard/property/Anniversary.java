@@ -25,7 +25,6 @@ import java.util.List;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Escapable;
-import net.fortuna.ical4j.model.ValidationException;
 import net.fortuna.ical4j.util.Strings;
 import net.fortuna.ical4j.vcard.Group;
 import net.fortuna.ical4j.vcard.Parameter;
@@ -50,10 +49,8 @@ public class Anniversary extends Property implements Escapable {
 	/**
 	 * Factory constructor.
 	 * 
-	 * @param params
-	 *            property parameters
-	 * @param value
-	 *            string representation of a property value
+	 * @param params property parameters
+	 * @param value  string representation of a property value
 	 */
 	public Anniversary(List<Parameter> params, String value) throws ParseException {
 		super("ANNIVERSARY", params);
@@ -80,7 +77,7 @@ public class Anniversary extends Property implements Escapable {
 	}
 
 	@Override
-	public void validate() throws ValidationException {
+	public void validate() {
 	}
 
 	private static class Factory implements PropertyFactory<Property> {
@@ -97,8 +94,12 @@ public class Anniversary extends Property implements Escapable {
 		 */
 		public Manager createProperty(final Group group, final List<Parameter> params, final String value)
 				throws URISyntaxException, ParseException {
-			// TODO Auto-generated method stub
 			return null;
+		}
+
+		@Override
+		public boolean supports(String id) {
+			return id.equals("ANNIVERSARY");
 		}
 	}
 }

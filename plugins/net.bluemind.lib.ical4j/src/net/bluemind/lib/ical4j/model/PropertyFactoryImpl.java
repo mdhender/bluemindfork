@@ -18,14 +18,20 @@
  */
 package net.bluemind.lib.ical4j.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.fortuna.ical4j.data.DefaultPropertyFactorySupplier;
 import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.PropertyFactory;
 
-public class PropertyFactoryImpl extends net.fortuna.ical4j.model.PropertyFactoryImpl {
+public class PropertyFactoryImpl extends DefaultPropertyFactorySupplier {
 
-	private static final long serialVersionUID = 2221792775380006698L;
+	@Override
+	public List<PropertyFactory<? extends Property>> get() {
+		List<PropertyFactory<? extends Property>> list = new ArrayList<>(super.get());
+		list.add(new DtStampFactory());
 
-	public PropertyFactoryImpl() {
-		super();
-		registerDefaultFactory(Property.DTSTAMP, new DtStampFactory());
+		return list;
 	}
 }

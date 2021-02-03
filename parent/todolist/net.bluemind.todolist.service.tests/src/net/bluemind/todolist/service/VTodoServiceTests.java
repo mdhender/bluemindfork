@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -199,10 +200,10 @@ public class VTodoServiceTests extends AbstractServiceTests {
 		assertEquals(1, vtodo.getAlarms().size());
 		VAlarm valarm = (VAlarm) vtodo.getAlarms().get(0);
 		assertEquals("EMAIL", valarm.getAction().getValue());
-		assertEquals(Math.abs(alarm.trigger.intValue()), valarm.getTrigger().getDuration().getSeconds());
-		assertTrue(valarm.getTrigger().getDuration().isNegative());
+		assertEquals(alarm.trigger.intValue(), valarm.getTrigger().getDuration().get(ChronoUnit.SECONDS));
+		assertTrue(valarm.getTrigger().getDuration().get(ChronoUnit.SECONDS) < 0);
 		assertEquals(alarm.description, valarm.getDescription().getValue());
-		assertEquals(alarm.duration.intValue(), valarm.getDuration().getDuration().getSeconds());
+		assertEquals(alarm.duration.intValue(), valarm.getDuration().getDuration().get(ChronoUnit.SECONDS));
 		assertEquals(alarm.repeat.intValue(), valarm.getRepeat().getCount());
 		assertEquals(alarm.summary, valarm.getSummary().getValue());
 	}
@@ -236,29 +237,29 @@ public class VTodoServiceTests extends AbstractServiceTests {
 			VAlarm valarm = (VAlarm) vtodo.getAlarms().get(i);
 			if ("EMAIL".equals(valarm.getAction().getValue())) {
 				emailAlarm = true;
-				assertEquals(Math.abs(email.trigger.intValue()), valarm.getTrigger().getDuration().getSeconds());
-				assertTrue(valarm.getTrigger().getDuration().isNegative());
+				assertEquals(email.trigger.intValue(), valarm.getTrigger().getDuration().get(ChronoUnit.SECONDS));
+				assertTrue(valarm.getTrigger().getDuration().get(ChronoUnit.SECONDS) < 0);
 				assertEquals(email.description, valarm.getDescription().getValue());
-				assertEquals(Math.abs(email.duration.intValue()), valarm.getDuration().getDuration().getSeconds());
-				assertFalse(valarm.getDuration().getDuration().isNegative());
+				assertEquals(email.duration.intValue(), valarm.getDuration().getDuration().get(ChronoUnit.SECONDS));
+				assertFalse(valarm.getDuration().getDuration().get(ChronoUnit.SECONDS) < 0);
 				assertEquals(email.repeat.intValue(), valarm.getRepeat().getCount());
 				assertEquals(email.summary, valarm.getSummary().getValue());
 			} else if ("AUDIO".equals(valarm.getAction().getValue())) {
 				audioAlarm = true;
-				assertEquals(Math.abs(audio.trigger.intValue()), valarm.getTrigger().getDuration().getSeconds());
-				assertFalse(valarm.getTrigger().getDuration().isNegative());
+				assertEquals(audio.trigger.intValue(), valarm.getTrigger().getDuration().get(ChronoUnit.SECONDS));
+				assertFalse(valarm.getTrigger().getDuration().get(ChronoUnit.SECONDS) < 0);
 				assertEquals(audio.description, valarm.getDescription().getValue());
-				assertEquals(Math.abs(audio.duration.intValue()), valarm.getDuration().getDuration().getSeconds());
-				assertTrue(valarm.getDuration().getDuration().isNegative());
+				assertEquals(audio.duration.intValue(), valarm.getDuration().getDuration().get(ChronoUnit.SECONDS));
+				assertTrue(valarm.getDuration().getDuration().get(ChronoUnit.SECONDS) < 0);
 				assertEquals(audio.repeat.intValue(), valarm.getRepeat().getCount());
 				assertEquals(audio.summary, valarm.getSummary().getValue());
 			} else if ("DISPLAY".equals(valarm.getAction().getValue())) {
 				displayAlarm = true;
-				assertEquals(Math.abs(display.trigger.intValue()), valarm.getTrigger().getDuration().getSeconds());
-				assertTrue(valarm.getTrigger().getDuration().isNegative());
+				assertEquals(display.trigger.intValue(), valarm.getTrigger().getDuration().get(ChronoUnit.SECONDS));
+				assertTrue(valarm.getTrigger().getDuration().get(ChronoUnit.SECONDS) < 0);
 				assertEquals(display.description, valarm.getDescription().getValue());
-				assertEquals(Math.abs(display.duration.intValue()), valarm.getDuration().getDuration().getSeconds());
-				assertFalse(valarm.getDuration().getDuration().isNegative());
+				assertEquals(display.duration.intValue(), valarm.getDuration().getDuration().get(ChronoUnit.SECONDS));
+				assertFalse(valarm.getDuration().getDuration().get(ChronoUnit.SECONDS) < 0);
 				assertEquals(display.repeat.intValue(), valarm.getRepeat().getCount());
 				assertEquals(display.summary, valarm.getSummary().getValue());
 			}
@@ -500,8 +501,8 @@ public class VTodoServiceTests extends AbstractServiceTests {
 	}
 
 	private void wait(TaskRef taskRef) throws Exception {
-
-		while (true) {
+		long timeout = System.currentTimeMillis() + 30000;
+		while (System.currentTimeMillis() < timeout) {
 			ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class,
 					taskRef.id);
 			if (task.status().state.ended) {

@@ -68,23 +68,23 @@ import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.ParameterList;
 import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.model.PropertyFactoryImpl;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.component.VTimeZone;
 import net.fortuna.ical4j.model.property.CalScale;
-import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.DtEnd;
 import net.fortuna.ical4j.model.property.LastModified;
+import net.fortuna.ical4j.model.property.Method;
 import net.fortuna.ical4j.model.property.ProdId;
 import net.fortuna.ical4j.model.property.Status;
 import net.fortuna.ical4j.model.property.Transp;
 import net.fortuna.ical4j.model.property.Version;
 import net.fortuna.ical4j.model.property.XProperty;
+import net.fortuna.ical4j.util.Strings;
 
 public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 
-	public static String convertToIcs(Method method, List<ItemValue<VEventSeries>> vevents, Object... properties) {
+	public static String convertToIcs(Method method, List<ItemValue<VEventSeries>> vevents, Property... properties) {
 		return convertToIcal4jCalendar(method, vevents, properties).toString();
 	}
 
@@ -100,12 +100,12 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 	 */
 	// FIXME Object... should be Property...
 	public static Calendar convertToIcal4jCalendar(Method method, List<ItemValue<VEventSeries>> vevents,
-			Object... paramProperties) {
+			Property... paramProperties) {
 		Calendar calendar = initCalendar();
 
-		Object[] properties = paramProperties != null ? paramProperties : new Object[0];
+		Property[] properties = paramProperties != null ? paramProperties : new Property[0];
 
-		for (Object property : properties) {
+		for (Property property : properties) {
 			calendar.getProperties().add(property);
 		}
 
@@ -167,7 +167,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 					}
 				}
 				if (method == Method.CANCEL) {
-					PropertyList props = icalEvent.getProperties();
+					PropertyList<Property> props = icalEvent.getProperties();
 					Property val = props.getProperty("STATUS");
 					if (val != null) {
 						props.remove(val);
@@ -233,6 +233,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 			Consumer<ItemValue<VEventSeries>> consumer) {
 
 		List<String> icsCalendarList = splitIcs(ics);
+
 		for (String cal : icsCalendarList) {
 			InputStream is = new ByteArrayInputStream(cal.getBytes());
 			parseCalendar(is, owner, allTags, consumer);
@@ -326,6 +327,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 
 	private static Optional<String> parseICS(File rootFolder, File icsFile, TimezoneInfo tzInfo) {
 		AtomicReference<String> globalTz = new AtomicReference<>(null);
+
 		try (Reader reader = new InputStreamReader(Files.newInputStream(icsFile.toPath()));
 				UnfoldingReader unfoldingReader = new UnfoldingReader(reader, true)) {
 			CalendarBuilder builder = new CalendarBuilder(tzInfo.timezones);
@@ -349,6 +351,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 				} catch (IOException e) {
 					logger.error(e.getMessage(), e);
 				}
+
 			};
 
 			builder.build(unfoldingReader, componentConsumer);
@@ -377,6 +380,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 			};
 			builder.build(unfoldingReader, componentConsumer);
 		}
+
 		return new TimezoneInfo(tz, Optional.ofNullable(globalTz.get()));
 	}
 
@@ -398,7 +402,12 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		}
 
 		// DTEND
-		vevent.value.dtend = ICal4jHelper.parseIcsDate(ical4j.getEndDate(), globalTZ, tzMapping);
+		Property dtEndProperty = ical4j.getProperty(Property.DTEND);
+		if (dtEndProperty == null) {
+			vevent.value.dtend = vevent.value.dtstart;
+		} else {
+			vevent.value.dtend = ICal4jHelper.parseIcsDate(ical4j.getEndDate(), globalTZ, tzMapping);
+		}
 
 		// TRANSPARENCY
 		if (ical4j.getTransparency() != null) {
@@ -537,10 +546,9 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 
 	private static void appendXMozProperties(PropertyList properties) {
 		java.util.Calendar cal = java.util.Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-		DateProperty p = new DateProperty("X-MOZ-LASTACK", PropertyFactoryImpl.getInstance()) {
-			private static final long serialVersionUID = -4815580988688773123L;
-		};
-		p.setDate(new DateTime(cal.getTime()));
+		String value = Strings.valueOf(cal.getTime());
+
+		XProperty p = new XProperty("X-MOZ-LASTACK", value);
 		properties.add(p);
 
 	}
@@ -570,12 +578,12 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 
 	public static String convertToIcsWithProperty(Method method, List<ItemValue<VEventSeries>> events,
 			XProperty xProperty) {
-		Object[] props = xProperty != null ? new Object[] { xProperty } : null;
+		Property[] props = xProperty != null ? new Property[] { xProperty } : null;
 		return convertToIcs(method, events, props);
 	}
 
 	public static String convertToIcs(List<ItemValue<VEventSeries>> vevents) {
-		return convertToIcs(null, vevents, new Object[0]);
+		return convertToIcs(null, vevents, new Property[0]);
 	}
 
 	public static String convertToIcs(String uid, Method method, VEventSeries series) {

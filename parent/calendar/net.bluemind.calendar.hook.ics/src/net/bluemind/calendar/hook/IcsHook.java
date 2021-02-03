@@ -51,7 +51,6 @@ import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.auditlog.CalendarAuditor;
-import net.bluemind.calendar.helper.ical4j.Method;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.calendar.helper.mail.CalendarMail.CalendarMailBuilder;
 import net.bluemind.calendar.helper.mail.CalendarMailHelper;
@@ -91,6 +90,7 @@ import net.bluemind.system.api.SystemConf;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
+import net.fortuna.ical4j.model.property.Method;
 
 /**
  * Send an email to attendees {@link ICalendarElement.Attendee} when a

@@ -59,6 +59,7 @@ import net.bluemind.icalendar.parser.ICal4jHelper;
 import net.bluemind.lib.ical4j.util.IcalConverter;
 import net.bluemind.utils.FileUtils;
 import net.fortuna.ical4j.model.Date;
+import net.fortuna.ical4j.model.property.Method;
 import net.fortuna.ical4j.util.Configurator;
 
 public class VEventServiceHelperTest {
@@ -157,11 +158,12 @@ public class VEventServiceHelperTest {
 		ItemValue<VEventSeries> event = events.get(0);
 
 		ZonedDateTime dtstart = ZonedDateTime.of(1983, 2, 13, 2, 0, 0, 0, ZoneId.of("Europe/Paris"));
-
 		assertEquals("Europe/Paris", event.value.main.dtstart.timezone);
 		assertEquals(dtstart.toInstant().toEpochMilli(),
 				new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp());
-		assertNull(event.value.main.dtend);
+
+		assertEquals(new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp(),
+				new BmDateTimeWrapper(event.value.main.dtend).toUTCTimestamp());
 
 		assertEquals("ced586fb-836c-462b-91d8-2c6bae2cd6ad", event.uid);
 		assertEquals("testImport", event.value.main.summary);
@@ -381,8 +383,8 @@ public class VEventServiceHelperTest {
 
 		String ics = VEventServiceHelper.convertToIcs(ItemValue.create("test", series));
 		System.err.println(ics);
-		assertTrue(ics.contains("DTSTART;TZID=Europe/London:19830213T200000"));
-		assertTrue(ics.contains("DTEND;TZID=Europe/London:19830213T210000"));
+		assertTrue(ics.contains("DTSTART;TZID=Etc/UTC:19830213T200000"));
+		assertTrue(ics.contains("DTEND;TZID=Etc/UTC:19830213T210000"));
 	}
 
 	@SuppressWarnings("deprecation")
@@ -398,7 +400,6 @@ public class VEventServiceHelperTest {
 		create.updated = new java.util.Date(111, 06, 12, 12, 0);
 		System.err.println(create.updated);
 		String ics = VEventServiceHelper.convertToIcs(create);
-		System.err.println(ics);
 		assertTrue(ics.contains("LAST-MODIFIED:20110712T"));
 	}
 
@@ -420,7 +421,7 @@ public class VEventServiceHelperTest {
 		series.main.exdate = exdate;
 
 		String ics = VEventServiceHelper.convertToIcs(ItemValue.create("test", series));
-		assertTrue(ics.contains("EXDATE;TZID=Europe/London:19830220T200000"));
+		assertTrue(ics.contains("EXDATE;TZID=Etc/UTC:19830220T200000"));
 	}
 
 	@Test
@@ -436,8 +437,7 @@ public class VEventServiceHelperTest {
 		series.main.rdate = rdate;
 
 		String ics = VEventServiceHelper.convertToIcs(ItemValue.create("test", series));
-		assertTrue(ics.contains("RDATE;TZID=Europe/London:19830220T200000"));
-
+		assertTrue(ics.contains("RDATE;TZID=Etc/UTC;VALUE=DATE-TIME:19830220T200000"));
 	}
 
 	@Test

@@ -25,7 +25,7 @@ public class ExtendedFactory implements ParameterFactory<Parameter> {
 
 	@SuppressWarnings("serial")
 	@Override
-	public Parameter createParameter(final String value) {
+	public Parameter createParameter(String name, String value) {
 		Parameter p = new Parameter("EXTENDED") {
 
 			@Override
@@ -34,6 +34,11 @@ public class ExtendedFactory implements ParameterFactory<Parameter> {
 			}
 		};
 		return p;
+	}
+
+	@Override
+	public boolean supports(String id) {
+		return id.equals("EXTENDED");
 	}
 
 }

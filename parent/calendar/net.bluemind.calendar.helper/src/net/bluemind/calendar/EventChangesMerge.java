@@ -32,6 +32,8 @@ import net.bluemind.calendar.api.VEventChanges.ItemModify;
 import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.core.api.date.BmDateTime;
+import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.UIDGenerator;
@@ -171,7 +173,7 @@ public class EventChangesMerge {
 				return true;
 			}
 
-			if (!value.dtstart.equals(imipVEvent.dtstart)) {
+			if (!dateEquals(value.dtstart, imipVEvent.dtstart)) {
 				return true;
 			}
 
@@ -180,11 +182,15 @@ public class EventChangesMerge {
 				return true;
 			}
 
-			if (!value.dtend.equals(imipVEvent.dtend)) {
+			if (!dateEquals(value.dtend, imipVEvent.dtend)) {
 				return true;
 			}
 
 			return false;
+		}
+
+		private boolean dateEquals(BmDateTime a, BmDateTime b) {
+			return new BmDateTimeWrapper(a).toUTCTimestamp() == new BmDateTimeWrapper(b).toUTCTimestamp();
 		}
 
 	}

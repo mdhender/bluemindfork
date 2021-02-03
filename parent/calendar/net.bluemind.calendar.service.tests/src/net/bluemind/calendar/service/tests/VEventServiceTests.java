@@ -185,7 +185,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(export.contains("BEGIN:STANDARD"));
 		assertTrue(export.contains("TZOFFSETFROM:+0700"));
 		assertTrue(export.contains("TZOFFSETTO:+0700"));
-		assertTrue(export.contains("TZNAME:ICT"));
+		assertTrue(export.contains("TZNAME:+07"));
 		assertTrue(export.contains("DTSTART:19700101T000000"));
 		assertTrue(export.contains("END:STANDARD"));
 		assertTrue(export.contains("END:VTIMEZONE"));
@@ -213,12 +213,12 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(export.contains("ORGANIZER;CN=" + testUser.value.contactInfos.identification.formatedName.value
 				+ ":mailto:" + testUser.value.login + "@bm.lan"));
 		assertTrue(export.contains("EXDATE;TZID=Asia/Ho_Chi_Minh:19830213T100000,20120331T083000,20140714T010203"));
-		assertTrue(export.contains("RDATE;TZID=Asia/Ho_Chi_Minh:19830213T130000,19830222T130000"));
+		assertTrue(export.contains("RDATE;TZID=Asia/Ho_Chi_Minh;VALUE=DATE-TIME:19830213T130000,19830222T130000"));
 		assertTrue(export.contains("CATEGORIES:tag1,tag2") || export.contains("CATEGORIES:tag2,tag1"));
 		assertTrue(export.contains(
-				"RRULE:FREQ=WEEKLY;UNTIL=20221225T133000;INTERVAL=2;BYMONTH=8;BYWEEKNO=8,13,42;BYYEARDAY=8,13,42,200;BYMONTHDAY=2,3;BYDAY=MO,TU,TH,FR;BYHOUR=2,22;BYMINUTE=1,2,3;BYSECOND=10,20"));
+				"RRULE:FREQ=WEEKLY;UNTIL=20221225T133000;INTERVAL=2;BYWEEKNO=8,13,42;BYYEARDAY=8,13,42,200;BYMONTHDAY=8;BYDAY=MO,TU,TH,FR;BYHOUR=2,22;BYMINUTE=1,2,3;BYSECOND=10,20"));
 		assertTrue(export.contains("BEGIN:VALARM"));
-		assertTrue(export.contains("TRIGGER;VALUE=DURATION:-PT600S"));
+		assertTrue(export.contains("TRIGGER;VALUE=DURATION:-PT10M"));
 		assertTrue(export.contains("ACTION:EMAIL"));
 		assertTrue(export.contains("DESCRIPTION:alarm"));
 		assertTrue(export.contains("SUMMARY:yaaaaay"));
@@ -260,7 +260,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		System.err.println(export);
 
 		assertTrue(export.contains("BEGIN:VALARM"));
-		assertTrue(export.contains("TRIGGER;VALUE=DURATION:-PT600S"));
+		assertTrue(export.contains("TRIGGER;VALUE=DURATION:-PT10M"));
 		assertTrue(export.contains("ACTION:EMAIL"));
 		assertTrue(export.contains("DESCRIPTION:email alarm"));
 		assertTrue(export.contains("SUMMARY:AA"));
@@ -269,7 +269,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(export.contains("END:VALARM"));
 
 		assertTrue(export.contains("BEGIN:VALARM"));
-		assertTrue(export.contains("TRIGGER;VALUE=DURATION:-PT60S"));
+		assertTrue(export.contains("TRIGGER;VALUE=DURATION:-PT1M"));
 		assertTrue(export.contains("ACTION:DISPLAY"));
 		assertTrue(export.contains("DESCRIPTION:display alarm"));
 		assertTrue(export.contains("SUMMARY:BB"));
@@ -278,7 +278,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(export.contains("END:VALARM"));
 
 		assertTrue(export.contains("BEGIN:VALARM"));
-		assertTrue(export.contains("TRIGGER;VALUE=DURATION:PT200S"));
+		assertTrue(export.contains("TRIGGER;VALUE=DURATION:PT3M20S"));
 		assertTrue(export.contains("ACTION:AUDIO"));
 		assertTrue(export.contains("DESCRIPTION:audio alarm"));
 		assertTrue(export.contains("SUMMARY:CC"));
@@ -413,7 +413,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(export.contains("ORGANIZER;CN=" + testUser.value.contactInfos.identification.formatedName.value
 				+ ":mailto:" + testUser.value.login + "@bm.lan"));
 		assertTrue(export.contains("BEGIN:VALARM"));
-		assertTrue(export.contains("TRIGGER;VALUE=DURATION:-PT600S"));
+		assertTrue(export.contains("TRIGGER;VALUE=DURATION:-PT10M"));
 		assertTrue(export.contains("ACTION:DISPLAY"));
 		assertTrue(export.contains("END:VEVENT"));
 
@@ -919,7 +919,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		item = getCalendarService(userSecurityContext, userCalendarContainer)
 				.getComplete("Icalff9bb2a513c75f5f09f31b83a3a4ac63");
 		event = item.value.main;
-		assertEquals(ZonedDateTime.of(2012, 6, 28, 15, 0, 0, 0, ZoneId.of("Australia/Sydney")),
+		assertEquals(ZonedDateTime.of(2012, 6, 28, 15, 0, 0, 0, ZoneId.of("Pacific/Port_Moresby")),
 				new BmDateTimeWrapper(event.dtstart).toDateTime());
 	}
 
@@ -1035,6 +1035,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		ZonedDateTime exDate2 = ZonedDateTime.of(2012, 3, 31, 8, 30, 0, 0, tz);
 		exdate.add(BmDateTimeHelper.time(exDate2));
 		ZonedDateTime exDate3 = ZonedDateTime.of(2014, 7, 14, 1, 2, 3, 0, tz);
+
 		exdate.add(BmDateTimeHelper.time(exDate3));
 		vevent.main.exdate = exdate;
 
@@ -1049,6 +1050,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, vevent, sendNotifications);
 
 		String export = getVEventService(userSecurityContext, userCalendarContainer).exportIcs(uid);
+		System.err.println(export);
 		assertNotNull(export);
 
 		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer)
@@ -1087,13 +1089,13 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		boolean exDate3Found = false;
 
 		for (net.bluemind.core.api.date.BmDateTime expected : yummy.exdate) {
-			if (new BmDateTimeWrapper(expected).toDateTime().equals(exDate)) {
+			if (dateEquals(expected, BmDateTimeWrapper.create(exDate, Precision.DateTime))) {
 				exDate1Found = true;
 			}
-			if (new BmDateTimeWrapper(expected).toDateTime().equals(exDate2)) {
+			if (dateEquals(expected, BmDateTimeWrapper.create(exDate2, Precision.DateTime))) {
 				exDate2Found = true;
 			}
-			if (new BmDateTimeWrapper(expected).toDateTime().equals(exDate3)) {
+			if (dateEquals(expected, BmDateTimeWrapper.create(exDate3, Precision.DateTime))) {
 				exDate3Found = true;
 			}
 		}
@@ -1108,6 +1110,10 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 		// . It MUST be specified in UTC time.
 		assertEquals(vevent.main.rrule.until, yummy.rrule.until);
+	}
+
+	private static boolean dateEquals(BmDateTime a, BmDateTime b) {
+		return new BmDateTimeWrapper(a).toUTCTimestamp() == new BmDateTimeWrapper(b).toUTCTimestamp();
 	}
 
 	@Test
@@ -1400,7 +1406,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 	}
 
 	private ImportStats waitImportEnd(TaskRef taskRef) throws ServerFault {
-		long end = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(1);
+		long end = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10);
 		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class, taskRef.id);
 		while (!task.status().state.ended) {
 			try {

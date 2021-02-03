@@ -1009,6 +1009,10 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 			found.add(new BmDateTimeWrapper(item.dtstart).toDateTime());
 		}
 
+		for (ZonedDateTime dd : found) {
+			System.err.println(dd.toString());
+		}
+
 		assertTrue(found.contains(ZonedDateTime.of(2011, 1, 6, 17, 0, 0, 0, tz)));
 		assertTrue(found.contains(ZonedDateTime.of(2011, 2, 3, 17, 0, 0, 0, tz)));
 		assertTrue(found.contains(ZonedDateTime.of(2011, 3, 3, 17, 0, 0, 0, tz)));
@@ -1484,6 +1488,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		ItemValue<VEventSeries> res = getCalendarService(userSecurityContext, userCalendarContainer)
 				.search(query).values.get(0);
 		List<VEvent> list = OccurrenceHelper.list(res, dateMin, dateMax);
+
 		assertEquals(13, list.size());
 
 		boolean exDateFound = false;
@@ -1492,15 +1497,15 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		for (VEvent item : list) {
 
-			if (exDate.equals(item.dtstart)) {
+			if (dateEquals(exDate, item.dtstart)) {
 				exDateFound = true;
 			}
 
-			if (rDate1.equals(item.dtstart)) {
+			if (dateEquals(rDate1, item.dtstart)) {
 				rDateFound = true;
 			}
 
-			if (rDate2.equals(item.dtstart)) {
+			if (dateEquals(rDate2, item.dtstart)) {
 				rDate2Found = true;
 			}
 
@@ -1508,7 +1513,10 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		assertFalse(exDateFound);
 		assertTrue(rDateFound);
 		assertTrue(rDate2Found);
+	}
 
+	private static boolean dateEquals(BmDateTime a, BmDateTime b) {
+		return new BmDateTimeWrapper(a).toUTCTimestamp() == new BmDateTimeWrapper(b).toUTCTimestamp();
 	}
 
 	@Test

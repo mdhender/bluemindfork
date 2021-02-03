@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -19,30 +19,31 @@
 package net.bluemind.lib.ical4j.model;
 
 import java.net.URISyntaxException;
-import java.text.ParseException;
 
-import net.bluemind.lib.ical4j.model.property.DtStamp;
-import net.fortuna.ical4j.model.ParameterList;
-import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.model.PropertyFactory;
+import net.fortuna.ical4j.model.Parameter;
+import net.fortuna.ical4j.model.ParameterFactory;
 
-public class DtStampFactory implements PropertyFactory<DtStamp> {
+@SuppressWarnings("serial")
+public class UnknownParameterFactory implements ParameterFactory<Parameter> {
+	private final String name;
 
-	private static final long serialVersionUID = 6843338171533599746L;
-
-	@Override
-	public DtStamp createProperty() {
-		return new DtStamp();
+	public UnknownParameterFactory(String name) {
+		this.name = name;
 	}
 
 	@Override
-	public DtStamp createProperty(ParameterList parameters, String value) throws URISyntaxException, ParseException {
-		return new DtStamp(parameters, value);
+	public Parameter createParameter(String value) throws URISyntaxException {
+		return new Parameter(name, this) {
+
+			@Override
+			public String getValue() {
+				return value.replaceAll("\"", "");
+			}
+		};
 	}
 
 	@Override
 	public boolean supports(String name) {
-		return name.equals(Property.DTSTAMP);
+		return name.equals(this.name);
 	}
-
 }

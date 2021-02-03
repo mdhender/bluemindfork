@@ -22,18 +22,16 @@ import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.ParameterList;
 import net.fortuna.ical4j.model.PropertyFactory;
 import net.fortuna.ical4j.model.TimeZone;
-import net.fortuna.ical4j.model.ValidationException;
 import net.fortuna.ical4j.model.property.DateProperty;
+import net.fortuna.ical4j.validate.ValidationException;
 
 public class UtcProperty extends DateProperty {
 
 	private static final long serialVersionUID = -313366313496943917L;
 
 	/**
-	 * @param name
-	 *            a property name
-	 * @param parameters
-	 *            list of parameters
+	 * @param name       a property name
+	 * @param parameters list of parameters
 	 */
 	public UtcProperty(final String name, final ParameterList parameters, PropertyFactory factory) {
 		super(name, parameters, factory);
@@ -41,8 +39,7 @@ public class UtcProperty extends DateProperty {
 	}
 
 	/**
-	 * @param name
-	 *            a property name
+	 * @param name a property name
 	 */
 	public UtcProperty(final String name, PropertyFactory factory) {
 		super(name, factory);
@@ -57,8 +54,7 @@ public class UtcProperty extends DateProperty {
 	}
 
 	/**
-	 * @param dateTime
-	 *            The dateTime to set.
+	 * @param dateTime The dateTime to set.
 	 */
 	public void setDateTime(final DateTime dateTime) {
 		// time must be in UTC..
@@ -82,7 +78,7 @@ public class UtcProperty extends DateProperty {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void validate() throws ValidationException {
+	public void validate() {
 		super.validate();
 
 		if (getDate() != null && !(getDate() instanceof DateTime)) {

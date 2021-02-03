@@ -61,7 +61,7 @@ public class IcalConverter {
 
 		String timezone = null;
 		if (property.getTimeZone() == null && precision == Precision.DateTime) {
-			timezone = detectTimeZone(property, globalTZ);
+			timezone = detectTimeZone(property, globalTZ, tzMapping);
 		} else if (property.getTimeZone() != null) {
 			timezone = sanitizeTimeZone(property, tzMapping);
 		}
@@ -102,7 +102,8 @@ public class IcalConverter {
 		}
 	}
 
-	private static String detectTimeZone(DateProperty property, Optional<String> globalTZ) {
+	private static String detectTimeZone(DateProperty property, Optional<String> globalTZ,
+			Map<String, String> tzMapping) {
 		String timezone = null;
 		Parameter p = property.getParameter("TZID");
 		if (p != null) {
@@ -122,6 +123,10 @@ public class IcalConverter {
 			String rz = TimezoneExtensions.translate(timezone);
 			if (rz != null) {
 				timezone = rz;
+			} else {
+				if (tzMapping.containsKey(timezone)) {
+					timezone = tzMapping.get(timezone);
+				}
 			}
 
 			try {

@@ -20,9 +20,9 @@ package net.bluemind.lib.ical4j.model.property;
 
 import java.text.ParseException;
 
+import net.bluemind.lib.ical4j.model.DtStampFactory;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.ParameterList;
-import net.fortuna.ical4j.model.PropertyFactoryImpl;
 
 public class DtStamp extends UtcProperty {
 
@@ -33,52 +33,44 @@ public class DtStamp extends UtcProperty {
 	 * instantiation.
 	 */
 	public DtStamp() {
-		super(DTSTAMP, PropertyFactoryImpl.getInstance());
+		super(DTSTAMP, new DtStampFactory());
 	}
 
 	/**
-	 * @param aValue
-	 *            a string representation of a DTSTAMP value
-	 * @throws ParseException
-	 *             if the specified value is not a valid representation
+	 * @param aValue a string representation of a DTSTAMP value
+	 * @throws ParseException if the specified value is not a valid representation
 	 */
 	public DtStamp(final String aValue) throws ParseException {
 		this(new ParameterList(), aValue);
 	}
 
 	/**
-	 * @param aList
-	 *            a list of parameters for this component
-	 * @param aValue
-	 *            a value string for this component
-	 * @throws ParseException
-	 *             where the specified value string is not a valid
-	 *             date-time/date representation
+	 * @param aList  a list of parameters for this component
+	 * @param aValue a value string for this component
+	 * @throws ParseException where the specified value string is not a valid
+	 *                        date-time/date representation
 	 */
 	public DtStamp(final ParameterList aList, final String aValue) throws ParseException {
-		super(DTSTAMP, aList, PropertyFactoryImpl.getInstance());
+		super(DTSTAMP, aList, new DtStampFactory());
 		setValue(aValue);
 	}
 
 	/**
-	 * @param aDate
-	 *            a date representing a date-time
+	 * @param aDate a date representing a date-time
 	 */
 	public DtStamp(final DateTime aDate) {
-		super(DTSTAMP, PropertyFactoryImpl.getInstance());
+		super(DTSTAMP, new DtStampFactory());
 		// time must be in UTC..
 		aDate.setUtc(true);
 		setDate(aDate);
 	}
 
 	/**
-	 * @param aList
-	 *            a list of parameters for this component
-	 * @param aDate
-	 *            a date representing a date-time
+	 * @param aList a list of parameters for this component
+	 * @param aDate a date representing a date-time
 	 */
 	public DtStamp(final ParameterList aList, final DateTime aDate) {
-		super(DTSTAMP, aList, PropertyFactoryImpl.getInstance());
+		super(DTSTAMP, aList, new DtStampFactory());
 		// time must be in UTC..
 		aDate.setUtc(true);
 		setDate(aDate);

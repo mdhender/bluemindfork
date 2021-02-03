@@ -34,7 +34,6 @@ import io.vertx.core.buffer.Buffer;
 import net.bluemind.calendar.api.IPublishCalendar;
 import net.bluemind.calendar.api.PublishMode;
 import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.calendar.helper.ical4j.Method;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.calendar.persistence.VEventSeriesStore;
 import net.bluemind.core.api.Stream;
@@ -54,6 +53,7 @@ import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
+import net.fortuna.ical4j.model.property.Method;
 import net.fortuna.ical4j.model.property.XProperty;
 
 public class PublishCalendarService implements IPublishCalendar {

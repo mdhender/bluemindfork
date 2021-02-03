@@ -105,6 +105,11 @@ public class ResourceCalendarHookTests {
 	protected MailboxStoreService mailboxStore;
 	private ContainerUserStoreService userStoreService;
 
+	@Before
+	public void setup() {
+		System.setProperty("net.fortuna.ical4j.timezone.cache.impl", "net.fortuna.ical4j.util.MapTimeZoneCache");
+	}
+
 	@Test
 	public void hook_onMaster_ShouldDoNothing() throws Exception {
 		VEventSeries event = defaultVEvent("invite");

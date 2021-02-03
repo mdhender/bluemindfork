@@ -83,5 +83,10 @@ public class BMBDay {
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+		@Override
+		public boolean supports(String id) {
+			return id.equals("BDay");
+		}
 	}
 }

@@ -33,8 +33,8 @@ public class BmDateTime {
 	}
 
 	/**
-	 * ISO8601 date format : - yyyyMMddTHHmmss.SSSZ - yyyyMMddTHHmmss.SSS -
-	 * yyyyMMdd The date timezone must match the {{@link #timezone} field.
+	 * ISO8601 date format : - yyyyMMddTHHmmss.SSSZ - yyyyMMddTHHmmss.SSS - yyyyMMdd
+	 * The date timezone must match the {{@link #timezone} field.
 	 */
 	public String iso8601;
 
@@ -91,9 +91,5 @@ public class BmDateTime {
 	@Override
 	public String toString() {
 		return "ISO8601: " + iso8601 + ", Precision: " + precision.toString() + ", Timezone: " + timezone;
-		// FIXME String.format not available in gwt
-		// String.format("ISO8601: %s, Precision: %s, Timezone: %s",
-		// iso8601, precision.toString(),
-		// null == timezone ? "timezone not set" : timezone);
 	}
 }

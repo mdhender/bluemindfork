@@ -21,7 +21,6 @@ package net.bluemind.lib.ical4j.vcard.property;
 import java.util.List;
 
 import net.fortuna.ical4j.model.Escapable;
-import net.fortuna.ical4j.model.ValidationException;
 import net.fortuna.ical4j.vcard.Group;
 import net.fortuna.ical4j.vcard.Parameter;
 import net.fortuna.ical4j.vcard.Property;
@@ -43,10 +42,8 @@ public class ABShowAs extends Property implements Escapable {
 	/**
 	 * Factory constructor.
 	 * 
-	 * @param params
-	 *            property parameters
-	 * @param value
-	 *            string representation of a property value
+	 * @param params property parameters
+	 * @param value  string representation of a property value
 	 */
 	public ABShowAs(List<Parameter> params, String value) {
 		super("ABShowAs", params);
@@ -59,7 +56,7 @@ public class ABShowAs extends Property implements Escapable {
 	}
 
 	@Override
-	public void validate() throws ValidationException {
+	public void validate() {
 
 	}
 
@@ -78,6 +75,11 @@ public class ABShowAs extends Property implements Escapable {
 		public ABShowAs createProperty(final Group group, final List<Parameter> params, final String value) {
 			// TODO Auto-generated method stub
 			return null;
+		}
+
+		@Override
+		public boolean supports(String id) {
+			return id.equals("ABShowAs");
 		}
 	}
 }

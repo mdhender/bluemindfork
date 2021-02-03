@@ -18,43 +18,35 @@
  */
 package net.bluemind.lib.ical4j.vcard.property;
 
-import static net.fortuna.ical4j.util.Strings.unescape;
-
-import java.net.URISyntaxException;
-import java.text.ParseException;
 import java.util.List;
 
 import net.fortuna.ical4j.model.Escapable;
-import net.fortuna.ical4j.model.ValidationException;
 import net.fortuna.ical4j.vcard.Group;
 import net.fortuna.ical4j.vcard.Parameter;
 import net.fortuna.ical4j.vcard.Property;
 import net.fortuna.ical4j.vcard.PropertyFactory;
 
-public class Spouse extends Property implements Escapable {
+public class Url extends Property implements Escapable {
+
+	private static final long serialVersionUID = 5032789347021478117L;
 
 	public static final PropertyFactory<Property> FACTORY = new Factory();
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3891019124399676454L;
+
 	private String value;
 
-	public Spouse(String value) {
-		super("SPOUSE");
+	public Url(String value) {
+		super(Id.URL);
 		this.value = value;
 	}
 
 	/**
 	 * Factory constructor.
 	 * 
-	 * @param params
-	 *            property parameters
-	 * @param value
-	 *            string representation of a property value
+	 * @param params property parameters
+	 * @param value  string representation of a property value
 	 */
-	public Spouse(List<Parameter> params, String value) {
-		super("SPOUSE", params);
+	public Url(List<Parameter> params, String value) {
+		super(Id.URL, params);
 		this.value = value;
 	}
 
@@ -64,7 +56,8 @@ public class Spouse extends Property implements Escapable {
 	}
 
 	@Override
-	public void validate() throws ValidationException {
+	public void validate() {
+
 	}
 
 	private static class Factory implements PropertyFactory<Property> {
@@ -72,17 +65,21 @@ public class Spouse extends Property implements Escapable {
 		/**
 		 * {@inheritDoc}
 		 */
-		public Spouse createProperty(final List<Parameter> params, final String value) {
-			return new Spouse(params, unescape(value));
+		public Url createProperty(final List<Parameter> params, final String value) {
+			return new Url(params, value);
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
-		public Spouse createProperty(final Group group, final List<Parameter> params, final String value)
-				throws URISyntaxException, ParseException {
-			// TODO Auto-generated method stub
-			return null;
+		public Url createProperty(final Group group, final List<Parameter> params, final String value) {
+			return new Url(params, value);
 		}
+
+		@Override
+		public boolean supports(String id) {
+			return id.equals("URL");
+		}
+
 	}
 }

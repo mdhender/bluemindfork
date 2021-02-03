@@ -725,11 +725,16 @@ public class TodoListServiceTests extends AbstractServiceTests {
 				.create(ZonedDateTime.of(2014, 5, 26, 0, 0, 0, 0, tz), Precision.DateTime);
 
 		net.bluemind.core.api.date.BmDateTime dateMax = BmDateTimeWrapper
-				.create(ZonedDateTime.of(2014, 6, 2, 0, 0, 0, 0, tz), Precision.DateTime);
+				.create(ZonedDateTime.of(2014, 6, 1, 23, 0, 0, 0, tz), Precision.DateTime);
 
 		VTodoQuery query = VTodoQuery.create(dateMin, dateMax);
 
 		ListResult<ItemValue<VTodo>> res = service.search(query);
+
+		res.values.forEach(v -> {
+			System.err.println(v.value.dtstart.toString());
+		});
+
 		assertEquals(2, res.values.size());
 
 		net.bluemind.core.api.date.BmDateTime expectedOccurrence1 = BmDateTimeWrapper

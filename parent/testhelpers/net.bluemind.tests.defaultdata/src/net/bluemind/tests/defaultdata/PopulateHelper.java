@@ -65,6 +65,7 @@ public class PopulateHelper {
 
 	static {
 		System.setProperty("throttle.disabled", "true");
+		System.setProperty("net.fortuna.ical4j.timezone.cache.impl", "net.fortuna.ical4j.util.MapTimeZoneCache");
 	}
 
 	private PopulateHelper() {

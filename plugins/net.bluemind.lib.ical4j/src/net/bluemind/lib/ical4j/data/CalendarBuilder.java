@@ -20,18 +20,22 @@ package net.bluemind.lib.ical4j.data;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.text.ParseException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.lib.ical4j.model.PropertyFactoryRegistry;
+import net.bluemind.lib.ical4j.model.UnknownParameterFactory;
+import net.bluemind.lib.ical4j.model.UnknownProperty;
 import net.fortuna.ical4j.data.CalendarParser;
 import net.fortuna.ical4j.data.CalendarParserFactory;
 import net.fortuna.ical4j.data.ContentHandler;
+import net.fortuna.ical4j.data.DefaultParameterFactorySupplier;
+import net.fortuna.ical4j.data.DefaultPropertyFactorySupplier;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.data.UnfoldingReader;
 import net.fortuna.ical4j.model.Calendar;
@@ -41,16 +45,23 @@ import net.fortuna.ical4j.model.ComponentFactory;
 import net.fortuna.ical4j.model.Escapable;
 import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.ParameterFactory;
-import net.fortuna.ical4j.model.ParameterFactoryRegistry;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyFactory;
 import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
+import net.fortuna.ical4j.model.component.Available;
+import net.fortuna.ical4j.model.component.Daylight;
+import net.fortuna.ical4j.model.component.Observance;
+import net.fortuna.ical4j.model.component.Standard;
+import net.fortuna.ical4j.model.component.VAlarm;
 import net.fortuna.ical4j.model.component.VAvailability;
 import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.component.VFreeBusy;
+import net.fortuna.ical4j.model.component.VJournal;
 import net.fortuna.ical4j.model.component.VTimeZone;
 import net.fortuna.ical4j.model.component.VToDo;
+import net.fortuna.ical4j.model.component.VVenue;
 import net.fortuna.ical4j.model.parameter.TzId;
 import net.fortuna.ical4j.model.property.DateListProperty;
 import net.fortuna.ical4j.model.property.DateProperty;
@@ -63,6 +74,10 @@ public class CalendarBuilder {
 
 	private static final Logger logger = LoggerFactory.getLogger(CalendarBuilder.class);
 	private final Optional<List<VTimeZone>> tz;
+	Calendar calendar;
+	Component component;
+	Component subComponent;
+	Property property;
 
 	public CalendarBuilder(List<VTimeZone> tz) {
 		this.tz = Optional.of(tz);
@@ -92,7 +107,7 @@ public class CalendarBuilder {
 		 */
 		private CalendarBuilderImpl(BiConsumer<Calendar, Component> consumer, Optional<List<VTimeZone>> tz) {
 			this.tzRegistry = TimeZoneRegistryFactory.getInstance().createRegistry();
-			this.parser = CalendarParserFactory.getInstance().createParser();
+			this.parser = CalendarParserFactory.getInstance().get();
 			this.contentHandler = new ContentHandlerImpl(consumer);
 			tz.ifPresent(tzList -> {
 				tzList.forEach(timezone -> {
@@ -115,19 +130,19 @@ public class CalendarBuilder {
 
 		private class ContentHandlerImpl implements ContentHandler {
 
-			private final ComponentFactory componentFactory;
+			private final List<ComponentFactory<? extends Component>> componentFactories;
 
-			private final PropertyFactory propertyFactory;
+			private final List<PropertyFactory<? extends Property>> propertyFactories;
 
-			private final ParameterFactory parameterFactory;
+			private final List<ParameterFactory<? extends Parameter>> parameterFactories;
 
 			private final BiConsumer<Calendar, Component> consumer;
 
 			public ContentHandlerImpl(BiConsumer<Calendar, Component> consumer) {
 				this.consumer = consumer;
-				this.componentFactory = ComponentFactory.getInstance();
-				this.propertyFactory = new PropertyFactoryRegistry();
-				this.parameterFactory = new ParameterFactoryRegistry();
+				this.componentFactories = new CalendarBuilder.DefaultComponentFactorySupplier().get();
+				this.propertyFactories = new DefaultPropertyFactorySupplier().get();
+				this.parameterFactories = new DefaultParameterFactorySupplier().get();
 			}
 
 			public void endCalendar() {
@@ -138,13 +153,13 @@ public class CalendarBuilder {
 
 				if (subComponent != null) {
 					if (component instanceof VTimeZone) {
-						((VTimeZone) component).getObservances().add(subComponent);
+						((VTimeZone) component).getObservances().add((Observance) subComponent);
 					} else if (component instanceof VEvent) {
-						((VEvent) component).getAlarms().add(subComponent);
+						((VEvent) component).getAlarms().add((VAlarm) subComponent);
 					} else if (component instanceof VToDo) {
-						((VToDo) component).getAlarms().add(subComponent);
+						((VToDo) component).getAlarms().add((VAlarm) subComponent);
 					} else if (component instanceof VAvailability) {
-						((VAvailability) component).getAvailable().add(subComponent);
+						((VAvailability) component).getAvailable().add((Available) subComponent);
 					}
 					subComponent = null;
 				} else {
@@ -175,15 +190,20 @@ public class CalendarBuilder {
 				property = null;
 			}
 
+			@SuppressWarnings("serial")
 			public void parameter(final String name, final String value) throws URISyntaxException {
 				assertProperty(property);
 
 				// parameter names are case-insensitive, but convert to upper case
 				// to simplify further processing
-				final Parameter param = parameterFactory.createParameter(name.toUpperCase(),
-						Strings.escapeNewline(value));
+				Optional<ParameterFactory<? extends Parameter>> parameterFactory = parameterFactories.stream()
+						.filter(pf -> pf.supports(name)).findFirst();
+				ParameterFactory<? extends Parameter> factory = parameterFactory
+						.orElse(new UnknownParameterFactory(name));
+				final Parameter param = factory.createParameter(Strings.escapeNewline(value));
 				property.getParameters().add(param);
-				if (param instanceof TzId && tzRegistry != null && !(property instanceof XProperty)) {
+				if (param instanceof TzId && tzRegistry != null && !(property instanceof XProperty)
+						&& !(property instanceof UnknownProperty)) {
 					final TimeZone timezone = tzRegistry.getTimeZone(param.getValue());
 					if (timezone != null) {
 						updateTimeZone(property, timezone);
@@ -194,7 +214,7 @@ public class CalendarBuilder {
 			/**
 			 * {@inheritDoc}
 			 */
-			public void propertyValue(final String value) throws URISyntaxException, ParseException, IOException {
+			public void propertyValue(final String value) throws URISyntaxException, IOException {
 
 				assertProperty(property);
 				try {
@@ -219,10 +239,12 @@ public class CalendarBuilder {
 			 * {@inheritDoc}
 			 */
 			public void startComponent(final String name) {
+				ComponentFactory<? extends Component> componentFactory = componentFactories.stream()
+						.filter(cf -> cf.supports(name)).findFirst().get();
 				if (component != null) {
-					subComponent = componentFactory.createComponent(name);
+					subComponent = componentFactory.createComponent();
 				} else {
-					component = componentFactory.createComponent(name);
+					component = componentFactory.createComponent();
 				}
 			}
 
@@ -232,16 +254,39 @@ public class CalendarBuilder {
 			public void startProperty(final String name) {
 				// property names are case-insensitive, but convert to upper case to
 				// simplify further processing
-				property = propertyFactory.createProperty(name.toUpperCase());
+				Optional<PropertyFactory<? extends Property>> propertyFactory = propertyFactories.stream()
+						.filter(cf -> cf.supports(name)).findFirst();
+				PropertyFactory<? extends Property> factory = propertyFactory.orElse(new UnknownProperty.Factory(name));
+				property = factory.createProperty();
 			}
 		}
 
 		private void updateTimeZone(Property property, TimeZone timezone) {
+			Parameter tz = new Parameter(Parameter.TZID, new ParameterFactory<Parameter>() {
+
+				@Override
+				public Parameter createParameter(String value) throws URISyntaxException {
+					return new TzId(value);
+				}
+
+				@Override
+				public boolean supports(String name) {
+					return name.equals(Parameter.TZID);
+				}
+			}) {
+
+				@Override
+				public String getValue() {
+					return timezone.getID();
+				}
+			};
 			try {
-				((DateProperty) property).setTimeZone(timezone);
-			} catch (ClassCastException e) {
+				((DateProperty) property).getParameters().add(tz);
+			} catch (
+
+			ClassCastException e) {
 				try {
-					((DateListProperty) property).setTimeZone(timezone);
+					((DateListProperty) property).getParameters().add(tz);
 				} catch (ClassCastException e2) {
 					if (CompatibilityHints.isHintEnabled(CompatibilityHints.KEY_RELAXED_PARSING)) {
 						final Logger logger = LoggerFactory.getLogger(CalendarBuilder.class);
@@ -267,4 +312,18 @@ public class CalendarBuilder {
 		}
 
 	}
+
+	class DefaultComponentFactorySupplier implements Supplier<List<ComponentFactory<? extends Component>>> {
+
+		@Override
+		public List<ComponentFactory<? extends Component>> get() {
+			List<ComponentFactory<?>> rfc5545 = Arrays.asList(new Available.Factory(), new Daylight.Factory(),
+					new Standard.Factory(), new VAlarm.Factory(), new VAvailability.Factory(), new VEvent.Factory(),
+					new VFreeBusy.Factory(), new VJournal.Factory(), new VTimeZone.Factory(), new VToDo.Factory(),
+					new VVenue.Factory());
+
+			return rfc5545;
+		}
+	}
+
 }

@@ -21,7 +21,6 @@ package net.bluemind.lib.ical4j.vcard.property;
 import java.util.List;
 
 import net.fortuna.ical4j.model.Escapable;
-import net.fortuna.ical4j.model.ValidationException;
 import net.fortuna.ical4j.vcard.Group;
 import net.fortuna.ical4j.vcard.Parameter;
 import net.fortuna.ical4j.vcard.Property;
@@ -43,10 +42,8 @@ public class AddressbookServerKind extends Property implements Escapable {
 	/**
 	 * Factory constructor.
 	 * 
-	 * @param params
-	 *            property parameters
-	 * @param value
-	 *            string representation of a property value
+	 * @param params property parameters
+	 * @param value  string representation of a property value
 	 */
 	public AddressbookServerKind(List<Parameter> params, String value) {
 		super("ADDRESSBOOKSERVER-KIND", params);
@@ -59,7 +56,7 @@ public class AddressbookServerKind extends Property implements Escapable {
 	}
 
 	@Override
-	public void validate() throws ValidationException {
+	public void validate() {
 
 	}
 
@@ -79,6 +76,11 @@ public class AddressbookServerKind extends Property implements Escapable {
 				final String value) {
 			// TODO Auto-generated method stub
 			return null;
+		}
+
+		@Override
+		public boolean supports(String id) {
+			return id.equals("ADDRESSBOOKSERVER-KIND");
 		}
 	}
 }

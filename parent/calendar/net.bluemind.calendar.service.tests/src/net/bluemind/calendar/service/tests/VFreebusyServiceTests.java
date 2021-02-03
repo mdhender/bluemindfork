@@ -91,6 +91,9 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 
 		String vfreebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer).getAsString(
 				VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false), BmDateTimeHelper.time(dtend, false)));
+
+		System.err.println(vfreebusy);
+
 		assertTrue(vfreebusy.contains("BEGIN:VFREEBUSY"));
 		assertTrue(vfreebusy.contains("DTSTAMP:"));
 		assertTrue(vfreebusy.contains("DTSTART:20140101T000000"));
@@ -98,13 +101,13 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140101T100000Z/20140101T120000Z"));
 		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140201T100000Z/20140201T120000Z"));
 		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140301T100000Z/20140301T120000Z"));
-		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140401T090000Z/20140401T110000Z"));
-		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140501T090000Z/20140501T110000Z"));
-		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140601T090000Z/20140601T110000Z"));
-		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140701T090000Z/20140701T110000Z"));
-		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140801T090000Z/20140801T110000Z"));
-		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140901T090000Z/20140901T110000Z"));
-		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20141001T090000Z/20141001T110000Z"));
+		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140401T100000Z/20140401T120000Z"));
+		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140501T100000Z/20140501T120000Z"));
+		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140601T100000Z/20140601T120000Z"));
+		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140701T100000Z/20140701T120000Z"));
+		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140801T100000Z/20140801T120000Z"));
+		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140901T100000Z/20140901T120000Z"));
+		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20141001T100000Z/20141001T120000Z"));
 		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20141101T100000Z/20141101T120000Z"));
 		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20141201T100000Z/20141201T120000Z"));
 		assertTrue(vfreebusy.contains("END:VFREEBUSY"));
@@ -308,13 +311,13 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140101T100000Z/20140101T120000Z"));
 		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140201T100000Z/20140201T120000Z"));
 		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140301T100000Z/20140301T120000Z"));
-		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140401T090000Z/20140401T110000Z"));
-		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140501T090000Z/20140501T110000Z"));
-		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140601T090000Z/20140601T110000Z"));
-		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140701T090000Z/20140701T110000Z"));
-		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140801T090000Z/20140801T110000Z"));
-		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140901T090000Z/20140901T110000Z"));
-		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20141001T090000Z/20141001T110000Z"));
+		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140401T100000Z/20140401T120000Z"));
+		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140501T100000Z/20140501T120000Z"));
+		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140601T100000Z/20140601T120000Z"));
+		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140701T100000Z/20140701T120000Z"));
+		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140801T100000Z/20140801T120000Z"));
+		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20140901T100000Z/20140901T120000Z"));
+		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20141001T100000Z/20141001T120000Z"));
 		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20141101T100000Z/20141101T120000Z"));
 		assertTrue(vfreebusy.contains("FREEBUSY;FBTYPE=BUSY:20141201T100000Z/20141201T120000Z"));
 		assertTrue(vfreebusy.contains("END:VFREEBUSY"));
@@ -348,8 +351,8 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 
 	@Test
 	public void testDeclinedEvent() throws Exception {
-		Container attendee1FreebusyContainer = createTestContainer(attendee1SecurityContext, systemDataSource, IFreebusyUids.TYPE,
-				"Attendee 1", IFreebusyUids.getFreebusyContainerUid(attendee1.uid), attendee1.uid);
+		Container attendee1FreebusyContainer = createTestContainer(attendee1SecurityContext, systemDataSource,
+				IFreebusyUids.TYPE, "Attendee 1", IFreebusyUids.getFreebusyContainerUid(attendee1.uid), attendee1.uid);
 
 		VEventSeries vevent = defaultVEvent();
 		vevent.main.categories.clear();
@@ -387,8 +390,8 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 
 	@Test
 	public void testTentativeEvent() throws Exception {
-		Container attendee1FreebusyContainer = createTestContainer(attendee1SecurityContext, systemDataSource, IFreebusyUids.TYPE,
-				"Attendee 1", IFreebusyUids.getFreebusyContainerUid(attendee1.uid), attendee1.uid);
+		Container attendee1FreebusyContainer = createTestContainer(attendee1SecurityContext, systemDataSource,
+				IFreebusyUids.TYPE, "Attendee 1", IFreebusyUids.getFreebusyContainerUid(attendee1.uid), attendee1.uid);
 
 		VEventSeries vevent = defaultVEvent();
 		vevent.main.categories.clear();
@@ -427,8 +430,8 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 
 	@Test
 	public void testNeedsActionEvent() throws Exception {
-		Container attendee1FreebusyContainer = createTestContainer(attendee1SecurityContext, systemDataSource, IFreebusyUids.TYPE,
-				"Attendee 1", IFreebusyUids.getFreebusyContainerUid(attendee1.uid), attendee1.uid);
+		Container attendee1FreebusyContainer = createTestContainer(attendee1SecurityContext, systemDataSource,
+				IFreebusyUids.TYPE, "Attendee 1", IFreebusyUids.getFreebusyContainerUid(attendee1.uid), attendee1.uid);
 
 		VEventSeries vevent = defaultVEvent();
 		vevent.main.categories.clear();

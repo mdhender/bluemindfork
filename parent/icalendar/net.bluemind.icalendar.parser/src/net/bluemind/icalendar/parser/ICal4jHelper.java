@@ -21,7 +21,11 @@ package net.bluemind.icalendar.parser;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -66,15 +70,19 @@ import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateList;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Dur;
+import net.fortuna.ical4j.model.NumberList;
 import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.ParameterList;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.Recur;
+import net.fortuna.ical4j.model.Recur.Builder;
+import net.fortuna.ical4j.model.Recur.Frequency;
 import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.WeekDay;
+import net.fortuna.ical4j.model.WeekDayList;
 import net.fortuna.ical4j.model.component.CalendarComponent;
 import net.fortuna.ical4j.model.component.VAlarm;
 import net.fortuna.ical4j.model.component.VEvent;
@@ -98,6 +106,7 @@ import net.fortuna.ical4j.model.property.Attach;
 import net.fortuna.ical4j.model.property.Attendee;
 import net.fortuna.ical4j.model.property.Categories;
 import net.fortuna.ical4j.model.property.Clazz;
+import net.fortuna.ical4j.model.property.DateListProperty;
 import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.Description;
 import net.fortuna.ical4j.model.property.DtStart;
@@ -229,24 +238,19 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 				if (alarmTrig.getDuration() != null) {
 					// Duration trigger
-					Dur dur = alarmTrig.getDuration();
-					trigger = dur.getSeconds() + 60 * dur.getMinutes() + 3600 * dur.getHours() + 86400 * dur.getDays();
-					if (alarmTrig.getDuration().isNegative()) {
-						trigger = -trigger;
-					}
+					TemporalAmount dur = alarmTrig.getDuration();
+					trigger = (int) dur.get(ChronoUnit.SECONDS);
 				} else if (alarmTrig.getDateTime() != null && cc.getProperty(Property.DTSTART) != null) {
 					// DateTime trigger
 					// related to dtstart, do the math
 					DateProperty dstart = (DateProperty) cc.getProperty(Property.DTSTART);
+					Date date = dstart.getDate();
 					trigger = (int) ((alarmTrig.getDateTime().getTime() - dstart.getDate().getTime()) / 1000);
 				}
 
 				Integer duration = null;
 				if (alarm.getDuration() != null) {
-					duration = alarm.getDuration().getDuration().getSeconds();
-					if (alarm.getDuration().getDuration().isNegative()) {
-						duration = -duration;
-					}
+					duration = (int) alarm.getDuration().getDuration().get(ChronoUnit.SECONDS);
 				}
 
 				Integer repeat = null;
@@ -296,13 +300,13 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		}
 
 		// EXDATE
-		Set<BmDateTime> exdate = parseIcsExDate(cc.getProperties(Property.EXDATE), globalTZ, tzMapping);
+		Set<BmDateTime> exdate = parseIcsDate(cc.getProperties(Property.EXDATE), globalTZ, tzMapping);
 		if (exdate != null) {
 			iCalendarElement.exdate = exdate;
 		}
 
 		// RDATE
-		Set<BmDateTime> rdate = parseIcsRDate(cc.getProperties(Property.RDATE), globalTZ, tzMapping);
+		Set<BmDateTime> rdate = parseIcsDate(cc.getProperties(Property.RDATE), globalTZ, tzMapping);
 		if (rdate != null) {
 			iCalendarElement.rdate = rdate;
 		}
@@ -454,6 +458,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			for (@SuppressWarnings("unchecked")
 			Iterator<Property> it = attendeePropList.iterator(); it.hasNext();) {
 				Attendee prop = (Attendee) it.next();
+
 				Parameter cuTypeParam = prop.getParameter(Parameter.CUTYPE);
 				ICalendarElement.CUType cuType = null;
 				if (isParamNotNull(cuTypeParam)) {
@@ -602,22 +607,39 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	 * @param tzMapping
 	 * @return
 	 */
-	private static Set<BmDateTime> parseIcsExDate(PropertyList exDatePropList, Optional<String> globalTZ,
+	private static Set<BmDateTime> parseIcsDate(PropertyList<DateListProperty> datePropList, Optional<String> globalTZ,
 			Map<String, String> tzMapping) {
 
-		if (exDatePropList != null && exDatePropList.size() > 0) {
+		if (datePropList != null && datePropList.size() > 0) {
 			Set<BmDateTime> ret = new HashSet<>();
-			for (@SuppressWarnings("unchecked")
-			Iterator<Property> it = exDatePropList.iterator(); it.hasNext();) {
-				ExDate exDate = (ExDate) it.next();
-				DateList dateList = exDate.getDates();
-				for (Object o : dateList) {
-					String oTimeZone = null != exDate.getTimeZone() ? exDate.getTimeZone().getID() : null;
-					oTimeZone = oTimeZone != null ? oTimeZone : globalTZ.orElse(null);
-					if (oTimeZone != null && tzMapping.containsKey(oTimeZone)) {
-						oTimeZone = tzMapping.get(oTimeZone);
+			for (DateListProperty date : datePropList) {
+				DateList dateList = date.getDates();
+				boolean adaptToParamTz = false;
+				String oTimeZone = null != date.getTimeZone() ? date.getTimeZone().getID() : null;
+				if (oTimeZone == null) {
+					Parameter tzParam = date.getParameter(Parameter.TZID);
+					if (tzParam != null) {
+						oTimeZone = tzParam.getValue();
+						adaptToParamTz = true;
 					}
-					ret.add(IcalConverter.convertToDateTime((Date) o, oTimeZone));
+				}
+				oTimeZone = oTimeZone != null ? oTimeZone : globalTZ.orElse(null);
+				if (oTimeZone != null && tzMapping.containsKey(oTimeZone)) {
+					oTimeZone = tzMapping.get(oTimeZone);
+				}
+				for (Date singleDate : dateList) {
+					if (adaptToParamTz) {
+						long adapted = singleDate.getTime();
+						ZoneId zone = ZoneId.of(oTimeZone);
+						ZoneOffset zoneOffSet = zone.getRules().getOffset(Instant.ofEpochMilli(adapted));
+						adapted -= zoneOffSet.getTotalSeconds() * 1000;
+						if (singleDate instanceof DateTime) {
+							singleDate = new DateTime(adapted);
+						} else {
+							singleDate = new Date(adapted);
+						}
+					}
+					ret.add(IcalConverter.convertToDateTime(singleDate, oTimeZone));
 				}
 
 			}
@@ -625,35 +647,6 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		}
 		return null;
 
-	}
-
-	/**
-	 * @param rDatePropList
-	 * @param tzMapping
-	 * @return
-	 */
-	private static Set<BmDateTime> parseIcsRDate(PropertyList rDatePropList, Optional<String> globalTZ,
-			Map<String, String> tzMapping) {
-
-		if (rDatePropList != null && rDatePropList.size() > 0) {
-			Set<BmDateTime> ret = new HashSet<>();
-			for (@SuppressWarnings("unchecked")
-			Iterator<Property> it = rDatePropList.iterator(); it.hasNext();) {
-				RDate rDate = (RDate) it.next();
-				DateList dateList = rDate.getDates();
-				for (Object o : dateList) {
-					String oTimeZone = null != rDate.getTimeZone() ? rDate.getTimeZone().getID() : null;
-					oTimeZone = null != oTimeZone ? oTimeZone : globalTZ.isPresent() ? globalTZ.get() : null;
-					if (oTimeZone != null && tzMapping.containsKey(oTimeZone)) {
-						oTimeZone = tzMapping.get(oTimeZone);
-					}
-					ret.add(IcalConverter.convertToDateTime((Date) o, oTimeZone));
-				}
-
-			}
-			return ret;
-		}
-		return null;
 	}
 
 	/**
@@ -668,7 +661,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			RRule rrule = (RRule) rrulePropList.get(0);
 			Recur recur = rrule.getRecur();
 
-			reccurringRule.frequency = ICalendarElement.RRule.Frequency.valueOf(recur.getFrequency());
+			reccurringRule.frequency = ICalendarElement.RRule.Frequency.valueOf(recur.getFrequency().name());
 
 			if (recur.getCount() > 0) {
 				reccurringRule.count = recur.getCount();
@@ -933,9 +926,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 					continue;
 				}
 
-				Dur trigger = new Dur(0, 0, 0, alarm.trigger);
-				VAlarm valarm = new VAlarm(trigger);
-
+				VAlarm valarm = new VAlarm(java.time.Duration.ofSeconds(alarm.trigger));
 				Trigger t = valarm.getTrigger();
 				t.getParameters().add(Value.DURATION);
 
@@ -1044,73 +1035,93 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 	private static void parseICalendarElementRRule(PropertyList properties, ICalendarElement iCalendarElement) {
 		if (iCalendarElement.rrule != null) {
-			Recur recur = new Recur();
 
-			recur.setFrequency(iCalendarElement.rrule.frequency.name());
+			Builder recur = new Recur.Builder();
 
 			if (iCalendarElement.rrule.count != null) {
-				recur.setCount(iCalendarElement.rrule.count);
-			}
-
-			if (iCalendarElement.rrule.interval != null) {
-				recur.setInterval(iCalendarElement.rrule.interval);
+				recur.count(iCalendarElement.rrule.count);
 			}
 
 			if (iCalendarElement.rrule.until != null) {
-				recur.setUntil(convertToIcsDate(iCalendarElement.rrule.until));
+				recur.until(convertToIcsDate(iCalendarElement.rrule.until));
+			}
+
+			if (iCalendarElement.rrule.frequency != null) {
+				recur.frequency(Frequency.valueOf(iCalendarElement.rrule.frequency.name()));
+			}
+
+			if (iCalendarElement.rrule.interval != null) {
+				recur.interval(iCalendarElement.rrule.interval);
 			}
 
 			if (iCalendarElement.rrule.bySecond != null) {
+				NumberList nl = new NumberList();
 				for (Integer value : iCalendarElement.rrule.bySecond) {
-					recur.getSecondList().add(value);
+					nl.add(value);
+
 				}
+				recur.secondList(nl);
 			}
 
 			if (iCalendarElement.rrule.byMinute != null) {
+				NumberList nl = new NumberList();
 				for (Integer value : iCalendarElement.rrule.byMinute) {
-					recur.getMinuteList().add(value);
+					nl.add(value);
 				}
+				recur.minuteList(nl);
 			}
 
 			if (iCalendarElement.rrule.byHour != null) {
+				NumberList nl = new NumberList();
 				for (Integer value : iCalendarElement.rrule.byHour) {
-					recur.getHourList().add(value);
+					nl.add(value);
 				}
+				recur.hourList(nl);
 			}
 
 			if (iCalendarElement.rrule.byDay != null) {
+				WeekDayList wd = new WeekDayList();
 				for (ICalendarElement.RRule.WeekDay weekDay : iCalendarElement.rrule.byDay) {
-					net.fortuna.ical4j.model.WeekDay wd = new net.fortuna.ical4j.model.WeekDay(
-							new net.fortuna.ical4j.model.WeekDay(weekDay.day), weekDay.offset);
-					recur.getDayList().add(wd);
+					wd.add(new net.fortuna.ical4j.model.WeekDay(new net.fortuna.ical4j.model.WeekDay(weekDay.day),
+							weekDay.offset));
+
 				}
+				recur.dayList(wd);
 			}
 
 			if (iCalendarElement.rrule.byMonthDay != null) {
+				NumberList nl = new NumberList();
 				for (Integer value : iCalendarElement.rrule.byMonthDay) {
-					recur.getMonthDayList().add(value);
+					nl.add(value);
 				}
+				recur.monthDayList(nl);
 			}
 
 			if (iCalendarElement.rrule.byYearDay != null) {
+				NumberList nl = new NumberList();
 				for (Integer value : iCalendarElement.rrule.byYearDay) {
-					recur.getYearDayList().add(value);
+					nl.add(value);
 				}
+				recur.yearDayList(nl);
 			}
 
 			if (iCalendarElement.rrule.byWeekNo != null) {
+				NumberList nl = new NumberList();
 				for (Integer value : iCalendarElement.rrule.byWeekNo) {
-					recur.getWeekNoList().add(value);
+					nl.add(value);
 				}
+				recur.weekNoList(nl);
 			}
 
 			if (iCalendarElement.rrule.byMonth != null) {
+				NumberList nl = new NumberList();
 				for (Integer value : iCalendarElement.rrule.byMonth) {
-					recur.getMonthList().add(value);
+					nl.add(value);
 				}
+				recur.monthDayList(nl);
 			}
 
-			RRule rrule = new RRule(recur);
+			RRule rrule = new RRule(recur.build());
 			properties.add(rrule);
 		}
 	}
@@ -1147,8 +1158,14 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			for (BmDateTime date : sorted) {
 				dateList.add(convertToIcsDate(date));
 			}
+
 			RDate rdate = new RDate(dateList);
 			rdate.setTimeZone(dateList.getTimeZone());
+			if (d.precision == Precision.Date) {
+				rdate.getParameters().add(Value.DATE);
+			} else {
+				rdate.getParameters().add(Value.DATE_TIME);
+			}
 			properties.add(rdate);
 		}
 	}

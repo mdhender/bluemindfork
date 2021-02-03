@@ -53,7 +53,7 @@ public class ObservanceMapper {
 			ComponentList observances = tz.getObservances();
 			for (int i = 0; i < observances.size(); i++) {
 				Observance comp = (Observance) observances.get(i);
-				long offset = comp.getOffsetFrom().getOffset().getOffset();
+				long offset = comp.getOffsetFrom().getOffset().getTotalSeconds() * 1000;
 				String[] timezones = TimeZone.getAvailableIDs((int) offset);
 				addAccumulations(accumulation, timezones);
 			}

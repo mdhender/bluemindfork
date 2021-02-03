@@ -242,8 +242,18 @@ public final class VCardAdapter {
 		List<Property> urlProps = card.getProperties(Id.URL);
 		List<VCard.Explanatory.Url> urls = new ArrayList<>(urlProps.size());
 		for (Property p : urlProps) {
-			Url url = (Url) p;
-			urls.add(VCard.Explanatory.Url.create(url.getValue(), fromVCard(url.getParameters())));
+			String urlValue = null;
+			List<net.fortuna.ical4j.vcard.Parameter> params = null;
+			if (p instanceof net.bluemind.lib.ical4j.vcard.property.Url) {
+				net.bluemind.lib.ical4j.vcard.property.Url url = (net.bluemind.lib.ical4j.vcard.property.Url) p;
+				urlValue = url.getValue();
+				params = url.getParameters();
+			} else {
+				Url url = (Url) p;
+				urlValue = url.getValue();
+				params = url.getParameters();
+			}
+			urls.add(VCard.Explanatory.Url.create(urlValue, fromVCard(params)));
 		}
 		retCard.explanatory.urls = urls;
 
@@ -545,7 +555,7 @@ public final class VCardAdapter {
 			if (paramFactory == null) {
 				LOGGER.warn("********************** Missing factory for label {}", p.label);
 			} else {
-				ret.add(paramFactory.createParameter(p.value));
+				ret.add(paramFactory.createParameter(p.label, p.value));
 			}
 		}
 		return ret;

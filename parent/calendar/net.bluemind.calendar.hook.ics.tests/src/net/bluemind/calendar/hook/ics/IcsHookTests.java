@@ -2725,7 +2725,11 @@ public class IcsHookTests {
 
 		ItemValue<VEventSeries> series = seriesList.get(0);
 		assertNotNull(series.value.occurrences);
-		assertEquals(occurr.dtstart, series.value.occurrences.get(0).dtstart);
+		dateEquals(occurr.dtstart, series.value.occurrences.get(0).dtstart);
+	}
+
+	private void dateEquals(BmDateTime a, BmDateTime b) {
+		assertEquals(new BmDateTimeWrapper(a).toUTCTimestamp(), new BmDateTimeWrapper(b).toUTCTimestamp());
 	}
 
 	@Test

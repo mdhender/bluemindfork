@@ -49,7 +49,6 @@ import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventChanges;
 import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.calendar.helper.ical4j.Method;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.calendar.helper.mail.CalendarMail;
 import net.bluemind.calendar.helper.mail.CalendarMailHelper;
@@ -76,6 +75,7 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
+import net.fortuna.ical4j.model.property.Method;
 
 public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHandler {
 	private static final Logger logger = LoggerFactory.getLogger(EventRequestHandler.class);
