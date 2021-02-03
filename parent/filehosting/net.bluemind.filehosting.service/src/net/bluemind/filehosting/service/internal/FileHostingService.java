@@ -23,7 +23,7 @@ import static net.bluemind.filehosting.service.internal.PathValidator.validate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
