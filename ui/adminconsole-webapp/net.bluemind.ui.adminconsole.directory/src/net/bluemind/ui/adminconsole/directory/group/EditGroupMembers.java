@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -51,6 +52,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
+import net.bluemind.ui.admin.client.forms.det.DEDataProvider;
 import net.bluemind.ui.admin.client.forms.det.DEPager;
 import net.bluemind.ui.admin.client.forms.det.DETable;
 import net.bluemind.ui.admin.client.forms.det.SimpleBaseDirEntryFinder;
@@ -166,9 +168,18 @@ public class EditGroupMembers extends CompositeGwtWidgetElement {
 				default:
 					break;
 				}
-				if (!constains(toAdd, m)) {
-					toAdd.add(m);
+
+				if (contains(toRemove, m)) {
+					GWT.log("Remove from toRemove: " + de.entryUid);
+					toRemove = remove(toRemove, m);
+				} else {
+					if (!contains(toAdd, m)) {
+						GWT.log("add to toAdd: " + de.entryUid);
+						toAdd.add(m);
+					}
 				}
+				GWT.log("toAdd: " + toAdd.size() + ", toRemove: " + toRemove.size());
+
 				membersFinder.addMember(m);
 			}
 			membersLookup.clearSelection();
@@ -202,9 +213,16 @@ public class EditGroupMembers extends CompositeGwtWidgetElement {
 					break;
 				}
 
-				if (!constains(toRemove, m)) {
-					toRemove.add(m);
+				if (contains(toAdd, m)) {
+					GWT.log("Remove from toAdd: " + de.entryUid);
+					toAdd = remove(toAdd, m);
+				} else {
+					if (!contains(toRemove, m)) {
+						GWT.log("add to toRemove: " + de.entryUid);
+						toRemove.add(m);
+					}
 				}
+				GWT.log("toAdd: " + toAdd.size() + ", toRemove: " + toRemove.size());
 
 				membersFinder.removeMember(m);
 			}
@@ -222,13 +240,12 @@ public class EditGroupMembers extends CompositeGwtWidgetElement {
 		return members;
 	}
 
-	private static boolean constains(List<JsMember> members, JsMember m) {
-		for (JsMember mm : members) {
-			if (mm.getUid().equals(m.getUid())) {
-				return true;
-			}
-		}
-		return false;
+	private static boolean contains(List<JsMember> members, JsMember m) {
+		return members.stream().anyMatch(mm -> mm.getUid().equals(m.getUid()));
+	}
+
+	private static List<JsMember> remove(List<JsMember> members, JsMember m) {
+		return members.stream().filter(mm -> !mm.getUid().equals(m.getUid())).collect(Collectors.toList());
 	}
 
 	@Override
@@ -281,13 +298,13 @@ public class EditGroupMembers extends CompositeGwtWidgetElement {
 		membersLookup.initProvider(lookupFilter.asEditor(),
 				Arrays.asList(DirEntry.Kind.GROUP, DirEntry.Kind.USER, DirEntry.Kind.EXTERNALUSER), ugFinder);
 		rPager.setDisplay(membersLookup);
-		rPager.setPageSize(25);
+		rPager.setPageSize(DEDataProvider.PAGE_SIZE);
 
 		membersFinder = new MembersFinder();
 		activeMembers.initProvider(membersFilter.asEditor(),
 				Arrays.asList(DirEntry.Kind.GROUP, DirEntry.Kind.USER, DirEntry.Kind.EXTERNALUSER), membersFinder);
 		lPager.setDisplay(activeMembers);
-		lPager.setPageSize(25);
+		lPager.setPageSize(DEDataProvider.PAGE_SIZE);
 
 	}
 
