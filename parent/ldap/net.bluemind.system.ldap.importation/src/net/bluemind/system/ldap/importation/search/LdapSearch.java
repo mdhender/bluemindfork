@@ -29,12 +29,14 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 
+import com.google.common.base.Strings;
+
+import net.bluemind.system.importation.commons.exceptions.NullOrEmptySplitGroupName;
 import net.bluemind.system.importation.search.DirectorySearch;
 import net.bluemind.system.importation.search.PagedSearchResult;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 
 public class LdapSearch extends DirectorySearch<LdapParameters> {
-
 	public LdapSearch(LdapParameters ldapParameters) {
 		super(ldapParameters, new LdapGroupSearchFilter(), new LdapUserSearchFilter());
 	}
@@ -80,7 +82,19 @@ public class LdapSearch extends DirectorySearch<LdapParameters> {
 		}
 	}
 
-	public PagedSearchResult findByGroupByName(LdapConnection ldapCon) throws LdapException {
+	/**
+	 * Get split group from its name
+	 * 
+	 * @param ldapCon
+	 * @return LDAP search result
+	 * @throws LdapException
+	 * @throws NullOrEmptySplitGroupName
+	 */
+	public PagedSearchResult findSplitGroup(LdapConnection ldapCon) throws LdapException {
+		if (Strings.isNullOrEmpty(ldapParameters.splitDomain.relayMailboxGroup)) {
+			throw new NullOrEmptySplitGroupName();
+		}
+
 		return super.findByFilterAndAttributes(ldapCon, groupFilter.getSearchFilter(ldapParameters, Optional.empty(),
 				null, ldapParameters.splitDomain.relayMailboxGroup), "*");
 	}

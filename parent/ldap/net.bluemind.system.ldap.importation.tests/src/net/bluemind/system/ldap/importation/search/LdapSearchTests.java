@@ -21,6 +21,7 @@ package net.bluemind.system.ldap.importation.search;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ import org.junit.rules.TestName;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.lib.ldap.GroupMemberAttribute;
 import net.bluemind.lib.ldap.LdapConProxy;
+import net.bluemind.system.importation.commons.exceptions.NullOrEmptySplitGroupName;
 import net.bluemind.system.importation.search.PagedSearchResult;
 import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchException;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
@@ -180,14 +182,14 @@ public class LdapSearchTests {
 	}
 
 	@Test
-	public void testFindByGroupName() throws Exception {
+	public void testFindSplitGroup() throws Exception {
 		LdapParameters ldapParameters = LdapSearchTestHelper.getLdapParametersWithSplitGroup("splitgroup");
 		LdapSearch search = new LdapSearch(ldapParameters);
 
 		List<String> groupName = new ArrayList<>();
 		List<String> groupMembers = new ArrayList<>();
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters);
-				PagedSearchResult findGroupsByGroupName = search.findByGroupByName(connection)) {
+				PagedSearchResult findGroupsByGroupName = search.findSplitGroup(connection)) {
 			while (findGroupsByGroupName.next()) {
 				groupName.add(findGroupsByGroupName.getEntry().get("cn").getString());
 
@@ -207,6 +209,25 @@ public class LdapSearchTests {
 
 		assertEquals(1, groupMembers.size());
 		assertTrue(groupMembers.contains("uid=user00,dc=local"));
+	}
+
+	@Test
+	public void testFindSplitGroup_emptyOrNullName() throws Exception {
+		LdapParameters ldapParameters = LdapSearchTestHelper.getLdapParametersWithSplitGroup("");
+		LdapSearch search = new LdapSearch(ldapParameters);
+
+		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters);
+				PagedSearchResult findGroupsByGroupName = search.findSplitGroup(connection)) {
+			fail("Test must thrown an exception");
+		} catch (NullOrEmptySplitGroupName isgn) {
+		}
+
+		ldapParameters = LdapSearchTestHelper.getLdapParametersWithSplitGroup(null);
+		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters);
+				PagedSearchResult findGroupsByGroupName = search.findSplitGroup(connection)) {
+			fail("Test must thrown an exception");
+		} catch (NullOrEmptySplitGroupName isgn) {
+		}
 	}
 
 	@Test

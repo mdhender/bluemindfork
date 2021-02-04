@@ -44,6 +44,7 @@ import net.bluemind.system.importation.commons.ICoreServices;
 import net.bluemind.system.importation.commons.Parameters;
 import net.bluemind.system.importation.commons.UuidMapper;
 import net.bluemind.system.importation.commons.enhancer.IScannerEnhancer;
+import net.bluemind.system.importation.commons.exceptions.NullOrEmptySplitGroupName;
 import net.bluemind.system.importation.commons.managers.GroupManager;
 import net.bluemind.system.importation.commons.managers.UserManager;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
@@ -94,7 +95,7 @@ public abstract class LdapScanner extends Scanner {
 		}
 
 		Entry groupEntry = null;
-		try (PagedSearchResult cursor = getLdapSearch().findByGroupByName(ldapCon)) {
+		try (PagedSearchResult cursor = getLdapSearch().findSplitGroup(ldapCon)) {
 			while (groupEntry == null && cursor.next()) {
 				Response response = cursor.get();
 
@@ -106,6 +107,8 @@ public abstract class LdapScanner extends Scanner {
 			}
 		} catch (LdapException | CursorException | LdapSearchException e) {
 			throw new ServerFault(e);
+		} catch (NullOrEmptySplitGroupName isgn) {
+			groupEntry = null;
 		}
 
 		if (groupEntry == null) {

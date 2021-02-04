@@ -64,7 +64,7 @@ public class LdapSearchTestHelper {
 
 	public static LdapParameters getLdapParametersWithSplitGroup(String splitGroupName) {
 		return getLdapParameters(LdapProperties.import_ldap_ext_id_attribute.getDefaultValue(), Optional.empty(),
-				Optional.empty(), Optional.of(splitGroupName), Optional.empty());
+				Optional.empty(), Optional.of(splitGroupName == null ? "" : splitGroupName), Optional.empty());
 	}
 
 	public static LdapParameters getLdapParameters(String entryUuid, Optional<String> login, Optional<String> password,
