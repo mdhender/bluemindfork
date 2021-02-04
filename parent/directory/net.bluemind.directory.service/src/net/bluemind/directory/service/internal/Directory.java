@@ -77,6 +77,7 @@ import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.DirEntryQuery;
+import net.bluemind.directory.api.IDirEntryPath;
 import net.bluemind.directory.persistence.ManageableOrgUnit;
 import net.bluemind.directory.service.DirEntryHandler;
 import net.bluemind.directory.service.DirEntryHandlers;
@@ -125,15 +126,7 @@ public class Directory {
 
 	public ItemValue<DirEntry> getEntry(String path) throws ServerFault {
 		checkReadAccess();
-		List<ItemValue<DirEntry>> res = itemStore.getEntries(path);
-		if (res.size() == 1) {
-			return res.get(0);
-		} else if (res.size() > 1) {
-			logger.warn("more than one entry for path {}", path);
-			return res.get(0);
-		} else {
-			return null;
-		}
+		return findByEntryUid(IDirEntryPath.getEntryUid(path));
 	}
 
 	public List<ItemValue<DirEntry>> getEntries(String path) throws ServerFault {

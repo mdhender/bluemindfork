@@ -32,7 +32,7 @@ public class I18nDirectory implements DirectoryDecorator {
 
 	private void translate(BmContext context, ItemValue<DirEntry> entry) {
 		entry.value.displayName = I18nLabels.getInstance().translate(context.getSecurityContext().getLang(),
-				entry.value.displayName);
+				entry.displayName);
 	}
 
 }
