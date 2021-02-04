@@ -7,6 +7,8 @@ CREATE TABLE if not exists t_mapi_folders (
 	primary key (replica_guid, container_uid)
 );
 
+CREATE INDEX IF NOT EXISTS t_mapi_folders_container_uid ON t_mapi_folders(container_uid);
+
 CREATE TABLE if not exists t_mapi_raw_message (
 	content jsonb,
 	item_id int4 references t_container_item(id) on delete cascade
