@@ -33,8 +33,6 @@ import net.bluemind.gwtconsoleapp.base.editor.ScreenElement;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenRoot;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenRoot.SizeHint;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtScreenRoot;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtScreenRoot;
 import net.bluemind.scheduledjob.api.JobExecution;
 import net.bluemind.scheduledjob.api.JobExitStatus;
 import net.bluemind.scheduledjob.api.LogEntry;
@@ -118,20 +116,14 @@ public class LiveLogsViewer extends JobLogsViewer {
 	}
 
 	@UiHandler("close")
+	@Override
 	void close(ClickEvent ce) {
-		// getOverlayScreen().hide(true);
 		Actions.get().showWithParams2("jobsManager", MapBuilder.of());
 		closed = true;
 	}
 
 	public static void registerType() {
-		GwtScreenRoot.register(TYPE, new IGwtDelegateFactory<IGwtScreenRoot, ScreenRoot>() {
-
-			@Override
-			public IGwtScreenRoot create(ScreenRoot screenRoot) {
-				return new LiveLogsViewer(screenRoot);
-			}
-		});
+		GwtScreenRoot.register(TYPE, LiveLogsViewer::new);
 	}
 
 	public static ScreenElement screenModel() {

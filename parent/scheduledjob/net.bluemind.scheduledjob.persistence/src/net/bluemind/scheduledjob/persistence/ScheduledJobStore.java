@@ -99,7 +99,7 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 	 */
 	public void delete(List<Integer> ids) throws ServerFault {
 		Object[] params = new Object[] { ids.stream().map(i -> new Long(i)).toArray(Long[]::new) };
-		
+
 		try {
 			delete("delete from t_job_execution where id = ANY(?)", params);
 		} catch (SQLException e) {
@@ -158,7 +158,7 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 			List<JobExecution> jobs = select(composeQuery(jeq, false), JobExecutionColumn.jobExecutionCreator(),
 					JobExecutionColumn.jobExecutionPopulator(), params);
 
-			ListResult<JobExecution> ret = new ListResult<JobExecution>();
+			ListResult<JobExecution> ret = new ListResult<>();
 
 			ret.values = jobs;
 
@@ -290,7 +290,7 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 			return;
 		}
 
-		Map<String, Job> idIndex = new HashMap<String, Job>();
+		Map<String, Job> idIndex = new HashMap<>();
 		q.append(" AND jp.job_id IN (");
 		boolean comma = false;
 		for (Job j : ret) {
@@ -366,7 +366,7 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 		String query = q.toString();
 
 		try {
-			return new LinkedHashSet<LogEntry>(select(query, JobExecutionColumn.logEntryCreator(),
+			return new LinkedHashSet<>(select(query, JobExecutionColumn.logEntryCreator(),
 					JobExecutionColumn.logEntryPopulator(), params));
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);

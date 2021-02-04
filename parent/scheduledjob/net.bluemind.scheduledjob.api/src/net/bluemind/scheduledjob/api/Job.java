@@ -35,8 +35,8 @@ public class Job {
 	public String recipients;
 
 	public Job() {
-		domainStatus = new ArrayList<JobDomainStatus>();
-		domainPlanification = new ArrayList<JobPlanification>();
+		domainStatus = new ArrayList<>();
+		domainPlanification = new ArrayList<>();
 		sendReport = false;
 	}
 }

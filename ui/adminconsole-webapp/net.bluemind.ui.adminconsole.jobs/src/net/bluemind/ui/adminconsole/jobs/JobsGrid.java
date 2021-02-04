@@ -68,15 +68,12 @@ public class JobsGrid extends DataGrid<Job> implements IBmGrid<Job> {
 	}
 
 	public JobsGrid() {
-		this.keyProvider = new ProvidesKey<Job>() {
-			@Override
-			public Object getKey(Job item) {
-				if (item == null) {
-					return null;
-				}
-				String d = item.domainPlanification.iterator().next().domain;
-				return "" + d + "-" + item.id;
+		this.keyProvider = item -> {
+			if (item == null) {
+				return null;
 			}
+			String d = item.domainPlanification.iterator().next().domain;
+			return "" + d + "-" + item.id;
 		};
 		selectionModel = new MultiSelectionModel<Job>(keyProvider);
 		this.getElement().getStyle().setCursor(Cursor.POINTER);

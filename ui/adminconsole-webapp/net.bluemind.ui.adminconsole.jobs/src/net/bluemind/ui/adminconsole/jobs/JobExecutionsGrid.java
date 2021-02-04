@@ -34,46 +34,36 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.DefaultSelectionEventManager.SelectAction;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
-import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.domain.api.Domain;
 import net.bluemind.scheduledjob.api.JobExecution;
 import net.bluemind.scheduledjob.api.JobExitStatus;
 import net.bluemind.ui.adminconsole.base.Actions;
+import net.bluemind.ui.adminconsole.base.DomainsHolder;
 
 public class JobExecutionsGrid extends DataGrid<JobExecution> implements IBmGrid<JobExecution> {
 	private MultiSelectionModel<JobExecution> selectionModel;
 	private ListDataProvider<JobExecution> ldp;
 
 	public JobExecutionsGrid() {
-		ProvidesKey<JobExecution> keyProvider = new ProvidesKey<JobExecution>() {
-			@Override
-			public Object getKey(JobExecution item) {
-				return (item == null) ? null : item.id;
-			}
-		};
+		selectionModel = new MultiSelectionModel<JobExecution>(item -> (item == null) ? null : item.id);
 
-		selectionModel = new MultiSelectionModel<JobExecution>(keyProvider);
-
-		IEditHandler<JobExecution> editHandler = new IEditHandler<JobExecution>() {
-
-			@Override
-			public SelectAction edit(CellPreviewEvent<JobExecution> cpe) {
-				if (cpe.getColumn() == 0) {
-					return SelectAction.TOGGLE;
-				} else {
-					JobExecution j = cpe.getValue();
-					Map<String, String> ssr = new HashMap<>();
-					ssr.put("exec", j.id + "");
-					ssr.put("job", j.jobId);
-					ssr.put("activeTab", 2 + "");
-					Actions.get().showWithParams2("jobLogsViewer", ssr);
-					return SelectAction.IGNORE;
-				}
+		IEditHandler<JobExecution> editHandler = cpe -> {
+			if (cpe.getColumn() == 0) {
+				return SelectAction.TOGGLE;
+			} else {
+				JobExecution j = cpe.getValue();
+				Map<String, String> ssr = new HashMap<>();
+				ssr.put("exec", j.id + "");
+				ssr.put("job", j.jobId);
+				ssr.put("activeTab", 2 + "");
+				Actions.get().showWithParams2("jobLogsViewer", ssr);
+				return SelectAction.IGNORE;
 			}
 		};
 
@@ -87,7 +77,7 @@ public class JobExecutionsGrid extends DataGrid<JobExecution> implements IBmGrid
 				return selectionModel.isSelected(de);
 			}
 		};
-		Header<Boolean> selHead = new CellHeader<JobExecution>(new CheckboxCell(), this);
+		Header<Boolean> selHead = new CellHeader<>(new CheckboxCell(), this);
 		addColumn(checkColumn, selHead, selHead);
 		setColumnWidth(checkColumn, 40, Unit.PX);
 
@@ -157,7 +147,7 @@ public class JobExecutionsGrid extends DataGrid<JobExecution> implements IBmGrid
 		setLoadingIndicator(null);
 		setPageSize(Integer.MAX_VALUE);
 
-		this.ldp = new ListDataProvider<JobExecution>();
+		this.ldp = new ListDataProvider<>();
 		ldp.addDataDisplay(this);
 	}
 

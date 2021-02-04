@@ -63,7 +63,7 @@ public class ExecutionRecorder implements Runnable {
 
 	@Override
 	public void run() {
-		logger.info("recording execution of " + rid);
+		logger.info("recording execution of {}", rid);
 
 		JobExecution je = createExecution();
 		JobExecution exec = storeExecution(je);

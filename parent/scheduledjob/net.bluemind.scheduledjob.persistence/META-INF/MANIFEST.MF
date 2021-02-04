@@ -14,3 +14,4 @@ Require-Bundle: net.bluemind.scheduledjob.sqlschema;bundle-version="1.0.0",
  net.bluemind.core.context,
  org.quartz-scheduler.quartz;bundle-version="2.1.5"
 Export-Package: net.bluemind.scheduledjob.persistence
+Automatic-Module-Name: net.bluemind.scheduledjob.persistence

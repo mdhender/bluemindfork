@@ -177,7 +177,7 @@ public class SendReport implements Runnable {
 		content.append("</html>");
 
 		TextBody body = bodyFactory.textBody(content.toString());
-		HashMap<String, String> params = new HashMap<String, String>();
+		HashMap<String, String> params = new HashMap<>();
 		params.put("charset", "UTF-8");
 		params.put("format", "flowed");
 		m.setBody(body, "text/html", params);

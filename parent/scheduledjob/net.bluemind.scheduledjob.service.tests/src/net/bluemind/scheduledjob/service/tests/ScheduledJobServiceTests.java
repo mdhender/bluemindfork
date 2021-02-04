@@ -92,13 +92,7 @@ public class ScheduledJobServiceTests {
 		PopulateHelper.domainAdmin("bm.lan", admin.getSubject());
 
 		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
+		Handler<AsyncResult<Void>> done = ar -> future.set(null);
 		VertxPlatform.spawnVerticles(done);
 		future.get();
 
@@ -434,7 +428,7 @@ public class ScheduledJobServiceTests {
 
 		// at least DOMAIN_JOB
 		assertTrue(ret.total >= 1);
-		assertTrue(ret.values.size() >= 1);
+		assertFalse(ret.values.isEmpty());
 
 		for (Job j : ret.values) {
 			assertNotNull("job id must not be null", j.id);
@@ -456,7 +450,7 @@ public class ScheduledJobServiceTests {
 		// at least DOMAIN_JOB
 		long count = ret.total;
 		assertTrue(count >= 1);
-		assertTrue(ret.values.size() >= 1);
+		assertFalse(ret.values.isEmpty());
 		for (Job j : ret.values) {
 			assertNotNull("job id must not be null", j.id);
 			System.out.println("job: " + j.id);

@@ -24,3 +24,4 @@ Require-Bundle: net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.metrics.annotations
 Export-Package: net.bluemind.scheduledjob.scheduler,
  net.bluemind.scheduledjob.scheduler.impl
+Automatic-Module-Name: net.bluemind.scheduledjob.scheduler

@@ -324,7 +324,6 @@ public class ScheduledJobService implements IInCoreJob {
 			for (JobPlanification jp : plans) {
 				if (jp.domain.equals(context.getContainerUid())) {
 					domainPlan = jp;
-					continue;
 				}
 			}
 
@@ -348,7 +347,7 @@ public class ScheduledJobService implements IInCoreJob {
 			String list[] = recipients.split(" ");
 			for (String email : list) {
 				if (email == null || !Regex.EMAIL.validate(email)) {
-					logger.error("Email " + email + " is invalid");
+					logger.error("Email {} is invalid", email);
 					throw new ServerFault("Invalid email: " + email, ErrorCode.INVALID_EMAIL);
 				}
 			}

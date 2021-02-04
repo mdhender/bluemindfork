@@ -22,3 +22,4 @@ Require-Bundle: org.junit,
  org.quartz-scheduler.quartz;bundle-version="2.1.5",
  net.bluemind.scheduledjob.job
 Export-Package: net.bluemind.scheduledjob
+Automatic-Module-Name: net.bluemind.scheduledjob.job.tests

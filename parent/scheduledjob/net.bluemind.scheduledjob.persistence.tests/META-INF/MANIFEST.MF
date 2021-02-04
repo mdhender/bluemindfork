@@ -16,3 +16,4 @@ Require-Bundle: net.bluemind.scheduledjob.persistence;bundle-version="1.0.0",
  net.bluemind.scheduledjob.api;bundle-version="1.0.0",
  net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.scheduledjob.scheduler;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.scheduledjob.persistence.tests

@@ -174,7 +174,7 @@ public class JobExecutionColumn {
 							CronExpression ce = new CronExpression(cs);
 							Date nextRun = null;
 							if (jp.lastRun != null) {
-								logger.debug("lastRun: " + jp.lastRun);
+								logger.debug("lastRun: {}", jp.lastRun);
 								nextRun = ce.getNextValidTimeAfter(jp.lastRun);
 							} else {
 								Calendar cal = Calendar.getInstance();
@@ -183,7 +183,7 @@ public class JobExecutionColumn {
 							}
 							jp.nextRun = nextRun;
 						} catch (ParseException pe) {
-							logger.error("Invalid cron string: '" + cs + "' (" + pe.getMessage() + ")");
+							logger.error("Invalid cron string: '{}' ({})", cs, pe.getMessage());
 						}
 					}
 				}

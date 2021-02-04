@@ -32,7 +32,6 @@ import java.util.function.Consumer;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -47,18 +46,14 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 
 import net.bluemind.core.api.AsyncHandler;
-import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenElement;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenRoot;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtScreenRoot;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtScreenRoot;
 import net.bluemind.scheduledjob.api.Job;
 import net.bluemind.scheduledjob.api.JobDomainStatus;
@@ -120,7 +115,7 @@ public class JobsManager extends Composite implements IStatusFilterListener, IGw
 		clicked(op -> jobApi.cancel(op.jobId, op.domain, op.ah));
 	}
 
-	private void clicked(Consumer<JobOp> op){
+	private void clicked(Consumer<JobOp> op) {
 		Collection<Job> jobs = grid.getSelected();
 
 		final Counter counter = new Counter(jobs.size());
@@ -146,25 +141,14 @@ public class JobsManager extends Composite implements IStatusFilterListener, IGw
 	}
 
 	protected void onScreenShown(ScreenShowRequest ssr) {
-		Handler handler = new Handler() {
-
-			@Override
-			public void onSelectionChange(SelectionChangeEvent event) {
-				Collection<Job> jobs = grid.getSelected();
-				startJobs.setEnabled(!jobs.isEmpty());
-				cancelJobs.setEnabled(!jobs.isEmpty());
-				Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-					@Override
-					public void execute() {
-						markActiveJobs(grid.getValues(), grid.getActive());
-					}
-				});
-			}
-		};
-		this.selHandlerReg = grid.addSelectionChangeHandler(handler);
+		this.selHandlerReg = grid.addSelectionChangeHandler(evt -> {
+			Collection<Job> jobs = grid.getSelected();
+			startJobs.setEnabled(!jobs.isEmpty());
+			cancelJobs.setEnabled(!jobs.isEmpty());
+			Scheduler.get().scheduleDeferred(() -> markActiveJobs(grid.getValues(), grid.getActive()));
+		});
 
 		find(true);
-		// AdminCtrl.get().registerDomainChangedListener(this);
 		statusFilter.addListener(this);
 		addJobExecutionListener();
 	}
@@ -204,7 +188,7 @@ public class JobsManager extends Composite implements IStatusFilterListener, IGw
 			public void success(ListResult<Job> result) {
 				List<Job> expanded = expandRows(result.values, filter);
 				grid.setValues(expanded);
-				ArrayList<JobExecution> activeJobs = new ArrayList<JobExecution>();
+				ArrayList<JobExecution> activeJobs = new ArrayList<>();
 				for (Job job : result.values) {
 					if (null != job.domainStatus) {
 						for (JobDomainStatus status : job.domainStatus) {
@@ -273,7 +257,7 @@ public class JobsManager extends Composite implements IStatusFilterListener, IGw
 	}
 
 	private List<Job> expandRows(List<Job> ol, String filter) {
-		LinkedList<Job> ret = new LinkedList<Job>();
+		LinkedList<Job> ret = new LinkedList<>();
 		for (Job j : ol) {
 			String id = JobHelper.getShortId(j).toLowerCase();
 			if (filter != null && !"".equals(filter.trim()) && !id.contains(filter.toLowerCase())) {
@@ -330,7 +314,6 @@ public class JobsManager extends Composite implements IStatusFilterListener, IGw
 
 	protected ResetReply reset() {
 		statusFilter.removeListener(this);
-		// AdminCtrl.get().removeDomainChangedListener(this);
 		selHandlerReg.removeHandler();
 		selHandlerReg = null;
 		return ResetReply.OK;
@@ -340,11 +323,6 @@ public class JobsManager extends Composite implements IStatusFilterListener, IGw
 	JobTexts getTexts() {
 		return JobTexts.INST;
 	}
-
-	// @Override
-	// public void activeDomainChanged(Domain newActiveDomain) {
-	// find(false, null);
-	// }
 
 	@Override
 	public void filteredStatusChanged(Set<JobExitStatus> status, String filter) {
@@ -373,18 +351,11 @@ public class JobsManager extends Composite implements IStatusFilterListener, IGw
 	}
 
 	public static void registerType() {
-		GwtScreenRoot.register(TYPE, new IGwtDelegateFactory<IGwtScreenRoot, ScreenRoot>() {
-
-			@Override
-			public IGwtScreenRoot create(ScreenRoot screenRoot) {
-				return new JobsManager(screenRoot);
-			}
-		});
+		GwtScreenRoot.register(TYPE, JobsManager::new);
 	}
 
 	public static ScreenElement screenModel() {
-		ScreenRoot screenRoot = ScreenRoot.create("jobsManager", TYPE).cast();
-		return screenRoot;
+		return ScreenRoot.create("jobsManager", TYPE).cast();
 	}
 
 	private static class JobOp {
@@ -392,7 +363,7 @@ public class JobsManager extends Composite implements IStatusFilterListener, IGw
 		public final String domain;
 		public final AsyncHandler<Void> ah;
 
-		public JobOp(String jobId, String domain, AsyncHandler<Void> ah){
+		public JobOp(String jobId, String domain, AsyncHandler<Void> ah) {
 			this.jobId = jobId;
 			this.domain = domain;
 			this.ah = ah;

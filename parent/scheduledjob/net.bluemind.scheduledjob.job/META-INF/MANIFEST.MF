@@ -11,3 +11,4 @@ Require-Bundle: net.bluemind.scheduledjob.scheduler,
  slf4j.api,
  net.bluemind.core.rest
 Export-Package: net.bluemind.scheduledjob.job
+Automatic-Module-Name: net.bluemind.scheduledjob.job
