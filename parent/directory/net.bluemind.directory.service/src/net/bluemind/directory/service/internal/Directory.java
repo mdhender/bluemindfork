@@ -125,7 +125,6 @@ public class Directory {
 	}
 
 	public ItemValue<DirEntry> getEntry(String path) throws ServerFault {
-		checkReadAccess();
 		return findByEntryUid(IDirEntryPath.getEntryUid(path));
 	}
 

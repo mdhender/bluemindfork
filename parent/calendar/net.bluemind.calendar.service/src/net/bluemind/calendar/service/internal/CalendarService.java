@@ -614,11 +614,7 @@ public class CalendarService implements IInternalCalendar {
 		List<ItemValue<VEventSeries>> values = new ArrayList<>(allUids.size());
 
 		for (String uid : allUids) {
-			ItemValue<VEventSeries> evt = getItemValue(uid);
-			if (evt != null) {
-				sanitizer.resolveAttendeesAndOrganizer(evt.value);
-			}
-			values.add(evt);
+			values.add(getItemValue(uid));
 		}
 
 		ListResult<ItemValue<VEventSeries>> ret = new ListResult<>();

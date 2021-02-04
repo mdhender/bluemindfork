@@ -191,9 +191,6 @@ public class PublishCalendarService implements IPublishCalendar {
 								}
 							}
 							return event;
-						}).map(event -> {
-							sanitizer.resolveAttendeesAndOrganizer(event.value);
-							return event;
 						}).filter(event -> {
 							if (event.value.main != null) {
 								List<Attendee> attendees = event.value.main.attendees;
