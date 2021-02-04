@@ -30,6 +30,7 @@ import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.pool.impl.docker.DockerContainer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.utils.IniFile;
 
 public class BmConfIni extends IniFile {
@@ -68,32 +69,32 @@ public class BmConfIni extends IniFile {
 			overrideMap.put("user", "test");
 			overrideMap.put("password", "test");// NOSONAR
 			overrideMap.put("dbtype", "PGSQL");
-			topo.add(tagged(host, "bm/pgsql"));
-			topo.add(tagged(host, "bm/pgsql-data"));
+			topo.add(tagged(host, TagDescriptor.bm_pgsql.getTag()));
+			topo.add(tagged(host, TagDescriptor.bm_pgsql_data.getTag()));
 		}
 
 		String nodeHost = DockerEnv.getIp(DockerContainer.NODE.getName());
 		if (nodeHost != null) {
 			overrideMap.put(DockerContainer.NODE.getHostProperty(), nodeHost);
-			topo.add(tagged(nodeHost, "filehosting/data"));
+			topo.add(tagged(nodeHost, TagDescriptor.bm_filehosting.getTag()));
 		}
 
 		String smtpHost = DockerEnv.getIp(DockerContainer.SMTP_ROLE.getName());
 		if (smtpHost != null) {
 			overrideMap.put(DockerContainer.SMTP_ROLE.getHostProperty(), smtpHost);
-			topo.add(tagged(smtpHost, "mail/smtp"));
+			topo.add(tagged(smtpHost, TagDescriptor.mail_smtp.getTag()));
 		}
 
 		String smtpEdgeHost = DockerEnv.getIp(DockerContainer.SMTP_EDGE.getName());
 		if (smtpEdgeHost != null) {
 			overrideMap.put(DockerContainer.SMTP_EDGE.getHostProperty(), smtpEdgeHost);
-			topo.add(tagged(smtpEdgeHost, "mail/smtp-edge"));
+			topo.add(tagged(smtpEdgeHost, TagDescriptor.mail_smtp_edge.getTag()));
 		}
 
 		String imapHost = DockerEnv.getIp(DockerContainer.IMAP.getName());
 		if (imapHost != null) {
 			overrideMap.put(DockerContainer.IMAP.getHostProperty(), imapHost);
-			topo.add(tagged(imapHost, "mail/imap"));
+			topo.add(tagged(imapHost, TagDescriptor.mail_imap.getTag()));
 		}
 
 		String ldapHost = DockerEnv.getIp(DockerContainer.LDAP.getName());
@@ -109,8 +110,8 @@ public class BmConfIni extends IniFile {
 		String mailboxRoleHost = DockerEnv.getIp(DockerContainer.MAILBOX_ROLE.getName());
 		if (mailboxRoleHost != null) {
 			overrideMap.put(DockerContainer.MAILBOX_ROLE.getHostProperty(), mailboxRoleHost);
-			topo.add(tagged(mailboxRoleHost, "mail/imap"));
-			topo.add(tagged(mailboxRoleHost, "bm/pgsql-data"));
+			topo.add(tagged(mailboxRoleHost, TagDescriptor.mail_imap.getTag()));
+			topo.add(tagged(mailboxRoleHost, TagDescriptor.bm_pgsql_data.getTag()));
 
 		}
 
