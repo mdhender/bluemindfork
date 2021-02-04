@@ -85,4 +85,5 @@
    <bundle id="net.bluemind.ui.adminconsole.monitoring" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.ui.metrics.application" version="4.1.0.qualifier"/>
    <bundle id="com.google.jsinterop.annotations" version="1.0.2"/>
+   <bundle id="net.bluemind.ui.adminconsole.videoconferencing" version="4.1.0.qualifier"/>
 </site>

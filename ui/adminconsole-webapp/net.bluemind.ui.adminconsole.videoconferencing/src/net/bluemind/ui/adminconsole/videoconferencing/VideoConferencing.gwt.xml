@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module
+	rename-to="net.bluemind.ui.adminconsole.videoconferencing">
+
+	<inherits name='com.google.gwt.user.User' />
+	<inherits name="com.google.gwt.http.HTTP" />
+	<inherits name="com.google.gwt.xml.XML" />
+	<inherits name="com.google.gwt.json.JSON" />
+
+	<inherits name="net.bluemind.ui.adminconsole.AdminConsoleBase" />
+	<inherits name="net.bluemind.ui.extensions.GWTExtensions" />
+	<inherits name="net.bluemind.gwtconsoleapp.base.Editor" />
+	<inherits name="net.bluemind.core.CommonsApi" />
+	<inherits name="net.bluemind.core.CoreApi" />
+	<inherits name="net.bluemind.ui.common.CommonIcons" />
+	<inherits name="net.bluemind.ui.common.client.CommonForms" />
+
+	<source path='' />
+
+	<!-- Internationalization support. -->
+	<extend-property name="locale" values="en" />
+	<extend-property name="locale" values="fr" />
+	<set-property-fallback name="locale" value="en" />
+
+	<add-linker name="xsiframe" />
+	<collapse-all-properties />
+
+	<entry-point
+		class='net.bluemind.ui.adminconsole.videoconferencing.VideoConferencingPlugin' />
+
+</module>

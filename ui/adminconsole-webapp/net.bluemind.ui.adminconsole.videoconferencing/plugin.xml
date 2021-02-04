@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.ui.adminconsole.screenContributor">
+      <contributor
+            function="NetBluemindUiAdminconsoleVideoConferencingScreenContributor">
+      </contributor>
+   </extension>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/adminconsole">
+         <web-resource
+               bundle="net.bluemind.ui.adminconsole.videoconferencing">
+         </web-resource>
+         <js
+               async-loading="true"
+               path="net.bluemind.ui.adminconsole.videoconferencing/net.bluemind.ui.adminconsole.videoconferencing.nocache.js">
+         </js>
+      </web-module-provider>
+   </extension>
+
+</plugin>
