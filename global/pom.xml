@@ -38,6 +38,7 @@
 		<gwt-version>2.8.2</gwt-version>
 		<docker.devenv.tag>4.1.51243</docker.devenv.tag>
 		<bm.test.argline>-Dio.netty.noPreferDirect=true -XX:-OmitStackTraceInFastThrow</bm.test.argline>
+		<packaging.distributions>stretch,rhel7,rhel8</packaging.distributions>
 	</properties>
 
 	<repositories>
