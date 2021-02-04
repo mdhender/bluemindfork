@@ -105,7 +105,7 @@ public class ScheduledJobStoreTests {
 		Date startDate = new Date();
 		JobExecution r = new JobExecution();
 		r.execGroup = "group";
-		r.domainName = domain.name;
+		r.domainUid = domain.name;
 		r.jobId = "jobId";
 		r.startDate = startDate;
 		r.endDate = startDate;
@@ -161,7 +161,7 @@ public class ScheduledJobStoreTests {
 		Date startDate = new Date();
 		JobExecution r = new JobExecution();
 		r.execGroup = "group";
-		r.domainName = domain.name;
+		r.domainUid = domain.name;
 		r.jobId = "jobId";
 		r.startDate = startDate;
 		r.endDate = startDate;
@@ -194,7 +194,7 @@ public class ScheduledJobStoreTests {
 		Date startDate = new Date();
 		JobExecution r = new JobExecution();
 		r.execGroup = "group";
-		r.domainName = domain.name;
+		r.domainUid = domain.name;
 		r.jobId = "jobId";
 		r.startDate = startDate;
 		r.endDate = startDate;
@@ -228,7 +228,7 @@ public class ScheduledJobStoreTests {
 		Date startDate = new Date();
 		JobExecution r = new JobExecution();
 		r.execGroup = "group";
-		r.domainName = domain.name;
+		r.domainUid = domain.name;
 		r.jobId = "jobId";
 		r.startDate = startDate;
 		r.endDate = startDate;
@@ -252,7 +252,7 @@ public class ScheduledJobStoreTests {
 		Date startDate = new Date();
 		JobExecution r = new JobExecution();
 		r.execGroup = "group";
-		r.domainName = domain.name;
+		r.domainUid = domain.name;
 		r.jobId = "jobId";
 		r.startDate = startDate;
 		r.endDate = startDate;
@@ -334,7 +334,7 @@ public class ScheduledJobStoreTests {
 		Date startDate = new Date();
 		JobExecution r = new JobExecution();
 		r.execGroup = "group";
-		r.domainName = domain.name;
+		r.domainUid = domain.name;
 		r.jobId = "jobId";
 		r.startDate = startDate;
 		r.endDate = startDate;
@@ -412,7 +412,7 @@ public class ScheduledJobStoreTests {
 
 		JobExecution je = new JobExecution();
 		je.execGroup = "group";
-		je.domainName = domain.name;
+		je.domainUid = domain.name;
 		je.jobId = "jobId" + s;
 		je.startDate = new Date();
 		je.endDate = new Date(Calendar.getInstance().getTimeInMillis() + 5 * 60000); // end 5mins later

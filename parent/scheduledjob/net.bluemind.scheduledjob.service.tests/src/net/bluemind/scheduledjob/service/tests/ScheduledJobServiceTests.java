@@ -207,7 +207,7 @@ public class ScheduledJobServiceTests {
 		JobExecution latest = executions.values.get(0);
 		assertNotNull(latest.startDate);
 		assertNotNull(latest.endDate);
-		assertNotNull(latest.domainName);
+		assertNotNull(latest.domainUid);
 		System.out.println("latest exec end: " + latest.endDate);
 
 		Job job = serviceAdmin.getJobFromId(DOMAIN_JOB);
@@ -277,7 +277,7 @@ public class ScheduledJobServiceTests {
 	@Test
 	public void testUpdateExecution() throws Exception {
 		JobExecution je = new JobExecution();
-		je.domainName = "bm.lan";
+		je.domainUid = "bm.lan";
 		je.jobId = DOMAIN_JOB;
 		je.startDate = new Date();
 		je.execGroup = DOMAIN_JOB;
@@ -542,7 +542,7 @@ public class ScheduledJobServiceTests {
 		assertFalse("We should at least have an active domainJob", active.values.isEmpty());
 
 		for (JobExecution je : active.values) {
-			assertEquals("Not all active executions I can fetch are from my domain", "bm.lan", je.domainName);
+			assertEquals("Not all active executions I can fetch are from my domain", "bm.lan", je.domainUid);
 		}
 
 		// wait until one execution is recorded

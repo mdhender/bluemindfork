@@ -42,11 +42,14 @@ import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.domain.api.Domain;
 import net.bluemind.scheduledjob.api.Job;
 import net.bluemind.scheduledjob.api.JobDomainStatus;
 import net.bluemind.scheduledjob.api.JobExecution;
 import net.bluemind.scheduledjob.api.PlanKind;
 import net.bluemind.ui.adminconsole.base.Actions;
+import net.bluemind.ui.adminconsole.base.DomainsHolder;
 import net.bluemind.ui.adminconsole.base.ui.ScreenShowRequest;
 
 public class JobsGrid extends DataGrid<Job> implements IBmGrid<Job> {
@@ -59,7 +62,7 @@ public class JobsGrid extends DataGrid<Job> implements IBmGrid<Job> {
 	private void showLiveLogs(Job j) {
 
 		JobExecution je = new JobExecution();
-		je.domainName = j.domainPlanification.iterator().next().domain;
+		je.domainUid = j.domainPlanification.iterator().next().domain;
 		Actions.get().showWithParams2("liveLogsViewer",
 				MapBuilder.of("jobId", "" + j.id, "domain", j.domainPlanification.iterator().next().domain));
 	}
@@ -190,12 +193,14 @@ public class JobsGrid extends DataGrid<Job> implements IBmGrid<Job> {
 				if (d.domainPlanification.isEmpty()) {
 					return "--";
 				} else {
-					return d.domainPlanification.iterator().next().domain;
+					String domainUid = d.domainPlanification.iterator().next().domain;
+					ItemValue<Domain> dom = DomainsHolder.get().getDomainByUid(domainUid);
+					return dom != null ? dom.value.defaultAlias : domainUid;
 				}
 			}
 		};
 		addColumn(domain, JobTexts.INST.domain(), JobTexts.INST.domain());
-		setColumnWidth(domain, 80, Unit.PX);
+		setColumnWidth(domain, 160, Unit.PX);
 
 		TextColumn<Job> scheduling = new TextColumn<Job>() {
 			@Override

@@ -27,7 +27,7 @@ public class JobExecution {
 
 	public Date startDate;
 	public Date endDate;
-	public String domainName;
+	public String domainUid;
 	public JobExitStatus status;
 	public String jobId;
 	public String execGroup;
@@ -37,7 +37,7 @@ public class JobExecution {
 	public boolean equals(Object obj) {
 		JobExecution je = (JobExecution) obj;
 		return (id == je.id && startDate.equals(je.startDate) && endDate.equals(je.endDate)
-				&& domainName.equals(je.domainName) && status == je.status && jobId.equals(je.jobId)
+				&& domainUid.equals(je.domainUid) && status == je.status && jobId.equals(je.jobId)
 				&& execGroup.equals(je.execGroup));
 	}
 }

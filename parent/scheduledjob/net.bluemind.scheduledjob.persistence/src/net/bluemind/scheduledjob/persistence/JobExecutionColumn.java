@@ -51,7 +51,7 @@ public class JobExecutionColumn {
 
 	public static final Columns cols = Columns.create() //
 			.col("exec_group") //
-			.col("domain_name")//
+			.col("domain_uid")//
 			.col("job_id")//
 			.col("exec_start")//
 			.col("exec_end")//
@@ -65,7 +65,7 @@ public class JobExecutionColumn {
 					JobExecution value) throws SQLException {
 
 				statement.setString(index++, value.execGroup);
-				statement.setString(index++, value.domainName);
+				statement.setString(index++, value.domainUid);
 				statement.setString(index++, value.jobId);
 				statement.setTimestamp(index++, new Timestamp(value.startDate.getTime()));
 				if (value.endDate != null) {
@@ -76,7 +76,7 @@ public class JobExecutionColumn {
 				statement.setString(index++, value.status.name());
 
 				statement.setInt(index++, item.id);
-				return index++;
+				return index;
 			}
 
 		};
@@ -102,7 +102,7 @@ public class JobExecutionColumn {
 
 				value.id = rs.getInt(index++);
 				value.execGroup = rs.getString(index++);
-				value.domainName = rs.getString(index++);
+				value.domainUid = rs.getString(index++);
 				value.jobId = rs.getString(index++);
 				value.startDate = new Date(rs.getTimestamp(index++).getTime());
 				Timestamp endDate = rs.getTimestamp(index++);
@@ -153,7 +153,7 @@ public class JobExecutionColumn {
 			@Override
 			public int populate(ResultSet rs, int index, Job value) throws SQLException {
 
-				String domainName = rs.getString(index++);
+				String domainUid = rs.getString(index++);
 				String jid = rs.getString(index++);
 
 				value = idIndex.get(jid);
@@ -163,7 +163,7 @@ public class JobExecutionColumn {
 				JobPlanification jp = new JobPlanification();
 				jp.kind = PlanKind.valueOf(rs.getString(index++));
 				jp.lastRun = rs.getTimestamp(index++);
-				jp.domain = domainName;
+				jp.domain = domainUid;
 				String cs = rs.getString(index++);
 				if (jp.kind == PlanKind.SCHEDULED) {
 					JobRec rec = new JobRec();
@@ -192,11 +192,11 @@ public class JobExecutionColumn {
 				String statusString = rs.getString(index++);
 				if (statusString != null) {
 					JobDomainStatus ds = new JobDomainStatus();
-					ds.domain = domainName;
+					ds.domain = domainUid;
 					ds.status = JobExitStatus.valueOf(statusString);
 					domainStatus.add(ds);
 				} else {
-					logger.warn("No recorded execution in database for " + value.id + "@" + domainName);
+					logger.warn("No recorded execution in database for " + value.id + "@" + domainUid);
 				}
 				value.sendReport = rs.getBoolean(index++);
 				value.recipients = rs.getString(index++);

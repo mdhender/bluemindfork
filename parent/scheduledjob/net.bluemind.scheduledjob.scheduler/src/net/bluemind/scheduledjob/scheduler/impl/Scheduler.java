@@ -121,7 +121,7 @@ public class Scheduler implements IScheduler, IRecordingListener {
 		le.severity = severity;
 		le.content = logEntry != null ? logEntry : "";
 		rrid.addEntry(le);
-		String key = rrid.domainName + "-" + rrid.jid;
+		String key = rrid.domainUid + "-" + rrid.jid;
 		activeRecorders.get(key).logEntries.offer(le);
 	}
 
@@ -148,7 +148,7 @@ public class Scheduler implements IScheduler, IRecordingListener {
 			return;
 		}
 		if (status == JobExitStatus.FAILURE) {
-			activeSlots.remove(rid.domainName + "-" + rid.jid);
+			activeSlots.remove(rid.domainUid + "-" + rid.jid);
 			logger.error("finished with FAILURE status called from here", new Throwable("sched.finish(FAILURE)"));
 		}
 		long endStamp = System.currentTimeMillis();
@@ -156,7 +156,7 @@ public class Scheduler implements IScheduler, IRecordingListener {
 		rid.status = status;
 		rid.endTime = endStamp;
 
-		String key = rid.domainName + "-" + rid.jid;
+		String key = rid.domainUid + "-" + rid.jid;
 		activeRecorders.get(key).finish();
 
 		SendReport sr = new SendReport(rid);
@@ -165,7 +165,7 @@ public class Scheduler implements IScheduler, IRecordingListener {
 
 	@Override
 	public void recordingComplete(RunIdImpl rid) {
-		String k = rid.domainName + "-" + rid.jid;
+		String k = rid.domainUid + "-" + rid.jid;
 		long rt = rid.endTime - rid.startTime;
 		logger.info("[" + rid + "] finished and recorded: " + rid.status + ", duration: " + rt + "ms.");
 		lockedResources.remove(k);

@@ -61,7 +61,7 @@ public class LiveLogsViewer extends JobLogsViewer {
 		progress.setProgressPercent(0);
 		JobExecution je = new JobExecution();
 		je.jobId = ssr.get("jobId");
-		je.domainName = ssr.get("domain");
+		je.domainUid = ssr.get("domain");
 		showLogs(je);
 	}
 

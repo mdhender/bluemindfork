@@ -33,7 +33,7 @@ public class RunIdImpl implements IScheduledJobRunId {
 
 	private static final Logger logger = LoggerFactory.getLogger(RunIdImpl.class);
 
-	public String domainName;
+	public String domainUid;
 	public String jid;
 	public long startTime;
 	public long endTime;
@@ -41,9 +41,9 @@ public class RunIdImpl implements IScheduledJobRunId {
 	public Set<LogEntry> entries;
 	public JobExitStatus status;
 
-	public RunIdImpl(String activeGroup, String domainName, String jid, Date startDate) {
+	public RunIdImpl(String activeGroup, String domainUid, String jid, Date startDate) {
 		this.groupId = activeGroup;
-		this.domainName = domainName;
+		this.domainUid = domainUid;
 		this.jid = jid;
 		this.startTime = startDate.getTime();
 		this.endTime = startTime;
@@ -66,7 +66,7 @@ public class RunIdImpl implements IScheduledJobRunId {
 
 	@Override
 	public String toString() {
-		return "RunIdImpl [domainName=" + domainName + ", jid=" + jid + ", startTime=" + startTime + ", endTime="
+		return "RunIdImpl [domainUid=" + domainUid + ", jid=" + jid + ", startTime=" + startTime + ", endTime="
 				+ endTime + ", groupId=" + groupId + ", status=" + status + "]";
 	}
 

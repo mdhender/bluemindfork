@@ -56,8 +56,8 @@ public class ExecutionsCleanerJob implements IScheduledJob {
 	}
 
 	@Override
-	public void tick(IScheduler sched, boolean plannedExecution, String domainName, Date startDate) throws ServerFault {
-		IScheduledJobRunId rid = sched.requestSlot(domainName, this, startDate);
+	public void tick(IScheduler sched, boolean plannedExecution, String domainUid, Date startDate) throws ServerFault {
+		IScheduledJobRunId rid = sched.requestSlot(domainUid, this, startDate);
 
 		try {
 			IJob jobService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IJob.class);
@@ -93,7 +93,7 @@ public class ExecutionsCleanerJob implements IScheduledJob {
 		ListResult<JobExecution> allExecutions = jobService.searchExecution(query);
 		Map<String, JobExecutionInfo> executionInfos = new HashMap<>();
 		for (JobExecution execution : allExecutions.values) {
-			String mapKey = execution.domainName + ":" + execution.jobId;
+			String mapKey = execution.domainUid + ":" + execution.jobId;
 			JobExecutionInfo info;
 			if (executionInfos.containsKey(mapKey)) {
 				info = executionInfos.get(mapKey);

@@ -211,7 +211,7 @@ public class JobsManager extends Composite implements IStatusFilterListener, IGw
 							if (domain.value.global || domain.uid.equals(status.domain)) {
 								if (status.status == JobExitStatus.IN_PROGRESS) {
 									JobExecution exec = new JobExecution();
-									exec.domainName = status.domain;
+									exec.domainUid = status.domain;
 									exec.jobId = job.id;
 									activeJobs.add(exec);
 								}
@@ -238,9 +238,9 @@ public class JobsManager extends Composite implements IStatusFilterListener, IGw
 
 	private void markActiveJobs(List<Job> expanded, List<JobExecution> resultList) {
 		ProvidesKey<Job> provider = grid.getKeyProvider();
-		Map<String, JobExecution> idx = new HashMap<String, JobExecution>();
+		Map<String, JobExecution> idx = new HashMap<>();
 		for (JobExecution je : resultList) {
-			String k = "" + je.domainName + "-" + je.jobId;
+			String k = "" + je.domainUid + "-" + je.jobId;
 			idx.put(k, je);
 		}
 		int cnt = grid.getRowCount();

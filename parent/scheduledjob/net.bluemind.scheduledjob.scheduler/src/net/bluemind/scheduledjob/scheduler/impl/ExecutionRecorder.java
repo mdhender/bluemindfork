@@ -115,7 +115,7 @@ public class ExecutionRecorder implements Runnable {
 
 	private JobExecution createExecution() {
 		JobExecution je = new JobExecution();
-		je.domainName = rid.domainName;
+		je.domainUid = rid.domainUid;
 		je.jobId = rid.jid;
 		je.startDate = new Date(rid.startTime);
 		je.endDate = new Date(rid.endTime);

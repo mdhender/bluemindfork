@@ -123,11 +123,12 @@ public class JobExecutionsGrid extends DataGrid<JobExecution> implements IBmGrid
 		TextColumn<JobExecution> domain = new TextColumn<JobExecution>() {
 			@Override
 			public String getValue(JobExecution d) {
-				return d.domainName;
+				ItemValue<Domain> dom = DomainsHolder.get().getDomainByUid(d.domainUid);
+				return dom != null ? dom.value.defaultAlias : d.domainUid;
 			}
 		};
 		addColumn(domain, JobTexts.INST.domain(), JobTexts.INST.domain());
-		setColumnWidth(domain, 80, Unit.PX);
+		setColumnWidth(domain, 160, Unit.PX);
 
 		TextColumn<JobExecution> lastRun = new TextColumn<JobExecution>() {
 			@Override

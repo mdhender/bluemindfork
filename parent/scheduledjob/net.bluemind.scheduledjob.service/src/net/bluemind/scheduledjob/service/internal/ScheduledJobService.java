@@ -21,6 +21,7 @@ package net.bluemind.scheduledjob.service.internal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -130,16 +131,16 @@ public class ScheduledJobService implements IInCoreJob {
 		if (query.active) {
 
 			Map<String, RunIdImpl> slots = Scheduler.get().getActiveSlots();
-			ArrayList<JobExecution> items = new ArrayList<JobExecution>(slots.size());
+			ArrayList<JobExecution> items = new ArrayList<>(slots.size());
 
 			for (String key : slots.keySet()) {
 				RunIdImpl rid = slots.get(key);
-				if (query.domain != null && !query.domain.equals(rid.domainName)) {
-					logger.debug("active slot not from my domain {} vs. {}", query.domain, rid.domainName);
+				if (query.domain != null && !query.domain.equals(rid.domainUid)) {
+					logger.debug("active slot not from my domain {} vs. {}", query.domain, rid.domainUid);
 					continue;
 				}
 				JobExecution je = new JobExecution();
-				je.domainName = rid.domainName;
+				je.domainUid = rid.domainUid;
 				je.jobId = rid.jid;
 				je.startDate = new Date(rid.startTime);
 				je.status = JobExitStatus.IN_PROGRESS;
@@ -217,60 +218,59 @@ public class ScheduledJobService implements IInCoreJob {
 	}
 
 	@Override
-	public void start(String jobId, String domainName) throws ServerFault {
+	public void start(String jobId, String domainUid) throws ServerFault {
 		if (jobId == null || jobId.trim().isEmpty()) {
 			logger.error("No job ID specified !");
 			throw new ServerFault("No job ID specified !", ErrorCode.UNKNOWN);
 		}
 
-		if (domainName == null || domainName.trim().isEmpty()) {
-			domainName = context.getContainerUid();
+		if (domainUid == null || domainUid.trim().isEmpty()) {
+			domainUid = context.getContainerUid();
 		}
 
-		logger.info("Start job {}, domain {}", jobId, domainName);
+		logger.info("Start job {}, domain {}", jobId, domainUid);
 
-		if (!context.isDomainAdmin(domainName)) {
+		if (!context.isDomainAdmin(domainUid)) {
 			throw new ServerFault("ScheduledJobService.start is only available to admin0 or domain admin",
 					ErrorCode.PERMISSION_DENIED);
 		}
 
-		JobRegistry.runNow(context, jobId, domainName);
+		JobRegistry.runNow(context, jobId, domainUid);
 
 	}
 
 	@Override
-	public void cancel(String jobId, String domainName) throws ServerFault {
-		if (domainName == null || domainName.trim().isEmpty()) {
-			domainName = context.getContainerUid();
+	public void cancel(String jobId, String domainUid) throws ServerFault {
+		if (domainUid == null || domainUid.trim().isEmpty()) {
+			domainUid = context.getContainerUid();
 		}
 
-		logger.info("Cancelling job {}, domain {}", jobId, domainName);
+		logger.info("Cancelling job {}, domain {}", jobId, domainUid);
 
-		if (!context.isDomainAdmin(domainName)) {
+		if (!context.isDomainAdmin(domainUid)) {
 			throw new ServerFault("ScheduledJobService.cancel is only available to admin0 or domain admin",
 					ErrorCode.PERMISSION_DENIED);
 		}
 
-		JobRegistry.cancel(context, jobId, domainName);
+		JobRegistry.cancel(context, jobId, domainUid);
 	}
 
 	@Override
 	public Set<LogEntry> getLogs(JobExecution jobExecution, int offset) throws ServerFault {
-		if (!context.isDomainAdmin(jobExecution.domainName)) {
+		if (!context.isDomainAdmin(jobExecution.domainUid)) {
 			throw new ServerFault("ScheduledJobService.getLogs is only available to admin0 or domain admin",
 					ErrorCode.PERMISSION_DENIED);
 		}
 
 		logger.debug("Get logs for job {}, offset {}", jobExecution.id, offset);
 
-		Set<LogEntry> ret = new LinkedHashSet<LogEntry>();
-
-		Set<LogEntry> entries = null;
+		Set<LogEntry> ret = new LinkedHashSet<>();
+		Set<LogEntry> entries = Collections.emptySet();
 		if (jobExecution.id > 0) {
 			// Stored logs
 			entries = store.fetchLogEntries(context, jobExecution.id);
 		} else {
-			RunIdImpl slot = (RunIdImpl) Scheduler.get().getActiveSlot(jobExecution.domainName, jobExecution.jobId);
+			RunIdImpl slot = (RunIdImpl) Scheduler.get().getActiveSlot(jobExecution.domainUid, jobExecution.jobId);
 			// Live logs
 			entries = ImmutableSet.copyOf(slot.entries);
 		}
@@ -289,18 +289,18 @@ public class ScheduledJobService implements IInCoreJob {
 
 	@Override
 	public JobExecution createExecution(JobExecution je) throws ServerFault {
-		if (!context.isDomainAdmin(je.domainName)) {
+		if (!context.isDomainAdmin(je.domainUid)) {
 			throw new ServerFault("ScheduledJobService.createExecution is only available to admin0 or domain admin",
 					ErrorCode.PERMISSION_DENIED);
 		}
 
-		store.ensureDefaultPlan(je.domainName, je.jobId);
+		store.ensureDefaultPlan(je.domainUid, je.jobId);
 		return store.createExecution(je);
 	}
 
 	@Override
 	public void updateExecution(JobExecution je) throws ServerFault {
-		if (!context.isDomainAdmin(je.domainName)) {
+		if (!context.isDomainAdmin(je.domainUid)) {
 			throw new ServerFault("ScheduledJobService.updateExecution is only available to admin0 or domain admin",
 					ErrorCode.PERMISSION_DENIED);
 		}

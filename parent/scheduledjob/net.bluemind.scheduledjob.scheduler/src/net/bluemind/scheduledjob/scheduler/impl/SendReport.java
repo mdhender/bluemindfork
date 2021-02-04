@@ -41,6 +41,7 @@ import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.Sendmail;
 import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.core.sendmail.SendmailHelper;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.scheduledjob.api.IJob;
 import net.bluemind.scheduledjob.api.Job;
 import net.bluemind.scheduledjob.api.LogEntry;
@@ -55,6 +56,7 @@ public class SendReport implements Runnable {
 	private ISendmail mailer;
 	private RunIdImpl rid;
 	private IJob service;
+	private IDomains domainService;
 
 	public SendReport(RunIdImpl rid) {
 		mailer = new Sendmail();
@@ -62,6 +64,7 @@ public class SendReport implements Runnable {
 
 		try {
 			service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IJob.class);
+			domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
 		} catch (ServerFault e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -73,7 +76,7 @@ public class SendReport implements Runnable {
 		try {
 			Job job = service.getJobFromId(rid.jid);
 			if (job != null && job.sendReport && !job.recipients.isEmpty()) {
-				String domain = rid.domainName;
+				String domain = rid.domainUid;
 
 				String from = "no-reply@" + getNoReplyDomainName(domain);
 				logger.info("Sending report using sender address {}", from);
@@ -104,8 +107,8 @@ public class SendReport implements Runnable {
 
 	private Message getMessage(RunIdImpl rid, Job job, String from) {
 		Mailbox sender = SendmailHelper.formatAddress("Blue Mind Job Report", from);
-
-		HashSet<Mailbox> to = new HashSet<Mailbox>();
+		String domainDefaultAlias = domainService.get(rid.domainUid).value.defaultAlias;
+		HashSet<Mailbox> to = new HashSet<>();
 		String[] recipients = job.recipients.split(" ");
 		for (String s : recipients) {
 			Mailbox mb = SendmailHelper.formatAddress(s, s);
@@ -121,7 +124,8 @@ public class SendReport implements Runnable {
 		subject.append(" - ");
 		subject.append(rid.status.name());
 		subject.append(" - ");
-		subject.append(rid.domainName);
+
+		subject.append(domainDefaultAlias);
 		subject.append(" - ");
 		subject.append(rid.jid);
 

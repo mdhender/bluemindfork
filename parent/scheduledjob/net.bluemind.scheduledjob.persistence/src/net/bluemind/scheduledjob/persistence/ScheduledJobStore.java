@@ -77,16 +77,16 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 
 		String query = "insert into t_job_execution (" + JobExecutionColumn.cols.names() + ") values ("
 				+ JobExecutionColumn.cols.values() + ")";
-		String updateQuery = "update t_job_plan set last_run = ? where domain_name = ? and job_id = ?";
+		String updateQuery = "update t_job_plan set last_run = ? where domain_uid = ? and job_id = ?";
 
 		Timestamp startDate = je.startDate == null ? null : new Timestamp(je.startDate.getTime());
 		Timestamp endDate = je.endDate == null ? null : new Timestamp(je.endDate.getTime());
 
 		return doOrFail(() -> {
 			je.id = insertWithSerial(query,
-					new Object[] { je.execGroup, je.domainName, je.jobId, startDate, endDate, je.status.name() });
+					new Object[] { je.execGroup, je.domainUid, je.jobId, startDate, endDate, je.status.name() });
 
-			update(updateQuery, new Object[] { je.id, je.domainName, je.jobId });
+			update(updateQuery, new Object[] { je.id, je.domainUid, je.jobId });
 
 			return je;
 		});
@@ -122,15 +122,15 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 	 * @param d
 	 * @param jid
 	 */
-	public void ensureDefaultPlan(String domainName, String jid) {
+	public void ensureDefaultPlan(String domainUid, String jid) {
 		try {
-			String query = "SELECT 1 FROM t_job_plan WHERE domain_name=? AND job_id=?";
+			String query = "SELECT 1 FROM t_job_plan WHERE domain_uid=? AND job_id=?";
 			Integer id = unique(query, INTEGER_CREATOR, new ArrayList<EntityPopulator<Integer>>(0),
-					new Object[] { domainName, jid });
+					new Object[] { domainUid, jid });
 
 			if (id == null) {
-				query = "INSERT INTO t_job_plan (domain_name, job_id) VALUES (?, ?)";
-				insert(query, new Object[] { domainName, jid });
+				query = "INSERT INTO t_job_plan (domain_uid, job_id) VALUES (?, ?)";
+				insert(query, new Object[] { domainUid, jid });
 			}
 
 		} catch (SQLException e) {
@@ -188,7 +188,7 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 		} else {
 			q.append(" je.id,");
 			q.append(" je.exec_group,");
-			q.append(" je.domain_name,");
+			q.append(" je.domain_uid,");
 			q.append(" je.job_id,");
 			q.append(" je.exec_start,");
 			q.append(" je.exec_end,");
@@ -204,7 +204,7 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 		// loading an id from another domain
 
 		if (jeq.domain != null) {
-			q.append(" AND je.domain_name='").append(jeq.domain).append("'");
+			q.append(" AND je.domain_uid='").append(jeq.domain).append("'");
 		}
 
 		if (jeq.jobId != null) {
@@ -250,7 +250,7 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 
 		StringBuilder q = new StringBuilder();
 		q.append(" SELECT");
-		q.append(" jp.domain_name,");
+		q.append(" jp.domain_uid,");
 		q.append(" jp.job_id,");
 		q.append(" jp.kind,");
 		q.append(" je.exec_start,");
@@ -268,9 +268,9 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 
 		q.append(" WHERE 1>0");
 		if (!context.isDomainGlobal()) {
-			q.append(" AND jp.domain_name='").append(context.getContainerUid()).append("'");
+			q.append(" AND jp.domain_uid='").append(context.getContainerUid()).append("'");
 		} else if (jq != null && jq.domain != null) {
-			q.append(" AND jp.domain_name='").append(jq.domain).append("'");
+			q.append(" AND jp.domain_uid='").append(jq.domain).append("'");
 		}
 
 		if (jq != null && jq.statuses != null && !jq.statuses.isEmpty()) {
@@ -304,7 +304,7 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 		}
 		q.append(")");
 
-		q.append("ORDER BY jp.job_id, jp.domain_name");
+		q.append("ORDER BY jp.job_id, jp.domain_uid");
 
 		try {
 			select(q.toString(), JobExecutionColumn.jobCreator(),
@@ -352,7 +352,7 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 		if (!context.isDomainGlobal()) {
 			// ensure we can't read log from another domain using an id
 			q.append(" INNER JOIN t_job_execution ON t_job_execution.id=execution_id");
-			q.append(" WHERE t_job_execution.domain_name = ?");
+			q.append(" WHERE t_job_execution.domain_uid = ?");
 			q.append(" AND execution_id = ?");
 			params = new Object[] { context.getContainerUid(), execId };
 		} else {
@@ -392,7 +392,7 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 					+ " report_recipients = ? "//
 					+ " WHERE 1>0"//
 					+ " AND job_id = ?"//
-					+ " AND domain_name = ?";
+					+ " AND domain_uid = ?";
 			batchInsert(query, plans, JobExecutionColumn.planValues(job));
 
 			logger.debug("{} plan rows updated.", plans.size());

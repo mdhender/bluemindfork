@@ -16,12 +16,12 @@ CREATE TYPE t_job_plan_kind AS ENUM (
 CREATE TABLE t_job_execution (
   id  SERIAL,
   exec_group   VARCHAR(128) NOT NULL,
-  domain_name  TEXT NOT NULL REFERENCES t_domain(name) ON DELETE CASCADE,
+  domain_uid   TEXT NOT NULL REFERENCES t_domain(name) ON DELETE CASCADE,
   job_id       VARCHAR(255) NOT NULL,
   exec_start   TIMESTAMP WITHOUT TIME ZONE NOT NULL,
   exec_end     TIMESTAMP WITHOUT TIME ZONE,
   status       t_job_exit_status NOT NULL,
-  PRIMARY KEY (exec_group, domain_name, job_id),
+  PRIMARY KEY (exec_group, domain_uid, job_id),
   UNIQUE (id)
 );
 
@@ -34,7 +34,7 @@ CREATE TABLE t_job_log_entry (
 );
 
 CREATE TABLE t_job_plan (
-  domain_name       TEXT NOT NULL REFERENCES t_domain(name) ON DELETE CASCADE,
+  domain_uid       TEXT NOT NULL REFERENCES t_domain(name) ON DELETE CASCADE,
   job_id            VARCHAR(255) NOT NULL,
   kind              t_job_plan_kind NOT NULL DEFAULT 'OPPORTUNISTIC'::t_job_plan_kind,
   cron              VARCHAR(128),
@@ -42,7 +42,7 @@ CREATE TABLE t_job_plan (
   send_report       BOOLEAN DEFAULT FALSE,
   report_recipients TEXT DEFAULT '',
   report_level      t_entry_log_level NOT NULL DEFAULT 'INFO'::t_entry_log_level,
-  PRIMARY KEY  (domain_name, job_id)
+  PRIMARY KEY (domain_uid, job_id)
 );
 
 
