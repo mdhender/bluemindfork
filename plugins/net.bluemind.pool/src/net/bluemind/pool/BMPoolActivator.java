@@ -109,19 +109,28 @@ public class BMPoolActivator extends Plugin {
 		String password = oci.get("password");
 		String dbName = oci.get("db");
 		String dbHost = oci.get("host");
-		int poolSize = Optional.ofNullable(oci.get("dbpoolsize")).map(this::poolSizeAsInt)
-				.orElseGet(() -> 2 + 2 * Runtime.getRuntime().availableProcessors());
+		int poolSize = poolSize();
 
 		return startPool(dbType, login, password, dbHost, dbName, poolSize);
+	}
+
+	private int poolSize() {
+		BmConfIni oci = new BmConfIni();
+		return Optional.ofNullable(oci.get("dbpoolsize")).map(this::poolSizeAsInt)
+				.orElseGet(() -> 2 + 2 * Runtime.getRuntime().availableProcessors());
 	}
 
 	private Integer poolSizeAsInt(String poolSize) {
 		try {
 			return Integer.valueOf(poolSize);
 		} catch (NumberFormatException e) {
+			return null;
 		}
 
-		return null;
+	}
+
+	public Pool startPool(String dbType, String login, String password, String dbHost, String dbName) throws Exception {
+		return startPool(dbType, login, password, dbHost, dbName, poolSize());
 	}
 
 	public Pool startPool(String dbType, String login, String password, String dbHost, String dbName, int poolSize)
