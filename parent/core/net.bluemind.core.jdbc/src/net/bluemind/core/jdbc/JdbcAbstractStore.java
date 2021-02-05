@@ -353,42 +353,6 @@ public class JdbcAbstractStore {
 		}
 	}
 
-	protected void multiRowInsert(String query, List<DataType> types, List<Object[]> values) throws SQLException {
-		Connection conn = getConnection();
-		Statement st = null;
-		try {
-			st = conn.createStatement();
-			StringBuilder multiRowInsert = new StringBuilder(query.concat(" VALUES "));
-			values.forEach(row -> multiRowInsert.append("(" + toRow(types, row) + "),"));
-			multiRowInsert.deleteCharAt(multiRowInsert.length() - 1);
-			String sql = multiRowInsert.toString();
-			logger.debug("multiRow I: {}", sql);
-			st.executeUpdate(sql);
-		} catch (BatchUpdateException bue) {
-			throw bue.getNextException();
-		} finally {
-			JdbcHelper.cleanup(conn, null, st);
-
-		}
-	}
-
-	private String toRow(List<DataType> types, Object[] row) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < row.length; i++) {
-			switch (types.get(i)) {
-			case TEXT:
-				sb.append("'" + row[i].toString() + "'");
-				break;
-			case NUMERIC:
-			default:
-				sb.append(row[i].toString());
-				break;
-			}
-			sb.append(",");
-		}
-		return sb.deleteCharAt(sb.length() - 1).toString();
-	}
-
 	protected <T> void insert(String query, T value, List<StatementValues<T>> values) throws SQLException {
 		Connection conn = getConnection();
 		PreparedStatement st = null;

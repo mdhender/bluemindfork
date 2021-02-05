@@ -21,13 +21,11 @@ package net.bluemind.group.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -153,7 +151,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 
 		delete("DELETE FROM t_group_usermember WHERE group_id IN (SELECT id FROM t_container_item WHERE container_id = ?)",
 				new Object[] { container.id });
-		
+
 		delete("DELETE FROM t_group_externalusermember WHERE group_id IN (SELECT id FROM t_container_item WHERE container_id = ?)",
 				new Object[] { container.id });
 
@@ -197,13 +195,13 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 		if (externalUsersMembers == null || externalUsersMembers.isEmpty()) {
 			return;
 		}
-		
-		batchInsert("INSERT INTO t_group_externalusermember (group_id, external_user_id) VALUES (?,?)", externalUsersMembers,
-				MemberColumns.statementValues(item));
-		
+
+		batchInsert("INSERT INTO t_group_externalusermember (group_id, external_user_id) VALUES (?,?)",
+				externalUsersMembers, MemberColumns.statementValues(item));
+
 		updateUserGroupHierarchy(item);
 	}
-	
+
 	private void detectLoop(Item item, List<Item> groupsMembers) throws SQLException, ServerFault {
 		Set<Long> parents = getParents(item.id);
 		parents.add(item.id);
@@ -239,7 +237,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 
 		updateUserGroupHierarchy(item);
 	}
-	
+
 	public void removeExternalUsersMembers(Item item, Collection<Long> membersUid) throws SQLException {
 		if (membersUid == null || membersUid.isEmpty()) {
 			return;
@@ -275,7 +273,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 		Set<Long> users = updateUserGroup(item.id);
 		cleanUserGroupHierarchy(item.id);
 		createUserGroupHierarchy(item.id, users);
-				
+
 		Set<Long> parents = getParents(item.id);
 		for (Long parent : parents) {
 			logger.debug("Updating t_group_flat_members for parent group id {} of group id {}", parent, item.id);
@@ -293,9 +291,14 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 		if (users.isEmpty()) {
 			return;
 		}
-		List<Object[]> rows = users.stream().map(u -> new Object[] { groupItemId, u }).collect(Collectors.toList());
-		List<DataType> def = Arrays.asList(new DataType[] { DataType.NUMERIC, DataType.NUMERIC });
-		multiRowInsert("INSERT INTO t_group_flat_members (group_id, user_id)", def, rows);
+
+		batchInsert(//
+				"INSERT INTO t_group_flat_members (group_id, user_id) VALUES (?, ?) ON CONFLICT DO NOTHING" //
+				, users, (con, statement, index, currentRow, value) -> {
+					statement.setLong(index++, groupItemId);
+					statement.setLong(index++, value);
+					return 0;
+				});
 	}
 
 	private void cleanUserGroupHierarchy(Long groupItemId) throws SQLException {
@@ -310,11 +313,12 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 				select("SELECT user_id FROM t_group_usermember WHERE group_id = ANY (?) ", (rs) -> {
 					return rs.getLong(1);
 				}, Collections.emptyList(), new Object[] { childs.toArray(new Long[childs.size()]) }));
-		
-		members.addAll(select("SELECT external_user_id FROM t_group_externalusermember WHERE group_id = ANY (?) ", (rs) -> {
+
+		members.addAll(
+				select("SELECT external_user_id FROM t_group_externalusermember WHERE group_id = ANY (?) ", (rs) -> {
 					return rs.getLong(1);
 				}, Collections.emptyList(), new Object[] { childs.toArray(new Long[childs.size()]) }));
-		
+
 		return members;
 	}
 
@@ -363,8 +367,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 	}
 
 	public List<Member> getFlatUsersMembers(Item item) throws SQLException {
-		List<Member> members = select(
-				"SELECT 'user', ui.uid FROM t_group_flat_members m " //
+		List<Member> members = select("SELECT 'user', ui.uid FROM t_group_flat_members m " //
 				+ "INNER JOIN t_container_item ui ON ui.id = m.user_id " //
 				+ "INNER JOIN t_group_usermember um ON um.user_id = m.user_id " //
 				+ "WHERE m.group_id = ? " //
@@ -372,8 +375,8 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 				+ "SELECT 'external_user', ui.uid FROM t_group_flat_members member " //
 				+ "INNER JOIN t_container_item ui ON ui.id = member.user_id " //
 				+ "INNER JOIN t_group_externalusermember eum ON eum.external_user_id = member.user_id " //
-				+ "WHERE member.group_id = ? ",
-				MEMBER_CREATOR, MemberColumns.populator(), new Object[] { item.id, item.id });
+				+ "WHERE member.group_id = ? ", MEMBER_CREATOR, MemberColumns.populator(),
+				new Object[] { item.id, item.id });
 		return members;
 	}
 
@@ -462,7 +465,6 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 
 	}
 
-	
 	public List<String> search(GroupSearchQuery query) throws SQLException {
 		List<Object> params = new ArrayList<Object>();
 		StringBuilder search = new StringBuilder(SELECT_ALL);
