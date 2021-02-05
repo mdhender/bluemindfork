@@ -4,9 +4,9 @@ import { SET_UNREAD_COUNT } from "~mutations";
 
 jest.mock("@bluemind/inject");
 
-const getPerUserUnread = jest.fn().mockReturnValue(Promise.resolve({ total: 10 }));
+const count = jest.fn().mockReturnValue(Promise.resolve({ total: 10 }));
 const get = jest.fn().mockReturnValue({
-    getPerUserUnread
+    count
 });
 ServiceLocator.getProvider.mockReturnValue({
     get
@@ -30,6 +30,6 @@ describe("[Mail-WebappStore][actions] : loadUnreadCount", () => {
             done();
         });
         expect(get).toHaveBeenCalledWith("folderUid");
-        expect(getPerUserUnread).toHaveBeenCalled();
+        expect(count).toHaveBeenCalled();
     });
 });

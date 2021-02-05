@@ -80,7 +80,6 @@ import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
 import net.bluemind.backend.mail.replica.persistence.RecordID;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
-import net.bluemind.backend.mail.replica.persistence.SeenOverlayStore;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents.ItemChange;
 import net.bluemind.config.InstallationId;
@@ -88,12 +87,10 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
-import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.api.IOfflineMgmt;
 import net.bluemind.core.container.api.IdRange;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemFlag;
-import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
@@ -120,7 +117,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	public static final Integer DEFAULT_TIMEOUT = 18; // sec
 	private final String imapFolder;
 	private final ImapContext imapContext;
-	private final SeenOverlayStore seenOverlays;
 	private final Namespace namespace;
 	private final MessageBodyStore bodyStore;
 
@@ -136,7 +132,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 		logger.debug("imapContext {}, namespace {}, subtree {}", imapContext, namespace, recordsLocation);
 
-		this.seenOverlays = new SeenOverlayStore(ds);
 		bodyStore = new MessageBodyStore(ds);
 	}
 
@@ -148,28 +143,26 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	@Override
 	public ImapCommandRunner imapExecutor() {
 
-		return (Consumer<ImapClient> sc) -> {
-			imapContext.withImapClient((inSc, vx) -> {
-				ImapClient ic = new ImapClient() {
+		return (Consumer<ImapClient> sc) -> imapContext.withImapClient((inSc, vx) -> {
+			ImapClient ic = new ImapClient() {
 
-					@Override
-					public Map<Integer, Integer> uidCopy(Collection<Integer> uids, String destMailbox) {
-						return inSc.uidCopy(uids, destMailbox);
-					}
+				@Override
+				public Map<Integer, Integer> uidCopy(Collection<Integer> uids, String destMailbox) {
+					return inSc.uidCopy(uids, destMailbox);
+				}
 
-					@Override
-					public boolean select(String mbox) {
-						try {
-							return inSc.select(mbox);
-						} catch (IMAPException e) {
-							throw new ServerFault(e);
-						}
+				@Override
+				public boolean select(String mbox) {
+					try {
+						return inSc.select(mbox);
+					} catch (IMAPException e) {
+						throw new ServerFault(e);
 					}
-				};
-				sc.accept(ic);
-				return null;
-			});
-		};
+				}
+			};
+			sc.accept(ic);
+			return null;
+		});
 	}
 
 	@Override
@@ -533,7 +526,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	private List<ItemValue<MailboxItem>> multipleByIdWithoutBody(List<Long> ids) {
-		return storeService.getMultipleById(ids).stream().map(v -> adapt(v)).collect(Collectors.toList());
+		return storeService.getMultipleById(ids).stream().map(this::adapt).collect(Collectors.toList());
 	}
 
 	public ItemIdentifier unexpunge(long itemId) {
@@ -691,10 +684,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		}
 	}
 
-	private static final ItemFlagFilter UNREAD_NOT_DELETED = ItemFlagFilter.create().mustNot(ItemFlag.Deleted,
-			ItemFlag.Seen);
-	private static final ItemFlagFilter NOT_DELETED = ItemFlagFilter.create().mustNot(ItemFlag.Deleted);
-
 	@Override
 	public List<Long> unreadItems() {
 		rbac.check(Verb.Read.name());
@@ -717,12 +706,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			throw ServerFault.sqlFault(e);
 		}
 		return recentBindings.stream().map(b -> b.itemId).collect(Collectors.toList());
-	}
-
-	@Override
-	public Count getPerUserUnread() {
-		rbac.check(Verb.Read.name());
-		return count(UNREAD_NOT_DELETED);
 	}
 
 	@Override

@@ -129,6 +129,9 @@ import net.bluemind.mailshare.api.Mailshare;
 
 public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
+	private static final ItemFlagFilter UNREAD_NOT_DELETED = ItemFlagFilter.create().mustNot(ItemFlag.Deleted,
+			ItemFlag.Seen);
+
 	@Before
 	@Override
 	public void before() throws Exception {
@@ -2708,7 +2711,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		mboxesApi.markFolderAsRead(folderItem.internalId);
 		System.err.println("Mark as read done.");
 
-		Count cnt = recordsApi.getPerUserUnread();
+		Count cnt = recordsApi.count(UNREAD_NOT_DELETED);
 		System.err.println("perUser: " + cnt.total);
 
 		assertTrue("Expected 1 update to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
@@ -2720,7 +2723,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	public void testPerUserUnreadNotContainer() {
 		IMailboxItems restCall = provider().instance(IMailboxItems.class, UUID.randomUUID().toString());
 		try {
-			Count unread = restCall.getPerUserUnread();
+			Count unread = restCall.count(UNREAD_NOT_DELETED);
 			fail("call should not be possible but got " + unread);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2784,7 +2787,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 		IMailboxItems mailboxItemsService = provider().instance(IMailboxItems.class, sharedSent.uid);
 
-		Count perUser = mailboxItemsService.getPerUserUnread();
+		Count perUser = mailboxItemsService.count(UNREAD_NOT_DELETED);
 		System.err.println("perUserUnread is " + perUser.total);
 
 		List<Long> messageIds = messages.stream().map(m -> m.internalId).collect(Collectors.toList());

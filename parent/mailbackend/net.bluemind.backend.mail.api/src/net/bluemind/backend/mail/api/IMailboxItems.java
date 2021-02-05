@@ -34,7 +34,6 @@ import net.bluemind.backend.mail.api.flags.FlagUpdate;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.api.Ack;
-import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.ICrudByIdSupport;
@@ -67,15 +66,6 @@ public interface IMailboxItems
 	@PUT
 	@Path("_part")
 	String uploadPart(Stream part);
-
-	/**
-	 * Get the unread items count
-	 * 
-	 * @return a {@link Count} of unread items
-	 */
-	@GET
-	@Path("_perUserUnread")
-	Count getPerUserUnread();
 
 	/**
 	 * Get the list of unread items, applying the per-user overlay when dealing with

@@ -120,9 +120,9 @@ describe("[MailWebAppStore] Vuex store", () => {
         });
         itemsService.sortedIds.mockReturnValueOnce(Promise.resolve(aliceInbox.map(message => message.internalId)));
         itemsService.multipleById.mockReturnValueOnce(Promise.resolve(aliceInbox));
-        itemsService.getPerUserUnread.mockReturnValue(Promise.resolve({ count: 0 }));
-        itemsService.getPerUserUnread.mockReturnValueOnce(Promise.resolve({ count: 10 }));
-        itemsService.getPerUserUnread.mockReturnValueOnce(Promise.resolve({ count: 15 }));
+        itemsService.count.mockReturnValue(Promise.resolve({ count: 0 }));
+        itemsService.count.mockReturnValueOnce(Promise.resolve({ count: 10 }));
+        itemsService.count.mockReturnValueOnce(Promise.resolve({ count: 15 }));
         containerService.getContainers.mockReturnValueOnce(Promise.resolve(containers));
         mailboxesService.getMailboxConfig.mockReturnValue(Promise.resolve({}));
 
@@ -151,7 +151,7 @@ describe("[MailWebAppStore] Vuex store", () => {
 
         const folderUid = "050ca560-37ae-458a-bd52-c40fedf4068d";
         itemsService.sortedIds.mockReturnValueOnce(Promise.resolve(aliceInbox.map(message => message.internalId)));
-        itemsService.getPerUserUnread.mockReturnValueOnce(Promise.resolve({ total: 4 }));
+        itemsService.count.mockReturnValueOnce(Promise.resolve({ total: 4 }));
         itemsService.multipleById.mockImplementationOnce(ids =>
             Promise.resolve(aliceInbox.filter(message => ids.includes(message.internalId)))
         );
@@ -178,7 +178,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         store.commit("mail-webapp/setUserUid", "6793466E-F5D4-490F-97BF-DF09D3327BF4", { root: true });
 
         const folderUid = "050ca560-37ae-458a-bd52-c40fedf4068d";
-        itemsService.getPerUserUnread.mockReturnValue(Promise.resolve({ total: 5 }));
+        itemsService.count.mockReturnValue(Promise.resolve({ total: 5 }));
         itemsService.unreadItems.mockReturnValue(
             Promise.resolve(
                 aliceInbox
