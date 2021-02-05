@@ -60,6 +60,8 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
+import net.bluemind.backend.mail.api.ImapAck;
+import net.bluemind.backend.mail.api.ImapItemIdentifier;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Header;
@@ -204,7 +206,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		if (toDelete != null) {
 			Collection<MailboxItemFlag> curFlags = toDelete.value.flags;
 			if (!curFlags.contains(MailboxItemFlag.System.Deleted.value())) {
-				addFlagsImapCommand(null, Arrays.asList(Long.toString(toDelete.value.imapUid)),
+				addFlagsImapCommand(Arrays.asList(Long.toString(toDelete.value.imapUid)),
 						MailboxItemFlag.System.Deleted.value().flag, MailboxItemFlag.System.Seen.value().flag);
 			}
 		} else {
@@ -257,10 +259,10 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	@Override
-	public Ack updateById(long id, MailboxItem mail) {
+	public ImapAck updateById(long id, MailboxItem mail) {
 		if (mail.imapUid == 0) {
 			logger.warn("Not updating {} with imapUid 0", id);
-			return Ack.create(0L);
+			return ImapAck.create(0L, mail.imapUid);
 		}
 		// has the flags changed ?
 		ItemValue<MailboxItem> current = getCompleteById(id);
@@ -280,15 +282,14 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		boolean headersChanged = !curHeaders.equals(newHeaders);
 		logger.info("changes are flags:{}, subject:{}, headers:{}", flagsChanged, subjectChanged, headersChanged);
 		if (subjectChanged || headersChanged) {
-			// not complete yet
 			return mailRewrite(current, mail);
 		} else if (flagsChanged) {
-			Ack version = Ack.create(0L);
-			return overwriteFlagsImapCommand(version, Arrays.asList(Long.toString(mail.imapUid)),
-					mail.flags.stream().map(f -> f.flag).toArray(String[]::new));
+			String[] flagNames = mail.flags.stream().map(f -> f.flag).toArray(String[]::new);
+			Ack ack = overwriteFlagsImapCommand(Arrays.asList(Long.toString(mail.imapUid)), flagNames);
+			return ImapAck.create(ack.version, mail.imapUid);
 		} else {
 			logger.warn("Subject/Headers/Flags dit not change, doing nothing on {} {}.", id, mail);
-			return Ack.create(current.version);
+			return ImapAck.create(current.version, mail.imapUid);
 		}
 	}
 
@@ -299,7 +300,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		return ret.toString();
 	}
 
-	private Ack mailRewrite(ItemValue<MailboxItem> current, MailboxItem newValue) {
+	private ImapAck mailRewrite(ItemValue<MailboxItem> current, MailboxItem newValue) {
 		logger.info("Full EML rewrite expected with subject '{}'", newValue.body.subject);
 		newValue.body.date = newValue.body.headers.stream()
 				.filter(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)).findAny()
@@ -326,7 +327,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				} catch (Exception e) {
 					throw new ServerFault(e);
 				}
-
 			}
 		}, expectedStruct);
 		SizedStream updatedEml = createEmlStructure(current.internalId, current.value.body.guid, newValue.body);
@@ -363,10 +363,11 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			}
 		});
 		logger.info("Waiting for old imap uid {} to be updated, the new one is {}...", current.value.imapUid,
-				appended.result.map(r -> r.newUid).orElse(-1L));
+				appended.result.map(r -> r.newUid).orElse(0L));
 		try {
+			Long imapUid = appended.result.map(r -> r.newUid).orElse(0L);
 			ItemChange change = completion.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-			return Ack.create(change.version);
+			return ImapAck.create(change.version, imapUid);
 		} catch (TimeoutException e) {
 			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
 		} catch (InterruptedException | ExecutionException e) {
@@ -403,7 +404,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	@Override
-	public ItemIdentifier create(MailboxItem value) {
+	public ImapItemIdentifier create(MailboxItem value) {
 		IOfflineMgmt offlineApi = context.provider().instance(IOfflineMgmt.class, imapContext.user.domainUid,
 				imapContext.user.uid);
 		IdRange alloc = offlineApi.allocateOfflineIds(1);
@@ -411,15 +412,15 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	@Override
-	public Ack createById(long id, MailboxItem value) {
-		ItemIdentifier itemIdentifier = create(id, value);
-		return Ack.create(itemIdentifier.version);
+	public ImapAck createById(long id, MailboxItem value) {
+		ImapItemIdentifier itemIdentifier = create(id, value);
+		return ImapAck.create(itemIdentifier.version, itemIdentifier.imapUid);
 	}
 
-	private ItemIdentifier create(long id, MailboxItem value) {
+	private ImapItemIdentifier create(long id, MailboxItem value) {
 		logger.info("create {}", id);
 		try {
-			return createAsync(id, value).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+			return (ImapItemIdentifier) createAsync(id, value).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 		} catch (TimeoutException to) {
 			throw new ServerFault("Create timed out", ErrorCode.TIMEOUT);
 		} catch (Exception e) {
@@ -459,7 +460,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		if (addedUid > 0) {
 			return completion.thenApply(change -> {
 				logger.warn("**** CreateById of item {}, latency: {}ms.", change.internalId, change.latencyMs);
-				return ItemIdentifier.of(null, id, change.version);
+				return ImapItemIdentifier.of(addedUid, id, change.version);
 			});
 		} else {
 			CompletableFuture<ItemIdentifier> ret = new CompletableFuture<>();
@@ -730,7 +731,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				Long.parseLong(uids.get(0)));
 
 		long time = System.currentTimeMillis();
-		addFlagsImapCommand(null, uids, Flag.DELETED.toString());
+		addFlagsImapCommand(uids, Flag.DELETED.toString());
 		time = System.currentTimeMillis() - time;
 		try {
 			ItemChange change = repEvent.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
@@ -746,46 +747,42 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public Ack addFlag(FlagUpdate flagUpdate) {
-		Ack version = Ack.create(0L);
 		List<String> imapUidsToMark = multipleByIdWithoutBody(flagUpdate.itemsId).stream()
 				.filter(item -> !item.value.flags.contains(flagUpdate.mailboxItemFlag))
 				.map(item -> Long.toString(item.value.imapUid)).collect(Collectors.toList());
 
-		addFlagsImapCommand(version, imapUidsToMark, flagUpdate.mailboxItemFlag.flag);
-		return version;
+		return addFlagsImapCommand(imapUidsToMark, flagUpdate.mailboxItemFlag.flag);
 	}
 
 	@Override
 	public Ack deleteFlag(FlagUpdate flagUpdate) {
-		Ack version = Ack.create(0L);
 		List<String> imapUidsToMark = multipleByIdWithoutBody(flagUpdate.itemsId).stream()
 				.filter(item -> item.value.flags.contains(flagUpdate.mailboxItemFlag))
 				.map(item -> Long.toString(item.value.imapUid)).collect(Collectors.toList());
 
-		removeFlagsImapCommand(version, imapUidsToMark, flagUpdate.mailboxItemFlag.flag);
-		return version;
+		return removeFlagsImapCommand(imapUidsToMark, flagUpdate.mailboxItemFlag.flag);
 	}
 
-	private Ack updateFlagsImapCommand(String prefix, Ack version, List<String> imapUids, String... flags) {
-		if (!imapUids.isEmpty()) {
-			StringBuilder cmd = new StringBuilder("UID STORE ");
-			cmd.append(String.join(",", imapUids) + " ");
-			cmd.append(prefix + "FLAGS.SILENT (" + String.join(" ", flags) + ")");
-			version = doImapCommand(cmd.toString());
+	private Ack updateFlagsImapCommand(String prefix, List<String> imapUids, String... flags) {
+		if (imapUids.isEmpty()) {
+			return Ack.create(0L);
 		}
-		return version;
+		StringBuilder cmd = new StringBuilder("UID STORE ");
+		cmd.append(String.join(",", imapUids) + " ");
+		cmd.append(prefix + "FLAGS.SILENT (" + String.join(" ", flags) + ")");
+		return doImapCommand(cmd.toString());
 	}
 
-	private Ack removeFlagsImapCommand(Ack version, List<String> imapUids, String... flags) {
-		return updateFlagsImapCommand("-", version, imapUids, flags);
+	private Ack removeFlagsImapCommand(List<String> imapUids, String... flags) {
+		return updateFlagsImapCommand("-", imapUids, flags);
 	}
 
-	private Ack addFlagsImapCommand(Ack version, List<String> imapUids, String... flags) {
-		return updateFlagsImapCommand("+", version, imapUids, flags);
+	private Ack addFlagsImapCommand(List<String> imapUids, String... flags) {
+		return updateFlagsImapCommand("+", imapUids, flags);
 	}
 
-	private Ack overwriteFlagsImapCommand(Ack version, List<String> imapUids, String... flags) {
-		return updateFlagsImapCommand("", version, imapUids, flags);
+	private Ack overwriteFlagsImapCommand(List<String> imapUids, String... flags) {
+		return updateFlagsImapCommand("", imapUids, flags);
 	}
 
 }

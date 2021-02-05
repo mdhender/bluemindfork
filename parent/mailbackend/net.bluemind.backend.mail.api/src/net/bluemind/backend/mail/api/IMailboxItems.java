@@ -108,14 +108,14 @@ public interface IMailboxItems
 
 	@POST
 	@Path("id/{id}")
-	Ack updateById(@PathParam("id") long id, MailboxItem value);
+	ImapAck updateById(@PathParam("id") long id, MailboxItem value);
 
 	@PUT
 	@Path("id/{id}")
-	Ack createById(@PathParam("id") long id, MailboxItem value);
+	ImapAck createById(@PathParam("id") long id, MailboxItem value);
 
 	@PUT
-	ItemIdentifier create(MailboxItem value);
+	ImapItemIdentifier create(MailboxItem value);
 
 	@DELETE
 	@Path("id/{id}")
