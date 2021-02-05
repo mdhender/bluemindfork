@@ -11,6 +11,7 @@ describe("MailboxAdaptor", () => {
                 Object {
                   "key": "2814CC5D-D372-4F66-A434-89863E99B8CD",
                   "name": "read.write",
+                  "offlineSync": false,
                   "owner": "2814CC5D-D372-4F66-A434-89863E99B8CD",
                   "remoteRef": Object {
                     "uid": "2814CC5D-D372-4F66-A434-89863E99B8CD",
@@ -27,6 +28,7 @@ describe("MailboxAdaptor", () => {
                 Object {
                   "key": "user.6793466E-F5D4-490F-97BF-DF09D3327BF4",
                   "name": "Alice",
+                  "offlineSync": false,
                   "owner": "6793466E-F5D4-490F-97BF-DF09D3327BF4",
                   "remoteRef": Object {
                     "uid": "user.6793466E-F5D4-490F-97BF-DF09D3327BF4",

@@ -34,7 +34,8 @@ function fromUserMailbox(item) {
             uid: "user." + item.owner
         },
         key: "user." + item.owner,
-        root: ""
+        root: "",
+        offlineSync: item.offlineSync
     };
 }
 
@@ -46,7 +47,8 @@ function fromSharedMailbox(item) {
             uid: item.owner
         },
         key: item.owner,
-        root: item.ownerDisplayname
+        root: item.ownerDisplayname,
+        offlineSync: item.offlineSync
     };
 }
 

@@ -1,6 +1,6 @@
 import { registerRoute } from "workbox-routing";
 import { RouteHandlerCallback, RouteHandlerCallbackOptions } from "workbox-core/types";
-import { syncMailFolder, syncMailbox } from "../sync";
+import { syncMailbox } from "../sync";
 import { maildb } from "../MailDB";
 import { FilteredChangeSet, Flags } from "../entry";
 import { getDBName } from "../MailAPI";
@@ -63,7 +63,6 @@ export async function multipleById({ request, params }: RouteHandlerCallbackOpti
             const ids = (await clonedRequest.json()) as number[];
             const db = await maildb.getInstance(await getDBName());
             if (await db.isSubscribed(folderUid)) {
-                await syncMailFolder(folderUid);
                 const mailItems = await db.getMailItems(folderUid, ids);
                 const data = mailItems.filter(Boolean);
                 return responseFromCache(data);
@@ -84,7 +83,6 @@ export async function filteredChangesetById({ request, params }: RouteHandlerCal
             const expectedFlags = (await request.clone().json()) as Flags;
             const db = await maildb.getInstance(await getDBName());
             if (await db.isSubscribed(folderUid)) {
-                await syncMailFolder(folderUid);
                 const allMailItems = await db.getAllMailItemLight(folderUid);
                 const data: FilteredChangeSet = {
                     created: allMailItems
@@ -113,7 +111,6 @@ export async function unreadItems({ request, params }: RouteHandlerCallbackOptio
             const expectedFlags: Flags = { must: [], mustNot: ["Deleted", "Seen"] };
             const db = await maildb.getInstance(await getDBName());
             if (await db.isSubscribed(folderUid)) {
-                await syncMailFolder(folderUid);
                 const allMailItems = await db.getAllMailItems(folderUid);
                 const data = allMailItems
                     .filter(item => filterByFlags(expectedFlags, item.flags))

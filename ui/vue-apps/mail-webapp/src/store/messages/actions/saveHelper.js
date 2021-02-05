@@ -20,7 +20,6 @@ import {
     SET_MESSAGE_PREVIEW
 } from "~mutations";
 import MessageAdaptor from "../helpers/MessageAdaptor";
-import apiMessages from "../../api/apiMessages";
 
 export function isReadyToBeSaved(draft, messageCompose) {
     const checkAttachments =
@@ -82,17 +81,11 @@ async function createEmlOnServer(context, draft, service, messageCompose, struct
 
     const remoteMessage = MessageAdaptor.toMailboxItem(draft, structure);
     if (isInternalIdFaked(draft.remoteRef.internalId)) {
-        const internalId = (await service.create(remoteMessage)).id;
+        const { imapUid, id: internalId } = await service.create(remoteMessage);
         context.commit(SET_MESSAGE_INTERNAL_ID, { key: draft.key, internalId });
-
-        // FIXME: we should not need to make a multipleById request there..
-        const imapUid = (await apiMessages.multipleById([draft]))[0].remoteRef.imapUid;
         context.commit(SET_MESSAGE_IMAP_UID, { key: draft.key, imapUid });
     } else {
-        await service.updateById(draft.remoteRef.internalId, remoteMessage);
-
-        // FIXME: we should not need to make a multipleById request there..
-        const imapUid = (await apiMessages.multipleById([draft]))[0].remoteRef.imapUid;
+        const { imapUid } = await service.updateById(draft.remoteRef.internalId, remoteMessage);
         context.commit(SET_MESSAGE_IMAP_UID, { key: draft.key, imapUid });
     }
 

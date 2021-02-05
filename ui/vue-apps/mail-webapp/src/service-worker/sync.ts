@@ -14,16 +14,16 @@ export async function syncMailFolders() {
     }
 }
 
-export async function syncMailFolder(uid: string, pushedVersion?: number) {
-    await limit(uid, async () => {
+export async function syncMailFolder(uid: string, pushedVersion?: number): Promise<boolean> {
+    return await limit(uid, async () => {
         const syncOptions = await getSyncOptions(uid, "mail_item");
         return pushedVersion && pushedVersion <= syncOptions.version
-            ? Promise.resolve()
+            ? false
             : syncMailFolderToVersion(uid, syncOptions);
     });
 }
 
-async function syncMailFolderToVersion(uid: string, syncOptions: SyncOptions) {
+async function syncMailFolderToVersion(uid: string, syncOptions: SyncOptions): Promise<boolean> {
     const api = await mailapi.getInstance();
     const { created, updated, deleted, version } = await api.mailItem.changeset(uid, syncOptions.version);
     if (version !== syncOptions.version) {
@@ -38,24 +38,26 @@ async function syncMailFolderToVersion(uid: string, syncOptions: SyncOptions) {
             { ...syncOptions, version }
         );
         await db.updateSyncOptions({ ...syncOptions, version });
+        return true;
     }
+    return false;
 }
 
-export async function syncMyMailbox() {
+export async function syncMyMailbox(): Promise<boolean> {
     const { domain, userId } = await sessionInfos.getInstance();
-    await syncMailbox(domain, userId);
+    return await syncMailbox(domain, userId);
 }
 
-export async function syncMailbox(domain: string, userId: string, pushedVersion?: number) {
-    await limit(userId + domain, async () => {
+export async function syncMailbox(domain: string, userId: string, pushedVersion?: number): Promise<boolean> {
+    return await limit(userId + domain, async () => {
         const syncOptions = await getSyncOptions(userAtDomain({ userId, domain }), "mail_folder");
         return pushedVersion && pushedVersion <= syncOptions.version
-            ? Promise.resolve()
+            ? false
             : syncMailboxToVersion(domain, userId, syncOptions);
     });
 }
 
-export async function syncMailboxToVersion(domain: string, userId: string, syncOptions: SyncOptions) {
+export async function syncMailboxToVersion(domain: string, userId: string, syncOptions: SyncOptions): Promise<boolean> {
     const api = await mailapi.getInstance();
     const { created, updated, deleted, version } = await api.mailFolder.changeset(
         { domain, userId },
@@ -70,14 +72,16 @@ export async function syncMailboxToVersion(domain: string, userId: string, syncO
         await db.deleteMailFolders(deleted);
         await db.putMailFolders(mailFolders);
         await db.updateSyncOptions({ ...syncOptions, version });
+        return true;
     }
+    return false;
 }
 
-export async function limit(uid: string, fn: () => Promise<void>) {
+export async function limit<T>(uid: string, fn: () => Promise<T>): Promise<T> {
     if (!(uid in limits)) {
         limits[uid] = pLimit(1);
     }
-    await limits[uid](fn);
+    return await limits[uid](fn);
 }
 
 async function fetchMailItemsByChunks(ids: number[], uid: string) {

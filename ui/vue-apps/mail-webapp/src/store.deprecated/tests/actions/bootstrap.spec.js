@@ -3,8 +3,12 @@ import { MAILSHARE_KEYS, MY_MAILBOX, MY_MAILBOX_FOLDERS, MAILSHARES } from "~get
 import { bootstrap } from "../../actions/bootstrap";
 import { FETCH_SIGNATURE } from "../../../store/types/actions";
 import WebsocketClient from "@bluemind/sockjs";
+import ServerPushHandler from "../../actions/ServerPushHandler";
+import injector from "@bluemind/inject";
 
 jest.mock("@bluemind/sockjs");
+jest.mock("@bluemind/inject");
+jest.mock("../../actions/ServerPushHandler");
 
 const myMailbox = { key: "mailbox:uid", owner: "mailbox:uid" },
     mailshareKeys = ["A", "B"],
@@ -21,12 +25,17 @@ const context = {
     },
     rootState: { mail: { mailboxes: { [myMailbox.key]: myMailbox, A: { key: "A" }, B: { key: "B" } } } }
 };
+const bus = jest.fn();
+injector.getProvider.mockReturnValue({
+    get: () => bus
+});
 
 describe("[Mail-WebappStore][actions] :  bootstrap", () => {
     beforeEach(() => {
         context.dispatch.mockClear();
         context.commit.mockClear();
         WebsocketClient.mockClear();
+        ServerPushHandler.mockClear();
     });
 
     test("load all folders from my mailbox and get unread count", done => {
@@ -56,12 +65,27 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
         });
     });
 
+    test("setup server push handler", done => {
+        bootstrap(context).then(() => {
+            expect(ServerPushHandler.mock.instances[0]).toBeTruthy();
+            expect(ServerPushHandler.mock.calls.length).toBe(1);
+            expect(ServerPushHandler.mock.calls[0].length).toBe(3);
+            expect(ServerPushHandler.mock.calls[0][0]).toBe(bus);
+            expect(ServerPushHandler.mock.calls[0][1]).toBe(context.rootState.mail);
+            done();
+        });
+    });
+
     test("register to mailbox events", done => {
         bootstrap(context).then(() => {
-            const instance = WebsocketClient.mock.instances[0].register;
-            expect(instance).toHaveBeenCalledWith(`mailreplica.${myMailbox.owner}.updated`, expect.anything());
-            expect(instance).toHaveBeenCalledWith(`mailreplica.${mailshares[0].owner}.updated`, expect.anything());
-            expect(instance).toHaveBeenCalledWith(`mailreplica.${mailshares[1].owner}.updated`, expect.anything());
+            const websocketInstance = WebsocketClient.mock.instances[0].register;
+            const handlerInstance = ServerPushHandler.mock.instances[0].handle;
+            expect(websocketInstance).toHaveBeenNthCalledWith(1, `mailreplica.${myMailbox.owner}.updated`, undefined);
+            expect(handlerInstance).toHaveBeenNthCalledWith(1, myMailbox);
+            expect(websocketInstance).toHaveBeenNthCalledWith(2, `mailreplica.${mailshares[0].owner}.updated`, undefined);
+            expect(handlerInstance).toHaveBeenNthCalledWith(2, mailshares[0]);
+            expect(websocketInstance).toHaveBeenNthCalledWith(3, `mailreplica.${mailshares[1].owner}.updated`, undefined);
+            expect(handlerInstance).toHaveBeenNthCalledWith(3, mailshares[1]);
             done();
         });
     });
