@@ -112,12 +112,12 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 			String calUid = getCalendarUid(recipientMailbox);
 
 			// BM-2892 invitation right
-			ItemValue<User> sender = senderCache.getIfPresent(imip.organizerEmail);
+			ItemValue<User> sender = senderCache.getIfPresent(recipient.getDomainPart() + "#" + imip.organizerEmail);
 			if (sender == null) {
 				IUser userService = provider().instance(IUser.class, recipient.getDomainPart());
 				sender = userService.byEmail(imip.organizerEmail);
 				if (sender != null) {
-					senderCache.put(imip.organizerEmail, sender);
+					senderCache.put(recipient.getDomainPart() + "#" + imip.organizerEmail, sender);
 				}
 			}
 
