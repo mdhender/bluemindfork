@@ -1,6 +1,7 @@
 import store from "@bluemind/store";
 import Bottleneck from "bottleneck";
 import { MAILSHARE_KEYS, MY_MAILBOX_FOLDERS } from "~getters";
+import { UNREAD_FOLDER_COUNT } from "~actions";
 
 export default {
     startUnreadCountersUpdater(interval = 10 * 60 * 1000) {
@@ -39,7 +40,7 @@ function updateUnreadCounters(limiter) {
 }
 
 function fetchPerUserUnread(folder) {
-    return store.dispatch("mail-webapp/loadUnreadCount", folder.key);
+    return store.dispatch("mail/" + UNREAD_FOLDER_COUNT, folder);
 }
 
 function getFlatFolders() {

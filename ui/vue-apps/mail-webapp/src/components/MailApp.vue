@@ -83,6 +83,7 @@ import { inject } from "@bluemind/inject";
 
 import FaviconHelper from "../FaviconHelper";
 import BoostrapMixin from "./BootstrapMixin";
+import RouterMixin from "./RouterMixin";
 import MailAppL10N from "../../l10n/";
 import MailFolderSidebar from "./MailFolder/MailFolderSidebar";
 import MailMessageList from "./MailMessageList/MailMessageList";
@@ -111,7 +112,7 @@ export default {
         MultipaneResizer,
         NewMessage
     },
-    mixins: [MakeUniq, BoostrapMixin],
+    mixins: [MakeUniq, BoostrapMixin, RouterMixin],
     componentI18N: { messages: MailAppL10N },
     data() {
         return {

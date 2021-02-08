@@ -29,7 +29,7 @@ export const state = {
 };
 
 export const mutations = {
-    [SET_ACTIVE_FOLDER]: (state, key) => {
+    [SET_ACTIVE_FOLDER]: (state, { key }) => {
         state.activeFolder = key;
     }
 };

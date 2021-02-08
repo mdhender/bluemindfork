@@ -1,4 +1,4 @@
-const { create } = require("../folder");
+const { create, rename } = require("../folder");
 const { MailboxType } = require("../mailbox");
 import injector from "@bluemind/inject";
 
@@ -184,6 +184,20 @@ describe("Folder model functions", () => {
         test("A sub folder cannot be a default folder ", () => {
             expect(create(undefined, "INBOX", {}, user).default).not.toBeTruthy();
             expect(create(undefined, "Root", {}, mailshare).default).not.toBeTruthy();
+        });
+    });
+    describe("rename", () => {
+        test("Rename a root folder", () => {
+            expect(rename({ name: "name", path: "name" }, "newName")).toStrictEqual({
+                name: "newName",
+                path: "newName"
+            });
+        });
+        test("Rename a sub folder", () => {
+            expect(rename({ name: "name", path: "parent/name" }, "newName")).toStrictEqual({
+                name: "newName",
+                path: "parent/newName"
+            });
         });
     });
 });

@@ -110,7 +110,7 @@ export default {
     },
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail-webapp", { attachmentsMaxWeight: "maxMessageSize" }),
+        ...mapState("mail", { attachmentsMaxWeight: ({ messageCompose }) => messageCompose.maxMessageSize }),
         attachments() {
             return this.message.attachments;
         },

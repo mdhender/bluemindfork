@@ -121,18 +121,4 @@ describe("Folder adaptors", () => {
             expect(isDefault(false, "Root", { type: MailboxType.MAILSHARE })).not.toBeTruthy();
         });
     });
-    describe("rename", () => {
-        test("Rename a root folder", () => {
-            expect(FolderAdaptor.rename({ name: "name", path: "name" }, "newName")).toStrictEqual({
-                name: "newName",
-                path: "newName"
-            });
-        });
-        test("Rename a sub folder", () => {
-            expect(FolderAdaptor.rename({ name: "name", path: "parent/name" }, "newName")).toStrictEqual({
-                name: "newName",
-                path: "parent/newName"
-            });
-        });
-    });
 });

@@ -35,10 +35,10 @@ describe("Mail store", () => {
     });
     describe("store.mutations", () => {
         test("SET_ACTIVE_FOLDER: define the active folder", () => {
-            store.commit(SET_ACTIVE_FOLDER, "1");
+            store.commit(SET_ACTIVE_FOLDER, { key: "1" });
             expect(store.state.activeFolder).toEqual("1");
 
-            store.commit(SET_ACTIVE_FOLDER, "2");
+            store.commit(SET_ACTIVE_FOLDER, { key: "2" });
             expect(store.state.activeFolder).toEqual("2");
         });
     });
@@ -53,7 +53,7 @@ describe("Mail store", () => {
                 1: { key: "1", mailboxRef: { key: "B" } },
                 2: { key: "2", mailboxRef: { key: "A" } }
             };
-            store.commit(SET_ACTIVE_FOLDER, "1");
+            store.commit(SET_ACTIVE_FOLDER, { key: "1" });
             expect(store.getters.CURRENT_MAILBOX).toEqual({ key: "B" });
         });
         test("ALL_SELECTED_MESSAGES_ARE_UNREAD", () => {

@@ -5,14 +5,16 @@ export const FETCH_ACTIVE_MESSAGE_INLINE_PARTS = "FETCH_ACTIVE_MESSAGE_INLINE_PA
 export const FETCH_MAILBOXES = "FETCH_MAILBOXES";
 
 // folders
-export const FETCH_FOLDERS = "FETCH_FOLDERS";
+
 export const CREATE_FOLDER = "CREATE_FOLDER";
 export const CREATE_FOLDER_HIERARCHY = "CREATE_FOLDER_HIERARCHY";
 export const EMPTY_FOLDER = "EMPTY_FOLDER";
+export const FETCH_FOLDERS = "FETCH_FOLDERS";
+export const MARK_FOLDER_AS_READ = "MARK_FOLDER_AS_READ";
 export const REMOVE_FOLDER = "REMOVE_FOLDER";
 export const RENAME_FOLDER = "RENAME_FOLDER";
-export const MARK_FOLDER_AS_READ = "MARK_FOLDER_AS_READ";
 export const UNREAD_FOLDER_COUNT = "$_VueBus_mail-webapp_unread_folder_count";
+export const PUSHED_FOLDER_CHANGES = "$_VueBus_mail-webapp_pushed_folder_changes";
 
 // messages
 export const ADD_ATTACHMENTS = "ADD_ATTACHMENTS";
@@ -41,6 +43,7 @@ export const REFRESH_MESSAGE_LIST_KEYS = "REFRESH_MESSAGE_LIST_KEYS";
 
 // messageCompose
 export const FETCH_SIGNATURE = "FETCH_SIGNATURE";
+export const LOAD_MAX_MESSAGE_SIZE = "LOAD_MAX_MESSAGE_SIZE";
 
 // consultPanel
 export const FETCH_EVENT = "FETCH_EVENT";

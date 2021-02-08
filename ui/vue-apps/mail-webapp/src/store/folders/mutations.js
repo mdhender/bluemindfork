@@ -2,15 +2,16 @@ import { Flag } from "@bluemind/email";
 import Vue from "vue";
 import { RENAME_FOLDER } from "~actions";
 import {
-    ADD_FOLDER,
     ADD_FLAG,
-    SET_MAILBOX_FOLDERS,
+    ADD_FOLDER,
     DELETE_FLAG,
+    MOVE_MESSAGES,
     REMOVE_FOLDER,
     REMOVE_MESSAGES,
-    MOVE_MESSAGES,
-    SET_UNREAD_COUNT,
-    SET_FOLDER_EXPANDED
+    SET_ACTIVE_FOLDER,
+    SET_FOLDER_EXPANDED,
+    SET_MAILBOX_FOLDERS,
+    SET_UNREAD_COUNT
 } from "~mutations";
 
 export default {
@@ -63,5 +64,12 @@ export default {
                 state[folder.key].unread++;
             }
         });
+    },
+    [SET_ACTIVE_FOLDER]: (state, folder) => {
+        let parent = folder.parent && state[folder.parent];
+        while (parent) {
+            parent.expanded = true;
+            parent = parent.parent && state[parent.parent];
+        }
     }
 };

@@ -73,11 +73,7 @@ export default {
             this.$emit("toggleSelect", this.message.key);
         },
         navigateTo() {
-            const params = { message: this.message.key };
-            if (this.activeFolder !== this.message.folderRef.key) {
-                params.folder = this.message.folderRef.key;
-            }
-            this.$router.navigate({ name: "v:mail:message", params });
+            this.$router.navigate({ name: "v:mail:message", params: { message: this.message.key } });
         }
     }
 };

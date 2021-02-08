@@ -2,10 +2,10 @@ import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
-import { MockUserIdentitiesClient } from "@bluemind/test-utils";
+import { MockUserIdentitiesClient, MockMailboxesClient } from "@bluemind/test-utils";
 import storeOptions from "../messageCompose";
-import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT, SET_SIGNATURE } from "~mutations";
-import { FETCH_SIGNATURE } from "~actions";
+import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT, SET_SIGNATURE, SET_MAX_MESSAGE_SIZE } from "~mutations";
+import { FETCH_SIGNATURE, LOAD_MAX_MESSAGE_SIZE } from "~actions";
 
 const mySignature = "My Signature";
 Vue.use(Vuex);
@@ -31,20 +31,33 @@ describe("messageCompose", () => {
             store.commit(SET_SIGNATURE, mySignature);
             expect(store.state.signature).toBe(mySignature);
         });
+        test("SET_MAX_MESSAGE_SIZE", () => {
+            expect(store.state.maxMessageSize).toBe(0);
+            store.commit(SET_MAX_MESSAGE_SIZE, 30);
+            expect(store.state.maxMessageSize).toBe(30);
+        });
     });
     describe("actions", () => {
         const userIdentitiesService = new MockUserIdentitiesClient();
+        const mailboxesService = new MockMailboxesClient();
         beforeEach(() => {
             inject.register({ provide: "IUserMailIdentities", factory: () => userIdentitiesService });
             userIdentitiesService.getIdentities.mockReturnValue([
                 { isDefault: false },
                 { isDefault: true, signature: mySignature }
             ]);
+            inject.register({ provide: "MailboxesPersistence", factory: () => mailboxesService });
+            mailboxesService.getMailboxConfig.mockReturnValue({ messageMaxSize: 30 });
         });
         test("FETCH_SIGNATURE", async () => {
             await store.dispatch(FETCH_SIGNATURE);
             expect(userIdentitiesService.getIdentities).toHaveBeenCalled();
             expect(store.state.signature).toBe(mySignature);
+        });
+        test("LOAD_MAX_MESSAGE_SIZE", async () => {
+            await store.dispatch(LOAD_MAX_MESSAGE_SIZE, 3);
+            expect(mailboxesService.getMailboxConfig).toHaveBeenCalledWith(3);
+            expect(store.state.maxMessageSize).toBe(30 / 1.33);
         });
     });
 });

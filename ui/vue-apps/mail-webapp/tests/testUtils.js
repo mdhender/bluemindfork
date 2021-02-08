@@ -20,21 +20,23 @@ inject.register({
     use: { userId }
 });
 
+const mailbox = {
+    key: "MY_MAIBOX",
+    type: "users",
+    owner: userId
+};
 export function createStore() {
     const store = new Vuex.Store();
     store.registerModule("alert", AlertStore);
     store.registerModule("mail", MailAppStore);
     store.registerModule("mail-webapp", OldMailAppStore);
 
-    store.commit("mail-webapp/setMaxMessageSize", 10);
-    store.commit("mail/ADD_MAILBOXES", [
-        {
-            key: "MY_MAIBOX",
-            type: "users",
-            owner: userId
-        }
-    ]);
-    store.commit("mail/SET_MAILBOX_FOLDERS", [{ key: folderUid, mailboxRef: { key: "MY_MAIBOX" } }]);
+    store.commit("mail/SET_MAX_MESSAGE_SIZE", 10);
+    store.commit("mail/ADD_MAILBOXES", [mailbox]);
+    store.commit("mail/SET_MAILBOX_FOLDERS", {
+        folders: [{ key: folderUid, mailboxRef: { key: "MY_MAIBOX" } }],
+        mailbox
+    });
     store.commit("mail/ADD_MESSAGES", [{ key: messageKey, flags: [], folderRef: { key: folderUid, uid: folderUid } }]);
     store.commit("mail-webapp/currentMessage/update", { key: messageKey });
 

@@ -126,11 +126,11 @@ export default {
                             search: this.searchQuery,
                             folder:
                                 this.selectedFolder.key && !this.isFolderOfMailshare(this.selectedFolder)
-                                    ? this.selectedFolder.key
+                                    ? this.selectedFolder.path
                                     : undefined,
                             mailshare:
                                 this.selectedFolder.key && this.isFolderOfMailshare(this.selectedFolder)
-                                    ? this.selectedFolder.key
+                                    ? this.selectedFolder.path
                                     : undefined
                         }
                     }),

@@ -36,8 +36,9 @@
         @keyup.shift.ctrl.exact.end="selectRange(messageKeys[MESSAGE_LIST_COUNT - 1])"
     >
         <div v-for="(message, index) in _messages" :key="message.key">
-            <date-separator :message="message" :index="index" />
+            <date-separator v-if="MESSAGE_IS_LOADED(message.key)" :message="message" :index="index" />
             <draggable-message
+                v-if="MESSAGE_IS_LOADED(message.key)"
                 :ref="'message-' + message.key"
                 :message="message"
                 :is-muted="!!draggedMessage && MESSAGE_IS_SELECTED(draggedMessage) && MESSAGE_IS_SELECTED(message.key)"
@@ -49,17 +50,18 @@
                 @dragstart="draggedMessage = message.key"
                 @dragend="draggedMessage = null"
             />
+            <message-list-item-loading v-else :message="message" />
         </div>
-        <bm-list-group-item v-if="hasMore">Loading…</bm-list-group-item>
     </bm-list-group>
 </template>
 
 <script>
-import { BmListGroup, BmListGroupItem } from "@bluemind/styleguide";
+import { BmListGroup } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 import { TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
 import DraggableMessage from "./DraggableMessage";
 import DateSeparator from "./DateSeparator";
+import MessageListItemLoading from "./MessageListItemLoading";
 import {
     MULTIPLE_MESSAGE_SELECTED,
     SELECTION_IS_EMPTY,
@@ -79,9 +81,9 @@ export default {
     name: "MessageList",
     components: {
         BmListGroup,
-        BmListGroupItem,
         DateSeparator,
-        DraggableMessage
+        DraggableMessage,
+        MessageListItemLoading
     },
     mixins: [RemoveMixin],
     data() {
@@ -112,7 +114,7 @@ export default {
             return this.messageKeys
                 .slice(0, this.length)
                 .map(key => this.messages[key])
-                .filter(message => this.MESSAGE_IS_LOADED(message.key) || message.status === MessageStatus.SAVING);
+                .filter(({ status }) => status !== MessageStatus.REMOVED);
         },
         currentMessage() {
             return this.messages[this.currentMessageKey];
@@ -155,10 +157,10 @@ export default {
         ...mapMutations("mail-webapp/currentMessage", { clearCurrentMessage: "clear" }),
         ...mapMutations("mail", { SELECT_MESSAGE, UNSELECT_MESSAGE, SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES }),
 
-        async loadMore() {
+        loadMore() {
             if (this.hasMore) {
                 const end = Math.min(this.length + 20, this.MESSAGE_LIST_COUNT);
-                await this.loadRange({ start: this.length, end });
+                this.loadRange({ start: this.length, end });
                 this.length = end;
             }
         },

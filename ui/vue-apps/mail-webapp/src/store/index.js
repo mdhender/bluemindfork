@@ -1,4 +1,5 @@
 import activeMessage from "./activeMessage";
+import { state, getters, mutations } from "./store";
 import consultPanel from "./consultPanel";
 import folderList from "./folderList";
 import folders from "./folders";
@@ -6,8 +7,8 @@ import mailboxes from "./mailboxes";
 import messages from "./messages";
 import messageCompose from "./messageCompose";
 import messageList from "./messageList";
+import route from "./route";
 import selection from "./selection";
-import { state, getters, mutations } from "./store";
 
 export default {
     namespaced: true,
@@ -23,6 +24,7 @@ export default {
         messageCompose,
         messageList,
         messages,
+        route,
         selection
     }
 };

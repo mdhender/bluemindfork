@@ -1,7 +1,6 @@
 import MailActionsPanel from "../components/MailActionsPanel";
 import MailApp from "../components/MailApp";
 import MailThread from "../components/MailThread/MailThread";
-import MessageQueryParam from "./MessageQueryParam";
 import virtualRoutes from "./virtualRoutes";
 
 export default [
@@ -10,12 +9,6 @@ export default [
         name: "mail:root",
         path: "/mail/:messagequery*",
         component: MailApp,
-        meta: {
-            watch: {
-                messagequery: (store, value) =>
-                    store.dispatch("mail-webapp/loadMessageList", MessageQueryParam.parse(value))
-            }
-        },
         children: [
             {
                 name: "mail:message",

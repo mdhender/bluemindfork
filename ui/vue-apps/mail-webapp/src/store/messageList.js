@@ -37,7 +37,7 @@ export const MessageListFilter = {
 
 const state = {
     messageKeys: [],
-    status: MessageListStatus.IDLE,
+    status: MessageListStatus.LOADING,
     filter: MessageListFilter.ALL
 };
 

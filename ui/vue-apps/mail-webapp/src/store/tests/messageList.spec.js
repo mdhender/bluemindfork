@@ -142,11 +142,11 @@ describe("messageList", () => {
             state = cloneDeep(storeOptions.state);
         });
         test("MESSAGE_LIST_IS_LOADING", () => {
-            expect(storeOptions.getters[MESSAGE_LIST_IS_LOADING](state)).toBeFalsy();
-            state.status = MessageListStatus.LOADING;
             expect(storeOptions.getters[MESSAGE_LIST_IS_LOADING](state)).toBeTruthy();
             state.status = MessageListStatus.SUCCESS;
             expect(storeOptions.getters[MESSAGE_LIST_IS_LOADING](state)).toBeFalsy();
+            state.status = MessageListStatus.LOADING;
+            expect(storeOptions.getters[MESSAGE_LIST_IS_LOADING](state)).toBeTruthy();
             state.status = MessageListStatus.ERROR;
             expect(storeOptions.getters[MESSAGE_LIST_IS_LOADING](state)).toBeFalsy();
         });

@@ -44,8 +44,8 @@ const context = {
         mail: {
             activeFolder: null,
             messages: {
-                [messageKey]: { composing: false },
-                [anotherMessageKey]: { composing: false }
+                [messageKey]: { composing: false, folderRef: { key: "folder" } },
+                [anotherMessageKey]: { composing: false, folderRef: { key: "folder" } }
             }
         }
     },
