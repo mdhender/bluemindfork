@@ -51,9 +51,6 @@ public class DomainHook extends DomainHookAdapter {
 		resourceType.properties.add(p);
 
 		resources.create(IVideoConferenceUid.UID, resourceType);
-
-		// todo set camera icon
-
 	}
 
 }
