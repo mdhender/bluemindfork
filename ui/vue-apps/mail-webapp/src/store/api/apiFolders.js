@@ -1,4 +1,5 @@
 import { inject } from "@bluemind/inject";
+import { ItemFlag } from "@bluemind/core.container.api";
 
 async function getAllFolders(mailbox) {
     return await apiClient(mailbox).all();
@@ -20,7 +21,7 @@ async function emptyFolder(mailbox, folder) {
     return await apiClient(mailbox).removeMessages(folder.remoteRef.internalId);
 }
 async function unreadCount(folder) {
-    return apiItems(folder).getPerUserUnread();
+    return apiItems(folder).count({ must: [], mustNot: [ItemFlag.Deleted, ItemFlag.Seen] });
 }
 function apiClient({ remoteRef: { uid } }) {
     return inject("MailboxFoldersPersistence", uid);
