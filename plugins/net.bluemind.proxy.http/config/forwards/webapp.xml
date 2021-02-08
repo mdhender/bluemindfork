@@ -3,7 +3,8 @@
 	<forward path="/webapp" target="locator://bm/webmail:8080/webapp">
 		<auth kind="CORE2" />
 		<whitelist>
-			<wl uri="/skins/bluemind/images/favicon.ico" />
+			<wl uri="js/net.bluemind.webapp.mail.js.map" />
+			<wl uri="js/net.bluemind.webapp.root.js.map" />
 		</whitelist>
 	</forward>
 </forwards>

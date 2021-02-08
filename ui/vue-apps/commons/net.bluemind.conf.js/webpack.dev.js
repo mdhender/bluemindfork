@@ -8,6 +8,5 @@ module.exports = merge(common, {
         overlay: true,
         host: "0.0.0.0",
         disableHostCheck: true
-    },
-    devtool: "eval-source-map"
+    }
 });
