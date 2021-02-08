@@ -17,21 +17,16 @@
   */
 package net.bluemind.videoconferencing.resourcetype;
 
-import java.util.List;
 import java.util.Optional;
 
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
-import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor.Property;
-import net.bluemind.resource.api.type.ResourceTypeDescriptor.Property.Type;
-import net.bluemind.videoconferencing.api.IVideoConferencing;
+import net.bluemind.videoconferencing.api.IVideoConferenceUid;
 
 public class VideoConferencingResourceTypeSanitizer implements ISanitizer<ResourceTypeDescriptor> {
-
-	private static final List<IVideoConferencing> providers = getProviders();
 
 	@Override
 	public void create(ResourceTypeDescriptor obj) {
@@ -40,25 +35,22 @@ public class VideoConferencingResourceTypeSanitizer implements ISanitizer<Resour
 	@Override
 	public void update(ResourceTypeDescriptor current, ResourceTypeDescriptor obj) {
 
-		providers.forEach(provider -> {
-			Optional<Property> type = current.properties.stream().filter(
-					p -> p.id.equals(provider.id() + "-type") && p.type == Type.String && p.label.equals("Type"))
+		Optional<Property> type = current.properties.stream().filter(p -> p.id.equals(IVideoConferenceUid.UID + "-type")
+				&& p.type == ResourceTypeDescriptor.Property.Type.String && p.label.equals("Type")).findFirst();
+
+		if (type.isPresent()) {
+			type = obj.properties.stream()
+					.filter(p -> p.id.equals(IVideoConferenceUid.UID + "-type")
+							&& p.type == ResourceTypeDescriptor.Property.Type.String && p.label.equals("Type"))
 					.findFirst();
-
-			if (type.isPresent()) {
-				type = obj.properties.stream().filter(
-						p -> p.id.equals(provider.id() + "-type") && p.type == Type.String && p.label.equals("Type"))
-						.findFirst();
-				if (!type.isPresent()) {
-					Property p = new Property();
-					p.id = provider.id() + "-type";
-					p.label = "Type";
-					p.type = Property.Type.String;
-					obj.properties.add(p);
-				}
+			if (!type.isPresent()) {
+				Property p = new Property();
+				p.id = IVideoConferenceUid.UID + "-type";
+				p.label = "Type";
+				p.type = Property.Type.String;
+				obj.properties.add(p);
 			}
-
-		});
+		}
 
 	}
 
@@ -75,11 +67,6 @@ public class VideoConferencingResourceTypeSanitizer implements ISanitizer<Resour
 			return new VideoConferencingResourceTypeSanitizer();
 		}
 
-	}
-
-	private static List<IVideoConferencing> getProviders() {
-		RunnableExtensionLoader<IVideoConferencing> loader = new RunnableExtensionLoader<>();
-		return loader.loadExtensions("net.bluemind.videoconferencing", "provider", "provider", "impl");
 	}
 
 }

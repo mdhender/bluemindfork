@@ -18,7 +18,6 @@
 package net.bluemind.videoconferencing.domain;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,43 +27,33 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.hook.DomainHookAdapter;
-import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor.Property;
-import net.bluemind.videoconferencing.api.IVideoConferencing;
+import net.bluemind.videoconferencing.api.IVideoConferenceUid;
 
 public class DomainHook extends DomainHookAdapter {
 
 	private static final Logger logger = LoggerFactory.getLogger(DomainHook.class);
 
-	private static final List<IVideoConferencing> providers = getProviders();
-
 	@Override
 	public void onCreated(BmContext context, ItemValue<Domain> domain) throws ServerFault {
 
 		IResourceTypes resources = context.su().provider().instance(IResourceTypes.class, domain.uid);
-		providers.forEach(provider -> {
-			logger.info("create video conferencing resource type for domain {} : {}", domain.uid, provider.name());
+		logger.info("create video conferencing resource type for domain {} : {}", domain.uid, IVideoConferenceUid.UID);
 
-			ResourceTypeDescriptor resourceType = ResourceTypeDescriptor.create(provider.name());
-			resourceType.properties = new ArrayList<>();
-			Property p = new Property();
-			p.id = provider.id() + "-type";
-			p.label = "Type";
-			p.type = Property.Type.String;
-			resourceType.properties.add(p);
+		ResourceTypeDescriptor resourceType = ResourceTypeDescriptor.create("Video Conferencing");
+		resourceType.properties = new ArrayList<>();
+		Property p = new Property();
+		p.id = IVideoConferenceUid.TYPE;
+		p.label = "Type";
+		p.type = Property.Type.String;
+		resourceType.properties.add(p);
 
-			resources.create(provider.id(), resourceType);
+		resources.create(IVideoConferenceUid.UID, resourceType);
 
-			// todo set camera icon
-
-		});
+		// todo set camera icon
 
 	}
 
-	private static List<IVideoConferencing> getProviders() {
-		RunnableExtensionLoader<IVideoConferencing> loader = new RunnableExtensionLoader<>();
-		return loader.loadExtensions("net.bluemind.videoconferencing", "provider", "provider", "impl");
-	}
 }
