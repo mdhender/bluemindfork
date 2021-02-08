@@ -18,12 +18,15 @@
  */
 package net.bluemind.node.client.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -112,6 +115,7 @@ public class WebsocketLink {
 	private final NodeTextListener msgListener;
 	private final NodeSocketHandler upgradeHandler;
 	private final HostPortClient cli;
+	private final CountDownLatch startReceivedLatch;
 
 	public WebsocketLink(HostPortClient cli) {
 		this.execHandlers = new ConcurrentHashMap<>();
@@ -120,7 +124,7 @@ public class WebsocketLink {
 		this.cli = cli;
 		this.msgListener = new NodeTextListener(webSocket, firstConnect, this);
 		this.upgradeHandler = new NodeSocketHandler(msgListener);
-
+		this.startReceivedLatch = new CountDownLatch(1);
 		retry();
 		cli.setWebsocketLink(this);
 	}
@@ -146,12 +150,18 @@ public class WebsocketLink {
 			String kind = msg.getString("kind");
 			switch (kind) {
 			case "node-start":
-				logger.info("Node has restarted on {}, dropping {} task handlers.", cli.getHost(), execHandlers.size());
+				List<Long> removedHandlers = new ArrayList<>();
 				execHandlers.forEach((runId, handler) -> {
 					handler.log("Node has restarted.");
 					handler.completed(1);
+					removedHandlers.add(runId);
 				});
-				execHandlers.clear();
+				for (Long runId : removedHandlers) {
+					execHandlers.remove(runId);
+				}
+				logger.info("Node has restarted on {}, dropping {} task handlers.", cli.getHost(),
+						removedHandlers.size());
+				this.startReceivedLatch.countDown();
 				break;
 			case "notification":
 				// does not exist yet
@@ -194,6 +204,11 @@ public class WebsocketLink {
 	}
 
 	public void startWsAction(ExecRequest wsReq, ProcessHandler ph) {
+		try {
+			startReceivedLatch.await();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 		WebSocket ws = webSocket.get();
 		if (ws == null) {
 			logger.error("Error command as websocket is missing");
