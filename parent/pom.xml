@@ -12,65 +12,66 @@
 
 	<modules>
 		<module>../plugins/pom.xml</module>
-		<module>addressbook</module>
 		<module>addressbook.ldap</module>
+		<module>addressbook</module>
+		<module>announcement</module>
 		<module>authentication</module>
 		<module>base</module>
 		<module>calendar</module>
 		<module>ci</module>
-		<module>core</module>
+		<module>cli</module>
+		<module>cloud</module>
 		<module>common</module>
-		<module>node</module>
+		<module>contentanalysis</module>
+		<module>core</module>
+		<module>cti</module>
+		<module>custom</module>
+		<module>customproperties</module>
+		<module>dataprotect</module>
+		<module>deferredaction</module>
+		<module>device</module>
 		<module>directory</module>
+		<module>document</module>
+		<module>documentfolder</module>
 		<module>domain</module>
 		<module>eas</module>
 		<module>externaluser</module>
+		<module>filehosting</module>
 		<module>group</module>
 		<module>hps</module>
-	    <module>mailapp</module>
+		<module>hsm</module>
+		<module>icalendar</module>
+		<module>im</module>
+		<module>ldap</module>
 		<module>mailbackend</module>
 		<module>mailbox</module>
+		<module>mailindex</module>
+		<module>mailmessage</module>
+		<module>mailshare</module>
+		<module>maintenance</module>
+		<module>mapi</module>
+		<module>metrics</module>
+		<module>milter</module>
+		<module>node</module>
+		<module>outlook</module>
+		<module>proxy</module>
+		<module>resource</module>
+		<module>role</module>
+		<module>samba</module>
+		<module>scheduledjob</module>
+		<module>serialization</module>
 		<module>server</module>
-		<module>system</module>
 		<module>settings</module>
+		<module>system</module>
 		<module>tag</module>
 		<module>testhelpers</module>
 		<module>todolist</module>
-		<module>user</module>
-		<module>webmodules</module>
-		<module>cti</module>
-		<module>xivo</module>
-		<module>dataprotect</module>
-		<module>im</module>
-		<module>scheduledjob</module>
-		<module>mailshare</module>
-		<module>mailindex</module>
-		<module>resource</module>
-		<module>device</module>
-		<module>document</module>
-		<module>documentfolder</module>
-		<module>hsm</module>
-		<module>samba</module>
-		<module>outlook</module>
-		<module>ldap</module>
-		<module>mailmessage</module>
-		<module>customproperties</module>
-		<module>webmail</module>
-		<module>filehosting</module>
-		<module>icalendar</module>
-		<module>role</module>
-		<module>mapi</module>
-		<module>announcement</module>
-		<module>milter</module>
-		<module>metrics</module>
-		<module>cli</module>
-		<module>serialization</module>
-		<module>contentanalysis</module>
 		<module>topology</module>
-		<module>cloud</module>
-		<module>deferredaction</module>
-		<module>custom</module>
-		<module>proxy</module>
+		<module>user</module>
+		<module>webmail</module>
+		<module>webmodules</module>
+		<module>xivo</module>
+	    <module>mailapp</module>
 	</modules>
 
 	<build>

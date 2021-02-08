@@ -9,67 +9,62 @@
 	<artifactId>net.bluemind.core.plugins</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>net.bluemind.core.commons</module>
-		<module>net.bluemind.core.commons.tests</module>
-		<module>net.bluemind.core.sessions</module>
-		<module>net.bluemind.core.sessions.deletion.hz</module>
-		<module>net.bluemind.core.context</module>
+		<module>net.bluemind.application.launcher</module>
 		<module>net.bluemind.config</module>
-		<module>net.bluemind.i18n.labels</module>
-		<module>net.bluemind.core.rest</module>
-		<module>net.bluemind.core.rest.common</module>
-		<module>net.bluemind.core.sqlschema</module>
-		<module>net.bluemind.core.jdbc</module>
+		<module>net.bluemind.core.annotationvalidator.tests</module>
+		<module>net.bluemind.core.annotationvalidator</module>
+		<module>net.bluemind.core.auditlog</module>
+		<module>net.bluemind.core.caches.registry</module>
+		<module>net.bluemind.core.caches.testhelper</module>
+		<module>net.bluemind.core.commons.tests</module>
+		<module>net.bluemind.core.commons</module>
+		<module>net.bluemind.core.container.api</module>
+		<module>net.bluemind.core.container.hierarchy.hook.tests</module>
+		<module>net.bluemind.core.container.hierarchy.hook</module>
+		<module>net.bluemind.core.container.hierarchy.repair</module>
+		<module>net.bluemind.core.container.hooks.tests</module>
+		<module>net.bluemind.core.container.hooks</module>
+		<module>net.bluemind.core.container.persistence.tests</module>
+		<module>net.bluemind.core.container.persistence</module>
+		<module>net.bluemind.core.container.repair</module>
+		<module>net.bluemind.core.container.service.tests</module>
+		<module>net.bluemind.core.container.service</module>
+		<module>net.bluemind.core.container.sharding</module>
+		<module>net.bluemind.core.container.sqlschema</module>
+		<module>net.bluemind.core.container.subscriptions.hook.tests</module>
+		<module>net.bluemind.core.container.subscriptions.hook</module>
+		<module>net.bluemind.core.container.subscriptions.repair</module>
+		<module>net.bluemind.core.container.sync.tests</module>
+		<module>net.bluemind.core.container.sync</module>
+		<module>net.bluemind.core.context</module>
+		<module>net.bluemind.core.elasticsearch.testshelper</module>
 		<module>net.bluemind.core.jdbc.tests</module>
 		<module>net.bluemind.core.jdbc.testshelper</module>
-		<module>net.bluemind.core.caches.testhelper</module>
-		<module>net.bluemind.core.caches.registry</module>
+		<module>net.bluemind.core.jdbc</module>
+		<module>net.bluemind.core.node.testshelper</module>
+		<module>net.bluemind.core.rest.common</module>
+		<module>net.bluemind.core.rest.http.tests</module>
+		<module>net.bluemind.core.rest.http.vertx</module>
+		<module>net.bluemind.core.rest.http</module>
 		<module>net.bluemind.core.rest.tests.services</module>
 		<module>net.bluemind.core.rest.tests</module>
-		<module>net.bluemind.core.rest.http</module>
-		<module>net.bluemind.core.rest.http.vertx</module>
-		<module>net.bluemind.core.rest.http.tests</module>
-		<module>net.bluemind.core.task.api</module>
-		<module>net.bluemind.core.task.spi</module>
-		<module>net.bluemind.core.task.service</module>
-		<module>net.bluemind.core.task.service.tests</module>
-		<module>net.bluemind.core.container.api</module>
-		<module>net.bluemind.core.container.sqlschema</module>
-		<module>net.bluemind.core.container.hooks</module>
-		<module>net.bluemind.core.container.hooks.tests</module>
-		<module>net.bluemind.core.container.subscriptions.hook</module>
-		<module>net.bluemind.core.container.subscriptions.hook.tests</module>
-		<module>net.bluemind.core.container.subscriptions.repair</module>
-		<module>net.bluemind.core.container.repair</module>
-		<module>net.bluemind.core.container.hierarchy.hook</module>
-		<module>net.bluemind.core.container.hierarchy.hook.tests</module>
-		<module>net.bluemind.core.container.hierarchy.repair</module>
-		<module>net.bluemind.core.container.persistence</module>
-		<module>net.bluemind.core.container.persistence.tests</module>
-		<module>net.bluemind.core.container.service</module>
-		<module>net.bluemind.core.container.service.tests</module>
-		<module>net.bluemind.core.container.sharding</module>
-		<module>net.bluemind.core.container.sync</module>
-		<module>net.bluemind.core.container.sync.tests</module>
-
-		<module>net.bluemind.core.elasticsearch.testshelper</module>
-		<module>net.bluemind.core.node.testshelper</module>
-		<module>net.bluemind.core.tests.testshelper</module>
-
-		<module>net.bluemind.core.sanitizer</module>
+		<module>net.bluemind.core.rest</module>
 		<module>net.bluemind.core.sanitizer.tests</module>
-
-		<module>net.bluemind.core.validator</module>
-		<module>net.bluemind.core.validator.tests</module>
-		<module>net.bluemind.core.annotationvalidator</module>
-		<module>net.bluemind.core.annotationvalidator.tests</module>
-
-		<module>net.bluemind.application.launcher</module>
-		<module>net.bluemind.core.auditlog</module>
-
-		<module>net.bluemind.core.sendmail</module>
-		<module>net.bluemind.core.sendmail.tests</module>
+		<module>net.bluemind.core.sanitizer</module>
 		<module>net.bluemind.core.sendmail.testhelper/</module>
+		<module>net.bluemind.core.sendmail.tests</module>
+		<module>net.bluemind.core.sendmail</module>
+		<module>net.bluemind.core.sessions.deletion.hz</module>
+		<module>net.bluemind.core.sessions</module>
+		<module>net.bluemind.core.sqlschema</module>
+		<module>net.bluemind.core.task.api</module>
+		<module>net.bluemind.core.task.service.tests</module>
+		<module>net.bluemind.core.task.service</module>
+		<module>net.bluemind.core.task.spi</module>
+		<module>net.bluemind.core.tests.testshelper</module>
+		<module>net.bluemind.core.validator.tests</module>
+		<module>net.bluemind.core.validator</module>
+		<module>net.bluemind.i18n.labels</module>
 	</modules>
 
 	<build>

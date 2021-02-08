@@ -302,6 +302,9 @@
       <plugin id="net.bluemind.mailshare.api"/>
       <plugin id="net.bluemind.mailshare.hook"/>
       <plugin id="net.bluemind.mailshare.service"/>
+      <plugin id="net.bluemind.maintenance"/>
+      <plugin id="net.bluemind.maintenance.job"/>
+      <plugin id="net.bluemind.maintenance.postgresql"/>
       <plugin id="net.bluemind.metrics.agent-api"/>
       <plugin id="net.bluemind.metrics.alerts.api"/>
       <plugin id="net.bluemind.metrics.annotations"/>

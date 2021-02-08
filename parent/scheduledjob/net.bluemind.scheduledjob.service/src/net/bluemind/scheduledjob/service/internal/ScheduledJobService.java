@@ -272,7 +272,9 @@ public class ScheduledJobService implements IInCoreJob {
 		} else {
 			RunIdImpl slot = (RunIdImpl) Scheduler.get().getActiveSlot(jobExecution.domainUid, jobExecution.jobId);
 			// Live logs
-			entries = ImmutableSet.copyOf(slot.entries);
+			if (slot != null) {
+				entries = ImmutableSet.copyOf(slot.entries);
+			}
 		}
 		Iterator<LogEntry> it = entries.iterator();
 		int i = 0;

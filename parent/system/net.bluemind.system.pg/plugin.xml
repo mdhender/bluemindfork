@@ -2,30 +2,9 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="net.bluemind.core.rest.apiEndpoint">
-      <endpoint
-            api="net.bluemind.system.pg.api.IPostgresqlMaintenance">
-      </endpoint>
-   </extension>
-   <extension
-         point="net.bluemind.core.rest.serviceFactory">
-      <serviceFactory
-            class="net.bluemind.system.pg.internal.PostgresqlMaintenance$Factory"></serviceFactory>
-      <serviceFactory
-            class="net.bluemind.system.pg.internal.PostgresqlMaintenance$InternalFactory">
-      </serviceFactory>
-   </extension>
-   <extension
-         point="net.bluemind.lib.vertx.verticles">
-      <verticle
-            impl="net.bluemind.system.pg.internal.PGMaintenanceVerticle$Factory">
-      </verticle>
-   </extension>
-   <extension
          point="net.bluemind.server.hook.serverhook">
       <hook
             impl="net.bluemind.system.pg.hook.OnBmDataServerTag">
       </hook>
    </extension>
-
 </plugin>

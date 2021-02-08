@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.maintenance
+Bundle-SymbolicName: net.bluemind.maintenance;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.eclipse.common,
+ net.bluemind.core.rest,
+ net.bluemind.core.task.spi,
+ net.bluemind.server.api,
+ net.bluemind.system.state,
+ slf4j.api
+Export-Package: net.bluemind.maintenance,
+ net.bluemind.maintenance.runner
+Automatic-Module-Name: net.bluemind.maintenance

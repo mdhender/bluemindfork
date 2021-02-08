@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.maintenance.scripts">
+       <java
+            code="net.bluemind.maintenance.postgresql.Analyze"
+            priority="200"></java>
+       <java
+            code="net.bluemind.maintenance.postgresql.Repack"
+            priority="100"></java>
+   </extension>
+</plugin>

@@ -52,7 +52,7 @@ CREATE TABLE t_container_changelog (
 	author TEXT NOT NULL,
 	date timestamp NOT NULL,
 	origin TEXT,
-	item_id int4, /* soft reference t_container_item(id) */
+	item_id int4 NOT NULL, /* soft reference t_container_item(id) */
 	weight_seed int8 default 0,
 	PRIMARY KEY(version, container_id, item_uid)
 );
