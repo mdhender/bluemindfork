@@ -68,7 +68,7 @@
 import debounce from "lodash/debounce";
 import { mapMutations, mapState } from "vuex";
 
-import { OrderBy } from "@bluemind/addressbook.api";
+import { VCardQueryOrderBy } from "@bluemind/addressbook.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
 import { BmButton, BmCol, BmContactInput, BmIcon, BmRow } from "@bluemind/styleguide";
@@ -154,7 +154,7 @@ export default {
                         from: 0,
                         size: 5,
                         query: searchedRecipient,
-                        orderBy: OrderBy.Pertinance,
+                        orderBy: VCardQueryOrderBy.Pertinance,
                         escapeQuery: false
                     })
                     .then(results => {

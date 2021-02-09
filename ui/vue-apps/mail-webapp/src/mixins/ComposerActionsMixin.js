@@ -11,7 +11,7 @@ import {
 import { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~getters";
 import { ADD_MESSAGES } from "~mutations";
 import { isInternalIdFaked } from "~model/draft";
-import { updateKey, MessageStatus } from "~model/message";
+import { updateKey } from "~model/message";
 
 /**
  * Provide composition Vuex actions to components
@@ -73,7 +73,6 @@ export default {
                     this.$_ComposerActionsMixin_message.remoteRef.internalId,
                     this.$_ComposerActionsMixin_message.folderRef
                 );
-                message.status = MessageStatus.LOADED; // when internalId is changed, message still got "SAVING" status..
                 this.$_ComposerActionsMixin_ADD_MESSAGES([message]);
                 this.$router.navigate({ name: "v:mail:message", params: { message: message.key } });
             }

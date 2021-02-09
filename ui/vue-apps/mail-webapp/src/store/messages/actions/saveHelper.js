@@ -33,7 +33,6 @@ export async function save(context, draft, messageCompose) {
     if (!draft || draft.status === MessageStatus.REMOVED) {
         return;
     }
-    console.log("start to save message");
     try {
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVING }]);
 

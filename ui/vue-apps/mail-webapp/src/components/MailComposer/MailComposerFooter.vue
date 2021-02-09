@@ -1,7 +1,12 @@
 <template>
     <div class="mail-composer-footer p-2 border-top justify-content-between align-items-center">
         <div>
-            <bm-button type="submit" variant="primary" :disabled="isSending || !hasRecipient" @click.prevent="send">
+            <bm-button
+                type="submit"
+                variant="primary"
+                :disabled="errorOccuredOnSave || isSending || !hasRecipient"
+                @click.prevent="send"
+            >
                 {{ $t("common.send") }}
             </bm-button>
             <bm-button

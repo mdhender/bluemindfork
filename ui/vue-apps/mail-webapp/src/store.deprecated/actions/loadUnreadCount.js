@@ -2,7 +2,6 @@ import ServiceLocator from "@bluemind/inject";
 import { ItemFlag } from "@bluemind/core.container.api";
 import { SET_UNREAD_COUNT } from "~mutations";
 
-
 export function loadUnreadCount({ commit }, folderUid) {
     return ServiceLocator.getProvider("MailboxItemsPersistence")
         .get(folderUid)

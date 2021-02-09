@@ -185,10 +185,10 @@ function ul(node, context, options) {
     return content;
 }
 
-function ol(node, context) {
+function ol(node, context, options) {
     context.prefix += " % ";
     context.count.push((node.type || "1").charCodeAt(0) + (node.start || 1) - 1);
-    const content = visitChildren();
+    const content = visitChildren(node, context, options);
     context.prefix = context.prefix.substring(context.prefix.length - 3, 3);
     context.count.pop();
     return content + "\n";

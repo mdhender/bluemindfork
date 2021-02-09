@@ -5,7 +5,7 @@
             class="btn-lg-simple-dark"
             :aria-label="$tc('mail.actions.send.aria')"
             :title="$tc('mail.actions.send.aria')"
-            :disabled="isSending || !hasRecipient"
+            :disabled="errorOccuredOnSave || isSending || !hasRecipient"
             @click="send()"
         >
             <bm-icon icon="send" size="2x" />
