@@ -20,8 +20,19 @@
 
 // WebExtension entry point
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+async function waitForLoad() {
+	let windows = await browser.windows.getAll({windowTypes:["normal"]});
+	if (windows.length > 0) {
+		return false;
+	}
+	
+	return new Promise(function(resolve, reject) {
+		function listener() {
+			browser.windows.onCreated.removeListener(listener);
+			resolve(true);
+		}
+		browser.windows.onCreated.addListener(listener);
+	});
 }
 
 async function main() {
@@ -44,7 +55,7 @@ async function main() {
   await browser.DefaultPrefsApi.setExtensionDefaultPrefs();
 
   // wait for thunderbird to be started to be able to register xpcoms
-  await sleep(1000);
+  await waitForLoad();
 
   // init XPCOM components
   await browser.LoggerApi.init();
