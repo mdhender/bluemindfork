@@ -13,16 +13,7 @@ export default [
             {
                 name: "mail:message",
                 path: ".t/:message",
-                component: MailThread,
-                meta: {
-                    onUpdate: (store, to, from, next) => {
-                        store.dispatch("mail-webapp/selectMessage", to.params.message).catch(e => {
-                            console.error("Unable to select message.", e);
-                            next({ path: "/mail" });
-                        });
-                    },
-                    onLeave: store => store.commit("mail-webapp/currentMessage/clear")
-                }
+                component: MailThread
             },
             { name: "mail:home", path: "", component: MailActionsPanel },
 

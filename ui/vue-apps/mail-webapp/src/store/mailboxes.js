@@ -25,7 +25,7 @@ export default {
                 .filter(subscription => subscription.value.containerType === "mailboxacl")
                 .map(subscription => subscription.value.containerUid);
             const items = await inject("ContainersPersistence").getContainers(mailboxUids);
-            commit(ADD_MAILBOXES, items.map(MailboxAdaptor.fromMailboxContainer));
+            commit(ADD_MAILBOXES, items.map(MailboxAdaptor.fromMailboxContainer).filter(Boolean));
         }
     }
 };

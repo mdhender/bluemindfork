@@ -55,8 +55,10 @@ export default {
         messageKey: {
             handler: async function () {
                 this.parts = [];
-
+                this.htmlWithImageInserted = [];
                 const inlines = getPartsFromCapabilities(this.message, VIEWER_CAPABILITIES);
+
+                this.parts = [...inlines.filter(part => !MimeType.isImage(part) || !part.contentId)];
 
                 await this.FETCH_ACTIVE_MESSAGE_INLINE_PARTS({
                     folderUid: this.message.folderRef.uid,

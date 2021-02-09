@@ -1,6 +1,6 @@
 <template>
     <div class="reply-to-counter-proposal">
-        <div class="header px-3 pt-2 pb-3 bg-extra-light">
+        <div v-if="currentEvent.loading === LoadingStatus.LOADED" class="header px-3 pt-2 pb-3 bg-extra-light">
             <div class="font-weight-bold mb-2 d-block top">
                 <bm-icon :stacked="agendaStackedIcons" class="mr-2" size="lg" />
                 {{ counterEventInfo }}
@@ -38,6 +38,15 @@
                 <h2 class="text-primary ml-4">{{ $t("mail.ics.counter.schedule.proposal.handled") }}</h2>
             </template>
         </div>
+        <div v-else-if="currentEvent.loading === LoadingStatus.LOADING" class="header px-3 pt-2 pb-3 bg-extra-light">
+            <div class="font-weight-bold mb-1 d-block top">
+                <bm-skeleton width="30%" />
+            </div>
+            <div v-if="message.eventInfo.needsReply" class="mt-3 d-flex">
+                <bm-skeleton-button class="ml-4 d-inline-block" width="6rem" />
+                <bm-skeleton-button class="ml-4 d-inline-block" width="6rem" />
+            </div>
+        </div>
     </div>
 </template>
 
@@ -45,6 +54,7 @@
 import { mapActions, mapState } from "vuex";
 import { BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 import { ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~actions";
+import { LoadingStatus } from "../../model/loading-status";
 
 export default {
     name: "ReplyToCounterProposal",
@@ -52,6 +62,9 @@ export default {
         BmButton,
         BmIcon,
         BmLabelIcon
+    },
+    data() {
+        return { LoadingStatus };
     },
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),

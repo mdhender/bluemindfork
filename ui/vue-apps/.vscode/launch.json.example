@@ -17,12 +17,18 @@
         },
         {
             "name": "vuejs: chrome",
-            "runtimeExecutable": "/usr/bin/chromium",
+            "runtimeExecutable": "/usr/bin/google-chrome-stable",
             "request": "launch",
             "type": "pwa-chrome",
-            "url": "http://localhost:8080/webapp/mail",
+            "url": "https://my.bm.dev/webapp/mail/",
+            "webRoot": "${workspaceFolder},
             "sourceMapPathOverrides": {
-                "webpack://@bluemind/webapp.mail/*": "${workspaceFolder}/mail-webapp/net.bluemind.webapp.mail.js/*"
+                "webpack://@bluemind/webapp.mail/./src/components/*.vue": "/dev/null",
+                "webpack://@bluemind/webapp.mail/*": "${webRoot}/mail-webapp/*",
+                "webpack://@bluemind/webapp.root/./src/components/*.vue": "/dev/null",
+                "webpack://@bluemind/webapp.root/*": "${webRoot}/root-webapp/*",
+                "webpack://@bluemind/webapp.mail/../bluemind-styleguide/*": "${workspaceFolder}/../bluemind-styleguide/*",
+                "webpack://@bluemind/webapp.root/../bluemind-styleguide/*": "${workspaceFolder}/../bluemind-styleguide/*"
             }
         },
         {

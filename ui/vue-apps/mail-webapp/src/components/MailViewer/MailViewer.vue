@@ -4,7 +4,7 @@
         :aria-label="$t('mail.application.region.messagedetails')"
     >
         <mail-component-alert
-            v-if="message.hasICS && !currentEvent && !isIcsAlertBlocked"
+            v-if="containsEvent && currentEvent.loading === LoadingStatus.ERROR && !isIcsAlertBlocked"
             icon="exclamation-circle"
             @close="isIcsAlertBlocked = true"
         >
@@ -57,11 +57,7 @@
         </bm-row>
         <bm-row ref="scrollableContainer" class="pt-1 flex-fill px-lg-5 px-4">
             <bm-col col>
-                <template v-if="currentEvent && message.eventInfo.needsReply">
-                    <reply-to-counter-proposal v-if="message.eventInfo.isCounterEvent" />
-                    <reply-to-invitation v-else />
-                </template>
-                <event-viewer v-if="message.hasICS && currentEvent" :current-event="currentEvent" :message="message" />
+                <event-viewer v-if="containsEvent && currentEvent.loading !== LoadingStatus.ERROR" :message="message" />
                 <parts-viewer v-else :message-key="message.key" />
             </bm-col>
         </bm-row>
@@ -72,17 +68,18 @@
 <script>
 import { mapState, mapActions, mapGetters } from "vuex";
 import { BmCol, BmRow } from "@bluemind/styleguide";
-import EventViewer from "./EventViewer.vue";
+import { inject } from "@bluemind/inject";
+import EventViewer from "./EventViewer";
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 import MailComponentAlert from "../MailComponentAlert";
 import MailViewerFrom from "./MailViewerFrom";
 import MailViewerRecipient from "./MailViewerRecipient";
 import MailViewerToolbar from "./MailViewerToolbar";
 import PartsViewer from "./PartsViewer/PartsViewer";
-import ReplyToCounterProposal from "./ReplyToCounterProposal";
-import ReplyToInvitation from "./ReplyToInvitation";
+
 import { MESSAGE_LIST_UNREAD_FILTER_ENABLED } from "~getters";
 import { MARK_MESSAGE_AS_READ } from "~actions";
+import { LoadingStatus } from "../../model/loading-status";
 
 export default {
     name: "MailViewer",
@@ -95,9 +92,7 @@ export default {
         MailViewerFrom,
         MailViewerRecipient,
         MailViewerToolbar,
-        PartsViewer,
-        ReplyToInvitation,
-        ReplyToCounterProposal
+        PartsViewer
     },
     props: {
         messageKey: {
@@ -107,15 +102,19 @@ export default {
     },
     data() {
         return {
-            isIcsAlertBlocked: false
+            isIcsAlertBlocked: false,
+            LoadingStatus
         };
     },
     computed: {
-        ...mapGetters("mail", { MESSAGE_LIST_UNREAD_FILTER_ENABLED }),
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
+        ...mapGetters("mail", { MESSAGE_LIST_UNREAD_FILTER_ENABLED }),
         ...mapState("mail", ["messages"]),
         subject() {
             return this.message.subject || this.$t("mail.viewer.no.subject");
+        },
+        containsEvent() {
+            return inject("UserSession").roles.includes("hasCalendar") && this.message.hasICS;
         },
         message() {
             return this.messages[this.messageKey];

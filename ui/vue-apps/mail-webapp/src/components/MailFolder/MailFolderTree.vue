@@ -80,11 +80,7 @@ export default {
         selectFolder(key) {
             this.$emit("toggle-folders");
             const folder = this.folders[key];
-            if (folder.mailboxRef.key === this.MY_MAILBOX.key) {
-                this.$router.push({ name: "v:mail:home", params: { folder: folder.path } });
-            } else {
-                this.$router.push({ name: "v:mail:home", params: { mailshare: folder.path } });
-            }
+            this.$router.push({ name: "v:mail:home", params: { folder: folder.path } });
         }
     }
 };

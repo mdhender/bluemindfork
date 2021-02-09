@@ -10,6 +10,7 @@ Object {
   ],
   "counter": undefined,
   "date": "vendredi 14 août 2020",
+  "loading": "LOADED",
   "mailboxOwner": "B2CBEEFD-147C-451A-9229-1B6C9697D202",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
@@ -114,6 +115,7 @@ Object {
   ],
   "counter": undefined,
   "date": "vendredi 14 août 2020 de 10:00 à 11:00",
+  "loading": "LOADED",
   "mailboxOwner": "B2CBEEFD-147C-451A-9229-1B6C9697D202",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
@@ -218,6 +220,7 @@ Object {
   ],
   "counter": undefined,
   "date": "Tous les jours, de 10:00 à 11:30, à partir du 17 août 2020",
+  "loading": "LOADED",
   "mailboxOwner": "B2CBEEFD-147C-451A-9229-1B6C9697D202",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
@@ -335,6 +338,7 @@ Object {
   ],
   "counter": undefined,
   "date": "Toutes les semaines,  le vendredi, de 07:00 à 08:00, à partir du 21 août 2020",
+  "loading": "LOADED",
   "mailboxOwner": "B2CBEEFD-147C-451A-9229-1B6C9697D202",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
@@ -457,6 +461,7 @@ Object {
   ],
   "counter": undefined,
   "date": "Toutes les semaines,  le mardi, à partir du 25 août 2020",
+  "loading": "LOADED",
   "mailboxOwner": "B2CBEEFD-147C-451A-9229-1B6C9697D202",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",
@@ -579,6 +584,7 @@ Object {
   ],
   "counter": undefined,
   "date": "Le 19 tous les 2 mois, de 07:00 à 07:30, à partir de août 2020",
+  "loading": "LOADED",
   "mailboxOwner": "B2CBEEFD-147C-451A-9229-1B6C9697D202",
   "organizer": Object {
     "mail": "jdoe@webmail-test.loc",

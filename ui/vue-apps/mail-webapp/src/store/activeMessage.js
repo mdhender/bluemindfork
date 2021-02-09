@@ -29,7 +29,6 @@ export default {
                             ? await convertAsText(blob, part)
                             : await convertToBase64(blob);
                     commit(SET_ACTIVE_MESSAGE_PART_DATA, { data: converted, address: part.address });
-                    return Promise.resolve();
                 })
             );
         }

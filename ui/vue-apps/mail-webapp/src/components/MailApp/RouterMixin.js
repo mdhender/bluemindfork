@@ -11,10 +11,10 @@ import {
     SET_ROUTE_FOLDER,
     SET_ROUTE_SEARCH
 } from "~mutations";
-import MessageQueryParam from "../router/MessageQueryParam";
-import SearchHelper from "../store.deprecated/SearchHelper";
-import { FolderAdaptor } from "../store/folders/helpers/FolderAdaptor";
-import { MessageListFilter } from "../store/messageList";
+import MessageQueryParam from "../../router/MessageQueryParam";
+import SearchHelper from "../../store.deprecated/SearchHelper";
+import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
+import { MessageListFilter } from "../../store/messageList";
 
 export default {
     computed: {
@@ -23,7 +23,6 @@ export default {
         query() {
             const query = MessageQueryParam.parse(this.$route.params.messagequery);
             return {
-                mailshare: query.mailshare,
                 folder: query.folder,
                 search: SearchHelper.parseQuery(query.search),
                 filter: (query.filter || MessageListFilter.ALL).trim().toLowerCase()
@@ -54,10 +53,14 @@ export default {
                 await this.initialized;
                 try {
                     const folder = this.resolveFolder(this.query);
-                    this.SET_ACTIVE_FOLDER(folder);
                     this.SET_MESSAGE_LIST_FILTER(this.route.filter);
                     this.SET_SEARCH_PATTERN(this.route.search.pattern);
-                    this.SET_SEARCH_FOLDER(this.query.folder ? FolderAdaptor.toRef(folder) : undefined);
+                    if (this.route.search.pattern) {
+                        this.SET_SEARCH_FOLDER(this.query.folder ? FolderAdaptor.toRef(folder) : undefined);
+                    }
+                    if (!this.route.search.pattern || this.query.folder) {
+                        this.SET_ACTIVE_FOLDER(folder);
+                    }
                     this.$_RouterMixin_fetchMessageList();
                     //TODO: Sync query params with router params (navigate...)
                 } catch {
@@ -78,12 +81,12 @@ export default {
             SET_SEARCH_PATTERN,
             SET_SEARCH_FOLDER
         }),
-        resolveFolder({ folder, mailshare }) {
-            if (folder || mailshare) {
-                let path = folder || mailshare;
+        resolveFolder({ folder }) {
+            if (folder) {
+                let path = folder;
                 const result = this.FOLDERS_BY_UPPERCASE_PATH[path.toUpperCase()];
                 if (!result) {
-                    throw "Folder " + path + "not found";
+                    throw "Folder " + path + " not found";
                 }
                 return result;
             }

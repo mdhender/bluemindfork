@@ -2,14 +2,14 @@ import { inject } from "@bluemind/inject";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import {
     FETCH_FOLDERS,
-    FETCH_FOLDER_UNREAD_COUNT,
     FETCH_MAILBOXES,
     FETCH_SIGNATURE,
-    LOAD_MAX_MESSAGE_SIZE
+    LOAD_MAX_MESSAGE_SIZE,
+    UNREAD_FOLDER_COUNT
 } from "~actions";
 import { MAILSHARES, MY_MAILBOX, MY_MAILBOX_FOLDERS } from "~getters";
 import { ADD_MAILBOXES } from "~mutations";
-import { create, MailboxType } from "../model/mailbox";
+import { create, MailboxType } from "../../model/mailbox";
 
 let bootstrapEnded;
 
@@ -19,16 +19,18 @@ export default {
         ...mapState("mail", ["folders", "messages", "messageList"])
     },
     data() {
-        const initialized = new Promise(resolve => (bootstrapEnded = resolve));
-        return { initialized };
+        return { initialized: new Promise(resolve => (bootstrapEnded = resolve)) };
+    },
+    provide() {
+        return { initialized: this.initialized };
     },
     methods: {
         ...mapActions("mail", {
             LOAD_MAX_MESSAGE_SIZE,
             FETCH_FOLDERS,
-            FETCH_FOLDER_UNREAD_COUNT,
             FETCH_MAILBOXES,
-            FETCH_SIGNATURE
+            FETCH_SIGNATURE,
+            UNREAD_FOLDER_COUNT
         }),
         ...mapMutations("mail", { ADD_MAILBOXES }),
         ...mapMutations("root-app", ["SET_APP_STATE"])
@@ -45,11 +47,12 @@ export default {
             await this.FETCH_FOLDERS(this.MY_MAILBOX);
             await this.FETCH_MAILBOXES();
             this.MAILSHARES.forEach(mailbox => this.FETCH_FOLDERS(mailbox));
-            this.MY_MAILBOX_FOLDERS.forEach(this.FETCH_FOLDER_UNREAD_COUNT);
+            this.MY_MAILBOX_FOLDERS.forEach(this.UNREAD_FOLDER_COUNT);
             this.FETCH_SIGNATURE();
             this.LOAD_MAX_MESSAGE_SIZE(owner);
             bootstrapEnded();
-        } catch (e) {
+        } catch (error) {
+            console.error("Error when bootstraping application... ", error);
             this.SET_APP_STATE("error");
         }
     }

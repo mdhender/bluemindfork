@@ -1,6 +1,6 @@
 <template>
     <article
-        v-if="(currentMessageKey && isADraft) || (message && !isADraft)"
+        v-if="message"
         class="mail-thread d-flex flex-column overflow-x-hidden"
         :aria-label="$t('mail.application.region.messagethread')"
     >
@@ -25,29 +25,41 @@
             {{ $t("mail.content.alert.readonly") }}
         </mail-component-alert>
         <mail-composer v-if="isADraft" :message-key="currentMessageKey" />
-        <mail-viewer v-else-if="message" :message-key="currentMessageKey" />
+        <mail-viewer v-else :message-key="currentMessageKey" />
         <div />
+    </article>
+    <article v-else class="mail-thread">
+        <mail-viewer-loading />
     </article>
 </template>
 
 <script>
-import { mapMutations, mapState } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 
 import { createFromRecipient, VCardAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
 import { ItemUri } from "@bluemind/item-uri";
 
-import { SET_BLOCK_REMOTE_IMAGES, SET_SHOW_REMOTE_IMAGES_ALERT } from "~mutations";
+import {
+    RESET_ACTIVE_MESSAGE,
+    SET_ACTIVE_FOLDER,
+    SET_BLOCK_REMOTE_IMAGES,
+    SET_MESSAGE_COMPOSING,
+    SET_SHOW_REMOTE_IMAGES_ALERT
+} from "~mutations";
+import { MESSAGE_IS_LOADED, MY_DRAFTS } from "~getters";
 import MailComponentAlert from "../MailComponentAlert";
 import MailComposer from "../MailComposer";
 import MailViewer from "../MailViewer";
+import MailViewerLoading from "../MailViewer/MailViewerLoading";
 
 export default {
     name: "MailThread",
     components: {
         MailComponentAlert,
         MailComposer,
-        MailViewer
+        MailViewer,
+        MailViewerLoading
     },
     data() {
         return {
@@ -57,7 +69,9 @@ export default {
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["folders", "messages"]),
+        ...mapGetters("mail", { MESSAGE_IS_LOADED, MY_DRAFTS }),
         ...mapState("mail", { showRemoteImagesAlert: state => state.consultPanel.remoteImages.showAlert }),
+
         message() {
             return this.messages[this.currentMessageKey];
         },
@@ -70,6 +84,7 @@ export default {
                 : false;
         }
     },
+    inject: ["initialized"],
     watch: {
         message() {
             this.isReadOnlyAlertDismissed = false;
@@ -77,10 +92,38 @@ export default {
         currentMessageKey() {
             this.SET_SHOW_REMOTE_IMAGES_ALERT(false);
             this.SET_BLOCK_REMOTE_IMAGES(false);
+        },
+        "$route.params.message": {
+            immediate: true,
+            async handler(value) {
+                try {
+                    await this.initialized;
+                    await this.$store.dispatch("mail-webapp/$_getIfNotPresent", [value]);
+                    this.RESET_ACTIVE_MESSAGE();
+                    const message = this.messages[value];
+                    this.$store.commit("mail-webapp/currentMessage/update", { key: value });
+                    if (!message.composing) {
+                        const folderKey = message.folderRef.key;
+                        this.SET_ACTIVE_FOLDER(this.folders[folderKey]);
+                        this.SET_MESSAGE_COMPOSING({ messageKey: value, composing: folderKey === this.MY_DRAFTS.key });
+                    }
+                } catch {
+                    this.$router.navigate("mail:home");
+                }
+            }
         }
     },
+    destroyed() {
+        this.$store.commit("mail-webapp/currentMessage/clear");
+    },
     methods: {
-        ...mapMutations("mail", { SET_BLOCK_REMOTE_IMAGES, SET_SHOW_REMOTE_IMAGES_ALERT }),
+        ...mapMutations("mail", {
+            RESET_ACTIVE_MESSAGE,
+            SET_ACTIVE_FOLDER,
+            SET_BLOCK_REMOTE_IMAGES,
+            SET_MESSAGE_COMPOSING,
+            SET_SHOW_REMOTE_IMAGES_ALERT
+        }),
         showRemoteImages() {
             this.SET_SHOW_REMOTE_IMAGES_ALERT(false);
             this.SET_BLOCK_REMOTE_IMAGES(false);

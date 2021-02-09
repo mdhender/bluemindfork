@@ -7,10 +7,11 @@ import {
     SET_CURRENT_EVENT_STATUS,
     SET_SHOW_REMOTE_IMAGES_ALERT
 } from "~mutations";
+import { LoadingStatus } from "../model/loading-status";
 
 export default {
     state: {
-        currentEvent: null,
+        currentEvent: { loading: LoadingStatus.NOT_LOADED },
         remoteImages: {
             showAlert: false,
             mustBeBlocked: false
@@ -18,6 +19,7 @@ export default {
     },
     actions: {
         async [FETCH_EVENT]({ commit }, { message, mailbox }) {
+            commit(SET_CURRENT_EVENT, { loading: LoadingStatus.LOADING });
             let event;
             if (message.eventInfo.icsUid) {
                 const events = await inject("CalendarPersistence").getByIcsUid(message.eventInfo.icsUid);
@@ -28,9 +30,10 @@ export default {
 
             if (event) {
                 event = EventHelper.adapt(event, mailbox.owner, message.from.address, message.eventInfo.recuridIsoDate);
+                commit(SET_CURRENT_EVENT, event);
+            } else {
+                commit(SET_CURRENT_EVENT, { loading: LoadingStatus.ERROR });
             }
-
-            commit(SET_CURRENT_EVENT, event);
         },
 
         async [SET_EVENT_STATUS]({ state, commit }, { status, mailbox }) {

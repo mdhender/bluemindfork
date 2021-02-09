@@ -1,6 +1,6 @@
 <template>
     <div class="reply-to-invitation">
-        <div class="header px-3 pt-2 pb-3 bg-extra-light">
+        <div v-if="currentEvent.loading === LoadingStatus.LOADED" class="header px-3 pt-2 pb-3 bg-extra-light">
             <div class="font-weight-bold mb-1 d-block top">
                 <template v-if="!currentEvent.status || currentEvent.status === 'NeedsAction'">
                     <bm-icon icon="event" class="mr-2" size="lg" /> {{ $t("mail.ics") }}
@@ -43,23 +43,39 @@
                 </bm-button>
             </div>
         </div>
+        <div v-else-if="currentEvent.loading === LoadingStatus.LOADING" class="header px-3 pt-2 pb-3 bg-extra-light">
+            <div class="font-weight-bold mb-1 d-block top">
+                <bm-skeleton width="30%" />
+            </div>
+            <div v-if="message.eventInfo.needsReply" class="mt-3 d-flex">
+                <bm-skeleton-button class="mr-2 d-inline-block" width="6rem" />
+                <bm-skeleton-button class="mr-2 d-inline-block" width="12rem" />
+                <bm-skeleton-button class="mr-2 d-inline-block" width="6rem" />
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 
-import { BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
+import { BmButton, BmIcon, BmLabelIcon, BmSkeleton, BmSkeletonButton } from "@bluemind/styleguide";
 
 import { SET_EVENT_STATUS } from "~actions";
 import { CURRENT_MAILBOX } from "~getters";
+import { LoadingStatus } from "../../model/loading-status";
 
 export default {
     name: "ReplyToInvitation",
     components: {
         BmButton,
         BmIcon,
-        BmLabelIcon
+        BmLabelIcon,
+        BmSkeleton,
+        BmSkeletonButton
+    },
+    data() {
+        return { LoadingStatus };
     },
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),

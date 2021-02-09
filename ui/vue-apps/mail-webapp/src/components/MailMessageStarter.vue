@@ -16,10 +16,7 @@
                     </div>
                     <div class="d-table-cell px-4">
                         <div class="pb-2">{{ $t("mail.message.starter.display") }}</div>
-                        <bm-button
-                            :to="{ name: 'v:mail:home', params: { folder: MY_DRAFTS.name } }"
-                            variant="secondary"
-                        >
+                        <bm-button :to="{ name: 'v:mail:home', params: { folder: DRAFTS } }" variant="secondary">
                             <bm-label-icon icon="pencil">{{ $t("mail.message.starter.display.drafts") }}</bm-label-icon>
                         </bm-button>
                     </div>
@@ -35,10 +32,9 @@
 
 <script>
 import { BmButton, BmLabelIcon } from "@bluemind/styleguide";
-import { mapGetters } from "vuex";
 import emptyMessageIllustration from "../../assets/home-page.png";
 import NewMessage from "./NewMessage";
-import { MY_DRAFTS } from "~getters";
+import { DEFAULT_FOLDERS } from "../model/folder";
 
 export default {
     name: "MailMessageStarter",
@@ -49,11 +45,9 @@ export default {
     },
     data() {
         return {
-            emptyMessageIllustration
+            emptyMessageIllustration,
+            DRAFTS: DEFAULT_FOLDERS.DRAFTS
         };
-    },
-    computed: {
-        ...mapGetters("mail", { MY_DRAFTS })
     }
 };
 </script>

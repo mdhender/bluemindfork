@@ -1,17 +1,21 @@
 <template>
     <!-- eslint-disable-next-line vue/no-v-html -->
-    <div class="text-plain-part-viewer" v-html="toHtml" />
+    <div v-if="value" class="text-plain-part-viewer" v-html="toHtml" />
+    <mail-viewer-content-loading v-else />
 </template>
 
 <script>
 import { mailText2Html } from "@bluemind/email";
+import MailViewerContentLoading from "../MailViewerContentLoading";
 
 export default {
     name: "TextPlainPartViewer",
+    components: { MailViewerContentLoading },
     props: {
         value: {
             type: String,
-            required: true
+            required: false,
+            default: undefined
         }
     },
     computed: {

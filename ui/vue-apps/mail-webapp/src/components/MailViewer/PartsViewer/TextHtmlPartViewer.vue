@@ -1,21 +1,25 @@
 <template>
-    <iframe-container :body="parsed.sanitizedBody" :styles="parsed.styles" />
+    <iframe-container v-if="value" :body="parsed.sanitizedBody" :styles="parsed.styles" />
+    <mail-viewer-content-loading v-else />
 </template>
 
 <script>
 import { sanitizeHtml } from "@bluemind/html-utils";
 import linkifyHtml from "linkifyjs/html";
 import IframeContainer from "./IframeContainer";
+import MailViewerContentLoading from "../MailViewerContentLoading";
 
 export default {
     name: "TextHtmlPartViewer",
     components: {
-        IframeContainer
+        IframeContainer,
+        MailViewerContentLoading
     },
     props: {
         value: {
             type: String,
-            required: true
+            required: false,
+            default: undefined
         }
     },
     computed: {

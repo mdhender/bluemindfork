@@ -3,15 +3,14 @@
         <global-events target="self" @resize="appHeight" />
         <bm-banner :applications="applications" :widgets="widgets" :user="user" :software="software" />
         <bm-settings v-if="showSettings" :user="user" :applications="applications" />
-        <!-- <bm-spinner v-if="appState == 'loading'" :size="2" class="d-flex flex-fill align-self-center" />
         <div
-            v-else-if="appState == 'error'"
+            v-if="appState == 'error'"
             class="text-danger text-center h2 d-flex flex-fill align-self-center align-items-center"
         >
             {{ $t("common.application.bootstrap.error") }}<br />
             {{ $t("common.application.bootstrap.error.solution") }}
-        </div> -->
-        <router-view :class="showSettings ? 'd-none' : 'd-flex'" />
+        </div>
+        <router-view v-else :class="showSettings ? 'd-none' : 'd-flex'" />
         <bm-alert-area :alerts="alerts" class="z-index-250 position-absolute" @remove="REMOVE">
             <template v-slot="context">
                 <component :is="context.alert.renderer" :alert="context.alert" />

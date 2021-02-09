@@ -2,6 +2,7 @@ import { DateComparator, WeekDayCodes } from "@bluemind/date";
 import { WeekDay } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
+import { LoadingStatus } from "../../model/loading-status";
 
 export default {
     adapt(event, mailboxOwner, originator, recuridIsoDate) {
@@ -20,7 +21,8 @@ export default {
             uid: event.uid,
             serverEvent: event,
             sanitizedDescription: infos.description ? sanitizeHtml(infos.description) : undefined,
-            counter: adaptCounter(event, originator, recuridIsoDate)
+            counter: adaptCounter(event, originator, recuridIsoDate),
+            loading: LoadingStatus.LOADED
         };
     },
 

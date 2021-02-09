@@ -1,6 +1,5 @@
 const MESSAGE_QUERY_PARTS = {
     folder: "d",
-    mailshare: "m",
     search: "s",
     filter: "f"
 };

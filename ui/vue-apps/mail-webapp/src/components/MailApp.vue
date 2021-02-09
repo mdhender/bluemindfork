@@ -82,8 +82,9 @@ import { BmFormCheckbox, BmButton, BmCol, BmIcon, BmRow, MakeUniq } from "@bluem
 import { inject } from "@bluemind/inject";
 
 import FaviconHelper from "../FaviconHelper";
-import BoostrapMixin from "./BootstrapMixin";
-import RouterMixin from "./RouterMixin";
+import BoostrapMixin from "./MailApp/BootstrapMixin";
+import RouterMixin from "./MailApp/RouterMixin";
+import ServerPush from "./MailApp/ServerPush";
 import MailAppL10N from "../../l10n/";
 import MailFolderSidebar from "./MailFolder/MailFolderSidebar";
 import MailMessageList from "./MailMessageList/MailMessageList";
@@ -112,7 +113,7 @@ export default {
         MultipaneResizer,
         NewMessage
     },
-    mixins: [MakeUniq, BoostrapMixin, RouterMixin],
+    mixins: [MakeUniq, BoostrapMixin, RouterMixin, ServerPush],
     componentI18N: { messages: MailAppL10N },
     data() {
         return {

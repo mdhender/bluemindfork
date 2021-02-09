@@ -1,11 +1,8 @@
-import { SET_MAILBOX_FOLDERS, TOGGLE_EDIT_FOLDER } from "~mutations";
-import { MailboxType } from "../model/mailbox";
+import { TOGGLE_EDIT_FOLDER } from "~mutations";
 
 export default {
     state: {
-        editing: undefined,
-        myMailboxIsLoaded: false,
-        mailsharesAreLoaded: false
+        editing: undefined
     },
     mutations: {
         [TOGGLE_EDIT_FOLDER]: (state, key) => {
@@ -13,14 +10,6 @@ export default {
                 state.editing = undefined;
             } else {
                 state.editing = key;
-            }
-        },
-        // Hooks
-        [SET_MAILBOX_FOLDERS]: (state, { mailbox }) => {
-            if (mailbox.type === MailboxType.USER) {
-                state.myMailboxIsLoaded = true;
-            } else {
-                state.mailsharesAreLoaded = true;
             }
         }
     }
