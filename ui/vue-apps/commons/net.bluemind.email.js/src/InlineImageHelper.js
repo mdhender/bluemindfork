@@ -30,20 +30,23 @@ export default {
                 const cid = cidDataAttribute.nodeValue;
                 const cidSrc = "cid:" + cid.slice(1, -1);
                 if (img.src.startsWith("data:image")) {
-                    if (!isImgAlreadySaved(cid, inlineImagesSaved)) {
-                        const extractDataRegex = /data:image(.*)base64,/g;
-                        const metadatas = img.src.match(extractDataRegex)[0];
-                        const data = img.src.replace(metadatas, "");
-                        result.newParts.push({
-                            address: null,
-                            mime: metadatas.substring(5, metadatas.length - 8),
-                            dispositionType: "INLINE",
-                            encoding: "base64",
-                            contentId: cid
-                        });
-                        result.newContentByCid[cid] = convertData(data);
-                    } else {
-                        result.alreadySaved.push(inlineImagesSaved.find(part => part.contentId === cid));
+                    // check if cid part has already been created (needed when same cid is referenced multiple times)
+                    if (!result.newParts.find(part => part.contentId === cid)) {
+                        if (!isImgAlreadySaved(cid, inlineImagesSaved)) {
+                            const extractDataRegex = /data:image(.*)base64,/g;
+                            const metadatas = img.src.match(extractDataRegex)[0];
+                            const data = img.src.replace(metadatas, "");
+                            result.newParts.push({
+                                address: null,
+                                mime: metadatas.substring(5, metadatas.length - 8),
+                                dispositionType: "INLINE",
+                                encoding: "base64",
+                                contentId: cid
+                            });
+                            result.newContentByCid[cid] = convertData(data);
+                        } else {
+                            result.alreadySaved.push(inlineImagesSaved.find(part => part.contentId === cid));
+                        }
                     }
 
                     result.htmlWithCids = result.htmlWithCids.replace(img.attributes["src"].nodeValue, cidSrc); // dont use img.src because it would fail to replace b64 image including line break
