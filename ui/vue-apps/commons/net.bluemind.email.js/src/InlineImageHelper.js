@@ -46,7 +46,7 @@ export default {
                         result.alreadySaved.push(inlineImagesSaved.find(part => part.contentId === cid));
                     }
 
-                    result.htmlWithCids = result.htmlWithCids.replace(img.src, cidSrc);
+                    result.htmlWithCids = result.htmlWithCids.replace(img.attributes["src"].nodeValue, cidSrc); // dont use img.src because it would fail to replace b64 image including line break
                 } else if (img.attributes.src.nodeValue.startsWith(WEBSERVER_HANDLER_BASE_URL)) {
                     const encoded = encodeHtmlEntities(img.attributes.src.nodeValue);
                     result.alreadySaved.push(inlineImagesSaved.find(part => part.contentId === cid));
