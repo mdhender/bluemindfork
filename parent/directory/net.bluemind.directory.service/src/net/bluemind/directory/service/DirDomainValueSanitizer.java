@@ -75,11 +75,17 @@ public class DirDomainValueSanitizer implements ISanitizer<DirDomainValue<?>> {
 					.byAssignment(obj.domainUid, "mail/imap");
 
 			if (!assignedServers.isEmpty()) {
-				obj.value.dataLocation = assignedServers.get(0);
+				obj.value.dataLocation = roundRobin(assignedServers);
 			} else {
 				logger.warn("no imap server found for domain {} ", obj.domainUid);
 			}
 		}
+	}
+
+	private static int placement = 0;
+
+	private static String roundRobin(List<String> assignedServers) {
+		return assignedServers.get((placement++) % assignedServers.size());
 	}
 
 }
