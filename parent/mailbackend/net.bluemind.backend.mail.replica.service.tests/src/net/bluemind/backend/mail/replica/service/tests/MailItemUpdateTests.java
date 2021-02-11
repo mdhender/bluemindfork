@@ -130,6 +130,8 @@ public class MailItemUpdateTests extends AbstractRollingReplicationTests {
 		Ack ack = mailApi.updateById(mailObject.internalId, mailObject.value);
 		assertTrue(ack.version > mailObject.version);
 		ItemValue<MailboxItem> reloaded = mailApi.getCompleteById(mailObject.internalId);
+		System.err.println("rel body: " + reloaded.value.body.guid);
+		System.err.println("rel uid: " + reloaded.value.imapUid);
 		assertEquals(newSubject, reloaded.value.body.subject);
 		assertNotEquals(mailObject.value.imapUid, reloaded.value.imapUid);
 	}

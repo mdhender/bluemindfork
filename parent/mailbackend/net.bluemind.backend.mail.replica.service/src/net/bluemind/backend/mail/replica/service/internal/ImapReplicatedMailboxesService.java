@@ -74,10 +74,9 @@ import net.bluemind.imap.CreateMailboxResult;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
-import net.bluemind.imap.ListInfo;
 import net.bluemind.imap.ListResult;
 import net.bluemind.imap.StoreClient;
-import net.bluemind.imap.vertx.VXStoreClient;
+import net.bluemind.imap.vertx.IAsyncStoreClient;
 
 public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		implements IMailboxFolders, IMailboxFoldersByContainer {
@@ -244,7 +243,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		});
 	}
 
-	private void selectInbox(StoreClient sc, VXStoreClient fast)
+	private void selectInbox(StoreClient sc, IAsyncStoreClient fast)
 			throws IMAPException, InterruptedException, ExecutionException, TimeoutException {
 		sc.select("INBOX");
 		fast.select("INBOX").get(5, TimeUnit.SECONDS);

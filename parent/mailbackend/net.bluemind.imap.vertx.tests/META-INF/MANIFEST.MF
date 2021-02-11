@@ -14,7 +14,10 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.commons;bundle-version="4.1.0",
  net.bluemind.core.jdbc.testshelper;bundle-version="4.1.0",
  net.bluemind.server.api,
- net.bluemind.tests.defaultdata
+ net.bluemind.tests.defaultdata,
+ net.bluemind.core.rest,
+ io.vertx.core,
+ org.apache.james.apache-mime4j-core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.imap.vertx.tests

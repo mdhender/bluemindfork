@@ -20,20 +20,22 @@ package net.bluemind.imap.vertx.tests;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
 
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.net.NetClient;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.imap.vertx.VXStoreClient;
+import net.bluemind.imap.vertx.con.EventBusConnectionSupport;
+import net.bluemind.imap.vertx.con.NetClientConnectionSupport;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.pool.impl.docker.DockerContainer;
@@ -56,14 +58,7 @@ public abstract class WithMailboxTests {
 		BmConfIni ini = new BmConfIni();
 		imapIp = ini.get(DockerContainer.IMAP.getHostProperty());
 
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(10, TimeUnit.SECONDS);
 
 		assertNotNull(imapIp);
 		Server imapServer = new Server();
@@ -99,8 +94,15 @@ public abstract class WithMailboxTests {
 	}
 
 	protected VXStoreClient client(Vertx vx) {
-		VXStoreClient sc = new VXStoreClient(vx, imapIp, 1143, localPart + "@" + domain, "gg");
-		return sc;
+		NetClient client = vx.createNetClient();
+		NetClientConnectionSupport nccs = new NetClientConnectionSupport(client);
+		return new VXStoreClient(nccs, imapIp, 1143, localPart + "@" + domain, "gg");
+	}
+
+	protected VXStoreClient eventBusClient(Vertx vx) {
+		EventBus eb = vx.eventBus();
+		EventBusConnectionSupport nccs = new EventBusConnectionSupport(eb);
+		return new VXStoreClient(nccs, imapIp, 1143, localPart + "@" + domain, "gg");
 	}
 
 }

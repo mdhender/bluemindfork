@@ -17,6 +17,8 @@
   */
 package net.bluemind.imap.vertx.cmd;
 
+import com.google.common.base.MoreObjects;
+
 public class AppendResponse {
 
 	/**
@@ -37,6 +39,11 @@ public class AppendResponse {
 	public AppendResponse(String reason) {
 		this.newUid = -1;
 		this.reason = reason;
+	}
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(AppendResponse.class).add("uid", newUid).add("reason", reason).toString();
 	}
 
 }

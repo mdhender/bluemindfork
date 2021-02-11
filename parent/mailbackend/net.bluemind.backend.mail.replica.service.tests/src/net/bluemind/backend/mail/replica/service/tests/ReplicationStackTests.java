@@ -1665,10 +1665,13 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 		CountDownLatch hierUpdLock = expectMessages("mailreplica.hierarchy.updated", 3);
 
+		System.err.println("deep delete start...");
 		mboxesApi.deepDelete(foundItem.internalId);
+		System.err.println("deep delete ends.");
 
 		assertTrue("Expected 3 updates to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
 		imapAsUser(sc -> {
+			System.err.println("try imap listing...");
 			ListResult foundFolders = sc.listAll();
 			for (ListInfo f : foundFolders) {
 				System.out.println(" * " + f.getName());
@@ -1689,6 +1692,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		int cnt = 50;
 		for (int i = 0; i < cnt; i++) {
 			deleteDeepWithMultipleChildren();
+			System.err.println("run " + (i + 1) + " / " + cnt);
 		}
 	}
 

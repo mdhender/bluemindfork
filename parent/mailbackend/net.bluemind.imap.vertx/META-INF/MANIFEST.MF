@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.imap.vertx
-Bundle-SymbolicName: net.bluemind.imap.vertx
+Bundle-SymbolicName: net.bluemind.imap.vertx;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
@@ -10,10 +10,16 @@ Require-Bundle: org.eclipse.core.runtime,
  io.netty,
  net.bluemind.lib.vertx,
  com.beetstra.jutf7,
- net.bluemind.lib.jutf7
+ net.bluemind.lib.jutf7,
+ com.google.guava,
+ org.apache.commons.codec
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.imap.vertx,
  net.bluemind.imap.vertx.cmd,
+ net.bluemind.imap.vertx.con,
+ net.bluemind.imap.vertx.parsing,
+ net.bluemind.imap.vertx.pool,
+ net.bluemind.imap.vertx.stream,
  net.bluemind.imap.vertx.utils
 Automatic-Module-Name: net.bluemind.imap.vertx

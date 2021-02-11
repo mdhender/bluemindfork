@@ -139,6 +139,7 @@ public class HttpFetchPartWithFilenameTests extends AbstractRollingReplicationTe
 
 		assertEquals(200, resp.getStatusCode());
 		assertEquals(expectedContentDisposition, resp.getHeader("Content-Disposition"));
+		System.err.println("len: " + resp.getResponseBodyAsBytes().length);
 
 		httpClient.close();
 	}

@@ -144,7 +144,7 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
-	public void testFlushOutboxWorks() throws IOException {
+	public void testFlushOutboxWorks() throws IOException, InterruptedException {
 		addMailToFolder(outboxUid);
 
 		assertEquals(0, sent_mailboxItemsService.count(ItemFlagFilter.all()).total);
@@ -161,7 +161,10 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 			e.printStackTrace();
 			fail();
 		}
+		int curTotal = sent_mailboxItemsService.count(ItemFlagFilter.all()).total;
+		System.err.println("Should check now => " + curTotal);
 
+		Thread.sleep(500); // apply mailbox is async now
 		assertEquals(1, sent_mailboxItemsService.count(ItemFlagFilter.all()).total);
 	}
 

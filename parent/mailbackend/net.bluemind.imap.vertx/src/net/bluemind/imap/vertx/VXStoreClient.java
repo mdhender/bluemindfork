@@ -17,244 +17,219 @@
   */
 package net.bluemind.imap.vertx;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.netty.buffer.ByteBuf;
-import io.vertx.core.Context;
-import io.vertx.core.Vertx;
+import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.net.NetClient;
-import io.vertx.core.net.NetClientOptions;
-import io.vertx.core.net.NetSocket;
+import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
+import io.vertx.core.streams.WriteStream;
+import net.bluemind.imap.vertx.IConnectionSupport.INetworkCon;
 import net.bluemind.imap.vertx.ImapResponseStatus.Status;
 import net.bluemind.imap.vertx.cmd.AppendCommandHelper;
-import net.bluemind.imap.vertx.cmd.AppendListener;
 import net.bluemind.imap.vertx.cmd.AppendResponse;
-import net.bluemind.imap.vertx.cmd.FetchListener;
-import net.bluemind.imap.vertx.cmd.FetchResponse;
-import net.bluemind.imap.vertx.cmd.SelectListener;
 import net.bluemind.imap.vertx.cmd.SelectResponse;
-import net.bluemind.imap.vertx.impl.ImapRecordParser;
-import net.bluemind.imap.vertx.impl.StoreClientException;
-import net.bluemind.imap.vertx.impl.TagListener;
-import net.bluemind.imap.vertx.impl.TagOrGoAheadListener;
+import net.bluemind.imap.vertx.parsing.AppendPayloadBuilder;
+import net.bluemind.imap.vertx.parsing.BannerPayloadBuilder;
+import net.bluemind.imap.vertx.parsing.ImapChunkProcessor;
+import net.bluemind.imap.vertx.parsing.ImapChunker;
+import net.bluemind.imap.vertx.parsing.SelectPayloadBuilder;
+import net.bluemind.imap.vertx.parsing.StreamSinkProcessor;
+import net.bluemind.imap.vertx.parsing.TaggedResponseProcessor;
+import net.bluemind.imap.vertx.parsing.VoidTaggedResponseProcessor;
+import net.bluemind.imap.vertx.stream.Base64Decoder;
+import net.bluemind.imap.vertx.stream.QuotedPrintableDecoder;
+import net.bluemind.imap.vertx.stream.WriteToRead;
 import net.bluemind.lib.jutf7.UTF7Converter;
-import net.bluemind.lib.vertx.VertxPlatform;
 
-public class VXStoreClient {
+public class VXStoreClient implements IAsyncStoreClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(VXStoreClient.class);
 
-	private static class ConnectionState {
-		private final Context context;
-		private final NetSocket socket;
-
-		public ConnectionState(Context c, NetSocket s) {
-			this.context = c;
-			this.socket = s;
-		}
-	}
-
 	private final String login;
 	private final String password;
-	private final NetClient client;
-	private final CompletableFuture<NetSocket> connectFuture;
-	private final CompletableFuture<Void> closeFuture;
-	private final CompletableFuture<ConnectionState> setupFuture;
-	private final ImapRecordParser recordParser;
-	private long tags = 0;
+	private int tags = 0;
 	private String selected;
-	private Vertx vertx;
+	private ImapChunkProcessor packetProc;
+	private Optional<INetworkCon> sock;
+	private final String host;
+	private final int port;
+	private final IConnectionSupport conSupport;
 
-	public static VXStoreClient create(String host, int port, String login, String password) {
-		CompletableFuture<VXStoreClient> cli = new CompletableFuture<>();
-		Vertx vx = VertxPlatform.getVertx();
-		vx.setTimer(1, tid -> {
-			try {
-				VXStoreClient store = new VXStoreClient(vx, host, port, login, password);
-				cli.complete(store);
-			} catch (Exception e) {
-				cli.completeExceptionally(e);
-			}
-		});
-		try {
-			return cli.get(20, TimeUnit.SECONDS);
-		} catch (Exception e) {
-			throw new StoreClientException(e);
-		}
-	}
-
-	public VXStoreClient(Vertx vertx, String host, int port, String login, String password) {
-		this.vertx = vertx;
+	public VXStoreClient(IConnectionSupport conSupport, String host, int port, String login, String password) {
 		this.login = login;
 		this.password = password;
-		this.connectFuture = new CompletableFuture<>();
-		this.closeFuture = new CompletableFuture<>();
-		this.setupFuture = new CompletableFuture<>();
-
-		client = vertx.createNetClient(new NetClientOptions().setReuseAddress(true).setTcpNoDelay(true)
-				.setTcpKeepAlive(true).setUsePooledBuffers(true));
-		logger.debug("NetClient created {}", client);
-		recordParser = new ImapRecordParser();
-
-		ImapProtocolListener<ConnectionState> bannerListener = new ImapProtocolListener<ConnectionState>(setupFuture) {
-
-			@Override
-			public void onStatusResponse(ByteBuf banner) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Got banner {}", banner.toString(StandardCharsets.US_ASCII));
-				}
-				future.complete(new ConnectionState(Vertx.currentContext(), connectFuture.join()));
-			}
-
-		};
-		recordParser.listener(bannerListener);
-
-		logger.info("Connecting to {}:{}...", host, port);
-		client.connect(port, host, ar -> {
-			if (ar.succeeded()) {
-				NetSocket sock = ar.result();
-				sock.handler(recordParser);
-				sock.closeHandler(v -> {
-					logger.info("Closed.");
-					closeFuture.complete(null);
-				});
-				logger.info("IMAP connection setup is complete, on {}", sock);
-				connectFuture.complete(sock);
-			} else {
-				connectFuture.completeExceptionally(ar.cause());
-			}
-		});
-
+		this.conSupport = conSupport;
+		this.host = host;
+		this.port = port;
 	}
 
-	public Vertx vertx() {
-		return vertx;
-	}
-
-	/**
-	 * @param cmdCons  the consumers receives a {@link StringBuilder} with the IMAP
-	 *                 tag + space char already added
-	 * @param listener the listener receives the spurious responses (eg. * FETCH
-	 *                 42...)
-	 * @return
-	 */
-	private <T> CompletableFuture<ImapResponseStatus<T>> run(Consumer<StringBuilder> cmdCons,
-			ImapProtocolListener<T> listener) {
-		String tag = "V" + (++tags);
-		TagListener<T> tl = new TagListener<>(tag, listener);
-		setupFuture.thenAccept(conState -> {
-			recordParser.listener(tl);
-			conState.context.runOnContext(v -> {
-				String fullCmd = tagged(tag, cmdCons);
-				conState.socket.write(fullCmd);
-			});
-		});
-		return tl.future;
-	}
-
-	private <T> CompletableFuture<ImapResponseStatus<T>> runLiteralAtEnd(Consumer<StringBuilder> cmdCons,
-			ImapProtocolListener<T> listener, ReadStream<Buffer> literal) {
-		String tag = "V" + (++tags);
-
-		Runnable onGoAhead = () -> setupFuture.thenAccept(conState -> {
-			conState.context.runOnContext(v -> {
-				literal.pipe().endOnSuccess(false).to(conState.socket, ar -> {
-					logger.debug("Finished streaming literal {}.", literal);
-					conState.socket.write("\r\n");
-				});
-			});
-		});
-
-		TagOrGoAheadListener<T> tl = new TagOrGoAheadListener<>(tag, listener, onGoAhead);
-		setupFuture.thenAccept(conState -> {
-			recordParser.listener(tl);
-			conState.context.runOnContext(v -> {
-				String fullCmd = tagged(tag, cmdCons);
-				conState.socket.write(fullCmd);
-			});
-		});
-		return tl.future;
-	}
-
-	private String tagged(String tag, Consumer<StringBuilder> sbCons) {
-		StringBuilder sb = new StringBuilder(tag);
-		sb.append(' ');
-		sbCons.accept(sb);
-		sb.append("\r\n");
-		return sb.toString();
+	private String tagged(String com) {
+		return "V" + (++tags) + " " + com + "\r\n";
 	}
 
 	public CompletableFuture<ImapResponseStatus<Void>> login() {
-		return run(sb -> {
-			sb.append("LOGIN ").append(login).append(" \"").append(password).append("\"");
-		}, ImapProtocolListener.noExpectations());
+		return login(v -> {
+			// socket closed
+		});
+	}
+
+	public CompletableFuture<ImapResponseStatus<Void>> login(Handler<Void> closeHandler) {
+		String cmd = tagged("LOGIN " + login + " \"" + password + "\"");
+
+		this.sock = Optional.empty();
+
+		logger.info("Connecting to {}:{}...", host, port);
+		this.packetProc = new ImapChunkProcessor();
+		TaggedResponseProcessor<String> banner = new TaggedResponseProcessor<>(new BannerPayloadBuilder());
+		packetProc.setDelegate(banner);
+		VoidTaggedResponseProcessor loginProc = new VoidTaggedResponseProcessor();
+
+		conSupport.connect(port, host, ar -> {
+			if (ar.failed()) {
+				loginProc.future().completeExceptionally(ar.cause());
+			} else {
+				INetworkCon nc = ar.result();
+				sock = Optional.of(nc);
+				ImapChunker chunker = new ImapChunker(nc.read());
+				Pump.pump(chunker, packetProc).start();
+				banner.future().thenAccept(bannerResp -> {
+					packetProc.setDelegate(loginProc);
+					logger.info("IMAP connection setup is complete {}", bannerResp.result);
+					nc.write(cmd);
+				});
+			}
+		});
+
+		return loginProc.future().thenApply(ir -> {
+			packetProc.setDelegate(null);
+			return ir;
+		});
 	}
 
 	private static final CompletableFuture<ImapResponseStatus<SelectResponse>> SELECTED = CompletableFuture
 			.completedFuture(new ImapResponseStatus<SelectResponse>(Status.Ok, new SelectResponse()));
 
+	@Override
 	public CompletableFuture<ImapResponseStatus<SelectResponse>> select(String mailbox) {
 		if (selected != null && selected.equals(mailbox)) {
 			return SELECTED;
 		}
-		String quotedUtf7 = UTF7Converter.encode(mailbox);
-		CompletableFuture<ImapResponseStatus<SelectResponse>> promise = run(sb -> {
-			sb.append("SELECT \"").append(quotedUtf7).append("\"");
-		}, new SelectListener());
-		return promise.thenCompose(resp -> {
-			if (resp.status != Status.Ok) {
-				logger.warn("Selection failed, cmd was: SELECT \"{}\"", quotedUtf7);
-				selected = null;
-			} else {
-				selected = mailbox;
-			}
-			return promise;
+		TaggedResponseProcessor<SelectResponse> tagged = new TaggedResponseProcessor<>(new SelectPayloadBuilder());
+		sock.ifPresent(ns -> {
+			String quotedUtf7 = UTF7Converter.encode(mailbox);
+			String cmd = tagged("SELECT \"" + quotedUtf7 + "\"");
+			packetProc.setDelegate(tagged);
+			ns.write(cmd);
+		});
+		return tagged.future().thenApply((ImapResponseStatus<SelectResponse> msg) -> {
+			packetProc.setDelegate(null);
+			return msg;
 		});
 	}
 
-	public CompletableFuture<ImapResponseStatus<FetchResponse>> fetch(long uid, String part) {
-		return run(sb -> {
-			sb.append("UID FETCH ").append(uid).append(" (BODY.PEEK[").append(part).append("])");
-		}, new FetchListener());
+	public enum Decoder {
+		NONE, B64, QP;
+
+		public WriteStream<Buffer> withDelegate(WriteStream<Buffer> buf) {
+			switch (this) {
+			case B64:
+				return new Base64Decoder(buf);
+			case QP:
+				return new QuotedPrintableDecoder(buf);
+			default:
+				return buf;
+			}
+		}
+
+		public static Decoder fromEncoding(String encoding) {
+			if (encoding == null) {
+				return NONE;
+			}
+
+			switch (encoding.toLowerCase()) {
+			case "base64":
+				return B64;
+			case "quoted-printable":
+				return QP;
+			default:
+				return NONE;
+			}
+		}
+
 	}
 
+	@Override
+	public CompletableFuture<Void> fetch(long uid, String part, WriteStream<Buffer> target, Decoder dec) {
+		StreamSinkProcessor proc = new StreamSinkProcessor(dec.withDelegate(target));
+		sock.ifPresent(ns -> {
+			String cmd = tagged("UID FETCH " + uid + " (UID BODY.PEEK[" + part + "])");
+			packetProc.setDelegate(proc);
+			ns.write(cmd);
+		});
+		return proc.future().thenApply(r -> {
+			// packetProc.setDelegate(null);
+			return r;
+		});
+	}
+
+	@Override
+	public ReadStream<Buffer> fetch(long uid, String part, Decoder dec) {
+		WriteToRead<Buffer> convert = new WriteToRead<>();
+		fetch(uid, part, convert, dec);
+		return convert;
+	}
+
+	@Override
 	public CompletableFuture<ImapResponseStatus<AppendResponse>> append(String mailbox, Date receivedDate,
 			Collection<String> flags, int streamSize, ReadStream<Buffer> eml) {
-		String quotedUtf7 = UTF7Converter.encode(mailbox);
-		return runLiteralAtEnd(sb -> {
-			sb.append("APPEND \"").append(quotedUtf7).append("\" ");
-			AppendCommandHelper.flags(sb, flags);
-			AppendCommandHelper.deliveryDate(sb, receivedDate);
-			sb.append("{").append(streamSize).append("}");
-		}, new AppendListener(), eml);
+
+		StringBuilder sb = new StringBuilder("V").append(++tags);
+		sb.append(" APPEND \"").append(UTF7Converter.encode(mailbox)).append("\" ");
+		AppendCommandHelper.flags(sb, flags);
+		AppendCommandHelper.deliveryDate(sb, receivedDate);
+		sb.append("{").append(streamSize).append("+}\r\n");
+		String cmd = sb.toString();
+
+		TaggedResponseProcessor<AppendResponse> proc = new TaggedResponseProcessor<>(new AppendPayloadBuilder());
+		sock.ifPresent(ns -> {
+			packetProc.setDelegate(proc);
+			ns.write(cmd);
+			eml.pipe().endOnComplete(false).to(ns.write(), comp -> ns.write("\r\n"));
+			eml.resume();
+		});
+		return proc.future().thenApply(r -> {
+			packetProc.setDelegate(null);
+			return r;
+		});
 	}
 
+	@Override
 	public CompletableFuture<Void> close() {
-		if (!connectFuture.isDone()) {
-			client.close();
-			connectFuture.cancel(true);
-			closeFuture.cancel(true);
+		if (!sock.isPresent()) {
+			logger.warn("Missing sock {} for closing {}", sock, this);
 			return CompletableFuture.completedFuture(null);
-		} else {
-			return connectFuture.thenCompose(sock -> {
-				sock.close(ar -> client.close());
-				return closeFuture;
-			});
 		}
+		CompletableFuture<Void> ret = new CompletableFuture<>();
+		sock.ifPresent(s -> s.close(ar -> {
+			if (!ar.succeeded()) {
+				logger.error("error closing {}", ar.cause());
+			}
+			ret.complete(null);
+			sock = Optional.empty();
+		}));
+		return ret;
 	}
 
+	@Override
 	public boolean isClosed() {
-		return closeFuture.isDone();
+		return !sock.isPresent();
 	}
 
 }

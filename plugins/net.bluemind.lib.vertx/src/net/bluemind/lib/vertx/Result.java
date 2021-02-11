@@ -58,7 +58,7 @@ public class Result<T> implements AsyncResult<T> {
 		return new Result<>(null, null);
 	}
 
-	public static AsyncResult<Void> fail(Throwable cause) {
+	public static <T> AsyncResult<T> fail(Throwable cause) {
 		Objects.requireNonNull(cause);
 		return new Result<>(null, cause);
 	}

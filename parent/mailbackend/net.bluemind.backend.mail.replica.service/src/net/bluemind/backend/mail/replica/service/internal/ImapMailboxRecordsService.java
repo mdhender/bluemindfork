@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,17 +37,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.apache.james.mime4j.codec.Base64InputStream;
-import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
 import org.apache.james.mime4j.dom.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +54,6 @@ import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
@@ -100,8 +97,10 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.utils.ReadInputStream;
+import net.bluemind.core.rest.vertx.BufferReadStream;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.core.utils.ThreadContextHelper;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
@@ -109,8 +108,12 @@ import net.bluemind.imap.SearchQuery;
 import net.bluemind.imap.TaggedResult;
 import net.bluemind.imap.vertx.ImapResponseStatus;
 import net.bluemind.imap.vertx.ImapResponseStatus.Status;
+import net.bluemind.imap.vertx.VXStoreClient;
+import net.bluemind.imap.vertx.VXStoreClient.Decoder;
 import net.bluemind.imap.vertx.cmd.AppendResponse;
-import net.bluemind.imap.vertx.cmd.FetchResponse;
+import net.bluemind.imap.vertx.cmd.SelectResponse;
+import net.bluemind.imap.vertx.stream.EmptyStream;
+import net.bluemind.imap.vertx.stream.WrappedOutputStream;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.Mime4JHelper.SizedStream;
 
@@ -313,23 +316,32 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 					JsonUtils.asString(expectedStruct));
 		}
 		PartsWalker<Object> walker = new PartsWalker<>(null);
+		CompletableFuture<Void> root = CompletableFuture.completedFuture(null);
+		AtomicReference<CompletableFuture<Void>> ref = new AtomicReference<>(root);
 		walker.visit((Object c, Part p) -> {
 			logger.debug("Prepare for part @ {}", p.address);
 			if (isImapAddress(p.address)) {
 				logger.debug("*** preload part {}", p.address);
-				ByteBuf decodedFetch = fetchAndDecode(current.value.imapUid, p.address, p.encoding);
 				String replacedPartUid = UUID.randomUUID().toString();
 				File output = partFile(replacedPartUid);
-				try (OutputStream out = Files.newOutputStream(output.toPath());
-						ByteBufInputStream in = new ByteBufInputStream(decodedFetch, true)) {
-					ByteStreams.copy(in, out);
-					logger.info("Replaced imap part address '{}' with '{}'", p.address, replacedPartUid);
+				ref.set(ref.get().thenCompose(v -> {
+					logger.info("Fetching {} part {}...", current.value.imapUid, p.address);
+					CompletableFuture<Void> sinkProm = sink(current.value.imapUid, p.address, p.encoding,
+							output.toPath());
 					p.address = replacedPartUid;
-				} catch (Exception e) {
-					throw new ServerFault(e);
-				}
+					return ThreadContextHelper.inWorkerThread(sinkProm);
+				}));
 			}
 		}, expectedStruct);
+
+		try {
+			ref.get().get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+		} catch (TimeoutException e) {
+			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
+		} catch (InterruptedException | ExecutionException e1) {
+			throw new ServerFault(e1);
+		}
+
 		SizedStream updatedEml = createEmlStructure(current.internalId, current.value.body.guid, newValue.body);
 		CompletableFuture<ItemChange> completion = ReplicationEvents.onRecordChanged(mailboxUniqueId,
 				current.value.imapUid);
@@ -337,11 +349,15 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		ImapResponseStatus<AppendResponse> appended = imapContext.withImapClient((sc, fast) -> {
 
 			List<String> allFlags = newValue.flags.stream().map(item -> item.flag).collect(Collectors.toList());
-			ReadStream<Buffer> asStream = new VertxInputReadStream(fast.vertx(), updatedEml.input);
+
+			Buffer buf = Buffer.buffer(Unpooled.wrappedBuffer(ByteStreams.toByteArray(updatedEml.input)));
+			updatedEml.input.close();
+			BufferReadStream asStream = new BufferReadStream(buf);
+
 			CompletableFuture<ImapResponseStatus<AppendResponse>> append = fast.append(imapFolder, newValue.body.date,
 					allFlags, updatedEml.size, asStream);
 			try {
-				return append.thenCompose(appendResult -> {
+				return ThreadContextHelper.inWorkerThread(append.thenCompose(appendResult -> {
 					FlagsList fl = new FlagsList();
 					fl.add(Flag.DELETED);
 					fl.add(Flag.SEEN);
@@ -358,7 +374,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 						cf.completeExceptionally(ie);
 						return cf;
 					}
-				}).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+				})).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			} catch (TimeoutException e) {
 				throw new ServerFault("Failed to append email. Timeout occured", ErrorCode.TIMEOUT);
 			}
@@ -570,59 +586,43 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	@Override
 	public Stream fetchComplete(long imapUid) {
 		rbac.check(Verb.Read.name());
-		return fetch(imapUid, "", null, null, null, null);
+		return super.fetchComplete(imapUid);
 	}
 
 	@Override
 	public Stream fetch(long imapUid, String address, String encoding, String mime, String charset, String filename) {
 		rbac.check(Verb.Read.name());
-		return VertxStream.stream(Buffer.buffer(fetchAndDecode(imapUid, address, encoding)), mime, charset, filename);
+		return VertxStream.stream(fetchAndDecode(imapUid, address, encoding), mime, charset, filename);
 	}
 
-	private InputStream dec(ByteBuf downloaded, String encoding) {
-		InputStream ret = new ByteBufInputStream(downloaded, true);
-		if (encoding.equals("base64")) {
-			ret = new Base64InputStream(ret);
-		} else if (encoding.equals("quoted-printable")) {
-			ret = new QuotedPrintableInputStream(ret);
-		}
-		return ret;
+	private ReadStream<Buffer> fetchAndDecode(long imapUid, String address, String encoding) {
+		VXStoreClient.Decoder dec = Decoder.fromEncoding(encoding);
+		return fetch(imapUid, address, dec);
 	}
 
-	private ByteBuf fetchAndDecode(long imapUid, String address, String encoding) {
-		ByteBuf downloaded = fetch(imapUid, address);
-
-		ByteBuf returned = downloaded;
-		if (encoding != null) {
-			try (InputStream in = dec(downloaded, encoding)) {
-				returned = Unpooled.wrappedBuffer(ByteStreams.toByteArray(in));
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-				returned = Unpooled.EMPTY_BUFFER;
-			}
-		}
-		return returned;
-	}
-
-	private ByteBuf fetch(long imapUid, String address) {
+	private ReadStream<Buffer> fetch(long imapUid, String address, Decoder dec) {
 		return imapContext.withImapClient((sc, fast) -> {
-			try {
-				ImapResponseStatus<FetchResponse> fetchResp = null;
-				fetchResp = fast.select(imapFolder).thenCompose(selected -> {
-					if (selected.status == Status.Ok) {
-						return fast.fetch(imapUid, address);
-					}
-					logger.warn("Selection status is invalid for folder '{}'", imapFolder);
-					ImapResponseStatus<FetchResponse> emptyResp = new ImapResponseStatus<>(Status.Ok,
-							new FetchResponse(Unpooled.EMPTY_BUFFER));
-					return CompletableFuture.completedFuture(emptyResp);
-				}).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-				return fetchResp.result.get().data;
-			} catch (TimeoutException e) {
-				throw new ServerFault("Failed to fetch " + imapUid + " .Timeout occured", ErrorCode.TIMEOUT);
-			} catch (CompletionException ce) {
-				logger.error(ce.getMessage());
-				return Unpooled.EMPTY_BUFFER;
+			ImapResponseStatus<SelectResponse> selectResult = fast.select(imapFolder).get(DEFAULT_TIMEOUT,
+					TimeUnit.SECONDS);
+			if (selectResult.status == Status.Ok) {
+				return fast.fetch(imapUid, address, dec);
+			} else {
+				return new EmptyStream();
+			}
+		});
+	}
+
+	private CompletableFuture<Void> sink(long imapUid, String address, String encoding, Path out) {
+		VXStoreClient.Decoder dec = Decoder.fromEncoding(encoding);
+
+		return imapContext.withImapClient((sc, fast) -> {
+			ImapResponseStatus<SelectResponse> selectResult = fast.select(imapFolder).get(DEFAULT_TIMEOUT,
+					TimeUnit.SECONDS);
+			if (selectResult.status == Status.Ok) {
+				WrappedOutputStream wrapp = new WrappedOutputStream(out);
+				return fast.fetch(imapUid, address, wrapp, dec);
+			} else {
+				return CompletableFuture.completedFuture(null);
 			}
 		});
 	}
@@ -811,21 +811,28 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 		logger.debug("Decomposing parts into tmp files for EML (id=" + id + ", imapUid=" + imapUid + ")");
 		PartsWalker<Object> walker = new PartsWalker<>(null);
+		CompletableFuture<Void> root = CompletableFuture.completedFuture(null);
+		AtomicReference<CompletableFuture<Void>> ref = new AtomicReference<>(root);
 		walker.visit((Object c, Part p) -> {
 			if (!p.mime.startsWith("multipart/")) {
-				ByteBuf decodedFetch = fetchAndDecode(imapUid, p.address, p.encoding);
 				String replacedPartUid = UUID.randomUUID().toString();
 				File output = partFile(replacedPartUid);
-				try (OutputStream out = Files.newOutputStream(output.toPath());
-						ByteBufInputStream in = new ByteBufInputStream(decodedFetch, true)) {
-					ByteStreams.copy(in, out);
-					logger.debug("Replaced imap part address '{}' with '{}'", p.address, replacedPartUid);
+				ref.set(ref.get().thenCompose(v -> {
+					logger.info("Fetching {} part {}...", imapUid, p.address);
+					CompletableFuture<Void> sinkProm = sink(imapUid, p.address, p.encoding, output.toPath());
 					p.address = replacedPartUid;
-				} catch (Exception e) {
-					throw new ServerFault(e);
-				}
+					return ThreadContextHelper.inWorkerThread(sinkProm);
+				}));
 			}
 		}, adapted.value.body.structure);
+
+		try {
+			ref.get().get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+		} catch (TimeoutException e) {
+			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
+		} catch (InterruptedException | ExecutionException e1) {
+			throw new ServerFault(e1);
+		}
 
 		return adapted;
 	}

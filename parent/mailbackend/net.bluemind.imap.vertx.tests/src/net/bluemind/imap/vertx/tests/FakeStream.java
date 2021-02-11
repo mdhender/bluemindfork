@@ -17,6 +17,8 @@
   */
 package net.bluemind.imap.vertx.tests;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -29,16 +31,26 @@ public class FakeStream implements ReadStream<Buffer> {
 	private boolean paused;
 	private byte[] payload;
 	private Vertx vx;
+	private int length;
+	private AtomicBoolean sent;
 
 	public FakeStream(Vertx vx, byte[] payload) {
 		this.payload = payload;
 		this.vx = vx;
+		this.length = payload.length;
+		sent = new AtomicBoolean();
+	}
+
+	public int length() {
+		return length;
 	}
 
 	@Override
 	public FakeStream handler(Handler<Buffer> handler) {
 		this.dh = handler;
-		gogoIfSet();
+		if (handler != null) {
+			gogoIfSet();
+		}
 		return this;
 	}
 
@@ -47,11 +59,15 @@ public class FakeStream implements ReadStream<Buffer> {
 			return;
 		}
 		if (dh != null && end != null) {
-			System.out.println(Thread.currentThread() + " GOGO stream");
-			vx.runOnContext(gg -> {
-				dh.handle(Buffer.buffer(payload));
-				end.handle(null);
-			});
+			boolean payloadSent = sent.getAndSet(true);
+			final Handler<Buffer> dhSafe = dh;
+			final Handler<Void> endSafe = end;
+			if (!payloadSent) {
+				vx.runOnContext(gg -> {
+					dhSafe.handle(Buffer.buffer(payload));
+					endSafe.handle(null);
+				});
+			}
 		}
 	}
 

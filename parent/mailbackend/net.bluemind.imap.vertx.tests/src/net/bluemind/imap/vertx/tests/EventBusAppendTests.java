@@ -15,16 +15,16 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.imap.vertx.cmd;
+package net.bluemind.imap.vertx.tests;
 
-import io.netty.buffer.ByteBuf;
+import net.bluemind.imap.vertx.VXStoreClient;
+import net.bluemind.lib.vertx.VertxPlatform;
 
-public class FetchResponse {
+public class EventBusAppendTests extends AppendTests {
 
-	public final ByteBuf data;
-
-	public FetchResponse(ByteBuf d) {
-		this.data = d;
+	@Override
+	public VXStoreClient client() {
+		return eventBusClient(VertxPlatform.getVertx());
 	}
 
 }

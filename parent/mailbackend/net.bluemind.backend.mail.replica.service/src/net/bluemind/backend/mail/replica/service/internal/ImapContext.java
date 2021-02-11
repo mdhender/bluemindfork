@@ -18,7 +18,6 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -39,7 +38,9 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.imap.StoreClient;
+import net.bluemind.imap.vertx.IAsyncStoreClient;
 import net.bluemind.imap.vertx.VXStoreClient;
+import net.bluemind.imap.vertx.con.EventBusConnectionSupport;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
@@ -76,6 +77,7 @@ public class ImapContext {
 						});
 					}
 				}) //
+				.maximumSize(100)//
 				.recordStats()//
 				.build();
 		VertxPlatform.getVertx().setPeriodic(30000, tid -> ret.cleanUp());
@@ -101,7 +103,8 @@ public class ImapContext {
 		public PoolableStoreClient(String hostname, int port, String login, String password) {
 			super(hostname, port, login, password, 15);
 			this.lock = new ReentrantLock();
-			this.fastFetch = VXStoreClient.create(hostname, port, login, password);
+			this.fastFetch = new VXStoreClient(new EventBusConnectionSupport(VertxPlatform.eventBus()), hostname, port,
+					login, password);
 		}
 
 		public void close() {
@@ -124,17 +127,17 @@ public class ImapContext {
 			return imapClient.get();
 		} else {
 			PoolableStoreClient sc = new PoolableStoreClient(server, 1143, latd, sid);
-			CompletableFuture<Optional<PoolableStoreClient>> prom = sc.fastFetch.login()
-					.thenApply(resp -> Optional.of(sc));
 			boolean minaClientOk = sc.login();
 			try {
-				imapClient = prom.get(10, TimeUnit.SECONDS);
 				if (!minaClientOk) {
 					sc.closeImpl();
 					throw new ServerFault("Failed to establish both imap connections for " + latd);
 				}
+				sc.fastFetch.login().get(10, TimeUnit.SECONDS);
 				logger.info("[{}] Imap init of both clients is complete.", latd);
+				imapClient = Optional.of(sc);
 			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
 				sc.closeImpl();
 				throw new ServerFault(e);
 			}
@@ -144,7 +147,7 @@ public class ImapContext {
 
 	@FunctionalInterface
 	public static interface ImapClientConsumer<T> {
-		T accept(StoreClient sc, VXStoreClient fast) throws Exception;
+		T accept(StoreClient sc, IAsyncStoreClient fast) throws Exception;
 	}
 
 	public <T> T withImapClient(ImapClientConsumer<T> cons) {

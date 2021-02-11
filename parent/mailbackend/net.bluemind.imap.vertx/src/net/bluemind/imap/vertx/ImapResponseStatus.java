@@ -23,6 +23,19 @@ public class ImapResponseStatus<T> {
 
 	public static enum Status {
 		Ok, No, Bad;
+
+		public static final Status of(String s) {
+			char c = s.charAt(0);
+			switch (c) {
+			case 'O':
+				return Ok;
+			case 'N':
+				return No;
+			case 'B':
+			default:
+				return Bad;
+			}
+		}
 	}
 
 	public Status status;
