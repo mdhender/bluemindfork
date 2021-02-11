@@ -88,8 +88,8 @@ import { mapGetters, mapMutations, mapState } from "vuex";
 import debounce from "lodash.debounce";
 import GlobalEvents from "vue-global-events";
 import { SearchHelper } from "../store.deprecated/SearchHelper";
-import { FolderAdaptor } from "../store/folders/helpers/FolderAdaptor";
 import { MY_SENT, MY_INBOX, MY_TRASH } from "~getters";
+import { isMailshareRoot } from "~model/folder";
 import { MailboxType } from "~model/mailbox";
 import { MessageListStatus } from "../store/messageList";
 import { SET_MESSAGE_LIST_STATUS } from "~mutations";
@@ -248,7 +248,7 @@ export default {
             }
         },
         isMailshareRootFolder(folder) {
-            return FolderAdaptor.isMailshareRoot(folder, this.mailboxes[folder.mailboxRef.key]);
+            return isMailshareRoot(folder, this.mailboxes[folder.mailboxRef.key]);
         },
         isFolderOfMailshare(folder) {
             return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
