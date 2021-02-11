@@ -73,7 +73,7 @@ function customOnTagAttr(tag, name, value) {
     }
     // remove viewport height based styles
     if (/^style$/i.test(name)) {
-        const newValue = value.replaceAll(/\s*(min-)?(max-)?height\s*:\s*[0-9]+vh\s*;/g, "");
+        const newValue = value.replace(/\s*(min-)?(max-)?height\s*:\s*[0-9]+vh\s*;/g, "");
         return name + '="' + newValue + '"';
     }
     return xss.onTagAttr(tag, name, value);
