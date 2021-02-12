@@ -114,7 +114,15 @@ public class SieveWriter {
 			return Optional.empty();
 		}
 		String defaultEmail = mbox.value.defaultEmail().address;
-		String from = displayName == null ? defaultEmail : String.format("%s <%s>", displayName, defaultEmail);
+		String from = defaultEmail;
+		if (displayName != null) {
+			try {
+				from = String.format("%s <%s>", MimeUtility.encodeWord(displayName), defaultEmail);
+			} catch (UnsupportedEncodingException e) {
+				logger.error("Unable to encode display name '{}' in vacation sieve, fallback to address only",
+						displayName, e);
+			}
+		}
 		return Optional.of(from);
 	}
 
