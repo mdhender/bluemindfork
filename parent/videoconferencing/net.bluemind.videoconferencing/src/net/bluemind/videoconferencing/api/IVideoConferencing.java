@@ -17,6 +17,9 @@
   */
 package net.bluemind.videoconferencing.api;
 
+import java.util.Map;
+
+import net.bluemind.core.rest.BmContext;
 import net.bluemind.icalendar.api.ICalendarElement;
 
 public interface IVideoConferencing {
@@ -25,8 +28,10 @@ public interface IVideoConferencing {
 
 	public String name();
 
-	public ICalendarElement add(ICalendarElement vevent);
+	public ICalendarElement add(BmContext context, ICalendarElement vevent);
 
-	public ICalendarElement remove(ICalendarElement vevent);
+	public ICalendarElement remove(BmContext context, ICalendarElement vevent);
+
+	public String getUrl(Map<String, String> resourceSettings);
 
 }

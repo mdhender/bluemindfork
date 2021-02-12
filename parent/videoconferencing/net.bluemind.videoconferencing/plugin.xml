@@ -13,5 +13,11 @@
       <sanitizerfactory
             implementation="net.bluemind.videoconferencing.resourcetype.VideoConferencingResourceTypeSanitizer$VideoConferencingResourceTypeSanitizerFactory"></sanitizerfactory>
    </extension>
+   <extension
+         point="net.bluemind.resource.helper">
+      <templatehelper
+            impl="net.bluemind.videoconferencing.template.VideoConferencingTemplateHelper">
+      </templatehelper>
+   </extension>
 
 </plugin>
