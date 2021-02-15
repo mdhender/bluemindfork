@@ -59,12 +59,12 @@ if [ $1 -eq 1 ]; then
     [ -d /run/systemd/system ] && systemctl start bm-webserver
 fi
 
-%triggerin -p /bin/bash -- bm-setup-wizard, bm-installation-wizard, bm-admin-console, bm-calendar, bm-connector-thunderbird, bm-default-app, bm-plugin-admin-console-ldap-import, bm-plugin-admin-console-ad-import, bm-plugin-webserver-dav, bm-settings, bm-webmail, bm-autodiscover, bm-chooser, bm-contact, bm-im, bm-plugin-webserver-cti, bm-push, bm-todolist, bm-plugin-webserver-filehosting, bm-doc
+%triggerin -p /bin/bash -- bm-setup-wizard, bm-installation-wizard, bm-admin-console, bm-calendar, bm-connector-thunderbird, bm-default-app, bm-plugin-admin-console-ldap-import, bm-plugin-admin-console-ad-import, bm-plugin-webserver-dav, bm-settings, bm-webmail, bm-autodiscover, bm-chooser, bm-contact, bm-im, bm-plugin-webserver-cti, bm-push, bm-todolist, bm-plugin-webserver-filehosting, bm-doc, bm-mail-app
 [ $1 -ne 1 ] && exit 0
 if [ $2 -eq 1 ]; then
     [ -d /run/systemd/system ] && systemctl restart bm-webserver
 fi
 
-%triggerpostun -p /bin/bash -- bm-setup-wizard, bm-installation-wizard, bm-admin-console, bm-calendar, bm-connector-thunderbird, bm-default-app, bm-plugin-admin-console-ldap-import, bm-plugin-admin-console-ad-import, bm-plugin-webserver-dav, bm-settings, bm-webmail, bm-autodiscover, bm-chooser, bm-contact, bm-im, bm-plugin-webserver-cti, bm-push, bm-todolist, bm-plugin-webserver-filehosting, bm-doc
+%triggerpostun -p /bin/bash -- bm-setup-wizard, bm-installation-wizard, bm-admin-console, bm-calendar, bm-connector-thunderbird, bm-default-app, bm-plugin-admin-console-ldap-import, bm-plugin-admin-console-ad-import, bm-plugin-webserver-dav, bm-settings, bm-webmail, bm-autodiscover, bm-chooser, bm-contact, bm-im, bm-plugin-webserver-cti, bm-push, bm-todolist, bm-plugin-webserver-filehosting, bm-doc, bm-mail-app
 [ $1 -ne 1 ] && exit 0
 [ $2 -lt 2 ] && [ -d /run/systemd/system ] && systemctl restart bm-webserver
