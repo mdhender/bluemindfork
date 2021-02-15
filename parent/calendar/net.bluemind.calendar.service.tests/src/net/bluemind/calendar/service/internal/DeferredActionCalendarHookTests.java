@@ -207,9 +207,9 @@ public class DeferredActionCalendarHookTests {
 		defaultVEvent.main.rrule = rrule;
 
 		ZoneId tz = ZoneId.of("Europe/Paris");
-		BmDateTime ex1 = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 13, 8, 0, 0, 0, tz));
-		BmDateTime ex2 = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 14, 8, 0, 0, 0, tz));
-		BmDateTime ex3 = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 15, 8, 0, 0, 0, tz));
+		BmDateTime ex1 = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 8, 0, 0, 0, tz));
+		BmDateTime ex2 = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 14, 8, 0, 0, 0, tz));
+		BmDateTime ex3 = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 15, 8, 0, 0, 0, tz));
 		defaultVEvent.main.exdate = new HashSet<>(Arrays.asList(ex1, ex2, ex3));
 
 		CompletableFuture<Void> wait = registerOnHook("uid2");
@@ -220,7 +220,7 @@ public class DeferredActionCalendarHookTests {
 				new Date(200, 0, 0).getTime());
 		assertEquals(1, byActionId.size());
 
-		BmDateTime expected = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 16, 8, 0, 0, 0, tz));
+		BmDateTime expected = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 16, 8, 0, 0, 0, tz));
 		checkDate(expected, byActionId, 120);
 	}
 
@@ -407,7 +407,7 @@ public class DeferredActionCalendarHookTests {
 
 		VEventSeries defaultVEvent = defaultVEvent();
 		ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");
-		BmDateTime recurId = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 14, 6, 0, 0, 0, tz));
+		BmDateTime recurId = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 14, 6, 0, 0, 0, tz));
 		defaultVEvent.occurrences = Arrays.asList(VEventOccurrence.fromEvent(defaultVEvent.main, recurId));
 		defaultVEvent.main = null;
 
@@ -424,7 +424,7 @@ public class DeferredActionCalendarHookTests {
 		DeferredAction action = byActionId.get(0).value;
 		assertEquals(EventDeferredAction.ACTION_ID, action.actionId);
 		assertEquals("calendar:Default:testuser#uid1", action.reference);
-		assertEquals("2021-02-14T06:00:00.000+07:00", action.configuration.get("recurid"));
+		assertEquals("2022-02-14T06:00:00.000+07:00", action.configuration.get("recurid"));
 
 	}
 
@@ -483,7 +483,7 @@ public class DeferredActionCalendarHookTests {
 
 		ZoneId tz = ZoneId.of("Europe/Paris");
 		VEventSeries event = defaultVEvent();
-		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 13, 11, 0, 0, 0, tz));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 11, 0, 0, 0, tz));
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.DAILY;
 		rrule.interval = 3;
@@ -492,8 +492,8 @@ public class DeferredActionCalendarHookTests {
 		addAlarm(event.main, 120);
 
 		VEventOccurrence event2 = recurringVEvent();
-		event2.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 14, 15, 0, 0, 0, tz));
-		event2.recurid = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 14, 11, 0, 0, 0, tz));
+		event2.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 14, 15, 0, 0, 0, tz));
+		event2.recurid = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 14, 11, 0, 0, 0, tz));
 		event.occurrences = Arrays.asList(event2);
 		addAlarm(event2, 240);
 
@@ -557,7 +557,7 @@ public class DeferredActionCalendarHookTests {
 		VEventSeries series = new VEventSeries();
 		VEvent event = new VEvent();
 		ZoneId tz = ZoneId.of("Europe/Paris");
-		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 13, 8, 0, 0, 0, tz));
+		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 8, 0, 0, 0, tz));
 		event.summary = "event " + System.currentTimeMillis();
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
@@ -578,8 +578,8 @@ public class DeferredActionCalendarHookTests {
 	private VEventOccurrence recurringVEvent() {
 		VEventOccurrence event = new VEventOccurrence();
 		ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");
-		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 13, 8, 0, 0, 0, tz));
-		event.recurid = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 13, 10, 0, 0, 0, tz));
+		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 8, 0, 0, 0, tz));
+		event.recurid = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 10, 0, 0, 0, tz));
 		event.summary = "event " + System.currentTimeMillis();
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
