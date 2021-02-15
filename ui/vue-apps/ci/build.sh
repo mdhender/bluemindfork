@@ -66,6 +66,7 @@ else
 fi
 
 yarn install
+yarn add full-icu -W --dev
 rm -f jest.json jest.xml
 yarn test-ci || true
 mv report.xml jest.xml
