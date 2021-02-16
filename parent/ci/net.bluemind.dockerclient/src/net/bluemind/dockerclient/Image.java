@@ -13,6 +13,8 @@ public class Image {
 
 	private String bindName;
 
+	private List<String> capabilities;
+
 	public static class Volume {
 		public Volume() {
 
@@ -39,6 +41,8 @@ public class Image {
 	}
 
 	private List<Volume> volumes = new ArrayList<>();
+
+	private List<Volume> devices = new ArrayList<>();
 
 	public String getContainerConfig() {
 		return containerConfig;
@@ -78,5 +82,17 @@ public class Image {
 
 	public void setVolumes(List<Volume> volumes) {
 		this.volumes = volumes;
+	}
+
+	public void setDevices(List<Volume> devices) {
+		this.devices = devices;
+	}
+
+	public List<Volume> getDevices() {
+		return devices;
+	}
+
+	public List<String> getCapabilities() {
+		return capabilities;
 	}
 }
