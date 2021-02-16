@@ -20,5 +20,6 @@
 		<module>password-sizestrength</module>
 		<module>mailapp</module>
 		<module>ldap-export</module>
+		<module>videoconferencing-jitsi</module>
 	</modules>
 </project>

@@ -70,6 +70,7 @@
 	  <module>bm-connector-thunderbird</module>
 	  <module>bm-maintenance-tools</module>
 	  <module>bm-plugin-admin-console-videoconferencing-jitsi</module>
+	  <module>bm-plugin-core-videoconferencing-jitsi</module>
 	</modules>
 
 	<profiles>

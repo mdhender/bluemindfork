@@ -438,6 +438,8 @@
    <bundle id="net.bluemind.user.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.user.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.utils" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing.jitsi" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.vertx.common" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.webmail.banner.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.webmail.sqlschema" version="4.1.0.qualifier"/>
