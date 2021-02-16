@@ -26,6 +26,7 @@
 		<module>net.bluemind.ui.adminconsole.cti</module>
 		<module>net.bluemind.ui.adminconsole.password.sizestrength</module>
 		<module>net.bluemind.ui.adminconsole.videoconferencing</module>
+		<module>net.bluemind.ui.adminconsole.videoconferencing.jitsi</module>
 	</modules>
 
 </project>

@@ -28,6 +28,7 @@
 		<module>cti</module>
 		<module>filehosting</module>
 		<module>dav</module>
+		<module>adminconsole-videoconferencing-jitsi</module>
 	</modules>
 	<profiles>
 		<profile>

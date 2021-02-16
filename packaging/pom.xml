@@ -69,6 +69,7 @@
       <module>bm-plugin-core-password-sizestrength</module>
 	  <module>bm-connector-thunderbird</module>
 	  <module>bm-maintenance-tools</module>
+	  <module>bm-plugin-admin-console-videoconferencing-jitsi</module>
 	</modules>
 
 	<profiles>
