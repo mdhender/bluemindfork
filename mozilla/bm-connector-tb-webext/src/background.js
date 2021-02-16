@@ -48,7 +48,6 @@ async function main() {
   await browser.ConversionHelper.registerOverlay("chrome://messenger/content/messenger.xhtml", "chrome://bm/content/messenger.xul");
 
   await browser.ConversionHelper.registerOverlay("chrome://messenger/content/addressbook/addressbook.xhtml", "chrome://bm/content/addressbook.xul");
-  await browser.ConversionHelper.registerOverlay("chrome://messenger/content/addressbook/abNewCardDialog.xhtml", "chrome://bm/content/abNewCard.xul");
   await browser.ConversionHelper.registerOverlay("chrome://messenger/content/addressbook/abEditCardDialog.xhtml", "chrome://bm/content/abCard.xul");
   await browser.ConversionHelper.registerOverlay("chrome://messenger/content/addressbook/abEditListDialog.xhtml", "chrome://bm/content/abList.xul");
 

@@ -20,41 +20,6 @@
 
 var { bmUtils, HashMap, BMXPComObject, BmPrefListener, BMError } = ChromeUtils.import("chrome://bm/content/modules/bmUtils.jsm");
 
-var gBMAbCard = {
-    onremove: function() {
-        //GetDirectoryFromURI = GetDirectoryFromURIOriginal;
-    }
-}
-
-/*GetDirectoryFromURIOriginal = GetDirectoryFromURI;
-function GetDirectoryFromURI(uri) {
-    let directory = MailServices.ab.getDirectory(uri);
-    let wrap =  false;
-    let readOnly = false;
-    if (bmUtils.isBmList(directory)) {
-        wrap = true;
-        readOnly = bmUtils.isBmReadOnlyList(directory);
-    } else if (bmUtils.isBmDirectory(directory)) {
-        wrap = true;
-        let local = gEditCard.card.getProperty("bm-local", null);
-        if (local == "true") {
-            let alertOfList = document.getElementById("bmOfList");
-            alertOfList.setAttribute("value", gEditCard.card.getProperty("bm-parent-name", ""));
-            let alertLocal = document.getElementById("bmAlertLocalCard");
-            alertLocal.setAttribute("hidden", false);
-        }
-        readOnly = local == "true" || bmUtils.isBmReadOnlyAddressbook(directory);
-    }
-    if (wrap) {
-        let myDirectory = Components.classes["@blue-mind.net/bmdirwrapper;1"].createInstance().wrappedJSObject;
-        myDirectory.mDirectory = directory;
-        myDirectory.mReadOnly = readOnly;
-        return myDirectory;
-    } else {
-        return directory;
-    }
-}*/
-
 function ShowProps() {
     console.log("ShowProps");
     let disp = document.getElementById("bmProps");
