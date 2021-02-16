@@ -69,6 +69,7 @@ import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.flags.FlagUpdate;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.api.utils.PartsWalker;
+import net.bluemind.backend.mail.parsing.Bodies;
 import net.bluemind.backend.mail.parsing.EmlBuilder;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IInternalMailboxItems;
@@ -381,8 +382,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	private SizedStream createEmlStructure(long id, String previousBody, MessageBody body) {
 		Part structure = body.structure;
+		String sid = this.context.getSecurityContext().getSessionId();
 		if (structure.mime.equals("message/rfc822")) {
-			return EmlBuilder.inputStream(id, previousBody, body.date, structure, container.owner);
+			return EmlBuilder.inputStream(id, previousBody, body.date, structure, container.owner, sid);
 		} else {
 			try {
 				body.headers.add(Header.create(MailApiHeaders.X_BM_INTERNAL_ID,
@@ -390,7 +392,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				if (previousBody != null) {
 					body.headers.add(Header.create(MailApiHeaders.X_BM_PREVIOUS_BODY, previousBody));
 				}
-				try (Message msg = EmlBuilder.of(body, container.owner)) {
+				try (Message msg = EmlBuilder.of(body, sid)) {
 					return Mime4JHelper.asSizedStream(msg);
 				}
 			} catch (
@@ -655,7 +657,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	private File partFile(String partId) {
-		return new File(Bodies.STAGING, partId + ".part");
+		String sid = this.context.getSecurityContext().getSessionId();
+		return new File(Bodies.getFolder(sid), partId + ".part");
 	}
 
 	private Ack doImapCommand(String imapCommand) {

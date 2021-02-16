@@ -237,4 +237,10 @@
             impl="net.bluemind.backend.mail.replica.service.internal.SubtreeLocations$CacheRegistration">
       </reg>
    </extension>
+   <extension
+         point="net.bluemind.core.sessions.deletion">
+      <listener
+            impl="net.bluemind.backend.mail.replica.service.internal.hooks.CleanTemporaryParts">
+      </listener>
+   </extension>
 </plugin>

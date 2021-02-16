@@ -19,12 +19,26 @@ package net.bluemind.backend.mail.parsing;
 
 import java.io.File;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Bodies {
 
-	public static final File STAGING = new File("/var/spool/bm-mail/bodies");
+	private static final Logger logger = LoggerFactory.getLogger(Bodies.class);
+
+	private static final File STAGING = new File("/var/spool/bm-mail/bodies");
 
 	static {
 		STAGING.mkdirs();
+	}
+
+	public static File getFolder(String sid) {
+		File sidFolder = new File(STAGING, sid);
+		if (!sidFolder.exists()) {
+			sidFolder.mkdir();
+			logger.info("Folder " + sidFolder.getAbsolutePath() + " created.");
+		}
+		return sidFolder;
 	}
 
 	private Bodies() {

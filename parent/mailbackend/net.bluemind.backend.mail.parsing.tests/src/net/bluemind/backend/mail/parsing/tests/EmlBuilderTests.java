@@ -53,6 +53,8 @@ public class EmlBuilderTests {
 
 	private List<File> clearQueue = new LinkedList<>();
 
+	private String sid = "sid";
+
 	@After
 	public void after() {
 		clearQueue.forEach(File::delete);
@@ -64,7 +66,7 @@ public class EmlBuilderTests {
 		MessageBody mb = new MessageBody();
 		mb.subject = "un text plain avec de l'unicod€";
 		mb.structure = text("Des caractèr€s accentués", TextStyle.plain);
-		Message built = EmlBuilder.of(mb, "john.doe@devenv.blue");
+		Message built = EmlBuilder.of(mb, sid);
 		String eml = toEML(built);
 		assertNotNull(eml);
 		assertFalse("Euro unicode character must be encoded", eml.contains("€"));
@@ -87,7 +89,7 @@ public class EmlBuilderTests {
 		Part related = multipart(MultipartStyle.related, html, img);
 		Part alternative = multipart(MultipartStyle.alternative, text, related);
 		mb.structure = alternative;
-		String eml = toEML(EmlBuilder.of(mb, "john.doe@devenv.blue"));
+		String eml = toEML(EmlBuilder.of(mb, sid));
 		assertNotNull(eml);
 		assertTrue(eml.contains("inline"));
 		assertTrue(eml.contains("<toto_id>"));
@@ -105,7 +107,7 @@ public class EmlBuilderTests {
 			final MessageBody mb = new MessageBody();
 			mb.subject = "un mail réaliste";
 			mb.structure = text("avec presque rien dedans", TextStyle.plain);
-			final Message message = EmlBuilder.of(mb, "john.doe@devenv.blue");
+			final Message message = EmlBuilder.of(mb, sid);
 		}
 		long openFileDescriptorCountAfter = getOpenFileDescriptorCount();
 		assertEquals(openFileDescriptorCountBefore, openFileDescriptorCountAfter);
@@ -151,7 +153,7 @@ public class EmlBuilderTests {
 
 	private String genPart(byte[] content) throws IOException {
 		String addr = UUID.randomUUID().toString();
-		File staging = new File(Bodies.STAGING, addr + ".part");
+		File staging = new File(Bodies.getFolder(sid), addr + ".part");
 		Files.write(content, staging);
 		clearQueue.add(staging);
 		return addr;

@@ -62,6 +62,8 @@ import net.bluemind.mime4j.common.Mime4JHelper;
 
 public class BodyStreamProcessorTests {
 
+	private String sid = "sid";
+
 	protected Stream openResource(String path) throws IOException {
 		InputStream inputStream = AbstractReplicatedMailboxesServiceTests.class.getClassLoader()
 				.getResourceAsStream(path);
@@ -205,12 +207,12 @@ public class BodyStreamProcessorTests {
 	public void testEmlBuilder() throws IOException, InterruptedException, ExecutionException, TimeoutException {
 		Stream stream = openResource("data/with_inlines.eml");
 		String partAddr = "junit";
-		FileOutputStream out = new FileOutputStream(new File(Bodies.STAGING, partAddr + ".part"));
+		FileOutputStream out = new FileOutputStream(new File(Bodies.getFolder(sid), partAddr + ".part"));
 		out.write("YEAH YEAH".getBytes());
 		out.close();
 		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
 		updateAddr(partAddr, result.body.structure);
-		Message rebuilt = EmlBuilder.of(result.body, "owner");
+		Message rebuilt = EmlBuilder.of(result.body, sid);
 		ByteArrayOutputStream msgOut = new ByteArrayOutputStream();
 		Mime4JHelper.serialize(rebuilt, msgOut);
 		System.out.println("Re-created:\n" + msgOut.toString());

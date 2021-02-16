@@ -72,7 +72,7 @@ public class EmlBuilder {
 	private EmlBuilder() {
 	}
 
-	public static Message of(MessageBody mb, String owner) {
+	public static Message of(MessageBody mb, String sid) {
 
 		MessageImpl msg = new MessageImpl();
 		msg.setDate(mb.date);
@@ -88,7 +88,7 @@ public class EmlBuilder {
 
 		Part structure = mb.structure;
 		try {
-			Body body = createBody(bbf, mb.structure, owner);
+			Body body = createBody(bbf, mb.structure, sid);
 			if (body instanceof MultipartImpl) {
 				msg.setMultipart((MultipartImpl) body);
 			} else {
@@ -186,10 +186,10 @@ public class EmlBuilder {
 		}
 	}
 
-	private static Body createBody(BasicBodyFactory bbf, Part structure, String owner) throws IOException {
+	private static Body createBody(BasicBodyFactory bbf, Part structure, String sid) throws IOException {
 		Body body = null;
 		if (structure.children.isEmpty()) {
-			try (InputStream structureInputStream = inputStream(structure).input) {
+			try (InputStream structureInputStream = inputStream(structure, sid).input) {
 				switch (structure.mime) {
 				case "text/plain":
 				case "text/html":
@@ -204,7 +204,7 @@ public class EmlBuilder {
 			MultipartImpl mp = new MultipartImpl(structure.mime.substring("multipart/".length()));
 			for (Part p : structure.children) {
 				logger.info("Adding part {}", p.mime);
-				Body childBody = createBody(bbf, p, owner);
+				Body childBody = createBody(bbf, p, sid);
 				BodyPart bp = new BodyPart();
 				if (childBody instanceof MultipartImpl) {
 					bp.setMultipart((MultipartImpl) childBody);
@@ -243,17 +243,17 @@ public class EmlBuilder {
 		return new BufferedInputStream(Files.newInputStream(f.toPath(), StandardOpenOption.READ));
 	}
 
-	private static File emlFile(Part structure) {
+	private static File emlFile(Part structure, String sid) {
 		Objects.requireNonNull(structure.address, "Part address must not be null");
-		File emlFile = new File(Bodies.STAGING, structure.address + ".part");
+		File emlFile = new File(Bodies.getFolder(sid), structure.address + ".part");
 		if (!emlFile.exists()) {
 			throw ServerFault.notFound("Missing staging file " + emlFile.getAbsolutePath());
 		}
 		return emlFile;
 	}
 
-	private static SizedStream inputStream(Part structure) throws IOException {
-		final File emlInput = emlFile(structure);
+	private static SizedStream inputStream(Part structure, String sid) throws IOException {
+		final File emlInput = emlFile(structure, sid);
 		InputStream input = stream(emlInput);
 		SizedStream ss = new SizedStream();
 		ss.input = input;
@@ -261,8 +261,9 @@ public class EmlBuilder {
 		return ss;
 	}
 
-	public static SizedStream inputStream(Long id, String previousBody, Date date, Part structure, String owner) {
-		final File emlInput = emlFile(structure);
+	public static SizedStream inputStream(Long id, String previousBody, Date date, Part structure, String owner,
+			String sid) {
+		final File emlInput = emlFile(structure, sid);
 		try (InputStream in = stream(emlInput); Message asMessage = Mime4JHelper.parse(in)) {
 			net.bluemind.backend.mail.api.MessageBody.Header idHeader = net.bluemind.backend.mail.api.MessageBody.Header
 					.create(MailApiHeaders.X_BM_INTERNAL_ID, owner + "#" + InstallationId.getIdentifier() + ":" + id);
