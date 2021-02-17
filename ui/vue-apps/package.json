@@ -34,6 +34,7 @@
         "eslint-loader": "^4.0.2",
         "eslint-plugin-prettier": "^3.1.2",
         "eslint-plugin-vue": "^6.2.1",
+        "full-icu": "^1.3.1",
         "jest": "^26.1.0",
         "jest-jenkins-reporter": "^1.0.2",
         "jest-transform-stub": "^2.0.0",
@@ -62,7 +63,7 @@
         "prosemirror-model": "1.11.2"
     },
     "scripts": {
-        "test": "jest --config node_modules/@bluemind/conf/jest.config.js",
+        "test": "NODE_ICU_DATA=node_modules/full-icu jest --config node_modules/@bluemind/conf/jest.config.js",
         "root": "cd root-webapp && yarn dev",
         "mail": "cd mail-webapp && yarn dev",
         "test-ci": "NODE_ICU_DATA=node_modules/full-icu jest --ci --json --config node_modules/@bluemind/conf/jest.config.js --testResultsProcessor jest-jenkins-reporter --coverage --coverageReporters cobertura > jest.json"
