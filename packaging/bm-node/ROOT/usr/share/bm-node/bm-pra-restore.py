@@ -376,7 +376,7 @@ def restoreBmEs(bmEsBackupPath, p_ids, bmEsPath):
         [
             "rsync",
             "-r",
-            bmEsTagBackupPath + "/var/backups/bluemind/work/elasticsearch/",
+            bmEsTagBackupPath + "/var/spool/bm-elasticsearch/",
             "/var/spool/bm-elasticsearch",
         ],
         None,
