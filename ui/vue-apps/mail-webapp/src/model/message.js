@@ -53,9 +53,6 @@ export function create() {
             needsReply: false
         },
 
-        partContentByMimeType: {}, // REMOVE ME and use byAddress
-        partContentByAddress: {},
-
         attachments: [],
         inlinePartsByCapabilities: []
     };
