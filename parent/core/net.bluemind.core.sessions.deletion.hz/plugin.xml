@@ -4,7 +4,7 @@
    <extension
          point="net.bluemind.core.sessions.deletion">
       <listener
-            impl="net.bluemind.core.sessions.deletion.hz.PropagateSessionDeletions">
+            impl="net.bluemind.core.sessions.deletion.hz.PropagateSessionDeletions"  priority="1">
       </listener>
    </extension>
 

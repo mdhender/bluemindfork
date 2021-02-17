@@ -22,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.sessions.ISessionDeletionListener;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.OOPMessage;
@@ -39,7 +40,7 @@ public class PropagateSessionDeletions implements ISessionDeletionListener {
 	}
 
 	@Override
-	public void deleted(String identity, String sid) {
+	public void deleted(String identity, String sid, SecurityContext securityContext) {
 		Producer prod = producer.getNow(null);
 		if (prod != null) {
 			OOPMessage cm = MQ.newMessage();

@@ -17,8 +17,10 @@
  */
 package net.bluemind.core.sessions;
 
+import net.bluemind.core.context.SecurityContext;
+
 public interface ISessionDeletionListener {
 
-	void deleted(String identity, String sid);
+	void deleted(String identity, String sid, SecurityContext securityContext);
 
 }

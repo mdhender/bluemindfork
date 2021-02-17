@@ -28,20 +28,34 @@ public class Sessions implements BundleActivator {
 	private static final String IDENTITY = UUID.randomUUID().toString();
 
 	private static Cache<String, SecurityContext> buildCache() {
-		return CacheBuilder.newBuilder()
-				.recordStats()
-				.expireAfterAccess(20, TimeUnit.MINUTES)
+		return CacheBuilder.newBuilder().recordStats().expireAfterAccess(20, TimeUnit.MINUTES)
 				.removalListener((RemovalNotification<String, SecurityContext> notification) -> {
 					if (notification.getCause() != RemovalCause.REPLACED && notification.getValue().isInteractive()) {
-						notifyDeletion(notification.getKey());
+						notifySessionRemovalListeners(notification.getKey(), notification.getValue());
 					}
 				}).build();
 	}
 
-	private static void notifyDeletion(String sessionId) {
+	private static void notifySessionRemovalListeners(String sessionId, SecurityContext securityContext) {
 		for (ISessionDeletionListener listener : SessionDeletionListeners.get()) {
-			listener.deleted(IDENTITY, sessionId);
+			notifySessionRemovalListener(listener, sessionId, securityContext);
 		}
+	}
+
+	private static void notifySessionRemovalListener(ISessionDeletionListener listener, String sessionId,
+			SecurityContext securityContext) {
+		VertxPlatform.getVertx().executeBlocking(promise -> {
+			try {
+				listener.deleted(IDENTITY, sessionId, securityContext);
+				promise.complete();
+			} catch (Exception e) {
+				promise.fail(e);
+			}
+		}, true, asyncResult -> {
+			if (!asyncResult.succeeded()) {
+				logger.error("Session deletion listener {} failed", listener.getClass().getName(), asyncResult.cause());
+			}
+		});
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(Sessions.class);

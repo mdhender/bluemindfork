@@ -46,7 +46,6 @@ import net.bluemind.authentication.provider.IAuthProvider.AuthResult;
 import net.bluemind.authentication.provider.IAuthProvider.IAuthContext;
 import net.bluemind.authentication.provider.ILoginSessionValidator;
 import net.bluemind.authentication.provider.ILoginValidationListener;
-import net.bluemind.authentication.provider.LogoutHook;
 import net.bluemind.authentication.service.internal.AuthContextCache;
 import net.bluemind.authentication.service.tokens.TokensStore;
 import net.bluemind.core.api.fault.ServerFault;
@@ -82,19 +81,17 @@ public class Authentication implements IInCoreAuthentication {
 	private final List<IAuthProvider> authProviders;
 	private final List<ILoginValidationListener> loginListeners;
 	private final List<ILoginSessionValidator> sessionValidators;
-	private final List<LogoutHook> logoutHooks;
 
 	private BmContext context;
 
 	public Authentication(BmContext context, List<IAuthProvider> authProviders,
-			List<ILoginValidationListener> loginListeners, List<ILoginSessionValidator> sessionValidators,
-			List<LogoutHook> logoutHooks) throws ServerFault {
+			List<ILoginValidationListener> loginListeners, List<ILoginSessionValidator> sessionValidators)
+			throws ServerFault {
 		this.context = context;
 		this.securityContext = context.getSecurityContext();
 		this.authProviders = authProviders;
 		this.loginListeners = loginListeners;
 		this.sessionValidators = sessionValidators;
-		this.logoutHooks = logoutHooks;
 	}
 
 	private static class AuthContext implements IAuthContext {
@@ -383,9 +380,6 @@ public class Authentication implements IInCoreAuthentication {
 	public void logout() throws ServerFault {
 		if (securityContext.getSessionId() != null) {
 			AuthUser currentUser = getCurrentUser();
-			for (LogoutHook logoutHook : logoutHooks) {
-				logoutHook.beforeLogout(securityContext, currentUser);
-			}
 			if (logger.isDebugEnabled()) {
 				logger.debug("logout user {} session {}", securityContext.getSubject(), securityContext.getSessionId());
 			}

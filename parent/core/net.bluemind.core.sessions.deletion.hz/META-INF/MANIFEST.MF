@@ -5,6 +5,7 @@ Bundle-SymbolicName: net.bluemind.core.sessions.deletion.hz;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.core.context,
  net.bluemind.core.sessions,
  net.bluemind.hornetq.client,
  slf4j.api

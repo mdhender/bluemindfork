@@ -25,7 +25,6 @@ import net.bluemind.authentication.api.incore.IInCoreAuthentication;
 import net.bluemind.authentication.provider.IAuthProvider;
 import net.bluemind.authentication.provider.ILoginSessionValidator;
 import net.bluemind.authentication.provider.ILoginValidationListener;
-import net.bluemind.authentication.provider.LogoutHook;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -39,7 +38,6 @@ public class InCoreAuthenticationFactory
 	private final List<IAuthProvider> authProviders;
 	private final List<ILoginValidationListener> loginListeners;
 	private final List<ILoginSessionValidator> sessionValidators;
-	private final List<LogoutHook> logoutHooks;
 
 	public InCoreAuthenticationFactory() {
 		RunnableExtensionLoader<IAuthProvider> rel = new RunnableExtensionLoader<IAuthProvider>();
@@ -52,9 +50,6 @@ public class InCoreAuthenticationFactory
 
 		this.sessionValidators = new RunnableExtensionLoader<ILoginSessionValidator>()
 				.loadExtensions(PROVIDER_PLUGIN_ID, "sessionvalidator", "session-validator", "class");
-
-		this.logoutHooks = new RunnableExtensionLoader<LogoutHook>().loadExtensions(PROVIDER_PLUGIN_ID, "logout",
-				"hook", "impl");
 	}
 
 	@Override
@@ -64,6 +59,6 @@ public class InCoreAuthenticationFactory
 
 	@Override
 	public IInCoreAuthentication instance(BmContext context, String... params) throws ServerFault {
-		return new Authentication(context, authProviders, loginListeners, sessionValidators, logoutHooks);
+		return new Authentication(context, authProviders, loginListeners, sessionValidators);
 	}
 }
