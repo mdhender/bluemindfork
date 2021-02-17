@@ -36,7 +36,7 @@ public class Bodies {
 		File sidFolder = new File(STAGING, sid);
 		if (!sidFolder.exists()) {
 			sidFolder.mkdir();
-			logger.info("Folder " + sidFolder.getAbsolutePath() + " created.");
+			logger.debug("Folder " + sidFolder.getAbsolutePath() + " created.");
 		}
 		return sidFolder;
 	}

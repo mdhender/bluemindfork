@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -38,6 +39,8 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.Message;
@@ -73,6 +76,8 @@ import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mime4j.common.Mime4JHelper;
+import net.bluemind.mime4j.common.OffloadedBodyFactory;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
@@ -94,6 +99,7 @@ public abstract class AbstractRollingReplicationTests {
 
 	protected String partition;
 	protected String mboxRoot;
+	protected IdRange allocations;
 
 	protected String uniqueUidPart() {
 		return System.currentTimeMillis() + "";
@@ -241,6 +247,7 @@ public abstract class AbstractRollingReplicationTests {
 					.filter(h -> h.name.equals(MailApiHeaders.X_BM_INTERNAL_ID)).findAny();
 			assertTrue(idHeader.isPresent());
 			assertEquals(owner + "#" + InstallationId.getIdentifier() + ":" + expectedId, idHeader.get().firstValue());
+			recordsApi.removePart(partId);
 			return reloaded;
 		}
 	}
@@ -283,6 +290,63 @@ public abstract class AbstractRollingReplicationTests {
 		ref.set(h);
 		cons.handler(h);
 		return msgLock;
+	}
+
+	/**
+	 * @param eml
+	 * @return the size of the uploaded eml in bytes
+	 * @throws IOException
+	 */
+	protected long addMailToFolder(InputStream eml, String folderUid) throws IOException {
+		long time = System.currentTimeMillis();
+		Buffer toUpload = null;
+		ByteBufOutputStream out = new ByteBufOutputStream(Unpooled.buffer());// NOSONAR
+		long uploaded = 0;
+
+		try (org.apache.james.mime4j.dom.Message parsed = Mime4JHelper.parse(eml, new OffloadedBodyFactory())) {
+
+			parsed.createMessageId(UUID.randomUUID().toString());
+			Mime4JHelper.serialize(parsed, out);
+			time = System.currentTimeMillis() - time;
+
+			System.err.println("Fresh " + out.buffer().readableBytes() + " byte(s) mail generated in " + time + "ms.");
+			toUpload = Buffer.buffer(out.buffer());
+			uploaded = toUpload.length();
+		} catch (Exception e) {
+			throw new IOException(e);
+		}
+		Stream forUpload = VertxStream.stream(toUpload);
+		long partUpload = System.currentTimeMillis();
+		IMailboxItems recordsApi = provider().instance(IMailboxItems.class, folderUid);
+		String partId = recordsApi.uploadPart(forUpload);
+		assertNotNull(partId);
+		partUpload = System.currentTimeMillis() - partUpload;
+		System.err.println("Got partId " + partId + " in " + partUpload + "ms.");
+		Part fullEml = Part.create(null, "message/rfc822", partId);
+		MessageBody brandNew = new MessageBody();
+		brandNew.structure = fullEml;
+		MailboxItem item = new MailboxItem();
+		item.body = brandNew;
+		item.flags = Arrays.asList(new MailboxItemFlag("Pouic"));
+		System.err.println("Before create WITH id.....");
+		long createTime = System.currentTimeMillis();
+		long nextId = allocations.globalCounter++;
+		System.err.println("create mail with id " + nextId);
+		recordsApi.createById(nextId, item);
+		createTime = System.currentTimeMillis() - createTime;
+		System.err.println("create WITH id took " + createTime + "ms.");
+		ItemValue<MailboxItem> reloaded = recordsApi.getCompleteById(nextId);
+		assertNotNull(reloaded);
+		assertNotNull(reloaded.value.body.headers);
+		Optional<Header> idHeader = reloaded.value.body.headers.stream()
+				.filter(h -> h.name.equals(MailApiHeaders.X_BM_INTERNAL_ID)).findAny();
+		assertTrue(idHeader.isPresent());
+		recordsApi.removePart(partId);
+		return uploaded;
+	}
+
+	protected void addMailToFolder(String folderUid) throws IOException {
+		addMailToFolder(testEml(), folderUid);
 	}
 
 }

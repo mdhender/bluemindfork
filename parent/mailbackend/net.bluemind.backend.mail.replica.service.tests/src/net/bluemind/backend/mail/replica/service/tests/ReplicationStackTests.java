@@ -25,12 +25,15 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -45,6 +48,7 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableMap;
 
 import io.vertx.core.Vertx;
@@ -70,6 +74,7 @@ import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
 import net.bluemind.backend.mail.api.flags.FlagUpdate;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.api.utils.PartsWalker;
+import net.bluemind.backend.mail.parsing.Bodies;
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotations;
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifacts;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
@@ -179,6 +184,10 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 			}
 			allById = recordsApi.changesetById(0L);
 		}
+
+		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
+		this.allocations = idAllocator.allocateOfflineIds(2);
+
 		System.err.println("before() is complete, starting test...");
 	}
 
@@ -320,6 +329,68 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		ItemValue<MailboxFolder> inbox = mboxesApi.byName("INBOX");
 		assertNotNull(inbox);
 		addDraft(inbox);
+	}
+
+	@Test
+	public void getToUpdateDecomposeParts() throws InterruptedException, IOException {
+		cleanTmpParts();
+		assertEquals(Bodies.getFolder("sid").list().length, 0);
+
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> inbox = mboxesApi.byName("INBOX");
+		long id = addDraft(inbox).internalId;
+
+		IMailboxItems recs = provider().instance(IMailboxItems.class, inbox.uid);
+		Part struct = recs.getForUpdate(id).value.body.structure;
+
+		PartsWalker<Object> walker = new PartsWalker<>(null);
+		walker.visit((Object c, Part p) -> {
+			if (!p.mime.startsWith("multipart/")) {
+				assertFalse(isImapAddress(p.address));
+			}
+		}, struct);
+
+		assertEquals(Bodies.getFolder("sid").list().length, 3);
+	}
+
+	@Test
+	public void getToUpdateDecomposeTEXT() throws InterruptedException, IOException {
+		cleanTmpParts();
+		assertEquals(Bodies.getFolder("sid").list().length, 0);
+
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> inbox = mboxesApi.byName("INBOX");
+
+		String emlPath = "data/simple_text_html.eml";
+		try (InputStream inputStream = AbstractReplicatedMailboxesServiceTests.class.getClassLoader()
+				.getResourceAsStream(emlPath)) {
+			Objects.requireNonNull(inputStream, "Failed to open resource @ " + emlPath);
+			addMailToFolder(inputStream, inbox.uid);
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
+
+		IMailboxItems recs = provider().instance(IMailboxItems.class, inbox.uid);
+		Part struct = recs.getForUpdate(allocations.globalCounter - 1).value.body.structure;
+
+		// eml prerequisites
+		assertTrue(struct.children.isEmpty() && !struct.mime.startsWith("multipart/"));
+
+		assertTrue(!isImapAddress(struct.address) && struct.address != "TEXT");
+		assertEquals(Bodies.getFolder("sid").list().length, 1);
+	}
+
+	private void cleanTmpParts() {
+		File sidFolder = Bodies.getFolder("sid");
+		File[] parts = sidFolder.listFiles();
+		for (File part : parts) {
+			part.delete();
+		}
+		sidFolder.delete();
+	}
+
+	private boolean isImapAddress(String address) {
+		return CharMatcher.inRange('0', '9').or(CharMatcher.is('.')).matchesAllOf(address);
 	}
 
 	@Test
@@ -1679,7 +1750,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		MailboxReplica toCreate = new MailboxReplica();
 		long time = System.currentTimeMillis() / 1000;
 		toCreate.name = "create" + time;
-		ItemIdentifier created = mboxesApi.createBasic(toCreate);
+		mboxesApi.createBasic(toCreate);
 		ItemValue<MailboxFolder> foundItem = mboxesApi.byName(toCreate.name);
 
 		mboxesApi.emptyFolder(foundItem.internalId);

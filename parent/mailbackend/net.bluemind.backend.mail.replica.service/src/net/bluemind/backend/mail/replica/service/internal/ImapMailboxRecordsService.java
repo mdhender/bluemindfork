@@ -176,8 +176,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			logger.warn("MailItem {} not found.", id);
 			return null;
 		}
-		String bodyGuid = record.value.messageBody;
 
+		String bodyGuid = record.value.messageBody;
 		MessageBody body;
 		try {
 			body = bodyStore.get(bodyGuid);
@@ -629,6 +629,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public String uploadPart(Stream part) {
+		rbac.check(Verb.Write.name());
 		long time = System.currentTimeMillis();
 		String addr = UUID.randomUUID().toString();
 		logger.info("[{}] Upload starts {}...", addr, part);
@@ -645,6 +646,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public void removePart(String partId) {
+		rbac.check(Verb.Read.name());
 		try {
 			File part = partFile(partId);
 			if (part.exists()) {
@@ -786,6 +788,46 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	private Ack overwriteFlagsImapCommand(List<String> imapUids, String... flags) {
 		return updateFlagsImapCommand("", imapUids, flags);
+	}
+
+	@Override
+	public ItemValue<MailboxItem> getForUpdate(long id) {
+		rbac.check(Verb.Read.name());
+
+		ItemValue<MailboxRecord> record = storeService.get(id, null);
+
+		long imapUid = record.value.imapUid;
+
+		String bodyGuid = record.value.messageBody;
+		MessageBody body;
+		try {
+			body = bodyStore.get(bodyGuid);
+		} catch (SQLException e) {
+			throw new ServerFault(e.getMessage(), e);
+		}
+
+		ItemValue<MailboxItem> adapted = adapt(record);
+		adapted.value.body = body;
+
+		logger.debug("Decomposing parts into tmp files for EML (id=" + id + ", imapUid=" + imapUid + ")");
+		PartsWalker<Object> walker = new PartsWalker<>(null);
+		walker.visit((Object c, Part p) -> {
+			if (!p.mime.startsWith("multipart/")) {
+				ByteBuf decodedFetch = fetchAndDecode(imapUid, p.address, p.encoding);
+				String replacedPartUid = UUID.randomUUID().toString();
+				File output = partFile(replacedPartUid);
+				try (OutputStream out = Files.newOutputStream(output.toPath());
+						ByteBufInputStream in = new ByteBufInputStream(decodedFetch, true)) {
+					ByteStreams.copy(in, out);
+					logger.debug("Replaced imap part address '{}' with '{}'", p.address, replacedPartUid);
+					p.address = replacedPartUid;
+				} catch (Exception e) {
+					throw new ServerFault(e);
+				}
+			}
+		}, adapted.value.body.structure);
+
+		return adapted;
 	}
 
 }

@@ -24,7 +24,7 @@ public class CleanTemporaryParts implements ISessionDeletionListener {
 
 		sidFolder.delete();
 
-		logger.info("Folder " + sidFolder.getAbsolutePath() + " deleted.");
+		logger.debug("Folder {} deleted.", sidFolder.getAbsolutePath());
 	}
 
 }

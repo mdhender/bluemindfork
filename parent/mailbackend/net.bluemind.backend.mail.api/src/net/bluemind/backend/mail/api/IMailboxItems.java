@@ -187,4 +187,14 @@ public interface IMailboxItems
 	@Path("_sorted")
 	public List<Long> sortedIds(SortDescriptor sorted);
 
+	/**
+	 * Decompose EML in temporary parts, useful to update drafts
+	 * 
+	 * @param message id
+	 * @return message structure with temporary addresses
+	 */
+	@GET
+	@Path("{id}/getForUpdate")
+	ItemValue<MailboxItem> getForUpdate(@PathParam("id") long id);
+
 }
