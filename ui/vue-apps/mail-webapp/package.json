@@ -56,6 +56,7 @@
         "lodash.sortedindexby": "^4.6.0",
         "lucene-query-parser": "^1.2.0",
         "p-limit": "^3.1.0",
+        "p-retry": "^4.4.0",
         "vue-global-events": "^1.1.2",
         "workbox-core": "^5.1.4",
         "workbox-expiration": "^5.1.4",

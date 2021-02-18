@@ -3,8 +3,10 @@ import { RouteHandlerCallback, RouteHandlerCallbackOptions } from "workbox-core/
 import { syncMailbox } from "../sync";
 import { maildb } from "../MailDB";
 import { FilteredChangeSet, Flags } from "../entry";
-import { getDBName } from "../MailAPI";
+import { getDBName, clearSessions } from "../MailAPI";
 import { HTTPMethod } from "workbox-routing/utils/constants";
+import pRetry from "p-retry";
+import { logger } from "../logger";
 
 export const apiRoutes = [
     {
@@ -40,13 +42,15 @@ export async function allMailFolders({ request, params }: RouteHandlerCallbackOp
         const [domain, userId] = params;
         try {
             const uid = `${userId}@${domain}`;
-            const db = await maildb.getInstance(await getDBName());
-            if (await db.isSubscribed(uid)) {
-                await syncMailbox(domain, uid);
-                const allMailFolders = await db.getAllMailFolders();
-                return responseFromCache(allMailFolders);
-            }
-            return fetch(request);
+            return await retry( async () => {
+                const db = await maildb.getInstance(await getDBName());
+                if (await db.isSubscribed(uid)) {
+                    await syncMailbox(domain, userId.replace('user.', ''));
+                    const allMailFolders = await db.getAllMailFolders();
+                    return responseFromCache(allMailFolders);
+                }
+                return fetch(request);
+            });
         } catch (error) {
             console.debug(error);
             return fetch(request);
@@ -141,4 +145,15 @@ export function filterByFlags(expectedFlags: Flags, flags: any[]) {
 
 export function sortMessageByDate(item1: { date: number }, item2: { date: number }) {
     return item2.date - item1.date;
+}
+
+async function retry<T>(fn: () => Promise<T>): Promise<T> {
+    const wrapToThrowErrorOnFailure = <T>(fnToWrap: () => Promise<T>): (() => Promise<T>) => {
+        return () =>
+            fnToWrap().catch((error: any) => {
+                logger.log("catching an error", error)
+                throw new Error(error);
+            });
+    };
+    return pRetry(wrapToThrowErrorOnFailure(fn), { retries: 1, onFailedAttempt: () => clearSessions() });
 }

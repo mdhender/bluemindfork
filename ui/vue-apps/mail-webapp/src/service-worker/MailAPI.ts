@@ -135,3 +135,8 @@ export function userAtDomain({ userId, domain }: { userId: string; domain: strin
 export async function getDBName() {
     return userAtDomain(await sessionInfos.getInstance());
 }
+
+export function clearSessions() {
+    sessionInfos.clear();
+    mailapi.clear();
+}

@@ -17,7 +17,6 @@ const websocket = (global.$websocket = global.$websocket || createWebsocket());
  *
  */
 export default class WebSocketClient {
-
     constructor(url = WEBSOCKET_DEFAULT_URL) {
         this.persistentRegistrations = [];
         this.onOnlineChange(({ online }) => {
@@ -32,18 +31,19 @@ export default class WebSocketClient {
         }
     }
 
-    send(request, listener) {
-        return send(request, listener);
-    }
-
-    register(path, listener, persistent = true) {
-        if (
-            persistent &&
-            !this.persistentRegistrations.some(pending => pending.path === path && pending.listener === listener)
-        ) {
+    async register(path, listener) {
+        if (!this.persistentRegistrations.some(pending => pending.path === path && pending.listener === listener)) {
             this.persistentRegistrations.push({ path, listener });
         }
-        return this.send({ method: Method.REGISTER, path }, listener);
+        try {
+            await this.send({ method: Method.REGISTER, path }, listener);
+        } catch (error) {
+            console.log("[Push] Waiting for websocket to be online", error);
+        }
+    }
+
+    send(request, listener) {
+        return send(request, listener);
     }
 
     unregister(path, listener) {
@@ -63,7 +63,6 @@ export default class WebSocketClient {
 
     onOnlineChange(listener) {
         websocket.handler.register(OnlineEvent.TYPE, listener);
-        return new Promise((resolve, reject) => (websocket.online ? reject() : resolve()));
     }
 
     use(plugin) {

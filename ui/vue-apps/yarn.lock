@@ -1638,6 +1638,11 @@
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/@types/prettier/-/prettier-2.0.2.tgz#5bb52ee68d0f8efa9cc0099920e56be6cc4e37f3"
   integrity sha512-IkVfat549ggtkZUthUzEX49562eGikhSYeVGX97SkMFn+sTZrgRewXjQ4tPKFPCykZHkX1Zfd9OoELGqKU2jJA==
 
+"@types/retry@^0.12.0":
+  version "0.12.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@types/retry/-/retry-0.12.0.tgz#2b35eccfcee7d38cd72ad99232fbd58bffb3c84d"
+  integrity sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA==
+
 "@types/source-list-map@*":
   version "0.1.2"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/@types/source-list-map/-/source-list-map-0.1.2.tgz#0078836063ffaf17412349bba364087e0ac02ec9"
@@ -7503,6 +7508,14 @@ p-retry@^3.0.1:
   version "3.0.1"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/p-retry/-/p-retry-3.0.1.tgz#316b4c8893e2c8dc1cfa891f406c4b422bebf328"
   dependencies:
+    retry "^0.12.0"
+
+p-retry@^4.4.0:
+  version "4.4.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/p-retry/-/p-retry-4.4.0.tgz#fefc2abe883ca7c91ca0dd25060180438b61ebd4"
+  integrity sha512-gVB/tBsG+3AHI1SyDHRrX6n9ZL0Bcbifps9W9/Bgu3Oyu4/OrAh8SvDzDsvpP0oxfCt3oWNT+0fQ9LyUGwBTLg==
+  dependencies:
+    "@types/retry" "^0.12.0"
     retry "^0.12.0"
 
 p-try@^1.0.0:

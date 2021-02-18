@@ -19,7 +19,7 @@ registerScriptRoute();
 
 self.addEventListener("message", async ({ data, ports }) => {
     if (data.type === "INIT") {
-        logger.debug("[SYNC][SW] Initialisation");
+        logger.log("[SYNC][SW] Initialisation");
         await syncMailFolders();
     } else if (data.type === "SYNCHRONIZE") {
         if (data.body.isHierarchy) {
@@ -31,7 +31,7 @@ self.addEventListener("message", async ({ data, ports }) => {
 });
 
 const synchronizeFolder = async (data, port) => {
-    logger.debug(`[SYNC][SW] Folder synchronization: ${data.body.mailbox} in v${data.body.version}`);
+    logger.log(`[SYNC][SW] Folder synchronization: ${data.body.mailbox} in v${data.body.version}`);
     const updated = await syncMailFolder(data.body.mailbox, data.body.version);
     if (port) {
         port.postMessage(updated);
@@ -41,7 +41,7 @@ const synchronizeFolder = async (data, port) => {
 const synchronizeHierarchy = async data => {
     const { domain, userId } = await sessionInfos.getInstance();
     if (data.body.owner === userId) {
-        logger.debug(`[SYNC][SW] Hierarchy synchronization: ${data.body.owner} in v${data.body.version}`);
+        logger.log(`[SYNC][SW] Hierarchy synchronization: ${data.body.owner} in v${data.body.version}`);
         await syncMailbox(domain, userId, data.body.version);
     }
 };
