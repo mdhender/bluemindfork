@@ -182,7 +182,7 @@ public class NginxService {
 		try {
 			Map<String, Object> data = new HashMap<>();
 			data.put("worker_connections", workerConnections);
-			Configuration cfg = new Configuration();
+			Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 			cfg.setClassForTemplateLoading(getClass(), "/templates");
 			Template template = cfg.getTemplate("events.ftl");
 			template.process(data, sw);
@@ -242,7 +242,7 @@ public class NginxService {
 			logger.info("update bm-nginx-embed.conf on {}", server);
 			INodeClient nc = NodeActivator.get(server);
 			nc.writeFile("/etc/nginx/bm-nginx-embed.conf", new ByteArrayInputStream(
-					("set $bm_nginx_embed " + Boolean.valueOf(allowBmEmbed).toString() + ";").getBytes()));
+					("set $bm_nginx_embed " + Boolean.toString(allowBmEmbed) + ";").getBytes()));
 			reloadHttpd(nc);
 		});
 	}
