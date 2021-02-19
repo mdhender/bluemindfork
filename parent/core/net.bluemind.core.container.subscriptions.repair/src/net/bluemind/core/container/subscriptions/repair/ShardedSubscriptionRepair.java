@@ -18,6 +18,7 @@
 package net.bluemind.core.container.subscriptions.repair;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -102,10 +103,10 @@ public class ShardedSubscriptionRepair implements IDirEntryRepairSupport {
 				Set<String> allKnownUids = subsApi.list().stream().map(iv -> iv.uid).collect(Collectors.toSet());
 				Set<String> refreshed = new HashSet<>();
 				Map<String, ContainerSubscription> byUid = allSubs.stream()
-						.collect(Collectors.toMap(cs -> cs.containerUid, cs -> cs));
+						.collect(Collectors.toMap(cs -> cs.containerUid, cs -> cs, (a, b) -> a));
 				IContainers descriptorsApi = context.su().provider().instance(IContainers.class);
-				List<BaseContainerDescriptor> descriptorsFromShards = descriptorsApi
-						.getContainersLight(allSubs.stream().map(cs -> cs.containerUid).collect(Collectors.toList()));
+				List<BaseContainerDescriptor> descriptorsFromShards = descriptorsApi.getContainersLight(
+						new ArrayList<>(allSubs.stream().map(cs -> cs.containerUid).collect(Collectors.toSet())));
 				for (BaseContainerDescriptor cd : descriptorsFromShards) {
 					ContainerSubscriptionModel model = ContainerSubscriptionModel.create(cd,
 							byUid.get(cd.uid).offlineSync);
