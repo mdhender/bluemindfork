@@ -129,7 +129,12 @@ public enum SysConfKeys {
 	/**
 	 * Sentry endpoint. Disabled if not defined
 	 */
-	sentry_endpoint;
+	sentry_endpoint,
+
+	/**
+	 * Sentry (web) endpoint. Disabled if not defined
+	 */
+	sentry_web_endpoint;
 
 	public static boolean isSysConfigKey(String key) {
 		for (SysConfKeys k : SysConfKeys.values()) {

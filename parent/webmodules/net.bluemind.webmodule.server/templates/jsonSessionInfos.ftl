@@ -10,5 +10,10 @@
     "roles": "${(BMRoles)!}",
     "formatedName": "${(BMUserFormatedName)!}",
     "bmVersion" : "${(version)!}",
-    "bmBrandVersion" : "${(brandVersion)!}"
+    "bmBrandVersion" : "${(brandVersion)!}",
+    "sentryDsn": "${(sentryDsn)!}",
+    "sentryRelease": "${(sentryRelease)!}",
+    "sentryEnvironment": "${(sentryEnvironment)!}",
+    "sentryServername": "${(sentryServername)!}",
+    "sentryTags": "${(sentryTags)!}"
 }

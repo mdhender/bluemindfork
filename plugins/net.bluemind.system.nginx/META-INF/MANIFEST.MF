@@ -22,3 +22,4 @@ Require-Bundle: net.bluemind.system.api,
  com.google.guava,
  net.bluemind.eclipse.common,
  org.eclipse.core.runtime
+Automatic-Module-Name: net.bluemind.system.nginx

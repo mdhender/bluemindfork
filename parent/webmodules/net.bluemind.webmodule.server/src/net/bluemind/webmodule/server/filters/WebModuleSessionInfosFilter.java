@@ -37,6 +37,7 @@ import freemarker.template.TemplateException;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.BMVersion;
+import net.bluemind.sentry.settings.ClientAccess;
 import net.bluemind.webmodule.server.IWebFilter;
 
 public class WebModuleSessionInfosFilter implements IWebFilter {
@@ -62,6 +63,22 @@ public class WebModuleSessionInfosFilter implements IWebFilter {
 
 		model.put("version", BMVersion.getVersion());
 		model.put("brandVersion", BMVersion.getVersionName());
+
+		if (ClientAccess.getSettings().isPresent()) {
+			ClientAccess.getSettings().ifPresent(sentryProps -> {
+				model.put("sentryDsn", sentryProps.getWebDsn());
+				model.put("sentryEnvironment", sentryProps.getEnvironment());
+				model.put("sentryRelease", sentryProps.getRelease());
+				model.put("sentryServername", sentryProps.getServerName());
+				model.put("sentryTags", sentryProps.getTags());
+			});
+		} else {
+			model.put("sentryDsn", "");
+			model.put("sentryEnvironment", "unknown");
+			model.put("sentryRelease", "unknown");
+			model.put("sentryServername", "unknown");
+			model.put("sentryTags", "");
+		}
 
 		try {
 			Configuration configuration = new Configuration(Configuration.VERSION_2_3_30);

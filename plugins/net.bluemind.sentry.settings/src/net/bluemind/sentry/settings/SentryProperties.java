@@ -55,6 +55,7 @@ public class SentryProperties {
 
 	public SentryProperties() {
 		props.setProperty("dsn", "");
+		props.setProperty("webdsn", "");
 		props.setProperty("samplerate", "1");
 		props.setProperty("uncaught.handler.enabled", "true");
 		props.setProperty("buffer.dir", SENTRY_TEMP_PATH.toAbsolutePath().toString());
@@ -82,6 +83,10 @@ public class SentryProperties {
 		props.setProperty("dsn", dsn);
 	}
 
+	public void setWebDsn(String dsn) {
+		props.setProperty("webdsn", dsn);
+	}
+
 	public void setServerName(String serverName) {
 		props.setProperty("servername", serverName);
 	}
@@ -92,6 +97,26 @@ public class SentryProperties {
 
 	public void setRelease(String release) {
 		props.setProperty("release", release);
+	}
+
+	public String getWebDsn() {
+		return props.getProperty("webdsn");
+	}
+
+	public String getServerName() {
+		return props.getProperty("servername");
+	}
+
+	public String getEnvironment() {
+		return props.getProperty("environment");
+	}
+
+	public String getRelease() {
+		return props.getProperty("release");
+	}
+
+	public String getTags() {
+		return props.getProperty("tags");
 	}
 
 	public static void checkOrCreateFolders() throws IOException {

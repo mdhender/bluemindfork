@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eclipse.common,
  net.bluemind.core.commons,
  net.bluemind.common.freemarker,
- net.bluemind.metrics.registry
+ net.bluemind.metrics.registry,
+ net.bluemind.sentry.settings
 Closure-Bundle-Type: Embedded
 Web-Resources: web-resources
 Closure-Inputs: BundlesManager.js

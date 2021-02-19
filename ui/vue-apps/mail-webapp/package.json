@@ -36,6 +36,7 @@
         "@bluemind/item-uri": "^4.1.0",
         "@bluemind/l10n": "^4.1.0",
         "@bluemind/router": "^4.1.0",
+        "@bluemind/sentry": "^4.1.0",
         "@bluemind/store": "^4.1.0",
         "@bluemind/styleguide": "^0.1.0",
         "@bluemind/user.api": "^4.1.52881",

@@ -24,13 +24,25 @@ import io.sentry.SentryClient;
 
 public class ClientAccess {
 
-	protected static SentryClient client;
+	private static SentryClient client;
+	private static SentryProperties currentSettings;
 
 	private ClientAccess() {
+	}
+
+	public static void setClient(SentryClient client) {
+		ClientAccess.client = client;
+	}
+
+	public static void setSettings(SentryProperties sentryProps) {
+		ClientAccess.currentSettings = sentryProps;
 	}
 
 	public static Optional<SentryClient> get() {
 		return Optional.ofNullable(client);
 	}
 
+	public static Optional<SentryProperties> getSettings() {
+		return Optional.ofNullable(currentSettings);
+	}
 }

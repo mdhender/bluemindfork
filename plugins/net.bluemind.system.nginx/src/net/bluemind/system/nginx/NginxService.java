@@ -218,7 +218,22 @@ public class NginxService {
 		logger.info("Update bm-upstream-tick.conf on {}", nginxServerIp);
 		INodeClient nc = NodeActivator.get(nginxServerIp);
 		nc.writeFile("/etc/bm-tick/bm-upstream-tick.conf",
-				new ByteArrayInputStream(String.format("server %s:8888;", tickIp).getBytes()));
+				new ByteArrayInputStream(String.format("server %s:8888;%n", tickIp).getBytes()));
+		reloadHttpd(nc);
+	}
+
+	public void updateSentryUpstream(String sentryHostname, String sentryPort) {
+		getTaggedServers(TagDescriptor.bm_nginx)
+				.forEach(server -> updateSentryUpstream(server, sentryHostname, sentryPort));
+	}
+
+	public void updateSentryUpstream(String nginxServerIp, String sentryHostname, String sentryPort) {
+		logger.info("Update bm-upstream-sentry.conf on {}", nginxServerIp);
+		INodeClient nc = NodeActivator.get(nginxServerIp);
+		nc.writeFile("/etc/nginx/bm-upstream-sentry.conf",
+				new ByteArrayInputStream(String.format("server %s:%s;%n", sentryHostname, sentryPort).getBytes()));
+		nc.writeFile("/etc/nginx/bm-sentry.conf",
+				new ByteArrayInputStream(String.format("set $bm_sentry_host %s;%n", sentryHostname).getBytes()));
 		reloadHttpd(nc);
 	}
 

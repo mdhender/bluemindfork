@@ -36,10 +36,10 @@ public class SentryConfiguration {
 		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		ISystemConfiguration confService = provider.instance(ISystemConfiguration.class);
 		SystemConf sysconf = confService.getValues();
-		return get(sysconf.stringValue("sentry_endpoint"));
+		return get(sysconf.stringValue("sentry_endpoint"), sysconf.stringValue("sentry_web_endpoint"));
 	}
 
-	public static JsonObject get(String sentryDsn) {
+	public static JsonObject get(String sentryDsn, String sentryWebDsn) {
 		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IInstallation instService = provider.instance(IInstallation.class);
 
@@ -47,6 +47,7 @@ public class SentryConfiguration {
 		InstallationVersion version = instService.getVersion();
 
 		JsonObject msg = new JsonObject().put("dsn", sentryDsn);
+		msg.put("webdsn", sentryWebDsn);
 		if (sub.customerCode != null && !sub.customerCode.isEmpty()) {
 			msg.put("environment", sub.customerCode);
 		}

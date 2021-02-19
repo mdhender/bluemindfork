@@ -51,6 +51,11 @@ upstream mainnginx {
   include /etc/nginx/bm-upstream-mainnginx.conf;
 }
 
+upstream sentry {
+  ip_hash;
+  include /etc/nginx/bm-upstream-sentry.conf;
+}
+
 server {
   include /etc/nginx/bm-nginx-role.conf;
 
@@ -60,6 +65,7 @@ server {
   set $bm_upstream_mapi http://mapi;
   set $bm_upstream_eas http://eas;
   set $bm_upstream_tick http://tick;
+  set $bm_upstream_sentry http://sentry;
 
   if ($bm_nginx_role = "edge") {
     set $bm_upstream_hps https://mainnginx;
@@ -67,7 +73,8 @@ server {
     set $bm_upstream_core https://mainnginx;
     set $bm_upstream_mapi https://mainnginx;
     set $bm_upstream_eas https://mainnginx;
-    set $bm_upstream_tick http://mainnginx;
+    set $bm_upstream_tick https://mainnginx;
+    set $bm_upstream_sentry https://mainnginx;
   }
 
   listen   443 ssl http2 default_server;
@@ -76,7 +83,7 @@ server {
 
   ssl_certificate  /etc/ssl/certs/bm_cert.pem;
   ssl_certificate_key  /etc/ssl/certs/bm_cert.pem;
-  
+
   ssl_session_timeout  5m;
   # use bettercrypto.org recommanded settings
   ssl_protocols TLSv1.2 TLSv1.3;
@@ -172,7 +179,7 @@ server {
     gzip_comp_level 6;
 
     proxy_pass $bm_upstream_hps;
-    client_max_body_size 10m;	
+    client_max_body_size 10m;
     proxy_intercept_errors on;
   }
 
@@ -193,7 +200,7 @@ server {
   location /bm-push/ {
     proxy_pass $bm_upstream_webserver;
   }
-  
+
   location /input/ {
     proxy_pass $bm_upstream_core;
   }
@@ -202,7 +209,7 @@ server {
     proxy_pass $bm_upstream_core;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "upgrade";    
+    proxy_set_header Connection "upgrade";
   }
 
   location ~ ^/Autodiscover(.*)$ {
@@ -294,7 +301,7 @@ server {
     gzip_comp_level 6;
 
     proxy_pass $bm_upstream_hps;
-    client_max_body_size 10m;	
+    client_max_body_size 10m;
     proxy_intercept_errors on;
   }
 
@@ -304,7 +311,7 @@ server {
     gzip_proxied     any;
     gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
     gzip_comp_level 6;
-    
+
     proxy_pass $bm_upstream_hps;
     client_max_body_size 10m;
     proxy_intercept_errors on;
@@ -320,7 +327,7 @@ server {
     proxy_pass $bm_upstream_hps;
     proxy_intercept_errors on;
   }
-  
+
   location /task/ {
     gzip             on;
     gzip_min_length  1000;
@@ -332,7 +339,6 @@ server {
     proxy_intercept_errors on;
   }
 
-  
   location /chooser/ {
     gzip             on;
     gzip_min_length  1000;
@@ -357,14 +363,14 @@ server {
     client_max_body_size 10m;
     proxy_buffering off;
   }
-  
+
   location /api/filehosting/ {
     include /etc/bm-webmail/bm-filehosting.conf;
     proxy_pass $bm_upstream_core;
     proxy_http_version 1.1;
     proxy_buffering off;
   }
-  
+
   location /api/attachment/ {
     include /etc/bm-webmail/bm-filehosting.conf;
     proxy_pass $bm_upstream_core;
@@ -386,7 +392,7 @@ server {
     gzip_comp_level 6;
 
     proxy_pass $bm_upstream_hps;
-    client_max_body_size 10m;	
+    client_max_body_size 10m;
     proxy_intercept_errors on;
   }
 
@@ -409,7 +415,7 @@ server {
 
     proxy_pass $bm_upstream_hps;
   }
-  
+
   location /tick/ {
     set $bm_auth_basic "BlueMind Tick";
     if ($bm_nginx_role = "edge") {
@@ -418,7 +424,7 @@ server {
 
     auth_basic $bm_auth_basic;
     auth_basic_user_file  /etc/nginx/sw.htpasswd;
-  
+
     gzip             on;
     gzip_min_length  1000;
     gzip_proxied     any;
@@ -431,6 +437,15 @@ server {
 
   location /native {
     return 301 https://$bmexternalurl/login/native;
+  }
+
+  location /sentry/ {
+    include /etc/nginx/bm-sentry.conf;
+    proxy_buffering off;
+    proxy_set_header Host $bm_sentry_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    rewrite /sentry/(.*) /$1 break;
+    proxy_pass $bm_upstream_sentry;
   }
 
   # Must be the last directive

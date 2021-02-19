@@ -52,11 +52,13 @@ public class SentryReconfVerticle extends AbstractVerticle {
 			MQ.registerConsumer(Topic.SENTRY_CONFIG, msg -> {
 				JsonObject js = msg.toJson();
 				String sentryDsn = js.getString("dsn", "");
+				String sentryWebDsn = js.getString("webdsn", "");
 				String environment = js.getString("environment", "BM_COMMUNITY");
 				String release = js.getString("release", "UNKNOWN_RELEASE");
 				String servername = js.getString("servername", "UNKNOWN_SERVER");
 				SentryProperties sentryProps = new SentryProperties();
 				sentryProps.setDsn(sentryDsn);
+				sentryProps.setWebDsn(sentryWebDsn);
 				sentryProps.setEnvironment(environment);
 				sentryProps.setRelease(release);
 				sentryProps.setServerName(servername);
@@ -65,12 +67,12 @@ public class SentryReconfVerticle extends AbstractVerticle {
 				} catch (IOException ioe) {
 					logger.error("Unable to update sentry properties: {}", ioe.getMessage(), ioe);
 				}
+				ClientAccess.setSettings(sentryProps);
 				Sentry.close();
 				if (sentryProps.enabled()) {
 					logger.info("Sentry enable");
-					Sentry.init();
+					ClientAccess.setClient(Sentry.init());
 				}
-
 			});
 			logger.info("Waiting for sentry re-configuration orders on topic {}", Topic.SENTRY_CONFIG);
 		});

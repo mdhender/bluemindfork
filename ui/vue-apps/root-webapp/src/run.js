@@ -5,6 +5,7 @@ import VueI18n from "vue-i18n";
 import { default as AlertStore, DefaultAlert } from "@bluemind/alert.store";
 import { DateTimeFormats, FirstDayOfWeek, InheritTranslationsMixin } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
+import { initSentry } from "@bluemind/sentry";
 import router from "@bluemind/router";
 import { MailboxesClient } from "@bluemind/mailbox.api";
 import store from "@bluemind/store";
@@ -20,6 +21,7 @@ import MainApp from "./components/MainApp";
 import NotificationManager from "./NotificationManager";
 
 initWebApp();
+initSentry(Vue);
 
 function initWebApp() {
     registerUserSession();

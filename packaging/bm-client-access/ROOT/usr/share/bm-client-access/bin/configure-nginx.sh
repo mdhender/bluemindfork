@@ -122,6 +122,11 @@ nginxConfiguration /etc/nginx/bm-upstream-mainnginx.conf /usr/share/doc/bm-clien
 nginxConfiguration /etc/nginx/bm-http-auth.conf /usr/share/doc/bm-client-access/bm-nginx/bm-http-auth.conf
 nginxConfiguration /etc/nginx/bm-nginx-embed.conf /usr/share/doc/bm-client-access/bm-nginx/bm-nginx-embed.conf
 
+# Sentry upstream and host
+nginxConfiguration /etc/nginx/bm-sentry.conf /usr/share/doc/bm-client-access/bm-nginx/bm-sentry.conf
+nginxConfiguration /etc/nginx/bm-upstream-sentry.conf /usr/share/doc/bm-client-access/bm-nginx/bm-upstream-sentry.conf
+
+
 generateDhParam
 setExternalUrl
 enableVhost
