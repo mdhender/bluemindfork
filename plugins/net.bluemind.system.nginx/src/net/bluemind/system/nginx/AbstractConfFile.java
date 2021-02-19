@@ -36,7 +36,7 @@ public abstract class AbstractConfFile {
 
 	protected AbstractConfFile(INodeClient nc) throws ServerFault {
 		this.nc = nc;
-		cfg = new Configuration();
+		cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 	}
 
 	private void setClassReference(Class<?> clazz) {

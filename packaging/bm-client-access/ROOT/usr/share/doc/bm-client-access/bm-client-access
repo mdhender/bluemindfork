@@ -256,7 +256,7 @@ server {
     proxy_pass_header Server;
     proxy_http_version 1.1;
 
-	gzip             on;
+    gzip             on;
     gzip_proxied     any;
     gzip_types       application/vnd.ms-sync.wbxml;
     gzip_comp_level 6;
