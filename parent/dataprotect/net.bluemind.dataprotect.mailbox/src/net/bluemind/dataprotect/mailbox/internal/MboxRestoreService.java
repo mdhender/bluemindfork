@@ -65,7 +65,7 @@ import net.bluemind.server.api.Server;
 public class MboxRestoreService {
 	private static final Logger logger = LoggerFactory.getLogger(MboxRestoreService.class);
 
-	public static enum Mode {
+	public enum Mode {
 		Replace, Subfolder
 	}
 
@@ -85,7 +85,7 @@ public class MboxRestoreService {
 		monitor.begin(1, "restore started.");
 		logger.info("RESTORE mode: {}, box: {}", mode, mbox.uid);
 		Mailbox box = mbox.value;
-		logger.info("BOX kind: " + box.type + ", name: " + box.name);
+		logger.info("BOX kind: {}, name: {}", box.type, box.name);
 
 		IDPContext dpCtx = DPContextFactory.newContext(monitor);
 		ITool restTool = dpCtx.tool();
@@ -106,7 +106,7 @@ public class MboxRestoreService {
 		IServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IServer srvApi = sp.instance(IServer.class, InstallationId.getIdentifier());
 		ItemValue<Server> source = srvApi.getComplete(serverUid);
-		IToolConfig conf = restTool.configure(source, "mail/imap", new HashSet<String>());
+		IToolConfig conf = restTool.configure(source, "mail/imap", new HashSet<>());
 		IToolSession session = restTool.newSession(conf);
 
 		BoxFsFolders boxFsFolders = BoxFsFolders.build(domain, mbox, dpg);
@@ -125,7 +125,7 @@ public class MboxRestoreService {
 
 			ITask taskApi = sp.instance(ITask.class, tr.id);
 			TaskUtils.wait(sp, tr);
-			taskApi.getCurrentLogs().stream().forEach(l -> monitor.log(l));
+			taskApi.getCurrentLogs().stream().forEach(monitor::log);
 			break;
 		case Subfolder:
 			if (mbox.value.type == Type.mailshare) {
@@ -145,7 +145,7 @@ public class MboxRestoreService {
 
 			break;
 		default:
-			logger.error("Unsupported restore mode: " + mode);
+			logger.error("Unsupported restore mode: {}", mode);
 			monitor.end(false, "finished", "{ \"status\": \"Unsupported restore mode\" }");
 			return;
 		}
@@ -158,10 +158,10 @@ public class MboxRestoreService {
 
 		String recon = "/usr/sbin/reconstruct -r -f -R -G -I " + BoxFsFolders.namespace(mbox) + box.name + "@"
 				+ domain.uid;
-		logger.info("Reconstruct command: " + recon);
+		logger.info("Reconstruct command: {}", recon);
 		ExitList el = NCUtils.exec(nc, recon);
 		for (String e : el) {
-			logger.info("RECONSTRUCT: " + e);
+			logger.info("RECONSTRUCT: {}", e);
 		}
 
 		logger.info("[{}] Restore hsm for {}", mbox, dpg);
@@ -198,10 +198,10 @@ public class MboxRestoreService {
 		}
 
 		ItemValue<Server> source = srvApi.getComplete(mailPart.get().server);
-		IToolConfig conf = restTool.configure(source, "mail/archive", new HashSet<String>());
+		IToolConfig conf = restTool.configure(source, "mail/archive", new HashSet<>());
 		IToolSession session = restTool.newSession(conf);
 
-		Set<String> toRestore = new HashSet<String>();
+		Set<String> toRestore = new HashSet<>();
 		toRestore.add("/var/spool/bm-hsm/snappy/user/" + d.uid + "/" + mbox.uid);
 
 		session.restore(mailPart.get().id, toRestore);

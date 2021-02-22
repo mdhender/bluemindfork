@@ -123,8 +123,8 @@ public class RestoreUserTask implements IServerTask {
 
 		logger.info("Restoring user todolists {}:{}", item.entryUid, item.displayName);
 
-		RestoreDefinition RestoreTodolists = new RestoreDefinition("replace.todolists", backup.id, item);
-		executeTask(dp, RestoreTodolists);
+		RestoreDefinition restoreTodolists = new RestoreDefinition("replace.todolists", backup.id, item);
+		executeTask(dp, restoreTodolists);
 
 		monitor.end(true, "user " + item.entryUid + ":" + item.displayName + " restored", "");
 
@@ -156,8 +156,6 @@ public class RestoreUserTask implements IServerTask {
 		ds = JdbcActivator.getInstance().getDataSource();
 		cs = new ContainerStore(backupContext, ds, backupContext.getSecurityContext());
 		domain = cs.get(item.domainUid);
-		userStore = new UserStore(ds, domain);
-
 		userStore = new UserStore(JdbcActivator.getInstance().getDataSource(), domain);
 		Item i = Item.create(item.entryUid, null);
 		i.id = newUserId;

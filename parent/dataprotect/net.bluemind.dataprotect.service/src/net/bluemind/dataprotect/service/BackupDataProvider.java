@@ -102,16 +102,6 @@ public class BackupDataProvider implements AutoCloseable {
 		pgContext = new ArrayList<>();
 	}
 
-	/**
-	 * @param server: This field is ignored
-	 * @deprecated: use BackupDataProvider(String target, SecurityContext sc,
-	 *              IServerTaskMonitor monitor)
-	 */
-	@Deprecated
-	public BackupDataProvider(String target, String server, IServerTaskMonitor monitor) {
-		this(target, SecurityContext.SYSTEM, monitor);
-	}
-
 	public BmContext DIRECTORY(PartGeneration pgPart, VersionInfo dpVersion) throws Exception {
 		List<IBackupWorker> workers = Workers.get();
 		IBackupWorker pgWorker = null;

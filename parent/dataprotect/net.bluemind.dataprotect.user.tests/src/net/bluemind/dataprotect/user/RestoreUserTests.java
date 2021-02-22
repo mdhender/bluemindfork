@@ -39,8 +39,6 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.VCard.Identification.Gender;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -97,12 +95,7 @@ public class RestoreUserTests {
 		ElasticsearchTestHelper.getInstance().beforeTest();
 
 		final CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				cdl.countDown();
-			}
-		});
+		VertxPlatform.spawnVerticles(v -> cdl.countDown());
 		cdl.await();
 
 		Server core = new Server();

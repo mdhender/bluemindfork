@@ -33,8 +33,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.snapshots.SnapshotInfo;
 import org.elasticsearch.snapshots.SnapshotState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 
@@ -46,15 +44,8 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.server.api.Server;
 
 public class ElasticWorker extends DefaultWorker {
-
-	private static final Logger logger = LoggerFactory.getLogger(ElasticWorker.class);
-
-	private static final String dir = "/var/backups/bluemind/work/elasticsearch";
-
 	private static final String repo = "/var/spool/bm-elasticsearch/repo";
-
 	private static final String repository = "bm-elasticsearch";
-
 	private static final String snapshot = "snapshot-es";
 
 	@Override

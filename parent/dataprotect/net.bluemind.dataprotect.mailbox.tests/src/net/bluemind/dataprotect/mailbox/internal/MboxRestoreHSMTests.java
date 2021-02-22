@@ -298,9 +298,10 @@ public class MboxRestoreHSMTests {
 		}
 
 		// delete archived email
-		SnappyStore store = new SnappyStore();
-		store.open(NodeActivator.get(new BmConfIni().get("imap-role")));
-		store.delete(domain, mbox.uid, hsmId);
+		try (SnappyStore store = new SnappyStore()) {
+			store.open(NodeActivator.get(new BmConfIni().get("imap-role")));
+			store.delete(domain, mbox.uid, hsmId);
+		}
 		try {
 			hsmApi.fetch(mbox.uid, hsmId);
 			fail();

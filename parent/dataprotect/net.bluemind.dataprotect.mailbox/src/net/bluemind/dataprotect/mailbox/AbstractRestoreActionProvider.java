@@ -23,7 +23,7 @@ public abstract class AbstractRestoreActionProvider implements IRestoreActionPro
 
 	private final RestorableKind kind;
 
-	public AbstractRestoreActionProvider(RestorableKind kind) {
+	protected AbstractRestoreActionProvider(RestorableKind kind) {
 		this.kind = kind;
 	}
 
