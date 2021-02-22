@@ -50,8 +50,8 @@ public class ApplyMessageHelper {
 	}
 
 	public static Stream<MessagesBatch> process(String allTokens) {
-		List<String> withoutNILNodes = SPACES.splitToList(allTokens).stream().filter(s -> !"NIL".equals(s))
-				.collect(Collectors.toList());
+		List<String> withoutNILNodes = SPACES.splitToList(allTokens).stream()
+				.filter(s -> !(s == null || s.startsWith("NIL"))).collect(Collectors.toList());
 		List<List<String>> partitionned = Lists.partition(withoutNILNodes, 3);
 		List<MailboxMessage> toApply = partitionned.stream().map(threeElems -> {
 			if (threeElems.size() != 3) {
