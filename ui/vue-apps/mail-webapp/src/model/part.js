@@ -1,37 +1,6 @@
 import { mailText2Html, MimeType } from "@bluemind/email";
 import { html2text } from "@bluemind/html-utils";
 
-export function setAddresses(structure, keepTmpAddress = false) {
-    const tmpAddresses = [];
-    structure.address = "TEXT";
-    setAddressesForChildren(structure.children, keepTmpAddress, tmpAddresses);
-    return tmpAddresses;
-}
-
-function setAddressesForChildren(children, keepTmpAddress, tmpAddresses, base = "") {
-    children.forEach((part, index) => {
-        const isAddressTemporary = isTemporaryPart(part);
-        if (isAddressTemporary) {
-            tmpAddresses.push(part.address);
-        }
-        if (!keepTmpAddress || !isAddressTemporary) {
-            part.address = base ? base + "." + (index + 1) : index + 1 + "";
-        }
-        if (part.children) {
-            setAddressesForChildren(part.children, keepTmpAddress, tmpAddresses, part.address);
-        }
-    });
-}
-
-function isTemporaryPart(part) {
-    /*
-     * if part is only uploaded, its address is an UID
-     * if part is built in EML, its address is something like "1.1"
-     * if address is not defined, it's a multipart so considered as built in EML
-     */
-    return part.address ? !/^([0-9]+)(\.[0-9]+)*$/.test(part.address) : false;
-}
-
 export function getPartsFromCapabilities(message, availableCapabilities) {
     const partsByCapabilities = message.inlinePartsByCapabilities.find(part =>
         part.capabilities.every(capability => availableCapabilities.includes(capability))
@@ -39,7 +8,7 @@ export function getPartsFromCapabilities(message, availableCapabilities) {
     return partsByCapabilities ? partsByCapabilities.parts : [];
 }
 
-export function mergePartsForTextarea(message, partsToMerge, partsDataByAddress) {
+export function mergePartsForTextarea(partsToMerge, partsDataByAddress) {
     let result = "";
     for (const part of partsToMerge) {
         const partContent = partsDataByAddress[part.address];
@@ -52,7 +21,7 @@ export function mergePartsForTextarea(message, partsToMerge, partsDataByAddress)
     return result;
 }
 
-export function mergePartsForRichEditor(message, partsToMerge, partsDataByAddress) {
+export function mergePartsForRichEditor(partsToMerge, partsDataByAddress) {
     let result = "";
     for (const part of partsToMerge) {
         const partContent = partsDataByAddress[part.address];

@@ -117,7 +117,9 @@ export default {
     },
     destroyed() {
         if (!isInternalIdFaked(this.message.remoteRef.internalId) && this.message.status !== MessageStatus.REMOVED) {
-            this.saveAsap();
+            this.saveAsap().then(() => this.removeAttachmentAndInlineTmpParts());
+        } else {
+            this.removeAttachmentAndInlineTmpParts();
         }
     },
     methods: {

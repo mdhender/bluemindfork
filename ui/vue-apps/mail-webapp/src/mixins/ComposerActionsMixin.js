@@ -1,5 +1,7 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
+import { inject } from "@bluemind/inject";
+
 import {
     ADD_ATTACHMENTS,
     DEBOUNCED_SAVE_MESSAGE,
@@ -106,6 +108,7 @@ export default {
                 });
                 if (confirm) {
                     this.$_ComposerActionsMixin_REMOVE_MESSAGES([this.$_ComposerActionsMixin_message]);
+                    this.removeAttachmentAndInlineTmpParts();
                     this.$router.navigate("v:mail:home");
                 }
             }
@@ -120,6 +123,13 @@ export default {
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
             });
             this.$router.navigate("v:mail:home");
+        },
+        removeAttachmentAndInlineTmpParts() {
+            const service = inject("MailboxItemsPersistence", this.$_ComposerActionsMixin_message.folderRef.uid);
+            const addresses = this.$_ComposerActionsMixin_message.attachments
+                .concat(this.$_ComposerActionsMixin_messageCompose.inlineImagesSaved)
+                .map(part => part.address);
+            addresses.forEach(address => service.removePart(address));
         }
     }
 };

@@ -26,8 +26,15 @@ export default async function (
     context.commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENT }]);
 
     manageFlagOnPreviousMessage(context, draft);
+    removeAttachmentAndInlineTmpParts(draft, messageCompose);
 
     return await getSentMessage(taskResult, draftId, sentFolder);
+}
+
+function removeAttachmentAndInlineTmpParts(draft, messageCompose) {
+    const service = inject("MailboxItemsPersistence", draft.folderRef.uid);
+    const addresses = draft.attachments.concat(messageCompose.inlineImagesSaved).map(part => part.address);
+    addresses.forEach(address => service.removePart(address));
 }
 
 async function getSentMessage(taskResult, draftId, sentFolder) {

@@ -1075,9 +1075,9 @@
     axios "^0.18.0"
 
 "@bluemind/backend.mail.api@^4.1.0":
-  version "4.1.54799"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/backend.mail.api/-/backend.mail.api-4.1.54799.tgz#d929513c92169a783cf640dc0050d783576392dc"
-  integrity sha512-oCeuaoJZ2YJ0aNz0uKA+XkZbbXna2ntsvdu5gmrymkabzgvMQrikFmOW+nbT/gNdDhpKcxYAhpc54vTIirq5cw==
+  version "4.1.56191"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/backend.mail.api/-/backend.mail.api-4.1.56191.tgz#e9f3d39311c346ba451f1254ef9d31dfd217896e"
+  integrity sha512-e1QvMtNoUvyE0VEduoPodgReHS/62/2Fw7NG04MzA9WWMIkpbRzYYJ/ncZfbqbJQQamrvARSPZouxkVE8tMQdQ==
   dependencies:
     axios "^0.18.0"
 

@@ -25,6 +25,7 @@ import {
     handleSeparator
 } from "~model/draft";
 import { MessageCreationModes } from "~model/message";
+import apiMessages from "../store/api/apiMessages";
 
 /**
  * Manage different cases of composer initialization
@@ -57,7 +58,11 @@ export default {
 
         // case when user clicks on a message in MY_DRAFTS folder
         async initFromRemoteMessage(message) {
-            const parts = getPartsFromCapabilities(message, COMPOSER_CAPABILITIES);
+            const messageWithTmpAddresses = await apiMessages.getForUpdate(message);
+            messageWithTmpAddresses.composing = true;
+            this.$_ComposerInitMixin_ADD_MESSAGES([messageWithTmpAddresses]);
+
+            const parts = getPartsFromCapabilities(messageWithTmpAddresses, COMPOSER_CAPABILITIES);
 
             await this.$_ComposerInitMixin_FETCH_ACTIVE_MESSAGE_INLINE_PARTS({
                 folderUid: message.folderRef.uid,
@@ -68,7 +73,6 @@ export default {
             let content = getEditorContent(
                 this.userPrefTextOnly,
                 parts,
-                message,
                 this.$_ComposerInitMixin_activeMessage.partsDataByAddress
             );
             if (!this.userPrefTextOnly) {
@@ -135,7 +139,6 @@ export default {
             let contentFromPreviousMessage = getEditorContent(
                 this.userPrefTextOnly,
                 parts,
-                previousMessage,
                 this.$_ComposerInitMixin_activeMessage.partsDataByAddress
             );
 

@@ -6,7 +6,7 @@ export function create(address, charset, fileName, encoding, mime, size, isUploa
         status = AttachmentStatus.NOT_LOADED;
     } else {
         progress = { loaded: 100, total: 100 };
-        status = AttachmentStatus.LOADED;
+        status = AttachmentStatus.UPLOADED;
     }
 
     return {
@@ -26,7 +26,6 @@ export function create(address, charset, fileName, encoding, mime, size, isUploa
 export const AttachmentStatus = {
     NOT_LOADED: "NOT-LOADED",
     UPLOADED: "UPLOADED",
-    LOADED: "LOADED",
     ERROR: "ERROR"
 };
 

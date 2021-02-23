@@ -47,7 +47,7 @@ describe("removeAttachment action", () => {
     test("Remove of an attachment in error", async () => {
         context.state[messageKey].attachments[0].status = AttachmentStatus.ERROR;
         await removeAttachment(context, actionParams);
-        expect(mockedClient.removePart).not.toHaveBeenCalled();
+        expect(mockedClient.removePart).toHaveBeenCalledWith(address);
         expect(context.commit).toHaveBeenCalledWith(REMOVE_ATTACHMENT, { messageKey, address });
         expect(context.dispatch).toHaveBeenCalledWith(DEBOUNCED_SAVE_MESSAGE, expect.anything());
     });

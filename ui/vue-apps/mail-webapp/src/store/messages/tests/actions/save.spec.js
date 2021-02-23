@@ -73,8 +73,8 @@ describe("[Mail-WebappStore][actions] :  save", () => {
 
     test("With attachments, expect a mixed structure", async () => {
         draft.attachments = [
-            { address: "2", status: AttachmentStatus.LOADED, mime: "anything" },
-            { address: "3", status: AttachmentStatus.LOADED, mime: "anything" }
+            { address: "2", status: AttachmentStatus.UPLOADED, mime: "anything" },
+            { address: "3", status: AttachmentStatus.UPLOADED, mime: "anything" }
         ];
         await saveAsap(context, saveParams);
 

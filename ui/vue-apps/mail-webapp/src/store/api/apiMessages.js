@@ -9,7 +9,7 @@ import { FolderAdaptor } from "../folders/helpers/FolderAdaptor";
 const MAX_SEARCH_RESULTS = 500;
 
 export default {
-    async deleteFlag(messages, mailboxItemFlag) {
+    deleteFlag(messages, mailboxItemFlag) {
         const byFolder = groupByFolder(messages);
         const requests = map(byFolder, ({ itemsId }, folder) => api(folder).deleteFlag({ itemsId, mailboxItemFlag }));
         return Promise.all(requests);
@@ -29,12 +29,17 @@ export default {
         return flatmap(await Promise.all(requests));
     },
 
+    async getForUpdate(message) {
+        const remoteMessage = await api(message.folderRef.uid).getForUpdate(message.remoteRef.internalId);
+        return MessageAdaptor.fromMailboxItem(remoteMessage, message.folderRef);
+    },
+
     multipleDeleteById(messages) {
         const byFolder = groupByFolder(messages);
         const requests = map(byFolder, ({ itemsId }, folder) => api(folder).multipleDeleteById(itemsId));
         return Promise.all(requests);
     },
-    async move(messages, destination) {
+    move(messages, destination) {
         const destinationUid = destination.remoteRef.uid;
         const byFolder = groupByFolder(messages);
         const requests = map(byFolder, ({ itemsId }, sourceUid) => importApi(sourceUid, destinationUid).move(itemsId));

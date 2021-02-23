@@ -1,3 +1,5 @@
+import { inject } from "@bluemind/inject";
+
 import { DEBOUNCED_SAVE_MESSAGE } from "~actions";
 import { REMOVE_ATTACHMENT, SET_MESSAGE_HAS_ATTACHMENT } from "~mutations";
 
@@ -11,4 +13,6 @@ export default async function ({ commit, dispatch, state }, { messageKey, attach
     });
 
     dispatch(DEBOUNCED_SAVE_MESSAGE, { draft, messageCompose });
+
+    inject("MailboxItemsPersistence", draft.folderRef.uid).removePart(attachmentAddress);
 }

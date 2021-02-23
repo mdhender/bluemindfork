@@ -3,9 +3,8 @@ import { InlineImageHelper, PartsBuilder } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 
 import { isInternalIdFaked } from "~model/draft";
-import { AttachmentStatus, isAttachment } from "~model/attachment";
+import { AttachmentStatus } from "~model/attachment";
 import { MessageHeader, MessageStatus } from "~model/message";
-import { setAddresses } from "~model/part";
 import {
     RESET_ATTACHMENTS_FORWARDED,
     SET_MESSAGE_DATE,
@@ -23,7 +22,7 @@ import MessageAdaptor from "../helpers/MessageAdaptor";
 
 export function isReadyToBeSaved(draft, messageCompose) {
     const checkAttachments =
-        draft.attachments.every(a => a.status === AttachmentStatus.UPLOADED || a.status === AttachmentStatus.LOADED) ||
+        draft.attachments.every(a => a.status === AttachmentStatus.UPLOADED) ||
         (isInternalIdFaked(draft.remoteRef.internalId) && messageCompose.forwardedAttachments.length > 0); // due to attachments forward cases
     return draft.status === MessageStatus.LOADED && checkAttachments;
 }
@@ -36,8 +35,10 @@ export async function save(context, draft, messageCompose) {
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVING }]);
 
         const service = inject("MailboxItemsPersistence", draft.folderRef.uid);
-        const structure = await prepareDraft(context, service, draft, messageCompose);
-        await createEmlOnServer(context, draft, service, messageCompose, structure);
+        const { addresses, inlineImages } = await prepareDraft(context, service, draft, messageCompose);
+        const structure = createDraftStructure(addresses[0], addresses[1], draft.attachments, inlineImages);
+        await createEmlOnServer(context, draft, service, structure);
+        addresses.slice(0, 2).forEach(address => service.removePart(address));
 
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.LOADED }]);
     } catch (e) {
@@ -68,10 +69,10 @@ async function prepareDraft(context, service, draft, messageCompose) {
 
     await handleAttachmentsForForward(draft, service, messageCompose, context.commit);
 
-    return createDraftStructure(addresses[0], addresses[1], draft.attachments, inlineImages);
+    return { addresses, inlineImages };
 }
 
-async function createEmlOnServer(context, draft, service, messageCompose, structure) {
+async function createEmlOnServer(context, draft, service, structure) {
     const inlinePartsByCapabilities = MessageAdaptor.computeParts(structure).inlinePartsByCapabilities;
     context.commit(SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES, { key: draft.key, inlinePartsByCapabilities });
 
@@ -88,9 +89,6 @@ async function createEmlOnServer(context, draft, service, messageCompose, struct
         const { imapUid } = await service.updateById(draft.remoteRef.internalId, remoteMessage);
         context.commit(SET_MESSAGE_IMAP_UID, { key: draft.key, imapUid });
     }
-
-    const tmpAddresses = updateAddresses(messageCompose, draft, structure, service, context.commit);
-    tmpAddresses.map(address => service.removePart(address));
 }
 
 // when attachments are forwarded, we have to upload them at first save
@@ -122,27 +120,6 @@ async function handleAttachmentsForForward(draft, service, messageCompose, commi
     }
 }
 
-function updateAddresses(messageCompose, draft, structure, service, commit) {
-    const tmpAddresses = setAddresses(structure);
-
-    // FIXME: this method dont work if attachments are not direct children
-    const attachmentAddresses = structure.children.filter(isAttachment).map(({ address }) => address);
-
-    draft.attachments.forEach((attachment, index) => {
-        commit(SET_ATTACHMENT_ADDRESS, {
-            messageKey: draft.key,
-            oldAddress: attachment.address,
-            address: attachmentAddresses[index]
-        });
-        commit(SET_ATTACHMENT_STATUS, {
-            messageKey: draft.key,
-            address: attachmentAddresses[index],
-            status: AttachmentStatus.LOADED
-        });
-    });
-    return tmpAddresses;
-}
-
 function uploadParts(service, textPlain, textHtml, newContentByCid) {
     const promises = [];
     promises.push(service.uploadPart(textPlain));
@@ -159,8 +136,6 @@ function createDraftStructure(textPlainAddress, textHtmlAddress, attachments, in
     structure = PartsBuilder.createAlternativePart(textPart, htmlPart);
     structure = PartsBuilder.createInlineImageParts(structure, inlineImages);
     structure = PartsBuilder.createAttachmentParts(attachments, structure);
-
-    setAddresses(structure, true);
 
     return structure;
 }

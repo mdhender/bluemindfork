@@ -154,12 +154,12 @@ export function computeSubject(creationMode, previousMessage) {
     return previousMessage.subject;
 }
 
-export function getEditorContent(userPrefTextOnly, parts, message, partsDataByAddress) {
+export function getEditorContent(userPrefTextOnly, parts, partsDataByAddress) {
     let content;
     if (userPrefTextOnly) {
-        content = mergePartsForTextarea(message, parts, partsDataByAddress);
+        content = mergePartsForTextarea(parts, partsDataByAddress);
     } else {
-        content = mergePartsForRichEditor(message, parts, partsDataByAddress);
+        content = mergePartsForRichEditor(parts, partsDataByAddress);
     }
     return content;
 }

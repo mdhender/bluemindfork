@@ -149,7 +149,7 @@ export default {
         },
         hasPreview() {
             return (
-                MimeType.previewAvailable(this.attachment.mime) && this.attachment.status === AttachmentStatus.LOADED
+                MimeType.previewAvailable(this.attachment.mime) && this.attachment.status === AttachmentStatus.UPLOADED
             );
         },
         errorMessage() {
