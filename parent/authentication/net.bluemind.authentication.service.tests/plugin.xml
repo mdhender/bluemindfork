@@ -37,11 +37,5 @@
             implementation="net.bluemind.authentication.service.tests.TestRoleValidatorRole5False">
       </validator>
    </extension>
-   <extension
-         point="net.bluemind.authentication.provider.logout">
-      <hook
-            impl="net.bluemind.authentication.service.TestLogoutHook">
-      </hook>
-   </extension>
 
 </plugin>
