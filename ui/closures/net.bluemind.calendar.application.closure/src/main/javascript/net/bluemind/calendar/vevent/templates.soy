@@ -119,6 +119,43 @@
       <tr style="height:100%;">
         <td>
           <fieldset id="bm-ui-form-fieldset-details" class="{css goog-tab-content}">
+
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}" id="this-is-videoconferencing" style="display:none;">
+
+              <label for="bm-ui-form-videoconferencing-input">{msg meaning="calendar.event.videoconferencing" desc="event video conferencing label"}Video Conference{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <select id="bm-ui-form-videoconferencing-select" style="display:none;">
+                  {foreach $res in $videoConferencingResources}
+                    <option value="{$res.uid}">{$res.displayName}</option>
+                  {/foreach}
+                </select>
+                <div id="bm-ui-form-videoconferencing-button" class="{css goog-inline-block} {css goog-button} {css goog-button-base}">{msg meaning="calendar.event.videoconferencing.add" desc="add event video conferencing label"}Add video conference{/msg} </div>
+                <div id="bm-ui-form-videoconferencing-loading" class="{css goog-inline-block} {css goog-button} {css goog-button-base}" style="display:none;">{msg meaning="calendar.event.videoconferencing.loading" desc="add event video conferencing loading label"}Reservation in progress...{/msg} </div>
+
+                <div id="bm-ui-form-videoconferencing-goto" style="display:none;">
+                  <div class="{css goog-inline-block} {css goog-link-button}">
+                    <a id= "bm-ui-form-videoconferencing-url" target='_blank' href="#">
+                      <span class="{css fa} {css fa-video-camera}"></span>
+                      &nbsp;
+                      {msg meaning="calendar.event.videoconferencing.join" desc="join video conferencing label"}Join video conference{/msg}
+                    </a>
+                  </div>
+                  <div class="{css goog-inline-block} {css goog-link-button}" role="button" id="bm-ui-form-videoconferencing-remove" style="-webkit-user-select: none;" tabindex="0">X</div>
+                  <div class="{css goog-inline-block} {css goog-link-button}" role="button" id="bm-ui-form-videoconferencing-url-copy" style="-webkit-user-select: none;" tabindex="0">
+                    <span class="{css fa} {css fa-copy}"></span>
+                  </div>
+                  <input type="text" id="bm-ui-form-videoconferencing-url-copy-value" value="" />
+                </div>
+
+                  <div id="bm-ui-form-videoconferencing-desc">
+                    {if $event.conferenceDescription}
+                      {$event.conferenceDescription}
+                    {/if}
+                  </div>
+              </div>
+
+            </div>
+
             <div class="{css bm-ui-form-entry} {css bm-clearfix}">
               <label for="bm-ui-form-location">{msg meaning="calendar.event.location" desc="event location label"}Location{/msg}</label>
               <div class="{css bm-ui-form-input}">
@@ -223,6 +260,7 @@
               </div>
             </div>  
           </fieldset>
+
           <fieldset id="bm-ui-form-fieldset-repeat" class="{css goog-tab-content}" style='display: none'>
           <div class="{css bm-ui-form-entry} {css bm-clearfix}">
             <label for="bm-ui-form-repeat">{msg meaning="calendar.event.repeat.label" desc="Event repeat kind selection label"}Repeat{/msg}</label>

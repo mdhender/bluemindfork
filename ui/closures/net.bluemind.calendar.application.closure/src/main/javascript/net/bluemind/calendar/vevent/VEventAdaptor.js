@@ -69,8 +69,18 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(veve
   model.attendees = goog.array.map(vevent['attendees'] || [], this.attendeeToModelView, this);
   model.location = vevent['location'];
   model.url = vevent['url'];
+  model.conference = vevent['conference'];
   model.organizer = vevent['organizer'];
   model.description = vevent['description'];
+  model.conferenceDescription = '';
+  if (model.conference != null && model.conference != '') {
+    var idx = model.description.indexOf("<videoconferencingtemplate");
+    var len = model.description.length;
+    var desc = model.description;
+    model.description = desc.substring(0, idx);
+    model.conferenceDescription = desc.substring(idx, len);
+  }
+
   model.transp = vevent['transparency'];
   model.class = vevent['classification'];
   model.status = vevent['status'];
@@ -425,9 +435,10 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.fromModelView = function(mo
   vevent['summary'] = model.summary;
   vevent['classification'] = model.class || 'Public';
   vevent['transparency'] = model.transp || (model.states.busy ? 'Opaque' : 'Transparent');
-  vevent['description'] = model.description || '';
+  vevent['description'] = (model.description || '') + (model.conferenceDescription || '');
   vevent['location'] = model.location || '';
   vevent['url'] = model.url || '';
+  vevent['conference'] = model.conference || '';
   vevent['priority'] = model.priority || 5;
   vevent['status'] = model.status || 'Confirmed';
   vevent['exdate'] = null;

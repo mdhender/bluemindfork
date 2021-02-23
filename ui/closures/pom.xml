@@ -62,6 +62,8 @@
 		<module>net.bluemind.resource.closure</module>
 		<module>net.bluemind.deferredaction.api.closure</module>
 		<module>net.bluemind.deferredaction.closure</module>
+		<module>net.bluemind.videoconferencing.api.closure</module>
+		<module>net.bluemind.videoconferencing.closure</module>
 	</modules>
 	<build>
 		<plugins>

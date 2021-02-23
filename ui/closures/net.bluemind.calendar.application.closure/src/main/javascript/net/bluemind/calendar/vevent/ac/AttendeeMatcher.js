@@ -140,6 +140,20 @@ net.bluemind.calendar.vevent.ac.AttendeeMatcher.prototype.requestMatchingRows = 
   var q = '(_exists_:value.communications.emails.value OR value.kind:group) AND (value.identification.formatedName.value:'
       + token + ' OR value.communications.emails.value:' + token + ')';
 
+  // exclude videoconferencing resources
+  var videoConferencingResources = this.ctx_.service('videoConferencing').getVideoConferencingResources();
+  if (videoConferencingResources != null && videoConferencingResources.length > 0) {
+    var exclude = ' AND !(';
+    var or = '';
+    goog.array.forEach(videoConferencingResources, function(res) {
+      exclude += or + " uid:" + res.uid;
+      or = ' OR ';
+    });
+    exclude +=")";
+
+    q += exclude;
+  }
+
   var callback = goog.bind(this.onMatch, this, raw, matchHandler);
   this.ctx_
       .service('addressbooks')

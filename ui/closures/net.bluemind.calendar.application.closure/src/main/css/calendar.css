@@ -1594,6 +1594,23 @@ div.form-notification {
   width: auto;
 }
 
+#bm-ui-form-videoconferencing-button, #bm-ui-form-videoconferencing-loading {
+  width: 300px;
+}
+
+#bm-ui-form-videoconferencing-goto {
+  padding: 4px 0px 5px;
+}
+
+#bm-ui-form-videoconferencing-goto div {
+  padding-right: 10px;
+}
+
+#bm-ui-form-videoconferencing-url-copy-value, #bm-ui-popup-videoconferencing-url-copy-value {
+  position: absolute;
+  z-index: -1;
+}
+
 
 /******************************************************************************
  *                          FREEBUSY

@@ -417,19 +417,23 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setModel = function(model) {
 
 /** @override */
 net.bluemind.calendar.vevent.ui.Form.prototype.createDom = function() {
-  goog.base(this, 'createDom');
+  goog.base(this, 'createDom');  
   var el = this.getElement();
   var dom = this.getDomHelper();
   var model = this.getModel();
   var weekdays = goog.array.clone(goog.i18n.DateTimeSymbols_en.WEEKDAYS);
   var narrow = goog.array.clone(goog.i18n.DateTimeSymbols.NARROWWEEKDAYS);
   var fdow = (goog.i18n.DateTimeSymbols.FIRSTDAYOFWEEK + 1) % 7;
+  var videoConferencingResources = goog.array.filter(this.ctx.service('videoConferencing').getVideoConferencingResources(), function(res) {
+    return res.canInvite;
+  });
   el.innerHTML = net.bluemind.calendar.vevent.templates.form({
     defaultCalendar : this.getModel().states.defaultCalendar,
     event : this.getModel(),
     calendars : this.calendars,
     longweekdays : goog.array.rotate(weekdays, -fdow),
-    narrowweekdays : goog.array.rotate(narrow, -fdow)
+    narrowweekdays : goog.array.rotate(narrow, -fdow),
+    videoConferencingResources : videoConferencingResources
   });
   this.getChild('toolbar').renderBefore(el.firstChild);
 
@@ -459,7 +463,6 @@ net.bluemind.calendar.vevent.ui.Form.prototype.createDom = function() {
   this.getChild('attendee-autocomplete').decorate(this.getElementByClass(goog.getCssName('bm-ui-form-attendee-input')));
   this.ac_.attachInputs(this.getChild('attendee-autocomplete').getElement());
   this.getChild('reminder').decorate(this.getElementByClass(goog.getCssName('bm-ui-form-reminder-block')));
-
 };
 
 net.bluemind.calendar.vevent.ui.Form.prototype.showHistory = function(entries) {
@@ -678,6 +681,41 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
     this.getModel().location = goog.dom.forms.getValue(e.target);
     this.setFormActions_();
   });
+
+  // VIDEOCONFERENCING
+  var videoConferencingResources = goog.array.filter(this.ctx.service('videoConferencing').getVideoConferencingResources(), function(res) {
+    return res.canInvite;
+  });
+
+  if (videoConferencingResources != null && videoConferencingResources.length > 0) {
+    dom.getElement('this-is-videoconferencing').style.display = 'block';
+
+    if (this.getModel().conference != null && this.getModel().conference != '') {
+      this.showConferenceData_();
+    } else {
+      this.showConferenceForm_();
+    }
+
+
+    var button = dom.getElement('bm-ui-form-videoconferencing-button');
+    handler.listen(button, goog.events.EventType.CLICK, function() {
+      button.style.display = 'none';
+      dom.getElement('bm-ui-form-videoconferencing-loading').style.display = 'block';
+      this.onVideoConferencingSelect_(true);
+    });
+
+    handler.listen(dom.getElement('bm-ui-form-videoconferencing-remove'), goog.events.EventType.CLICK, function() {
+      dom.getElement('bm-ui-form-videoconferencing-goto').style.display = 'none'
+      dom.getElement('bm-ui-form-videoconferencing-loading').style.display = 'block';
+      this.onVideoConferencingSelect_(false);
+    });
+
+    handler.listen(dom.getElement('bm-ui-form-videoconferencing-url-copy'), goog.events.EventType.CLICK, function() {
+      document.getElementById("bm-ui-form-videoconferencing-url-copy-value").select();
+      document.execCommand('copy');
+    });
+
+  }
 
   // URL
   el = dom.getElement('bm-ui-form-url');
@@ -1006,7 +1044,22 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setModelValues_ = function() {
     this.getChild('freebusy').initGrid();
 
     if (model.states.meeting) {
-      goog.array.forEach(model.attendees, function(attendee) {
+      var videoConferencingResourcesPath = [];
+      var videoConferencingResources = this.ctx.service('videoConferencing').getVideoConferencingResources();
+      if (videoConferencingResources != null) {
+        videoConferencingResources.forEach(function(res) {
+          videoConferencingResourcesPath.push('bm://' + goog.global['bmcSessionInfos']['domain'] + '/resources/' + res.uid);
+        });
+      }
+
+     var attendees = [];
+      goog.array.forEach(this.getModel().attendees, function(attendee) {
+        if (!goog.array.contains(videoConferencingResourcesPath, attendee['dir'])) {
+          attendees.push(attendee);
+        }
+      });
+
+      goog.array.forEach(attendees, function(attendee) {
         this.addAttendee_(attendee);
       }, this);
       this.onAttendeeChange_();
@@ -1655,6 +1708,95 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onAcceptCountersUpdate_ = functio
 
   goog.dom.classlist.enable(checkbox.parentNode, goog.getCssName('active'), model.acceptCounters);
 }
+
+net.bluemind.calendar.vevent.ui.Form.prototype.onVideoConferencingSelect_ = function(value) {
+  var dom = this.getDomHelper();
+
+  var resourceUid = goog.dom.forms.getValue(goog.dom.getElement('bm-ui-form-videoconferencing-select'));
+  this.ctx
+    .service('addressbooks')
+    .search('', 0, 1, 'Pertinance', 'uid:'+resourceUid)
+    .then(function(res) {
+      var vcard = res[0];
+      var ret = {
+        'cutype' : 'Resource',
+        'commonName' : vcard['value']['identification']['formatedName']['value'],
+        'dir' : vcard['value']['source'],
+        'uri' : vcard['container'] + '/' + vcard['uid'],
+        'mailto' : null,
+        'rsvp' : true,
+        'memberCount' : 0
+      };
+
+      if (vcard['value']['communications']['emails'] && vcard['value']['communications']['emails'].length > 0) {
+        ret['mailto'] = goog.array.reduce(vcard['value']['communications']['emails'], function(p, email) {
+          if (p == null) {
+            return email['value'];
+          } else if (goog.array.find(email['parameters'], function(v) {
+            return v['label'] == 'DEFAULT' && v['value'] == 'true';
+          })) {
+            return email['value'];
+          } else {
+            return p;
+          }
+        }, null);
+      }
+      this.addOrRemoveVideoConferencing_(ret, value ? 'add' : 'remove');
+    }, null, this);
+}
+
+net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = function (attendee, mode) {
+
+  var adaptor = new net.bluemind.calendar.vevent.VEventSeriesAdaptor(this.ctx);
+  if (mode == "add") {
+    this.getModel().attendees.push(attendee);
+    this.getModel().states.meeting = this.getModel().attendees.length > 1;
+    var vseries = adaptor.fromVEventModelView(this.getModel());
+    this.ctx.service('videoConferencing').add(vseries.value['main']).then(function(res) {
+      this.getModel().conference = res['conference'];
+      var desc = res.description.trim();
+      var idx =  desc.indexOf("<videoconferencingtemplate");
+      var len = desc.length;
+      this.getModel().description = desc.substring(0, idx) || '';
+      this.getModel().conferenceDescription = desc.substring(idx, len);
+      this.editor_.setValue(this.getModel().description);
+      this.showConferenceData_();
+    }, null, this);
+  } else if (mode == "remove") {
+    var vseries = adaptor.fromVEventModelView(this.getModel());
+    this.ctx.service('videoConferencing').remove(vseries.value['main']).then(function(res) {
+      this.getModel().conference = null;
+      this.getModel().conferenceDescription = '';
+      this.editor_.setValue(res.description);
+      goog.array.removeIf(this.getModel().attendees, function(a) {
+        return attendee['mailto'] == a['mailto'];
+      });
+      this.getModel().states.meeting = this.getModel().attendees.length !== 0;
+      this.showConferenceForm_();
+    }, null, this);
+  }
+};
+
+net.bluemind.calendar.vevent.ui.Form.prototype.showConferenceForm_ = function() {
+  var videoConferencingResources = this.ctx.service('videoConferencing').getVideoConferencingResources()
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-select').style.display = videoConferencingResources.length == 1 ? 'none' : 'block';
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-button').style.display = 'block';
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-loading').style.display = 'none';
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-goto').style.display = 'none';
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-url').href = "#";
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-desc').innerHTML = '';
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-url-copy-value').value = '';
+};
+
+net.bluemind.calendar.vevent.ui.Form.prototype.showConferenceData_ = function() {
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-select').style.display = 'none';
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-button').style.display = 'none';
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-loading').style.display = 'none';
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-goto').style.display = 'block';
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-url').href = this.getModel().conference;
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-desc').innerHTML = this.getModel().conferenceDescription;
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-url-copy-value').value = this.getModel().conference;
+};
 
 /**
  * Apply check and modification when the all day status change

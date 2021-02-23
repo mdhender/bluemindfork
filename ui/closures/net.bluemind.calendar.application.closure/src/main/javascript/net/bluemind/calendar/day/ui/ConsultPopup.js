@@ -38,13 +38,14 @@ goog.require("net.bluemind.calendar.vevent.VEventEvent");
  * @constructor
  * @extends {goog.ui.Component}
  */
-net.bluemind.calendar.day.ui.ConsultPopup = function(format, opt_domHelper) {
+net.bluemind.calendar.day.ui.ConsultPopup = function(ctx, format, opt_domHelper) {
   goog.base(this, format, opt_domHelper);
+  this.ctx_ = ctx;
   var menu = new goog.ui.Menu();
   
   /** @meaning calendar.action.duplicate */
   var MSG_DUPLICATE = goog.getMsg('Duplicate');
-  child = new goog.ui.MenuItem(MSG_DUPLICATE);
+  var child = new goog.ui.MenuItem(MSG_DUPLICATE);
   child.setId('duplicate');
   menu.addChild(child, true);
 
@@ -76,6 +77,10 @@ net.bluemind.calendar.day.ui.ConsultPopup.prototype.setListeners = function() {
   });
   
 };
+
+/** @override */
+net.bluemind.calendar.day.ui.ConsultPopup.prototype.ctx_;
+
 /** @override */
 net.bluemind.calendar.day.ui.ConsultPopup.prototype.eraseElement_ = function() {
   this.getChild('others').exitDocument();
@@ -103,8 +108,25 @@ net.bluemind.calendar.day.ui.ConsultPopup.prototype.buildContent = function() {
   var calendar = goog.array.find(this.calendars, function(calendar) {
     return calendar.uid == this.getModel().calendar;
   }, this);
+
+  var videoConferencingResourcesPath = [];
+  var videoConferencingResources = this.ctx_.service('videoConferencing').getVideoConferencingResources();
+  if (videoConferencingResources != null) {
+    videoConferencingResources.forEach(function(res) {
+      videoConferencingResourcesPath.push('bm://' + goog.global['bmcSessionInfos']['domain'] + '/resources/' + res.uid);
+    });
+  }
+
+  var attendees = [];
+  goog.array.forEach(this.getModel().attendees, function(attendee) {
+    if (!goog.array.contains(videoConferencingResourcesPath, attendee['dir'])) {
+      attendees.push(attendee);
+    }
+  });
+
   return goog.soy.renderAsElement(net.bluemind.calendar.day.templates.consult, {
     event : this.getModel(),
+    attendees : attendees,
     calendar : calendar
   });
 };

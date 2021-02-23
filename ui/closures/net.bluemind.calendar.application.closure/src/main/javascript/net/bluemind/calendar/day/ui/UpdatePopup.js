@@ -41,8 +41,9 @@ goog.require('goog.ui.Component.EventType');
  * @constructor
  * @extends {goog.ui.Component}
  */
-net.bluemind.calendar.day.ui.UpdatePopup = function(format, opt_domHelper) {
+net.bluemind.calendar.day.ui.UpdatePopup = function(ctx, format, opt_domHelper) {
   goog.base(this, format, opt_domHelper);
+  this.ctx_ = ctx;
   this.lastingHandler = new goog.events.EventHandler(this);
   this.registerDisposable(this.lastingHandler);
   /** @meaning calendar.updatePopup.delete.title */
@@ -91,16 +92,34 @@ net.bluemind.calendar.day.ui.UpdatePopup.prototype.enterDocument = function() {
 /** @override */
 net.bluemind.calendar.day.ui.UpdatePopup.prototype.buildContent = function() {
   var model = this.getModel();
-
   var calendar = goog.array.find(this.calendars, function(calendar) {
     return calendar.uid == model.calendar;
   });
 
+  var videoConferencingResourcesPath = [];
+  var videoConferencingResources = this.ctx_.service('videoConferencing').getVideoConferencingResources();
+  if (videoConferencingResources != null) {
+    videoConferencingResources.forEach(function(res) {
+      videoConferencingResourcesPath.push('bm://' + goog.global['bmcSessionInfos']['domain'] + '/resources/' + res.uid);
+    });
+  }
+
+  var attendees = [];
+  goog.array.forEach(model.attendees, function(attendee) {
+    if (!goog.array.contains(videoConferencingResourcesPath, attendee['dir'])) {
+      attendees.push(attendee);
+    }
+  });
+
   return goog.soy.renderAsElement(net.bluemind.calendar.day.templates.update, {
     event : model,
+    attendees : attendees,
     calendar : calendar
   });
 };
+
+/** @override */
+net.bluemind.calendar.day.ui.UpdatePopup.prototype.ctx_;
 
 /** @override */
 net.bluemind.calendar.day.ui.UpdatePopup.prototype.eraseElement_ = function() {
@@ -160,6 +179,13 @@ net.bluemind.calendar.day.ui.UpdatePopup.prototype.setModelListeners = function(
     });
     this.getHandler().listen(this.getChild('reply-invite').getChild('counter-selection').getMenu(), goog.ui.Component.EventType.HIDE, function(e) {
       this.removeAutoHidePartner(e.target.getElement());
+    });
+  }
+
+  if (this.getModel().conference) {
+    this.getHandler().listen(goog.dom.getElement('bm-ui-popup-videoconferencing-url-copy'), goog.events.EventType.CLICK, function() {
+      document.getElementById("bm-ui-popup-videoconferencing-url-copy-value").select();
+      document.execCommand('copy');
     });
   }
 

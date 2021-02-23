@@ -94,6 +94,7 @@ goog.require("net.bluemind.todolist.service.TodolistsSyncManager");
 goog.require("net.bluemind.calendar.service.CalendarsSyncManager");
 goog.require("net.bluemind.calendar.PendingEventsMgmt");
 goog.require('net.bluemind.resource.service.ResourcesService');
+goog.require('net.bluemind.videoconferencing.service.VideoConferencingService');
 
 /**
  * Calendar application
@@ -196,6 +197,8 @@ net.bluemind.calendar.CalendarApplication.prototype.bootstrap = function(ctx) {
       return ctx.session.set('defaultview', view.value.type);
     }
   }, null, this).then(function() {
+    return this.initializeVideoConferencingResources_(ctx);
+  }, this).then(function() {
     this.setEnvironnement_(ctx);
   }, null, this).thenCatch(function(error) {
     goog.log.error(this.logger, error.toString(), error);
@@ -256,7 +259,27 @@ net.bluemind.calendar.CalendarApplication.prototype.initializeFolders_ = functio
   return ctx.service('calendarviews').getViewRemote("default").then(function(view) {
     return ctx.service('folders').getFoldersRemote(null, view['value']['calendars']);
  });
-}
+};
+
+net.bluemind.calendar.CalendarApplication.prototype.initializeVideoConferencingResources_ = function(ctx) {
+  return ctx.service('resources').byTypeRemote('bm-videoconferencing').then(function(uids) {
+    if (uids.length > 0) {
+      var dir = new net.bluemind.directory.api.DirectoryClient(ctx.rpc, '', ctx.user['domainUid']);
+      return dir.getMultiple(uids).then(function(res) {
+        goog.array.forEach(res, function(r) {
+          var cm = new net.bluemind.core.container.api.ContainerManagementClient(ctx.rpc, '', 'calendar:' + r.uid);
+          cm.canAccess(['Invitation']).then(function(canInvite) {
+            r.canInvite = canInvite;            
+          });
+        });
+
+        return ctx.service('videoConferencing').setVideoConferencingResources(res);
+      });
+    } else {
+      return ctx.service('videoConferencing').setVideoConferencingResources([]);
+    }
+  })
+};
 
 /** @override */
 net.bluemind.calendar.CalendarApplication.prototype.registerFilters = function(router) {
@@ -294,6 +317,7 @@ net.bluemind.calendar.CalendarApplication.prototype.registerServices = function(
   ctx.service("metadataMgmt", net.bluemind.calendar.MetadataMgmt);
   ctx.service("pendingEventsMgmt", net.bluemind.calendar.PendingEventsMgmt);
   ctx.service("resources", net.bluemind.resource.service.ResourcesService);
+  ctx.service("videoConferencing", net.bluemind.videoconferencing.service.VideoConferencingService);
 };
 
 /** @override */

@@ -74,10 +74,10 @@ net.bluemind.calendar.month.MonthView = function(ctx, format, opt_domHelper) {
   var popup = new net.bluemind.calendar.day.ui.CreationPopup(format);
   popup.setId('create-popup');
   this.addChild(popup, true);
-  popup = new net.bluemind.calendar.day.ui.ConsultPopup(format);
+  popup = new net.bluemind.calendar.day.ui.ConsultPopup(ctx, format);
   popup.setId('consult-popup');
   this.addChild(popup, true);
-  popup = new net.bluemind.calendar.day.ui.UpdatePopup(format);
+  popup = new net.bluemind.calendar.day.ui.UpdatePopup(ctx, format);
   popup.setId('update-popup');
   this.addChild(popup, true);
   popup = new net.bluemind.calendar.day.ui.EventList(format);

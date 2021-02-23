@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.videoconferencing.api.closure
+Bundle-SymbolicName: net.bluemind.videoconferencing.api.closure;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Closure-Bundle-Type: Library
+Require-Bundle: relief;bundle-version="1.0.0",
+ net.bluemind.container.closure;bundle-version="1.0.0",
+ net.bluemind.commons.closure;bundle-version="1.0.0",
+ net.bluemind.videoconferencing.api;bundle-version="4.1.0"
+Bundle-ClassPath: js.jar

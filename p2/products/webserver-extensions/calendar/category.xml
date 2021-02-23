@@ -36,4 +36,7 @@
    <bundle id="net.bluemind.resource.api.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.resource.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.ui.eventdeferredaction" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing.api.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing.closure" version="4.1.0.qualifier"/>
 </site>

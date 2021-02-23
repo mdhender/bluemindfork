@@ -118,3 +118,16 @@ net.bluemind.resource.service.ResourcesService.prototype.removeFromEventDescript
 
     }, domainUid, [domainUid, resourceUid, eventDescription]);
 };
+
+net.bluemind.resource.service.ResourcesService.prototype.byType = function (
+    resourceType) {
+    var domainUid = this.ctx.user["domainUid"];
+    return this.handleByState({
+        'remote': this.byTypeRemote
+    }, domainUid, [resourceType]);
+};
+
+net.bluemind.resource.service.ResourcesService.prototype.byTypeRemote = function(resourceType) {
+  var client = new net.bluemind.resource.api.ResourcesClient(this.ctx.rpc, '', this.ctx.user["domainUid"]);
+  return client.byType(resourceType);
+};

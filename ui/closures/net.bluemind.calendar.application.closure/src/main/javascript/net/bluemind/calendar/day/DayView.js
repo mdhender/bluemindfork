@@ -80,10 +80,10 @@ net.bluemind.calendar.day.DayView = function(ctx, format, opt_domHelper) {
   var popup = new net.bluemind.calendar.day.ui.CreationPopup(format, opt_domHelper);
   popup.setId('create-popup');
   this.addChild(popup, true);
-  popup = new net.bluemind.calendar.day.ui.ConsultPopup(format, opt_domHelper);
+  popup = new net.bluemind.calendar.day.ui.ConsultPopup(ctx, format, opt_domHelper);
   popup.setId('consult-popup');
   this.addChild(popup, true);
-  popup = new net.bluemind.calendar.day.ui.UpdatePopup(format, opt_domHelper);
+  popup = new net.bluemind.calendar.day.ui.UpdatePopup(ctx, format, opt_domHelper);
   popup.setId('update-popup');
   this.addChild(popup, true);
   popup = new net.bluemind.calendar.day.ui.EventList(format);

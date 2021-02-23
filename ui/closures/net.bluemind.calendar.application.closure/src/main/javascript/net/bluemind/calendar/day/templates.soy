@@ -227,6 +227,7 @@
 /**
  * Event consult popup
  * @param event Event.
+ * @param attendees Attendees
  * @param calendar Calendar
  */
 {template .consult}
@@ -264,7 +265,7 @@
               <th class="{css attendees-label}">{msg meaning="calendar.event.attendees" desc="attendees"}Attendees{/msg}</th>
               <td>
                 {call .attendees_}
-                  {param attendees : $event.attendees /}
+                  {param attendees : $attendees /}
                 {/call}
               </td>
             </tr>
@@ -283,6 +284,7 @@
 /**
  * Event update popup
  * @param event Event.
+ * @param attendees Attendees
  * @param calendar Calendar
  */
 {template .update}
@@ -402,6 +404,31 @@
             </tr>
           {/if}
 
+          {if $event.conference}
+            <tr>
+              <th>{msg meaning="calendar.event.videoconferencing" desc="event video conferencing label"}Video Conference{/msg}</th>
+              <td colspan="2">
+                <a target='_blank' href="{$event.conference}">
+                  <span class="{css fa} {css fa-video-camera}"></span>
+                  &nbsp;
+                  {msg meaning="calendar.event.videoconferencing.join" desc="join video conferencing label"}Join video conference{/msg}
+                </a>
+                &nbsp;&nbsp;
+                <div class="{css goog-inline-block} {css goog-link-button}">
+                  <span id="bm-ui-popup-videoconferencing-url-copy" class="{css fa} {css fa-copy}"></span>
+                </div>
+                <input type="text" value="{$event.conference}" id="bm-ui-popup-videoconferencing-url-copy-value"/>
+
+                  <div id="bm-ui-form-videoconferencing-desc">
+                    {if $event.conferenceDescription}
+                      {$event.conferenceDescription}
+                    {/if}
+                  </div>
+
+              </td>
+            </tr>
+          {/if}
+
           {if $event.url}
             <tr>
               <th>{msg meaning="calendar.event.url" desc="event url label"}URL{/msg}</th>
@@ -432,7 +459,7 @@
               <th class="{css attendees-label}">{msg meaning="calendar.event.attendees" desc="attendees"}Attendees{/msg}</th>
               <td colspan="2">
                 {call .attendees_}
-                  {param attendees : $event.attendees /}
+                  {param attendees : $attendees /}
                 {/call}
               </td>
             </tr>
