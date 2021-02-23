@@ -72,7 +72,8 @@ function encodeHtmlEntities(str) {
 }
 
 function convertData(b64Data) {
-    const byteCharacters = atob(b64Data);
+    const sanitized = b64Data.replace(/[^aA-zZ+0-9/=]/, "");
+    const byteCharacters = atob(sanitized);
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
         byteNumbers[i] = byteCharacters.charCodeAt(i);
