@@ -341,7 +341,8 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		long id = addDraft(inbox).internalId;
 
 		IMailboxItems recs = provider().instance(IMailboxItems.class, inbox.uid);
-		Part struct = recs.getForUpdate(id).value.body.structure;
+		MailboxItem item = recs.getForUpdate(id).value;
+		Part struct = item.body.structure;
 
 		PartsWalker<Object> walker = new PartsWalker<>(null);
 		walker.visit((Object c, Part p) -> {
@@ -351,6 +352,22 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		}, struct);
 
 		assertEquals(Bodies.getFolder("sid").list().length, 3);
+
+		// assert that fetch works with tmp parts
+		walker.visit((Object c, Part p) -> {
+			if (p.mime.equals("text/html")) {
+				final Part textHtmlPart = p;
+				Stream partContent = recs.fetch(item.imapUid, textHtmlPart.address, textHtmlPart.encoding,
+						textHtmlPart.mime, textHtmlPart.charset, textHtmlPart.fileName);
+				byte[] bytes;
+				try {
+					bytes = fetchPart(partContent).getBytes();
+					assertTrue(bytes.length > 0);
+				} catch (InterruptedException e) {
+					fail();
+				}
+			}
+		}, struct);
 	}
 
 	@Test

@@ -56,6 +56,7 @@ import com.google.common.io.ByteStreams;
 
 import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.file.OpenOptions;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.mail.api.ImapAck;
 import net.bluemind.backend.mail.api.ImapItemIdentifier;
@@ -114,6 +115,7 @@ import net.bluemind.imap.vertx.cmd.AppendResponse;
 import net.bluemind.imap.vertx.cmd.SelectResponse;
 import net.bluemind.imap.vertx.stream.EmptyStream;
 import net.bluemind.imap.vertx.stream.WrappedOutputStream;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.Mime4JHelper.SizedStream;
 
@@ -205,7 +207,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public void deleteById(long id) {
-		logger.info("Delete {}", id);
+		rbac.check(Verb.Write.name());
+		logger.debug("Delete {}", id);
 		ItemValue<MailboxItem> toDelete = getCompleteById(id);
 		if (toDelete != null) {
 			Collection<MailboxItemFlag> curFlags = toDelete.value.flags;
@@ -220,6 +223,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public void resync() {
+		rbac.check(Verb.Write.name());
 		long time = System.currentTimeMillis();
 		Collection<Integer> imapUids = imapContext.withImapClient((sc, fast) -> {
 			sc.select(imapFolder);
@@ -241,7 +245,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				}
 			}
 		}
-		logger.info("Found {} extra record(s), {} unlinked record(s) before resync of {}", extraRecords.size(),
+		logger.debug("Found {} extra record(s), {} unlinked record(s) before resync of {}", extraRecords.size(),
 				unlinkedRecords.size(), imapFolder);
 		if (!extraRecords.isEmpty()) {
 			IDbMailboxRecords recsApi = context.provider().instance(IDbMailboxRecords.class,
@@ -259,11 +263,12 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			recsApi.deleteImapUids(unlinkedRecords.stream().map(iv -> iv.value.imapUid).collect(Collectors.toList()));
 		}
 		time = System.currentTimeMillis() - time;
-		logger.info("{} re-sync completed in {}ms.", imapFolder, time);
+		logger.debug("{} re-sync completed in {}ms.", imapFolder, time);
 	}
 
 	@Override
 	public ImapAck updateById(long id, MailboxItem mail) {
+		rbac.check(Verb.Write.name());
 		if (mail.imapUid == 0) {
 			logger.warn("Not updating {} with imapUid 0", id);
 			return ImapAck.create(0L, mail.imapUid);
@@ -272,7 +277,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		ItemValue<MailboxItem> current = getCompleteById(id);
 		MailboxItemFlag mdnSentFlag = new MailboxItemFlag("$MDNSent");
 		if (current.value.flags.contains(mdnSentFlag) && !mail.flags.contains(mdnSentFlag)) {
-			logger.info("cannot remove flag $MDNSent (on {})", id);
+			logger.debug("cannot remove flag $MDNSent (on {})", id);
 			mail.flags.add(mdnSentFlag);
 		}
 
@@ -284,7 +289,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		String curHeaders = headersString(current.value);
 		String newHeaders = headersString(mail);
 		boolean headersChanged = !curHeaders.equals(newHeaders);
-		logger.info("changes are flags:{}, subject:{}, headers:{}", flagsChanged, subjectChanged, headersChanged);
+		logger.debug("changes are flags:{}, subject:{}, headers:{}", flagsChanged, subjectChanged, headersChanged);
 		if (subjectChanged || headersChanged) {
 			return mailRewrite(current, mail);
 		} else if (flagsChanged) {
@@ -320,12 +325,12 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		AtomicReference<CompletableFuture<Void>> ref = new AtomicReference<>(root);
 		walker.visit((Object c, Part p) -> {
 			logger.debug("Prepare for part @ {}", p.address);
-			if (isImapAddress(p.address)) {
+			if (p.address != null && isImapAddress(p.address)) {
 				logger.debug("*** preload part {}", p.address);
 				String replacedPartUid = UUID.randomUUID().toString();
 				File output = partFile(replacedPartUid);
 				ref.set(ref.get().thenCompose(v -> {
-					logger.info("Fetching {} part {}...", current.value.imapUid, p.address);
+					logger.debug("Fetching {} part {}...", current.value.imapUid, p.address);
 					CompletableFuture<Void> sinkProm = sink(current.value.imapUid, p.address, p.encoding,
 							output.toPath());
 					p.address = replacedPartUid;
@@ -361,13 +366,13 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 					FlagsList fl = new FlagsList();
 					fl.add(Flag.DELETED);
 					fl.add(Flag.SEEN);
-					logger.info("Marking the previous one uid:{} as deleted.", current.value.imapUid);
+					logger.debug("Marking the previous one uid:{} as deleted.", current.value.imapUid);
 					try {
 						List<Integer> imapUids = Arrays.asList((int) current.value.imapUid);
 						boolean selected = sc.select(imapFolder);
 						boolean done = sc.uidStore(imapUids, fl, true);
 						sc.uidExpunge(imapUids);
-						logger.info("After store => selected: {}, done: {} ", selected, done);
+						logger.debug("After store => selected: {}, done: {} ", selected, done);
 						return CompletableFuture.completedFuture(appendResult);
 					} catch (IMAPException ie) {
 						CompletableFuture<ImapResponseStatus<AppendResponse>> cf = new CompletableFuture<>();
@@ -393,7 +398,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	private boolean isImapAddress(String address) {
-		return CharMatcher.inRange('0', '9').or(CharMatcher.is('.')).matchesAllOf(address);
+		return address.equals("TEXT") || CharMatcher.inRange('0', '9').or(CharMatcher.is('.')).matchesAllOf(address);
 	}
 
 	private SizedStream createEmlStructure(long id, String previousBody, MessageBody body) {
@@ -423,6 +428,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public ImapItemIdentifier create(MailboxItem value) {
+		rbac.check(Verb.Write.name());
 		IOfflineMgmt offlineApi = context.provider().instance(IOfflineMgmt.class, imapContext.user.domainUid,
 				imapContext.user.uid);
 		IdRange alloc = offlineApi.allocateOfflineIds(1);
@@ -431,12 +437,13 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public ImapAck createById(long id, MailboxItem value) {
+		rbac.check(Verb.Write.name());
 		ImapItemIdentifier itemIdentifier = create(id, value);
 		return ImapAck.create(itemIdentifier.version, itemIdentifier.imapUid);
 	}
 
 	private ImapItemIdentifier create(long id, MailboxItem value) {
-		logger.info("create {}", id);
+		logger.debug("create {}", id);
 		try {
 			return (ImapItemIdentifier) createAsync(id, value).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 		} catch (TimeoutException to) {
@@ -470,9 +477,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				}
 			});
 
-			logger.info("Append {}bytes EML into {}", sizedStream.size, imapFolder);
+			logger.debug("Append {}bytes EML into {}", sizedStream.size, imapFolder);
 			int added = sc.append(imapFolder, sizedStream.input, fl, value.body.date);
-			logger.info("Added IMAP UID: {} with date {}", added, value.body.date);
+			logger.debug("Added IMAP UID: {} with date {}", added, value.body.date);
 			return added;
 		});
 		if (addedUid > 0) {
@@ -531,7 +538,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			ItemValue<MailboxItem> adapted = adapt(v);
 			adapted.value.body = bodiesByGuid.get(v.value.messageBody);
 			if (adapted.value.body == null) {
-				logger.info("message {} has no body. item uid {}, imap uid {}", v.value.messageBody, v.uid,
+				logger.debug("message {} has no body. item uid {}, imap uid {}", v.value.messageBody, v.uid,
 						v.value.imapUid);
 				return null;
 			}
@@ -560,7 +567,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		CompletableFuture<Long> completion = ReplicationEvents.onMailboxChanged(mailboxUniqueId);
 		int readded = imapContext.withImapClient((sc, fast) -> {
 			int newUid = sc.append(imapFolder, directRead, new FlagsList());
-			logger.info("Previous body re-injected in {} with imapUid {}", imapFolder, newUid);
+			logger.debug("Previous body re-injected in {} with imapUid {}", imapFolder, newUid);
 			return newUid;
 		});
 		if (readded > 0) {
@@ -592,15 +599,26 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	@Override
 	public Stream fetch(long imapUid, String address, String encoding, String mime, String charset, String filename) {
 		rbac.check(Verb.Read.name());
-		return VertxStream.stream(fetchAndDecode(imapUid, address, encoding), mime, charset, filename);
-	}
 
-	private ReadStream<Buffer> fetchAndDecode(long imapUid, String address, String encoding) {
+		if (!isImapAddress(address)) {
+			return tmpPartFetch(imapUid, address);
+		}
 		VXStoreClient.Decoder dec = Decoder.fromEncoding(encoding);
-		return fetch(imapUid, address, dec);
+		ReadStream<Buffer> partContent = imapFetch(imapUid, address, dec);
+		return VertxStream.stream(partContent, mime, charset, filename);
 	}
 
-	private ReadStream<Buffer> fetch(long imapUid, String address, Decoder dec) {
+	private Stream tmpPartFetch(long imapUid, String address) {
+		File tmpPart = partFile(address);
+		if (!tmpPart.exists()) {
+			throw new ServerFault("Trying to fetch a tmp part which doesnt exist");
+		}
+		// temporary parts are already decoded because getForUpdate already did it
+		return VertxStream.stream(
+				VertxPlatform.getVertx().fileSystem().openBlocking(tmpPart.getAbsolutePath(), new OpenOptions()));
+	}
+
+	private ReadStream<Buffer> imapFetch(long imapUid, String address, Decoder dec) {
 		return imapContext.withImapClient((sc, fast) -> {
 			ImapResponseStatus<SelectResponse> selectResult = fast.select(imapFolder).get(DEFAULT_TIMEOUT,
 					TimeUnit.SECONDS);
@@ -632,7 +650,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		rbac.check(Verb.Write.name());
 		long time = System.currentTimeMillis();
 		String addr = UUID.randomUUID().toString();
-		logger.info("[{}] Upload starts {}...", addr, part);
+		logger.debug("[{}] Upload starts {}...", addr, part);
 		try (ReadInputStream ri = new ReadInputStream(VertxStream.read(part));
 				OutputStream out = Files.newOutputStream(partFile(addr).toPath())) {
 			ByteStreams.copy(ri, out);
@@ -651,7 +669,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			File part = partFile(partId);
 			if (part.exists()) {
 				Files.delete(part.toPath());
-				logger.info("removed {}", part.getAbsolutePath());
+				logger.debug("removed {}", part.getAbsolutePath());
 			}
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
@@ -672,7 +690,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				return null;
 			}
 			TaggedResult result = sc.tagged(imapCommand);
-			logger.info("{}, Unseen updates ok ? {}", imapCommand, result.isOk());
+			logger.debug("{}, Unseen updates ok ? {}", imapCommand, result.isOk());
 			if (!result.isOk()) {
 				for (int i = 0; i < result.getOutput().length; i++) {
 					logger.error(result.getOutput()[i]);
@@ -717,7 +735,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	@Override
 	public void multipleDeleteById(List<Long> ids) {
 		if (ids.isEmpty()) {
-			logger.info("ids list is empty, nothing to delete");
+			logger.debug("ids list is empty, nothing to delete");
 			return;
 		}
 
@@ -727,7 +745,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				.map(r -> Long.toString(r.value.imapUid)).collect(Collectors.toList());
 
 		if (uids.isEmpty()) {
-			logger.info("filtered ids list is empty, nothing to delete");
+			logger.debug("filtered ids list is empty, nothing to delete");
 			return;
 		}
 
@@ -740,7 +758,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		time = System.currentTimeMillis() - time;
 		try {
 			ItemChange change = repEvent.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-			logger.info("Delete {} items with a latency of {}ms. (imap time: {}ms)", ids.size(), change.latencyMs,
+			logger.debug("Delete {} items with a latency of {}ms. (imap time: {}ms)", ids.size(), change.latencyMs,
 					time);
 		} catch (TimeoutException e) {
 			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
@@ -752,6 +770,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public Ack addFlag(FlagUpdate flagUpdate) {
+		rbac.check(Verb.Write.name());
 		List<String> imapUidsToMark = multipleByIdWithoutBody(flagUpdate.itemsId).stream()
 				.filter(item -> !item.value.flags.contains(flagUpdate.mailboxItemFlag))
 				.map(item -> Long.toString(item.value.imapUid)).collect(Collectors.toList());
@@ -761,6 +780,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public Ack deleteFlag(FlagUpdate flagUpdate) {
+		rbac.check(Verb.Write.name());
 		List<String> imapUidsToMark = multipleByIdWithoutBody(flagUpdate.itemsId).stream()
 				.filter(item -> item.value.flags.contains(flagUpdate.mailboxItemFlag))
 				.map(item -> Long.toString(item.value.imapUid)).collect(Collectors.toList());
