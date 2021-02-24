@@ -55,6 +55,11 @@
 									creates the event.
 								</ui:msg>
 							</li>
+							<li style="width:32.7rem;">
+								<ui:msg key="templateInfoVar3">
+									$﹛URL﹜: the conference url.
+								</ui:msg>
+							</li>
 						</ul>
 					</p>
 					<g:ListBox ui:field="templateLanguagesComboBox" />

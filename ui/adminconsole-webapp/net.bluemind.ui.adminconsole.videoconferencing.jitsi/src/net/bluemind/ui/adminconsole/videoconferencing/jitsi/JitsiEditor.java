@@ -68,7 +68,7 @@ public class JitsiEditor extends CompositeGwtWidgetElement {
 	static final String TYPE = "bm.ac.JitsiEditor";
 
 	private static final String RESOURCE_UID = "videoconferencing-jitsi";
-	private static final String RESOURCE_CONTAINER = "videoconferencing-jitsi-settings-container";
+	private static final String RESOURCE_CONTAINER = RESOURCE_UID + "-settings-container";
 	private static final String SETTINGS_URL = "url";
 	private static final String SETTINGS_TEMPLATES = "templates";
 
@@ -194,7 +194,7 @@ public class JitsiEditor extends CompositeGwtWidgetElement {
 		resource.label = "Jitsi";
 		resource.typeIdentifier = "bm-videoconferencing"; // FIXME use IVideoConferenceUid
 		resource.properties = new ArrayList<>();
-		resource.properties.add(PropertyValue.create("bm-videoconferencing-type", "jitsi"));
+		resource.properties.add(PropertyValue.create("bm-videoconferencing-type", RESOURCE_UID));
 		String uid = net.bluemind.ui.common.client.forms.tag.UUID.uuid().toLowerCase();
 		resource.emails = Arrays.asList(Email.create(uid + "@" + domainUid, true, true));
 		resource.reservationMode = ResourceReservationMode.AUTO_ACCEPT;
@@ -217,7 +217,8 @@ public class JitsiEditor extends CompositeGwtWidgetElement {
 			containeService.create(RESOURCE_CONTAINER, cd);
 		}).thenAccept(res -> {
 			containeService.setAccessControlList(RESOURCE_CONTAINER,
-					Arrays.asList(AccessControlEntry.create(Ajax.TOKEN.getSubject(), Verb.All)));
+					Arrays.asList(AccessControlEntry.create(Ajax.TOKEN.getSubject(), Verb.All),
+							AccessControlEntry.create(domainUid, Verb.Read)));
 		}).thenCompose(res -> {
 			return new DomainSettingsGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid).promiseApi().get();
 		}).thenAccept(domainSettings -> {
