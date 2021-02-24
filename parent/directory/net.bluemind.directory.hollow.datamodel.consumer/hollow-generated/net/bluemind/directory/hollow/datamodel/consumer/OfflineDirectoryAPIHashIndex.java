@@ -53,17 +53,6 @@ public class OfflineDirectoryAPIHashIndex extends AbstractHollowHashIndex<Offlin
         };
     }
 
-    public Iterable<Email> findEmailMatches(Object... keys) {
-        HollowHashIndexResult matches = idx.findMatches(keys);
-        if(matches == null) return Collections.emptySet();
-
-        return new AbstractHollowOrdinalIterable<Email>(matches.iterator()) {
-            public Email getData(int ordinal) {
-                return api.getEmail(ordinal);
-            }
-        };
-    }
-
     public Iterable<ListOfAnrToken> findListOfAnrTokenMatches(Object... keys) {
         HollowHashIndexResult matches = idx.findMatches(keys);
         if(matches == null) return Collections.emptySet();
@@ -71,17 +60,6 @@ public class OfflineDirectoryAPIHashIndex extends AbstractHollowHashIndex<Offlin
         return new AbstractHollowOrdinalIterable<ListOfAnrToken>(matches.iterator()) {
             public ListOfAnrToken getData(int ordinal) {
                 return api.getListOfAnrToken(ordinal);
-            }
-        };
-    }
-
-    public Iterable<ListOfEmail> findListOfEmailMatches(Object... keys) {
-        HollowHashIndexResult matches = idx.findMatches(keys);
-        if(matches == null) return Collections.emptySet();
-
-        return new AbstractHollowOrdinalIterable<ListOfEmail>(matches.iterator()) {
-            public ListOfEmail getData(int ordinal) {
-                return api.getListOfEmail(ordinal);
             }
         };
     }
@@ -104,6 +82,39 @@ public class OfflineDirectoryAPIHashIndex extends AbstractHollowHashIndex<Offlin
         return new AbstractHollowOrdinalIterable<DataLocation>(matches.iterator()) {
             public DataLocation getData(int ordinal) {
                 return api.getDataLocation(ordinal);
+            }
+        };
+    }
+
+    public Iterable<ListOfString> findListOfStringMatches(Object... keys) {
+        HollowHashIndexResult matches = idx.findMatches(keys);
+        if(matches == null) return Collections.emptySet();
+
+        return new AbstractHollowOrdinalIterable<ListOfString>(matches.iterator()) {
+            public ListOfString getData(int ordinal) {
+                return api.getListOfString(ordinal);
+            }
+        };
+    }
+
+    public Iterable<Email> findEmailMatches(Object... keys) {
+        HollowHashIndexResult matches = idx.findMatches(keys);
+        if(matches == null) return Collections.emptySet();
+
+        return new AbstractHollowOrdinalIterable<Email>(matches.iterator()) {
+            public Email getData(int ordinal) {
+                return api.getEmail(ordinal);
+            }
+        };
+    }
+
+    public Iterable<ListOfEmail> findListOfEmailMatches(Object... keys) {
+        HollowHashIndexResult matches = idx.findMatches(keys);
+        if(matches == null) return Collections.emptySet();
+
+        return new AbstractHollowOrdinalIterable<ListOfEmail>(matches.iterator()) {
+            public ListOfEmail getData(int ordinal) {
+                return api.getListOfEmail(ordinal);
             }
         };
     }

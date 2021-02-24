@@ -37,7 +37,6 @@ import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Strings;
 import com.netflix.hollow.api.consumer.HollowConsumer;
 import com.netflix.hollow.api.consumer.HollowConsumer.AnnouncementWatcher;
 import com.netflix.hollow.api.consumer.HollowConsumer.ObjectLongevityConfig;
@@ -45,12 +44,10 @@ import com.netflix.hollow.api.consumer.HollowConsumer.ObjectLongevityDetector;
 import com.netflix.hollow.api.consumer.index.UniqueKeyIndex;
 import com.netflix.hollow.core.index.HollowHashIndex;
 import com.netflix.hollow.core.index.HollowHashIndexResult;
-import com.netflix.hollow.core.index.HollowPrefixIndex;
 import com.netflix.hollow.core.read.iterator.HollowOrdinalIterator;
 import com.netflix.hollow.tools.query.HollowFieldMatchQuery;
 
 import net.bluemind.directory.hollow.datamodel.consumer.Query.QueryType;
-import net.bluemind.directory.hollow.datamodel.consumer.internal.BmPrefixIndex;
 import net.bluemind.directory.hollow.datamodel.consumer.internal.LoggingRefreshListener;
 import net.bluemind.serialization.client.HollowContext;
 
@@ -68,15 +65,14 @@ public class DirectoryDeserializer {
 	protected UniqueKeyIndex<AddressBookRecord, Long> minimalIndex;
 	protected HollowHashIndex kindIndex;
 	protected final HollowConsumer consumer;
-	private final HollowPrefixIndex nameIndex;
 	private final HollowHashIndex anrIndex;
-	private final HollowPrefixIndex emailIndex;
+	private final HollowHashIndex emailIndex;
 
 	private UniqueKeyIndex<OfflineAddressBook, String> rootByDomainUidIndex;
 
 	private final String domainUid;
 
-	private static final Set<String> complexQueryKeys = new HashSet<>(Arrays.asList("anr", "office"));
+	private static final Set<String> complexQueryKeys = new HashSet<>(Arrays.asList("anr", "office", "emails"));
 
 	public static final String baseDataDir() {
 		return System.getProperty(BASE_DIR_PROP, "/var/spool/bm-hollowed/directory");
@@ -169,12 +165,10 @@ public class DirectoryDeserializer {
 		this.consumer.addRefreshListener(distinguishedNameIndex);
 		this.uidIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class).usingPath("uid", String.class);
 		this.consumer.addRefreshListener(uidIndex);
-		this.nameIndex = new BmPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "name");
-		nameIndex.listenForDeltaUpdates();
 		this.anrIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "", "anr.element.token");
 		anrIndex.listenForDeltaUpdates();
-		this.emailIndex = new BmPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "emails.element.address",
-				1);
+		this.emailIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "",
+				"emails.element.ngrams.element.value");
 		emailIndex.listenForDeltaUpdates();
 		this.kindIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "", "kind.value");
 		kindIndex.listenForDeltaUpdates();
@@ -222,22 +216,7 @@ public class DirectoryDeserializer {
 	}
 
 	private List<AddressBookRecord> byEmailPrefix(String email) {
-		return byPrefix(emailIndex, email);
-	}
-
-	private List<AddressBookRecord> byPrefix(HollowPrefixIndex index, String value) {
-		if (Strings.isNullOrEmpty(value)) {
-			return Collections.emptyList();
-		}
-		List<AddressBookRecord> results = new ArrayList<>();
-		HollowOrdinalIterator it = index.findKeysWithPrefix(value);
-		OfflineDirectoryAPI api = (OfflineDirectoryAPI) consumer.getAPI();
-		int ordinal = it.next();
-		while (ordinal != HollowOrdinalIterator.NO_MORE_ORDINALS) {
-			results.add(api.getAddressBookRecord(ordinal));
-			ordinal = it.next();
-		}
-		return results;
+		return byHash(emailIndex, email);
 	}
 
 	public List<AddressBookRecord> byKind(String kind) {

@@ -74,6 +74,7 @@ public class AddressBookRecord {
 	 */
 	@HollowInline
 	public String name;
+
 	/**
 	 * PidTagSurname
 	 */

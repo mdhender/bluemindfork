@@ -18,11 +18,10 @@
  */
 package net.bluemind.directory.hollow.datamodel.producer;
 
-import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
@@ -32,63 +31,44 @@ import net.bluemind.directory.hollow.datamodel.AddressBookRecord;
 import net.bluemind.directory.hollow.datamodel.AnrToken;
 import net.bluemind.directory.hollow.datamodel.Email;
 
-public class AnrTokens {
+public class AnrTokens extends EdgeNgram<AnrToken> {
 
-	private static AnrToken token(String s) {
-		AnrToken ant = new AnrToken();
-		ant.token = s;
-		return ant;
-	}
-
-	private AnrTokens() {
+	public AnrTokens() {
+		super(2, 5);
 	}
 
 	private static final Splitter EMAIL_CHUNKS = Splitter.on(CharMatcher.anyOf(".-")).omitEmptyStrings();
 	private static final Splitter DN_CHUNKS = Splitter.on(CharMatcher.whitespace()).omitEmptyStrings();
 
-	public static List<AnrToken> compute(AddressBookRecord rec) {
-		Set<String> tokens = new HashSet<>();
-		int min = 2;
-		int max = 5;
+	public List<AnrToken> compute(AddressBookRecord rec) {
+		Set<AnrToken> tokens = new HashSet<>();
 		if (!Strings.isNullOrEmpty(rec.name)) {
 			for (String chunk : DN_CHUNKS.split(rec.name)) {
-				tokens.addAll(edgeNGrams(chunk, min, max));
+				tokens.addAll(new AnrTokens().compute(chunk));
 			}
 		}
 		if (!Strings.isNullOrEmpty(rec.email)) {
-			tokens.add(rec.email.toLowerCase());
+			tokens.add(map(rec.email.toLowerCase()));
 			String localPart = rec.email.substring(0, rec.email.indexOf('@'));
 			for (String chunk : EMAIL_CHUNKS.split(localPart)) {
-				tokens.addAll(edgeNGrams(chunk, min, max));
+				tokens.addAll(new AnrTokens().compute(chunk));
 			}
 		}
 		for (Email e : rec.emails) {
-			tokens.add(e.address.toLowerCase());
+			tokens.add(map(e.address.toLowerCase()));
 			String localPart = e.address.substring(0, e.address.indexOf('@'));
 			for (String chunk : EMAIL_CHUNKS.split(localPart)) {
-				tokens.addAll(edgeNGrams(chunk, min, max));
+				tokens.addAll(new AnrTokens().compute(chunk));
 			}
 		}
-		return tokens.stream().map(AnrTokens::token).collect(Collectors.toList());
+		return new ArrayList<>(tokens);
 	}
 
-	private static Set<String> edgeNGrams(String s, int min, int max) {
-		Set<String> ngrams = new HashSet<>();
-		int len = s.length();
-		ngrams.add(s);
-		ngrams.add(unaccent(s));
-		if (len > min) {
-			for (int j = min; j < Math.min(max, len + 1); j++) {
-				String sub = s.substring(0, j);
-				ngrams.add(sub);
-				ngrams.add(unaccent(sub));
-			}
-		}
-		return ngrams;
-	}
-
-	private static String unaccent(String src) {
-		return Normalizer.normalize(src, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+	@Override
+	public AnrToken map(String value) {
+		AnrToken ant = new AnrToken();
+		ant.token = value;
+		return ant;
 	}
 
 }

@@ -19,6 +19,13 @@ public class Email extends HollowObject {
         return delegate().isAddressEqual(ordinal, testValue);
     }
 
+    public ListOfString getNgrams() {
+        int refOrdinal = delegate().getNgramsOrdinal(ordinal);
+        if(refOrdinal == -1)
+            return null;
+        return  api().getListOfString(refOrdinal);
+    }
+
     public boolean getAllAliases() {
         return delegate().getAllAliases(ordinal);
     }

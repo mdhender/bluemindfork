@@ -135,8 +135,8 @@ public abstract class BaseIncrementalUpdatesAndSearchTests {
 		record.distinguishedName = kind + "/" + record.uid;
 		record.kind = kind;
 		record.email = record.uid + "@bm.loc";
-		record.emails = Arrays.asList(Email.create(record.email, true, true),
-				Email.create("alt-" + record.email, false, false));
+		record.emails = Arrays.asList(new Email(record.email, Arrays.asList(record.email), true, true),
+				new Email("alt-" + record.email, Arrays.asList("alt-" + record.email), false, false));
 		record.created = new Date();
 		record.updated = record.created;
 		AnrToken anr = new AnrToken();

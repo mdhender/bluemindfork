@@ -73,6 +73,7 @@ import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.hollow.datamodel.AddressBookRecord;
 import net.bluemind.directory.hollow.datamodel.DataLocation;
 import net.bluemind.directory.hollow.datamodel.OfflineAddressBook;
+import net.bluemind.directory.hollow.datamodel.producer.EdgeNgram.EmailEdgeNGram;
 import net.bluemind.directory.hollow.datamodel.producer.impl.DomainVersions;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
@@ -310,7 +311,7 @@ public class DirectorySerializer implements DataSerializer {
 		rec.userX509Certificate = serializer.get(DirEntrySerializer.Property.UserX509Certificate).toByteArray();
 		rec.thumbnail = serializer.get(DirEntrySerializer.Property.ThumbnailPhoto).toByteArray();
 		rec.hidden = serializer.get(DirEntrySerializer.Property.Hidden).toBoolean();
-		rec.anr = AnrTokens.compute(rec);
+		rec.anr = new AnrTokens().compute(rec);
 		return rec;
 	}
 
@@ -322,18 +323,22 @@ public class DirectorySerializer implements DataSerializer {
 
 		return box.value.emails.stream().flatMap(e -> {
 			if (!e.allAliases) {
-				return Stream
-						.of(net.bluemind.directory.hollow.datamodel.Email.create(e.address, e.isDefault, e.allAliases));
+				return Stream.of(new net.bluemind.directory.hollow.datamodel.Email(e.address,
+						new EmailEdgeNGram().compute(e.address), e.isDefault, e.allAliases));
 			} else {
 				String left = e.address.split("@")[0];
-				return domainAliases.stream().map(d -> net.bluemind.directory.hollow.datamodel.Email
-						.create(left + "@" + d, e.isDefault, e.allAliases));
+				return domainAliases.stream().map(d -> {
+					String value = left + "@" + d;
+					return new net.bluemind.directory.hollow.datamodel.Email(value, new EmailEdgeNGram().compute(value),
+							e.isDefault, e.allAliases);
+				});
 			}
 		}).collect(Collectors.toList());
 	}
 
 	private List<net.bluemind.directory.hollow.datamodel.Email> toEmails(String address) {
-		return Arrays.asList(net.bluemind.directory.hollow.datamodel.Email.create(address, true, false));
+		return Arrays.asList(new net.bluemind.directory.hollow.datamodel.Email(address,
+				new EmailEdgeNGram().compute(address), true, false));
 	}
 
 	private OfflineAddressBook createOabEntry(ItemValue<Domain> domain, long version) {

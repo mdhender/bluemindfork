@@ -11,6 +11,7 @@ public class EmailTypeAPI extends HollowObjectTypeAPI {
     public EmailTypeAPI(OfflineDirectoryAPI api, HollowObjectTypeDataAccess typeDataAccess) {
         super(api, typeDataAccess, new String[] {
             "address",
+            "ngrams",
             "allAliases",
             "isDefault"
         });
@@ -30,30 +31,40 @@ public class EmailTypeAPI extends HollowObjectTypeAPI {
         return getTypeDataAccess().isStringFieldEqual(ordinal, fieldIndex[0], testValue);
     }
 
-    public boolean getAllAliases(int ordinal) {
+    public int getNgramsOrdinal(int ordinal) {
         if(fieldIndex[1] == -1)
+            return missingDataHandler().handleReferencedOrdinal("Email", ordinal, "ngrams");
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[1]);
+    }
+
+    public ListOfStringTypeAPI getNgramsTypeAPI() {
+        return getAPI().getListOfStringTypeAPI();
+    }
+
+    public boolean getAllAliases(int ordinal) {
+        if(fieldIndex[2] == -1)
             return Boolean.TRUE.equals(missingDataHandler().handleBoolean("Email", ordinal, "allAliases"));
-        return Boolean.TRUE.equals(getTypeDataAccess().readBoolean(ordinal, fieldIndex[1]));
+        return Boolean.TRUE.equals(getTypeDataAccess().readBoolean(ordinal, fieldIndex[2]));
     }
 
     public Boolean getAllAliasesBoxed(int ordinal) {
-        if(fieldIndex[1] == -1)
+        if(fieldIndex[2] == -1)
             return missingDataHandler().handleBoolean("Email", ordinal, "allAliases");
-        return getTypeDataAccess().readBoolean(ordinal, fieldIndex[1]);
+        return getTypeDataAccess().readBoolean(ordinal, fieldIndex[2]);
     }
 
 
 
     public boolean getIsDefault(int ordinal) {
-        if(fieldIndex[2] == -1)
+        if(fieldIndex[3] == -1)
             return Boolean.TRUE.equals(missingDataHandler().handleBoolean("Email", ordinal, "isDefault"));
-        return Boolean.TRUE.equals(getTypeDataAccess().readBoolean(ordinal, fieldIndex[2]));
+        return Boolean.TRUE.equals(getTypeDataAccess().readBoolean(ordinal, fieldIndex[3]));
     }
 
     public Boolean getIsDefaultBoxed(int ordinal) {
-        if(fieldIndex[2] == -1)
+        if(fieldIndex[3] == -1)
             return missingDataHandler().handleBoolean("Email", ordinal, "isDefault");
-        return getTypeDataAccess().readBoolean(ordinal, fieldIndex[2]);
+        return getTypeDataAccess().readBoolean(ordinal, fieldIndex[3]);
     }
 
 

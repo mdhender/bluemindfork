@@ -34,10 +34,11 @@ public class AddressBookMatcher {
 	private AddressBookMatcher() {
 	}
 
-	public static boolean matches(String key, String value, Optional<OfflineAddressBook> book,
-			AddressBookRecord record) {
-		value = value.toLowerCase();
+	public static boolean matches(String key, String v, Optional<OfflineAddressBook> book, AddressBookRecord record) {
+		String value = v.toLowerCase();
 		switch (key) {
+		case "uid":
+			return record.getUid().equals(value);
 		case "name":
 			return value(record.getName()).contains(value);
 		case "office":
@@ -82,7 +83,7 @@ public class AddressBookMatcher {
 			}
 			for (Iterator<Email> iter = record.getEmails().iterator(); iter.hasNext();) {
 				Email email = iter.next();
-				String emailAddress = value(email.getAddress());
+				String emailAddress = value(email.getAddress().getValue());
 				Set<String> addresses = new HashSet<>();
 				if (!email.getAllAliases()) {
 					addresses.add(emailAddress);

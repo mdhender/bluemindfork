@@ -83,7 +83,7 @@ public class DirectoryDumpCommand implements ICmdLet, Runnable {
 		return MoreObjects.toStringHelper("Rec")//
 				.add("uid", hstring(abr.getUid()))//
 				.add("minId", abr.getMinimalid())//
-				.add("name", hstring(abr.getName()))//
+				.add("name", abr.getName())//
 				.add("email", defMail)//
 				.add("otherEmails", emails(abr.getEmails(), defMail))//
 				.add("dn", hstring(abr.getDistinguishedName()))//

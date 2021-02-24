@@ -10,6 +10,8 @@ public interface EmailDelegate extends HollowObjectDelegate {
 
     public boolean isAddressEqual(int ordinal, String testValue);
 
+    public int getNgramsOrdinal(int ordinal);
+
     public boolean getAllAliases(int ordinal);
 
     public Boolean getAllAliasesBoxed(int ordinal);

@@ -46,6 +46,7 @@ import net.bluemind.directory.hollow.datamodel.AddressBookRecord;
 import net.bluemind.directory.hollow.datamodel.AnrToken;
 import net.bluemind.directory.hollow.datamodel.Email;
 import net.bluemind.directory.hollow.datamodel.OfflineAddressBook;
+import net.bluemind.directory.hollow.datamodel.producer.EdgeNgram.EmailEdgeNGram;
 
 public class DirectorySearchTest {
 
@@ -125,6 +126,9 @@ public class DirectorySearchTest {
 		assertFalse(byEmail.isPresent());
 
 		byEmail = filteredSearch.byEmail(rec4.email);
+		assertTrue(byEmail.isPresent());
+
+		byEmail = filteredSearch.byEmail(rec4.email.substring(0, 4));
 		assertTrue(byEmail.isPresent());
 	}
 
@@ -222,8 +226,8 @@ public class DirectorySearchTest {
 
 	@Test
 	public void testOrQuery() throws Exception {
-		Query query1 = Query.contentQuery("name", rec1.name);
-		Query query2 = Query.contentQuery("name", rec2.name);
+		Query query1 = Query.contentQuery("uid", rec1.uid);
+		Query query2 = Query.contentQuery("uid", rec2.uid);
 
 		Query query = Query.orQuery(Arrays.asList(query1, query2));
 		List<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> result = defaultSearch.search(query);
@@ -248,8 +252,11 @@ public class DirectorySearchTest {
 		record.distinguishedName = kind + "/" + record.uid;
 		record.kind = kind;
 		record.email = record.uid + "@bm.loc";
-		record.emails = Arrays.asList(Email.create(record.email, true, true),
-				Email.create("alt-" + record.email, false, false));
+
+		;
+
+		record.emails = Arrays.asList(new Email(record.email, new EmailEdgeNGram().compute(record.email), true, true),
+				new Email("alt-" + record.email, new EmailEdgeNGram().compute("alt-" + record.email), false, false));
 		record.domain = "bm.loc";
 		AnrToken anr = new AnrToken();
 		anr.token = record.uid;

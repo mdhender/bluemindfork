@@ -39,10 +39,10 @@ public class GenerateConsumerApi {
 		HollowAPIGenerator generator = new HollowAPIGenerator.Builder().withAPIClassname("OfflineDirectoryAPI")
 				// .withDestination(
 				// "/Users/tom/git/bluemind-all/open/parent/directory/net.bluemind.directory.hollow.datamodel.consumer/hollow-generated/")
-				// .withDestination(
-				// "/Users/tf/dev/projects/bluemind-mapi/open/parent/directory/net.bluemind.directory.hollow.datamodel.consumer/hollow-generated")
 				.withDestination(
-						"/Users/tom/git/bluemind-all/open/parent/directory/net.bluemind.directory.hollow.datamodel.consumer/hollow-generated")
+						"/Users/tf/dev/projects/bluemind-mapi/open/parent/directory/net.bluemind.directory.hollow.datamodel.consumer/hollow-generated")
+				// .withDestination(
+				// "/Users/tom/git/bluemind-all/open/parent/directory/net.bluemind.directory.hollow.datamodel.consumer/hollow-generated")
 				.withPackageName(DirectoryDeserializer.class.getPackage().getName())//
 				.withDataModel(writeEngine)//
 				// .withHollowPrimitiveTypes(true)//

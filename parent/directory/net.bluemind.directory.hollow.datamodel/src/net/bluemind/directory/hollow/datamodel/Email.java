@@ -19,22 +19,23 @@
 
 package net.bluemind.directory.hollow.datamodel;
 
+import java.util.List;
+
 import com.netflix.hollow.core.write.objectmapper.HollowInline;
 
 public class Email {
 
 	@HollowInline
 	public String address;
-
+	public List<String> ngrams;
 	public boolean allAliases;
 	public boolean isDefault;
 
-	public static Email create(String address, boolean isDefault, boolean allAliases) {
-		Email email = new Email();
-		email.address = address;
-		email.isDefault = isDefault;
-		email.allAliases = allAliases;
-		return email;
+	public Email(String address, List<String> ngrams, boolean isDefault, boolean allAliases) {
+		this.address = address;
+		this.ngrams = ngrams;
+		this.isDefault = isDefault;
+		this.allAliases = allAliases;
 	}
 
 }
