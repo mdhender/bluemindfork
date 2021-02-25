@@ -42,8 +42,8 @@
                     "plural": "Moving {count} messages in {folder}..."
                 },
                 "success": {
-                    "single": "\"{subject}\" has been successfully moved in {folder}.",
-                    "plural": "{count} messages have been successfully moved in {folder}."
+                    "single": "\"{subject}\" has been successfully moved to {folder}.",
+                    "plural": "{count} messages have been successfully moved to {folder}."
                 },
                 "error": {
                     "single": "Failed to move \"{subject}\" in {folder}.",
@@ -258,7 +258,7 @@
     "mail.search.options.folder.label": "Search in",
     "mail.selection.alert.readonly": "Some selected messages are read-only. Some actions (like Move or Remove) may not be available.",
     "mail.shortcuts.purge": "Shift + Delete",
-    "mail.toolbar.more.aria": "Others actions for selected messages",
+    "mail.toolbar.more.aria": "Other actions for selected messages",
     "mail.toolbar.more": "Others",
     "mail.toolbar.move.tooltip": "Move message",
     "mail.viewer.no.preview": "(No preview available)",
