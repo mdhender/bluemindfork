@@ -59,6 +59,20 @@
                </appinfo>
             </annotation>
          </attribute>
+         <attribute name="date_yyyyMMdd" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="sequence" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
