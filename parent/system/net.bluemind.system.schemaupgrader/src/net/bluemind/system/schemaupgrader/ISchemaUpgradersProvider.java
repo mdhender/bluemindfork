@@ -24,9 +24,9 @@ import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
 public interface ISchemaUpgradersProvider {
 
-	public List<Updater> allJavaUpdaters();
+	public List<DatedUpdater> allJavaUpdaters();
 
-	public List<Updater> allSqlUpdaters();
+	public List<DatedUpdater> allSqlUpdaters();
 
 	public boolean isActive();
 

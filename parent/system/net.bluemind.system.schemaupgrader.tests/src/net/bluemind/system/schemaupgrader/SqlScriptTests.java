@@ -60,10 +60,10 @@ public class SqlScriptTests {
 		expectedUpdaters.put("20200415", 4);
 
 		SqlScripts scriptsLoader = new SqlScripts();
-		List<Updater> updaters = scriptsLoader.getSqlScripts();
+		List<DatedUpdater> updaters = scriptsLoader.getSqlScripts();
 		assertTrue(updaters.size() >= 3);
 
-		for (Updater u : updaters) {
+		for (DatedUpdater u : updaters) {
 			if (u.sequence() == 76) {
 				assertTrue(u.afterSchemaUpgrade());
 			} else if (u.sequence() == 75 || u.sequence() == 4) {

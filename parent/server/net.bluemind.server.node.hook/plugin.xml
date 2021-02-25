@@ -10,7 +10,7 @@
    <extension
          point="net.bluemind.system.schemaupgrader.javacode">
       <java
-            code="net.bluemind.server.node.hook.update.WhoAmIUpgrade">
+            code="net.bluemind.server.node.hook.update.WhoAmIUpgrade" date_yyyyMMdd="20200428" sequence="100">
       </java>
    </extension>
 

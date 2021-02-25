@@ -13,5 +13,7 @@ Require-Bundle: org.junit,
  net.bluemind.eclipse.common,
  net.bluemind.system.api,
  net.bluemind.system.persistence,
- slf4j.api
+ slf4j.api,
+ org.eclipse.equinox.registry,
+ org.eclipse.core.runtime;bundle-version="3.12.0"
 Automatic-Module-Name: net.bluemind.system.schemaupgrader.tests

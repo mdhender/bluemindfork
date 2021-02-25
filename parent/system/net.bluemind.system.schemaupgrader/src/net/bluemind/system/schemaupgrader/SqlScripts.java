@@ -37,7 +37,7 @@ import net.bluemind.core.api.fault.ServerFault;
 
 public class SqlScripts {
 
-	private List<Updater> sqlScripts;
+	private List<DatedUpdater> sqlScripts;
 	private static final Logger logger = LoggerFactory.getLogger(SqlScripts.class);
 	private SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
 
@@ -88,7 +88,7 @@ public class SqlScripts {
 						afterSchemaUpgrade = Boolean.parseBoolean(e.getAttribute("after_schema_upgrade"));
 					}
 					boolean ignoreErrors = Boolean.parseBoolean(e.getAttribute("ignore_errors"));
-					Updater descriptor = new SqlUpdater(url, ignoreErrors, afterSchemaUpgrade, db.database(), date,
+					DatedUpdater descriptor = new SqlUpdater(url, ignoreErrors, afterSchemaUpgrade, db.database(), date,
 							sequence);
 					sqlScripts.add(descriptor);
 				}
@@ -97,7 +97,7 @@ public class SqlScripts {
 		}
 	}
 
-	public List<Updater> getSqlScripts() {
+	public List<DatedUpdater> getSqlScripts() {
 		return sqlScripts;
 	}
 

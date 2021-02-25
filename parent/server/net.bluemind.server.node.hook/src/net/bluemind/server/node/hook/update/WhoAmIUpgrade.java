@@ -17,8 +17,6 @@
   */
 package net.bluemind.server.node.hook.update;
 
-import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -52,16 +50,6 @@ public class WhoAmIUpgrade implements Updater {
 			serversApi.writeFile(iv.uid, "/etc/bm/server.uid", iv.uid.getBytes());
 		}
 		return UpdateResult.ok();
-	}
-
-	@Override
-	public Date date() {
-		return java.sql.Date.valueOf(LocalDate.of(2020, 4, 28));
-	}
-
-	@Override
-	public int sequence() {
-		return 100;
 	}
 
 	@Override

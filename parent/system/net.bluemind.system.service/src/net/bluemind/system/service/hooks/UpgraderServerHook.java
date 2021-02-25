@@ -15,7 +15,7 @@ import net.bluemind.system.api.Database;
 import net.bluemind.system.persistence.Upgrader;
 import net.bluemind.system.persistence.Upgrader.UpgradePhase;
 import net.bluemind.system.persistence.UpgraderStore;
-import net.bluemind.system.schemaupgrader.Updater;
+import net.bluemind.system.schemaupgrader.DatedUpdater;
 import net.bluemind.system.schemaupgrader.runner.SchemaUpgrade;
 
 public class UpgraderServerHook extends DefaultServerHook {
@@ -28,7 +28,7 @@ public class UpgraderServerHook extends DefaultServerHook {
 			return;
 		}
 
-		List<Updater> upgraders = null;
+		List<DatedUpdater> upgraders = null;
 		try {
 			upgraders = SchemaUpgrade.getUpgradePath();
 		} catch (ServerFault e) {
@@ -42,7 +42,7 @@ public class UpgraderServerHook extends DefaultServerHook {
 		} catch (SQLException e) {
 			throw new ServerFault("Cannot create upgrader table", e);
 		}
-		for (Updater updater : upgraders) {
+		for (DatedUpdater updater : upgraders) {
 			registerUpgrader(server.uid, store, updater);
 			if (tag.equals("bm/pgsql")) {
 				registerUpgrader("master", store, updater);
@@ -50,7 +50,7 @@ public class UpgraderServerHook extends DefaultServerHook {
 		}
 	}
 
-	private void registerUpgrader(String serverUid, UpgraderStore store, Updater updater) {
+	private void registerUpgrader(String serverUid, UpgraderStore store, DatedUpdater updater) {
 		Upgrader upgrader = new Upgrader();
 		upgrader.phase = UpgradePhase.SCHEMA_UPGRADE;
 		upgrader.server = serverUid;

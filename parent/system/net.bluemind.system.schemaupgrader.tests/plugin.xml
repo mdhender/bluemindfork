@@ -4,7 +4,9 @@
    <extension
          point="net.bluemind.system.schemaupgrader.javacode">
       <java
-            code="net.bluemind.system.schemaupgrader.tests.samples.JavaCodeUpdater">
+            code="net.bluemind.system.schemaupgrader.tests.samples.JavaCodeUpdater"
+            sequence="75"
+            date_yyyyMMdd="20200428">
       </java>
    </extension>
    <extension

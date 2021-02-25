@@ -10,7 +10,7 @@
    <extension
          point="net.bluemind.system.schemaupgrader.javacode">
       <java
-            code="net.bluemind.custom.password.sizestrength.upgrader.MoveConfToGlobalSettings">
+            code="net.bluemind.custom.password.sizestrength.upgrader.MoveConfToGlobalSettings" date_yyyyMMdd="20200527" sequence="100">
       </java>
    </extension>
    <extension

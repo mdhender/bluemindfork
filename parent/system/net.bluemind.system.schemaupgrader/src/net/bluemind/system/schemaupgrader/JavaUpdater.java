@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,27 +16,53 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.system.schemaupgrader.tests.samples;
+package net.bluemind.system.schemaupgrader;
 
+import java.util.Date;
 import java.util.Set;
 
 import javax.sql.DataSource;
 
 import net.bluemind.core.task.service.IServerTaskMonitor;
-import net.bluemind.system.schemaupgrader.UpdateAction;
-import net.bluemind.system.schemaupgrader.UpdateResult;
-import net.bluemind.system.schemaupgrader.Updater;
 
-public class JavaCodeUpdater implements Updater {
+public class JavaUpdater implements DatedUpdater {
+
+	private final Updater updater;
+	private final Date date;
+	private final int sequence;
+
+	public JavaUpdater(Updater updater, Date date, int sequence) {
+		this.updater = updater;
+		this.date = date;
+		this.sequence = sequence;
+	}
 
 	@Override
 	public UpdateResult executeUpdate(IServerTaskMonitor monitor, DataSource pool, Set<UpdateAction> handledActions) {
-		return UpdateResult.ok();
+		return updater.executeUpdate(monitor, pool, handledActions);
 	}
 
 	@Override
 	public boolean afterSchemaUpgrade() {
-		return false;
+		return updater.afterSchemaUpgrade();
+	}
+
+	@Override
+	public Date date() {
+		return date;
+	}
+
+	@Override
+	public int sequence() {
+		return sequence;
+	}
+
+	public String name() {
+		return this.toString();
+	}
+
+	public String toString() {
+		return DatedUpdater.super.name() + " Class: " + updater.getClass().getName();
 	}
 
 }

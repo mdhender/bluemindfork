@@ -18,9 +18,7 @@
 package net.bluemind.system.ldap.export.upgrader;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -49,16 +47,6 @@ import net.bluemind.system.schemaupgrader.Updater;
 
 public class AddBmHiddenAttribute implements Updater {
 	private static final Logger logger = LoggerFactory.getLogger(AddBmHiddenAttribute.class);
-
-	@Override
-	public Date date() {
-		return java.sql.Date.valueOf(LocalDate.of(2020, 4, 28));
-	}
-
-	@Override
-	public int sequence() {
-		return 390;
-	}
 
 	@Override
 	public UpdateResult executeUpdate(IServerTaskMonitor monitor, DataSource pool, Set<UpdateAction> handledActions) {

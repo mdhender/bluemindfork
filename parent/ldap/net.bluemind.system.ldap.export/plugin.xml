@@ -23,13 +23,13 @@
    <extension
          point="net.bluemind.system.schemaupgrader.javacode">
       <java
-            code="net.bluemind.system.ldap.export.upgrader.AddBmHiddenAttribute">
+            code="net.bluemind.system.ldap.export.upgrader.AddBmHiddenAttribute" date_yyyyMMdd="20200428" sequence="390">
       </java>
       <java
-            code="net.bluemind.system.ldap.export.upgrader.UpdateSaslConf">
+            code="net.bluemind.system.ldap.export.upgrader.UpdateSaslConf" date_yyyyMMdd="20200428" sequence="450">
       </java>
       <java
-            code="net.bluemind.system.ldap.export.upgrader.AddIndexConfiguration">
+            code="net.bluemind.system.ldap.export.upgrader.AddIndexConfiguration" date_yyyyMMdd="20200428" sequence="460">
       </java>
    </extension>
 </plugin>

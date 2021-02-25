@@ -123,16 +123,6 @@ public class MoveConfToGlobalSettings implements Updater {
 	}
 
 	@Override
-	public Date date() {
-		return java.sql.Date.valueOf(LocalDate.of(2020, 5, 27));
-	}
-
-	@Override
-	public int sequence() {
-		return 100;
-	}
-
-	@Override
 	public boolean afterSchemaUpgrade() {
 		return true;
 	}

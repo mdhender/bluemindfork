@@ -37,7 +37,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.system.api.Database;
 
-public class SqlUpdater implements Updater {
+public class SqlUpdater implements DatedUpdater {
 	private static final Logger logger = LoggerFactory.getLogger(SqlUpdater.class);
 
 	public final URL file;
@@ -62,7 +62,7 @@ public class SqlUpdater implements Updater {
 	}
 
 	public String toString() {
-		return Updater.super.name() + " SQL:" + this.file.getFile();
+		return DatedUpdater.super.name() + " SQL:" + this.file.getFile();
 	}
 
 	@Override

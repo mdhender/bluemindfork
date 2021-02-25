@@ -71,6 +71,7 @@ import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.UpgradeReport;
 import net.bluemind.system.api.UpgradeReport.Status;
 import net.bluemind.system.persistence.UpgraderStore;
+import net.bluemind.system.schemaupgrader.DatedUpdater;
 import net.bluemind.system.schemaupgrader.UpdateAction;
 import net.bluemind.system.schemaupgrader.UpdateResult;
 import net.bluemind.system.schemaupgrader.Updater;
@@ -183,7 +184,7 @@ public class BackupDataProvider implements AutoCloseable {
 				.instance(IInstallation.class).getVersion().softwareVersion);
 
 		UpgradeReport report = new UpgradeReport();
-		List<Updater> upgraders = SchemaUpgrade.getUpgradePath();
+		List<DatedUpdater> upgraders = SchemaUpgrade.getUpgradePath();
 		Set<UpdateAction> handledActions = EnumSet.noneOf(UpdateAction.class);
 
 		executeUpgrades(upgraders, handledActions, store, onlySchema, database, datalocation, ds, report);
@@ -195,11 +196,12 @@ public class BackupDataProvider implements AutoCloseable {
 		}
 	}
 
-	private void executeUpgrades(List<Updater> upgraders, Set<UpdateAction> handledActions, UpgraderStore store,
+	private void executeUpgrades(List<DatedUpdater> upgraders, Set<UpdateAction> handledActions, UpgraderStore store,
 			boolean onlySchema, Database database, String datalocation, DataSource ds, UpgradeReport report) {
 
-		List<Updater> phase1 = upgraders.stream().filter(u -> !u.afterSchemaUpgrade()).collect(Collectors.toList());
-		List<Updater> phase2 = onlySchema ? Collections.emptyList()
+		List<DatedUpdater> phase1 = upgraders.stream().filter(u -> !u.afterSchemaUpgrade())
+				.collect(Collectors.toList());
+		List<DatedUpdater> phase2 = onlySchema ? Collections.emptyList()
 				: upgraders.stream().filter(Updater::afterSchemaUpgrade).collect(Collectors.toList());
 
 		SchemaUpgrade schemaUpgrader = new SchemaUpgrade(database, datalocation, ds, onlySchema, store);

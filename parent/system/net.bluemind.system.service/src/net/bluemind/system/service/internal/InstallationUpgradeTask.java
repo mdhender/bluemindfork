@@ -41,6 +41,7 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.system.api.Database;
 import net.bluemind.system.api.UpgradeReport;
 import net.bluemind.system.persistence.UpgraderStore;
+import net.bluemind.system.schemaupgrader.DatedUpdater;
 import net.bluemind.system.schemaupgrader.UpdateAction;
 import net.bluemind.system.schemaupgrader.UpdateResult;
 import net.bluemind.system.schemaupgrader.Updater;
@@ -68,7 +69,7 @@ public class InstallationUpgradeTask implements IServerTask {
 		checkDatabaseStatus(store);
 
 		Set<UpdateAction> handledActions = EnumSet.noneOf(UpdateAction.class);
-		List<Updater> upgraders = SchemaUpgrade.getUpgradePath();
+		List<DatedUpdater> upgraders = SchemaUpgrade.getUpgradePath();
 
 		executeUpgrades(upgraders, handledActions, store, monitor);
 
@@ -77,12 +78,13 @@ public class InstallationUpgradeTask implements IServerTask {
 		notifyUpgradeStatus("core.upgrade.end");
 	}
 
-	private void executeUpgrades(List<Updater> upgraders, Set<UpdateAction> handledActions, UpgraderStore store,
+	private void executeUpgrades(List<DatedUpdater> upgraders, Set<UpdateAction> handledActions, UpgraderStore store,
 			IServerTaskMonitor monitor) {
 		logger.info("Schema update path contains {} updater(s)", upgraders.size());
 
-		List<Updater> phase1 = upgraders.stream().filter(u -> !u.afterSchemaUpgrade()).collect(Collectors.toList());
-		List<Updater> phase2 = upgraders.stream().filter(Updater::afterSchemaUpgrade).collect(Collectors.toList());
+		List<DatedUpdater> phase1 = upgraders.stream().filter(u -> !u.afterSchemaUpgrade())
+				.collect(Collectors.toList());
+		List<DatedUpdater> phase2 = upgraders.stream().filter(Updater::afterSchemaUpgrade).collect(Collectors.toList());
 
 		for (Entry<String, DataSource> mbDS : ServerSideServiceProvider.mailboxDataSource.entrySet()) {
 			doUpgradeForDataSource(Database.SHARD, mbDS.getKey(), mbDS.getValue(), true,
@@ -103,7 +105,7 @@ public class InstallationUpgradeTask implements IServerTask {
 	}
 
 	private void doUpgradeForDataSource(Database database, String server, DataSource pool, boolean onlySchema,
-			IServerTaskMonitor monitor, UpgraderStore store, List<Updater> phase1, List<Updater> phase2,
+			IServerTaskMonitor monitor, UpgraderStore store, List<DatedUpdater> phase1, List<DatedUpdater> phase2,
 			Set<UpdateAction> handledActions) {
 
 		UpgradeReport report = new UpgradeReport();

@@ -47,10 +47,10 @@ import net.bluemind.system.api.UpgradeReport;
 import net.bluemind.system.persistence.Upgrader;
 import net.bluemind.system.persistence.Upgrader.UpgradePhase;
 import net.bluemind.system.persistence.UpgraderStore;
+import net.bluemind.system.schemaupgrader.DatedUpdater;
 import net.bluemind.system.schemaupgrader.ISchemaUpgradersProvider;
 import net.bluemind.system.schemaupgrader.UpdateAction;
 import net.bluemind.system.schemaupgrader.UpdateResult;
-import net.bluemind.system.schemaupgrader.Updater;
 
 public class SchemaUpgrade {
 	private final Database database;
@@ -68,8 +68,8 @@ public class SchemaUpgrade {
 		this.upgraderStore = upgraderStore;
 	}
 
-	public UpdateResult schemaUpgrade(IServerTaskMonitor monitor, UpgradeReport report, List<Updater> phase1,
-			List<Updater> phase2, Set<UpdateAction> handledActions) {
+	public UpdateResult schemaUpgrade(IServerTaskMonitor monitor, UpgradeReport report, List<DatedUpdater> phase1,
+			List<DatedUpdater> phase2, Set<UpdateAction> handledActions) {
 		UpdateResult schemaUpgrade = upgrade(monitor.subWork(1), report, phase1, phase2, handledActions);
 
 		if (schemaUpgrade.equals(UpdateResult.failed())) {
@@ -82,11 +82,11 @@ public class SchemaUpgrade {
 
 	}
 
-	public UpdateResult upgrade(IServerTaskMonitor subWork, UpgradeReport report, List<Updater> phase1,
-			List<Updater> phase2, Set<UpdateAction> handledActions) {
+	public UpdateResult upgrade(IServerTaskMonitor subWork, UpgradeReport report, List<DatedUpdater> phase1,
+			List<DatedUpdater> phase2, Set<UpdateAction> handledActions) {
 
-		List<Updater> phase1Filtered = phase1.stream().filter(this::updaterPending).collect(Collectors.toList());
-		List<Updater> phase2Filtered = phase2.stream().filter(this::updaterPending).collect(Collectors.toList());
+		List<DatedUpdater> phase1Filtered = phase1.stream().filter(this::updaterPending).collect(Collectors.toList());
+		List<DatedUpdater> phase2Filtered = phase2.stream().filter(this::updaterPending).collect(Collectors.toList());
 
 		UpdateResult phase1Result = executeUpdates(subWork, report, handledActions, UpgradePhase.SCHEMA_UPGRADE,
 				phase1Filtered);
@@ -120,9 +120,9 @@ public class SchemaUpgrade {
 	}
 
 	private UpdateResult executeUpdates(IServerTaskMonitor monitor, UpgradeReport report,
-			Set<UpdateAction> handledActions, UpgradePhase phase, List<Updater> updates) {
+			Set<UpdateAction> handledActions, UpgradePhase phase, List<DatedUpdater> updates) {
 		UpdateResult ur = UpdateResult.noop();
-		for (Updater u : updates) {
+		for (DatedUpdater u : updates) {
 			String updaterName = u.getClass().getSimpleName() + ":" + u.name();
 			IServerTaskMonitor subWork = monitor.subWork(updaterName, 1);
 			logger.info("Starting {}", updaterName);
@@ -151,7 +151,7 @@ public class SchemaUpgrade {
 		return ur;
 	}
 
-	private void saveUpgraderStatus(UpdateResult updateResult, Updater updater, UpgradePhase phase) {
+	private void saveUpgraderStatus(UpdateResult updateResult, DatedUpdater updater, UpgradePhase phase) {
 		Upgrader upgraderStatus = new Upgrader() //
 				.phase(phase) //
 				.database(database) //
@@ -161,7 +161,7 @@ public class SchemaUpgrade {
 		upgraderStore.store(upgraderStatus);
 	}
 
-	public static List<Updater> getUpgradePath() {
+	public static List<DatedUpdater> getUpgradePath() {
 
 		ISchemaUpgradersProvider upgradersProvider = ISchemaUpgradersProvider.getSchemaUpgradersProvider();
 		if (upgradersProvider == null) {
@@ -181,7 +181,7 @@ public class SchemaUpgrade {
 
 		}
 
-		LinkedList<Updater> upgradePath = new LinkedList<>();
+		LinkedList<DatedUpdater> upgradePath = new LinkedList<>();
 		upgradePath.addAll(upgradersProvider.allJavaUpdaters());
 		upgradePath.addAll(upgradersProvider.allSqlUpdaters());
 
@@ -191,7 +191,7 @@ public class SchemaUpgrade {
 		return upgradePath;
 	}
 
-	private boolean updaterPending(Updater updater) {
+	private boolean updaterPending(DatedUpdater updater) {
 		try {
 			return (updater.database() == Database.ALL || updater.database() == database) && !upgraderStore
 					.upgraderCompleted(Upgrader.toId(updater.date(), updater.sequence()), server, database);

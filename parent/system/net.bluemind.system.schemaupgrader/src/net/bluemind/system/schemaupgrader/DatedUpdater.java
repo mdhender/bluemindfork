@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -18,21 +18,17 @@
  */
 package net.bluemind.system.schemaupgrader;
 
-import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import javax.sql.DataSource;
+public interface DatedUpdater extends Updater {
 
-import net.bluemind.core.task.service.IServerTaskMonitor;
-import net.bluemind.system.api.Database;
+	public Date date();
 
-public interface Updater {
+	public int sequence();
 
-	UpdateResult executeUpdate(IServerTaskMonitor monitor, DataSource pool, Set<UpdateAction> handledActions);
-
-	public default Database database() {
-		return Database.DIRECTORY;
+	public default String name() {
+		SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
+		return formater.format(date()) + "-" + sequence() + "@" + database().name();
 	}
-
-	boolean afterSchemaUpgrade();
-
 }

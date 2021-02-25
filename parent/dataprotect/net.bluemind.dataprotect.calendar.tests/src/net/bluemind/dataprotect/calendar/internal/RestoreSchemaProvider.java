@@ -21,18 +21,18 @@ package net.bluemind.dataprotect.calendar.internal;
 import java.util.Collections;
 import java.util.List;
 
+import net.bluemind.system.schemaupgrader.DatedUpdater;
 import net.bluemind.system.schemaupgrader.ISchemaUpgradersProvider;
-import net.bluemind.system.schemaupgrader.Updater;
 
 public class RestoreSchemaProvider implements ISchemaUpgradersProvider {
 
 	@Override
-	public List<Updater> allJavaUpdaters() {
+	public List<DatedUpdater> allJavaUpdaters() {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public List<Updater> allSqlUpdaters() {
+	public List<DatedUpdater> allSqlUpdaters() {
 		return Collections.emptyList();
 	}
 
