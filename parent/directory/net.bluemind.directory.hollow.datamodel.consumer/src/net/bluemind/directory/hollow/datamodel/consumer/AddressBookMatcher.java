@@ -83,7 +83,7 @@ public class AddressBookMatcher {
 			}
 			for (Iterator<Email> iter = record.getEmails().iterator(); iter.hasNext();) {
 				Email email = iter.next();
-				String emailAddress = value(email.getAddress().getValue());
+				String emailAddress = value(email.getAddress());
 				Set<String> addresses = new HashSet<>();
 				if (!email.getAllAliases()) {
 					addresses.add(emailAddress);

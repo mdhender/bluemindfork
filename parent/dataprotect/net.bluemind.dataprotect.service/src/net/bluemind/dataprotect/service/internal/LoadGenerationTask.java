@@ -118,8 +118,7 @@ public class LoadGenerationTask implements IServerTask {
 					de.dataLocation = abRecord.getDataLocation().getServer().getValue();
 				}
 				if (abRecord.getEmails() != null && !abRecord.getEmails().isEmpty()) {
-					de.email = abRecord.getEmails().stream().filter(Email::getIsDefault).findFirst().get().getAddress()
-							.getValue();
+					de.email = abRecord.getEmails().stream().filter(Email::getIsDefault).findFirst().get().getAddress();
 				}
 
 				gc.entries.add(ItemValue.create(de.entryUid, de));
