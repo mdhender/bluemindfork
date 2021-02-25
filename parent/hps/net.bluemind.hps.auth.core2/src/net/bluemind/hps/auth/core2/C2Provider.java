@@ -254,7 +254,9 @@ public class C2Provider implements IAuthProvider {
 		proxyReq.addHeader("BMUserLogin", sd.login);
 		proxyReq.addHeader("BMAccountType", sd.accountType);
 		proxyReq.addHeader("BMUserLATD", sd.loginAtDomain);
-		addIfPresent(proxyReq, sd.defaultEmail, "BMUserDefaultEmail");
+		if (sd.defaultEmail != null) {
+			proxyReq.addHeader("BMUserDefaultEmail", sd.defaultEmail);
+		}
 
 		proxyReq.addHeader("BMUserDomainId", sd.domainUid);
 
