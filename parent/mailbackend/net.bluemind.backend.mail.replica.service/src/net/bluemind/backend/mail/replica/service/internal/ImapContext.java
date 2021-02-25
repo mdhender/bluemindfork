@@ -40,7 +40,7 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.imap.vertx.IAsyncStoreClient;
 import net.bluemind.imap.vertx.VXStoreClient;
-import net.bluemind.imap.vertx.con.EventBusConnectionSupport;
+import net.bluemind.imap.vertx.connection.EventBusConnectionSupport;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;

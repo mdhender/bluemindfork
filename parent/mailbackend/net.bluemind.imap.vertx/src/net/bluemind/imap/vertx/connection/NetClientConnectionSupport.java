@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.imap.vertx.con;
+package net.bluemind.imap.vertx.connection;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;

@@ -17,7 +17,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.imap.vertx,
  net.bluemind.imap.vertx.cmd,
- net.bluemind.imap.vertx.con,
+ net.bluemind.imap.vertx.connection,
  net.bluemind.imap.vertx.parsing,
  net.bluemind.imap.vertx.pool,
  net.bluemind.imap.vertx.stream,
