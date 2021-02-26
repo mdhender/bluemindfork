@@ -90,7 +90,7 @@ import MailSearchForm from "./MailSearchForm";
 import MessagesOptionsForMobile from "./MessagesOptionsForMobile";
 import NewMessage from "./NewMessage";
 import { MULTIPLE_MESSAGE_SELECTED } from "~getters";
-import { Multipane, MultipaneResizer } from "vue-multipane";
+import { Multipane, MultipaneResizer } from "@bluemind/vue-multipane";
 
 export default {
     name: "MailApp",

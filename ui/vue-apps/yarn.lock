@@ -1133,6 +1133,11 @@
   dependencies:
     axios "^0.18.0"
 
+"@bluemind/vue-multipane@^0.10.0":
+  version "0.10.0"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/vue-multipane/-/vue-multipane-0.10.0.tgz#374e4d07aa2fc1154c6311d6086b815aec539e8f"
+  integrity sha1-N05NB6ovwRVMYxHWCGuBWuxTno8=
+
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/@cnakazawa/watch/-/watch-1.0.4.tgz#f864ae85004d0fcab6f50be9141c4da368d1656a"
@@ -9893,11 +9898,6 @@ vue-loader@^15.9.2:
     loader-utils "^1.1.0"
     vue-hot-reload-api "^2.3.0"
     vue-style-loader "^4.1.0"
-
-vue-multipane@^0.9.5:
-  version "0.9.5"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/vue-multipane/-/vue-multipane-0.9.5.tgz#10ddaf9092e0a9e761edfd0d1f1db8bbb54b3e9c"
-  integrity sha512-4sr6POXY82VMzprQWGNMzTIBGGYEi7nG0uGQb6AYr8o0ngIsYCDPh/gmgms8NVsZzG28b7kn3tQhKP27cbbLdw==
 
 vue-router@^3.0.3:
   version "3.1.6"
