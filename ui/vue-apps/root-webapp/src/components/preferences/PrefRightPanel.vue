@@ -11,12 +11,7 @@
         <div class="border-bottom border-secondary" />
         <pref-content :sections="sections" :local-user-settings="settings.local" />
         <div class="d-flex mt-auto pl-5 py-3 border-top border-secondary">
-            <bm-button
-                type="submit"
-                variant="primary"
-                :disabled="!SETTINGS_CHANGED"
-                @click.prevent="$emit('save', settings.local)"
-            >
+            <bm-button type="submit" variant="primary" :disabled="!SETTINGS_CHANGED" @click.prevent="save">
                 {{ $t("common.save") }}
             </bm-button>
             <bm-button
@@ -39,10 +34,12 @@
 </template>
 
 <script>
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+
 import { BmButton, BmButtonClose, BmCol, BmIcon } from "@bluemind/styleguide";
+
 import PrefContent from "./PrefContent";
 import PrefRightPanelNav from "./PrefRightPanelNav";
-import { mapGetters, mapMutations, mapState } from "vuex";
 
 export default {
     name: "PrefRightPanel",
@@ -55,14 +52,13 @@ export default {
         PrefRightPanelNav
     },
     props: {
-        status: {
-            type: String,
-            required: true
-        },
         sections: {
             type: Array,
             default: null
         }
+    },
+    data() {
+        return { status: "idle" };
     },
     computed: {
         ...mapState("session", ["settings"]),
@@ -74,7 +70,23 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("preferences", ["SET_SELECTED_SECTION"])
+        ...mapActions("session", ["SAVE_SETTINGS"]),
+        ...mapMutations("preferences", ["SET_SELECTED_SECTION"]),
+        ...mapMutations("session", ["SET_SETTINGS"]),
+        cancel() {
+            this.SET_SETTINGS(this.settings.remote);
+        },
+        async save() {
+            this.status = "saving";
+            const oldSettings = JSON.parse(JSON.stringify(this.settings.remote));
+            try {
+                await this.SAVE_SETTINGS();
+                this.status = "saved";
+            } catch {
+                this.SET_SETTINGS(oldSettings);
+                this.status = "error";
+            }
+        }
     }
 };
 </script>

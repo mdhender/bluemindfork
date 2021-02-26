@@ -1,5 +1,17 @@
 {
-    "preferences.manage.account": "gérer mon compte",
+    "preferences.access_old_settings_app": "accéder à l'ancienne application de préférences",
+
+    "preferences.general.lang": "Langue",
+    "preferences.general.timezone": "Fuseau horaire",
+    "preferences.general.date_format": "Format de date",
+    "preferences.general.time_format": "Format d'heure",
+    "preferences.general.default_application": "Application par défaut",
+    "preferences.general.password": "Mot de passe",
+    "preferences.general.update_phone_status": "Mettre à jour mon statut téléphonique lorsque je ne suis pas disponible sur la messagerie instantanée",
+
+    "preferences.advanced.reset_local_data": "Réinitialiser mes données locales",
+    "preferences.advanced.reset_local_data.explanations": "Cette opération va purger vos données locales puis les resynchroniser. Cela peut prendre du temps.",
+
     "preferences.mail.thread": "Afficher ensemble les réponses au même message (conversations)",
     "preferences.mail.thread.disable": "Ne pas grouper les conversations",
     "preferences.mail.thread.enable": "Grouper les conversations",
@@ -19,6 +31,7 @@
     "preferences.mail.signature.insert": "Ajouter la signature automatiquement",
     "preferences.mail.logout": "Lors de la déconnexion",
     "preferences.mail.logout.empty.trash": "Vider la Corbeille",
+
     "preferences.save.error": "Erreur lors de l'enregistrement, vérifiez votre connexion internet",
     "preferences.save.success": "Modifications enregistrées",
     "preferences.menu.apps": "Menu des préférences d'application"

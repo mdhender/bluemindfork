@@ -34,12 +34,10 @@ export default {
                     },
                     actions: {
                         FETCH_ALL_SETTINGS: jest.fn(),
-                        SAVE_SETTINGS: jest.fn(),
-                        ROLLBACK_SETTINGS: jest.fn()
+                        SAVE_SETTINGS: jest.fn()
                     },
                     mutations: {
-                        SET_SETTINGS: jest.fn(),
-                        UPDATE_SETTINGS: jest.fn()
+                        SET_SETTINGS: jest.fn()
                     }
                 },
                 preferences: {

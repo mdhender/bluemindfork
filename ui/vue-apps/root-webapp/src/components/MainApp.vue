@@ -22,7 +22,7 @@
 
 <script>
 import { BmSpinner, BmAlertArea } from "@bluemind/styleguide";
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import "@bluemind/styleguide/css/bluemind.scss";
 import CommonL10N from "@bluemind/l10n";
@@ -94,16 +94,22 @@ export default {
         ...mapState("root-app", ["appState"]),
         ...mapState("preferences", ["showPreferences"])
     },
-    created() {
+    async created() {
         this.appHeight();
-        this.FETCH_ALL_SETTINGS(); // initialize user settings
         this.FETCH_MY_MAILBOX_QUOTA();
         window.setInterval(() => this.FETCH_MY_MAILBOX_QUOTA(), 1000 * 60 * 30);
+
+        // initialize user settings
+        await this.FETCH_ALL_SETTINGS();
+        if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
+            this.TOGGLE_PREFERENCES();
+        }
     },
     methods: {
         ...mapActions("session", ["FETCH_ALL_SETTINGS"]),
         ...mapActions("root-app", ["FETCH_MY_MAILBOX_QUOTA"]),
         ...mapActions("alert", ["REMOVE"]),
+        ...mapMutations("preferences", ["TOGGLE_PREFERENCES"]),
         appHeight() {
             /*
             Fix for mobile : 100vh is too tall, it doesn't count the mobile toolbar

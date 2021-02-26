@@ -22,7 +22,7 @@
 
 <script>
 import { BmFormRadio, BmFormRadioGroup } from "@bluemind/styleguide";
-import PrefFieldMixin from "../../mixins/PrefFieldMixin";
+import PrefFieldMixin from "../mixins/PrefFieldMixin";
 
 export default {
     name: "PrefFieldChoice",

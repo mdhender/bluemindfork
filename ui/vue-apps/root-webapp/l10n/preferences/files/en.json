@@ -1,5 +1,17 @@
 {
-    "preferences.manage.account": "my account",
+    "preferences.access_old_settings_app": "access old preferences application",
+
+    "preferences.general.lang": "Language",
+    "preferences.general.timezone": "Time zone",
+    "preferences.general.date_format": "Date format",
+    "preferences.general.time_format": "Time format",
+    "preferences.general.default_application": "Default application",
+    "preferences.general.password": "Password",
+    "preferences.general.update_phone_status": "Update my phone status when I am not available on instant messaging",
+
+    "preferences.advanced.reset_local_data": "Reset my local data",
+    "preferences.advanced.reset_local_data.explanations": "This operation will purge and resynchronize your local data. This may take a while",
+
     "preferences.mail.thread": "Show replies to the same message together (conversations)",
     "preferences.mail.thread.disable": "Show messages individually",
     "preferences.mail.thread.enable": "Show messages grouped by conversation",
@@ -19,6 +31,7 @@
     "preferences.mail.signature.insert": "Automatically insert the signature",
     "preferences.mail.logout": "On logout",
     "preferences.mail.logout.empty.trash": "Empty Trash",
+
     "preferences.save.error": "Error when saving, check your network connection",
     "preferences.save.success": "Successfully saved",
     "preferences.menu.apps": "Applications preferences menu"

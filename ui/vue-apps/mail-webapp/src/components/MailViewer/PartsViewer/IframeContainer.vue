@@ -43,7 +43,7 @@ export default {
         ...mapState("mail-webapp/currentMessage", { messageKey: "key" }),
         ...mapState("mail", { mustBlockRemoteImages: state => state.consultPanel.remoteImages.mustBeBlocked }),
         ...mapState("mail", ["messages"]),
-        ...mapState("session", { settings: "userSettings" }),
+        ...mapState("session", { settings: ({ settings }) => settings.remote }),
         message() {
             return this.messages[this.messageKey];
         }

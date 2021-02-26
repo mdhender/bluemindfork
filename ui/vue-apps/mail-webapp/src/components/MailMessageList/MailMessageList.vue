@@ -25,7 +25,7 @@ export default {
     computed: {
         ...mapGetters("mail", { MESSAGE_LIST_IS_SEARCH_MODE }),
         ...mapState("mail", ["activeFolder", "folders", "messages", "messageList"]),
-        ...mapState("session", ["userSettings"])
+        ...mapState("session", { settings: ({ settings }) => settings.remote })
     },
     methods: {
         ...mapActions("mail", { REFRESH_MESSAGE_LIST_KEYS, FETCH_MESSAGE_METADATA }),

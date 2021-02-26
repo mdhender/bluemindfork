@@ -78,5 +78,8 @@
     "common.preference": "Préférences",
     "common.general": "Général",
     "common.available_soon": "Bientôt disponible !",
-    "common.every_year": "Chaque année"
+    "common.every_year": "Chaque année",
+    "common.application.webmail": "Messagerie",
+    "common.application.calendar": "Agenda",
+    "common.my_account": "Mon compte"
 }

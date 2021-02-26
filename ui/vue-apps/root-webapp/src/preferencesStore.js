@@ -13,7 +13,9 @@ const mutations = {
         sections.forEach(s => (sectionByCode[s.code] = s));
         state.sectionByCode = sectionByCode;
     },
-    SET_SELECTED_SECTION: (state, selectedPrefSection) => (state.selectedSectionCode = selectedPrefSection)
+    SET_SELECTED_SECTION: (state, selectedPrefSection) => {
+        state.selectedSectionCode = selectedPrefSection;
+    }
 };
 
 const getters = {

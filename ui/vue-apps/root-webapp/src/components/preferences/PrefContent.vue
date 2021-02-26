@@ -1,6 +1,6 @@
 <template>
     <div id="scroll-area" class="pref-content" @scroll="({ target }) => SET_OFFSET(target.scrollTop)">
-        <div v-for="(section, index) in sections" :key="section.code" class="mb-3">
+        <div v-for="(section, index) in sections" :key="section.code" class="mb-5">
             <bm-list-group v-if="index !== 0" :id="'section-' + section.code" horizontal>
                 <pref-section-navbar :section="section" />
             </bm-list-group>

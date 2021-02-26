@@ -8,7 +8,7 @@
 
 <script>
 import { BmListGroup, BmScrollspy } from "@bluemind/styleguide";
-import PrefMixin from "../../mixins/PrefMixin";
+import PrefMixin from "./mixins/PrefMixin";
 import PrefSectionNavbar from "./PrefSectionNavbar";
 import { mapState } from "vuex";
 

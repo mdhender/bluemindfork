@@ -1,5 +1,5 @@
 <template>
-    <div :id="'section-' + section.code + '-' + category.code" class="pref-category">
+    <div :id="categoryId(section.code, category.code)" class="pref-category">
         <div v-for="field in category.fields" :key="field.name" class="pref-field">
             <h2 class="py-4">
                 {{ field.name }}
@@ -15,23 +15,35 @@
                         options: field.options
                     }"
                 />
+                <template v-if="field.options && field.options.additional_component">
+                    <component :is="field.options.additional_component" />
+                </template>
             </bm-form-group>
         </div>
     </div>
 </template>
 
 <script>
+import PrefFieldCheck from "./fields/PrefFieldCheck";
+import PrefFieldChoice from "./fields/PrefFieldChoice";
+import PrefFieldSelect from "./fields/PrefFieldSelect";
+import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
+import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
+import PrefMixin from "./mixins/PrefMixin";
+
 import { BmFormGroup } from "@bluemind/styleguide";
-import PrefFieldChoice from "./PrefFieldChoice";
-import PrefFieldCheck from "./PrefFieldCheck";
 
 export default {
     name: "PrefCategory",
     components: {
         BmFormGroup,
         PrefFieldCheck,
-        PrefFieldChoice
+        PrefFieldChoice,
+        PrefFieldSelect,
+        PrefAlwaysShowQuota,
+        PrefRemoteImage
     },
+    mixins: [PrefMixin],
     props: {
         section: {
             type: Object,

@@ -5,18 +5,16 @@
                 v-for="section in sections"
                 :ref="section.code"
                 :key="section.href"
-                class="text-primary app-item container"
+                :active="section.code === selectedSectionCode"
+                class="app-item container"
                 role="button"
                 tabindex="0"
-                :to="sectionPath(section.code, section.categories[0].code)"
-                @click="
-                    SET_SELECTED_SECTION(section.code);
-                    scrollTo(sectionId(section.code, section.categories[0].code));
-                "
+                :to="sectionPath(section)"
+                @click="scrollTo(sectionId(section))"
             >
                 <h2 class="row">
-                    <bm-app-icon :icon-app="section.icon" class="col-3 text-center" />
-                    <span class="col">{{ section.name }}</span>
+                    <bm-app-icon :icon-app="section.icon" class="col-3 text-center text-primary" />
+                    <span class="col text-white">{{ section.name }}</span>
                 </h2>
             </bm-list-group-item>
         </bm-list-group>
@@ -24,10 +22,12 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 import { BmListGroup, BmListGroupItem, BmScrollspy } from "@bluemind/styleguide";
+
 import BmAppIcon from "../BmAppIcon";
-import PrefMixin from "../../mixins/PrefMixin";
-import { mapMutations } from "vuex";
+import PrefMixin from "./mixins/PrefMixin";
 
 export default {
     name: "PrefLeftPanelNav",
@@ -44,8 +44,8 @@ export default {
             type: Array
         }
     },
-    methods: {
-        ...mapMutations("preferences", ["SET_SELECTED_SECTION"])
+    computed: {
+        ...mapState("preferences", ["selectedSectionCode"])
     }
 };
 </script>

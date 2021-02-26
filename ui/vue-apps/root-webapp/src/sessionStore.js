@@ -1,7 +1,7 @@
 import { inject } from "@bluemind/inject";
 
 const state = {
-    settings: { remote: {}, local: {} }
+    settings: { remote: {}, local: {}, loaded: false }
 };
 
 const actions = {
@@ -27,10 +27,6 @@ const actions = {
         commit("SET_SETTINGS", state.settings.local);
         const userSession = inject("UserSession");
         return inject("UserSettingsPersistence").set(userSession.userId, state.settings.local);
-    },
-
-    async ROLLBACK_SETTINGS({ state, commit }) {
-        commit("SET_SETTINGS", state.settings.remote);
     }
 };
 
@@ -38,9 +34,7 @@ const mutations = {
     SET_SETTINGS: (state, settings) => {
         state.settings.remote = settings;
         state.settings.local = JSON.parse(JSON.stringify(state.settings.remote));
-    },
-    UPDATE_SETTINGS: (state, partialSettings) => {
-        Object.assign(state.settings.local, partialSettings);
+        state.settings.loaded = true;
     }
 };
 

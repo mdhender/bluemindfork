@@ -12,8 +12,8 @@
             </div>
             <div class="text-center mt-4">
                 <h1><bm-avatar :alt="user.displayname" /> <br />{{ user.displayname }}</h1>
-                <a href="/preferences/" class="text-primary font-weight-bold">
-                    {{ $t("preferences.manage.account") }}
+                <a href="/settings/" class="text-primary font-weight-bold">
+                    {{ $t("preferences.access_old_settings_app") }}
                 </a>
             </div>
         </div>

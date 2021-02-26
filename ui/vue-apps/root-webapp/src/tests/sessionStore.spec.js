@@ -50,29 +50,11 @@ describe("Store session", () => {
         expect(context.commit).toHaveBeenCalledWith("SET_SETTINGS", settings);
     });
 
-    test("ROLLBACK_SETTINGS action", async () => {
-        context.state.settings.local = { mySetting: "MY_SETTING_NEW" };
-        context.state.settings.remote = { mySetting: "MY_SETTING_OLD" };
-        await sessionStore.actions.ROLLBACK_SETTINGS(context);
-        expect(context.commit).toHaveBeenCalledWith("SET_SETTINGS", { mySetting: "MY_SETTING_OLD" });
-    });
-
     test("SET_SETTINGS mutation", () => {
         const settings = { mySetting: "MY_SETTING" };
         sessionStore.mutations.SET_SETTINGS(context.state, settings);
         expect(context.state).toEqual({
             settings: { local: { mySetting: "MY_SETTING" }, remote: { mySetting: "MY_SETTING" } }
-        });
-    });
-
-    test("UPDATE_SETTINGS mutation", () => {
-        sessionStore.mutations.UPDATE_SETTINGS(context.state, { mySetting: "MY_SETTING" });
-        expect(context.state).toEqual({
-            settings: { local: { mySetting: "MY_SETTING" }, remote: {} }
-        });
-        sessionStore.mutations.UPDATE_SETTINGS(context.state, { mySetting2: "MY_SETTING2" });
-        expect(context.state).toEqual({
-            settings: { local: { mySetting: "MY_SETTING", mySetting2: "MY_SETTING2" }, remote: {} }
         });
     });
 
