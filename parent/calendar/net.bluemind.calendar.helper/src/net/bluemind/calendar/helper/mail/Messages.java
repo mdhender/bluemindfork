@@ -71,4 +71,8 @@ public class Messages {
 		return ResourceBundle.getBundle("declineCounter", locale);
 	}
 
+	public static ResourceBundle getEventInvitationErrorMessages(Locale locale) {
+		return ResourceBundle.getBundle("invitationError", locale);
+	}
+
 }

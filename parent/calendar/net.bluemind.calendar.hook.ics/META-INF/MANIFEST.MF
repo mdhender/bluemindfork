@@ -27,5 +27,6 @@ Require-Bundle: slf4j.api,
  net.bluemind.calendar.auditlog,
  net.bluemind.core.auditlog,
  net.bluemind.attachment.api,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ net.bluemind.domain.api
 

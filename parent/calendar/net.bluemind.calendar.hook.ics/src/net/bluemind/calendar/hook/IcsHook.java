@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
@@ -79,6 +80,7 @@ import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.core.sendmail.SendmailResponse;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Organizer;
@@ -531,17 +533,43 @@ public class IcsHook implements ICalendarHook {
 		boolean inPast = occursInThePast(event);
 
 		for (ICalendarElement.Attendee attendee : attendees) {
-			sendNotification(message, event, ics, md.subject, md.body, Method.REQUEST, md.organizer, md.from,
-					md.senderSettings, md.data, inPast, attendee);
+			SendmailResponse ret = sendNotification(message, event, ics, md.subject, md.body, Method.REQUEST,
+					md.organizer, md.from, md.senderSettings, md.data, inPast, attendee);
+			if (ret.isError()) {
+				sendInvitationErrorToOrganizer(message, event, attendee);
+			}
 		}
 
 	}
 
-	private void sendNotification(VEventMessage message, VEvent event, String ics, String subject, String body,
-			Method method, Organizer organizer, Mailbox from, Map<String, String> senderSettings,
+	private void sendInvitationErrorToOrganizer(VEventMessage message, VEvent event, Attendee attendee) {
+		Organizer organizer = event.organizer;
+
+		String subject = "EventInvitationErrorSubject.ftl";
+		String body = "EventInvitationError.ftl";
+
+		String defaultAlias = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class)
+				.get(message.container.domainUid).value.defaultAlias;
+
+		String noReply = "noreply@" + defaultAlias;
+		Mailbox from = SendmailHelper.formatAddress(noReply, noReply);
+		Mailbox recipient = SendmailHelper.formatAddress(organizer.commonName, organizer.mailto);
+
+		Map<String, Object> data = new HashMap<>();
+		data.put("attendee", attendee.commonName + " (" + attendee.mailto + ")");
+		data.putAll(new CalendarMailHelper().extractVEventData(event));
+
+		sendNotificationToOrganizer(message, event, Collections.emptyMap(), subject, body, (locale) -> {
+			return new MessagesResolver(Messages.getEventInvitationErrorMessages(locale));
+		}, Method.REPLY, from, recipient, null, data);
+
+	}
+
+	private SendmailResponse sendNotification(VEventMessage message, VEvent event, String ics, String subject,
+			String body, Method method, Organizer organizer, Mailbox from, Map<String, String> senderSettings,
 			Map<String, Object> data, boolean inPast, ICalendarElement.Attendee attendee) {
 		if (attendeeIsOrganizer(attendee, organizer)) {
-			return;
+			return SendmailResponse.success();
 		}
 
 		Mailbox recipient = SendmailHelper.formatAddress(attendee.commonName, attendee.mailto);
@@ -550,7 +578,7 @@ public class IcsHook implements ICalendarHook {
 			attendee.rsvp = false;
 		}
 
-		sendNotificationToAttendee(message, event, senderSettings, subject, body, (locale) -> {
+		return sendNotificationToAttendee(message, event, senderSettings, subject, body, (locale) -> {
 			return new MessagesResolver(Messages.getEventDetailMessages(locale),
 					Messages.getEventCreateMessages(locale));
 		}, method, from, recipient, ics, data);
@@ -783,9 +811,10 @@ public class IcsHook implements ICalendarHook {
 				from, recipient, ics, data, Arrays.asList(recipient), null);
 	}
 
-	private void sendNotificationToAttendee(VEventMessage message, VEvent event, Map<String, String> senderSettings,
-			String subjectTemplate, String template, MessagesResolverProvider messagesResolverProvider, Method method,
-			Mailbox from, Mailbox recipient, String ics, Map<String, Object> data) {
+	private SendmailResponse sendNotificationToAttendee(VEventMessage message, VEvent event,
+			Map<String, String> senderSettings, String subjectTemplate, String template,
+			MessagesResolverProvider messagesResolverProvider, Method method, Mailbox from, Mailbox recipient,
+			String ics, Map<String, Object> data) {
 
 		List<Mailbox> attendeeListTo = new ArrayList<>(event.attendees.size());
 		List<Mailbox> attendeeListCc = new ArrayList<>(event.attendees.size());
@@ -800,16 +829,16 @@ public class IcsHook implements ICalendarHook {
 
 			}
 		}
-		sendNotification(message, event, senderSettings, subjectTemplate, template, messagesResolverProvider, method,
-				from, recipient, ics, data, attendeeListTo, attendeeListCc);
+		return sendNotification(message, event, senderSettings, subjectTemplate, template, messagesResolverProvider,
+				method, from, recipient, ics, data, attendeeListTo, attendeeListCc);
 	}
 
-	private void sendNotification(VEventMessage message, VEvent event, Map<String, String> senderSettings,
+	private SendmailResponse sendNotification(VEventMessage message, VEvent event, Map<String, String> senderSettings,
 			String subjectTemplate, String template, MessagesResolverProvider messagesResolverProvider, Method method,
 			Mailbox from, Mailbox recipient, String ics, Map<String, Object> data, List<Mailbox> attendeeListTo,
 			List<Mailbox> attendeeListCc) {
+		AtomicReference<SendmailResponse> ret = new AtomicReference<>(SendmailResponse.success());
 		try {
-
 			IcsHookAuditor auditor = new IcsHookAuditor(IAuditManager.instance());
 			auditor.forMessage(message).audit(() -> {
 				ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
@@ -867,9 +896,9 @@ public class IcsHook implements ICalendarHook {
 				try (Message mail = buildMailMessage(from, from, attendeeListTo, attendeeListCc, subjectTemplate,
 						template, messagesResolverProvider.getResolver(new Locale(getLocale(settings))), data,
 						createBodyPart(message.itemUid, ics), settings, event, method, attachments)) {
-					SendmailResponse sendmailResponse = mailer.send(SendmailCredentials.asAdmin0(), from.getAddress(),
-							from.getDomain(), new MailboxList(Arrays.asList(recipient), true), mail);
-					auditor.actionSend(message.itemUid, recipient.getAddress(), ics, sendmailResponse.toString());
+					ret.set(mailer.send(SendmailCredentials.asAdmin0(), from.getAddress(), from.getDomain(),
+							new MailboxList(Arrays.asList(recipient), true), mail));
+					auditor.actionSend(message.itemUid, recipient.getAddress(), ics, ret.toString());
 				} catch (Exception e) {
 					auditor.actionSend(message.itemUid, recipient.getAddress(), ics,
 							String.format("Unable to send email %s", e.getMessage()));
@@ -880,10 +909,10 @@ public class IcsHook implements ICalendarHook {
 					throw new ServerFault(e);
 				}
 			});
-
 		} catch (ServerFault e) {
 			logger.error(e.getMessage(), e);
 		}
+		return ret.get();
 	}
 
 	private static Map<String, String> getSenderSettings(VEventMessage message, DirEntry fromDirEntry) {
@@ -894,8 +923,8 @@ public class IcsHook implements ICalendarHook {
 
 	private Message buildMailMessage(Mailbox from, Mailbox sender, List<Mailbox> attendeeListTo,
 			List<Mailbox> attendeeListCc, String subjectTemplate, String templateName,
-			MessagesResolver messagesResolver, Map<String, Object> data, BodyPart ics, Map<String, String> settings,
-			VEvent vevent, Method method, List<EventAttachment> attachments) {
+			MessagesResolver messagesResolver, Map<String, Object> data, Optional<BodyPart> ics,
+			Map<String, String> settings, VEvent vevent, Method method, List<EventAttachment> attachments) {
 		try {
 			String subject = new CalendarMailHelper().buildSubject(subjectTemplate, settings.get("lang"),
 					messagesResolver, data);
@@ -1103,7 +1132,7 @@ public class IcsHook implements ICalendarHook {
 	 */
 	private Message getMessage(Mailbox from, Mailbox sender, List<Mailbox> attendeeListTo, List<Mailbox> attendeeListCc,
 			String subject, String templateName, String locale, MessagesResolver messagesResolver,
-			Map<String, Object> data, BodyPart ics, Method method, List<EventAttachment> attachments)
+			Map<String, Object> data, Optional<BodyPart> ics, Method method, List<EventAttachment> attachments)
 			throws TemplateException, IOException, ServerFault {
 
 		data.put("msg", new FreeMarkerMsg(messagesResolver));
@@ -1174,12 +1203,12 @@ public class IcsHook implements ICalendarHook {
 		return VEventServiceHelper.convertToIcs(acceptCounters, uid, method, vevent);
 	}
 
-	private BodyPart createBodyPart(String summary, String ics) {
+	private Optional<BodyPart> createBodyPart(String summary, String ics) {
 		if (ics == null) {
-			throw new ServerFault("Fail to export ICS for event: " + summary);
+			return Optional.empty();
 		}
 
-		return new CalendarMailHelper().createTextPart(ics);
+		return Optional.of(new CalendarMailHelper().createTextPart(ics));
 	}
 
 	private boolean isDefaultContainer(VEventMessage message) {

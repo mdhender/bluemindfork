@@ -69,6 +69,10 @@ public class SendmailResponse {
 		this.message = resp.getMessage();
 	}
 
+	public boolean isError() {
+		return code != 200;
+	}
+
 	@Override
 	public String toString() {
 		return String.format("%s: %s", code, message);

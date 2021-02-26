@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
@@ -333,7 +334,7 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 					.sender(from) //
 					.to(new MailboxList(Arrays.asList(to), true)) //
 					.method(method) //
-					.ics(icsPart) //
+					.ics(Optional.of(icsPart)) //
 					.html(new CalendarMailHelper().buildBody(templateName, settings.get("lang"), resolver, data)) //
 					.subject(subject).build();
 			return m.getMessage();

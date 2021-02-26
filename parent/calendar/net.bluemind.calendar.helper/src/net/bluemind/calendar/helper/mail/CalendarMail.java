@@ -153,7 +153,7 @@ public class CalendarMail {
 		private String subject;
 		private BodyPart html;
 		private MailboxList cc;
-		private BodyPart ics;
+		private Optional<BodyPart> ics;
 		private List<EventAttachment> attachments;
 
 		public CalendarMail build() {
@@ -164,7 +164,7 @@ public class CalendarMail {
 			check(subject, "subject");
 			check(html, "html");
 
-			return new CalendarMail(from, sender, to, Optional.ofNullable(cc), subject, html, Optional.ofNullable(ics),
+			return new CalendarMail(from, sender, to, Optional.ofNullable(cc), subject, html, ics,
 					Optional.ofNullable(attachments), method);
 		}
 
@@ -209,7 +209,7 @@ public class CalendarMail {
 			return this;
 		}
 
-		public CalendarMailBuilder ics(BodyPart ics) {
+		public CalendarMailBuilder ics(Optional<BodyPart> ics) {
 			this.ics = ics;
 			return this;
 		}
