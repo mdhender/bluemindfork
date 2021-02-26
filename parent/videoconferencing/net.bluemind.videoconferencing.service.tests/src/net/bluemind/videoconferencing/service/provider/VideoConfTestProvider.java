@@ -15,37 +15,27 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.videoconferencing.jitsi;
+package net.bluemind.videoconferencing.service.provider;
 
 import java.util.UUID;
 
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
 
-public class JitsiProvider implements IVideoConferencingProvider {
+public class VideoConfTestProvider implements IVideoConferencingProvider {
 
 	@Override
 	public String id() {
-		return "videoconferencing-jitsi";
+		return "test-provider";
 	}
 
 	@Override
 	public String name() {
-		return "Jitsi";
+		return "Video Conferencing Provider Yay";
 	}
 
 	@Override
 	public String getUrl(String baseUrl) {
-
-		if (!baseUrl.startsWith("http")) {
-			baseUrl = "https://" + baseUrl;
-		}
-		if (!baseUrl.endsWith("/")) {
-			baseUrl += "/";
-		}
-
-		String unique = UUID.randomUUID().toString();
-
-		return baseUrl + unique;
+		return baseUrl + "/" + UUID.randomUUID().toString();
 	}
 
 }

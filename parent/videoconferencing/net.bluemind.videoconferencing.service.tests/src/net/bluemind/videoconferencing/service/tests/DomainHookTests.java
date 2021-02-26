@@ -1,0 +1,54 @@
+/* BEGIN LICENSE
+  * Copyright © Blue Mind SAS, 2012-2021
+  *
+  * This file is part of BlueMind. BlueMind is a messaging and collaborative
+  * solution.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of either the GNU Affero General Public License as
+  * published by the Free Software Foundation (version 3 of the License).
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  *
+  * See LICENSE.txt
+  * END LICENSE
+  */
+package net.bluemind.videoconferencing.service.tests;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.List;
+
+import org.junit.Test;
+
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.resource.api.type.IResourceTypes;
+import net.bluemind.resource.api.type.ResourceTypeDescriptor;
+import net.bluemind.resource.api.type.ResourceTypeDescriptor.Property;
+import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.videoconferencing.api.IVideoConferenceUid;
+
+public class DomainHookTests extends AbstractVideoConferencingTests {
+
+	@Test
+	public void testResourceTypeDomainHook() throws Exception {
+		PopulateHelper.addDomain(domainUid);
+
+		IResourceTypes service = ServerSideServiceProvider.getProvider(context).instance(IResourceTypes.class,
+				domainUid);
+		ResourceTypeDescriptor resType = service.get(IVideoConferenceUid.UID);
+		assertNotNull(resType);
+
+		List<Property> properties = resType.properties;
+		assertEquals(1, properties.size());
+
+		Property prop = properties.get(0);
+
+		assertEquals(IVideoConferenceUid.TYPE, prop.id);
+		assertEquals("Type", prop.label);
+		assertEquals(ResourceTypeDescriptor.Property.Type.String, prop.type);
+	}
+}

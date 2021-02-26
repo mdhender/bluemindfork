@@ -9,9 +9,10 @@
 	<artifactId>net.bluemind.videoconferencing.plugins</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>net.bluemind.videoconferencing</module>
+		<module>net.bluemind.videoconferencing.api</module>
+		<module>net.bluemind.videoconferencing.service</module>
 		<module>net.bluemind.videoconferencing.jitsi</module>
-		<module>net.bluemind.videoconferencing.tests</module>
+		<module>net.bluemind.videoconferencing.service.tests</module>
 	</modules>
 
 </project>

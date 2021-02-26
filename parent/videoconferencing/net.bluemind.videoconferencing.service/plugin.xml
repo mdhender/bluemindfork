@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.videoconferencing.api.IVideoConferencing">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.videoconferencing.service.VideoConferencingServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.domain.domainHook">
+      <hook
+            class="net.bluemind.videoconferencing.service.domainhook.DomainHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.core.sanitizerfactory">
+      <sanitizerfactory
+            implementation="net.bluemind.videoconferencing.service.resourcetype.VideoConferencingResourceTypeSanitizer$VideoConferencingResourceTypeSanitizerFactory">
+      </sanitizerfactory>
+   </extension>
+
+</plugin>

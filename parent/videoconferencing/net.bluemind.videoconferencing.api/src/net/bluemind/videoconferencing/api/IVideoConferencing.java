@@ -15,37 +15,23 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.videoconferencing.jitsi;
+package net.bluemind.videoconferencing.api;
 
-import java.util.UUID;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
 
-import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
+import net.bluemind.core.api.BMApi;
+import net.bluemind.icalendar.api.ICalendarElement;
 
-public class JitsiProvider implements IVideoConferencingProvider {
+@BMApi(version = "3")
+@Path("/videoconferencing")
+public interface IVideoConferencing {
 
-	@Override
-	public String id() {
-		return "videoconferencing-jitsi";
-	}
+	@PUT
+	public ICalendarElement add(ICalendarElement vevent);
 
-	@Override
-	public String name() {
-		return "Jitsi";
-	}
-
-	@Override
-	public String getUrl(String baseUrl) {
-
-		if (!baseUrl.startsWith("http")) {
-			baseUrl = "https://" + baseUrl;
-		}
-		if (!baseUrl.endsWith("/")) {
-			baseUrl += "/";
-		}
-
-		String unique = UUID.randomUUID().toString();
-
-		return baseUrl + unique;
-	}
+	@DELETE
+	public ICalendarElement remove(ICalendarElement vevent);
 
 }
