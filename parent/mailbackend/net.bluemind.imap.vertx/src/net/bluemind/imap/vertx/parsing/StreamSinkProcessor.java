@@ -44,7 +44,7 @@ public class StreamSinkProcessor implements IProcessorDelegate {
 				sink.ifPresent(WriteStream::end);
 			}
 			over.complete(null);
-		} else if (firstByte == '*') {
+		} else if (firstByte == '*' && ic.buffer().getByte(ic.buffer().length() - 1) == '}') {
 			expectStream = true;
 		}
 	}
