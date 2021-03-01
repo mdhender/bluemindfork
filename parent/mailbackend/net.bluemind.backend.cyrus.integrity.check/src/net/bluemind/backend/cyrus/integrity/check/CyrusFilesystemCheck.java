@@ -137,7 +137,7 @@ public class CyrusFilesystemCheck {
 			try (InputStream in = CyrusFilesystemCheck.class.getClassLoader()
 					.getResourceAsStream("scripts/spool_tree.sh")) {
 				node.writeFile(path, in);
-				node.executeCommand("chmod +x " + path);
+				node.executeCommandNoOut("chmod +x " + path);
 			}
 			// deploy script
 		}
