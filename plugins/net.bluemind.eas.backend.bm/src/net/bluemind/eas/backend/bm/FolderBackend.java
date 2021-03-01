@@ -584,7 +584,13 @@ public class FolderBackend extends CoreConnect {
 		if (folder.value.parentUid != null) {
 			String parentUid = ContainerHierarchyNode.uidFor(IMailReplicaUids.mboxRecords(folder.value.parentUid),
 					IMailReplicaUids.MAILBOX_RECORDS, bs.getUser().getDomain());
-			parentId = flatH.getComplete(parentUid).internalId;
+			ItemValue<ContainerHierarchyNode> parent = flatH.getComplete(parentUid);
+			if (parent != null) {
+				parentId = flatH.getComplete(parentUid).internalId;
+			} else {
+				logger.warn("Failed to find parent uid {} for folder {}. Skip folder", parentUid, folder.uid);
+				return null;
+			}
 		}
 
 		if (parentId == 0) {
