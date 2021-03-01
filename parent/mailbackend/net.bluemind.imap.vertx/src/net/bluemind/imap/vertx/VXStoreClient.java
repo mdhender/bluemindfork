@@ -25,7 +25,6 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
@@ -75,12 +74,6 @@ public class VXStoreClient implements IAsyncStoreClient {
 	}
 
 	public CompletableFuture<ImapResponseStatus<Void>> login() {
-		return login(v -> {
-			// socket closed
-		});
-	}
-
-	public CompletableFuture<ImapResponseStatus<Void>> login(Handler<Void> closeHandler) {
 		String cmd = tagged("LOGIN " + login + " \"" + password + "\"");
 
 		this.sock = Optional.empty();
@@ -121,14 +114,20 @@ public class VXStoreClient implements IAsyncStoreClient {
 		if (selected != null && selected.equals(mailbox)) {
 			return SELECTED;
 		}
+		String quotedUtf7 = UTF7Converter.encode(mailbox);
 		TaggedResponseProcessor<SelectResponse> tagged = new TaggedResponseProcessor<>(new SelectPayloadBuilder());
 		sock.ifPresent(ns -> {
-			String quotedUtf7 = UTF7Converter.encode(mailbox);
 			String cmd = tagged("SELECT \"" + quotedUtf7 + "\"");
 			packetProc.setDelegate(tagged);
 			ns.write(cmd);
 		});
 		return tagged.future().thenApply((ImapResponseStatus<SelectResponse> msg) -> {
+			if (msg.status != Status.Ok) {
+				logger.warn("Selection failed, cmd was: SELECT \"{}\"", quotedUtf7);
+				selected = null;
+			} else {
+				selected = mailbox;
+			}
 			packetProc.setDelegate(null);
 			return msg;
 		});
