@@ -6,7 +6,7 @@ import registerScriptRoute from "./workbox/registerScriptRoute";
 import registerPartRoute from "./workbox/registerPartRoute";
 
 import { syncMailbox, syncMailFolders, syncMailFolder } from "./sync";
-import { sessionInfos } from "./MailAPI";
+import Session from "./session";
 import { logger } from "./logger";
 
 clientsClaim();
@@ -19,8 +19,7 @@ registerScriptRoute();
 
 self.addEventListener("message", async ({ data, ports }) => {
     if (data.type === "INIT") {
-        logger.log("[SYNC][SW] Initialisation");
-        await syncMailFolders();
+        await firstSynchronisation(ports[0]);
     } else if (data.type === "SYNCHRONIZE") {
         if (data.body.isHierarchy) {
             await synchronizeHierarchy(data);
@@ -29,6 +28,14 @@ self.addEventListener("message", async ({ data, ports }) => {
         }
     }
 });
+
+const firstSynchronisation = async port => {
+    logger.log("[SYNC][SW] Initialisation");
+    const updatedFolderUid = await syncMailFolders();
+    if (port) {
+        port.postMessage(updatedFolderUid);
+    }
+};
 
 const synchronizeFolder = async (data, port) => {
     logger.log(`[SYNC][SW] Folder synchronization: ${data.body.mailbox} in v${data.body.version}`);
@@ -39,7 +46,7 @@ const synchronizeFolder = async (data, port) => {
 };
 
 const synchronizeHierarchy = async data => {
-    const { domain, userId } = await sessionInfos.getInstance();
+    const { domain, userId } = await Session.infos();
     if (data.body.owner === userId) {
         logger.log(`[SYNC][SW] Hierarchy synchronization: ${data.body.owner} in v${data.body.version}`);
         await syncMailbox(domain, userId, data.body.version);

@@ -3,36 +3,52 @@ export default class ServerPushHandler {
         this.bus = bus;
         this.mailState = mailState;
         this.serviceWorker = serviceWorker;
-        this.initServiceWorkerSync(bus, mailState);
     }
 
-    initServiceWorkerSync() {
-        if (this.hasServiceWorkerController()) {
-            this.serviceWorker.controller.postMessage({ type: "INIT" });
+    static async build(bus, mailState, serviceWorker) {
+        const handler = new ServerPushHandler(bus, mailState, serviceWorker);
+        await handler.initServiceWorkerSync();
+        return handler;
+    }
+
+    async initServiceWorkerSync() {
+        try {
+            const updatedFolderUid = await this.sendMessage({ type: "INIT" }, false, []);
+            updatedFolderUid.forEach(updated => {
+                this.refreshUI({ body: { mailbox: updated } });
+            });
+        } catch (error) {
+            console.error("[SW] failed to init service worker", error);
         }
     }
 
     handle(mailbox) {
-        return ({ data }) => {
-            const promise = new Promise(resolve => {
-                const messageChannel = new MessageChannel();
-                if (!this.hasServiceWorkerController() || !mailbox.offlineSync) {
-                    resolve(true);
-                } else {
-                    const message = { type: "SYNCHRONIZE", body: data.body };
-                    messageChannel.port1.onmessage = message => {
-                        messageChannel.port1.close();
-                        resolve(message);
-                    };
-                    this.serviceWorker.controller.postMessage(message, [messageChannel.port2]);
-                }
-            });
-            return promise.then(updated => {
+        return async ({ data }) => {
+            const message = { type: "SYNCHRONIZE", body: data.body };
+            try {
+                const updated = await this.sendMessage(message, !mailbox.offlineSync, true);
                 if (!data.body.isHierarchy && updated) {
                     this.refreshUI(data);
                 }
-            });
+            } catch (error) {
+                console.error(`[SW] failed to send '${message}' to service worker`, error);
+            }
         };
+    }
+
+    async sendMessage(message, skip, defaultResponse) {
+        return new Promise(resolve => {
+            const messageChannel = new MessageChannel();
+            if (!this.hasServiceWorkerController() || skip) {
+                resolve(defaultResponse);
+            } else {
+                messageChannel.port1.onmessage = message => {
+                    messageChannel.port1.close();
+                    resolve(message.data);
+                };
+                this.serviceWorker.controller.postMessage(message, [messageChannel.port2]);
+            }
+        });
     }
 
     refreshUI(data) {

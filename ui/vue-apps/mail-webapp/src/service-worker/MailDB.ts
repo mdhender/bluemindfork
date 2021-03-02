@@ -30,24 +30,7 @@ interface MailSchema extends DBSchema {
     };
 }
 
-export const maildb = (function () {
-    let instance: MailDB | null;
-    let _dbname: string;
-
-    async function init(dbname: string) {
-        return new MailDB(dbname);
-    }
-    return {
-        getInstance: async function (dbname: string) {
-            if (!instance || dbname !== _dbname) {
-                instance = await init(dbname);
-            }
-            return instance;
-        }
-    };
-})();
-
-class MailDB {
+export class MailDB {
     dbPromise: Promise<IDBPDatabase<MailSchema>>;
     constructor(userAtDomain: string) {
         const schemaVersion = 7;

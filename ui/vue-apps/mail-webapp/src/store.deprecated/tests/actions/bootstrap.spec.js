@@ -10,6 +10,10 @@ jest.mock("@bluemind/sockjs");
 jest.mock("@bluemind/inject");
 jest.mock("../../actions/ServerPushHandler");
 
+ServerPushHandler.build = (bus, mailState, serviceWorker) => {
+    return new ServerPushHandler(bus, mailState, serviceWorker);
+};
+
 const myMailbox = { key: "mailbox:uid", owner: "mailbox:uid" },
     mailshareKeys = ["A", "B"],
     myMailboxFolderKeys = ["1", "2", "3"],

@@ -1,11 +1,12 @@
 import FDBFactory from "fake-indexeddb/lib/FDBFactory";
 import fetchMock from "fetch-mock";
-import { maildb } from "../MailDB";
+import Session from "../session";
 
 import { syncMailFolders, syncMyMailbox, syncMailFolder, syncMailbox } from "../sync";
 
 describe("periodicSync", () => {
     beforeEach(() => {
+        Session.clear();
         global.indexedDB = new FDBFactory();
     });
     afterAll(() => {
@@ -42,7 +43,7 @@ describe("periodicSync", () => {
                 name: "folder4"
             }
         ]);
-        const dbPromise = maildb.getInstance("user.baz@foo_bar");
+        const dbPromise = Session.db();
         expect(await (await (await dbPromise).dbPromise).getAll("sync_options")).toMatchInlineSnapshot(`Array []`);
         expect(await (await (await dbPromise).dbPromise).getAll("mail_folders")).toMatchInlineSnapshot(`Array []`);
         const updated = await syncMyMailbox();
@@ -83,7 +84,7 @@ describe("periodicSync", () => {
         expect(updated).toBeTruthy();
         updated = await syncMyMailbox();
         expect(updated).toBeTruthy();
-        const dbPromise = maildb.getInstance("user.baz@foo_bar");
+        const dbPromise = Session.db();
         expect(await (await (await dbPromise).dbPromise).getAll("sync_options")).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -155,7 +156,7 @@ describe("periodicSync", () => {
             }
         ]);
 
-        const dbPromise = maildb.getInstance("user.baz@foo_bar");
+        const dbPromise = Session.db();
 
         await syncMailFolders();
 
@@ -182,8 +183,9 @@ describe("periodicSync", () => {
 
     test("consecutive syncMailFolder calls should reuse and update sync_options", async () => {
         fetchMock.reset();
+        fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
         fetchMock.mock("api/mail_items/1/_multipleById", []);
-        const db = await (await maildb.getInstance("user.baz@foo_bar")).dbPromise;
+        const db = await (await Session.db()).dbPromise;
         fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=0", {
             created: [], updated: [], deleted: [], version: 1
         });
@@ -220,6 +222,7 @@ describe("periodicSync", () => {
 
     test("syncMailFolder call with a version <= to the one sync should do nothing", async () => {
         fetchMock.reset();
+        fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
         fetchMock.mock("api/mail_items/1/_multipleById", []);
         fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=0", {
             created: [], updated: [], deleted: [], version: 1
@@ -237,7 +240,7 @@ describe("periodicSync", () => {
     });
 
     test("consecutive syncMailFolder calls should wait for the previous one", async () => {
-        const db = await (await maildb.getInstance("user.baz@foo_bar")).dbPromise;
+        const db = await (await Session.db()).dbPromise;
         fetchMock.reset();
         fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
         fetchMock.mock(
@@ -266,8 +269,9 @@ describe("periodicSync", () => {
 
     test("consecutive syncMailFolder calls without a newer version should return false", async () => {
         fetchMock.reset();
+        fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
         fetchMock.mock("api/mail_items/1/_multipleById", []);
-        const db = await (await maildb.getInstance("user.baz@foo_bar")).dbPromise;
+        const db = await (await Session.db()).dbPromise;
         fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=0", {
             created: [], updated: [], deleted: [], version: 1
         });
@@ -304,8 +308,9 @@ describe("periodicSync", () => {
 
     test("consecutive syncMailbox calls should reuse and update sync_options", async () => {
         fetchMock.reset();
+        fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_all", []);
-        const db = await (await maildb.getInstance("user.baz@foo_bar")).dbPromise;
+        const db = await (await Session.db()).dbPromise;
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=0", {
             created: [], updated: [], deleted: [], version: 1
         });
@@ -340,8 +345,9 @@ describe("periodicSync", () => {
 
     test("consecutive syncMailbox calls without a newer version should return false", async () => {
         fetchMock.reset();
+        fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_all", []);
-        const db = await (await maildb.getInstance("user.baz@foo_bar")).dbPromise;
+        const db = await (await Session.db()).dbPromise;
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=0", {
             created: [], updated: [], deleted: [], version: 1
         });
@@ -377,6 +383,7 @@ describe("periodicSync", () => {
 
     test("syncMailbox call with a version <= to the one sync should do nothing", async () => {
         fetchMock.reset();
+        fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_all", []);
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=0", {
             created: [], updated: [], deleted: [], version: 1
@@ -394,8 +401,9 @@ describe("periodicSync", () => {
     });
 
     test("consecutive syncMailbox calls should wait for the previous one", async () => {
-        const db = await (await maildb.getInstance("user.baz@foo_bar")).dbPromise;
+        const db = await (await Session.db()).dbPromise;
         fetchMock.reset();
+        fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_all", []);
         fetchMock.mock(
             "/api/mail_folders/foo_bar/user.baz/_changesetById?since=0",

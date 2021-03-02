@@ -2,7 +2,7 @@ import { registerRoute } from "workbox-routing";
 import { CacheFirst } from "workbox-strategies";
 
 import { logger } from "../logger";
-import { sessionInfos } from "../MailAPI";
+import Session from "../session";
 
 const WEBSERVER_HANDLER_BASE_URL = "part/url/";
 const strategy = new CacheFirst({ cacheName: "part-cache" });
@@ -27,8 +27,7 @@ async function fetchPartUsingCoreAPI({ request, url }) {
         headers.set("Content-Type", params.mime + ";charset=" + params.charset);
         headers.set("Content-Disposition", params.filename ? 'attachment; filename="' + params.filename + '"' : "");
 
-        const cloned = new Response(await response.blob(), { headers });
-        return cloned;
+        return new Response(await response.blob(), { headers });
     } catch (e) {
         logger.warn("Fail to redirect to Core API.. use webserver part handler instead ", { e });
         return fetch(request);
@@ -39,7 +38,7 @@ async function buildCoreRequestFromWebserverHandlerUrl(params) {
     const filenameParam = params.filename ? "&?filename=" + params.filename : "";
     const apiCoreUrl = `/api/mail_items/${params.folderUid}/part/${params.imapUid}/${params.address}?encoding=${params.encoding}&?mime=${params.mime}&?charset=${params.charset}${filenameParam}`;
 
-    const { sid } = await sessionInfos.getInstance();
+    const { sid } = await Session.infos();
     const fetchParams = {
         headers: {
             "x-bm-apikey": sid

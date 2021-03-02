@@ -9,7 +9,7 @@ export async function bootstrap({ dispatch, commit, rootGetters, rootState }, us
     await initUserData(dispatch, rootGetters, rootState);
     const bus = injector.getProvider("GlobalEventBus").get();
     const mailState = rootState.mail;
-    const serverPushHandler = new ServerPushHandler(bus, mailState, navigator.serviceWorker);
+    const serverPushHandler = await ServerPushHandler.build(bus, mailState, navigator.serviceWorker);
     initWebsocket(serverPushHandler, rootGetters);
 }
 

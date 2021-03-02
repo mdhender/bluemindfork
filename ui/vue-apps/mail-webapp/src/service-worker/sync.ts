@@ -1,19 +1,24 @@
-import { maildb, SyncOptions } from "./MailDB";
-import { userAtDomain, mailapi, sessionInfos, getDBName, clearSessions } from "./MailAPI";
+import { SyncOptions } from "./MailDB";
 import { MailItem } from "./entry";
 import pLimit from "p-limit";
 import { Limit } from "p-limit";
 import { logger } from "./logger";
+import Session from "./session";
 
 let limits: { [uid: string]: Limit } = {};
 
-export async function syncMailFolders() {
-    clearSessions();
+export async function syncMailFolders(): Promise<string[]> {
+    Session.clear();
     await syncMyMailbox();
-    const folders = await (await maildb.getInstance(await getDBName())).getAllMailFolders();
+    const mailDB = await Session.db();
+    const folders = await mailDB.getAllMailFolders();
+    const foldersUpdated = [];
     for (const folder of folders) {
-        await syncMailFolder(folder.uid);
+        if (await syncMailFolder(folder.uid)) {
+            foldersUpdated.push(folder.uid);
+        }
     }
+    return foldersUpdated;
 }
 
 export async function syncMailFolder(uid: string, pushedVersion?: number): Promise<boolean> {
@@ -27,36 +32,35 @@ export async function syncMailFolder(uid: string, pushedVersion?: number): Promi
 
 async function syncMailFolderToVersion(uid: string, syncOptions: SyncOptions): Promise<boolean> {
     try {
-        const api = await mailapi.getInstance();
-        const { created, updated, deleted, version } = await api.mailItem.changeset(uid, syncOptions.version);
+        const session = await Session.instance();
+        const { created, updated, deleted, version } = await session.api.mailItem.changeset(uid, syncOptions.version);
         if (version !== syncOptions.version) {
             const ids = created
                 .reverse()
                 .concat(updated.reverse())
                 .map(({ id }) => id);
             const mailItems = await fetchMailItemsByChunks(ids, uid);
-            const db = await maildb.getInstance(await getDBName());
-            await db.reconciliate(
+            await session.db.reconciliate(
                 { uid, items: mailItems, deletedIds: deleted.map(({ id }) => id) },
                 { ...syncOptions, version }
             );
-            await db.updateSyncOptions({ ...syncOptions, version });
+            await session.db.updateSyncOptions({ ...syncOptions, version });
             return true;
         }
     } catch (error) {
-        logger.error("error while syncing changet", error);
+        logger.error("[SW][MailFolder] error while syncing changet", error);
     }
     return false;
 }
 
 export async function syncMyMailbox(): Promise<boolean> {
-    const { domain, userId } = await sessionInfos.getInstance();
+    const { domain, userId } = await Session.infos();
     return await syncMailbox(domain, userId);
 }
 
 export async function syncMailbox(domain: string, userId: string, pushedVersion?: number): Promise<boolean> {
     return await limit(userId + domain, async () => {
-        const syncOptions = await getSyncOptions(userAtDomain({ userId, domain }), "mail_folder");
+        const syncOptions = await getSyncOptions(await Session.userAtDomain(), "mail_folder");
         return pushedVersion && pushedVersion <= syncOptions.version
             ? false
             : syncMailboxToVersion(domain, userId, syncOptions);
@@ -64,21 +68,19 @@ export async function syncMailbox(domain: string, userId: string, pushedVersion?
 }
 
 export async function syncMailboxToVersion(domain: string, userId: string, syncOptions: SyncOptions): Promise<boolean> {
-    const api = await mailapi.getInstance();
-    const { created, updated, deleted, version } = await api.mailFolder.changeset(
+    const session = await Session.instance();
+    const { created, updated, deleted, version } = await session.api.mailFolder.changeset(
         { domain, userId },
         syncOptions.version
     );
     if (version !== syncOptions.version) {
         const toBeUpdated = created.concat(updated);
-        const api = await mailapi.getInstance();
-        const mailFolders = (await api.mailFolder.fetch({ domain, userId })).filter(mailfolder =>
+        const mailFolders = (await session.api.mailFolder.fetch({ domain, userId })).filter(mailfolder =>
             toBeUpdated.includes(mailfolder.internalId)
         );
-        const db = await maildb.getInstance(await getDBName());
-        await db.deleteMailFolders(deleted);
-        await db.putMailFolders(mailFolders);
-        await db.updateSyncOptions({ ...syncOptions, version });
+        await session.db.deleteMailFolders(deleted);
+        await session.db.putMailFolders(mailFolders);
+        await session.db.updateSyncOptions({ ...syncOptions, version });
         return true;
     }
     return false;
@@ -86,9 +88,7 @@ export async function syncMailboxToVersion(domain: string, userId: string, syncO
 
 async function fetchMailItemsByChunks(ids: number[], uid: string): Promise<MailItem[]> {
     const chunks = [...chunk(ids, 200)];
-    const responses = await Promise.all(
-        chunks.map(async chunk => (await mailapi.getInstance()).mailItem.fetch(uid, chunk))
-    );
+    const responses = await Promise.all(chunks.map(async chunk => (await Session.api()).mailItem.fetch(uid, chunk)));
     const result: MailItem[] = [];
     return result.concat(...responses);
 }
@@ -109,7 +109,7 @@ function createSyncOptions(uid: string, type: "mail_item" | "mail_folder"): Sync
 }
 
 async function getSyncOptions(uid: string, type: "mail_item" | "mail_folder"): Promise<SyncOptions> {
-    const db = await maildb.getInstance(await getDBName());
+    const db = await Session.db();
     const syncOptions = await db.getSyncOptions(uid);
     if (!syncOptions) {
         const syncOptions = createSyncOptions(uid, type);

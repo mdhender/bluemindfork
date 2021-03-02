@@ -9,14 +9,13 @@ import registerApiRoute, {
     sortMessageByDate,
     filterByFlags,
     allMailFolders,
-    unreadItems,
     multipleById,
     filteredChangesetById
 } from "../workbox/registerApiRoute";
-import { maildb } from "../MailDB";
+import Session from "../session";
 
+jest.mock("../session");
 jest.mock("workbox-routing");
-jest.mock("../MailDB");
 jest.mock("../sync");
 
 describe("workbox", () => {
@@ -58,7 +57,6 @@ describe("workbox", () => {
             });
 
             const handlers = [
-                [unreadItems, ["folderUid"], "getAllMailItems", new Request("/fakeapi")],
                 [allMailFolders, ["domain", "userId"], "getAllMailFolders", new Request("/fakeapi")],
                 [
                     multipleById,
@@ -79,8 +77,10 @@ describe("workbox", () => {
 
             describe.each(handlers)(`%p handler`, (fn, params, api, request) => {
                 test("network if not subscribed", async () => {
-                    maildb.getInstance.mockReturnValue({
-                        isSubscribed: () => false
+                    Session.instance = jest.fn().mockResolvedValue({
+                        db: {
+                            isSubscribed: () => false
+                        }
                     });
                     const actual = await fn({
                         request,
@@ -91,9 +91,13 @@ describe("workbox", () => {
                 });
 
                 test("local DB if subscribed", async () => {
-                    maildb.getInstance.mockReturnValue({
-                        isSubscribed: jest.fn().mockResolvedValue(true),
-                        [api]: jest.fn().mockResolvedValue([{ internalId: "12345", name: "bar", flags: ["foobar"] }])
+                    Session.instance = jest.fn().mockResolvedValue({
+                        db: {
+                            isSubscribed: () => true,
+                            [api]: jest
+                                .fn()
+                                .mockResolvedValue([{ internalId: "12345", name: "bar", flags: ["foobar"] }])
+                        }
                     });
                     const actual = await fn({
                         request,
@@ -104,8 +108,10 @@ describe("workbox", () => {
                 });
 
                 test("fallback to network on Error", async () => {
-                    maildb.getInstance.mockReturnValue({
-                        isSubscribed: () => true
+                    Session.instance = jest.fn().mockResolvedValue({
+                        db: {
+                            isSubscribed: () => true
+                        }
                     });
                     const actual = await fn({
                         request,

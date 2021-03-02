@@ -7,7 +7,9 @@ const buildFakeServiceWorkerAcknowledgingUpdate = updated => {
     return {
         controller: {
             postMessage: (message, ports) => {
-                if (message.type === "SYNCHRONIZE") {
+                if (message.type === "INIT") {
+                    ports[0].postMessage([]);
+                } else if (message.type === "SYNCHRONIZE") {
                     ports[0].postMessage(updated);
                 }
             }
@@ -41,16 +43,16 @@ describe("[ServerPushHandler]", () => {
         };
     });
     describe("[Constructor]", () => {
-        test("Should setup service worker given one provided", () => {
+        test("Should setup service worker given one provided", async () => {
             const serviceWorker = buildFakeServiceWorkerAcknowledgingUpdate();
             const postMessageSpy = jest.spyOn(serviceWorker.controller, "postMessage");
 
-            new ServerPushHandler(bus, null, serviceWorker);
+            await ServerPushHandler.build(bus, null, serviceWorker);
 
-            expect(postMessageSpy).toHaveBeenLastCalledWith({ type: "INIT" });
+            expect(postMessageSpy).toHaveBeenLastCalledWith({ type: "INIT" }, expect.anything());
         });
-        test("Should not call service worker given none provided", () => {
-            new ServerPushHandler(bus, null, null);
+        test("Should not call service worker given none provided", async () => {
+            await ServerPushHandler.build(bus, null, null);
         });
     });
     describe("[With Service Worker]", () => {
@@ -61,7 +63,7 @@ describe("[ServerPushHandler]", () => {
 
             const serviceWorker = buildFakeServiceWorkerAcknowledgingUpdate(false);
             const postMessageSpy = jest.spyOn(serviceWorker.controller, "postMessage");
-            const handler = new ServerPushHandler(bus, mailState, serviceWorker);
+            const handler = await ServerPushHandler.build(bus, mailState, serviceWorker);
             const refreshUISpy = jest.spyOn(handler, "refreshUI");
 
             await handler.handle(mailbox)({ data: hierarchyEvent });
@@ -79,7 +81,7 @@ describe("[ServerPushHandler]", () => {
 
             const serviceWorker = buildFakeServiceWorkerAcknowledgingUpdate(true);
             const postMessageSpy = jest.spyOn(serviceWorker.controller, "postMessage");
-            const handler = new ServerPushHandler(bus, mailState, serviceWorker);
+            const handler = await ServerPushHandler.build(bus, mailState, serviceWorker);
             const refreshUISpy = jest.spyOn(handler, "refreshUI");
 
             await handler.handle(mailbox)({ data: folderEvent });
@@ -94,13 +96,13 @@ describe("[ServerPushHandler]", () => {
 
             const serviceWorker = buildFakeServiceWorkerAcknowledgingUpdate(false);
             const postMessageSpy = jest.spyOn(serviceWorker.controller, "postMessage");
-            const handler = new ServerPushHandler(bus, mailState, serviceWorker);
+            const handler = await ServerPushHandler.build(bus, mailState, serviceWorker);
             const refreshUISpy = jest.spyOn(handler, "refreshUI");
 
             await handler.handle(mailbox)({ data: folderEvent });
 
             expect(postMessageSpy).toHaveBeenLastCalledWith({ type: "SYNCHRONIZE", ...folderEvent }, expect.anything());
-            expect(refreshUISpy).toHaveBeenLastCalledWith(folderEvent);
+            expect(refreshUISpy).not.toHaveBeenLastCalledWith(folderEvent);
         });
         test("Should not be called on folder event given no offline sync", async () => {
             const mailbox = mailboxWithOfflineSync(false);
@@ -109,12 +111,12 @@ describe("[ServerPushHandler]", () => {
 
             const serviceWorker = buildFakeServiceWorkerAcknowledgingUpdate(true);
             const postMessageSpy = jest.spyOn(serviceWorker.controller, "postMessage");
-            const handler = new ServerPushHandler(bus, mailState, serviceWorker);
+            const handler = await ServerPushHandler.build(bus, mailState, serviceWorker);
             const refreshUISpy = jest.spyOn(handler, "refreshUI");
 
             await handler.handle(mailbox)({ data: folderEvent });
 
-            expect(postMessageSpy).toHaveBeenCalledWith({ type: "INIT" });
+            expect(postMessageSpy).toHaveBeenCalledWith({ type: "INIT" }, expect.anything());
             expect(postMessageSpy).not.toHaveBeenLastCalledWith(
                 { type: "SYNCHRONIZE", ...folderEvent },
                 expect.anything()
@@ -128,7 +130,7 @@ describe("[ServerPushHandler]", () => {
             const mailState = mailStateWithActiveFolder("knownFolder");
             const hierarchyEvent = serverEventOnKnownFolderIsHierarchy(true);
 
-            const handler = new ServerPushHandler(bus, mailState, null);
+            const handler = await ServerPushHandler.build(bus, mailState, null);
             const refreshUISpy = jest.spyOn(handler, "refreshUI");
 
             await handler.handle(mailbox)({ data: hierarchyEvent });
@@ -140,7 +142,7 @@ describe("[ServerPushHandler]", () => {
             const mailState = mailStateWithActiveFolder("knownFolder");
             const folderEvent = serverEventOnKnownFolderIsHierarchy(false);
 
-            const handler = new ServerPushHandler(bus, mailState, null);
+            const handler = await ServerPushHandler.build(bus, mailState, null);
             const refreshUISpy = jest.spyOn(handler, "refreshUI");
 
             await handler.handle(mailbox)({ data: folderEvent });
@@ -152,7 +154,7 @@ describe("[ServerPushHandler]", () => {
             const mailState = mailStateWithActiveFolder("knownFolder");
             const folderEvent = serverEventOnKnownFolderIsHierarchy(false);
 
-            const handler = new ServerPushHandler(bus, mailState, null);
+            const handler = await ServerPushHandler.build(bus, mailState, null);
             const refreshUISpy = jest.spyOn(handler, "refreshUI");
 
             await handler.handle(mailbox)({ data: folderEvent });
@@ -165,7 +167,7 @@ describe("[ServerPushHandler]", () => {
             const mailState = mailStateWithActiveFolder("knownFolder");
             const folderEvent = serverEventOnKnownFolderIsHierarchy(false);
 
-            const handler = new ServerPushHandler(bus, mailState, null);
+            const handler = await ServerPushHandler.build(bus, mailState, null);
             await handler.refreshUI(folderEvent);
 
             expect(bus.$emit).toHaveBeenCalledWith("mail-webapp/unread_folder_count", "with something inside");
@@ -175,7 +177,7 @@ describe("[ServerPushHandler]", () => {
             const mailState = mailStateWithActiveFolder("anotherFolder");
             const folderEvent = serverEventOnKnownFolderIsHierarchy(false);
 
-            const handler = new ServerPushHandler(bus, mailState, null);
+            const handler = await ServerPushHandler.build(bus, mailState, null);
             await handler.refreshUI(folderEvent);
 
             expect(bus.$emit).toHaveBeenCalledWith("mail-webapp/unread_folder_count", "with something inside");
@@ -186,7 +188,7 @@ describe("[ServerPushHandler]", () => {
             const folderEvent = serverEventOnKnownFolderIsHierarchy(false);
             folderEvent.body.mailbox = "unknownFolder";
 
-            const handler = new ServerPushHandler(bus, mailState, null);
+            const handler = await ServerPushHandler.build(bus, mailState, null);
             await handler.refreshUI(folderEvent);
 
             expect(bus.$emit).not.toHaveBeenCalledWith("mail-webapp/unread_folder_count", expect.anything());

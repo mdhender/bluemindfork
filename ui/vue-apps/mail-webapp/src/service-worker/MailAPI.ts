@@ -18,7 +18,7 @@ interface MailFolderAPI {
     changeset: ({ userId, domain }: { userId: string; domain: string }, version: number) => Promise<ChangeSet>;
 }
 
-class MailAPI {
+export class MailAPI {
     mailItem: MailItemAPI;
     mailFolder: MailFolderAPI;
 
@@ -75,6 +75,10 @@ class MailAPI {
             }
         };
     }
+
+    static async fetchSessionInfos(): Promise<SessionInfo> {
+        return fetchAPI<SessionInfo>("/session-infos");
+    };
 }
 
 async function fetchAPI<T>(url: string, requestInit?: RequestInit): Promise<T> {
@@ -86,57 +90,4 @@ async function fetchAPI<T>(url: string, requestInit?: RequestInit): Promise<T> {
         return Promise.reject(`${response.status} Unauthorized`);
     }
     return Promise.reject(`Error in BM API ${response.status}`);
-}
-
-export const sessionInfos = (function () {
-    let instance: SessionInfo | null;
-
-    function init() {
-        return fetchAPI<SessionInfo>("/session-infos");
-    }
-    return {
-        getInstance: async function () {
-            if (!instance) {
-                instance = await init();
-            }
-            return instance;
-        },
-        clear: function () {
-            instance = null;
-        }
-    };
-})();
-
-export const mailapi = (function () {
-    let instance: MailAPI | null;
-
-    async function init() {
-        const { sid } = await sessionInfos.getInstance();
-        return new MailAPI({ sid });
-    }
-
-    return {
-        getInstance: async function () {
-            if (!instance) {
-                instance = await init();
-            }
-            return instance;
-        },
-        clear: function () {
-            instance = null;
-        }
-    };
-})();
-
-export function userAtDomain({ userId, domain }: { userId: string; domain: string }) {
-    return `user.${userId}@${domain.replace(".", "_")}`;
-}
-
-export async function getDBName() {
-    return userAtDomain(await sessionInfos.getInstance());
-}
-
-export function clearSessions() {
-    sessionInfos.clear();
-    mailapi.clear();
 }

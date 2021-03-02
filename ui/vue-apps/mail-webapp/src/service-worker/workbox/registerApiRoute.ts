@@ -1,12 +1,11 @@
 import { registerRoute } from "workbox-routing";
 import { RouteHandlerCallback, RouteHandlerCallbackOptions } from "workbox-core/types";
 import { syncMailbox } from "../sync";
-import { maildb } from "../MailDB";
 import { FilteredChangeSet, Flags } from "../entry";
-import { getDBName, clearSessions } from "../MailAPI";
 import { HTTPMethod } from "workbox-routing/utils/constants";
 import pRetry from "p-retry";
 import { logger } from "../logger";
+import Session from "../session";
 
 export const apiRoutes = [
     {
@@ -16,10 +15,6 @@ export const apiRoutes = [
     {
         capture: /\/api\/mail_items\/([a-f0-9-]+)\/_filteredChangesetById\?since=0/,
         handler: filteredChangesetById
-    },
-    {
-        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_unread/,
-        handler: unreadItems
     },
     {
         capture: /\/api\/mail_folders\/(.+)\/(.+)\/_all/,
@@ -43,10 +38,10 @@ export async function allMailFolders({ request, params }: RouteHandlerCallbackOp
         try {
             const uid = `${userId}@${domain}`;
             return await retry( async () => {
-                const db = await maildb.getInstance(await getDBName());
-                if (await db.isSubscribed(uid)) {
+                const session = await Session.instance();
+                if (await session.db.isSubscribed(uid)) {
                     await syncMailbox(domain, userId.replace('user.', ''));
-                    const allMailFolders = await db.getAllMailFolders();
+                    const allMailFolders = await session.db.getAllMailFolders();
                     return responseFromCache(allMailFolders);
                 }
                 return fetch(request);
@@ -65,9 +60,9 @@ export async function multipleById({ request, params }: RouteHandlerCallbackOpti
             request = request as Request;
             const clonedRequest = request.clone();
             const ids = (await clonedRequest.json()) as number[];
-            const db = await maildb.getInstance(await getDBName());
-            if (await db.isSubscribed(folderUid)) {
-                const mailItems = await db.getMailItems(folderUid, ids);
+            const session = await Session.instance();
+            if (await session.db.isSubscribed(folderUid)) {
+                const mailItems = await session.db.getMailItems(folderUid, ids);
                 const data = mailItems.filter(Boolean);
                 return responseFromCache(data);
             }
@@ -85,9 +80,9 @@ export async function filteredChangesetById({ request, params }: RouteHandlerCal
         try {
             request = request as Request;
             const expectedFlags = (await request.clone().json()) as Flags;
-            const db = await maildb.getInstance(await getDBName());
-            if (await db.isSubscribed(folderUid)) {
-                const allMailItems = await db.getAllMailItemLight(folderUid);
+            const session = await Session.instance();
+            if (await session.db.isSubscribed(folderUid)) {
+                const allMailItems = await session.db.getAllMailItemLight(folderUid);
                 const data: FilteredChangeSet = {
                     created: allMailItems
                         .filter(item => filterByFlags(expectedFlags, item.flags))
@@ -97,29 +92,6 @@ export async function filteredChangesetById({ request, params }: RouteHandlerCal
                     updated: [],
                     version: 0
                 };
-                return responseFromCache(data);
-            }
-            return fetch(request);
-        } catch (error) {
-            console.debug(error);
-            return fetch(request);
-        }
-    }
-}
-
-export async function unreadItems({ request, params }: RouteHandlerCallbackOptions) {
-    if (params instanceof Array) {
-        const [folderUid] = params;
-        try {
-            request = request as Request;
-            const expectedFlags: Flags = { must: [], mustNot: ["Deleted", "Seen"] };
-            const db = await maildb.getInstance(await getDBName());
-            if (await db.isSubscribed(folderUid)) {
-                const allMailItems = await db.getAllMailItems(folderUid);
-                const data = allMailItems
-                    .filter(item => filterByFlags(expectedFlags, item.flags))
-                    .sort((item1, item2) => sortMessageByDate(item1.value.body, item2.value.body))
-                    .map(item => item.internalId);
                 return responseFromCache(data);
             }
             return fetch(request);
@@ -155,5 +127,5 @@ async function retry<T>(fn: () => Promise<T>): Promise<T> {
                 throw new Error(error);
             });
     };
-    return pRetry(wrapToThrowErrorOnFailure(fn), { retries: 1, onFailedAttempt: () => clearSessions() });
+    return pRetry(wrapToThrowErrorOnFailure(fn), { retries: 1, onFailedAttempt: () => Session.clear() });
 }

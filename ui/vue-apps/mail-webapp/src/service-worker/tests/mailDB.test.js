@@ -1,5 +1,5 @@
 import FDBFactory from "fake-indexeddb/lib/FDBFactory";
-import { maildb } from "../MailDB";
+import { MailDB } from "../MailDB";
 
 describe("MailDB", () => {
     describe("DB creation", () => {
@@ -8,7 +8,7 @@ describe("MailDB", () => {
         });
 
         test("Test Singleton creation", async () => {
-            const db = await maildb.getInstance("foo");
+            const db = new MailDB("foo");
             expect(db).toMatchInlineSnapshot(`
                 MailDB {
                   "dbPromise": Promise {},
@@ -16,95 +16,95 @@ describe("MailDB", () => {
             `);
         });
         test("Change name return new db", async () => {
-            const db = await maildb.getInstance("foo");
-            const db2 = await maildb.getInstance("bar");
+            const db = new MailDB("foo");
+            const db2 = new MailDB("bar");
             expect((await db.dbPromise).name).not.toEqual((await db2.dbPromise).name);
         });
     });
 
     describe("API and store", () => {
         describe("sync_options", () => {
-            let dbPromise;
+            let db;
             beforeEach(() => {
                 global.indexedDB = new FDBFactory();
-                dbPromise = maildb.getInstance("foo");
+                db = new MailDB("foo");
             });
 
             test("getSyncOptions(uid) returns an item with correct uid", async () => {
                 const sync_options = [{ uid: "bar" }];
 
                 for (const item of sync_options) {
-                    (await (await dbPromise).dbPromise).add("sync_options", item);
+                    await (await db.dbPromise).add("sync_options", item);
                 }
-                const actual = await (await dbPromise).getSyncOptions("bar");
+                const actual = await db.getSyncOptions("bar");
                 expect(actual).toEqual(sync_options.find(item => item.uid === "bar"));
             });
 
             test("getAllSyncOptions", async () => {
                 const sync_options = [{ uid: "bar" }];
                 for (const item of sync_options) {
-                    (await (await dbPromise).dbPromise).add("sync_options", item);
+                    await (await db.dbPromise).add("sync_options", item);
                 }
-                const actual = await (await dbPromise).getAllSyncOptions();
+                const actual = await db.getAllSyncOptions();
                 expect(actual).toEqual(sync_options);
             });
 
             test("getAllSyncOptions by type", async () => {
                 const sync_options = [{ uid: "bar", type: "baz" }];
                 for (const item of sync_options) {
-                    (await (await dbPromise).dbPromise).add("sync_options", item);
+                    await (await db.dbPromise).add("sync_options", item);
                 }
-                const actual = await (await dbPromise).getAllSyncOptions("baz");
+                const actual = await db.getAllSyncOptions("baz");
                 expect(actual).toEqual(sync_options.filter(item => item.type === "baz"));
             });
 
             test("updateSyncOptions: unkown id create new object", async () => {
                 const sync_options = [{ uid: "bar" }];
                 for (const item of sync_options) {
-                    (await (await dbPromise).dbPromise).add("sync_options", item);
+                    await (await db.dbPromise).add("sync_options", item);
                 }
-                const key = await (await dbPromise).updateSyncOptions({ uid: "unknown" });
+                const key = await db.updateSyncOptions({ uid: "unknown" });
                 expect(key).not.toBeUndefined();
-                const actual = await (await dbPromise).getSyncOptions(key);
+                const actual = await db.getSyncOptions(key);
                 expect(actual).toEqual({ uid: "unknown" });
             });
 
             test("updateSyncOptions: known id update object", async () => {
                 const sync_options = [{ uid: "bar", version: 0 }];
                 for (const item of sync_options) {
-                    (await (await dbPromise).dbPromise).add("sync_options", item);
+                    await (await db.dbPromise).add("sync_options", item);
                 }
-                expect(await (await dbPromise).getSyncOptions("bar")).toEqual({ uid: "bar", version: 0 });
-                const key = await (await dbPromise).updateSyncOptions({ uid: "bar", version: 1 });
+                expect(await db.getSyncOptions("bar")).toEqual({ uid: "bar", version: 0 });
+                const key = await db.updateSyncOptions({ uid: "bar", version: 1 });
                 expect(key).not.toBeUndefined();
-                const actual = await (await dbPromise).getSyncOptions(key);
+                const actual = await db.getSyncOptions(key);
                 expect(actual).toEqual({ uid: "bar", version: 1 });
             });
 
             test("isSubscribed", async () => {
                 const sync_options = [{ uid: "bar" }];
                 for (const item of sync_options) {
-                    (await (await dbPromise).dbPromise).add("sync_options", item);
+                    await (await db.dbPromise).add("sync_options", item);
                 }
-                expect(await (await dbPromise).isSubscribed("bar")).toEqual(true);
-                expect(await (await dbPromise).isSubscribed("baz")).toEqual(false);
+                expect(await db.isSubscribed("bar")).toEqual(true);
+                expect(await db.isSubscribed("baz")).toEqual(false);
             });
         });
 
         describe("mail_folders", () => {
-            let dbPromise;
+            let db;
 
             beforeEach(() => {
                 global.indexedDB = new FDBFactory();
-                dbPromise = maildb.getInstance("foo");
+                db = new MailDB("foo");
             });
 
             test("getAllMailFolders", async () => {
                 const folders = [{ uid: "foo" }, { uid: "bar" }, { uid: "baz" }];
                 for (const item of folders) {
-                    (await (await dbPromise).dbPromise).add("mail_folders", item);
+                    await (await db.dbPromise).add("mail_folders", item);
                 }
-                const actual = await (await dbPromise).getAllMailFolders();
+                const actual = await db.getAllMailFolders();
                 expect(actual).toMatchInlineSnapshot(`
                     Array [
                       Object {
@@ -122,8 +122,8 @@ describe("MailDB", () => {
 
             test("putMailFolders", async () => {
                 const folders = [{ uid: "foo" }, { uid: "bar" }, { uid: "baz" }];
-                await (await dbPromise).putMailFolders(folders);
-                const actual = await (await (await dbPromise).dbPromise).getAll("mail_folders");
+                await db.putMailFolders(folders);
+                const actual = await (await db.dbPromise).getAll("mail_folders");
                 expect(actual).toMatchInlineSnapshot(`
                     Array [
                       Object {
@@ -146,10 +146,10 @@ describe("MailDB", () => {
                     { uid: "baz", internalId: 3 }
                 ];
                 for (const item of folders) {
-                    (await (await dbPromise).dbPromise).add("mail_folders", item);
+                    await (await db.dbPromise).add("mail_folders", item);
                 }
-                await (await dbPromise).deleteMailFolders([1]);
-                const actual = await (await (await dbPromise).dbPromise).getAll("mail_folders");
+                await db.deleteMailFolders([1]);
+                const actual = await (await db.dbPromise).getAll("mail_folders");
                 expect(actual).toMatchInlineSnapshot(`
                     Array [
                       Object {
@@ -166,17 +166,17 @@ describe("MailDB", () => {
         });
 
         describe("mail_items", () => {
-            let dbPromise;
+            let db;
 
             beforeEach(() => {
                 global.indexedDB = new FDBFactory();
-                dbPromise = maildb.getInstance("foo");
+                db = new MailDB("foo");
             });
 
             test("putMailItems", async () => {
                 const mails = [{ folderUid: "bar", internalId: "baz" }];
-                await (await dbPromise).putMailItems(mails);
-                const actual = await (await (await dbPromise).dbPromise).getAll("mail_items");
+                await db.putMailItems(mails);
+                const actual = await (await db.dbPromise).getAll("mail_items");
                 expect(actual).toMatchInlineSnapshot(`
                     Array [
                       Object {
@@ -194,9 +194,9 @@ describe("MailDB", () => {
                     { folderUid: "baz", internalId: "foo" }
                 ];
                 for (const item of mails) {
-                    (await (await dbPromise).dbPromise).put("mail_items", item);
+                    await (await db.dbPromise).put("mail_items", item);
                 }
-                const actual = await (await dbPromise).getAllMailItems("bar");
+                const actual = await db.getAllMailItems("bar");
                 expect(actual).toMatchInlineSnapshot(`
                     Array [
                       Object {
@@ -218,9 +218,9 @@ describe("MailDB", () => {
                     { folderUid: "baz", internalId: "foo" }
                 ];
                 for (const item of mails) {
-                    (await (await dbPromise).dbPromise).put("mail_items", item);
+                    await (await db.dbPromise).put("mail_items", item);
                 }
-                const actual = await (await dbPromise).getMailItems("bar", ["foo"]);
+                const actual = await db.getMailItems("bar", ["foo"]);
                 expect(actual).toMatchInlineSnapshot(`
                     Array [
                       Object {
@@ -233,21 +233,21 @@ describe("MailDB", () => {
         });
 
         describe("mail_items_light", () => {
-            let dbPromise;
+            let db;
 
             beforeEach(() => {
                 global.indexedDB = new FDBFactory();
-                dbPromise = maildb.getInstance("foo");
+                db = new MailDB("foo");
             });
 
             test("putMailItemLight", async () => {
-                await (await dbPromise).putMailItemLight([
+                await db.putMailItemLight([
                     {
                         folderUid: "bar",
                         internalId: "foo"
                     }
                 ]);
-                const actual = await (await (await dbPromise).dbPromise).getAll("mail_item_light");
+                const actual = await (await db.dbPromise).getAll("mail_item_light");
                 expect(actual).toMatchInlineSnapshot(`
                     Array [
                       Object {
@@ -265,9 +265,9 @@ describe("MailDB", () => {
                     { folderUid: "baz", internalId: "foo" }
                 ];
                 for (const item of mails) {
-                    (await (await dbPromise).dbPromise).put("mail_item_light", item);
+                    await (await db.dbPromise).put("mail_item_light", item);
                 }
-                const actual = await (await dbPromise).getAllMailItemLight("bar");
+                const actual = await db.getAllMailItemLight("bar");
                 expect(actual).toMatchInlineSnapshot(`
                     Array [
                       Object {
@@ -284,11 +284,11 @@ describe("MailDB", () => {
         });
 
         describe("reconciliate", () => {
-            let dbPromise;
+            let db;
 
             beforeEach(() => {
                 global.indexedDB = new FDBFactory();
-                dbPromise = maildb.getInstance("foo");
+                db = new MailDB("foo");
             });
 
             test("reconciliate some data", async () => {
@@ -326,8 +326,8 @@ describe("MailDB", () => {
                     uid: "foo",
                     deletedIds: ["baz", "foobar"]
                 };
-                (await dbPromise).reconciliate(data, syncOptions);
-                expect(await (await (await dbPromise).dbPromise).getAll("mail_items")).toMatchInlineSnapshot(`
+                await db.reconciliate(data, syncOptions);
+                expect(await (await db.dbPromise).getAll("mail_items")).toMatchInlineSnapshot(`
                     Array [
                       Object {
                         "flags": Array [
@@ -343,8 +343,8 @@ describe("MailDB", () => {
                       },
                     ]
                 `);
-                expect(await (await (await dbPromise).dbPromise).getAll("sync_options")).toEqual([syncOptions]);
-                expect(await (await (await dbPromise).dbPromise).getAll("mail_item_light")).toMatchInlineSnapshot(`
+                expect(await (await db.dbPromise).getAll("sync_options")).toEqual([syncOptions]);
+                expect(await (await db.dbPromise).getAll("mail_item_light")).toMatchInlineSnapshot(`
                     Array [
                       Object {
                         "date": 1995-12-17T03:24:00.000Z,

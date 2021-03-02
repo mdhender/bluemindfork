@@ -1,14 +1,7 @@
 import fetchMock from "fetch-mock";
-import { sessionInfos, mailapi, userAtDomain, getDBName } from "../MailAPI";
+import Session from "../session";
 
 describe("mailAPI", () => {
-    test("userAtDomain", () => {
-        const userId = "foo";
-        const domain = "bar";
-        const actual = userAtDomain({ userId, domain });
-        expect(actual).toEqual(`user.${userId}@${domain}`);
-    });
-
     describe("sessionInfos", () => {
         const somesessioninfos = {
             userId: "foo",
@@ -16,7 +9,7 @@ describe("mailAPI", () => {
         };
         const route = "/session-infos";
         beforeAll(() => {
-            sessionInfos.clear();
+            Session.clear();
             fetchMock.mock(route, somesessioninfos);
         });
         afterAll(() => {
@@ -25,29 +18,33 @@ describe("mailAPI", () => {
         beforeEach(() => {
             fetchMock.resetHistory();
         });
+        test("userAtDomain", async () => {
+            const actual = await Session.userAtDomain();
+            expect(actual).toEqual(`user.${somesessioninfos.userId}@${somesessioninfos.domain}`);
+        });
         test("one call", async () => {
-            const actual = await sessionInfos.getInstance();
+            const actual = await Session.infos();
             expect(actual).toEqual(somesessioninfos);
         });
         test("multiple calls", async () => {
-            const firstinstance = await sessionInfos.getInstance();
+            const firstinstance = await Session.infos();
             expect(firstinstance).toEqual(somesessioninfos);
             expect(fetchMock.calls(route).length).toEqual(0);
-            sessionInfos.clear();
-            const secondInstance = await sessionInfos.getInstance();
+            Session.clear();
+            const secondInstance = await Session.infos();
             expect(secondInstance).toEqual(somesessioninfos);
             expect(fetchMock.calls(route).length).toEqual(1);
         });
 
-        test("getDBName", async () => {
-            const actual = await getDBName();
+        test("userAtDomain", async () => {
+            const actual = await Session.userAtDomain();
             expect(actual).toEqual("user.foo@bar");
         });
     });
     describe("mailapi", () => {
         const sid = "foobar";
         beforeAll(() => {
-            sessionInfos.clear();
+            Session.clear();
             fetchMock.mock("/session-infos", { sid });
             fetchMock.mock(/\/api\/mail_items\/(.*)\/_multipleById/, {});
             fetchMock.mock(/\/api\/mail_items\/(.*)\/_filteredChangesetById/, {});
@@ -58,14 +55,14 @@ describe("mailAPI", () => {
             fetchMock.reset();
         });
         test("get instance", async () => {
-            expect(await mailapi.getInstance()).not.toBeNull();
+            expect(await Session.api()).not.toBeNull();
             expect(fetchMock.lastUrl()).toEqual("/session-infos");
-            mailapi.clear();
-            expect(await mailapi.getInstance()).not.toBeNull();
+            Session.clear();
+            expect(await Session.api()).not.toBeNull();
             expect(fetchMock.lastUrl()).toEqual("/session-infos");
         });
         test("mailItem.fetch", async () => {
-            const api = await mailapi.getInstance();
+            const api = await Session.api();
             const body = [1, 2, 3];
             const uid = "foo";
             const actual = await api.mailItem.fetch(uid, body);
@@ -86,7 +83,7 @@ describe("mailAPI", () => {
             `);
         });
         test("mailItem.changeset", async () => {
-            const api = await mailapi.getInstance();
+            const api = await Session.api();
             const version = 0;
             const uid = "foo";
             const actual = await api.mailItem.changeset(uid, version);
@@ -107,7 +104,7 @@ describe("mailAPI", () => {
             `);
         });
         test("mailFolder.fetch", async () => {
-            const api = await mailapi.getInstance();
+            const api = await Session.api();
             const userId = "bar";
             const domain = "baz";
             const actual = await api.mailFolder.fetch({ userId, domain });
@@ -126,7 +123,7 @@ describe("mailAPI", () => {
             `);
         });
         test("mailFolder.changeset", async () => {
-            const api = await mailapi.getInstance();
+            const api = await Session.api();
             const userId = "bar";
             const domain = "baz";
             const version = 0;
@@ -151,14 +148,14 @@ describe("mailAPI", () => {
         test("Unauthorized", async () => {
             fetchMock.reset();
             fetchMock.mock("/session-infos", 401);
-            sessionInfos.clear();
-            await expect(sessionInfos.getInstance()).rejects.toEqual("401 Unauthorized");
+            Session.clear();
+            await expect(Session.infos()).rejects.toEqual("401 Unauthorized");
         });
         test("Other error", async () => {
             fetchMock.reset();
             fetchMock.mock("/session-infos", 500);
-            sessionInfos.clear();
-            await expect(sessionInfos.getInstance()).rejects.toEqual("Error in BM API 500");
+            Session.clear();
+            await expect(Session.infos()).rejects.toEqual("Error in BM API 500");
         });
     });
 });
