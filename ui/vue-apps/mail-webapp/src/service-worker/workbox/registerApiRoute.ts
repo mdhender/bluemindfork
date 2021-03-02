@@ -1,6 +1,5 @@
 import { registerRoute } from "workbox-routing";
 import { RouteHandlerCallback, RouteHandlerCallbackOptions } from "workbox-core/types";
-import { syncMailbox } from "../sync";
 import { FilteredChangeSet, Flags } from "../entry";
 import { HTTPMethod } from "workbox-routing/utils/constants";
 import pRetry from "p-retry";
@@ -44,7 +43,6 @@ export async function allMailFolders({ request, params }: RouteHandlerCallbackOp
             return await retry( async () => {
                 const session = await Session.instance();
                 if (await session.db.isSubscribed(uid)) {
-                    await syncMailbox(domain, userId.replace('user.', ''));
                     const allMailFolders = await session.db.getAllMailFolders();
                     return responseFromCache(allMailFolders);
                 }

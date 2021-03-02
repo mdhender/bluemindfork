@@ -1,5 +1,5 @@
 import { SyncOptions } from "./MailDB";
-import { MailItem } from "./entry";
+import { MailFolder, MailItem } from "./entry";
 import pLimit from "p-limit";
 import { Limit } from "p-limit";
 import { logger } from "./logger";
@@ -9,16 +9,9 @@ let limits: { [uid: string]: Limit } = {};
 
 export async function syncMailFolders(): Promise<string[]> {
     Session.clear();
-    await syncMyMailbox();
-    const mailDB = await Session.db();
-    const folders = await mailDB.getAllMailFolders();
-    const foldersUpdated = [];
-    for (const folder of folders) {
-        if (await syncMailFolder(folder.uid)) {
-            foldersUpdated.push(folder.uid);
-        }
-    }
-    return foldersUpdated;
+    const updatedMailFolders = await syncMyMailbox();
+    updatedMailFolders.forEach(async folder => await syncMailFolder(folder.uid));
+    return updatedMailFolders.map(folder => folder.uid);
 }
 
 export async function syncMailFolder(uid: string, pushedVersion?: number): Promise<boolean> {
@@ -53,21 +46,21 @@ async function syncMailFolderToVersion(uid: string, syncOptions: SyncOptions): P
     return false;
 }
 
-export async function syncMyMailbox(): Promise<boolean> {
+export async function syncMyMailbox(): Promise<MailFolder[]> {
     const { domain, userId } = await Session.infos();
     return await syncMailbox(domain, userId);
 }
 
-export async function syncMailbox(domain: string, userId: string, pushedVersion?: number): Promise<boolean> {
+export async function syncMailbox(domain: string, userId: string, pushedVersion?: number): Promise<MailFolder[]> {
     return await limit(userId + domain, async () => {
         const syncOptions = await getSyncOptions(await Session.userAtDomain(), "mail_folder");
         return pushedVersion && pushedVersion <= syncOptions.version
-            ? false
+            ? []
             : syncMailboxToVersion(domain, userId, syncOptions);
     });
 }
 
-export async function syncMailboxToVersion(domain: string, userId: string, syncOptions: SyncOptions): Promise<boolean> {
+export async function syncMailboxToVersion(domain: string, userId: string, syncOptions: SyncOptions): Promise<MailFolder[]> {
     const session = await Session.instance();
     const { created, updated, deleted, version } = await session.api.mailFolder.changeset(
         { domain, userId },
@@ -81,9 +74,9 @@ export async function syncMailboxToVersion(domain: string, userId: string, syncO
         await session.db.deleteMailFolders(deleted);
         await session.db.putMailFolders(mailFolders);
         await session.db.updateSyncOptions({ ...syncOptions, version });
-        return true;
+        return mailFolders;
     }
-    return false;
+    return [];
 }
 
 async function fetchMailItemsByChunks(ids: number[], uid: string): Promise<MailItem[]> {
