@@ -3,7 +3,7 @@ import Vue2TouchEvents from "vue2-touch-events";
 import VueI18n from "vue-i18n";
 
 import { default as AlertStore, DefaultAlert } from "@bluemind/alert.store";
-import { DateTimeFormats, FirstDayOfWeek, InheritTranslationsMixin } from "@bluemind/i18n";
+import { AvailableLanguages, DateTimeFormats, FirstDayOfWeek, InheritTranslationsMixin } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
 import { initSentry } from "@bluemind/sentry";
 import router from "@bluemind/router";
@@ -14,8 +14,8 @@ import { UserSettingsClient } from "@bluemind/user.api";
 import VueBus from "@bluemind/vue-bus";
 import { extend } from "@bluemind/vuex-router";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
-import PreferencesStore from "./preferencesStore";
 
+import PreferencesStore from "./preferencesStore";
 import RootAppStore from "./rootAppStore";
 import SessionStore from "./sessionStore";
 import MainApp from "./components/MainApp";
@@ -24,12 +24,13 @@ import NotificationManager from "./NotificationManager";
 initWebApp();
 initSentry(Vue);
 
-function initWebApp() {
+async function initWebApp() {
     registerUserSession();
     const userSession = injector.getProvider("UserSession").get();
     registerDependencies(userSession);
     initStore();
     setVuePlugins();
+    await store.dispatch("session/FETCH_ALL_SETTINGS"); // initialize user settings (needed to initialize i18n)
     const i18n = initI18N(userSession);
     Vue.component("DefaultAlert", DefaultAlert);
     new Vue({
@@ -92,9 +93,11 @@ function registerDependencies(userSession) {
     });
 }
 
-function initI18N(userSession) {
+function initI18N() {
+    const lang = store.state.session.settings.remote.lang;
     Vue.mixin(InheritTranslationsMixin);
-    const i18n = new VueI18n({ locale: userSession.lang, fallbackLocale: "en", dateTimeFormats: getDateTimeFormats() });
+    // lang can be any of AvailableLanguages
+    const i18n = new VueI18n({ locale: lang, fallbackLocale: "en", dateTimeFormats: getDateTimeFormats() });
 
     injector.register({
         provide: "i18n",
@@ -105,8 +108,5 @@ function initI18N(userSession) {
 }
 
 function getDateTimeFormats() {
-    return {
-        fr: DateTimeFormats,
-        en: DateTimeFormats
-    };
+    return AvailableLanguages.reduce((obj, item) => Object.assign(obj, { [item.value]: DateTimeFormats }), {});
 }

@@ -35,6 +35,9 @@ const mutations = {
         state.settings.remote = settings;
         state.settings.local = JSON.parse(JSON.stringify(state.settings.remote));
         state.settings.loaded = true;
+    },
+    ROLLBACK_LOCAL_SETTINGS: state => {
+        state.settings.local = JSON.parse(JSON.stringify(state.settings.remote));
     }
 };
 

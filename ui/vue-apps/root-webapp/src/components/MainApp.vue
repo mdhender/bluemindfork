@@ -99,14 +99,11 @@ export default {
         this.FETCH_MY_MAILBOX_QUOTA();
         window.setInterval(() => this.FETCH_MY_MAILBOX_QUOTA(), 1000 * 60 * 30);
 
-        // initialize user settings
-        await this.FETCH_ALL_SETTINGS();
         if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
             this.TOGGLE_PREFERENCES();
         }
     },
     methods: {
-        ...mapActions("session", ["FETCH_ALL_SETTINGS"]),
         ...mapActions("root-app", ["FETCH_MY_MAILBOX_QUOTA"]),
         ...mapActions("alert", ["REMOVE"]),
         ...mapMutations("preferences", ["TOGGLE_PREFERENCES"]),

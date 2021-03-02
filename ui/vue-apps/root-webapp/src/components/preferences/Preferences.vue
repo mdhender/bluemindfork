@@ -59,7 +59,15 @@ export default {
     computed: {
         ...mapState("preferences", { selectedSection: "selectedSectionCode" }),
         ...mapState("session", { areSettingsLoaded: ({ settings }) => settings.loaded }),
+        ...mapState("session", { lang: ({ settings }) => settings.remote && settings.remote.lang }),
         ...mapGetters("preferences", ["SECTIONS"])
+    },
+    watch: {
+        lang(newValue) {
+            // FIXME: we need to reload app to change lang everywhere on the app
+            //      maybe display a modal to ask user if he's okay to reload app now
+            this.$root.$i18n.locale = newValue; // not enough because some i18n strings are already computed and stored in JS variables
+        }
     },
     created() {
         const sections = getPreferenceSections(this.applications, inject("i18n"));
@@ -81,7 +89,9 @@ export default {
     },
     methods: {
         ...mapMutations("preferences", ["TOGGLE_PREFERENCES", "SET_SELECTED_SECTION", "SET_SECTIONS"]),
+        ...mapMutations("session", ["ROLLBACK_LOCAL_SETTINGS"]),
         closePreferences() {
+            this.ROLLBACK_LOCAL_SETTINGS();
             this.$router.push({ hash: "" });
             this.TOGGLE_PREFERENCES();
         }
