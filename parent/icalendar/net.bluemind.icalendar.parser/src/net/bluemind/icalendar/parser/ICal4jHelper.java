@@ -54,6 +54,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.utils.DateTimeComparator;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
@@ -393,47 +394,51 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	 */
 	private static List<TagRef> parseIcsCategories(PropertyList categoriesPropList, Optional<CalendarOwner> owner,
 			List<TagRef> allTags) {
-		if (categoriesPropList != null && categoriesPropList.size() > 0) {
-			if (!owner.isPresent()) {
-				return null;
-			}
-
-			CalendarOwner calOwner = owner.get();
-			try (Sudo asUser = new Sudo(calOwner.userUid, calOwner.domainUid)) {
-
-				String containerUid = ITagUids.defaultUserTags(calOwner.userUid);
-				ITags service = ServerSideServiceProvider.getProvider(asUser.context).instance(ITags.class,
-						containerUid);
-
-				List<TagRef> categories = new ArrayList<TagRef>(categoriesPropList.size());
-
-				for (@SuppressWarnings("unchecked")
-				Iterator<Property> it = categoriesPropList.iterator(); it.hasNext();) {
-					Property category = it.next();
-					String label = category.getValue().toString();
-					if (Strings.isNullOrEmpty(label)) {
-						continue;
-					}
-					TagRef tr = new TagRef();
-
-					Optional<TagRef> exsistingTag = allTags.stream().filter(tag -> label.equals(tag.label)).findFirst();
-					if (exsistingTag.isPresent()) {
-						tr = exsistingTag.get();
-					} else {
-						// 3d98ff blue
-						String uid = UUID.randomUUID().toString();
-						service.create(uid, Tag.create(label, "3d98ff"));
-
-						tr = TagRef.create(containerUid, service.getComplete(uid));
-						allTags.add(tr);
-					}
-
-					categories.add(tr);
-				}
-				return categories;
-			}
+		if (categoriesPropList == null || categoriesPropList.isEmpty()) {
+			return null;
 		}
-		return null;
+		if (!owner.isPresent()) {
+			return null;
+		}
+
+		CalendarOwner calOwner = owner.get();
+
+		Optional<String> containerUid = calOwner.kind != Kind.CALENDAR
+				? Optional.of(ITagUids.defaultUserTags(calOwner.userUid))
+				: Optional.empty();
+		Optional<ITags> service = containerUid.map(uid -> {
+			try (Sudo asUser = new Sudo(calOwner.userUid, calOwner.domainUid)) {
+				return ServerSideServiceProvider.getProvider(asUser.context).instance(ITags.class, uid);
+			}
+		});
+
+		List<TagRef> categories = new ArrayList<TagRef>(categoriesPropList.size());
+
+		for (@SuppressWarnings("unchecked")
+		Iterator<Property> it = categoriesPropList.iterator(); it.hasNext();) {
+			Property category = it.next();
+			String label = category.getValue().toString();
+			if (Strings.isNullOrEmpty(label)) {
+				continue;
+			}
+
+			Optional<TagRef> exsistingTag = allTags.stream().filter(tag -> label.equals(tag.label)).findFirst();
+			if (exsistingTag.isPresent()) {
+				categories.add(exsistingTag.get());
+			} else {
+				// 3d98ff blue
+				service.ifPresent(s -> {
+					String uid = UUID.randomUUID().toString();
+					s.create(uid, Tag.create(label, "3d98ff"));
+
+					TagRef tr = TagRef.create(containerUid.get(), s.getComplete(uid));
+					allTags.add(tr);
+					categories.add(tr);
+				});
+			}
+
+		}
+		return categories;
 	}
 
 	private static ComponentList parseIcsVAlarm(CalendarComponent cc) {

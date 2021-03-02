@@ -22,5 +22,6 @@ Require-Bundle: net.bluemind.core.container.sync,
  net.bluemind.lib.ical4j,
  net.bluemind.system.api,
  net.bluemind.proxy.support,
- net.bluemind.tag.api
+ net.bluemind.tag.api,
+ net.bluemind.directory.api
 Export-Package: net.bluemind.calendar.sync

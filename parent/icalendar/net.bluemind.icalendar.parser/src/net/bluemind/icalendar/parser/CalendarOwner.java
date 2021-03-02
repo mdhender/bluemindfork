@@ -18,12 +18,16 @@
  */
 package net.bluemind.icalendar.parser;
 
+import net.bluemind.directory.api.BaseDirEntry;
+
 public class CalendarOwner {
 	public final String domainUid;
 	public final String userUid;
+	public final BaseDirEntry.Kind kind;
 
-	public CalendarOwner(String domainUid, String userUid) {
+	public CalendarOwner(String domainUid, String userUid, BaseDirEntry.Kind kind) {
 		this.domainUid = domainUid;
 		this.userUid = userUid;
+		this.kind = kind;
 	}
 }

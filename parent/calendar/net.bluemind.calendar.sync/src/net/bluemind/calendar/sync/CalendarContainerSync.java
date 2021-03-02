@@ -63,13 +63,18 @@ import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.persistence.ContainerSettingsStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.sync.ISyncableContainer;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.directory.api.BaseDirEntry;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.icalendar.parser.CalendarOwner;
 import net.bluemind.proxy.support.AHCWithProxy;
@@ -379,20 +384,26 @@ public class CalendarContainerSync implements ISyncableContainer {
 
 		List<TagRef> allTags = new ArrayList<>();
 
-		// owner tags
-		ITags service = context.provider().instance(ITags.class, ITagUids.defaultUserTags(container.owner));
-		allTags.addAll(service.all().stream().map(tag -> TagRef.create(ITagUids.defaultUserTags(container.owner), tag))
-				.collect(Collectors.toList()));
+		BaseDirEntry.Kind calOwnerType = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDirectory.class, container.domainUid).findByEntryUid(container.owner).kind;
+
+		if (calOwnerType != Kind.CALENDAR) {
+			// owner tags
+			ITags service = context.provider().instance(ITags.class, ITagUids.defaultUserTags(container.owner));
+			allTags.addAll(
+					service.all().stream().map(tag -> TagRef.create(ITagUids.defaultUserTags(container.owner), tag))
+							.collect(Collectors.toList()));
+		}
 
 		// domain tags
-		service = context.provider().instance(ITags.class, ITagUids.defaultUserTags(container.domainUid));
+		ITags service = context.provider().instance(ITags.class, ITagUids.defaultUserTags(container.domainUid));
 		allTags.addAll(
 				service.all().stream().map(tag -> TagRef.create(ITagUids.defaultUserTags(container.domainUid), tag))
 						.collect(Collectors.toList()));
 
 		return context.provider().instance(ITasksManager.class)
 				.run(new SingleCalendarICSImport(calendarService, stream,
-						Optional.of(new CalendarOwner(container.domainUid, container.owner)), allTags,
+						Optional.of(new CalendarOwner(container.domainUid, container.owner, calOwnerType)), allTags,
 						ICSImportTask.Mode.SYNC));
 	}
 
