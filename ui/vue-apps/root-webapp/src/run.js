@@ -3,7 +3,7 @@ import Vue2TouchEvents from "vue2-touch-events";
 import VueI18n from "vue-i18n";
 
 import { default as AlertStore, DefaultAlert } from "@bluemind/alert.store";
-import { AvailableLanguages, DateTimeFormats, FirstDayOfWeek, InheritTranslationsMixin } from "@bluemind/i18n";
+import { FirstDayOfWeek, generateDateTimeFormats, InheritTranslationsMixin } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
 import { initSentry } from "@bluemind/sentry";
 import router from "@bluemind/router";
@@ -94,10 +94,16 @@ function registerDependencies(userSession) {
 }
 
 function initI18N() {
-    const lang = store.state.session.settings.remote.lang;
-    Vue.mixin(InheritTranslationsMixin);
     // lang can be any of AvailableLanguages
-    const i18n = new VueI18n({ locale: lang, fallbackLocale: "en", dateTimeFormats: getDateTimeFormats() });
+    const lang = store.state.session.settings.remote.lang;
+
+    Vue.mixin(InheritTranslationsMixin);
+
+    const i18n = new VueI18n({
+        locale: lang,
+        fallbackLocale: "en",
+        dateTimeFormats: generateDateTimeFormats(store.state.session.settings.remote.timeformat)
+    });
 
     injector.register({
         provide: "i18n",
@@ -105,8 +111,4 @@ function initI18N() {
     });
 
     return i18n;
-}
-
-function getDateTimeFormats() {
-    return AvailableLanguages.reduce((obj, item) => Object.assign(obj, { [item.value]: DateTimeFormats }), {});
 }

@@ -1,4 +1,4 @@
-import DateTimeFormats from "./DateTimeFormats";
+import generateDateTimeFormats from "./DateTimeFormats";
 import FirstDayOfWeek from "./FirstDayOfWeek";
 import InheritTranslationsMixin from "./InheritTranslationsMixin";
 import TranslationHelper from "./TranslationHelper";
@@ -15,4 +15,11 @@ const AvailableLanguages = [
     { text: "中国的", value: "zh" }
 ];
 
-export { AvailableLanguages, DateTimeFormats, FirstDayOfWeek, InheritTranslationsMixin, TranslationHelper, WeekDay };
+export {
+    AvailableLanguages,
+    FirstDayOfWeek,
+    generateDateTimeFormats,
+    InheritTranslationsMixin,
+    TranslationHelper,
+    WeekDay
+};

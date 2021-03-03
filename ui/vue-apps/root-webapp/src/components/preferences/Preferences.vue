@@ -25,6 +25,7 @@
 import GlobalEvents from "vue-global-events";
 import { mapGetters, mapMutations, mapState } from "vuex";
 
+import { generateDateTimeFormats } from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
 import { BmContainer, BmRow, BmSpinner } from "@bluemind/styleguide";
 
@@ -59,7 +60,10 @@ export default {
     computed: {
         ...mapState("preferences", { selectedSection: "selectedSectionCode" }),
         ...mapState("session", { areSettingsLoaded: ({ settings }) => settings.loaded }),
-        ...mapState("session", { lang: ({ settings }) => settings.remote && settings.remote.lang }),
+        ...mapState("session", {
+            lang: ({ settings }) => settings.remote && settings.remote.lang,
+            timeformat: ({ settings }) => settings.remote && settings.remote.timeformat
+        }),
         ...mapGetters("preferences", ["SECTIONS"])
     },
     watch: {
@@ -67,6 +71,12 @@ export default {
             // FIXME: we need to reload app to change lang everywhere on the app
             //      maybe display a modal to ask user if he's okay to reload app now
             this.$root.$i18n.locale = newValue; // not enough because some i18n strings are already computed and stored in JS variables
+        },
+        timeformat(newValue) {
+            const dateTimeFormats = generateDateTimeFormats(newValue);
+            Object.entries(dateTimeFormats).forEach(entry => {
+                this.$root.$i18n.setDateTimeFormat(entry[0], entry[1]);
+            });
         }
     },
     created() {
