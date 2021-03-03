@@ -90,7 +90,7 @@ public class ResourceStore extends AbstractItemValueStore<ResourceDescriptor> {
 
 	public List<String> findByType(String typeUid) throws SQLException {
 		return select(
-				"SELECT ci.uid FROM t_container_item ci, t_resource r WHERE ci.container_id = ? AND r.type_id = ?",
+				"SELECT ci.uid FROM t_container_item ci inner join t_resource r on r.item_id = ci.id WHERE ci.container_id = ? AND r.type_id = ?",
 				new StringCreator(1), Arrays.asList(), new Object[] { container.id, typeUid });
 	}
 }

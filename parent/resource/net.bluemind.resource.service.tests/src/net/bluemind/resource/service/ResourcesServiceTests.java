@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -129,6 +130,8 @@ public class ResourcesServiceTests {
 
 		typeStore.create("testType", typeDescriptor);
 		typeStore.create("testType2", typeDescriptor);
+		typeStore.create("the-type", typeDescriptor);
+
 		store = new ResourceContainerStoreService(new BmTestContext(SecurityContext.SYSTEM), domain, container);
 
 		domainAdminCtx = BmTestContext.contextWithSession("d1", "admin", testDomainUid, SecurityContext.ROLE_ADMIN);
@@ -451,6 +454,22 @@ public class ResourcesServiceTests {
 
 		// test set icon to inexistent resource type
 		assertNull(service(domainAdminSC).getIcon("fakeId"));
+	}
+
+	@Test
+	public void testByType() {
+		service(domainAdminSC).create(UUID.randomUUID().toString(), defaultDescriptor());
+
+		ResourceDescriptor res = defaultDescriptor();
+		res.typeIdentifier = "the-type";
+		res.emails = Arrays
+				.asList(Email.create(UUID.randomUUID().toString().toLowerCase() + "@" + testDomainUid, true));
+		service(domainAdminSC).create("the-type", res);
+
+		List<String> byType = service(domainAdminSC).byType("the-type");
+		assertEquals(1, byType.size());
+		assertEquals("the-type", byType.get(0));
+
 	}
 
 	private ResourceDescriptor defaultDescriptor() {
