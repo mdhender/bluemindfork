@@ -166,6 +166,7 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/styleguide/css/_zIndex.scss";
 
 .mail-app {
     .topbar {
@@ -228,6 +229,7 @@ export default {
     }
 
     .multipane-resizer {
+        @extend .z-index-110;
         visibility: hidden;
     }
 
@@ -238,18 +240,18 @@ export default {
             max-width: 70%;
             width: 30%;
         }
-        .multipane-resizer {
+        .layout-v > .multipane-resizer {
             visibility: visible;
-            margin: 0 0 0 -5px;
+            margin-left: -$sp-1 * 0.5;
             left: 0;
-            width: 5px;
-            min-width: 5px;
+            width: $sp-1;
+            min-width: $sp-1;
 
             &:active {
-                background-color: $dark;
-                margin-left: 0;
-                width: 2px;
-                min-width: 2px;
+                margin-left: -$sp-1;
+                border-right: ($sp-1 * 0.25) $dark solid;
+                width: $sp-1 * 1.25;
+                min-width: $sp-1 * 1.25;
             }
         }
     }
