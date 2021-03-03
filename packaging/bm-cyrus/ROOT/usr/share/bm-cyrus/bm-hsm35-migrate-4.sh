@@ -8,6 +8,7 @@ export MALLOC_CHECK_=0
 WORKERS=1
 force=0
 declare -a GRPS
+declare -a USERS
 
 if [ $EUID -ne 0 ]; then
     echo "Error: this script must be run as root"
@@ -36,17 +37,20 @@ CURL="curl -s -k -H \"X-BM-ApiKey: ${API_KEY}\""
 
 
 usage() {
-    echo "Usage: $0 [-f] [-w worker_count] [-g group] [-g group]"
+    echo "Usage: $0 [-f] [-w worker_count] [-g group] [-g group] [-u useruid...]"
     exit 1
 }
 
-while getopts "g:w:f" o; do
+while getopts "g:w:u:f" o; do
     case "${o}" in
     w)
         WORKERS="${OPTARG}"
         ;;
     g)
         GRPS+=("${OPTARG}")
+        ;;
+    u)
+        USERS+=("${OPTARG}")
         ;;
     f)
         force=1
@@ -119,32 +123,29 @@ migrate_user() {
     user_login="$5"
     quota_update="$6"
 
-    if [ "$quota_update" -eq "1" ]; then
-        echo "[$job][${domain}][${user_email}] quota reset is needed"
-        echo "[$job][${domain}][${user_email}] get bluemind user"
-        user_json=$(curl -s -k -H "X-BM-ApiKey: ${API_KEY}" -XGET ${API_URL}/users/${domain}/byEmail/${user_email})
-        user_values=$(echo $user_json | jq -c '.value | .quota=0')
-        if [ -z "$user_values" ] || [ -z "$user_uid" ]; then
-            echo "[${domain}][${user_email}] Unable to find bluemind user"
-            continue
-        fi
-        echo "[$job][${domain}][${user_email}] Setting quota to unlimited"
-        curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
-            -XPOST -d "$user_values" \
-            ${API_URL}/users/${domain}/${user_uid}
+    echo "[$job][${domain}][${user_email}] get bluemind user"
+    user_json=$(curl -s -k -H "X-BM-ApiKey: ${API_KEY}" -XGET ${API_URL}/users/${domain}/byEmail/${user_email})
+    user_values=$(echo $user_json | jq -c '.value | .quota=0')
+    if [ -z "$user_values" ] || [ -z "$user_uid" ]; then
+        echo "[${domain}][${user_email}] Unable to find bluemind user"
+        return
     fi
+    echo "[$job][${domain}][${user_email}] Setting quota to unlimited"
+    curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
+        -XPOST -d "$user_values" \
+        ${API_URL}/users/${domain}/${user_uid}
 
     if [ "$force" -eq "1" ]; then
         echo "[$job][${domain}][${user_email}] forced repair (all ops)"
-        bm-cli maintenance repair "${user_email}"
+        bm-cli maintenance repair "${user_email}" || true
     else
         # Light repair
         echo "[$job][${domain}][${user_email}] Repair ops: mailboxAcls,mailboxHsm"
-        bm-cli maintenance repair --ops mailboxAcls,mailboxHsm "${user_email}"
+        bm-cli maintenance repair --ops mailboxAcls,mailboxHsm "${user_email}" || true
     fi
 
     echo "[$job][${domain}][${user_email}] Migrate orphaned HSM messages"
-    bm-cli maintenance hsm-to-cyrus --domain ${domain} --user ${user_uid} --delete
+    bm-cli maintenance hsm-to-cyrus --domain ${domain} --user ${user_uid} --delete || true
 
     echo ${user_email} >> ${MIGRATED_LOG}
     if [ "$quota_update" -eq "1" ]; then
@@ -226,10 +227,16 @@ for domain in ${domains}; do
         done
     fi
 
-    echo "Retrieve all userids in bluemind"
-    all_userids=($(curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
-        -XGET ${API_URL}/users/${domain}/_alluids | jq -r '.[]'))
-    
+
+    if [ "${#USERS[@]}" -gt "0" ]; then
+        echo "Retrieve only specified userids in bluemind"
+        all_userids=("${USERS[@]}")
+    else
+        echo "Retrieve all userids in bluemind"
+        all_userids=($(curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
+            -XGET ${API_URL}/users/${domain}/_alluids | jq -r '.[]'))
+    fi
+
     # sort all_userids
     declare -a sorted_userids=()
     if [ "${#vip_uids[@]}" -gt 0 ]; then
@@ -262,7 +269,7 @@ for domain in ${domains}; do
             -XGET ${API_URL}/users/${domain}/${userid}/complete | jq -c -r '{"email": .value.emails | .[] | select(.isDefault == true).address, "uid": .uid, "login": .value.login}')
         allusers="$allusers $userinfo"
     done
-    
+
     quota_user_emails=$(jq -r -a -c '[to_entries | .[] | .key | match("user/((.+)@'${domain}')") | .captures [0].string]|sort' ${QUOTA_DUMP} || true)
     for userinfo in $allusers; do
         user_email=$(echo $userinfo | jq -r -c '.email')
@@ -346,5 +353,5 @@ else
 fi
 
 echo "[END]: $(date -R)"
-) | tee -a ${MIGRATION_LOG}
+) 2>&1 | tee -a ${MIGRATION_LOG}
 
