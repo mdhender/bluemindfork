@@ -5,6 +5,7 @@ import { HTTPMethod } from "workbox-routing/utils/constants";
 import pRetry from "p-retry";
 import { logger } from "../logger";
 import Session from "../session";
+import { syncMailFolder } from "../sync";
 
 export const apiRoutes = [
     {
@@ -36,22 +37,23 @@ export default function (routes: { capture: RegExp; handler: RouteHandlerCallbac
 }
 
 export async function allMailFolders({ request, params }: RouteHandlerCallbackOptions) {
-    if (params instanceof Array) {
-        const [domain, userId] = params;
-        try {
-            const uid = `${userId}@${domain}`;
-            return await retry( async () => {
-                const session = await Session.instance();
-                if (await session.db.isSubscribed(uid)) {
-                    const allMailFolders = await session.db.getAllMailFolders();
-                    return responseFromCache(allMailFolders);
-                }
-                return fetch(request);
-            });
-        } catch (error) {
-            console.debug(error);
+    if (!(params instanceof Array)) {
+        return;
+    }
+    const [domain, userId] = params;
+    try {
+        const uid = `${userId}@${domain}`;
+        return await retry( async () => {
+            const session = await Session.instance();
+            if (await session.db.isSubscribed(uid)) {
+                const allMailFolders = await session.db.getAllMailFolders();
+                return responseFromCache(allMailFolders);
+            }
             return fetch(request);
-        }
+        });
+    } catch (error) {
+        console.debug(error);
+        return fetch(request);
     }
 }
 
@@ -64,6 +66,10 @@ export async function multipleById({ request, params }: RouteHandlerCallbackOpti
             const ids = (await clonedRequest.json()) as number[];
             const session = await Session.instance();
             if (await session.db.isSubscribed(folderUid)) {
+                const syncOptions = await session.db.getSyncOptions(folderUid);
+                if (!!syncOptions?.pending) {
+                    await syncMailFolder(folderUid)
+                }
                 const mailItems = await session.db.getMailItems(folderUid, ids);
                 const data = mailItems.filter(Boolean);
                 return responseFromCache(data);
@@ -77,30 +83,35 @@ export async function multipleById({ request, params }: RouteHandlerCallbackOpti
 }
 
 export async function filteredChangesetById({ request, params }: RouteHandlerCallbackOptions) {
-    if (params instanceof Array) {
-        const [folderUid] = params;
-        try {
-            request = request as Request;
-            const expectedFlags = (await request.clone().json()) as Flags;
-            const session = await Session.instance();
-            if (await session.db.isSubscribed(folderUid)) {
-                const allMailItems = await session.db.getAllMailItemLight(folderUid);
-                const data: FilteredChangeSet = {
-                    created: allMailItems
-                        .filter(item => filterByFlags(expectedFlags, item.flags))
-                        .sort(sortMessageByDate)
-                        .map(({ internalId: id }) => ({ id, version: 0 })),
-                    deleted: [],
-                    updated: [],
-                    version: 0
-                };
-                return responseFromCache(data);
+    if (!(params instanceof Array)) {
+        return;
+    }
+    const [folderUid] = params;
+    try {
+        request = request as Request;
+        const expectedFlags = (await request.clone().json()) as Flags;
+        const session = await Session.instance();
+        if (await session.db.isSubscribed(folderUid)) {
+            const syncOptions = await session.db.getSyncOptions(folderUid);
+            if (!!syncOptions?.pending) {
+                await syncMailFolder(folderUid)
             }
-            return fetch(request);
-        } catch (error) {
-            console.debug(error);
-            return fetch(request);
+            const allMailItems = await session.db.getAllMailItemLight(folderUid);
+            const data: FilteredChangeSet = {
+                created: allMailItems
+                    .filter(item => filterByFlags(expectedFlags, item.flags))
+                    .sort(sortMessageByDate)
+                    .map(({ internalId: id }) => ({ id, version: 0 })),
+                deleted: [],
+                updated: [],
+                version: 0
+            };
+            return responseFromCache(data);
         }
+        return fetch(request);
+    } catch (error) {
+        console.debug(error);
+        return fetch(request);
     }
 }
 

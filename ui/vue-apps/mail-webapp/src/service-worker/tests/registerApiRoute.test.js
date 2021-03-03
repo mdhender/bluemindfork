@@ -94,6 +94,7 @@ describe("workbox", () => {
                     Session.instance = jest.fn().mockResolvedValue({
                         db: {
                             isSubscribed: () => true,
+                            getSyncOptions: () => ({ pending: false }),
                             [api]: jest
                                 .fn()
                                 .mockResolvedValue([{ internalId: "12345", name: "bar", flags: ["foobar"] }])

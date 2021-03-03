@@ -4,7 +4,7 @@ import Session from "../session";
 
 import { syncMailFolders, syncMyMailbox, syncMailFolder, syncMailbox } from "../sync";
 
-describe("periodicSync", () => {
+describe("sync", () => {
     beforeEach(() => {
         Session.clear();
         global.indexedDB = new FDBFactory();
@@ -163,11 +163,13 @@ describe("periodicSync", () => {
         expect(await (await (await dbPromise).dbPromise).getAll("sync_options")).toMatchInlineSnapshot(`
             Array [
               Object {
+                "pending": false,
                 "type": "mail_item",
                 "uid": 1,
                 "version": 1,
               },
               Object {
+                "pending": false,
                 "type": "mail_item",
                 "uid": 2,
                 "version": 1,
@@ -196,6 +198,7 @@ describe("periodicSync", () => {
         expect(await db.getAll("sync_options")).toMatchInlineSnapshot(`
             Array [
               Object {
+                "pending": false,
                 "type": "mail_item",
                 "uid": 1,
                 "version": 1,
@@ -212,6 +215,7 @@ describe("periodicSync", () => {
         expect(await db.getAll("sync_options")).toMatchInlineSnapshot(`
             Array [
               Object {
+                "pending": false,
                 "type": "mail_item",
                 "uid": 1,
                 "version": 2,
@@ -259,6 +263,7 @@ describe("periodicSync", () => {
         expect(await db.getAll("sync_options")).toMatchInlineSnapshot(`
             Array [
               Object {
+                "pending": false,
                 "type": "mail_item",
                 "uid": 1,
                 "version": 2,
@@ -276,14 +281,15 @@ describe("periodicSync", () => {
             created: [], updated: [], deleted: [], version: 1
         });
 
-        let updated = await syncMailFolder(1);
+        let updated = await syncMailFolder("1");
         expect(updated).toBeTruthy();
         expect(fetchMock.called("/api/mail_items/1/_filteredChangesetById?since=0")).toBeTruthy();
         expect(await db.getAll("sync_options")).toMatchInlineSnapshot(`
             Array [
               Object {
+                "pending": false,
                 "type": "mail_item",
-                "uid": 1,
+                "uid": "1",
                 "version": 1,
               },
             ]
@@ -292,14 +298,15 @@ describe("periodicSync", () => {
         fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=1", {
             created: [], updated: [], deleted: [], version: 1
         });
-        updated = await syncMailFolder(1);
+        updated = await syncMailFolder("1");
         expect(updated).toBeFalsy();
         expect(fetchMock.called("/api/mail_items/1/_filteredChangesetById?since=1")).toBeTruthy();
         expect(await db.getAll("sync_options")).toMatchInlineSnapshot(`
             Array [
               Object {
+                "pending": false,
                 "type": "mail_item",
-                "uid": 1,
+                "uid": "1",
                 "version": 1,
               },
             ]
@@ -346,13 +353,28 @@ describe("periodicSync", () => {
     test("consecutive syncMailbox calls without a newer version should return false", async () => {
         fetchMock.reset();
         fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
-        fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_all", []);
-        const db = await (await Session.db()).dbPromise;
+        fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_all", [
+            {
+                uid: 1,
+                internalId: 1,
+                name: "folder1"
+            },
+            {
+                uid: 2,
+                internalId: 2,
+                name: "folder2"
+            }
+        ]);
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=0", {
+            created: [1], updated: [2], deleted: [], version: 1
+        });
+        fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=1", {
             created: [], updated: [], deleted: [], version: 1
         });
+
+        const db = await (await Session.db()).dbPromise;
         let updated = await syncMailbox("foo.bar", "baz");
-        expect(updated).toBeTruthy()
+        expect(updated.length).toBeGreaterThan(0);
         expect(fetchMock.called("/api/mail_folders/foo_bar/user.baz/_changesetById?since=0")).toBeTruthy();
         expect(await db.getAll("sync_options")).toMatchInlineSnapshot(`
             Array [
@@ -364,11 +386,8 @@ describe("periodicSync", () => {
             ]
         `);
 
-        fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=1", {
-            created: [], updated: [], deleted: [], version: 1
-        });
         updated = await syncMailbox("foo.bar", "baz");
-        expect(updated).toBeFalsy();
+        expect(updated.length).toBe(0);
         expect(fetchMock.called("/api/mail_folders/foo_bar/user.baz/_changesetById?since=1")).toBeTruthy();
         expect(await db.getAll("sync_options")).toMatchInlineSnapshot(`
             Array [
@@ -384,18 +403,29 @@ describe("periodicSync", () => {
     test("syncMailbox call with a version <= to the one sync should do nothing", async () => {
         fetchMock.reset();
         fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
-        fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_all", []);
+        fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_all", [
+            {
+                uid: 1,
+                internalId: 1,
+                name: "folder1"
+            },
+            {
+                uid: 2,
+                internalId: 2,
+                name: "folder2"
+            }
+        ]);
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=0", {
-            created: [], updated: [], deleted: [], version: 1
+            created: [1], updated: [2], deleted: [], version: 1
         });
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=1", {
             created: [], updated: [], deleted: [], version: 2
         });
 
         let updated = await syncMailbox("foo.bar", "baz");
-        expect(updated).toBeTruthy();
+        expect(updated.length).toBeGreaterThan(0);
         updated = await syncMailbox("foo.bar", "baz", 1);
-        expect(updated).toBeFalsy();
+        expect(updated.length).toBe(0);
         expect(fetchMock.called("/api/mail_folders/foo_bar/user.baz/_changesetById?since=0")).toBeTruthy();
         expect(fetchMock.called("/api/mail_folders/foo_bar/user.baz/_changesetById?since=1")).toBeFalsy();
     });

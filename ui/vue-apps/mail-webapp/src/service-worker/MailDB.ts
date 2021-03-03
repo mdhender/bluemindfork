@@ -6,6 +6,7 @@ export interface SyncOptions {
     uid: string;
     version: number;
     type: SyncOptionsType;
+    pending?: boolean;
 }
 interface MailSchema extends DBSchema {
     mail_folders: {
@@ -68,7 +69,8 @@ export class MailDB {
 
     async updateSyncOptions(syncOptions: SyncOptions) {
         const actual = await this.getSyncOptions(syncOptions.uid);
-        if (actual === undefined || actual.version < syncOptions.version) {
+        if (actual === undefined || actual.version < syncOptions.version ||
+            (actual.version === syncOptions.version && actual.pending !== syncOptions.pending)) {
             return (await this.dbPromise).put("sync_options", syncOptions);
         }
     }

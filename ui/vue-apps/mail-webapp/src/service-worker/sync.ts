@@ -9,14 +9,23 @@ let limits: { [uid: string]: Limit } = {};
 
 export async function syncMailFolders(): Promise<string[]> {
     Session.clear();
+    const session = await Session.instance();
     const updatedMailFolders = await syncMyMailbox();
-    updatedMailFolders.forEach(async folder => await syncMailFolder(folder.uid));
-    return updatedMailFolders.map(folder => folder.uid);
+    return await Promise.all(
+        updatedMailFolders
+            .map(async folder => await markFolderSyncAsPending(session, folder.uid))
+            .slice(0, 100)
+            .map(async folderUidPromise => {
+                const folderUid = await folderUidPromise;
+                await syncMailFolder(folderUid);
+                return folderUid;
+            })
+    );
 }
 
 export async function syncMailFolder(uid: string, pushedVersion?: number): Promise<boolean> {
     return await limit(uid, async () => {
-        const syncOptions = await getSyncOptions(uid, "mail_item");
+        const syncOptions = await getOrCreateSyncOptions(uid, "mail_item");
         return pushedVersion && pushedVersion <= syncOptions.version
             ? false
             : syncMailFolderToVersion(uid, syncOptions);
@@ -27,7 +36,8 @@ async function syncMailFolderToVersion(uid: string, syncOptions: SyncOptions): P
     try {
         const session = await Session.instance();
         const { created, updated, deleted, version } = await session.api.mailItem.changeset(uid, syncOptions.version);
-        if (version !== syncOptions.version) {
+        let versionUpdated = version !== syncOptions.version;
+        if (versionUpdated) {
             const ids = created
                 .reverse()
                 .concat(updated.reverse())
@@ -37,13 +47,13 @@ async function syncMailFolderToVersion(uid: string, syncOptions: SyncOptions): P
                 { uid, items: mailItems, deletedIds: deleted.map(({ id }) => id) },
                 { ...syncOptions, version }
             );
-            await session.db.updateSyncOptions({ ...syncOptions, version });
-            return true;
         }
+        await session.db.updateSyncOptions({ ...syncOptions, version, pending: false });
+        return versionUpdated;
     } catch (error) {
         logger.error("[SW][MailFolder] error while syncing changet", error);
+        return false;
     }
-    return false;
 }
 
 export async function syncMyMailbox(): Promise<MailFolder[]> {
@@ -53,14 +63,18 @@ export async function syncMyMailbox(): Promise<MailFolder[]> {
 
 export async function syncMailbox(domain: string, userId: string, pushedVersion?: number): Promise<MailFolder[]> {
     return await limit(userId + domain, async () => {
-        const syncOptions = await getSyncOptions(await Session.userAtDomain(), "mail_folder");
+        const syncOptions = await getOrCreateSyncOptions(await Session.userAtDomain(), "mail_folder");
         return pushedVersion && pushedVersion <= syncOptions.version
             ? []
             : syncMailboxToVersion(domain, userId, syncOptions);
     });
 }
 
-export async function syncMailboxToVersion(domain: string, userId: string, syncOptions: SyncOptions): Promise<MailFolder[]> {
+export async function syncMailboxToVersion(
+    domain: string,
+    userId: string,
+    syncOptions: SyncOptions
+): Promise<MailFolder[]> {
     const session = await Session.instance();
     const { created, updated, deleted, version } = await session.api.mailFolder.changeset(
         { domain, userId },
@@ -68,9 +82,11 @@ export async function syncMailboxToVersion(domain: string, userId: string, syncO
     );
     if (version !== syncOptions.version) {
         const toBeUpdated = created.concat(updated);
-        const mailFolders = (await session.api.mailFolder.fetch({ domain, userId })).filter(mailfolder =>
-            toBeUpdated.includes(mailfolder.internalId)
+        const allMailFolders = await session.api.mailFolder.fetch({ domain, userId });
+        const mailFoldersByInternalId = Object.fromEntries(
+            allMailFolders.map(mailFolder => [mailFolder.internalId, mailFolder])
         );
+        const mailFolders = toBeUpdated.map(updatedFolder => mailFoldersByInternalId[updatedFolder]);
         await session.db.deleteMailFolders(deleted);
         await session.db.putMailFolders(mailFolders);
         await session.db.updateSyncOptions({ ...syncOptions, version });
@@ -101,7 +117,7 @@ function createSyncOptions(uid: string, type: "mail_item" | "mail_folder"): Sync
     };
 }
 
-async function getSyncOptions(uid: string, type: "mail_item" | "mail_folder"): Promise<SyncOptions> {
+async function getOrCreateSyncOptions(uid: string, type: "mail_item" | "mail_folder"): Promise<SyncOptions> {
     const db = await Session.db();
     const syncOptions = await db.getSyncOptions(uid);
     if (!syncOptions) {
@@ -117,3 +133,10 @@ function* chunk<T>(array: T[], chunk_size: number) {
         yield array.slice(i, i + chunk_size);
     }
 }
+
+const markFolderSyncAsPending = async (session: Session, folderUid: string): Promise<string> => {
+    const db = session.db;
+    const syncOptions = await getOrCreateSyncOptions(folderUid, "mail_item");
+    await db.updateSyncOptions({ ...syncOptions, pending: true });
+    return folderUid;
+};
