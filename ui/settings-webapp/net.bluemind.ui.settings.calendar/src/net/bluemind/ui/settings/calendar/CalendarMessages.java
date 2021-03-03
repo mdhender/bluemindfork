@@ -87,4 +87,10 @@ public interface CalendarMessages extends Messages {
 
 	String deactivate();
 
+	String email();
+
+	String notification();
+
+	String defaultAlertMode();
+
 }

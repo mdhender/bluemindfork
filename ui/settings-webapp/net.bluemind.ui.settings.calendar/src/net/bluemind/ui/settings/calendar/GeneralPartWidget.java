@@ -69,6 +69,8 @@ public class GeneralPartWidget extends CompositeGwtWidgetElement {
 
 	private DurationValue defaultAlldayEventAlert;
 
+	private ListBox defaultAlertMode;
+
 	public GeneralPartWidget(WidgetElement instance) {
 		table = new FlexTable();
 		table.setStyleName("formContainer");
@@ -140,6 +142,12 @@ public class GeneralPartWidget extends CompositeGwtWidgetElement {
 		defaultAlldayEventAlert = new DurationValue();
 		ct(i++, messages.defaultAlldayEventAlert(), defaultAlldayEventAlert);
 
+		defaultAlertMode = new ListBox();
+		defaultAlertMode.setMultipleSelect(false);
+		defaultAlertMode.addItem(messages.notification(), "Display");
+		defaultAlertMode.addItem(messages.email(), "Email");
+		ct(i++, messages.defaultAlertMode(), defaultAlertMode);
+
 		if (instance.isReadOnly()) {
 			workingDays.setEnabled(false);
 			dayStartsAt.setEnabled(false);
@@ -151,6 +159,7 @@ public class GeneralPartWidget extends CompositeGwtWidgetElement {
 			showDeclinedEvents.setEnabled(false);
 			defaultEventAlert.setEnabled(false);
 			defaultAlldayEventAlert.setEnabled(false);
+			defaultAlertMode.setEnabled(false);
 		}
 	}
 
@@ -181,6 +190,7 @@ public class GeneralPartWidget extends CompositeGwtWidgetElement {
 		} else {
 			model.put("default_allday_event_alert", new JSONString(""));
 		}
+		model.put("default_event_alert_mode", new JSONString(defaultAlertMode.getSelectedValue()));
 	}
 
 	@Override
@@ -199,6 +209,13 @@ public class GeneralPartWidget extends CompositeGwtWidgetElement {
 
 		setDuration(defaultEventAlert, value(model, "default_event_alert"));
 		setDuration(defaultAlldayEventAlert, value(model, "default_allday_event_alert"));
+
+		String value = value(model, "default_event_alert_mode");
+		listboxSetValue(defaultAlertMode, value);
+
+		if (defaultAlertMode.getSelectedIndex() < 0) {
+			defaultAlertMode.setSelectedIndex(0);
+		}
 
 		validateAllDay(whStart, whEnd);
 	}
@@ -241,6 +258,7 @@ public class GeneralPartWidget extends CompositeGwtWidgetElement {
 	private void listboxSetValue(ListBox listbox, String value) {
 		if (value == null) {
 			listbox.setSelectedIndex(-1);
+			return;
 		}
 		for (int i = 0; i < listbox.getItemCount(); i++) {
 			if (value.equals(listbox.getValue(i))) {
