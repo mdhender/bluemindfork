@@ -5,23 +5,23 @@ Bundle-SymbolicName: net.bluemind.cli.mail;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
+ com.fasterxml.jackson.core.jackson-core,
+ com.fasterxml.jackson.core.jackson-databind,
+ com.github.freva.ascii-table,
+ com.google.guava,
+ net.bluemind.authentication.api,
+ net.bluemind.authentication.mgmt.api,
+ net.bluemind.backend.cyrus.partitions,
+ net.bluemind.backend.mail.replica.api,
  net.bluemind.cli.cmd.api,
  net.bluemind.cli.utils,
- net.bluemind.mailbox.api,
- net.bluemind.authentication.mgmt.api,
- com.google.guava,
- com.fasterxml.jackson.core.jackson-databind,
- com.fasterxml.jackson.core.jackson-core,
  net.bluemind.core.commons,
- net.bluemind.backend.mail.replica.api,
- com.github.freva.ascii-table;bundle-version="1.1.0",
  net.bluemind.elastic.client,
  net.bluemind.lib.elasticsearch,
- org.apache.commons.compress,
- net.bluemind.system.api,
- net.bluemind.authentication.api,
+ net.bluemind.mailbox.api,
  net.bluemind.network.topology,
- net.bluemind.backend.cyrus.partitions
+ net.bluemind.system.api,
+ org.apache.commons.compress
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.mail
 Bundle-ActivationPolicy: lazy

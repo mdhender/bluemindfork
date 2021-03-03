@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -136,12 +135,7 @@ public class SdsProxyWithS3IntegrationTests {
 		JdbcActivator.getInstance().addMailboxDataSource(cyrusReplication.server().uid,
 				JdbcTestHelper.getInstance().getMailboxDataDataSource());
 
-		CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(ar -> {
-			cdl.countDown();
-		});
-		boolean beforeTimeout = cdl.await(30, TimeUnit.SECONDS);
-		assertTrue(beforeTimeout);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		MQ.init().get(30, TimeUnit.SECONDS);
 		Topology.get();
