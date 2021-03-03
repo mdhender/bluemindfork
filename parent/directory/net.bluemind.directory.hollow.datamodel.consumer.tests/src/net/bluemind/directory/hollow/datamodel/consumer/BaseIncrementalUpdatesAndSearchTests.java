@@ -203,7 +203,7 @@ public abstract class BaseIncrementalUpdatesAndSearchTests {
 					System.err.println("FAIL: " + t.getMessage());
 					errors.increment();
 					t.printStackTrace();
-					System.exit(1);
+					throw t;
 				}
 				try {
 					Thread.sleep(0, 1);

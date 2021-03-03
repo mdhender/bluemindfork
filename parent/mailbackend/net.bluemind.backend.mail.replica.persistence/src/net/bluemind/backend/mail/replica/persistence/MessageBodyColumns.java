@@ -35,6 +35,7 @@ import net.bluemind.core.jdbc.JdbcAbstractStore.EntityPopulator;
 import net.bluemind.core.jdbc.JdbcAbstractStore.StatementValues;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ListReader;
+import net.bluemind.core.utils.JsonUtils.ValueReader;
 
 public class MessageBodyColumns {
 
@@ -55,6 +56,7 @@ public class MessageBodyColumns {
 
 	private static final ListReader<Header> headersReader = JsonUtils.listReader(Header.class);
 	private static final ListReader<Recipient> recipientReader = JsonUtils.listReader(Recipient.class);
+	private static final ValueReader<Part> partReader = JsonUtils.reader(Part.class);
 
 	public static EntityPopulator<MessageBody> populator(String guid) {
 		final EntityPopulator<MessageBody> simple = simplePopulator();
@@ -68,7 +70,7 @@ public class MessageBodyColumns {
 	public static EntityPopulator<MessageBody> simplePopulator() {
 		return (ResultSet rs, int index, MessageBody value) -> {
 			value.subject = rs.getString(index++);
-			value.structure = JsonUtils.read(rs.getString(index++), Part.class);
+			value.structure = partReader.read(rs.getString(index++));
 			value.headers = headersReader.read(rs.getString(index++));
 			value.recipients = recipientReader.read(rs.getString(index++));
 			value.messageId = rs.getString(index++);

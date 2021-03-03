@@ -19,6 +19,7 @@
 package net.bluemind.exchange.mapi.service.internal;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -29,11 +30,14 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.ContainerQuery;
+import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.hierarchy.hook.HierarchyIdsHints;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ContainerModifiableDescriptor;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.exchange.mapi.api.IMapiFolder;
 import net.bluemind.exchange.mapi.api.IMapiFoldersMgmt;
@@ -81,6 +85,8 @@ public class MapiFoldersMgmt implements IMapiFoldersMgmt {
 		}
 		logger.info("Create {} matching folder {}...", fais, mf);
 		contApi.create(mf.containerUid, fais);
+		IContainerManagement aclApi = context.provider().instance(IContainerManagement.class, mf.containerUid);
+		aclApi.setAccessControlList(Arrays.asList(AccessControlEntry.create(domain, Verb.Write)));
 		logger.info("Created container {}", mf.containerUid);
 	}
 
@@ -118,9 +124,15 @@ public class MapiFoldersMgmt implements IMapiFoldersMgmt {
 	@Override
 	public void delete(String containerUid) {
 		logger.info("Deleting mapi folder container {}", containerUid);
-		IMapiFolder toClearApi = context.provider().instance(IMapiFolder.class, containerUid);
+		try {
+			IMapiFolder toClearApi = context.provider().instance(IMapiFolder.class, containerUid);
+			toClearApi.reset();
+		} catch (ServerFault sf) {
+			// we delete a not existing container
+			logger.warn(sf.getMessage());
+			return;
+		}
 		IContainers contApi = context.provider().instance(IContainers.class);
-		toClearApi.reset();
 		try {
 			store.delete(containerUid);
 		} catch (SQLException e) {

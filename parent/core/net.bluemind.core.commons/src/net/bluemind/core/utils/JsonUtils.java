@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.DateSerializer;
@@ -55,6 +56,26 @@ public class JsonUtils {
 		JavaType typ = objectMapper.getTypeFactory().constructType(type);
 
 		return objectMapper.readerFor(typ).readValue(value);
+	}
+
+	public static final class ValueReader<T> {
+		private ObjectReader impl;
+
+		private ValueReader(ObjectReader r) {
+			this.impl = r;
+		}
+
+		public T read(String v) {
+			try {
+				return impl.readValue(v);
+			} catch (Exception e) {
+				throw new ServerFault(e);
+			}
+		}
+	}
+
+	public static <T> ValueReader<T> reader(Class<T> type) {
+		return new ValueReader<>(objectMapper.readerFor(type));
 	}
 
 	public static <T> T read(String value, Class<T> type) {
