@@ -1,6 +1,9 @@
 {
     "preferences.access_old_settings_app": "accéder à l'ancienne application de préférences",
 
+    "preferences.advanced.reinit_local_data": "Réinitialiser mes données locales",
+    "preferences.advanced.reinit_local_data.explanations": "Cette opération va purger vos données locales puis les resynchroniser. Cela peut prendre du temps.",
+
     "preferences.general.lang": "Langue",
     "preferences.general.timezone": "Fuseau horaire",
     "preferences.general.date_format": "Format de date",

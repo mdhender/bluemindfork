@@ -29,6 +29,7 @@ import PrefFieldChoice from "./fields/PrefFieldChoice";
 import PrefFieldSelect from "./fields/PrefFieldSelect";
 import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
 import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
+import PrefResetLocalData from "./fields/customs/PrefResetLocalData";
 import PrefMixin from "./mixins/PrefMixin";
 
 import { BmFormGroup } from "@bluemind/styleguide";
@@ -41,7 +42,8 @@ export default {
         PrefFieldChoice,
         PrefFieldSelect,
         PrefAlwaysShowQuota,
-        PrefRemoteImage
+        PrefRemoteImage,
+        PrefResetLocalData
     },
     mixins: [PrefMixin],
     props: {

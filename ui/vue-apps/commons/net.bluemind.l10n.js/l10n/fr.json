@@ -81,5 +81,6 @@
     "common.every_year": "Chaque année",
     "common.application.webmail": "Messagerie",
     "common.application.calendar": "Agenda",
-    "common.my_account": "Mon compte"
+    "common.my_account": "Mon compte",
+    "common.advanced": "Avancé"
 }

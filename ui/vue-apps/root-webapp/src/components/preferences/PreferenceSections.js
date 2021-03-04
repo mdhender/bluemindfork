@@ -64,14 +64,16 @@ export default function (applications, vueI18N) {
             },
             {
                 code: "advanced",
-                name: "Avancé",
+                name: vueI18N.t("common.advanced"),
                 icon: "plus",
                 fields: [
                     {
-                        name: "Param A",
-                        setting: "fake",
-                        component: { template: "<div>Blabla blabla</div>" },
-                        options: {}
+                        name: vueI18N.t("preferences.advanced.reinit_local_data"),
+                        component: "PrefResetLocalData",
+                        options: {
+                            text: vueI18N.t("common.action.reset"),
+                            label: vueI18N.t("preferences.advanced.reinit_local_data.explanations")
+                        }
                     },
                     {
                         name: "Param B",

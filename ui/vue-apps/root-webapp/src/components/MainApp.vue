@@ -94,14 +94,16 @@ export default {
         ...mapState("root-app", ["appState"]),
         ...mapState("preferences", ["showPreferences"])
     },
-    async created() {
+    created() {
         this.appHeight();
         this.FETCH_MY_MAILBOX_QUOTA();
         window.setInterval(() => this.FETCH_MY_MAILBOX_QUOTA(), 1000 * 60 * 30);
 
-        if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
-            this.TOGGLE_PREFERENCES();
-        }
+        this.$router.onReady(() => {
+            if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
+                this.TOGGLE_PREFERENCES();
+            }
+        });
     },
     methods: {
         ...mapActions("root-app", ["FETCH_MY_MAILBOX_QUOTA"]),

@@ -80,5 +80,6 @@
     "common.available_soon": "Available soon !",
     "common.application.webmail": "Webmail",
     "common.application.calendar": "Calendar",
-    "common.my_account": "My account"
+    "common.my_account": "My account",
+    "common.advanced": "Advanced"
 }

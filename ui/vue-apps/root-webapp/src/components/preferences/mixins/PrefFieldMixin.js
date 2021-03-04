@@ -2,11 +2,11 @@ export default {
     props: {
         localUserSettings: {
             type: Object,
-            required: true
+            required: false
         },
         setting: {
             type: String,
-            required: true
+            required: false
         },
         options: {
             type: Object,
