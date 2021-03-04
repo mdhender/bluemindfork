@@ -38,7 +38,7 @@ import net.bluemind.core.api.BMApi;
 public class MailboxRecord extends MailboxItem {
 
 	@BMApi(version = "3")
-	public static enum InternalFlag {
+	public enum InternalFlag {
 		needsCleanup(1 << 28, "xx"), //
 		archived(1 << 29, "xx"), //
 		unlinked(1 << 30, "xx"), //
