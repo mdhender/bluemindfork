@@ -113,11 +113,15 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
   this.alarm_ = new goog.structs.Map();
 
   var setDefaultTrigger = function(settingName, alarmSetting) {
+    var alarmAction = net.bluemind.calendar.vevent.defaultValues.action;
+    if (this.ctx.settings.get('default_event_alert_mode')){
+      alarmAction = this.ctx.settings.get('default_event_alert_mode');
+    }
     if (this.ctx.settings.get(settingName) && !isNaN(parseInt(this.ctx.settings.get(settingName)))) {
         this.alarm_.set(alarmSetting, [
             {
                 trigger: this.ctx.settings.get(settingName),
-                action: net.bluemind.calendar.vevent.defaultValues.action
+                action: alarmAction
             }
         ]);
     }
@@ -572,9 +576,13 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
     if(this.getModel().states.allday){
       defaultAlert = this.ctx.settings.get('default_allday_event_alert');
     }
+    var alarmAction = net.bluemind.calendar.vevent.defaultValues.action;
+    if (this.ctx.settings.get('default_event_alert_mode')){
+      alarmAction = this.ctx.settings.get('default_event_alert_mode');
+    }
     this.addReminder_({
       trigger : defaultAlert,
-      action : net.bluemind.calendar.vevent.defaultValues.action
+      action : alarmAction
     });
   });
   el = dom.getElement('bm-ui-form-reminder');

@@ -1160,9 +1160,13 @@ net.bluemind.calendar.day.DayView.prototype.handleInDayMouseDown_ = function(e) 
     };
     
     if (this.ctx.settings.get('default_event_alert') && !isNaN(parseInt(this.ctx.settings.get('default_event_alert')))) {
+      var alarmAction = net.bluemind.calendar.vevent.defaultValues.action;
+      if (this.ctx.settings.get('default_event_alert_mode')){
+        alarmAction = this.ctx.settings.get('default_event_alert_mode');
+      }
       event.alarm = [{
         trigger : this.ctx.settings.get('default_event_alert'),
-        action : net.bluemind.calendar.vevent.defaultValues.action
+        action : alarmAction
       }]
     }
     
@@ -1301,9 +1305,13 @@ net.bluemind.calendar.day.DayView.prototype.createAlldayEvent_ = function(start,
   };
   
   if (this.ctx.settings.get('default_allday_event_alert') && !isNaN(parseInt(this.ctx.settings.get('default_allday_event_alert')))) {
+    var alarmAction = net.bluemind.calendar.vevent.defaultValues.action;
+    if (this.ctx.settings.get('default_event_alert_mode')){
+      alarmAction = this.ctx.settings.get('default_event_alert_mode');
+    }
     evt.alarm = [{
       trigger : this.ctx.settings.get('default_allday_event_alert'),
-      action : net.bluemind.calendar.vevent.defaultValues.action
+      action : alarmAction
     }]
   }
 

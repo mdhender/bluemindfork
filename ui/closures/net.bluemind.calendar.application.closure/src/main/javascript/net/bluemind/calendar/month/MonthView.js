@@ -491,11 +491,15 @@ net.bluemind.calendar.month.MonthView.prototype.createEvent_ = function(start, r
     calendars : calendars,
     calendar : this.getDefaultCalendar_()
   };
-  
+
   if (this.ctx.settings.get('default_allday_event_alert') && !isNaN(parseInt(this.ctx.settings.get('default_allday_event_alert')))) {
+    var alarmAction = net.bluemind.calendar.vevent.defaultValues.action;
+    if (this.ctx.settings.get('default_event_alert_mode')){
+      alarmAction = this.ctx.settings.get('default_event_alert_mode');
+    } 
     evt.alarm = [{
       trigger : this.ctx.settings.get('default_allday_event_alert'),
-      action : net.bluemind.calendar.vevent.defaultValues.action
+      action : alarmAction
     }]
   }
 
