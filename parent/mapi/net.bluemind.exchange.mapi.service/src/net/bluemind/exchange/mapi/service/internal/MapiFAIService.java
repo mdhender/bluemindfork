@@ -123,7 +123,9 @@ public class MapiFAIService implements IMapiFolderAssociatedInformation {
 	public List<ItemValue<MapiFAI>> getByFolderId(String folderId) throws ServerFault {
 		try {
 			List<String> found = mapiFaiStore.byFolder(folderId);
-			logger.info("Load FAIs for folder {} => {}", folderId, found.size());
+			if (logger.isDebugEnabled()) {
+				logger.debug("Load FAIs for folder {} => {}", folderId, found.size());
+			}
 			return storeService.getMultiple(found);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);

@@ -43,8 +43,7 @@ public interface IMailboxAclUids {
 	/**
 	 * Returns the mailbox ACL UID
 	 * 
-	 * @param uid
-	 *                the {@link net.bluemind.mailbox.api.Mailbox} UID
+	 * @param uid the {@link net.bluemind.mailbox.api.Mailbox} UID
 	 * @return mailbox ACL UID
 	 */
 	@GET
@@ -55,5 +54,9 @@ public interface IMailboxAclUids {
 
 	public static String uidForMailbox(String mailboxUid) {
 		return MAILBOX_ACL_PREFIX + mailboxUid;
+	}
+
+	public static String mailboxForUid(String aclUid) {
+		return aclUid.substring(MAILBOX_ACL_PREFIX.length());
 	}
 }

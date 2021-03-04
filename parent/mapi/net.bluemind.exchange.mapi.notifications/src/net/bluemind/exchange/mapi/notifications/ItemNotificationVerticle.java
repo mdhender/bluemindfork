@@ -27,6 +27,7 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.api.OwnerSubscriptionsBusAddresses;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -90,6 +91,10 @@ public class ItemNotificationVerticle extends AbstractVerticle {
 			final Producer dioProducer = MQ.registerProducer(Topic.MAPI_DELEGATION_NOTIFICATIONS);
 			eb.consumer(Topic.MAPI_DELEGATION_NOTIFICATIONS, (Message<JsonObject> msg) -> {
 				dioProducer.send(msg.body());
+			});
+
+			eb.consumer(OwnerSubscriptionsBusAddresses.ALL_SUBSCRIPTION_CHANGES, (Message<JsonObject> domAndOwner) -> {
+				dioProducer.send(domAndOwner.body());
 			});
 
 			final Producer pfAclUpdateProducer = MQ.registerProducer(Topic.MAPI_PF_ACL_UPDATE);

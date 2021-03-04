@@ -19,6 +19,7 @@
 package net.bluemind.exchange.mapi.service.internal;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -28,7 +29,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
@@ -36,6 +40,7 @@ import net.bluemind.exchange.mapi.api.IMapiRules;
 import net.bluemind.exchange.mapi.api.MapiRule;
 import net.bluemind.exchange.mapi.api.MapiRuleChanges;
 import net.bluemind.exchange.mapi.persistence.MapiRuleStore;
+import net.bluemind.mailbox.api.IMailboxAclUids;
 
 public class MapiRulesService implements IMapiRules {
 
@@ -47,7 +52,13 @@ public class MapiRulesService implements IMapiRules {
 	public MapiRulesService(BmContext context, DataSource dataSource, String containerUid) {
 		this.context = context;
 		this.ruleStore = new MapiRuleStore(dataSource, containerUid);
-		this.rbacManager = RBACManager.forContext(context).forContainer(containerUid);
+		IContainers contApi = context.su().provider().instance(IContainers.class);
+		BaseContainerDescriptor desc = contApi.getContainersLight(Arrays.asList(containerUid)).get(0);
+		String aclContainer = containerUid;
+		if (desc.type.equals(IMailReplicaUids.MAILBOX_RECORDS)) {
+			aclContainer = IMailboxAclUids.uidForMailbox(desc.owner);
+		}
+		this.rbacManager = RBACManager.forContext(context).forContainer(aclContainer);
 	}
 
 	@Override

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.Semaphore;
+import java.util.function.Consumer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -192,6 +193,14 @@ public final class DOMUtils {
 	public static Element getUniqueElement(Element root, String elementName) {
 		NodeList list = root.getElementsByTagName(elementName);
 		return (Element) list.item(0);
+	}
+
+	public static void forEachElement(Element root, String elementName, Consumer<Element> cons) {
+		NodeList list = root.getElementsByTagName(elementName);
+		int len = list.getLength();
+		for (int i = 0; i < len; i++) {
+			cons.accept((Element) list.item(i));
+		}
 	}
 
 	public static Element findElementWithUniqueAttribute(Element root, String elementName, String attribute,
