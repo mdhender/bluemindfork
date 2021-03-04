@@ -17,6 +17,10 @@ export const apiRoutes = [
         handler: filteredChangesetById
     },
     {
+        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_count/,
+        handler: count
+    },
+    {
         capture: /\/api\/mail_folders\/(.+)\/(.+)\/_all/,
         handler: allMailFolders
     }
@@ -99,6 +103,31 @@ export async function filteredChangesetById({ request, params }: RouteHandlerCal
             console.debug(error);
             return fetch(request);
         }
+    }
+}
+
+
+
+export async function count({ request, params }: RouteHandlerCallbackOptions) {
+    if (!(params instanceof Array)) {
+        return;
+    }
+    const [folderUid] = params;
+    try {
+        request = request as Request;
+        const expectedFlags = (await request.clone().json()) as Flags;
+        const db = await Session.db();
+        if (await db.isSubscribed(folderUid)) {
+            const allMailItems = await db.getAllMailItems(folderUid);
+            const total = allMailItems
+                .filter(item => filterByFlags(expectedFlags, item.flags))
+                .length;
+            return responseFromCache({ total });
+        }
+        return fetch(request);
+    } catch (error) {
+        console.debug(error);
+        return fetch(request);
     }
 }
 
