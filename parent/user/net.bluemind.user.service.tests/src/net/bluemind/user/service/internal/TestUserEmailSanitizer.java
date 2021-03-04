@@ -18,21 +18,37 @@
  */
 package net.bluemind.user.service.internal;
 
-public class TestUserEmailSanitizer extends UserEmailSanitizer {
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
-	private final String alias;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.user.api.User;
+
+public class TestUserEmailSanitizer extends UserEmailSanitizer {
+	private final String defaultAlias;
+	private final Set<String> aliases;
 
 	public TestUserEmailSanitizer() {
 		this("domain.tld");
 	}
 
-	public TestUserEmailSanitizer(String alias) {
-		this.alias = alias;
+	public TestUserEmailSanitizer(String defaultAlias) {
+		this(defaultAlias, new HashSet<String>(Arrays.asList(defaultAlias)));
+	}
+
+	public TestUserEmailSanitizer(String defaultAlias, Set<String> aliases) {
+		this.defaultAlias = defaultAlias;
+		this.aliases = aliases;
 	}
 
 	@Override
-	protected String getDomainDefaultAlias(String domainName) {
-		return alias;
+	protected Domain getDomainAliases(String domainUid) {
+		return Domain.create(domainUid, "domain label", "domain description", aliases, defaultAlias);
 	}
 
+	@Override
+	protected boolean isUserRename(String domainUid, String userUid, User user) {
+		return user.login.contains("isrename");
+	}
 }

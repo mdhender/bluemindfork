@@ -107,9 +107,14 @@ public class UserManagerImplTests {
 	}
 
 	private ItemValue<Domain> getDomain() {
+		return getDomain("memberof.virt", Collections.emptySet());
+	}
+
+	private ItemValue<Domain> getDomain(String domainName, Set<String> domainAlias) {
 		Domain domain = new Domain();
 
-		domain.name = "memberof.virt";
+		domain.name = domainName;
+		domain.aliases = domainAlias;
 
 		domain.properties.put(LdapProperties.import_ldap_enabled.name(), "true");
 		domain.properties.put(LdapProperties.import_ldap_hostname.name(),
@@ -745,5 +750,26 @@ public class UserManagerImplTests {
 		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
 
 		assertEquals(0, previousUser.value.contactInfos.deliveryAddressing.size());
+	}
+
+	@Test
+	public void entryToUserEmailsDomainUidAsAlias() throws LdapInvalidDnException, ServerFault, LdapException,
+			CursorException, IOException, LdapSearchException {
+		domain = getDomain("domain.internal",
+				new HashSet<String>(Arrays.asList("domain.internal", "domain-alias.virt")));
+
+		Entry testUserEntry = getTestUserEntry(
+				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
+		UserManager userManager = UserManagerImpl
+				.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()), domain,
+						testUserEntry)
+				.get();
+
+		ImportLogger importLogger = getImportLogger();
+		userManager.update(importLogger, null, new MailFilter());
+		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
+
+		assertEquals("user00", userManager.user.value.login);
+		assertEquals(1, userManager.user.value.emails.size());
 	}
 }
