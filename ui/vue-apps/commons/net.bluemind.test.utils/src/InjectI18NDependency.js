@@ -1,6 +1,6 @@
 import Vue from "vue";
 import VueI18n from "vue-i18n";
-import { DateTimeFormats } from "@bluemind/i18n";
+import { generateDateTimeFormats } from "@bluemind/i18n";
 import CommonL10N from "@bluemind/l10n";
 import injector from "@bluemind/inject";
 
@@ -15,12 +15,14 @@ export default {
     registerCommonL10N: () => {
         Vue.use(VueI18n);
 
+        const dateTimeFormat = generateDateTimeFormats("")["fr"];
+
         injector.register({
             provide: "i18n",
             use: new VueI18n({
                 locale: "fr",
                 fallbackLocale: "fr",
-                dateTimeFormats: { fr: DateTimeFormats },
+                dateTimeFormats: { fr: dateTimeFormat },
                 messages: CommonL10N
             })
         });

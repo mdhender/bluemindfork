@@ -1,4 +1,6 @@
 import Vuex from "vuex";
+
+import router from "@bluemind/router";
 import { mount, createLocalVue } from "@vue/test-utils";
 
 const localVue = createLocalVue();
@@ -10,6 +12,7 @@ export default {
             localVue,
             store: new Vuex.Store(store),
             propsData,
+            router,
             mocks: {
                 $t: () => {},
                 $tc: () => {}

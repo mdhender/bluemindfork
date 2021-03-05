@@ -1,5 +1,5 @@
 <template>
-    <div class="preferences position-absolute w-100 h-100 overlay d-flex" @click="closePreferences">
+    <div class="preferences position-absolute w-100 h-100 overlay d-flex z-index-500" @click="closePreferences">
         <global-events @keydown.esc="closePreferences" />
         <div
             v-if="!areSettingsLoaded"
@@ -95,6 +95,9 @@ export default {
         // @see https://bootstrap-vue.org/docs/directives/scrollspy#events
         this.$root.$on("bv::scrollspy::activate", sectionId => {
             this.SET_SELECTED_SECTION(parseSectionId(sectionId).sectionCode);
+            if (this.$route.hash !== sectionId) {
+                this.$router.push({ hash: sectionId });
+            }
         });
     },
     methods: {
@@ -113,9 +116,3 @@ function parseSectionId(sectionId) {
     return { sectionCode: splitSectionId[1], categoryCode: splitSectionId[2] };
 }
 </script>
-
-<style lang="scss">
-.preferences {
-    z-index: 500;
-}
-</style>

@@ -1,0 +1,48 @@
+{
+    "preferences.access_old_settings_app": "Einstellungen der alten Version der Anwendung",
+
+    "preferences.advanced.notifications": "Desktop-Benachrichtigungen",
+    "preferences.advanced.notifications.explanations": "Desktop-Benachrichtigungen erscheinen direkt auf Ihrem Bildschirm wenn neue E-Mails oder Termin-Erinnerungen eingehen.",
+    "preferences.advanced.notifications.enable_checkbox": "Benachrichtigungen aktivieren",
+    "preferences.advanced.notifications.disabled": "Benachrichtigungen sind deaktiviert!",
+    "preferences.advanced.notifications.enabled": "Benachrichtigungen sind aktiviert!",
+    "preferences.advanced.notifications.how_to_enable": "Verwenden Sie die Browser-Einstellungen um Sie zu aktvivieren",
+    "preferences.advanced.notifications.how_to_disable": "Verwenden Sie die Browser-Einstellungen um Sie zu deaktvivieren",
+    "preferences.advanced.reinit_local_data": "Meine lokalen Daten zurücksetzen",
+    "preferences.advanced.reinit_local_data.explanations": "Diese Aktion wird Ihre lokalen Daten zurücksetzen und neu synchronisieren. Dies kann einen Moment dauern.",
+
+    "preferences.general.lang": "Sprache",
+    "preferences.general.timezone": "Zeitzone",
+    "preferences.general.date_format": "Datumsformat",
+    "preferences.general.time_format": "Zeitformat",
+    "preferences.general.default_application": "Standard Anwendung",
+    "preferences.general.password": "Passwort",
+    "preferences.general.update_phone_status": "Meinen Telefonstatus im Instant Messaging aktualiseren, wenn ich in einer Besprechung bin",
+
+    "preferences.advanced.reset_local_data": "Lokale Daten zurücksetzen",
+    "preferences.advanced.reset_local_data.explanations": "Diese Aktion wird Ihre lokalen Daten zurücksetzen und neu synchronisieren. Dies kann einen Moment dauern.",
+
+    "preferences.mail.thread": "Gemeinsame Anzeige zusammengehöriger E-Mails (Konversationen)",
+    "preferences.mail.thread.disable": "E-Mails einzeln anzeigen",
+    "preferences.mail.thread.enable": "E-Mails gruppiert anzeigen",
+    "preferences.mail.message.list.display": "Anzeigedichte",
+    "preferences.mail.message.list.display.full": "Komplett",
+    "preferences.mail.message.list.display.normal": "Normal",
+    "preferences.mail.message.list.display.compact": "Kompact",
+    "preferences.mail.quota": "Speicherkapazität",
+    "preferences.mail.quota.always.display": "Speicherkapazität immer anzeigen",
+    "preferences.mail.quota.unlimited": "Unbegrenzt",
+    "preferences.mail.quota.used": "{used} von {total} verwendet",
+    "preferences.mail.remote.images": "Externe Bilddateien",
+    "preferences.mail.remote.images.explanations": "Standardmäßig zeigt BlueMind externe Inhalte nur von bekannten Absendern an. Um Ihre Sicherheit zu gewährleisten, empfehlen wir, diese Einstellung beizubehalten.",
+    "preferences.mail.remote.images.help": "Mehr über externe Inhalte lernen",
+    "preferences.mail.remote.images.trust": "Inhalten immer vertrauen",
+    "preferences.mail.signature": "Signatur",
+    "preferences.mail.signature.insert": "Signatur automatisch einfügen",
+    "preferences.mail.logout": "Beim Abmelden",
+    "preferences.mail.logout.empty.trash": "Papierkorb leeren",
+
+    "preferences.save.error": "Fehler beim Speichern, bitte Netzwerkverfügbarkeit prüfen",
+    "preferences.save.success": "Erfolgreich gespeichert",
+    "preferences.menu.apps": "Anwendungseinstellungen"
+}

@@ -1110,9 +1110,9 @@
     axios "^0.18.0"
 
 "@bluemind/styleguide@^0.1.0":
-  version "0.1.1500"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1500.tgz#ba2ec814edbd9c928cbfa27d73a3e826e3b55a5d"
-  integrity sha512-WlTlAkd5K6Gs/OrtdWfQ7sFIKQPt/qbp9v0OxLEUn4mo+NbcrLJMs9N2lFFb3hBMZXpsLNBTVwCGlm1a4Woe4Q==
+  version "0.1.1520"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1520.tgz#530c29265042722e4f8eb2d69fb89342ba0d0c54"
+  integrity sha512-SENRY7e/9MWoJSk4ANAIxjMXChwvSVKg1bNcPp7jORv6ANhrROnH2OFuXYrGjirxG4lQJT8HfIWS+O3ImBOfNQ==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"
@@ -9670,6 +9670,11 @@ typeson@^5.18.2, typeson@^5.8.2:
   version "5.18.2"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/typeson/-/typeson-5.18.2.tgz#0d217fc0e11184a66aa7ca0076d9aa7707eb7bc2"
   integrity sha512-Vetd+OGX05P4qHyHiSLdHZ5Z5GuQDrHHwSdjkqho9NSCYVSLSfRMjklD/unpHH8tXBR9Z/R05rwJSuMpMFrdsw==
+
+tzdata@^1.0.25:
+  version "1.0.25"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/tzdata/-/tzdata-1.0.25.tgz#e8839033c05761e04ef552242e779777becb13d0"
+  integrity sha512-yAZ/Tv/tBFIPHJGYrOexxW8Swyjszt7rDhIjnIPSqLaP8mzrr3T7D0w4cxQBtToXnQrlFqkEU0stGC/auz0JcQ==
 
 uglify-js@^3.1.4:
   version "3.10.0"

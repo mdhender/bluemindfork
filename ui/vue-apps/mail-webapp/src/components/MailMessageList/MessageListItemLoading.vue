@@ -2,7 +2,7 @@
     <bm-list-group-item
         class="message-list-item d-flex"
         :class="{
-            ['message-list-item-' + userSettings.mail_message_list_style]: true,
+            ['message-list-item-' + settings.mail_message_list_style]: true,
             active: MESSAGE_IS_SELECTED(message.key) || currentMessageKey === message.key
         }"
         aria-hidden="true"
@@ -40,7 +40,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail", { MESSAGE_IS_SELECTED }),
-        ...mapState("session", ["userSettings"]),
+        ...mapState("session", { settings: ({ settings }) => settings.remote }),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" })
     }
 };

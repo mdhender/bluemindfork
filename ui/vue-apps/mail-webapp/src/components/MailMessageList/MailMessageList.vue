@@ -31,7 +31,7 @@ export default {
         ...mapActions("mail", { REFRESH_MESSAGE_LIST_KEYS, FETCH_MESSAGE_METADATA }),
         async refreshMessageList() {
             const folder = this.folders[this.activeFolder];
-            const conversationsEnabled = this.userSettings.mail_thread === "true";
+            const conversationsEnabled = this.settings.mail_thread === "true";
             await this.REFRESH_MESSAGE_LIST_KEYS({ folder, conversationsEnabled });
             const sorted = this.messageList.messageKeys.slice(0, 40).map(key => this.messages[key]);
             await this.FETCH_MESSAGE_METADATA(sorted);

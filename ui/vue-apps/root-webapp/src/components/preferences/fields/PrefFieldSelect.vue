@@ -1,7 +1,5 @@
 <template>
-    <bm-form-select v-model="localUserSettings[setting]" class="pref-field-select" :options="options.choices">
-        <!-- {{ options.label }} -->
-    </bm-form-select>
+    <bm-form-select v-model="localUserSettings[setting]" class="pref-field-select" :options="options.choices" />
 </template>
 
 <script>
@@ -16,9 +14,3 @@ export default {
     mixins: [PrefFieldMixin]
 };
 </script>
-
-<style>
-.pref-field-select {
-    width: auto;
-}
-</style>

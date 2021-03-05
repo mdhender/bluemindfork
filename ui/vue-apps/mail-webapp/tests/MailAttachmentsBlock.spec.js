@@ -2,7 +2,7 @@ import { BmProgress } from "@bluemind/styleguide";
 jest.mock("@bluemind/styleguide/css/_variables.scss", () => ({ iconsColors: "" }));
 
 import MailAttachmentsBlock from "../src/components/MailAttachment/MailAttachmentsBlock";
-import { createStore, createWrapper, messageKey } from "./testUtils";
+import { createStore, createWrapper } from "./testUtils";
 
 describe("MailAttachmentsBlock", () => {
     test("is a Vue instance", () => {

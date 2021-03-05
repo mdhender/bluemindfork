@@ -57,7 +57,7 @@ export default {
             border-bottom: 3px solid !important;
             border-color: transparent !important;
         }
-        &.active {
+        &.router-link-active {
             background-color: unset;
             & > h2 {
                 border-color: $primary !important;

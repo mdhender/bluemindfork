@@ -3,7 +3,6 @@
         <global-events target="self" @resize="appHeight" />
         <bm-banner :applications="applications" :widgets="widgets" :user="user" :software="software" />
         <preferences v-if="showPreferences" :user="user" :applications="applications" />
-        <bm-spinner v-if="appState == 'loading'" :size="2" class="d-flex flex-fill align-self-center" />
         <div
             v-if="appState == 'error'"
             class="text-danger text-center h2 d-flex flex-fill align-self-center align-items-center"
@@ -21,7 +20,7 @@
 </template>
 
 <script>
-import { BmSpinner, BmAlertArea } from "@bluemind/styleguide";
+import { BmAlertArea } from "@bluemind/styleguide";
 import { mapActions, mapMutations, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import "@bluemind/styleguide/css/bluemind.scss";
@@ -33,7 +32,6 @@ import Preferences from "./preferences/Preferences";
 export default {
     components: {
         BmBanner,
-        BmSpinner,
         Preferences,
         GlobalEvents,
         BmAlertArea

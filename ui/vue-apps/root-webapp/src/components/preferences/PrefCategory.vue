@@ -26,6 +26,7 @@
 <script>
 import PrefFieldCheck from "./fields/PrefFieldCheck";
 import PrefFieldChoice from "./fields/PrefFieldChoice";
+import PrefFieldComboBox from "./fields/PrefFieldComboBox";
 import PrefFieldSelect from "./fields/PrefFieldSelect";
 import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
 import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
@@ -41,6 +42,7 @@ export default {
         BmFormGroup,
         PrefFieldCheck,
         PrefFieldChoice,
+        PrefFieldComboBox,
         PrefFieldSelect,
         PrefAlwaysShowQuota,
         PrefEnableNotifications,

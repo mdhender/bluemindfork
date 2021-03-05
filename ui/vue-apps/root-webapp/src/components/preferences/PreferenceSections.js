@@ -14,7 +14,6 @@ import threadSettingImageOff from "../../../assets/setting-thread-off.svg";
  * Each section, like "mail", holds several categories, like "main". Each category holds fields.
  * These fields are created using Dynamic Components (see PrefContent).
  */
-
 export default function (applications, vueI18N) {
     const availableDefaultApps = [
         { text: vueI18N.t("common.application.webmail"), value: "/webmail/" },
@@ -41,8 +40,8 @@ export default function (applications, vueI18N) {
                     {
                         name: vueI18N.t("preferences.general.timezone"),
                         setting: "timezone",
-                        component: "PrefFieldSelect",
-                        options: { choices: AvailablesTimezones.map(tz => ({ value: tz, text: tz })) }
+                        component: "PrefFieldComboBox",
+                        options: { choices: AvailablesTimezones }
                     },
                     {
                         name: vueI18N.t("preferences.general.date_format"),
@@ -81,11 +80,7 @@ export default function (applications, vueI18N) {
                         name: vueI18N.t("preferences.advanced.notifications"),
                         component: "PrefEnableNotifications",
                         condition: new NotificationManager().isAvailable,
-                        options: {
-                            label_enable_checkbox: vueI18N.t("preferences.advanced.notifications.enable_checkbox"),
-                            label_enabled: vueI18N.t("preferences.advanced.notifications.enabled"),
-                            label_disabled: vueI18N.t("preferences.advanced.notifications.disabled")
-                        }
+                        options: {}
                     }
                 ]
             }

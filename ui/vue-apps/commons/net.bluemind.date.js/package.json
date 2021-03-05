@@ -7,6 +7,7 @@
     "main": "src/index.js",
     "dependencies": {
         "lodash.isnumber": "^3.0.3",
-        "lodash.isobject": "^3.0.2"
+        "lodash.isobject": "^3.0.2",
+        "tzdata": "^1.0.25"
     }
 }

@@ -194,15 +194,9 @@ export default {
 
 <style lang="scss">
 .mail-composer-recipients {
-    .bm-contact-input {
-        .btn {
-            min-width: 3rem;
-            text-align: left;
-        }
-
-        .bm-form-autocomplete-input .suggestions {
-            z-index: 200;
-        }
+    .bm-contact-input .btn {
+        min-width: 3rem;
+        text-align: left;
     }
 }
 </style>

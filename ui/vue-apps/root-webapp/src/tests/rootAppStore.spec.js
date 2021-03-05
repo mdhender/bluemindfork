@@ -31,13 +31,6 @@ describe("Store rootApp", () => {
         expect(context.state.quota).toEqual(quota);
     });
 
-    test("TOGGLE_SETTINGS mutation", async () => {
-        rootAppStore.mutations.TOGGLE_SETTINGS(context.state);
-        expect(context.state.showSettings).toEqual(true);
-        rootAppStore.mutations.TOGGLE_SETTINGS(context.state);
-        expect(context.state.showSettings).toEqual(false);
-    });
-
     test("SET_APP_STATE mutation", async () => {
         rootAppStore.mutations.SET_APP_STATE(context.state, "anything");
         expect(context.state.appState).toEqual("anything");

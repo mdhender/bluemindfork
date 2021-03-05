@@ -1,10 +1,13 @@
 {
     "preferences.access_old_settings_app": "accéder à l'ancienne application de préférences",
 
-    "preferences.advanced.notifications": "Notifications",
+    "preferences.advanced.notifications": "Notifications de bureau",
+    "preferences.advanced.notifications.explanations": "Les notifications de bureau s'affichent directement sur votre écran lors de l'arrivée d'un nouveau message ou d'un rappel d'agenda.",
     "preferences.advanced.notifications.enable_checkbox": "Activer les notifications",
-    "preferences.advanced.notifications.disabled": "Les notifications sont désactivées. Si vous souhaitez les activer ... TODO",
-    "preferences.advanced.notifications.enabled": "Les notifications sont activées. Si vous souhaitez les désactiver ... TODO",
+    "preferences.advanced.notifications.disabled": "Notifications bloquées !",
+    "preferences.advanced.notifications.enabled": "Notifications activées !",
+    "preferences.advanced.notifications.how_to_enable": "Pour les activer, rendez-vous dans les paramètres de votre navigateur.",
+    "preferences.advanced.notifications.how_to_disable": "Pour les désactiver, rendez-vous dans les paramètres de votre navigateur.",
     "preferences.advanced.reinit_local_data": "Réinitialiser mes données locales",
     "preferences.advanced.reinit_local_data.explanations": "Cette opération va purger vos données locales puis les resynchroniser. Cela peut prendre du temps.",
 

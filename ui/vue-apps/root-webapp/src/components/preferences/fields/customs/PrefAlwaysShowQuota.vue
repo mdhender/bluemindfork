@@ -11,9 +11,9 @@
             <template v-if="hasNoQuota">{{ $t("preferences.mail.quota.unlimited") }}</template>
         </bm-progress>
         <i18n v-if="!hasNoQuota" path="preferences.mail.quota.used">
-            <template #used
-                ><strong>{{ displayedUsedQuota }}</strong></template
-            >
+            <template #used>
+                <strong>{{ displayedUsedQuota }}</strong>
+            </template>
             <template #total>{{ displayedTotalQuota }}</template>
         </i18n>
     </div>

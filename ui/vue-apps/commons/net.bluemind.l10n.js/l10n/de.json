@@ -66,5 +66,19 @@
     "common.number_suffix": "1. | 2. | 3. | {number}ter",
     "common.every_day.with_time": "Täglich, von {startTime} bis {endTime}, ab {dayMonth}. {startMonth} {startYear} | Jeden {count} Tag, von {startTime} bis {endTime}, ab {dayMonth}. {startMonth} {startYear}",
     "common.every_day": "Täglich, ab {dayMonth}. {startMonth} {startYear} | Jeden {count} Tag, ab {dayMonth}. {startMonth} {startYear}",
-    "common.available_soon": "Bald erhältlich !"
+    "common.folder.drafts": "Entwürfe",
+    "common.folder.inbox": "Posteingang",
+    "common.folder.junk": "Junk",
+    "common.folder.outbox": "Postausgang",
+    "common.folder.sent": "Gesendete Nachrichten",
+    "common.folder.trash": "Papierkorb",
+    "common.application.bootstrap.error": "Fehler beim Starten den Anwendung...",
+    "common.application.bootstrap.error.solution": "Bitte versuchen Sie es erneut oder kontaktieren Sie Ihren Administrator.",
+    "common.preference": "Einstellungen",
+    "common.general": "Allgemein",
+    "common.available_soon": "In Kürze verfügbar!",
+    "common.application.webmail": "Webmailer",
+    "common.application.calendar": "Kalender",
+    "common.my_account": "Mein Konto",
+    "common.advanced": "Erweitert"
 }

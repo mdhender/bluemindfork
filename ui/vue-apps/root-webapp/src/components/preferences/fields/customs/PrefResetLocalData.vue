@@ -1,7 +1,7 @@
 <template>
     <div>
-        <div class="mb-4">{{ options.label }}</div>
-        <bm-button variant="primary" @click="resetLocalData">{{ options.text }}</bm-button>
+        <div class="mb-2">{{ options.label }}</div>
+        <bm-button variant="outline-warning" @click="resetLocalData">{{ options.text }}</bm-button>
     </div>
 </template>
 
@@ -23,7 +23,7 @@ export default {
             localStorage.clear();
 
             // Cache API
-            const baseUrl = "https://webmail-master.loc/webapp/";
+            const baseUrl = location.protocol + "//" + location.hostname + "/webapp/";
             const cacheNames = ["css-cache", "part-cache", "bm-assets", "workbox-runtime-" + baseUrl];
             cacheNames.map(name => caches.delete(name));
 
@@ -43,7 +43,10 @@ export default {
                 "deferredaction",
                 newWebmailDbName
             ];
-            dbNames.map(name => indexedDB.deleteDatabase(name).catch(() => indexedDB.deleteDatabase(name)));
+            dbNames.forEach(name => {
+                const deleteDBRequest = indexedDB.deleteDatabase(name);
+                deleteDBRequest.onerror = () => indexedDB.deleteDatabase(name);
+            });
         }
     }
 };
