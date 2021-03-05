@@ -12,7 +12,7 @@ import { BmButton } from "@bluemind/styleguide";
 import PrefFieldMixin from "../../mixins/PrefFieldMixin";
 
 export default {
-    name: "PrefFieldCheck",
+    name: "PrefResetLocalData",
     components: {
         BmButton
     },
@@ -20,7 +20,7 @@ export default {
     methods: {
         async resetLocalData() {
             // LocalStorage
-            window.localStorage.clear();
+            localStorage.clear();
 
             // Cache API
             const baseUrl = "https://webmail-master.loc/webapp/";
@@ -43,7 +43,7 @@ export default {
                 "deferredaction",
                 newWebmailDbName
             ];
-            dbNames.map(name => indexedDB.deleteDatabase(name));
+            dbNames.map(name => indexedDB.deleteDatabase(name).catch(() => indexedDB.deleteDatabase(name)));
         }
     }
 };

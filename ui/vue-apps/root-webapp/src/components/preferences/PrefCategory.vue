@@ -1,6 +1,6 @@
 <template>
     <div :id="categoryId(section.code, category.code)" class="pref-category">
-        <div v-for="field in category.fields" :key="field.name" class="pref-field">
+        <div v-for="field in filteredFields" :key="field.name" class="pref-field">
             <h2 class="py-4">
                 {{ field.name }}
                 <span v-if="field.availableSoon" class="available-soon">{{ $t("common.available_soon") }}</span>
@@ -28,6 +28,7 @@ import PrefFieldCheck from "./fields/PrefFieldCheck";
 import PrefFieldChoice from "./fields/PrefFieldChoice";
 import PrefFieldSelect from "./fields/PrefFieldSelect";
 import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
+import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
 import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
 import PrefResetLocalData from "./fields/customs/PrefResetLocalData";
 import PrefMixin from "./mixins/PrefMixin";
@@ -42,6 +43,7 @@ export default {
         PrefFieldChoice,
         PrefFieldSelect,
         PrefAlwaysShowQuota,
+        PrefEnableNotifications,
         PrefRemoteImage,
         PrefResetLocalData
     },
@@ -59,9 +61,17 @@ export default {
             type: Object,
             required: true
         }
+    },
+    computed: {
+        filteredFields() {
+            return this.category.fields.filter(
+                field => !Object.prototype.hasOwnProperty.call(field, "condition") || field.condition
+            );
+        }
     }
 };
 </script>
+
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 

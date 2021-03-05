@@ -1,6 +1,10 @@
 {
     "preferences.access_old_settings_app": "access old preferences application",
 
+    "preferences.advanced.notifications": "Notifications",
+    "preferences.advanced.notifications.enable_checkbox": "Enable notifications",
+    "preferences.advanced.notifications.disabled": "Notifications are disabled. If you want to turn them on ... TODO",
+    "preferences.advanced.notifications.enabled": "Notifications are enabled. If you want to turn them off ... TODO",
     "preferences.advanced.reinit_local_data": "Reset my local data",
     "preferences.advanced.reinit_local_data.explanations": "This operation will purge and resynchronize your local data. This may take a while.",
 

@@ -10,19 +10,19 @@ export default class NotificationManager {
         if (this.isAvailable) {
             this._init();
         }
-        if (!this.userAlreadyAnswered) {
-            Notification.requestPermission(
-                function () {
-                    this._init();
-                }.bind(this)
-            );
-        }
     }
 
     // FIXME: cant use ES6 private class method because of https://github.com/babel/babel/issues/10752 so use convention name "_"
     _init() {
         this.hasPermission = Notification.permission === "granted";
         this.userAlreadyAnswered = Notification.permission === "denied" || this.hasPermission;
+    }
+
+    requestPermissionIfNeeded() {
+        if (!this.userAlreadyAnswered && !this.hasPermission) {
+            return Notification.requestPermission().then(() => this._init());
+        }
+        return Promise.resolve();
     }
 
     send(title, body, icon, onClickHandler) {
@@ -32,8 +32,9 @@ export default class NotificationManager {
         }
     }
 
-    setNotificationWhenReceivingMail(userSession) {
+    async setNotificationWhenReceivingMail(userSession) {
         if (userSession.roles.includes("hasMail")) {
+            await this.requestPermissionIfNeeded();
             const mailAppExtension = window.bmExtensions_["net.bluemind.banner"].find(
                 extension => extension.application.role === "hasMail" && extension.application.href.includes("mail")
             );

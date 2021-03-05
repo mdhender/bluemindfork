@@ -1,6 +1,8 @@
 import { AvailableTimeFormats, AvailableDateFormats, AvailablesTimezones } from "@bluemind/date";
 import { AvailableLanguages } from "@bluemind/i18n";
 
+import NotificationManager from "../../NotificationManager";
+
 import listStyleCompact from "../../../assets/list-style-compact.png";
 import listStyleFull from "../../../assets/list-style-full.png";
 import listStyleNormal from "../../../assets/list-style-normal.png";
@@ -76,10 +78,14 @@ export default function (applications, vueI18N) {
                         }
                     },
                     {
-                        name: "Param B",
-                        setting: "fake",
-                        component: { template: "<div>Blabla blabla</div>" },
-                        options: {}
+                        name: vueI18N.t("preferences.advanced.notifications"),
+                        component: "PrefEnableNotifications",
+                        condition: new NotificationManager().isAvailable,
+                        options: {
+                            label_enable_checkbox: vueI18N.t("preferences.advanced.notifications.enable_checkbox"),
+                            label_enabled: vueI18N.t("preferences.advanced.notifications.enabled"),
+                            label_disabled: vueI18N.t("preferences.advanced.notifications.disabled")
+                        }
                     }
                 ]
             }
