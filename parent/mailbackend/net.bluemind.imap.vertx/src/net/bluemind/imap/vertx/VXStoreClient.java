@@ -93,9 +93,13 @@ public class VXStoreClient implements IAsyncStoreClient {
 				ImapChunker chunker = new ImapChunker(nc.read());
 				Pump.pump(chunker, packetProc).start();
 				banner.future().thenAccept(bannerResp -> {
+					packetProc.setDelegate(null);
 					packetProc.setDelegate(loginProc);
 					logger.info("IMAP connection setup is complete {}", bannerResp.result);
 					nc.write(cmd);
+				}).exceptionally(t -> {
+					loginProc.future().completeExceptionally(t);
+					return null;
 				});
 			}
 		});
@@ -167,20 +171,20 @@ public class VXStoreClient implements IAsyncStoreClient {
 	@Override
 	public CompletableFuture<Void> fetch(long uid, String part, WriteStream<Buffer> target, Decoder dec) {
 		StreamSinkProcessor proc = new StreamSinkProcessor(dec.withDelegate(target));
+		String cmd = tagged("UID FETCH " + uid + " (UID BODY.PEEK[" + part + "])");
 		sock.ifPresent(ns -> {
-			String cmd = tagged("UID FETCH " + uid + " (UID BODY.PEEK[" + part + "])");
 			packetProc.setDelegate(proc);
 			ns.write(cmd);
 		});
 		return proc.future().thenApply(r -> {
-			// packetProc.setDelegate(null);
+			packetProc.setDelegate(null);
 			return r;
 		});
 	}
 
 	@Override
 	public ReadStream<Buffer> fetch(long uid, String part, Decoder dec) {
-		WriteToRead<Buffer> convert = new WriteToRead<>();
+		WriteToRead<Buffer> convert = new WriteToRead<>(conSupport.vertx());
 		fetch(uid, part, convert, dec);
 		return convert;
 	}

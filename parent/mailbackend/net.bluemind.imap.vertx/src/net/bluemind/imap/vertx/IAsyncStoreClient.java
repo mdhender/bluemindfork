@@ -28,7 +28,6 @@ import io.vertx.core.streams.WriteStream;
 import net.bluemind.imap.vertx.VXStoreClient.Decoder;
 import net.bluemind.imap.vertx.cmd.AppendResponse;
 import net.bluemind.imap.vertx.cmd.SelectResponse;
-import net.bluemind.imap.vertx.stream.WriteToRead;
 
 public interface IAsyncStoreClient {
 
@@ -36,11 +35,7 @@ public interface IAsyncStoreClient {
 
 	CompletableFuture<Void> fetch(long uid, String part, WriteStream<Buffer> target, Decoder dec);
 
-	default ReadStream<Buffer> fetch(long uid, String part, Decoder dec) {
-		WriteToRead<Buffer> ret = new WriteToRead<>();
-		fetch(uid, part, ret, dec);
-		return ret;
-	}
+	ReadStream<Buffer> fetch(long uid, String part, Decoder dec);
 
 	CompletableFuture<ImapResponseStatus<AppendResponse>> append(String mailbox, Date receivedDate,
 			Collection<String> flags, int streamSize, ReadStream<Buffer> eml);

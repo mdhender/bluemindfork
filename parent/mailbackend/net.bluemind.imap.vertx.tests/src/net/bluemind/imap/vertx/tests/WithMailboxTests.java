@@ -95,13 +95,13 @@ public abstract class WithMailboxTests {
 
 	protected VXStoreClient client(Vertx vx) {
 		NetClient client = vx.createNetClient();
-		NetClientConnectionSupport nccs = new NetClientConnectionSupport(client);
+		NetClientConnectionSupport nccs = new NetClientConnectionSupport(vx, client);
 		return new VXStoreClient(nccs, imapIp, 1143, localPart + "@" + domain, "gg");
 	}
 
 	protected VXStoreClient eventBusClient(Vertx vx) {
 		EventBus eb = vx.eventBus();
-		EventBusConnectionSupport nccs = new EventBusConnectionSupport(eb);
+		EventBusConnectionSupport nccs = new EventBusConnectionSupport(vx);
 		return new VXStoreClient(nccs, imapIp, 1143, localPart + "@" + domain, "gg");
 	}
 

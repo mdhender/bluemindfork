@@ -20,6 +20,7 @@ package net.bluemind.imap.vertx;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.core.streams.WriteStream;
@@ -44,8 +45,11 @@ public interface IConnectionSupport {
 		default void close(Handler<AsyncResult<Void>> h) {
 			h.handle(Result.success());
 		}
+
 	}
 
 	public void connect(int port, String host, Handler<AsyncResult<INetworkCon>> futureCon);
+
+	Vertx vertx();
 
 }

@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.lib.vertx.Result;
@@ -34,7 +35,7 @@ public class WriteToRead<T> implements WriteStream<T>, ReadStream<T> {
 	private Handler<T> dataHandler;
 	private Handler<Void> end;
 
-	public WriteToRead() {
+	public WriteToRead(Vertx vertx) {
 		queue = new ConcurrentLinkedDeque<>();
 	}
 
@@ -61,7 +62,8 @@ public class WriteToRead<T> implements WriteStream<T>, ReadStream<T> {
 	public void end() {
 		this.ended = true;
 		if (end != null) {
-			end.handle(null);
+			final Handler<Void> endRef = end;
+			Vertx.currentContext().runOnContext(endRef);
 		}
 	}
 

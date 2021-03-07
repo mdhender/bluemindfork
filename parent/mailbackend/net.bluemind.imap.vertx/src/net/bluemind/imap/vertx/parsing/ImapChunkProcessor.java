@@ -18,6 +18,8 @@
  */
 package net.bluemind.imap.vertx.parsing;
 
+import java.util.ConcurrentModificationException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +36,9 @@ public class ImapChunkProcessor implements WriteStream<ImapChunk> {
 	private IProcessorDelegate del;
 
 	public void setDelegate(IProcessorDelegate del) {
+		if (this.del != null && del != null) {
+			throw new ConcurrentModificationException("Command already in progress, managed with " + this.del);
+		}
 		this.del = del;
 	}
 

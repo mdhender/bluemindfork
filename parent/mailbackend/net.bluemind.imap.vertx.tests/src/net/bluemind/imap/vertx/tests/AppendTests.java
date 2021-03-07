@@ -77,6 +77,9 @@ public class AppendTests extends WithMailboxTests {
 			System.out.println("Got UID2 " + uid);
 			assertTrue(uid > 0);
 			return sc.close();
+		}).exceptionally(t -> {
+			t.printStackTrace();
+			return null;
 		}).get(15, TimeUnit.SECONDS);
 
 		System.out.println(uid1 + ", " + uid2);

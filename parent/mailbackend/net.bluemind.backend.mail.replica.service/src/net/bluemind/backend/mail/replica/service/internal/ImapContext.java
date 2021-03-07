@@ -103,7 +103,7 @@ public class ImapContext {
 		public PoolableStoreClient(String hostname, int port, String login, String password) {
 			super(hostname, port, login, password, 15);
 			this.lock = new ReentrantLock();
-			this.fastFetch = new VXStoreClient(new EventBusConnectionSupport(VertxPlatform.eventBus()), hostname, port,
+			this.fastFetch = new VXStoreClient(new EventBusConnectionSupport(VertxPlatform.getVertx()), hostname, port,
 					login, password);
 		}
 

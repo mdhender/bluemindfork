@@ -20,6 +20,7 @@ package net.bluemind.imap.vertx.connection;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
@@ -36,10 +37,18 @@ public class EventBusConnectionSupport implements IConnectionSupport {
 
 	private final EventBus eb;
 
+	private final Vertx vertx;
+
 	private static final DeliveryOptions delOpts = new DeliveryOptions().setSendTimeout(2000);
 
-	public EventBusConnectionSupport(EventBus eb) {
-		this.eb = eb;
+	public EventBusConnectionSupport(Vertx vertx) {
+		this.vertx = vertx;
+		this.eb = vertx.eventBus();
+	}
+
+	@Override
+	public Vertx vertx() {
+		return vertx;
 	}
 
 	@Override

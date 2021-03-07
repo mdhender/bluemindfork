@@ -20,6 +20,7 @@ package net.bluemind.imap.vertx.connection;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetSocket;
@@ -31,9 +32,16 @@ import net.bluemind.lib.vertx.Result;
 public class NetClientConnectionSupport implements IConnectionSupport {
 
 	private final NetClient nc;
+	private final Vertx vertx;
 
-	public NetClientConnectionSupport(NetClient nc) {
+	public NetClientConnectionSupport(Vertx vertx, NetClient nc) {
+		this.vertx = vertx;
 		this.nc = nc;
+	}
+
+	@Override
+	public Vertx vertx() {
+		return vertx;
 	}
 
 	@Override
@@ -59,6 +67,7 @@ public class NetClientConnectionSupport implements IConnectionSupport {
 					public void close(Handler<AsyncResult<Void>> h) {
 						ns.close(h);
 					}
+
 				};
 				futureCon.handle(Result.success(netCon));
 			}
