@@ -33,6 +33,7 @@ import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.occurrence.OccurrenceHelper;
 import net.bluemind.calendar.pdf.PrintCalendarHelper;
 import net.bluemind.core.api.ListResult;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemContainerValue;
 import net.bluemind.core.container.model.ItemValue;
@@ -58,7 +59,14 @@ public class PrintService implements IPrint {
 		for (CalendarMetadata cal : containers) {
 
 			ICalendar calendar = context.provider().instance(ICalendar.class, cal.uid);
-			ListResult<ItemValue<VEventSeries>> search = calendar.search(eventQuery);
+			ListResult<ItemValue<VEventSeries>> search = null;
+			try {
+				search = calendar.search(eventQuery);
+			} catch (ServerFault e) {
+				if (e.getCode() == ErrorCode.PERMISSION_DENIED) {
+					continue;
+				}
+			}
 			ret.addAll(search.values.stream().flatMap(series -> {
 				return OccurrenceHelper.list(series, options.dateBegin, options.dateEnd).stream().map(evt -> {
 					return ItemContainerValue.create(cal.uid, series, evt);
