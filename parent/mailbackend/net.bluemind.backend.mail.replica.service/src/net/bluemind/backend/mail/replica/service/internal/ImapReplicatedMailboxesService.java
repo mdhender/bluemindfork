@@ -300,11 +300,17 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 	public void markFolderAsRead(long id) {
 		ItemValue<MailboxFolder> folder = getCompleteById(id);
-		logger.info("Start marking as read {}...", folder);
-		imapContext.withImapClient((storeClient, vxStoreClient) -> {
-			selectInbox(storeClient, vxStoreClient);
-			return this.flag(storeClient, folder, Flag.SEEN, null).get(15, TimeUnit.SECONDS);
-		});
+		ItemFlagFilter filter = ItemFlagFilter.create().mustNot(ItemFlag.Seen);
+		Count count = context.provider().instance(IDbMailboxRecords.class, folder.uid).count(filter);
+		if (count.total != 0) {
+			logger.info("Start marking as read {}...", folder);
+			imapContext.withImapClient((storeClient, vxStoreClient) -> {
+				selectInbox(storeClient, vxStoreClient);
+				return this.flag(storeClient, folder, Flag.SEEN, null).get(15, TimeUnit.SECONDS);
+			});
+		} else {
+			logger.info("No item to mark as seen in folder {}", folder);
+		}
 	}
 
 	private CompletableFuture<ItemIdentifier> flag(StoreClient storeClient, ItemValue<MailboxFolder> folder, Flag flag,
