@@ -10,6 +10,9 @@
       <endpoint
             api="net.bluemind.authentication.api.ISecurityToken">
       </endpoint>
+      <endpoint
+            api="net.bluemind.authentication.api.ISudoSupport">
+      </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
@@ -21,6 +24,9 @@
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.authentication.service.SecurityTokenService$Factory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.authentication.service.SudoSupport$Factory">
       </serviceFactory>
    </extension>
    <extension

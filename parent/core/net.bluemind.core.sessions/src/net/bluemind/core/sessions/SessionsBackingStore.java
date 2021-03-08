@@ -68,6 +68,7 @@ public class SessionsBackingStore {
 		jsonObject.put("lang", sc.getLang());
 		jsonObject.put("origin", sc.getOrigin());
 		jsonObject.put("interactive", sc.isInteractive());
+		jsonObject.put("ownerPrincipal", sc.getOwnerPrincipal());
 
 		jsonObject.put("memberOf", new JsonArray(sc.getMemberOf()));
 		jsonObject.put("roles", new JsonArray(sc.getRoles()));
@@ -91,7 +92,7 @@ public class SessionsBackingStore {
 				jsonObject.getString("domainUid"), //
 				jsonObject.getString("lang"), //
 				jsonObject.getString("origin"), //
-				jsonObject.getBoolean("interactive"));
+				jsonObject.getBoolean("interactive"), jsonObject.getString("ownerPrincipal"));
 
 		return sc.from(jsonArrayToList(jsonObject.getJsonArray("remoteAddresses")));
 	}

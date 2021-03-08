@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class SecurityContext {
@@ -50,6 +51,7 @@ public class SecurityContext {
 	private final Map<String, Set<String>> orgUnitsRoles;
 	private List<String> remoteAddresses = Collections.emptyList();
 	private final boolean interactive;
+	private String ownerSubject;
 
 	/**
 	 * Visible for testing
@@ -78,6 +80,12 @@ public class SecurityContext {
 	public SecurityContext(String sessionId, String subject, List<String> memberOf, List<String> roles,
 			Map<String, Set<String>> rolesByOrgUnit, String domainUid, String lang, String origin,
 			boolean interactive) {
+		this(sessionId, subject, memberOf, roles, rolesByOrgUnit, domainUid, lang, origin, interactive, null);
+	}
+
+	public SecurityContext(String sessionId, String subject, List<String> memberOf, List<String> roles,
+			Map<String, Set<String>> rolesByOrgUnit, String domainUid, String lang, String origin, boolean interactive,
+			String ownerSubject) {
 		this.sessionId = sessionId;
 		this.subject = subject;
 		this.memberOf = Collections.unmodifiableList(memberOf);
@@ -87,6 +95,15 @@ public class SecurityContext {
 		this.lang = lang;
 		this.origin = origin;
 		this.interactive = interactive;
+		this.ownerSubject = ownerSubject;
+	}
+
+	public String getOwnerPrincipal() {
+		return Optional.ofNullable(ownerSubject).orElse(subject);
+	}
+
+	public void setOwnerPrincipal(String s) {
+		this.ownerSubject = s;
 	}
 
 	public String getSessionId() {
@@ -145,8 +162,8 @@ public class SecurityContext {
 
 	@Override
 	public String toString() {
-		return "SecurityContext [sessionId=" + sessionId + ", subject=" + subject + ", memberOf=" + memberOf
-				+ ", roles=" + roles + ", domainUid=" + domainUid + ", lang=" + lang + "]";
+		return "SecurityContext[sessionId=" + sessionId + ", subject=" + subject + ", memberOf=" + memberOf + ", roles="
+				+ roles + ", domainUid=" + domainUid + ", lang=" + lang + "]";
 	}
 
 	public final SecurityContext from(List<String> remoteAddresses) {
@@ -155,7 +172,7 @@ public class SecurityContext {
 
 	public SecurityContext from(List<String> remoteAddresses, String headerOrigin) {
 		SecurityContext ret = new SecurityContext(sessionId, subject, memberOf, roles, orgUnitsRoles, domainUid, lang,
-				bestOrigin(origin, headerOrigin), interactive);
+				bestOrigin(origin, headerOrigin), interactive, ownerSubject);
 		ret.remoteAddresses = remoteAddresses;
 		return ret;
 	}

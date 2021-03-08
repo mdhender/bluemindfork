@@ -337,7 +337,7 @@ public class ItemStore extends JdbcAbstractStore {
 	}
 
 	private String getPrincipal() {
-		return securityContext.getSubject();
+		return securityContext.getOwnerPrincipal();
 	}
 
 	public List<String> allItemUids() throws SQLException {
