@@ -130,7 +130,7 @@ function scheduleNotification(userDateTimeFormater, deferredaction, dateHelperCr
         var delay = item["value"]["executionDate"] - Date.now();
         var text = getNotificationText(userDateTimeFormater, item, dateHelperCreate);
         setTimeout(function() {
-            notify(text);
+            notify(text, item);
             try {
                 createNext(deferredaction, dateHelperCreate, item);
             } catch(e) {
@@ -150,20 +150,29 @@ function getNotificationText(userDateTimeFormater, item, dateHelperCreate) {
     return item["value"]["configuration"]["summary"] + location + " - " + userDateTimeFormater(dtstart.getTime());
 }
 
-function browserNotify(text) {
+function browserNotify(text, item) {
     goog.log.info(logger, "Notification for reminder: " + text);
     if (Notification.permission === "granted") {
-        new Notification("Calendar", { body: text });
+       newNotification(text, item);
     } else if (Notification.permission !== "denied") {
         Notification.requestPermission(function(permission) {
             if (!("permission" in Notification)) {
                 Notification.permission = permission;
             }
             if (Notification.permission === "granted") {
-                new Notification("Calendar", { body: text });
+              newNotification(text, item);
             }
         });
     }
+}
+
+function newNotification(text, item){
+  var notif = new Notification("Calendar", { body: text });
+  if (item["value"]["configuration"]["conference"]) {
+    notif.onclick = function() {
+      window.open(item["value"]["configuration"]["conference"]);
+    };
+  }
 }
 
 function getNextDeferredAction(prevItem, dateHelperCreate) {

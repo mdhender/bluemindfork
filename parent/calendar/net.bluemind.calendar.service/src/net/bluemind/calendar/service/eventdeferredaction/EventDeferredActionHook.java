@@ -34,6 +34,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.elasticsearch.common.Strings;
+
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEvent.Transparency;
 import net.bluemind.calendar.api.VEventOccurrence;
@@ -230,6 +232,10 @@ public class EventDeferredActionHook implements ICalendarHook {
 			config.put("recurid_timezone", ((VEventOccurrence) occurrence).recurid.timezone);
 			config.put("recurid_precision", ((VEventOccurrence) occurrence).recurid.precision.name());
 
+		}
+
+		if (!Strings.isNullOrEmpty(occurrence.conference)) {
+			config.put("conference", occurrence.conference);
 		}
 		return config;
 	}
