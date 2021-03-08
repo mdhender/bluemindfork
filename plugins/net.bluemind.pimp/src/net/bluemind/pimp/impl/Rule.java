@@ -25,6 +25,9 @@ public class Rule {
 	@JsonProperty("defaultDirect")
 	private int defaultDirect;
 
+	@JsonProperty("directCap")
+	private int directCap = 512;
+
 	@JsonProperty("sparePercent")
 	private int sparePercent;
 
@@ -78,8 +81,8 @@ public class Rule {
 
 	/**
 	 * We will allocate
-	 * <code>cpusBoost * availableProcessors * threadStackSize</code> extra
-	 * memory the each process.
+	 * <code>cpusBoost * availableProcessors * threadStackSize</code> extra memory
+	 * the each process.
 	 * 
 	 * The default value is zero
 	 * 
@@ -92,13 +95,12 @@ public class Rule {
 
 	/**
 	 * We will allocate
-	 * <code>cpusBoost * availableProcessors * threadStackSize extra</code>
-	 * memory the each process.
+	 * <code>cpusBoost * availableProcessors * threadStackSize extra</code> memory
+	 * the each process.
 	 * 
 	 * The default value is zero
 	 * 
-	 * @param cpusBoost
-	 *            the multiplier to use
+	 * @param cpusBoost the multiplier to use
 	 */
 	@JsonProperty("cpusBoost")
 	public void setCpusBoost(int cpusBoost) {
@@ -121,6 +123,19 @@ public class Rule {
 
 	public void setOptional(boolean optional) {
 		this.optional = optional;
+	}
+
+	/**
+	 * Max direct memory (MB) to allocate, defaults to 512m
+	 * 
+	 * @return
+	 */
+	public int getDirectCap() {
+		return directCap;
+	}
+
+	public void setDirectCap(int directCap) {
+		this.directCap = directCap;
 	}
 
 }

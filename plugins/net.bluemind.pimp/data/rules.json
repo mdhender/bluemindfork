@@ -21,6 +21,7 @@
 		"product":"bm-elasticsearch",
 		"defaultHeap":256,
 		"defaultDirect":128,
+		"directCap": 2048,
 		"sparePercent":40
 	},
 	{

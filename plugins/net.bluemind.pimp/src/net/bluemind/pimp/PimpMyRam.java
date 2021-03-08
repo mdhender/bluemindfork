@@ -104,7 +104,7 @@ public class PimpMyRam implements IApplication {
 				logger.info("CPU boost is {}MB", cpuBoostMb);
 			}
 			int memMb = r.getDefaultHeap() + fromSpare + cpuBoostMb;
-			int dmemMb = Math.min(512, r.getDefaultDirect() + fromSpare);
+			int dmemMb = Math.min(r.getDirectCap(), r.getDefaultDirect() + fromSpare);
 			String content = "MEM=" + memMb + "\nDMEM=" + dmemMb + "\n";
 
 			logger.info("  * {} gets +{}MB for a total of {}MB", r.getProduct(), fromSpare, memMb);
