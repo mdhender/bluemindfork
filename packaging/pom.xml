@@ -78,6 +78,12 @@
 				<module>bm-docs</module>
 			</modules>
 		</profile>
+		<profile>
+			<id>upgraders-list</id>
+			<modules>
+				<module>bm-upgraders-list</module>
+			</modules>
+		</profile>
 	</profiles>
 
 	<build>
