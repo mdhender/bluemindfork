@@ -81,6 +81,12 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 			addCspHeader(event);
 		}
 
+		if (coreState.needUpgrade()) {
+			event.response().setStatusCode(503);
+			event.response().end();
+			return;
+		}
+
 		AuthRequirements reqs = authenticated(event);
 		if (!reqs.authNeeded && reqs.sessionId != null) {
 			if (event.path().endsWith("bluemind_sso_logout")) {
@@ -113,11 +119,6 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 		} else {
 			logger.debug("Must authenticate event {}", event.uri());
 
-			if (coreState.needUpgrade()) {
-				event.response().setStatusCode(503);
-				event.response().end();
-				return;
-			}
 			// maintenance => show /login/index.html
 			// when maintenance=true param is present
 			if (coreState.maintenace() && event.method() == HttpMethod.GET && ( //
