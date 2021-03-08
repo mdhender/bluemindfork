@@ -2,12 +2,14 @@ import mailText2Html from "../src/mailText2Html";
 import ForwardTextTransformer from "../src/transformers/ForwardTextTransformer";
 
 describe("mailText2Html", () => {
+    const userLang = "FR";
+
     test("all text mail transformations apply and produce expected HTML", () => {
         let mailTextContent = `Test mailto : zefze@mail.com
             Test link : https://bm.blue-mind.net/webmail/?_task=mail
             Test bold : *zefzefzef*
             Test callto 1 : 0625486518`;
-        const res = mailText2Html(mailTextContent);
+        const res = mailText2Html(mailTextContent, userLang);
         expect(res).toContain('<a href="mailto:zefze@mail.com" class="linkified">zefze@mail.com</a>');
         expect(res).toContain(
             '<a href="https://bm.blue-mind.net/webmail/?_task=mail" ' +
@@ -15,16 +17,29 @@ describe("mailText2Html", () => {
         );
         expect(res).toContain('<a href="callto:+33625486518">0625486518</a>');
         expect(res).toContain("<strong>*zefzefzef*</strong>");
-        // TODO: expect(res).toMatch("<pre>*</pre>");
+        expect(res.startsWith("<pre>")).toBe(true);
+        expect(res.endsWith("</pre>")).toBe(true);
     });
 
-    test("FIXME : problem with callTo transformer", () => {
+    test("callTo transformer", () => {
         let mailTextContent = `Test callto 1 : 0625486518
 
             Test callto 2 : +33425786541`;
-        const res = mailText2Html(mailTextContent);
+        const res = mailText2Html(mailTextContent, userLang);
         expect(res).toContain('<a href="callto:+33625486518">0625486518</a>');
         expect(res).toContain('<a href="callto:+33425786541">+33425786541</a>');
+    });
+
+    test("callto transformer must not apply on a line containing HTML", () => {
+        let mailTextContent = `
+            [CallTo should not apply] Site & call: https://bluemind.net/callme?+33425786541
+            [CallTo should apply] <a href="https://bluemind.net">https://bluemind.net</a> and call me on +33425786541 
+            `;
+        const html = mailText2Html(mailTextContent, userLang);
+        expect(html).toContain(
+            ' <a href="https://bluemind.net/callme?+33425786541" class="linkified" target="_blank">https://bluemind.net/callme?+33425786541</a>'
+        );
+        expect(html).toContain('<a href="callto:+33425786541">+33425786541</a>');
     });
 
     test("replyTransformer", () => {
@@ -37,14 +52,14 @@ Le 14/03/2019 à 17:53, test a écrit :
 >>> zrerger
 >>> *fzerfrze*
 `;
-        const res = mailText2Html(mailTextContent);
+        const res = mailText2Html(mailTextContent, userLang);
         let expectedHTML = `<pre>Réponse 3
 Le 14/03/2019 à 17:53, test a écrit :
-<blockquote class='reply'> Réponse 2
+<blockquote class="reply"> Réponse 2
  Le 14/03/2019 à 17:53, test a écrit :
-<blockquote class='reply'> Réponse 1
+<blockquote class="reply"> Réponse 1
  Le 04/03/2019 à 15:21, test a écrit :
-<blockquote class='reply'> zrerger
+<blockquote class="reply"> zrerger
  <strong>*fzerfrze*</strong>
 </blockquote></blockquote></blockquote></pre>`;
         expect(res).toContain(expectedHTML);

@@ -18,7 +18,7 @@
                 </mail-folder-icon>
             </div>
             <div v-else-if="!mouseIn" class="d-flex justify-content-end">
-                <component :is="widget" v-for="widget in widgets" :key="widget.template" />
+                <component :is="widget" v-for="widget in widgets" :key="widget.template" class="ml-2" />
             </div>
         </div>
         <div class="d-flex flex-row">

@@ -40,9 +40,13 @@ export default {
         ...mapGetters("mail", { $_ComposerInitMixin_MY_DRAFTS: MY_DRAFTS }),
         ...mapState("mail", { $_ComposerInitMixin_activeMessage: "activeMessage" }),
         ...mapState("mail", { $_ComposerInitMixin_signature: ({ messageCompose }) => messageCompose.signature }),
-        ...mapState("session", {
-            $_ComposerInitMixin_insertSignaturePref: ({ settings }) => settings.remote.insert_signature
-        })
+        ...mapState("session", { $_ComposerInitMixin_settings: ({ settings }) => settings.remote }),
+        $_ComposerInitMixin_insertSignaturePref() {
+            return this.$_ComposerInitMixin_settings.insert_signature;
+        },
+        $_ComposerInitMixin_lang() {
+            return this.$_ComposerInitMixin_settings.lang;
+        }
     },
     methods: {
         ...mapActions("mail", {
@@ -73,7 +77,8 @@ export default {
             let content = getEditorContent(
                 this.userPrefTextOnly,
                 parts,
-                this.$_ComposerInitMixin_activeMessage.partsDataByAddress
+                this.$_ComposerInitMixin_activeMessage.partsDataByAddress,
+                this.$_ComposerInitMixin_lang
             );
             if (!this.userPrefTextOnly) {
                 const partsWithCid = parts.filter(part => MimeType.isImage(part) && part.contentId);
@@ -139,7 +144,8 @@ export default {
             let contentFromPreviousMessage = getEditorContent(
                 this.userPrefTextOnly,
                 parts,
-                this.$_ComposerInitMixin_activeMessage.partsDataByAddress
+                this.$_ComposerInitMixin_activeMessage.partsDataByAddress,
+                this.$_ComposerInitMixin_lang
             );
 
             if (!this.userPrefTextOnly) {

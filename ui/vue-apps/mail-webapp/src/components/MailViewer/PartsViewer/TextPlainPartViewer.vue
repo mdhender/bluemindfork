@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import { mailText2Html } from "@bluemind/email";
 import MailViewerContentLoading from "../MailViewerContentLoading";
 
@@ -19,8 +20,9 @@ export default {
         }
     },
     computed: {
+        ...mapState("session", { settings: ({ settings }) => settings.remote }),
         toHtml() {
-            return mailText2Html(this.value);
+            return mailText2Html(this.value, this.settings.lang);
         }
     }
 };
