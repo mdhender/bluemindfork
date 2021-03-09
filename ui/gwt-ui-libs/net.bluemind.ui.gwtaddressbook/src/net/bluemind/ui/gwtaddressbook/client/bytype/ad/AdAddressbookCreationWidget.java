@@ -136,7 +136,7 @@ public class AdAddressbookCreationWidget extends CompositeGwtWidgetElement {
 
 	public AdAddressbookCreationWidget() {
 		initWidget(uiBinder.createAndBindUi(this));
-		adUserFilter.setValue("(objectClass=inetOrgPerson)");
+		adUserFilter.setValue("(objectClass=organizationalPerson)");
 	}
 
 	private String getLdapProtocol() {
