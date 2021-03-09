@@ -379,7 +379,6 @@ public class Authentication implements IInCoreAuthentication {
 	@Override
 	public void logout() throws ServerFault {
 		if (securityContext.getSessionId() != null) {
-			AuthUser currentUser = getCurrentUser();
 			if (logger.isDebugEnabled()) {
 				logger.debug("logout user {} session {}", securityContext.getSubject(), securityContext.getSessionId());
 			}
