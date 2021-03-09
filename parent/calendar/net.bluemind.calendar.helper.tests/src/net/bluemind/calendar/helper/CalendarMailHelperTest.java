@@ -107,7 +107,7 @@ public class CalendarMailHelperTest {
 		String subject = new CalendarMailHelper().buildSubject("EventSubjectAlert.ftl", "fr", resolver, data);
 
 		resolver = new MessagesResolver(Messages.getEventDetailMessages(l), Messages.getEventCreateMessages(l));
-		assertEquals("Rappel: testExtractSubject commence dans 10 minutes", subject);
+		assertEquals("Rappel : testExtractSubject commence dans 10 minutes", subject);
 
 		subject = new CalendarMailHelper().buildSubject("EventCreateSubject.ftl", "fr", resolver, data);
 		assertEquals("Invitation: testExtractSubject", subject);
@@ -125,7 +125,7 @@ public class CalendarMailHelperTest {
 		// 2nd reminder
 		data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.alarm.get(1));
 		subject = new CalendarMailHelper().buildSubject("EventSubjectAlert.ftl", "fr", resolver, data);
-		assertEquals("Rappel: testExtractSubject commence dans 1 heure", subject);
+		assertEquals("Rappel : testExtractSubject commence dans 1 heure", subject);
 
 	}
 
