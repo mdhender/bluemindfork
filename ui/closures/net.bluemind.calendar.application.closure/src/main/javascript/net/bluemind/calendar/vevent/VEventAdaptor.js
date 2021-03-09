@@ -814,8 +814,8 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.createVEvent = function() {
 
   if (this.ctx_.settings.get('default_event_alert') && !isNaN(parseInt(this.ctx_.settings.get('default_event_alert')))) {
     var alarmAction = net.bluemind.calendar.vevent.defaultValues.action;
-    if (this.ctx.settings.get('default_event_alert_mode')){
-      alarmAction = this.ctx.settings.get('default_event_alert_mode');
+    if (this.ctx_.settings.get('default_event_alert_mode')){
+      alarmAction = this.ctx_.settings.get('default_event_alert_mode');
     }
     evt['alarm'] = [ {
       'trigger' : -1 * this.ctx_.settings.get('default_event_alert'),
