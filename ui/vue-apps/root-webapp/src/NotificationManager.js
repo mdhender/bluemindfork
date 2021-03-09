@@ -2,6 +2,7 @@ import ItemUri from "@bluemind/item-uri";
 import router from "@bluemind/router";
 import store from "@bluemind/store";
 import WebsocketClient from "@bluemind/sockjs";
+import debounce from "lodash.debounce";
 
 export default class NotificationManager {
     constructor() {
@@ -44,16 +45,42 @@ export default class NotificationManager {
             const sendNotification = ({ data }) => {
                 const onNotifClick = () => {
                     // FIXME : will not work if mail store or mail routes are not init
-                    const key = ItemUri.encode(Number(data.body.internalId), store.getters["mail/MY_INBOX"].key);
+                    const key = ItemUri.encode(Number(data.internalId), store.getters["mail/MY_INBOX"].key);
                     router.push({ name: "mail:message", params: { message: key } });
                 };
 
-                const mailSubject = data.body.body;
-                const mailSender = data.body.title;
-                this.send(mailSender, mailSubject, mailIconAsBlobURL, onNotifClick);
+                this.send(data.sender, data.subject, mailIconAsBlobURL, onNotifClick);
             };
 
-            new WebsocketClient().register(address, sendNotification);
+            new WebsocketClient().register(
+                address,
+                this.debounceReduce(sendNotification, 500, this.reduceNotification)
+            );
         }
+    }
+
+    // from https://github.com/jashkenas/underscore/issues/310
+    debounceReduce(func, wait, reduce) {
+        let allArgs;
+        const wrapper = debounce(() => {
+            let args = allArgs;
+            allArgs = undefined;
+            func(args);
+        }, wait);
+        return (...args) => {
+            allArgs = reduce(allArgs, [...args]);
+            wrapper();
+        };
+    }
+
+    reduceNotification(accumulator, lastCallArgs) {
+        accumulator = accumulator || { count: 0 };
+        accumulator.count += 1;
+        accumulator.data = {
+            internalId: lastCallArgs[0].data.body.internalId,
+            subject: lastCallArgs[0].data.body.body,
+            sender: lastCallArgs[0].data.body.title
+        };
+        return accumulator;
     }
 }
