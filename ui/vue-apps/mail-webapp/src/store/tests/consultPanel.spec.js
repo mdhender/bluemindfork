@@ -66,7 +66,8 @@ describe("consultPanel node", () => {
             store.state.currentEvent = {
                 uid: eventUid,
                 status: previousStatus,
-                serverEvent
+                serverEvent,
+                mailboxOwner: userUid
             };
 
             await store.dispatch(SET_EVENT_STATUS, { status: newStatus, mailbox: { owner: userUid } });
@@ -78,7 +79,8 @@ describe("consultPanel node", () => {
             store.state.currentEvent = {
                 uid: eventUid,
                 status: previousStatus,
-                serverEvent
+                serverEvent,
+                mailboxOwner: userUid
             };
             calendarService.update.mockReturnValue(Promise.reject());
             const promise = store.dispatch(SET_EVENT_STATUS, { status: newStatus, mailbox: { owner: userUid } });
@@ -97,7 +99,8 @@ describe("consultPanel node", () => {
         test("SET_CURRENT_EVENT_STATUS mutation, mutate status but also serverEvent attendee matching my userUid", async () => {
             store.state.currentEvent = {
                 status: previousStatus,
-                serverEvent
+                serverEvent,
+                mailboxOwner: userUid
             };
 
             storeOptions.mutations[SET_CURRENT_EVENT_STATUS](store.state, { status: newStatus, uid: userUid });

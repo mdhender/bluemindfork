@@ -5,20 +5,21 @@ import { sanitizeHtml } from "@bluemind/html-utils";
 
 export default {
     adapt(event, mailboxOwner, originator, recuridIsoDate) {
-        const main = event.value.main;
+        const infos = this.eventInfos(event, mailboxOwner, recuridIsoDate);
         return {
-            summary: main.summary,
+            summary: infos.summary,
             organizer: {
-                name: main.organizer.commonName,
-                mail: main.organizer.mailto
+                name: infos.organizer.commonName,
+                mail: infos.organizer.mailto
             },
-            date: adaptDate(main.dtstart, main.dtend, main.rrule),
-            attendees: main.attendees.map(attendee => ({ name: attendee.commonName, mail: attendee.mailto })),
+            date: adaptDate(infos.dtstart, infos.dtend, infos.rrule),
+            attendees: infos.attendees.map(attendee => ({ name: attendee.commonName, mail: attendee.mailto })),
             mailboxOwner,
-            status: adaptStatus(main.attendees, mailboxOwner),
+            status: this.findAttendee(infos.attendees, mailboxOwner)?.partStatus,
+            recuridIsoDate,
             uid: event.uid,
             serverEvent: event,
-            sanitizedDescription: main.description ? sanitizeHtml(main.description) : undefined,
+            sanitizedDescription: infos.description ? sanitizeHtml(infos.description) : undefined,
             counter: adaptCounter(event, originator, recuridIsoDate)
         };
     },
@@ -70,6 +71,21 @@ export default {
             matchCounter(c, originator, recuridIsoDate)
         );
         adaptedEvent.serverEvent.value.counters.splice(counterIndex, 1);
+    },
+
+    setStatus(adaptedEvent, status) {
+        const infos = this.eventInfos(adaptedEvent.serverEvent, adaptedEvent.mailboxOwner, adaptedEvent.recuridIsoDate);
+        this.findAttendee(infos.attendees, adaptedEvent.mailboxOwner).partStatus = status;
+    },
+
+    eventInfos(event, mailboxOwner, recuridIsoDate) {
+        return !recuridIsoDate
+            ? event.value.main
+            : event.value.occurrences.find(occurrence => occurrence.recurid.iso8601 === recuridIsoDate);
+    },
+
+    findAttendee(attendees, mailboxOwner) {
+        return attendees.find(a => a.dir && a.dir.split("/").pop() === mailboxOwner);
     }
 };
 
@@ -271,14 +287,6 @@ function adaptAllDayEvent(dtstart, dtend, vueI18n) {
         startDate: vueI18n.d(startDate, "full_date_time_long"),
         endDate: vueI18n.d(endDate, "full_date_time_long")
     });
-}
-
-/**
- * return null if user is not in attendees
- */
-function adaptStatus(attendees, uid) {
-    const user = attendees.find(a => a.dir && a.dir.split("/").pop() === uid);
-    return user ? user.partStatus : null;
 }
 
 function adaptCounter(event, originator, recuridIsoDate) {

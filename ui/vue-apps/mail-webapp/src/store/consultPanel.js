@@ -20,8 +20,8 @@ export default {
         async [FETCH_EVENT]({ commit }, { message, mailbox }) {
             let event;
             if (message.eventInfo.icsUid) {
-                event = await inject("CalendarPersistence").getByIcsUid(message.eventInfo.icsUid);
-                event = event ? event[0] : event;
+                const events = await inject("CalendarPersistence").getByIcsUid(message.eventInfo.icsUid);
+                event = findEvent(events, message.eventInfo.recuridIsoDate) || events[0];
             } else {
                 event = await inject("CalendarPersistence").getComplete(message.eventInfo.eventUid);
             }
@@ -37,7 +37,7 @@ export default {
             const uid = mailbox.owner;
             const previousStatus = state.currentEvent.status;
             try {
-                commit(SET_CURRENT_EVENT_STATUS, { status, uid });
+                commit(SET_CURRENT_EVENT_STATUS, { status });
                 await inject("CalendarPersistence").update(
                     state.currentEvent.uid,
                     state.currentEvent.serverEvent.value,
@@ -60,12 +60,9 @@ export default {
         [SET_CURRENT_EVENT](state, event) {
             state.currentEvent = event;
         },
-        [SET_CURRENT_EVENT_STATUS](state, { status, uid }) {
+        [SET_CURRENT_EVENT_STATUS](state, { status }) {
             state.currentEvent.status = status;
-
-            state.currentEvent.serverEvent.value.main.attendees.find(
-                a => a.dir && a.dir.split("/").pop() === uid
-            ).partStatus = status;
+            EventHelper.setStatus(state.currentEvent, status);
         },
         [SET_SHOW_REMOTE_IMAGES_ALERT](state, showAlert) {
             state.remoteImages.showAlert = showAlert;
@@ -93,3 +90,10 @@ async function updateCounterEvent({ state, commit }, updateFunction) {
     commit(SET_CURRENT_EVENT, updatedEvent);
     await inject("CalendarPersistence").update(state.currentEvent.uid, updatedEvent.serverEvent.value, true);
 }
+
+const findEvent = (events, recuridIsoDate) => {
+    return events.find(
+        event =>
+            !recuridIsoDate || event.value.occurrences.some(occurrence => occurrence.recurid.iso8601 === recuridIsoDate)
+    );
+};

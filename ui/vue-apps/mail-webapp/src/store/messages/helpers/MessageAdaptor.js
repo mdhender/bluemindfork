@@ -123,8 +123,8 @@ function eventInfo(message) {
     recuridIsoDate = recuridIsoDate && recuridIsoDate[1];
 
     const hasICS = !!uid;
-    const eventUid = isCounterEvent ? null : uid;
-    const icsUid = isCounterEvent ? uid : null;
+    const eventUid = isCounterEvent || recuridIsoDate ? null : uid;
+    const icsUid = isCounterEvent || recuridIsoDate ? uid : null;
     const needsReply =
         isCounterEvent || icsHeaderValue.includes('rsvp="true"') || icsHeaderValue.includes("rsvp='true'"); //TODO regexp
 

@@ -15,6 +15,7 @@ Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "recuridIsoDate": undefined,
   "sanitizedDescription": undefined,
   "serverEvent": Object {
     "created": 1597336484841,
@@ -118,6 +119,7 @@ Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "recuridIsoDate": undefined,
   "sanitizedDescription": undefined,
   "serverEvent": Object {
     "created": 1597336498670,
@@ -221,6 +223,7 @@ Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "recuridIsoDate": undefined,
   "sanitizedDescription": undefined,
   "serverEvent": Object {
     "created": 1597336529234,
@@ -337,6 +340,7 @@ Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "recuridIsoDate": undefined,
   "sanitizedDescription": undefined,
   "serverEvent": Object {
     "created": 1597336586337,
@@ -458,6 +462,7 @@ Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "recuridIsoDate": undefined,
   "sanitizedDescription": undefined,
   "serverEvent": Object {
     "created": 1597336616186,
@@ -579,6 +584,7 @@ Object {
     "mail": "jdoe@webmail-test.loc",
     "name": "john doe",
   },
+  "recuridIsoDate": undefined,
   "sanitizedDescription": undefined,
   "serverEvent": Object {
     "created": 1597336556578,
