@@ -23,11 +23,14 @@
 package net.bluemind.backend.mail.replica.service;
 
 import java.sql.SQLException;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Sets;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
@@ -43,6 +46,7 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
+import net.bluemind.core.container.service.internal.ContainerStoreService.IWeightSeedProvider;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 
@@ -51,6 +55,7 @@ public abstract class AbstractReplicatedMailboxesServiceFactory<T>
 
 	protected static final Logger logger = LoggerFactory.getLogger(AbstractReplicatedMailboxesServiceFactory.class);
 	private static final MailboxReplicaFlagProvider flagProvider = new MailboxReplicaFlagProvider();
+	private static final MailboxReplicaWeightSeedProvider weightSeedProvider = new MailboxReplicaWeightSeedProvider();
 
 	protected AbstractReplicatedMailboxesServiceFactory() {
 	}
@@ -69,6 +74,7 @@ public abstract class AbstractReplicatedMailboxesServiceFactory<T>
 		DataSource ds = DataSourceRouter.get(context, uid);
 		String datalocation = DataSourceRouter.location(context, uid);
 		ContainerStore containerStore = new ContainerStore(context, ds, context.getSecurityContext());
+
 		try {
 			Container foldersContainer = containerStore.get(uid);
 			if (foldersContainer == null) {
@@ -77,7 +83,7 @@ public abstract class AbstractReplicatedMailboxesServiceFactory<T>
 			MailboxReplicaStore mboxReplicaStore = new MailboxReplicaStore(ds, foldersContainer, partition.domainUid);
 			mailboxRoot.dataLocation = datalocation;
 			ContainerStoreService<MailboxReplica> storeService = new ContainerStoreService<>(ds,
-					context.getSecurityContext(), foldersContainer, mboxReplicaStore, flagProvider, v -> 0L,
+					context.getSecurityContext(), foldersContainer, mboxReplicaStore, flagProvider, weightSeedProvider,
 					seed -> seed);
 			return create(mailboxRoot, foldersContainer, context, mboxReplicaStore, storeService, containerStore);
 		} catch (SQLException e) {
@@ -111,6 +117,24 @@ public abstract class AbstractReplicatedMailboxesServiceFactory<T>
 			rootDesc = MailboxReplicaRootDescriptor.create(Namespace.shared, root);
 		}
 		return getService(context, partition, rootDesc);
+	}
+
+	private static class MailboxReplicaWeightSeedProvider implements IWeightSeedProvider<MailboxReplica> {
+
+		private static final Set<String> PRIORITY_FOLDERS = Sets.newHashSet("Sent", "Drafts", "Trash", "Outbox");
+
+		@Override
+		public long weightSeed(MailboxReplica mailbox) {
+			if (mailbox.fullName.equals("INBOX")) {
+				return 3l;
+			} else if (PRIORITY_FOLDERS.contains(mailbox.fullName)) {
+				return 2l;
+			} else if (mailbox.parentUid == null) {
+				return 1l;
+			} else {
+				return 0l;
+			}
+		};
 	}
 
 }
