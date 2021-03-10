@@ -38,12 +38,25 @@ package net.bluemind.core.sendmail;
 
 import org.columba.ristretto.smtp.SMTPResponse;
 
+/*
+250 – This SMTP server response simply means everything went well and your message was delivered to the recipient server.
+421 – Your message was temporarily deferred by the recipient server. This is usually a result of too many connections in a short timeframe or too many messages.
+450 – Your message was not delivered because the other user mailbox was not available. This can happen if the mailbox is locked or is not routable.
+451 – This response is sent when the message simply failed. Often times this is not caused by you, but rather because of a far-end server problem.
+452 – This kind of response is sent back when there isn’t enough system storage to send the message. Your message is deferred until storage opens up and it can then be delivered.
+550 – The message has failed because the other user’s mailbox is unavailable or because the recipient server rejected your message.
+551 – The mailbox your message was intended for does not exist on the recipient server.
+552 – The mailbox your message was sent to does not have enough storage to accept your message.
+553 – You message was not delivered because the name of the mailbox you sent to does not exist.
+554 – This is a very vague message failure response that can refer to any number of problems either on your end or with the recipient server.
+ */
+
 public class SendmailResponse {
 	public final int code;
 	private final String message;
 
 	public static SendmailResponse success() {
-		return new SendmailResponse(200);
+		return new SendmailResponse(250);
 	}
 
 	public int code() {
@@ -70,7 +83,7 @@ public class SendmailResponse {
 	}
 
 	public boolean isError() {
-		return code != 200;
+		return code == 450 || code > 500;
 	}
 
 	@Override
