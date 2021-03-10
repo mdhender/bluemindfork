@@ -100,7 +100,8 @@ export default {
         async expandContent() {
             this.SET_DRAFT_EDITOR_CONTENT(this.messageCompose.editorContent + this.messageCompose.collapsedContent);
             this.SET_DRAFT_COLLAPSED_CONTENT(null);
-            this.updateHtmlComposer();
+            await this.updateHtmlComposer();
+            this.focus();
         },
         focus() {
             this.$refs["message-content"].focus("start");

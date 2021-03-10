@@ -211,7 +211,7 @@ export function addSeparator(content, previousMessage, creationMode, userPrefTex
     const separator =
         creationMode === MessageCreationModes.FORWARD
             ? buildSeparatorForForward(previousMessage, lineBreakSeparator, vueI18n)
-            : buildSeparatorForReply(previousMessage, vueI18n);
+            : buildSeparatorForReply(previousMessage, lineBreakSeparator, vueI18n);
 
     newContent = separator + newContent;
 
@@ -219,19 +219,20 @@ export function addSeparator(content, previousMessage, creationMode, userPrefTex
         const id = MessageCreationModes.FORWARD ? MessageForwardAttributeSeparator : MessageReplyAttributeSeparator;
         newContent = '<div id="' + id + '">' + removeSignatureIds(newContent) + "</div>";
     }
-    return newContent;
+    return lineBreakSeparator + newContent;
 }
 
 /**
  *  A separator before the previous message (reply).
  */
-function buildSeparatorForReply(message, vueI18n) {
+function buildSeparatorForReply(message, lineBreakSeparator, vueI18n) {
     return (
         "<p>" +
         vueI18n.t("mail.compose.reply.body", {
             date: vueI18n.d(message.date, "full_date_time"),
             name: nameAndAddress(message.from)
         }) +
+        lineBreakSeparator +
         "</p>"
     );
 }
@@ -247,8 +248,7 @@ function adaptPreviousMessageForReply(userPrefTextOnly, content) {
         );
     } else {
         return (
-            `<br>
-            <blockquote style="margin-left: 1rem; padding-left: 1rem; border-left: 2px solid black;">` +
+            `<blockquote style="margin-left: 1rem; padding-left: 1rem; border-left: 2px solid black;">` +
             content +
             "</blockquote>"
         );

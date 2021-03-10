@@ -81,7 +81,7 @@ describe("Compute reply / forward separators", () => {
 
     test("for Reply and ReplyAll with userPrefTextOnly", () => {
         const expectedContent =
-            "<p>On " + previousMessage.date + ", Some One <someone@vm40.net> wrote:</p>\n\n> " + messageContent;
+            "\n<p>On " + previousMessage.date + ", Some One <someone@vm40.net> wrote:\n</p>\n\n> " + messageContent;
 
         let contentWithSeparator = addSeparator(
             messageContent,
@@ -103,7 +103,7 @@ describe("Compute reply / forward separators", () => {
 
     test("for Forward with userPrefTextOnly", async () => {
         const expectedContent =
-            '<p style="color: purple;">---- Original Message ----\nSubject: ' +
+            '\n<p style="color: purple;">---- Original Message ----\nSubject: ' +
             previousMessage.subject +
             "\nTo: John Doe <jdoe@vm40.net>,Toto Matic <tmatic@vm40.net>,Georges Abitbol <gabitbol@vm40.net>\nDate: " +
             previousMessage.date +
@@ -121,10 +121,9 @@ describe("Compute reply / forward separators", () => {
 
     test("for Reply without userPrefTextOnly", async () => {
         const expectedContent =
-            '<div id="data-bm-forward-separator"><p>On ' +
+            '<br><div id="data-bm-forward-separator"><p>On ' +
             previousMessage.date +
-            `, Some One <someone@vm40.net> wrote:</p><br>
-            <blockquote style="margin-left: 1rem; padding-left: 1rem; border-left: 2px solid black;">` +
+            `, Some One <someone@vm40.net> wrote:<br></p><blockquote style="margin-left: 1rem; padding-left: 1rem; border-left: 2px solid black;">` +
             messageContent +
             "</blockquote></div>";
 
