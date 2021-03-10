@@ -146,8 +146,8 @@ public class Sendmail implements ISendmail {
 			} else {
 				logger.warn("TLS disabled by system property {}", SMTP_STARTTLS_PROP);
 			}
-			smtp.auth("PLAIN", creds.loginAtDomain, creds.authKey.toCharArray());
 			smtp.ehlo(InetAddress.getLocalHost());
+			smtp.auth("PLAIN", creds.loginAtDomain, creds.authKey.toCharArray());
 			smtp.mail(new Address(fromEmail));
 
 			for (Mailbox to : rcptTo) {
