@@ -29,6 +29,7 @@ import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Communications.Email;
 import net.bluemind.addressbook.api.VCard.Communications.Tel;
 import net.bluemind.addressbook.api.VCard.DeliveryAddressing;
+import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.addressbook.ldap.adapter.LdapContact.ErrCode;
 import net.bluemind.addressbook.ldap.adapter.enhancer.ILdapContactEnhancer;
@@ -46,6 +47,7 @@ public class InetOrgPersonAdapter {
 	// ID
 	private static final String LDAP_FIRSTNAME = "givenName";
 	private static final String LDAP_LASTNAME = "sn";
+	private static final String LDAP_DISPLAYNAME = "displayName";
 
 	// ORGANIZATIONAL
 	private static final String LDAP_O = "o";
@@ -104,6 +106,10 @@ public class InetOrgPersonAdapter {
 
 		if (entry.containsAttribute(LDAP_LASTNAME)) {
 			lc.vcard.identification.name.familyNames = (entry.get(LDAP_LASTNAME).getString());
+		}
+
+		if (entry.containsAttribute(LDAP_DISPLAYNAME)) {
+			lc.vcard.identification.formatedName = FormatedName.create(entry.get(LDAP_DISPLAYNAME).getString());
 		}
 
 		managePhoto(type, entry, lc);
