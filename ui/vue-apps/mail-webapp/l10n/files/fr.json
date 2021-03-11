@@ -11,6 +11,9 @@
                 "success": "Le dossier \"{name}\" a été vidé.",
                 "error": "Le dossier \"{name}\" n'a pas pu être vidé."
             },
+            "event_not_found": {
+                "warning": "Ce message fait référence à un évènement qui n'existe pas dans votre calendrier"
+            },
             "mark_folder_as_read": {
                 "loading": "Le dossier {name} est en train d'être marqué comme lu...",
                 "success": "Le dossier {name} a été marqué comme lu.",
@@ -63,6 +66,9 @@
                     "single": "\"{subject}\" n'a pas pu être déplacé vers la {folder}.",
                     "plural": "Les messages sélectionnés n'ont pas pu être déplacés dans la {folder}."
                 }
+            },
+            "read_only_folder": {
+                "info": "Message en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles."
             },
             "rename_folder": {
                 "loading": "Le dossier \"{previousName}\" est en train d'être renommé en \"{name}\"...",
@@ -139,11 +145,9 @@
     "mail.compose.forward.prev.message.info.subject": "Sujet",
     "mail.compose.forward.prev.message.info.to": "\u00C0",
     "mail.compose.reply.body": "Le {date}, {name} a écrit :",
-    "mail.content.alert.ics.dont_exist": "Ce message fait référence à un évènement qui n'existe pas dans votre calendrier",
     "mail.content.alert.images.blocked": "Les images distantes sont bloquées pour protéger votre vie privée.",
     "mail.content.alert.images.show": "Afficher les images.",
     "mail.content.alert.images.trust.sender": "Faire confiance aux contenus provenant de {sender}",
-    "mail.content.alert.readonly": "Message en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles.",
     "mail.content.blindcopy": "copie cachée",
     "mail.content.body": "Contenu du message",
     "mail.content.copy": "copie",

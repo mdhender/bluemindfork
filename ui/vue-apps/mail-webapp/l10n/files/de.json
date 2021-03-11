@@ -11,6 +11,9 @@
                 "success": "Der Ordner \"{name}\" wurde geleert.",
                 "error": "Ordner \"{name}\" konnte nicht geleert werden."
             },
+            "event_not_found": {
+                "warning": "Diese E-Mail referenziert einen nicht mehr existierenden Termin"
+            },
             "mark_folder_as_read": {
                 "loading": "Markiere Ordner {folderNameWithLink} als Gelesen...",
                 "success": "Ordner {name} wurde als Gelesen markiert!",
@@ -63,6 +66,9 @@
                     "single": "Fehler beim Verschieben von \"{subject}\" in den Ordner {folder}.",
                     "plural": "Fehler beim Verschieben der ausgewählten E-Mails in den Ordner {folder}."
                 }
+            },
+            "read_only_folder": {
+                "info": "E-Mail im Lesemdodus. Einige Aktionen (z.B. Löschen/Verschieben) sind nicht auswählbar."
             },
             "rename_folder": {
                 "loading": "Fehler beim Umbenennen von \"{previousName}\" in \"{name}\".",
@@ -139,11 +145,9 @@
     "mail.compose.forward.prev.message.info.subject": "Betreff",
     "mail.compose.forward.prev.message.info.to": "An",
     "mail.compose.reply.body": "{name}, am {date}:",
-    "mail.content.alert.ics.dont_exist": "Diese E-Mail referenziert einen nicht mehr existierenden Termin",
     "mail.content.alert.images.blocked": "Externe Bilder wurden deaktiviert, um Ihre Sicherheit zu gewährleisten.",
     "mail.content.alert.images.show": "Bilder anzeigen.",
     "mail.content.alert.images.trust.sender": "Inhalten von {sender} vertrauen",
-    "mail.content.alert.readonly": "E-Mail im Lesemdodus. Einige Aktionen (z.B. Löschen/Verschieben) sind nicht auswählbar.",
     "mail.content.blindcopy": "Bcc",
     "mail.content.body": "E-Mailinhalt",
     "mail.content.copy": "Kopieren",

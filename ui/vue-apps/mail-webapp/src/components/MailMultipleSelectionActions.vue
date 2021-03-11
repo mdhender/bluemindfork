@@ -1,12 +1,10 @@
 <template>
     <div class="mail-multiple-selection-actions">
-        <mail-component-alert
-            v-if="anyMessageReadOnly && !isReadOnlyAlertDismissed"
-            icon="info-circle-plain"
-            @close="isReadOnlyAlertDismissed = true"
-        >
-            {{ $t("mail.selection.alert.readonly") }}
-        </mail-component-alert>
+        <bm-alert-area :alerts="alerts" class="w-100" @remove="REMOVE">
+            <template v-slot="context">
+                <component :is="context.alert.renderer" :alert="context.alert" />
+            </template>
+        </bm-alert-area>
         <div
             class="h-100 mt-5 d-flex flex-column text-center align-items-center"
             :style="'background: url(' + multipleSelectionIllustration + ') no-repeat center top'"
@@ -91,10 +89,9 @@
 </template>
 
 <script>
-import { BmButton, BmLabelIcon, BmIcon } from "@bluemind/styleguide";
-import { ItemUri } from "@bluemind/item-uri";
+import { CLEAR, INFO, REMOVE } from "@bluemind/alert.store";
+import { BmAlertArea, BmButton, BmLabelIcon, BmIcon } from "@bluemind/styleguide";
 import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
-import MailComponentAlert from "./MailComponentAlert";
 import MailFolderIcon from "./MailFolderIcon";
 import multipleSelectionIllustration from "../../assets/multiple-selection.png";
 import { MailboxType } from "~model/mailbox";
@@ -123,10 +120,10 @@ import {
 export default {
     name: "MailMultipleSelectionActions",
     components: {
+        BmAlertArea,
         BmButton,
         BmIcon,
         BmLabelIcon,
-        MailComponentAlert,
         MailFolderIcon
     },
     mixins: [RemoveMixin],
@@ -149,14 +146,34 @@ export default {
             MESSAGE_LIST_FILTERED,
             MESSAGE_LIST_IS_SEARCH_MODE
         }),
+        ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-multiple-selection-actions") }),
         anyMessageReadOnly() {
-            return this.selection
-                .map(messageKey => ItemUri.container(messageKey))
-                .some(folderKey => !this.folders[folderKey].writable);
+            return this.selection.some(key => !this.folders[this.messages[key].folderRef.key].writable);
         },
         currentFolder() {
             return this.folders[this.activeFolder];
+        },
+        readOnlyAlert() {
+            return {
+                alert: { name: "mail.READ_ONLY_FOLDER", uid: "READ_ONLY_FOLDER" },
+                options: { area: "mail-multiple-selection-actions", renderer: "DefaultAlert" }
+            };
         }
+    },
+    watch: {
+        anyMessageReadOnly: {
+            immediate: true,
+            handler(value) {
+                if (value) {
+                    this.INFO(this.readOnlyAlert);
+                } else {
+                    this.REMOVE(this.readOnlyAlert.alert);
+                }
+            }
+        }
+    },
+    destroyed() {
+        this.CLEAR("mail-multiple-selection-actions");
     },
     methods: {
         ...mapActions("mail", {
@@ -168,6 +185,7 @@ export default {
         }),
         ...mapMutations("mail", { SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES }),
         ...mapMutations("mail-webapp/currentMessage", { clearCurrentMessage: "clear" }),
+        ...mapActions("alert", { REMOVE, CLEAR, INFO }),
         removeSelection() {
             this.UNSELECT_ALL_MESSAGES();
             this.clearCurrentMessage();

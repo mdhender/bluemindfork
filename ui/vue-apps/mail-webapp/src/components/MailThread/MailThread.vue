@@ -4,26 +4,11 @@
         class="mail-thread d-flex flex-column overflow-x-hidden"
         :aria-label="$t('mail.application.region.messagethread')"
     >
-        <mail-component-alert
-            v-if="showRemoteImagesAlert"
-            icon="exclamation-circle"
-            @close="SET_SHOW_REMOTE_IMAGES_ALERT(false)"
-        >
-            {{ $t("mail.content.alert.images.blocked") }}
-            &nbsp;
-            <a href="#" @click.prevent="showRemoteImages">{{ $t("mail.content.alert.images.show") }}</a>
-            <br />
-            <a href="#" @click.prevent="trustSender">{{
-                $t("mail.content.alert.images.trust.sender", { sender: message.from.address })
-            }}</a>
-        </mail-component-alert>
-        <mail-component-alert
-            v-if="!folderOfCurrentMessage.writable && !isReadOnlyAlertDismissed"
-            icon="info-circle-plain"
-            @close="isReadOnlyAlertDismissed = true"
-        >
-            {{ $t("mail.content.alert.readonly") }}
-        </mail-component-alert>
+        <bm-alert-area :alerts="alerts" @remove="REMOVE">
+            <template v-slot="context">
+                <component :is="context.alert.renderer" :alert="context.alert" />
+            </template>
+        </bm-alert-area>
         <mail-composer v-if="isADraft" :message-key="currentMessageKey" />
         <mail-viewer v-else :message-key="currentMessageKey" />
         <div />
@@ -34,21 +19,15 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
-import { createFromRecipient, VCardAdaptor } from "@bluemind/contact";
-import { inject } from "@bluemind/inject";
-import { ItemUri } from "@bluemind/item-uri";
+import { CLEAR, INFO, REMOVE } from "@bluemind/alert.store";
+import ItemUri from "@bluemind/item-uri";
+import { BmAlertArea } from "@bluemind/styleguide";
 
-import {
-    RESET_ACTIVE_MESSAGE,
-    SET_ACTIVE_FOLDER,
-    SET_BLOCK_REMOTE_IMAGES,
-    SET_MESSAGE_COMPOSING,
-    SET_SHOW_REMOTE_IMAGES_ALERT
-} from "~mutations";
-import { CURRENT_MAILBOX, MESSAGE_IS_LOADED, MY_DRAFTS } from "~getters";
-import MailComponentAlert from "../MailComponentAlert";
+import { RESET_ACTIVE_MESSAGE, SET_ACTIVE_FOLDER, SET_BLOCK_REMOTE_IMAGES, SET_MESSAGE_COMPOSING } from "~mutations";
+import { MESSAGE_IS_LOADED, MY_DRAFTS } from "~getters";
+import BlockedRemoteContent from "./Alerts/BlockedRemoteContent";
 import MailComposer from "../MailComposer";
 import MailViewer from "../MailViewer";
 import MailViewerLoading from "../MailViewer/MailViewerLoading";
@@ -57,41 +36,49 @@ import { WaitForMixin } from "~mixins";
 export default {
     name: "MailThread",
     components: {
-        MailComponentAlert,
+        BlockedRemoteContent,
+        BmAlertArea,
         MailComposer,
         MailViewer,
         MailViewerLoading
     },
     mixins: [WaitForMixin],
-    data() {
-        return {
-            isReadOnlyAlertDismissed: false
-        };
+    provide: {
+        area: "mail-thread"
     },
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail", ["folders", "mailboxes", "messages"]),
-        ...mapGetters("mail", { CURRENT_MAILBOX, MESSAGE_IS_LOADED, MY_DRAFTS }),
-        ...mapState("mail", { showRemoteImagesAlert: state => state.consultPanel.remoteImages.showAlert }),
+        ...mapState("mail", ["folders", "messages"]),
+        ...mapGetters("mail", { MESSAGE_IS_LOADED, MY_DRAFTS }),
 
+        ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-thread") }),
         message() {
             return this.MESSAGE_IS_LOADED(this.currentMessageKey) && this.messages[this.currentMessageKey];
         },
-        folderOfCurrentMessage() {
-            return this.folders[ItemUri.container(this.currentMessageKey)];
+        folder() {
+            return this.message && this.folders[this.message.folderRef.key];
         },
         isADraft() {
             return this.currentMessageKey && this.messages[this.currentMessageKey]
                 ? this.messages[this.currentMessageKey].composing
                 : false;
+        },
+        readOnlyAlert() {
+            return {
+                alert: { name: "mail.READ_ONLY_FOLDER", uid: "READ_ONLY_FOLDER" },
+                options: { area: "mail-thread", renderer: "DefaultAlert" }
+            };
         }
     },
     watch: {
-        message() {
-            this.isReadOnlyAlertDismissed = false;
+        "folder.key"() {
+            if (this.folder && !this.folder.writable) {
+                this.INFO(this.readOnlyAlert);
+            } else {
+                this.REMOVE(this.readOnlyAlert.alert);
+            }
         },
         async currentMessageKey(value) {
-            this.SET_SHOW_REMOTE_IMAGES_ALERT(false);
             this.SET_BLOCK_REMOTE_IMAGES(false);
             try {
                 await this.$store.dispatch("mail-webapp/$_getIfNotPresent", [value]);
@@ -128,19 +115,9 @@ export default {
             RESET_ACTIVE_MESSAGE,
             SET_ACTIVE_FOLDER,
             SET_BLOCK_REMOTE_IMAGES,
-            SET_MESSAGE_COMPOSING,
-            SET_SHOW_REMOTE_IMAGES_ALERT
+            SET_MESSAGE_COMPOSING
         }),
-        showRemoteImages() {
-            this.SET_SHOW_REMOTE_IMAGES_ALERT(false);
-            this.SET_BLOCK_REMOTE_IMAGES(false);
-        },
-        trustSender() {
-            this.showRemoteImages();
-            const contact = createFromRecipient(this.message.from);
-            const collectedContactsUid = "book:CollectedContacts_" + inject("UserSession").userId;
-            inject("AddressBookPersistence", collectedContactsUid).create(contact.uid, VCardAdaptor.toVCard(contact));
-        }
+        ...mapActions("alert", { REMOVE, CLEAR, INFO })
     }
 };
 </script>

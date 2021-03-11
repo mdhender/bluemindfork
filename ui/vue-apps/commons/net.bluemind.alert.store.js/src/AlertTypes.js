@@ -19,6 +19,7 @@
 /** Alert types. */
 export default Object.freeze({
     SUCCESS: "success",
+    INFO: "info",
     LOADING: "loading",
     ERROR: "error",
     WARNING: "warning"

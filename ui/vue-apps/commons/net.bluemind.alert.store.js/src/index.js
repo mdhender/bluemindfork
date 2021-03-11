@@ -1,5 +1,5 @@
 import AlertTypes from "./AlertTypes";
-import { ADD, WARNING, ERROR, LOADING, REMOVE, SUCCESS } from "./types";
+import { ADD, CLEAR, ERROR, INFO, LOADING, REMOVE, SUCCESS, WARNING } from "./types";
 
 export { default as AlertTypes } from "./AlertTypes";
 export { default as AlertMixin } from "./AlertMixin";
@@ -25,6 +25,10 @@ export default {
         [LOADING]: async ({ dispatch }, { alert, options: opt_options }) => {
             let options = { ...DEFAULT_LOADING_OPTIONS, ...(opt_options || {}) };
             await dispatch(ADD, { alert: { ...alert, type: AlertTypes.LOADING }, options });
+        },
+        [INFO]: async ({ dispatch }, { alert, options: opt_options }) => {
+            let options = { ...DEFAULT_INFO_OPTIONS, ...(opt_options || {}) };
+            await dispatch(ADD, { alert: { ...alert, type: AlertTypes.INFO }, options });
         },
         [SUCCESS]: async ({ dispatch }, { alert, options: opt_options }) => {
             let options = { ...DEFAULT_SUCCESS_OPTIONS, ...(opt_options || {}) };
@@ -60,14 +64,20 @@ export default {
                 clearDelay({ uid });
                 commit(REMOVE, uid);
             });
+        },
+        [CLEAR]: async ({ state, dispatch }, filter) => {
+            let alerts = filter === undefined ? state : state.filter(({ area }) => area === filter);
+            dispatch(REMOVE, alerts);
         }
     }
 };
 
-const DEFAULT_LOADING_OPTIONS = { delay: 1000, dismissible: false };
-const DEFAULT_SUCCESS_OPTIONS = { countDown: 5000, dismissible: true };
-const DEFAULT_WARNING_OPTIONS = { dismissible: true };
-const DEFAULT_ERROR_OPTIONS = { dismissible: true };
+const DEFAULT_OPTIONS = { dismissible: true, area: "", renderer: "DefaultAlert" };
+const DEFAULT_LOADING_OPTIONS = { ...DEFAULT_OPTIONS, icon: false, delay: 1000, dismissible: false };
+const DEFAULT_INFO_OPTIONS = { ...DEFAULT_OPTIONS, icon: "info-circle-plain" };
+const DEFAULT_SUCCESS_OPTIONS = { ...DEFAULT_OPTIONS, icon: "check-circle", countDown: 5000 };
+const DEFAULT_WARNING_OPTIONS = { ...DEFAULT_OPTIONS, icon: "exclamation-circle" };
+const DEFAULT_ERROR_OPTIONS = { ...DEFAULT_OPTIONS, icon: "exclamation-circle" };
 
 function remove(state, uid) {
     const index = state.findIndex(alert => alert.uid === uid);
@@ -76,8 +86,8 @@ function remove(state, uid) {
     }
 }
 
-function create({ name, error, payload, result, uid, type }, { dismissible, renderer }) {
-    return { name, error, payload, result, uid, type, renderer, dismissible };
+function create({ name, error, payload, result, uid, type }, { area, dismissible, icon, renderer }) {
+    return { name, error, payload, result, uid, type, renderer, icon, dismissible, area };
 }
 
 function clearDelay({ uid }) {

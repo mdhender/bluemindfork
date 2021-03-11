@@ -11,6 +11,9 @@
                 "success": "Folder \"{name}\" has been emptied.",
                 "error": "Failed to empty folder \"{name}\"."
             },
+            "event_not_found": {
+                "warning": "This message references an event which does not exist"
+            },
             "mark_folder_as_read": {
                 "loading": "Folder {name} is beeing been marked as read...",
                 "success": "Folder {name} has been marked as read!",
@@ -63,6 +66,9 @@
                     "single": "Failed to move \"{subject}\" to {folder}.",
                     "plural": "Failed to move selected messages in {folder}."
                 }
+            },
+            "read_only_folder": {
+                "info": "Read-only message. Some actions (like Move or Remove) may not be available."
             },
             "rename_folder": {
                 "loading": "Folder {previousName} is being renamed into {name}...",
@@ -139,11 +145,9 @@
     "mail.compose.forward.prev.message.info.subject": "Subject",
     "mail.compose.forward.prev.message.info.to": "To",
     "mail.compose.reply.body": "On {date}, {name} wrote:",
-    "mail.content.alert.ics.dont_exist": "This message references an event which does not exist",
     "mail.content.alert.images.blocked": "Remote images have been blocked to protect your privacy.",
     "mail.content.alert.images.show": "Show images.",
     "mail.content.alert.images.trust.sender": "Trust content of {sender}",
-    "mail.content.alert.readonly": "Read-only message. Some actions (like Move or Remove) may not be available.",
     "mail.content.blindcopy": "blind copy",
     "mail.content.body": "Message content",
     "mail.content.copy": "copy",

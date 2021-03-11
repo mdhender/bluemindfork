@@ -1,19 +1,13 @@
 import { inject } from "@bluemind/inject";
 import EventHelper from "./helpers/EventHelper";
 import { FETCH_EVENT, SET_EVENT_STATUS, ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~actions";
-import {
-    SET_BLOCK_REMOTE_IMAGES,
-    SET_CURRENT_EVENT,
-    SET_CURRENT_EVENT_STATUS,
-    SET_SHOW_REMOTE_IMAGES_ALERT
-} from "~mutations";
+import { RESET_ACTIVE_MESSAGE, SET_BLOCK_REMOTE_IMAGES, SET_CURRENT_EVENT, SET_CURRENT_EVENT_STATUS } from "~mutations";
 import { LoadingStatus } from "../model/loading-status";
 
 export default {
     state: {
         currentEvent: { loading: LoadingStatus.NOT_LOADED },
         remoteImages: {
-            showAlert: false,
             mustBeBlocked: false
         }
     },
@@ -33,6 +27,7 @@ export default {
                 commit(SET_CURRENT_EVENT, event);
             } else {
                 commit(SET_CURRENT_EVENT, { loading: LoadingStatus.ERROR });
+                throw "Event not found";
             }
         },
 
@@ -67,11 +62,11 @@ export default {
             state.currentEvent.status = status;
             EventHelper.setStatus(state.currentEvent, status);
         },
-        [SET_SHOW_REMOTE_IMAGES_ALERT](state, showAlert) {
-            state.remoteImages.showAlert = showAlert;
-        },
         [SET_BLOCK_REMOTE_IMAGES](state, mustBeBlocked) {
             state.remoteImages.mustBeBlocked = mustBeBlocked;
+        },
+        [RESET_ACTIVE_MESSAGE](state) {
+            state.currentEvent = { loading: LoadingStatus.NOT_LOADED };
         }
     }
 };

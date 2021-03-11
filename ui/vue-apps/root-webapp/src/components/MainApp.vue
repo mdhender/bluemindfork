@@ -11,7 +11,7 @@
             {{ $t("common.application.bootstrap.error.solution") }}
         </div>
         <router-view v-else :class="showPreferences ? 'd-none' : 'd-flex'" />
-        <bm-alert-area :alerts="alerts" class="z-index-250 position-absolute" @remove="REMOVE">
+        <bm-alert-area :alerts="alerts" :floating="true" @remove="REMOVE">
             <template v-slot="context">
                 <component :is="context.alert.renderer" :alert="context.alert" />
             </template>
@@ -88,7 +88,7 @@ export default {
     },
     computed: {
         ...mapState({ applicationAlerts: state => state.alert.applicationAlerts }),
-        ...mapState({ alerts: "alert" }),
+        ...mapState({ alerts: state => state.alert.filter(({ area }) => !area) }),
         ...mapState("root-app", ["appState"]),
         ...mapState("preferences", ["showPreferences"])
     },
@@ -126,15 +126,13 @@ body {
     overflow: hidden;
 }
 
-.main-app .bm-application-alert,
-.main-app .bm-alert-area {
+.main-app > .bm-alert-area {
     bottom: $sp-5;
     left: $sp-2;
     right: $sp-2;
 }
 @include media-breakpoint-up(lg) {
-    .main-app .bm-application-alert,
-    .main-app .bm-alert-area {
+    .main-app > .bm-alert-area {
         bottom: $sp-4;
         padding-left: $sp-4;
         padding-right: $sp-4;

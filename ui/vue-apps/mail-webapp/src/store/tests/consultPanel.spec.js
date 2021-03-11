@@ -6,12 +6,7 @@ import { MockCalendarClient } from "@bluemind/test-utils";
 import storeOptions from "../consultPanel";
 import EventHelper from "../helpers/EventHelper";
 import { FETCH_EVENT, SET_EVENT_STATUS } from "~actions";
-import {
-    SET_CURRENT_EVENT,
-    SET_CURRENT_EVENT_STATUS,
-    SET_BLOCK_REMOTE_IMAGES,
-    SET_SHOW_REMOTE_IMAGES_ALERT
-} from "~mutations";
+import { SET_CURRENT_EVENT, SET_CURRENT_EVENT_STATUS, SET_BLOCK_REMOTE_IMAGES } from "~mutations";
 
 const calendarService = new MockCalendarClient();
 inject.register({ provide: "CalendarPersistence", factory: () => calendarService });
@@ -110,11 +105,6 @@ describe("consultPanel node", () => {
     });
 
     describe("remoteImages", () => {
-        test("SET_SHOW_REMOTE_IMAGES_ALERT", () => {
-            storeOptions.mutations[SET_SHOW_REMOTE_IMAGES_ALERT](store.state, true);
-            expect(store.state.remoteImages.showAlert).toBe(true);
-        });
-
         test("SET_BLOCK_REMOTE_IMAGES", () => {
             storeOptions.mutations[SET_BLOCK_REMOTE_IMAGES](store.state, true);
             expect(store.state.remoteImages.mustBeBlocked).toBe(true);

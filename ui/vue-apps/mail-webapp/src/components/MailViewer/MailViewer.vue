@@ -3,13 +3,6 @@
         class="mail-viewer d-flex flex-column flex-grow-1 bg-surface overflow-auto"
         :aria-label="$t('mail.application.region.messagedetails')"
     >
-        <mail-component-alert
-            v-if="containsEvent && currentEvent.loading === LoadingStatus.ERROR && !isIcsAlertBlocked"
-            icon="exclamation-circle"
-            @close="isIcsAlertBlocked = true"
-        >
-            {{ $t("mail.content.alert.ics.dont_exist") }}
-        </mail-component-alert>
         <bm-row class="px-lg-5 px-4 pt-2">
             <bm-col cols="12">
                 <mail-viewer-toolbar class="d-none d-lg-flex" />
@@ -57,7 +50,7 @@
         </bm-row>
         <bm-row ref="scrollableContainer" class="pt-1 flex-fill px-lg-5 px-4">
             <bm-col col>
-                <event-viewer v-if="containsEvent && currentEvent.loading !== LoadingStatus.ERROR" :message="message" />
+                <event-viewer v-if="containsEvent" :message="message" />
                 <parts-viewer v-else :message-key="message.key" />
             </bm-col>
         </bm-row>
@@ -71,7 +64,6 @@ import { BmCol, BmRow } from "@bluemind/styleguide";
 import { inject } from "@bluemind/inject";
 import EventViewer from "./EventViewer";
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
-import MailComponentAlert from "../MailComponentAlert";
 import MailViewerFrom from "./MailViewerFrom";
 import MailViewerRecipient from "./MailViewerRecipient";
 import MailViewerToolbar from "./MailViewerToolbar";
@@ -79,7 +71,6 @@ import PartsViewer from "./PartsViewer/PartsViewer";
 
 import { MESSAGE_LIST_UNREAD_FILTER_ENABLED } from "~getters";
 import { MARK_MESSAGE_AS_READ } from "~actions";
-import { LoadingStatus } from "../../model/loading-status";
 
 export default {
     name: "MailViewer",
@@ -88,7 +79,6 @@ export default {
         BmRow,
         EventViewer,
         MailAttachmentsBlock,
-        MailComponentAlert,
         MailViewerFrom,
         MailViewerRecipient,
         MailViewerToolbar,
@@ -99,12 +89,6 @@ export default {
             type: String,
             required: true
         }
-    },
-    data() {
-        return {
-            isIcsAlertBlocked: false,
-            LoadingStatus
-        };
     },
     computed: {
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
@@ -126,9 +110,6 @@ export default {
                 this.resetScroll();
                 if (!this.MESSAGE_LIST_UNREAD_FILTER_ENABLED && this.folders[this.message.folderRef.key].writable) {
                     this.MARK_MESSAGE_AS_READ([this.message]);
-                }
-                if (this.isIcsAlertBlocked) {
-                    this.isIcsAlertBlocked = false;
                 }
             },
             immediate: true

@@ -12,12 +12,13 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
 
+import { WARNING, REMOVE } from "@bluemind/alert.store";
 import { hasRemoteImages, blockRemoteImages, unblockRemoteImages } from "@bluemind/html-utils";
 
 import apiAddressbooks from "../../../store/api/apiAddressbooks";
-import { SET_BLOCK_REMOTE_IMAGES, SET_SHOW_REMOTE_IMAGES_ALERT } from "~mutations";
+import { SET_BLOCK_REMOTE_IMAGES } from "~mutations";
 import brokenImageIcon from "../../../../assets/brokenImageIcon.png";
 
 export default {
@@ -39,6 +40,7 @@ export default {
             scrollbarHeight: null
         };
     },
+    inject: ["area"],
     computed: {
         ...mapState("mail-webapp/currentMessage", { messageKey: "key" }),
         ...mapState("mail", { mustBlockRemoteImages: state => state.consultPanel.remoteImages.mustBeBlocked }),
@@ -46,6 +48,12 @@ export default {
         ...mapState("session", { settings: ({ settings }) => settings.remote }),
         message() {
             return this.messages[this.messageKey];
+        },
+        blockedContentAlert() {
+            return {
+                alert: { name: "mail.BLOCK_REMOTE_CONTENT", uid: "BLOCK_REMOTE_CONTENT", payload: this.message },
+                options: { area: this.area, renderer: "BlockedRemoteContent" }
+            };
         }
     },
     watch: {
@@ -59,9 +67,12 @@ export default {
             if (newValue === "true") {
                 const content = unblockRemoteImages(this.body);
                 this.iFrameContent = this.buildHtml(content);
-                this.SET_SHOW_REMOTE_IMAGES_ALERT(false);
+                this.REMOVE(this.blockedContentAlert.alert);
             }
         }
+    },
+    destroyed() {
+        this.REMOVE(this.blockedContentAlert.alert);
     },
     async mounted() {
         let content = this.body;
@@ -71,7 +82,7 @@ export default {
             const searchResult = await apiAddressbooks.search(this.message.from.address);
             const isSenderKnown = searchResult.total > 0;
             if (!isSenderKnown) {
-                this.SET_SHOW_REMOTE_IMAGES_ALERT(true);
+                this.WARNING(this.blockedContentAlert);
                 this.SET_BLOCK_REMOTE_IMAGES(true);
                 content = blockRemoteImages(content);
             }
@@ -81,7 +92,8 @@ export default {
         this.iFrameContent = this.buildHtml(content);
     },
     methods: {
-        ...mapMutations("mail", [SET_BLOCK_REMOTE_IMAGES, SET_SHOW_REMOTE_IMAGES_ALERT]),
+        ...mapMutations("mail", [SET_BLOCK_REMOTE_IMAGES]),
+        ...mapActions("alert", { WARNING, REMOVE }),
         resizeIFrame() {
             const resizeObserver = new ResizeObserver(entries => {
                 if (this.$refs.iFrameMailContent) {
