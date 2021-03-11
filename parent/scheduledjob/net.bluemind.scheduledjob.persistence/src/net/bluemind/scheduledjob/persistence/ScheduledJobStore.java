@@ -302,9 +302,7 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 			}
 			q.append('?');
 		}
-		q.append(")");
-
-		q.append("ORDER BY jp.job_id, jp.domain_uid");
+		q.append(") ORDER BY jp.job_id, jp.domain_uid");
 
 		try {
 			select(q.toString(), JobExecutionColumn.jobCreator(),
