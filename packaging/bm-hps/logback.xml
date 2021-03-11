@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration>
+<configuration scan="true" scanPeriod="30 seconds">
   <appender name="R" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
     <File>/var/log/bm-hps/hps.log</File>

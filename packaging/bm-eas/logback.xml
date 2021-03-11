@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration>
+<configuration scan="true" scanPeriod="30 seconds">
   <!-- Sentry send exceptions -->
   <appender name="Sentry" class="io.sentry.logback.SentryAppender">
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
