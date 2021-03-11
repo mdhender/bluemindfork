@@ -195,6 +195,53 @@ public class AppendTests extends WithMailboxTests {
 	}
 
 	@Test
+	public void testFetchAlreadyInProgress() throws InterruptedException, ExecutionException, TimeoutException {
+		VXStoreClient sc = client();
+		AtomicLong theUid = new AtomicLong();
+
+		LongAdder firstAdd = new LongAdder();
+		LongAdder secAdd = new LongAdder();
+
+		sc.login().thenCompose(login -> {
+			System.out.println("login finished");
+			assertEquals(Status.Ok, login.status);
+			FakeStream stream = new FakeStream(VertxPlatform.getVertx(), eml);
+			return sc.append("INBOX", new Date(), Arrays.asList("\\Seen"), eml.length, stream);
+		}).thenCompose(append -> {
+			System.out.println("append1 finished");
+			assertEquals(Status.Ok, append.status);
+			long uid = append.result.get().newUid;
+			assertTrue(uid > 0);
+			theUid.set(uid);
+			return sc.select("INBOX");
+		}).thenCompose(selected -> {
+			System.out.println("SELECT finished, now fetching 2 at the same time...");
+			assertEquals(Status.Ok, selected.status);
+			CompletableFuture<Void> secComp = new CompletableFuture<>();
+			ReadStream<Buffer> first = sc.fetch(theUid.get(), "1", Decoder.NONE);
+			first.handler(b -> {
+				firstAdd.add(b.length());
+			});
+			first.endHandler(v -> {
+				System.err.println("first ends.");
+			});
+			ReadStream<Buffer> sec = sc.fetch(theUid.get(), "1", Decoder.NONE);
+			sec.handler(b -> {
+				secAdd.add(b.length());
+			});
+			sec.endHandler(v -> {
+				secComp.complete(v);
+			});
+			return secComp;
+		}).thenCompose(fetched -> {
+			System.out.println("fetch finished, got " + firstAdd.sum() + " and " + secAdd.sum());
+			return sc.close();
+		}).get(15, TimeUnit.SECONDS);
+		assertEquals(firstAdd.sum(), secAdd.sum());
+
+	}
+
+	@Test
 	public void testFetchMissingUid() throws InterruptedException, ExecutionException, TimeoutException {
 		VXStoreClient sc = client();
 

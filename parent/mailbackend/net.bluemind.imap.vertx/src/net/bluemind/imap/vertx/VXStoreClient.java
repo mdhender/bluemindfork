@@ -18,6 +18,7 @@
 package net.bluemind.imap.vertx;
 
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -120,10 +121,9 @@ public class VXStoreClient implements IAsyncStoreClient {
 		}
 		String quotedUtf7 = UTF7Converter.encode(mailbox);
 		TaggedResponseProcessor<SelectResponse> tagged = new TaggedResponseProcessor<>(new SelectPayloadBuilder());
+		String cmd = tagged("SELECT \"" + quotedUtf7 + "\"");
 		sock.ifPresent(ns -> {
-			String cmd = tagged("SELECT \"" + quotedUtf7 + "\"");
-			packetProc.setDelegate(tagged);
-			ns.write(cmd);
+			retryableSelect(tagged, cmd, ns);
 		});
 		return tagged.future().thenApply((ImapResponseStatus<SelectResponse> msg) -> {
 			if (msg.status != Status.Ok) {
@@ -135,6 +135,16 @@ public class VXStoreClient implements IAsyncStoreClient {
 			packetProc.setDelegate(null);
 			return msg;
 		});
+	}
+
+	private void retryableSelect(TaggedResponseProcessor<SelectResponse> tagged, String cmd, INetworkCon ns) {
+		try {
+			packetProc.setDelegate(tagged);
+			ns.write(cmd);
+		} catch (ConcurrentModificationException cme) {
+			logger.warn("Command in progress ({}), retry in 10ms.", cme.getMessage());
+			conSupport.vertx().setTimer(10, tid -> retryableSelect(tagged, cmd, ns));
+		}
 	}
 
 	public enum Decoder {
@@ -173,13 +183,22 @@ public class VXStoreClient implements IAsyncStoreClient {
 		StreamSinkProcessor proc = new StreamSinkProcessor(dec.withDelegate(target));
 		String cmd = tagged("UID FETCH " + uid + " (UID BODY.PEEK[" + part + "])");
 		sock.ifPresent(ns -> {
-			packetProc.setDelegate(proc);
-			ns.write(cmd);
+			retryableFetch(proc, cmd, ns);
 		});
 		return proc.future().thenApply(r -> {
 			packetProc.setDelegate(null);
 			return r;
 		});
+	}
+
+	private void retryableFetch(StreamSinkProcessor proc, String cmd, INetworkCon ns) {
+		try {
+			packetProc.setDelegate(proc);
+			ns.write(cmd);
+		} catch (ConcurrentModificationException cme) {
+			logger.warn("Command in progress ({}), retry in 10ms.", cme.getMessage());
+			conSupport.vertx().setTimer(10, tid -> retryableFetch(proc, cmd, ns));
+		}
 	}
 
 	@Override
