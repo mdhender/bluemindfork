@@ -17,6 +17,8 @@
  */
 package net.bluemind.sds.proxy.dto;
 
+import net.bluemind.sds.dto.SdsResponse;
+
 public class ConfigureResponse extends SdsResponse {
 
 }

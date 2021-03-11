@@ -19,6 +19,7 @@ package net.bluemind.backend.cyrus.index;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.zip.CRC32;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,20 +63,17 @@ public class CyrusIndexHeader {
 	public int unseen; // int32 4
 	public int headerCrc; // int32 4
 
-	private final ByteBuf buffer;
-
-	public CyrusIndexHeader(int version, int headersize, int recordsize, ByteBuf buffer) {
-		this.buffer = buffer;
+	public CyrusIndexHeader(int version) {
 		this.version = version;
-		this.headerSize = headersize;
-		this.recordSize = recordsize;
+		this.headerSize = getHeaderSize(version);
+		this.recordSize = getRecordSize(version);
 	}
 
 	public String toString() {
 		return String.format("<CyrusIndexHeader version=%d numRecords=%d>", version, numRecords);
 	}
 
-	private void parseAll() throws UnknownVersion {
+	public CyrusIndexHeader from(ByteBuf buffer) throws UnknownVersion {
 		generation = buffer.getInt(0);
 		format = buffer.getInt(4);
 		startOffset = buffer.getInt(12);
@@ -125,60 +123,122 @@ public class CyrusIndexHeader {
 			headerCrc = buffer.getInt(124);
 			break;
 		case 14:
+		case 15:
 			headerCrc = buffer.getInt(156);
 			break;
 		default:
 			throw new UnknownVersion("unknown version " + version);
 		}
+		return this;
 	}
 
-	public static CyrusIndexHeader fromInputStream(InputStream stream) throws IOException, UnknownVersion {
+	public CyrusIndexHeader to(ByteBuf buf) {
+		if (version < 13) {
+			throw new UnknownVersion("unsupported version " + version);
+		}
+		int currentPosition = buf.writerIndex();
+		buf.writeInt(generation);
+		buf.writeInt(format);
+		buf.writeInt(version);
+		buf.writeInt(startOffset);
+		buf.writeInt(recordSize);
+		buf.writeInt(numRecords);
+		buf.writeInt((int) lastAppendDate);
+		buf.writeInt(lastUid);
+		buf.writeLong(quotaUsed);
+		buf.writeInt((int) pop3LastLogin);
+		buf.writeInt(uidValidity);
+		buf.writeInt(deleted);
+		buf.writeInt(answered);
+		buf.writeInt(flagged);
+		buf.writeBytes(options);
+		buf.writeInt(leakedCache);
+		buf.writeLong(highestModseq);
+		buf.writeLong(deletedModseq);
+		buf.writeInt(exists);
+		buf.writeInt((int) firstExpunged);
+		buf.writeInt((int) lastCleanup);
+		buf.writeInt(headerFileCRC);
+		buf.writeInt(syncCRCsBasic);
+		buf.writeInt(recentUid);
+		buf.writeInt((int) recentTime);
+		buf.writeInt(pop3ShowAfter);
+		buf.writeInt(quotaAnnotUsed);
+		buf.writeInt(syncCRCsAnnot);
+		if (version >= 14) {
+			buf.writeInt(unseen);
+			buf.writeBytes(new byte[28]); // spare fields
+		}
+
+		CRC32 crc = new CRC32();
+		byte[] payloadbytes = new byte[CyrusIndexHeader.getHeaderSize(version) - 4];
+		buf.getBytes(currentPosition, payloadbytes, 0, payloadbytes.length);
+		crc.update(payloadbytes);
+		headerCrc = (int) crc.getValue();
+		buf.writeInt(headerCrc);
+		return this;
+	}
+
+	public static CyrusIndexHeader from(InputStream stream) throws IOException, UnknownVersion {
 		// Max header size is 160 bytes in version 15
 		// read header start to get the header version
 		ByteBuf buf = Unpooled.buffer();
 		buf.writeBytes(stream, 12);
 		int version = buf.getInt(8);
 
-		int fullHeaderSize;
-		int recordSize;
-
-		switch (version) {
-		case 9:
-			fullHeaderSize = 96;
-			recordSize = 80;
-			break;
-		case 10:
-			fullHeaderSize = 96;
-			recordSize = 88;
-			break;
-		case 11:
-			fullHeaderSize = 96;
-			recordSize = 96;
-			break;
-		case 12:
-			fullHeaderSize = 128;
-			recordSize = 96;
-			break;
-		case 13:
-			fullHeaderSize = 128;
-			recordSize = 104;
-			break;
-		case 14:
-		case 15:
-			fullHeaderSize = 160;
-			recordSize = 104;
-			break;
-		default:
-			logger.error("Unknown cyrus index version: {}", version);
-			throw new UnknownVersion("unknown version " + version);
-		}
+		int fullHeaderSize = getHeaderSize(version);
+		int recordSize = getRecordSize(version);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("version: {} fullHeaderSize: {} recordSize: {}", version, fullHeaderSize, recordSize);
 		}
 		buf.writeBytes(stream, fullHeaderSize - 12);
-		CyrusIndexHeader hdr = new CyrusIndexHeader(version, fullHeaderSize, recordSize, buf);
-		hdr.parseAll();
+		CyrusIndexHeader hdr = new CyrusIndexHeader(version).from(buf);
 		return hdr;
+	}
+
+	public static int getHeaderSize(int version) throws UnknownVersion {
+		switch (version) {
+		case 9:
+		case 10:
+		case 11:
+			return 96;
+		case 12:
+		case 13:
+			return 128;
+		case 14:
+		case 15:
+			return 160;
+		default:
+			logger.error("Unknown cyrus index version: {}", version);
+			throw new UnknownVersion("unknown version " + version);
+		}
+	}
+
+	public static int getRecordSize(int version) {
+		switch (version) {
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+		case 7:
+		case 8:
+		case 9:
+			return 80;
+		case 10:
+			return 88;
+		case 11:
+		case 12:
+			return 96;
+		case 13:
+		case 14:
+		case 15:
+			return 104;
+		default:
+			logger.error("Unknown cyrus index version: {}", version);
+			throw new UnknownVersion("unknown version " + version);
+		}
 	}
 }

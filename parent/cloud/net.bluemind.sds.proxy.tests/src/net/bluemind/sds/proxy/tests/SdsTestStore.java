@@ -21,14 +21,15 @@ import java.util.concurrent.CompletableFuture;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import net.bluemind.sds.proxy.dto.DeleteRequest;
-import net.bluemind.sds.proxy.dto.ExistRequest;
-import net.bluemind.sds.proxy.dto.ExistResponse;
-import net.bluemind.sds.proxy.dto.GetRequest;
-import net.bluemind.sds.proxy.dto.PutRequest;
-import net.bluemind.sds.proxy.dto.SdsResponse;
-import net.bluemind.sds.proxy.store.ISdsBackingStore;
-import net.bluemind.sds.proxy.store.ISdsBackingStoreFactory;
+import net.bluemind.sds.dto.DeleteRequest;
+import net.bluemind.sds.dto.ExistRequest;
+import net.bluemind.sds.dto.ExistResponse;
+import net.bluemind.sds.dto.GetRequest;
+import net.bluemind.sds.dto.PutRequest;
+import net.bluemind.sds.dto.SdsResponse;
+import net.bluemind.sds.store.ISdsBackingStore;
+import net.bluemind.sds.store.ISdsBackingStoreFactory;
+import net.bluemind.system.api.ArchiveKind;
 
 public class SdsTestStore implements ISdsBackingStore {
 
@@ -37,8 +38,8 @@ public class SdsTestStore implements ISdsBackingStore {
 	public static class StoreFactory implements ISdsBackingStoreFactory {
 
 		@Override
-		public String name() {
-			return "test";
+		public ArchiveKind kind() {
+			return ArchiveKind.Test;
 		}
 
 		@Override

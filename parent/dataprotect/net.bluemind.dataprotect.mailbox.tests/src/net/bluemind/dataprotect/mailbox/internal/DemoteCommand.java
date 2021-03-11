@@ -131,7 +131,6 @@ public class DemoteCommand extends AbstractHSMCommand {
 			if (logger.isDebugEnabled()) {
 				logger.debug("IMAP ID {} is already archived with HSM ID {}", id.getUid(), hsmId);
 			}
-
 			return TierChangeResult.create(id.getUid(), hsmId);
 		}
 

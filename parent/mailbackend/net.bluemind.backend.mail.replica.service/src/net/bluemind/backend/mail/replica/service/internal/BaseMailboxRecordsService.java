@@ -216,7 +216,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 				if (!bodyGuids.isEmpty()) {
 					logger.info("SDS attempt for {}", bodyGuids);
 					String guid = bodyGuids.iterator().next();
-					MessageBodyObjectStore sds = new MessageBodyObjectStore(context.su(), partition);
+					MessageBodyObjectStore sds = new MessageBodyObjectStore(context.su());
 					Path sdsDl = sds.open(guid);
 					if (sdsDl != null) {
 						logger.info("Read {} aka {} from SDS", imapUid, guid);

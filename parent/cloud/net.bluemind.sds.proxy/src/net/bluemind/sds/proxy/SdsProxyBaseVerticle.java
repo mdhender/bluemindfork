@@ -39,10 +39,10 @@ import net.bluemind.lib.vertx.RouteMatcher;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
+import net.bluemind.sds.dto.ExistResponse;
+import net.bluemind.sds.dto.SdsResponse;
 import net.bluemind.sds.proxy.dto.ConfigureResponse;
-import net.bluemind.sds.proxy.dto.ExistResponse;
 import net.bluemind.sds.proxy.dto.JsMapper;
-import net.bluemind.sds.proxy.dto.SdsResponse;
 import net.bluemind.sds.proxy.events.SdsAddresses;
 import net.bluemind.vertx.common.request.Requests;
 

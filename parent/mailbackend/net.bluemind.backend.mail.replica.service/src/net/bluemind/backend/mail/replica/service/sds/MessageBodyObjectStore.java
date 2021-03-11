@@ -17,23 +17,33 @@
   */
 package net.bluemind.backend.mail.replica.service.sds;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.backend.cyrus.partitions.CyrusPartition;
-import net.bluemind.backend.mail.replica.service.sds.IObjectStoreReader.Factory;
+import io.vertx.core.Vertx;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
-import net.bluemind.hornetq.client.MQ;
-import net.bluemind.hornetq.client.MQ.SharedMap;
-import net.bluemind.hornetq.client.Shared;
+import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.sds.dto.ExistRequest;
+import net.bluemind.sds.dto.GetRequest;
+import net.bluemind.sds.dto.MgetRequest;
+import net.bluemind.sds.dto.MgetRequest.Transfer;
+import net.bluemind.sds.dto.SdsResponse;
+import net.bluemind.sds.store.ISdsBackingStoreFactory;
+import net.bluemind.sds.store.ISdsSyncStore;
+import net.bluemind.sds.store.noop.NoopStoreFactory;
+import net.bluemind.system.api.ArchiveKind;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
@@ -42,45 +52,22 @@ public class MessageBodyObjectStore {
 
 	private static final Logger logger = LoggerFactory.getLogger(MessageBodyObjectStore.class);
 	private final BmContext ctx;
-	private final IObjectStoreReader objectStoreReader;
+	private final ISdsSyncStore objectStore;
+	private static final ConcurrentHashMap<String, ISdsSyncStore> objectStoreClientCache = new ConcurrentHashMap<>();
 
-	private static final IObjectStoreReader NOOP_READER = new IObjectStoreReader() {
+	private static final Map<ArchiveKind, ISdsBackingStoreFactory> archiveKindToObjectStore = loadStores();
 
-		@Override
-		public boolean exist(String guid) {
-			return false;
-		}
-
-		@Override
-		public Path read(String guid) {
-			return null;
-		}
-
-		@Override
-		public Path[] mread(String... guids) {
-			return new Path[0];
-		}
-
-		@Override
-		public String toString() {
-			return "NOOP_READER:" + super.toString();
-		}
-
-	};
-
-	private static final Map<String, IObjectStoreReader.Factory> archiveKindToObjectStore = loadStores();
-
-	public MessageBodyObjectStore(BmContext ctx, CyrusPartition partition) {
+	public MessageBodyObjectStore(BmContext ctx) {
 		this.ctx = ctx;
 		if (logger.isDebugEnabled()) {
-			logger.debug("Object store for {} and partition {}", this.ctx, partition);
+			logger.debug("Object store for {}", this.ctx);
 		}
 
 		SystemConf config = sharedSysConf();
 
-		this.objectStoreReader = loadReader(config);
+		this.objectStore = loadReader(config);
 		if (logger.isDebugEnabled()) {
-			logger.debug("Reading with {}", objectStoreReader);
+			logger.debug("Reading with {}", objectStore);
 		}
 	}
 
@@ -88,17 +75,32 @@ public class MessageBodyObjectStore {
 		return LocalSysconfCache.get();
 	}
 
-	private static Map<String, Factory> loadStores() {
-		RunnableExtensionLoader<IObjectStoreReader.Factory> rel = new RunnableExtensionLoader<>();
-		List<Factory> factories = rel.loadExtensions("net.bluemind.backend.mail.replica.service", "objectstore",
-				"reader", "impl");
-		return factories.stream().collect(Collectors.toMap(IObjectStoreReader.Factory::handledObjectStoreKind, f -> f));
+	private ISdsSyncStore loadReader(SystemConf sysconf) {
+		ArchiveKind archiveKind = ArchiveKind.fromName(sysconf.stringValue(SysConfKeys.archive_kind.name()));
+		Vertx vertx = VertxPlatform.getVertx();
+		if (archiveKind == null) {
+			return new NoopStoreFactory().createSync(vertx, sysconf);
+		}
+		String key = archiveKind.name() + "-" + sysconf.stringValue(SysConfKeys.sds_s3_bucket.name());
+		return objectStoreClientCache.computeIfAbsent(key, k -> {
+			ISdsSyncStore syncStore;
+			ISdsBackingStoreFactory factory = archiveKindToObjectStore.get(archiveKind);
+			if (factory != null) {
+				syncStore = factory.createSync(vertx, sysconf);
+			} else {
+				logger.error("factory for archive_kind {} not found: using NoopStore", archiveKind);
+				syncStore = new NoopStoreFactory().createSync(vertx, sysconf);
+			}
+			logger.info("returning store: {}", syncStore);
+			return syncStore;
+		});
 	}
 
-	private IObjectStoreReader loadReader(SystemConf values) {
-		String archiveKind = values.stringValue(SysConfKeys.archive_kind.name());
-		return Optional.ofNullable(archiveKindToObjectStore.get(archiveKind)).map(f -> f.create(values))
-				.orElse(NOOP_READER);
+	private static Map<ArchiveKind, ISdsBackingStoreFactory> loadStores() {
+		RunnableExtensionLoader<ISdsBackingStoreFactory> rel = new RunnableExtensionLoader<>();
+		List<ISdsBackingStoreFactory> stores = rel.loadExtensions("net.bluemind.sds", "store", "store", "factory");
+		logger.info("Found {} backing store(s)", stores.size());
+		return stores.stream().collect(Collectors.toMap(ISdsBackingStoreFactory::kind, f -> f));
 	}
 
 	/**
@@ -108,19 +110,57 @@ public class MessageBodyObjectStore {
 	 * @param bodyGuid
 	 * @return
 	 */
-	public Set<String> exist(Set<String> bodyGuid) {
-		logger.debug("Checking with {}", objectStoreReader);
-		return bodyGuid.stream().filter(objectStoreReader::exist).collect(Collectors.toSet());
+	public Set<String> exist(Set<String> guids) {
+		logger.debug("Checking {} with {}", guids, objectStore);
+		return guids.stream().filter(guid -> objectStore.exists(ExistRequest.of(guid)).exists)
+				.collect(Collectors.toSet());
+
 	}
 
 	public Path open(String guid) {
-		logger.debug("Open {} with {}", guid, objectStoreReader);
-		return objectStoreReader.read(guid);
+		logger.debug("Open {} with {}", guid, objectStore);
+		Path target = null;
+		try {
+			target = Files.createTempFile(guid, ".s3");
+		} catch (IOException e1) {
+			throw new ServerFault(e1);
+		}
+		try {
+			SdsResponse resp = objectStore.download(GetRequest.of("", guid, target.toString()));
+			if (resp.succeeded()) {
+				return target;
+			} else {
+				throw new ServerFault(resp.error.message);
+			}
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
 	}
 
-	public Path[] mopen(String[] guid) {
-		logger.debug("Open {} with {}", guid, objectStoreReader);
-		return objectStoreReader.mread(guid);
-	}
+	public Path[] mopen(String[] guids) {
+		if (guids.length == 1) {
+			return new Path[] { open(guids[0]) };
+		}
+		logger.debug("Open {} with {}", guids, objectStore);
+		MgetRequest mgetReq = new MgetRequest();
+		mgetReq.transfers = new ArrayList<>();
+		ArrayList<Path> paths = new ArrayList<>();
+		for (String guid : guids) {
+			try {
+				Path tempPath = Files.createTempFile(guid, ".s3");
+				tempPath = tempPath.toAbsolutePath();
+				paths.add(tempPath);
+				mgetReq.transfers.add(Transfer.of(guid, tempPath.toString()));
+			} catch (IOException e) {
+				throw new ServerFault(e);
+			}
+		}
 
+		try {
+			objectStore.downloads(mgetReq);
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
+		return paths.toArray(new Path[] {});
+	}
 }

@@ -154,7 +154,6 @@
       <plugin id="net.bluemind.core.rest.http.vertx"/>
       <plugin id="net.bluemind.core.sanitizer"/>
       <plugin id="net.bluemind.core.sds.configurator"/>
-      <plugin id="net.bluemind.core.sds.replication"/>
       <plugin id="net.bluemind.core.sendmail"/>
       <plugin id="net.bluemind.core.serialization"/>
       <plugin id="net.bluemind.core.sessions"/>
@@ -343,6 +342,8 @@
       <plugin id="net.bluemind.scheduledjob.service"/>
       <plugin id="net.bluemind.scheduledjob.sqlschema"/>
       <plugin id="net.bluemind.sds.proxy.mgmt"/>
+      <plugin id="net.bluemind.sds.store"/>
+      <plugin id="net.bluemind.sds.store.s3"/>
       <plugin id="net.bluemind.sentry" fragment="true"/>
       <plugin id="net.bluemind.sentry.settings"/>
       <plugin id="net.bluemind.sentry.settings.core"/>

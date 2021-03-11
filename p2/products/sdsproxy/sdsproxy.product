@@ -75,7 +75,8 @@
       <plugin id="net.bluemind.network.topology.consumer"/>
       <plugin id="net.bluemind.sds.proxy"/>
       <plugin id="net.bluemind.sds.proxy.launcher"/>
-      <plugin id="net.bluemind.sds.proxy.store.s3"/>
+      <plugin id="net.bluemind.sds.store"/>
+      <plugin id="net.bluemind.sds.store.s3"/>
       <plugin id="net.bluemind.sentry" fragment="true"/>
       <plugin id="net.bluemind.sentry.settings"/>
       <plugin id="net.bluemind.server.api"/>

@@ -64,7 +64,7 @@ public class SnappyStore implements IHSMStorage {
 		String path = hashDir(domainUid, mailboxUid, hsmId);
 		String filePath = path + "/" + hsmId;
 		try {
-			NCUtils.execNoOut(nc, "mkdir -p " + path);
+			NCUtils.execOrFail(nc, "mkdir -p " + path);
 			InputStream toStore = compress(mailContent);
 			nc.writeFile(filePath, toStore);
 			return hsmId;

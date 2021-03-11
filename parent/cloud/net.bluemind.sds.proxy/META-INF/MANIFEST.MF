@@ -24,10 +24,11 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-annotations,
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.hornetq.client,
- com.github.ben-manes.caffeine
+ com.github.ben-manes.caffeine,
+ net.bluemind.sds.store,
+ net.bluemind.system.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.sds.proxy
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.sds.proxy.dto,
- net.bluemind.sds.proxy.events,
- net.bluemind.sds.proxy.store
+ net.bluemind.sds.proxy.events

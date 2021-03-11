@@ -33,7 +33,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.node.api.FileDescription;
-import net.bluemind.node.client.impl.DoesNotExist;
+import net.bluemind.node.client.DoesNotExist;
 
 public class ListFilesHandler extends DefaultAsyncHandler<List<FileDescription>> {
 

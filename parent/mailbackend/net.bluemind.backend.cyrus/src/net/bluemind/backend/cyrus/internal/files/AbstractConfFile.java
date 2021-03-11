@@ -47,7 +47,7 @@ public abstract class AbstractConfFile {
 	protected AbstractConfFile(IServer service, String serverUid) throws ServerFault {
 		this.service = service;
 		this.serverUid = serverUid;
-		cfg = new Configuration();
+		cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		cfg.setClassForTemplateLoading(getClass(), "/templates");
 	}
 
@@ -124,28 +124,26 @@ public abstract class AbstractConfFile {
 	public static HsmConfig getHsmConfig() {
 		ISystemConfiguration settingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(ISystemConfiguration.class);
-		SystemConf conf = settingsService.getValues();
+		SystemConf sysconf = settingsService.getValues();
+		String kind = Optional.ofNullable(sysconf.stringValue("archive_kind")).orElse("none");
 
-		String kind = Optional.ofNullable(conf.stringValue("archive_kind")).orElse("none");
-
-		switch (kind) {
-		case "cyrus":
-			String archiveDays = Optional.ofNullable(conf.stringValue("archive_days")).orElse("7");
-			String maxSize = Optional.ofNullable(conf.stringValue("archive_size_threshold")).orElse("1024");
-			return new HsmConfig(ImmutableMap.of(//
-					"archive_enabled", "1", //
-					"archive_days", archiveDays, //
-					"archive_maxsize", maxSize, //
-					"archive_keepflagged", "0"));
-		case "s3":
+		if (sysconf.isArchiveKindSds()) {
 			return new HsmConfig(ImmutableMap.of(//
 					"object_storage_enabled", "1", //
 					"archive_enabled", "1", //
 					"archive_days", "0", //
 					"archive_maxsize", "0", //
 					"archive_keepflagged", "0"));
-		case "none":
-		default:
+		}
+		if ("cyrus".equals(kind)) {
+			String archiveDays = Optional.ofNullable(sysconf.stringValue("archive_days")).orElse("7");
+			String maxSize = Optional.ofNullable(sysconf.stringValue("archive_size_threshold")).orElse("1024");
+			return new HsmConfig(ImmutableMap.of(//
+					"archive_enabled", "1", //
+					"archive_days", archiveDays, //
+					"archive_maxsize", maxSize, //
+					"archive_keepflagged", "0"));
+		} else {
 			return new HsmConfig(ImmutableMap.of("archive_enabled", "0"));
 		}
 	}

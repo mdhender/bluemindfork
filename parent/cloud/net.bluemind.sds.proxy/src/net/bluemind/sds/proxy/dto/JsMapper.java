@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import net.bluemind.sds.proxy.store.SdsException;
+import net.bluemind.sds.store.SdsException;
 
 public class JsMapper {
 

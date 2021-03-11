@@ -71,8 +71,14 @@ public class SubtreeContainer {
 	private static String owner(BmContext context, MailboxReplicaRootDescriptor root, String domainOrPartition) {
 		String domainUid = domainOrPartition.replace('_', '.');
 		String nameOrUid = root.name.replace('^', '.');
-		CacheHolder<String, String> cache = CacheHolder
-				.of(context.provider().instance(CacheRegistry.class).get("subtreeContainerMboxes"));
+		CacheRegistry cacheRegistry = context.provider().instance(CacheRegistry.class);
+		CacheHolder<String, String> cache;
+		if (cacheRegistry != null) {
+			cache = CacheHolder.of(cacheRegistry.get("subtreeContainerMboxes"));
+		} else {
+			// backup context does not uses caches
+			cache = CacheHolder.of(null);
+		}
 		String cacheKey = nameOrUid + "@" + domainUid;
 		return Optional.ofNullable(cache.getIfPresent(cacheKey)).orElseGet(() -> {
 			IMailboxes mboxApi = context.su().provider().instance(IMailboxes.class, domainUid);

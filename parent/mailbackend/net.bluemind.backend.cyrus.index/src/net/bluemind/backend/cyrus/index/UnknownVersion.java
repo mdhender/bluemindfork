@@ -18,7 +18,7 @@
 package net.bluemind.backend.cyrus.index;
 
 @SuppressWarnings("serial")
-public class UnknownVersion extends Exception {
+public class UnknownVersion extends RuntimeException {
 	public UnknownVersion(String msg) {
 		super(msg);
 	}

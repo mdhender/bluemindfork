@@ -44,14 +44,14 @@ public class CyrusIndex {
 			for (long i = 0; i < header.numRecords; i++) {
 				ByteBuf buf = Unpooled.buffer(header.recordSize);
 				buf.writeBytes(stream, header.recordSize);
-				records.add(CyrusIndexRecord.fromBuffer(header.version, buf));
+				records.add(CyrusIndexRecord.from(header.version, buf));
 			}
 		}
 		return records;
 	}
 
 	private CyrusIndexHeader readHeader() throws IOException, UnknownVersion {
-		header = CyrusIndexHeader.fromInputStream(stream);
+		header = CyrusIndexHeader.from(stream);
 		return header;
 	}
 }

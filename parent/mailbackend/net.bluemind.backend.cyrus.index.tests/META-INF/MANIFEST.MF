@@ -7,5 +7,7 @@ Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.backend.cyrus.index.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit,
- net.bluemind.backend.cyrus.index
+ com.google.guava,
+ net.bluemind.backend.cyrus.index,
+ net.bluemind.backend.mail.replica.api
 Bundle-ActivationPolicy: lazy

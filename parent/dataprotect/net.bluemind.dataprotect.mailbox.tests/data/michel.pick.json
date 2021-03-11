@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "kind": "user",
+  "mailboxUid": "628B8025-3993-43FB-A4B0-18775862C16E",
+  "login": "michel.pick",
+  "domainUid": "489daff7.internal",
+  "domainName": "test-pr-lc.dev.bluemind.net",
+  "dataLocation": "bm-master",
+  "backingstore": {
+    "archivekind": "s3",
+    "bucket": "bluemind",
+    "region": "",
+    "endpoint": "http://test-pr-lc.dev.bluemind.net:9091"
+  },
+  "folders": [
+    {
+      "uid": "1c2ca113-3c35-4349-a1ae-5627cb7f0636",
+      "fullName": "Sent",
+      "name": "Sent",
+      "messages": []
+    },
+    {
+      "uid": "2a5d2673-2cf1-4650-a8e2-a5007e898828",
+      "fullName": "INBOX",
+      "name": "INBOX",
+      "messages": [
+        {
+          "g": "25c1147ca6f78bd571f5d06740f48814f50672a3",
+          "d": "2021-03-03 00:00:00"
+        },
+        {
+          "g": "1115e492478b3968dd110d7f9b573c08bb31da44",
+          "d": "2021-03-03 00:00:00"
+        },
+        {
+          "g": "a32c46034408f8860c5c8f3712e950305533d7f6",
+          "d": "2021-03-03 00:00:00"
+        },
+        {
+          "g": "7ff17a942a61f839ba5e1174edb73761102315d4",
+          "d": "2021-03-03 00:00:00"
+        }
+      ]
+    },
+    {
+      "uid": "3b3d56cc-8e41-4a9d-af3d-dd21eafde145",
+      "fullName": "Trash",
+      "name": "Trash",
+      "messages": []
+    },
+    {
+      "uid": "6bd53966-c285-4cf2-a7b5-d798a4f7173b",
+      "fullName": "Junk",
+      "name": "Junk",
+      "messages": []
+    },
+    {
+      "uid": "8f9dedb4-d706-4baa-b329-17072fe5594e",
+      "fullName": "Outbox",
+      "name": "Outbox",
+      "messages": []
+    },
+    {
+      "uid": "9eea654a-9e4a-4453-9192-f661475ba7ae",
+      "fullName": "Drafts",
+      "name": "Drafts",
+      "messages": []
+    }
+  ]
+}

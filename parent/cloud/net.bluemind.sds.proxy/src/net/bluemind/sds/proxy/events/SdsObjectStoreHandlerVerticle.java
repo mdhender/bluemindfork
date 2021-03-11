@@ -37,19 +37,20 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.IVerticleFactory;
+import net.bluemind.sds.dto.DeleteRequest;
+import net.bluemind.sds.dto.ExistRequest;
+import net.bluemind.sds.dto.GetRequest;
+import net.bluemind.sds.dto.MgetRequest;
+import net.bluemind.sds.dto.PutRequest;
+import net.bluemind.sds.dto.SdsRequest;
+import net.bluemind.sds.dto.SdsResponse;
 import net.bluemind.sds.proxy.dto.ConfigureResponse;
-import net.bluemind.sds.proxy.dto.DeleteRequest;
-import net.bluemind.sds.proxy.dto.ExistRequest;
-import net.bluemind.sds.proxy.dto.GetRequest;
 import net.bluemind.sds.proxy.dto.JsMapper;
-import net.bluemind.sds.proxy.dto.MgetRequest;
-import net.bluemind.sds.proxy.dto.PutRequest;
-import net.bluemind.sds.proxy.dto.SdsRequest;
-import net.bluemind.sds.proxy.dto.SdsResponse;
-import net.bluemind.sds.proxy.store.ISdsBackingStore;
-import net.bluemind.sds.proxy.store.ISdsBackingStoreFactory;
-import net.bluemind.sds.proxy.store.SdsException;
-import net.bluemind.sds.proxy.store.dummy.DummyBackingStore;
+import net.bluemind.sds.store.ISdsBackingStore;
+import net.bluemind.sds.store.ISdsBackingStoreFactory;
+import net.bluemind.sds.store.SdsException;
+import net.bluemind.sds.store.dummy.DummyBackingStoreFactory;
+import net.bluemind.system.api.ArchiveKind;
 
 public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 
@@ -71,7 +72,7 @@ public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 	}
 
 	private AtomicReference<ISdsBackingStore> sdsStore = new AtomicReference<>();
-	private final Map<String, ISdsBackingStoreFactory> factories;
+	private final Map<ArchiveKind, ISdsBackingStoreFactory> factories;
 	private JsonObject storeConfig;
 
 	public SdsObjectStoreHandlerVerticle() {
@@ -95,22 +96,22 @@ public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 
 	private ISdsBackingStore loadStore() {
 		String storeType = storeConfig.getString("storeType");
-		if (storeType == null || storeType.equals("dummy") || !factories.containsKey(storeType)) {
-			logger.info("Defaulting to dummy store (requested: {})", storeType);
-			return DummyBackingStore.FACTORY.create(vertx, storeConfig);
+		ArchiveKind archiveKind = ArchiveKind.fromName(storeType);
+		if (archiveKind != null && factories.containsKey(archiveKind)) {
+			logger.info("Loading store {}", archiveKind);
+			return factories.get(archiveKind).create(vertx, storeConfig);
 		} else {
-			logger.info("Loading store {}", storeType);
-			return factories.get(storeType).create(vertx, storeConfig);
+			logger.info("Defaulting to dummy store (requested: {})", storeType);
+			storeConfig.put("storeType", "dummy");
+			return new DummyBackingStoreFactory().create(vertx, storeConfig);
 		}
-
 	}
 
-	private Map<String, ISdsBackingStoreFactory> loadStoreFactories() {
+	private Map<ArchiveKind, ISdsBackingStoreFactory> loadStoreFactories() {
 		RunnableExtensionLoader<ISdsBackingStoreFactory> rel = new RunnableExtensionLoader<>();
-		List<ISdsBackingStoreFactory> stores = rel.loadExtensions("net.bluemind.sds.proxy", "store", "store",
-				"factory");
+		List<ISdsBackingStoreFactory> stores = rel.loadExtensions("net.bluemind.sds", "store", "store", "factory");
 		logger.info("Found {} backing store(s)", stores.size());
-		return stores.stream().collect(Collectors.toMap(ISdsBackingStoreFactory::name, f -> f));
+		return stores.stream().collect(Collectors.toMap(ISdsBackingStoreFactory::kind, f -> f));
 	}
 
 	@Override

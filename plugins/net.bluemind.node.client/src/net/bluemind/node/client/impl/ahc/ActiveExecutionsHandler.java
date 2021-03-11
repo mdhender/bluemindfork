@@ -31,7 +31,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.common.io.FileBackedOutputStream;
-import net.bluemind.node.client.impl.DoesNotExist;
+import net.bluemind.node.client.DoesNotExist;
 import net.bluemind.node.client.impl.NodeRuntimeException;
 import net.bluemind.node.shared.ActiveExecQuery;
 import net.bluemind.node.shared.ExecDescriptor;

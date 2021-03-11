@@ -59,6 +59,8 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.IDataProtect;
 import net.bluemind.dataprotect.api.PartGeneration;
+import net.bluemind.dataprotect.api.Restorable;
+import net.bluemind.dataprotect.api.RestorableKind;
 import net.bluemind.dataprotect.mailbox.internal.MboxRestoreService.Mode;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
@@ -104,6 +106,7 @@ public class MboxRestoreHSMTests {
 	private Server imapServer;
 	private ItemValue<Domain> testDomain;
 	private String hsmId;
+	private Restorable restorable;
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -209,6 +212,11 @@ public class MboxRestoreHSMTests {
 		testDomain = sp.instance(IDomains.class).get(domain);
 		assertNotNull(mbox);
 		System.out.println("The mailbox to work on is: " + mbox.uid);
+
+		restorable = new Restorable();
+		restorable.domainUid = domain;
+		restorable.entryUid = changUid;
+		restorable.kind = RestorableKind.USER;
 	}
 
 	private List<String> getTagsExcept(String... except) {
@@ -316,14 +324,6 @@ public class MboxRestoreHSMTests {
 			System.out.println("restore: " + s);
 		}
 		assertTrue(monitor.finished);
-
-		// check archived email is restored
-		try {
-			hsmApi.fetch(mbox.uid, hsmId);
-		} catch (ServerFault sf) {
-			fail();
-		}
-
 	}
 
 	private List<TierChangeResult> demote(HSMContext context, String folderPath, Collection<Demote> demote) {
@@ -335,7 +335,7 @@ public class MboxRestoreHSMTests {
 				throw new ServerFault("The mail id " + demote + " to demote was not found in folder " + folderPath);
 			}
 
-			List<InternalDate> dates = new ArrayList<InternalDate>(ids.length);
+			List<InternalDate> dates = new ArrayList<>(ids.length);
 			Collections.addAll(dates, ids);
 			DemoteCommand dc = new DemoteCommand(folderPath, sc, context, dates, Optional.empty());
 			HSMRunStats stats = new HSMRunStats();

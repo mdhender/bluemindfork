@@ -49,7 +49,12 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  com.sun.mail.javax.mail;bundle-version="1.5.2",
  org.apache.james.apache-mime4j-dom;bundle-version="0.7.3",
  org.apache.james.apache-mime4j-core;bundle-version="0.7.3",
- org.apache.james.apache-mime4j-storage;bundle-version="0.7.3"
+ org.apache.james.apache-mime4j-storage;bundle-version="0.7.3",
+ com.fasterxml.jackson.core.jackson-core,
+ net.bluemind.backend.mail.api,
+ net.bluemind.backend.mail.replica.api,
+ net.bluemind.mailshare.api,
+ net.bluemind.system.sysconf.helper
 Automatic-Module-Name: net.bluemind.backend.cyrus
 
 

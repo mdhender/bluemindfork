@@ -139,6 +139,7 @@ public class BackupDataProvider implements AutoCloseable {
 	public BmContext createContextWithData(DataProtectGeneration dpg, Restorable restorable) throws Exception {
 		VersionInfo dpVersion = dpg.blueMind;
 		monitor.progress(1, "Fetching data from temporary database...");
+		logger.info("Fetching data from temporary database...");
 
 		cleanupOldTemporaryDatabases(dpg, Arrays.asList(pgsqlTag, pgsqlDataTag));
 		PgContext restorePgContext = restorePg(dpg, pgsqlTag, targetDatabase);

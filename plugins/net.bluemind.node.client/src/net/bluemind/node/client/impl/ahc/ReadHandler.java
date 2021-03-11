@@ -22,7 +22,7 @@ import org.asynchttpclient.HttpResponseStatus;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import net.bluemind.common.io.FileBackedOutputStream;
-import net.bluemind.node.client.impl.DoesNotExist;
+import net.bluemind.node.client.DoesNotExist;
 
 public class ReadHandler extends DefaultAsyncHandler<FileBackedOutputStream> {
 

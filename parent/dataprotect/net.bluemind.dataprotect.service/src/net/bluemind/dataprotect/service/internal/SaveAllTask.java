@@ -119,9 +119,8 @@ public class SaveAllTask implements IServerTask {
 		 * @param generations
 		 */
 		public PartGenerationIndex(List<DataProtectGeneration> generations) {
-			index = generations.stream().filter(generation -> generation.valid()).map(generation -> generation.parts)
-					.flatMap(generationParts -> generationParts.stream())
-					.collect(Collectors.groupingBy(this::getIndexKey)).entrySet().stream()
+			index = generations.stream().filter(DataProtectGeneration::valid).map(generation -> generation.parts)
+					.flatMap(List::stream).collect(Collectors.groupingBy(this::getIndexKey)).entrySet().stream()
 					.collect(Collectors.toMap(Entry::getKey,
 							entry -> entry.getValue().stream().collect(
 									Collectors.maxBy((part1, part2) -> part1.begin.before(part2.begin) ? -1 : 1))

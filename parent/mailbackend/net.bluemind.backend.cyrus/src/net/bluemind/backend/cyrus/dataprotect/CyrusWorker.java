@@ -1,6 +1,7 @@
 package net.bluemind.backend.cyrus.dataprotect;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,15 +22,12 @@ import net.bluemind.dataprotect.worker.DefaultWorker;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.server.api.IServer;
-import net.bluemind.server.api.Server;
-import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.api.SystemConf;
+import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class CyrusWorker extends DefaultWorker {
 	private static final String CYRUS_TAG = "mail/imap";
-
-	public CyrusWorker() {
-	}
 
 	@Override
 	public boolean supportsTag(String tag) {
@@ -37,22 +35,19 @@ public class CyrusWorker extends DefaultWorker {
 	}
 
 	@Override
-	public void prepareDataDirs(IDPContext ctx, String tag, ItemValue<Server> toBackup) throws ServerFault {
-		super.prepareDataDirs(ctx, tag, toBackup);
-	}
-
-	@Override
 	public Set<String> getDataDirs() {
-		ISystemConfiguration sysApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(ISystemConfiguration.class);
-		List<String> skipTags = new ArrayList<>(sysApi.getValues().stringList(SysConfKeys.dpBackupSkipTags.name()));
+		SystemConf sysconf = LocalSysconfCache.get();
+		if (sysconf.isArchiveKindSds()) {
+			return Collections.emptySet();
+		}
 
 		List<ItemValue<Domain>> domains = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomains.class).all();
 
+		List<String> skipTags = new ArrayList<>(sysconf.stringList(SysConfKeys.dpBackupSkipTags.name()));
 		Set<String> domainsPath = domains.stream()
 				.map(domain -> getDomainPath(!skipTags.contains("mail/cyrus_archives"), domain))
-				.flatMap(paths -> paths.stream()).collect(Collectors.toSet());
+				.flatMap(Set<String>::stream).collect(Collectors.toSet());
 		domainsPath.add("/var/lib/cyrus");
 		return domainsPath;
 	}
@@ -62,7 +57,7 @@ public class CyrusWorker extends DefaultWorker {
 				.instance(IServer.class, "default").byAssignment(domain.uid, CYRUS_TAG);
 
 		return servers.stream().map(serverUid -> getServerDomainPath(withArchive, serverUid, domain.uid))
-				.flatMap(path -> path.stream()).collect(Collectors.toSet());
+				.flatMap(Set<String>::stream).collect(Collectors.toSet());
 	}
 
 	private Set<String> getServerDomainPath(boolean withArchive, String serverUid, String domainUid) {
@@ -76,7 +71,8 @@ public class CyrusWorker extends DefaultWorker {
 			paths.add(CyrusFileSystemPathHelper.getDomainHSMFileSystemPath(cyrusPartition, domainUid));
 		}
 
-		return paths.stream().map(this::expandToMailboxLetterPath).flatMap(p -> p.stream()).collect(Collectors.toSet());
+		return paths.stream().map(this::expandToMailboxLetterPath).flatMap(Set<String>::stream)
+				.collect(Collectors.toSet());
 	}
 
 	private Set<String> expandToMailboxLetterPath(String domainPath) {
@@ -85,19 +81,12 @@ public class CyrusWorker extends DefaultWorker {
 	}
 
 	@Override
-	public void dataDirsSaved(IDPContext ctx, String tag, ItemValue<Server> backedUp) throws ServerFault {
-		super.dataDirsSaved(ctx, tag, backedUp);
-	}
-
-	@Override
 	public void restore(IDPContext ctx, PartGeneration part, Map<String, Object> params) throws ServerFault {
-		// TODO Auto-generated method stub
-
+		// ok
 	}
 
 	@Override
 	public String getDataType() {
 		return "cyrus";
 	}
-
 }

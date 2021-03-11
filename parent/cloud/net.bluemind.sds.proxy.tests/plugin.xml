@@ -2,7 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="net.bluemind.sds.proxy.store">
+         point="net.bluemind.sds.store">
       <store
             factory="net.bluemind.sds.proxy.tests.SdsTestStore$StoreFactory">
       </store>

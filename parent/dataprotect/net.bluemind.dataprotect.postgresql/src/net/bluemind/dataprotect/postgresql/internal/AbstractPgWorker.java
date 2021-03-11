@@ -58,7 +58,7 @@ public abstract class AbstractPgWorker extends DefaultWorker {
 	private Set<String> excludeData = Sets.newHashSet("t_container_changelog", "t_job_log_entry", "t_eas_*",
 			"t_message_body", "t_mailbox_replica", "t_mailbox_record");
 
-	public AbstractPgWorker() {
+	protected AbstractPgWorker() {
 		BmConfIni ini = new BmConfIni();
 		dbUser = ini.get("user");
 		dbPassword = ini.get("password");

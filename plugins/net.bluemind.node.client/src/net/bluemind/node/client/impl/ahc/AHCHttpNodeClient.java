@@ -42,7 +42,7 @@ import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.node.api.FileDescription;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.ProcessHandler;
-import net.bluemind.node.client.impl.DoesNotExist;
+import net.bluemind.node.client.DoesNotExist;
 import net.bluemind.node.client.impl.FBOSInput;
 import net.bluemind.node.client.impl.HostPortClient;
 import net.bluemind.node.client.impl.NodeRuntimeException;

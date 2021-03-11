@@ -21,7 +21,7 @@ public class SdsConfigurationObserver implements ISystemConfigurationObserver {
 
 	@Override
 	public void onUpdated(BmContext context, SystemConf previous, SystemConf current) throws ServerFault {
-		if (!"s3".equals(current.stringValue(SysConfKeys.archive_kind.name()))) {
+		if (!current.isArchiveKindSds()) {
 			return;
 		}
 
