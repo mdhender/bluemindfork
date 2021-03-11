@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
@@ -58,15 +57,12 @@ public abstract class Command<T> implements ICommand<T> {
 		byte[] literal = args.getLiteralData();
 		if (literal != null) {
 			WriteFuture future = session.write(sent).addListener(handleClosedConnection(lock));
+
 			if (sent.endsWith("+}")) {
 				// cyrus reports IOERROR when pushing everything in one chunk
-				future.addListener(new IoFutureListener<IoFuture>() {
-
-					@Override
-					public void operationComplete(IoFuture future) {
-						logger.debug("op complete: LITERAL+ for {}bytes", args.getLiteralData().length);
-						session.write(args.getLiteralData());
-					}
+				future.addListener(iofuture -> {
+					logger.debug("op complete: LITERAL+ for {}bytes", args.getLiteralData().length);
+					session.write(args.getLiteralData());
 				});
 			} else {
 				lock(lock);
@@ -75,7 +71,7 @@ public abstract class Command<T> implements ICommand<T> {
 		} else {
 			session.write(sent).addListener(handleClosedConnection(lock));
 		}
-		
+
 		return tag;
 	}
 
