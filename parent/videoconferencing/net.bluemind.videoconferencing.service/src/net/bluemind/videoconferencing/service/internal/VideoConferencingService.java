@@ -90,8 +90,11 @@ public class VideoConferencingService implements IVideoConferencing {
 		String descriptionToAdd = templateHelper.processTemplate(context.getSecurityContext().getContainerUid(),
 				videoConferencingProvider.id(), lang, vevent);
 
-		if (vevent.description != null
-				&& !templateHelper.containsTemplate(vevent.description, videoConferencingProvider.id())) {
+		if (vevent.description == null) {
+			vevent.description = "";
+		}
+
+		if (!templateHelper.containsTemplate(vevent.description, videoConferencingProvider.id())) {
 			vevent.description = templateHelper.addTemplate(vevent.description, descriptionToAdd);
 		}
 		return vevent;
@@ -128,8 +131,7 @@ public class VideoConferencingService implements IVideoConferencing {
 	private List<ResourceDescriptor> getVideoConferencingResource(List<Attendee> attendees) {
 		IResources resourceService = context.getServiceProvider().instance(IResources.class,
 				context.getSecurityContext().getContainerUid());
-		return attendees.stream().filter(a -> a.cutype.equals(CUType.Resource))
-				.map(a -> getResource(a, resourceService))
+		return attendees.stream().filter(a -> a.cutype == CUType.Resource).map(a -> getResource(a, resourceService))
 				.filter(res -> res != null && res.typeIdentifier.equals(IVideoConferenceUid.UID))
 				.collect(Collectors.toList());
 	}
@@ -142,6 +144,34 @@ public class VideoConferencingService implements IVideoConferencing {
 	private static List<IVideoConferencingProvider> loadProviders() {
 		return new RunnableExtensionLoader<IVideoConferencingProvider>()
 				.loadExtensions("net.bluemind.videoconferencing", "provider", "provider", "impl");
+	}
+
+	@Override
+	public ICalendarElement update(ICalendarElement old, ICalendarElement current) {
+		if (Strings.isNullOrEmpty(old.conference)) {
+			return add(current);
+		}
+
+		List<ResourceDescriptor> oldConferenceResources = getVideoConferencingResource(old.attendees);
+		if (oldConferenceResources.isEmpty()) {
+			return current;
+		}
+		ResourceDescriptor oldResourceDescriptor = oldConferenceResources.get(0);
+		Optional<PropertyValue> oldVideoConferencingType = oldResourceDescriptor.properties.stream()
+				.filter(p -> p.propertyId.equals(IVideoConferenceUid.TYPE)).findFirst();
+
+		resetConferenceData(current, oldVideoConferencingType);
+		return add(current);
+	}
+
+	private void resetConferenceData(ICalendarElement current, Optional<PropertyValue> oldVideoConferencingType) {
+		current.conference = null;
+		VideoConferencingTemplateHelper templateHelper = new VideoConferencingTemplateHelper();
+		Optional<IVideoConferencingProvider> oldVideoConferencingProvider = providers.stream()
+				.filter(p -> p.id().equals(oldVideoConferencingType.get().value)).findFirst();
+
+		current.description = templateHelper.removeTemplate(current.description,
+				oldVideoConferencingProvider.get().id());
 	}
 
 }

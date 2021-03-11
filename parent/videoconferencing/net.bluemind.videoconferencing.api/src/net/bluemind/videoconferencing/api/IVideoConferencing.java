@@ -34,4 +34,6 @@ public interface IVideoConferencing {
 	@DELETE
 	public ICalendarElement remove(ICalendarElement vevent);
 
+	public ICalendarElement update(ICalendarElement old, ICalendarElement current);
+
 }

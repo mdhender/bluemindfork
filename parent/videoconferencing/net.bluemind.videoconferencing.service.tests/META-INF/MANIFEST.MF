@@ -18,4 +18,5 @@ Require-Bundle: org.junit,
  net.bluemind.videoconferencing.api,
  net.bluemind.videoconferencing.service;bundle-version="4.1.0",
  net.bluemind.calendar.api,
- net.bluemind.calendar.service;bundle-version="4.1.0"
+ net.bluemind.calendar.service;bundle-version="4.1.0",
+ net.bluemind.core.sanitizer;bundle-version="4.1.0"
