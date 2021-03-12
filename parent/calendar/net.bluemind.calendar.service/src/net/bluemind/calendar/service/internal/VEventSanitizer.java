@@ -53,9 +53,11 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
+import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
@@ -356,6 +358,9 @@ public class VEventSanitizer {
 				attendee.commonName = dir.displayName;
 				attendee.mailto = dir.email;
 				attendee.internal = true;
+				if (dir.kind == Kind.RESOURCE) {
+					attendee.cutype = CUType.Resource;
+				}
 				ret.add(attendee);
 			} else {
 				attendee.dir = null;
