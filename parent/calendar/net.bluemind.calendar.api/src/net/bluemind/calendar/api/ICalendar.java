@@ -259,4 +259,13 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	@Path("_isAutoSyncActivated")
 	public boolean isAutoSyncActivated() throws ServerFault;
 
+	/**
+	 * Search pending counters of the current user
+	 * 
+	 * @return
+	 */
+	@GET
+	@Path("_search_counters")
+	public ListResult<ItemValue<VEventSeries>> searchPendingCounters();
+
 }

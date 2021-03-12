@@ -44,18 +44,22 @@ net.bluemind.calendar.PendingEventsMgmt = function(ctx) {
 
   this.containersObserver = new net.bluemind.container.service.ContainersObserver();
   this.handler = new goog.events.EventHandler(this);
-  this.totalCache_ = null;
+  this.totalPendingEventsCache_ = null;
+  this.totalPendingCountersCache_ = null;
   this.handler.listen(this.containersObserver, net.bluemind.container.service.ContainersObserver.EventType.CHANGE,
       function(e) {
         if (e.containerType == 'calendar') {
           this.retrievePendingActionsForOne(e.container).then(function() {
-            this.dispatchEvent('change');
+            this.retrievePendingCountersForOne(e.container).then(function() {
+              this.dispatchEvent('change');
+            }, null, this);
           }, null, this);
         }
       });
 
   this.calendars = [];
   this.calendarsCounts = [];
+  this.calendarsPendingCounts = [];
   this.observeCalendars();
 };
 goog.inherits(net.bluemind.calendar.PendingEventsMgmt, goog.events.EventTarget);
@@ -64,7 +68,13 @@ goog.inherits(net.bluemind.calendar.PendingEventsMgmt, goog.events.EventTarget);
  * @type {number}
  * @private
  */
-net.bluemind.calendar.PendingEventsMgmt.prototype.totalCache_;
+net.bluemind.calendar.PendingEventsMgmt.prototype.totalPendingEventsCache_;
+
+/**
+ * @type {number}
+ * @private
+ */
+net.bluemind.calendar.PendingEventsMgmt.prototype.totalPendingCountersCache_;
 
 net.bluemind.calendar.PendingEventsMgmt.prototype.getFolderContainerUid_ = function() {
   return 'folders_' + this.ctx.user['uid'];
@@ -90,10 +100,13 @@ net.bluemind.calendar.PendingEventsMgmt.prototype.observeCalendars = function() 
     this.calendarsCounts = [];
     goog.array.forEach(this.calendars, function(container) {
       this.calendarsCounts[container['uid']] = 0;
+      this.calendarsPendingCounts[container['uid']] = 0;
     }, this);
     this.containersObserver.observerContainers('calendar', cals);
     this.retrievePendingActions_().then(function() {
-      this.dispatchEvent('change');
+      this.retrievePendingCounters_().then(function() {
+        this.dispatchEvent('change');
+      }, null, this);
     }, null, this);
   }, null, this);
 }
@@ -103,7 +116,11 @@ net.bluemind.calendar.PendingEventsMgmt.prototype.getCalendars = function() {
 }
 
 net.bluemind.calendar.PendingEventsMgmt.prototype.retrievePendingActions = function() {
-  return goog.Promise.resolve(this.totalCache_);
+  return goog.Promise.resolve(this.totalPendingEventsCache_);
+}
+
+net.bluemind.calendar.PendingEventsMgmt.prototype.retrievePendingCounters = function() {
+  return goog.Promise.resolve(this.totalPendingCountersCache_);
 }
 
 net.bluemind.calendar.PendingEventsMgmt.prototype.retrievePendingActions_ = function() {
@@ -123,8 +140,28 @@ net.bluemind.calendar.PendingEventsMgmt.prototype.retrievePendingActions_ = func
     });
     return total;
   }, null, this).then(function(total) {
-    this.totalCache_ = total;
-    this.totalCache_ = total;
+    this.totalPendingEventsCache_ = total;
+  }, null, this);
+}
+
+net.bluemind.calendar.PendingEventsMgmt.prototype.retrievePendingCounters_ = function() {
+  this.calendarsPendingCounts = [];
+  goog.array.forEach(this.calendars, function(container) {
+    this.calendarsPendingCounts[container['uid']] = 0;
+  }, this);
+
+  return this.retrievePendingCountersCals(this.calendars).then(function(totals) {
+    var total = 0;
+    goog.object.forEach(totals, function(ctotal, key) {
+      this.calendarsPendingCounts[key] = ctotal;
+    }, this);
+
+    goog.object.forEach(this.calendarsPendingCounts, function(ctotal) {
+      total += ctotal;
+    });
+    return total;
+  }, null, this).then(function(total) {
+    this.totalPendingCountersCache_ = total;
   }, null, this);
 }
 
@@ -147,9 +184,33 @@ net.bluemind.calendar.PendingEventsMgmt.prototype.retrievePendingActionsForOne =
 
     return total;
   }, null, this).then(function(total) {
-    this.totalCache_ = total;
+    this.totalPendingEventsCache_ = total;
   }, null, this);
 }
+
+net.bluemind.calendar.PendingEventsMgmt.prototype.retrievePendingCountersForOne = function(calUid) {
+  this.calendarsPendingCounts[calUid] = 0;
+  var defaultCalendars = goog.array.filter(this.calendars, function(c) {
+    return c['uid'] == calUid
+  });
+
+  return this.retrievePendingCountersCals(defaultCalendars).then(function(totals) {
+    var total = 0;
+    goog.object.forEach(totals, function(ctotal, key) {
+      this.calendarsPendingCounts[key] = ctotal;
+    }, this);
+
+    goog.object.forEach(this.calendarsPendingCounts, function(ctotal) {
+      total += ctotal;
+    });
+
+
+    return total;
+  }, null, this).then(function(total) {
+    this.totalPendingCountersCache_ = total;
+  }, null, this);
+}
+
 
 net.bluemind.calendar.PendingEventsMgmt.prototype.retrievePendingActionsCals = function(cals) {
   var today = new net.bluemind.date.DateTime();
@@ -202,6 +263,33 @@ net.bluemind.calendar.PendingEventsMgmt.prototype.retrievePendingActionsCals = f
   return future;
 }
 
+net.bluemind.calendar.PendingEventsMgmt.prototype.retrievePendingCountersCals = function(cals) {
+  var defaultCalendars = cals;
+  var calendarsClient = new net.bluemind.calendar.api.CalendarsClient(this.ctx.rpc, '');
+  var calendars = goog.array.map(defaultCalendars, function(cal) {
+      return cal['uid'];
+    });
+
+  var future = calendarsClient.searchPendingCounters(calendars).then(
+      function(res) {
+        var totals = [];
+        goog.array.forEach(res, function(series) {
+          var cal = goog.array.find(defaultCalendars, function(c) {
+            return c['uid'] == series["containerUid"]
+          });
+
+          if (!totals[cal['uid']]) {
+            totals[cal['uid']] = 0;  
+          }
+          totals[cal['uid']] += series['value']['counters'].length;
+        });
+
+        return totals;
+      }, null, this);
+
+  return future;
+}
+
 net.bluemind.calendar.PendingEventsMgmt.attends = function(vevent, dir) {
   var attendee = goog.array.find(vevent["attendees"], function(attendee) {
     return dir == attendee["dir"];
@@ -232,6 +320,23 @@ net.bluemind.calendar.PendingEventsMgmt.prototype.getPendingEvents = function(ca
   }
   var client = new net.bluemind.calendar.api.CalendarClient(this.ctx.rpc, '', cal['uid']);
   return client.search(query).then(function(result) {
+    return goog.array.map(result['values'], function(value) {
+      value['container'] = cal['uid'];
+      value['name'] = value['displayName'];
+      return value;
+    });
+  })
+};
+
+/**
+ * Retrieve pending counters
+ * 
+ * @param {Object} calendar calendar container
+ * @return {goog.Promise<Array<Object>>} Vevents object matching request
+ */
+net.bluemind.calendar.PendingEventsMgmt.prototype.getPendingCounters = function(cal) {
+  var client = new net.bluemind.calendar.api.CalendarClient(this.ctx.rpc, '', cal['uid']);
+  return client.searchPendingCounters().then(function(result) {
     return goog.array.map(result['values'], function(value) {
       value['container'] = cal['uid'];
       value['name'] = value['displayName'];

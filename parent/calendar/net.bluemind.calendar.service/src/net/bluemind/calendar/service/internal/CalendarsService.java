@@ -92,10 +92,7 @@ public class CalendarsService implements ICalendars {
 
 				VEventQuery eventQuery = query.eventQuery;
 				ListResult<ItemValue<VEventSeries>> resp = cal.search(eventQuery);
-				for (ItemValue<VEventSeries> vevent : resp.values) {
-					ItemContainerValue<VEventSeries> v = ItemContainerValue.create(containerUid, vevent, vevent.value);
-					ret.add(v);
-				}
+				ret.addAll(toItemContainerValue(containerUid, resp.values));
 			} catch (ServerFault e) {
 				if (e.getCode() == ErrorCode.PERMISSION_DENIED) {
 					logger.warn("user {} try to access {} but doesnt have right",
@@ -108,6 +105,48 @@ public class CalendarsService implements ICalendars {
 			}
 		}
 
+		return ret;
+	}
+
+	@Override
+	public List<ItemContainerValue<VEventSeries>> searchPendingCounters(List<String> calendars) throws ServerFault {
+		List<ItemContainerValue<VEventSeries>> ret = new ArrayList<>();
+
+		for (String containerUid : calendars) {
+			try {
+
+				ICalendar cal = context.provider().instance(ICalendar.class, containerUid);
+
+				ListResult<ItemValue<VEventSeries>> resp = cal.searchPendingCounters();
+				resp.total = resp.values.size();
+
+				List<ItemContainerValue<VEventSeries>> itemContainerValue = toItemContainerValue(containerUid,
+						resp.values);
+				ret.addAll(itemContainerValue);
+			} catch (ServerFault e) {
+				if (e.getCode() == ErrorCode.PERMISSION_DENIED) {
+					logger.warn("user {} try to access {} but doesnt have right",
+							context.getSecurityContext().getSubject() + "@"
+									+ context.getSecurityContext().getContainerUid(),
+							containerUid);
+				} else {
+					throw e;
+				}
+			}
+		}
+
+		logger.info("ret: {}", ret.size());
+
+		return ret;
+	}
+
+	private List<ItemContainerValue<VEventSeries>> toItemContainerValue(String calendarUid,
+			List<ItemValue<VEventSeries>> series) {
+		List<ItemContainerValue<VEventSeries>> ret = new ArrayList<ItemContainerValue<VEventSeries>>(series.size());
+		for (ItemValue<VEventSeries> vevent : series) {
+			ItemContainerValue<VEventSeries> v = ItemContainerValue.create(calendarUid, vevent, vevent.value);
+			ret.add(v);
+		}
 		return ret;
 	}
 

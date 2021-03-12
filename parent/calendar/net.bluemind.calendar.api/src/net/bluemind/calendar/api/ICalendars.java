@@ -43,4 +43,15 @@ public interface ICalendars {
 	@POST
 	@Path("_search")
 	public List<ItemContainerValue<VEventSeries>> search(CalendarsVEventQuery query) throws ServerFault;
+
+	/**
+	 * Retrieve a list of pending counter propositions of the current user
+	 * 
+	 * @param calendars list of calendar uids
+	 * @return list of pending counter propositions
+	 * @throws ServerFault
+	 */
+	@POST
+	@Path("_search_counters")
+	public List<ItemContainerValue<VEventSeries>> searchPendingCounters(List<String> calendars) throws ServerFault;
 }

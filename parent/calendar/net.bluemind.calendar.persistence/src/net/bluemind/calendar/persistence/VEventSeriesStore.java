@@ -45,6 +45,7 @@ import net.bluemind.core.container.model.SortDescriptor.Direction;
 import net.bluemind.core.container.model.SortDescriptor.Field;
 import net.bluemind.core.container.persistence.AbstractItemValueStore;
 import net.bluemind.core.container.persistence.LongCreator;
+import net.bluemind.core.container.persistence.StringCreator;
 
 public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 
@@ -285,6 +286,16 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 
 	private String dir(Field field) {
 		return field.dir == Direction.Asc ? "ASC" : "DESC";
+	}
+
+	public List<String> searchPendingPropositions(String owner) throws SQLException {
+		String query = "select distinct ci.uid from t_calendar_series series " //
+				+ "join t_calendar_vevent_counter v on (v.vevent).item_id = series.item_id " //
+				+ "join t_calendar_vevent ve on ve.item_id = series.item_id " //
+				+ "join t_container_item ci on ci.id = series.item_id " //
+				+ "join t_container c on ci.container_id = c.id " //
+				+ "where c.id = ? and ve.organizer_dir = ?";
+		return select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, owner });
 	}
 
 }

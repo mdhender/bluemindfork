@@ -1042,6 +1042,10 @@ span.ecb-form-participation {
   border-top: 1px solid #CCC;
 }
 
+.separator {
+  border-bottom: 1px solid #CCC;
+}
+
 .event-list tr.nested, .pendinglist tr.nested {
   border:none;
 }
@@ -1052,6 +1056,24 @@ span.ecb-form-participation {
 }
 
 .event-list td.evtDetail span, .pendinglist td.evtDetail span {
+	padding: 0px 5px;
+}
+
+.event-list, .counter-pendinglist {
+  border-collapse: collapse;
+  width:100%;
+}
+
+.event-list tr.nested, .counter-pendinglist tr.nested {
+  border:none;
+}
+
+.event-list td, .counter-pendinglist td{
+  padding: 5px 15px;
+  white-space:nowrap;
+}
+
+.event-list td.evtDetail span, .counter-pendinglist td.evtDetail span {
 	padding: 0px 5px;
 }
 
@@ -1081,6 +1103,80 @@ p.detail-info {
 
 .pendinglist tr.selected {
   background:#fef7cb;
+}
+
+.counter-pendinglist tr.calendar-item:hover {
+  background:#eee;
+}
+
+.counter-pendinglist tr.selected {
+  background:#fef7cb;
+}
+
+.counter-pendinglist td.date  {
+  font-weight:bold;
+}
+
+.counter-pendinglist td.calheader  {
+  height:40px;
+  background-color:#f5f5f5;
+}
+
+.counter-pendinglist td.buttontd  {
+  text-align: center;
+}
+
+.counter-pendinglist td.actionbuttontd  {
+  padding-right: 30px;
+}
+
+.counter-summary {
+  color:#00f;
+  font-size: 1.2em;
+  font-weight:bold;
+  cursor: pointer;
+  padding-left: 10px;
+}
+
+.counter-cn {
+  padding-left: 55px !important;
+}
+
+.counter-accept {
+  color: green;
+  cursor: pointer;
+  padding-right: 15px;
+}
+
+.counter-refuse {
+  color: rgb(189, 29, 29);
+  cursor: pointer;
+}
+
+.counter-modified {
+  color: rgb(243, 161, 9);
+}
+
+.counter-calendar {
+  display: inline-block;
+}
+
+.event-list td.time, .counter-pendinglist td.time {
+}
+
+.event-list td div.calendar, .counter-pendinglist div.calendar {
+  height:12px;
+  width:12px;
+}
+
+.event-list td.evtDetail, .counter-pendinglist td.evtDetail {
+  width:100%;
+}
+
+.event-list td.evtDetail a.detail, .counter-pendinglist td.evtDetail a.detail {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 table.event-full-detail {

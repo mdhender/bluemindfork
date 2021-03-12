@@ -45,6 +45,7 @@ import net.bluemind.calendar.persistence.VEventIndexStore;
 import net.bluemind.calendar.persistence.VEventSeriesStore;
 import net.bluemind.calendar.service.cache.PendingEventsCache;
 import net.bluemind.core.api.ListResult;
+import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -520,7 +521,7 @@ public class CalendarService implements IInternalCalendar {
 			ret.total = res.total;
 		} else {
 			if (query.attendee != null && query.attendee.calendarOwnerAsDir) {
-				Optional<DirEntry> owner = getCalendarOwner(query);
+				Optional<DirEntry> owner = getCalendarOwner();
 				owner.ifPresent(de -> query.attendee.dir = "bm://" + de.path);
 			}
 			ListResult<String> res = indexStore.search(query, searchInPrivate());
@@ -540,7 +541,7 @@ public class CalendarService implements IInternalCalendar {
 	private ListResult<ItemValue<VEventSeries>> searchPendingEvents(VEventQuery query) {
 		ListResult<ItemValue<VEventSeries>> res = PendingEventsCache.getIfPresent(container.uid);
 		if (res == null) {
-			Optional<DirEntry> owner = getCalendarOwner(query);
+			Optional<DirEntry> owner = getCalendarOwner();
 			if (!owner.isPresent()) {
 				return ListResult.create(Collections.emptyList());
 			}
@@ -571,7 +572,7 @@ public class CalendarService implements IInternalCalendar {
 		return res;
 	}
 
-	private Optional<DirEntry> getCalendarOwner(VEventQuery query) {
+	private Optional<DirEntry> getCalendarOwner() {
 		return Optional.ofNullable(context.su().provider().instance(IDirectory.class, container.domainUid)
 				.findByEntryUid(container.owner));
 	}
@@ -714,6 +715,27 @@ public class CalendarService implements IInternalCalendar {
 	public void emitNotification() {
 		indexStore.refresh();
 		calendarEventProducer.changed();
+	}
+
+	@Override
+	public ListResult<ItemValue<VEventSeries>> searchPendingCounters() {
+		Optional<DirEntry> owner = getCalendarOwner();
+		if (!owner.isPresent()) {
+			return ListResult.create(Collections.emptyList());
+		}
+		String path = "bm://" + owner.get().path;
+		List<ItemValue<VEventSeries>> pendingPropositions = storeService.searchPendingPropositions(path);
+		pendingPropositions = pendingPropositions.stream().filter(vEventSeries -> {
+			VEvent main = vEventSeries.value.mainOccurrence();
+
+			BmDateTime now = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis());
+			if (main.hasRecurrence()) {
+				return main.rrule.until == null || new BmDateTimeWrapper(main.rrule.until).isAfter(now);
+			}
+
+			return new BmDateTimeWrapper(main.dtend).isAfter(now);
+		}).collect(Collectors.toList());
+		return ListResult.create(pendingPropositions);
 	}
 
 }

@@ -95,6 +95,11 @@ net.bluemind.calendar.toolbar.ToolbarView = function(ctx, opt_domHelper) {
   child.setId('pending');
   child.setVisible(false);
   this.addChild(child);
+
+  child = new goog.ui.Button('', goog.ui.LinkButtonRenderer.getInstance());
+  child.setId('pendingCounters');
+  child.setVisible(false);
+  this.addChild(child);
   
   /** @meaning calendar.toolbar.day */
   var MSG_DAY = goog.getMsg('Day');
@@ -213,6 +218,7 @@ net.bluemind.calendar.toolbar.ToolbarView.prototype.createDom = function() {
   this.getChild('next').render(west);
   this.getChild('dateRange').render(west);
   this.getChild('pending').render(east);
+  this.getChild('pendingCounters').render(east);
   this.getChild('day').render(east);
   this.getChild('week').render(east);
   this.getChild('month').render(east);
@@ -263,18 +269,40 @@ net.bluemind.calendar.toolbar.ToolbarView.prototype.setModel = function(model) {
 net.bluemind.calendar.toolbar.ToolbarView.prototype.setPendingCount = function(count) {
   if (count > 1) {
     /** @meaning calendar.toolbar.pending.plural */
-    var MSG_PENDING = goog.getMsg('You have {$pending} invitations', {pending: count});
+    var MSG_PENDING = goog.getMsg('{$pending} invitations', {pending: count});
     this.getChild('pending').setContent(MSG_PENDING);
     this.getChild('pending').setTooltip(MSG_PENDING);
     this.getChild('pending').setVisible(true);
   } else if (count > 0){
     /** @meaning calendar.toolbar.pending */
-    var MSG_PENDING = goog.getMsg('You have an invitation');
+    var MSG_PENDING = goog.getMsg('1 invitation');
     this.getChild('pending').setContent(MSG_PENDING);
     this.getChild('pending').setTooltip(MSG_PENDING);
     this.getChild('pending').setVisible(true); 
   } else {
     this.getChild('pending').setVisible(false);
+  }
+};
+
+/**
+ * Set pending invitations count
+ * @param {number} count
+ */
+net.bluemind.calendar.toolbar.ToolbarView.prototype.setPendingCountersCount = function(count) {
+  if (count > 1) {
+    /** @meaning calendar.toolbar.pending.counters.plural */
+    var MSG_PENDING = goog.getMsg('{$pending} proposals', {pending: count});
+    this.getChild('pendingCounters').setContent(MSG_PENDING);
+    this.getChild('pendingCounters').setTooltip(MSG_PENDING);
+    this.getChild('pendingCounters').setVisible(true);
+  } else if (count > 0){
+    /** @meaning calendar.toolbar.pending.counters */
+    var MSG_PENDING = goog.getMsg('1 proposal');
+    this.getChild('pendingCounters').setContent(MSG_PENDING);
+    this.getChild('pendingCounters').setTooltip(MSG_PENDING);
+    this.getChild('pendingCounters').setVisible(true); 
+  } else {
+    this.getChild('pendingCounters').setVisible(false);
   }
 };
 

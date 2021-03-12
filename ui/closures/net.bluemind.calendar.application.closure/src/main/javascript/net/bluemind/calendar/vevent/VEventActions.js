@@ -238,7 +238,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.collectAttendees_ = functio
 /**
  * Save event actions
  * 
- * @param {net.bluemind.calendar.vevent.VEventEvent} e
+ * @param {net.bluemind.calendar.vevent.VEvent} e
  */
 
 net.bluemind.calendar.vevent.VEventActions.prototype.save = function(e) {
@@ -253,6 +253,31 @@ net.bluemind.calendar.vevent.VEventActions.prototype.save = function(e) {
           return this.update_(e, existing);
         }
       }, null, this);
+};
+
+/**
+ * Reject event counter
+ * 
+ * @param {net.bluemind.calendar.vevent.VEventSeries} e
+ */
+
+net.bluemind.calendar.vevent.VEventActions.prototype.rejectCounters = function(e) {
+  var model = e.vevent;
+  var uid = model[0].counter.uid;
+  var calendar = model[0].counter.calendar;
+  return this.ctx_.service('calendar').getItem(calendar, uid).then(function (vseries){
+    vseries['value']['counters'] = goog.array.filter(vseries['value']['counters'], function(c){
+      var deleted = false;
+      for (var i = 0; i < model.length; i++) {
+        var deletedCounter = model[i];
+        if (c['originator']['email'] == deletedCounter.originator.email){
+          deleted = true; break;
+        }
+      }
+      return !deleted;
+    });
+    return this.doUpdate_(vseries, true).then(this.resolve_, this.reject_, this);
+  }, null, this);
 };
 
 /**
@@ -435,7 +460,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.create_ = function(e) {
 net.bluemind.calendar.vevent.VEventActions.prototype.update_ = function(e, vseries) {
   var model = e.vevent;
   var isPublic = this.adaptor_.isPublicChanges(vseries, model);
-  if (!isPublic) {
+  if (!isPublic && !model.forceSendNotification) {
     model.sendNotification = false;
   }
   if (!this.checkRecurringState_(vseries, model)) {

@@ -180,4 +180,11 @@ public class VEventContainerStoreService extends ContainerStoreService<VEventSer
 		});
 	}
 
+	public List<ItemValue<VEventSeries>> searchPendingPropositions(String owner) {
+		return doOrFail(() -> {
+			List<String> uids = ((VEventSeriesStore) getItemValueStore()).searchPendingPropositions(owner);
+			return getMultiple(uids);
+		});
+	}
+
 }

@@ -46,6 +46,9 @@ net.bluemind.calendar.toolbar.ToolbarPresenter = function(ctx) {
   this.handler.listen(this.view_.getChild('pending'), goog.ui.Component.EventType.ACTION, function() {
     this.ctx.helper('url').redirect("/pending/", true)
   });
+  this.handler.listen(this.view_.getChild('pendingCounters'), goog.ui.Component.EventType.ACTION, function() {
+    this.ctx.helper('url').redirect("/pending_counters/", true)
+  });
   this.handler.listen(this.view_.getChild('day'), goog.ui.Component.EventType.ACTION, function() {
     this.ctx.helper('url').redirect("/day/?range=day", true)
   });
@@ -108,9 +111,13 @@ net.bluemind.calendar.toolbar.ToolbarPresenter.prototype.setup = function() {
 };
 
 net.bluemind.calendar.toolbar.ToolbarPresenter.prototype.updatePendingCount = function() {
-  return this.ctx.service("pendingEventsMgmt").retrievePendingActions().then(function(total) {
+  var events = this.ctx.service("pendingEventsMgmt").retrievePendingActions().then(function(total) {
     this.view_.setPendingCount(total);
   }, null, this);
+  var counters = this.ctx.service("pendingEventsMgmt").retrievePendingCounters().then(function(total) {
+    this.view_.setPendingCountersCount(total);
+  }, null, this);
+  return Promise.all([events, counters]);
 }
 
 /** @override */

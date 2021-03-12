@@ -225,4 +225,9 @@ public class CalendarAuditProxy implements IInternalCalendar {
 				.audit(() -> calendar.multipleGetById(ids));
 	}
 
+	@Override
+	public ListResult<ItemValue<VEventSeries>> searchPendingCounters() {
+		return calendar.searchPendingCounters();
+	}
+
 }

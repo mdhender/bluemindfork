@@ -37,6 +37,7 @@ goog.require('net.bluemind.calendar.filters.CalendarsFilter');
 goog.require('net.bluemind.calendar.filters.DateFilter');
 goog.require('net.bluemind.calendar.list.ListHandler');
 goog.require('net.bluemind.calendar.list.PendingEventsHandler');
+goog.require('net.bluemind.calendar.list.PendingCountersHandler');
 goog.require('net.bluemind.calendar.minical.MiniCalHandler');
 goog.require('net.bluemind.calendar.month.MonthHandler');
 goog.require('net.bluemind.calendar.navigation.NavigationHandler');
@@ -142,6 +143,10 @@ net.bluemind.calendar.CalendarApplication = function() {
         handlers : goog.array.concat(leftMenu, [ net.bluemind.calendar.list.PendingEventsHandler ])
       },
       {
+        path : '/pending_counters/',
+        handlers : goog.array.concat(leftMenu, [ net.bluemind.calendar.list.PendingCountersHandler ])
+      },
+      {
         path : '/search/',
         handlers : goog.array.concat(leftMenu, [ net.bluemind.calendar.search.SearchHandler ])
       }, {
@@ -199,7 +204,7 @@ net.bluemind.calendar.CalendarApplication.prototype.bootstrap = function(ctx) {
     }
   }, null, this).then(function() {
     return this.initializeVideoConferencingResources_(ctx);
-  }, this).then(function() {
+  }, null, this).then(function() {
     this.setEnvironnement_(ctx);
   }, null, this).thenCatch(function(error) {
     goog.log.error(this.logger, error.toString(), error);

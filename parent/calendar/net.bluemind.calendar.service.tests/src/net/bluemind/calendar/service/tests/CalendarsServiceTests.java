@@ -29,6 +29,9 @@ import org.junit.Test;
 import net.bluemind.calendar.api.CalendarsVEventQuery;
 import net.bluemind.calendar.api.ICalendars;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventCounter;
+import net.bluemind.calendar.api.VEventCounter.CounterOriginator;
+import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventQuery;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.service.AbstractCalendarTests;
@@ -69,6 +72,30 @@ public class CalendarsServiceTests extends AbstractCalendarTests {
 
 		assertEquals(1, res.size());
 		found = res.get(0).value.main;
+		assertEquals(event.main.summary, found.summary);
+
+	}
+
+	@Test
+	public void testSearchPendingCounters() {
+
+		VEventSeries event = defaultVEvent();
+		event.main.summary = "toto";
+
+		VEventCounter counter = new VEventCounter();
+		counter.counter = VEventOccurrence.fromEvent(event.main, null);
+		counter.originator = CounterOriginator.from("yes", "att1@test.loc");
+		event.counters = Arrays.asList(counter);
+
+		String uid = "test_" + System.nanoTime();
+
+		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
+
+		List<ItemContainerValue<VEventSeries>> res = getCalendarsService(userSecurityContext)
+				.searchPendingCounters(Arrays.asList(userCalendarContainer.uid));
+
+		assertEquals(1, res.size());
+		VEvent found = res.get(0).value.main;
 		assertEquals(event.main.summary, found.summary);
 
 	}
