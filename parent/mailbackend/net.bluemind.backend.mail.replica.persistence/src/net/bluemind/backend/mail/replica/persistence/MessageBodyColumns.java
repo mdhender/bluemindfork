@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Header;
@@ -97,7 +98,7 @@ public class MessageBodyColumns {
 			@Override
 			public int setValues(Connection con, PreparedStatement statement, int index, int currentRow,
 					MessageBody value) throws SQLException {
-				statement.setString(index++, value.subject);
+				statement.setString(index++, cleanUTF8ForPG(value.subject));
 				statement.setString(index++, JsonUtils.asString(value.structure));
 				statement.setString(index++, JsonUtils.asString(value.headers));
 				statement.setString(index++, JsonUtils.asString(value.recipients));
@@ -116,6 +117,10 @@ public class MessageBodyColumns {
 			}
 
 		};
+	}
+
+	private static String cleanUTF8ForPG(String s) {
+		return Optional.ofNullable(s).map(r -> s.replace("\u0000", "")).orElse(null);
 	}
 
 }
