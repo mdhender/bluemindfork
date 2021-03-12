@@ -1110,16 +1110,17 @@
     axios "^0.18.0"
 
 "@bluemind/styleguide@^0.1.0":
-  version "0.1.1492"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1492.tgz#a96d39d1c89a35660ef9632002d7179eff2d9203"
-  integrity sha512-NakY7Zkff5XSpMAKDpW9VBFvRbxz0GGgkClCdmzc5/RV3ZRZ7pIY8kXNxBIrCl6tLeNhxm1DPgmOkeTnoXbwiQ==
+  version "0.1.1500"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1500.tgz#ba2ec814edbd9c928cbfa27d73a3e826e3b55a5d"
+  integrity sha512-WlTlAkd5K6Gs/OrtdWfQ7sFIKQPt/qbp9v0OxLEUn4mo+NbcrLJMs9N2lFFb3hBMZXpsLNBTVwCGlm1a4Woe4Q==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"
     bootstrap "^4.1.1"
-    bootstrap-vue "^2.0.0"
+    bootstrap-vue "^2.17.0"
     interactjs "^1.9.20"
     lodash.clonedeep "^4.5.0"
+    lodash.iteratee "^4.7.0"
     lodash.throttle "^4.1.1"
     tiptap "^1.30.0"
     tiptap-extensions "^1.33.2"
@@ -2620,7 +2621,7 @@ bonjour@^3.5.0:
     multicast-dns "^6.0.1"
     multicast-dns-service-types "^1.1.0"
 
-bootstrap-vue@^2.0.0:
+bootstrap-vue@^2.17.0:
   version "2.21.2"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/bootstrap-vue/-/bootstrap-vue-2.21.2.tgz#ec38f66c3a2205becccddb6158a991d96509ed0b"
   integrity sha512-0Exe+4MZysqhZNXIKf4TzkvXaupxh9EHsoCRez0o5Dc0J7rlafayOEwql63qXv74CgZO8E4U8ugRNJko1vMvNw==
@@ -6625,6 +6626,11 @@ lodash.isstring@^4.0.1:
 lodash.isundefined@^3.0.1:
   version "3.0.1"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.isundefined/-/lodash.isundefined-3.0.1.tgz#23ef3d9535565203a66cefd5b830f848911afb48"
+
+lodash.iteratee@^4.7.0:
+  version "4.7.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.iteratee/-/lodash.iteratee-4.7.0.tgz#be4177db289a8ccc3c0990f1db26b5b22fc1554c"
+  integrity sha1-vkF32yiajMw8CZDx2ya1si/BVUw=
 
 lodash.last@^3.0.0:
   version "3.0.0"
