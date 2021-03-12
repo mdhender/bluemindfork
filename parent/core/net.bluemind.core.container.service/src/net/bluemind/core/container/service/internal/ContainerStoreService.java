@@ -283,8 +283,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				item.flags = flagsProvider.flags(value);
 				item = itemStore.create(item);
 			} catch (SQLException e) {
-				throw ServerFault
-						.alreadyExists("entry[" + uid + " - " + internalId + "]@" + container.uid + " already exists");
+				throw ServerFault.alreadyExists("entry[" + uid + " - " + internalId + "]@" + container.uid
+						+ " already exists (" + e.getMessage() + ")");
 			}
 			if (hasChangeLog) {
 				changelogStore.itemCreated(LogEntry.create(item.version, item.uid, item.externalId,
