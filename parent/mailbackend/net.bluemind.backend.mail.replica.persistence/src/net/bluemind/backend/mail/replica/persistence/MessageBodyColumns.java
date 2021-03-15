@@ -24,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,8 +87,9 @@ public class MessageBodyColumns {
 	}
 
 	private static List<String> toList(Array array) throws SQLException {
-		if (array == null)
-			return null;
+		if (array == null) {
+			return Collections.emptyList();
+		}
 		String[] ret = (String[]) array.getArray();
 		return Arrays.asList(ret);
 	}

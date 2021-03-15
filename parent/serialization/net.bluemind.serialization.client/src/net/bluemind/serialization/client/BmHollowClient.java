@@ -31,7 +31,7 @@ import net.bluemind.network.topology.Topology;
 
 public class BmHollowClient implements AutoCloseable {
 
-	public static enum Type {
+	public enum Type {
 		snapshot, delta, version;
 	}
 
