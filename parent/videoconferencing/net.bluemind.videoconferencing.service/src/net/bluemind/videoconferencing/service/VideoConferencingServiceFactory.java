@@ -33,7 +33,13 @@ public class VideoConferencingServiceFactory
 
 	@Override
 	public IVideoConferencing instance(BmContext context, String... params) throws ServerFault {
-		return new VideoConferencingService(context);
+		if (params == null || params.length < 1) {
+			throw new ServerFault("wrong number of instance parameters");
+		}
+
+		String domainUid = params[0];
+
+		return new VideoConferencingService(context, domainUid);
 	}
 
 }

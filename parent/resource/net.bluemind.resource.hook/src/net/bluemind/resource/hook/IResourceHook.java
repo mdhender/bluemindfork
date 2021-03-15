@@ -15,20 +15,15 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.videoconferencing.service.http.tests;
+package net.bluemind.resource.hook;
 
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.rest.http.ClientSideServiceProvider;
-import net.bluemind.videoconferencing.api.IVideoConferencing;
-import net.bluemind.videoconferencing.service.tests.VideoConferencingServiceTests;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.rest.BmContext;
+import net.bluemind.resource.api.ResourceDescriptor;
 
-public class HttpVideoConferencingServiceTests extends VideoConferencingServiceTests {
+public interface IResourceHook {
 
-	@Override
-	protected IVideoConferencing getService(SecurityContext context) throws ServerFault {
-		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", context.getSessionId())
-				.instance(IVideoConferencing.class, domainUid);
-	}
+	public void onBeforeDelete(BmContext context, ItemValue<ResourceDescriptor> resource) throws ServerFault;
 
 }

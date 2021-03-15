@@ -20,20 +20,22 @@ package net.bluemind.videoconferencing.service.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.Test;
 
+import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.core.api.Email;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
@@ -42,14 +44,17 @@ import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.api.ITask;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 import net.bluemind.tests.defaultdata.PopulateHelper;
-import net.bluemind.videoconferencing.api.IVideoConferenceUid;
 import net.bluemind.videoconferencing.api.IVideoConferencing;
+import net.bluemind.videoconferencing.api.VideoConferencingResourceDescriptor;
 
 public class VideoConferencingServiceTests extends AbstractVideoConferencingTests {
 
@@ -65,23 +70,16 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 		domainAdminCtx = BmTestContext.contextWithSession("sid", "admin", domainUid, SecurityContext.ROLE_ADMIN);
 
 		// videoconf resource
-		ServerSideServiceProvider.getProvider(domainAdminCtx).instance(IResources.class, domainUid)
-				.create(videoconfProviderId, defaultDescriptor());
-
-		ContainerDescriptor cd = ContainerDescriptor.create(videoconfProviderId + "-settings-container",
-				"settings container video conf", videoconfProviderId, "container_settings", domainUid, false);
-
-		ServerSideServiceProvider.getProvider(domainAdminCtx).instance(IContainers.class)
-				.create(videoconfProviderId + "-settings-container", cd);
+		ServerSideServiceProvider.getProvider(domainAdminCtx).instance(IVideoConferencing.class, domainUid)
+				.createResource(videoconfProviderId,
+						VideoConferencingResourceDescriptor.create("coucou", "test-provider"));
 
 		Map<String, String> settings = new HashMap<>();
 		settings.put("url", "http://video.conf");
 		settings.put("templates", "{\"fr\":\"voilà ${URL} yay\",\"en\":\"this is ${URL}<br>\"}");
 		IContainerManagement containerMgmtService = ServerSideServiceProvider.getProvider(domainAdminCtx)
 				.instance(IContainerManagement.class, videoconfProviderId + "-settings-container");
-		containerMgmtService.setAccessControlList(Arrays.asList(AccessControlEntry.create(domainUid, Verb.All)));
 		containerMgmtService.setSettings(settings);
-
 	}
 
 	@Test
@@ -107,8 +105,80 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 		assertEquals(defaultVEvent().main.attendees.size(), main.attendees.size());
 	}
 
+	@Test
+	public void testCreateVideoConferencingResource() {
+		String uid = UUID.randomUUID().toString();
+		getService(domainAdminCtx.getSecurityContext()).createResource(uid,
+				VideoConferencingResourceDescriptor.create("yeah", "test-provider"));
+
+		ResourceDescriptor res = ServerSideServiceProvider.getProvider(domainAdminCtx)
+				.instance(IResources.class, domainUid).get(uid);
+		assertNotNull(res);
+
+		IContainers containersService = ServerSideServiceProvider.getProvider(domainAdminCtx)
+				.instance(IContainers.class);
+		ContainerDescriptor resCalendar = containersService.get(ICalendarUids.resourceCalendar(uid));
+		assertNotNull(resCalendar);
+		ContainerDescriptor resContainerSettings = containersService.get(uid + "-settings-container");
+		assertNotNull(resContainerSettings);
+
+		IContainerManagement containerMgmtService = ServerSideServiceProvider.getProvider(domainAdminCtx)
+				.instance(IContainerManagement.class, resCalendar.uid);
+		List<AccessControlEntry> calAcls = containerMgmtService.getAccessControlList();
+		assertEquals(1, calAcls.size());
+		AccessControlEntry ace = calAcls.get(0);
+		assertEquals(domainUid, ace.subject);
+		assertEquals(Verb.Invitation, ace.verb);
+
+		containerMgmtService = ServerSideServiceProvider.getProvider(domainAdminCtx)
+				.instance(IContainerManagement.class, resContainerSettings.uid);
+		List<AccessControlEntry> settingsdAcls = containerMgmtService.getAccessControlList();
+		assertEquals(1, settingsdAcls.size());
+		ace = settingsdAcls.get(0);
+		assertEquals(domainUid, ace.subject);
+		assertEquals(Verb.Read, ace.verb);
+
+	}
+
+	@Test
+	public void testDeleteVideoConferencingResource() throws Exception {
+		String uid = UUID.randomUUID().toString();
+		getService(domainAdminCtx.getSecurityContext()).createResource(uid,
+				VideoConferencingResourceDescriptor.create("woot", "test-provider"));
+
+		IContainers containersService = ServerSideServiceProvider.getProvider(domainAdminCtx)
+				.instance(IContainers.class);
+		ContainerDescriptor resContainerSettings = containersService.get(uid + "-settings-container");
+		assertNotNull(resContainerSettings);
+
+		TaskRef tr = ServerSideServiceProvider.getProvider(domainAdminCtx).instance(IResources.class, domainUid)
+				.delete(uid);
+		waitEnd(tr);
+
+		try {
+			containersService.get(uid + "-settings-container");
+			fail(uid + "-settings-container still exists");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.NOT_FOUND, sf.getCode());
+		}
+
+	}
+
+	public TaskStatus waitEnd(TaskRef ref) throws Exception {
+		TaskStatus status = null;
+		while (true) {
+			ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class, ref.id);
+			status = task.status();
+			if (status.state.ended) {
+				break;
+			}
+		}
+
+		return status;
+	}
+
 	protected IVideoConferencing getService(SecurityContext context) throws ServerFault {
-		return ServerSideServiceProvider.getProvider(context).instance(IVideoConferencing.class);
+		return ServerSideServiceProvider.getProvider(context).instance(IVideoConferencing.class, domainUid);
 	}
 
 	protected VEventSeries defaultVEvent() {
@@ -135,17 +205,6 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 
 		series.main = event;
 		return series;
-	}
-
-	private ResourceDescriptor defaultDescriptor() {
-		ResourceDescriptor rd = new ResourceDescriptor();
-		rd.label = "coucou";
-		rd.typeIdentifier = IVideoConferenceUid.UID;
-		rd.dataLocation = PopulateHelper.FAKE_CYRUS_IP;
-		rd.emails = Arrays.asList(Email.create("videoconferencing@" + domainUid, true));
-		rd.properties = Arrays
-				.asList(ResourceDescriptor.PropertyValue.create(IVideoConferenceUid.TYPE, videoconfProviderId));
-		return rd;
 	}
 
 }

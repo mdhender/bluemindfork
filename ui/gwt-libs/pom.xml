@@ -51,6 +51,7 @@
 		<module>net.bluemind.externaluser.api.gwt</module>
 		<module>net.bluemind.custom.password.sizestrength.api.gwt</module>
 		<module>net.bluemind.metrics.alerts.api.gwt</module>
+		<module>net.bluemind.videoconferencing.api.gwt</module>
 	</modules>
 
 	<build>

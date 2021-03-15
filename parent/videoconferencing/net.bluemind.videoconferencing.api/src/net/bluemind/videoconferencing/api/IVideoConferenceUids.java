@@ -17,28 +17,36 @@
   */
 package net.bluemind.videoconferencing.api;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.PUT;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
-import net.bluemind.icalendar.api.ICalendarElement;
 
 @BMApi(version = "3")
-@Path("/videoconferencing/{containerUid}")
-public interface IVideoConferencing {
+@Path("/videoconferencing/uids")
+public interface IVideoConferenceUids {
 
-	@PUT
-	public ICalendarElement add(ICalendarElement vevent);
+	public static final String RESOURCETYPE_UID = "bm-videoconferencing";
+	public static final String PROVIDER_TYPE = "bm-videoconferencing-type";
 
-	@DELETE
-	public ICalendarElement remove(ICalendarElement vevent);
+	@GET
+	@Path("resource_type_uid")
+	public default String getResourceTypeUid() {
+		return IVideoConferenceUids.resourceTypeUid();
+	}
 
-	public ICalendarElement update(ICalendarElement old, ICalendarElement current);
+	@GET
+	@Path("provider_type")
+	public default String getProviderTypeUid() {
+		return IVideoConferenceUids.providerTypeUid();
+	}
 
-	@PUT
-	@Path("createResource/{uid}")
-	public void createResource(@PathParam(value = "uid") String uid, VideoConferencingResourceDescriptor descriptor);
+	public static String resourceTypeUid() {
+		return IVideoConferenceUids.RESOURCETYPE_UID;
+	}
+
+	public static String providerTypeUid() {
+		return IVideoConferenceUids.PROVIDER_TYPE;
+	}
 
 }

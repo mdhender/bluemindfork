@@ -4,6 +4,8 @@
 
 	<inherits name='com.google.gwt.user.User' />
 
+	<inherits
+		name="net.bluemind.videoconferencing.VideoconferencingApi" />
 	<inherits name="net.bluemind.ui.adminconsole.AdminConsoleBase" />
 	<inherits name="net.bluemind.ui.extensions.GWTExtensions" />
 

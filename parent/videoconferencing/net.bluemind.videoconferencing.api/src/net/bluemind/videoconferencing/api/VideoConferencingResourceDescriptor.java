@@ -17,9 +17,18 @@
   */
 package net.bluemind.videoconferencing.api;
 
-public interface IVideoConferenceUid {
+import net.bluemind.core.api.BMApi;
 
-	public static final String UID = "bm-videoconferencing";
-	public static final String TYPE = "bm-videoconferencing-type";
+@BMApi(version = "3")
+public class VideoConferencingResourceDescriptor {
 
+	public String label;
+	public String provider;
+
+	public static VideoConferencingResourceDescriptor create(String label, String provider) {
+		VideoConferencingResourceDescriptor desc = new VideoConferencingResourceDescriptor();
+		desc.label = label;
+		desc.provider = provider;
+		return desc;
+	}
 }

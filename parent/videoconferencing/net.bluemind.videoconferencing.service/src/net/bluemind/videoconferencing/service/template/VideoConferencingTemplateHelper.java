@@ -18,37 +18,25 @@
 package net.bluemind.videoconferencing.service.template;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
 import io.vertx.core.json.JsonObject;
-import net.bluemind.core.api.fault.ErrorCode;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.icalendar.api.ICalendarElement;
-import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
-import net.bluemind.resource.api.ResourceDescriptor.PropertyValue;
-import net.bluemind.videoconferencing.api.IVideoConferenceUid;
-import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
+import net.bluemind.user.api.IUserSettings;
 
 public class VideoConferencingTemplateHelper {
-
-	private static final Logger logger = LoggerFactory.getLogger(VideoConferencingTemplateHelper.class);
-
-	private static final List<IVideoConferencingProvider> providers = loadProviders();
 
 	/** The HTML tag containing the transformed template. */
 	private static final String TEMPLATE_HTML_TAG_NAME = "videoconferencingtemplate";
@@ -85,55 +73,25 @@ public class VideoConferencingTemplateHelper {
 	/** The default language for the choice of a localized template. */
 	private static final String DEFAULT_LANGUAGE_TAG = "fr";
 
-	private static List<IVideoConferencingProvider> loadProviders() {
-		List<IVideoConferencingProvider> all = new RunnableExtensionLoader<IVideoConferencingProvider>()
-				.loadExtensions("net.bluemind.videoconferencing", "provider", "provider", "impl");
-		return all;
-	}
-
-	public String processTemplate(final String domainUid, final String resourceUid, final String localeLanguageTag,
+	public String processTemplate(final BmContext context, ItemValue<ResourceDescriptor> resource,
 			final ICalendarElement vevent) {
 		// check the given uid corresponds to an actual resource
 		final ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		final IResources resourcesService = provider.instance(IResources.class, domainUid);
-		final ResourceDescriptor resourceDescriptor = resourcesService.get(resourceUid);
-		if (resourceDescriptor == null) {
-			throw ServerFault.create(ErrorCode.NOT_FOUND,
-					new Exception(String.format("No resource found for uid %s", resourceUid)));
-		}
-
-		if (!resourceDescriptor.typeIdentifier.equals(IVideoConferenceUid.UID)) {
-			return null;
-		}
-
-		// check the resource has a template in its settings
-		Optional<PropertyValue> videoConferencingType = resourceDescriptor.properties.stream()
-				.filter(p -> p.propertyId.equals(IVideoConferenceUid.TYPE)).findFirst();
-
-		if (!videoConferencingType.isPresent()) {
-			logger.warn("No videoconference provider");
-			return null;
-		}
-
-		Optional<IVideoConferencingProvider> videoConferencingProvider = providers.stream()
-				.filter(p -> p.id().equals(videoConferencingType.get().value)).findFirst();
-
-		if (!videoConferencingProvider.isPresent()) {
-			logger.warn("No implementation for videoconference provider {}", videoConferencingType.get().value);
-			return null;
-		}
 
 		IContainerManagement containerMgmtService = provider.instance(IContainerManagement.class,
-				resourceUid + "-settings-container");
+				resource.uid + "-settings-container");
 		Map<String, String> settings = containerMgmtService.getSettings();
 
-		final String template = localizedTemplate(settings.get("templates"), localeLanguageTag);
+		IUserSettings userSettingsService = context.getServiceProvider().instance(IUserSettings.class,
+				context.getSecurityContext().getContainerUid());
+		String lang = userSettingsService.get(context.getSecurityContext().getSubject()).get("lang");
+
+		final String template = localizedTemplate(settings.get("templates"), lang);
 
 		String result = template;
 
 		final Matcher matcher = TEMPLATE_VARIABLES_PATTERN.matcher(template);
-		final Map<String, String> props = mapOfProps(resourceDescriptor, vevent.organizer.commonName,
-				vevent.conference);
+		final Map<String, String> props = mapOfProps(resource.value, vevent.organizer.commonName, vevent.conference);
 		while (matcher.find()) {
 			final String propertyName = matcher.group(1);
 			final String propertyValue = props.get(propertyName);
@@ -158,7 +116,7 @@ public class VideoConferencingTemplateHelper {
 		result = filteredResult.toString();
 
 		// add special tag
-		result = addTag(result, resourceUid);
+		result = addTag(result, resource.uid);
 
 		return result;
 	}

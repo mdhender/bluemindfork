@@ -54,6 +54,7 @@ import net.bluemind.directory.service.DirDomainValue;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.directory.service.DirEventProducer;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.MailFilter.Rule;
@@ -65,6 +66,7 @@ import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
 import net.bluemind.resource.helper.IResourceTemplateHelper;
 import net.bluemind.resource.helper.ResourceTemplateHelpers;
+import net.bluemind.resource.hook.IResourceHook;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
@@ -86,6 +88,7 @@ public class ResourcesService implements IResources {
 	private ResourceMailboxAdapter mailboxAdapter;
 	private IUser userService;
 	private IUserSettings userSettingsService;
+	private List<IResourceHook> hooks = getHooks();
 	private static final IResourceTemplateHelper RESOURCE_TEMPLATE_HELPER = ResourceTemplateHelpers.getInstance();
 
 	public ResourcesService(BmContext context, ItemValue<Domain> domain, Container resourcesContainer)
@@ -106,6 +109,11 @@ public class ResourcesService implements IResources {
 
 		this.userService = context.su().provider().instance(IUser.class, domainUid);
 		this.userSettingsService = context.su().provider().instance(IUserSettings.class, domainUid);
+	}
+
+	private static List<IResourceHook> getHooks() {
+		RunnableExtensionLoader<IResourceHook> loader = new RunnableExtensionLoader<>();
+		return loader.loadExtensions("net.bluemind.resource", "resourceHook", "hook", "class");
 	}
 
 	@Override
@@ -254,6 +262,10 @@ public class ResourcesService implements IResources {
 		} catch (Exception e) {
 			logger.warn("Cannot delete Freebusy container of resource {}:{}", uid, e.getMessage());
 		}
+
+		hooks.forEach(hook -> {
+			hook.onBeforeDelete(context, previous);
+		});
 
 		monitor.progress(2, "Deleting resource mailbox ...");
 		mailboxes.deleted(uid, mailboxAdapter.asMailbox(domainUid, uid, previous.value));

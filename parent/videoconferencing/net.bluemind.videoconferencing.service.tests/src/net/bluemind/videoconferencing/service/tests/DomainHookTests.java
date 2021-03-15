@@ -29,7 +29,7 @@ import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor.Property;
 import net.bluemind.tests.defaultdata.PopulateHelper;
-import net.bluemind.videoconferencing.api.IVideoConferenceUid;
+import net.bluemind.videoconferencing.api.IVideoConferenceUids;
 
 public class DomainHookTests extends AbstractVideoConferencingTests {
 
@@ -39,7 +39,7 @@ public class DomainHookTests extends AbstractVideoConferencingTests {
 
 		IResourceTypes service = ServerSideServiceProvider.getProvider(context).instance(IResourceTypes.class,
 				domainUid);
-		ResourceTypeDescriptor resType = service.get(IVideoConferenceUid.UID);
+		ResourceTypeDescriptor resType = service.get(IVideoConferenceUids.RESOURCETYPE_UID);
 		assertNotNull(resType);
 
 		List<Property> properties = resType.properties;
@@ -47,7 +47,7 @@ public class DomainHookTests extends AbstractVideoConferencingTests {
 
 		Property prop = properties.get(0);
 
-		assertEquals(IVideoConferenceUid.TYPE, prop.id);
+		assertEquals(IVideoConferenceUids.PROVIDER_TYPE, prop.id);
 		assertEquals("Type", prop.label);
 		assertEquals(ResourceTypeDescriptor.Property.Type.String, prop.type);
 	}

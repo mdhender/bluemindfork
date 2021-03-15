@@ -30,7 +30,7 @@ import net.bluemind.domain.hook.DomainHookAdapter;
 import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor.Property;
-import net.bluemind.videoconferencing.api.IVideoConferenceUid;
+import net.bluemind.videoconferencing.api.IVideoConferenceUids;
 
 public class DomainHook extends DomainHookAdapter {
 
@@ -40,17 +40,17 @@ public class DomainHook extends DomainHookAdapter {
 	public void onCreated(BmContext context, ItemValue<Domain> domain) throws ServerFault {
 
 		IResourceTypes resources = context.su().provider().instance(IResourceTypes.class, domain.uid);
-		logger.info("create video conferencing resource type for domain {} : {}", domain.uid, IVideoConferenceUid.UID);
+		logger.info("create video conferencing resource type for domain {} : {}", domain.uid, IVideoConferenceUids.RESOURCETYPE_UID);
 
 		ResourceTypeDescriptor resourceType = ResourceTypeDescriptor.create("Video Conferencing");
 		resourceType.properties = new ArrayList<>();
 		Property p = new Property();
-		p.id = IVideoConferenceUid.TYPE;
+		p.id = IVideoConferenceUids.PROVIDER_TYPE;
 		p.label = "Type";
 		p.type = Property.Type.String;
 		resourceType.properties.add(p);
 
-		resources.create(IVideoConferenceUid.UID, resourceType);
+		resources.create(IVideoConferenceUids.RESOURCETYPE_UID, resourceType);
 	}
 
 }

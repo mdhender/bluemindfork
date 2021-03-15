@@ -24,7 +24,7 @@ import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor.Property;
-import net.bluemind.videoconferencing.api.IVideoConferenceUid;
+import net.bluemind.videoconferencing.api.IVideoConferenceUids;
 
 public class VideoConferencingResourceTypeSanitizer implements ISanitizer<ResourceTypeDescriptor> {
 
@@ -35,17 +35,17 @@ public class VideoConferencingResourceTypeSanitizer implements ISanitizer<Resour
 	@Override
 	public void update(ResourceTypeDescriptor current, ResourceTypeDescriptor obj) {
 
-		Optional<Property> type = current.properties.stream().filter(p -> p.id.equals(IVideoConferenceUid.UID + "-type")
+		Optional<Property> type = current.properties.stream().filter(p -> p.id.equals(IVideoConferenceUids.RESOURCETYPE_UID + "-type")
 				&& p.type == ResourceTypeDescriptor.Property.Type.String && p.label.equals("Type")).findFirst();
 
 		if (type.isPresent()) {
 			type = obj.properties.stream()
-					.filter(p -> p.id.equals(IVideoConferenceUid.UID + "-type")
+					.filter(p -> p.id.equals(IVideoConferenceUids.RESOURCETYPE_UID + "-type")
 							&& p.type == ResourceTypeDescriptor.Property.Type.String && p.label.equals("Type"))
 					.findFirst();
 			if (!type.isPresent()) {
 				Property p = new Property();
-				p.id = IVideoConferenceUid.UID + "-type";
+				p.id = IVideoConferenceUids.RESOURCETYPE_UID + "-type";
 				p.label = "Type";
 				p.type = Property.Type.String;
 				obj.properties.add(p);

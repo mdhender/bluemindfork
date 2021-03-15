@@ -28,7 +28,8 @@ public class VEventVideoConferencingSanitizer implements ISanitizer<VEventSeries
 	private IVideoConferencing videoConferencingService;
 
 	public VEventVideoConferencingSanitizer(BmContext context) {
-		videoConferencingService = context.provider().instance(IVideoConferencing.class);
+		videoConferencingService = context.provider().instance(IVideoConferencing.class,
+				context.getSecurityContext().getContainerUid());
 
 	}
 

@@ -95,6 +95,7 @@ goog.require("net.bluemind.calendar.service.CalendarsSyncManager");
 goog.require("net.bluemind.calendar.PendingEventsMgmt");
 goog.require('net.bluemind.resource.service.ResourcesService');
 goog.require('net.bluemind.videoconferencing.service.VideoConferencingService');
+goog.require('net.bluemind.videoconferencing.service.VideoConferencingUidsService');
 
 /**
  * Calendar application
@@ -262,22 +263,24 @@ net.bluemind.calendar.CalendarApplication.prototype.initializeFolders_ = functio
 };
 
 net.bluemind.calendar.CalendarApplication.prototype.initializeVideoConferencingResources_ = function(ctx) {
-  return ctx.service('resources').byTypeRemote('bm-videoconferencing').then(function(uids) {
-    if (uids.length > 0) {
-      var dir = new net.bluemind.directory.api.DirectoryClient(ctx.rpc, '', ctx.user['domainUid']);
-      return dir.getMultiple(uids).then(function(res) {
-        goog.array.forEach(res, function(r) {
-          var cm = new net.bluemind.core.container.api.ContainerManagementClient(ctx.rpc, '', 'calendar:' + r.uid);
-          cm.canAccess(['Invitation']).then(function(canInvite) {
-            r.canInvite = canInvite;            
+  return ctx.service('videoConferencingUids').getResourceTypeUid().then(function(resourceTypeUid) {
+    ctx.service('resources').byTypeRemote(resourceTypeUid).then(function(uids) {
+      if (uids.length > 0) {
+        var dir = new net.bluemind.directory.api.DirectoryClient(ctx.rpc, '', ctx.user['domainUid']);
+        return dir.getMultiple(uids).then(function(res) {
+          goog.array.forEach(res, function(r) {
+            var cm = new net.bluemind.core.container.api.ContainerManagementClient(ctx.rpc, '', 'calendar:' + r.uid);
+            cm.canAccess(['Invitation']).then(function(canInvite) {
+              r.canInvite = canInvite;            
+            });
           });
-        });
 
-        return ctx.service('videoConferencing').setVideoConferencingResources(res);
-      });
-    } else {
-      return ctx.service('videoConferencing').setVideoConferencingResources([]);
-    }
+          return ctx.service('videoConferencing').setVideoConferencingResources(res);
+        });
+      } else {
+        return ctx.service('videoConferencing').setVideoConferencingResources([]);
+      }
+    })
   })
 };
 
@@ -318,6 +321,7 @@ net.bluemind.calendar.CalendarApplication.prototype.registerServices = function(
   ctx.service("pendingEventsMgmt", net.bluemind.calendar.PendingEventsMgmt);
   ctx.service("resources", net.bluemind.resource.service.ResourcesService);
   ctx.service("videoConferencing", net.bluemind.videoconferencing.service.VideoConferencingService);
+  ctx.service("videoConferencingUids", net.bluemind.videoconferencing.service.VideoConferencingUidsService);
 };
 
 /** @override */

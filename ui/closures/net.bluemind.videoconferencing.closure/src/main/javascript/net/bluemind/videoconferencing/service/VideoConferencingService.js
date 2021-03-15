@@ -23,7 +23,6 @@ goog.require("net.bluemind.videoconferencing.api.VideoConferencingClient");
 goog.require("net.bluemind.container.service.ContainerService");
 goog.require("net.bluemind.mvp.helper.ServiceHelper");
 
-
 net.bluemind.videoconferencing.service.VideoConferencingService = function (ctx) {
     goog.base(this);
     this.ctx_ = ctx;
@@ -45,12 +44,12 @@ net.bluemind.videoconferencing.service.VideoConferencingService.prototype.getVid
 
 net.bluemind.videoconferencing.service.VideoConferencingService.prototype.add = function(evt) {
     var client = new net.bluemind.videoconferencing.api.VideoConferencingClient(
-        this.ctx_.rpc, '', '');
+        this.ctx_.rpc, '', this.ctx_.user['domainUid']);
     return client.add(evt);
 };
 
 net.bluemind.videoconferencing.service.VideoConferencingService.prototype.remove = function(evt) {
     var client = new net.bluemind.videoconferencing.api.VideoConferencingClient(
-        this.ctx_.rpc, '', '');
+        this.ctx_.rpc, '', this.ctx_.user['domainUid']);
     return client.remove(evt);
 };

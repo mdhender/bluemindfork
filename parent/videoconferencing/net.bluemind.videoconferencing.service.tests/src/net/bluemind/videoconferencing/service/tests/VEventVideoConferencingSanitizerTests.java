@@ -46,7 +46,7 @@ import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 import net.bluemind.tests.defaultdata.PopulateHelper;
-import net.bluemind.videoconferencing.api.IVideoConferenceUid;
+import net.bluemind.videoconferencing.api.IVideoConferenceUids;
 import net.bluemind.videoconferencing.service.calendar.VEventVideoConferencingSanitizer;
 
 public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferencingTests {
@@ -194,11 +194,11 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 	private ResourceDescriptor defaultDescriptor() {
 		ResourceDescriptor rd = new ResourceDescriptor();
 		rd.label = "coucou";
-		rd.typeIdentifier = IVideoConferenceUid.UID;
+		rd.typeIdentifier = IVideoConferenceUids.RESOURCETYPE_UID;
 		rd.dataLocation = PopulateHelper.FAKE_CYRUS_IP;
 		rd.emails = Arrays.asList(Email.create("videoconferencing@" + domainUid, true));
 		rd.properties = Arrays
-				.asList(ResourceDescriptor.PropertyValue.create(IVideoConferenceUid.TYPE, videoconfProviderId));
+				.asList(ResourceDescriptor.PropertyValue.create(IVideoConferenceUids.PROVIDER_TYPE, videoconfProviderId));
 		return rd;
 	}
 }

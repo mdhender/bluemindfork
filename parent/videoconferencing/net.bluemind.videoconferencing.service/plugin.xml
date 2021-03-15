@@ -6,6 +6,10 @@
       <endpoint
             api="net.bluemind.videoconferencing.api.IVideoConferencing">
       </endpoint>
+      <endpoint
+            api="net.bluemind.videoconferencing.api.IVideoConferenceUids"
+            inline="true">
+      </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
@@ -30,6 +34,12 @@
       <sanitizerfactory
             implementation="net.bluemind.videoconferencing.service.calendar.VEventVideoConferencingSanitizer$Factory">
       </sanitizerfactory>
+   </extension>
+   <extension
+         point="net.bluemind.resource.resourceHook">
+      <hook
+            class="net.bluemind.videoconferencing.service.resourcehook.VideoConferencingResourceHook">
+      </hook>
    </extension>
 
 </plugin>

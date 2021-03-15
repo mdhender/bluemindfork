@@ -17,9 +17,12 @@
   */
 package net.bluemind.videoconferencing.service.internal;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -27,8 +30,20 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
+import net.bluemind.calendar.api.CalendarSettingsData;
+import net.bluemind.calendar.api.CalendarSettingsData.Day;
+import net.bluemind.calendar.api.ICalendarSettings;
+import net.bluemind.calendar.api.ICalendarUids;
+import net.bluemind.core.api.Email;
 import net.bluemind.core.container.api.IContainerManagement;
+import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
@@ -36,10 +51,11 @@ import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.resource.api.ResourceDescriptor.PropertyValue;
-import net.bluemind.user.api.IUserSettings;
-import net.bluemind.videoconferencing.api.IVideoConferenceUid;
+import net.bluemind.resource.api.ResourceReservationMode;
+import net.bluemind.videoconferencing.api.IVideoConferenceUids;
 import net.bluemind.videoconferencing.api.IVideoConferencing;
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
+import net.bluemind.videoconferencing.api.VideoConferencingResourceDescriptor;
 import net.bluemind.videoconferencing.service.template.VideoConferencingTemplateHelper;
 
 public class VideoConferencingService implements IVideoConferencing {
@@ -47,25 +63,27 @@ public class VideoConferencingService implements IVideoConferencing {
 	private static final Logger logger = LoggerFactory.getLogger(VideoConferencingService.class);
 
 	private BmContext context;
+	private String domainUid;
 
 	private static final List<IVideoConferencingProvider> providers = loadProviders();
 	private static final VideoConferencingTemplateHelper templateHelper = new VideoConferencingTemplateHelper();
 
-	public VideoConferencingService(BmContext context) {
+	public VideoConferencingService(BmContext context, String domainUid) {
 		this.context = context;
+		this.domainUid = domainUid;
 	}
 
 	@Override
 	public ICalendarElement add(ICalendarElement vevent) {
-		List<ResourceDescriptor> videoConferencingResoures = getVideoConferencingResource(vevent.attendees);
+		List<ItemValue<ResourceDescriptor>> videoConferencingResoures = getVideoConferencingResource(vevent.attendees);
 		if (videoConferencingResoures.isEmpty()) {
 			return vevent;
 		}
 
-		ResourceDescriptor resourceDescriptor = videoConferencingResoures.get(0);
+		ItemValue<ResourceDescriptor> resource = videoConferencingResoures.get(0);
 
-		Optional<PropertyValue> videoConferencingType = resourceDescriptor.properties.stream()
-				.filter(p -> p.propertyId.equals(IVideoConferenceUid.TYPE)).findFirst();
+		Optional<PropertyValue> videoConferencingType = resource.value.properties.stream()
+				.filter(p -> p.propertyId.equals(IVideoConferenceUids.PROVIDER_TYPE)).findFirst();
 
 		Optional<IVideoConferencingProvider> videoConferencingProviderOpt = providers.stream()
 				.filter(p -> p.id().equals(videoConferencingType.get().value)).findFirst();
@@ -77,24 +95,19 @@ public class VideoConferencingService implements IVideoConferencing {
 
 		IVideoConferencingProvider videoConferencingProvider = videoConferencingProviderOpt.get();
 		IContainerManagement containerMgmtService = context.getServiceProvider().instance(IContainerManagement.class,
-				videoConferencingProvider.id() + "-settings-container");
+				resource.uid + "-settings-container");
 
 		Map<String, String> settings = containerMgmtService.getSettings();
 		String baseUrl = settings.get("url");
 		vevent.conference = videoConferencingProvider.getUrl(baseUrl);
 
-		IUserSettings userSettingsService = context.getServiceProvider().instance(IUserSettings.class,
-				context.getSecurityContext().getContainerUid());
-		String lang = userSettingsService.get(context.getSecurityContext().getSubject()).get("lang");
-
-		String descriptionToAdd = templateHelper.processTemplate(context.getSecurityContext().getContainerUid(),
-				videoConferencingProvider.id(), lang, vevent);
+		String descriptionToAdd = templateHelper.processTemplate(context, resource, vevent);
 
 		if (vevent.description == null) {
 			vevent.description = "";
 		}
 
-		if (!templateHelper.containsTemplate(vevent.description, videoConferencingProvider.id())) {
+		if (!templateHelper.containsTemplate(vevent.description, resource.uid)) {
 			vevent.description = templateHelper.addTemplate(vevent.description, descriptionToAdd);
 		}
 		return vevent;
@@ -108,10 +121,10 @@ public class VideoConferencingService implements IVideoConferencing {
 
 		vevent.conference = null;
 
-		List<ResourceDescriptor> videoConferencingResoures = getVideoConferencingResource(vevent.attendees);
-		ResourceDescriptor resourceDescriptor = videoConferencingResoures.get(0);
-		Optional<PropertyValue> videoConferencingType = resourceDescriptor.properties.stream()
-				.filter(p -> p.propertyId.equals(IVideoConferenceUid.TYPE)).findFirst();
+		List<ItemValue<ResourceDescriptor>> videoConferencingResoures = getVideoConferencingResource(vevent.attendees);
+		ItemValue<ResourceDescriptor> resource = videoConferencingResoures.get(0);
+		Optional<PropertyValue> videoConferencingType = resource.value.properties.stream()
+				.filter(p -> p.propertyId.equals(IVideoConferenceUids.PROVIDER_TYPE)).findFirst();
 		Optional<IVideoConferencingProvider> videoConferencingProvider = providers.stream()
 				.filter(p -> p.id().equals(videoConferencingType.get().value)).findFirst();
 		if (!videoConferencingProvider.isPresent()) {
@@ -119,26 +132,29 @@ public class VideoConferencingService implements IVideoConferencing {
 			return vevent;
 		}
 		VideoConferencingTemplateHelper templateHelper = new VideoConferencingTemplateHelper();
-		vevent.description = templateHelper.removeTemplate(vevent.description, videoConferencingProvider.get().id());
+		vevent.description = templateHelper.removeTemplate(vevent.description, resource.uid);
 
-		vevent.attendees.removeIf(a -> a.cutype == CUType.Resource
-				&& a.dir.equals("bm://" + context.getSecurityContext().getContainerUid() + "/resources/"
-						+ videoConferencingProvider.get().id()));
+		vevent.attendees.removeIf(a -> a.cutype == CUType.Resource && a.dir
+				.equals("bm://" + context.getSecurityContext().getContainerUid() + "/resources/" + resource.uid));
 
 		return vevent;
 	}
 
-	private List<ResourceDescriptor> getVideoConferencingResource(List<Attendee> attendees) {
+	private List<ItemValue<ResourceDescriptor>> getVideoConferencingResource(List<Attendee> attendees) {
 		IResources resourceService = context.getServiceProvider().instance(IResources.class,
 				context.getSecurityContext().getContainerUid());
 		return attendees.stream().filter(a -> a.cutype == CUType.Resource).map(a -> getResource(a, resourceService))
-				.filter(res -> res != null && res.typeIdentifier.equals(IVideoConferenceUid.UID))
+				.filter(res -> res != null && res.value.typeIdentifier.equals(IVideoConferenceUids.RESOURCETYPE_UID))
 				.collect(Collectors.toList());
 	}
 
-	private ResourceDescriptor getResource(Attendee a, IResources service) {
+	private ItemValue<ResourceDescriptor> getResource(Attendee a, IResources service) {
 		String uid = a.dir.substring(a.dir.lastIndexOf("/") + 1);
-		return service.get(uid);
+		ResourceDescriptor res = service.get(uid);
+		if (res != null) {
+			return ItemValue.create(uid, res);
+		}
+		return null;
 	}
 
 	private static List<IVideoConferencingProvider> loadProviders() {
@@ -152,13 +168,13 @@ public class VideoConferencingService implements IVideoConferencing {
 			return add(current);
 		}
 
-		List<ResourceDescriptor> oldConferenceResources = getVideoConferencingResource(old.attendees);
+		List<ItemValue<ResourceDescriptor>> oldConferenceResources = getVideoConferencingResource(old.attendees);
 		if (oldConferenceResources.isEmpty()) {
 			return current;
 		}
-		ResourceDescriptor oldResourceDescriptor = oldConferenceResources.get(0);
+		ResourceDescriptor oldResourceDescriptor = oldConferenceResources.get(0).value;
 		Optional<PropertyValue> oldVideoConferencingType = oldResourceDescriptor.properties.stream()
-				.filter(p -> p.propertyId.equals(IVideoConferenceUid.TYPE)).findFirst();
+				.filter(p -> p.propertyId.equals(IVideoConferenceUids.PROVIDER_TYPE)).findFirst();
 
 		resetConferenceData(current, oldVideoConferencingType);
 		return add(current);
@@ -174,4 +190,130 @@ public class VideoConferencingService implements IVideoConferencing {
 				oldVideoConferencingProvider.get().id());
 	}
 
+	@Override
+	public void createResource(String uid, VideoConferencingResourceDescriptor descriptor) {
+		IServiceProvider sp = context.getServiceProvider();
+
+		IResources resourcesService = sp.instance(IResources.class, domainUid);
+
+		ResourceDescriptor resource = new ResourceDescriptor();
+		resource.label = descriptor.label;
+		resource.typeIdentifier = IVideoConferenceUids.RESOURCETYPE_UID;
+		resource.properties = new ArrayList<>();
+		resource.properties.add(PropertyValue.create(IVideoConferenceUids.PROVIDER_TYPE, descriptor.provider));
+		String email = UUID.randomUUID().toString().toLowerCase() + "@" + domainUid;
+		resource.emails = Arrays.asList(Email.create(email, true, true));
+		resource.reservationMode = ResourceReservationMode.AUTO_ACCEPT;
+
+		logger.info("Create videoconferencing resource for domain {}, label {}, provider {}", domainUid,
+				descriptor.label, descriptor.provider);
+
+		resourcesService.create(uid, resource);
+
+		// calendar settings
+		IDomainSettings domSettingsService = sp.instance(IDomainSettings.class, domainUid);
+		Map<String, String> domSettings = domSettingsService.get();
+		CalendarSettingsData calSettings = createCalendarSettings(domSettings);
+		ICalendarSettings calSettingsService = sp.instance(ICalendarSettings.class,
+				ICalendarUids.resourceCalendar(uid));
+		calSettingsService.set(calSettings);
+
+		// default calendar acl
+		IContainerManagement containerManagementService = sp.instance(IContainerManagement.class,
+				ICalendarUids.resourceCalendar(uid));
+		containerManagementService
+				.setAccessControlList(Arrays.asList(AccessControlEntry.create(domainUid, Verb.Invitation)));
+
+		// container settings
+		String resourceSettingsContainerUid = uid + "-settings-container";
+		ContainerDescriptor cd = new ContainerDescriptor();
+		cd.uid = resourceSettingsContainerUid;
+		cd.domainUid = domainUid;
+		cd.name = resourceSettingsContainerUid;
+		cd.owner = uid;
+		cd.type = "container_settings";
+		IContainers containersService = sp.instance(IContainers.class);
+		logger.info("Create videoconferencing resource settings container {}", cd.uid);
+
+		containersService.create(cd.uid, cd);
+
+		// acls
+		containerManagementService = sp.instance(IContainerManagement.class, resourceSettingsContainerUid);
+		containerManagementService.setAccessControlList(Arrays.asList(AccessControlEntry.create(domainUid, Verb.Read)));
+	}
+
+	private CalendarSettingsData createCalendarSettings(Map<String, String> domainSettings) {
+		CalendarSettingsData calSettings = new CalendarSettingsData();
+		if (domainSettings.containsKey("working_days")) {
+			calSettings.workingDays = getWorkingDays(domainSettings.get("working_days"));
+		} else {
+			calSettings.workingDays = Arrays.asList(new Day[] { Day.MO, Day.TU, Day.WE, Day.TH, Day.FR });
+		}
+		if (domainSettings.containsKey("timezone")) {
+			calSettings.timezoneId = domainSettings.get("timezone");
+		} else {
+			calSettings.timezoneId = "UTC";
+		}
+		if (domainSettings.containsKey("work_hours_start")) {
+			calSettings.dayStart = toMillisOfDay(domainSettings.get("work_hours_start"));
+		} else {
+			calSettings.dayStart = 9 * 60 * 60 * 1000;
+		}
+		if (domainSettings.containsKey("work_hours_end")) {
+			calSettings.dayEnd = toMillisOfDay(domainSettings.get("work_hours_end"));
+		} else {
+			calSettings.dayEnd = 18 * 60 * 60 * 1000;
+		}
+		if (domainSettings.containsKey("min_duration")) {
+			calSettings.minDuration = Math.max(60, Integer.parseInt(domainSettings.get("min_duration")));
+		} else {
+			calSettings.minDuration = 60;
+		}
+		if (!validMinDuration(calSettings.minDuration)) {
+			calSettings.minDuration = 60;
+		}
+		return calSettings;
+	}
+
+	private boolean validMinDuration(Integer minDuration) {
+		return minDuration == 60 || minDuration == 120 || minDuration == 720 || minDuration == 1440;
+	}
+
+	private Integer toMillisOfDay(String value) {
+		double time = Double.parseDouble(value);
+		int timeHour = (int) Double.parseDouble(value);
+		int timeMinute = (int) ((time - timeHour) * 60);
+		int minutes = timeHour * 60 + timeMinute;
+		return minutes * 60 * 1000;
+	}
+
+	private List<Day> getWorkingDays(String string) {
+		List<Day> days = new ArrayList<>();
+		for (String dayString : string.split(",")) {
+			switch (dayString.trim().toLowerCase()) {
+			case "mon":
+				days.add(Day.MO);
+				break;
+			case "tue":
+				days.add(Day.TU);
+				break;
+			case "wed":
+				days.add(Day.WE);
+				break;
+			case "thu":
+				days.add(Day.TH);
+				break;
+			case "fri":
+				days.add(Day.FR);
+				break;
+			case "sam":
+				days.add(Day.SA);
+				break;
+			case "sun":
+				days.add(Day.SU);
+				break;
+			}
+		}
+		return days;
+	}
 }
