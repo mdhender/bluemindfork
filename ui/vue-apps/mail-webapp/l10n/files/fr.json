@@ -89,6 +89,9 @@
                 "loading": "Envoi de \"{subject}\" en cours...",
                 "success": "\"{subject}\" a bien été envoyé !",
                 "error": "\"{subject}\" n'a pu être envoyé : {reason}"
+            },
+            "video_conference": {
+                "info": "Accéder à la vidéo conférence."
             }
         }
     },

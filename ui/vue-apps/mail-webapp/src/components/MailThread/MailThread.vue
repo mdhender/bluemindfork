@@ -28,6 +28,7 @@ import { BmAlertArea } from "@bluemind/styleguide";
 import { RESET_ACTIVE_MESSAGE, SET_ACTIVE_FOLDER, SET_BLOCK_REMOTE_IMAGES, SET_MESSAGE_COMPOSING } from "~mutations";
 import { MESSAGE_IS_LOADED, MY_DRAFTS } from "~getters";
 import BlockedRemoteContent from "./Alerts/BlockedRemoteContent";
+import VideoConferencing from "./Alerts/VideoConferencing";
 import MailComposer from "../MailComposer";
 import MailViewer from "../MailViewer";
 import MailViewerLoading from "../MailViewer/MailViewerLoading";
@@ -40,7 +41,8 @@ export default {
         BmAlertArea,
         MailComposer,
         MailViewer,
-        MailViewerLoading
+        MailViewerLoading,
+        VideoConferencing
     },
     mixins: [WaitForMixin],
     provide: {

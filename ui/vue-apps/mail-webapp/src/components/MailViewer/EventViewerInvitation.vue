@@ -6,15 +6,25 @@
         </h1>
         <hr />
         <div class="font-weight-bold">
-            <bm-label-icon icon="event" class="d-block">{{ $t("common.title") }}</bm-label-icon>
+            <bm-label-icon icon="event">{{ $t("common.title") }}</bm-label-icon>
             {{ currentEvent.summary }}
         </div>
         <hr />
         <div class="font-weight-bold">
-            <bm-label-icon icon="clock" class="d-block">{{ $t("common.when") }}</bm-label-icon>
+            <bm-label-icon icon="clock">{{ $t("common.when") }}</bm-label-icon>
             {{ currentEvent.date }}
         </div>
         <hr />
+        <template v-if="currentEvent.conference">
+            <div class="font-weight-bold">
+                <bm-label-icon icon="video">{{ $t("common.videoconference") }}</bm-label-icon>
+                <a ref="conference" :href="currentEvent.conference" target="_blank">{{ currentEvent.conference }}</a>
+                <bm-button variant="inline" @click="copy">
+                    <bm-icon icon="copy" />
+                </bm-button>
+            </div>
+            <hr />
+        </template>
         <div>
             <bm-label-icon icon="user" class="font-weight-bold d-block">{{ $t("common.organizer") }}</bm-label-icon>
             <span class="font-weight-bold">{{ currentEvent.organizer.name }}</span>
@@ -44,13 +54,15 @@
 </template>
 <script>
 import { mapState } from "vuex";
-import { BmLabelIcon } from "@bluemind/styleguide";
+import { BmButton, BmLabelIcon, BmIcon } from "@bluemind/styleguide";
 import { LoadingStatus } from "../../model/loading-status";
 import MailViewerContentLoading from "./MailViewerContentLoading";
 export default {
     name: "EventViewerInvitation",
     components: {
+        BmButton,
         BmLabelIcon,
+        BmIcon,
         MailViewerContentLoading
     },
     props: {
@@ -64,6 +76,20 @@ export default {
     },
     computed: {
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent })
+    },
+    methods: {
+        copy() {
+            try {
+                navigator.clipboard.writeText(this.currentEvent.conference);
+            } catch {
+                const range = document.createRange();
+                range.selectNode(this.$refs["conference"]);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand("copy");
+                window.getSelection().removeAllRanges();
+            }
+        }
     }
 };
 </script>
@@ -74,6 +100,7 @@ export default {
     .bm-label-icon {
         color: $calendar-color;
         margin-left: #{-1rem - $sp-3};
+        display: flex !important;
 
         svg {
             margin-right: $sp-3 !important;

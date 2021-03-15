@@ -17,7 +17,7 @@
 </template>
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-import { WARNING, REMOVE } from "@bluemind/alert.store";
+import { INFO, WARNING, REMOVE } from "@bluemind/alert.store";
 import { BmChoiceGroup } from "@bluemind/styleguide";
 import PartsViewer from "./PartsViewer/PartsViewer";
 import ReplyToCounterProposal from "./ReplyToCounterProposal";
@@ -60,15 +60,35 @@ export default {
                 alert: { name: "mail.EVENT_NOT_FOUND", uid: "EVENT_NOT_FOUND" },
                 options: { area: "mail-thread", renderer: "DefaultAlert" }
             };
+        },
+        videoConferenceAlert() {
+            return {
+                alert: {
+                    name: "mail.VIDEO_CONFERENCE",
+                    uid: "VIDEO_CONFERENCE",
+                    payload: this.currentEvent.conference
+                },
+                options: {
+                    area: "mail-thread",
+                    renderer: "VideoConferencing",
+                    icon: "video-circle",
+                    dismissible: false
+                }
+            };
         }
     },
     watch: {
         "message.key": {
             immediate: true,
             async handler() {
-                this.REMOVE(this.eventNotFoundAlert.alert);
                 try {
                     await this.FETCH_EVENT({ message: this.message, mailbox: this.CURRENT_MAILBOX });
+                    this.REMOVE(this.eventNotFoundAlert.alert);
+                    if (this.currentEvent.conference) {
+                        this.INFO(this.videoConferenceAlert);
+                    } else {
+                        this.REMOVE(this.videoConferenceAlert.alert);
+                    }
                 } catch {
                     this.WARNING(this.eventNotFoundAlert);
                 }
@@ -80,10 +100,11 @@ export default {
     },
     destroyed() {
         this.REMOVE(this.eventNotFoundAlert.alert);
+        this.REMOVE(this.videoConferenceAlert.alert);
     },
     methods: {
         ...mapActions("mail", { FETCH_EVENT }),
-        ...mapActions("alert", { REMOVE, WARNING })
+        ...mapActions("alert", { INFO, REMOVE, WARNING })
     }
 };
 </script>

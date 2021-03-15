@@ -89,6 +89,9 @@
                 "loading": "Sending \"{subject}\" in progress...",
                 "error": "\"{subject}\" has not been sent: {reason}",
                 "success": "\"{subject}\" successfully sent!"
+            },
+            "video_conference": {
+                "info": "Join the video conference."
             }
         }
     },

@@ -89,6 +89,9 @@
                 "loading": "Versand von \"{subject}\"...",
                 "error": "\"{subject}\" konnte nicht gesendet werden.",
                 "success": "\"{subjectWithLink}\" erfolgreich versendet!"
+            },
+            "video_conference": {
+                "info": "An der Videokonferenz teilnehmen."
             }
         }
     },
