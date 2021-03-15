@@ -180,11 +180,9 @@ public class VXStoreClient implements IAsyncStoreClient {
 
 	@Override
 	public CompletableFuture<Void> fetch(long uid, String part, WriteStream<Buffer> target, Decoder dec) {
-		StreamSinkProcessor proc = new StreamSinkProcessor(dec.withDelegate(target));
+		StreamSinkProcessor proc = new StreamSinkProcessor(selected, uid, part, dec.withDelegate(target));
 		String cmd = tagged("UID FETCH " + uid + " (UID BODY.PEEK[" + part + "])");
-		sock.ifPresent(ns -> {
-			retryableFetch(proc, cmd, ns);
-		});
+		sock.ifPresent(ns -> retryableFetch(proc, cmd, ns));
 		return proc.future().thenApply(r -> {
 			packetProc.setDelegate(null);
 			return r;

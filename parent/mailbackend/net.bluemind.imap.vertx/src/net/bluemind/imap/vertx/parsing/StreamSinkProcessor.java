@@ -21,6 +21,8 @@ package net.bluemind.imap.vertx.parsing;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import com.google.common.base.MoreObjects;
+
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.imap.vertx.parsing.ImapChunker.ImapChunk;
@@ -30,8 +32,14 @@ public class StreamSinkProcessor implements IProcessorDelegate {
 	private final Optional<WriteStream<Buffer>> sink;
 	private final CompletableFuture<Void> over;
 	private boolean expectStream = false;
+	private final long uid;
+	private final String part;
+	private final String selected;
 
-	public StreamSinkProcessor(WriteStream<Buffer> sink) {
+	public StreamSinkProcessor(String selected, long uid, String part, WriteStream<Buffer> sink) {
+		this.selected = selected;
+		this.uid = uid;
+		this.part = part;
 		this.over = new CompletableFuture<>();
 		this.sink = Optional.of(sink);
 	}
@@ -56,6 +64,12 @@ public class StreamSinkProcessor implements IProcessorDelegate {
 	@Override
 	public Optional<WriteStream<Buffer>> delegateStream() {
 		return sink;
+	}
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(StreamSinkProcessor.class).add("sel", selected).add("uid", uid)
+				.add("part", part).toString();
 	}
 
 }
