@@ -27,6 +27,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.base.RestRequest;
 import net.bluemind.core.rest.base.RestResponse;
 import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.core.utils.JsonUtils.ValueReader;
 
 public class JsonObjectCodec {
 
@@ -65,10 +66,10 @@ public class JsonObjectCodec {
 
 	public static class Response<T> implements ResponseCodec<T> {
 
-		private Type type;
+		private final ValueReader<Object> reader;
 
 		Response(Type type) {
-			this.type = type;
+			this.reader = JsonUtils.reader(type);
 		}
 
 		@Override
@@ -89,7 +90,7 @@ public class JsonObjectCodec {
 				return null;
 			} else {
 				try {
-					return (T) JsonUtils.read(response.data.toString(), type);
+					return (T) reader.read(response.data.toString());
 				} catch (Exception e) {
 					throw new CodecParseException(e);
 				}

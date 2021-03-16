@@ -20,6 +20,8 @@ package net.bluemind.core.utils;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -76,6 +78,16 @@ public class JsonUtils {
 
 	public static <T> ValueReader<T> reader(Class<T> type) {
 		return new ValueReader<>(objectMapper.readerFor(type));
+	}
+
+	private static final Map<Type, ValueReader<?>> storedReaders = new ConcurrentHashMap<>();
+
+	@SuppressWarnings("unchecked")
+	public static <T> ValueReader<T> reader(Type type) {
+		return (ValueReader<T>) storedReaders.computeIfAbsent(type, k -> {
+			JavaType typ = objectMapper.getTypeFactory().constructType(type);
+			return new ValueReader<>(objectMapper.readerFor(typ));
+		});
 	}
 
 	public static <T> T read(String value, Class<T> type) {
