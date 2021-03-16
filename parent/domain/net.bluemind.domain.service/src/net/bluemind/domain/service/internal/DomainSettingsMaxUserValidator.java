@@ -53,7 +53,9 @@ public class DomainSettingsMaxUserValidator implements IValidator<DomainSettings
 
 	@Override
 	public void create(DomainSettings obj) throws ServerFault {
-		if (obj.settings.containsValue(DomainSettingsKeys.domain_max_users.name())) {
+		// null is default value, allow it on create
+		if (obj.settings.containsKey(DomainSettingsKeys.domain_max_users.name())
+				&& obj.settings.get(DomainSettingsKeys.domain_max_users.name()) != null) {
 			checkAccess(obj.domainUid);
 		}
 	}

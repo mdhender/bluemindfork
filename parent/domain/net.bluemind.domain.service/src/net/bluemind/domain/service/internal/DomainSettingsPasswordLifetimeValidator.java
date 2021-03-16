@@ -52,7 +52,9 @@ public class DomainSettingsPasswordLifetimeValidator implements IValidator<Domai
 
 	@Override
 	public void create(DomainSettings obj) throws ServerFault {
-		if (obj.settings.containsKey(DomainSettingsKeys.password_lifetime.name())) {
+		// null is default value, allow it on create
+		if (obj.settings.containsKey(DomainSettingsKeys.password_lifetime.name())
+				&& obj.settings.get(DomainSettingsKeys.password_lifetime.name()) != null) {
 			checkAccess(obj.domainUid);
 			checkValue(obj.settings.get(DomainSettingsKeys.password_lifetime.name()));
 		}

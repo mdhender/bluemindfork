@@ -56,7 +56,9 @@ public class DomainSettingsMaxBasicAccountValidator implements IValidator<Domain
 
 	@Override
 	public void create(DomainSettings settings) throws ServerFault {
-		if (settings.settings.containsKey(DomainSettingsKeys.domain_max_basic_account.name())) {
+		// null is default value, allow it on create
+		if (settings.settings.containsKey(DomainSettingsKeys.domain_max_basic_account.name())
+				&& settings.settings.get(DomainSettingsKeys.domain_max_basic_account.name()) != null) {
 			RBACManager.forContext(context).check(BasicRoles.ROLE_DOMAIN_MAX_VALUES);
 			checkValue(settings.settings);
 		}
