@@ -43,7 +43,6 @@ import com.google.common.escape.Escaper;
 import com.google.common.net.PercentEscaper;
 
 import io.vertx.core.MultiMap;
-import io.vertx.core.http.CaseInsensitiveHeaders;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import net.bluemind.core.api.AsyncHandler;
@@ -243,17 +242,12 @@ public class ClientProxyGenerator<S, T> {
 	public T client(final String origin, final List<String> remoteIps, final IRestCallHandler callHandler,
 			final MultiMap defaultHeaders, final String... params) {
 		Object proxy = Proxy.newProxyInstance(api.getClassLoader(), new Class<?>[] { this.asyncApi },
-				new InvocationHandler() {
-
-					@Override
-					public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
-						EventMethodInvoker m = methodsMap.get(method.getName());
-						@SuppressWarnings("unchecked")
-						AsyncHandler<Object> respHandler = (AsyncHandler<Object>) args[args.length - 1];
-						m.invoke(origin, remoteIps, callHandler, defaultHeaders, params, args, respHandler);
-						return null;
-					}
+				(Object prox, Method method, Object[] args) -> {
+					EventMethodInvoker m = methodsMap.get(method.getName());
+					@SuppressWarnings("unchecked")
+					AsyncHandler<Object> respHandler = (AsyncHandler<Object>) args[args.length - 1];
+					m.invoke(origin, remoteIps, callHandler, defaultHeaders, params, args, respHandler);
+					return null;
 				});
 
 		return asyncApi.cast(proxy);
@@ -337,12 +331,12 @@ public class ClientProxyGenerator<S, T> {
 
 	}
 
-	private class QueryParameter<QT> implements Parameter {
+	private class QueryParameter<Q> implements Parameter {
 		private final int index;
 		private String name;
-		private QueryParameterCodec<QT> codec;
+		private QueryParameterCodec<Q> codec;
 
-		public QueryParameter(int index, String name, QueryParameterCodec<QT> codec) {
+		public QueryParameter(int index, String name, QueryParameterCodec<Q> codec) {
 			this.index = index;
 			this.name = name;
 			this.codec = codec;
@@ -350,23 +344,23 @@ public class ClientProxyGenerator<S, T> {
 
 		@Override
 		public void setParameter(HttpRequestBuilder requestBuilder, Object[] args) {
-			codec.encode((QT) args[index], requestBuilder.request.params, name);
+			codec.encode((Q) args[index], requestBuilder.request.params, name);
 		}
 
 	}
 
-	private class JsonParameter<QT> implements Parameter {
+	private class JsonParameter<Q> implements Parameter {
 		private final int index;
-		private BodyParameterCodec<QT> codec;
+		private BodyParameterCodec<Q> codec;
 
-		public JsonParameter(int index, BodyParameterCodec<QT> codec) {
+		public JsonParameter(int index, BodyParameterCodec<Q> codec) {
 			this.index = index;
 			this.codec = codec;
 		}
 
 		@Override
 		public void setParameter(final HttpRequestBuilder requestBuilder, Object[] args) throws Exception {
-			codec.encode((QT) args[index], requestBuilder.request);
+			codec.encode((Q) args[index], requestBuilder.request);
 		}
 
 	}
@@ -391,7 +385,7 @@ public class ClientProxyGenerator<S, T> {
 		public RestRequest build(String[] instanceParams, Object[] args) throws Exception {
 			MultiMap headers = RestHeaders.newMultimap();
 			headers.add(HttpHeaders.ACCEPT, mimeType);
-			MultiMap queryParams = new CaseInsensitiveHeaders();
+			MultiMap queryParams = MultiMap.caseInsensitiveMultiMap();
 
 			RestRequest request = new RestRequest(null, null, methodName, headers, null, queryParams, null, null);
 			HttpRequestBuilder builder = new HttpRequestBuilder();
@@ -418,7 +412,14 @@ public class ClientProxyGenerator<S, T> {
 		Map<String, String> pathParams = new HashMap<>();
 	}
 
-	private final static Map<Class<?>, ClientProxyGenerator<?, ?>> cached = new ConcurrentHashMap<>();
+	private static final Map<Class<?>, ClientProxyGenerator<?, ?>> cached = new ConcurrentHashMap<>();
+
+	@SuppressWarnings("serial")
+	private static class RestGeneratorException extends RuntimeException {
+		public RestGeneratorException(Throwable t) {
+			super(t);
+		}
+	}
 
 	@SuppressWarnings("unchecked")
 	public static <S, T> ClientProxyGenerator<S, T> generator(Class<S> api, Class<T> asyncApi) {
@@ -430,8 +431,7 @@ public class ClientProxyGenerator<S, T> {
 			try {
 				asyncApi = (Class<T>) Class.forName(api.getCanonicalName() + "Async", false, api.getClassLoader());
 			} catch (ClassNotFoundException e) {
-				logger.error(e.getMessage(), e);
-				throw new RuntimeException(e);
+				throw new RestGeneratorException(e);
 			}
 		}
 

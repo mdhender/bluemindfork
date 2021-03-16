@@ -34,6 +34,7 @@ import net.bluemind.exchange.mapi.api.IMapiFoldersMgmt;
 import net.bluemind.exchange.mapi.api.IMapiMailbox;
 import net.bluemind.exchange.mapi.api.MapiReplica;
 import net.bluemind.exchange.mapi.service.internal.MapiFoldersMgmt;
+import net.bluemind.exchange.publicfolders.common.PublicFolders;
 
 public class MapiFoldersMgmtFactory implements ServerSideServiceProvider.IServerSideServiceFactory<IMapiFoldersMgmt> {
 
@@ -63,7 +64,8 @@ public class MapiFoldersMgmtFactory implements ServerSideServiceProvider.IServer
 		}
 		String hierUid = IFlatHierarchyUids.getIdentifier(mboxUid, domain);
 		DataSource storeDs = DataSourceRouter.get(context, hierUid);
-		if (context.getDataSource() == storeDs) {
+		boolean pf = PublicFolders.mailboxGuid(domain).equals(mboxUid);
+		if (!pf && context.getDataSource() == storeDs) {
 			logger.warn("Directory DS selected for {} @ {}", mboxUid, domain);
 		}
 		return getService(context, domain, replica, storeDs);
