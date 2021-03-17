@@ -2,7 +2,10 @@ import { mapState } from "vuex";
 
 export default {
     computed: {
-        ...mapState("mail", ["activeFolder", "folders", "mailboxes"])
+        ...mapState("mail", ["activeFolder", "folders", "mailboxes"]),
+        serviceWorker() {
+            return navigator.serviceWorker && navigator.serviceWorker.controller;
+        }
     },
     async created() {
         await this.initialized;
@@ -21,14 +24,14 @@ export default {
         async $_ServerPush_sendMessage(message, skip, defaultResponse) {
             return new Promise(resolve => {
                 const messageChannel = new MessageChannel();
-                if (!serviceWorker || skip) {
+                if (!this.serviceWorker || skip) {
                     resolve(defaultResponse);
                 } else {
                     messageChannel.port1.onmessage = message => {
                         messageChannel.port1.close();
                         resolve(message.data);
                     };
-                    serviceWorker.postMessage(message, [messageChannel.port2]);
+                    this.serviceWorker.postMessage(message, [messageChannel.port2]);
                 }
             });
         },
@@ -55,4 +58,3 @@ export default {
         }
     }
 };
-const serviceWorker = navigator.serviceWorker && navigator.serviceWorker.controller;
