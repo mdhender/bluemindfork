@@ -46,11 +46,26 @@ public class ImageHandlingTests {
 		}
 	}
 
+	private byte[] bigForBM16825() throws IOException {
+
+		try (InputStream in = getClass().getClassLoader().getResourceAsStream("/data/bm-16825.png")) {
+			return ByteStreams.toByteArray(in);
+		}
+	}
+
 	@Test
 	public void testCheckAndSanitizeThenResize() throws IOException {
 		assertNotNull(whatever());
 		ImageUtils.checkAndSanitize(whatever());
 		ImageUtils.resize(whatever(), 500, 50);
+
+	}
+
+	@Test
+	public void testCheckAndSanitizeBM16825() throws IOException {
+		assertNotNull(bigForBM16825());
+		ImageUtils.checkAndSanitize(bigForBM16825());
+		ImageUtils.resize(bigForBM16825(), 500, 50);
 
 	}
 

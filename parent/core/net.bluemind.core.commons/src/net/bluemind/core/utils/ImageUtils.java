@@ -69,10 +69,12 @@ public class ImageUtils {
 			tmpFile = Files.createTempFile("image-check-and-sanitize", ".png");
 			try (OutputStream out = Files.newOutputStream(tmpFile)) {
 				ImageIO.write(bi, "png", out);
-				if (tmpFile.toFile().length() < 1024 * 1024) {
+				long newLen = tmpFile.toFile().length();
+				if (newLen < 1024 * 1024) {
 					return Files.readAllBytes(tmpFile);
 				} else {
-					throw new ServerFault("Image is too big, original size is " + icon.length + " byte(s)");
+					throw new ServerFault("Image is too big, original size is " + icon.length + " byte(s), new size is "
+							+ newLen + " byte(s)");
 				}
 			}
 		} catch (IOException e) {
@@ -130,11 +132,11 @@ public class ImageUtils {
 		double w = reader.getWidth(0);
 		double h = reader.getHeight(0);
 		if (w > 8000 || h > 8000) {
-			subsampling = 8;
+			subsampling = 16;
 		} else if (w > 4000 || h > 4000) {
-			subsampling = 4;
+			subsampling = 8;
 		} else if (w > 2000 || h > 2000) {
-			subsampling = 2;
+			subsampling = 4;
 		}
 
 		ImageReadParam param = reader.getDefaultReadParam();
