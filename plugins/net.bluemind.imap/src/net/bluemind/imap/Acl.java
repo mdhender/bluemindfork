@@ -71,7 +71,7 @@ public class Acl implements Cloneable {
 	/**
 	 * Read only
 	 */
-	public static final Acl RO = new Acl("lrsp");
+	public static final Acl RO = new Acl("lrp");
 
 	/**
 	 * No rights at all
