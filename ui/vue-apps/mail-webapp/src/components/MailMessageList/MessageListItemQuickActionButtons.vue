@@ -1,38 +1,37 @@
 <template>
     <bm-button-toolbar class="message-list-item-quick-action-buttons">
         <bm-button-group>
-            <bm-button
-                v-if="folderOfMessage.writable"
-                :aria-label="$tc('mail.actions.remove.aria')"
-                :title="$tc('mail.actions.remove.aria')"
-                class="p-1 mr-2"
-                variant="inline-secondary"
-                @click.shift.exact.prevent.stop="REMOVE_MESSAGES(message)"
-                @click.exact.prevent.stop="MOVE_MESSAGES_TO_TRASH(message)"
-            >
-                <bm-icon icon="trash" size="lg" />
-            </bm-button>
-            <bm-button
-                v-if="!message.flags.includes(Flag.SEEN)"
-                class="p-1"
-                :aria-label="$tc('mail.actions.mark_read.aria')"
-                :title="$tc('mail.actions.mark_read.aria')"
-                variant="inline-secondary"
-                @click.prevent.stop="MARK_MESSAGE_AS_READ(message)"
-            >
-                <bm-icon icon="read" size="lg" />
-            </bm-button>
-            <bm-button
-                v-else
-                class="p-1"
-                :aria-label="$tc('mail.actions.mark_unread.aria')"
-                :title="$tc('mail.actions.mark_unread.aria')"
-                variant="inline-secondary"
-                @click.prevent.stop="MARK_MESSAGE_AS_UNREAD(message)"
-            >
-                <bm-icon icon="unread" size="lg" />
-            </bm-button>
             <template v-if="folderOfMessage.writable">
+                <bm-button
+                    :aria-label="$tc('mail.actions.remove.aria')"
+                    :title="$tc('mail.actions.remove.aria')"
+                    class="p-1 mr-2"
+                    variant="inline-secondary"
+                    @click.shift.exact.prevent.stop="REMOVE_MESSAGES(message)"
+                    @click.exact.prevent.stop="MOVE_MESSAGES_TO_TRASH(message)"
+                >
+                    <bm-icon icon="trash" size="lg" />
+                </bm-button>
+                <bm-button
+                    v-if="!message.flags.includes(Flag.SEEN)"
+                    class="p-1"
+                    :aria-label="$tc('mail.actions.mark_read.aria')"
+                    :title="$tc('mail.actions.mark_read.aria')"
+                    variant="inline-secondary"
+                    @click.prevent.stop="MARK_MESSAGE_AS_READ(message)"
+                >
+                    <bm-icon icon="read" size="lg" />
+                </bm-button>
+                <bm-button
+                    v-else
+                    class="p-1"
+                    :aria-label="$tc('mail.actions.mark_unread.aria')"
+                    :title="$tc('mail.actions.mark_unread.aria')"
+                    variant="inline-secondary"
+                    @click.prevent.stop="MARK_MESSAGE_AS_UNREAD(message)"
+                >
+                    <bm-icon icon="unread" size="lg" />
+                </bm-button>
                 <bm-button
                     v-if="!message.flags.includes(Flag.FLAGGED)"
                     class="p-1 ml-2"

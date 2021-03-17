@@ -16,7 +16,7 @@
                 <h1>{{ $t("mail.message.selected") }}</h1>
             </div>
 
-            <div class="bg-white py-2 px-3 actions-button w-75 mt-4">
+            <div v-if="!anyMessageReadOnly" class="bg-white py-2 px-3 actions-button w-75 mt-4">
                 <div class="arrow-up" />
                 <bm-button v-if="!ALL_SELECTED_MESSAGES_ARE_READ" variant="outline-secondary" @click="markAsRead()">
                     <bm-label-icon icon="read">
@@ -33,7 +33,7 @@
                     </bm-label-icon>
                 </bm-button>
                 <bm-button
-                    v-if="!ALL_SELECTED_MESSAGES_ARE_FLAGGED && !anyMessageReadOnly"
+                    v-if="!ALL_SELECTED_MESSAGES_ARE_FLAGGED"
                     variant="outline-secondary"
                     @click="MARK_MESSAGES_AS_FLAGGED(selection.map(key => messages[key]))"
                 >
@@ -42,7 +42,7 @@
                     </bm-label-icon>
                 </bm-button>
                 <bm-button
-                    v-if="!ALL_SELECTED_MESSAGES_ARE_UNFLAGGED && !anyMessageReadOnly"
+                    v-if="!ALL_SELECTED_MESSAGES_ARE_UNFLAGGED"
                     variant="outline-secondary"
                     @click="MARK_MESSAGES_AS_UNFLAGGED(selection.map(key => messages[key]))"
                 >
@@ -51,7 +51,6 @@
                     </bm-label-icon>
                 </bm-button>
                 <bm-button
-                    v-if="!anyMessageReadOnly"
                     variant="outline-secondary"
                     @click.exact="MOVE_MESSAGES_TO_TRASH(selection.map(key => messages[key]))"
                     @click.shift.exact="REMOVE_MESSAGES(selection.map(key => messages[key]))"

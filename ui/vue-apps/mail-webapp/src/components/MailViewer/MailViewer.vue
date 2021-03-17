@@ -109,7 +109,7 @@ export default {
     computed: {
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
         ...mapGetters("mail", { MESSAGE_LIST_UNREAD_FILTER_ENABLED }),
-        ...mapState("mail", ["messages"]),
+        ...mapState("mail", ["messages", "folders"]),
         subject() {
             return this.message.subject || this.$t("mail.viewer.no.subject");
         },
@@ -124,7 +124,7 @@ export default {
         messageKey: {
             handler: function () {
                 this.resetScroll();
-                if (!this.MESSAGE_LIST_UNREAD_FILTER_ENABLED) {
+                if (!this.MESSAGE_LIST_UNREAD_FILTER_ENABLED && this.folders[this.message.folderRef.key].writable) {
                     this.MARK_MESSAGE_AS_READ([this.message]);
                 }
                 if (this.isIcsAlertBlocked) {

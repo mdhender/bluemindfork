@@ -1,63 +1,64 @@
 <template>
     <div class="mail-toolbar-consult-message">
-        <bm-button
-            v-show="displayMarkAsRead"
-            variant="inline-light"
-            class="unread btn-lg-simple-dark"
-            :title="$tc('mail.actions.mark_read.aria', selection.length || 1)"
-            :aria-label="$tc('mail.actions.mark_read.aria', selection.length || 1)"
-            @click="MARK_AS_READ"
-        >
-            <bm-icon icon="read" size="2x" />
-            <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_read", selection.length || 1) }}</span>
-        </bm-button>
-        <bm-button
-            v-show="displayMarkAsUnread"
-            variant="inline-light"
-            class="read btn-lg-simple-dark"
-            :title="$tc('mail.actions.mark_unread.aria', selection.length || 1)"
-            :aria-label="$tc('mail.actions.mark_unread.aria', selection.length || 1)"
-            @click="MARK_AS_UNREAD"
-        >
-            <bm-icon icon="unread" size="2x" />
-            <span class="d-none d-lg-block">{{ $tc("mail.actions.mark_unread", selection.length || 1) }}</span>
-        </bm-button>
-        <mail-toolbar-selected-messages-move-action v-show="!selectionHasReadOnlyFolders" />
-        <bm-button
-            v-show="!selectionHasReadOnlyFolders"
-            variant="inline-light"
-            class="btn-lg-simple-dark"
-            :title="$tc('mail.actions.remove.aria')"
-            :aria-label="$tc('mail.actions.remove.aria')"
-            @click.exact="MOVE_MESSAGES_TO_TRASH(selected)"
-            @click.shift.exact="REMOVE_MESSAGES(selected)"
-        >
-            <bm-icon icon="trash" size="2x" />
-            <span class="d-none d-lg-block">{{ $tc("mail.actions.remove") }}</span>
-        </bm-button>
-        <bm-button
-            v-show="displayMarkAsFlagged"
-            variant="inline-light"
-            class="flagged btn-lg-simple-dark"
-            :title="$tc('mail.actions.mark_flagged.aria', selection.length)"
-            :aria-label="$tc('mail.actions.mark_flagged.aria', selection.length)"
-            @click="MARK_AS_FLAGGED"
-        >
-            <bm-icon icon="flag-outline" size="2x" />
-            <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_flagged") }}</span>
-        </bm-button>
-        <bm-button
-            v-show="displayMarkAsUnflagged"
-            variant="inline-light"
-            class="unflagged btn-lg-simple-dark"
-            :title="$tc('mail.actions.mark_unflagged.aria', selection.length)"
-            :aria-label="$tc('mail.actions.mark_unflagged.aria', selection.length)"
-            @click="MARK_AS_UNFLAGGED"
-        >
-            <bm-icon icon="flag-fill" size="2x" class="text-warning" />
-            <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_as_unflagged") }}</span>
-        </bm-button>
-        <mail-toolbar-selected-messages-other-actions v-if="!selectionHasReadOnlyFolders" />
+        <template v-if="!selectionHasReadOnlyFolders">
+            <bm-button
+                v-show="displayMarkAsRead"
+                variant="inline-light"
+                class="unread btn-lg-simple-dark"
+                :title="$tc('mail.actions.mark_read.aria', selection.length || 1)"
+                :aria-label="$tc('mail.actions.mark_read.aria', selection.length || 1)"
+                @click="MARK_AS_READ"
+            >
+                <bm-icon icon="read" size="2x" />
+                <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_read", selection.length || 1) }}</span>
+            </bm-button>
+            <bm-button
+                v-show="displayMarkAsUnread"
+                variant="inline-light"
+                class="read btn-lg-simple-dark"
+                :title="$tc('mail.actions.mark_unread.aria', selection.length || 1)"
+                :aria-label="$tc('mail.actions.mark_unread.aria', selection.length || 1)"
+                @click="MARK_AS_UNREAD"
+            >
+                <bm-icon icon="unread" size="2x" />
+                <span class="d-none d-lg-block">{{ $tc("mail.actions.mark_unread", selection.length || 1) }}</span>
+            </bm-button>
+            <mail-toolbar-selected-messages-move-action />
+            <bm-button
+                variant="inline-light"
+                class="btn-lg-simple-dark"
+                :title="$tc('mail.actions.remove.aria')"
+                :aria-label="$tc('mail.actions.remove.aria')"
+                @click.exact="MOVE_MESSAGES_TO_TRASH(selected)"
+                @click.shift.exact="REMOVE_MESSAGES(selected)"
+            >
+                <bm-icon icon="trash" size="2x" />
+                <span class="d-none d-lg-block">{{ $tc("mail.actions.remove") }}</span>
+            </bm-button>
+            <bm-button
+                v-show="displayMarkAsFlagged"
+                variant="inline-light"
+                class="flagged btn-lg-simple-dark"
+                :title="$tc('mail.actions.mark_flagged.aria', selection.length)"
+                :aria-label="$tc('mail.actions.mark_flagged.aria', selection.length)"
+                @click="MARK_AS_FLAGGED"
+            >
+                <bm-icon icon="flag-outline" size="2x" />
+                <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_flagged") }}</span>
+            </bm-button>
+            <bm-button
+                v-show="displayMarkAsUnflagged"
+                variant="inline-light"
+                class="unflagged btn-lg-simple-dark"
+                :title="$tc('mail.actions.mark_unflagged.aria', selection.length)"
+                :aria-label="$tc('mail.actions.mark_unflagged.aria', selection.length)"
+                @click="MARK_AS_UNFLAGGED"
+            >
+                <bm-icon icon="flag-fill" size="2x" class="text-warning" />
+                <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_as_unflagged") }}</span>
+            </bm-button>
+            <mail-toolbar-selected-messages-other-actions />
+        </template>
     </div>
 </template>
 
@@ -132,18 +133,14 @@ export default {
             }
         },
         displayMarkAsFlagged() {
-            if (this.selectionHasReadOnlyFolders) {
-                return false;
-            } else if (this.MULTIPLE_MESSAGE_SELECTED) {
+            if (this.MULTIPLE_MESSAGE_SELECTED) {
                 return !this.ALL_SELECTED_MESSAGES_ARE_FLAGGED;
             } else {
                 return !this.message.flags.includes(Flag.FLAGGED);
             }
         },
         displayMarkAsUnflagged() {
-            if (this.selectionHasReadOnlyFolders) {
-                return false;
-            } else if (this.MULTIPLE_MESSAGE_SELECTED) {
+            if (this.MULTIPLE_MESSAGE_SELECTED) {
                 return !this.ALL_SELECTED_MESSAGES_ARE_UNFLAGGED;
             } else {
                 return this.message.flags.includes(Flag.FLAGGED);
