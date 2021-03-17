@@ -19,6 +19,9 @@
 package net.bluemind.core.rest.base.codec;
 
 import java.lang.reflect.Type;
+import java.util.function.Supplier;
+
+import com.google.common.base.Suppliers;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
@@ -66,10 +69,10 @@ public class JsonObjectCodec {
 
 	public static class Response<T> implements ResponseCodec<T> {
 
-		private final ValueReader<Object> reader;
+		private final Supplier<ValueReader<Object>> reader;
 
 		Response(Type type) {
-			this.reader = JsonUtils.reader(type);
+			this.reader = Suppliers.memoize(() -> JsonUtils.reader(type));
 		}
 
 		@Override
@@ -90,7 +93,7 @@ public class JsonObjectCodec {
 				return null;
 			} else {
 				try {
-					return (T) reader.read(response.data.toString());
+					return (T) reader.get().read(response.data.toString());
 				} catch (Exception e) {
 					throw new CodecParseException(e);
 				}
