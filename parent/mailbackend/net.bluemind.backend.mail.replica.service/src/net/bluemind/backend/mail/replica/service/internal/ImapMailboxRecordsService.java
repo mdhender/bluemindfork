@@ -666,11 +666,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	public void removePart(String partId) {
 		rbac.check(Verb.Read.name());
 		try {
-			File part = partFile(partId);
-			if (part.exists()) {
-				Files.delete(part.toPath());
-				logger.debug("removed {}", part.getAbsolutePath());
-			}
+			Files.deleteIfExists(partFile(partId).toPath());
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		}
