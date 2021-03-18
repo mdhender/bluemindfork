@@ -217,6 +217,9 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		rbac.check(Verb.Write.name());
 
 		ItemValue<MailboxFolder> toDelete = getCompleteById(id);
+		if (toDelete == null || toDelete.value == null) {
+			throw ServerFault.notFound("Folder with id " + id + " not found");
+		}
 		if (toDelete.value.deleted) {
 			throw ServerFault.notFound("Folder with id " + id + " has already been deleted.");
 		}
@@ -254,6 +257,9 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		rbac.check(Verb.Write.name());
 
 		ItemValue<MailboxFolder> toDelete = getCompleteById(id);
+		if (toDelete == null || toDelete.value == null) {
+			throw ServerFault.notFound("Folder with id " + id + " not found");
+		}
 		logger.info("Start deepDelete of {}...", toDelete);
 		CompletableFuture<?> rootPromise = imapContext.withImapClient((sc, fast) -> {
 			selectInbox(sc, fast);
@@ -280,6 +286,9 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 	private void emptyFolder(long id, boolean deleteChildFolders) {
 		ItemValue<MailboxFolder> folder = getCompleteById(id);
+		if (folder == null || folder.value == null) {
+			throw ServerFault.notFound("Folder with id " + id + " not found");
+		}
 		ItemFlagFilter filter = ItemFlagFilter.create().mustNot(ItemFlag.Deleted);
 		Count count = context.provider().instance(IDbMailboxRecords.class, folder.uid).count(filter);
 		if (count.total == 0) {
@@ -300,6 +309,9 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 	public void markFolderAsRead(long id) {
 		ItemValue<MailboxFolder> folder = getCompleteById(id);
+		if (folder == null || folder.value == null) {
+			throw ServerFault.notFound("Folder with id " + id + " not found");
+		}
 		ItemFlagFilter filter = ItemFlagFilter.create().mustNot(ItemFlag.Seen);
 		Count count = context.provider().instance(IDbMailboxRecords.class, folder.uid).count(filter);
 		if (count.total != 0) {
