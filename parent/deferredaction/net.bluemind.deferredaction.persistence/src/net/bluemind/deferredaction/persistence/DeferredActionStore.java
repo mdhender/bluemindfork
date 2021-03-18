@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.persistence.AbstractItemValueStore;
+import net.bluemind.core.container.persistence.BooleanCreator;
 import net.bluemind.core.container.persistence.LongCreator;
 import net.bluemind.deferredaction.api.DeferredAction;
 
@@ -40,13 +41,15 @@ public class DeferredActionStore extends AbstractItemValueStore<DeferredAction> 
 
 	@Override
 	public void create(Item item, DeferredAction value) throws SQLException {
-		StringBuilder query = new StringBuilder("INSERT INTO " + TABLE_NAME + " (item_id, ");
-		DeferredActionColumns.cols.appendNames(null, query);
-		query.append(") VALUES (" + item.id + ", ");
-		DeferredActionColumns.cols.appendValues(query);
-		query.append(")");
-		insert(query.toString(), value, DeferredActionColumns.statementValues());
-		logger.debug("insert complete: {}", item.id);
+		if (!exists(value)) {
+			StringBuilder query = new StringBuilder("INSERT INTO " + TABLE_NAME + " (item_id, ");
+			DeferredActionColumns.cols.appendNames(null, query);
+			query.append(") VALUES (" + item.id + ", ");
+			DeferredActionColumns.cols.appendValues(query);
+			query.append(")");
+			insert(query.toString(), value, DeferredActionColumns.statementValues());
+			logger.debug("insert complete: {}", item.id);
+		}
 	}
 
 	@Override
@@ -94,6 +97,14 @@ public class DeferredActionStore extends AbstractItemValueStore<DeferredAction> 
 		Timestamp executionDate = new Timestamp(to.getTime());
 		return select(query.toString(), LongCreator.FIRST, Collections.emptyList(),
 				new Object[] { actionId, container.id, executionDate });
+	}
+
+	public boolean exists(DeferredAction value) throws SQLException {
+		Timestamp executionDate = new Timestamp(value.executionDate.getTime());
+		StringBuilder query = new StringBuilder("SELECT 1 FROM ").append(TABLE_NAME);
+		query.append(" WHERE ").append("action_id = ? and reference = ? and execution_date = ?");
+		return unique(query.toString(), BooleanCreator.FIRST, Collections.emptyList(),
+				new Object[] { value.actionId, value.reference, executionDate }) != null;
 	}
 
 	public List<Long> getByReference(String reference) throws SQLException {

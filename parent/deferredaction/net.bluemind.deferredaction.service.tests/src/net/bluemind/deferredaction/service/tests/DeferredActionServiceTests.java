@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
@@ -95,6 +96,19 @@ public class DeferredActionServiceTests {
 		assertEquals(expected.executionDate, actual.value.executionDate);
 		assertEquals(expected.reference, actual.value.reference);
 		assertEquals(expected.configuration, actual.value.configuration);
+	}
+
+	@Test
+	public void testSavingShouldPreventDuplicates() {
+		DeferredAction expected = createFixture();
+		expected.reference = "testSavingShouldPreventDuplicates";
+		String sampleUID = UUID.randomUUID().toString();
+		service.create(sampleUID, expected);
+		String sampleUID2 = UUID.randomUUID().toString();
+		service.create(sampleUID2, expected);
+
+		List<ItemValue<DeferredAction>> byReference = service.getByReference("testSavingShouldPreventDuplicates");
+		assertEquals(1, byReference.size());
 	}
 
 	@Test
