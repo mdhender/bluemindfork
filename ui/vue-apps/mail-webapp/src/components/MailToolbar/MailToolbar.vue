@@ -3,10 +3,7 @@
         <bm-button variant="inline-light" class="d-lg-none btn-sm mr-auto" @click="back()">
             <bm-icon icon="arrow-back" size="2x" />
         </bm-button>
-        <mail-toolbar-compose-message
-            v-if="currentMessageKey && messages[currentMessageKey] && messages[currentMessageKey].composing"
-            :message-key="currentMessageKey"
-        />
+        <mail-toolbar-compose-message v-if="message && message.composing" :message-key="currentMessageKey" />
         <mail-toolbar-selected-messages v-else-if="message || MULTIPLE_MESSAGE_SELECTED" />
     </bm-button-toolbar>
 </template>
@@ -18,7 +15,7 @@ import { BmButton, BmIcon, BmButtonToolbar } from "@bluemind/styleguide";
 
 import MailToolbarComposeMessage from "./MailToolbarComposeMessage";
 import MailToolbarSelectedMessages from "./MailToolbarSelectedMessages";
-import { MULTIPLE_MESSAGE_SELECTED } from "~getters";
+import { MULTIPLE_MESSAGE_SELECTED, MESSAGE_IS_LOADED } from "~getters";
 
 export default {
     name: "MailToolbar",
@@ -31,10 +28,10 @@ export default {
     },
     computed: {
         ...mapState("mail", ["messages"]),
-        ...mapGetters("mail", { MULTIPLE_MESSAGE_SELECTED }),
+        ...mapGetters("mail", { MULTIPLE_MESSAGE_SELECTED, MESSAGE_IS_LOADED }),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         message() {
-            return this.messages[this.currentMessageKey];
+            return this.MESSAGE_IS_LOADED(this.currentMessageKey) && this.messages[this.currentMessageKey];
         }
     },
     methods: {

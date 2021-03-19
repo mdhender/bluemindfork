@@ -73,7 +73,7 @@ export default {
         ...mapState("mail", { showRemoteImagesAlert: state => state.consultPanel.remoteImages.showAlert }),
 
         message() {
-            return this.messages[this.currentMessageKey];
+            return this.MESSAGE_IS_LOADED(this.currentMessageKey) && this.messages[this.currentMessageKey];
         },
         folderOfCurrentMessage() {
             return this.folders[ItemUri.container(this.currentMessageKey)];
@@ -89,32 +89,35 @@ export default {
         message() {
             this.isReadOnlyAlertDismissed = false;
         },
-        currentMessageKey() {
+        async currentMessageKey(value) {
             this.SET_SHOW_REMOTE_IMAGES_ALERT(false);
             this.SET_BLOCK_REMOTE_IMAGES(false);
-        },
-        "$route.params.message": {
-            immediate: true,
-            async handler(value) {
-                try {
-                    await this.initialized;
-                    await this.$store.dispatch("mail-webapp/$_getIfNotPresent", [value]);
-                    this.RESET_ACTIVE_MESSAGE();
-                    const message = this.messages[value];
-                    this.$store.commit("mail-webapp/currentMessage/update", { key: value });
-                    if (!message.composing) {
-                        const folderKey = message.folderRef.key;
-                        this.SET_ACTIVE_FOLDER(this.folders[folderKey]);
-                        this.SET_MESSAGE_COMPOSING({ messageKey: value, composing: folderKey === this.MY_DRAFTS.key });
-                    }
-                } catch {
-                    this.$router.navigate("mail:home");
+            this.RESET_ACTIVE_MESSAGE();
+            try {
+                await this.initialized;
+                await this.$store.dispatch("mail-webapp/$_getIfNotPresent", [value]);
+                const message = this.messages[value];
+                if (!message.composing) {
+                    const folderKey = message.folderRef.key;
+                    this.SET_ACTIVE_FOLDER(this.folders[folderKey]);
+                    this.SET_MESSAGE_COMPOSING({
+                        messageKey: value,
+                        composing: folderKey === this.MY_DRAFTS.key
+                    });
                 }
+            } catch {
+                this.$router.push({ name: "mail:home" });
             }
+        },
+
+        "$route.params.message": {
+            handler(value) {
+                if (value) {
+                    this.$store.commit("mail-webapp/currentMessage/update", { key: value });
+                }
+            },
+            immediate: true
         }
-    },
-    destroyed() {
-        this.$store.commit("mail-webapp/currentMessage/clear");
     },
     methods: {
         ...mapMutations("mail", {

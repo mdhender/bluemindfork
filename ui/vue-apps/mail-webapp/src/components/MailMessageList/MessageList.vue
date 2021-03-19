@@ -262,7 +262,7 @@ export default {
             this.navigateAfterSelection();
         },
         navigateAfterSelection() {
-            this.$router.navigate("mail:home");
+            this.$router.navigate({ name: "v:mail:home" });
         },
         unselectAllIfNeeded(messageKey) {
             if (this.selection.length !== 1 || this.selection[0] !== messageKey) {

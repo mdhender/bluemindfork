@@ -8,7 +8,7 @@
 import MailMessageStarter from "./MailMessageStarter";
 import MailMultipleSelectionActions from "./MailMultipleSelectionActions";
 import MailThread from "./MailThread/MailThread";
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import { MULTIPLE_MESSAGE_SELECTED, ONE_MESSAGE_SELECTED } from "~getters";
 
 export default {
@@ -19,21 +19,20 @@ export default {
         MailThread
     },
     computed: {
-        ...mapGetters("mail", { ONE_MESSAGE_SELECTED, MULTIPLE_MESSAGE_SELECTED }),
-        ...mapState("mail", ["selection"])
+        ...mapState("mail", ["selection"]),
+        ...mapGetters("mail", { ONE_MESSAGE_SELECTED, MULTIPLE_MESSAGE_SELECTED })
     },
     watch: {
-        selection: {
-            handler: function () {
-                if (this.ONE_MESSAGE_SELECTED) {
-                    this.selectMessage(this.selection[0]);
+        ONE_MESSAGE_SELECTED: {
+            handler: function (value) {
+                if (value) {
+                    this.$store.commit("mail-webapp/currentMessage/update", { key: this.selection[0] });
+                } else {
+                    this.$store.commit("mail-webapp/currentMessage/clear");
                 }
             },
             immediate: true
         }
-    },
-    methods: {
-        ...mapActions("mail-webapp", ["selectMessage"])
     }
 };
 </script>
