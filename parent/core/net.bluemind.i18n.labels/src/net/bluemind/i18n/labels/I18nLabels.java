@@ -101,7 +101,7 @@ public class I18nLabels {
 		if (label == null) {
 			return null;
 		}
-		if (!(label.startsWith("$$") && label.endsWith("$$"))) {
+		if (label.length() < 5 || !(label.startsWith("$$") && label.endsWith("$$"))) {
 			return label;
 		}
 		String id = label.substring(2, label.length() - 2);

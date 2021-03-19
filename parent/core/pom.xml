@@ -65,6 +65,7 @@
 		<module>net.bluemind.core.validator.tests</module>
 		<module>net.bluemind.core.validator</module>
 		<module>net.bluemind.i18n.labels</module>
+		<module>net.bluemind.i18n.labels.tests</module>
 	</modules>
 
 	<build>
