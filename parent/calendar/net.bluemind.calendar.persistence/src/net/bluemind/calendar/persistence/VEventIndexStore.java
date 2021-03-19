@@ -239,6 +239,9 @@ public class VEventIndexStore {
 	}
 
 	public void updates(List<ItemValue<VEventSeries>> events) {
+		if (events.isEmpty()) {
+			return;
+		}
 		BulkRequestBuilder bulk = esearchClient.prepareBulk();
 
 		events.forEach(ev -> {

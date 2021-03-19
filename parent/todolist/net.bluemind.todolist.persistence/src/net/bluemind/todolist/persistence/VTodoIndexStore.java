@@ -195,6 +195,9 @@ public class VTodoIndexStore {
 	}
 
 	public void updates(List<ItemValue<VTodo>> tasks) {
+		if (tasks.isEmpty()) {
+			return;
+		}
 		BulkRequestBuilder bulk = esearchClient.prepareBulk();
 
 		tasks.forEach(task -> {

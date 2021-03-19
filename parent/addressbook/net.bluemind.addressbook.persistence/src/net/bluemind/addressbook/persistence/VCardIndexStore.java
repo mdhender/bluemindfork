@@ -112,6 +112,9 @@ public class VCardIndexStore {
 	}
 
 	public void updates(List<ItemValue<VCard>> cards) {
+		if (cards.isEmpty()) {
+			return;
+		}
 		BulkRequestBuilder bulk = esearchClient.prepareBulk();
 
 		cards.forEach(card -> {
