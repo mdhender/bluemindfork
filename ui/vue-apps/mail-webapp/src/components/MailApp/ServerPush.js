@@ -3,16 +3,15 @@ import { mapState } from "vuex";
 export default {
     computed: {
         ...mapState("mail", ["activeFolder", "folders", "mailboxes"]),
-        serviceWorker() {
+        $_ServerPush_serviceWorkerController() {
             return navigator.serviceWorker && navigator.serviceWorker.controller;
         }
     },
     async created() {
         await this.initialized;
         try {
-            (await this.$_ServerPush_sendMessage({ type: "INIT" }, false, [])).forEach(updated => {
-                this.$_ServerPush_refreshUI({ body: { mailbox: updated } });
-            });
+            this.$_ServerPush_registerListener();
+            await this.$_ServerPush_sendMessage({ type: "INIT" }, false);
             Object.values(this.mailboxes).forEach(mailbox => {
                 this.$socket.register(`mailreplica.${mailbox.owner}.updated`, this.$_ServerPush_handle(mailbox));
             });
@@ -21,39 +20,38 @@ export default {
         }
     },
     methods: {
-        async $_ServerPush_sendMessage(message, skip, defaultResponse) {
-            return new Promise(resolve => {
-                const messageChannel = new MessageChannel();
-                if (!this.serviceWorker || skip) {
-                    resolve(defaultResponse);
-                } else {
-                    messageChannel.port1.onmessage = message => {
-                        messageChannel.port1.close();
-                        resolve(message.data);
-                    };
-                    this.serviceWorker.postMessage(message, [messageChannel.port2]);
-                }
-            });
+        $_ServerPush_registerListener() {
+            if (navigator.serviceWorker) {
+                navigator.serviceWorker.addEventListener("message", event => {
+                    if (event.data.type === "refresh") {
+                        event.data.folderUids.forEach(folderUid => this.$_ServerPush_refreshUI(folderUid));
+                    }
+                });
+            }
+        },
+        async $_ServerPush_sendMessage(message, skip, defaultResponse = null) {
+            if (this.$_ServerPush_serviceWorkerController && !skip) {
+                await this.$_ServerPush_serviceWorkerController.postMessage(message);
+            } else if (defaultResponse) {
+                await this.$_ServerPush_refreshUI(defaultResponse);
+            }
         },
         $_ServerPush_handle(mailbox) {
             return async ({ data }) => {
                 const message = { type: "SYNCHRONIZE", body: data.body };
                 try {
-                    const updated = await this.$_ServerPush_sendMessage(message, !mailbox.offlineSync, true);
-                    if (!data.body.isHierarchy && updated) {
-                        this.$_ServerPush_refreshUI(data);
-                    }
+                    await this.$_ServerPush_sendMessage(message, !mailbox.offlineSync, data.body.mailbox);
                 } catch (error) {
                     console.error(`[SW] failed to send '${message}' to service worker`, error);
                 }
             };
         },
-        async $_ServerPush_refreshUI(data) {
-            if (data.body.mailbox in this.folders) {
-                this.$bus.$emit("mail-webapp/unread_folder_count", this.folders[data.body.mailbox]);
+        async $_ServerPush_refreshUI(folderUid) {
+            if (folderUid in this.folders) {
+                this.$bus.$emit("mail-webapp/unread_folder_count", this.folders[folderUid]);
             }
-            if (data.body.mailbox === this.activeFolder) {
-                this.$bus.$emit("mail-webapp/pushed_folder_changes", data);
+            if (folderUid === this.activeFolder) {
+                this.$bus.$emit("mail-webapp/pushed_folder_changes", folderUid);
             }
         }
     }

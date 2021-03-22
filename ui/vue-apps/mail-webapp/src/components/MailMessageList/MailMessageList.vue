@@ -38,8 +38,8 @@ export default {
         }
     },
     bus: {
-        [PUSHED_FOLDER_CHANGES]: function (data) {
-            if (this.activeFolder === data.body.mailbox) {
+        [PUSHED_FOLDER_CHANGES]: function (folderUid) {
+            if (this.folders[this.activeFolder].remoteRef.uid === folderUid) {
                 this.refreshMessageList();
             }
         }

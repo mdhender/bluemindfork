@@ -17,32 +17,29 @@ registerApiRoute(apiRoutes);
 registerCSSRoute();
 registerScriptRoute();
 
-self.addEventListener("message", async ({ data, ports }) => {
+self.addEventListener("message", async ({ data }) => {
     if (data.type === "INIT") {
-        await firstSynchronisation(ports[0]);
+        await firstSynchronisation();
     } else if (data.type === "SYNCHRONIZE") {
         if (data.body.isHierarchy) {
             await synchronizeHierarchy(data);
         } else {
-            await synchronizeFolder(data, ports[0]);
+            await synchronizeFolder(data);
         }
     }
 });
 
-const firstSynchronisation = async port => {
+const firstSynchronisation = async () => {
     logger.log("[SYNC][SW] Initialisation");
-    const updatedFolderUid = await syncMailFolders();
-    if (port) {
-        port.postMessage(updatedFolderUid);
-    }
+    const updatedFolderUids = await syncMailFolders();
+    refreshFolder(updatedFolderUids);
 };
 
-const synchronizeFolder = async (data, port) => {
+const synchronizeFolder = async data => {
     logger.log(`[SYNC][SW] Folder synchronization: ${data.body.mailbox} in v${data.body.version}`);
     const updated = await syncMailFolder(data.body.mailbox, data.body.version);
-    if (port) {
-        port.postMessage(updated);
-    }
+    const updatedFolderUids = updated ? [data.body.mailbox] : [];
+    refreshFolder(updatedFolderUids);
 };
 
 const synchronizeHierarchy = async data => {
@@ -51,4 +48,10 @@ const synchronizeHierarchy = async data => {
         logger.log(`[SYNC][SW] Hierarchy synchronization: ${data.body.owner} in v${data.body.version}`);
         await syncMailbox(domain, userId, data.body.version);
     }
+};
+
+const refreshFolder = folderUids => {
+    self.clients.matchAll().then(clients => {
+        clients.forEach(client => client.postMessage({ type: "refresh", folderUids }));
+    });
 };
