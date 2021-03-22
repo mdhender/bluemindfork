@@ -129,7 +129,7 @@ public class SysCommand extends AbstractVerticle {
 		String name = req.getString("name");
 		Predicate<RunningCommand> match = matcher(group, name);
 
-		active.values().stream().filter(match).forEach(cmd -> {
+		activeCommands().filter(match).forEach(cmd -> {
 			JsonObject desc = new JsonObject();
 			desc.put("group", cmd.group);
 			desc.put("name", cmd.name);
