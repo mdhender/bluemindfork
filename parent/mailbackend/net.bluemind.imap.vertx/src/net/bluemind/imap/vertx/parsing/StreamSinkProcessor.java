@@ -18,6 +18,9 @@
  */
 package net.bluemind.imap.vertx.parsing;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -35,17 +38,22 @@ public class StreamSinkProcessor implements IProcessorDelegate {
 	private final long uid;
 	private final String part;
 	private final String selected;
+	private final List<String> textHistory;
+	private String conId;
 
-	public StreamSinkProcessor(String selected, long uid, String part, WriteStream<Buffer> sink) {
+	public StreamSinkProcessor(String conId, String selected, long uid, String part, WriteStream<Buffer> sink) {
+		this.conId = conId;
 		this.selected = selected;
 		this.uid = uid;
 		this.part = part;
 		this.over = new CompletableFuture<>();
 		this.sink = Optional.of(sink);
+		this.textHistory = new ArrayList<>();
 	}
 
 	@Override
 	public void processText(ImapChunk ic) {
+		textHistory.add(ic.buffer().toString(StandardCharsets.US_ASCII));
 		byte firstByte = ic.buffer().getByte(0);
 		if (firstByte == 'V') {
 			if (!expectStream) {
@@ -68,8 +76,8 @@ public class StreamSinkProcessor implements IProcessorDelegate {
 
 	@Override
 	public String toString() {
-		return MoreObjects.toStringHelper(StreamSinkProcessor.class).add("sel", selected).add("uid", uid)
-				.add("part", part).toString();
+		return MoreObjects.toStringHelper(StreamSinkProcessor.class).add("con", conId).add("sel", selected)
+				.add("uid", uid).add("part", part).add("history", textHistory).toString();
 	}
 
 }

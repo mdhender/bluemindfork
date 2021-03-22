@@ -180,22 +180,27 @@ public class VXStoreClient implements IAsyncStoreClient {
 
 	@Override
 	public CompletableFuture<Void> fetch(long uid, String part, WriteStream<Buffer> target, Decoder dec) {
-		StreamSinkProcessor proc = new StreamSinkProcessor(selected, uid, part, dec.withDelegate(target));
+		StreamSinkProcessor proc = new StreamSinkProcessor(login, selected, uid, part, dec.withDelegate(target));
 		String cmd = tagged("UID FETCH " + uid + " (UID BODY.PEEK[" + part + "])");
-		sock.ifPresent(ns -> retryableFetch(proc, cmd, ns));
+		sock.ifPresent(ns -> retryableFetch(proc, cmd, ns, 1));
 		return proc.future().thenApply(r -> {
 			packetProc.setDelegate(null);
 			return r;
 		});
 	}
 
-	private void retryableFetch(StreamSinkProcessor proc, String cmd, INetworkCon ns) {
+	private void retryableFetch(StreamSinkProcessor proc, String cmd, INetworkCon ns, int attempt) {
 		try {
 			packetProc.setDelegate(proc);
 			ns.write(cmd);
 		} catch (ConcurrentModificationException cme) {
-			logger.warn("Command in progress ({}), retry in 10ms.", cme.getMessage());
-			conSupport.vertx().setTimer(10, tid -> retryableFetch(proc, cmd, ns));
+			if (attempt < 20) {
+				long next = attempt * 20L;
+				logger.warn("Command in progress ({}), retry {}/20 in {}ms.", cme.getMessage(), attempt, next);
+				conSupport.vertx().setTimer(next, tid -> retryableFetch(proc, cmd, ns, attempt + 1));
+			} else {
+				throw cme;
+			}
 		}
 	}
 
