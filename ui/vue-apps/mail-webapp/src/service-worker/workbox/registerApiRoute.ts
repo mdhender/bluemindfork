@@ -127,7 +127,7 @@ export async function count({ request, params }: RouteHandlerCallbackOptions) {
         const expectedFlags = (await request.clone().json()) as Flags;
         const db = await Session.db();
         if (await db.isSubscribed(folderUid)) {
-            const allMailItems = await db.getAllMailItems(folderUid);
+            const allMailItems = await db.getAllMailItemLight(folderUid);
             const total = allMailItems
                 .filter(item => filterByFlags(expectedFlags, item.flags))
                 .length;
