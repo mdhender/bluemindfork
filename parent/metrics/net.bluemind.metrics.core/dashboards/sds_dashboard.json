@@ -28,6 +28,26 @@
 					},
 					"source": "",
 					"type": "influxql"
+				},
+				{
+					"query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"transfer_rate\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.transfer\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"direction\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"transfer_rate\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.transfer\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"direction\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
 				}
 			],
 			"axes": {
@@ -145,6 +165,26 @@
 					},
 					"source": "",
 					"type": "influxql"
+				},
+				{
+					"query": "SELECT (non_negative_derivative(last(\"totalTime\"), 1s) / non_negative_derivative(last(\"count\"), 1s)) / 1000000 AS \"latency\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.latency\" WHERE time > :dashboardTime: GROUP BY time(:interval:),  \"method\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT (non_negative_derivative(last(\"totalTime\"), 1s) / non_negative_derivative(last(\"count\"), 1s)) / 1000000 AS \"latency\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.latency\" WHERE time > :dashboardTime: GROUP BY time(:interval:),  \"method\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
 				}
 			],
 			"axes": {
@@ -257,6 +297,26 @@
 						},
 						"areTagsAccepted": false,
 						"rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"requests\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.request\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"method\", \"status\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				},
+				{
+					"query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"requests\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.request\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"method\", \"status\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"requests\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.request\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"method\", \"status\" FILL(null)",
 						"range": null,
 						"shifts": null
 					},
