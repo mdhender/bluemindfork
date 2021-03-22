@@ -34,12 +34,17 @@ public class BMRegistryTests {
 		for (int i = 0; i < 50; i++) {
 			boolean even = i % 2 == 0;
 			Id refinedId = requests.withTag("status", even ? "ok" : "ko");
+			if (i >= 48) {
+				Thread.sleep(2200);
+			}
 			registry.counter(refinedId).increment();
 		}
+
 		registry.counter("test.amount").increment();
 		registry.counter("test.amount").increment(12);
+		Thread.sleep(2200);
 		registry.counter("test.amount").increment(100);
-		Thread.sleep(2000);
+		Thread.sleep(50);
 		String metrics = metrics();
 		int testedMetrics = 0;
 		for (String metric : metrics.split("\n")) {

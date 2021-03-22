@@ -3,6 +3,7 @@ package net.bluemind.metrics.registry.impl;
 import java.util.Collections;
 import java.util.concurrent.atomic.LongAdder;
 
+import com.google.common.util.concurrent.RateLimiter;
 import com.netflix.spectator.api.Clock;
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Id;
@@ -18,6 +19,7 @@ public class BMCounter implements Counter {
 	private final LongAdder count;
 	private final AgentPushClient webSockClient;
 	private final CounterJson dto;
+	private final RateLimiter limiter;
 
 	/** Create a new instance. */
 	BMCounter(Clock clock, Id id, AgentPushClient webSockClient) {
@@ -26,6 +28,7 @@ public class BMCounter implements Counter {
 		this.id = id;
 		this.count = new LongAdder();
 		this.dto = new CounterJson(id, 0L);
+		this.limiter = RateLimiter.create(0.5);
 	}
 
 	@Override
@@ -52,7 +55,9 @@ public class BMCounter implements Counter {
 	}
 
 	private void propagateUpdate() {
-		webSockClient.queue(dto.withCount(count.longValue()));
+		if (limiter.tryAcquire()) {
+			webSockClient.queue(dto.withCount(count.longValue()));
+		}
 	}
 
 	@Override

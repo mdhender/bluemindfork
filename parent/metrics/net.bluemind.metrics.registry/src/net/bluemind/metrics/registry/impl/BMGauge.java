@@ -2,6 +2,7 @@ package net.bluemind.metrics.registry.impl;
 
 import java.util.Collections;
 
+import com.google.common.util.concurrent.RateLimiter;
 import com.netflix.spectator.api.Clock;
 import com.netflix.spectator.api.Gauge;
 import com.netflix.spectator.api.Id;
@@ -12,10 +13,12 @@ import net.bluemind.metrics.registry.client.AgentPushClient;
 import net.bluemind.metrics.registry.json.GaugeJson;
 
 public class BMGauge implements Gauge {
+
 	private final Clock clock;
 	private final Id id;
 	private final AtomicDouble value;
 	private final AgentPushClient webSockClient;
+	private final RateLimiter limiter;
 
 	/** Create a new instance. */
 	BMGauge(Clock clock, Id id, AgentPushClient webSockClient) {
@@ -23,6 +26,7 @@ public class BMGauge implements Gauge {
 		this.clock = clock;
 		this.id = id;
 		this.value = new AtomicDouble(0);
+		this.limiter = RateLimiter.create(0.5);
 	}
 
 	@Override
@@ -44,8 +48,10 @@ public class BMGauge implements Gauge {
 	@Override
 	public void set(double v) {
 		value.set(v);
-		GaugeJson gaugeJson = new GaugeJson(id, this.value.get());
-		this.webSockClient.queue(gaugeJson);
+		if (limiter.tryAcquire()) {
+			GaugeJson gaugeJson = new GaugeJson(id, value());
+			webSockClient.queue(gaugeJson);
+		}
 	}
 
 	@Override

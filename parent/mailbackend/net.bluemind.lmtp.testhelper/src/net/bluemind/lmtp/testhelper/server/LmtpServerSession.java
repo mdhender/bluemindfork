@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.james.mime4j.codec.DecodeMonitor;
 import org.apache.james.mime4j.dom.address.Mailbox;
@@ -28,6 +29,9 @@ import org.apache.james.mime4j.field.address.AddressBuilder;
 import org.apache.james.mime4j.field.address.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.netflix.spectator.api.DistributionSummary;
+import com.netflix.spectator.api.Registry;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -37,6 +41,7 @@ import net.bluemind.lmtp.testhelper.common.WriteSupport;
 import net.bluemind.lmtp.testhelper.model.FakeMailbox;
 import net.bluemind.lmtp.testhelper.model.MailboxesModel;
 import net.bluemind.lmtp.testhelper.model.MockServerStats;
+import net.bluemind.metrics.registry.MetricsRegistry;
 
 public class LmtpServerSession {
 
@@ -86,10 +91,14 @@ public class LmtpServerSession {
 
 	private void rcvData(Buffer buf) {
 		logger.info("C[{}]: {}bytes.", expectedContent, buf.length());
+		Registry reg = MetricsRegistry.get();
+		reg.distributionSummary("size").record(buf.length());
+		DistributionSummary recips = reg.distributionSummary("recips");
 		recordParser.delimitedMode("\r\n");
 		expectedContent = ParseState.Cmd;
 		CompletableFuture<Void> chain = CompletableFuture.completedFuture(null);
 		FakeMailbox fm = null;
+		AtomicInteger valid = new AtomicInteger();
 		while ((fm = validRecipients.poll()) != null) {
 			final FakeMailbox defMb = fm;
 			chain = chain.thenCompose(v -> {
@@ -103,10 +112,13 @@ public class LmtpServerSession {
 							"sendmail: warning: inet_protocols: disabling IPv6 name/address support: Address family not supported by protocol\n250 2.1.5 Ok for "
 									+ defMb.email);
 				default:
+					valid.incrementAndGet();
+					MetricsRegistry.get().counter("mock.deliveries").increment();
 					return writeSupport.writeWithCRLF("250 2.1.5 Ok for " + defMb.email);
 				}
 			});
 		}
+		chain.thenAccept(v -> recips.record(valid.get()));
 
 	}
 

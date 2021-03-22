@@ -62,7 +62,9 @@ public abstract class AbstractChainTest {
 	@Before
 	public void before() throws Exception {
 		CoreStateListener.state = SystemState.CORE_STATE_RUNNING;
+		System.err.println("init reg for tests...");
 		testRegistry = MetricsHelper.beforeTests();
+		System.err.println("init done " + testRegistry);
 		MailboxesModel.get().reset();
 		MockServerStats.get().reset();
 		MockServer.start();
@@ -133,9 +135,13 @@ public abstract class AbstractChainTest {
 				}).thenCompose(v -> {
 					System.out.println("Closing after client ops: " + v);
 					return client.close();
-				}).thenAccept(v -> {
-					System.out.println("Client close.");
-					ret.complete(null);
+				}).whenComplete((v, ex) -> {
+					if (ex != null) {
+						ret.completeExceptionally(ex);
+					} else {
+						System.out.println("Client close.");
+						ret.complete(null);
+					}
 				});
 			} catch (Exception e) {
 				ret.completeExceptionally(e);

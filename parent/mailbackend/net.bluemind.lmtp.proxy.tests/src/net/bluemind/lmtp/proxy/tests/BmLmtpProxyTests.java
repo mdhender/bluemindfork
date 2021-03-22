@@ -129,7 +129,7 @@ public class BmLmtpProxyTests extends AbstractChainTest {
 			}).thenCompose(dataResp -> {
 				return checkCode(dataResp, 250);
 			}).thenCompose(checkCode -> {
-				CompletableFuture<Void> comp = new CompletableFuture<Void>();
+				CompletableFuture<Void> comp = new CompletableFuture<>();
 				long len = testRegistry.counters().count();
 				if (len == 0) {
 					comp.completeExceptionally(new Exception("We should have counters."));
