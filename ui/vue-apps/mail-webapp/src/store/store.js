@@ -17,12 +17,14 @@ import {
     MY_MAILBOX_FOLDERS,
     MY_MAILBOX_ROOT_FOLDERS,
     MY_MAILBOX_KEY,
+    MY_MAILBOX,
     MY_OUTBOX,
     MY_SENT,
     MY_TRASH
 } from "~getters";
 import { SET_ACTIVE_FOLDER } from "~mutations";
-import { compare } from "../model/folder";
+import { compare, create } from "../model/folder";
+import { LoadingStatus } from "../model/loading-status";
 
 export const state = {
     activeFolder: undefined
@@ -59,11 +61,14 @@ export const getters = {
     [MY_TRASH]: myGetterFor(TRASH)
 };
 
-function myGetterFor(folderName) {
-    return ({ folders }, getters) =>
-        Object.values(folders).find(
-            folder => folder.mailboxRef.key === getters[MY_MAILBOX_KEY] && folder.imapName === folderName
-        );
+function myGetterFor(name) {
+    return (state, getters) => {
+        if (getters[MY_MAILBOX].loading === LoadingStatus.LOADED) {
+            return getters[MY_MAILBOX_ROOT_FOLDERS].find(({ imapName }) => imapName === name);
+        } else {
+            return create(undefined, name, null, getters[MY_MAILBOX]);
+        }
+    };
 }
 
 function allSelectedMessageAre({ selection, messages }, getters, flag) {

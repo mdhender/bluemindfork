@@ -37,6 +37,7 @@ import MailFolderItem from "./MailFolderItem";
 import { SET_FOLDER_EXPANDED } from "~mutations";
 import { CREATE_FOLDER } from "~actions";
 import { MY_MAILBOX, FOLDER_GET_CHILDREN } from "~getters";
+import { MailRoutesMixin } from "~mixins";
 
 export default {
     name: "MailFolderMyMailbox",
@@ -48,6 +49,7 @@ export default {
         MailFolderInput,
         MailFolderItem
     },
+    mixins: [MailRoutesMixin],
     props: {
         tree: {
             type: Array,
@@ -79,8 +81,7 @@ export default {
         },
         selectFolder(key) {
             this.$emit("toggle-folders");
-            const folder = this.folders[key];
-            this.$router.push({ name: "v:mail:home", params: { folder: folder.path } });
+            this.$router.push(this.folderRoute(this.folders[key]));
         }
     }
 };

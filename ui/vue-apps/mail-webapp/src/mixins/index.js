@@ -1,6 +1,6 @@
-import ComposerActionsMixin from "./ComposerActionsMixin";
-import ComposerInitMixin from "./ComposerInitMixin";
-import MoveMixin from "./MoveMixin";
-import RemoveMixin from "./RemoveMixin";
-
-export { ComposerActionsMixin, ComposerInitMixin, MoveMixin, RemoveMixin };
+export { default as ComposerActionsMixin } from "./ComposerActionsMixin";
+export { default as ComposerInitMixin } from "./ComposerInitMixin";
+export { default as MoveMixin } from "./MoveMixin";
+export { default as RemoveMixin } from "./RemoveMixin";
+export { default as MailRoutesMixin } from "./MailRoutesMixin";
+export { default as WaitForMixin } from "./WaitForMixin";

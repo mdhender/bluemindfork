@@ -52,7 +52,7 @@ import MailComponentAlert from "../MailComponentAlert";
 import MailComposer from "../MailComposer";
 import MailViewer from "../MailViewer";
 import MailViewerLoading from "../MailViewer/MailViewerLoading";
-import WaitForMixin from "../../mixins/WaitForMixin";
+import { WaitForMixin } from "~mixins";
 
 export default {
     name: "MailThread",

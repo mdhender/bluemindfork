@@ -3,7 +3,7 @@
         <template #count>{{ count }}</template>
         <template #subject>{{ message.subject }}</template>
         <template #folder>
-            <router-link :to="link">
+            <router-link :to="folderRoute(folder)">
                 <strong><mail-folder-icon :folder="folder" :shared="shared" /></strong>
             </router-link>
         </template>
@@ -14,21 +14,19 @@ import { mapState } from "vuex";
 import { AlertMixin } from "@bluemind/alert.store";
 import MailFolderIcon from "../MailFolderIcon";
 import { MailboxType } from "~model/mailbox";
+import { MailRoutesMixin } from "~mixins";
 
 export default {
     name: "MoveMessages",
     components: { MailFolderIcon },
-    mixins: [AlertMixin],
+    mixins: [AlertMixin, MailRoutesMixin],
     computed: {
         ...mapState("mail", ["mailboxes"]),
-        link() {
-            return { name: "v:mail:home", params: { folder: this.alert.payload.folder.path } };
-        },
         shared() {
-            return this.mailboxes[this.alert.payload.folder.mailboxRef.key].type === MailboxType.MAILSHARE;
+            return this.mailboxes[this.folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         },
         folder() {
-            return this.alert.payload.folder;
+            return this.payload.folder;
         },
         message() {
             if (Array.isArray(this.payload.messages)) {

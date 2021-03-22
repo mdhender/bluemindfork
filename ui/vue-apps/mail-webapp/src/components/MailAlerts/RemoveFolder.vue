@@ -2,7 +2,7 @@
     <default-alert v-if="alert.type === AlertTypes.LOADING" :alert="alert" :options="{ name }" />
     <i18n v-else-if="alert.type === AlertTypes.ERROR" :path="path" tag="span">
         <template #name>
-            <router-link :to="link">
+            <router-link :to="folderRoute(folder)">
                 <strong><mail-folder-icon :folder="folder" :shared="shared" /></strong>
             </router-link>
         </template>
@@ -13,23 +13,21 @@
 import { AlertMixin, DefaultAlert } from "@bluemind/alert.store";
 import MailFolderIcon from "../MailFolderIcon";
 import { MailboxType } from "~model/mailbox";
+import { MailRoutesMixin } from "~mixins";
 
 export default {
     name: "RemoveFolder",
     components: { DefaultAlert, MailFolderIcon },
-    mixins: [AlertMixin],
+    mixins: [AlertMixin, MailRoutesMixin],
     computed: {
-        link() {
-            return { name: "v:mail:home", params: { folder: this.alert.payload.folder.path } };
-        },
         shared() {
-            return this.alert.payload.mailbox.type === MailboxType.MAILSHARE;
+            return this.payload.mailbox.type === MailboxType.MAILSHARE;
         },
         folder() {
-            return this.alert.payload.folder;
+            return this.payload.folder;
         },
         name() {
-            return this.alert.payload.folder.name;
+            return this.folder.name;
         }
     }
 };

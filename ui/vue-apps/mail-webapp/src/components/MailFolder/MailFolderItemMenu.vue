@@ -38,6 +38,7 @@ import { create, isDefault, isMailshareRoot } from "~model/folder";
 import { SET_FOLDER_EXPANDED, ADD_FOLDER, TOGGLE_EDIT_FOLDER } from "~mutations";
 import { IS_DESCENDANT, FOLDER_HAS_CHILDREN } from "~getters";
 import { EMPTY_FOLDER, MARK_FOLDER_AS_READ, REMOVE_FOLDER } from "~actions";
+import { MailRoutesMixin } from "~mixins";
 
 export default {
     name: "MailFolderItemMenu",
@@ -45,6 +46,7 @@ export default {
         BmContextualMenu,
         BmDropdownItemButton
     },
+    mixins: [MailRoutesMixin],
     props: {
         folder: {
             type: Object,
@@ -110,7 +112,7 @@ export default {
             });
             if (confirm) {
                 this.EMPTY_FOLDER({ folder: this.folder, mailbox: this.mailbox });
-                this.$router.navigate({ name: "v:mail:home", params: { folder: this.folder.path } });
+                this.$router.navigate(this.folderRoute(this.folder));
             }
         }
     }

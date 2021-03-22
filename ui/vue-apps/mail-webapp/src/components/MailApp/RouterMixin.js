@@ -17,8 +17,10 @@ import MessageQueryParam from "../../router/MessageQueryParam";
 import SearchHelper from "../../store.deprecated/SearchHelper";
 import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
 import { MessageListFilter } from "../../store/messageList";
+import { WaitForMixin } from "~mixins";
 
 export default {
+    mixins: [WaitForMixin],
     computed: {
         ...mapGetters("mail", {
             FOLDERS_BY_UPPERCASE_PATH,
@@ -73,7 +75,7 @@ export default {
                             this.$_RouterMixin_query.folder ? FolderAdaptor.toRef(folder) : undefined
                         );
                     }
-                    if (!this.route.search.pattern || this.$_RouterMixin_query.folder) {
+                    if (!this.route.search.pattern || this.$_RouterMixin_query.folder || !this.activeFolder) {
                         this.SET_ACTIVE_FOLDER(folder);
                     }
                     this.$_RouterMixin_fetchMessageList();
@@ -124,9 +126,6 @@ export default {
             //TODO: We should convert the hard coded slice with a getter GET_MESSAGE_LIST_PAGE(pageNumber)
             // or GET_MESSSAGE_LIST_FIRST_PAGE + GET_MESSAGE_LIST_PREV/NEXT_PAGE
             await this.FETCH_MESSAGE_METADATA(this.messageList.messageKeys.slice(0, 40).map(key => this.messages[key]));
-            // await dispatch("mail/" + FETCH_MESSAGE_LIST_KEYS, { folder: f, conversationsEnabled }, ROOT);
-            // const sorted = rootState.mail.messageList.messageKeys.slice(0, 40).map(key => rootState.mail.messages[key]);
-            // await dispatch("mail/" + FETCH_MESSAGE_METADATA, sorted, ROOT);
         }
     }
 };

@@ -23,7 +23,7 @@ export default {
         [MAILSHARES]: state => Object.values(state).filter(({ type }) => type === MailboxType.MAILSHARE),
         [MAILBOX_BY_NAME]: state => name =>
             Object.values(state).find(mailbox => mailbox.name.toLowerCase() === name.toLowerCase()),
-        [MAILBOXES_ARE_LOADED]: state => Object.values(state).length > 1 && Object.values(state).pop().remoteRef.id
+        [MAILBOXES_ARE_LOADED]: state => Object.values(state).length >= 1 && Object.values(state).pop().remoteRef.id
     },
 
     mutations: {

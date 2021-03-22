@@ -11,10 +11,12 @@ describe("MailboxAdaptor", () => {
             expect(MailboxAdaptor.fromMailboxContainer(mailshare)).toMatchInlineSnapshot(`
                 Object {
                   "key": "2814CC5D-D372-4F66-A434-89863E99B8CD",
+                  "loading": "NOT-LOADED",
                   "name": "read.write",
                   "offlineSync": false,
                   "owner": "2814CC5D-D372-4F66-A434-89863E99B8CD",
                   "remoteRef": Object {
+                    "id": 48,
                     "uid": "2814CC5D-D372-4F66-A434-89863E99B8CD",
                   },
                   "root": "read.write",
@@ -28,10 +30,12 @@ describe("MailboxAdaptor", () => {
             expect(mailbox).toMatchInlineSnapshot(`
                 Object {
                   "key": "user.6793466E-F5D4-490F-97BF-DF09D3327BF4",
+                  "loading": "NOT-LOADED",
                   "name": "Alice",
                   "offlineSync": false,
                   "owner": "6793466E-F5D4-490F-97BF-DF09D3327BF4",
                   "remoteRef": Object {
+                    "id": 41,
                     "uid": "user.6793466E-F5D4-490F-97BF-DF09D3327BF4",
                   },
                   "root": "",

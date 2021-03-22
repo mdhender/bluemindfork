@@ -4,7 +4,7 @@
     <i18n v-else-if="alert.type === AlertTypes.SUCCESS" :path="path" tag="span">
         <template #previousName>{{ previousName }}</template>
         <template #name>
-            <router-link :to="link">
+            <router-link :to="folderRoute(folder)">
                 <strong><mail-folder-icon :folder="folder" :shared="shared" /></strong>
             </router-link>
         </template>
@@ -15,16 +15,14 @@ import { mapState } from "vuex";
 import { AlertMixin, DefaultAlert } from "@bluemind/alert.store";
 import MailFolderIcon from "../MailFolderIcon";
 import { MailboxType } from "~model/mailbox";
+import { MailRoutesMixin } from "~mixins";
 
 export default {
     name: "RenameFolder",
     components: { DefaultAlert, MailFolderIcon },
-    mixins: [AlertMixin],
+    mixins: [AlertMixin, MailRoutesMixin],
     computed: {
         ...mapState("mail", ["folders", "mailboxes"]),
-        link() {
-            return { name: "v:mail:home", params: { folder: this.folder.path } };
-        },
         name() {
             return this.payload.name;
         },

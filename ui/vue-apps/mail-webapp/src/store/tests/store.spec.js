@@ -25,6 +25,7 @@ import { DEFAULT_FOLDER_NAMES } from "../folders/helpers/DefaultFolders";
 import { MailboxType } from "~model/mailbox";
 import injector from "@bluemind/inject";
 import { SET_ACTIVE_FOLDER } from "~mutations";
+import { LoadingStatus } from "../../model/loading-status";
 
 Vue.use(Vuex);
 
@@ -165,7 +166,7 @@ describe("Mail store", () => {
                 "6": { key: "6", imapName: DEFAULT_FOLDER_NAMES.DRAFTS, mailboxRef: { key: "myMailbox" } }
             };
             store.state.mailboxes = {
-                myMailbox: { key: "myMailbox", owner: "me" }
+                myMailbox: { key: "myMailbox", owner: "me", loading: LoadingStatus.LOADED }
             };
             injector.register({
                 provide: "UserSession",

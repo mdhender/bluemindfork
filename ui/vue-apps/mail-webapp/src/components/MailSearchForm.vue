@@ -90,10 +90,10 @@ import GlobalEvents from "vue-global-events";
 import { SearchHelper } from "../store.deprecated/SearchHelper";
 import { MY_SENT, MY_INBOX, MY_TRASH } from "~getters";
 import { isMailshareRoot } from "~model/folder";
-import { MailboxType } from "~model/mailbox";
 import { MessageListStatus } from "../store/messageList";
 import { SET_MESSAGE_LIST_STATUS } from "~mutations";
 import { translatePath } from "~model/folder";
+import { MailRoutesMixin } from "~mixins";
 
 const SPINNER_TIMEOUT = 250;
 const UPDATE_ROUTE_TIMEOUT = 1000;
@@ -113,6 +113,7 @@ export default {
     directives: {
         BmToggle
     },
+    mixins: [MailRoutesMixin],
     data() {
         return {
             initialFolder: null,
@@ -125,14 +126,7 @@ export default {
                         name: "v:mail:home",
                         params: {
                             search: this.searchQuery,
-                            folder:
-                                this.selectedFolder.key && !this.isFolderOfMailshare(this.selectedFolder)
-                                    ? this.selectedFolder.path
-                                    : undefined,
-                            mailshare:
-                                this.selectedFolder.key && this.isFolderOfMailshare(this.selectedFolder)
-                                    ? this.selectedFolder.path
-                                    : undefined
+                            ...this.folderRoute(this.selectedFolder).params
                         }
                     }),
                 UPDATE_ROUTE_TIMEOUT
@@ -250,9 +244,6 @@ export default {
         },
         isMailshareRootFolder(folder) {
             return isMailshareRoot(folder, this.mailboxes[folder.mailboxRef.key]);
-        },
-        isFolderOfMailshare(folder) {
-            return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         },
         translatePath(path) {
             return translatePath(path);

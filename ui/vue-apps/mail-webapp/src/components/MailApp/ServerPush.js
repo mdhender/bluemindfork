@@ -1,7 +1,10 @@
 import { mapGetters, mapState } from "vuex";
 
 import { MAILBOXES_ARE_LOADED } from "~getters";
+import { WaitForMixin } from "~mixins";
+
 export default {
+    mixins: [WaitForMixin],
     computed: {
         ...mapState("mail", ["activeFolder", "folders", "mailboxes"]),
         ...mapGetters("mail", { MAILBOXES_ARE_LOADED }),
