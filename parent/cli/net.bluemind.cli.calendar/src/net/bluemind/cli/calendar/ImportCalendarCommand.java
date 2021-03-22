@@ -27,8 +27,11 @@ import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
+import net.bluemind.cli.utils.CliTaskMonitor;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.Regex;
+import net.bluemind.core.task.api.ITask;
+import net.bluemind.core.task.api.TaskRef;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -47,7 +50,6 @@ public class ImportCalendarCommand implements ICmdLet, Runnable {
 		public Class<? extends ICmdLet> commandClass() {
 			return ImportCalendarCommand.class;
 		}
-
 	}
 
 	@Parameters(paramLabel = "<email>", description = "email address")
@@ -90,13 +92,43 @@ public class ImportCalendarCommand implements ICmdLet, Runnable {
 		}
 
 		if (!dry) {
-			ctx.adminApi().instance(IVEvent.class, calendarUid).importIcs(cliUtils.getStreamFromFile(icsFilePath));
-			ctx.info("calendar " + calendarUid + " of " + email + " was imported");
+			runImportProcess();
 		} else {
 			ctx.info("DRY : calendar " + calendarUid + " of " + email + " was imported");
-
 		}
-
 	}
 
+	private void runImportProcess() {
+		CliTaskMonitor rootMonitor = new CliTaskMonitor("import Calendar");
+		try {
+			rootMonitor.begin(2, "Begin import...");
+			TaskRef taskRef = ctx.adminApi().instance(IVEvent.class, calendarUid)
+					.importIcs(cliUtils.getStreamFromFile(icsFilePath));
+			rootMonitor.progress(1, "Processing...");
+			ITask task = ctx.adminApi().instance(ITask.class, taskRef.id);
+			while (!task.status().state.ended) {
+				switch (task.status().state) {
+				case NotStarted:
+					ctx.info("Not Started...");
+					Thread.sleep(3000);
+					break;
+				case InProgress:
+					ctx.info("Processing...");
+					Thread.sleep(3000);
+					break;
+				case Success:
+					rootMonitor.end(true, "Completed", "calendar " + calendarUid + " of " + email + " was imported");
+					break;
+				case InError:
+					rootMonitor.end(false, "Failed",
+							"calendar " + calendarUid + "import of " + email + " was in error.");
+					break;
+				default:
+					throw new IllegalArgumentException("Unexpected value: " + task.status().state);
+				}
+			}
+		} catch (Exception e) {
+			throw new CliException(e.getMessage());
+		}
+	}
 }
