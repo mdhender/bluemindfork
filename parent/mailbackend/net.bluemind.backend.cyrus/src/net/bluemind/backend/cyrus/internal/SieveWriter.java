@@ -115,7 +115,7 @@ public class SieveWriter {
 		}
 		String defaultEmail = mbox.value.defaultEmail().address;
 		String from = defaultEmail;
-		if (displayName != null) {
+		if (displayName != null && !displayName.trim().isEmpty()) {
 			try {
 				from = String.format("%s <%s>", MimeUtility.encodeWord(displayName), defaultEmail);
 			} catch (UnsupportedEncodingException e) {
