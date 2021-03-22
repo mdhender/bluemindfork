@@ -19,7 +19,7 @@ describe("Preferences", () => {
 
     beforeEach(() => {
         props = {
-            applications: [{ href: "/mail/", icon: {} }, { href: "unknown" }],
+            applications: [{ href: "/mail/", icon: {} }, { href: "unknown" }, { href: "/cal/", icon: {} }],
             user: { displayname: "my name" }
         };
         mockedStore = MountComponentUtils.mockSessionStore();

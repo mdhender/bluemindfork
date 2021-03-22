@@ -32,6 +32,7 @@ import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
 import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
 import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
 import PrefResetLocalData from "./fields/customs/PrefResetLocalData";
+import PrefWorksHours from "./fields/customs/PrefWorksHours";
 import PrefMixin from "./mixins/PrefMixin";
 
 import { BmFormGroup } from "@bluemind/styleguide";
@@ -47,7 +48,8 @@ export default {
         PrefAlwaysShowQuota,
         PrefEnableNotifications,
         PrefRemoteImage,
-        PrefResetLocalData
+        PrefResetLocalData,
+        PrefWorksHours
     },
     mixins: [PrefMixin],
     props: {
@@ -89,6 +91,12 @@ export default {
         &::after {
             content: "\00a0";
         }
+    }
+
+    .pref-field-combobox,
+    .bm-form-timepicker,
+    .bm-form-select {
+        width: 24rem !important;
     }
 }
 </style>

@@ -88,7 +88,8 @@ export default {
                     entries.forEach(() => {
                         let htmlRootNode = this.$refs.iFrameMailContent.contentDocument.documentElement;
                         let currentHeight = this.$refs.iFrameMailContent.style.height?.replace("px", "");
-                        this.$refs.iFrameMailContent.style.height = this.computeIFrameHeight(htmlRootNode, currentHeight) + "px";
+                        this.$refs.iFrameMailContent.style.height =
+                            this.computeIFrameHeight(htmlRootNode, currentHeight) + "px";
                     });
                 }
             });

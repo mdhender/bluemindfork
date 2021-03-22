@@ -78,9 +78,14 @@
     "common.preference": "Préférences",
     "common.general": "Général",
     "common.available_soon": "Bientôt disponible !",
-    "common.every_year": "Chaque année",
     "common.application.webmail": "Messagerie",
     "common.application.calendar": "Agenda",
     "common.my_account": "Mon compte",
-    "common.advanced": "Avancé"
+    "common.advanced": "Avancé",
+    "common.day": "Jour",
+    "common.week": "Semaine",
+    "common.month": "Mois",
+    "common.list": "Liste",
+    "common.notification": "Notification",
+    "common.email": "Email"
 }

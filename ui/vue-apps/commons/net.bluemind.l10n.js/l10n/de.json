@@ -33,6 +33,7 @@
     "common.or": "oder",
     "common.cancel": "Abbrechen",
     "common.mailshares": "Geteilte Ordner",
+    "common.folder.draft": "entwurf",
     "common.reload": "Neu laden",
     "common.title": "Titel :",
     "common.when": "Datum :",
@@ -80,5 +81,11 @@
     "common.application.webmail": "Webmailer",
     "common.application.calendar": "Kalender",
     "common.my_account": "Mein Konto",
-    "common.advanced": "Erweitert"
+    "common.advanced": "Erweitert",
+    "common.day": "Tag",
+    "common.week": "Woche",
+    "common.month": "Monat",
+    "common.list": "Liste",
+    "common.notification": "Benachrichtigung",
+    "common.email": "E-Mail"
 }

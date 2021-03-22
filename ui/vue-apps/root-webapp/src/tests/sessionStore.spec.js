@@ -33,6 +33,7 @@ describe("Store session", () => {
         await sessionStore.actions.FETCH_ALL_SETTINGS(context);
         expect(context.commit).toHaveBeenCalledWith("SET_SETTINGS", {
             always_show_quota: "false",
+            default_event_alert_mode: "Display",
             insert_signature: "true",
             logout_purge: "false",
             mySetting: "MY_SETTING",

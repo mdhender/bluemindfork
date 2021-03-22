@@ -1,5 +1,18 @@
 import { inject } from "@bluemind/inject";
 
+const newWebmailDefaultSettings = {
+    always_show_quota: "false",
+    insert_signature: "true",
+    logout_purge: "false",
+    mail_message_list_style: "normal",
+    mail_thread: "false",
+    trust_every_remote_content: "false"
+};
+
+const otherDefaultSettings = {
+    default_event_alert_mode: "Display"
+};
+
 const state = {
     settings: { remote: {}, local: {}, loaded: false }
 };
@@ -9,14 +22,9 @@ const actions = {
         const userSession = inject("UserSession");
         let settings = await inject("UserSettingsPersistence").get(userSession.userId);
 
-        // set default settings if needed
         settings = {
-            always_show_quota: "false",
-            insert_signature: "true",
-            logout_purge: "false",
-            mail_message_list_style: "normal",
-            mail_thread: "false",
-            trust_every_remote_content: "false",
+            ...newWebmailDefaultSettings,
+            ...otherDefaultSettings,
             ...settings
         };
 

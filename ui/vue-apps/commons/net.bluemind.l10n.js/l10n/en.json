@@ -81,5 +81,11 @@
     "common.application.webmail": "Webmail",
     "common.application.calendar": "Calendar",
     "common.my_account": "My account",
-    "common.advanced": "Advanced"
+    "common.advanced": "Advanced",
+    "common.day": "Day",
+    "common.week": "Week",
+    "common.month": "Month",
+    "common.list": "List",
+    "common.notification": "Notification",
+    "common.email": "Email"
 }

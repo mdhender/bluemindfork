@@ -116,7 +116,7 @@ export default {
             return this.messageKeys
                 .slice(0, this.length)
                 .map(key => this.messages[key])
-                .filter(({ status, loading }) => status !== MessageStatus.REMOVED);
+                .filter(({ status }) => status !== MessageStatus.REMOVED);
         },
         currentMessage() {
             return this.messages[this.currentMessageKey];

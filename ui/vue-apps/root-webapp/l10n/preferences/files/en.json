@@ -22,6 +22,18 @@
     "preferences.advanced.reset_local_data": "Reset my local data",
     "preferences.advanced.reset_local_data.explanations": "This operation will purge and resynchronize your local data. This may take a while",
 
+    "preferences.calendar.main.week_starts_on": "Week starts on",
+    "preferences.calendar.main.default_view": "Default view",
+    "preferences.calendar.main.show_weekends": "Show weekends",
+    "preferences.calendar.main.day_starts_at": "Day starts at",
+    "preferences.calendar.main.day_ends_at": "Day ends at",
+    "preferences.calendar.main.whole_day": "All day",
+    "preferences.calendar.main.working_days": "Working days",
+    "preferences.calendar.main.show_declined_events": "Show declined events",
+    "preferences.calendar.main.default_reminder": "Default event alert",
+    "preferences.calendar.main.default_allday_reminder": "Default all-day event alert",
+    "preferences.calendar.main.default_reminder_kind": "Default alert notification type",
+
     "preferences.mail.thread": "Show replies to the same message together (conversations)",
     "preferences.mail.thread.disable": "Show messages individually",
     "preferences.mail.thread.enable": "Show messages grouped by conversation",

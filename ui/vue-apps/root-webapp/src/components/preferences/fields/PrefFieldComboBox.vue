@@ -23,7 +23,7 @@ export default {
     },
     computed: {
         filteredChoices() {
-            return this.options.choices.filter(tz => tz.includes(this.input));
+            return this.options.choices.filter(tz => tz.toUpperCase().includes(this.input.toUpperCase()));
         }
     },
     watch: {

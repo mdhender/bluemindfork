@@ -1,4 +1,4 @@
-import { zones } from "tzdata";
+import tzdata from "tzdata";
 import DateComparator from "./DateComparator";
 import DateRange from "./DateRange";
 import WeekDayCodes from "./WeekDayCodes";
@@ -15,6 +15,6 @@ const AvailableTimeFormats = [
     { text: "13:00", value: "HH:mm" }
 ];
 
-const AvailablesTimezones = Object.keys(zones);
+const AvailablesTimezones = Object.keys(tzdata.zones);
 
 export { AvailableDateFormats, AvailableTimeFormats, AvailablesTimezones, DateComparator, DateRange, WeekDayCodes };

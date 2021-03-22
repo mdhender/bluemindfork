@@ -22,6 +22,18 @@
     "preferences.advanced.reset_local_data": "Lokale Daten zurücksetzen",
     "preferences.advanced.reset_local_data.explanations": "Diese Aktion wird Ihre lokalen Daten zurücksetzen und neu synchronisieren. Dies kann einen Moment dauern.",
 
+    "preferences.calendar.main.week_starts_on": "Woche startet am",
+    "preferences.calendar.main.default_view": "Standardansicht",
+    "preferences.calendar.main.show_weekends": "Wochenenden anzeigen",
+    "preferences.calendar.main.day_starts_at": "Tag startet um",
+    "preferences.calendar.main.day_ends_at": "Tag endet um",
+    "preferences.calendar.main.whole_day": "Ganztägig",
+    "preferences.calendar.main.working_days": "Arbeitstage",
+    "preferences.calendar.main.show_declined_events": "Abgesagte Termine anzeigen",
+    "preferences.calendar.main.default_reminder": "Standard Erinnerung",
+    "preferences.calendar.main.default_allday_reminder": "Standard Erinnerungs für ganztägige Termine",
+    "preferences.calendar.main.default_reminder_kind": "Standard Erinnerungstyp",
+    
     "preferences.mail.thread": "Gemeinsame Anzeige zusammengehöriger E-Mails (Konversationen)",
     "preferences.mail.thread.disable": "E-Mails einzeln anzeigen",
     "preferences.mail.thread.enable": "E-Mails gruppiert anzeigen",
