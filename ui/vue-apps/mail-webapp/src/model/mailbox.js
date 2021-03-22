@@ -1,3 +1,5 @@
+import { LoadingStatus } from "./loading-status";
+
 export const MailboxType = {
     MAILSHARE: "mailshares",
     USER: "users"
@@ -40,6 +42,7 @@ function createBaseMailbox({ owner, name }) {
     return {
         owner,
         name,
+        loading: LoadingStatus.NOT_LOADED,
         writable: true
     };
 }

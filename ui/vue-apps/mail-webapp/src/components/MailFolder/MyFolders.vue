@@ -11,27 +11,18 @@
 <script>
 import { mapGetters } from "vuex";
 import { inject } from "@bluemind/inject";
-import { MY_MAILBOX_ROOT_FOLDERS } from "~getters";
+import { MY_MAILBOX, MY_MAILBOX_ROOT_FOLDERS } from "~getters";
 import MailFolderTree from "./MailFolderTree.vue";
 import FolderListLoading from "./FolderListLoading.vue";
+import { LoadingStatus } from "../../model/loading-status";
 export default {
     components: { MailFolderTree, FolderListLoading },
-    inject: ["initialized"],
-    data() {
-        return { isLoaded_: false };
-    },
     computed: {
-        ...mapGetters("mail", { MY_MAILBOX_ROOT_FOLDERS }),
+        ...mapGetters("mail", { MY_MAILBOX, MY_MAILBOX_ROOT_FOLDERS }),
         isLoaded() {
-            return this.MY_MAILBOX_ROOT_FOLDERS.length > 0 || this.isLoaded_;
+            return this.MY_MAILBOX && this.MY_MAILBOX.loading === LoadingStatus.LOADED;
         },
-        name() {
-            return inject("UserSession").defaultEmail;
-        }
-    },
-    async created() {
-        await this.initialized;
-        this.isLoaded_ = true;
+        name: () => inject("UserSession").defaultEmail
     }
 };
 </script>

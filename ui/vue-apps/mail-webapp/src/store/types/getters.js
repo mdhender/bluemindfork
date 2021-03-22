@@ -18,10 +18,12 @@ export const MY_SENT = "MY_SENT";
 export const MY_TRASH = "MY_TRASH";
 
 // mailboxes
-export const MY_MAILBOX_KEY = "MY_MAILBOX_KEY";
-export const MY_MAILBOX = "MY_MAILBOX";
+export const MAILBOX_BY_NAME = "MAILBOX_BY_NAME";
+export const MAILBOXES_ARE_LOADED = "MAILBOXES_ARE_LOADED";
 export const MAILSHARE_KEYS = "MAILSHARE_KEYS";
 export const MAILSHARES = "MAILSHARES";
+export const MY_MAILBOX = "MY_MAILBOX";
+export const MY_MAILBOX_KEY = "MY_MAILBOX_KEY";
 
 // folders
 export const IS_DESCENDANT = "IS_DESCENDANT";

@@ -85,6 +85,7 @@ import FaviconHelper from "../FaviconHelper";
 import BoostrapMixin from "./MailApp/BootstrapMixin";
 import RouterMixin from "./MailApp/RouterMixin";
 import ServerPush from "./MailApp/ServerPush";
+import WaitForMixin from "../mixins/WaitForMixin";
 import MailAppL10N from "../../l10n/";
 import MailFolderSidebar from "./MailFolder/MailFolderSidebar";
 import MailMessageList from "./MailMessageList/MailMessageList";
@@ -113,7 +114,7 @@ export default {
         MultipaneResizer,
         NewMessage
     },
-    mixins: [MakeUniq, BoostrapMixin, RouterMixin, ServerPush],
+    mixins: [MakeUniq, BoostrapMixin, RouterMixin, ServerPush, WaitForMixin],
     componentI18N: { messages: MailAppL10N },
     data() {
         return {

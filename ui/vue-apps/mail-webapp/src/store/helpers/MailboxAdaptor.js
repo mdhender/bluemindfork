@@ -8,6 +8,7 @@ export const MailboxAdaptor = {
         if (mailbox) {
             mailbox.writable = item.verbs.includes(Verb.Write) || item.verbs.includes(Verb.All);
             mailbox.offlineSync = item.offlineSync;
+            mailbox.remoteRef.id = item.internalId;
         }
         return mailbox;
     },

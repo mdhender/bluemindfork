@@ -11,24 +11,16 @@
 import { mapGetters } from "vuex";
 import MailFolderTree from "./MailFolderTree.vue";
 import FolderListLoading from "./FolderListLoading.vue";
-import { MAILSHARE_ROOT_FOLDERS, MAILSHARES } from "~getters";
+import { MAILBOXES_ARE_LOADED, MAILSHARE_ROOT_FOLDERS, MAILSHARES } from "~getters";
 
 export default {
     name: "MailshareFolders",
     components: { MailFolderTree, FolderListLoading },
-    inject: ["initialized"],
-    data() {
-        return { isLoaded_: false };
-    },
     computed: {
-        ...mapGetters("mail", { MAILSHARE_ROOT_FOLDERS, MAILSHARES }),
+        ...mapGetters("mail", { MAILSHARE_ROOT_FOLDERS, MAILSHARES, MAILBOXES_ARE_LOADED }),
         isLoaded() {
-            return this.MAILSHARES.length > 0 || this.isLoaded_;
+            return this.MAILBOXES_ARE_LOADED && (!this.MAILSHARES.length || this.MAILSHARE_ROOT_FOLDERS.length);
         }
-    },
-    async created() {
-        await this.initialized;
-        this.isLoaded_ = true;
     }
 };
 </script>

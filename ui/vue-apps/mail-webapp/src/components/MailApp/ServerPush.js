@@ -1,14 +1,16 @@
-import { mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 
+import { MAILBOXES_ARE_LOADED } from "~getters";
 export default {
     computed: {
         ...mapState("mail", ["activeFolder", "folders", "mailboxes"]),
+        ...mapGetters("mail", { MAILBOXES_ARE_LOADED }),
         $_ServerPush_serviceWorkerController() {
             return navigator.serviceWorker && navigator.serviceWorker.controller;
         }
     },
     async created() {
-        await this.initialized;
+        await this.$waitFor(MAILBOXES_ARE_LOADED);
         try {
             this.$_ServerPush_registerListener();
             await this.$_ServerPush_sendMessage({ type: "INIT" }, false);

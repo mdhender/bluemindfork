@@ -1,4 +1,5 @@
 const MESSAGE_QUERY_PARTS = {
+    mailbox: "m",
     folder: "d",
     search: "s",
     filter: "f"

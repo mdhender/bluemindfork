@@ -1,8 +1,9 @@
-import { SET_ROUTE_FILTER, SET_ROUTE_FOLDER, SET_ROUTE_SEARCH } from "~mutations";
+import { SET_ROUTE_FILTER, SET_ROUTE_FOLDER, SET_ROUTE_MAILBOX, SET_ROUTE_SEARCH } from "~mutations";
 export default {
     state: {
         folder: undefined,
         filter: undefined,
+        mailbox: undefined,
         search: undefined
     },
     mutations: {
@@ -11,6 +12,9 @@ export default {
         },
         [SET_ROUTE_FOLDER](state, path) {
             state.folder = path;
+        },
+        [SET_ROUTE_MAILBOX](state, mailbox) {
+            state.mailbox = mailbox;
         },
         [SET_ROUTE_SEARCH](state, search) {
             state.search = search;

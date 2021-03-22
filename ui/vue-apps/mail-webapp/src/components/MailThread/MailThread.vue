@@ -47,11 +47,12 @@ import {
     SET_MESSAGE_COMPOSING,
     SET_SHOW_REMOTE_IMAGES_ALERT
 } from "~mutations";
-import { MESSAGE_IS_LOADED, MY_DRAFTS } from "~getters";
+import { CURRENT_MAILBOX, MESSAGE_IS_LOADED, MY_DRAFTS } from "~getters";
 import MailComponentAlert from "../MailComponentAlert";
 import MailComposer from "../MailComposer";
 import MailViewer from "../MailViewer";
 import MailViewerLoading from "../MailViewer/MailViewerLoading";
+import WaitForMixin from "../../mixins/WaitForMixin";
 
 export default {
     name: "MailThread",
@@ -61,6 +62,7 @@ export default {
         MailViewer,
         MailViewerLoading
     },
+    mixins: [WaitForMixin],
     data() {
         return {
             isReadOnlyAlertDismissed: false
@@ -68,8 +70,8 @@ export default {
     },
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail", ["folders", "messages"]),
-        ...mapGetters("mail", { MESSAGE_IS_LOADED, MY_DRAFTS }),
+        ...mapState("mail", ["folders", "mailboxes", "messages"]),
+        ...mapGetters("mail", { CURRENT_MAILBOX, MESSAGE_IS_LOADED, MY_DRAFTS }),
         ...mapState("mail", { showRemoteImagesAlert: state => state.consultPanel.remoteImages.showAlert }),
 
         message() {
@@ -84,7 +86,6 @@ export default {
                 : false;
         }
     },
-    inject: ["initialized"],
     watch: {
         message() {
             this.isReadOnlyAlertDismissed = false;
@@ -94,16 +95,14 @@ export default {
             this.SET_BLOCK_REMOTE_IMAGES(false);
             this.RESET_ACTIVE_MESSAGE();
             try {
-                await this.initialized;
                 await this.$store.dispatch("mail-webapp/$_getIfNotPresent", [value]);
                 const message = this.messages[value];
+                const folderKey = message.folderRef.key;
                 if (!message.composing) {
-                    const folderKey = message.folderRef.key;
                     this.SET_ACTIVE_FOLDER(this.folders[folderKey]);
-                    this.SET_MESSAGE_COMPOSING({
-                        messageKey: value,
-                        composing: folderKey === this.MY_DRAFTS.key
-                    });
+                    if (this.MY_DRAFTS && folderKey === this.MY_DRAFTS.key) {
+                        this.SET_MESSAGE_COMPOSING({ messageKey: value, composing: true });
+                    }
                 }
             } catch {
                 this.$router.push({ name: "mail:home" });
@@ -111,8 +110,13 @@ export default {
         },
 
         "$route.params.message": {
-            handler(value) {
+            async handler(value) {
                 if (value) {
+                    // FIXME: This is bad bad bad... naughty boy...
+                    // Remove this once you have a solution for getifNotPresent....
+                    // P.S : Bad because based on message.key can be decoded to folderKey AND folder.uid === folder.key
+                    const folderKey = ItemUri.container(value);
+                    await this.$waitFor(() => this.folders[folderKey] || this.MAILBOX_ARE_LOADED);
                     this.$store.commit("mail-webapp/currentMessage/update", { key: value });
                 }
             },
