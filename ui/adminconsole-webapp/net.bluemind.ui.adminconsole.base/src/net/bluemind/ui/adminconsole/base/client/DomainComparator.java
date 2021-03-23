@@ -27,8 +27,8 @@ public class DomainComparator implements Comparator<ItemValue<Domain>> {
 
 	@Override
 	public int compare(ItemValue<Domain> d1, ItemValue<Domain> d2) {
-		String domainName1 = d1.value.name;
-		String domainName2 = d2.value.name;
+		String domainName1 = d1.value.defaultAlias;
+		String domainName2 = d2.value.defaultAlias;
 
 		if (domainName1.equals("global.virt")) {
 			return 1;
