@@ -17,17 +17,26 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import net.bluemind.backend.mail.api.IOutbox;
+import net.bluemind.backend.mail.api.MailboxFolder;
+import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
+import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.service.tests.ReplicationEventsRecorder.Hierarchy;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -36,8 +45,13 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.TaskUtils;
+import net.bluemind.imap.FlagsList;
+import net.bluemind.imap.StoreClient;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
@@ -94,6 +108,35 @@ public class RenameUserTests extends AbstractRollingReplicationTests {
 		ContainerDescriptor fetched = contApi.getIfPresent(subtree);
 		System.err.println("fetched " + fetched.name);
 		assertTrue("subtree name should include 'renamed.' but got " + fetched.name, fetched.name.contains("renamed."));
+
+		String eml = "From: john.doe@gmail.com\r\nTo: " + theUser.value.defaultEmailAddress() + "\r\n\r\nYeah\r\n";
+		try (StoreClient sc = new StoreClient(Topology.get().any("mail/imap").value.address(), 1143,
+				theUser.value.login + "@" + domainUid, "banco")) {
+			assertTrue(sc.login());
+
+			int added = sc.append("Outbox", new ByteArrayInputStream(eml.getBytes(StandardCharsets.US_ASCII)),
+					new FlagsList());
+			assertTrue(added > 0);
+		}
+		IDbByContainerReplicatedMailboxes foldersApi = provider().instance(IDbByContainerReplicatedMailboxes.class,
+				subtree);
+		ItemValue<MailboxFolder> outbox = foldersApi.byName("Outbox");
+		assertNotNull(outbox);
+		IDbMailboxRecords itemsApi = provider().instance(IDbMailboxRecords.class, outbox.uid);
+		List<ItemValue<MailboxRecord>> outboxItems = itemsApi.all();
+		int retry = 0;
+		while (outboxItems.isEmpty() & retry++ < 100) {
+			Thread.sleep(10);
+			outboxItems = itemsApi.all();
+		}
+		assertFalse(outboxItems.isEmpty());
+
+		IOutbox outboxApi = provider().instance(IOutbox.class, domainUid, mbox.uid);
+		TaskRef taskRef = outboxApi.flush();
+		String result = TaskUtils.logStreamWait(provider(), taskRef);
+		assertTrue(result.contains("1 mails to send"));
+		assertTrue(result.contains("OUTBOX finished successfully"));
+		System.err.println(result);
 	}
 
 }
