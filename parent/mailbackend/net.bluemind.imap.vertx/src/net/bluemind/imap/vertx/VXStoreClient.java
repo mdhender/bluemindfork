@@ -196,7 +196,8 @@ public class VXStoreClient implements IAsyncStoreClient {
 		} catch (ConcurrentModificationException cme) {
 			if (attempt < 20) {
 				long next = attempt * 20L;
-				logger.warn("Command in progress ({}), retry {}/20 in {}ms.", cme.getMessage(), attempt, next);
+				logger.warn("Command in progress ({}), {} did not start, retry {}/20 in {}ms.", cme.getMessage(), proc,
+						attempt, next);
 				conSupport.vertx().setTimer(next, tid -> retryableFetch(proc, cmd, ns, attempt + 1));
 			} else {
 				throw cme;
