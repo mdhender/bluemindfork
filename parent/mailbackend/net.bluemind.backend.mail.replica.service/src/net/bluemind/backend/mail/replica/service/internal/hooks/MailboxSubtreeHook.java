@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.MailboxReplicaRootUpdate;
@@ -112,6 +113,7 @@ public class MailboxSubtreeHook implements IMailboxHook {
 		IReplicatedMailboxesRootMgmt rootMgmtApi = context.provider().instance(IReplicatedMailboxesRootMgmt.class,
 				partition.name);
 		MailboxReplicaRootUpdate upd = new MailboxReplicaRootUpdate();
+		upd.subtreeUid = IMailReplicaUids.subtreeUid(domainUid, currentBoxItem);
 		upd.from = asRootDescriptor(previousBoxItem);
 		upd.to = asRootDescriptor(currentBoxItem);
 		rootMgmtApi.update(upd);

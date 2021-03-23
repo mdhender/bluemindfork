@@ -109,6 +109,7 @@ public class MailboxReplicaRootDescriptor {
 	public static class MailboxReplicaRootUpdate {
 		public MailboxReplicaRootDescriptor from;
 		public MailboxReplicaRootDescriptor to;
+		public String subtreeUid;
 	}
 
 }

@@ -95,8 +95,12 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		IContainers contApi = context.provider().instance(IContainers.class);
 		if (getRootContainer(containerUid, contApi) == null) {
 			createRootContainer(root, domainUid, containerUid, ownerUid, contApi);
-		} else if (logger.isDebugEnabled()) {
-			logger.debug("Container {} exists for {}", containerUid, root.fullName());
+		} else {
+			ContainerModifiableDescriptor cmd = new ContainerModifiableDescriptor();
+			cmd.defaultContainer = true;
+			cmd.name = subtreeName(root);
+			contApi.update(containerUid, cmd);
+			logger.info("Name of {} updated to {}", containerUid, cmd.name);
 		}
 	}
 
@@ -165,14 +169,12 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 
 	@Override
 	public void update(MailboxReplicaRootUpdate rename) {
-		String domainUid = partition.domainUid;
-		Subtree sub = SubtreeContainer.mailSubtreeUid(context, domainUid, rename.from);
 		IContainers contApi = context.provider().instance(IContainers.class);
 		ContainerModifiableDescriptor cm = new ContainerModifiableDescriptor();
 		cm.defaultContainer = true;
 		cm.name = subtreeName(rename.to);
 		logger.info("Renaming subtree from {} to {}", subtreeName(rename.from), cm.name);
-		contApi.update(sub.subtreeUid(), cm);
+		contApi.update(rename.subtreeUid, cm);
 	}
 
 	@Override
