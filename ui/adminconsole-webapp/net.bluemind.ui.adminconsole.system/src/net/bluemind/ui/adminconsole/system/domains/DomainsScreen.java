@@ -142,6 +142,7 @@ public class DomainsScreen extends Composite implements IGwtScreenRoot {
 			public void success(List<ItemValue<Domain>> value) {
 
 				List<ItemValue<Domain>> filteredList = value.stream().filter(d -> !"global.virt".equals(d.uid))
+						.sorted((d1, d2) -> d1.value.defaultAlias.compareTo(d2.value.defaultAlias))
 						.collect(Collectors.toList());
 				GWT.log("Filling domains grid with " + filteredList.size() + " domains.");
 
