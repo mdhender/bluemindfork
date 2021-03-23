@@ -87,16 +87,19 @@ export default {
                 if (this.$refs.iFrameMailContent) {
                     entries.forEach(() => {
                         let htmlRootNode = this.$refs.iFrameMailContent.contentDocument.documentElement;
-                        this.$refs.iFrameMailContent.style.height = this.computeIFrameHeight(htmlRootNode) + "px";
+                        let currentHeight = this.$refs.iFrameMailContent.style.height?.replace("px", "");
+                        this.$refs.iFrameMailContent.style.height = this.computeIFrameHeight(htmlRootNode, currentHeight) + "px";
                     });
                 }
             });
             resizeObserver.observe(this.$refs.iFrameMailContent);
         },
         /** get max offset height between root, body and body children nodes */
-        computeIFrameHeight(htmlRootNode) {
+        computeIFrameHeight(htmlRootNode, currentHeight) {
             let maxHeight = htmlRootNode.offsetHeight;
-            const bodyNode = htmlRootNode.childNodes[1];
+            const bodyNode = Array.from(htmlRootNode.childNodes).find(
+                node => node.tagName && node.tagName.toLowerCase() === "body"
+            );
             if (bodyNode) {
                 if (bodyNode.offsetHeight) {
                     maxHeight = Math.max(maxHeight, bodyNode.offsetHeight);
@@ -107,7 +110,7 @@ export default {
                     }
                 });
             }
-            return maxHeight + this.scrollbarHeight;
+            return currentHeight >= maxHeight ? currentHeight : maxHeight + this.scrollbarHeight;
         },
         buildHtml(content) {
             const label = this.$t("mail.application.region.messagecontent");
