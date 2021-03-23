@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -231,10 +232,24 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(export.contains("X-MICROSOFT-DISALLOW-COUNTER:false"));
 		assertTrue(export.contains("X-MICROSOFT-CDO-BUSYSTATUS:BUSY"));
 		assertTrue(export.contains("X-MOZ-LASTACK:"));
+		assertTrue(mozStackIsValid(export));
 
 		assertTrue(export.contains("ATTACH;X-FILE-NAME=test.gif:http://somewhere/1"));
 		assertTrue(export.contains("ATTACH;X-FILE-NAME=test.png:http://somewhere/2"));
 
+	}
+
+	private boolean mozStackIsValid(String export) {
+		try {
+			String mozStackLine = Arrays.asList(export.replaceAll("\r\n", "\n").split("\n")).stream()
+					.filter(line -> line.startsWith("X-MOZ-LASTACK:")).findAny().get();
+			String value = mozStackLine.substring("X-MOZ-LASTACK:".length()).trim();
+			new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'").parse(value);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	@Test

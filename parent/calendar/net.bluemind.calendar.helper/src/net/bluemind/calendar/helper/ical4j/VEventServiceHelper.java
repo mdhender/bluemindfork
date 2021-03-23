@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -69,7 +70,6 @@ import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.ParameterList;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
-import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.component.VTimeZone;
 import net.fortuna.ical4j.model.property.CalScale;
 import net.fortuna.ical4j.model.property.DtEnd;
@@ -80,7 +80,6 @@ import net.fortuna.ical4j.model.property.Status;
 import net.fortuna.ical4j.model.property.Transp;
 import net.fortuna.ical4j.model.property.Version;
 import net.fortuna.ical4j.model.property.XProperty;
-import net.fortuna.ical4j.util.Strings;
 
 public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 
@@ -545,12 +544,8 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 	}
 
 	private static void appendXMozProperties(PropertyList properties) {
-		java.util.Calendar cal = java.util.Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-		String value = Strings.valueOf(cal.getTime());
-
-		XProperty p = new XProperty("X-MOZ-LASTACK", value);
+		XProperty p = new XProperty("X-MOZ-LASTACK", new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'").format(new Date()));
 		properties.add(p);
-
 	}
 
 	private static void appendXMsProperties(PropertyList properties, VEvent vevent) {
