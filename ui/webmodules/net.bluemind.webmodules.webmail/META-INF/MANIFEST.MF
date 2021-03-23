@@ -12,3 +12,4 @@ Require-Bundle: net.bluemind.ui.webmail.application;bundle-version="1.0.0",
  net.bluemind.ui.resources;bundle-version="4.1.0",
  net.bluemind.webmodule.server;bundle-version="4.1.0"
 Web-Resources: web-resources
+Automatic-Module-Name: net.bluemind.webmodules.webmail

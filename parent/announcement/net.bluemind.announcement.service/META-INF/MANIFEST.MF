@@ -13,3 +13,4 @@ Require-Bundle: net.bluemind.announcement.api,
  net.bluemind.announcement.provider,
  org.eclipse.osgi
 Bundle-Activator: net.bluemind.announcement.service.UserAnnouncementsActivator
+Automatic-Module-Name: net.bluemind.announcement.service

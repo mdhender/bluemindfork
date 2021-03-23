@@ -15,3 +15,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=ree
  net.bluemind.core.task.api;visibility:=reexport,
  net.bluemind.user.api;bundle-version="1.0.0"
 Eclipse-RegisterBuddy: net.bluemind.core.rest
+Automatic-Module-Name: net.bluemind.todolist.api

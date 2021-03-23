@@ -29,3 +29,4 @@ Require-Bundle: net.bluemind.authentication.closure;bundle-version="1.0.0",
  net.bluemind.filehosting.api.closure;bundle-version="4.1.0"
 Bundle-ClassPath: css.jar, js.jar
 Closure-Bundle-Type: Library
+Automatic-Module-Name: net.bluemind.calendar.application.closure

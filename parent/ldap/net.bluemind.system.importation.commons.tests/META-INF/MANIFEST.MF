@@ -11,3 +11,4 @@ Require-Bundle: org.junit;bundle-version="4.12.0",
  net.bluemind.core.jdbc.testshelper,
  net.bluemind.tests.defaultdata,
  org.apache.commons.collections
+Automatic-Module-Name: net.bluemind.system.importation.commons.tests

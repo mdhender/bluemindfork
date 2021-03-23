@@ -21,3 +21,4 @@ Require-Bundle: net.bluemind.externaluser.api;visibility:=reexport,
  net.bluemind.core.task.service;bundle-version="4.1.0"
 Export-Package: net.bluemind.externaluser.service,
  net.bluemind.externaluser.service.internal
+Automatic-Module-Name: net.bluemind.externaluser.service

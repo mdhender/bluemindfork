@@ -9,3 +9,4 @@ Require-Bundle: net.bluemind.domain.api;bundle-version="1.0.0",
  net.bluemind.user.api;bundle-version="1.0.0",
  net.bluemind.group.api;bundle-version="1.0.0",
  net.bluemind.customproperties.api;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.samba.customproperties

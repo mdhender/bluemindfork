@@ -18,5 +18,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.rest,
  net.bluemind.addressbook.api,
  net.bluemind.authentication.service;bundle-version="4.1.0"
-
-
+Automatic-Module-Name: net.bluemind.addressbook.userbook.tests

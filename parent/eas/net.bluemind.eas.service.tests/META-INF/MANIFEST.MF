@@ -20,3 +20,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.rest.http.vertx;bundle-version="1.0.0",
  net.bluemind.device.api,
  net.bluemind.device.service;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.eas.service.tests

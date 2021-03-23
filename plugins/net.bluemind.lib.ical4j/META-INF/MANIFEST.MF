@@ -29,3 +29,4 @@ Export-Package: net.bluemind.lib.ical4j.data,
    groovy.util,
    net.fortuna.ical4j.model,
    net.fortuna.ical4j.vcard.parameter"
+Automatic-Module-Name: net.bluemind.lib.ical4j

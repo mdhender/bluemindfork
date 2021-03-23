@@ -10,3 +10,4 @@ Require-Bundle: relief;bundle-version="1.0.0",
  net.bluemind.commons.closure;bundle-version="1.0.0",
  net.bluemind.calendar.api;bundle-version="1.0.0"
 Bundle-ClassPath: js.jar
+Automatic-Module-Name: net.bluemind.calendar.api.closure

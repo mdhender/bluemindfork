@@ -34,4 +34,4 @@ Require-Bundle: slf4j.api,
  net.bluemind.mailbox.service
 Export-Package: net.bluemind.backend.postfix
 Bundle-Activator: net.bluemind.backend.postfix.Activator
-
+Automatic-Module-Name: net.bluemind.backend.postfix

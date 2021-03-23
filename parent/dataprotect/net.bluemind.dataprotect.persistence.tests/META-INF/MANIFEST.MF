@@ -11,3 +11,4 @@ Require-Bundle: org.junit,
  net.bluemind.dataprotect.api,
  net.bluemind.system.api,
  net.bluemind.tests.defaultdata
+Automatic-Module-Name: net.bluemind.dataprotect.persistence.tests

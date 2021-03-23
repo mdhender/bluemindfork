@@ -13,3 +13,4 @@ Require-Bundle: net.bluemind.documentfolder.api;bundle-version="1.0.0",
  net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.document.api,
  net.bluemind.core.container.service
+Automatic-Module-Name: net.bluemind.documentfolder.service

@@ -33,3 +33,4 @@ Export-Package: net.bluemind.proxy.http,
  net.bluemind.proxy.http.impl
 Bundle-ClassPath: .
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
+Automatic-Module-Name: net.bluemind.proxy.http

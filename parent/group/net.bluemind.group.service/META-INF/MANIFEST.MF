@@ -46,4 +46,4 @@ Require-Bundle: net.bluemind.group.api;bundle-version="1.0.0",
  net.bluemind.core.task.service;bundle-version="4.1.0"
 Export-Package: net.bluemind.group.service,
  net.bluemind.group.service.internal
-
+Automatic-Module-Name: net.bluemind.group.service

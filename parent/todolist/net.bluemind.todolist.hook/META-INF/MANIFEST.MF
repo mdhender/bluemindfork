@@ -14,3 +14,4 @@ Require-Bundle: net.bluemind.lib.vertx,
 Export-Package: net.bluemind.todolist.hook,
  net.bluemind.todolist.hook.internal
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
+Automatic-Module-Name: net.bluemind.todolist.hook

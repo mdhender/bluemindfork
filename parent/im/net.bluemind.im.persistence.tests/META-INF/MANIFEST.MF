@@ -9,3 +9,4 @@ Require-Bundle: net.bluemind.core.jdbc.testshelper,
  org.junit,
  net.bluemind.im.persistence;bundle-version="1.0.0",
  net.bluemind.core.commons;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.im.persistence.tests

@@ -40,3 +40,4 @@ Export-Package: net.bluemind.eas.serdes,
  net.bluemind.eas.serdes.smartreply,
  net.bluemind.eas.serdes.sync,
  net.bluemind.eas.serdes.tasks
+Automatic-Module-Name: net.bluemind.eas.serdes

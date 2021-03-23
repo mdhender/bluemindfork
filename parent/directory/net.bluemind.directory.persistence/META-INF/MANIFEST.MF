@@ -14,3 +14,4 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.directory.sqlschema;bundle-version="1.0.0",
  net.bluemind.core.context
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.directory.persistence

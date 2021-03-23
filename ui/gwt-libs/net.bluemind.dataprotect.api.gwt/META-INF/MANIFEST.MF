@@ -16,4 +16,4 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:
 Export-Package: net.bluemind.dataprotect.api.gwt.endpoint,
  net.bluemind.dataprotect.api.gwt.serder,
  net.bluemind.dataprotect.api.gwt.js
-
+Automatic-Module-Name: net.bluemind.dataprotect.api.gwt

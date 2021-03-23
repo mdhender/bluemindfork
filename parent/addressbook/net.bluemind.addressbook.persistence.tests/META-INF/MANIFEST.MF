@@ -10,5 +10,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.elasticsearch.testshelper;bundle-version="1.0.0",
  net.bluemind.addressbook.persistence,
  slf4j.api;bundle-version="1.7.5"
-
-
+Automatic-Module-Name: net.bluemind.addressbook.persistence.tests

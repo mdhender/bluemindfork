@@ -14,4 +14,4 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.webmodule.server.tests.Activator
 Web-Resources: web-resources
-
+Automatic-Module-Name: net.bluemind.webmodule.server.tests

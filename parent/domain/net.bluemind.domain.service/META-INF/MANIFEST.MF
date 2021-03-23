@@ -45,3 +45,4 @@ Require-Bundle: net.bluemind.domain.api;bundle-version="1.0.0",
  com.github.ben-manes.caffeine
 Export-Package: net.bluemind.domain.service,
  net.bluemind.domain.service.internal
+Automatic-Module-Name: net.bluemind.domain.service

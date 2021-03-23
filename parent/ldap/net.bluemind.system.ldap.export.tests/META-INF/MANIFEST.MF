@@ -20,3 +20,4 @@ Require-Bundle: org.junit,
  net.bluemind.config,
  net.bluemind.node.api,
  net.bluemind.server.hook
+Automatic-Module-Name: net.bluemind.system.ldap.export.tests

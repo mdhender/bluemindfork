@@ -23,4 +23,4 @@ Bundle-ClassPath: .
 X-BM-Version: 4.5.0
 Bundle-Activator: net.bluemind.core.api.CommonsActivator
 Bundle-ActivationPolicy: lazy
-
+Automatic-Module-Name: net.bluemind.core.commons

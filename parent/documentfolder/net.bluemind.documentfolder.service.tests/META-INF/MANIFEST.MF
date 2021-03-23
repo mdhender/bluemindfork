@@ -25,3 +25,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.rest;bundle-version="1.0.0",
  net.bluemind.documentfolder.domainfolder;bundle-version="1.0.0",
  net.bluemind.document.service;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.documentfolder.service.tests

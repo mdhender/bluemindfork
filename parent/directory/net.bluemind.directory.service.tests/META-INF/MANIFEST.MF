@@ -19,3 +19,4 @@ Require-Bundle: org.junit,
  net.bluemind.addressbook.service;bundle-version="4.1.0",
  net.bluemind.todolist.service;bundle-version="4.1.0",
  net.bluemind.externaluser.service;bundle-version="4.1.0"
+Automatic-Module-Name: net.bluemind.directory.service.tests

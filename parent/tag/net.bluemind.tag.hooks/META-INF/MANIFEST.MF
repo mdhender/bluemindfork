@@ -17,4 +17,4 @@ Require-Bundle:
  net.bluemind.domain.api,
  net.bluemind.core.container.repair,
  net.bluemind.core.task.spi
-
+Automatic-Module-Name: net.bluemind.tag.hooks

@@ -11,3 +11,4 @@ Require-Bundle: net.bluemind.core.commons,
  slf4j.api,
  com.google.guava
 Export-Package: net.bluemind.role.api
+Automatic-Module-Name: net.bluemind.role.api

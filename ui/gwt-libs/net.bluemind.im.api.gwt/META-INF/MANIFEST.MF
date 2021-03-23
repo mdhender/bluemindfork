@@ -11,4 +11,4 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:
  net.bluemind.restbus.api.gwt;bundle-version="4.1.0";visibility:=reexport
 Export-Package: net.bluemind.im.api.gwt.endpoint,
  net.bluemind.im.api.gwt.js
-
+Automatic-Module-Name: net.bluemind.im.api.gwt

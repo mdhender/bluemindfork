@@ -12,4 +12,4 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:
 Export-Package: net.bluemind.metrics.alerts.api.gwt.endpoint,
  net.bluemind.metrics.alerts.api.gwt.js,
  net.bluemind.metrics.alerts.api.gwt.serder
-
+Automatic-Module-Name: net.bluemind.metrics.alerts.api.gwt

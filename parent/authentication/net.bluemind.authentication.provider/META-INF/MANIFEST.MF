@@ -10,4 +10,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=ree
  net.bluemind.domain.api;visibility:=reexport,
  net.bluemind.user.api
 Export-Package: net.bluemind.authentication.provider
-
+Automatic-Module-Name: net.bluemind.authentication.provider

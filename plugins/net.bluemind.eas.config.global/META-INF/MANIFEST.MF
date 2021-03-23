@@ -9,3 +9,4 @@ Require-Bundle: org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.eas.config.global
+Automatic-Module-Name: net.bluemind.eas.config.global

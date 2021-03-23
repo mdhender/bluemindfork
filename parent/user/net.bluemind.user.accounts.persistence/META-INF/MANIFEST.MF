@@ -14,3 +14,4 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.user.api,
  net.bluemind.user.accounts.sqlschema;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.user.accounts.persistence

@@ -11,3 +11,4 @@ Require-Bundle: net.bluemind.scheduledjob.scheduler,
  net.bluemind.core.rest,
  net.bluemind.core.container.persistence,
  net.bluemind.addressbook.api;bundle-version="4.1.0"
+Automatic-Module-Name: net.bluemind.addressbook.ldap.job

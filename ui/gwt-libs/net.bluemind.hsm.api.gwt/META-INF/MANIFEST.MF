@@ -13,4 +13,4 @@ Export-Package: net.bluemind.hsm.api.gwt.js,
  net.bluemind.hsm.api.gwt.endpoint,
  net.bluemind.hsm.api.gwt.serder,
  net.bluemind.hsm
-
+Automatic-Module-Name: net.bluemind.hsm.api.gwt

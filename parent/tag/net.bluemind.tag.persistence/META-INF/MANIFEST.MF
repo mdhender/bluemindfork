@@ -15,3 +15,4 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.lib.jackson;bundle-version="1.0.0",
  net.bluemind.tag.sqlschema;bundle-version="1.0.0";visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.tag.persistence

@@ -10,3 +10,4 @@ Require-Bundle: relief;bundle-version="1.0.0",
  net.bluemind.core.container.api;bundle-version="1.0.0"
 Bundle-ClassPath: js.jar
 Bundle-Vendor: blue-mind.net
+Automatic-Module-Name: net.bluemind.core.container.api.closure

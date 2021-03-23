@@ -26,3 +26,4 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.core.validator,
  net.bluemind.role.api
 Export-Package: net.bluemind.mailbox.identity.service
+Automatic-Module-Name: net.bluemind.mailbox.identity.service

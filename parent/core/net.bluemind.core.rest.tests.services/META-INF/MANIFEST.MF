@@ -15,4 +15,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  org.junit
 Eclipse-RegisterBuddy: net.bluemind.core.rest
 Export-Package: net.bluemind.core.rest.tests.services
-
+Automatic-Module-Name: net.bluemind.core.rest.tests.services

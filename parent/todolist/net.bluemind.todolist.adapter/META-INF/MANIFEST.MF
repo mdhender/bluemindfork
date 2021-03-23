@@ -12,3 +12,4 @@ Require-Bundle: slf4j.api,
  net.bluemind.icalendar.parser;visibility:=reexport,
  net.bluemind.attachment.api
 Export-Package: net.bluemind.todolist.adapter
+Automatic-Module-Name: net.bluemind.todolist.adapter

@@ -18,5 +18,4 @@ Require-Bundle: net.bluemind.hsm.api;bundle-version="1.0.0",
 Export-Package: net.bluemind.mailmessage.service
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.mailmessage.service.Activator
-
-
+Automatic-Module-Name: net.bluemind.mailmessage.service

@@ -19,3 +19,4 @@ Require-Bundle: org.junit,
  slf4j.api;bundle-version="1.7.5",
  org.apache.commons.io,
  net.bluemind.tag.api
+Automatic-Module-Name: net.bluemind.calendar.helper.tests

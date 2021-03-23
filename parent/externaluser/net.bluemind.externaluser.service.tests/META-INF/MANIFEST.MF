@@ -22,3 +22,4 @@ Require-Bundle: org.junit,
  net.bluemind.group.api,
  net.bluemind.group.persistence,
  net.bluemind.user.api
+Automatic-Module-Name: net.bluemind.externaluser.service.tests

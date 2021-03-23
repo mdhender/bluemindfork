@@ -7,3 +7,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.role.api;bundle-version="4.1.0",
  net.bluemind.role.provider;bundle-version="4.1.0",
  com.google.guava
+Automatic-Module-Name: net.bluemind.mailapp.role

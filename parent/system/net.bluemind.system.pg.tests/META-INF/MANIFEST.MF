@@ -14,3 +14,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.container.api;bundle-version="4.1.0",
  net.bluemind.node.api,
  net.bluemind.pool
+Automatic-Module-Name: net.bluemind.system.pg.tests

@@ -12,4 +12,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
 Export-Package: net.bluemind.content.analysis
 Bundle-Activator: net.bluemind.content.analysis.ContentAnalyzerFactory
 Bundle-ActivationPolicy: lazy
-
+Automatic-Module-Name: net.bluemind.content.analysis

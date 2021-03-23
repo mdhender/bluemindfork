@@ -14,3 +14,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: lib/smack.jar,
  lib/smackx.jar,
  .
+Automatic-Module-Name: net.bluemind.xmpp.server.tests

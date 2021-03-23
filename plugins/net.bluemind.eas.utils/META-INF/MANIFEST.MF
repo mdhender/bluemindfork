@@ -15,3 +15,4 @@ Bundle-Vendor: blue-mind.net
 Bundle-ClassPath: .,
  lib/xercesImpl-2.11.0.jar,
  lib/xml-apis-2.11.0.jar
+Automatic-Module-Name: net.bluemind.eas.utils

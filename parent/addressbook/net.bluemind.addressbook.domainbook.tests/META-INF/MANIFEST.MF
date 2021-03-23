@@ -18,4 +18,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.container.service;bundle-version="4.1.0",
  net.bluemind.group.api,
  net.bluemind.group.service
-
+Automatic-Module-Name: net.bluemind.addressbook.domainbook.tests

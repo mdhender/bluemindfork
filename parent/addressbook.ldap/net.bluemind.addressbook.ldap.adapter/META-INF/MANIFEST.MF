@@ -15,3 +15,4 @@ Require-Bundle: net.bluemind.addressbook.api,
 Export-Package: net.bluemind.addressbook.ldap.adapter,
  net.bluemind.addressbook.ldap.adapter.enhancer
 Bundle-Activator: net.bluemind.addressbook.ldap.adapter.Activator
+Automatic-Module-Name: net.bluemind.addressbook.ldap.adapter

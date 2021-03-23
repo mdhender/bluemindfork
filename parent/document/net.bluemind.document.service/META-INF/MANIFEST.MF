@@ -17,3 +17,4 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.document.storage;bundle-version="1.0.0"
 Bundle-Activator: net.bluemind.document.service.Activator
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: net.bluemind.document.service

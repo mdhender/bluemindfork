@@ -11,3 +11,4 @@ Require-Bundle: slf4j.api,
 Export-Package: net.bluemind.system.helper,
  net.bluemind.system.helper.distrib,
  net.bluemind.system.helper.distrib.list
+Automatic-Module-Name: net.bluemind.system.helper

@@ -12,3 +12,4 @@ Bundle-ClassPath: lib/jta-spec1_0_1.jar,
  .
 Export-Package: javax.transaction,
  javax.transaction.xa
+Automatic-Module-Name: net.bluemind.lib.jta

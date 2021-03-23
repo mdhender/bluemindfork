@@ -8,3 +8,4 @@ Require-Bundle: net.bluemind.pool;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: blue-mind.net
+Automatic-Module-Name: net.bluemind.jdbc.pgsql.provider

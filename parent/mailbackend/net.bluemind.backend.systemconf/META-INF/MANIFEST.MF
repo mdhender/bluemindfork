@@ -14,3 +14,4 @@ Require-Bundle: slf4j.api,
  net.bluemind.core.rest,
  net.bluemind.core.container.api,
  net.bluemind.server.hook
+Automatic-Module-Name: net.bluemind.backend.systemconf

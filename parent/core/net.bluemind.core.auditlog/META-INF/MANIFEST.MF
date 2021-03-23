@@ -19,3 +19,4 @@ Export-Package: net.bluemind.core.auditlog,
  net.bluemind.core.auditlog.appender,
  net.bluemind.core.auditlog.appender.slf4j
 Bundle-Activator: net.bluemind.core.auditlog.AuditLogActivator
+Automatic-Module-Name: net.bluemind.core.auditlog

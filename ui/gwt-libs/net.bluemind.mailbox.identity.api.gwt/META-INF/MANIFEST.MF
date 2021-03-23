@@ -13,4 +13,4 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:
 Export-Package: net.bluemind.mailbox.identity.api.gwt.endpoint,
  net.bluemind.mailbox.identity.api.gwt.serder,
  net.bluemind.mailbox.identity.api.gwt.js
-
+Automatic-Module-Name: net.bluemind.mailbox.identity.api.gwt

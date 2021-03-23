@@ -50,4 +50,4 @@ Export-Package: net.bluemind.system.ldap.importation;
    org.apache.directory.api.ldap.model.name,
    net.bluemind.system.importation.commons"
 Bundle-Activator: net.bluemind.system.ldap.importation.Activator
-
+Automatic-Module-Name: net.bluemind.system.ldap.importation

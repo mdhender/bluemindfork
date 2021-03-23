@@ -10,3 +10,4 @@ Require-Bundle: net.bluemind.customproperties.api,
  net.bluemind.core.rest,
  net.bluemind.core.commons;bundle-version="1.0.0",
  slf4j.api
+Automatic-Module-Name: net.bluemind.customproperties.service

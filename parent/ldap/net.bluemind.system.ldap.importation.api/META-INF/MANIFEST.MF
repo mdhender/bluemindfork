@@ -7,3 +7,4 @@ Bundle-Vendor: blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: net.bluemind.system.ldap.importation.api
 Require-Bundle: net.bluemind.core.commons
+Automatic-Module-Name: net.bluemind.system.ldap.importation.api

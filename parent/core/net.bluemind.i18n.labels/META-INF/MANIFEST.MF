@@ -7,4 +7,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.i18n.labels
 Require-Bundle: slf4j.api
-
+Automatic-Module-Name: net.bluemind.i18n.labels

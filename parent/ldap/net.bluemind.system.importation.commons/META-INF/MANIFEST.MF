@@ -34,4 +34,4 @@ Export-Package: net.bluemind.system.importation.commons,
  net.bluemind.system.importation.i18n,
  net.bluemind.system.importation.search,
  net.bluemind.system.importation.tools
-
+Automatic-Module-Name: net.bluemind.system.importation.commons

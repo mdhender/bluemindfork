@@ -16,4 +16,4 @@ Require-Bundle: net.bluemind.todolist.api;visibility:=reexport,
  net.bluemind.core.container.repair,
  net.bluemind.core.task.spi
 Export-Package: net.bluemind.todolist.usertodolist
-
+Automatic-Module-Name: net.bluemind.todolist.usertodolist

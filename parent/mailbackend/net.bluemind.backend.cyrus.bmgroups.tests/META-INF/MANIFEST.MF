@@ -20,3 +20,4 @@ Require-Bundle: net.bluemind.backend.cyrus.bmgroups,
  net.bluemind.core.rest.http.vertx;bundle-version="4.1.0",
  net.bluemind.network.topology.producer;bundle-version="4.1.0",
  net.bluemind.network.topology
+Automatic-Module-Name: net.bluemind.backend.cyrus.bmgroups.tests

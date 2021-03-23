@@ -17,5 +17,4 @@ Require-Bundle: org.junit,
  net.bluemind.tests.defaultdata,
  net.bluemind.tag.persistence,
  net.bluemind.user.service
-
-
+Automatic-Module-Name: net.bluemind.tag.hooks.tests

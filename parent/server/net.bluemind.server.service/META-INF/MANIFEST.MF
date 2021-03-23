@@ -28,4 +28,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.task.service,
  net.bluemind.core.sanitizer,
  net.bluemind.network.topology
-
+Automatic-Module-Name: net.bluemind.server.service

@@ -11,4 +11,4 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:
 Export-Package: net.bluemind.filehosting.api.gwt.endpoint,
  net.bluemind.filehosting.api.gwt.js,
  net.bluemind.filehosting.api.gwt.serder
-
+Automatic-Module-Name: net.bluemind.filehosting.api.gwt

@@ -35,3 +35,4 @@ Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Export-Package: net.bluemind.dav.server,
  net.bluemind.dav.server.proto,
  net.bluemind.dav.server.xml
+Automatic-Module-Name: net.bluemind.dav.server

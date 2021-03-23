@@ -6,3 +6,4 @@ Bundle-Version: 4.1.0.qualifier
 Require-Bundle: net.bluemind.core.commons.php;bundle-version="1.0.0",
  net.bluemind.core.container.api.php;bundle-version="1.0.0",
  net.bluemind.system.api;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.system.api.php

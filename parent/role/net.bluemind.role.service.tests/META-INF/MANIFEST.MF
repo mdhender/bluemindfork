@@ -11,4 +11,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper,
  net.bluemind.core.sessions,
  net.bluemind.core.tests.testshelper
-
+Automatic-Module-Name: net.bluemind.role.service.tests

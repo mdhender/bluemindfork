@@ -21,3 +21,4 @@ Require-Bundle: ydn-base;bundle-version="1.0.0",
 Web-Resources: web-resources
 Bundle-ClassPath: js.jar,
  .
+Automatic-Module-Name: calendar

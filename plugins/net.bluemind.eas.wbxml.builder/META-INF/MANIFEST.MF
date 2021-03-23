@@ -21,3 +21,4 @@ Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Export-Package: net.bluemind.eas.wbxml.builder,
  net.bluemind.eas.wbxml.builder.vertx
+Automatic-Module-Name: net.bluemind.eas.wbxml.builder

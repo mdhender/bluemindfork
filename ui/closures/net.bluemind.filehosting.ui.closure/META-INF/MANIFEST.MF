@@ -10,3 +10,4 @@ Bundle-ClassPath: css.jar,
  .
 Require-Bundle: net.bluemind.filehosting.api.closure;bundle-version="4.1.0",
  net.bluemind.commons.ui.closure;bundle-version="4.1.0"
+Automatic-Module-Name: net.bluemind.filehosting.ui.closure

@@ -9,3 +9,4 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.lib.jackson
 Export-Package: net.bluemind.eas.api
+Automatic-Module-Name: net.bluemind.eas.api

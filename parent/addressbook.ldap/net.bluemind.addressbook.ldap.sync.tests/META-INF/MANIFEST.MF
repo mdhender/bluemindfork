@@ -23,3 +23,4 @@ Require-Bundle: org.junit,
  net.bluemind.addressbook.ldap.api;bundle-version="4.1.0",
  net.bluemind.addressbook.ldap.sync;bundle-version="4.1.0",
  net.bluemind.system.ldap.tests.helpers
+Automatic-Module-Name: net.bluemind.addressbook.ldap.sync.tests

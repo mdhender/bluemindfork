@@ -12,3 +12,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Export-Package: com.sendmail.jilter
+Automatic-Module-Name: net.bluemind.jilter

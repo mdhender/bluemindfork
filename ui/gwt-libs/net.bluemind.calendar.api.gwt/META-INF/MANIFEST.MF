@@ -16,4 +16,4 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:
 Export-Package: net.bluemind.calendar.api.gwt.endpoint,
  net.bluemind.calendar.api.gwt.js,
  net.bluemind.calendar.api.gwt.serder
-
+Automatic-Module-Name: net.bluemind.calendar.api.gwt

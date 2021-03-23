@@ -39,4 +39,4 @@ Require-Bundle: org.junit,
  net.bluemind.dockerclient,
  net.bluemind.deferredaction.service;bundle-version="4.1.0",
  net.bluemind.domain.service;bundle-version="4.1.0"
-
+Automatic-Module-Name: net.bluemind.calendar.service.tests

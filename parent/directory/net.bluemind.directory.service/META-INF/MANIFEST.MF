@@ -53,3 +53,4 @@ Export-Package: net.bluemind.directory.service,
  net.bluemind.directory.service.internal
 Bundle-Activator: net.bluemind.directory.service.DirectoryActivator
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: net.bluemind.directory.service

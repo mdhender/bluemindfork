@@ -15,4 +15,4 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0",
  net.bluemind.attachment.api;bundle-version="4.1.0"
 Export-Package: net.bluemind.icalendar.api.gwt.js,
  net.bluemind.icalendar.api.gwt.serder
-
+Automatic-Module-Name: net.bluemind.icalendar.api.gwt

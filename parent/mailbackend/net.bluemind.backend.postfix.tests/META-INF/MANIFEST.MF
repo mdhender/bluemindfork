@@ -42,3 +42,4 @@ Require-Bundle: org.junit,
  net.bluemind.externaluser.service;bundle-version="4.1.0",
  net.bluemind.externaluser.api
 Fragment-Host: net.bluemind.backend.postfix
+Automatic-Module-Name: net.bluemind.backend.postfix.tests

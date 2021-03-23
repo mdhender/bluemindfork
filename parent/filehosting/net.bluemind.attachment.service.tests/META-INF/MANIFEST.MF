@@ -29,3 +29,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.pool,
  net.bluemind.filehosting.filesystem.service;bundle-version="4.1.0"
 Bundle-ClassPath: .
+Automatic-Module-Name: net.bluemind.attachment.service.tests

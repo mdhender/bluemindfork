@@ -39,3 +39,4 @@ Require-Bundle: org.junit,
  net.bluemind.calendar.helper,
  net.bluemind.icalendar.parser;bundle-version="4.1.0",
  net.bluemind.mime4j.common
+Automatic-Module-Name: net.bluemind.lmtp.filter.imip.tests

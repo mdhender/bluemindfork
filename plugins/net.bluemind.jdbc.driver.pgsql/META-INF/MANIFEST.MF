@@ -9,4 +9,4 @@ Bundle-ClassPath: .
 Fragment-Host: com.zaxxer.HikariCP;bundle-version="3.3.1.bm1"
 Require-Bundle: org.postgresql.jdbc42;bundle-version="42.0.0";visibility:=reexport
 Eclipse-RegisterBuddy: com.zaxxer.HikariCP
-
+Automatic-Module-Name: net.bluemind.jdbc.driver.pgsql

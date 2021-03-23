@@ -8,3 +8,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.commons,
  net.bluemind.role.api
 Export-Package: net.bluemind.role.provider
+Automatic-Module-Name: net.bluemind.role.provider

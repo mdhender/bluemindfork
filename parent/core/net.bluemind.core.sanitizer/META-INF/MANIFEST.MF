@@ -21,3 +21,4 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.sanitizer
+Automatic-Module-Name: net.bluemind.core.sanitizer

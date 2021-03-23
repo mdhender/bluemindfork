@@ -22,3 +22,4 @@ Require-Bundle: net.bluemind.core.commons,
 Export-Package: net.bluemind.role.service
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.role.service.RolesServiceActivator
+Automatic-Module-Name: net.bluemind.role.service

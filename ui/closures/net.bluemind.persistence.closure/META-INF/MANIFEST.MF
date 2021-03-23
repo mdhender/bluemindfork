@@ -10,3 +10,4 @@ Require-Bundle: ydn-base;bundle-version="1.0.0",
  relief;bundle-version="1.0.0"
 Bundle-ClassPath: js.jar,
  .
+Automatic-Module-Name: net.bluemind.persistence.closure

@@ -16,3 +16,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.neko.common
 Bundle-ClassPath: .
+Automatic-Module-Name: net.bluemind.neko.common

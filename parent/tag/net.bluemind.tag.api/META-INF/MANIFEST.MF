@@ -9,3 +9,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.container.api;bundle-version="1.0.0",
  javax.validation.api
 Eclipse-RegisterBuddy: net.bluemind.core.rest
+Automatic-Module-Name: net.bluemind.tag.api

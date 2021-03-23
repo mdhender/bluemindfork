@@ -12,4 +12,4 @@ Require-Bundle: net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
  net.bluemind.tests.defaultdata,
  net.bluemind.core.container.persistence,
  net.bluemind.user.accounts.persistence
-
+Automatic-Module-Name: net.bluemind.user.accounts.persistence.tests

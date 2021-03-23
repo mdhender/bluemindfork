@@ -29,3 +29,4 @@ Export-Package: net.bluemind.calendar,
  net.bluemind.calendar.helper.ical4j,
  net.bluemind.calendar.helper.mail,
  net.bluemind.reminder.mail
+Automatic-Module-Name: net.bluemind.calendar.helper

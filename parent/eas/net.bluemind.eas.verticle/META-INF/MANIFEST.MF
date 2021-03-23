@@ -11,3 +11,4 @@ Require-Bundle: net.bluemind.lib.vertx,
  net.bluemind.calendar.hook,
  net.bluemind.addressbook.api,
  net.bluemind.todolist.hook
+Automatic-Module-Name: net.bluemind.eas.verticle

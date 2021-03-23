@@ -30,4 +30,4 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.mailbox.identity.persistence,
  org.apache.commons.lang,
  net.bluemind.core.task.service;bundle-version="4.1.0"
-
+Automatic-Module-Name: net.bluemind.mailshare.service

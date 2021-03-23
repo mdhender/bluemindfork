@@ -11,3 +11,4 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.imap.tagproducers
+Automatic-Module-Name: net.bluemind.imap.tagproducers

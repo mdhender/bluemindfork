@@ -16,3 +16,4 @@ Require-Bundle: net.bluemind.core.jdbc,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: blue-mind.net
 Export-Package: net.bluemind.mailbox.identity.persistence
+Automatic-Module-Name: net.bluemind.mailbox.identity.persistence

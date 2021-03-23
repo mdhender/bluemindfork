@@ -21,4 +21,4 @@ Require-Bundle: net.bluemind.mailmessage.api,
  io.vertx.core,
  org.junit,
  net.bluemind.core.rest
-
+Automatic-Module-Name: net.bluemind.mailmessage.service.tests

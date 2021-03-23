@@ -14,4 +14,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=ree
  net.bluemind.eclipse.common;bundle-version="1.0.0",
  net.bluemind.domain.api;visibility:=reexport
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
-
+Automatic-Module-Name: net.bluemind.server.hook

@@ -13,3 +13,4 @@ Require-Bundle: net.bluemind.webmodule;bundle-version="1.0.0",
  net.bluemind.webmodule.server;bundle-version="1.0.0",
  net.bluemind.core.container.api;bundle-version="1.0.0"
 Web-Resources: web-resources
+Automatic-Module-Name: net.bluemind.webmodules.sample

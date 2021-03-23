@@ -12,3 +12,4 @@ Require-Bundle: slf4j.api,
 Export-Package: net.bluemind.config
 Bundle-ClassPath: net.bluemind.config.jar, .
 Eclipse-ExtensibleAPI: true
+Automatic-Module-Name: net.bluemind.config

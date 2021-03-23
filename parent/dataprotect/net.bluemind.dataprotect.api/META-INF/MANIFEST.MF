@@ -12,3 +12,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.domain.api;bundle-version="1.0.0",
  net.bluemind.core.task.api;bundle-version="1.0.0",
  net.bluemind.directory.api;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.dataprotect.api

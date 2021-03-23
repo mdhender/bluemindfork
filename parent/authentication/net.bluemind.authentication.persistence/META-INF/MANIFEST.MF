@@ -12,3 +12,4 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.core.context,
  net.bluemind.authentication.sqlschema;bundle-version="1.0.0"
 Export-Package: net.bluemind.authentication.persistence
+Automatic-Module-Name: net.bluemind.authentication.persistence

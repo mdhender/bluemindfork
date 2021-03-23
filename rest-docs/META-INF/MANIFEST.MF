@@ -56,3 +56,4 @@ Require-Bundle: net.bluemind.core.context;bundle-version="1.0.0";resolution:=opt
 Web-Resources: web-resources
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: net.bluemind.core.docs

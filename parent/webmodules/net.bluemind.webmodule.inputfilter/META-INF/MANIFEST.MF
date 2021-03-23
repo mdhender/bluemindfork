@@ -14,3 +14,4 @@ Require-Bundle: net.bluemind.lib.vertx,
  org.eclipse.core.runtime,
  com.google.guava
 Bundle-ClassPath: .
+Automatic-Module-Name: net.bluemind.webmodule.inputfilter

@@ -10,5 +10,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.context;bundle-version="1.0.0",
  net.bluemind.core.elasticsearch.testshelper;bundle-version="1.0.0",
  net.bluemind.tag.api
-
-
+Automatic-Module-Name: net.bluemind.tag.persistence.tests

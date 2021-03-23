@@ -13,4 +13,4 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:
 Export-Package: net.bluemind.group.api.gwt.endpoint,
  net.bluemind.group.api.gwt.serder,
  net.bluemind.group.api.gwt.js
-
+Automatic-Module-Name: net.bluemind.group.api.gwt

@@ -12,3 +12,4 @@ Require-Bundle: net.bluemind.domain.hook,
  net.bluemind.domain.api;bundle-version="1.0.0",
  net.bluemind.core.context,
  net.bluemind.documentfolder.api
+Automatic-Module-Name: net.bluemind.documentfolder.domainfolder

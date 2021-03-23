@@ -9,4 +9,4 @@ Fragment-Host: net.bluemind.role.persistence
 Require-Bundle: org.junit,
  net.bluemind.core.context,
  net.bluemind.core.jdbc.testshelper
-
+Automatic-Module-Name: net.bluemind.role.persistence.tests

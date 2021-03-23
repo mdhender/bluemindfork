@@ -23,3 +23,4 @@ Require-Bundle: org.junit,
  net.bluemind.user.service,
  net.bluemind.calendar.persistence,
  net.bluemind.user.persistence
+Automatic-Module-Name: net.bluemind.resource.service.tests

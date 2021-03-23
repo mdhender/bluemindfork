@@ -24,5 +24,4 @@ Require-Bundle: org.junit,
  net.bluemind.server.hook,
  net.bluemind.core.tests.testshelper,
  net.bluemind.core.task.service;bundle-version="4.1.0"
-
-
+Automatic-Module-Name: net.bluemind.calendar.usercalendar.tests

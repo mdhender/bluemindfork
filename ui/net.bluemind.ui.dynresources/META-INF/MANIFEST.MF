@@ -20,3 +20,4 @@ Require-Bundle: net.bluemind.webmodule;bundle-version="4.1.0",
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.ui.dynresources.Activator
+Automatic-Module-Name: net.bluemind.ui.dynresources

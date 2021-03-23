@@ -8,3 +8,4 @@ Require-Bundle: net.bluemind.pool;bundle-version="1.0.0",
  slf4j.api
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.node
+Automatic-Module-Name: net.bluemind.core.node.testshelper

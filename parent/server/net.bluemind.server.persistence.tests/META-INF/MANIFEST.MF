@@ -11,4 +11,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.container.persistence,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.server.api
-
+Automatic-Module-Name: net.bluemind.server.persistence.tests

@@ -8,3 +8,4 @@ Closure-Bundle-Type: Library
 Require-Bundle: ydn-base;bundle-version="1.0.0"
 Bundle-ClassPath: js.jar, externs.jar,
  .
+Automatic-Module-Name: ydn-db

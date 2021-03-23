@@ -17,3 +17,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.system.api,
  net.bluemind.domain.api,
  net.bluemind.core.container.persistence
+Automatic-Module-Name: net.bluemind.filehosting.filesystem.job

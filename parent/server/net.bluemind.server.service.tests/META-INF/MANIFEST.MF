@@ -22,4 +22,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.elasticsearch.testshelper,
  net.bluemind.hsm.service;bundle-version="4.1.0",
  net.bluemind.core.tests.testshelper
-
+Automatic-Module-Name: net.bluemind.server.service.tests

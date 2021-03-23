@@ -22,3 +22,4 @@ Require-Bundle: org.junit,
  net.bluemind.role.api,
  net.bluemind.tests.defaultdata;bundle-version="4.1.0",
  net.bluemind.system.ldap.tests.helpers
+Automatic-Module-Name: net.bluemind.addressbook.ldap.service.tests

@@ -15,3 +15,4 @@ Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.jdbc,
  net.bluemind.core.jdbc.convert,
  net.bluemind.core.jdbc.persistence
+Automatic-Module-Name: net.bluemind.core.jdbc

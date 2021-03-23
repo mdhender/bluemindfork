@@ -14,3 +14,4 @@ Require-Bundle: net.bluemind.core.container.hooks,
  net.bluemind.core.rest,
  net.bluemind.core.commons;bundle-version="1.0.0",
  org.apache.james.apache-mime4j-core
+Automatic-Module-Name: net.bluemind.todolist.hook.acl

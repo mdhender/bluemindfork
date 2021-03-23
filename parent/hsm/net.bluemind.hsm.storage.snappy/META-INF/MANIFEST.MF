@@ -19,3 +19,4 @@ Require-Bundle: net.bluemind.hsm.storage,
 Bundle-Activator: net.bluemind.hsm.storage.impl.Activator
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.hsm.storage.impl
+Automatic-Module-Name: net.bluemind.hsm.storage.snappy

@@ -24,3 +24,4 @@ Require-Bundle: net.bluemind.calendar.hook,
  org.apache.james.apache-mime4j-core;bundle-version="0.7.3",
  net.bluemind.common.freemarker,
  net.bluemind.calendar.occurrence
+Automatic-Module-Name: net.bluemind.resource.hook.ics

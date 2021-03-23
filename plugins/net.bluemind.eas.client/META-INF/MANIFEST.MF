@@ -17,3 +17,4 @@ Bundle-ClassPath: .
 Export-Package: net.bluemind.eas.client,
  net.bluemind.eas.client.utils
 Bundle-Vendor: blue-mind.net
+Automatic-Module-Name: net.bluemind.eas.client

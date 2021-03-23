@@ -22,3 +22,4 @@ Export-Package: net.bluemind.gwtconsoleapp.base,
  net.bluemind.gwtconsoleapp.base.lifecycle,
  net.bluemind.gwtconsoleapp.base.menus,
  net.bluemind.gwtconsoleapp.base.notification
+Automatic-Module-Name: net.bluemind.gwtconsoleapp.base

@@ -21,3 +21,4 @@ Require-Bundle: org.junit,
  net.bluemind.pool,
  net.bluemind.core.tests.testshelper,
  net.bluemind.node.api
+Automatic-Module-Name: net.bluemind.system.config.tests

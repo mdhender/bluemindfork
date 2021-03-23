@@ -26,3 +26,4 @@ Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.eas.testhelper.device,
  net.bluemind.eas.testhelper.mock,
  net.bluemind.eas.testhelper.vertx
+Automatic-Module-Name: net.bluemind.eas.testhelper

@@ -19,3 +19,4 @@ Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.lmtp.testhelper.client,
  net.bluemind.lmtp.testhelper.model,
  net.bluemind.lmtp.testhelper.server
+Automatic-Module-Name: net.bluemind.lmtp.testhelper

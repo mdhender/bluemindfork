@@ -7,3 +7,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: slf4j.api,
  org.eclipse.core.runtime
 Export-Package: net.bluemind.eclipse.common
+Automatic-Module-Name: net.bluemind.eclipse.common

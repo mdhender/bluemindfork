@@ -8,3 +8,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.commons.php;bundle-version="1.0.0",
  net.bluemind.core.container.api.php;bundle-version="1.0.0",
  net.bluemind.domain.api;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.domain.api.php

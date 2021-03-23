@@ -36,3 +36,4 @@ Require-Bundle: net.bluemind.calendar.api;bundle-version="1.0.0",
  org.apache.pdfbox.fontbox;bundle-version="1.6.0"
 Export-Package: net.bluemind.calendar.pdf,
  net.bluemind.calendar.pdf.internal
+Automatic-Module-Name: net.bluemind.calendar.pdf

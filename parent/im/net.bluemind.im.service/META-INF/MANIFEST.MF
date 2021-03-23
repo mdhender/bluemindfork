@@ -22,3 +22,4 @@ Require-Bundle: net.bluemind.im.api;bundle-version="1.0.0",
  net.bluemind.domain.api,
  net.bluemind.role.api
 Export-Package: net.bluemind.im.service
+Automatic-Module-Name: net.bluemind.im.service

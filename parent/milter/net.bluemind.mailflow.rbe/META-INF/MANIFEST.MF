@@ -13,3 +13,4 @@ Require-Bundle: net.bluemind.mailflow.api,
  net.bluemind.core.container.api;bundle-version="4.1.0",
  net.bluemind.domain.api;bundle-version="4.1.0"
 Export-Package: net.bluemind.mailflow.rbe
+Automatic-Module-Name: net.bluemind.mailflow.rbe

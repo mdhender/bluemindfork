@@ -9,3 +9,4 @@ Require-Bundle: relief;bundle-version="4.1.0",
  net.bluemind.announcement.api;bundle-version="4.1.0"
 Bundle-ClassPath: js.jar,
  .
+Automatic-Module-Name: net.bluemind.announcement.api.closure

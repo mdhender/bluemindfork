@@ -10,3 +10,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.commons;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.document.storage;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.document.persistence.fs.tests

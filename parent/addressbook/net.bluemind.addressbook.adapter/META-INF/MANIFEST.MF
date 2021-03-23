@@ -18,3 +18,4 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.addressbook.adapter
+Automatic-Module-Name: net.bluemind.addressbook.adapter

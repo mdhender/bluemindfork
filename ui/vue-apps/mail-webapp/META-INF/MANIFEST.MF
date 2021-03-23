@@ -9,3 +9,4 @@ Require-Bundle: net.bluemind.webmodules.webapp,
  net.bluemind.webmodule
 Web-Resources: web-resources
 Web-Dependencies: net.bluemind.webmodules.vue
+Automatic-Module-Name: net.bluemind.webapp.mail.js

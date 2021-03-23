@@ -18,3 +18,4 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.backend.mail.api,
  net.bluemind.backend.mail.replica.api
+Automatic-Module-Name: net.bluemind.eas.service

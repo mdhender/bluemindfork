@@ -10,3 +10,4 @@ Closure-Bundle-Type: Library
 Require-Bundle: net.bluemind.container.closure;bundle-version="1.0.0",
  net.bluemind.calendar.api.closure;bundle-version="1.0.0",
  net.bluemind.core.container.api.closure;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.calendar.closure

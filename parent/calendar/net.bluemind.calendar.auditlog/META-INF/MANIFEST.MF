@@ -12,3 +12,4 @@ Require-Bundle: net.bluemind.calendar.api;bundle-version="1.0.0",
  net.bluemind.core.container.persistence,
  net.bluemind.core.task.service
 Export-Package: net.bluemind.calendar.auditlog
+Automatic-Module-Name: net.bluemind.calendar.auditlog

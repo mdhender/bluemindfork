@@ -11,3 +11,4 @@ Require-Bundle: net.bluemind.pool;bundle-version="1.0.0",
 Bundle-Activator: net.bluemind.core.elasticsearch.ElasticsearchTestHelper
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.elasticsearch
+Automatic-Module-Name: net.bluemind.core.elasticsearch.testshelper

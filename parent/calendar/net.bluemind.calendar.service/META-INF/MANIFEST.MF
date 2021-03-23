@@ -68,3 +68,4 @@ Export-Package: net.bluemind.calendar.service,
  net.bluemind.calendar.service.internal
 Bundle-Activator: net.bluemind.calendar.service.CalendarActivator
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: net.bluemind.calendar.service

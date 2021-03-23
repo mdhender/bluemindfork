@@ -17,4 +17,4 @@ Require-Bundle: org.junit,
  net.bluemind.lib.vertx;bundle-version="1.0.0",
  net.bluemind.pool,
  net.bluemind.config
-
+Automatic-Module-Name: net.bluemind.server.hook.tests

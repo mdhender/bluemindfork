@@ -18,3 +18,4 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.hornetq.client,
  net.bluemind.role.api,
  slf4j.api;bundle-version="1.7.5"
+Automatic-Module-Name: net.bluemind.device.service

@@ -21,3 +21,4 @@ Require-Bundle: net.bluemind.tag.api;bundle-version="1.0.0",
  net.bluemind.core.container.sharding
 Export-Package: net.bluemind.tag.service
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
+Automatic-Module-Name: net.bluemind.tag.service

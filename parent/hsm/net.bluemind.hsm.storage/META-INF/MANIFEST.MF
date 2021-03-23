@@ -12,3 +12,4 @@ Require-Bundle: org.eclipse.osgi,
  net.bluemind.node.api
 Bundle-Activator: net.bluemind.hsm.storage.Activator
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: net.bluemind.hsm.storage

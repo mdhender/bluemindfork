@@ -38,3 +38,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.tests.testshelper,
  net.bluemind.group.service,
  net.bluemind.core.sendmail.testhelper
+Automatic-Module-Name: net.bluemind.resource.hook.ics.tests

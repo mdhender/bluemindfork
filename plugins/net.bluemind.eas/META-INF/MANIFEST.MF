@@ -52,4 +52,4 @@ Export-Package: net.bluemind.eas;uses:="net.bluemind.eas.impl,org.eclipse.equino
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
-
+Automatic-Module-Name: net.bluemind.eas

@@ -13,3 +13,4 @@ Require-Bundle: net.bluemind.commons.closure;bundle-version="1.0.0",
  net.bluemind.restclient.api.closure;bundle-version="4.1.0"
 Bundle-ClassPath: js.jar,
  .
+Automatic-Module-Name: net.bluemind.container.closure

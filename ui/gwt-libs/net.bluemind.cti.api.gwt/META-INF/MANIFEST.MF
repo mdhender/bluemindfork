@@ -10,4 +10,4 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:
  net.bluemind.cti.api;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.restbus.api.gwt;bundle-version="4.1.0";visibility:=reexport
 Export-Package: net.bluemind.cti.api.gwt.endpoint
-
+Automatic-Module-Name: net.bluemind.cti.api.gwt

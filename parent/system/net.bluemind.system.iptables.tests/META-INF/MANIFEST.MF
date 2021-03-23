@@ -16,3 +16,4 @@ Require-Bundle: net.bluemind.core.jdbc.testshelper,
  net.bluemind.domain.api,
  net.bluemind.system.service,
  net.bluemind.core.tests.testshelper
+Automatic-Module-Name: net.bluemind.system.iptables.tests

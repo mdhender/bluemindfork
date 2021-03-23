@@ -20,3 +20,4 @@ Require-Bundle: org.junit;bundle-version="3.8.2",
  net.bluemind.core.rest,
  net.bluemind.core.container.persistence,
  net.bluemind.user.api
+Automatic-Module-Name: net.bluemind.eas.http.tests

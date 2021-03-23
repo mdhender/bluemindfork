@@ -30,4 +30,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.commons,
  net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.calendar.occurrence
-
+Automatic-Module-Name: net.bluemind.calendar.ocurrence.tests

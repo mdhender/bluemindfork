@@ -11,3 +11,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=ree
  net.bluemind.tag.api;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.core.task.api;visibility:=reexport
 Eclipse-RegisterBuddy: net.bluemind.core.rest
+Automatic-Module-Name: net.bluemind.addressbook.api

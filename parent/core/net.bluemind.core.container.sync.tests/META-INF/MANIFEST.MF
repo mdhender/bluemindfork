@@ -12,3 +12,4 @@ Require-Bundle: net.bluemind.core.container.sync,
  net.bluemind.core.tests.testshelper,
  org.junit,
  net.bluemind.core.task.service
+Automatic-Module-Name: net.bluemind.core.container.sync.tests

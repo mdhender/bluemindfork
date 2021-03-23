@@ -8,3 +8,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper,
  net.bluemind.tests.defaultdata
 Fragment-Host: net.bluemind.backend.systemconf
+Automatic-Module-Name: net.bluemind.backend.systemconf.tests

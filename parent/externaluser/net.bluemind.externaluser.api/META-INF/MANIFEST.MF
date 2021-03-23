@@ -9,3 +9,4 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.addressbook.api,
  net.bluemind.group.api
 Export-Package: net.bluemind.externaluser.api
+Automatic-Module-Name: net.bluemind.externaluser.api

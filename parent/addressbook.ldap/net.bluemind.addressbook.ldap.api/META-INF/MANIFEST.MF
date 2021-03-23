@@ -8,3 +8,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.commons
 Export-Package: net.bluemind.addressbook.ldap.api,
  net.bluemind.addressbook.ldap.api.fault
+Automatic-Module-Name: net.bluemind.addressbook.ldap.api

@@ -17,4 +17,4 @@ Require-Bundle: org.junit,
  net.bluemind.pool,
  net.bluemind.role.api,
  net.bluemind.user.accounts.service;bundle-version="4.1.0"
-
+Automatic-Module-Name: net.bluemind.user.accounts.service.tests

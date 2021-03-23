@@ -10,3 +10,4 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.core.commons,
  net.bluemind.attachment.api
 Export-Package: net.bluemind.icalendar.persistence
+Automatic-Module-Name: net.bluemind.icalendar.persistence

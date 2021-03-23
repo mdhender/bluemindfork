@@ -15,3 +15,4 @@ Require-Bundle: net.bluemind.core.container.hooks,
  net.bluemind.mailbox.api,
  net.bluemind.domain.api,
  net.bluemind.config
+Automatic-Module-Name: net.bluemind.mailbox.hook.acl

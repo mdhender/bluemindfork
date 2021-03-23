@@ -27,3 +27,4 @@ Require-Bundle: net.bluemind.core.jdbc.testshelper,
  org.junit,
  net.bluemind.filehosting.service,
  net.bluemind.tests.defaultdata
+Automatic-Module-Name: net.bluemind.filehosting.service.tests

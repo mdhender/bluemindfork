@@ -14,3 +14,4 @@ Require-Bundle: net.bluemind.core.container.hooks,
  net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.context,
  net.bluemind.addressbook.api
+Automatic-Module-Name: net.bluemind.addressbook.hook.acl

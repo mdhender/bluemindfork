@@ -12,3 +12,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.node.client;bundle-version="1.0.0",
  net.bluemind.hsm.storage;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.hsm.storage.snappy.tests

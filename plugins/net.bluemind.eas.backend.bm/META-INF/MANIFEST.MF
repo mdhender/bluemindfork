@@ -54,3 +54,4 @@ Export-Package: net.bluemind.eas.backend.bm.contacts,
 Bundle-Vendor: blue-mind.net
 Bundle-Activator: net.bluemind.eas.backend.bm.BackendActivator
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: net.bluemind.eas.backend.bm

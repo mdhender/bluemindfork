@@ -9,3 +9,4 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.core.container.api;bundle-version="1.0.0"
 Export-Package: net.bluemind.device.api
 Eclipse-RegisterBuddy: net.bluemind.core.rest
+Automatic-Module-Name: net.bluemind.device.api

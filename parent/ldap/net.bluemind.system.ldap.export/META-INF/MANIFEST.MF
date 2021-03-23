@@ -39,3 +39,4 @@ Export-Package: net.bluemind.system.ldap.export,
  net.bluemind.system.ldap.export.objects,
  net.bluemind.system.ldap.export.services,
  net.bluemind.system.ldap.export.verticle
+Automatic-Module-Name: net.bluemind.system.ldap.export

@@ -10,3 +10,4 @@ Require-Bundle: net.bluemind.eas.utils;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
  slf4j.api
 Bundle-Vendor: blue-mind.net
+Automatic-Module-Name: net.bluemind.eas.wbxml

@@ -21,5 +21,4 @@ Require-Bundle: org.junit,
  net.bluemind.user.persistence,
  net.bluemind.todolist.usertodolist,
  net.bluemind.todolist.api
-
-
+Automatic-Module-Name: net.bluemind.todolist.usertodolist.tests

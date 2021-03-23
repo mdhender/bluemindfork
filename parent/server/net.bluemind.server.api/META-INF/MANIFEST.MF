@@ -7,4 +7,4 @@ Export-Package: net.bluemind.server.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.container.api;visibility:=reexport
-
+Automatic-Module-Name: net.bluemind.server.api

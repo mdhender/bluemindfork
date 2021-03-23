@@ -9,3 +9,4 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.announcement.api,
  net.bluemind.core.context
 Export-Package: net.bluemind.announcement.provider
+Automatic-Module-Name: net.bluemind.announcement.provider

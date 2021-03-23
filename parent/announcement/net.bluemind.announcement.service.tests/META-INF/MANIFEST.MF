@@ -15,3 +15,4 @@ Require-Bundle: org.junit,
  net.bluemind.announcement.service;bundle-version="4.1.0",
  net.bluemind.core.rest.http.vertx;bundle-version="4.1.0",
  net.bluemind.announcement.provider;bundle-version="4.1.0"
+Automatic-Module-Name: net.bluemind.announcement.service.tests

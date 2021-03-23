@@ -10,3 +10,4 @@ Require-Bundle: io.vertx.core,
  slf4j.api,
  com.google.guava,
  net.bluemind.webmodule;bundle-version="4.1.0"
+Automatic-Module-Name: net.bluemind.webmodules.vue

@@ -7,3 +7,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Closure-Bundle-Type: Library
 Bundle-ClassPath: js.jar,
  .
+Automatic-Module-Name: net.bluemind.extensions.closure

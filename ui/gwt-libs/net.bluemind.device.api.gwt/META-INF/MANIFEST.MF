@@ -12,4 +12,4 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:
 Export-Package: net.bluemind.device.api.gwt.endpoint,
  net.bluemind.device.api.gwt.serder,
  net.bluemind.device.api.gwt.js
-
+Automatic-Module-Name: net.bluemind.device.api.gwt

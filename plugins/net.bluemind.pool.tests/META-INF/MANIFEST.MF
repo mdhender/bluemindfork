@@ -7,3 +7,4 @@ Bundle-Vendor: blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.pool;bundle-version="1.0.0",
  org.junit;bundle-version="3.8.2"
+Automatic-Module-Name: net.bluemind.pool.tests

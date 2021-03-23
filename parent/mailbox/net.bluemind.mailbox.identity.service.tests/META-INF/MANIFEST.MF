@@ -19,3 +19,4 @@ Require-Bundle: org.junit,
  net.bluemind.user.api,
  net.bluemind.addressbook.api,
  net.bluemind.group.api
+Automatic-Module-Name: net.bluemind.mailbox.identity.service.tests

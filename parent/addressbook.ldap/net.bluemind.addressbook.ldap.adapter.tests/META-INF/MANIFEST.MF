@@ -12,3 +12,4 @@ Require-Bundle: org.junit,
  org.apache.commons.collections;bundle-version="3.2.2",
  net.bluemind.addressbook.ldap.api,
  net.bluemind.ldap.directory.client;bundle-version="1.0.3"
+Automatic-Module-Name: net.bluemind.addressbook.ldap.adapter.tests

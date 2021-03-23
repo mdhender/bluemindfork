@@ -12,3 +12,4 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.core.task.service,
  slf4j.api
 Export-Package: net.bluemind.core.container.sync
+Automatic-Module-Name: net.bluemind.core.container.sync

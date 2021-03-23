@@ -11,3 +11,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.context,
  net.bluemind.tests.defaultdata;bundle-version="1.0.0",
  net.bluemind.authentication.persistence
+Automatic-Module-Name: net.bluemind.authentication.persistence.tests

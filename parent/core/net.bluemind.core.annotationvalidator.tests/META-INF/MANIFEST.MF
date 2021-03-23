@@ -9,4 +9,4 @@ Require-Bundle: org.junit,
  net.bluemind.core.validator,
  javax.validation.api,
  net.bluemind.core.commons
-
+Automatic-Module-Name: net.bluemind.core.annotationvalidator.tests

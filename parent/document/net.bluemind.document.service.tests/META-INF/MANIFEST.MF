@@ -22,3 +22,4 @@ Require-Bundle: org.junit,
  net.bluemind.locator;bundle-version="1.0.0",
  net.bluemind.document.persistence.fs;bundle-version="1.0.0",
  net.bluemind.domain.api;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.document.service.tests

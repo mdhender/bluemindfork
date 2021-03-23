@@ -29,4 +29,4 @@ Require-Bundle: slf4j.api,
  net.bluemind.attachment.api,
  net.bluemind.system.api,
  net.bluemind.domain.api
-
+Automatic-Module-Name: net.bluemind.calendar.hook.ics

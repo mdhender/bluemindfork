@@ -21,3 +21,4 @@ Require-Bundle: net.bluemind.user.api;bundle-version="1.0.0",
  net.bluemind.user.hook,
  net.bluemind.core.annotationvalidator
 Export-Package: net.bluemind.user.accounts.service
+Automatic-Module-Name: net.bluemind.user.accounts.service

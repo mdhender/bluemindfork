@@ -10,4 +10,4 @@ Require-Bundle: org.eclipse.equinox.app,
  net.bluemind.webmodule.server;bundle-version="1.0.0",
  net.bluemind.systemd.notify
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-
+Automatic-Module-Name: net.bluemind.webmodules.launcher

@@ -19,3 +19,4 @@ Require-Bundle: net.bluemind.mvp.closure;bundle-version="1.0.0",
  net.bluemind.resource.closure;bundle-version="4.1.0"
 Web-Resources: web-resources
 Bundle-ClassPath: css.jar, js.jar, .
+Automatic-Module-Name: net.bluemind.databases.utils

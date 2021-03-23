@@ -12,3 +12,4 @@ Require-Bundle: net.bluemind.webmodule;bundle-version="1.0.0",
  net.bluemind.ui.banner;bundle-version="1.0.0"
 Web-Resources: web-resources
 Bundle-ClassPath: js.jar, .
+Automatic-Module-Name: net.bluemind.webmail.banner.closure

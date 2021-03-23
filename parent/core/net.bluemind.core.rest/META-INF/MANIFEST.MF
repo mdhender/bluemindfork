@@ -28,4 +28,4 @@ Bundle-Activator: net.bluemind.core.rest.RestActivator
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Eclipse-BuddyPolicy: registered
 Bundle-ActivationPolicy: lazy
-
+Automatic-Module-Name: net.bluemind.core.rest

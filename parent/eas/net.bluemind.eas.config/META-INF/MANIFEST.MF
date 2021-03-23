@@ -9,3 +9,4 @@ Require-Bundle: net.bluemind.node.api,
  net.bluemind.core.commons,
  org.freemarker.freemarker,
  net.bluemind.system.nginx
+Automatic-Module-Name: net.bluemind.eas.config

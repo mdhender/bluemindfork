@@ -15,4 +15,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.task.api;visibility:=reexport,
  javax.validation.api,
  net.bluemind.core.context
-
+Automatic-Module-Name: net.bluemind.user.api

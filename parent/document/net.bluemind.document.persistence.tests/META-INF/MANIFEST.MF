@@ -12,3 +12,4 @@ Require-Bundle: net.bluemind.document.persistence;bundle-version="1.0.0",
  org.junit,
  net.bluemind.document.api;bundle-version="1.0.0",
  net.bluemind.core.commons;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.document.persistence.tests

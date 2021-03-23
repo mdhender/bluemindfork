@@ -9,3 +9,4 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.core.rest,
  net.bluemind.mailshare.api
 Export-Package: net.bluemind.mailshare.hook
+Automatic-Module-Name: net.bluemind.mailshare.hook

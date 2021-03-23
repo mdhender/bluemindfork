@@ -34,4 +34,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.system.nginx
 Export-Package: net.bluemind.filehosting.service.export,
  net.bluemind.filehosting.service.internal
-
+Automatic-Module-Name: net.bluemind.filehosting.service

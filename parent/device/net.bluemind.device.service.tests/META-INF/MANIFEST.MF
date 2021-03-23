@@ -26,3 +26,4 @@ Require-Bundle: net.bluemind.core.jdbc.testshelper,
  net.bluemind.pool,
  net.bluemind.domain.api;bundle-version="1.0.0",
  net.bluemind.role.api
+Automatic-Module-Name: net.bluemind.device.service.tests

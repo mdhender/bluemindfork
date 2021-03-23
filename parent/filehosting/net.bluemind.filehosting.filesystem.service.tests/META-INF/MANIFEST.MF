@@ -32,3 +32,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.node.api,
  net.bluemind.network.topology
 Bundle-ClassPath: .
+Automatic-Module-Name: net.bluemind.filehosting.filesystem.service.tests

@@ -18,3 +18,4 @@ Require-Bundle: net.bluemind.core.rest,
 Export-Package: net.bluemind.addressbook.ldap.service,
  net.bluemind.addressbook.ldap.service.internal,
  net.bluemind.addressbook.ldap.service.internal.utils
+Automatic-Module-Name: net.bluemind.addressbook.ldap.service

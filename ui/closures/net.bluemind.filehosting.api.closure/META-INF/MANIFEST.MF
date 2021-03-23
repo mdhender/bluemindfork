@@ -9,3 +9,4 @@ Require-Bundle: net.bluemind.filehosting.api;bundle-version="1.0.0",
  net.bluemind.commons.closure;bundle-version="1.0.0",
  relief;bundle-version="1.0.0"
 Bundle-ClassPath: js.jar
+Automatic-Module-Name: net.bluemind.filehosting.api.closure

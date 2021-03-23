@@ -16,3 +16,4 @@ Require-Bundle: net.bluemind.core.container.hooks,
  net.bluemind.core.context,
  net.bluemind.user.api,
  net.bluemind.calendar.api;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.calendar.hook.acl

@@ -25,3 +25,4 @@ Require-Bundle: org.junit,
  net.bluemind.system.service,
  net.bluemind.system.hook,
  net.bluemind.system.persistence
+Automatic-Module-Name: net.bluemind.system.service.tests

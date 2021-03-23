@@ -13,3 +13,4 @@ Require-Bundle: net.bluemind.system.ldap.importation,
  net.bluemind.domain.api,
  org.junit
 Export-Package: net.bluemind.system.ldap.importation.tests.enhancer
+Automatic-Module-Name: net.bluemind.system.ldap.importation.tests.enhancer

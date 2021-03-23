@@ -17,3 +17,4 @@ Require-Bundle: slf4j.api,
 Bundle-Activator: net.bluemind.core.rest.http.RestHttpActivator
 Export-Package: net.bluemind.core.rest.http,
  net.bluemind.core.rest.http.internal
+Automatic-Module-Name: net.bluemind.core.rest.http

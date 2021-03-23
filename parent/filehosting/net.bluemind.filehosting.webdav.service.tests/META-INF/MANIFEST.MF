@@ -32,3 +32,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.filehosting.api,
  org.apache.commons.lang;bundle-version="2.6.0"
 Bundle-ClassPath: .
+Automatic-Module-Name: net.bluemind.filehosting.webdav.service.tests

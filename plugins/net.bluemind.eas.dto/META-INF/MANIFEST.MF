@@ -39,3 +39,4 @@ Export-Package: net.bluemind.eas.dto,
  net.bluemind.eas.dto.tasks,
  net.bluemind.eas.dto.type,
  net.bluemind.eas.dto.user
+Automatic-Module-Name: net.bluemind.eas.dto

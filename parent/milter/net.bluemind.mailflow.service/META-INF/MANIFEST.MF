@@ -28,3 +28,4 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.mailflow.common.api;bundle-version="4.1.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.mailflow.service.internal.Activator
+Automatic-Module-Name: net.bluemind.mailflow.service

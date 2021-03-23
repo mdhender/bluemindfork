@@ -20,3 +20,4 @@ Export-Package: net.bluemind.imap,
  net.bluemind.imap.sieve
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Eclipse-RegisterBuddy: net.bluemind.lib.parboiled
+Automatic-Module-Name: net.bluemind.imap

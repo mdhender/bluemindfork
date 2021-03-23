@@ -20,4 +20,4 @@ Require-Bundle: net.bluemind.addressbook.api;bundle-version="1.0.0",
  net.bluemind.eclipse.common
 Export-Package: net.bluemind.addressbook.domainbook,
  net.bluemind.addressbook.domainbook.verticle
-
+Automatic-Module-Name: net.bluemind.addressbook.domainbook

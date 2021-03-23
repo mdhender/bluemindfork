@@ -19,4 +19,4 @@ Require-Bundle: com.github.lookfirst.sardine;bundle-version="5.8.0",
  slf4j.api
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.filehosting.webdav.service
-
+Automatic-Module-Name: net.bluemind.filehosting.webdav.service

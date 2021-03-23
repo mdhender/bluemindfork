@@ -15,3 +15,4 @@ Require-Bundle: org.junit,
  net.bluemind.mime4j.common,
  net.bluemind.signature.commons,
  com.google.guava
+Automatic-Module-Name: net.bluemind.milter.action.signature.tests

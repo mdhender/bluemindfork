@@ -43,4 +43,4 @@ Require-Bundle: net.bluemind.authentication.api;bundle-version="1.0.0";visibilit
 Export-Package: net.bluemind.authentication.service
 Bundle-Activator: net.bluemind.authentication.service.Activator
 Bundle-ActivationPolicy: lazy
-
+Automatic-Module-Name: net.bluemind.authentication.service

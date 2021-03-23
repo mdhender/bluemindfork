@@ -9,3 +9,4 @@ Require-Bundle: org.eclipse.core.runtime,
  org.junit
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: net.bluemind.imap.translate.tests

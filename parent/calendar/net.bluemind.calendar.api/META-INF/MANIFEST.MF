@@ -16,3 +16,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.icalendar.api;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.attachment.api
 Eclipse-RegisterBuddy: net.bluemind.core.rest
+Automatic-Module-Name: net.bluemind.calendar.api

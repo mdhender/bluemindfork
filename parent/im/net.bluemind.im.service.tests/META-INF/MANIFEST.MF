@@ -21,3 +21,4 @@ Require-Bundle: org.junit,
  net.bluemind.lib.elasticsearch,
  org.eclipse.core.runtime;bundle-version="3.7.0",
  net.bluemind.core.tests.testshelper
+Automatic-Module-Name: net.bluemind.im.service.tests

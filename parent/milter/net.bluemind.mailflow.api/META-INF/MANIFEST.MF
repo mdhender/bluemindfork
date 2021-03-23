@@ -11,3 +11,4 @@ Require-Bundle: net.bluemind.core.commons,
  javax.validation.api,
  net.bluemind.mailflow.common.api;visibility:=reexport
 Export-Package: net.bluemind.mailflow.api
+Automatic-Module-Name: net.bluemind.mailflow.api

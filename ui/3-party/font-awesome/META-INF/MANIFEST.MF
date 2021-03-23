@@ -9,3 +9,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Web-Resources: web-resources
 Bundle-ClassPath: .
 Require-Bundle: net.bluemind.webmodule;bundle-version="4.1.0"
+Automatic-Module-Name: font-awesome

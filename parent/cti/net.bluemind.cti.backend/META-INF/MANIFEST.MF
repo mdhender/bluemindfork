@@ -13,4 +13,4 @@ Require-Bundle: net.bluemind.core.commons,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.cti.backend
-
+Automatic-Module-Name: net.bluemind.cti.backend

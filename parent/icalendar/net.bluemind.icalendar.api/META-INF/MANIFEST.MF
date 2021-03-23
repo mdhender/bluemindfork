@@ -10,3 +10,4 @@ Require-Bundle: net.bluemind.core.commons,
  slf4j.api,
  net.bluemind.tag.api,
  net.bluemind.attachment.api
+Automatic-Module-Name: net.bluemind.icalendar.api

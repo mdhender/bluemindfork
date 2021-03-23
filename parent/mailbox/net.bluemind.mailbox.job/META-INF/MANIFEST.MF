@@ -22,3 +22,4 @@ Require-Bundle: net.bluemind.scheduledjob.scheduler,
  net.bluemind.core.task.service,
  net.bluemind.backend.mail.replica.indexing,
  net.bluemind.mailindex
+Automatic-Module-Name: net.bluemind.mailbox.job
