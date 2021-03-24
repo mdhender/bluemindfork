@@ -28,8 +28,6 @@ public abstract class BaseDirEntryEditScreen extends BaseEditScreen {
 
 	@Override
 	public void doLoad(final ScreenRoot screenRoot) {
-		final String uid = screenRoot.getState().get("entryUid");
-		String domainUid = screenRoot.getState().get("domainUid");
 		BaseDirEntryEditScreen.super.doLoad(screenRoot);
 	}
 

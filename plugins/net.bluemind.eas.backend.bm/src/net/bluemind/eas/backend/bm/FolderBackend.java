@@ -617,7 +617,7 @@ public class FolderBackend extends CoreConnect {
 				break;
 			default:
 				if (Translate.isTranslated(bs.getLang(), dn)) {
-					logger.error("Folder '{}' conflicts with system folder, rename it", dn);
+					logger.warn("Folder '{}' conflicts with system folder, rename it", dn);
 					dn = dn + " (1)";
 				}
 				folderChangeRef.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;

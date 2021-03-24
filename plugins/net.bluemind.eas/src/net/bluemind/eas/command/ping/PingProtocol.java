@@ -105,8 +105,9 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 
 		if (query == null) {
 			if (bs.getLastMonitored() == null || bs.getLastMonitored().isEmpty()) {
-				logger.error("[{}][{}] Don't know what to monitor, interval: {} toMonitor: {}", bs.getLoginAtDomain(),
-						bs.getDevId(), intervalSeconds, bs.getLastMonitored());
+				logger.warn(
+						"[{}][{}] Don't know what to monitor, interval: {} toMonitor: {}. Send status 3 MissingParameter",
+						bs.getLoginAtDomain(), bs.getDevId(), intervalSeconds, bs.getLastMonitored());
 				response.status = Status.MissingParameter;
 				responseHandler.handle(response);
 				return;
@@ -123,7 +124,7 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 					toMonitor.add(sc);
 				} catch (NumberFormatException nfe) {
 					// HTC ONE X sends "InvalidTaskID" as folder.id
-					logger.error("[{}][{}] Invalid collectionId {}", bs.getLoginAtDomain(), bs.getDevId(), folder.id);
+					logger.warn("[{}][{}] Invalid collectionId {}", bs.getLoginAtDomain(), bs.getDevId(), folder.id);
 				}
 
 			}
@@ -133,7 +134,8 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 
 			// when push list is empty, send MissingParameter
 			if (bs.getLastMonitored() == null || bs.getLastMonitored().isEmpty()) {
-				logger.error("[{}][{}]  Nothing to monitor", bs.getLoginAtDomain(), bs.getDevId());
+				logger.warn("[{}][{}]  Nothing to monitor. Send status 3 MissingParameter", bs.getLoginAtDomain(),
+						bs.getDevId());
 				response.status = Status.MissingParameter;
 				responseHandler.handle(response);
 				return;
@@ -234,7 +236,8 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 			});
 
 		} else {
-			logger.error("[{}][{}] Don't know what to monitor, interval is null", bs.getLoginAtDomain(), bs.getDevId());
+			logger.warn("[{}][{}] Don't know what to monitor, interval is null. Send status 3 MissingParameter",
+					bs.getLoginAtDomain(), bs.getDevId());
 			response.status = Status.MissingParameter;
 			responseHandler.handle(response);
 			return;

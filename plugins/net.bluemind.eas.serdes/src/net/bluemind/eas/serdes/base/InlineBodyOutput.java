@@ -52,7 +52,7 @@ public class InlineBodyOutput implements IBodyOutput {
 				public void onResult(AirSyncBaseResponse body) {
 					if (body == null) {
 						if (ad.type == ItemDataType.EMAIL) {
-							logger.error("Missing body for inline fetch");
+							logger.warn("Missing body for inline fetch");
 						}
 						done.onResult(builder);
 					} else {

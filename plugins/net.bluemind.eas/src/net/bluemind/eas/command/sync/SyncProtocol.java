@@ -172,7 +172,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				}
 			}
 			if (sr.heartbeatInterval > maxInterval) {
-				logger.error("Invalid HeartbeatInterval {} > {}", sr.heartbeatInterval, maxInterval);
+				logger.warn("Invalid HeartbeatInterval {} > {}", sr.heartbeatInterval, maxInterval);
 				sendLimitError(responseHandler, maxInterval);
 				return;
 			}
@@ -374,7 +374,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				csr.syncKey = serverChanges.syncKey;
 				csr.moreAvailable = serverChanges.moreAvailable;
 			} catch (CollectionNotFoundException cnf) {
-				logger.error("Collection {} not found, sync OK", sc.getCollectionId());
+				logger.warn("Collection {} not found, sync OK", sc.getCollectionId());
 
 				// Sync OK to prevent android synchronization loop
 				csr.status = SyncStatus.OK;
@@ -728,7 +728,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			SyncState st = sm.getSyncState(bs, c.getCollectionId(), syncKey);
 
 			if (st == null) {
-				logger.error("Send Invalid SyncKey to device {}. key: {}", bs.getDevId(), syncKey);
+				logger.warn("Send status 3 Invalid SyncKey to device {}. key: {}", bs.getDevId(), syncKey);
 				cc.status = SyncStatus.INVALID_SYNC_KEY;
 				c.forceResponse = true;
 			} else {

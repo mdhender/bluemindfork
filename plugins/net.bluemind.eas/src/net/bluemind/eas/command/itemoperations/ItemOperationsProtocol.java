@@ -237,7 +237,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 				opResp.status = ItemOperationsResponse.Status.ActionNotSupported;
 			}
 		} else {
-			logger.error("ItemOperations is not implemented for store " + store);
+			logger.warn("ItemOperations is not implemented for store {}. Send status 156 ActionNotSupported", store);
 			opResp = new ItemOperationsResponse.Fetch();
 			opResp.status = ItemOperationsResponse.Status.ActionNotSupported;
 		}

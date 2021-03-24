@@ -99,7 +99,8 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 		response.moveItems = new ArrayList<>(query.moveItems.size());
 		for (MoveItemsRequest.Move item : query.moveItems) {
 			if (item.srcFldId.equals(item.dstFldId)) {
-				logger.error("Same source and destination collection id");
+				logger.warn(
+						"Same source and destination collection id. Send status 4 SameSourceAndDestinationCollectionId");
 				appendResponseError(response, item,
 						MoveItemsResponse.Response.Status.SameSourceAndDestinationCollectionId);
 				continue;
@@ -108,12 +109,14 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 			Optional<HierarchyNode> srcFolder = folderCache.computeIfAbsent(item.srcFldId, this::getAndCheckFolder);
 
 			if (!srcFolder.isPresent()) {
+				logger.warn("Source folder is missing. Send status 1 InvalidSourceCollectionId");
 				appendResponseError(response, item, MoveItemsResponse.Response.Status.InvalidSourceCollectionId);
 				continue;
 			}
 
 			Optional<HierarchyNode> dstFolder = folderCache.computeIfAbsent(item.dstFldId, this::getAndCheckFolder);
 			if (!dstFolder.isPresent()) {
+				logger.warn("Destination folder is missing. Send status 2 InvalidDestinationCollectionId");
 				appendResponseError(response, item, MoveItemsResponse.Response.Status.InvalidDestinationCollectionId);
 				continue;
 			}
