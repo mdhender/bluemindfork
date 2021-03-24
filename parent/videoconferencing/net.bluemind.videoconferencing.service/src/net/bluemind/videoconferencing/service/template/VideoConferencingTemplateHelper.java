@@ -46,9 +46,6 @@ public class VideoConferencingTemplateHelper {
 	/** Used for cleaning the text before adding a template. */
 	private static final Pattern TRAILING_WHITE_SPACES = Pattern.compile("(\\s|<\\s*br\\s*/?\\s*>\\s*)+$");
 
-	/** Separator between the previous text and the appended template. */
-	private static final String TEMPLATE_SEPARATOR = "<br>\n";
-
 	/**
 	 * Added after the template end tag, it should prevent rich text editors to add
 	 * text between the template tags when typing at the end of the editor's text
@@ -122,7 +119,7 @@ public class VideoConferencingTemplateHelper {
 	}
 
 	private String addTag(final String processedTemplate, final String resourceId) {
-		return tagBegin(resourceId) + "\n" + processedTemplate + "\n" + tagEnd();
+		return tagBegin(resourceId) + processedTemplate + tagEnd();
 	}
 
 	/** Retrieve the template corresponding to the given locale. */
@@ -186,8 +183,7 @@ public class VideoConferencingTemplateHelper {
 		if (Strings.isNullOrEmpty(processedTemplate)) {
 			return sanitizedText;
 		}
-		String separator = sanitizedText.isEmpty() ? "" : TEMPLATE_SEPARATOR;
-		return String.format("%s%s%s%s", sanitizedText, separator, processedTemplate, TEMPLATE_SUFFIX);
+		return String.format("%s%s%s%s", sanitizedText, "<br>", processedTemplate, TEMPLATE_SUFFIX);
 	}
 
 	/** Remove trailing white spaces, &lt;br&gt; included. */

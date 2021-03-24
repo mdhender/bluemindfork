@@ -96,9 +96,9 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 		sanitizer.create(event);
 
 		assertNotNull(event.main.conference);
-		assertEquals("Lorem ipsum blah blah<br>\n<videoconferencingtemplate id=\"" + videoconfProviderId + "\">\n"
+		assertEquals("Lorem ipsum blah blah<br><videoconferencingtemplate id=\"" + videoconfProviderId + "\">"
 				+ "voilà <a href=\"" + event.main.conference + "\" target=\"_blank\">" + event.main.conference
-				+ "</a> yay\n" + "</videoconferencingtemplate><br><br>", event.main.description);
+				+ "</a> yay</videoconferencingtemplate><br><br>", event.main.description);
 	}
 
 	@Test
@@ -137,9 +137,9 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 		sanitizer.update(event, updated);
 		assertNotNull(updated.main.conference);
 		assertEquals(
-				"Lorem ipsum blah blah<br>\n<videoconferencingtemplate id=\"" + videoconfProviderId + "\">\n"
+				"Lorem ipsum blah blah<br><videoconferencingtemplate id=\"" + videoconfProviderId + "\">"
 						+ "voilà <a href=\"" + updated.main.conference + "\" target=\"_blank\">"
-						+ updated.main.conference + "</a> yay\n" + "</videoconferencingtemplate><br><br>",
+						+ updated.main.conference + "</a> yay</videoconferencingtemplate><br><br>",
 				updated.main.description);
 
 	}
@@ -159,9 +159,9 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 		updated.main.description = "coucou";
 		sanitizer.update(event, updated);
 		assertNotNull(updated.main.conference);
-		assertEquals("coucou<br>\n<videoconferencingtemplate id=\"" + videoconfProviderId + "\">\n" + "voilà <a href=\""
-				+ updated.main.conference + "\" target=\"_blank\">" + updated.main.conference + "</a> yay\n"
-				+ "</videoconferencingtemplate><br><br>", updated.main.description);
+		assertEquals("coucou<br><videoconferencingtemplate id=\"" + videoconfProviderId + "\">" + "voilà <a href=\""
+				+ updated.main.conference + "\" target=\"_blank\">" + updated.main.conference
+				+ "</a> yay</videoconferencingtemplate><br><br>", updated.main.description);
 
 	}
 
@@ -197,8 +197,8 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 		rd.typeIdentifier = IVideoConferenceUids.RESOURCETYPE_UID;
 		rd.dataLocation = PopulateHelper.FAKE_CYRUS_IP;
 		rd.emails = Arrays.asList(Email.create("videoconferencing@" + domainUid, true));
-		rd.properties = Arrays
-				.asList(ResourceDescriptor.PropertyValue.create(IVideoConferenceUids.PROVIDER_TYPE, videoconfProviderId));
+		rd.properties = Arrays.asList(
+				ResourceDescriptor.PropertyValue.create(IVideoConferenceUids.PROVIDER_TYPE, videoconfProviderId));
 		return rd;
 	}
 }
