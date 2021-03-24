@@ -11,6 +11,7 @@ import {
     SET_ATTACHMENT_ENCODING,
     SET_ATTACHMENT_PROGRESS,
     SET_ATTACHMENT_STATUS,
+    SET_MESSAGES_LOADING_STATUS,
     SET_MESSAGES_STATUS,
     SET_MESSAGE_BCC,
     SET_MESSAGE_CC,
@@ -46,6 +47,9 @@ export default {
     },
     [SET_MESSAGES_STATUS]: (state, messages) => {
         messages.forEach(m => (state[m.key].status = m.status));
+    },
+    [SET_MESSAGES_LOADING_STATUS]: (state, messages) => {
+        messages.forEach(m => (state[m.key].loading = m.loading));
     },
     [SET_MESSAGE_LIST]: (state, messages) => {
         messages.filter(message => !state[message.key]).forEach(message => Vue.set(state, message.key, message));

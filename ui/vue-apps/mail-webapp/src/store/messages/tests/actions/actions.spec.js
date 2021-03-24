@@ -22,6 +22,7 @@ import {
     MARK_MESSAGES_AS_UNFLAGGED,
     MARK_MESSAGES_AS_UNREAD
 } from "~actions";
+import { LoadingStatus } from "../../../../model/loading-status";
 
 Vue.use(Vuex);
 
@@ -252,13 +253,29 @@ describe("Messages actions", () => {
             store.dispatch(FETCH_MESSAGE_METADATA, adapted);
             expect(inject("MailboxItemsPersistence").multipleById).toHaveBeenCalledWith([1, 2, 3]);
         });
+        test("Add LOADING status while fetching to messages", async () => {
+            const message = messages.pop();
+            const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
+            store.commit(ADD_MESSAGES, [adapted]);
+            inject("MailboxItemsPersistence").multipleById.mockResolvedValueOnce([message]);
+            store.dispatch(FETCH_MESSAGE_METADATA, adapted);
+            expect(store.state[adapted.key].loading).toEqual(LoadingStatus.LOADING);
+        });
         test("Add LOADED status to messages", async () => {
             const message = messages.pop();
             const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
             store.commit(ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").multipleById.mockResolvedValueOnce([message]);
             await store.dispatch(FETCH_MESSAGE_METADATA, adapted);
-            expect(store.state[adapted.key].status).toEqual(MessageStatus.LOADED);
+            expect(store.state[adapted.key].loading).toEqual(LoadingStatus.LOADED);
+        });
+        test("Add ERROR status to messages not found", async () => {
+            const message = messages.pop();
+            const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
+            store.commit(ADD_MESSAGES, [adapted]);
+            inject("MailboxItemsPersistence").multipleById.mockResolvedValueOnce([]);
+            await store.dispatch(FETCH_MESSAGE_METADATA, adapted);
+            expect(store.state[adapted.key].loading).toEqual(LoadingStatus.ERROR);
         });
     });
     describe("REMOVE_MESSAGES", () => {
@@ -295,7 +312,7 @@ describe("Messages actions", () => {
             } catch {
                 // Nothing to do
             } finally {
-                expect(store.state[adapted.key].status).toEqual(MessageStatus.LOADED);
+                expect(store.state[adapted.key].status).toEqual(MessageStatus.IDLE);
             }
             adapted = createOnlyMetadata({ internalId: 1, folder });
             store.commit(ADD_MESSAGES, [adapted]);
@@ -305,7 +322,7 @@ describe("Messages actions", () => {
             } catch {
                 // Nothing to do
             } finally {
-                expect(store.state[adapted.key].status).toEqual(MessageStatus.NOT_LOADED);
+                expect(store.state[adapted.key].status).toEqual(MessageStatus.IDLE);
             }
         });
     });
@@ -349,7 +366,7 @@ describe("Messages actions", () => {
             } catch {
                 // Nothing to do
             } finally {
-                expect(store.state[adapted.key].status).toEqual(MessageStatus.LOADED);
+                expect(store.state[adapted.key].status).toEqual(MessageStatus.IDLE);
             }
             adapted = createOnlyMetadata({ internalId: 1, folder });
             store.commit(ADD_MESSAGES, [adapted]);
@@ -359,7 +376,7 @@ describe("Messages actions", () => {
             } catch {
                 // Nothing to do
             } finally {
-                expect(store.state[adapted.key].status).toEqual(MessageStatus.NOT_LOADED);
+                expect(store.state[adapted.key].status).toEqual(MessageStatus.IDLE);
             }
         });
     });
@@ -435,7 +452,7 @@ describe("Messages actions", () => {
             } catch {
                 // Nothing to do
             } finally {
-                expect(store.state[adapted.key].status).toEqual(MessageStatus.LOADED);
+                expect(store.state[adapted.key].status).toEqual(MessageStatus.IDLE);
             }
         });
     });

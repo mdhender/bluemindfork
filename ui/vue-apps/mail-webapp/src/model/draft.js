@@ -1,6 +1,7 @@
 import { EmailExtractor, Flag, MimeType } from "@bluemind/email";
 
 import { AttachmentStatus } from "./attachment";
+import { LoadingStatus } from "./loading-status";
 import {
     MessageHeader,
     // fetch,
@@ -32,7 +33,8 @@ export function createEmpty(myDraftsFolder, userSession) {
         dn: userSession.formatedName
     };
     message.flags = [Flag.SEEN];
-    message.status = MessageStatus.LOADED;
+    message.status = MessageStatus.IDLE;
+    message.loading = LoadingStatus.LOADED;
     message.composing = true;
     message.remoteRef.imapUid = "1"; // faked imapUid because updateById needs it
     return message;

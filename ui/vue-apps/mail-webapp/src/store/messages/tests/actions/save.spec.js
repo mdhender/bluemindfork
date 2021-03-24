@@ -29,7 +29,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         });
         draft.inlinePartsByCapabilities = [{ capabilities: [MimeType.TEXT_HTML], parts: [] }];
         draft.date = new Date();
-        draft.status = MessageStatus.LOADED;
+        draft.status = MessageStatus.IDLE;
 
         saveParams = { draft, messageCompose };
 
@@ -56,7 +56,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         expect(context.commit).toHaveBeenNthCalledWith(8, SET_MESSAGES_STATUS, [
             {
                 key: draft.key,
-                status: MessageStatus.LOADED
+                status: MessageStatus.IDLE
             }
         ]);
         expect(itemsService.updateById).toHaveBeenCalledWith(draftInternalId, expect.anything());
@@ -174,7 +174,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         expect(context.commit).toHaveBeenNthCalledWith(8, SET_MESSAGES_STATUS, [
             {
                 key: draft.key,
-                status: MessageStatus.LOADED
+                status: MessageStatus.IDLE
             }
         ]);
         expect(itemsService.uploadPart).toBeCalledTimes(4);

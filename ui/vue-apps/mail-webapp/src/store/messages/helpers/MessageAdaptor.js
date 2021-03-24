@@ -6,6 +6,7 @@ import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
 import { createWithMetadata, MessageHeader, MessageStatus } from "~model/message";
 import TreeWalker from "./TreeWalker";
+import { LoadingStatus } from "../../../model/loading-status";
 
 export default {
     fromMailboxItem(remote, { key, uid }) {
@@ -24,7 +25,8 @@ export default {
             ...this.computeParts(remote.value.body.structure),
             subject: remote.value.body.subject,
             composing: false,
-            status: MessageStatus.LOADED,
+            status: MessageStatus.IDLE,
+            loading: LoadingStatus.LOADED,
             preview: remote.value.body.preview,
             hasAttachment: remote.value.body.smartAttach,
             hasICS,

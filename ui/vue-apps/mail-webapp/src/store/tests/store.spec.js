@@ -20,7 +20,6 @@ import {
     MY_SENT,
     MY_TRASH
 } from "~getters";
-import { MessageStatus } from "~model/message";
 import { DEFAULT_FOLDER_NAMES } from "../folders/helpers/DefaultFolders";
 import { MailboxType } from "~model/mailbox";
 import injector from "@bluemind/inject";
@@ -59,10 +58,10 @@ describe("Mail store", () => {
         });
         test("ALL_SELECTED_MESSAGES_ARE_UNREAD", () => {
             store.state.messages = {
-                1: { flags: [], status: MessageStatus.LOADED },
-                2: { flags: [Flag.SEEN], status: MessageStatus.NOT_LOADED },
-                3: { flags: [Flag.SEEN], status: MessageStatus.LOADED },
-                4: { flags: [], status: MessageStatus.LOADED }
+                1: { flags: [], loading: LoadingStatus.LOADED },
+                2: { flags: [Flag.SEEN], loading: LoadingStatus.NOT_LOADED },
+                3: { flags: [Flag.SEEN], loading: LoadingStatus.LOADED },
+                4: { flags: [], loading: LoadingStatus.LOADED }
             };
             store.state.selection = [1, 2];
             expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNREAD]).toBeTruthy();
@@ -73,10 +72,10 @@ describe("Mail store", () => {
         });
         test("ALL_SELECTED_MESSAGES_ARE_READ", () => {
             store.state.messages = {
-                1: { flags: [Flag.SEEN], status: MessageStatus.LOADED },
-                2: { flags: [], status: MessageStatus.NOT_LOADED },
-                3: { flags: [], status: MessageStatus.LOADED },
-                4: { flags: [Flag.SEEN], status: MessageStatus.LOADED }
+                1: { flags: [Flag.SEEN], loading: LoadingStatus.LOADED },
+                2: { flags: [], loading: LoadingStatus.NOT_LOADED },
+                3: { flags: [], loading: LoadingStatus.LOADED },
+                4: { flags: [Flag.SEEN], loading: LoadingStatus.LOADED }
             };
             store.state.selection = [1, 2];
             expect(store.getters[ALL_SELECTED_MESSAGES_ARE_READ]).toBeTruthy();
@@ -87,10 +86,10 @@ describe("Mail store", () => {
         });
         test("ALL_SELECTED_MESSAGES_ARE_FLAGGED", () => {
             store.state.messages = {
-                1: { flags: [Flag.FLAGGED], status: MessageStatus.LOADED },
-                2: { flags: [], status: MessageStatus.NOT_LOADED },
-                3: { flags: [], status: MessageStatus.LOADED },
-                4: { flags: [Flag.FLAGGED], status: MessageStatus.LOADED }
+                1: { flags: [Flag.FLAGGED], loading: LoadingStatus.LOADED },
+                2: { flags: [], loading: LoadingStatus.NOT_LOADED },
+                3: { flags: [], loading: LoadingStatus.LOADED },
+                4: { flags: [Flag.FLAGGED], loading: LoadingStatus.LOADED }
             };
             store.state.selection = [1, 2];
             expect(store.getters[ALL_SELECTED_MESSAGES_ARE_FLAGGED]).toBeTruthy();
@@ -101,10 +100,10 @@ describe("Mail store", () => {
         });
         test("ALL_SELECTED_MESSAGES_ARE_UNFLAGGED", () => {
             store.state.messages = {
-                1: { flags: [], status: MessageStatus.LOADED },
-                2: { flags: [Flag.FLAGGED], status: MessageStatus.NOT_LOADED },
-                3: { flags: [Flag.FLAGGED], status: MessageStatus.LOADED },
-                4: { flags: [], status: MessageStatus.LOADED }
+                1: { flags: [], loading: LoadingStatus.LOADED },
+                2: { flags: [Flag.FLAGGED], loading: LoadingStatus.NOT_LOADED },
+                3: { flags: [Flag.FLAGGED], loading: LoadingStatus.LOADED },
+                4: { flags: [], loading: LoadingStatus.LOADED }
             };
             store.state.selection = [1, 2];
             expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNFLAGGED]).toBeTruthy();

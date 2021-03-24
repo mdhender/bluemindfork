@@ -3,13 +3,15 @@ import cloneDeep from "lodash.clonedeep";
 import pick from "lodash.pick";
 
 import ItemUri from "@bluemind/item-uri";
+import { LoadingStatus } from "./loading-status";
 
 export function createOnlyMetadata({ internalId, folder: { key, uid } }) {
     return {
         key: internalId && key ? ItemUri.encode(internalId, key) : null,
         folderRef: { key, uid },
         remoteRef: { internalId },
-        status: MessageStatus.NOT_LOADED
+        status: MessageStatus.IDLE,
+        loading: LoadingStatus.NOT_LOADED
     };
 }
 
@@ -64,8 +66,7 @@ export function partialCopy(message, properties = []) {
 }
 
 export const MessageStatus = {
-    NOT_LOADED: "NOT-LOADED",
-    LOADED: "LOADED",
+    IDLE: "IDLE",
     REMOVED: "REMOVED",
     SAVING: "SAVING",
     SAVE_ERROR: "SAVE_ERROR",

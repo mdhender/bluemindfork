@@ -50,7 +50,7 @@
                 @dragstart="draggedMessage = message.key"
                 @dragend="draggedMessage = null"
             />
-            <message-list-item-loading v-else :message="message" />
+            <message-list-item-loading v-else-if="MESSAGE_IS_LOADING(message.key)" :message="message" />
         </div>
     </bm-list-group>
 </template>
@@ -69,7 +69,8 @@ import {
     ALL_MESSAGES_ARE_SELECTED,
     MY_TRASH,
     MESSAGE_LIST_COUNT,
-    MESSAGE_IS_LOADED
+    MESSAGE_IS_LOADED,
+    MESSAGE_IS_LOADING
 } from "~getters";
 import { SELECT_MESSAGE, UNSELECT_MESSAGE, SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES } from "~mutations";
 import { RemoveMixin } from "~mixins";
@@ -104,7 +105,8 @@ export default {
             ALL_MESSAGES_ARE_SELECTED,
             MY_TRASH,
             MESSAGE_LIST_COUNT,
-            MESSAGE_IS_LOADED
+            MESSAGE_IS_LOADED,
+            MESSAGE_IS_LOADING
         }),
         ...mapState("mail", ["activeFolder", "messages", "selection"]),
         ...mapState("mail", {
@@ -114,7 +116,7 @@ export default {
             return this.messageKeys
                 .slice(0, this.length)
                 .map(key => this.messages[key])
-                .filter(({ status }) => status !== MessageStatus.REMOVED);
+                .filter(({ status, loading }) => status !== MessageStatus.REMOVED);
         },
         currentMessage() {
             return this.messages[this.currentMessageKey];

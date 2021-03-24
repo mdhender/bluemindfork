@@ -33,6 +33,7 @@ export const FOLDER_GET_CHILDREN = "FOLDER_GET_CHILDREN";
 
 // messages
 export const MESSAGE_IS_LOADED = "MESSAGE_IS_LOADED";
+export const MESSAGE_IS_LOADING = "MESSAGE_IS_LOADING";
 
 // selection
 export const SELECTION_IS_EMPTY = "SELECTION_IS_EMPTY";

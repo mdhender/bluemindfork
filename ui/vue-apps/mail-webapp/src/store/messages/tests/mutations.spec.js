@@ -1,5 +1,6 @@
 import mutations from "../mutations";
 import { MessageStatus } from "~model/message";
+import { LoadingStatus } from "../../../model/loading-status";
 
 describe("mutations", () => {
     describe("ADD_MESSAGES", () => {
@@ -47,15 +48,15 @@ describe("mutations", () => {
 
     describe("ADD_FLAG", () => {
         test("dont change other flag", () => {
-            const message = { key: "key1", status: MessageStatus.LOADED, flags: ["OTHER"] };
+            const message = { key: "key1", status: MessageStatus.IDLE, flags: ["OTHER"] };
             const state = { [message.key]: message };
             mutations.ADD_FLAG(state, { messages: [message], flag: "READ" });
             expect(state[message.key].flags).toEqual(["OTHER", "READ"]);
         });
 
         test("add flag to multiple messages", () => {
-            const message = { key: "key1", status: MessageStatus.LOADED, flags: [] };
-            const message2 = { key: "key2", status: MessageStatus.LOADED, flags: [] };
+            const message = { key: "key1", status: MessageStatus.IDLE, flags: [] };
+            const message2 = { key: "key2", status: MessageStatus.IDLE, flags: [] };
             const state = { [message.key]: message, [message2.key]: message2 };
             mutations.ADD_FLAG(state, { messages: [message, message2], flag: "READ" });
             expect(state[message.key].flags).toEqual(["READ"]);
@@ -65,22 +66,22 @@ describe("mutations", () => {
 
     describe("DELETE_FLAG", () => {
         test("do nothing if flag is not set", () => {
-            const message = { key: "key1", status: MessageStatus.LOADED, flags: ["OTHER"] };
+            const message = { key: "key1", status: MessageStatus.IDLE, flags: ["OTHER"] };
             const state = { [message.key]: message };
             mutations.DELETE_FLAG(state, { messages: [message], flag: "READ" });
             expect(state[message.key].flags).toEqual(["OTHER"]);
         });
 
         test("dont change other flag", () => {
-            const message = { key: "key1", status: MessageStatus.LOADED, flags: ["OTHER", "READ"] };
+            const message = { key: "key1", status: MessageStatus.IDLE, flags: ["OTHER", "READ"] };
             const state = { [message.key]: message };
             mutations.DELETE_FLAG(state, { messages: [message], flag: "READ" });
             expect(state[message.key].flags).toEqual(["OTHER"]);
         });
 
         test("delete flag to multiple messages", () => {
-            const message = { key: "key1", status: MessageStatus.LOADED, flags: ["READ"] };
-            const message2 = { key: "key2", status: MessageStatus.LOADED, flags: ["READ"] };
+            const message = { key: "key1", status: MessageStatus.IDLE, flags: ["READ"] };
+            const message2 = { key: "key2", status: MessageStatus.IDLE, flags: ["READ"] };
             const state = { [message.key]: message, [message2.key]: message2 };
             mutations.DELETE_FLAG(state, { messages: [message, message2], flag: "READ" });
             expect(state[message.key].flags).toEqual([]);
@@ -90,10 +91,19 @@ describe("mutations", () => {
 
     describe("SET_MESSAGES_STATUS", () => {
         test("can change status", () => {
-            const message = { key: "key1", status: MessageStatus.NOT_LOADED };
+            const message = { key: "key1", status: MessageStatus.SAVING };
             const state = { [message.key]: message };
-            mutations.SET_MESSAGES_STATUS(state, [{ key: message.key, status: MessageStatus.LOADED }]);
-            expect(state[message.key].status).toEqual(MessageStatus.LOADED);
+            mutations.SET_MESSAGES_STATUS(state, [{ key: message.key, status: MessageStatus.IDLE }]);
+            expect(state[message.key].status).toEqual(MessageStatus.IDLE);
+        });
+    });
+
+    describe("SET_MESSAGES_LOADING_STATUS", () => {
+        test("can change loading status", () => {
+            const message = { key: "key1", loading: LoadingStatus.NOT_LOADED };
+            const state = { [message.key]: message };
+            mutations.SET_MESSAGES_LOADING_STATUS(state, [{ key: message.key, loading: LoadingStatus.LOADED }]);
+            expect(state[message.key].loading).toEqual(LoadingStatus.LOADED);
         });
     });
 

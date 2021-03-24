@@ -2,7 +2,16 @@ import apiFolders from "../../api/apiFolders";
 import { MESSAGE_IS_LOADED } from "~getters";
 import { MessageStatus, partialCopy } from "~model/message";
 import apiMessages from "../../api/apiMessages";
-import { ADD_FLAG, ADD_MESSAGES, DELETE_FLAG, MOVE_MESSAGES, REMOVE_MESSAGES, SET_MESSAGES_STATUS } from "~mutations";
+import {
+    ADD_FLAG,
+    ADD_MESSAGES,
+    DELETE_FLAG,
+    MOVE_MESSAGES,
+    REMOVE_MESSAGES,
+    SET_MESSAGES_STATUS,
+    SET_MESSAGES_LOADING_STATUS
+} from "~mutations";
+import { LoadingStatus } from "../../../model/loading-status";
 
 export async function addFlag({ commit, getters }, { messages, flag }) {
     messages = Array.isArray(messages) ? messages : [messages];
@@ -30,11 +39,23 @@ export async function deleteFlag({ commit, getters }, { messages, flag }) {
     }
 }
 
-export async function fetchMessageMetadata({ commit }, messages) {
+export async function fetchMessageMetadata({ state, commit }, messages) {
     messages = Array.isArray(messages) ? messages : [messages];
     const toFetch = messages.filter(({ composing }) => !composing);
+    commit(
+        SET_MESSAGES_LOADING_STATUS,
+        messages
+            .filter(({ key }) => state[key].loading !== LoadingStatus.LOADED)
+            .map(message => ({ ...message, loading: LoadingStatus.LOADING }))
+    );
     const fullMessages = await apiMessages.multipleById(toFetch);
     commit(ADD_MESSAGES, fullMessages);
+    commit(
+        SET_MESSAGES_LOADING_STATUS,
+        messages
+            .filter(({ key }) => state[key].loading !== LoadingStatus.LOADED)
+            .map(message => ({ ...message, loading: LoadingStatus.ERROR }))
+    );
 }
 
 export async function removeMessages({ commit, state }, messages) {

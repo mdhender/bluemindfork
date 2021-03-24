@@ -24,7 +24,7 @@ export function isReadyToBeSaved(draft, messageCompose) {
     const checkAttachments =
         draft.attachments.every(a => a.status === AttachmentStatus.UPLOADED) ||
         (isInternalIdFaked(draft.remoteRef.internalId) && messageCompose.forwardedAttachments.length > 0); // due to attachments forward cases
-    return draft.status === MessageStatus.LOADED && checkAttachments;
+    return draft.status === MessageStatus.IDLE && checkAttachments;
 }
 
 export async function save(context, draft, messageCompose) {
@@ -40,7 +40,7 @@ export async function save(context, draft, messageCompose) {
         await createEmlOnServer(context, draft, service, structure);
         addresses.slice(0, 2).forEach(address => service.removePart(address));
 
-        context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.LOADED }]);
+        context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.IDLE }]);
     } catch (e) {
         console.error(e);
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVE_ERROR }]);
