@@ -72,6 +72,7 @@ import net.fortuna.ical4j.vcard.property.N;
 import net.fortuna.ical4j.vcard.property.Nickname;
 import net.fortuna.ical4j.vcard.property.Note;
 import net.fortuna.ical4j.vcard.property.Org;
+import net.fortuna.ical4j.vcard.property.Photo;
 import net.fortuna.ical4j.vcard.property.Role;
 import net.fortuna.ical4j.vcard.property.Telephone;
 import net.fortuna.ical4j.vcard.property.Title;
@@ -322,6 +323,11 @@ public final class VCardAdapter {
 						}
 						return VCard.Organizational.Member.create(containerUid, uid, memberName, memberEmail);
 					}).collect(Collectors.toList());
+		}
+
+		Photo photo = (Photo) card.getProperty(Id.PHOTO);
+		if (photo != null) {
+			retCard.identification.photoBinary = photo.getBinary();
 		}
 
 		return ItemValue.create(retUid, retCard);

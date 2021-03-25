@@ -104,6 +104,9 @@ public class VCardChanges {
 			ItemAdd ret = new ItemAdd();
 			ret.uid = uid;
 			ret.value = value;
+			if (value.identification.photo) {
+				ret.photo = value.identification.photoBinary;
+			}
 			return ret;
 		}
 	}

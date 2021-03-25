@@ -59,6 +59,7 @@ import net.bluemind.tag.api.TagRef;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.vcard.Parameter;
 import net.fortuna.ical4j.vcard.VCardBuilder;
+import net.fortuna.ical4j.vcard.property.Photo;
 import net.fortuna.ical4j.vcard.property.Uid;
 
 public class VCardService implements IVCardService {
@@ -116,6 +117,18 @@ public class VCardService implements IVCardService {
 		} catch (URISyntaxException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
+
+		if (vcard.value.identification.photo) {
+			try {
+				byte[] photo = addressbookService.getPhoto(vcard.uid);
+				if (photo != null) {
+					ret.getProperties().add(new Photo(photo));
+				}
+			} catch (ServerFault e) {
+				LOGGER.warn(e.getMessage(), e);
+			}
+		}
+
 		return ret;
 	}
 

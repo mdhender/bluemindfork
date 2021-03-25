@@ -90,6 +90,7 @@ public class VCard {
 		public Identification.Name name = new Name();
 		public Identification.Nickname nickname = new Nickname();
 		public boolean photo = false;
+		public byte[] photoBinary;
 
 		public Date birthday;
 		public Date anniversary;
