@@ -24,11 +24,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.james.mime4j.dom.field.FieldName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.buffer.ByteBufInputStream;
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody.Header;
@@ -40,6 +46,7 @@ import net.bluemind.eas.backend.MSEmail;
 import net.bluemind.eas.backend.MailFolder;
 import net.bluemind.eas.backend.bm.impl.CoreConnect;
 import net.bluemind.eas.backend.bm.mail.loader.BodyAccumulator;
+import net.bluemind.eas.backend.bm.mail.loader.SyncStreamDownload;
 import net.bluemind.eas.dto.base.AirSyncBaseRequest;
 import net.bluemind.eas.dto.base.AirSyncBaseResponse;
 import net.bluemind.eas.dto.base.AirSyncBaseResponse.Attachment;
@@ -84,13 +91,18 @@ public class BodyMailLoader extends CoreConnect {
 			options.bodyPrefs = new ArrayList<AirSyncBaseRequest.BodyPreference>(1);
 			options.bodyPrefs.add(bp);
 			Stream content = service.fetchComplete(item.value.imapUid);
-			BodyAccumulator bodyAccumulator = new BodyAccumulator(options);
-			return bodyAccumulator.toInputStream(content);
+			return toInputStream(content);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return null;
 		}
 
+	}
+
+	public InputStream toInputStream(Stream stream) throws InterruptedException, ExecutionException, TimeoutException {
+		CompletableFuture<Buffer> partContent = SyncStreamDownload.read(stream);
+		Buffer partValue = partContent.get(15, TimeUnit.SECONDS);
+		return new ByteBufInputStream(partValue.getByteBuf());
 	}
 
 	public AirSyncBaseResponse fetch(long id, BodyOptions options) {

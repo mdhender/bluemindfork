@@ -18,7 +18,6 @@
  */
 package net.bluemind.eas.backend.bm.mail.loader;
 
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -29,8 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.common.io.FileBackedOutputStream;
@@ -80,10 +77,10 @@ public class BodyAccumulator {
 		html = new TextAccumulator();
 	}
 
-	public InputStream toInputStream(Stream stream) throws InterruptedException, ExecutionException, TimeoutException {
+	public ByteBuf toByteBuf(Stream stream) throws InterruptedException, ExecutionException, TimeoutException {
 		CompletableFuture<Buffer> partContent = SyncStreamDownload.read(stream);
 		Buffer partValue = partContent.get(15, TimeUnit.SECONDS);
-		return new ByteBufInputStream(partValue.getByteBuf());
+		return partValue.getByteBuf();
 	}
 
 	public void consumeMime(Stream stream) {
@@ -109,19 +106,9 @@ public class BodyAccumulator {
 
 		Charset charset = CharsetUtils.forName(bodyPart.charset);
 
-		try (InputStream in = toInputStream(stream)) {
-			byte[] buf = new byte[1024];
-			ByteBuf out = Unpooled.buffer();
-			while (true) {
-				int len = in.read(buf);
-				if (len == -1) {
-					break;
-				}
-				out.writeBytes(buf, 0, len);
-			}
-
+		try {
+			ByteBuf out = toByteBuf(stream);
 			bodyAccumulate(ta, out.toString(charset));
-
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
