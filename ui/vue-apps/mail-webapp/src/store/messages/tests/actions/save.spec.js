@@ -2,7 +2,6 @@ import { MimeType } from "@bluemind/email";
 import { MockMailboxItemsClient } from "@bluemind/test-utils";
 import ServiceLocator from "@bluemind/inject";
 
-import apiMessages from "../../../api/apiMessages";
 import { saveAsap } from "../../actions/save";
 import { MessageStatus, createWithMetadata } from "~model/message";
 import htmlWithBase64Images from "../data/htmlWithBase64Images";
@@ -20,7 +19,6 @@ const messageCompose = { editorContent: "", collapsedContent: null, inlineImages
 describe("[Mail-WebappStore][actions] :  save", () => {
     beforeEach(() => {
         itemsService = new MockMailboxItemsClient();
-        apiMessages.multipleById.mockResolvedValueOnce([{ remoteRef: { imapUid: "" } }]);
         ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: () => itemsService });
 
         draft = createWithMetadata({
@@ -89,13 +87,13 @@ describe("[Mail-WebappStore][actions] :  save", () => {
                             mime: "multipart/alternative",
                             children: [
                                 {
-                                    address: "1.1",
+                                    address: "tmpAddress",
                                     charset: "utf-8",
                                     encoding: "quoted-printable",
                                     mime: "text/plain"
                                 },
                                 {
-                                    address: "1.2",
+                                    address: "tmpAddress",
                                     charset: "utf-8",
                                     encoding: "quoted-printable",
                                     mime: "text/html"
@@ -110,7 +108,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         });
     });
 
-    test.only("With error", async () => {
+    test("With error", async () => {
         itemsService.updateById.mockImplementation(() => {
             throw new Error();
         });
@@ -123,6 +121,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
                 status: MessageStatus.SAVE_ERROR
             }
         ]);
+        jest.spyOn(global.console, "error");
     });
 
     test("With inline images", async () => {
@@ -130,7 +129,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         const expectedStructureInlineImages = {
             children: [
                 {
-                    address: "1",
+                    address: "tmpAddress",
                     charset: "utf-8",
                     encoding: "quoted-printable",
                     mime: "text/plain"
@@ -138,20 +137,20 @@ describe("[Mail-WebappStore][actions] :  save", () => {
                 {
                     children: [
                         {
-                            address: "2.1",
+                            address: "tmpAddress",
                             charset: "utf-8",
                             encoding: "quoted-printable",
                             mime: "text/html"
                         },
                         {
-                            address: "2.2",
+                            address: "tmpAddress",
                             contentId: "<cid1@bluemind.net>",
                             dispositionType: "INLINE",
                             encoding: "base64",
                             mime: "image/png"
                         },
                         {
-                            address: "2.3",
+                            address: "tmpAddress",
                             contentId: "<cid2@bluemind.net>",
                             dispositionType: "INLINE",
                             encoding: "base64",
