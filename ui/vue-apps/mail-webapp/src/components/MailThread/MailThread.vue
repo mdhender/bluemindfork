@@ -93,7 +93,6 @@ export default {
         async currentMessageKey(value) {
             this.SET_SHOW_REMOTE_IMAGES_ALERT(false);
             this.SET_BLOCK_REMOTE_IMAGES(false);
-            this.RESET_ACTIVE_MESSAGE();
             try {
                 await this.$store.dispatch("mail-webapp/$_getIfNotPresent", [value]);
                 const message = this.messages[value];
@@ -111,6 +110,7 @@ export default {
 
         "$route.params.message": {
             async handler(value) {
+                this.RESET_ACTIVE_MESSAGE();
                 if (value) {
                     // FIXME: This is bad bad bad... naughty boy...
                     // Remove this once you have a solution for getifNotPresent....
