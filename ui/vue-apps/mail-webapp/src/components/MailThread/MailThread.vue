@@ -138,11 +138,8 @@ export default {
         trustSender() {
             this.showRemoteImages();
             const contact = createFromRecipient(this.message.from);
-            const myContactsAddressbookContainerUid = "book:Contacts_" + inject("UserSession").userId;
-            inject("AddressBookPersistence", myContactsAddressbookContainerUid).create(
-                contact.uid,
-                VCardAdaptor.toVCard(contact)
-            );
+            const collectedContactsUid = "book:CollectedContacts_" + inject("UserSession").userId;
+            inject("AddressBookPersistence", collectedContactsUid).create(contact.uid, VCardAdaptor.toVCard(contact));
         }
     }
 };
