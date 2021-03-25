@@ -9,6 +9,10 @@ import { syncMailFolder } from "../sync";
 
 export const apiRoutes = [
     {
+        capture: /\/api\/containers\/_subscriptions\/(.+)\/(.+)\/_list/,
+        handler: listSubscriptions
+    },
+    {
         capture: /\/api\/mail_items\/([a-f0-9-]+)\/_multipleById/,
         handler: multipleById
     },
@@ -132,6 +136,24 @@ export async function count({ request, params }: RouteHandlerCallbackOptions) {
                 .filter(item => filterByFlags(expectedFlags, item.flags))
                 .length;
             return responseFromCache({ total });
+        }
+        return fetch(request);
+    } catch (error) {
+        console.debug(error);
+        return fetch(request);
+    }
+}
+
+export async function listSubscriptions({ request, params }: RouteHandlerCallbackOptions) {
+    if (!(params instanceof Array)) {
+        return;
+    }
+    const [domain, userId] = params;
+    try {
+        const db = await Session.db();
+        if (await db.isSubscribed(`${userId}@${domain}.subscriptions`)) {
+            const mailboxes = await db.getAllOwnerSubscriptions();
+            return responseFromCache(mailboxes);
         }
         return fetch(request);
     } catch (error) {

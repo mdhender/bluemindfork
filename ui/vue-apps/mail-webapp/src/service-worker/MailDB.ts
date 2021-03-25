@@ -1,7 +1,8 @@
 import { openDB, DBSchema, IDBPDatabase, IDBPTransaction, StoreNames, StoreValue } from "idb";
-import { MailFolder, MailItem, MailItemLight, Reconciliation } from "./entry";
+import { MailFolder, MailItem, MailItemLight, OwnerSubscription, Reconciliation } from "./entry";
+import { logger } from "./logger";
 
-type SyncOptionsType = "mail_folder" | "mail_item";
+export type SyncOptionsType = "mail_folder" | "mail_item" | "owner_subscriptions";
 export interface SyncOptions {
     uid: string;
     version: number;
@@ -29,15 +30,22 @@ interface MailSchema extends DBSchema {
         value: MailItemLight;
         indexes: { "by-folderUid": string };
     };
+    owner_subscriptions: {
+        key: string;
+        value: OwnerSubscription;
+        indexes: { "by-type": string };
+    };
 }
 
 export class MailDB {
     dbPromise: Promise<IDBPDatabase<MailSchema>>;
     constructor(userAtDomain: string) {
-        const schemaVersion = 7;
+        const schemaVersion = 9;
         this.dbPromise = openDB<MailSchema>(`${userAtDomain}:webapp/mail`, schemaVersion, {
             upgrade(db, oldVersion) {
+                logger.log(`[SW][DB] Upgrading from ${oldVersion} to ${schemaVersion}`);
                 if (oldVersion < schemaVersion) {
+                    logger.log("[SW][DB] Upgrading deleting existing object store");
                     for (const name of Object.values(db.objectStoreNames)) {
                         db.deleteObjectStore(name);
                     }
@@ -51,6 +59,10 @@ export class MailDB {
                 db.createObjectStore("mail_item_light", { keyPath: ["folderUid", "internalId"] }).createIndex(
                     "by-folderUid",
                     "folderUid"
+                );
+                db.createObjectStore("owner_subscriptions", { keyPath: "uid" }).createIndex(
+                    "by-type",
+                    "value.containerType"
                 );
             }
         });
@@ -78,6 +90,22 @@ export class MailDB {
     async isSubscribed(uid: string) {
         const key = await (await this.dbPromise).getKey("sync_options", uid);
         return key !== undefined;
+    }
+
+    async deleteSyncOptions(uid: string) {
+        await (await this.dbPromise).delete("sync_options", uid);
+    }
+
+    async deleteOwnerSubscriptions(deletedIds: number[]) {
+        const subscriptionUidsToDelete = (await this.getAllOwnerSubscriptions())
+            .filter(ownerSubscription => deletedIds.includes(ownerSubscription.internalId))
+            .map(ownerSubscription => ownerSubscription.uid)
+        const tx = (await this.dbPromise).transaction("owner_subscriptions", "readwrite");
+        tx.onerror = (event) => {
+            logger.error("[SW][DB] Failed to delete owner subscriptions", deletedIds, event)
+        }
+        await subscriptionUidsToDelete.forEach(uid => tx.objectStore("owner_subscriptions").delete(uid));
+        tx.done;
     }
 
     async deleteMailFolders(deletedIds: number[]) {
@@ -109,6 +137,10 @@ export class MailDB {
         await this.putItems(items, "mail_item_light", optionalTransaction);
     }
 
+    async putOwnerSubscriptions(items: OwnerSubscription[], optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>) {
+        await this.putItems(items, "owner_subscriptions", optionalTransaction);
+    }
+
     async putItems<T extends StoreValue<MailSchema, StoreName>, StoreName extends StoreNames<MailSchema>>(
         items: T[],
         storeName: StoreName,
@@ -134,6 +166,14 @@ export class MailDB {
 
     async getAllMailFolders() {
         return (await this.dbPromise).getAll("mail_folders");
+    }
+
+    async getOwnerSubscriptions(type: string) {
+        return (await this.dbPromise).getAllFromIndex("owner_subscriptions", "by-type", type);
+    }
+
+    async getAllOwnerSubscriptions() {
+        return (await this.dbPromise).getAll("owner_subscriptions");
     }
 
     async reconciliate(data: Reconciliation<MailItem>, syncOptions: SyncOptions) {

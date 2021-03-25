@@ -1,8 +1,15 @@
-import { ChangeSet, FilteredChangeSet, MailFolder, MailItem, SessionInfo } from "./entry";
+import {
+    ChangeSet,
+    FilteredChangeSet,
+    MailFolder,
+    MailItem,
+    OwnerSubscription,
+    SessionInfo
+} from "./entry";
 
 //@FIXME: it might be possible to force certain methods depending on the route.
-type Route = "mail_folders" | "mail_items";
-type Method = "_all" | "_filteredChangesetById" | "_multipleById" | "_changesetById";
+type Route = "mail_folders" | "mail_items" | "containers/_subscriptions";
+type Method = "_all" | "_filteredChangesetById" | "_multipleById" | "_changesetById" | "_mgetById";
 
 interface MailAPIOptions {
     sid: string;
@@ -18,9 +25,15 @@ interface MailFolderAPI {
     changeset: ({ userId, domain }: { userId: string; domain: string }, version: number) => Promise<ChangeSet>;
 }
 
+interface OwnerSubscriptionsAPI {
+    fetch: ({ userId, domain }: { userId: string; domain: string }, ids: number[]) => Promise<OwnerSubscription[]>;
+    changeset: ({ userId, domain }: { userId: string; domain: string }, version: number) => Promise<ChangeSet>;
+}
+
 export class MailAPI {
     mailItem: MailItemAPI;
     mailFolder: MailFolderAPI;
+    ownerSubscriptions: OwnerSubscriptionsAPI;
 
     constructor(options: MailAPIOptions) {
         const requestInit: RequestInit = {
@@ -58,7 +71,7 @@ export class MailAPI {
                 const route: Route = "mail_folders";
                 const method: Method = "_all";
                 return fetchAPI<MailFolder[]>(
-                    `/api/${route}/${domain.replace(".", "_")}/${`user.${userId}`}/${method}`,
+                    `/api/${route}/${domain.replace(".", "_")}/user.${userId}/${method}`,
                     requestInit
                 );
             },
@@ -67,13 +80,33 @@ export class MailAPI {
                 const method: Method = "_changesetById";
                 const route: Route = "mail_folders";
                 return fetchAPI<ChangeSet>(
-                    `/api/${route}/${domain.replace(".", "_")}/${`user.${userId}`}/${method}?since=${version}`,
+                    `/api/${route}/${domain.replace(".", "_")}/user.${userId}/${method}?since=${version}`,
                     {
                         ...requestInit
                     }
                 );
             }
         };
+
+        this.ownerSubscriptions = {
+            fetch({ userId, domain }: { userId: string; domain: string }, ids: number[]) {
+                const route: Route = "containers/_subscriptions";
+                const method: Method = "_mgetById";
+                return fetchAPI<OwnerSubscription[]>(`/api/${route}/${domain}/${userId}/${method}`, {
+                    ...requestInit,
+                    body: JSON.stringify(ids),
+                    method: "POST"
+                });
+            },
+
+            async changeset({ userId, domain }: { userId: string; domain: string }, version: number) {
+                const route: Route = "containers/_subscriptions";
+                const method: Method = "_changesetById";
+                return fetchAPI<ChangeSet>(`/api/${route}/${domain}/${userId}/${method}?since=${version}`, {
+                    ...requestInit,
+                });
+            }
+        }
     }
 
     static async fetchSessionInfos(): Promise<SessionInfo> {

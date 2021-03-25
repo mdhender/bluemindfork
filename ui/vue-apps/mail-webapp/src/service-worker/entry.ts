@@ -85,3 +85,13 @@ export interface Flags {
     must: string[];
     mustNot: string[];
 }
+
+interface OwnerSubscriptionValue {
+    containerUid: string;
+    offlineSync: boolean;
+    containerType: string;
+    owner: string;
+    defaultContainer: boolean;
+    name: string;
+}
+export type OwnerSubscription = ItemValue<OwnerSubscriptionValue>;
