@@ -47,24 +47,6 @@ export default {
             messages.forEach(({ folderRef: { key } }) => state[key] && state[key].unread++);
         }
     },
-    [REMOVE_MESSAGES]: (state, messages) => {
-        messages.forEach(message => {
-            // FIXME: FEATWEBML-1387 (crappy NOT_LOADED hack)
-            if (message.date && !message.flags.includes(Flag.SEEN)) {
-                const folder = state[message.folderRef.key];
-                folder.unread--;
-            }
-        });
-    },
-    [MOVE_MESSAGES]: (state, { messages, folder }) => {
-        messages.forEach(message => {
-            // FIXME: FEATWEBML-1387
-            if (message.date && !message.flags.includes(Flag.SEEN)) {
-                state[message.folderRef.key].unread--;
-                state[folder.key].unread++;
-            }
-        });
-    },
     [SET_ACTIVE_FOLDER]: (state, folder) => {
         let parent = folder.parent && state[folder.parent];
         while (parent) {
