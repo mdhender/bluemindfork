@@ -18,6 +18,8 @@
  */
 package net.bluemind.icalendar.parser;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,21 +60,78 @@ public class ObservanceMapper {
 				addAccumulations(accumulation, timezones);
 			}
 			if (!accumulation.isEmpty()) {
-				mapping.put(id, getBestHit(accumulation));
+				mapping.put(id, getBestHit(accumulation, id));
 			}
 		}
 
 		return mapping;
 	}
 
-	private String getBestHit(Map<String, Integer> accumulation) {
-		Entry<String, Integer> bestHit = null;
+	private String getBestHit(Map<String, Integer> accumulation, String id) {
+		List<String> bestHits = new ArrayList<>();
+		int currentBestHit = 0;
 		for (Entry<String, Integer> entry : accumulation.entrySet()) {
-			if (bestHit == null || entry.getValue() > bestHit.getValue()) {
-				bestHit = entry;
+			if (entry.getValue() >= currentBestHit) {
+				if (entry.getValue() == currentBestHit) {
+					bestHits.add(entry.getKey());
+				} else {
+					bestHits = new ArrayList<>();
+					bestHits.add(entry.getKey());
+					currentBestHit = entry.getValue();
+				}
 			}
 		}
-		return bestHit.getKey();
+		if (bestHits.size() == 1 || isGenericDstId(id)) {
+			return bestHits.get(0);
+		} else {
+			return detectBestHitById(bestHits, id);
+		}
+
+	}
+
+	private boolean isGenericDstId(String id) {
+		String idToLower = id.toLowerCase();
+		return checkIdOccurrence(idToLower, "gmt") || checkIdOccurrence(idToLower, "utc");
+	}
+
+	private boolean checkIdOccurrence(String id, String genericId) {
+		return id.contains(genericId) && id.indexOf(genericId) != id.lastIndexOf(genericId);
+	}
+
+	private String detectBestHitById(List<String> bestHits, String id) {
+		String currentBestHit = null;
+		int currentMatches = 0;
+
+		String[] idCleaned = cleanId(id);
+		for (String candidate : bestHits) {
+			int matches = calculateMatches(cleanId(candidate), idCleaned);
+			if (matches >= currentMatches) {
+				currentBestHit = candidate;
+				currentMatches = matches;
+			}
+		}
+		if (currentMatches == 0) {
+			return bestHits.get(0);
+		}
+		return currentBestHit;
+	}
+
+	private int calculateMatches(String[] candidate, String[] id) {
+		int matches = 0;
+		for (String c : candidate) {
+			for (String i : id) {
+				if (c.equals(i)) {
+					matches++;
+				}
+			}
+		}
+		return matches;
+	}
+
+	private String[] cleanId(String id) {
+		String cleaned = id.toLowerCase().replaceAll("[^a-z0-9\\\\s]", " ");
+		return Arrays.asList(cleaned.split("\\s+")).stream().map(s -> s.trim()).filter(s -> !s.isEmpty())
+				.toArray(String[]::new);
 	}
 
 	private void addAccumulations(Map<String, Integer> accumulation, String[] timezones) {

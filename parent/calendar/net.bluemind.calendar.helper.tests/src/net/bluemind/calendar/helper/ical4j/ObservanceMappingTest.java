@@ -61,6 +61,22 @@ public class ObservanceMappingTest {
 
 	}
 
+	@Test
+	public void testVtimezoneParsingMexico() throws Exception {
+		try (Reader reader = new InputStreamReader(
+				ObservanceMappingTest.class.getClassLoader().getResourceAsStream("mexico.vtz.ics"), "utf-8")) {
+			List<CalendarComponent> calendarComponents = fromICS(reader);
+			ObservanceMapper mapper = ObservanceMapper.fromCalendarComponents(calendarComponents);
+			Map<String, String> timezoneMapping = mapper.getTimezoneMapping();
+			assertEquals(timezoneMapping.size(), 1);
+			Set<Entry<String, String>> entrySet = timezoneMapping.entrySet();
+			Entry<String, String> entry = entrySet.iterator().next();
+			assertEquals("Central Standard Time (Mexico)", entry.getKey());
+			assertEquals("America/Mexico_City", entry.getValue());
+		}
+
+	}
+
 	private List<CalendarComponent> fromICS(Reader reader) throws IOException, ParserException {
 		CalendarBuilder builder = new CalendarBuilder();
 		UnfoldingReader ur = new UnfoldingReader(reader, true);

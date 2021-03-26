@@ -934,7 +934,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		item = getCalendarService(userSecurityContext, userCalendarContainer)
 				.getComplete("Icalff9bb2a513c75f5f09f31b83a3a4ac63");
 		event = item.value.main;
-		assertEquals(ZonedDateTime.of(2012, 6, 28, 15, 0, 0, 0, ZoneId.of("Pacific/Port_Moresby")),
+		assertEquals(ZonedDateTime.of(2012, 6, 28, 15, 0, 0, 0, ZoneId.of("Australia/Sydney")),
 				new BmDateTimeWrapper(event.dtstart).toDateTime());
 	}
 
