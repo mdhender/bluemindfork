@@ -59,9 +59,7 @@
         	database="net.bluemind.system.schemaupgrader.UpgraderDatabase$ALL" 
         	date_yyyyMMdd="20200428" 
         	sequence="10"
-            build_number="46526"
             ignore_errors="false"
-            major="5"
             script="sql/mapi-rules.1.0.0.sql">
       </sql>
    </extension>
