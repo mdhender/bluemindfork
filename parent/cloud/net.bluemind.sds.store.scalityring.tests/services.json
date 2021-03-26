@@ -7,13 +7,5 @@
 	},
 	{
 		"name": "bluemind/imap-role"
-	},
-	{
-		"name":	"bluemind/scalityring",
-		"devices": [{
- 			"localPath":"/dev/fuse",
- 			"containerPath":"/dev/fuse"
-		}],
-		"capabilities": ["SYS_ADMIN"]
 	}
 ]
