@@ -39,6 +39,12 @@ net.bluemind.contact.Messages.errorCreate = function(msg) {
   return MSG_ERROR;
 }
 
+net.bluemind.contact.Messages.createErrorMaxItemsCount = function() {
+  /** @meaning generic.createErrorMaxItemsCount */
+  var MSG_ERROR = goog.getMsg('Maximum number of contacts exceeded');
+  return MSG_ERROR;
+}
+
 net.bluemind.contact.Messages.successCreate = function() {
   /** @meaning contact.create.success */
   var MSG_ERROR = goog.getMsg('Contact created');

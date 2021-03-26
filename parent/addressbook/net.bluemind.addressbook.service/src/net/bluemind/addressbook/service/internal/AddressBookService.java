@@ -81,6 +81,8 @@ import net.bluemind.lib.vertx.VertxPlatform;
 public class AddressBookService implements IInCoreAddressBook {
 	private static final Logger logger = LoggerFactory.getLogger(AddressBookService.class);
 
+	private static final int MAX_SIZE = 15000;
+
 	private static final String CONTAINER_UID_PARAM = "containerUid";
 
 	private VCardContainerStoreService storeService;
@@ -146,6 +148,11 @@ public class AddressBookService implements IInCoreAddressBook {
 
 	@SuppressWarnings("serial")
 	private long doCreate(String uid, Long internalId, VCard card, byte[] photo) {
+
+		if (!isDomainAddressbook() && storeService.getItemCount() >= MAX_SIZE) {
+			throw new ServerFault("Max items count in addressbook exceeded", ErrorCode.MAX_ITEMS_COUNT);
+		}
+
 		// ext point sanitizer
 		extSanitizer.create(card, ImmutableMap.of(CONTAINER_UID_PARAM, container.uid));
 
@@ -387,6 +394,20 @@ public class AddressBookService implements IInCoreAddressBook {
 	public ContainerUpdatesResult updates(VCardChanges changes) {
 		rbacManager.check(Verb.Write.name());
 		boolean change = false;
+
+		int current = storeService.getItemCount();
+		int added = changes.add != null ? changes.add.size() : 0;
+		int deleted = changes.delete != null ? changes.delete.size() : 0;
+
+		int newSize = current + added - deleted;
+
+		if (!isDomainAddressbook() && newSize > MAX_SIZE) {
+			ContainerUpdatesResult ret = new ContainerUpdatesResult();
+			ret.errors = new ArrayList<>();
+			ret.errors.add(ContainerUpdatesResult.InError.create("Max items count in addressbook exceeded",
+					ErrorCode.MAX_ITEMS_COUNT, null));
+			return ret;
+		}
 
 		ContainerUpdatesResult ret = new ContainerUpdatesResult();
 		ret.added = new ArrayList<String>();
@@ -663,4 +684,7 @@ public class AddressBookService implements IInCoreAddressBook {
 		ids.forEach(this::deleteById);
 	}
 
+	private boolean isDomainAddressbook() {
+		return container.uid.equals(container.owner);
+	}
 }

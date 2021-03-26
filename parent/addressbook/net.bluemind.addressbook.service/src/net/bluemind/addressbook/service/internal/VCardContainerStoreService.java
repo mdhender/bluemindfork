@@ -213,4 +213,13 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 		}
 	}
 
+	public int getItemCount() {
+		try {
+			return itemStore.getItemCount();
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+
+	}
+
 }

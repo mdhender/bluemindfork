@@ -201,13 +201,16 @@ net.bluemind.contact.vcard.VCardEditPresenter.prototype.handleSave = function(ev
     // FIXME: location
     this.ctx.helper('url').goTo('/vcard/edit?uid=' + vcard['uid'] + '&container=' + vcard['container'], 'vcontainer');
   }, function(error) {
-
     if (alreadyExists) {
       goog.log.error(this.logger, 'error during card ' + vcard['uid'] + ' update', error);
       this.ctx.notifyError(net.bluemind.contact.Messages.errorUpdate(error), error);
     } else {
       goog.log.error(this.logger, 'error during card creation', error);
-      this.ctx.notifyError(net.bluemind.contact.Messages.errorCreate(error), error);
+      if (error['errorCode'] == 'MAX_ITEMS_COUNT'){
+        this.ctx.notifyError(net.bluemind.contact.Messages.createErrorMaxItemsCount(), error);
+      } else {
+        this.ctx.notifyError(net.bluemind.contact.Messages.errorCreate(error), error);
+      } 
     }
   }, this);
 };
