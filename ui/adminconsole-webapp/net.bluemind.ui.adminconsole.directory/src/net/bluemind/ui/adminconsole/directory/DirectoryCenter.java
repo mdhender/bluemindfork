@@ -73,6 +73,8 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtScreenRoot;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtScreenRoot;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
+import net.bluemind.server.api.IServerPromise;
+import net.bluemind.server.api.gwt.endpoint.ServerGwtEndpoint;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
 import net.bluemind.ui.adminconsole.base.IDomainChangedListener;
 import net.bluemind.ui.adminconsole.base.SubscriptionInfoHolder;
@@ -273,6 +275,15 @@ public class DirectoryCenter extends Composite implements IGwtScreenRoot, IDomai
 		find();
 	}
 
+	@UiField
+	ListBox filterByShard;
+
+	@UiHandler("filterByShard")
+	void filterByShardChanged(ChangeEvent e) {
+		pager.firstPage();
+		find();
+	}
+
 	private ScreenRoot instance;
 
 	protected DirectoryCenter(ScreenRoot instance) {
@@ -315,7 +326,6 @@ public class DirectoryCenter extends Composite implements IGwtScreenRoot, IDomai
 		if (SubscriptionInfoHolder.subIncludesSimpleAccount()) {
 			filterBox.addItem(DirectoryCenterConstants.INST.fullAccount(), DirEntry.AccountType.FULL.name());
 			filterBox.addItem(DirectoryCenterConstants.INST.basicAccount(), DirEntry.AccountType.SIMPLE.name());
-
 		}
 
 		newButtonContainer.getElement().setId("directory-center-new");
@@ -327,6 +337,7 @@ public class DirectoryCenter extends Composite implements IGwtScreenRoot, IDomai
 		externalUserFilter.getElement().setId("directory-center-toggle-externaluser");
 		filterBox.getElement().setId("directory-center-suspended");
 		search.getElement().setId("directory-center-search");
+		filterByShard.getElement().setId("directory-center-filter-by-shard");
 
 	}
 
@@ -423,6 +434,10 @@ public class DirectoryCenter extends Composite implements IGwtScreenRoot, IDomai
 					dq.kindsFilter.add(Kind.CALENDAR);
 					dq.kindsFilter.add(Kind.ADDRESSBOOK);
 					dq.kindsFilter.add(Kind.EXTERNALUSER);
+				}
+
+				if (filterByShard.getSelectedValue() != null) {
+					dq.dataLocation = filterByShard.getSelectedValue();
 				}
 
 				dq.onlyManagable = true;
@@ -529,7 +544,12 @@ public class DirectoryCenter extends Composite implements IGwtScreenRoot, IDomai
 	}
 
 	protected void onScreenShown() {
-		DirectoryState state = DirectoryState.state(DomainsHolder.get().getSelectedDomain().uid);
+
+		String domainUid = DomainsHolder.get().getSelectedDomain().uid;
+		DirectoryState state = DirectoryState.state(domainUid);
+
+		shardList(domainUid);
+
 		userFilter.setValue(state.isUserFilter());
 
 		groupFilter.setValue(state.isGroupFilter());
@@ -575,6 +595,18 @@ public class DirectoryCenter extends Composite implements IGwtScreenRoot, IDomai
 	@Override
 	public void doLoad(ScreenRoot instance) {
 
+	}
+
+	private void shardList(String domainUid) {
+		IServerPromise serverService = new ServerGwtEndpoint(Ajax.TOKEN.getSessionId(), "default").promiseApi();
+		serverService.getAssignments(domainUid).thenAccept(servers -> {
+			filterByShard.addItem(constants.all(), "");
+			servers.forEach(server -> {
+				if ("mail/imap".equals(server.tag)) {
+					filterByShard.addItem(server.serverUid);
+				}
+			});
+		});
 	}
 
 	public static void registerType() {

@@ -34,6 +34,8 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
@@ -41,7 +43,6 @@ import net.bluemind.core.container.persistence.AbstractItemValueStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.container.persistence.StringCreator;
 import net.bluemind.core.utils.JsonUtils;
-import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.BaseDirEntry.AccountType;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
@@ -55,7 +56,6 @@ public class DirEntryStore extends AbstractItemValueStore<DirEntry> {
 	private static final Logger logger = LoggerFactory.getLogger(DirEntryStore.class);
 
 	private static final Creator<DirEntry> ENTRY_CREATOR = con -> new DirEntry();
-	private static final Creator<BaseDirEntry> BASEDIRENTRY_CREATOR = con -> new BaseDirEntry();
 
 	private Container container;
 
@@ -179,7 +179,10 @@ public class DirEntryStore extends AbstractItemValueStore<DirEntry> {
 
 	public ListResult<Item> search(DirEntryQuery q) throws SQLException {
 		unaccent(q);
-		String withQuery = "WITH qp AS ( SELECT (?::text[]) as kind, (?::t_directory_entry_account_type) as account_type, (?::text) as name, (?::text) as nameOrEmail,(?::text) as nameOrEmailSplitted, (?::text) as email, (?::text) as emailLeftPart, (?::text) as hidden, (?::text) as system ,(?::text[]) as entryuid, (?::boolean) as archived) ";
+		String withQuery = "WITH qp AS ( SELECT (?::text[]) as kind, (?::t_directory_entry_account_type) as account_type, "
+				+ "(?::text) as name, (?::text) as nameOrEmail,(?::text) as nameOrEmailSplitted, (?::text) as email, (?::text) as emailLeftPart, "
+				+ "(?::text) as hidden, (?::text) as system ,(?::text[]) as entryuid, (?::boolean) as archived, "
+				+ "(?::text) as datalocation) ";
 
 		String baseQuery = " from t_container_item item, t_directory_entry dir, qp "
 				+ " WHERE item.id = dir.item_id AND item.container_id = ? "
@@ -191,7 +194,8 @@ public class DirEntryStore extends AbstractItemValueStore<DirEntry> {
 				+ " AND ( qp.hidden is null or dir.flag_hidden = false )"
 				+ " AND ( qp.system is null or dir.flag_system = false )"
 				+ " AND ( qp.entryuid is null or item.uid = ANY ( entryuid ))" //
-				+ " AND ( qp.archived is null or dir.flag_archived = qp.archived )";
+				+ " AND ( qp.archived is null or dir.flag_archived = qp.archived )" //
+				+ " AND ( qp.datalocation is null or dir.datalocation = qp.datalocation )";
 
 		String countQuery = withQuery + " select count(item_id) " + baseQuery;
 
@@ -306,6 +310,12 @@ public class DirEntryStore extends AbstractItemValueStore<DirEntry> {
 			params.add(null);
 		}
 
+		if (!Strings.isNullOrEmpty(q.dataLocation)) {
+			params.add(q.dataLocation);
+		} else {
+			params.add(null);
+		}
+
 		params.add(container.id);
 
 		int count = -1;
@@ -369,7 +379,9 @@ public class DirEntryStore extends AbstractItemValueStore<DirEntry> {
 				+ " (?::text) as hidden, " //
 				+ " (?::text) as system , "//
 				+ " (?::text[]) as entryuid, " //
-				+ " (?::boolean) as archived," + " (?::text[]) as root_kind" //
+				+ " (?::boolean) as archived," //
+				+ " (?::text[]) as root_kind, " //
+				+ " (?::text) as datalocation " //
 				+ ") AS parameters";
 
 		String baseQuery = " FROM  t_container_item item " //
@@ -390,7 +402,8 @@ public class DirEntryStore extends AbstractItemValueStore<DirEntry> {
 				+ " AND ( parameters.system is null or dir.flag_system = false )"
 				+ " AND ( parameters.entryuid is null or item.uid = ANY ( parameters.entryuid ))" //
 				+ " AND ( parameters.archived is null or dir.flag_archived = parameters.archived )" //
-				+ " AND ( dir.kind = ANY(parameters.root_kind) OR ou.id IS NOT NULL ) ";
+				+ " AND ( dir.kind = ANY(parameters.root_kind) OR ou.id IS NOT NULL ) "
+				+ " AND ( parameters.datalocation is null or dir.datalocation = parameters.datalocation)";
 
 		String countQuery = "WITH" + ou + " SELECT count(dir.item_id) " + baseQuery;
 
@@ -508,6 +521,12 @@ public class DirEntryStore extends AbstractItemValueStore<DirEntry> {
 			params.add(null);
 		}
 		params.add(rootKinds.stream().map(Kind::toString).toArray(size -> new String[size]));
+
+		if (!Strings.isNullOrEmpty(q.dataLocation)) {
+			params.add(q.dataLocation);
+		} else {
+			params.add(null);
+		}
 
 		params.add(container.id);
 		int count = -1;

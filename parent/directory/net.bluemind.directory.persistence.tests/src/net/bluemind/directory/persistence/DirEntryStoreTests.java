@@ -77,7 +77,7 @@ public class DirEntryStoreTests {
 
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 		String containerId = "test_" + System.nanoTime();
 		Container container = Container.create(containerId, DirectoryContainerType.TYPE, "test", "me", true);
@@ -688,5 +688,49 @@ public class DirEntryStoreTests {
 		DirEntry entry = dirEntryStore.get(item);
 		assertNotNull(entry);
 		return entry;
+	}
+
+	@Test
+	public void testSearchByDataLocation() throws SQLException {
+		creates(true, DirEntry.create(null, "bm.lan/users/jojo", DirEntry.Kind.USER, "jojo", "jojo", "jojo@test.com",
+				false, false, false, "datalocation"));
+
+		DirEntryQuery query = new DirEntryQuery();
+		query.dataLocation = "datalocation";
+		ListResult<Item> res = dirEntryStore.search(query);
+		assertEquals(1, res.total);
+
+		query = new DirEntryQuery();
+		query.dataLocation = null;
+		res = dirEntryStore.search(query);
+		assertEquals(1, res.total);
+
+		query = new DirEntryQuery();
+		query.dataLocation = "nein-nein-nein";
+		res = dirEntryStore.search(query);
+		assertEquals(0, res.total);
+	}
+
+	@Test
+	public void testSearchManageableByDataLocation() throws SQLException {
+		creates(true, DirEntry.create(null, "bm.lan/users/jojo", DirEntry.Kind.USER, "jojo", "jojo", "jojo@test.com",
+				false, false, false, "datalocation"));
+
+		DirEntryQuery query = new DirEntryQuery();
+		query.dataLocation = "datalocation";
+		List<ManageableOrgUnit> manageable = Arrays.asList(new ManageableOrgUnit(null, ImmutableSet.of(Kind.USER)));
+
+		ListResult<Item> res = dirEntryStore.searchManageable(query, manageable);
+		assertEquals(1, res.total);
+
+		query = new DirEntryQuery();
+		query.dataLocation = null;
+		res = dirEntryStore.searchManageable(query, manageable);
+		assertEquals(1, res.total);
+
+		query = new DirEntryQuery();
+		query.dataLocation = "nein-nein-nein";
+		res = dirEntryStore.searchManageable(query, manageable);
+		assertEquals(0, res.total);
 	}
 }

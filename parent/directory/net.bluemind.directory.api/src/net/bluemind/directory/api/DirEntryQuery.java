@@ -90,6 +90,11 @@ public class DirEntryQuery {
 	 */
 	public boolean onlyManagable = false;
 
+	/**
+	 * Filter by data location
+	 */
+	public String dataLocation;
+
 	@BMApi(version = "3")
 	public static enum StateFilter {
 		Archived, Active, All
@@ -124,8 +129,7 @@ public class DirEntryQuery {
 	/**
 	 * Creates a query which filters by the given UIDs
 	 * 
-	 * @param uids
-	 *                 List of UIDs
+	 * @param uids List of UIDs
 	 * @return {@link DirEntryQuery}
 	 */
 	public static DirEntryQuery entries(List<String> uids) {
@@ -137,8 +141,7 @@ public class DirEntryQuery {
 	/**
 	 * Creates a query which filters by the given UIDs
 	 * 
-	 * @param uids
-	 *                 Array of UIDs
+	 * @param uids Array of UIDs
 	 * @return {@link DirEntryQuery}
 	 */
 	public static DirEntryQuery entries(String... uid) {
@@ -159,10 +162,8 @@ public class DirEntryQuery {
 	/**
 	 * Sets the sort order
 	 * 
-	 * @param by
-	 *                Defines the property used by the order statement
-	 * @param dir
-	 *                The sort order
+	 * @param by  Defines the property used by the order statement
+	 * @param dir The sort order
 	 * @return the Order object
 	 */
 	public static Order order(OrderBy by, Dir dir) {
@@ -175,8 +176,7 @@ public class DirEntryQuery {
 	/**
 	 * Creates a query which filters by the kind parameter
 	 * 
-	 * @param kinds
-	 *                  The requested kinds
+	 * @param kinds The requested kinds
 	 * @return {@link DirEntryQuery}
 	 */
 	public static DirEntryQuery filterKind(DirEntry.Kind... kinds) {
@@ -188,8 +188,7 @@ public class DirEntryQuery {
 	/**
 	 * Creates a query which filters by name
 	 * 
-	 * @param name
-	 *                 The name
+	 * @param name The name
 	 * @return {@link DirEntryQuery}
 	 */
 	public static DirEntryQuery filterName(String name) {
@@ -201,8 +200,7 @@ public class DirEntryQuery {
 	/**
 	 * Creates a query which filters by email
 	 * 
-	 * @param email
-	 *                  The email address
+	 * @param email The email address
 	 * @return {@link DirEntryQuery}
 	 */
 	public static DirEntryQuery filterEmail(String email) {
@@ -214,8 +212,7 @@ public class DirEntryQuery {
 	/**
 	 * Creates a query which filters by the UID parameter
 	 * 
-	 * @param entryUids
-	 *                      Array of UIDs
+	 * @param entryUids Array of UIDs
 	 * @return {@link DirEntryQuery}
 	 */
 	public static DirEntryQuery filterEntryUid(String... entryUids) {
@@ -227,8 +224,7 @@ public class DirEntryQuery {
 	/**
 	 * Creates a query which filters by name or email
 	 * 
-	 * @param string
-	 *                   search value
+	 * @param string search value
 	 * @return {@link DirEntryQuery}
 	 */
 	public static DirEntryQuery filterNameOrEmail(String string) {

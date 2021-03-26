@@ -1,7 +1,9 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
-	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
-	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
 	xmlns:dc="urn:import:net.bluemind.ui.adminconsole.directory"
 	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
 	xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
@@ -67,38 +69,52 @@
 			<g:FlowPanel>
 
 				<g:FlowPanel styleName="{style.filtersContainer}">
-					<g:ToggleButton ui:field="userFilter" title="{tips.iconTipUser}"
+					<g:ToggleButton ui:field="userFilter"
+						title="{tips.iconTipUser}"
 						styleName="fa fa-user button button-first {style.filter-button}">
 					</g:ToggleButton>
 
-					<g:ToggleButton ui:field="groupFilter" title="{tips.iconTipGroup}"
+					<g:ToggleButton ui:field="groupFilter"
+						title="{tips.iconTipGroup}"
 						styleName="fa fa-users button button-middle {style.filter-button}">
 					</g:ToggleButton>
 
-					<g:ToggleButton ui:field="resourceFilter" title="{tips.iconTipResource}"
+					<g:ToggleButton ui:field="resourceFilter"
+						title="{tips.iconTipResource}"
 						styleName="fa fa-briefcase button button-middle {style.filter-button}">
 					</g:ToggleButton>
 
-					<g:ToggleButton ui:field="mailshareFilter" title="{tips.iconTipMailshare}"
+					<g:ToggleButton ui:field="mailshareFilter"
+						title="{tips.iconTipMailshare}"
 						styleName="fa fa-inbox button button-middle {style.filter-button}">
 					</g:ToggleButton>
-					
-					<g:ToggleButton ui:field="externalUserFilter" title="{tips.iconTipExternalUser}"
+
+					<g:ToggleButton ui:field="externalUserFilter"
+						title="{tips.iconTipExternalUser}"
 						styleName="fa fa-user-secret button button-middle {style.filter-button}">
 					</g:ToggleButton>
 
-					<g:ToggleButton ui:field="calendarFilter" title="{tips.iconTipCalendar}"
+					<g:ToggleButton ui:field="calendarFilter"
+						title="{tips.iconTipCalendar}"
 						styleName="fa fa-calendar button button-middle {style.filter-button}">
 					</g:ToggleButton>
 
-					<g:ToggleButton ui:field="abFilter" title="{tips.iconTipAddressBook}"
+					<g:ToggleButton ui:field="abFilter"
+						title="{tips.iconTipAddressBook}"
 						styleName="fa fa-book button button-middle {style.filter-button}">
 					</g:ToggleButton>
 
-					<g:ListBox ui:field="filterBox" styleName="{style.lb} button button-middle">
+					<g:ListBox ui:field="filterBox"
+						styleName="{style.lb} button button-middle">
 					</g:ListBox>
 
-					<g:TextBox ui:field="search" styleName="button-last {style.search}" />
+					<g:ListBox ui:field="filterByShard"
+						styleName="{style.lb} button button-middle">
+					</g:ListBox>
+
+
+					<g:TextBox ui:field="search"
+						styleName="button-last {style.search}" />
 				</g:FlowPanel>
 
 				<g:FlowPanel>
