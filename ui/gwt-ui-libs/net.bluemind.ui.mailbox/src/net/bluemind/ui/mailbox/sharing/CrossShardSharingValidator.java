@@ -24,21 +24,20 @@ import net.bluemind.ui.gwtsharing.client.ValidationResult;
 import net.bluemind.ui.mailbox.l10n.MailboxConstants;
 
 public class CrossShardSharingValidator implements IAclEntityValidator {
-		
-		private IMailboxSharingEditor editor;
 
-		public  CrossShardSharingValidator(IMailboxSharingEditor editor) {
-			this.editor = editor;
+	private IMailboxSharingEditor editor;
+
+	public CrossShardSharingValidator(IMailboxSharingEditor editor) {
+		this.editor = editor;
+	}
+
+	@Override
+	public ValidationResult validate(AclEntity subject) {
+		String containerDatalocation = editor.getMailboxDataLocation();
+		if (containerDatalocation != null && containerDatalocation.equals(subject.getEntry().dataLocation)) {
+			return ValidationResult.valid();
+		} else {
+			return ValidationResult.invalid(MailboxConstants.INST.crossShardSharingForbidden());
 		}
-		
-		@Override
-		public ValidationResult validate(AclEntity subject) {
-			
-			String containerDatalocation = editor.getMailboxDataLocation();
-			if (containerDatalocation.equals(subject.getEntry().dataLocation)) {
-				return ValidationResult.valid();
-			} else {
-				return ValidationResult.invalid(MailboxConstants.INST.crossShardSharingForbidden());
-			}
-		}
+	}
 }

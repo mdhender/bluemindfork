@@ -17,5 +17,6 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.mailbox.api;bundle-version="4.1.0",
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.backend.mail.api,
- net.bluemind.backend.mail.replica.api
+ net.bluemind.backend.mail.replica.api,
+ net.bluemind.role.api
 Automatic-Module-Name: net.bluemind.eas.service

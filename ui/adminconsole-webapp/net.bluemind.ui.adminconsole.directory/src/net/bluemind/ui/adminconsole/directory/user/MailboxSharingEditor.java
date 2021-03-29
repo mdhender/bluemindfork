@@ -44,7 +44,9 @@ public class MailboxSharingEditor extends BaseSharingEditor implements IMailboxS
 	public void loadModel(JavaScriptObject model) {
 		super.loadModel(model);
 		SharingModel sm = SharingModel.get(model, MailboxSharingModelHandler.MODEL_ID);
-		dataLocation = sm.getDataLocation();
+		if (sm != null) {
+			dataLocation = sm.getDataLocation();
+		}
 		edit.setPublicSharingVisible(false);
 	}
 

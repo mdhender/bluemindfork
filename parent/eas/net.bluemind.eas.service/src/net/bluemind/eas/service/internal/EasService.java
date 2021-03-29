@@ -24,12 +24,14 @@ import java.util.Map;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.eas.api.Account;
 import net.bluemind.eas.api.FolderSyncVersions;
 import net.bluemind.eas.api.Heartbeat;
 import net.bluemind.eas.api.IEas;
 import net.bluemind.eas.persistence.EasStore;
+import net.bluemind.role.api.BasicRoles;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
@@ -83,7 +85,9 @@ public class EasService implements IEas {
 
 	@Override
 	public void insertPendingReset(Account account) throws ServerFault {
-		checkAccess();
+		RBACManager rbacManager = new RBACManager(context).forContainer("device:" + account.userUid)
+				.forEntry(account.userUid);
+		rbacManager.check(BasicRoles.ROLE_MANAGE_USER_DEVICE);
 		store.insertPendingReset(account);
 	}
 
