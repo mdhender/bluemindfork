@@ -43,7 +43,10 @@ export default {
             const mailboxes = (await inject("ContainersPersistence").getContainers(mailboxUids))
                 .map(MailboxAdaptor.fromMailboxContainer)
                 .filter(Boolean)
-                .filter(({ key }) => !state[key] || state[key].loading !== LoadingStatus.LOADED);
+                .map(mailbox => {
+                    mailbox.loading = state[mailbox.key]?.loading || mailbox.loading;
+                    return mailbox;
+                });
             commit(ADD_MAILBOXES, mailboxes);
         }
     }
