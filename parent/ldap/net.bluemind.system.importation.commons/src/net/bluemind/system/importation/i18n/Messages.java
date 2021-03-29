@@ -85,24 +85,6 @@ public class Messages {
 		return messages;
 	}
 
-	public static Map<String, String> failedToFindUserByExtId(ItemValue<Group> currentGroup, String userExtId) {
-		Map<String, String> messages = new HashMap<String, String>(2);
-		messages.put("en", "Unable to find BlueMind user with extId: " + userExtId + " who is member of group: "
-				+ currentGroup.value.name);
-		messages.put("fr", "Impossible de trouver l'utilisateur BlueMind avec l'extId: " + userExtId
-				+ " membre du groupe: " + currentGroup.value.name);
-		return messages;
-	}
-
-	public static Map<String, String> failedToFindGroupByExtId(ItemValue<Group> currentGroup, String groupExtId) {
-		Map<String, String> messages = new HashMap<String, String>(2);
-		messages.put("en", "Unable to find BlueMind group with extId: " + groupExtId + " who is member of group: "
-				+ currentGroup.value.name);
-		messages.put("fr", "Impossible de trouver le groupe BlueMind avec l'extId: " + groupExtId
-				+ " membre du groupe: " + currentGroup.value.name);
-		return messages;
-	}
-
 	public static Map<String, String> failedToDeleteGroup(String deletedGroupUID, ServerFault sf) {
 		Map<String, String> messages = new HashMap<String, String>(2);
 		messages.put("en", "Fail to delete BM group UID: " + deletedGroupUID + ", error: " + sf.getMessage() + " ("
@@ -116,6 +98,13 @@ public class Messages {
 		Map<String, String> messages = new HashMap<String, String>(2);
 		messages.put("en", "Group member not found: " + groupMember + " - Ignoring");
 		messages.put("fr", "Membre non trouvé: " + groupMember + " - Ignoré");
+		return messages;
+	}
+
+	public static Map<String, String> groupMemberCheckFail(String groupMember, LdapException le) {
+		Map<String, String> messages = new HashMap<String, String>(2);
+		messages.put("en", "Unable to get group member: " + groupMember + ": " + le.getMessage());
+		messages.put("fr", "Impossible de trouver le membre: " + groupMember + ": " + le.getMessage());
 		return messages;
 	}
 

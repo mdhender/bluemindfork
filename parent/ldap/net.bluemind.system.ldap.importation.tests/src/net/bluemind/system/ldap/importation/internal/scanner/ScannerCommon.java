@@ -65,6 +65,7 @@ import net.bluemind.group.api.Member;
 import net.bluemind.lib.ldap.LdapConProxy;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.scheduledjob.api.JobExitStatus;
 import net.bluemind.system.importation.commons.UuidMapper;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.importation.commons.scanner.RepportStatus;
@@ -539,6 +540,49 @@ public abstract class ScannerCommon {
 
 		assertEquals(0, coreService.createdGroups.size());
 		assertEquals(0, coreService.updatedGroups.size());
+	}
+
+	@Test
+	public void incrementalAddMember() throws LdapInvalidDnException, ServerFault, IOException, LdapException,
+			CursorException, LdapSearchException, InterruptedException {
+		CoreServicesTest coreService = new CoreServicesTest();
+
+		Entry group01Entry = getExistingGroupEntry("cn=grptest01," + LdapDockerTestHelper.LDAP_ROOT_DN);
+		ItemValue<Group> group01 = getExistingGroup(group01Entry.getDn().getName());
+		coreService.addExistingGroup(group01);
+
+		Thread.sleep(1500);
+		String beforeDate = getDate();
+		Thread.sleep(1500);
+		updateEntry(group01Entry);
+
+		ImportLogger importLogger = getImportLogger();
+
+		System.out.println("Scan from: " + beforeDate);
+		scanLdap(importLogger, coreService, LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()),
+				Optional.of(beforeDate));
+
+		assertEquals(0, coreService.suspendedUserUids.size());
+		assertEquals(0, coreService.updatedUsers.size());
+
+		assertEquals(0, coreService.deletedGroupUids.size());
+
+		assertEquals(2, coreService.createdUsers.size());
+		assertEquals(getDomain().name.equals("memberuid.virt") ? 0 : 1, coreService.createdGroups.size());
+		assertEquals(1, coreService.updatedGroups.size());
+
+		assertEquals(getDomain().name.equals("memberuid.virt") ? 1 : 2, coreService.groupMembersToAdd.size());
+
+		assertTrue(coreService.groupMembersToAdd.containsKey(group01.uid));
+		assertEquals(2, coreService.groupMembersToAdd.get(group01.uid).size());
+
+		if (!getDomain().name.equals("memberuid.virt")) {
+			assertTrue(coreService.groupMembersToAdd.containsKey(coreService.createdGroups.keySet().iterator().next()));
+			assertEquals(1,
+					coreService.groupMembersToAdd.get(coreService.createdGroups.keySet().iterator().next()).size());
+		}
+
+		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
 	}
 
 	@Test

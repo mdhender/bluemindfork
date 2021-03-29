@@ -62,7 +62,15 @@ public class LdapSearch extends DirectorySearch<LdapParameters> {
 				ldapParameters.ldapDirectory.extIdAttribute);
 	}
 
-	public Optional<Entry> getUserUUID(LdapConnection ldapCon, Dn userDn) throws LdapException {
+	/**
+	 * Get user entry from DN considering user filter and ignoring incremental mode
+	 * 
+	 * @param ldapCon
+	 * @param userDn
+	 * @return
+	 * @throws LdapException
+	 */
+	public Optional<Entry> findUserFromDn(LdapConnection ldapCon, Dn userDn) throws LdapException {
 		try (PagedSearchResult cursor = super.findByFilterAndBaseDnAndScopeAndAttributes(ldapCon,
 				userFilter.getSearchFilter(ldapParameters, Optional.empty(), null, null), userDn, SearchScope.OBJECT,
 				ldapParameters.ldapDirectory.extIdAttribute)) {
@@ -72,6 +80,15 @@ public class LdapSearch extends DirectorySearch<LdapParameters> {
 		}
 	}
 
+	/**
+	 * Get group entry from DN considering group filter and ignoring incremental
+	 * mode
+	 * 
+	 * @param ldapCon
+	 * @param userDn
+	 * @return
+	 * @throws LdapException
+	 */
 	public Optional<Entry> getGroupFromDn(LdapConnection ldapCon, Dn groupDn) throws LdapException {
 		try (PagedSearchResult cursor = super.findByFilterAndBaseDnAndScopeAndAttributes(ldapCon,
 				groupFilter.getSearchFilter(ldapParameters, Optional.empty(), null, null), groupDn, SearchScope.OBJECT,

@@ -130,7 +130,7 @@ public class LdapSearchTests {
 		LdapSearch search = new LdapSearch(ldapParameters);
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
-			Optional<Entry> entry = search.getUserUUID(connection,
+			Optional<Entry> entry = search.findUserFromDn(connection,
 					new Dn("uid=user00," + LdapDockerTestHelper.LDAP_ROOT_DN));
 
 			Assert.assertTrue(entry.isPresent());

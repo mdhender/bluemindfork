@@ -280,26 +280,27 @@ public abstract class Scanner {
 		}
 
 		List<GroupManager> groupEntries = new ArrayList<>();
-		for (Dn entryDn : entriesDn) {
-			Entry entry = null;
-			try {
-				entry = ldapCon.lookup(entryDn, "*", "+", "modifyTimestamp",
-						getParameter().ldapDirectory.extIdAttribute);
-			} catch (LdapException le) {
-				logger.error(String.format("%s: %s", entryDn.getName(), le.getMessage()), le);
-				importLogger.error(Messages.failedLookupEntryDn(entryDn, le));
-				continue;
-			}
-
-			logger.info("Managing Ldap group: {}", entry.getDn().getName());
-
-			getGroupManager(entry).ifPresent(groupManager -> applyGroupManagerUpdates(groupManager, groupEntries));
-		}
+		entriesDn.forEach(groupDn -> manageGroup(groupDn).ifPresent(groupEntries::add));
 
 		groupEntries.forEach(this::manageGroupMembers);
 	}
 
-	private void applyGroupManagerUpdates(GroupManager groupManager, List<GroupManager> groupEntries) {
+	private Optional<GroupManager> manageGroup(Dn groupDn) {
+		Entry entry = null;
+		try {
+			entry = ldapCon.lookup(groupDn, "*", "+", "modifyTimestamp", getParameter().ldapDirectory.extIdAttribute);
+		} catch (LdapException le) {
+			logger.error(String.format("%s: %s", groupDn.getName(), le.getMessage()), le);
+			importLogger.error(Messages.failedLookupEntryDn(groupDn, le));
+			return Optional.empty();
+		}
+
+		logger.info("Managing Ldap group: {}", entry.getDn().getName());
+
+		return getGroupManager(entry).map(this::applyGroupManagerUpdates).orElse(Optional.empty());
+	}
+
+	private Optional<GroupManager> applyGroupManagerUpdates(GroupManager groupManager) {
 		try {
 			ItemValue<Group> currentGroup = coreService.getGroupByExtId(groupManager.getExternalId(importLogger));
 			groupManager.update(importLogger, currentGroup);
@@ -312,19 +313,21 @@ public abstract class Scanner {
 				coreService.updateGroup(groupManager.group);
 			}
 
-			groupEntries.add(groupManager);
+			return Optional.of(groupManager);
 		} catch (Exception e) {
 			logger.error("Fail to manage group: " + groupManager.entry.getDn().getName(), e);
 			importLogger.error(Messages.failedToManageBMGroup(groupManager.entry, e));
 		}
+
+		return Optional.empty();
 	}
 
 	private void manageGroupMembers(GroupManager groupManager) {
-		// Getting BM group users members
-		Set<Member> bmGroupMembers = new HashSet<>(coreService.getGroupMembers(groupManager.group.uid));
-
 		// Getting LDAP group users members
 		Set<Member> ldapGroupMembers = getGroupMembers(groupManager);
+
+		// Getting BM group users members
+		Set<Member> bmGroupMembers = new HashSet<>(coreService.getGroupMembers(groupManager.group.uid));
 
 		SetView<Member> membersToRemove = Sets.difference(bmGroupMembers, ldapGroupMembers);
 		if (!membersToRemove.isEmpty()) {
@@ -383,11 +386,11 @@ public abstract class Scanner {
 				continue;
 			}
 
-			Optional<Member> member = getUserMember(groupManager, memberDn.get());
+			Optional<Member> member = getUserMember(memberDn.get());
 			if (member.isPresent()) {
 				members.add(member.get());
 			} else {
-				member = getGroupMember(groupManager, memberDn.get());
+				member = getGroupMember(memberDn.get());
 				if (member.isPresent()) {
 					members.add(member.get());
 				} else {
@@ -414,24 +417,35 @@ public abstract class Scanner {
 		}
 	}
 
-	private Optional<Member> getUserMember(GroupManager groupManager, Dn userDn) {
-		Optional<UuidMapper> uuidMapper = Optional.empty();
+	private Optional<Member> getUserMember(Dn userDn) {
+		Entry entry = null;
 
 		try {
-			uuidMapper = getUserFromDn(userDn).map(this::getUuidMapperFromEntry).orElse(Optional.empty());
+			entry = getUserFromDn(userDn).orElse(null);
 		} catch (LdapException le) {
-			importLogger.warning(Messages.groupMemberNotFound(userDn.getName()));
+			importLogger.warning(Messages.groupMemberCheckFail(userDn.getName(), le));
 		}
 
-		String extId = uuidMapper.map(UuidMapper::getExtId).orElse(null);
+		if (entry == null) {
+			return Optional.empty();
+		}
+
+		String extId = getUuidMapperFromEntry(entry).map(UuidMapper::getExtId).orElse(null);
 		if (Strings.isNullOrEmpty(extId)) {
 			return Optional.empty();
 		}
 
 		ItemValue<User> itemUser = coreService.getUserByExtId(extId);
 		if (itemUser == null) {
-			importLogger.info(Messages.failedToFindUserByExtId(groupManager.group, extId));
-			return Optional.empty();
+			// User exists in directory but not in BlueMind
+			// Try to import if matching filter - ignore incremental mode
+			manageUser(entry.getDn());
+
+			itemUser = coreService.getUserByExtId(extId);
+			if (itemUser == null) {
+				// User import failed...
+				return Optional.empty();
+			}
 		}
 
 		Member member = new Member();
@@ -441,24 +455,35 @@ public abstract class Scanner {
 		return Optional.of(member);
 	}
 
-	private Optional<Member> getGroupMember(GroupManager groupManager, Dn groupDn) {
-		Optional<UuidMapper> uuidMapper = Optional.empty();
+	private Optional<Member> getGroupMember(Dn groupDn) {
+		Entry entry = null;
 
 		try {
-			uuidMapper = getGroupFromDn(groupDn).map(this::getUuidMapperFromEntry).orElse(Optional.empty());
+			entry = getGroupFromDn(groupDn).orElse(null);
 		} catch (LdapException le) {
 			importLogger.warning(Messages.groupMemberNotFound(groupDn.getName()));
 		}
 
-		String extId = uuidMapper.map(UuidMapper::getExtId).orElse(null);
+		if (entry == null) {
+			return Optional.empty();
+		}
+
+		String extId = getUuidMapperFromEntry(entry).map(UuidMapper::getExtId).orElse(null);
 		if (Strings.isNullOrEmpty(extId)) {
 			return Optional.empty();
 		}
 
 		ItemValue<Group> itemGroup = coreService.getGroupByExtId(extId);
 		if (itemGroup == null) {
-			importLogger.info(Messages.failedToFindGroupByExtId(groupManager.group, extId));
-			return Optional.empty();
+			// Group exists in directory but not in BlueMind
+			// Try to import if matching filter - ignore incremental mode
+			manageGroup(entry.getDn()).ifPresent(this::manageGroupMembers);
+
+			itemGroup = coreService.getGroupByExtId(extId);
+			if (itemGroup == null) {
+				// Group import failed...
+				return Optional.empty();
+			}
 		}
 
 		Member member = new Member();
@@ -483,21 +508,22 @@ public abstract class Scanner {
 			throw new ServerFault(e);
 		}
 
-		for (Dn entryDn : entriesDn) {
-			Entry entry = null;
-			try {
-				entry = ldapCon.lookup(entryDn, "*", "+", getParameter().ldapDirectory.extIdAttribute,
-						"modifyTimestamp");
-			} catch (LdapException le) {
-				logger.error(entryDn.getName() + ": " + le.getMessage(), le);
-				importLogger.error(Messages.failedLookupEntryDn(entryDn, le));
-				continue;
-			}
+		entriesDn.forEach(this::manageUser);
+	}
 
-			logger.info("Managing Ldap user: {}", entry.getDn().getName());
-
-			getUserManager(entry).ifPresent(this::applyUserManagerUpdates);
+	private void manageUser(Dn userDn) {
+		Entry entry = null;
+		try {
+			entry = ldapCon.lookup(userDn, "*", "+", getParameter().ldapDirectory.extIdAttribute, "modifyTimestamp");
+		} catch (LdapException le) {
+			logger.error(userDn.getName() + ": " + le.getMessage(), le);
+			importLogger.error(Messages.failedLookupEntryDn(userDn, le));
+			return;
 		}
+
+		logger.info("Managing Ldap user: {}", entry.getDn().getName());
+
+		getUserManager(entry).ifPresent(this::applyUserManagerUpdates);
 	}
 
 	private void applyUserManagerUpdates(UserManager userManager) {

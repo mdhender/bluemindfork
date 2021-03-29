@@ -390,6 +390,11 @@ public class CoreServicesTest implements ICoreServices {
 		usersMailfilters.put(user.uid, new MailFilter());
 	}
 
+	public void addExistingGroup(ItemValue<Group> group) {
+		existingGroupsExtIds.add(group.externalId);
+		groups.put(group.uid, group);
+	}
+
 	public void addUserToGroups(String userUid, List<ItemValue<Group>> groups) {
 		userMemberOf.put(userUid, new HashSet<>(groups));
 

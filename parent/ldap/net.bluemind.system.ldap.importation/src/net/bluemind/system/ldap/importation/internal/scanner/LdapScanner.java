@@ -189,7 +189,7 @@ public abstract class LdapScanner extends Scanner {
 
 	@Override
 	protected Optional<Entry> getUserFromDn(Dn userDn) throws LdapException {
-		return getLdapSearch().getUserUUID(ldapCon, userDn);
+		return getLdapSearch().findUserFromDn(ldapCon, userDn);
 	}
 
 	@Override
