@@ -15,11 +15,13 @@
 	  <module>net.bluemind.sds.proxy</module>
 	  <module>net.bluemind.sds.proxy.tests</module>
 	  <module>net.bluemind.sds.proxy.launcher</module>
-	  <module>net.bluemind.sds.proxy.testhelper</module>
 	  <module>net.bluemind.sds.proxy.mgmt</module>
 	  <module>net.bluemind.sds.store</module>
 	  <module>net.bluemind.sds.store.s3</module>
 	  <module>net.bluemind.sds.store.s3.tests</module>
+	  <module>net.bluemind.sds.store.scalityring.tests</module>
+	  <module>net.bluemind.sds.store.scalityring</module>
+	  <module>net.bluemind.sds.proxy.testhelper</module>
 	  <module>net.bluemind.core.sds.configurator</module>
 	  <module>net.bluemind.core.sds.configurator.tests</module>
 	  <module>net.bluemind.cli.sds</module>

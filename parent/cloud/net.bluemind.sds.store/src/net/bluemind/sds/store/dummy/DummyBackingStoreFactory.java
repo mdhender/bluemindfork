@@ -38,7 +38,7 @@ public class DummyBackingStoreFactory implements ISdsBackingStoreFactory {
 		if (type == null || !type.equals(kind().toString())) {
 			throw new IllegalArgumentException("Configuration is not for a dummy backend: " + configuration.encode());
 		}
-		logger.info("Configuring with {}", configuration.encode());
+		logger.debug("Configuring with {}", configuration.encode());
 		return new DummyBackingStore();
 	}
 

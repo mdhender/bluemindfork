@@ -26,7 +26,9 @@ public enum DockerContainer {
 
 	MAILBOX_ROLE("bluemind/mailbox-role", "mailbox-role"),
 
-	PROXY("bluemind/proxy", "proxy");
+	PROXY("bluemind/proxy", "proxy"),
+
+	SCALITYRING("bluemind/scalityring", "scalityring");
 
 	private final String name;
 	private final String hostProperty;

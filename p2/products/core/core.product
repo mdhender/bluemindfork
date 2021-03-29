@@ -344,6 +344,7 @@
       <plugin id="net.bluemind.sds.proxy.mgmt"/>
       <plugin id="net.bluemind.sds.store"/>
       <plugin id="net.bluemind.sds.store.s3"/>
+      <plugin id="net.bluemind.sds.store.scalityring"/>
       <plugin id="net.bluemind.sentry" fragment="true"/>
       <plugin id="net.bluemind.sentry.settings"/>
       <plugin id="net.bluemind.sentry.settings.core"/>

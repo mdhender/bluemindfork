@@ -1,0 +1,19 @@
+[
+	{
+		"name": "bluemind/postgres-tests"
+	},
+	{
+		"name": "bluemind/elasticsearch-tests"
+	},
+	{
+		"name": "bluemind/imap-role"
+	},
+	{
+		"name":	"bluemind/scalityring",
+		"devices": [{
+ 			"localPath":"/dev/fuse",
+ 			"containerPath":"/dev/fuse"
+		}],
+		"capabilities": ["SYS_ADMIN"]
+	}
+]

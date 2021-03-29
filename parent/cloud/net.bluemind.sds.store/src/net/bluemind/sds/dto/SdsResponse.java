@@ -34,6 +34,7 @@ public class SdsResponse {
 
 	public SdsError error;
 	private Map<String, String> tags = Collections.emptyMap();
+	private long size = 0;
 
 	public boolean succeeded() {
 		return error == null;
@@ -49,9 +50,19 @@ public class SdsResponse {
 		return this;
 	}
 
+	public SdsResponse withSize(long size) {
+		this.size = size;
+		return this;
+	}
+
 	@JsonProperty("tags")
 	public Map<String, String> tags() {
 		return tags;
+	}
+
+	@JsonProperty("size")
+	public long size() {
+		return size;
 	}
 
 }

@@ -48,7 +48,7 @@ public class S3StoreFactory implements ISdsBackingStoreFactory {
 		if (type == null || !type.equals(kind().toString())) {
 			throw new IllegalArgumentException("Configuration is not for an s3 backend: " + configuration.encode());
 		}
-		logger.info("Configuring with {}", configuration.encode());
+		logger.debug("Configuring with {}", configuration.encode());
 		return new S3Store(S3Configuration.from(configuration), registry, idFactory);
 
 	}

@@ -44,7 +44,7 @@ public enum SysConfKeys {
 	exchange_autodiscover_url,
 
 	/**
-	 * Archive kind could be: none, cyrus, or s3
+	 * Archive kind could be: none, cyrus, s3 or scalityring
 	 */
 	archive_kind, archive_days, archive_size_threshold,
 

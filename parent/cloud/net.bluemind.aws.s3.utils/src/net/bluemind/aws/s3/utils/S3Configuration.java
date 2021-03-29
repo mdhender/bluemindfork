@@ -28,7 +28,7 @@ public class S3Configuration {
 	public String bucket;
 
 	public S3Configuration() {
-
+		// ok
 	}
 
 	public static S3Configuration withEndpointAndBucket(String endpoint, String bucket) {
@@ -39,7 +39,8 @@ public class S3Configuration {
 		return withEndpointBucketKeys(endpoint, bucket, ak, sk, "");
 	}
 
-	public static S3Configuration withEndpointBucketKeys(String endpoint, String bucket, String ak, String sk, String region) {
+	public static S3Configuration withEndpointBucketKeys(String endpoint, String bucket, String ak, String sk,
+			String region) {
 		S3Configuration sc = new S3Configuration();
 		sc.endpoint = endpoint;
 		sc.bucket = bucket;

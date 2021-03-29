@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>net.bluemind.core.sds.replication</name>
+	<name>net.bluemind.sds.store.scalityring</name>
 	<comment></comment>
 	<projects>
 	</projects>

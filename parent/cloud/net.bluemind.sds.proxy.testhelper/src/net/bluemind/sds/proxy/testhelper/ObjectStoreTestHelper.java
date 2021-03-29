@@ -17,8 +17,14 @@
  */
 package net.bluemind.sds.proxy.testhelper;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
+import java.util.List;
 
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.core.api.fault.ServerFault;
@@ -33,6 +39,32 @@ public class ObjectStoreTestHelper {
 
 	}
 
+	private static String getMyIpAddress() {
+		String ret = "127.0.0.1";
+		try {
+			Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
+			while (ifaces.hasMoreElements()) {
+				NetworkInterface iface = ifaces.nextElement();
+				if (iface.isLoopback() || !iface.isUp()) {
+					continue;
+				}
+				List<InterfaceAddress> addresses = iface.getInterfaceAddresses();
+				for (InterfaceAddress ia : addresses) {
+					if (ia.getBroadcast() == null) {
+						// ipv6
+						continue;
+					}
+					String tmp = ia.getAddress().getHostAddress();
+					if (!tmp.startsWith("127")) {
+						return tmp;
+					}
+				}
+			}
+		} catch (SocketException e) {
+		}
+		return ret;
+	}
+
 	public static void setup(CyrusService cs, boolean restartCyrus) {
 		ItemValue<Server> srv = cs.server();
 		INodeClient nodeClient = NodeActivator.get(srv.value.address());
@@ -41,9 +73,20 @@ public class ObjectStoreTestHelper {
 		} catch (IOException e) {
 			throw new ServerFault(e);
 		}
+
 		if (restartCyrus) {
 			cs.reload();
 		}
+	}
+
+	public static void setupscality(CyrusService cs) {
+		ItemValue<Server> srv = cs.server();
+		INodeClient nodeClient = NodeActivator.get(srv.value.address());
+		nodeClient.writeFile("/etc/bm/bm.ini",
+				new ByteArrayInputStream(("[global]\nhz-member-address=" + getMyIpAddress() + "\n").getBytes()));
+		nodeClient.writeFile("/etc/cyrus-hsm", new ByteArrayInputStream("archive_enabled: 0\n".getBytes()));
+		cs.reload();
+		cs.reloadSds();
 	}
 
 }

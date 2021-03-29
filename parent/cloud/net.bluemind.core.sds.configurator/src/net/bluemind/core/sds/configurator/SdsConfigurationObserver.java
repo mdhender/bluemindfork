@@ -25,20 +25,13 @@ public class SdsConfigurationObserver implements ISystemConfigurationObserver {
 			return;
 		}
 
-		String endpoint = current.stringValue(SysConfKeys.sds_s3_endpoint.name());
-		String accessKey = current.stringValue(SysConfKeys.sds_s3_access_key.name());
-		String secretKey = current.stringValue(SysConfKeys.sds_s3_secret_key.name());
-		String bucket = current.stringValue(SysConfKeys.sds_s3_bucket.name());
-		String region = current.stringValue(SysConfKeys.sds_s3_region.name());
-
 		JsonObject json = new JsonObject()//
-				.put("storeType", "s3")//
-				.put("endpoint", endpoint)//
-				.put("region", "")//
-				.put("accessKey", accessKey)//
-				.put("secretKey", secretKey)//
-				.put("region", region)//
-				.put("bucket", bucket);
+				.put("storeType", current.stringValue(SysConfKeys.archive_kind.name()))//
+				.put("endpoint", current.stringValue(SysConfKeys.sds_s3_endpoint.name()))//
+				.put("accessKey", current.stringValue(SysConfKeys.sds_s3_access_key.name()))//
+				.put("secretKey", current.stringValue(SysConfKeys.sds_s3_secret_key.name()))//
+				.put("region", current.stringValue(SysConfKeys.sds_s3_region.name()))//
+				.put("bucket", current.stringValue(SysConfKeys.sds_s3_bucket.name()));
 
 		Topology.get().nodes().stream().filter(iv -> iv.value.tags.contains("mail/imap")).forEach(iv -> {
 			JsonObject configBackend = new JsonObject().put("backend", iv.value.address()).put("config", json);

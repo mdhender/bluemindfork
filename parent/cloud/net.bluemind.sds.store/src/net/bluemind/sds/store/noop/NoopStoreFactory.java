@@ -34,7 +34,7 @@ public class NoopStoreFactory implements ISdsBackingStoreFactory {
 
 	@Override
 	public ISdsBackingStore create(Vertx vertx, JsonObject configuration) {
-		logger.info("Configuring with {}", configuration.encode());
+		logger.debug("Configuring with {}", configuration.encode());
 		return new NoopStore();
 	}
 
