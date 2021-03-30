@@ -150,7 +150,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	private long doCreate(String uid, Long internalId, VCard card, byte[] photo) {
 
 		if (!isDomainAddressbook() && storeService.getItemCount() >= MAX_SIZE) {
-			throw new ServerFault("Max items count in addressbook exceeded", ErrorCode.MAX_ITEMS_COUNT);
+			throw new ServerFault("Max items count in addressbook exceeded", ErrorCode.MAX_ITEM_COUNT);
 		}
 
 		// ext point sanitizer
@@ -405,7 +405,7 @@ public class AddressBookService implements IInCoreAddressBook {
 			ContainerUpdatesResult ret = new ContainerUpdatesResult();
 			ret.errors = new ArrayList<>();
 			ret.errors.add(ContainerUpdatesResult.InError.create("Max items count in addressbook exceeded",
-					ErrorCode.MAX_ITEMS_COUNT, null));
+					ErrorCode.MAX_ITEM_COUNT, null));
 			return ret;
 		}
 

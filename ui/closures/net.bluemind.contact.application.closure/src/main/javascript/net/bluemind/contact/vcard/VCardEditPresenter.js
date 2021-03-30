@@ -206,8 +206,8 @@ net.bluemind.contact.vcard.VCardEditPresenter.prototype.handleSave = function(ev
       this.ctx.notifyError(net.bluemind.contact.Messages.errorUpdate(error), error);
     } else {
       goog.log.error(this.logger, 'error during card creation', error);
-      if (error['errorCode'] == 'MAX_ITEMS_COUNT'){
-        this.ctx.notifyError(net.bluemind.contact.Messages.createErrorMaxItemsCount(), error);
+      if (error['errorCode'] == 'MAX_ITEM_COUNT'){
+        this.ctx.notifyError(net.bluemind.contact.Messages.createErrorMaxItemCount(), error);
       } else {
         this.ctx.notifyError(net.bluemind.contact.Messages.errorCreate(error), error);
       } 

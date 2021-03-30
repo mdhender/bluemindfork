@@ -392,5 +392,5 @@ public enum ErrorCode {
 	/**
 	 * 
 	 */
-	MAX_ITEMS_COUNT;
+	MAX_ITEM_COUNT;
 }
