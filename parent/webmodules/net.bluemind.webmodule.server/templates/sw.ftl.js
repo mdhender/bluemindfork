@@ -7,12 +7,31 @@ self.addEventListener("install", function (event) {
 });
 
 self.addEventListener("fetch", function (event) {
-  event.respondWith(fromCache(event.request));
+  event.respondWith(serve(event.request));
 });
+
+async function serve(request) {
+	if (request.destination === "document") {
+		return fromNetwork(request);
+	} else {
+		return fromCache(request)
+	}
+}
 
 async function fromCache(request) {
   const matching = await caches.match(request);
   return matching || fetch(request);
+}
+
+async function fromNetwork(request) {
+  try {    
+    const response = await fetch(request);
+    const cache = await caches.open(CACHE_NAME);    
+    cache.put(request, response.clone());
+    return response;
+  } catch {
+    return caches.match(request);
+  }
 }
 
 async function precacheredirected(files) {
