@@ -133,6 +133,17 @@ public class VEventValidator implements IValidator<VEventSeries> {
 				}
 			}
 
+			if (rrule.byDay != null && !rrule.byDay.isEmpty()) {
+				for (WeekDay wd : rrule.byDay) {
+					String value = wd.day;
+					try {
+						WeekDay test = new WeekDay(value);
+					} catch (IllegalArgumentException e) {
+						throw new ServerFault(e.getMessage(), ErrorCode.EVENT_WEEKDAY_INVALID);
+					}
+				}
+			}
+
 			checkIntegerList(rrule.bySecond, 0, 59);
 			checkIntegerList(rrule.byMinute, 0, 59);
 			checkIntegerList(rrule.byHour, 0, 23);

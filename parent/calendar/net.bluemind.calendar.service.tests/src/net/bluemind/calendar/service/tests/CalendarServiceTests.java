@@ -113,6 +113,36 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	}
 
 	@Test
+	public void testCreateWithBrokenRRuleShouldNotPass() throws ServerFault {
+		VertxEventChecker<JsonObject> createdMessageChecker = new VertxEventChecker<>(
+				CalendarHookAddress.EVENT_CREATED);
+
+		VEventSeries event = defaultVEvent();
+		RRule rule = new RRule();
+		rule.frequency = Frequency.SECONDLY;
+		net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay day = new net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay(
+				"patate", 0);
+		rule.byDay = Arrays.asList(day);
+		event.main.rrule = rule;
+		String uid = "test_" + System.nanoTime();
+
+		// test anonymous
+		try {
+			getCalendarService(SecurityContext.ANONYMOUS, userCalendarContainer).create(uid, event, sendNotifications);
+			fail();
+		} catch (ServerFault e) {
+		}
+
+		try {
+			getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
+			fail("Should not be able to create event with invalid weekday declaration");
+		} catch (ServerFault e) {
+			assertEquals("Unsupported weekday patate", e.getMessage());
+		}
+
+	}
+
+	@Test
 	public void testCreateIsolatedException() throws ServerFault {
 		VertxEventChecker<JsonObject> createdMessageChecker = new VertxEventChecker<>(
 				CalendarHookAddress.EVENT_CREATED);
