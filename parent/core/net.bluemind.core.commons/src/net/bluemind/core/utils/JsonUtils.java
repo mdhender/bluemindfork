@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.DateSerializer;
 import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 
 import io.netty.buffer.ByteBuf;
@@ -93,6 +94,15 @@ public class JsonUtils {
 	public static <T> T read(String value, Class<T> type) {
 		try {
 			return objectMapper.readValue(value, type);
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
+	}
+
+	public static <T> T readMap(String value, Class<?> keyClass, Class<?> valueClass) {
+		try {
+			MapType mapType = objectMapper.getTypeFactory().constructMapType(Map.class, keyClass, valueClass);
+			return objectMapper.readValue(value, mapType);
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}

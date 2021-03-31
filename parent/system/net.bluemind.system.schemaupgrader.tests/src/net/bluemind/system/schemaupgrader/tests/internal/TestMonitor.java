@@ -24,12 +24,12 @@ public class TestMonitor implements IServerTaskMonitor {
 
 	@Override
 	public IServerTaskMonitor subWork(double work) {
-		return null;
+		return this;
 	}
 
 	@Override
 	public IServerTaskMonitor subWork(String logPrefix, double work) {
-		return null;
+		return new TestMonitor();
 	}
 
 	@Override
