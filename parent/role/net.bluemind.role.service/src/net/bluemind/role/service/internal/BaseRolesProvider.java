@@ -428,7 +428,7 @@ public class BaseRolesProvider implements IRolesProvider {
 								rb.getString("role.manageDataProtect.label"),
 								rb.getString("role.manageDataProtect.description"))
 						.withParent(BasicRoles.ROLE_SYSTEM_MANAGER),
-				
+
 				RoleDescriptor
 						.create(BasicRoles.ROLE_MANAGE_RESTORE, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageRestore.label"),
@@ -448,14 +448,37 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_READ_DOMAIN_FILTER, CATEGORY_MAIL,
 								rb.getString("role.readDomainFilters.label"),
 								rb.getString("role.readDomainFilters.description")) //
-								.withParent(BasicRoles.ROLE_ADMIN),
-						
+						.withParent(BasicRoles.ROLE_ADMIN),
+
 				RoleDescriptor
 						.create(BasicRoles.ROLE_WEBMAIL, CATEGORY_MAIL,
 								rb.getString("role.accessRoundcubeWebmail.label"),
 								rb.getString("role.accessRoundcubeWebmail.description"))
-						.giveRoles(BasicRoles.ROLE_MAIL)
-						.delegable()
+						.giveRoles(BasicRoles.ROLE_MAIL).delegable(),
+
+				RoleDescriptor
+						.create(BasicRoles.ROLE_MANAGE_USER_EXTERNAL_ID, CATEGORY_ADMINISTRATION,
+								rb.getString("role.manageUserExternalId.label"),
+								rb.getString("role.manageUserExternalId.description"))
+						.forDirEntry(Kind.USER) //
+						.giveRoles(BasicRoles.ROLE_MANAGER) //
+						.withParent(BasicRoles.ROLE_MANAGE_USER),
+
+				RoleDescriptor
+						.create(BasicRoles.ROLE_USER_CHECK_AND_REPAIR, CATEGORY_ADMINISTRATION,
+								rb.getString("role.userCheckAndRepair.label"),
+								rb.getString("role.userCheckAndRepair.description"))
+						.forDirEntry(Kind.USER) //
+						.giveRoles(BasicRoles.ROLE_MANAGER) //
+						.withParent(BasicRoles.ROLE_MANAGE_USER),
+
+				RoleDescriptor
+						.create(BasicRoles.ROLE_USER_MAILBOX_MAINTENANCE, CATEGORY_ADMINISTRATION,
+								rb.getString("role.userMailboxMaintenance.label"),
+								rb.getString("role.userMailboxMaintenance.description"))
+						.forDirEntry(Kind.USER) //
+						.giveRoles(BasicRoles.ROLE_MANAGER) //
+						.withParent(BasicRoles.ROLE_MANAGE_USER)
 
 		).build();
 	}

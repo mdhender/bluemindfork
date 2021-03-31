@@ -231,16 +231,16 @@ public class EditUserScreen extends BaseDirEntryEditScreen {
 		Sudo.registerType();
 		UserCheckAndRepair.registerType();
 
-		maintenanceContents
-				.push(ScreenElement.create(null, ExternalIdEditor.TYPE).withRole(BasicRoles.ROLE_MANAGE_USER));
-		maintenanceContents
-				.push(ScreenElement.create(null, UserCheckAndRepair.TYPE).withRole(BasicRoles.ROLE_MANAGE_USER));
+		maintenanceContents.push(
+				ScreenElement.create(null, ExternalIdEditor.TYPE).withRole(BasicRoles.ROLE_MANAGE_USER_EXTERNAL_ID));
+		maintenanceContents.push(
+				ScreenElement.create(null, UserCheckAndRepair.TYPE).withRole(BasicRoles.ROLE_USER_CHECK_AND_REPAIR));
 		maintenanceContents.push(ScreenElement.create(null, Sudo.TYPE).withRole(BasicRoles.ROLE_SUDO));
 		maintenanceContents
 				.push(ScreenElement.create(null, UserPassword.TYPE).withRole(BasicRoles.ROLE_MANAGE_USER_PASSWORD));
 
-		maintenanceContents
-				.push(ScreenElement.create(null, MailboxMaintenance.TYPE).withRole(BasicRoles.ROLE_MANAGE_USER));
+		maintenanceContents.push(
+				ScreenElement.create(null, MailboxMaintenance.TYPE).withRole(BasicRoles.ROLE_USER_MAILBOX_MAINTENANCE));
 		maintenanceContents
 				.push(ScreenElement.create(null, DevicePanel.TYPE).withRole(BasicRoles.ROLE_MANAGE_USER_DEVICE));
 		tabs.push(

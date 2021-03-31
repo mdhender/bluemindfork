@@ -286,4 +286,20 @@ public class BasicRoles {
 	 * Permission to access Roundcube webmail.
 	 */
 	public static final String ROLE_WEBMAIL = "hasWebmail";
+
+	/**
+	 * Permission to change user ext id.
+	 */
+	public static final String ROLE_MANAGE_USER_EXTERNAL_ID = "manageUserExternalId";
+
+	/**
+	 * Permission to c&r user.
+	 */
+	public static final String ROLE_USER_CHECK_AND_REPAIR = "userCheckAndRepair";
+
+	/**
+	 * Permission to reindex user's mbox.
+	 */
+	public static final String ROLE_USER_MAILBOX_MAINTENANCE = "userMailboxMaintenance";
+
 }
