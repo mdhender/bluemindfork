@@ -1,6 +1,7 @@
 import { inject } from "@bluemind/inject";
 
 const newWebmailDefaultSettings = {
+    always_show_from: "false",
     always_show_quota: "false",
     insert_signature: "true",
     logout_purge: "false",

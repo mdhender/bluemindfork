@@ -185,6 +185,7 @@ export default {
     }
     .switch-webmail label {
         max-width: $custom-switch-width * 3;
+        color: $primary;
         &::before {
             top: $custom-control-indicator-size / 2 !important;
         }

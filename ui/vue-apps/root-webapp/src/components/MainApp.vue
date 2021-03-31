@@ -96,6 +96,7 @@ export default {
         this.appHeight();
         this.FETCH_MY_MAILBOX_QUOTA();
         window.setInterval(() => this.FETCH_MY_MAILBOX_QUOTA(), 1000 * 60 * 30);
+        this.FETCH_IDENTITIES();
 
         this.$router.onReady(() => {
             if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
@@ -104,7 +105,7 @@ export default {
         });
     },
     methods: {
-        ...mapActions("root-app", ["FETCH_MY_MAILBOX_QUOTA"]),
+        ...mapActions("root-app", ["FETCH_IDENTITIES", "FETCH_MY_MAILBOX_QUOTA"]),
         ...mapActions("alert", ["REMOVE"]),
         ...mapMutations("preferences", ["TOGGLE_PREFERENCES"]),
         appHeight() {

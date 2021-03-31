@@ -125,10 +125,5 @@ export default {
     .mail-content {
         overflow: auto !important;
     }
-
-    .ProseMirror,
-    .mail-content {
-        padding: $sp-2 $sp-3;
-    }
 }
 </style>

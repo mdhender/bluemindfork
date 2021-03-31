@@ -30,6 +30,7 @@ import PrefFieldComboBox from "./fields/PrefFieldComboBox";
 import PrefFieldSelect from "./fields/PrefFieldSelect";
 import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
 import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
+import PrefManageIdentities from "./fields/customs/PrefManageIdentities";
 import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
 import PrefResetLocalData from "./fields/customs/PrefResetLocalData";
 import PrefWorksHours from "./fields/customs/PrefWorksHours";
@@ -47,6 +48,7 @@ export default {
         PrefFieldSelect,
         PrefAlwaysShowQuota,
         PrefEnableNotifications,
+        PrefManageIdentities,
         PrefRemoteImage,
         PrefResetLocalData,
         PrefWorksHours
@@ -82,6 +84,7 @@ export default {
 .pref-category {
     .pref-field {
         padding-left: 4rem;
+        padding-right: 4rem;
         border-bottom: 1px solid $light;
     }
     .available-soon {

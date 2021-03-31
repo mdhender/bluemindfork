@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 
 import { BmFormInput, BmForm, BmIcon, BmFileDropZone } from "@bluemind/styleguide";
 
@@ -91,11 +91,12 @@ export default {
     },
     computed: {
         ...mapState("mail", ["messages", "messageCompose"]),
+        ...mapGetters("root-app", ["DEFAULT_IDENTITY"]),
         message() {
             return this.messages[this.messageKey];
         },
         signature() {
-            return this.messageCompose.signature;
+            return this.DEFAULT_IDENTITY.signature;
         },
         panelTitle() {
             return this.message.subject.trim() ? this.message.subject : this.$t("mail.main.new");

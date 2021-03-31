@@ -143,7 +143,7 @@ export default function (applications, vueI18N) {
                     },
                     {
                         component: "PrefFieldCheck",
-                        name: vueI18N.t("preferences.mail.signature"),
+                        name: vueI18N.t("common.signature"),
                         setting: "insert_signature",
                         options: {
                             label: vueI18N.t("preferences.mail.signature.insert")
@@ -174,6 +174,19 @@ export default function (applications, vueI18N) {
                             additional_component: "PrefAlwaysShowQuota",
                             label: vueI18N.t("preferences.mail.quota.always.display")
                         }
+                    }
+                ]
+            },
+            {
+                code: "identities",
+                name: vueI18N.t("common.identities"),
+                icon: "pen",
+                fields: [
+                    {
+                        component: "PrefManageIdentities",
+                        name: vueI18N.t("preferences.mail.identities.manage"),
+                        setting: "always_show_from",
+                        options: {}
                     }
                 ]
             }

@@ -88,5 +88,13 @@
     "common.month": "Monat",
     "common.list": "Liste",
     "common.notification": "Benachrichtigung",
-    "common.email": "E-Mail"
+    "common.email": "E-Mail",
+    "common.email_address": "E-Mail Adresse",
+    "common.identities": "E-Mail Identitäten",
+    "common.identity": "E-Mail Identität",
+    "common.manage": "Verwalten",
+    "common.add": "Hinzufügen",
+    "common.display_name": "Anzeigename",
+    "common.label": "Bezeichnung",
+    "common.signature": "Signatur"
 }

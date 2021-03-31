@@ -335,6 +335,9 @@ export default {
 
         .form-group {
             padding: $sp-2 $sp-3;
+            & label {
+                margin-top: $sp-1;
+            }
         }
     }
 }

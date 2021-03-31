@@ -46,6 +46,10 @@ export default {
         },
         $_ComposerInitMixin_lang() {
             return this.$_ComposerInitMixin_settings.lang;
+        },
+        ...mapGetters("root-app", { $_ComposerInitMixin_defaultIdentity: "DEFAULT_IDENTITY" }),
+        $_ComposerInitMixin_signature() {
+            return this.$_ComposerInitMixin_defaultIdentity.signature;
         }
     },
     methods: {
