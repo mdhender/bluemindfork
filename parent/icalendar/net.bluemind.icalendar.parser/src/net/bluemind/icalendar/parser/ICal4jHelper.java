@@ -127,7 +127,6 @@ import net.fortuna.ical4j.model.property.Trigger;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Url;
 import net.fortuna.ical4j.model.property.XProperty;
-import net.fortuna.ical4j.util.Uris;
 
 public class ICal4jHelper<T extends ICalendarElement> {
 
@@ -325,11 +324,18 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		// SEQUENCE
 		iCalendarElement.sequence = parseIcsSequence(cc.getProperty(Property.SEQUENCE));
 
+		// CONFERENCE
 		Property videoConfUrl = cc.getProperty(CONFERENCE);
 		if (videoConfUrl != null) {
 			iCalendarElement.conference = videoConfUrl.getValue();
-
 		}
+		if (Strings.isNullOrEmpty(iCalendarElement.conference)) {
+			Property teamsUrl = cc.getProperty("X-MICROSOFT-SKYPETEAMSMEETINGURL");
+			if (teamsUrl != null) {
+				iCalendarElement.conference = teamsUrl.getValue();
+			}
+		}
+
 		return ItemValue.create(uid, iCalendarElement);
 	}
 
@@ -999,13 +1005,8 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		// RECCURID
 		parseICalendarElementReccurId(properties, iCalendarElement);
 
-		if (StringUtils.isNotBlank(iCalendarElement.url)) {
-			try {
-				properties.add(new Url(Uris.create(iCalendarElement.url)));
-			} catch (URISyntaxException e) {
-				logger.warn("url is not valid", e);
-			}
-		}
+		// URL
+		parseICalendarElementUrl(properties, iCalendarElement);
 
 		// ATTACH
 		parseICalendarElementAttachments(properties, iCalendarElement);

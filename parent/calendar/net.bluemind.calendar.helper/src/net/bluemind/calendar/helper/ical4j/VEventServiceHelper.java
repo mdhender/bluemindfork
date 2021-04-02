@@ -556,6 +556,10 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 			properties.add(busyStatus);
 		}
 
+		if (vevent.conference != null && vevent.conference.startsWith("https://teams.microsoft.com")) {
+			XProperty teamsUrl = new XProperty("X-MICROSOFT-SKYPETEAMSMEETINGURL", vevent.conference);
+			properties.add(teamsUrl);
+		}
 	}
 
 	public static String convertToIcs(ItemValue<VEventSeries> vevent) {
