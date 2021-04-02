@@ -18,6 +18,7 @@
  */
 package net.bluemind.signature.commons.action;
 
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -31,7 +32,7 @@ public class SignatureActionSanitizerFactory implements ISanitizerFactory<MailRu
 	}
 
 	@Override
-	public ISanitizer<MailRuleActionAssignmentDescriptor> create(BmContext context) {
+	public ISanitizer<MailRuleActionAssignmentDescriptor> create(BmContext context, Container container) {
 		return new SignatureActionSanitizer();
 	}
 

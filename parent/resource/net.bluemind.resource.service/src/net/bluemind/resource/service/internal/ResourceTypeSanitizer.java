@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -59,7 +60,7 @@ public class ResourceTypeSanitizer implements ISanitizer<ResourceTypeDescriptor>
 		}
 
 		@Override
-		public ISanitizer<ResourceTypeDescriptor> create(BmContext context) {
+		public ISanitizer<ResourceTypeDescriptor> create(BmContext context, Container container) {
 			return new ResourceTypeSanitizer();
 		}
 

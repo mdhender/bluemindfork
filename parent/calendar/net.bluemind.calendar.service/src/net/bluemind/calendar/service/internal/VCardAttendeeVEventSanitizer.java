@@ -30,6 +30,7 @@ import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Kind;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemContainerValue;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
@@ -50,7 +51,7 @@ public class VCardAttendeeVEventSanitizer implements ISanitizer<VEvent> {
 		}
 
 		@Override
-		public ISanitizer<VEvent> create(BmContext context) {
+		public ISanitizer<VEvent> create(BmContext context, Container container) {
 			return new VCardAttendeeVEventSanitizer(context);
 		}
 

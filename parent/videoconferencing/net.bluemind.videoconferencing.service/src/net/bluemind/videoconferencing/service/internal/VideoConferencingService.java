@@ -97,9 +97,11 @@ public class VideoConferencingService implements IVideoConferencing {
 		IContainerManagement containerMgmtService = context.getServiceProvider().instance(IContainerManagement.class,
 				resource.uid + "-settings-container");
 
-		Map<String, String> settings = containerMgmtService.getSettings();
-		String baseUrl = settings.get("url");
-		vevent.conference = videoConferencingProvider.getUrl(baseUrl);
+		if (vevent.conference == null || vevent.conference.trim().isEmpty()) {
+			Map<String, String> settings = containerMgmtService.getSettings();
+			String baseUrl = settings.get("url");
+			vevent.conference = videoConferencingProvider.getUrl(baseUrl);
+		}
 
 		String descriptionToAdd = templateHelper.processTemplate(context, resource, vevent);
 
@@ -172,16 +174,16 @@ public class VideoConferencingService implements IVideoConferencing {
 		if (oldConferenceResources.isEmpty()) {
 			return current;
 		}
+
 		ResourceDescriptor oldResourceDescriptor = oldConferenceResources.get(0).value;
 		Optional<PropertyValue> oldVideoConferencingType = oldResourceDescriptor.properties.stream()
 				.filter(p -> p.propertyId.equals(IVideoConferenceUids.PROVIDER_TYPE)).findFirst();
 
-		resetConferenceData(current, oldVideoConferencingType);
+		resetConferenceTemplate(current, oldVideoConferencingType);
 		return add(current);
 	}
 
-	private void resetConferenceData(ICalendarElement current, Optional<PropertyValue> oldVideoConferencingType) {
-		current.conference = null;
+	private void resetConferenceTemplate(ICalendarElement current, Optional<PropertyValue> oldVideoConferencingType) {
 		VideoConferencingTemplateHelper templateHelper = new VideoConferencingTemplateHelper();
 		Optional<IVideoConferencingProvider> oldVideoConferencingProvider = providers.stream()
 				.filter(p -> p.id().equals(oldVideoConferencingType.get().value)).findFirst();

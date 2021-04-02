@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
@@ -46,9 +47,16 @@ public class Sanitizer {
 	}
 
 	private final BmContext context;
+	private final Container container;
 
 	public Sanitizer(BmContext context) {
 		this.context = context;
+		this.container = null;
+	}
+
+	public Sanitizer(BmContext context, Container container) {
+		this.context = context;
+		this.container = container;
 	}
 
 	public void create(Object entity) throws ServerFault {
@@ -66,7 +74,7 @@ public class Sanitizer {
 
 		for (ISanitizerFactory<Object> sanitizer : sanitizers) {
 			if (entity.getClass() == sanitizer.support()) {
-				sanitizer.create(context).create(entity, params);
+				sanitizer.create(context, container).create(entity, params);
 			}
 		}
 	}
@@ -78,7 +86,7 @@ public class Sanitizer {
 
 		for (ISanitizerFactory<Object> sanitizer : sanitizers) {
 			if (entity.getClass() == sanitizer.support()) {
-				sanitizer.create(context).update(current, entity, params);
+				sanitizer.create(context, container).update(current, entity, params);
 			}
 		}
 	}

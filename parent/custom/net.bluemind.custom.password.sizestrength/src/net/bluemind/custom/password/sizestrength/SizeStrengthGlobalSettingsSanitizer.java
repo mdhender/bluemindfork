@@ -18,6 +18,7 @@
  */
 package net.bluemind.custom.password.sizestrength;
 
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -33,7 +34,7 @@ public class SizeStrengthGlobalSettingsSanitizer implements ISanitizer<GlobalSet
 		}
 
 		@Override
-		public ISanitizer<GlobalSettings> create(BmContext context) {
+		public ISanitizer<GlobalSettings> create(BmContext context, Container container) {
 			return new SizeStrengthGlobalSettingsSanitizer();
 		}
 	}

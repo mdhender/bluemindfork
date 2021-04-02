@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -39,7 +40,7 @@ public class DirDomainValueSanitizer implements ISanitizer<DirDomainValue<?>> {
 		}
 
 		@Override
-		public ISanitizer<DirDomainValue<?>> create(BmContext context) {
+		public ISanitizer<DirDomainValue<?>> create(BmContext context, Container container) {
 			return new DirDomainValueSanitizer(context);
 		}
 

@@ -21,6 +21,7 @@ package net.bluemind.group.service.internal;
 import java.util.HashMap;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -36,7 +37,7 @@ public class GroupSearchQuerySanitizer implements ISanitizer<GroupSearchQuery> {
 		}
 
 		@Override
-		public ISanitizer<GroupSearchQuery> create(BmContext context) {
+		public ISanitizer<GroupSearchQuery> create(BmContext context, Container container) {
 			return new GroupSearchQuerySanitizer();
 		}
 

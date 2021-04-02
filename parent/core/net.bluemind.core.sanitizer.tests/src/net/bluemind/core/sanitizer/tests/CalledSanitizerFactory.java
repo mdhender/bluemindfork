@@ -18,6 +18,7 @@
  */
 package net.bluemind.core.sanitizer.tests;
 
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -36,12 +37,11 @@ public class CalledSanitizerFactory implements ISanitizerFactory<Called> {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * net.bluemind.core.sanitizer.ISanitizerFactory#create(net.bluemind.core
+	 * @see net.bluemind.core.sanitizer.ISanitizerFactory#create(net.bluemind.core
 	 * .rest.BmContext)
 	 */
 	@Override
-	public ISanitizer<Called> create(BmContext context) {
+	public ISanitizer<Called> create(BmContext context, Container container) {
 		return new CalledSanitizer(context);
 	}
 }

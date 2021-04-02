@@ -31,17 +31,21 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.IDirEntryPath;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
@@ -80,7 +84,10 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 		containerMgmtService.setAccessControlList(Arrays.asList(AccessControlEntry.create(domainUid, Verb.All)));
 		containerMgmtService.setSettings(settings);
 
-		sanitizer = new VEventVideoConferencingSanitizer(domainAdminCtx);
+		Container cal = Container.create(ICalendarUids.defaultUserCalendar("admin"), ICalendarUids.TYPE,
+				"admin's calenddar", "admin");
+
+		sanitizer = new VEventVideoConferencingSanitizer(domainAdminCtx, cal);
 
 	}
 
@@ -163,6 +170,11 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 				+ updated.main.conference + "\" target=\"_blank\">" + updated.main.conference
 				+ "</a> yay</videoconferencingtemplate><br><br>", updated.main.description);
 
+		String currentDescription = updated.main.description;
+
+		sanitizer.update(event, updated);
+
+		assertEquals(currentDescription, updated.main.description);
 	}
 
 	protected VEventSeries defaultVEvent() {
@@ -177,7 +189,8 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 		event.status = VEvent.Status.Confirmed;
 		event.priority = 3;
 
-		event.organizer = new VEvent.Organizer("roberto@" + domainUid);
+		event.organizer = new VEvent.Organizer("admin@" + domainUid);
+		event.organizer.dir = "bm://" + IDirEntryPath.path(domainUid, "admin", Kind.USER);
 
 		List<VEvent.Attendee> attendees = new ArrayList<>(1);
 		VEvent.Attendee me = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,

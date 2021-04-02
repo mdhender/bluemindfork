@@ -18,6 +18,8 @@
 package net.bluemind.videoconferencing.service.calendar;
 
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -26,8 +28,12 @@ import net.bluemind.videoconferencing.api.IVideoConferencing;
 public class VEventVideoConferencingSanitizer implements ISanitizer<VEventSeries> {
 
 	private IVideoConferencing videoConferencingService;
+	private BmContext context;
+	private Container container;
 
-	public VEventVideoConferencingSanitizer(BmContext context) {
+	public VEventVideoConferencingSanitizer(BmContext context, Container container) {
+		this.context = context;
+		this.container = container;
 		videoConferencingService = context.provider().instance(IVideoConferencing.class,
 				context.getSecurityContext().getContainerUid());
 
@@ -35,14 +41,21 @@ public class VEventVideoConferencingSanitizer implements ISanitizer<VEventSeries
 
 	@Override
 	public void create(VEventSeries evt) {
-		videoConferencingService.add(evt.main);
-
+		if (isMasterVersionAndHasAttendees(evt)) {
+			videoConferencingService.add(evt.main);
+		}
 	}
 
 	@Override
 	public void update(VEventSeries old, VEventSeries current) {
-		videoConferencingService.update(old.main, current.main);
+		if (isMasterVersionAndHasAttendees(old)) {
+			videoConferencingService.update(old.main, current.main);
+		}
+	}
 
+	// mostly a copy from VEventSeriesSanitizer
+	private boolean isMasterVersionAndHasAttendees(final VEventSeries evt) throws ServerFault {
+		return evt.meeting() && evt.master(context.getSecurityContext().getContainerUid(), container.owner);
 	}
 
 	public static class Factory implements ISanitizerFactory<VEventSeries> {
@@ -53,8 +66,8 @@ public class VEventVideoConferencingSanitizer implements ISanitizer<VEventSeries
 		}
 
 		@Override
-		public ISanitizer<VEventSeries> create(BmContext context) {
-			return new VEventVideoConferencingSanitizer(context);
+		public ISanitizer<VEventSeries> create(BmContext context, Container container) {
+			return new VEventVideoConferencingSanitizer(context, container);
 		}
 
 	}

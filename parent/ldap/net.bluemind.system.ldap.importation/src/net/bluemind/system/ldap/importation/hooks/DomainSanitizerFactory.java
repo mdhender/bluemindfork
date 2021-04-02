@@ -18,6 +18,7 @@
  */
 package net.bluemind.system.ldap.importation.hooks;
 
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -42,12 +43,11 @@ public class DomainSanitizerFactory implements ISanitizerFactory<Domain> {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * net.bluemind.core.sanitizer.ISanitizerFactory#create(net.bluemind.core
+	 * @see net.bluemind.core.sanitizer.ISanitizerFactory#create(net.bluemind.core
 	 * .rest.BmContext)
 	 */
 	@Override
-	public ISanitizer<Domain> create(BmContext context) {
+	public ISanitizer<Domain> create(BmContext context, Container container) {
 		return new DomainSanitizer(context);
 	}
 

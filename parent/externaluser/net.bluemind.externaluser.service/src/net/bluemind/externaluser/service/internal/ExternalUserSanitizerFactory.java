@@ -1,5 +1,6 @@
 package net.bluemind.externaluser.service.internal;
 
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -13,7 +14,7 @@ public class ExternalUserSanitizerFactory implements ISanitizerFactory<ExternalU
 	}
 
 	@Override
-	public ISanitizer<ExternalUser> create(BmContext context) {
+	public ISanitizer<ExternalUser> create(BmContext context, Container container) {
 		return new ExternalUserSanitizer(context);
 	}
 

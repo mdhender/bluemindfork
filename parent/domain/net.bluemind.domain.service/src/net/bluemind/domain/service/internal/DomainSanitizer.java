@@ -19,8 +19,7 @@
 
 package net.bluemind.domain.service.internal;
 
-import java.util.Optional;
-
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -35,7 +34,7 @@ public class DomainSanitizer implements ISanitizer<Domain> {
 		}
 
 		@Override
-		public ISanitizer<Domain> create(BmContext context) {
+		public ISanitizer<Domain> create(BmContext context, Container container) {
 			return new DomainSanitizer();
 		}
 	}

@@ -20,6 +20,7 @@ package net.bluemind.mailshare.service.internal;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -44,7 +45,7 @@ public class MailshareVCardSanitizer implements ISanitizer<DirDomainValue<Mailsh
 		}
 
 		@Override
-		public ISanitizer<DirDomainValue<Mailshare>> create(BmContext context) {
+		public ISanitizer<DirDomainValue<Mailshare>> create(BmContext context, Container container) {
 			return new MailshareVCardSanitizer(context);
 		}
 

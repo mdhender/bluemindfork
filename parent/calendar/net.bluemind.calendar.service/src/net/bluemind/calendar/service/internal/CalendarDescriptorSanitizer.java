@@ -22,6 +22,7 @@ import java.util.HashMap;
 
 import net.bluemind.calendar.api.CalendarDescriptor;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -36,7 +37,7 @@ public class CalendarDescriptorSanitizer implements ISanitizer<CalendarDescripto
 		}
 
 		@Override
-		public ISanitizer<CalendarDescriptor> create(BmContext context) {
+		public ISanitizer<CalendarDescriptor> create(BmContext context, Container container) {
 			return new CalendarDescriptorSanitizer(context);
 		}
 

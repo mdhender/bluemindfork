@@ -19,6 +19,7 @@ package net.bluemind.videoconferencing.service.resourcetype;
 
 import java.util.Optional;
 
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -35,8 +36,10 @@ public class VideoConferencingResourceTypeSanitizer implements ISanitizer<Resour
 	@Override
 	public void update(ResourceTypeDescriptor current, ResourceTypeDescriptor obj) {
 
-		Optional<Property> type = current.properties.stream().filter(p -> p.id.equals(IVideoConferenceUids.RESOURCETYPE_UID + "-type")
-				&& p.type == ResourceTypeDescriptor.Property.Type.String && p.label.equals("Type")).findFirst();
+		Optional<Property> type = current.properties.stream()
+				.filter(p -> p.id.equals(IVideoConferenceUids.RESOURCETYPE_UID + "-type")
+						&& p.type == ResourceTypeDescriptor.Property.Type.String && p.label.equals("Type"))
+				.findFirst();
 
 		if (type.isPresent()) {
 			type = obj.properties.stream()
@@ -63,7 +66,7 @@ public class VideoConferencingResourceTypeSanitizer implements ISanitizer<Resour
 		}
 
 		@Override
-		public ISanitizer<ResourceTypeDescriptor> create(BmContext context) {
+		public ISanitizer<ResourceTypeDescriptor> create(BmContext context, Container container) {
 			return new VideoConferencingResourceTypeSanitizer();
 		}
 

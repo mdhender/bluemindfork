@@ -14,6 +14,7 @@ Require-Bundle: org.apache.james.apache-mime4j-dom,
  net.bluemind.core.sanitizer,
  net.bluemind.core.rest,
  net.bluemind.mailmessage.api,
- net.bluemind.directory.api
+ net.bluemind.directory.api,
+ net.bluemind.core.container.persistence
 Export-Package: net.bluemind.signature.commons.action
 Automatic-Module-Name: net.bluemind.signature.commons

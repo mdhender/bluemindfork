@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -49,7 +50,7 @@ public class UserEmailSanitizer implements ISanitizer<DirDomainValue<User>> {
 		}
 
 		@Override
-		public ISanitizer<DirDomainValue<User>> create(BmContext context) {
+		public ISanitizer<DirDomainValue<User>> create(BmContext context, Container container) {
 			return new UserEmailSanitizer();
 		}
 

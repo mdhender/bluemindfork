@@ -28,6 +28,7 @@ import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -178,7 +179,7 @@ public class VEventSeriesSanitizer implements ISanitizer<VEventSeries> {
 		}
 
 		@Override
-		public ISanitizer<VEventSeries> create(final BmContext context) {
+		public ISanitizer<VEventSeries> create(final BmContext context, Container container) {
 			return new VEventSeriesSanitizer(context);
 		}
 	}

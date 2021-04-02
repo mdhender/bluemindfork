@@ -17,6 +17,7 @@
   */
 package net.bluemind.server.service.internal;
 
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -30,7 +31,7 @@ public class ServerSanitizerFactory implements ISanitizerFactory<Server> {
 	}
 
 	@Override
-	public ISanitizer<Server> create(BmContext context) {
+	public ISanitizer<Server> create(BmContext context, Container container) {
 		return new ServerSanitizer();
 	}
 

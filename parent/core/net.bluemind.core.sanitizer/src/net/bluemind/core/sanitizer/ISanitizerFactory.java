@@ -18,10 +18,11 @@
  */
 package net.bluemind.core.sanitizer;
 
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 
 public interface ISanitizerFactory<T> {
 	public Class<T> support();
 
-	public ISanitizer<T> create(BmContext context);
+	public ISanitizer<T> create(BmContext context, Container container);
 }

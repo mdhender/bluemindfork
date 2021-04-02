@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
@@ -35,7 +36,7 @@ public class AddressBookDescriptorSanitizer implements ISanitizer<AddressBookDes
 		}
 
 		@Override
-		public ISanitizer<AddressBookDescriptor> create(BmContext context) {
+		public ISanitizer<AddressBookDescriptor> create(BmContext context, Container container) {
 			return new AddressBookDescriptorSanitizer();
 		}
 

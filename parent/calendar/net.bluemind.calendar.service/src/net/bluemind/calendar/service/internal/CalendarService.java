@@ -126,7 +126,7 @@ public class CalendarService implements IInternalCalendar {
 		calendarEventProducer.serviceAccessed(container.uid, origin, context.getSecurityContext().isInteractive(),
 				isRemote);
 
-		extSanitizer = new Sanitizer(context);
+		extSanitizer = new Sanitizer(context, container);
 		extValidator = new Validator(context);
 		validator = new VEventValidator();
 		rbacManager = RBACManager.forContext(context).forContainer(container);

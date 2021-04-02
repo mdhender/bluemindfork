@@ -39,6 +39,7 @@ import net.bluemind.addressbook.api.VCard.Kind;
 import net.bluemind.addressbook.api.VCard.Organizational.Member;
 import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -57,7 +58,7 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 		}
 
 		@Override
-		public ISanitizer<VCard> create(BmContext context) {
+		public ISanitizer<VCard> create(BmContext context, Container container) {
 			return new VCardSanitizer(context);
 		}
 

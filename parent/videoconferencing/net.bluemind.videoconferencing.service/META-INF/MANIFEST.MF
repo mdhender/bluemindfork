@@ -21,6 +21,7 @@ Require-Bundle: net.bluemind.core.rest,
  com.google.guava,
  org.apache.commons.lang,
  net.bluemind.user.api,
- net.bluemind.resource.hook;bundle-version="4.1.0"
+ net.bluemind.resource.hook;bundle-version="4.1.0",
+ net.bluemind.core.container.persistence;bundle-version="4.1.0"
 Export-Package: net.bluemind.videoconferencing.service,
  net.bluemind.videoconferencing.service.calendar
