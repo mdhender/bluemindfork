@@ -1611,6 +1611,12 @@ div.form-notification {
   z-index: -1;
 }
 
+#bm-ui-form-videoconferencing-provider-icon {
+  width: 24px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 
 /******************************************************************************
  *                          FREEBUSY

@@ -308,9 +308,6 @@ public class ResourcesService implements IResources {
 
 	@Override
 	public byte[] getIcon(String uid) throws ServerFault {
-		// FIXME we should check access right but we cannot for now
-		// (GET without X-BM-ApiKey)
-		// rbacManager.check(Verb.Read.name());
 		ItemValue<ResourceDescriptor> resource = storeService.get(uid);
 		if (resource == null) {
 			return null;

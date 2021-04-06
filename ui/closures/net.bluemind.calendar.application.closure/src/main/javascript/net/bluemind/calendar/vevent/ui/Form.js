@@ -696,6 +696,10 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
       this.showConferenceForm_();
     }
 
+    if (videoConferencingResources.length == 1) {
+      var res = videoConferencingResources[0];
+      dom.getElement('bm-ui-form-videoconferencing-provider-icon').src= '/api/resources/' + this.ctx.user['domainUid'] + '/' + res.uid + '/icon';
+    }
 
     var button = dom.getElement('bm-ui-form-videoconferencing-button');
     handler.listen(button, goog.events.EventType.CLICK, function() {
