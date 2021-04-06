@@ -1,3 +1,4 @@
+import difference from "lodash.difference";
 import { mapGetters, mapState } from "vuex";
 
 import { MAILBOXES_ARE_LOADED } from "~getters";
@@ -13,15 +14,20 @@ export default {
         }
     },
     async created() {
-        await this.$waitFor(MAILBOXES_ARE_LOADED);
         try {
             this.$_ServerPush_registerListener();
             await this.$_ServerPush_sendMessage({ type: "INIT" }, false);
-            Object.values(this.mailboxes).forEach(mailbox => {
-                this.$socket.register(`mailreplica.${mailbox.owner}.updated`, this.$_ServerPush_handle(mailbox));
-            });
         } catch (error) {
             console.error("[SW] failed to init service worker", error);
+        }
+    },
+    watch: {
+        MAILBOXES_ARE_LOADED() {
+            if (this.MAILBOXES_ARE_LOADED) {
+                Object.values(this.mailboxes).forEach(mailbox => {
+                    this.$socket.register(`mailreplica.${mailbox.owner}.updated`, this.$_ServerPush_handle(mailbox));
+                });
+            }
         }
     },
     methods: {
