@@ -94,9 +94,12 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 		// hello videoconf
 		ICalendarElement main = getService(domainAdminCtx.getSecurityContext()).add(event.main);
 		assertNotNull(main.conference);
-		assertEquals("Lorem ipsum blah blah<br><videoconferencingtemplate id=\"" + videoconfProviderId + "\">"
-				+ "voilà <a href=\"" + main.conference + "\" target=\"_blank\">" + main.conference + "</a> yay"
-				+ "</videoconferencingtemplate><br><br>", main.description);
+		assertEquals(
+				"Lorem ipsum blah blah<br><videoconferencingtemplate id=\"" + videoconfProviderId
+						+ "\"><div>~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~</div>voilà <a href=\"" + main.conference
+						+ "\" target=\"_blank\">" + main.conference + "</a> yay"
+						+ "<div>~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~</div></videoconferencingtemplate><br><br>",
+				main.description);
 
 		// bye-bye videoconf
 		main = getService(domainAdminCtx.getSecurityContext()).remove(main);

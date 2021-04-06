@@ -103,9 +103,12 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 		sanitizer.create(event);
 
 		assertNotNull(event.main.conference);
-		assertEquals("Lorem ipsum blah blah<br><videoconferencingtemplate id=\"" + videoconfProviderId + "\">"
-				+ "voilà <a href=\"" + event.main.conference + "\" target=\"_blank\">" + event.main.conference
-				+ "</a> yay</videoconferencingtemplate><br><br>", event.main.description);
+		assertEquals(
+				"Lorem ipsum blah blah<br><videoconferencingtemplate id=\"" + videoconfProviderId
+						+ "\"><div>~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~</div>voilà <a href=\"" + event.main.conference
+						+ "\" target=\"_blank\">" + event.main.conference
+						+ "</a> yay<div>~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~</div></videoconferencingtemplate><br><br>",
+				event.main.description);
 	}
 
 	@Test
@@ -144,9 +147,10 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 		sanitizer.update(event, updated);
 		assertNotNull(updated.main.conference);
 		assertEquals(
-				"Lorem ipsum blah blah<br><videoconferencingtemplate id=\"" + videoconfProviderId + "\">"
-						+ "voilà <a href=\"" + updated.main.conference + "\" target=\"_blank\">"
-						+ updated.main.conference + "</a> yay</videoconferencingtemplate><br><br>",
+				"Lorem ipsum blah blah<br><videoconferencingtemplate id=\"" + videoconfProviderId
+						+ "\"><div>~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~</div>voilà <a href=\"" + updated.main.conference
+						+ "\" target=\"_blank\">" + updated.main.conference
+						+ "</a> yay<div>~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~</div></videoconferencingtemplate><br><br>",
 				updated.main.description);
 
 	}
@@ -166,9 +170,12 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 		updated.main.description = "coucou";
 		sanitizer.update(event, updated);
 		assertNotNull(updated.main.conference);
-		assertEquals("coucou<br><videoconferencingtemplate id=\"" + videoconfProviderId + "\">" + "voilà <a href=\""
-				+ updated.main.conference + "\" target=\"_blank\">" + updated.main.conference
-				+ "</a> yay</videoconferencingtemplate><br><br>", updated.main.description);
+		assertEquals(
+				"coucou<br><videoconferencingtemplate id=\"" + videoconfProviderId
+						+ "\"><div>~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~</div>voilà <a href=\"" + updated.main.conference
+						+ "\" target=\"_blank\">" + updated.main.conference
+						+ "</a> yay<div>~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~</div></videoconferencingtemplate><br><br>",
+				updated.main.description);
 
 		String currentDescription = updated.main.description;
 

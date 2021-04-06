@@ -38,10 +38,12 @@ import net.bluemind.user.api.IUserSettings;
 
 public class VideoConferencingTemplateHelper {
 
+	private static final String SEPARATOR = "<div>~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~</div>";
+
 	/** The HTML tag containing the transformed template. */
 	private static final String TEMPLATE_HTML_TAG_NAME = "videoconferencingtemplate";
-	private static final String TEMPLATE_HTML_TAG_BEGIN = "<" + TEMPLATE_HTML_TAG_NAME + " id=\"{id}\">";
-	private static final String TEMPLATE_HTML_TAG_END = "</" + TEMPLATE_HTML_TAG_NAME + ">";
+	private static final String TEMPLATE_HTML_TAG_BEGIN = "<" + TEMPLATE_HTML_TAG_NAME + " id=\"{id}\">" + SEPARATOR;
+	private static final String TEMPLATE_HTML_TAG_END = SEPARATOR + "</" + TEMPLATE_HTML_TAG_NAME + ">";
 
 	/** Used for cleaning the text before adding a template. */
 	private static final Pattern TRAILING_WHITE_SPACES = Pattern.compile("(\\s|<\\s*br\\s*/?\\s*>\\s*)+$");
