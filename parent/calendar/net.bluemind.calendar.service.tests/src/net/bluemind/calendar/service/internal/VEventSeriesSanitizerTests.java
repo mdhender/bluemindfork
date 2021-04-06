@@ -103,6 +103,7 @@ public class VEventSeriesSanitizerTests {
 	private ContainerUserStoreService userStoreService;
 	private User user;
 	private ServerSideServiceProvider provider;
+	private VEventSeriesSanitizer sanitizer;
 
 	@SuppressWarnings("deprecation")
 	@Before
@@ -141,6 +142,9 @@ public class VEventSeriesSanitizerTests {
 		this.transformedTemplate = resourceTemplateHelper.tagBegin(RESOURCE_ID) + "\n"
 				+ "FR Hello! I am a template mate! John Doe invites you to this wonderful event with the property My Custom Prop One Value and also My Custom Prop Two Value and the even better My Custom Prop Three Value !!! How lucky you!\nThis line should be kept."
 				+ "\n" + resourceTemplateHelper.tagEnd();
+
+		sanitizer = new VEventSeriesSanitizer(new BmTestContext(Sessions.get().getIfPresent(user.login)),
+				Container.create(UUID.randomUUID().toString(), "calendar", "this is calenddar", user.login));
 	}
 
 	private void createCyrusPartition(final Server imapServer, final String domainUid) {
@@ -180,8 +184,7 @@ public class VEventSeriesSanitizerTests {
 		final Map<String, String> params = new HashMap<>(2);
 		params.put("owner", vEventMessage.container.owner);
 		params.put("domainUid", this.domainUid);
-		new VEventSeriesSanitizer(new BmTestContext(Sessions.get().getIfPresent(user.login)))
-				.create(vEventMessage.vevent, params);
+		sanitizer.create(vEventMessage.vevent, params);
 
 		return vEventMessage;
 	}
@@ -205,8 +208,7 @@ public class VEventSeriesSanitizerTests {
 		final Map<String, String> params = new HashMap<>(2);
 		params.put("owner", vEventMessage.container.owner);
 		params.put("domainUid", this.domainUid);
-		new VEventSeriesSanitizer(new BmTestContext(Sessions.get().getIfPresent(user.login)))
-				.update(vEventMessage.oldEvent, vEventMessage.vevent, params);
+		sanitizer.update(vEventMessage.oldEvent, vEventMessage.vevent, params);
 
 		// check the result - the processed template should have been removed
 		Assert.assertNotNull(vEventMessage.vevent);
@@ -235,8 +237,7 @@ public class VEventSeriesSanitizerTests {
 		final Map<String, String> params = new HashMap<>(2);
 		params.put("owner", vEventMessage.container.owner);
 		params.put("domainUid", this.domainUid);
-		new VEventSeriesSanitizer(new BmTestContext(Sessions.get().getIfPresent(user.login)))
-				.update(vEventMessage.oldEvent, vEventMessage.vevent, params);
+		sanitizer.update(vEventMessage.oldEvent, vEventMessage.vevent, params);
 
 		// check the result - the processed template should have been added
 		Assert.assertNotNull(vEventMessage.vevent);
@@ -273,7 +274,7 @@ public class VEventSeriesSanitizerTests {
 		ItemValue<VEventSeries> item = defaultVEvent("Summer y", "De scription");
 		VEventSeries old = item.value.copy();
 		item.value.main.draft = true;
-		new VEventSeriesSanitizer(new BmTestContext(Sessions.get().getIfPresent(user.login))).update(old, item.value);
+		sanitizer.update(old, item.value);
 		assertFalse(item.value.main.draft);
 	}
 
@@ -299,8 +300,7 @@ public class VEventSeriesSanitizerTests {
 		final Map<String, String> params = new HashMap<>(2);
 		params.put("owner", vEventMessage.container.owner);
 		params.put("domainUid", this.domainUid);
-		new VEventSeriesSanitizer(new BmTestContext(Sessions.get().getIfPresent(user.login)))
-				.create(vEventMessage.vevent, params);
+		sanitizer.create(vEventMessage.vevent, params);
 
 	}
 

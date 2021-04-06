@@ -44,9 +44,11 @@ public class VEventSeriesSanitizer implements ISanitizer<VEventSeries> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(VEventSeriesSanitizer.class);
 	private ResourceTemplateHandler resourceTemplateHandler;
 	private BmContext bmContext;
+	private Container container;
 
-	public VEventSeriesSanitizer(final BmContext bmContext) {
+	public VEventSeriesSanitizer(final BmContext bmContext, Container container) {
 		this.bmContext = bmContext;
+		this.container = container;
 		this.resourceTemplateHandler = new ResourceTemplateHandler();
 	}
 
@@ -77,8 +79,7 @@ public class VEventSeriesSanitizer implements ISanitizer<VEventSeries> {
 
 	// mostly a copy from IcsHook
 	private boolean isMasterVersionAndHasAttendees(final VEventSeries message) throws ServerFault {
-		return message.meeting() && message.master(bmContext.getSecurityContext().getContainerUid(),
-				bmContext.getSecurityContext().getSubject());
+		return message.meeting() && message.master(bmContext.getSecurityContext().getContainerUid(), container.owner);
 	}
 
 	// mostly a copy from IcsHook
@@ -180,7 +181,7 @@ public class VEventSeriesSanitizer implements ISanitizer<VEventSeries> {
 
 		@Override
 		public ISanitizer<VEventSeries> create(final BmContext context, Container container) {
-			return new VEventSeriesSanitizer(context);
+			return new VEventSeriesSanitizer(context, container);
 		}
 	}
 
