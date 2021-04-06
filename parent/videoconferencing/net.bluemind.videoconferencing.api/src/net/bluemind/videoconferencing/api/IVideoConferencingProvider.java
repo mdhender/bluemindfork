@@ -17,6 +17,8 @@
   */
 package net.bluemind.videoconferencing.api;
 
+import java.util.Optional;
+
 public interface IVideoConferencingProvider {
 
 	public String id();
@@ -24,5 +26,7 @@ public interface IVideoConferencingProvider {
 	public String name();
 
 	public String getUrl(String baseUrl);
+
+	public Optional<byte[]> getIcon();
 
 }

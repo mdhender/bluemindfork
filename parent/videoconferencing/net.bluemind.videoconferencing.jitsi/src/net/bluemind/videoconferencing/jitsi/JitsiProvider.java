@@ -17,7 +17,11 @@
   */
 package net.bluemind.videoconferencing.jitsi;
 
+import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
+
+import com.google.common.io.ByteStreams;
 
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
 
@@ -46,6 +50,16 @@ public class JitsiProvider implements IVideoConferencingProvider {
 		String unique = UUID.randomUUID().toString();
 
 		return baseUrl + unique;
+	}
+
+	@Override
+	public Optional<byte[]> getIcon() {
+		try {
+			return Optional.of(ByteStreams
+					.toByteArray(JitsiProvider.class.getClassLoader().getResourceAsStream("resources/icon.png")));
+		} catch (IOException e) {
+		}
+		return Optional.empty();
 	}
 
 }

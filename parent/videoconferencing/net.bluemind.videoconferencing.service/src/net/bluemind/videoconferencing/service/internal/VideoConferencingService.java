@@ -194,6 +194,15 @@ public class VideoConferencingService implements IVideoConferencing {
 
 	@Override
 	public void createResource(String uid, VideoConferencingResourceDescriptor descriptor) {
+
+		Optional<IVideoConferencingProvider> provider = providers.stream()
+				.filter(p -> p.id().equals(descriptor.provider)).findFirst();
+
+		if (!provider.isPresent()) {
+			logger.warn("No provider {}, skip resource creation", descriptor.provider);
+			return;
+		}
+
 		IServiceProvider sp = context.getServiceProvider();
 
 		IResources resourcesService = sp.instance(IResources.class, domainUid);
@@ -211,6 +220,11 @@ public class VideoConferencingService implements IVideoConferencing {
 				descriptor.label, descriptor.provider);
 
 		resourcesService.create(uid, resource);
+
+		// icon
+		if (provider.get().getIcon().isPresent()) {
+			resourcesService.setIcon(uid, provider.get().getIcon().get());
+		}
 
 		// calendar settings
 		IDomainSettings domSettingsService = sp.instance(IDomainSettings.class, domainUid);
@@ -242,6 +256,7 @@ public class VideoConferencingService implements IVideoConferencing {
 		// acls
 		containerManagementService = sp.instance(IContainerManagement.class, resourceSettingsContainerUid);
 		containerManagementService.setAccessControlList(Arrays.asList(AccessControlEntry.create(domainUid, Verb.Read)));
+
 	}
 
 	private CalendarSettingsData createCalendarSettings(Map<String, String> domainSettings) {

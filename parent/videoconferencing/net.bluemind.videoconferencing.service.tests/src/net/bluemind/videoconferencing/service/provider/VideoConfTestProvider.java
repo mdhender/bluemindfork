@@ -17,6 +17,7 @@
   */
 package net.bluemind.videoconferencing.service.provider;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
@@ -36,6 +37,11 @@ public class VideoConfTestProvider implements IVideoConferencingProvider {
 	@Override
 	public String getUrl(String baseUrl) {
 		return baseUrl + "/" + UUID.randomUUID().toString();
+	}
+
+	@Override
+	public Optional<byte[]> getIcon() {
+		return Optional.empty();
 	}
 
 }
