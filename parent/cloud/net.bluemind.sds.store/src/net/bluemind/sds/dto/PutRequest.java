@@ -19,4 +19,11 @@ package net.bluemind.sds.dto;
 
 public class PutRequest extends TransferRequest {
 
+	public static PutRequest of(String guid, String filename) {
+		PutRequest pr = new PutRequest();
+		pr.guid = guid;
+		pr.filename = filename;
+		return pr;
+	}
+
 }

@@ -17,44 +17,82 @@
   */
 package net.bluemind.sds.proxy;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netflix.spectator.api.Id;
 import com.netflix.spectator.api.Registry;
+import com.netflix.spectator.api.Timer;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.parsetools.JsonParser;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.RouteMatcher;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
-import net.bluemind.sds.dto.ExistResponse;
+import net.bluemind.sds.dto.DeleteRequest;
+import net.bluemind.sds.dto.ExistRequest;
+import net.bluemind.sds.dto.GetRequest;
+import net.bluemind.sds.dto.MgetRequest;
+import net.bluemind.sds.dto.MgetRequest.Transfer;
+import net.bluemind.sds.dto.PutRequest;
+import net.bluemind.sds.dto.SdsRequest;
 import net.bluemind.sds.dto.SdsResponse;
 import net.bluemind.sds.proxy.dto.ConfigureResponse;
-import net.bluemind.sds.proxy.dto.JsMapper;
 import net.bluemind.sds.proxy.events.SdsAddresses;
+import net.bluemind.sds.store.ISdsBackingStore;
+import net.bluemind.sds.store.ISdsBackingStoreFactory;
+import net.bluemind.sds.store.SdsException;
+import net.bluemind.sds.store.dummy.DummyBackingStoreFactory;
+import net.bluemind.system.api.ArchiveKind;
 import net.bluemind.vertx.common.request.Requests;
 
 public abstract class SdsProxyBaseVerticle extends AbstractVerticle {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
+	private static final Path config = Paths.get("/etc/bm-sds-proxy/config.json");
 	private static final Registry registry = MetricsRegistry.get();
 	private static final IdFactory idFactory = new IdFactory("http", MetricsRegistry.get(), SdsProxyBaseVerticle.class);
 
+	private AtomicReference<ISdsBackingStore> sdsStore = new AtomicReference<>();
+	private final Map<ArchiveKind, ISdsBackingStoreFactory> factories;
+	private JsonObject storeConfig;
+
+	protected SdsProxyBaseVerticle() {
+		this.factories = loadStoreFactories();
+		this.storeConfig = loadConfig();
+	}
+
 	@Override
 	public void start(Promise<Void> startedResult) {
+
+		startBackingStore();
 
 		HttpServer srv = vertx.createHttpServer();
 		RouteMatcher router = new RouteMatcher(vertx);
@@ -62,12 +100,55 @@ public abstract class SdsProxyBaseVerticle extends AbstractVerticle {
 			logger.warn("Unknown request to {} {}", req.method(), req.absoluteURI());
 			req.response().setStatusCode(400).end();
 		});
-		router.options("/sds", this::exist);
-		router.delete("/sds", this::delete);
-		router.put("/sds", this::put);
-		router.get("/sds", this::get);
-		router.post("/sds/mget", this::mget);
-		router.post("/configuration", this::configure);
+
+		router.post("/configuration", req -> req.handler(JsonParser.newParser().objectValueMode().handler(js -> vertx
+				.executeBlocking(prom -> reConfigure(js.objectValue()).thenAccept(prom::complete).exceptionally(x -> {
+					prom.fail(x);
+					return null;
+				}), false, ar -> {
+					if (ar.failed()) {
+						req.response().setStatusCode(500).end();
+					} else {
+						req.response().setStatusCode(200).end();
+					}
+				})
+
+		)));
+
+		router.options("/sds",
+				sdsOperation("sds.exists", (ISdsBackingStore store, ExistRequest req) -> store.exists(req),
+						js -> ExistRequest.of(js.getString("mailbox"), js.getString("guid")),
+						(httpResp, existResp) -> httpResp.setStatusCode(existResp.exists ? 200 : 404).end()));
+
+		router.delete("/sds",
+				sdsOperation("sds.delete", (ISdsBackingStore store, DeleteRequest req) -> store.delete(req),
+						js -> DeleteRequest.of(js.getString("guid")),
+						(httpResp, delResp) -> httpResp.setStatusCode(200).end()));
+
+		router.put("/sds",
+				sdsOperation("sds.put", (ISdsBackingStore store, PutRequest req) -> store.upload(req),
+						js -> PutRequest.of(js.getString("guid"), js.getString("filename")),
+						(httpResp, putResp) -> httpResp.setStatusCode(200).end()));
+
+		router.get("/sds",
+				sdsOperation("sds.get", (ISdsBackingStore store, GetRequest req) -> store.download(req),
+						js -> GetRequest.of(js.getString("mailbox"), js.getString("guid"), js.getString("filename")),
+						(httpResp, putResp) -> httpResp.setStatusCode(200).end()));
+
+		router.post("/sds/mget",
+				sdsOperation("sds.mget", (ISdsBackingStore store, MgetRequest req) -> store.downloads(req), js -> {
+					MgetRequest mr = new MgetRequest();
+					JsonArray tx = js.getJsonArray("transfers");
+					int len = tx.size();
+					List<MgetRequest.Transfer> xfers = new ArrayList<>(len);
+					for (int i = 0; i < len; i++) {
+						JsonObject one = tx.getJsonObject(i);
+						xfers.add(Transfer.of(one.getString("guid"), one.getString("filename")));
+					}
+					mr.transfers = xfers;
+					return mr;
+				}, (httpResp, putResp) -> httpResp.setStatusCode(200).end()));
+
 		router.post("/mailbox", this::validateMailbox);
 
 		router.put("/sds/mapping", this::putMapping);
@@ -76,6 +157,50 @@ public abstract class SdsProxyBaseVerticle extends AbstractVerticle {
 
 		srv.requestHandler(router);
 		doListen(startedResult, srv);
+	}
+
+	private JsonObject loadConfig() {
+
+		if (Files.exists(config)) {
+			try {
+				return new JsonObject(new String(Files.readAllBytes(config)));
+			} catch (IOException e) {
+				throw new SdsException(e);
+			}
+		} else {
+			logger.info("Configuration {} is missing, using defaults.", config.toFile().getAbsolutePath());
+			return new JsonObject();
+		}
+	}
+
+	private ISdsBackingStore loadStore() {
+		String storeType = storeConfig.getString("storeType");
+		ArchiveKind archiveKind = ArchiveKind.fromName(storeType);
+		if (archiveKind != null && factories.containsKey(archiveKind)) {
+			logger.info("Loading store {}", archiveKind);
+			return factories.get(archiveKind).create(vertx, storeConfig);
+		} else {
+			logger.info("Defaulting to dummy store (requested: {})", storeType);
+			storeConfig.put("storeType", "dummy");
+			return new DummyBackingStoreFactory().create(vertx, storeConfig);
+		}
+	}
+
+	private Map<ArchiveKind, ISdsBackingStoreFactory> loadStoreFactories() {
+		RunnableExtensionLoader<ISdsBackingStoreFactory> rel = new RunnableExtensionLoader<>();
+		List<ISdsBackingStoreFactory> stores = rel.loadExtensions("net.bluemind.sds", "store", "store", "factory");
+		logger.info("Found {} backing store(s)", stores.size());
+		return stores.stream().collect(Collectors.toMap(ISdsBackingStoreFactory::kind, f -> f));
+	}
+
+	private void startBackingStore() {
+		try {
+			ISdsBackingStore store = loadStore();
+			sdsStore.set(store);
+		} catch (Exception e) {
+			logger.warn("error loading sds backing store: {}", e.getMessage(), e);
+			vertx.setTimer(1000, tid -> startBackingStore());
+		}
 	}
 
 	protected abstract void doListen(Promise<Void> startedResult, HttpServer srv);
@@ -123,29 +248,75 @@ public abstract class SdsProxyBaseVerticle extends AbstractVerticle {
 		});
 	}
 
-	private void configure(HttpServerRequest request) {
-		sendBody(request, SdsAddresses.CONFIG, ConfigureResponse.class, (resp, http) -> http.setStatusCode(200).end());
+	public static interface IStoreOperation<Q extends SdsRequest, R extends SdsResponse> {
+		CompletableFuture<R> run(ISdsBackingStore store, Q req);
 	}
 
-	private void exist(HttpServerRequest request) {
-		sendBody(request, SdsAddresses.EXIST, ExistResponse.class,
-				(resp, http) -> http.setStatusCode(resp.exists ? 200 : 404).end());
+	public static interface IMapper<Q extends SdsRequest> {
+		Q map(JsonObject js);
 	}
 
-	private void delete(HttpServerRequest req) {
-		sendBody(req, SdsAddresses.DELETE, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
+	private <Q extends SdsRequest, R extends SdsResponse> Handler<HttpServerRequest> sdsOperation(String name,
+			IStoreOperation<Q, R> op, IMapper<Q> map, BiConsumer<HttpServerResponse, R> cons) {
+
+		Id okTimerId = idFactory.name("requestTime")//
+				.withTag("method", name)//
+				.withTag("status", "OK");
+		Timer okTimer = registry.timer(okTimerId);
+		Id failedTimerId = idFactory.name("requestTime")//
+				.withTag("method", name)//
+				.withTag("status", "FAILED");
+		Timer failedTimer = registry.timer(failedTimerId);
+
+		return httpReq -> {
+
+			long start = registry.clock().monotonicTime();
+			HttpServerRequest req = Requests.wrap(httpReq);
+			Requests.tag(req, "method", name);
+
+			req.handler(JsonParser.newParser().objectValueMode().handler(jsonEvent -> {
+				JsonObject obj = jsonEvent.objectValue();
+				Q request = map.map(obj);
+				vertx.executeBlocking((Promise<R> prom) -> op.run(sdsStore.get(), request).thenAccept(prom::complete)
+						.exceptionally(x -> {
+							prom.fail(x);
+							return null;
+						}), false, (AsyncResult<R> ar) -> {
+							if (ar.failed()) {
+								logger.error("{} failed.", name, ar.cause());
+								failedTimer.record(registry.clock().monotonicTime() - start, TimeUnit.NANOSECONDS);
+								req.response().setStatusCode(500).end();
+							} else {
+								R resp = ar.result();
+								resp.tags().forEach((k, v) -> Requests.tag(req, k, v));
+								okTimer.record(registry.clock().monotonicTime() - start, TimeUnit.NANOSECONDS);
+
+								if (!resp.succeeded()) {
+									req.response().setStatusMessage(resp.error.message).setStatusCode(500).end();
+								}
+								cons.accept(req.response(), resp);
+							}
+						});
+			}));
+		};
 	}
 
-	private void put(HttpServerRequest req) {
-		sendBody(req, SdsAddresses.PUT, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
-	}
+	private CompletableFuture<ConfigureResponse> reConfigure(JsonObject req) {
+		logger.info("Apply configuration {}", req);
+		storeConfig = req;
+		sdsStore.set(loadStore());
 
-	private void get(HttpServerRequest req) {
-		sendBody(req, SdsAddresses.GET, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
-	}
+		try {
+			Files.write(config, req.encode().getBytes(), StandardOpenOption.CREATE,
+					StandardOpenOption.TRUNCATE_EXISTING);
+		} catch (IOException e) {
+			logger.warn("Failed to save configuration to {}", config.toFile().getAbsolutePath());
+		}
 
-	private void mget(HttpServerRequest req) {
-		sendBody(req, SdsAddresses.MGET, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
+		// for unit tests
+		vertx.eventBus().publish("sds.events.configuration.updated", true);
+
+		return CompletableFuture.completedFuture(new ConfigureResponse());
 	}
 
 	private void validateMailbox(HttpServerRequest request) {
@@ -168,36 +339,6 @@ public abstract class SdsProxyBaseVerticle extends AbstractVerticle {
 					}
 
 				}));
-	}
-
-	private <T extends SdsResponse> void sendBody(HttpServerRequest httpReq, String address, Class<T> respClass,
-			BiConsumer<T, HttpServerResponse> onSuccess) {
-		long start = registry.clock().monotonicTime();
-		HttpServerRequest req = Requests.wrap(httpReq);
-		Requests.tag(req, "method", address);
-
-		req.bodyHandler(payload -> vertx.eventBus().request(address, payload.toString(),
-				new DeliveryOptions().setSendTimeout(20000), (AsyncResult<Message<String>> res) -> {
-					Id timerId = idFactory.name("requestTime")//
-							.withTag("method", address)//
-							.withTag("status", res.succeeded() ? "OK" : "FAILED");
-					registry.timer(timerId).record(registry.clock().monotonicTime() - start, TimeUnit.NANOSECONDS);
-
-					if (res.succeeded()) {
-						String jsonString = res.result().body();
-						T objectResp = JsMapper.readValue(jsonString, respClass);
-						objectResp.tags().forEach((k, v) -> Requests.tag(req, k, v));
-						if (objectResp.succeeded()) {
-							onSuccess.accept(objectResp, req.response());
-						} else {
-							req.response().setStatusMessage(objectResp.error.message).setStatusCode(500).end();
-						}
-					} else {
-						logger.error("Call over {} failed", address, res.cause());
-						req.response().setStatusCode(500).end();
-					}
-				}));
-
 	}
 
 }

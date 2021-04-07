@@ -19,8 +19,6 @@ package net.bluemind.sds.dto;
 
 public class GetRequest extends TransferRequest {
 
-	public String guid;
-
 	public static GetRequest of(String mailbox, String guid, String filename) {
 		GetRequest gr = new GetRequest();
 		gr.mailbox = mailbox;

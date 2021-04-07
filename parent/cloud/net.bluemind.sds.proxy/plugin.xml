@@ -10,9 +10,6 @@
             impl="net.bluemind.sds.proxy.SdsProxyUdsVerticle$SdsProxyUdsFactory">
       </verticle>
       <verticle
-            impl="net.bluemind.sds.proxy.events.SdsObjectStoreHandlerVerticle$SdsObjectStoreFactory">
-      </verticle>
-      <verticle
             impl="net.bluemind.sds.proxy.watchdog.WatchdogVerticle$Factory">
       </verticle>
       <verticle

@@ -22,18 +22,6 @@ public class SdsAddresses {
 	private SdsAddresses() {
 	}
 
-	public static final String CONFIG = "configure";
-
-	public static final String EXIST = "sds.exist";
-
-	public static final String PUT = "sds.put";
-
-	public static final String GET = "sds.get";
-
-	public static final String MGET = "sds.mget";
-
-	public static final String DELETE = "sds.delete";
-
 	public static final String VALIDATION = "core.api.mailbox.validation";
 
 	public static final String MAP = "mapping.ctrl.map";

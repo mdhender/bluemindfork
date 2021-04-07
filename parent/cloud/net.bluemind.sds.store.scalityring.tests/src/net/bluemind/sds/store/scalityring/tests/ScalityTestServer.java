@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServer;
@@ -75,13 +76,25 @@ public class ScalityTestServer extends AbstractVerticle {
 	}
 
 	@Override
-	public void start() {
-		server.listen(port);
+	public void start(Promise<Void> p) throws Exception {
+		server.listen(port, ar -> {
+			if (ar.succeeded()) {
+				p.complete();
+			} else {
+				p.fail(ar.cause());
+			}
+		});
 	}
 
 	@Override
-	public void stop() {
-		server.close();
+	public void stop(Promise<Void> stopPromise) throws Exception {
+		server.close(ar -> {
+			if (ar.succeeded()) {
+				stopPromise.complete();
+			} else {
+				stopPromise.fail(ar.cause());
+			}
+		});
 	}
 
 	public void setNextResponse(PreparedResponse response) {

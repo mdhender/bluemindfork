@@ -21,4 +21,10 @@ public class DeleteRequest extends SdsRequest {
 
 	public String guid;
 
+	public static DeleteRequest of(String guid) {
+		DeleteRequest dr = new DeleteRequest();
+		dr.guid = guid;
+		return dr;
+	}
+
 }
