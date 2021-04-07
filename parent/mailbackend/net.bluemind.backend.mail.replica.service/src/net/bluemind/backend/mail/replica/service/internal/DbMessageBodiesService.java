@@ -81,7 +81,7 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 			logger.error(t.getMessage(), t);
 			return null;
 		}).thenAccept(bodyData -> {
-			MessageBody body = bodyData.body;
+			MessageBody body = bodyData != null ? bodyData.body : null;
 			if (body != null) {
 				logger.debug("Got body '{}'", body.subject);
 				body.guid = uid;
