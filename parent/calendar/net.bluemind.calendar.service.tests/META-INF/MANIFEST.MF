@@ -38,5 +38,6 @@ Require-Bundle: org.junit,
  net.bluemind.attachment.service;bundle-version="4.1.0",
  net.bluemind.dockerclient,
  net.bluemind.deferredaction.service;bundle-version="4.1.0",
- net.bluemind.domain.service;bundle-version="4.1.0"
+ net.bluemind.domain.service;bundle-version="4.1.0",
+ net.bluemind.videoconferencing.service;bundle-version="4.1.0"
 Automatic-Module-Name: net.bluemind.calendar.service.tests

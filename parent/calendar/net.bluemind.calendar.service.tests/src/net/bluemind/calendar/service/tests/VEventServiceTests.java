@@ -44,6 +44,7 @@ import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.IVEvent;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEvent.Transparency;
+import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.service.AbstractCalendarTests;
 import net.bluemind.calendar.service.internal.VEventService;
@@ -942,6 +943,25 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		event = item.value.main;
 		assertEquals(ZonedDateTime.of(2012, 6, 28, 15, 0, 0, 0, ZoneId.of("Australia/Sydney")),
 				new BmDateTimeWrapper(event.dtstart).toDateTime());
+	}
+
+	@Test
+	public void testImportGoogleRecurId() throws IOException, ServerFault {
+		Stream ics = getIcsFromFile("google-recurid.ics");
+
+		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer).importIcs(ics);
+		ImportStats stats = waitImportEnd(taskRef);
+
+		assertNotNull(stats);
+		assertEquals(1, stats.importedCount());
+
+		String uid = getCalendarService(userSecurityContext, userCalendarContainer).all().get(0);
+		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
+		assertNull(item.value.main);
+		assertEquals(1, item.value.occurrences.size());
+		VEventOccurrence occ = item.value.occurrences.get(0);
+
+		assertEquals(6, occ.attendees.size());
 	}
 
 	@Test
