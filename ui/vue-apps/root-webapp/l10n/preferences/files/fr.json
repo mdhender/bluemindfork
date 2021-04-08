@@ -18,6 +18,7 @@
     "preferences.general.default_application": "Application par défaut",
     "preferences.general.password": "Mot de passe",
     "preferences.general.update_phone_status": "Mettre à jour mon statut téléphonique lorsque je ne suis pas disponible sur la messagerie instantanée",
+    "preferences.general.manage_account": "gérer le compte",
 
     "preferences.mail.identities.manage": "Gestion des identités",
     "preferences.mail.identities.always_show_from": "Afficher en permanence le champ \"De\" (expéditeur)",

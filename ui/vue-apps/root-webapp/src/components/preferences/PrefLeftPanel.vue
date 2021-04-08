@@ -1,5 +1,5 @@
 <template>
-    <bm-col class="pref-left-panel text-white d-lg-block" cols="12" lg="2">
+    <bm-col class="pref-left-panel text-white d-lg-flex flex-column" cols="12" lg="2">
         <div class="p-3">
             <h2 class="d-none d-lg-block">
                 <bm-label-icon icon="preferences">{{ $t("common.preference") }}</bm-label-icon>
@@ -10,25 +10,21 @@
                 </bm-button>
                 <h2 class="d-inline align-middle">{{ $t("common.preference") }}</h2>
             </div>
-            <div class="text-center mt-4">
-                <h1><bm-avatar :alt="user.displayname" /> <br />{{ user.displayname }}</h1>
-                <a href="/settings/" class="text-primary font-weight-bold">
-                    {{ $t("preferences.access_old_settings_app") }}
-                </a>
-            </div>
         </div>
-        <pref-left-panel-nav :sections="sections" />
+        <pref-left-panel-nav :sections="sections" :user="user" class="flex-grow-1" />
+        <div class="p-3">
+            <a href="/settings/" class="text-white font-weight-bold">{{ $t("preferences.access_old_settings_app") }}</a>
+        </div>
     </bm-col>
 </template>
 
 <script>
-import { BmButton, BmCol, BmIcon, BmLabelIcon, BmAvatar } from "@bluemind/styleguide";
+import { BmButton, BmCol, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 import PrefLeftPanelNav from "./PrefLeftPanelNav";
 
 export default {
     name: "PrefLeftPanel",
     components: {
-        BmAvatar,
         BmButton,
         BmIcon,
         BmLabelIcon,
@@ -54,9 +50,6 @@ export default {
 .pref-left-panel {
     background-color: $info-dark;
 
-    .bm-avatar {
-        font-size: 3rem;
-    }
     .bm-label-icon {
         color: $white;
     }

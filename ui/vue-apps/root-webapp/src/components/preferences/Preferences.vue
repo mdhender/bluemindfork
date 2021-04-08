@@ -101,12 +101,13 @@ export default {
         });
     },
     methods: {
-        ...mapMutations("preferences", ["TOGGLE_PREFERENCES", "SET_SELECTED_SECTION", "SET_SECTIONS"]),
+        ...mapMutations("preferences", ["TOGGLE_PREFERENCES", "SET_SELECTED_SECTION", "SET_SECTIONS", "SET_OFFSET"]),
         ...mapMutations("session", ["ROLLBACK_LOCAL_SETTINGS"]),
         closePreferences() {
             this.ROLLBACK_LOCAL_SETTINGS();
             this.$router.push({ hash: "" });
             this.TOGGLE_PREFERENCES();
+            this.SET_OFFSET(0);
         }
     }
 };

@@ -18,6 +18,7 @@
     "preferences.general.default_application": "Standard Anwendung",
     "preferences.general.password": "Passwort",
     "preferences.general.update_phone_status": "Meinen Telefonstatus im Instant Messaging aktualiseren, wenn ich in einer Besprechung bin",
+    "preferences.general.manage_account": "manage account",
 
     "preferences.mail.identities.manage": "E-Mail Identitäten verwalten",
     "preferences.mail.identities.always_show_from": "Feld \"Absender\" immer anzeigen",

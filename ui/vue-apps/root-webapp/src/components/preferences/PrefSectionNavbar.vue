@@ -1,7 +1,12 @@
 <template>
     <div class="pref-section-navbar d-flex">
-        <bm-list-group-item :to="sectionPath(section)" @click="scrollTo(sectionId(section))">
-            <bm-app-icon :icon-app="section.icon" class="text-primary" />
+        <bm-list-group-item
+            class="d-flex align-items-center"
+            :to="sectionPath(section)"
+            @click="scrollTo(sectionId(section))"
+        >
+            <bm-avatar v-if="section.code === 'my_account'" :alt="userDisplayName" class="mx-3" />
+            <bm-app-icon v-else :icon-app="section.icon" class="text-primary" />
         </bm-list-group-item>
         <bm-list-group-item
             v-for="category in section.categories"
@@ -16,13 +21,16 @@
     </div>
 </template>
 <script>
-import { BmLabelIcon, BmListGroupItem } from "@bluemind/styleguide";
 import BmAppIcon from "../BmAppIcon";
 import PrefMixin from "./mixins/PrefMixin";
+
+import { inject } from "@bluemind/inject";
+import { BmAvatar, BmLabelIcon, BmListGroupItem } from "@bluemind/styleguide";
 
 export default {
     name: "PrefSectionNavbar",
     components: {
+        BmAvatar,
         BmLabelIcon,
         BmAppIcon,
         BmListGroupItem
@@ -32,6 +40,11 @@ export default {
         section: {
             required: true,
             type: Object
+        }
+    },
+    computed: {
+        userDisplayName() {
+            return inject("UserSession").formatedName;
         }
     }
 };
@@ -79,6 +92,10 @@ export default {
         &:focus {
             background-color: $white;
         }
+    }
+
+    .bm-avatar {
+        font-size: 1rem;
     }
 }
 </style>

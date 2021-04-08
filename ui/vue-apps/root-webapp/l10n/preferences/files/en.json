@@ -18,6 +18,7 @@
     "preferences.general.default_application": "Default application",
     "preferences.general.password": "Password",
     "preferences.general.update_phone_status": "Update my phone status when I am not available on instant messaging",
+    "preferences.general.manage_account": "manage account",
 
     "preferences.mail.identities.manage": "Manage identities",
     "preferences.mail.identities.always_show_from": "Always show field \"From\" (sender)",
