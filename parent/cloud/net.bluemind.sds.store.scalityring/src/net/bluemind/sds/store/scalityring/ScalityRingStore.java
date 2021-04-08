@@ -64,35 +64,58 @@ public class ScalityRingStore implements ISdsBackingStore {
 
 	private final AsyncHttpClient client;
 	private final String endpoint;
-	private final Registry registry;
+
 	private final IdFactory idFactory;
 	private final Timer getLatencyTimer;
+	private final Timer mgetLatencyTimer;
 	private final Timer existLatencyTimer;
+	private final Timer putLatencyTimer;
+	private final Timer deleteLatencyTimer;
 	private final Clock clock;
 	private final Counter getSizeCounter;
+	private final Counter existRequestCounter;
+	private final Counter existFailureRequestCounter;
 	private final Counter getRequestCounter;
+	private final Counter getFailureRequestCounter;
+	private final Counter putRequestCounter;
+	private final Counter putFailureRequestCounter;
 	private final Counter mgetRequestCounter;
-	private final Timer mgetLatencyTimer;
-	private Counter getFailureRequestCounter;
+	private final Counter deleteRequestCounter;
+	private final Counter deleteFailureRequestCounter;
+	private final Counter putSizeCounter;
 
 	public ScalityRingStore(ScalityConfiguration configuration, AsyncHttpClient client, Registry registry,
 			IdFactory idfactory) {
-		this.registry = registry;
 		this.idFactory = idfactory;
 		this.client = client;
 		endpoint = configuration.endpoint;
 
 		clock = registry.clock();
-		getLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "get"));
 		getSizeCounter = registry.counter(idFactory.name("transfer").withTag("direction", "download"));
 		getRequestCounter = registry
 				.counter(idFactory.name("request").withTag("method", "get").withTag("status", "success"));
 		getFailureRequestCounter = registry
 				.counter(idFactory.name("request").withTag("method", "get").withTag("status", "error"));
-		mgetLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "mget"));
+		putRequestCounter = registry
+				.counter(idFactory.name("request").withTag("method", "put").withTag("status", "success"));
+		putFailureRequestCounter = registry
+				.counter(idFactory.name("request").withTag("method", "put").withTag("status", "error"));
+		existRequestCounter = registry
+				.counter(idFactory.name("request").withTag("method", "exist").withTag("status", "success"));
+		existFailureRequestCounter = registry
+				.counter(idFactory.name("request").withTag("method", "exist").withTag("status", "error"));
 		mgetRequestCounter = registry
 				.counter(idFactory.name("request").withTag("method", "mget").withTag("status", "success"));
+		deleteRequestCounter = registry
+				.counter(idFactory.name("request").withTag("method", "delete").withTag("status", "success"));
+		deleteFailureRequestCounter = registry
+				.counter(idFactory.name("request").withTag("method", "delete").withTag("status", "error"));
+		putSizeCounter = registry.counter(idFactory.name("transfer").withTag("direction", "upload"));
 		existLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "exist"));
+		mgetLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "mget"));
+		getLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "get"));
+		putLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "put"));
+		deleteLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "delete"));
 	}
 
 	@Override
@@ -108,13 +131,12 @@ public class ScalityRingStore implements ISdsBackingStore {
 				.thenApply(httpresp -> {
 					existLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
 					boolean known = httpresp.getStatusCode() == 200;
-					registry.counter(idFactory.name("request").withTag("method", "exist").withTag("status",
-							known ? "success" : "error")).increment();
+					Counter requestCounter = known ? existRequestCounter : existFailureRequestCounter;
+					requestCounter.increment();
 					return ExistResponse.from(known);
 				}).exceptionally(t -> {
 					logger.error("exists request failed", t);
-					registry.counter(idFactory.name("request").withTag("method", "exist").withTag("status", "error"))
-							.increment();
+					existFailureRequestCounter.increment();
 					return ExistResponse.from(false);
 				});
 	}
@@ -141,12 +163,10 @@ public class ScalityRingStore implements ISdsBackingStore {
 							.toCompletableFuture() //
 							.thenApply(httpresp -> {
 								boolean success = httpresp.getStatusCode() == 200;
-								registry.timer(idFactory.name("latency").withTag("method", "put"))
-										.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
-								registry.counter(idFactory.name("transfer").withTag("direction", "upload"))
-										.increment(uploadLength);
-								registry.counter(idFactory.name("request").withTag("method", "put").withTag("status",
-										success ? "success" : "error")).increment();
+								putLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
+								putSizeCounter.increment(uploadLength);
+								Counter requestCounter = success ? putRequestCounter : putFailureRequestCounter;
+								requestCounter.increment();
 								if (!success) {
 									String statusMessage = httpresp.getStatusText();
 									sr.error = new SdsError(statusMessage != null ? statusMessage : "no response text");
@@ -158,8 +178,7 @@ public class ScalityRingStore implements ISdsBackingStore {
 					SdsResponse sr = new SdsResponse();
 					sr.withTags(ImmutableMap.of("guid", req.guid));
 					sr.error = new SdsError(t.getMessage());
-					registry.counter(idFactory.name("request").withTag("method", "put").withTag("status", "error"))
-							.increment();
+					putFailureRequestCounter.increment();
 					return sr;
 				});
 	}
@@ -241,18 +260,16 @@ public class ScalityRingStore implements ISdsBackingStore {
 				.toCompletableFuture() //
 				.thenApply(httpresp -> {
 					boolean success = httpresp.getStatusCode() == 200;
-					registry.timer(idFactory.name("latency").withTag("method", "delete"))
-							.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
-					registry.counter(idFactory.name("request").withTag("method", "delete").withTag("status",
-							success ? "success" : "error")).increment();
+					deleteLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
+					Counter requestCounter = success ? deleteRequestCounter : deleteFailureRequestCounter;
+					requestCounter.increment();
 					return SdsResponse.UNTAGGED_OK;
 				}).exceptionally(t -> {
 					logger.error("delete request failed", t);
 					SdsResponse sr = new SdsResponse();
 					sr.withTags(ImmutableMap.of("guid", req.guid));
 					sr.error = new SdsError(t.getMessage());
-					registry.counter(idFactory.name("request").withTag("method", "delete").withTag("status", "error"))
-							.increment();
+					deleteFailureRequestCounter.increment();
 					return sr;
 				});
 	}

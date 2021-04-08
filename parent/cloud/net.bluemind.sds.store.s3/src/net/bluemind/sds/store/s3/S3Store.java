@@ -81,21 +81,26 @@ public class S3Store implements ISdsBackingStore {
 	private final S3AsyncClient client;
 	private final String bucket;
 
-	private final Registry registry;
 	private final IdFactory idFactory;
 	private final Timer getLatencyTimer;
+	private final Timer mgetLatencyTimer;
 	private final Timer existLatencyTimer;
+	private final Timer putLatencyTimer;
+	private final Timer deleteLatencyTimer;
 	private final Clock clock;
 	private final Counter getSizeCounter;
 	private final Counter getRequestCounter;
+	private final Counter getFailureRequestCounter;
+	private final Counter existRequestCounter;
+	private final Counter existFailureRequestCounter;
+	private final Counter putRequestCounter;
+	private final Counter putFailureRequestCounter;
 	private final Counter mgetRequestCounter;
-	private final Timer mgetLatencyTimer;
-	private Counter getFailureRequestCounter;
+	private final Counter deleteRequestCounter;
+	private final Counter putSizeCounter;
 
 	public S3Store(S3Configuration s3Configuration, Registry registry, IdFactory idfactory) {
-		this.registry = registry;
 		this.idFactory = idfactory;
-
 		this.client = S3ClientFactory.create(s3Configuration);
 		try {
 			this.bucket = client.listBuckets()
@@ -123,16 +128,29 @@ public class S3Store implements ISdsBackingStore {
 			throw new SdsException(e);
 		}
 		clock = registry.clock();
-		getLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "get"));
 		getSizeCounter = registry.counter(idFactory.name("transfer").withTag("direction", "download"));
 		getRequestCounter = registry
 				.counter(idFactory.name("request").withTag("method", "get").withTag("status", "success"));
 		getFailureRequestCounter = registry
 				.counter(idFactory.name("request").withTag("method", "get").withTag("status", "error"));
-		mgetLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "mget"));
+		existRequestCounter = registry
+				.counter(idFactory.name("request").withTag("method", "exist").withTag("status", "success"));
+		existFailureRequestCounter = registry
+				.counter(idFactory.name("request").withTag("method", "exist").withTag("status", "error"));
+		putRequestCounter = registry
+				.counter(idFactory.name("request").withTag("method", "put").withTag("status", "success"));
+		putFailureRequestCounter = registry
+				.counter(idFactory.name("request").withTag("method", "put").withTag("status", "error"));
 		mgetRequestCounter = registry
 				.counter(idFactory.name("request").withTag("method", "mget").withTag("status", "success"));
+		deleteRequestCounter = registry
+				.counter(idFactory.name("request").withTag("method", "delete").withTag("status", "success"));
+		putSizeCounter = registry.counter(idFactory.name("transfer").withTag("direction", "upload"));
 		existLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "exist"));
+		mgetLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "mget"));
+		getLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "get"));
+		putLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "put"));
+		deleteLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "delete"));
 	}
 
 	@SuppressWarnings("serial")
@@ -157,9 +175,8 @@ public class S3Store implements ISdsBackingStore {
 		}).thenApply(head -> {
 			boolean known = head != null && head.sdkHttpResponse().statusCode() == 200;
 			existLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
-			registry.counter(
-					idFactory.name("request").withTag("method", "exist").withTag("status", known ? "success" : "error"))
-					.increment();
+			Counter requestCounter = known ? existRequestCounter : existFailureRequestCounter;
+			requestCounter.increment();
 			return ExistResponse.from(known);
 		});
 	}
@@ -183,14 +200,12 @@ public class S3Store implements ISdsBackingStore {
 								.exceptionally(ex -> null).thenApply(putResp -> {
 									Optional<PutObjectResponse> optPut = Optional.ofNullable(putResp);
 									SdsResponse sr = new SdsResponse();
-									registry.timer(idFactory.name("latency").withTag("method", "put"))
-											.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
+									putLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
 									boolean success = optPut.map(p -> p.sdkHttpResponse().statusCode() == 200)
 											.orElse(false);
-									registry.counter(idFactory.name("transfer").withTag("direction", "upload"))
-											.increment(toUpload.toFile().length());
-									registry.counter(idFactory.name("request").withTag("method", "put")
-											.withTag("status", success ? "success" : "error")).increment();
+									putSizeCounter.increment(toUpload.toFile().length());
+									Counter requestCounter = success ? putRequestCounter : putFailureRequestCounter;
+									requestCounter.increment();
 									if (success) {
 										sr.withTags(ImmutableMap.of("guid", req.guid));
 									} else {
@@ -346,10 +361,8 @@ public class S3Store implements ISdsBackingStore {
 		final long start = clock.monotonicTime();
 		return client.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(req.guid).build())
 				.thenApply(dor -> {
-					registry.timer(idFactory.name("latency").withTag("method", "delete"))
-							.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
-					registry.counter(idFactory.name("request").withTag("method", "delete").withTag("status", "success"))
-							.increment();
+					deleteLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
+					deleteRequestCounter.increment();
 					return SdsResponse.UNTAGGED_OK;
 				});
 
