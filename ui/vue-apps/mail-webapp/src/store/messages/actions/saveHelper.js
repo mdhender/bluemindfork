@@ -2,7 +2,7 @@ import { html2text, sanitizeHtml } from "@bluemind/html-utils";
 import { InlineImageHelper, PartsBuilder } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 
-import { isInternalIdFaked } from "~model/draft";
+import { isNewMessage } from "~model/draft";
 import { AttachmentStatus } from "~model/attachment";
 import { MessageHeader, MessageStatus } from "~model/message";
 import {
@@ -23,7 +23,7 @@ import MessageAdaptor from "../helpers/MessageAdaptor";
 export function isReadyToBeSaved(draft, messageCompose) {
     const checkAttachments =
         draft.attachments.every(a => a.status === AttachmentStatus.UPLOADED) ||
-        (isInternalIdFaked(draft.remoteRef.internalId) && messageCompose.forwardedAttachments.length > 0); // due to attachments forward cases
+        (isNewMessage(draft) && messageCompose.forwardedAttachments.length > 0); // due to attachments forward cases
     return draft.status === MessageStatus.IDLE && checkAttachments;
 }
 
@@ -81,7 +81,7 @@ async function createEmlOnServer(context, draft, service, structure) {
     context.commit(SET_MESSAGE_DATE, { messageKey: draft.key, date: saveDate });
 
     const remoteMessage = MessageAdaptor.toMailboxItem(draft, structure);
-    if (isInternalIdFaked(draft.remoteRef.internalId)) {
+    if (isNewMessage(draft)) {
         const { imapUid, id: internalId } = await service.create(remoteMessage);
         context.commit(SET_MESSAGE_INTERNAL_ID, { key: draft.key, internalId });
         context.commit(SET_MESSAGE_IMAP_UID, { key: draft.key, imapUid });
@@ -94,7 +94,7 @@ async function createEmlOnServer(context, draft, service, structure) {
 // when attachments are forwarded, we have to upload them at first save
 async function handleAttachmentsForForward(draft, service, messageCompose, commit) {
     if (
-        isInternalIdFaked(draft.remoteRef.internalId) &&
+        isNewMessage(draft) &&
         messageCompose.forwardedAttachments.length > 0 &&
         draft.attachments.length >= messageCompose.forwardedAttachments.length
     ) {

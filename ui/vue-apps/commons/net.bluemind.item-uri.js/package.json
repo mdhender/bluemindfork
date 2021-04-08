@@ -1,8 +1,0 @@
-{
-    "name": "@bluemind/item-uri",
-    "version": "4.1.0",
-    "description": "Item URI generator. Build unique key from Item uid/id and container uid",
-    "license": "AGPL-3.0-only",
-    "author": "Blue Mind SAS",
-    "main": "src/index.js"
-}

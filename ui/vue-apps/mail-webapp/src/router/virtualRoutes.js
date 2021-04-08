@@ -1,3 +1,4 @@
+import MessagePathParam from "./MessagePathParam";
 import MessageQueryParam from "./MessageQueryParam";
 
 export default [
@@ -5,9 +6,10 @@ export default [
         name: "v:mail:message",
         redirect(to) {
             let messagequery = MessageQueryParam.build(to.params.messagequery, to.params);
-            let params = Object.assign({}, to.params, messagequery ? { messagequery } : {});
-            if (params.message) {
-                return { name: "mail:message", params };
+            let messagepath = MessagePathParam.build(to.params.messagepath, to.params.message);
+            let params = messagequery ? { messagequery } : {};
+            if (messagepath) {
+                return { name: "mail:message", params: { ...params, messagepath } };
             } else {
                 return { name: "mail:home", params };
             }

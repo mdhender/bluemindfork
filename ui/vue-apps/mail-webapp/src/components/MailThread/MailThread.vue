@@ -22,17 +22,20 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { INFO, REMOVE } from "@bluemind/alert.store";
-import ItemUri from "@bluemind/item-uri";
 import { BmAlertArea } from "@bluemind/styleguide";
 
 import { RESET_ACTIVE_MESSAGE, SET_ACTIVE_FOLDER, SET_BLOCK_REMOTE_IMAGES, SET_MESSAGE_COMPOSING } from "~mutations";
-import { MESSAGE_IS_LOADED, MY_DRAFTS } from "~getters";
+import { MESSAGE_IS_LOADED, MY_DRAFTS, MY_MAILBOX } from "~getters";
+import { FETCH_MESSAGE_IF_NOT_LOADED } from "~actions";
 import BlockedRemoteContent from "./Alerts/BlockedRemoteContent";
 import VideoConferencing from "./Alerts/VideoConferencing";
 import MailComposer from "../MailComposer";
 import MailViewer from "../MailViewer";
 import MailViewerLoading from "../MailViewer/MailViewerLoading";
-import { WaitForMixin } from "~mixins";
+import MessagePathParam from "../../router/MessagePathParam";
+import { WaitForMixin, ComposerInitMixin } from "~mixins";
+import { LoadingStatus } from "../../model/loading-status";
+import { isNewMessage } from "../../model/draft";
 
 export default {
     name: "MailThread",
@@ -44,14 +47,14 @@ export default {
         MailViewerLoading,
         VideoConferencing
     },
-    mixins: [WaitForMixin],
+    mixins: [ComposerInitMixin, WaitForMixin],
     provide: {
         area: "mail-thread"
     },
     computed: {
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail", ["folders", "messages"]),
-        ...mapGetters("mail", { MESSAGE_IS_LOADED, MY_DRAFTS }),
+        ...mapState("mail", ["activeFolder", "folders", "messages"]),
+        ...mapGetters("mail", { MY_MAILBOX, MESSAGE_IS_LOADED, MY_DRAFTS }),
 
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-thread") }),
         message() {
@@ -83,7 +86,6 @@ export default {
         async currentMessageKey(value) {
             this.SET_BLOCK_REMOTE_IMAGES(false);
             try {
-                await this.$store.dispatch("mail-webapp/$_getIfNotPresent", [value]);
                 const message = this.messages[value];
                 const folderKey = message.folderRef.key;
                 if (!message.composing) {
@@ -92,21 +94,32 @@ export default {
                         this.SET_MESSAGE_COMPOSING({ messageKey: value, composing: true });
                     }
                 }
-            } catch {
+            } catch (e) {
+                console.log(e);
                 this.$router.push({ name: "mail:home" });
             }
         },
 
-        "$route.params.message": {
+        "$route.params.messagepath": {
             async handler(value) {
                 this.RESET_ACTIVE_MESSAGE();
                 if (value) {
-                    // FIXME: This is bad bad bad... naughty boy...
-                    // Remove this once you have a solution for getifNotPresent....
-                    // P.S : Bad because based on message.key can be decoded to folderKey AND folder.uid === folder.key
-                    const folderKey = ItemUri.container(value);
-                    await this.$waitFor(() => this.folders[folderKey] || this.MAILBOX_ARE_LOADED);
-                    this.$store.commit("mail-webapp/currentMessage/update", { key: value });
+                    try {
+                        let assert = mailbox => mailbox && mailbox.loading === LoadingStatus.LOADED;
+                        await this.$waitFor(MY_MAILBOX, assert);
+                        const { folderKey, messageId: internalId } = MessagePathParam.parse(value, this.activeFolder);
+                        if (isNewMessage({ remoteRef: { internalId } })) {
+                            this.initNewMessage();
+                        }
+                        const { key } = await this.FETCH_MESSAGE_IF_NOT_LOADED({
+                            internalId,
+                            folder: this.folders[folderKey]
+                        });
+                        this.$store.commit("mail-webapp/currentMessage/update", { key: key });
+                    } catch (e) {
+                        console.log(e);
+                        this.$router.push({ name: "mail:home" });
+                    }
                 }
             },
             immediate: true
@@ -119,6 +132,7 @@ export default {
             SET_BLOCK_REMOTE_IMAGES,
             SET_MESSAGE_COMPOSING
         }),
+        ...mapActions("mail", { FETCH_MESSAGE_IF_NOT_LOADED }),
         ...mapActions("alert", { REMOVE, INFO })
     }
 };

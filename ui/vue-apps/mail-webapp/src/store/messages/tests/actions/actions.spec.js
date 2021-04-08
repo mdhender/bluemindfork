@@ -23,6 +23,7 @@ import {
     MARK_MESSAGES_AS_UNREAD
 } from "~actions";
 import { LoadingStatus } from "../../../../model/loading-status";
+import { FETCH_MESSAGE_IF_NOT_LOADED } from "../../../types/actions";
 
 Vue.use(Vuex);
 
@@ -276,6 +277,47 @@ describe("Messages actions", () => {
             inject("MailboxItemsPersistence").multipleById.mockResolvedValueOnce([]);
             await store.dispatch(FETCH_MESSAGE_METADATA, adapted);
             expect(store.state[adapted.key].loading).toEqual(LoadingStatus.ERROR);
+        });
+    });
+    describe("FETCH_MESSAGE_IF_NOT_LOADED", () => {
+        test("Add message to state if not present", () => {
+            const message = messages.pop();
+            store.dispatch(FETCH_MESSAGE_IF_NOT_LOADED, { internalId: message.internalId, folder });
+            const stored = Object.values(store.state);
+            expect(stored.length).toEqual(1);
+            const stub = stored.pop();
+            expect(stub.remoteRef.internalId).toBe(message.internalId);
+            expect(stub.loading).toBe(LoadingStatus.LOADING);
+        });
+        test("Keep message in state if already present", async () => {
+            const message = messages.pop();
+            const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
+            adapted.alreadStored = true;
+            store.commit(ADD_MESSAGES, [adapted]);
+            store.dispatch(FETCH_MESSAGE_METADATA, adapted);
+            expect(store.state[adapted.key].alreadStored).toBeTruthy();
+        });
+        test("Fetch message from remote if not already loaded", async () => {
+            const message = messages.pop();
+            inject("MailboxItemsPersistence").multipleById.mockResolvedValueOnce([message]);
+            const adapted = await store.dispatch(FETCH_MESSAGE_IF_NOT_LOADED, {
+                internalId: message.internalId,
+                folder
+            });
+            expect(inject("MailboxItemsPersistence").multipleById).toBeCalledWith([message.internalId]);
+            expect(store.state[adapted.key].loading).toEqual(LoadingStatus.LOADED);
+            expect(store.state[adapted.key].subject).toEqual("testing");
+        });
+        test("Do not fetch message from remote if not already loaded", async () => {
+            const message = messages.pop();
+            const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
+            adapted.loading = LoadingStatus.LOADING;
+            store.commit(ADD_MESSAGES, [adapted]);
+            await store.dispatch(FETCH_MESSAGE_IF_NOT_LOADED, {
+                internalId: message.internalId,
+                folder
+            });
+            expect(inject("MailboxItemsPersistence").multipleById).not.toBeCalled();
         });
     });
     describe("REMOVE_MESSAGES", () => {

@@ -6,7 +6,7 @@
             ['message-list-item-' + userSettings.mail_message_list_style]: true,
             'not-seen': !message.flags.includes(Flag.SEEN),
             'warning-custom': message.flags.includes(Flag.FLAGGED),
-            active: MESSAGE_IS_SELECTED(message.key) || currentMessageKey === message.key
+            active: MESSAGE_IS_SELECTED(message.key) || IS_CURRENT_MESSAGE(message)
         }"
         role="link"
         @click.exact="navigateTo"
@@ -34,7 +34,7 @@ import MessageListItemLeft from "./MessageListItemLeft";
 import MessageListItemMiddle from "./MessageListItemMiddle";
 import MessageListItemQuickActionButtons from "./MessageListItemQuickActionButtons";
 import ScreenReaderOnlyMessageInformation from "./ScreenReaderOnlyMessageInformation";
-import { MESSAGE_IS_SELECTED } from "~getters";
+import { IS_CURRENT_MESSAGE, MESSAGE_IS_SELECTED } from "~getters";
 
 export default {
     name: "MessageListItem",
@@ -64,16 +64,15 @@ export default {
     },
     computed: {
         ...mapState("mail", ["folders", "activeFolder", "selection"]),
-        ...mapGetters("mail", { MESSAGE_IS_SELECTED }),
-        ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" })
+        ...mapGetters("mail", { MESSAGE_IS_SELECTED, IS_CURRENT_MESSAGE }),
+        ...mapState("session", { userSettings: ({ settings }) => settings.remote })
     },
     methods: {
         onTouch() {
             this.$emit("toggleSelect", this.message.key);
         },
         navigateTo() {
-            this.$router.navigate({ name: "v:mail:message", params: { message: this.message.key } });
+            this.$router.navigate({ name: "v:mail:message", params: { message: this.message } });
         }
     }
 };

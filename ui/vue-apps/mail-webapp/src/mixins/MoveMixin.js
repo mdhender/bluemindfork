@@ -1,11 +1,11 @@
 import { mapActions, mapGetters, mapState } from "vuex";
 
 import { MOVE_MESSAGES, CREATE_FOLDER_HIERARCHY } from "~actions";
-import { MY_MAILBOX } from "~getters";
+import { IS_CURRENT_MESSAGE, MY_MAILBOX } from "~getters";
+import { equal } from "../model/message";
 
 export default {
     computed: {
-        ...mapGetters("mail-webapp", { $_MoveMixin_next: "nextMessageKey" }),
         ...mapState("mail-webapp/currentMessage", { $_MoveMixin_current: "key" }),
         ...mapState("mail", {
             $_MoveMixin_mailboxes: "mailboxes",
@@ -34,10 +34,14 @@ async function move(messages, folder, mailbox, createAction, moveAction) {
 
 function navigate(action) {
     return function ({ messages, folder }) {
-        const next = this.$_MoveMixin_next;
+        let next = this.$store.state.mail.messages[this.$store.getters["mail-webapp/nextMessageKey"]];
         messages = Array.isArray(messages) ? messages : [messages];
         action.call(this, { messages, folder });
-        if (messages.length === 1 && messages[0].key === this.$_MoveMixin_current) {
+        if (messages.length === 1 && this.$store.getters["mail/" + IS_CURRENT_MESSAGE](messages[0])) {
+            //TODO: This is a hack because nextMessageKey from deprecated store can return a wrong nex key
+            if (equal(next, messages[0])) {
+                next = null;
+            }
             this.$router.navigate({ name: "v:mail:message", params: { message: next } });
         }
     };

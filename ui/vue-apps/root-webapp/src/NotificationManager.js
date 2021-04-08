@@ -1,6 +1,4 @@
-import ItemUri from "@bluemind/item-uri";
 import router from "@bluemind/router";
-import store from "@bluemind/store";
 import WebsocketClient from "@bluemind/sockjs";
 import debounce from "lodash.debounce";
 
@@ -45,9 +43,7 @@ export default class NotificationManager {
 
             const sendNotification = ({ data }) => {
                 const onNotifClick = () => {
-                    // FIXME : will not work if mail store or mail routes are not init
-                    const key = ItemUri.encode(Number(data.internalId), store.getters["mail/MY_INBOX"].key);
-                    router.push({ name: "mail:message", params: { message: key } });
+                    router.push({ name: "mail:message", params: { messagepath: data.internalId } });
                 };
 
                 this.send(data.sender, data.subject, mailIconAsBlobURL, onNotifClick);

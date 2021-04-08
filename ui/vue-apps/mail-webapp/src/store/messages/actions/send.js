@@ -1,12 +1,13 @@
 import { EmailValidator, Flag } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
-import ItemUri from "@bluemind/item-uri";
 
 import { ADD_FLAG, SAVE_MESSAGE } from "~actions";
 import { MessageStatus, MessageHeader, MessageCreationModes } from "~model/message";
 import { SET_MESSAGES_STATUS } from "~mutations";
 import MessageAdaptor from "../helpers/MessageAdaptor";
 import { FolderAdaptor } from "../../folders/helpers/FolderAdaptor";
+import * as Folder from "../../../model/folder";
+import * as Message from "../../../model/message";
 
 /** Send the last draft: move it to the Outbox then flush. */
 export default async function (
@@ -81,8 +82,8 @@ function manageFlagOnPreviousMessage({ dispatch, state }, draft) {
 
         const messageInternalId = draftInfoHeader.messageInternalId;
         const folderUid = draftInfoHeader.folderUid;
-
-        const messageKey = ItemUri.encode(parseInt(messageInternalId), folderUid);
+        const folderKey = Folder.generateKey(folderUid);
+        const messageKey = Message.messageKey(messageInternalId, folderKey);
         const message = state[messageKey];
         if (message) {
             dispatch(ADD_FLAG, {

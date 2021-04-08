@@ -33,7 +33,6 @@
         "@bluemind/html-utils": "^4.1.0",
         "@bluemind/i18n": "^4.1.0",
         "@bluemind/inject": "^4.1.0",
-        "@bluemind/item-uri": "^4.1.0",
         "@bluemind/l10n": "^4.1.0",
         "@bluemind/router": "^4.1.0",
         "@bluemind/sentry": "^4.1.0",

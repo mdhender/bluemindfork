@@ -38,11 +38,10 @@
 <script>
 import { mapMutations, mapState } from "vuex";
 
-import ItemUri from "@bluemind/item-uri";
 import { BmButton, BmFileDropZone, BmIcon, BmRichEditor } from "@bluemind/styleguide";
 
 import { REMOVE_MESSAGES, SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~mutations";
-import { isInternalIdFaked } from "~model/draft";
+import { isNewMessage } from "~model/draft";
 import { ComposerActionsMixin, ComposerInitMixin } from "~mixins";
 
 export default {
@@ -60,7 +59,7 @@ export default {
             default: false
         },
         messageKey: {
-            type: String,
+            type: [Number, String],
             required: true
         }
     },
@@ -75,12 +74,8 @@ export default {
     },
     watch: {
         messageKey: {
-            handler: async function (newKey, oldKey) {
-                if (oldKey && isInternalIdFaked(ItemUri.item(oldKey))) {
-                    // when route changes due to an internalId update, preserve component state
-                    return;
-                }
-                if (!isInternalIdFaked(this.message.remoteRef.internalId)) {
+            async handler() {
+                if (!isNewMessage(this.message)) {
                     await this.initFromRemoteMessage(this.message);
                     await this.updateHtmlComposer();
                     this.focus();

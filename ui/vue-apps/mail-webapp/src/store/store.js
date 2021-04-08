@@ -8,6 +8,8 @@ import {
     ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
     ALL_SELECTED_MESSAGES_ARE_UNREAD,
     CURRENT_MAILBOX,
+    CURRENT_MESSAGE,
+    IS_CURRENT_MESSAGE,
     MESSAGE_IS_LOADED,
     MAILSHARE_FOLDERS,
     MAILSHARE_KEYS,
@@ -27,6 +29,7 @@ import { SET_ACTIVE_FOLDER } from "~mutations";
 import { compare, create } from "../model/folder";
 import { LoadingStatus } from "../model/loading-status";
 import { MessageStatus } from "../model/message";
+import { equal } from "../model/message";
 
 export const state = {
     activeFolder: undefined
@@ -62,7 +65,9 @@ export const getters = {
     [MY_OUTBOX]: myGetterFor(OUTBOX),
     [MY_DRAFTS]: myGetterFor(DRAFTS),
     [MY_SENT]: myGetterFor(SENT),
-    [MY_TRASH]: myGetterFor(TRASH)
+    [MY_TRASH]: myGetterFor(TRASH),
+    [CURRENT_MESSAGE]: ({ messages }, getters, { "mail-webapp": { currentMessage } }) => messages[currentMessage.key],
+    [IS_CURRENT_MESSAGE]: ({ messages }, { CURRENT_MESSAGE }) => ({ key }) => equal(messages[key], CURRENT_MESSAGE)
 };
 
 function myGetterFor(name) {

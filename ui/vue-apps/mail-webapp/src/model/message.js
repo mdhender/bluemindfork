@@ -2,17 +2,25 @@ import merge from "lodash.merge";
 import cloneDeep from "lodash.clonedeep";
 import pick from "lodash.pick";
 
-import ItemUri from "@bluemind/item-uri";
 import { LoadingStatus } from "./loading-status";
 
 export function createOnlyMetadata({ internalId, folder: { key, uid } }) {
     return {
-        key: internalId && key ? ItemUri.encode(internalId, key) : null,
+        key: internalId >= 0 && key ? messageKey(internalId, key) : null,
         folderRef: { key, uid },
         remoteRef: { internalId },
         status: MessageStatus.IDLE,
         loading: LoadingStatus.NOT_LOADED
     };
+}
+export function messageKey(id, folderKey) {
+    const string = folderKey + "/" + id;
+    let hash = 0;
+    for (let i = 0; i < string.length; i++) {
+        hash = ((hash << 5) - hash + string.charCodeAt(i)) & 0xffffffff;
+    }
+
+    return hash;
 }
 
 export function createWithMetadata(metadata) {
@@ -97,11 +105,15 @@ export const MessageHeader = {
 export const MessageReplyAttributeSeparator = "data-bm-reply-separator";
 export const MessageForwardAttributeSeparator = "data-bm-forward-separator";
 
-export function updateKey(message, internalId, folderRef) {
-    const newKey = ItemUri.encode(internalId, folderRef.key);
-    const newMessage = { ...message };
-    newMessage.key = newKey;
-    newMessage.remoteRef.internalId = internalId;
-    newMessage.folderRef = folderRef;
-    return newMessage;
+export function equal(a, b) {
+    return (
+        a &&
+        b &&
+        (a.key === b.key ||
+            (a.remoteRef &&
+                a.remoteRef.internalId &&
+                a.folderRef &&
+                a.remoteRef.internalId === b.remoteRef?.internalId &&
+                a.folderRef.key === b.folderRef?.key))
+    );
 }

@@ -20,7 +20,7 @@ export default {
         link() {
             return {
                 name: "v:mail:message",
-                params: { message: this.result.key, folder: this.alert.payload.sentFolder.path }
+                params: { message: this.result, folder: this.alert.payload.sentFolder.path }
             };
         },
         subject() {

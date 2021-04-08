@@ -179,3 +179,7 @@ export function compare(f1, f2) {
         return f1.imapName.localeCompare(f2.imapName);
     }
 }
+
+export function generateKey(folderUid) {
+    return folderUid;
+}

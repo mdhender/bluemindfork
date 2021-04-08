@@ -8,7 +8,7 @@
                 ? 'd-lg-none position-absolute new-message-responsive-btn z-index-110'
                 : 'text-nowrap d-lg-inline-block d-none'
         "
-        @click="initNewMessage"
+        @click="$router.navigate({ name: 'mail:message', params: { messagepath } })"
     >
         <bm-icon v-if="mobile" icon="plus" size="2x" />
         <bm-label-icon v-else icon="plus">{{ $t("mail.main.new") }}</bm-label-icon>
@@ -16,7 +16,9 @@
 </template>
 <script>
 import { BmButton, BmClipPath, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
-import { ComposerInitMixin } from "~mixins";
+import { mapGetters } from "vuex";
+import { MY_DRAFTS } from "~getters";
+import { draftPath } from "../model/draft";
 
 export default {
     name: "NewMessage",
@@ -26,12 +28,17 @@ export default {
         BmLabelIcon
     },
     directives: { BmClipPath },
-    mixins: [ComposerInitMixin],
     props: {
         mobile: {
             type: Boolean,
             required: false,
             default: false
+        }
+    },
+    computed: {
+        ...mapGetters("mail", { MY_DRAFTS }),
+        messagepath() {
+            return draftPath(this.MY_DRAFTS);
         }
     }
 };

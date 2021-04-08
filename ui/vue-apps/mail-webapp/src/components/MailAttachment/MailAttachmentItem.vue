@@ -111,7 +111,7 @@ export default {
             required: true
         },
         messageKey: {
-            type: String,
+            type: [String, Number],
             required: true
         },
         compact: {

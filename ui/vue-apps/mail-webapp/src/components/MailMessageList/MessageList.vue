@@ -181,7 +181,7 @@ export default {
             this.goToByKey(this.messageKeys[index]);
         },
         goToByKey(key) {
-            this.$router.navigate({ name: "v:mail:message", params: { message: key } });
+            this.$router.navigate({ name: "v:mail:message", params: { message: this.messages[key] } });
             this.UNSELECT_ALL_MESSAGES();
         },
         async focusByKey(key) {

@@ -13,14 +13,20 @@ describe("MoveMixin", () => {
         MoveMixin.$router = { navigate: jest.fn() };
         MoveMixin.$_MoveMixin_folders = { key: { key: "key", name: "foldername" } };
         MoveMixin.$_MoveMixin_mailbox = {};
-        MoveMixin.$_MoveMixin_current = "current";
-        MoveMixin.$_MoveMixin_next = "next";
+        MoveMixin.$store = {
+            state: { mail: { messages: { next: "next" } } },
+            getters: {
+                "mail-webapp/nextMessageKey": "next",
+                "mail/IS_CURRENT_MESSAGE": jest.fn().mockReturnValue(false)
+            }
+        };
         MoveMixin.MOVE_MESSAGES = MoveMixin.methods.MOVE_MESSAGES;
     });
     beforeEach(() => {
         MoveMixin.$_MoveMixin_move.mockClear();
         MoveMixin.$_MoveMixin_create.mockClear();
         MoveMixin.$router.navigate.mockClear();
+        MoveMixin.$store.getters["mail/IS_CURRENT_MESSAGE"].mockClear();
     });
 
     test("MOVE_MESSAGES to call move action", async () => {
@@ -47,8 +53,9 @@ describe("MoveMixin", () => {
     });
 
     test("MOVE_MESSAGES to call navigate is current message is moved", async () => {
-        const messages = { key: MoveMixin.$_MoveMixin_current };
+        const messages = { key: "key" };
         const folder = {};
+        MoveMixin.$store.getters["mail/IS_CURRENT_MESSAGE"].mockReturnValue(true);
         MoveMixin.MOVE_MESSAGES({ messages, folder });
         expect(MoveMixin.$router.navigate).toHaveBeenCalledWith({
             name: "v:mail:message",
@@ -56,8 +63,9 @@ describe("MoveMixin", () => {
         });
     });
     test("MOVE_MESSAGES not to call navigate is current message is not the only moved message", async () => {
-        let messages = [MoveMixin.$_MoveMixin_current, { key: "another" }];
+        let messages = [{ key: "key" }, { key: "another" }];
         const folder = {};
+        MoveMixin.$store.getters["mail/IS_CURRENT_MESSAGE"].mockReturnValue(true);
         MoveMixin.MOVE_MESSAGES({ messages, folder });
         expect(MoveMixin.$router.navigate).not.toHaveBeenCalledWith();
         messages = { key: "another" };

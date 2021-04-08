@@ -1,4 +1,4 @@
-import { create, createOnlyMetadata, updateKey } from "../message";
+import { create, createOnlyMetadata } from "../message";
 import MessageAdaptor from "../../store/messages/helpers/MessageAdaptor";
 
 describe("Message model", () => {
@@ -17,17 +17,6 @@ describe("Message model", () => {
         });
     });
 
-    test("update key when it's null", () => {
-        const message = create();
-
-        const folderRef = { key: "folderKey", uid: "folderUid" };
-        const messageWithKey = updateKey(message, 123, folderRef);
-
-        expect(messageWithKey.remoteRef.internalId).toBe(123);
-        expect(messageWithKey.folderRef.key).toBe("folderKey");
-        expect(messageWithKey.folderRef.uid).toBe("folderUid");
-    });
-
     test("update key when it's already set", () => {
         const oldInternalId = 123;
         const oldFolderKey = "oldFolderKey";
@@ -40,14 +29,5 @@ describe("Message model", () => {
         expect(message.remoteRef.internalId).toBe(oldInternalId);
         expect(message.folderRef.key).toBe(oldFolderKey);
         expect(message.folderRef.uid).toBe(oldFolderUid);
-
-        const newInternalId = 321;
-        const newFolderKey = "newFolderKey";
-        const newFolderUid = "newFolderUid";
-
-        const updatedMessage = updateKey(message, newInternalId, { key: newFolderKey, uid: newFolderUid });
-        expect(updatedMessage.remoteRef.internalId).toBe(newInternalId);
-        expect(updatedMessage.folderRef.key).toBe(newFolderKey);
-        expect(updatedMessage.folderRef.uid).toBe(newFolderUid);
     });
 });

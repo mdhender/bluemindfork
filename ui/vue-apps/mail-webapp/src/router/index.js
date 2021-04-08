@@ -12,7 +12,7 @@ export default [
         children: [
             {
                 name: "mail:message",
-                path: ".t/:message",
+                path: ".t/:messagepath",
                 component: MailThread
             },
             { name: "mail:home", path: "", component: MailActionsPanel },

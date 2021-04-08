@@ -73,7 +73,7 @@ import { BmButton, BmIcon, BmDropdown, BmDropdownItemToggle } from "@bluemind/st
 
 import { ComposerActionsMixin } from "~mixins";
 import { MessageStatus } from "~model/message";
-import { isInternalIdFaked } from "~model/draft";
+import { isNewMessage } from "~model/draft";
 
 export default {
     name: "MailComposerFooter",
@@ -90,7 +90,7 @@ export default {
             default: false
         },
         messageKey: {
-            type: String,
+            type: [Number, String],
             required: true
         },
         signature: {
@@ -124,7 +124,7 @@ export default {
                 return this.$t("mail.draft.save.inprogress");
             } else if (this.errorOccuredOnSave) {
                 return this.$t("mail.draft.save.error");
-            } else if (isInternalIdFaked(this.message.remoteRef.internalId)) {
+            } else if (isNewMessage(this.message)) {
                 return "";
             } else {
                 return this.formattedDraftSaveDate;

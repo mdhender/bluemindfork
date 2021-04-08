@@ -77,7 +77,7 @@ export default {
     mixins: [ComposerActionsMixin],
     props: {
         messageKey: {
-            type: String,
+            type: [Number, String],
             required: true
         }
     },

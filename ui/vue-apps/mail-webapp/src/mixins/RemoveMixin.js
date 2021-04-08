@@ -1,11 +1,11 @@
 import { mapActions, mapGetters, mapState } from "vuex";
-import { MY_TRASH } from "~getters";
+import { IS_CURRENT_MESSAGE, MY_TRASH } from "~getters";
 
 import { REMOVE_MESSAGES, MOVE_MESSAGES_TO_TRASH } from "~actions";
+import { equal } from "../model/message";
 
 export default {
     computed: {
-        ...mapGetters("mail-webapp", { $_RemoveMixin_next: "nextMessageKey" }),
         ...mapState("mail-webapp/currentMessage", { $_RemoveMixin_current: "key" }),
         ...mapGetters("mail", { $_RemoveMixin_trash: MY_TRASH })
     },
@@ -16,8 +16,9 @@ export default {
 
             if (messages.some(message => message.folderRef.key !== trash.key)) {
                 this.$_RemoveMixin_move({ messages, folder: trash });
+                return true;
             } else {
-                await this.REMOVE_MESSAGES(messages);
+                return await this.REMOVE_MESSAGES(messages);
             }
         }),
         REMOVE_MESSAGES: navigate(async function (messages) {
@@ -36,6 +37,7 @@ export default {
             if (confirm) {
                 this.$_RemoveMixin_remove(messages);
             }
+            return confirm;
         })
     }
 };
@@ -43,9 +45,13 @@ export default {
 function navigate(action) {
     return async function (messages) {
         messages = Array.isArray(messages) ? [...messages] : [messages];
-        const next = this.$_RemoveMixin_next;
-        await action.call(this, messages);
-        if (messages.length === 1 && messages[0].key === this.$_RemoveMixin_current) {
+        let next = this.$store.state.mail.messages[this.$store.getters["mail-webapp/nextMessageKey"]] || null;
+        const confirm = await action.call(this, messages);
+        if (confirm && messages.length === 1 && this.$store.getters["mail/" + IS_CURRENT_MESSAGE](messages[0])) {
+            //TODO: This is a hack because nextMessageKey from deprecated store can return a wrong nex key
+            if (equal(next, messages[0])) {
+                next = null;
+            }
             this.$router.navigate({ name: "v:mail:message", params: { message: next } });
         }
     };

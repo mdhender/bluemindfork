@@ -12,6 +12,10 @@ import {
     SET_MESSAGES_LOADING_STATUS
 } from "~mutations";
 import { LoadingStatus } from "../../../model/loading-status";
+import { createOnlyMetadata, messageKey } from "../../../model/message";
+import { FolderAdaptor } from "../../folders/helpers/FolderAdaptor";
+import { FETCH_MESSAGE_METADATA } from "../../types/actions";
+import { draftKey } from "../../../model/draft";
 
 export async function addFlag({ commit, getters }, { messages, flag }) {
     messages = Array.isArray(messages) ? messages : [messages];
@@ -37,6 +41,21 @@ export async function deleteFlag({ commit, getters }, { messages, flag }) {
         commit(ADD_FLAG, { messages: locals, flag });
         throw e;
     }
+}
+
+export async function fetchMessageIfNotLoaded({ state, commit, dispatch }, { internalId, folder }) {
+    const key = messageKey(internalId, folder.key);
+    const pendingDraftKey = draftKey(folder);
+    if (!state[key] && state[pendingDraftKey]?.remoteRef.internalId === internalId) {
+        return state[pendingDraftKey];
+    }
+    if (!state[key]) {
+        commit(ADD_MESSAGES, [createOnlyMetadata({ internalId, folder: FolderAdaptor.toRef(folder) })]);
+    }
+    if (state[key].loading === LoadingStatus.NOT_LOADED) {
+        await dispatch(FETCH_MESSAGE_METADATA, state[key]);
+    }
+    return state[key];
 }
 
 export async function fetchMessageMetadata({ state, commit }, messages) {

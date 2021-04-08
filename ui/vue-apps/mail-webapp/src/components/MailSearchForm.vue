@@ -88,12 +88,13 @@ import { mapGetters, mapMutations, mapState } from "vuex";
 import debounce from "lodash.debounce";
 import GlobalEvents from "vue-global-events";
 import { SearchHelper } from "../store.deprecated/SearchHelper";
-import { MY_SENT, MY_INBOX, MY_TRASH } from "~getters";
+import { MY_SENT, MY_MAILBOX, MY_INBOX, MY_TRASH } from "~getters";
 import { isMailshareRoot } from "~model/folder";
 import { MessageListStatus } from "../store/messageList";
 import { SET_MESSAGE_LIST_STATUS } from "~mutations";
 import { translatePath } from "~model/folder";
 import { MailRoutesMixin } from "~mixins";
+import { LoadingStatus } from "../model/loading-status";
 
 const SPINNER_TIMEOUT = 250;
 const UPDATE_ROUTE_TIMEOUT = 1000;
@@ -139,7 +140,7 @@ export default {
     computed: {
         ...mapState("mail", { currentSearch: ({ messageList }) => messageList.search }),
         ...mapState("mail", ["folders", "mailboxes", "activeFolder"]),
-        ...mapGetters("mail", { MY_INBOX, MY_SENT, MY_TRASH }),
+        ...mapGetters("mail", { MY_INBOX, MY_MAILBOX, MY_SENT, MY_TRASH }),
         filteredFolders() {
             if (this.folderPattern !== "") {
                 const filtered = Object.values(this.folders).filter(folder =>
@@ -152,13 +153,17 @@ export default {
             return this.suggestedFolders;
         },
         suggestedFolders() {
-            return [
-                { key: null, path: this.$t("common.all") },
-                this.MY_INBOX,
-                { ...this.folders[this.activeFolder], ...{ path: this.$t("mail.search.options.folder.current") } },
-                this.MY_SENT,
-                this.MY_TRASH
-            ];
+            if (this.MY_MAILBOX && this.MY_MAILBOX.loading === LoadingStatus.LOADED) {
+                return [
+                    { key: null, path: this.$t("common.all") },
+                    this.MY_INBOX,
+                    { ...this.folders[this.activeFolder], ...{ path: this.$t("mail.search.options.folder.current") } },
+                    this.MY_SENT,
+                    this.MY_TRASH
+                ];
+            } else {
+                return [{ key: null, path: this.$t("common.all") }];
+            }
         },
         searchQuery() {
             let searchQuery = '"' + this.pattern + '"';
@@ -170,14 +175,14 @@ export default {
     },
     watch: {
         currentSearch: {
-            handler: function ({ pattern, folder }) {
+            async handler({ pattern, folder }) {
                 this.pattern = pattern;
                 this.setFolderFromKeyOrInitial(folder);
             },
             deep: true
         }
     },
-    created() {
+    async created() {
         this.pattern = this.currentSearch.pattern;
         this.initialFolder = this.suggestedFolders[0];
         this.setFolderFromKeyOrInitial(this.currentSearch.folder);

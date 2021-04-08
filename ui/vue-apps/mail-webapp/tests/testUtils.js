@@ -1,18 +1,19 @@
 import merge from "lodash.merge";
 import Vuex from "vuex";
+import { createLocalVue, mount } from "@vue/test-utils";
+
 import AlertStore from "@bluemind/alert.store";
-import MailAppStore from "../src/store";
-import OldMailAppStore from "../src/store.deprecated";
 import inject from "@bluemind/inject";
 
-import { createLocalVue, mount } from "@vue/test-utils";
-import { ItemUri } from "@bluemind/item-uri";
+import MailAppStore from "../src/store";
+import OldMailAppStore from "../src/store.deprecated";
+import { messageKey as generateKey } from "../src/model/message";
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
 const folderUid = "folder:uid";
-export const messageKey = ItemUri.encode("message:id", folderUid);
+export const messageKey = generateKey(1, folderUid);
 const userId = "6793466E-F5D4-490F-97BF-DF09D3327BF4";
 
 inject.register({

@@ -35,7 +35,7 @@ export default {
     },
     props: {
         messageKey: {
-            type: String,
+            type: [Number, String],
             required: true
         }
     },

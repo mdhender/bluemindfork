@@ -1,6 +1,14 @@
 import { withAlert } from "../../helpers/withAlert";
 
-import { addFlag, deleteFlag, emptyFolder, fetchMessageMetadata, moveMessages, removeMessages } from "./actions";
+import {
+    addFlag,
+    deleteFlag,
+    emptyFolder,
+    fetchMessageIfNotLoaded,
+    fetchMessageMetadata,
+    moveMessages,
+    removeMessages
+} from "./actions";
 import addAttachments from "./addAttachments";
 import removeAttachment from "./removeAttachment";
 import { debouncedSave, saveAsap } from "./save";
@@ -11,6 +19,7 @@ import {
     DEBOUNCED_SAVE_MESSAGE,
     DELETE_FLAG,
     EMPTY_FOLDER,
+    FETCH_MESSAGE_IF_NOT_LOADED,
     FETCH_MESSAGE_METADATA,
     MARK_MESSAGE_AS_FLAGGED,
     MARK_MESSAGE_AS_READ,
@@ -20,6 +29,8 @@ import {
     MARK_MESSAGES_AS_READ,
     MARK_MESSAGES_AS_UNFLAGGED,
     MARK_MESSAGES_AS_UNREAD,
+    MOVE_MESSAGES_TO_TRASH,
+    MOVE_MESSAGES,
     REMOVE_ATTACHMENT,
     REMOVE_MESSAGES,
     SAVE_MESSAGE,
@@ -27,7 +38,6 @@ import {
 } from "~actions";
 
 import { Flag } from "@bluemind/email";
-import { MOVE_MESSAGES, MOVE_MESSAGES_TO_TRASH } from "../../types/actions";
 
 const markAsUnread = ({ dispatch }, messages) => dispatch(DELETE_FLAG, { messages, flag: Flag.SEEN });
 const markAsRead = ({ dispatch }, messages) => dispatch(ADD_FLAG, { messages, flag: Flag.SEEN });
@@ -40,6 +50,7 @@ export default {
     [DEBOUNCED_SAVE_MESSAGE]: debouncedSave,
     [DELETE_FLAG]: deleteFlag,
     [EMPTY_FOLDER]: withAlert(emptyFolder, EMPTY_FOLDER, "EmptyFolder"),
+    [FETCH_MESSAGE_IF_NOT_LOADED]: fetchMessageIfNotLoaded,
     [FETCH_MESSAGE_METADATA]: fetchMessageMetadata,
     [MARK_MESSAGE_AS_FLAGGED]: markAsFlagged,
     [MARK_MESSAGE_AS_READ]: markAsRead,

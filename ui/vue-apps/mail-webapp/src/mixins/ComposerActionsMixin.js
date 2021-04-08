@@ -12,8 +12,7 @@ import {
 } from "~actions";
 import { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~getters";
 import { ADD_MESSAGES } from "~mutations";
-import { isInternalIdFaked } from "~model/draft";
-import { updateKey } from "~model/message";
+import { isNewMessage } from "~model/draft";
 
 /**
  * Provide composition Vuex actions to components
@@ -54,7 +53,7 @@ export default {
         }),
         ...mapMutations("mail", { $_ComposerActionsMixin_ADD_MESSAGES: ADD_MESSAGES }),
         async debouncedSave() {
-            const wasMessageOnlyLocal = isInternalIdFaked(this.$_ComposerActionsMixin_message.remoteRef.internalId);
+            const wasMessageOnlyLocal = isNewMessage(this.$_ComposerActionsMixin_message);
             await this.$_ComposerActionsMixin_DEBOUNCED_SAVE({
                 draft: this.$_ComposerActionsMixin_message,
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
@@ -62,7 +61,7 @@ export default {
             this.updateRoute(wasMessageOnlyLocal);
         },
         async saveAsap() {
-            const wasMessageOnlyLocal = isInternalIdFaked(this.$_ComposerActionsMixin_message.remoteRef.internalId);
+            const wasMessageOnlyLocal = isNewMessage(this.$_ComposerActionsMixin_message);
             await this.$_ComposerActionsMixin_SAVE_MESSAGE({
                 draft: this.$_ComposerActionsMixin_message,
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
@@ -70,17 +69,14 @@ export default {
             this.updateRoute(wasMessageOnlyLocal);
         },
         updateRoute(wasMessageOnlyLocal) {
-            if (wasMessageOnlyLocal) {
-                const oldMessageKey = this.$_ComposerActionsMixin_message.key;
-                const message = updateKey(
-                    this.$_ComposerActionsMixin_message,
-                    this.$_ComposerActionsMixin_message.remoteRef.internalId,
-                    this.$_ComposerActionsMixin_message.folderRef
-                );
-                this.$_ComposerActionsMixin_ADD_MESSAGES([message]);
-                if (this.$_ComposerActionsMixin_currentMessageKey === oldMessageKey) {
-                    this.$router.navigate({ name: "v:mail:message", params: { message: message.key } });
-                }
+            if (
+                wasMessageOnlyLocal &&
+                this.$_ComposerActionsMixin_currentMessageKey === this.$_ComposerActionsMixin_message.key
+            ) {
+                this.$router.navigate({
+                    name: "v:mail:message",
+                    params: { message: this.$_ComposerActionsMixin_message }
+                });
             }
         },
         addAttachments(files) {
@@ -98,7 +94,7 @@ export default {
             });
         },
         async deleteDraft() {
-            if (isInternalIdFaked(this.$_ComposerActionsMixin_message.remoteRef.internalId)) {
+            if (isNewMessage(this.$_ComposerActionsMixin_message)) {
                 this.$router.navigate("v:mail:home");
             } else {
                 const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.draft.delete.confirm.content"), {

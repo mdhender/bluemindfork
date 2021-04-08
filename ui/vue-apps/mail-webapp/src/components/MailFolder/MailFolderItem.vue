@@ -104,7 +104,7 @@ export default {
             if (this.folder && this.folder.remoteRef.uid) {
                 this.RENAME_FOLDER({ folder: this.folder, name, mailbox });
                 if (this.activeFolder === this.folder.key) {
-                    this.$router.navigate({ name: "v:mail:message", params: { folder: this.folder.key } });
+                    this.$router.navigate({ name: "v:mail:message", params: { folder: this.folder.path } });
                 }
             } else if (this.folder) {
                 const parent = this.folders[this.folder.parent];

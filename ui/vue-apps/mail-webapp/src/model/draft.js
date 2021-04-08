@@ -1,5 +1,6 @@
 import { EmailExtractor, Flag, MimeType } from "@bluemind/email";
 
+import MessagePathParam from "../router/MessagePathParam";
 import { AttachmentStatus } from "./attachment";
 import { LoadingStatus } from "./loading-status";
 import {
@@ -9,24 +10,37 @@ import {
     MessageCreationModes,
     MessageForwardAttributeSeparator,
     MessageReplyAttributeSeparator,
-    MessageStatus
+    MessageStatus,
+    messageKey
 } from "./message";
 import { mergePartsForRichEditor, mergePartsForTextarea } from "./part";
 import { removeSignatureIds } from "./signature";
 
-const FAKED_INTERNAL_ID = "faked-internal-id";
+const TEMPORARY_MESSAGE_ID = 0;
+let DRAFT_HASH = 0;
 
-export function isInternalIdFaked(internalId) {
-    return internalId === FAKED_INTERNAL_ID;
+export function isNewMessage({ remoteRef: { internalId } }) {
+    return internalId === TEMPORARY_MESSAGE_ID;
+}
+
+export function draftKey(myDrafts) {
+    return messageKey(DRAFT_HASH, myDrafts.key);
+}
+
+export function draftPath(myDrafts) {
+    return MessagePathParam.build(undefined, {
+        remoteRef: { internalId: TEMPORARY_MESSAGE_ID },
+        folderRef: { key: myDrafts.key }
+    });
 }
 
 export function createEmpty(myDraftsFolder, userSession) {
     const metadata = {
-        internalId: FAKED_INTERNAL_ID,
+        internalId: TEMPORARY_MESSAGE_ID,
         folder: { key: myDraftsFolder.key, uid: myDraftsFolder.remoteRef.uid }
     };
     const message = createMessage(metadata);
-
+    message.key = messageKey(--DRAFT_HASH, myDraftsFolder.key);
     message.date = new Date();
     message.from = {
         address: userSession.defaultEmail,

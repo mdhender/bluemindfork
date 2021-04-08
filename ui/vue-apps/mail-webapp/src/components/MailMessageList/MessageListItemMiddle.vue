@@ -49,7 +49,6 @@ import { BmIcon } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
 import { Flag } from "@bluemind/email";
 import { mapGetters, mapState } from "vuex";
-import ItemUri from "@bluemind/item-uri";
 import MailFolderIcon from "../MailFolderIcon";
 import { MailboxType } from "~model/mailbox";
 import { MY_DRAFTS, MY_SENT, MESSAGE_LIST_IS_SEARCH_MODE, MESSAGE_IS_SELECTED } from "~getters";
@@ -114,7 +113,7 @@ export default {
                 .sort((a, b) => a.order - b.order);
         },
         folder() {
-            return Object.values(this.folders).find(folder => folder.key === ItemUri.container(this.message.key));
+            return this.folders[this.message.folderRef.key];
         },
         isActive() {
             return this.MESSAGE_IS_SELECTED(this.message.key) || this.message.key === this.currentMessageKey;

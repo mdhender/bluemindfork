@@ -112,7 +112,7 @@ export default {
         },
 
         // case of a new message
-        async initNewMessage() {
+        initNewMessage() {
             const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS, inject("UserSession"));
             this.$_ComposerInitMixin_ADD_MESSAGES([message]);
             let content = "";
@@ -122,7 +122,6 @@ export default {
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(null);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
-            return this.$router.navigate({ name: "v:mail:message", params: { message: message.key } });
         },
 
         // case of a reply or forward message
@@ -183,7 +182,7 @@ export default {
                 this.$_ComposerInitMixin_SET_ATTACHMENTS_FORWARDED(forwardedAttachments);
             }
 
-            this.$router.navigate({ name: "v:mail:message", params: { message: message.key } });
+            this.$router.navigate({ name: "v:mail:message", params: { message: message } });
         }
     }
 };
