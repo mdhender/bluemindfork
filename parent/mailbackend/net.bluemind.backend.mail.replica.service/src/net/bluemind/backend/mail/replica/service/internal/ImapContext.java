@@ -28,6 +28,9 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.net.NetClient;
+import io.vertx.core.net.NetClientOptions;
 import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
@@ -40,7 +43,7 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.imap.vertx.IAsyncStoreClient;
 import net.bluemind.imap.vertx.VXStoreClient;
-import net.bluemind.imap.vertx.connection.EventBusConnectionSupport;
+import net.bluemind.imap.vertx.connection.NetClientConnectionSupport;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
@@ -56,6 +59,8 @@ public class ImapContext {
 
 	protected static final Cache<String, ImapContext> sidToCtxCache = createCache();
 
+	private static final NetClientConnectionSupport netClientSupport = createNetClient();
+
 	public final AuthUser user;
 
 	public static class CacheRegistration implements ICacheRegistration {
@@ -63,6 +68,13 @@ public class ImapContext {
 		public void registerCaches(CacheRegistry cr) {
 			cr.register(ImapContext.class, sidToCtxCache);
 		}
+	}
+
+	private static final NetClientConnectionSupport createNetClient() {
+		Vertx vx = VertxPlatform.getVertx();
+		NetClientOptions nco = new NetClientOptions().setIdleTimeout(6 * 60).setTcpNoDelay(true).setReuseAddress(true);
+		NetClient nc = vx.createNetClient(nco);
+		return new NetClientConnectionSupport(vx, nc);
 	}
 
 	private static final Cache<String, ImapContext> createCache() {
@@ -103,8 +115,7 @@ public class ImapContext {
 		public PoolableStoreClient(String hostname, int port, String login, String password) {
 			super(hostname, port, login, password, 15);
 			this.lock = new ReentrantLock();
-			this.fastFetch = new VXStoreClient(new EventBusConnectionSupport(VertxPlatform.getVertx()), hostname, port,
-					login, password);
+			this.fastFetch = new VXStoreClient(netClientSupport, hostname, port, login, password);
 		}
 
 		public void close() {
