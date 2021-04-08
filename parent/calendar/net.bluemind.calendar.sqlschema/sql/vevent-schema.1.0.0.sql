@@ -140,15 +140,14 @@ create table t_calendar_vevent (
 );
 
 CREATE INDEX tcv_item_id_fkey ON t_calendar_vevent(item_id);
-CREATE INDEX idx_calendar_vevent_valarm_trigger ON t_calendar_vevent (valarm_trigger );
+CREATE INDEX idx_calendar_vevent_valarm_trigger ON t_calendar_vevent (valarm_trigger);
 
 
-create table t_calendar_series (
+CREATE TABLE t_calendar_series (
   ics_uid text NOT NULL,
   properties hstore,
   accept_counters boolean,
-  item_id int4 references t_container_item(id) on delete cascade UNIQUE
+  item_id int4 REFERENCES t_container_item(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 CREATE INDEX t_calendar_series_item_id ON t_calendar_series(item_id);
 CREATE INDEX idx_calendar_series_lowercase_icsuid ON t_calendar_series (lower(ics_uid));
-
