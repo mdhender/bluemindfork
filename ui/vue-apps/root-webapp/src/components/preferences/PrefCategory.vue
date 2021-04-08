@@ -1,22 +1,26 @@
 <template>
     <div :id="categoryId(section.code, category.code)" class="pref-category">
-        <div v-for="field in filteredFields" :key="field.name" class="pref-field">
-            <h2 class="py-4">
-                {{ field.name }}
-                <span v-if="field.availableSoon" class="available-soon">{{ $t("common.available_soon") }}</span>
+        <div v-for="group in filteredFieldsGroups" :key="group.title" class="pref-field">
+            <h2 class="pt-4 pb-2">
+                {{ group.title }}
+                <span v-if="group.availableSoon" class="available-soon">{{ $t("common.available_soon") }}</span>
             </h2>
-            <bm-form-group :aria-label="field.name" :disabled="field.availableSoon">
-                <component
-                    :is="field.component"
-                    v-bind="{
-                        'local-user-settings': localUserSettings,
-                        setting: field.setting,
-                        name: field.name,
-                        options: field.options
-                    }"
-                />
-                <template v-if="field.options && field.options.additional_component">
-                    <component :is="field.options.additional_component" />
+            <bm-form-group :aria-label="group.title" :disabled="group.availableSoon">
+                <template v-for="field in group.fields">
+                    <bm-form-group :key="field.name" :aria-label="field.name" :label="field.name">
+                        <component
+                            :is="field.component"
+                            v-bind="{
+                                'local-user-settings': localUserSettings,
+                                setting: field.setting,
+                                name: field.name,
+                                options: field.options
+                            }"
+                        />
+                    </bm-form-group>
+                    <template v-if="field.options && field.options.additional_component">
+                        <component :is="field.options.additional_component" :key="field.name" />
+                    </template>
                 </template>
             </bm-form-group>
         </div>
@@ -69,9 +73,9 @@ export default {
         }
     },
     computed: {
-        filteredFields() {
-            return this.category.fields.filter(
-                field => !Object.prototype.hasOwnProperty.call(field, "condition") || field.condition
+        filteredFieldsGroups() {
+            return this.category.groups.filter(
+                group => !Object.prototype.hasOwnProperty.call(group, "condition") || group.condition
             );
         }
     }

@@ -49,6 +49,8 @@
     "preferences.calendar.main.default_reminder": "Standard Erinnerung",
     "preferences.calendar.main.default_allday_reminder": "Standard Erinnerungs für ganztägige Termine",
     "preferences.calendar.main.default_reminder_kind": "Standard Erinnerungstyp",
+    "preferences.calendar.main.configure_view": "TODO",
+    "preferences.calendar.main.reminder": "TODO",
     
     "preferences.mail.thread": "Gemeinsame Anzeige zusammengehöriger E-Mails (Konversationen)",
     "preferences.mail.thread.disable": "E-Mails einzeln anzeigen",

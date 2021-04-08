@@ -49,6 +49,8 @@
     "preferences.calendar.main.default_reminder": "Rappel par défaut",
     "preferences.calendar.main.default_allday_reminder": "Rappel par défaut pour événement \"journée complète\"",
     "preferences.calendar.main.default_reminder_kind": "Type de rappel par défaut",
+    "preferences.calendar.main.configure_view": "Affichage de l'agenda",
+    "preferences.calendar.main.reminder": "Rappel d'évènement",
 
     "preferences.mail.thread": "Afficher ensemble les réponses au même message (conversations)",
     "preferences.mail.thread.disable": "Ne pas grouper les conversations",

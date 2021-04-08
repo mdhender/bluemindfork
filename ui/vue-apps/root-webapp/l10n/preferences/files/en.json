@@ -49,6 +49,8 @@
     "preferences.calendar.main.default_reminder": "Default event alert",
     "preferences.calendar.main.default_allday_reminder": "Default all-day event alert",
     "preferences.calendar.main.default_reminder_kind": "Default alert notification type",
+    "preferences.calendar.main.configure_view": "TODO",
+    "preferences.calendar.main.reminder": "TODO",
 
     "preferences.mail.thread": "Show replies to the same message together (conversations)",
     "preferences.mail.thread.disable": "Show messages individually",

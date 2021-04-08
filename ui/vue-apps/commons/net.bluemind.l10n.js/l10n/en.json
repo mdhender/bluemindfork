@@ -96,5 +96,6 @@
     "common.add": "Add",
     "common.display_name": "Display name",
     "common.label": "Label",
-    "common.signature": "Signature"
+    "common.signature": "Signature",
+    "common.localization": "Localization"
 }
