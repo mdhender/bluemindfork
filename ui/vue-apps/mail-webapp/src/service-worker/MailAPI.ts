@@ -1,33 +1,93 @@
-import {
-    ChangeSet,
-    FilteredChangeSet,
-    MailFolder,
-    MailItem,
-    OwnerSubscription,
-    SessionInfo
-} from "./entry";
-
-//@FIXME: it might be possible to force certain methods depending on the route.
-type Route = "mail_folders" | "mail_items" | "containers/_subscriptions";
-type Method = "_all" | "_filteredChangesetById" | "_multipleById" | "_changesetById" | "_mgetById";
+import { ChangeSet, FilteredChangeSet, MailFolder, MailItem, OwnerSubscription, SessionInfo } from "./entry";
 
 interface MailAPIOptions {
     sid: string;
 }
 
-interface MailItemAPI {
-    fetch: (uid: string, ids: number[]) => Promise<MailItem[]>;
-    changeset: (uid: string, version: number) => Promise<FilteredChangeSet>;
+type Uid = string;
+type UserInfos = { userId: string; domain: string };
+type Endpoint = string;
+type EndpointMethods = { [key: string]: string };
+
+interface API<T, V extends EndpointMethods> {
+    methods: () => V;
+    endpoint: (method: string, options: T) => Endpoint;
 }
 
-interface MailFolderAPI {
-    fetch: ({ userId, domain }: { userId: string; domain: string }) => Promise<MailFolder[]>;
-    changeset: ({ userId, domain }: { userId: string; domain: string }, version: number) => Promise<ChangeSet>;
+interface ChangelogAPIEndpointMethods extends EndpointMethods {
+    mget: string;
+    changeset: string;
+    filteredChangeset: string;
 }
 
-interface OwnerSubscriptionsAPI {
-    fetch: ({ userId, domain }: { userId: string; domain: string }, ids: number[]) => Promise<OwnerSubscription[]>;
-    changeset: ({ userId, domain }: { userId: string; domain: string }, version: number) => Promise<ChangeSet>;
+interface IChangelogAPI<T, U> extends API<T, ChangelogAPIEndpointMethods> {
+    methods: () => ChangelogAPIEndpointMethods;
+    mget: (options: T, ids: number[]) => Promise<U[]>;
+    changeset: (options: T, version: number) => Promise<ChangeSet>;
+    filteredChangeset?: (options: T, version: number) => Promise<FilteredChangeSet>;
+}
+
+abstract class ChangelogAPI<T, U> implements IChangelogAPI<T, U> {
+    requestInit: RequestInit;
+
+    constructor(requestInit: RequestInit ) {
+        this.requestInit = requestInit;
+    }
+
+    abstract endpoint(method: string, options: T): Endpoint;
+
+    methods() {
+        return {
+            mget: "_mgetById",
+            changeset: "_changesetById",
+            filteredChangeset: "_filteredChangesetById"
+        };
+    }
+
+    async mget(options: T, ids: number[]): Promise<U[]> {
+        const endpoint = this.endpoint(this.methods().mget, options);
+        return fetchAPI<U[]>(endpoint, {
+            ...this.requestInit,
+            body: JSON.stringify(ids),
+            method: "POST"
+        });
+    }
+
+    async changeset(options: T, version: number) {
+        const endpoint = this.endpoint(this.methods().changeset, options);
+        return fetchAPI<ChangeSet>(`${endpoint}?since=${version}`, this.requestInit);
+    }
+}
+
+class MailItemAPI extends ChangelogAPI<Uid, MailItem> {
+    endpoint(method: string, uid: Uid) {
+        return `/api/mail_items/${uid}/${method}`;
+    }
+
+    methods() {
+        return { ...super.methods(), mget: "_multipleById" };
+    }
+
+    async filteredChangeset(uid: Uid, version: number) {
+        const endpoint = this.endpoint(this.methods().filteredChangeset, uid);
+        return fetchAPI<FilteredChangeSet>(`${endpoint}?since=${version}`, {
+            ...this.requestInit,
+            body: JSON.stringify({ must: [], mustNot: ["Deleted"] }),
+            method: "POST"
+        });
+    }
+}
+
+class MailFolderAPI extends ChangelogAPI<UserInfos, MailFolder> {
+    endpoint(method: string, { userId, domain }: UserInfos) {
+        return `/api/mail_folders/${domain.replace(".", "_")}/user.${userId}/${method}`;
+    }
+}
+
+class OwnerSubscriptionsAPI extends ChangelogAPI<UserInfos, OwnerSubscription> {
+    endpoint(method: string, { userId, domain }: UserInfos) {
+        return `/api/containers/_subscriptions/${domain}/${userId}/${method}`;
+    }
 }
 
 export class MailAPI {
@@ -44,74 +104,14 @@ export class MailAPI {
             credentials: "include"
         };
 
-        this.mailItem = {
-            fetch(uid: string, ids: number[]) {
-                const route: Route = "mail_items";
-                const method: Method = "_multipleById";
-                return fetchAPI<MailItem[]>(`/api/${route}/${uid}/${method}`, {
-                    ...requestInit,
-                    body: JSON.stringify(ids),
-                    method: "POST"
-                });
-            },
-
-            async changeset(uid: string, version: number) {
-                const method: Method = "_filteredChangesetById";
-                const route: Route = "mail_items";
-                return fetchAPI<FilteredChangeSet>(`/api/${route}/${uid}/${method}?since=${version}`, {
-                    ...requestInit,
-                    body: JSON.stringify({ must: [], mustNot: ["Deleted"] }),
-                    method: "POST"
-                });
-            }
-        };
-
-        this.mailFolder = {
-            async fetch({ userId, domain }: { userId: string; domain: string }) {
-                const route: Route = "mail_folders";
-                const method: Method = "_all";
-                return fetchAPI<MailFolder[]>(
-                    `/api/${route}/${domain.replace(".", "_")}/user.${userId}/${method}`,
-                    requestInit
-                );
-            },
-
-            async changeset({ userId, domain }: { userId: string; domain: string }, version: number) {
-                const method: Method = "_changesetById";
-                const route: Route = "mail_folders";
-                return fetchAPI<ChangeSet>(
-                    `/api/${route}/${domain.replace(".", "_")}/user.${userId}/${method}?since=${version}`,
-                    {
-                        ...requestInit
-                    }
-                );
-            }
-        };
-
-        this.ownerSubscriptions = {
-            fetch({ userId, domain }: { userId: string; domain: string }, ids: number[]) {
-                const route: Route = "containers/_subscriptions";
-                const method: Method = "_mgetById";
-                return fetchAPI<OwnerSubscription[]>(`/api/${route}/${domain}/${userId}/${method}`, {
-                    ...requestInit,
-                    body: JSON.stringify(ids),
-                    method: "POST"
-                });
-            },
-
-            async changeset({ userId, domain }: { userId: string; domain: string }, version: number) {
-                const route: Route = "containers/_subscriptions";
-                const method: Method = "_changesetById";
-                return fetchAPI<ChangeSet>(`/api/${route}/${domain}/${userId}/${method}?since=${version}`, {
-                    ...requestInit,
-                });
-            }
-        }
+        this.mailItem = new MailItemAPI(requestInit);
+        this.mailFolder = new MailFolderAPI(requestInit);
+        this.ownerSubscriptions = new OwnerSubscriptionsAPI(requestInit);
     }
 
     static async fetchSessionInfos(): Promise<SessionInfo> {
         return fetchAPI<SessionInfo>("/session-infos");
-    };
+    }
 }
 
 async function fetchAPI<T>(url: string, requestInit?: RequestInit): Promise<T> {

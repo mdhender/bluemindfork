@@ -21,7 +21,7 @@ describe("sync", () => {
             deleted: [3],
             version: 1
         });
-        fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_all", [
+        fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_mgetById", [
             {
                 uid: 1,
                 internalId: 1,
@@ -31,18 +31,26 @@ describe("sync", () => {
                 uid: 2,
                 internalId: 2,
                 name: "folder2"
-            },
-            {
-                uid: 3,
-                internalId: 3,
-                name: "folder3"
-            },
-            {
-                uid: 4,
-                internalId: 4,
-                name: "folder4"
             }
         ]);
+        fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=0", {
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 1
+        });
+        fetchMock.mock("/api/mail_items/2/_filteredChangesetById?since=0", {
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 1
+        });
+        fetchMock.mock("/api/mail_items/4/_filteredChangesetById?since=0", {
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 1
+        });
         const dbPromise = Session.db();
         expect(await (await (await dbPromise).dbPromise).getAll("sync_options")).toMatchInlineSnapshot(`Array []`);
         expect(await (await (await dbPromise).dbPromise).getAll("mail_folders")).toMatchInlineSnapshot(`Array []`);
@@ -50,6 +58,18 @@ describe("sync", () => {
         expect(updated).toBeTruthy();
         expect(await (await (await dbPromise).dbPromise).getAll("sync_options")).toMatchInlineSnapshot(`
             Array [
+              Object {
+                "pending": false,
+                "type": "mail_item",
+                "uid": 1,
+                "version": 1,
+              },
+              Object {
+                "pending": false,
+                "type": "mail_item",
+                "uid": 2,
+                "version": 1,
+              },
               Object {
                 "type": "mail_folder",
                 "uid": "user.baz@foo_bar",
@@ -74,19 +94,59 @@ describe("sync", () => {
     });
 
     test("syncMyMailbox for the second time", async () => {
+        let updated = await syncMyMailbox();
+        expect(updated).toBeTruthy();
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=1", {
             created: [4],
             updated: [2],
             deleted: [1],
             version: 2
         });
-        let updated = await syncMyMailbox();
-        expect(updated).toBeTruthy();
+        fetchMock.mock("/api/mail_items/2/_filteredChangesetById?since=1", {
+            created: [],
+            updated: [],
+            deleted: [],
+            version: 1
+        });
+        fetchMock.mock(
+            "/api/mail_folders/foo_bar/user.baz/_mgetById",
+            [
+                {
+                    uid: 4,
+                    internalId: 4,
+                    name: "folder4"
+                },
+                {
+                    uid: 2,
+                    internalId: 2,
+                    name: "folder2"
+                }
+            ],
+            { overwriteRoutes: true }
+        );
         updated = await syncMyMailbox();
         expect(updated).toBeTruthy();
         const dbPromise = Session.db();
         expect(await (await (await dbPromise).dbPromise).getAll("sync_options")).toMatchInlineSnapshot(`
             Array [
+              Object {
+                "pending": false,
+                "type": "mail_item",
+                "uid": 1,
+                "version": 1,
+              },
+              Object {
+                "pending": false,
+                "type": "mail_item",
+                "uid": 2,
+                "version": 1,
+              },
+              Object {
+                "pending": false,
+                "type": "mail_item",
+                "uid": 4,
+                "version": 1,
+              },
               Object {
                 "type": "mail_folder",
                 "uid": "user.baz@foo_bar",
@@ -111,18 +171,58 @@ describe("sync", () => {
     });
 
     test("syncMailFolders", async () => {
-        fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=0", {
-            created: [{ id: 1, version: 0 }],
+        fetchMock.mock("/api/containers/_subscriptions/foo.bar/baz/_changesetById?since=0", {
+            created: ["subscription1"],
             updated: [],
-            deleted: [{ id: 3, version: 0 }],
+            deleted: [],
             version: 1
         });
-        fetchMock.mock("/api/mail_items/2/_filteredChangesetById?since=0", {
-            created: [{ id: 1, version: 0 }],
-            updated: [],
-            deleted: [{ id: 1, version: 0 }],
-            version: 1
-        });
+        fetchMock.mock("/api/containers/_subscriptions/foo.bar/baz/_mgetById", [
+            {
+                uid: "subscription1",
+                value: {
+                    owner: (await Session.infos()).userId,
+                    offlineSync: true,
+                    containerType: "mailboxacl"
+                }
+            }
+        ]);
+        fetchMock.mock(
+            "/api/mail_folders/foo_bar/user.baz/_mgetById",
+            [
+                {
+                    uid: 1,
+                    internalId: 1,
+                    name: "folder1"
+                },
+                {
+                    uid: 2,
+                    internalId: 2,
+                    name: "folder2"
+                }
+            ],
+            { overwriteRoutes: true }
+        );
+        fetchMock.mock(
+            "/api/mail_items/1/_filteredChangesetById?since=0",
+            {
+                created: [{ id: 1, version: 0 }],
+                updated: [],
+                deleted: [{ id: 3, version: 0 }],
+                version: 1
+            },
+            { overwriteRoutes: true }
+        );
+        fetchMock.mock(
+            "/api/mail_items/2/_filteredChangesetById?since=0",
+            {
+                created: [{ id: 1, version: 0 }],
+                updated: [],
+                deleted: [{ id: 1, version: 0 }],
+                version: 1
+            },
+            { overwriteRoutes: true }
+        );
         fetchMock.mock("api/mail_items/1/_multipleById", [
             {
                 internalId: "foobar1",
@@ -172,6 +272,11 @@ describe("sync", () => {
                 "pending": false,
                 "type": "mail_item",
                 "uid": 2,
+                "version": 1,
+              },
+              Object {
+                "type": "owner_subscriptions",
+                "uid": "baz@foo.bar.subscriptions",
                 "version": 1,
               },
               Object {
@@ -321,6 +426,8 @@ describe("sync", () => {
         fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_changesetById?since=0", {
             created: [], updated: [], deleted: [], version: 1
         });
+        fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_mgetById", []);
+
         await syncMailbox("foo.bar", "baz");
         expect(fetchMock.called("/api/mail_folders/foo_bar/user.baz/_changesetById?since=0")).toBeTruthy();
         expect(await db.getAll("sync_options")).toMatchInlineSnapshot(`
@@ -353,7 +460,7 @@ describe("sync", () => {
     test("consecutive syncMailbox calls without a newer version should return false", async () => {
         fetchMock.reset();
         fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
-        fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_all", [
+        fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_mgetById", [
             {
                 uid: 1,
                 internalId: 1,
@@ -403,7 +510,7 @@ describe("sync", () => {
     test("syncMailbox call with a version <= to the one sync should do nothing", async () => {
         fetchMock.reset();
         fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
-        fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_all", [
+        fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_mgetById", [
             {
                 uid: 1,
                 internalId: 1,
@@ -434,7 +541,7 @@ describe("sync", () => {
         const db = await (await Session.db()).dbPromise;
         fetchMock.reset();
         fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
-        fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_all", []);
+        fetchMock.mock("/api/mail_folders/foo_bar/user.baz/_mgetById", []);
         fetchMock.mock(
             "/api/mail_folders/foo_bar/user.baz/_changesetById?since=0",
             { created: [], updated: [], deleted: [], version: 1 },

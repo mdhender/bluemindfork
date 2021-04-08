@@ -222,6 +222,13 @@ public class BaseReplicatedMailboxesService implements IBaseMailboxFolders {
 	}
 
 	@Override
+	public List<ItemValue<MailboxFolder>> getMultipleById(List<Long> ids) {
+		rbac.check(Verb.Read.name());
+
+		return storeService.getMultipleById(ids).stream().map(this::adapt).collect(Collectors.toList());
+	}
+
+	@Override
 	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
 		rbac.check(Verb.Read.name());
 

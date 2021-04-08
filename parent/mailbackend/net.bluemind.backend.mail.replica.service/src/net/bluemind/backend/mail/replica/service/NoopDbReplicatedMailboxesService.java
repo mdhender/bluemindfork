@@ -109,6 +109,12 @@ public class NoopDbReplicatedMailboxesService implements IDbReplicatedMailboxes,
 	}
 
 	@Override
+	public List<ItemValue<MailboxFolder>> getMultipleById(List<Long> ids) {
+		logger.info("NOOP getMultipleById on deleted mailbox {}@{}", mailboxRoot.name, domainUid);
+		return Collections.emptyList();
+	}
+
+	@Override
 	public void update(String uid, MailboxReplica replica) {
 		logger.info("NOOP update on deleted mailbox {}@{}", mailboxRoot.name, domainUid);
 	}

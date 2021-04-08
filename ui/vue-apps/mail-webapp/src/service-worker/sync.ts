@@ -42,7 +42,7 @@ export async function syncOwnerSubscriptions(): Promise<OwnerSubscription[]> {
     let versionUpdated = version !== syncOptions.version;
     if (versionUpdated) {
         const ids = created.concat(updated);
-        const updatedOwnerSubscriptions = await session.api.ownerSubscriptions.fetch({ domain, userId }, ids);
+        const updatedOwnerSubscriptions = await session.api.ownerSubscriptions.mget({ domain, userId }, ids);
         await session.db.deleteOwnerSubscriptions(deleted);
         await session.db.putOwnerSubscriptions(updatedOwnerSubscriptions);
         await session.db.updateSyncOptions({ ...syncOptions, version });
@@ -63,7 +63,7 @@ export async function syncMailFolder(uid: string, pushedVersion?: number): Promi
 async function syncMailFolderToVersion(uid: string, syncOptions: SyncOptions): Promise<boolean> {
     try {
         const session = await Session.instance();
-        const { created, updated, deleted, version } = await session.api.mailItem.changeset(uid, syncOptions.version);
+        const { created, updated, deleted, version } = await session.api.mailItem.filteredChangeset(uid, syncOptions.version);
         let versionUpdated = version !== syncOptions.version;
         if (versionUpdated) {
             const ids = created
@@ -121,11 +121,7 @@ export async function syncMailboxToVersion(
     );
     if (version !== syncOptions.version) {
         const toBeUpdated = created.concat(updated);
-        const allMailFolders = await session.api.mailFolder.fetch({ domain, userId });
-        const mailFoldersByInternalId = Object.fromEntries(
-            allMailFolders.map(mailFolder => [mailFolder.internalId, mailFolder])
-        );
-        const mailFolders = toBeUpdated.map(updatedFolder => mailFoldersByInternalId[updatedFolder]);
+        const mailFolders = await session.api.mailFolder.mget({ domain, userId }, toBeUpdated);
         await session.db.deleteMailFolders(deleted);
         await session.db.putMailFolders(mailFolders);
         await session.db.updateSyncOptions({ ...syncOptions, version });
@@ -143,7 +139,7 @@ export async function unsyncMyMailbox() {
 
 async function fetchMailItemsByChunks(ids: number[], uid: string): Promise<MailItem[]> {
     const chunks = [...chunk(ids, 200)];
-    const responses = await Promise.all(chunks.map(async chunk => (await Session.api()).mailItem.fetch(uid, chunk)));
+    const responses = await Promise.all(chunks.map(async chunk => (await Session.api()).mailItem.mget(uid, chunk)));
     const result: MailItem[] = [];
     return result.concat(...responses);
 }

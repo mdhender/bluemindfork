@@ -48,7 +48,7 @@ describe("mailAPI", () => {
             fetchMock.mock("/session-infos", { sid });
             fetchMock.mock(/\/api\/mail_items\/(.*)\/_multipleById/, {});
             fetchMock.mock(/\/api\/mail_items\/(.*)\/_filteredChangesetById/, {});
-            fetchMock.mock(/\/api\/mail_folders\/(.*)\/_all/, {});
+            fetchMock.mock(/\/api\/mail_folders\/(.*)\/_mgetById/, {});
             fetchMock.mock(/\/api\/mail_folders\/(.*)\/_changesetById/, {});
         });
         afterAll(() => {
@@ -61,11 +61,11 @@ describe("mailAPI", () => {
             expect(await Session.api()).not.toBeNull();
             expect(fetchMock.lastUrl()).toEqual("/session-infos");
         });
-        test("mailItem.fetch", async () => {
+        test("mailItem.mget", async () => {
             const api = await Session.api();
             const body = [1, 2, 3];
             const uid = "foo";
-            const actual = await api.mailItem.fetch(uid, body);
+            const actual = await api.mailItem.mget(uid, body);
             expect(actual).toEqual({});
             expect(fetchMock.lastCall()).toMatchInlineSnapshot(`
                 Array [
@@ -86,7 +86,7 @@ describe("mailAPI", () => {
             const api = await Session.api();
             const version = 0;
             const uid = "foo";
-            const actual = await api.mailItem.changeset(uid, version);
+            const actual = await api.mailItem.filteredChangeset(uid, version);
             expect(actual).toEqual({});
             expect(fetchMock.lastCall()).toMatchInlineSnapshot(`
                 Array [
@@ -103,20 +103,22 @@ describe("mailAPI", () => {
                 ]
             `);
         });
-        test("mailFolder.fetch", async () => {
+        test("mailFolder.mget", async () => {
             const api = await Session.api();
             const userId = "bar";
             const domain = "baz";
-            const actual = await api.mailFolder.fetch({ userId, domain });
+            const actual = await api.mailFolder.mget({ userId, domain }, [1, 2, 3]);
             expect(actual).toEqual({});
             expect(fetchMock.lastCall()).toMatchInlineSnapshot(`
                 Array [
-                  "/api/mail_folders/baz/user.bar/_all",
+                  "/api/mail_folders/baz/user.bar/_mgetById",
                   Object {
+                    "body": "[1,2,3]",
                     "credentials": "include",
                     "headers": Object {
                       "x-bm-apikey": "foobar",
                     },
+                    "method": "POST",
                     "mode": "cors",
                   },
                 ]
