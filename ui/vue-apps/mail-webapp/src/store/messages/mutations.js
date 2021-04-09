@@ -30,9 +30,7 @@ import {
 
 export default {
     [ADD_MESSAGES]: (state, messages) => {
-        messages.forEach(message => {
-            Vue.set(state, message.key, message);
-        });
+        messages.forEach(message => Vue.set(state, message.key, message));
     },
     [ADD_FLAG]: (state, { messages, flag }) => {
         messages.forEach(({ key }) => state[key].flags.push(flag));

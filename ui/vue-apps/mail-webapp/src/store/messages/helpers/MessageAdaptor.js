@@ -20,6 +20,7 @@ export default {
             date: new Date(remote.value.body.date),
             ...computeRecipients(remote),
             messageId: remote.value.body.messageId,
+            version: remote.version,
             references: remote.value.body.references || [],
             headers: remote.value.body.headers,
             ...this.computeParts(remote.value.body.structure),

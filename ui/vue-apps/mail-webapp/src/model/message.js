@@ -30,6 +30,7 @@ export function create() {
         subject: "",
         preview: "",
         composing: false,
+        version: null,
 
         // sender & recipients
         from: {

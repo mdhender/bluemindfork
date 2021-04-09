@@ -48,7 +48,9 @@ export async function fetchMessageMetadata({ state, commit }, messages) {
             .filter(({ key }) => state[key].loading !== LoadingStatus.LOADED)
             .map(message => ({ ...message, loading: LoadingStatus.LOADING }))
     );
-    const fullMessages = await apiMessages.multipleById(toFetch);
+    const fullMessages = (await apiMessages.multipleById(toFetch)).filter(
+        message => !state[message.key]?.version || state[message.key].version < message.version
+    );
     commit(ADD_MESSAGES, fullMessages);
     commit(
         SET_MESSAGES_LOADING_STATUS,
