@@ -76,7 +76,6 @@ import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.ListResult;
 import net.bluemind.imap.StoreClient;
-import net.bluemind.imap.vertx.IAsyncStoreClient;
 
 public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		implements IMailboxFolders, IMailboxFoldersByContainer {
@@ -139,9 +138,9 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			return Ack.create(touched.version);
 		}
 		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(toWatch);
-		return imapContext.withImapClient((sc, fast) -> {
+		return imapContext.withImapClient(sc -> {
 			logger.info("Rename attempt of '{}' to '{}'", fnOld, fnNew);
-			selectInbox(sc, fast);
+			selectInbox(sc);
 			sc.rename(fnOld, fnNew);
 			long version = future.get(10, TimeUnit.SECONDS).version;
 			return Ack.create(version);
@@ -166,7 +165,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onMailboxCreated(newName.subtreeContainer,
 				newName.fullName);
 		logger.info("{} Should create '{}'", root, computedName);
-		return imapContext.withImapClient((sc, fast) -> {
+		return imapContext.withImapClient(sc -> {
 			boolean ok = sc.create(computedName);
 			if (ok) {
 				return future.get(10, TimeUnit.SECONDS);
@@ -228,9 +227,9 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(newName.subtreeContainer);
 		final String fnName = newName.fullName;
 		final String fnToWath = newName.subtreeContainer;
-		imapContext.withImapClient((sc, fast) -> {
+		imapContext.withImapClient(sc -> {
 			logger.info("Deleting {}", fnName);
-			selectInbox(sc, fast);
+			selectInbox(sc);
 			CreateMailboxResult delRes = sc.deleteMailbox(fnName);
 			if (delRes.isOk()) {
 				try {
@@ -246,10 +245,9 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		});
 	}
 
-	private void selectInbox(StoreClient sc, IAsyncStoreClient fast)
+	private void selectInbox(StoreClient sc)
 			throws IMAPException, InterruptedException, ExecutionException, TimeoutException {
 		sc.select("INBOX");
-		fast.select("INBOX").get(5, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -261,8 +259,8 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			throw ServerFault.notFound("Folder with id " + id + " not found");
 		}
 		logger.info("Start deepDelete of {}...", toDelete);
-		CompletableFuture<?> rootPromise = imapContext.withImapClient((sc, fast) -> {
-			selectInbox(sc, fast);
+		CompletableFuture<?> rootPromise = imapContext.withImapClient(sc -> {
+			selectInbox(sc);
 			return deleteChildFolders(toDelete, sc);
 		}).thenApply(v -> {
 			deleteById(id);
@@ -296,8 +294,8 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			return;
 		}
 		logger.info("Start emptying {} (deleteChildFolders={})...", folder, deleteChildFolders);
-		imapContext.withImapClient((storeClient, vxStoreClient) -> {
-			selectInbox(storeClient, vxStoreClient);
+		imapContext.withImapClient(storeClient -> {
+			selectInbox(storeClient);
 			CompletableFuture<?> promise = deleteChildFolders ? deleteChildFolders(folder, storeClient)
 					: CompletableFuture.completedFuture(null);
 			return promise.thenCompose(v -> {
@@ -316,8 +314,8 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		Count count = context.provider().instance(IDbMailboxRecords.class, folder.uid).count(filter);
 		if (count.total != 0) {
 			logger.info("Start marking as read {}...", folder);
-			imapContext.withImapClient((storeClient, vxStoreClient) -> {
-				selectInbox(storeClient, vxStoreClient);
+			imapContext.withImapClient(storeClient -> {
+				selectInbox(storeClient);
 				return this.flag(storeClient, folder, Flag.SEEN, null).get(15, TimeUnit.SECONDS);
 			});
 		} else {
@@ -454,7 +452,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 				GuidExpectedIdCache.store(destinationFolder.uid + ":" + item.bodyGuid, expected.id);
 			});
 
-			ImportMailboxItemsStatus copyRes = imapContext.withImapClient((sc, fast) -> {
+			ImportMailboxItemsStatus copyRes = imapContext.withImapClient(sc -> {
 				ImportMailboxItemsStatus ret = new ImportMailboxItemsStatus();
 				List<ImportedMailboxItem> doneIds = new ArrayList<>(allImapUids.size());
 				ret.doneIds = doneIds;

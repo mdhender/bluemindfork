@@ -28,10 +28,6 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 
-import io.vertx.core.Vertx;
-import io.vertx.core.VertxOptions;
-import io.vertx.core.net.NetClient;
-import io.vertx.core.net.NetClientOptions;
 import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
@@ -42,9 +38,6 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.imap.StoreClient;
-import net.bluemind.imap.vertx.IAsyncStoreClient;
-import net.bluemind.imap.vertx.VXStoreClient;
-import net.bluemind.imap.vertx.connection.NetClientConnectionSupport;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
@@ -60,8 +53,6 @@ public class ImapContext {
 
 	protected static final Cache<String, ImapContext> sidToCtxCache = createCache();
 
-	private static final NetClientConnectionSupport netClientSupport = createNetClient();
-
 	public final AuthUser user;
 
 	public static class CacheRegistration implements ICacheRegistration {
@@ -69,15 +60,6 @@ public class ImapContext {
 		public void registerCaches(CacheRegistry cr) {
 			cr.register(ImapContext.class, sidToCtxCache);
 		}
-	}
-
-	private static final NetClientConnectionSupport createNetClient() {
-		VertxOptions vo = new VertxOptions().setEventLoopPoolSize(4).setWorkerPoolSize(2)
-				.setPreferNativeTransport(true);
-		Vertx imapVertx = Vertx.vertx(vo);
-		NetClientOptions nco = new NetClientOptions().setIdleTimeout(6 * 60).setTcpNoDelay(true).setReuseAddress(true);
-		NetClient nc = imapVertx.createNetClient(nco);
-		return new NetClientConnectionSupport(imapVertx, nc);
 	}
 
 	private static final Cache<String, ImapContext> createCache() {
@@ -112,13 +94,11 @@ public class ImapContext {
 
 	private static class PoolableStoreClient extends StoreClient {
 
-		public final VXStoreClient fastFetch;
 		private final ReentrantLock lock;
 
 		public PoolableStoreClient(String hostname, int port, String login, String password) {
 			super(hostname, port, login, password, 15);
 			this.lock = new ReentrantLock();
-			this.fastFetch = new VXStoreClient(netClientSupport, hostname, port, login, password);
 		}
 
 		public void close() {
@@ -126,12 +106,11 @@ public class ImapContext {
 		}
 
 		public void closeImpl() {
-			fastFetch.close();
 			super.close();
 		}
 
 		public boolean isClosed() {
-			return super.isClosed() || fastFetch.isClosed();
+			return super.isClosed();
 		}
 
 	}
@@ -147,8 +126,6 @@ public class ImapContext {
 					sc.closeImpl();
 					throw new ServerFault("Failed to establish both imap connections for " + latd);
 				}
-				sc.fastFetch.login().get(10, TimeUnit.SECONDS);
-				logger.info("[{}] Imap init of both clients is complete.", latd);
 				imapClient = Optional.of(sc);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
@@ -161,14 +138,14 @@ public class ImapContext {
 
 	@FunctionalInterface
 	public static interface ImapClientConsumer<T> {
-		T accept(StoreClient sc, IAsyncStoreClient fast) throws Exception;
+		T accept(StoreClient sc) throws Exception;
 	}
 
 	public <T> T withImapClient(ImapClientConsumer<T> cons) {
 		try (PoolableStoreClient sc = imapAsUser()) {
 			if (sc.lock.tryLock(1, TimeUnit.SECONDS)) {
 				try {
-					return cons.accept(sc, sc.fastFetch);
+					return cons.accept(sc);
 				} finally {
 					sc.lock.unlock();
 				}

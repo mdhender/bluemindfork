@@ -46,6 +46,8 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import org.apache.james.mime4j.codec.Base64InputStream;
+import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
 import org.apache.james.mime4j.dom.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +56,8 @@ import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.OpenOptions;
@@ -104,17 +108,11 @@ import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.ThreadContextHelper;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
+import net.bluemind.imap.IMAPByteSource;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.SearchQuery;
 import net.bluemind.imap.TaggedResult;
-import net.bluemind.imap.vertx.ImapResponseStatus;
-import net.bluemind.imap.vertx.ImapResponseStatus.Status;
-import net.bluemind.imap.vertx.VXStoreClient;
-import net.bluemind.imap.vertx.VXStoreClient.Decoder;
-import net.bluemind.imap.vertx.cmd.AppendResponse;
-import net.bluemind.imap.vertx.cmd.SelectResponse;
 import net.bluemind.imap.vertx.stream.EmptyStream;
-import net.bluemind.imap.vertx.stream.WrappedOutputStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.Mime4JHelper.SizedStream;
@@ -151,7 +149,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	@Override
 	public ImapCommandRunner imapExecutor() {
 
-		return (Consumer<ImapClient> sc) -> imapContext.withImapClient((inSc, vx) -> {
+		return (Consumer<ImapClient> sc) -> imapContext.withImapClient(inSc -> {
 			ImapClient ic = new ImapClient() {
 
 				@Override
@@ -225,7 +223,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	public void resync() {
 		rbac.check(Verb.Write.name());
 		long time = System.currentTimeMillis();
-		Collection<Integer> imapUids = imapContext.withImapClient((sc, fast) -> {
+		Collection<Integer> imapUids = imapContext.withImapClient(sc -> {
 			sc.select(imapFolder);
 			return sc.uidSearch(new SearchQuery());
 		});
@@ -351,45 +349,32 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		CompletableFuture<ItemChange> completion = ReplicationEvents.onRecordChanged(mailboxUniqueId,
 				current.value.imapUid);
 
-		ImapResponseStatus<AppendResponse> appended = imapContext.withImapClient((sc, fast) -> {
+		int appended = imapContext.withImapClient(sc -> {
 
 			List<String> allFlags = newValue.flags.stream().map(item -> item.flag).collect(Collectors.toList());
 
-			Buffer buf = Buffer.buffer(Unpooled.wrappedBuffer(ByteStreams.toByteArray(updatedEml.input)));
-			updatedEml.input.close();
-			BufferReadStream asStream = new BufferReadStream(buf);
+			int newUid = sc.append(imapFolder, updatedEml.input, FlagsList.of(allFlags), newValue.body.date);
 
-			CompletableFuture<ImapResponseStatus<AppendResponse>> append = fast.append(imapFolder, newValue.body.date,
-					allFlags, updatedEml.size, asStream);
+			FlagsList fl = new FlagsList();
+			fl.add(Flag.DELETED);
+			fl.add(Flag.SEEN);
+			logger.debug("Marking the previous one uid:{} as deleted.", current.value.imapUid);
 			try {
-				return ThreadContextHelper.inWorkerThread(append.thenCompose(appendResult -> {
-					FlagsList fl = new FlagsList();
-					fl.add(Flag.DELETED);
-					fl.add(Flag.SEEN);
-					logger.debug("Marking the previous one uid:{} as deleted.", current.value.imapUid);
-					try {
-						List<Integer> imapUids = Arrays.asList((int) current.value.imapUid);
-						boolean selected = sc.select(imapFolder);
-						boolean done = sc.uidStore(imapUids, fl, true);
-						sc.uidExpunge(imapUids);
-						logger.debug("After store => selected: {}, done: {} ", selected, done);
-						return CompletableFuture.completedFuture(appendResult);
-					} catch (IMAPException ie) {
-						CompletableFuture<ImapResponseStatus<AppendResponse>> cf = new CompletableFuture<>();
-						cf.completeExceptionally(ie);
-						return cf;
-					}
-				})).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-			} catch (TimeoutException e) {
-				throw new ServerFault("Failed to append email. Timeout occured", ErrorCode.TIMEOUT);
+				List<Integer> imapUids = Arrays.asList((int) current.value.imapUid);
+				boolean selected = sc.select(imapFolder);
+				boolean done = sc.uidStore(imapUids, fl, true);
+				sc.uidExpunge(imapUids);
+				logger.debug("After store => selected: {}, done: {} ", selected, done);
+				return newUid;
+			} catch (IMAPException ie) {
+				throw new ServerFault(ie);
 			}
+
 		});
-		logger.info("Waiting for old imap uid {} to be updated, the new one is {}...", current.value.imapUid,
-				appended.result.map(r -> r.newUid).orElse(0L));
+		logger.info("Waiting for old imap uid {} to be updated, the new one is {}...", current.value.imapUid, appended);
 		try {
-			Long imapUid = appended.result.map(r -> r.newUid).orElse(0L);
 			ItemChange change = completion.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-			return ImapAck.create(change.version, imapUid);
+			return ImapAck.create(change.version, appended);
 		} catch (TimeoutException e) {
 			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
 		} catch (InterruptedException | ExecutionException e) {
@@ -459,7 +444,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 		CompletableFuture<ItemChange> completion = ReplicationEvents.onRecordCreate(mailboxUniqueId, id);
 
-		int addedUid = imapContext.withImapClient((sc, fast) -> {
+		int addedUid = imapContext.withImapClient(sc -> {
 			FlagsList fl = new FlagsList();
 			value.flags.forEach(f -> {
 				if (f.equals(MailboxItemFlag.System.Answered.value())) {
@@ -565,7 +550,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		long imapUid = item.value.imapUid;
 		InputStream directRead = fetchCompleteOIO(imapUid);
 		CompletableFuture<Long> completion = ReplicationEvents.onMailboxChanged(mailboxUniqueId);
-		int readded = imapContext.withImapClient((sc, fast) -> {
+		int readded = imapContext.withImapClient(sc -> {
 			int newUid = sc.append(imapFolder, directRead, new FlagsList());
 			logger.debug("Previous body re-injected in {} with imapUid {}", imapFolder, newUid);
 			return newUid;
@@ -603,8 +588,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		if (!isImapAddress(address)) {
 			return tmpPartFetch(imapUid, address);
 		}
-		VXStoreClient.Decoder dec = Decoder.fromEncoding(encoding);
-		ReadStream<Buffer> partContent = imapFetch(imapUid, address, dec);
+		ReadStream<Buffer> partContent = imapFetch(imapUid, address, encoding);
 		return VertxStream.stream(partContent, mime, charset, filename);
 	}
 
@@ -618,30 +602,46 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				VertxPlatform.getVertx().fileSystem().openBlocking(tmpPart.getAbsolutePath(), new OpenOptions()));
 	}
 
-	private ReadStream<Buffer> imapFetch(long imapUid, String address, Decoder dec) {
-		return imapContext.withImapClient((sc, fast) -> {
-			ImapResponseStatus<SelectResponse> selectResult = fast.select(imapFolder).get(DEFAULT_TIMEOUT,
-					TimeUnit.SECONDS);
-			if (selectResult.status == Status.Ok) {
-				return fast.fetch(imapUid, address, dec);
+	private ReadStream<Buffer> imapFetch(long imapUid, String address, String encoding) {
+		return imapContext.withImapClient(sc -> {
+			if (sc.select(imapFolder)) {
+				IMAPByteSource fetched = sc.uidFetchPart((int) imapUid, address);
+				ByteBuf buf = Unpooled.buffer();
+				try (InputStream raw = fetched.source().openBufferedStream();
+						ByteBufOutputStream out = new ByteBufOutputStream(buf)) {
+					ByteStreams.copy(decoded(raw, encoding), out);
+				}
+				return new BufferReadStream(Buffer.buffer(buf));
 			} else {
 				return new EmptyStream();
 			}
 		});
 	}
 
-	private CompletableFuture<Void> sink(long imapUid, String address, String encoding, Path out) {
-		VXStoreClient.Decoder dec = Decoder.fromEncoding(encoding);
+	private InputStream decoded(InputStream in, String encoding) {
+		if (encoding == null) {
+			return in;
+		}
+		switch (encoding.toLowerCase()) {
+		case "base64":
+			return new Base64InputStream(in, false);
+		case "quoted-printable":
+			return new QuotedPrintableInputStream(in, false);
+		default:
+			return in;
+		}
+	}
 
-		return imapContext.withImapClient((sc, fast) -> {
-			ImapResponseStatus<SelectResponse> selectResult = fast.select(imapFolder).get(DEFAULT_TIMEOUT,
-					TimeUnit.SECONDS);
-			if (selectResult.status == Status.Ok) {
-				WrappedOutputStream wrapp = new WrappedOutputStream(out);
-				return fast.fetch(imapUid, address, wrapp, dec);
-			} else {
-				return CompletableFuture.completedFuture(null);
+	private CompletableFuture<Void> sink(long imapUid, String address, String encoding, Path out) {
+		return imapContext.withImapClient(sc -> {
+			if (sc.select(imapFolder)) {
+				IMAPByteSource fetched = sc.uidFetchPart((int) imapUid, address);
+				try (InputStream raw = fetched.source().openBufferedStream();
+						OutputStream outStream = Files.newOutputStream(out)) {
+					ByteStreams.copy(decoded(raw, encoding), outStream);
+				}
 			}
+			return CompletableFuture.completedFuture(null);
 		});
 	}
 
@@ -679,7 +679,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	private Ack doImapCommand(String imapCommand) {
 		CompletableFuture<Long> repEvent = ReplicationEvents.onMailboxChanged(mailboxUniqueId);
-		imapContext.withImapClient((sc, fast) -> {
+		imapContext.withImapClient(sc -> {
 			boolean select = sc.select(imapFolder);
 			if (!select) {
 				logger.error("Failed to select '{}'", imapFolder);

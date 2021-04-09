@@ -20,6 +20,8 @@ package net.bluemind.imap;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.base.Splitter;
@@ -53,6 +55,12 @@ public final class FlagsList extends HashSet<Flag> {
 
 	public void setUid(int uid) {
 		this.uid = uid;
+	}
+
+	public static FlagsList of(List<String> flags) {
+		FlagsList ret = new FlagsList();
+		flags.stream().map(s -> Flag.from(s.toLowerCase())).filter(Objects::nonNull).forEach(ret::add);
+		return ret;
 	}
 
 	public static Set<String> tagsFromString(String flagString, boolean autoAdd) {
