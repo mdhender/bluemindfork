@@ -198,7 +198,7 @@ public class VXStoreClient implements IAsyncStoreClient {
 				long next = attempt * 20L;
 
 				logger.warn("Command in progress ({}, queueFull: {}), {} did not start, retry {}/20 in {}ms.",
-						ns.write().writeQueueFull(), cme.getMessage(), proc, attempt, next);
+						cme.getMessage(), ns.write().writeQueueFull(), proc, attempt, next);
 				conSupport.vertx().setTimer(next, tid -> retryableFetch(proc, cmd, ns, attempt + 1));
 			} else {
 				throw cme;
