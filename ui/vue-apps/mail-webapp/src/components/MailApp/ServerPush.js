@@ -1,4 +1,3 @@
-import difference from "lodash.difference";
 import { mapGetters, mapState } from "vuex";
 
 import { MAILBOXES_ARE_LOADED } from "~getters";
