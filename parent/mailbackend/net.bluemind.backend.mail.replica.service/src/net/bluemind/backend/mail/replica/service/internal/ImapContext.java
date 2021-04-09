@@ -29,6 +29,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import net.bluemind.authentication.api.AuthUser;
@@ -71,10 +72,12 @@ public class ImapContext {
 	}
 
 	private static final NetClientConnectionSupport createNetClient() {
-		Vertx vx = VertxPlatform.getVertx();
+		VertxOptions vo = new VertxOptions().setEventLoopPoolSize(4).setWorkerPoolSize(2)
+				.setPreferNativeTransport(true);
+		Vertx imapVertx = Vertx.vertx(vo);
 		NetClientOptions nco = new NetClientOptions().setIdleTimeout(6 * 60).setTcpNoDelay(true).setReuseAddress(true);
-		NetClient nc = vx.createNetClient(nco);
-		return new NetClientConnectionSupport(vx, nc);
+		NetClient nc = imapVertx.createNetClient(nco);
+		return new NetClientConnectionSupport(imapVertx, nc);
 	}
 
 	private static final Cache<String, ImapContext> createCache() {
