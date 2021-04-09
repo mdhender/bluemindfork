@@ -250,7 +250,8 @@ public class PasswordExpireNotificationJob implements IScheduledJob {
 		message.setFrom(from);
 		message.setTo(recipient);
 		message.setSubject(String.format("%s %s",
-				resolver.translate("expireNotificationSubject", new Object[] { notificationInterval }),
+				resolver.translate("expireNotificationSubject",
+						new Object[] { dirEntry.displayName, notificationInterval }),
 				notificationInterval > 1 ? resolver.translate("days", new Object[0])
 						: resolver.translate("day", new Object[0])));
 
