@@ -1,4 +1,7 @@
 {
+    "alert.preferences.need_reconnection.warning": "Certaines modifications seront effectives à la prochaine connexion.",
+    "alert.preferences.reload_app.warning": "Certaines modifications seront effectives au prochain démarrage de l'application.",
+
     "preferences.access_old_settings_app": "accéder à l'ancienne application de préférences",
 
     "preferences.advanced.notifications": "Notifications de bureau",

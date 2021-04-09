@@ -97,5 +97,7 @@
     "common.display_name": "Anzeigename",
     "common.label": "Bezeichnung",
     "common.signature": "Signatur",
-    "common.localization": "Localization"
+    "common.localisation": "Lokalisierung",
+    "common.reload_now": "Jetzt neu laden",
+    "common.reconnect": "Wiederverbinden"
 }

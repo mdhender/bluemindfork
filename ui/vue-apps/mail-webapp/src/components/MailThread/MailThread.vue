@@ -21,7 +21,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
-import { CLEAR, INFO, REMOVE } from "@bluemind/alert.store";
+import { INFO, REMOVE } from "@bluemind/alert.store";
 import ItemUri from "@bluemind/item-uri";
 import { BmAlertArea } from "@bluemind/styleguide";
 
@@ -119,7 +119,7 @@ export default {
             SET_BLOCK_REMOTE_IMAGES,
             SET_MESSAGE_COMPOSING
         }),
-        ...mapActions("alert", { REMOVE, CLEAR, INFO })
+        ...mapActions("alert", { REMOVE, INFO })
     }
 };
 </script>

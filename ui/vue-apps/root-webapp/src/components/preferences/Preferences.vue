@@ -67,11 +67,6 @@ export default {
         ...mapGetters("preferences", ["SECTIONS"])
     },
     watch: {
-        lang(newValue) {
-            // FIXME: we need to reload app to change lang everywhere on the app
-            //      maybe display a modal to ask user if he's okay to reload app now
-            this.$root.$i18n.locale = newValue; // not enough because some i18n strings are already computed and stored in JS variables
-        },
         timeformat(newValue) {
             const dateTimeFormats = generateDateTimeFormats(newValue);
             Object.entries(dateTimeFormats).forEach(entry => {

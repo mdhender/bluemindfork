@@ -30,7 +30,7 @@ function getMyAccountSection(vueI18N) {
 
     const mainCategoryGroups = [
         {
-            title: vueI18N.t("common.localization"),
+            title: vueI18N.t("common.localisation"),
             fields: [
                 {
                     name: vueI18N.t("preferences.general.lang"),

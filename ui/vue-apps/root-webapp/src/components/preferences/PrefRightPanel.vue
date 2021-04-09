@@ -9,6 +9,11 @@
         <bm-button-close class="align-self-end d-lg-block d-none mt-3 mx-3" @click="$emit('close')" />
         <pref-right-panel-nav :sections="sections" />
         <div class="border-bottom border-secondary" />
+        <bm-alert-area :alerts="alerts" @remove="REMOVE">
+            <template v-slot="context">
+                <component :is="context.alert.renderer" :alert="context.alert" />
+            </template>
+        </bm-alert-area>
         <pref-content :sections="sections" :local-user-settings="settings.local" />
         <div class="d-flex mt-auto pl-5 py-3 border-top border-secondary">
             <bm-button type="submit" variant="primary" :disabled="!SETTINGS_CHANGED" @click.prevent="save">
@@ -36,21 +41,28 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
-import { BmButton, BmButtonClose, BmCol, BmIcon } from "@bluemind/styleguide";
+import { BmAlertArea, BmButton, BmButtonClose, BmCol, BmIcon } from "@bluemind/styleguide";
 
+import PrefAlertsMixin from "./mixins/PrefAlertsMixin";
 import PrefContent from "./PrefContent";
 import PrefRightPanelNav from "./PrefRightPanelNav";
+import NeedReconnectionAlert from "./Alerts/NeedReconnectionAlert";
+import ReloadAppAlert from "./Alerts/ReloadAppAlert";
 
 export default {
     name: "PrefRightPanel",
     components: {
+        BmAlertArea,
         BmButton,
         BmButtonClose,
         BmCol,
         BmIcon,
         PrefContent,
-        PrefRightPanelNav
+        PrefRightPanelNav,
+        NeedReconnectionAlert,
+        ReloadAppAlert
     },
+    mixins: [PrefAlertsMixin],
     props: {
         sections: {
             type: Array,
@@ -81,10 +93,25 @@ export default {
             const oldSettings = JSON.parse(JSON.stringify(this.settings.remote));
             try {
                 await this.SAVE_SETTINGS();
+                this.manageAlertAfterSave(oldSettings, this.settings.local);
                 this.status = "saved";
             } catch {
                 this.SET_SETTINGS(oldSettings);
                 this.status = "error";
+            }
+        },
+        manageAlertAfterSave(oldSettings, newSettings) {
+            const needAppReload = ["lang"];
+            const needReconnection = ["default_app"];
+
+            const showReloadAppAlert = needAppReload.some(setting => oldSettings[setting] !== newSettings[setting]);
+            const showReconnectionAlert = needReconnection.some(
+                setting => oldSettings[setting] !== newSettings[setting]
+            );
+            if (showReconnectionAlert) {
+                this.showReconnectionAlert();
+            } else if (showReloadAppAlert) {
+                this.showReloadAppAlert();
             }
         }
     }

@@ -23,12 +23,12 @@
                         </div>
                         <div v-else class="text-primary-or-white font-size-lg">{{ section.name }}</div>
                     </div>
-                    <div class="arrow" />
                 </div>
                 <div v-if="section.code === 'my_account'" class="text-primary-or-white row">
                     <div class="col-2" />
                     <div class="col">{{ $t("preferences.general.manage_account") }}</div>
                 </div>
+                <div class="arrow position-absolute" />
             </bm-list-group-item>
         </bm-list-group>
     </nav>
@@ -91,7 +91,8 @@ export default {
         border-top: $sp-2 solid transparent;
         border-bottom: $sp-2 solid transparent;
         border-right: $sp-2 solid $white;
-        margin-right: -$sp-4;
+        top: calc(50% - #{$sp-2});
+        right: 0;
     }
 
     .text-primary-or-white {

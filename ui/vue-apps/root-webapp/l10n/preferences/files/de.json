@@ -1,4 +1,7 @@
 {
+    "alert.preferences.need_reconnection.warning": "Einige Änderungen sind erst nach erneutem Login aktiv.",
+    "alert.preferences.reload_app.warning": "Einige Änderungen sind erst nach Neuladen der Anwendung aktiv.",
+
     "preferences.access_old_settings_app": "Einstellungen der alten Version der Anwendung",
 
     "preferences.advanced.notifications": "Desktop-Benachrichtigungen",
@@ -18,7 +21,7 @@
     "preferences.general.default_application": "Standard Anwendung",
     "preferences.general.password": "Passwort",
     "preferences.general.update_phone_status": "Meinen Telefonstatus im Instant Messaging aktualiseren, wenn ich in einer Besprechung bin",
-    "preferences.general.manage_account": "manage account",
+    "preferences.general.manage_account": "Konto verwalten",
 
     "preferences.mail.identities.manage": "E-Mail Identitäten verwalten",
     "preferences.mail.identities.always_show_from": "Feld \"Absender\" immer anzeigen",
@@ -49,8 +52,8 @@
     "preferences.calendar.main.default_reminder": "Standard Erinnerung",
     "preferences.calendar.main.default_allday_reminder": "Standard Erinnerungs für ganztägige Termine",
     "preferences.calendar.main.default_reminder_kind": "Standard Erinnerungstyp",
-    "preferences.calendar.main.configure_view": "TODO",
-    "preferences.calendar.main.reminder": "TODO",
+    "preferences.calendar.main.configure_view": "Kalendarsicht",
+    "preferences.calendar.main.reminder": "Terminerinnerung",
     
     "preferences.mail.thread": "Gemeinsame Anzeige zusammengehöriger E-Mails (Konversationen)",
     "preferences.mail.thread.disable": "E-Mails einzeln anzeigen",

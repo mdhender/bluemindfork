@@ -1,4 +1,7 @@
 {
+    "alert.preferences.need_reconnection.warning": "Some modifications will be effective at next connection.",
+    "alert.preferences.reload_app.warning": "Some modifications will be effective only after application got reloaded.",
+
     "preferences.access_old_settings_app": "access old preferences application",
 
     "preferences.advanced.notifications": "Desktop notifications",
@@ -49,8 +52,8 @@
     "preferences.calendar.main.default_reminder": "Default event alert",
     "preferences.calendar.main.default_allday_reminder": "Default all-day event alert",
     "preferences.calendar.main.default_reminder_kind": "Default alert notification type",
-    "preferences.calendar.main.configure_view": "TODO",
-    "preferences.calendar.main.reminder": "TODO",
+    "preferences.calendar.main.configure_view": "Calendar display",
+    "preferences.calendar.main.reminder": "Event reminder",
 
     "preferences.mail.thread": "Show replies to the same message together (conversations)",
     "preferences.mail.thread.disable": "Show messages individually",

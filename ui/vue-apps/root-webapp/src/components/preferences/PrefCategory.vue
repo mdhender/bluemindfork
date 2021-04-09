@@ -1,6 +1,6 @@
 <template>
     <div :id="categoryId(section.code, category.code)" class="pref-category">
-        <div v-for="group in filteredFieldsGroups" :key="group.title" class="pref-field">
+        <div v-for="group in filteredFieldGroups" :key="group.title" class="pref-field">
             <h2 class="pt-4 pb-2">
                 {{ group.title }}
                 <span v-if="group.availableSoon" class="available-soon">{{ $t("common.available_soon") }}</span>
@@ -73,7 +73,7 @@ export default {
         }
     },
     computed: {
-        filteredFieldsGroups() {
+        filteredFieldGroups() {
             return this.category.groups.filter(
                 group => !Object.prototype.hasOwnProperty.call(group, "condition") || group.condition
             );

@@ -9,6 +9,7 @@
 import { inject } from "@bluemind/inject";
 import { BmButton } from "@bluemind/styleguide";
 
+import PrefAlertsMixin from "../../mixins/PrefAlertsMixin";
 import PrefFieldMixin from "../../mixins/PrefFieldMixin";
 
 export default {
@@ -16,7 +17,7 @@ export default {
     components: {
         BmButton
     },
-    mixins: [PrefFieldMixin],
+    mixins: [PrefAlertsMixin, PrefFieldMixin],
     methods: {
         async resetLocalData() {
             // LocalStorage
@@ -47,6 +48,8 @@ export default {
                 const deleteDBRequest = indexedDB.deleteDatabase(name);
                 deleteDBRequest.onerror = () => indexedDB.deleteDatabase(name);
             });
+
+            this.showReloadAppAlert();
         }
     }
 };
