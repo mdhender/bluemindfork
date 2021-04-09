@@ -65,7 +65,7 @@ server {
   set $bm_upstream_mapi http://mapi;
   set $bm_upstream_eas http://eas;
   set $bm_upstream_tick http://tick;
-  set $bm_upstream_sentry http://sentry;
+  set $bm_upstream_sentry https://sentry;
 
   if ($bm_nginx_role = "edge") {
     set $bm_upstream_hps https://mainnginx;
