@@ -80,7 +80,7 @@ public abstract class SdsProxyBaseVerticle extends AbstractVerticle {
 	private static final Registry registry = MetricsRegistry.get();
 	private static final IdFactory idFactory = new IdFactory("http", MetricsRegistry.get(), SdsProxyBaseVerticle.class);
 
-	private AtomicReference<ISdsBackingStore> sdsStore = new AtomicReference<>();
+	private static final AtomicReference<ISdsBackingStore> sdsStore = new AtomicReference<>();
 	private final Map<ArchiveKind, ISdsBackingStoreFactory> factories;
 	private JsonObject storeConfig;
 
