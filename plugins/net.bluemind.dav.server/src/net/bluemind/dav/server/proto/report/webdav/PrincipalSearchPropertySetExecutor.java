@@ -18,13 +18,17 @@
  */
 package net.bluemind.dav.server.proto.report.webdav;
 
+import java.io.InputStream;
+
 import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.io.ByteStreams;
+
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerResponse;
-import net.bluemind.dav.server.Proxy;
 import net.bluemind.dav.server.proto.NS;
 import net.bluemind.dav.server.proto.report.IReportExecutor;
 import net.bluemind.dav.server.proto.report.ReportQuery;
@@ -37,6 +41,18 @@ public class PrincipalSearchPropertySetExecutor implements IReportExecutor {
 
 	private static final Logger logger = LoggerFactory.getLogger(PrincipalSearchPropertySetExecutor.class);
 
+	private static final byte[] preload = loadStatic();
+
+	private static byte[] loadStatic() {
+		try (InputStream in = PrincipalPropertySearchExecutor.class.getClassLoader()
+				.getResourceAsStream("static_responses/report_principal-search-property-set.xml")) {
+			return ByteStreams.toByteArray(in);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return new byte[0];
+		}
+	}
+
 	@Override
 	public ReportResponse execute(LoggedCore lc, ReportQuery rq) {
 		return new PrincipalSearchPropertySetResponse(rq.getPath(), root);
@@ -44,11 +60,10 @@ public class PrincipalSearchPropertySetExecutor implements IReportExecutor {
 
 	@Override
 	public void write(ReportResponse rr, HttpServerResponse sr) {
-		String f = Proxy.staticDataPath + "/report_principal-search-property-set.xml";
-		logger.info("\n=============== SENDFILE {}, WOOT WOOT WOOT ===============\n", f);
+		logger.info("\n=============== SEND static response {} byte(s) ===============\n", preload.length);
 		// according to wireshark, apple server adds no content type
 		// sr.headers().set("Content-Type", "text/xml");
-		sr.sendFile(f);
+		sr.end(Buffer.buffer(preload));
 	}
 
 	@Override

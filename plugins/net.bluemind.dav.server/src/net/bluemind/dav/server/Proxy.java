@@ -22,6 +22,4 @@ public final class Proxy {
 
 	public static final String path = "/dav";
 
-	public static final String staticDataPath = "/usr/share/bm-dav-data/static_responses";
-
 }
