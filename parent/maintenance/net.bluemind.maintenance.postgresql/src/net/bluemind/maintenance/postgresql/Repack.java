@@ -169,7 +169,7 @@ public class Repack implements IMaintenanceScript {
 	}
 
 	public void setColumnNotNull(DataSource ds, IServerTaskMonitor monitor, String tableName, String columnName) {
-		if (isColumnNotNull(ds, monitor, tableName, columnName)) {
+		if (! isColumnNotNull(ds, monitor, tableName, columnName)) {
 			setColumnNotNullNonBlocking(ds, monitor, tableName, columnName);
 		}
 	}
