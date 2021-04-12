@@ -1,0 +1,341 @@
+{
+    "extensionName": {
+        "message": "Łącznik BlueMind"
+    },
+    "extensionDescription": {
+        "message": "Łącznik BlueMind"
+    },
+    "bm.abnamedialog.local": {
+        "message": "Katalog BlueMind"
+    },
+    "bm.button.open.calendar.label": {
+        "message": "Kalendarz"
+    },
+    "bm.button.open.calendar.tooltiptext": {
+        "message": "Otwórz Kalendarz BlueMind w nowej karcie."
+    },
+    "bm.button.open.settings.label": {
+        "message": "Ustawienia BlueMind"
+    },
+    "bm.button.open.preferences.label": {
+        "message": "Ustawienia łącznika BlueMind"
+    },
+    "bm.button.open.settings.tooltiptext": {
+        "message": "Otwórz ustawienia BlueMind w nowej karcie."
+    },
+    "bm.icsbandal.where": {
+        "message": "Miejsce"
+    },
+    "bm.preferences.contact.label": {
+        "message": "Kontakty BlueMind"
+    },
+    "bm.preferences.im.add.label": {
+        "message": "Konto komunikatora BlueMind"
+    },
+    "bm.preferences.im.button.add.label": {
+        "message": "Skonfiguruj..."
+    },
+    "bm.button.open.todolist.label": {
+        "message": "Zadania"
+    },
+    "bm.button.open.todolist.tooltiptext": {
+        "message": "Otwórz Zadania BlueMind w nowej karcie."
+    },
+    "bm.button.sync.label": {
+        "message": "Synchronizuj"
+    },
+    "bm.button.sync.tooltiptext": {
+        "message": "Synchronizuj książki adresowe BlueMind."
+    },
+    "bm.card.alert.local": {
+        "message": "To jest nieedytowalny kontakt, który jest członkiem listy:"
+    },
+    "bm.compose.attach.link": {
+        "message": "Z serwera plików BlueMind"
+    },
+    "bm.icsbandal.accept": {
+        "message": "Tak"
+    },
+    "bm.icsbandal.decline": {
+        "message": "Nie"
+    },
+    "bm.icsbandal.description": {
+        "message": "Spotkanie"
+    },
+    "bm.icsbandal.tentative": {
+        "message": "Być może"
+    },
+    "bm.icsbandal.title": {
+        "message": "Tytuł"
+    },
+    "bm.icsbandal.when": {
+        "message": "Kiedy"
+    },
+    "bm.preferences.import.button.label": {
+        "message": "Import..."
+    },
+    "bm.preferences.import.button.tooltiptext": {
+        "message": "Importuj kontakty w BlueMind."
+    },
+    "bm.preferences.log.label": {
+        "message": "Logowanie"
+    },
+    "bm.preferences.im.label": {
+        "message": "Komunikator"
+    },
+    "bm.preferences.log.pref.label": {
+        "message": "Włącz szczegółowe rejestrowanie"
+    },
+    "bm.preferences.reset.button.label": {
+        "message": "Reset"
+    },
+    "bm.preferences.reset.button.tooltiptext": {
+        "message": "Usuń wszystkie dane BlueMind z Thunderbirda."
+    },
+    "bm.preferences.server.address.label": {
+        "message": "Adres:"
+    },
+    "bm.preferences.server.button.label": {
+        "message": "Połączenie..."
+    },
+    "bm.preferences.server.label": {
+        "message": "Serwer BlueMind (przykład: https://myserver.com)"
+    },
+    "bm.preferences.settings.button.label": {
+        "message": "Ustawienia..."
+    },
+    "bm.preferences.settings.label": {
+        "message": "Ustawienia BlueMind"
+    },
+    "bm.preferences.settings.settings.label": {
+        "message": "Skonfiguruj swoje preferencje BlueMind"
+    },
+    "bm.preferences.showlog.button.label": {
+        "message": "Pokaż dziennik..."
+    },
+    "bm.preferences.showlog.button.tooltiptext": {
+        "message": "Pokaż rozszerzenia pliku dziennika."
+    },
+    "bm.preferences.tab.label": {
+        "message": "BlueMind"
+    },
+    "bm.remotechooser.title": {
+        "message": "BlueMind: Selektor plików"
+    },
+    "bm.signature.hide": {
+        "message": "Ukryj podgląd"
+    },
+    "extensions.bm.ab.readonly.card": {
+        "message": "Nie można zapisać kontaktu. Książka adresowa jest tylko do odczytu."
+    },
+    "extensions.bm.ab.readonly.list": {
+        "message": "Nie można utworzyć listy. Książka adresowa jest tylko do odczytu."
+    },
+    "extensions.bm.ab.syncDirectory.ask": {
+        "message": "Nie pytaj mnie więcej."
+    },
+    "extensions.bm.abname.ownedby": {
+        "message": "Należy do"
+    },
+    "extensions.bm.authprompt.message": {
+        "message": "Wprowadź login i hasło dla"
+    },
+    "extensions.bm.button.archive.label": {
+        "message": "Archiwum serwera"
+    },
+    "extensions.bm.button.archive.tooltiptext": {
+        "message": "Archiwum w BlueMind"
+    },
+    "extensions.bm.button.unarchive.label": {
+        "message": "Przywróć z archiwum"
+    },
+    "extensions.bm.button.unarchive.tooltiptext": {
+        "message": "Przywróć z archiwum BlueMind"
+    },
+    "extensions.bm.calprefs.tabshare.access": {
+        "message": "Może mnie zaprosić"
+    },
+    "extensions.bm.calprefs.tabshare.admin": {
+        "message": "Może aktualizować moje spotkania i zarządzać udostępnianiem"
+    },
+    "extensions.bm.calprefs.tabshare.read": {
+        "message": "Może mnie zaprosić i zobaczyć moje spotkania"
+    },
+    "extensions.bm.calprefs.tabshare.write": {
+        "message": "Może modyfikować moje spotkania"
+    },
+    "extensions.bm.calprefs.tabsubscribe.read": {
+        "message": "O"
+    },
+    "extensions.bm.calprefs.tabsubscribe.readwrite": {
+        "message": "O/Z"
+    },
+    "extensions.bm.defaults.directories.contacts": {
+        "message": "Kontakty"
+    },
+    "extensions.bm.defaults.directories.users": {
+        "message": "Katalog"
+    },
+    "extensions.bm.description": {
+        "message": "Łącznik BlueMind"
+    },
+    "extensions.bm.dialogs.title": {
+        "message": "Łącznik BlueMind"
+    },
+    "extensions.bm.errors.CERT_ERROR": {
+        "message": "Błąd: problem z certyfikatem"
+    },
+    "extensions.bm.errors.CONNECTION_ERROR": {
+        "message": "Błąd: problem z połączeniem. Sprawdź ustawienia."
+    },
+    "extensions.bm.errors.Cert.CERT_EXPIRED": {
+        "message": "wygasł"
+    },
+    "extensions.bm.errors.Cert.CERT_NOT_TRUSTED": {
+        "message": "niezaufany"
+    },
+    "extensions.bm.errors.Cert.CERT_REVOKED": {
+        "message": "unieważniony"
+    },
+    "extensions.bm.errors.Cert.INVALID_CA": {
+        "message": "nieprawidłowy CA"
+    },
+    "extensions.bm.errors.Cert.ISSUER_UNKNOWN": {
+        "message": "wystawca nieznany"
+    },
+    "extensions.bm.errors.Cert.NOT_VERIFIED_UNKNOWN": {
+        "message": "niezweryfikowany / nieznany"
+    },
+    "extensions.bm.errors.Cert.UNEXPECTED_FAILURE": {
+        "message": "niespodziewany błąd"
+    },
+    "extensions.bm.errors.NETWORK_ERROR": {
+        "message": "Błąd: błąd sieci."
+    },
+    "extensions.bm.errors.SERVER_ERROR": {
+        "message": "Błąd: błąd serwera."
+    },
+    "extensions.bm.errors.UNKWNOWN_ERROR": {
+        "message": "Błąd: nieznany"
+    },
+    "extensions.bm.errors.credentials": {
+        "message": "Zły login i / lub hasło."
+    },
+    "extensions.bm.errors.role": {
+        "message": "Nie możesz używać łącznika Thunderbird, skontaktuj się z administratorem."
+    },
+    "extensions.bm.errors.imip.part-event-not-found": {
+        "message": "Nie znaleziono spotkania."
+    },
+    "extensions.bm.filehosting.expireOn": {
+        "message": "wygasa w dniu"
+    },
+    "extensions.bm.icsbandal.participation": {
+        "message": "Udział"
+    },
+    "extensions.bm.icsbandal.participationOf": {
+        "message": "Udział:"
+    },
+    "extensions.bm.im.accountcreated": {
+        "message": "Konto komunikatora BlueMind skonfigurowane"
+    },
+    "extensions.bm.import.confirm": {
+        "message": "Zaimportować do BlueMind zebrane kontakty ?"
+    },
+    "extensions.bm.import.willbeimported": {
+        "message": "kontakty zaimportowane."
+    },
+    "bm.signature.disclamer": {
+        "message": "Do Twojej wiadomości zostanie dodany firmowy podpis"
+    },
+    "extensions.bm.ab.syncDirectory.message": {
+        "message": "Czy chcesz zsynchronizować katalog książki adresowej ? Uważaj, bo może to powodować opóźnienia i zawieszanie się Thunderbirda, jeśli Twoja organizacja ma wielu użytkowników i listy dystrybucyjnych."
+    },
+    "extensions.bm.defaults.directories.public_contacts": {
+        "message": "Kontakty publiczne"
+    },
+    "extensions.bm.errors.CORE_UNAVAILABLE": {
+        "message": "Błąd: serwer BlueMind jest niedostępny."
+    },
+    "extensions.bm.errors.Cert.ISSUER_NOT_TRUSTED": {
+        "message": "wystawca nie jest zaufany"
+    },
+    "extensions.bm.errors.SETTINGS_ERROR": {
+        "message": "Błąd: problem z połączeniem. Sprawdź ustawienia."
+    },
+    "extensions.bm.errors.imip.counter-event-not-found": {
+        "message": "Nie znaleziono spotkania lub zaproszenie zostało już przetworzone."
+    },
+    "extensions.bm.lightning.restartAfterDisable1": {
+        "message": "Rozszerzenie Lightning zostało wyłączone przez łącznik BlueMind."
+    },
+    "extensions.bm.lightning.restartAfterDisable2": {
+        "message": "Możesz ponownie aktywować to rozszerzenie w menedżerze dodatków."
+    },
+    "extensions.bm.errors.imip.counter-counter-not-found": {
+        "message": "Zaproszenie już przetworzone."
+    },
+    "extensions.bm.lightning.restartAfterDisable3": {
+        "message": "Aby zastosować zmiany, należy ponownie uruchomić Thunderbirda."
+    },
+    "extensions.bm.lightning.restartAfterDisable4": {
+        "message": "Czy chcesz teraz ponownie uruchomić Thunderbirda?"
+    },
+    "extensions.bm.notification.title": {
+        "message": "Przypomnienie"
+    },
+    "extensions.bm.serverprompt.message": {
+        "message": "Wprowadź adres serwera BlueMind (przykład: https://mojserver.com)"
+    },
+    "extensions.bm.signature.hide": {
+        "message": "Ukryj podgląd"
+    },
+    "extensions.bm.signature.show": {
+        "message": "Pokaż podgląd"
+    },
+    "extensions.bm.status.error": {
+        "message": "z błędem"
+    },
+    "extensions.bm.status.start": {
+        "message": "Synchronizacja BlueMind ..."
+    },
+    "extensions.bm.status.stop": {
+        "message": "Synchronizacja BlueMind wykonana"
+    },
+    "extensions.bm.updated.restartAfterUpdate1": {
+        "message": "Zaktualizowano rozszerzenie łącznika BlueMind."
+    },
+    "extensions.bm.updated.restartAfterUpdate2": {
+        "message": "Aby zastosować zmianę, należy ponownie uruchomić Thunderbirda."
+    },
+    "extensions.bm.updated.restartAfterUpdate3": {
+        "message": "Czy chcesz teraz ponownie uruchomić Thunderbirda?"
+    },
+    "bm.counter.accept": {
+        "message": "Tak"
+    },
+    "bm.counter.decline": {
+        "message": "Nie"
+    },
+    "bm.counter.description": {
+        "message": "Nowy harmonogram spotkania"
+    },
+    "bm.counter.title": {
+        "message": "Tytuł"
+    },
+    "bm.counter.original": {
+        "message": "Aktualny"
+    },
+    "bm.counter.where": {
+        "message": "Miejsce"
+    },
+    "bm.counter.proposed": {
+        "message": "Proponowane"
+    },
+    "extensions.bm.counterbandal.accept": {
+        "message": "Akceptuj"
+    },
+    "extensions.bm.counterbandal.acceptFor": {
+        "message": "Zaakceptuj dla:"
+    }
+}
