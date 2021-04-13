@@ -47,6 +47,7 @@ import net.bluemind.role.api.BasicRoles;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.user.api.IUserPromise;
+import net.bluemind.user.api.User;
 import net.bluemind.user.api.gwt.endpoint.UserGwtEndpoint;
 import net.bluemind.user.api.gwt.js.JsUser;
 import net.bluemind.user.api.gwt.serder.UserGwtSerDer;
@@ -141,7 +142,10 @@ public class EditUserModelHandler implements IGwtModelHandler {
 			}
 
 			updateExtId.thenCompose(v -> {
-				return users.update(s, new UserGwtSerDer().deserialize(new JSONObject(user)));
+				User u = new UserGwtSerDer().deserialize(new JSONObject(user));
+				u.contactInfos.identification.formatedName.value = u.contactInfos.identification.name.givenNames + " "
+						+ u.contactInfos.identification.name.familyNames;
+				return users.update(s, u);
 			}).thenCompose(v -> {
 				if (map.getString("vcardPhoto") != null) {
 					return users.setPhoto(s, btoa(map.getString("vcardPhoto")).getBytes());
@@ -185,7 +189,7 @@ public class EditUserModelHandler implements IGwtModelHandler {
 
 	native String btoa(String b64)
 	/*-{
-	return btoa(b64);
+		return btoa(b64);
 	}-*/;
 
 }
