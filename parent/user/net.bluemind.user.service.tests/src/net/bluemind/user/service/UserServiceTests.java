@@ -493,10 +493,16 @@ public class UserServiceTests {
 		// itemValue.value.contactInfos.communications.emails.add(VCard.Communications.Email.create("check@tot.com"));
 		itemValue.value.emails = ImmutableList.<Email>builder().addAll(itemValue.value.emails)
 				.add(Email.create("check@" + domainUid, false)).build();
+		itemValue.value.contactInfos.identification.name = Name.create("Chan", "Jackie", null, null, null, null);
 
 		getService(domainAdminSecurityContext).update(uid, itemValue.value);
+
 		itemValue = getService(domainAdminSecurityContext).getComplete(uid);
 		assertEquals(2, itemValue.value.contactInfos.communications.emails.size());
+
+		assertEquals("Chan", itemValue.value.contactInfos.identification.name.familyNames);
+		assertEquals("Jackie", itemValue.value.contactInfos.identification.name.givenNames);
+
 		// check two time to be sure that email DOES NOT ACCUMULATE
 		itemValue = getService(domainAdminSecurityContext).getComplete(uid);
 
