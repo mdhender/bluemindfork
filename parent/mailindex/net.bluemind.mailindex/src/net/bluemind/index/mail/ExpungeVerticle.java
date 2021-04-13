@@ -33,21 +33,20 @@ import net.bluemind.lib.vertx.utils.ThrottleMessages;
 
 public class ExpungeVerticle extends AbstractVerticle {
 
-	private Logger logger = LoggerFactory.getLogger(ExpungeVerticle.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExpungeVerticle.class);
 
 	@Override
 	public void start() throws Exception {
 		super.start();
 
-		ThrottleMessages<JsonObject> tm = new ThrottleMessages<JsonObject>((msg) -> msg.body().getString("index"),
-				this::expunge, vertx, 10000);
+		ThrottleMessages<JsonObject> tm = new ThrottleMessages<>(msg -> msg.body().getString("index"), this::expunge,
+				vertx, 120000);
 
-		super.vertx.eventBus().consumer("index.mailspool.cleanup", (Message<JsonObject> msg) -> tm.handle(msg));
+		super.vertx.eventBus().consumer("index.mailspool.cleanup", tm::handle);
 	}
 
 	private void expunge(Message<JsonObject> message) {
 		String index = message.body().getString("index");
-		logger.info(" *** cleanup parents begin. indice {}", index);
 
 		long time = System.currentTimeMillis();
 		QueryBuilder queryBuilder = QueryBuilders.boolQuery()
@@ -57,7 +56,8 @@ public class ExpungeVerticle extends AbstractVerticle {
 		long deleted = DeleteByQueryAction.INSTANCE.newRequestBuilder(MailIndexService.getIndexClient())
 				.filter(queryBuilder).source(index).get().getDeleted();
 
-		logger.info(" *** cleanup parents ({}) took {} ms", deleted, (System.currentTimeMillis() - time));
+		logger.info(" *** cleanup parents in {} ({} deletion(s)) took {} ms", index, deleted,
+				(System.currentTimeMillis() - time));
 	}
 
 }
