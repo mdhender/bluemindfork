@@ -166,10 +166,10 @@ export default {
                 this.length = end;
             }
         },
-        onScroll(event) {
+        onScroll() {
             const total = this.$el.scrollHeight;
             const current = this.$el.scrollTop + this.$el.offsetHeight;
-            if (event && current >= total) {
+            if (current >= total) {
                 this.loadMore();
             }
         },

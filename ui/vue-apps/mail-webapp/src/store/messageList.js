@@ -5,7 +5,6 @@ import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
 import searchModule from "./search";
 import { FETCH_MESSAGE_LIST_KEYS, REFRESH_MESSAGE_LIST_KEYS } from "~actions";
 import {
-    MESSAGE_LIST_COUNT,
     MESSAGE_LIST_FILTERED,
     MESSAGE_LIST_FLAGGED_FILTER_ENABLED,
     MESSAGE_LIST_IS_LOADING,
@@ -116,7 +115,6 @@ const getters = {
     [MESSAGE_LIST_IS_LOADING]: ({ status }) => status === MessageListStatus.LOADING,
     [MESSAGE_LIST_IS_RESOLVED]: ({ status }) => status === MessageListStatus.SUCCESS,
     [MESSAGE_LIST_IS_REJECTED]: ({ status }) => status === MessageListStatus.ERROR,
-    [MESSAGE_LIST_COUNT]: ({ messageKeys }) => messageKeys.length,
     [MESSAGE_LIST_FILTERED]: ({ filter }) => filter && filter !== MessageListFilter.ALL,
     [MESSAGE_LIST_UNREAD_FILTER_ENABLED]: ({ filter }) => filter === MessageListFilter.UNREAD,
     [MESSAGE_LIST_FLAGGED_FILTER_ENABLED]: ({ filter }) => filter === MessageListFilter.FLAGGED

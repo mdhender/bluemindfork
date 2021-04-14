@@ -12,6 +12,7 @@ import {
     MAILSHARE_FOLDERS,
     MAILSHARE_KEYS,
     MAILSHARE_ROOT_FOLDERS,
+    MESSAGE_LIST_COUNT,
     MY_DRAFTS,
     MY_INBOX,
     MY_MAILBOX_FOLDERS,
@@ -25,6 +26,7 @@ import {
 import { SET_ACTIVE_FOLDER } from "~mutations";
 import { compare, create } from "../model/folder";
 import { LoadingStatus } from "../model/loading-status";
+import { MessageStatus } from "../model/message";
 
 export const state = {
     activeFolder: undefined
@@ -54,6 +56,8 @@ export const getters = {
         MY_MAILBOX_FOLDERS.filter(({ parent }) => !parent).sort(compare),
     [MAILSHARE_ROOT_FOLDERS]: (state, { MAILSHARE_FOLDERS }) =>
         MAILSHARE_FOLDERS.filter(({ parent }) => !parent).sort(compare),
+    [MESSAGE_LIST_COUNT]: state =>
+        state.messageList.messageKeys.filter(key => state.messages[key].status !== MessageStatus.REMOVED).length,
     [MY_INBOX]: myGetterFor(INBOX),
     [MY_OUTBOX]: myGetterFor(OUTBOX),
     [MY_DRAFTS]: myGetterFor(DRAFTS),
