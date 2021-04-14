@@ -10,7 +10,7 @@
     </div>
 </template>
 <script>
-import { mapActions, mapMutations } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
 import { AlertMixin, REMOVE } from "@bluemind/alert.store";
 import { createFromRecipient, VCardAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
@@ -21,6 +21,13 @@ export default {
     name: "BlockedRemoteContent",
     components: { BmButton },
     mixins: [AlertMixin],
+    computed: {
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
+        ...mapState("mail", ["messages"]),
+        message() {
+            return this.messages[this.currentMessageKey];
+        }
+    },
     methods: {
         ...mapMutations("mail", { SET_BLOCK_REMOTE_IMAGES }),
         ...mapActions("alert", { REMOVE }),
