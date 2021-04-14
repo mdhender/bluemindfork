@@ -147,7 +147,7 @@ function ascendantsAllowSubfolder(normalizedPath, foldersByUpperCasePath) {
     );
 }
 
-const FORBIDDEN_FOLDER_CHARACTERS = '@%*"`;^<>{}|';
+const FORBIDDEN_FOLDER_CHARACTERS = '@%*"`;^<>{}|\\';
 
 /** @return invalid character if name is invalid */
 function isFolderNameValid(name) {
