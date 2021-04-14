@@ -7,7 +7,7 @@
             implementation="net.bluemind.signature.commons.action.SignatureActionSanitizerFactory">
       </sanitizerfactory>
    </extension>
-   <extension
+  <extension
          point="net.bluemind.mailmessage.mailtip">
       <evaluation
             impl="net.bluemind.signature.commons.action.SignatureMailTipEvaluation">

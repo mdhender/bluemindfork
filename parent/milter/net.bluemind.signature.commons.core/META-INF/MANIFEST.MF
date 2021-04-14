@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: net.bluemind.signature.commons
-Bundle-SymbolicName: net.bluemind.signature.commons;singleton:=true
+Bundle-Name: net.bluemind.signature.commons.core
+Bundle-SymbolicName: net.bluemind.signature.commons.core;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -11,7 +11,10 @@ Require-Bundle: org.apache.james.apache-mime4j-dom,
  net.bluemind.addressbook.api,
  com.google.guava,
  net.bluemind.mailflow.api,
+ net.bluemind.core.sanitizer,
+ net.bluemind.core.rest,
  net.bluemind.mailmessage.api,
- net.bluemind.directory.api
-Export-Package: net.bluemind.signature.commons.action
-Automatic-Module-Name: net.bluemind.signature.commons
+ net.bluemind.directory.api,
+ net.bluemind.core.container.persistence,
+ net.bluemind.signature.commons
+Automatic-Module-Name: net.bluemind.signature.commons.core

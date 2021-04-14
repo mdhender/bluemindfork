@@ -19,6 +19,7 @@
 		<module>net.bluemind.mailflow.persistence.tests</module>
 		<module>net.bluemind.mailflow.sqlschema</module>
 		<module>net.bluemind.signature.commons</module>
+		<module>net.bluemind.signature.commons.core</module>
 		<module>net.bluemind.mailflow.registration</module>
 		<module>net.bluemind.milter.metrics</module>
 		<module>net.bluemind.milter.action.misc</module>

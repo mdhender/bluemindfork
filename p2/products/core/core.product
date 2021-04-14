@@ -122,9 +122,9 @@
       <plugin id="net.bluemind.calendar.sqlschema"/>
       <plugin id="net.bluemind.calendar.sync"/>
       <plugin id="net.bluemind.calendar.usercalendar"/>
+      <plugin id="net.bluemind.common.cache.persistence"/>
       <plugin id="net.bluemind.common.freemarker"/>
       <plugin id="net.bluemind.common.hollow"/>
-      <plugin id="net.bluemind.common.cache.persistence"/>
       <plugin id="net.bluemind.common.io"/>
       <plugin id="net.bluemind.common.reflect"/>
       <plugin id="net.bluemind.config"/>
@@ -358,6 +358,7 @@
       <plugin id="net.bluemind.server.service"/>
       <plugin id="net.bluemind.server.sqlschema"/>
       <plugin id="net.bluemind.signature.commons"/>
+      <plugin id="net.bluemind.signature.commons.core"/>
       <plugin id="net.bluemind.slf4j"/>
       <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
       <plugin id="net.bluemind.ssl.hook"/>
