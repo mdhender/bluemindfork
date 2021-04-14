@@ -17,10 +17,12 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.Address;
 import org.apache.james.mime4j.dom.address.AddressList;
+import org.apache.james.mime4j.dom.address.Group;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.field.FieldName;
 import org.apache.james.mime4j.stream.RawField;
@@ -272,11 +274,11 @@ public class MilterHandler implements JilterHandler {
 		}
 		AddressList to = message.getTo();
 		if (null != to) {
-			msg.to = to.stream().map(this::addressToEmail).collect(Collectors.toList());
+			msg.to = addressListToEmail(to);
 		}
 		AddressList cc = message.getCc();
 		if (null != cc) {
-			msg.cc = cc.stream().map(this::addressToEmail).collect(Collectors.toList());
+			msg.cc = addressListToEmail(cc);
 		}
 
 		msg.recipients = smtpEnvelope.getRecipients().stream().map(r -> r.getEmailAddress())
@@ -285,9 +287,21 @@ public class MilterHandler implements JilterHandler {
 		return msg;
 	}
 
-	private String addressToEmail(Address address) {
-		Mailbox mb = (Mailbox) address;
-		return mb.getAddress();
+	private List<String> addressListToEmail(AddressList addressList) {
+		return addressList.stream().map(this::addressToEmail).flatMap(l -> Stream.of(l.toArray(new String[0])))
+				.collect(Collectors.toList());
+	}
+
+	private List<String> addressToEmail(Address address) {
+		List<String> addresses = new ArrayList<>();
+		if (address instanceof Group) {
+			Group group = (Group) address;
+			group.getMailboxes().forEach(a -> addresses.add(a.getAddress()));
+		} else {
+			Mailbox mb = (Mailbox) address;
+			addresses.add(mb.getAddress());
+		}
+		return addresses;
 	}
 
 	private ExecutionMode executeAction(RuleAction ruleAssignment, IClientContext mailflowContext,
