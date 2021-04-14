@@ -12,7 +12,7 @@ const conf = {
 };
 
 module.exports = mode => {
-    if (mode === "production") {
+    if (mode.production) {
         return merge(prod, conf);
     }
     return merge(dev, conf);

@@ -78,7 +78,7 @@
     },
     "scripts": {
         "analyze-bundle": "webpack --profile --json > stats.json && webpack-bundle-analyzer --port 4200 stats.json",
-        "build": "webpack --env production --progress --profile --colors",
-        "dev": "webpack-dev-server --env development --progress --colors --port 9180"
+        "build": "webpack --env production --progress --profile --color",
+        "dev": "webpack serve --env development --progress --color --port 9180"
     }
 }
