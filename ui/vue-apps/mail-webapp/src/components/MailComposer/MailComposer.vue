@@ -61,8 +61,6 @@ import MailComposerContent from "./MailComposerContent";
 import MailComposerRecipients from "./MailComposerRecipients";
 import MailComposerFooter from "./MailComposerFooter";
 import { addSignature, isHtmlSignaturePresent, isTextSignaturePresent, removeSignature } from "~model/signature";
-import { isInternalIdFaked } from "~model/draft";
-import { MessageStatus } from "~model/message";
 
 export default {
     name: "MailComposer",
@@ -115,13 +113,6 @@ export default {
     },
     mounted() {
         this.focus();
-    },
-    destroyed() {
-        if (!isInternalIdFaked(this.message.remoteRef.internalId) && this.message.status !== MessageStatus.REMOVED) {
-            this.saveAsap().then(() => this.removeAttachmentAndInlineTmpParts());
-        } else {
-            this.removeAttachmentAndInlineTmpParts();
-        }
     },
     methods: {
         ...mapMutations("mail", {
