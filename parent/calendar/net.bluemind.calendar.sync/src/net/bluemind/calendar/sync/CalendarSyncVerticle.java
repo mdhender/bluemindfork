@@ -87,7 +87,7 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 	@Override
 	public void start() {
 		this.vertx.eventBus().consumer(EVENT_ADDRESS, this::queue);
-		this.executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+		this.executor = new ThreadPoolExecutor(1, 2, 0L, TimeUnit.MILLISECONDS,
 				new PriorityBlockingQueue<Runnable>(256, this::queueComparator));
 	}
 
@@ -144,8 +144,8 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 		try {
 			if (isRemote && isClientAccess && !syncingCals.contains(syncStatus.id)) {
 				BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
-				ContainerStore containerStore = new ContainerStore(context,
-						DataSourceRouter.get(context, calendarUid), context.getSecurityContext());
+				ContainerStore containerStore = new ContainerStore(context, DataSourceRouter.get(context, calendarUid),
+						context.getSecurityContext());
 				ContainerSyncStore containerSyncStore = new ContainerSyncStore(
 						DataSourceRouter.get(context, calendarUid), containerStore.get(calendarUid));
 				syncStatus.load(containerSyncStore.getSyncStatus());
