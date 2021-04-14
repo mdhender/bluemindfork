@@ -24,9 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.utils.DependencyResolver;
 import net.bluemind.directory.api.DirEntry;
@@ -36,7 +33,6 @@ import net.bluemind.directory.service.IDirEntryRepairSupport.InternalMaintenance
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
 public class DirEntryRepairSupports {
-	private static final Logger logger = LoggerFactory.getLogger(DirEntryRepairSupports.class);
 
 	private final List<IDirEntryRepairSupport> supports;
 

@@ -67,7 +67,7 @@ public class CalendarViewRepairSupport implements IDirEntryRepairSupport {
 		private final BmContext context;
 
 		public CalendarViewMaintenance(BmContext bmContext) {
-			super(MAINTENANCE_OPERATION.identifier, null, null, 1);
+			super(MAINTENANCE_OPERATION.identifier, null, "containers", 1);
 			this.context = bmContext;
 		}
 
