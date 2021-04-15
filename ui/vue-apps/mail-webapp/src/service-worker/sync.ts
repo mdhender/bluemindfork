@@ -63,7 +63,10 @@ export async function syncMailFolder(uid: string, pushedVersion?: number): Promi
 async function syncMailFolderToVersion(uid: string, syncOptions: SyncOptions): Promise<boolean> {
     try {
         const session = await Session.instance();
-        const { created, updated, deleted, version } = await session.api.mailItem.filteredChangeset(uid, syncOptions.version);
+        const { created, updated, deleted, version } = await session.api.mailItem.filteredChangeset(
+            uid,
+            syncOptions.version
+        );
         let versionUpdated = version !== syncOptions.version;
         if (versionUpdated) {
             const ids = created
@@ -115,15 +118,16 @@ export async function syncMailboxToVersion(
     syncOptions: SyncOptions
 ): Promise<MailFolder[]> {
     const session = await Session.instance();
+    const mailboxRoot = `user.${userId}`;
     const { created, updated, deleted, version } = await session.api.mailFolder.changeset(
-        { domain, userId },
+        { domain, mailboxRoot },
         syncOptions.version
     );
     if (version !== syncOptions.version) {
         const toBeUpdated = created.concat(updated);
-        const mailFolders = await session.api.mailFolder.mget({ domain, userId }, toBeUpdated);
-        await session.db.deleteMailFolders(deleted);
-        await session.db.putMailFolders(mailFolders);
+        const mailFolders = await session.api.mailFolder.mget({ domain, mailboxRoot }, toBeUpdated);
+        await session.db.deleteMailFolders(mailboxRoot, deleted);
+        await session.db.putMailFolders(mailboxRoot, mailFolders);
         await session.db.updateSyncOptions({ ...syncOptions, version });
         return mailFolders;
     }
@@ -133,7 +137,7 @@ export async function syncMailboxToVersion(
 export async function unsyncMyMailbox() {
     const session = await Session.instance();
     await session.db.deleteSyncOptions(session.userAtDomain);
-    const mailFolders = await session.db.getAllMailFolders();
+    const mailFolders = await session.db.getAllMailFolders(`user.${session.infos.userId}`);
     mailFolders.forEach(mailFolder => session.db.deleteSyncOptions(mailFolder.uid));
 }
 

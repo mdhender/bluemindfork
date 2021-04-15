@@ -81,11 +81,13 @@ describe("sync", () => {
             Array [
               Object {
                 "internalId": 1,
+                "mailboxRoot": "user.baz",
                 "name": "folder1",
                 "uid": 1,
               },
               Object {
                 "internalId": 2,
+                "mailboxRoot": "user.baz",
                 "name": "folder2",
                 "uid": 2,
               },
@@ -158,11 +160,13 @@ describe("sync", () => {
             Array [
               Object {
                 "internalId": 2,
+                "mailboxRoot": "user.baz",
                 "name": "folder2",
                 "uid": 2,
               },
               Object {
                 "internalId": 4,
+                "mailboxRoot": "user.baz",
                 "name": "folder4",
                 "uid": 4,
               },

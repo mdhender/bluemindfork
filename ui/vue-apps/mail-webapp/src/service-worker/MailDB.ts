@@ -13,7 +13,7 @@ interface MailSchema extends DBSchema {
     mail_folders: {
         key: string;
         value: MailFolder;
-        indexes: { "by-fullName": string };
+        indexes: { "by-mailboxRoot": string };
     };
     sync_options: {
         key: string;
@@ -40,7 +40,7 @@ interface MailSchema extends DBSchema {
 export class MailDB {
     dbPromise: Promise<IDBPDatabase<MailSchema>>;
     constructor(userAtDomain: string) {
-        const schemaVersion = 9;
+        const schemaVersion = 10;
         this.dbPromise = openDB<MailSchema>(`${userAtDomain}:webapp/mail`, schemaVersion, {
             upgrade(db, oldVersion) {
                 logger.log(`[SW][DB] Upgrading from ${oldVersion} to ${schemaVersion}`);
@@ -55,7 +55,7 @@ export class MailDB {
                     "by-folderUid",
                     "folderUid"
                 );
-                db.createObjectStore("mail_folders", { keyPath: "uid" }).createIndex("by-fullName", "value.fullName");
+                db.createObjectStore("mail_folders", { keyPath: "uid" }).createIndex("by-mailboxRoot", "mailboxRoot");
                 db.createObjectStore("mail_item_light", { keyPath: ["folderUid", "internalId"] }).createIndex(
                     "by-folderUid",
                     "folderUid"
@@ -108,8 +108,8 @@ export class MailDB {
         tx.done;
     }
 
-    async deleteMailFolders(deletedIds: number[]) {
-        const uids = (await this.getAllMailFolders())
+    async deleteMailFolders(mailboxRoot: string, deletedIds: number[]) {
+        const uids = (await this.getAllMailFolders(mailboxRoot))
             .filter(mailFolder => deletedIds.includes(mailFolder.internalId))
             .map(mailFolder => mailFolder.uid);
         for (let uid of uids) {
@@ -120,10 +120,11 @@ export class MailDB {
     }
 
     async putMailFolders(
+        mailboxRoot: string,
         items: MailFolder[],
         optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>
     ) {
-        await this.putItems(items, "mail_folders", optionalTransaction);
+        await this.putItems(items.map(item => ({ ...item, mailboxRoot })), "mail_folders", optionalTransaction);
     }
 
     async putMailItems(items: MailItem[], optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>) {
@@ -164,8 +165,8 @@ export class MailDB {
         return Promise.all(ids.map(id => tx.objectStore("mail_items").get([folderUid, id])));
     }
 
-    async getAllMailFolders() {
-        return (await this.dbPromise).getAll("mail_folders");
+    async getAllMailFolders(mailboxRoot: string) {
+        return (await this.dbPromise).getAllFromIndex("mail_folders", "by-mailboxRoot", mailboxRoot);
     }
 
     async getOwnerSubscriptions(type: string) {

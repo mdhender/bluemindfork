@@ -1,13 +1,13 @@
 import { mapGetters, mapState } from "vuex";
 
-import { MAILBOXES_ARE_LOADED } from "~getters";
+import { MY_MAILBOX_KEY, MAILBOXES_ARE_LOADED } from "~getters";
 import { WaitForMixin } from "~mixins";
 
 export default {
     mixins: [WaitForMixin],
     computed: {
         ...mapState("mail", ["activeFolder", "folders", "mailboxes"]),
-        ...mapGetters("mail", { MAILBOXES_ARE_LOADED }),
+        ...mapGetters("mail", { MY_MAILBOX_KEY, MAILBOXES_ARE_LOADED }),
         $_ServerPush_serviceWorkerController() {
             return navigator.serviceWorker && navigator.serviceWorker.controller;
         }
@@ -39,8 +39,8 @@ export default {
                 });
             }
         },
-        async $_ServerPush_sendMessage(message, skip, defaultResponse = null) {
-            if (this.$_ServerPush_serviceWorkerController && !skip) {
+        async $_ServerPush_sendMessage(message, skipSync, defaultResponse = null) {
+            if (this.$_ServerPush_serviceWorkerController && !skipSync) {
                 await this.$_ServerPush_serviceWorkerController.postMessage(message);
             } else if (defaultResponse) {
                 await this.$_ServerPush_refreshUI(defaultResponse);
@@ -50,7 +50,9 @@ export default {
             return async ({ data }) => {
                 const message = { type: "SYNCHRONIZE", body: data.body };
                 try {
-                    await this.$_ServerPush_sendMessage(message, !mailbox.offlineSync, data.body.mailbox);
+                    const isUserMailbox = mailbox.key === this.MY_MAILBOX_KEY;
+                    const skipSync = !mailbox.offlineSync || !isUserMailbox;
+                    await this.$_ServerPush_sendMessage(message, skipSync, data.body.mailbox);
                 } catch (error) {
                     console.error(`[SW] failed to send '${message}' to service worker`, error);
                 }

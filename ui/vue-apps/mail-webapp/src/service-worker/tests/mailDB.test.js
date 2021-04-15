@@ -100,20 +100,28 @@ describe("MailDB", () => {
             });
 
             test("getAllMailFolders", async () => {
-                const folders = [{ uid: "foo" }, { uid: "bar" }, { uid: "baz" }];
+                const folders = [
+                    { uid: "foo", mailboxRoot: "1" },
+                    { uid: "bar", mailboxRoot: "1" },
+                    { uid: "baz", mailboxRoot: "1" },
+                    { uid: "biz", mailboxRoot: "2" }
+                ];
                 for (const item of folders) {
                     await (await db.dbPromise).add("mail_folders", item);
                 }
-                const actual = await db.getAllMailFolders();
+                const actual = await db.getAllMailFolders("1");
                 expect(actual).toMatchInlineSnapshot(`
                     Array [
                       Object {
+                        "mailboxRoot": "1",
                         "uid": "bar",
                       },
                       Object {
+                        "mailboxRoot": "1",
                         "uid": "baz",
                       },
                       Object {
+                        "mailboxRoot": "1",
                         "uid": "foo",
                       },
                     ]
@@ -122,17 +130,20 @@ describe("MailDB", () => {
 
             test("putMailFolders", async () => {
                 const folders = [{ uid: "foo" }, { uid: "bar" }, { uid: "baz" }];
-                await db.putMailFolders(folders);
+                await db.putMailFolders("1", folders);
                 const actual = await (await db.dbPromise).getAll("mail_folders");
                 expect(actual).toMatchInlineSnapshot(`
                     Array [
                       Object {
+                        "mailboxRoot": "1",
                         "uid": "bar",
                       },
                       Object {
+                        "mailboxRoot": "1",
                         "uid": "baz",
                       },
                       Object {
+                        "mailboxRoot": "1",
                         "uid": "foo",
                       },
                     ]
@@ -141,24 +152,32 @@ describe("MailDB", () => {
 
             test("deleteMailFolders", async () => {
                 const folders = [
-                    { uid: "foo", internalId: 1 },
-                    { uid: "bar", internalId: 2 },
-                    { uid: "baz", internalId: 3 }
+                    { uid: "foo", internalId: 1, mailboxRoot: "1" },
+                    { uid: "bar", internalId: 2, mailboxRoot: "1" },
+                    { uid: "baz", internalId: 3, mailboxRoot: "1" },
+                    { uid: "biz", internalId: 1, mailboxRoot: "2" }
                 ];
                 for (const item of folders) {
                     await (await db.dbPromise).add("mail_folders", item);
                 }
-                await db.deleteMailFolders([1]);
+                await db.deleteMailFolders("1", [1]);
                 const actual = await (await db.dbPromise).getAll("mail_folders");
                 expect(actual).toMatchInlineSnapshot(`
                     Array [
                       Object {
                         "internalId": 2,
+                        "mailboxRoot": "1",
                         "uid": "bar",
                       },
                       Object {
                         "internalId": 3,
+                        "mailboxRoot": "1",
                         "uid": "baz",
+                      },
+                      Object {
+                        "internalId": 1,
+                        "mailboxRoot": "2",
+                        "uid": "biz",
                       },
                     ]
                 `);

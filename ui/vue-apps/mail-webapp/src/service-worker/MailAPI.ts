@@ -5,6 +5,7 @@ interface MailAPIOptions {
 }
 
 type Uid = string;
+type MailboxRoot = { mailboxRoot: string; domain: string };
 type UserInfos = { userId: string; domain: string };
 type Endpoint = string;
 type EndpointMethods = { [key: string]: string };
@@ -78,9 +79,9 @@ class MailItemAPI extends ChangelogAPI<Uid, MailItem> {
     }
 }
 
-class MailFolderAPI extends ChangelogAPI<UserInfos, MailFolder> {
-    endpoint(method: string, { userId, domain }: UserInfos) {
-        return `/api/mail_folders/${domain.replace(".", "_")}/user.${userId}/${method}`;
+class MailFolderAPI extends ChangelogAPI<MailboxRoot, MailFolder> {
+    endpoint(method: string, { mailboxRoot, domain }: MailboxRoot) {
+        return `/api/mail_folders/${domain.replace(".", "_")}/${mailboxRoot}/${method}`;
     }
 }
 

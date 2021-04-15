@@ -105,9 +105,9 @@ describe("mailAPI", () => {
         });
         test("mailFolder.mget", async () => {
             const api = await Session.api();
-            const userId = "bar";
+            const mailboxRoot = "user.bar";
             const domain = "baz";
-            const actual = await api.mailFolder.mget({ userId, domain }, [1, 2, 3]);
+            const actual = await api.mailFolder.mget({ mailboxRoot, domain }, [1, 2, 3]);
             expect(actual).toEqual({});
             expect(fetchMock.lastCall()).toMatchInlineSnapshot(`
                 Array [
@@ -126,10 +126,10 @@ describe("mailAPI", () => {
         });
         test("mailFolder.changeset", async () => {
             const api = await Session.api();
-            const userId = "bar";
+            const mailboxRoot = "user.bar";
             const domain = "baz";
             const version = 0;
-            const actual = await api.mailFolder.changeset({ userId, domain }, version);
+            const actual = await api.mailFolder.changeset({ mailboxRoot, domain }, version);
             expect(actual).toEqual({});
             expect(fetchMock.lastCall()).toMatchInlineSnapshot(`
                 Array [
