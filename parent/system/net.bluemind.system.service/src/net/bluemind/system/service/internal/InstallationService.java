@@ -82,6 +82,7 @@ import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.InstallationVersion;
 import net.bluemind.system.api.PublicInfos;
 import net.bluemind.system.api.SubscriptionInformations;
+import net.bluemind.system.api.SubscriptionInformations.Kind;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.api.SystemState;
@@ -337,11 +338,18 @@ public class InstallationService implements IInstallation {
 
 	@Override
 	public SubscriptionInformations getSubscriptionInformations() throws ServerFault {
+		RBACManager.forContext(context).check(BasicRoles.ROLE_MANAGE_SUBSCRIPTION);
+
+		return SubscriptionProviders.getSubscriptionProvider().loadSubscriptionInformations();
+	}
+
+	@Override
+	public Kind getSubscriptionKind() throws ServerFault {
 		if (context.getSecurityContext().isAnonymous()) {
 			throw new ServerFault("Invalid security context", ErrorCode.PERMISSION_DENIED);
 		}
-
-		return SubscriptionProviders.getSubscriptionProvider().loadSubscriptionInformations();
+		SubscriptionInformations sub = SubscriptionProviders.getSubscriptionProvider().loadSubscriptionInformations();
+		return sub.kind;
 	}
 
 	@Override
@@ -532,4 +540,5 @@ public class InstallationService implements IInstallation {
 	public String sendHostReport() {
 		return HostReportProvider.getHostReportService().get().sendHostReport(context);
 	}
+
 }

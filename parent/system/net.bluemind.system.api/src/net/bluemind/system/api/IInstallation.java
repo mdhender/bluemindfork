@@ -33,6 +33,7 @@ import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.system.api.SubscriptionInformations.Kind;
 
 @BMApi(version = "3")
 @Path("/system/installation")
@@ -41,6 +42,10 @@ public interface IInstallation extends ICustomTheme {
 	@GET
 	@Path("subscription")
 	public SubscriptionInformations getSubscriptionInformations() throws ServerFault;
+
+	@GET
+	@Path("subscriptionKind")
+	public Kind getSubscriptionKind() throws ServerFault;
 
 	@POST
 	@Path("subscription")
