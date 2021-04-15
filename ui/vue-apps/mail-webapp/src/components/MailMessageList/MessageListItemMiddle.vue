@@ -10,7 +10,6 @@
             <div v-if="MESSAGE_LIST_IS_SEARCH_MODE && !mouseIn" class="d-flex slide">
                 <mail-folder-icon
                     class="text-secondary text-truncate"
-                    :class="[isActive ? 'bg-info' : isImportant ? 'warning-custom' : 'bg-white']"
                     :shared="isFolderOfMailshare(folder)"
                     :folder="folder"
                 >
