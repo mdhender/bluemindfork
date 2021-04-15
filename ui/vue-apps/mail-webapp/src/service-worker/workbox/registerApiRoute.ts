@@ -50,7 +50,7 @@ export async function allMailFolders({ request, params }: RouteHandlerCallbackOp
         return await retry( async () => {
             const session = await Session.instance();
             if (await session.db.isSubscribed(uid)) {
-                const allMailFolders = await session.db.getAllMailFolders();
+                const allMailFolders = await session.db.getAllMailFolders(userId);
                 return responseFromCache(allMailFolders);
             }
             return fetch(request);
