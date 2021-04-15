@@ -40,7 +40,8 @@ export default {
         ...mapState("mail", { $_ComposerActionsMixin_messageCompose: "messageCompose" }),
         $_ComposerActionsMixin_message() {
             return this.$store.state.mail.messages[this.messageKey];
-        }
+        },
+        ...mapState("mail-webapp/currentMessage", { $_ComposerActionsMixin_currentMessageKey: "key" })
     },
     methods: {
         ...mapActions("mail", {
@@ -70,13 +71,16 @@ export default {
         },
         updateRoute(wasMessageOnlyLocal) {
             if (wasMessageOnlyLocal) {
+                const oldMessageKey = this.$_ComposerActionsMixin_message.key;
                 const message = updateKey(
                     this.$_ComposerActionsMixin_message,
                     this.$_ComposerActionsMixin_message.remoteRef.internalId,
                     this.$_ComposerActionsMixin_message.folderRef
                 );
                 this.$_ComposerActionsMixin_ADD_MESSAGES([message]);
-                this.$router.navigate({ name: "v:mail:message", params: { message: message.key } });
+                if (this.$_ComposerActionsMixin_currentMessageKey === oldMessageKey) {
+                    this.$router.navigate({ name: "v:mail:message", params: { message: message.key } });
+                }
             }
         },
         addAttachments(files) {
