@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,6 @@ import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.lib.ical4j.util.IcalConverter;
 import net.bluemind.linkify.Linkify;
-import net.bluemind.neko.common.NekoHelper;
 import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.Tag;
@@ -1227,7 +1227,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 	private static void parseICalendarElementDescription(PropertyList properties, ICalendarElement iCalendarElement) {
 		if (isStringNotNull(iCalendarElement.description)) {
-			properties.add(new Description(NekoHelper.rawText(iCalendarElement.description).trim()));
+			properties.add(new Description(Jsoup.parse(iCalendarElement.description).text().trim()));
 			XProperty xAltDesc = new XProperty("X-ALT-DESC",
 					"<html>\n<body>" + iCalendarElement.description + "</body>\n</html>");
 			xAltDesc.getParameters().add(new FmtType("text/html"));

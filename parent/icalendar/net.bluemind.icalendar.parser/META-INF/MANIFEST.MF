@@ -8,7 +8,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.calendar.api,
  org.mnode.ical4j,
  net.bluemind.tag.api,
- net.bluemind.neko.common,
  net.bluemind.icalendar.api,
  slf4j.api,
  net.bluemind.lib.ical4j,
@@ -20,6 +19,7 @@ Require-Bundle: net.bluemind.calendar.api,
  net.bluemind.user.api,
  net.bluemind.core.sessions,
  com.google.guava,
- net.bluemind.linkify
+ net.bluemind.linkify,
+ org.jsoup
 Export-Package: net.bluemind.icalendar.parser
 Automatic-Module-Name: net.bluemind.icalendar.parser
