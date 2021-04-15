@@ -137,8 +137,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.noShutdown" value="true" />
       <property name="osgi.configuration.area" value="/var/lib/bm-milter/" />
+      <property name="osgi.noShutdown" value="true" />
    </configurations>
 
 </product>

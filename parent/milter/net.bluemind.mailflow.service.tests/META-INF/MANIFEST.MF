@@ -19,5 +19,6 @@ Require-Bundle: net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
  net.bluemind.domain.api;bundle-version="1.0.0",
  net.bluemind.mailflow.sqlschema;bundle-version="4.1.0",
  net.bluemind.mailflow.api,
- net.bluemind.signature.commons;bundle-version="4.1.0"
+ net.bluemind.signature.commons;bundle-version="4.1.0",
+ net.bluemind.signature.commons.core;bundle-version="4.1.0"
 Automatic-Module-Name: net.bluemind.mailflow.service.tests
