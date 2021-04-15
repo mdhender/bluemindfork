@@ -41,16 +41,18 @@ public class PropagateSessionDeletions implements ISessionDeletionListener {
 
 	@Override
 	public void deleted(String identity, String sid, SecurityContext securityContext) {
-		Producer prod = producer.getNow(null);
-		if (prod != null) {
-			OOPMessage cm = MQ.newMessage();
-			cm.putStringProperty("sender", identity);
-			cm.putStringProperty("operation", "logout");
-			cm.putStringProperty("sid", sid);
-			prod.send(cm);
-			logger.debug("MQ: logout {} sent.", sid);
-		} else {
-			logger.warn("MQ is missing, logout support will fail");
+		if (securityContext.isInteractive()) {
+			Producer prod = producer.getNow(null);
+			if (prod != null) {
+				OOPMessage cm = MQ.newMessage();
+				cm.putStringProperty("sender", identity);
+				cm.putStringProperty("operation", "logout");
+				cm.putStringProperty("sid", sid);
+				prod.send(cm);
+				logger.debug("MQ: logout {} sent.", sid);
+			} else {
+				logger.warn("MQ is missing, logout support will fail");
+			}
 		}
 	}
 

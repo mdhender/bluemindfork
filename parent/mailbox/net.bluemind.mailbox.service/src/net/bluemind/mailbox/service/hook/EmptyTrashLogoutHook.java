@@ -21,16 +21,18 @@ public class EmptyTrashLogoutHook implements ISessionDeletionListener {
 
 	@Override
 	public void deleted(String identity, String sid, SecurityContext securityContext) {
-		String domainUid = securityContext.getContainerUid();
-		String userUid = securityContext.getSubject();
-		String userLogin = getUserLogin(securityContext);
-		Map<String, String> userSettings = getUserSettings(securityContext, userUid);
-		boolean logoutPurge = Boolean.parseBoolean(userSettings.getOrDefault("logout_purge", "false"));
-		if (userLogin == null || !logoutPurge) {
-			return;
+		if (securityContext.isInteractive()) {
+			String domainUid = securityContext.getContainerUid();
+			String userUid = securityContext.getSubject();
+			String userLogin = getUserLogin(securityContext);
+			Map<String, String> userSettings = getUserSettings(securityContext, userUid);
+			boolean logoutPurge = Boolean.parseBoolean(userSettings.getOrDefault("logout_purge", "false"));
+			if (userLogin == null || !logoutPurge) {
+				return;
+			}
+			emptyTrash(securityContext, domainUid, userLogin);
+			logger.info("Trash folder cleared on logout for {}@{}", userUid, domainUid);
 		}
-		emptyTrash(securityContext, domainUid, userLogin);
-		logger.info("Trash folder cleared on logout for {}@{}", userUid, domainUid);
 	}
 
 	private String getUserLogin(SecurityContext securityContext) {

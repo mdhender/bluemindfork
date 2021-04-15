@@ -49,7 +49,7 @@ public class SessionsBackingStore {
 
 		Caffeine<Object, Object> cache = Caffeine.newBuilder().recordStats().expireAfterAccess(20, TimeUnit.MINUTES)
 				.removalListener((key, value, removalCause) -> {
-					if (removalCause != RemovalCause.REPLACED && ((SecurityContext) value).isInteractive()) {
+					if (removalCause != RemovalCause.REPLACED) {
 						sessionBackingStore.notifySessionRemovalListeners((String) key, (SecurityContext) value);
 					}
 				});
