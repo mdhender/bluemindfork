@@ -4,7 +4,6 @@ import cloneDeep from "lodash.clonedeep";
 import { default as storeOptions, MessageListStatus, MessageListFilter } from "../messageList";
 import apiMessages from "../api/apiMessages";
 import {
-    MESSAGE_LIST_COUNT,
     MESSAGE_LIST_FILTERED,
     MESSAGE_LIST_FLAGGED_FILTER_ENABLED,
     MESSAGE_LIST_IS_LOADING,
@@ -167,11 +166,6 @@ describe("messageList", () => {
             expect(storeOptions.getters[MESSAGE_LIST_IS_REJECTED](state)).toBeFalsy();
             state.status = MessageListStatus.ERROR;
             expect(storeOptions.getters[MESSAGE_LIST_IS_REJECTED](state)).toBeTruthy();
-        });
-        test("MESSAGE_LIST_COUNT", () => {
-            expect(storeOptions.getters[MESSAGE_LIST_COUNT](state)).toEqual(0);
-            state.messageKeys = Array(10);
-            expect(storeOptions.getters[MESSAGE_LIST_COUNT](state)).toEqual(10);
         });
         test("MESSAGE_LIST_FILTERED", () => {
             state.filter = MessageListFilter.ALL;

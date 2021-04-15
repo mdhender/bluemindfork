@@ -12,6 +12,7 @@ import {
     ALL_SELECTED_MESSAGES_ARE_UNREAD,
     MAILSHARE_FOLDERS,
     MAILSHARE_ROOT_FOLDERS,
+    MESSAGE_LIST_COUNT,
     MY_DRAFTS,
     MY_INBOX,
     MY_MAILBOX_FOLDERS,
@@ -25,6 +26,7 @@ import { MailboxType } from "~model/mailbox";
 import injector from "@bluemind/inject";
 import { SET_ACTIVE_FOLDER } from "~mutations";
 import { LoadingStatus } from "../../model/loading-status";
+import { MessageStatus } from "../../model/message";
 
 Vue.use(Vuex);
 
@@ -135,6 +137,16 @@ describe("Mail store", () => {
                 C: { key: "C", type: MailboxType.MAILSHARE }
             };
             expect(store.getters[MAILSHARE_FOLDERS]).toEqual([store.state.folders["1"], store.state.folders["4"]]);
+        });
+
+        test("MESSAGE_LIST_COUNT", () => {
+            expect(store.getters[MESSAGE_LIST_COUNT]).toEqual(0);
+            let i = 0;
+            Array.from(Array(11), () => i++).forEach(key => {
+                store.state.messageList.messageKeys.push(key);
+                store.state.messages[key] = { status: key % 2 === 0 ? MessageStatus.IDLE : MessageStatus.REMOVED };
+            });
+            expect(store.getters[MESSAGE_LIST_COUNT]).toEqual(6);
         });
 
         test("MY_MAILBOX_FOLDERS", () => {
