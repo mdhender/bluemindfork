@@ -1,3 +1,4 @@
+import { containsHtml, text2html } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
 
 const state = {
@@ -39,15 +40,25 @@ const actions = {
         const mailboxQuota = await inject("MailboxesPersistence").getMailboxQuota(userId);
         commit("SET_QUOTA", { used: mailboxQuota.used, total: mailboxQuota.quota });
     },
-    async FETCH_IDENTITIES({ commit }) {
+    async FETCH_IDENTITIES({ commit }, userLang) {
         const identities = await inject("UserMailIdentitiesPersistence").getIdentities();
-        commit("SET_IDENTITIES", identities);
+        const adapted = convertSignaturesToHtml(identities, userLang);
+        commit("SET_IDENTITIES", adapted);
     }
 };
 
 const getters = {
     DEFAULT_IDENTITY: state => state.identities.find(identity => identity.isDefault)
 };
+
+function convertSignaturesToHtml(identities, userLang) {
+    return identities.map(identity => {
+        if (!containsHtml(identity.signature)) {
+            identity.signature = text2html(identity.signature, userLang);
+        }
+        return identity;
+    });
+}
 
 export default {
     namespaced: true,

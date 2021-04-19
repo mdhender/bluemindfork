@@ -6,5 +6,5 @@ export default function (mailText, userLang) {
     let textTransformer = new EmptyTransformer();
     textTransformer = new ForwardTextTransformer(textTransformer);
     textTransformer = new ReplyTextTransformer(textTransformer);
-    return text2html(mailText, textTransformer, userLang);
+    return text2html(mailText, userLang, textTransformer);
 }

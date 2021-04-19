@@ -6,6 +6,7 @@ import EmptyTransformer from "./transformers/EmptyTransformer";
 
 export {
     blockRemoteImages,
+    containsHtml,
     EmptyTransformer,
     hasRemoteImages,
     html2text,
@@ -13,3 +14,7 @@ export {
     text2html,
     unblockRemoteImages
 };
+
+function containsHtml(str) {
+    return /<[a-z][\s\S]*>/i.test(str);
+}
