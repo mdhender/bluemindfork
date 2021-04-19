@@ -32,7 +32,7 @@ net.bluemind.videoconferencing.service.VideoConferencingService = function (ctx)
 goog.inherits(net.bluemind.videoconferencing.service.VideoConferencingService,
     goog.events.EventTarget);
 
-net.bluemind.videoconferencing.service.VideoConferencingService.prototype.resources_;
+net.bluemind.videoconferencing.service.VideoConferencingService.prototype.resources_ = [];
 
 net.bluemind.videoconferencing.service.VideoConferencingService.prototype.setVideoConferencingResources = function(resources) {
     this.resources_ = resources;
