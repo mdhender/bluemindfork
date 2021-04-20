@@ -91,7 +91,6 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["folders", "activeFolder"]),
         ...mapGetters("mail", { MY_TRASH }),
         folderOfMessage() {

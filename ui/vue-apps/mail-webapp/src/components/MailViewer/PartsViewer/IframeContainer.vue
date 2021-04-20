@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { mapActions, mapMutations, mapState } from "vuex";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { WARNING, REMOVE } from "@bluemind/alert.store";
 import { hasRemoteImages, blockRemoteImages, unblockRemoteImages } from "@bluemind/html-utils";
@@ -20,7 +20,7 @@ import { hasRemoteImages, blockRemoteImages, unblockRemoteImages } from "@bluemi
 import apiAddressbooks from "../../../store/api/apiAddressbooks";
 import { SET_BLOCK_REMOTE_IMAGES } from "~mutations";
 import brokenImageIcon from "../../../../assets/brokenImageIcon.png";
-
+import { ACTIVE_MESSAGE } from "~getters";
 export default {
     name: "IframeContainer",
     props: {
@@ -42,16 +42,12 @@ export default {
     },
     inject: ["area"],
     computed: {
-        ...mapState("mail-webapp/currentMessage", { messageKey: "key" }),
         ...mapState("mail", { mustBlockRemoteImages: state => state.consultPanel.remoteImages.mustBeBlocked }),
-        ...mapState("mail", ["messages"]),
+        ...mapGetters("mail", { ACTIVE_MESSAGE }),
         ...mapState("session", { settings: ({ settings }) => settings.remote }),
-        message() {
-            return this.messages[this.messageKey];
-        },
         blockedContentAlert() {
             return {
-                alert: { name: "mail.BLOCK_REMOTE_CONTENT", uid: "BLOCK_REMOTE_CONTENT", payload: this.message },
+                alert: { name: "mail.BLOCK_REMOTE_CONTENT", uid: "BLOCK_REMOTE_CONTENT", payload: this.ACTIVE_MESSAGE },
                 options: { area: this.area, renderer: "BlockedRemoteContent" }
             };
         }
@@ -79,7 +75,7 @@ export default {
 
         if (hasRemoteImages(content) && this.settings.trust_every_remote_content === "false") {
             // check if sender is known (found in any suscribed addressbook)
-            const searchResult = await apiAddressbooks.search(this.message.from.address);
+            const searchResult = await apiAddressbooks.search(this.ACTIVE_MESSAGE.from.address);
             const isSenderKnown = searchResult.total > 0;
             if (!isSenderKnown) {
                 this.WARNING(this.blockedContentAlert);

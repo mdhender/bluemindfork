@@ -34,8 +34,8 @@ export default {
         TextPlainPartViewer
     },
     props: {
-        messageKey: {
-            type: [Number, String],
+        message: {
+            type: Object,
             required: true
         }
     },
@@ -46,13 +46,10 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail", ["messages", "activeMessage"]),
-        message() {
-            return this.messages[this.messageKey];
-        }
+        ...mapState("mail", ["activeMessage"])
     },
     watch: {
-        messageKey: {
+        "message.key": {
             handler: async function () {
                 this.parts = [];
                 this.htmlWithImageInserted = [];

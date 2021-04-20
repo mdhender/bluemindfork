@@ -3,7 +3,7 @@
         class="message-list-item d-flex"
         :class="{
             ['message-list-item-' + settings.mail_message_list_style]: true,
-            active: MESSAGE_IS_SELECTED(message.key) || IS_CURRENT_MESSAGE(message)
+            active: MESSAGE_IS_SELECTED(message.key) || IS_ACTIVE_MESSAGE(message)
         }"
         aria-hidden="true"
     >
@@ -23,7 +23,7 @@
 <script>
 import { BmListGroupItem, BmSkeleton, BmSkeletonAvatar } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
-import { IS_CURRENT_MESSAGE, MESSAGE_IS_SELECTED } from "~getters";
+import { IS_ACTIVE_MESSAGE, MESSAGE_IS_SELECTED } from "~getters";
 
 export default {
     name: "MessageListItemLoading",
@@ -39,7 +39,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", { IS_CURRENT_MESSAGE, MESSAGE_IS_SELECTED }),
+        ...mapGetters("mail", { IS_ACTIVE_MESSAGE, MESSAGE_IS_SELECTED }),
         ...mapState("session", { settings: ({ settings }) => settings.remote })
     }
 };

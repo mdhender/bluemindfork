@@ -10,7 +10,7 @@ import MailMultipleSelectionActions from "./MailMultipleSelectionActions";
 import MailThread from "./MailThread/MailThread";
 import { mapGetters, mapMutations, mapState } from "vuex";
 import { MULTIPLE_MESSAGE_SELECTED, ONE_MESSAGE_SELECTED } from "~getters";
-import { RESET_ACTIVE_MESSAGE } from "~mutations";
+import { RESET_ACTIVE_MESSAGE, SET_ACTIVE_MESSAGE } from "~mutations";
 
 export default {
     name: "MailActionsPanel",
@@ -26,18 +26,17 @@ export default {
     watch: {
         ONE_MESSAGE_SELECTED: {
             handler: function (value) {
-                this.RESET_ACTIVE_MESSAGE();
                 if (value) {
-                    this.$store.commit("mail-webapp/currentMessage/update", { key: this.selection[0] });
+                    this.SET_ACTIVE_MESSAGE({ key: this.selection[0] });
                 } else {
-                    this.$store.commit("mail-webapp/currentMessage/clear");
+                    this.RESET_ACTIVE_MESSAGE();
                 }
             },
             immediate: true
         }
     },
     methods: {
-        ...mapMutations("mail", { RESET_ACTIVE_MESSAGE })
+        ...mapMutations("mail", { RESET_ACTIVE_MESSAGE, SET_ACTIVE_MESSAGE })
     }
 };
 </script>

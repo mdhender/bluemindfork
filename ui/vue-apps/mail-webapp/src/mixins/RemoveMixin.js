@@ -1,12 +1,11 @@
-import { mapActions, mapGetters, mapState } from "vuex";
-import { IS_CURRENT_MESSAGE, MY_TRASH } from "~getters";
+import { mapActions, mapGetters } from "vuex";
+import { IS_ACTIVE_MESSAGE, MY_TRASH } from "~getters";
 
 import { REMOVE_MESSAGES, MOVE_MESSAGES_TO_TRASH } from "~actions";
 import { equal } from "../model/message";
 
 export default {
     computed: {
-        ...mapState("mail-webapp/currentMessage", { $_RemoveMixin_current: "key" }),
         ...mapGetters("mail", { $_RemoveMixin_trash: MY_TRASH })
     },
     methods: {
@@ -47,7 +46,7 @@ function navigate(action) {
         messages = Array.isArray(messages) ? [...messages] : [messages];
         let next = this.$store.state.mail.messages[this.$store.getters["mail-webapp/nextMessageKey"]] || null;
         const confirm = await action.call(this, messages);
-        if (confirm && messages.length === 1 && this.$store.getters["mail/" + IS_CURRENT_MESSAGE](messages[0])) {
+        if (confirm && messages.length === 1 && this.$store.getters["mail/" + IS_ACTIVE_MESSAGE](messages[0])) {
             //TODO: This is a hack because nextMessageKey from deprecated store can return a wrong nex key
             if (equal(next, messages[0])) {
                 next = null;

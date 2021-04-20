@@ -49,7 +49,7 @@
         <bm-row ref="scrollableContainer" class="pt-1 flex-fill px-lg-5 px-4">
             <bm-col col>
                 <event-viewer v-if="containsEvent" :message="message" />
-                <parts-viewer v-else :message-key="message.key" />
+                <parts-viewer v-else :message="message" />
             </bm-col>
         </bm-row>
         <mail-viewer-toolbar class="d-flex d-lg-none" />
@@ -83,27 +83,24 @@ export default {
         PartsViewer
     },
     props: {
-        messageKey: {
-            type: [Number, String],
+        message: {
+            type: Object,
             required: true
         }
     },
     computed: {
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
         ...mapGetters("mail", { MESSAGE_LIST_UNREAD_FILTER_ENABLED }),
-        ...mapState("mail", ["messages", "folders"]),
+        ...mapState("mail", ["folders"]),
         subject() {
             return this.message.subject || this.$t("mail.viewer.no.subject");
         },
         containsEvent() {
             return inject("UserSession").roles.includes("hasCalendar") && this.message.hasICS;
-        },
-        message() {
-            return this.messages[this.messageKey];
         }
     },
     watch: {
-        messageKey: {
+        "message.key": {
             handler: function () {
                 this.resetScroll();
                 if (!this.MESSAGE_LIST_UNREAD_FILTER_ENABLED && this.folders[this.message.folderRef.key].writable) {

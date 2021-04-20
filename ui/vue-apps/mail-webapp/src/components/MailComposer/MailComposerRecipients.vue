@@ -66,7 +66,7 @@
 
 <script>
 import debounce from "lodash/debounce";
-import { mapMutations, mapState } from "vuex";
+import { mapMutations } from "vuex";
 
 import { VCardQueryOrderBy } from "@bluemind/addressbook.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
@@ -89,8 +89,8 @@ export default {
     },
     mixins: [ComposerActionsMixin],
     props: {
-        messageKey: {
-            type: [Number, String],
+        message: {
+            type: Object,
             required: true
         },
         isReplyOrForward: {
@@ -112,12 +112,6 @@ export default {
             autocompleteResultsCc: [],
             autocompleteResultsBcc: []
         };
-    },
-    computed: {
-        ...mapState("mail", ["messages"]),
-        message() {
-            return this.messages[this.messageKey];
-        }
     },
     watch: {
         autocompleteResults: function () {

@@ -43,7 +43,6 @@
                 :message="message"
                 :is-muted="!!draggedMessage && MESSAGE_IS_SELECTED(draggedMessage) && MESSAGE_IS_SELECTED(message.key)"
                 @toggle-select="toggleSelect"
-                @click.exact.native="unselectAllIfNeeded(message.key)"
                 @click.ctrl.exact.native.prevent.stop="toggleInSelection(message.key)"
                 @click.shift.exact.native.prevent.stop="selectRange(message.key, true)"
                 @click.ctrl.shift.exact.native.prevent.stop="selectRange(message.key)"
@@ -63,14 +62,15 @@ import DraggableMessage from "./DraggableMessage";
 import DateSeparator from "./DateSeparator";
 import MessageListItemLoading from "./MessageListItemLoading";
 import {
-    MULTIPLE_MESSAGE_SELECTED,
-    SELECTION_IS_EMPTY,
-    MESSAGE_IS_SELECTED,
+    ACTIVE_MESSAGE,
     ALL_MESSAGES_ARE_SELECTED,
-    MY_TRASH,
-    MESSAGE_LIST_COUNT,
     MESSAGE_IS_LOADED,
-    MESSAGE_IS_LOADING
+    MESSAGE_IS_LOADING,
+    MESSAGE_IS_SELECTED,
+    MESSAGE_LIST_COUNT,
+    MULTIPLE_MESSAGE_SELECTED,
+    MY_TRASH,
+    SELECTION_IS_EMPTY
 } from "~getters";
 import { SELECT_MESSAGE, UNSELECT_MESSAGE, SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES } from "~mutations";
 import { RemoveMixin } from "~mixins";
@@ -97,16 +97,16 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail", {
-            MULTIPLE_MESSAGE_SELECTED,
-            SELECTION_IS_EMPTY,
-            MESSAGE_IS_SELECTED,
+            ACTIVE_MESSAGE,
             ALL_MESSAGES_ARE_SELECTED,
-            MY_TRASH,
-            MESSAGE_LIST_COUNT,
             MESSAGE_IS_LOADED,
-            MESSAGE_IS_LOADING
+            MESSAGE_IS_LOADING,
+            MESSAGE_IS_SELECTED,
+            MESSAGE_LIST_COUNT,
+            MULTIPLE_MESSAGE_SELECTED,
+            MY_TRASH,
+            SELECTION_IS_EMPTY
         }),
         ...mapState("mail", ["activeFolder", "messages", "selection"]),
         ...mapState("mail", {
@@ -118,21 +118,18 @@ export default {
                 .map(key => this.messages[key])
                 .filter(({ status }) => status !== MessageStatus.REMOVED);
         },
-        currentMessage() {
-            return this.messages[this.currentMessageKey];
-        },
         hasMore() {
             return this.length < this.MESSAGE_LIST_COUNT;
         },
         selected() {
-            return this.SELECTION_IS_EMPTY ? this.currentMessage : this.selection.map(key => this.messages[key]);
+            return this.SELECTION_IS_EMPTY ? this.ACTIVE_MESSAGE : this.selection.map(key => this.messages[key]);
         }
     },
     watch: {
-        currentMessageKey() {
-            if (this.currentMessageKey) {
-                this.focusByKey(this.currentMessageKey);
-                this.anchoredMessageForShift = this.currentMessageKey;
+        ACTIVE_MESSAGE() {
+            if (this.ACTIVE_MESSAGE) {
+                this.focusByKey(this.ACTIVE_MESSAGE.key);
+                this.anchoredMessageForShift = this.ACTIVE_MESSAGE.key;
             }
         },
         activeFolder() {
@@ -141,7 +138,7 @@ export default {
         }
     },
     created() {
-        this.focusByKey(this.currentMessageKey);
+        this.focusByKey(this.ACTIVE_MESSAGE?.key);
     },
     mounted() {
         this.onScroll();
@@ -156,7 +153,6 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", ["loadRange"]),
-        ...mapMutations("mail-webapp/currentMessage", { clearCurrentMessage: "clear" }),
         ...mapMutations("mail", { SELECT_MESSAGE, UNSELECT_MESSAGE, SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES }),
 
         loadMore() {
@@ -182,7 +178,6 @@ export default {
         },
         goToByKey(key) {
             this.$router.navigate({ name: "v:mail:message", params: { message: this.messages[key] } });
-            this.UNSELECT_ALL_MESSAGES();
         },
         async focusByKey(key) {
             if (key) {
@@ -232,30 +227,27 @@ export default {
         },
         initAnchored() {
             if (!this.anchoredMessageForShift) {
-                this.anchoredMessageForShift = this.lastFocusedMessage || this.currentMessageKey || this.messageKeys[0];
+                this.anchoredMessageForShift =
+                    this.lastFocusedMessage || this.ACTIVE_MESSAGE?.key || this.messageKeys[0];
             }
         },
         toggleAll() {
             if (this.ALL_MESSAGES_ARE_SELECTED) {
                 this.UNSELECT_ALL_MESSAGES();
-                this.clearCurrentMessage();
             } else {
                 this.SELECT_ALL_MESSAGES(this.messageKeys);
             }
             this.navigateAfterSelection();
         },
         toggleInSelection(messageKey) {
-            if (this.SELECTION_IS_EMPTY && this.currentMessageKey && this.currentMessageKey !== messageKey) {
-                this.SELECT_MESSAGE(this.currentMessageKey);
+            if (this.SELECTION_IS_EMPTY && this.ACTIVE_MESSAGE?.key !== messageKey) {
+                this.SELECT_MESSAGE(this.ACTIVE_MESSAGE.key);
             }
             this.toggleSelect(messageKey);
         },
         toggleSelect(messageKey) {
             if (this.MESSAGE_IS_SELECTED(messageKey)) {
                 this.UNSELECT_MESSAGE(messageKey);
-                if (this.currentMessageKey === messageKey) {
-                    this.clearCurrentMessage();
-                }
             } else {
                 this.SELECT_MESSAGE(messageKey);
                 this.anchoredMessageForShift = messageKey;
@@ -265,11 +257,6 @@ export default {
         },
         navigateAfterSelection() {
             this.$router.navigate({ name: "v:mail:home" });
-        },
-        unselectAllIfNeeded(messageKey) {
-            if (this.selection.length !== 1 || this.selection[0] !== messageKey) {
-                this.UNSELECT_ALL_MESSAGES();
-            }
         }
     }
 };

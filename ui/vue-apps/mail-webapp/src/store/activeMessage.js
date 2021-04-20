@@ -2,14 +2,35 @@ import { MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 
 import { FETCH_ACTIVE_MESSAGE_INLINE_PARTS } from "~actions";
-import { RESET_ACTIVE_MESSAGE, SET_ACTIVE_MESSAGE_PART_DATA } from "~mutations";
+import {
+    RESET_ACTIVE_MESSAGE,
+    SET_ACTIVE_MESSAGE,
+    SET_ACTIVE_MESSAGE_PART_DATA,
+    UNSELECT_ALL_MESSAGES,
+    UNSELECT_MESSAGE
+} from "~mutations";
 
 export default {
     mutations: {
+        [SET_ACTIVE_MESSAGE]: (state, { key }) => {
+            state.key = key;
+            state.partsDataByAddress = {};
+        },
         [SET_ACTIVE_MESSAGE_PART_DATA]: (state, { address, data }) => {
             state.partsDataByAddress[address] = data;
         },
         [RESET_ACTIVE_MESSAGE]: state => {
+            state.key = null;
+            state.partsDataByAddress = {};
+        },
+        [UNSELECT_MESSAGE]: (state, messageKey) => {
+            if (state.key === messageKey) {
+                state.key = null;
+                state.partsDataByAddress = {};
+            }
+        },
+        [UNSELECT_ALL_MESSAGES]: state => {
+            state.key = null;
             state.partsDataByAddress = {};
         }
     },
@@ -35,7 +56,8 @@ export default {
     },
 
     state: {
-        partsDataByAddress: {}
+        partsDataByAddress: {},
+        key: null
     }
 };
 

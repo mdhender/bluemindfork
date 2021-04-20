@@ -82,8 +82,6 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-
 import { MimeType, computePreviewOrDownloadUrl } from "@bluemind/email";
 import { computeUnit } from "@bluemind/file-utils";
 import global from "@bluemind/global";
@@ -110,8 +108,8 @@ export default {
             type: Object,
             required: true
         },
-        messageKey: {
-            type: [String, Number],
+        message: {
+            type: Object,
             required: true
         },
         compact: {
@@ -126,10 +124,6 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail", ["messages"]),
-        message() {
-            return this.messages[this.messageKey];
-        },
         isRemovable() {
             return this.message.composing;
         },

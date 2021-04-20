@@ -39,7 +39,7 @@ export function createStore() {
         mailbox
     });
     store.commit("mail/ADD_MESSAGES", [{ key: messageKey, flags: [], folderRef: { key: folderUid, uid: folderUid } }]);
-    store.commit("mail-webapp/currentMessage/update", { key: messageKey });
+    store.commit("mail/SET_ACTIVE_MESSAGE", { key: messageKey });
 
     return store;
 }

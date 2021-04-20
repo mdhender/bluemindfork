@@ -42,7 +42,7 @@
             <div class="font-weight-bold mb-1 d-block top">
                 <bm-skeleton width="30%" />
             </div>
-            <div v-if="message.eventInfo.needsReply" class="mt-3 d-flex">
+            <div v-if="ACTIVE_MESSAGE.eventInfo.needsReply" class="mt-3 d-flex">
                 <bm-skeleton-button class="ml-4 d-inline-block" width="6rem" />
                 <bm-skeleton-button class="ml-4 d-inline-block" width="6rem" />
             </div>
@@ -51,9 +51,10 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 import { BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 import { ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~actions";
+import { ACTIVE_MESSAGE } from "~getters";
 import { LoadingStatus } from "../../model/loading-status";
 
 export default {
@@ -67,16 +68,12 @@ export default {
         return { LoadingStatus };
     },
     computed: {
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
-        ...mapState("mail", ["messages"]),
-        message() {
-            return this.messages[this.currentMessageKey];
-        },
+        ...mapGetters("mail", { ACTIVE_MESSAGE }),
         counterEventInfo() {
-            const attendee = this.message.from.dn
-                ? this.message.from.dn + " <" + this.message.from.address + ">"
-                : this.message.from.address;
+            const attendee = this.ACTIVE_MESSAGE.from.dn
+                ? this.ACTIVE_MESSAGE.from.dn + " <" + this.ACTIVE_MESSAGE.from.address + ">"
+                : this.ACTIVE_MESSAGE.from.address;
             if (this.currentEvent.counter) {
                 return this.$t("mail.ics.counter." + this.currentEvent.counter.status.toLowerCase(), { attendee });
             } else {

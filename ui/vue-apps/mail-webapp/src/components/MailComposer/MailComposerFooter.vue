@@ -66,8 +66,6 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-
 import { DateComparator } from "@bluemind/date";
 import { BmButton, BmIcon, BmDropdown, BmDropdownItemToggle } from "@bluemind/styleguide";
 
@@ -89,8 +87,8 @@ export default {
             type: Boolean,
             default: false
         },
-        messageKey: {
-            type: [Number, String],
+        message: {
+            type: Object,
             required: true
         },
         signature: {
@@ -103,10 +101,6 @@ export default {
         }
     },
     computed: {
-        ...mapState("mail", ["messages"]),
-        message() {
-            return this.messages[this.messageKey];
-        },
         hasRecipient() {
             return this.message.to.length > 0 || this.message.cc.length > 0 || this.message.bcc.length > 0;
         },

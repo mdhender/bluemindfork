@@ -6,7 +6,7 @@
         <mail-composer-recipients
             ref="recipients"
             class="pl-3"
-            :message-key="messageKey"
+            :message="message"
             :is-reply-or-forward="!!messageCompose.collapsedContent"
         />
         <bm-form-input
@@ -36,10 +36,10 @@
         <mail-composer-content
             ref="content"
             :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
-            :message-key="messageKey"
+            :message="message"
         />
         <mail-composer-footer
-            :message-key="messageKey"
+            :message="message"
             :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
             :signature="signature"
             :is-signature-inserted="isSignatureInserted"
@@ -55,7 +55,7 @@ import { mapGetters, mapMutations, mapState } from "vuex";
 import { BmFormInput, BmForm, BmIcon, BmFileDropZone } from "@bluemind/styleguide";
 
 import { ComposerActionsMixin } from "~mixins";
-import { SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT, UNSELECT_ALL_MESSAGES } from "~mutations";
+import { SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT } from "~mutations";
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 import MailComposerContent from "./MailComposerContent";
 import MailComposerRecipients from "./MailComposerRecipients";
@@ -76,8 +76,8 @@ export default {
     },
     mixins: [ComposerActionsMixin],
     props: {
-        messageKey: {
-            type: [Number, String],
+        message: {
+            type: Object,
             required: true
         }
     },
@@ -90,9 +90,6 @@ export default {
     computed: {
         ...mapState("mail", ["messages", "messageCompose"]),
         ...mapGetters("root-app", ["DEFAULT_IDENTITY"]),
-        message() {
-            return this.messages[this.messageKey];
-        },
         signature() {
             return this.DEFAULT_IDENTITY.signature;
         },
@@ -108,17 +105,13 @@ export default {
             );
         }
     },
-    created() {
-        this.UNSELECT_ALL_MESSAGES();
-    },
     mounted() {
         this.focus();
     },
     methods: {
         ...mapMutations("mail", {
             SET_DRAFT_EDITOR_CONTENT,
-            SET_MESSAGE_SUBJECT,
-            UNSELECT_ALL_MESSAGES
+            SET_MESSAGE_SUBJECT
         }),
         async focus() {
             await this.$nextTick();
@@ -129,7 +122,7 @@ export default {
             }
         },
         updateSubject(subject) {
-            this.SET_MESSAGE_SUBJECT({ messageKey: this.messageKey, subject });
+            this.SET_MESSAGE_SUBJECT({ messageKey: this.message.key, subject });
             this.debouncedSave();
         },
         toggleSignature() {

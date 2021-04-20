@@ -79,7 +79,7 @@ import MailFolderIcon from "../../MailFolderIcon";
 import MailFolderInput from "../../MailFolderInput";
 import { MailboxType } from "~model/mailbox";
 import { isNameValid, translatePath } from "~model/folder";
-import { MY_INBOX, MY_TRASH, FOLDERS_BY_UPPERCASE_PATH } from "~getters";
+import { ACTIVE_MESSAGE, MY_INBOX, MY_TRASH, FOLDERS_BY_UPPERCASE_PATH } from "~getters";
 import { MoveMixin } from "~mixins";
 
 export default {
@@ -103,10 +103,9 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail-webapp", ["nextMessageKey"]),
         ...mapState("mail", ["activeFolder", "folders", "mailboxes", "messages", "selection"]),
-        ...mapGetters("mail", { MY_TRASH, MY_INBOX, FOLDERS_BY_UPPERCASE_PATH }),
+        ...mapGetters("mail", { ACTIVE_MESSAGE, MY_TRASH, MY_INBOX, FOLDERS_BY_UPPERCASE_PATH }),
         displayCreateFolderBtnFromPattern() {
             let pattern = this.pattern;
             if (pattern !== "") {
@@ -134,7 +133,7 @@ export default {
     methods: {
         moveToFolder(folder) {
             const selectedMessages = this.selection.map(key => this.messages[key]);
-            const toBeMoved = selectedMessages.length > 0 ? selectedMessages : this.messages[this.currentMessageKey];
+            const toBeMoved = selectedMessages.length > 0 ? selectedMessages : this.ACTIVE_MESSAGE;
             this.MOVE_MESSAGES({ messages: toBeMoved, folder });
             this.$refs["move-dropdown"].hide(true);
         },

@@ -8,11 +8,13 @@ export default {
     mutations,
     getters: {
         [MESSAGE_IS_LOADED](state) {
-            return key => state[key] && state[key].loading === LoadingStatus.LOADED;
+            return message => state[key(message)] && state[key(message)].loading === LoadingStatus.LOADED;
         },
         [MESSAGE_IS_LOADING](state) {
-            return key => state[key] && state[key].loading === LoadingStatus.LOADING;
+            return message => state[key(message)] && state[key(message)].loading === LoadingStatus.LOADING;
         }
     },
     state: {}
 };
+
+const key = message => (typeof message === "object" ? message.key : message);

@@ -58,8 +58,8 @@ export default {
             type: Boolean,
             default: false
         },
-        messageKey: {
-            type: [Number, String],
+        message: {
+            type: Object,
             required: true
         }
     },
@@ -67,13 +67,10 @@ export default {
         return { draggedFilesCount: -1 };
     },
     computed: {
-        ...mapState("mail", ["messages", "messageCompose"]),
-        message() {
-            return this.messages[this.messageKey];
-        }
+        ...mapState("mail", ["messageCompose"])
     },
     watch: {
-        messageKey: {
+        "message.key": {
             async handler() {
                 if (!isNewMessage(this.message)) {
                     await this.initFromRemoteMessage(this.message);

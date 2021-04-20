@@ -1,6 +1,6 @@
 <template>
     <article
-        v-if="message"
+        v-if="MESSAGE_IS_LOADED(ACTIVE_MESSAGE)"
         class="mail-thread d-flex flex-column overflow-x-hidden"
         :aria-label="$t('mail.application.region.messagethread')"
     >
@@ -9,8 +9,8 @@
                 <component :is="context.alert.renderer" :alert="context.alert" />
             </template>
         </bm-alert-area>
-        <mail-composer v-if="isADraft" :message-key="currentMessageKey" />
-        <mail-viewer v-else :message-key="currentMessageKey" />
+        <mail-composer v-if="ACTIVE_MESSAGE && ACTIVE_MESSAGE.composing" :message="ACTIVE_MESSAGE" />
+        <mail-viewer v-else :message="ACTIVE_MESSAGE" />
         <div />
     </article>
     <article v-else class="mail-thread">
@@ -24,8 +24,14 @@ import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { INFO, REMOVE } from "@bluemind/alert.store";
 import { BmAlertArea } from "@bluemind/styleguide";
 
-import { RESET_ACTIVE_MESSAGE, SET_ACTIVE_FOLDER, SET_BLOCK_REMOTE_IMAGES, SET_MESSAGE_COMPOSING } from "~mutations";
-import { MESSAGE_IS_LOADED, MY_DRAFTS, MY_MAILBOX } from "~getters";
+import {
+    SET_ACTIVE_MESSAGE,
+    SET_ACTIVE_FOLDER,
+    SET_BLOCK_REMOTE_IMAGES,
+    SET_MESSAGE_COMPOSING,
+    UNSELECT_ALL_MESSAGES
+} from "~mutations";
+import { ACTIVE_MESSAGE, MESSAGE_IS_LOADED, MY_DRAFTS, MY_MAILBOX, SELECTION_IS_EMPTY } from "~getters";
 import { FETCH_MESSAGE_IF_NOT_LOADED } from "~actions";
 import BlockedRemoteContent from "./Alerts/BlockedRemoteContent";
 import VideoConferencing from "./Alerts/VideoConferencing";
@@ -52,21 +58,12 @@ export default {
         area: "mail-thread"
     },
     computed: {
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail", ["activeFolder", "folders", "messages"]),
-        ...mapGetters("mail", { MY_MAILBOX, MESSAGE_IS_LOADED, MY_DRAFTS }),
+        ...mapState("mail", ["activeFolder", "folders"]),
+        ...mapGetters("mail", { ACTIVE_MESSAGE, MY_MAILBOX, MESSAGE_IS_LOADED, MY_DRAFTS, SELECTION_IS_EMPTY }),
 
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-thread") }),
-        message() {
-            return this.MESSAGE_IS_LOADED(this.currentMessageKey) && this.messages[this.currentMessageKey];
-        },
         folder() {
-            return this.message && this.folders[this.message.folderRef.key];
-        },
-        isADraft() {
-            return this.currentMessageKey && this.messages[this.currentMessageKey]
-                ? this.messages[this.currentMessageKey].composing
-                : false;
+            return this.ACTIVE_MESSAGE && this.folders[this.ACTIVE_MESSAGE.folderRef.key];
         },
         readOnlyAlert() {
             return {
@@ -83,15 +80,14 @@ export default {
                 this.REMOVE(this.readOnlyAlert.alert);
             }
         },
-        async currentMessageKey(value) {
+        async "ACTIVE_MESSAGE.key"() {
             this.SET_BLOCK_REMOTE_IMAGES(false);
             try {
-                const message = this.messages[value];
-                const folderKey = message.folderRef.key;
-                if (!message.composing) {
+                const folderKey = this.ACTIVE_MESSAGE.folderRef.key;
+                if (!this.ACTIVE_MESSAGE.composing) {
                     this.SET_ACTIVE_FOLDER(this.folders[folderKey]);
                     if (this.MY_DRAFTS && folderKey === this.MY_DRAFTS.key) {
-                        this.SET_MESSAGE_COMPOSING({ messageKey: value, composing: true });
+                        this.SET_MESSAGE_COMPOSING({ messageKey: this.ACTIVE_MESSAGE.key, composing: true });
                     }
                 }
             } catch (e) {
@@ -102,7 +98,6 @@ export default {
 
         "$route.params.messagepath": {
             async handler(value) {
-                this.RESET_ACTIVE_MESSAGE();
                 if (value) {
                     try {
                         let assert = mailbox => mailbox && mailbox.loading === LoadingStatus.LOADED;
@@ -116,11 +111,14 @@ export default {
                                 this.initNewMessage();
                             }
                         }
-                        const { key } = await this.FETCH_MESSAGE_IF_NOT_LOADED({
+                        const message = await this.FETCH_MESSAGE_IF_NOT_LOADED({
                             internalId,
                             folder: this.folders[folderKey]
                         });
-                        this.$store.commit("mail-webapp/currentMessage/update", { key: key });
+                        if (!this.SELECTION_IS_EMPTY) {
+                            this.UNSELECT_ALL_MESSAGES();
+                        }
+                        this.SET_ACTIVE_MESSAGE(message);
                     } catch (e) {
                         console.log(e);
                         this.$router.push({ name: "mail:home" });
@@ -132,10 +130,11 @@ export default {
     },
     methods: {
         ...mapMutations("mail", {
-            RESET_ACTIVE_MESSAGE,
             SET_ACTIVE_FOLDER,
+            SET_ACTIVE_MESSAGE,
             SET_BLOCK_REMOTE_IMAGES,
-            SET_MESSAGE_COMPOSING
+            SET_MESSAGE_COMPOSING,
+            UNSELECT_ALL_MESSAGES
         }),
         ...mapActions("mail", { FETCH_MESSAGE_IF_NOT_LOADED }),
         ...mapActions("alert", { REMOVE, INFO })

@@ -10,23 +10,20 @@
     </div>
 </template>
 <script>
-import { mapActions, mapMutations, mapState } from "vuex";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 import { AlertMixin, REMOVE } from "@bluemind/alert.store";
 import { createFromRecipient, VCardAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
 import { BmButton } from "@bluemind/styleguide";
 import { SET_BLOCK_REMOTE_IMAGES } from "~mutations";
+import { ACTIVE_MESSAGE } from "~getters";
 
 export default {
     name: "BlockedRemoteContent",
     components: { BmButton },
     mixins: [AlertMixin],
     computed: {
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail", ["messages"]),
-        message() {
-            return this.messages[this.currentMessageKey];
-        }
+        ...mapGetters("mail", { ACTIVE_MESSAGE })
     },
     methods: {
         ...mapMutations("mail", { SET_BLOCK_REMOTE_IMAGES }),
@@ -37,7 +34,7 @@ export default {
         },
         trustSender() {
             this.SET_BLOCK_REMOTE_IMAGES();
-            const contact = createFromRecipient(this.message.from);
+            const contact = createFromRecipient(this.ACTIVE_MESSAGE.from);
             const collectedContactsUid = "book:CollectedContacts_" + inject("UserSession").userId;
             inject("AddressBookPersistence", collectedContactsUid).create(contact.uid, VCardAdaptor.toVCard(contact));
             this.remove();

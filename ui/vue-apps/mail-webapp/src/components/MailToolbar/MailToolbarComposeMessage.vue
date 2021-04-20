@@ -49,8 +49,6 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-
 import { BmButton, BmIcon } from "@bluemind/styleguide";
 
 import { ComposerActionsMixin } from "~mixins";
@@ -64,16 +62,12 @@ export default {
     },
     mixins: [ComposerActionsMixin],
     props: {
-        messageKey: {
-            type: [Number, String],
+        message: {
+            type: Object,
             required: true
         }
     },
     computed: {
-        ...mapState("mail", ["messages"]),
-        message() {
-            return this.messages[this.messageKey];
-        },
         hasRecipient() {
             return this.message.to.length > 0 || this.message.cc.length > 0 || this.message.bcc.length > 0;
         },

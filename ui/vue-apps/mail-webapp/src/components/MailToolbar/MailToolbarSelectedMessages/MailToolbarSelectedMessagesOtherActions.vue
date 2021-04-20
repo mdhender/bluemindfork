@@ -20,8 +20,9 @@
 
 <script>
 import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
-import { mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import { RemoveMixin } from "~mixins";
+import { ACTIVE_MESSAGE } from "~getters";
 
 export default {
     name: "MailToolbarConsultMessageOtherActions",
@@ -32,11 +33,10 @@ export default {
     },
     mixins: [RemoveMixin],
     computed: {
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["selection", "messages"]),
+        ...mapGetters("mail", { ACTIVE_MESSAGE }),
         selected() {
-            const message = this.messages[this.currentMessageKey];
-            return this.selection.length ? this.selection.map(key => this.messages[key]) : message;
+            return this.selection.length ? this.selection.map(key => this.messages[key]) : this.ACTIVE_MESSAGE;
         }
     }
 };

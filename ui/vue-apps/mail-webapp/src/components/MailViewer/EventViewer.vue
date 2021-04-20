@@ -8,11 +8,11 @@
             :selected="choices[selectedChoice]"
             @select="index => (selectedChoice = index)"
         />
-        <parts-viewer v-if="selectedChoice === 0" :message-key="message.key" />
+        <parts-viewer v-if="selectedChoice === 0" :message="message" />
         <event-viewer-invitation v-else :message="message" />
     </div>
     <div v-else-if="currentEvent.loading === LoadingStatus.ERROR">
-        <parts-viewer :message-key="message.key" />
+        <parts-viewer :message="message" />
     </div>
 </template>
 <script>

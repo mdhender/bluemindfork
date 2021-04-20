@@ -91,7 +91,6 @@ export default {
     },
     computed: {
         ...mapGetters("mail", { MY_DRAFTS, MY_SENT, MESSAGE_LIST_IS_SEARCH_MODE, MESSAGE_IS_SELECTED }),
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["mailboxes", "folders", "messages"]),
         displayedDate: function () {
             const today = new Date();
@@ -114,9 +113,6 @@ export default {
         },
         folder() {
             return this.folders[this.message.folderRef.key];
-        },
-        isActive() {
-            return this.MESSAGE_IS_SELECTED(this.message.key) || this.message.key === this.currentMessageKey;
         },
         fromOrTo() {
             const messageFolder = this.message.folderRef.key;

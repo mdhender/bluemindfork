@@ -6,7 +6,7 @@
             ['message-list-item-' + userSettings.mail_message_list_style]: true,
             'not-seen': !message.flags.includes(Flag.SEEN),
             'warning-custom': message.flags.includes(Flag.FLAGGED),
-            active: MESSAGE_IS_SELECTED(message.key) || IS_CURRENT_MESSAGE(message)
+            active: MESSAGE_IS_SELECTED(message.key) || IS_ACTIVE_MESSAGE(message)
         }"
         role="link"
         @click.exact="navigateTo"
@@ -34,7 +34,7 @@ import MessageListItemLeft from "./MessageListItemLeft";
 import MessageListItemMiddle from "./MessageListItemMiddle";
 import MessageListItemQuickActionButtons from "./MessageListItemQuickActionButtons";
 import ScreenReaderOnlyMessageInformation from "./ScreenReaderOnlyMessageInformation";
-import { IS_CURRENT_MESSAGE, MESSAGE_IS_SELECTED } from "~getters";
+import { IS_ACTIVE_MESSAGE, MESSAGE_IS_SELECTED } from "~getters";
 
 export default {
     name: "MessageListItem",
@@ -64,7 +64,7 @@ export default {
     },
     computed: {
         ...mapState("mail", ["folders", "activeFolder", "selection"]),
-        ...mapGetters("mail", { MESSAGE_IS_SELECTED, IS_CURRENT_MESSAGE }),
+        ...mapGetters("mail", { MESSAGE_IS_SELECTED, IS_ACTIVE_MESSAGE }),
         ...mapState("session", { userSettings: ({ settings }) => settings.remote })
     },
     methods: {

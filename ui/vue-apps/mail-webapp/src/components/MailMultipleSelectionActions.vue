@@ -108,7 +108,7 @@ import {
     MESSAGE_LIST_FILTERED,
     MESSAGE_LIST_IS_SEARCH_MODE
 } from "~getters";
-import { SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES } from "~mutations";
+import { RESET_ACTIVE_MESSAGE, SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES } from "~mutations";
 import {
     MARK_FOLDER_AS_READ,
     MARK_MESSAGES_AS_FLAGGED,
@@ -183,12 +183,10 @@ export default {
             MARK_MESSAGES_AS_FLAGGED,
             MARK_MESSAGES_AS_UNFLAGGED
         }),
-        ...mapMutations("mail", { SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES }),
-        ...mapMutations("mail-webapp/currentMessage", { clearCurrentMessage: "clear" }),
+        ...mapMutations("mail", { RESET_ACTIVE_MESSAGE, SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES }),
         ...mapActions("alert", { REMOVE, CLEAR, INFO }),
         removeSelection() {
             this.UNSELECT_ALL_MESSAGES();
-            this.clearCurrentMessage();
         },
         markAsRead() {
             const mailbox = this.mailboxes[this.currentFolder.mailboxRef.key];

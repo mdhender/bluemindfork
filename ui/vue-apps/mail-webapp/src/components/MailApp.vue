@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
+import { mapGetters } from "vuex";
 import GlobalEvents from "vue-global-events";
 import { BmFormCheckbox, BmButton, BmCol, BmIcon, BmRow, MakeUniq } from "@bluemind/styleguide";
 import { inject } from "@bluemind/inject";
@@ -92,7 +92,7 @@ import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
 import MessagesOptionsForMobile from "./MessagesOptionsForMobile";
 import NewMessage from "./NewMessage";
-import { MULTIPLE_MESSAGE_SELECTED } from "~getters";
+import { ACTIVE_MESSAGE, MULTIPLE_MESSAGE_SELECTED, SELECTION_IS_EMPTY } from "~getters";
 import { Multipane, MultipaneResizer } from "@bluemind/vue-multipane";
 
 export default {
@@ -124,19 +124,12 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail", ["messages", "selection"]),
-        ...mapGetters("mail", { MULTIPLE_MESSAGE_SELECTED }),
-        isMessageComposerDisplayed() {
-            return this.currentMessageKey && this.messages[this.currentMessageKey]
-                ? this.messages[this.currentMessageKey].composing
-                : false;
-        },
+        ...mapGetters("mail", { ACTIVE_MESSAGE, MULTIPLE_MESSAGE_SELECTED, SELECTION_IS_EMPTY }),
         hideListInResponsiveMode() {
-            return this.isMessageComposerDisplayed || (this.currentMessageKey && this.selection.length === 0);
+            return this.ACTIVE_MESSAGE && (this.ACTIVE_MESSAGE.composing || this.SELECTION_IS_EMPTY);
         },
         composerOrMessageIsDisplayed() {
-            return this.isMessageComposerDisplayed || !!this.currentMessageKey;
+            return Boolean(this.ACTIVE_MESSAGE);
         },
         canSwitchWebmail() {
             return (

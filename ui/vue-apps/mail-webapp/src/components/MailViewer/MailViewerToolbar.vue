@@ -34,14 +34,15 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
+import { mapGetters } from "vuex";
 
 import { BmButton, BmButtonToolbar, BmIcon } from "@bluemind/styleguide";
 
 import { MessageCreationModes } from "~model/message";
 import { draftPath } from "../../model/draft";
-import { MY_DRAFTS } from "~getters";
+import { ACTIVE_MESSAGE, MY_DRAFTS } from "~getters";
 import MessagePathParam from "../../router/MessagePathParam";
+
 export default {
     name: "MailViewerToolbar",
     components: {
@@ -50,12 +51,7 @@ export default {
         BmIcon
     },
     computed: {
-        ...mapGetters("mail", { MY_DRAFTS }),
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        ...mapState("mail", ["messages"]),
-        message() {
-            return this.messages[this.currentMessageKey];
-        }
+        ...mapGetters("mail", { ACTIVE_MESSAGE, MY_DRAFTS })
     },
     methods: {
         reply() {
@@ -69,7 +65,7 @@ export default {
         },
         goTo(action) {
             const messagepath = draftPath(this.MY_DRAFTS);
-            const message = MessagePathParam.build("", this.messages[this.currentMessageKey]);
+            const message = MessagePathParam.build("", this.ACTIVE_MESSAGE);
             this.$router.navigate({ name: "mail:message", params: { messagepath }, query: { action, message } });
         }
     }

@@ -69,6 +69,7 @@ import { Flag } from "@bluemind/email";
 import MailToolbarSelectedMessagesMoveAction from "./MailToolbarSelectedMessagesMoveAction";
 import MailToolbarSelectedMessagesOtherActions from "./MailToolbarSelectedMessagesOtherActions";
 import {
+    ACTIVE_MESSAGE,
     ALL_MESSAGES_ARE_SELECTED,
     ALL_SELECTED_MESSAGES_ARE_FLAGGED,
     ALL_SELECTED_MESSAGES_ARE_READ,
@@ -103,6 +104,7 @@ export default {
     mixins: [RemoveMixin],
     computed: {
         ...mapGetters("mail", {
+            ACTIVE_MESSAGE,
             ALL_MESSAGES_ARE_SELECTED,
             ALL_SELECTED_MESSAGES_ARE_FLAGGED,
             ALL_SELECTED_MESSAGES_ARE_READ,
@@ -113,41 +115,36 @@ export default {
             MESSAGE_LIST_FILTERED,
             MESSAGE_LIST_IS_SEARCH_MODE
         }),
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["folders", "activeFolder", "messages", "selection", "mailboxes"]),
-        message() {
-            return this.messages[this.currentMessageKey];
-        },
         displayMarkAsRead() {
             if (this.MULTIPLE_MESSAGE_SELECTED) {
                 return !this.ALL_SELECTED_MESSAGES_ARE_READ;
-            } else {
-                return !this.message.flags.includes(Flag.SEEN);
             }
+            return !this.ACTIVE_MESSAGE.flags.includes(Flag.SEEN);
         },
         displayMarkAsUnread() {
             if (this.MULTIPLE_MESSAGE_SELECTED) {
                 return !this.ALL_SELECTED_MESSAGES_ARE_UNREAD;
-            } else {
-                return this.message.flags.includes(Flag.SEEN);
             }
+            return this.ACTIVE_MESSAGE.flags.includes(Flag.SEEN);
         },
         displayMarkAsFlagged() {
             if (this.MULTIPLE_MESSAGE_SELECTED) {
                 return !this.ALL_SELECTED_MESSAGES_ARE_FLAGGED;
-            } else {
-                return !this.message.flags.includes(Flag.FLAGGED);
             }
+            return !this.ACTIVE_MESSAGE.flags.includes(Flag.FLAGGED);
         },
         displayMarkAsUnflagged() {
             if (this.MULTIPLE_MESSAGE_SELECTED) {
                 return !this.ALL_SELECTED_MESSAGES_ARE_UNFLAGGED;
-            } else {
-                return this.message.flags.includes(Flag.FLAGGED);
             }
+            return this.ACTIVE_MESSAGE.flags.includes(Flag.FLAGGED);
         },
         selected() {
-            return this.MULTIPLE_MESSAGE_SELECTED ? this.selection.map(key => this.messages[key]) : [this.message];
+            if (this.MULTIPLE_MESSAGE_SELECTED) {
+                return this.selection.map(key => this.messages[key]);
+            }
+            return [this.ACTIVE_MESSAGE];
         },
         selectionHasReadOnlyFolders() {
             return this.selected.some(({ folderRef }) => !this.folders[folderRef.key].writable);

@@ -2,14 +2,14 @@ import { Flag } from "@bluemind/email";
 
 import { DEFAULT_FOLDER_NAMES } from "./folders/helpers/DefaultFolders";
 import {
+    ACTIVE_MESSAGE,
     ALL_MESSAGES_ARE_SELECTED,
     ALL_SELECTED_MESSAGES_ARE_FLAGGED,
     ALL_SELECTED_MESSAGES_ARE_READ,
     ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
     ALL_SELECTED_MESSAGES_ARE_UNREAD,
     CURRENT_MAILBOX,
-    CURRENT_MESSAGE,
-    IS_CURRENT_MESSAGE,
+    IS_ACTIVE_MESSAGE,
     MESSAGE_IS_LOADED,
     MAILSHARE_FOLDERS,
     MAILSHARE_KEYS,
@@ -44,7 +44,7 @@ export const mutations = {
 const { INBOX, OUTBOX, DRAFTS, SENT, TRASH } = DEFAULT_FOLDER_NAMES;
 
 export const getters = {
-    [CURRENT_MAILBOX]: state => state.mailboxes[state.folders[state.activeFolder].mailboxRef.key],
+    [CURRENT_MAILBOX]: state => state.mailboxes[state.folders[state.activeFolder]?.mailboxRef?.key],
     [ALL_SELECTED_MESSAGES_ARE_UNREAD]: (state, getters) => allSelectedMessageAreNot(state, getters, Flag.SEEN),
     [ALL_SELECTED_MESSAGES_ARE_READ]: (state, getters) => allSelectedMessageAre(state, getters, Flag.SEEN),
     [ALL_SELECTED_MESSAGES_ARE_FLAGGED]: (state, getters) => allSelectedMessageAre(state, getters, Flag.FLAGGED),
@@ -66,8 +66,8 @@ export const getters = {
     [MY_DRAFTS]: myGetterFor(DRAFTS),
     [MY_SENT]: myGetterFor(SENT),
     [MY_TRASH]: myGetterFor(TRASH),
-    [CURRENT_MESSAGE]: ({ messages }, getters, { "mail-webapp": { currentMessage } }) => messages[currentMessage.key],
-    [IS_CURRENT_MESSAGE]: ({ messages }, { CURRENT_MESSAGE }) => ({ key }) => equal(messages[key], CURRENT_MESSAGE)
+    [ACTIVE_MESSAGE]: ({ messages, activeMessage }) => messages[activeMessage.key],
+    [IS_ACTIVE_MESSAGE]: ({ messages }, { ACTIVE_MESSAGE }) => ({ key }) => equal(messages[key], ACTIVE_MESSAGE)
 };
 
 function myGetterFor(name) {

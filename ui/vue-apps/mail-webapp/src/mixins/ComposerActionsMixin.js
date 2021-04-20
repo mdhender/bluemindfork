@@ -13,14 +13,15 @@ import {
 import { MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~getters";
 import { ADD_MESSAGES } from "~mutations";
 import { isNewMessage } from "~model/draft";
+import { ACTIVE_MESSAGE } from "../store/types/getters";
 
 /**
  * Provide composition Vuex actions to components
  */
 export default {
     props: {
-        messageKey: {
-            type: String,
+        message: {
+            type: Object,
             required: true
         }
     },
@@ -36,11 +37,7 @@ export default {
             $_ComposerActionsMixin_MY_SENT: MY_SENT,
             $_ComposerActionsMixin_MY_MAILBOX_KEY: MY_MAILBOX_KEY
         }),
-        ...mapState("mail", { $_ComposerActionsMixin_messageCompose: "messageCompose" }),
-        $_ComposerActionsMixin_message() {
-            return this.$store.state.mail.messages[this.messageKey];
-        },
-        ...mapState("mail-webapp/currentMessage", { $_ComposerActionsMixin_currentMessageKey: "key" })
+        ...mapState("mail", { $_ComposerActionsMixin_messageCompose: "messageCompose" })
     },
     methods: {
         ...mapActions("mail", {
@@ -53,48 +50,45 @@ export default {
         }),
         ...mapMutations("mail", { $_ComposerActionsMixin_ADD_MESSAGES: ADD_MESSAGES }),
         async debouncedSave() {
-            const wasMessageOnlyLocal = isNewMessage(this.$_ComposerActionsMixin_message);
+            const wasMessageOnlyLocal = isNewMessage(this.message);
             await this.$_ComposerActionsMixin_DEBOUNCED_SAVE({
-                draft: this.$_ComposerActionsMixin_message,
+                draft: this.message,
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
             });
             this.updateRoute(wasMessageOnlyLocal);
         },
         async saveAsap() {
-            const wasMessageOnlyLocal = isNewMessage(this.$_ComposerActionsMixin_message);
+            const wasMessageOnlyLocal = isNewMessage(this.message);
             await this.$_ComposerActionsMixin_SAVE_MESSAGE({
-                draft: this.$_ComposerActionsMixin_message,
+                draft: this.message,
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
             });
             this.updateRoute(wasMessageOnlyLocal);
         },
         updateRoute(wasMessageOnlyLocal) {
-            if (
-                wasMessageOnlyLocal &&
-                this.$_ComposerActionsMixin_currentMessageKey === this.$_ComposerActionsMixin_message.key
-            ) {
+            if (wasMessageOnlyLocal && this.$store.getters["mail/" + ACTIVE_MESSAGE]?.key === this.message.key) {
                 this.$router.navigate({
                     name: "v:mail:message",
-                    params: { message: this.$_ComposerActionsMixin_message }
+                    params: { message: this.message }
                 });
             }
         },
         addAttachments(files) {
             this.$_ComposerActionsMixin_ADD_ATTACHMENTS({
-                draft: this.$_ComposerActionsMixin_message,
+                draft: this.message,
                 files,
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
             });
         },
         removeAttachment(address) {
             this.$_ComposerActionsMixin_REMOVE_ATTACHMENT({
-                messageKey: this.$_ComposerActionsMixin_message.key,
+                messageKey: this.message.key,
                 attachmentAddress: address,
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
             });
         },
         async deleteDraft() {
-            if (isNewMessage(this.$_ComposerActionsMixin_message)) {
+            if (isNewMessage(this.message)) {
                 this.$router.navigate("v:mail:home");
             } else {
                 const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.draft.delete.confirm.content"), {
@@ -107,7 +101,7 @@ export default {
                     autoFocusButton: "ok"
                 });
                 if (confirm) {
-                    this.$_ComposerActionsMixin_REMOVE_MESSAGES([this.$_ComposerActionsMixin_message]);
+                    this.$_ComposerActionsMixin_REMOVE_MESSAGES([this.message]);
                     this.removeAttachmentAndInlineTmpParts();
                     this.$router.navigate("v:mail:home");
                 }
@@ -115,7 +109,7 @@ export default {
         },
         send() {
             this.$_ComposerActionsMixin_SEND_MESSAGE({
-                draftKey: this.$_ComposerActionsMixin_message.key,
+                draftKey: this.message.key,
                 myMailboxKey: this.$_ComposerActionsMixin_MY_MAILBOX_KEY,
                 outboxId: this.$_ComposerActionsMixin_MY_OUTBOX.remoteRef.internalId,
                 myDraftsFolder: this.$_ComposerActionsMixin_MY_DRAFTS,
@@ -125,8 +119,8 @@ export default {
             this.$router.navigate("v:mail:home");
         },
         removeAttachmentAndInlineTmpParts() {
-            const service = inject("MailboxItemsPersistence", this.$_ComposerActionsMixin_message.folderRef.uid);
-            const addresses = this.$_ComposerActionsMixin_message.attachments
+            const service = inject("MailboxItemsPersistence", this.message.folderRef.uid);
+            const addresses = this.message.attachments
                 .concat(this.$_ComposerActionsMixin_messageCompose.inlineImagesSaved)
                 .map(part => part.address);
             addresses.forEach(address => service.removePart(address));
