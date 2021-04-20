@@ -8,14 +8,19 @@
             @click.exact.native.stop
             @keyup.native.space.stop
         />
-        <bm-icon v-if="message.hasAttachment" icon="paper-clip" />
-        <bm-icon v-if="message.hasICS" icon="event" />
+        <template v-if="userSettings.mail_message_list_style === 'full'">
+            <bm-icon v-if="message.hasAttachment" icon="paper-clip" />
+            <bm-icon v-if="message.hasICS" icon="event" />
+        </template>
+        <template v-else>
+            <bm-icon v-if="message.hasAttachment || message.hasICS" :icon="message.hasICS ? 'event' : 'paper-clip'" />
+        </template>
     </div>
 </template>
 
 <script>
 import { BmAvatar, BmCheck, BmIcon } from "@bluemind/styleguide";
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import { MY_DRAFTS, MY_SENT } from "~getters";
 
 import { MESSAGE_IS_SELECTED, SELECTION_IS_EMPTY } from "~getters";
@@ -35,6 +40,7 @@ export default {
     computed: {
         ...mapGetters("mail", { MESSAGE_IS_SELECTED, SELECTION_IS_EMPTY }),
         ...mapGetters("mail", { MY_DRAFTS, MY_SENT }),
+        ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
 
         fromOrTo() {
             const messageFolder = this.message.folderRef.key;
