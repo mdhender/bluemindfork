@@ -23,10 +23,10 @@ rm -rf %{buildroot}/*
 
 %install
 # Install bm-upgraders-list
-cp -r %{_rootdir}/etc %{buildroot}
+cp -r %{_rootdir}/usr/share %{buildroot}
 
 %files
-%attr(0755, root, root) /etc/bm
+%attr(0755, root, root) /usr/share/bm-upgraders-list
 
 %clean
 # Clean RedHat build root
