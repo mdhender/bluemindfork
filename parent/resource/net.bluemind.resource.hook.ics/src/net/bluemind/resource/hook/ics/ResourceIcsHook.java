@@ -58,7 +58,6 @@ import net.bluemind.common.freemarker.MessagesResolver;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
-import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
@@ -70,9 +69,7 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
-import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
-import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.user.api.IUserSettings;
@@ -358,21 +355,6 @@ public class ResourceIcsHook implements ICalendarHook {
 			return false;
 		}
 
-		ParticipationStatus evtStatus = ParticipationStatus.NeedsAction;
-		List<Attendee> attendees = event.attendees;
-		for (Attendee attendee : attendees) {
-			if (isCalOwnerAttendee(message.container, attendee)) {
-				evtStatus = attendee.partStatus;
-				break;
-			}
-		}
-
-		if (evtStatus != ParticipationStatus.NeedsAction && evtStatus != ParticipationStatus.Tentative) {
-			logger.debug("Event {} status isn't {} but {}", message.itemUid, ICalendarElement.Status.NeedsAction,
-					event.status);
-			return false;
-		}
-
 		if (event.rrule == null) {
 			if (LocalDateTime.now().isAfter(new BmDateTimeWrapper(event.dtend).toDateTime().toLocalDateTime())) {
 				return false;
@@ -385,13 +367,6 @@ public class ResourceIcsHook implements ICalendarHook {
 		}
 
 		return true;
-	}
-
-	private boolean isCalOwnerAttendee(Container container, Attendee attendee) {
-		if (null == attendee.dir) {
-			return false;
-		}
-		return attendee.dir.substring(attendee.dir.lastIndexOf("/") + 1).equals(container.owner);
 	}
 
 	private boolean isResource(String domainUid, String uid) {

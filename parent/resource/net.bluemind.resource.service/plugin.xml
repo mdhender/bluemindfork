@@ -43,7 +43,8 @@
     <extension
          point="net.bluemind.calendar.hook">
       <hook
-            impl="net.bluemind.resource.service.event.ResourceCalendarHook">
+            impl="net.bluemind.resource.service.event.ResourceCalendarHook"
+            priority="10">
       </hook>
    </extension>
     <extension
