@@ -250,7 +250,7 @@ public class InstallationService implements IInstallation {
 		Set<String> roles = new HashSet<String>();
 		roles.add(SecurityContext.ROLE_SYSTEM);
 		roles.add(SecurityContext.ROLE_ADMIN);
-		roles.add(BasicRoles.SELF_CHANGE_PASSWORD);
+		roles.add(BasicRoles.ROLE_SELF_CHANGE_PASSWORD);
 		userService.setRoles(uid, roles);
 
 		try {

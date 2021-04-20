@@ -69,7 +69,7 @@ public class BasicRoles {
 	/**
 	 * Permission to change own password.
 	 */
-	public static final String ROLE_SELF_CHANGE_PASSWORD = "selfChangePassword";// NOSONAR
+	public static final String ROLE_SELF_CHANGE_PASSWORD = "selfChangePassword";
 	/**
 	 * Permission to change own settings.
 	 */
@@ -174,10 +174,6 @@ public class BasicRoles {
 	 * Bluemind applications category.
 	 */
 	public static final String CATEGORY_APPS = "apps";
-	/**
-	 * Permission to change own password.
-	 */
-	public static final String SELF_CHANGE_PASSWORD = "selfChangePassword";// NOSONAR
 	/**
 	 * Permission to access own entities.
 	 */

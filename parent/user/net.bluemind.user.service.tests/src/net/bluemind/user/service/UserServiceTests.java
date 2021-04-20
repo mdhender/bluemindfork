@@ -1272,7 +1272,7 @@ public class UserServiceTests {
 		Set<String> roles = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IInCoreUser.class, domainUid).getResolvedRoles(uid);
 		assertEquals(1, roles.size());
-		assertEquals(BasicRoles.SELF_CHANGE_PASSWORD, roles.iterator().next());
+		assertEquals(BasicRoles.ROLE_SELF_CHANGE_PASSWORD, roles.iterator().next());
 
 		user.passwordMustChange = false;
 		getService(domainAdminSecurityContext).update(uid, user);
