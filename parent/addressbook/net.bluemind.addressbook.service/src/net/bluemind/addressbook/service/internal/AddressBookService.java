@@ -131,7 +131,7 @@ public class AddressBookService implements IInCoreAddressBook {
 		// ext point sanitizer
 		doCreate(uid, null, card, null);
 		eventProducer.vcardCreated(uid);
-		eventProducer.changed();
+		emitNotification();
 	}
 
 	@Override
@@ -141,7 +141,7 @@ public class AddressBookService implements IInCoreAddressBook {
 		String uid = "vcard-by-id:" + id;
 		long version = doCreate(uid, id, card, null);
 		eventProducer.vcardCreated(uid);
-		eventProducer.changed();
+		emitNotification();
 		logger.info("createdById {} ({}) => v{}", id, uid, version);
 		return Ack.create(version);
 	}
@@ -197,7 +197,7 @@ public class AddressBookService implements IInCoreAddressBook {
 		}
 
 		eventProducer.vcardUpdated(uid);
-		eventProducer.changed();
+		emitNotification();
 	}
 
 	private static class Updated {
@@ -351,7 +351,7 @@ public class AddressBookService implements IInCoreAddressBook {
 		doDelete(uid);
 		refreshGroupsFor(ImmutableList.of(ItemValue.create(uid, null)));
 		eventProducer.vcardDeleted(uid);
-		eventProducer.changed();
+		emitNotification();
 	}
 
 	private void doDelete(String uid) {
@@ -494,7 +494,7 @@ public class AddressBookService implements IInCoreAddressBook {
 
 		ret.version = storeService.getVersion();
 		if (change) {
-			eventProducer.changed();
+			emitNotification();
 			logger.info("{} batch updates: {} added, {} updated, {} removed.", container.uid, ret.added.size(),
 					ret.updated.size(), ret.removed.size());
 		} else {
@@ -635,7 +635,7 @@ public class AddressBookService implements IInCoreAddressBook {
 		Updated upd = doUpdate(null, id, card, null);
 		refreshGroupsFor(ImmutableList.of(ItemValue.create(upd.uid, card)));
 		eventProducer.vcardUpdated(upd.uid);
-		eventProducer.changed();
+		emitNotification();
 		return Ack.create(upd.version);
 	}
 
@@ -686,5 +686,10 @@ public class AddressBookService implements IInCoreAddressBook {
 
 	private boolean isDomainAddressbook() {
 		return container.uid.equals(container.owner);
+	}
+
+	public void emitNotification() {
+		indexStore.refresh();
+		eventProducer.changed();
 	}
 }
