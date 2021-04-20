@@ -175,21 +175,21 @@ public class VideoConferencingService implements IVideoConferencing {
 			return current;
 		}
 
-		ResourceDescriptor oldResourceDescriptor = oldConferenceResources.get(0).value;
-		Optional<PropertyValue> oldVideoConferencingType = oldResourceDescriptor.properties.stream()
-				.filter(p -> p.propertyId.equals(IVideoConferenceUids.PROVIDER_TYPE)).findFirst();
+		resetConferenceTemplate(current, oldConferenceResources.get(0));
 
-		resetConferenceTemplate(current, oldVideoConferencingType);
+		List<ItemValue<ResourceDescriptor>> videoConferencingResoures = getVideoConferencingResource(current.attendees);
+		if (videoConferencingResoures.isEmpty()) {
+			current.conference = null;
+			return current;
+		}
+
 		return add(current);
 	}
 
-	private void resetConferenceTemplate(ICalendarElement current, Optional<PropertyValue> oldVideoConferencingType) {
+	private void resetConferenceTemplate(ICalendarElement current,
+			ItemValue<ResourceDescriptor> oldResourceDescriptor) {
 		VideoConferencingTemplateHelper templateHelper = new VideoConferencingTemplateHelper();
-		Optional<IVideoConferencingProvider> oldVideoConferencingProvider = providers.stream()
-				.filter(p -> p.id().equals(oldVideoConferencingType.get().value)).findFirst();
-
-		current.description = templateHelper.removeTemplate(current.description,
-				oldVideoConferencingProvider.get().id());
+		current.description = templateHelper.removeTemplate(current.description, oldResourceDescriptor.uid);
 	}
 
 	@Override
