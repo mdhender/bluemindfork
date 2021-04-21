@@ -105,7 +105,7 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 		main = getService(domainAdminCtx.getSecurityContext()).remove(main);
 		assertNull(main.conference);
 
-		assertEquals(defaultVEvent().main.description + "<br>", main.description);
+		assertEquals(defaultVEvent().main.description, main.description);
 		assertEquals(defaultVEvent().main.attendees.size(), main.attendees.size());
 	}
 

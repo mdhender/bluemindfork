@@ -199,7 +199,7 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 		updated.main.attendees = defaultVEvent().main.attendees;
 		sanitizer.update(event, updated);
 		assertNull(updated.main.conference);
-		assertEquals("Lorem ipsum blah blah<br>", updated.main.description);
+		assertEquals(defaultVEvent().main.description, updated.main.description);
 	}
 
 	protected VEventSeries defaultVEvent() {
