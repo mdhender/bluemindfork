@@ -7,7 +7,7 @@
             variant="simple-primary"
             :aria-label="$t('mail.content.reply.aria')"
             :title="$t('mail.content.reply.aria')"
-            @click="initReplyOrForward(MessageCreationModes.REPLY, message)"
+            @click="reply"
         >
             <bm-icon icon="reply" size="2x" />
             <span class="d-lg-none">{{ $t("mail.content.reply.aria") }}</span>
@@ -16,7 +16,7 @@
             variant="simple-primary"
             :aria-label="$t('mail.content.reply_all.aria')"
             :title="$t('mail.content.reply_all.aria')"
-            @click="initReplyOrForward(MessageCreationModes.REPLY_ALL, message)"
+            @click="replyAll"
         >
             <bm-icon icon="reply-all" size="2x" />
             <span class="d-lg-none">{{ $t("mail.content.reply_all.aria") }}</span>
@@ -25,7 +25,7 @@
             variant="simple-primary"
             :aria-label="$t('mail.content.forward.aria')"
             :title="$t('mail.content.forward.aria')"
-            @click="initReplyOrForward(MessageCreationModes.FORWARD, message)"
+            @click="forward"
         >
             <bm-icon icon="forward" size="2x" />
             <span class="d-lg-none">{{ $t("mail.content.forward.aria") }}</span>
@@ -34,13 +34,14 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 
 import { BmButton, BmButtonToolbar, BmIcon } from "@bluemind/styleguide";
 
 import { MessageCreationModes } from "~model/message";
-import { ComposerInitMixin } from "~mixins";
-
+import { draftPath } from "../../model/draft";
+import { MY_DRAFTS } from "~getters";
+import MessagePathParam from "../../router/MessagePathParam";
 export default {
     name: "MailViewerToolbar",
     components: {
@@ -48,17 +49,28 @@ export default {
         BmButtonToolbar,
         BmIcon
     },
-    mixins: [ComposerInitMixin],
-    data() {
-        return {
-            MessageCreationModes
-        };
-    },
     computed: {
+        ...mapGetters("mail", { MY_DRAFTS }),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapState("mail", ["messages"]),
         message() {
             return this.messages[this.currentMessageKey];
+        }
+    },
+    methods: {
+        reply() {
+            this.goTo(MessageCreationModes.REPLY);
+        },
+        replyAll() {
+            this.goTo(MessageCreationModes.REPLY_ALL);
+        },
+        forward() {
+            this.goTo(MessageCreationModes.FORWARD);
+        },
+        goTo(action) {
+            const messagepath = draftPath(this.MY_DRAFTS);
+            const message = MessagePathParam.build("", this.messages[this.currentMessageKey]);
+            this.$router.navigate({ name: "mail:message", params: { messagepath }, query: { action, message } });
         }
     }
 };

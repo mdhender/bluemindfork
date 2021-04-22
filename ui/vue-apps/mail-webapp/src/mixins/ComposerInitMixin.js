@@ -4,7 +4,7 @@ import { InlineImageHelper, MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
 
-import { FETCH_ACTIVE_MESSAGE_INLINE_PARTS } from "~actions";
+import { FETCH_ACTIVE_MESSAGE_INLINE_PARTS, FETCH_MESSAGE_IF_NOT_LOADED } from "~actions";
 import { MY_DRAFTS } from "~getters";
 import {
     ADD_MESSAGES,
@@ -109,6 +109,25 @@ export default {
 
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(editorData.collapsed);
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(editorData.content);
+        },
+
+        async initRelatedMessage(action, related) {
+            switch (action) {
+                case MessageCreationModes.REPLY:
+                case MessageCreationModes.REPLY_ALL:
+                case MessageCreationModes.FORWARD:
+                    try {
+                        const previous = await this.$store.dispatch("mail/" + FETCH_MESSAGE_IF_NOT_LOADED, {
+                            internalId: related.messageId,
+                            folder: this.$store.state.mail.folders[related.folderKey]
+                        });
+                        return this.initReplyOrForward(action, previous);
+                    } catch {
+                        return this.initNewMessage();
+                    }
+                default:
+                    return this.initNewMessage();
+            }
         },
 
         // case of a new message

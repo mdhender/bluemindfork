@@ -109,7 +109,12 @@ export default {
                         await this.$waitFor(MY_MAILBOX, assert);
                         const { folderKey, messageId: internalId } = MessagePathParam.parse(value, this.activeFolder);
                         if (isNewMessage({ remoteRef: { internalId } })) {
-                            this.initNewMessage();
+                            if (this.$route.query?.action && this.$route.query?.message) {
+                                const { action, message: related } = this.$route.query;
+                                await this.initRelatedMessage(action, MessagePathParam.parse(related));
+                            } else {
+                                this.initNewMessage();
+                            }
                         }
                         const { key } = await this.FETCH_MESSAGE_IF_NOT_LOADED({
                             internalId,
