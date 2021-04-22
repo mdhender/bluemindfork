@@ -843,8 +843,8 @@ public class IcsHook implements ICalendarHook {
 			auditor.forMessage(message).audit(() -> {
 				ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 				SecurityContext context = message.securityContext;
-				IUser userService = sp.instance(IUser.class, context.getContainerUid());
-				IUserSettings userSettingsService = sp.instance(IUserSettings.class, context.getContainerUid());
+				IUser userService = sp.instance(IUser.class, message.container.domainUid);
+				IUserSettings userSettingsService = sp.instance(IUserSettings.class, message.container.domainUid);
 
 				// BM-8343
 				if (message.oldEvent != null) {
