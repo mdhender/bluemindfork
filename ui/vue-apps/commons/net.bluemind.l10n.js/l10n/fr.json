@@ -99,5 +99,10 @@
     "common.signature": "Signature",
     "common.localisation": "Localisation",
     "common.reload_now": "Recharger maintenant",
-    "common.reconnect": "Se reconnecter"
+    "common.reconnect": "Se reconnecter",
+    "common.security": "Sécurité",
+    "common.password": "Mot de passe",
+    "common.edit": "Modifier",
+    "common.created_at": "Créé le {date}",
+    "common.invalid.character": "Ce caractère n'est pas valide : \"{character}\""
 }

@@ -23,7 +23,7 @@
 
 <script>
 import GlobalEvents from "vue-global-events";
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { generateDateTimeFormats } from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
@@ -77,6 +77,7 @@ export default {
     created() {
         const sections = getPreferenceSections(this.applications, inject("i18n"));
         this.SET_SECTIONS(sections);
+        this.FETCH_USER_PASSWORD_LAST_CHANGE();
     },
     async mounted() {
         if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
@@ -96,6 +97,7 @@ export default {
         });
     },
     methods: {
+        ...mapActions("preferences", ["FETCH_USER_PASSWORD_LAST_CHANGE"]),
         ...mapMutations("preferences", ["TOGGLE_PREFERENCES", "SET_SELECTED_SECTION", "SET_SECTIONS", "SET_OFFSET"]),
         ...mapMutations("session", ["ROLLBACK_LOCAL_SETTINGS"]),
         closePreferences() {

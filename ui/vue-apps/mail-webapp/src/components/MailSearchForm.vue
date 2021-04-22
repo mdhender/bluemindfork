@@ -7,6 +7,7 @@
                 class="flex-fill no-border-right"
                 :placeholder="$t('common.search')"
                 icon="search"
+                resettable
                 left-icon
                 :aria-label="$t('common.search')"
                 autocomplete="off"

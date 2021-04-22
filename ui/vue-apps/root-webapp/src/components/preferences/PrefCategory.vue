@@ -35,6 +35,7 @@ import PrefFieldSelect from "./fields/PrefFieldSelect";
 import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
 import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
 import PrefManageIdentities from "./fields/customs/PrefManageIdentities";
+import PrefPassword from "./fields/customs/PrefPassword";
 import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
 import PrefResetLocalData from "./fields/customs/PrefResetLocalData";
 import PrefWorksHours from "./fields/customs/PrefWorksHours";
@@ -53,6 +54,7 @@ export default {
         PrefAlwaysShowQuota,
         PrefEnableNotifications,
         PrefManageIdentities,
+        PrefPassword,
         PrefRemoteImage,
         PrefResetLocalData,
         PrefWorksHours

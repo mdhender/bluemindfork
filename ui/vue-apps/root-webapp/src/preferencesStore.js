@@ -1,8 +1,20 @@
+import { inject } from "@bluemind/inject";
+
 const state = {
     offset: 0,
     showPreferences: false,
     selectedSectionCode: "",
-    sectionByCode: {}
+    sectionByCode: {},
+
+    userPasswordLastChange: null
+};
+
+const actions = {
+    async FETCH_USER_PASSWORD_LAST_CHANGE({ commit }) {
+        const userId = inject("UserSession").userId;
+        const user = await inject("UserClientPersistence").getComplete(userId);
+        commit("SET_USER_PASSWORD_LAST_CHANGE", user);
+    }
 };
 
 const mutations = {
@@ -15,6 +27,9 @@ const mutations = {
     },
     SET_SELECTED_SECTION: (state, selectedPrefSection) => {
         state.selectedSectionCode = selectedPrefSection;
+    },
+    SET_USER_PASSWORD_LAST_CHANGE: (state, user) => {
+        state.userPasswordLastChange = user.value.passwordLastChange || user.created;
     }
 };
 
@@ -24,6 +39,7 @@ const getters = {
 
 export default {
     namespaced: true,
+    actions,
     mutations,
     state,
     getters

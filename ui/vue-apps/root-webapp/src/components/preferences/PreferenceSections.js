@@ -95,6 +95,18 @@ function getMyAccountSection(vueI18N) {
         }
     ];
 
+    const securityCategoryGroups = [
+        {
+            title: vueI18N.t("common.password"),
+            fields: [
+                {
+                    component: "PrefPassword",
+                    options: {}
+                }
+            ]
+        }
+    ];
+
     return {
         name: vueI18N.t("common.my_account"),
         href: "/",
@@ -112,6 +124,12 @@ function getMyAccountSection(vueI18N) {
                 name: vueI18N.t("common.advanced"),
                 icon: "plus",
                 groups: advancedCategoryGroups
+            },
+            {
+                code: "security",
+                name: vueI18N.t("common.security"),
+                icon: "server",
+                groups: securityCategoryGroups
             }
         ]
     };

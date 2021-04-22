@@ -121,7 +121,7 @@ export function isNameValid(name, path, foldersByUpperCasePath) {
 
     const checkValidity = isFolderNameValid(name.toLowerCase());
     if (checkValidity !== true) {
-        return vueI18n.t("mail.actions.folder.invalid.character", {
+        return vueI18n.t("common.invalid.character", {
             character: checkValidity
         });
     }

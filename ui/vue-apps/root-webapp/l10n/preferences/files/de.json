@@ -23,6 +23,14 @@
     "preferences.general.update_phone_status": "Meinen Telefonstatus im Instant Messaging aktualiseren, wenn ich in einer Besprechung bin",
     "preferences.general.manage_account": "Konto verwalten",
 
+    "preferences.security.change_password": "Password change",
+    "preferences.security.change_password.old": "Old password",
+    "preferences.security.change_password.old.invalid": "Wrong password",
+    "preferences.security.change_password.new": "New password",
+    "preferences.security.change_password.confirm_new": "Confirm new password",
+    "preferences.security.change_password.confirm_new.invalid": "Passwords don't match",
+    "preferences.security.change_password.same_password": "Current and new password must be different",
+
     "preferences.mail.identities.manage": "E-Mail Identitäten verwalten",
     "preferences.mail.identities.always_show_from": "Feld \"Absender\" immer anzeigen",
     "preferences.mail.identities.create": "E-Mail Identität hinzufügen",
@@ -37,9 +45,6 @@
     "preferences.mail.identities.external_address": "{email} (externe Adresse)",
     "preferences.mail.identities.possible_identities_error": "Beim Laden möglicher E-Mail Identitäten ist ein Fehler aufgetreten.",
     "preferences.mail.identities.identity_error": "Beim Laden der E-Mail Identität ist ein Fehler aufgetreten.",
-
-    "preferences.advanced.reset_local_data": "Lokale Daten zurücksetzen",
-    "preferences.advanced.reset_local_data.explanations": "Diese Aktion wird Ihre lokalen Daten zurücksetzen und neu synchronisieren. Dies kann einen Moment dauern.",
 
     "preferences.calendar.main.week_starts_on": "Woche startet am",
     "preferences.calendar.main.default_view": "Standardansicht",

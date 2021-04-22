@@ -23,6 +23,14 @@
     "preferences.general.update_phone_status": "Update my phone status when I am not available on instant messaging",
     "preferences.general.manage_account": "manage account",
 
+    "preferences.security.change_password": "Password change",
+    "preferences.security.change_password.old": "Old password",
+    "preferences.security.change_password.old.invalid": "Wrong password",
+    "preferences.security.change_password.new": "New password",
+    "preferences.security.change_password.confirm_new": "Confirm new password",
+    "preferences.security.change_password.confirm_new.invalid": "Passwords don't match",
+    "preferences.security.change_password.same_password": "Current and new password must be different",
+
     "preferences.mail.identities.manage": "Manage identities",
     "preferences.mail.identities.always_show_from": "Always show field \"From\" (sender)",
     "preferences.mail.identities.create": "Add an identity",
@@ -37,9 +45,6 @@
     "preferences.mail.identities.external_address": "{email} (external address)",
     "preferences.mail.identities.possible_identities_error": "An error occured when retrieving possible identities.",
     "preferences.mail.identities.identity_error": "An error occured when retrieving identity.",
-
-    "preferences.advanced.reset_local_data": "Reset my local data",
-    "preferences.advanced.reset_local_data.explanations": "This operation will purge and resynchronize your local data. This may take a while",
 
     "preferences.calendar.main.week_starts_on": "Week starts on",
     "preferences.calendar.main.default_view": "Default view",

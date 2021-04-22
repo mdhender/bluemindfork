@@ -6,7 +6,7 @@
             v-model="newFolderName"
             type="text"
             class="d-inline-block flex-fill"
-            reset
+            resettable
             :placeholder="folder ? '' : $t('mail.folder.new.from_scratch')"
             :state="isNewFolderNameValid === true"
             aria-describedby="mail-folder-input-invalid"

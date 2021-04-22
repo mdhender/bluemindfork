@@ -10,7 +10,7 @@ import router from "@bluemind/router";
 import { MailboxesClient } from "@bluemind/mailbox.api";
 import store from "@bluemind/store";
 import { BmModalPlugin } from "@bluemind/styleguide";
-import { UserMailIdentitiesClient, UserSettingsClient } from "@bluemind/user.api";
+import { UserClient, UserMailIdentitiesClient, UserSettingsClient } from "@bluemind/user.api";
 import VueBus from "@bluemind/vue-bus";
 import { extend } from "@bluemind/vuex-router";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
@@ -95,6 +95,11 @@ function registerDependencies(userSession) {
     injector.register({
         provide: "UserMailIdentitiesPersistence",
         factory: () => new UserMailIdentitiesClient(userSession.sid, userSession.domain, userSession.userId)
+    });
+
+    injector.register({
+        provide: "UserClientPersistence",
+        factory: () => new UserClient(userSession.sid, userSession.domain)
     });
 }
 
