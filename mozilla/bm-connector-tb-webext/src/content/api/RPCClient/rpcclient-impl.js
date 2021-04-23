@@ -10,7 +10,12 @@ var RPCClientApi = class extends ExtensionCommon.ExtensionAPI {
       RPCClientApi: {
         init: async function () {
 
-          var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+          try {
+            var { ComponentUtils } = ChromeUtils.import("resource://gre/modules/ComponentUtils.jsm");
+          } catch(e) {
+            //TB 78
+            var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+          }
 
           let classID = Components.ID("{ce2954d3-624a-454d-bd1b-bc2facdd623b}");
           let contractID = "@blue-mind.net/rpcclient;1";
@@ -174,7 +179,12 @@ var RPCClientApi = class extends ExtensionCommon.ExtensionAPI {
 
           console.trace("Register component");
 
-          let factory = XPCOMUtils.generateNSGetFactory([RPCClient])(classID);
+          let factory;
+          if (ComponentUtils) {
+            factory = ComponentUtils.generateNSGetFactory([RPCClient])(classID);
+          } else {
+            factory = XPCOMUtils.generateNSGetFactory([RPCClient])(classID);
+          }
           // WARNING: this assumes that Thunderbird is already running, as
           // Components.manager.registerFactory will be unavailable for a few
           // milliseconds after startup.

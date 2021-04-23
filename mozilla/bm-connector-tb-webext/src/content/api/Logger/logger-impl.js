@@ -10,7 +10,12 @@ var LoggerApi = class extends ExtensionCommon.ExtensionAPI {
             LoggerApi: {
                 init: async function () {
 
-                    var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+                    try {
+                        var { ComponentUtils } = ChromeUtils.import("resource://gre/modules/ComponentUtils.jsm");
+                    } catch(e) {
+                    //TB 78
+                        var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+                    }
                     var { bmUtils, BmPrefListener } = ChromeUtils.import("chrome://bm/content/modules/bmUtils.jsm");
 
                     const Cc = Components.classes;
@@ -196,7 +201,7 @@ var LoggerApi = class extends ExtensionCommon.ExtensionAPI {
                         classDescription: "Logger XPCOM Component",
                         classID: classID,
                         contractID: contractID,
-                        /* Needed for XPCOMUtils NSGetModule */
+                        /* Needed for ComponentUtils NSGetModule */
                         _xpcom_categories: [{ category: "logger", entry: "m-logger" }],
                         QueryInterface: ChromeUtils.generateQI([Components.interfaces.nsISupports]),
                         getLogger: function (header) {
@@ -206,7 +211,13 @@ var LoggerApi = class extends ExtensionCommon.ExtensionAPI {
 
                     console.trace("Register component");
 
-                    let factory = XPCOMUtils.generateNSGetFactory([Logger])(classID);
+                    let factory;
+                    if (ComponentUtils) {
+                        factory = ComponentUtils.generateNSGetFactory([Logger])(classID);
+                    } else {
+                        factory = XPCOMUtils.generateNSGetFactory([Logger])(classID);
+                    }
+                    
                     // WARNING: this assumes that Thunderbird is already running, as
                     // Components.manager.registerFactory will be unavailable for a few
                     // milliseconds after startup.

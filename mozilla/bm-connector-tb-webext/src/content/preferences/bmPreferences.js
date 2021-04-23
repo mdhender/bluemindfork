@@ -28,7 +28,6 @@ var { BMAuthService } = ChromeUtils.import("chrome://bm/content/modules/core2/BM
 var gBMPreferences = {
     _logger: Components.classes["@blue-mind.net/logger;1"].getService().wrappedJSObject.getLogger("gBMPreferences: "),
     init: function() {
-        console.trace("coucou");
     },
     promptUsernameAndPassword: function() {
         let server = document.getElementById("bmserver").value;
@@ -138,8 +137,8 @@ var gBMPreferences = {
         let directory = abManager.getDirectory("moz-abmdbdirectory://history.mab");
         let it = directory.childCards;
         let count = 0;
-        while (it.hasMoreElements()) {
-            let card = it.getNext().QueryInterface(Components.interfaces.nsIAbCard);
+        for (let c of it) {
+            let card = c.QueryInterface(Components.interfaces.nsIAbCard);
             let id = card.getProperty("bm-id", null);
             if (!id) {
                 let uid = bmUtils.randomUUID();
@@ -169,8 +168,7 @@ var gBMPreferences = {
             }
             let hasBmXmpp = false;
             let imAccounts = Services.accounts.getAccounts();
-            while (imAccounts.hasMoreElements()) {
-                let acc = imAccounts.getNext();
+            for (let acc of imAccounts) {
                 this._logger.debug("im account id:" + acc.id);
                 let prefs = Services.prefs.getBranch("messenger.account." + acc.id + ".options.");
                 try {

@@ -22,6 +22,8 @@
 
 var { bmUtils, HashMap, BMXPComObject, BmPrefListener, BMError } = ChromeUtils.import("chrome://bm/content/modules/bmUtils.jsm");
 
+Services.scriptloader.loadSubScript("chrome://bm/content/notifyTools.js", null, "UTF-8");
+
 var gBMMonitor = {
     _logger: Components.classes["@blue-mind.net/logger;1"].getService().wrappedJSObject.getLogger("gBMMonitor: "),
     _listenedAb: new HashMap(),
@@ -31,42 +33,81 @@ var gBMMonitor = {
                         .getService().QueryInterface(Components.interfaces.nsIAbManager),
     _observerService: Components.classes["@mozilla.org/observer-service;1"]
                         .getService(Components.interfaces.nsIObserverService),
+    setupListeners: function() {
+        let self = this;
+        notifyTools.registerListener((data) => {
+            switch (data.command) {
+                case "onContactCreated":
+                    let dirAdd = self.getAbDirectoryFromUid(data.contact.parentId);
+                    let cardAdd = dirAdd.getCardFromProperty("bmNewId", data.contact.id, false);
+                    self.notifyCardAdded(dirAdd, cardAdd);
+                    break;
+                case "onContactUpdated":
+                    let dirUp = self.getAbDirectoryFromUid(data.contact.parentId);
+                    let cardUp = dirUp.getCardFromProperty("bm-id", data.contact.id, false);
+                    if (cardUp) {
+                        self.notifyCardModified(dirUp, cardUp);
+                    }
+                    break;
+                case "onContactDeleted":
+                    let dirDel = self.getAbDirectoryFromUid(data.contact.parentId);
+                    self.notifyCardRemoved(dirDel, data.contact.id);
+                    break;
+                case "onListCreated":
+                    let lDirAdd = self.getAbDirectoryFromUid(data.list.parentId);
+                    let listAdd = self._getListById(lDirAdd, data.list.id);
+                    self.notifyListAdded(lDirAdd, listAdd);
+                    break;
+                case "onListUpdated":
+                    let lDirUp = self.getAbDirectoryFromUid(data.list.parentId);
+                    let listUp = self._getListById(lDirUp, data.list.id);
+                    self.notifyListModified(lDirUp, listUp);
+                    break;
+                case "onListDeleted":
+                    let lDirDel = self.getAbDirectoryFromUid(data.list.parentId);
+                    self.notifyListRemoved(lDirDel, data.list.id);
+                    break;
+            }
+        });
+        notifyTools.enable();
+    },
     startListening: function() {
         this._logger.info("Start Listening");
         this._listenedAb.clear();
         this._copiedOrMoved.clear();
         let it = this._abManager.directories;
-        while (it.hasMoreElements()) {
-            let directory = it.getNext();
+        for (let directory of it) {
             if (directory instanceof Components.interfaces.nsIAbDirectory) {
-                console.log("dir:" + directory.URI);
+                console.log("listen dir:" + directory.URI + " UID:" + directory.UID);
                 let id = bmUtils.getCharPref(directory.URI + ".bm-id", null);
                 if (id != null && !directory.URI.indexOf("bmdirectory://") == 0) {
-                    this.listenDirectory(directory.URI, id);
+                    this.listenDirectory(directory.UID, id);
                 }
             }
         }
-        this._abManager.addAddressBookListener(this, Components.interfaces.nsIAbListener.all);
+        //this._abManager.addAddressBookListener(this, Components.interfaces.nsIAbListener.all);
         this._isListening = true;
+        notifyTools.notifyBackground({command: "startAbListening"});
     },
-    listenDirectory: function(uri, id) {
-        this._logger.info("Listening: [" + uri + "][" + id + "]");
-        this._listenedAb.put(uri, id);
+    listenDirectory: function(uid, bmId) {
+        this._logger.info("Listening: [" + uid + "][" + bmId + "]");
+        this._listenedAb.put(uid, bmId);
     },
     stopListening: function() {
         if (!this._isListening) return;
         try {
-            this._abManager.removeAddressBookListener(this);
+            //this._abManager.removeAddressBookListener(this);
             this._isListening = false;
             this._logger.info("Stopped Listening");
+            notifyTools.notifyBackground({command: "stopAbListening"});
         } catch(e) {
             //ok
         }
     },
     isListenedDirectory: function(directory) {
-        this._logger.debug("directory [" + directory.URI + "]");
+        this._logger.debug("directory [" + directory.UID + "]");
         if(directory.isMailList) {
-            this._logger.debug("directory [" + directory.URI + "] is a Mailing List");
+            this._logger.debug("directory [" + directory.UID + "] is a Mailing List");
             return false;
         }
         return this._listenedAb.containsKey(directory.URI);
@@ -74,143 +115,21 @@ var gBMMonitor = {
     getAbDirectoryFromUri: function(aUri) {
         return this._abManager.getDirectory(aUri);
     },
-    /*nsIAbListener*/
-    onItemAdded: function(parentDir, item) {
-        this._logger.debug("onItemAdded(parentDir:" + parentDir + ", item:" + item);
-        
-        let directory = parentDir.QueryInterface(Components.interfaces.nsIAbDirectory);
-        let readonly = false;
-        if (this.isListenedDirectory(directory)) {
-            readonly = bmUtils.isBmReadOnlyAddressbook(directory);
-        } else {
-            return;
-        }
-        try {
-            let card = item.QueryInterface(Components.interfaces.nsIAbCard);
-            if (!card.isMailList) {
-                if (readonly) {
-                    this._logger.debug("addressbook is not writable");
-                    let cardsToDel = [];
-                    cardsToDel.push(item);
-                    directory.deleteCards(cardsToDel);
-                    let msg = new BMXPComObject();
-                    msg.type = "card";
-                    this._observerService.notifyObservers(msg, "bm-ab-observe", "readonly");
-                    return;
-                }
-                this.notifyCardAdded(directory, card);
-            } else {
-                this._logger.debug("list card is added : ignored");
-            }
-        } catch(e) {
-            // exception QueryInterface as Card
-            try {
-                let list = item.QueryInterface(Components.interfaces.nsIAbDirectory);
-                if (list.isMailList) {
-                    if (readonly) {
-                        directory.deleteDirectory(list);
-                        let msg = new BMXPComObject();
-                        msg.type = "list";
-                        this._observerService.notifyObservers(msg, "bm-ab-observe", "readonly");
-                        return;
-                    }
-                    this.notifyListAdded(directory, list);
-                } else {
-                    this._logger.debug("directory is added : ignored");
-                }
-            } catch(e) {
-                this._logger.error("ERROR onItemAdded:" + e);
-            }
-        }
-    },
-    onItemRemoved: function(parentDir, item) {
-        this._logger.debug("onItemRemoved(parentDir:" + parentDir + ", item:" + item);
-        if (!parentDir) return;
-        
-        let directory = parentDir.QueryInterface(Components.interfaces.nsIAbDirectory);
-        if (directory.isMailList) {
-            bmUtils.setBoolPref(directory.URI + ".bm-updated", true);
-            this._logger.debug("=> list marked as updated");
-            return;
-        }
-        if (bmUtils.isBmDirectory(directory) && bmUtils.isBmReadOnlyAddressbook(directory)) {
-            this._logger.error("ERROR directory[" + directory.dirName + "] is not writable -> do not store change");
-            return;
-        }
-        try {
-            let card = item.QueryInterface(Components.interfaces.nsIAbCard);          
-            if (this.isListenedDirectory(directory)) {
-                if (card.isMailList) {
-                    this._logger.debug("list card is removed : ignored");
-                    return;
-                }
-                this.notifyCardRemoved(directory, card);
-            }
-        } catch (e) {
-            // exception QueryInterface as Card
-            try {
-                let list = item.QueryInterface(Components.interfaces.nsIAbDirectory);
-                if (list.isMailList) {
-                    if (this.isListenedDirectory(directory)) {
-                        this.notifyListRemoved(directory, list);
-                    }
-                } else {
-                    if (this.isListenedDirectory(list)) {
-                        this.notifyDirectoryDeleted(list);
-                    }
-                }
-            } catch(e) {
-                this._logger.error("ERROR onItemRemoved:" + e);
-            }
-        }
-    },
-    onItemPropertyChanged: function(item, property, oldValue, newValue) {
-        this._logger.debug("onItemPropertyChanged(item:" + item + ", property:" + property
-                    + ", oldValue:" + oldValue + ", newValue:" + newValue);
-        try {
-            let card = item.QueryInterface(Components.interfaces.nsIAbCard);
-            if (card.isMailList) {
-                this._logger.debug("list card is updated : ignored");
-                return;
-            }
-            //no way to know directly witch directory card belong
-            let uri = card.getProperty("bm-ab-uri", null);
-            this._logger.debug("card bm-ab-uri:" + uri);
-            //this._dumpCard(card);
-            if (uri) {
-                this.notifyCardModified(this.getAbDirectoryFromUri(uri), card);  
-            } else {
-                //no "bm-ab-uri" in added
-            }
-        } catch (e) {
-            console.error(e);
-            try {
-                let list = item.QueryInterface(Components.interfaces.nsIAbDirectory);
-                if (list.isMailList) {
-                    //get URI of parent
-                    //jsaddrbook://abook-1.sqlite/MailList1
-                    let uri = list.URI;
-                    let abUri = uri.substring(0, uri.indexOf("sqlite") + 6);
-                    let parentDir = this.getAbDirectoryFromUri(abUri);
-                    if (!parentDir) {
-                        this._logger.debug("invalid list uri:" + list.URI);
-                        return;
-                    }
-                    this.notifyListModified(parentDir, list);
-                } else {
-                    this._logger.debug("directory is updated : ignored");
-                }
-            } catch (e) {
-                this._logger.error("ERROR onItemPropertyChanged:" + e);
-            }
-        }
+    getAbDirectoryFromUid: function(aUid) {
+        return this._abManager.getDirectoryFromUID(aUid);
     },
     /*record local mod*/
     notifyCardAdded: function(directory, card) {
         this._logger.debug("card [" + card.displayName + "] added in [" + directory.dirName + "]");
         //this._dumpCard(card);
         if (bmUtils.isBmDirectory(directory) && bmUtils.isBmReadOnlyAddressbook(directory)) {
-            this._logger.error("ERROR directory[" + directory.dirName + "] is not writable -> do not store change");
+            this._logger.debug("ERROR directory[" + directory.dirName + "] is not writable -> do not store change");
+            let cardsToDel = [];
+            cardsToDel.push(card);
+            directory.deleteCards(cardsToDel);
+            let msg = new BMXPComObject();
+            msg.type = "card";
+            this._observerService.notifyObservers(msg, "bm-ab-observe", "readonly");
             return;
         }
         let id = card.getProperty("bm-id", null);
@@ -224,9 +143,9 @@ var gBMMonitor = {
         let found = false;
         if (notes == "not exist" && bmService.listAddLocalMemberAckEnabled) {
             this._logger.debug("card added from list");
-            for (let uri of this._listenedAb.keys()) {
-                if (directory.URI == uri) continue;
-                let dir = this.getAbDirectoryFromUri(uri);
+            for (let uid of this._listenedAb.keys()) {
+                if (directory.UID == uid) continue;
+                let dir = this.getAbDirectoryFromUid(uid);
                 let original = dir.cardForEmailAddress(card.primaryEmail);
                 if (original != null) {
                     found = true;
@@ -238,7 +157,7 @@ var gBMMonitor = {
             }
         }
         if(!found) {
-            let destId = bmUtils.randomUUID();
+            let destId = card.getProperty("bmNewId", null);
             let srcId = card.getProperty("bm-id", null);
             if (srcId) {
                 let srcUri = card.getProperty("bm-ab-uri", null);
@@ -254,68 +173,57 @@ var gBMMonitor = {
             card.setProperty("bm-ab-uri", null);
             this._logger.debug("=> card marked as added");
         }
-        directory.wrappedJSObject._saveCardProperties(card);
+        this._saveChanges(directory, card);
     },
     notifyListAdded: function(directory, list) {
         this._logger.debug("list [" + list.dirName + "] added in [" + directory.dirName + "]");
         if (bmUtils.isBmDirectory(directory) && bmUtils.isBmReadOnlyAddressbook(directory)) {
-            this._logger.error("ERROR directory[" + directory.dirName + "] is not writable -> do not store change");
+            this._logger.debug("ERROR directory[" + directory.dirName + "] is not writable -> do not store change");
+            directory.deleteDirectory(list);
+            let msg = new BMXPComObject();
+            msg.type = "list";
+            this._observerService.notifyObservers(msg, "bm-ab-observe", "readonly");
             return;
         }
-        let uri = list.URI;
-        let newId = bmUtils.randomUUID();
+        let pref = list.UID;
+        let newId = list.UID;
         this._logger.debug("new id:" + newId);
-        bmUtils.setCharPref(uri + ".bm-id", newId);
-        bmUtils.setBoolPref(uri + ".bm-added", true);
+        bmUtils.setCharPref(pref + ".bm-id", newId);
+        bmUtils.setBoolPref(pref + ".bm-added", true);
         this._logger.debug("=> list marked as added");
     },
-    notifyCardRemoved: function(directory, card) {
-        this._logger.debug("card [" + card.displayName + "] removed from [" + directory.dirName + "]");
+    notifyCardRemoved: function(directory, id) {
+        this._logger.debug("card [" + id + "] removed from [" + directory.dirName + "]");
         if (bmUtils.isBmDirectory(directory) && bmUtils.isBmReadOnlyAddressbook(directory)) {
-            this._logger.error("ERROR directory[" + directory.dirName + "] is not writable -> do not store change");
+            this._logger.debug("ERROR directory[" + directory.dirName + "] is not writable -> do not store change");
             return;
         }
-        let id = card.getProperty("bm-id", null);
-        this._logger.debug("id:" + id);
-        if (!id) {
-            //not a bm item
-        } else {
-            //bm item
-            if (this._copiedOrMoved.containsKey(id)) {
-                let oldInfos = this._copiedOrMoved.get(id);
-                let srcDir = this.getAbDirectoryFromUri(oldInfos.srcUri);
-                if (srcDir) {
-                    this._logger.debug("card has moved and id changed => delete from src dir");
-                    this._markCardDeleted(oldInfos.srcUri, oldInfos.oldId);
-                }
-                this._copiedOrMoved.remove(id);
-            } else {
-                let isAdded = card.getProperty("bm-added", "false");
-                let isUpdated = card.getProperty("bm-updated", "false");
-                this._logger.debug("isAdded:" + isAdded);
-                this._logger.debug("isUpdated:" + isUpdated);
-                if (isAdded == "true" || isUpdated == "true") {
-                    //already in added or updated
-                } else {
-                    this._markCardDeleted(directory.URI, id);
-                }
+        if (this._copiedOrMoved.containsKey(id)) {
+            let oldInfos = this._copiedOrMoved.get(id);
+            let srcDir = this.getAbDirectoryFromUri(oldInfos.srcUri);
+            if (srcDir) {
+                this._logger.debug("card has moved and id changed => delete from src dir");
+                this._markCardDeleted(oldInfos.srcUri, oldInfos.oldId);
             }
+            this._copiedOrMoved.remove(id);
+        } else {
+            this._markCardDeleted(directory.URI, id);
         }
     },
     notifyListRemoved: function(directory, list) {
         this._logger.debug("list [" + list.dirName + "] removed from [" + directory.dirName + "]");
         if (bmUtils.isBmDirectory(directory) && bmUtils.isBmReadOnlyAddressbook(directory)) {
-            this._logger.error("ERROR directory[" + directory.dirName + "] is not writable -> do not store change");
+            this._logger.debug("ERROR directory[" + directory.dirName + "] is not writable -> do not store change");
             return;
         }
-        let uri = list.URI;
-        let id = bmUtils.getCharPref(uri + ".bm-id", null);
+        let pref = list.UID;
+        let id = bmUtils.getCharPref(pref + ".bm-id", null);
         if (!id) {
             //not a bm item or in added
         } else {
             //bm item
-            let isAdded = bmUtils.getBoolPref(uri + ".bm-added", false);
-            let isUpdated = bmUtils.getBoolPref(uri + ".bm-updated", false);
+            let isAdded = bmUtils.getBoolPref(pref + ".bm-added", false);
+            let isUpdated = bmUtils.getBoolPref(pref + ".bm-updated", false);
             //if (isAdded || isUpdated) {
             //    //already in added or updated
             //} else {
@@ -325,33 +233,17 @@ var gBMMonitor = {
                 }
                 del += id;
                 bmUtils.setCharPref(directory.URI + ".deleted.lists", del);
-                bmUtils.deletePrefBranch(uri);
+                bmUtils.deletePrefBranch(pref);
                 //remove local members
                 let cardsToDel = [];
                 let cards = directory.getCardsFromProperty("bm-parent", id, false);
-                while (cards.hasMoreElements()) {
-                    let card = cards.getNext().QueryInterface(Components.interfaces.nsIAbCard);
+                for (let c of cards) {
+                    let card = c.QueryInterface(Components.interfaces.nsIAbCard);
                     if (card) cardsToDel.push(card);
                 }
                 directory.deleteCards(cardsToDel);
                 this._logger.debug("=> list marked as deleted");
             //}
-        }
-    },
-    notifyDirectoryDeleted: function(directory) {
-        this._logger.debug("directory [" + directory.dirName + "] removed");
-        let id = this._listenedAb.get(directory.URI);
-        if (id != null && id.indexOf("temp-") == -1) {
-            //is bm directory and not new
-            let del = bmUtils.getCharPref("extensions.bm.folders.deleted", "");
-            if (del.length > 0) {
-                del += "|";
-            }
-            del += id;
-            bmUtils.setCharPref("extensions.bm.folders.deleted", del);
-            //remove bm prefs
-            bmUtils.deletePrefBranch(directory.URI);
-            this._logger.debug("=> directory marked as deleted");
         }
     },
     notifyCardModified: function(directory, card) {
@@ -360,42 +252,34 @@ var gBMMonitor = {
             this._logger.debug("directory[" + directory.dirName + "] is not writable -> do not store change");
             return;
         }
-        let id = card.getProperty("bm-id", null);
-        if (!id) {
-            //not a bm item nothing todo
+        let isAdded = card.getProperty("bm-added", "false");
+        let isUpdated = card.getProperty("bm-updated", "false");
+        if (isAdded == "true" || isUpdated == "true") {
+            //already in added or updated
         } else {
-            let c = directory.getCardFromProperty("bm-id", id, false);
-            //this._dumpCard(c);
-            //bm item
-            let isAdded = c.getProperty("bm-added", "false");
-            let isUpdated = c.getProperty("bm-updated", "false");
-            if (isAdded == "true" || isUpdated == "true") {
-                //already in added or updated
-            } else {
-                c.setProperty("bm-updated", "true");
-                this._logger.debug("=> card marked as updated");
-                directory.wrappedJSObject._saveCardProperties(c);
-            }
+            card.setProperty("bm-updated", "true");
+            this._logger.debug("=> card marked as updated");
+            this._saveChanges(directory, card);
         }
     },
     notifyListModified: function(directory, list) {
         this._logger.debug("list [" + list.dirName + "] modified in [" + directory.dirName + "]");
         if (bmUtils.isBmDirectory(directory) && bmUtils.isBmReadOnlyAddressbook(directory)) {
-            this._logger.error("ERROR directory[" + directory.dirName + "] is not writable -> do not store change");
+            this._logger.debug("ERROR directory[" + directory.dirName + "] is not writable -> do not store change");
             return;
         }
-        let uri = list.URI;
-        let id = bmUtils.getCharPref(uri + ".bm-id", null);
+        let pref = list.UID;
+        let id = bmUtils.getCharPref(pref + ".bm-id", null);
         if (!id) {
             //not a bm item nothing todo
         } else {
             //bm item
-            let isAdded = bmUtils.getBoolPref(uri + ".bm-added", false);
-            let isUpdated = bmUtils.getBoolPref(uri + ".bm-updated", false);
+            let isAdded = bmUtils.getBoolPref(pref + ".bm-added", false);
+            let isUpdated = bmUtils.getBoolPref(pref + ".bm-updated", false);
             if (isAdded || isUpdated) {
                 //already in added or updated
             } else {
-                bmUtils.setBoolPref(uri + ".bm-updated", true);
+                bmUtils.setBoolPref(pref + ".bm-updated", true);
                 this._logger.debug("=> list marked as updated");
             }
         }
@@ -411,9 +295,29 @@ var gBMMonitor = {
     },
     _dumpCard: function(aCard) {
         let it = aCard.properties;
-        while (it.hasMoreElements()) {
-            let property = it.getNext().QueryInterface(Components.interfaces.nsIProperty);
+        for (let p of it) {
+            let property = p.QueryInterface(Components.interfaces.nsIProperty);
             this._logger.trace("[" + property.name + "] = " + property.value);
         }
-    }
+    },
+    _saveChanges: function(directory, card) {
+        if (directory.wrappedJSObject.saveCardProperties) {
+            directory.wrappedJSObject.saveCardProperties(card);
+        } else {
+            //TB 78
+            directory.wrappedJSObject._saveCardProperties(card);
+        }
+    },
+    _getListById: function(directory, id) {
+        let it = directory.childNodes;
+        for (let l of it) {
+            let list = l.QueryInterface(Components.interfaces.nsIAbDirectory);
+            if (list.UID == id) {
+                return list;
+            }
+        }
+        return null;
+    },
 }
+
+gBMMonitor.setupListeners();

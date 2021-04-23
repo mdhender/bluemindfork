@@ -125,10 +125,10 @@ let bmUtils = {
     },
     deletePrefBranch: function(aPrefBranch) {
         let prefService = new bmUtils._getPrefService();
-        try {
-            prefService.deleteBranch(aPrefBranch);
-        } catch(e) {
-            //not exist
+        let branch = prefService.getBranch(aPrefBranch + ".");
+        let prefs = branch.getChildList("");
+        for (let pref of prefs) {
+            branch.clearUserPref(pref);
         }
     },
     getCredentialStored: function(aHostname, aUser, aPassword) {
@@ -302,8 +302,7 @@ let bmUtils = {
             abManager.deleteAddressBook(uri);
         }.bind(this);
 
-        while (it.hasMoreElements()) {
-            let directory = it.getNext();
+        for (let directory of it) {
             if (directory instanceof Components.interfaces.nsIAbDirectory) {
                 let uri = directory.URI;
                 let pref = uri;

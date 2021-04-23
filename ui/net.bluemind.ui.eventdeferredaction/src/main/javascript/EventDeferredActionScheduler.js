@@ -152,6 +152,10 @@ function getNotificationText(userDateTimeFormater, item, dateHelperCreate) {
 
 function browserNotify(text, item) {
     goog.log.info(logger, "Notification for reminder: " + text);
+    window.postMessage({
+       type: "notification",
+       data: text
+    }, "*");
     if (Notification.permission === "granted") {
        newNotification(text, item);
     } else if (Notification.permission !== "denied") {

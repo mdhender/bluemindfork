@@ -99,3 +99,11 @@ label.red {
   border-bottom: 1px solid #bfbfbf;
   padding: 3px;
 }
+
+#menu-task-bm {
+  list-style-image: url("chrome://bm/content/skin/BM_Icone01_16.png");
+}
+
+#menu-app-bm {
+  list-style-image: url("chrome://bm/content/skin/BM_Icone01_16.png");
+}

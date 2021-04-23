@@ -4,7 +4,7 @@
     "gecko": {
       "id": "bm-connector-tb@blue-mind.net",
       "strict_min_version": "78.0",
-      "strict_max_version": "78.*",
+      "strict_max_version": "91.*",
       "update_url": "https://forge.blue-mind.net/mozilla/update.json"
     }
   },
@@ -24,10 +24,12 @@
     "addressBooks",
     "cookies",
     "tabs",
+    "activeTab",
     "webNavigation",
     "webRequest",
     "webRequestBlocking",
-    "https://*/*"
+    "notifications",
+    "*://*/*"
   ],
   "background": {
     "scripts": [
@@ -35,6 +37,22 @@
     ]
   },
   "experiment_apis": {
+    "NotifyTools": {
+      "schema": "content/api/NotifyTools/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["NotifyTools"]],
+        "script": "content/api/NotifyTools/implementation.js"
+      }
+    },
+    "WindowListener": {
+      "schema": "content/api/WindowListener/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["WindowListener"]],
+        "script": "content/api/WindowListener/implementation.js"
+      }
+    },
     "ConversionHelper": {
       "schema": "content/api/ConversionHelper/schema.json",
       "parent": {

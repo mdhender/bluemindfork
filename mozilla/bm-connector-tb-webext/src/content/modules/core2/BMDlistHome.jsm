@@ -84,22 +84,22 @@ function BMDlist(/*nsIAbDirectory*/ aList) {
 
 BMDlist.prototype = {
     getId: function() {
-        bmUtils.getCharPref(this._list.URI + ".bm-id", null);
+        bmUtils.getCharPref(this._list.UID + ".bm-id", null);
     },
     setId: function(value) {
-        bmUtils.setCharPref(this._list.URI + ".bm-id", value);
+        bmUtils.setCharPref(this._list.UID + ".bm-id", value);
     },
     getExtId: function() {
-        bmUtils.getCharPref(this._list.URI + ".bm-extId", null);
+        bmUtils.getCharPref(this._list.UID + ".bm-extId", null);
     },
     setExtId: function(value) {
-        bmUtils.setCharPref(this._list.URI + ".bm-extId", value ? value: "");
+        bmUtils.setCharPref(this._list.UID + ".bm-extId", value ? value: "");
     },
     getFolder: function() {
-        bmUtils.getCharPref(this._list.URI + ".bm-folder", null);
+        bmUtils.getCharPref(this._list.UID + ".bm-folder", null);
     },
     setFolder: function(value) {
-        bmUtils.setCharPref(this._list.URI + ".bm-folder", value ? value: "");
+        bmUtils.setCharPref(this._list.UID + ".bm-folder", value ? value: "");
     },
     getLabel: function() {
         return this._list.dirName;
@@ -116,8 +116,8 @@ BMDlist.prototype = {
     getMembers: function(directory) {
         let members = [];
         let it = this._list.childCards;
-        while (it.hasMoreElements()) {
-            let card = it.getNext().QueryInterface(Components.interfaces.nsIAbCard);
+        for (let c of it) {
+            let card = c.QueryInterface(Components.interfaces.nsIAbCard);
             let id = card.getProperty("bm-id", null);
             let fid = bmUtils.getCharPref(directory.URI + ".bm-id", null);
             if (id && fid && card.primaryEmail) {
@@ -129,7 +129,7 @@ BMDlist.prototype = {
                 });
             }
         }
-        let extras = JSON.parse(bmUtils.getCharPref(this._list.URI + ".bm-extras-members", "[]"));
+        let extras = JSON.parse(bmUtils.getCharPref(this._list.UID + ".bm-extras-members", "[]"));
         extras.forEach(function(extra) {
             members.push({
                 id: extra.itemUid,
@@ -144,8 +144,8 @@ BMDlist.prototype = {
         //remove existing members
         let cardsToDel = [];
         let it = this._list.childCards;
-        while (it.hasMoreElements()) {
-            let card = it.getNext().QueryInterface(Components.interfaces.nsIAbCard);
+        for (let c of it) {
+            let card = c.QueryInterface(Components.interfaces.nsIAbCard);
             cardsToDel.push(card);
         }
         this._list.deleteCards(cardsToDel);
@@ -175,14 +175,14 @@ BMDlist.prototype = {
             }
             this._list.addCard(card);
         }
-        bmUtils.setCharPref(this._list.URI + ".bm-extras-members", JSON.stringify(extras));
+        bmUtils.setCharPref(this._list.UID + ".bm-extras-members", JSON.stringify(extras));
     },
     deleteLocalMembers: function(directory) {
         let cardsToDel = [];
         let cards = directory.getCardsFromProperty("bm-parent", this.getId(), false);
         if (cards) {
-            while (cards.hasMoreElements()) {
-                let card = cards.getNext().QueryInterface(Components.interfaces.nsIAbCard);
+            for (let c of cards) {
+                let card = c.QueryInterface(Components.interfaces.nsIAbCard);
                 if (card) cardsToDel.push(card);
             }
             directory.deleteCards(cardsToDel);

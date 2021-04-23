@@ -122,8 +122,8 @@ let BMFolderHome = {
         }
         
         let added = directory.getCardsFromProperty("bm-added", "true", false);
-        while (added.hasMoreElements()) {
-            let card = added.getNext().QueryInterface(Components.interfaces.nsIAbCard);
+        for (let c of added) {
+            let card = c.QueryInterface(Components.interfaces.nsIAbCard);
             let error = card.getProperty("bm-error-code", null);
             if (error) {
                 this._logger.info("skip added:" + card.displayName + " with error:" + error);
@@ -138,8 +138,8 @@ let BMFolderHome = {
         }
         
         let updated = directory.getCardsFromProperty("bm-updated", "true", false);
-        while (updated.hasMoreElements()) {
-            let card = updated.getNext().QueryInterface(Components.interfaces.nsIAbCard);
+        for (let c of updated) {
+            let card = c.QueryInterface(Components.interfaces.nsIAbCard);
             let error = card.getProperty("bm-error-code", null);
             if (error) {
                 this._logger.info("skip updated:" + card.displayName + " with error:" + error);
@@ -166,13 +166,14 @@ let BMFolderHome = {
         }
         
         let it = directory.childNodes;
-        while (it.hasMoreElements()) {
-            let dir = it.getNext().QueryInterface(Components.interfaces.nsIAbDirectory);
+        for (let d of it) {
+            let dir = d.QueryInterface(Components.interfaces.nsIAbDirectory);
             this._logger.debug("get local changes for list:" + dir.dirName);
-            let id = bmUtils.getCharPref(dir.URI + ".bm-id", null);
+            let pref = dir.UID;
+            let id = bmUtils.getCharPref(pref + ".bm-id", null);
             if (id == null) continue;
-            let isAdded = bmUtils.getBoolPref(dir.URI + ".bm-added", false);
-            let isUpdated = bmUtils.getBoolPref(dir.URI + ".bm-updated", false);
+            let isAdded = bmUtils.getBoolPref(pref + ".bm-added", false);
+            let isUpdated = bmUtils.getBoolPref(pref + ".bm-updated", false);
             if (!isAdded && !isUpdated) continue;
             if (isAdded) {
                 changes.push({
@@ -270,6 +271,7 @@ let BMFolderHome = {
                 this._entryToCard(entry, card);
                 this._setPhoto(entry, aFolder.id, card);
                 if (toCreate) {
+                    card.UID = entry.id;
                     directory.addCard(card);
                 } else {
                     directory.modifyCard(card);
@@ -285,8 +287,8 @@ let BMFolderHome = {
                     list.dirName = entry.value.identification.formatedName.value;
                     list = directory.addMailList(list);
                 }
-                bmUtils.setBoolPref(list.URI + ".bm-added", false);
-                bmUtils.setBoolPref(list.URI + ".bm-updated", false);
+                bmUtils.setBoolPref(list.UID + ".bm-added", false);
+                bmUtils.setBoolPref(list.UID + ".bm-updated", false);
                 let dlist = this._entryToDlist(entry, list);
                 dlist.setMembers(directory, entry.value.organizational.member);
                 list.editMailListToDatabase(null);
@@ -302,9 +304,9 @@ let BMFolderHome = {
                     if (list) {
                         let l = new BMDlist(list);
                         l.deleteLocalMembers(directory, del);
-                        let uri = list.URI;
+                        let pref = list.UID;
                         directory.deleteDirectory(list);
-                        bmUtils.deletePrefBranch(uri);
+                        bmUtils.deletePrefBranch(pref);
                     }
                 }
             }
@@ -352,8 +354,8 @@ let BMFolderHome = {
                 } else {
                     let list = this._getListById(directory, error.uid);
                     if (list) {
-                        bmUtils.setCharPref(list.URI + ".bm-error-code", error.errorCode);
-                        bmUtils.setCharPref(list.URI + ".bm-error-message", error.message);
+                        bmUtils.setCharPref(list.UID + ".bm-error-code", error.errorCode);
+                        bmUtils.setCharPref(list.UID + ".bm-error-message", error.message);
                     }
                 }
             }
@@ -375,8 +377,8 @@ let BMFolderHome = {
                 } else {
                     let list = this._getListById(directory, uid);
                     if (list) {
-                        bmUtils.setBoolPref(list.URI + ".bm-added", false);
-                        bmUtils.setBoolPref(list.URI + ".bm-updated", false);
+                        bmUtils.setBoolPref(list.UID + ".bm-added", false);
+                        bmUtils.setBoolPref(list.UID + ".bm-updated", false);
                     }
                 }
             }
@@ -395,8 +397,7 @@ let BMFolderHome = {
     },
     _getDirectoryById: function(aId) {
         let it = MailServices.ab.directories;
-        while (it.hasMoreElements()) {
-            let directory = it.getNext();
+        for (let directory of it) {
             if (directory instanceof Components.interfaces.nsIAbDirectory) {
                 let id = bmUtils.getCharPref(directory.URI + ".bm-id", null);
                 //this._logger.debug("_getDirectoryById: " + directory.dirName + " uri: " + directory.URI + " id: " + id);
@@ -411,8 +412,7 @@ let BMFolderHome = {
     _getDirectories: function() {
         let ret = [];
         let it = MailServices.ab.directories;
-        while (it.hasMoreElements()) {
-            let directory = it.getNext();
+        for (let directory of it) {
             if (directory instanceof Components.interfaces.nsIAbDirectory) {
                 let id = bmUtils.getCharPref(directory.URI + ".bm-id", null);
                 //this._logger.debug("_getDirectories: " + directory.dirName + " uri: " + directory.URI + " id: " + id);
@@ -438,9 +438,9 @@ let BMFolderHome = {
     },
     _getListById: function(aParent, aId) {
         let it = aParent.childNodes;
-        while (it.hasMoreElements()) {
-            let list = it.getNext().QueryInterface(Components.interfaces.nsIAbDirectory);
-            let id = bmUtils.getCharPref(list.URI + ".bm-id", null);
+        for (let l of it) {
+            let list = l.QueryInterface(Components.interfaces.nsIAbDirectory);
+            let id = bmUtils.getCharPref(list.UID + ".bm-id", null);
             if (id && id == aId) {
                 return list;
             }

@@ -21,8 +21,8 @@
 var { bmUtils, HashMap, BMXPComObject, BmPrefListener, BMError } = ChromeUtils.import("chrome://bm/content/modules/bmUtils.jsm");
 
 RegisterLoadListener(function(aList, aDoc) {
-    if (!aList.URI) return;
-    let error = bmUtils.getCharPref(aList.URI + ".bm-error-code", "");
+    if (!aList.UID) return;
+    let error = bmUtils.getCharPref(aList.UID + ".bm-error-code", "");
     if (error) {
         let errorLabel = aDoc.getElementById("bmError");
         errorLabel.setAttribute("value", error);
@@ -32,9 +32,9 @@ RegisterLoadListener(function(aList, aDoc) {
 });
 
 RegisterSaveListener(function(aList, aDoc) {
-    if (aList.URI) {
-        bmUtils.setCharPref(aList.URI + ".bm-error-code", "");
-        bmUtils.setCharPref(aList.URI + ".bm-error-message", "");
+    if (aList.UID) {
+        bmUtils.setCharPref(aList.UID + ".bm-error-code", "");
+        bmUtils.setCharPref(aList.UID + ".bm-error-message", "");
     }
     let errorHbox = aDoc.getElementById("bmInError");
     errorHbox.setAttribute("hidden", true);

@@ -27,6 +27,10 @@ var { bmUtils, HashMap, BMXPComObject, BmPrefListener, BMError } = ChromeUtils.i
 var { bmFileProvider } = ChromeUtils.import("chrome://bm/content/modules/bmFileProvider.jsm");
 var { bmService, BMSyncObserver } = ChromeUtils.import("chrome://bm/content/modules/bmService.jsm");
 
+var { ConversionHelper } = ChromeUtils.import("chrome://bm/content/api/ConversionHelper/ConversionHelper.jsm");
+
+Services.scriptloader.loadSubScript("chrome://bm/content/notifyTools.js", null, "UTF-8");
+
 var gBMOverlay = {
 	_initDone: false,
 	_syncObserver : new BMSyncObserver(),
@@ -74,7 +78,7 @@ var gBMOverlay = {
 				this._logger.info("Connector updated -> reset");
 				bmService.reset();
 				bmService.doSync();
-				this._reloadBmTabs();
+				window.setTimeout(async () => this._reloadBmTabs(), 1000);
 			}
 			bmService.enablePeriodicallySync();
 		}
@@ -98,11 +102,14 @@ var gBMOverlay = {
             let input;
             try {
                 let uri = Services.io.newURI("chrome://bm/content/certs/" + CertName);
+				// nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL
+				// renamed nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL in TB 80
+				let loadInfo = 8; 
 				channel = Services.io.newChannelFromURI(uri,
 														null, //aLoadingNode
 														Services.scriptSecurityManager.getSystemPrincipal(),
 														null, //aTriggeringPrincipal
-														Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+														loadInfo,
 														Components.interfaces.nsIContentPolicy.TYPE_OTHER);
                 input = channel.open();
             } catch (e) {
@@ -150,13 +157,13 @@ var gBMOverlay = {
         }
         return null;
     },
-	openBmApp : function (aApp, aBackground) {
+	openBmApp: async function (aApp, aBackground) {
 		this.openBmApps([{
 			bmApp: aApp,
 			openInBackGround: aBackground}
 		]);
 	},
-    openBmApps : function (aApps) {
+    openBmApps: async function (aApps) {
 		this._logger.info("Open BM web apps:" + aApps);
         let user = {};
         let pwd = {};
@@ -171,7 +178,7 @@ var gBMOverlay = {
             this._logger.info("not enouth settings");
         }
 	},
-	_auth: function(aServer, aApps, aLogin, aPassword) {
+	_auth: async function(aServer, aApps, aLogin, aPassword) {
 		let host = aServer.replace("https://", "");
 		let cookies = Services.cookies.getCookiesFromHost(host, {});
 		for (let cookie of cookies) {
@@ -207,7 +214,7 @@ var gBMOverlay = {
 		};
 		rpcClient.execute(cmd);
 	},
-	_login: function(aServer, aApps, aLogin, aPassword, aHpsSession) {
+	_login: async function(aServer, aApps, aLogin, aPassword, aHpsSession) {
 		//REST login on /api using auth service :
 		// fail if BM is unavailalbe, find and update login right part if missing
 		let auth = BMAuthService.login(aServer, aLogin, aPassword);
@@ -231,7 +238,7 @@ var gBMOverlay = {
             self._logger.error(err);
 		});
 	},
-	_hpsLogin: function(aServer, aApps, aLogin, aPassword, aHpsSession) {
+	_hpsLogin: async function(aServer, aApps, aLogin, aPassword, aHpsSession) {
 		let host = aServer.replace("https://", "");
 		let url = aServer + "/login/native";
 		let postData = [["login", aLogin],
@@ -266,7 +273,7 @@ var gBMOverlay = {
 		};
 		rpcClient.execute(cmd);
     },
-    _onAuth: function(aResponseText, aRequest, aData) {
+    _onAuth: async function(aResponseText, aRequest, aData) {
 		if (aResponseText.indexOf("<meta name=\"X-BM-Page\" content=\"maintenance\"/>") != -1) {
 			this._logger.info("BM server is in maintenance");
 			//FIXME what ?
@@ -299,7 +306,7 @@ var gBMOverlay = {
 			}
 		}
     },
-    _getBmTab: function(aAskedUri) {
+	_getBmTab: function(aAskedUri) {
 		let tabmail = document.getElementById("tabmail");
 		let tabMode = tabmail.tabModes["bmTab"];
 		if (!tabMode) {
@@ -314,57 +321,46 @@ var gBMOverlay = {
 		}
 		return null;
 	},
-	_openWebPages: function(aServer, aApps) {
+    // _getBmTab: async function(aAskedUri) {
+	// 	let matchUrl =  "https://*" + aAskedUri + "/*";
+	// 	let tabs = await notifyTools.notifyBackground({command: "getBmTab", matchUrl: matchUrl});
+	// 	if (tabs && tabs.length > 0) {
+	// 		return tabs[0];
+	// 	}
+	// 	//not logged
+	// 	matchUrl = "https://*/login/index.html?askedUri=%2F" + aAskedUri.substring(1) + "*";
+	// 	console.log("search", matchUrl);
+	// 	tabs = await notifyTools.notifyBackground({command: "getBmTab", matchUrl: matchUrl});
+	// 	console.log("res:", tabs);
+	// 	if (tabs && tabs.length > 0) {
+	// 		return tabs[0];
+	// 	}
+	// },
+	_openWebPages: async function(aServer, aApps) {
 		for (let app of aApps) {
-			this._openWebPage(aServer, app.bmApp, app.openInBackGround);
+			await this._openWebPage(aServer, app.bmApp, app.openInBackGround);
 		}
 	},
-    _openWebPage: function(aServer, aAskedUri, aBackground) {
+    _openWebPage: async function(aServer, aAskedUri, aBackground) {
         let url = aServer + aAskedUri + "/index.html";
 		if (bmUtils.getBoolPref("extensions.bm.openInTab", false)) {
-			this._clickRegExp = new RegExp("^" + aServer);
-			let tabmail = document.getElementById("tabmail");
-			let tabBm = this._getBmTab(aAskedUri);
+			let tabBm = await this._getBmTab(aAskedUri);
 			if (!tabBm) {
-				this._logger.debug("OPEN TAB background:" + aBackground);
-				let options = {
-					contentPage: url,
-					clickHandler: "specialTabs.siteClickHandler(event, gBMOverlay._clickRegExp);",
+				this._logger.debug("OPEN TAB:" + url + " background:" + aBackground);
+				//notifyTools.notifyBackground({command: "openTab", openInBackGround: aBackground, url: url});
+				document.getElementById("tabmail").openTab("bmTab", {
+					url: url,
+					contentPage: url, //TB 78
 					background: aBackground,
 					bmApp: aAskedUri
-				};
-				if (aAskedUri == "/cal") {
-					let self = this;
-					options.onLoad = function(event, browser) {
-						let win = browser.contentWindow.wrappedJSObject;
-						win.net.bluemind.ui.eventdeferredaction.DeferredActionScheduler.setNotificationImpl(function(text) {
-							let notif = new Notification(bmUtils.getLocalizedString("notification.title"), {body: text});
-							notif.onclick = function() {
-								let calTab = self._getBmTab("/cal");
-								tabmail.switchToTab(calTab);
-							};
-						});
-					};
-				}
-				if (aAskedUri == "/settings") {
-					this.settingsClickHandlder = function(aEvent) {
-						if (!aEvent.isTrusted || aEvent.defaultPrevented || aEvent.button) {
-							return true;
-						}
-						let href = hRefForClickEvent(aEvent, true)[0];
-						if (href) {
-							let uri = makeURI(href);
-							if (uri.spec.endsWith("/settings/index.html")) {
-								tabmail.closeTab(tabBm);
-							}
-						}
-						specialTabs.siteClickHandler(aEvent, gBMOverlay._clickRegExp);
-					}
-					options.clickHandler = "gBMOverlay.settingsClickHandlder(event);"
-				}
-				tabmail.openTab("bmTab", options);
+				});
 			} else {
-				tabmail.switchToTab(tabBm);
+				await notifyTools.notifyBackground({command: "activeTab", tabId: tabBm.id});
+			}
+			if (aAskedUri == "/cal") {
+				window.setTimeout(() => {
+					notifyTools.notifyBackground({command: "injectCalTabScript", matchUrl: "https://*" + aAskedUri + "/*"});
+				}, 10000);
 			}
 		} else {
 			bmUtils.setBoolPref("network.protocol-handler.warn-external.http", false);
@@ -375,7 +371,7 @@ var gBMOverlay = {
 			extps.loadURI(uriToOpen, null);
 		}
     },
-    _reloadBmTabs: function() {
+	_reloadBmTabs: function() {
 		if (bmUtils.getBoolPref("extensions.bm.openInTab", false)) {
 			let apps = ["/cal", "/task", "/settings"];
 			let toReOpen = [];
@@ -409,6 +405,38 @@ var gBMOverlay = {
 			}, this);
 		}
 	},
+    /* using new api
+	_reloadBmTabs: async function() {
+		if (bmUtils.getBoolPref("extensions.bm.openInTab", false)) {
+			let apps = ["/cal", "/task", "/settings"];
+			let toReOpen = [];
+			for (let app of apps) {
+				let tab = await this._getBmTab(app);
+				if (tab) {
+					let openInBackGround = true;
+					await notifyTools.notifyBackground({ command: "closeTab", tabId: tab.id });
+					toReOpen.push({
+						bmApp: app,
+						openInBackGround: openInBackGround
+					});
+				}
+			}
+			if (toReOpen.length > 0) {
+				this.openBmApps(toReOpen);
+			}
+		}
+    },
+    _closeBmTabs: async function() {
+		if (bmUtils.getBoolPref("extensions.bm.openInTab", false)) {
+			let apps = ["/cal", "/task", "/settings"];
+			apps.forEach(async function(app) {
+				let tab = await this._getBmTab(app);
+				if (tab) {
+					await notifyTools.notifyBackground({command: "closeTab", tabId: tab.id});
+				}
+			}, this);
+		}
+	},*/
 	observe: function(aSubject, aTopic, aData) {
 		if (aTopic == "reload-bm-tabs") {
 			this._reloadBmTabs();
@@ -479,22 +507,18 @@ var gBMOverlay = {
 		this.prefwindow = window.open("chrome://bm/content/preferences/bmPrefWindow.xhtml", "Connector settings", "chrome,resizable,centerscreen");
 		this.prefwindow.focus();
 	},
-	//called by OverlayManager when extension is disabled
 	onremove: function() {
 		this._logger.info("Overlay removing");
 		this._syncObserver.unregister();
 		this._unregisterTabObserver();
 		cloudFileAccounts.unregisterProvider("BlueMind");
-		window.removeEventListener("DOMOverlayLoaded_bm-connector-tb@blue-mind.net", () => { gBMOverlay.init(); });
 
 		gBMIcsBandal.onUnload();
+
 		let consoleService = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
 		consoleService.unregisterListener(this._consoleListener);
 	}
 }
-
-// custom event, fired by the overlay loader after it has finished loading
-document.addEventListener("DOMOverlayLoaded_bm-connector-tb@blue-mind.net", () => { gBMOverlay.init(); }, { once: true });
 
 window.addEventListener("offline", function(e) {
 	disableBtnWhenOffline('bm-button-sync', true);

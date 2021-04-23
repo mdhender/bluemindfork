@@ -21,16 +21,14 @@
 var { bmUtils, HashMap, BMXPComObject, BmPrefListener, BMError } = ChromeUtils.import("chrome://bm/content/modules/bmUtils.jsm");
 
 function ShowProps() {
-    console.log("ShowProps");
     let disp = document.getElementById("bmProps");
     let props = gEditCard.card.properties;
     console.log(props);
-    let texts = "";
-    while (props.hasMoreElements()) {
-        let prop = props.getNext().QueryInterface(Components.interfaces.nsIProperty);
+    let texts = "UID: " + gEditCard.card.UID + "\r\n\r\n";
+    for (let p of props) {
+        let prop = p.QueryInterface(Components.interfaces.nsIProperty);
         texts += prop.name + "      : " + prop.value + "\r\n";
     }
-    console.log("set value:" + texts);
     disp.value = texts;
 }
 

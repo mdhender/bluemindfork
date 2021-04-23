@@ -23,7 +23,6 @@ const Ci = Components.interfaces;
 const Cu = Components.utils;
 const Cr = Components.results;
 
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cloudFileAccounts } = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
 var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
@@ -103,46 +102,43 @@ bmFileProvider.prototype = {
      * method will be called when finished, with success or an error code.
      *
      * @param aFile file to upload
-     * @param aCallback callback when finished.
-     * @param aSkipUpload BM specific: skip upload and share
      *
      * @throws nsIMsgCloudFileProvider.offlineErr if we are offline.
      */
-    uploadFile: function(aFile, aCallback) {
+    uploadFile: async function() {
+        let aFile;
+        if (arguments.length > 1) {
+            // TB 91+
+            aFile = arguments[1];
+        } else {
+            aFile = arguments[0];
+        }
         let remoteInfo = this._remoteInfo[aFile.path];
         if (remoteInfo) {
             this._logger.info("do not upload remote file:" + aFile.path);
-            if (aCallback) {
-                return aCallback.onStopRequest(null, null, Cr.NS_ERROR_FAILURE);
-            } else {
-                throw Cr.NS_ERROR_FAILURE;
-            }
+            throw Cr.NS_ERROR_FAILURE;
         }
         let self = this;
-        if (!aCallback) {
-            let wrapper = function(aFile) {
-                return new Promise(function(resolve, reject) {
-                    self._uploadFile(aFile, {
-                        onStartRequest: function() {},
-                        onStopRequest: function(p, ctx, cr) {
-                            if (!Components.isSuccessCode(cr)) {
-                                throw cr;
-                            }
-                            let upload = {
-                                url: self._urlsForFiles[aFile.path]
-                            }
-                            resolve(upload);
+        let wrapper = function(aFile) {
+            return new Promise(function(resolve, reject) {
+                self._uploadFile(aFile, {
+                    onStartRequest: function() {},
+                    onStopRequest: function(p, ctx, cr) {
+                        if (!Components.isSuccessCode(cr)) {
+                            throw cr;
                         }
-                    });
+                        let upload = {
+                            url: self._urlsForFiles[aFile.path]
+                        }
+                        resolve(upload);
+                    }
                 });
-            };
-            async function asyncUpload(aFile) {
-                return await wrapper(aFile);
-            }
-            return asyncUpload(aFile);
-        } else {
-            this._uploadFile(aFile, aCallback);
+            });
+        };
+        async function asyncUpload(aFile) {
+            return await wrapper(aFile);
         }
+        return asyncUpload(aFile);
     },
     
     /**

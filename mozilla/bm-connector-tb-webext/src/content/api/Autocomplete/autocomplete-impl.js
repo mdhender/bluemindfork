@@ -12,12 +12,16 @@ var AutocompleteApi = class extends ExtensionCommon.ExtensionAPI {
             AutocompleteApi: {
                 init: async function () {
 
-                    var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+                    try {
+                        var { ComponentUtils } = ChromeUtils.import("resource://gre/modules/ComponentUtils.jsm");
+                    } catch(e) {
+                    //TB 78
+                        var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+                    }
 
                     let classID = Components.ID("{ddb5a551-9df4-4e2b-8f79-b9e16d2c28f5}");
                     let contractID = "@mozilla.org/autocomplete/search;1?name=bm-search";
 
-                    var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
                     var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
                     var { bmUtils, HashMap, BMXPComObject, BmPrefListener, BMError } = ChromeUtils.import("chrome://bm/content/modules/bmUtils.jsm");
@@ -129,8 +133,7 @@ var AutocompleteApi = class extends ExtensionCommon.ExtensionAPI {
                         _getDirectoriesUris: function () {
                             let uris = [];
                             let it = MailServices.ab.directories;
-                            while (it.hasMoreElements()) {
-                                let directory = it.getNext();
+                            for (let directory of it) {
                                 if (directory instanceof Components.interfaces.nsIAbDirectory) {
                                     let uri = directory.URI;
                                     this._logger.debug("_getDirectoriesUris uri:" + uri);
@@ -355,7 +358,12 @@ var AutocompleteApi = class extends ExtensionCommon.ExtensionAPI {
 
                     console.trace("Register component");
 
-                    let factory = XPCOMUtils.generateNSGetFactory([BmAutocompleteSearch])(classID);
+                    let factory;
+                    if (ComponentUtils) {
+                        factory = ComponentUtils.generateNSGetFactory([BmAutocompleteSearch])(classID);
+                    } else {
+                        factory = XPCOMUtils.generateNSGetFactory([BmAutocompleteSearch])(classID);
+                    }
                     // WARNING: this assumes that Thunderbird is already running, as
                     // Components.manager.registerFactory will be unavailable for a few
                     // milliseconds after startup.

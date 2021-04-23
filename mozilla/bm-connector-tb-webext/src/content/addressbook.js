@@ -130,7 +130,7 @@ function OnClickedCard(card)
 		DisplayCardViewPane(card);
 		let error = null;
 		if (card.isMailList) {
-			error = bmUtils.getCharPref(card.mailListURI + ".bm-error-message", null);
+			error = bmUtils.getCharPref(card.UID + ".bm-error-message", null);
 		} else {
 			error = card.getProperty("bm-error-message", null);
 		}
@@ -142,5 +142,3 @@ function OnClickedCard(card)
 		ClearCardViewPane();
 	}
 }
-
-document.addEventListener("DOMOverlayLoaded_bm-connector-tb@blue-mind.net", () => { gBMAbOverlay.init(); }, { once: true });

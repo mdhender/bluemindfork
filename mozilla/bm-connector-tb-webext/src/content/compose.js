@@ -25,6 +25,12 @@ var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 var { bmUtils, HashMap, BMXPComObject, BmPrefListener, BMError } = ChromeUtils.import("chrome://bm/content/modules/bmUtils.jsm");
 var { BMAuthService } = ChromeUtils.import("chrome://bm/content/modules/core2/BMAuthService.jsm");
 
+try {
+    var { MailE10SUtils } = ChromeUtils.import("resource:///modules/MailE10SUtils.jsm");
+} catch(e) {
+    //TB 78
+}
+
 function canAttachFilesFromHosting() {
     let accs = cloudFileAccounts.getAccountsForType("BlueMind");
     if (accs.length > 0) {
@@ -164,7 +170,7 @@ var gBMCompose = {
     _updateSignaturePreview: function(aMsgCompFields) {
         let self = this;
 
-        let sender = getCurrentIdentity().email;
+        let sender = gCurrentIdentity.email;
         this._checkSender(sender).then(function() {
             let recipients = self._getRecipients(aMsgCompFields);
             if (recipients && recipients.length > 0) {
@@ -320,37 +326,45 @@ var gBMCompose = {
         return null;
     },
     _showSignatures: function(aHtml) {
-        let tempFile = Components.classes["@mozilla.org/file/directory_service;1"]
-                    .getService(Components.interfaces.nsIProperties)
-                    .get("TmpD", Components.interfaces.nsIFile);
-        tempFile.append("signatures.html");
-        tempFile.createUnique(0, 0o600);
-        let encoder = new TextEncoder();
-        let byteArray = encoder.encode(aHtml);
-        let prom = OS.File.writeAtomic(tempFile.path, byteArray);
-        let self = this;
-        prom.then(function() {
-            let extService = Components.classes['@mozilla.org/uriloader/external-helper-app-service;1']
-                .getService(Components.interfaces.nsPIExternalAppLauncher);
-            extService.deleteTemporaryFileOnExit(tempFile);
-            let uri = Services.io.newFileURI(tempFile);
-
+        if (MailE10SUtils) {
             let box = document.getElementById("bmSignature");
             box.setAttribute("collapsed", "false");
             let browser = document.getElementById("bm-browser-signature");
-            if (!Components.interfaces.nsIMsgCloudFileProvider) {
-                // TB 68 loadURI extra param
-                let params = {
-                  triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal()
-                };
-                browser.loadURI(uri.spec, params);
-            } else {
-                browser.loadURI(uri.spec);
-            }
-            if (bmUtils.session.sigPreviewClosed) {
-                self._showPreview(false);
-            }
+            let preview = "data:text/html," + encodeURIComponent(aHtml);
+            MailE10SUtils.loadURI(browser, preview);
+        } else {
+            let tempFile = Components.classes["@mozilla.org/file/directory_service;1"]
+                        .getService(Components.interfaces.nsIProperties)
+                        .get("TmpD", Components.interfaces.nsIFile);
+            tempFile.append("signatures.html");
+            tempFile.createUnique(0, 0o600);
+            let encoder = new TextEncoder();
+            let byteArray = encoder.encode(aHtml);
+            let prom = OS.File.writeAtomic(tempFile.path, byteArray);
+            let self = this;
+            prom.then(function() {
+                let extService = Components.classes['@mozilla.org/uriloader/external-helper-app-service;1']
+                    .getService(Components.interfaces.nsPIExternalAppLauncher);
+                extService.deleteTemporaryFileOnExit(tempFile);
+                let uri = Services.io.newFileURI(tempFile);
+
+                let box = document.getElementById("bmSignature");
+                box.setAttribute("collapsed", "false");
+                let browser = document.getElementById("bm-browser-signature");
+                if (!Components.interfaces.nsIMsgCloudFileProvider) {
+                    // TB 68 loadURI extra param
+                    let params = {
+                    triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal()
+                    };
+                    browser.loadURI(uri.spec, params);
+                } else {
+                    browser.loadURI(uri.spec);
+                }
+                if (bmUtils.session.sigPreviewClosed) {
+                    self._showPreview(false);
+                }
         });
+        }
     },
     _hideSignature: function() {
         let box = document.getElementById("bmSignature");
@@ -389,7 +403,7 @@ function BmAddAutocomplete() {
     }
 }
 
-document.addEventListener("DOMOverlayLoaded_bm-connector-tb@blue-mind.net", () => {
+function BmInitCompose() {
     if (!Services.io.offline && bmUtils.getSettings({}, {}, {}, false)) {
         BmAddAutocomplete();
         let button = document.getElementById("button-attachPopup_BlueMind");
@@ -409,4 +423,4 @@ document.addEventListener("DOMOverlayLoaded_bm-connector-tb@blue-mind.net", () =
         console.log("compose-from-changed");
         gBMCompose.checkSignature();
     });
-}, { once: false });
+}
