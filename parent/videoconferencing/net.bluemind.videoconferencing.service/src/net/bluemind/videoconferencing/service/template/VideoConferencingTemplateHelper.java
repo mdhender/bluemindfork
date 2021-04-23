@@ -38,32 +38,23 @@ import net.bluemind.user.api.IUserSettings;
 
 public class VideoConferencingTemplateHelper {
 
-	private static final String DESCRIPTION_TEMPLATE_SEPARATOR = "<br>";
-
 	private static final String SEPARATOR = "<div>~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~</div>";
 
 	/** The HTML tag containing the transformed template. */
 	private static final String TEMPLATE_HTML_TAG_NAME = "videoconferencingtemplate";
-	private static final String TEMPLATE_HTML_TAG_BEGIN = "<" + TEMPLATE_HTML_TAG_NAME + " id=\"{id}\">" + SEPARATOR;
-	private static final String TEMPLATE_HTML_TAG_END = SEPARATOR + "</" + TEMPLATE_HTML_TAG_NAME + ">";
+	private static final String TEMPLATE_HTML_TAG_BEGIN = "<" + TEMPLATE_HTML_TAG_NAME + " id=\"{id}\"><br>"
+			+ SEPARATOR;
+	private static final String TEMPLATE_HTML_TAG_END = SEPARATOR + "<br></" + TEMPLATE_HTML_TAG_NAME + ">";
 
 	/** Used for cleaning the text before adding a template. */
 	private static final Pattern TRAILING_WHITE_SPACES = Pattern.compile("(\\s|<\\s*br\\s*/?\\s*>\\s*)+$");
 
 	/**
-	 * Added after the template end tag, it should prevent rich text editors to add
-	 * text between the template tags when typing at the end of the editor's text
-	 * area.
-	 */
-	private static final String TEMPLATE_SUFFIX = "<br><br>";
-	private static final String TEMPLATE_SUFFIX_REGEX = "(\\s|<\\s*br\\s*/?>)*";
-
-	/**
 	 * The regular expression string for matching a resource template. Contains a
 	 * placeholder for the resource identifier: <i>{id}</i>.
 	 */
-	private static final String TEMPLATE_PATTERN = DESCRIPTION_TEMPLATE_SEPARATOR + "<\\s*" + TEMPLATE_HTML_TAG_NAME
-			+ "\\s+id\\s*=\\s*\"{id}\"\\s*>.*?<\\s*/\\s*" + TEMPLATE_HTML_TAG_NAME + "\\s*>" + TEMPLATE_SUFFIX_REGEX;
+	private static final String TEMPLATE_PATTERN = "<\\s*" + TEMPLATE_HTML_TAG_NAME
+			+ "\\s+id\\s*=\\s*\"{id}\"\\s*>.*?<\\s*/\\s*" + TEMPLATE_HTML_TAG_NAME + "\\s*>";
 
 	/**
 	 * Note: '[\p{L}\p{N}_]' is the unicode alternative of '\w' (matches characters
@@ -187,8 +178,7 @@ public class VideoConferencingTemplateHelper {
 		if (Strings.isNullOrEmpty(processedTemplate)) {
 			return sanitizedText;
 		}
-		return String.format("%s%s%s%s", sanitizedText, DESCRIPTION_TEMPLATE_SEPARATOR, processedTemplate,
-				TEMPLATE_SUFFIX);
+		return String.format("%s%s", sanitizedText, processedTemplate);
 	}
 
 	/** Remove trailing white spaces, &lt;br&gt; included. */
