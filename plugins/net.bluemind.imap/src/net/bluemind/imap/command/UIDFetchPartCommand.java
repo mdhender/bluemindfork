@@ -53,7 +53,7 @@ public class UIDFetchPartCommand extends Command<IMAPByteSource> {
 			data = stream.getStreamData();
 		} else {
 			if (ok.isOk()) {
-				data = IMAPByteSource.wrap(("[part " + section + " is missing]").getBytes());
+				data = IMAPByteSource.wrap(new byte[0]);
 			} else {
 				logger.warn("Fetch of part " + section + " in uid " + uid + " failed: " + ok.getPayload());
 			}

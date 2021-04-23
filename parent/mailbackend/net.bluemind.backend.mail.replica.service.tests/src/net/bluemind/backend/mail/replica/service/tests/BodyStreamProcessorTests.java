@@ -84,6 +84,16 @@ public class BodyStreamProcessorTests {
 	}
 
 	@Test
+	public void testProcessFeatwebml1562()
+			throws IOException, InterruptedException, ExecutionException, TimeoutException {
+		Stream stream = openResource("data/featwebml-1562.eml");
+		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
+		assertNotNull(result);
+		JsonObject asJs = new JsonObject(JsonUtils.asString(result.body.structure));
+		System.out.println("JS: " + asJs.encodePrettily());
+	}
+
+	@Test
 	public void testProcessRescomEML() throws IOException, InterruptedException, ExecutionException, TimeoutException {
 		Stream stream = openResource("data/msg_from_rescom.eml");
 		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);

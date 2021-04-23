@@ -1,0 +1,128 @@
+MIME-Version: 1.0
+Subject: =?ISO-8859-1?Q?Non_remis=A0:_NONONONONON?=
+Date: Thu, 8 Apr 2021 07:35:38 +0000
+X-BM-Mapi-Version: 4.1.0.qualifier
+Message-ID: <Mime4j.4.cb598daaaacf4ad7.178b069d6f5@mapi.bluemind.net>
+To: David Phan <david@bm.lan>
+X-Priority: 3
+Content-Type: multipart/mixed;
+ boundary="-=Part.5.a7453125043fd3ff.178b069d6fd.527ba098c21d7501=-"
+X-BM-Mapi-Class: REPORT.IPM.Note.NDR
+X-Bm-Internal-Id: E555021E-54B8-431B-AA25-535A846A8EFD#bluemind-59d73c8e-5119-40ad-98fc-df7ad57b8631:607578
+
+---=Part.5.a7453125043fd3ff.178b069d6fd.527ba098c21d7501=-
+Content-Type: multipart/related;
+ boundary="-=Part.6.69f443c18a4cb184.178b069d6fe.28a25cc73277bf36=-"
+
+---=Part.6.69f443c18a4cb184.178b069d6fe.28a25cc73277bf36=-
+Content-Type: text/plain; charset=UTF-8;
+Content-Transfer-Encoding: quoted-printable
+
+
+---=Part.6.69f443c18a4cb184.178b069d6fe.28a25cc73277bf36=---
+
+---=Part.5.a7453125043fd3ff.178b069d6fd.527ba098c21d7501=-
+Content-Type: application/json; charset=UTF-8; bm-mapi=true
+Content-Disposition: attachment; filename=bm-mapi-message.json
+
+{
+  "setProperties" : {
+    "PidTagOriginatorNonDeliveryReportRequested" : "false",
+    "PidTagDisplayTo" : "",
+    "PidTagCreationTime" : "Thu Apr 08 07:35:38 GMT 2021",
+    "PidTagReportText" : "Nous n’avons pas pu envoyer ce message. Vous n'avez pas les autorisations suffisantes pour effectuer cette opération sur cet objet. Veuillez vous mettre en rapport avec le contact de ce dossier ou votre administrateur système. Réessayez d’envoyer le message plus tard, ou contactez votre administrateur réseau.\n\n__________________________________________________\n\nInformations de diagnostic pour les administrateurs :\n__________________________________________________\n\nL’erreur est [0x80070005-0x80070005-0x00000508].\n\nEn-têtes de réponse d’Exchange :\n\tX-ServerApplication : Exchange/15.01.0225.037\n\tX-RequestId : {549AA9A5-C805-4410-BAD4-CF673AC5B4D3}:52\n\tX-ClientInfo : {6B5084E9-A10F-48D3-84D4-68350D8EF089}:30080014\n\tX-ElapsedTime : 51\n\tX-ResponseCode : 0\n\tX-RequestType : Execute\n__________________________________________________\n\nRécapitulatif des opérations distantes :\n\n\t0 : ropSetProps (10) Traitée (1) Terminée (0)\n\t\tRésultat de l’opération distante : 0\n\t\tCodes de réponse : 0\n\t1 : ropSetProps (10) Traitée (1) Terminée (0)\n\t\tRésultat de l’opération distante : 0\n\t\tCodes de réponse : 0\n\t2 : ropFlushRecipients (14) Traitée (1) Terminée (0)\n\t\tRésultat de l’opération distante : 0\n\t\tCodes de réponse : 0\n\t3 : ropSetProps (10) Traitée (1) Terminée (0)\n\t\tRésultat de l’opération distante : 0\n\t\tCodes de réponse : 0\n\t4 : ropTransportSend (74) Traitée (1) Terminée (0)\n\t\tRésultat de l’opération distante : 0\n\t\tCodes de réponse : -2147024891\n__________________________________________________\n\n\nÉchec de Transport-Send : échec de l’énumération(25), HResult(0x00000000), EC(-2147024891).\nÉchec de Transport-Send : échec de l’énumération(22), HResult(0x00000000), EC(-2147024891).\nÉchec de Submit-Message : ID de message(3), échec d’énumération(13), HResult(0x80070005), EC(-2147024891).",
+    "PidTagMessageDeliveryTime" : "Thu Apr 08 07:35:38 GMT 2021",
+    "PidTagMessageFlags" : {
+      "flags" : [ "mfUnmodified", "mfHasAttach" ],
+      "raw" : 18
+    },
+    "PidTagImportance" : "1",
+    "PidTagMessageClass" : "REPORT.IPM.Note.NDR",
+    "PidTagReadReceiptRequested" : "false",
+    "PidTagSensitivity" : "0",
+    "PidTagSubject" : "Non remis : NONONONONON",
+    "PidTagClientSubmitTime" : "Thu Apr 08 07:35:38 GMT 2021",
+    "PidTagSubjectPrefix" : "Non remis : ",
+    "PidTagConversationTopic" : "NONONONONON",
+    "PidTagConversationIndex" : "01d72c49c4a76cc46b5282cd43a4b8a44bfd1d7f16700000002a03",
+    "PidTagNormalizedSubject" : "NONONONONON",
+    "PidTagSearchKey" : "6491201b3d28604187b4bcb87681eb98",
+    "PidTagLastModifierName" : "david@bm.lan",
+    "PidTagRtfInSync" : "true",
+    "PidTagSenderEntryId" : {
+      "idType" : "one-off",
+      "displayName" : "Administrateur système",
+      "adressType" : "SYSTEM",
+      "emailAddress" : "Administrateur système",
+      "raw" : "00000000812b1fa4bea310199d6e00dd010f540200000080410064006d0069006e0069007300740072006100740065007500720020007300790073007400e8006d0065000000530059005300540045004d000000410064006d0069006e0069007300740072006100740065007500720020007300790073007400e8006d0065000000"
+    },
+    "PidTagSenderName" : "Administrateur système",
+    "PidTagSentRepresentingEntryId" : {
+      "idType" : "one-off",
+      "displayName" : "Administrateur système",
+      "adressType" : "SYSTEM",
+      "emailAddress" : "Administrateur système",
+      "raw" : "00000000812b1fa4bea310199d6e00dd010f540200000080410064006d0069006e0069007300740072006100740065007500720020007300790073007400e8006d0065000000530059005300540045004d000000410064006d0069006e0069007300740072006100740065007500720020007300790073007400e8006d0065000000"
+    },
+    "PidTagSentRepresentingName" : "Administrateur système",
+    "PidTagOriginatorDeliveryReportRequested" : "false",
+    "PidTagParentKey" : "37f3519e1f442e4b9e7d0701d747f0b5",
+    "PidTagOriginalSubject" : "NONONONONON",
+    "PidTagOriginalSubmitTime" : "Thu Apr 08 07:35:37 GMT 2021",
+    "PidTagMessageToMe" : "true",
+    "PidTagOriginalDisplayBcc" : "",
+    "PidTagOriginalDisplayCc" : "",
+    "PidTagOriginalDisplayTo" : "David Phan",
+    "PidTagDisplayBcc" : "",
+    "PidTagDisplayCc" : ""
+  },
+  "messageId" : 6504615132411199489,
+  "recipients" : [ {
+    "rowId" : 0,
+    "copyType" : "Primary",
+    "recipientType" : "X500DN",
+    "x500" : "/o=Mapi/ou=1e662149.internal/cn=Recipients/cn=USER:E555021E-54B8-431B-AA25-535A846A8EFD",
+    "row" : {
+      "PR_NICK_NAME_W" : "david@bm.lan",
+      "PidTagNonDeliveryReportReasonCode" : "0",
+      "PidTagNonDeliveryReportDiagCode" : "-1",
+      "PidTagOriginalDisplayName" : "David Phan",
+      "PidTagAddressBookDisplayNamePrintable" : "david",
+      "PidTagSmtpAddress" : "david@bm.lan",
+      "PidTagDisplayType" : "0",
+      "PidTagDisplayTypeEx" : "1073741824",
+      "PidTagObjectType" : "6",
+      "PidTagOriginalEntryId" : {
+        "idType" : "permanent",
+        "providerUid" : "dca740c8-c042-101a-b4b9-08002b2fe182",
+        "dn" : "/o=Mapi/ou=1e662149.internal/cn=Recipients/cn=USER:E555021E-54B8-431B-AA25-535A846A8EFD",
+        "displayType" : "DT_MAILUSER",
+        "raw" : "00000000dca740c8c042101ab4b908002b2fe18201000000000000002f6f3d4d6170692f6f753d31653636323134392e696e7465726e616c2f636e3d526563697069656e74732f636e3d555345523a45353535303231452d353442382d343331422d414132352d35333541383436413845464400"
+      },
+      "PidTagReportText" : "Ce message n'a pas pu être envoyé. Réessayez d'envoyer le message ultérieurement ou contactez votre administrateur réseau. Vous n'avez pas les autorisations suffisantes pour effectuer cette opération sur cet objet. Veuillez vous mettre en rapport avec le contact de ce dossier ou votre administrateur système. Erreur [0x80070005-0x80070005-0x000508].",
+      "PidTagMessageClass" : "REPORT.IPM.Note.NDR",
+      "PidTagReportTime" : "Thu Apr 08 07:35:38 GMT 2021",
+      "PidTagOriginalSearchKey" : "45583a2f4f3d4d4150492f4f553d31453636323134392e494e5445524e414c2f434e3d524543495049454e54532f434e3d555345523a45353535303231452d353442382d343331422d414132352d35333541383436413845464400",
+      "PidTagSendInternetEncoding" : "0",
+      "PR_AB_PROVIDERS" : "2800000048da1a397a3e5b18242e1809",
+      "PR_RECIPIENT_RESOURCESTATE" : "0",
+      "PidTagRecipientOrder" : "0",
+      "PidTagRecipientDisplayName" : "david",
+      "PidTagRecipientEntryId" : {
+        "idType" : "permanent",
+        "providerUid" : "dca740c8-c042-101a-b4b9-08002b2fe182",
+        "dn" : "/o=Mapi/ou=1e662149.internal/cn=Recipients/cn=USER:E555021E-54B8-431B-AA25-535A846A8EFD",
+        "displayType" : "DT_MAILUSER",
+        "raw" : "00000000dca740c8c042101ab4b908002b2fe18201000000000000002f6f3d4d6170692f6f753d31653636323134392e696e7465726e616c2f636e3d526563697069656e74732f636e3d555345523a45353535303231452d353442382d343331422d414132352d35333541383436413845464400"
+      },
+      "PidTagRecipientFlags" : {
+        "flags" : [ "recipSendable" ],
+        "raw" : 1
+      },
+      "PidTagRecipientTrackStatus" : "0"
+    }
+  } ],
+  "attachments" : [ ],
+  "embeddedMessages" : [ ]
+}
+---=Part.5.a7453125043fd3ff.178b069d6fd.527ba098c21d7501=---
