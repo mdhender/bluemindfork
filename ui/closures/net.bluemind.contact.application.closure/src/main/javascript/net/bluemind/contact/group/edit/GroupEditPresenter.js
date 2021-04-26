@@ -181,7 +181,7 @@ net.bluemind.contact.group.edit.GroupEditPresenter.prototype.handleValidateConta
       while (i--) {
         var member = model.members[i];
         if (member.id == resolved['uid']) {
-          if (!resolvedValue || !resolvedValue['value'] || resolvedValue['value']['kind'] == 'group') {
+          if (!resolvedValue || !resolvedValue['value'] || (resolvedValue['value']['kind'] == 'group' && (member.container && member.container != model.container.id))) {
             model.members.splice(i, 1);
           } else {
             member.name = resolvedValue['displayName'];
