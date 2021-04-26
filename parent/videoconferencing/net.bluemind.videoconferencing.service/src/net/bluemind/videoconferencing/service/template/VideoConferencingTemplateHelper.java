@@ -79,7 +79,9 @@ public class VideoConferencingTemplateHelper {
 		String lang = userSettingsService.get(context.getSecurityContext().getSubject()).get("lang");
 
 		final String template = localizedTemplate(settings.get("templates"), lang);
-
+		if (template.isEmpty()) {
+			return null;
+		}
 		String result = template;
 
 		final Matcher matcher = TEMPLATE_VARIABLES_PATTERN.matcher(template);

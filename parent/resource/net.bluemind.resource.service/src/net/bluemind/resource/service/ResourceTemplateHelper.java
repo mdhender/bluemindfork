@@ -56,16 +56,16 @@ public class ResourceTemplateHelper implements IResourceTemplateHelper {
 	private static final String TEMPLATE_SEPARATOR = "<br>\n";
 
 	/**
-	 * Added after the template end tag, it should prevent rich text editors to
-	 * add text between the template tags when typing at the end of the editor's
-	 * text area.
+	 * Added after the template end tag, it should prevent rich text editors to add
+	 * text between the template tags when typing at the end of the editor's text
+	 * area.
 	 */
 	private static final String TEMPLATE_SUFFIX = "<br><br>";
 	private static final String TEMPLATE_SUFFIX_REGEX = "(\\s|<\\s*br\\s*/?>)*";
 
 	/**
-	 * The regular expression string for matching a resource template. Contains
-	 * a placeholder for the resource identifier: <i>{id}</i>.
+	 * The regular expression string for matching a resource template. Contains a
+	 * placeholder for the resource identifier: <i>{id}</i>.
 	 */
 	private static final String TEMPLATE_PATTERN = "<\\s*" + TEMPLATE_HTML_TAG_NAME
 			+ "\\s+id\\s*=\\s*\"{id}\"\\s*>.*?<\\s*/\\s*" + TEMPLATE_HTML_TAG_NAME + "\\s*>" + TEMPLATE_SUFFIX_REGEX;
@@ -77,8 +77,8 @@ public class ResourceTemplateHelper implements IResourceTemplateHelper {
 	private static final String PROPERTIES_LOCALIZATION_SEPARATOR = "::";
 
 	/**
-	 * Note: '[\p{L}\p{N}_]' is the unicode alternative of '\w' (matches
-	 * characters with accents)
+	 * Note: '[\p{L}\p{N}_]' is the unicode alternative of '\w' (matches characters
+	 * with accents)
 	 */
 	private static final Pattern TEMPLATE_VARIABLES_PATTERN = Pattern.compile("\\$\\{([\\p{L}\\p{N}_\\s]+)\\}");
 
@@ -106,6 +106,9 @@ public class ResourceTemplateHelper implements IResourceTemplateHelper {
 		}
 
 		final String template = localizedTemplate(resourceTypeDescriptor, localeLanguageTag);
+		if (template.isEmpty()) {
+			return null;
+		}
 		String result = template;
 
 		final Matcher matcher = TEMPLATE_VARIABLES_PATTERN.matcher(template);
