@@ -38,7 +38,9 @@ import net.bluemind.user.api.IUserSettings;
 
 public class VideoConferencingTemplateHelper {
 
-	private static final String SEPARATOR = "<div>~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~</div>";
+	private static final String TXT_SEPARATOR = "~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~";
+
+	private static final String SEPARATOR = "<div>" + TXT_SEPARATOR + "</div>";
 
 	/** The HTML tag containing the transformed template. */
 	private static final String TEMPLATE_HTML_TAG_NAME = "videoconferencingtemplate";
@@ -55,6 +57,8 @@ public class VideoConferencingTemplateHelper {
 	 */
 	private static final String TEMPLATE_PATTERN = "<\\s*" + TEMPLATE_HTML_TAG_NAME
 			+ "\\s+id\\s*=\\s*\"{id}\"\\s*>.*?<\\s*/\\s*" + TEMPLATE_HTML_TAG_NAME + "\\s*>";
+
+	private static final String TEMPLATE_TXT_PATTERN = "(?s)\n" + TXT_SEPARATOR + ".*?" + TXT_SEPARATOR + "\n";
 
 	/**
 	 * Note: '[\p{L}\p{N}_]' is the unicode alternative of '\w' (matches characters
@@ -172,7 +176,12 @@ public class VideoConferencingTemplateHelper {
 	}
 
 	public String removeTemplate(final String text, final String resourceId) {
-		return matcherForTemplateRegex(text, resourceId).replaceAll("");
+		String ret = matcherForTemplateRegex(text, resourceId).replaceAll("");
+
+		// remove text/plain version too
+		ret = ret.replaceAll(TEMPLATE_TXT_PATTERN, "");
+
+		return ret;
 	}
 
 	public String addTemplate(String text, String processedTemplate) {

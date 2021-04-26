@@ -31,6 +31,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import de.l3s.boilerpipe.BoilerpipeExtractor;
+import de.l3s.boilerpipe.BoilerpipeProcessingException;
+import de.l3s.boilerpipe.extractors.CommonExtractors;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
@@ -200,6 +203,33 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 		sanitizer.update(event, updated);
 		assertNull(updated.main.conference);
 		assertEquals(defaultVEvent().main.description, updated.main.description);
+	}
+
+	@Test
+	public void testUpdateVideoConfRemoveResource_TXT_DESCRIPTION() throws BoilerpipeProcessingException {
+		VEventSeries event = defaultVEvent();
+		VEvent.Attendee videoconf = VEvent.Attendee.create(VEvent.CUType.Resource, "", VEvent.Role.OptionalParticipant,
+				VEvent.ParticipationStatus.Accepted, true, "", "", "", "osef",
+				"bm://" + domainUid + "/resources/" + videoconfProviderId, null, null,
+				"videoconferencing@" + domainUid);
+		event.main.attendees.add(videoconf);
+
+		sanitizer.create(event);
+
+		VEventSeries updated = event.copy();
+
+		// remove videoconf attendee
+		updated.main.attendees = defaultVEvent().main.attendees;
+
+		// txt/plain description (EAS does that)
+		BoilerpipeExtractor extractor = CommonExtractors.KEEP_EVERYTHING_EXTRACTOR;
+		updated.main.description = extractor.getText(updated.main.description);
+
+		sanitizer.update(event, updated);
+
+		assertNull(updated.main.conference);
+		assertEquals(defaultVEvent().main.description, updated.main.description);
+
 	}
 
 	protected VEventSeries defaultVEvent() {

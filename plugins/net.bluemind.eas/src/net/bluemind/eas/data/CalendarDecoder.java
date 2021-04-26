@@ -262,11 +262,11 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 
 				if (bodyType == Type.PLAIN_TEXT) {
 					calendar.setDescription(txt);
-					logger.info("Desc: {}", txt);
+					logger.debug("Desc: {}", txt);
 				} else if (bodyType == Type.RTF) {
 					txt = RTFUtils.extractB64CompressedRTF(txt);
 					calendar.setDescription(txt);
-					logger.info("Desc: {}", txt);
+					logger.debug("Desc: {}", txt);
 				} else {
 					logger.warn("Unsupported body type: " + bodyType + "\n" + txt);
 				}
