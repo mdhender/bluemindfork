@@ -1,5 +1,5 @@
 <template>
-    <iframe-container v-if="value" :body="parsed.sanitizedBody" :styles="parsed.styles" />
+    <iframe-container v-if="value !== undefined" :body="parsed.sanitizedBody" :styles="parsed.styles" />
     <mail-viewer-content-loading v-else />
 </template>
 
