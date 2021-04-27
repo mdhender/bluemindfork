@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.videoconferencing.saas.js
+Bundle-SymbolicName: net.bluemind.videoconferencing.saas.js;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.webmodules.webapp,
+ net.bluemind.webmodule
+Web-Resources: web-resources
+Web-Dependencies: net.bluemind.webmodules.vue
+Automatic-Module-Name: net.bluemind.videoconferencing.saas.js

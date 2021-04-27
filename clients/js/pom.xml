@@ -17,7 +17,7 @@
 				<artifactId>net.bluemind.codegen.js</artifactId>
 				<configuration>
 					<apiNames>
-                                                <apiName>net.bluemind.addressbook.api</apiName>
+						<apiName>net.bluemind.addressbook.api</apiName>
 						<apiName>net.bluemind.announcement.api</apiName>
 						<apiName>net.bluemind.attachment.api</apiName>
 						<apiName>net.bluemind.authentication.api</apiName>
@@ -56,8 +56,9 @@
 						<apiName>net.bluemind.system.ldap.importation.api</apiName>
 						<apiName>net.bluemind.tag.api</apiName>
 						<apiName>net.bluemind.todolist.api</apiName>
-                        <apiName>net.bluemind.user.api</apiName>
-                        <apiName>net.bluemind.externaluser.api</apiName>
+						<apiName>net.bluemind.externaluser.api</apiName>
+						<apiName>net.bluemind.user.api</apiName>
+						<apiName>net.bluemind.videoconferencing.saas.api</apiName>
 					</apiNames>
 				</configuration>
 				<executions>

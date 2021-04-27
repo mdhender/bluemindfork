@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Api
+Bundle-SymbolicName: net.bluemind.videoconferencing.saas.api;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Automatic-Module-Name: net.bluemind.videoconferencing.saas.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.icalendar.api,
+ net.bluemind.core.commons,
+ net.bluemind.resource.api
+Export-Package: net.bluemind.videoconferencing.saas.api
+Eclipse-RegisterBuddy: net.bluemind.core.rest

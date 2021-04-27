@@ -5,6 +5,7 @@
          point="net.bluemind.webmodule">
       <web-module-provider
             module="*">
+         <blacklist path="/visio"/>
          <web-resource
                bundle="net.bluemind.ui.eventdeferredaction">
          </web-resource>

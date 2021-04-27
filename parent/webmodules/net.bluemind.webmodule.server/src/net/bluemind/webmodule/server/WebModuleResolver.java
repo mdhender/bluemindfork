@@ -109,6 +109,8 @@ public class WebModuleResolver {
 	private Map<String, WebModuleBuilder> loadWebmodules(IExtension[] extensions) {
 		Map<String, WebModuleBuilder> modules = new HashMap<>();
 		for (IExtension ie : extensions) {
+			Bundle bundle = Platform.getBundle(ie.getContributor().getName());
+			logger.info("loading extensions from bundle: {}", bundle.getSymbolicName());
 			for (IConfigurationElement e : ie.getConfigurationElements()) {
 				if (!e.getName().equals("web-module")) {
 					continue;

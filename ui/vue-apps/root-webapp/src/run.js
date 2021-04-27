@@ -29,8 +29,10 @@ async function initWebApp() {
     const userSession = injector.getProvider("UserSession").get();
     registerDependencies(userSession);
     initStore();
-    setVuePlugins();
-    await store.dispatch("session/FETCH_ALL_SETTINGS"); // initialize user settings (needed to initialize i18n)
+    setVuePlugins(userSession);
+    if (userSession.userId) {
+        await store.dispatch("session/FETCH_ALL_SETTINGS"); // initialize user settings (needed to initialize i18n)
+    } // Otherwise, the user is not authenticated
     const i18n = initI18N(userSession);
     Vue.component("DefaultAlert", DefaultAlert);
     new Vue({
@@ -40,14 +42,17 @@ async function initWebApp() {
         router,
         store
     });
-
-    new NotificationManager().setNotificationWhenReceivingMail(userSession);
+    if (userSession.userId) {
+        new NotificationManager().setNotificationWhenReceivingMail(userSession);
+    }
 }
 
-function setVuePlugins() {
+function setVuePlugins(userSession) {
     Vue.use(VueI18n);
     Vue.use(VueBus, store);
-    Vue.use(VueSockjsPlugin, VueBus);
+    if (userSession.userId) {
+        Vue.use(VueSockjsPlugin, VueBus);
+    }
     Vue.use(Vue2TouchEvents, { disableClick: true });
     Vue.use(BmModalPlugin);
 }
@@ -109,9 +114,14 @@ function initI18N() {
 
     Vue.mixin(InheritTranslationsMixin);
 
+    let fallbackLang = "en";
+    const navigatorLang = navigator.language;
+    if (navigatorLang) {
+        fallbackLang = navigator.language.split('-')[0];
+    }
     const i18n = new VueI18n({
         locale: lang,
-        fallbackLocale: "en",
+        fallbackLocale: fallbackLang,
         dateTimeFormats: generateDateTimeFormats(store.state.session.settings.remote.timeformat)
     });
 

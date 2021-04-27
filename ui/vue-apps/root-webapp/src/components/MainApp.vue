@@ -74,17 +74,15 @@ export default {
             .sort((a, b) => b.order - a.order);
         data.widgets.sort((a, b) => b.order - a.order);
 
-        let user = {
-            displayname: "Anonymous",
-            email: "anonymous@noreply.local"
-        };
-        if (userSession.userId) {
-            user = {
-                ...user,
-                displayname: userSession["formatedName"],
-                email: userSession["defaultEmail"]
-            };
-        }
+        const user = userSession.userId
+            ? {
+                  displayname: userSession["formatedName"],
+                  email: userSession["defaultEmail"]
+              }
+            : {
+                  displayname: "Anonymous",
+                  email: "anonymous@noreply.local"
+              };
         const software = {
             version: userSession["bmVersion"],
             brand: userSession["bmBrandVersion"]

@@ -439,6 +439,12 @@ server {
     return 301 https://$bmexternalurl/login/native;
   }
 
+  location /visio/ {
+    proxy_http_version 1.1;
+    proxy_intercept_errors on;
+    proxy_pass $bm_upstream_hps;
+  }
+
   location /sentry/ {
     include /etc/nginx/bm-sentry.conf;
     proxy_buffering off;

@@ -142,12 +142,14 @@
       <plugin id="net.bluemind.user.api.gwt"/>
       <plugin id="net.bluemind.utils"/>
       <plugin id="net.bluemind.vertx.common"/>
+      <plugin id="net.bluemind.videoconferencing.saas.api"/>
       <plugin id="net.bluemind.webmodule"/>
       <plugin id="net.bluemind.webmodule.epfilter"/>
       <plugin id="net.bluemind.webmodule.gwtserver"/>
       <plugin id="net.bluemind.webmodule.inputfilter"/>
       <plugin id="net.bluemind.webmodule.server"/>
       <plugin id="net.bluemind.webmodules.launcher"/>
+      <plugin id="net.bluemind.webmodules.videoconferencing.saas"/>
       <plugin id="net.bluemind.webmodules.webapp"/>
       <plugin id="net.java.dev.jna"/>
       <plugin id="net.sourceforge.nekohtml"/>

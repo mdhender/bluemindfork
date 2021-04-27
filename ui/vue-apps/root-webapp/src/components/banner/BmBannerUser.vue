@@ -14,7 +14,7 @@
             >
                 <bm-label-icon icon="preferences">{{ $t("common.preference") }} </bm-label-icon>
             </bm-dropdown-item>
-            <bm-dropdown-item href="/bluemind_sso_logout">
+            <bm-dropdown-item v-if="canLogout" href="/bluemind_sso_logout">
                 <bm-label-icon icon="sign-out">{{ $t("banner.menu.logout") }} </bm-label-icon>
             </bm-dropdown-item>
         </bm-nav-item-dropdown>
@@ -43,7 +43,11 @@ export default {
         }
     },
     data() {
-        return { canOpenSettings: inject("UserSession").roles.includes(BmRoles.SELF_CHANGE_SETTINGS) };
+        const userSession = inject("UserSession");
+        return {
+            canOpenSettings: userSession.roles.includes(BmRoles.SELF_CHANGE_SETTINGS),
+            canLogout: Boolean(userSession.userId)
+        };
     },
     methods: {
         ...mapMutations("preferences", ["TOGGLE_PREFERENCES"])

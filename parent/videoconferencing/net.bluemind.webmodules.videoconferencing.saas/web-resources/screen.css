@@ -1,0 +1,23 @@
+@charset "UTF-8";
+
+html {
+	color: #fff;
+	font-family: sans-serif;
+	font-size: 14px;
+}
+
+body {
+	background-color: #efefef;
+	margin: 0;
+}
+
+sup {
+    top: -0.5em;
+}
+
+sub, sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}

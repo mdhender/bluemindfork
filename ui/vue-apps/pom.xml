@@ -31,6 +31,7 @@
         <module>packaging</module>
         <module>root-webapp</module>
         <module>webmodules</module>
+        <module>videoconferencing-saas-webapp</module>
     </modules>
 
 

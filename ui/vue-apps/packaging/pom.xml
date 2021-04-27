@@ -14,7 +14,9 @@
 
 	<modules>
 	    <module>net.bluemind.p2.we.mail</module>
+	    <module>net.bluemind.p2.videoconferencing.saas</module>
         <module>bm-mail-app</module>
+        <module>bm-videoconferencing-saas-app</module>
 	</modules>
 
     <build>

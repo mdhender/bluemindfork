@@ -5,7 +5,8 @@
             "commons/*",
             "mailbackend/*",
             "mail-webapp",
-            "root-webapp"
+            "root-webapp",
+            "videoconferencing-saas-webapp"
         ],
         "nohoist": [
             "**/bootstrap-vue",
@@ -65,6 +66,7 @@
         "test": "NODE_ICU_DATA=node_modules/full-icu jest --config node_modules/@bluemind/conf/jest.config.js",
         "root": "cd root-webapp && yarn dev",
         "mail": "cd mail-webapp && yarn dev",
+        "videoconferencing-saas": "cd videoconferencing-saas-webapp && yarn dev",
         "test-ci": "NODE_ICU_DATA=node_modules/full-icu jest --ci --json --config node_modules/@bluemind/conf/jest.config.js --testResultsProcessor jest-jenkins-reporter --coverage --coverageReporters cobertura > jest.json"
     },
     "prettier": "@bluemind/prettier-config",

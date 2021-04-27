@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension point="net.bluemind.webmodule">
+    	<web-module index="/" root="/visio">
+	        <web-resource bundle="net.bluemind.webmodules.videoconferencing.saas"/>
+	        <web-resource bundle="net.bluemind.videoconferencing.saas.js"/>
+	        <web-resource bundle="net.bluemind.webmodules.vue"/>
+	        <handler
+	        	class="net.bluemind.webmodules.videoconferencing.saas.VisioHandler"
+	            path="*"/>
+	        <handler
+	            class="net.bluemind.webmodules.vue.VueHandler"
+	            path="js/vue.js"/>
+      	</web-module>
+      	<web-module-provider module="/visio">
+	        <js path="js/vue-router.js"/>
+	        <js path="js/vuex.js"/>
+	        <js path="js/vue.js"/>
+         
+         	<web-resource bundle="net.bluemind.webmodules.vue"/>
+       </web-module-provider>
+	<web-module-provider module="/visio">
+	
+	      <js async-loading="false" translation="false" path="js/net.bluemind.videoconferencing.saas.js">
+	      </js>
+	</web-module-provider>
+	</extension>
+</plugin>
