@@ -193,17 +193,13 @@ public class WebModuleResolver {
 			} else {
 				try {
 
-					handlers.put(handlerConf.getAttribute("path"), new HandlerFactory<HttpServerRequest>() {
-
-						@Override
-						public Handler<HttpServerRequest> create(Vertx vertx) {
-							try {
-								return (Handler<HttpServerRequest>) handlerConf.createExecutableExtension("class");
-							} catch (CoreException e) {
-								logger.error("error during handler {}" + " instantiation for path {}",
-										handlerConf.getAttribute("class"), handlerConf.getAttribute("path"), e);
-								return null;
-							}
+					handlers.put(handlerConf.getAttribute("path"), vertx -> {
+						try {
+							return (Handler<HttpServerRequest>) handlerConf.createExecutableExtension("class");
+						} catch (CoreException e1) {
+							logger.error("error during handler {}" + " instantiation for path {}",
+									handlerConf.getAttribute("class"), handlerConf.getAttribute("path"), e1);
+							return null;
 						}
 					});
 					logger.debug("handler {} for path {}", handlerConf.getAttribute("class"),

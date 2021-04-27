@@ -247,10 +247,7 @@ public class C2Provider implements IAuthProvider {
 
 		logger.debug("[{}] decorate from {}", sessionId, sd);
 		proxyReq.addHeader("BMSessionId", sd.authKey);
-		// TODO add the other stuff ...
-
 		proxyReq.addHeader("BMUserId", "" + sd.getUserUid());
-
 		proxyReq.addHeader("BMUserLogin", sd.login);
 		proxyReq.addHeader("BMAccountType", sd.accountType);
 		proxyReq.addHeader("BMUserLATD", sd.loginAtDomain);
@@ -281,7 +278,6 @@ public class C2Provider implements IAuthProvider {
 		proxyReq.addHeader("BMDefaultApp", defaultApp != null ? defaultApp : "/webmail/");
 		proxyReq.addHeader("BMPrivateComputer", "" + sd.isPrivateComputer());
 
-		// FIXME
 		proxyReq.addHeader("BMHasIM", "true");
 		proxyReq.addHeader("BMVersion", BMVersion.getVersion());
 		proxyReq.addHeader("BMBrandVersion", BMVersion.getVersionName());

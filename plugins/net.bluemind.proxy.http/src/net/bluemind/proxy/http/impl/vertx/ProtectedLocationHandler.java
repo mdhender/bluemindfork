@@ -18,6 +18,7 @@
  */
 package net.bluemind.proxy.http.impl.vertx;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
@@ -210,16 +211,14 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 
 		try {
 			URL url = new URL(ref);
-
 			return "/login/index.html".equals(url.getPath());
-		} catch (Exception e) {
+		} catch (MalformedURLException e) {
 			logger.warn("could not parse Referer {} : {}", ref, e.getMessage());
 			return false;
 		}
 	}
 
 	private AuthRequirements authenticated(HttpServerRequest event) {
-
 		if (event.absoluteURI().endsWith("bluemind_sso_security")) {
 			return AuthRequirements.needSession(authKeyProtocol);
 		}

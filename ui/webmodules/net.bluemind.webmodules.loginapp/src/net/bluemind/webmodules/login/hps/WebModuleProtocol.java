@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,6 @@ import com.netflix.spectator.api.Registry;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
-import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -106,15 +106,7 @@ public class WebModuleProtocol implements IAuthProtocol {
 		// login form data
 		if (req.method() == HttpMethod.POST && (req.uri().endsWith("index.html") || req.uri().endsWith("native"))) {
 			req.setExpectMultipart(true);
-			req.endHandler(new Handler<Void>() {
-
-				@Override
-				public void handle(Void event) {
-					loginFormSubmitted(provider, ss, req, authState.protocol);
-				}
-
-			});
-
+			req.endHandler(event -> loginFormSubmitted(provider, ss, req, authState.protocol));
 			return true;
 		}
 
@@ -250,14 +242,23 @@ public class WebModuleProtocol implements IAuthProtocol {
 		if (askedUri != null) {
 			try {
 				new URI(askedUri);
-				q += "&askedUri=" + URLEncoder.encode(askedUri, "utf-8");
+				q += "&askedUri=" + URLEncoder.encode(askedUri, StandardCharsets.UTF_8.toString());
 			} catch (URISyntaxException | UnsupportedEncodingException e1) {
-				logger.warn("asked uri is not a valid uri : {} ", e1);
+				logger.warn("asked uri is not a valid uri : {} ", askedUri, e1);
 			}
 		}
 
-		String login = URLEncoder.encode(attributes.get("login"));
-		q += "&userLogin=" + login;
+		HttpServerResponse resp = req.response();
+
+		try {
+			String login = URLEncoder.encode(attributes.get("login"), StandardCharsets.UTF_8.toString());
+			q += "&userLogin=" + login;
+		} catch (UnsupportedEncodingException e1) {
+			logger.error("unsupported encoding", e1);
+			resp.setStatusCode(500);
+			resp.end();
+			return;
+		}
 
 		final boolean privateComputer = "priv".equals(attributes.get("priv"));
 
@@ -267,7 +268,6 @@ public class WebModuleProtocol implements IAuthProtocol {
 			privacyCo.setSecure(true);
 		}
 
-		HttpServerResponse resp = req.response();
 		resp.headers().add("Set-Cookie", ServerCookieEncoder.LAX.encode(privacyCo));
 		resp.headers().add("Location", String.format("%s%s", req.path(), q));
 		resp.setStatusCode(302);
@@ -310,14 +310,9 @@ public class WebModuleProtocol implements IAuthProtocol {
 		// updatepassword form data
 		if (req.method() == HttpMethod.POST && req.uri().endsWith("/updatepassword.html")) {
 			req.setExpectMultipart(true);
-			req.endHandler(new Handler<Void>() {
-
-				@Override
-				public void handle(Void event) {
-					updatePasswordFormSubmitted(provider, ss, req, authState);
-				}
+			req.endHandler((event) -> {
+				updatePasswordFormSubmitted(provider, ss, req, authState);
 			});
-
 			return true;
 		}
 
@@ -330,7 +325,7 @@ public class WebModuleProtocol implements IAuthProtocol {
 		try {
 			new URI(askedUri);
 		} catch (URISyntaxException e1) {
-			logger.warn("asked uri is not un uri : {} ", e1);
+			logger.warn("asked uri is not un uri : {} ", askedUri, e1);
 			askedUri = "/";
 		}
 
@@ -378,6 +373,7 @@ public class WebModuleProtocol implements IAuthProtocol {
 		forwadedFor.add(req.remoteAddress().host());
 		provider.updatePassword(authRequirements.sessionId, currentPassword, newPassword, forwadedFor)
 				.whenComplete((r, fn) -> {
+					HttpServerResponse response = req.response();
 					if (fn != null) {
 						String authErrorMsg = UpdatePasswordHandler.MsgErrorCode.unknown.name();
 						if (fn instanceof ServerFault) {
@@ -423,16 +419,16 @@ public class WebModuleProtocol implements IAuthProtocol {
 							}
 						}
 
-						req.response().headers().add("Location",
+						response.headers().add("Location",
 								String.format("/login/updatepassword.html?authErrorCode=%s", authErrorMsg));
-						req.response().setStatusCode(302);
-						req.response().end();
+						response.setStatusCode(302);
+						response.end();
 						return;
 					}
 
-					req.response().headers().add("Location", "/bluemind_sso_logout");
-					req.response().setStatusCode(302);
-					req.response().end();
+					response.headers().add("Location", "/bluemind_sso_logout");
+					response.setStatusCode(302);
+					response.end();
 					return;
 				});
 	}

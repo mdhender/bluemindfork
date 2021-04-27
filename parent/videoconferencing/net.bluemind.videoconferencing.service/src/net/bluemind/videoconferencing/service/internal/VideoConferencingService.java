@@ -133,7 +133,6 @@ public class VideoConferencingService implements IVideoConferencing {
 			logger.warn("No implementation for videoconference provider {}", videoConferencingType.get().value);
 			return vevent;
 		}
-		VideoConferencingTemplateHelper templateHelper = new VideoConferencingTemplateHelper();
 		vevent.description = templateHelper.removeTemplate(vevent.description, resource.uid);
 
 		vevent.attendees.removeIf(a -> a.cutype == CUType.Resource && a.dir
@@ -188,7 +187,6 @@ public class VideoConferencingService implements IVideoConferencing {
 
 	private void resetConferenceTemplate(ICalendarElement current,
 			ItemValue<ResourceDescriptor> oldResourceDescriptor) {
-		VideoConferencingTemplateHelper templateHelper = new VideoConferencingTemplateHelper();
 		current.description = templateHelper.removeTemplate(current.description, oldResourceDescriptor.uid);
 	}
 
@@ -264,7 +262,7 @@ public class VideoConferencingService implements IVideoConferencing {
 		if (domainSettings.containsKey("working_days")) {
 			calSettings.workingDays = getWorkingDays(domainSettings.get("working_days"));
 		} else {
-			calSettings.workingDays = Arrays.asList(new Day[] { Day.MO, Day.TU, Day.WE, Day.TH, Day.FR });
+			calSettings.workingDays = Arrays.asList(Day.MO, Day.TU, Day.WE, Day.TH, Day.FR);
 		}
 		if (domainSettings.containsKey("timezone")) {
 			calSettings.timezoneId = domainSettings.get("timezone");

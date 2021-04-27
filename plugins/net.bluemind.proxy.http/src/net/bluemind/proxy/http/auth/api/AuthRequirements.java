@@ -56,13 +56,11 @@ public class AuthRequirements {
 	}
 
 	public static AuthRequirements noNeedSession() {
-		AuthRequirements ret = new AuthRequirements(false);
-		return ret;
+		return new AuthRequirements(false);
 	}
 
 	public static AuthRequirements notHandle() {
-		AuthRequirements ret = new AuthRequirements(false);
-		return ret;
+		return new AuthRequirements(false);
 	}
 
 }

@@ -38,7 +38,7 @@ public class ExtensionConfigLoader implements IConfigLoader {
 
 		IExtensionPoint point = Platform.getExtensionRegistry().getExtensionPoint(pluginId, pointName);
 		if (point == null) {
-			logger.error("point {}.{} not found.", pluginId, pointName);
+			logger.error("extension point {}.{} not found", pluginId, pointName);
 			return;
 		}
 		IExtension[] extensions = point.getExtensions();

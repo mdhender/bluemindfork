@@ -30,7 +30,7 @@ public class ServiceWorkerHandler implements IWebModuleConsumer, Handler<HttpSer
 	private Template mainTemplate;
 
 	public ServiceWorkerHandler() {
-		Configuration freemarkerCfg = new Configuration();
+		Configuration freemarkerCfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		freemarkerCfg.setTemplateLoader(new EquinoxTemplateLoader(this.getClass().getClassLoader(), "/templates/"));
 		freemarkerCfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
 		try {
@@ -72,9 +72,8 @@ public class ServiceWorkerHandler implements IWebModuleConsumer, Handler<HttpSer
 	}
 
 	private static Boolean assetsFilter(String path) {
-		
-		return !(path.startsWith(".") || path.endsWith(".devmode.js")
-				|| path.startsWith("WEB-INF"));
+
+		return !(path.startsWith(".") || path.endsWith(".devmode.js") || path.startsWith("WEB-INF"));
 	}
 
 	@Override

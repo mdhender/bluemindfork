@@ -24,7 +24,7 @@ public class UpdatePasswordHandler extends AbstractIndexHandler implements NeedV
 	}
 
 	static {
-		cfg = new Configuration();
+		cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		cfg.setClassForTemplateLoading(LoginHandler.class, "/templates");
 		cfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
 	}

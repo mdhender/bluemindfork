@@ -61,27 +61,21 @@ public class C2ProviderFactory implements IAuthProviderFactory {
 	private ILogoutListener logoutListener;
 
 	public C2ProviderFactory() {
-		VertxPlatform.eventBus().consumer(Topic.CORE_SESSIONS,
-
-				new Handler<Message<JsonObject>>() {
-
-					@Override
-					public void handle(Message<JsonObject> event) {
-						JsonObject cm = event.body();
-						String op = cm.getString("operation");
-						if ("logout".equals(op)) {
-							String sid = cm.getString("sid");
-							SessionData toRemove = sessions.getIfPresent(sid);
-							if (toRemove != null) {
-								sessions.getCache().invalidate(sid);
-								logoutListener.loggedOut(sid);
-								logger.info("[{}] Logged-out {}", toRemove.loginAtDomain, sid);
-							} else {
-								logger.warn("[{}] not found for mq logout", sid);
-							}
-						}
-					}
-				});
+		VertxPlatform.eventBus().consumer(Topic.CORE_SESSIONS, (Message<JsonObject> event) -> {
+			JsonObject cm = event.body();
+			String op = cm.getString("operation");
+			if ("logout".equals(op)) {
+				String sid = cm.getString("sid");
+				SessionData toRemove = sessions.getIfPresent(sid);
+				if (toRemove != null) {
+					sessions.getCache().invalidate(sid);
+					logoutListener.loggedOut(sid);
+					logger.info("[{}] Logged-out {}", toRemove.loginAtDomain, sid);
+				} else {
+					logger.warn("[{}] not found for mq logout", sid);
+				}
+			}
+		});
 
 		VertxPlatform.eventBus().consumer(IStateListener.STATE_BUS_ADDRESS, new Handler<Message<String>>() {
 			@Override

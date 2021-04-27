@@ -21,7 +21,7 @@
                bundle="net.bluemind.commons.ui.closure">
          </web-resource>
          <web-resource
-               bundle="net.bluemind.bannerstandalone.closure">
+               bundle="net.bluemind.banner.standalone.closure">
          </web-resource>
          <css
                path="Settings.css">

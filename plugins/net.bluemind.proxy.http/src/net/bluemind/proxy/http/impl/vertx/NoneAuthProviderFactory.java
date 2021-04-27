@@ -62,6 +62,7 @@ public class NoneAuthProviderFactory implements IAuthProviderFactory, IAuthProvi
 
 	@Override
 	public void decorate(String sessionId, IDecorableRequest proxyReq) {
+		// ok
 	}
 
 	@Override
@@ -76,8 +77,7 @@ public class NoneAuthProviderFactory implements IAuthProviderFactory, IAuthProvi
 	 */
 	@Override
 	public void reload(String sessionId) {
-		// TODO Auto-generated method stub
-
+		// ok
 	}
 
 	@Override
@@ -87,7 +87,6 @@ public class NoneAuthProviderFactory implements IAuthProviderFactory, IAuthProvi
 
 	@Override
 	public boolean inRole(String sessionId, String role) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

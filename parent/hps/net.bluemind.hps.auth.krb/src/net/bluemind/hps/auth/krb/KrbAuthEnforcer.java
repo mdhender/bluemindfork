@@ -42,7 +42,7 @@ public class KrbAuthEnforcer implements IAuthEnforcer {
 				&& (System.getProperty("java.security.auth.login.config") != null)
 				&& (System.getProperty("java.security.krb5.conf") != null);
 		logger.info("*** kerberos enabled: {}", kerberosEnabled);
-		domainMappings = new HashMap<String, String>();
+		domainMappings = new HashMap<>();
 		File f = new File("/etc/bm-hps/mappings.ini");
 		if (f.exists()) {
 			try {

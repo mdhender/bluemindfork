@@ -39,22 +39,19 @@ public class HttpProxyServer {
 	public void run() {
 
 		final CountDownLatch cdl = new CountDownLatch(1);
-		Handler<AsyncResult<Void>> doneHandler = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				if (event.succeeded()) {
-					logger.info("Deployement done. {}", this);
-				} else {
-					logger.error("Deployement failed.", event.cause());
-				}
-				cdl.countDown();
+		Handler<AsyncResult<Void>> doneHandler = event -> {
+			if (event.succeeded()) {
+				logger.info("Deployement done. {}", this);
+			} else {
+				logger.error("Deployement failed.", event.cause());
 			}
+			cdl.countDown();
 		};
 		try {
 			VertxPlatform.spawnVerticles(doneHandler);
 			cdl.await();
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			logger.error(e.getMessage(), e);
 		}
 	}

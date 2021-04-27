@@ -33,7 +33,7 @@ import net.bluemind.proxy.http.auth.api.SecurityConfig;
 
 public class CSRFTokenManager {
 
-	public final static CSRFTokenManager INSTANCE = new CSRFTokenManager();
+	public static final CSRFTokenManager INSTANCE = new CSRFTokenManager();
 
 	private static final Logger logger = LoggerFactory.getLogger(CSRFTokenManager.class);
 

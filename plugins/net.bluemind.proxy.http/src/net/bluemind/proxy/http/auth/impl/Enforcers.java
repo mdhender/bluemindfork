@@ -28,7 +28,7 @@ import net.bluemind.proxy.http.auth.api.IAuthEnforcer;
 public final class Enforcers {
 
 	public static List<IAuthEnforcer> enforcers(Vertx vertx) {
-		RunnableExtensionLoader<IAuthEnforcer> rel = new RunnableExtensionLoader<IAuthEnforcer>();
+		RunnableExtensionLoader<IAuthEnforcer> rel = new RunnableExtensionLoader<>();
 		List<IAuthEnforcer> list = rel.loadExtensionsWithPriority("net.bluemind.proxy.http", "authenforcer", "enforcer",
 				"impl");
 		list.stream().forEach(auth -> {

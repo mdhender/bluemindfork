@@ -20,21 +20,14 @@ package net.bluemind.proxy.http.config;
 
 import java.io.File;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.proxy.http.impl.ExtensionConfigLoader;
 import net.bluemind.proxy.http.impl.FSConfigLoader;
 import net.bluemind.proxy.http.impl.IConfigLoader;
 import net.bluemind.proxy.http.impl.InBundleConfigLoader;
 
 public final class ConfigBuilder {
-
 	private ConfigBuilder() {
-
 	}
-
-	private static final Logger logger = LoggerFactory.getLogger(ConfigBuilder.class);
 
 	public static HPSConfiguration build() {
 		HPSConfiguration conf = new HPSConfiguration();

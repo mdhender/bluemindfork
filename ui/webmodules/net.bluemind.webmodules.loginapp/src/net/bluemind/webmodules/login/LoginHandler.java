@@ -59,7 +59,7 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 	private static final String defaultLanguage = "en";
 
 	static {
-		cfg = new Configuration();
+		cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		cfg.setClassForTemplateLoading(LoginHandler.class, "/templates");
 		cfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
 
@@ -140,7 +140,7 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 			try {
 				new URI(askedUri);
 			} catch (URISyntaxException e) {
-				logger.warn("asked uri is not un uri : {} ", e);
+				logger.warn("asked uri is not un uri : {} ", askedUri, e);
 				askedUri = "/";
 			}
 

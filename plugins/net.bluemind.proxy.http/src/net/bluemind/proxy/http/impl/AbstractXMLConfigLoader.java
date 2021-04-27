@@ -85,7 +85,7 @@ public abstract class AbstractXMLConfigLoader implements IConfigLoader {
 				ForwardedLocation fl = new ForwardedLocation(f.getAttribute("path"), f.getAttribute("target"),
 						f.getAttribute("role"), f.getAttribute("authenticator"));
 				fwCol.add(fl);
-				logger.info("adding forward from " + fl.getPathPrefix() + " to " + fl.getTargetUrl() + " [role:{}]",
+				logger.info("adding forward from {} to {} [role: {}]", fl.getPathPrefix(), fl.getTargetUrl(),
 						fl.getRole());
 				Element auth = DOMUtils.getUniqueElement(f, "auth");
 				if (auth != null) {
