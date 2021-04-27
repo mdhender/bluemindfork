@@ -103,7 +103,6 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["nextMessageKey"]),
         ...mapState("mail", ["activeFolder", "folders", "mailboxes", "messages", "selection"]),
         ...mapGetters("mail", { ACTIVE_MESSAGE, MY_TRASH, MY_INBOX, FOLDERS_BY_UPPERCASE_PATH }),
         displayCreateFolderBtnFromPattern() {

@@ -23,7 +23,8 @@ import {
     MY_MAILBOX,
     MY_OUTBOX,
     MY_SENT,
-    MY_TRASH
+    MY_TRASH,
+    NEXT_MESSAGE
 } from "~getters";
 import { SET_ACTIVE_FOLDER } from "~mutations";
 import { compare, create } from "../model/folder";
@@ -67,7 +68,18 @@ export const getters = {
     [MY_SENT]: myGetterFor(SENT),
     [MY_TRASH]: myGetterFor(TRASH),
     [ACTIVE_MESSAGE]: ({ messages, activeMessage }) => messages[activeMessage.key],
-    [IS_ACTIVE_MESSAGE]: ({ messages }, { ACTIVE_MESSAGE }) => ({ key }) => equal(messages[key], ACTIVE_MESSAGE)
+    [IS_ACTIVE_MESSAGE]: ({ messages }, { ACTIVE_MESSAGE }) => ({ key }) => equal(messages[key], ACTIVE_MESSAGE),
+    [NEXT_MESSAGE]: ({ messageList: { messageKeys: keys }, messages }, { MESSAGE_LIST_COUNT, ACTIVE_MESSAGE }) => {
+        if (ACTIVE_MESSAGE && MESSAGE_LIST_COUNT > 1) {
+            for (let i = 0; i < keys.length; i++) {
+                if (ACTIVE_MESSAGE.key === keys[i]) {
+                    return messages[i + 1 < keys.length ? keys[i + 1] : keys[i - 1]];
+                }
+            }
+            return equal(ACTIVE_MESSAGE, messages[keys[0]]) ? messages[keys[1]] : messages[keys[0]];
+        }
+        return null;
+    }
 };
 
 function myGetterFor(name) {

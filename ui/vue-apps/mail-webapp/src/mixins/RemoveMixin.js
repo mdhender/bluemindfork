@@ -1,8 +1,7 @@
 import { mapActions, mapGetters } from "vuex";
-import { IS_ACTIVE_MESSAGE, MY_TRASH } from "~getters";
 
+import { IS_ACTIVE_MESSAGE, MY_TRASH, NEXT_MESSAGE } from "~getters";
 import { REMOVE_MESSAGES, MOVE_MESSAGES_TO_TRASH } from "~actions";
-import { equal } from "../model/message";
 
 export default {
     computed: {
@@ -44,13 +43,9 @@ export default {
 function navigate(action) {
     return async function (messages) {
         messages = Array.isArray(messages) ? [...messages] : [messages];
-        let next = this.$store.state.mail.messages[this.$store.getters["mail-webapp/nextMessageKey"]] || null;
+        let next = this.$store.getters["mail/" + NEXT_MESSAGE];
         const confirm = await action.call(this, messages);
         if (confirm && messages.length === 1 && this.$store.getters["mail/" + IS_ACTIVE_MESSAGE](messages[0])) {
-            //TODO: This is a hack because nextMessageKey from deprecated store can return a wrong nex key
-            if (equal(next, messages[0])) {
-                next = null;
-            }
             this.$router.navigate({ name: "v:mail:message", params: { message: next } });
         }
     };

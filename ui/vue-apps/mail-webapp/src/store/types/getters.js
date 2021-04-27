@@ -18,6 +18,7 @@ export const MY_MAILBOX_ROOT_FOLDERS = "MY_MAILBOX_ROOT_FOLDERS";
 export const MY_OUTBOX = "MY_OUTBOX";
 export const MY_SENT = "MY_SENT";
 export const MY_TRASH = "MY_TRASH";
+export const NEXT_MESSAGE = "NEXT_MESSAGE";
 
 // mailboxes
 export const MAILBOX_BY_NAME = "MAILBOX_BY_NAME";

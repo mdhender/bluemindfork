@@ -1,8 +1,7 @@
 import { mapActions, mapGetters, mapState } from "vuex";
 
 import { MOVE_MESSAGES, CREATE_FOLDER_HIERARCHY } from "~actions";
-import { IS_ACTIVE_MESSAGE, MY_MAILBOX } from "~getters";
-import { equal } from "../model/message";
+import { IS_ACTIVE_MESSAGE, MY_MAILBOX, NEXT_MESSAGE } from "~getters";
 
 export default {
     computed: {
@@ -33,14 +32,10 @@ async function move(messages, folder, mailbox, createAction, moveAction) {
 
 function navigate(action) {
     return function ({ messages, folder }) {
-        let next = this.$store.state.mail.messages[this.$store.getters["mail-webapp/nextMessageKey"]];
+        let next = this.$store.getters["mail/" + NEXT_MESSAGE];
         messages = Array.isArray(messages) ? messages : [messages];
         action.call(this, { messages, folder });
         if (messages.length === 1 && this.$store.getters["mail/" + IS_ACTIVE_MESSAGE](messages[0])) {
-            //TODO: This is a hack because nextMessageKey from deprecated store can return a wrong nex key
-            if (equal(next, messages[0])) {
-                next = null;
-            }
             this.$router.navigate({ name: "v:mail:message", params: { message: next } });
         }
     };

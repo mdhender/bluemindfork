@@ -19,7 +19,8 @@ import {
     MY_MAILBOX_ROOT_FOLDERS,
     MY_OUTBOX,
     MY_SENT,
-    MY_TRASH
+    MY_TRASH,
+    NEXT_MESSAGE
 } from "~getters";
 import { DEFAULT_FOLDER_NAMES } from "../folders/helpers/DefaultFolders";
 import { MailboxType } from "~model/mailbox";
@@ -217,6 +218,53 @@ describe("Mail store", () => {
                 C: { key: "C", type: MailboxType.MAILSHARE }
             };
             expect(store.getters[MAILSHARE_ROOT_FOLDERS]).toEqual([store.state.folders["1"]]);
+        });
+        describe("NEXT_MESSAGE", () => {
+            beforeEach(() => {
+                store.state.messageList.messageKeys = Array(10)
+                    .fill(0)
+                    .map((v, i) => 2 * i);
+                store.state.messages = store.state.messageList.messageKeys.reduce(
+                    (obj, key) => ({ ...obj, [key]: { key } }),
+                    {}
+                );
+                store.state.selection = [];
+                store.state.activeMessage.key = undefined;
+            });
+            test("return first message after active message", () => {
+                store.state.activeMessage.key = 2;
+                const result = store.getters[NEXT_MESSAGE];
+                expect(result.key).toBe(4);
+            });
+            test("return the previous message if there is no next mesage ", () => {
+                store.state.activeMessage.key = 18;
+                const result = store.getters[NEXT_MESSAGE];
+                expect(result.key).toBe(16);
+            });
+            test("return null if there is no next messages", () => {
+                store.state.messageList.messageKeys = [2];
+                store.state.activeMessage.key = 2;
+                const result = store.getters[NEXT_MESSAGE];
+                expect(result).toBeNull();
+            });
+            test("return null if no activeMessage", () => {
+                store.state.activeMessage.key = undefined;
+                const result = store.getters[NEXT_MESSAGE];
+                expect(result).toBeNull();
+            });
+            test("return first message if active message is not in list", () => {
+                store.state.messages[20] = { key: 20, remoteRef: { internalId: 1 }, folderRef: { key: 1 } };
+                store.state.activeMessage.key = 20;
+                const result = store.getters[NEXT_MESSAGE];
+                expect(result.key).toBe(0);
+            });
+            test("do not return first message if it is equal to current message", () => {
+                store.state.activeMessage.key = 20;
+                store.state.messages[20] = { key: 20, remoteRef: { internalId: 1 }, folderRef: { key: 1 } };
+                store.state.messages[0] = { key: 0, remoteRef: { internalId: 1 }, folderRef: { key: 1 } };
+                const result = store.getters[NEXT_MESSAGE];
+                expect(result.key).toBe(2);
+            });
         });
     });
 });

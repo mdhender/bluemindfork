@@ -57,7 +57,6 @@ export default {
     computed: {
         ...mapState("mail", ["messages", "selection"]),
         ...mapGetters("mail", { MESSAGE_IS_SELECTED }),
-        ...mapGetters("mail-webapp", ["nextMessageKey"]),
         dragged() {
             return this.MESSAGE_IS_SELECTED(this.message.key)
                 ? this.selection.map(key => this.messages[key])

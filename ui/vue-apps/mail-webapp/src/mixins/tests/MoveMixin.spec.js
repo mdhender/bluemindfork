@@ -14,9 +14,8 @@ describe("MoveMixin", () => {
         MoveMixin.$_MoveMixin_folders = { key: { key: "key", name: "foldername" } };
         MoveMixin.$_MoveMixin_mailbox = {};
         MoveMixin.$store = {
-            state: { mail: { messages: { next: "next" } } },
             getters: {
-                "mail-webapp/nextMessageKey": "next",
+                "mail/NEXT_MESSAGE": "next",
                 "mail/IS_ACTIVE_MESSAGE": jest.fn().mockReturnValue(false)
             }
         };

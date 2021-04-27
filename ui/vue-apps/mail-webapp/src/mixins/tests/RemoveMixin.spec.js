@@ -17,9 +17,8 @@ describe("RemoveMixin", () => {
         RemoveMixin.$_RemoveMixin_trash = { key: "trash" };
         RemoveMixin.$_RemoveMixin_mailbox = {};
         RemoveMixin.$store = {
-            state: { mail: { messages: { next: "next" } } },
             getters: {
-                "mail-webapp/nextMessageKey": "next",
+                "mail/NEXT_MESSAGE": "next",
                 "mail/IS_ACTIVE_MESSAGE": jest.fn().mockReturnValue(false)
             }
         };
