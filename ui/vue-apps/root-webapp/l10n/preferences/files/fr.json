@@ -12,7 +12,10 @@
     "preferences.advanced.notifications.how_to_enable": "Pour les activer, rendez-vous dans les paramètres de votre navigateur.",
     "preferences.advanced.notifications.how_to_disable": "Pour les désactiver, rendez-vous dans les paramètres de votre navigateur.",
     "preferences.advanced.reinit_local_data": "Réinitialiser mes données locales",
-    "preferences.advanced.reinit_local_data.explanations": "Cette opération va purger vos données locales puis les resynchroniser. Cela peut prendre du temps.",
+    "preferences.advanced.reinit_local_data.explanations": "Cette opération va purger vos données locales puis les resynchroniser. Cela peut prendre un certain temps et ralentir votre application.",
+    "preferences.advanced.reinit_local_data.in_progress": "Réinitialisation en cours...",
+    "preferences.advanced.reinit_local_data.success": "Données réinitialisées localement",
+    "preferences.advanced.reinit_local_data.error": "Erreur lors de la réinitialisation des données locales, veuillez réessayer dans quelques instants.",
 
     "preferences.general.lang": "Langue",
     "preferences.general.timezone": "Fuseau horaire",

@@ -12,7 +12,10 @@
     "preferences.advanced.notifications.how_to_enable": "You can turn them on in your browser settings.",
     "preferences.advanced.notifications.how_to_disable": "You can turn them off in your browser settings.",
     "preferences.advanced.reinit_local_data": "Reset my local data",
-    "preferences.advanced.reinit_local_data.explanations": "This operation will purge and resynchronize your local data. This may take a while.",
+    "preferences.advanced.reinit_local_data.explanations": "This operation will purge and resynchronize your local data. This may take a while and slow down your application.",
+    "preferences.advanced.reinit_local_data.in_progress": "Reset in progress...",
+    "preferences.advanced.reinit_local_data.success": "Local data successfully reset",
+    "preferences.advanced.reinit_local_data.error": "Error while resetting local data, please try again in a moment.",
 
     "preferences.general.lang": "Language",
     "preferences.general.timezone": "Time zone",

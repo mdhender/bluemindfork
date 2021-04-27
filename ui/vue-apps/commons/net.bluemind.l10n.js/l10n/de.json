@@ -103,6 +103,6 @@
     "common.security": "Sicherheit",
     "common.password": "Passwort",
     "common.edit": "Bearbeiten",
-    "common.created_at": "Created on {date}",
+    "common.created_at": "Erstellt am {date}",
     "common.invalid.character": "Folgendes Zeichen ist invalid : \"{character}\""
 }
