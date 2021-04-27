@@ -152,7 +152,6 @@
     "mail.content.blindcopy": "copie cachée",
     "mail.content.body": "Contenu du message",
     "mail.content.copy": "copie",
-    "mail.content.date.at": "à",
     "mail.content.download": "Télécharger {fileType} '{name}'.",
     "mail.content.file-type": "Fichier de type {fileType}.",
     "mail.content.file-type-image": "Image",

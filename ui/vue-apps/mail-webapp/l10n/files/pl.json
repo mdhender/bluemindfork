@@ -137,7 +137,6 @@
     "mail.content.blindcopy": "ukryta kopia",
     "mail.content.body": "Zawartość wiadomości",
     "mail.content.copy": "kopia",
-    "mail.content.date.at": "na",
     "mail.content.download": "Pobierz {fileType} '{name}'.",
     "mail.content.file-type-audio": "Audio",
     "mail.content.file-type-code": "Kod",

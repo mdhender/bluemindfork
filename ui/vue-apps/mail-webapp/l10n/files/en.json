@@ -152,7 +152,6 @@
     "mail.content.blindcopy": "blind copy",
     "mail.content.body": "Message content",
     "mail.content.copy": "copy",
-    "mail.content.date.at": "at",
     "mail.content.download": "Download {fileType} '{name}'.",
     "mail.content.file-type-audio": "Audio",
     "mail.content.file-type-code": "Code",

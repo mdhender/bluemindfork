@@ -18,9 +18,7 @@
                 <mail-viewer-from :contact="message.from" />
             </bm-col>
             <bm-col cols="4" class="align-self-center text-right">
-                {{ $d(message.date, "full_date") }}
-                {{ $t("mail.content.date.at") }}
-                {{ $d(message.date, "short_time") }}
+                {{ $d(message.date, "full_date_time_short") }}
             </bm-col>
         </bm-row>
         <bm-row class="px-lg-5">

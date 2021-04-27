@@ -32,6 +32,14 @@ export default function (timeformat) {
             month: "long",
             year: "numeric"
         },
+        full_date_time_short: {
+            weekday: "short",
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        },
         full_date_time: {
             weekday: "long",
             day: "2-digit",

@@ -152,7 +152,6 @@
     "mail.content.blindcopy": "Bcc",
     "mail.content.body": "E-Mailinhalt",
     "mail.content.copy": "Kopieren",
-    "mail.content.date.at": "am",
     "mail.content.download": "Download {fileType} '{name}'.",
     "mail.content.file-type-audio": "Audio",
     "mail.content.file-type-code": "Code",
