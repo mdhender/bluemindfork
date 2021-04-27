@@ -79,7 +79,7 @@ public class IdentityEditDialog extends Composite {
 		identity.format = SignatureFormat.HTML;
 		identity.signature = "-- <br /><br />";
 		for (IdentityDescription id : templates) {
-			if (id.mbox.equals(mailboxUid)) {
+			if (id.mbox != null && id.mbox.equals(mailboxUid)) {
 				identity.email = id.email;
 				identity.name = id.name;
 				identity.signature = id.signature;
