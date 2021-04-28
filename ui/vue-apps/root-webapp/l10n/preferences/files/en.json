@@ -23,9 +23,8 @@
     "preferences.general.time_format": "Time format",
     "preferences.general.default_application": "Default application",
     "preferences.general.password": "Password",
-    "preferences.general.update_phone_status": "Update my phone status when I am not available on instant messaging",
     "preferences.general.manage_account": "manage account",
-
+    
     "preferences.security.change_password": "Password change",
     "preferences.security.change_password.old": "Old password",
     "preferences.security.change_password.old.invalid": "Wrong password",
@@ -33,6 +32,12 @@
     "preferences.security.change_password.confirm_new": "Confirm new password",
     "preferences.security.change_password.confirm_new.invalid": "Passwords don't match",
     "preferences.security.change_password.same_password": "Current and new password must be different",
+    
+    "preferences.telephony.status": "Phone status",
+    "preferences.telephony.update_phone_status": "Update my phone status when I am not available on instant messaging",
+    "preferences.telephony.answering_machine": "Answering machine",
+    "preferences.telephony.forward_calls": "Forward received calls at",
+    "preferences.telephony.invalid_phone_number": "Please enter a valid phone number",
 
     "preferences.mail.identities.manage": "Manage identities",
     "preferences.mail.identities.always_show_from": "Always show field \"From\" (sender)",

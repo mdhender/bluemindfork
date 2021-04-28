@@ -16,7 +16,12 @@
         </bm-alert-area>
         <pref-content :sections="sections" :local-user-settings="settings.local" />
         <div class="d-flex mt-auto pl-5 py-3 border-top border-secondary">
-            <bm-button type="submit" variant="primary" :disabled="!SETTINGS_CHANGED" @click.prevent="save">
+            <bm-button
+                type="submit"
+                variant="primary"
+                :disabled="!SETTINGS_CHANGED || localSettingsHaveErrors"
+                @click.prevent="save"
+            >
                 {{ $t("common.save") }}
             </bm-button>
             <bm-button
@@ -79,6 +84,9 @@ export default {
         sectionName() {
             const section = this.sectionByCode[this.selectedSection];
             return section ? section.name : "";
+        },
+        localSettingsHaveErrors() {
+            return this.settings.localHasErrors.length > 0;
         }
     },
     methods: {

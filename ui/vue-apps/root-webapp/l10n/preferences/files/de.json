@@ -23,7 +23,6 @@
     "preferences.general.time_format": "Zeitformat",
     "preferences.general.default_application": "Standard Anwendung",
     "preferences.general.password": "Passwort",
-    "preferences.general.update_phone_status": "Meinen Telefonstatus im Instant Messaging aktualiseren, wenn ich in einer Besprechung bin",
     "preferences.general.manage_account": "Konto verwalten",
 
     "preferences.security.change_password": "Passwort ändern",
@@ -33,6 +32,12 @@
     "preferences.security.change_password.confirm_new": "Neues Passwort bestätigen",
     "preferences.security.change_password.confirm_new.invalid": "Passwörter stimmen nicht überein",
     "preferences.security.change_password.same_password": "Aktuelles und neues Passwort müssen unterschiedlich sein",
+    
+    "preferences.telephony.status": "Phone status",
+    "preferences.telephony.update_phone_status": "Meinen Telefonstatus im Instant Messaging aktualiseren, wenn ich in einer Besprechung bin",
+    "preferences.telephony.answering_machine": "Answering machine",
+    "preferences.telephony.forward_calls": "Forward received calls at",
+    "preferences.telephony.invalid_phone_number": "Please enter a valid phone number",
 
     "preferences.mail.identities.manage": "E-Mail Identitäten verwalten",
     "preferences.mail.identities.always_show_from": "Feld \"Absender\" immer anzeigen",

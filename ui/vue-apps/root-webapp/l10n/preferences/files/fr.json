@@ -23,9 +23,8 @@
     "preferences.general.time_format": "Format d'heure",
     "preferences.general.default_application": "Application par défaut",
     "preferences.general.password": "Mot de passe",
-    "preferences.general.update_phone_status": "Mettre à jour mon statut téléphonique lorsque je ne suis pas disponible sur la messagerie instantanée",
     "preferences.general.manage_account": "gérer le compte",
-
+    
     "preferences.security.change_password": "Changement de mot de passe",
     "preferences.security.change_password.old": "Ancien mot de passe",
     "preferences.security.change_password.old.invalid": "Mot de passe incorrect",
@@ -33,6 +32,12 @@
     "preferences.security.change_password.confirm_new": "Confirmation nouveau mot de passe",
     "preferences.security.change_password.confirm_new.invalid": "Les mots de passe ne correspondent pas",
     "preferences.security.change_password.same_password": "Le mot de passe actuel et le nouveau doivent être différents",
+    
+    "preferences.telephony.status": "Statut téléphonique",
+    "preferences.telephony.update_phone_status": "Mettre à jour mon statut téléphonique lorsque je ne suis pas disponible sur la messagerie instantanée",
+    "preferences.telephony.answering_machine": "Répondeur",
+    "preferences.telephony.forward_calls": "Transférer les appels reçus au",
+    "preferences.telephony.invalid_phone_number": "Veuillez entrer un numéro de téléphone valide",
 
     "preferences.mail.identities.manage": "Gestion des identités",
     "preferences.mail.identities.always_show_from": "Afficher en permanence le champ \"De\" (expéditeur)",

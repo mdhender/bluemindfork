@@ -12,10 +12,7 @@
                 <!-- eslint-disable-next-line vue/no-v-html -->
                 <div v-if="choice.svg" v-html="choice.svg" />
             </template>
-
-            <template>
-                {{ choice.name }}
-            </template>
+            {{ choice.name }}
         </bm-form-radio>
     </bm-form-radio-group>
 </template>

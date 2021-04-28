@@ -107,6 +107,19 @@ function getMyAccountSection(vueI18N) {
         }
     ];
 
+    const telephonyCategoryGroups = [
+        {
+            title: vueI18N.t("preferences.telephony.status"),
+            fields: [
+                {
+                    component: "PrefIMSetPhonePresence",
+                    setting: "im_set_phone_presence",
+                    options: {}
+                }
+            ]
+        }
+    ];
+
     return {
         name: vueI18N.t("common.my_account"),
         href: "/",
@@ -130,6 +143,12 @@ function getMyAccountSection(vueI18N) {
                 name: vueI18N.t("common.security"),
                 icon: "server",
                 groups: securityCategoryGroups
+            },
+            {
+                code: "telephony",
+                name: vueI18N.t("common.telephony"),
+                icon: "cables",
+                groups: telephonyCategoryGroups
             }
         ]
     };

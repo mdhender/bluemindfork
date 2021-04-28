@@ -8,7 +8,7 @@
             class="d-inline-block flex-fill"
             resettable
             :placeholder="folder ? '' : $t('mail.folder.new.from_scratch')"
-            :state="isNewFolderNameValid === true"
+            :state="isInputValid"
             aria-describedby="mail-folder-input-invalid"
             @focus="isActive = true"
             @focusout="onFocusOut"
@@ -94,6 +94,12 @@ export default {
             return this.isNewFolderNameValid === true
                 ? "valid border-bottom border-primary"
                 : "invalid border-bottom border-danger";
+        },
+        isInputValid() {
+            if (!this.newFolderName) {
+                return null;
+            }
+            return this.isNewFolderNameValid === true;
         }
     },
     watch: {

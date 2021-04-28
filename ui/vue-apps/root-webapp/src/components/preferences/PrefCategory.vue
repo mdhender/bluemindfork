@@ -34,6 +34,7 @@ import PrefFieldComboBox from "./fields/PrefFieldComboBox";
 import PrefFieldSelect from "./fields/PrefFieldSelect";
 import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
 import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
+import PrefIMSetPhonePresence from "./fields/customs/PrefIMSetPhonePresence";
 import PrefManageIdentities from "./fields/customs/PrefManageIdentities";
 import PrefPassword from "./fields/customs/PrefPassword";
 import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
@@ -53,6 +54,7 @@ export default {
         PrefFieldSelect,
         PrefAlwaysShowQuota,
         PrefEnableNotifications,
+        PrefIMSetPhonePresence,
         PrefManageIdentities,
         PrefPassword,
         PrefRemoteImage,
@@ -104,7 +106,8 @@ export default {
 
     .pref-field-combobox,
     .bm-form-timepicker,
-    .bm-form-select {
+    .bm-form-select,
+    .bm-form-input {
         width: 24rem !important;
     }
 }

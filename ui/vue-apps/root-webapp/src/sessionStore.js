@@ -15,7 +15,7 @@ const otherDefaultSettings = {
 };
 
 const state = {
-    settings: { remote: {}, local: {}, loaded: false }
+    settings: { remote: {}, local: {}, loaded: false, localHasErrors: [] }
 };
 
 const actions = {
@@ -40,10 +40,22 @@ const actions = {
 };
 
 const mutations = {
+    ADD_LOCAL_HAS_ERROR: (state, fieldOnError) => {
+        const index = state.settings.localHasErrors.findIndex(field => field === fieldOnError);
+        if (index === -1) {
+            state.settings.localHasErrors.push(fieldOnError);
+        }
+    },
     SET_SETTINGS: (state, settings) => {
         state.settings.remote = settings;
         state.settings.local = JSON.parse(JSON.stringify(state.settings.remote));
         state.settings.loaded = true;
+    },
+    REMOVE_LOCAL_HAS_ERROR: (state, fieldOnError) => {
+        const index = state.settings.localHasErrors.findIndex(field => field === fieldOnError);
+        if (index !== -1) {
+            state.settings.localHasErrors.splice(index, 1);
+        }
     },
     ROLLBACK_LOCAL_SETTINGS: state => {
         state.settings.local = JSON.parse(JSON.stringify(state.settings.remote));

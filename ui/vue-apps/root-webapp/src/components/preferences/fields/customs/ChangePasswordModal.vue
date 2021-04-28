@@ -21,6 +21,7 @@
                     id="old-password"
                     v-model="oldPassword"
                     :type="showOldPassword ? 'text' : 'password'"
+                    :state="isOldPasswordValid"
                     required
                     actionable-icon
                     icon="eye"
@@ -38,6 +39,7 @@
                     id="new-password"
                     v-model="newPassword"
                     :type="showNewPassword ? 'text' : 'password'"
+                    :state="isNewPasswordValid"
                     required
                     actionable-icon
                     icon="eye"
@@ -55,6 +57,7 @@
                     id="confirm-new-password"
                     v-model="newConfirmedPassword"
                     :type="showConfirmedPassword ? 'text' : 'password'"
+                    :state="isConfirmedPasswordValid"
                     required
                     actionable-icon
                     icon="eye"
@@ -89,10 +92,16 @@ export default {
     },
     computed: {
         isNewPasswordValid() {
-            return this.newPassword && this.newPassword !== this.oldPassword && isASCII(this.newPassword) === true;
+            if (!this.newPassword) {
+                return null;
+            }
+            return this.newPassword !== this.oldPassword && isASCII(this.newPassword) === true;
         },
         isConfirmedPasswordValid() {
-            return this.newConfirmedPassword && this.newPassword === this.newConfirmedPassword;
+            if (!this.newConfirmedPassword) {
+                return null;
+            }
+            return this.newPassword === this.newConfirmedPassword;
         },
         disableSave() {
             return this.isOldPasswordValid === false || !this.isNewPasswordValid || !this.isConfirmedPasswordValid;

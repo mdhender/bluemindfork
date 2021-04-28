@@ -104,5 +104,7 @@
     "common.password": "Passwort",
     "common.edit": "Bearbeiten",
     "common.created_at": "Erstellt am {date}",
-    "common.invalid.character": "Folgendes Zeichen ist invalid : \"{character}\""
+    "common.invalid.character": "Folgendes Zeichen ist invalid : \"{character}\"",
+    "common.telephony": "Telephony",
+    "common.do_nothing": "Do nothing"
 }

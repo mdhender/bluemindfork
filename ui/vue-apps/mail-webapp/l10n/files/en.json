@@ -166,7 +166,6 @@
     "mail.content.file-type-video": "Video",
     "mail.content.file-type-word": "Document",
     "mail.content.file-type": "File type : {fileType}.",
-    "mail.content.forward.aria": "Forward",
     "mail.content.reply_all.aria": "Reply all",
     "mail.content.reply.aria": "Reply",
     "mail.content.to": "to",
