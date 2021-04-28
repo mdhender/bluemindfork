@@ -104,19 +104,17 @@ export class MailDB {
         tx.onerror = (event) => {
             logger.error("[SW][DB] Failed to delete owner subscriptions", deletedIds, event)
         }
-        await subscriptionUidsToDelete.forEach(uid => tx.objectStore("owner_subscriptions").delete(uid));
-        tx.done;
+        subscriptionUidsToDelete.forEach(uid => tx.objectStore("owner_subscriptions").delete(uid));
+        await tx.done;
     }
 
     async deleteMailFolders(mailboxRoot: string, deletedIds: number[]) {
         const uids = (await this.getAllMailFolders(mailboxRoot))
             .filter(mailFolder => deletedIds.includes(mailFolder.internalId))
             .map(mailFolder => mailFolder.uid);
-        for (let uid of uids) {
-            const tx = (await this.dbPromise).transaction("mail_folders", "readwrite");
-            await tx.objectStore("mail_folders").delete(uid);
-            tx.done;
-        }
+        const tx = (await this.dbPromise).transaction("mail_folders", "readwrite");
+        uids.forEach(uid => tx.objectStore("mail_folders").delete(uid));
+        await tx.done;
     }
 
     async putMailFolders(
@@ -193,14 +191,9 @@ export class MailDB {
             })),
             tx
         );
-        const deleteMailItemPromises = Promise.all(
-            deletedIds.map(id => tx.objectStore("mail_items").delete([uid, id]))
-        );
-        const deleteMailItemLightPromises = Promise.all(
-            deletedIds.map(id => tx.objectStore("mail_item_light").delete([uid, id]))
-        );
-        await Promise.all([deleteMailItemPromises, deleteMailItemLightPromises]);
-        tx.objectStore("sync_options").put(syncOptions);
-        tx.done;
+        deletedIds.map(id => tx.objectStore("mail_items").delete([uid, id]));
+        deletedIds.map(id => tx.objectStore("mail_item_light").delete([uid, id]));
+        await tx.objectStore("sync_options").put(syncOptions);
+        await tx.done;
     }
 }

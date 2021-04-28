@@ -82,7 +82,7 @@ async function syncMailFolderToVersion(uid: string, syncOptions: SyncOptions): P
         await session.db.updateSyncOptions({ ...syncOptions, version, pending: false });
         return versionUpdated;
     } catch (error) {
-        logger.error("[SW][MailFolder] error while syncing changet", error);
+        logger.error("[SW][MailFolder] error while syncing changeset", error);
         return false;
     }
 }
