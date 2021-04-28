@@ -488,6 +488,20 @@ public class VEventServiceHelperTest {
 
 	}
 
+	@Test
+	public void allDayAlarmTrigger() throws Exception {
+		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("alldayalarm_trigger.ics");
+		String ics = IOUtils.toString(in);
+		in.close();
+
+		List<ItemValue<VEventSeries>> events = toEvents(ics);
+
+		assertEquals(1, events.size());
+		ItemValue<VEventSeries> evt = events.get(0);
+
+		assertEquals(new Integer(86400), evt.value.main.alarm.get(0).trigger);
+	}
+
 	private List<ItemValue<VEventSeries>> toEvents(String ics) {
 		List<ItemValue<VEventSeries>> ret = new LinkedList<>();
 		Consumer<ItemValue<VEventSeries>> consumer = series -> ret.add(series);

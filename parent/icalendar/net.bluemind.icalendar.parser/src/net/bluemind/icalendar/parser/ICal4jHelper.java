@@ -24,8 +24,8 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -240,7 +240,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 				if (alarmTrig.getDuration() != null) {
 					// Duration trigger
 					TemporalAmount dur = alarmTrig.getDuration();
-					trigger = (int) dur.get(ChronoUnit.SECONDS);
+					trigger = temporalAmountToSeconds(dur);
 				} else if (alarmTrig.getDateTime() != null && cc.getProperty(Property.DTSTART) != null) {
 					// DateTime trigger
 					// related to dtstart, do the math
@@ -251,7 +251,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 				Integer duration = null;
 				if (alarm.getDuration() != null) {
-					duration = (int) alarm.getDuration().getDuration().get(ChronoUnit.SECONDS);
+					duration = temporalAmountToSeconds(alarm.getDuration().getDuration());
 				}
 
 				Integer repeat = null;
@@ -337,6 +337,19 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		}
 
 		return ItemValue.create(uid, iCalendarElement);
+	}
+
+	private Integer temporalAmountToSeconds(TemporalAmount dur) {
+		for (TemporalUnit unit : dur.getUnits()) {
+			long unitDurationInSeconds = unit.getDuration().getSeconds();
+			if (unitDurationInSeconds > 0) {
+				long valueAsUnit = dur.get(unit);
+				if (valueAsUnit > 0) {
+					return (int) (valueAsUnit * unitDurationInSeconds);
+				}
+			}
+		}
+		return 0;
 	}
 
 	private List<AttachedFile> parseAttachments(PropertyList attachments, Optional<CalendarOwner> owner) {
