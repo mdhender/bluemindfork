@@ -74,6 +74,13 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 				relativeUri);
 
 		Handler<HttpServerRequest> handler = module.handlers.get(relativeUri);
+		if (handler == null) {
+			/*
+			 * Wildcard handler. Warning: the wildcard handler will be called on every
+			 * single request, the module handler is responsible for handling static files
+			 */
+			handler = module.handlers.get("*");
+		}
 		if (handler != null) {
 			// dynamic handler
 			try {
