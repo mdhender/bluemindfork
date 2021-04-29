@@ -63,7 +63,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail", ["folders", "activeFolder", "selection"]),
+        ...mapState("mail", ["folders", "activeFolder"]),
         ...mapGetters("mail", { MESSAGE_IS_SELECTED, IS_ACTIVE_MESSAGE }),
         ...mapState("session", { userSettings: ({ settings }) => settings.remote })
     },

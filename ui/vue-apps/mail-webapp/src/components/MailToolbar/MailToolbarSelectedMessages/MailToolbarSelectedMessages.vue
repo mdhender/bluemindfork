@@ -5,23 +5,23 @@
                 v-show="displayMarkAsRead"
                 variant="inline-light"
                 class="unread btn-lg-simple-dark"
-                :title="$tc('mail.actions.mark_read.aria', selection.length || 1)"
-                :aria-label="$tc('mail.actions.mark_read.aria', selection.length || 1)"
+                :title="$tc('mail.actions.mark_read.aria', SELECTION_KEYS.length || 1)"
+                :aria-label="$tc('mail.actions.mark_read.aria', SELECTION_KEYS.length || 1)"
                 @click="MARK_AS_READ"
             >
                 <bm-icon icon="read" size="2x" />
-                <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_read", selection.length || 1) }}</span>
+                <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_read", SELECTION_KEYS.length || 1) }}</span>
             </bm-button>
             <bm-button
                 v-show="displayMarkAsUnread"
                 variant="inline-light"
                 class="read btn-lg-simple-dark"
-                :title="$tc('mail.actions.mark_unread.aria', selection.length || 1)"
-                :aria-label="$tc('mail.actions.mark_unread.aria', selection.length || 1)"
+                :title="$tc('mail.actions.mark_unread.aria', SELECTION_KEYS.length || 1)"
+                :aria-label="$tc('mail.actions.mark_unread.aria', SELECTION_KEYS.length || 1)"
                 @click="MARK_AS_UNREAD"
             >
                 <bm-icon icon="unread" size="2x" />
-                <span class="d-none d-lg-block">{{ $tc("mail.actions.mark_unread", selection.length || 1) }}</span>
+                <span class="d-none d-lg-block">{{ $tc("mail.actions.mark_unread", SELECTION_KEYS.length || 1) }}</span>
             </bm-button>
             <mail-toolbar-selected-messages-move-action />
             <bm-button
@@ -39,8 +39,8 @@
                 v-show="displayMarkAsFlagged"
                 variant="inline-light"
                 class="flagged btn-lg-simple-dark"
-                :title="$tc('mail.actions.mark_flagged.aria', selection.length)"
-                :aria-label="$tc('mail.actions.mark_flagged.aria', selection.length)"
+                :title="$tc('mail.actions.mark_flagged.aria', SELECTION_KEYS.length)"
+                :aria-label="$tc('mail.actions.mark_flagged.aria', SELECTION_KEYS.length)"
                 @click="MARK_AS_FLAGGED"
             >
                 <bm-icon icon="flag-outline" size="2x" />
@@ -50,8 +50,8 @@
                 v-show="displayMarkAsUnflagged"
                 variant="inline-light"
                 class="unflagged btn-lg-simple-dark"
-                :title="$tc('mail.actions.mark_unflagged.aria', selection.length)"
-                :aria-label="$tc('mail.actions.mark_unflagged.aria', selection.length)"
+                :title="$tc('mail.actions.mark_unflagged.aria', SELECTION_KEYS.length)"
+                :aria-label="$tc('mail.actions.mark_unflagged.aria', SELECTION_KEYS.length)"
                 @click="MARK_AS_UNFLAGGED"
             >
                 <bm-icon icon="flag-fill" size="2x" class="text-warning" />
@@ -75,10 +75,13 @@ import {
     ALL_SELECTED_MESSAGES_ARE_READ,
     ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
     ALL_SELECTED_MESSAGES_ARE_UNREAD,
+    ALL_SELECTED_MESSAGES_ARE_WRITABLE,
     MESSAGE_LIST_FILTERED,
     MESSAGE_LIST_IS_SEARCH_MODE,
     MULTIPLE_MESSAGE_SELECTED,
-    MY_TRASH
+    MY_TRASH,
+    SELECTION,
+    SELECTION_KEYS
 } from "~getters";
 import {
     MARK_FOLDER_AS_READ,
@@ -110,12 +113,15 @@ export default {
             ALL_SELECTED_MESSAGES_ARE_READ,
             ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
             ALL_SELECTED_MESSAGES_ARE_UNREAD,
+            ALL_SELECTED_MESSAGES_ARE_WRITABLE,
             MULTIPLE_MESSAGE_SELECTED,
             MY_TRASH,
             MESSAGE_LIST_FILTERED,
-            MESSAGE_LIST_IS_SEARCH_MODE
+            MESSAGE_LIST_IS_SEARCH_MODE,
+            SELECTION,
+            SELECTION_KEYS
         }),
-        ...mapState("mail", ["folders", "activeFolder", "messages", "selection", "mailboxes"]),
+        ...mapState("mail", ["folders", "activeFolder", "messages", "mailboxes"]),
         displayMarkAsRead() {
             if (this.MULTIPLE_MESSAGE_SELECTED) {
                 return !this.ALL_SELECTED_MESSAGES_ARE_READ;
@@ -142,12 +148,15 @@ export default {
         },
         selected() {
             if (this.MULTIPLE_MESSAGE_SELECTED) {
-                return this.selection.map(key => this.messages[key]);
+                return this.SELECTION;
             }
             return [this.ACTIVE_MESSAGE];
         },
         selectionHasReadOnlyFolders() {
-            return this.selected.some(({ folderRef }) => !this.folders[folderRef.key].writable);
+            if (this.MULTIPLE_MESSAGE_SELECTED) {
+                return !this.ALL_SELECTED_MESSAGES_ARE_WRITABLE;
+            }
+            return !this.folders[this.ACTIVE_MESSAGE.folderRef.key].writable;
         }
     },
     methods: {

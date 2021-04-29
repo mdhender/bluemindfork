@@ -1134,6 +1134,13 @@
   dependencies:
     axios "^0.18.0"
 
+"@bluemind/videoconferencing.saas.api@^4.1.0":
+  version "4.1.57829"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/videoconferencing.saas.api/-/videoconferencing.saas.api-4.1.57829.tgz#f9531c97567149d18570717e66c204224bd848aa"
+  integrity sha512-hcvXQd7L6u5f6NL4MGE3vma+GooXFN69lJFKT1DqbEnJDxeJLsHYv+uSyCf5h15NUYgLYYTa/ByKEfdydd/rYg==
+  dependencies:
+    axios "^0.18.0"
+
 "@bluemind/vue-multipane@^0.10.1":
   version "0.10.1"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/vue-multipane/-/vue-multipane-0.10.1.tgz#da05e2559e44cfccce1b3ea25719e027f62276a2"

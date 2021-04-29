@@ -24,6 +24,7 @@ import {
 } from "~actions";
 import { LoadingStatus } from "../../../../model/loading-status";
 import { FETCH_MESSAGE_IF_NOT_LOADED } from "../../../types/actions";
+import { FolderAdaptor } from "../../../folders/helpers/FolderAdaptor";
 
 Vue.use(Vuex);
 
@@ -334,7 +335,7 @@ describe("Messages actions", () => {
             const adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
             store.commit(ADD_MESSAGES, [adapted]);
             store.dispatch(REMOVE_MESSAGES, adapted);
-            expect(store.state[adapted.key].status).toEqual(MessageStatus.REMOVED);
+            expect(store.state[adapted.key]).toBeUndefined();
         });
 
         test("To remove message from store if api call is successfull", async () => {
@@ -384,11 +385,11 @@ describe("Messages actions", () => {
             store.dispatch(MOVE_MESSAGES, { messages: adapted, folder: anotherFolder });
             expect(inject("ItemsTransferPersistence").move).not.toHaveBeenCalled();
         });
-        test("To synchronously mark messages as removed in state", () => {
+        test("To synchronously update messages in state", () => {
             const adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
             store.commit(ADD_MESSAGES, [adapted]);
             store.dispatch(MOVE_MESSAGES, { messages: adapted, folder: anotherFolder });
-            expect(store.state[adapted.key].status).toEqual(MessageStatus.REMOVED);
+            expect(store.state[adapted.key].folderRef).toEqual(FolderAdaptor.toRef(anotherFolder));
         });
 
         test("To remove message from store if api call is successfull", async () => {
@@ -396,7 +397,7 @@ describe("Messages actions", () => {
             store.commit(ADD_MESSAGES, [adapted]);
             expect(store.state[adapted.key]).toBeDefined();
             await store.dispatch(MOVE_MESSAGES, { messages: adapted, folder: anotherFolder });
-            expect(store.state[adapted.key]).toBeUndefined();
+            expect(store.state[adapted.key].folderRef).toEqual(FolderAdaptor.toRef(anotherFolder));
         });
 
         test("To restore old status if api call fail", async () => {
@@ -472,11 +473,11 @@ describe("Messages actions", () => {
                 folder.remoteRef.internalId
             );
         });
-        test("Flag messages as removed while emptying", () => {
+        test("Remove messages synchronously", () => {
             const adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
             store.commit(ADD_MESSAGES, [adapted]);
             store.dispatch(EMPTY_FOLDER, { folder, mailbox });
-            expect(store.state[adapted.key].status).toEqual(MessageStatus.REMOVED);
+            expect(store.state[adapted.key]).toBeUndefined();
         });
         test("Remove messages from store after the remote call", async () => {
             const adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);

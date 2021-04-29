@@ -28,7 +28,7 @@ export function isReadyToBeSaved(draft, messageCompose) {
 }
 
 export async function save(context, draft, messageCompose) {
-    if (!draft || draft.status === MessageStatus.REMOVED) {
+    if (!draft) {
         return;
     }
     try {

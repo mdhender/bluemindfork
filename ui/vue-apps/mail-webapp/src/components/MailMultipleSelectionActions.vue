@@ -10,51 +10,51 @@
             :style="'background: url(' + multipleSelectionIllustration + ') no-repeat center top'"
         >
             <div class="font-weight-bold mt-5 mb-2">
-                <h1>{{ selection.length }}</h1>
+                <h1>{{ SELECTION_KEYS.length }}</h1>
                 <h1>{{ $t("mail.message.selected") }}</h1>
             </div>
 
-            <div v-if="!anyMessageReadOnly" class="bg-white py-2 px-3 actions-button w-75 mt-4">
+            <div v-if="ALL_SELECTED_MESSAGES_ARE_WRITABLE" class="bg-white py-2 px-3 actions-button w-75 mt-4">
                 <div class="arrow-up" />
                 <bm-button v-if="!ALL_SELECTED_MESSAGES_ARE_READ" variant="outline-secondary" @click="markAsRead()">
                     <bm-label-icon icon="read">
-                        {{ $tc("mail.actions.mark_as_read", selection.length) }}
+                        {{ $tc("mail.actions.mark_as_read", SELECTION_KEYS.length) }}
                     </bm-label-icon>
                 </bm-button>
                 <bm-button
                     v-if="!ALL_SELECTED_MESSAGES_ARE_UNREAD"
                     variant="outline-secondary"
-                    @click="MARK_MESSAGES_AS_UNREAD(selection.map(key => messages[key]))"
+                    @click="MARK_MESSAGES_AS_UNREAD(SELECTION)"
                 >
                     <bm-label-icon icon="unread">
-                        {{ $tc("mail.actions.mark_as_unread", selection.length) }}
+                        {{ $tc("mail.actions.mark_as_unread", SELECTION_KEYS.length) }}
                     </bm-label-icon>
                 </bm-button>
                 <bm-button
                     v-if="!ALL_SELECTED_MESSAGES_ARE_FLAGGED"
                     variant="outline-secondary"
-                    @click="MARK_MESSAGES_AS_FLAGGED(selection.map(key => messages[key]))"
+                    @click="MARK_MESSAGES_AS_FLAGGED(SELECTION)"
                 >
                     <bm-label-icon icon="flag-outline">
-                        {{ $tc("mail.actions.mark_flagged", selection.length) }}
+                        {{ $tc("mail.actions.mark_flagged", SELECTION_KEYS.length) }}
                     </bm-label-icon>
                 </bm-button>
                 <bm-button
                     v-if="!ALL_SELECTED_MESSAGES_ARE_UNFLAGGED"
                     variant="outline-secondary"
-                    @click="MARK_MESSAGES_AS_UNFLAGGED(selection.map(key => messages[key]))"
+                    @click="MARK_MESSAGES_AS_UNFLAGGED(SELECTION)"
                 >
                     <bm-label-icon icon="flag-fill">
-                        {{ $tc("mail.actions.mark_unflagged", selection.length) }}
+                        {{ $tc("mail.actions.mark_unflagged", SELECTION_KEYS.length) }}
                     </bm-label-icon>
                 </bm-button>
                 <bm-button
                     variant="outline-secondary"
-                    @click.exact="MOVE_MESSAGES_TO_TRASH(selection.map(key => messages[key]))"
-                    @click.shift.exact="REMOVE_MESSAGES(selection.map(key => messages[key]))"
+                    @click.exact="MOVE_MESSAGES_TO_TRASH(SELECTION)"
+                    @click.shift.exact="REMOVE_MESSAGES(SELECTION)"
                 >
                     <bm-label-icon icon="trash">
-                        {{ $tc("mail.actions.remove", selection.length) }}
+                        {{ $tc("mail.actions.remove", SELECTION_KEYS.length) }}
                     </bm-label-icon>
                 </bm-button>
             </div>
@@ -80,7 +80,7 @@
                     {{ $t("mail.message.select.all.search") }}
                     <bm-icon icon="search" /><span class="font-weight-bold">"{{ messageList.search.pattern }}"</span>
                 </h3>
-                <bm-button @click="SELECT_ALL_MESSAGES(messageList.messageKeys)">
+                <bm-button @click="SELECT_ALL_MESSAGES(MESSAGE_LIST_ALL_KEYS)">
                     {{ $t("common.select.all") }}
                 </bm-button>
             </div>
@@ -103,10 +103,14 @@ import {
     ALL_SELECTED_MESSAGES_ARE_READ,
     ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
     ALL_SELECTED_MESSAGES_ARE_UNREAD,
+    ALL_SELECTED_MESSAGES_ARE_WRITABLE,
     MULTIPLE_MESSAGE_SELECTED,
     MY_TRASH,
+    MESSAGE_LIST_ALL_KEYS,
     MESSAGE_LIST_FILTERED,
-    MESSAGE_LIST_IS_SEARCH_MODE
+    MESSAGE_LIST_IS_SEARCH_MODE,
+    SELECTION,
+    SELECTION_KEYS
 } from "~getters";
 import { RESET_ACTIVE_MESSAGE, SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES } from "~mutations";
 import {
@@ -134,22 +138,23 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail", ["activeFolder", "folders", "mailboxes", "messages", "messageList", "selection"]),
+        ...mapState("mail", ["activeFolder", "folders", "mailboxes", "messageList"]),
         ...mapGetters("mail", {
             ALL_MESSAGES_ARE_SELECTED,
             ALL_SELECTED_MESSAGES_ARE_FLAGGED,
             ALL_SELECTED_MESSAGES_ARE_READ,
             ALL_SELECTED_MESSAGES_ARE_UNFLAGGED,
             ALL_SELECTED_MESSAGES_ARE_UNREAD,
+            ALL_SELECTED_MESSAGES_ARE_WRITABLE,
             MULTIPLE_MESSAGE_SELECTED,
             MY_TRASH,
+            MESSAGE_LIST_ALL_KEYS,
             MESSAGE_LIST_FILTERED,
-            MESSAGE_LIST_IS_SEARCH_MODE
+            MESSAGE_LIST_IS_SEARCH_MODE,
+            SELECTION,
+            SELECTION_KEYS
         }),
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-multiple-selection-actions") }),
-        anyMessageReadOnly() {
-            return this.selection.some(key => !this.folders[this.messages[key].folderRef.key].writable);
-        },
         currentFolder() {
             return this.folders[this.activeFolder];
         },
@@ -161,10 +166,10 @@ export default {
         }
     },
     watch: {
-        anyMessageReadOnly: {
+        ALL_SELECTED_MESSAGES_ARE_WRITABLE: {
             immediate: true,
             handler(value) {
-                if (value) {
+                if (!value) {
                     this.INFO(this.readOnlyAlert);
                 } else {
                     this.REMOVE(this.readOnlyAlert.alert);
@@ -194,7 +199,7 @@ export default {
                 this.ALL_MESSAGES_ARE_SELECTED && !this.MESSAGE_LIST_FILTERED && !this.MESSAGE_LIST_IS_SEARCH_MODE;
             areAllMessagesInFolderSelected
                 ? this.MARK_FOLDER_AS_READ({ folder: this.currentFolder, mailbox })
-                : this.MARK_MESSAGES_AS_READ(this.selection.map(key => this.messages[key]));
+                : this.MARK_MESSAGES_AS_READ(this.SELECTION);
         },
         isFolderOfMailshare(folder) {
             return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;

@@ -76,7 +76,6 @@ export function partialCopy(message, properties = []) {
 
 export const MessageStatus = {
     IDLE: "IDLE",
-    REMOVED: "REMOVED",
     SAVING: "SAVING",
     SAVE_ERROR: "SAVE_ERROR",
     SENDING: "SENDING",

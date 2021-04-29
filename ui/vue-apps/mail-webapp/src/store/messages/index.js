@@ -11,7 +11,7 @@ export default {
             return message => state[key(message)] && state[key(message)].loading === LoadingStatus.LOADED;
         },
         [MESSAGE_IS_LOADING](state) {
-            return message => state[key(message)] && state[key(message)].loading === LoadingStatus.LOADING;
+            return message => [LoadingStatus.NOT_LOADED, LoadingStatus.LOADING].includes(state[key(message)]?.loading);
         }
     },
     state: {}

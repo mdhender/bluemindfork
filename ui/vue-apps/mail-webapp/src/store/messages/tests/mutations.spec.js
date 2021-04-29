@@ -108,19 +108,13 @@ describe("mutations", () => {
     });
 
     describe("MOVE_MESSAGES", () => {
-        test("dont delete other messages in state", () => {
-            const message = { key: "key1", subject: "mySubject" };
-            const message2 = { key: "key2", subject: "anotherSubject" };
+        test("change message folderRef", () => {
+            const message = { key: "key1", subject: "mySubject", folderRef: { key: 1 } };
+            const message2 = { key: "key2", subject: "anotherSubject", folderRef: { key: 2 } };
             const state = { [message.key]: message, [message2.key]: message2 };
-            mutations.MOVE_MESSAGES(state, { messages: [message2] });
-            expect(state).toEqual({ [message.key]: message });
-        });
-
-        test("do nothing if key dont exist", () => {
-            const message = { key: "key1", subject: "mySubject" };
-            const state = { [message.key]: message };
-            mutations.MOVE_MESSAGES(state, { messages: ["UNKNOWN-KEY"] });
-            expect(state).toEqual({ [message.key]: message });
+            mutations.MOVE_MESSAGES(state, { messages: [{ ...message2, folderRef: { key: 3 } }] });
+            expect(state[message2.key].folderRef).toEqual({ key: 3 });
+            expect(state[message.key].folderRef).toEqual({ key: 1 });
         });
     });
 });

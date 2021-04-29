@@ -6,7 +6,6 @@ import AlertStore from "@bluemind/alert.store";
 import inject from "@bluemind/inject";
 
 import MailAppStore from "../src/store";
-import OldMailAppStore from "../src/store.deprecated";
 import { messageKey as generateKey } from "../src/model/message";
 
 const localVue = createLocalVue();
@@ -30,7 +29,6 @@ export function createStore() {
     const store = new Vuex.Store();
     store.registerModule("alert", AlertStore);
     store.registerModule("mail", MailAppStore);
-    store.registerModule("mail-webapp", OldMailAppStore);
 
     store.commit("mail/SET_MAX_MESSAGE_SIZE", 10);
     store.commit("mail/ADD_MAILBOXES", [mailbox]);

@@ -8,8 +8,8 @@
 import MailMessageStarter from "./MailMessageStarter";
 import MailMultipleSelectionActions from "./MailMultipleSelectionActions";
 import MailThread from "./MailThread/MailThread";
-import { mapGetters, mapMutations, mapState } from "vuex";
-import { MULTIPLE_MESSAGE_SELECTED, ONE_MESSAGE_SELECTED } from "~getters";
+import { mapGetters, mapMutations } from "vuex";
+import { MULTIPLE_MESSAGE_SELECTED, ONE_MESSAGE_SELECTED, SELECTION } from "~getters";
 import { RESET_ACTIVE_MESSAGE, SET_ACTIVE_MESSAGE } from "~mutations";
 
 export default {
@@ -20,14 +20,13 @@ export default {
         MailThread
     },
     computed: {
-        ...mapState("mail", ["selection"]),
-        ...mapGetters("mail", { ONE_MESSAGE_SELECTED, MULTIPLE_MESSAGE_SELECTED })
+        ...mapGetters("mail", { ONE_MESSAGE_SELECTED, MULTIPLE_MESSAGE_SELECTED, SELECTION })
     },
     watch: {
         ONE_MESSAGE_SELECTED: {
             handler: function (value) {
                 if (value) {
-                    this.SET_ACTIVE_MESSAGE({ key: this.selection[0] });
+                    this.SET_ACTIVE_MESSAGE(this.SELECTION[0]);
                 } else {
                     this.RESET_ACTIVE_MESSAGE();
                 }

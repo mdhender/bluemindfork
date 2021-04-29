@@ -12,15 +12,13 @@ import store from "@bluemind/store";
 import MailAlertRenderer from "./components/MailAlertRenderer";
 import * as AlertComponents from "./components/MailAlerts";
 import MailApp from "./components/MailApp";
-import { MailboxItemsClientProxy, MailboxFoldersClientProxy } from "./store.deprecated/mailbackend/APIClientsProxy";
+import { MailboxItemsClientProxy, MailboxFoldersClientProxy } from "./api/APIClientsProxy";
 import mailRoutes from "./router";
 import Scheduler from "./scheduler";
 import MailStore from "./store/";
-import MailWebAppStore from "./store.deprecated/";
 
 registerAPIClients();
 store.registerModule("mail", MailStore);
-store.registerModule("mail-webapp", MailWebAppStore);
 
 Scheduler.startUnreadCountersUpdater();
 

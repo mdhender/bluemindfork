@@ -27,15 +27,15 @@
         @keyup.shift.exact.space="selectRange(lastFocusedMessage, true)"
         @keyup.shift.exact.up="selectRangeByDiff(-1, true)"
         @keyup.shift.exact.down="selectRangeByDiff(+1, true)"
-        @keyup.shift.exact.home="selectRange(messageKeys[0], true)"
-        @keyup.shift.exact.end="selectRange(messageKeys[MESSAGE_LIST_COUNT - 1], true)"
+        @keyup.shift.exact.home="selectRange(MESSAGE_LIST_ALL_KEYS[0], true)"
+        @keyup.shift.exact.end="selectRange(MESSAGE_LIST_ALL_KEYS[MESSAGE_LIST_COUNT - 1], true)"
         @keyup.shift.ctrl.exact.space="selectRange(lastFocusedMessage)"
         @keyup.shift.ctrl.exact.up="selectRangeByDiff(-1)"
         @keyup.shift.ctrl.exact.down="selectRangeByDiff(+1)"
-        @keyup.shift.ctrl.exact.home="selectRange(messageKeys[0])"
-        @keyup.shift.ctrl.exact.end="selectRange(messageKeys[MESSAGE_LIST_COUNT - 1])"
+        @keyup.shift.ctrl.exact.home="selectRange(MESSAGE_LIST_ALL_KEYS[0])"
+        @keyup.shift.ctrl.exact.end="selectRange(MESSAGE_LIST_ALL_KEYS[MESSAGE_LIST_COUNT - 1])"
     >
-        <div v-for="(message, index) in _messages" :key="message.key">
+        <div v-for="(message, index) in MESSAGE_LIST_MESSAGES" :key="message.key">
             <date-separator v-if="MESSAGE_IS_LOADED(message.key)" :message="message" :index="index" />
             <draggable-message
                 v-if="MESSAGE_IS_LOADED(message.key)"
@@ -67,14 +67,26 @@ import {
     MESSAGE_IS_LOADED,
     MESSAGE_IS_LOADING,
     MESSAGE_IS_SELECTED,
+    MESSAGE_LIST_ALL_KEYS,
     MESSAGE_LIST_COUNT,
+    MESSAGE_LIST_HAS_NEXT,
+    MESSAGE_LIST_MESSAGES,
     MULTIPLE_MESSAGE_SELECTED,
     MY_TRASH,
+    SELECTION,
     SELECTION_IS_EMPTY
 } from "~getters";
-import { SELECT_MESSAGE, UNSELECT_MESSAGE, SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES } from "~mutations";
+import {
+    RESET_MESSAGE_LIST_PAGE,
+    SELECT_ALL_MESSAGES,
+    SELECT_MESSAGE,
+    UNSELECT_ALL_MESSAGES,
+    UNSELECT_MESSAGE
+} from "~mutations";
+import { MESSAGE_LIST_NEXT_PAGE, FETCH_MESSAGE_METADATA } from "~actions";
+
 import { RemoveMixin } from "~mixins";
-import { MessageStatus } from "~model/message";
+import { LoadingStatus } from "../../model/loading-status";
 
 const PAGE = 9;
 
@@ -103,26 +115,21 @@ export default {
             MESSAGE_IS_LOADED,
             MESSAGE_IS_LOADING,
             MESSAGE_IS_SELECTED,
+            MESSAGE_LIST_ALL_KEYS,
             MESSAGE_LIST_COUNT,
+            MESSAGE_LIST_HAS_NEXT,
+            MESSAGE_LIST_MESSAGES,
             MULTIPLE_MESSAGE_SELECTED,
             MY_TRASH,
+            SELECTION,
             SELECTION_IS_EMPTY
         }),
-        ...mapState("mail", ["activeFolder", "messages", "selection"]),
-        ...mapState("mail", {
-            messageKeys: state => state.messageList.messageKeys
-        }),
-        _messages() {
-            return this.messageKeys
-                .slice(0, this.length)
-                .map(key => this.messages[key])
-                .filter(({ status }) => status !== MessageStatus.REMOVED);
-        },
+        ...mapState("mail", ["activeFolder", "messages"]),
         hasMore() {
             return this.length < this.MESSAGE_LIST_COUNT;
         },
         selected() {
-            return this.SELECTION_IS_EMPTY ? this.ACTIVE_MESSAGE : this.selection.map(key => this.messages[key]);
+            return this.SELECTION_IS_EMPTY ? this.ACTIVE_MESSAGE : this.SELECTION;
         }
     },
     watch: {
@@ -135,9 +142,16 @@ export default {
         activeFolder() {
             this.lastFocusedMessage = null;
             this.anchoredMessageForShift = null;
+        },
+        MESSAGE_LIST_MESSAGES() {
+            const toLoad = this.MESSAGE_LIST_MESSAGES.filter(({ loading }) => loading === LoadingStatus.NOT_LOADED);
+            if (toLoad.length > 0) {
+                this.FETCH_MESSAGE_METADATA(toLoad);
+            }
         }
     },
     created() {
+        this.RESET_MESSAGE_LIST_PAGE();
         this.focusByKey(this.ACTIVE_MESSAGE?.key);
     },
     mounted() {
@@ -152,14 +166,18 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["loadRange"]),
-        ...mapMutations("mail", { SELECT_MESSAGE, UNSELECT_MESSAGE, SELECT_ALL_MESSAGES, UNSELECT_ALL_MESSAGES }),
+        ...mapMutations("mail", {
+            RESET_MESSAGE_LIST_PAGE,
+            SELECT_MESSAGE,
+            UNSELECT_MESSAGE,
+            SELECT_ALL_MESSAGES,
+            UNSELECT_ALL_MESSAGES
+        }),
+        ...mapActions("mail", { FETCH_MESSAGE_METADATA, MESSAGE_LIST_NEXT_PAGE }),
 
-        loadMore() {
-            if (this.hasMore) {
-                const end = Math.min(this.length + 20, this.MESSAGE_LIST_COUNT);
-                this.loadRange({ start: this.length, end });
-                this.length = end;
+        async loadMore() {
+            if (this.MESSAGE_LIST_HAS_NEXT) {
+                this.MESSAGE_LIST_NEXT_PAGE();
             }
         },
         onScroll() {
@@ -170,11 +188,11 @@ export default {
             }
         },
         goToByDiff(diff) {
-            this.goToByIndex(this.messageKeys.indexOf(this.lastFocusedMessage) + diff);
+            this.goToByIndex(this.MESSAGE_LIST_ALL_KEYS.indexOf(this.lastFocusedMessage) + diff);
         },
         goToByIndex(index) {
             index = Math.min(Math.max(0, index), this.MESSAGE_LIST_COUNT - 1);
-            this.goToByKey(this.messageKeys[index]);
+            this.goToByKey(this.MESSAGE_LIST_ALL_KEYS[index]);
         },
         goToByKey(key) {
             this.$router.navigate({ name: "v:mail:message", params: { message: this.messages[key] } });
@@ -190,26 +208,26 @@ export default {
             }
         },
         focusByDiff(diff) {
-            this.focusByIndex(this.messageKeys.indexOf(this.lastFocusedMessage) + diff);
+            this.focusByIndex(this.MESSAGE_LIST_ALL_KEYS.indexOf(this.lastFocusedMessage) + diff);
         },
         focusByIndex(index) {
-            if (index !== -1 && this.messageKeys[index]) {
-                this.focusByKey(this.messageKeys[index]);
+            if (index !== -1 && this.MESSAGE_LIST_ALL_KEYS[index]) {
+                this.focusByKey(this.MESSAGE_LIST_ALL_KEYS[index]);
             }
         },
         selectRangeByDiff(diff, shouldReset = false) {
-            const index = this.messageKeys.indexOf(this.lastFocusedMessage) + diff;
+            const index = this.MESSAGE_LIST_ALL_KEYS.indexOf(this.lastFocusedMessage) + diff;
 
-            if (this.messageKeys[index]) {
-                this.selectRange(this.messageKeys[index], shouldReset);
+            if (this.MESSAGE_LIST_ALL_KEYS[index]) {
+                this.selectRange(this.MESSAGE_LIST_ALL_KEYS[index], shouldReset);
             }
         },
         selectRange(destinationMessageKey, shouldReset = false) {
             this.checkReset(shouldReset);
             this.initAnchored();
             if (this.anchoredMessageForShift && destinationMessageKey) {
-                const startIndex = this.messageKeys.indexOf(this.anchoredMessageForShift);
-                const endIndex = this.messageKeys.indexOf(destinationMessageKey);
+                const startIndex = this.MESSAGE_LIST_ALL_KEYS.indexOf(this.anchoredMessageForShift);
+                const endIndex = this.MESSAGE_LIST_ALL_KEYS.indexOf(destinationMessageKey);
                 this.addMessageKeysBetween(startIndex, endIndex);
                 this.focusByKey(destinationMessageKey);
                 this.navigateAfterSelection();
@@ -223,24 +241,24 @@ export default {
         addMessageKeysBetween(start, end) {
             const realStart = start < end ? start : end;
             const realEnd = start < end ? end : start;
-            return this.messageKeys.slice(realStart, realEnd + 1).forEach(key => this.SELECT_MESSAGE(key));
+            return this.MESSAGE_LIST_ALL_KEYS.slice(realStart, realEnd + 1).forEach(key => this.SELECT_MESSAGE(key));
         },
         initAnchored() {
             if (!this.anchoredMessageForShift) {
                 this.anchoredMessageForShift =
-                    this.lastFocusedMessage || this.ACTIVE_MESSAGE?.key || this.messageKeys[0];
+                    this.lastFocusedMessage || this.ACTIVE_MESSAGE?.key || this.MESSAGE_LIST_ALL_KEYS[0];
             }
         },
         toggleAll() {
             if (this.ALL_MESSAGES_ARE_SELECTED) {
                 this.UNSELECT_ALL_MESSAGES();
             } else {
-                this.SELECT_ALL_MESSAGES(this.messageKeys);
+                this.SELECT_ALL_MESSAGES(this.MESSAGE_LIST_ALL_KEYS);
             }
             this.navigateAfterSelection();
         },
         toggleInSelection(messageKey) {
-            if (this.SELECTION_IS_EMPTY && this.ACTIVE_MESSAGE?.key !== messageKey) {
+            if (this.SELECTION_IS_EMPTY && this.ACTIVE_MESSAGE && this.ACTIVE_MESSAGE?.key !== messageKey) {
                 this.SELECT_MESSAGE(this.ACTIVE_MESSAGE.key);
             }
             this.toggleSelect(messageKey);

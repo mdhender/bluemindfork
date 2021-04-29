@@ -14,17 +14,17 @@
     >
         <message-list-item :message="message" @toggle-select="$emit('toggle-select', message.key)" />
         <template v-slot:shadow>
-            <mail-message-list-item-shadow :message="message" :count="selection.length" />
+            <mail-message-list-item-shadow :message="message" :count="SELECTION_KEYS.length" />
         </template>
     </bm-draggable>
 </template>
 
 <script>
 import { BmDraggable } from "@bluemind/styleguide";
-import { mapGetters, mapState } from "vuex";
+import { mapGetters } from "vuex";
 import MailMessageListItemShadow from "./MailMessageListItemShadow";
 import MessageListItem from "./MessageListItem";
-import { MESSAGE_IS_SELECTED } from "~getters";
+import { MESSAGE_IS_SELECTED, SELECTION, SELECTION_KEYS } from "~getters";
 import { MoveMixin } from "~mixins";
 
 export default {
@@ -55,12 +55,9 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail", ["messages", "selection"]),
-        ...mapGetters("mail", { MESSAGE_IS_SELECTED }),
+        ...mapGetters("mail", { MESSAGE_IS_SELECTED, SELECTION, SELECTION_KEYS }),
         dragged() {
-            return this.MESSAGE_IS_SELECTED(this.message.key)
-                ? this.selection.map(key => this.messages[key])
-                : this.message;
+            return this.MESSAGE_IS_SELECTED(this.message.key) ? this.SELECTION : this.message;
         }
     },
     methods: {
@@ -77,7 +74,7 @@ export default {
                     });
                     this.tooltip.cursor = "forbidden";
                 } else {
-                    this.tooltip.text = this.$tc("mail.actions.move.item", this.selection.length, {
+                    this.tooltip.text = this.$tc("mail.actions.move.item", this.SELECTION_KEYS.length, {
                         path: folder.path
                     });
                     this.tooltip.cursor = "cursor";

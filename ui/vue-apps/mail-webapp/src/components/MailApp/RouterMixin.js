@@ -1,6 +1,6 @@
 import isEqual from "lodash.isequal";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { FETCH_MESSAGE_METADATA, FETCH_MESSAGE_LIST_KEYS } from "~actions";
+import { FETCH_MESSAGE_LIST_KEYS } from "~actions";
 import { FOLDERS_BY_UPPERCASE_PATH, MY_INBOX, MY_MAILBOX, MAILBOX_BY_NAME, MAILBOXES_ARE_LOADED } from "~getters";
 import {
     SET_ACTIVE_FOLDER,
@@ -14,7 +14,7 @@ import {
 } from "~mutations";
 import { LoadingStatus } from "../../model/loading-status";
 import MessageQueryParam from "../../router/MessageQueryParam";
-import SearchHelper from "../../store.deprecated/SearchHelper";
+import SearchHelper from "../../model/SearchHelper";
 import { FolderAdaptor } from "../../store/folders/helpers/FolderAdaptor";
 import { MessageListFilter } from "../../store/messageList";
 import { WaitForMixin } from "~mixins";
@@ -78,7 +78,10 @@ export default {
                     if (!this.route.search.pattern || this.$_RouterMixin_query.folder || !this.activeFolder) {
                         this.SET_ACTIVE_FOLDER(folder);
                     }
-                    this.$_RouterMixin_fetchMessageList();
+                    await this.FETCH_MESSAGE_LIST_KEYS({
+                        folder: this.folders[this.activeFolder],
+                        conversationsEnabled: false
+                    });
                     //TODO: Sync query params with router params (navigate...)
                 } catch {
                     //TODO: Add an alert here
@@ -88,7 +91,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", { FETCH_MESSAGE_METADATA, FETCH_MESSAGE_LIST_KEYS }),
+        ...mapActions("mail", { FETCH_MESSAGE_LIST_KEYS }),
         ...mapMutations("mail", {
             SET_ACTIVE_FOLDER,
             SET_MESSAGE_LIST_FILTER,
@@ -117,15 +120,6 @@ export default {
             } else {
                 return this.$waitFor(() => this.MAILBOXES_ARE_LOADED && this.MAILBOX_BY_NAME(name), assert);
             }
-        },
-        async $_RouterMixin_fetchMessageList() {
-            await this.FETCH_MESSAGE_LIST_KEYS({
-                folder: this.folders[this.activeFolder],
-                conversationsEnabled: false
-            });
-            //TODO: We should convert the hard coded slice with a getter GET_MESSAGE_LIST_PAGE(pageNumber)
-            // or GET_MESSSAGE_LIST_FIRST_PAGE + GET_MESSAGE_LIST_PREV/NEXT_PAGE
-            await this.FETCH_MESSAGE_METADATA(this.messageList.messageKeys.slice(0, 40).map(key => this.messages[key]));
         }
     }
 };

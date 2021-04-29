@@ -40,6 +40,7 @@ export const SEND_MESSAGE = "SEND_MESSAGE";
 
 // messageList
 export const FETCH_MESSAGE_LIST_KEYS = "FETCH_MESSAGE_LIST_KEYS";
+export const MESSAGE_LIST_NEXT_PAGE = "MESSAGE_LIST_NEXT_PAGE";
 export const REFRESH_MESSAGE_LIST_KEYS = "REFRESH_MESSAGE_LIST_KEYS";
 
 // messageCompose

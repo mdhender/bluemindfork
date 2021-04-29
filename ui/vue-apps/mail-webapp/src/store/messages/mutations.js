@@ -39,7 +39,7 @@ export default {
         messages.forEach(({ key }) => (state[key].flags = state[key].flags.filter(f => f !== flag)));
     },
     [REMOVE_MESSAGES]: removeMessages,
-    [MOVE_MESSAGES]: (state, { messages }) => removeMessages(state, messages),
+    [MOVE_MESSAGES]: (state, { messages }) => messages.forEach(m => (state[m.key].folderRef = m.folderRef)),
     [SET_MESSAGE_PREVIEW]: (state, { key, preview }) => {
         state[key].preview = preview;
     },

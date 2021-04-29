@@ -12,7 +12,7 @@ import {
     ALL_SELECTED_MESSAGES_ARE_UNREAD,
     MAILSHARE_FOLDERS,
     MAILSHARE_ROOT_FOLDERS,
-    MESSAGE_LIST_COUNT,
+    MESSAGE_LIST_MESSAGES,
     MY_DRAFTS,
     MY_INBOX,
     MY_MAILBOX_FOLDERS,
@@ -20,14 +20,14 @@ import {
     MY_OUTBOX,
     MY_SENT,
     MY_TRASH,
-    NEXT_MESSAGE
+    NEXT_MESSAGE,
+    SELECTION
 } from "~getters";
 import { DEFAULT_FOLDER_NAMES } from "../folders/helpers/DefaultFolders";
 import { MailboxType } from "~model/mailbox";
 import injector from "@bluemind/inject";
 import { SET_ACTIVE_FOLDER } from "~mutations";
 import { LoadingStatus } from "../../model/loading-status";
-import { MessageStatus } from "../../model/message";
 
 Vue.use(Vuex);
 
@@ -66,11 +66,13 @@ describe("Mail store", () => {
                 3: { flags: [Flag.SEEN], loading: LoadingStatus.LOADED },
                 4: { flags: [], loading: LoadingStatus.LOADED }
             };
-            store.state.selection = [1, 2];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNREAD]).toBeTruthy();
-            store.state.selection = [1, 2, 3];
+            store.state.selection._keys = [1, 2];
             expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNREAD]).toBeFalsy();
-            store.state.selection = [];
+            store.state.selection._keys = [1, 4];
+            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNREAD]).toBeTruthy();
+            store.state.selection._keys = [1, 3];
+            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNREAD]).toBeFalsy();
+            store.state.selection._keys = [];
             expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNREAD]).toBeFalsy();
         });
         test("ALL_SELECTED_MESSAGES_ARE_READ", () => {
@@ -80,11 +82,13 @@ describe("Mail store", () => {
                 3: { flags: [], loading: LoadingStatus.LOADED },
                 4: { flags: [Flag.SEEN], loading: LoadingStatus.LOADED }
             };
-            store.state.selection = [1, 2];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_READ]).toBeTruthy();
-            store.state.selection = [1, 2, 3];
+            store.state.selection._keys = [1, 2];
             expect(store.getters[ALL_SELECTED_MESSAGES_ARE_READ]).toBeFalsy();
-            store.state.selection = [];
+            store.state.selection._keys = [1, 4];
+            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_READ]).toBeTruthy();
+            store.state.selection._keys = [1, 3];
+            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_READ]).toBeFalsy();
+            store.state.selection._keys = [];
             expect(store.getters[ALL_SELECTED_MESSAGES_ARE_READ]).toBeFalsy();
         });
         test("ALL_SELECTED_MESSAGES_ARE_FLAGGED", () => {
@@ -94,11 +98,13 @@ describe("Mail store", () => {
                 3: { flags: [], loading: LoadingStatus.LOADED },
                 4: { flags: [Flag.FLAGGED], loading: LoadingStatus.LOADED }
             };
-            store.state.selection = [1, 2];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_FLAGGED]).toBeTruthy();
-            store.state.selection = [1, 2, 3];
+            store.state.selection._keys = [1, 2];
             expect(store.getters[ALL_SELECTED_MESSAGES_ARE_FLAGGED]).toBeFalsy();
-            store.state.selection = [];
+            store.state.selection._keys = [1, 4];
+            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_FLAGGED]).toBeTruthy();
+            store.state.selection._keys = [1, 3];
+            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_FLAGGED]).toBeFalsy();
+            store.state.selection._keys = [];
             expect(store.getters[ALL_SELECTED_MESSAGES_ARE_FLAGGED]).toBeFalsy();
         });
         test("ALL_SELECTED_MESSAGES_ARE_UNFLAGGED", () => {
@@ -108,21 +114,23 @@ describe("Mail store", () => {
                 3: { flags: [Flag.FLAGGED], loading: LoadingStatus.LOADED },
                 4: { flags: [], loading: LoadingStatus.LOADED }
             };
-            store.state.selection = [1, 2];
-            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNFLAGGED]).toBeTruthy();
-            store.state.selection = [1, 2, 3];
+            store.state.selection._keys = [1, 2];
             expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNFLAGGED]).toBeFalsy();
-            store.state.selection = [];
+            store.state.selection._keys = [1, 4];
+            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNFLAGGED]).toBeTruthy();
+            store.state.selection._keys = [1, 3];
+            expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNFLAGGED]).toBeFalsy();
+            store.state.selection._keys = [];
             expect(store.getters[ALL_SELECTED_MESSAGES_ARE_UNFLAGGED]).toBeFalsy();
         });
         test("ALL_MESSAGES_ARE_SELECTED", () => {
-            store.state.messageList = { messageKeys: [1, 2, 3] };
-            store.state.selection = [1, 2];
+            store.state.messageList = { _keys: [1, 2, 3], _removed: [] };
+            store.state.selection = { _keys: [1, 2], _removed: [] };
             expect(store.getters[ALL_MESSAGES_ARE_SELECTED]).toBeFalsy();
-            store.state.selection = [1, 2, 3];
+            store.state.selection._keys = [1, 2, 3];
             expect(store.getters[ALL_MESSAGES_ARE_SELECTED]).toBeTruthy();
-            store.state.selection = [];
-            store.state.messageList = { messageKeys: [] };
+            store.state.selection._keys = [];
+            store.state.messageList = { _keys: [], _removed: [] };
             expect(store.getters[ALL_MESSAGES_ARE_SELECTED]).toBeFalsy();
         });
 
@@ -139,17 +147,26 @@ describe("Mail store", () => {
             };
             expect(store.getters[MAILSHARE_FOLDERS]).toEqual([store.state.folders["1"], store.state.folders["4"]]);
         });
-
-        test("MESSAGE_LIST_COUNT", () => {
-            expect(store.getters[MESSAGE_LIST_COUNT]).toEqual(0);
-            let i = 0;
-            Array.from(Array(11), () => i++).forEach(key => {
-                store.state.messageList.messageKeys.push(key);
-                store.state.messages[key] = { status: key % 2 === 0 ? MessageStatus.IDLE : MessageStatus.REMOVED };
+        test("MESSAGE_LIST_MESSAGES", () => {
+            Array.from(Array(500)).forEach((v, key) => {
+                if (key % 2 === 0) {
+                    store.state.messageList._keys.push(key);
+                }
+                if (key % 10 === 0) {
+                    store.state.messageList._removed.push(key);
+                }
+                store.state.messages[key] = { key };
             });
-            expect(store.getters[MESSAGE_LIST_COUNT]).toEqual(6);
+            store.state.messageList.currentPage = 0;
+            expect(store.getters[MESSAGE_LIST_MESSAGES]).toEqual([]);
+            store.state.messageList.currentPage = 1;
+            expect(store.getters[MESSAGE_LIST_MESSAGES].length).toEqual(50);
+            expect(store.getters[MESSAGE_LIST_MESSAGES][0]).toEqual(
+                store.state.messages[store.state.messageList._keys[1]]
+            );
+            store.state.messageList.currentPage = 2;
+            expect(store.getters[MESSAGE_LIST_MESSAGES].length).toEqual(100);
         });
-
         test("MY_MAILBOX_FOLDERS", () => {
             store.state.folders = {
                 "1": { key: "1", mailboxRef: { key: "A" } },
@@ -221,14 +238,14 @@ describe("Mail store", () => {
         });
         describe("NEXT_MESSAGE", () => {
             beforeEach(() => {
-                store.state.messageList.messageKeys = Array(10)
+                store.state.messageList._keys = Array(10)
                     .fill(0)
                     .map((v, i) => 2 * i);
-                store.state.messages = store.state.messageList.messageKeys.reduce(
+                store.state.messages = store.state.messageList._keys.reduce(
                     (obj, key) => ({ ...obj, [key]: { key } }),
                     {}
                 );
-                store.state.selection = [];
+                store.state.selection._keys = [];
                 store.state.activeMessage.key = undefined;
             });
             test("return first message after active message", () => {
@@ -242,7 +259,7 @@ describe("Mail store", () => {
                 expect(result.key).toBe(16);
             });
             test("return null if there is no next messages", () => {
-                store.state.messageList.messageKeys = [2];
+                store.state.messageList._keys = [2];
                 store.state.activeMessage.key = 2;
                 const result = store.getters[NEXT_MESSAGE];
                 expect(result).toBeNull();
@@ -265,6 +282,22 @@ describe("Mail store", () => {
                 const result = store.getters[NEXT_MESSAGE];
                 expect(result.key).toBe(2);
             });
+        });
+        test("SELECTION", () => {
+            Array.from(Array(100)).forEach((v, key) => {
+                if (key % 2 === 0) {
+                    store.state.selection._keys.push(key);
+                }
+                if (key % 10 === 0) {
+                    store.state.selection._removed.push(key);
+                }
+                store.state.messages[key] = { key };
+            });
+            expect(store.getters[SELECTION]).toEqual(
+                Object.values(store.state.messages).filter(({ key }) => key % 2 === 0 && key % 10 !== 0)
+            );
+            expect(store.getters[SELECTION].length).toEqual(40);
+            expect(store.getters[SELECTION][0]).toEqual(store.state.messages[store.state.selection._keys[1]]);
         });
     });
 });
