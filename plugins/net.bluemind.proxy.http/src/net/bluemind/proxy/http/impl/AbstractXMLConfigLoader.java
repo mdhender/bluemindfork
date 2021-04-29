@@ -91,10 +91,21 @@ public abstract class AbstractXMLConfigLoader implements IConfigLoader {
 				if (auth != null) {
 					fl.setRequiredAuthKind(auth.getAttribute("kind"));
 				}
+				String cspDisabled = f.getAttribute("csp_disabled");
+				if (cspDisabled != null && !cspDisabled.isEmpty()) {
+					fl.cspEnabled(!Boolean.valueOf(cspDisabled));
+				}
 				NodeList wl = f.getElementsByTagName("wl");
 				for (int j = 0; j < wl.getLength(); j++) {
 					Element wle = (Element) wl.item(j);
-					fl.whiteList(wle.getAttribute("uri"));
+					String whiteListUri = wle.getAttribute("uri");
+					String whiteListRegex = wle.getAttribute("regex");
+					if (whiteListUri != null && !whiteListUri.isEmpty()) {
+						fl.whiteList(whiteListUri);
+					}
+					if (whiteListRegex != null && !whiteListRegex.isEmpty()) {
+						fl.whiteListRegex(whiteListRegex);
+					}
 				}
 			}
 		} catch (Exception e) {

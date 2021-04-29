@@ -45,19 +45,27 @@ public class ExtensionConfigLoader implements IConfigLoader {
 		for (IExtension ie : extensions) {
 			ForwardedLocation fl;
 			for (IConfigurationElement e : ie.getConfigurationElements()) {
-				System.err.println("On " + e);
-				if ("forward".equals(e.getName())) {
-					fl = new ForwardedLocation(e.getAttribute("path"), e.getAttribute("target"), e.getAttribute("role"),
-							"false");
-					conf.getForwardedLocations().add(fl);
-					logger.info("adding forward from {} to {} [role:{}]", fl.getPathPrefix(), fl.getTargetUrl(),
-							fl.getRole());
-					if (e.getAttribute("auth_kind") != null)
-						fl.setRequiredAuthKind(e.getAttribute("auth_kind"));
-					for (IConfigurationElement wle : e.getChildren("whitelist")) {
-						fl.whiteList(wle.getAttribute("uri"));
+				if (!"forward".equals(e.getName())) {
+					continue;
+				}
+				fl = new ForwardedLocation(e.getAttribute("path"), e.getAttribute("target"), e.getAttribute("role"),
+						"false");
+				conf.getForwardedLocations().add(fl);
+				logger.info("adding forward from {} to {} [role:{}]", fl.getPathPrefix(), fl.getTargetUrl(),
+						fl.getRole());
+				if (e.getAttribute("auth_kind") != null)
+					fl.setRequiredAuthKind(e.getAttribute("auth_kind"));
+				for (IConfigurationElement wle : e.getChildren("whitelist")) {
+					String whiteListUri = wle.getAttribute("uri");
+					String whiteListRegex = wle.getAttribute("regex");
+					if (whiteListUri != null && !whiteListUri.isEmpty()) {
+						fl.whiteList(whiteListUri);
+					}
+					if (whiteListRegex != null && !whiteListRegex.isEmpty()) {
+						fl.whiteListRegex(whiteListRegex);
 					}
 				}
+
 			}
 		}
 		logger.info("Loaded {} implementors of {}.{}", extensions.length, pluginId, pointName);

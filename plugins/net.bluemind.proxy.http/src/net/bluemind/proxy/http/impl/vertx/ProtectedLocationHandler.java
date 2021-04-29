@@ -137,6 +137,10 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 	}
 
 	private void addCspHeader(HttpServerRequest event) {
+		if (!fl.cspEnabled()) {
+			logger.debug("{}: CSP disabled", event.path());
+			return;
+		}
 		event.response().putHeader("Content-Security-Policy",
 				"connect-src 'self' ws: wss:; default-src 'self' ws: wss: 'unsafe-inline' 'unsafe-eval'; img-src * data: blob: ");
 

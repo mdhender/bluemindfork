@@ -18,18 +18,28 @@
  */
 package net.bluemind.proxy.http.config;
 
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.network.topology.Topology;
 
 public final class ForwardedLocation {
+	private static final Logger logger = LoggerFactory.getLogger(ForwardedLocation.class);
 
 	private final String pathPrefix;
 	private String targetUrl;
 	private String requiredAuthKind;
 	private final ConcurrentHashMap<String, String> whitelist;
+	private final ArrayList<Pattern> regexWhiteList;
 	private final String role;
 	private final boolean authenticator;
+	private boolean cspEnabled;
 
 	public static class ResolvedLoc {
 		public ResolvedLoc(String host, int port) {
@@ -54,7 +64,15 @@ public final class ForwardedLocation {
 		this.targetUrl = targetUrl;
 		this.requiredAuthKind = AuthKind.NONE.name();
 		this.whitelist = new ConcurrentHashMap<>();
+		this.regexWhiteList = new ArrayList<>();
 		this.authenticator = Boolean.valueOf(authenticator);
+		this.cspEnabled = true;
+	}
+
+	public String toString() {
+		return String.format("<ForwardedLocation prefix: %s target: %s requiredAuth: %s whiteList: %s>", pathPrefix,
+				targetUrl, requiredAuthKind,
+				whitelist.keySet().stream().map(e -> e.toString()).collect(Collectors.joining(";", "[", "]")));
 	}
 
 	public ResolvedLoc resolve() {
@@ -97,9 +115,24 @@ public final class ForwardedLocation {
 		whitelist.put(uri, uri);
 	}
 
+	public void whiteListRegex(String regex) {
+		try {
+			regexWhiteList.add(Pattern.compile(regex));
+		} catch (PatternSyntaxException e) {
+			logger.error("invalid regular expression", e);
+		}
+	}
+
 	public boolean isWhitelisted(String uri) {
 		for (String wl : whitelist.keySet()) {
 			if (uri.contains(wl)) {
+				logger.debug("uri {} contains {}", uri, wl);
+				return true;
+			}
+		}
+		for (Pattern p : regexWhiteList) {
+			if (p.matcher(uri).matches()) {
+				logger.debug("uri {} matches {}", uri, p);
 				return true;
 			}
 		}
@@ -112,5 +145,13 @@ public final class ForwardedLocation {
 
 	public boolean isAuthenticator() {
 		return authenticator;
+	}
+
+	public void cspEnabled(boolean cspEnabled) {
+		this.cspEnabled = cspEnabled;
+	}
+
+	public boolean cspEnabled() {
+		return cspEnabled;
 	}
 }
