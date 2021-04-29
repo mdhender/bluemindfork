@@ -442,6 +442,7 @@
    <bundle id="net.bluemind.videoconferencing.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.videoconferencing.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.videoconferencing.jitsi" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing.starleaf" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.videoconferencing.api.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.videoconferencing.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.videoconferencing.api.gwt" version="4.1.0.qualifier"/>

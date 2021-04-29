@@ -21,5 +21,6 @@
 		<module>mailapp</module>
 		<module>ldap-export</module>
 		<module>videoconferencing-jitsi</module>
+		<module>videoconferencing-starleaf</module>
 	</modules>
 </project>

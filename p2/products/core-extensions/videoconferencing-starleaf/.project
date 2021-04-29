@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 <projectDescription>
-	<name>bm-plugin-core-videoconferencing-jitsi</name>
+	<name>net.bluemind.p2.ce.videoconferencing-starleaf</name>
 	<comment/>
 	<projects>
 	</projects>
 	<buildSpec>
-		
 	</buildSpec>
 	<natures>
 		

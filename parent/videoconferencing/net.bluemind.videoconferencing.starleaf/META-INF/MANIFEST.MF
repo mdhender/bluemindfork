@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.videoconferencing.starleaf
+Bundle-SymbolicName: net.bluemind.videoconferencing.starleaf;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Automatic-Module-Name: net.bluemind.videoconferencing.starleaf
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.videoconferencing.api,
+ com.google.guava,
+ com.fasterxml.jackson.core.jackson-databind,
+ io.vertx.core,
+ net.bluemind.core.commons
+Export-Package: net.bluemind.videoconferencing.starleaf.client,
+ net.bluemind.videoconferencing.starleaf.dto
