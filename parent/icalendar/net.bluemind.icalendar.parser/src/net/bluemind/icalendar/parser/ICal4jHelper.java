@@ -344,7 +344,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			long unitDurationInSeconds = unit.getDuration().getSeconds();
 			if (unitDurationInSeconds > 0) {
 				long valueAsUnit = dur.get(unit);
-				if (valueAsUnit > 0) {
+				if (valueAsUnit != 0) {
 					return (int) (valueAsUnit * unitDurationInSeconds);
 				}
 			}
