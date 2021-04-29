@@ -66,7 +66,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 	/**
 	 * https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-sspr-policy#password-policies-that-only-apply-to-cloud-user-accounts
 	 */
-	private CharMatcher azureAdMatcher = CharMatcher.inRange('a', 'z').or(CharMatcher.inRange('A', 'Z'))
+	private static final CharMatcher azureAdMatcher = CharMatcher.inRange('a', 'z').or(CharMatcher.inRange('A', 'Z'))
 			.or(CharMatcher.inRange('0', '9')).or(CharMatcher.anyOf(" @#$%^&*-_!+=[]{}|\\:',.?/`~\"()"));
 
 	private static class ValidatedAuth {
@@ -239,7 +239,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 		for (; idx < chars.length && chars[idx] != ':'; idx++)
 			;
 
-		String pass = new String(chars, idx, chars.length - idx);
+		String pass = new String(chars, idx + 1, chars.length - (idx + 1));
 		String login = new String(chars, 0, idx);
 
 		if (!azureAdMatcher.matchesAllOf(pass)) {

@@ -26,6 +26,13 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.user.hook.passwordvalidator.IPasswordValidator;
 
 public class UserPasswordValidator implements IPasswordValidator {
+
+	/**
+	 * https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-sspr-policy#password-policies-that-only-apply-to-cloud-user-accounts
+	 */
+	private static final CharMatcher azureAdMatcher = CharMatcher.inRange('a', 'z').or(CharMatcher.inRange('A', 'Z'))
+			.or(CharMatcher.inRange('0', '9')).or(CharMatcher.anyOf(" @#$%^&*-_!+=[]{}|\\:',.?/`~\"()"));
+
 	@Override
 	public void validate(Optional<String> currentPassword, String password) throws ServerFault {
 		// Create user without password
@@ -37,8 +44,9 @@ public class UserPasswordValidator implements IPasswordValidator {
 			throw new ServerFault("Password must not be empty", ErrorCode.INVALID_PARAMETER);
 		}
 
-		if (!CharMatcher.ascii().matchesAllOf(password)) {
-			throw new ServerFault("Invalid character in password", ErrorCode.INVALID_PARAMETER);
+		if (!azureAdMatcher.matchesAllOf(password)) {
+			throw new ServerFault("Invalid character in password (" + azureAdMatcher.removeFrom(password) + ")",
+					ErrorCode.INVALID_PARAMETER);
 		}
 
 		if (currentPassword.isPresent() && password.equals(currentPassword.get())) {
