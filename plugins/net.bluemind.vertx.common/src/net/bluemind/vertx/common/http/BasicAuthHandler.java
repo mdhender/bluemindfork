@@ -19,8 +19,7 @@
 
 package net.bluemind.vertx.common.http;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -30,10 +29,12 @@ import org.slf4j.LoggerFactory;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.google.common.base.CharMatcher;
 
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.authentication.api.IAuthenticationPromise;
 import net.bluemind.authentication.api.LoginResponse;
@@ -61,6 +62,12 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 	private IAuthenticationPromise authApi;
 	private VertxPromiseServiceProvider adminProv;
 	private static final Logger logger = LoggerFactory.getLogger(BasicAuthHandler.class);
+
+	/**
+	 * https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-sspr-policy#password-policies-that-only-apply-to-cloud-user-accounts
+	 */
+	private CharMatcher azureAdMatcher = CharMatcher.inRange('a', 'z').or(CharMatcher.inRange('A', 'Z'))
+			.or(CharMatcher.inRange('0', '9')).or(CharMatcher.anyOf(" @#$%^&*-_!+=[]{}|\\:',.?/`~\"()"));
 
 	private static class ValidatedAuth {
 		public ValidatedAuth(String login, String sid, Routing r) {
@@ -162,7 +169,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 	@Override
 	public void handle(final HttpServerRequest r) {
 		MultiMap headers = r.headers();
-		final String auth = headers.get("Authorization");
+		final String auth = headers.get(HttpHeaders.AUTHORIZATION);
 
 		if (auth == null) {
 			logger.debug("Missing Auth header => 401");
@@ -173,7 +180,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 				lh.handle(new AuthenticatedRequest(r, cached.login, cached.sid, cached.routing));
 				return;
 			}
-			final Creds creds = getCredentials(auth, StandardCharsets.UTF_8);
+			final Creds creds = getCredentials(auth);
 			if (creds == null) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("401 for auth header '{}', cookies: {}", auth, headers.get("Cookie"));
@@ -184,14 +191,12 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 			r.pause();
 
 			CompletableFuture<WithRouting> loginResp = authApi.login(creds.getLogin(), creds.getPassword(), origin)
-					.thenCompose(lr -> {
+					.thenApply(lr -> {
 						if (lr.status == Status.Ok) {
 							// check role then
-							return CompletableFuture.completedFuture(roleCheck(role, lr) ? lr : null);
+							return roleCheck(role, lr) ? lr : null;
 						} else {
-							Creds other = getCredentials(auth, StandardCharsets.ISO_8859_1);
-							return authApi.login(other.getLogin(), other.getPassword(), origin)
-									.thenApply(altLr -> roleCheck(role, altLr) ? altLr : null);
+							return null;
 						}
 					}).thenCompose(lrOrNull -> {
 						if (lrOrNull == null) {
@@ -225,16 +230,25 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 		}
 	}
 
-	private Creds getCredentials(String auth, Charset charset) {
+	private Creds getCredentials(String auth) {
 		if (!auth.startsWith("Basic ")) {
 			return null;
 		}
-		String sub = auth.substring(6);
-		String decStr = new String(java.util.Base64.getDecoder().decode(sub), charset);
+		byte[] chars = Base64.getDecoder().decode(auth.substring(6));
+		int idx = 0;
+		for (; idx < chars.length && chars[idx] != ':'; idx++)
+			;
 
-		int idx = decStr.indexOf(':');
-		String login = decStr.substring(0, idx);
-		String pass = decStr.substring(idx + 1);
+		String pass = new String(chars, idx, chars.length - idx);
+		String login = new String(chars, 0, idx);
+
+		if (!azureAdMatcher.matchesAllOf(pass)) {
+			if (logger.isWarnEnabled()) {
+				logger.warn("[{}] Rejecting password containing invalid characters ({})", login,
+						azureAdMatcher.removeFrom(pass));
+			}
+			return null;
+		}
 
 		// support windows style login: Domain.com\User
 		int backslash = login.indexOf('\\');
