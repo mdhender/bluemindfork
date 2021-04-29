@@ -1461,10 +1461,10 @@ public class UserServiceTests {
 		user.password = "invalid-é";
 		try {
 			getService(domainAdminSecurityContext).create(uid, user);
-			fail("Test must thrown an exception");
+			fail("Test must throw an exception");
 		} catch (ServerFault sf) {
 			assertTrue(sf.getCode() == ErrorCode.INVALID_PARAMETER);
-			assertEquals("Invalid character in password", sf.getMessage());
+			assertEquals("Invalid character in password (é)", sf.getMessage());
 		}
 	}
 
