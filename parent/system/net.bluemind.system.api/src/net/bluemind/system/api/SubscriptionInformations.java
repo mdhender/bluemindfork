@@ -60,7 +60,7 @@ public class SubscriptionInformations {
 	public static class InstallationIndicator {
 		@BMApi(version = "3")
 		public static enum Kind {
-			FullUser, SimpleUser
+			FullUser, SimpleUser, FullVisioAccount
 		}
 
 		public Kind kind;
