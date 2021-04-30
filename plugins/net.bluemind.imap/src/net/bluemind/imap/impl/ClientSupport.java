@@ -181,6 +181,9 @@ public final class ClientSupport {
 			logger.debug("Sending {} credentials to IMAP server.", login);
 			return run(new LoginCommand(login, password));
 		} catch (Exception e) {
+			// if run fails, like when building the LoginCommand, we must release
+			// the lock
+			lock.release();
 			logger.error("login error", e);
 			return false;
 		}
