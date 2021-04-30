@@ -10,6 +10,8 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.videoconferencing.api</module>
+		<module>net.bluemind.videoconferencing.hosting</module>
+		<module>net.bluemind.videoconferencing.service</module>
 		<module>net.bluemind.videoconferencing.jitsi</module>
 		<module>net.bluemind.videoconferencing.service.tests</module>
 		<module>net.bluemind.videoconferencing.service</module>

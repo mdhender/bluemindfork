@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.videoconferencing.hosting
+Bundle-SymbolicName: net.bluemind.videoconferencing.hosting;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Automatic-Module-Name: net.bluemind.videoconferencing.hosting
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.role.provider,
+ com.google.guava,
+ net.bluemind.role.api
