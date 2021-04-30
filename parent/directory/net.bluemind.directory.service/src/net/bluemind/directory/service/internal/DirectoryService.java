@@ -163,4 +163,9 @@ public class DirectoryService implements IDirectory {
 		return entry;
 	}
 
+	@Override
+	public List<ItemValue<DirEntry>> getByRoles(List<String> roles) throws ServerFault {
+		return directory.getByRoles(roles).stream().map(e -> decorate(e)).collect(Collectors.toList());
+	}
+
 }

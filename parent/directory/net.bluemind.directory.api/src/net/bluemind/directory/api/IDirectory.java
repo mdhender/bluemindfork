@@ -46,8 +46,7 @@ public interface IDirectory {
 	 * Fetch the root {@link DirEntry}
 	 * 
 	 * @return {@link DirEntry}
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	DirEntry getRoot() throws ServerFault;
@@ -55,17 +54,14 @@ public interface IDirectory {
 	/**
 	 * Fetch {@link DirEntry} by its path
 	 * 
-	 * @param path
-	 *                 path of the directory entry <br>
-	 *                 <b>domainUid/kind/entryUid</b> to find a particular entry
-	 *                 <br>
-	 *                 <b>domainUid/kind</b> to find all entries of a particular
-	 *                 kind<br>
-	 *                 <b>domainUid</b> to find all entries of a particular domain
+	 * @param path path of the directory entry <br>
+	 *             <b>domainUid/kind/entryUid</b> to find a particular entry <br>
+	 *             <b>domainUid/kind</b> to find all entries of a particular
+	 *             kind<br>
+	 *             <b>domainUid</b> to find all entries of a particular domain
 	 * 
 	 * @return {@link DirEntry} or null if not found
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@POST
 	@Path("_entry")
@@ -74,15 +70,13 @@ public interface IDirectory {
 	/**
 	 * Fetch {@link DirEntry}s by their path
 	 * 
-	 * @param path
-	 *                 path of the directory entries <br>
-	 *                 <b>domainUid/kind</b> to find all entries of a particular
-	 *                 kind<br>
-	 *                 <b>domainUid</b> to find all entries of a particular domain
+	 * @param path path of the directory entries <br>
+	 *             <b>domainUid/kind</b> to find all entries of a particular
+	 *             kind<br>
+	 *             <b>domainUid</b> to find all entries of a particular domain
 	 * 
 	 * @return {@link DirEntry}s
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@POST
 	@Path("_childs")
@@ -91,14 +85,11 @@ public interface IDirectory {
 	/**
 	 * Delete {@link DirEntry} by path
 	 * 
-	 * @param path
-	 *                 path of the directory entry
-	 *                 (<b>domainUid/kind/entryUid</b>)<br>
-	 *                 This action will fail if a shorter form of the path (like
-	 *                 <b>domain</b> or <b>domain/kind</b>) is used and returns
-	 *                 multiple entries.
-	 * @throws ServerFault
-	 *                         common error object
+	 * @param path path of the directory entry (<b>domainUid/kind/entryUid</b>)<br>
+	 *             This action will fail if a shorter form of the path (like
+	 *             <b>domain</b> or <b>domain/kind</b>) is used and returns multiple
+	 *             entries.
+	 * @throws ServerFault common error object
 	 */
 	@DELETE
 	@Path("{path}")
@@ -107,10 +98,8 @@ public interface IDirectory {
 	/**
 	 * Get {@link DirEntry}'s {@link net.bluemind.addressbook.api.VCard}
 	 * 
-	 * @param uid
-	 *                the entry uid
-	 * @throws ServerFault
-	 *                         common error object
+	 * @param uid the entry uid
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("{uid}/_vcard")
@@ -119,10 +108,8 @@ public interface IDirectory {
 	/**
 	 * Delete a {@link DirEntry} by uid
 	 * 
-	 * @param uid
-	 *                the entry uid
-	 * @throws ServerFault
-	 *                         common error object
+	 * @param uid the entry uid
+	 * @throws ServerFault common error object
 	 */
 	@DELETE
 	@Path("_byentryuid/{entryUid}")
@@ -131,11 +118,9 @@ public interface IDirectory {
 	/**
 	 * Get the domain's {@link ContainerChangelog}
 	 * 
-	 * @param since
-	 *                  timestamp of the first change we want to retrieve
+	 * @param since timestamp of the first change we want to retrieve
 	 * @return {@link ContainerChangelog}
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("_changelog")
@@ -144,11 +129,9 @@ public interface IDirectory {
 	/**
 	 * Get the domain's {@link ContainerChangeset}
 	 * 
-	 * @param since
-	 *                  timestamp of the first change we want to retrieve
+	 * @param since timestamp of the first change we want to retrieve
 	 * @return {@link ContainerChangeset}
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("_changeset")
@@ -157,11 +140,9 @@ public interface IDirectory {
 	/**
 	 * Search {@link DirEntry}s by {@link DirEntryQuery}
 	 * 
-	 * @param query
-	 *                  the {@link DirEntryQuery} search parameters
+	 * @param query the {@link DirEntryQuery} search parameters
 	 * @return List of matching {@link DirEntry}s
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@POST
 	@Path("_search")
@@ -170,11 +151,9 @@ public interface IDirectory {
 	/**
 	 * Get {@link DirEntry} by uid
 	 * 
-	 * @param entryUid
-	 *                     the unique {@link DirEntry} uid
+	 * @param entryUid the unique {@link DirEntry} uid
 	 * @return matching {@link DirEntry} or null if not found
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("entry-uid/{entryUid}")
@@ -183,12 +162,10 @@ public interface IDirectory {
 	/**
 	 * Get a {@link DirEntry}'s icon
 	 * 
-	 * @param entryUid
-	 *                     the unique {@link DirEntry} uid
+	 * @param entryUid the unique {@link DirEntry} uid
 	 * @return the image data in PNG format or null, if no icon is associated to the
 	 *         {@link DirEntry}
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("entry-uid/{entryUid}/icon")
@@ -198,12 +175,10 @@ public interface IDirectory {
 	/**
 	 * Get a {@link DirEntry}'s photo
 	 * 
-	 * @param entryUid
-	 *                     the unique {@link DirEntry} uid
+	 * @param entryUid the unique {@link DirEntry} uid
 	 * @return the image data in PNG format or null, if no photo is associated to
 	 *         the {@link DirEntry}
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("entry-uid/{entryUid}/photo")
@@ -213,16 +188,13 @@ public interface IDirectory {
 	/**
 	 * Get a {@link DirEntry}'s icon
 	 * 
-	 * @param path
-	 *                 path of the directory entry
-	 *                 (<b>domainUid/kind/entryUid</b>)<br>
-	 *                 This action will fail if a shorter form of the path (like
-	 *                 <b>domain</b> or <b>domain/kind</b>) is used and returns
-	 *                 multiple entries.
+	 * @param path path of the directory entry (<b>domainUid/kind/entryUid</b>)<br>
+	 *             This action will fail if a shorter form of the path (like
+	 *             <b>domain</b> or <b>domain/kind</b>) is used and returns multiple
+	 *             entries.
 	 * @return the image data in PNG format or null, if no icon is associated to the
 	 *         {@link DirEntry}
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("_icon/{path}")
@@ -232,11 +204,9 @@ public interface IDirectory {
 	/**
 	 * Get all the roles associated to an {@link DirEntry}
 	 * 
-	 * @param entryUid
-	 *                     the unique {@link DirEntry} uid
+	 * @param entryUid the unique {@link DirEntry} uid
 	 * @return a set containing all roles associated to a {@link DirEntry}
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("entry-uid/{entryUid}/rolesfor_")
@@ -245,23 +215,29 @@ public interface IDirectory {
 	/**
 	 * Get all the roles associated to an {@link net.bluemind.directory.api.OrgUnit}
 	 * 
-	 * @param orgUnitUid
-	 *                       the unique {@link net.bluemind.directory.api.OrgUnit}'s
-	 *                       id
+	 * @param orgUnitUid the unique {@link net.bluemind.directory.api.OrgUnit}'s id
 	 * @return a set containing all roles associated to an
 	 *         {@link net.bluemind.directory.api.OrgUnit}
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("ou-uid/{ouUid}/rolesfor_")
 	public Set<String> getRolesForOrgUnit(@PathParam("ouUid") String orgUnitUid) throws ServerFault;
 
 	/**
+	 * 
+	 * @param roles
+	 * @return
+	 * @throws ServerFault
+	 */
+	@POST
+	@Path("_byroles")
+	List<ItemValue<DirEntry>> getByRoles(List<String> roles) throws ServerFault;
+
+	/**
 	 * Fetch a {@link DirEntry} by its email address
 	 * 
-	 * @param email
-	 *                  the {@link DirEntry}'s email address
+	 * @param email the {@link DirEntry}'s email address
 	 * @return the matching {@link DirEntry} or null, if not found
 	 */
 	@GET
@@ -272,8 +248,7 @@ public interface IDirectory {
 	 * Fetch a list of {@link net.bluemind.core.container.model}({@link DirEntry})
 	 * by their internal numerical ids
 	 * 
-	 * @param id
-	 *               list of internal numerical ids
+	 * @param id list of internal numerical ids
 	 * @return list of matching {@link DirEntry}'s
 	 */
 	@POST
@@ -286,14 +261,11 @@ public interface IDirectory {
 	 * data as well as all emails to the new server. This action can potentially
 	 * take a very long time
 	 * 
-	 * @param entryUid
-	 *                      the unique {@link DirEntry} uid
-	 * @param serverUid
-	 *                      the unique {@link net.bluemind.server.api.Server} uid
+	 * @param entryUid  the unique {@link DirEntry} uid
+	 * @param serverUid the unique {@link net.bluemind.server.api.Server} uid
 	 * @return a {@link net.bluemind.core.task.api.TaskRef} referencing this
 	 *         operation
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@POST
 	@Path("_xfer/{entryUid}/{serverUid}")

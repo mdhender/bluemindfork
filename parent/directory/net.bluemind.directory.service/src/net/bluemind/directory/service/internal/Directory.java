@@ -90,6 +90,7 @@ import net.bluemind.mailbox.api.IMailboxMgmt;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.role.persistence.RoleStore;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tag.api.ITags;
@@ -104,12 +105,14 @@ public class Directory {
 	private RBACManager rbacManager;
 	private ItemValue<Domain> domain;
 	private DirEntriesCache cache;
+	private RoleStore roleStore;
 
 	public Directory(BmContext context, Container dirContainer, ItemValue<Domain> domain) {
 		this.domainUid = domain.uid;
 		this.context = context;
 		this.itemStore = new DirEntryStoreService(this.context, dirContainer, domain.uid);
 		rbacManager = new RBACManager(context).forContainer(dirContainer);
+		this.roleStore = new RoleStore(context.getDataSource(), dirContainer);
 		this.domain = domain;
 		cache = DirEntriesCache.get(context, domainUid);
 	}
@@ -468,6 +471,17 @@ public class Directory {
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
+	}
+
+	public List<ItemValue<DirEntry>> getByRoles(List<String> roles) {
+		checkReadAccess();
+		List<String> itemsWithRoles;
+		try {
+			itemsWithRoles = new ArrayList<>(roleStore.getItemsWithRoles(roles));
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+		return getMultiple(itemsWithRoles);
 	}
 
 }

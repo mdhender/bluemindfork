@@ -19,6 +19,7 @@
 package net.bluemind.directory.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -26,8 +27,10 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -45,6 +48,7 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangeset;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
@@ -302,6 +306,48 @@ public class DirectoryTests {
 		assertNull(dir.getByEmail("test2@" + domainUid));
 		assertNull(dir.getByEmail("test@fakeDomain.net"));
 		assertNotNull(dir.getByEmail("test2@alias" + domainUid));
+	}
+
+	@Test
+	public void testByRoles() throws ServerFault, IOException {
+		IDirectory dir = service();
+
+		String userUid1 = PopulateHelper.addUser("test1-" + System.nanoTime(), domainUid);
+		String userUid2 = PopulateHelper.addUser("test2-" + System.nanoTime(), domainUid);
+		String userUid3 = PopulateHelper.addUser("test3-" + System.nanoTime(), domainUid);
+		PopulateHelper.addGroup(domainUid, "group1" + System.nanoTime(), "group1", new ArrayList<Member>());
+
+		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
+				domainUid);
+
+		userService.setRoles(userUid1, new HashSet<String>(Arrays.asList("role1", "role2", "role3")));
+		userService.setRoles(userUid2, new HashSet<String>(Arrays.asList("role2", "role3")));
+		userService.setRoles(userUid3, new HashSet<String>(Arrays.asList("role3")));
+
+		IGroup groupService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IGroup.class,
+				domainUid);
+
+		String group1Uid = UIDGenerator.uid();
+		Group group = new Group();
+		group.name = "test-" + System.nanoTime();
+		groupService.create(group1Uid, group);
+
+		groupService.setRoles(group1Uid, new HashSet<String>(Arrays.asList("role1")));
+
+		List<ItemValue<DirEntry>> byRoles1 = dir.getByRoles(Arrays.asList("role1", "role2", "role3"));
+		assertTrue(contained(byRoles1, userUid1));
+		assertTrue(contained(byRoles1, group1Uid));
+		assertTrue(contained(byRoles1, userUid2));
+		assertTrue(contained(byRoles1, userUid3));
+		List<ItemValue<DirEntry>> byRoles2 = dir.getByRoles(Arrays.asList("role2"));
+		assertTrue(contained(byRoles2, userUid1));
+		assertFalse(contained(byRoles2, group1Uid));
+		assertTrue(contained(byRoles2, userUid2));
+		assertFalse(contained(byRoles2, userUid3));
+	}
+
+	private boolean contained(List<ItemValue<DirEntry>> entry, String uid) {
+		return entry.stream().filter(e -> e.uid.equals(uid)).findFirst().isPresent();
 	}
 
 	@Test
