@@ -1,0 +1,8 @@
+{
+    "name": "@bluemind/roles",
+    "version": "4.1.0",
+    "description": "BlueMind Roles helper",
+    "license": "AGPL-3.0-only",
+    "author": "Blue Mind SAS",
+    "main": "index.js"
+}

@@ -75,7 +75,7 @@ export default {
         }
     },
     created() {
-        const sections = getPreferenceSections(this.applications, inject("i18n"));
+        const sections = getPreferenceSections(this.applications, inject("UserSession").roles, inject("i18n"));
         this.SET_SECTIONS(sections);
         this.FETCH_USER_PASSWORD_LAST_CHANGE();
     },

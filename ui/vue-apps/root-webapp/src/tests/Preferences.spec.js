@@ -5,11 +5,13 @@ import { MountComponentUtils } from "@bluemind/test-utils";
 import ServiceLocator from "@bluemind/inject";
 ServiceLocator.register({
     provide: "i18n",
-    factory: () => {
-        return {
-            t: () => ""
-        };
-    }
+    factory: () => ({
+        t: () => ""
+    })
+});
+ServiceLocator.register({
+    provide: "UserSession",
+    factory: () => ({ roles: "" })
 });
 
 describe("Preferences", () => {

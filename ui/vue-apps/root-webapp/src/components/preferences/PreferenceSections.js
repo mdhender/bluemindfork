@@ -1,5 +1,6 @@
 import { AvailableTimeFormats, AvailableDateFormats, AvailablesTimezones } from "@bluemind/date";
 import { AvailableLanguages } from "@bluemind/i18n";
+import Roles from "@bluemind/roles";
 
 import NotificationManager from "../../NotificationManager";
 
@@ -14,15 +15,20 @@ import threadSettingImageOff from "../../../assets/setting-thread-off.svg";
  * Each section, like "mail", holds several categories, like "main" or "advanced". Each category holds groups of fields.
  * These fields are created using Dynamic Components (see PrefContent).
  */
-export default function (applications, vueI18N) {
-    const myAccount = getMyAccountSection(vueI18N);
-    const webmail = getWebmailSection(vueI18N, applications);
-    const calendar = getCalendarSection(vueI18N, applications);
+export default function (applications, roles, vueI18N) {
+    const sections = [getMyAccountSection(roles, vueI18N)];
 
-    return [myAccount, webmail, calendar];
+    if (roles.includes(Roles.HAS_MAIL)) {
+        sections.push(getWebmailSection(vueI18N, applications));
+    }
+    if (roles.includes(Roles.HAS_CALENDAR)) {
+        sections.push(getCalendarSection(vueI18N, applications));
+    }
+
+    return sections;
 }
 
-function getMyAccountSection(vueI18N) {
+function getMyAccountSection(roles, vueI18N) {
     const availableDefaultApps = [
         { text: vueI18N.t("common.application.webmail"), value: "/webmail/" },
         { text: vueI18N.t("common.application.calendar"), value: "/cal/" }
@@ -107,50 +113,55 @@ function getMyAccountSection(vueI18N) {
         }
     ];
 
-    const telephonyCategoryGroups = [
+    const categories = [
         {
-            title: vueI18N.t("preferences.telephony.status"),
-            fields: [
-                {
-                    component: "PrefIMSetPhonePresence",
-                    setting: "im_set_phone_presence",
-                    options: {}
-                }
-            ]
+            code: "main",
+            name: vueI18N.t("common.general"),
+            icon: "wrench",
+            groups: mainCategoryGroups
+        },
+        {
+            code: "advanced",
+            name: vueI18N.t("common.advanced"),
+            icon: "plus",
+            groups: advancedCategoryGroups
+        },
+        {
+            code: "security",
+            name: vueI18N.t("common.security"),
+            icon: "server",
+            groups: securityCategoryGroups
         }
     ];
+
+    if (roles.includes(Roles.HAS_CTI) && roles.includes(Roles.HAS_IM)) {
+        const telephonyCategoryGroups = [
+            {
+                title: vueI18N.t("preferences.telephony.status"),
+                fields: [
+                    {
+                        component: "PrefIMSetPhonePresence",
+                        setting: "im_set_phone_presence",
+                        options: {}
+                    }
+                ]
+            }
+        ];
+
+        categories.push({
+            code: "telephony",
+            name: vueI18N.t("common.telephony"),
+            icon: "cables",
+            groups: telephonyCategoryGroups
+        });
+    }
 
     return {
         name: vueI18N.t("common.my_account"),
         href: "/",
         icon: { name: "preferences" },
         code: "my_account",
-        categories: [
-            {
-                code: "main",
-                name: vueI18N.t("common.general"),
-                icon: "wrench",
-                groups: mainCategoryGroups
-            },
-            {
-                code: "advanced",
-                name: vueI18N.t("common.advanced"),
-                icon: "plus",
-                groups: advancedCategoryGroups
-            },
-            {
-                code: "security",
-                name: vueI18N.t("common.security"),
-                icon: "server",
-                groups: securityCategoryGroups
-            },
-            {
-                code: "telephony",
-                name: vueI18N.t("common.telephony"),
-                icon: "cables",
-                groups: telephonyCategoryGroups
-            }
-        ]
+        categories
     };
 }
 
