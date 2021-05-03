@@ -41,6 +41,7 @@ CREATE TABLE t_container_item (
 );
 
 CREATE INDEX idx_container_item_uid ON t_container_item(uid);
+CREATE INDEX IF NOT EXISTS t_container_item_unseen_notdeleted_idx on t_container_item(container_id) WHERE (((flags)::bit(32) & '00000000000000000000000000000011'::bit(32)) = '00000000000000000000000000000000'::bit(32));
 
 
 CREATE TABLE t_container_changelog (
