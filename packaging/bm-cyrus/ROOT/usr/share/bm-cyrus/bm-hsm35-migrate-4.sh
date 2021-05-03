@@ -150,9 +150,9 @@ migrate_user() {
     echo ${user_email} >> ${MIGRATED_LOG}
     if [ "$quota_update" -eq "1" ]; then
         echo "[$job][${domain}][${user_email}] Retrieve used space using quota"
-        used_space=$(quota -J | jq -r -c 'to_entries[] | select(.key == "user/'$user_login'") | .value.STORAGE.used')
+	    used_space=$(quota -J | jq -r -c 'to_entries[] | select(.key == "user/'${user_login}@${domain}'") | .value.STORAGE.used')
 
-        user_before_leftquota=$(jq -a -r -c 'to_entries[] | select(.key == "user/'$user_login'") | .value' ${QUOTA_DUMP})
+    	user_before_leftquota=$(jq -a -r -c 'to_entries[] | select(.key == "user/'${user_login}@${domain}'") | .value' ${QUOTA_DUMP})
         if [ -z "${user_before_leftquota}" ] || [ -z "${used_space}" ]; then
             echo "[$job][${domain}][${user_email}] Unable to restore quota: can't calculate actual disk usage"
         else
@@ -161,7 +161,7 @@ migrate_user() {
 
             echo "[$job][${domain}][${user_email}] Setting quota to ${new_quota} KiB"
             curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
-                -XPOST -d "$user_values" \
+                -XPOST -d "$new_user_values" \
                 ${API_URL}/users/${domain}/${user_uid}
         fi
     fi
@@ -270,7 +270,6 @@ for domain in ${domains}; do
         allusers="$allusers $userinfo"
     done
 
-    quota_user_emails=$(jq -r -a -c '[to_entries | .[] | .key | match("user/((.+)@'${domain}')") | .captures [0].string]|sort' ${QUOTA_DUMP} || true)
     for userinfo in $allusers; do
         user_email=$(echo $userinfo | jq -r -c '.email')
         user_uid=$(echo $userinfo | jq -r -c '.uid')
@@ -282,7 +281,7 @@ for domain in ${domains}; do
         fi
 
         # Updating the quota for users needing it
-        if echo $quota_user_emails | grep -q "$user_email"; then
+	    if grep -q "${user_login}@${domain}" "${QUOTA_DUMP}"; then
             quota_update=1
         else
             quota_update=0
