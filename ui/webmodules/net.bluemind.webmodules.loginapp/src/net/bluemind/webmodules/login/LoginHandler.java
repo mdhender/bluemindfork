@@ -178,8 +178,11 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 	}
 
 	private ITaggedServiceProvider getProvider() {
-		ILocator lc = (String service, AsyncHandler<String[]> asyncHandler) -> asyncHandler.success(
-				new String[] { Topology.get().anyIfPresent(service).map(s -> s.value.address()).orElse("127.0.0.1") });
+		ILocator lc = (String service, AsyncHandler<String[]> asyncHandler) -> {
+			String ip = Topology.getIfAvailable().flatMap(tp -> tp.anyIfPresent(service).map(s -> s.value.address()))
+					.orElse("127.0.0.1");
+			asyncHandler.success(new String[] { ip });
+		};
 
 		return new VertxServiceProvider(clientProvider, lc, Token.admin0());
 	}
