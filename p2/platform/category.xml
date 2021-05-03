@@ -356,6 +356,7 @@
    <bundle id="net.bluemind.system.schemaupgrader" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.sqlschema" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.system.upgraders.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.webmail" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.tag.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.tag.api.closure" version="4.1.0.qualifier"/>

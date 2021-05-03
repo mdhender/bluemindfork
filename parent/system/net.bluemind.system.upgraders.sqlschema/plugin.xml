@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.jdbc.schema">
+      <schema
+            name="hot-upgrade-task-schema"
+            resource="sql/hot-upgrade-task-schema.1.0.0.sql">
+      </schema>
+   </extension>
+</plugin>

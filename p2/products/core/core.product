@@ -377,6 +377,7 @@
       <plugin id="net.bluemind.system.schemaupgrader.runner"/>
       <plugin id="net.bluemind.system.service"/>
       <plugin id="net.bluemind.system.sqlschema"/>
+      <plugin id="net.bluemind.system.upgraders.sqlschema"/>
       <plugin id="net.bluemind.system.state"/>
       <plugin id="net.bluemind.system.subscriptionprovider"/>
       <plugin id="net.bluemind.system.sysconf.helper"/>
