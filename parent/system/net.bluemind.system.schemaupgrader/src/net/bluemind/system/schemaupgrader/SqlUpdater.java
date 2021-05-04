@@ -122,4 +122,12 @@ public class SqlUpdater implements DatedUpdater {
 		return database;
 	}
 
+	public boolean ignoreErrors() {
+		return ignoreErrors;
+	}
+
+	public URL file() {
+		return file;
+	}
+
 }

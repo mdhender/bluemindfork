@@ -42,6 +42,7 @@ import net.bluemind.system.api.Database;
 import net.bluemind.system.api.UpgradeReport;
 import net.bluemind.system.persistence.UpgraderStore;
 import net.bluemind.system.schemaupgrader.DatedUpdater;
+import net.bluemind.system.schemaupgrader.SqlUpdater;
 import net.bluemind.system.schemaupgrader.UpdateAction;
 import net.bluemind.system.schemaupgrader.UpdateResult;
 import net.bluemind.system.schemaupgrader.Updater;
@@ -69,13 +70,36 @@ public class InstallationUpgradeTask implements IServerTask {
 		checkDatabaseStatus(store);
 
 		Set<UpdateAction> handledActions = EnumSet.noneOf(UpdateAction.class);
-		List<DatedUpdater> upgraders = SchemaUpgrade.getUpgradePath();
+		List<DatedUpdater> upgraders = adaptUpgraders(SchemaUpgrade.getUpgradePath());
 
 		executeUpgrades(upgraders, handledActions, store, monitor);
 
 		monitor.end(true, "Core upgrade complete", "");
 		logger.info("Core upgrade ended");
 		notifyUpgradeStatus("core.upgrade.end");
+	}
+
+	/**
+	 * During the migration from BlueMind 3.5 to version 4, the database bj-data is
+	 * created based on a copy of bj. Since no sql upgraders will be executed on
+	 * bj-data, we need to ensure that bj is up-to-date, including all changes
+	 * targeting bj-data. Therefore, in this special case, we redeclare all sql
+	 * updgraders defined as "SHARD" as upgraders "ALL".
+	 */
+	private List<DatedUpdater> adaptUpgraders(List<DatedUpdater> upgraders) {
+		if (from.major.equals("3")) {
+			return upgraders.stream().map(upgrader -> {
+				if (upgrader instanceof SqlUpdater) {
+					if (upgrader.database() == Database.SHARD) {
+						SqlUpdater sql = (SqlUpdater) upgrader;
+						return new SqlUpdater(sql.file(), sql.ignoreErrors(), sql.afterSchemaUpgrade(), Database.ALL,
+								sql.date(), sql.sequence());
+					}
+				}
+				return upgrader;
+			}).collect(Collectors.toList());
+		}
+		return upgraders;
 	}
 
 	private void executeUpgrades(List<DatedUpdater> upgraders, Set<UpdateAction> handledActions, UpgraderStore store,
