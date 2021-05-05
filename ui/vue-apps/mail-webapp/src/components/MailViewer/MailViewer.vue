@@ -58,15 +58,16 @@
 
 <script>
 import { mapState, mapActions, mapGetters } from "vuex";
-import { BmCol, BmRow } from "@bluemind/styleguide";
 import { inject } from "@bluemind/inject";
+import BmRoles from "@bluemind/roles";
+import { BmCol, BmRow } from "@bluemind/styleguide";
+
 import EventViewer from "./EventViewer";
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 import MailViewerFrom from "./MailViewerFrom";
 import MailViewerRecipient from "./MailViewerRecipient";
 import MailViewerToolbar from "./MailViewerToolbar";
 import PartsViewer from "./PartsViewer/PartsViewer";
-
 import { MESSAGE_LIST_UNREAD_FILTER_ENABLED } from "~getters";
 import { MARK_MESSAGE_AS_READ } from "~actions";
 
@@ -96,7 +97,7 @@ export default {
             return this.message.subject || this.$t("mail.viewer.no.subject");
         },
         containsEvent() {
-            return inject("UserSession").roles.includes("hasCalendar") && this.message.hasICS;
+            return inject("UserSession").roles.includes(BmRoles.HAS_CALENDAR) && this.message.hasICS;
         }
     },
     watch: {

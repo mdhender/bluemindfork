@@ -78,8 +78,9 @@
 <script>
 import { mapGetters } from "vuex";
 import GlobalEvents from "vue-global-events";
-import { BmFormCheckbox, BmButton, BmCol, BmIcon, BmRow, MakeUniq } from "@bluemind/styleguide";
 import { inject } from "@bluemind/inject";
+import BmRoles from "@bluemind/roles";
+import { BmFormCheckbox, BmButton, BmCol, BmIcon, BmRow, MakeUniq } from "@bluemind/styleguide";
 
 import FaviconHelper from "../FaviconHelper";
 import BoostrapMixin from "./MailApp/BootstrapMixin";
@@ -134,8 +135,8 @@ export default {
         canSwitchWebmail() {
             return (
                 this.userSession &&
-                this.userSession.roles.includes("hasMailWebapp") &&
-                this.userSession.roles.includes("hasWebmail")
+                this.userSession.roles.includes(BmRoles.HAS_MAIL_WEBAPP) &&
+                this.userSession.roles.includes(BmRoles.HAS_WEBMAIL)
             );
         },
         displayToolbarInResponsiveMode() {

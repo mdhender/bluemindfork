@@ -1,11 +1,14 @@
 <template>
     <div :id="categoryId(section.code, category.code)" class="pref-category">
         <div v-for="group in filteredFieldGroups" :key="group.title" class="pref-field">
-            <h2 class="pt-4 pb-2">
-                {{ group.title }}
-                <span v-if="group.availableSoon" class="available-soon">{{ $t("common.available_soon") }}</span>
-            </h2>
-            <bm-form-group :aria-label="group.title" :disabled="group.availableSoon">
+            <div class="pt-4 pb-2 d-flex align-items-center">
+                <span class="h2" :class="{ 'text-alternate-light': group.readOnly }">{{ group.title }}</span>
+                <span v-if="group.availableSoon" class="available-soon h2">{{ $t("common.available_soon") }}</span>
+                <bm-label-icon v-if="group.readOnly" icon="exclamation-circle" class="text-warning ml-2">
+                    {{ $t("preferences.role.missing.warning") }}
+                </bm-label-icon>
+            </div>
+            <bm-form-group :aria-label="group.title" :disabled="group.availableSoon || group.readOnly">
                 <template v-for="field in group.fields">
                     <bm-form-group :key="field.name" :aria-label="field.name" :label="field.name">
                         <component
@@ -42,12 +45,13 @@ import PrefResetLocalData from "./fields/customs/PrefResetLocalData";
 import PrefWorksHours from "./fields/customs/PrefWorksHours";
 import PrefMixin from "./mixins/PrefMixin";
 
-import { BmFormGroup } from "@bluemind/styleguide";
+import { BmFormGroup, BmLabelIcon } from "@bluemind/styleguide";
 
 export default {
     name: "PrefCategory",
     components: {
         BmFormGroup,
+        BmLabelIcon,
         PrefFieldCheck,
         PrefFieldChoice,
         PrefFieldComboBox,

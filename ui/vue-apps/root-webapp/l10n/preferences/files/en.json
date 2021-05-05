@@ -87,6 +87,7 @@
     "preferences.mail.logout": "On logout",
     "preferences.mail.logout.empty.trash": "Empty Trash",
 
+    "preferences.role.missing.warning": "You do not have the rights to modify this preference",
     "preferences.save.error": "Error while saving, check your network connection",
     "preferences.save.success": "Successfully saved",
     "preferences.menu.apps": "Applications preferences menu"

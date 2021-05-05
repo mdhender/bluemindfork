@@ -7,7 +7,11 @@
                     {{ user.displayname }}
                 </span>
             </template>
-            <bm-dropdown-item :title="$t('banner.menu.preferences.aria')" @click="TOGGLE_PREFERENCES()">
+            <bm-dropdown-item
+                v-if="canOpenSettings"
+                :title="$t('banner.menu.preferences.aria')"
+                @click="TOGGLE_PREFERENCES()"
+            >
                 <bm-label-icon icon="preferences">{{ $t("common.preference") }} </bm-label-icon>
             </bm-dropdown-item>
             <bm-dropdown-item href="/bluemind_sso_logout">
@@ -18,6 +22,8 @@
 </template>
 
 <script>
+import { inject } from "@bluemind/inject";
+import BmRoles from "@bluemind/roles";
 import { BmAvatar, BmDropdownItem, BmLabelIcon, BmNavbarNav, BmNavItemDropdown } from "@bluemind/styleguide";
 import { mapMutations } from "vuex";
 
@@ -36,7 +42,12 @@ export default {
             type: Object
         }
     },
-    methods: { ...mapMutations("preferences", ["TOGGLE_PREFERENCES"]) }
+    data() {
+        return { canOpenSettings: inject("UserSession").roles.includes(BmRoles.SELF_CHANGE_SETTINGS) };
+    },
+    methods: {
+        ...mapMutations("preferences", ["TOGGLE_PREFERENCES"])
+    }
 };
 </script>
 

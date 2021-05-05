@@ -87,6 +87,7 @@
     "preferences.mail.logout": "Beim Abmelden",
     "preferences.mail.logout.empty.trash": "Papierkorb leeren",
 
+    "preferences.role.missing.warning": "Sie haben keine Berechtigung diese Einstellung zu verändern",
     "preferences.save.error": "Fehler beim Speichern, bitte Netzwerkverfügbarkeit prüfen",
     "preferences.save.success": "Erfolgreich gespeichert",
     "preferences.menu.apps": "Anwendungseinstellungen"

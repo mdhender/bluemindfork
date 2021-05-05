@@ -104,6 +104,7 @@ import { mapGetters, mapMutations, mapState } from "vuex";
 import { EmailValidator } from "@bluemind/email";
 import { sanitizeHtml } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
+import BmRoles from "@bluemind/roles";
 import {
     BmAvatar,
     BmButton,
@@ -200,7 +201,7 @@ export default {
             this.emailInput = "";
             this.id = "";
             this.isNewIdentity = !identityDescription;
-            this.canCreateExternalIdentity = inject("UserSession").roles.includes("canCreateExternalIdentity");
+            this.canCreateExternalIdentity = inject("UserSession").roles.includes(BmRoles.CAN_CREATE_EXTERNAL_IDENTITY);
 
             if (identityDescription) {
                 this.id = identityDescription.id;

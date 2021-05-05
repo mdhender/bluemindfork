@@ -19,7 +19,7 @@ export default function (applications, roles, vueI18N) {
     const sections = [getMyAccountSection(roles, vueI18N)];
 
     if (roles.includes(Roles.HAS_MAIL)) {
-        sections.push(getWebmailSection(vueI18N, applications));
+        sections.push(getWebmailSection(roles, vueI18N, applications));
     }
     if (roles.includes(Roles.HAS_CALENDAR)) {
         sections.push(getCalendarSection(vueI18N, applications));
@@ -104,6 +104,7 @@ function getMyAccountSection(roles, vueI18N) {
     const securityCategoryGroups = [
         {
             title: vueI18N.t("common.password"),
+            readOnly: !roles.includes(Roles.SELF_CHANGE_PASSWORD),
             fields: [
                 {
                     component: "PrefPassword",
@@ -165,7 +166,7 @@ function getMyAccountSection(roles, vueI18N) {
     };
 }
 
-function getWebmailSection(vueI18N, applications) {
+function getWebmailSection(roles, vueI18N, applications) {
     return {
         name: vueI18N.t("common.application.webmail"),
         code: "mail",
@@ -287,6 +288,7 @@ function getWebmailSection(vueI18N, applications) {
                 groups: [
                     {
                         title: vueI18N.t("preferences.mail.identities.manage"),
+                        readOnly: !roles.includes(Roles.MANAGE_MAILBOX_IDENTITIES),
                         fields: [
                             {
                                 component: "PrefManageIdentities",
