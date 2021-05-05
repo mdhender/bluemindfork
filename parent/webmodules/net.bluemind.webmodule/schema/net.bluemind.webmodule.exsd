@@ -149,6 +149,9 @@
             <sequence>
                <element ref="css" minOccurs="0" maxOccurs="unbounded"/>
             </sequence>
+            <sequence>
+               <element ref="blacklist" minOccurs="0" maxOccurs="unbounded"/>
+            </sequence>
          </choice>
          <attribute name="module" type="string" use="required">
             <annotation>
@@ -187,6 +190,18 @@
    </element>
 
    <element name="css">
+      <complexType>
+         <attribute name="path" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="blacklist">
       <complexType>
          <attribute name="path" type="string">
             <annotation>

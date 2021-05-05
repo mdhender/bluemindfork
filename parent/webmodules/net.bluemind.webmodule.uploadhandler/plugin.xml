@@ -5,6 +5,7 @@
          point="net.bluemind.webmodule">
       <web-module-provider
             module="*">
+         <blacklist path="/webapp"/>
          <handler
                class="net.bluemind.webmodule.uploadhandler.internal.TemporaryUploadHandler"
                path="tmpfileupload">

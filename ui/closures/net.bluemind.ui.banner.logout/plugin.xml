@@ -5,6 +5,7 @@
          point="net.bluemind.webmodule">
       <web-module-provider
             module="*">
+         <blacklist path="/webapp"/>
          <js
                path="js/compile/net.bluemind.ui.banner.logout.js">
          </js>

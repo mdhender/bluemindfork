@@ -79,7 +79,16 @@ public class WebModuleResolver {
 
 				if ("*".equals(moduleId)) {
 					for (WebModuleBuilder module : modules.values()) {
-						provide(module, e);
+						boolean blacklisted = false;
+						for (IConfigurationElement wle : e.getChildren("blacklist")) {
+							String blackListRoot = wle.getAttribute("path");
+							if (module.root.equals(blackListRoot)) {
+								blacklisted = true;
+							}
+						}
+						if (!blacklisted) {
+							provide(module, e);
+						}
 					}
 				} else {
 					String[] ms = moduleId.split(",");

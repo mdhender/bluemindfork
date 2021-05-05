@@ -12,6 +12,7 @@
          point="net.bluemind.webmodule">
       <web-module-provider
             module="*">
+         <blacklist path="/webapp"/>
          <js
                path="js/compile/net.bluemind.calendar.banner.closure.js">
          </js>
