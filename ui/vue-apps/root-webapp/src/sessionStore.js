@@ -21,7 +21,13 @@ const state = {
 const actions = {
     async FETCH_ALL_SETTINGS({ commit }) {
         const userSession = inject("UserSession");
-        let settings = await inject("UserSettingsPersistence").get(userSession.userId);
+        let settings;
+
+        if (userSession.userId) {
+            settings = await inject("UserSettingsPersistence").get(userSession.userId);
+        } else {
+            settings = {};
+        }
 
         settings = {
             ...newWebmailDefaultSettings,

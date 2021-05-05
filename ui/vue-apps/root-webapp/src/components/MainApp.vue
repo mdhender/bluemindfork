@@ -74,10 +74,17 @@ export default {
             .sort((a, b) => b.order - a.order);
         data.widgets.sort((a, b) => b.order - a.order);
 
-        const user = {
-            displayname: userSession["formatedName"],
-            email: userSession["defaultEmail"]
+        let user = {
+            displayname: "Anonymous",
+            email: "anonymous@noreply.local"
         };
+        if (userSession.userId) {
+            user = {
+                ...user,
+                displayname: userSession["formatedName"],
+                email: userSession["defaultEmail"]
+            };
+        }
         const software = {
             version: userSession["bmVersion"],
             brand: userSession["bmBrandVersion"]
@@ -95,15 +102,17 @@ export default {
     },
     created() {
         this.appHeight();
-        this.FETCH_MY_MAILBOX_QUOTA();
-        window.setInterval(() => this.FETCH_MY_MAILBOX_QUOTA(), 1000 * 60 * 30);
-        this.FETCH_IDENTITIES(this.settings.lang);
+        if (injector.getProvider("UserSession").get().userId) {
+            this.FETCH_MY_MAILBOX_QUOTA();
+            window.setInterval(() => this.FETCH_MY_MAILBOX_QUOTA(), 1000 * 60 * 30);
+            this.FETCH_IDENTITIES(this.settings.lang);
 
-        this.$router.onReady(() => {
-            if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
-                this.TOGGLE_PREFERENCES();
-            }
-        });
+            this.$router.onReady(() => {
+                if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
+                    this.TOGGLE_PREFERENCES();
+                }
+            });
+        }
     },
     methods: {
         ...mapActions("root-app", ["FETCH_IDENTITIES", "FETCH_MY_MAILBOX_QUOTA"]),
