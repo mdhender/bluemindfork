@@ -36,6 +36,10 @@ export default class NotificationManager {
             const mailAppExtension = window.bmExtensions_["net.bluemind.banner"].find(
                 extension => extension.application.role === "hasMail" && extension.application.href.includes("mail")
             );
+            if (! mailAppExtension) {
+                console.log("sorry, no mailApp registered");
+                return;
+            }
             const mailIconAsSvg = mailAppExtension.application.children["icon-svg"].body;
             const mailIconAsBlobURL = URL.createObjectURL(new Blob([mailIconAsSvg], { type: "image/svg+xml" }));
 
