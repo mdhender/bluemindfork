@@ -68,6 +68,14 @@
     "preferences.calendar.main.configure_view": "Affichage de l'agenda",
     "preferences.calendar.main.reminder": "Rappel d'évènement",
 
+    "preferences.calendar.my_calendars.create": "Créer un calendrier",
+    "preferences.calendar.my_calendars.reset_data": "Toutes les données de ce calendrier seront supprimées.",
+    "preferences.calendar.my_calendars.remove": "Supprimer définitivement le calendrier ?",
+    "preferences.calendar.my_calendars.update": "Modifier le calendrier",
+    "preferences.calendar.my_calendars.new": "Créer un calendrier",
+    "preferences.calendar.my_calendars.label.description": "Le label, tel qu'il s'affichera dans votre calendrier",
+    "preferences.calendar.my_calendars.type": "Type de calendrier",
+
     "preferences.mail.thread": "Afficher ensemble les réponses au même message (conversations)",
     "preferences.mail.thread.disable": "Ne pas grouper les conversations",
     "preferences.mail.thread.enable": "Grouper les conversations",

@@ -68,6 +68,14 @@
     "preferences.calendar.main.configure_view": "Calendar display",
     "preferences.calendar.main.reminder": "Event reminder",
 
+    "preferences.calendar.my_calendars.create": "Create a calendar",
+    "preferences.calendar.my_calendars.reset_data": "All calendar data will be removed.",
+    "preferences.calendar.my_calendars.remove": "Remove calendar definitely ?",
+    "preferences.calendar.my_calendars.update": "Update calendar",
+    "preferences.calendar.my_calendars.new": "Create a calendar",
+    "preferences.calendar.my_calendars.label.description": "Label, as it'll be displayed in your calendar",
+    "preferences.calendar.my_calendars.type": "Calendar type",
+
     "preferences.mail.thread": "Show replies to the same message together (conversations)",
     "preferences.mail.thread.disable": "Show messages individually",
     "preferences.mail.thread.enable": "Show messages grouped by conversation",

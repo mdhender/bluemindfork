@@ -67,6 +67,14 @@
     "preferences.calendar.main.default_reminder_kind": "Standard Erinnerungstyp",
     "preferences.calendar.main.configure_view": "Kalendarsicht",
     "preferences.calendar.main.reminder": "Terminerinnerung",
+
+    "preferences.calendar.my_calendars.create": "Create a calendar",
+    "preferences.calendar.my_calendars.reset_data": "All calendar data will be removed.",
+    "preferences.calendar.my_calendars.remove": "Remove calendar definitely ?",
+    "preferences.calendar.my_calendars.update": "Update calendar",
+    "preferences.calendar.my_calendars.new": "Create a calendar",
+    "preferences.calendar.my_calendars.label.description": "Label, as it'll be displayed in your calendar",
+    "preferences.calendar.my_calendars.type": "Calendar type",
     
     "preferences.mail.thread": "Gemeinsame Anzeige zusammengehöriger E-Mails (Konversationen)",
     "preferences.mail.thread.disable": "E-Mails einzeln anzeigen",

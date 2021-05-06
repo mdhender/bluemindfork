@@ -76,5 +76,6 @@
         "> 0.25%",
         "not dead",
         "not ie <= 8"
-    ]
+    ],
+    "dependencies": {}
 }

@@ -36,7 +36,7 @@ export default {
     },
     actions: {
         [FETCH_MAILBOXES]: async ({ state, commit }) => {
-            const subscriptions = await inject("SubscriptionPersistence").list();
+            const subscriptions = await inject("OwnerSubscriptionsPersistence").list();
             const mailboxUids = subscriptions
                 .filter(subscription => subscription.value.containerType === "mailboxacl")
                 .map(subscription => subscription.value.containerUid);

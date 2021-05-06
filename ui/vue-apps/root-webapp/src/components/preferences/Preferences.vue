@@ -34,7 +34,7 @@ import { generateDateTimeFormats } from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
 import { BmContainer, BmRow, BmSpinner } from "@bluemind/styleguide";
 
-import getPreferenceSections from "./PreferenceSections";
+import getPreferenceSections from "./sections";
 import SettingsL10N from "../../../l10n/preferences/";
 import PrefLeftPanel from "./PrefLeftPanel";
 import PrefRightPanel from "./PrefRightPanel";
@@ -83,6 +83,9 @@ export default {
         const sections = getPreferenceSections(this.applications, inject("UserSession").roles, inject("i18n"));
         this.SET_SECTIONS(sections);
         this.FETCH_USER_PASSWORD_LAST_CHANGE();
+        this.FETCH_CALENDARS();
+        this.FETCH_SUBSCRIPTIONS();
+        this.FETCH_ALL_SETTINGS();
     },
     async mounted() {
         if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
@@ -102,7 +105,8 @@ export default {
         });
     },
     methods: {
-        ...mapActions("preferences", ["FETCH_USER_PASSWORD_LAST_CHANGE"]),
+        ...mapActions("preferences", ["FETCH_CALENDARS", "FETCH_SUBSCRIPTIONS", "FETCH_USER_PASSWORD_LAST_CHANGE"]),
+        ...mapActions("session", ["FETCH_ALL_SETTINGS"]),
         ...mapMutations("preferences", ["TOGGLE_PREFERENCES", "SET_SELECTED_SECTION", "SET_SECTIONS", "SET_OFFSET"]),
         ...mapMutations("session", ["ROLLBACK_LOCAL_SETTINGS"]),
         closePreferences() {

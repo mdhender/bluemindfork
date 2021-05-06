@@ -3,7 +3,6 @@ import Vue from "vue";
 import { AddressBookClient, AddressBooksClient } from "@bluemind/addressbook.api";
 import { ItemsTransferClient, MailConversationClient, OutboxClient } from "@bluemind/backend.mail.api";
 import { CalendarClient } from "@bluemind/calendar.api";
-import { ContainersClient, OwnerSubscriptionsClient } from "@bluemind/core.container.api";
 import { TaskClient } from "@bluemind/core.task.api";
 import injector from "@bluemind/inject";
 import router from "@bluemind/router";
@@ -50,19 +49,6 @@ function registerAPIClients() {
             const userSession = injector.getProvider("UserSession").get();
             return new OutboxClient(userSession.sid, userSession.domain, userSession.userId);
         }
-    });
-
-    injector.register({
-        provide: "SubscriptionPersistence",
-        factory: () => {
-            const userSession = injector.getProvider("UserSession").get();
-            return new OwnerSubscriptionsClient(userSession.sid, userSession.domain, userSession.userId);
-        }
-    });
-
-    injector.register({
-        provide: "ContainersPersistence",
-        factory: () => new ContainersClient(injector.getProvider("UserSession").get().sid)
     });
 
     injector.register({

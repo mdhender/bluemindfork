@@ -3,14 +3,16 @@ import Vue2TouchEvents from "vue2-touch-events";
 import VueI18n from "vue-i18n";
 
 import { default as AlertStore, DefaultAlert } from "@bluemind/alert.store";
+import { CalendarClient, CalendarsMgmtClient } from "@bluemind/calendar.api";
+import { ContainersClient, ContainerManagementClient, OwnerSubscriptionsClient } from "@bluemind/core.container.api";
 import { FirstDayOfWeek, generateDateTimeFormats, InheritTranslationsMixin } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
-import { initSentry } from "@bluemind/sentry";
-import router from "@bluemind/router";
 import { MailboxesClient } from "@bluemind/mailbox.api";
+import router from "@bluemind/router";
+import { initSentry } from "@bluemind/sentry";
 import store from "@bluemind/store";
 import { BmModalPlugin } from "@bluemind/styleguide";
-import { UserClient, UserMailIdentitiesClient, UserSettingsClient } from "@bluemind/user.api";
+import { UserClient, UserMailIdentitiesClient, UserSettingsClient, UserSubscriptionClient } from "@bluemind/user.api";
 import VueBus from "@bluemind/vue-bus";
 import { extend } from "@bluemind/vuex-router";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
@@ -31,8 +33,8 @@ async function initWebApp() {
     initStore();
     setVuePlugins(userSession);
     if (userSession.userId) {
-        await store.dispatch("session/FETCH_ALL_SETTINGS"); // initialize user settings (needed to initialize i18n)
-    } // Otherwise, the user is not authenticated
+        await store.dispatch("session/FETCH_ALL_SETTINGS"); // needed to initialize i18n
+    }
     const i18n = initI18N(userSession);
     Vue.component("DefaultAlert", DefaultAlert);
     new Vue({
@@ -78,6 +80,26 @@ function registerDependencies(userSession) {
     firstDayOfWeek = firstDayOfWeek >= 0 ? firstDayOfWeek : 1;
 
     injector.register({
+        provide: "ContainersPersistence",
+        factory: () => new ContainersClient(userSession.sid)
+    });
+
+    injector.register({
+        provide: "ContainerManagementPersistence",
+        factory: containerUid => new ContainerManagementClient(userSession.sid, containerUid)
+    });
+
+    injector.register({
+        provide: "CalendarsMgmtPersistence",
+        factory: () => new CalendarsMgmtClient(userSession.sid)
+    });
+
+    injector.register({
+        provide: "CalendarPersistence",
+        factory: containerUid => new CalendarClient(userSession.sid, containerUid)
+    });
+
+    injector.register({
         provide: "Environment",
         use: { firstDayOfWeek }
     });
@@ -95,6 +117,20 @@ function registerDependencies(userSession) {
     injector.register({
         provide: "MailboxesPersistence",
         factory: () => new MailboxesClient(userSession.sid, userSession.domain)
+    });
+
+    injector.register({
+        provide: "OwnerSubscriptionsPersistence",
+        factory: () => {
+            return new OwnerSubscriptionsClient(userSession.sid, userSession.domain, userSession.userId);
+        }
+    });
+
+    injector.register({
+        provide: "UserSubscriptionPersistence",
+        factory: () => {
+            return new UserSubscriptionClient(userSession.sid, userSession.domain);
+        }
     });
 
     injector.register({

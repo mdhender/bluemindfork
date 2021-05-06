@@ -7,6 +7,7 @@ export default {
     HAS_IM: "hasIM",
     HAS_TBIRD: "hasTbird",
 
+    SELF_CHANGE_MAIL_IDENTITIES: "selfChangeMailIdentities",
     SELF_CHANGE_MAILBOX_FILTER: "selfChangeMailboxFilter",
     SELF_CHANGE_PASSWORD: "selfChangePassword",
     SELF_CHANGE_SETTINGS: "selfChangeSettings",

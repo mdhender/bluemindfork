@@ -39,6 +39,7 @@ import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
 import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
 import PrefIMSetPhonePresence from "./fields/customs/PrefIMSetPhonePresence";
 import PrefManageIdentities from "./fields/customs/PrefManageIdentities";
+import PrefManageMyCalendars from "./fields/customs/MyCalendars/PrefManageMyCalendars";
 import PrefPassword from "./fields/customs/PrefPassword";
 import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
 import PrefResetLocalData from "./fields/customs/PrefResetLocalData";
@@ -60,6 +61,7 @@ export default {
         PrefEnableNotifications,
         PrefIMSetPhonePresence,
         PrefManageIdentities,
+        PrefManageMyCalendars,
         PrefPassword,
         PrefRemoteImage,
         PrefResetLocalData,

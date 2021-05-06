@@ -26,10 +26,10 @@
             id="net.bluemind.ui.calendar.calendarType">
       </export-extension-point>
    </extension>
-  <extension
+   <extension
          point="net.bluemind.webmodule">
       <web-module-provider
-            module="/settings">
+            module="*">
          <handler
                class="net.bluemind.ui.gwtcalendar.server.IcsUrlCheckHandler"
                path="calendar/checkIcs">
@@ -41,10 +41,6 @@
          point="net.bluemind.webmodule">
       <web-module-provider
             module="/adminconsole">
-         <handler
-               class="net.bluemind.ui.gwtcalendar.server.IcsUrlCheckHandler"
-               path="calendar/checkIcs">
-         </handler>
          <handler
                class="net.bluemind.ui.gwtcalendar.server.ImportICSHandler"
                path="calendar/import">

@@ -15,7 +15,7 @@ const userId = "6793466E-F5D4-490F-97BF-DF09D3327BF4";
 
 const containersService = new MockContainersClient();
 inject.register({ provide: "ContainersPersistence", factory: () => containersService });
-inject.register({ provide: "SubscriptionPersistence", factory: () => new MockOwnerSubscriptionsClient() });
+inject.register({ provide: "OwnerSubscriptionsPersistence", factory: () => new MockOwnerSubscriptionsClient() });
 inject.register({ provide: "UserSession", use: { userId } });
 Vue.use(Vuex);
 
@@ -53,7 +53,7 @@ describe("mailboxes store", () => {
                 });
 
                 containersService.getContainers.mockResolvedValueOnce([mailbox]);
-                await store.dispatch(FETCH_MAILBOXES, []);
+                await store.dispatch(FETCH_MAILBOXES);
                 expect(Object.keys(store.state).length).toEqual(1);
                 expect(Object.values(store.state)[0]).toMatchObject({
                     name: mailbox.ownerDisplayname,
@@ -65,7 +65,7 @@ describe("mailboxes store", () => {
                     return container.type === "mailboxacl" && ["alice", "bob"].includes(container.name);
                 });
                 containersService.getContainers.mockResolvedValueOnce(mailboxes);
-                await store.dispatch(FETCH_MAILBOXES, []);
+                await store.dispatch(FETCH_MAILBOXES);
                 expect(Object.keys(store.state).length).toEqual(2);
                 Object.values(store.state).forEach(mailbox => {
                     expect(mailbox.type).toEqual(MailboxType.USER);
@@ -78,7 +78,7 @@ describe("mailboxes store", () => {
                     return container.type === "mailboxacl" && ["read.only", "read.write"].includes(container.name);
                 });
                 containersService.getContainers.mockResolvedValueOnce(mailboxes);
-                await store.dispatch(FETCH_MAILBOXES, []);
+                await store.dispatch(FETCH_MAILBOXES);
                 expect(Object.keys(store.state).length).toEqual(2);
                 Object.values(store.state).forEach(mailbox => {
                     expect(mailbox.type).toEqual(MailboxType.MAILSHARE);

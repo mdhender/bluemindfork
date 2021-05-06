@@ -1,5 +1,5 @@
 import Roles from "@bluemind/roles";
-import getPreferenceSections from "../components/preferences/PreferenceSections";
+import getPreferenceSections from "../components/preferences/sections/";
 
 const mockedVueI18N = {
     t: () => ""

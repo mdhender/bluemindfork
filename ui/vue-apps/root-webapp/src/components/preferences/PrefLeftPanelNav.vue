@@ -79,6 +79,7 @@ export default {
     border-bottom: 0 !important;
     background-color: $info-dark;
     list-style: none;
+    outline: none;
 
     &:hover,
     &.active {

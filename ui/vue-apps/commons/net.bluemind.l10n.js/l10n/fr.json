@@ -112,5 +112,16 @@
     "common.unit.kilobyte": "{size} Ko",
     "common.unit.byte": "{size} o",
     "common.status.online": "En ligne",
-    "common.status.offline": "Hors ligne"
+    "common.status.offline": "Hors ligne",
+    "common.my_calendars": "Mes calendriers",
+    "common.synchronization": "Synchronisation",
+    "common.import": "Importer",
+    "common.simple": "Simple",
+    "common.external_ics": "ICS externe",
+    "common.external_ics.url": "URL .ics",
+    "common.color": "Couleur",
+    "common.create": "Créer",
+    "common.valid_url": "URL valide",
+    "common.invalid_url": "URL invalide",
+    "common.share": "Partager"
 }

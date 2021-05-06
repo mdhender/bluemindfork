@@ -112,5 +112,16 @@
     "common.unit.kilobyte": "{size} kB",
     "common.unit.byte": "{size} B",
     "common.status.online": "Online",
-    "common.status.offline": "Offline"
+    "common.status.offline": "Offline",
+    "common.my_calendars": "My calendars",
+    "common.synchronization": "Synchronization",
+    "common.import": "Import",
+    "common.simple": "Simple",
+    "common.external_ics": "External ICS",
+    "common.external_ics.url": ".ics URL",
+    "common.color": "Color",
+    "common.create": "Create",
+    "common.valid_url": "Valid URL",
+    "common.invalid_url": "Invalid URL",
+    "common.share": "Share"
 }
