@@ -106,7 +106,7 @@ class BMClient:
 class BaseEndpoint:
     def handleResult__(self, sd, response):
         if ( "X-BM-WarnMessage" in response.headers):
-                sys.stderr.write(response.headers["X-BM-WarnMessage"])
+            sys.stderr.write(response.headers["X-BM-WarnMessage"])
 
         if ( response.status_code == 204 ):
             return None
@@ -120,7 +120,7 @@ class BaseEndpoint:
                 sf = response.json()
                 raise ServerFault(sf.get("errorCode", 0),
                    sf.get("errorType", None),
-                   sf.get("message", "unknown"))
+                    sf.get("message", "unknown"))
             except ValueError:
                 raise ServerFault(0, None, "unknown")
 
