@@ -73,7 +73,7 @@ public class UserEmailSanitizer implements ISanitizer<DirDomainValue<User>> {
 	}
 
 	private void sanitizeEmails(String domainUid, String userUid, User user) {
-		if (user.routing != Routing.internal) {
+		if (user.routing == Routing.external) {
 			return;
 		}
 

@@ -18,6 +18,7 @@
  */
 package net.bluemind.user.service.internal;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import net.bluemind.addressbook.api.VCard;
@@ -65,6 +66,9 @@ public class UserSanitizer implements ISanitizer<User> {
 	private void sanitize(User user) {
 		if (user.routing == null) {
 			user.routing = Routing.none;
+		}
+		if (user.emails == null) {
+			user.emails = new ArrayList<>();
 		}
 
 		if (user.contactInfos.defaultMail() == null && user.defaultEmail() != null) {

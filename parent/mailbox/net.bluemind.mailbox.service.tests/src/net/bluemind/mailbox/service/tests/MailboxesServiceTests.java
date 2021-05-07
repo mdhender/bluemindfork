@@ -716,8 +716,9 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		getService(defaultSecurityContext).create(uid2, mailshare2);
 
 		List<String> result = getService(defaultSecurityContext).byRouting(Routing.internal);
-		assertEquals(1, result.size());
-		assertEquals("admin", result.get(0));
+		assertEquals(2, result.size());
+		assertTrue(result.contains("admin"));
+		assertTrue(result.contains(testUserUid));
 	}
 
 	public TaskStatus waitEnd(TaskRef ref) throws Exception {

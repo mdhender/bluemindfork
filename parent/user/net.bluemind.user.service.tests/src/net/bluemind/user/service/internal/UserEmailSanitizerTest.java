@@ -109,15 +109,19 @@ public class UserEmailSanitizerTest {
 
 		u1.emails = Arrays.asList(Email.create(u1.login + "@domain.tld", false, false));
 		new TestUserEmailSanitizer().create(new DirDomainValue<User>(domainUid, null, u1));
-		assertEquals(1, u1.emails.size());
+		assertEquals(2, u1.emails.size());
 		assertEquals(1,
 				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@domain.tld") && !e.allAliases).count());
+		assertEquals(1,
+				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@" + domainUid) && !e.allAliases).count());
 
 		u1.emails = Arrays.asList(Email.create(u1.login + "@domain.tld", false, false));
 		new TestUserEmailSanitizer().update(null, new DirDomainValue<User>(domainUid, null, u1));
-		assertEquals(1, u1.emails.size());
+		assertEquals(2, u1.emails.size());
 		assertEquals(1,
 				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@domain.tld") && !e.allAliases).count());
+		assertEquals(1,
+				u1.emails.stream().filter(e -> e.address.equals(u1.login + "@" + domainUid) && !e.allAliases).count());
 	}
 
 	@Test

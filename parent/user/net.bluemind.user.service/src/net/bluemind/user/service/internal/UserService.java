@@ -23,10 +23,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,6 +47,7 @@ import com.google.common.collect.Sets;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.authentication.persistence.APIKeyStore;
+import net.bluemind.core.api.Email;
 import net.bluemind.core.api.ParametersValidator;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -102,6 +105,7 @@ public class UserService implements IInCoreUser, IUser {
 	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 	private final ContainerUserStoreService storeService;
 	private final Container userContainer;
+	private final Domain domain;
 	private final String domainName;
 	private final SecurityContext context;
 	private final GroupStore groupStore;
@@ -125,7 +129,8 @@ public class UserService implements IInCoreUser, IUser {
 		this.userPasswordUpdaters = userPasswordUpdaters;
 		userContainer = container;
 		DataSource pool = context.getDataSource();
-		domainName = domain.uid;
+		this.domain = domain.value;
+		this.domainName = domain.uid;
 		globalVirt = "global.virt".equals(domain.uid);
 		this.bmContext = context;
 		this.context = context.getSecurityContext();
@@ -186,13 +191,16 @@ public class UserService implements IInCoreUser, IUser {
 			user.passwordLastChange = new Date();
 		}
 
+		MailFilter filter = null;
+		if (!globalVirt && !user.system) {
+			filter = transformExternalEmailsToForwards(user, Collections.emptyList(), uid, new MailFilter());
+		}
 		storeService.createWithExtId(uid, extId, user);
-
-		ItemValue<User> item = iv(uid, user);
+		ItemValue<User> item = createItemValue(uid, user);
 		if (!globalVirt && !user.system) {
 			mailboxes.created(uid, mailboxAdapter.asMailbox(domainName, uid, user));
 			if (user.routing == Routing.internal) {
-				mailboxes.setMailboxFilter(uid, new MailFilter());
+				mailboxes.setMailboxFilter(uid, filter);
 			}
 		}
 
@@ -216,7 +224,7 @@ public class UserService implements IInCoreUser, IUser {
 		eventProducer.changed(uid, user);
 	}
 
-	ItemValue<User> iv(String uid, User u) {
+	ItemValue<User> createItemValue(String uid, User u) {
 		Item it = Item.create(uid, null);
 		it.displayName = getSummary(u);
 		return ItemValue.create(it, u);
@@ -261,7 +269,10 @@ public class UserService implements IInCoreUser, IUser {
 		user.password = previous.value.password;
 		user.passwordLastChange = previous.value.passwordLastChange;
 
+		MailFilter filter = null;
 		if (!globalVirt && !user.system) {
+			filter = transformExternalEmailsToForwards(user, previous.value.emails, uid,
+					mailboxes.getMailboxFilter(uid));
 			mailboxes.validate(uid, mailboxAdapter.asMailbox(domainName, uid, user));
 		}
 		storeService.update(uid, user);
@@ -269,11 +280,12 @@ public class UserService implements IInCoreUser, IUser {
 		if (!globalVirt && !user.system) {
 			mailboxes.updated(uid, mailboxAdapter.asMailbox(domainName, uid, previous.value),
 					mailboxAdapter.asMailbox(domainName, uid, user));
+			mailboxes.setMailboxFilter(uid, filter);
 		}
 
 		for (IUserHook uh : userHooks) {
 			try {
-				uh.onUserUpdated(bmContext, domainName, previous, iv(uid, user));
+				uh.onUserUpdated(bmContext, domainName, previous, createItemValue(uid, user));
 			} catch (Exception e) {
 				// make hook error proof..
 				if (logger.isDebugEnabled()) {
@@ -407,7 +419,7 @@ public class UserService implements IInCoreUser, IUser {
 
 		for (IUserHook uh : userHooks) {
 			try {
-				uh.onUserDeleted(bmContext, domainName, iv(uid, previous));
+				uh.onUserDeleted(bmContext, domainName, createItemValue(uid, previous));
 			} catch (Exception e) {
 				// make hook error proof..
 				if (logger.isDebugEnabled()) {
@@ -901,6 +913,36 @@ public class UserService implements IInCoreUser, IUser {
 			DirEntryHandlers.byKind(DirEntry.Kind.USER).updateAccountType(bmContext, domainName, uid, accountType);
 			eventProducer.changed(uid, storeService.getVersion());
 		}
+	}
+
+	private MailFilter transformExternalEmailsToForwards(User user, Collection<Email> previousEmails, String uid,
+			MailFilter filter) {
+		if (filter == null) {
+			filter = new MailFilter();
+		}
+		if (user.routing != Routing.none) {
+			return filter;
+		}
+		user.emails = new ArrayList<>(user.emails);
+		user.routing = Routing.internal;
+		List<String> domainAndAliases = new ArrayList<>(domain.aliases);
+		domainAndAliases.add(domain.name);
+
+		Iterator<Email> userEmailIter = user.emails.iterator();
+		while (userEmailIter.hasNext()) {
+			Email mail = userEmailIter.next();
+			if (isExternalEmail(domainAndAliases, mail)) {
+				filter.forwarding.emails.add(mail.address);
+				userEmailIter.remove();
+			}
+		}
+
+		filter.forwarding.enabled = !filter.forwarding.emails.isEmpty();
+		return filter;
+	}
+
+	private boolean isExternalEmail(List<String> domainAndAliases, Email mail) {
+		return !mail.allAliases && !domainAndAliases.contains(mail.domainPart());
 	}
 
 }

@@ -230,17 +230,18 @@ public class MailboxIdentityTests {
 	@Test
 	public void testGetPossibleIdentities() throws Exception {
 		List<IdentityDescription> res = service(defaultSecurityContext, domainUid, mboxUid).getPossibleIdentities();
-		assertEquals(2, res.size());
+		assertEquals(3, res.size());
 
 		IMailboxIdentity s = service(defaultSecurityContext, domainUid, mboxUid);
 		s.create("work", defaultIdentity());
 
 		res = service(defaultSecurityContext, domainUid, mboxUid).getPossibleIdentities();
-		assertEquals(2, res.size());
+		assertEquals(3, res.size());
 		// one identity should have an id
 		boolean hasId = false;
 		hasId |= res.get(0).id != null;
 		hasId |= res.get(1).id != null;
+		hasId |= res.get(2).id != null;
 		assertTrue(hasId);
 
 	}

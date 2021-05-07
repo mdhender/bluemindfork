@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -108,6 +109,7 @@ import net.bluemind.imap.QuotaInfo;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.pool.impl.BmConfIni;
@@ -1735,4 +1737,132 @@ public class UserServiceTests {
 		assertNotNull(updated);
 		assertFalse(user.passwordNeverExpires);
 	}
+
+	@Test
+	public void testUserWithMailroutingNone_No_Email() {
+		String login = "test." + System.nanoTime();
+		User user = defaultUser(login);
+		user.routing = Routing.none;
+		user.emails = Collections.emptyList();
+		String uid = login;
+		getService(domainAdminSecurityContext).create(uid, user);
+
+		ItemValue<User> loadedUser = getService(domainAdminSecurityContext).getComplete(uid);
+		assertEquals(Routing.internal, loadedUser.value.routing);
+		assertEquals(1, loadedUser.value.emails.size());
+		assertEquals(loadedUser.value.login + "@" + domainUid, loadedUser.value.emails.iterator().next().address);
+	}
+
+	@Test
+	public void testUserWithMailroutingNull_No_Email() {
+		String login = "test." + System.nanoTime();
+		User user = defaultUser(login);
+		user.routing = null;
+		user.emails = Collections.emptyList();
+		String uid = login;
+		getService(domainAdminSecurityContext).create(uid, user);
+
+		ItemValue<User> loadedUser = getService(domainAdminSecurityContext).getComplete(uid);
+		assertEquals(Routing.internal, loadedUser.value.routing);
+		assertEquals(1, loadedUser.value.emails.size());
+		assertEquals(loadedUser.value.login + "@" + domainUid, loadedUser.value.emails.iterator().next().address);
+	}
+
+	@Test
+	public void testUserWithMailroutingNone_Internal_Email() {
+		String login = "test." + System.nanoTime();
+		User user = defaultUser(login);
+		user.routing = Routing.none;
+		Email createdEmail = Email.create("alt" + System.nanoTime() + "@" + domainUid, false, false);
+		user.emails = Arrays.asList(createdEmail);
+		String uid = login;
+		getService(domainAdminSecurityContext).create(uid, user);
+
+		ItemValue<User> loadedUser = getService(domainAdminSecurityContext).getComplete(uid);
+		assertEquals(Routing.internal, loadedUser.value.routing);
+		assertEquals(2, loadedUser.value.emails.size());
+		boolean foundInternal = false;
+		boolean foundDomain = false;
+		for (Iterator<Email> emailIter = loadedUser.value.emails.iterator(); emailIter.hasNext();) {
+			Email email = emailIter.next();
+			if (email.address.equals(createdEmail.address)) {
+				foundDomain = true;
+			}
+			if (email.address.equals(user.login + "@" + domainUid)) {
+				foundInternal = true;
+			}
+		}
+		assertTrue(foundDomain);
+		assertTrue(foundInternal);
+	}
+
+	@Test
+	public void testUserWithMailroutingNone_External_Email() {
+		String login = "test." + System.nanoTime();
+		User user = defaultUser(login);
+		user.routing = Routing.none;
+		Email createdEmail = Email.create("alt" + System.nanoTime() + "@external.loc", false, false);
+		user.emails = Arrays.asList(createdEmail);
+		String uid = login;
+		getService(domainAdminSecurityContext).create(uid, user);
+
+		ItemValue<User> loadedUser = getService(domainAdminSecurityContext).getComplete(uid);
+		assertEquals(Routing.internal, loadedUser.value.routing);
+
+		boolean emailFound = false;
+		for (Iterator<Email> emailIter = loadedUser.value.emails.iterator(); emailIter.hasNext();) {
+			Email email = emailIter.next();
+			if (email.address.equals(user.login + "@" + domainUid)) {
+				emailFound = true;
+			}
+		}
+		assertTrue(emailFound);
+
+		IMailboxes mb = ServerSideServiceProvider.getProvider(domainAdminSecurityContext).instance(IMailboxes.class,
+				domain.uid);
+		MailFilter mailboxFilter = mb.getMailboxFilter(uid);
+		assertTrue(mailboxFilter.forwarding.enabled);
+		assertEquals(createdEmail.address, mailboxFilter.forwarding.emails.iterator().next());
+	}
+
+	@Test
+	public void testUserWithMailroutingNone_Internal_External_Emails() {
+		String login = "test." + System.nanoTime();
+		User user = defaultUser(login);
+		user.routing = Routing.none;
+		user.routing = Routing.none;
+		Email createdEmail1 = Email.create("alt1" + System.nanoTime() + "@" + domainUid, false, false);
+		Email createdEmail2 = Email.create("alt2" + System.nanoTime() + "@" + domainUid, false, false);
+		Email createdEmail3 = Email.create("alt1" + System.nanoTime() + "@external.loc", false, false);
+		Email createdEmail4 = Email.create("alt2" + System.nanoTime() + "@external.loc", false, false);
+		user.emails = Arrays.asList(createdEmail1, createdEmail2, createdEmail3, createdEmail4);
+		String uid = login;
+		getService(domainAdminSecurityContext).create(uid, user);
+
+		ItemValue<User> loadedUser = getService(domainAdminSecurityContext).getComplete(uid);
+		assertEquals(Routing.internal, loadedUser.value.routing);
+
+		boolean email1 = false;
+		boolean email2 = false;
+		for (Iterator<Email> emailIter = loadedUser.value.emails.iterator(); emailIter.hasNext();) {
+			Email email = emailIter.next();
+			if (email.address.equals(createdEmail1.address)) {
+				email1 = true;
+			}
+			if (email.address.equals(createdEmail2.address)) {
+				email2 = true;
+			}
+		}
+		assertTrue(email1);
+		assertTrue(email2);
+
+		IMailboxes mb = ServerSideServiceProvider.getProvider(domainAdminSecurityContext).instance(IMailboxes.class,
+				domain.uid);
+		MailFilter mailboxFilter = mb.getMailboxFilter(uid);
+		assertTrue(mailboxFilter.forwarding.enabled);
+
+		assertTrue(mailboxFilter.forwarding.emails.contains(createdEmail3.address));
+		assertTrue(mailboxFilter.forwarding.emails.contains(createdEmail4.address));
+	}
+
 }
