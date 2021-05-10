@@ -40,7 +40,7 @@
         "@bluemind/styleguide": "^0.1.0",
         "@bluemind/user.api": "^4.1.52881",
         "@bluemind/uuid": "^4.1.0",
-        "@bluemind/vue-multipane": "^0.10.0",
+        "@bluemind/vue-multipane": "^0.10.1",
         "bottleneck": "^2.19.5",
         "idb": "^5.0.4",
         "linkifyjs": "^2.1.9",

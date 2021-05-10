@@ -1134,10 +1134,10 @@
   dependencies:
     axios "^0.18.0"
 
-"@bluemind/vue-multipane@^0.10.0":
-  version "0.10.0"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/vue-multipane/-/vue-multipane-0.10.0.tgz#374e4d07aa2fc1154c6311d6086b815aec539e8f"
-  integrity sha1-N05NB6ovwRVMYxHWCGuBWuxTno8=
+"@bluemind/vue-multipane@^0.10.1":
+  version "0.10.1"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/vue-multipane/-/vue-multipane-0.10.1.tgz#da05e2559e44cfccce1b3ea25719e027f62276a2"
+  integrity sha1-2gXiVZ5Ez8zOGz6iVxngJ/YidqI=
 
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
