@@ -121,10 +121,6 @@ public class UserMailEditor extends GwtContainerElement {
 			extMailFieldsets.setVisible(true);
 			noMailFieldsets.setVisible(false);
 			addDefaultMail();
-		} else if (routing.equals(Routing.none.name())) {
-			mailFieldsets.setVisible(false);
-			extMailFieldsets.setVisible(false);
-			noMailFieldsets.setVisible(true);
 		}
 	}
 
@@ -181,14 +177,8 @@ public class UserMailEditor extends GwtContainerElement {
 		GWT.log("[ume] loadModel domain:" + domain + " login: " + login);
 		routingChanged();
 
-		if (user.getRouting().value().equals("none")) {
-			if (user.getEmails().length() > 0) {
-				customEmail.setStringValue(user.getEmails().get(0).getAddress());
-			}
-		} else {
-			mailTable.asEditor().setValue(prepareUserEmails(user));
-			extMailTable.asEditor().setValue(prepareUserEmails(user));
-		}
+		mailTable.asEditor().setValue(prepareUserEmails(user));
+		extMailTable.asEditor().setValue(prepareUserEmails(user));
 		mailTable.asWidget().setDefaultLogin(login);
 		extMailTable.asWidget().setDefaultLogin(login);
 		hidden.setValue(user.getHidden());

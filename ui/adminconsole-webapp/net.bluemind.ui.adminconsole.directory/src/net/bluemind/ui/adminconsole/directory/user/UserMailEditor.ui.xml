@@ -21,9 +21,6 @@
 			<g:item value="external">
 				<ui:text from="{uc.routingExternal}" />
 			</g:item>
-			<g:item value="none">
-				<ui:text from="{uc.routingNone}" />
-			</g:item>
 		</g:ListBox>
 		<g:ScrollPanel height="100%">
 			<g:HTMLPanel>
