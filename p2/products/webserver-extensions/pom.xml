@@ -29,6 +29,7 @@
 		<module>filehosting</module>
 		<module>dav</module>
 		<module>adminconsole-videoconferencing-jitsi</module>
+		<module>adminconsole-videoconferencing-starleaf</module>
 	</modules>
 	<profiles>
 		<profile>
