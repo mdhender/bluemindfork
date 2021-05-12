@@ -8,6 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.icalendar.api,
  net.bluemind.core.commons,
  net.bluemind.resource.api,
- net.bluemind.core.container.persistence
+ net.bluemind.core.container.api,
+ net.bluemind.core.rest
 Export-Package: net.bluemind.videoconferencing.api
 Eclipse-RegisterBuddy: net.bluemind.core.rest

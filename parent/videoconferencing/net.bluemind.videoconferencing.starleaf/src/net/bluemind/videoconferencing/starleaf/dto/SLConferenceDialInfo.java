@@ -26,6 +26,10 @@ public class SLConferenceDialInfo {
 
 	public final String confId;
 
+	// A URL to a web page providing all the relevant dialing information in a user
+	// readable format.
+	public final String dialInfoUrl;
+
 	// The text in a meeting invite that can be customised through the StarLeaf
 	// Portal. If no custom text has been added, the default StarLeaf footer is
 	// used.
@@ -34,14 +38,16 @@ public class SLConferenceDialInfo {
 	// The plain text version of the above (without html links).
 	public final String customInvitePlainText;
 
-	public SLConferenceDialInfo(String confId, String customInviteFooter, String customInvitePlainText) {
+	public SLConferenceDialInfo(String confId, String dialInfoUrl, String customInviteFooter,
+			String customInvitePlainText) {
 		this.confId = confId;
+		this.dialInfoUrl = dialInfoUrl;
 		this.customInviteFooter = customInviteFooter;
 		this.customInvitePlainText = customInvitePlainText;
 	}
 
 	public static SLConferenceDialInfo fromJson(String confId, JsonObject dialInfo) {
-		return new SLConferenceDialInfo(confId, dialInfo.getString("custom_invite_footer"),
-				dialInfo.getString("custom_invite_plain_text"));
+		return new SLConferenceDialInfo(confId, dialInfo.getString("dial_info_url"),
+				dialInfo.getString("custom_invite_footer"), dialInfo.getString("custom_invite_plain_text"));
 	}
 }

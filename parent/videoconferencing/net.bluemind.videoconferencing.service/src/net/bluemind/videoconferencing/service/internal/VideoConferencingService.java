@@ -100,6 +100,7 @@ public class VideoConferencingService implements IVideoConferencing {
 
 		VideoConference conferenceInfo = videoConferencingProvider.getConferenceInfo(context,
 				containerMgmtService.getSettings(), resource, vevent);
+
 		if (vevent.conference == null || vevent.conference.trim().isEmpty()) {
 			vevent.conference = conferenceInfo.conference;
 		}

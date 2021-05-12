@@ -1778,7 +1778,14 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = f
       this.getModel().conferenceDescription = desc.substring(idx, len);
       this.editor_.setValue(this.getModel().description);
       this.showConferenceData_();
-    }, null, this);
+    }, function(e) {
+    console.error(e);
+    /** @meaning calendar.form.error.videoconferencing */
+    var MSG_VIDEOCONF_ERR = goog.getMsg('Failed to fetch video conference infos');
+    this.addError_('details', this.getDomHelper().getElement('bm-ui-form-videoconferencing-input-label'),
+      MSG_VIDEOCONF_ERR);
+    this.showConferenceForm_();
+    }, this);
   } else if (mode == "remove") {
     var vseries = adaptor.fromVEventModelView(this.getModel());
     this.ctx.service('videoConferencing').remove(vseries.value['main']).then(function(res) {

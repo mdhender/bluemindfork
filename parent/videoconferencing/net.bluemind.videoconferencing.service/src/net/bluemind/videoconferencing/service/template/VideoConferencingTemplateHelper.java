@@ -113,13 +113,10 @@ public class VideoConferencingTemplateHelper {
 		}
 		result = filteredResult.toString();
 
-		// add special tag
-		result = addTag(result, resource.uid);
-
-		return result;
+		return addTag(result, resource.uid);
 	}
 
-	private String addTag(final String processedTemplate, final String resourceId) {
+	public String addTag(final String processedTemplate, final String resourceId) {
 		return tagBegin(resourceId) + processedTemplate + tagEnd();
 	}
 
