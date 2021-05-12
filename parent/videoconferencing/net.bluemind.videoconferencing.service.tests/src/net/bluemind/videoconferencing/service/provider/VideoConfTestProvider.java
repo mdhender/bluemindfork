@@ -18,11 +18,12 @@
 package net.bluemind.videoconferencing.service.provider;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
+import net.bluemind.videoconferencing.service.template.TemplateBasedVideoConferencingProvider;
 
-public class VideoConfTestProvider implements IVideoConferencingProvider {
+public class VideoConfTestProvider extends TemplateBasedVideoConferencingProvider
+		implements IVideoConferencingProvider {
 
 	@Override
 	public String id() {
@@ -32,11 +33,6 @@ public class VideoConfTestProvider implements IVideoConferencingProvider {
 	@Override
 	public String name() {
 		return "Video Conferencing Provider Yay";
-	}
-
-	@Override
-	public String getUrl(String baseUrl) {
-		return baseUrl + "/" + UUID.randomUUID().toString();
 	}
 
 	@Override

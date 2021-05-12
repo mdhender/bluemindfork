@@ -24,4 +24,5 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.resource.hook;bundle-version="4.1.0",
  net.bluemind.core.container.persistence;bundle-version="4.1.0"
 Export-Package: net.bluemind.videoconferencing.service,
- net.bluemind.videoconferencing.service.calendar
+ net.bluemind.videoconferencing.service.calendar,
+ net.bluemind.videoconferencing.service.template

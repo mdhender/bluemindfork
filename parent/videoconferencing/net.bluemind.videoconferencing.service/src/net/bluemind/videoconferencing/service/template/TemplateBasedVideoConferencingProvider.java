@@ -15,48 +15,40 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.videoconferencing.starleaf;
+package net.bluemind.videoconferencing.service.template;
 
-import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
-
-import com.google.common.io.ByteStreams;
+import java.util.UUID;
 
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.resource.api.ResourceDescriptor;
-import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
 import net.bluemind.videoconferencing.api.VideoConference;
 
-public class StarLeafProvider implements IVideoConferencingProvider {
+public abstract class TemplateBasedVideoConferencingProvider {
 
-	@Override
-	public String id() {
-		return "videoconferencing-starleaf";
-	}
+	private static final VideoConferencingTemplateHelper templateHelper = new VideoConferencingTemplateHelper();
 
-	@Override
-	public String name() {
-		return "StarLeaf";
-	}
-
-	@Override
-	public Optional<byte[]> getIcon() {
-		try {
-			return Optional.of(ByteStreams
-					.toByteArray(StarLeafProvider.class.getClassLoader().getResourceAsStream("resources/logo.png")));
-		} catch (IOException e) {
-		}
-		return Optional.empty();
-	}
-
-	@Override
 	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
 			ItemValue<ResourceDescriptor> resource, ICalendarElement vevent) {
 
-		return new VideoConference(null, null);
+		String conference = vevent.conference;
+		if (conference == null || conference.trim().isEmpty()) {
+
+			String baseUrl = resourceSettings.get("url");
+			if (!baseUrl.startsWith("http")) {
+				baseUrl = "https://" + baseUrl;
+			}
+			if (!baseUrl.endsWith("/")) {
+				baseUrl += "/";
+			}
+
+			conference = baseUrl + UUID.randomUUID().toString();
+		}
+		String description = templateHelper.processTemplate(context, resource, vevent, conference);
+
+		return new VideoConference(conference, description);
 	}
 
 }

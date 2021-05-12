@@ -17,23 +17,13 @@
   */
 package net.bluemind.videoconferencing.api;
 
-import java.util.Map;
-import java.util.Optional;
+public class VideoConference {
 
-import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.rest.BmContext;
-import net.bluemind.icalendar.api.ICalendarElement;
-import net.bluemind.resource.api.ResourceDescriptor;
+	public final String conference;
+	public final String description;
 
-public interface IVideoConferencingProvider {
-
-	public String id();
-
-	public String name();
-
-	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
-			ItemValue<ResourceDescriptor> resource, ICalendarElement vevent);
-
-	public Optional<byte[]> getIcon();
-
+	public VideoConference(String conference, String description) {
+		this.conference = conference;
+		this.description = description;
+	}
 }

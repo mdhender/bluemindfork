@@ -19,13 +19,13 @@ package net.bluemind.videoconferencing.jitsi;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.UUID;
 
 import com.google.common.io.ByteStreams;
 
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
+import net.bluemind.videoconferencing.service.template.TemplateBasedVideoConferencingProvider;
 
-public class JitsiProvider implements IVideoConferencingProvider {
+public class JitsiProvider extends TemplateBasedVideoConferencingProvider implements IVideoConferencingProvider {
 
 	@Override
 	public String id() {
@@ -35,21 +35,6 @@ public class JitsiProvider implements IVideoConferencingProvider {
 	@Override
 	public String name() {
 		return "Jitsi";
-	}
-
-	@Override
-	public String getUrl(String baseUrl) {
-
-		if (!baseUrl.startsWith("http")) {
-			baseUrl = "https://" + baseUrl;
-		}
-		if (!baseUrl.endsWith("/")) {
-			baseUrl += "/";
-		}
-
-		String unique = UUID.randomUUID().toString();
-
-		return baseUrl + unique;
 	}
 
 	@Override

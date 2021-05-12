@@ -10,6 +10,9 @@ Require-Bundle: net.bluemind.videoconferencing.api,
  com.google.guava,
  com.fasterxml.jackson.core.jackson-databind,
  io.vertx.core,
- net.bluemind.core.commons
+ net.bluemind.core.commons,
+ net.bluemind.core.container.persistence,
+ net.bluemind.resource.api,
+ net.bluemind.icalendar.api
 Export-Package: net.bluemind.videoconferencing.starleaf.client,
  net.bluemind.videoconferencing.starleaf.dto

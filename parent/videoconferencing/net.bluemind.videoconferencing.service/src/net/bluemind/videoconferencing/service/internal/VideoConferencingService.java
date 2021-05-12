@@ -55,6 +55,7 @@ import net.bluemind.resource.api.ResourceReservationMode;
 import net.bluemind.videoconferencing.api.IVideoConferenceUids;
 import net.bluemind.videoconferencing.api.IVideoConferencing;
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
+import net.bluemind.videoconferencing.api.VideoConference;
 import net.bluemind.videoconferencing.api.VideoConferencingResourceDescriptor;
 import net.bluemind.videoconferencing.service.template.VideoConferencingTemplateHelper;
 
@@ -97,21 +98,20 @@ public class VideoConferencingService implements IVideoConferencing {
 		IContainerManagement containerMgmtService = context.getServiceProvider().instance(IContainerManagement.class,
 				resource.uid + "-settings-container");
 
+		VideoConference conferenceInfo = videoConferencingProvider.getConferenceInfo(context,
+				containerMgmtService.getSettings(), resource, vevent);
 		if (vevent.conference == null || vevent.conference.trim().isEmpty()) {
-			Map<String, String> settings = containerMgmtService.getSettings();
-			String baseUrl = settings.get("url");
-			vevent.conference = videoConferencingProvider.getUrl(baseUrl);
+			vevent.conference = conferenceInfo.conference;
 		}
-
-		String descriptionToAdd = templateHelper.processTemplate(context, resource, vevent);
 
 		if (vevent.description == null) {
 			vevent.description = "";
 		}
 
 		if (!templateHelper.containsTemplate(vevent.description, resource.uid)) {
-			vevent.description = templateHelper.addTemplate(vevent.description, descriptionToAdd);
+			vevent.description = templateHelper.addTemplate(vevent.description, conferenceInfo.description);
 		}
+
 		return vevent;
 	}
 

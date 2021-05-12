@@ -70,7 +70,7 @@ public class VideoConferencingTemplateHelper {
 	private static final String DEFAULT_LANGUAGE_TAG = "fr";
 
 	public String processTemplate(final BmContext context, ItemValue<ResourceDescriptor> resource,
-			final ICalendarElement vevent) {
+			final ICalendarElement vevent, final String conference) {
 		// check the given uid corresponds to an actual resource
 		final ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
@@ -89,7 +89,7 @@ public class VideoConferencingTemplateHelper {
 		String result = template;
 
 		final Matcher matcher = TEMPLATE_VARIABLES_PATTERN.matcher(template);
-		final Map<String, String> props = mapOfProps(resource.value, vevent.organizer.commonName, vevent.conference);
+		final Map<String, String> props = mapOfProps(resource.value, vevent.organizer.commonName, conference);
 		while (matcher.find()) {
 			final String propertyName = matcher.group(1);
 			final String propertyValue = props.get(propertyName);

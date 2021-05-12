@@ -80,7 +80,7 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 				.create(videoconfProviderId + "-settings-container", cd);
 
 		Map<String, String> settings = new HashMap<>();
-		settings.put("url", "http://video.conf");
+		settings.put("url", "https://video.conf");
 		settings.put("templates", "{\"fr\":\"voilà ${URL} yay\",\"en\":\"this is ${URL}<br>\"}");
 		IContainerManagement containerMgmtService = ServerSideServiceProvider.getProvider(domainAdminCtx)
 				.instance(IContainerManagement.class, videoconfProviderId + "-settings-container");

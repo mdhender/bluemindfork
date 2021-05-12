@@ -9,4 +9,6 @@ Require-Bundle: net.bluemind.icalendar.api,
  net.bluemind.core.rest,
  net.bluemind.resource.api,
  net.bluemind.videoconferencing.api;bundle-version="4.1.0",
- com.google.guava
+ com.google.guava,
+ net.bluemind.videoconferencing.service,
+ net.bluemind.core.container.persistence
