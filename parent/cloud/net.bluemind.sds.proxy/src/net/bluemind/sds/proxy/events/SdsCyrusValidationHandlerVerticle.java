@@ -26,7 +26,8 @@ import net.bluemind.network.topology.TopologyException;
 public class SdsCyrusValidationHandlerVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(SdsCyrusValidationHandlerVerticle.class);
 	private static final int CORE_EXCEPTION = 0;
-	private ICyrusValidationPromise cli;
+	private HttpClientProvider clientProvider;
+	private ILocator cachingLocator;
 
 	public static class SdsCoreAPIFactory implements IVerticleFactory {
 
@@ -43,7 +44,17 @@ public class SdsCyrusValidationHandlerVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		cli = getProvider(vertx);
+		this.clientProvider = new HttpClientProvider(vertx);
+		this.cachingLocator = (String service, AsyncHandler<String[]> asyncHandler) -> {
+			Optional<IServiceTopology> topology = Topology.getIfAvailable();
+			if (topology.isPresent()) {
+				String core = topology.get().core().value.address();
+				String[] resp = new String[] { core };
+				asyncHandler.success(resp);
+			} else {
+				asyncHandler.failure(new TopologyException("topology not available"));
+			}
+		};
 
 		vertx.eventBus().consumer(SdsAddresses.VALIDATION, (Message<Buffer> message) -> {
 			JsonObject json = JsonHelper.getJsonFromString(message.body().toString());
@@ -51,8 +62,8 @@ public class SdsCyrusValidationHandlerVerticle extends AbstractVerticle {
 				String mailbox = json.getString("mailbox");
 				String partition = json.getString("partition");
 				String mboxpath = json.getString("mboxpath");
-
-				cli.prevalidate(mailbox, partition).thenAccept((Boolean result) -> {
+				ICyrusValidationPromise cyrusValidationApi = getValidationApi(vertx);
+				cyrusValidationApi.prevalidate(mailbox, partition).thenAccept((Boolean result) -> {
 					logger.info("BM Core {} creation of {}/{}", Boolean.TRUE.equals(result) ? "approves" : "rejects",
 							partition, mailbox);
 					if (Boolean.TRUE.equals(result) && mboxpath != null) {
@@ -77,18 +88,8 @@ public class SdsCyrusValidationHandlerVerticle extends AbstractVerticle {
 		});
 	}
 
-	private static ICyrusValidationPromise getProvider(Vertx vertx) {
-		ILocator cachingLocator = (String service, AsyncHandler<String[]> asyncHandler) -> {
-			Optional<IServiceTopology> topology = Topology.getIfAvailable();
-			if (topology.isPresent()) {
-				String core = topology.get().core().value.address();
-				String[] resp = new String[] { core };
-				asyncHandler.success(resp);
-			} else {
-				asyncHandler.failure(new TopologyException("topology not available"));
-			}
-		};
-		HttpClientProvider clientProvider = new HttpClientProvider(vertx);
+	private ICyrusValidationPromise getValidationApi(Vertx vertx) {
+
 		VertxPromiseServiceProvider provider = new VertxPromiseServiceProvider(clientProvider, cachingLocator,
 				Token.admin0());
 		return provider.instance("bm/core", ICyrusValidationPromise.class);
