@@ -29,7 +29,7 @@ public class MailboxesDbEntry {
 
 	public static class Acl {
 		public final String name;
-		public final String perms;
+		public String perms;
 
 		public Acl(String name, String perms) {
 			this.name = name;

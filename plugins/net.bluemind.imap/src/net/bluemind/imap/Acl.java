@@ -56,7 +56,7 @@ public class Acl implements Cloneable {
 	/**
 	 * 'all' in cyradm
 	 */
-	public static final Acl ALL = new Acl("lrswipkxtean");
+	public static final Acl ALL = new Acl("lrswipkxtea");
 
 	/**
 	 * Needed for delivery to mailshares
@@ -66,7 +66,7 @@ public class Acl implements Cloneable {
 	/**
 	 * Read/Write
 	 */
-	public static final Acl RW = new Acl("lrswipkxten");
+	public static final Acl RW = new Acl("lrswipkxte");
 
 	/**
 	 * Read only
