@@ -17,18 +17,24 @@
   */
 package net.bluemind.videoconferencing.api;
 
+import java.util.List;
+
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
 
 @BMApi(version = "3")
 public class VideoConferencingResourceDescriptor {
 
 	public String label;
 	public String provider;
+	public List<AccessControlEntry> acls;
 
-	public static VideoConferencingResourceDescriptor create(String label, String provider) {
+	public static VideoConferencingResourceDescriptor create(String label, String provider,
+			List<AccessControlEntry> acls) {
 		VideoConferencingResourceDescriptor desc = new VideoConferencingResourceDescriptor();
 		desc.label = label;
 		desc.provider = provider;
+		desc.acls = acls;
 		return desc;
 	}
 }

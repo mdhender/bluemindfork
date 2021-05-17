@@ -234,10 +234,11 @@ public class VideoConferencingService implements IVideoConferencing {
 		calSettingsService.set(calSettings);
 
 		// default calendar acl
-		IContainerManagement containerManagementService = sp.instance(IContainerManagement.class,
-				ICalendarUids.resourceCalendar(uid));
-		containerManagementService
-				.setAccessControlList(Arrays.asList(AccessControlEntry.create(domainUid, Verb.Invitation)));
+		if (!descriptor.acls.isEmpty()) {
+			IContainerManagement containerManagementService = sp.instance(IContainerManagement.class,
+					ICalendarUids.resourceCalendar(uid));
+			containerManagementService.setAccessControlList(descriptor.acls);
+		}
 
 		// container settings
 		String resourceSettingsContainerUid = uid + "-settings-container";
@@ -253,7 +254,8 @@ public class VideoConferencingService implements IVideoConferencing {
 		containersService.create(cd.uid, cd);
 
 		// acls
-		containerManagementService = sp.instance(IContainerManagement.class, resourceSettingsContainerUid);
+		IContainerManagement containerManagementService = sp.instance(IContainerManagement.class,
+				resourceSettingsContainerUid);
 		containerManagementService.setAccessControlList(Arrays.asList(AccessControlEntry.create(domainUid, Verb.Read)));
 
 	}

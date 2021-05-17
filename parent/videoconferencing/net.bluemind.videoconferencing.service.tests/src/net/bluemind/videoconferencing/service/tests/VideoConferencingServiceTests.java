@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,8 +72,8 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 
 		// videoconf resource
 		ServerSideServiceProvider.getProvider(domainAdminCtx).instance(IVideoConferencing.class, domainUid)
-				.createResource(videoconfProviderId,
-						VideoConferencingResourceDescriptor.create("coucou", "test-provider"));
+				.createResource(videoconfProviderId, VideoConferencingResourceDescriptor.create("coucou",
+						"test-provider", Arrays.asList(AccessControlEntry.create(domainUid, Verb.Invitation))));
 
 		Map<String, String> settings = new HashMap<>();
 		settings.put("url", "https://video.conf");
@@ -112,8 +113,8 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 	@Test
 	public void testCreateVideoConferencingResource() {
 		String uid = UUID.randomUUID().toString();
-		getService(domainAdminCtx.getSecurityContext()).createResource(uid,
-				VideoConferencingResourceDescriptor.create("yeah", "test-provider"));
+		getService(domainAdminCtx.getSecurityContext()).createResource(uid, VideoConferencingResourceDescriptor
+				.create("yeah", "test-provider", Arrays.asList(AccessControlEntry.create(domainUid, Verb.Invitation))));
 
 		ResourceDescriptor res = ServerSideServiceProvider.getProvider(domainAdminCtx)
 				.instance(IResources.class, domainUid).get(uid);
@@ -147,8 +148,8 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 	@Test
 	public void testDeleteVideoConferencingResource() throws Exception {
 		String uid = UUID.randomUUID().toString();
-		getService(domainAdminCtx.getSecurityContext()).createResource(uid,
-				VideoConferencingResourceDescriptor.create("woot", "test-provider"));
+		getService(domainAdminCtx.getSecurityContext()).createResource(uid, VideoConferencingResourceDescriptor
+				.create("woot", "test-provider", Arrays.asList(AccessControlEntry.create(domainUid, Verb.Invitation))));
 
 		IContainers containersService = ServerSideServiceProvider.getProvider(domainAdminCtx)
 				.instance(IContainers.class);

@@ -17,6 +17,7 @@
   */
 package net.bluemind.ui.adminconsole.videoconferencing.starleaf;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -146,7 +147,7 @@ public class StarLeafEditor extends CompositeGwtWidgetElement {
 		IVideoConferencingPromise videoConfService = new VideoConferencingGwtEndpoint(Ajax.TOKEN.getSessionId(),
 				domainUid).promiseApi();
 		return videoConfService.createResource(uid,
-				VideoConferencingResourceDescriptor.create(PROVIDER_NAME, PROVIDER_TYPE));
+				VideoConferencingResourceDescriptor.create(PROVIDER_NAME, PROVIDER_TYPE, Collections.emptyList()));
 	}
 
 	private void setResourceSettings(String resourceUid) {

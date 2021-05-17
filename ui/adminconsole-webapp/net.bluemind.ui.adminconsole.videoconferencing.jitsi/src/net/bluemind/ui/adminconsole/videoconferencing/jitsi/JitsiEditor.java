@@ -38,6 +38,8 @@ import net.bluemind.core.commons.gwt.JsMapStringJsObject;
 import net.bluemind.core.commons.gwt.JsMapStringString;
 import net.bluemind.core.container.api.IContainerManagementPromise;
 import net.bluemind.core.container.api.gwt.endpoint.ContainerManagementGwtEndpoint;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
@@ -199,8 +201,8 @@ public class JitsiEditor extends CompositeGwtWidgetElement {
 	private CompletableFuture<Void> createResource(String uid) {
 		IVideoConferencingPromise videoConfService = new VideoConferencingGwtEndpoint(Ajax.TOKEN.getSessionId(),
 				domainUid).promiseApi();
-		return videoConfService.createResource(uid,
-				VideoConferencingResourceDescriptor.create(PROVIDER_NAME, PROVIDER_TYPE));
+		return videoConfService.createResource(uid, VideoConferencingResourceDescriptor.create(PROVIDER_NAME,
+				PROVIDER_TYPE, Arrays.asList(AccessControlEntry.create(domainUid, Verb.Invitation))));
 	}
 
 	private void setResourceSettings(String resourceUid) {
