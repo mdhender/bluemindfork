@@ -288,7 +288,10 @@ public abstract class Scanner {
 	private Optional<GroupManager> manageGroup(Dn groupDn) {
 		Entry entry = null;
 		try {
-			entry = ldapCon.lookup(groupDn, "*", "+", "modifyTimestamp", getParameter().ldapDirectory.extIdAttribute);
+			// modifyTimestamp and canonicalName are return only if explicitly requested by
+			// some directory
+			entry = ldapCon.lookup(groupDn, "*", "+", getParameter().ldapDirectory.extIdAttribute, "modifyTimestamp",
+					"canonicalName");
 		} catch (LdapException le) {
 			logger.error(String.format("%s: %s", groupDn.getName(), le.getMessage()), le);
 			importLogger.error(Messages.failedLookupEntryDn(groupDn, le));
@@ -514,7 +517,10 @@ public abstract class Scanner {
 	private void manageUser(Dn userDn) {
 		Entry entry = null;
 		try {
-			entry = ldapCon.lookup(userDn, "*", "+", getParameter().ldapDirectory.extIdAttribute, "modifyTimestamp");
+			// modifyTimestamp and canonicalName are return only if explicitly requested by
+			// some directory
+			entry = ldapCon.lookup(userDn, "*", "+", getParameter().ldapDirectory.extIdAttribute, "modifyTimestamp",
+					"canonicalName");
 		} catch (LdapException le) {
 			logger.error(userDn.getName() + ": " + le.getMessage(), le);
 			importLogger.error(Messages.failedLookupEntryDn(userDn, le));
