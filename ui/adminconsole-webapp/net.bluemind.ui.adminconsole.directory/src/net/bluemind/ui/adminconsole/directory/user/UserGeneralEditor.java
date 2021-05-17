@@ -151,26 +151,41 @@ public class UserGeneralEditor extends CompositeGwtWidgetElement implements Even
 		delegation.setDomain(domainUid);
 		delegation.asEditor().setValue(user.getOrgUnitUid());
 
-		if (SubscriptionInfoHolder.domainHasSimpleAccounts()) {
+		if (SubscriptionInfoHolder.domainHasSimpleAccounts()
+				|| SubscriptionInfoHolder.domainAndSubAllowsVisioAccounts()) {
 			accountPanel.setVisible(true);
 
-			boolean isFull = user.getAccountType() == JsBaseDirEntryAccountType.FULL();
-			if (isFull) {
-				accountType.add(new Label(UserConstants.INST.accountTypeFull()));
-			} else {
+			if (user.getAccountType() == JsBaseDirEntryAccountType.SIMPLE()) {
 				accountType.add(new Label(UserConstants.INST.accountTypeSimple()));
-
-				Anchor a = new Anchor(UserConstants.INST.accountTypeSwitchToFull());
-				a.addClickHandler(e -> {
-					if (Window.confirm(UserConstants.INST.accountTypeSwitchToFullConfirm())) {
-						switchAccountType(AccountType.FULL);
-					}
-				});
-
-				accountType.add(a);
+				accountType.add(getSwitchAnchor(UserConstants.INST.accountTypeSwitchToFull(),
+						UserConstants.INST.accountTypeSwitchToFullConfirm(), AccountType.FULL));
+				if (SubscriptionInfoHolder.domainAndSubAllowsVisioAccounts()) {
+					accountType.add(getSwitchAnchor(UserConstants.INST.accountTypeSwitchToFullVisio(),
+							UserConstants.INST.accountTypeSwitchToFullVisioConfirm(), AccountType.FULL_AND_VISIO));
+				}
+			} else if (user.getAccountType() == JsBaseDirEntryAccountType.FULL()) {
+				accountType.add(new Label(UserConstants.INST.accountTypeFull()));
+				if (SubscriptionInfoHolder.domainAndSubAllowsVisioAccounts()) {
+					accountType.add(getSwitchAnchor(UserConstants.INST.accountTypeSwitchToFullVisio(),
+							UserConstants.INST.accountTypeSwitchToFullVisioConfirm(), AccountType.FULL_AND_VISIO));
+				}
+			} else if (user.getAccountType() == JsBaseDirEntryAccountType.FULL_AND_VISIO()) {
+				accountType.add(new Label(UserConstants.INST.accountTypeVisio()));
+				accountType.add(getSwitchAnchor(UserConstants.INST.accountTypeSwitchToFull(),
+						UserConstants.INST.accountTypeSwitchToFullConfirm(), AccountType.FULL));
 			}
-
 		}
+
+	}
+
+	private Anchor getSwitchAnchor(String label, String switchConfirmationLabel, AccountType targetAccountType) {
+		Anchor anchor = new Anchor(label);
+		anchor.addClickHandler(e -> {
+			if (Window.confirm(switchConfirmationLabel)) {
+				switchAccountType(targetAccountType);
+			}
+		});
+		return anchor;
 	}
 
 	private void switchAccountType(AccountType accountType) {
@@ -225,14 +240,14 @@ public class UserGeneralEditor extends CompositeGwtWidgetElement implements Even
 		new UserGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid).memberOf(userUid,
 				new DefaultAsyncHandler<List<ItemValue<Group>>>() {
 
-			@Override
-			public void success(List<ItemValue<Group>> value) {
-				for (ItemValue<Group> itemValue : value) {
-					groupsList.addItem(itemValue.displayName);
-				}
-			}
+					@Override
+					public void success(List<ItemValue<Group>> value) {
+						for (ItemValue<Group> itemValue : value) {
+							groupsList.addItem(itemValue.displayName);
+						}
+					}
 
-		});
+				});
 	}
 
 }

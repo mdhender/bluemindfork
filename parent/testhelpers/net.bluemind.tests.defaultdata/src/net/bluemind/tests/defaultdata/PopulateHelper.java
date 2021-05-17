@@ -370,6 +370,12 @@ public class PopulateHelper {
 		return addUser(domain, u, roles);
 	}
 
+	public static String addVisioUser(String login, String domain, Routing mailrouting, String... roles) {
+		User u = getUser(login, domain, mailrouting);
+		u.accountType = AccountType.FULL_AND_VISIO;
+		return addUser(domain, u, roles);
+	}
+
 	public static String addUser(String domain, User user, String... roles) {
 		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domain);
 		String uid = user.login;

@@ -270,4 +270,10 @@ public interface DomainConstants extends Messages {
 	String timezone();
 
 	String applyToAll();
+
+	String invalidMaxVisioAccount();
+
+	String maxVisioAccount();
+
+	String maxVisioUsersTooltip();
 }

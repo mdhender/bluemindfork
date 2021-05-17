@@ -47,26 +47,22 @@ public class MaxUsersHook extends DefaultUserHook implements IUserHook {
 	@Override
 	public void beforeCreate(BmContext context, String domainUid, String uid, User user) throws ServerFault {
 
-		String k = DomainSettingsKeys.domain_max_users.name();
-		if (user.accountType == AccountType.SIMPLE) {
-			k = DomainSettingsKeys.domain_max_basic_account.name();
-		}
+		String maxAccountSettingsKey = getMaxSettingsKeyByAccountType(user.accountType);
 
 		Map<String, String> settings = context.su().provider().instance(IDomainSettings.class, domainUid).get();
 
-		if (user.accountType == AccountType.SIMPLE && !settings.containsKey(k)) {
+		if ((user.accountType == AccountType.SIMPLE || user.accountType == AccountType.FULL_AND_VISIO)
+				&& !settings.containsKey(maxAccountSettingsKey)) {
 			logger.error("Unable to create {} account for domain {}", user.accountType.name(), domainUid);
 			throw new ServerFault("Unable to create " + user.accountType.name() + " account for domain " + domainUid);
 		}
 
-		String val = settings.get(k);
-		if (null == val || val.isEmpty()) {
-			// no limit
+		String val = settings.get(maxAccountSettingsKey);
+		if (!hasLimit(val)) {
 			return;
 		}
 
 		int max = Integer.parseInt(val);
-
 		if (max == 0) {
 			logger.error("Unable to create {} account for domain {}", user.accountType.name(), domainUid);
 			throw new ServerFault("Unable to create " + user.accountType.name() + " account for domain " + domainUid);
@@ -82,6 +78,22 @@ public class MaxUsersHook extends DefaultUserHook implements IUserHook {
 					user.accountType.name(), max, domainUid);
 			throw new ServerFault("Maximum " + user.accountType.name() + " accounts allowed (" + max + ") for domain "
 					+ domainUid + " reached. Unable to create new one.", ErrorCode.FORBIDDEN);
+		}
+	}
+
+	private boolean hasLimit(String val) {
+		return null != val && !val.isEmpty();
+	}
+
+	private String getMaxSettingsKeyByAccountType(AccountType accountType) {
+		switch (accountType) {
+		case SIMPLE:
+			return DomainSettingsKeys.domain_max_basic_account.name();
+		case FULL_AND_VISIO:
+			return DomainSettingsKeys.domain_max_fullvisio_accounts.name();
+		case FULL:
+		default:
+			return DomainSettingsKeys.domain_max_users.name();
 		}
 	}
 

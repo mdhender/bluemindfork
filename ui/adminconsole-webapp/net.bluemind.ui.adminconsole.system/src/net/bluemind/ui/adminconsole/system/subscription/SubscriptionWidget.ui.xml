@@ -215,6 +215,28 @@
 							</g:Label>
 						</g:customCell>
 					</g:row>
+					
+					<g:row>
+						<g:customCell>
+							<g:Label ui:field="maxVisioAccountsLabel" text="{ilc.subscriptionMaxVisioAccounts}">
+							</g:Label>
+						</g:customCell>
+						<g:customCell>
+							<g:Label ui:field="maxVisioAccounts">
+							</g:Label>
+						</g:customCell>
+					</g:row>
+
+					<g:row>
+						<g:customCell>
+							<g:Label ui:field="visioAccountsLabel" text="{ilc.visioAccounts}">
+							</g:Label>
+						</g:customCell>
+						<g:customCell>
+							<g:Label ui:field="visioAccounts">
+							</g:Label>
+						</g:customCell>
+					</g:row>
 
 					<g:row></g:row>
 

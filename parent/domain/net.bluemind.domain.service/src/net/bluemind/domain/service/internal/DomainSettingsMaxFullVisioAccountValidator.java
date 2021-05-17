@@ -26,7 +26,7 @@ import net.bluemind.domain.api.DomainSettings;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.role.api.BasicRoles;
 
-public class DomainSettingsMaxBasicAccountValidator extends DomainSettingsMaxAccountValidator
+public class DomainSettingsMaxFullVisioAccountValidator extends DomainSettingsMaxAccountValidator
 		implements IValidator<DomainSettings> {
 
 	public final static class Factory implements IValidatorFactory<DomainSettings> {
@@ -38,26 +38,26 @@ public class DomainSettingsMaxBasicAccountValidator extends DomainSettingsMaxAcc
 
 		@Override
 		public IValidator<DomainSettings> create(BmContext context) {
-			return new DomainSettingsMaxBasicAccountValidator(context);
+			return new DomainSettingsMaxFullVisioAccountValidator(context);
 		}
 
 	}
 
 	private BmContext context;
 
-	public DomainSettingsMaxBasicAccountValidator(BmContext context) {
+	public DomainSettingsMaxFullVisioAccountValidator(BmContext context) {
 		this.context = context;
 	}
 
 	@Override
 	public void create(DomainSettings settings) throws ServerFault {
-		super.create(context, settings, DomainSettingsKeys.domain_max_basic_account.name(),
+		super.create(context, settings, DomainSettingsKeys.domain_max_fullvisio_accounts.name(),
 				BasicRoles.ROLE_DOMAIN_MAX_VALUES);
 	}
 
 	@Override
 	public void update(DomainSettings oldValue, DomainSettings newValue) throws ServerFault {
-		super.update(context, oldValue, newValue, DomainSettingsKeys.domain_max_basic_account.name(),
+		super.update(context, oldValue, newValue, DomainSettingsKeys.domain_max_fullvisio_accounts.name(),
 				BasicRoles.ROLE_DOMAIN_MAX_VALUES);
 	}
 

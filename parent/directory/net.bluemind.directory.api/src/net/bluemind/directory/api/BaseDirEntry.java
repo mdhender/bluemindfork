@@ -31,7 +31,7 @@ public class BaseDirEntry {
 	 */
 	public String entryUid;
 	/**
-	 * The {@link DirEntry}'s {@link BaseDirEntry.AccountType} type, FULL or SIMPLE
+	 * The {@link DirEntry}'s {@link BaseDirEntry.AccountType} type
 	 */
 	public AccountType accountType;
 	/**
@@ -44,11 +44,12 @@ public class BaseDirEntry {
 	 * FULL represents an entity with all available applications (messaging,
 	 * contact, agenda etc.)<br>
 	 * SIMPLE represents an entity with limited access (no sharing) to the messaging
-	 * application
+	 * application FULL_AND_VISIO represents an entity having advanced features to
+	 * the video conferencing functionalities
 	 */
 	@BMApi(version = "3")
-	public enum AccountType {
-		FULL, SIMPLE;
+	public static enum AccountType {
+		FULL, SIMPLE, FULL_AND_VISIO;
 	}
 
 	/**

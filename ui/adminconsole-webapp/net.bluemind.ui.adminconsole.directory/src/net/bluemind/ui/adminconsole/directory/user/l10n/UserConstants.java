@@ -189,4 +189,10 @@ public interface UserConstants extends Messages {
 
 	String accountTypeSwitchToFullConfirm();
 
+	String accountTypeSwitchToFullVisio();
+
+	String accountTypeSwitchToFullVisioConfirm();
+
+	String accountTypeVisio();
+
 }

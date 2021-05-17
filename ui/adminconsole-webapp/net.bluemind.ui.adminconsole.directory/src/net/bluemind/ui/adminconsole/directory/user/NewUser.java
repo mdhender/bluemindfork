@@ -148,11 +148,18 @@ public class NewUser extends CompositeGwtWidgetElement {
 
 		accountType.getElement().setId("new-user-account-type");
 
-		boolean simpleAccounts = SubscriptionInfoHolder.domainAndSubAllowSimpleAccount();
-		accountPanel.setVisible(simpleAccounts);
-		if (simpleAccounts) {
+		boolean simpleAccounts = SubscriptionInfoHolder.domainAndSubAllowsSimpleAccounts();
+		boolean visioAccounts = SubscriptionInfoHolder.domainAndSubAllowsVisioAccounts();
+		GWT.log("ALLOWS: " + visioAccounts);
+		accountPanel.setVisible(visioAccounts || simpleAccounts);
+		if (simpleAccounts || visioAccounts) {
 			accountType.addItem(UserConstants.INST.accountTypeFull(), "FULL");
+		}
+		if (simpleAccounts) {
 			accountType.addItem(UserConstants.INST.accountTypeSimple(), "SIMPLE");
+		}
+		if (visioAccounts) {
+			accountType.addItem(UserConstants.INST.accountTypeVisio(), "VISIO");
 		}
 		login.addChangeHandler(evt -> mailAddressTab.setDefaultLogin(login.getValue()));
 		updateDomainChange(DomainsHolder.get().getSelectedDomain());

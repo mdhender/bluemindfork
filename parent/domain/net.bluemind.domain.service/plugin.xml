@@ -47,6 +47,12 @@
       </validatorfactory>
    </extension>
    <extension
+         point="net.bluemind.core.validatorfactory">
+      <validatorfactory
+            implementation="net.bluemind.domain.service.internal.DomainSettingsMaxFullVisioAccountValidator$Factory">
+      </validatorfactory>
+   </extension>
+   <extension
          point="net.bluemind.server.hook.serverhook">
       <hook
             impl="net.bluemind.domain.service.internal.DomainServerHook">

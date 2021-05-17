@@ -56,7 +56,6 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
-import net.bluemind.directory.api.BaseDirEntry.AccountType;
 import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnitPath;
 import net.bluemind.domain.api.Domain;
@@ -495,8 +494,7 @@ public class Authentication implements IInCoreAuthentication {
 		List<String> groups = sp.instance(IUser.class, domainUid).memberOfGroups(user.uid);
 
 		Map<String, Set<String>> rolesByOUs = Collections.emptyMap();
-		if ((!expiredPassword || IDomainUids.GLOBAL_VIRT.equals(domainUid))
-				&& user.value.accountType == AccountType.FULL) {
+		if ((!expiredPassword || IDomainUids.GLOBAL_VIRT.equals(domainUid)) && user.value.fullAccount()) {
 			IOrgUnits orgUnits = sp.instance(IOrgUnits.class, domainUid);
 			List<OrgUnitPath> ous = orgUnits.listByAdministrator(user.uid, groups);
 			rolesByOUs = ous.stream() //

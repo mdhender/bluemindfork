@@ -122,4 +122,10 @@
             impl="net.bluemind.user.service.internal.DeferredActionUserRepair">
       </repair>
    </extension>
+   <extension
+         point="net.bluemind.user.hook.userhook">
+      <hook
+            impl="net.bluemind.user.service.internal.VisioAccountTypeHook">
+      </hook>
+   </extension>
 </plugin>

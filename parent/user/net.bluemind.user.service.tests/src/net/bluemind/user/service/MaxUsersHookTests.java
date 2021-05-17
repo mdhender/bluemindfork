@@ -141,6 +141,59 @@ public class MaxUsersHookTests {
 	}
 
 	@Test
+	public void testVisioAccount_noLimit() {
+		Map<String, String> settings = new HashMap<String, String>();
+		settings.put(DomainSettingsKeys.domain_max_fullvisio_accounts.name(), "");
+		settingsService.set(settings);
+
+		try {
+			hook.beforeCreate(context, domainUid, null, defaultUser(AccountType.FULL_AND_VISIO));
+		} catch (ServerFault sf) {
+			fail();
+		}
+	}
+
+	@Test
+	public void testVisioAccount_forbidden() {
+		Map<String, String> settings = new HashMap<String, String>();
+		settingsService.set(settings);
+
+		try {
+			hook.beforeCreate(context, domainUid, null, defaultUser(AccountType.FULL_AND_VISIO));
+			fail();
+		} catch (ServerFault sf) {
+		}
+	}
+
+	@Test
+	public void testVisioAccount_0_forbidden() {
+		Map<String, String> settings = new HashMap<String, String>();
+		settings.put(DomainSettingsKeys.domain_max_fullvisio_accounts.name(), "0");
+		settingsService.set(settings);
+
+		try {
+			hook.beforeCreate(context, domainUid, null, defaultUser(AccountType.FULL_AND_VISIO));
+			fail();
+		} catch (ServerFault sf) {
+		}
+	}
+
+	@Test
+	public void testVisioAccount_maxReached() {
+		Map<String, String> settings = new HashMap<String, String>();
+		settings.put(DomainSettingsKeys.domain_max_fullvisio_accounts.name(), "1");
+		settingsService.set(settings);
+
+		PopulateHelper.addVisioUser("fullandvisio", domainUid, Routing.internal);
+
+		try {
+			hook.beforeCreate(context, domainUid, null, defaultUser(AccountType.FULL_AND_VISIO));
+			fail();
+		} catch (ServerFault sf) {
+		}
+	}
+
+	@Test
 	public void testFullAccount_noLimit() {
 		settingsService.set(Collections.emptyMap());
 

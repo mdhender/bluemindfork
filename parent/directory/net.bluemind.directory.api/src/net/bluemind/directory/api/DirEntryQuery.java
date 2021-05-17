@@ -69,7 +69,7 @@ public class DirEntryQuery {
 	 */
 	public List<String> entries;
 	/**
-	 * Filter by Account Type (FULL, SIMPLE)
+	 * Filter by Account Type
 	 */
 	public DirEntry.AccountType accountTypeFilter;
 	/**

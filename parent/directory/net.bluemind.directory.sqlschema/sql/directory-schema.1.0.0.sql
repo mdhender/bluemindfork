@@ -4,7 +4,7 @@ CREATE EXTENSION IF NOT EXISTS unaccent WITH schema pg_catalog;
 
 CREATE EXTENSION IF NOT EXISTS btree_gin WITH schema pg_catalog;
 
-create type t_directory_entry_account_type as enum ('FULL', 'SIMPLE');
+create type t_directory_entry_account_type as enum ('FULL', 'SIMPLE', 'FULL_AND_VISIO');
 
 create table t_directory_entry (
 	kind text NOT NULL,

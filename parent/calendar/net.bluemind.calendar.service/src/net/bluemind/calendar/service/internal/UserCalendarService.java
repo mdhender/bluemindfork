@@ -44,7 +44,6 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.TaskUtils;
-import net.bluemind.directory.api.BaseDirEntry.AccountType;
 import net.bluemind.user.api.IUserSubscription;
 import net.bluemind.user.api.User;
 
@@ -191,7 +190,7 @@ public class UserCalendarService {
 
 		List<AccessControlEntry> acls = new ArrayList<AccessControlEntry>();
 		acls.add(AccessControlEntry.create(userSubject, Verb.All));
-		if (user.value.accountType == AccountType.FULL) {
+		if (user.value.fullAccount()) {
 			acls.add(AccessControlEntry.create(domainUid, Verb.Invitation));
 		}
 

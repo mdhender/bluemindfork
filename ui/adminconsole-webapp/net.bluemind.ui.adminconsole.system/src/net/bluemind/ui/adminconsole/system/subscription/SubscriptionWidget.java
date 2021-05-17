@@ -100,6 +100,12 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 	Label accounts;
 
 	@UiField
+	Label maxVisioAccounts;
+
+	@UiField
+	Label visioAccounts;
+
+	@UiField
 	Label simpleAccounts;
 
 	@UiField
@@ -126,6 +132,12 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 
 	@UiField
 	Label maxSimpleAccountsLabel;
+
+	@UiField
+	Label visioAccountsLabel;
+
+	@UiField
+	Label maxVisioAccountsLabel;
 
 	@UiField
 	HTML subscriptionPostInstallInformations;
@@ -388,6 +400,8 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 		accounts.setText("-");
 		maxSimpleAccounts.setText("-");
 		simpleAccounts.setText("-");
+		maxVisioAccounts.setText("-");
+		visioAccounts.setText("-");
 		for (SubscriptionInformations.InstallationIndicator indicator : subscription.indicator) {
 			switch (indicator.kind) {
 			case FullUser:
@@ -398,6 +412,10 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 			case SimpleUser:
 				maxSimpleAccounts.setText(indicator.maxValue != null ? indicator.maxValue.toString() : "-");
 				simpleAccounts.setText(indicator.currentValue != null ? indicator.currentValue.toString() : "-");
+				break;
+			case FullVisioAccount:
+				maxVisioAccounts.setText(indicator.maxValue != null ? indicator.maxValue.toString() : "-");
+				visioAccounts.setText(indicator.currentValue != null ? indicator.currentValue.toString() : "-");
 				break;
 
 			default:
@@ -418,6 +436,13 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 		maxSimpleAccounts.setVisible(simple);
 		simpleAccountsLabel.setVisible(simple);
 		maxSimpleAccountsLabel.setVisible(simple);
+
+		boolean fullVisio = SubscriptionInfoHolder.subIncludesVisioAccount();
+		visioAccounts.setVisible(fullVisio);
+		maxVisioAccounts.setVisible(fullVisio);
+		visioAccountsLabel.setVisible(fullVisio);
+		maxVisioAccountsLabel.setVisible(fullVisio);
+
 	}
 
 	private void setupUploadForm() {

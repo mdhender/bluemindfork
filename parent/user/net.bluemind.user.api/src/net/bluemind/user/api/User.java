@@ -98,4 +98,8 @@ public final class User extends DirBaseValue {
 				+ ", passwordMustChange=" + passwordMustChange + ", system=" + system + ", hidden=" + hidden
 				+ ", routing=" + routing + ", dataLocation=" + dataLocation + "]";
 	}
+
+	public boolean fullAccount() {
+		return accountType == AccountType.FULL || accountType == AccountType.FULL_AND_VISIO;
+	}
 }

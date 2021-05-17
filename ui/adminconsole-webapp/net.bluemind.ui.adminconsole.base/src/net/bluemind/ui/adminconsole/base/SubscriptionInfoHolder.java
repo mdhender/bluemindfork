@@ -39,7 +39,9 @@ public class SubscriptionInfoHolder {
 	}
 
 	private static boolean subIncludesSimpleAccounts = false;
+	private static boolean subIncludesVisioAccounts = false;
 	private static boolean domainHasSimpleAccounts = false;
+	private static boolean domainHasVisioAccounts = false;
 
 	public void init() {
 		new InstallationGwtEndpoint(Ajax.TOKEN.getSessionId())
@@ -48,13 +50,19 @@ public class SubscriptionInfoHolder {
 					@Override
 					public void success(SubscriptionInformations subInfo) {
 						subIncludesSimpleAccounts = false;
+						subIncludesVisioAccounts = false;
 
 						if (subInfo.kind == Kind.HOST) {
 							subIncludesSimpleAccounts = true;
+							subIncludesVisioAccounts = true;
 						} else {
 							subInfo.indicator.forEach(installIndicator -> {
-								if (installIndicator.kind == InstallationIndicator.Kind.SimpleUser && installIndicator.maxValue > 0) {
+								if (installIndicator.kind == InstallationIndicator.Kind.SimpleUser
+										&& installIndicator.maxValue > 0) {
 									subIncludesSimpleAccounts = true;
+								} else if (installIndicator.kind == InstallationIndicator.Kind.FullVisioAccount
+										&& installIndicator.maxValue > 0) {
+									subIncludesVisioAccounts = true;
 								}
 							});
 						}
@@ -63,6 +71,7 @@ public class SubscriptionInfoHolder {
 					@Override
 					public void failure(Throwable e) {
 						subIncludesSimpleAccounts = false;
+						subIncludesVisioAccounts = false;
 					}
 
 				});
@@ -71,26 +80,31 @@ public class SubscriptionInfoHolder {
 
 			@Override
 			public void activeDomainChanged(ItemValue<Domain> newActiveDomain) {
-				checkDomainHasSimpleAccount(newActiveDomain.uid);
+				checkDomainAccounts(newActiveDomain.uid);
 			}
 
 		});
 	}
 
-	private void checkDomainHasSimpleAccount(String domain) {
-		new DomainSettingsGwtEndpoint(Ajax.TOKEN.getSessionId(), domain)
-		.get(new AsyncHandler<Map<String, String>>() {
+	private void checkDomainAccounts(String domain) {
+		new DomainSettingsGwtEndpoint(Ajax.TOKEN.getSessionId(), domain).get(new AsyncHandler<Map<String, String>>() {
 
 			@Override
 			public void success(Map<String, String> values) {
-						domainHasSimpleAccounts = false;
-						domainHasSimpleAccounts = Integer
-								.valueOf(values.get(DomainSettingsKeys.domain_max_basic_account.toString())) > 0;
+				if (values.containsKey(DomainSettingsKeys.domain_max_basic_account.name())) {
+					domainHasSimpleAccounts = Integer
+							.valueOf(values.get(DomainSettingsKeys.domain_max_basic_account.name())) > 0;
+				}
+				if (values.containsKey(DomainSettingsKeys.domain_max_fullvisio_accounts.name())) {
+					domainHasVisioAccounts = Integer
+							.valueOf(values.get(DomainSettingsKeys.domain_max_fullvisio_accounts.toString())) > 0;
+				}
 			}
 
 			@Override
 			public void failure(Throwable e) {
-						domainHasSimpleAccounts = false;
+				domainHasSimpleAccounts = false;
+				domainHasVisioAccounts = false;
 			}
 
 		});
@@ -100,12 +114,24 @@ public class SubscriptionInfoHolder {
 		return subIncludesSimpleAccounts;
 	}
 
+	public static boolean subIncludesVisioAccount() {
+		return subIncludesVisioAccounts;
+	}
+
 	public static boolean domainHasSimpleAccounts() {
 		return domainHasSimpleAccounts;
 	}
 
-	public static boolean domainAndSubAllowSimpleAccount() {
+	public static boolean domainHasVisioAccounts() {
+		return domainHasVisioAccounts;
+	}
+
+	public static boolean domainAndSubAllowsSimpleAccounts() {
 		return domainHasSimpleAccounts && subIncludesSimpleAccounts;
+	}
+
+	public static boolean domainAndSubAllowsVisioAccounts() {
+		return domainHasVisioAccounts && subIncludesVisioAccounts;
 	}
 
 }

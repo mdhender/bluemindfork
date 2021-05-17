@@ -87,4 +87,8 @@ public interface InstallLicenseConstants extends ConstantsWithLookup {
 
 	String subscriptionPostInstallInformations();
 
+	String subscriptionMaxVisioAccounts();
+
+	String visioAccounts();
+
 }

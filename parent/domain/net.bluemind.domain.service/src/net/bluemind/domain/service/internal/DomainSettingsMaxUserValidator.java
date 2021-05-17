@@ -18,10 +18,7 @@
  */
 package net.bluemind.domain.service.internal;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.validator.IValidator;
 import net.bluemind.core.validator.IValidatorFactory;
@@ -29,7 +26,8 @@ import net.bluemind.domain.api.DomainSettings;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.role.api.BasicRoles;
 
-public class DomainSettingsMaxUserValidator implements IValidator<DomainSettings> {
+public class DomainSettingsMaxUserValidator extends DomainSettingsMaxAccountValidator
+		implements IValidator<DomainSettings> {
 
 	public final static class Factory implements IValidatorFactory<DomainSettings> {
 
@@ -53,22 +51,13 @@ public class DomainSettingsMaxUserValidator implements IValidator<DomainSettings
 
 	@Override
 	public void create(DomainSettings obj) throws ServerFault {
-		// null is default value, allow it on create
-		if (obj.settings.containsKey(DomainSettingsKeys.domain_max_users.name())
-				&& obj.settings.get(DomainSettingsKeys.domain_max_users.name()) != null) {
-			checkAccess(obj.domainUid);
-		}
+		super.create(context, obj, DomainSettingsKeys.domain_max_users.name(), BasicRoles.ROLE_DOMAIN_MAX_VALUES);
 	}
 
 	@Override
 	public void update(DomainSettings oldValue, DomainSettings newValue) throws ServerFault {
-		if (!StringUtils.equals(oldValue.settings.get(DomainSettingsKeys.domain_max_users.name()),
-				newValue.settings.get(DomainSettingsKeys.domain_max_users.name()))) {
-			checkAccess(newValue.domainUid);
-		}
+		super.update(context, oldValue, newValue, DomainSettingsKeys.domain_max_users.name(),
+				BasicRoles.ROLE_DOMAIN_MAX_VALUES);
 	}
 
-	private void checkAccess(String domainUid) {
-		RBACManager.forContext(context).check(BasicRoles.ROLE_DOMAIN_MAX_VALUES);
-	}
 }

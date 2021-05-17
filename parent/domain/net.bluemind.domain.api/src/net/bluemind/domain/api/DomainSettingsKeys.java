@@ -30,5 +30,6 @@ public enum DomainSettingsKeys {
 	mail_forward_unknown_to_relay, //
 	domain_max_users, //
 	domain_max_basic_account, //
-	password_lifetime
+	password_lifetime, //
+	domain_max_fullvisio_accounts
 }

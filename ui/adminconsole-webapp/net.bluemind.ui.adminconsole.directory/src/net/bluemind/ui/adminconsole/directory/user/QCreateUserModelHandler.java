@@ -92,8 +92,10 @@ public class QCreateUserModelHandler implements IGwtModelHandler {
 		String accountType = map.getString("accountType");
 		if (accountType == null || accountType.isEmpty() || "FULL".equals(accountType)) {
 			user.setAccountType(JsBaseDirEntryAccountType.FULL());
-		} else {
+		} else if ("SIMPLE".equals(accountType)) {
 			user.setAccountType(JsBaseDirEntryAccountType.SIMPLE());
+		} else if ("VISIO".equals(accountType)) {
+			user.setAccountType(JsBaseDirEntryAccountType.FULL_AND_VISIO());
 		}
 
 		UserGwtEndpoint users = new UserGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid);
