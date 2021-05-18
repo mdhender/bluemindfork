@@ -413,7 +413,7 @@
 					<artifactId>gwt-maven-plugin</artifactId>
 					<version>${gwt-version}</version>
 					<configuration>
-						<extraJvmArgs>-Xmx2048M</extraJvmArgs>
+						<extraJvmArgs>-Xmx1024M</extraJvmArgs>
 					</configuration>
 					<executions>
 						<execution>
