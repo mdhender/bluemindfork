@@ -152,9 +152,7 @@ public class InstallationService implements IInstallation {
 
 	@Override
 	public TaskRef initialize() throws ServerFault {
-		return context.provider().instance(ITasksManager.class).run((monitor) -> {
-			initializeSystem(monitor);
-		});
+		return context.provider().instance(ITasksManager.class).run(this::initializeSystem);
 	}
 
 	private void initializeSystem(IServerTaskMonitor monitor) {
