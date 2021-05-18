@@ -149,12 +149,18 @@
                   </div>
                   <input type="text" id="bm-ui-form-videoconferencing-url-copy-value" value="" />
                 </div>
-
-                  <div id="bm-ui-form-videoconferencing-desc">
-                    {if $event.conferenceDescription}
-                      {$event.conferenceDescription}
-                    {/if}
+                <div id="bm-ui-form-videoconferencing-desc-container">
+                  <span class="{css goog-zippy-header} " id="zippy-videoconferencing">
+                    <span class="{css fa}"></span>{msg meaning="calendar.toolbar.print.showDetails" desc="show details"}Show details{/msg}
+                  </span>
+                  <div class="{css goog-zippy-content}">
+                    <div id="bm-ui-form-videoconferencing-desc">
+                      {if $event.conferenceDescription}
+                        {$event.conferenceDescription}
+                      {/if}
+                    </div>
                   </div>
+                </div>
               </div>
 
             </div>

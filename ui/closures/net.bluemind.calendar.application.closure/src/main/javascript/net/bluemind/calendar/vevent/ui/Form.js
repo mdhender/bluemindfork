@@ -719,6 +719,19 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
       document.execCommand('copy');
     });
 
+    // zippy description
+    var descriptionZippyHeader = dom.getElement("zippy-videoconferencing");
+    var content = dom.getNextElementSibling(descriptionZippyHeader);
+    var zippy = new goog.ui.AnimatedZippy(descriptionZippyHeader, content, true);
+    var chevron = dom.getFirstElementChild(descriptionZippyHeader);
+    goog.dom.classlist.enable(chevron, goog.getCssName('fa-chevron-down'), true);
+    this.getHandler().listen(zippy, goog.ui.Zippy.Events.TOGGLE, function(e) {
+      goog.dom.classlist.enable(chevron, goog.getCssName('fa-chevron-right'), !e.expanded);
+      goog.dom.classlist.enable(chevron, goog.getCssName('fa-chevron-down'), e.expanded);
+    });
+    this.registerDisposable(zippy);
+    zippy.collapse();
+
   }
 
   // URL
@@ -1788,6 +1801,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.showConferenceForm_ = function() 
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-loading').style.display = 'none';
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-goto').style.display = 'none';
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-url').href = "#";
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-desc-container').style.display = 'none';
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-desc').innerHTML = '';
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-url-copy-value').value = '';
 };
@@ -1798,6 +1812,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.showConferenceData_ = function() 
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-loading').style.display = 'none';
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-goto').style.display = 'block';
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-url').href = this.getModel().conference;
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-desc-container').style.display = 'block';
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-desc').innerHTML = this.getModel().conferenceDescription;
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-url-copy-value').value = this.getModel().conference;
 };

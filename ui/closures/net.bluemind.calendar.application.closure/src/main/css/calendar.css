@@ -1713,6 +1713,10 @@ div.form-notification {
   vertical-align: middle;
 }
 
+#zippy-videoconferencing {
+  cursor: pointer;
+  font-weight: bold;
+}
 
 /******************************************************************************
  *                          FREEBUSY
