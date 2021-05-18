@@ -47,7 +47,6 @@ import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.task.service.TaskUtils;
-import net.bluemind.core.utils.UIDGenerator;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.DirEntry;
@@ -147,14 +146,14 @@ public class DomainsService implements IDomains {
 		IGroup groups = context.su().provider().instance(IGroup.class, uid);
 
 		DefaultGroups.userGroup((group, roles) -> {
-			String userGroupUid = UIDGenerator.uid();
+			String userGroupUid = uid + "_user_group";
 
 			groups.create(userGroupUid, group);
 			groups.setRoles(userGroupUid, roles);
 		});
 
 		DefaultGroups.adminGroup((group, roles) -> {
-			String adminGroupUid = UIDGenerator.uid();
+			String adminGroupUid = uid + "_admin_group";
 
 			groups.create(adminGroupUid, group);
 			groups.setRoles(adminGroupUid, roles);
