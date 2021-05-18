@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -78,6 +79,10 @@ public class JsonUtils {
 	}
 
 	public static <T> ValueReader<T> reader(Class<T> type) {
+		return new ValueReader<>(objectMapper.readerFor(type));
+	}
+
+	public static <T> ValueReader<T> reader(TypeReference<T> type) {
 		return new ValueReader<>(objectMapper.readerFor(type));
 	}
 
