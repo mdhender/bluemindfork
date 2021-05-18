@@ -92,14 +92,6 @@ public class ItemStore extends JdbcAbstractStore {
 		this.securityContext = contextHolder;
 	}
 
-	@Deprecated
-	public ItemStore(DataSource pool, Container container, SecurityContext contextHolder, String itemType) {
-		super(pool);
-		this.container = container;
-		this.securityContext = contextHolder;
-		// this.itemType = itemType;
-	}
-
 	private static final String NEXTVERSION_QUERY = "with nv as (update t_container_sequence set seq = seq+1 where container_id = ? RETURNING seq, container_id as contid) ";
 
 	public Item create(Item item) throws SQLException {
