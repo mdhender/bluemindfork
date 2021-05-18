@@ -254,7 +254,7 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 	@Override
 	public CalendarDescriptor getComplete(String uid) throws ServerFault {
 		IContainers containers = context.provider().instance(IContainers.class);
-		ContainerDescriptor cd = containers.get(uid);
+		ContainerDescriptor cd = containers.getIfPresent(uid);
 		if (cd == null) {
 			return null;
 		}

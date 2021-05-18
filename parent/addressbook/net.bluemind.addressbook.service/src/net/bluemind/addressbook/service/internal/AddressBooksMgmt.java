@@ -398,7 +398,7 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 	@Override
 	public AddressBookDescriptor getComplete(String uid) throws ServerFault {
 		IContainers containers = context.provider().instance(IContainers.class);
-		ContainerDescriptor cd = containers.get(uid);
+		ContainerDescriptor cd = containers.getIfPresent(uid);
 		if (cd == null) {
 			return null;
 		}
