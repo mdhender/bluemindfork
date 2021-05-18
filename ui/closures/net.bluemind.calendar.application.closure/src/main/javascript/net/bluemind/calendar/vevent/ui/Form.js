@@ -1802,7 +1802,9 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = f
 };
 
 net.bluemind.calendar.vevent.ui.Form.prototype.showConferenceForm_ = function() {
-  var videoConferencingResources = this.ctx.service('videoConferencing').getVideoConferencingResources()
+  var videoConferencingResources = goog.array.filter(this.ctx.service('videoConferencing').getVideoConferencingResources(), function(res) {
+    return res.canInvite;
+  });
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-select').style.display = videoConferencingResources.length == 1 ? 'none' : 'block';
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-button').style.display = 'block';
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-loading').style.display = 'none';
