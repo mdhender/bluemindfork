@@ -124,16 +124,12 @@
 
               <label id="bm-ui-form-videoconferencing-input-label" for="bm-ui-form-videoconferencing-input">{msg meaning="calendar.event.videoconferencing" desc="event video conferencing label"}Video Conference{/msg}</label>
               <div class="{css bm-ui-form-input}">
-                <select id="bm-ui-form-videoconferencing-select" style="display:none;">
-                  {foreach $res in $videoConferencingResources}
-                    <option value="{$res.uid}">{$res.displayName}</option>
-                  {/foreach}
-                </select>
+                <div class="{css _providers}"></div>
                 <div id="bm-ui-form-videoconferencing-button" class="{css goog-inline-block} {css goog-button} {css goog-button-base}">
-                  <img id="bm-ui-form-videoconferencing-provider-icon"/>
+                  <img id="bm-ui-form-videoconferencing-provider-icon" class="{css videoconference-icon}"/>
                   <span>{msg meaning="calendar.event.videoconferencing.add" desc="add event video conferencing label"}Add video conference{/msg}</span>
                 </div>
-                <div id="bm-ui-form-videoconferencing-loading" class="{css goog-inline-block} {css goog-button} {css goog-button-base}" style="display:none;">{msg meaning="calendar.event.videoconferencing.loading" desc="add event video conferencing loading label"}Reservation in progress...{/msg} </div>
+                <div id="bm-ui-form-videoconferencing-loading" style="display:none;">{msg meaning="calendar.event.videoconferencing.loading" desc="add event video conferencing loading label"}Reservation in progress...{/msg} </div>
 
                 <div id="bm-ui-form-videoconferencing-goto" style="display:none;">
                   <div class="{css goog-inline-block} {css goog-link-button}">

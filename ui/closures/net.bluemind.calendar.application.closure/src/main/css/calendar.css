@@ -1694,6 +1694,12 @@ div.form-notification {
   width: 300px;
 }
 
+#bm-ui-form-videoconferencing-loading {
+  height: 32px;
+  padding-top: 7px;
+  font-weight: bold;
+}
+
 #bm-ui-form-videoconferencing-goto {
   padding: 4px 0px 5px;
 }
@@ -1707,10 +1713,11 @@ div.form-notification {
   z-index: -1;
 }
 
-#bm-ui-form-videoconferencing-provider-icon {
+.videoconference-icon {
   width: 24px;
   display: inline-block;
   vertical-align: middle;
+  padding-right: 6px;
 }
 
 #zippy-videoconferencing {
