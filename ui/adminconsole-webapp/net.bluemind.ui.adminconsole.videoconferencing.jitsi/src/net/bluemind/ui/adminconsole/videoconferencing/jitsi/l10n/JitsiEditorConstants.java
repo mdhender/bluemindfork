@@ -28,4 +28,8 @@ public interface JitsiEditorConstants extends ConstantsWithLookup {
 
 	String serverURL();
 
+	String deleteBtnConfirm();
+
+	String deleteBtn();
+
 }

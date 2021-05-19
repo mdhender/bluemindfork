@@ -27,4 +27,8 @@ public interface StarLeafConstants extends ConstantsWithLookup {
 
 	String token();
 
+	String deleteBtnConfirm();
+
+	String deleteBtn();
+
 }

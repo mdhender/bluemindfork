@@ -28,8 +28,12 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
@@ -48,6 +52,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.resource.api.IResourcesPromise;
 import net.bluemind.resource.api.ResourceDescriptor.PropertyValue;
 import net.bluemind.resource.api.gwt.endpoint.ResourcesGwtEndpoint;
+import net.bluemind.ui.adminconsole.videoconferencing.jitsi.l10n.JitsiEditorConstants;
 import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.ui.editor.client.Editor;
 import net.bluemind.videoconferencing.api.IVideoConferenceUids;
@@ -82,12 +87,22 @@ public class JitsiEditor extends CompositeGwtWidgetElement {
 	@UiField
 	ListBox templateLanguagesComboBox;
 
+	@UiField
+	Button deleteBtn;
+
+	@UiHandler("deleteBtn")
+	void deleteClick(ClickEvent e) {
+		if (Window.confirm(JitsiEditorConstants.INST.deleteBtnConfirm())) {
+			removeResource();
+		}
+	}
+
 	private String domainUid;
 
 	private String resourceUid;
 
 	/** Local storage for templates. */
-	private Map<String, String> templatesByLanguage = new HashMap<String, String>();
+	private Map<String, String> templatesByLanguage = new HashMap<>();
 
 	/** Keep track of the selected template. */
 	private int selectedTemplateIndex;
@@ -110,6 +125,7 @@ public class JitsiEditor extends CompositeGwtWidgetElement {
 	@Override
 	public void loadModel(JavaScriptObject model) {
 		super.loadModel(model);
+		deleteBtn.setVisible(false);
 
 		final JsMapStringJsObject map = model.cast();
 		domainUid = map.getString("domainUid");
@@ -150,8 +166,9 @@ public class JitsiEditor extends CompositeGwtWidgetElement {
 								isJitsi = true;
 							}
 						}
-
 						if (isJitsi) {
+							deleteBtn.setVisible(true);
+
 							resourceUid = uid;
 							IContainerManagementPromise containerMgmt = new ContainerManagementGwtEndpoint(
 									Ajax.TOKEN.getSessionId(), getResourceSettingsContainer(resourceUid)).promiseApi();
@@ -191,9 +208,6 @@ public class JitsiEditor extends CompositeGwtWidgetElement {
 					setResourceSettings(uid);
 				});
 			}
-		} else {
-			// TOOD warning before deletion?
-			removeResource();
 		}
 
 	}
@@ -223,7 +237,16 @@ public class JitsiEditor extends CompositeGwtWidgetElement {
 
 	private void removeResource() {
 		IResourcesPromise resourceService = new ResourcesGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid).promiseApi();
-		resourceService.delete(resourceUid);
+		resourceService.delete(resourceUid).thenAccept(v -> {
+
+			// reset form
+			templateLanguagesComboBox.setSelectedIndex(0);
+			selectedTemplateIndex = 0;
+			resourceUid = null;
+			serverUrl.asEditor().setValue(null);
+			templatesByLanguage = new HashMap<>();
+			templateEditor.setText(null);
+		});
 	}
 
 	private void storeCurrentTemplate() {

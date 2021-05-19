@@ -10,6 +10,25 @@
 	<ui:with field="c"
 		type="net.bluemind.ui.adminconsole.videoconferencing.jitsi.l10n.JitsiEditorConstants" />
 
+	<ui:style>
+	.delete {
+		height: 25px;
+		vertical-align: top;
+		padding: 3px 14px 5px;
+		font-size: small;
+		border: 1px solid #660404;
+		color: #FFFFFF;
+		background-color: #C43C35;
+		text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+		border-color: rgba(196, 60, 53, 0.1) rgba(196, 60, 53, 0.1)
+			rgba(136, 42, 37, 0.25);
+		background-image: -moz-linear-gradient(top, #EE5F5B, #C43C35);
+		background-image: -ms-linear-gradient(top, #EE5F5B, #C43C35);
+		background-image: -webkit-linear-gradient(top, #EE5F5B, #C43C35);
+		background-image: -o-linear-gradient(top, #EE5F5B, #C43C35);
+		background-image: linear-gradient(top, #EE5F5B, #C43C35);
+	}
+	</ui:style>
 	<g:HTMLPanel>
 		<g:Label text="{c.editJitsiConfiguration}"
 			styleName="sectionTitle" />
@@ -55,7 +74,14 @@
 					<e:Editor ui:field="templateEditor" width="100%" />
 				</td>
 			</tr>
-
+			<tr>
+				<td>
+				</td>
+				<td>
+					<g:Button ui:field="deleteBtn"
+						styleName="button {style.delete}" text="{c.deleteBtn}" />
+				</td>
+			</tr>
 		</table>
 	</g:HTMLPanel>
 </ui:UiBinder>

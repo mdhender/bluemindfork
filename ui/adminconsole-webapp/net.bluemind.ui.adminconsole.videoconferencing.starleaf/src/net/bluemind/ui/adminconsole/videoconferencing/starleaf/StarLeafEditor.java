@@ -24,8 +24,12 @@ import java.util.concurrent.CompletableFuture;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.TextBox;
 
@@ -40,6 +44,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.resource.api.IResourcesPromise;
 import net.bluemind.resource.api.ResourceDescriptor.PropertyValue;
 import net.bluemind.resource.api.gwt.endpoint.ResourcesGwtEndpoint;
+import net.bluemind.ui.adminconsole.videoconferencing.starleaf.l10n.StarLeafConstants;
 import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.videoconferencing.api.IVideoConferenceUids;
 import net.bluemind.videoconferencing.api.IVideoConferencingPromise;
@@ -62,6 +67,16 @@ public class StarLeafEditor extends CompositeGwtWidgetElement {
 
 	@UiField
 	TextBox token;
+
+	@UiField
+	Button deleteBtn;
+
+	@UiHandler("deleteBtn")
+	void deleteClick(ClickEvent e) {
+		if (Window.confirm(StarLeafConstants.INST.deleteBtnConfirm())) {
+			removeResource();
+		}
+	}
 
 	private String domainUid;
 
@@ -164,7 +179,9 @@ public class StarLeafEditor extends CompositeGwtWidgetElement {
 
 	private void removeResource() {
 		IResourcesPromise resourceService = new ResourcesGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid).promiseApi();
-		resourceService.delete(resourceUid);
+		resourceService.delete(resourceUid).thenAccept(res -> {
+			token.asEditor().setValue(null);
+		});
 	}
 
 	private String getResourceSettingsContainer(String resourceUid) {
