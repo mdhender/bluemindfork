@@ -601,10 +601,10 @@ public class DirectoryCenter extends Composite implements IGwtScreenRoot, IDomai
 		IServerPromise serverService = new ServerGwtEndpoint(Ajax.TOKEN.getSessionId(), "default").promiseApi();
 		serverService.getAssignments(domainUid).thenAccept(servers -> {
 			filterByShard.addItem(constants.all(), "");
-			servers.forEach(server -> {
-				if ("mail/imap".equals(server.tag)) {
-					filterByShard.addItem(server.serverUid);
-				}
+			servers.stream().filter(s -> "mail/imap".equals(s.tag)).forEach(server -> {
+				serverService.getComplete(server.serverUid).thenAccept(s -> {
+					filterByShard.addItem(s.value.name, s.uid);
+				});
 			});
 		});
 	}
