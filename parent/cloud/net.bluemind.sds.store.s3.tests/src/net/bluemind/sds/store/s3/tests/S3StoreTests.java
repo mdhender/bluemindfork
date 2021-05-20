@@ -101,7 +101,7 @@ public class S3StoreTests {
 		pr.mailbox = er.mailbox;
 		pr.guid = er.guid;
 
-		Path path = tempContent();
+		Path path = tempContent(10 * 1024 * 1024);
 		pr.filename = path.toFile().getAbsolutePath();
 		SdsResponse resp = store.upload(pr).join();
 		assertNotNull(resp);

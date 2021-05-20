@@ -17,9 +17,6 @@
  */
 package net.bluemind.sds.store.s3;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
@@ -28,22 +25,17 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.netflix.spectator.api.Clock;
 import com.netflix.spectator.api.Counter;
+import com.netflix.spectator.api.DistributionSummary;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.Timer;
 
-import io.netty.buffer.Unpooled;
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.file.AsyncFile;
-import io.vertx.core.file.OpenOptions;
 import net.bluemind.aws.s3.utils.S3ClientFactory;
 import net.bluemind.aws.s3.utils.S3Configuration;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -59,8 +51,8 @@ import net.bluemind.sds.dto.SdsError;
 import net.bluemind.sds.dto.SdsResponse;
 import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.sds.store.SdsException;
-import software.amazon.awssdk.core.async.AsyncResponseTransformer;
-import software.amazon.awssdk.core.async.SdkPublisher;
+import net.bluemind.sds.store.s3.zstd.ZstdRequestBody;
+import net.bluemind.sds.store.s3.zstd.ZstdResponseTransformer;
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.model.BucketLocationConstraint;
@@ -98,6 +90,7 @@ public class S3Store implements ISdsBackingStore {
 	private final Counter mgetRequestCounter;
 	private final Counter deleteRequestCounter;
 	private final Counter putSizeCounter;
+	private DistributionSummary compressionRatio;
 
 	public S3Store(S3Configuration s3Configuration, Registry registry, IdFactory idfactory) {
 		this.idFactory = idfactory;
@@ -150,6 +143,7 @@ public class S3Store implements ISdsBackingStore {
 		mgetLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "mget"));
 		getLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "get"));
 		putLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "put"));
+		compressionRatio = registry.distributionSummary(idFactory.name("compressionRatio"));
 		deleteLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "delete"));
 	}
 
@@ -196,7 +190,8 @@ public class S3Store implements ISdsBackingStore {
 
 						Path toUpload = Paths.get(req.filename);
 						return client
-								.putObject(PutObjectRequest.builder().bucket(bucket).key(req.guid).build(), toUpload)
+								.putObject(PutObjectRequest.builder().bucket(bucket).key(req.guid).build(),
+										new ZstdRequestBody(toUpload, compressionRatio))
 								.exceptionally(ex -> null).thenApply(putResp -> {
 									Optional<PutObjectResponse> optPut = Optional.ofNullable(putResp);
 									SdsResponse sr = new SdsResponse();
@@ -223,97 +218,19 @@ public class S3Store implements ISdsBackingStore {
 	@Override
 	public CompletableFuture<SdsResponse> download(GetRequest req) {
 		final long start = clock.monotonicTime();
-		PathResponseTransformer<GetObjectResponse> prt = new PathResponseTransformer<>(VertxPlatform.getVertx(),
+		ZstdResponseTransformer<GetObjectResponse> prt = new ZstdResponseTransformer<>(VertxPlatform.getVertx(),
 				req.filename);
 		return client.getObject(GetObjectRequest.builder().bucket(bucket).key(req.guid).build(), prt)
 				.exceptionally(ex -> null).thenApply(gor -> {
 					getLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
 					if (gor != null) {
-						getSizeCounter.increment(prt.transferred);
+						getSizeCounter.increment(prt.transferred());
 						getRequestCounter.increment();
 					} else {
 						getFailureRequestCounter.increment();
 					}
 					return SdsResponse.UNTAGGED_OK;
 				});
-
-	}
-
-	private static class PathResponseTransformer<T> implements AsyncResponseTransformer<T, T> {
-
-		private static final OpenOptions OPEN_OPTS = new OpenOptions().setCreate(true).setWrite(true)
-				.setTruncateExisting(true);
-
-		private final String path;
-		private CompletableFuture<T> cf;
-		private T response;
-		private long transferred;
-		private final Vertx vertx;
-
-		public PathResponseTransformer(Vertx vertx, String path) {
-			this.vertx = vertx;
-			this.path = path;
-		}
-
-		@Override
-		public CompletableFuture<T> prepare() {
-			cf = new CompletableFuture<>();
-			return cf.thenApply(v -> response);
-		}
-
-		@Override
-		public void onResponse(T response) {
-			this.response = response;
-		}
-
-		@Override
-		public void onStream(SdkPublisher<ByteBuffer> publisher) {
-			vertx.fileSystem().open(path, OPEN_OPTS, res -> {
-				if (res.succeeded()) {
-					AsyncFile asyncFile = res.result();
-					publisher.subscribe(new Subscriber<ByteBuffer>() {
-
-						private Subscription sub;
-
-						@Override
-						public void onSubscribe(Subscription s) {
-							sub = s;
-							sub.request(1);
-						}
-
-						@Override
-						public void onNext(ByteBuffer t) {
-							transferred += t.remaining();
-							Buffer vxBuf = Buffer.buffer(Unpooled.wrappedBuffer(t));
-							asyncFile.write(vxBuf, done -> sub.request(1));
-						}
-
-						@Override
-						public void onError(Throwable t) {
-							asyncFile.close();
-							exceptionOccurred(t);
-						}
-
-						@Override
-						public void onComplete() {
-							asyncFile.flush(flushed -> asyncFile.close(c -> cf.complete(null)));
-						}
-					});
-				} else {
-					exceptionOccurred(res.cause());
-				}
-			});
-		}
-
-		@Override
-		public void exceptionOccurred(Throwable error) {
-			try {
-				Files.deleteIfExists(Paths.get(path));
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-			}
-			cf.completeExceptionally(error);
-		}
 
 	}
 
@@ -333,12 +250,12 @@ public class S3Store implements ISdsBackingStore {
 		for (int i = 0; i < len; i++) {
 			int slot = i % parallelStreams;
 			Transfer t = it.next();
-			PathResponseTransformer<GetObjectResponse> pr = new PathResponseTransformer<>(vx, t.filename);
+			ZstdResponseTransformer<GetObjectResponse> pr = new ZstdResponseTransformer<>(vx, t.filename);
 			roots[slot] = roots[slot].thenCompose(v -> client
 					.getObject(GetObjectRequest.builder().bucket(bucket).key(t.guid).build(), pr).exceptionally(x -> {
 						logger.warn(x.getMessage(), x);
 						return null;
-					}).thenAccept(respBytes -> totalSize.add(pr.transferred)));
+					}).thenAccept(respBytes -> totalSize.add(pr.transferred())));
 		}
 
 		return CompletableFuture.allOf(roots).thenApply(v -> {

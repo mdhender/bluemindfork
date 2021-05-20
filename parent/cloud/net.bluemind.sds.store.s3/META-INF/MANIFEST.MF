@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.sds.store.s3
 Bundle-SymbolicName: net.bluemind.sds.store.s3;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-Activator: net.bluemind.sds.store.s3.S3StoreActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.sds.store;visibility:=reexport,
@@ -15,7 +14,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.aws.s3.utils;visibility:=reexport,
  org.reactivestreams.reactive-streams;bundle-version="1.0.3",
  io.vertx.core,
- net.bluemind.lib.vertx
+ net.bluemind.lib.vertx,
+ com.github.luben.zstd;bundle-version="1.4.9"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.sds.store.s3
 Bundle-ActivationPolicy: lazy

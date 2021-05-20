@@ -36,7 +36,7 @@
 		<sonar.jacoco.excludes>**/*Test*,**/generated/**/*,**/*.tests/**/*</sonar.jacoco.excludes>
 		<l10n.list>"en", "fr"</l10n.list>
 		<gwt-version>2.8.2</gwt-version>
-		<docker.devenv.tag>4.1.56729</docker.devenv.tag>
+		<docker.devenv.tag>4.1.57921</docker.devenv.tag>
 		<bm.test.argline>-Dio.netty.noPreferDirect=true -XX:-OmitStackTraceInFastThrow</bm.test.argline>
 	</properties>
 
@@ -44,7 +44,7 @@
 		<repository>
 			<id>bluemind-deps</id>
 			<layout>p2</layout>
-			<url>https://forge.bluemind.net/staging/p2/dependencies/551/</url>
+			<url>https://forge.bluemind.net/staging/p2/dependencies/552/</url>
 		</repository>
 		<repository>
 			<id>tigase</id>
