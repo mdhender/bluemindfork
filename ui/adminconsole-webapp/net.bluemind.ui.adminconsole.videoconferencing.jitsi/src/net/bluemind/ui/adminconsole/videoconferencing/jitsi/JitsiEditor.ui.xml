@@ -28,17 +28,6 @@
 					<ui:msg key="template">Template</ui:msg>
 				</td>
 				<td class="form">
-					<p align="justify" style="width:32.7rem;">
-						<i>
-							<ui:msg key="templateInfo">
-								The template may contain variables. Variables
-								can be defined in the “Custom properties” section above, using
-								the following format $﹛MyVariable﹜. Some variables such as
-								$﹛ResourceName﹜ and $﹛Organizer﹜ are available by default. The
-								organizer’s language will be used.
-							</ui:msg>
-						</i>
-					</p>
 					<p>
 						<ui:msg key="templateInfoVar">Variables available by default:</ui:msg>
 						<ul>
