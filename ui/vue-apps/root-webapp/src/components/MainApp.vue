@@ -42,17 +42,20 @@ export default {
         const data = {};
         data.applications = [];
         data.widgets = [];
+        const baseURI = new RegExp("^" + new URL(document.baseURI).pathname.replace(/\/[^/]*$/, ""));
         window.bmExtensions_["net.bluemind.banner"].map(function (extension) {
             if (extension.application) {
                 const entry = extension.application;
                 data.applications.push({
+                    id: extension.bundle,
                     icon: {
                         name: entry.children["icon-name"] && entry.children["icon-name"].body,
                         svg: entry.children["icon-svg"] && entry.children["icon-svg"].body,
                         url: entry.children["icon-url"] && entry.children["icon-url"].body
                     },
-                    href: entry.href.match(/^\/webapp/) ? entry.href.replace("/webapp", "") : entry.href,
-                    external: !entry.href.match(/^\/webapp/),
+                    fullPath: entry.href,
+                    href: baseURI.test(entry.href) ? entry.href.replace(baseURI, "") : entry.href,
+                    external: !baseURI.test(entry.href),
                     name: entry.name,
                     description: entry.description,
                     order: entry.order,

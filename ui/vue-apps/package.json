@@ -6,7 +6,8 @@
             "mailbackend/*",
             "mail-webapp",
             "root-webapp",
-            "videoconferencing-saas-webapp"
+            "videoconferencing-saas-webapp",
+            "webapp-wrapper"
         ],
         "nohoist": [
             "**/bootstrap-vue",

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+      <extension point="net.bluemind.webmodule">
+            <web-module-provider module="/cal,/contact,/task">            
+                  <web-resource bundle="net.bluemind.webmodules.webapp.wrapper">
+                  </web-resource>
+                  <js async-loading="false" translation="false" path="js/net.bluemind.webmodules.webapp.wrapper.js">
+                  </js>
+                  <web-resource bundle="net.bluemind.webapp.root.js">
+                  </web-resource>
+                  <js async-loading="false" translation="false" path="js/net.bluemind.webapp.root.js">
+                  </js>
+            </web-module-provider>
+            <web-module-provider module="/cal">
+                  <handler class="net.bluemind.webmodules.webapp.wrapper.handlers.CalendarHandler" path="index.html">
+                  </handler>
+            </web-module-provider >
+            <web-module-provider module="/contact">
+                  <handler class="net.bluemind.webmodules.webapp.wrapper.handlers.ContactHandler" path="index.html">
+                  </handler>
+            </web-module-provider >
+            <web-module-provider module="/task">
+                  <handler class="net.bluemind.webmodules.webapp.wrapper.handlers.TodolistHandler" path="index.html">
+                  </handler>
+            </web-module-provider >
+      </extension>
+</plugin>

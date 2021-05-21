@@ -7,7 +7,7 @@ RelativeNavigationPlugin.extends(VueRouter);
 Vue.use(VueRouter);
 
 const options = {
-    base: "/webapp",
+    base: new URL(document.baseURI).pathname.replace(/\/[^/]*$/, ""),
     mode: "history"
 };
 

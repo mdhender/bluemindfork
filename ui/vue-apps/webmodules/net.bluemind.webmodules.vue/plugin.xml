@@ -4,25 +4,7 @@
    <extension
          point="net.bluemind.webmodule">
       <web-module-provider
-            module="/webapp">
-         <js
-               path="js/vue-router.js">
-         </js>
-         <js
-               path="js/vuex.js">
-         </js>
-         <js
-               path="js/vue.js">
-         </js>
-         <web-resource
-               bundle="net.bluemind.webmodules.vue">
-         </web-resource>
-         <handler
-               class="net.bluemind.webmodules.vue.VueHandler"
-               path="js/vue.js"></handler>
-      </web-module-provider>
-      <web-module-provider
-            module="/visio">
+          module="/cal,/contact,/task,/visio,/webapp">
          <js
                path="js/vue-router.js">
          </js>

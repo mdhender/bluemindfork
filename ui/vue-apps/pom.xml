@@ -30,8 +30,9 @@
         <module>mail-webapp</module>
         <module>packaging</module>
         <module>root-webapp</module>
-        <module>webmodules</module>
         <module>videoconferencing-saas-webapp</module>
+        <module>webapp-wrapper</module>
+        <module>webmodules</module>
     </modules>
 
 

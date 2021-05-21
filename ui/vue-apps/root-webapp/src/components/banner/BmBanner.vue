@@ -114,9 +114,12 @@ export default {
             return this.selectedApp ? this.selectedApp.href : "/";
         },
         defaultApps() {
-            return this.applications.filter(
-                app => app.href === "/mail/" || app.href === "/contact/" || app.href === "/cal/"
-            );
+            const defaults = [
+                "net.bluemind.webmodules.contact",
+                "net.bluemind.webapp.mail.js",
+                "net.bluemind.webmodules.calendar"
+            ];
+            return this.applications.filter(({ id }) => defaults.includes(id));
         }
     },
     methods: {

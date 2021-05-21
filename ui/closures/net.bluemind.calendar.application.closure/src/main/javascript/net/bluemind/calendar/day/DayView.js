@@ -358,7 +358,7 @@ net.bluemind.calendar.day.DayView.prototype.initGrid = function() {
   var cssDayLabel = goog.getCssName('dayLabel');
   var cssDayContainer = goog.getCssName('dayContainer');
   var cssColEmul = goog.getCssName('column-emul');
-  var cssContainer = goog.getCssName('container');
+  var cssContainer = goog.getCssName('eventContainer');
   var cssDayEventContainer = goog.getCssName('dayEventContainer');
   var cssOutOfWork = goog.getCssName('outOfWork');
   // FIXME

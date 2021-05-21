@@ -38,9 +38,11 @@ goog.inherits(net.bluemind.mvp.banner.BannerHandler, net.bluemind.mvp.handler.Pr
 
 /** @override */
 net.bluemind.mvp.banner.BannerHandler.prototype.createPresenter = function(ctx) {
-  var hideBandal = false || goog.string.contains(goog.userAgent.getUserAgentString(), 'Thunderbird')
-      || goog.string.contains(goog.userAgent.getUserAgentString(), 'Icedove');
-
+  var header = goog.dom.getElement('header')
+  
+  var hideBandal = goog.string.contains(goog.userAgent.getUserAgentString(), 'Thunderbird')
+  || goog.string.contains(goog.userAgent.getUserAgentString(), 'Icedove') || !header || header.getAttribute('data-banner') == "false";
+  
   if (!hideBandal) {
     return new net.bluemind.mvp.banner.BannerPresenter(ctx);
   } else {
