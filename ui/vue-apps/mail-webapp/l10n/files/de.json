@@ -239,6 +239,7 @@
     "mail.list.sr_info.unread": "Ungelesen.",
     "mail.list.sr_info": "{title}{props}",
     "mail.list.unread.none": "Keine ungelesenen E-Mails.",
+    "mail.mailbox.quota.used": "{usedQuotaPercentage} % des Speicherplatzes in Gebrauch",
     "mail.main.new": "Neue E-Mail",
     "mail.main.switch.webmail": "Neuer Webmailer testen",
     "mail.message.select.all.folder": "Alle E-Mails auswählen",
