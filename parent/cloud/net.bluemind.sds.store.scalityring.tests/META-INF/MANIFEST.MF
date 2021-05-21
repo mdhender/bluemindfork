@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.sds.store.scalityring.tests
 Bundle-SymbolicName: net.bluemind.sds.store.scalityring.tests
 Bundle-Version: 4.1.0.qualifier
-Bundle-Activator: net.bluemind.sds.store.scalityring.tests.ScalityRingTestsActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.authentication.service,

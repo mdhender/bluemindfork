@@ -19,12 +19,10 @@ package net.bluemind.sds.store.scalityring;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.SeekableByteChannel;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -39,8 +37,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.CountingInputStream;
 import com.netflix.spectator.api.Clock;
 import com.netflix.spectator.api.Counter;
+import com.netflix.spectator.api.DistributionSummary;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.Timer;
 
@@ -55,6 +55,7 @@ import net.bluemind.sds.dto.PutRequest;
 import net.bluemind.sds.dto.SdsError;
 import net.bluemind.sds.dto.SdsResponse;
 import net.bluemind.sds.store.ISdsBackingStore;
+import net.bluemind.sds.store.scalityring.zstd.ZstdStreams;
 
 public class ScalityRingStore implements ISdsBackingStore {
 	private static final Logger logger = LoggerFactory.getLogger(ScalityRingStore.class);
@@ -83,6 +84,7 @@ public class ScalityRingStore implements ISdsBackingStore {
 	private final Counter deleteRequestCounter;
 	private final Counter deleteFailureRequestCounter;
 	private final Counter putSizeCounter;
+	private DistributionSummary compressionRatio;
 
 	public ScalityRingStore(ScalityConfiguration configuration, AsyncHttpClient client, Registry registry,
 			IdFactory idfactory) {
@@ -115,6 +117,7 @@ public class ScalityRingStore implements ISdsBackingStore {
 		mgetLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "mget"));
 		getLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "get"));
 		putLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "put"));
+		compressionRatio = registry.distributionSummary(idFactory.name("compressionRatio"));
 		deleteLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "delete"));
 	}
 
@@ -149,22 +152,23 @@ public class ScalityRingStore implements ISdsBackingStore {
 		long uploadLength = uploadFile.length();
 
 		return exists(ExistRequest.of(req.guid)) //
-				.thenApply(er -> {
-					return er.exists;
-				}).thenCompose(existresponse -> {
+				.thenApply(er -> er.exists).thenCompose(existresponse -> {
 					SdsResponse sr = new SdsResponse();
 					sr.withTags(ImmutableMap.of("guid", req.guid, "skip", "true"));
 					if (Boolean.TRUE.equals(existresponse)) {
 						return CompletableFuture.completedFuture(sr);
 					}
+					CountingInputStream stream = ZstdStreams.compress(uploadFile);
 					return client.preparePut(endpoint + "/" + req.guid) //
-							.setBody(uploadFile) //
+							.setBody(stream) //
 							.execute() //
 							.toCompletableFuture() //
 							.thenApply(httpresp -> {
 								boolean success = httpresp.getStatusCode() == 200;
 								putLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
 								putSizeCounter.increment(uploadLength);
+								long compressionPercent = stream.getCount() * 100 / uploadLength;
+								compressionRatio.record(Math.max(0, 100 - compressionPercent));
 								Counter requestCounter = success ? putRequestCounter : putFailureRequestCounter;
 								requestCounter.increment();
 								if (!success) {
@@ -187,32 +191,17 @@ public class ScalityRingStore implements ISdsBackingStore {
 	public CompletableFuture<SdsResponse> download(GetRequest req) {
 		final long start = clock.monotonicTime();
 		CompletableFuture<SdsResponse> response = new CompletableFuture<>();
-		SeekableByteChannel outChannel;
 		AtomicLong downloaded = new AtomicLong(0);
 
 		Path downloadPath = Paths.get(req.filename);
-		try {
-			outChannel = Files.newByteChannel(downloadPath, StandardOpenOption.CREATE, // NOSONAR
-					StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
-			response.whenComplete((r, t) -> {
-				try {
-					outChannel.close();
-				} catch (IOException e) {
-					logger.error("error closing output channel", e);
-				}
-			});
-		} catch (IOException e) {
-			logger.error("output stream open failed");
-			response.completeExceptionally(e);
-			return response;
-		}
+		OutputStream outChannel = ZstdStreams.decompress(downloadPath);
 
 		client.prepareGet(endpoint + "/" + req.guid) //
 				.execute(new AsyncCompletionHandler<Void>() {
 					@Override
 					public State onBodyPartReceived(HttpResponseBodyPart bodyPart) throws IOException {
-						ByteBuffer data = bodyPart.getBodyByteBuffer();
-						long len = data.remaining();
+						byte[] data = bodyPart.getBodyPartBytes();
+						long len = data.length;
 						if (len > 0) {
 							downloaded.addAndGet(len);
 							outChannel.write(data);
@@ -222,6 +211,10 @@ public class ScalityRingStore implements ISdsBackingStore {
 
 					@Override
 					public void onThrowable(Throwable t) {
+						try {
+							outChannel.close();
+						} catch (IOException e) {
+						}
 						logger.error("download request failed", t);
 						getFailureRequestCounter.increment();
 						response.completeExceptionally(t);
@@ -230,12 +223,12 @@ public class ScalityRingStore implements ISdsBackingStore {
 					@Override
 					public Void onCompleted(Response httpresp) throws Exception {
 						boolean success = httpresp.getStatusCode() == 200;
+						outChannel.close();
 						if (!success) {
 							getFailureRequestCounter.increment();
 							response.completeExceptionally(new RuntimeException("failed to download " + req.guid + ": "
 									+ httpresp.getStatusCode() + " " + httpresp.getStatusText()));
 							// Don't store the '404 error' page on the local filesystem
-							outChannel.close();
 							Files.deleteIfExists(downloadPath);
 							return null;
 						}
