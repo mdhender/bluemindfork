@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2021
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -18,26 +18,11 @@
  */
 package net.bluemind.webmodules.webapp.wrapper.handlers;
 
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
-
-import io.vertx.core.http.HttpServerRequest;
-import net.bluemind.webmodule.server.handlers.AbstractIndexHandler;
-
-public class ContactHandler extends AbstractIndexHandler {
+public class ContactHandler extends AbstractWrapperHandler {
 
 	@Override
-	protected String getTemplateName() {
-		return "Contact.ftl";
-	}
-
-	@Override
-	protected void loadPageModel(HttpServerRequest request, Map<String, Object> model) {
-		super.loadPageModel(request, model);
-		String lang = getLang(request);
-		ResourceBundle resourceBundle = ResourceBundle.getBundle("OSGI-INF/l10n/bundle", new Locale(lang));
-		model.put("appName", resourceBundle.getString("contact.name"));
+	protected String getAppNameI18NKey() {
+		return "contact.name";
 	}
 
 }

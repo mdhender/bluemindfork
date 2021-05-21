@@ -34,11 +34,11 @@ var model = {
     "user": null
 };
 
+
 net.bluemind.ui.BannerStandalone.instance_ = null;
 var banner = new net.bluemind.ui.banner.Banner();
 banner.setModel(model);
 banner.render(goog.dom.getElement('banner'));
-
 
 var rpc = new relief.rpc.RPCService(new relief.cache.Cache(), new goog.structs.Map({
       'X-BM-ApiKey' : goog.global['bmcSessionInfos']['sid']
@@ -49,11 +49,14 @@ var authClient = new net.bluemind.authentication.api.AuthenticationClient(rpc, '
 
 net.bluemind.ui.BannerStandalone.render = function(bannerEl, opt_selectedApp) {
   banner.dispose();
+  var header = goog.dom.getElement('header');
+
+  var hideBandal = goog.string.contains(goog.userAgent.getUserAgentString(), 'Thunderbird')
+  || goog.string.contains(goog.userAgent.getUserAgentString(), 'Icedove') 
+  || header && header.getAttribute('data-banner') == 'false';
   
-  var hideBandal = false || goog.string.contains(goog.userAgent.getUserAgentString(), 'Thunderbird')
-  || goog.string.contains(goog.userAgent.getUserAgentString(), 'Icedove');
-  
-  if (!hideBandal) {
+  if (!hideBandal) {  
+
 	  authClient.getCurrentUser().then(function(authUser) {
 	    banner = new bluemind.ui.Banner();
 	    model['user'] = authUser;

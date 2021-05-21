@@ -29,9 +29,7 @@ img {
   border: none;
 }
 
-a,
-a:link,
-a:visited  {
+a {
   color: #205780;
 }
 

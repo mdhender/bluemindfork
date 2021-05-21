@@ -148,6 +148,7 @@ public final class AdminCtrl {
 		mainScreen = new AdminScreen(AdminConsoleMenus.get().getRootAsList(), bc);
 		RootLayoutPanel rlp = RootLayoutPanel.get();
 		rlp.clear();
+		rlp.getElement().addClassName("root-layout");
 		// RootPanel.get().add(spinner);
 		rlp.add(spinner);
 		rlp.add(mainScreen);

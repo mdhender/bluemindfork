@@ -18,11 +18,11 @@
  */
 package net.bluemind.webmodules.webapp.wrapper.handlers;
 
-public class TodolistHandler extends AbstractWrapperHandler {
+public class AdminConsoleHandler extends AbstractWrapperHandler {
 
 	@Override
 	protected String getAppNameI18NKey() {
-		return "todolist.name";
+		return "admin-console.name";
 	}
 
 }

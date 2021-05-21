@@ -4,7 +4,7 @@
    <extension
          point="net.bluemind.webmodule">
       <web-module-provider
-          module="/cal,/contact,/task,/visio,/webapp">
+          module="/adminconsole,/cal,/contact,/settings,/task,/visio,/webapp">
          <js
                path="js/vue-router.js">
          </js>

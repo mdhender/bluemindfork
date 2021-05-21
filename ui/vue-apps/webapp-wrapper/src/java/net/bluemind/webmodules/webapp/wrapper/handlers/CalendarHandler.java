@@ -18,26 +18,11 @@
  */
 package net.bluemind.webmodules.webapp.wrapper.handlers;
 
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
-
-import io.vertx.core.http.HttpServerRequest;
-import net.bluemind.webmodule.server.handlers.AbstractIndexHandler;
-
-public class CalendarHandler extends AbstractIndexHandler {
+public class CalendarHandler extends AbstractWrapperHandler {
 
 	@Override
-	protected String getTemplateName() {
-		return "Calendar.ftl";
-	}
-
-	@Override
-	protected void loadPageModel(HttpServerRequest request, Map<String, Object> model) {
-		super.loadPageModel(request, model);
-		String lang = getLang(request);
-		ResourceBundle resourceBundle = ResourceBundle.getBundle("OSGI-INF/l10n/bundle", new Locale(lang));
-		model.put("appName", resourceBundle.getString("calendar.name"));
+	protected String getAppNameI18NKey() {
+		return "calendar.name";
 	}
 
 }

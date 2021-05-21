@@ -97,7 +97,7 @@ public class Settings implements EntryPoint {
 	protected void startUp() {
 
 		RootLayoutPanel rlp = RootLayoutPanel.get();
-
+		rlp.getElement().addClassName("root-layout");
 		FlowPanel root = new FlowPanel();
 		root.setHeight("100%");
 		rlp.clear();
