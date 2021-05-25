@@ -177,7 +177,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			Property prop = cc.getProperty("X-ALT-DESC");
 			Parameter fmtType = prop.getParameter(Parameter.FMTTYPE);
 			if (fmtType != null && fmtType.getValue().equals("text/html")) {
-				iCalendarElement.description = prop.getValue();
+				iCalendarElement.description = net.fortuna.ical4j.util.Strings.unescape(prop.getValue());
 				htmlProvided = true;
 			}
 		}
@@ -1241,8 +1241,13 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	private static void parseICalendarElementDescription(PropertyList properties, ICalendarElement iCalendarElement) {
 		if (isStringNotNull(iCalendarElement.description)) {
 			properties.add(new Description(Jsoup.parse(iCalendarElement.description).text().trim()));
-			XProperty xAltDesc = new XProperty("X-ALT-DESC",
-					"<html>\n<body>" + iCalendarElement.description + "</body>\n</html>");
+
+			String desc = iCalendarElement.description;
+			if (!desc.startsWith("<html>")) {
+				desc = "<html><body>" + desc + "</body></html>";
+			}
+
+			XProperty xAltDesc = new XProperty("X-ALT-DESC", desc);
 			xAltDesc.getParameters().add(new FmtType("text/html"));
 			properties.add(xAltDesc);
 		}
