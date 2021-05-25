@@ -27,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class DeferredActionExecution extends AbstractVerticle {
 
@@ -39,16 +41,18 @@ public class DeferredActionExecution extends AbstractVerticle {
 	}
 
 	private void execute(Long timerId) {
-		executor.execute(() -> {
-			DeferredActionPluginLoader.executors.forEach(executor -> {
-				logger.debug("Executing deferred action executor {}", executor.getSupportedActionId());
-				try {
-					executor.create().execute(ZonedDateTime.now().plusMinutes(5));
-				} catch (Exception e) {
-					logger.warn("Error while executing deferred actions", e);
-				}
+		if (StateContext.getState() == SystemState.CORE_STATE_RUNNING) {
+			executor.execute(() -> {
+				DeferredActionPluginLoader.executors.forEach(executor -> {
+					logger.debug("Executing deferred action executor {}", executor.getSupportedActionId());
+					try {
+						executor.create().execute(ZonedDateTime.now().plusMinutes(5));
+					} catch (Exception e) {
+						logger.warn("Error while executing deferred actions", e);
+					}
+				});
 			});
-		});
+		}
 	}
 
 }

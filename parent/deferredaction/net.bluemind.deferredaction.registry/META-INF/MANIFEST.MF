@@ -10,7 +10,9 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.deferredaction.api,
  net.bluemind.core.container.persistence,
  net.bluemind.eclipse.common,
- slf4j.api
+ slf4j.api,
+ net.bluemind.system.state,
+ net.bluemind.system.api
 Bundle-Activator: net.bluemind.deferredaction.registry.DeferredActionPluginLoader
 Export-Package: net.bluemind.deferredaction.registry
 Bundle-ActivationPolicy: lazy
