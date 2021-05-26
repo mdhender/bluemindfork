@@ -27,6 +27,8 @@ import java.util.Optional;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.lib.ldap.LdapProtocol;
 import net.bluemind.system.importation.commons.exceptions.InvalidDnServerFault;
 
@@ -118,8 +120,8 @@ public class Parameters {
 		public Server(Optional<Host> host, String login, String password, LdapProtocol protocol,
 				boolean acceptAllCertificates) {
 			this.host = host;
-			this.login = login;
-			this.password = password;
+			this.login = Strings.isNullOrEmpty(login) ? null : login;
+			this.password = Strings.isNullOrEmpty(password) ? null : password;
 
 			if (protocol == null) {
 				this.protocol = LdapProtocol.PLAIN;

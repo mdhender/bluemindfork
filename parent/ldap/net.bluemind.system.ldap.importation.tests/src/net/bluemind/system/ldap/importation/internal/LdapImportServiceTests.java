@@ -227,7 +227,17 @@ public class LdapImportServiceTests {
 
 	@Test
 	public void nullLogin() throws ServerFault {
-		getService(admin0).testParameters(ldapDockerHostname, "plain", "false", "dc=local", null, "admin",
+		try {
+			getService(admin0).testParameters(ldapDockerHostname, "plain", "false", "dc=local", null, "admin",
+					"(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
+		} catch (ServerFault sf) {
+			assertTrue(sf.getMessage().startsWith("LDAP connection failed: "));
+		}
+	}
+
+	@Test
+	public void nullLoginAndPassword() throws ServerFault {
+		getService(admin0).testParameters(ldapDockerHostname, "plain", "false", "dc=local", null, null,
 				"(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
 	}
 

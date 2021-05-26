@@ -44,7 +44,7 @@ public class PasswordEdit extends TextBox {
 
 	@Override
 	public String getValue() {
-		return password;
+		return password == null ? "" : password;
 	}
 
 	@Override

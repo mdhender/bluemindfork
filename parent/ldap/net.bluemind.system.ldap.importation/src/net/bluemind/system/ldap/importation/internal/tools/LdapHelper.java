@@ -156,15 +156,12 @@ public class LdapHelper {
 
 			BindRequest bindRequest = new BindRequestImpl();
 			bindRequest.setSimple(true);
-
-			if (ldapParameters.ldapServer.login != null) {
-				bindRequest.setName(ldapParameters.ldapServer.login);
-				bindRequest.setCredentials(ldapParameters.ldapServer.password);
-			}
+			bindRequest.setName(ldapParameters.ldapServer.login);
+			bindRequest.setCredentials(ldapParameters.ldapServer.password);
 
 			BindResponse response = ldapCon.bind(bindRequest);
 			if (ResultCodeEnum.SUCCESS != response.getLdapResult().getResultCode() || !ldapCon.isAuthenticated()) {
-				throw new ServerFault("LDAP connection failed: " + response.getLdapResult().getDiagnosticMessage());
+				throw new ServerFault("LDAP connection failed: " + response.getLdapResult().getResultCode());
 			}
 		} catch (ServerFault sf) {
 			logger.error("Fail to connect to LDAP server: " + ldapParameters.toString(), sf);
