@@ -47,7 +47,7 @@ public class DirectorySerializationVerticle extends AbstractVerticle {
 	private void activateSerializers() {
 		try {
 			IDomains domApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
-			domApi.all().forEach(dom -> {
+			domApi.all().stream().filter(dom -> !"global.virt".equals(dom.uid)).forEach(dom -> {
 				DirectorySerializer ser = createSerializer(dom.uid);
 				Serializers.put(dom.uid, ser);
 				logger.info("{} registered for {}", ser, dom.uid);
