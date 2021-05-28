@@ -1,0 +1,1 @@
+Enable ${entity} video conference service

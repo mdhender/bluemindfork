@@ -1,0 +1,1 @@
+Aktivierung des Service Videokonferenz ${entity}

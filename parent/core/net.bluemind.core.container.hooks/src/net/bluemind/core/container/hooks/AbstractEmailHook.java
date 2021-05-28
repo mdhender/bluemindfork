@@ -57,6 +57,8 @@ public abstract class AbstractEmailHook implements IAclHook {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractEmailHook.class);
 
+	private static final String VIDEOCONFERENCE_DOCUMENTATION_URL = "https://forge.bluemind.net/confluence/display/DA/.Lier+une+visioconference+a+un+evenement+vBM-4.0";
+
 	protected Configuration cfg;
 	private EventBus eventBus;
 
@@ -72,17 +74,15 @@ public abstract class AbstractEmailHook implements IAclHook {
 	protected void notify(BmContext context, ContainerDescriptor container, List<AccessControlEntry> entries,
 			RawField... headers) throws ServerFault {
 
-		if (entries.size() == 0) {
-			logger.error("no one to notify");
+		if (entries.isEmpty()) {
+			logger.info("no one to notify");
 			return;
 		}
 
 		SecurityContext sc = context.getSecurityContext();
 
-		IDirectory fromDirService = context.provider().instance(IDirectory.class, container.domainUid);
-		DirEntry fromDE = fromDirService.findByEntryUid(sc.getSubject());
-
-		IDirectory memberDirService = context.provider().instance(IDirectory.class, container.domainUid);
+		IDirectory dirService = context.provider().instance(IDirectory.class, container.domainUid);
+		DirEntry fromDE = dirService.findByEntryUid(sc.getSubject());
 
 		String fromDN = "";
 		if (fromDE != null) {
@@ -91,6 +91,7 @@ public abstract class AbstractEmailHook implements IAclHook {
 
 		HashMap<String, String> data = new HashMap<String, String>();
 		data.put("user", fromDN);
+		data.put("videoconfdocumentation", VIDEOCONFERENCE_DOCUMENTATION_URL);
 
 		IUserSettings settingService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUserSettings.class, container.domainUid);
@@ -106,7 +107,7 @@ public abstract class AbstractEmailHook implements IAclHook {
 				continue;
 			}
 
-			final DirEntry targetedUser = memberDirService.findByEntryUid(entry.subject);
+			final DirEntry targetedUser = dirService.findByEntryUid(entry.subject);
 
 			if (targetedUser == null) {
 				logger.error("Cannot find dirEntry {}", entry.subject);
@@ -118,7 +119,7 @@ public abstract class AbstractEmailHook implements IAclHook {
 					IGroup g = context.provider().instance(IGroup.class, container.domainUid);
 					List<Member> members = g.getExpandedUserMembers(targetedUser.entryUid);
 					members.forEach(m -> {
-						DirEntry memberDE = memberDirService.findByEntryUid(m.uid);
+						DirEntry memberDE = dirService.findByEntryUid(m.uid);
 						if (memberDE.email != null) {
 							Map<String, String> prefs = settingService.get(memberDE.entryUid);
 							String lang = prefs.get("lang");
@@ -154,11 +155,8 @@ public abstract class AbstractEmailHook implements IAclHook {
 
 	}
 
-	private String buildSubject(String templateName, String locale, String user) {
-		Map<String, Object> data = new HashMap<String, Object>();
+	private String buildSubject(String templateName, String locale, HashMap<String, String> data) {
 		StringWriter sw = new StringWriter();
-
-		data.put("user", user);
 		Template t;
 		try {
 			t = getTemplate(templateName, locale);
@@ -186,7 +184,7 @@ public abstract class AbstractEmailHook implements IAclHook {
 			m.from = from;
 			m.sender = from;
 			m.to = SendmailHelper.formatAddress(de.displayName, de.email);
-			m.subject = buildSubject(templateSubject, lang, data.get("user"));
+			m.subject = buildSubject(templateSubject, lang, data);
 
 			StringWriter sw = new StringWriter();
 			Template t = getTemplate(templateName, lang);

@@ -136,7 +136,6 @@ public class ContainerManagement implements IContainerManagement {
 		for (IAclHook hook : hooks) {
 			try {
 				hook.onAclChanged(context, descriptor, Collections.unmodifiableList(previous),
-
 						Collections.unmodifiableList(entries));
 			} catch (Exception e) {
 				logger.error("error executing hook on setACL (container {}@{})", container.uid, container.domainUid, e);

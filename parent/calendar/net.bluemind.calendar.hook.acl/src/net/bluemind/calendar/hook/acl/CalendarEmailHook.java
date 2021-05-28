@@ -31,10 +31,19 @@ import net.bluemind.core.container.hooks.AbstractEmailHook;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
+import net.bluemind.resource.api.IResources;
+import net.bluemind.resource.api.ResourceDescriptor;
+import net.bluemind.videoconferencing.api.IVideoConferenceUids;
 
 public class CalendarEmailHook extends AbstractEmailHook {
 
 	private static final Logger logger = LoggerFactory.getLogger(CalendarEmailHook.class);
+
+	private String templateSubject = "CalendarSubject.ftl";
+	private String templateBody = "CalendarBody.ftl";
 
 	public CalendarEmailHook() {
 		super();
@@ -43,30 +52,51 @@ public class CalendarEmailHook extends AbstractEmailHook {
 	@Override
 	public void onAclChanged(BmContext context, ContainerDescriptor container, List<AccessControlEntry> previous,
 			List<AccessControlEntry> current) {
-		if (ICalendarUids.TYPE.equals(container.type)) {
-			try {
+		if (!ICalendarUids.TYPE.equals(container.type)) {
+			return;
+		}
+
+		boolean addHeaders = true;
+		IDirectory dirService = context.getServiceProvider().instance(IDirectory.class, container.domainUid);
+		DirEntry owner = dirService.findByEntryUid(container.owner);
+		if (owner.kind == Kind.RESOURCE) {
+			IResources resourceService = context.getServiceProvider().instance(IResources.class, container.domainUid);
+			ResourceDescriptor res = resourceService.get(owner.entryUid);
+
+			if (IVideoConferenceUids.RESOURCETYPE_UID.equals(res.typeIdentifier)) {
+				templateSubject = "VideoConferenceSubject.ftl";
+				templateBody = "VideoConferenceBody.ftl";
+				addHeaders = false;
+			}
+
+		}
+
+		try {
+
+			List<AccessControlEntry> added = new ArrayList<>(current);
+			added.removeAll(previous);
+
+			if (addHeaders) {
 				RawField uid = new RawField("X-BM-FolderUid", container.uid);
 				RawField type = new RawField("X-BM-FolderType", container.type);
-
-				List<AccessControlEntry> added = new ArrayList<>(current);
-				added.removeAll(previous);
-
 				notify(context, container, added, uid, type);
-
-			} catch (ServerFault e) {
-				logger.error(e.getMessage(), e);
+			} else {
+				notify(context, container, added);
 			}
+
+		} catch (ServerFault e) {
+			logger.error(e.getMessage(), e);
 		}
 	}
 
 	@Override
 	protected String getTemplateSubject() {
-		return "CalendarSubject.ftl";
+		return templateSubject;
 	}
 
 	@Override
 	protected String getTemplateBody() {
-		return "CalendarBody.ftl";
+		return templateBody;
 	}
 
 }

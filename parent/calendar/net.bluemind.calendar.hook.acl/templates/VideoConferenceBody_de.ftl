@@ -1,0 +1,2 @@
+Sie haben ab sofort die Möglichkeit, einem Kalendartermin eine Videokonferenz hinzuzufügen.<br/>
+Nähere Informationen finden Sie in der <a href="${videoconfdocumentation}" target="_blank">Online-Dokumentation</a>
