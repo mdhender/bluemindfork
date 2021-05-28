@@ -115,9 +115,13 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 				continue;
 			}
 
-			String json = new String(IOUtils.toByteArray(archiveStream), StandardCharsets.UTF_8);
-			IndexedMessageBody asMsgBody = IndexedMessageBody.fromJson(json);
-			consumer.accept(asMsgBody);
+			try {
+				String json = new String(IOUtils.toByteArray(archiveStream), StandardCharsets.UTF_8);
+				IndexedMessageBody asMsgBody = IndexedMessageBody.fromJson(json);
+				consumer.accept(asMsgBody);
+			} catch (Exception e) {
+				ctx.info("Cannot handle file {} --> {}", entry.getName(), e.getMessage());
+			}
 		}
 
 	}
