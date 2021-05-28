@@ -19,6 +19,7 @@ package net.bluemind.exchange.mapi.service.internal;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import javax.sql.DataSource;
 
@@ -81,7 +82,7 @@ public class MapiFolderService implements IMapiFolder {
 	}
 
 	private String displayName(long id, MapiRawMessage value) {
-		JsonObject js = new JsonObject(value.contentJson);
+		JsonObject js = new JsonObject(Optional.ofNullable(value.contentJson).orElse("{}"));
 		JsonObject props = js.getJsonObject("setProperties");
 		String dn = "mapi-raw:" + id;
 		if (props != null) {
