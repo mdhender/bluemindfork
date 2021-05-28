@@ -10,19 +10,20 @@
     <title>${appName} - BlueMind</title>
     
   </head>
- <body>
-  <div id="header"><!-- needed --></div>
-  <div id="navigation"><!-- needed --></div>
-  <div id="sub-navigation"><!-- needed --></div>
-  <div id="main"><!-- needed --></div>
-  <input type="hidden" id="history_input" />
+  <body>
+    <div id="app">
+      <div id="header"><!-- needed --></div>
+      <div id="navigation"><!-- needed --></div>
+      <div id="sub-navigation"><!-- needed --></div>
+      <div id="main"><!-- needed --></div>
+    </div>
     ${jsRuntime}
 
-  <noscript>
-    <div>
-      Your web browser must have JavaScript enabled
-      in order for this application to display correctly.
-    </div>
-  </noscript>
- </body>
+    <noscript>
+      <div>
+        Your web browser must have JavaScript enabled
+        in order for this application to display correctly.
+      </div>
+    </noscript>
+  </body>
 </html>

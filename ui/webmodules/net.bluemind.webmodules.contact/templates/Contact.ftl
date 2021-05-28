@@ -11,11 +11,12 @@
 
   </head>
   <body>
-  	<div id="header"><!-- needed --></div>
-  	<div id="navigation"><!-- needed --></div>
-  	<div id="sub-navigation"><!-- needed --></div>
-  	<div id="main"><!-- needed --></div>
-    <input type="hidden" id="history_input" />
+    <div id="app">
+      <div id="header"><!-- needed --></div>
+      <div id="navigation"><!-- needed --></div>
+      <div id="sub-navigation"><!-- needed --></div>
+      <div id="main"><!-- needed --></div>
+    </div>
      ${jsRuntime}
 
     <noscript>

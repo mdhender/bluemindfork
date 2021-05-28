@@ -7,13 +7,15 @@ Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.webmodules.webapp,
  net.bluemind.webmodule,
- org.freemarker.freemarker,
  net.bluemind.webmodule.server,
  net.bluemind.lib.vertx,
- org.eclipse.osgi
+ org.eclipse.osgi,
+ net.bluemind.role.api,
+ net.bluemind.core.rest.http,
+ net.bluemind.network.topology;bundle-version="4.1.0",
+ net.bluemind.user.api;bundle-version="4.1.0"
 Web-Resources: web-resources
 Web-Dependencies: net.bluemind.webmodules.vue
 Automatic-Module-Name: net.bluemind.webmodules.webapp.wrapper
 Bundle-Activator: net.bluemind.webmodules.webapp.wrapper.Activator
 Bundle-ActivationPolicy: lazy
-Bundle-Localization: OSGI-INF/l10n/bundle

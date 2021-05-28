@@ -3,7 +3,7 @@ import Vue from "vue";
 import router from "@bluemind/router";
 import ApplicationWrapper from "./ApplicationWrapper.vue";
 
-Vue.component("calendar-wrapper", ApplicationWrapper);
+Vue.component("application-wrapper", ApplicationWrapper);
 router.addRoutes([
     {
         name: "wrapper:root",

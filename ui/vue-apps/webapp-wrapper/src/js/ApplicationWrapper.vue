@@ -27,7 +27,8 @@ body {
     #full:empty,
     #navigation:empty,
     #sub-navigation:empty,
-    #main:empty {
+    #main:empty,
+    .banner:empty {
         display: none;
     }
 
@@ -66,7 +67,7 @@ body {
     }
     /* GWT overwrite */
 
-    .root-layout {
+    .main-app ~ .root-layout {
         color: #666;
         top: 43px !important;
         line-height: 1;
@@ -82,10 +83,6 @@ body {
         pointer-events: auto !important;
         width: 475px !important;
         margin: 0 !important;
-    }
-
-    .banner {
-        display: none;
     }
 }
 </style>

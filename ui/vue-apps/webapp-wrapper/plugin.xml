@@ -5,32 +5,16 @@
             <web-module-provider module="/adminconsole,/cal,/contact,/settings,/task">            
                   <web-resource bundle="net.bluemind.webmodules.webapp.wrapper">
                   </web-resource>
-                  <js async-loading="false" translation="false" path="js/net.bluemind.webmodules.webapp.wrapper.js">
-                  </js>
                   <web-resource bundle="net.bluemind.webapp.root.js">
                   </web-resource>
-                  <js async-loading="false" translation="false" path="js/net.bluemind.webapp.root.js">
+                  <web-resource bundle="net.bluemind.ui.banner.standalone.closure">
+                  </web-resource>
+                  <js async-loading="false" translation="false" path="js/net.bluemind.webmodules.webapp.wrapper.js">
                   </js>
+                  <js async-loading="false" translation="false" path="static/banner.facade.nocache.js">
+                  </js>
+                  <handler class="net.bluemind.webmodules.webapp.wrapper.handlers.WebAppHandler" path="static/banner.facade.nocache.js">
+                  </handler>
             </web-module-provider>
-            <web-module-provider module="/cal">
-                  <handler class="net.bluemind.webmodules.webapp.wrapper.handlers.CalendarHandler" path="index.html">
-                  </handler>
-            </web-module-provider >
-            <web-module-provider module="/contact">
-                  <handler class="net.bluemind.webmodules.webapp.wrapper.handlers.ContactHandler" path="index.html">
-                  </handler>
-            </web-module-provider >
-            <web-module-provider module="/task">
-                  <handler class="net.bluemind.webmodules.webapp.wrapper.handlers.TodolistHandler" path="index.html">
-                  </handler>
-            </web-module-provider >
-            <web-module-provider module="/settings">
-                  <handler class="net.bluemind.webmodules.webapp.wrapper.handlers.SettingsHandler" path="index.html">
-                  </handler>
-            </web-module-provider >
-            <web-module-provider module="/adminconsole">
-                  <handler class="net.bluemind.webmodules.webapp.wrapper.handlers.AdminConsoleHandler" path="index.html">
-                  </handler>
-            </web-module-provider >     
       </extension>
 </plugin>

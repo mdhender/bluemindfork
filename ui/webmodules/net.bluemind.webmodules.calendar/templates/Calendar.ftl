@@ -11,12 +11,14 @@
 
   </head>
   <body>
-    <div id="header"></div>
-    <div id="content-menu"></div>
-    <div id="content-right"></div>
-    <div id="content-body"></div>
-    <div id="full"></div>
-	${jsRuntime}
+    <div id="app">
+      <div id="header"></div>
+      <div id="content-menu"></div>
+      <div id="content-right"></div>
+      <div id="content-body"></div>
+      <div id="full"></div>
+    </div>
+	  ${jsRuntime}
 
     <noscript>
       <div>
