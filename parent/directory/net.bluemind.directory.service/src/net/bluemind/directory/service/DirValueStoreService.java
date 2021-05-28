@@ -217,7 +217,7 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 
 	public ItemValue<DirEntryAndValue<T>> findByEmailFull(String email) throws ServerFault {
 		return doOrFail(() -> {
-			Item ret = ((DirItemStore) itemStore).getByEmail(email);
+			Item ret = ((DirItemStore) itemStore).getByEmail(email.toLowerCase());
 			if (ret == null) {
 				return null;
 			} else {

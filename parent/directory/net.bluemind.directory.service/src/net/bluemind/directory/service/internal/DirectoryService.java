@@ -68,7 +68,7 @@ public class DirectoryService implements IDirectory {
 
 	@Override
 	public List<DirEntry> getEntries(String path) throws ServerFault {
-		return directory.getEntries(path).stream().map(e -> decorate(e)).map(e -> e.value).collect(Collectors.toList());
+		return directory.getEntries(path).stream().map(this::decorate).map(e -> e.value).collect(Collectors.toList());
 	}
 
 	@Override
@@ -99,8 +99,7 @@ public class DirectoryService implements IDirectory {
 	@Override
 	public ListResult<ItemValue<DirEntry>> search(DirEntryQuery query) throws ServerFault {
 		ListResult<ItemValue<DirEntry>> search = directory.search(query);
-		return ListResult.create(search.values.stream().map(e -> decorate(e)).collect(Collectors.toList()),
-				search.total);
+		return ListResult.create(search.values.stream().map(this::decorate).collect(Collectors.toList()), search.total);
 	}
 
 	@Override
@@ -139,7 +138,7 @@ public class DirectoryService implements IDirectory {
 
 	@Override
 	public DirEntry getByEmail(String email) {
-		ItemValue<DirEntry> decorated = decorate(directory.getByEmail(email));
+		ItemValue<DirEntry> decorated = decorate(directory.getByEmail(email.toLowerCase()));
 		if (decorated == null) {
 			return null;
 		}
@@ -148,7 +147,7 @@ public class DirectoryService implements IDirectory {
 
 	@Override
 	public List<ItemValue<DirEntry>> getMultiple(List<String> id) {
-		return directory.getMultiple(id).stream().map(e -> decorate(e)).collect(Collectors.toList());
+		return directory.getMultiple(id).stream().map(this::decorate).collect(Collectors.toList());
 	}
 
 	@Override
@@ -165,7 +164,7 @@ public class DirectoryService implements IDirectory {
 
 	@Override
 	public List<ItemValue<DirEntry>> getByRoles(List<String> roles) throws ServerFault {
-		return directory.getByRoles(roles).stream().map(e -> decorate(e)).collect(Collectors.toList());
+		return directory.getByRoles(roles).stream().map(this::decorate).collect(Collectors.toList());
 	}
 
 }
