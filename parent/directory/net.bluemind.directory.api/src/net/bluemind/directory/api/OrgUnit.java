@@ -35,7 +35,7 @@ public class OrgUnit {
 	/**
 	 * {@link OrgUnit} name
 	 */
-	@Pattern(regexp = "^[a-zA-Z0-9_ -]*$")
+	@Pattern(regexp = "^[^/]*$")
 	public String name;
 
 	/**

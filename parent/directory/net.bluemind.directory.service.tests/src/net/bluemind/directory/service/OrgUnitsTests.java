@@ -19,6 +19,8 @@
 package net.bluemind.directory.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.util.Collections;
@@ -45,6 +47,7 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.directory.api.OrgUnitPath;
+import net.bluemind.directory.api.OrgUnitQuery;
 import net.bluemind.directory.service.internal.OrgUnitContainerStoreService;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -83,7 +86,8 @@ public class OrgUnitsTests {
 		userSC = BmTestContext.contextWithSession("u1", "u1", domainUid).getSecurityContext();
 
 		storeService = new OrgUnitContainerStoreService(new BmTestContext(SecurityContext.SYSTEM),
-				new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM).get(domainUid),
+				new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM)
+						.get(domainUid),
 				domain);
 	}
 
@@ -94,7 +98,7 @@ public class OrgUnitsTests {
 	@Test
 	public void testCreate() {
 		OrgUnit ou = new OrgUnit();
-		ou.name = "checkThat";
+		ou.name = "checkThat éèà ()";
 		orgUnits(domainAdminSC).create("ouTest", ou);
 
 		try {
@@ -103,6 +107,36 @@ public class OrgUnitsTests {
 			fail("should fail");
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+	}
+
+	@Test
+	public void testCreate_invalidChar() {
+		OrgUnit ou = new OrgUnit();
+		ou.name = "/invalid";
+		try {
+			orgUnits(domainAdminSC).create("ouTest é ()", ou);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		ou = new OrgUnit();
+		ou.name = "inva/lid";
+		try {
+			orgUnits(domainAdminSC).create("ouTest é ()", ou);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		ou = new OrgUnit();
+		ou.name = "invalid/";
+		try {
+			orgUnits(domainAdminSC).create("ouTest é ()", ou);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
 		}
 	}
 
@@ -404,5 +438,30 @@ public class OrgUnitsTests {
 		storeService.setAdministratorRoles("child", testUserUid, ImmutableSet.<String>builder().add("test2").build());
 		List<OrgUnitPath> res = orgUnits(domainAdminSC).listByAdministrator(testUserUid, Collections.emptyList());
 		assertEquals(2, res.size());
+	}
+
+	@Test
+	public void search() {
+		OrgUnit ou = new OrgUnit();
+		ou.name = "root";
+		storeService.create("rootuid", ou);
+		OrgUnit child = new OrgUnit();
+		child.name = "child é ()";
+		child.parentUid = "rootuid";
+		storeService.create("child", child);
+
+		OrgUnitQuery ouQuery = new OrgUnitQuery();
+		ouQuery.query = "root/child é ()";
+		List<OrgUnitPath> ouPath = orgUnits(domainAdminSC).search(ouQuery);
+
+		assertEquals(1, ouPath.size());
+
+		assertEquals("child", ouPath.get(0).uid);
+		assertEquals("child é ()", ouPath.get(0).name);
+		assertNotNull(ouPath.get(0).parent);
+
+		assertEquals("rootuid", ouPath.get(0).parent.uid);
+		assertEquals("root", ouPath.get(0).parent.name);
+		assertNull(ouPath.get(0).parent.parent);
 	}
 }

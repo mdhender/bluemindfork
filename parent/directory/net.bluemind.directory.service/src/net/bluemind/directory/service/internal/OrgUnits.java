@@ -177,7 +177,6 @@ public class OrgUnits implements IOrgUnits {
 
 	@Override
 	public void setAdministratorRoles(String uid, String dirUid, Set<String> roles) {
-
 		ItemValue<OrgUnit> ou = storeService.get(uid);
 		if (ou == null) {
 			throw new ServerFault("ou " + uid + " not found", ErrorCode.NOT_FOUND);
