@@ -44,6 +44,7 @@ public class CyrusServiceVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(CyrusServiceVerticle.class);
 
 	private static final String PROBE_FN = "/etc/bm/replication.probe.disabled";
+
 	private static final boolean PROBED_DISABLED = new File(PROBE_FN).exists();
 
 	@Override
@@ -79,7 +80,6 @@ public class CyrusServiceVerticle extends AbstractVerticle {
 				mailboxDsConsumer.unregister();
 			}
 		});
-
 	}
 
 	private void buildSharedMailboxProbe(IServiceProvider prov, IServer service, ItemValue<Server> s) {
