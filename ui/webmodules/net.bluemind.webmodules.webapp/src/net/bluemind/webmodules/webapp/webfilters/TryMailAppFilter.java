@@ -18,6 +18,10 @@
  */
 package net.bluemind.webmodules.webapp.webfilters;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -38,6 +42,8 @@ import net.bluemind.webmodule.server.handlers.TemporaryRedirectHandler;
 public class TryMailAppFilter implements IWebFilter, NeedVertx {
 
 	private static final Logger logger = LoggerFactory.getLogger(TryMailAppFilter.class);
+	public static final String ROLE_MAIL_WEBAPP = "hasMailWebapp";
+	public static final String ROLE_WEBMAIL = "hasWebmail";
 
 	private HttpClientProvider clientProvider;
 
@@ -50,53 +56,63 @@ public class TryMailAppFilter implements IWebFilter, NeedVertx {
 	@Override
 	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
 		CompletableFuture<HttpServerRequest> completableFuture = new CompletableFuture<>();
-		String userUid = request.headers().get("BMUserId");
-		String domainUid = request.headers().get("BMUserDomainId");
-		String roles = request.headers().get("BMRoles");
-		String apiKey = request.headers().get("BMSessionId");
-		boolean hasBothWebmailRoles = false, hasNewWebmailRole = false;
-		if (roles != null) {
-			hasNewWebmailRole = roles.contains("hasMailWebapp");
-			hasBothWebmailRoles = roles.contains("hasWebmail") && hasNewWebmailRole;
-		}
 
-		if ((request.path().equals("/webapp/index.html") || request.path().startsWith("/webapp/mail"))
-				&& !hasNewWebmailRole) {
-			new TemporaryRedirectHandler("/webmail/").handle(request);
-			completableFuture.complete(null);
-		} else if (request.path().equals("/webapp/index.html") && hasBothWebmailRoles) {
-			VertxServiceProvider provider = new VertxServiceProvider(clientProvider, locator, apiKey).from(request);
+		if (matchFilter(request)) {
+			Set<String> roles = request.headers().get("BMRoles") != null ? //
+					new HashSet<>(Arrays.asList(request.headers().get("BMRoles").split(","))) //
+					: Collections.<String>emptySet();
 
-			provider.instance("bm/core", IUserSettingsAsync.class, domainUid).getOne(userUid, "mail-application",
-					new AsyncHandler<String>() {
+			if (!roles.contains(ROLE_WEBMAIL)) {
+				completableFuture.complete(request);
+			} else if (!roles.contains(ROLE_MAIL_WEBAPP)) {
+				redirectToWebmail(request);
+				completableFuture.complete(null);
+			} else {
+				String userUid = request.headers().get("BMUserId");
+				String domainUid = request.headers().get("BMUserDomainId");
+				String apiKey = request.headers().get("BMSessionId");
+				VertxServiceProvider provider = new VertxServiceProvider(clientProvider, locator, apiKey).from(request);
+				provider.instance("bm/core", IUserSettingsAsync.class, domainUid).getOne(userUid, "mail-application",
+						new AsyncHandler<String>() {
 
-						@Override
-						public void success(String value) {
-							boolean tryNewWebmail = value.equals("mail-webapp");
+							@Override
+							public void success(String mailApplication) {
+								if (!mailApplication.equals("mail-webapp")) {
+									redirectToWebmail(request);
+									completableFuture.complete(null);
+								} else {
+									completableFuture.complete(request);
+								}
+							}
 
-							if (!tryNewWebmail) {
-								logger.info("Redirecting /webapp/index.html to /webmail/ for user {} on domain {}",
-										userUid, domainUid);
-								new TemporaryRedirectHandler("/webmail/").handle(request);
-								completableFuture.complete(null);
-							} else {
+							@Override
+							public void failure(Throwable e) {
 								completableFuture.complete(request);
 							}
-						}
-
-						@Override
-						public void failure(Throwable e) {
-							completableFuture.complete(request);
-						}
-					});
+						});
+			}
 		} else {
 			completableFuture.complete(request);
 		}
+		
 		return completableFuture;
+	}
+
+	private boolean matchFilter(HttpServerRequest request) {
+		return request.path().equals("/webapp/index.html") || request.path().startsWith("/webapp/mail");
 	}
 
 	@Override
 	public void setVertx(Vertx vertx) {
 		this.clientProvider = new HttpClientProvider(vertx);
 	}
+	
+
+	private void redirectToWebmail(HttpServerRequest request) {
+		String userUid = request.headers().get("BMUserId");
+		String domainUid = request.headers().get("BMUserDomainId");
+		logger.info("Redirecting /webapp/index.html to /webmail/ for user {} on domain {}", userUid, domainUid);
+		new TemporaryRedirectHandler("/webmail/").handle(request);
+	}
+
 }
