@@ -27,7 +27,6 @@
 		<module>net.bluemind.ui.adminconsole.password.sizestrength</module>
 		<module>net.bluemind.ui.adminconsole.videoconferencing</module>
 		<module>net.bluemind.ui.adminconsole.videoconferencing.jitsi</module>
-		<module>net.bluemind.ui.adminconsole.videoconferencing.bluemind</module>
 		<module>net.bluemind.ui.adminconsole.videoconferencing.starleaf</module>
 	</modules>
 
