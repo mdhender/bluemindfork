@@ -30,6 +30,7 @@
 		<module>dav</module>
 		<module>adminconsole-videoconferencing-jitsi</module>
 		<module>adminconsole-videoconferencing-starleaf</module>
+		<module>adminconsole-videoconferencing-bluemind</module>
 	</modules>
 	<profiles>
 		<profile>

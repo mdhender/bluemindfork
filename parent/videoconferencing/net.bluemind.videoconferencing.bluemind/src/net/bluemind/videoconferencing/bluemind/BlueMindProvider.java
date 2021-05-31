@@ -18,11 +18,21 @@
 package net.bluemind.videoconferencing.bluemind;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 import com.google.common.io.ByteStreams;
 
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.icalendar.api.ICalendarElement;
+import net.bluemind.resource.api.ResourceDescriptor;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
+import net.bluemind.videoconferencing.api.VideoConference;
 import net.bluemind.videoconferencing.service.template.TemplateBasedVideoConferencingProvider;
 
 public class BlueMindProvider extends TemplateBasedVideoConferencingProvider implements IVideoConferencingProvider {
@@ -45,6 +55,17 @@ public class BlueMindProvider extends TemplateBasedVideoConferencingProvider imp
 		} catch (IOException e) {
 		}
 		return Optional.empty();
+	}
+
+	@Override
+	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
+			ItemValue<ResourceDescriptor> resource, ICalendarElement vevent) {
+
+		Optional<String> externalUrl = Optional.ofNullable(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class).getValues().values.get(SysConfKeys.external_url.name()));
+		resourceSettings.put("url", externalUrl.get() + "/visio/");
+
+		return super.getConferenceInfo(context, resourceSettings, resource, vevent);
 	}
 
 }
