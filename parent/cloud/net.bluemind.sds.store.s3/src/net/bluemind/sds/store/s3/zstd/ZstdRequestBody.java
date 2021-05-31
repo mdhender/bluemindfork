@@ -35,6 +35,7 @@ import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.luben.zstd.RecyclingBufferPool;
 import com.github.luben.zstd.ZstdOutputStream;
 import com.google.common.io.ByteStreams;
 import com.netflix.spectator.api.DistributionSummary;
@@ -55,7 +56,7 @@ public class ZstdRequestBody implements AsyncRequestBody {
 			tmpPath = Files.createTempFile("eml", ".zst");
 			try (OutputStream out = Files.newOutputStream(tmpPath, StandardOpenOption.WRITE,
 					StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-					ZstdOutputStream zos = new ZstdOutputStream(out)) {
+					ZstdOutputStream zos = new ZstdOutputStream(out, RecyclingBufferPool.INSTANCE, -3)) {
 				ByteStreams.copy(in, zos);
 			}
 			this.raf = new RandomAccessFile(tmpPath.toFile(), "r");
@@ -113,6 +114,11 @@ public class ZstdRequestBody implements AsyncRequestBody {
 			@Override
 			public void cancel() {
 				this.cancelled = true;
+				try {
+					raf.close();
+				} catch (IOException e) {
+					// ok
+				}
 			}
 
 		};

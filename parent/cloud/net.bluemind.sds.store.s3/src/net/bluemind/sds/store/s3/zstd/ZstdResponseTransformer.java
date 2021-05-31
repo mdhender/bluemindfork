@@ -37,6 +37,7 @@ import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.luben.zstd.RecyclingBufferPool;
 import com.github.luben.zstd.ZstdInputStream;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -100,7 +101,7 @@ public class ZstdResponseTransformer<T> implements AsyncResponseTransformer<T, T
 
 						try (OutputStream os = Files.newOutputStream(Paths.get(path), StandardOpenOption.CREATE,
 								StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-								ZstdInputStream decomp = new ZstdInputStream(toDecomp)) {
+								ZstdInputStream decomp = new ZstdInputStream(toDecomp, RecyclingBufferPool.INSTANCE)) {
 							byte[] dec = new byte[8192];
 							while (true) {
 								int read = decomp.read(dec);

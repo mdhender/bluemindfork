@@ -36,6 +36,7 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.luben.zstd.RecyclingBufferPool;
 import com.github.luben.zstd.ZstdInputStream;
 import com.github.luben.zstd.ZstdOutputStream;
 import com.google.common.io.ByteStreams;
@@ -79,7 +80,8 @@ public class ZstdStreams {
 		}
 
 		Callable<Void> compression = () -> {
-			try (InputStream in = Files.newInputStream(path); ZstdOutputStream zos = new ZstdOutputStream(writePlain)) {
+			try (InputStream in = Files.newInputStream(path);
+					ZstdOutputStream zos = new ZstdOutputStream(writePlain, RecyclingBufferPool.INSTANCE, -3)) {
 				ByteStreams.copy(in, zos);
 			} catch (IOException ioe) {
 				logger.error(ioe.getMessage(), ioe);
@@ -117,7 +119,7 @@ public class ZstdStreams {
 
 		Callable<Void> decomp = () -> {
 			try (OutputStream out = Files.newOutputStream(target);
-					ZstdInputStream dec = new ZstdInputStream(readPlain)) {
+					ZstdInputStream dec = new ZstdInputStream(readPlain, RecyclingBufferPool.INSTANCE)) {
 				ByteStreams.copy(dec, out);
 			} catch (IOException ioe) {
 				logger.error(ioe.getMessage(), ioe);
