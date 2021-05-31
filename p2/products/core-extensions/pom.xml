@@ -22,5 +22,6 @@
 		<module>ldap-export</module>
 		<module>videoconferencing-jitsi</module>
 		<module>videoconferencing-starleaf</module>
+		<module>videoconferencing-bluemind</module>
 	</modules>
 </project>

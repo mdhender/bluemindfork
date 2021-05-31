@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.videoconferencing.bluemind
+Bundle-SymbolicName: net.bluemind.videoconferencing.bluemind;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Automatic-Module-Name: net.bluemind.videoconferencing.bluemind
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.videoconferencing.service,
+ net.bluemind.videoconferencing.api,
+ com.google.guava,
+ net.bluemind.icalendar.api,
+ net.bluemind.core.container.persistence,
+ net.bluemind.resource.api,
+ net.bluemind.core.rest

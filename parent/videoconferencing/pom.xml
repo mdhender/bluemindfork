@@ -17,6 +17,7 @@
 		<module>net.bluemind.videoconferencing.saas.service</module>
 		<module>net.bluemind.webmodules.videoconferencing.saas</module>
 		<module>net.bluemind.videoconferencing.starleaf</module>
+		<module>net.bluemind.videoconferencing.bluemind</module>
 	</modules>
 
 </project>
