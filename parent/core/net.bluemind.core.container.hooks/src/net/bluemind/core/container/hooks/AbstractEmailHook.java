@@ -57,7 +57,7 @@ public abstract class AbstractEmailHook implements IAclHook {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractEmailHook.class);
 
-	private static final String VIDEOCONFERENCE_DOCUMENTATION_URL = "https://forge.bluemind.net/confluence/display/DA/.Lier+une+visioconference+a+un+evenement+vBM-4.0";
+	private static final String VIDEOCONFERENCE_DOCUMENTATION_URL = "https://forge.bluemind.net/confluence/display/BM4/Lier+une+videoconference+a+un+evenement";
 
 	protected Configuration cfg;
 	private EventBus eventBus;
