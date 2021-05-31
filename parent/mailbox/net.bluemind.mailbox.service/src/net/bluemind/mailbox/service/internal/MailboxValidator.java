@@ -21,10 +21,14 @@ package net.bluemind.mailbox.service.internal;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
@@ -113,9 +117,15 @@ public class MailboxValidator {
 			validateEmailsListIntegrity(mailbox.emails);
 			try {
 				if (mailboxStore.emailAlreadyUsed(itemId, mailbox.emails)) {
-					// TODO: list addresses already used?
-					// FIXME: update mailbox?
-					throw new ServerFault("At least one email is already used", ErrorCode.ALREADY_EXISTS);
+					Set<String> existingMails = new HashSet<>();
+					for (Email mail : mailbox.emails) {
+						if (mailboxStore.emailAlreadyUsed(itemId, Arrays.asList(mail))) {
+							existingMails.add(mail.address);
+						}
+					}
+					String asString = existingMails.stream().collect(Collectors.joining(","));
+					throw new ServerFault("Following emails of mailbox " + uid + ":" + mailbox.name
+							+ " are already in use: " + asString, ErrorCode.ALREADY_EXISTS);
 				}
 			} catch (SQLException sqle) {
 				throw ServerFault.sqlFault(sqle);

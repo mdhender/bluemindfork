@@ -128,13 +128,17 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		mailshare.name = "mailshare2";
 
 		ErrorCode err = null;
+		String errMsg = null;
 		try {
 			validator.validate(mailshare, item2.uid);
 			fail("Test must thrown an exception");
 		} catch (ServerFault e) {
 			err = e.getCode();
+			errMsg = e.getMessage();
 		}
 		assertTrue(ErrorCode.ALREADY_EXISTS == err);
+		assertEquals("Following emails of mailbox mailshare2@bm.lan:mailshare2 are already in use: mailshare@bm.lan",
+				errMsg);
 	}
 
 	@Test
