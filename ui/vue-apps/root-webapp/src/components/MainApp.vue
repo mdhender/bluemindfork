@@ -59,7 +59,8 @@ export default {
                     name: entry.name,
                     description: entry.description,
                     order: entry.order,
-                    role: entry.role
+                    role: entry.role,
+                    help: entry.help
                 });
             }
             if (extension.widget) {

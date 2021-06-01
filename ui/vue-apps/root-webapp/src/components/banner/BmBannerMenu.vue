@@ -28,7 +28,7 @@ import { BmAvatar, BmDropdownItem, BmLabelIcon, BmNavbarNav, BmNavItemDropdown }
 import { mapMutations } from "vuex";
 
 export default {
-    name: "BmBannerUser",
+    name: "BmBannerMenu",
     components: {
         BmAvatar,
         BmDropdownItem,

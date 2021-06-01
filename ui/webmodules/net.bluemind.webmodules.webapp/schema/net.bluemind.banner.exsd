@@ -95,6 +95,13 @@
                </appinfo>
             </annotation>
          </attribute>
+         <attribute name="help" type="string">
+            <annotation>
+               <documentation>
+                  Documentation URL.
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 

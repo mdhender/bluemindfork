@@ -14,72 +14,43 @@
         >
             <bm-icon icon="9dots" size="2x" />
         </bm-button>
-        <bm-popover
-            ref="apps-popover"
-            target="all-apps-popover"
-            placement="bottomright"
-            custom-class="apps-popover"
-            triggers="click blur"
-            variant="info-dark"
-            @shown="setFocus"
-        >
-            <div class="text-white mb-2 mx-3">{{ $t("banner.main.apps") }}</div>
-            <bm-row class="bm-apps">
-                <bm-col v-for="app in applications" :key="app.href" cols="6" class="text-white">
-                    <a v-if="app.external" :href="app.href">
-                        <div class="pl-3 my-2 bm-app">
-                            <bm-app-icon :icon-app="app.icon" />
-                            <span class="pl-2 text-uppercase align-middle">{{ app.name }}</span>
-                        </div>
-                    </a>
-                    <router-link v-else :to="app.href" tag="div" class="pl-3 my-2 bm-app" @click.native="closePopover">
-                        <bm-app-icon :icon-app="app.icon" />
-                        <span class="pl-2 text-uppercase align-middle">{{ app.name }}</span>
-                    </router-link>
-                </bm-col>
-            </bm-row>
-        </bm-popover>
+        <bm-banner-applications :applications="applications" target="all-apps-popover" />
         <bm-navbar-brand href="#" :to="logoLink" :title="$t('banner.main.brand')">
             <!-- eslint-disable-next-line vue/no-v-html -->
             <svg height="30" width="120" v-html="logo" />
         </bm-navbar-brand>
-        <bm-banner-applications :applications="defaultApps" />
+        <bm-banner-shortcuts :applications="defaultApps" />
         <div class="app-title text-center flex-grow-1 align-self-center font-weight-bold text-uppercase">
             <span v-if="selectedApp">{{ selectedApp.name }}</span>
         </div>
         <component :is="widget.component" v-for="widget in widgets" :key="widget.component" />
-        <a
-            href="https://forge.bluemind.net/confluence/display/BM4/Messagerie+BlueMind"
-            target="_blank"
-            :title="$t('banner.reach.help')"
-            class="align-self-center mr-4 btn btn-inline-light"
-        >
-            <bm-icon icon="interrogation" size="lg"
-        /></a>
-        <bm-banner-user :user="user" />
+        <bm-banner-help v-if="selectedApp && selectedApp.help" :url="selectedApp.help" />
+
+        <bm-banner-menu :user="user" />
     </bm-navbar>
 </template>
 
 <script>
+import { BmButton, BmIcon, BmLogo, BmNavbar, BmNavbarBrand } from "@bluemind/styleguide";
 import BannerL10N from "../../../l10n/banner/";
 import BmBannerApplications from "./BmBannerApplications";
 import BmAppIcon from "../BmAppIcon";
-import BmBannerUser from "./BmBannerUser";
-import { BmButton, BmCol, BmIcon, BmLogo, BmNavbar, BmNavbarBrand, BmPopover, BmRow } from "@bluemind/styleguide";
+import BmBannerMenu from "./BmBannerMenu";
+import BmBannerHelp from "./BmBannerHelp";
+import BmBannerShortcuts from "./BmBannerShortcuts";
 
 export default {
     name: "BmBanner",
     components: {
-        BmBannerApplications,
         BmAppIcon,
-        BmBannerUser,
+        BmBannerApplications,
+        BmBannerHelp,
+        BmBannerMenu,
+        BmBannerShortcuts,
         BmButton,
-        BmCol,
         BmIcon,
         BmNavbar,
-        BmNavbarBrand,
-        BmPopover,
-        BmRow
+        BmNavbarBrand
     },
     componentI18N: { messages: BannerL10N },
     props: {
@@ -121,14 +92,6 @@ export default {
             ];
             return this.applications.filter(({ id }) => defaults.includes(id));
         }
-    },
-    methods: {
-        closePopover() {
-            this.$root.$emit("bv::hide::popover", "all-apps-popover");
-        },
-        setFocus() {
-            this.$nextTick(() => document.getElementsByClassName("apps-popover")[0].focus());
-        }
     }
 };
 </script>
@@ -144,8 +107,7 @@ export default {
     color: $primary;
 }
 
-.bm-banner .fa-9dots,
-.apps-popover .bm-app {
+.bm-banner .fa-9dots {
     cursor: pointer;
 }
 
@@ -158,45 +120,5 @@ export default {
     &::before {
         opacity: 0;
     }
-}
-
-.apps-popover {
-    max-width: unset !important;
-    left: -23px !important;
-}
-
-.apps-popover .arrow {
-    left: 17px !important;
-}
-
-.apps-popover .bm-apps {
-    width: 22rem;
-    a:focus {
-        outline: 1px dotted $light;
-    }
-}
-
-.apps-popover .bm-app:hover,
-.apps-popover a:focus,
-.apps-popover .bm-app.router-link-active {
-    color: $primary;
-}
-
-.apps-popover a:visited {
-    color: $white;
-}
-
-.apps-popover .bm-app.router-link-active {
-    font-weight: $font-weight-bold;
-}
-
-.apps-popover a,
-.apps-popover a:hover {
-    all: unset;
-}
-
-.apps-popover .popover-body {
-    padding-right: 0;
-    padding-left: 0;
 }
 </style>

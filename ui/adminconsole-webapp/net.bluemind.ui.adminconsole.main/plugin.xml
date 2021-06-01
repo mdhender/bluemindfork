@@ -105,7 +105,8 @@
             href="/adminconsole/"
             name="%banner-entry.name"
             order="10"
-            role="hasAdminConsole">
+            role="hasAdminConsole"
+            help="https://forge.bluemind.net/confluence/display/BM4/Guide+de+l%27administrateur">
          <icon-svg>
          <![CDATA[
          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
