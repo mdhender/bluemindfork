@@ -10,7 +10,12 @@
         </div>
         <bm-container v-else fluid class="flex-fill bg-surface m-lg-5" @click.stop>
             <bm-row class="h-100">
-                <pref-left-panel :user="user" :sections="SECTIONS" :class="selectedSection ? 'd-none' : ''" />
+                <pref-left-panel
+                    :user="user"
+                    :sections="SECTIONS"
+                    :class="selectedSection ? 'd-none' : ''"
+                    @close="closePreferences"
+                />
                 <pref-right-panel
                     :class="selectedSection ? 'd-flex' : 'd-none'"
                     :sections="SECTIONS"
