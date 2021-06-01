@@ -56,19 +56,20 @@ public class CalendarEmailHook extends AbstractEmailHook {
 			return;
 		}
 
+		templateSubject = "CalendarSubject.ftl";
+		templateBody = "CalendarBody.ftl";
+
 		boolean addHeaders = true;
 		IDirectory dirService = context.getServiceProvider().instance(IDirectory.class, container.domainUid);
 		DirEntry owner = dirService.findByEntryUid(container.owner);
 		if (owner.kind == Kind.RESOURCE) {
 			IResources resourceService = context.getServiceProvider().instance(IResources.class, container.domainUid);
 			ResourceDescriptor res = resourceService.get(owner.entryUid);
-
 			if (IVideoConferenceUids.RESOURCETYPE_UID.equals(res.typeIdentifier)) {
 				templateSubject = "VideoConferenceSubject.ftl";
 				templateBody = "VideoConferenceBody.ftl";
 				addHeaders = false;
 			}
-
 		}
 
 		try {
