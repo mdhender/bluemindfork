@@ -1378,8 +1378,9 @@ public class GroupServiceTests {
 			getGroupService(adminSecurityContext).create(uid, group2);
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
-			System.out.println(sf.getMessage());
-			assertEquals("At least one email is already used", sf.getMessage());
+			assertEquals(ErrorCode.ALREADY_EXISTS, sf.getCode());
+			assertEquals("Following emails of mailbox " + uid + ":_" + group2.name + " are already in use: "
+					+ group.emails.iterator().next().address, sf.getMessage());
 		}
 	}
 
@@ -1725,8 +1726,9 @@ public class GroupServiceTests {
 			getGroupService(adminSecurityContext).update(group2Uid, group2);
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
-			System.out.println(sf.getMessage());
-			assertEquals("At least one email is already used", sf.getMessage());
+			assertEquals(ErrorCode.ALREADY_EXISTS, sf.getCode());
+			assertEquals("Following emails of mailbox " + group2Uid + ":_" + group2.name + " are already in use: "
+					+ group.emails.iterator().next().address, sf.getMessage());
 		}
 	}
 
