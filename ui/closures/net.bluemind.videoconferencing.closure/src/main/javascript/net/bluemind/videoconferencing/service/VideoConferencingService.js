@@ -35,6 +35,16 @@ goog.inherits(net.bluemind.videoconferencing.service.VideoConferencingService,
 net.bluemind.videoconferencing.service.VideoConferencingService.prototype.resources_ = [];
 
 net.bluemind.videoconferencing.service.VideoConferencingService.prototype.setVideoConferencingResources = function(resources) {
+    goog.array.sort(resources, function(a, b) {
+      if (a.displayName < b.displayName) {
+        return -1;
+      }
+      if (a.displayName > b.displayName) {
+        return 1;
+      }
+      return 0;
+    });
+
     this.resources_ = resources;
 };
 

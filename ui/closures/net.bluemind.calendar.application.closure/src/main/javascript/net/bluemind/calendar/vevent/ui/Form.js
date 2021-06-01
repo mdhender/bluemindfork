@@ -327,6 +327,7 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
   var videoConferencingResources = goog.array.filter(this.ctx.service('videoConferencing').getVideoConferencingResources(), function(res) {
     return res.canInvite;
   });
+
   var providerSelector = new goog.ui.Select();
   providerSelector.addClassName(goog.getCssName('goog-button-base'));
   providerSelector.addClassName(goog.getCssName('goog-select'));
