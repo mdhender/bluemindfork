@@ -28,5 +28,7 @@ Require-Bundle: slf4j.api,
  net.bluemind.core.auditlog,
  net.bluemind.attachment.api,
  net.bluemind.system.api,
- net.bluemind.domain.api
+ net.bluemind.domain.api,
+ net.bluemind.resource.api,
+ net.bluemind.videoconferencing.api
 Automatic-Module-Name: net.bluemind.calendar.hook.ics

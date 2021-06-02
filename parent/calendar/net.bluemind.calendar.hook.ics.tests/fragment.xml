@@ -7,5 +7,11 @@
             implementation="net.bluemind.calendar.hook.ics.TestFileSystemStore">
       </document_store>
    </extension>
+   <extension
+         point="net.bluemind.videoconferencing.provider">
+      <provider
+            impl="net.bluemind.calendar.hook.ics.VideoConfTestProvider">
+      </provider>
+   </extension>
 
 </fragment>

@@ -83,6 +83,8 @@ import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -108,6 +110,8 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.service.internal.MailboxStoreService;
 import net.bluemind.pool.impl.BmConfIni;
+import net.bluemind.resource.api.IResources;
+import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tag.api.TagRef;
@@ -115,6 +119,8 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.User;
 import net.bluemind.user.persistence.UserSubscriptionStore;
 import net.bluemind.user.service.internal.ContainerUserStoreService;
+import net.bluemind.videoconferencing.api.IVideoConferencing;
+import net.bluemind.videoconferencing.api.VideoConferencingResourceDescriptor;
 
 // prefixes :
 // o2a => organiser to attendees, 
@@ -168,7 +174,7 @@ public class IcsHookTests {
 				.instance(IServer.class, InstallationId.getIdentifier()).getComplete(imapServer.ip);
 
 		containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
-		initDomain(dataLocation);
+		initDomain(dataLocation, imapServer);
 	}
 
 	private void initDomain(ItemValue<Server> dataLocation, Server... servers) throws Exception {
@@ -2590,6 +2596,52 @@ public class IcsHookTests {
 		ItemValue<VEventSeries> series = seriesList.get(0);
 		assertNull(series.value.main);
 		assertEquals(VEvent.ParticipationStatus.Declined, series.value.occurrences.get(0).attendees.get(0).partStatus);
+	}
+
+	@Test
+	public void a2o_MasterAttendee_accept_MasterAttendee_ShouldNotSendParticipationChangesToOrganizer()
+			throws Exception {
+
+		String resUid = UUID.randomUUID().toString();
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IVideoConferencing.class, domainUid)
+				.createResource(resUid, VideoConferencingResourceDescriptor.create("coucou", "test-provider",
+						Arrays.asList(AccessControlEntry.create(domainUid, Verb.Invitation))));
+
+		ResourceDescriptor res = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IResources.class, domainUid).get(resUid);
+
+		ItemValue<VEventSeries> oldEvent = defaultVEvent(
+				"a2o_MasterAttendee_accept_MasterAttendee_ShouldNotSendParticipationChangesToOrganizer");
+		oldEvent.value.main.attendees = Arrays.asList(
+				VEvent.Attendee.create(CUType.Resource, "", Role.RequiredParticipant, ParticipationStatus.NeedsAction,
+						false, resUid, "", "", "", "", "", resUid, res.defaultEmailAddress()));
+
+		ItemValue<VEventSeries> newEvent = defaultVEvent(
+				"a2o_MasterAttendee_accept_MasterAttendee_ShouldNotSendParticipationChangesToOrganizer");
+		newEvent.value.main.attendees = Arrays.asList(
+				VEvent.Attendee.create(CUType.Resource, "", Role.RequiredParticipant, ParticipationStatus.Accepted,
+						false, resUid, "", "", "", "", "", resUid, res.defaultEmailAddress()));
+
+		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
+
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), userCalendar);
+		eventSanitizer.sanitize(oldEvent.value, true);
+		eventSanitizer.sanitize(newEvent.value, true);
+
+		VEventMessage veventMessage = new VEventMessage();
+		veventMessage.itemUid = newEvent.uid;
+		veventMessage.vevent = newEvent.value;
+		veventMessage.oldEvent = oldEvent.value;
+		veventMessage.securityContext = securityContext;
+		veventMessage.sendNotifications = true;
+		veventMessage.container = Container.create(ICalendarUids.resourceCalendar(resUid), "calendar", "cal", resUid,
+				domainUid, true);
+
+		FakeSendmail fakeSendmail = new FakeSendmail();
+		new IcsHook(fakeSendmail).onEventUpdated(veventMessage);
+
+		assertFalse(fakeSendmail.mailSent);
+		assertTrue(fakeSendmail.messages.isEmpty());
 	}
 
 	@Test

@@ -79,19 +79,24 @@ import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.core.sendmail.SendmailResponse;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirEntryPath;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
+import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
+import net.bluemind.resource.api.IResources;
+import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
+import net.bluemind.videoconferencing.api.IVideoConferenceUids;
 import net.fortuna.ical4j.model.property.Method;
 
 /**
@@ -734,6 +739,9 @@ public class IcsHook implements ICalendarHook {
 			return;
 		}
 
+		if (attendeeIsVideoConferenceRoom(message.securityContext, event.attendee)) {
+			return;
+		}
 		String subject = "EventParticipationUpdateSubject.ftl";
 		String body = "EventParticipationUpdate.ftl";
 		Method method = Method.REPLY;
@@ -1112,6 +1120,23 @@ public class IcsHook implements ICalendarHook {
 
 		if (organizer.mailto != null && attendee.mailto != null && organizer.mailto.equals(attendee.mailto)) {
 			return true;
+		}
+
+		return false;
+	}
+
+	private boolean attendeeIsVideoConferenceRoom(SecurityContext context, Attendee attendee) {
+		if (attendee.cutype == CUType.Resource && attendee.dir != null) {
+			String resourcePath = attendee.dir.substring("bm://".length());
+			String uid = IDirEntryPath.getEntryUid(resourcePath);
+			String domainUid = IDirEntryPath.getDomain(resourcePath);
+			ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(context);
+			IResources resourceService = sp.instance(IResources.class, domainUid);
+			ResourceDescriptor res = resourceService.get(uid);
+			if (IVideoConferenceUids.RESOURCETYPE_UID.equals(res.typeIdentifier)) {
+				return true;
+			}
+
 		}
 
 		return false;
