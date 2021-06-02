@@ -5,5 +5,8 @@
     "banner.menu.logout": "Logout",
     "banner.menu.preferences.aria": "Access account settings",
     "banner.reach.all_apps": "Access to all Bluemind applications",
-    "banner.reach.help": "Access to Bluemind webmail help"
+    "banner.reach.help": "Access to Bluemind webmail help",
+    "banner.about": "About",
+    "banner.about.version": "{brand} ({technical})",
+    "banner.about.version.brand": "Version {0}"
 }

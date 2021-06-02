@@ -10,12 +10,16 @@
             <bm-dropdown-item
                 v-if="canOpenSettings"
                 :title="$t('banner.menu.preferences.aria')"
+                icon="preferences"
                 @click="TOGGLE_PREFERENCES()"
             >
-                <bm-label-icon icon="preferences">{{ $t("common.preference") }} </bm-label-icon>
+                {{ $t("common.preference") }}
             </bm-dropdown-item>
-            <bm-dropdown-item v-if="canLogout" href="/bluemind_sso_logout">
-                <bm-label-icon icon="sign-out">{{ $t("banner.menu.logout") }} </bm-label-icon>
+            <bm-dropdown-item to="#about">
+                {{ $t("banner.about") }}
+            </bm-dropdown-item>
+            <bm-dropdown-item v-if="canLogout" icon="sign-out" href="/bluemind_sso_logout">
+                {{ $t("banner.menu.logout") }}
             </bm-dropdown-item>
         </bm-nav-item-dropdown>
     </bm-navbar-nav>
@@ -24,7 +28,7 @@
 <script>
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
-import { BmAvatar, BmDropdownItem, BmLabelIcon, BmNavbarNav, BmNavItemDropdown } from "@bluemind/styleguide";
+import { BmAvatar, BmDropdownItem, BmNavbarNav, BmNavItemDropdown } from "@bluemind/styleguide";
 import { mapMutations } from "vuex";
 
 export default {
@@ -32,7 +36,6 @@ export default {
     components: {
         BmAvatar,
         BmDropdownItem,
-        BmLabelIcon,
         BmNavbarNav,
         BmNavItemDropdown
     },
@@ -82,10 +85,5 @@ export default {
         right: $sp-3;
         vertical-align: middle;
     }
-}
-
-.bm-banner-user .dropdown-item {
-    padding-right: $sp-3;
-    padding-left: $sp-3;
 }
 </style>

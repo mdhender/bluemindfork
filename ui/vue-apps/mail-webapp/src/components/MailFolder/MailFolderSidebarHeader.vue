@@ -10,6 +10,9 @@
             <bm-dropdown-item-button icon="preferences" @click="TOGGLE_PREFERENCES()">
                 {{ $t("common.preference") }}
             </bm-dropdown-item-button>
+            <bm-dropdown-item to="#about">
+                {{ $t("banner.about") }}
+            </bm-dropdown-item>          
             <bm-dropdown-item icon="sign-out" href="/bluemind_sso_logout">
                 {{ $t("banner.menu.logout") }}
             </bm-dropdown-item>

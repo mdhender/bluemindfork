@@ -5,5 +5,8 @@
     "banner.menu.logout": "Abmelden",
     "banner.menu.preferences.aria": "Kontoeinstellungen",
     "banner.reach.all_apps": "Zugang zu allen BlueMind-Anwendungen",
-    "banner.reach.help": "Zugriff auf die Bluemind-Webmail-Hilfe"
+    "banner.reach.help": "Zugriff auf die Bluemind-Webmail-Hilfe",
+    "banner.about": "Über BlueMind",
+    "banner.about.version": "{brand} ({technical})",
+    "banner.about.version.brand": "Version {0}"
 }

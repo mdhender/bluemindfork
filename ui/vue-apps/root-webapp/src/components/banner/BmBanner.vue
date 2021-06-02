@@ -62,10 +62,6 @@ export default {
             required: true,
             type: Array
         },
-        software: {
-            type: Object,
-            required: true
-        },
         user: {
             required: true,
             type: Object

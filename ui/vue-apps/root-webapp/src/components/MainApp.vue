@@ -1,8 +1,9 @@
 <template>
     <div class="main-app d-flex flex-column h-100 bg-light">
         <global-events target="self" @resize="appHeight" />
-        <bm-banner :applications="applications" :widgets="widgets" :user="user" :software="software" />
+        <bm-banner :applications="applications" :widgets="widgets" :user="user" />
         <preferences v-if="showPreferences" :user="user" :applications="applications" />
+        <about v-if="showAbout" :version="software.version" />
         <div
             v-if="appState == 'error'"
             class="text-danger text-center h2 d-flex flex-fill align-self-center align-items-center"
@@ -20,17 +21,19 @@
 </template>
 
 <script>
-import { BmAlertArea } from "@bluemind/styleguide";
 import { mapActions, mapMutations, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
+import { BmAlertArea } from "@bluemind/styleguide";
 import "@bluemind/styleguide/css/bluemind.scss";
 import CommonL10N from "@bluemind/l10n";
 import injector from "@bluemind/inject";
+import About from "./About";
 import BmBanner from "./banner/BmBanner";
 import Preferences from "./preferences/Preferences";
 
 export default {
     components: {
+        About,
         BmBanner,
         Preferences,
         GlobalEvents,
@@ -80,7 +83,7 @@ export default {
 
         const user = userSession.userId
             ? {
-                  displayname: userSession["formatedName"],
+                  displayname: userSession["formatedName"].trim(),
                   email: userSession["defaultEmail"]
               }
             : {
@@ -88,8 +91,10 @@ export default {
                   email: "anonymous@noreply.local"
               };
         const software = {
-            version: userSession["bmVersion"],
-            brand: userSession["bmBrandVersion"]
+            version: {
+                technical: userSession["bmVersion"],
+                brand: userSession["bmBrandVersion"]
+            }
         };
         data.user = user;
         data.software = software;
@@ -100,7 +105,10 @@ export default {
         ...mapState({ alerts: state => state.alert.filter(({ area }) => !area) }),
         ...mapState("root-app", ["appState"]),
         ...mapState("preferences", ["showPreferences"]),
-        ...mapState("session", { settings: ({ settings }) => settings.remote })
+        ...mapState("session", { settings: ({ settings }) => settings.remote }),
+        showAbout() {
+            return this.$route.hash && this.$route.hash === "#about";
+        }
     },
     created() {
         this.appHeight();
