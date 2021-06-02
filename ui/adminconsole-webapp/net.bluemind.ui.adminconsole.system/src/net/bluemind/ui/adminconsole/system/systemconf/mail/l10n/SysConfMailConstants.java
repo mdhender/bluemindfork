@@ -68,4 +68,6 @@ public interface SysConfMailConstants extends Messages {
 	String archiveKindCyrus();
 
 	String archiveKindS3();
+
+	String archiveKindScalityRing();
 }

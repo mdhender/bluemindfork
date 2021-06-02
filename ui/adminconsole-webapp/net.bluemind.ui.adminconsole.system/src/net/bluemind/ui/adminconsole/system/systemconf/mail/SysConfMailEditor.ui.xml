@@ -138,7 +138,16 @@
 				</td>
 			</tr>
 		</table>
-
+		<table ui:field="archiveScalityTable">
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.s3EndpointAddress}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:TextBox width="400px" ui:field="scalityEndpointAddress" />
+				</td>
+			</tr>
+		</table>
 	</g:HTMLPanel>
 
 </ui:UiBinder>

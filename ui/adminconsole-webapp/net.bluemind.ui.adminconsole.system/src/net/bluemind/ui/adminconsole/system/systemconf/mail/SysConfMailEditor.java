@@ -75,6 +75,9 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 
 	@UiField
 	TableElement archiveS3Table;
+	
+	@UiField
+	TableElement archiveScalityTable;
 
 	@UiField
 	TextBox s3EndpointAddress;
@@ -90,13 +93,17 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 
 	@UiField
 	TextBox s3BucketName;
+	
+	@UiField
+	TextBox scalityEndpointAddress;
 
 	private static SysConfMailUiBinder uiBinder = GWT.create(SysConfMailUiBinder.class);
 
 	private enum ArchiveKindValue {
 		none(SysConfMailConstants.INST.archiveKindNone(), "none", 0),
 		cyrus(SysConfMailConstants.INST.archiveKindCyrus(), "cyrus", 1),
-		s3(SysConfMailConstants.INST.archiveKindS3(), "s3", 2);
+		s3(SysConfMailConstants.INST.archiveKindS3(), "s3", 2),
+		scalityring(SysConfMailConstants.INST.archiveKindScalityRing(), "scalityring", 3);
 
 		private String display;
 		private String value;
@@ -126,13 +133,10 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 	}
 
 	public static void registerType() {
-		GwtWidgetElement.register(TYPE, new IGwtDelegateFactory<IGwtWidgetElement, WidgetElement>() {
-
-			@Override
-			public IGwtWidgetElement create(WidgetElement e) {
+		GwtWidgetElement.register(TYPE, (widgetelement) -> {
 				return new SysConfMailEditor();
 			}
-		});
+		);
 	}
 
 	@Override
@@ -166,11 +170,20 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 				Optional.ofNullable(map.get(SysConfKeys.archive_days.name())).orElse(_CYRUS_ARCHIVE_DAYS_DEFAULT));
 		archiveSizeThreshold.setText(readArchiveSizeThreshold(map, SysConfKeys.archive_size_threshold, 1024));
 
-		s3EndpointAddress.setText(map.get(SysConfKeys.sds_s3_endpoint.name()));
-		s3Region.setText(map.get(SysConfKeys.sds_s3_region.name()));
-		s3AccessKey.setText(map.get(SysConfKeys.sds_s3_access_key.name()));
-		s3SecretKey.setText(map.get(SysConfKeys.sds_s3_secret_key.name()));
-		s3BucketName.setText(map.get(SysConfKeys.sds_s3_bucket.name()));
+		switch(archiveKindIndex) {
+		case 2:
+			s3EndpointAddress.setText(map.get(SysConfKeys.sds_s3_endpoint.name()));
+			s3Region.setText(map.get(SysConfKeys.sds_s3_region.name()));
+			s3AccessKey.setText(map.get(SysConfKeys.sds_s3_access_key.name()));
+			s3SecretKey.setText(map.get(SysConfKeys.sds_s3_secret_key.name()));
+			s3BucketName.setText(map.get(SysConfKeys.sds_s3_bucket.name()));
+			break;
+		case 3:
+			scalityEndpointAddress.setText(map.get(SysConfKeys.sds_s3_endpoint.name()));
+			break;
+		default:
+			break;
+		}
 
 		updateArchiveTablesVisibilities();
 	}
@@ -193,12 +206,21 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 
 		map.putString(SysConfKeys.archive_size_threshold.name(), sanitizeArchiveSizeThreshold(archiveSizeThreshold, 1));
 
-		map.putString(SysConfKeys.sds_s3_endpoint.name(), s3EndpointAddress.getText());
-		map.putString(SysConfKeys.sds_s3_region.name(), s3Region.getText());
-		map.putString(SysConfKeys.sds_s3_access_key.name(), s3AccessKey.getText());
-		map.putString(SysConfKeys.sds_s3_secret_key.name(), s3SecretKey.getText());
-		map.putString(SysConfKeys.sds_s3_bucket.name(), s3BucketName.getText());
-
+		switch (archiveKindSelectBox.getSelectedIndex()) {
+		case 2:
+			map.putString(SysConfKeys.sds_s3_endpoint.name(), s3EndpointAddress.getText());
+			map.putString(SysConfKeys.sds_s3_region.name(), s3Region.getText());
+			map.putString(SysConfKeys.sds_s3_access_key.name(), s3AccessKey.getText());
+			map.putString(SysConfKeys.sds_s3_secret_key.name(), s3SecretKey.getText());
+			map.putString(SysConfKeys.sds_s3_bucket.name(), s3BucketName.getText());
+			break;
+		case 3:
+			map.putString(SysConfKeys.sds_s3_endpoint.name(), scalityEndpointAddress.getText());
+			break;
+		default:
+			break;
+		}
+	
 		map.putString(SysConfKeys.imap_max_child.name(), cyrusMaxChildTextBox.getText());
 
 		if (cyrusRetentionTimeTextBox.getValue() != null) {
@@ -239,14 +261,22 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 		case "cyrus":
 			archiveS3Table.setAttribute("style", "display:none");
 			archiveCyrusTable.setAttribute("style", "display:block");
+			archiveScalityTable.setAttribute("style", "display:none");
 			break;
 		case "s3":
 			archiveS3Table.setAttribute("style", "display:block");
 			archiveCyrusTable.setAttribute("style", "display:none");
+			archiveScalityTable.setAttribute("style", "display:none");
+			break;
+		case "scalityring":
+			archiveS3Table.setAttribute("style", "display:none");
+			archiveCyrusTable.setAttribute("style", "display:none");
+			archiveScalityTable.setAttribute("style", "display:block");
 			break;
 		case "none":
 			archiveS3Table.setAttribute("style", "display:none");
 			archiveCyrusTable.setAttribute("style", "display:none");
+			archiveScalityTable.setAttribute("style", "display:none");
 			break;
 		}
 	}
