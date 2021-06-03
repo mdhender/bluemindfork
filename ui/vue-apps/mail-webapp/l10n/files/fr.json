@@ -91,7 +91,7 @@
                 "error": "\"{subject}\" n'a pu être envoyé : {reason}"
             },
             "video_conference": {
-                "info": "Accéder à la vidéo conférence."
+                "info": "Accéder à la visioconférence."
             }
         }
     },

@@ -1,1 +1,1 @@
-Enable ${entity} video conference service
+Enable ${entity} videoconference service

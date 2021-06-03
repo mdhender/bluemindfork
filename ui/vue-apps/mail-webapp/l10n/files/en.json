@@ -91,7 +91,7 @@
                 "success": "\"{subject}\" successfully sent!"
             },
             "video_conference": {
-                "info": "Join the video conference."
+                "info": "Join the videoconference."
             }
         }
     },
