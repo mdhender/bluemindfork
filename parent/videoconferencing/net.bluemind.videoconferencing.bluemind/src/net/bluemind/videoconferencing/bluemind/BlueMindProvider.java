@@ -44,7 +44,7 @@ public class BlueMindProvider extends TemplateBasedVideoConferencingProvider imp
 
 	@Override
 	public String name() {
-		return "BlueMind";
+		return "BlueMind.Video";
 	}
 
 	@Override

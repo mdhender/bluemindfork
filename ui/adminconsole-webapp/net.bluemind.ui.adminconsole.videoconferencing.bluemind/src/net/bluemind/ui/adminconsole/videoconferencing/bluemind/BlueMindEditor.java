@@ -62,7 +62,7 @@ public class BlueMindEditor extends CompositeGwtWidgetElement {
 	static final String TYPE = "bm.ac.BlueMindEditor";
 
 	// FIXME name/type from BlueMindProvider
-	private static final String PROVIDER_NAME = "BlueMind";
+	private static final String PROVIDER_NAME = "BlueMind.Video";
 	private static final String PROVIDER_TYPE = "videoconferencing-bluemind";
 
 	private static final String SETTINGS_TEMPLATES = "templates";
