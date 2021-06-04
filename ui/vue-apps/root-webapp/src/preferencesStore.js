@@ -16,7 +16,7 @@ const state = {
 const actions = {
     async FETCH_USER_PASSWORD_LAST_CHANGE({ commit }) {
         const userId = inject("UserSession").userId;
-        const user = await inject("UserClientPersistence").getComplete(userId);
+        const user = await inject("UserPersistence").getComplete(userId);
         commit("SET_USER_PASSWORD_LAST_CHANGE", user);
     },
     async FETCH_CALENDARS({ commit }) {

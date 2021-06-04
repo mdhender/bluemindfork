@@ -50,6 +50,7 @@ export default {
     MULTIPART_ALTERNATIVE,
     MULTIPART_MIXED,
     IMAGE,
+    ICS,
     equals,
     typeEquals,
     isRelated,

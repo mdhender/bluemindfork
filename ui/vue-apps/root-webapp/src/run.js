@@ -3,7 +3,7 @@ import Vue2TouchEvents from "vue2-touch-events";
 import VueI18n from "vue-i18n";
 
 import { default as AlertStore, DefaultAlert } from "@bluemind/alert.store";
-import { CalendarClient, CalendarsMgmtClient } from "@bluemind/calendar.api";
+import { CalendarClient, CalendarsMgmtClient, VEventClient } from "@bluemind/calendar.api";
 import { ContainersClient, ContainerManagementClient, OwnerSubscriptionsClient } from "@bluemind/core.container.api";
 import { FirstDayOfWeek, generateDateTimeFormats, InheritTranslationsMixin } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
@@ -34,6 +34,7 @@ async function initWebApp() {
     setVuePlugins(userSession);
     if (userSession.userId) {
         await store.dispatch("session/FETCH_ALL_SETTINGS"); // needed to initialize i18n
+        await store.dispatch("root-app/FETCH_IDENTITIES", store.state.session.settings.remote.lang);
     }
     const i18n = initI18N(userSession);
     Vue.component("DefaultAlert", DefaultAlert);
@@ -139,8 +140,13 @@ function registerDependencies(userSession) {
     });
 
     injector.register({
-        provide: "UserClientPersistence",
+        provide: "UserPersistence",
         factory: () => new UserClient(userSession.sid, userSession.domain)
+    });
+
+    injector.register({
+        provide: "VEventPersistence",
+        factory: containerUid => new VEventClient(userSession.sid, containerUid)
     });
 }
 

@@ -28,7 +28,7 @@
                         :calendar="myCalendar"
                         @update="update(myCalendar)"
                         @manage-shares="manageShares"
-                        @import-ics="importIcs"
+                        @import-ics="importIcs(myCalendar)"
                         @reset-data="resetData(myCalendar)"
                         @remove="remove(myCalendar)"
                     />
@@ -39,13 +39,15 @@
             {{ $t("preferences.calendar.my_calendars.create") }}
         </bm-button>
         <create-or-update-calendar-modal ref="create-or-update-calendar" />
+        <import-ics-modal ref="import-ics" />
     </div>
 </template>
 
 <script>
-import PrefManageMyCalendarsMenu from "./PrefManageMyCalendarsMenu";
-import CreateOrUpdateCalendarModal from "./CreateOrUpdateCalendarModal";
 import calendarToSubscription from "./calendarToSubscription";
+import CreateOrUpdateCalendarModal from "./CreateOrUpdateCalendarModal";
+import ImportIcsModal from "./ImportIcsModal";
+import PrefManageMyCalendarsMenu from "./PrefManageMyCalendarsMenu";
 import { inject } from "@bluemind/inject";
 import { BmButton, BmCol, BmColorBadge, BmFormCheckbox, BmListGroup, BmListGroupItem } from "@bluemind/styleguide";
 import { mapActions, mapMutations, mapState } from "vuex";
@@ -60,6 +62,7 @@ export default {
         BmListGroup,
         BmListGroupItem,
         CreateOrUpdateCalendarModal,
+        ImportIcsModal,
         PrefManageMyCalendarsMenu
     },
     computed: {
@@ -91,8 +94,8 @@ export default {
         manageShares() {
             // TODO
         },
-        importIcs() {
-            // TODO
+        importIcs(calendar) {
+            this.$refs["import-ics"].open(calendar);
         },
         async resetData(calendar) {
             const confirm = await this.$bvModal.msgBoxConfirm(this.$t("preferences.calendar.my_calendars.reset_data"), {

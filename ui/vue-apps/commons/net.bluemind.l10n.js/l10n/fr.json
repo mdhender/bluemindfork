@@ -123,5 +123,8 @@
     "common.create": "Créer",
     "common.valid_url": "URL valide",
     "common.invalid_url": "URL invalide",
-    "common.share": "Partager"
+    "common.share": "Partager",
+    "common.browse": "Parcourir...",
+    "common.import_successful": "Import réussi",
+    "common.import_error": "Echec de l'import"
 }

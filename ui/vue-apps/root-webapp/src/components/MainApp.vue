@@ -25,10 +25,10 @@ import { mapActions, mapMutations, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 
 import "@bluemind/styleguide/css/bluemind.scss";
-import { BmAlertArea } from "@bluemind/styleguide";
-import CommonL10N from "@bluemind/l10n";
-import injector from "@bluemind/inject";
 import { mapExtensions } from "@bluemind/extensions";
+import CommonL10N from "@bluemind/l10n";
+import { inject } from "@bluemind/inject";
+import { BmAlertArea } from "@bluemind/styleguide";
 
 import About from "./About";
 import BmBanner from "./banner/BmBanner";
@@ -47,7 +47,7 @@ export default {
     componentI18N: { messages: CommonL10N },
 
     data() {
-        const session = injector.getProvider("UserSession").get();
+        const session = inject("UserSession");
 
         return {
             applications: mapExtensions("webapp.banner", { apps: "application" })
@@ -79,17 +79,15 @@ export default {
         ...mapState({ alerts: state => state.alert.filter(({ area }) => !area) }),
         ...mapState("root-app", ["appState"]),
         ...mapState("preferences", ["showPreferences"]),
-        ...mapState("session", { settings: ({ settings }) => settings.remote }),
         showAbout() {
             return this.$route.hash && this.$route.hash === "#about";
         }
     },
     created() {
         this.appHeight();
-        if (injector.getProvider("UserSession").get().userId) {
+        if (inject("UserSession").userId) {
             this.FETCH_MY_MAILBOX_QUOTA();
             window.setInterval(() => this.FETCH_MY_MAILBOX_QUOTA(), 1000 * 60 * 30);
-            this.FETCH_IDENTITIES(this.settings.lang);
 
             this.$router.onReady(() => {
                 if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
@@ -99,7 +97,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("root-app", ["FETCH_IDENTITIES", "FETCH_MY_MAILBOX_QUOTA"]),
+        ...mapActions("root-app", ["FETCH_MY_MAILBOX_QUOTA"]),
         ...mapActions("alert", ["REMOVE"]),
         ...mapMutations("preferences", ["TOGGLE_PREFERENCES"]),
         appHeight() {

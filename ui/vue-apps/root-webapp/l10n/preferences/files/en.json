@@ -75,6 +75,7 @@
     "preferences.calendar.my_calendars.new": "Create a calendar",
     "preferences.calendar.my_calendars.label.description": "Label, as it'll be displayed in your calendar",
     "preferences.calendar.my_calendars.type": "Calendar type",
+    "preferences.calendar.my_calendars.drop_ics_file": "Drop your ICS file",
 
     "preferences.mail.thread": "Show replies to the same message together (conversations)",
     "preferences.mail.thread.disable": "Show messages individually",

@@ -136,6 +136,7 @@ export default {
         anyChangeOnExistingCalendar() {
             return (
                 !this.isNew &&
+                !this.isDefaultCalendar &&
                 (this.label !== this.originalCalendar.name ||
                     this.type !== this.originalCalendar.settings.type ||
                     (this.type === "externalIcs" && this.icsUrl !== this.originalCalendar.settings.icsUrl))

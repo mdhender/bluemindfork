@@ -131,7 +131,7 @@ export default {
             event.preventDefault();
             try {
                 const userId = inject("UserSession").userId;
-                await inject("UserClientPersistence").setPassword(userId, {
+                await inject("UserPersistence").setPassword(userId, {
                     currentPassword: this.oldPassword,
                     newPassword: this.newPassword
                 });
