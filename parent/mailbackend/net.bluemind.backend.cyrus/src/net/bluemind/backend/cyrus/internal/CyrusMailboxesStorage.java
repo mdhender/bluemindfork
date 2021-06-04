@@ -647,8 +647,10 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 				for (String boxName : toFix) {
 					Map<String, String> annotations = ImmutableMap.of("value.shared", "true");
 					boolean annotated = annotate(sc, boxName, "/vendor/cmu/cyrus-imapd/sharedseen", annotations);
-					boolean markedAsSeen = flag(sc, boxName, seenFlag);
-					if (annotated && markedAsSeen) {
+					if (annotated && mailbox.value.type.sharedNs) {
+						flag(sc, boxName, seenFlag);
+					}
+					if (annotated) {
 						fixed++;
 					}
 				}
