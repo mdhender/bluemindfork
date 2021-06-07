@@ -16,6 +16,7 @@
 		<module>net.bluemind.vertx.core.patch</module>
 		<module>net.bluemind.systemd.notify</module>
 		<module>net.bluemind.systemd.notify.tests</module>
+		<module>net.bluemind.vertx.common.tests</module>
 		<module>net.bluemind.common.cache.persistence</module>
 		<module>net.bluemind.common.cache.persistence.tests</module>
 	</modules>

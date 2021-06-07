@@ -19,6 +19,12 @@
 
 package net.bluemind.vertx.common.http;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -29,8 +35,11 @@ import org.slf4j.LoggerFactory;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
+import com.google.common.base.MoreObjects;
 
+import io.netty.util.concurrent.FastThreadLocal;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -131,7 +140,8 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 		adminProv = new VertxPromiseServiceProvider(new HttpClientProvider(vertx), topoLocator, Token.admin0());
 	}
 
-	private static final class Creds {
+	@VisibleForTesting
+	public static final class Creds {
 
 		public Creds(String login, String password) {
 			this.login = login;
@@ -147,6 +157,11 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 
 		public String getPassword() {
 			return password;
+		}
+
+		@Override
+		public String toString() {
+			return MoreObjects.toStringHelper(Creds.class).add("l", login).add("p", password).toString();
 		}
 
 	}
@@ -166,6 +181,11 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 				|| lr.authUser.roles.contains(role);
 	}
 
+	private static final CharSequence WWW_AUTHENTICATE = HttpHeaders.createOptimized("WWW-Authenticate");
+
+	private static final CharSequence WWW_AUTHENTICATE_VALUE = HttpHeaders
+			.createOptimized("Basic realm=\"bm.basic.auth.v2\", charset=\"UTF-8\"");
+
 	@Override
 	public void handle(final HttpServerRequest r) {
 		MultiMap headers = r.headers();
@@ -173,7 +193,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 
 		if (auth == null) {
 			logger.debug("Missing Auth header => 401");
-			r.response().putHeader("WWW-Authenticate", "Basic realm=\"bm.basic.auth\"").setStatusCode(401).end();
+			r.response().putHeader(WWW_AUTHENTICATE, WWW_AUTHENTICATE_VALUE).setStatusCode(401).end();
 		} else {
 			ValidatedAuth cached = validated.getIfPresent(auth);
 			if (cached != null) {
@@ -185,7 +205,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 				if (logger.isDebugEnabled()) {
 					logger.debug("401 for auth header '{}', cookies: {}", auth, headers.get("Cookie"));
 				}
-				r.response().putHeader("WWW-Authenticate", "Basic realm=\"bm.basic.auth\"").setStatusCode(401).end();
+				r.response().putHeader(WWW_AUTHENTICATE, WWW_AUTHENTICATE_VALUE).setStatusCode(401).end();
 				return;
 			}
 			r.pause();
@@ -214,11 +234,9 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 				r.resume();
 				if (ex != null) {
 					logger.warn("auth problem, check core.log ({})", ex.getMessage());
-					r.response().putHeader("WWW-Authenticate", "Basic realm=\"bm.basic.auth\"").setStatusCode(401)
-							.end();
+					r.response().putHeader(WWW_AUTHENTICATE, WWW_AUTHENTICATE_VALUE).setStatusCode(401).end();
 				} else if (loginRespAndRouting == null) {
-					r.response().putHeader("WWW-Authenticate", "Basic realm=\"bm.basic.auth\"").setStatusCode(401)
-							.end();
+					r.response().putHeader(WWW_AUTHENTICATE, WWW_AUTHENTICATE_VALUE).setStatusCode(401).end();
 				} else {
 					ValidatedAuth va = new ValidatedAuth(loginRespAndRouting.lr.latd, loginRespAndRouting.lr.authKey,
 							loginRespAndRouting.mboxRouting);
@@ -230,7 +248,8 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 		}
 	}
 
-	private Creds getCredentials(String auth) {
+	@VisibleForTesting
+	public Creds getCredentials(String auth) {
 		if (!auth.startsWith("Basic ")) {
 			return null;
 		}
@@ -238,16 +257,21 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 		int idx = 0;
 		for (; idx < chars.length && chars[idx] != ':'; idx++)
 			;
-
-		String pass = new String(chars, idx + 1, chars.length - (idx + 1));
-		String login = new String(chars, 0, idx);
-
-		if (!azureAdMatcher.matchesAllOf(pass)) {
-			if (logger.isWarnEnabled()) {
-				logger.warn("[{}] Rejecting password containing invalid characters ({})", login,
-						azureAdMatcher.removeFrom(pass));
-			}
+		int pwdLen = chars.length - (idx + 1);
+		if (pwdLen <= 0) {
+			logger.warn("Can't extract password bytes from {}", auth);
 			return null;
+		}
+		byte[] tgt = new byte[pwdLen];
+		System.arraycopy(chars, idx + 1, tgt, 0, pwdLen);
+
+		String login = new String(chars, 0, idx);
+		Charset guessedEncoding = guessEncoding(login, tgt);
+
+		String pass = new String(tgt, guessedEncoding);
+
+		if (!azureAdMatcher.matchesAllOf(pass) && logger.isWarnEnabled()) {
+			logger.warn("[{}] Password contains error-prone characters ({})", login, azureAdMatcher.removeFrom(pass));
 		}
 
 		// support windows style login: Domain.com\User
@@ -269,6 +293,45 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 
 		logger.info("creds: {}", login);
 		return new Creds(login, pass);
+	}
+
+	private static final FastThreadLocal<CharsetDecoder> localUtf8 = new FastThreadLocal<>();
+	private static final FastThreadLocal<CharsetDecoder> localIso = new FastThreadLocal<>();
+
+	private Charset guessEncoding(String login, byte[] tgt) {
+		CharsetDecoder dec;
+
+		dec = decoder(StandardCharsets.UTF_8, localUtf8);
+		if (checkDec(tgt, dec)) {
+			return StandardCharsets.UTF_8;
+		}
+
+		dec = decoder(StandardCharsets.ISO_8859_1, localIso);
+		if (checkDec(tgt, dec)) {
+			return StandardCharsets.ISO_8859_1;
+		}
+
+		logger.warn("[{}] password bytes are not compatible with utf-8 nor iso-8859-1", login);
+		return StandardCharsets.UTF_8;
+	}
+
+	private boolean checkDec(byte[] tgt, CharsetDecoder dec) {
+		try {
+			dec.decode(ByteBuffer.wrap(tgt));
+			return true;
+		} catch (CharacterCodingException e) {
+			return false;
+		}
+	}
+
+	private CharsetDecoder decoder(Charset cs, FastThreadLocal<CharsetDecoder> local) {
+		CharsetDecoder dec = local.get();
+		if (dec == null) {
+			dec = cs.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
+					.onUnmappableCharacter(CodingErrorAction.REPORT);
+			local.set(dec);
+		}
+		return dec;
 	}
 
 	public static void purgeSessions() {
