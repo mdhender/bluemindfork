@@ -68,6 +68,8 @@ public class CyrusServiceVerticle extends AbstractVerticle {
 		MessageConsumer<Integer> mailboxDsConsumer = vertx.eventBus().consumer("mailbox.ds.known");
 		mailboxDsConsumer.handler(message -> {
 			if (message.body().intValue() > 0) {
+				mailboxDsConsumer.unregister();
+
 				servers.forEach(server -> {
 					CyrusService cyrusService = new CyrusService(server.value.address());
 					cyrusService.reload();
@@ -77,7 +79,6 @@ public class CyrusServiceVerticle extends AbstractVerticle {
 						vertx.setTimer(60000, timer -> buildSharedMailboxProbe(prov, service, server));
 					}
 				});
-				mailboxDsConsumer.unregister();
 			}
 		});
 	}
