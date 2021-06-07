@@ -615,6 +615,10 @@ public class BodyStreamProcessor {
 	}
 
 	private static boolean canAnalyzeAttachment(Entity ae) {
+		String encoding = ae.getContentTransferEncoding();
+		if (encoding != null && encoding.toLowerCase().contains("uuencode")) {
+			return false;
+		}
 		String mimeType = ae.getMimeType();
 		if (mimeType != null) {
 			return !(mimeType.startsWith("image/") || mimeType.startsWith("audio/") || mimeType.startsWith("video/"));

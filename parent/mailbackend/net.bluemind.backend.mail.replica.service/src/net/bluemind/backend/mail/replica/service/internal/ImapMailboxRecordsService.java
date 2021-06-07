@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
+import com.sun.mail.util.UUDecoderStream;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
@@ -627,6 +628,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			return new Base64InputStream(in, false);
 		case "quoted-printable":
 			return new QuotedPrintableInputStream(in, false);
+		case "uuencode":
+			return new UUDecoderStream(in, true, true);
 		default:
 			return in;
 		}
