@@ -73,7 +73,7 @@ public class ServiceWorkerHandler implements IWebModuleConsumer, Handler<HttpSer
 
 	private static Boolean assetsFilter(String path) {
 
-		return !(path.startsWith(".") || path.endsWith(".devmode.js") || path.startsWith("WEB-INF"));
+		return !(path.startsWith(".") || path.endsWith(".devmode.js")|| path.endsWith(".nocache.js") || path.startsWith("WEB-INF"));
 	}
 
 	@Override
