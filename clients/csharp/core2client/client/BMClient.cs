@@ -204,20 +204,8 @@ namespace core2client
 
         private void SetSecurityProptocol()
         {
-            SecurityProtocolType tls12;
-            if (Enum.TryParse("Tls12", out tls12))
-            {
-                //Ssl3 = 48,
-                //Tls = 192,
-                //Tls11 = 768,
-                //Tls12 = 3072,
-                ServicePointManager.SecurityProtocol = (SecurityProtocolType)192 | (SecurityProtocolType)768 |
-                                                       (SecurityProtocolType)3072;
-            }
-            else
-            {
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
-            }
+            //Tls12 = 3072
+            ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
             this.logger.LogMessage("SecurityProtocol: " + ServicePointManager.SecurityProtocol);
         }
     }
