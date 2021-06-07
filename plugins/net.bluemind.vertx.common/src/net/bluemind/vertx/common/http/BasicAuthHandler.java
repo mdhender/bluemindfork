@@ -67,7 +67,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 	 * https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-sspr-policy#password-policies-that-only-apply-to-cloud-user-accounts
 	 */
 	private static final CharMatcher azureAdMatcher = CharMatcher.inRange('a', 'z').or(CharMatcher.inRange('A', 'Z'))
-			.or(CharMatcher.inRange('0', '9')).or(CharMatcher.anyOf(" @#$%^&*-_!+=[]{}|\\:',.?/`~\"()"));
+			.or(CharMatcher.inRange('0', '9')).or(CharMatcher.anyOf(" @#$%^&*-_!+=[]{}|\\:',.?/`~\"();<>"));
 
 	private static class ValidatedAuth {
 		public ValidatedAuth(String login, String sid, Routing r) {
