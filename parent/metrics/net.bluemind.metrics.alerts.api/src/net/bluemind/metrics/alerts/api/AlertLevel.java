@@ -22,5 +22,5 @@ import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public enum AlertLevel {
-	OK, WARNING, CRITICAL
+	OK, INFO, WARNING, CRITICAL
 }

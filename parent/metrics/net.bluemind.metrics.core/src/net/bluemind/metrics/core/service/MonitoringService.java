@@ -29,6 +29,8 @@ import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -47,6 +49,8 @@ import net.bluemind.server.api.TagDescriptor;
 
 public class MonitoringService implements IMonitoring {
 
+	private static final Logger logger = LoggerFactory.getLogger(MonitoringService.class);
+	
 	public MonitoringService(BmContext context) {
 	}
 
@@ -77,7 +81,12 @@ public class MonitoringService implements IMonitoring {
 			String product = "";
 			String id = row.getString(1);
 			AlertInfo alert = new AlertInfo();
-			alert.level = AlertLevel.valueOf(row.getString(5));
+			try {
+				alert.level = AlertLevel.valueOf(row.getString(5));
+			} catch (IllegalArgumentException e) {
+				logger.error("alert level {} is not known", row.getString(5));
+				alert.level = AlertLevel.WARNING;
+			}
 
 			if (filterResolved) {
 				Boolean knownStatus = alertStatus.get(id);
