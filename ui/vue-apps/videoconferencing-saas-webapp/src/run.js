@@ -28,10 +28,10 @@ registerUserSession();
 Vue.component("videoconferencing-saas-webapp", BlueMindVisioApp);
 
 router.addRoutes([
-    { path: "/index.html", redirect: "/visio/" },
+    { path: "/index.html", redirect: "/" },
     {
         name: "visio:root",
-        path: "/visio/:room*",
+        path: "/:room*",
         component: BlueMindVisioApp
     }
 ]);
