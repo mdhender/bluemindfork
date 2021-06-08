@@ -38,6 +38,7 @@
 	  <module>bm-sds-proxy</module>
 	  <module>bm-forest-node</module>
 	  <module>bm-full</module>
+	  <module>bm-full-dev</module>
 	  <module>bm-checks</module>
 	  <module>bm-ldap-role</module>
 	  <module>bm-mailbox-role</module>
