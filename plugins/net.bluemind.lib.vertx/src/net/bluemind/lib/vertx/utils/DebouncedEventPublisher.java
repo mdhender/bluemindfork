@@ -22,41 +22,44 @@
  */
 package net.bluemind.lib.vertx.utils;
 
-import java.util.function.BiConsumer;
-
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.JsonObject;
 
 /**
- * Publish events on the Vert.x event bus in a <i>debounce-like</i> way (we use
- * the noDebounceFirstMode).
+ * Publish events on the Vert.x event bus in a <i>debounce-like</i> way.
  *
  * @see Debouncer
  */
 public class DebouncedEventPublisher {
-	private Debouncer<String, PayLoad> debouncer;
 
-	public DebouncedEventPublisher(final EventBus eventBus, final int debounceTimeMillis) {
-		final boolean noDebounceFirstMode = true;
-		this.debouncer = new Debouncer<>(new BiConsumer<String, PayLoad>() {
+	private final Debouncer<String, PayLoad> debouncer;
 
-			@Override
-			public void accept(final String key, final PayLoad payload) {
-				eventBus.publish(payload.getAddress(), payload.getMessage());
-			}
-		}, debounceTimeMillis, noDebounceFirstMode);
+	/**
+	 * 
+	 * {@link DebouncedEventPublisher} with <code>noDebounceFirstMode=true</code>
+	 * 
+	 * @param eventBus
+	 * @param debounceTimeMillis
+	 */
+	public DebouncedEventPublisher(EventBus eventBus, int debounceTimeMillis) {
+		this(eventBus, debounceTimeMillis, true);
 	}
 
-	public void publish(final String address, final JsonObject message, final String debounceKey) {
+	public DebouncedEventPublisher(EventBus eventBus, int debounceTimeMillis, boolean noDebounceFirstMode) {
+		this.debouncer = new Debouncer<>(//
+				(String key, PayLoad payload) -> eventBus.publish(payload.getAddress(), payload.getMessage()), //
+				debounceTimeMillis, noDebounceFirstMode);
+	}
+
+	public void publish(String address, Object message, String debounceKey) {
 		final PayLoad payLoad = new PayLoad(address, message);
 		this.debouncer.call(address, payLoad);
 	}
 
 	private class PayLoad {
-		private String address;
-		private JsonObject message;
+		private final String address;
+		private final Object message;
 
-		public PayLoad(final String address, final JsonObject message) {
+		public PayLoad(String address, Object message) {
 			this.address = address;
 			this.message = message;
 		}
@@ -65,7 +68,7 @@ public class DebouncedEventPublisher {
 			return address;
 		}
 
-		public JsonObject getMessage() {
+		public Object getMessage() {
 			return message;
 		}
 	}
