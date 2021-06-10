@@ -78,6 +78,7 @@ rm -f ${CYRUS_LIB}/deliver.db
 echo -n "Generate new tls_sessions.db: "
 rm -f ${CYRUS_LIB}/tls_sessions.db
 touch ${CYRUS_LIB}/tls_sessions
+chown cyrus:mail ${CYRUS_LIB}/tls_sessions
 $cvt_cyrusdb ${CYRUS_LIB}/tls_sessions flat ${CYRUS_LIB}/tls_sessions.db twoskip
 rm -f ${CYRUS_LIB}/tls_sessions
 chown cyrus:mail ${CYRUS_LIB}/tls_sessions.db
@@ -87,6 +88,7 @@ echo "done"
 echo -n "Generate new Cyrus mailboxes.db: "
 rm -f ${CYRUS_LIB}/mailboxes.db
 touch ${CYRUS_LIB}/mailboxes
+chown cyrus:mail ${CYRUS_LIB}/mailboxes
 $cvt_cyrusdb ${CYRUS_LIB}/mailboxes flat ${CYRUS_LIB}/mailboxes.db twoskip
 rm -f ${CYRUS_LIB}/mailboxes
 chown cyrus:mail ${CYRUS_LIB}/mailboxes.db
