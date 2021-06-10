@@ -306,9 +306,17 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 	@Override
 	public void updates(List<MailboxRecord> recs) {
 		BlockingQueue<List<MailboxRecord>> queue = updateQueue.computeIfAbsent(mailboxUniqueId,
-				k -> new ArrayBlockingQueue<List<MailboxRecord>>(500));
+				k -> new ArrayBlockingQueue<List<MailboxRecord>>(50));
 		try {
-			boolean queued = queue.offer(recs, 10, TimeUnit.SECONDS);
+			int retry = 0;
+			boolean queued = false;
+			// Our sync server queues slices of up to 200 records in here
+			while (!queued && retry++ < 20) {
+				queued = queue.offer(recs, 20, TimeUnit.SECONDS);
+				if (retry > 0 && !queued) {
+					logger.warn("[{}] record update queue full, attempt {}/20", mailboxUniqueId, retry);
+				}
+			}
 			if (!queued) {
 				throw new ServerFault("busy");
 			}
