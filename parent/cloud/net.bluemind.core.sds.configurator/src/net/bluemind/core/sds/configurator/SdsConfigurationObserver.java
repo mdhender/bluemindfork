@@ -1,13 +1,15 @@
 package net.bluemind.core.sds.configurator;
 
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.sds.proxy.mgmt.SdsProxyManager;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.hook.ISystemConfigurationObserver;
@@ -36,7 +38,14 @@ public class SdsConfigurationObserver implements ISystemConfigurationObserver {
 		Topology.get().nodes().stream().filter(iv -> iv.value.tags.contains("mail/imap")).forEach(iv -> {
 			JsonObject configBackend = new JsonObject().put("backend", iv.value.address()).put("config", json);
 			logger.info("reconfigure SDS {}", configBackend);
-			VertxPlatform.eventBus().send("sds.sysconf.changed", configBackend);
+			// we keep this one synchronous instead of firing an event, otherwise it
+			// conflicts with CyrusSysConfObserver
+			try (SdsProxyManager sm = new SdsProxyManager(null, iv.value.address())) {
+				sm.applyConfiguration(json).get(10, TimeUnit.SECONDS);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+
 		});
 	}
 
