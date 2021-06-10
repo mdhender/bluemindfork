@@ -61,7 +61,7 @@ public class TickStatusCommand implements ICmdLet, Runnable {
 
 		IServer serversApi = ctx.adminApi().instance(IServer.class, InstallationId.getIdentifier());
 		Optional<ItemValue<Server>> tickServer = serversApi.allComplete().stream()
-				.filter(srvItem -> srvItem.value.tags.contains(TagDescriptor.bm_metrics_influx.name())).findAny();
+				.filter(srvItem -> srvItem.value.tags.contains(TagDescriptor.bm_metrics_influx.getTag())).findAny();
 		if (tickServer.isPresent()) {
 			System.out.println(ctx.ansi().a("Tick deployement ").fgBrightGreen().a("OK").reset());
 		} else {
