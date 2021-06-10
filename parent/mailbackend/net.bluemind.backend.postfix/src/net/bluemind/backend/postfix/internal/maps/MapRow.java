@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 
 import net.bluemind.core.container.model.ItemValue;
@@ -90,6 +91,17 @@ public class MapRow {
 		this.membersItemsIds = null;
 		this.mailboxName = externalEmail;
 		this.recipients = null;
+	}
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(MapRow.class)//
+				.add("id", itemId)//
+				.add("type", type)//
+				.add("r", routing)//
+				.add("emails", emails)//
+				.add("def", defaultEmail)//
+				.toString();
 	}
 
 	public static List<MapRow> build(BmContext context, List<ItemValue<Server>> servers,
@@ -155,7 +167,8 @@ public class MapRow {
 
 		rowsByItemId.values().forEach(r -> r.expandRecipients(rowsByItemId));
 
-		return rowsByItemId.values().stream().filter(r -> r.recipients != null).collect(Collectors.toList());
+		return rowsByItemId.values().stream().filter(r -> r.recipients != null)
+				.sorted((mr1, mr2) -> Long.compare(mr1.itemId, mr2.itemId)).collect(Collectors.toList());
 	}
 
 	private static Optional<MapRow> build(List<ItemValue<Server>> servers, Map<String, DomainInfo> domainInfoByUid,

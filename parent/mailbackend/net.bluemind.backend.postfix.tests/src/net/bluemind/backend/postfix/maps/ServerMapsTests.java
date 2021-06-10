@@ -93,7 +93,7 @@ public class ServerMapsTests {
 	public void init_noSmtpOrEdgeTagged() throws Exception {
 		Server server = new Server();
 		server.ip = "10.0.0.1";
-		server.name = "test-" + System.nanoTime();
+
 		server.tags = Arrays.asList("mail/imap");
 		PopulateHelper.createServers(server);
 
@@ -112,7 +112,7 @@ public class ServerMapsTests {
 	public void init_smtpTagged_assignedUnknowDomain() throws Exception {
 		Server server = new Server();
 		server.ip = "10.0.0.1";
-		server.name = "test-" + System.nanoTime();
+
 		server.tags = Arrays.asList("mail/smtp");
 		PopulateHelper.createServers(server);
 
@@ -134,7 +134,7 @@ public class ServerMapsTests {
 	public void init_edgeTagged_assignedUnknowDomain() throws Exception {
 		Server server = new Server();
 		server.ip = "10.0.0.1";
-		server.name = "test-" + System.nanoTime();
+
 		server.tags = Arrays.asList("mail/smtp-edge");
 		PopulateHelper.createServers(server);
 
@@ -155,7 +155,7 @@ public class ServerMapsTests {
 	public void init_smtpAndEdgeTagged_sameDomain() throws Exception {
 		Server server = new Server();
 		server.ip = "10.0.0.1";
-		server.name = "test-" + System.nanoTime();
+
 		server.tags = Arrays.asList("mail/smtp", "mail/smtp-edge");
 		PopulateHelper.createServers(server);
 
@@ -186,7 +186,7 @@ public class ServerMapsTests {
 	public void init_noSmtpTag_edgeAssigned() throws Exception {
 		Server server = new Server();
 		server.ip = "10.0.0.1";
-		server.name = "test-" + System.nanoTime();
+
 		server.tags = Arrays.asList("mail/smtp-edge");
 		PopulateHelper.createServers(server);
 
@@ -208,12 +208,10 @@ public class ServerMapsTests {
 	public void init_noSmtpAssigned_edgeAssigned() throws Exception {
 		Server edge = new Server();
 		edge.ip = "10.0.0.1";
-		edge.name = "test-" + System.nanoTime();
 		edge.tags = Arrays.asList("mail/smtp-edge");
 
 		Server smtp = new Server();
 		smtp.ip = "10.0.0.2";
-		smtp.name = "test-" + System.nanoTime();
 		smtp.tags = Arrays.asList("mail/smtp");
 		PopulateHelper.createServers(smtp, edge);
 
@@ -235,12 +233,10 @@ public class ServerMapsTests {
 	public void init_smtpAndEdgeAssigned() throws Exception {
 		Server edge = new Server();
 		edge.ip = "10.0.0.1";
-		edge.name = "test-" + System.nanoTime();
 		edge.tags = Arrays.asList("mail/smtp-edge");
 
 		Server smtp = new Server();
 		smtp.ip = "10.0.0.2";
-		smtp.name = "test-" + System.nanoTime();
 		smtp.tags = Arrays.asList("mail/smtp");
 		PopulateHelper.createServers(smtp, edge);
 
@@ -292,12 +288,10 @@ public class ServerMapsTests {
 	public void init_edgeAssigned_smtpNotFound() throws Exception {
 		Server edge = new Server();
 		edge.ip = "10.0.0.1";
-		edge.name = "test-" + System.nanoTime();
 		edge.tags = Arrays.asList("mail/smtp-edge");
 
 		Server smtp = new Server();
 		smtp.ip = "10.0.0.2";
-		smtp.name = "test-" + System.nanoTime();
 		smtp.tags = Arrays.asList("mail/smtp");
 		PopulateHelper.createServers(smtp, edge);
 
@@ -319,17 +313,14 @@ public class ServerMapsTests {
 	public void init_multipleSmtpAssigned_OneEdgeAssigned() throws Exception {
 		Server edge = new Server();
 		edge.ip = "10.0.0.1";
-		edge.name = "test-" + System.nanoTime();
 		edge.tags = Arrays.asList("mail/smtp-edge");
 
 		Server smtp1 = new Server();
 		smtp1.ip = "10.0.0.2";
-		smtp1.name = "test-" + System.nanoTime();
 		smtp1.tags = Arrays.asList("mail/smtp");
 
 		Server smtp2 = new Server();
 		smtp2.ip = "10.0.0.3";
-		smtp2.name = "test-" + System.nanoTime();
 		smtp2.tags = Arrays.asList("mail/smtp");
 		PopulateHelper.createServers(smtp1, smtp2, edge);
 
@@ -401,12 +392,10 @@ public class ServerMapsTests {
 	public void init_smtp_keepMapRowsFromAssignedDomainsOnly() throws Exception {
 		Server edge = new Server();
 		edge.ip = "10.0.0.1";
-		edge.name = "test-" + System.nanoTime();
 		edge.tags = Arrays.asList("mail/smtp-edge");
 
 		Server smtp = new Server();
 		smtp.ip = "10.0.0.2";
-		smtp.name = "test-" + System.nanoTime();
 		smtp.tags = Arrays.asList("mail/smtp");
 		PopulateHelper.createServers(smtp, edge);
 
@@ -441,12 +430,10 @@ public class ServerMapsTests {
 	public void init_edge_keepMapRowsFromAssignedDomainsOnly() throws Exception {
 		Server edge = new Server();
 		edge.ip = "10.0.0.1";
-		edge.name = "test-" + System.nanoTime();
 		edge.tags = Arrays.asList("mail/smtp-edge");
 
 		Server smtp = new Server();
 		smtp.ip = "10.0.0.2";
-		smtp.name = "test-" + System.nanoTime();
 		smtp.tags = Arrays.asList("mail/smtp");
 		PopulateHelper.createServers(smtp, edge);
 
@@ -481,7 +468,7 @@ public class ServerMapsTests {
 	public void writeFlatMaps_smtpTaggedAndAssigned() throws Exception {
 		Server server = new Server();
 		server.ip = new BmConfIni().get("bluemind/smtp-role");
-		server.name = "test-" + System.nanoTime();
+
 		server.tags = Arrays.asList("mail/smtp");
 		PopulateHelper.createServers(server);
 
@@ -516,7 +503,7 @@ public class ServerMapsTests {
 	public void writeFlatMaps_activateMaps_smtpTaggedAndAssigned() throws Exception {
 		Server server = new Server();
 		server.ip = new BmConfIni().get("bluemind/smtp-role");
-		server.name = "test-" + System.nanoTime();
+
 		server.tags = Arrays.asList("mail/smtp");
 		PopulateHelper.createServers(server);
 
@@ -551,12 +538,10 @@ public class ServerMapsTests {
 	public void writeFlatMaps_edgeTaggedNotAssigned() throws Exception {
 		Server smtp = new Server();
 		smtp.ip = new BmConfIni().get("bluemind/smtp-role");
-		smtp.name = "test-" + System.nanoTime();
 		smtp.tags = Arrays.asList("mail/smtp");
 
 		Server edge = new Server();
 		edge.ip = new BmConfIni().get("bluemind/smtp-edge-role");
-		edge.name = "test-" + System.nanoTime();
 		edge.tags = Arrays.asList("mail/smtp-edge");
 		PopulateHelper.createServers(smtp, edge);
 
@@ -590,7 +575,7 @@ public class ServerMapsTests {
 	public void init_notAssigned_noSmtpTag() {
 		Server server = new Server();
 		server.ip = "10.0.0.1";
-		server.name = "test-" + System.nanoTime();
+
 		server.tags = Arrays.asList("mail/imap");
 
 		PopulateHelper.createServers(server);
@@ -599,7 +584,7 @@ public class ServerMapsTests {
 
 		server = new Server();
 		server.ip = "10.0.0.2";
-		server.name = "test-" + System.nanoTime();
+
 		server.tags = Collections.emptyList();
 
 		PopulateHelper.createServers(server);
@@ -611,7 +596,6 @@ public class ServerMapsTests {
 	public void init_notAssigned_smtpTag() {
 		Server smtp = new Server();
 		smtp.ip = "10.0.0.1";
-		smtp.name = "test-" + System.nanoTime();
 		smtp.tags = Arrays.asList("mail/smtp");
 
 		PopulateHelper.createServers(smtp);
@@ -630,7 +614,6 @@ public class ServerMapsTests {
 	public void init_notAssigned_edgeTag() {
 		Server edge = new Server();
 		edge.ip = "10.0.0.1";
-		edge.name = "test-" + System.nanoTime();
 		edge.tags = Arrays.asList("mail/smtp-edge");
 
 		PopulateHelper.createServers(edge);

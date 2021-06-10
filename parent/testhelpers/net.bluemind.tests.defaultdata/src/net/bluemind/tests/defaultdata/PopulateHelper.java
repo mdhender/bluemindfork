@@ -263,7 +263,7 @@ public class PopulateHelper {
 				if (StringUtils.isBlank(server.fqdn)) {
 					server.fqdn = server.name;
 				}
-				storeService.create(server.ip, server.ip, server);
+				storeService.create(server.name, server.ip, server);
 				logger.info("******** Created " + server.ip);
 			}
 		} catch (SQLException e) {

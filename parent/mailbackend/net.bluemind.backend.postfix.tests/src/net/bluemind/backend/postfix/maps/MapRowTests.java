@@ -712,19 +712,22 @@ public class MapRowTests {
 		assertEquals(2, mapRows.size());
 
 		Iterator<MapRow> iterator = mapRows.iterator();
-		MapRow mapRow = iterator.next();
+		MapRow mapRow;
+
+		mapRow = iterator.next();
 		assertEquals(Mailbox.Type.user, mapRow.type);
+
 		mapRow = iterator.next();
 		assertEquals(Mailbox.Type.group, mapRow.type);
 		assertEquals(Mailbox.Routing.internal, mapRow.routing);
 		assertEquals(dataLocation.value.address(), mapRow.dataLocation);
-
 		assertEquals(1, mapRow.emails.size());
 		assertTrue(mapRow.emails.contains(group.name + "@" + domain.value.name));
 
 		assertTrue(mapRow.getRecipients().contains("+_" + group.name + "@" + domain.value.name));
 		assertTrue(mapRow.getRecipients().contains(user.login + "@" + domain.value.name));
 		assertEquals("+_" + group.name + "@" + domain.value.name, mapRow.getMailboxName());
+
 	}
 
 	@Test
@@ -755,9 +758,14 @@ public class MapRowTests {
 		Collection<MapRow> mapRows = MapRow.build(new BmTestContext(SecurityContext.SYSTEM), servers, domainInfoByUid);
 		assertNotNull(mapRows);
 		assertEquals(2, mapRows.size());
+		for (MapRow mr : mapRows) {
+			System.err.println("mr: " + mr);
+		}
 
 		Iterator<MapRow> iterator = mapRows.iterator();
-		MapRow mapRow = iterator.next();
+		MapRow mapRow;
+
+		mapRow = iterator.next();
 		assertEquals(Mailbox.Type.user, mapRow.type);
 		assertEquals(Mailbox.Routing.internal, mapRow.routing);
 		assertEquals(1, mapRow.emails.size());
@@ -776,6 +784,7 @@ public class MapRowTests {
 		assertTrue(recipients.contains("+_" + group.name + "@" + domain.value.name));
 		assertTrue(recipients.contains(user.login + "@" + domain.value.name));
 		assertEquals("+_" + group.name + "@" + domain.value.name, mapRow.getMailboxName());
+
 	}
 
 	@Test
