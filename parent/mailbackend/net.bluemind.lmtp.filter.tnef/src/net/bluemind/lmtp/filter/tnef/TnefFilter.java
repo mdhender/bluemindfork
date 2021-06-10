@@ -21,6 +21,9 @@ package net.bluemind.lmtp.filter.tnef;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -88,12 +91,14 @@ public class TnefFilter implements IMessageFilter {
 			return winmailDat.map(tnef -> {
 				Message fromTnef = rewriteWinmail(endpoint, env.getRecipients().get(0).getEmailAddress(),
 						(SingleBody) tnef.getBody());
-				// ensure the message-id from the original message is maintained
-				fromTnef.getHeader().setField(message.getHeader().getField("Message-ID"));
-				fromTnef.setTo(message.getTo());
-				fromTnef.setCc(message.getCc());
-				fromTnef.setFrom(message.getFrom());
-				logger.info("MAPI endpoint has rewritten '{}' from TNEF.", fromTnef.getSubject());
+				if (fromTnef != null) {
+					// ensure the message-id from the original message is maintained
+					fromTnef.getHeader().setField(message.getHeader().getField("Message-ID"));
+					fromTnef.setTo(message.getTo());
+					fromTnef.setCc(message.getCc());
+					fromTnef.setFrom(message.getFrom());
+					logger.info("MAPI endpoint has rewritten '{}' from TNEF.", fromTnef.getSubject());
+				}
 				return fromTnef;
 			}).orElse(null);
 		}
@@ -117,8 +122,20 @@ public class TnefFilter implements IMessageFilter {
 			post.setBody(read);
 			Response response = post.execute().get(20, TimeUnit.SECONDS);
 			byte[] freshEml = response.getResponseBodyAsBytes();
-			logger.info("Re-generated EML size is {} byte(s)", freshEml.length);
-			return Mime4JHelper.parse(new ByteArrayInputStream(freshEml));
+			if (freshEml.length == 0) {
+				Path copy = Files.createTempFile("winmail-lmtpd-unparsed", ".dat");
+				Files.write(copy, read, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING,
+						StandardOpenOption.WRITE);
+				logger.error(
+						"MAPI endpoint failed to analyse tnef, a copy was saved to {}. Mail will be delivered as-is.",
+						copy.toFile().getAbsolutePath());
+				return null;
+			} else {
+				logger.info("Re-generated EML size is {} byte(s)", freshEml.length);
+				return Mime4JHelper.parse(new ByteArrayInputStream(freshEml));
+			}
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		} finally {
