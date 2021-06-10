@@ -47,7 +47,7 @@ public class BaseDirEntry {
 	 * application
 	 */
 	@BMApi(version = "3")
-	public static enum AccountType {
+	public enum AccountType {
 		FULL, SIMPLE;
 	}
 
@@ -55,8 +55,30 @@ public class BaseDirEntry {
 	 * The kind of object the entry represents.
 	 */
 	@BMApi(version = "3")
-	public static enum Kind {
-		USER, GROUP, RESOURCE, MAILSHARE, CALENDAR, ADDRESSBOOK, DOMAIN, ORG_UNIT, EXTERNALUSER;
+	public enum Kind {
+		USER(true),
+
+		GROUP(true),
+
+		RESOURCE(true),
+
+		MAILSHARE(true),
+
+		CALENDAR, ADDRESSBOOK, DOMAIN, ORG_UNIT, EXTERNALUSER;
+
+		private final boolean mbox;
+
+		private Kind() {
+			this(false);
+		}
+
+		private Kind(boolean mbox) {
+			this.mbox = mbox;
+		}
+
+		public boolean hasMailbox() {
+			return true;
+		}
 	}
 
 	@Override
