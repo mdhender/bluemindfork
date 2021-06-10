@@ -41,7 +41,6 @@ import com.github.luben.zstd.RecyclingBufferPool;
 import com.github.luben.zstd.ZstdInputStream;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
-import io.vertx.core.Vertx;
 import software.amazon.awssdk.core.async.AsyncResponseTransformer;
 import software.amazon.awssdk.core.async.SdkPublisher;
 
@@ -54,7 +53,7 @@ public class ZstdResponseTransformer<T> implements AsyncResponseTransformer<T, T
 	private T response;
 	long transferred;
 
-	public ZstdResponseTransformer(Vertx vertx, String path) {
+	public ZstdResponseTransformer(String path) {
 		this.path = path;
 	}
 
@@ -104,6 +103,7 @@ public class ZstdResponseTransformer<T> implements AsyncResponseTransformer<T, T
 								ZstdInputStream decomp = new ZstdInputStream(toDecomp, RecyclingBufferPool.INSTANCE)) {
 							byte[] dec = new byte[8192];
 							while (true) {
+
 								int read = decomp.read(dec);
 								if (read == -1) {
 									break;

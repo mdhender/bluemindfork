@@ -35,10 +35,8 @@ import com.netflix.spectator.api.DistributionSummary;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.Timer;
 
-import io.vertx.core.Vertx;
 import net.bluemind.aws.s3.utils.S3ClientFactory;
 import net.bluemind.aws.s3.utils.S3Configuration;
-import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.sds.dto.DeleteRequest;
 import net.bluemind.sds.dto.ExistRequest;
@@ -218,8 +216,7 @@ public class S3Store implements ISdsBackingStore {
 	@Override
 	public CompletableFuture<SdsResponse> download(GetRequest req) {
 		final long start = clock.monotonicTime();
-		ZstdResponseTransformer<GetObjectResponse> prt = new ZstdResponseTransformer<>(VertxPlatform.getVertx(),
-				req.filename);
+		ZstdResponseTransformer<GetObjectResponse> prt = new ZstdResponseTransformer<>(req.filename);
 		return client.getObject(GetObjectRequest.builder().bucket(bucket).key(req.guid).build(), prt)
 				.exceptionally(ex -> null).thenApply(gor -> {
 					getLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
@@ -240,7 +237,6 @@ public class S3Store implements ISdsBackingStore {
 
 		int len = req.transfers.size();
 		final LongAdder totalSize = new LongAdder();
-		Vertx vx = VertxPlatform.getVertx();
 		int parallelStreams = 8;
 		CompletableFuture<?>[] roots = new CompletableFuture[parallelStreams];
 		for (int i = 0; i < parallelStreams; i++) {
@@ -250,7 +246,7 @@ public class S3Store implements ISdsBackingStore {
 		for (int i = 0; i < len; i++) {
 			int slot = i % parallelStreams;
 			Transfer t = it.next();
-			ZstdResponseTransformer<GetObjectResponse> pr = new ZstdResponseTransformer<>(vx, t.filename);
+			ZstdResponseTransformer<GetObjectResponse> pr = new ZstdResponseTransformer<>(t.filename);
 			roots[slot] = roots[slot].thenCompose(v -> client
 					.getObject(GetObjectRequest.builder().bucket(bucket).key(t.guid).build(), pr).exceptionally(x -> {
 						logger.warn(x.getMessage(), x);
