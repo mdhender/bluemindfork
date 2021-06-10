@@ -22,10 +22,15 @@ import java.util.List;
 import java.util.Set;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.group.member.IInCoreGroupMember;
 import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.User;
 
 public interface IInCoreUser extends IUser, IInCoreGroupMember {
+
+	ItemValue<User> getFull(String uid);
+
 	public boolean passwordUpdateNeeded(String login);
 
 	public boolean checkPassword(String login, String password) throws ServerFault;

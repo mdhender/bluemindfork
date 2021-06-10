@@ -303,7 +303,7 @@ public class UserService implements IInCoreUser, IUser {
 		eventProducer.changed(uid, user);
 	}
 
-	private ItemValue<User> getFull(String uid) throws ServerFault {
+	public ItemValue<User> getFull(String uid) throws ServerFault {
 		ItemValue<DirEntryAndValue<User>> itemValue = storeService.get(uid, null);
 		return asFullUser(itemValue);
 	}
