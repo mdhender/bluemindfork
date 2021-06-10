@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.core.backup.continuous.dto
+Bundle-SymbolicName: net.bluemind.core.backup.continuous.dto
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.core.container.api,
+ net.bluemind.group.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.core.backup.continuous.dto
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.core.backup.continuous.dto

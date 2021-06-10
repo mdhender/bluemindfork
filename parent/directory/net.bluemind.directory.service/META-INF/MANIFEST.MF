@@ -49,7 +49,8 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.user.hook,
  net.bluemind.user.api,
- com.github.ben-manes.caffeine
+ com.github.ben-manes.caffeine,
+ net.bluemind.directory.external;bundle-version="4.1.0"
 Export-Package: net.bluemind.directory.service,
  net.bluemind.directory.service.internal
 Bundle-Activator: net.bluemind.directory.service.DirectoryActivator

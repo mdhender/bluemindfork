@@ -38,7 +38,10 @@ import com.google.common.base.Suppliers;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.backup.continuous.DefaultBackupStore;
+import net.bluemind.core.backup.continuous.IBackupStore;
 import net.bluemind.core.container.api.Count;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ChangeLogEntry;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.Container;
@@ -68,7 +71,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 
 public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
-	public <T> T doOrFail(SqlOperation<T> op) {
+	public <W> W doOrFail(SqlOperation<W> op) {
 		return JdbcAbstractStore.doOrFail(op);
 	}
 
@@ -85,6 +88,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	private final IWeightSeedProvider<T> weightSeedProvider;
 	private final IWeightProvider weightProvider;
 	private Supplier<ContainerChangeEventProducer> containerChangeEventProducer;
+	private final IBackupStore<T> backupStream;
 
 	public static interface IItemFlagsProvider<W> {
 		Collection<ItemFlag> flags(W value);
@@ -111,6 +115,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		this.flagsProvider = fProv;
 		this.weightSeedProvider = wsProv;
 		this.weightProvider = wProv;
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		this.backupStream = DefaultBackupStore.get().forContainer(descriptor);
 		this.containerChangeEventProducer = Suppliers
 				.memoize(() -> new ContainerChangeEventProducer(securityContext, VertxPlatform.eventBus(), container));
 	}
@@ -233,6 +240,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			return null;
 		}
 		T value = getValue(item);
+		if (value == null) {
+			logger.warn("null value for existing item {}", item);
+		}
 		ItemValue<T> ret = ItemValue.create(item, value);
 		decorate(item, ret);
 		return ret;
@@ -295,6 +305,10 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				containerChangeEventProducer.get().produceEvent();
 			}
+
+			ItemValue<T> iv = ItemValue.create(item, value);
+			backupStream.store(iv);
+
 			return ItemUpdate.of(item);
 		});
 	}
@@ -351,6 +365,10 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				containerChangeEventProducer.get().produceEvent();
 			}
 			updateValue(item, value);
+
+			ItemValue<T> iv = ItemValue.create(item, value);
+			backupStream.store(iv);
+
 			return ItemUpdate.of(item);
 		});
 	}
@@ -380,6 +398,10 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				containerChangeEventProducer.get().produceEvent();
 			}
 			updateValue(item, value);
+
+			ItemValue<T> iv = ItemValue.create(item, value);
+			backupStream.store(iv);
+
 			return ItemUpdate.of(item);
 		});
 	}
@@ -415,6 +437,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				return null;
 			}
 			item = itemStore.touch(item.uid);
+			ItemValue<T> itemValue = getItemValue(item);
 			deleteValue(item);
 			if (hasChangeLog) {
 				changelogStore.itemDeleted(LogEntry.create(item.version, item.uid, item.externalId,
@@ -422,6 +445,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				containerChangeEventProducer.get().produceEvent();
 			}
 			itemStore.delete(item);
+
+			backupStream.delete(itemValue);
+
 			return ItemUpdate.of(item);
 		});
 	}
@@ -620,6 +646,10 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				T value = getValue(item);
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
+
+				ItemValue<T> iv = ItemValue.create(item, value);
+				backupStream.store(iv);
+
 				containerChangeEventProducer.get().produceEvent();
 			}
 			return null;

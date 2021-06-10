@@ -13,7 +13,9 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  com.google.guava,
  net.bluemind.core.caches.registry,
- com.github.ben-manes.caffeine
+ com.github.ben-manes.caffeine,
+ net.bluemind.hornetq.client,
+ net.bluemind.directory.external;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.backend.mail.replica.utils
 Bundle-ActivationPolicy: lazy

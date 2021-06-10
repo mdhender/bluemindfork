@@ -153,8 +153,7 @@ public class Containers implements IContainers {
 		final String location = loc;
 		final ContainerStore cs = new ContainerStore(null, ds, securityContext);
 		JdbcAbstractStore.doOrFail(() -> {
-			cs.create(container);
-			return null;
+			return cs.create(container);
 		});
 
 		JdbcAbstractStore.doOrFail(() -> {

@@ -54,8 +54,8 @@ public class InstallationId {
 				logger.error("error during reading mcast.id {}", e.getMessage(), e);
 			}
 		} else {
-			logger.warn("/etc/bm/mcast.id doesnt exists. mcastid will be {}", NO_ID);
-			identifier = NO_ID;
+			identifier = System.getProperty("bm.mcast.id", NO_ID);
+			logger.warn("/etc/bm/mcast.id doesnt exists. mcastid will be {}", identifier);
 		}
 	}
 }

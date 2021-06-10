@@ -33,14 +33,14 @@ public class ContainersHierarchyHook extends ContainersHookAdapter {
 
 	private static final Logger logger = LoggerFactory.getLogger(ContainersHierarchyHook.class);
 
-	private IInternalContainersFlatHierarchy hierarchy(BmContext ctx, ContainerDescriptor cd) {
-		if (cd.domainUid == null || cd.owner == null) {
+	private IInternalContainersFlatHierarchy hierarchy(BmContext ctx, ContainerDescriptor cd, DirEntry owner) {
+		if (cd.domainUid == null || cd.owner == null || "global.virt".equals(cd.domainUid)) {
 			return null;
 		}
 		try {
 			return ctx.provider().instance(IInternalContainersFlatHierarchy.class, cd.domainUid, cd.owner);
 		} catch (ServerFault sf) {
-			logger.warn("Missing hierarchy container {}", cd);
+			logger.warn("Missing hierarchy container {} for {}", cd, owner);
 			return null;
 		}
 	}
@@ -67,7 +67,7 @@ public class ContainersHierarchyHook extends ContainersHookAdapter {
 		if (owner == null) {
 			logger.warn("Owner not found in directory, Nothing to do on {} owned by {}", cd.uid, cd.owner);
 		} else {
-			IInternalContainersFlatHierarchy service = hierarchy(ctx, cd);
+			IInternalContainersFlatHierarchy service = hierarchy(ctx, cd, owner);
 			if (service != null) {
 				operation.accept(service, owner);
 			}

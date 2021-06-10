@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IFlatHierarchyUids;
+import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchyMgmt;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ContainersHierarchyNodeStore;
@@ -37,6 +38,8 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.container.service.internal.ContainersHierarchyEventProducer;
 import net.bluemind.core.container.service.internal.InternalContainersHierarchyService;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public abstract class CommonContainersHierarchyServiceFactory<T> {
@@ -60,8 +63,17 @@ public abstract class CommonContainersHierarchyServiceFactory<T> {
 		String containerUid = IFlatHierarchyUids.getIdentifier(ownerUid, domainUid);
 
 		DataSource ds = DataSourceRouter.get(context, containerUid);
+		boolean tryInit = false;
 		if (ds == context.getDataSource()) {
-			logger.warn("directory datasource selected for {}", containerUid);
+			DirEntry resolvedOwner = context.su().provider().instance(IDirectory.class, domainUid)
+					.findByEntryUid(ownerUid);
+			if (resolvedOwner != null && resolvedOwner.dataLocation != null) {
+				ds = context.getMailboxDataSource(resolvedOwner.dataLocation);
+				tryInit = true;
+			}
+			if (ds == context.getDataSource()) {
+				logger.warn("directory datasource selected for {}", containerUid);
+			}
 		}
 		ContainerStore containerStore = new ContainerStore(context, ds, context.getSecurityContext());
 
@@ -72,13 +84,25 @@ public abstract class CommonContainersHierarchyServiceFactory<T> {
 			throw new ServerFault(e);
 		}
 
+		if (container == null && tryInit) {
+			logger.warn("TryInit hierarchy for {} @ {}", ownerUid, domainUid);
+			IInternalContainersFlatHierarchyMgmt mgmt = context.su().provider()
+					.instance(IInternalContainersFlatHierarchyMgmt.class, domainUid, ownerUid);
+			mgmt.init();
+			try {
+				container = containerStore.get(containerUid);
+			} catch (SQLException e) {
+				throw new ServerFault(e);
+			}
+		}
+
 		if (container == null) {
 			throw ServerFault.notFound("cont hierarchy '" + containerUid + "' is missing");
 		}
 
 		ContainersHierarchyNodeStore itemValueStore = new ContainersHierarchyNodeStore(ds, container);
 		ContainerStoreService<ContainerHierarchyNode> storeService = new ContainerStoreService<>(ds,
-				context.getSecurityContext(), container, itemValueStore, flagsProvider, (v) -> 0L, seed -> seed);
+				context.getSecurityContext(), container, itemValueStore, flagsProvider, v -> 0L, seed -> seed);
 
 		ContainersHierarchyEventProducer events = new ContainersHierarchyEventProducer(domainUid, ownerUid,
 				VertxPlatform.eventBus());

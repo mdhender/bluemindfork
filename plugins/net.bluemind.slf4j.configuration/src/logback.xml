@@ -28,6 +28,9 @@
 	<!-- logger name="net.bluemind.core.rest" level="DEBUG"/ -->
 
 	<logger name="net.bluemind.core.rest.base.ClientProxyGenerator" level="ERROR" />
+	
+	<logger name="org.apache.kafka.clients" level="WARN" />
+	<logger name="org.apache.kafka.common" level="WARN" />
 
 	
 	<logger name="OSGI" level="ERROR" />

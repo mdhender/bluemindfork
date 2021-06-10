@@ -1,5 +1,6 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
+import java.io.File;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,6 +23,8 @@ import net.bluemind.network.topology.Topology;
 public class CyrusValidationService implements ICyrusValidation {
 	private static final Logger logger = LoggerFactory.getLogger(CyrusValidationService.class);
 	private static final String DEFAULT_PARTITION = "default";
+
+	private static final boolean CLONE_MARKER = new File("/etc/bm/continuous.clone").exists();
 
 	private final BmContext ctx;
 
@@ -60,7 +63,7 @@ public class CyrusValidationService implements ICyrusValidation {
 		if (DEFAULT_PARTITION.equals(cleanPart)) {
 			return false;
 		} else {
-			return validatePartition(partition, box.partition.replace('_', '.')) && validateName(box);
+			return CLONE_MARKER || (validatePartition(partition, box.partition.replace('_', '.')) && validateName(box));
 		}
 	}
 

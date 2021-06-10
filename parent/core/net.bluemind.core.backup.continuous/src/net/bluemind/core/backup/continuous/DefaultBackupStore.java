@@ -1,0 +1,63 @@
+/* BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2021
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+package net.bluemind.core.backup.continuous;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.annotations.VisibleForTesting;
+
+import net.bluemind.core.backup.continuous.impl.BackupStoreFactory;
+import net.bluemind.core.backup.continuous.store.ITopicStore;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
+
+public class DefaultBackupStore {
+
+	private static final Logger logger = LoggerFactory.getLogger(DefaultBackupStore.class);
+
+	@VisibleForTesting
+	public static boolean disabled = false;
+
+	private static final ITopicStore active = load();
+
+	private static final ITopicStore load() {
+		RunnableExtensionLoader<ITopicStore> rel = new RunnableExtensionLoader<>();
+		List<ITopicStore> stores = rel.loadExtensionsWithPriority("net.bluemind.core.backup.continuous", "store",
+				"store", "impl");
+		for (ITopicStore loaded : stores) {
+			if (loaded.isEnabled()) {
+				logger.info("Selected backup store is {}", loaded);
+				return loaded;
+			} else {
+				logger.warn("Loaded {} but it is not enabled", loaded);
+			}
+		}
+		logger.warn("NOOP store for backup");
+		return NoopStore.NOOP;
+	}
+
+	private DefaultBackupStore() {
+	}
+
+	public static IBackupStoreFactory get() {
+		return new BackupStoreFactory(active, disabled);
+	}
+
+}

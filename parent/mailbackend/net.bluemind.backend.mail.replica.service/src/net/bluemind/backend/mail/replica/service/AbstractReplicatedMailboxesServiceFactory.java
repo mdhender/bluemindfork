@@ -23,6 +23,7 @@
 package net.bluemind.backend.mail.replica.service;
 
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -81,7 +82,7 @@ public abstract class AbstractReplicatedMailboxesServiceFactory<T>
 				throw ServerFault.notFound("Container " + uid + " is missing.");
 			}
 			MailboxReplicaStore mboxReplicaStore = new MailboxReplicaStore(ds, foldersContainer, partition.domainUid);
-			mailboxRoot.dataLocation = datalocation;
+			mailboxRoot.dataLocation = Optional.ofNullable(datalocation).orElse(partition.serverUid);
 			ContainerStoreService<MailboxReplica> storeService = new ContainerStoreService<>(ds,
 					context.getSecurityContext(), foldersContainer, mboxReplicaStore, flagProvider, weightSeedProvider,
 					seed -> seed);

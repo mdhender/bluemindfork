@@ -34,6 +34,8 @@ import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.directory.external.ExternalDirectories;
+import net.bluemind.directory.external.IExternalDirectory;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 
@@ -85,6 +87,15 @@ public class SubtreeContainer {
 			ItemValue<Mailbox> mboxIv = mboxApi.byName(nameOrUid);
 			if (mboxIv == null) {
 				mboxIv = mboxApi.getComplete(nameOrUid);
+			}
+			if (mboxIv == null) {
+				ExternalDirectories dirs = new ExternalDirectories(domainUid);
+				for (IExternalDirectory ed : dirs.dirs()) {
+					mboxIv = ed.findByName(nameOrUid);
+					if (mboxIv != null) {
+						break;
+					}
+				}
 			}
 			if (mboxIv == null) {
 				throw new ServerFault(

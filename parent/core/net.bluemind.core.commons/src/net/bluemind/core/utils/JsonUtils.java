@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.DateSerializer;
@@ -152,6 +153,27 @@ public class JsonUtils {
 
 	public static ByteBuf asBuffer(Object o) {
 		return Unpooled.wrappedBuffer(asBytes(o));
+	}
+
+	public static class ValueWriter {
+		private final ObjectWriter writer;
+
+		public ValueWriter(ObjectWriter writer) {
+			this.writer = writer;
+		}
+
+		public byte[] write(Object o) {
+			try {
+				return writer.writeValueAsBytes(o);
+			} catch (JsonProcessingException e) {
+				throw new ServerFault(e);
+			}
+		}
+	}
+
+	public static ValueWriter writer(Type t) {
+		ObjectWriter writer = objectMapper.writerFor(objectMapper.getTypeFactory().constructType(t));
+		return new ValueWriter(writer);
 	}
 
 	public static byte[] asBytes(Object o) {

@@ -30,6 +30,8 @@ import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.InternalOwnerSubscriptionsService;
 import net.bluemind.core.container.service.internal.OwnerSubscriptionsEventProducer;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public abstract class CommonOwnerSubscriptionsServiceFactory<T> {
@@ -46,9 +48,15 @@ public abstract class CommonOwnerSubscriptionsServiceFactory<T> {
 		String containerUid = IOwnerSubscriptionUids.getIdentifier(ownerUid, domainUid);
 
 		DataSource ds = DataSourceRouter.get(context, containerUid);
-		// Don't check for a sharded DB here. Normally, the container is sharded, but
+		// Don't enforce a sharded DB here. Normally, the container is sharded, but
 		// due to unknown reasons, the container
 		// sometimes is present in the directory database
+		if (ds == context.getDataSource()) {
+			DirEntry entry = context.su().provider().instance(IDirectory.class, domainUid).findByEntryUid(ownerUid);
+			if (entry != null && entry.dataLocation != null) {
+				ds = context.getMailboxDataSource(entry.dataLocation);
+			}
+		}
 		ContainerStore containerStore = new ContainerStore(context, ds, context.getSecurityContext());
 
 		Container container = null;

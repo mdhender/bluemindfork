@@ -25,8 +25,8 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy;
 import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchyMgmt;
 import net.bluemind.core.container.model.Container;
@@ -52,15 +52,23 @@ public class InternalContainersHierarchyMgmtService implements IInternalContaine
 
 	@Override
 	public void init() {
-		logger.info("***** Containers hierarchy init for owner: {} domainUid: {}", ownerUid, domainUid);
 		String hierUid = IFlatHierarchyUids.getIdentifier(ownerUid, domainUid);
 		DataSource ds = context.getDataSource();
 		IDirectory dirApi = context.provider().instance(IDirectory.class, domainUid);
 		DirEntry entry = dirApi.findByEntryUid(ownerUid);
+		String loc = null;
 		if (entry != null && entry.dataLocation != null) {
+			loc = entry.dataLocation;
 			ds = context.getMailboxDataSource(entry.dataLocation);
 			Objects.requireNonNull(ds, "Missing datasource for " + entry.dataLocation);
 		}
+		final String resolvedLoc = loc;
+
+		if (entry != null && entry.dataLocation == null && entry.kind.hasMailbox()) {
+			logger.warn("Skip for now as {} has no datalocation", entry);
+			return;
+		}
+
 		ContainerStore store = new ContainerStore(context, ds, context.getSecurityContext());
 		ContainerStore dirStore = new ContainerStore(context, context.getDataSource(), context.getSecurityContext());
 		Container hierCont = Container.create(hierUid, IFlatHierarchyUids.TYPE,
@@ -75,11 +83,13 @@ public class InternalContainersHierarchyMgmtService implements IInternalContaine
 			} else {
 				store.updateName(hierCont.uid, hierCont.name);
 			}
-			if (entry != null && entry.dataLocation != null) {
-				dirStore.createContainerLocation(hierCont, entry.dataLocation);
+			if (resolvedLoc != null) {
+				dirStore.createContainerLocation(hierCont, resolvedLoc);
 			}
 			return null;
 		});
+		logger.info("***** Containers hierarchy init for owner: {} domainUid: {}, loc: {}", ownerUid, domainUid,
+				resolvedLoc);
 	}
 
 	@Override
@@ -87,11 +97,13 @@ public class InternalContainersHierarchyMgmtService implements IInternalContaine
 		logger.info("***** Containers hierarchy delete for owner: {} domainUid: {}", ownerUid, domainUid);
 		String hierUid = IFlatHierarchyUids.getIdentifier(ownerUid, domainUid);
 		IContainers contApi = context.provider().instance(IContainers.class);
-		ContainerDescriptor cd = contApi.get(hierUid);
-		IInternalContainersFlatHierarchy hierApi = context.provider().instance(IInternalContainersFlatHierarchy.class,
-				cd.domainUid, cd.owner);
-		hierApi.reset();
-		contApi.delete(hierUid);
+		ContainerDescriptor cd = contApi.getIfPresent(hierUid);
+		if (cd != null) {
+			IInternalContainersFlatHierarchy hierApi = context.provider()
+					.instance(IInternalContainersFlatHierarchy.class, cd.domainUid, cd.owner);
+			hierApi.reset();
+			contApi.delete(hierUid);
+		}
 	}
 
 }

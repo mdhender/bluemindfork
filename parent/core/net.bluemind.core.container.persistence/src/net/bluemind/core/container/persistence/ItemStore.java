@@ -114,24 +114,24 @@ public class ItemStore extends JdbcAbstractStore {
 				+ "  " //
 				+ "( SELECT " + itemIdSeq + ", " + container.id + ", ?, nv.seq, ?, ?, ?, ?, now(), now(), ? FROM nv )  " //
 				+ " RETURNING " + COLUMNS.names();
-
-		return insertAndReturn(insertQuery, item, Arrays.asList((con, statement, index, rowIndex, value) -> {
-			String principal = getPrincipal();
-			statement.setLong(index++, container.id);
-			statement.setString(index++, item.uid);
-			statement.setString(index++, item.externalId);
-			statement.setString(index++, item.displayName);
-			statement.setString(index++, principal);
-			statement.setString(index++, principal);
-			statement.setInt(index++, ItemFlag.value(item.flags));
-			return index;
-		}), ItemCreator.INSTANCE, ITEM_POPULATOR);
+		return insertAndReturn(insertQuery, item,
+				Collections.singletonList((con, statement, index, rowIndex, value) -> {
+					String principal = getPrincipal();
+					statement.setLong(index++, container.id);
+					statement.setString(index++, item.uid);
+					statement.setString(index++, item.externalId);
+					statement.setString(index++, item.displayName);
+					statement.setString(index++, principal);
+					statement.setString(index++, principal);
+					statement.setInt(index++, ItemFlag.value(item.flags));
+					return index;
+				}), ItemCreator.INSTANCE, ITEM_POPULATOR);
 	}
 
 	public int count(ItemFlagFilter filter) throws SQLException {
 		String q = "SELECT COUNT(*) FROM t_container_item ci WHERE container_id=" + container.id;
 		q += FlagsSqlFilter.filterSql("ci", filter);
-		return unique(q, (rs) -> rs.getInt(1), (rs, index, v) -> index);
+		return unique(q, rs -> rs.getInt(1), (rs, index, v) -> index);
 	}
 
 	public Item createWithUidNull(Item item) throws SQLException {
@@ -146,7 +146,7 @@ public class ItemStore extends JdbcAbstractStore {
 				+ " nv.zid, " + container.id + ", nv.zid, nv.seq, ?, ?, ?, ?, now(), now(), ? FROM nv ) " //
 				+ " RETURNING " + COLUMNS.names();
 
-		return insertAndReturn(iQ, item, Arrays.asList((con, statement, index, rowIndex, value) -> {
+		return insertAndReturn(iQ, item, Collections.singletonList((con, statement, index, rowIndex, value) -> {
 			String principal = getPrincipal();
 			statement.setLong(index++, container.id);
 			statement.setString(index++, value.externalId);
@@ -167,7 +167,7 @@ public class ItemStore extends JdbcAbstractStore {
 
 	public Item update(String uid, final String displayName) throws SQLException {
 
-		return insertAndReturn(UPDATE_QUERY, uid, Arrays.asList((con, statement, index, rowIndex, uid1) -> {
+		return insertAndReturn(UPDATE_QUERY, uid, Collections.singletonList((con, statement, index, rowIndex, uid1) -> {
 			String principal = getPrincipal();
 			statement.setLong(index++, container.id);
 			statement.setString(index++, principal);
@@ -186,7 +186,7 @@ public class ItemStore extends JdbcAbstractStore {
 				+ "( nv.seq, ?,  now(), ?) from nv WHERE container_id = ? and uid = ? " //
 				+ " RETURNING " + COLUMNS.names();
 
-		return insertAndReturn(updateQuery, uid, Arrays.asList((con, statement, index, rowIndex, uid1) -> {
+		return insertAndReturn(updateQuery, uid, Collections.singletonList((con, statement, index, rowIndex, uid1) -> {
 			String principal = getPrincipal();
 			statement.setLong(index++, container.id);
 			statement.setString(index++, principal);
@@ -204,7 +204,7 @@ public class ItemStore extends JdbcAbstractStore {
 				+ " ( version, updatedby,  updated,displayname,flags) " + " = " //
 				+ "( nv.seq, ?,  now(), ?, ?) from nv WHERE container_id = ? and uid = ? RETURNING " + COLUMNS.names();
 
-		return insertAndReturn(updateQuery, uid, Arrays.asList((con, statement, index, rowIndex, uid1) -> {
+		return insertAndReturn(updateQuery, uid, Collections.singletonList((con, statement, index, rowIndex, uid1) -> {
 			String principal = getPrincipal();
 			statement.setLong(index++, container.id);
 			statement.setString(index++, principal);
@@ -224,7 +224,7 @@ public class ItemStore extends JdbcAbstractStore {
 				+ " ( version, updatedby,  updated,displayname,flags) " + " = " //
 				+ "( nv.seq, ?,  now(), ?, ?) FROM nv WHERE container_id = ? AND id = ? RETURNING " + COLUMNS.names();
 
-		return insertAndReturn(updateQuery, id, Arrays.asList((con, statement, index, rowIndex, id1) -> {
+		return insertAndReturn(updateQuery, id, Collections.singletonList((con, statement, index, rowIndex, id1) -> {
 			String principal = getPrincipal();
 			statement.setLong(index++, container.id);
 			statement.setString(index++, principal);
@@ -245,7 +245,7 @@ public class ItemStore extends JdbcAbstractStore {
 				+ "( nv.seq, ?,  now()) FROM nv WHERE container_id = ? and uid = ? " //
 				+ " RETURNING " + COLUMNS.names();
 
-		return insertAndReturn(updateQuery, uid, Arrays.asList((con, statement, index, rowIndex, uid1) -> {
+		return insertAndReturn(updateQuery, uid, Collections.singletonList((con, statement, index, rowIndex, uid1) -> {
 			String principal = getPrincipal();
 			statement.setLong(index++, container.id);
 			statement.setString(index++, principal);

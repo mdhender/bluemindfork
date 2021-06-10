@@ -27,5 +27,6 @@ Require-Bundle: net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.role.api,
  net.bluemind.user.persistence,
  net.bluemind.core.container.sharding,
- net.bluemind.config
+ net.bluemind.config,
+ net.bluemind.core.backup.continuous;visibility:=reexport
 Automatic-Module-Name: net.bluemind.core.container.service

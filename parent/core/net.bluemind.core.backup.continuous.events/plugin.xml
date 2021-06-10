@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="net.bluemind.core.container.hooks.container">
+      <hook
+            impl="net.bluemind.core.backup.continuous.events.ContainersContinuousHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.core.container.hooks.aclhook">
+      <acl_hook
+            impl="net.bluemind.core.backup.continuous.events.ContainersContinuousHook">
+      </acl_hook>
+   </extension>
+   <extension
+         point="net.bluemind.system.hook">
+      <observer
+            class="net.bluemind.core.backup.continuous.events.SysconfContinuousHook">
+      </observer>
+   </extension>
+   <extension
+         point="net.bluemind.group.hook.grouphook">
+      <hook
+            impl="net.bluemind.core.backup.continuous.events.MembershipsContinuousHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.core.backup.continuous.events.BubbleEventsVerticle$Factory">
+      </verticle>
+   </extension>
+
+</plugin>

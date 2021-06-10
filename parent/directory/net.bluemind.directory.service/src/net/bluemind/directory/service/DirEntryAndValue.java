@@ -18,6 +18,8 @@
  */
 package net.bluemind.directory.service;
 
+import com.google.common.base.MoreObjects;
+
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.mailbox.api.Mailbox;
@@ -34,6 +36,11 @@ public class DirEntryAndValue<T> {
 		this.value = value;
 		this.vcard = vcard;
 		this.mailbox = mailbox;
+	}
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(DirEntryAndValue.class).add("entry", entry).add("value", value).toString();
 	}
 
 }

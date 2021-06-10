@@ -78,6 +78,8 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirEntryPath;
+import net.bluemind.directory.external.ExternalDirectories;
+import net.bluemind.directory.external.IExternalDirectory;
 import net.bluemind.directory.persistence.ManageableOrgUnit;
 import net.bluemind.directory.service.DirEntryHandler;
 import net.bluemind.directory.service.DirEntryHandlers;
@@ -99,13 +101,15 @@ import net.bluemind.todolist.api.ITodoList;
 public class Directory {
 
 	private static final Logger logger = LoggerFactory.getLogger(Directory.class);
-	private BmContext context;
-	private DirEntryStoreService itemStore;
-	private String domainUid;
-	private RBACManager rbacManager;
-	private ItemValue<Domain> domain;
-	private DirEntriesCache cache;
-	private RoleStore roleStore;
+
+	private final BmContext context;
+	private final DirEntryStoreService itemStore;
+	private final String domainUid;
+	private final RBACManager rbacManager;
+	private final ItemValue<Domain> domain;
+	private final DirEntriesCache cache;
+	private final RoleStore roleStore;
+	private final List<IExternalDirectory> externalDirSource;
 
 	public Directory(BmContext context, Container dirContainer, ItemValue<Domain> domain) {
 		this.domainUid = domain.uid;
@@ -115,6 +119,7 @@ public class Directory {
 		this.roleStore = new RoleStore(context.getDataSource(), dirContainer);
 		this.domain = domain;
 		cache = DirEntriesCache.get(context, domainUid);
+		externalDirSource = new ExternalDirectories(domainUid).dirs();
 	}
 
 	public ItemValue<DirEntry> getRoot() throws ServerFault {
@@ -124,7 +129,17 @@ public class Directory {
 
 	public ItemValue<DirEntry> findByEntryUid(String entryUid) throws ServerFault {
 		checkReadAccess();
-		return cache.get(entryUid, () -> itemStore.get(entryUid, null));
+		ItemValue<DirEntry> ret = cache.get(entryUid, () -> itemStore.get(entryUid, null));
+		if (ret == null || ret.value == null) {
+			for (IExternalDirectory ext : externalDirSource) {
+				ret = ext.findByEntryUid(entryUid);
+				if (ret != null) {
+					logger.info("EXT Resolved {} with {} => {}", entryUid, ext, ret);
+					break;
+				}
+			}
+		}
+		return ret;
 	}
 
 	public ItemValue<DirEntry> getEntry(String path) throws ServerFault {
@@ -142,7 +157,7 @@ public class Directory {
 		checkReadAccess();
 
 		List<ItemValue<DirEntry>> res = itemStore.getEntries(path);
-		if (res.size() == 0) {
+		if (res.isEmpty()) {
 			throw new ServerFault("entry " + path + " doesnt exists", ErrorCode.NOT_FOUND);
 		} else if (res.size() > 1) {
 			throw new ServerFault("entry " + path + " has children", ErrorCode.INVALID_QUERY);

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.core.backup.continuous.store" name="store" schema="schema/net.bluemind.core.backup.continuous.store.exsd"/>
+
+</plugin>

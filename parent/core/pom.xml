@@ -64,6 +64,16 @@
 		<module>net.bluemind.core.tests.testshelper</module>
 		<module>net.bluemind.core.validator.tests</module>
 		<module>net.bluemind.core.validator</module>
+
+		<module>net.bluemind.core.backup.continuous</module>
+		<module>net.bluemind.core.backup.continuous.dto</module>
+		<module>net.bluemind.core.backup.continuous.clone</module>
+		<module>net.bluemind.core.backup.continuous.directory</module>
+		<module>net.bluemind.core.backup.continuous.events</module>
+		<module>net.bluemind.core.backup.continuous.tests</module>
+		<module>net.bluemind.core.backup.store.kafka</module>
+		<module>net.bluemind.core.backup.store.kafka.tests</module>
+
 		<module>net.bluemind.i18n.labels</module>
 		<module>net.bluemind.i18n.labels.tests</module>
 	</modules>

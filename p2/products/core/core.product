@@ -134,6 +134,11 @@
       <plugin id="net.bluemind.content.analysis"/>
       <plugin id="net.bluemind.core.annotationvalidator"/>
       <plugin id="net.bluemind.core.auditlog"/>
+      <plugin id="net.bluemind.core.backup.continuous"/>
+      <plugin id="net.bluemind.core.backup.continuous.directory"/>
+      <plugin id="net.bluemind.core.backup.continuous.dto"/>
+      <plugin id="net.bluemind.core.backup.continuous.events"/>
+      <plugin id="net.bluemind.core.backup.store.kafka"/>
       <plugin id="net.bluemind.core.bo.report.provider"/>
       <plugin id="net.bluemind.core.caches.registry"/>
       <plugin id="net.bluemind.core.commons"/>
@@ -197,6 +202,7 @@
       <plugin id="net.bluemind.device.sqlschema"/>
       <plugin id="net.bluemind.device.userdevice"/>
       <plugin id="net.bluemind.directory.api"/>
+      <plugin id="net.bluemind.directory.external"/>
       <plugin id="net.bluemind.directory.hollow.datamodel"/>
       <plugin id="net.bluemind.directory.hollow.datamodel.consumer"/>
       <plugin id="net.bluemind.directory.hollow.datamodel.producer"/>
@@ -269,6 +275,7 @@
       <plugin id="net.bluemind.imap.vertx"/>
       <plugin id="net.bluemind.jdbc.driver.pgsql" fragment="true"/>
       <plugin id="net.bluemind.jdbc.pgsql.provider"/>
+      <plugin id="net.bluemind.kafka.client"/>
       <plugin id="net.bluemind.ldap.directory.client"/>
       <plugin id="net.bluemind.lib.elasticsearch"/>
       <plugin id="net.bluemind.lib.ical4j"/>

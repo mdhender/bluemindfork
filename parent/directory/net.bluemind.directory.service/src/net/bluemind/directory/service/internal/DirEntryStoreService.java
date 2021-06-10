@@ -156,7 +156,7 @@ public class DirEntryStoreService extends BaseDirStoreService<DirEntry> {
 	@Override
 	protected void decorate(Item item, ItemValue<DirEntry> value) throws ServerFault {
 		if (value.value == null) {
-			logger.warn("no direntry for {}!!", item.uid);
+			logger.warn("[{}] no direntry for '{}' !!", domainUid, item.uid);
 			return;
 		}
 		if (value.value.orgUnitUid != null) {

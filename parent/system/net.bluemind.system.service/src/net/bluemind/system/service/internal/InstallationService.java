@@ -21,6 +21,7 @@ package net.bluemind.system.service.internal;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.sql.SQLException;
@@ -168,8 +169,15 @@ public class InstallationService implements IInstallation {
 		if (f.exists()) {
 			logger.warn("mcast.id is already present, we create a new installation on an existing one !");
 		}
+		File clone = new File("/etc/bm/mcast.id.clone");
+
 		try {
-			Files.write(f.toPath(), UUID.randomUUID().toString().getBytes());
+			if (clone.exists()) {
+				logger.info("Using mcast.id.clone for installation");
+				Files.move(clone.toPath(), f.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			} else {
+				Files.write(f.toPath(), UUID.randomUUID().toString().getBytes());
+			}
 			InstallationId.reload();
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
