@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.directory.external
+Bundle-SymbolicName: net.bluemind.directory.external;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.directory.api,
+ net.bluemind.eclipse.common,
+ slf4j.api;bundle-version="1.7.30"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.directory.external
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.directory.external
+Import-Package: net.bluemind.mailbox.api
