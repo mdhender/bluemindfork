@@ -165,7 +165,7 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 		if (target.equals("all")) {
 			domainUids.addAll(cliUtils.getDomainUids());
 		} else {
-			domainUids.add(cliUtils.getDomainUidFromEmailOrDomain(target));
+			domainUids.add(cliUtils.getDomainUidByEmailOrDomain(target));
 			email = getDefaultEmailFromTarget(domainUids.get(0));
 		}
 

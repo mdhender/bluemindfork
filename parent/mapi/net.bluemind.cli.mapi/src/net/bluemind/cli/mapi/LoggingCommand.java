@@ -63,7 +63,7 @@ public class LoggingCommand implements ICmdLet, Runnable {
 			return;
 		}
 		CliUtils cliUtils = new CliUtils(ctx);
-		String domainUid = cliUtils.getDomainUidFromEmailOrDomain(target);
+		String domainUid = cliUtils.getDomainUidByEmailOrDomain(target);
 
 		IMailboxes boxApi = ctx.adminApi().instance(IMailboxes.class, domainUid);
 		ItemValue<Mailbox> mailbox = boxApi.byEmail(target);

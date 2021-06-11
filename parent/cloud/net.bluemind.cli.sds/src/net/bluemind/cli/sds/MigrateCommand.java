@@ -69,7 +69,7 @@ public class MigrateCommand implements ICmdLet, Runnable {
 			System.exit(1);
 		}
 		CliUtils cliUtils = new CliUtils(ctx);
-		String domain = cliUtils.getDomainUidFromDomain(targetDomain);
+		String domain = cliUtils.getDomainUidByDomain(targetDomain);
 		try {
 			String currentServer = new String(Files.readAllBytes(Paths.get("/etc/bm/server.uid")));
 			CyrusPartition partition = CyrusPartition.forServerAndDomain(currentServer, domain);

@@ -70,7 +70,7 @@ public class UserLogoutCommand implements ICmdLet, Runnable {
 			throw new CliException(String.format("Invalid email : %", email));
 		}
 
-		String domainUid = cliUtils.getDomainUidFromEmail(email);
+		String domainUid = cliUtils.getDomainUidByEmail(email);
 		IUser userApi = ctx.adminApi().instance(IUser.class, domainUid);
 		ItemValue<User> user = userApi.byEmail(email);
 		if (user == null) {

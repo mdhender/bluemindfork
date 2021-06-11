@@ -79,7 +79,7 @@ public class ResetCalendarCommand implements ICmdLet, Runnable {
 			throw new CliException("invalid email : " + email);
 		}
 
-		String userUid = cliUtils.getUserUidFromEmail(email);
+		String userUid = cliUtils.getUserUidByEmail(email);
 
 		if (calendarUid == null) {
 			calendarUid = ICalendarUids.defaultUserCalendar(userUid);

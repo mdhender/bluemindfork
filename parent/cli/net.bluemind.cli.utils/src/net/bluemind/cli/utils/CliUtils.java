@@ -40,24 +40,37 @@ public class CliUtils {
 		}
 	}
 
-	public String getDomainUidFromEmailOrDomain(String s) {
+	public String getDomainUidByEmailOrDomain(String s) {
 		if (s != null && s.contains("@")) {
-			return getDomainUidFromEmail(s);
+			return getDomainUidByEmail(s);
 		} else {
-			return getDomainUidFromDomain(s);
+			return getDomainUidByDomain(s);
 		}
 	}
 
-	public String getDomainUidFromEmail(String email) {
-		return getDomainUidFromDomain(email.split("@")[1]);
+	public String getDomainUidByEmail(String email) {
+		return getDomainUidByDomain(email.split("@")[1]);
 	}
 
-	public String getDomainUidFromDomain(String domainString) {
-		return getDomainUidFromDomainIfPresent(domainString)
+	public String getDomainUidByDomain(String domainString) {
+		return getDomainUidByDomainIfPresent(domainString)
 				.orElseThrow(() -> new CliException("Invalid or unknown domain : " + domainString));
 	}
 
-	public Optional<String> getDomainUidFromDomainIfPresent(String domainString) {
+	public Optional<ItemValue<Domain>> getDomain(String domainString) {
+		String domainName = domainString;
+		if (domainName != null && domainName.contains("@")) {
+			domainName = domainString.split("@")[1];
+		}
+		IDomains domainService = cliContext.adminApi().instance(IDomains.class);
+		ItemValue<Domain> domain = domainService.findByNameOrAliases(domainName);
+		if (domain == null) {
+			cliContext.error("Domain " + domainString + " not found");
+		}
+		return Optional.ofNullable(domain);
+	}
+
+	public Optional<String> getDomainUidByDomainIfPresent(String domainString) {
 		if ("global.virt".equals(domainString)) {
 			return Optional.of(domainString);
 		}
@@ -72,8 +85,8 @@ public class CliUtils {
 				.filter(domainUid -> !domainUid.equals("global.virt")).collect(Collectors.toList());
 	}
 
-	public String getUserUidFromEmail(String email) {
-		String domainUid = getDomainUidFromEmail(email);
+	public String getUserUidByEmail(String email) {
+		String domainUid = getDomainUidByEmail(email);
 		IMailboxes mboxApi = cliContext.adminApi().instance(IMailboxes.class, domainUid);
 		ItemValue<Mailbox> resolved = mboxApi.byEmail(email);
 		if (resolved == null) {
@@ -82,8 +95,8 @@ public class CliUtils {
 		return resolved.uid;
 	}
 
-	public ResolvedMailbox getMailboxFromEmail(String email) {
-		String domainUid = getDomainUidFromEmail(email);
+	public ResolvedMailbox getMailboxByEmail(String email) {
+		String domainUid = getDomainUidByEmail(email);
 		IMailboxes mboxApi = cliContext.adminApi().instance(IMailboxes.class, domainUid);
 		ItemValue<Mailbox> resolved = mboxApi.byEmail(email);
 		if (resolved == null) {

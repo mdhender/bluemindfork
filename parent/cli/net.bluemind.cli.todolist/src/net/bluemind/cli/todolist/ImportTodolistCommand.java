@@ -80,7 +80,7 @@ public class ImportTodolistCommand implements ICmdLet, Runnable {
 			throw new CliException("invalid email : " + email);
 		}
 
-		String userUid = cliUtils.getUserUidFromEmail(email);
+		String userUid = cliUtils.getUserUidByEmail(email);
 
 		File file = icsFilePath.toFile();
 		if (!file.exists() || file.isDirectory()) {

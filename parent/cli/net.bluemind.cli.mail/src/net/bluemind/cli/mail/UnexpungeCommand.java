@@ -80,7 +80,7 @@ public class UnexpungeCommand implements ICmdLet, Runnable {
 	@Override
 	public void run() {
 		CliUtils cu = new CliUtils(ctx);
-		ResolvedMailbox resolved = cu.getMailboxFromEmail(target);
+		ResolvedMailbox resolved = cu.getMailboxByEmail(target);
 		if (resolved.mailbox.value.type != Type.user && authN == null) {
 			throw new CliException("To recover from " + resolved.mailbox
 					+ " you need to specify --authn with the alias of a user with write perms on the mailbox");
@@ -89,7 +89,7 @@ public class UnexpungeCommand implements ICmdLet, Runnable {
 		if (resolved.mailbox.value.type == Type.user) {
 			authN = resolved.mailbox.value.name + "@" + resolved.domainUid;
 		} else {
-			ResolvedMailbox resolveAuth = cu.getMailboxFromEmail(authN);
+			ResolvedMailbox resolveAuth = cu.getMailboxByEmail(authN);
 			if (resolveAuth.mailbox.value.type != Type.user) {
 				throw new CliException("--authn must match a valid user alias");
 			}

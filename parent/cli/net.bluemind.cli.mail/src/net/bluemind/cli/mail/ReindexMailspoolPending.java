@@ -57,6 +57,7 @@ import picocli.CommandLine.Command;
 @Command(name = "reindexpending", description = "Reindex mailspool_pending in a new index")
 public class ReindexMailspoolPending implements ICmdLet, Runnable {
 
+	@SuppressWarnings("serial")
 	private class ReindexException extends RuntimeException {
 		ReindexException(String message) {
 			super(message);

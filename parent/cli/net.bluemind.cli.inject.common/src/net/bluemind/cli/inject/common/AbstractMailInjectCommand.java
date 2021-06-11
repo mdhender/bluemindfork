@@ -55,7 +55,7 @@ public abstract class AbstractMailInjectCommand implements ICmdLet, Runnable {
 	@Override
 	public void run() {
 		CliUtils cli = new CliUtils(ctx);
-		String domUid = cli.getDomainUidFromDomain(domain);
+		String domUid = cli.getDomainUidByDomain(domain);
 		if (domUid == null) {
 			throw new ServerFault("domain " + domain + " not found");
 		}

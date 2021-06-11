@@ -87,8 +87,8 @@ public class DeduplicateAddressBookCommand implements ICmdLet, Runnable {
 			throw new CliException("Invalid email : " + email);
 		}
 
-		String domain = cliUtils.getDomainUidFromEmailOrDomain(email);
-		String userUid = cliUtils.getUserUidFromEmail(email);
+		String domain = cliUtils.getDomainUidByEmailOrDomain(email);
+		String userUid = cliUtils.getUserUidByEmail(email);
 
 		if (addressBookUid == null) {
 			addressBookUid = IAddressBookUids.collectedContactsUserAddressbook(userUid);

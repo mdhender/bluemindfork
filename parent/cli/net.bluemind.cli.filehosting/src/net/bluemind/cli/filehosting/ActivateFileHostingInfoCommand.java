@@ -149,7 +149,7 @@ public class ActivateFileHostingInfoCommand implements ICmdLet, Runnable {
 	private List<String> getDomains() {
 		List<String> domains = new ArrayList<>();
 		if (domain != null) {
-			domains.add(new CliUtils(ctx).getDomainUidFromDomain(domain));
+			domains.add(new CliUtils(ctx).getDomainUidByDomain(domain));
 		} else {
 			IDomains domainService = ctx.adminApi().instance(IDomains.class);
 			domains.addAll(domainService.all().stream().filter(d -> !d.uid.endsWith("global.virt")).map(d -> d.uid)

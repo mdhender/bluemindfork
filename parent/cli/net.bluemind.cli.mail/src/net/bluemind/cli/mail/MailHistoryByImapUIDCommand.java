@@ -46,7 +46,7 @@ public class MailHistoryByImapUIDCommand extends MailHistoryCommand implements I
 	private void searchMessageHistory() {
 		IReplicatedMailboxesMgmt search = ctx.adminApi().instance(IReplicatedMailboxesMgmt.class);
 
-		search.getImapUidReferences(new CliUtils(ctx).getUserUidFromEmail(email), imapUid).forEach(ret -> {
+		search.getImapUidReferences(new CliUtils(ctx).getUserUidByEmail(email), imapUid).forEach(ret -> {
 			List<ItemHistory> items = ret.stream().map(this::getHistory).collect(Collectors.toList());
 			printTable(items);
 		});

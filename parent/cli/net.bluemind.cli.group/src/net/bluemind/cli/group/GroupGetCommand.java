@@ -17,7 +17,6 @@
   */
 package net.bluemind.cli.group;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,14 +90,15 @@ public class GroupGetCommand implements ICmdLet, Runnable {
 	}
 
 	private void findAGroup() {
-		String domainUid = target.split("@")[1];
 		String name = target.split("@")[0];
 		try {
-			IGroup groupApi = ctx.adminApi().instance(IGroup.class, domainUid);
-			ItemValue<Group> group = groupApi.byName(name);
-			if (group != null) {
-				displayAllGroups(groupApi, target, group.uid);
-			}
+			cliUtils.getDomain(target).ifPresent(domain -> {
+				IGroup groupApi = ctx.adminApi().instance(IGroup.class, domain.uid);
+				ItemValue<Group> group = groupApi.byName(name);
+				if (group != null) {
+					displayAllGroups(groupApi, domain.uid, group.uid);
+				}
+			});
 		} catch (Exception e) {
 			throw new CliException(e.getMessage());
 		}
@@ -106,8 +106,10 @@ public class GroupGetCommand implements ICmdLet, Runnable {
 
 	private void findAllGroups() {
 		try {
-			IGroup groupApi = ctx.adminApi().instance(IGroup.class, target);
-			groupApi.allUids().forEach(uid -> displayAllGroups(groupApi, target, uid));
+			cliUtils.getDomain(target).ifPresent(domain -> {
+				IGroup groupApi = ctx.adminApi().instance(IGroup.class, target);
+				groupApi.allUids().forEach(uid -> displayAllGroups(groupApi, domain.uid, uid));
+			});
 		} catch (Exception e) {
 			throw new CliException(e.getMessage());
 		}
@@ -135,7 +137,7 @@ public class GroupGetCommand implements ICmdLet, Runnable {
 		group.value.emails.forEach(e -> emailsJson.add(e.address));
 		groupJson.put("emails", emailsJson);
 
-		List<Member> members = new ArrayList<>();
+		List<Member> members;
 		if (expandMembers) {
 			members = groupApi.getExpandedMembers(group.uid);
 		} else {

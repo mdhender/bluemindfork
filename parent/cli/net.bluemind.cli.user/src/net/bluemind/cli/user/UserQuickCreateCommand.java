@@ -103,7 +103,7 @@ public class UserQuickCreateCommand implements ICmdLet, Runnable {
 		String domainPart = splitted[1];
 
 		CliUtils cu = new CliUtils(ctx);
-		String dom = cu.getDomainUidFromDomain(domainPart);
+		String dom = cu.getDomainUidByDomain(domainPart);
 		if (dom == null) {
 			ctx.error(domainPart + " is not a known domain or alias.");
 		}

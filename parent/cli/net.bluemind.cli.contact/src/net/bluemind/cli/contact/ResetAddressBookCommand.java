@@ -90,7 +90,7 @@ public class ResetAddressBookCommand implements ICmdLet, Runnable {
 			}
 
 			try {
-				addressBookUid = IAddressBookUids.collectedContactsUserAddressbook(cliUtils.getUserUidFromEmail(email));
+				addressBookUid = IAddressBookUids.collectedContactsUserAddressbook(cliUtils.getUserUidByEmail(email));
 			} catch (CliException cli) {
 				ctx.error(cli.getMessage());
 				throw cli;

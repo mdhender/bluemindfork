@@ -84,11 +84,15 @@ public class GroupUpdateCommand implements ICmdLet, Runnable {
 
 	@Override
 	public void run() {
-		if (target.contains("@")) {
-			String domainUid = target.split("@")[1];
+		if (!target.contains("@")) {
+			ctx.info("Group not found.");
+			return;
+		}
+
+		cliUtils.getDomain(target).ifPresent(domain -> {
 			String name = target.split("@")[0];
 
-			IGroup groupApi = ctx.adminApi().instance(IGroup.class, domainUid);
+			IGroup groupApi = ctx.adminApi().instance(IGroup.class, domain.uid);
 			ItemValue<Group> group = groupApi.byName(name);
 
 			if (extId != null) {
@@ -99,14 +103,12 @@ public class GroupUpdateCommand implements ICmdLet, Runnable {
 				groupApi.update(group.uid, group.value);
 			}
 			if (deleteMembers != null) {
-				removeMembers(groupApi, group, domainUid);
+				removeMembers(groupApi, group, domain.uid);
 			}
 			if (appendMembers != null) {
-				addMembers(groupApi, group, domainUid);
+				addMembers(groupApi, group, domain.uid);
 			}
-		} else {
-			ctx.info("Group not found.");
-		}
+		});
 	}
 
 	private void addMembers(IGroup groupApi, ItemValue<Group> group, String domainUid) {

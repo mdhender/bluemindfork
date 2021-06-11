@@ -148,7 +148,7 @@ public class ProfileInfosCommand implements ICmdLet, Runnable {
 	public void run() {
 		if (!Regex.EMAIL.validate(target)) {
 			CliUtils cliUtils = new CliUtils(ctx);
-			String asADomain = cliUtils.getDomainUidFromDomain(target);
+			String asADomain = cliUtils.getDomainUidByDomain(target);
 			if (asADomain != null) {
 				target = asADomain;
 				publicMailboxProfile();
@@ -170,7 +170,7 @@ public class ProfileInfosCommand implements ICmdLet, Runnable {
 
 	private void privateMailboxProfile() {
 		CliUtils cliUtils = new CliUtils(ctx);
-		String domainUid = cliUtils.getDomainUidFromEmailOrDomain(target);
+		String domainUid = cliUtils.getDomainUidByEmailOrDomain(target);
 
 		IMailboxes boxApi = ctx.adminApi().instance(IMailboxes.class, domainUid);
 		ItemValue<Mailbox> mailbox = boxApi.byEmail(target);

@@ -24,6 +24,8 @@ import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.ListResult;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.domain.api.Domain;
 import net.bluemind.scheduledjob.api.Job;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -63,21 +65,22 @@ public class JobStartCommand extends JobCommand implements ICmdLet, Runnable {
 
 	@Override
 	public void run() {
-		ListResult<Job> jobs = super.getjobs(ctx, target);
-		runJob(jobs, target);
+		cliUtils.getDomain(target).ifPresent(domain -> {
+			runJob(super.getjobs(ctx, domain), domain);
+		});
 	}
 
-	private void runJob(ListResult<Job> jobs, String domain) {
+	private void runJob(ListResult<Job> jobs, ItemValue<Domain> domain) {
 		Boolean found = false;
 		for (Job entry : jobs.values) {
 			if (entry.id.toLowerCase().contains(job.toLowerCase())) {
-				this.getJobsApi().start(entry.id, domain);
+				this.getJobsApi().start(entry.id, domain.uid);
 				found = true;
-				ctx.info("Starting " + job + " on " + domain);
+				ctx.info("Starting " + job + " on " + domain.value.defaultAlias);
 			}
 		}
 		if (Boolean.FALSE.equals(found)) {
-			ctx.error("Job " + job + " unknown or not found on " + domain);
+			ctx.error("Job " + job + " unknown or not found on " + domain.value.defaultAlias);
 		}
 	}
 }

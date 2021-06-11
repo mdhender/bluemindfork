@@ -92,7 +92,7 @@ public class ImportAddressBookCommand implements ICmdLet, Runnable {
 			}
 
 			try {
-				addressBookUid = IAddressBookUids.defaultUserAddressbook(cliUtils.getUserUidFromEmail(email));
+				addressBookUid = IAddressBookUids.defaultUserAddressbook(cliUtils.getUserUidByEmail(email));
 			} catch (CliException cli) {
 				ctx.error(cli.getMessage());
 				throw cli;

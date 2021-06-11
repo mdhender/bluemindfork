@@ -79,7 +79,7 @@ public class ResetTodolistCommand implements ICmdLet, Runnable {
 			throw new CliException("invalid email : " + email);
 		}
 
-		String userUid = cliUtils.getUserUidFromEmail(email);
+		String userUid = cliUtils.getUserUidByEmail(email);
 
 		if (todolistUid == null) {
 			todolistUid = ITodoUids.defaultUserTodoList(userUid);

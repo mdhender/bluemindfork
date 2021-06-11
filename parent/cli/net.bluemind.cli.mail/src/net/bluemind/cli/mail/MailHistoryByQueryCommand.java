@@ -46,7 +46,7 @@ public class MailHistoryByQueryCommand extends MailHistoryCommand implements ICm
 	private void searchMessageHistory() {
 		IReplicatedMailboxesMgmt search = ctx.adminApi().instance(IReplicatedMailboxesMgmt.class);
 
-		search.queryReferences(new CliUtils(ctx).getUserUidFromEmail(email), query).forEach(ret -> {
+		search.queryReferences(new CliUtils(ctx).getUserUidByEmail(email), query).forEach(ret -> {
 			List<ItemHistory> items = ret.stream().map(this::getHistory).collect(Collectors.toList());
 			printTable(items);
 		});

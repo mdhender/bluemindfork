@@ -68,20 +68,21 @@ public class GroupDeleteCommand implements ICmdLet, Runnable {
 	}
 
 	private void deleteGroupbyName() {
-		String domainUid = target.split("@")[1];
 		String name = target.split("@")[0];
-
-		IGroup groupApi = ctx.adminApi().instance(IGroup.class, domainUid);
-		ItemValue<Group> group = groupApi.byName(name);
-		if (group != null) {
-			deleteGroup(groupApi, group.uid);
-		}
-
+		cliUtils.getDomain(target).ifPresent(domain -> {
+			IGroup groupApi = ctx.adminApi().instance(IGroup.class, domain.uid);
+			ItemValue<Group> group = groupApi.byName(name);
+			if (group != null) {
+				deleteGroup(groupApi, group.uid);
+			}
+		});
 	}
 
 	private void deleteAllGroups() {
-		IGroup groupApi = ctx.adminApi().instance(IGroup.class, target);
-		groupApi.allUids().forEach(uid -> deleteGroup(groupApi, uid));
+		cliUtils.getDomain(target).ifPresent(domain -> {
+			IGroup groupApi = ctx.adminApi().instance(IGroup.class, domain.uid);
+			groupApi.allUids().forEach(uid -> deleteGroup(groupApi, uid));
+		});
 	}
 
 	private void deleteGroup(IGroup groupApi, String uid) {

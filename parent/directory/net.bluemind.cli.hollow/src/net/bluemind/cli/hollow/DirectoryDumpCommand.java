@@ -61,7 +61,7 @@ public class DirectoryDumpCommand implements ICmdLet, Runnable {
 	@Override
 	public void run() {
 		CliUtils cli = new CliUtils(ctx);
-		Optional<String> optDom = cli.getDomainUidFromDomainIfPresent(domain);
+		Optional<String> optDom = cli.getDomainUidByDomainIfPresent(domain);
 		String domUid = optDom.orElseGet(() -> {
 			ctx.error("domain uid for " + domain + " not found, using " + domain);
 			return domain;

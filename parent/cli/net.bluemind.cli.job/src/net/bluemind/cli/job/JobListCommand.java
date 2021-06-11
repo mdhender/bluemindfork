@@ -27,6 +27,8 @@ import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.ListResult;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.domain.api.Domain;
 import net.bluemind.scheduledjob.api.Job;
 import net.bluemind.scheduledjob.api.JobDomainStatus;
 import picocli.CommandLine.Command;
@@ -63,11 +65,12 @@ public class JobListCommand extends JobCommand implements ICmdLet, Runnable {
 
 	@Override
 	public void run() {
-		ListResult<Job> jobs = super.getjobs(ctx, target);
-		display(jobs, target);
+		cliUtils.getDomain(target).ifPresent(domain -> {
+			display(super.getjobs(ctx, domain), domain);
+		});
 	}
 
-	private void display(ListResult<Job> jobs, String domain) {
+	private void display(ListResult<Job> jobs, ItemValue<Domain> domain) {
 		int size = jobs.values.size();
 		String[] headers = { "id", "description", "kind", "status", "sendReport", "recipients" };
 		String[][] asTable = new String[size][headers.length];
@@ -85,10 +88,9 @@ public class JobListCommand extends JobCommand implements ICmdLet, Runnable {
 		ctx.info(AsciiTable.getTable(headers, asTable));
 	}
 
-	private String getdomainStatus(List<JobDomainStatus> jobStatus, String domain) {
-
+	private String getdomainStatus(List<JobDomainStatus> jobStatus, ItemValue<Domain> domain) {
 		for (JobDomainStatus domainStatus : jobStatus) {
-			if (domainStatus.domain.equalsIgnoreCase(domain)) {
+			if (domainStatus.domain.equalsIgnoreCase(domain.uid)) {
 				return domainStatus.status.toString();
 			}
 		}
