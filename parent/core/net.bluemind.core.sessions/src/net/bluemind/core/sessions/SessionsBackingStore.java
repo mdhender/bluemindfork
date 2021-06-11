@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 
+import io.vertx.core.Context;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.common.cache.persistence.CacheBackingStore;
@@ -108,14 +109,15 @@ public class SessionsBackingStore {
 	}
 
 	private void notifySessionRemovalListeners(String sessionId, SecurityContext securityContext) {
+		Context vertxContext = VertxPlatform.getVertx().getOrCreateContext();
 		for (ISessionDeletionListener listener : SessionDeletionListeners.get()) {
-			notifySessionRemovalListener(listener, sessionId, securityContext);
+			notifySessionRemovalListener(listener, sessionId, securityContext, vertxContext);
 		}
 	}
 
 	private void notifySessionRemovalListener(ISessionDeletionListener listener, String sessionId,
-			SecurityContext securityContext) {
-		VertxPlatform.getVertx().executeBlocking(promise -> {
+			SecurityContext securityContext, Context vertxContext) {
+		vertxContext.executeBlocking(promise -> {
 			try {
 				listener.deleted(IDENTITY, sessionId, securityContext);
 				promise.complete();
