@@ -29,6 +29,10 @@ public class JilterEOMActionsImpl implements JilterEOMActions {
 		JilterServerPacketUtil.sendChgHeaderPacket(this.writeChannel, hdridx, headerf, headerv);
 	}
 
+	public void chgfrom(String from) throws IOException {
+		JilterServerPacketUtil.sendChgFromPacket(this.writeChannel, from);
+	}
+
 	public void addrcpt(String rcpt) throws IOException {
 		JilterServerPacketUtil.sendAddRcptPacket(this.writeChannel, rcpt);
 	}

@@ -33,6 +33,7 @@ public class JilterConstants {
 	public static final int SMFIR_REPLBODY = 'b';
 	public static final int SMFIR_REPLYCODE = 'y';
 	public static final int SMFIR_TEMPFAIL = 't';
+	public static final int SMFIR_CHGFROM = 'e';
 
 	public static final int SMFIA_INET = '4';
 	public static final int SMFIA_INET6 = '6';

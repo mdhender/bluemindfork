@@ -55,6 +55,16 @@ public class JilterServerPacketUtil {
 		dataBuffer.put((byte) 0);
 	}
 
+	public static void sendChgFromPacket(WritableByteChannel writeChannel, String from) throws IOException {
+		ByteBuffer dataBuffer = ByteBuffer.allocate(zeroTerminatedStringLength(from));
+
+		// char rcpt[] New recipient, NUL terminated
+
+		writeZeroTerminatedString(dataBuffer, from);
+
+		sendPacket(writeChannel, JilterConstants.SMFIR_CHGFROM, (ByteBuffer) dataBuffer.flip());
+	}
+
 	public static void sendAddRcptPacket(WritableByteChannel writeChannel, String recipient) throws IOException {
 		ByteBuffer dataBuffer = ByteBuffer.allocate(zeroTerminatedStringLength(recipient));
 
