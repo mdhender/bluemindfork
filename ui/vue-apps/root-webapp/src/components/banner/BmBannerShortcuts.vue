@@ -10,7 +10,7 @@
         >
             <div class="d-inline-block"><bm-app-icon :icon-app="app.icon" /></div>
             <span class="sr-only">{{ app.name }}</span>
-            <bm-badge>{{ app.count }}</bm-badge>
+            <bm-badge v-if="app.count">{{ app.count }}</bm-badge>
         </bm-nav-item>
     </bm-navbar-nav>
 </template>

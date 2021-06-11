@@ -6,7 +6,12 @@
     "license": "AGPL-3.0-only",
     "main": "src/run.js",
     "dependencies": {
+        "@bluemind/addressbook.api": "^4.1.0",
         "@bluemind/alert.store": "^4.1.0",
+        "@bluemind/calendar.api": "^4.1.0",
+        "@bluemind/core.container.api": "^4.1.0",
+        "@bluemind/core.task.api": "^4.1.0",
+        "@bluemind/directory.api": "^4.1.0",
         "@bluemind/extensions": "^4.1.0",
         "@bluemind/inject": "^4.1.0",
         "@bluemind/mailbox.api": "^4.1.0",
@@ -20,6 +25,7 @@
         "@bluemind/vue-sockjs": "^4.1.0",
         "@bluemind/vuex-router": "^4.1.0",
         "libphonenumber-js": "^1.7.8",
+        "lodash.throttle": "^4.1.1",
         "vue-i18n": "^8.21.0",
         "vue2-touch-events": "^2.2.1",
         "vuex": "^3.0.1"

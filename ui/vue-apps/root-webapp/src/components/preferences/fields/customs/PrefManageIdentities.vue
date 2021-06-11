@@ -11,10 +11,10 @@
         </div>
         <bm-list-group class="border-top border-bottom">
             <bm-list-group-item
-                v-for="identity in identities"
+                v-for="(identity, index) in identities"
                 :key="identity.id"
                 class="row d-flex align-items-center"
-                :class="{ 'bg-extra-light': identity.isDefault }"
+                :class="{ 'bg-extra-light': index % 2 === 0 }"
             >
                 <bm-col cols="1" class="d-flex justify-content-center">
                     <bm-icon v-if="identity.isDefault" icon="star-fill" size="lg" />

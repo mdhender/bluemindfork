@@ -14,8 +14,7 @@
                 @input="search"
                 @keydown.enter="search"
                 @reset="reset"
-            >
-            </bm-form-input>
+            />
             <bm-button
                 ref="toggleButton"
                 :title="$t('common.searchAdvanced')"

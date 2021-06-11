@@ -26,7 +26,9 @@ const actions = {
         });
         const userId = inject("UserSession").userId;
         const otherManagedCalendars = managedCalendars.filter(container => container.owner !== userId);
-        const myCalendars = managedCalendars.filter(container => container.owner === userId);
+        const myCalendars = managedCalendars
+            .filter(container => container.owner === userId)
+            .sort(container => (container.defaultContainer ? 0 : 1));
         commit("SET_CALENDARS", { myCalendars, otherManagedCalendars });
     },
     async FETCH_SUBSCRIPTIONS({ commit }) {

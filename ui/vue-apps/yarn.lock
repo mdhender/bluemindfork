@@ -1097,9 +1097,9 @@
     axios "^0.18.0"
 
 "@bluemind/calendar.api@^4.1.0":
-  version "4.1.54799"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/calendar.api/-/calendar.api-4.1.54799.tgz#15d1494a723f2c18a20ffcecd8f362c6ef219a65"
-  integrity sha512-yHSShJEbt2qQdxDctFNqYtUDyUO4GbcFx68Tcr3tbYZ0G8rlh8HAb5GNP7JzhFpoVyrSn2mgduhEQkAU39rlDw==
+  version "4.1.58158"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/calendar.api/-/calendar.api-4.1.58158.tgz#a4dcb00ceda6cf11b82f8dbd43c9774023e7a41c"
+  integrity sha512-HDnwq2SlW6tSJyYzjNSBBSPRLLFmNtmZqPGJr3M1ztjcsogbaKZ8ArL0VXp+ntto5ahOx/l0zB81SPh1OL/zmA==
   dependencies:
     axios "^0.18.0"
 
@@ -1117,6 +1117,13 @@
   dependencies:
     axios "^0.18.0"
 
+"@bluemind/directory.api@^4.1.0":
+  version "4.1.57829"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/directory.api/-/directory.api-4.1.57829.tgz#2254134d08c4d8404aff6342ce1643749fcaf28e"
+  integrity sha512-sLWDSINnKVFEY4YXi4KzQjON84VP6X1VF11UDiKnY5+PB1CEAnwZAleCw2HR6E883AjxlSCY/gUQLGkDY/V5YQ==
+  dependencies:
+    axios "^0.18.0"
+
 "@bluemind/mailbox.api@^4.1.0":
   version "4.1.54799"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/mailbox.api/-/mailbox.api-4.1.54799.tgz#9e86e75102cf68af55cc295044518827f6792edb"
@@ -1125,9 +1132,9 @@
     axios "^0.18.0"
 
 "@bluemind/styleguide@^0.1.0":
-  version "0.1.1600"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1600.tgz#fc2417830bb3f754860aa692efa560fbdcfd6ca3"
-  integrity sha512-4Um+mwLbCeyF36oRadkGQ1OwpikDLyDhJOXYmZAulQinWbpBROUTVMfx5YA+eLODv4Sz+HBYeW2YKTF9Xo+oPQ==
+  version "0.1.1606"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1606.tgz#ec6eb0e54f3083b1d05eb3e6ea3334ac3ca9ece1"
+  integrity sha512-uAZ5W+BhQgw2ksP8GNF53D41uF8UPf9iMNZhzWAAbyEnDEbp40HXTR73xkeGp0InQtdi6WPJoRYM9+aykzzbSg==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"

@@ -3,7 +3,11 @@
         v-model="show"
         centered
         lazy
-        :title="isNew ? $t('preferences.calendar.my_calendars.new') : $t('preferences.calendar.my_calendars.update')"
+        :title="
+            isNew
+                ? $t('preferences.calendar.my_calendars.new')
+                : $t('preferences.calendar.my_calendars.update', { calendarName: label })
+        "
         :cancel-title="$t('common.cancel')"
         :ok-title="isNew ? $t('common.create') : $t('common.save')"
         :ok-disabled="disableSave"

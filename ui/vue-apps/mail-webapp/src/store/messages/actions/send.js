@@ -1,5 +1,6 @@
 import { EmailValidator, Flag } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
+import { retrieveTaskResult } from "@bluemind/task";
 
 import { ADD_FLAG, SAVE_MESSAGE } from "~actions";
 import { MessageStatus, MessageHeader, MessageCreationModes } from "~model/message";
@@ -94,25 +95,6 @@ function manageFlagOnPreviousMessage({ dispatch, state }, draft) {
             inject("MailboxItemsPersistence", folderUid).addFlag({ itemsId: [messageInternalId], mailboxItemFlag });
         }
     }
-}
-
-/**
- * Wait for the task to be finished or a timeout is reached.
- */
-function retrieveTaskResult(taskService, delayTime = 500, maxTries = 60, iteration = 1) {
-    return new Promise(resolve => setTimeout(() => resolve(taskService.status()), delayTime)).then(taskStatus => {
-        const taskEnded =
-            taskStatus && taskStatus.state && taskStatus.state !== "InProgress" && taskStatus.state !== "NotStarted";
-        if (taskEnded) {
-            return JSON.parse(taskStatus.result);
-        } else {
-            if (iteration < maxTries) {
-                return retrieveTaskResult(taskService, delayTime, maxTries, ++iteration);
-            } else {
-                return Promise.reject("Timeout while retrieving task result");
-            }
-        }
-    });
 }
 
 function validateDraft(draft, vueI18n) {

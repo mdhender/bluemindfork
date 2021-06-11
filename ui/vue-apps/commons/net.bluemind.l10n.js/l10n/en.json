@@ -126,5 +126,13 @@
     "common.share": "Share",
     "common.browse": "Browse...",
     "common.import_successful": "Successful import",
-    "common.import_error": "Error during import"
+    "common.import_error": "Error during import",
+    "common.share_with": "Share with",
+    "common.public": "Public",
+    "common.private": "Private",
+    "common.copy": "Copy",
+    "common.copied": "Copied !",
+    "common.my_availabilities": "My availabilities",
+    "common.external": "external",
+    "common.start_synchronization": "Start synchronization"
 }

@@ -1,9 +1,7 @@
 import Vue from "vue";
 
-import { AddressBookClient, AddressBooksClient } from "@bluemind/addressbook.api";
 import { ItemsTransferClient, MailConversationClient, OutboxClient } from "@bluemind/backend.mail.api";
 import { CalendarClient } from "@bluemind/calendar.api";
-import { TaskClient } from "@bluemind/core.task.api";
 import injector from "@bluemind/inject";
 import router from "@bluemind/router";
 import store from "@bluemind/store";
@@ -49,21 +47,6 @@ function registerAPIClients() {
             const userSession = injector.getProvider("UserSession").get();
             return new OutboxClient(userSession.sid, userSession.domain, userSession.userId);
         }
-    });
-
-    injector.register({
-        provide: "AddressBooksPersistence",
-        factory: () => new AddressBooksClient(injector.getProvider("UserSession").get().sid)
-    });
-
-    injector.register({
-        provide: "AddressBookPersistence",
-        factory: containerUid => new AddressBookClient(injector.getProvider("UserSession").get().sid, containerUid)
-    });
-
-    injector.register({
-        provide: "TaskService",
-        factory: taskId => new TaskClient(injector.getProvider("UserSession").get().sid, taskId)
     });
 
     injector.register({

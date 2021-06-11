@@ -3,20 +3,17 @@ import Vue2TouchEvents from "vue2-touch-events";
 import VueI18n from "vue-i18n";
 
 import { default as AlertStore, DefaultAlert } from "@bluemind/alert.store";
-import { CalendarClient, CalendarsMgmtClient, VEventClient } from "@bluemind/calendar.api";
-import { ContainersClient, ContainerManagementClient, OwnerSubscriptionsClient } from "@bluemind/core.container.api";
-import { FirstDayOfWeek, generateDateTimeFormats, InheritTranslationsMixin } from "@bluemind/i18n";
+import { generateDateTimeFormats, InheritTranslationsMixin } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
-import { MailboxesClient } from "@bluemind/mailbox.api";
 import router from "@bluemind/router";
 import { initSentry } from "@bluemind/sentry";
 import store from "@bluemind/store";
 import { BmModalPlugin } from "@bluemind/styleguide";
-import { UserClient, UserMailIdentitiesClient, UserSettingsClient, UserSubscriptionClient } from "@bluemind/user.api";
 import VueBus from "@bluemind/vue-bus";
 import { extend } from "@bluemind/vuex-router";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
 
+import registerDependencies from "./registerDependencies";
 import PreferencesStore from "./preferencesStore";
 import RootAppStore from "./rootAppStore";
 import SessionStore from "./sessionStore";
@@ -34,7 +31,6 @@ async function initWebApp() {
     setVuePlugins(userSession);
     if (userSession.userId) {
         await store.dispatch("session/FETCH_ALL_SETTINGS"); // needed to initialize i18n
-        await store.dispatch("root-app/FETCH_IDENTITIES", store.state.session.settings.remote.lang);
     }
     const i18n = initI18N(userSession);
     Vue.component("DefaultAlert", DefaultAlert);
@@ -73,81 +69,6 @@ function initStore() {
     store.registerModule("root-app", RootAppStore);
     store.registerModule("session", SessionStore);
     store.registerModule("preferences", PreferencesStore);
-}
-
-function registerDependencies(userSession) {
-    // if no lang defined, use monday as fdow
-    let firstDayOfWeek = FirstDayOfWeek[userSession.lang.toUpperCase()];
-    firstDayOfWeek = firstDayOfWeek >= 0 ? firstDayOfWeek : 1;
-
-    injector.register({
-        provide: "ContainersPersistence",
-        factory: () => new ContainersClient(userSession.sid)
-    });
-
-    injector.register({
-        provide: "ContainerManagementPersistence",
-        factory: containerUid => new ContainerManagementClient(userSession.sid, containerUid)
-    });
-
-    injector.register({
-        provide: "CalendarsMgmtPersistence",
-        factory: () => new CalendarsMgmtClient(userSession.sid)
-    });
-
-    injector.register({
-        provide: "CalendarPersistence",
-        factory: containerUid => new CalendarClient(userSession.sid, containerUid)
-    });
-
-    injector.register({
-        provide: "Environment",
-        use: { firstDayOfWeek }
-    });
-
-    injector.register({
-        provide: "GlobalEventBus",
-        use: VueBus.Client
-    });
-
-    injector.register({
-        provide: "UserSettingsPersistence",
-        factory: () => new UserSettingsClient(userSession.sid, userSession.domain)
-    });
-
-    injector.register({
-        provide: "MailboxesPersistence",
-        factory: () => new MailboxesClient(userSession.sid, userSession.domain)
-    });
-
-    injector.register({
-        provide: "OwnerSubscriptionsPersistence",
-        factory: () => {
-            return new OwnerSubscriptionsClient(userSession.sid, userSession.domain, userSession.userId);
-        }
-    });
-
-    injector.register({
-        provide: "UserSubscriptionPersistence",
-        factory: () => {
-            return new UserSubscriptionClient(userSession.sid, userSession.domain);
-        }
-    });
-
-    injector.register({
-        provide: "UserMailIdentitiesPersistence",
-        factory: () => new UserMailIdentitiesClient(userSession.sid, userSession.domain, userSession.userId)
-    });
-
-    injector.register({
-        provide: "UserPersistence",
-        factory: () => new UserClient(userSession.sid, userSession.domain)
-    });
-
-    injector.register({
-        provide: "VEventPersistence",
-        factory: containerUid => new VEventClient(userSession.sid, containerUid)
-    });
 }
 
 function initI18N() {

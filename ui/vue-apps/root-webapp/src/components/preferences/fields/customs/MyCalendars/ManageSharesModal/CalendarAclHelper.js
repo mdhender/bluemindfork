@@ -1,0 +1,151 @@
+import { Verb } from "@bluemind/core.container.api";
+import { inject } from "@bluemind/inject";
+
+/**
+ * Bluemind core API have 2 distincts acl data linked to default user calendar:
+ *      - freebusy container
+ *      - calendar container
+ * This helper allows to unify those ACL by ordering them.
+ * Used in share modal UI where this complexity is hidden by proposing only one select-box to manage calendar rights.
+ */
+export const CalendarAcl = {
+    CANT_INVITE_ME: 0,
+    CAN_INVITE_ME: 1,
+    CAN_SEE_MY_AVAILABILITY: 2,
+    CAN_SEE_MY_EVENTS: 3,
+    CAN_EDIT_MY_EVENTS: 4,
+    CAN_MANAGE_SHARES: 5
+};
+
+export function calendarAclToVerb(acl, isFreebusy) {
+    if (isFreebusy) {
+        switch (acl) {
+            case CalendarAcl.CANT_INVITE_ME:
+            case CalendarAcl.CAN_INVITE_ME:
+                throw "impossible case : no acl equivalent";
+            case CalendarAcl.CAN_SEE_MY_AVAILABILITY:
+            case CalendarAcl.CAN_SEE_MY_EVENTS:
+            case CalendarAcl.CAN_EDIT_MY_EVENTS:
+                return Verb.Read;
+            case CalendarAcl.CAN_MANAGE_SHARES:
+                return Verb.All;
+        }
+    }
+    switch (acl) {
+        case CalendarAcl.CANT_INVITE_ME:
+            throw "impossible case : no acl equivalent";
+        case CalendarAcl.CAN_INVITE_ME:
+        case CalendarAcl.CAN_SEE_MY_AVAILABILITY:
+            return Verb.Invitation;
+        case CalendarAcl.CAN_SEE_MY_EVENTS:
+            return Verb.Read;
+        case CalendarAcl.CAN_EDIT_MY_EVENTS:
+            return Verb.Write;
+        case CalendarAcl.CAN_MANAGE_SHARES:
+            return Verb.All;
+    }
+}
+
+export async function loadAcl(calendar, isDefault) {
+    let domainAcl = CalendarAcl.CANT_INVITE_ME,
+        dirEntriesAcl = [];
+    const userSession = inject("UserSession");
+
+    // load calendar shares acl
+    let aclList = await inject("ContainerManagementPersistence", calendar.uid).getAccessControlList();
+    const hasDomainAcl = aclList.find(acl => acl.subject === userSession.domain);
+    if (hasDomainAcl) {
+        domainAcl = verbToCalendarAcl(hasDomainAcl.verb);
+    }
+
+    aclList = aclList.filter(
+        acl =>
+            acl.subject !== userSession.domain &&
+            acl.subject !== userSession.userId &&
+            !acl.subject.startsWith("x-calendar-")
+    );
+
+    if (aclList.length > 0) {
+        const dirEntries = await inject("DirectoryPersistence").getMultiple(aclList.map(acl => acl.subject));
+        dirEntriesAcl = dirEntries.map(entry => {
+            const acl = verbToCalendarAcl(aclList.find(acl => acl.subject === entry.uid).verb);
+            return { ...entry, acl };
+        });
+    }
+
+    if (isDefault) {
+        // load freebusy acl
+        const aclList = await inject(
+            "ContainerManagementPersistence",
+            "freebusy:" + calendar.owner
+        ).getAccessControlList();
+
+        const mergeResult = await mergeFreebusyWithCalAcl(aclList, domainAcl, dirEntriesAcl);
+        domainAcl = mergeResult.domainAcl;
+        dirEntriesAcl = mergeResult.dirEntriesAcl;
+    }
+
+    return { domainAcl, dirEntriesAcl };
+}
+
+export function urlToAclSubject({ url }) {
+    return url.substring(url.lastIndexOf("/") + 1, url.length);
+}
+
+async function mergeFreebusyWithCalAcl(aclList, domainAcl, dirEntriesAcl) {
+    const userSession = inject("UserSession");
+    const hasDomainAcl = aclList.find(acl => acl.subject === userSession.domain);
+    if (hasDomainAcl) {
+        domainAcl = adaptAclForFreebusy(domainAcl, hasDomainAcl.verb);
+    }
+
+    aclList = aclList.filter(acl => acl.subject !== userSession.domain && acl.subject !== userSession.userId);
+    const dirEntriesWithOnlyFreebusyAcl = [];
+    aclList.forEach(acl => {
+        const dirEntry = dirEntriesAcl.find(entry => acl.subject === entry.uid);
+        if (dirEntry) {
+            dirEntry.acl = adaptAclForFreebusy(dirEntry.acl, acl.verb);
+        } else {
+            dirEntriesWithOnlyFreebusyAcl.push(acl);
+        }
+    });
+    if (dirEntriesWithOnlyFreebusyAcl.length > 0) {
+        let dirEntries = await inject("DirectoryPersistence").getMultiple(
+            dirEntriesWithOnlyFreebusyAcl.map(acl => acl.subject)
+        );
+        dirEntries = dirEntries.map(entry => {
+            const acl = verbToCalendarAcl(aclList.find(acl => acl.subject === entry.uid).verb, true);
+            return { ...entry, acl };
+        });
+        dirEntriesAcl.push(...dirEntries);
+    }
+
+    return { domainAcl, dirEntriesAcl };
+}
+
+function verbToCalendarAcl(verb, isFreebusy = false) {
+    if (verb === Verb.All) {
+        return CalendarAcl.CAN_MANAGE_SHARES;
+    }
+    if (isFreebusy && verb === Verb.Read) {
+        return CalendarAcl.CAN_SEE_MY_AVAILABILITY;
+    }
+    switch (verb) {
+        case Verb.Invitation:
+            return CalendarAcl.CAN_INVITE_ME;
+        case Verb.Read:
+            return CalendarAcl.CAN_SEE_MY_EVENTS;
+        case Verb.Write:
+            return CalendarAcl.CAN_EDIT_MY_EVENTS;
+    }
+}
+
+function adaptAclForFreebusy(calendarAcl, freebusyVerb) {
+    if (freebusyVerb === Verb.Read && calendarAcl < CalendarAcl.CAN_SEE_MY_AVAILABILITY) {
+        return CalendarAcl.CAN_SEE_MY_AVAILABILITY;
+    }
+    if (freebusyVerb === Verb.All) {
+        return CalendarAcl.CAN_MANAGE_SHARES;
+    }
+    return calendarAcl;
+}

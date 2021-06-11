@@ -16,7 +16,6 @@
                 <bm-button
                     v-if="displayedRecipientFields == recipientModes.TO"
                     variant="simple-dark"
-                    class="text-blue"
                     @click="displayedRecipientFields = recipientModes.TO | recipientModes.CC | recipientModes.BCC"
                 >
                     <bm-icon icon="chevron" />
@@ -40,7 +39,7 @@
             <bm-button
                 v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC)"
                 variant="simple-dark"
-                class="text-blue my-2 mr-1"
+                class="my-2 mr-1"
                 @click="displayedRecipientFields = recipientModes.TO | recipientModes.CC | recipientModes.BCC"
             >
                 {{ $t("common.bcc") }}

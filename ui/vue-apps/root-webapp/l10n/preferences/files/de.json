@@ -71,7 +71,7 @@
     "preferences.calendar.my_calendars.create": "Kalender erstellen",
     "preferences.calendar.my_calendars.reset_data": "Alle Kalenderdaten werden gelöscht.",
     "preferences.calendar.my_calendars.remove": "Kalender endgültig löschen?",
-    "preferences.calendar.my_calendars.update": "Kalender aktualisieren",
+    "preferences.calendar.my_calendars.update": "Kalender aktualisieren \"{calendarName}\"",
     "preferences.calendar.my_calendars.new": "Kalender erstellen",
     "preferences.calendar.my_calendars.label.description": "Bezeichnung, die im Kalender verwendet wird",
     "preferences.calendar.my_calendars.type": "Kalendertyp",

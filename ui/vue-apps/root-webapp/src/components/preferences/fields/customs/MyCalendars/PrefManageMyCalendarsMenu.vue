@@ -16,6 +16,14 @@
         <bm-dropdown-item-button icon="trash" :disabled="isDefaultCalendar" @click="$emit('remove')">
             {{ $t("common.delete") }}
         </bm-dropdown-item-button>
+        <bm-dropdown-item-button
+            v-if="calendar.settings.type === 'externalIcs'"
+            icon="loop"
+            :disabled="isSyncInProgress"
+            @click="$emit('synchronize-external-ics')"
+        >
+            {{ $t("common.start_synchronization") }}
+        </bm-dropdown-item-button>
     </bm-contextual-menu>
 </template>
 
@@ -29,6 +37,10 @@ export default {
     props: {
         calendar: {
             type: Object,
+            required: true
+        },
+        isSyncInProgress: {
+            type: Boolean,
             required: true
         }
     },

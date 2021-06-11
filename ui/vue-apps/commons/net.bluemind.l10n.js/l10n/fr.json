@@ -126,5 +126,13 @@
     "common.share": "Partager",
     "common.browse": "Parcourir...",
     "common.import_successful": "Import réussi",
-    "common.import_error": "Echec de l'import"
+    "common.import_error": "Echec de l'import",
+    "common.share_with": "Partager avec",
+    "common.public": "Public",
+    "common.private": "Privé",
+    "common.copy": "Copier",
+    "common.copied": "Copié !",
+    "common.my_availabilities": "Mes disponibilités",
+    "common.external": "externe",
+    "common.start_synchronization": "Lancer la synchronisation"
 }

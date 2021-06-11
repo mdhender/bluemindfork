@@ -1,5 +1,5 @@
 <template>
-    <bm-modal v-model="show" centered lazy hide-footer :title="$t('common.import')" body-class="import-ics-modal-body">
+    <bm-modal v-model="show" centered hide-footer :title="$t('common.import')" body-class="import-ics-modal-body">
         <bm-file-drop-zone
             v-if="uploadStatus === 'IDLE'"
             class="mt-1"

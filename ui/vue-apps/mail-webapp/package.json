@@ -26,7 +26,6 @@
         "@bluemind/contact": "^4.1.0",
         "@bluemind/containerobserver": "^4.1.0",
         "@bluemind/core.container.api": "^4.1.0",
-        "@bluemind/core.task.api": "^4.1.0",
         "@bluemind/date": "^4.1.0",
         "@bluemind/email": "^4.1.0",
         "@bluemind/file-utils": "^4.1.0",
