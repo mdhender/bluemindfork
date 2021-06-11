@@ -1,0 +1,17 @@
+dn: uid=user00,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetLocalMailRecipient
+objectClass: inetOrgPerson
+uid: user00
+sn: Nom00
+cn: Prenom00 Nom00
+givenName: Prenom00
+description: Description Prenom01 Nom00
+mail: user00@memberof.virt
+mail: user00.alias00@memberof.virt
+mail: user00.alias01@memberof-alias.virt
+mail: user00.alias02@memberof.virt
+mail: nodomainpart
+userPassword:: e1NIQX1rN1liU0NTUzdPSkhsaUpRWkF2RkNUNFlZNTA9

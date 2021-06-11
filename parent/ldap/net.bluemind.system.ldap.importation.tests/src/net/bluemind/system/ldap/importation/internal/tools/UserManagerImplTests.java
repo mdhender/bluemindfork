@@ -569,6 +569,48 @@ public class UserManagerImplTests {
 	}
 
 	@Test
+	public void entryToUserMultipleMail() throws ServerFault, LdapInvalidDnException, LdapException, CursorException,
+			IOException, LdapSearchException {
+		domain.value.aliases = ImmutableSet.of("memberof-alias.virt");
+
+		Entry testUserEntry = getTestUserEntry(
+				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
+
+		UserManager userManager = UserManagerImpl
+				.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()), domain,
+						testUserEntry)
+				.get();
+
+		ImportLogger importLogger = getImportLogger();
+		userManager.update(importLogger, null, null);
+		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
+
+		assertEquals(Routing.internal, userManager.user.value.routing);
+		assertEquals(5, userManager.user.value.emails.size());
+		for (Email email : userManager.user.value.emails) {
+			switch (email.address) {
+			case "user00@memberof.virt":
+				assertFalse(email.allAliases);
+				continue;
+			case "user00.alias00@memberof.virt":
+				assertFalse(email.allAliases);
+				continue;
+			case "user00.alias01@memberof-alias.virt":
+				assertFalse(email.allAliases);
+				continue;
+			case "user00.alias02@memberof.virt":
+				assertFalse(email.allAliases);
+				continue;
+			case "nodomainpart@memberof.virt":
+				assertTrue(email.allAliases);
+				continue;
+			default:
+				fail("Unknown email address: " + email.address);
+			}
+		}
+	}
+
+	@Test
 	public void entryToUserEmailsExternalFirst() throws ServerFault, LdapInvalidDnException, LdapException,
 			CursorException, IOException, LdapSearchException {
 		Entry testUserEntry = getTestUserEntry(

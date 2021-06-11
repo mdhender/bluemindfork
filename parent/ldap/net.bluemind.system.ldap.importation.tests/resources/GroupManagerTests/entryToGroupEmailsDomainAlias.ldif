@@ -9,8 +9,15 @@ gidNumber: 10001
 description: Test group 01
 mailMessageStore: fake
 mail: grptest00@memberof.virt
-mail: allaliases
-mailLocalAddress: grptest00@memberof-alias.virt
+mail: allaliases00
+mail: allaliases01@memberof.virt
+mail: allaliases01@memberof-alias00.virt
+mail: allaliases01@memberof-alias01.virt
+mailLocalAddress: grptest00@memberof-alias00.virt
+mailLocalAddress: grptest00@memberof-alias01.virt
 mailLocalAddress: grptest00.alias01@memberof.virt
-mailLocalAddress: grptest00.alias02@invalid-domain-alias.virt
+mailLocalAddress: grptest00.alias02@invalid-domain-alias00.virt
+mailLocalAddress: grptest00.alias03@memberof-alias00.virt
+mailLocalAddress: grptest00.alias03@memberof-alias01.virt
+mailLocalAddress: grptest00.alias04@memberof-alias01.virt
 mailAlternateAddress: must be ignore

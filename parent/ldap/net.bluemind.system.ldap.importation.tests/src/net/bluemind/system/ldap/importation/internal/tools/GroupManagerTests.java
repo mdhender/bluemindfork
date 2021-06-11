@@ -381,7 +381,7 @@ public class GroupManagerTests {
 	@Test
 	public void entryToGroupEmailsDomainAlias() throws ServerFault, LdapInvalidDnException, LdapException,
 			CursorException, IOException, LdapSearchException {
-		domain.value.aliases = ImmutableSet.of("memberof-alias.virt");
+		domain.value.aliases = ImmutableSet.of("memberof-alias00.virt", "memberof-alias01.virt");
 
 		Entry testGroupEntry = getTestGroupEntry(
 				"cn=grptest00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
@@ -397,33 +397,40 @@ public class GroupManagerTests {
 		assertNotNull(groupManager.group);
 		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
 
-		assertEquals(3, groupManager.group.value.emails.size());
+		assertEquals(7, groupManager.group.value.emails.size());
 		for (Email email : groupManager.group.value.emails) {
-			if (email.address.equals("grptest00@memberof.virt")) {
+			switch (email.address) {
+			case "grptest00@memberof.virt":
 				assertTrue(email.isDefault);
 				assertTrue(email.allAliases);
 				continue;
-			}
-
-			if (email.address.equals("grptest00.alias01@memberof.virt")) {
-				assertFalse(email.isDefault);
-				assertFalse(email.allAliases);
-				continue;
-			}
-
-			if (email.address.equals("grptest00.alias01@memberof.virt")) {
-				assertFalse(email.isDefault);
-				assertFalse(email.allAliases);
-				continue;
-			}
-
-			if (email.address.equals("allaliases@memberof.virt")) {
+			case "allaliases00@memberof.virt":
 				assertFalse(email.isDefault);
 				assertTrue(email.allAliases);
 				continue;
+			case "allaliases01@memberof.virt":
+				assertFalse(email.isDefault);
+				assertTrue(email.allAliases);
+				continue;
+			case "grptest00.alias01@memberof.virt":
+				assertFalse(email.isDefault);
+				assertFalse(email.allAliases);
+				continue;
+			case "grptest00.alias03@memberof-alias00.virt":
+				assertFalse(email.isDefault);
+				assertFalse(email.allAliases);
+				continue;
+			case "grptest00.alias03@memberof-alias01.virt":
+				assertFalse(email.isDefault);
+				assertFalse(email.allAliases);
+				continue;
+			case "grptest00.alias04@memberof-alias01.virt":
+				assertFalse(email.isDefault);
+				assertFalse(email.allAliases);
+				continue;
+			default:
+				fail("Unknown email address: " + email.address);
 			}
-
-			fail("Unknown email address: " + email.address);
 		}
 	}
 
