@@ -176,15 +176,17 @@ public class UnexpungeCommand implements ICmdLet, Runnable {
 		List<ItemValue<MailboxItem>> mget = itemsApi.multipleById(chunk.values);
 		String[] headers = { "id", "subject", "preview", "last-modification" };
 		int chunkSize = mget.size();
-		String[][] data = new String[chunkSize][headers.length];
+		List<String[]> data = new ArrayList<>(chunkSize);
 		List<ItemValue<MailboxItem>> ret = new ArrayList<>(chunkSize);
 		for (int i = 0; i < chunkSize; i++) {
 			ItemValue<MailboxItem> item = mget.get(i);
 			if (filter.test(item)) {
-				data[i][0] = Long.toString(item.internalId);
-				data[i][1] = item.value.body.subject;
-				data[i][2] = item.value.body.preview;
-				data[i][3] = item.updated.toString();
+				String[] dataRow = new String[headers.length];
+				dataRow[0] = Long.toString(item.internalId);
+				dataRow[1] = item.value.body.subject;
+				dataRow[2] = item.value.body.preview;
+				dataRow[3] = item.updated.toString();
+				data.add(dataRow);
 				if (!dry) {
 					ret.add(item);
 				} else {
@@ -192,7 +194,11 @@ public class UnexpungeCommand implements ICmdLet, Runnable {
 				}
 			}
 		}
-		ctx.info(AsciiTable.getTable(headers, data));
+		if (!data.isEmpty()) {
+			String[][] forDisplay = new String[data.size()][];
+			forDisplay = data.toArray(forDisplay);
+			ctx.info(AsciiTable.getTable(headers, forDisplay));
+		}
 		return ret;
 	}
 
