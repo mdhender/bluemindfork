@@ -1768,7 +1768,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onVideoConferencingSelect_ = func
   var dom = this.getDomHelper();
 
   var resourceUid = this.getChild('bm-ui-form-videoconferencing-select').getValue();
-  if (resourceUid == -1) {
+  if (resourceUid == -1) {
     this.addOrRemoveVideoConferencing_(null, 'remove');
     return;
   }
@@ -1834,11 +1834,23 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = f
       this.getModel().conference = null;
       this.getModel().conferenceDescription = '';
       this.editor_.setValue(res.description);
-      if (attendee != null) {
-        goog.array.removeIf(this.getModel().attendees, function(a) {
-          return attendee['mailto'] == a['mailto'];
-        }); 
+
+      // remove all videoconf resources from meeting
+      var videoConferencingResourcesPath = [];
+      var videoConferencingResources = this.ctx.service('videoConferencing').getVideoConferencingResources();
+      if (videoConferencingResources != null) {
+        videoConferencingResources.forEach(function(res) {
+          videoConferencingResourcesPath.push('bm://' + goog.global['bmcSessionInfos']['domain'] + '/resources/' + res.uid);
+        });
       }
+      var attendees = [];
+      goog.array.forEach(this.getModel().attendees, function(attendee) {
+        if (!goog.array.contains(videoConferencingResourcesPath, attendee['dir'])) {
+          attendees.push(attendee);
+        }
+      });
+      this.getModel().attendees = attendees;
+
       this.getModel().states.meeting = this.getModel().attendees.length !== 0;
       this.showConferenceForm_();
     }, null, this);
