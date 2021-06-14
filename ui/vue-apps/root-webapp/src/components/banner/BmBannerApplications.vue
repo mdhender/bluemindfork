@@ -10,14 +10,14 @@
     >
         <div class="text-white mb-2 mx-3">{{ $t("banner.main.apps") }}</div>
         <bm-row class="bm-apps">
-            <bm-col v-for="app in applications" :key="app.href" cols="6" class="text-white">
-                <a v-if="app.external" :href="app.href">
+            <bm-col v-for="app in applications" :key="app.$id" cols="6" class="text-white">
+                <a v-if="app.external" :href="app.path">
                     <div class="pl-3 my-2 bm-app">
                         <bm-app-icon :icon-app="app.icon" />
                         <span class="pl-2 text-uppercase align-middle">{{ app.name }}</span>
                     </div>
                 </a>
-                <router-link v-else :to="app.href" tag="div" class="pl-3 my-2 bm-app" @click.native="closePopover">
+                <router-link v-else :to="app.path" tag="div" class="pl-3 my-2 bm-app" @click.native="closePopover">
                     <bm-app-icon :icon-app="app.icon" />
                     <span class="pl-2 text-uppercase align-middle">{{ app.name }}</span>
                 </router-link>

@@ -7,6 +7,7 @@
     "main": "src/run.js",
     "dependencies": {
         "@bluemind/alert.store": "^4.1.0",
+        "@bluemind/extensions": "^4.1.0",
         "@bluemind/inject": "^4.1.0",
         "@bluemind/mailbox.api": "^4.1.0",
         "@bluemind/router": "^4.1.0",

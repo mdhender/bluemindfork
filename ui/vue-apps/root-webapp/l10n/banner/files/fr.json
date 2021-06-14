@@ -5,7 +5,7 @@
     "banner.menu.logout": "Déconnexion",
     "banner.menu.preferences.aria": "Accéder aux paramètres de mon compte",
     "banner.reach.all_apps": "Accéder à toutes les applications Bluemind",
-    "banner.reach.help": "Accéder à l'aide de la messagerie Bluemind",
+    "banner.help": "Accéder à l'aide de BlueMind",
     "banner.about": "À propos",
     "banner.about.version": "{brand} ({technical})",
     "banner.about.version.brand": "Version {0}"

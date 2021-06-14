@@ -1,5 +1,5 @@
 <template>
-    <a :href="url" target="_blank" :title="$t('banner.reach.help')" class="align-self-center mr-4 btn btn-inline-light">
+    <a :href="url" target="_blank" :title="$t('banner.help')" class="align-self-center btn btn-inline-light">
         <bm-icon icon="interrogation" size="lg" />
     </a>
 </template>

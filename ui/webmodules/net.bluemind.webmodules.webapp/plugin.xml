@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-    <extension-point id="net.bluemind.banner" name="banner" schema="schema/net.bluemind.banner.exsd"/>
+    <extension-point id="webapp.banner" name="banner" schema="schema/webapp.banner.exsd"/>
     
    <extension
          point="net.bluemind.webmodule">
@@ -31,7 +31,7 @@
     <extension
          point="net.bluemind.extensions">
       <export-extension-point
-            id="net.bluemind.banner">
+            id="webapp.banner">
       </export-extension-point>
     </extension>
 

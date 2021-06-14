@@ -31,10 +31,11 @@ export default class NotificationManager {
     }
 
     async setNotificationWhenReceivingMail(userSession) {
+        //TODO: The whole think should be provider by an extension.
         if (userSession.roles.includes("hasMail")) {
             await this.requestPermissionIfNeeded();
-            const mailAppExtension = window.bmExtensions_["net.bluemind.banner"].find(
-                extension => extension.application.role === "hasMail" && extension.application.href.includes("mail")
+            const mailAppExtension = window.bmExtensions_["webapp.banner"].find(
+                ({ bundle }) => bundle === "net.bluemind.webapp.mail.js"
             );
             if (!mailAppExtension) {
                 return;

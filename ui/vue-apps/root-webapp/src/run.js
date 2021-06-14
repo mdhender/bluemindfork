@@ -14,7 +14,6 @@ import { UserClient, UserMailIdentitiesClient, UserSettingsClient } from "@bluem
 import VueBus from "@bluemind/vue-bus";
 import { extend } from "@bluemind/vuex-router";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
-
 import PreferencesStore from "./preferencesStore";
 import RootAppStore from "./rootAppStore";
 import SessionStore from "./sessionStore";
@@ -117,7 +116,7 @@ function initI18N() {
     let fallbackLang = "en";
     const navigatorLang = navigator.language;
     if (navigatorLang) {
-        fallbackLang = navigator.language.split('-')[0];
+        fallbackLang = navigator.language.split("-")[0];
     }
     const i18n = new VueI18n({
         locale: lang,

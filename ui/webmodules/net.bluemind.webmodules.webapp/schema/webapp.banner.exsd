@@ -3,7 +3,7 @@
 <schema targetNamespace="net.bluemind.webmodules.webapp" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="net.bluemind.webmodules.webapp" id="net.bluemind.banner" name="banner"/>
+         <meta.schema plugin="net.bluemind.webmodules.webapp" id="webapp.banner" name="banner"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -17,12 +17,10 @@
          </appinfo>
       </annotation>
       <complexType>
-         <sequence minOccurs="1" maxOccurs="unbounded">
-            <choice>
-               <element ref="application"/>
-               <element ref="widget"/>
-            </choice>
-         </sequence>
+         <choice minOccurs="1" maxOccurs="unbounded">
+            <element ref="application"/>
+            <element ref="widget"/>
+         </choice>
          <attribute name="point" type="string" use="required">
             <annotation>
                <documentation>
@@ -52,11 +50,9 @@
 
    <element name="application">
       <complexType>
-         <choice>
-            <element ref="icon-name"/>
-            <element ref="icon-url"/>
-            <element ref="icon-svg"/>
-         </choice>
+         <sequence>
+            <element ref="icon"/>
+         </sequence>
          <attribute name="name" type="string" use="required">
             <annotation>
                <documentation>
@@ -105,16 +101,35 @@
       </complexType>
    </element>
 
-   <element name="widget" type="string">
+   <element name="widget">
+      <complexType>
+         <attribute name="component" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
    </element>
 
-   <element name="icon-name" type="string">
+   <element name="icon">
+      <complexType>
+         <choice>
+            <element ref="name"/>
+            <element ref="url"/>
+            <element ref="svg"/>
+         </choice>
+      </complexType>
    </element>
 
-   <element name="icon-url" type="string">
+   <element name="url" type="string">
    </element>
 
-   <element name="icon-svg" type="string">
+   <element name="name" type="string">
+   </element>
+
+   <element name="svg" type="string">
    </element>
 
    <annotation>

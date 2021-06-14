@@ -1,7 +1,7 @@
 <template>
     <div class="main-app d-flex flex-column h-100 bg-light">
         <global-events target="self" @resize="appHeight" />
-        <bm-banner :applications="applications" :widgets="widgets" :user="user" />
+        <bm-banner :applications="applications" :user="user" />
         <preferences v-if="showPreferences" :user="user" :applications="applications" />
         <about v-if="showAbout" :version="software.version" />
         <div
@@ -23,13 +23,18 @@
 <script>
 import { mapActions, mapMutations, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
-import { BmAlertArea } from "@bluemind/styleguide";
+
 import "@bluemind/styleguide/css/bluemind.scss";
+import { BmAlertArea } from "@bluemind/styleguide";
 import CommonL10N from "@bluemind/l10n";
 import injector from "@bluemind/inject";
+import { mapExtensions } from "@bluemind/extensions";
+
 import About from "./About";
 import BmBanner from "./banner/BmBanner";
 import Preferences from "./preferences/Preferences";
+
+const BASE_URI = new RegExp("^" + new URL(document.baseURI).pathname.replace(/\/[^/]*$/, ""));
 
 export default {
     components: {
@@ -42,63 +47,32 @@ export default {
     componentI18N: { messages: CommonL10N },
 
     data() {
-        const data = {};
-        data.applications = [];
-        data.widgets = [];
-        const baseURI = new RegExp("^" + new URL(document.baseURI).pathname.replace(/\/[^/]*$/, ""));
-        window.bmExtensions_["net.bluemind.banner"].map(function (extension) {
-            if (extension.application) {
-                const entry = extension.application;
-                data.applications.push({
-                    id: extension.bundle,
-                    icon: {
-                        name: entry.children["icon-name"] && entry.children["icon-name"].body,
-                        svg: entry.children["icon-svg"] && entry.children["icon-svg"].body,
-                        url: entry.children["icon-url"] && entry.children["icon-url"].body
-                    },
-                    fullPath: entry.href,
-                    href: baseURI.test(entry.href) ? entry.href.replace(baseURI, "") : entry.href,
-                    external: !baseURI.test(entry.href),
-                    name: entry.name,
-                    description: entry.description,
-                    order: entry.order,
-                    role: entry.role,
-                    help: entry.help
-                });
-            }
-            if (extension.widget) {
-                data.widgets.push(extension.widget);
-            }
-            if (extension.notification) {
-                data.notifications.push(extension.notification);
-            }
-        });
+        const session = injector.getProvider("UserSession").get();
 
-        const userSession = injector.getProvider("UserSession").get();
-
-        data.applications = data.applications
-            .filter(app => userSession.roles.includes(app.role))
-            .sort((a, b) => b.order - a.order);
-        data.widgets.sort((a, b) => b.order - a.order);
-
-        const user = userSession.userId
-            ? {
-                  displayname: userSession["formatedName"].trim(),
-                  email: userSession["defaultEmail"]
-              }
-            : {
-                  displayname: "Anonymous",
-                  email: "anonymous@noreply.local"
-              };
-        const software = {
-            version: {
-                technical: userSession["bmVersion"],
-                brand: userSession["bmBrandVersion"]
+        return {
+            applications: mapExtensions("webapp.banner", { apps: "application" })
+                .apps.filter(({ role }) => session.roles.includes(role))
+                .map(application => ({
+                    ...application,
+                    path: BASE_URI.test(application.href) ? application.href.replace(BASE_URI, "") : application.href,
+                    external: !BASE_URI.test(application.href)
+                })),
+            user: session.userId
+                ? {
+                      displayname: session["formatedName"],
+                      email: session["defaultEmail"]
+                  }
+                : {
+                      displayname: "Anonymous",
+                      email: "anonymous@noreply.local"
+                  },
+            software: {
+                version: {
+                    version: session["bmVersion"],
+                    brand: session["bmBrandVersion"]
+                }
             }
         };
-        data.user = user;
-        data.software = software;
-        return data;
     },
     computed: {
         ...mapState({ applicationAlerts: state => state.alert.applicationAlerts }),

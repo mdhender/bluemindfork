@@ -2,9 +2,9 @@
     <bm-navbar-nav fill class="bm-banner-shortcuts align-items-end" role="menubar">
         <bm-nav-item
             v-for="app in applications"
-            :key="app.href"
-            :to="app.external ? '' : app.href"
-            :href="app.external ? app.href : ''"
+            :key="app.$id"
+            :to="app.external ? '' : app.path"
+            :href="app.external ? app.path : ''"
             class="px-2"
             role="menuitem"
         >

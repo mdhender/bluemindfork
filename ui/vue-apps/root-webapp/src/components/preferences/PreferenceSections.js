@@ -170,7 +170,7 @@ function getWebmailSection(roles, vueI18N, applications) {
     return {
         name: vueI18N.t("common.application.webmail"),
         code: "mail",
-        icon: applications.find(({ id }) => id === "net.bluemind.webapp.mail.js")?.icon,
+        icon: applications.find(({ $id }) => $id === "net.bluemind.webapp.mail.js")?.icon,
         categories: [
             {
                 code: "main",
@@ -307,7 +307,7 @@ function getCalendarSection(vueI18N, applications) {
     return {
         name: vueI18N.t("common.application.calendar"),
         code: "calendar",
-        icon: applications.find(({ id }) => id === "net.bluemind.webmodules.calendar")?.icon,
+        icon: applications.find(({ $id }) => $id === "net.bluemind.webmodules.calendar")?.icon,
         categories: [
             {
                 code: "main",

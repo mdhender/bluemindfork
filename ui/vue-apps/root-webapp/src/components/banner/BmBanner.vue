@@ -23,18 +23,17 @@
         <div class="app-title text-center flex-grow-1 align-self-center font-weight-bold text-uppercase">
             <span v-if="selectedApp">{{ selectedApp.name }}</span>
         </div>
-        <component :is="widget.component" v-for="widget in widgets" :key="widget.component" />
+        <bm-extension id="webapp.banner" property="widget" class="d-flex align-items-center" />
         <bm-banner-help v-if="selectedApp && selectedApp.help" :url="selectedApp.help" />
-
-        <bm-banner-menu :user="user" />
+        <bm-banner-menu :user="user" class="ml-4" />
     </bm-navbar>
 </template>
 
 <script>
 import { BmButton, BmIcon, BmLogo, BmNavbar, BmNavbarBrand } from "@bluemind/styleguide";
+import { BmExtension } from "@bluemind/extensions";
 import BannerL10N from "../../../l10n/banner/";
 import BmBannerApplications from "./BmBannerApplications";
-import BmAppIcon from "../BmAppIcon";
 import BmBannerMenu from "./BmBannerMenu";
 import BmBannerHelp from "./BmBannerHelp";
 import BmBannerShortcuts from "./BmBannerShortcuts";
@@ -42,12 +41,12 @@ import BmBannerShortcuts from "./BmBannerShortcuts";
 export default {
     name: "BmBanner",
     components: {
-        BmAppIcon,
         BmBannerApplications,
         BmBannerHelp,
         BmBannerMenu,
         BmBannerShortcuts,
         BmButton,
+        BmExtension,
         BmIcon,
         BmNavbar,
         BmNavbarBrand
@@ -58,10 +57,6 @@ export default {
             required: true,
             type: Array
         },
-        widgets: {
-            required: true,
-            type: Array
-        },
         user: {
             required: true,
             type: Object
@@ -69,24 +64,23 @@ export default {
     },
     data() {
         return {
-            logo: BmLogo,
-            selectedAppPath: ""
+            logo: BmLogo
         };
     },
     computed: {
         selectedApp() {
-            return this.applications.find(application => this.$route.path.startsWith(application.href));
+            return this.applications.find(application => this.$route.path.startsWith(application.path));
         },
         logoLink() {
-            return this.selectedApp ? this.selectedApp.href : "/";
+            return this.selectedApp ? this.selectedApp.path : "/";
         },
         defaultApps() {
             const defaults = [
                 "net.bluemind.webmodules.contact",
-                "net.bluemind.webapp.mail.js",
-                "net.bluemind.webmodules.calendar"
+                "net.bluemind.webmodules.calendar",
+                "net.bluemind.webapp.mail.js"
             ];
-            return this.applications.filter(({ id }) => defaults.includes(id));
+            return defaults.map(id => this.applications.find(({ $id }) => $id === id)).filter(Boolean);
         }
     }
 };
