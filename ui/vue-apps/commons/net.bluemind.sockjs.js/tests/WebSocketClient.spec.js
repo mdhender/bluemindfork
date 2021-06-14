@@ -37,7 +37,7 @@ const websocket = {
     }
 };
 
-xdescribe("WebSocketClient", () => {
+describe("WebSocketClient", () => {
     beforeEach(() => {
         SockJS.mockImplementation(() => websocket);
     });
@@ -111,25 +111,32 @@ xdescribe("WebSocketClient", () => {
     });
     test("Plugins can watch all native event plus all sent request", () => {
         const open = jest.fn(),
-            send = jest.fn(),
+            request = jest.fn(),
+            response = jest.fn(),
             message = jest.fn(),
             close = jest.fn();
         const plugin = {
             install(socket, dummy) {
                 expect(dummy).toBe("dummy");
                 socket.addEventListener("open", open);
-                socket.addEventListener("send", send);
+                socket.addEventListener("request", request);
+                socket.addEventListener("response", response);
                 socket.addEventListener("message", message);
                 socket.addEventListener("close", close);
             }
         };
         const socket = new WebSocketClient("server.local.host");
-        socket.use(plugin, "dummy");
+        WebSocketClient.use(plugin, "dummy");
         websocket.open();
         expect(open).toHaveBeenCalled();
         socket.register("1");
-        expect(send).toHaveBeenCalled();
+        expect(request).toHaveBeenCalled();
         expect(message).toHaveBeenCalled();
+        request.mockClear();
+        response.mockClear();
+        socket.send({});
+        expect(request).toHaveBeenCalled();
+        expect(response).toHaveBeenCalled();
         websocket.close();
         expect(close).toHaveBeenCalled();
     });

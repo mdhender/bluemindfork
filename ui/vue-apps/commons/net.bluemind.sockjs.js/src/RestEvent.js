@@ -3,7 +3,12 @@ import { Event } from "@bluemind/event";
 export default class RestEvent extends Event {
     constructor(type, data) {
         super(type);
-        this.data = data;
+        if (data instanceof RestEvent) {
+            this.data = data.data;
+            this.originalEvent = data;
+        } else {
+            this.data = data;
+        }
     }
 
     static disconnected(requestId) {

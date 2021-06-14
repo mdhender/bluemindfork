@@ -14,6 +14,8 @@ import { UserClient, UserMailIdentitiesClient, UserSettingsClient } from "@bluem
 import VueBus from "@bluemind/vue-bus";
 import { extend } from "@bluemind/vuex-router";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
+import WebSocketClient from "@bluemind/sockjs";
+
 import PreferencesStore from "./preferencesStore";
 import RootAppStore from "./rootAppStore";
 import SessionStore from "./sessionStore";
@@ -50,6 +52,14 @@ function setVuePlugins(userSession) {
     Vue.use(VueI18n);
     Vue.use(VueBus, store);
     if (userSession.userId) {
+        WebSocketClient.use(socket =>
+            socket.addEventListener("response", ({ data }) => {
+                if (data.statusCode === 401) {
+                    let url = window.location.origin + window.location.pathname.replace(/[^/]*$/, "");
+                    window.location.assign(url);
+                }
+            })
+        );
         Vue.use(VueSockjsPlugin, VueBus);
     }
     Vue.use(Vue2TouchEvents, { disableClick: true });

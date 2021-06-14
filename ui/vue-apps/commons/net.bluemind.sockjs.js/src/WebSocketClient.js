@@ -65,16 +65,18 @@ export default class WebSocketClient {
         websocket.handler.register(OnlineEvent.TYPE, listener);
     }
 
-    use(plugin) {
-        use(plugin);
-    }
-
     reset() {
         reset();
+    }
+
+    static use(plugin, ...args) {
+        use(plugin, ...args);
     }
 }
 
 const PING_ID = "55CA9ACE-0B20-4891-BB3F-40D12BFD476B";
+const PING_INTERVAL = 20 * 1000;
+const HEARTBEAT_INTERVAL = 100 * 1000;
 
 const Method = {
     REGISTER: "register",
@@ -107,14 +109,14 @@ function createSockJsClient() {
     }
     const client = new SockJS(websocket.url);
     client.onopen = function () {
-        websocket.timers.ping = setTimeout(ping, 5 * 1000);
+        websocket.timers.ping = setTimeout(ping, PING_INTERVAL);
         online();
         websocket.plugins.dispatchEvent(new Event("open"));
     };
 
     client.onheartbeat = function () {
         clearTimeout(websocket.timers.heartbeat);
-        websocket.timers.heartbeat = setTimeout(() => websocket.client.close(), 100 * 1000);
+        websocket.timers.heartbeat = setTimeout(() => websocket.client.close(), HEARTBEAT_INTERVAL);
     };
 
     client.onclose = function () {
@@ -151,7 +153,7 @@ function send(request, listener) {
         websocket.handler.unregister(request.path);
     }
 
-    websocket.plugins.dispatchEvent(new RestEvent("send", request));
+    websocket.plugins.dispatchEvent(new RestEvent("request", request));
 
     const promise = new Promise(resolver.bind(this, request.requestId));
     if (websocket.client.readyState !== SockJS.OPEN) {
@@ -169,7 +171,7 @@ function ping(callback) {
     if (websocket.timers.ping !== null) {
         clearTimeout(websocket.timers.ping);
         websocket.timers.ping = null;
-        websocket.handler.addReplyListener(PING_ID, () => (websocket.timers.ping = setTimeout(ping, 20 * 1000)));
+        websocket.handler.addReplyListener(PING_ID, () => (websocket.timers.ping = setTimeout(ping, PING_INTERVAL)));
         const request = {
             method: "GET",
             requestId: PING_ID,
@@ -206,6 +208,7 @@ function reconnect() {
 
 function resolver(requestId, resolve, reject) {
     websocket.handler.addReplyListener(requestId, event => {
+        websocket.plugins.dispatchEvent(new RestEvent("response", event));
         if (event.data.statusCode !== 200) {
             reject(event.data);
         } else {
@@ -214,8 +217,7 @@ function resolver(requestId, resolve, reject) {
     });
 }
 
-function use(plugin) {
-    const args = Array.prototype.slice.call(arguments, 1);
+function use(plugin, ...args) {
     args.unshift(websocket.plugins);
     if (typeof plugin.install === "function") {
         plugin.install.apply(plugin, args);
