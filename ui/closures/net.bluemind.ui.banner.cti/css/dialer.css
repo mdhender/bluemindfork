@@ -10,7 +10,7 @@
   visibility: hidden;
   top: 0;
   min-width: 239px;
-  z-index: 20;
+  z-index: 250;
 }
 
 .dialer .field-base.goog-inline-block {
@@ -32,6 +32,7 @@
   border-right: none;
   margin-top: 14px;
   margin-left: 12px;
+  line-height: 1;
 }
 
 .dialer .goog-button-base .dial-button {
@@ -48,6 +49,10 @@
   -moz-border-radius: 0 2px 2px 0;
   border-radius: 0 2px 2px 0;
   margin-left: 0;
+}
+
+.dialer .goog-button-base-content {
+  height: 1rem;
 }
 
 .dialer-renderer {

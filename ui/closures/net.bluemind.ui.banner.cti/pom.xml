@@ -45,7 +45,7 @@
                                                                 "align-content",
                                                                 "justify-content"
 								],
-								"css-inputs": ["dialer.css"],
+								"css-inputs": ["dialer.css", "common.css", "button.css"],
 								"experimental-compiler-options": {
 								"generateExports": true
                                                                 },

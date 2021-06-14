@@ -8,12 +8,15 @@
             role="hasCTI">
       </widget-entry>
    </extension>
+   <extension point="webapp.banner">
+      <widget component="BmCTIWidget">
+       
+      </widget>
+   </extension>
    <extension
          point="net.bluemind.webmodule">
       <web-module-provider
             module="*">
-         <blacklist path="/visio"/>
-         <blacklist path="/webapp"/>
          <web-resource
                bundle="net.bluemind.ui.banner.cti">
          </web-resource>

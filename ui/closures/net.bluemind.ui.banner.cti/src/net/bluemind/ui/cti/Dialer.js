@@ -112,6 +112,7 @@ net.bluemind.ui.cti.Dialer.prototype.button_;
 net.bluemind.ui.cti.Dialer.prototype.createDom = function() {
   goog.base(this, 'createDom');
   goog.dom.classlist.add(this.getElement(), goog.getCssName('dialer'));
+  goog.dom.classlist.add(this.getElement(), goog.getCssName('bg-info-dark'));
   this.input_.addClassName(goog.getCssName('goog-inline-block'));
   this.popup_ = new goog.ui.Popup();
   this.popup_.setElement(this.getElement());
