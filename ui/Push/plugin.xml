@@ -4,10 +4,14 @@
    <extension
          point="net.bluemind.webmodule">
       <web-module-provider
-            module="/webmail,/contact,/cal,/task,/adminconsole,/settings">
+            module="*">
          <js
                async-loading="true"
                path="net.bluemind.ui.push/net.bluemind.ui.push.nocache.js">
+         </js>
+         <js
+               async-loading="false"
+               path="static/net.bluemind.ui.banner.im.js">
          </js>
          <web-resource
                bundle="net.bluemind.ui.push">
@@ -22,5 +26,8 @@
             role="hasIM">
       </widget-entry>
    </extension>
-
+   <extension point="webapp.banner">
+      <widget component="BmIMWidget">
+      </widget>
+   </extension>
 </plugin>

@@ -116,6 +116,7 @@ public class Push implements EntryPoint {
       var el = @net.bluemind.ui.push.client.Push::createBubble()();
       return el;
     };
+
 	}-*/;
 
 	private static native void showIM()
