@@ -37,6 +37,7 @@ import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ContainersHierarchyNodeStore;
+import net.bluemind.core.container.service.internal.ContainersHierarchyEventProducer.Operation;
 import net.bluemind.core.rest.BmContext;
 
 public class InternalContainersHierarchyService implements IInternalContainersFlatHierarchy, IContainersFlatHierarchy {
@@ -60,21 +61,21 @@ public class InternalContainersHierarchyService implements IInternalContainersFl
 	public void create(String uid, ContainerHierarchyNode node) throws ServerFault {
 		rbacManager.check(Verb.Write.name(), Verb.Manage.name());
 		ItemVersion itemVersion = storeService.create(uid, node.name, node);
-		eventsProducer.changed(itemVersion.version);
+		eventsProducer.changed(itemVersion.version, node.containerUid, Operation.CREATE);
 	}
 
 	@Override
 	public void createWithId(long id, String uid, ContainerHierarchyNode node) throws ServerFault {
 		rbacManager.check(Verb.Write.name(), Verb.Manage.name());
 		ItemVersion itemVersion = storeService.createWithId(uid, id, null, node.name, node);
-		eventsProducer.changed(itemVersion.version);
+		eventsProducer.changed(itemVersion.version, node.containerUid, Operation.CREATE);
 	}
 
 	@Override
 	public void update(String uid, ContainerHierarchyNode node) throws ServerFault {
 		rbacManager.check(Verb.Write.name(), Verb.Manage.name());
 		ItemVersion itemVersion = storeService.update(uid, node.name, node);
-		eventsProducer.changed(itemVersion.version);
+		eventsProducer.changed(itemVersion.version, node.containerUid, Operation.UPDATE);
 	}
 
 	@Override
@@ -82,7 +83,7 @@ public class InternalContainersHierarchyService implements IInternalContainersFl
 		rbacManager.check(Verb.Write.name(), Verb.Manage.name());
 		ItemVersion delete = storeService.delete(uid);
 		if (delete != null) {
-			eventsProducer.changed(delete.version);
+			eventsProducer.changed(delete.version, ContainerHierarchyNode.extractContainerUid(uid), Operation.DELETE);
 		}
 	}
 

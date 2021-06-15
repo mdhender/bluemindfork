@@ -41,6 +41,7 @@ import net.bluemind.mailbox.api.Mailbox;
 public interface IMailReplicaUids {
 
 	public static final String MAILBOX_RECORDS = "mailbox_records";
+	public static final String MAILBOX_RECORDS_PREFIX = "mbox_records_";
 	public static final String REPLICATED_MBOXES = "replicated_mailboxes";
 
 	/**
@@ -99,11 +100,11 @@ public interface IMailReplicaUids {
 	}
 
 	public static String mboxRecords(@PathParam("uid") String mailboxUniqueId) {
-		return "mbox_records_" + mailboxUniqueId;
+		return MAILBOX_RECORDS_PREFIX + mailboxUniqueId;
 	}
 
 	public static String uniqueId(@PathParam("uid") String recordsContainerUid) {
-		return recordsContainerUid.substring("mbox_records_".length());
+		return recordsContainerUid.substring(MAILBOX_RECORDS_PREFIX.length());
 	}
 
 	public static String subtreeUid(@PathParam("domainUid") String domainUid, ItemValue<Mailbox> mbox) {

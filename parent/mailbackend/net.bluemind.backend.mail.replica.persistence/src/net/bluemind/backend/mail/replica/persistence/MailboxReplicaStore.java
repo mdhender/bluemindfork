@@ -89,4 +89,13 @@ public class MailboxReplicaStore extends AbstractItemValueStore<MailboxReplica> 
 		return ret;
 	}
 
+	public String rootByName(String name) throws SQLException {
+		String query = "SELECT unique_id FROM t_mailbox_replica WHERE container_id = ? and name = ? and parent_uid is null";
+		String ret = unique(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, name });
+		if (logger.isDebugEnabled()) {
+			logger.debug("byName({}) in container {} => {}", name, container.id, ret);
+		}
+		return ret;
+	}
+
 }

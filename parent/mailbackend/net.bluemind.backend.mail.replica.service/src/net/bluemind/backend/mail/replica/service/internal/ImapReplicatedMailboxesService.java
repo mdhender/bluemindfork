@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.mail.replica.service.internal;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -164,13 +165,13 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onMailboxCreated(newName.subtreeContainer,
 				newName.fullName);
-		logger.info("{} Should create '{}'", root, computedName);
+		logger.info("{} Should create fn: '{}' (parent: {})", root, newName.fullName, newName.parentUid);
 		return imapContext.withImapClient(sc -> {
 			boolean ok = sc.create(computedName);
 			if (ok) {
 				return future.get(10, TimeUnit.SECONDS);
 			} else {
-				throw new ServerFault("IMAP create of '" + value.name + "' failed.");
+				throw new ServerFault("IMAP create of '" + computedName + "' in " + root + " failed.");
 			}
 		});
 	}
@@ -188,26 +189,40 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 	private static class UpdatedName {
 		String subtreeContainer;
 		String fullName;
+		String parentUid;
 
-		public UpdatedName(String subtreeContainer, String fullName) {
+		public UpdatedName(String subtreeContainer, String fullName, String parentUid) {
 			this.subtreeContainer = subtreeContainer;
 			this.fullName = fullName;
+			this.parentUid = parentUid;
 		}
 
 	}
 
 	private UpdatedName updateName(MailboxFolder folder, String containerUid) {
-		if (root.ns == Namespace.shared && folder.parentUid != null) {
-			String parentRecs = IMailReplicaUids.mboxRecords(folder.parentUid);
+		String parent = folder.parentUid;
+		if (root.ns == Namespace.shared) {
+			if (parent == null) {
+				// this is wrong if you create a top-lvl folder with the name of a mailshare
+				// inside itself
+				try {
+					String lookup = root.name.replace('^', '.');
+					parent = replicaStore.rootByName(lookup);
+					logger.info("{} Updated parentUid to {} (lookup: {})", root, parent, lookup);
+				} catch (SQLException e) {
+					throw new ServerFault();
+				}
+			}
+			String parentRecs = IMailReplicaUids.mboxRecords(parent);
 			ReplicasStore repStore = new ReplicasStore(DataSourceRouter.get(context, parentRecs));
-			Optional<SubtreeLocation> optRecordsLocation = SubtreeLocations.getById(repStore, folder.parentUid);
+			Optional<SubtreeLocation> optRecordsLocation = SubtreeLocations.getById(repStore, parent);
 			if (!optRecordsLocation.isPresent()) {
-				throw ServerFault.notFound("subtree loc not found for parent " + folder.parentUid);
+				throw ServerFault.notFound("subtree loc not found for parent " + parent);
 			}
 			SubtreeLocation recLoc = optRecordsLocation.get();
-			return new UpdatedName(recLoc.subtreeContainer, recLoc.imapPath(context) + "/" + folder.name);
+			return new UpdatedName(recLoc.subtreeContainer, recLoc.imapPath(context) + "/" + folder.name, parent);
 		} else {
-			return new UpdatedName(containerUid, folder.fullName);
+			return new UpdatedName(containerUid, folder.fullName, parent);
 		}
 	}
 

@@ -28,9 +28,13 @@ import net.bluemind.core.container.api.ContainersFlatHierarchyBusAddresses;
 
 public class ContainersHierarchyEventProducer {
 
-	private String domainUid;
-	private String ownerUid;
-	private EventBus eventBus;
+	private final String domainUid;
+	private final String ownerUid;
+	private final EventBus eventBus;
+
+	public enum Operation {
+		CREATE, UPDATE, DELETE
+	}
 
 	public ContainersHierarchyEventProducer(String domainUid, String ownerUid, EventBus bus) {
 		this.domainUid = domainUid;
@@ -38,12 +42,15 @@ public class ContainersHierarchyEventProducer {
 		this.eventBus = bus;
 	}
 
-	public void changed(long version) {
+	public void changed(long version, String containerUid, Operation op) {
 		JsonObject change = new JsonObject().put("version", version);
 		change.put("domain", domainUid).put("owner", ownerUid);
 		eventBus.publish(ContainersFlatHierarchyBusAddresses.ALL_HIERARCHY_CHANGES, change);
 		eventBus.publish(ContainersFlatHierarchyBusAddresses.containersHierarchyChanges(ownerUid, domainUid), change);
 
+		JsonObject detailed = change.copy();
+		detailed.put("container", containerUid).put("op", op.name());
+		eventBus.publish(ContainersFlatHierarchyBusAddresses.ALL_HIERARCHY_CHANGES_OPS, detailed);
 	}
 
 }

@@ -19,9 +19,15 @@ package net.bluemind.core.container.api;
 
 public class ContainersFlatHierarchyBusAddresses {
 
+	private ContainersFlatHierarchyBusAddresses() {
+
+	}
+
 	private static final String BASE_ADDRESS = "bm." + IFlatHierarchyUids.TYPE + ".hook";
 
 	public static final String ALL_HIERARCHY_CHANGES = BASE_ADDRESS + ".changed";
+
+	public static final String ALL_HIERARCHY_CHANGES_OPS = BASE_ADDRESS + ".changed.ops";
 
 	public static final String containersHierarchyChanges(String ownerUid, String domainUid) {
 		return BASE_ADDRESS + "." + IFlatHierarchyUids.getIdentifier(ownerUid, domainUid) + ".changed";

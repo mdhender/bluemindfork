@@ -18,6 +18,7 @@
 package net.bluemind.core.container.api;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 
 @BMApi(version = "3")
@@ -30,6 +31,15 @@ public class ContainerHierarchyNode {
 
 	public static String uidFor(String containerUid, String containerType, String domain) {
 		return containerType + ":" + containerUid + "@" + domain;
+	}
+
+	public static String extractContainerUid(String nodeUid) {
+		int start = nodeUid.indexOf(':');
+		int end = nodeUid.lastIndexOf('@');
+		if (start == -1 || end == -1) {
+			throw new ServerFault("invalid flat hier nodeUid format '" + nodeUid + "'");
+		}
+		return nodeUid.substring(start + 1, end);
 	}
 
 	public static ContainerHierarchyNode of(BaseContainerDescriptor cd) {
