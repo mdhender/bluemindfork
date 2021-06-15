@@ -5,5 +5,6 @@
     "banner.menu.logout": "Wyloguj",
     "banner.menu.settings.aria": "Dostęp do ustawień konta",
     "banner.reach.all_apps": "Dostęp do wszystkich aplikacji Bluemind",
-    "banner.reach.help": "Dostęp do pomocy Bluemind"
+    "banner.reach.help": "Dostęp do pomocy Bluemind",
+    "banner.menu.preferences.aria": "Dostęp do ustawień konta"
 }
