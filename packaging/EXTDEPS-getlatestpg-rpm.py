@@ -29,13 +29,24 @@ def main(repomd_baseurl, postgresql_version, rhel_version):
     r = get(urljoin(repomd_baseurl, primary_location))
     primary_xmldata = re.sub(' xmlns="[^"]+"', '', gzip.decompress(r.content).decode("utf-8"), count=1)
     root = ET.fromstring(primary_xmldata)
-    pkg_versions = [
-        "{}-{}".format(e.get("ver"), e.get("rel"))
-        for e in root.findall("package[@type='rpm']/name/[.='postgresql{}']/../version".format(postgresql_version))
-        if "rc" not in e.get("ver") and "beta" not in e.get("ver")
-    ]
-    pkg_versions.sort()
-    print('PG_RHEL{}="{}"'.format(rhel_version, sorted(pkg_versions)[-1]))
+    for pkgname, varname in (
+        ("postgresql%s" % postgresql_version, "PG"),
+        ("pg_repack%s" % postgresql_version, "PG_REPACK"),
+        ("pg_qualstats_%s" % postgresql_version, "PG_QUALSTATS"),
+        ("pg_stat_kcache_%s" % postgresql_version, "PG_STAT_KCACHE"),
+        ("pg_track_settings%s" % postgresql_version, "PG_TRACK_SETTINGS"),
+        ("pg_wait_sampling_%s" % postgresql_version, "PG_WAIT_SAMPLING"),
+        ("hypopg_%s" % postgresql_version, "PG_HYPOPG"),
+        ("powa_%s" % postgresql_version, "PG_POWA_WEB"),
+        ("powa_%s" % postgresql_version, "PG_POWA"),
+    ):
+        pkg_versions = [
+            "{}-{}".format(e.get("ver"), e.get("rel"))
+            for e in root.findall("package[@type='rpm']/name/[.='{}']/../version".format(pkgname))
+            if "rc" not in e.get("ver") and "beta" not in e.get("ver")
+        ]
+        pkg_versions.sort()
+        print('{}_RHEL{}="{}"'.format(varname, rhel_version, sorted(pkg_versions)[-1]))
 
 
 if __name__ == "__main__":

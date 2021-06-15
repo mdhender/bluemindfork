@@ -4,7 +4,7 @@
 
 set -e
 
-APT_DISTNAMES="xenial bionic focal jessie stretch buster"  # Use space separator
+APT_DISTNAMES="xenial bionic focal stretch buster"  # Use space separator
 RPM_RHEL_VERSIONS="7 8"  # Use space separator
 
 
@@ -18,9 +18,24 @@ for dist in ${APT_DISTNAMES}; do
 	outfile="${TEMPDIR}/Packages.${dist}"
 	wget -q -O "${outfile}" "http://apt.postgresql.org/pub/repos/apt/dists/${dist}-pgdg/main/binary-amd64/Packages"
 	pg_pkg_version=$(grep "Package: postgresql-${PGVERSION}$" -A5 "${outfile}" | grep 'Version:' | awk '{print $2}')
+	pg_repack_version=$(grep "Package: postgresql-${PGVERSION}-repack$" -A5 "${outfile}" | grep 'Version:' | awk '{print $2}')
+	pg_qualstats_version=$(grep "Package: postgresql-${PGVERSION}-pg-qualstats$" -A5 "${outfile}" | grep 'Version:' | awk '{print $2}')
+	pg_kcache_version=$(grep "Package: postgresql-${PGVERSION}-pg-stat-kcache$" -A5 "${outfile}" | grep 'Version:' | awk '{print $2}')
+	pg_track_settings_version=$(grep "Package: postgresql-${PGVERSION}-pg-track-settings$" -A5 "${outfile}" | grep 'Version:' | awk '{print $2}')
+	pg_wait_sampling_version=$(grep "Package: postgresql-${PGVERSION}-pg-wait-sampling$" -A5 "${outfile}" | grep 'Version:' | awk '{print $2}')
+	pg_hypopg_version=$(grep "Package: postgresql-${PGVERSION}-hypopg$" -A5 "${outfile}" | grep 'Version:' | awk '{print $2}')
+	pg_powa_version=$(grep "Package: postgresql-${PGVERSION}-powa$" -A5 "${outfile}" | grep 'Version:' | awk '{print $2}')
 	pg_common_pkg_version=$(grep 'Package: postgresql-common$' -A5 "${outfile}" | grep 'Version:' | awk '{print $2}')
 	echo PG_${dist^^}=\"${pg_pkg_version}\"
 	echo PGCOMMON_${dist^^}=\"${pg_common_pkg_version}\"
+
+	echo PG_REPACK_${dist^^}=\"${pg_repack_version}\"
+	echo PG_QUALSTATS_${dist^^}=\"${pg_qualstats_version}\"
+	echo PG_STAT_KCACHE_${dist^^}=\"${pg_kcache_version}\"
+	echo PG_TRACK_SETTINGS_${dist^^}=\"${pg_track_settings_version}\"
+	echo PG_WAIT_SAMPLING_${dist^^}=\"${pg_wait_sampling_version}\"
+	echo PG_HYPOPG_${dist^^}=\"${pg_hypopg_version}\"
+	echo PG_POWA_${dist^^}=\"${pg_powa_version}\"
 done
 # Use the latest distrib to get PGKEYRING, which should be the same for all distributions
 # NOTE: This is an intentional out of the loop variable use
