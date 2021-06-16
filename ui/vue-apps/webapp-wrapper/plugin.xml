@@ -2,7 +2,10 @@
 <?eclipse version="3.4"?>
 <plugin>
       <extension point="net.bluemind.webmodule">
-            <web-module-provider module="/adminconsole,/cal,/contact,/settings,/task">            
+            <web-module-provider module="*">
+                     <blacklist path="/visio"/>
+                     <blacklist path="/webapp"/>
+       
                   <web-resource bundle="net.bluemind.webmodules.webapp.wrapper">
                   </web-resource>
                   <web-resource bundle="net.bluemind.webapp.root.js">

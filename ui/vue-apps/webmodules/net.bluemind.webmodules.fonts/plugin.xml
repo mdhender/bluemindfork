@@ -4,7 +4,7 @@
    <extension
          point="net.bluemind.webmodule">
       <web-module-provider
-            module="/adminconsole,/cal,/contact,/settings,/task,/visio,/webapp">
+            module="*">
          <css
                path="css/montserrat/index.css">
          </css>

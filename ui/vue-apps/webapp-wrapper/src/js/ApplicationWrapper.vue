@@ -78,7 +78,8 @@ body {
         }
     }
 
-    .modal-dialog {
+    & > .modal-dialog,
+    main .modal-dialog {
         position: absolute !important;
         pointer-events: auto !important;
         width: 475px !important;
