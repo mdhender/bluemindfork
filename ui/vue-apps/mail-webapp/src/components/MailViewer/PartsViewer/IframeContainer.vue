@@ -137,7 +137,7 @@ export default {
 
 const BM_STYLE = `
         body {
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
             font-size: 0.75rem;
             font-weight: 400;
             color: #1f1f1f;
@@ -146,7 +146,7 @@ const BM_STYLE = `
         }
 
         pre {
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
         }
 
         img.blocked-image {
