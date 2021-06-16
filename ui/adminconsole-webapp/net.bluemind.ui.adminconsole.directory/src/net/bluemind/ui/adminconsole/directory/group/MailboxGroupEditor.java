@@ -21,8 +21,6 @@ package net.bluemind.ui.adminconsole.directory.group;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Document;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiFactory;
@@ -83,12 +81,8 @@ public class MailboxGroupEditor extends CompositeGwtWidgetElement {
 		initWidget(dlp);
 		messaging.addItem(getTexts().noEmail());
 		messaging.addItem(getTexts().blueMind());
-		archiveMail.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-
-			@Override
-			public void onValueChange(ValueChangeEvent<Boolean> event) {
-				getElement().dispatchEvent(Document.get().createHtmlEvent("refresh", true, true));
-			}
+		archiveMail.addValueChangeHandler((event) -> {
+			getElement().dispatchEvent(Document.get().createHtmlEvent("refresh", true, true));
 		});
 		mailBackend.setActive(false);
 	}

@@ -31,8 +31,6 @@ import net.bluemind.group.api.gwt.js.JsGroup;
 import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.ui.admin.client.forms.TextEdit;
 import net.bluemind.ui.adminconsole.base.ui.DelegationEdit;
 import net.bluemind.ui.common.client.forms.StringEdit;
@@ -126,12 +124,8 @@ public class EditGroup extends CompositeGwtWidgetElement {
 	}
 
 	public static void registerType() {
-		GwtWidgetElement.register(TYPE, new IGwtDelegateFactory<IGwtWidgetElement, WidgetElement>() {
-
-			@Override
-			public IGwtWidgetElement create(WidgetElement e) {
-				return new EditGroup(e);
-			}
+		GwtWidgetElement.register(TYPE, (e) -> {
+			return new EditGroup(e);
 		});
 	}
 }
