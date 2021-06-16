@@ -25,6 +25,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -107,7 +108,13 @@ public abstract class SdsProxyBaseVerticle extends AbstractVerticle {
 					return null;
 				}), false, ar -> {
 					if (ar.failed()) {
-						req.response().setStatusCode(500).end();
+						logger.error("reconfiguration failed: {}",
+								Optional.ofNullable(ar.cause().getMessage()).orElse("NullPointerException"),
+								ar.cause());
+						req.response()
+								.setStatusMessage(
+										Optional.ofNullable(ar.cause().getMessage()).orElse("NullPointerException"))
+								.setStatusCode(500).end();
 					} else {
 						req.response().setStatusCode(200).end();
 					}

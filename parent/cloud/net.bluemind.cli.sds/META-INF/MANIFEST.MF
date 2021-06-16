@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.cyrus.partitions,
  com.google.guava,
  org.asynchttpclient.async-http-client,
- org.reactivestreams.reactive-streams;bundle-version="1.0.3"
+ org.reactivestreams.reactive-streams;bundle-version="1.0.3",
+ com.fasterxml.jackson.core.jackson-databind
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.sds
 Bundle-ActivationPolicy: lazy
