@@ -117,7 +117,7 @@
 					</td>
 					<td class="form">
 						<f:MailAddressTableEditor ui:field="mailTable"
-							size="-1" isUserMailbox="false" />
+							size="-1" isUserMailbox="true" />
 					</td>
 				</tr>
 

@@ -77,7 +77,7 @@
 				<g:ScrollPanel height="140px">
 					<g:HTMLPanel>
 						<f:MailAddressTableEditor ui:field="mailTable"
-							size="-1" isUserMailbox="false" />
+							size="-1" isUserMailbox="true" />
 					</g:HTMLPanel>
 				</g:ScrollPanel>
 
