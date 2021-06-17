@@ -75,7 +75,8 @@ public class CyrusFilesystemCheck {
 			long time = System.currentTimeMillis();
 			IMailboxes mboxApi = ctx.provider().instance(IMailboxes.class, dom.uid);
 			List<String> mboxesUids = mboxApi.listUids();
-			List<MailboxEntry> backMboxes = Lists.partition(mboxesUids, 100).stream()//
+			List<MailboxEntry> backMboxes = Lists.partition(mboxesUids, 1000).stream()//
+					.parallel()
 					.flatMap(slice -> mboxApi.multipleGet(slice).stream())//
 					.filter(mi -> backend.uid.equals(mi.value.dataLocation))//
 					.map(mi -> new MailboxEntry(mi.value.type, mi.value.name, dom.uid))//
