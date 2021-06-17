@@ -18,6 +18,9 @@
   */
 package net.bluemind.calendar.service.internal;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,7 +63,6 @@ public class PublishCalendarService implements IPublishCalendar {
 
 	private VEventSeriesStore veventStore;
 	private VEventContainerStoreService storeService;
-	private VEventSanitizer sanitizer;
 	private Container container;
 	private BmContext context;
 
@@ -71,7 +73,6 @@ public class PublishCalendarService implements IPublishCalendar {
 	public PublishCalendarService(BmContext context, DataSource ds, Container container) throws ServerFault {
 		BmContext admin = context.su();
 
-		sanitizer = new VEventSanitizer(admin, container);
 		veventStore = new VEventSeriesStore(ds, container);
 		storeService = new VEventContainerStoreService(context, ds, admin.getSecurityContext(), container, veventStore);
 		this.container = container;
@@ -83,21 +84,7 @@ public class PublishCalendarService implements IPublishCalendar {
 	@Override
 	public String generateUrl(PublishMode mode) throws ServerFault {
 		RBACManager.forSecurityContext(context.getSecurityContext()).forContainer(container).check(Verb.Manage.name());
-
-		String token = null;
-		if (mode == PublishMode.PUBLIC) {
-			token = String.format("%s%s", PUBLIC_URL_PREFIX, generateToken());
-		} else {
-			token = String.format("%s%s", PRIVATE_URL_PREFIX, generateToken());
-		}
-		AccessControlEntry entry = AccessControlEntry.create(token, Verb.Read);
-
-		IContainerManagement service = context.su().provider().instance(IContainerManagement.class, container.uid);
-		List<AccessControlEntry> accessControlList = new ArrayList<>(service.getAccessControlList());
-		accessControlList.add(entry);
-		service.setAccessControlList(accessControlList);
-
-		return createUrl(token);
+		return setAclFor(mode, generateToken());
 	}
 
 	@Override
@@ -107,16 +94,11 @@ public class PublishCalendarService implements IPublishCalendar {
 		IContainerManagement service = context.su().provider().instance(IContainerManagement.class, container.uid);
 		List<AccessControlEntry> accessControlList = service.getAccessControlList();
 
-		return accessControlList.stream().filter(accessControlEntry -> {
-			if (accessControlEntry.verb == Verb.Read && accessControlEntry.subject.startsWith(TOKEN_PREFIX)) {
-				if (accessControlEntry.subject.startsWith(PRIVATE_URL_PREFIX) && mode == PublishMode.PRIVATE) {
-					return true;
-				} else if ((accessControlEntry.subject.startsWith(PUBLIC_URL_PREFIX) && mode == PublishMode.PUBLIC)) {
-					return true;
-				}
-			}
-			return false;
-		}).map(acl -> createUrl(acl.subject)).collect(Collectors.toList());
+		return accessControlList.stream().filter(accessControlEntry -> accessControlEntry.verb == Verb.Read
+				&& accessControlEntry.subject.startsWith(TOKEN_PREFIX)
+				&& (accessControlEntry.subject.startsWith(PRIVATE_URL_PREFIX) && mode == PublishMode.PRIVATE
+						|| accessControlEntry.subject.startsWith(PUBLIC_URL_PREFIX) && mode == PublishMode.PUBLIC))
+				.map(acl -> computeUrl(mode, acl.subject)).collect(Collectors.toList());
 	}
 
 	@Override
@@ -150,11 +132,23 @@ public class PublishCalendarService implements IPublishCalendar {
 		return getIcs(token.startsWith(PRIVATE_URL_PREFIX) ? PublishMode.PRIVATE : PublishMode.PUBLIC);
 	}
 
-	private String createUrl(String token) {
-		return String.format("https://%s/api/calendars/publish/%s/%s",
-				context.su().provider().instance(ISystemConfiguration.class).getValues().values
-						.get(SysConfKeys.external_url.name()),
-				container.uid, token);
+	private String setAclFor(PublishMode mode, String token) {
+		String prefix = mode == PublishMode.PUBLIC ? PUBLIC_URL_PREFIX : PRIVATE_URL_PREFIX;
+		String aclSubject = String.format("%s%s", prefix, token);
+		AccessControlEntry entry = AccessControlEntry.create(aclSubject, Verb.Read);
+
+		IContainerManagement service = context.su().provider().instance(IContainerManagement.class, container.uid);
+		List<AccessControlEntry> accessControlList = new ArrayList<>(service.getAccessControlList());
+		accessControlList.add(entry);
+		service.setAccessControlList(accessControlList);
+
+		return this.computeUrl(mode, aclSubject);
+	}
+
+	private String computeUrl(PublishMode mode, String aclSubject) {
+		String externalUrl = context.su().provider().instance(ISystemConfiguration.class).getValues().values
+				.get(SysConfKeys.external_url.name());
+		return String.format("https://%s/api/calendars/publish/%s/%s", externalUrl, container.uid, aclSubject);
 	}
 
 	private String generateToken() {
@@ -226,4 +220,15 @@ public class PublishCalendarService implements IPublishCalendar {
 		return VertxStream.stream(stream);
 	}
 
+	@Override
+	public String createUrl(PublishMode mode, String token) throws ServerFault {
+		RBACManager.forSecurityContext(context.getSecurityContext()).forContainer(container).check(Verb.Manage.name());
+		String sanitizedToken;
+		try {
+			sanitizedToken = URLEncoder.encode(token, StandardCharsets.UTF_8.toString());
+			return setAclFor(mode, sanitizedToken);
+		} catch (UnsupportedEncodingException e) {
+			throw new ServerFault(e);
+		}
+	}
 }

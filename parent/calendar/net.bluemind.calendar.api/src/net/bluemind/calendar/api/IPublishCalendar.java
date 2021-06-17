@@ -25,6 +25,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Stream;
@@ -35,11 +36,23 @@ import net.bluemind.core.api.fault.ServerFault;
 public interface IPublishCalendar {
 
 	/**
-	 * Generate a url for external calendar access
+	 * Create an url for external calendar access
 	 * 
-	 * @param mode
-	 *                 publish mode, private or public
-	 * @return
+	 * @param mode  publish mode, private or public
+	 * @param token associate this url with a token
+	 * @return generated url
+	 * @throws ServerFault
+	 */
+	@PUT
+	@Path("_create/{mode}")
+	public String createUrl(@PathParam(value = "mode") PublishMode mode, @QueryParam(value = "token") String token)
+			throws ServerFault;
+
+	/**
+	 * Generate an url for external calendar access
+	 * 
+	 * @param mode publish mode, private or public
+	 * @return generated url
 	 * @throws ServerFault
 	 */
 	@PUT
@@ -57,5 +70,4 @@ public interface IPublishCalendar {
 	@GET
 	@Path("{token}")
 	public Stream publish(@PathParam(value = "token") String token) throws ServerFault;
-
 }

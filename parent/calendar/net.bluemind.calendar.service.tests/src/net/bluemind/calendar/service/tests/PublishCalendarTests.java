@@ -115,6 +115,22 @@ public class PublishCalendarTests extends AbstractCalendarTests {
 	}
 
 	@Test
+	public void associateUrlWithVCard() throws Exception {
+		String url = getPublishCalendarService(userSecurityContext, userCalendarContainer)
+				.createUrl(PublishMode.PRIVATE, member1Uid);
+		assertEquals("x-calendar-private-" + member1Uid, url.substring(url.lastIndexOf("/") + 1));
+	}
+
+	@Test
+	public void createUrlWithTokenReturnsEncodedUrl() throws Exception {
+		String token = "$anything or what";
+		String url = getPublishCalendarService(userSecurityContext, userCalendarContainer)
+				.createUrl(PublishMode.PRIVATE, token);
+		String expectedUrl = "x-calendar-private-%24anything+or+what";
+		assertEquals(expectedUrl, url.substring(url.lastIndexOf('/') + 1));
+	}
+
+	@Test
 	public void testGettingSharedUrls() throws Exception {
 		createEvents();
 

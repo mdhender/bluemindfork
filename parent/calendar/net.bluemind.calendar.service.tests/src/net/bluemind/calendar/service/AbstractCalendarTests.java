@@ -126,6 +126,8 @@ public abstract class AbstractCalendarTests {
 	protected Container attendee2CalendarContainer;
 	protected Container attendee2TagContainer;
 
+	protected String member1Uid;
+
 	protected ItemValue<User> forbidden;
 	protected Container forbiddenCalendarContainer;
 
@@ -298,7 +300,7 @@ public abstract class AbstractCalendarTests {
 		VCardIndexStore vcardIndex = new VCardIndexStore(ElasticsearchTestHelper.getInstance().getClient(),
 				contactsContainer, null);
 
-		String member1Uid = UUID.randomUUID().toString();
+		member1Uid = UUID.randomUUID().toString();
 		String member1Email = "email" + UUID.randomUUID().toString() + "@vcard.lan";
 		VCard member1 = defaultVCard("Member 1", member1Email);
 		ItemVersion iv = vcardStore.create(member1Uid, "Member 1", member1);
