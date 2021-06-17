@@ -3,12 +3,12 @@
         :aria-label="$t('banner.label')"
         type="dark"
         variant="info-dark"
-        class="bm-banner p-0 align-items-stretch d-none d-lg-flex"
+        class="bm-banner p-0 align-items-center d-none d-lg-flex"
     >
         <bm-button
             id="all-apps-popover"
             variant="inline-light"
-            class="px-3 align-self-center"
+            class="px-3"
             :title="$t('banner.reach.all_apps')"
             :aria-label="$t('banner.reach.all_apps')"
         >
@@ -16,11 +16,10 @@
         </bm-button>
         <bm-banner-applications :applications="applications" target="all-apps-popover" />
         <bm-navbar-brand href="#" :to="logoLink" :title="$t('banner.main.brand')">
-            <!-- eslint-disable-next-line vue/no-v-html -->
-            <svg height="30" width="120" v-html="logo" />
+            <img src="images/logo-bluemind.png" alt="" />
         </bm-navbar-brand>
         <bm-banner-shortcuts :applications="defaultApps" />
-        <div class="app-title text-center flex-grow-1 align-self-center font-weight-bold text-uppercase">
+        <div class="app-title text-center flex-grow-1 font-weight-bold text-uppercase">
             <span v-if="selectedApp">{{ selectedApp.name }}</span>
         </div>
         <bm-extension id="webapp.banner" property="widget" class="d-flex align-items-center" />
@@ -30,7 +29,7 @@
 </template>
 
 <script>
-import { BmButton, BmIcon, BmLogo, BmNavbar, BmNavbarBrand } from "@bluemind/styleguide";
+import { BmButton, BmIcon, BmNavbar, BmNavbarBrand } from "@bluemind/styleguide";
 import { BmExtension } from "@bluemind/extensions";
 import BannerL10N from "../../../l10n/banner/";
 import BmBannerApplications from "./BmBannerApplications";
@@ -61,11 +60,6 @@ export default {
             required: true,
             type: Object
         }
-    },
-    data() {
-        return {
-            logo: BmLogo
-        };
     },
     computed: {
         selectedApp() {
@@ -103,6 +97,12 @@ export default {
 
 .bm-banner .navbar-brand {
     margin-right: 0;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    text-align: center;
+    width: 150px;
+    height: 43px;
 }
 
 .bm-banner #all-apps-popover:focus,

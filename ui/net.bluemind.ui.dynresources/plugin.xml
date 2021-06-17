@@ -5,8 +5,6 @@
          point="net.bluemind.webmodule">
       <web-module-provider
             module="*">
-         <blacklist path="/visio"/>
-         <blacklist path="/webapp"/>
          <web-resource
                bundle="net.bluemind.ui.resources">
          </web-resource>
