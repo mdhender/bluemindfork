@@ -733,6 +733,39 @@ public class CyrusMailboxStorageTests {
 		}
 	}
 
+	@Test
+	public void checkAppendVeryBig() {
+		Mailbox mb = defaultMailbox(Mailbox.Type.user, "test." + System.nanoTime());
+		mb.quota = 512;
+		ItemValue<Mailbox> item = item("test" + System.currentTimeMillis(), mb);
+
+		storage().create(context, domainUid, item);
+
+		int quotaUsage = 0;
+		try (StoreClient sc = new StoreClient(server.value.address(), 1143, "admin0", Token.admin0())) {
+			assertTrue(sc.login());
+
+			assertNotEquals(-1, sc.append("user/" + mb.name + "@" + domainUid, mailContent(), new FlagsList()));
+
+			QuotaInfo qi = sc.quota("user/" + mb.name + "@" + domainUid);
+			assertTrue(qi.isEnable());
+			assertEquals(512, qi.getLimit());
+			assertEquals(0, qi.getUsage());
+
+			assertNotEquals(-1, sc.append("user/" + mb.name + "@" + domainUid, mailContent(), new FlagsList()));
+			assertNotEquals(-1, sc.append("user/" + mb.name + "@" + domainUid, mailContent(), new FlagsList()));
+			assertNotEquals(-1, sc.append("user/" + mb.name + "@" + domainUid, mailContent(), new FlagsList()));
+			assertNotEquals(-1, sc.append("user/" + mb.name + "@" + domainUid, mailContent(), new FlagsList()));
+
+			qi = sc.quota("user/" + mb.name + "@" + domainUid);
+			assertTrue(qi.isEnable());
+			assertEquals(512, qi.getLimit());
+			assertNotEquals(0, qi.getUsage());
+			quotaUsage = qi.getUsage();
+		}
+
+	}
+
 	private void writeQuotaFile(Mailbox mb, String content) {
 		String mailboxQuotaPath = "/var/lib/cyrus/domain" + "/t/" + domainUid + "/quota/t/user."
 				+ mb.name.replace(".", "^");
