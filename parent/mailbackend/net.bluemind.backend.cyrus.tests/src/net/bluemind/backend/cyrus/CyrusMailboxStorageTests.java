@@ -51,6 +51,7 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.imap.Acl;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
+import net.bluemind.imap.IMAPRuntimeException;
 import net.bluemind.imap.QuotaInfo;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.mailbox.api.Mailbox;
@@ -736,34 +737,23 @@ public class CyrusMailboxStorageTests {
 	@Test
 	public void checkAppendVeryBig() {
 		Mailbox mb = defaultMailbox(Mailbox.Type.user, "test." + System.nanoTime());
-		mb.quota = 512;
+		mb.quota = 100 * 1024;
 		ItemValue<Mailbox> item = item("test" + System.currentTimeMillis(), mb);
 
 		storage().create(context, domainUid, item);
+		StoreClient sc;
+		sc = new StoreClient(server.value.address(), 1143, "admin0", Token.admin0());
+		assertTrue(sc.login());
 
-		int quotaUsage = 0;
-		try (StoreClient sc = new StoreClient(server.value.address(), 1143, "admin0", Token.admin0())) {
-			assertTrue(sc.login());
-
-			assertNotEquals(-1, sc.append("user/" + mb.name + "@" + domainUid, mailContent(), new FlagsList()));
-
-			QuotaInfo qi = sc.quota("user/" + mb.name + "@" + domainUid);
-			assertTrue(qi.isEnable());
-			assertEquals(512, qi.getLimit());
-			assertEquals(0, qi.getUsage());
-
-			assertNotEquals(-1, sc.append("user/" + mb.name + "@" + domainUid, mailContent(), new FlagsList()));
-			assertNotEquals(-1, sc.append("user/" + mb.name + "@" + domainUid, mailContent(), new FlagsList()));
-			assertNotEquals(-1, sc.append("user/" + mb.name + "@" + domainUid, mailContent(), new FlagsList()));
-			assertNotEquals(-1, sc.append("user/" + mb.name + "@" + domainUid, mailContent(), new FlagsList()));
-
-			qi = sc.quota("user/" + mb.name + "@" + domainUid);
-			assertTrue(qi.isEnable());
-			assertEquals(512, qi.getLimit());
-			assertNotEquals(0, qi.getUsage());
-			quotaUsage = qi.getUsage();
+		byte[] big = new byte[50 * 1024 * 1024];
+		InputStream content = new ByteArrayInputStream(big);
+		try {
+			sc.append("user/" + mb.name + "@" + domainUid, content, new FlagsList());
+			fail("we should not be able to append 50MB to cyrus");
+		} catch (IMAPRuntimeException e) {
+			System.err.println("Ensure we are disconnected and store client is ok with that");
+			assertTrue(sc.isClosed());
 		}
-
 	}
 
 	private void writeQuotaFile(Mailbox mb, String content) {

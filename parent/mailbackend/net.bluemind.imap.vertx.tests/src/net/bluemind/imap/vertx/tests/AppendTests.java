@@ -94,7 +94,7 @@ public class AppendTests extends WithMailboxTests {
 		String bigString = "From: Thomas Cataldo <thomas@zz.com>\r\n" + "Subject: test message "
 				+ System.currentTimeMillis() + "\r\n" + "MIME-Version: 1.0\r\n" + "Content-Type: fat/b64\r\n\r\n";
 		ThreadLocalRandom rand = ThreadLocalRandom.current();
-		byte[] m16 = new byte[16 * 1024 * 1024];
+		byte[] m16 = new byte[12 * 1024 * 1024];
 		rand.nextBytes(m16);
 
 		bigString += Base64.getEncoder().encodeToString(m16);

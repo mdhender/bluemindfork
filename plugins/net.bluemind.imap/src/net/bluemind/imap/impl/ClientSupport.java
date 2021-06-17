@@ -161,6 +161,7 @@ public final class ClientSupport {
 					cb.setClient(ClientSupport.this);
 					session.setAttribute("callback", cb);
 					session.setAttribute("allocation", allocation);
+					session.setAttribute("imapLogin", login);
 				}
 			});
 			cf.awaitUninterruptibly(20, TimeUnit.SECONDS);

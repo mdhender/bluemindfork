@@ -59,7 +59,7 @@ public class AppendTests extends LoggedTestCase implements IMessageProducer {
 
 	public void testBM12019BigAppend() throws IMAPException, Exception {
 		StoreClient sc = newStore(false);
-		InputStream bigInput = getUtf8Rfc822Message(70 * 1024);
+		InputStream bigInput = getUtf8Rfc822Message(19 * 1024);
 		FlagsList fl = new FlagsList();
 		fl.add(Flag.DELETED);
 		int result = sc.append("INBOX", bigInput, fl);
@@ -69,7 +69,7 @@ public class AppendTests extends LoggedTestCase implements IMessageProducer {
 		IMAPByteSource fetched = sc.uidFetchMessage(result);
 		assertNotNull(fetched);
 		System.out.println("Fetched " + fetched.size() + " byte(s)");
-		assertTrue(fetched.size() > 69 * 1024 * 1024);
+		assertTrue(fetched.size() > 18 * 1024 * 1024);
 		OffloadedBodyFactory offload = new OffloadedBodyFactory();
 		try (Message parsed = Mime4JHelper.parse(fetched.source().openBufferedStream(), offload)) {
 			assertNotNull(parsed);

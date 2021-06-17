@@ -124,7 +124,7 @@ public final class AppendCommand extends Command<Integer> {
 	private final void errorOut(List<IMAPResponse> rs, int error) {
 		data = error;
 		for (IMAPResponse resp : rs) {
-			logger.warn("S: '" + resp.getPayload() + "'");
+			logger.warn("S: '{}'", resp.getPayload());
 		}
 	}
 

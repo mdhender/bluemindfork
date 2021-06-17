@@ -54,9 +54,10 @@ public abstract class Command<T> implements ICommand<T> {
 		String sent = sb.toString();
 		logger.debug("C: {}", sent);
 		session.setAttribute("activeCommand", sent);
+		Object login = session.getAttribute("imapLogin");
 		byte[] literal = args.getLiteralData();
 		if (literal != null) {
-			WriteFuture future = session.write(sent).addListener(handleClosedConnection(lock));
+			WriteFuture future = session.write(sent).addListener(handleClosedConnection(lock, login));
 
 			if (sent.endsWith("+}")) {
 				// cyrus reports IOERROR when pushing everything in one chunk
@@ -66,22 +67,23 @@ public abstract class Command<T> implements ICommand<T> {
 				});
 			} else {
 				lock(lock);
-				future = session.write(literal).addListener(handleClosedConnection(lock));
+				future = session.write(literal).addListener(handleClosedConnection(lock, login));
 			}
 		} else {
-			session.write(sent).addListener(handleClosedConnection(lock));
+			session.write(sent).addListener(handleClosedConnection(lock, login));
 		}
 
 		return tag;
 	}
 
-	private IoFutureListener<WriteFuture> handleClosedConnection(Semaphore lock) {
+	private IoFutureListener<WriteFuture> handleClosedConnection(Semaphore lock, Object login) {
 		return new IoFutureListener<WriteFuture>() {
 
 			@Override
 			public void operationComplete(WriteFuture future) {
 				if (future.getException() instanceof WriteToClosedSessionException) {
-					logger.error(future.getException().getMessage());
+					logger.error("[{}] WriteToClosedSession, you should check mail.err ({})", login,
+							future.getException().getMessage());
 					lock.release();
 				}
 			}
