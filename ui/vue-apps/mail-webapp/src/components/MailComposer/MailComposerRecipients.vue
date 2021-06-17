@@ -143,11 +143,17 @@ export default {
             if (searchedRecipient === "") {
                 this.autocompleteResults = [];
             } else {
+                const query =
+                    "(value.identification.formatedName.value:" +
+                    searchedRecipient +
+                    " OR value.communications.emails.value:" +
+                    searchedRecipient +
+                    ") AND _exists_:value.communications.emails.value";
                 return inject("AddressBooksPersistence")
                     .search({
                         from: 0,
                         size: 5,
-                        query: searchedRecipient,
+                        query,
                         orderBy: VCardQueryOrderBy.Pertinance,
                         escapeQuery: false
                     })
