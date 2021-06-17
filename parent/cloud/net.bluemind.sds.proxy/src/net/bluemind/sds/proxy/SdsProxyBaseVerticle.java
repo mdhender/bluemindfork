@@ -65,6 +65,7 @@ import net.bluemind.sds.dto.PutRequest;
 import net.bluemind.sds.dto.SdsRequest;
 import net.bluemind.sds.dto.SdsResponse;
 import net.bluemind.sds.proxy.dto.ConfigureResponse;
+import net.bluemind.sds.proxy.events.DefaultValues;
 import net.bluemind.sds.proxy.events.SdsAddresses;
 import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.sds.store.ISdsBackingStoreFactory;
@@ -155,6 +156,8 @@ public abstract class SdsProxyBaseVerticle extends AbstractVerticle {
 					mr.transfers = xfers;
 					return mr;
 				}, (httpResp, putResp) -> httpResp.setStatusCode(200).end()));
+
+		router.post("/msg_size", validateAppendSize());
 
 		router.post("/mailbox", this::validateMailbox);
 
@@ -346,6 +349,58 @@ public abstract class SdsProxyBaseVerticle extends AbstractVerticle {
 					}
 
 				}));
+	}
+
+	private Handler<HttpServerRequest> validateAppendSize() {
+		DeliveryOptions opts = new DeliveryOptions().setSendTimeout(3000);
+
+		return request -> {
+			HttpServerRequest req = Requests.wrap(request);
+			Requests.tag(req, "method", "append.size");
+			req.bodyHandler(payload -> {
+				Long tmpSize = DefaultValues.MAX_SIZE;
+				try {
+					tmpSize = new JsonObject(payload).getLong("size", DefaultValues.MAX_SIZE);
+				} catch (Exception e) {
+					logger.error("Failed to handle '{}'", payload);
+				}
+				final Long reqSize = tmpSize;
+				Requests.tag(req, "size", Long.toString(reqSize));
+				vertx.eventBus().request(SdsAddresses.SIZE_VALIDATION, reqSize, opts,
+						(AsyncResult<Message<Boolean>> result) -> {
+							String msg = null;
+							boolean accept = true;
+							if (result.failed()) {
+								logger.warn(
+										"Unable to get a size-check result for {}byte(s) ({}), accepting if less than {}MB.",
+										reqSize, result.cause().getMessage(), DefaultValues.MAX_SIZE_MB);
+								accept = reqSize > 0 && reqSize <= DefaultValues.MAX_SIZE;
+							} else {
+								accept = result.result().body();
+								if (!accept) {
+									logger.warn("Refusing for {} MB ({} bytes)", reqSize / 1024 / 1024, reqSize);
+									msg = "append of " + reqSize + "byte(s) rejected, too big";
+								}
+							}
+							HttpServerResponse resp = req.response();
+							if (msg != null) {
+								resp.setStatusMessage(msg);
+							}
+							if (accept) {
+								resp.setStatusCode(200).end();
+							} else {
+								// cyrus-sds-dispatch curl call has a 5sec timeout
+								Requests.tagAsync(req);
+								vertx.setTimer(2500, tid -> {
+									resp.setStatusCode(400).end();
+								});
+							}
+
+						});
+			});
+
+		};
+
 	}
 
 }
