@@ -136,6 +136,8 @@ export default {
 };
 
 const BM_STYLE = `
+        @import url('/webapp/css/montserrat/index.css');
+
         body {
             font-family: "Montserrat", sans-serif;
             font-size: 0.75rem;
