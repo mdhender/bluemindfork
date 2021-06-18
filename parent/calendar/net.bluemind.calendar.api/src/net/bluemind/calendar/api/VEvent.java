@@ -104,6 +104,7 @@ public class VEvent extends ICalendarElement {
 		copy.sequence = sequence;
 		copy.draft = draft;
 		copy.conference = conference;
+		copy.conferenceId = conferenceId;
 		return copy;
 	}
 
@@ -117,6 +118,7 @@ public class VEvent extends ICalendarElement {
 		f.attachments = Collections.emptyList();
 		f.organizer = null;
 		f.conference = null;
+		f.conferenceId = null;
 		return f;
 	}
 

@@ -1813,6 +1813,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = f
     var vseries = adaptor.fromVEventModelView(this.getModel());
     this.ctx.service('videoConferencing').add(vseries.value['main']).then(function(res) {
       this.getModel().conference = res['conference'];
+      this.getModel().conferenceId = res['conferenceId'];
       var desc = res.description.trim();
       var idx =  desc.indexOf("<videoconferencingtemplate");
       var len = desc.length;
@@ -1832,6 +1833,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = f
     var vseries = adaptor.fromVEventModelView(this.getModel());
     this.ctx.service('videoConferencing').remove(vseries.value['main']).then(function(res) {
       this.getModel().conference = null;
+      this.getModel().conferenceId = null;
       this.getModel().conferenceDescription = '';
       this.editor_.setValue(res.description);
 

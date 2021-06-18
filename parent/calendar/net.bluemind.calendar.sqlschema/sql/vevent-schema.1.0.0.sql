@@ -135,13 +135,15 @@ create table t_calendar_vevent (
   draft boolean,
   
   conference text,
+  
+  conference_id text,
 
   item_id int4 references t_container_item(id) on delete cascade
 );
 
 CREATE INDEX tcv_item_id_fkey ON t_calendar_vevent(item_id);
 CREATE INDEX idx_calendar_vevent_valarm_trigger ON t_calendar_vevent (valarm_trigger);
-
+CREATE INDEX idx_calendar_vevent_conference_id ON t_calendar_vevent(conference_id) WHERE conference_id IS NOT NULL;
 
 CREATE TABLE t_calendar_series (
   ics_uid text NOT NULL,

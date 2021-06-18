@@ -105,6 +105,10 @@ public class VideoConferencingService implements IVideoConferencing {
 			vevent.conference = conferenceInfo.conference;
 		}
 
+		if (vevent.conferenceId == null || vevent.conferenceId.trim().isEmpty()) {
+			vevent.conferenceId = conferenceInfo.conferenceId;
+		}
+
 		if (vevent.description == null) {
 			vevent.description = "";
 		}

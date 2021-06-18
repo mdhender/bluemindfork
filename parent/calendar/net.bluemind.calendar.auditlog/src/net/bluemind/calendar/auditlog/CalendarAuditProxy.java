@@ -230,4 +230,10 @@ public class CalendarAuditProxy implements IInternalCalendar {
 		return calendar.searchPendingCounters();
 	}
 
+	@Override
+	public ItemValue<VEventSeries> findByConferenceId(String id) throws ServerFault {
+		return auditor.action("findByConferenceId").readOnly().addActionMetadata("id", id)
+				.audit(() -> calendar.findByConferenceId(id));
+	}
+
 }

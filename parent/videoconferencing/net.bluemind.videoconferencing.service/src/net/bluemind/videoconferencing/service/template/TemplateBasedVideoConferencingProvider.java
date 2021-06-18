@@ -34,6 +34,7 @@ public abstract class TemplateBasedVideoConferencingProvider {
 			ItemValue<ResourceDescriptor> resource, ICalendarElement vevent) {
 
 		String conference = vevent.conference;
+		String conferenceId = vevent.conferenceId;
 		if (conference == null || conference.trim().isEmpty()) {
 
 			String baseUrl = resourceSettings.get("url");
@@ -44,11 +45,12 @@ public abstract class TemplateBasedVideoConferencingProvider {
 				baseUrl += "/";
 			}
 
-			conference = baseUrl + UUID.randomUUID().toString();
+			conferenceId = UUID.randomUUID().toString();
+			conference = baseUrl + conferenceId;
 		}
 		String description = templateHelper.processTemplate(context, resource, vevent, conference);
 
-		return new VideoConference(conference, description);
+		return new VideoConference(conferenceId, conference, description);
 	}
 
 }

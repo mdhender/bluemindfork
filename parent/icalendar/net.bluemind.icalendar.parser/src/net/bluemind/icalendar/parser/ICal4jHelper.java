@@ -134,6 +134,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 	private static final TimeZoneRegistry tzRegistry = TimeZoneRegistryFactory.getInstance().createRegistry();
 	public static final String CONFERENCE = "X-CONFERENCE";
+	public static final String CONFERENCE_ID = "X-CONFERENCE-ID";
 
 	static ZoneId utcTz = ZoneId.of("UTC");
 
@@ -329,6 +330,11 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		if (videoConfUrl != null) {
 			iCalendarElement.conference = videoConfUrl.getValue();
 		}
+		Property conferenceId = cc.getProperty(CONFERENCE_ID);
+		if (conferenceId != null) {
+			iCalendarElement.conferenceId = conferenceId.getValue();
+		}
+
 		if (Strings.isNullOrEmpty(iCalendarElement.conference)) {
 			Property teamsUrl = cc.getProperty("X-MICROSOFT-SKYPETEAMSMEETINGURL");
 			if (teamsUrl != null) {
@@ -1027,8 +1033,14 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		// SEQUENCE
 		parseICalendarElementSequence(properties, iCalendarElement);
 
+		// CONFERENCE
 		if (StringUtils.isNotBlank(iCalendarElement.conference)) {
 			properties.add(new XProperty(CONFERENCE, iCalendarElement.conference));
+		}
+
+		// CONFERENCE ID
+		if (StringUtils.isNotBlank(iCalendarElement.conferenceId)) {
+			properties.add(new XProperty(CONFERENCE_ID, iCalendarElement.conferenceId));
 		}
 
 		return properties;

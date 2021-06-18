@@ -80,7 +80,7 @@ public class StarLeafProvider implements IVideoConferencingProvider {
 		SLConferenceDialInfo dialInfo = starLeafConferenceClient.create(conference);
 
 		String description = templateHelper.addTag(dialInfo.customInviteFooter.replace("\n", "<br/>"), resource.uid);
-		return new VideoConference(dialInfo.dialInfoUrl, description);
+		return new VideoConference(dialInfo.confId, dialInfo.dialInfoUrl, description);
 	}
 
 	private String resolveOrganizer(BmContext context, ICalendarElement vevent) {

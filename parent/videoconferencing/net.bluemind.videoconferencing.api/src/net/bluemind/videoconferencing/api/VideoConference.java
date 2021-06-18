@@ -20,9 +20,11 @@ package net.bluemind.videoconferencing.api;
 public class VideoConference {
 
 	public final String conference;
+	public final String conferenceId;
 	public final String description;
 
-	public VideoConference(String conference, String description) {
+	public VideoConference(String conferenceId, String conference, String description) {
+		this.conferenceId = conferenceId;
 		this.conference = conference;
 		this.description = description;
 	}

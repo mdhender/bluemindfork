@@ -51,6 +51,7 @@ public class ICalendarElement {
 	public RRule rrule;
 	public String url;
 	public String conference;
+	public String conferenceId;
 	public List<AttachedFile> attachments = new ArrayList<>();
 
 	/**

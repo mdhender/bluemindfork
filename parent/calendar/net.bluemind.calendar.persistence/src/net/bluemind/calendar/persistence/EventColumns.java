@@ -36,7 +36,9 @@ public class EventColumns {
 			//
 			.col("transparency", "t_calendar_transparency")
 			//
-			.col("conference");
+			.col("conference")
+			//
+			.col("conference_id");
 
 	public static VEventStore.StatementValues<VEvent> values() {
 		return (conn, statement, index, currentRow, value) -> {
@@ -51,6 +53,7 @@ public class EventColumns {
 			}
 
 			statement.setString(index++, value.conference);
+			statement.setString(index++, value.conferenceId);
 
 			return index;
 
@@ -68,6 +71,7 @@ public class EventColumns {
 				value.transparency = VEvent.Transparency.valueOf(transparency);
 			}
 			value.conference = rs.getString(index++);
+			value.conferenceId = rs.getString(index++);
 
 			return index;
 		};
