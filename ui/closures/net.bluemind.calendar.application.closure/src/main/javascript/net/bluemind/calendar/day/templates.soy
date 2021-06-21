@@ -465,16 +465,19 @@
             </tr>
           {/if}
 
-          {if $event.states.attendee}
-            <tr>
-              <th>{msg meaning="calendar.event.participation" desc="Participation"}Participation{/msg}</th>
-              <td id="partstat-container">
-              </td>
-            </tr>
-          {/if}
         </tbody>
       </table>
     </div>
+
+    {if $event.states.attendee}
+      <table>
+        <tr>
+          <th>{msg meaning="calendar.event.participation" desc="Participation"}Participation{/msg}</th>
+          <td id="partstat-container">
+          </td>
+        </tr>
+      </table>
+    {/if}
 
     <div class="{css eb-buttons}">
       <table>

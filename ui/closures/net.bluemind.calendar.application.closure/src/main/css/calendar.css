@@ -869,7 +869,7 @@ div.column-emul {
 .eb-root {
   padding:5px 10px;
   overflow-y: auto;
-  max-height: 400px;
+  max-height: 350px;
 }
 
 .eb-title {
