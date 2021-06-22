@@ -23,6 +23,10 @@
         "webpack-dev-server-root": {
             "ip": "dev.bluemind.test",
             "port": 9181
+        },
+        "webpack-dev-server-visio": {
+            "ip": "dev.bluemind.test",
+            "port": 9182
         }
     },
     "filters": [
@@ -43,6 +47,12 @@
             "search": "/webapp/js/net.bluemind.webapp.root.js",
             "replace": "/js/net.bluemind.webapp.root.js",
             "active": true
+        },
+        {
+            "serverId": "webpack-dev-server-visio",
+            "search": "/visio/js/net.bluemind.videoconferencing.saas.js",
+            "replace": "/js/net.bluemind.videoconferencing.saas.js",
+            "active": false
         },
         {
             "serverId": "gwt-compile",
@@ -124,6 +134,11 @@
         {
             "serverId": "webpack-dev-server-mail",
             "src": 9180,
+            "active": true
+        },
+        {
+            "serverId": "webpack-dev-server-visio",
+            "src": 9182,
             "active": true
         },
         {
