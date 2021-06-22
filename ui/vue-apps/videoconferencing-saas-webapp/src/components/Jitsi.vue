@@ -1,5 +1,5 @@
 <template>
-    <div ref="visioContainer" style="height: 100vh; width: 100%"></div>
+    <div ref="visioContainer" style="height: 100vh; min-height:-webkit-fill-available; width: 100%"></div>
 </template>
 
 <script>
