@@ -406,7 +406,7 @@
 
           {if $event.conference}
             <tr>
-              <th>{msg meaning="calendar.event.videoconferencing" desc="event video conferencing label"}Video Conference{/msg}</th>
+              <th>{msg meaning="calendar.event.videoconferencing" desc="event video conferencing label"}Videoconference{/msg}</th>
               <td colspan="2">
                 <a target='_blank' href="{$event.conference}">
                   <span class="{css fa} {css fa-video-camera}"></span>
@@ -470,13 +470,8 @@
     </div>
 
     {if $event.states.attendee}
-      <table>
-        <tr>
-          <th>{msg meaning="calendar.event.participation" desc="Participation"}Participation{/msg}</th>
-          <td id="partstat-container">
-          </td>
-        </tr>
-      </table>
+      <div id="partstat-container" class="{css eb-partitipcation-buttons}">
+      </div>
     {/if}
 
     <div class="{css eb-buttons}">

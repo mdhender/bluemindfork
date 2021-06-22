@@ -895,6 +895,11 @@ div.column-emul {
   cursor: pointer;
 }
 
+.eb-partitipcation-buttons {
+    padding: 4px 8px;
+    text-align: center;
+}
+
 .eb-buttons {
   padding: 4px 8px;
   background-color: #fff;
