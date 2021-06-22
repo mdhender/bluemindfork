@@ -58,7 +58,6 @@ public class ContainerStoreTests {
 	private String domainUid;
 	private ItemStore userItemStore;
 	private UserStore userStore;
-	private String testUserUid;
 
 	@Before
 	public void before() throws Exception {
@@ -67,9 +66,9 @@ public class ContainerStoreTests {
 		SecurityContext securityContext = new SecurityContext(null, "test", Arrays.<String>asList("groupOfUsers"),
 				Arrays.<String>asList(), "fakeDomain");
 
-		home = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), securityContext);
+		home = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), securityContext);
 
-		aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());
+		aclStore = new AclStore(null, JdbcTestHelper.getInstance().getDataSource());
 
 		PopulateHelper.initGlobalVirt();
 
@@ -81,7 +80,7 @@ public class ContainerStoreTests {
 
 		userStore = new UserStore(JdbcTestHelper.getInstance().getDataSource(), home.get(domainUid));
 
-		testUserUid = createUser();
+		createUser();
 
 	}
 
@@ -197,7 +196,7 @@ public class ContainerStoreTests {
 		// FR securityContext
 		SecurityContext securityContext = new SecurityContext(null, "test", Arrays.<String>asList("groupOfUsers"),
 				Arrays.<String>asList(), Collections.emptyMap(), "fakeDomain", "fr", "testFindLocalizedAccessibles");
-		ContainerStore store = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), securityContext);
+		ContainerStore store = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), securityContext);
 
 		query = new ContainerQuery();
 		query.type = "test";

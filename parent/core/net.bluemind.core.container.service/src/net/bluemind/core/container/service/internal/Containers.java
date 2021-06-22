@@ -66,6 +66,7 @@ import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.validator.Validator;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
@@ -76,9 +77,6 @@ import net.bluemind.user.persistence.UserSubscriptionStore;
 public class Containers implements IContainers {
 
 	private static final Set<String> DATA_CONTAINER_TYPES = Sharding.containerTypes();
-	// Sets.newHashSet("todolist", "calendar", "addressbook",
-	// "mailbox_records", "replicated_mailboxes", "mapi_folder", "mapi_fai");
-
 	private final SecurityContext securityContext;
 	private final Sanitizer sanitizer;
 	private final BmContext context;
@@ -117,17 +115,36 @@ public class Containers implements IContainers {
 				descriptor.domainUid, descriptor.defaultContainer);
 		container.readOnly = descriptor.readOnly;
 
-		DataSource ds = context.getDataSource();
+		DataSource ds = null;
 		ContainerStore directoryDataStore = new ContainerStore(context, context.getDataSource(), securityContext);
 
 		String loc = null;
 		if (!"global.virt".equals(container.domainUid) && DATA_CONTAINER_TYPES.contains(descriptor.type)) {
 			DirEntry entry = context.su().provider().instance(IDirectory.class, container.domainUid)
 					.findByEntryUid(descriptor.owner);
-			if (entry != null && entry.dataLocation != null) {
-				loc = entry.dataLocation;
-				ds = context.getMailboxDataSource(entry.dataLocation);
+
+			if (entry != null) {
+				// domain OR domain AB
+				if (entry.kind == Kind.DOMAIN || (entry.kind == Kind.ADDRESSBOOK && descriptor.defaultContainer
+						&& descriptor.uid.equals("addressbook_" + container.domainUid))) {
+					ds = context.getDataSource();
+				} else if (entry.dataLocation != null) {
+					loc = entry.dataLocation;
+					ds = context.getMailboxDataSource(entry.dataLocation);
+				} else {
+					throw new ServerFault("Failed to create container " + container + " : no datalocation for owner "
+							+ entry.entryUid);
+				}
+			} else {
+				throw new ServerFault("Failed to create container " + container + " : owner not found");
 			}
+
+		} else {
+			ds = context.getDataSource();
+		}
+
+		if (ds == null) {
+			throw new ServerFault("Failed to create container " + container + " : Null datasource");
 		}
 
 		final String location = loc;
