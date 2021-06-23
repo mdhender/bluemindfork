@@ -78,7 +78,7 @@ public class JdbcTestHelper {
 		initPools("junit_" + System.nanoTime());
 	}
 
-	public void initPools(String schemaName) throws Exception {
+	private void initPools(String schemaName) throws Exception {
 		if (pool != null) {
 			logger.info("stop directory pool");
 			stopPool(pool);
@@ -112,9 +112,12 @@ public class JdbcTestHelper {
 		}
 
 		Map<String, DataSource> mailboxDataSource = new HashMap<String, DataSource>();
+
 		mailboxDataSource.put(dataLocation, dataPool.getDataSource());
+
 		// PopulateHelper.FAKE_CYRUS_IP
 		mailboxDataSource.put("10.1.2.3", dataPool.getDataSource());
+
 		JdbcActivator.getInstance().setMailboxDataSource(mailboxDataSource);
 
 		BMPoolActivator.getDefault().addMailboxDataSource(dataLocation, dataPool);
@@ -146,11 +149,20 @@ public class JdbcTestHelper {
 		String login = conf.get("user");
 		String password = conf.get("password");
 
+		String dbHost = conf.get("host");
+		String dataLocation = new BmConfIni().get("imap-role");
+		if (dataLocation == null) {
+			dataLocation = dbHost;
+		}
+
 		Pool newPool = BMPoolActivator.getDefault().newPool(dbType, login, password, "test-data", ip,
 				Runtime.getRuntime().availableProcessors() * 2 - 1, schemaName);
 		JdbcActivator.getInstance().addMailboxDataSource(ip, newPool.getDataSource());
 		otherPools.add(newPool);
 		DbSchemaService.getService(newPool.getDataSource(), true).initialize();
+
+		BMPoolActivator.getDefault().addMailboxDataSource(dataLocation, dataPool);
+
 	}
 
 	public void beforeTestWithoutSchema() throws Exception {

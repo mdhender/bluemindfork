@@ -181,7 +181,7 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		ItemValue<Mailbox> item = getService(defaultSecurityContext).getComplete(uid);
 		assertNotNull(item);
 
-		Container mailboxAclsContainer = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		Container mailboxAclsContainer = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				SecurityContext.SYSTEM).get(IMailboxAclUids.uidForMailbox(uid));
 		assertNotNull(mailboxAclsContainer);
 
@@ -234,7 +234,7 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 
 		getService(defaultSecurityContext).delete(uid);
 
-		Container mailboxAclsContainer = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		Container mailboxAclsContainer = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				SecurityContext.SYSTEM).get(IMailboxAclUids.uidForMailbox(uid));
 		assertNull(mailboxAclsContainer);
 

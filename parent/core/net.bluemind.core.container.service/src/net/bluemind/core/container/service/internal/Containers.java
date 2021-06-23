@@ -64,6 +64,7 @@ import net.bluemind.core.container.sharding.Sharding;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
@@ -318,7 +319,7 @@ public class Containers implements IContainers {
 		return dedup(ret);
 	}
 
-	private List<ContainerDescriptor> allContainers(List<DataSource> dataSources, ContainerQuery query,
+	private List<ContainerDescriptor> allContainers(Collection<DataSource> dataSources, ContainerQuery query,
 			Predicate<ContainerDescriptor> filter) {
 		return dataSources.stream().flatMap(ds -> {
 			List<ContainerDescriptor> containers = new ArrayList<>();
@@ -472,6 +473,7 @@ public class Containers implements IContainers {
 		}
 
 		descriptor.readOnly = c.readOnly;
+		descriptor.datalocation = getDatalocation(dataSource);
 
 		ContainerSettingsStore settingsStore = new ContainerSettingsStore(dataSource, c);
 		doOrFail(() -> {
@@ -493,6 +495,7 @@ public class Containers implements IContainers {
 		ContainerDescriptor descriptor = ContainerDescriptor.create(c.uid, label, c.owner, c.type, c.domainUid,
 				c.defaultContainer);
 		descriptor.internalId = c.id;
+		descriptor.datalocation = getDatalocation(dataSource);
 
 		if (sc != null) {
 			RBACManager aclForContainer = RBACManager.forSecurityContext(sc).forContainer(c);
@@ -539,6 +542,11 @@ public class Containers implements IContainers {
 			return null;
 		});
 		return descriptor;
+	}
+
+	private String getDatalocation(DataSource dataSource) {
+		return ServerSideServiceProvider.mailboxDataSource.entrySet().stream()
+				.filter(entry -> dataSource == entry.getValue()).map(Map.Entry::getKey).findFirst().orElse(null);
 	}
 
 	public ContainerDescriptor asDescriptorForUser(Container c, SecurityContext sc, String userUid) throws ServerFault {

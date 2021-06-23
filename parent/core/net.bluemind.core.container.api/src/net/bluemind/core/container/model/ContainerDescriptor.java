@@ -63,8 +63,11 @@ public class ContainerDescriptor extends BaseContainerDescriptor {
 
 	@Override
 	public String toString() {
-		return "ContainerDescriptor [uid=" + uid + ", name=" + name + ", owner=" + owner + ", type=" + type
-				+ ", defaultContainer=" + defaultContainer + ", domainUid=" + domainUid + ", deleted=" + deleted + "]";
+		return "ContainerDescriptor [writable=" + writable + ", verbs=" + verbs + ", offlineSync=" + offlineSync
+				+ ", internalId=" + internalId + ", uid=" + uid + ", name=" + name + ", owner=" + owner + ", type="
+				+ type + ", defaultContainer=" + defaultContainer + ", readOnly=" + readOnly + ", domainUid="
+				+ domainUid + ", ownerDisplayname=" + ownerDisplayname + ", ownerDirEntryPath=" + ownerDirEntryPath
+				+ ", settings=" + settings + ", deleted=" + deleted + ", datalocation=" + datalocation + "]";
 	}
 
 }

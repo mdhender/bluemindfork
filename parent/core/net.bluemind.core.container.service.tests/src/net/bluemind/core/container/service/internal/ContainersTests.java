@@ -204,9 +204,24 @@ public class ContainersTests {
 		String uid = "junit-" + System.nanoTime();
 		ContainerDescriptor descriptor = ContainerDescriptor.create(uid, "test", "test", "test", null, true);
 		containers.create(uid, descriptor);
-		Container container = containerStore.get(uid);
+		ContainerDescriptor container = containers.get(uid);
 		assertNotNull(container);
 		assertTrue(container.defaultContainer);
+		assertNull(container.datalocation);
+	}
+
+	@Test
+	public void testCreateContainerShard() {
+		IContainers containers = getService(user);
+		String uid = "testCreateContainerShard-" + System.nanoTime();
+		ContainerDescriptor descriptor = ContainerDescriptor.create(uid, "testCreateContainerShard", user.getSubject(),
+				"calendar", domainUid, true);
+		containers.create(uid, descriptor);
+		ContainerDescriptor container = containers.get(uid);
+		assertNotNull(container);
+		assertTrue(container.defaultContainer);
+
+		assertNotNull(container.datalocation);
 	}
 
 	@Test

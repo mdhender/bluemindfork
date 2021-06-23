@@ -36,6 +36,7 @@ public class BaseContainerDescriptor {
 	public String ownerDirEntryPath;
 	public Map<String, String> settings;
 	public boolean deleted;
+	public String datalocation;
 
 	public static BaseContainerDescriptor create(String uid, String name, String owner, String type, String domainUid,
 			boolean defaultContainer) {
@@ -52,7 +53,9 @@ public class BaseContainerDescriptor {
 	@Override
 	public String toString() {
 		return "BaseContainerDescriptor [uid=" + uid + ", name=" + name + ", owner=" + owner + ", type=" + type
-				+ ", defaultContainer=" + defaultContainer + ", domainUid=" + domainUid + "]";
+				+ ", defaultContainer=" + defaultContainer + ", readOnly=" + readOnly + ", domainUid=" + domainUid
+				+ ", ownerDisplayname=" + ownerDisplayname + ", ownerDirEntryPath=" + ownerDirEntryPath + ", settings="
+				+ settings + ", deleted=" + deleted + ", datalocation=" + datalocation + "]";
 	}
 
 }
