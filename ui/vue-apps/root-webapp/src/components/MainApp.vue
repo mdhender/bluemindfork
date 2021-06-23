@@ -109,6 +109,12 @@ export default {
             */
             document.documentElement.style.setProperty("--app-height", window.innerHeight + "px");
         }
+    },
+    bus: {
+        disconnected() {
+            let url = window.location.origin + window.location.pathname.replace(/[^/]*$/, "");
+            window.location.assign(url);
+        }
     }
 };
 </script>

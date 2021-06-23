@@ -3,6 +3,7 @@ import { inject } from "@bluemind/inject";
 
 const state = {
     appState: "loading",
+    isOnline: true,
     quota: {
         used: null,
         total: null
@@ -31,6 +32,9 @@ const mutations = {
     UPDATE_IDENTITY: (state, identity) => {
         const index = state.identities.findIndex(i => i.id === identity.id);
         state.identities.splice(index, 1, identity);
+    },
+    $_VueBus_ONLINE: (state, online) => {
+        state.isOnline = online;
     }
 };
 

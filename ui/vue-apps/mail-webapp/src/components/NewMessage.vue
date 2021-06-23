@@ -1,6 +1,6 @@
 <template>
     <bm-button
-        v-bm-clip-path="mobile ? 'hexagon' : undefined"
+        v-bm-clipping="mobile ? 'hexagon' : undefined"
         variant="primary"
         class="new-message"
         :class="
@@ -15,7 +15,7 @@
     </bm-button>
 </template>
 <script>
-import { BmButton, BmClipPath, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
+import { BmButton, BmClipping, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 import { mapGetters } from "vuex";
 import { MY_DRAFTS } from "~getters";
 import { draftPath } from "../model/draft";
@@ -27,7 +27,7 @@ export default {
         BmIcon,
         BmLabelIcon
     },
-    directives: { BmClipPath },
+    directives: { BmClipping },
     props: {
         mobile: {
             type: Boolean,

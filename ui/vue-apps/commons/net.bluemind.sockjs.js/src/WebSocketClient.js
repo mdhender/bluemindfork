@@ -197,6 +197,7 @@ function setOnline(state) {
     if (websocket.online !== state) {
         websocket.online = state;
         websocket.handler.dispatchEvent(new OnlineEvent(state));
+        websocket.plugins.dispatchEvent(new OnlineEvent(state));
         return true;
     }
     return false;

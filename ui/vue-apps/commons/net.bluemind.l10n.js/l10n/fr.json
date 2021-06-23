@@ -110,5 +110,7 @@
     "common.unit.gigabyte": "{size} Go",
     "common.unit.megabyte": "{size} Mo",
     "common.unit.kilobyte": "{size} Ko",
-    "common.unit.byte": "{size} o"
+    "common.unit.byte": "{size} o",
+    "common.status.online": "En ligne",
+    "common.status.offline": "Hors ligne"
 }

@@ -110,5 +110,7 @@
     "common.unit.gigabyte": "{size} GB",
     "common.unit.megabyte": "{size} MB",
     "common.unit.kilobyte": "{size} kB",
-    "common.unit.byte": "{size} B"
+    "common.unit.byte": "{size} B",
+    "common.status.online": "Online",
+    "common.status.offline": "Offline"
 }

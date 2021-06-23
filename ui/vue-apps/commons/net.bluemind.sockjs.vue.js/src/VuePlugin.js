@@ -1,19 +1,19 @@
-import WebsocketClient from "@bluemind/sockjs";
+import WebSocketClient from "@bluemind/sockjs";
 
 export default {
     install(Vue, VueBus) {
-        const socket = new WebsocketClient();
-        Vue.prototype.$socket = socket;
-
+        Vue.prototype.$socket = new WebSocketClient();
         if (VueBus) {
             const client = new VueBus.Client();
-            socket.onOnlineChange(event => {
-                client.$emit(event.type, event.online);
-            });
-            socket.ping(event => {
-                if (event.statusCode !== 200) {
-                    client.$emit("disconnected");
-                }
+            WebSocketClient.use(handler => {
+                handler.addEventListener("response", ({ data }) => {
+                    if (data.statusCode === 401) {
+                        client.$emit("disconnected");
+                    }
+                });
+                handler.addEventListener("online", ({ online }) => {
+                    client.$emit("online", online);
+                });
             });
         }
     }
