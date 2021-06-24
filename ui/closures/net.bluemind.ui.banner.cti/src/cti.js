@@ -69,4 +69,4 @@ var BmCTIWidget = {
     
   }
 }
-Vue && Vue["component"]("BmCTIWidget", BmCTIWidget);
+goog.global['Vue'] && goog.global['Vue']['component']('BmCTIWidget', BmCTIWidget);
