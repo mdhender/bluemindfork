@@ -40,7 +40,7 @@ export default class NotificationManager {
             if (!mailAppExtension) {
                 return;
             }
-            const mailIconAsSvg = mailAppExtension.application.children["icon-svg"].body;
+            const mailIconAsSvg = mailAppExtension.application.children.icon.children.svg.body;
             const mailIconAsBlobURL = URL.createObjectURL(new Blob([mailIconAsSvg], { type: "image/svg+xml" }));
 
             const address = userSession.userId + ".notifications.mails";
