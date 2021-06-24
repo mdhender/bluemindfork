@@ -48,14 +48,13 @@
       </web-module-provider>
    </extension>
    <extension
-         point="net.bluemind.banner">
+         point="webapp.banner">
       <application
             description="Api Docs"
             href="/docs/"
             name="Api Docs"
-            order="1"
-            role="apiDocs">
+            order="100"
+            role="apiDocs">     
       </application>
    </extension>
-
 </plugin>
