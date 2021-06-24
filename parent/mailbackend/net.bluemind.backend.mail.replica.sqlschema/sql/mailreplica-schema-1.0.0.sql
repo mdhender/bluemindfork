@@ -35,6 +35,8 @@ create table IF NOT EXISTS t_mailbox_replica (
 
 create index IF NOT EXISTS i_mailbox_replica on t_mailbox_replica (item_id);
 create index IF NOT EXISTS i_mailbox_replica_names on t_mailbox_replica (container_id, name);
+CREATE INDEX IF NOT EXISTS i_mailbox_replica_roots ON t_mailbox_replica(parent_uid) WHERE parent_uid IS NULL;
+
 
 create table IF NOT EXISTS t_mailbox_record (
 	message_body_guid bytea not null, 
