@@ -20,11 +20,20 @@ inject.register({
     use: { userId }
 });
 
+inject.register({
+    provide: "i18n",
+    use: {
+        t: () => {},
+        tc: () => {}
+    }
+});
+
 const mailbox = {
     key: "MY_MAIBOX",
     type: "users",
     owner: userId
 };
+
 export function createStore() {
     const store = new Vuex.Store();
     store.registerModule("alert", AlertStore);

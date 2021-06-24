@@ -105,6 +105,10 @@
     "common.edit": "Bearbeiten",
     "common.created_at": "Erstellt am {date}",
     "common.invalid.character": "Folgendes Zeichen ist invalid : \"{character}\"",
-    "common.telephony": "Telephony",
-    "common.do_nothing": "Do nothing"
+    "common.telephony": "Telefonie",
+    "common.do_nothing": "Keine Aktion",
+    "common.unit.gigabyte": "{size} GB",
+    "common.unit.megabyte": "{size} MB",
+    "common.unit.kilobyte": "{size} kB",
+    "common.unit.byte": "{size} B"
 }

@@ -83,6 +83,7 @@
 
 <script>
 import { MimeType, computePreviewOrDownloadUrl } from "@bluemind/email";
+import { inject } from "@bluemind/inject";
 import { computeUnit } from "@bluemind/file-utils";
 import global from "@bluemind/global";
 import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmProgress, BmButtonClose, BmNotice } from "@bluemind/styleguide";
@@ -139,7 +140,7 @@ export default {
                 : this.$t("mail.attachment.untitled", { mimeType: this.attachment.mime });
         },
         fileSize() {
-            return computeUnit(this.attachment.size);
+            return computeUnit(this.attachment.size, inject("i18n"));
         },
         hasPreview() {
             return (

@@ -80,6 +80,7 @@
 import { mapState } from "vuex";
 
 import { displayWithUnit } from "@bluemind/file-utils";
+import { inject } from "@bluemind/inject";
 import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmProgress } from "@bluemind/styleguide";
 
 import MailAttachmentItem from "./MailAttachmentItem";
@@ -160,7 +161,7 @@ export default {
         },
         displaySize(size) {
             size = size < 100000 ? 100000 : size;
-            return displayWithUnit(size, "Mo");
+            return displayWithUnit(size, 6, inject("i18n"));
         }
     }
 };

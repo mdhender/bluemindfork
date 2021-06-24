@@ -106,5 +106,9 @@
     "common.created_at": "Créé le {date}",
     "common.invalid.character": "Ce caractère n'est pas valide : \"{character}\"",
     "common.telephony": "Téléphonie",
-    "common.do_nothing": "Ne rien faire"
+    "common.do_nothing": "Ne rien faire",
+    "common.unit.gigabyte": "{size} Go",
+    "common.unit.megabyte": "{size} Mo",
+    "common.unit.kilobyte": "{size} Ko",
+    "common.unit.byte": "{size} o"
 }
