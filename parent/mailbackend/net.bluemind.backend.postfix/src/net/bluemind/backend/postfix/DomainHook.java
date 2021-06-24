@@ -66,7 +66,9 @@ public class DomainHook extends DomainHookAdapter {
 		if (!deleted.isEmpty()) {
 			IInCoreMailboxes mailboxes = context.su().provider().instance(IInCoreMailboxes.class, domain.uid);
 			deleted.forEach(alias -> {
-				mailboxes.deleteEmailByAlias(alias);
+				if (!alias.equals(domain.uid)) {
+					mailboxes.deleteEmailByAlias(alias);
+				}
 			});
 		}
 

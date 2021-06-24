@@ -823,8 +823,13 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	@Override
 	public void deleteEmailByAlias(String alias) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_MAILBOX);
-		logger.info("Deleting emails for alias {}", alias);
-		storeService.deleteEmailByAlias(alias);
+		if (domainUid.equals(alias)) {
+			logger.error("No, won't delete email alias {} (it's the domainUid)", alias);
+			throw new ServerFault("Can't delete the alias for @domainUid");
+		} else {
+			logger.info("Deleting emails for alias {}", alias);
+			storeService.deleteEmailByAlias(alias);
+		}
 	}
 
 }

@@ -17,8 +17,11 @@
   */
 package net.bluemind.domain.service;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -26,8 +29,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
+import com.google.common.collect.Sets;
+
+import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -35,14 +39,20 @@ import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.service.internal.DomainServerHook;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.GroupSearchQuery;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.User;
 
 public class DomainServerHookTests {
 	@BeforeClass
@@ -57,14 +67,8 @@ public class DomainServerHookTests {
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 		PopulateHelper.initGlobalVirt();
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.external);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 	}
 
 	@After
@@ -106,6 +110,42 @@ public class DomainServerHookTests {
 		final List<ItemValue<Group>> groupResult = groupService.search(groupSearchQuery);
 		Assert.assertEquals(1, groupResult.size());
 		return groupResult.get(0).value.dataLocation;
+	}
+
+	@Test
+	public void testDomainHookEmailAliasRemoved() throws Exception {
+		final String domainUid = "bm.lan";
+		IDomains domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
+		PopulateHelper.createDomain(domainUid, "bm.lan", "bm.fr");
+		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
+				domainUid);
+		User u = PopulateHelper.getUser("lolo", domainUid, Routing.internal);
+		u.emails = Arrays.asList(Email.create("lolo@bm.lan", false), Email.create("lolo@bm.fr", true));
+		userService.create("lolo", u);
+
+		ItemValue<User> user = userService.byLogin("lolo");
+		System.err.println("new aliases: " + user.value.emails);
+		Assert.assertEquals(2, user.value.emails.size());
+
+		// Now, remove the domain alias
+		ItemValue<Domain> dom = domainService.get(domainUid);
+		System.err.println("domain aliases: " + dom.value.aliases);
+
+		domainService.setDefaultAlias(domainUid, "bm.fr");
+		Set<String> aliases = Sets.newHashSet();
+		aliases.add("bm.fr");
+		TaskRef taskRef = domainService.setAliases(domainUid, aliases);
+		TaskUtils.logStreamWait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), taskRef);
+
+		dom = domainService.get(domainUid);
+		System.err.println("domain aliases: " + dom.value.aliases);
+
+		user = userService.byLogin("lolo");
+		// user alias @domain.uid should be there
+		Optional<Email> usermail = user.value.emails.stream().filter(e -> "bm.lan".equals(e.domainPart())).findAny();
+		Assert.assertTrue(usermail.isPresent());
+
+		System.err.println("user emails after DomainHook (hopefully): " + user.value.emails);
 	}
 
 }
