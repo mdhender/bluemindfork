@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.junit.After;
@@ -36,8 +36,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
@@ -80,14 +78,7 @@ public class UserMailIdentitiesHookTests {
 		JdbcTestHelper.getInstance().beforeTest();
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		testContext = new BmTestContext(SecurityContext.SYSTEM);
 		// register elasticsearch to locator

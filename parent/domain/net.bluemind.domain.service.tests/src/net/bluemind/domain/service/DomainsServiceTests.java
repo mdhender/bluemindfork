@@ -29,18 +29,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import com.github.benmanes.caffeine.cache.Cache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.calendar.api.CalendarDescriptor;
 import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -109,14 +108,7 @@ public class DomainsServiceTests {
 
 		storeService = new DomainStoreService(JdbcActivator.getInstance().getDataSource(), SecurityContext.SYSTEM,
 				domainsContainer);
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		FakeDomainHook.initFlags();
 	}

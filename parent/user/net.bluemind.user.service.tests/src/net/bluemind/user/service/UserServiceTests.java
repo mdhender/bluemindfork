@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -54,8 +54,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.AddressBookBusAddresses;
 import net.bluemind.addressbook.api.IAddressBook;
@@ -97,7 +95,6 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.directory.service.DirEntryHandler;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
@@ -160,15 +157,7 @@ public class UserServiceTests {
 		JdbcTestHelper.getInstance().beforeTest();
 
 		ElasticsearchTestHelper.getInstance().beforeTest();
-
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		domainUid = "dom" + System.currentTimeMillis() + ".test";
 		String sid = "sid" + System.currentTimeMillis();
@@ -184,7 +173,8 @@ public class UserServiceTests {
 				.contextWithSession("sid3" + System.currentTimeMillis(), "user@" + domainUid, domainUid)
 				.getSecurityContext();
 
-		containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), domainAdminSecurityContext);
+		containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
+				domainAdminSecurityContext);
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
@@ -198,8 +188,6 @@ public class UserServiceTests {
 		Server imapServer = new Server();
 		imapServer.ip = cyrusIp;
 		imapServer.tags = Lists.newArrayList("mail/imap");
-
-		System.out.println(DirEntryHandler.class);
 
 		PopulateHelper.initGlobalVirt(esServer, server, imapServer);
 		domain = PopulateHelper.createTestDomain(domainUid, esServer, imapServer);
@@ -256,7 +244,7 @@ public class UserServiceTests {
 	}
 
 	@Test
-	public void testCreate() throws ServerFault, InterruptedException, SQLException {
+	public void testCreate() throws ServerFault, SQLException {
 		String login = "test." + System.nanoTime();
 		User user = defaultUser(login);
 		String uid = login;
@@ -283,7 +271,7 @@ public class UserServiceTests {
 	}
 
 	@Test
-	public void testCreateShouldapplyDefaultUserQuota() throws ServerFault, InterruptedException, SQLException {
+	public void testCreateShouldapplyDefaultUserQuota() throws ServerFault {
 		IDomainSettings settingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomainSettings.class, domainUid);
 		Map<String, String> settings = settingsService.get();
@@ -307,7 +295,7 @@ public class UserServiceTests {
 	}
 
 	@Test
-	public void testCreateWithExtId() throws ServerFault, InterruptedException, SQLException {
+	public void testCreateWithExtId() throws ServerFault, SQLException {
 		String uid = UUID.randomUUID().toString();
 		String login = "test." + System.nanoTime();
 		User user = defaultUser(login);

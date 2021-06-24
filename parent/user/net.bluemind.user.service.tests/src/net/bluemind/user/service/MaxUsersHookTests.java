@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,8 +31,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -63,14 +61,7 @@ public class MaxUsersHookTests {
 
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		String cyrusIp = new BmConfIni().get("imap-role");
 		Server imapServer = new Server();

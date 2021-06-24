@@ -35,16 +35,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.SettableFuture;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
@@ -144,16 +142,7 @@ public abstract class HooksTests {
 
 		bmContext = new BmTestContext(SecurityContext.SYSTEM);
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		Activator.DISABLE_EVENT = true;
 	}

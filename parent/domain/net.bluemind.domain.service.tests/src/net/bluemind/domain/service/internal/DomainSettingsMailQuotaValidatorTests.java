@@ -8,14 +8,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -45,14 +43,7 @@ public class DomainSettingsMailQuotaValidatorTests {
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		String domainUid = "bm.lan";
 

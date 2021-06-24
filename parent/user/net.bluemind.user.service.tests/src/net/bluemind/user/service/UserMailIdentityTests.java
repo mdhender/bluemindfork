@@ -23,7 +23,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,8 +31,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -80,14 +78,7 @@ public class UserMailIdentityTests {
 		JdbcTestHelper.getInstance().beforeTest();
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		testContext = new BmTestContext(SecurityContext.SYSTEM);
 		// register elasticsearch to locator
