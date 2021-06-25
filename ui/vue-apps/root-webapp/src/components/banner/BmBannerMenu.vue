@@ -15,7 +15,7 @@
             >
                 {{ $t("common.preference") }}
             </bm-dropdown-item>
-            <bm-dropdown-item to="#about">
+            <bm-dropdown-item icon="blue-mind" to="#about">
                 {{ $t("banner.about") }}
             </bm-dropdown-item>
             <bm-dropdown-item v-if="canLogout" icon="sign-out" href="/bluemind_sso_logout">
