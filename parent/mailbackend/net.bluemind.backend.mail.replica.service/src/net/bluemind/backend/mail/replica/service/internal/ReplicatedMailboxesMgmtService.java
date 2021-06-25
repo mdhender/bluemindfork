@@ -179,7 +179,7 @@ public class ReplicatedMailboxesMgmtService implements IReplicatedMailboxesMgmt 
 				return null;
 			}
 		}).filter(Objects::nonNull).map(dto -> {
-			ItemValue<MailboxReplica> replica = subApis.get(apiCacheKey(dto.box)).byReplicaName(dto.box.folderName);
+			ItemValue<MailboxReplica> replica = subApis.get(apiCacheKey(dto.box)).byReplicaName(dto.box.fullName());
 			if (replica == null) {
 				logger.warn("{} not found.", dto.box);
 				return null;

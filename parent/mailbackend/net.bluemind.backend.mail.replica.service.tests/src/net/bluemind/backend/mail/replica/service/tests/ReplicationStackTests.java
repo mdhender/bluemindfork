@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -56,6 +57,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.mail.api.DispositionType;
+import net.bluemind.backend.mail.api.IBaseMailboxFolders;
 import net.bluemind.backend.mail.api.IItemsTransfer;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
@@ -660,11 +662,14 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		mboxesApi.deepDelete(folderItem.internalId);
 		System.err.println("deepDelete ends.");
 
+		System.err.println("start checking for " + folderItem.value);
 		String folderUid = folderItem.uid;
 		folderItem = mboxesApi.byName(folderName);
 		assertNull(folderItem);
 		folderItem = mboxesApi.getComplete(folderUid);
 		assertNull(folderItem);
+		System.err.println("start checking for " + subFolderItem.value);
+
 		String subFolderUid = subFolderItem.uid;
 		folderItem = mboxesApi.byName(subFolderItem.value.fullName);
 		assertNull(folderItem);
@@ -1198,7 +1203,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		boolean found = false;
 		for (ItemValue<MailboxReplica> folder : allFoldersFull) {
 			System.out.println("Got " + folder.uid + ", " + folder.value.fullName);
-			if ("Middle/Sent".equals(folder.value.fullName)) {
+			if ((mailshare.name + "/Middle/Sent").equals(folder.value.fullName)) {
 				found = true;
 			}
 		}
@@ -1391,15 +1396,18 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 			}
 		}
 		assertNotNull(root);
+		System.err.println("ROOT is " + root.uid + " " + root.value);
 
 		MailboxFolder child = new MailboxFolder();
-		child.fullName = "child" + System.currentTimeMillis();
+		child.name = "child" + System.currentTimeMillis();
 		child.parentUid = root.uid;
 		ItemIdentifier freshId = folders.createBasic(child);
 		ItemValue<MailboxFolder> freshFolder = folders.getComplete(freshId.uid);
 		assertNotNull(freshFolder);
 
 		freshFolder.value.name = "updChild" + System.currentTimeMillis();
+		freshFolder.value.fullName = null;
+		System.err.println("rename child...");
 		Ack ack = folders.updateById(freshFolder.internalId, freshFolder.value);
 		assertNotNull(ack);
 		assertTrue(ack.version > freshId.version);
@@ -1413,14 +1421,14 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 		// nested case
 		child = new MailboxFolder();
-		child.fullName = "reChild" + System.currentTimeMillis();
+		child.name = "reChild" + System.currentTimeMillis();
 		child.parentUid = root.uid;
 		freshId = folders.createBasic(child);
 		freshFolder = folders.getComplete(freshId.uid);
 		assertNotNull(freshFolder);
 
 		MailboxFolder subF = new MailboxFolder();
-		subF.fullName = child.fullName + "/sub" + System.currentTimeMillis();
+		subF.fullName = freshFolder.value.fullName + "/sub" + System.currentTimeMillis();
 		subF.parentUid = freshFolder.uid;
 		ItemIdentifier subFolder = folders.createBasic(subF);
 		assertNotNull(subFolder);
@@ -1436,6 +1444,101 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		Thread.sleep(1000);
 		ItemValue<MailboxFolder> subFound = folders.getCompleteById(subFolder.id);
 		assertNull(subFound);
+	}
+
+	@Test
+	public void mailshareRootFolderInception()
+			throws IMAPException, InterruptedException, ExecutionException, TimeoutException {
+		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IMailshare mailshareApi = prov.instance(IMailshare.class, domainUid);
+		Mailshare mailshare = new Mailshare();
+		mailshare.name = "shared" + System.currentTimeMillis();
+		mailshare.emails = Arrays.asList(Email.create(mailshare.name + "@" + domainUid, true));
+		mailshare.routing = Routing.internal;
+
+		// setup events expectations
+		CompletableFuture<MailboxReplicaRootDescriptor> onRoot = ReplicationEvents.onMailboxRootCreated();
+		MailboxReplicaRootDescriptor expected = MailboxReplicaRootDescriptor.create(Namespace.shared, mailshare.name);
+		Subtree sub = SubtreeContainer.mailSubtreeUid(domainUid, expected.ns, mailshare.name);
+		String subtreeUid = sub.subtreeUid();
+		System.err.println("On subtree update " + subtreeUid);
+		CompletableFuture<ItemIdentifier> onSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
+		CompletableFuture<Void> allEvents = CompletableFuture.allOf(onRoot, onSubtree);
+
+		System.err.println("Before create.....");
+		mailshareApi.create(mailshare.name, mailshare);
+		allEvents.get(10, TimeUnit.SECONDS);
+		MailboxReplicaRootDescriptor created = onRoot.get();
+		assertNotNull(created);
+
+		IContainerManagement aclApi = prov.instance(IContainerManagement.class,
+				IMailboxAclUids.uidForMailbox(mailshare.name));
+		System.err.println("Setting ACLs....");
+		aclApi.setAccessControlList(Arrays.asList(AccessControlEntry.create(userUid, Verb.Write)));
+		System.err.println("**** ROOT is " + created.ns + ", " + created.name + ", version: " + onSubtree.get());
+
+		IMailboxFolders folders = provider().instance(IMailboxFolders.class, partition, mailshare.name);
+		ItemValue<MailboxFolder> root = checkFolderTreeThenReturnRoot(mailshare, folders);
+
+		MailboxFolder child = new MailboxFolder();
+		child.name = mailshare.name;
+		child.parentUid = root.uid;
+		ItemIdentifier freshId = folders.createBasic(child);
+		ItemValue<MailboxFolder> freshFolder = folders.getComplete(freshId.uid);
+		final ItemValue<MailboxFolder> baseNested = freshFolder;
+		assertNotNull(freshFolder);
+
+		checkFolderTreeThenReturnRoot(mailshare, folders);
+
+		LinkedList<ItemValue<MailboxFolder>> nestedCrap = new LinkedList<>();
+		System.err.println("FRESH_ID: " + freshId);
+		System.err.println("FRESH: " + freshFolder.uid + " " + freshFolder.value);
+		for (int i = 0; i < 4; i++) {
+			System.err.println("NESTING " + i);
+			MailboxFolder nested = new MailboxFolder();
+			nested.name = mailshare.name;
+			nested.parentUid = freshFolder.uid;
+			freshId = folders.createBasic(nested);
+			freshFolder = folders.getComplete(freshId.uid);
+			nestedCrap.add(freshFolder);
+
+			checkFolderTreeThenReturnRoot(mailshare, folders);
+			assertEquals("Created with wrong parent", nested.parentUid, freshFolder.value.parentUid);
+		}
+
+		System.err.println("Before delete........");
+		Thread.sleep(500);
+
+		while (!nestedCrap.isEmpty()) {
+			ItemValue<MailboxFolder> toDel = nestedCrap.pollLast();
+			System.err.println("DEL " + toDel.value);
+			folders.deleteById(toDel.internalId);
+			Thread.sleep(500);
+		}
+
+		folders.deleteById(baseNested.internalId);
+		Thread.sleep(1000);
+		ItemValue<MailboxFolder> exists = folders.getCompleteById(baseNested.internalId);
+		assertNull(exists);
+
+	}
+
+	private ItemValue<MailboxFolder> checkFolderTreeThenReturnRoot(Mailshare mailshare, IBaseMailboxFolders folders) {
+		List<ItemValue<MailboxFolder>> allFolders = folders.all();
+		ItemValue<MailboxFolder> root = null;
+		int nullParents = 0;
+		for (ItemValue<MailboxFolder> folder : allFolders) {
+			System.err.println("Got " + folder.uid + ": " + folder.value);
+			if (folder.value.parentUid == null) {
+				nullParents++;
+			}
+			if (mailshare.name.equals(folder.value.name)) {
+				root = folder;
+			}
+		}
+		assertNotNull(root);
+		assertEquals("Only one folder should have a null parentUid", 1, nullParents);
+		return root;
 	}
 
 	@Test
@@ -1979,7 +2082,8 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 			postRename = mboxesApi.getCompleteById(created.id);
 		}
 		assertFalse("took too long", iter >= 50);
-		System.err.println("Before: " + toRename + ", after: " + postRename);
+		assertEquals(toRename.uid, postRename.uid);
+		System.err.println("Before: " + toRename.value + ", after: " + postRename.value);
 		assertNotEquals(toRename.value.parentUid, postRename.value.parentUid);
 		assertEquals(null, postRename.value.parentUid);
 
@@ -2667,7 +2771,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 		for (ItemValue<MailboxReplica> folder : allFoldersFull) {
 			System.out.println("Got " + folder.uid + ", " + folder.value.fullName);
-			if ("Sent".equals(folder.value.fullName)) {
+			if ((mailshare.name + "/Sent").equals(folder.value.fullName)) {
 				foundSent = true;
 			}
 			if (mailshare.name.equals(folder.value.fullName)) {
@@ -2858,8 +2962,9 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 				"**** ROOT is " + mailshareRoot.ns + ", " + mailshareRoot.name + ", version: " + onSubtree.get());
 		Thread.sleep(500);
 		IMailboxFolders folders = provider().instance(IMailboxFolders.class, partition, mailshare.name);
-		ItemValue<MailboxFolder> sharedSent = folders.byName("Sent");
+		ItemValue<MailboxFolder> sharedSent = folders.byName(mailshare.name + "/Sent");
 		assertNotNull(sharedSent);
+		System.err.println("sharedSent: " + sharedSent.value);
 
 		int max = 3;
 		List<ItemValue<MailboxItem>> messages = new ArrayList<>(max);

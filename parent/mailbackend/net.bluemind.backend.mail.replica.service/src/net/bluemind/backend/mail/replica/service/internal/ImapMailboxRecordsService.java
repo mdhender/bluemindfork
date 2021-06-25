@@ -462,7 +462,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 					fl.add(Flag.FORWARDED);
 				}
 			});
-
 			logger.debug("Append {}bytes EML into {}", sizedStream.size, imapFolder);
 			int added = sc.append(imapFolder, sizedStream.input, fl, value.body.date);
 			logger.debug("Added IMAP UID: {} with date {}", added, value.body.date);

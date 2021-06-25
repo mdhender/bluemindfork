@@ -45,37 +45,81 @@ public class DtoConverters {
 
 	private static final Logger logger = LoggerFactory.getLogger(DtoConverters.class);
 
-	public static String toReplicaName(MailboxReplicaRootDescriptor root, String nameWithoutPart) {
-		String name = nameWithoutPart;
-		if (root.isRoot(nameWithoutPart)) {
-			name = root.ns == Namespace.users ? "INBOX" : root.name;
-		} else {
-			String tmp = nameWithoutPart;
-			int toSkip = root.internalFullName().length() + 1;
-			tmp = tmp.substring(toSkip).replace('.', '/').replace('^', '.');
-			name = tmp;
+	private DtoConverters() {
+
+	}
+
+	public interface DtoNameConverter {
+		String toReplica(MailboxReplicaRootDescriptor root, String nameWithoutPart);
+
+		String fromReplica(String partition, MailboxReplicaRootDescriptor rd, MailboxReplica mr);
+	}
+
+	private static final DtoNameConverter userConverter = new DtoNameConverter() {
+
+		@Override
+		public String toReplica(MailboxReplicaRootDescriptor root, String nameWithoutPart) {
+			String name = nameWithoutPart;
+			if (root.isRoot(name)) {
+				name = "INBOX";
+			} else {
+				String tmp = nameWithoutPart;
+				String intFull = root.internalFullName();
+				int toSkip = intFull.length() + 1;
+				tmp = tmp.substring(toSkip).replace('.', '/').replace('^', '.');
+				name = tmp;
+			}
+			return name;
 		}
-		return name;
+
+		@Override
+		public String fromReplica(String partition, MailboxReplicaRootDescriptor rd, MailboxReplica mr) {
+			String nameBase = partition.replace('_', '.') + "!" + rd.internalFullName();
+			if (!"INBOX".equals(mr.fullName)) {
+				// not the root
+				nameBase = addFolderPart(nameBase, mr.fullName);
+			}
+			return nameBase;
+		}
+	};
+
+	private static final DtoNameConverter sharedConverter = new DtoNameConverter() {
+
+		@Override
+		public String toReplica(MailboxReplicaRootDescriptor root, String nameWithoutPart) {
+			String name = nameWithoutPart;
+			if (root.isRoot(name)) {
+				name = root.name.replace('^', '.');
+			} else {
+				name = name.replace('.', '/').replace('^', '.');
+			}
+			return name;
+		}
+
+		@Override
+		public String fromReplica(String partition, MailboxReplicaRootDescriptor rd, MailboxReplica mr) {
+			String nameBase = partition.replace('_', '.') + "!" + rd.internalFullName();
+			int slash = mr.fullName.indexOf('/');
+			if (slash != -1) {
+				String trail = mr.fullName.substring(slash + 1);
+				nameBase = addFolderPart(nameBase, trail);
+			}
+			return nameBase;
+		}
+	};
+
+	public static String toReplicaName(MailboxReplicaRootDescriptor root, String nameWithoutPart) {
+		return root.ns == Namespace.users ? userConverter.toReplica(root, nameWithoutPart)
+				: sharedConverter.toReplica(root, nameWithoutPart);
 	}
 
 	private static String fromReplicaName(String partition, MailboxReplicaRootDescriptor rd, MailboxReplica mr) {
-		String nameBase = partition.replace('_', '.') + "!" + rd.internalFullName();
-		if (rd.ns == Namespace.users) {
-			if (!"INBOX".equals(mr.fullName)) {
-				// not the root
-				nameBase = addFolderPart(nameBase, mr);
-			}
-		} else {
-			if (!mr.fullName.replace('.', '^').equals(rd.fullName())) {
-				// not the root
-				nameBase = addFolderPart(nameBase, mr);
-			}
-		}
-		return nameBase;
+		return rd.ns == Namespace.users ? userConverter.fromReplica(partition, rd, mr)
+				: sharedConverter.fromReplica(partition, rd, mr);
 	}
 
-	private static String addFolderPart(String nameBase, MailboxReplica mr) {
-		String encoded = UTF7Converter.encode(mr.fullName).replace('.', '^').replace('/', '.');
+	private static String addFolderPart(String nameBase, String trail) {
+		String encoded = UTF7Converter.encode(trail).replace('.', '^').replace('/', '.');
 		return nameBase + "." + encoded;
 	}
 

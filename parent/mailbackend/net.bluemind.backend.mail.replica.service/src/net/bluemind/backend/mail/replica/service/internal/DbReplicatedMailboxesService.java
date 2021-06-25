@@ -65,9 +65,9 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 	}
 
 	@Override
-	public void create(String uid, MailboxReplica replica) {
-		logger.info("CREATE {} n:{} fn:{}", uid, replica.name, replica.fullName);
-		sanitizeNames(replica);
+	public void create(String uid, MailboxReplica r) {
+		logger.info("CREATE {} n:{} fn:{}", uid, r.name, r.fullName);
+		MailboxReplica replica = nameSanitizer.sanitizeNames(r);
 		String recordsContainerUid = IMailReplicaUids.mboxRecords(uid);
 		String domainUid = replicaStore.partition.replace('_', '.');
 
@@ -115,10 +115,10 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 	}
 
 	@Override
-	public void update(String uid, MailboxReplica replica) {
-		sanitizeNames(replica);
+	public void update(String uid, MailboxReplica r) {
 		ItemValue<MailboxReplica> previous = getCompleteReplica(uid);
 		if (previous != null) {
+			MailboxReplica replica = nameSanitizer.sanitizeNames(r);
 			ItemVersion upd = storeService.update(uid, replica.name, replica);
 
 			ItemValue<MailboxReplica> toCache = ItemValue.create(previous, replica);

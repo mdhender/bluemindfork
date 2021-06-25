@@ -280,17 +280,20 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 
 		// append mail into src
 		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, "ms");
-		ItemValue<MailboxFolder> srcFolder = mboxesApi.byName(src);
+		ItemValue<MailboxFolder> srcFolder = mboxesApi.byName(mailshare.name + "/" + src);
+		assertNotNull(srcFolder);
 		long id = offlineId++;
 		addDraft(srcFolder, id, msUid);
 
-		ItemValue<MailboxFolder> destFolder = mboxesApi.byName(dest);
+		ItemValue<MailboxFolder> destFolder = mboxesApi.byName(mailshare.name + "/" + dest);
+		assertNotNull(destFolder);
 		// copy into sub folder
 		long expectedId = offlineId++;
 
 		ImportMailboxItemSet toCopy = ImportMailboxItemSet.copyIn(srcFolder.internalId,
 				Arrays.asList(MailboxItemId.of(id)), Arrays.asList(MailboxItemId.of(expectedId)));
 
+		System.err.println("import starts...");
 		ImportMailboxItemsStatus ret = mboxesApi.importItems(destFolder.internalId, toCopy);
 
 		assertEquals(ImportStatus.SUCCESS, ret.status);
@@ -332,7 +335,7 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 
 		// append mail into src
 		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, "ms");
-		ItemValue<MailboxFolder> srcFolder = mboxesApi.byName(src);
+		ItemValue<MailboxFolder> srcFolder = mboxesApi.byName(mailshare.name + "/" + src);
 		long id = offlineId++;
 		addDraft(srcFolder, id, msUid);
 
@@ -384,11 +387,13 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 
 		// append mail into src
 		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, "ms");
-		ItemValue<MailboxFolder> srcFolder = mboxesApi.byName("ms");
+		ItemValue<MailboxFolder> srcFolder = mboxesApi.byName(mailshare.name);
+		assertNotNull(srcFolder);
 		long id = offlineId++;
 		addDraft(srcFolder, id, msUid);
 
-		ItemValue<MailboxFolder> destFolder = mboxesApi.byName(dest);
+		ItemValue<MailboxFolder> destFolder = mboxesApi.byName(mailshare.name + "/" + dest);
+		assertNotNull(destFolder);
 		// copy into sub folder
 		long expectedId = offlineId++;
 

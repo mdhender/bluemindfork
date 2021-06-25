@@ -33,8 +33,9 @@ import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.SearchResult;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
-import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
+import net.bluemind.backend.mail.replica.service.names.INameSanitizer;
+import net.bluemind.backend.mail.replica.service.names.NameSanitizers;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangelog;
@@ -67,6 +68,8 @@ public class BaseReplicatedMailboxesService implements IBaseMailboxFolders {
 	protected final String dataLocation;
 	protected final RBACManager rbac;
 
+	protected final INameSanitizer nameSanitizer;
+
 	public BaseReplicatedMailboxesService(MailboxReplicaRootDescriptor root, Container cont, BmContext context,
 			MailboxReplicaStore store, ContainerStoreService<MailboxReplica> mboxReplicaStore,
 			ContainerStore contStore) {
@@ -77,6 +80,7 @@ public class BaseReplicatedMailboxesService implements IBaseMailboxFolders {
 		this.storeService = mboxReplicaStore;
 		this.contStore = contStore;
 		this.dataLocation = root.dataLocation;
+		this.nameSanitizer = NameSanitizers.create(root, store, mboxReplicaStore);
 		this.rbac = RBACManager.forContext(context).forContainer(IMailboxAclUids.uidForMailbox(container.owner));
 	}
 
@@ -85,67 +89,6 @@ public class BaseReplicatedMailboxesService implements IBaseMailboxFolders {
 			return null;
 		}
 		return ItemValue.create(rec, rec.value);
-	}
-
-	protected void sanitizeNames(MailboxFolder replica) {
-		if (replica.name == null && replica.fullName == null) {
-			throw new ServerFault("One of name or fullName must not be null");
-		}
-		String parentName = null;
-		if (replica.fullName != null) {
-			replica.fullName = replica.fullName.replace('^', '.');
-			replica.fullName = decodeIfUTF7(replica.fullName);
-			// use fullName if available & set name+parentUid
-			int lastSlash = replica.fullName.lastIndexOf('/');
-			if (lastSlash > 0) {
-				if (replica.deleted) {
-					// keep deleted name
-					// fullName/XXX where XXX is a hex encoded timestamp, need
-					// for undelete
-					// https://www.cyrusimap.org/imap/reference/admin/sop/deleting.html?highlight=undelete
-					replica.name = replica.fullName;
-				} else {
-					parentName = replica.fullName.substring(0, lastSlash);
-					replica.name = replica.fullName.substring(lastSlash + 1);
-				}
-			} else {
-				if (root.ns == Namespace.users) {
-					replica.name = replica.fullName;
-					parentName = null;
-				} else {
-					replica.name = replica.fullName;
-					parentName = root.name.replace('^', '.');
-					logger.debug("replicaName: {}, parentName: {}", replica.name, parentName);
-					if (parentName.equals(replica.name)) {
-						parentName = null;
-					}
-					logger.debug("********************* Sanitized mailshare folder with parent set to {}", parentName);
-				}
-			}
-
-			if (parentName == null) {
-				replica.parentUid = null;
-			} else {
-				ItemValue<MailboxReplica> parent = byReplicaName(parentName);
-				if (parent == null) {
-					logger.warn("parentName {} not found", parentName);
-				} else {
-					replica.parentUid = parent.uid;
-					logger.info("******** parent set to {}", replica.parentUid);
-				}
-			}
-		} else { // use name + parentUid
-			replica.name = replica.name.replace('^', '.');
-			replica.name = decodeIfUTF7(replica.name);
-			if (replica.parentUid == null) {
-				// top lvl folder
-				replica.fullName = replica.name;
-			} else {
-				ItemValue<MailboxReplica> parent = storeService.get(replica.parentUid, null);
-				replica.fullName = parent.value.fullName + "/" + replica.name;
-			}
-		}
-
 	}
 
 	protected String decodeIfUTF7(String s) {

@@ -365,7 +365,7 @@ public class ReplicationState {
 		}
 		return storage.replicatedMailboxes(userFrom).thenCompose(apiDesc -> {
 			IDbReplicatedMailboxesPromise api = apiDesc.mboxApi;
-			return api.byReplicaName(userFrom.folderName).thenCompose(mbox -> {
+			return api.byReplicaName(userFrom.fullName()).thenCompose(mbox -> {
 				if (mbox == null) {
 					logger.warn("Source not found for rename {}", userFrom);
 					// consider throwing here...
@@ -373,7 +373,8 @@ public class ReplicationState {
 				}
 
 				MailboxReplica value = mbox.value;
-				value.fullName = userTo.folderName;
+				value.fullName = userTo.fullName();
+				value.parentUid = null;
 				value.deleted = userTo.ns.expunged();
 
 				return api.update(mbox.uid, value);
@@ -390,7 +391,7 @@ public class ReplicationState {
 		}
 		return storage.replicatedMailboxes(userFrom).thenCompose(apiDesc -> {
 			IDbReplicatedMailboxesPromise api = apiDesc.mboxApi;
-			return api.byName(userFrom.folderName).thenCompose(mbox -> {
+			return api.byName(userFrom.fullName()).thenCompose(mbox -> {
 				if (mbox == null) {
 					logger.warn("Mailbox does not exist {}", userFrom);
 					return CompletableFuture.completedFuture(null);

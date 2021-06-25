@@ -27,6 +27,7 @@ import com.google.common.base.CharMatcher;
 
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.core.api.fault.ServerFault;
 
 public class CyrusBoxes {
 
@@ -54,6 +55,19 @@ public class CyrusBoxes {
 			rd.ns = ns;
 			rd.name = local;
 			return rd;
+		}
+
+		public String fullName() {
+			switch (ns) {
+			case users:
+				return folderName;
+			case shared:
+				return mailboxRoot ? folderName : local.replace('^', '.') + "/" + folderName;
+			case deleted:
+			case deletedShared:
+			default:
+				throw new ServerFault("Can't deal with deleted namespace on " + this);
+			}
 		}
 	}
 

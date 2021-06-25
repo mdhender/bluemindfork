@@ -17,7 +17,6 @@
   */
 package net.bluemind.backend.mail.replica.service.internal;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -75,6 +74,7 @@ import net.bluemind.imap.CreateMailboxResult;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
+import net.bluemind.imap.ListInfo;
 import net.bluemind.imap.ListResult;
 import net.bluemind.imap.StoreClient;
 
@@ -149,10 +149,10 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 	}
 
 	@Override
-	public ItemIdentifier createForHierarchy(long hierId, MailboxFolder value) {
+	public ItemIdentifier createForHierarchy(long hierId, MailboxFolder v) {
 		rbac.check(Verb.Write.name());
 
-		sanitizeNames(value);
+		MailboxFolder value = nameSanitizer.sanitizeNames(v);
 		UpdatedName newName = updateName(value, container.uid);
 
 		ItemValue<MailboxFolder> folder = byName(newName.fullName);
@@ -200,29 +200,10 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 	}
 
 	private UpdatedName updateName(MailboxFolder folder, String containerUid) {
-		String parent = folder.parentUid;
 		if (root.ns == Namespace.shared) {
-			if (parent == null) {
-				// this is wrong if you create a top-lvl folder with the name of a mailshare
-				// inside itself
-				try {
-					String lookup = root.name.replace('^', '.');
-					parent = replicaStore.rootByName(lookup);
-					logger.info("{} Updated parentUid to {} (lookup: {})", root, parent, lookup);
-				} catch (SQLException e) {
-					throw new ServerFault();
-				}
-			}
-			String parentRecs = IMailReplicaUids.mboxRecords(parent);
-			ReplicasStore repStore = new ReplicasStore(DataSourceRouter.get(context, parentRecs));
-			Optional<SubtreeLocation> optRecordsLocation = SubtreeLocations.getById(repStore, parent);
-			if (!optRecordsLocation.isPresent()) {
-				throw ServerFault.notFound("subtree loc not found for parent " + parent);
-			}
-			SubtreeLocation recLoc = optRecordsLocation.get();
-			return new UpdatedName(recLoc.subtreeContainer, recLoc.imapPath(context) + "/" + folder.name, parent);
+			return new UpdatedName(containerUid, "Dossiers partagés/" + folder.fullName, folder.parentUid);
 		} else {
-			return new UpdatedName(containerUid, folder.fullName, parent);
+			return new UpdatedName(containerUid, folder.fullName, folder.parentUid);
 		}
 	}
 
@@ -374,16 +355,13 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 	}
 
 	private CompletableFuture<?> deleteChildFolders(ItemValue<MailboxFolder> toClean, StoreClient sc) {
-		String childPrefix = toClean.value.fullName + "/";
+		String childPrefix = (root.ns == Namespace.shared ? "Dossiers partagés/" : "") + toClean.value.fullName + "/";
 		ListResult allFolders = sc.listAll();
 		List<String> toRemove = allFolders.stream()//
-				.filter(li -> {
+				.filter(ListInfo::isSelectable).filter(li -> {
 					String check = li.getName();
-					if (root.ns == Namespace.shared) {
-						check = check.replace("Dossiers partagés/" + imapRoot() + "/", "");
-					}
-					return li.isSelectable() && check.startsWith(childPrefix);
-				}).map(li -> li.getName()).sorted(Comparator.reverseOrder())//
+					return check.startsWith(childPrefix);
+				}).map(ListInfo::getName).sorted(Comparator.reverseOrder())//
 				.collect(Collectors.toList());
 
 		CompletableFuture<?> rootPromise = CompletableFuture.completedFuture(null);
@@ -551,18 +529,8 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		if (ns == Namespace.users) {
 			return folder.fullName;
 		} else {
-			String root = imapRoot();
-			if (root.equals(folder.fullName)) {
-				// root
-				return "Dossiers partagés/" + root;
-			} else {
-				return "Dossiers partagés/" + root + "/" + folder.fullName;
-			}
+			return "Dossiers partagés/" + folder.fullName;
 		}
-	}
-
-	private String imapRoot() {
-		return container.name.substring(7);
 	}
 
 }

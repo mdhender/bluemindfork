@@ -68,13 +68,7 @@ public class ReplicasStore extends JdbcAbstractStore {
 				}
 				return boxName;
 			} else {
-				if (("shared/" + boxName).equals(contName)) {
-					// root
-					return "Dossiers partagés/" + boxName;
-				} else {
-					String root = contName.substring(7);
-					return "Dossiers partagés/" + root + "/" + boxName;
-				}
+				return "Dossiers partagés/" + boxName;
 			}
 		}
 	}
