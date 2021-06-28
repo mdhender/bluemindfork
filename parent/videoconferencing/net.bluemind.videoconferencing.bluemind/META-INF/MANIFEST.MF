@@ -13,4 +13,4 @@ Require-Bundle: net.bluemind.videoconferencing.service,
  net.bluemind.core.container.persistence,
  net.bluemind.resource.api,
  net.bluemind.core.rest,
- net.bluemind.system.api
+ net.bluemind.system.api;bundle-version="4.1.0"

@@ -66,6 +66,14 @@ public class SubscriptionInformations {
 		public Kind kind;
 		public Integer maxValue;
 		public Integer currentValue;
+		public Date expiration;
+
+		@Override
+		public String toString() {
+			return "InstallationIndicator [kind=" + kind + ", maxValue=" + maxValue + ", currentValue=" + currentValue
+					+ ", expiration=" + expiration + "]";
+		}
+
 	}
 
 	public List<InstallationIndicator> indicator = Collections.emptyList();

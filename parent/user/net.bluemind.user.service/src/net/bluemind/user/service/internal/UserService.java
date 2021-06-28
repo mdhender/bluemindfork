@@ -90,6 +90,9 @@ import net.bluemind.role.api.DefaultRoles;
 import net.bluemind.role.api.IRoles;
 import net.bluemind.role.api.RoleDescriptor;
 import net.bluemind.role.service.IInternalRoles;
+import net.bluemind.system.api.IInstallation;
+import net.bluemind.system.api.SubscriptionInformations;
+import net.bluemind.system.api.SubscriptionInformations.InstallationIndicator;
 import net.bluemind.user.api.ChangePassword;
 import net.bluemind.user.api.IPasswordUpdater;
 import net.bluemind.user.api.IUser;
@@ -735,8 +738,26 @@ public class UserService implements IInCoreUser, IUser {
 
 		// deactivate non-active roles
 
+		if (roles.contains("hasFullVideoconferencing")) {
+			if (user.accountType != AccountType.FULL_AND_VISIO) {
+				roles.remove("hasFullVideoconferencing");
+				roles.add("hasSimpleVideoconferencing");
+			} else {
+				IInstallation installationService = bmContext.su().getServiceProvider().instance(IInstallation.class);
+				SubscriptionInformations subInfos = installationService.getSubscriptionInformations();
+				Optional<InstallationIndicator> fullVisioIndicator = subInfos.indicator.stream()
+						.filter(indicator -> indicator.kind == InstallationIndicator.Kind.FullVisioAccount).findFirst();
+
+				if (fullVisioIndicator.isPresent() && fullVisioIndicator.get().expiration != null
+						&& Calendar.getInstance().getTime().after(fullVisioIndicator.get().expiration)) {
+					roles.remove("hasFullVideoconferencing");
+				}
+			}
+		}
+
 		roles = roleService.filter(roles);
 		return roleService.resolve(roles);
+
 	}
 
 	@Override

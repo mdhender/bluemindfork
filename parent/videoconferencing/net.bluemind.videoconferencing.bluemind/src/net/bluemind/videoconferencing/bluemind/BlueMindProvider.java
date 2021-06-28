@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import com.google.common.io.ByteStreams;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -60,6 +61,10 @@ public class BlueMindProvider extends TemplateBasedVideoConferencingProvider imp
 	@Override
 	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
 			ItemValue<ResourceDescriptor> resource, ICalendarElement vevent) {
+
+		if (!context.getSecurityContext().getRoles().contains("hasFullVideoconferencing")) {
+			throw new ServerFault("missing hasFullVideoconferencing role");
+		}
 
 		Optional<String> externalUrl = Optional.ofNullable(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(ISystemConfiguration.class).getValues().values.get(SysConfKeys.external_url.name()));

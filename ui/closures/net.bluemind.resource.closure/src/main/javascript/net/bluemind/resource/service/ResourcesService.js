@@ -131,3 +131,9 @@ net.bluemind.resource.service.ResourcesService.prototype.byTypeRemote = function
   var client = new net.bluemind.resource.api.ResourcesClient(this.ctx.rpc, '', this.ctx.user["domainUid"]);
   return client.byType(resourceType);
 };
+
+net.bluemind.resource.service.ResourcesService.prototype.getRemote = function(uid) {
+  var client = new net.bluemind.resource.api.ResourcesClient(this.ctx.rpc, '', this.ctx.user["domainUid"]);
+  return client.get(uid);
+};
+

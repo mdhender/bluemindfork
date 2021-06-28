@@ -276,7 +276,16 @@ net.bluemind.calendar.CalendarApplication.prototype.initializeVideoConferencingR
           goog.array.forEach(res, function(r) {
             var cm = new net.bluemind.core.container.api.ContainerManagementClient(ctx.rpc, '', 'calendar:' + r.uid);
             cm.canAccess(['Invitation']).then(function(canInvite) {
-              r.canInvite = canInvite;            
+              r.canInvite = canInvite; 
+              return r;          
+            }).then(function(r) {
+              ctx.service('resources').getRemote(r.uid).then(function(res) {
+                goog.array.forEach(res['properties'], function(prop) {
+                  if (prop['propertyId'] == "bm-videoconferencing-type") {
+                    r.providerId = prop['value'];
+                  }
+                })
+              });
             });
           });
 

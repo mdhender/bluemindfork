@@ -336,6 +336,13 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
   providerSelector.addItem(new goog.ui.MenuItem(MSG_SELECT_PROVIDER, -1));
   var domainUid = this.ctx.user['domainUid'];
   var dom = this.getDomHelper();
+  var bmVideoConfExpirationDate = goog.global['bmcSessionInfos']['roles'];
+
+  var roles = goog.global['bmcSessionInfos']['roles'].split(',');
+  goog.array.removeAllIf(videoConferencingResources, function(res) {
+    return (res.providerId == "videoconferencing-bluemind" && !goog.array.contains(roles, "hasFullVideoconferencing"));
+  });
+
   goog.array.forEach(videoConferencingResources, function(p) {
     var content = dom.createDom("div");
     var icon = dom.createDom("img");
@@ -347,6 +354,7 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
     label.style.display = 'inline';
     content.appendChild(label);
     providerSelector.addItem(new goog.ui.MenuItem(content, p.uid));
+
   });
   providerSelector.setId('bm-ui-form-videoconferencing-select');
   this.addChild(providerSelector);
