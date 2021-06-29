@@ -5,11 +5,12 @@ const dev = require("./node_modules/@bluemind/conf/webpack.dev.js");
 
 const conf = {
     entry: {
-        "js/net.bluemind.videoconferencing.saas": "./src/run.js"
+        saas: "./src/run.js",
+        widget: "./src/widget.js"
     },
     output: {
         path: path.resolve(__dirname, "./web-resources"),
-        filename: "[name].js"
+        filename: "js/net.bluemind.videoconferencing.[name].js"
     },
     module: {
         rules: [{ test: /\.ts?$/, use: ["babel-loader", "ts-loader"], exclude: /node_modules/ }]

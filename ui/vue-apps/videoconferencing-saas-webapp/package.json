@@ -9,7 +9,8 @@
         "@bluemind/videoconferencing.saas.api": "^4.1.0",
         "@bluemind/i18n": "^4.1.0",
         "@bluemind/inject": "^4.1.0",
-        "@bluemind/l10n": "^4.1.0"
+        "@bluemind/l10n": "^4.1.0",
+        "@bluemind/uuid": "^4.1.0"
     },
     "devDependencies": {
         "@bluemind/conf": "^4.1.0"
