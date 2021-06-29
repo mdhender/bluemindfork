@@ -5,7 +5,8 @@
             <web-module-provider module="*">
                      <blacklist path="/visio"/>
                      <blacklist path="/webapp"/>
-       
+                     <blacklist path="/webmail"/>
+
                   <web-resource bundle="net.bluemind.webmodules.webapp.wrapper">
                   </web-resource>
                   <web-resource bundle="net.bluemind.webapp.root.js">
