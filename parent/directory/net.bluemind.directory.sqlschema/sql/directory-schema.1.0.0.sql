@@ -27,3 +27,5 @@ create index idx_t_directory_entry_orgunit_item_id_idx on t_directory_entry (org
 create index idx_t_directory_entry_displayname on t_directory_entry (displayname);
 
 create index idx_t_directory_entry_kind on t_directory_entry using gin(kind);
+
+create index "idx_t_directory_entry_email" ON t_directory_entry (email);
