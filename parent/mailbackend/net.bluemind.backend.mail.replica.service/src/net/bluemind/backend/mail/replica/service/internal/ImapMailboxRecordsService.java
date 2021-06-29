@@ -606,9 +606,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	private ReadStream<Buffer> imapFetch(long imapUid, String address, String encoding) {
 		return imapContext.withImapClient(sc -> {
 			if (sc.select(imapFolder)) {
-				IMAPByteSource fetched = sc.uidFetchPart((int) imapUid, address);
 				ByteBuf buf = Unpooled.buffer();
-				try (InputStream raw = fetched.source().openBufferedStream();
+				try (IMAPByteSource fetched = sc.uidFetchPart((int) imapUid, address);
+						InputStream raw = fetched.source().openBufferedStream();
 						ByteBufOutputStream out = new ByteBufOutputStream(buf)) {
 					ByteStreams.copy(decoded(raw, encoding), out);
 				}
