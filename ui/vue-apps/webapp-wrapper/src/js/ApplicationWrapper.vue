@@ -65,18 +65,6 @@ body {
             box-sizing: revert;
         }
     }
-    /* GWT overwrite */
-
-    .main-app ~ .root-layout {
-        color: #666;
-        top: 43px !important;
-        line-height: 1;
-        *,
-        *::before,
-        *::after {
-            box-sizing: revert;
-        }
-    }
 
     & > .modal-dialog,
     main .modal-dialog {
@@ -85,5 +73,29 @@ body {
         width: 475px !important;
         margin: 0 !important;
     }
+
+    /* GWT overwrite */
+
+    .main-app ~ .root-layout,
+    .gwt-DialogBox.dialog {
+        color: #666;
+        top: 43px !important;
+        line-height: initial;
+        *,
+        *::before,
+        *::after {
+            box-sizing: revert;
+        }
+        ul,
+        ol,
+        dl {
+            margin-top: revert;
+            margin-bottom: revert;
+        }
+        .button {
+            box-sizing: border-box !important;
+        }
+    }
+
 }
 </style>
