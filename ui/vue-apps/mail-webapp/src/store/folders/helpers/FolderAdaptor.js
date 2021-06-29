@@ -17,7 +17,7 @@ function fromMailboxFolder(remotefolder, mailbox) {
             ? translatePath(remotefolder.value.name)
             : remotefolder.value.name,
         imapName: remotefolder.value.name,
-        path: computePathFromRemote(remotefolder, mailbox),
+        path: remotefolder.value.fullName,
         writable: mailbox.writable,
         allowSubfolder: allowSubfolder(mailbox.writable, !parent, remotefolder.value.name, mailbox),
         default: isDefault(!parent, remotefolder.value.name, mailbox),
@@ -46,20 +46,6 @@ function toRef(payload) {
         const folder = payload;
         return { key: folder.key, uid: folder.remoteRef.uid };
     }
-}
-
-function computePathFromRemote(remotefolder, mailbox) {
-    if (mailbox.type === "mailshares") {
-        if (!remotefolder.value.parentUid) {
-            return mailbox.root;
-        }
-        return path(mailbox.root, remotefolder.value.fullName);
-    }
-    return remotefolder.value.fullName;
-}
-
-function path() {
-    return Array.from(arguments).filter(Boolean).join("/");
 }
 
 export const FolderAdaptor = {
