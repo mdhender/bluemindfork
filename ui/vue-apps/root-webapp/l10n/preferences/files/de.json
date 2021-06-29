@@ -1,6 +1,9 @@
 {
     "alert.preferences.need_reconnection.warning": "Einige Änderungen sind erst nach erneutem Login aktiv.",
     "alert.preferences.reload_app.warning": "Einige Änderungen sind erst nach Neuladen der Anwendung aktiv.",
+    "alert.preferences.sync_calendar_in_progress.loading": "Synchronisation in Bearbeitung...",
+    "alert.preferences.sync_calendar_in_progress.success": "Synchronisation erfolgreich beendet",
+    "alert.preferences.sync_calendar_in_progress.error": "Fehler bei der Synchronisation",
 
     "preferences.access_old_settings_app": "Einstellungen der alten Version der Anwendung",
 
@@ -76,6 +79,22 @@
     "preferences.calendar.my_calendars.label.description": "Bezeichnung, die im Kalender verwendet wird",
     "preferences.calendar.my_calendars.type": "Kalendertyp",
     "preferences.calendar.my_calendars.drop_ics_file": "ICS Datei ablegen",
+    "preferences.calendar.my_calendars.manage_shares": "Freigaben von \"{calendarName}\" verwalten",
+    "preferences.calendar.my_calendars.availabilities_advanced_management": "erweiterte Konfiguration der Verfügbarkeiten",
+    "preferences.calendar.my_calendars.inside_my_organization": "In meinem Unternehmen",
+    "preferences.calendar.my_calendars.outside_my_organization": "Außerhalb meines Unternehmens",
+    "preferences.calendar.my_calendars.all_users_in_my_organization": "Alle Benutzer meines Unternehmens",
+    "preferences.calendar.my_calendars.add_calendar_to_my_availability": "Kalender zu den Verfügbarkeiten hinzufügen",
+    "preferences.calendar.my_calendars.choose_calendar_for_my_availabilities": "Kalender auswählen, die zur Berechnung der Verfügbarkeit verwendet werden",
+    "preferences.calendar.my_calendars.cant_invite_me_to_a_meeting": "Kann mich nicht einladen",
+    "preferences.calendar.my_calendars.can_invite_me_to_a_meeting": "Kann mich einladen",
+    "preferences.calendar.my_calendars.can_invite_me_to_a_meeting_and_see_my_availability": "Kann mich einladen und meine Verfügbarkeit einsehen",
+    "preferences.calendar.my_calendars.can_invite_me_to_a_meeting_and_see_my_events": "Kann mich einladen und meine Termine einsehen",
+    "preferences.calendar.my_calendars.can_edit_my_events": "Kann meine Termine bearbeiten",
+    "preferences.calendar.my_calendars.can_edit_my_events_and_manage_shares": "Kann meine Termine und Freigaben bearbeiten",
+    "preferences.calendar.my_calendars.publish_link_private_mode": "Kann meine privaten Termine einsehen",
+    "preferences.calendar.my_calendars.publish_link_public_mode": "Kann nur meine öffentlichen Termine einsehen",
+    "preferences.calendar.my_calendars.default": "Standard-Kalender",
     
     "preferences.mail.thread": "Gemeinsame Anzeige zusammengehöriger E-Mails (Konversationen)",
     "preferences.mail.thread.disable": "E-Mails einzeln anzeigen",
