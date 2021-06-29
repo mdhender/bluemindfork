@@ -52,7 +52,11 @@ function path(mailbox, name, parent) {
 }
 
 export function isDefault(isRoot, name, mailbox) {
-    return isRoot && (mailbox.type !== MailboxType.USER || !!DEFAULT_FOLDERS[name.toUpperCase()]);
+    if (mailbox.type === MailboxType.USER) {
+        return isRoot && !!DEFAULT_FOLDERS[name.toUpperCase()];
+    } else if (mailbox.type === MailboxType.MAILSHARE) {
+        return isRoot || !!DEFAULT_FOLDERS[name.toUpperCase()];
+    }
 }
 
 export function isMailshareRoot(folder, mailbox) {
@@ -60,9 +64,10 @@ export function isMailshareRoot(folder, mailbox) {
 }
 
 export function allowSubfolder(writable, isRoot, name, mailbox) {
-    return (
-        writable && (!isDefault(isRoot, name, mailbox) || DEFAULT_FOLDERS.INBOX.toUpperCase() === name.toUpperCase())
-    );
+    let allowed = !isDefault(isRoot, name, mailbox);
+    allowed |= DEFAULT_FOLDERS.INBOX.toUpperCase() === name.toUpperCase();
+    allowed |= mailbox.type === MailboxType.MAILSHARE && isRoot;
+    return writable && allowed;
 }
 
 export function translatePath(path) {
