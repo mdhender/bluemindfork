@@ -23,4 +23,4 @@ var BmIMWidget = {
         },
     },
 };
-windows.Vue && windows.Vue.component("BmIMWidget", BmIMWidget);
+window.Vue && window.Vue.component("BmIMWidget", BmIMWidget);
