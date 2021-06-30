@@ -68,7 +68,7 @@ export default {
                   },
             software: {
                 version: {
-                    version: session["bmVersion"],
+                    technical: session["bmVersion"],
                     brand: session["bmBrandVersion"]
                 }
             }
