@@ -1,7 +1,16 @@
 <template>
-    <bm-navbar-nav class="bm-banner-user order-0 order-lg-1 align-self-stretch align-items-center">
-        <bm-nav-item-dropdown right offset="5" class="h-100" :class="{ offline: !isOnline }">
-            <template slot="button-content">
+    <bm-navbar-nav
+        class="bm-banner-user order-0 order-lg-1 align-self-stretch align-items-stretch"
+        :class="{ offline: !isOnline }"
+    >
+        <bm-nav-item v-if="!logged" :href="loginUrl" class="flex-fill">
+            <bm-avatar :alt="user.displayname" class="flex-shrink-0" width="2em" :status="status" />
+            <span class="username text-truncate w-100 text-center">
+                {{ $t("banner.login") }}
+            </span>
+        </bm-nav-item>
+        <bm-nav-item-dropdown right offset="5" class="flex-fill">
+            <template v-if="logged" slot="button-content">
                 <bm-avatar :alt="user.displayname" class="flex-shrink-0" width="2em" :status="status" />
                 <span class="pr-4 username text-truncate m-auto">
                     {{ user.displayname }}
@@ -18,8 +27,11 @@
             <bm-dropdown-item icon="blue-mind" to="#about">
                 {{ $t("banner.about") }}
             </bm-dropdown-item>
-            <bm-dropdown-item v-if="canLogout" icon="sign-out" href="/bluemind_sso_logout">
+            <bm-dropdown-item v-if="logged" icon="sign-out" href="/bluemind_sso_logout">
                 {{ $t("banner.menu.logout") }}
+            </bm-dropdown-item>
+            <bm-dropdown-item v-else icon="user" :href="loginUrl">
+                {{ $t("banner.login") }}
             </bm-dropdown-item>
         </bm-nav-item-dropdown>
     </bm-navbar-nav>
@@ -28,7 +40,7 @@
 <script>
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
-import { BmAvatar, BmDropdownItem, BmNavbarNav, BmNavItemDropdown } from "@bluemind/styleguide";
+import { BmAvatar, BmDropdownItem, BmNavbarNav, BmNavItem, BmNavItemDropdown } from "@bluemind/styleguide";
 import { green, white } from "@bluemind/styleguide/css/exports/colors.scss";
 
 import { mapMutations, mapState } from "vuex";
@@ -39,6 +51,7 @@ export default {
         BmAvatar,
         BmDropdownItem,
         BmNavbarNav,
+        BmNavItem,
         BmNavItemDropdown
     },
     props: {
@@ -51,7 +64,7 @@ export default {
         const userSession = inject("UserSession");
         return {
             canOpenSettings: userSession.roles.includes(BmRoles.SELF_CHANGE_SETTINGS),
-            canLogout: Boolean(userSession.userId)
+            logged: Boolean(userSession.userId)
         };
     },
     computed: {
@@ -62,6 +75,9 @@ export default {
             } else {
                 return { color: white, label: this.$t("common.status.offline") };
             }
+        },
+        loginUrl() {
+            return `/login/index.html?askedUri=${this.$router.options.base}${this.$route.fullPath}`;
         }
     },
     methods: {
@@ -75,19 +91,19 @@ export default {
 $contrasted-color: color-yiq(theme-color("info-dark")) !important;
 
 .bm-banner-user {
+    min-width: 10rem;
+    max-width: 15rem;
     .bm-avatar {
         position: relative;
         left: -1em;
     }
-
     .dropdown-menu,
-    .dropdown-toggle,
+    .nav-link,
     .dropdown {
         background-color: theme-color-level("info-dark", 4) !important;
         color: $contrasted-color;
         text-decoration: none;
         &:active,
-        &:visited,
         &:hover,
         &:focus,
         &:hover::before {
@@ -95,10 +111,14 @@ $contrasted-color: color-yiq(theme-color("info-dark")) !important;
             color: $primary !important;
             background-color: theme-color-level("info-dark", 4) !important;
         }
+        &:visited {
+            text-decoration: none;
+            background-color: theme-color-level("info-dark", 4) !important;
+        }
     }
 
-    .dropdown.offline,
-    .dropdown.offline .dropdown-toggle {
+    &.offline .dropdown,
+    &.offline .nav-link {
         background-color: $gray-900 !important;
         &:active,
         &:visited,
@@ -125,13 +145,8 @@ $contrasted-color: color-yiq(theme-color("info-dark")) !important;
         margin-top: 0 !important;
     }
 
-    .dropdown-toggle,
-    .dropdown-menu {
-        min-width: 10rem;
-        max-width: 15rem;
-    }
-
-    .dropdown-toggle {
+    .nav-link {
+        height: 100% !important;
         display: flex;
         align-items: center;
         padding-left: 0 !important;

@@ -4,8 +4,8 @@
 		<auth kind="CORE2"/>
 		<whitelist>
 			<wl regex="^/visio/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89ABab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$" />
-			<wl regex="^/visio/(js|images|style)/.+$" />
-			<wl regex="^/visio/.+\.(css|map|js|ico])$" />
+			<wl regex="^/visio/(js|images|style|css)/.+$" />
+			<wl regex="^/visio/.+\.(css|map|js|ico|woff])$" />
 		</whitelist>
 	</forward>
 </forwards>

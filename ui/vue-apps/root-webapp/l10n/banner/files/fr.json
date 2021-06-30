@@ -1,5 +1,6 @@
 {
     "banner.label": "Bannière",
+    "banner.login": "Se connecter",
     "banner.main.brand": "Revenir à la page d'accueil de l'application",
     "banner.main.apps": "Applications Bluemind",
     "banner.menu.logout": "Déconnexion",
