@@ -20,12 +20,9 @@
 </template>
 
 <script>
+import { SECONDS_PER_DAY, SECONDS_PER_HOUR, SECONDS_PER_MINUTE } from "@bluemind/date";
 import { BmFormCheckbox, BmFormInputNumber, BmFormSelect } from "@bluemind/styleguide";
 import PrefFieldMixin from "../../mixins/PrefFieldMixin";
-
-const SECONDS_PER_MINUTE = 60;
-const SECONDS_PER_HOUR = SECONDS_PER_MINUTE * 60;
-const SECONDS_PER_DAY = SECONDS_PER_HOUR * 24;
 
 const SECONDS_FOR_DEFAULT_REMINDER = 15 * SECONDS_PER_MINUTE;
 

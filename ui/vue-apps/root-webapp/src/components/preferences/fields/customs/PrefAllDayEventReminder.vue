@@ -19,15 +19,11 @@
 </template>
 
 <script>
+import { SECONDS_PER_DAY, SECONDS_PER_HOUR } from "@bluemind/date";
 import { BmFormCheckbox, BmFormSelect, BmFormTimepicker } from "@bluemind/styleguide";
 import PrefFieldMixin from "../../mixins/PrefFieldMixin";
 
-const SECONDS_PER_MINUTE = 60;
-const SECONDS_PER_HOUR = SECONDS_PER_MINUTE * 60;
-const SECONDS_PER_DAY = SECONDS_PER_HOUR * 24;
-
 const SECONDS_FOR_ALL_DAY_REMINDER = (24 - 9) * SECONDS_PER_HOUR; // "09:00", 1 day before
-
 const MAX_DAYS_SUGGESTED = 6;
 
 export default {
@@ -50,32 +46,21 @@ export default {
             return !!this.settingInSeconds;
         },
         decomposedSetting() {
+            const defaultTimeSelected = this.$d(new Date(null, null, null, 9, 0), "short_time");
             if (!this.settingInSeconds) {
-                return {
-                    timeSelected: "09:00",
-                    daysBefore: 1
-                };
+                return { timeSelected: defaultTimeSelected, daysBefore: 1 };
             }
             const completeDays = Math.trunc(this.settingInSeconds / SECONDS_PER_DAY);
             if (completeDays <= MAX_DAYS_SUGGESTED) {
-                const secondsLeft = this.settingInSeconds - SECONDS_PER_DAY * completeDays;
-                const completeHours = secondsLeft / SECONDS_PER_HOUR;
-                const decimalHour = 24 - completeHours;
-
-                let hourInSeconds = decimalHour * SECONDS_PER_HOUR;
-                const fullHours = Math.floor(hourInSeconds / SECONDS_PER_HOUR);
-                hourInSeconds = hourInSeconds - fullHours * SECONDS_PER_HOUR;
-                const fullMinutes = Math.floor(hourInSeconds / SECONDS_PER_MINUTE);
-                hourInSeconds = hourInSeconds - fullMinutes * SECONDS_PER_MINUTE;
-
-                const anyDay = "August 19, 1975 ";
-                const date = anyDay + fullHours + ":" + fullMinutes;
-
-                return { timeSelected: this.$d(new Date(date), "short_time"), daysBefore: completeDays + 1 };
+                const date = new Date(null, null, null, 0, 0, -this.settingInSeconds);
+                return { timeSelected: this.$d(date, "short_time"), daysBefore: completeDays + 1 };
             } else {
-                // FIXME: what do we display if we dont find matching "daysBefore" ?
-                console.error("unable to decompose " + this.settingInSeconds + " seconds for all_day fields...");
-                return {};
+                console.error(
+                    "unable to decompose " +
+                        this.settingInSeconds +
+                        " seconds for all_day fields, display default values instead."
+                );
+                return { timeSelected: defaultTimeSelected, daysBefore: MAX_DAYS_SUGGESTED };
             }
         }
     },

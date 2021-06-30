@@ -46,7 +46,7 @@ import PrefManageMyCalendars from "./fields/customs/MyCalendars/PrefManageMyCale
 import PrefPassword from "./fields/customs/PrefPassword";
 import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
 import PrefResetLocalData from "./fields/customs/PrefResetLocalData";
-import PrefWorksHours from "./fields/customs/PrefWorksHours";
+import PrefWorkHours from "./fields/customs/PrefWorkHours";
 
 import PrefMixin from "./mixins/PrefMixin";
 
@@ -71,7 +71,7 @@ export default {
         PrefPassword,
         PrefRemoteImage,
         PrefResetLocalData,
-        PrefWorksHours
+        PrefWorkHours
     },
     mixins: [PrefMixin],
     props: {

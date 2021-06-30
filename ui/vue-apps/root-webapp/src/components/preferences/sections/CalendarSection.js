@@ -41,7 +41,6 @@ function mainCategory(vueI18N) {
                         }
                     },
                     {
-                        name: vueI18N.t("preferences.calendar.main.show_weekends"),
                         setting: "showweekends",
                         component: "PrefFieldCheck",
                         options: {
@@ -49,28 +48,9 @@ function mainCategory(vueI18N) {
                         }
                     },
                     {
-                        name: vueI18N.t("preferences.calendar.main.day_starts_at"),
-                        setting: "work_hours_start",
-                        component: "PrefWorksHours",
+                        component: "PrefWorkHours",
                         options: {}
                     },
-                    {
-                        name: vueI18N.t("preferences.calendar.main.day_ends_at"),
-                        setting: "work_hours_end",
-                        component: "PrefWorksHours",
-                        options: {}
-                    },
-                    // FIXME: do we keep the same UX for this field ?
-                    //      in old settings app when you check this option, it disabled 2 previous fields and it forces its value to O
-                    // {
-                    //     name: vueI18N.t("preferences.calendar.main.whole_day"),
-                    //     setting: "",
-                    //     component: "PrefFieldCheck",
-                    //     options: {
-                    //         label: vueI18N.t("preferences.calendar.main.whole_day")
-                    //     }
-                    // }
-
                     //FIXME: besoin de maquettes pour voir quel rendu on veut pour un multiple-select
                     // {
                     //     name: vueI18N.t("preferences.calendar.main.working_days"),
@@ -80,9 +60,7 @@ function mainCategory(vueI18N) {
                     //            choices: []
                     //     }
                     // }
-
                     {
-                        name: vueI18N.t("preferences.calendar.main.show_declined_events"),
                         setting: "show_declined_events",
                         component: "PrefFieldCheck",
                         options: {

@@ -17,4 +17,18 @@ const AvailableTimeFormats = [
 
 const AvailablesTimezones = Object.keys(tzdata.zones);
 
-export { AvailableDateFormats, AvailableTimeFormats, AvailablesTimezones, DateComparator, DateRange, WeekDayCodes };
+const SECONDS_PER_MINUTE = 60;
+const SECONDS_PER_HOUR = SECONDS_PER_MINUTE * 60;
+const SECONDS_PER_DAY = SECONDS_PER_HOUR * 24;
+
+export {
+    AvailableDateFormats,
+    AvailableTimeFormats,
+    AvailablesTimezones,
+    DateComparator,
+    DateRange,
+    SECONDS_PER_MINUTE,
+    SECONDS_PER_HOUR,
+    SECONDS_PER_DAY,
+    WeekDayCodes
+};
