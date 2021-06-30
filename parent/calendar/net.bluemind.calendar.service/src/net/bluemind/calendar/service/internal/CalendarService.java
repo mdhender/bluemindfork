@@ -739,12 +739,12 @@ public class CalendarService implements IInternalCalendar {
 	}
 
 	@Override
-	public ItemValue<VEventSeries> findByConferenceId(String BmConferenceId) throws ServerFault {
+	public ItemValue<VEventSeries> findByConferenceId(String bmConferenceId) throws ServerFault {
 		rbacManager.check(Verb.Read.name());
 
 		String uid;
 		try {
-			uid = veventStore.findByConferenceId(BmConferenceId);
+			uid = veventStore.findByConferenceId(bmConferenceId);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
