@@ -20,7 +20,7 @@
             v-slot="{ item }"
             v-model.trim="pattern"
             :items="matchingFolders"
-            search-icon
+            icon="search"
             :max-results="maxFolders"
             has-divider-under-input
             @keydown.esc.native="resetPattern"

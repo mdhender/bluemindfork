@@ -92,22 +92,18 @@ function mainCategory(vueI18N) {
                 ]
             },
             {
-                title: vueI18N.t("preferences.calendar.main.reminder"),
+                title: vueI18N.t("preferences.calendar.main.reminders"),
                 fields: [
-                    //FIXME: comment on gère le bouton "Désactiver" ?
-                    // {
-                    //     name: vueI18N.t("preferences.calendar.main.default_reminder"),
-                    //     setting: "default_event_alert_mode",
-                    //     component: "",
-                    //     options: {}
-                    // },
-                    // {
-                    //     name: vueI18N.t("preferences.calendar.main.default_allday_reminder"),
-                    //     setting: "default_allday_event_alert",
-                    //     component: "",
-                    //     options: {}
-                    // },
-
+                    {
+                        setting: "default_event_alert",
+                        component: "PrefEventReminder",
+                        options: {}
+                    },
+                    {
+                        setting: "default_allday_event_alert",
+                        component: "PrefAllDayEventReminder",
+                        options: {}
+                    },
                     {
                         name: vueI18N.t("preferences.calendar.main.default_reminder_kind"),
                         setting: "default_event_alert_mode",

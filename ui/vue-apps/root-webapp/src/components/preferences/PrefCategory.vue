@@ -35,7 +35,10 @@ import PrefFieldCheck from "./fields/PrefFieldCheck";
 import PrefFieldChoice from "./fields/PrefFieldChoice";
 import PrefFieldComboBox from "./fields/PrefFieldComboBox";
 import PrefFieldSelect from "./fields/PrefFieldSelect";
+
+import PrefAllDayEventReminder from "./fields/customs/PrefAllDayEventReminder";
 import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
+import PrefEventReminder from "./fields/customs/PrefEventReminder";
 import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
 import PrefIMSetPhonePresence from "./fields/customs/PrefIMSetPhonePresence";
 import PrefManageIdentities from "./fields/customs/PrefManageIdentities";
@@ -44,6 +47,7 @@ import PrefPassword from "./fields/customs/PrefPassword";
 import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
 import PrefResetLocalData from "./fields/customs/PrefResetLocalData";
 import PrefWorksHours from "./fields/customs/PrefWorksHours";
+
 import PrefMixin from "./mixins/PrefMixin";
 
 import { BmFormGroup, BmLabelIcon } from "@bluemind/styleguide";
@@ -57,8 +61,10 @@ export default {
         PrefFieldChoice,
         PrefFieldComboBox,
         PrefFieldSelect,
+        PrefAllDayEventReminder,
         PrefAlwaysShowQuota,
         PrefEnableNotifications,
+        PrefEventReminder,
         PrefIMSetPhonePresence,
         PrefManageIdentities,
         PrefManageMyCalendars,

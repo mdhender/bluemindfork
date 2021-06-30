@@ -134,5 +134,10 @@
     "common.copied": "Kopiert!",
     "common.my_availabilities": "Meine Verfügbarkeit",
     "common.external": "extern",
-    "common.start_synchronization": "Synchronisation starten"
+    "common.start_synchronization": "Synchronisation starten",
+    "common.seconds": "seconds",
+    "common.minutes": "minutes",
+    "common.hours": "hours",
+    "common.days": "days",
+    "common.days_before": "1 day before | {count} days before"
 }
