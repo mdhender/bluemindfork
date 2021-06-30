@@ -9,7 +9,7 @@ Group:              Applications/messaging
 URL:                http://www.blue-mind.net/
 ExcludeArch:        s390 s390x
 Summary:            BlueMind client access
-Requires:           bm-conf = %{version}-%{release}, bm-nginx = 1.20.1-bluemind100, epel-release >= 7, openssl
+Requires:           bm-conf = %{version}-%{release}, bm-nginx = 1.20.1-bluemind101, epel-release >= 7, openssl
 Requires:           /bin/bash
 
 %description
