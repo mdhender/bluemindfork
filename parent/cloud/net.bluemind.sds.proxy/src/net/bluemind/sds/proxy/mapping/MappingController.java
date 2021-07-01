@@ -196,7 +196,7 @@ public class MappingController extends AbstractVerticle {
 		vertx.eventBus().consumer("mapping.ctrl.discard", (Message<String> folderUniqueId) -> {
 			String uid = folderUniqueId.body();
 			Optional.ofNullable(perFolderMapping.get(uid)).ifPresent(mapping -> {
-				logger.info("Forget {} mapping", uid);
+				logger.debug("Forget {} mapping", uid);
 				mapping.uidToGuid().clear();
 			});
 		});
@@ -221,7 +221,7 @@ public class MappingController extends AbstractVerticle {
 			ReplicatedBox asBox = CyrusBoxes.forCyrusMailbox(mailbox);
 			IDbReplicatedMailboxesPromise foldersApi = serviceProvider.instance(IDbReplicatedMailboxesPromise.class,
 					asBox.partition, asBox.ns.prefix() + asBox.local);
-			return foldersApi.byName(asBox.folderName).thenApply(f -> {
+			return foldersApi.byName(asBox.fullName()).thenApply(f -> {
 				BoxAndFolder ret = new BoxAndFolder(asBox, f);
 				cyrusToFolder.put(mailbox, ret);
 				return ret;
@@ -230,12 +230,16 @@ public class MappingController extends AbstractVerticle {
 	}
 
 	private CompletableFuture<Void> map(RawMapping toMap) {
-		logger.info("Mapping {} in {}", toMap.guid, toMap.cyrusMailbox);
+		logger.debug("Mapping {} in {}", toMap.guid, toMap.cyrusMailbox);
 		return mailboxToFolder(toMap.cyrusMailbox).thenAccept(boxAndFolder -> {
-			logger.info("Resolved {} => {}", boxAndFolder.box.folderName, boxAndFolder.folder.uid);
+			if (boxAndFolder == null) {
+				logger.error("Failed to resolve '{}' uid", toMap.cyrusMailbox);
+				return;
+			}
+			logger.debug("Resolved {} => {}", boxAndFolder.box.folderName, boxAndFolder.folder.uid);
 			FolderMapping fm = perFolderMapping.computeIfAbsent(boxAndFolder.folder.uid, uid -> new FolderMapping());
 			fm.uidToGuid().put(toMap.uid, toMap.guid);
-			logger.info("{} mapped to {}", toMap.guid, toMap.uid);
+			logger.debug("{} mapped to {}", toMap.guid, toMap.uid);
 		});
 	}
 
