@@ -29,10 +29,18 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.osgi.framework.Version;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.google.common.base.Splitter;
 
 public class CLIEntryPoint implements IApplication {
+	
+	static {
+		// HOLLOW uses JUL...
+		SLF4JBridgeHandler.removeHandlersForRootLogger();
+		SLF4JBridgeHandler.install();
+	}
+	
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		Integer returncode = EXIT_OK;

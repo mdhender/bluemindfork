@@ -7,7 +7,8 @@ Bundle-Activator: net.bluemind.cli.launcher.CLIActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
- net.bluemind.cli.cmd.api
+ net.bluemind.cli.cmd.api,
+ jul.to.slf4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.launcher
 Bundle-ActivationPolicy: lazy
