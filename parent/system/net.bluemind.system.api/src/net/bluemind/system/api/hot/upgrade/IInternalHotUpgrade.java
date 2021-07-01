@@ -1,7 +1,13 @@
 package net.bluemind.system.api.hot.upgrade;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
+import net.bluemind.core.api.BMApi;
 import net.bluemind.core.task.api.TaskRef;
 
+@BMApi(version = "3", internal = true)
+@Path("/hot_upgrade")
 public interface IInternalHotUpgrade extends IHotUpgrade {
 
 	/**
@@ -22,5 +28,7 @@ public interface IInternalHotUpgrade extends IHotUpgrade {
 	 */
 	void update(HotUpgradeTask task);
 
+	@GET
+	@Path("start")
 	TaskRef start();
 }

@@ -62,7 +62,9 @@ public class CLIManager {
 
 	static class PrintExceptionMessageHandler implements IExecutionExceptionHandler {
 		public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
-			cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
+			if (ex.getMessage() != null) {
+				cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
+			}
 			if (!(ex instanceof CliException)) {
 				ex.printStackTrace(cmd.getErr());
 			}
