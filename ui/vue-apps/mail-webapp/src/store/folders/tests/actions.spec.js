@@ -48,7 +48,7 @@ describe("actions", () => {
     describe("CREATE_FOLDER", () => {
         test("Create folder", async () => {
             const mailbox = {
-                type: "",
+                type: "users",
                 name: "",
                 remoteRef: {}
             };

@@ -12,5 +12,6 @@ Require-Bundle: net.bluemind.commons.ui.closure;bundle-version="1.0.0",
  net.bluemind.cti.api.closure;bundle-version="1.0.0",
  net.bluemind.ui.banner;bundle-version="1.0.0"
 Web-Resources: web-resources
+Web-Dependencies: net.bluemind.webmodules.vue
 Bundle-ClassPath: ., js.jar, css.jar
 Automatic-Module-Name: net.bluemind.ui.banner.cti

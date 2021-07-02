@@ -56,37 +56,6 @@ describe("Folder model functions", () => {
                 }
             `);
         });
-        test("root folder inside a user mailbox", () => {
-            const mailbox = {
-                writable: true,
-                root: "mailshare",
-                remoteRef: {},
-                key: "mailbox-key",
-                type: MailboxType.MAILSHARE
-            };
-            expect(create("123", "name", null, mailbox)).toMatchInlineSnapshot(`
-                Object {
-                  "allowSubfolder": false,
-                  "default": true,
-                  "expanded": false,
-                  "imapName": "name",
-                  "key": "123",
-                  "mailboxRef": Object {
-                    "key": "mailbox-key",
-                    "uid": undefined,
-                  },
-                  "name": "name",
-                  "parent": null,
-                  "path": "mailshare",
-                  "remoteRef": Object {
-                    "internalId": null,
-                    "uid": null,
-                  },
-                  "unread": 0,
-                  "writable": true,
-                }
-            `);
-        });
 
         test("root folder inside a mailshare mailbox", () => {
             const mailbox = {
@@ -98,7 +67,7 @@ describe("Folder model functions", () => {
             };
             expect(create("123", "name", null, mailbox)).toMatchInlineSnapshot(`
                 Object {
-                  "allowSubfolder": false,
+                  "allowSubfolder": true,
                   "default": true,
                   "expanded": false,
                   "imapName": "name",

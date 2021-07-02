@@ -11,4 +11,5 @@ Require-Bundle: net.bluemind.webmodule;bundle-version="4.1.0",
  net.bluemind.restbus.api.gwt,
  net.bluemind.core.commons
 Web-Resources: web-resources
+Web-Dependencies: net.bluemind.webmodules.vue
 Automatic-Module-Name: net.bluemind.ui.push

@@ -67,7 +67,7 @@ export function allowSubfolder(writable, isRoot, name, mailbox) {
     let allowed = !isDefault(isRoot, name, mailbox);
     allowed |= DEFAULT_FOLDERS.INBOX.toUpperCase() === name.toUpperCase();
     allowed |= mailbox.type === MailboxType.MAILSHARE && isRoot;
-    return writable && allowed;
+    return Boolean(writable && allowed);
 }
 
 export function translatePath(path) {
