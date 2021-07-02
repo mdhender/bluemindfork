@@ -1,7 +1,7 @@
 <template>
     <div class="main-app d-flex flex-column h-100 bg-light">
         <global-events target="self" @resize="appHeight" />
-        <bm-banner :applications="applications" :user="user" />
+        <bm-banner v-if="showBanner" :applications="applications" :user="user" />
         <preferences v-if="showPreferences" :user="user" :applications="applications" />
         <about v-if="showAbout" :version="software.version" />
         <div
@@ -82,6 +82,9 @@ export default {
         ...mapState("session", { settings: ({ settings }) => settings.remote }),
         showAbout() {
             return this.$route.hash && this.$route.hash === "#about";
+        },
+        showBanner() {
+            return !["Thunderbird", "Icedove"].some(agent => new RegExp(agent).test(window.navigator.userAgent));
         }
     },
     created() {
