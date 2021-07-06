@@ -177,6 +177,31 @@ public class NodeTests {
 	}
 
 	@Test
+	public void testBigOutputOverWebsocket() {
+		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "find /usr -type f");
+		CompletableFuture<Integer> comp = new CompletableFuture<>();
+		nc.asyncExecute(req, new ProcessHandler() {
+
+			@Override
+			public void log(String l) {
+				// ok
+			}
+
+			@Override
+			public void completed(int exitCode) {
+				comp.complete(exitCode);
+			}
+
+			@Override
+			public void starting(String taskRef) {
+				// ok
+			}
+
+		});
+		comp.join();
+	}
+
+	@Test
 	public void testMultipleOverWebsocket() throws InterruptedException {
 		int COUNT = 5;
 		CountDownLatch cdl = new CountDownLatch(COUNT);

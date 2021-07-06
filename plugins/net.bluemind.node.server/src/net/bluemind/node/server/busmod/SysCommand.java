@@ -25,7 +25,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageProducer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -152,19 +155,40 @@ public class SysCommand extends AbstractVerticle {
 		return match;
 	}
 
+	@SuppressWarnings("serial")
+	private static class WsException extends RuntimeException {
+		public WsException(String s, Throwable t) {
+			super(s, t);
+		}
+
+	}
+
 	public static class WsEndpoint {
 
+		private final MessageProducer<Object> sender;
+		private final long rid;
+
 		public WsEndpoint(String wsWriteAddress, long wsRid) {
-			this.writeAddress = wsWriteAddress;
+			this.sender = VertxPlatform.eventBus().sender(wsWriteAddress);
 			this.rid = wsRid;
 		}
 
-		String writeAddress;
-		long rid;
-
 		public WsEndpoint write(String kind, JsonObject js) {
 			js.put("ws-rid", rid).put("kind", kind);
-			VertxPlatform.eventBus().send(writeAddress, js.encode());
+			CompletableFuture<Void> block = new CompletableFuture<>();
+			sender.write(js.encode());
+			if (sender.writeQueueFull()) {
+				sender.drainHandler(block::complete);
+			} else {
+				block.complete(null);
+			}
+			try {
+				block.get(20, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			} catch (Exception e) {
+				throw new WsException("Websocket backpressure issue: ", e);
+			}
 			return this;
 		}
 
