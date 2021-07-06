@@ -137,11 +137,30 @@ net.bluemind.calendar.day.ui.Popup.prototype.attach = function(anchor) {
   var corner = this.computeCorner_(anchor);
   var margin = this.computeMargin_(corner, anchor);
   var position = this.computePosition_(corner, anchor);
+  var height = this.computeMaxHeight_(corner, position);
+  this.popup_.getElement().style.maxHeight = height;
   this.popup_.setMargin(margin);
   this.popup_.setPinnedCorner(corner);
   this.setArrowPosition_(corner, anchor);
   this.popup_.setPosition(position);
 };
+
+
+/**
+ * Computes the class for rendering the arrow for a given bubble orientation.
+ * 
+ * @param {goog.positioning.Corner} corner The corner.
+ * @param {Element} anchor The element to which we are attaching.
+ * @private
+ */
+ net.bluemind.calendar.day.ui.Popup.prototype.computeMaxHeight_ = function(corner, position) {
+   var MARGIN = 10;
+   if ((corner & goog.positioning.CornerBit.BOTTOM) != goog.positioning.CornerBit.BOTTOM) {
+    var viewport = goog.style.getClientViewportElement(this.getDomHelper().getDocument());
+    return (viewport.offsetHeight - position.coordinate.y - MARGIN) + 'px';
+  }
+  return (position.coordinate.y - MARGIN) + 'px';
+ };
 
 /**
  * Turn the bubble visibility on or off.
@@ -160,9 +179,25 @@ net.bluemind.calendar.day.ui.Popup.prototype.setVisible = function(visible) {
   if (!this.popup_.isVisible()) {
     this.eraseElement_();
     this.unsetListeners_();
+  } else {
+    this.adjustContentHeight_();
   }
 };
 
+/**
+ * Adjust content height depending on popup max height
+ * @private
+ */
+ net.bluemind.calendar.day.ui.Popup.prototype.adjustContentHeight_ = function() {
+  var PADDING = 10;
+  var DEFAULT_MAX_HEIGHT = 350;
+  var popup = this.popup_.getElement();
+  var content = this.getElementByClass("eb-inner");
+  var scrolling = this.getElementByClass("eb-root");
+  var height = parseInt(popup.style.maxHeight) - (content.offsetHeight - scrolling.offsetHeight)  - PADDING; 
+  scrolling.style.maxHeight = Math.min(DEFAULT_MAX_HEIGHT, height) + 'px';
+
+};
 /**
  * Alias to setVisible(false)
  */
