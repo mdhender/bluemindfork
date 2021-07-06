@@ -43,7 +43,7 @@ public class VideoConferencingRolesProvider implements IRolesProvider {
 		ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/bundle", locale);
 
 		RoleDescriptor attachment = RoleDescriptor.create(ROLE_FULL_VISIO, CATEGORY_VIDEO_CONFERENCING,
-				rb.getString("role.visio.label"), rb.getString("role.visio.description")).delegable();
+				rb.getString("role.visio.label"), rb.getString("role.visio.description")).delegable().notVisible();
 
 		return ImmutableSet.<RoleDescriptor>builder().add(attachment).build();
 	}
