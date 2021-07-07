@@ -151,7 +151,7 @@
     "mail.content.alert.images.trust.sender": "Inhalten von {sender} vertrauen",
     "mail.content.blindcopy": "Bcc",
     "mail.content.body": "E-Mailinhalt",
-    "mail.content.copy": "Kopieren",
+    "mail.content.copy": "Kopie",
     "mail.content.download": "Download {fileType} '{name}'.",
     "mail.content.file-type-audio": "Audio",
     "mail.content.file-type-code": "Code",
