@@ -34,6 +34,6 @@
 		<module>net.bluemind.gwtconsoleapp.base</module>
 		<module>settings-webapp</module>
 		<module>net.bluemind.ui.eventdeferredaction</module>
+		<module>vue-apps</module>
 	</modules>
-
 </project>
