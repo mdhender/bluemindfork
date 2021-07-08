@@ -37,6 +37,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.AfterClass;
@@ -177,14 +178,17 @@ public class NodeTests {
 	}
 
 	@Test
-	public void testBigOutputOverWebsocket() {
-		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "find /usr -type f");
+	public void testSlowReceiverOverWebsocket() {
+		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "seq 1 5000");
 		CompletableFuture<Integer> comp = new CompletableFuture<>();
 		nc.asyncExecute(req, new ProcessHandler() {
 
 			@Override
 			public void log(String l) {
-				// ok
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+				}
 			}
 
 			@Override
@@ -199,6 +203,36 @@ public class NodeTests {
 
 		});
 		comp.join();
+	}
+
+	@Test
+	public void testBigOutputOverWebsocket() {
+		int lines = 1000000;
+		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "seq 1 " + lines);
+		CompletableFuture<Integer> comp = new CompletableFuture<>();
+		AtomicInteger count = new AtomicInteger();
+		nc.asyncExecute(req, new ProcessHandler() {
+
+			@Override
+			public void log(String l) {
+				count.incrementAndGet();
+			}
+
+			@Override
+			public void completed(int exitCode) {
+				comp.complete(exitCode);
+			}
+
+			@Override
+			public void starting(String taskRef) {
+				// ok
+			}
+
+		});
+		Integer exitcode = comp.join();
+		assertEquals(0, exitcode.intValue());
+		System.err.println("count: " + count.get());
+		assertEquals(lines, count.get());
 	}
 
 	@Test

@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.http.WebSocketFrame;
 import io.vertx.core.json.JsonObject;
@@ -31,14 +32,26 @@ public class SocketFrameHandler implements Handler<WebSocketFrame> {
 
 	private static final Logger logger = LoggerFactory.getLogger(SocketFrameHandler.class);
 	private StringBuilder current;
-	private Vertx vertx;
-	private ServerWebSocket ws;
+	private final Vertx vertx;
+	private final ServerWebSocket ws;
+	private final String addr;
 
 	public SocketFrameHandler(ServerWebSocket ws, Vertx vertx) {
 		current = new StringBuilder();
 		this.ws = ws;
 		this.vertx = vertx;
 		logger.debug("Created for vertx {}", this.vertx);
+		this.addr = ws.textHandlerID() + ".bm";
+		MessageConsumer<String> withReply = vertx.eventBus().consumer(addr);
+		withReply.handler(strMsg -> {
+
+			ws.writeFinalTextFrame(strMsg.body());
+			if (ws.writeQueueFull()) {
+				ws.drainHandler(v -> strMsg.reply(addr));
+			} else {
+				strMsg.reply(addr);
+			}
+		});
 	}
 
 	@Override
@@ -62,7 +75,7 @@ public class SocketFrameHandler implements Handler<WebSocketFrame> {
 		}
 		long rid = msg.getLong("ws-rid", 0L);
 		if (rid > 0) {
-			msg.put("ws-target", ws.textHandlerID());
+			msg.put("ws-target", addr);
 			VertxPlatform.eventBus().send("cmd.request", msg);
 		} else {
 			logger.warn("Command over websocket without ws-rid.");
