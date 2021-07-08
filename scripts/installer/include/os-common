@@ -4,9 +4,9 @@ REDHAT8="redhat-8"
 UBUNTU_XENIAL="ubuntu-xenial"
 UBUNTU_BIONIC="ubuntu-bionic"
 UBUNTU_FOCAL="ubuntu-focal"
-DEBIAN_JESSIE="debian-jessie"
 DEBIAN_STRETCH="debian-stretch"
 DEBIAN_BUSTER="debian-buster"
+DEBIAN_BULLSEYE="debian-bullseye"
 
 check_redhat7() {
     if [  -e /etc/system-release ]; then
@@ -43,10 +43,10 @@ check_ubuntu() {
     return 1
 }
 
-check_debian_buster() {
+check_debian_bullseye() {
     if [ -e "/etc/debian_version" ]; then
         release=`cat /etc/debian_version`
-        if [[ "${release}" == *"10."* ]]; then
+        if [[ "${release}" == *"11."* ]]; then
             return 0
         fi
     fi
@@ -54,10 +54,10 @@ check_debian_buster() {
     return 1
 }
 
-check_debian_jessie() {
+check_debian_buster() {
     if [ -e "/etc/debian_version" ]; then
         release=`cat /etc/debian_version`
-        if [[ "${release}" == *"8."* ]]; then
+        if [[ "${release}" == *"10."* ]]; then
             return 0
         fi
     fi
@@ -130,17 +130,17 @@ detect_os() {
         fi
     fi
 
-    if [ -e "./buster" ]; then
-        INSTALLER_VERSION=${DEBIAN_BUSTER}
-        if check_debian_buster; then
+    if [ -e "./bullseye" ]; then
+        INSTALLER_VERSION=${DEBIAN_BULLSEYE}
+        if check_debian_bullseye; then
             OS_VERSION=${INSTALLER_VERSION}
             source "./include/os-debian-squeeze-base"
         fi
     fi
 
-    if [ -e "./jessie" ]; then
-        INSTALLER_VERSION=${DEBIAN_JESSIE}
-        if check_debian_jessie; then
+    if [ -e "./buster" ]; then
+        INSTALLER_VERSION=${DEBIAN_BUSTER}
+        if check_debian_buster; then
             OS_VERSION=${INSTALLER_VERSION}
             source "./include/os-debian-squeeze-base"
         fi

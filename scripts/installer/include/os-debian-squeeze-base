@@ -45,9 +45,15 @@ install_local_repository() {
 deb file://${INSTALL_PKGS_TO} ./
 EOF
 
-	if [ -e ${INSTALL_PKGS_TO}/bluemind-deb.asc ]; then
-		cat ${INSTALL_PKGS_TO}/bluemind-deb.asc | apt-key add -
-	fi
+    if [ -e ${INSTALL_PKGS_TO}/bluemind-deb.asc ]; then
+        if [ ${OS_VERSION} == ${DEBIAN_BULLSEYE} ]; then
+            cp ${INSTALL_PKGS_TO}/bluemind-deb.asc /etc/apt/trusted.gpg.d/bluemind.gpg
+            chown root:root /etc/apt/trusted.gpg.d/bluemind.gpg
+            chmod 644 /etc/apt/trusted.gpg.d/bluemind.gpg
+        else
+            cat ${INSTALL_PKGS_TO}/bluemind-deb.asc | apt-key add -
+        fi
+    fi
 
     cat > ${APT_BM_CONF} <<EOF
 Package: *
