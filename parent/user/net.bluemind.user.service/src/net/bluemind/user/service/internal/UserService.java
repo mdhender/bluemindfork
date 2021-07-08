@@ -736,8 +736,11 @@ public class UserService implements IInCoreUser, IUser {
 			roles.remove("hasMail");
 		}
 
-		// deactivate non-active roles
+		if (user.accountType == AccountType.FULL_AND_VISIO) {
+			roles.add("hasFullVideoconferencing");
+		}
 
+		// deactivate non-active roles
 		if (roles.contains("hasFullVideoconferencing")) {
 			if (user.accountType != AccountType.FULL_AND_VISIO) {
 				roles.remove("hasFullVideoconferencing");
