@@ -90,6 +90,9 @@ public class CacheEntryWriterLoader<V> implements CacheWriter<String, V> {
 	}
 
 	public V load(String key) {
+		if (key == null || key.isEmpty()) {
+			return null;
+		}
 		File cacheFile = getCacheFile(key);
 		if (!cacheFile.exists() || !cacheFile.canRead()) {
 			return null;

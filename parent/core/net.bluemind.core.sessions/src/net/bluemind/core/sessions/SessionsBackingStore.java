@@ -55,7 +55,7 @@ public class SessionsBackingStore {
 					}
 				});
 
-		return new CacheBackingStore<SecurityContext>(cache, "/var/cache/bm-core/sessions", sessionBackingStore::toJson,
+		return new CacheBackingStore<>(cache, "/var/cache/bm-core/sessions", sessionBackingStore::toJson,
 				sessionBackingStore::fromJson, Optional.of(sessionBackingStore::ignore));
 	}
 

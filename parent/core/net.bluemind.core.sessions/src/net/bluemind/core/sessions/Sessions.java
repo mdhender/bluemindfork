@@ -58,7 +58,7 @@ public class Sessions implements BundleActivator {
 	}
 
 	public static SecurityContext sessionContext(String key) {
-		if (key == null) {
+		if (key == null || key.isEmpty()) {
 			return null;
 		}
 
