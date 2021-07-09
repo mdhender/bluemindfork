@@ -2,7 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="net.bluemind.role.provider" name="roles Provider" schema="schema/net.bluemind.role.provider.exsd"/>
-   <extension-point id="net.bluemind.role.profile" name="profileProvider" schema="schema/net.bluemind.role.profile.exsd"/>
    <extension-point id="net.bluemind.role.verifier" name="roleVerifier" schema="schema/net.bluemind.role.verifier.exsd"/>
 
 </plugin>

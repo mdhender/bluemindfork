@@ -21,29 +21,6 @@
       </roles-provider>
    </extension>
    <extension
-         point="net.bluemind.role.profile">
-      <profile
-            id="user"
-            label="%profile.user.label">
-         <role
-               id="canRemoteAttach">
-         </role>
-         <role
-               id="canUseFilehosting">
-         </role>
-      </profile>
-      <profile
-            id="admin"
-            label="%profile.admin.label">
-         <role
-               id="canRemoteAttach">
-         </role>
-         <role
-               id="canUseFilehosting">
-         </role>
-      </profile>
-   </extension>
-   <extension
          point="net.bluemind.server.hook.serverhook">
       <hook
             impl="net.bluemind.filehosting.config.FileHostingServerHook">
