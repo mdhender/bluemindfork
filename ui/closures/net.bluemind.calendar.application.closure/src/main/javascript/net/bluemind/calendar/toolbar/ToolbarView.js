@@ -76,17 +76,21 @@ net.bluemind.calendar.toolbar.ToolbarView = function(ctx, opt_domHelper) {
 
   /** @meaning calendar.toolbar.period.previous */
   var MSG_PREV = goog.getMsg('Previous period');
-  child = new goog.ui.Button('\u25C4', renderer);
+  child = new goog.ui.Button('', renderer);
   child.setTooltip(MSG_PREV);
   child.addClassName(goog.getCssName('goog-button-base-first'));
+  child.addClassName(goog.getCssName('fa'));
+  child.addClassName(goog.getCssName('fa-chevron-left'));
   child.setId('previous');
   this.addChild(child);
 
   /** @meaning calendar.toolbar.period.next */
   var MSG_NEXT = goog.getMsg('Next period');
-  child = new goog.ui.Button('\u25BA', renderer);
+  child = new goog.ui.Button('', renderer);
   child.setTooltip(MSG_NEXT);
   child.addClassName(goog.getCssName('goog-button-base-last'));
+  child.addClassName(goog.getCssName('fa'));
+  child.addClassName(goog.getCssName('fa-chevron-right'));
   child.setId('next');
   this.addChild(child);
 
