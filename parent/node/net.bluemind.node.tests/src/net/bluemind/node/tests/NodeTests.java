@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
@@ -35,6 +36,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -181,10 +183,12 @@ public class NodeTests {
 	public void testSlowReceiverOverWebsocket() {
 		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "seq 1 5000");
 		CompletableFuture<Integer> comp = new CompletableFuture<>();
+		AtomicInteger count = new AtomicInteger();
 		nc.asyncExecute(req, new ProcessHandler() {
 
 			@Override
-			public void log(String l) {
+			public void log(String l, boolean cont) {
+				count.incrementAndGet();
 				try {
 					Thread.sleep(10);
 				} catch (InterruptedException e) {
@@ -203,6 +207,7 @@ public class NodeTests {
 
 		});
 		comp.join();
+		assertEquals(5000, count.get());
 	}
 
 	@Test
@@ -214,7 +219,7 @@ public class NodeTests {
 		nc.asyncExecute(req, new ProcessHandler() {
 
 			@Override
-			public void log(String l) {
+			public void log(String l, boolean cont) {
 				count.incrementAndGet();
 			}
 
@@ -236,13 +241,104 @@ public class NodeTests {
 	}
 
 	@Test
+	public void testVeryLongLinesOverWebsocket() {
+		int lines = 100000;
+		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "seq -s - 1 " + lines);
+		CompletableFuture<Integer> comp = new CompletableFuture<>();
+		AtomicInteger count = new AtomicInteger();
+		AtomicInteger max = new AtomicInteger();
+		AtomicInteger splittedLines = new AtomicInteger();
+		StringBuilder full = new StringBuilder();
+		nc.asyncExecute(req, new ProcessHandler() {
+
+			@Override
+			public void log(String l, boolean cont) {
+				count.incrementAndGet();
+				full.append(l);
+				if (!cont) {
+					full.append('\n');
+				} else {
+					splittedLines.incrementAndGet();
+				}
+				max.set(Math.max(l.getBytes().length, max.get()));
+			}
+
+			@Override
+			public void completed(int exitCode) {
+				comp.complete(exitCode);
+			}
+
+			@Override
+			public void starting(String taskRef) {
+				// ok
+			}
+
+		});
+		Integer exitcode = comp.join();
+		assertEquals(0, exitcode.intValue());
+		System.err.println("count: " + count.get() + ", maxLen: " + max.get());
+		assertTrue(count.get() > 50);
+		assertTrue(max.get() < 10240);
+		assertTrue(splittedLines.get() > 0);
+		String fullOutput = full.toString();
+		assertEquals(1, fullOutput.chars().filter(theByte -> theByte == '\n').count());
+
+	}
+
+	@Test
+	public void testBinaryOutputOverWebsocket() {
+		byte[] withoutLF = new byte[32768];
+		ThreadLocalRandom.current().nextBytes(withoutLF);
+		for (int i = 0; i < withoutLF.length; i++) {
+			if (withoutLF[i] == '\n') {
+				withoutLF[i] = 0x00;
+			}
+		}
+		// let's end with a LF
+		withoutLF[withoutLF.length - 1] = '\n';
+
+		String dir = System.getProperty("java.io.tmpdir");
+		String file = dir + "/" + System.currentTimeMillis() + ".junit";
+		nc.writeFile(file, new ByteArrayInputStream(withoutLF));
+		System.err.println(file + " written.");
+		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "cat " + file);
+		CompletableFuture<Integer> comp = new CompletableFuture<>();
+		nc.asyncExecute(req, new ProcessHandler() {
+
+			@Override
+			public void log(String l, boolean cont) {
+				System.err.println("L: '" + l + "', c: " + cont);
+			}
+
+			@Override
+			public void completed(int exitCode) {
+				comp.complete(exitCode);
+			}
+
+			@Override
+			public void starting(String taskRef) {
+				// ok
+			}
+
+		});
+		try {
+			Integer exitcode = comp.get(10, TimeUnit.SECONDS);
+			assertEquals(1, exitcode.intValue());
+		} catch (Exception e) {
+			fail(e.getMessage());
+		} finally {
+			new File(file).delete();
+		}
+	}
+
+	@Test
 	public void testMultipleOverWebsocket() throws InterruptedException {
 		int COUNT = 5;
 		CountDownLatch cdl = new CountDownLatch(COUNT);
 		ProcessHandler simple = new ProcessHandler() {
 
 			@Override
-			public void log(String l) {
+			public void log(String l, boolean cont) {
 			}
 
 			@Override
@@ -273,7 +369,7 @@ public class NodeTests {
 		ProcessHandler simple = new ProcessHandler() {
 
 			@Override
-			public void log(String l) {
+			public void log(String l, boolean cont) {
 			}
 
 			@Override
@@ -322,12 +418,12 @@ public class NodeTests {
 	public void testInterruptWebsocketTask() throws InterruptedException, ExecutionException, TimeoutException {
 		System.out.println("=============== testInterruptWebsocketTask starts " + new Date());
 		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "/bin/sleep 10");
-		AtomicReference<String> ref = new AtomicReference<String>();
+		AtomicReference<String> ref = new AtomicReference<>();
 		CompletableFuture<Integer> exitFuture = new CompletableFuture<>();
 		ProcessHandler ph = new ProcessHandler() {
 
 			@Override
-			public void log(String l) {
+			public void log(String l, boolean cont) {
 				System.out.println("LOG: " + l);
 			}
 

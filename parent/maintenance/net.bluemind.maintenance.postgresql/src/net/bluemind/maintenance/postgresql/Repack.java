@@ -79,7 +79,7 @@ public class Repack implements IMaintenanceScript {
 		}
 
 		@Override
-		public void log(String message) {
+		public void log(String message, boolean cont) {
 			monitor.log(taskRef != null ? ("[" + taskRef + "]: " + message) : message);
 		}
 

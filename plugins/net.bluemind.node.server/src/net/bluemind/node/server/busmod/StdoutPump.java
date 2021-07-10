@@ -24,50 +24,41 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.buffer.Buffer;
+import io.netty.buffer.Unpooled;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.parsetools.RecordParser;
+import net.bluemind.node.server.busmod.OutputSplitter.Line;
+import net.bluemind.node.server.busmod.OutputSplitter.SplitException;
 import net.bluemind.node.server.busmod.SysCommand.WsEndpoint;
 
 public final class StdoutPump implements Runnable {
 
-	private static final byte[] LF = "\n".getBytes();
 	private static final Logger logger = LoggerFactory.getLogger(StdoutPump.class);
 
 	private final InputStream in;
 	private final RunningCommand rc;
-	private final RecordParser rp;
+	private final OutputSplitter rp;
 	private final Process proc;
-	private final boolean record;
+	private final boolean recordOutput;
 	private WsEndpoint wsEndpoint;
 
 	public StdoutPump(Process proc, RunningCommand rc, boolean recordOutput, WsEndpoint wsEP) {
 		this.proc = proc;
 		this.in = proc.getInputStream();
 		this.rc = rc;
-		this.record = recordOutput;
-		this.rp = RecordParser.newDelimited(Buffer.buffer(LF), this::newLine);
+		this.recordOutput = recordOutput;
+		this.rp = new OutputSplitter(this::newLine);
 		this.wsEndpoint = wsEP;
 	}
 
-	private void newLine(Buffer b) {
-		String line = b.toString();
+	private void newLine(Line l) {
+		String line = l.log;
 		logger.debug("[{}]: {}", rc.getPid(), line);
 		if (wsEndpoint != null) {
-			JsonObject log = new JsonObject().put("log", line);
+			JsonObject log = new JsonObject().put("log", line).put("continued", l.continued);
 			wsEndpoint.write("log", log);
 		} else {
 			rc.out(line);
 		}
-	}
-
-	private final byte[] chunk(byte[] buf, int len) {
-		if (len == buf.length) {
-			return buf;
-		}
-		byte[] result = new byte[len];
-		System.arraycopy(buf, 0, result, 0, len);
-		return result;
 	}
 
 	public void run() {
@@ -75,28 +66,37 @@ public final class StdoutPump implements Runnable {
 		long count = 0;
 		try {
 			Integer exit = null;
-			byte[] buf = new byte[32768];
+			// process smaller than OutputSplitter#DEFAULT_MAX_FRAME_SIZE
+			byte[] buf = new byte[4096];
 			while (true) {
 				int read = in.read(buf);
 				if (read == -1) {
 					break;
 				}
-				if (record && read > 0) {
-					Buffer chunk = Buffer.buffer(chunk(buf, read));
-					rp.handle(chunk);
+				if (recordOutput && read > 0) {
+					rp.write(Unpooled.wrappedBuffer(buf, 0, read));
 				}
 				logger.debug("[{}] pumped {}bytes.", rc.getPid(), read);
 				count++;
 			}
 			logger.debug("Exited stream pump after {}loops.", count);
 			exit = proc.waitFor();
+			rp.end();
 			notifyEndOnWs(exit);
 			rc.setExitValue(exit, time);
 			logger.info("[{}] exit: {} (loops: {})", rc.getPid(), exit, count);
 			proc.destroy();
+		} catch (SplitException se) {
+			// this one does not flush the content on purpose
+			logger.error("[{}] process will be destroyed because it gave non-utf8 output {}", rc.getPid(),
+					se.getMessage());
+			proc.destroyForcibly();
+			notifyEndOnWs(1);
+			rc.setExitValue(1, time);
 		} catch (Exception e) {
-			rp.handle(Buffer.buffer("\n" + e.getMessage() + "\n"));
 			logger.error("[{}] {}", rc.getPid(), e.getMessage());
+			proc.destroyForcibly();
+			rp.end();
 			notifyEndOnWs(1);
 			rc.setExitValue(1, time);
 		}

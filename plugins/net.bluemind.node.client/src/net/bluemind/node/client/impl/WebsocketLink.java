@@ -152,7 +152,7 @@ public class WebsocketLink {
 			case "node-start":
 				List<Long> removedHandlers = new ArrayList<>();
 				execHandlers.forEach((runId, handler) -> {
-					handler.log("Node has restarted.");
+					handler.log("Node has restarted.", false);
 					handler.completed(1);
 					removedHandlers.add(runId);
 				});
@@ -190,7 +190,7 @@ public class WebsocketLink {
 			ph.starting(payload.getLong("task", 0L).toString());
 			break;
 		case "log":
-			ph.log(payload.getString("log"));
+			ph.log(payload.getString("log"), payload.getBoolean("continued", Boolean.FALSE));
 			break;
 		case "completion":
 			ph.completed(payload.getInteger("exit", 0));

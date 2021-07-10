@@ -102,7 +102,7 @@ public class SyncClientMgmt implements ISyncClientMgmt, ProcessHandler {
 	}
 
 	@Override
-	public void log(String l) {
+	public void log(String l, boolean cont) {
 		for (ISyncClientObserver obs : observers) {
 			observersPool.execute(() -> obs.log(l));
 		}

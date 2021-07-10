@@ -24,7 +24,13 @@ import net.bluemind.core.api.fault.ServerFault;
 
 public interface ProcessHandler {
 
-	void log(String l);
+	/**
+	 * @param l
+	 * @param isContinued is true when the line was longer than our max frame size.
+	 *                    The received line did not end with a line-feed in the
+	 *                    original output
+	 */
+	void log(String l, boolean isContinued);
 
 	void completed(int exitCode);
 
@@ -39,7 +45,7 @@ public interface ProcessHandler {
 		}
 
 		@Override
-		public void log(String l) {
+		public void log(String l, boolean isContinued) {
 			// ok for no out
 		}
 
@@ -75,7 +81,7 @@ public interface ProcessHandler {
 		}
 
 		@Override
-		public void log(String l) {
+		public void log(String l, boolean isContinued) {
 			exitList.add(l);
 		}
 

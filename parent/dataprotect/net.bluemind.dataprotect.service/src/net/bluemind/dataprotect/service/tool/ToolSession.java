@@ -161,7 +161,7 @@ public class ToolSession implements IToolSession {
 		ProcessHandler handler = new ProcessHandler() {
 
 			@Override
-			public void log(String l) {
+			public void log(String l, boolean cont) {
 				if (!StringUtils.isBlank(l)) {
 					ctx.info("en", "RSYNC: " + l);
 				}

@@ -76,8 +76,7 @@ public class CyrusFilesystemCheck {
 			IMailboxes mboxApi = ctx.provider().instance(IMailboxes.class, dom.uid);
 			List<String> mboxesUids = mboxApi.listUids();
 			List<MailboxEntry> backMboxes = Lists.partition(mboxesUids, 1000).stream()//
-					.parallel()
-					.flatMap(slice -> mboxApi.multipleGet(slice).stream())//
+					.parallel().flatMap(slice -> mboxApi.multipleGet(slice).stream())//
 					.filter(mi -> backend.uid.equals(mi.value.dataLocation))//
 					.map(mi -> new MailboxEntry(mi.value.type, mi.value.name, dom.uid))//
 					.collect(Collectors.toList());
@@ -107,7 +106,7 @@ public class CyrusFilesystemCheck {
 		node.asyncExecute(spoolTreeCommand, new ProcessHandler() {
 
 			@Override
-			public void log(String spoolDirectory) {
+			public void log(String spoolDirectory, boolean cont) {
 				boolean verified = spv.verify(spoolDirectory);
 				if (!verified) {
 					notVerified.add(spoolDirectory);
