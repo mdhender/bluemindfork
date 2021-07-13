@@ -448,26 +448,27 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		for (@SuppressWarnings("unchecked")
 		Iterator<Property> it = categoriesPropList.iterator(); it.hasNext();) {
 			Property category = it.next();
-			String label = category.getValue().toString();
-			if (Strings.isNullOrEmpty(label)) {
+			String labelValue = category.getValue().toString();
+			if (Strings.isNullOrEmpty(labelValue)) {
 				continue;
 			}
+			String[] values = labelValue.split(",");
+			for (String label : values) {
+				Optional<TagRef> exsistingTag = allTags.stream().filter(tag -> label.equals(tag.label)).findFirst();
+				if (exsistingTag.isPresent()) {
+					categories.add(exsistingTag.get());
+				} else {
+					// 3d98ff blue
+					service.ifPresent(s -> {
+						String uid = UUID.randomUUID().toString();
+						s.create(uid, Tag.create(label, "3d98ff"));
 
-			Optional<TagRef> exsistingTag = allTags.stream().filter(tag -> label.equals(tag.label)).findFirst();
-			if (exsistingTag.isPresent()) {
-				categories.add(exsistingTag.get());
-			} else {
-				// 3d98ff blue
-				service.ifPresent(s -> {
-					String uid = UUID.randomUUID().toString();
-					s.create(uid, Tag.create(label, "3d98ff"));
-
-					TagRef tr = TagRef.create(containerUid.get(), s.getComplete(uid));
-					allTags.add(tr);
-					categories.add(tr);
-				});
+						TagRef tr = TagRef.create(containerUid.get(), s.getComplete(uid));
+						allTags.add(tr);
+						categories.add(tr);
+					});
+				}
 			}
-
 		}
 		return categories;
 	}

@@ -69,6 +69,7 @@ import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
+import net.bluemind.tag.api.TagRef;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 import net.bluemind.utils.FileUtils;
 
@@ -553,6 +554,41 @@ public class VEventServiceTests extends AbstractCalendarTests {
 			}
 		}
 		assertEquals(1, checked);
+	}
+
+	@Test
+	public void testCategoryList() throws ServerFault, IOException {
+		Stream ics = getIcsFromFile("category_list.ics");
+
+		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer).importIcs(ics);
+		ImportStats stats = waitImportEnd(taskRef);
+
+		assertEquals(1, stats.importedCount());
+		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
+				.getComplete(stats.uids.get(0));
+		boolean persoFound = false;
+		boolean medicalFound = false;
+		boolean doctorFound = false;
+
+		assertEquals(3, item.value.main.categories.size());
+
+		for (TagRef tr : item.value.main.categories) {
+			switch (tr.label) {
+			case "perso":
+				persoFound = true;
+				break;
+			case "medical":
+				medicalFound = true;
+				break;
+			case "docteur":
+				doctorFound = true;
+				break;
+			}
+		}
+
+		assertTrue(persoFound);
+		assertTrue(medicalFound);
+		assertTrue(doctorFound);
 	}
 
 	@Test
