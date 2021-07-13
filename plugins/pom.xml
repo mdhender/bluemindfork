@@ -117,7 +117,7 @@
 		<module>net.bluemind.ysnp.bmcore</module>
 		<module>net.bluemind.ysnp.tests</module>
 		<module>net.bluemind.ysnp</module>
-		<module>net.freeutils.tnef</module>
+        <module>net.freeutils.tnef</module>
 	</modules>
 
 

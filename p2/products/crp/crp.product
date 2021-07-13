@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="crp" uid="crp" id="net.bluemind.central.reverse.proxy.launcher.crp" application="net.bluemind.central.reverse.proxy.launcher.crplauncher" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgs>-Dosgi.noShutdown=true -Djava.security.egd=file:/dev/urandom 
+-Djava.security.krb5.conf=/etc/bm-crp/krb5.ini -Djava.security.auth.login.config=/etc/bm-crp/jaas.conf -Dnet.bluemind.property.product=bm-crp
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <launcher name="bm-crp">
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+      <plugin id="ch.qos.logback.classic"/>
+      <plugin id="ch.qos.logback.core"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-core"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
+      <plugin id="com.fasterxml.jackson.module.jackson-module-afterburner"/>
+      <plugin id="com.github.ben-manes.caffeine"/>
+      <plugin id="com.github.luben.zstd"/>
+      <plugin id="com.google.guava"/>
+      <plugin id="com.google.guava.failureaccess"/>
+      <plugin id="com.netflix.spectator.api"/>
+      <plugin id="com.sun.mail.javax.mail"/>
+      <plugin id="com.typesafe.netty.reactive-streams"/>
+      <plugin id="io.netty"/>
+      <plugin id="io.vertx.core"/>
+      <plugin id="io.vertx.web"/>
+      <plugin id="javax.annotation"/>
+      <plugin id="javax.inject"/>
+      <plugin id="javax.servlet"/>
+      <plugin id="javax.transaction" fragment="true"/>
+      <plugin id="javax.validation.api"/>
+      <plugin id="javax.ws.rs"/>
+      <plugin id="javax.xml"/>
+      <plugin id="jcl.over.slf4j"/>
+      <plugin id="jul.to.slf4j"/>
+      <plugin id="log4j.over.slf4j"/>
+      <plugin id="net.bluemind.central.reverse.proxy"/>
+      <plugin id="net.bluemind.central.reverse.proxy.launcher"/>
+      <plugin id="net.bluemind.central.reverse.proxy.model"/>
+      <plugin id="net.bluemind.common.io"/>
+      <plugin id="net.bluemind.core.commons"/>
+      <plugin id="net.bluemind.core.task.api"/>
+      <plugin id="net.bluemind.eclipse.common"/>
+      <plugin id="net.bluemind.kafka.client"/>
+      <plugin id="net.bluemind.kafka.configuration"/>
+      <plugin id="net.bluemind.lib.jackson"/>
+      <plugin id="net.bluemind.lib.jta"/>
+      <plugin id="net.bluemind.lib.vertx"/>
+      <plugin id="net.bluemind.metrics.agent-api"/>
+      <plugin id="net.bluemind.metrics.registry"/>
+      <plugin id="net.bluemind.network.utils"/>
+      <plugin id="net.bluemind.osgi.log"/>
+      <plugin id="net.bluemind.sentry" fragment="true"/>
+      <plugin id="net.bluemind.slf4j"/>
+      <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
+      <plugin id="net.bluemind.system.api"/>
+      <plugin id="net.bluemind.systemd.notify"/>
+      <plugin id="net.bluemind.vertx.core.patch" fragment="true"/>
+      <plugin id="net.java.dev.jna"/>
+      <plugin id="org.apache.commons.codec"/>
+      <plugin id="org.apache.commons.compress"/>
+      <plugin id="org.apache.commons.lang"/>
+      <plugin id="org.asynchttpclient.async-http-client"/>
+      <plugin id="org.asynchttpclient.async-http-client-netty-utils"/>
+      <plugin id="org.eclipse.core.contenttype"/>
+      <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.equinox.app"/>
+      <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.preferences"/>
+      <plugin id="org.eclipse.equinox.region" fragment="true"/>
+      <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.eclipse.osgi.compatibility.state" fragment="true"/>
+      <plugin id="org.eclipse.osgi.services"/>
+      <plugin id="org.eclipse.update.configurator"/>
+      <plugin id="org.freemarker.freemarker"/>
+      <plugin id="org.ini4j"/>
+      <plugin id="org.reactivestreams.reactive-streams"/>
+      <plugin id="sentry"/>
+      <plugin id="sentry-logback"/>
+      <plugin id="slf4j.api"/>
+   </plugins>
+
+   <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <property name="osgi.configuration.area" value="/var/lib/bm-crp/" />
+      <property name="osgi.noShutdown" value="true" />
+   </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
+
+</product>

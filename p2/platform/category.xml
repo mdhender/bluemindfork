@@ -518,6 +518,9 @@
    <bundle id="net.bluemind.sds.store" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.sds.store.s3" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.sds.proxy.testhelper" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.central.reverse.proxy" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.central.reverse.proxy.launcher" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.central.reverse.proxy.model" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.aws.s3.utils"/>
    <bundle id="net.bluemind.kafka.configuration"/>
    <bundle id="net.bluemind.kafka.configuration.fs"/>

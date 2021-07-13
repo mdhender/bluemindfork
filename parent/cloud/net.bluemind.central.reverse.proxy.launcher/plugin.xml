@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="crplauncher"
+         name="CRP Launcher"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.bluemind.central.reverse.proxy.launcher.CRPLauncher">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="crp"
+         point="org.eclipse.core.runtime.products">
+      <product
+          application="net.bluemind.central.reverse.proxy.launcher.crplauncher"
+            name="crp">
+         <property
+               name="appName"
+               value="crp">
+         </property>
+      </product>
+   </extension>
+
+</plugin>
