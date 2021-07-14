@@ -33,6 +33,7 @@ import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.SearchResult;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
+import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.service.names.INameSanitizer;
 import net.bluemind.backend.mail.replica.service.names.NameSanitizers;
@@ -82,6 +83,14 @@ public class BaseReplicatedMailboxesService implements IBaseMailboxFolders {
 		this.dataLocation = root.dataLocation;
 		this.nameSanitizer = NameSanitizers.create(root, store, mboxReplicaStore);
 		this.rbac = RBACManager.forContext(context).forContainer(IMailboxAclUids.uidForMailbox(container.owner));
+	}
+
+	public ItemValue<MailboxFolder> root() {
+		if (root.ns == Namespace.shared) {
+			return byName(root.name);
+		} else {
+			return byName("INBOX");
+		}
 	}
 
 	protected ItemValue<MailboxFolder> adapt(ItemValue<MailboxReplica> rec) {

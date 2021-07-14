@@ -49,6 +49,11 @@ public class NoopDbReplicatedMailboxesService implements IDbReplicatedMailboxes,
 		this.domainUid = domainUid;
 	}
 
+	public ItemValue<MailboxFolder> root() {
+		logger.info("NOOP root() on {}@{}", mailboxRoot.name, domainUid);
+		return null;
+	}
+
 	@Override
 	public void xfer(String serverUid) {
 		logger.info("NOOP xfer on deleted mailbox {}@{}", mailboxRoot.name, domainUid);

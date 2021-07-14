@@ -1433,7 +1433,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		ItemIdentifier subFolder = folders.createBasic(subF);
 		assertNotNull(subFolder);
 
-		subF.fullName = child.fullName + "/upd" + System.currentTimeMillis();
+		subF.fullName = freshFolder.value.fullName + "/upd" + System.currentTimeMillis();
 		ack = folders.updateById(subFolder.id, subF);
 		assertNotNull(ack);
 		assertTrue(ack.version > subFolder.version);

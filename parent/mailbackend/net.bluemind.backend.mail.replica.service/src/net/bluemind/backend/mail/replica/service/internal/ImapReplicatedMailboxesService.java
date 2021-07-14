@@ -100,20 +100,16 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 	}
 
 	@Override
-	public Ack updateById(long id, MailboxFolder value) {
+	public Ack updateById(long id, MailboxFolder v) {
 		rbac.check(Verb.Write.name());
 
 		ItemValue<MailboxFolder> current = getCompleteById(id);
 		if (current == null) {
 			throw ServerFault.notFound("mailboxReplica with id " + id + " not found.");
 		}
-		if (value.fullName != null && value.name == null) {
-			int end = value.fullName.lastIndexOf('/');
-			if (end == -1) {
-				throw new ServerFault("Invalid name(s) " + value);
-			}
-			value.name = value.fullName.substring(end + 1);
-		}
+
+		MailboxFolder value = nameSanitizer.sanitizeNames(v);
+
 		String oldName = current.value.fullName;
 		String newName = value.fullName;
 		String toWatch = container.uid;

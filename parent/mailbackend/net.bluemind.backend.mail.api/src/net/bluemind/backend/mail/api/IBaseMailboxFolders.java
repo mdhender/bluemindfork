@@ -31,6 +31,13 @@ import net.bluemind.core.container.model.ItemValue;
 @BMApi(version = "3")
 public interface IBaseMailboxFolders extends IChangelogSupport {
 
+	/**
+	 * @return INBOX for user mailboxes or the toplevel mailshare folder
+	 */
+	@GET
+	@Path("_root")
+	ItemValue<MailboxFolder> root();
+
 	@GET
 	@Path("byName/{name}")
 	ItemValue<MailboxFolder> byName(@PathParam("name") String name);
