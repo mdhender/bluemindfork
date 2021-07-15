@@ -13,3 +13,4 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0",
 Export-Package: net.bluemind.videoconferencing.api.gwt.endpoint,
  net.bluemind.videoconferencing.api.gwt.js,
  net.bluemind.videoconferencing.api.gwt.serder
+Automatic-Module-Name: net.bluemind.videoconferencing.api.gwt

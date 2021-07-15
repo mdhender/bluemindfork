@@ -88,7 +88,7 @@ public class VEventSeries {
 			return true;
 		}
 
-		return occurrences.stream().filter(o -> o.hasAlarm()).findAny().isPresent();
+		return occurrences.stream().anyMatch(VEventOccurrence::hasAlarm);
 	}
 
 	public VEvent mainOccurrence() {
