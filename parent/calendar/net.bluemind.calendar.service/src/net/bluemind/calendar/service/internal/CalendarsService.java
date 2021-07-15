@@ -134,9 +134,6 @@ public class CalendarsService implements ICalendars {
 				}
 			}
 		}
-
-		logger.info("ret: {}", ret.size());
-
 		return ret;
 	}
 
