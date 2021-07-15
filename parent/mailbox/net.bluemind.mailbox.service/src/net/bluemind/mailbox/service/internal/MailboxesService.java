@@ -611,7 +611,11 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		}
 		ItemValue<Mailbox> mailbox = storeService.get(uid, null);
 		// FIXME quota should be stored in database ( t_mailbox)
-		return mailboxStorage.getQuota(context, domainUid, mailbox);
+		if (mailbox.value != null) {
+			return mailboxStorage.getQuota(context, domainUid, mailbox);
+		} else {
+			return null;
+		}
 
 	}
 
