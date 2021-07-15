@@ -20,10 +20,17 @@
                   </web-resource>
                   <js async-loading="false" translation="false" path="js/net.bluemind.videoconferencing.widget.js">
                   </js>
+                  <js async-loading="false" translation="false" path="static/net.bluemind.ui.banner.videoconferencing.js">
+                  </js>
             </web-module-provider>
       </extension>
       <extension point="webapp.banner">
             <widget component="BmVideoWidget">
             </widget>
       </extension>
+   <extension
+         point="net.bluemind.ui.commons.banner.widget">
+      <widget-entry creator="VideoWidgetCreator">
+      </widget-entry>
+   </extension>
 </plugin>
