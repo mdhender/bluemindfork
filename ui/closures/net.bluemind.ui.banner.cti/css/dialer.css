@@ -22,6 +22,7 @@
 }
 
 .dialer .field-text .field-base-field input {
+  background-color: #fff !important;
   width: 180px;
   font-weight: bold;
   -webkit-border-radius: 2px 0 0 2px;
@@ -63,7 +64,7 @@
   -webkit-box-shadow: 2px 2px 2px rgba(102, 102, 102, .4);
   box-shadow: 2px 2px 2px rgba(102, 102, 102, .4);
   margin-top: 2px;
-  z-index: 20;
+  z-index: 300;
 }
 
 .dialer-renderer .ac-row {
