@@ -364,6 +364,11 @@ public class Authentication implements IInCoreAuthentication {
 				vl.onValidLogin(matchingProvider, authContext.user != null, authContext.getRealUserLogin(),
 						authContext.domain.uid, authContext.userPassword);
 			}
+		} else if (result == AuthResult.NO) {
+			for (ILoginValidationListener vl : loginListeners) {
+				vl.onFailedLogin(matchingProvider, authContext.user != null, authContext.getRealUserLogin(),
+						authContext.domain.uid, authContext.userPassword);
+			}
 		}
 
 		if (logger.isDebugEnabled()) {

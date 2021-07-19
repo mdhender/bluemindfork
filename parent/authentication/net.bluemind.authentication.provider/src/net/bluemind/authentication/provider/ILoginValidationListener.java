@@ -23,4 +23,9 @@ public interface ILoginValidationListener {
 
 	void onValidLogin(IAuthProvider provider, boolean userExists, String login, String domain, String password);
 
+	default void onFailedLogin(IAuthProvider provider, boolean userExists, String login, String domain,
+			String password) {
+
+	}
+
 }

@@ -18,6 +18,7 @@
  */
 package net.bluemind.core.password.bruteforce;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,9 +40,6 @@ public class Fail2Ban implements ILoginValidationListener, IAuthProvider {
 	private static final Cache<String, AtomicInteger> trials = Caffeine.newBuilder().recordStats()
 			.expireAfterAccess(20, TimeUnit.SECONDS).build();
 
-	public Fail2Ban() {
-	}
-
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override
 		public void registerCaches(CacheRegistry cr) {
@@ -56,6 +54,12 @@ public class Fail2Ban implements ILoginValidationListener, IAuthProvider {
 	}
 
 	@Override
+	public void onFailedLogin(IAuthProvider provider, boolean userExists, String userLogin, String domain,
+			String password) {
+		Optional.ofNullable(trials.getIfPresent(userLogin + "@" + domain)).ifPresent(AtomicInteger::incrementAndGet);
+	}
+
+	@Override
 	public AuthResult check(IAuthContext authContext) throws ServerFault {
 		String latd = authContext.getRealUserLogin() + "@" + authContext.getDomain().value.name;
 		AtomicInteger authCount = trials.getIfPresent(latd);
@@ -64,7 +68,7 @@ public class Fail2Ban implements ILoginValidationListener, IAuthProvider {
 			trials.put(latd, new AtomicInteger(1));
 			return AuthResult.UNKNOWN;
 		} else {
-			int val = authCount.incrementAndGet();
+			int val = authCount.get();
 			if (val > 3) {
 				logger.warn("Too many ({}) attempts for {}/{}. Wait 20sec to retry", val, latd,
 						authContext.getSecurityContext().getRemoteAddresses());
