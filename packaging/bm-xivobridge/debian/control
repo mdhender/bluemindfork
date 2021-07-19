@@ -6,6 +6,6 @@ Standards-Version: 3.9.1
 
 Package: bm-xivobridge
 Architecture: amd64
-Depends: bm-jdk (= 8u282-bluemind39), bm-conf (= ${binary:Version})
+Depends: bm-jdk (= 8u292-bluemind40), bm-conf (= ${binary:Version})
 Description: BlueMind XiVO bridge server
  BlueMind XiVO bridge sends cti events to BlueMind components

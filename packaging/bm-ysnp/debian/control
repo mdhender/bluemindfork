@@ -6,7 +6,7 @@ Standards-Version: 3.9.1
 
 Package: bm-ysnp
 Architecture: amd64
-Depends: bm-jdk (= 8u282-bluemind39), bm-conf (= ${binary:Version})
+Depends: bm-jdk (= 8u292-bluemind40), bm-conf (= ${binary:Version})
 Description: BlueMind saslauthd
  BlueMind java based saslauthd replacement
 
