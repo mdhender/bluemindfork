@@ -86,11 +86,16 @@ public class BaseReplicatedMailboxesService implements IBaseMailboxFolders {
 	}
 
 	public ItemValue<MailboxFolder> root() {
+		ItemValue<MailboxFolder> res;
 		if (root.ns == Namespace.shared) {
-			return byName(root.name);
+			res = byName(root.name.replace('^', '.'));
 		} else {
-			return byName("INBOX");
+			res = byName("INBOX");
 		}
+		if (res == null) {
+			logger.error("Failed to find root of {}", root);
+		}
+		return res;
 	}
 
 	protected ItemValue<MailboxFolder> adapt(ItemValue<MailboxReplica> rec) {
