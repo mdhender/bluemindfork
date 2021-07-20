@@ -120,8 +120,7 @@ public class MailFilterValidator implements IValidator<MailFilter> {
 			return;
 		}
 
-		ParametersValidator.notNull(vacation.start);
-		if (vacation.end != null && vacation.start.after(vacation.end)) {
+		if (vacation.start != null && vacation.end != null && vacation.start.after(vacation.end)) {
 			throw new ServerFault("end date is before start date of vacation", ErrorCode.INVALID_PARAMETER);
 		}
 

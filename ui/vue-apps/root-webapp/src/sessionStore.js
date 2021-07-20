@@ -34,8 +34,8 @@ const actions = {
 
     async SAVE_SETTINGS({ state, commit }) {
         commit("SET_SETTINGS", state.settings.local);
-        const userSession = inject("UserSession");
-        return inject("UserSettingsPersistence").set(userSession.userId, state.settings.local);
+        const userId = inject("UserSession").userId;
+        return inject("UserSettingsPersistence").set(userId, state.settings.local);
     }
 };
 
@@ -47,8 +47,8 @@ const mutations = {
         }
     },
     SET_SETTINGS: (state, settings) => {
-        state.settings.remote = settings;
-        state.settings.local = JSON.parse(JSON.stringify(state.settings.remote));
+        state.settings.remote = JSON.parse(JSON.stringify(settings));
+        state.settings.local = JSON.parse(JSON.stringify(settings));
         state.settings.loaded = true;
     },
     REMOVE_LOCAL_HAS_ERROR: (state, fieldOnError) => {

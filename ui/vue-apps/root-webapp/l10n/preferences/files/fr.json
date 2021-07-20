@@ -114,6 +114,9 @@
     "preferences.mail.signature.insert": "Ajouter la signature automatiquement",
     "preferences.mail.logout": "Lors de la déconnexion",
     "preferences.mail.logout.empty.trash": "Vider la Corbeille",
+    "preferences.mail.automatic_reply": "Message d'absence",
+    "preferences.mail.automatic_reply.activate": "Activer le message d'absence",
+    "preferences.mail.automatic_reply.period": "Spécifier une date de début et une date de fin (optionnel)",
 
     "preferences.role.missing.warning": "Vous n'avez pas les droits pour modifier cette préférence",
     "preferences.save.error": "Erreur lors de l'enregistrement, vérifiez votre connexion internet",

@@ -190,7 +190,7 @@ public class MailFilterValidatorTest {
 		filter.vacation = fullVacation();
 		filter.vacation.start = null;
 		// begin date with null value is not valid
-		checkFail(SecurityContext.SYSTEM, filter, ErrorCode.INVALID_PARAMETER);
+		checkOk(SecurityContext.SYSTEM, filter);
 
 		filter.vacation = fullVacation();
 		filter.vacation.start = Date.from(LocalDate.of(2020, 01, 02).atStartOfDay(ZoneId.of("UTC")).toInstant());

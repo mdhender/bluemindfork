@@ -5,7 +5,7 @@
         </bm-form-checkbox>
         <div class="d-inline-block mr-5">
             {{ $t("preferences.calendar.main.day_starts_at") }}
-            <bm-form-timepicker
+            <bm-form-time-picker
                 class="mt-1"
                 :max="adaptedWorkHoursEnd"
                 :value="adaptedWorkHoursStart"
@@ -15,7 +15,7 @@
         </div>
         <div class="d-inline-block">
             {{ $t("preferences.calendar.main.day_ends_at") }}
-            <bm-form-timepicker
+            <bm-form-time-picker
                 class="mt-1"
                 :min="adaptedWorkHoursStart"
                 :value="adaptedWorkHoursEnd"
@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { BmFormCheckbox, BmFormTimepicker } from "@bluemind/styleguide";
+import { BmFormCheckbox, BmFormTimePicker } from "@bluemind/styleguide";
 import PrefFieldMixin from "../../mixins/PrefFieldMixin";
 
 const WORK_HOURS_START_SETTING = "work_hours_start";
@@ -35,7 +35,7 @@ const WORK_HOURS_END_SETTING = "work_hours_end";
 
 export default {
     name: "PrefWorkHours",
-    components: { BmFormCheckbox, BmFormTimepicker },
+    components: { BmFormCheckbox, BmFormTimePicker },
     mixins: [PrefFieldMixin],
     computed: {
         workHoursEnd() {
@@ -94,7 +94,7 @@ function decimalToTime(decimalHours) {
 
 <style lang="scss">
 .pref-work-hours {
-    div.bm-form-timepicker {
+    div.bm-form-time-picker {
         width: 10em !important;
         &.bm-form-autocomplete-input {
             min-width: unset;

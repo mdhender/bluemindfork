@@ -38,6 +38,7 @@ import PrefFieldSelect from "./fields/PrefFieldSelect";
 
 import PrefAllDayEventReminder from "./fields/customs/PrefAllDayEventReminder";
 import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
+import PrefAutomaticReply from "./fields/customs/PrefAutomaticReply";
 import PrefEventReminder from "./fields/customs/PrefEventReminder";
 import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
 import PrefIMSetPhonePresence from "./fields/customs/PrefIMSetPhonePresence";
@@ -63,6 +64,7 @@ export default {
         PrefFieldSelect,
         PrefAllDayEventReminder,
         PrefAlwaysShowQuota,
+        PrefAutomaticReply,
         PrefEnableNotifications,
         PrefEventReminder,
         PrefIMSetPhonePresence,
@@ -117,10 +119,15 @@ export default {
     }
 
     .pref-field-combobox,
-    .bm-form-timepicker,
+    .bm-form-time-picker,
     .bm-form-select,
-    .bm-form-input {
+    .bm-form-input,
+    .bm-rich-editor {
         width: 24rem !important;
+    }
+
+    .b-calendar .bm-form-select {
+        width: unset !important;
     }
 }
 </style>

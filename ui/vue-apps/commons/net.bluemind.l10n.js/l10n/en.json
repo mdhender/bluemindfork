@@ -141,5 +141,7 @@
     "common.days": "days",
     "common.days_before": "1 day before | {count} days before",
     "common.expand": "Expand",
-    "common.collapse": "Collapse"
+    "common.collapse": "Collapse",
+    "common.hour": "Hour",
+    "common.until": "Until"
 }

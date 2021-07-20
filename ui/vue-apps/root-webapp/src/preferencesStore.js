@@ -1,4 +1,5 @@
 import { Verb } from "@bluemind/core.container.api";
+import { html2text, text2html } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
 
 const state = {
@@ -10,7 +11,9 @@ const state = {
     userPasswordLastChange: null,
     subscriptions: [],
     myCalendars: [],
-    otherManagedCalendars: [] // other = dont include owned calendars
+    otherManagedCalendars: [], // other = dont include owned calendars
+
+    mailboxFilter: { remote: {}, local: {}, loaded: false }
 };
 
 const actions = {
@@ -51,6 +54,22 @@ const actions = {
         await inject("UserSubscriptionPersistence").unsubscribe(userId, containerUids);
         const subscriptionsToRemove = state.subscriptions.filter(sub => containerUids.includes(sub.value.containerUid));
         commit("REMOVE_SUBSCRIPTIONS", subscriptionsToRemove);
+    },
+    async FETCH_MAILBOX_FILTER({ commit }, userLang) {
+        const userId = inject("UserSession").userId;
+        const mailboxFilter = await inject("MailboxesPersistence").getMailboxFilter(userId);
+        if (!mailboxFilter.vacation.textHtml) {
+            mailboxFilter.vacation.textHtml = text2html(mailboxFilter.vacation.text, userLang);
+        }
+        commit("SET_MAILBOX_FILTER", mailboxFilter);
+    },
+    async SAVE_MAILBOX_FILTER({ commit, state }) {
+        if (state.mailboxFilter.local.vacation.textHtml) {
+            state.mailboxFilter.local.vacation.text = html2text(state.mailboxFilter.local.vacation.textHtml);
+        }
+        commit("SET_MAILBOX_FILTER", state.mailboxFilter.local);
+        const userId = inject("UserSession").userId;
+        return inject("MailboxesPersistence").setMailboxFilter(userId, state.mailboxFilter.local);
     }
 };
 
@@ -100,11 +119,26 @@ const mutations = {
                 state.subscriptions.splice(index, 1);
             }
         });
+    },
+
+    // mailboxFilter
+    SET_MAILBOX_FILTER: (state, mailboxFilter) => {
+        state.mailboxFilter.remote = JSON.parse(JSON.stringify(mailboxFilter));
+        state.mailboxFilter.local = JSON.parse(JSON.stringify(mailboxFilter));
+        state.mailboxFilter.loaded = true;
+    },
+    ROLLBACK_MAILBOX_FILTER: state => {
+        state.mailboxFilter.local = JSON.parse(JSON.stringify(state.mailboxFilter.remote));
+    },
+    SET_VACATION: (state, vacation) => {
+        state.mailboxFilter.local.vacation = JSON.parse(JSON.stringify(vacation));
     }
 };
 
 const getters = {
-    SECTIONS: state => Object.values(state.sectionByCode)
+    SECTIONS: state => Object.values(state.sectionByCode),
+    MAILBOX_FILTER_CHANGED: state =>
+        JSON.stringify(state.mailboxFilter.local) !== JSON.stringify(state.mailboxFilter.remote)
 };
 
 export default {

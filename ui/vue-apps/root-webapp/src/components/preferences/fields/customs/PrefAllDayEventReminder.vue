@@ -3,7 +3,7 @@
         <bm-form-checkbox class="mb-1" :checked="isReminderSet" @change="isReminderSet ? remove() : setDefault()">
             {{ $t("preferences.calendar.main.default_allday_reminder") }}
         </bm-form-checkbox>
-        <bm-form-timepicker
+        <bm-form-time-picker
             :value="decomposedSetting.timeSelected"
             :disabled="!isReminderSet"
             class="align-middle mr-3"
@@ -20,7 +20,7 @@
 
 <script>
 import { SECONDS_PER_DAY, SECONDS_PER_HOUR } from "@bluemind/date";
-import { BmFormCheckbox, BmFormSelect, BmFormTimepicker } from "@bluemind/styleguide";
+import { BmFormCheckbox, BmFormSelect, BmFormTimePicker } from "@bluemind/styleguide";
 import PrefFieldMixin from "../../mixins/PrefFieldMixin";
 
 const SECONDS_FOR_ALL_DAY_REMINDER = (24 - 9) * SECONDS_PER_HOUR; // "09:00", 1 day before
@@ -28,7 +28,7 @@ const MAX_DAYS_SUGGESTED = 6;
 
 export default {
     name: "PrefAllDayEventReminder",
-    components: { BmFormCheckbox, BmFormSelect, BmFormTimepicker },
+    components: { BmFormCheckbox, BmFormSelect, BmFormTimePicker },
     mixins: [PrefFieldMixin],
     data() {
         return {
@@ -94,7 +94,7 @@ export default {
     div.bm-form-input {
         width: unset !important;
     }
-    div.bm-form-timepicker {
+    div.bm-form-time-picker {
         display: inline-block !important;
         width: 10em !important;
         &.bm-form-autocomplete-input {

@@ -86,6 +86,7 @@ export default {
         this.FETCH_CALENDARS();
         this.FETCH_SUBSCRIPTIONS();
         this.FETCH_ALL_SETTINGS();
+        this.FETCH_MAILBOX_FILTER(this.lang);
     },
     async mounted() {
         if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
@@ -105,7 +106,12 @@ export default {
         });
     },
     methods: {
-        ...mapActions("preferences", ["FETCH_CALENDARS", "FETCH_SUBSCRIPTIONS", "FETCH_USER_PASSWORD_LAST_CHANGE"]),
+        ...mapActions("preferences", [
+            "FETCH_CALENDARS",
+            "FETCH_SUBSCRIPTIONS",
+            "FETCH_USER_PASSWORD_LAST_CHANGE",
+            "FETCH_MAILBOX_FILTER"
+        ]),
         ...mapActions("session", ["FETCH_ALL_SETTINGS"]),
         ...mapMutations("preferences", ["TOGGLE_PREFERENCES", "SET_SELECTED_SECTION", "SET_SECTIONS", "SET_OFFSET"]),
         ...mapMutations("session", ["ROLLBACK_LOCAL_SETTINGS"]),

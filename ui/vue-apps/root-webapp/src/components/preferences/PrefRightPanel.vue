@@ -16,19 +16,14 @@
         </bm-alert-area>
         <pref-content :sections="sections" :local-user-settings="settings.local" />
         <div class="d-flex mt-auto pl-5 py-3 border-top border-secondary">
-            <bm-button
-                type="submit"
-                variant="primary"
-                :disabled="!SETTINGS_CHANGED || localSettingsHaveErrors"
-                @click.prevent="save"
-            >
+            <bm-button type="submit" variant="primary" :disabled="disableSave" @click.prevent="save">
                 {{ $t("common.save") }}
             </bm-button>
             <bm-button
                 type="reset"
                 variant="simple-dark"
                 class="ml-3"
-                :disabled="!SETTINGS_CHANGED"
+                :disabled="disableCancel"
                 @click.prevent="cancel"
             >
                 {{ $t("common.cancel") }}
@@ -36,7 +31,10 @@
             <div v-if="status === 'error'" class="ml-5 text-danger d-flex align-items-center font-weight-bold">
                 <bm-icon icon="exclamation-circle" class="mr-1" /> {{ $t("preferences.save.error") }}
             </div>
-            <div v-if="status === 'saved'" class="ml-5 text-success d-flex align-items-center font-weight-bold">
+            <div
+                v-if="status === 'saved' && disableSave"
+                class="ml-5 text-success d-flex align-items-center font-weight-bold"
+            >
                 <bm-icon icon="exclamation-circle" class="mr-1" /> {{ $t("preferences.save.success") }}
             </div>
         </div>
@@ -79,33 +77,68 @@ export default {
     },
     computed: {
         ...mapState("session", ["settings"]),
-        ...mapState("preferences", { selectedSection: "selectedSectionCode", sectionByCode: "sectionByCode" }),
+        ...mapState("preferences", ["selectedSectionCode", "sectionByCode", "mailboxFilter"]),
         ...mapGetters("session", ["SETTINGS_CHANGED"]),
+        ...mapGetters("preferences", ["MAILBOX_FILTER_CHANGED"]),
         sectionName() {
-            const section = this.sectionByCode[this.selectedSection];
+            const section = this.sectionByCode[this.selectedSectionCode];
             return section ? section.name : "";
         },
         localSettingsHaveErrors() {
             return this.settings.localHasErrors.length > 0;
+        },
+        disableSave() {
+            return (!this.MAILBOX_FILTER_CHANGED && !this.SETTINGS_CHANGED) || this.localSettingsHaveErrors;
+        },
+        disableCancel() {
+            return !this.SETTINGS_CHANGED && !this.MAILBOX_FILTER_CHANGED;
         }
     },
     methods: {
         ...mapActions("session", ["SAVE_SETTINGS"]),
-        ...mapMutations("preferences", ["SET_SELECTED_SECTION"]),
+        ...mapActions("preferences", ["SAVE_MAILBOX_FILTER"]),
+        ...mapMutations("preferences", ["SET_SELECTED_SECTION", "SET_MAILBOX_FILTER"]),
         ...mapMutations("session", ["SET_SETTINGS"]),
         cancel() {
             this.SET_SETTINGS(this.settings.remote);
+            this.SET_MAILBOX_FILTER(this.mailboxFilter.remote);
         },
-        async save() {
+        save() {
             this.status = "saving";
+
+            const savePromises = [];
+            if (this.SETTINGS_CHANGED) {
+                savePromises.push(this.saveSettings());
+            }
+            if (this.MAILBOX_FILTER_CHANGED) {
+                savePromises.push(this.saveMailboxFilter());
+            }
+
+            Promise.all(savePromises)
+                .then(() => {
+                    this.status = "saved";
+                })
+                .catch(() => {
+                    this.status = "error";
+                });
+        },
+        async saveSettings() {
             const oldSettings = JSON.parse(JSON.stringify(this.settings.remote));
             try {
                 await this.SAVE_SETTINGS();
                 this.manageAlertAfterSave(oldSettings, this.settings.local);
-                this.status = "saved";
             } catch {
                 this.SET_SETTINGS(oldSettings);
-                this.status = "error";
+                throw new Error();
+            }
+        },
+        async saveMailboxFilter() {
+            const oldMailboxFilter = JSON.parse(JSON.stringify(this.mailboxFilter.remote));
+            try {
+                await this.SAVE_MAILBOX_FILTER();
+            } catch {
+                this.SET_MAILBOX_FILTER(oldMailboxFilter);
+                throw new Error();
             }
         },
         manageAlertAfterSave(oldSettings, newSettings) {

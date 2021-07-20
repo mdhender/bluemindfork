@@ -72,7 +72,13 @@
                 </div>
                 <div>
                     {{ $t("common.signature") }}
-                    <bm-rich-editor ref="rich-editor" v-model="identity.signature" is-menu-bar-opened class="mt-1" />
+                    <bm-rich-editor
+                        ref="rich-editor"
+                        v-model="identity.signature"
+                        is-menu-bar-opened
+                        has-border
+                        class="mt-1"
+                    />
                 </div>
             </bm-col>
         </template>
@@ -342,20 +348,6 @@ function toIdentityDescription(id, identity) {
 
     .change-default {
         cursor: default;
-    }
-
-    .bm-rich-editor {
-        border: 1px solid $secondary !important;
-        div:nth-child(3) {
-            border-top-color: $secondary !important;
-        }
-
-        &.is-active {
-            & div:nth-child(3) {
-                border-top-color: $primary !important;
-            }
-            border-color: $primary !important;
-        }
     }
 }
 </style>

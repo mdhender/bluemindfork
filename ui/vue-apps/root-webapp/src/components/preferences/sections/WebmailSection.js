@@ -118,6 +118,15 @@ export default function (roles, vueI18N, applications) {
                                 }
                             }
                         ]
+                    },
+                    {
+                        title: vueI18N.t("preferences.mail.automatic_reply"),
+                        fields: [
+                            {
+                                component: "PrefAutomaticReply",
+                                options: {}
+                            }
+                        ]
                     }
                 ]
             },

@@ -114,6 +114,8 @@
     "preferences.mail.signature.insert": "Automatically insert the signature",
     "preferences.mail.logout": "On logout",
     "preferences.mail.logout.empty.trash": "Empty Trash",
+    "preferences.mail.automatic_reply": "Automatic reply",
+    "preferences.mail.automatic_reply.activate": "Activate automatic reply",
 
     "preferences.role.missing.warning": "You do not have the rights to modify this preference",
     "preferences.save.error": "Error while saving, check your network connection",
