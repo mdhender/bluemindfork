@@ -102,7 +102,7 @@ public final class IMAPLineDecoder implements ProtocolDecoder {
 
 				int literalSize = Integer.parseInt(number);
 
-				literalBuffer = new FileBackedOutputStream(1024 * 1024, "imapline-decoder");
+				literalBuffer = new FileBackedOutputStream(1024 * 1024, literalSize, "imapline-decoder");
 				expectedInLiteral = literalSize;
 				remainingInLiteral = literalSize;
 

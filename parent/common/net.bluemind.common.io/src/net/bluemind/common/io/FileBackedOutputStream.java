@@ -143,9 +143,23 @@ public final class FileBackedOutputStream extends OutputStream {
 	 * @param filenamePrefix name hint for the optional temporary file
 	 */
 	public FileBackedOutputStream(int fileThreshold, String filenamePrefix) {
+		this(fileThreshold, Integer.MAX_VALUE, filenamePrefix);
+	}
+
+	/**
+	 * Creates a new instance that uses the given file threshold, and does not reset
+	 * the data when the {@link ByteSource} returned by {@link #asByteSource} is
+	 * finalized.
+	 *
+	 * @param fileThreshold  the number of bytes before the stream should switch to
+	 *                       buffering to a file
+	 * @param sizeHint       if size store is known in advance
+	 * @param filenamePrefix name hint for the optional temporary file
+	 */
+	public FileBackedOutputStream(int fileThreshold, int sizeHint, String filenamePrefix) {
 		this.fileThreshold = fileThreshold;
 		this.filenamePrefix = filenamePrefix;
-		this.track = new Throwable("not reset fbos allocation").fillInStackTrace();
+		this.track = sizeHint < fileThreshold ? null : new Throwable("not reset fbos allocation").fillInStackTrace();
 		memory = new MemoryOutput();
 		out = memory;
 
@@ -259,7 +273,9 @@ public final class FileBackedOutputStream extends OutputStream {
 	@Override
 	protected void finalize() throws Throwable {
 		if (file != null) {
-			logger.error(track.getMessage(), track);
+			if (track != null) {
+				logger.error(track.getMessage(), track);
+			}
 			Files.delete(file);
 		}
 		super.finalize();
