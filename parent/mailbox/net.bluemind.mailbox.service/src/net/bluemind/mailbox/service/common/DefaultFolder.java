@@ -18,7 +18,7 @@ public class DefaultFolder {
 
 	public static final Set<DefaultFolder> USER_FOLDERS = ImmutableSet.of(new DefaultFolder("Sent", "Sent"),
 			new DefaultFolder("Trash", "Trash"), new DefaultFolder("Drafts", "Drafts"),
-			new DefaultFolder("Junk", "Junk"), new DefaultFolder("Outbox"));
+			new DefaultFolder("Junk", "Junk"), new DefaultFolder("Outbox"), new DefaultFolder("Templates"));
 
 	public static final Set<String> USER_FOLDERS_NAME = USER_FOLDERS.stream().map(df -> df.name)
 			.collect(ImmutableSet.toImmutableSet());
