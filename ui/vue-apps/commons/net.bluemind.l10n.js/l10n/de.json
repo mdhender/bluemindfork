@@ -73,6 +73,7 @@
     "common.folder.junk": "Junk",
     "common.folder.outbox": "Postausgang",
     "common.folder.sent": "Gesendete Nachrichten",
+    "common.folder.templates": "Vorlagen",
     "common.folder.trash": "Papierkorb",
     "common.application.bootstrap.error": "Fehler beim Starten den Anwendung...",
     "common.application.bootstrap.error.solution": "Bitte versuchen Sie es erneut oder kontaktieren Sie Ihren Administrator.",

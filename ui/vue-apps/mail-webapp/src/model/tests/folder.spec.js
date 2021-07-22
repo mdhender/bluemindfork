@@ -142,6 +142,9 @@ describe("Folder model functions", () => {
         test("Junk in user mailbox is a default folder", () => {
             expect(create(undefined, "Junk", undefined, user).default).toBeTruthy();
         });
+        test("Templates in user mailbox is a default folder", () => {
+            expect(create(undefined, "Templates", undefined, user).default).toBeTruthy();
+        });
         test("Outbox in user mailbox is a default folder", () => {
             expect(create(undefined, "Outbox", undefined, user).default).toBeTruthy();
         });

@@ -4,6 +4,7 @@ export const DEFAULT_FOLDER_NAMES = {
     DRAFTS: "Drafts",
     TRASH: "Trash",
     JUNK: "Junk",
+    TEMPLATES: "Templates",
     OUTBOX: "Outbox"
 };
 

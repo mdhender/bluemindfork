@@ -103,6 +103,10 @@ describe("Folder adaptors", () => {
         test("Trash in user mailbox is a default folder", () => {
             expect(isDefault(true, "Trash", { type: MailboxType.USER })).toBeTruthy();
         });
+        test("Templates in user mailbox is a default folder", () => {
+            expect(isDefault(true, "Templates", { type: MailboxType.USER })).toBeTruthy();
+        });
+
         test("Junk in user mailbox is a default folder", () => {
             expect(isDefault(true, "Junk", { type: MailboxType.USER })).toBeTruthy();
         });

@@ -58,6 +58,8 @@ export default {
                     return "clock";
                 case DEFAULT_FOLDER_NAMES.SENT:
                     return "paper-plane" + modifier;
+                case DEFAULT_FOLDER_NAMES.TEMPLATES:
+                    return "documents";
                 default:
                     return "folder" + modifier;
             }
