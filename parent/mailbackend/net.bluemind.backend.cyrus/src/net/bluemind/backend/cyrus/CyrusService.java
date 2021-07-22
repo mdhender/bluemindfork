@@ -192,6 +192,64 @@ public class CyrusService {
 		}
 	}
 
+	private String intBoxName(Mailbox value, String domainUid) {
+		return domainUid + "!" + value.type.nsPrefix + value.name;
+	}
+
+	private String cyradmBoxName(Mailbox value, String domainUid) {
+		return value.type.cyrAdmPrefix + value.name + "@" + domainUid;
+	}
+
+	public boolean createRoot(String domainUid, ItemValue<Mailbox> mbox) throws ServerFault {
+		CyrusPartition part = CyrusPartition.forServerAndDomain(backend, domainUid);
+		String boxName = cyradmBoxName(mbox.value, domainUid);
+		String intName = intBoxName(mbox.value, domainUid);
+
+		try (StoreClient sc = new StoreClient(backendAddress, 1143, "admin0", Token.admin0());
+				SyncClientOIO sync = new SyncClientOIO(backendAddress, 2502)) {
+			if (!sc.login()) {
+				throw new ServerFault(
+						"createMbox failed for '" + boxName + "'. Login as admin0 failed, server " + backendAddress);
+			}
+			sync.authenticate("admin0", Token.admin0());
+
+			GetMailboxResponse exist = sync.getMailbox(intName);
+			if (!exist.spurious.isEmpty()) {
+				logger.warn("Mailbox is known by cyrus {}", exist.spurious);
+				return false;
+			}
+
+			ReplMailbox.Builder builder = ReplMailbox.builder();
+
+			builder.mailboxName(mbox.value.name)//
+					.domainUid(domainUid)//
+					.root()//
+					.mailboxUid(mbox.uid)//
+					.partition(part)//
+					.acl("admin0", Acl.ALL);
+
+			if (mbox.value.type.sharedNs) {
+				builder.sharedNs().folderName(mbox.value.name);
+				builder.acl("anyone", Acl.POST);
+				builder.uniqueId(CyrusUniqueIds.forMailbox(domainUid, mbox, ""));
+			} else {
+				builder.folderName("INBOX");
+				builder.acl(mbox.uid + "@" + domainUid, Acl.ALL);
+				builder.uniqueId(CyrusUniqueIds.forMailbox(domainUid, mbox, "INBOX"));
+			}
+
+			String result = sync.applyMailbox(builder.build());
+			logger.info("Create {} => {}", intName, result);
+			System.err.println(intName + " => " + result);
+
+			MailboxOps.addSharedSeenAnnotation(sc, boxName);
+
+			return result.equals("OK success");
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
+	}
+
 	/**
 	 * Delete Cyrus mailbox and subfolders<br>
 	 * 
