@@ -2,7 +2,7 @@
     <div class="mail-toolbar-selected-conversations">
         <template v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE">
             <bm-button
-                v-show="showMarkAsRead"
+                v-show="showMarkAsRead && !isTemplate"
                 variant="inline-light"
                 class="unread btn-lg-simple-dark"
                 :title="markAsReadAriaText()"
@@ -13,7 +13,7 @@
                 <span class="d-none d-lg-block">{{ markAsReadText }}</span>
             </bm-button>
             <bm-button
-                v-show="showMarkAsUnread"
+                v-show="showMarkAsUnread && !isTemplate"
                 variant="inline-light"
                 class="read btn-lg-simple-dark"
                 :title="markAsUnreadAriaText()"
@@ -68,7 +68,7 @@ import { BmButton, BmIcon } from "@bluemind/styleguide";
 import MailToolbarSelectedConversationsMoveAction from "./MailToolbarSelectedConversationsMoveAction";
 import MailToolbarSelectedConversationsOtherActions from "./MailToolbarSelectedConversationsOtherActions";
 import { ActionTextMixin, FlagMixin, RemoveMixin } from "~/mixins";
-import { ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE } from "~/getters";
+import { ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE, CURRENT_CONVERSATION_METADATA, MY_TEMPLATES } from "~/getters";
 
 export default {
     name: "MailToolbarSelectedConversations",
@@ -80,7 +80,10 @@ export default {
     },
     mixins: [ActionTextMixin, FlagMixin, RemoveMixin],
     computed: {
-        ...mapGetters("mail", { ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE })
+        ...mapGetters("mail", { ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE, CURRENT_CONVERSATION_METADATA, MY_TEMPLATES }),
+        isTemplate() {
+            return this.selectionLength === 1 && this.selected[0]?.folderRef.key === this.MY_TEMPLATES.key;
+        }
     }
 };
 </script>

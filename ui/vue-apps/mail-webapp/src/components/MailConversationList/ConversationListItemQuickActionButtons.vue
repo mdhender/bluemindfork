@@ -12,7 +12,7 @@
                 <bm-icon icon="trash" size="lg" />
             </bm-button>
             <bm-button
-                v-if="showMarkAsRead"
+                v-if="showMarkAsRead && !isTemplate"
                 class="p-1"
                 :aria-label="markAsReadAriaText(1, subject)"
                 :title="markAsReadAriaText(1, subject)"
@@ -22,7 +22,7 @@
                 <bm-icon icon="read" size="lg" />
             </bm-button>
             <bm-button
-                v-else
+                v-else-if="!isTemplate"
                 class="p-1"
                 :aria-label="markAsUnreadAriaText(1, subject)"
                 :title="markAsUnreadAriaText(1, subject)"
@@ -57,8 +57,9 @@
 
 <script>
 import { BmButtonGroup, BmButton, BmIcon } from "@bluemind/styleguide";
-import { mapState } from "vuex";
+import { mapState, mapGetters } from "vuex";
 import { ActionTextMixin, FlagMixin, RemoveMixin } from "~/mixins";
+import { MY_TEMPLATES } from "~getters";
 
 export default {
     name: "ConversationListItemQuickActionButtons",
@@ -76,17 +77,18 @@ export default {
     },
     computed: {
         ...mapState("mail", ["folders"]),
-        folderOfMessage() {
-            return this.folders[this.conversation.folderRef.key];
-        },
-        conversationSize() {
-            return this.conversation.messages.length;
-        },
+        ...mapGetters("mail", { MY_TEMPLATES }),
         selected() {
             return [this.conversation];
         },
         subject() {
             return this.conversation.subject;
+        },
+        folder() {
+            return this.folders[this.message.folderRef.key];
+        },
+        isTemplate() {
+            return this.folder.key === this.MY_TEMPLATES.key;
         }
     }
 };

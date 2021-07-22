@@ -25,6 +25,7 @@ import {
     MY_MAILBOX,
     MY_OUTBOX,
     MY_SENT,
+    MY_TEMPLATES,
     MY_TRASH,
     NEXT_CONVERSATION,
     SELECTION,
@@ -49,7 +50,7 @@ export const mutations = {
     }
 };
 
-const { INBOX, OUTBOX, DRAFTS, SENT, TRASH } = DEFAULT_FOLDER_NAMES;
+const { INBOX, OUTBOX, DRAFTS, SENT, TRASH, TEMPLATES } = DEFAULT_FOLDER_NAMES;
 
 const UNKNOWN = 0;
 const ALL = 2;
@@ -80,6 +81,7 @@ export const getters = {
     [MY_OUTBOX]: myGetterFor(OUTBOX),
     [MY_DRAFTS]: myGetterFor(DRAFTS),
     [MY_SENT]: myGetterFor(SENT),
+    [MY_TEMPLATES]: myGetterFor(TEMPLATES),
     [MY_TRASH]: myGetterFor(TRASH),
     [ACTIVE_MESSAGE]: ({ conversations: { messages }, activeMessage }) => messages[activeMessage.key],
     [IS_ACTIVE_MESSAGE]: ({ activeMessage, conversations: { conversationByKey } }) => ({ key }) =>

@@ -21,6 +21,7 @@ import {
     MY_MAILBOX_ROOT_FOLDERS,
     MY_OUTBOX,
     MY_SENT,
+    MY_TEMPLATES,
     MY_TRASH,
     NEXT_CONVERSATION,
     SELECTION
@@ -159,7 +160,8 @@ describe("Mail store", () => {
                 "3": { key: "3", imapName: DEFAULT_FOLDER_NAMES.OUTBOX, mailboxRef: { key: "myMailbox" } },
                 "4": { key: "4", imapName: DEFAULT_FOLDER_NAMES.SENT, mailboxRef: { key: "myMailbox" } },
                 "5": { key: "5", imapName: DEFAULT_FOLDER_NAMES.TRASH, mailboxRef: { key: "myMailbox" } },
-                "6": { key: "6", imapName: DEFAULT_FOLDER_NAMES.DRAFTS, mailboxRef: { key: "myMailbox" } }
+                "6": { key: "6", imapName: DEFAULT_FOLDER_NAMES.DRAFTS, mailboxRef: { key: "myMailbox" } },
+                "7": { key: "7", imapName: DEFAULT_FOLDER_NAMES.TEMPLATES, mailboxRef: { key: "myMailbox" } }
             };
             store.state.mailboxes = {
                 myMailbox: { key: "myMailbox", owner: "me", loading: LoadingStatus.LOADED }
@@ -173,6 +175,7 @@ describe("Mail store", () => {
             expect(store.getters[MY_DRAFTS].key).toEqual("6");
             expect(store.getters[MY_SENT].key).toEqual("4");
             expect(store.getters[MY_TRASH].key).toEqual("5");
+            expect(store.getters[MY_TEMPLATES].key).toEqual("7");
         });
         test("MY_MAILBOX_ROOT_FOLDERS", () => {
             store.state.folders = {

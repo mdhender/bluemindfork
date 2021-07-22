@@ -20,6 +20,7 @@ export const MY_MAILBOX_IS_READY = "MY_MAILBOX_IS_READY";
 export const MY_MAILBOX_ROOT_FOLDERS = "MY_MAILBOX_ROOT_FOLDERS";
 export const MY_OUTBOX = "MY_OUTBOX";
 export const MY_SENT = "MY_SENT";
+export const MY_TEMPLATES = "MY_TEMPLATES";
 export const MY_TRASH = "MY_TRASH";
 export const NEXT_CONVERSATION = "NEXT_CONVERSATION";
 export const SELECTION = "SELECTION";
