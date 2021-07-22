@@ -17,6 +17,8 @@
   */
 package net.bluemind.backend.cyrus.replication.server.metrics;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +47,20 @@ public class MetricVerticle extends AbstractVerticle {
 	}
 
 	public void start() {
+		AtomicInteger loop = new AtomicInteger();
 		vertx.setPeriodic(10000, tid -> {
 			long active = ReplicationSession.activeSessions.get();
 			if (active > 0) {
-				logger.info("{} active replication connection(s)", active);
+				int cnt = loop.incrementAndGet();
+				if (cnt > 5) {
+					logger.debug("{} active replication connection(s)", active);
+				} else {
+					logger.info("{} active replication connection(s)", active);
+				}
 			} else {
+				loop.set(0);
 				logger.warn("NO active replication connection, consider restarting cyrus ?");
+
 			}
 		});
 	}

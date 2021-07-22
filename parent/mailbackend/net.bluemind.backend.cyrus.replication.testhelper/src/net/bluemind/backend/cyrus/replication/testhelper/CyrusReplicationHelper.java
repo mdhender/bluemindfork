@@ -57,7 +57,16 @@ public class CyrusReplicationHelper {
 
 	private static final Executor observersPool = Executors.newCachedThreadPool();
 
+	/**
+	 * Defaults to <code>junit</code> channel
+	 * 
+	 * @param cyrusIp
+	 */
 	public CyrusReplicationHelper(String cyrusIp) {
+		this(cyrusIp, "junit");
+	}
+
+	public CyrusReplicationHelper(String cyrusIp, String channel) {
 		this.cyrusIp = cyrusIp;
 		start = new CompletableFuture<>();
 		stop = new CompletableFuture<>();
@@ -81,14 +90,14 @@ public class CyrusReplicationHelper {
 
 			@Override
 			public void log(String s) {
-				logger.info("REPLICATION: " + s);
+				logger.info("REPLICATION: {}", s);
 			}
 		};
 
 		syncClient = ISyncClientMgmt.builder()//
 				.vertx(VertxPlatform.getVertx())//
 				.cyrusBackendAddress(cyrusIp)//
-				.replicationChannel("junit")//
+				.replicationChannel(channel)//
 				.observer(obs)//
 				.observersExecutor(observersPool)//
 				.build();
@@ -108,6 +117,7 @@ public class CyrusReplicationHelper {
 		// https://www.cyrusimap.org/dev/imap/reference/manpages/configs/imapd.conf.html
 		StringBuilder replConf = new StringBuilder("\n#SYNCCONF\n");
 		replConf.append("sync_log: 1").append('\n');
+		replConf.append("sync_log_chain: 1").append('\n');
 		replConf.append("sync_log_channels: junit").append('\n');
 		replConf.append("junit_sync_authname: admin0").append('\n');
 		replConf.append("junit_sync_password: admin").append('\n');
@@ -138,7 +148,7 @@ public class CyrusReplicationHelper {
 		return server;
 	}
 
-	private static String getMyIpAddress() {
+	public static String getMyIpAddress() {
 		String ret = "127.0.0.1";
 		try {
 			Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
@@ -160,6 +170,7 @@ public class CyrusReplicationHelper {
 				}
 			}
 		} catch (SocketException e) {
+			// yeah yeah
 		}
 		return ret;
 	}

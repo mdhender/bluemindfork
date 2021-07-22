@@ -27,10 +27,14 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.backend.cyrus.internal.MailboxOps;
+import net.bluemind.backend.cyrus.internal.CyrusUniqueIds;
 import net.bluemind.backend.cyrus.internal.files.Annotations;
 import net.bluemind.backend.cyrus.internal.files.CyrusPartitions;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.backend.cyrus.partitions.InternalName;
+import net.bluemind.backend.cyrus.replication.client.GetMailboxResponse;
+import net.bluemind.backend.cyrus.replication.client.ReplMailbox;
+import net.bluemind.backend.cyrus.replication.client.SyncClientOIO;
 import net.bluemind.config.InstallationId;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
@@ -42,6 +46,7 @@ import net.bluemind.imap.CreateMailboxResult;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.QuotaInfo;
 import net.bluemind.imap.StoreClient;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.network.utils.NetworkHelper;
 import net.bluemind.node.api.ExitList;
 import net.bluemind.node.api.INodeClient;
@@ -55,9 +60,10 @@ public class CyrusService {
 
 	private static final Logger logger = LoggerFactory.getLogger(CyrusService.class);
 
-	private final String backendAddress;
+	protected final String backendAddress;
+	protected final ItemValue<Server> backend;
+
 	private final INodeClient nodeClient;
-	private final ItemValue<Server> backend;
 
 	public CyrusService(String backendAddress) throws ServerFault {
 		this(serverByAddress(backendAddress));
@@ -89,7 +95,7 @@ public class CyrusService {
 
 		ExitList cyrusStopOp = NCUtils.exec(nodeClient, "service bm-cyrus-imapd stop", 100, TimeUnit.SECONDS);
 		if (cyrusStopOp.getExitCode() != 0) {
-			logger.warn("Cyrus stop failed: " + cyrusStopOp.stream().collect(Collectors.joining("; ")));
+			logger.warn("Cyrus stop failed: {}", cyrusStopOp.stream().collect(Collectors.joining("; ")));
 		}
 
 		ExitList cyrusStartOp = NCUtils.exec(nodeClient, "service bm-cyrus-imapd start", 90, TimeUnit.SECONDS);
@@ -140,33 +146,49 @@ public class CyrusService {
 		anno.write();
 	}
 
-	public void createBox(String boxName, String domainUid) throws ServerFault {
-		CyrusPartition realPartition = CyrusPartition.forServerAndDomain(backend, domainUid);
-		try (StoreClient sc = new StoreClient(backendAddress, 1143, "admin0", Token.admin0())) {
-			if (!sc.login()) {
-				throw new ServerFault(
-						"createMbox failed for '" + boxName + "'. Login as admin0 failed, server " + backendAddress);
-			}
-			CreateMailboxResult result = sc.createMailbox(boxName, realPartition.name);
-			logger.info("MAILBOX create: {} for '{}' on partition '{}'", result.isOk() ? "OK" : result.getMessage(),
-					boxName, realPartition.name);
+	public boolean createRoot(String domainUid, ItemValue<Mailbox> mbox) throws ServerFault {
+		CyrusPartition part = CyrusPartition.forServerAndDomain(backend, domainUid);
+		String intName = InternalName.forMailbox(domainUid, mbox.value);
 
-			if (!result.isOk()) {
-				if (!result.getMessage().contains("NO Mailbox already exists")) {
-					logger.error(
-							"createMailbox failed for mbox '" + boxName + "', server said: " + result.getMessage());
-					throw new ServerFault(
-							"createMbox failed for '" + boxName + "'. server msg: " + result.getMessage());
-				} else {
-					logger.info("mbox " + boxName + " already exists, that's fine.");
-				}
+		try (SyncClientOIO sync = new SyncClientOIO(backendAddress, 2502)) {
+			sync.authenticate("admin0", Token.admin0());
+
+			GetMailboxResponse exist = sync.getMailbox(intName);
+			if (!exist.spurious.isEmpty()) {
+				logger.warn("Mailbox is known by cyrus {}", exist.spurious);
+				return false;
 			}
 
-			MailboxOps.addSharedSeenAnnotation(sc, boxName);
-		} catch (IMAPException e) {
-			logger.error(e.getMessage(), e);
-			throw new ServerFault(
-					"error during mailbox [" + boxName + ":" + realPartition.name + "] creation " + e.getMessage());
+			ReplMailbox.Builder builder = ReplMailbox.builder();
+
+			builder.mailboxName(mbox.value.name)//
+					.domainUid(domainUid)//
+					.root()//
+					.mailboxUid(mbox.uid)//
+					.partition(part)//
+					.acl("admin0", Acl.ALL);
+
+			if (mbox.value.type.sharedNs) {
+				builder.sharedNs().folderName(mbox.value.name);
+				builder.acl("anyone", Acl.POST);
+				builder.uniqueId(CyrusUniqueIds.forMailbox(domainUid, mbox, ""));
+			} else {
+				builder.folderName("INBOX");
+				builder.acl(mbox.uid + "@" + domainUid, Acl.ALL);
+				builder.uniqueId(CyrusUniqueIds.forMailbox(domainUid, mbox, "INBOX"));
+			}
+
+			String result = sync.applyMailbox(builder.build());
+			if (result.equals("OK success")) {
+				logger.info("Create {} => {}", intName, result);
+				return true;
+			} else {
+				throw new ServerFault("Failed to create " + intName + " => " + result);
+			}
+		} catch (ServerFault sf) {
+			throw sf;
+		} catch (Exception e) {
+			throw new ServerFault(e);
 		}
 	}
 
@@ -195,14 +217,12 @@ public class CyrusService {
 					logger.warn("deleteBox failed: mailbox {} does not exist", boxName);
 					return;
 				}
-				logger.error("deleteMailbox failed for mbox '" + boxName + "', server said: " + result.getMessage());
+				logger.error("deleteMailbox failed for mbox '{}', server said: {}", boxName, result.getMessage());
 				throw new ServerFault("deleteMailbox failed for '" + boxName + "'. server msg: " + result.getMessage());
 			}
 
 		} catch (IMAPException e) {
-			logger.error(e.getMessage(), e);
-			throw new ServerFault(
-					"error during mailbox [" + boxName + ":" + partition + "] deletion " + e.getMessage());
+			throw new ServerFault("error during mailbox [" + boxName + ":" + partition + "] deletion", e);
 		}
 	}
 
@@ -218,8 +238,7 @@ public class CyrusService {
 				throw new ServerFault("rename " + pboxName + " failed");
 			}
 		} catch (IMAPException e) {
-			logger.error(e.getMessage(), e);
-			throw new ServerFault("error during settings acl on [" + boxName + "]: " + e.getMessage());
+			throw new ServerFault("error during settings acl on [" + boxName + "]", e);
 		}
 	}
 
@@ -235,8 +254,7 @@ public class CyrusService {
 				throw new ServerFault("error during transfert mailbox " + boxName + " to " + dest.value.address());
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new ServerFault("error during settings acl on [" + boxName + "]: " + e.getMessage());
+			throw new ServerFault("error during settings acl on [" + boxName + "]", e);
 		}
 	}
 
@@ -311,8 +329,7 @@ public class CyrusService {
 		} catch (ServerFault sf) {
 			throw sf;
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new ServerFault("error during boxExist on [" + mailbox + "]: " + e.getMessage());
+			throw new ServerFault("error during boxExist on [" + mailbox + "]", e);
 		}
 	}
 

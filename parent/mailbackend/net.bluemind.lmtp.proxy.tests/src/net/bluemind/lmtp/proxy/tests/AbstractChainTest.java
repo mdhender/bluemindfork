@@ -127,27 +127,17 @@ public abstract class AbstractChainTest {
 
 	protected void withConnection(Function<VertxLmtpClient, CompletableFuture<?>> withClient)
 			throws UnknownHostException, IOException, InterruptedException, ExecutionException, TimeoutException {
-		CompletableFuture<Void> ret = new CompletableFuture<>();
-		lmtpClient().thenAccept(client -> {
-			try {
-				client.connect().thenCompose(banner -> {
-					return withClient.apply(client);
-				}).thenCompose(v -> {
-					System.out.println("Closing after client ops: " + v);
-					return client.close();
-				}).whenComplete((v, ex) -> {
-					if (ex != null) {
-						ret.completeExceptionally(ex);
-					} else {
-						System.out.println("Client close.");
-						ret.complete(null);
-					}
-				});
-			} catch (Exception e) {
-				ret.completeExceptionally(e);
-			}
-		});
-		ret.get(30, TimeUnit.SECONDS);
+		lmtpClient().thenCompose(client -> {
+			return client.connect().thenCompose(banner -> {
+				return withClient.apply(client);
+			}).thenCompose(v -> {
+				System.out.println("Closing after client ops: " + v);
+				return client.close();
+			}).thenApply(v -> {
+				System.out.println("Client close.");
+				return null;
+			});
+		}).get(30, TimeUnit.SECONDS);
 	}
 
 	@Test

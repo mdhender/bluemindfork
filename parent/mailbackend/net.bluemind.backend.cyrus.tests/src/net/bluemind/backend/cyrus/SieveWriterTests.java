@@ -99,7 +99,7 @@ public class SieveWriterTests {
 	private byte[] mail;
 
 	private Server imapServer;
-	private CyrusService service;
+	private CyrusServiceForTests service;
 
 	@Before
 	public void setup() throws Exception {
@@ -123,7 +123,7 @@ public class SieveWriterTests {
 		imapServer.tags = Lists.newArrayList("mail/imap");
 
 		PopulateHelper.initGlobalVirt(imapServer);
-		service = new CyrusService(imapServerAddress);
+		service = new CyrusServiceForTests(imapServerAddress);
 
 		mail = Files.toByteArray(new File("data/test.eml"));
 		mbox = new ItemValue<>();

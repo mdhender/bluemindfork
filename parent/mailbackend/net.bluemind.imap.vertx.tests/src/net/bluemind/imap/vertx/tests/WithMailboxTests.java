@@ -31,12 +31,16 @@ import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.net.NetClient;
 import net.bluemind.backend.cyrus.CyrusService;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.imap.vertx.VXStoreClient;
 import net.bluemind.imap.vertx.connection.EventBusConnectionSupport;
 import net.bluemind.imap.vertx.connection.NetClientConnectionSupport;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.pool.impl.docker.DockerContainer;
 import net.bluemind.server.api.Server;
@@ -75,8 +79,13 @@ public abstract class WithMailboxTests {
 		cyrus.reload();
 		this.localPart = "u" + System.currentTimeMillis();
 		this.mailbox = "user/" + localPart + "@" + domain;
-		cyrus.createBox(mailbox, domain);
-
+		Mailbox mb = new Mailbox();
+		mb.routing = Routing.internal;
+		mb.type = Type.user;
+		mb.name = localPart;
+		mb.dataLocation = cyrus.server().uid;
+		ItemValue<Mailbox> asItem = ItemValue.create(this.localPart, mb);
+		cyrus.createRoot(domain, asItem);
 	}
 
 	@After

@@ -52,11 +52,13 @@ public class CyrusReplication extends AbstractConfFile {
 	@Override
 	public void write() throws ServerFault {
 		Template cyrusConf = openTemplate("backend.replication.conf");
-		Map<String, Object> data = new HashMap<String, Object>();
+		Map<String, Object> data = new HashMap<>();
 		Optional<ItemValue<Server>> coreServer = service.allComplete().stream()
 				.filter(srv -> srv.value.tags.contains("bm/core")).findFirst();
 		data.put("adminToken", Token.admin0());
-		data.put("coreAddress", coreServer.isPresent() ? coreServer.get().value.address() : "127.0.0.1");
+		String coreAddr = System.getProperty("sync.core.address",
+coreServer.map(server -> server.value.address()).orElse("127.0.0.1"));
+		data.put("coreAddress", coreAddr);
 		byte[] rendered = render(cyrusConf, data);
 		if (node != null) {
 			node.writeFile("/etc/cyrus-replication", new ByteArrayInputStream(rendered));

@@ -17,6 +17,7 @@
   */
 package net.bluemind.lmtp.testhelper.client;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Queue;
@@ -111,7 +112,7 @@ public class LmtpClientSession {
 		@SuppressWarnings("unchecked")
 		CompletableFuture<Response>[] listeners = new CompletableFuture[validatedRecipients];
 		for (int i = 0; i < validatedRecipients; i++) {
-			listeners[i] = new CompletableFuture<Response>();
+			listeners[i] = new CompletableFuture<>();
 			responseListener.add(listeners[i]);
 		}
 		this.responseBuilder = Response.builder();
@@ -120,20 +121,20 @@ public class LmtpClientSession {
 		writeSupport.writeRaw(raw).thenAccept(v -> {
 			logger.info("C: {}bytes", bufLen);
 		});
-		return CompletableFuture.allOf(listeners).thenCompose(v -> {
+		return CompletableFuture.allOf(listeners).thenApply(v -> {
 			logger.info("Got all {} resp(s)", validatedRecipients);
 			Response[] allResps = new Response[listeners.length];
 			for (int i = 0; i < allResps.length; i++) {
 				allResps[i] = listeners[i].getNow(null);
 			}
-			return CompletableFuture.completedFuture(allResps);
+			return allResps;
 		});
 	}
 
 	private void processRespPart(Buffer buf) {
 		String respPart = buf.toString();
 		Optional<String> isLast = isLast(respPart);
-		logger.info("<= '{}' (last: {}, state: {})", respPart, isLast, getState());
+		logger.info("<= '{}' (last: {}, state: {})", respPart, isLast.isPresent(), getState());
 		if (isLast.isPresent()) {
 			Response built = responseBuilder.build(isLast.get());
 			this.responseBuilder = Response.builder();
@@ -180,12 +181,17 @@ public class LmtpClientSession {
 		sock.closeHandler(v -> {
 			logger.info("Client socket {} closed.", sock.writeHandlerID());
 			closeFuture.complete(null);
+			while (!responseListener.isEmpty()) {
+				responseListener.poll().completeExceptionally(new IOException("Socket closed before response"));
+			}
 		});
 		return bannerFuture;
 	}
 
 	public CompletableFuture<Void> stop() {
-		sock.close();
+		if (!closeFuture.isDone()) {
+			sock.close();
+		}
 		return closeFuture;
 	}
 

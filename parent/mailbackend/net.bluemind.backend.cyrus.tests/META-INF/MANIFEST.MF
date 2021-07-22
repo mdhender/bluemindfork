@@ -40,7 +40,8 @@ Require-Bundle: org.junit,
  net.bluemind.core.task.service;bundle-version="4.1.0",
  net.bluemind.locator,
  net.bluemind.vertx.testhelper,
- net.bluemind.system.state
+ net.bluemind.system.state,
+ slf4j.api
 Bundle-ClassPath: .
 Automatic-Module-Name: net.bluemind.backend.cyrus.tests
 

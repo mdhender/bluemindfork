@@ -62,6 +62,7 @@ public class CyrusLmtpTests extends AbstractChainTest {
 	private ItemValue<Server> backend;
 
 	@Before
+	@Override
 	public void before() throws Exception {
 		super.before();
 		// setup cyrus according to the mailbox model
@@ -87,23 +88,16 @@ public class CyrusLmtpTests extends AbstractChainTest {
 		PopulateHelper.initGlobalVirt(esServer, imapServer);
 		System.err.println("Deploying...");
 
+		CyrusService service = new CyrusService(cyrusIp);
+		service.reset();
+
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
 		for (String dom : mdl.domains) {
 			PopulateHelper.addDomain(dom, Routing.none);
 		}
 
-		final CompletableFuture<Void> spawn = new CompletableFuture<Void>();
-		VertxPlatform.spawnVerticles(ar -> {
-			System.out.println("Spawned.");
-			if (ar.succeeded()) {
-				spawn.complete(ar.result());
-			} else {
-				spawn.completeExceptionally(ar.cause());
-			}
-		});
-		spawn.join();
+		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
 
-		CyrusService service = new CyrusService(cyrusIp);
 		this.backend = service.server();
 		assertNotNull(backend);
 

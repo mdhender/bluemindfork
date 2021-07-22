@@ -28,15 +28,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
@@ -52,6 +50,9 @@ import net.bluemind.imap.ListInfo;
 import net.bluemind.imap.ListResult;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
@@ -59,7 +60,7 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class CyrusServiceTests {
 
-	private CyrusService service;
+	private CyrusServiceForTests service;
 	private String imapServerAddress;
 	private ItemValue<Server> destServer;
 	private CyrusService destService;
@@ -71,14 +72,7 @@ public class CyrusServiceTests {
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(1, TimeUnit.MINUTES);
 
 		imapServerAddress = new BmConfIni().get("imap-role");
 		assertNotNull(imapServerAddress);
@@ -93,9 +87,9 @@ public class CyrusServiceTests {
 		imapServer2.tags = Lists.newArrayList("mail/imap");
 
 		PopulateHelper.initGlobalVirt(imapServer, imapServer2);
-		service = new CyrusService(imapServerAddress);
+		service = new CyrusServiceForTests(imapServerAddress);
 
-		destService = new CyrusService(imap2);
+		destService = new CyrusServiceForTests(imap2);
 		destServer = destService.server();
 	}
 
@@ -148,6 +142,19 @@ public class CyrusServiceTests {
 
 		try {
 			service.createBox("test" + System.nanoTime(), partition);
+		} catch (ServerFault e) {
+			fail(e.getMessage());
+		}
+
+		try {
+			Mailbox mb = new Mailbox();
+			mb.type = Type.user;
+			mb.routing = Routing.internal;
+			mb.dataLocation = service.server().uid;
+			mb.name = "john.wick." + System.nanoTime();
+			ItemValue<Mailbox> asItem = ItemValue.create(mb.name + "-uid", mb);
+			boolean created = service.createRoot(partition, asItem);
+			assertTrue(created);
 		} catch (ServerFault e) {
 			fail(e.getMessage());
 		}

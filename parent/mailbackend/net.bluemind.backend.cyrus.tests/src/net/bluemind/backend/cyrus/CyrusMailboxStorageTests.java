@@ -139,6 +139,22 @@ public class CyrusMailboxStorageTests {
 	}
 
 	@Test
+	public void testRecreatedUserWithSameUidIsAppendable() throws Exception {
+		Mailbox mb = defaultMailbox(Mailbox.Type.user);
+		ItemValue<Mailbox> item = item("mbox-uid-" + System.currentTimeMillis(), mb);
+
+		storage().create(context, domainUid, item);
+		assertAppendMail("user/" + mb.name + "@" + domainUid);
+
+		System.err.println("Deleting....");
+		storage().delete(context, domainUid, item);
+
+		storage().create(context, domainUid, item);
+		assertAppendMail("user/" + mb.name + "@" + domainUid);
+
+	}
+
+	@Test
 	public void testCreate_user_doubleCreate() throws Exception {
 		// if mbox already exists, do nothing
 		Mailbox mb = defaultMailbox(Mailbox.Type.user);

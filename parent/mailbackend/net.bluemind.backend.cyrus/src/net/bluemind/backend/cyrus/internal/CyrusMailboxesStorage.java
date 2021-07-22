@@ -19,26 +19,28 @@
 package net.bluemind.backend.cyrus.internal;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
-import net.bluemind.backend.cyrus.CyrusAclService;
 import net.bluemind.backend.cyrus.CyrusAdmins;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.MigrationPhase;
@@ -50,6 +52,11 @@ import net.bluemind.backend.cyrus.internal.files.CyrusProxyPassword;
 import net.bluemind.backend.cyrus.internal.files.CyrusReplication;
 import net.bluemind.backend.cyrus.partitions.CyrusFileSystemPathHelper;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.backend.cyrus.partitions.InternalName;
+import net.bluemind.backend.cyrus.replication.client.GetMailboxResponse;
+import net.bluemind.backend.cyrus.replication.client.ReplMailbox;
+import net.bluemind.backend.cyrus.replication.client.SyncClientOIO;
+import net.bluemind.backend.cyrus.replication.client.UserMailboxSub;
 import net.bluemind.config.InstallationId;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
@@ -123,38 +130,27 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		ItemValue<Server> srvItem = getServer(context, mbox.value.dataLocation);
 		CyrusService cyrus = new CyrusService(srvItem.value.address());
 		String boxName = boxname(mbox.value, domainUid);
-
+		Stopwatch foldersWatch = Stopwatch.createStarted();
 		switch (mbox.value.type) {
-		case user: {
+		case user:
+			cyrus.createRoot(domainUid, mbox);
 
-			cyrus.createBox(boxName, domainUid);
 			boxCreated(context, domainUid, mbox);
 
-			Map<String, Acl> acl = new HashMap<>();
-			acl.put("admin0", Acl.ALL);
-			acl.put(mbox.uid + "@" + domainUid, Acl.ALL);
-			CyrusAclService.sync(srvItem.value.address()).setAcl(boxName, acl);
-
-			List<String> createdFolders = MailboxOps.createUserFolders(domainUid, srvItem.value, mbox.value.name,
-					DefaultFolder.USER_FOLDERS);
+			List<String> createdFolders = createUserFolders(domainUid, srvItem, mbox, DefaultFolder.USER_FOLDERS);
 			foldersCreated(context, domainUid, mbox, createdFolders);
-		}
+
 			break;
 		case group:
 		case resource:
-		case mailshare: {
-			cyrus.createBox(boxName, domainUid);
+		case mailshare:
+			cyrus.createRoot(domainUid, mbox);
+
 			boxCreated(context, domainUid, mbox);
 
-			Map<String, Acl> acl = new HashMap<>();
-			acl.put("admin0", Acl.ALL);
-			acl.put("anyone", Acl.POST);
-			CyrusAclService.sync(srvItem.value.address()).setAcl(boxName, acl);
-
-			List<String> createdFolders = MailboxOps.createMailshareFolders(domainUid, srvItem.value, mbox.value.name,
+			List<String> createdSharedFolders = createMailshareFolders(domainUid, srvItem, mbox,
 					DefaultFolder.MAILSHARE_FOLDERS);
-			foldersCreated(context, domainUid, mbox, createdFolders);
-		}
+			foldersCreated(context, domainUid, mbox, createdSharedFolders);
 			break;
 		default:
 			throw new ServerFault("not handled mailbox type: " + mbox.value.type);
@@ -168,6 +164,106 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		if (mbox.value.quota != null) {
 			cyrus.setQuota(boxName, mbox.value.quota);
 		}
+		logger.info("Mailbox {} created in {}ms.", boxName, foldersWatch.elapsed(TimeUnit.MILLISECONDS));
+
+	}
+
+	/**
+	 * @param container
+	 * @param srv
+	 * @param boxContainer
+	 * @return
+	 */
+	public List<String> createUserFolders(String domainUid, ItemValue<Server> srv, ItemValue<Mailbox> mbox,
+			Set<DefaultFolder> folders) {
+		List<String> created = new LinkedList<>();
+		try (SyncClientOIO sync = new SyncClientOIO(srv.value.address(), 2502)) {
+			sync.authenticate("admin0", Token.admin0());
+			CyrusPartition partition = CyrusPartition.forServerAndDomain(srv, domainUid);
+			for (DefaultFolder defaultFolder : folders) {
+				if (createWithSyncClient(sync, partition, domainUid, mbox, defaultFolder)) {
+					created.add(defaultFolder.name);
+				} else {
+					logger.error("Fail to create {} for login {} ", defaultFolder.name, mbox.value.name);
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
+		logger.info("user imap folders of {}@{} initialized : {}", mbox.value.name, domainUid, created);
+		return created;
+	}
+
+	/**
+	 * @param container
+	 * @param srv
+	 * @param boxContainer
+	 * @return
+	 */
+	public List<String> createMailshareFolders(String domainUid, ItemValue<Server> srv, ItemValue<Mailbox> mbox,
+			Set<DefaultFolder> folders) {
+		List<String> created = new LinkedList<>();
+		String mailshareName = boxname(mbox.value, domainUid);
+		CyrusPartition partition = CyrusPartition.forServerAndDomain(srv, domainUid);
+		try (SyncClientOIO sync = new SyncClientOIO(srv.value.address(), 2502)) {
+			sync.authenticate("admin0", "admin");
+			for (DefaultFolder f : folders) {
+				if (createWithSyncClient(sync, partition, domainUid, mbox, f)) {
+					created.add(f.name);
+				} else {
+					logger.error("Fail to create folder {} for mailshare {} ", f.name, mailshareName);
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		logger.info("user imap folders of {}@{} initialized : {}", mailshareName, domainUid, created);
+		return created;
+	}
+
+	private boolean createWithSyncClient(SyncClientOIO sc, CyrusPartition part, String domainUid,
+			ItemValue<Mailbox> mbox, DefaultFolder df) throws IOException {
+		String intName = InternalName.forMailbox(domainUid, mbox.value) + "." + df.name;
+		GetMailboxResponse exist = sc.getMailbox(intName);
+		if (!exist.spurious.isEmpty()) {
+			logger.warn("Mailbox is known by cyrus {}", exist.spurious);
+			return false;
+		}
+
+		UUID uniqueId = CyrusUniqueIds.forMailbox(domainUid, mbox, df.name);
+
+		ReplMailbox.Builder builder = ReplMailbox.builder();
+
+		builder.mailboxName(mbox.value.name)//
+				.domainUid(domainUid)//
+				.folderName(df.name)//
+				.specialUse(Optional.ofNullable(df.specialuse).map(s -> "\\" + df.specialuse).orElse(null))
+				.mailboxUid(mbox.uid)//
+				.partition(part)//
+				.uniqueId(uniqueId)//
+				.acl("admin0", Acl.ALL).uniqueId(CyrusUniqueIds.forMailbox(domainUid, mbox, df.name));
+
+		if (mbox.value.type.sharedNs) {
+			builder.sharedNs().folderName(mbox.value.name + "/" + df.name);
+			builder.acl("anyone", Acl.POST);
+		} else {
+			builder.acl(mbox.uid + "@" + domainUid, Acl.ALL);
+		}
+
+		ReplMailbox toBuild = builder.build();
+		String result = sc.applyMailbox(toBuild);
+		boolean ret = result.equals("OK success");
+		if (ret) {
+			logger.info("Create {} => {}", intName, result);
+			if (!mbox.value.type.sharedNs) {
+				String subResult = sc.applySub(new UserMailboxSub(domainUid, mbox.value.name, df.name));
+				logger.info("Sub to {} => {}", intName, subResult);
+			}
+		} else {
+			logger.warn("Create {} => {}", intName, result);
+		}
+		return ret;
 	}
 
 	public void update(BmContext context, String domainUid, ItemValue<Mailbox> previousValue, ItemValue<Mailbox> value)
@@ -874,7 +970,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 
 		if (repair) {
 			if (!status.missing.isEmpty()) {
-				List<String> created = createMissingFolders(domainUid, server.value, mailbox, status.missing);
+				List<String> created = createMissingFolders(domainUid, server, mailbox, status.missing);
 
 				status.fixed = status.missing.stream().filter(df -> created.contains(df.name))
 						.collect(Collectors.toSet());
@@ -915,13 +1011,13 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		}
 	}
 
-	private List<String> createMissingFolders(String domainUid, Server server, ItemValue<Mailbox> mailbox,
+	private List<String> createMissingFolders(String domainUid, ItemValue<Server> server, ItemValue<Mailbox> mailbox,
 			Set<DefaultFolder> missing) {
 		if (mailbox.value.type == Type.user) {
-			return MailboxOps.createUserFolders(domainUid, server, mailbox.value.name, missing);
+			return createUserFolders(domainUid, server, mailbox, missing);
 		}
 
-		return MailboxOps.createMailshareFolders(domainUid, server, mailbox.value.name, missing);
+		return createMailshareFolders(domainUid, server, mailbox, missing);
 	}
 
 	@Override
