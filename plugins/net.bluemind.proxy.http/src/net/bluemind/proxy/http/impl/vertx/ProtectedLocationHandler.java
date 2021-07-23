@@ -233,7 +233,7 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 
 		String uri = event.uri();
 		if (fl.isWhitelisted(uri)) {
-			logger.info("Whitelisted URL {}", uri);
+			logger.debug("Whitelisted URL {}", uri);
 			return AuthRequirements.noNeedSession();
 		}
 
