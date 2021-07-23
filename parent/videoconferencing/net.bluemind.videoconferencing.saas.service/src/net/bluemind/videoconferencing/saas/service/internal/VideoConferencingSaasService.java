@@ -20,6 +20,8 @@ package net.bluemind.videoconferencing.saas.service.internal;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -46,13 +48,26 @@ import net.bluemind.videoconferencing.saas.api.BlueMindVisioTokenResponse;
 import net.bluemind.videoconferencing.saas.api.IVideoConferencingSaas;
 
 public class VideoConferencingSaasService implements IVideoConferencingSaas {
-	private static final String BLUEMIND_VISIO_URL = "https://jitsi.dev.bluemind.net/api/token/get";
-
 	private static final Logger logger = LoggerFactory.getLogger(VideoConferencingSaasService.class);
 	private final IServiceProvider serviceProvider;
 
 	private static final String YUM_LICENSE_PATH = "/etc/yum.repos.d/bm.repo";
 	private static final String APT_LICENSE_PATH = "/etc/apt/sources.list.d/bm.list";
+
+	private static final String BLUEMIND_VIDEO_TOKEN_URL = "https://"
+			+ tryReadDomain(Paths.get("/etc/bm", "bluemind.video"), "visio.bluemind.net") + "/api/token/get";
+
+	private static String tryReadDomain(Path p, String defaultValue) {
+		if (p.toFile().exists()) {
+			try {
+				return new String(Files.readAllBytes(p)).trim();
+			} catch (IOException ie) {
+				// sonar: OK
+			}
+		}
+		return defaultValue;
+
+	}
 
 	public VideoConferencingSaasService(BmContext context) {
 		serviceProvider = context.getServiceProvider();
@@ -83,7 +98,7 @@ public class VideoConferencingSaasService implements IVideoConferencingSaas {
 		payload.put("email", user.value.defaultEmailAddress());
 
 		try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
-			CompletableFuture<BlueMindVisioTokenResponse> req = client.preparePost(BLUEMIND_VISIO_URL) //
+			CompletableFuture<BlueMindVideoTokenResponse> req = client.preparePost(BLUEMIND_VIDEO_TOKEN_URL) //
 					.setHeader("Content-Type", "application/json") //
 					.setBody(payload.encode()) //
 					.execute() //

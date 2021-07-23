@@ -37,10 +37,21 @@ import net.bluemind.webmodule.server.handlers.StaticFileHandler;
 public class VisioHandler extends AbstractIndexHandler implements NeedVertx, IWebModuleConsumer {
 
 	private static final Logger logger = LoggerFactory.getLogger(VisioHandler.class);
-	private static final Pattern roomPattern = Pattern
-			.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89ABab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$");
+	private static final Pattern roomPattern = Pattern.compile(
+			"(?:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89ABab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$)|(?:[0-9a-zA-Z-_]{7,14}$)");
 
-	private static final String BLUEMIND_JITSI_SAAS_DOMAIN = "jitsi.dev.bluemind.net";
+	private static final String BLUEMIND_VIDEO_DOMAIN = tryReadDomain(Paths.get("/etc/bm", "bluemind.video"),
+			"visio.bluemind.net");
+
+	private static String tryReadDomain(Path p, String defaultValue) {
+		if (p.toFile().exists()) {
+			try {
+				return new String(Files.readAllBytes(p)).trim();
+			} catch (IOException ie) {
+			}
+		}
+		return defaultValue;
+	}
 
 	private Vertx vertx;
 	private WebModule webModule;
@@ -72,7 +83,7 @@ public class VisioHandler extends AbstractIndexHandler implements NeedVertx, IWe
 		if (sessionId == null || sessionId.isEmpty()) {
 			model.put("BMLang", getAnonymousLang(request));
 		}
-		model.put("BMJitsiSaasDomain", BLUEMIND_JITSI_SAAS_DOMAIN);
+		model.put("BMJitsiSaasDomain", BLUEMIND_VIDEO_DOMAIN);
 	}
 
 	private String getAnonymousLang(HttpServerRequest request) {
