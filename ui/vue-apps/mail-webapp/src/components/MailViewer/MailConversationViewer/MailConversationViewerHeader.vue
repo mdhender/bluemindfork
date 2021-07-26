@@ -7,7 +7,7 @@
             variant="inline-secondary"
             :title="$t('common.expand')"
             @click="
-                $emit('do-show-middle-messages');
+                $emit('do-show-hidden-messages');
                 $emit('expand');
             "
         >

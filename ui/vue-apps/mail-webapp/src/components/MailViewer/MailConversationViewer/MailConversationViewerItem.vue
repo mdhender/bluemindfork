@@ -40,7 +40,7 @@
         <div v-if="nextIsDraft || (isDraft && index !== maxIndex)" class="row bg-light">
             <div class="col spacer" />
         </div>
-        <div v-else-if="(showMiddleMessages || index === maxIndex || maxIndex <= 2)" class="row pl-5">
+        <div v-else-if="(!nextIsHidden || index === maxIndex || maxIndex <= 2)" class="row pl-5">
             <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
             <div class="col pl-3 py-0"><hr class="dashed" /></div>
         </div>

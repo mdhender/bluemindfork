@@ -16,7 +16,7 @@ export default {
             type: Array,
             required: true
         },
-        showMiddleMessages: {
+        nextIsHidden: {
             type: Boolean,
             required: true
         },

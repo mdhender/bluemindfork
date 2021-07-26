@@ -3,18 +3,18 @@
         <mail-conversation-viewer-header
             :conversation="conversationMessages"
             :expanded="expanded"
-            @do-show-middle-messages="showMiddleMessages = true"
+            @do-show-hidden-messages="showHiddenMessages = conversationMessages.map(Boolean)"
             @expand="expandAll()"
             @collapse="collapseAll()"
         />
         <div class="container">
             <div v-for="(message, index) in conversationMessages" :key="message.key">
                 <mail-conversation-viewer-hidden-items
-                    v-if="!containsComposingMessageInTheMiddle && isHidden(index)"
+                    v-if="isFirstOfHiddenGroup(index)"
                     :index="index"
-                    :conversation="conversationMessages"
-                    :count="hiddenItemsCount"
-                    @do-show-middle-messages="showMiddleMessages = true"
+                    :count="hiddenGroupSize(index)"
+                    :conversation-size="conversationMessages.length"
+                    @do-show-hidden-messages="doShowHiddenMessages(index)"
                 />
                 <component
                     :is="
@@ -24,14 +24,14 @@
                                 : 'mail-conversation-viewer-draft'
                             : 'mail-conversation-viewer-message'
                     "
-                    v-else
+                    v-else-if="!hiddenMessages[index]"
                     :class="{ expanded: expandedMessages[index] }"
                     :index="index"
                     :conversation="conversation"
                     :message="message"
                     :message-key="message.key"
                     :expanded-messages="expandedMessages"
-                    :show-middle-messages="showMiddleMessages"
+                    :next-is-hidden="!!hiddenMessages[index + 1]"
                     :is-last-before-draft="isLastBeforeDraft(index)"
                     :next-is-draft="nextIsDraft(index)"
                     :is-reply-or-forward="true"
@@ -57,6 +57,7 @@ import { CONVERSATION_LIST_UNREAD_FILTER_ENABLED, CONVERSATION_MESSAGE_BY_KEY, M
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
 import { MARK_CONVERSATIONS_AS_READ } from "~/actions";
 import { removeSentDuplicates, sortConversationMessages } from "~/model/conversations";
+import { Flag } from "@bluemind/email";
 
 export default {
     name: "MailConversationViewer",
@@ -77,7 +78,7 @@ export default {
     data() {
         return {
             darkened: false,
-            showMiddleMessages: false,
+            showHiddenMessages: [],
             expandedMessages: []
         };
     },
@@ -104,12 +105,6 @@ export default {
                 message => message.composing || this.MY_DRAFTS.key === message.folderRef.key
             );
         },
-        hiddenItemsCount() {
-            return this.conversationMessages.reduce(
-                (total, message, index) => (this.isHidden(index) ? total + 1 : total),
-                0
-            );
-        },
         lastNonDraft() {
             let lastNonDraft;
             for (let i = this.conversationMessages.length - 1; i >= 0 && !lastNonDraft; i--) {
@@ -120,9 +115,10 @@ export default {
         expanded() {
             return this.conversationMessages.every((m, index) => this.expandedMessages[index]);
         },
-        containsComposingMessageInTheMiddle() {
-            return this.conversationMessages.some(
-                (m, index) => index > 0 && index < this.conversationMessages.length - 1 && m.composing
+        hiddenMessages() {
+            const hiddenCandidates = this.hiddenCandidates();
+            return hiddenCandidates.map(
+                (hc, index) => hc && (hiddenCandidates[index + 1] || hiddenCandidates[index - 1])
             );
         }
     },
@@ -135,14 +131,10 @@ export default {
                 }
             },
             immediate: true
-        },
-        conversationMessages(value) {
-            // expand last message
-            this.expandedMessages[value.length - 1] = true;
         }
     },
     created() {
-        this.expandLastMessageAndTrailingDrafts();
+        this.expandUnreadOrLastAndTrailingDrafts();
     },
     destroyed() {
         this.resetComposingStatuses();
@@ -152,8 +144,6 @@ export default {
         ...mapActions("mail", { MARK_CONVERSATIONS_AS_READ }),
         init() {
             this.darkened = false;
-            this.showMiddleMessages = false;
-            this.expandedMessages = [];
             this.collapseAll();
             this.markAsRead();
         },
@@ -174,31 +164,48 @@ export default {
         expandAll() {
             this.expandedMessages = this.conversationMessages.map(() => true);
         },
+        /** Collapse all messages we can. Not the last one, trailing drafts and unread. */
         collapseAll() {
-            this.showMiddleMessages = false;
+            this.showHiddenMessages = [];
             this.expandedMessages.splice(0);
-            this.expandLastMessageAndTrailingDrafts();
+            this.expandUnreadOrLastAndTrailingDrafts();
         },
-        isHidden(index) {
+        isHiddenCandidate(index) {
             return (
-                !this.showMiddleMessages &&
-                this.isMiddle(index) &&
-                !this.isLastBeforeDraft(index) &&
-                !this.isTrailingDraft(index)
+                !this.showHiddenMessages[index] &&
+                index !== 0 &&
+                !this.isTrailingDraft(index) && // TODO remove useless
+                !this.expandedMessages[index] &&
+                !this.isDraft(index)
             );
         },
-        isMiddle(index) {
-            return this.conversationMessages.length > 3 && index > 0 && index < this.conversationMessages.length - 1;
+        isUnread(index) {
+            return !this.conversationMessages[index].flags.includes(Flag.SEEN);
+        },
+        isInConversationFolder(index) {
+            return this.conversationMessages[index].folderRef.key === this.conversation.folderRef.key;
         },
         darken(darkened) {
             this.darkened = darkened;
         },
-        /** Expand the last non-draft message and following drafts. */
-        expandLastMessageAndTrailingDrafts() {
+        /** Expand unread messages or the last non-draft message and trailing drafts. */
+        expandUnreadOrLastAndTrailingDrafts() {
             let lastNonDraftFound = false;
-            for (let i = this.conversationMessages.length - 1; i >= 0 && !lastNonDraftFound; i--) {
-                Vue.set(this.expandedMessages, i, true);
-                lastNonDraftFound = !this.draftStates[i];
+            let atLeastOneUnread = false;
+            const lastIndex = this.conversationMessages.length - 1;
+            for (let i = lastIndex; i >= 0; i--) {
+                const isUnread = this.isUnread(i) && this.isInConversationFolder(i);
+                atLeastOneUnread = isUnread || atLeastOneUnread;
+                if (!lastNonDraftFound || isUnread) {
+                    Vue.set(this.expandedMessages, i, true);
+                }
+                lastNonDraftFound = lastNonDraftFound ? lastNonDraftFound : !this.draftStates[i];
+            }
+
+            const lastIsUnread = this.isUnread(lastIndex);
+            if (atLeastOneUnread && !lastIsUnread) {
+                // collapse the last one if we have an unread elsewhere
+                Vue.set(this.expandedMessages, lastIndex, false);
             }
         },
         isDraft(index) {
@@ -212,6 +219,25 @@ export default {
         },
         nextIsDraft(index) {
             return !!this.draftStates[index + 1];
+        },
+        isFirstOfHiddenGroup(index) {
+            return this.hiddenMessages[index] && (index === 0 || !this.hiddenMessages[index - 1]);
+        },
+        hiddenGroupSize(index) {
+            let currentIndex = index;
+            while (this.hiddenMessages[currentIndex] && currentIndex < this.conversationMessages.length) {
+                currentIndex++;
+            }
+            return currentIndex - index;
+        },
+        doShowHiddenMessages(index) {
+            let currentIndex = index;
+            do {
+                Vue.set(this.showHiddenMessages, currentIndex++, true);
+            } while (this.hiddenMessages[currentIndex]);
+        },
+        hiddenCandidates() {
+            return this.conversationMessages.map((m, index) => this.isHiddenCandidate(index));
         }
     }
 };
