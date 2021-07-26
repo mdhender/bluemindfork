@@ -125,6 +125,7 @@
     "mail.actions.attach": "Attach",
     "mail.actions.create.folder": "Create a new folder",
     "mail.actions.edit": "Edit",
+    "mail.actions.edit_as_new": "Edit as new",
     "mail.actions.extend": "Extend",
     "mail.actions.folder.invalid.already_exist": "This folder name is already used",
     "mail.actions.folder.invalid.too_long": "Folder name is too long",

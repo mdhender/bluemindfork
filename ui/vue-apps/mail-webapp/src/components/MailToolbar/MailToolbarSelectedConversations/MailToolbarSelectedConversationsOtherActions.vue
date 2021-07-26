@@ -12,8 +12,11 @@
             <bm-icon icon="3dots" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.toolbar.more") }}</span>
         </template>
+        <bm-dropdown-item v-if="isTemplate" icon="pencil">
+            {{ $t("mail.actions.edit_as_new") }}
+        </bm-dropdown-item>
         <bm-dropdown-item
-            v-if="showMarkAsRead && !isTemplate"
+            v-else-if="showMarkAsRead"
             icon="read"
             :title="markAsReadAriaText()"
             :aria-label="markAsReadAriaText()"
@@ -22,7 +25,7 @@
             {{ markAsReadText }}
         </bm-dropdown-item>
         <bm-dropdown-item
-            v-else-if="!isTemplate"
+            v-else
             icon="unread"
             :title="markAsUnreadAriaText()"
             :aria-label="markAsUnreadAriaText()"
@@ -46,20 +49,14 @@
 import { mapGetters } from "vuex";
 import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
 import { ActionTextMixin, RemoveMixin, FlagMixin } from "~/mixins";
-import { CURRENT_CONVERSATION_METADATA, MY_TEMPLATES } from "~/getters";
+import { MY_TEMPLATES } from "~/getters";
 
 export default {
     name: "MailToolbarConsultMessageOtherActions",
     components: { BmDropdown, BmDropdownItem, BmIcon },
     mixins: [ActionTextMixin, RemoveMixin, FlagMixin],
-    props: {
-        subject: {
-            type: String,
-            required: true
-        }
-    },
     computed: {
-        ...mapGetters("mail", { CURRENT_CONVERSATION_METADATA, MY_TEMPLATES }),
+        ...mapGetters("mail", { MY_TEMPLATES }),
 
         isTemplate() {
             return this.selectionLength === 1 && this.selected[0]?.folderRef.key === this.MY_TEMPLATES.key;
