@@ -27,6 +27,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.IdQuery;
+import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
@@ -61,6 +62,16 @@ public interface IContainerStoreService<T> {
 	 */
 	ItemVersion create(String uid, String displayName, T value);
 
+	/**
+	 * Create item from an existing one
+	 * 
+	 * @param item
+	 * @param displayName
+	 * @param value
+	 * @throws ServerFault
+	 */
+	ItemVersion create(Item item, T value);
+
 	public void attach(String uid, String displayName, T value);
 
 	/**
@@ -94,6 +105,8 @@ public interface IContainerStoreService<T> {
 	ItemVersion update(String uid, String displayName, T value);
 
 	ItemVersion update(long id, String displayName, T value);
+
+	ItemVersion update(Item item, String displayName, T value);
 
 	/**
 	 * @param uid

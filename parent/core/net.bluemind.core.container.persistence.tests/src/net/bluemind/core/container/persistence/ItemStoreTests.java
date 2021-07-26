@@ -27,6 +27,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -308,11 +310,40 @@ public class ItemStoreTests {
 	}
 
 	@Test
-	public void testUpdateUpdated() throws SQLException, InterruptedException {
+	public void testCreateWithItem() throws SQLException, ParseException {
 		Item item = new Item();
+		item.id = 73;
 		item.uid = "test_" + System.nanoTime();
-		item.externalId = "externalId";
+		item.externalId = "externalId" + System.nanoTime();
 		item.displayName = "test";
+		item.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
+		item.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		item.version = 17;
+		try {
+			home.create(item);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+		Item result = home.get(item.uid);
+		assertEquals(item.id, result.id);
+		assertEquals(item.uid, result.uid);
+		assertEquals(item.externalId, result.externalId);
+		assertEquals(item.displayName, result.displayName);
+		assertEquals(item.created, result.created);
+		assertEquals(item.version, result.version);
+	}
+
+	@Test
+	public void testUpdateWithItem() throws SQLException, ParseException {
+		Item item = new Item();
+		item.id = 73;
+		item.uid = "test_" + System.nanoTime();
+		item.externalId = "externalId" + System.nanoTime();
+		item.displayName = "test";
+		item.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
+		item.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		item.version = 17;
 		try {
 			home.create(item);
 		} catch (SQLException e) {
@@ -320,19 +351,23 @@ public class ItemStoreTests {
 			fail(e.getMessage());
 		}
 
-		Item prevResult = home.get(item.uid);
-		assertNotNull(prevResult);
-		assertNotNull(prevResult.created);
-		assertNotNull(prevResult.updated);
-		assertEquals(prevResult.created, prevResult.updated);
-
-		for (int i = 0; i < 6; i++) {
-			Thread.sleep(10);
-			home.update(item.uid, item.displayName, Collections.emptyList());
-			Item updated = home.get(item.uid);
-			assertTrue("iteration #" + i, updated.updated.getTime() > prevResult.updated.getTime());
-			prevResult = updated;
+		Item created = home.get(item.uid);
+		created.version = item.version + 1;
+		created.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 12:46:00");
+		try {
+			home.update(created, created.displayName, created.flags);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			fail(e.getMessage());
 		}
+
+		Item updated = home.get(created.uid);
+		assertEquals(created.id, updated.id);
+		assertEquals(created.uid, updated.uid);
+		assertEquals(created.externalId, updated.externalId);
+		assertEquals(created.displayName, updated.displayName);
+		assertEquals(created.updated, updated.updated);
+		assertEquals(created.version, updated.version);
 	}
 
 	private long currentId() throws Exception {

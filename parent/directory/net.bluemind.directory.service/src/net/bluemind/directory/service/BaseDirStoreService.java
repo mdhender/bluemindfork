@@ -28,6 +28,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchyMgmt;
 import net.bluemind.core.container.api.internal.IInternalOwnerSubscriptionsMgmt;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.persistence.IItemValueStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
@@ -65,7 +66,13 @@ public abstract class BaseDirStoreService<T> extends ContainerStoreService<T> {
 		ItemVersion ret = super.create(uid, extId, displayName, value);
 		initHierarchy(uid);
 		return ret;
+	}
 
+	@Override
+	public final ItemVersion create(Item item, T value) throws ServerFault {
+		ItemVersion ret = super.create(item, value);
+		initHierarchy(item.uid);
+		return ret;
 	}
 
 	@Override

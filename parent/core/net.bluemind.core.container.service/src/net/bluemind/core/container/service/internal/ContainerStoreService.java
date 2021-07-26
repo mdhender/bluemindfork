@@ -280,19 +280,25 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public ItemVersion createWithId(String uid, Long internalId, String extId, String displayName, T value) {
-		return doOrFail(() -> {
+		Item item = new Item();
+		item.uid = uid;
+		item.externalId = extId;
+		if (internalId != null) {
+			item.id = internalId;
+		}
+		item.displayName = displayName;
+		item.flags = flagsProvider.flags(value);
+		return create(item, value);
+	}
 
-			Item item = null;
+	@Override
+	public ItemVersion create(Item item, T value) {
+		String uid = item.uid;
+		Long internalId = item.id;
+		return doOrFail(() -> {
+			Item created;
 			try {
-				item = new Item();
-				item.uid = uid;
-				item.externalId = extId;
-				if (internalId != null) {
-					item.id = internalId;
-				}
-				item.displayName = displayName;
-				item.flags = flagsProvider.flags(value);
-				item = itemStore.create(item);
+				created = itemStore.create(item);
 			} catch (SQLException e) {
 				throw ServerFault.alreadyExists("entry[" + uid + " - " + internalId + "]@" + container.uid
 						+ " already exists (" + e.getMessage() + ")");
@@ -301,15 +307,15 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				changelogStore.itemCreated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
 			}
-			createValue(item, value);
+			createValue(created, value);
 			if (hasChangeLog) {
 				containerChangeEventProducer.get().produceEvent();
 			}
 
-			ItemValue<T> iv = ItemValue.create(item, value);
+			ItemValue<T> iv = ItemValue.create(created, value);
 			backupStream.store(iv);
 
-			return ItemUpdate.of(item);
+			return ItemUpdate.of(created);
 		});
 	}
 
@@ -343,33 +349,40 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public ItemVersion update(String uid, String displayName, T value) {
+		Item item = new Item();
+		item.uid = uid;
+		return update(item, displayName, value);
+	}
+
+	@Override
+	public ItemVersion update(Item item, String displayName, T value) {
 		return doOrFail(() -> {
 
 			String dnToApply = displayName;
 			if (dnToApply == null) {
 				// try to preserve the existing display name
-				Item existing = itemStore.getForUpdate(uid);
+				Item existing = itemStore.getForUpdate(item.uid);
 				if (existing == null) {
-					throw ServerFault.notFound("entry[" + uid + "]@" + container.uid + " not found");
+					throw ServerFault.notFound("entry[" + item.uid + "]@" + container.uid + " not found");
 				}
 
 				dnToApply = existing.displayName;
 			}
-			Item item = itemStore.update(uid, dnToApply, flagsProvider.flags(value));
-			if (item == null) {
-				throw ServerFault.notFound("entry[" + uid + "]@" + container.uid + " not found");
+			Item created = itemStore.update(item, dnToApply, flagsProvider.flags(value));
+			if (created == null) {
+				throw ServerFault.notFound("entry[" + created.uid + "]@" + container.uid + " not found");
 			}
 			if (hasChangeLog) {
-				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
-						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
+				changelogStore.itemUpdated(LogEntry.create(created.version, created.uid, created.externalId,
+						securityContext.getSubject(), origin, created.id, weightSeedProvider.weightSeed(value)));
 				containerChangeEventProducer.get().produceEvent();
 			}
-			updateValue(item, value);
+			updateValue(created, value);
 
-			ItemValue<T> iv = ItemValue.create(item, value);
+			ItemValue<T> iv = ItemValue.create(created, value);
 			backupStream.store(iv);
 
-			return ItemUpdate.of(item);
+			return ItemUpdate.of(created);
 		});
 	}
 

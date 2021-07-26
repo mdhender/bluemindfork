@@ -83,6 +83,21 @@ public class ItemValue<T> {
 		return ret;
 	}
 
+	public Item item() {
+		Item item = new Item();
+		item.created = created;
+		item.updated = updated;
+		item.createdBy = createdBy;
+		item.updatedBy = updatedBy;
+		item.uid = uid;
+		item.version = version;
+		item.externalId = externalId;
+		item.displayName = displayName;
+		item.id = internalId;
+		item.flags = flags;
+		return item;
+	}
+
 	@Override
 	public String toString() {
 		return "ItemValue{uid: " + uid + ", id: " + internalId + ", extId: " + externalId + ", dn: " + displayName
