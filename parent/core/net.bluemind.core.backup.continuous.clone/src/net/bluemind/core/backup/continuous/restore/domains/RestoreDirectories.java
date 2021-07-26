@@ -249,22 +249,13 @@ public class RestoreDirectories {
 		ItemValue<User> existing = userApi.getComplete(user.uid);
 		ItemValue<Mailbox> mbox = ItemValue.create(user.uid, user.value.mailbox);
 		state.storeMailbox(user.uid, mbox);
-		// Map<String, ItemValue<MailboxReplica>> folders;
+		ItemValue<User> userItem = ItemValue.create(user.item(), user.value.value);
 		if (existing != null) {
 			monitor.log("Update user " + user.value.value);
-			userApi.update(user.uid, user.value.value);
-//			MboxFillTask tsk = new MboxFillTask(dom, mboxIv, cloneState, avail, clonedTopology, locMapping);
-//			tsk.run(monitor);
+			userApi.updateWithItem(user.uid, userItem);
 		} else {
 			monitor.log("Create user " + user.value.value);
-//			MboxFillTask tsk = new MboxFillTask(dom, mboxIv, cloneState, avail, clonedTopology, locMapping);
-//			tsk.run(monitor);
-
-			if (user.externalId != null) {
-				userApi.createWithExtId(user.uid, user.externalId, user.value.value);
-			} else {
-				userApi.create(user.uid, user.value.value);
-			}
+			userApi.createWithItem(user.uid, userItem);
 		}
 
 	}
@@ -280,9 +271,6 @@ public class RestoreDirectories {
 
 			ItemValue<Mailbox> mbox = ItemValue.create(share.uid, share.value.mailbox);
 			state.storeMailbox(share.uid, mbox);
-//			MboxFillTask tsk = new MboxFillTask(domain, mboxIv, cloneState, avail, clonedTopology, locMapping);
-//			tsk.run(monitor);
-
 			shareApi.create(share.uid, share.value.value);
 		}
 	}

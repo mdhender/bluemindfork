@@ -158,6 +158,14 @@ public class UserService implements IInCoreUser, IUser {
 
 	@Override
 	public void createWithExtId(String uid, String extId, User user) throws ServerFault {
+		ItemValue<User> itemValue = createItemValue(uid, user);
+		itemValue.externalId = extId;
+		createWithItem(uid, itemValue);
+	}
+
+	@Override
+	public void createWithItem(String uid, ItemValue<User> userItemValue) throws ServerFault {
+		User user = userItemValue.value;
 		rbacManager.forOrgUnit(user.orgUnitUid).check(BasicRoles.ROLE_MANAGE_USER);
 		sanitizer.create(user);
 		sanitizer.create(new DirDomainValue<>(domainName, uid, user));
@@ -198,7 +206,7 @@ public class UserService implements IInCoreUser, IUser {
 		if (!globalVirt && !user.system) {
 			filter = transformExternalEmailsToForwards(user, Collections.emptyList(), uid, new MailFilter());
 		}
-		storeService.createWithExtId(uid, extId, user);
+		storeService.create(userItemValue);
 		ItemValue<User> item = createItemValue(uid, user);
 		if (!globalVirt && !user.system) {
 			mailboxes.created(uid, mailboxAdapter.asMailbox(domainName, uid, user));
@@ -248,7 +256,17 @@ public class UserService implements IInCoreUser, IUser {
 
 	@Override
 	public void update(String uid, User user) throws ServerFault {
+		ItemValue<User> itemValue = createItemValue(uid, user);
+		updateWithItem(uid, itemValue);
+	}
+
+	@Override
+	public void updateWithItem(String uid, ItemValue<User> userItem) throws ServerFault {
+
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER);
+
+		Item item = userItem.item();
+		User user = userItem.value;
 
 		ItemValue<User> previous = getFull(uid);
 		if (previous == null) {
@@ -278,7 +296,7 @@ public class UserService implements IInCoreUser, IUser {
 					mailboxes.getMailboxFilter(uid));
 			mailboxes.validate(uid, mailboxAdapter.asMailbox(domainName, uid, user));
 		}
-		storeService.update(uid, user);
+		storeService.update(userItem);
 
 		if (!globalVirt && !user.system) {
 			mailboxes.updated(uid, mailboxAdapter.asMailbox(domainName, uid, previous.value),

@@ -32,6 +32,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -271,6 +273,48 @@ public class UserServiceTests {
 	}
 
 	@Test
+	public void testCreateWithItem() throws ServerFault, SQLException, ParseException {
+		String login = "test." + System.nanoTime();
+		String uid = login;
+		User user = defaultUser(login);
+		Item item = new Item();
+		item.id = 73;
+		item.uid = login;
+		item.externalId = "externalId" + System.nanoTime();
+		item.displayName = "test";
+		item.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
+		item.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		item.version = 17;
+
+		ItemValue<User> userItem = ItemValue.create(item, user);
+		getService(domainAdminSecurityContext).createWithItem(uid, userItem);
+
+		Item createdItem = userItemStore.get(uid);
+		assertNotNull(createdItem);
+		User createdUser = userStore.get(item);
+		assertNotNull(createdUser);
+
+		ItemValue<User> full = userStoreService.get(uid);
+		assertUserEquals(user, full.value);
+		assertItemEquals(userItem.item(), full.item());
+		// after creation, user item is touched 2 times:
+		// - UserService.createWithItem: setMailboxFilter
+		// - CyrusIdentityHook.refreshCyrusSieve: setMailboxFilter
+		assertEquals(item.version + 2, full.item().version);
+		assertNotNull(full.value.password);
+		assertNotNull(full.value.passwordLastChange);
+		assertFalse(full.value.passwordMustChange);
+		assertFalse(full.value.passwordNeverExpires);
+
+		// user mailbox is created
+		assertNotNull(testContext.provider().instance(IMailboxes.class, domainUid).getComplete(uid));
+
+		// vcard is created too
+		ItemValue<VCard> vcard = testContext.provider().instance(IDirectory.class, domainUid).getVCard(uid);
+		assertNotNull(vcard);
+	}
+
+	@Test
 	public void testCreateShouldapplyDefaultUserQuota() throws ServerFault {
 		IDomainSettings settingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomainSettings.class, domainUid);
@@ -437,6 +481,38 @@ public class UserServiceTests {
 			fail(e.getMessage());
 		}
 
+	}
+
+	@Test
+	public void testUpdateWithItem() throws ServerFault, SQLException, ParseException {
+		User user = defaultUser("test." + System.nanoTime());
+		String uid = create(user);
+		assertNotNull(uid);
+
+		ItemValue<User> created = getService(domainAdminSecurityContext).getComplete(uid);
+		created.version += 2;
+		created.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:48:00");
+		getService(domainAdminSecurityContext).updateWithItem(uid, created);
+
+		Item updatedItem = userItemStore.get(uid);
+		assertNotNull(updatedItem);
+		User updatedUser = userStore.get(updatedItem);
+		assertNotNull(updatedUser);
+		assertEquals(user.login, updatedUser.login);
+
+		ItemValue<User> updated = userStoreService.get(uid);
+		assertUserEquals(user, updated.value);
+		assertItemEquals(created.item(), updated.item());
+		// after creation, user item is touched 2 times:
+		// - UserService.updateWithItem: setMailboxFilter
+		assertEquals(created.version + 1, updated.version);
+
+		// user mailbox is created
+		assertNotNull(testContext.provider().instance(IMailboxes.class, domainUid).getComplete(uid));
+
+		// vcard is created too
+		ItemValue<VCard> vcard = testContext.provider().instance(IDirectory.class, domainUid).getVCard(uid);
+		assertNotNull(vcard);
 	}
 
 	@Test
@@ -1431,6 +1507,17 @@ public class UserServiceTests {
 		assertEquals(expected.properties, value.properties);
 		assertEquals(expected.quota, value.quota);
 
+	}
+
+	public static void assertItemEquals(Item expected, Item value) {
+		if (expected == null) {
+			assertNull(value);
+			return;
+		}
+		assertEquals(expected.id, value.id);
+		assertEquals(expected.uid, value.uid);
+		assertEquals(expected.externalId, value.externalId);
+		assertEquals(expected.created, value.created);
 	}
 
 	@Test
