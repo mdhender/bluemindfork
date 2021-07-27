@@ -39,8 +39,9 @@ import PrefFieldSelect from "./fields/PrefFieldSelect";
 import PrefAllDayEventReminder from "./fields/customs/PrefAllDayEventReminder";
 import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
 import PrefAutomaticReply from "./fields/customs/PrefAutomaticReply";
-import PrefEventReminder from "./fields/customs/PrefEventReminder";
+import PrefEmailsForwarding from "./fields/customs/PrefEmailsForwarding";
 import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
+import PrefEventReminder from "./fields/customs/PrefEventReminder";
 import PrefIMSetPhonePresence from "./fields/customs/PrefIMSetPhonePresence";
 import PrefManageIdentities from "./fields/customs/PrefManageIdentities";
 import PrefManageMyCalendars from "./fields/customs/MyCalendars/PrefManageMyCalendars";
@@ -65,6 +66,7 @@ export default {
         PrefAllDayEventReminder,
         PrefAlwaysShowQuota,
         PrefAutomaticReply,
+        PrefEmailsForwarding,
         PrefEnableNotifications,
         PrefEventReminder,
         PrefIMSetPhonePresence,

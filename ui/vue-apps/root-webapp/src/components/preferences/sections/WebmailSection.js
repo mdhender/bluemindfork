@@ -127,6 +127,15 @@ export default function (roles, vueI18N, applications) {
                                 options: {}
                             }
                         ]
+                    },
+                    {
+                        title: vueI18N.t("preferences.mail.emails_forwarding"),
+                        fields: [
+                            {
+                                component: "PrefEmailsForwarding",
+                                options: {}
+                            }
+                        ]
                     }
                 ]
             },

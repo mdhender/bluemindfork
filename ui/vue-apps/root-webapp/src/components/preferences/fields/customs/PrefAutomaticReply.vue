@@ -172,7 +172,6 @@ export default {
                 const date = new Date(this.startDate);
                 date.setHours(time[0]);
                 date.setMinutes(time[1]);
-                console.log("vacation start changed !!");
                 this.vacation.start = date.getTime();
                 this.SET_VACATION(this.vacation);
             }

@@ -1132,9 +1132,9 @@
     axios "^0.18.0"
 
 "@bluemind/styleguide@^0.1.0":
-  version "0.1.1624"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1624.tgz#9d0658e0cccdad671984a6075cd7a4637d971050"
-  integrity sha512-dqQMbWHgBc2rmw5410eUmreQ1fZfysGQgKF4JqXOsZclUqMMavnjojjn33XEm6vVjhYUiPNRboLJVKRiX1BHZw==
+  version "0.1.1647"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1647.tgz#770eca88ee6d8938a7b4ba26d557d45e3545267e"
+  integrity sha512-HEcM2/+SvdHI8JGEdVulTjFEjjme+Tg98ZnPtmtvpgkfsIbbv35DZTFeIR1bPGRu8lM5MMwp59TBC3+3YRmfqQ==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"
@@ -7610,6 +7610,11 @@ parse-json@^5.0.0:
   version "5.0.1"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/parse-json/-/parse-json-5.0.1.tgz#7cfe35c1ccd641bce3981467e6c2ece61b3b3878"
   integrity sha512-ztoZ4/DYeXQq4E21v169sC8qWINGpcosGv9XhTDvg9/hWvx/zrFkc9BiWxR58OJLHGk28j5BL0SDLeV2WmFZlQ==
+  dependencies:
+    "@babel/code-frame" "^7.0.0"
+    error-ex "^1.3.1"
+    json-parse-better-errors "^1.0.1"
+    lines-and-columns "^1.1.6"
 
 parse5@4.0.0:
   version "4.0.0"

@@ -132,6 +132,9 @@ const mutations = {
     },
     SET_VACATION: (state, vacation) => {
         state.mailboxFilter.local.vacation = JSON.parse(JSON.stringify(vacation));
+    },
+    SET_FORWARDING: (state, forwarding) => {
+        state.mailboxFilter.local.forwarding = JSON.parse(JSON.stringify(forwarding));
     }
 };
 

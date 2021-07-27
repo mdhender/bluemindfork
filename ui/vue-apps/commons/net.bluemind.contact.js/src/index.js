@@ -14,4 +14,14 @@ function createFromRecipient({ dn, address }, kind = VCardKind.individual) {
     };
 }
 
-export { createFromRecipient, VCardAdaptor, VCardInfoAdaptor };
+function getQuery(pattern) {
+    return (
+        "(value.identification.formatedName.value:" +
+        pattern +
+        " OR value.communications.emails.value:" +
+        pattern +
+        ") AND _exists_:value.communications.emails.value"
+    );
+}
+
+export { createFromRecipient, getQuery, VCardAdaptor, VCardInfoAdaptor };

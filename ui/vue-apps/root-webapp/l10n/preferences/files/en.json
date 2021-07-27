@@ -116,6 +116,11 @@
     "preferences.mail.logout.empty.trash": "Empty Trash",
     "preferences.mail.automatic_reply": "Automatic reply",
     "preferences.mail.automatic_reply.activate": "Activate automatic reply",
+    "preferences.mail.automatic_reply.period": "Specify a start and an end date (optional)",
+    "preferences.mail.emails_forwarding": "Email forwardings",
+    "preferences.mail.emails_forwarding.to": "Forward received messages to",
+    "preferences.mail.emails_forwarding.local_copy": "keep a local copy in your inbox",
+    "preferences.mail.emails_forwarding.no_local_copy": "do not keep a local copy",
 
     "preferences.role.missing.warning": "You do not have the rights to modify this preference",
     "preferences.save.error": "Error while saving, check your network connection",

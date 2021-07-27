@@ -1,6 +1,6 @@
 import debounce from "lodash/debounce";
 import { VCardQueryOrderBy } from "@bluemind/addressbook.api";
-import { VCardInfoAdaptor } from "@bluemind/contact";
+import { getQuery, VCardInfoAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
 import { mapMutations } from "vuex";
 import { SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";
@@ -62,17 +62,11 @@ export default {
             if (searchedRecipient === "") {
                 this.autocompleteResults = [];
             } else {
-                const query =
-                    "(value.identification.formatedName.value:" +
-                    searchedRecipient +
-                    " OR value.communications.emails.value:" +
-                    searchedRecipient +
-                    ") AND _exists_:value.communications.emails.value";
                 return inject("AddressBooksPersistence")
                     .search({
                         from: 0,
                         size: 5,
-                        query,
+                        query: getQuery(searchedRecipient),
                         orderBy: VCardQueryOrderBy.Pertinance,
                         escapeQuery: false
                     })

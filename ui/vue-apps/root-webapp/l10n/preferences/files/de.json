@@ -114,6 +114,13 @@
     "preferences.mail.signature.insert": "Signatur automatisch einfügen",
     "preferences.mail.logout": "Beim Abmelden",
     "preferences.mail.logout.empty.trash": "Papierkorb leeren",
+    "preferences.mail.automatic_reply": "Automatische Antwort",
+    "preferences.mail.automatic_reply.activate": "Automatische Antwort aktivieren",
+    "preferences.mail.automatic_reply.period": "Geben Sie optional ein Start und Enddatum an",
+    "preferences.mail.emails_forwarding": "Weiterleitungen",
+    "preferences.mail.emails_forwarding.to": "Eingehende E-Mails weiterleiten an",
+    "preferences.mail.emails_forwarding.local_copy": "Lokale Kopie speichern",
+    "preferences.mail.emails_forwarding.no_local_copy": "Keine Kopie lokal speichern",
 
     "preferences.role.missing.warning": "Sie haben keine Berechtigung diese Einstellung zu verändern",
     "preferences.save.error": "Fehler beim Speichern, bitte Netzwerkverfügbarkeit prüfen",

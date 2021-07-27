@@ -90,6 +90,7 @@
 import throttle from "lodash.throttle";
 import { CalendarAcl, calendarAclToVerb, urlToAclSubject } from "./CalendarAclHelper";
 import { PublishMode } from "@bluemind/calendar.api";
+import { getQuery } from "@bluemind/contact";
 import { Verb } from "@bluemind/core.container.api";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
@@ -230,13 +231,10 @@ export default {
                 return;
             }
             const userSession = inject("UserSession");
-            const query =
-                "value.identification.formatedName.value:" +
-                this.searchedInput +
-                " OR value.communications.emails.value:*" +
-                this.searchedInput +
-                "*";
-            const vcards = await inject("AddressBooksPersistence").search({ size: 10, query });
+            const vcards = await inject("AddressBooksPersistence").search({
+                size: 10,
+                query: getQuery(this.searchedInput)
+            });
             this.suggestions = vcards.values.filter(
                 vcard =>
                     !this.dirEntriesAcl_.find(alreadyInList => alreadyInList.uid === vcard.uid) &&

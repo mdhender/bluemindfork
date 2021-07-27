@@ -141,5 +141,7 @@
     "common.days": "days",
     "common.days_before": "1 day before | {count} days before",
     "common.expand": "Aufklappen",
-    "common.collapse": " Einklappen"
+    "common.collapse": "Einklappen",
+    "common.hour": "Stunde",
+    "common.until": "Bis"
 }

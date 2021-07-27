@@ -125,6 +125,7 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 body {
+    height: 100vh; // fallback for the following line (if not supported by browser)
     height: var(--app-height);
     overflow: hidden;
 }
