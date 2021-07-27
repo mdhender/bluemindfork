@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -556,6 +558,16 @@ public class GroupServiceTests {
 		assertEquals(group.emails.size(), createdGroup.value.emails.size());
 	}
 
+	private void assertIGroupValueEquals(ItemValue<Group> groupItem, ItemValue<Group> createdGroup) {
+		assertIGroupValueEquals(groupItem.uid, groupItem.externalId, groupItem.value, createdGroup);
+		assertEquals(groupItem.internalId, createdGroup.internalId);
+		assertEquals(groupItem.uid, createdGroup.uid);
+		assertEquals(groupItem.externalId, createdGroup.externalId);
+		assertEquals(groupItem.created, createdGroup.created);
+		assertEquals(groupItem.updated, createdGroup.updated);
+		assertEquals(groupItem.version, createdGroup.version);
+	}
+
 	@Test
 	public void testCreateGroupWithExtId() throws ServerFault, InterruptedException, SQLException {
 		String uid = UUID.randomUUID().toString();
@@ -571,6 +583,29 @@ public class GroupServiceTests {
 
 		createdGroup = getGroupService(adminSecurityContext).getByExtId(externalId);
 		assertIGroupValueEquals(uid, externalId, group, createdGroup);
+	}
+
+	@Test
+	public void testCreateGroupWithItem() throws ServerFault, InterruptedException, SQLException, ParseException {
+		String uid = UUID.randomUUID().toString();
+		Group group = defaultGroup();
+		ItemValue<Group> groupItem = ItemValue.create(uid, group);
+		groupItem.internalId = 73;
+		groupItem.externalId = "external-" + group.name;
+		groupItem.displayName = "test";
+		groupItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
+		groupItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		groupItem.version = 17;
+		getGroupService(adminSecurityContext).createWithItem(uid, groupItem);
+
+		ItemValue<Group> createdGroup = getGroupService(adminSecurityContext).getComplete(uid);
+		assertIGroupValueEquals(uid, groupItem.externalId, group, createdGroup);
+
+		createdGroup = getGroupService(adminSecurityContext).getComplete(uid);
+		assertIGroupValueEquals(groupItem, createdGroup);
+
+		createdGroup = getGroupService(adminSecurityContext).getByExtId(groupItem.externalId);
+		assertIGroupValueEquals(groupItem, createdGroup);
 
 	}
 
@@ -604,6 +639,32 @@ public class GroupServiceTests {
 
 		ItemValue<Group> updatedGroup = getGroupService(adminSecurityContext).getComplete(uid);
 		assertIGroupValueEquals(uid, null, group, updatedGroup);
+	}
+
+	@Test
+	public void testUpdateGroupWithItem() throws ServerFault, InterruptedException, SQLException, ParseException {
+		Group group = defaultGroup("testUpdateGroupAsAdmin");
+		String uid = UUID.randomUUID().toString();
+		ItemValue<Group> groupItem = ItemValue.create(uid, group);
+		groupItem.internalId = 73;
+		groupItem.externalId = "external-" + group.name;
+		groupItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:45:32");
+		groupItem.version = 17;
+		getGroupService(adminSecurityContext).createWithItem(uid, groupItem);
+
+		group.hidden = !group.hidden;
+		group.hiddenMembers = !group.hiddenMembers;
+		Email e = new Email();
+		e.address = group.name + "2@test.foo";
+		e.allAliases = true;
+		e.isDefault = false;
+		group.emails = Arrays.asList(group.emails.iterator().next(), e);
+		groupItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		groupItem.version = 18;
+		getGroupService(adminSecurityContext).updateWithItem(uid, groupItem);
+
+		ItemValue<Group> updatedGroup = getGroupService(adminSecurityContext).getComplete(uid);
+		assertIGroupValueEquals(groupItem, updatedGroup);
 	}
 
 	@Test

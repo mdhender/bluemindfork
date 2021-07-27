@@ -173,17 +173,13 @@ public class RestoreDirectories {
 				ItemValue<FullDirEntry<Group>> group = dirGroupReader.read(js.jsString);
 				// user & admin group have a generated uid
 				ItemValue<Group> existing = groupApi.byName(group.value.value.name);
+				ItemValue<Group> groupItem = ItemValue.create(group.item(), group.value.value);
 				if (existing != null) {
 					monitor.log("Update group " + group.value.value);
-					groupApi.update(existing.uid, group.value.value);
+					groupApi.updateWithItem(group.uid, groupItem);
 				} else {
 					monitor.log("Create group " + group);
-
-					if (group.externalId != null) {
-						groupApi.createWithExtId(group.uid, group.externalId, group.value.value);
-					} else {
-						groupApi.create(group.uid, group.value.value);
-					}
+					groupApi.createWithItem(group.uid, groupItem);
 				}
 				break;
 			case MAILSHARE:

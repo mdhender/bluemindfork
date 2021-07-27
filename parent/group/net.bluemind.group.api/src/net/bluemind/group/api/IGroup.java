@@ -63,6 +63,17 @@ public interface IGroup extends IDirEntryExtIdSupport {
 			Group group) throws ServerFault;
 
 	/**
+	 * Create group from a given item value
+	 * 
+	 * @param uid
+	 * @param groupItem
+	 * @throws ServerFault
+	 */
+	@PUT
+	@Path("{uid}/createwithitem")
+	public void createWithItem(@PathParam(value = "uid") String uid, ItemValue<Group> groupItem) throws ServerFault;
+
+	/**
 	 * Update group
 	 * 
 	 * @param uid
@@ -72,6 +83,17 @@ public interface IGroup extends IDirEntryExtIdSupport {
 	@POST
 	@Path("{uid}")
 	public void update(@PathParam(value = "uid") String uid, Group group) throws ServerFault;
+
+	/**
+	 * Update group from a given item value
+	 * 
+	 * @param uid
+	 * @param groupItem
+	 * @throws ServerFault
+	 */
+	@POST
+	@Path("{uid}/updatewithitem")
+	public void updateWithItem(@PathParam(value = "uid") String uid, ItemValue<Group> groupItem) throws ServerFault;
 
 	/**
 	 * Touch group (update direntry, vcard etc..)
@@ -153,8 +175,7 @@ public interface IGroup extends IDirEntryExtIdSupport {
 	/**
 	 * Get all group members
 	 * 
-	 * @param group
-	 *            uid
+	 * @param group uid
 	 * @return members belonging to this group
 	 * @throws ServerFault
 	 */
@@ -165,8 +186,7 @@ public interface IGroup extends IDirEntryExtIdSupport {
 	/**
 	 * Get all expanded group members
 	 * 
-	 * @param group
-	 *            uid
+	 * @param group uid
 	 * @return members belonging to this group or its sub-groups
 	 * @throws ServerFault
 	 */
@@ -180,8 +200,7 @@ public interface IGroup extends IDirEntryExtIdSupport {
 	/**
 	 * Get User type expanded group members
 	 * 
-	 * @param group
-	 *            uid
+	 * @param group uid
 	 * @return members of type User belonging to this group or its sub-groups
 	 * @throws ServerFault
 	 */
@@ -212,8 +231,7 @@ public interface IGroup extends IDirEntryExtIdSupport {
 	/**
 	 * Search a group
 	 * 
-	 * @param query
-	 *            group query
+	 * @param query group query
 	 * @return list of matching groups
 	 * @throws ServerFault
 	 */
@@ -222,8 +240,7 @@ public interface IGroup extends IDirEntryExtIdSupport {
 	List<ItemValue<Group>> search(GroupSearchQuery query) throws ServerFault;
 
 	/**
-	 * @param uid
-	 *            {@link Group} uid
+	 * @param uid {@link Group} uid
 	 * @return
 	 * @throws ServerFault
 	 */
@@ -232,8 +249,7 @@ public interface IGroup extends IDirEntryExtIdSupport {
 	public Set<String> getRoles(@PathParam(value = "uid") String uid) throws ServerFault;
 
 	/**
-	 * @param uid
-	 *            {@link Group} uid
+	 * @param uid   {@link Group} uid
 	 * @param roles
 	 * @throws ServerFault
 	 */

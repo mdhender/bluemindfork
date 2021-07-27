@@ -119,9 +119,17 @@ public class GroupService implements IGroup, IInCoreGroup {
 
 	@Override
 	public void createWithExtId(String uid, String extId, Group group) throws ServerFault {
+		ItemValue<Group> groupItem = ItemValue.create(uid, group);
+		groupItem.externalId = extId;
+		createWithItem(uid, groupItem);
+	}
+
+	@Override
+	public void createWithItem(String uid, ItemValue<Group> groupItem) throws ServerFault {
+		Group group = groupItem.value;
 		sanitizer.create(group);
 		sanitizer.create(new DirDomainValue<>(domainUid, uid, group));
-		groupValidator.validate(uid, extId, group);
+		groupValidator.validate(uid, groupItem.externalId, group);
 		validator.create(group);
 
 		rbacManager.forOrgUnit(group.orgUnitUid).check(BasicRoles.ROLE_MANAGE_GROUP);
@@ -134,7 +142,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 
 		mailboxes.validate(uid, GroupHelper.groupToMailbox(group));
 
-		storeService.createWithExtId(uid, extId, group);
+		storeService.create(groupItem);
 		mailboxes.created(uid, GroupHelper.groupToMailbox(group));
 		logger.debug("Created {}", uid);
 		for (IGroupHook gh : groupsHooks) {
@@ -151,7 +159,14 @@ public class GroupService implements IGroup, IInCoreGroup {
 
 	@Override
 	public void update(String uid, Group group) throws ServerFault {
+		ItemValue<Group> groupItem = ItemValue.create(uid, group);
+		updateWithItem(uid, groupItem);
+	}
+
+	@Override
+	public void updateWithItem(String uid, ItemValue<Group> groupItem) throws ServerFault {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_GROUP);
+		Group group = groupItem.value;
 		ItemValue<Group> previousItemValue = getFull(uid);
 		if (previousItemValue == null || previousItemValue.value == null) {
 			logger.error("Group uid: {} doesn't exist !", uid);
@@ -172,7 +187,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 		group.emails = EmailHelper.sanitizeAndValidate(group.emails);
 		mailboxes.validate(uid, GroupHelper.groupToMailbox(group));
 
-		storeService.update(uid, group);
+		storeService.update(groupItem);
 
 		mailboxes.updated(uid, GroupHelper.groupToMailbox(previous), GroupHelper.groupToMailbox(group));
 
