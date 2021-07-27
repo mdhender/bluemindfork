@@ -247,14 +247,14 @@ public class RestoreDirectories {
 			ItemValue<FullDirEntry<User>> user) {
 		System.err.println(user.value.value.login + " hash: " + user.value.value.password);
 		ItemValue<User> existing = userApi.getComplete(user.uid);
-		ItemValue<Mailbox> mbox = ItemValue.create(user.uid, user.value.mailbox);
-		state.storeMailbox(user.uid, mbox);
 		ItemValue<User> userItem = ItemValue.create(user.item(), user.value.value);
 		if (existing != null) {
 			monitor.log("Update user " + user.value.value);
 			userApi.updateWithItem(user.uid, userItem);
 		} else {
 			monitor.log("Create user " + user.value.value);
+			ItemValue<Mailbox> mbox = ItemValue.create(user.uid, user.value.mailbox);
+			state.storeMailbox(user.uid, mbox);
 			userApi.createWithItem(user.uid, userItem);
 		}
 
@@ -263,15 +263,15 @@ public class RestoreDirectories {
 	private void processMailshare(ItemValue<Domain> domain, IServerTaskMonitor monitor, IMailshare shareApi,
 			ItemValue<FullDirEntry<Mailshare>> share) {
 		ItemValue<Mailshare> existingShare = shareApi.getComplete(share.uid);
+		ItemValue<Mailshare> mailshareItem = ItemValue.create(share.item(), share.value.value);
 		if (existingShare != null) {
 			monitor.log("Update mailshare " + share.value.value);
-			shareApi.update(share.uid, share.value.value);
+			shareApi.updateWithItem(share.uid, mailshareItem);
 		} else {
 			monitor.log("Create mailshare " + share.value.value);
-
 			ItemValue<Mailbox> mbox = ItemValue.create(share.uid, share.value.mailbox);
 			state.storeMailbox(share.uid, mbox);
-			shareApi.create(share.uid, share.value.value);
+			shareApi.createWithItem(share.uid, mailshareItem);
 		}
 	}
 

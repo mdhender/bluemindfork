@@ -78,6 +78,13 @@ public class MailshareService implements IMailshare {
 
 	@Override
 	public void create(String uid, Mailshare mailshare) throws ServerFault {
+		ItemValue<Mailshare> itemValue = ItemValue.create(uid, mailshare);
+		createWithItem(uid, itemValue);
+	}
+
+	@Override
+	public void createWithItem(String uid, ItemValue<Mailshare> mailshareItem) throws ServerFault {
+		Mailshare mailshare = mailshareItem.value;
 		rbacManager.forOrgUnit(mailshare.orgUnitUid).check(BasicRoles.ROLE_MANAGE_MAILSHARE);
 
 		extSanitizer.create(mailshare);
@@ -89,7 +96,7 @@ public class MailshareService implements IMailshare {
 		mailboxes.validate(uid, mbox);
 		mailshare.quota = mbox.quota;
 
-		storeService.create(uid, mailshare);
+		storeService.create(mailshareItem);
 		mailboxes.created(uid, mbox);
 
 		for (IMailshareHook h : hooks) {
@@ -100,7 +107,14 @@ public class MailshareService implements IMailshare {
 
 	@Override
 	public void update(String uid, Mailshare mailshare) throws ServerFault {
+		ItemValue<Mailshare> itemValue = ItemValue.create(uid, mailshare);
+		updateWithItem(uid, itemValue);
+	}
+
+	@Override
+	public void updateWithItem(String uid, ItemValue<Mailshare> mailshareItem) throws ServerFault {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_MAILSHARE);
+		Mailshare mailshare = mailshareItem.value;
 
 		ItemValue<Mailshare> previous = storeService.get(uid);
 		if (previous == null) {
@@ -120,7 +134,7 @@ public class MailshareService implements IMailshare {
 		mailboxes.validate(uid, mbox);
 		mailshare.quota = mbox.quota;
 
-		storeService.update(uid, mailshare);
+		storeService.update(mailshareItem);
 		mailboxes.updated(uid, mailboxAdapter.asMailbox(domainUid, uid, previous.value), mbox);
 
 		for (IMailshareHook h : hooks) {

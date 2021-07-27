@@ -24,6 +24,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -145,6 +147,38 @@ public class MailshareTests {
 	}
 
 	@Test
+	public void testCreateWithItem() throws ServerFault, ParseException {
+		Mailshare mailshare = defaultMailshare();
+		String uid = "ms" + System.currentTimeMillis();
+		ItemValue<Mailshare> mailshareItem = ItemValue.create(uid, mailshare);
+		mailshareItem.internalId = 73;
+		mailshareItem.externalId = "externalId" + System.nanoTime();
+		mailshareItem.displayName = "test";
+		mailshareItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
+		mailshareItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		mailshareItem.version = 17;
+		service(domainAdminSecurityContext).createWithItem(uid, mailshareItem);
+
+		// check direntry exists
+		List<DirEntry> entries = testContext.provider().instance(IDirectory.class, domainUid)
+				.getEntries(domainUid + "/mailshares");
+		assertEquals(1, entries.size());
+		DirEntry res = entries.get(0);
+		assertEquals(uid, res.entryUid);
+		assertEquals(DirEntry.Kind.MAILSHARE, res.kind);
+		assertEquals(mailshare.name, res.displayName);
+		assertEquals("test@bm.lan", res.email);
+
+		ItemValue<Mailshare> created = testContext.provider().instance(IMailshare.class, domainUid).getComplete(uid);
+		assertEquals(mailshareItem.version, created.version);
+		assertEquals(mailshareItem.internalId, created.internalId);
+		assertEquals(mailshareItem.uid, created.uid);
+		assertEquals(mailshareItem.externalId, created.externalId);
+		assertEquals(mailshareItem.created, created.created);
+
+	}
+
+	@Test
 	public void testGetAll() throws Exception {
 		Mailshare ms = defaultMailshare();
 		String uid = "ms" + System.currentTimeMillis();
@@ -188,7 +222,6 @@ public class MailshareTests {
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
-
 	}
 
 	@Test
@@ -217,6 +250,41 @@ public class MailshareTests {
 		assertNotNull(vcard);
 		assertEquals("Master !", vcard.value.organizational.title);
 		assertEquals(ms.name, vcard.value.identification.formatedName.value);
+	}
+
+	@Test
+	public void testUpateWithItem() throws ServerFault, ParseException {
+		Mailshare mailshare = defaultMailshare();
+		String uid = "ms" + System.currentTimeMillis();
+		service(domainAdminSecurityContext).create(uid, mailshare);
+
+		// now, update
+		ItemValue<Mailshare> mailshareItem = ItemValue.create(uid, mailshare);
+		mailshareItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		mailshareItem.version = 17;
+		mailshareItem.value.name = "testupdated" + System.currentTimeMillis();
+		mailshareItem.value.card = new VCard();
+		mailshareItem.value.card.organizational.title = "Master !";
+		service(domainAdminSecurityContext).updateWithItem(uid, mailshareItem);
+
+		// check direntry updated
+		List<DirEntry> entries = testContext.provider().instance(IDirectory.class, domainUid)
+				.getEntries(domainUid + "/mailshares");
+
+		assertEquals(1, entries.size());
+		DirEntry entry = entries.get(0);
+		assertEquals(mailshareItem.value.name, entry.displayName);
+
+		// check vcard
+		ItemValue<VCard> vcard = testContext.provider().instance(IDirectory.class, domainUid).getVCard(uid);
+		assertNotNull(vcard);
+		assertEquals("Master !", vcard.value.organizational.title);
+		assertEquals(mailshare.name, vcard.value.identification.formatedName.value);
+
+		// check item
+		ItemValue<Mailshare> updated = testContext.provider().instance(IMailshare.class, domainUid).getComplete(uid);
+		assertEquals(mailshareItem.version, updated.version);
+		assertEquals(mailshareItem.updated, updated.updated);
 	}
 
 	@Test

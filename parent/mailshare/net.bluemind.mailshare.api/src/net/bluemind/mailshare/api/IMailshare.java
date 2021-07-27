@@ -22,10 +22,8 @@ public interface IMailshare extends IDirEntryPhotoSupport {
 	/**
 	 * Creates a new {@link Mailshare} entry.
 	 * 
-	 * @param uid
-	 *            uid of the entry
-	 * @param mailshare
-	 *            value of the entry
+	 * @param uid       uid of the entry
+	 * @param mailshare value of the entry
 	 * @throws ServerFault
 	 */
 	@PUT
@@ -33,17 +31,39 @@ public interface IMailshare extends IDirEntryPhotoSupport {
 	public void create(@PathParam(value = "uid") String uid, Mailshare mailshare) throws ServerFault;
 
 	/**
+	 * Creates a new {@link Mailshare} entry with a given uid.
+	 * 
+	 * @param item          uid of the entry
+	 * @param mailshareItem item value of the entry
+	 * @throws ServerFault
+	 */
+	@PUT
+	@Path("{uid}/createwithitem")
+	public void createWithItem(@PathParam(value = "uid") String uid, ItemValue<Mailshare> mailshareItem)
+			throws ServerFault;
+
+	/**
 	 * Modifies an existing {@link Mailshare} entry.
 	 * 
-	 * @param uid
-	 *            uid of the entry
-	 * @param mailshare
-	 *            value of the entry
+	 * @param uid       uid of the entry
+	 * @param mailshare value of the entry
 	 * @throws ServerFault
 	 */
 	@POST
 	@Path("{uid}")
 	public void update(@PathParam(value = "uid") String uid, Mailshare mailshare) throws ServerFault;
+
+	/**
+	 * Modifies an existing {@link Mailshare} entry
+	 * 
+	 * @param uid           uid of the entry
+	 * @param mailshareItem item value of the entry
+	 * @throws ServerFault
+	 */
+	@POST
+	@Path("{uid}/updatewithitem")
+	public void updateWithItem(@PathParam(value = "uid") String uid, ItemValue<Mailshare> mailshareItem)
+			throws ServerFault;
 
 	/**
 	 * Fetch a {@link Mailshare} from its unique uid
