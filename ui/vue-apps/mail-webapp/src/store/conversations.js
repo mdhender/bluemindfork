@@ -7,6 +7,7 @@ import {
     REMOVE_NEW_MESSAGE_FROM_CONVERSATION,
     SET_CURRENT_CONVERSATION,
     SET_CONVERSATION_LIST,
+    SET_MESSAGES_LOADING_STATUS,
     UNSET_CURRENT_CONVERSATION
 } from "~/mutations";
 import {
@@ -45,7 +46,6 @@ import { LoadingStatus } from "~/model/loading-status";
 import { isFlagged, isUnread, messageKey } from "~/model/message";
 import { inject } from "@bluemind/inject";
 import apiFolders from "./api/apiFolders";
-import { CLEAN_UP_CONVERSATIONS } from "./types/actions";
 
 const state = {
     /** Conversations keyed by the first message's key. */
@@ -54,7 +54,6 @@ const state = {
 };
 
 const actions = {
-    [CLEAN_UP_CONVERSATIONS]: cleanUpConversations,
     [EMPTY_FOLDER]: withAlert(emptyFolder, EMPTY_FOLDER, "EmptyFolder"),
     [FETCH_CONVERSATION_IF_NOT_LOADED]: fetchConversationIfNotLoaded,
     [MARK_CONVERSATIONS_AS_READ]: withAlertOrNot(markConversationsAsRead, "MARK", "_AS_READ"),
@@ -122,6 +121,12 @@ const mutations = {
         if (conversation) {
             removeMessagesFromConversation(state.conversationByKey[conversation.key], [message]);
         }
+    },
+    [SET_MESSAGES_LOADING_STATUS]: (state, messages) => {
+        removeMessages(
+            state,
+            messages.filter(m => m.loading === LoadingStatus.ERROR)
+        );
     }
 };
 
@@ -336,10 +341,11 @@ function removeMessagesFromConversation(conversation, messages) {
     });
 }
 
-/** If some messages do not exist in state.messages then remove them from conversations (removes Deleted ones). */
-function cleanUpConversations({ state: { conversationByKey, messages } }) {
-    const messageKeys = Object.keys(messages);
-    Object.values(conversationByKey).forEach(conversation => {
-        conversation.messages = conversation.messages.filter(m => messageKeys.includes(String(m.key)));
-    });
+function removeMessages({ conversationByKey }, messages) {
+    if (messages.length) {
+        const messageKeys = messages.map(m => m.key);
+        Object.values(conversationByKey).forEach(conversation => {
+            conversation.messages = conversation.messages.filter(m => messageKeys.includes(String(m.key)));
+        });
+    }
 }

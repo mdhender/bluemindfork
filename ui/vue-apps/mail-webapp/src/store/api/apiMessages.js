@@ -24,7 +24,9 @@ export default {
         const byFolder = groupByFolder(messages);
         const requests = map(byFolder, async ({ itemsId, folderRef }, folderUid) => {
             const items = await api(folderUid).multipleById(itemsId);
-            return items.map(item => MessageAdaptor.fromMailboxItem(item, folderRef));
+            return items
+                .filter(item => !item.flags.includes[ItemFlag.Deleted])
+                .map(item => MessageAdaptor.fromMailboxItem(item, folderRef));
         });
         return flatmap(await Promise.all(requests));
     },
