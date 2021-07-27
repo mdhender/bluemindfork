@@ -12,7 +12,17 @@
                 <bm-icon icon="trash" size="lg" />
             </bm-button>
             <bm-button
-                v-if="showMarkAsRead && !isTemplate"
+                v-if="isTemplate"
+                class="p-1"
+                :aria-label="$tc('mail.actions.edit_from_template.aria')"
+                :title="$tc('mail.actions.edit_from_template.aria')"
+                variant="inline-secondary"
+                @click.prevent.stop="editFromTemplate(conversation)"
+            >
+                <bm-icon icon="plus-enveloppe" size="lg" />
+            </bm-button>
+            <bm-button
+                v-if="showMarkAsRead"
                 class="p-1"
                 :aria-label="markAsReadAriaText(1, subject)"
                 :title="markAsReadAriaText(1, subject)"
@@ -22,7 +32,7 @@
                 <bm-icon icon="read" size="lg" />
             </bm-button>
             <bm-button
-                v-else-if="!isTemplate"
+                v-else
                 class="p-1"
                 :aria-label="markAsUnreadAriaText(1, subject)"
                 :title="markAsUnreadAriaText(1, subject)"
@@ -59,7 +69,10 @@
 import { BmButtonGroup, BmButton, BmIcon } from "@bluemind/styleguide";
 import { mapState, mapGetters } from "vuex";
 import { ActionTextMixin, FlagMixin, RemoveMixin } from "~/mixins";
-import { MY_TEMPLATES } from "~getters";
+import { MY_DRAFTS, MY_TEMPLATES } from "~getters";
+import { draftPath } from "~/model/draft";
+import MessagePathParam from "~/router/MessagePathParam";
+import { MessageCreationModes } from "../../model/message";
 
 export default {
     name: "ConversationListItemQuickActionButtons",
@@ -77,7 +90,7 @@ export default {
     },
     computed: {
         ...mapState("mail", ["folders"]),
-        ...mapGetters("mail", { MY_TEMPLATES }),
+        ...mapGetters("mail", { MY_DRAFTS, MY_TEMPLATES }),
         selected() {
             return [this.conversation];
         },
@@ -85,10 +98,21 @@ export default {
             return this.conversation.subject;
         },
         folder() {
-            return this.folders[this.message.folderRef.key];
+            return this.folders[this.conversation.folderRef.key];
         },
         isTemplate() {
             return this.folder.key === this.MY_TEMPLATES.key;
+        }
+    },
+    methods: {
+        editFromTemplate(current) {
+            const messagepath = draftPath(this.MY_DRAFTS);
+            const message = MessagePathParam.build("", current);
+            this.$router.navigate({
+                name: "mail:message",
+                params: { messagepath },
+                query: { action: MessageCreationModes.EDIT_AS_NEW, message }
+            });
         }
     }
 };

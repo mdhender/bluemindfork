@@ -126,6 +126,8 @@
     "mail.actions.create.folder": "Créer un nouveau dossier",
     "mail.actions.edit": "Editer",
     "mail.actions.edit_as_new": "Éditer en tant que nouveau message",
+    "mail.actions.edit_from_template.aria": "Nouveau message à partir du modèle {subject}",
+    "mail.actions.edit_from_template": "Utiliser le modèle",
     "mail.actions.extend": "Agrandir",
     "mail.actions.folder.invalid.already_exist": "Ce nom de dossier est déjà utilisé",
     "mail.actions.folder.invalid.too_long": "Nom de dossier trop long",
