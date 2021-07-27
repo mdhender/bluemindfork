@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.ParametersValidator;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
@@ -82,6 +83,14 @@ public class ExternalUserService implements IInCoreExternalUser {
 
 	@Override
 	public void createWithExtId(String uid, String extId, ExternalUser externalUser) throws ServerFault {
+		ItemValue<ExternalUser> externalUserItem = ItemValue.create(uid, externalUser);
+		externalUserItem.externalId = extId;
+		createWithItem(uid, externalUserItem);
+	}
+
+	@Override
+	public void createWithItem(String uid, ItemValue<ExternalUser> externalUserItem) throws ServerFault {
+		ExternalUser externalUser = externalUserItem.value;
 		rbacManager.forOrgUnit(externalUser.orgUnitUid).check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER);
 		ParametersValidator.notNullAndNotEmpty(uid);
 
@@ -89,23 +98,33 @@ public class ExternalUserService implements IInCoreExternalUser {
 		sanitizer.create(new DirDomainValue<>(domainUid, uid, externalUser));
 		validator.validate(externalUser, uid, domainUid, bmContext);
 
-		storeService.createWithExtId(uid, extId, externalUser);
+		storeService.create(externalUserItem);
 		eventProducer.changed(uid, storeService.getVersion());
 	}
 
 	@Override
 	public void update(String uid, ExternalUser externalUser) throws ServerFault {
+		ItemValue<ExternalUser> externalUserItem = ItemValue.create(uid, externalUser);
+		updateWithItem(uid, externalUserItem);
+	}
+
+	@Override
+	public void updateWithItem(String uid, ItemValue<ExternalUser> externalUserItem) throws ServerFault {
+		ExternalUser externalUser = externalUserItem.value;
 		rbacManager.forOrgUnit(externalUser.orgUnitUid).check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER);
 		ParametersValidator.notNullAndNotEmpty(uid);
 
-		ExternalUser previous = storeService.get(uid).value;
+		ItemValue<ExternalUser> previous = storeService.get(uid);
+		if (previous == null) {
+			throw new ServerFault("ExternalUser " + uid + " doesnt exists", ErrorCode.NOT_FOUND);
+		}
 
-		sanitizer.update(previous, externalUser);
-		sanitizer.update(new DirDomainValue<>(domainUid, uid, previous),
+		sanitizer.update(previous.value, externalUser);
+		sanitizer.update(new DirDomainValue<>(domainUid, uid, previous.value),
 				new DirDomainValue<>(domainUid, uid, externalUser));
 		validator.validate(externalUser, uid, domainUid, bmContext);
 
-		storeService.update(uid, externalUser);
+		storeService.update(externalUserItem);
 		eventProducer.changed(uid, storeService.getVersion());
 	}
 

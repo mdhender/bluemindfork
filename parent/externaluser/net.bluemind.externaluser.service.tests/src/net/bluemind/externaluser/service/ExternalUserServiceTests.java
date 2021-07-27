@@ -25,6 +25,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -155,6 +157,15 @@ public class ExternalUserServiceTests {
 				eu2.contactInfos.identification.formatedName.value);
 	}
 
+	private void assertExternalUserItemEquals(ItemValue<ExternalUser> expected, ItemValue<ExternalUser> value) {
+		assertEquals(expected.internalId, value.internalId);
+		assertEquals(expected.uid, value.uid);
+		assertEquals(expected.externalId, value.externalId);
+		assertEquals(expected.created, value.created);
+		assertEquals(expected.updated, value.updated);
+		assertEquals(expected.version, value.version);
+	}
+
 	@Test
 	public void testRoleManageExternalUserExists() {
 		assertTrue(new BmTestContext(SecurityContext.SYSTEM).provider().instance(IRoles.class).getRoles().stream()
@@ -184,6 +195,25 @@ public class ExternalUserServiceTests {
 		assertNotNull(created.value.contactInfos.identification.formatedName);
 
 		assertEquals("externalid", created.externalId);
+	}
+
+	@Test
+	public void testCreateWithItem() throws ParseException {
+		String itemUid = UUID.randomUUID().toString();
+		ExternalUser eu = createDefaultExternalUser();
+		ItemValue<ExternalUser> externalUserItem = ItemValue.create(itemUid, eu);
+		externalUserItem.internalId = 73;
+		externalUserItem.externalId = "external-" + System.currentTimeMillis();
+		externalUserItem.displayName = "test";
+		externalUserItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
+		externalUserItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		externalUserItem.version = 17;
+		getExternalUserService().createWithItem(itemUid, externalUserItem);
+		ItemValue<ExternalUser> created = externalUserContainerStore.get(itemUid);
+
+		assertEquals(externalUserItem.externalId, created.externalId);
+		assertExternalUserValueEquals(eu, created.value);
+		assertExternalUserItemEquals(externalUserItem, created);
 	}
 
 	@Test
@@ -280,6 +310,28 @@ public class ExternalUserServiceTests {
 
 		assertTrue(updated.value.contactInfos.identification.formatedName.value.contains(updatedName));
 		assertEquals(updatedMail, updated.value.defaultEmailAddress());
+	}
+
+	@Test
+	public void testUpdateWithItem() throws ParseException {
+		String itemUid = UUID.randomUUID().toString();
+		ExternalUser eu = createDefaultExternalUser();
+		ItemValue<ExternalUser> externalUserItem = ItemValue.create(itemUid, eu);
+		externalUserItem.internalId = 73;
+		externalUserItem.externalId = "external-" + System.currentTimeMillis();
+		externalUserItem.displayName = "test";
+		externalUserItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
+		externalUserItem.version = 17;
+		getExternalUserService().createWithItem(itemUid, externalUserItem);
+		externalUserItem = externalUserContainerStore.get(itemUid);
+		externalUserItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		externalUserItem.version = 23;
+		getExternalUserService().updateWithItem(itemUid, externalUserItem);
+
+		ItemValue<ExternalUser> updatedItem = externalUserContainerStore.get(itemUid);
+
+		assertExternalUserValueEquals(eu, updatedItem.value);
+		assertExternalUserItemEquals(externalUserItem, updatedItem);
 	}
 
 	@Test

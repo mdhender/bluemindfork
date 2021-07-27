@@ -222,16 +222,13 @@ public class RestoreDirectories {
 				IExternalUser extApi = target.instance(IExternalUser.class, domain.uid);
 
 				ItemValue<ExternalUser> existingExt = extApi.getComplete(ext.uid);
+				ItemValue<ExternalUser> externalUserItem = ItemValue.create(ext.item(), ext.value.value);
 				if (existingExt != null) {
 					monitor.log("Update external-user " + ext.value.value);
-					extApi.update(ext.uid, ext.value.value);
+					extApi.updateWithItem(ext.uid, externalUserItem);
 				} else {
 					monitor.log("Create external-user " + ext.value.value);
-					if (ext.externalId != null) {
-						extApi.createWithExtId(ext.uid, ext.externalId, ext.value.value);
-					} else {
-						extApi.create(ext.uid, ext.value.value);
-					}
+					extApi.createWithItem(ext.uid, externalUserItem);
 				}
 				break;
 			default:
