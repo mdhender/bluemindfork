@@ -2,8 +2,8 @@ import { inject } from "@bluemind/inject";
 
 import { LOAD_MAX_MESSAGE_SIZE } from "~/actions";
 import {
-    RESET_ATTACHMENTS_FORWARDED,
-    SET_ATTACHMENTS_FORWARDED,
+    RESET_PENDING_ATTACHMENTS,
+    SET_PENDING_ATTACHMENTS,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
     SET_MAX_MESSAGE_SIZE,
@@ -12,8 +12,8 @@ import {
 
 export default {
     mutations: {
-        [RESET_ATTACHMENTS_FORWARDED]: state => {
-            state.forwardedAttachments = [];
+        [RESET_PENDING_ATTACHMENTS]: state => {
+            state.pendingAttachments = [];
         },
         [SET_DRAFT_EDITOR_CONTENT]: (state, content) => {
             state.editorContent = content;
@@ -24,8 +24,8 @@ export default {
         [SET_SAVED_INLINE_IMAGES]: (state, inlineImages) => {
             state.inlineImagesSaved = inlineImages;
         },
-        [SET_ATTACHMENTS_FORWARDED]: (state, forwardedAttachments) => {
-            state.forwardedAttachments = forwardedAttachments;
+        [SET_PENDING_ATTACHMENTS]: (state, attachments) => {
+            state.pendingAttachments = attachments;
         },
         [SET_MAX_MESSAGE_SIZE](state, size) {
             state.maxMessageSize = size;
@@ -45,6 +45,6 @@ export default {
         collapsedContent: null,
         inlineImagesSaved: [],
         maxMessageSize: 0,
-        forwardedAttachments: [] // used only to store forwarded attachments when they are not uploaded
+        pendingAttachments: [] // used only to store forwarded attachments when they are not uploaded
     }
 };

@@ -7,7 +7,7 @@ import { isNewMessage } from "~/model/draft";
 import { AttachmentStatus } from "~/model/attachment";
 import { MessageHeader, MessageStatus } from "~/model/message";
 import {
-    RESET_ATTACHMENTS_FORWARDED,
+    RESET_PENDING_ATTACHMENTS,
     SET_MESSAGE_DATE,
     SET_MESSAGE_HEADERS,
     SET_MESSAGE_INTERNAL_ID,
@@ -25,8 +25,13 @@ import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 export function isReadyToBeSaved(draft, messageCompose) {
     const checkAttachments =
         draft.attachments.every(a => a.status === AttachmentStatus.UPLOADED) ||
+<<<<<<< HEAD
         (isNewMessage(draft) && messageCompose.forwardedAttachments.length > 0); // due to attachments forward cases
     return (draft.status === MessageStatus.IDLE || draft.status === MessageStatus.NEW) && checkAttachments;
+=======
+        (isNewMessage(draft) && messageCompose.pendingAttachments.length > 0); // due to attachments forward cases
+    return draft.status === MessageStatus.IDLE && checkAttachments;
+>>>>>>> 25857db2ffc (FEATWEBML-1637 Feat: Edit a message as new)
 }
 
 export async function save(context, draft, messageCompose) {
@@ -120,11 +125,11 @@ function generateMessageIDHeader(draft) {
 async function handleAttachmentsForForward(draft, service, messageCompose, commit) {
     if (
         isNewMessage(draft) &&
-        messageCompose.forwardedAttachments.length > 0 &&
-        draft.attachments.length >= messageCompose.forwardedAttachments.length
+        messageCompose.pendingAttachments.length > 0 &&
+        draft.attachments.length >= messageCompose.pendingAttachments.length
     ) {
         const addresses = await Promise.all(
-            messageCompose.forwardedAttachments.map(content => service.uploadPart(content))
+            messageCompose.pendingAttachments.map(content => service.uploadPart(content))
         );
 
         addresses.forEach((newAddress, index) => {
@@ -141,7 +146,7 @@ async function handleAttachmentsForForward(draft, service, messageCompose, commi
             });
         });
 
-        commit(RESET_ATTACHMENTS_FORWARDED);
+        commit(RESET_PENDING_ATTACHMENTS);
     }
 }
 

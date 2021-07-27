@@ -12,7 +12,7 @@
             <bm-icon icon="3dots" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.toolbar.more") }}</span>
         </template>
-        <bm-dropdown-item v-if="isTemplate" icon="pencil">
+        <bm-dropdown-item v-if="!isTemplate" icon="pencil" @click="editAsNew(selected[0])">
             {{ $t("mail.actions.edit_as_new") }}
         </bm-dropdown-item>
         <bm-dropdown-item
@@ -49,17 +49,31 @@
 import { mapGetters } from "vuex";
 import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
 import { ActionTextMixin, RemoveMixin, FlagMixin } from "~/mixins";
-import { MY_TEMPLATES } from "~/getters";
+import { MY_DRAFTS, MY_TEMPLATES } from "~/getters";
+import { draftPath } from "~/model/draft";
+import { MessageCreationModes } from "~/model/message";
+import MessagePathParam from "~/router/MessagePathParam";
 
 export default {
     name: "MailToolbarConsultMessageOtherActions",
     components: { BmDropdown, BmDropdownItem, BmIcon },
     mixins: [ActionTextMixin, RemoveMixin, FlagMixin],
     computed: {
-        ...mapGetters("mail", { MY_TEMPLATES }),
+        ...mapGetters("mail", { MY_DRAFTS, MY_TEMPLATES }),
 
         isTemplate() {
             return this.selectionLength === 1 && this.selected[0]?.folderRef.key === this.MY_TEMPLATES.key;
+        }
+    },
+    methods: {
+        editAsNew(selected) {
+            const messagepath = draftPath(this.MY_DRAFTS);
+            const message = MessagePathParam.build("", selected);
+            this.$router.navigate({
+                name: "mail:message",
+                params: { messagepath },
+                query: { action: MessageCreationModes.EDIT_AS_NEW, message }
+            });
         }
     }
 };

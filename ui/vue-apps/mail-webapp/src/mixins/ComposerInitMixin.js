@@ -8,7 +8,7 @@ import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { MY_DRAFTS } from "~/getters";
 import {
     ADD_MESSAGES,
-    SET_ATTACHMENTS_FORWARDED,
+    SET_PENDING_ATTACHMENTS,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
     SET_MESSAGE_TMP_ADDRESSES,
@@ -20,6 +20,7 @@ import { getPartsFromCapabilities } from "~/model/part";
 import {
     addSeparator,
     COMPOSER_CAPABILITIES,
+    createDraftFromMessage,
     createEmpty,
     createReplyOrForward,
     getEditorContent,
@@ -59,7 +60,6 @@ export default {
         }),
         ...mapMutations("mail", {
             $_ComposerInitMixin_ADD_MESSAGES: ADD_MESSAGES,
-            $_ComposerInitMixin_SET_ATTACHMENTS_FORWARDED: SET_ATTACHMENTS_FORWARDED,
             $_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT: SET_DRAFT_COLLAPSED_CONTENT,
             $_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT: SET_DRAFT_EDITOR_CONTENT,
             $_ComposerInitMixin_SET_MESSAGE_TMP_ADDRESSES: SET_MESSAGE_TMP_ADDRESSES,
@@ -128,6 +128,16 @@ export default {
                             folder: this.$store.state.mail.folders[related.folderKey]
                         });
                         return this.initReplyOrForward(action, previous);
+                    } catch {
+                        return this.initNewMessage();
+                    }
+                case MessageCreationModes.EDIT_AS_NEW:
+                    try {
+                        const previous = await this.$store.dispatch("mail/" + FETCH_MESSAGE_IF_NOT_LOADED, {
+                            internalId: related.messageId,
+                            folder: this.$store.state.mail.folders[related.folderKey]
+                        });
+                        return this.initEditAsNew(previous);
                     } catch {
                         return this.initNewMessage();
                     }
@@ -211,11 +221,50 @@ export default {
             this.$_ComposerInitMixin_ADD_MESSAGES([message]);
 
             if (creationMode === MessageCreationModes.FORWARD) {
-                const forwardedAttachments = await uploadAttachments(previousMessage);
-                this.$_ComposerInitMixin_SET_ATTACHMENTS_FORWARDED(forwardedAttachments);
+                const attachments = await uploadAttachments(previousMessage);
+                this.$store.commit(`mail/${SET_PENDING_ATTACHMENTS}`, attachments);
             }
 
             return message;
+        },
+
+        async initEditAsNew(previousMessage) {
+            const message = createDraftFromMessage(
+                previousMessage,
+                this.$_ComposerInitMixin_MY_DRAFTS,
+                inject("UserSession")
+            );
+            this.$_ComposerInitMixin_ADD_MESSAGES([message]);
+
+            const parts = getPartsFromCapabilities(previousMessage, COMPOSER_CAPABILITIES);
+            await this.$_ComposerInitMixin_FETCH_ACTIVE_MESSAGE_INLINE_PARTS({
+                folderUid: previousMessage.folderRef.uid,
+                imapUid: previousMessage.remoteRef.imapUid,
+                inlines: parts.filter(
+                    part => MimeType.isHtml(part) || MimeType.isText(part) || (MimeType.isImage(part) && part.contentId)
+                )
+            });
+            const partsWithCid = parts.filter(part => MimeType.isImage(part) && part.contentId);
+
+            let content = getEditorContent(
+                this.userPrefTextOnly,
+                parts,
+                this.$_ComposerInitMixin_activeMessage.partsDataByAddress,
+                this.$_ComposerInitMixin_lang
+            );
+            if (!this.userPrefTextOnly) {
+                const result = await InlineImageHelper.insertAsBase64(
+                    [content],
+                    partsWithCid,
+                    this.$_ComposerInitMixin_activeMessage.partsDataByAddress
+                );
+                content = sanitizeHtml(result.contentsWithImageInserted[0]);
+            }
+            this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
+            const attachments = await uploadAttachments(previousMessage);
+            this.$store.commit(`mail/${SET_PENDING_ATTACHMENTS}`, attachments);
+
+            this.$router.navigate({ name: "v:mail:message", params: { message: message } });
         }
     }
 };

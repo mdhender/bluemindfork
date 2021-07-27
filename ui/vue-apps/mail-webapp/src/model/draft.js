@@ -123,6 +123,18 @@ function handleIdentificationFields(message, previousMessage) {
     }
 }
 
+export function createDraftFromMessage(previousMessage, myDraftsFolder, userSession) {
+    const message = createEmpty(myDraftsFolder, userSession);
+    message.to = previousMessage.to.slice();
+    message.cc = previousMessage.cc.slice();
+    message.attachments = previousMessage.attachments.map(attachment => ({
+        ...attachment,
+        status: AttachmentStatus.NOT_LOADED
+    }));
+    message.subject = previousMessage.subject;
+    return message;
+}
+
 // INTERNAL METHOD (exported only for testing purpose)
 export function computeCcRecipients(creationMode, previousMessage) {
     let cc = [];
