@@ -97,7 +97,7 @@ public class SLConference {
 
 		ret.put("timezone", "Europe/Paris");
 		ret.put("hide_dir_entry", true);
-		ret.put("require_owner", true);
+		ret.put("require_owner", false);
 		ret.put("permanent", true);
 
 		return ret;
