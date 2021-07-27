@@ -134,7 +134,7 @@ export default {
                 case MessageCreationModes.EDIT_AS_NEW:
                     try {
                         const previous = await this.$store.dispatch("mail/" + FETCH_MESSAGE_IF_NOT_LOADED, {
-                            internalId: related.messageId,
+                            internalId: related.internalId,
                             folder: this.$store.state.mail.folders[related.folderKey]
                         });
                         return this.initEditAsNew(previous);
@@ -234,37 +234,43 @@ export default {
                 this.$_ComposerInitMixin_MY_DRAFTS,
                 inject("UserSession")
             );
-            this.$_ComposerInitMixin_ADD_MESSAGES([message]);
 
             const parts = getPartsFromCapabilities(previousMessage, COMPOSER_CAPABILITIES);
-            await this.$_ComposerInitMixin_FETCH_ACTIVE_MESSAGE_INLINE_PARTS({
+
+            await this.$_ComposerInitMixin_FETCH_PART_DATA({
+                messageKey: previousMessage.key,
                 folderUid: previousMessage.folderRef.uid,
                 imapUid: previousMessage.remoteRef.imapUid,
                 inlines: parts.filter(
                     part => MimeType.isHtml(part) || MimeType.isText(part) || (MimeType.isImage(part) && part.contentId)
                 )
             });
-            const partsWithCid = parts.filter(part => MimeType.isImage(part) && part.contentId);
-
             let content = getEditorContent(
                 this.userPrefTextOnly,
                 parts,
-                this.$_ComposerInitMixin_activeMessage.partsDataByAddress,
+                this.$_ComposerInitMixin_partsData[previousMessage.key],
                 this.$_ComposerInitMixin_lang
             );
+
             if (!this.userPrefTextOnly) {
+                const partsWithCid = parts.filter(part => MimeType.isImage(part) && part.contentId);
+
                 const result = await InlineImageHelper.insertAsBase64(
                     [content],
                     partsWithCid,
-                    this.$_ComposerInitMixin_activeMessage.partsDataByAddress
+                    this.$_ComposerInitMixin_partsData[previousMessage.key]
                 );
                 content = sanitizeHtml(result.contentsWithImageInserted[0]);
             }
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
+            this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
+            this.$_ComposerInitMixin_ADD_MESSAGES([message]);
+
             const attachments = await uploadAttachments(previousMessage);
             this.$store.commit(`mail/${SET_PENDING_ATTACHMENTS}`, attachments);
 
             this.$router.navigate({ name: "v:mail:message", params: { message: message } });
+            return message;
         }
     }
 };

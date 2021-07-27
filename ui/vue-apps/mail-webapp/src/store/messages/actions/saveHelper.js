@@ -25,13 +25,8 @@ import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 export function isReadyToBeSaved(draft, messageCompose) {
     const checkAttachments =
         draft.attachments.every(a => a.status === AttachmentStatus.UPLOADED) ||
-<<<<<<< HEAD
         (isNewMessage(draft) && messageCompose.forwardedAttachments.length > 0); // due to attachments forward cases
     return (draft.status === MessageStatus.IDLE || draft.status === MessageStatus.NEW) && checkAttachments;
-=======
-        (isNewMessage(draft) && messageCompose.pendingAttachments.length > 0); // due to attachments forward cases
-    return draft.status === MessageStatus.IDLE && checkAttachments;
->>>>>>> 25857db2ffc (FEATWEBML-1637 Feat: Edit a message as new)
 }
 
 export async function save(context, draft, messageCompose) {
