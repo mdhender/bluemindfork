@@ -736,24 +736,20 @@ public class UserService implements IInCoreUser, IUser {
 			roles.remove("hasMail");
 		}
 
-		if (user.accountType == AccountType.FULL_AND_VISIO) {
-			roles.add("hasFullVideoconferencing");
-		}
+		IInstallation installationService = bmContext.su().getServiceProvider().instance(IInstallation.class);
+		SubscriptionInformations subInfos = installationService.getSubscriptionInformations();
+		Optional<InstallationIndicator> fullVisioIndicator = subInfos.indicator.stream()
+				.filter(indicator -> indicator.kind == InstallationIndicator.Kind.FullVisioAccount).findFirst();
 
-		// deactivate non-active roles
-		if (roles.contains("hasFullVideoconferencing")) {
-			if (user.accountType != AccountType.FULL_AND_VISIO) {
-				roles.remove("hasFullVideoconferencing");
+		if (fullVisioIndicator.isPresent()) {
+			if (user.accountType == AccountType.FULL) {
 				roles.add("hasSimpleVideoconferencing");
-			} else {
-				IInstallation installationService = bmContext.su().getServiceProvider().instance(IInstallation.class);
-				SubscriptionInformations subInfos = installationService.getSubscriptionInformations();
-				Optional<InstallationIndicator> fullVisioIndicator = subInfos.indicator.stream()
-						.filter(indicator -> indicator.kind == InstallationIndicator.Kind.FullVisioAccount).findFirst();
-
-				if (fullVisioIndicator.isPresent() && fullVisioIndicator.get().expiration != null
-						&& Calendar.getInstance().getTime().after(fullVisioIndicator.get().expiration)) {
-					roles.remove("hasFullVideoconferencing");
+			} else if (user.accountType == AccountType.FULL_AND_VISIO) {
+				if (fullVisioIndicator.get().expiration != null
+						&& Calendar.getInstance().getTime().before(fullVisioIndicator.get().expiration)) {
+					roles.add("hasFullVideoconferencing");
+				} else {
+					roles.add("hasSimpleVideoconferencing");
 				}
 			}
 		}

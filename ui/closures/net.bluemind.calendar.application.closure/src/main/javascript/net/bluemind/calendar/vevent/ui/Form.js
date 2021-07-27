@@ -324,7 +324,7 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
     minutes: date.getMinutes()
   }
 
-  var videoConferencingResources = goog.array.filter(this.ctx.service('videoConferencing').getVideoConferencingResources(), function(res) {
+  this.videoConferencingResources_ = goog.array.filter(this.ctx.service('videoConferencing').getVideoConferencingResources(), function(res) {
     return res.canInvite;
   });
 
@@ -339,11 +339,12 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
   var bmVideoConfExpirationDate = goog.global['bmcSessionInfos']['roles'];
 
   var roles = goog.global['bmcSessionInfos']['roles'].split(',');
-  goog.array.removeAllIf(videoConferencingResources, function(res) {
-    return (res.providerId == "videoconferencing-bluemind" && !goog.array.contains(roles, "hasFullVideoconferencing"));
+  goog.array.removeAllIf(this.videoConferencingResources_, function(res) {
+    return (res.providerId == "videoconferencing-bluemind" && !(goog.array.contains(roles, "hasFullVideoconferencing") 
+      || goog.array.contains(roles, "hasSimpleVideoconferencing")));
   });
 
-  goog.array.forEach(videoConferencingResources, function(p) {
+  goog.array.forEach(this.videoConferencingResources_, function(p) {
     var content = dom.createDom("div");
     var icon = dom.createDom("img");
     icon.className = "videoconference-icon";
@@ -432,6 +433,15 @@ net.bluemind.calendar.vevent.ui.Form.prototype.tags;
 net.bluemind.calendar.vevent.ui.Form.prototype.alarm_;
 
 /**
+ * Video Conferences resources
+ * 
+ * @type {Array.<Object>}
+ * @private
+ */
+net.bluemind.calendar.vevent.ui.Form.prototype.videoConferencingResources_;
+
+
+/**
  * Generate a date field
  * 
  * @return {goog.ui.InputDatePicker} picker.
@@ -459,16 +469,13 @@ net.bluemind.calendar.vevent.ui.Form.prototype.createDom = function() {
   var weekdays = goog.array.clone(goog.i18n.DateTimeSymbols_en.WEEKDAYS);
   var narrow = goog.array.clone(goog.i18n.DateTimeSymbols.NARROWWEEKDAYS);
   var fdow = (goog.i18n.DateTimeSymbols.FIRSTDAYOFWEEK + 1) % 7;
-  var videoConferencingResources = goog.array.filter(this.ctx.service('videoConferencing').getVideoConferencingResources(), function(res) {
-    return res.canInvite;
-  });
   el.innerHTML = net.bluemind.calendar.vevent.templates.form({
     defaultCalendar : this.getModel().states.defaultCalendar,
     event : this.getModel(),
     calendars : this.calendars,
     longweekdays : goog.array.rotate(weekdays, -fdow),
     narrowweekdays : goog.array.rotate(narrow, -fdow),
-    videoConferencingResources : videoConferencingResources
+    videoConferencingResources : this.videoConferencingResources_
   });
   this.getChild('toolbar').renderBefore(el.firstChild);
 
@@ -718,11 +725,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
   });
 
   // VIDEOCONFERENCING
-  var videoConferencingResources = goog.array.filter(this.ctx.service('videoConferencing').getVideoConferencingResources(), function(res) {
-    return res.canInvite;
-  });
-
-  if (videoConferencingResources != null && videoConferencingResources.length > 0) {
+  if (this.videoConferencingResources_ != null && this.videoConferencingResources_.length > 0) {
     dom.getElement('this-is-videoconferencing').style.display = 'block';
     var providerSelector = this.getChild('bm-ui-form-videoconferencing-select');
     providerSelector.decorate(this.getElementByClass(goog.getCssName('_providers')));
@@ -735,8 +738,8 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
 
     var button = dom.getElement('bm-ui-form-videoconferencing-button');
 
-    if (videoConferencingResources.length == 1) {
-      var res = videoConferencingResources[0];
+    if (this.videoConferencingResources_.length == 1) {
+      var res = this.videoConferencingResources_[0];
       providerSelector.setValue(res.uid);
       dom.getElement('bm-ui-form-videoconferencing-provider-icon').src= '/api/resources/' + this.ctx.user['domainUid'] + '/' + res.uid + '/icon';
     } else {
@@ -1868,13 +1871,10 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = f
 };
 
 net.bluemind.calendar.vevent.ui.Form.prototype.showConferenceForm_ = function() {
-  var videoConferencingResources = goog.array.filter(this.ctx.service('videoConferencing').getVideoConferencingResources(), function(res) {
-    return res.canInvite;
-  });
-  var multiProviders = videoConferencingResources.length > 1;
+  var multiProviders = this.videoConferencingResources_.length > 1;
   var providerSelector = this.getChild('bm-ui-form-videoconferencing-select');
   providerSelector.setVisible(multiProviders);
-  providerSelector.setValue(multiProviders ? -1 : videoConferencingResources[0].uid);
+  providerSelector.setValue(multiProviders ? -1 : this.videoConferencingResources_[0].uid);
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-button').style.display = multiProviders ? 'none' : 'block';
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-loading').style.display = 'none';
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-goto').style.display = 'none';
