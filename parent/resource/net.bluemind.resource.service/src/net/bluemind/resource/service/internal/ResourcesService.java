@@ -118,6 +118,13 @@ public class ResourcesService implements IResources {
 
 	@Override
 	public void create(String uid, ResourceDescriptor rd) throws ServerFault {
+		ItemValue<ResourceDescriptor> resourceDescriptorItem = ItemValue.create(uid, rd);
+		createWithItem(uid, resourceDescriptorItem);
+	}
+
+	@Override
+	public void createWithItem(String uid, ItemValue<ResourceDescriptor> resourceDescriptorItem) throws ServerFault {
+		ResourceDescriptor rd = resourceDescriptorItem.value;
 		rbacManager.forOrgUnit(rd.orgUnitUid).check(BasicRoles.ROLE_MANAGE_RESOURCE);
 
 		extSanitizer.create(rd);
@@ -133,7 +140,7 @@ public class ResourcesService implements IResources {
 
 		mailboxes.validate(uid, mailboxAdapter.asMailbox(domainUid, uid, rd));
 
-		storeService.create(uid, rd);
+		storeService.create(resourceDescriptorItem);
 
 		mailboxes.created(uid, mailboxAdapter.asMailbox(domainUid, uid, rd));
 		mailboxes.setMailboxFilter(uid, discardRule());
@@ -142,16 +149,17 @@ public class ResourcesService implements IResources {
 		ContainerDescriptor calContainerDescriptor = ContainerDescriptor.create(ICalendarUids.TYPE + ":" + uid,
 				rd.label, uid, ICalendarUids.TYPE, domainUid, true);
 		IContainers containers = context.su().provider().instance(IContainers.class);
-
 		containers.create(calContainerDescriptor.uid, calContainerDescriptor);
 
 		String fbContainerUid = IFreebusyUids.getFreebusyContainerUid(uid);
 		ContainerDescriptor containerDescriptor = ContainerDescriptor.create(fbContainerUid, "freebusy container", uid,
 				IFreebusyUids.TYPE, domainUid, true);
-		context.su().provider().instance(IContainers.class).create(fbContainerUid, containerDescriptor);
+		containers.create(fbContainerUid, containerDescriptor);
 		context.su().provider().instance(IContainerManagement.class, fbContainerUid)
 				.setAccessControlList(Arrays.asList(AccessControlEntry.create(domainUid, Verb.Read)));
+
 		context.su().provider().instance(IFreebusyMgmt.class, fbContainerUid).add(calContainerDescriptor.uid);
+
 		dirEventProducer.changed(uid, storeService.getVersion());
 	}
 
@@ -166,9 +174,16 @@ public class ResourcesService implements IResources {
 
 	@Override
 	public void update(String uid, ResourceDescriptor rd) throws ServerFault {
+		ItemValue<ResourceDescriptor> resourceDescriptorItem = ItemValue.create(uid, rd);
+		updateWithItem(uid, resourceDescriptorItem);
+	}
+
+	@Override
+	public void updateWithItem(String uid, ItemValue<ResourceDescriptor> resourceDescriptorItem) throws ServerFault {
 		checkManageResource(uid);
 
 		ParametersValidator.notNullAndNotEmpty(uid);
+		ResourceDescriptor rd = resourceDescriptorItem.value;
 
 		ItemValue<DirEntryAndValue<ResourceDescriptor>> previousItemValue = storeService.get(uid, null);
 		if (previousItemValue == null) {
@@ -199,7 +214,7 @@ public class ResourcesService implements IResources {
 
 		mailboxes.validate(uid, mailboxAdapter.asMailbox(domainUid, uid, rd));
 
-		storeService.update(uid, rd);
+		storeService.update(resourceDescriptorItem);
 
 		mailboxes.updated(uid, previousItemValue.value.mailbox, mailboxAdapter.asMailbox(domainUid, uid, rd));
 		mailboxes.setMailboxFilter(uid, discardRule());

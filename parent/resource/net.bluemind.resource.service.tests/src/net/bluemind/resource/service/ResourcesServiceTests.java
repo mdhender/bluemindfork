@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -268,6 +269,44 @@ public class ResourcesServiceTests {
 	}
 
 	@Test
+	public void testUpdateWithItem() throws Exception {
+		String rtId = UUID.randomUUID().toString();
+		ResourceDescriptor rd = defaultDescriptor();
+		ItemValue<ResourceDescriptor> rdItem = ItemValue.create(rtId, rd);
+		rdItem.internalId = 73;
+		rdItem.externalId = "external-" + System.currentTimeMillis();
+		rdItem.displayName = "test";
+		rdItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
+		rdItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		rdItem.version = 17;
+		service(domainAdminSC).createWithItem(rtId, rdItem);
+		rdItem = store.get(rtId);
+
+		rdItem.value.label = "updated";
+		rdItem.value.emails = Arrays.asList(Email.create("test1@" + testDomainUid, true),
+				Email.create("test2@" + testDomainUid, false));
+		rdItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		rdItem.version = 23;
+
+		service(domainAdminSC).updateWithItem(rtId, rdItem);
+
+		ItemValue<DirEntryAndValue<ResourceDescriptor>> updatedItem = store.get(rtId, null);
+		assertNotNull(updatedItem.value.vcard);
+		assertEquals(2, updatedItem.value.vcard.communications.emails.size());
+		Iterator<Email> it = updatedItem.value.mailbox.emails.iterator();
+		assertEquals("test1@" + testDomainUid, it.next().address);
+		assertEquals("test2@" + testDomainUid, it.next().address);
+
+		assertEquals(rdItem.internalId, updatedItem.internalId);
+		assertEquals(rdItem.uid, updatedItem.uid);
+		assertEquals(rdItem.externalId, updatedItem.externalId);
+		assertEquals(rdItem.created, updatedItem.created);
+		// Call to mailboxes.setMailboxFilter change updated date and increment version
+//		assertEquals(rdItem.updated, updatedItem.updated);
+		assertEquals(rdItem.version + 1, updatedItem.version);
+	}
+
+	@Test
 	public void testUpdateAlreadyUsedMail() throws Exception {
 		String rtId = UUID.randomUUID().toString();
 		store.create(rtId, defaultDescriptor());
@@ -376,6 +415,35 @@ public class ResourcesServiceTests {
 		} catch (ServerFault e) {
 			// normal
 		}
+	}
+
+	@Test
+	public void testCreateWithItem() throws Exception {
+		String rtId = UUID.randomUUID().toString();
+		ResourceDescriptor rd = defaultDescriptor();
+		ItemValue<ResourceDescriptor> rdItem = ItemValue.create(rtId, rd);
+		rdItem.internalId = 73;
+		rdItem.externalId = "external-" + System.currentTimeMillis();
+		rdItem.displayName = "test";
+		rdItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
+		rdItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		rdItem.version = 17;
+
+		service(domainAdminSC).createWithItem(rtId, rdItem);
+		ItemValue<DirEntryAndValue<ResourceDescriptor>> createdItemx = store.get(rtId, null);
+		System.out.println("createdItemx:" + createdItemx.displayName);
+		ItemValue<ResourceDescriptor> createdItem = store.get(rtId);
+		System.out.println("createdItem:" + createdItem.displayName);
+
+		assertNotNull(createdItem);
+
+		assertEquals(rdItem.internalId, createdItem.internalId);
+		assertEquals(rdItem.uid, createdItem.uid);
+		assertEquals(rdItem.externalId, createdItem.externalId);
+		assertEquals(rdItem.created, createdItem.created);
+		// Call to mailboxes.setMailboxFilter change updated date and increment version
+//		assertEquals(rdItem.updated, createdItem.updated);
+		assertEquals(rdItem.version + 1, createdItem.version);
 	}
 
 	@Test

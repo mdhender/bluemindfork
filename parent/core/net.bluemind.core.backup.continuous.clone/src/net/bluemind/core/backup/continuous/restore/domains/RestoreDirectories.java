@@ -207,12 +207,13 @@ public class RestoreDirectories {
 						typeApi.create(wantedType, rtd);
 					}
 
+					ItemValue<ResourceDescriptor> resourceItem = ItemValue.create(res.item(), res.value.value);
 					if (existingres != null) {
 						monitor.log("Update resource " + res.value.value);
-						resApi.update(res.uid, res.value.value);
+						resApi.updateWithItem(res.uid, resourceItem);
 					} else {
 						monitor.log("Create resource " + res.value.value);
-						resApi.create(res.uid, res.value.value);
+						resApi.createWithItem(res.uid, resourceItem);
 					}
 				}
 				break;
