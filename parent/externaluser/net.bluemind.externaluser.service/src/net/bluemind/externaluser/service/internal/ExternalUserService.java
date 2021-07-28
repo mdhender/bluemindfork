@@ -51,7 +51,7 @@ import net.bluemind.role.api.BasicRoles;
 
 public class ExternalUserService implements IInCoreExternalUser {
 
-	final static Logger logger = LoggerFactory.getLogger(ExternalUserService.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExternalUserService.class);
 	private ExternalUserContainerStoreService storeService;
 	private RBACManager rbacManager;
 	private ExternalUserValidator validator;
@@ -179,7 +179,7 @@ public class ExternalUserService implements IInCoreExternalUser {
 
 		List<String> groupsUid = memberOfGroupUid(uid);
 
-		ArrayList<ItemValue<Group>> groups = new ArrayList<ItemValue<Group>>();
+		ArrayList<ItemValue<Group>> groups = new ArrayList<>();
 
 		for (String groupUid : groupsUid) {
 			groups.add(groupService.getComplete(groupUid));
@@ -208,7 +208,6 @@ public class ExternalUserService implements IInCoreExternalUser {
 		}
 
 		if (item == null) {
-			logger.debug("Invalid user UID: " + uid);
 			throw new ServerFault("Invalid user UID: " + uid);
 		}
 

@@ -23,7 +23,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -65,8 +64,8 @@ import net.bluemind.core.utils.ImageUtils;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.ValidationResult;
 import net.bluemind.core.validator.Validator;
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.BaseDirEntry.AccountType;
-import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.DirDomainValue;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.directory.service.DirEntryHandlers;
@@ -204,7 +203,7 @@ public class UserService implements IInCoreUser, IUser {
 
 		MailFilter filter = null;
 		if (!globalVirt && !user.system) {
-			filter = transformExternalEmailsToForwards(user, Collections.emptyList(), uid, new MailFilter());
+			filter = transformExternalEmailsToForwards(user, new MailFilter());
 		}
 		storeService.create(userItemValue);
 		ItemValue<User> item = createItemValue(uid, user);
@@ -246,6 +245,7 @@ public class UserService implements IInCoreUser, IUser {
 	 * @deprecated
 	 * @return
 	 */
+	@Deprecated
 	private String getSummary(User user) {
 		if (user.contactInfos != null && user.contactInfos.identification.formatedName.value != null) {
 			return user.contactInfos.identification.formatedName.value;
@@ -265,7 +265,6 @@ public class UserService implements IInCoreUser, IUser {
 
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER);
 
-		Item item = userItem.item();
 		User user = userItem.value;
 
 		ItemValue<User> previous = getFull(uid);
@@ -292,8 +291,7 @@ public class UserService implements IInCoreUser, IUser {
 
 		MailFilter filter = null;
 		if (!globalVirt && !user.system) {
-			filter = transformExternalEmailsToForwards(user, previous.value.emails, uid,
-					mailboxes.getMailboxFilter(uid));
+			filter = transformExternalEmailsToForwards(user, mailboxes.getMailboxFilter(uid));
 			mailboxes.validate(uid, mailboxAdapter.asMailbox(domainName, uid, user));
 		}
 		storeService.update(userItem);
@@ -393,9 +391,7 @@ public class UserService implements IInCoreUser, IUser {
 	public TaskRef delete(String uid) throws ServerFault {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER);
 
-		return bmContext.provider().instance(ITasksManager.class).run(monitor -> {
-			performDelete(uid, monitor);
-		});
+		return bmContext.provider().instance(ITasksManager.class).run(monitor -> performDelete(uid, monitor));
 
 	}
 
@@ -429,7 +425,7 @@ public class UserService implements IInCoreUser, IUser {
 
 		List<String> groups = memberOfGroupUid(uid);
 		IGroup groupService = bmContext.su().provider().instance(IGroup.class, domainName);
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		Member member = new Member();
 		member.type = Member.Type.user;
 		member.uid = uid;
@@ -502,29 +498,18 @@ public class UserService implements IInCoreUser, IUser {
 			return false;
 		}
 
-		Optional<Integer> passwordLifetime = Optional.empty();
+		Integer passwordLifetimeSetting;
 		try {
-			Integer passwordLifetimeSetting = Integer
+			passwordLifetimeSetting = Integer
 					.valueOf(bmContext.su().provider().instance(IDomainSettings.class, domainName).get()
 							.get(DomainSettingsKeys.password_lifetime.name()));
-			if (passwordLifetimeSetting > 0) {
-				passwordLifetime = Optional.of(passwordLifetimeSetting);
-			}
 		} catch (NumberFormatException nfe) {
-		}
-
-		if (!passwordLifetime.isPresent()) {
-			// No or invalid password lifetime defined
 			return false;
 		}
 
-		if (userItem.value.passwordLastChange == null
-				|| addDaysToDate(userItem.value.passwordLastChange, passwordLifetime.get())
-						.compareTo(getToday()) <= 0) {
-			return true;
-		}
-
-		return false;
+		return (passwordLifetimeSetting > 0) && (userItem.value.passwordLastChange == null
+				|| addDaysToDate(userItem.value.passwordLastChange, passwordLifetimeSetting)
+						.compareTo(getToday()) <= 0);
 	}
 
 	public boolean checkPassword(String login, String password) {
@@ -572,8 +557,10 @@ public class UserService implements IInCoreUser, IUser {
 		// handle password using older passwordAlgorithm (3.0 -> 3.5, MD5 ->
 		// PBKDF2)
 		if (valid && !HashFactory.usesDefaultAlgorithm(password)) {
-			logger.info("Updating password algorithm of user {} from {} to {}", user.login,
-					HashFactory.algorithm(password), HashFactory.DEFAULT.name());
+			if (logger.isInfoEnabled()) {
+				logger.info("Updating password algorithm of user {} from {} to {}", user.login,
+						HashFactory.algorithm(password), HashFactory.DEFAULT.name());
+			}
 			storeService.setPassword(userItem.uid, HashFactory.getDefault().create(passwordPlain), false);
 		}
 	}
@@ -593,7 +580,7 @@ public class UserService implements IInCoreUser, IUser {
 
 		List<String> groupsUid = memberOfGroupUid(uid);
 
-		ArrayList<ItemValue<Group>> groups = new ArrayList<ItemValue<Group>>();
+		ArrayList<ItemValue<Group>> groups = new ArrayList<>();
 		IGroup groupService = bmContext.provider().instance(IGroup.class, domainName);
 
 		for (String groupUid : groupsUid) {
@@ -621,7 +608,6 @@ public class UserService implements IInCoreUser, IUser {
 		}
 
 		if (item == null) {
-			logger.debug("Invalid user UID: " + uid);
 			throw new ServerFault("Invalid user UID: " + uid);
 		}
 
@@ -948,13 +934,12 @@ public class UserService implements IInCoreUser, IUser {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER);
 
 		if (accountType != null) {
-			DirEntryHandlers.byKind(DirEntry.Kind.USER).updateAccountType(bmContext, domainName, uid, accountType);
+			DirEntryHandlers.byKind(BaseDirEntry.Kind.USER).updateAccountType(bmContext, domainName, uid, accountType);
 			eventProducer.changed(uid, storeService.getVersion());
 		}
 	}
 
-	private MailFilter transformExternalEmailsToForwards(User user, Collection<Email> previousEmails, String uid,
-			MailFilter filter) {
+	private MailFilter transformExternalEmailsToForwards(User user, MailFilter filter) {
 		if (filter == null) {
 			filter = new MailFilter();
 		}

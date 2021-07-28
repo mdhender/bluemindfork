@@ -169,8 +169,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 		Group group = groupItem.value;
 		ItemValue<Group> previousItemValue = getFull(uid);
 		if (previousItemValue == null || previousItemValue.value == null) {
-			logger.error("Group uid: {} doesn't exist !", uid);
-			throw new ServerFault("Group uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
+			throwNotFoundServerFault(uid);
 		}
 		Group previous = previousItemValue.value;
 
@@ -203,8 +202,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_GROUP);
 		ItemValue<Group> previousItemValue = getFull(uid);
 		if (previousItemValue == null || previousItemValue.value == null) {
-			logger.error("Group uid: {} doesn't exist !", uid);
-			throw new ServerFault("Group uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
+			throwNotFoundServerFault(uid);
 		}
 
 		storeService.update(uid, previousItemValue.value);
@@ -300,25 +298,21 @@ public class GroupService implements IGroup, IInCoreGroup {
 
 		ItemValue<Group> group = getFull(uid);
 		if (group == null || group.value == null) {
-			logger.error("Group uid: {} doesn't exist !", uid);
-			throw new ServerFault("Group uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
+			throwNotFoundServerFault(uid);
 		}
 
 		validMembers(members);
 
-		if (members.size() == 0) {
+		if (members.isEmpty()) {
 			return;
 		}
 
 		checkCanManageGroupMembers(group, members);
 
-		Set<String> currentMembers = storeService.getMembers(uid).stream().map((m) -> {
-			return m.uid;
-		}).collect(Collectors.toSet());
+		Set<String> currentMembers = storeService.getMembers(uid).stream().map(m -> m.uid).collect(Collectors.toSet());
 
-		List<Member> alreadyPresent = members.stream().filter((m) -> {
-			return currentMembers.contains(m.uid);
-		}).collect(Collectors.toList());
+		List<Member> alreadyPresent = members.stream().filter(m -> currentMembers.contains(m.uid))
+				.collect(Collectors.toList());
 
 		if (!alreadyPresent.isEmpty()) {
 			logger.error("Group uid: {}: members ({}) are already in group", uid, alreadyPresent);
@@ -363,9 +357,9 @@ public class GroupService implements IGroup, IInCoreGroup {
 	}
 
 	private void validMembers(List<Member> members) throws ServerFault {
-		ArrayList<String> usersUids = new ArrayList<String>();
-		ArrayList<String> groupsUids = new ArrayList<String>();
-		ArrayList<String> externalUsersUids = new ArrayList<String>();
+		ArrayList<String> usersUids = new ArrayList<>();
+		ArrayList<String> groupsUids = new ArrayList<>();
+		ArrayList<String> externalUsersUids = new ArrayList<>();
 
 		for (Member member : members) {
 			if (member.type == null || member.uid == null || member.uid.isEmpty()) {
@@ -384,41 +378,42 @@ public class GroupService implements IGroup, IInCoreGroup {
 			}
 		}
 
-		StringBuffer log = new StringBuffer();
+		StringBuilder log = new StringBuilder();
 
-		ValidationResult groupValidity = this.validate(groupsUids.toArray(new String[0]));
-		if (!groupValidity.valid) {
-			groupValidity.validationResults.forEach((uid, valid) -> {
-				if (!valid) {
-					log.append(String.format("No group with uid %s found%s", uid, "\r\n"));
-				}
-			});
-		}
-
-		ValidationResult userValidity = serviceProvider.instance(IInCoreUser.class, domainUid)
-				.validate(usersUids.toArray(new String[0]));
-		if (!userValidity.valid) {
-			userValidity.validationResults.forEach((uid, valid) -> {
-				if (!valid) {
-					log.append(String.format("No user with uid %s found%s", uid, "\r\n"));
-				}
-			});
-		}
-
-		ValidationResult externalUsersValidity = serviceProvider.instance(IInCoreExternalUser.class, domainUid)
-				.validate(externalUsersUids.toArray(new String[0]));
-		if (!externalUsersValidity.valid) {
-			externalUsersValidity.validationResults.forEach((uid, valid) -> {
-				if (!valid) {
-					log.append(String.format("No external user with uid %s found%s", uid, "\r\n"));
-				}
-			});
-		}
+		ValidationResult groupValidity = validateGroup(groupsUids, log);
+		ValidationResult userValidity = validateUser(usersUids, log);
+		ValidationResult externalUsersValidity = validateExternalUser(externalUsersUids, log);
 
 		if (!groupValidity.valid || !externalUsersValidity.valid || !userValidity.valid) {
-			logger.warn(log.toString());
-			throw new ServerFault(log.toString(), ErrorCode.INVALID_PARAMETER);
+			String message = log.toString();
+			logger.warn(message);
+			throw new ServerFault(message, ErrorCode.INVALID_PARAMETER);
 		}
+	}
+
+	private ValidationResult validateExternalUser(ArrayList<String> externalUsersUids, StringBuilder log) {
+		ValidationResult externalUsersValidity = serviceProvider.instance(IInCoreExternalUser.class, domainUid)
+				.validate(externalUsersUids.toArray(new String[0]));
+		return logValidationResult("external user", externalUsersValidity, log);
+	}
+
+	private ValidationResult validateUser(ArrayList<String> usersUids, StringBuilder log) {
+		ValidationResult userValidity = serviceProvider.instance(IInCoreUser.class, domainUid)
+				.validate(usersUids.toArray(new String[0]));
+		return logValidationResult("user", userValidity, log);
+	}
+
+	private ValidationResult validateGroup(ArrayList<String> groupsUids, StringBuilder log) {
+		ValidationResult groupValidity = this.validate(groupsUids.toArray(new String[0]));
+		return logValidationResult("group", groupValidity, log);
+	}
+
+	private ValidationResult logValidationResult(String name, ValidationResult validity, StringBuilder log) {
+		if (!validity.valid) {
+			validity.validationResults.entrySet().stream().filter(entry -> !entry.getValue()).forEach(
+					entry -> log.append(String.format("No %s with uid %s found%s", name, entry.getKey(), "\r\n")));
+		}
+		return validity;
 	}
 
 	@Override
@@ -428,8 +423,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 
 		ItemValue<Group> group = getFull(uid);
 		if (group == null || group.value == null) {
-			logger.error("Group uid: {} doesn't exist !", uid);
-			throw new ServerFault("Group uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
+			throwNotFoundServerFault(uid);
 		}
 
 		return storeService.getMembers(uid);
@@ -442,8 +436,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 
 		ItemValue<Group> group = getFull(uid);
 		if (group == null || group.value == null) {
-			logger.error("Group uid: {} doesn't exist !", uid);
-			throw new ServerFault("Group uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
+			throwNotFoundServerFault(uid);
 		}
 
 		return storeService.getFlatUsersMembers(uid);
@@ -461,13 +454,12 @@ public class GroupService implements IGroup, IInCoreGroup {
 
 		ItemValue<Group> group = getFull(uid);
 		if (group == null || group.value == null) {
-			logger.error("Group uid: {} doesn't exist !", uid);
-			throw new ServerFault("Group uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
+			throwNotFoundServerFault(uid);
 		}
 
 		validMembers(members);
 
-		if (members.size() == 0) {
+		if (members.isEmpty()) {
 			return;
 		}
 
@@ -487,8 +479,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 
 		ItemValue<Group> group = getFull(uid);
 		if (group == null || group.value == null) {
-			logger.error("Group uid: {} doesn't exist !", uid);
-			throw new ServerFault("Group uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
+			throwNotFoundServerFault(uid);
 		}
 
 		List<String> parentsUid = storeService.getParents(uid);
@@ -561,7 +552,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 		rbacManager.check(BasicRoles.ROLE_MANAGER, BasicRoles.ROLE_MANAGE_GROUP);
 
 		sanitizer.create(query);
-		return storeService.search(query).stream().map(g -> asGroup(g)).collect(Collectors.toList());
+		return storeService.search(query).stream().map(this::asGroup).collect(Collectors.toList());
 	}
 
 	@Override
@@ -588,6 +579,11 @@ public class GroupService implements IGroup, IInCoreGroup {
 			}
 			return new ValidationResult(valid, validationResults);
 		}
+	}
+
+	private void throwNotFoundServerFault(String uid) {
+		logger.error("Group uid: {} doesn't exist !", uid);
+		throw new ServerFault("Group uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
 	}
 
 }

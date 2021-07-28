@@ -72,7 +72,7 @@ import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
 
 public class ResourcesService implements IResources {
-	final static Logger logger = LoggerFactory.getLogger(ResourcesService.class);
+	private static final Logger logger = LoggerFactory.getLogger(ResourcesService.class);
 	private BmContext context;
 	private ResourceContainerStoreService storeService;
 	private ResourceValidator validator = new ResourceValidator();
@@ -187,12 +187,12 @@ public class ResourcesService implements IResources {
 
 		ItemValue<DirEntryAndValue<ResourceDescriptor>> previousItemValue = storeService.get(uid, null);
 		if (previousItemValue == null) {
-			throw new ServerFault("Resource " + uid + " doesnt exists", ErrorCode.NOT_FOUND);
+			throw new ServerFault(notFoundMessage(uid), ErrorCode.NOT_FOUND);
 		}
 
 		ItemValue<ResourceDescriptor> previous = ItemValue.create(previousItemValue, previousItemValue.value.value);
 		if (previous == null) {
-			throw new ServerFault("Resource " + uid + " doesnt exists", ErrorCode.NOT_FOUND);
+			throw new ServerFault(notFoundMessage(uid), ErrorCode.NOT_FOUND);
 		}
 
 		if (!StringUtils.equals(rd.orgUnitUid, previous.value.orgUnitUid)) {
@@ -231,9 +231,7 @@ public class ResourcesService implements IResources {
 	@Override
 	public TaskRef delete(String uid) throws ServerFault {
 		checkManageResource(uid);
-		return context.provider().instance(ITasksManager.class).run(monitor -> {
-			performDelete(uid, monitor);
-		});
+		return context.provider().instance(ITasksManager.class).run(monitor -> performDelete(uid, monitor));
 	}
 
 	private void performDelete(String uid, IServerTaskMonitor monitor) {
@@ -243,14 +241,14 @@ public class ResourcesService implements IResources {
 		ParametersValidator.notNullAndNotEmpty(uid);
 		ItemValue<DirEntryAndValue<ResourceDescriptor>> previousItemValue = storeService.get(uid, null);
 		if (previousItemValue == null) {
-			monitor.end(false, "Resource " + uid + " doesnt exists", "[]");
+			monitor.end(false, notFoundMessage(uid), "[]");
 			return;
 		}
 
 		ItemValue<ResourceDescriptor> previous = ItemValue.create(previousItemValue, previousItemValue.value.value);
 
 		if (previous == null) {
-			monitor.end(false, "Resource " + uid + " doesnt exists", "[]");
+			monitor.end(false, notFoundMessage(uid), "[]");
 			return;
 		}
 
@@ -272,15 +270,13 @@ public class ResourcesService implements IResources {
 			monitor.progress(2, "Deleting resource calendar ...");
 			String fbContainerUid = IFreebusyUids.getFreebusyContainerUid(uid);
 			IFreebusyMgmt mgm = context.su().provider().instance(IFreebusyMgmt.class, fbContainerUid);
-			mgm.get().forEach(f -> mgm.remove(f));
+			mgm.get().forEach(mgm::remove);
 			context.su().provider().instance(IContainers.class).delete(fbContainerUid);
 		} catch (Exception e) {
 			logger.warn("Cannot delete Freebusy container of resource {}:{}", uid, e.getMessage());
 		}
 
-		hooks.forEach(hook -> {
-			hook.onBeforeDelete(context, previous);
-		});
+		hooks.forEach(hook -> hook.onBeforeDelete(context, previous));
 
 		monitor.progress(2, "Deleting resource mailbox ...");
 		mailboxes.deleted(uid, mailboxAdapter.asMailbox(domainUid, uid, previous.value));
@@ -341,7 +337,7 @@ public class ResourcesService implements IResources {
 		checkManageResource(uid);
 		ResourceDescriptor previous = get(uid);
 		if (previous == null) {
-			throw new ServerFault("Resource " + uid + " not found", ErrorCode.NOT_FOUND);
+			throw new ServerFault(notFoundMessage(uid), ErrorCode.NOT_FOUND);
 		}
 
 		byte[] png = ImageUtils.checkAndSanitize(icon);
@@ -360,9 +356,7 @@ public class ResourcesService implements IResources {
 		// container
 		rbacManager.check(Verb.Read.name(), BasicRoles.ROLE_MANAGER);
 		ParametersValidator.notNullAndNotEmpty(uid);
-
-		ItemValue<ResourceDescriptor> itemValue = storeService.get(uid);
-		return itemValue;
+		return storeService.get(uid);
 	}
 
 	@Override
@@ -391,6 +385,10 @@ public class ResourcesService implements IResources {
 		final String organizerName = this.userService.getVCard(origanizerUid).identification.formatedName.value;
 		final String organizerLanguage = this.userSettingsService.get(origanizerUid).get("lang");
 		return RESOURCE_TEMPLATE_HELPER.processTemplate(this.domainUid, resourceUid, organizerLanguage, organizerName);
+	}
+
+	private String notFoundMessage(String uid) {
+		return "Resource " + uid + " doesnt exists";
 	}
 
 }
