@@ -115,6 +115,7 @@
     "preferences.mail.logout": "Lors de la déconnexion",
     "preferences.mail.logout.empty.trash": "Vider la Corbeille",
     "preferences.mail.automatic_reply": "Message d'absence",
+    "preferences.mail.automatic_reply.invalid_empty_subject": "Renseignez un sujet (champ obligatoire)",
     "preferences.mail.automatic_reply.activate": "Activer le message d'absence",
     "preferences.mail.automatic_reply.period": "Spécifier une date de début et une date de fin (optionnel)",
     "preferences.mail.emails_forwarding": "Transfert d'emails",

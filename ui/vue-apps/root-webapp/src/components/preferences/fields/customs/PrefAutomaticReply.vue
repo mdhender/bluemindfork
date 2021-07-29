@@ -5,7 +5,12 @@
             {{ $t("preferences.mail.automatic_reply.activate") }}
         </bm-form-checkbox>
         <div :class="{ disabled: !vacation.enabled }">
-            <bm-form-group :label="$t('mail.new.subject')" label-for="subject">
+            <bm-form-group
+                :label="$t('mail.new.subject')"
+                label-for="subject"
+                :invalid-feedback="$t('preferences.mail.automatic_reply.invalid_empty_subject')"
+                :state="!vacation.enabled || vacation.subject !== ''"
+            >
                 <bm-form-input id="subject" v-model="vacation.subject" required :disabled="!vacation.enabled" />
             </bm-form-group>
             <bm-form-group :label="$t('common.message')" label-for="message" label-class="text-capitalize">

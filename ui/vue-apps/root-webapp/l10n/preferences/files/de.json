@@ -115,6 +115,7 @@
     "preferences.mail.logout": "Beim Abmelden",
     "preferences.mail.logout.empty.trash": "Papierkorb leeren",
     "preferences.mail.automatic_reply": "Automatische Antwort",
+    "preferences.mail.automatic_reply.invalid_empty_subject": "Please enter the mandatory subject field",
     "preferences.mail.automatic_reply.activate": "Automatische Antwort aktivieren",
     "preferences.mail.automatic_reply.period": "Geben Sie optional ein Start und Enddatum an",
     "preferences.mail.emails_forwarding": "Weiterleitungen",
