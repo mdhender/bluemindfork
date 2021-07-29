@@ -155,4 +155,8 @@ public interface IInstallation extends ICustomTheme {
 	@POST
 	@Path("_hostReport")
 	public String sendHostReport();
+
+	@POST
+	@Path("_clone")
+	public TaskRef clone(@QueryParam("iid") String installationId, @QueryParam("topology") String topologyMappingPath);
 }

@@ -21,6 +21,8 @@ package net.bluemind.system.service.internal;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
@@ -54,6 +56,9 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.VersionInfo;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.backup.continuous.DefaultBackupStore;
+import net.bluemind.core.backup.continuous.restore.InstallFromBackupTask;
+import net.bluemind.core.backup.continuous.restore.TopologyMapping;
 import net.bluemind.core.bo.report.provider.HostReportProvider;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -138,6 +143,25 @@ public class InstallationService implements IInstallation {
 		checkPermissions();
 
 		return context.provider().instance(ITasksManager.class).run(new PostInstTask());
+	}
+
+	@Override
+	public TaskRef clone(String installationId, String topologyMappingPath) {
+		if (!context.getSecurityContext().isDomainGlobal()) {
+			throw new ServerFault("Operation is only permitted for admin0", ErrorCode.PERMISSION_DENIED);
+		}
+		TopologyMapping topologyMapping;
+		try {
+			Path path = Paths.get(topologyMappingPath);
+			topologyMapping = new TopologyMapping(path);
+		} catch (IOException e) {
+			throw new ServerFault(
+					"Unable to read topology mapping file from " + topologyMappingPath + ": " + e.getMessage());
+		}
+
+		InstallFromBackupTask tsk = new InstallFromBackupTask(installationId, DefaultBackupStore.get(), topologyMapping,
+				context.provider());
+		return context.provider().instance(ITasksManager.class).run(tsk);
 	}
 
 	@Override
