@@ -22,13 +22,13 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateTopicsOptions;
@@ -122,15 +122,21 @@ public class KafkaTopicStore implements ITopicStore {
 
 	@Override
 	public Set<String> topicNames() {
-		Set<String> topicKeys = new LinkedHashSet<>();
 		try {
 			ListTopicsOptions opts = new ListTopicsOptions();
 			opts.listInternal(false);
 			Map<String, TopicListing> existing = adminClient.listTopics(opts).namesToListings().get();
+			logger.info("topic names:{}", existing.keySet());
 			return existing.keySet();
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
+	}
+
+	@Override
+	public Set<String> topicNames(String installationId) {
+		String installation = installationId.replace("bluemind-", "").replace("-", "");
+		return topicNames().stream().filter(name -> name.startsWith(installation)).collect(Collectors.toSet());
 	}
 
 	@Override

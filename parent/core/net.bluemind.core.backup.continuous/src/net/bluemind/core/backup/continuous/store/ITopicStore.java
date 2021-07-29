@@ -29,6 +29,8 @@ public interface ITopicStore {
 
 	Set<String> topicNames();
 
+	Set<String> topicNames(String installationId);
+
 	TopicSubscriber getSubscriber(String topicName);
 
 	TopicPublisher getPublisher(TopicDescriptor td);
@@ -55,9 +57,10 @@ public interface ITopicStore {
 
 		String id();
 
-		/**
-		 * @return
-		 */
+		static String trimInstallationId(String installationId) {
+			return installationId;
+		}
+
 		default String fullName() {
 			return installation() + "/" + domainUid() + "/" + owner() + "/" + type() + "/" + id();
 		}

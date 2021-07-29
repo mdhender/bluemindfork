@@ -87,6 +87,11 @@ public class NoopStore {
 		}
 
 		@Override
+		public Set<String> topicNames(String installationId) {
+			return Collections.emptySet();
+		}
+
+		@Override
 		public TopicPublisher getPublisher(TopicDescriptor td) {
 			return NOOP_PUBLISHER;
 		}

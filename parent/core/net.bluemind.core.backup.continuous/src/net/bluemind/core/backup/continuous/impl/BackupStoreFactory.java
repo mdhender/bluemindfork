@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.mapdb.DB;
@@ -42,7 +43,7 @@ import net.bluemind.core.container.model.ItemValue;
 
 public class BackupStoreFactory implements IBackupStoreFactory {
 
-	private static final Logger logger = LoggerFactory.getLogger(BackupStore.class);
+	private static final Logger logger = LoggerFactory.getLogger(BackupStoreFactory.class);
 
 	private static final boolean CLONE_MARKER = new File("/etc/bm/continuous.clone").exists();
 
@@ -70,7 +71,7 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 		Map<byte[], byte[]> waitingRecords = waitingRecordsByTopicDescr.computeIfAbsent(descriptor,
 				d -> handlesBackingStore.hashMap(descriptor.fullName()).keySerializer(Serializer.BYTE_ARRAY)
 						.valueSerializer(Serializer.BYTE_ARRAY).createOrOpen());
-		return new BackupStore<T>(publisher, descriptor, serializer, waitingRecords);
+		return new BackupStore<>(publisher, descriptor, serializer, waitingRecords);
 	}
 
 	private TopicPublisher publisher(TopicDescriptor descriptor) {
@@ -87,8 +88,9 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 
 	@Override
 	public ILiveBackupStreams forInstallation(String installationid) {
-		List<String> topicNames = topicStore.topicNames().stream().filter(name -> name.startsWith(installationid))
-				.collect(Collectors.toList());
+
+		Set<String> topicNames = topicStore.topicNames(installationid);
+		logger.error("topicNames:{}", topicNames);
 		TopicSubscriber orphanSubscriber = topicNames.stream().filter(name -> name.endsWith("__orphans__")).findFirst()
 				.map(topicStore::getSubscriber).orElse(null);
 		List<TopicSubscriber> domainSubscribers = topicNames.stream().filter(name -> !name.endsWith("__orphans__"))
@@ -133,7 +135,7 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 			tmp = Files.createTempFile("records-waiting-for-ack", ".mapdb");
 			Files.deleteIfExists(tmp);
 		} catch (IOException e) {
-			logger.error("Unable to create tmp file for backingStore, using heapDB");
+			logger.error("Unable to create tmp file for backingStore, using heapDB", e);
 		}
 		Maker maker = (tmp != null) ? DBMaker.fileDB(tmp.toFile().getAbsolutePath()) : DBMaker.heapDB();
 		return maker.checksumHeaderBypass().fileMmapEnable()//
@@ -149,13 +151,12 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 			TopicDescriptor descriptor = DefaultTopicDescriptor.of(name);
 			waitingRecordsByTopicDescr.put(descriptor, remainingRecords);
 			TopicPublisher publisher = publisher(descriptor);
-			remainingRecords.forEach((key, value) -> {
-				publisher.store(descriptor.partitionKey(), key, value).whenComplete((v, t) -> {
-					if (t == null) {
-						remainingRecords.remove(key);
-					}
-				});
-			});
+			remainingRecords.forEach(
+					(key, value) -> publisher.store(descriptor.partitionKey(), key, value).whenComplete((v, t) -> {
+						if (t == null) {
+							remainingRecords.remove(key);
+						}
+					}));
 		});
 	}
 }
