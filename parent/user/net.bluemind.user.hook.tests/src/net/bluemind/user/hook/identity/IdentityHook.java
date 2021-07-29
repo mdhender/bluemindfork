@@ -40,7 +40,7 @@ public class IdentityHook implements IUserMailIdentityHook {
 		assertNotNull(context);
 		assertNotNull(domainUid);
 		assertNotNull(identity);
-		assertEquals(identity.name, "John Doe");
+		assertEquals("John Doe", identity.name);
 		latch.countDown();
 	}
 
@@ -49,9 +49,9 @@ public class IdentityHook implements IUserMailIdentityHook {
 			UserMailIdentity previous) {
 		assertNotNull(domainUid);
 		assertNotNull(previous);
-		assertEquals(previous.name, "John Doe");
+		assertEquals("John Doe", previous.name);
 		assertNotNull(update);
-		assertEquals(update.name, "John Doe Updated");
+		assertEquals("John Doe Updated", update.name);
 		latch.countDown();
 
 	}
@@ -60,7 +60,7 @@ public class IdentityHook implements IUserMailIdentityHook {
 	public void beforeDelete(BmContext context, String domainUid, String uid, UserMailIdentity previous) {
 		assertNotNull(domainUid);
 		assertNotNull(previous);
-		assertEquals(previous.name, "John Doe Updated");
+		assertEquals("John Doe Updated", previous.name);
 		latch.countDown();
 	}
 
@@ -70,9 +70,9 @@ public class IdentityHook implements IUserMailIdentityHook {
 		// Nothing to do on update
 		assertNotNull(domainUid);
 		assertNotNull(previous);
-		assertEquals(previous.name, "John Doe");
+		assertEquals("John Doe", previous.name);
 		assertNotNull(current);
-		assertEquals(current.name, "John Doe Updated");
+		assertEquals("John Doe Updated", current.name);
 		latch.countDown();
 	}
 

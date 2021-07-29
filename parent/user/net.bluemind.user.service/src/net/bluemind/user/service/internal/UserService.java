@@ -236,22 +236,7 @@ public class UserService implements IInCoreUser, IUser {
 
 	ItemValue<User> createItemValue(String uid, User u) {
 		Item it = Item.create(uid, null);
-		it.displayName = getSummary(u);
 		return ItemValue.create(it, u);
-	}
-
-	/**
-	 * @param user
-	 * @deprecated
-	 * @return
-	 */
-	@Deprecated
-	private String getSummary(User user) {
-		if (user.contactInfos != null && user.contactInfos.identification.formatedName.value != null) {
-			return user.contactInfos.identification.formatedName.value;
-		} else {
-			return user.login;
-		}
 	}
 
 	@Override
