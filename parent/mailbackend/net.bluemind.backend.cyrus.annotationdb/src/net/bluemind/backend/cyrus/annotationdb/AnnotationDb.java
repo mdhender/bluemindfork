@@ -18,6 +18,7 @@
  */
 package net.bluemind.backend.cyrus.annotationdb;
 
+import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,11 +34,13 @@ public class AnnotationDb implements Consumer<String> {
 	private static final Pattern pattern1 = Pattern.compile("G([^:]+):\\d:\\d+\\s+([a-f0-9]+)$");
 	private static final Pattern pattern2 = Pattern.compile("([^\\t]+)\\t\\d\\s([a-f0-9]+)\\s\\d+$");
 
-	private final SetMultimap<String, String> convBodies;
+	private final SetMultimap<String, String> messageIdBodies;
+	private final SetMultimap<String, String> bodyGuid;
 	private FORMAT format;
 
 	public AnnotationDb() {
-		this.convBodies = MultimapBuilder.hashKeys().hashSetValues().build();
+		this.messageIdBodies = MultimapBuilder.hashKeys().hashSetValues().build();
+		this.bodyGuid = MultimapBuilder.hashKeys().hashSetValues().build();
 	}
 
 	public void accept(String line) {
@@ -48,12 +51,19 @@ public class AnnotationDb implements Consumer<String> {
 
 	public ConversationInfo get() {
 		ConversationInfo info = new ConversationInfo();
-		convBodies.asMap().forEach((id, values) -> {
-			Builder conversation = ConversationInfo.Builder.create().conversationId(id);
-			values.forEach(val -> conversation.message(val, format));
-			info.add(conversation.build());
+		messageIdBodies.asMap().forEach((id, values) -> {
+			addConversation(info, id, values, FORMAT.MESSAGE_ID);
+		});
+		bodyGuid.asMap().forEach((id, values) -> {
+			addConversation(info, id, values, FORMAT.BODY_GUID);
 		});
 		return info;
+	}
+
+	private void addConversation(ConversationInfo info, String id, Collection<String> values, FORMAT format) {
+		Builder conversation = ConversationInfo.Builder.create().conversationId(id);
+		values.forEach(val -> conversation.message(val, format));
+		info.add(conversation.build());
 	}
 
 	private boolean parse(String line, Pattern pattern, FORMAT format) {
@@ -62,11 +72,13 @@ public class AnnotationDb implements Consumer<String> {
 		if (matcher.find()) {
 			String bodyGuid = matcher.group(1);
 			String convId = matcher.group(2);
-			if (this.format != null && this.format == FORMAT.MESSAGE_ID && format == FORMAT.BODY_GUID) {
+			if (format == FORMAT.BODY_GUID) {
 				// file contains both formats, reset all entries based on the message-id
-				this.convBodies.clear();
+				this.messageIdBodies.removeAll(convId);
+				this.bodyGuid.put(convId, bodyGuid);
+			} else {
+				this.messageIdBodies.put(convId, bodyGuid);
 			}
-			convBodies.put(convId, bodyGuid);
 
 			this.format = format;
 			return true;
