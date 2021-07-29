@@ -19,17 +19,19 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
 
 import { computePreviewOrDownloadUrl, MimeType, InlineImageHelper } from "@bluemind/email";
 
 import { getPartsFromCapabilities } from "~/model/part";
+import { create as createAttachment, AttachmentStatus } from "~/model/attachment";
 import ImagePartViewer from "./ImagePartViewer";
 import TextHtmlPartViewer from "./TextHtmlPartViewer";
 import TextPlainPartViewer from "./TextPlainPartViewer";
 import { FETCH_PART_DATA } from "~/actions";
+import { ADD_ATTACHMENT, REMOVE_ATTACHMENT } from "~/mutations";
 
-const VIEWER_CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
+const VIEWER_CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN, MimeType.IMAGE];
 
 export default {
     name: "PartsViewer",
@@ -47,7 +49,8 @@ export default {
     data() {
         return {
             parts: [],
-            htmlWithImageInserted: []
+            htmlWithImageInserted: [],
+            localAttachments: []
         };
     },
     computed: {
@@ -55,11 +58,12 @@ export default {
     },
     watch: {
         "message.key": {
-            handler: async function () {
-                this.parts = [];
-                this.htmlWithImageInserted = [];
+            handler: async function (messageKey, oldMessageKey) {
+                this.clean(oldMessageKey);
+
                 const inlines = getPartsFromCapabilities(this.message, VIEWER_CAPABILITIES);
 
+                // trigger parts display even if content is not loaded (each child component manages its own loading status)
                 this.parts = [...inlines.filter(part => !MimeType.isImage(part) || !part.contentId)];
 
                 await this.FETCH_PART_DATA({
@@ -69,28 +73,24 @@ export default {
                     inlines: inlines.filter(part => MimeType.isHtml(part) || MimeType.isText(part))
                 });
 
-                const html = inlines.filter(MimeType.isHtml);
-                const htmlContents = html.map(part => this.partsData[this.message.key][part.address]);
-                const cidImages = inlines.filter(part => MimeType.isImage(part) && part.contentId);
-                const insertionResult = await InlineImageHelper.insertAsUrl(
-                    htmlContents,
-                    cidImages,
-                    this.message.folderRef.uid,
-                    this.message.remoteRef.imapUid
-                );
-                const others = inlines.filter(
-                    part =>
-                        part.mime !== MimeType.TEXT_HTML &&
-                        !insertionResult.imageInlined.map(p => p.contentId).includes(part.contentId)
-                );
-                this.htmlWithImageInserted = insertionResult.contentsWithImageInserted;
-                this.parts = [...html, ...others];
+                const { htmlParts, htmlContents, others } = await this.handleCidParts(inlines);
+                const doesViewerSupportPart = ({ mime }) =>
+                    VIEWER_CAPABILITIES.some(available => mime.startsWith(available) || available === mime);
+
+                // trigger parts display with all data loaded
+                this.htmlWithImageInserted = htmlContents;
+                this.parts = others.filter(doesViewerSupportPart).concat(htmlParts);
+
+                // display unsupported parts as attachment
+                const unsupported = others.filter(part => !doesViewerSupportPart(part));
+                this.displayAsAttachments(unsupported);
             },
             immediate: true
         }
     },
     methods: {
         ...mapActions("mail", { FETCH_PART_DATA }),
+        ...mapMutations("mail", { ADD_ATTACHMENT, REMOVE_ATTACHMENT }),
         isHtmlPart(part) {
             return MimeType.isHtml(part);
         },
@@ -102,6 +102,38 @@ export default {
         },
         computeImageUrl(part) {
             return computePreviewOrDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, part);
+        },
+        clean(previousMessageKey) {
+            this.localAttachments.forEach(attachment => {
+                this.REMOVE_ATTACHMENT({ messageKey: previousMessageKey, address: attachment.address });
+            });
+
+            this.localAttachments = [];
+            this.parts = [];
+            this.htmlWithImageInserted = [];
+        },
+        async handleCidParts(inlines) {
+            const htmlParts = inlines.filter(MimeType.isHtml);
+            const htmlContents = htmlParts.map(part => this.partsData[this.message.key][part.address]);
+            const cidImages = inlines.filter(part => MimeType.isImage(part) && part.contentId);
+            const insertionResult = await InlineImageHelper.insertAsUrl(
+                htmlContents,
+                cidImages,
+                this.message.folderRef.uid,
+                this.message.remoteRef.imapUid
+            );
+            const others = inlines.filter(
+                part =>
+                    part.mime !== MimeType.TEXT_HTML &&
+                    !insertionResult.imageInlined.map(p => p.contentId).includes(part.contentId)
+            );
+            return { htmlParts, htmlContents: insertionResult.contentsWithImageInserted, others };
+        },
+        displayAsAttachments(unsupportedParts) {
+            this.localAttachments = unsupportedParts.map(part => createAttachment(part, AttachmentStatus.ONLY_LOCAL));
+            this.localAttachments.forEach(attachment =>
+                this.ADD_ATTACHMENT({ messageKey: this.message.key, attachment })
+            );
         }
     }
 };

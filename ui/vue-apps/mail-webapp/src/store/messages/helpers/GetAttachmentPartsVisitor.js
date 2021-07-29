@@ -1,4 +1,4 @@
-import { create, isAttachment } from "~/model/attachment";
+import { AttachmentStatus, create, isAttachment } from "~/model/attachment";
 
 export default class GetAttachmentPartsVisitor {
     constructor() {
@@ -7,15 +7,7 @@ export default class GetAttachmentPartsVisitor {
 
     visit(part) {
         if (isAttachment(part)) {
-            const attachment = create(
-                part.address,
-                part.charset,
-                part.fileName,
-                part.encoding,
-                part.mime,
-                part.size,
-                true
-            );
+            const attachment = create(part, AttachmentStatus.UPLOADED);
             this.results.push(attachment);
         }
     }

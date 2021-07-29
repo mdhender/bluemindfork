@@ -1,39 +1,20 @@
-// FIXME: must call part creator with some additional properties
-export function create(address, charset, fileName, encoding, mime, size, isUploaded) {
-    let progress, status;
-    if (!isUploaded) {
-        progress = { loaded: 0, total: 100 };
-        status = AttachmentStatus.NOT_LOADED;
-    } else {
-        progress = { loaded: 100, total: 100 };
-        status = AttachmentStatus.UPLOADED;
-    }
-
-    return {
-        address,
-        charset,
-        fileName,
-        encoding,
-        mime,
-        size,
-        dispositionType: "ATTACHMENT",
-        headers: getAttachmentHeaders(fileName, size),
-        progress,
-        status
-    };
+export function create(part, status) {
+    const progress = status === AttachmentStatus.NOT_LOADED ? { loaded: 0, total: 100 } : { loaded: 100, total: 100 };
+    return { ...part, dispositionType: "ATTACHMENT", headers: getAttachmentHeaders(part), progress, status };
 }
 
 export const AttachmentStatus = {
+    ONLY_LOCAL: "ONLY_LOCAL",
     NOT_LOADED: "NOT-LOADED",
     UPLOADED: "UPLOADED",
     ERROR: "ERROR"
 };
 
-export function getAttachmentHeaders(name, size) {
+export function getAttachmentHeaders({ fileName, size }) {
     return [
         {
             name: "Content-Disposition",
-            values: ["attachment;filename=" + name + ";size=" + size]
+            values: ["attachment;filename=" + fileName + ";size=" + size]
         },
         {
             name: "Content-Transfer-Encoding",

@@ -35,12 +35,5 @@ function mountAttachmentBlock(attachmentSize) {
     const store = createStore();
     store.commit("mail/ADD_MESSAGES", [message]);
 
-    return createWrapper(
-        MailAttachmentsBlock,
-        { store },
-        {
-            message,
-            expanded: false
-        }
-    );
+    return createWrapper(MailAttachmentsBlock, { store }, { message, expanded: false });
 }

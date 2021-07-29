@@ -87,7 +87,7 @@ import {
 import { mapGetters, mapMutations, mapState } from "vuex";
 import debounce from "lodash.debounce";
 import GlobalEvents from "vue-global-events";
-import { SearchHelper } from "~/model/SearchHelper";
+import { SearchHelper } from "./SearchHelper";
 import { MY_SENT, MY_MAILBOX, MY_INBOX, MY_TRASH } from "~/getters";
 import { isMailshareRoot } from "~/model/folder";
 import { ConversationListStatus } from "~/store/conversationList";

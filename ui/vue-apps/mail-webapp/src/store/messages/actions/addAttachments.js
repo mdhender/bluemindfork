@@ -3,6 +3,7 @@ import global from "@bluemind/global";
 import UUIDGenerator from "@bluemind/uuid";
 
 import { create, AttachmentStatus } from "~/model/attachment";
+import { createFromFile as createPartFromFile } from "~/model/part";
 import { DEBOUNCED_SAVE_MESSAGE } from "~/actions";
 import {
     ADD_ATTACHMENT,
@@ -26,16 +27,8 @@ export default async function ({ commit, dispatch }, { draft, files, messageComp
 }
 
 async function addAttachment(commit, draft, file) {
-    // default encoding and charset set by server
-    const attachment = create(
-        UUIDGenerator.generate(),
-        "us-ascii",
-        file.name,
-        "base64",
-        file.type || "application/octet-stream",
-        file.size,
-        false
-    );
+    const part = createPartFromFile(UUIDGenerator.generate(), file);
+    const attachment = create(part, AttachmentStatus.NOT_LOADED);
 
     // this will contain a function for cancelling the upload, do not store it in Vuex
     global.cancellers = global.cancellers || {};

@@ -14,7 +14,7 @@ import {
 } from "~/mutations";
 import { LoadingStatus } from "~/model/loading-status";
 import MessageQueryParam from "~/router/MessageQueryParam";
-import SearchHelper from "~/model/SearchHelper";
+import SearchHelper from "../SearchHelper";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 import { ConversationListFilter } from "~/store/conversationList";
 import { WaitForMixin } from "~/mixins";

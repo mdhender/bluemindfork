@@ -1,9 +1,23 @@
 import { mailText2Html, MimeType } from "@bluemind/email";
 import { html2text } from "@bluemind/html-utils";
 
+export function createFromFile(address, { name, type, size }) {
+    // default encoding and charset set by server
+    return {
+        address,
+        charset: "us-ascii",
+        fileName: name,
+        encoding: "base64",
+        mime: type || "application/octet-stream",
+        size
+    };
+}
+
 export function getPartsFromCapabilities(message, availableCapabilities) {
     const partsByCapabilities = message.inlinePartsByCapabilities.find(part =>
-        part.capabilities.every(capability => availableCapabilities.includes(capability))
+        part.capabilities.every(capability =>
+            availableCapabilities.some(available => capability.startsWith(available) || available === capability)
+        )
     );
     return partsByCapabilities ? partsByCapabilities.parts : [];
 }
