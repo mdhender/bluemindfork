@@ -40,7 +40,7 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 			mailboxItemRestoration.restore(event);
 			break;
 		case "replicated_mailboxes":
-			mailboxItemRestoration.restore(event);
+			replicatedMailboxesRestoration.restore(event);
 			break;
 		}
 	}

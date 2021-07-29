@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
+import net.bluemind.backend.mail.replica.service.internal.MailboxRecordItemCache;
 import net.bluemind.config.Token;
 import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.restore.CloneException;
@@ -60,6 +61,7 @@ public class RestoreMailboxRecords {
 			throw new CloneException(e);
 		}
 		ItemValue<MailboxRecord> rec = recReader.read(new String(de.payload));
+		MailboxRecordItemCache.store(rec.uid, rec.item());
 		if (!state.containsBody(rec.value.messageBody)) {
 			MsgBodyTask bodyTask = new MsgBodyTask(sdsStore, sync, repl);
 			try {

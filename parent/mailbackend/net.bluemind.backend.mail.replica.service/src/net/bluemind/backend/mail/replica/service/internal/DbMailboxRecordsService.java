@@ -73,6 +73,7 @@ import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.Ex
 import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.VanishedBody;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -284,21 +285,13 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		}
 	}
 
-	private UpsertResult upsertByUid(String uid, MailboxRecord mr) {
+	private UpsertResult upsertByItem(Item item, MailboxRecord mr) {
 		try {
-			return UpsertResult.create(storeService.create(uid, uid, mr));
+			return UpsertResult.create(storeService.create(item, mr));
 		} catch (ServerFault sf) {
-			logger.warn("create failed: {}, trying update of {}", sf.getMessage(), uid);
-			return UpsertResult.update(storeService.update(uid, uid, mr));
-		}
-	}
-
-	private UpsertResult upsertById(String uid, long id, MailboxRecord mr) {
-		try {
-			return UpsertResult.create(storeService.createWithId(uid, id, null, uid, mr));
-		} catch (ServerFault sf) {
-			logger.warn("createById failed: {}, trying updateById of uid: {}, id: {}", sf.getMessage(), uid, id);
-			return UpsertResult.update(storeService.update(id, uid, mr));
+			logger.warn("createById failed: {}, trying update by item of uid: {}, id: {}", sf.getMessage(), item.uid,
+					item.id);
+			return UpsertResult.update(storeService.update(item, item.uid, mr));
 		}
 	}
 
@@ -402,21 +395,24 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 				Long expId = GuidExpectedIdCache.expectedId(guidCacheKey);
 
 				if (expId != null) {
-					upsert = UpsertResult.create(storeService.createWithId(uid, expId, null, uid, mr));
+					Item item = MailboxRecordItemCache.item(uid).orElse(defaultItem(uid, expId));
+					upsert = UpsertResult.create(storeService.create(item, mr));
 					GuidExpectedIdCache.invalidate(guidCacheKey);
 				} else {
 					ExpectedId knownInternalId = BodyInternalIdCache.expectedRecordId(container.owner, mr.messageBody);
 					if (knownInternalId == null) {
-						upsert = upsertByUid(uid, mr);
+						Item item = MailboxRecordItemCache.item(uid).orElse(defaultItem(uid, null));
+						upsert = upsertByItem(item, mr);
 					} else {
 						logger.info("Create directly with the right id {} from replication.", knownInternalId);
+						Item item = MailboxRecordItemCache.item(uid).orElse(defaultItem(uid, knownInternalId.id));
 						if (knownInternalId.updateOfBody == null) {
-							upsert = upsertById(uid, knownInternalId.id, mr);
+							upsert = upsertByItem(item, mr);
 						} else {
 							try {
 								logger.info("Update record {} to point to a different body {}", knownInternalId,
 										mr.messageBody);
-								upsert = UpsertResult.update(storeService.update(knownInternalId.id, uid, mr));
+								upsert = UpsertResult.update(storeService.update(item, uid, mr));
 								BodyInternalIdCache.vanishedBody(container.owner,
 										knownInternalId.updateOfBody).version = upsert.version;
 
@@ -424,11 +420,11 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 								logger.warn("[{}] Update of {} failed: {}", container.uid, knownInternalId.id,
 										sf.getMessage());
 								try {
-									upsert = UpsertResult
-											.create(storeService.createWithId(uid, knownInternalId.id, null, uid, mr));
+									upsert = UpsertResult.create(storeService.create(item, mr));
 								} catch (ServerFault refault) {
 									logger.warn("byId global failure: {}", refault.getMessage());
-									upsert = upsertByUid(uid, mr);
+									item = MailboxRecordItemCache.item(uid).orElse(defaultItem(uid, null));
+									upsert = upsertByItem(item, mr);
 								}
 							}
 						}
@@ -468,7 +464,8 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 					expungeIndex(Arrays.asList(mr.imapUid));
 					upNotifs.add(UpdateNotif.of(vanished.version, mr));
 				} else {
-					ItemVersion upd = storeService.update(itemId, "itemId:" + itemId, mr);
+					Item item = MailboxRecordItemCache.item(uid).orElse(defaultItem(uid, itemId));
+					ItemVersion upd = storeService.update(item, "itemId:" + itemId, mr);
 					if (mr.flags.contains(MailboxItemFlag.System.Deleted.value())) {
 						softDelete.incrementAndGet();
 					}
@@ -485,6 +482,8 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 					toUpdate.size() - deletes, deletes, System.currentTimeMillis() - time);
 			return storeService.getVersion();
 		});
+
+		records.stream().map(mr -> mr.imapUid + ".").forEach(MailboxRecordItemCache::invalidate);
 
 		// ensure nothing is missing (sds object store check)
 		List<String> toCheck = records.stream().map(mr -> mr.messageBody).collect(Collectors.toList());
