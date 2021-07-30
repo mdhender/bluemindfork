@@ -93,7 +93,7 @@ import {
     UNSELECT_ALL_CONVERSATIONS,
     UNSELECT_CONVERSATION
 } from "~/mutations";
-import { CLEAN_UP_CONVERSATIONS, CONVERSATION_LIST_NEXT_PAGE, FETCH_MESSAGE_METADATA } from "~/actions";
+import { CONVERSATION_LIST_NEXT_PAGE, FETCH_MESSAGE_METADATA } from "~/actions";
 
 import { RemoveMixin } from "~/mixins";
 import { LoadingStatus } from "~/model/loading-status";
@@ -174,7 +174,7 @@ export default {
                 this.FETCH_MESSAGE_METADATA({
                     messages: messagesToLoad,
                     activeFolderKey: this.activeFolder.key
-                }).then(() => this.CLEAN_UP_CONVERSATIONS());
+                });
             }
         }
     },
@@ -202,7 +202,7 @@ export default {
             UNSELECT_ALL_CONVERSATIONS,
             UNSELECT_CONVERSATION
         }),
-        ...mapActions("mail", { CLEAN_UP_CONVERSATIONS, FETCH_MESSAGE_METADATA, CONVERSATION_LIST_NEXT_PAGE }),
+        ...mapActions("mail", { FETCH_MESSAGE_METADATA, CONVERSATION_LIST_NEXT_PAGE }),
 
         async loadMore() {
             if (this.CONVERSATION_LIST_HAS_NEXT) {

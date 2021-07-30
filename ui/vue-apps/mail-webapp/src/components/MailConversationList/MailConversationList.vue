@@ -12,7 +12,7 @@ import MailConversationListHeader from "./MailConversationListHeader";
 import SearchResult from "./SearchResult";
 import FolderResult from "./FolderResult";
 import { CONVERSATION_MESSAGE_BY_KEY, CONVERSATION_LIST_IS_SEARCH_MODE, CONVERSATION_LIST_KEYS } from "~/getters";
-import { CLEAN_UP_CONVERSATIONS, FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS } from "~/actions";
+import { FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS } from "~/actions";
 import { PUSHED_FOLDER_CHANGES } from "../VueBusEventTypes";
 
 export default {
@@ -43,7 +43,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", { CLEAN_UP_CONVERSATIONS, FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS }),
+        ...mapActions("mail", { FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS }),
         async refreshList() {
             const conversationsActivated = this.settings.mail_thread === "true" && this.folder.allowConversations;
             await this.REFRESH_CONVERSATION_LIST_KEYS({ folder: this.folder, conversationsActivated });
@@ -51,7 +51,7 @@ export default {
             this.FETCH_MESSAGE_METADATA({
                 messages: messagesToFetch,
                 activeFolderKey: this.activeFolder.key
-            }).then(() => this.CLEAN_UP_CONVERSATIONS());
+            });
         }
     },
     bus: {

@@ -140,8 +140,9 @@ const getters = {
         return (
             conversation?.messages
                 ?.map(message => state.messages[message.key] || message)
-                ?.filter(
+                .filter(
                     message =>
+                        message &&
                         (message.folderRef.key !== getters.MY_TRASH.key ||
                             conversation.folderRef.key === getters.MY_TRASH.key) &&
                         message.loading !== LoadingStatus.ERROR
@@ -345,7 +346,7 @@ function removeMessages({ conversationByKey }, messages) {
     if (messages.length) {
         const messageKeys = messages.map(m => m.key);
         Object.values(conversationByKey).forEach(conversation => {
-            conversation.messages = conversation.messages.filter(m => messageKeys.includes(String(m.key)));
+            conversation.messages = conversation.messages.filter(m => !messageKeys.includes(String(m.key)));
         });
     }
 }

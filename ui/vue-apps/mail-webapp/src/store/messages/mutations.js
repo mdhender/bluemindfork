@@ -50,7 +50,13 @@ export default {
         messages.forEach(m => (state[m.key].status = m.status));
     },
     [SET_MESSAGES_LOADING_STATUS]: (state, messages) => {
-        messages.forEach(m => (state[m.key].loading = m.loading));
+        messages.forEach(m => {
+            if (state[m.key]) {
+                state[m.key].loading = m.loading;
+            } else {
+                Vue.set(state, m.key, m);
+            }
+        });
     },
     [SET_MESSAGE_COMPOSING]: (state, { messageKey, composing }) => {
         if (state[messageKey]) {
