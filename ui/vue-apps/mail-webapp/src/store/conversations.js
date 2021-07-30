@@ -142,7 +142,6 @@ const getters = {
                 ?.map(message => state.messages[message.key] || message)
                 .filter(
                     message =>
-                        message &&
                         (message.folderRef.key !== getters.MY_TRASH.key ||
                             conversation.folderRef.key === getters.MY_TRASH.key) &&
                         message.loading !== LoadingStatus.ERROR
