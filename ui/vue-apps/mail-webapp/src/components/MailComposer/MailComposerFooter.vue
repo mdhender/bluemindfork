@@ -49,13 +49,16 @@
             >
                 <bm-icon icon="paper-clip" size="lg" />
             </bm-button>
-            <bm-dropdown v-if="signature" dropup right no-caret variant="simple-dark">
+            <bm-dropdown dropup right no-caret variant="simple-dark">
                 <template #button-content>
                     <bm-icon icon="3dots-v" size="lg" />
                 </template>
                 <bm-dropdown-item-toggle :checked="isSignatureInserted" @click="$emit('toggle-signature')">{{
                     $t("mail.compose.toolbar.insert_signature")
                 }}</bm-dropdown-item-toggle>
+                <bm-dropdown-item-button icon="documents">
+                    {{ $t("mail.compose.toolbar.use_template") }}
+                </bm-dropdown-item-button>
             </bm-dropdown>
         </div>
     </div>
@@ -63,7 +66,7 @@
 
 <script>
 import { EmailValidator } from "@bluemind/email";
-import { BmButton, BmIcon, BmDropdown, BmDropdownItemToggle } from "@bluemind/styleguide";
+import { BmButton, BmIcon, BmDropdown, BmDropdownItemButton, BmDropdownItemToggle } from "@bluemind/styleguide";
 
 import { ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
 import { MessageStatus } from "~/model/message";
@@ -74,6 +77,7 @@ export default {
     components: {
         BmButton,
         BmDropdown,
+        BmDropdownItemButton,
         BmDropdownItemToggle,
         BmIcon
     },

@@ -332,7 +332,8 @@
         },
         "compose": {
             "toolbar": {
-                "insert_signature": "Insert my signature"
+                "insert_signature": "Insert my signature",
+                "use_template": "Use a template"
             }
         }
     },
