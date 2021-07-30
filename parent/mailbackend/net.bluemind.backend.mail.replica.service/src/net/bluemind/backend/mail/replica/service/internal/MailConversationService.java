@@ -20,6 +20,7 @@ package net.bluemind.backend.mail.replica.service.internal;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -153,7 +154,7 @@ public class MailConversationService implements IInternalMailConversation {
 	private ItemValue<Conversation> conversationToPublic(ItemValue<InternalConversation> itemValue) {
 		Conversation external = new Conversation();
 		external.conversationId = itemValue.value.conversationId;
-		external.messageRefs = itemValue.value.messageRefs.stream().map(this::messageToPublic)
+		external.messageRefs = itemValue.value.messageRefs.stream().map(this::messageToPublic).filter(Objects::nonNull)
 				.collect(Collectors.toList());
 		return ItemValue.create(itemValue, external);
 	}
@@ -168,9 +169,13 @@ public class MailConversationService implements IInternalMailConversation {
 
 	private MessageRef messageToPublic(InternalMessageRef internalMessageId) {
 		MessageRef external = new MessageRef();
+		try {
+			external.folderUid = idToUid(internalMessageId.folderId);
+		} catch (NullPointerException e) {
+			return null;
+		}
 		external.date = internalMessageId.date;
 		external.itemId = internalMessageId.itemId;
-		external.folderUid = idToUid(internalMessageId.folderId);
 		return external;
 	}
 
