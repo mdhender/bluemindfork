@@ -343,10 +343,13 @@ function removeMessagesFromConversation(conversation, messages) {
 }
 
 function removeMessages({ conversationByKey }, messages) {
-    if (messages.length) {
-        const messageKeys = messages.map(m => m.key);
-        Object.values(conversationByKey).forEach(conversation => {
-            conversation.messages = conversation.messages.filter(m => !messageKeys.includes(String(m.key)));
-        });
-    }
+    messages.forEach(message => {
+        if (message.loading === LoadingStatus.ERROR) {
+            const conversation = conversationByKey[message.conversationRef.key];
+            const index = conversation.messages.findIndex(({ key }) => message.key === key);
+            if (index >= 0) {
+                conversation.messages.splice(index, 1);
+            }
+        }
+    });
 }
