@@ -4,7 +4,6 @@
         v-else-if="MAILSHARES.length > 0"
         :tree="MAILSHARE_ROOT_FOLDERS"
         :name="$t('common.mailshares')"
-        @toggle-folders="$emit('toggle-folders')"
     />
 </template>
 <script>

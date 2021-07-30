@@ -10,7 +10,7 @@ import {
     RENAME_FOLDER,
     SET_UNREAD_COUNT
 } from "~/mutations";
-import { FOLDERS_BY_UPPERCASE_PATH } from "~/getters";
+import { FOLDERS_BY_UPPERCASE_PATH, FOLDER_GET_DESCENDANTS } from "~/getters";
 import { FolderAdaptor } from "./helpers/FolderAdaptor";
 import { create, rename } from "~/model/folder";
 import { withAlert } from "../helpers/withAlert";
@@ -49,12 +49,19 @@ const createFolderHierarchy = async function ({ commit, getters, dispatch }, { n
     return created;
 };
 
-const removeFolder = async function ({ commit }, { folder, mailbox }) {
-    commit(MUTATION_REMOVE_FOLDER, folder);
+const removeFolder = async function ({ commit, getters }, { folder, mailbox }) {
+    const descendants = getters[FOLDER_GET_DESCENDANTS](folder);
+    const toBeRemoved = descendants.concat(folder);
+
+    toBeRemoved.forEach(folderToRemove => {
+        commit(MUTATION_REMOVE_FOLDER, folderToRemove);
+    });
     try {
         await api.deleteFolder(mailbox, folder);
     } catch (e) {
-        commit(ADD_FOLDER, folder);
+        toBeRemoved.forEach(folderToRemove => {
+            commit(ADD_FOLDER, folderToRemove);
+        });
         throw e;
     }
 };
@@ -98,7 +105,6 @@ export default {
     [CREATE_FOLDER]: withAlert(createFolderHierarchy, CREATE_FOLDER, "CreateFolder"),
     [CREATE_FOLDER_HIERARCHY]: createFolderHierarchy,
     [EMPTY_FOLDER]: emptyFolder,
-    // FIXME: when deleting a folder having children, it is not deleted in UI & we got errors in the console..
     [REMOVE_FOLDER]: withAlert(removeFolder, REMOVE_FOLDER, "RemoveFolder"),
     [RENAME_FOLDER]: withAlert(renameFolder, RENAME_FOLDER, "RenameFolder"),
     [MARK_FOLDER_AS_READ]: withAlert(markFolderAsRead, MARK_FOLDER_AS_READ, "MarkFolderAsRead"),

@@ -1,4 +1,5 @@
 import { FOLDERS_BY_UPPERCASE_PATH, FOLDER_HAS_CHILDREN, FOLDER_GET_CHILDREN } from "~/getters";
+import { FOLDER_GET_DESCENDANTS } from "../../types/getters";
 import getters from "../getters";
 
 describe("getters", () => {
@@ -35,5 +36,19 @@ describe("getters", () => {
         expect(getters[FOLDER_GET_CHILDREN](state)({ key: "1" })).toEqual([{ key: "2", parent: "1" }]);
         expect(getters[FOLDER_GET_CHILDREN](state)({ key: "2" })).toEqual([]);
         expect(getters[FOLDER_GET_CHILDREN](state)({ key: "3" })).toEqual([]);
+    });
+    test("FOLDER_GET_DESCENDANTS", () => {
+        const state = {
+            "1": { key: "1", parent: null },
+            "2": { key: "2", parent: "1" },
+            "3": { key: "3", parent: "2" }
+        };
+        const fakeGetters = { [FOLDER_GET_CHILDREN]: getters[FOLDER_GET_CHILDREN](state) };
+        expect(getters[FOLDER_GET_DESCENDANTS](state, fakeGetters)({ key: "1" })).toEqual([
+            { key: "2", parent: "1" },
+            { key: "3", parent: "2" }
+        ]);
+        expect(getters[FOLDER_GET_DESCENDANTS](state, fakeGetters)({ key: "2" })).toEqual([{ key: "3", parent: "2" }]);
+        expect(getters[FOLDER_GET_DESCENDANTS](state, fakeGetters)({ key: "3" })).toEqual([]);
     });
 });

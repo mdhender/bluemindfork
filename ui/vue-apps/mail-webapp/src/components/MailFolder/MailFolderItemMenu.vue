@@ -86,8 +86,8 @@ export default {
                 autoFocusButton: "ok"
             });
             if (confirm) {
-                if (this.IS_DESCENDANT(this.folder.key, this.activeFolder)) {
-                    this.$router.push({ name: "mail:home" });
+                if (this.IS_DESCENDANT(this.folder.key, this.activeFolder) || this.activeFolder === this.folder.key) {
+                    await this.$router.push({ name: "mail:home" });
                 }
                 this.REMOVE_FOLDER({ folder: this.folder, mailbox: this.mailbox });
             }

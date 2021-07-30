@@ -1,12 +1,6 @@
 <template>
     <folder-list-loading v-if="!isLoaded" :name="name" />
-    <mail-folder-tree
-        v-else
-        :tree="MY_MAILBOX_ROOT_FOLDERS"
-        :name="name"
-        show-input
-        @toggle-folders="$emit('toggle-folders')"
-    />
+    <mail-folder-tree v-else :tree="MY_MAILBOX_ROOT_FOLDERS" :name="name" show-input />
 </template>
 <script>
 import { mapGetters } from "vuex";

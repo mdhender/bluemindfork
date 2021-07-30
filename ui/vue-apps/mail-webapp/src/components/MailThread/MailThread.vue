@@ -27,7 +27,6 @@ import {
     RESET_ACTIVE_MESSAGE,
     RESET_PARTS_DATA,
     SET_ACTIVE_MESSAGE,
-    SET_ACTIVE_FOLDER,
     SET_BLOCK_REMOTE_IMAGES,
     SET_CURRENT_CONVERSATION,
     UNSELECT_ALL_CONVERSATIONS
@@ -170,7 +169,6 @@ export default {
         ...mapMutations("mail", {
             RESET_PARTS_DATA,
             RESET_ACTIVE_MESSAGE,
-            SET_ACTIVE_FOLDER,
             SET_ACTIVE_MESSAGE,
             SET_BLOCK_REMOTE_IMAGES,
             SET_CURRENT_CONVERSATION,

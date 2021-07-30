@@ -5,7 +5,7 @@
             class="collapse-tree-btn d-flex align-items-center pb-2 pt-3 border-0 pl-2 w-100"
             :aria-controls="'collapse-tree-' + name"
             :aria-expanded="isTreeExpanded"
-            @click="isTreeExpanded = !isTreeExpanded"
+            @click.stop="isTreeExpanded = !isTreeExpanded"
         >
             <bm-icon :icon="isTreeExpanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" />
             <span class="font-weight-bold">{{ name }}</span>
@@ -80,7 +80,6 @@ export default {
             this.CREATE_FOLDER({ name, parent: null, mailbox: this.MY_MAILBOX });
         },
         selectFolder(key) {
-            this.$emit("toggle-folders");
             this.$router.push(this.folderRoute(this.folders[key]));
         }
     }

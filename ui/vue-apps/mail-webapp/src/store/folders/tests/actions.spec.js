@@ -171,6 +171,25 @@ describe("actions", () => {
         });
     });
     describe("REMOVE_FOLDER", () => {
+        test("Remove folder with children", async () => {
+            const mailbox = { type: "", name: "", remoteRef: {} };
+            const folder = { key: "1", name: "foo", path: "baz" };
+            const childFolder1 = { key: "2", name: "child1", path: "baz/child1", parent: "1" };
+            const childFolder2 = { key: "3", name: "child2", path: "baz/child2", parent: "1" };
+            const anotherfolder = { key: "4", name: "another", path: "another" };
+            store.commit(ADD_FOLDER, folder);
+            store.commit(ADD_FOLDER, childFolder1);
+            store.commit(ADD_FOLDER, childFolder2);
+            store.commit(ADD_FOLDER, anotherfolder);
+
+            const promise = await store.dispatch(REMOVE_FOLDER, { folder, mailbox });
+
+            expect(api.deleteFolder).toHaveBeenCalledTimes(1);
+            expect(api.deleteFolder).toHaveBeenCalledWith(mailbox, folder);
+            expect(store.state).toEqual({ [anotherfolder.key]: anotherfolder });
+            await promise;
+            expect(store.state).toEqual({ [anotherfolder.key]: anotherfolder });
+        });
         test("Remove folder with optimistic return", async () => {
             const mailbox = { type: "", name: "", remoteRef: {} };
             const folder1 = { key: "1", name: "foo", path: "baz" };

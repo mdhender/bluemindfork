@@ -12,7 +12,11 @@
                 class="d-lg-flex justify-content-start pl-lg-4"
                 :class="hideListInResponsiveMode || composerOrMessageIsDisplayed ? 'd-none' : ''"
             >
-                <bm-button variant="inline-light" class="d-inline-block d-lg-none w-100" @click.stop="toggleFolders">
+                <bm-button
+                    variant="inline-light"
+                    class="d-inline-block d-lg-none w-100"
+                    @click.stop="showFolders = !showFolders"
+                >
                     <bm-icon icon="burger-menu" size="2x" />
                 </bm-button>
                 <new-message />
@@ -56,7 +60,7 @@
                 :aria-label="$t('mail.application.region.folderlist')"
                 class="folders-section row position-lg-static position-absolute d-lg-block px-0 col-12 col-lg-2 overlay top-0 bottom-0"
             >
-                <mail-folder-sidebar @toggle-folders="toggleFolders" />
+                <mail-folder-sidebar />
             </section>
             <multipane class="w-100" layout="vertical">
                 <div
@@ -152,9 +156,6 @@ export default {
         FaviconHelper.handleUnreadNotifInFavicon(this.userSession, documentTitle);
     },
     methods: {
-        toggleFolders() {
-            this.showFolders = !this.showFolders;
-        },
         async switchWebmail() {
             await inject("UserSettingsPersistence").setOne(this.userSession.userId, "mail-application", '"webmail"');
             location.replace("/webmail/");
