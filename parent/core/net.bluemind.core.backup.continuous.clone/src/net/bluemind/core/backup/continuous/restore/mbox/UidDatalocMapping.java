@@ -25,7 +25,6 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.mailbox.api.Mailbox;
 
 public class UidDatalocMapping {
@@ -35,7 +34,6 @@ public class UidDatalocMapping {
 		public final ItemValue<MailboxReplica> folder;
 		public final ItemValue<Mailbox> mbox;
 		public final ItemValue<Domain> dom;
-		public final String cmdPrefix;
 
 		public Replica(CyrusPartition part, ItemValue<Domain> dom, ItemValue<Mailbox> mbox,
 				ItemValue<MailboxReplica> folder) {
@@ -43,37 +41,6 @@ public class UidDatalocMapping {
 			this.dom = dom;
 			this.mbox = mbox;
 			this.folder = folder;
-			this.cmdPrefix = applyMailboxPrefixImpl();
-		}
-
-		public String cyrusMbox() {
-			String fn = folder.value.fullName;
-			if (mbox.value.type.sharedNs) {
-				if (fn.equals(mbox.value.name)) {
-					fn = "";
-				} else {
-					fn = "." + UTF7Converter.encode(fn.replace('.', '^').replace('/', '.'));
-				}
-			} else {
-				if (fn.equals("INBOX")) {
-					fn = "";
-				} else {
-					fn = "." + UTF7Converter.encode(fn.replace('.', '^').replace('/', '.'));
-				}
-			}
-			return dom.uid + "!" + mbox.value.type.nsPrefix + mbox.value.name.replace('.', '^') + fn;
-		}
-
-		private String applyMailboxPrefixImpl() {
-			String cmd = "APPLY MAILBOX %(UNIQUEID " + folder.uid + " MBOXNAME \"" + cyrusMbox() + "\" ";
-			cmd += "SYNC_CRC 0 SYNC_CRC_ANNOT 0 LAST_UID " + folder.value.lastUid + " HIGHESTMODSEQ "
-					+ folder.value.highestModSeq + " RECENTUID 0 ";
-			cmd += "RECENTTIME 0 LAST_APPENDDATE " + (folder.value.lastAppendDate.getTime() / 1000)
-					+ " POP3_LAST_LOGIN 0 POP3_SHOW_AFTER 0 UIDVALIDITY " + folder.value.uidValidity;
-			cmd += " PARTITION " + part.name + " ";
-			cmd += "ACL \"" + mbox.value.name + "@" + dom.uid + " lrswipkxtecdan \" ";
-			cmd += "OPTIONS PS RECORD (";
-			return cmd;
 		}
 	}
 
@@ -85,10 +52,12 @@ public class UidDatalocMapping {
 		knownPartitions = new HashMap<>();
 	}
 
-	public void put(ItemValue<MailboxReplica> repl, ItemValue<Mailbox> mbox, ItemValue<Domain> dom, CyrusPartition cp) {
+	public Replica put(ItemValue<MailboxReplica> repl, ItemValue<Mailbox> mbox, ItemValue<Domain> dom,
+			CyrusPartition cp) {
 		CyrusPartition dedup = knownPartitions.computeIfAbsent(cp.name, k -> cp);
-		Replica r = new Replica(dedup, dom, mbox, repl);
-		mapping.put(repl.uid, r);
+		Replica replica = new Replica(dedup, dom, mbox, repl);
+		mapping.put(repl.uid, replica);
+		return replica;
 	}
 
 	public int size() {

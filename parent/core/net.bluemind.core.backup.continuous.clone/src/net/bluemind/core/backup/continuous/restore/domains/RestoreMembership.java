@@ -19,7 +19,7 @@ import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
 
-public class RestoreMembership {
+public class RestoreMembership implements RestoreDomainType {
 
 	private final ValueReader<ItemValue<GroupMembership>> membersReader = JsonUtils
 			.reader(new TypeReference<ItemValue<GroupMembership>>() {
@@ -31,6 +31,10 @@ public class RestoreMembership {
 	public RestoreMembership(IServerTaskMonitor monitor, IServiceProvider target) {
 		this.monitor = monitor;
 		this.target = target;
+	}
+
+	public String type() {
+		return "memberships";
 	}
 
 	public void restore(DataElement de) {

@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import net.bluemind.backend.cyrus.replication.client.SyncClientOIO;
 import net.bluemind.core.backup.continuous.restore.CloneException;
 import net.bluemind.core.backup.continuous.restore.mbox.UidDatalocMapping.Replica;
-import net.bluemind.core.backup.continuous.syncclient.SyncClientOIO;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.sds.dto.GetRequest;
 import net.bluemind.sds.dto.SdsResponse;
@@ -35,9 +35,9 @@ public class MsgBodyTask {
 	private Replica replica;
 	private SyncClientOIO syncClient;
 
-	public MsgBodyTask(ISdsSyncStore sdsStore, SyncClientOIO sc, Replica repl) {
+	public MsgBodyTask(ISdsSyncStore sdsStore, SyncClientOIO syncClient, Replica repl) {
 		this.sds = sdsStore;
-		this.syncClient = sc;
+		this.syncClient = syncClient;
 		this.replica = repl;
 	}
 

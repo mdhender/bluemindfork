@@ -43,7 +43,7 @@ import net.bluemind.resource.api.type.ResourceTypeDescriptor;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
-public class RestoreDirectories {
+public class RestoreDirectories implements RestoreDomainType {
 
 	private static final Logger logger = LoggerFactory.getLogger(RestoreDirectories.class);
 
@@ -79,6 +79,10 @@ public class RestoreDirectories {
 		this.state = state;
 	}
 
+	public String type() {
+		return "dir";
+	}
+
 	public void restore(DataElement de) {
 		Map<String, ItemValue<Domain>> domains = new HashMap<>();
 
@@ -88,7 +92,6 @@ public class RestoreDirectories {
 		JsonObject parsed = new JsonObject(jsString);
 		JsDirEntry js = new JsDirEntry();
 		js.domainUid = de.key.uid;
-		js.parsed = parsed;
 		if (parsed.getJsonObject("value").containsKey("entry")) {
 			js.kind = BaseDirEntry.Kind.valueOf(parsed.getJsonObject("value").getJsonObject("entry").getString("kind"));
 		}
@@ -108,7 +111,6 @@ public class RestoreDirectories {
 			return domApi.get(uid);
 		});
 		if (js.kind == null) {
-
 			// should be a domain
 			ItemValue<DirEntry> entry = rawEntryReader.read(js.jsString);
 			System.err.println("on entry " + entry);
@@ -117,41 +119,10 @@ public class RestoreDirectories {
 				// skip
 				break;
 			case ADDRESSBOOK:
-				IAddressBooksMgmt bookApi = target.instance(IAddressBooksMgmt.class);
-				if (!entry.uid.equals("addressbook_" + domain.uid)) {
-					AddressBookDescriptor existing = bookApi.getComplete(entry.uid);
-					AddressBookDescriptor bookDesc = new AddressBookDescriptor();
-					bookDesc.owner = domain.uid;
-					bookDesc.domainUid = domain.uid;
-					bookDesc.name = entry.displayName;
-					bookDesc.orgUnitUid = entry.value.orgUnitUid;
-					if (existing != null) {
-						monitor.log("Update addressbook " + bookDesc);
-						bookDesc.owner = existing.owner;
-						bookApi.update(entry.uid, bookDesc);
-					} else {
-						monitor.log("Create addressbook " + bookDesc);
-						bookApi.create(entry.uid, bookDesc, false);
-					}
-				}
+				processAddressBook(monitor, entry, domain);
 				break;
 			case CALENDAR:
-				ICalendarsMgmt calApi = target.instance(ICalendarsMgmt.class);
-
-				CalendarDescriptor existing = calApi.getComplete(entry.uid);
-				CalendarDescriptor calDesc = new CalendarDescriptor();
-				calDesc.domainUid = domain.uid;
-				calDesc.owner = domain.uid;
-				calDesc.name = entry.displayName;
-				calDesc.orgUnitUid = entry.value.orgUnitUid;
-				if (existing != null) {
-					monitor.log("Update calendar " + calDesc);
-					calDesc.owner = existing.owner;
-					calApi.update(entry.uid, calDesc);
-				} else {
-					monitor.log("Create calendar " + calDesc);
-					calApi.create(entry.uid, calDesc);
-				}
+				processCalendar(monitor, entry, domain);
 				break;
 			default:
 				// OK
@@ -162,74 +133,19 @@ public class RestoreDirectories {
 
 			switch (kind) {
 			case USER:
-				ItemValue<FullDirEntry<User>> user = dirUserReader.read(js.jsString);
-				if (!user.value.value.system) {
-					IUser userApi = target.instance(IUser.class, domain.uid);
-					processUser(domain, monitor, userApi, user);
-				}
+				processUser(monitor, js);
 				break;
 			case GROUP:
-				IGroup groupApi = target.instance(IGroup.class, domain.uid);
-				ItemValue<FullDirEntry<Group>> group = dirGroupReader.read(js.jsString);
-				// user & admin group have a generated uid
-				ItemValue<Group> existing = groupApi.byName(group.value.value.name);
-				ItemValue<Group> groupItem = ItemValue.create(group.item(), group.value.value);
-				if (existing != null) {
-					monitor.log("Update group " + group.value.value);
-					groupApi.updateWithItem(group.uid, groupItem);
-				} else {
-					monitor.log("Create group " + group);
-					groupApi.createWithItem(group.uid, groupItem);
-				}
+				processGroup(monitor, js);
 				break;
 			case MAILSHARE:
-				ItemValue<FullDirEntry<Mailshare>> share = dirMailshareReader.read(js.jsString);
-				if (!share.value.value.system) {
-					IMailshare shareApi = target.instance(IMailshare.class, domain.uid);
-					processMailshare(domain, monitor, shareApi, share);
-				}
+				processMailshare(monitor, js);
 				break;
 			case RESOURCE:
-				ItemValue<FullDirEntry<ResourceDescriptor>> res = dirResourceReader.read(js.jsString);
-				if (!res.value.value.system) {
-					IResources resApi = target.instance(IResources.class, domain.uid);
-
-					ResourceDescriptor existingres = resApi.get(res.uid);
-					IResourceTypes typeApi = target.instance(IResourceTypes.class, domain.uid);
-					String wantedType = res.value.value.typeIdentifier;
-					ResourceTypeDescriptor knownType = typeApi.get(wantedType);
-					if (knownType == null) {
-						ResourceTypeDescriptor rtd = new ResourceTypeDescriptor();
-						rtd.label = "Auto-created " + wantedType;
-						rtd.properties = Collections.emptyList();
-						rtd.templates = Collections.emptyMap();
-						monitor.log("Auto creating resource type " + rtd);
-						typeApi.create(wantedType, rtd);
-					}
-
-					ItemValue<ResourceDescriptor> resourceItem = ItemValue.create(res.item(), res.value.value);
-					if (existingres != null) {
-						monitor.log("Update resource " + res.value.value);
-						resApi.updateWithItem(res.uid, resourceItem);
-					} else {
-						monitor.log("Create resource " + res.value.value);
-						resApi.createWithItem(res.uid, resourceItem);
-					}
-				}
+				processResource(monitor, js);
 				break;
 			case EXTERNALUSER:
-				ItemValue<FullDirEntry<ExternalUser>> ext = dirExtUReader.read(js.jsString);
-				IExternalUser extApi = target.instance(IExternalUser.class, domain.uid);
-
-				ItemValue<ExternalUser> existingExt = extApi.getComplete(ext.uid);
-				ItemValue<ExternalUser> externalUserItem = ItemValue.create(ext.item(), ext.value.value);
-				if (existingExt != null) {
-					monitor.log("Update external-user " + ext.value.value);
-					extApi.updateWithItem(ext.uid, externalUserItem);
-				} else {
-					monitor.log("Create external-user " + ext.value.value);
-					extApi.createWithItem(ext.uid, externalUserItem);
-				}
+				processExternalUser(monitor, js);
 				break;
 			default:
 				System.err.println("Not supported kind " + kind + " yet");
@@ -237,25 +153,96 @@ public class RestoreDirectories {
 		}
 	}
 
-	private void processUser(ItemValue<Domain> dom, IServerTaskMonitor monitor, IUser userApi,
-			ItemValue<FullDirEntry<User>> user) {
-		System.err.println(user.value.value.login + " hash: " + user.value.value.password);
-		ItemValue<User> existing = userApi.getComplete(user.uid);
-		ItemValue<User> userItem = ItemValue.create(user.item(), user.value.value);
-		if (existing != null) {
-			monitor.log("Update user " + user.value.value);
-			userApi.updateWithItem(user.uid, userItem);
-		} else {
-			monitor.log("Create user " + user.value.value);
-			ItemValue<Mailbox> mbox = ItemValue.create(user.uid, user.value.mailbox);
-			state.storeMailbox(user.uid, mbox);
-			userApi.createWithItem(user.uid, userItem);
-		}
+	private void processCalendar(IServerTaskMonitor monitor, ItemValue<DirEntry> entry, ItemValue<Domain> domain) {
+		ICalendarsMgmt calApi = target.instance(ICalendarsMgmt.class);
 
+		CalendarDescriptor existing = calApi.getComplete(entry.uid);
+		CalendarDescriptor calDesc = new CalendarDescriptor();
+		calDesc.domainUid = domain.uid;
+		calDesc.owner = domain.uid;
+		calDesc.name = entry.displayName;
+		calDesc.orgUnitUid = entry.value.orgUnitUid;
+		if (existing != null) {
+			monitor.log("Update calendar " + calDesc);
+			calDesc.owner = existing.owner;
+			calApi.update(entry.uid, calDesc);
+		} else {
+			monitor.log("Create calendar " + calDesc);
+			calApi.create(entry.uid, calDesc);
+		}
 	}
 
-	private void processMailshare(ItemValue<Domain> domain, IServerTaskMonitor monitor, IMailshare shareApi,
-			ItemValue<FullDirEntry<Mailshare>> share) {
+	private void processAddressBook(IServerTaskMonitor monitor, ItemValue<DirEntry> entry, ItemValue<Domain> domain) {
+		IAddressBooksMgmt bookApi = target.instance(IAddressBooksMgmt.class);
+		if (!entry.uid.equals("addressbook_" + domain.uid)) {
+			AddressBookDescriptor existing = bookApi.getComplete(entry.uid);
+			AddressBookDescriptor bookDesc = new AddressBookDescriptor();
+			bookDesc.owner = domain.uid;
+			bookDesc.domainUid = domain.uid;
+			bookDesc.name = entry.displayName;
+			bookDesc.orgUnitUid = entry.value.orgUnitUid;
+			if (existing != null) {
+				monitor.log("Update addressbook " + bookDesc);
+				bookDesc.owner = existing.owner;
+				bookApi.update(entry.uid, bookDesc);
+			} else {
+				monitor.log("Create addressbook " + bookDesc);
+				bookApi.create(entry.uid, bookDesc, false);
+			}
+		}
+	}
+
+	private void processExternalUser(IServerTaskMonitor monitor, JsDirEntry js) {
+		ItemValue<FullDirEntry<ExternalUser>> ext = dirExtUReader.read(js.jsString);
+		IExternalUser extApi = target.instance(IExternalUser.class, js.domainUid);
+
+		ItemValue<ExternalUser> existingExt = extApi.getComplete(ext.uid);
+		ItemValue<ExternalUser> externalUserItem = ItemValue.create(ext.item(), ext.value.value);
+		if (existingExt != null) {
+			monitor.log("Update external-user " + ext.value.value);
+			extApi.updateWithItem(ext.uid, externalUserItem);
+		} else {
+			monitor.log("Create external-user " + ext.value.value);
+			extApi.createWithItem(ext.uid, externalUserItem);
+		}
+	}
+
+	private void processResource(IServerTaskMonitor monitor, JsDirEntry js) {
+		ItemValue<FullDirEntry<ResourceDescriptor>> res = dirResourceReader.read(js.jsString);
+		if (res.value.value.system) {
+			return;
+		}
+		IResources resApi = target.instance(IResources.class, js.domainUid);
+
+		ResourceDescriptor existingres = resApi.get(res.uid);
+		IResourceTypes typeApi = target.instance(IResourceTypes.class, js.domainUid);
+		String wantedType = res.value.value.typeIdentifier;
+		ResourceTypeDescriptor knownType = typeApi.get(wantedType);
+		if (knownType == null) {
+			ResourceTypeDescriptor rtd = new ResourceTypeDescriptor();
+			rtd.label = "Auto-created " + wantedType;
+			rtd.properties = Collections.emptyList();
+			rtd.templates = Collections.emptyMap();
+			monitor.log("Auto creating resource type " + rtd);
+			typeApi.create(wantedType, rtd);
+		}
+
+		ItemValue<ResourceDescriptor> resourceItem = ItemValue.create(res.item(), res.value.value);
+		if (existingres != null) {
+			monitor.log("Update resource " + res.value.value);
+			resApi.updateWithItem(res.uid, resourceItem);
+		} else {
+			monitor.log("Create resource " + res.value.value);
+			resApi.createWithItem(res.uid, resourceItem);
+		}
+	}
+
+	private void processMailshare(IServerTaskMonitor monitor, JsDirEntry js) {
+		ItemValue<FullDirEntry<Mailshare>> share = dirMailshareReader.read(js.jsString);
+		if (share.value.value.system) {
+			return;
+		}
+		IMailshare shareApi = target.instance(IMailshare.class, js.domainUid);
 		ItemValue<Mailshare> existingShare = shareApi.getComplete(share.uid);
 		ItemValue<Mailshare> mailshareItem = ItemValue.create(share.item(), share.value.value);
 		if (existingShare != null) {
@@ -269,10 +256,44 @@ public class RestoreDirectories {
 		}
 	}
 
+	private void processGroup(IServerTaskMonitor monitor, JsDirEntry js) {
+		IGroup groupApi = target.instance(IGroup.class, js.domainUid);
+		ItemValue<FullDirEntry<Group>> group = dirGroupReader.read(js.jsString);
+		// user & admin group have a generated uid
+		ItemValue<Group> existing = groupApi.byName(group.value.value.name);
+		ItemValue<Group> groupItem = ItemValue.create(group.item(), group.value.value);
+		if (existing != null) {
+			monitor.log("Update group " + group.value.value);
+			groupApi.updateWithItem(group.uid, groupItem);
+		} else {
+			monitor.log("Create group " + group);
+			groupApi.createWithItem(group.uid, groupItem);
+		}
+	}
+
+	private void processUser(IServerTaskMonitor monitor, JsDirEntry js) {
+		ItemValue<FullDirEntry<User>> user = dirUserReader.read(js.jsString);
+		if (user.value.value.system) {
+			return;
+		}
+		IUser userApi = target.instance(IUser.class, js.domainUid);
+		System.err.println(user.value.value.login + " hash: " + user.value.value.password);
+		ItemValue<User> existing = userApi.getComplete(user.uid);
+		ItemValue<User> userItem = ItemValue.create(user.item(), user.value.value);
+		if (existing != null) {
+			monitor.log("Update user " + user.value.value);
+			userApi.updateWithItem(user.uid, userItem);
+		} else {
+			monitor.log("Create user " + user.value.value);
+			ItemValue<Mailbox> mbox = ItemValue.create(user.uid, user.value.mailbox);
+			state.storeMailbox(user.uid, mbox);
+			userApi.createWithItem(user.uid, userItem);
+		}
+	}
+
 	private static class JsDirEntry {
 		String domainUid;
 		String jsString;
-		JsonObject parsed;
 		Kind kind;
 	}
 

@@ -1,9 +1,15 @@
 package net.bluemind.core.backup.continuous.restore.domains;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Handler;
-import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.restore.IClonePhaseObserver;
 import net.bluemind.core.container.model.ItemValue;
@@ -13,35 +19,25 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.sds.store.ISdsSyncStore;
 
 public class DomainRestorationHandler implements Handler<DataElement> {
+	private static final Logger logger = LoggerFactory.getLogger(DomainRestorationHandler.class);
 
-	private final RestoreMailboxRecords mailboxItemRestoration;
-	private final RestoreDirectories directoriesRestoration;
-	private final RestoreReplicatedMailboxes replicatedMailboxesRestoration;
-	private final RestoreMembership membershipRestoration;
+	private final Map<String, RestoreDomainType> restoresByType;
 
 	public DomainRestorationHandler(IServerTaskMonitor monitor, ItemValue<Domain> domain, IServiceProvider target,
 			ArrayList<IClonePhaseObserver> observers, ISdsSyncStore sdsStore, RestoreState state) {
-		mailboxItemRestoration = new RestoreMailboxRecords(monitor, sdsStore, state);
-		directoriesRestoration = new RestoreDirectories(monitor, target, observers, state);
-		replicatedMailboxesRestoration = new RestoreReplicatedMailboxes(monitor, domain, state);
-		membershipRestoration = new RestoreMembership(monitor, target);
+		this.restoresByType = Arrays
+				.asList(new RestoreMailboxRecords(monitor, sdsStore, state),
+						new RestoreDirectories(monitor, target, observers, state),
+						new RestoreReplicatedMailboxes(monitor, domain, state), new RestoreMembership(monitor, target))
+				.stream().collect(Collectors.toMap(RestoreDomainType::type, Function.identity()));
 	}
 
 	@Override
 	public void handle(DataElement event) {
-		switch (event.key.type) {
-		case "dir":
-			directoriesRestoration.restore(event);
-			break;
-		case "memberships":
-			membershipRestoration.restore(event);
-			break;
-		case IMailReplicaUids.MAILBOX_RECORDS:
-			mailboxItemRestoration.restore(event);
-			break;
-		case "replicated_mailboxes":
-			replicatedMailboxesRestoration.restore(event);
-			break;
+		RestoreDomainType restore = restoresByType.get(event.key.type);
+		logger.info("Restoring {} with {}", event.key.type, restore);
+		if (restore != null) {
+			restore.restore(event);
 		}
 	}
 

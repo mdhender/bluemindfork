@@ -46,9 +46,9 @@ public class RestoreState implements Closeable {
 		return serverByDatalocation.get(dataLocation);
 	}
 
-	public void storeReplica(ItemValue<Domain> domain, ItemValue<Mailbox> mbox, ItemValue<MailboxReplica> replica,
+	public Replica storeReplica(ItemValue<Domain> domain, ItemValue<Mailbox> mbox, ItemValue<MailboxReplica> replica,
 			CyrusPartition partition) {
-		locationMapping.put(replica, mbox, domain, partition);
+		return locationMapping.put(replica, mbox, domain, partition);
 	}
 
 	public Replica getReplica(String uniqueId) {

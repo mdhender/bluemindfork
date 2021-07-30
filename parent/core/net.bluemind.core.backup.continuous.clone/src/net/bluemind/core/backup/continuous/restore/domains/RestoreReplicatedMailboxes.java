@@ -6,20 +6,21 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.backend.cyrus.replication.client.ReplMailbox;
+import net.bluemind.backend.cyrus.replication.client.SyncClientOIO;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.config.Token;
 import net.bluemind.core.backup.continuous.DataElement;
-import net.bluemind.core.backup.continuous.syncclient.SyncClientOIO;
+import net.bluemind.core.backup.continuous.restore.mbox.UidDatalocMapping.Replica;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.server.api.Server;
 
-public class RestoreReplicatedMailboxes {
+public class RestoreReplicatedMailboxes extends RestoreReplicated implements RestoreDomainType {
 
 	private static final Logger logger = LoggerFactory.getLogger(RestoreReplicatedMailboxes.class);
 
@@ -37,6 +38,10 @@ public class RestoreReplicatedMailboxes {
 		this.state = state;
 	}
 
+	public String type() {
+		return "replicated_mailboxes";
+	}
+
 	public void restore(DataElement de) {
 		if (de.payload.length == 0) {
 			return;
@@ -47,45 +52,16 @@ public class RestoreReplicatedMailboxes {
 		CyrusPartition partition = CyrusPartition.forServerAndDomain(imap, domain.uid);
 		ItemValue<MailboxReplica> replica = mrReader.read(new String(de.payload));
 
-//		ordered.put(replica.uid, replica);
-		state.storeReplica(domain, mbox, replica, partition);
+		Replica repl = state.storeReplica(domain, mbox, replica, partition);
+		ReplMailbox replicatedMbox = buildReplicatedMailbox(repl);
 
-		try (SyncClientOIO sc = new SyncClientOIO(imap.value.address(), 2502)) {
-			sc.authenticate("admin0", Token.admin0());
-
-			String box = cyrusMbox(domain, mbox, replica);
-			String cmd = "APPLY MAILBOX %(UNIQUEID " + replica.uid + " MBOXNAME \"" + box + "\" ";
-			cmd += "SYNC_CRC 0 SYNC_CRC_ANNOT 0 LAST_UID 0 HIGHESTMODSEQ " + replica.value.highestModSeq
-					+ " RECENTUID 0 ";
-			cmd += "RECENTTIME 0 LAST_APPENDDATE 0 POP3_LAST_LOGIN 0 POP3_SHOW_AFTER 0 UIDVALIDITY "
-					+ replica.value.uidValidity + " ";
-			cmd += "PARTITION " + partition.name + " ";
-			cmd += "ACL \"" + mbox.value.name + "@" + domain.uid + " lrswipkxtecdan \" ";
-			cmd += "OPTIONS PS RECORD ())\r\n";
-			String syncRes = sc.run(cmd);
-			logger.info("APPLY MAILBOX {} aka {} => {}", replica.uid, syncRes);
-
+		try (SyncClientOIO syncClient = new SyncClientOIO(imap.value.address(), 2502)) {
+			syncClient.authenticate("admin0", Token.admin0());
+			String syncResponse = syncClient.applyMailbox(replicatedMbox);
+			logger.info("APPLY MAILBOX aka {} => {}", replica.uid, syncResponse);
 		} catch (Exception e) {
 			e.printStackTrace();
 			monitor.log("ERROR: " + e.getMessage());
 		}
-	}
-
-	private String cyrusMbox(ItemValue<Domain> domain, ItemValue<Mailbox> box, ItemValue<MailboxReplica> repl) {
-		String fn = repl.value.fullName;
-		if (box.value.type.sharedNs) {
-			if (fn.equals(box.value.name)) {
-				fn = "";
-			} else {
-				fn = "." + UTF7Converter.encode(fn.replace('.', '^').replace('/', '.'));
-			}
-		} else {
-			if (fn.equals("INBOX")) {
-				fn = "";
-			} else {
-				fn = "." + UTF7Converter.encode(fn.replace('.', '^').replace('/', '.'));
-			}
-		}
-		return domain.uid + "!" + box.value.type.nsPrefix + box.value.name.replace('.', '^') + fn;
 	}
 }
