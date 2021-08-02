@@ -22,7 +22,7 @@
         <bm-dropdown-divider />
         <bm-dropdown-item-button @click="initReplyOrForward(MessageCreationModes.FORWARD, message)">
             <bm-icon icon="forward" size="1x" />
-            <span class="pl-1">{{ $t("mail.content.forward.aria") }}</span>
+            <span class="pl-1">{{ $t("common.forward") }}</span>
         </bm-dropdown-item-button>
         <bm-dropdown-divider />
         <bm-dropdown-item-button

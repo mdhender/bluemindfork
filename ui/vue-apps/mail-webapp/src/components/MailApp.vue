@@ -132,7 +132,7 @@ export default {
             return item && (item.composing || this.SELECTION_IS_EMPTY);
         },
         composerOrMessageIsDisplayed() {
-            return Boolean(this.currentConversation);
+            return Boolean(this.ACTIVE_MESSAGE || this.currentConversation);
         },
         canSwitchWebmail() {
             return (

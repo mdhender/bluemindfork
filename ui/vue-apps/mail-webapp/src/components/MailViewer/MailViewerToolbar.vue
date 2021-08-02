@@ -20,12 +20,12 @@
         </bm-button>
         <bm-button
             variant="simple-primary"
-            :aria-label="$t('mail.content.forward.aria')"
-            :title="$t('mail.content.forward.aria')"
+            :aria-label="$t('common.forward')"
+            :title="$t('common.forward')"
             @click="forward"
         >
             <bm-icon icon="forward" size="2x" />
-            <span class="d-lg-none">{{ $t("mail.content.forward.aria") }}</span>
+            <span class="d-lg-none">{{ $t("common.forward") }}</span>
         </bm-button>
         <mail-viewer-toolbar-other-actions v-if="showOtherActions" :message="message" :conversation="conversation" />
     </bm-button-toolbar>
