@@ -41,7 +41,6 @@ import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.ContainerStore;
-import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -49,15 +48,14 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 
 public class MailConversationService implements IInternalMailConversation {
 
-	private final ContainerStoreService<InternalConversation> storeService;
+	private final ConversationStoreService storeService;
 	private final ConversationStore conversationStore;
 	private final RBACManager rbacManager;
 	private final ContainerStore containerStore;
 
 	public MailConversationService(BmContext context, DataSource ds, Container conversationContainer) {
 		this.conversationStore = new ConversationStore(ds, conversationContainer);
-		this.storeService = new ContainerWithoutChangelogService<>(ds, context.getSecurityContext(),
-				conversationContainer, conversationStore);
+		this.storeService = new ConversationStoreService(ds, context.getSecurityContext(), conversationContainer);
 		rbacManager = RBACManager.forContext(context).forContainer(conversationContainer);
 		this.containerStore = new ContainerStore(context, ds, context.getSecurityContext());
 	}
@@ -95,25 +93,20 @@ public class MailConversationService implements IInternalMailConversation {
 	@Override
 	public List<ItemValue<Conversation>> byFolder(String folderUid, ItemFlagFilter filter) {
 		rbacManager.check(Verb.Read.name());
-		try {
-			Predicate<InternalMessageRef> filterPredicate = null;
-			if (!filter.matchAll()) {
-				Set<Long> validIds = getValidIds(folderUid, filter);
-				filterPredicate = id -> validIds.contains(id.itemId);
-			} else {
-				filterPredicate = id -> true;
-			}
-			Predicate<InternalMessageRef> pred = filterPredicate;
-
-			List<Long> conversationItemIds = conversationStore.byFolder(uidToId(folderUid));
-			return storeService.getMultipleById(conversationItemIds).stream() //
-					.filter(conversation -> conversation.value.messageRefs.stream() //
-							.anyMatch(pred))
-					.map(this::conversationToPublic).collect(Collectors.toList());
-
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
+		Predicate<InternalMessageRef> filterPredicate = null;
+		if (!filter.matchAll()) {
+			Set<Long> validIds = getValidIds(folderUid, filter);
+			filterPredicate = id -> validIds.contains(id.itemId);
+		} else {
+			filterPredicate = id -> true;
 		}
+		Predicate<InternalMessageRef> pred = filterPredicate;
+
+		return storeService.byFolder(uidToId(folderUid)).stream() //
+				.filter(conversation -> conversation.value.messageRefs.stream() //
+						.anyMatch(pred))
+				.map(this::conversationToPublic).collect(Collectors.toList());
+
 	}
 
 	private Set<Long> getValidIds(String folderUid, ItemFlagFilter filter) {

@@ -81,10 +81,16 @@ public class ConversationStore extends AbstractItemValueStore<InternalConversati
 		return unique(query, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id, conversationId });
 	}
 
-	public List<Long> byFolder(long folderId) throws SQLException {
-		String query = "SELECT item_id FROM " + ConversationColumns.TABLE
+	public List<ItemV<InternalConversation>> byFolder(long folderId) throws SQLException {
+		String query = "SELECT item_id, " + ConversationColumns.COLUMNS.names() + " FROM " + ConversationColumns.TABLE
 				+ " WHERE container_id = ? AND messages @> '[{\"folderId\": " + folderId + "}]'::jsonb";
-		return select(query, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
+		return select(query, con -> new ItemV<InternalConversation>(),
+				(rs, index, itemv) -> {
+					itemv.itemId = rs.getLong(index++);
+					itemv.value = new InternalConversation();
+					return ConversationColumns.populator().populate(rs, index, itemv.value);
+				}, new Object[] { container.id });
+
 	}
 
 	public List<Long> byMessage(long folderId, long itemId) throws SQLException {
