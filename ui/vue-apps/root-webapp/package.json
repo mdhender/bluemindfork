@@ -26,6 +26,7 @@
         "@bluemind/vuex-router": "^4.1.0",
         "libphonenumber-js": "^1.7.8",
         "lodash.throttle": "^4.1.1",
+        "lodash.iteratee": "^4.7.0",
         "vue-i18n": "^8.21.0",
         "vue2-touch-events": "^2.2.1",
         "vuex": "^3.0.1"

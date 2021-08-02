@@ -3,12 +3,17 @@
         <div v-for="group in filteredFieldGroups" :key="group.title" class="pref-field">
             <div class="pt-4 pb-2 d-flex align-items-center">
                 <span class="h2" :class="{ 'text-alternate-light': group.readOnly }">{{ group.title }}</span>
-                <span v-if="group.availableSoon" class="available-soon h2">{{ $t("common.available_soon") }}</span>
+                <span v-if="group.notAvailable(localUserSettings)" class="available-soon h2">
+                    {{ $t("common.available_soon") }}
+                </span>
                 <bm-label-icon v-if="group.readOnly" icon="exclamation-circle" class="text-warning ml-2">
                     {{ $t("preferences.role.missing.warning") }}
                 </bm-label-icon>
             </div>
-            <bm-form-group :aria-label="group.title" :disabled="group.availableSoon || group.readOnly">
+            <bm-form-group
+                :aria-label="group.title"
+                :disabled="group.notAvailable(localUserSettings) || group.readOnly"
+            >
                 <template v-for="field in group.fields">
                     <bm-form-group :key="field.name" :aria-label="field.name" :label="field.name">
                         <component

@@ -19,7 +19,7 @@ export default function (roles, vueI18N, applications) {
                 groups: [
                     {
                         title: vueI18N.t("preferences.mail.thread"),
-                        availableSoon: true,
+                        notAvailable: ["mail_thread", "unavailable"],
                         fields: [
                             {
                                 component: "PrefFieldChoice",
