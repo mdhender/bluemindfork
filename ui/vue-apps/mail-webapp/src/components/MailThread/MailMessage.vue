@@ -1,7 +1,7 @@
 <template>
     <article
         v-if="ACTIVE_MESSAGE"
-        class="mail-message d-flex flex-column overflow-x-hidden bg-surface"
+        class="mail-message d-flex flex-column overflow-x-hidden"
         :aria-label="$t('mail.application.region.messagethread')"
     >
         <bm-alert-area :alerts="alerts" @remove="REMOVE">
