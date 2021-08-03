@@ -83,7 +83,6 @@ export default {
                 // focus on content when a recipient is already set
                 if (this.message.to.length > 0) {
                     this.focus();
-                    this.$el.scrollIntoView();
                 }
             },
             immediate: true
