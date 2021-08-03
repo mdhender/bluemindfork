@@ -117,7 +117,7 @@ public class SieveWriter {
 		String from = defaultEmail;
 		if (displayName != null && !displayName.trim().isEmpty()) {
 			try {
-				from = String.format("%s <%s>", MimeUtility.encodeWord(displayName), defaultEmail);
+				from = String.format("\\\"%s\\\" <%s>", MimeUtility.encodeWord(displayName), defaultEmail);
 			} catch (UnsupportedEncodingException e) {
 				logger.error("Unable to encode display name '{}' in vacation sieve, fallback to address only",
 						displayName, e);
