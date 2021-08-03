@@ -68,7 +68,7 @@ describe("Folder model functions", () => {
             };
             expect(create("123", "name", null, mailbox)).toMatchInlineSnapshot(`
                 Object {
-                  "allowConversations": true,
+                  "allowConversations": false,
                   "allowSubfolder": true,
                   "default": true,
                   "expanded": false,
@@ -101,7 +101,7 @@ describe("Folder model functions", () => {
             expect(create("123", "name", { key: "0", path: "mailshare/folder", uid: "0" }, mailbox))
                 .toMatchInlineSnapshot(`
                 Object {
-                  "allowConversations": true,
+                  "allowConversations": false,
                   "allowSubfolder": true,
                   "default": false,
                   "expanded": false,

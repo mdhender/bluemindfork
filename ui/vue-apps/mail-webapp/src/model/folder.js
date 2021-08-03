@@ -5,6 +5,7 @@ import injector from "@bluemind/inject";
 export function create(key, name, parent, mailbox) {
     const defaultFolder = isDefault(!parent, name, mailbox);
     const translatedName = defaultFolder ? translate(name) : name;
+    const folderPath = path(mailbox, translatedName, parent);
     return {
         key: key,
         remoteRef: {
@@ -18,9 +19,9 @@ export function create(key, name, parent, mailbox) {
         parent: parent ? parent.key : null,
         name: translatedName,
         imapName: name,
-        path: path(mailbox, translatedName, parent),
+        path: folderPath,
         writable: mailbox.writable,
-        allowConversations: allowConversations(path(mailbox, name, parent)),
+        allowConversations: allowConversations(folderPath, mailbox),
         allowSubfolder: allowSubfolder(mailbox.writable, !parent, name, mailbox),
         default: defaultFolder,
         expanded: false,
@@ -71,7 +72,11 @@ export function allowSubfolder(writable, isRoot, name, mailbox) {
     return Boolean(writable && allowed);
 }
 
-export function allowConversations(path) {
+export function allowConversations(path, mailbox) {
+    if (mailbox.type === MailboxType.MAILSHARE) {
+        return false;
+    }
+
     const rootFolderName = path.split("/")[0];
     return ![
         DEFAULT_FOLDERS.SENT,
