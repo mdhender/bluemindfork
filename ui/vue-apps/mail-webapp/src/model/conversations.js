@@ -153,6 +153,10 @@ export function sortConversationMessages(messages, folders) {
  * Remove duplicates in Sent (keep those in INBOX, need to be loaded).
  */
 export function removeSentDuplicates(messages, sentFolder) {
+    if (messages.length < 2) {
+        return messages;
+    }
+
     const messageKeysByMessageId = {};
     messages.forEach(message => {
         if (message.loading !== LoadingStatus.NOT_LOADED) {

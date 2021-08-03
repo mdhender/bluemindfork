@@ -300,6 +300,7 @@ export default {
             this.toggleSelect(messageKey);
         },
         toggleSelect(messageKey) {
+            this.SET_CURRENT_CONVERSATION(null);
             if (this.CONVERSATION_IS_SELECTED(messageKey)) {
                 this.UNSELECT_CONVERSATION(messageKey);
             } else {

@@ -141,6 +141,7 @@ export default {
                             });
                         }
                         this.SET_ACTIVE_MESSAGE(message);
+
                         if (!this.SELECTION_IS_EMPTY) {
                             this.UNSELECT_ALL_CONVERSATIONS();
                         }
