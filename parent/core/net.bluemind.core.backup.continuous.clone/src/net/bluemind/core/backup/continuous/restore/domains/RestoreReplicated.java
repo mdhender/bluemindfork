@@ -14,7 +14,6 @@ public class RestoreReplicated {
 		boolean isUser = !replica.mbox.value.type.sharedNs;
 		builder.mailboxName(mailboxName)//
 				.domainUid(replica.dom.uid)//
-				.root()//
 				.mailboxUid(replica.mbox.uid)//
 				.partition(replica.part)//
 				.acl("admin0", Acl.ALL);

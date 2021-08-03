@@ -48,6 +48,11 @@ public class RestoreReplicatedMailboxes extends RestoreReplicated implements Res
 		}
 		String ownerUid = de.key.owner.split("/")[0];
 		ItemValue<Mailbox> mbox = state.getMailbox(ownerUid);
+		logger.info("key:{} ::: payload:{} ::: mailbox:{}", de.key, new String(de.payload), mbox);
+		if (mbox == null) {
+			logger.warn("no mbox for this replica, skipping");
+			return;
+		}
 		ItemValue<Server> imap = state.getServer(mbox.value.dataLocation);
 		CyrusPartition partition = CyrusPartition.forServerAndDomain(imap, domain.uid);
 		ItemValue<MailboxReplica> replica = mrReader.read(new String(de.payload));

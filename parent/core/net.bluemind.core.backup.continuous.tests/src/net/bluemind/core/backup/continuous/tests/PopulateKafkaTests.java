@@ -133,14 +133,15 @@ public class PopulateKafkaTests {
 					try (ZstdInputStream dec = new ZstdInputStream(new ByteArrayInputStream(eml))) {
 						eml = ByteStreams.toByteArray(dec);
 					}
-					Path tmp = Files.createTempFile(ce.getName().replace("./", ""), ".eml");
+					String key = ce.getName().replace("./", "");
+					Path tmp = Files.createTempFile(key, ".eml");
 					Files.write(tmp, eml, StandardOpenOption.CREATE, StandardOpenOption.WRITE,
 							StandardOpenOption.TRUNCATE_EXISTING);
-					PutRequest pr = PutRequest.of(ce.getName(), tmp.toFile().getAbsolutePath());
+					PutRequest pr = PutRequest.of(key, tmp.toFile().getAbsolutePath());
 					sds.upload(pr).get(10, TimeUnit.SECONDS);
 					Files.delete(tmp);
 					s3content += eml.length;
-					System.err.println("Uploaded " + ce.getName() + " to s3 " + eml.length + " bytes");
+					System.err.println("Uploaded " + key + " to s3 " + eml.length + " bytes");
 				}
 			}
 			System.err.println("Pushed " + s3content + " byte(s) to s3.");

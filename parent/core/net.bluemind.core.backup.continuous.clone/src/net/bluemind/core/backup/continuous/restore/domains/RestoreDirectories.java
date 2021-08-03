@@ -84,6 +84,9 @@ public class RestoreDirectories implements RestoreDomainType {
 	}
 
 	public void restore(DataElement de) {
+		if ("net.bluemind.core.backup.continuous.events.BubbleEventsVerticle.FullDirEntry".equals(de.key.valueClass)) {
+			return;
+		}
 		Map<String, ItemValue<Domain>> domains = new HashMap<>();
 
 		monitor.begin(1, "one to process");

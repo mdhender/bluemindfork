@@ -41,4 +41,12 @@ public class RecordKey {
 		return JsonUtils.reader(RecordKey.class).read(new String(data));
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("RecordKey [type=").append(type).append(", owner=").append(owner).append(", uid=").append(uid)
+				.append(", id=").append(id).append(", valueClass=").append(valueClass).append("]");
+		return builder.toString();
+	}
+
 }
