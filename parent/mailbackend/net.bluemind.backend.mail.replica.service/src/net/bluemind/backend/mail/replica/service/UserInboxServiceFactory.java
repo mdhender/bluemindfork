@@ -80,7 +80,7 @@ public class UserInboxServiceFactory implements ServerSideServiceProvider.IServe
 			});
 			return new UserInboxService(context, domainUid, userUid, inboxUid);
 		} catch (Exception e) {// NOSONAR log or re-throw
-			logger.warn("Failed to map uid {} (dom: {}) to an inbox uid", userUid, domainUid, e.getMessage());
+			logger.warn("Failed to map uid {} (dom: {}) to an inbox uid", userUid, domainUid, e);
 			return new NoopUserInbox(userUid, domainUid);
 		}
 	}

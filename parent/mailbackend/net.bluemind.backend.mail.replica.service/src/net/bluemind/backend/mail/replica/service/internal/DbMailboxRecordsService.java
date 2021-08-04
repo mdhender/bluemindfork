@@ -333,6 +333,9 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 					updatesImpl(slice);
 				}
 			}, ar -> {
+				if (ar.failed()) {
+					logger.error("Fail during updates", ar.cause());
+				}
 			});
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();

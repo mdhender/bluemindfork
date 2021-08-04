@@ -90,7 +90,6 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 	public ILiveBackupStreams forInstallation(String installationid) {
 
 		Set<String> topicNames = topicStore.topicNames(installationid);
-		logger.error("topicNames:{}", topicNames);
 		TopicSubscriber orphanSubscriber = topicNames.stream().filter(name -> name.endsWith("__orphans__")).findFirst()
 				.map(topicStore::getSubscriber).orElse(null);
 		List<TopicSubscriber> domainSubscribers = topicNames.stream().filter(name -> !name.endsWith("__orphans__"))
