@@ -68,6 +68,11 @@ public class CliContext {
 		return INSTANCE;
 	}
 
+	public CliContext reload() {
+		adminServices = Suppliers.memoize(this::loadAdminServices);
+		return this;
+	}
+
 	public IServiceProvider adminApi() {
 		return adminServices.get();
 	}
