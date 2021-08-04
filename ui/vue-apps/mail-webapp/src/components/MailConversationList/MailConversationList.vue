@@ -29,6 +29,7 @@ export default {
             CONVERSATION_LIST_KEYS
         }),
         ...mapState("mail", ["activeFolder", "folders", "conversationList"]),
+        ...mapState("mail", { cbk: ({ conversations }) => conversations.conversationByKey }),
         ...mapState("session", { settings: ({ settings }) => settings.remote }),
         folder() {
             return this.folders[this.activeFolder];
@@ -48,7 +49,7 @@ export default {
             const conversationsActivated = this.settings.mail_thread === "true" && this.folder.allowConversations;
             await this.REFRESH_CONVERSATION_LIST_KEYS({ folder: this.folder, conversationsActivated });
             const messagesToFetch = this.CONVERSATION_LIST_KEYS.flatMap(key => this.CONVERSATION_MESSAGE_BY_KEY(key));
-            this.FETCH_MESSAGE_METADATA({ messages: messagesToFetch, activeFolderKey: this.activeFolder });
+            this.FETCH_MESSAGE_METADATA({ messages: messagesToFetch.map(m => m.key) });
         }
     },
     bus: {

@@ -94,7 +94,7 @@ export default {
             if (this.conversationSize === 1) {
                 this.$router.navigate({
                     name: "v:mail:message",
-                    params: { message: this.conversation.messages[0] }
+                    params: { message: this.messages[this.conversation.messages[0]] }
                 });
             } else {
                 this.$router.navigate({

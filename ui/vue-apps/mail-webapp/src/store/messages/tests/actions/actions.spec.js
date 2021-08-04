@@ -249,7 +249,7 @@ describe("Messages actions", () => {
         test("Call fetch message API", () => {
             const adapted = [1, 2, 3].map(id => createOnlyMetadata({ internalId: id, folder }));
             store.commit(ADD_MESSAGES, adapted);
-            store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted, activeFolderKey: "any" });
+            store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted.map(m => m.key) });
             expect(inject("MailboxItemsPersistence").multipleById).toHaveBeenCalledWith([1, 2, 3]);
         });
         test("Add LOADING status while fetching to messages", async () => {
@@ -257,7 +257,7 @@ describe("Messages actions", () => {
             const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
             store.commit(ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").multipleById.mockResolvedValueOnce([message]);
-            store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted, activeFolderKey: "any" });
+            store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted.key });
             expect(store.state[adapted.key].loading).toEqual(LoadingStatus.LOADING);
         });
         test("Add LOADED status to messages", async () => {
@@ -265,7 +265,7 @@ describe("Messages actions", () => {
             const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
             store.commit(ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").multipleById.mockResolvedValueOnce([message]);
-            await store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted, activeFolderKey: "any" });
+            await store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted.key });
             expect(store.state[adapted.key].loading).toEqual(LoadingStatus.LOADED);
         });
         test("Add ERROR status to messages not found", async () => {
@@ -273,7 +273,7 @@ describe("Messages actions", () => {
             const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
             store.commit(ADD_MESSAGES, [adapted]);
             inject("MailboxItemsPersistence").multipleById.mockResolvedValueOnce([]);
-            await store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted, activeFolderKey: "any" });
+            await store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted.key });
             expect(store.state[adapted.key].loading).toEqual(LoadingStatus.ERROR);
         });
     });
@@ -284,6 +284,7 @@ describe("Messages actions", () => {
             const stored = Object.values(store.state);
             expect(stored.length).toEqual(1);
             const stub = stored.pop();
+
             expect(stub.remoteRef.internalId).toBe(message.internalId);
             expect(stub.loading).toBe(LoadingStatus.LOADING);
         });

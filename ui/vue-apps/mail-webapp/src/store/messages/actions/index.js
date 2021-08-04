@@ -27,11 +27,8 @@ import {
     MARK_MESSAGES_AS_READ,
     MARK_MESSAGES_AS_UNFLAGGED,
     MARK_MESSAGES_AS_UNREAD,
-    MOVE_MESSAGES_NO_ALERT,
-    MOVE_MESSAGES_TO_TRASH,
     MOVE_MESSAGES,
     REMOVE_ATTACHMENT,
-    REMOVE_MESSAGES_NO_ALERT,
     REMOVE_MESSAGES,
     SAVE_MESSAGE,
     SEND_MESSAGE
@@ -60,11 +57,8 @@ export default {
     [MARK_MESSAGES_AS_UNFLAGGED]: withAlert(markAsUnflagged, MARK_MESSAGES_AS_UNFLAGGED),
     [MARK_MESSAGES_AS_UNREAD]: withAlert(markAsUnread, MARK_MESSAGES_AS_UNREAD),
     [MOVE_MESSAGES]: withAlert(moveMessages, MOVE_MESSAGES, "MoveMessages"),
-    [MOVE_MESSAGES_NO_ALERT]: moveMessages,
-    [MOVE_MESSAGES_TO_TRASH]: withAlert(moveMessages, MOVE_MESSAGES_TO_TRASH, "MoveMessages"),
     [REMOVE_ATTACHMENT]: removeAttachment,
     [REMOVE_MESSAGES]: withAlert(removeMessages, REMOVE_MESSAGES, "RemoveMessages"),
-    [REMOVE_MESSAGES_NO_ALERT]: removeMessages,
     [SAVE_MESSAGE]: saveAsap,
     [SEND_MESSAGE]: withAlert(send, SEND_MESSAGE, "SendMessage")
 };

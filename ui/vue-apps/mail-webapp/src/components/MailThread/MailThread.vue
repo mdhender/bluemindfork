@@ -85,7 +85,6 @@ export default {
         }),
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-thread") }),
         conversation() {
-            // remember activeMessageKey corresponds to the message in the URL, the conversation we are currently viewing is stored in store.state.conversations.currentConversation
             return this.CONVERSATION_METADATA(this.currentConversation?.key);
         },
         folder() {
@@ -134,23 +133,14 @@ export default {
                             this.UNSELECT_ALL_CONVERSATIONS();
                         }
 
-                        const conversation = await this.FETCH_CONVERSATION_IF_NOT_LOADED({
-                            conversationId: internalId,
-                            folder: this.folders[folderKey]
-                        });
-
                         switch (action) {
                             case MessageCreationModes.REPLY:
                             case MessageCreationModes.REPLY_ALL:
                             case MessageCreationModes.FORWARD:
-                                await this.initRelatedMessage(
-                                    action,
-                                    {
-                                        internalId: relatedId,
-                                        folderKey: relatedFolderKey
-                                    },
-                                    conversation
-                                );
+                                await this.initRelatedMessage(action, {
+                                    internalId: relatedId,
+                                    folderKey: relatedFolderKey
+                                });
                                 break;
                             case MessageCreationModes.NEW:
                                 this.initNewMessage();
@@ -158,6 +148,11 @@ export default {
                             default:
                                 break;
                         }
+
+                        const conversation = await this.FETCH_CONVERSATION_IF_NOT_LOADED({
+                            conversationId: internalId,
+                            folder: this.folders[folderKey]
+                        });
 
                         if (conversation) {
                             this.SET_CURRENT_CONVERSATION(conversation);

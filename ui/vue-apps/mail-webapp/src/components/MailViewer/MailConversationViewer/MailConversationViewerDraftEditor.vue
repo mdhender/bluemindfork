@@ -130,7 +130,7 @@ import MailConversationViewerItem from "./MailConversationViewerItem";
 import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import MailConversationViewerFieldSep from "./MailConversationViewerFieldSep";
 import MailConversationViewerVerticalLine from "./MailConversationViewerVerticalLine";
-import { REMOVE_NEW_MESSAGE_FROM_CONVERSATION, UNSET_CURRENT_CONVERSATION } from "~/mutations";
+import { REMOVE_MESSAGES, UNSET_CURRENT_CONVERSATION } from "~/mutations";
 import { MessageStatus } from "~/model/message";
 
 export default {
@@ -164,11 +164,11 @@ export default {
     destroyed() {
         // clean up unsaved new message from conversation
         if (this.message.status === MessageStatus.NEW) {
-            this.REMOVE_NEW_MESSAGE_FROM_CONVERSATION({ message: this.message, conversation: this.conversation });
+            this.REMOVE_MESSAGES({ messages: [this.message] });
         }
     },
     methods: {
-        ...mapMutations("mail", { REMOVE_NEW_MESSAGE_FROM_CONVERSATION, UNSET_CURRENT_CONVERSATION }),
+        ...mapMutations("mail", { REMOVE_MESSAGES, UNSET_CURRENT_CONVERSATION }),
         async openExtendedEditing() {
             await this.saveAsap();
             this.$router.navigate({

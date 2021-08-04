@@ -22,9 +22,7 @@ import {
 } from "~/getters";
 import {
     CLEAR_CONVERSATION_LIST,
-    MOVE_MESSAGES,
     REMOVE_CONVERSATIONS,
-    REMOVE_MESSAGES,
     RESET_CONVERSATION_LIST_PAGE,
     SET_CONVERSATION_LIST,
     SET_CONVERSATION_LIST_FILTER,
@@ -64,9 +62,9 @@ const mutations = {
     [RESET_CONVERSATION_LIST_PAGE]: state => {
         state.currentPage = 0;
     },
-    [SET_CONVERSATION_LIST]: (state, messages) => {
+    [SET_CONVERSATION_LIST]: (state, { conversations }) => {
         state._removed = [];
-        state._keys = messages.map(({ key }) => key);
+        state._keys = conversations.map(({ key }) => key);
     },
     [SET_CONVERSATION_LIST_STATUS]: (state, status) => {
         state.status = status;
@@ -77,29 +75,7 @@ const mutations = {
     [SET_CONVERSATION_LIST_PAGE]: (state, page) => {
         state.currentPage = page;
     },
-    // Hooks
-    [MOVE_MESSAGES]: (state, { conversation, messages }) => {
-        if (conversation) {
-            const messageKeysToRemove = new Set(messages.map(message => message.key));
-            const countOfMessageInConversationFolder = conversation.messages
-                .filter(message => message.folderRef.key === conversation.folderRef.key)
-                .filter(message => !messageKeysToRemove.has(message.key)).length;
-            if (countOfMessageInConversationFolder === 0) {
-                state._removed.push(conversation.key);
-            }
-        }
-    },
-    [REMOVE_MESSAGES]: (state, { conversation, messages }) => {
-        if (conversation) {
-            const messageKeysToRemove = new Set(messages.map(message => message.key));
-            const countOfMessageInConversationFolder = conversation.messages
-                .filter(message => message.folderRef.key === conversation.folderRef.key)
-                .filter(message => !messageKeysToRemove.has(message.key)).length;
-            if (countOfMessageInConversationFolder === 0) {
-                state._removed.push(conversation.key);
-            }
-        }
-    },
+
     [REMOVE_CONVERSATIONS]: (state, conversations) => {
         const keys = new Set(conversations.map(({ key }) => key));
         for (let i = 0; i < state._keys.length && keys.size > 0; i++) {
@@ -123,13 +99,13 @@ const actions = {
         }
     },
     async [REFRESH_CONVERSATION_LIST_KEYS]({ commit, state, getters }, { folder, conversationsActivated }) {
-        let conversations;
+        let conversations, messages;
         if (getters.CONVERSATION_LIST_IS_SEARCH_MODE) {
-            conversations = await search(state, folder);
+            ({ conversations, messages } = await search(state, folder));
         } else {
-            conversations = await list(state, folder, conversationsActivated);
+            ({ conversations, messages } = await list(state, folder, conversationsActivated));
         }
-        commit(SET_CONVERSATION_LIST, conversations);
+        commit(SET_CONVERSATION_LIST, { conversations, messages });
     },
     async [CONVERSATION_LIST_NEXT_PAGE]({ commit, state, getters }) {
         if (state.currentPage < getters.CONVERSATION_LIST_TOTAL_PAGES) {
@@ -149,7 +125,7 @@ async function list(state, folder, conversationsActivated) {
     if (conversationsActivated) {
         const flagFilter = { mustNot: ["Deleted"] };
         const rawConversations = await inject("MailConversationPersistence").byFolder(folder.remoteRef.uid, flagFilter);
-        return createConversationStubsFromRawConversations(rawConversations, folder.remoteRef);
+        return createConversationStubsFromRawConversations(rawConversations, folder);
     } else {
         let sortedIds = await apiMessages.sortedIds(state.filter, folder);
         return createConversationStubsFromSortedIds(sortedIds, folder);

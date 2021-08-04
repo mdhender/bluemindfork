@@ -87,34 +87,6 @@
                     "plural": "Failed to move selected messages in {folder}."
                 }
             },
-            "move_conversations_to_trash": {
-                "loading": {
-                    "single": "Moving conversation \"{subject}\" to {folder}...",
-                    "plural": "Moving conversations to {folder}..."
-                },
-                "success": {
-                    "single": "Successfully moved conversation \"{subject}\" to {folder}.",
-                    "plural": "Successfully moved conversations to {folder}."
-                },
-                "error": {
-                    "single": "Failed to move conversation \"{subject}\" to {folder}.",
-                    "plural": "Failed to move conversations to {folder}."
-                }
-            },
-            "move_messages_to_trash": {
-                "loading": {
-                    "single": "\"{subject}\" is beeing moved to {folder}...",
-                    "plural": "Moving {count} messages to {folder}..."
-                },
-                "success": {
-                    "single": "\"{subject}\" has been moved to {folder}.",
-                    "plural": "{count} messages have been successfully moved to {folder}."
-                },
-                "error": {
-                    "single": "Failed to move \"{subject}\" to {folder}.",
-                    "plural": "Failed to move selected messages in {folder}."
-                }
-            },
             "read_only_folder": {
                 "info": "Read-only message. Some actions (like Move or Remove) may not be available."
             },

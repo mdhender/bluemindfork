@@ -170,7 +170,7 @@ export default {
 
             if (conversationsToLoad.length > 0) {
                 const messagesToLoad = this.conversations.flatMap(conversation => conversation.messages);
-                this.FETCH_MESSAGE_METADATA({ messages: messagesToLoad, activeFolderKey: this.activeFolder });
+                this.FETCH_MESSAGE_METADATA({ messages: messagesToLoad });
             }
         }
     },

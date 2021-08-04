@@ -41,7 +41,7 @@ export async function deleteFlag({ commit, getters }, { messages, flag }) {
     }
 }
 
-export async function fetchMessageIfNotLoaded({ state, commit, dispatch }, { internalId, folder, activeFolderKey }) {
+export async function fetchMessageIfNotLoaded({ state, commit, dispatch }, { internalId, folder }) {
     const key = messageKey(internalId, folder.key);
     const pendingDraftKey = draftKey(folder);
     if (!state[key] && state[pendingDraftKey]?.remoteRef.internalId === internalId) {
@@ -51,25 +51,26 @@ export async function fetchMessageIfNotLoaded({ state, commit, dispatch }, { int
         commit(ADD_MESSAGES, [createOnlyMetadata({ internalId, folder: FolderAdaptor.toRef(folder) })]);
     }
     if (state[key].loading === LoadingStatus.NOT_LOADED) {
-        await dispatch(FETCH_MESSAGE_METADATA, { messages: state[key], activeFolderKey: activeFolderKey });
+        await dispatch(FETCH_MESSAGE_METADATA, { messages: key });
     }
     return state[key];
 }
 
-export async function fetchMessageMetadata({ state, commit }, { messages, activeFolderKey }) {
-    messages = Array.isArray(messages) ? messages : [messages];
+export async function fetchMessageMetadata({ state, commit }, { messages: messageKeys }) {
+    messageKeys = Array.isArray(messageKeys) ? messageKeys : [messageKeys];
+    const messages = messageKeys.map(key => state[key]);
     const toFetch = messages.filter(({ composing }) => !composing);
     commit(
         SET_MESSAGES_LOADING_STATUS,
         messages
-            .filter(({ key }) => !state[key] || state[key].loading !== LoadingStatus.LOADED)
+            .filter(({ key }) => state[key] && state[key].loading !== LoadingStatus.LOADED)
             .map(message => ({ ...message, loading: LoadingStatus.LOADING }))
     );
     const fullMessages = (await apiMessages.multipleById(toFetch))
-        .filter(message => !state[message.key]?.version || state[message.key].version < message.version)
+        .filter(message => !state[message.key].version || state[message.key].version < message.version)
         .map(message => ({
             ...message,
-            conversationRef: { id: message.conversationId, key: messageKey(message.conversationId, activeFolderKey) }
+            conversationRef: state[message.key].conversationRef
         }));
     commit(ADD_MESSAGES, fullMessages);
     commit(
@@ -80,9 +81,9 @@ export async function fetchMessageMetadata({ state, commit }, { messages, active
     );
 }
 
-export async function removeMessages({ commit }, { conversation, messages }) {
+export async function removeMessages({ commit }, { messages }) {
     messages = Array.isArray(messages) ? messages : [messages];
-    commit(REMOVE_MESSAGES, { conversation, messages });
+    commit(REMOVE_MESSAGES, { messages });
     try {
         await apiMessages.multipleDeleteById(messages);
     } catch (e) {

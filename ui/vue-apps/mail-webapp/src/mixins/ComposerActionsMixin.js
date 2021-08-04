@@ -6,12 +6,12 @@ import {
     ADD_ATTACHMENTS,
     DEBOUNCED_SAVE_MESSAGE,
     REMOVE_ATTACHMENT,
-    REMOVE_MESSAGES,
+    REMOVE_CONVERSATION_MESSAGES,
     SAVE_MESSAGE,
     SEND_MESSAGE
 } from "~/actions";
 import { ACTIVE_MESSAGE, MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~/getters";
-import { ADD_MESSAGES, REMOVE_NEW_MESSAGE_FROM_CONVERSATION } from "~/mutations";
+import { ADD_MESSAGES, REMOVE_MESSAGES } from "~/mutations";
 import { isNewMessage } from "~/model/draft";
 
 /**
@@ -55,12 +55,10 @@ export default {
             $_ComposerActionsMixin_SAVE_MESSAGE: SAVE_MESSAGE,
             $_ComposerActionsMixin_SEND_MESSAGE: SEND_MESSAGE,
             $_ComposerActionsMixin_DEBOUNCED_SAVE: DEBOUNCED_SAVE_MESSAGE,
-            $_ComposerActionsMixin_REMOVE_ATTACHMENT: REMOVE_ATTACHMENT,
-            $_ComposerActionsMixin_REMOVE_MESSAGES: REMOVE_MESSAGES
+            $_ComposerActionsMixin_REMOVE_ATTACHMENT: REMOVE_ATTACHMENT
         }),
         ...mapMutations("mail", {
-            $_ComposerActionsMixin_ADD_MESSAGES: ADD_MESSAGES,
-            $_ComposerActionsMixin_REMOVE_NEW_MESSAGE_FROM_CONVERSATION: REMOVE_NEW_MESSAGE_FROM_CONVERSATION
+            $_ComposerActionsMixin_ADD_MESSAGES: ADD_MESSAGES
         }),
         async debouncedSave() {
             const wasMessageOnlyLocal = isNewMessage(this.message);
@@ -113,10 +111,7 @@ export default {
                 if (!this.$_ComposerActionsMixin_currentConversation) {
                     this.$router.navigate("v:mail:home");
                 } else {
-                    this.$_ComposerActionsMixin_REMOVE_NEW_MESSAGE_FROM_CONVERSATION({
-                        conversation: this.$_ComposerActionsMixin_currentConversation,
-                        message: this.message
-                    });
+                    this.$store.commit(`mail/${REMOVE_MESSAGES}`, { messages: [this.message] });
 
                     if (this.conversationsActivated) {
                         this.$router.navigate({
@@ -142,7 +137,10 @@ export default {
                 });
                 if (confirm) {
                     const conversation = this.$_ComposerActionsMixin_currentConversation;
-                    this.$_ComposerActionsMixin_REMOVE_MESSAGES({ conversation, messages: [this.message] });
+                    await this.$store.dispatch(`mail/${REMOVE_CONVERSATION_MESSAGES}`, {
+                        conversation,
+                        messages: [this.message]
+                    });
                     this.removeAttachmentAndInlineTmpParts();
 
                     if (!this.conversationsActivated) {

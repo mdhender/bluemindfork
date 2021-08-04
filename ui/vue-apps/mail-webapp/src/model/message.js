@@ -5,14 +5,15 @@ import pick from "lodash.pick";
 import { LoadingStatus } from "./loading-status";
 import { Flag } from "@bluemind/email";
 
-export function createOnlyMetadata({ internalId, folder: { key, uid }, conversationRef }) {
+export function createOnlyMetadata({ internalId, folder: { key, uid }, conversationRef, date }) {
     return {
         key: internalId >= 0 && key ? messageKey(internalId, key) : null,
         folderRef: { key, uid },
         remoteRef: { internalId },
-        conversationRef: conversationRef,
+        conversationRef,
         status: MessageStatus.IDLE,
-        loading: LoadingStatus.NOT_LOADED
+        loading: LoadingStatus.NOT_LOADED,
+        date
     };
 }
 

@@ -87,34 +87,6 @@
                     "plural": "Les messages sélectionnés n'ont pas pu être déplacés dans {folder}."
                 }
             },
-            "move_conversations_to_trash": {
-                "loading": {
-                    "single": "La conversation \"{subject}\" est en train d'être déplacée vers la {folder}...",
-                    "plural": "{count} conversations sont en train d'être déplacées vers la {folder}..."
-                },
-                "success": {
-                    "single": "La conversation \"{subject}\" a bien été déplacée vers la {folder}.",
-                    "plural": "{count} conversations ont bien été déplacées dans la {folder}."
-                },
-                "error": {
-                    "single": "La conversation \"{subject}\" n'a pas pu être déplacée vers la {folder}.",
-                    "plural": "Les conversations sélectionnées n'ont pas pu être déplacées dans la {folder}."
-                }
-            },
-            "move_messages_to_trash": {
-                "loading": {
-                    "single": "\"{subject}\" est en train d'être déplacé vers la {folder}...",
-                    "plural": "{count} messages sont en train d'être déplacés vers la {folder}..."
-                },
-                "success": {
-                    "single": "\"{subject}\" a bien été déplacé vers la {folder}.",
-                    "plural": "{count} messages ont bien été déplacés dans la {folder}."
-                },
-                "error": {
-                    "single": "\"{subject}\" n'a pas pu être déplacé vers la {folder}.",
-                    "plural": "Les messages sélectionnés n'ont pas pu être déplacés dans la {folder}."
-                }
-            },
             "read_only_folder": {
                 "info": "Message en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles."
             },

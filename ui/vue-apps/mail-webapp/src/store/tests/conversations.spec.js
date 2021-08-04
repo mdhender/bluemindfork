@@ -9,16 +9,9 @@ import {
     MARK_CONVERSATIONS_AS_READ,
     MARK_CONVERSATIONS_AS_UNFLAGGED,
     MARK_CONVERSATIONS_AS_UNREAD,
-    MOVE_CONVERSATIONS,
-    MOVE_CONVERSATIONS_TO_TRASH,
-    MOVE_MESSAGES_NO_ALERT
+    MOVE_CONVERSATIONS
 } from "~/actions";
-import {
-    ADD_MESSAGE_TO_CONVERSATION,
-    REMOVE_CONVERSATIONS,
-    REMOVE_NEW_MESSAGE_FROM_CONVERSATION,
-    SET_CURRENT_CONVERSATION
-} from "~/mutations";
+import { REMOVE_CONVERSATIONS, REMOVE_MESSAGES, ADD_MESSAGES, SET_CURRENT_CONVERSATION } from "~/mutations";
 import { default as storeOptions } from "../conversations";
 import { Flag } from "@bluemind/email";
 import { LoadingStatus } from "~/model/loading-status";
@@ -31,39 +24,37 @@ jest.mock("../api/apiMessages");
 Vue.use(Vuex);
 
 const folder = { key: "folderKey1", remoteRef: { uid: "folderKey1" } };
-
-const conversationByKey = {
-    key1: {
+const messagesData = [
+    { key: "messageKey1", remoteRef: { internalId: "internalId1" }, date: 1 },
+    { key: "messageKey2", remoteRef: { internalId: "internalId2" }, date: 2 },
+    { key: "messageKey3", remoteRef: { internalId: "internalId3" }, date: 3 },
+    { key: "messageKey4", remoteRef: { internalId: "internalId4" }, date: 4 },
+    { key: "messageKey5", remoteRef: { internalId: "internalId5" }, date: 5 },
+    { key: "messageKey6", remoteRef: { internalId: "internalId6" }, date: 6 },
+    { key: "messageKey7", remoteRef: { internalId: "internalId7" }, date: 7 },
+    { key: "messageKey8", remoteRef: { internalId: "internalId8" }, date: 8 },
+    { key: "messageKey9", remoteRef: { internalId: "internalId9" }, date: 9 }
+];
+const conversationsData = [
+    {
         key: "key1",
         folderRef: { key: folder.key },
         remoteRef: { internalId: "internalId1" },
-        messages: [
-            { key: "messageKey1", remoteRef: { internalId: "internalId1" } },
-            { key: "messageKey2", remoteRef: { internalId: "internalId2" } },
-            { key: "messageKey3", remoteRef: { internalId: "internalId3" } }
-        ]
+        messages: ["messageKey1", "messageKey2", "messageKey3"]
     },
-    key2: {
+    {
         key: "key2",
         folderRef: { key: folder.key },
         remoteRef: { internalId: "internalId4" },
-        messages: [
-            { key: "messageKey4", remoteRef: { internalId: "internalId4" } },
-            { key: "messageKey5", remoteRef: { internalId: "internalId5" } },
-            { key: "messageKey6", remoteRef: { internalId: "internalId6" } }
-        ]
+        messages: ["messageKey4", "messageKey5", "messageKey6"]
     },
-    key3: {
+    {
         key: "key3",
         folderRef: { key: folder.key },
         remoteRef: { internalId: "internalId7" },
-        messages: [
-            { key: "messageKey7", remoteRef: { internalId: "internalId7" } },
-            { key: "messageKey8", remoteRef: { internalId: "internalId8" } },
-            { key: "messageKey9", remoteRef: { internalId: "internalId9" } }
-        ]
+        messages: ["messageKey7", "messageKey8", "messageKey9"]
     }
-};
+];
 
 describe("conversations", () => {
     let store;
@@ -89,9 +80,18 @@ describe("conversations", () => {
         store = new Vuex.Store(cloneDeep(storeOptions));
         store.getters.MY_TRASH = { key: "trashKey" };
         store.getters.MY_SENT = { key: "sentKey" };
-        store.state.conversationByKey = cloneDeep(conversationByKey);
-        store.state.messages = cloneDeep(simulateLoaded(Object.values(store.state.conversationByKey)));
-        store.commit("SET_CONVERSATION_LIST", Object.values(conversationByKey));
+        store.state.conversationByKey = {};
+        const folderRef = { key: folder.key };
+        store.state.messages = {};
+        cloneDeep(messagesData).forEach(msg => {
+            store.state.messages[msg.key] = { ...msg, folderRef, loading: LoadingStatus.LOADED, flags: [] };
+        });
+        cloneDeep(conversationsData).forEach(conv => {
+            store.state.conversationByKey[conv.key] = { ...conv, folderRef, loading: LoadingStatus.LOADED, flags: [] };
+            conv.messages.forEach(
+                key => (store.state.messages[key].conversationRef = { key: conv.key, id: conv.remoteRef.internalId })
+            );
+        });
     });
 
     describe("actions", () => {
@@ -149,23 +149,10 @@ describe("conversations", () => {
             expect(metadatas[1].flags).toContain(Flag.FLAGGED);
             expect(metadatas[2].flags).not.toContain(Flag.FLAGGED);
         });
-        test("MOVE_CONVERSATIONS_TO_TRASH", () => {
-            const conversations = [store.state.conversationByKey["key1"], store.state.conversationByKey["key3"]];
-            const spy = jest.fn();
-            storeOptions.actions[MOVE_CONVERSATIONS_TO_TRASH](
-                { getters: store.getters, dispatch: spy, state: store.state },
-                { conversations, folder: { key: "trashFolderKey" } }
-            );
-            expect(spy).toHaveBeenCalledWith(MOVE_MESSAGES_NO_ALERT, expect.anything());
-        });
         test("MOVE_CONVERSATIONS", () => {
             const conversations = [store.state.conversationByKey["key1"], store.state.conversationByKey["key3"]];
-            const spy = jest.fn();
-            storeOptions.actions[MOVE_CONVERSATIONS](
-                { getters: store.getters, dispatch: spy, state: store.state },
-                { conversations, folder: { key: "targetFolderKey" } }
-            );
-            expect(spy).toHaveBeenCalledWith(MOVE_MESSAGES_NO_ALERT, expect.anything());
+            storeOptions.actions[MOVE_CONVERSATIONS](store, { conversations, folder: { key: "targetFolderKey" } });
+            expect(apiMessages.move).toHaveBeenCalled();
         });
         test("REMOVE_CONVERSATIONS", () => {
             const conversations = [store.state.conversationByKey["key1"], store.state.conversationByKey["key3"]];
@@ -214,27 +201,28 @@ describe("conversations", () => {
             storeOptions.mutations[REMOVE_CONVERSATIONS](store.state, [{ key: "key2" }]);
             expect(store.state.conversationByKey["key2"]).toBeFalsy();
         });
-        test("ADD_MESSAGE_TO_CONVERSATION", () => {
-            storeOptions.mutations[ADD_MESSAGE_TO_CONVERSATION](store.state, {
-                message: { key: "newKey" },
-                conversation: { key: "key2" }
-            });
-            expect(store.state.conversationByKey["key2"].messages.length).toBe(4);
-            expect(store.state.conversationByKey["key2"].messages[3].key).toBe("newKey");
-        });
-        test("REMOVE_NEW_MESSAGE_FROM_CONVERSATION", () => {
-            storeOptions.mutations[REMOVE_NEW_MESSAGE_FROM_CONVERSATION](store.state, {
-                message: { key: "messageKey5" },
-                conversation: { key: "key2" }
-            });
-            expect(store.state.conversationByKey["key2"].messages.length).toBe(2);
-            expect(store.state.conversationByKey["key2"].messages.some(m => m.key === "messageKey5")).toBeFalsy();
-        });
+
         test("SET_CURRENT_CONVERSATION", () => {
             expect(store.state.currentConversation).toBeFalsy();
             storeOptions.mutations[SET_CURRENT_CONVERSATION](store.state, { key: "key2" });
             expect(store.state.currentConversation).toBeTruthy();
             expect(store.state.currentConversation.key).toBe("key2");
+        });
+    });
+    describe("hooks", () => {
+        test("REMOVE_MESSAGES", () => {
+            storeOptions.mutations[REMOVE_MESSAGES](store.state, {
+                messages: [{ key: "messageKey5", conversationRef: { key: "key2" }, date: 5 }]
+            });
+            expect(store.state.conversationByKey["key2"].messages.length).toBe(2);
+            expect(store.state.conversationByKey["key2"].messages.includes("messageKey5")).toBeFalsy();
+        });
+        test("ADD_MESSAGES", () => {
+            storeOptions.mutations[ADD_MESSAGES](store.state, [
+                { key: "messageKey10", conversationRef: { key: "key2" } }
+            ]);
+            expect(store.state.conversationByKey["key2"].messages.length).toBe(4);
+            expect(store.state.conversationByKey["key2"].messages.includes("messageKey10")).toBeTruthy();
         });
     });
     describe("getters", () => {
@@ -246,44 +234,58 @@ describe("conversations", () => {
             expect(store.getters[CONVERSATION_IS_LOADED]({})).toBeFalsy();
         });
         test("CONVERSATION_MESSAGE_BY_KEY", () => {
-            expect(store.getters[CONVERSATION_MESSAGE_BY_KEY]("key2")).toEqual([
-                {
-                    key: "messageKey4",
-                    remoteRef: { internalId: "internalId4" },
-                    folderRef: { key: folder.key },
-                    flags: [],
-                    loading: "LOADED"
-                },
-                {
-                    key: "messageKey5",
-                    remoteRef: { internalId: "internalId5" },
-                    folderRef: { key: folder.key },
-                    flags: [],
-                    loading: "LOADED"
-                },
-                {
-                    key: "messageKey6",
-                    remoteRef: { internalId: "internalId6" },
-                    folderRef: { key: folder.key },
-                    flags: [],
-                    loading: "LOADED"
-                }
-            ]);
+            expect(store.getters[CONVERSATION_MESSAGE_BY_KEY]("key2")).toMatchInlineSnapshot(`
+                Array [
+                  Object {
+                    "conversationRef": Object {
+                      "id": "internalId4",
+                      "key": "key2",
+                    },
+                    "date": 4,
+                    "flags": Array [],
+                    "folderRef": Object {
+                      "key": "folderKey1",
+                    },
+                    "key": "messageKey4",
+                    "loading": "LOADED",
+                    "remoteRef": Object {
+                      "internalId": "internalId4",
+                    },
+                  },
+                  Object {
+                    "conversationRef": Object {
+                      "id": "internalId4",
+                      "key": "key2",
+                    },
+                    "date": 5,
+                    "flags": Array [],
+                    "folderRef": Object {
+                      "key": "folderKey1",
+                    },
+                    "key": "messageKey5",
+                    "loading": "LOADED",
+                    "remoteRef": Object {
+                      "internalId": "internalId5",
+                    },
+                  },
+                  Object {
+                    "conversationRef": Object {
+                      "id": "internalId4",
+                      "key": "key2",
+                    },
+                    "date": 6,
+                    "flags": Array [],
+                    "folderRef": Object {
+                      "key": "folderKey1",
+                    },
+                    "key": "messageKey6",
+                    "loading": "LOADED",
+                    "remoteRef": Object {
+                      "internalId": "internalId6",
+                    },
+                  },
+                ]
+            `);
         });
     });
 });
-
-function simulateLoaded(conversations) {
-    return Object.fromEntries(
-        conversations.flatMap(c => {
-            c.flags = [];
-            const folderRef = { key: folder.key };
-            c.folderRef = folderRef;
-            c.loading = LoadingStatus.LOADED;
-            return c.messages.map(m => {
-                m.folderRef = folderRef;
-                return [m.key, { ...m, loading: LoadingStatus.LOADED, flags: [] }];
-            });
-        })
-    );
-}

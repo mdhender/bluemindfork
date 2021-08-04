@@ -1,6 +1,6 @@
 <template>
     <div class="mail-conversation-viewer-header pl-5 pb-2 d-flex justify-content-between align-items-center">
-        <h1>{{ subject }}</h1>
+        <h1>{{ displayedSubject }}</h1>
         <bm-button
             v-if="!expanded"
             class="px-3"
@@ -32,11 +32,19 @@ export default {
     props: {
         subject: {
             type: String,
-            required: true
+            default: ""
         },
         expanded: {
             type: Boolean,
             required: true
+        }
+    },
+    computed: {
+        displayedSubject() {
+            if (!this.subject || !this.subject.trim()) {
+                return this.$t("mail.viewer.no.subject");
+            }
+            return this.subject;
         }
     }
 };

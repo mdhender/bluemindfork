@@ -50,20 +50,6 @@
                     "single": "Nie udało się przenieść „{subject}” do {folder}."
                 }
             },
-            "move_messages_to_trash": {
-                "loading": {
-                    "single": "\"{subject}\" jest przenoszony do {folder} ...",
-                    "plural": "{count} wiadomości są przenoszone do {folder} ..."
-                },
-                "success": {
-                    "single": "”{subject}” został przeniesiony do {folder}.",
-                    "plural": "{count} wiadomości zostało przeniesionych do {folder}."
-                },
-                "error": {
-                    "single": "Nie udało się przenieść „{subject}” do {folder}.",
-                    "plural": "Nie udało się przenieść wybranych wiadomości do {folder}."
-                }
-            },
             "rename_folder": {
                 "loading": "Folder {previousName} zmienia nazwę na {name} ...",
                 "success": "Folder {previousName} zmienił nazwę na {name}!",

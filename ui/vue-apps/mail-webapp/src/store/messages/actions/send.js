@@ -31,6 +31,7 @@ export default async function (
     removeAttachmentAndInlineTmpParts(draft, messageCompose);
 
     const message = await getSentMessage(taskResult, draftId, sentFolder);
+    message.conversationRef = draft.conversationRef;
     await context.dispatch(REPLACE_DRAFT_MESSAGE, { draft, message });
     return message;
 }

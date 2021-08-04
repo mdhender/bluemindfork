@@ -44,7 +44,7 @@
         <mail-conversation-viewer-footer
             v-if="noDraftOpened"
             :last-non-draft="lastNonDraft"
-            :conversation-key="conversationMessages[0].conversationRef.key"
+            :conversation-key="conversation.key"
         />
     </div>
 </template>

@@ -87,34 +87,6 @@
                     "plural": "Fehler beim Verschieben der ausgewählten E-Mails in den Ordner {folder}."
                 }
             },
-            "move_conversations_to_trash": {
-                "loading": {
-                    "single": "Verschiebe die Konversation \"{subject}\" nach {folder}...",
-                    "plural": "Verschiebe die Konversationen nach {folder}..."
-                },
-                "success": {
-                    "single": "Konversation \"{subject}\" erfolgreich nach {folder} verschoben.",
-                    "plural": "Konversationen erfolgreich nach {folder} verschoben."
-                },
-                "error": {
-                    "single": "Verschieben der Konversation \"{subject}\" nach {folder} fehlgeschlagen.",
-                    "plural": "Verschieben der Konversationen nach {folder} fehlgeschlagen."
-                }
-            },
-            "move_messages_to_trash": {
-                "loading": {
-                    "single": "\"{subject}\" wird in den Ordner {folder} verschoben...",
-                    "plural": "Verschiebe {count} E-Mails in den Ordner {folder}..."
-                },
-                "success": {
-                    "single": "\"{subject}\" wurde erfolgreich in den Ordner {folder} verschoben.",
-                    "plural": "{count} E-Mails wurden erfolgreich in den Ordner {folder} verschoben."
-                },
-                "error": {
-                    "single": "Fehler beim Verschieben von \"{subject}\" in den Ordner {folder}.",
-                    "plural": "Fehler beim Verschieben der ausgewählten E-Mails in den Ordner {folder}."
-                }
-            },
             "read_only_folder": {
                 "info": "E-Mail im Lesemdodus. Einige Aktionen (z.B. Löschen/Verschieben) sind nicht auswählbar."
             },

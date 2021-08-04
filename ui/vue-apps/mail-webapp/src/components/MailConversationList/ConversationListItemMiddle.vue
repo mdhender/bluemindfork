@@ -108,6 +108,7 @@ export default {
             CONVERSATION_IS_SELECTED
         }),
         ...mapState("mail", ["activeFolder", "folders", "mailboxes"]),
+        ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
         ...mapState("session", { settings: ({ settings }) => settings.remote }),
         displayedDate: function () {
             const date = this.conversation.date;
@@ -159,7 +160,9 @@ export default {
         isConversationWithDraft() {
             return (
                 this.conversation.messages.length > 1 &&
-                this.conversation.messages.some(m => isDraftFolder(this.folders[m.folderRef.key].path))
+                this.conversation.messages.some(key =>
+                    isDraftFolder(this.folders[this.messages[key].folderRef.key].path)
+                )
             );
         },
         conversationsActivated() {
@@ -171,7 +174,7 @@ export default {
          *  messages is in Drafts.
          */
         isDraft() {
-            const firstMessage = this.conversation.messages[0];
+            const firstMessage = this.messages[this.conversation.messages[0]];
             return (
                 isDraftFolder(this.folders[firstMessage.folderRef.key].path) ||
                 (this.conversationsActivated && this.isConversationWithDraft)

@@ -1,16 +1,19 @@
 import Vue from "vue";
 import {
     ADD_ATTACHMENT,
+    ADD_CONVERSATIONS,
     ADD_FLAG,
     ADD_MESSAGES,
     DELETE_FLAG,
     REMOVE_ATTACHMENT,
     REMOVE_MESSAGES,
+    REMOVE_CONVERSATIONS,
     MOVE_MESSAGES,
     SET_ATTACHMENT_ADDRESS,
     SET_ATTACHMENT_ENCODING,
     SET_ATTACHMENT_PROGRESS,
     SET_ATTACHMENT_STATUS,
+    SET_CONVERSATION_LIST,
     SET_MESSAGES_LOADING_STATUS,
     SET_MESSAGES_STATUS,
     SET_MESSAGE_BCC,
@@ -24,6 +27,7 @@ import {
     SET_MESSAGE_IMAP_UID,
     SET_MESSAGE_PREVIEW,
     SET_MESSAGE_SUBJECT,
+    SET_MESSAGE_TMP_ADDRESSES,
     SET_MESSAGE_TO
 } from "~/mutations";
 
@@ -50,13 +54,7 @@ export default {
         messages.forEach(m => (state[m.key].status = m.status));
     },
     [SET_MESSAGES_LOADING_STATUS]: (state, messages) => {
-        messages.forEach(m => {
-            if (state[m.key]) {
-                state[m.key].loading = m.loading;
-            } else {
-                Vue.set(state, m.key, m);
-            }
-        });
+        messages.forEach(m => (state[m.key].loading = m.loading));
     },
     [SET_MESSAGE_COMPOSING]: (state, { messageKey, composing }) => {
         if (state[messageKey]) {
@@ -93,6 +91,10 @@ export default {
     [SET_MESSAGE_IMAP_UID]: (state, { key, imapUid }) => {
         state[key].remoteRef.imapUid = imapUid;
     },
+    [SET_MESSAGE_TMP_ADDRESSES]: (state, { key, attachments, inlinePartsByCapabilities }) => {
+        state[key].attachments = attachments;
+        state[key].inlinePartsByCapabilities = inlinePartsByCapabilities;
+    },
     [ADD_ATTACHMENT]: (state, { messageKey, attachment }) => {
         state[messageKey].attachments.push(attachment);
     },
@@ -119,5 +121,16 @@ export default {
     [SET_ATTACHMENT_PROGRESS]: (state, { messageKey, address, loaded, total }) => {
         const attachment = state[messageKey].attachments.find(a => a.address === address);
         attachment.progress = { loaded, total };
+    },
+
+    // Hooks
+    [ADD_CONVERSATIONS]: (state, { messages }) => {
+        messages.forEach(message => state[message.key] || Vue.set(state, message.key, message));
+    },
+    [SET_CONVERSATION_LIST]: (state, { messages }) => {
+        messages.forEach(message => state[message.key] || Vue.set(state, message.key, message));
+    },
+    [REMOVE_CONVERSATIONS]: (state, conversations) => {
+        conversations.forEach(({ messages }) => messages.forEach(key => Vue.delete(state, key)));
     }
 };

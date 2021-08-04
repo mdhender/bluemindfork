@@ -1,8 +1,6 @@
 import {
     CLEAR_CONVERSATION_LIST,
-    MOVE_MESSAGES,
     REMOVE_CONVERSATIONS,
-    REMOVE_MESSAGES,
     SELECT_ALL_CONVERSATIONS,
     SELECT_CONVERSATION,
     SET_CONVERSATION_LIST,
@@ -40,8 +38,8 @@ const mutations = {
         state._removed = [];
     },
     // Hooks
-    [SET_CONVERSATION_LIST]: (state, messages) => {
-        const keySet = new Set(messages.map(({ key }) => key));
+    [SET_CONVERSATION_LIST]: (state, { conversations }) => {
+        const keySet = new Set(conversations.map(({ key }) => key));
         const removed = new Set(state._removed);
         for (let index = state._keys.length - 1; index >= 0; index--) {
             if (!keySet.has(state._keys[index])) {
@@ -50,28 +48,6 @@ const mutations = {
             }
         }
         state._removed = Array.from(removed);
-    },
-    [MOVE_MESSAGES]: (state, { conversation, messages }) => {
-        if (conversation) {
-            const messageKeysToRemove = new Set(messages.map(message => message.key));
-            const countOfMessageInConversationFolder = conversation.messages
-                .filter(message => message.folderRef.key === conversation.folderRef.key)
-                .filter(message => !messageKeysToRemove.has(message.key)).length;
-            if (countOfMessageInConversationFolder === 0) {
-                state._removed.push(conversation.key);
-            }
-        }
-    },
-    [REMOVE_MESSAGES]: (state, { conversation, messages }) => {
-        if (conversation) {
-            const messageKeysToRemove = new Set(messages.map(message => message.key));
-            const countOfMessageInConversationFolder = conversation.messages
-                .filter(message => message.folderRef.key === conversation.folderRef.key)
-                .filter(message => !messageKeysToRemove.has(message.key)).length;
-            if (countOfMessageInConversationFolder === 0) {
-                state._removed.push(conversation.key);
-            }
-        }
     },
     [REMOVE_CONVERSATIONS]: ({ _keys, _removed }, conversations) => {
         const keySet = new Set(conversations.map(({ key }) => key));

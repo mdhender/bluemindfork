@@ -1,6 +1,6 @@
 import MailToolbarSelectedConversations from "../src/components/MailToolbar/MailToolbarSelectedConversations";
 jest.mock("@bluemind/styleguide/css/_variables.scss", () => ({ iconsColors: "" }));
-import { createWrapper, createStore, messageKey } from "./testUtils";
+import { createWrapper, createStore, conversationKey } from "./testUtils";
 
 describe("MailToolbarSelectedConversations", () => {
     test("is a Vue instance", () => {
@@ -15,9 +15,8 @@ describe("MailToolbarSelectedConversations", () => {
 
     test("should display 'mark unread' button if the message is read", async () => {
         const store = createStore();
-        await store.dispatch("mail/MARK_CONVERSATIONS_AS_READ", {
-            conversations: { key: messageKey }
-        });
+        const conversations = [store.state.mail.conversations.conversationByKey[conversationKey]];
+        await store.dispatch("mail/MARK_CONVERSATIONS_AS_READ", { conversations });
         const wrapper = createWrapper(MailToolbarSelectedConversations, { store });
         expect(wrapper.find(".read").isVisible()).toBe(true);
         expect(wrapper.find(".unread").isVisible()).toBe(false);
@@ -25,10 +24,8 @@ describe("MailToolbarSelectedConversations", () => {
 
     test("should display 'mark read' button if the message is unread", async () => {
         const store = createStore();
-
-        await store.dispatch("mail/MARK_CONVERSATIONS_AS_UNREAD", {
-            conversations: { key: messageKey }
-        });
+        const conversations = [store.state.mail.conversations.conversationByKey[conversationKey]];
+        await store.dispatch("mail/MARK_CONVERSATIONS_AS_UNREAD", { conversations });
         const wrapper = createWrapper(MailToolbarSelectedConversations);
         expect(wrapper.find(".unread").isVisible()).toBe(false);
         expect(wrapper.find(".read").isVisible()).toBe(true);

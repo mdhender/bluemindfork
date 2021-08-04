@@ -158,8 +158,7 @@ export default {
                     } else {
                         message = await this.FETCH_MESSAGE_IF_NOT_LOADED({
                             internalId,
-                            folder: this.folders[folderKey],
-                            activeFolderKey: this.activeFolder
+                            folder: this.folders[folderKey]
                         });
                     }
                     // FIXME !! once message.conversationRef.key is always valid, remove this if / else

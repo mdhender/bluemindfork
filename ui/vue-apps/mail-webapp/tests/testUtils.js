@@ -54,12 +54,14 @@ export function createStore() {
             key: conversationKey,
             flags: [],
             folderRef: { key: folderUid, uid: folderUid },
-            messages: [{ key: messageKey, folderRef: { key: folderUid, uid: folderUid } }],
+            messages: [messageKey],
             date: new Date(123456)
         }
     ];
-    store.commit("mail/SET_CONVERSATION_LIST", conversations);
-    store.commit("mail/ADD_MESSAGES", conversations[0].messages);
+    const messages = [
+        { key: messageKey, folderRef: { key: folderUid, uid: folderUid }, conversationRef: { key: conversationKey } }
+    ];
+    store.commit("mail/SET_CONVERSATION_LIST", { conversations, messages });
     store.commit("mail/SET_CURRENT_CONVERSATION", conversations[0]);
 
     return store;

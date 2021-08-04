@@ -12,7 +12,6 @@
         "@bluemind/conf": "^4.1.0"
     },
     "scripts": {
-        "analyze-bundle": "webpack --profile --json > stats.json && webpack-bundle-analyzer --port 4201 stats.json",
         "build": "webpack --env production --progress --profile --color",
         "dev": "webpack serve --env development --progress --color --port 9181"
     }

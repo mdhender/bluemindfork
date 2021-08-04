@@ -117,4 +117,18 @@ describe("mutations", () => {
             expect(state[message.key].folderRef).toEqual({ key: 1 });
         });
     });
+
+    describe("REMOVE_CONVERSATIONS", () => {
+        test("change message folderRef", () => {
+            const state = {};
+            [({ key: "key1" }, { key: "key2" }, { key: "key3" }, { key: "key4" })].forEach(
+                message => (state[message.key] = message)
+            );
+            mutations.REMOVE_CONVERSATIONS(state, [{ messages: ["key1", "key2"] }, { messages: ["key3"] }]);
+            expect(state["key1"]).not.toBeDefined();
+            expect(state["key2"]).not.toBeDefined();
+            expect(state["key3"]).not.toBeDefined();
+            expect(state["key4"]).toBeDefined();
+        });
+    });
 });

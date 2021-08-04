@@ -21,7 +21,7 @@
                 <slot name="head" />
             </div>
             <slot name="subhead" />
-            <div v-if="isMessageExpanded" class="row pr-3 pl-5">
+            <div v-if="isMessageExpanded && !message.composing" class="row pr-3 pl-5">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                 <mail-viewer-recipients :message="message" class="px-3" />
             </div>

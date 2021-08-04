@@ -18,10 +18,7 @@ import {
 } from "~/getters";
 import { CONVERSATION_LIST_NEXT_PAGE, FETCH_CONVERSATION_LIST_KEYS } from "~/actions";
 import {
-    ADD_MESSAGES,
     CLEAR_CONVERSATION_LIST,
-    REMOVE_MESSAGES,
-    MOVE_MESSAGES,
     RESET_CONVERSATION_LIST_PAGE,
     SET_CONVERSATION_LIST,
     SET_CONVERSATION_LIST_FILTER,
@@ -127,17 +124,6 @@ describe("conversationList", () => {
     });
     describe("mutations", () => {
         let state;
-        let conversation = {
-            key: 1,
-            folderRef: {
-                key: "inbox"
-            },
-            messages: [
-                { key: 1, folderRef: { key: "inbox" } },
-                { key: 2, folderRef: { key: "sent" } },
-                { key: 3, folderRef: { key: "inbox" } }
-            ]
-        };
         beforeEach(() => {
             state = cloneDeep(storeOptions.state);
         });
@@ -147,48 +133,13 @@ describe("conversationList", () => {
             expect(state._keys).toEqual([1, 2, 3, 4]);
             expect(state._removed).toEqual([3, 4]);
         });
-        test("REMOVE_MESSAGES but not conversation", () => {
-            state._keys = [1, 2, 3, 4];
-            storeOptions.mutations[REMOVE_MESSAGES](state, {
-                conversation,
-                messages: [{ key: 1 }, { key: 2 }]
-            });
-            expect(state._keys).toEqual([1, 2, 3, 4]);
-            expect(state._removed).toEqual([]);
-        });
-        test("REMOVE_MESSAGES then conversation", () => {
-            state._keys = [1, 2, 3, 4];
-            storeOptions.mutations[REMOVE_MESSAGES](state, {
-                conversation,
-                messages: [{ key: 1 }, { key: 3 }]
-            });
-            expect(state._keys).toEqual([1, 2, 3, 4]);
-            expect(state._removed).toEqual([1]);
-        });
-        test("MOVE_MESSAGES but not conversation", () => {
-            state._keys = [1, 2, 3, 4];
-            state._removed = [3];
-            storeOptions.mutations[MOVE_MESSAGES](state, {
-                conversation,
-                messages: [{ key: 1 }, { key: 2 }]
-            });
-            expect(state._keys).toEqual([1, 2, 3, 4]);
-            expect(state._removed).toEqual([3]);
-        });
-        test("MOVE_MESSAGES then conversation", () => {
-            state._keys = [1, 2, 3, 4];
-            state._removed = [3];
-            storeOptions.mutations[MOVE_MESSAGES](state, {
-                conversation,
-                messages: [{ key: 1 }, { key: 3 }]
-            });
-            expect(state._keys).toEqual([1, 2, 3, 4]);
-            expect(state._removed).toEqual([3, 1]);
-        });
+
         test("SET_CONVERSATION_LIST", () => {
             state._keys = [1, 2, 3];
             state._removed = [2];
-            storeOptions.mutations[SET_CONVERSATION_LIST](state, [{ key: 3 }, { key: 4 }, { key: 5 }]);
+            storeOptions.mutations[SET_CONVERSATION_LIST](state, {
+                conversations: [{ key: 3 }, { key: 4 }, { key: 5 }]
+            });
             expect(state._keys).toEqual([3, 4, 5]);
             expect(state._removed).toEqual([]);
         });

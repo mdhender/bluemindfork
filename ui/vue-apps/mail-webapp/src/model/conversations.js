@@ -1,81 +1,71 @@
+import sortedIndexBy from "lodash.sortedindexby";
+
+import { Flag } from "@bluemind/email";
+
 import { MessageCreationModes, MessageStatus, createOnlyMetadata, messageKey } from "~/model/message";
 import { ConversationListFilter } from "~/store/conversationList";
-import { Flag } from "@bluemind/email";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 import { LoadingStatus } from "./loading-status";
 import { draftInfoHeader } from "~/model/draft";
 import { isDraftFolder } from "~/model/folder";
 
-export function createConversationStubsFromRawConversations(rawConversations, activeFolder) {
-    return rawConversations
-        .map(({ value: { messageRefs, conversationId } }) => {
-            const sortedMessageRefs = messageRefs.sort((a, b) => a.date - b.date);
-            const last = sortedMessageRefs[sortedMessageRefs.length - 1];
-            const metadata = createConversationMetadata({
-                internalId: conversationId,
-                folder: FolderAdaptor.toRef(activeFolder.uid)
-            });
-            metadata.conversationId = conversationId;
-            metadata.date = last.date;
-            metadata.messages = sortedMessageRefs.map(m =>
-                createOnlyMetadata({
-                    internalId: m.itemId,
-                    folder: FolderAdaptor.toRef(m.folderUid),
-                    conversationRef: { key: metadata.key, id: conversationId }
-                })
-            );
-            return metadata;
-        })
-        .sort((a, b) => b.date - a.date);
+export function createConversationStubsFromRawConversations(rawConversations, folder) {
+    const conversations = [],
+        messages = [];
+    rawConversations.forEach(({ value: { messageRefs, conversationId: id } }) => {
+        const conversation = createConversationMetadata(id, FolderAdaptor.toRef(folder), messageRefs);
+        const index = sortedIndexBy(conversations, conversation, c => -c.date);
+        conversations.splice(index, 0, conversation);
+        messages.push(
+            ...messageRefs.map(({ itemId: internalId, folderUid, date }) => {
+                const folder = FolderAdaptor.toRef(folderUid);
+                return createOnlyMetadata({ internalId, folder, conversationRef: { key: conversation.key, id }, date });
+            })
+        );
+    });
+    return { conversations, messages };
 }
 
 export function createConversationStubsFromSortedIds(sortedIds, folder) {
-    return sortedIds.map(id => {
-        const conversation = createConversationMetadata({ internalId: id, folder: FolderAdaptor.toRef(folder) });
-        conversation.messages = [
-            {
-                ...conversation,
-                conversationRef: { key: conversation.key, id: conversation.id }
-            }
-        ];
-        return conversation;
+    const conversations = [],
+        messages = [];
+    sortedIds.forEach(id => {
+        const folderRef = FolderAdaptor.toRef(folder);
+        const messageRef = { itemId: id, folderUid: folder.remoteRef.uid };
+        const conversation = createConversationMetadata(id, folderRef, [messageRef]);
+        const conversationRef = { key: conversation.key, id };
+        const message = createOnlyMetadata({ internalId: id, folder: folderRef, conversationRef });
+        conversations.push(conversation);
+        messages.push(message);
     });
+    return { conversations, messages };
 }
 
 export function createConversationStubsFromSearchResult(searchResult) {
-    return searchResult.map(({ id, folderRef }) => {
-        const conversation = createConversationMetadata({ internalId: id, folder: folderRef });
-        conversation.messages = [
-            {
-                ...conversation,
-                conversationRef: { key: conversation.key, id: conversation.id }
-            }
-        ];
-        return conversation;
+    const conversations = [],
+        messages = [];
+    searchResult.forEach(({ id, folderRef }) => {
+        const messageRef = { itemId: id, folderUid: folderRef.uid };
+        const conversation = createConversationMetadata(id, folderRef, [messageRef]);
+        const conversationRef = { key: conversation.key, id };
+        const message = createOnlyMetadata({ internalId: id, folder: folderRef, conversationRef });
+        conversations.push(conversation);
+        messages.push(message);
     });
+    return { conversations, messages };
 }
 
-function createConversationMetadata({ internalId, folder: { key, uid } }) {
+function createConversationMetadata(id, { key, uid }, messages) {
+    const sorted = messages.sort((a, b) => a.date - b.date);
     return {
-        key: internalId && key ? messageKey(internalId, key) : null,
+        key: id && key ? messageKey(id, key) : null,
         folderRef: { key, uid },
-        remoteRef: { internalId },
+        remoteRef: { internalId: id },
         status: MessageStatus.IDLE,
-        loading: LoadingStatus.NOT_LOADED
+        loading: LoadingStatus.NOT_LOADED,
+        messages: sorted.map(({ itemId, folderUid }) => messageKey(itemId, folderUid)),
+        date: sorted[sorted.length - 1].date
     };
-}
-
-export function sameConversation(a, b) {
-    if (a.folderRef.key !== b.folderRef.key) {
-        return false;
-    }
-    const messagesA = a.messages;
-    const messagesB = b.messages;
-    if (messagesA.length !== messagesB.length) {
-        return false;
-    }
-    const intersection = messagesA.filter(messageA => messagesB.map(messageB => messageB.key).includes(messageA.key));
-    return intersection.length === messagesA.length;
 }
 
 export function firstMessageInConversationFolder(getters, conversations) {
@@ -167,5 +157,16 @@ export function removeSentDuplicates(messages, sentFolder) {
         f =>
             f.folderRef.key !== sentFolder.key ||
             !arrayOfMessageKeys.some(keys => keys.length > 1 && keys.includes(f.key))
+    );
+}
+
+export function conversationMustBeRemoved(state, conversation, messages) {
+    if (!conversation) {
+        return false;
+    }
+    const keys = new Set(messages.map(message => message.key));
+    const folderKey = conversation.folderRef.key;
+    return !conversation.messages.some(
+        key => !keys.has(key) && state.messages[key] && state.messages[key].folderRef.key === folderKey
     );
 }

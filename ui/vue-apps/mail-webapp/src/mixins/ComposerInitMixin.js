@@ -7,11 +7,11 @@ import { sanitizeHtml } from "@bluemind/html-utils";
 import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { MY_DRAFTS } from "~/getters";
 import {
-    ADD_MESSAGE_TO_CONVERSATION,
     ADD_MESSAGES,
     SET_ATTACHMENTS_FORWARDED,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
+    SET_MESSAGE_TMP_ADDRESSES,
     SET_SAVED_INLINE_IMAGES
 } from "~/mutations";
 import { addSignature } from "~/model/signature";
@@ -65,19 +65,21 @@ export default {
         }),
         ...mapMutations("mail", {
             $_ComposerInitMixin_ADD_MESSAGES: ADD_MESSAGES,
-            $_ComposerInitMixin_ADD_MESSAGE_TO_CONVERSATION: ADD_MESSAGE_TO_CONVERSATION,
+            $_ComposerInitMixin_SET_ATTACHMENTS_FORWARDED: SET_ATTACHMENTS_FORWARDED,
             $_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT: SET_DRAFT_COLLAPSED_CONTENT,
             $_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT: SET_DRAFT_EDITOR_CONTENT,
-            $_ComposerInitMixin_SET_SAVED_INLINE_IMAGES: SET_SAVED_INLINE_IMAGES,
-            $_ComposerInitMixin_SET_ATTACHMENTS_FORWARDED: SET_ATTACHMENTS_FORWARDED
+            $_ComposerInitMixin_SET_MESSAGE_TMP_ADDRESSES: SET_MESSAGE_TMP_ADDRESSES,
+            $_ComposerInitMixin_SET_SAVED_INLINE_IMAGES: SET_SAVED_INLINE_IMAGES
         }),
 
         // case when user clicks on a message in MY_DRAFTS folder
         async initFromRemoteMessage(message) {
             const messageWithTmpAddresses = await apiMessages.getForUpdate(message);
-            messageWithTmpAddresses.conversationRef = message.conversationRef;
-            messageWithTmpAddresses.composing = true;
-            this.$_ComposerInitMixin_ADD_MESSAGES([messageWithTmpAddresses]);
+            this.$_ComposerInitMixin_SET_MESSAGE_TMP_ADDRESSES({
+                key: message.key,
+                attachments: messageWithTmpAddresses.attachments,
+                inlinePartsByCapabilities: messageWithTmpAddresses.inlinePartsByCapabilities
+            });
 
             const parts = getPartsFromCapabilities(messageWithTmpAddresses, COMPOSER_CAPABILITIES);
 
@@ -121,7 +123,7 @@ export default {
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(editorData.content);
         },
 
-        async initRelatedMessage(action, related, conversation) {
+        async initRelatedMessage(action, related) {
             switch (action) {
                 case MessageCreationModes.REPLY:
                 case MessageCreationModes.REPLY_ALL:
@@ -131,7 +133,7 @@ export default {
                             internalId: related.internalId,
                             folder: this.$store.state.mail.folders[related.folderKey]
                         });
-                        return this.initReplyOrForward(action, previous, conversation);
+                        return this.initReplyOrForward(action, previous);
                     } catch {
                         return this.initNewMessage();
                     }
@@ -156,7 +158,7 @@ export default {
         },
 
         // case of a reply or forward message
-        async initReplyOrForward(creationMode, previousMessage, conversation) {
+        async initReplyOrForward(creationMode, previousMessage) {
             const message = createReplyOrForward(
                 previousMessage,
                 this.$_ComposerInitMixin_MY_DRAFTS,
@@ -209,23 +211,16 @@ export default {
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(collapsed);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
 
-            this.$_ComposerInitMixin_ADD_MESSAGES([message]);
             if (creationMode !== MessageCreationModes.FORWARD) {
-                this.$_ComposerInitMixin_ADD_MESSAGE_TO_CONVERSATION({ message, conversation });
+                message.conversationRef = { ...previousMessage.conversationRef };
             }
+            this.$_ComposerInitMixin_ADD_MESSAGES([message]);
 
             if (creationMode === MessageCreationModes.FORWARD) {
                 const forwardedAttachments = await uploadAttachments(previousMessage);
                 this.$_ComposerInitMixin_SET_ATTACHMENTS_FORWARDED(forwardedAttachments);
             }
 
-            if (
-                !this.$_ComposerInitMixin_conversationsActivated &&
-                creationMode === MessageCreationModes.FORWARD &&
-                !conversation
-            ) {
-                this.$router.navigate({ name: "v:mail:message", params: { message } });
-            }
             return message;
         }
     }

@@ -52,6 +52,8 @@ export function createEmpty(myDraftsFolder, userSession) {
     message.loading = LoadingStatus.LOADED;
     message.composing = true;
     message.remoteRef.imapUid = "1"; // faked imapUid because updateById needs it
+
+    message.conversationRef = { key: message.key, internalId: 1 }; // faked conversationKey because it's necessary
     return message;
 }
 

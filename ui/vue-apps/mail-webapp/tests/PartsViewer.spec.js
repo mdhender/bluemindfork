@@ -69,6 +69,8 @@ const message = {
 function mountComponent(inlinePartsByCapabilities) {
     message.inlinePartsByCapabilities = inlinePartsByCapabilities;
     mockedStore = createStore();
+    const key = Object.keys(mockedStore.state.mail.conversations.conversationByKey).pop();
+    message.conversationRef = { key };
     mockedStore.commit("mail/ADD_MESSAGES", [message]);
     return createWrapper(PartsViewer, { store: mockedStore }, { message });
 }

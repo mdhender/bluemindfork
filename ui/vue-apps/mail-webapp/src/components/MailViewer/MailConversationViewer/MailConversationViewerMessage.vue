@@ -1,8 +1,8 @@
 <template>
     <mail-conversation-viewer-item class="mail-conversation-viewer-message" v-bind="$props" v-on="$listeners">
         <template slot="head">
-            <div class="col pl-3">
-                <span class="h3 font-weight-bold align-self-center">
+            <div class="col pl-3 align-self-center">
+                <span class="h3 font-weight-bold">
                     {{ message.from ? message.from.dn || message.from.address : "" }}
                 </span>
                 <mail-folder-icon

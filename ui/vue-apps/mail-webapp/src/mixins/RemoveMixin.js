@@ -1,29 +1,22 @@
-import { mapActions, mapGetters } from "vuex";
 import { IS_CURRENT_CONVERSATION, MY_TRASH, NEXT_CONVERSATION } from "~/getters";
-import { MOVE_CONVERSATIONS_TO_TRASH, MOVE_MESSAGES_TO_TRASH, REMOVE_CONVERSATIONS, REMOVE_MESSAGES } from "~/actions";
+import {
+    MOVE_CONVERSATIONS,
+    MOVE_CONVERSATION_MESSAGES,
+    REMOVE_CONVERSATIONS,
+    REMOVE_CONVERSATION_MESSAGES
+} from "~/actions";
 import FormattedDateMixin from "./FormattedDateMixin";
 import SelectionMixin from "./SelectionMixin";
+import { conversationMustBeRemoved } from "~/model/conversations";
 
 export default {
     mixins: [FormattedDateMixin, SelectionMixin],
-    computed: {
-        ...mapGetters("mail", { $_RemoveMixin_trash: MY_TRASH })
-    },
     methods: {
-        ...mapActions("mail", {
-            $_RemoveMixin_remove: REMOVE_MESSAGES,
-            $_RemoveMixin_move: MOVE_MESSAGES_TO_TRASH,
-            $_RemoveMixin_removeConversations: REMOVE_CONVERSATIONS,
-            $_RemoveMixin_moveConversationsToTrash: MOVE_CONVERSATIONS_TO_TRASH
-        }),
         MOVE_CONVERSATIONS_TO_TRASH: navigateConversations(async function (conversations) {
-            const trash = this.$_RemoveMixin_trash;
+            const trash = this.$store.getters[`mail/${MY_TRASH}`];
 
             if (conversations.some(conversation => conversation.folderRef.key !== trash.key)) {
-                this.$_RemoveMixin_moveConversationsToTrash({
-                    conversations,
-                    folder: trash
-                });
+                this.$store.dispatch(`mail/${MOVE_CONVERSATIONS}`, { conversations, folder: trash });
                 return true;
             } else {
                 return await this.REMOVE_CONVERSATIONS(conversations);
@@ -49,21 +42,21 @@ export default {
                 }
             );
             if (confirm) {
-                this.$_RemoveMixin_removeConversations({ conversations });
+                this.$store.dispatch(`mail/${REMOVE_CONVERSATIONS}`, { conversations });
             }
             return confirm;
         }),
         MOVE_MESSAGES_TO_TRASH: navigate(async function (conversation, messages) {
-            const trash = this.$_RemoveMixin_trash;
+            const trash = this.$store.getters[`mail/${MY_TRASH}`];
 
             if (messages.some(message => message.folderRef.key !== trash.key)) {
-                this.$_RemoveMixin_move({ conversation, messages, folder: trash });
+                this.$store.dispatch(`mail/${MOVE_CONVERSATION_MESSAGES}`, { conversation, messages, folder: trash });
                 return true;
             } else {
                 return await this.REMOVE_MESSAGES({ conversation, messages });
             }
         }),
-        REMOVE_MESSAGES: navigate(async function ({ conversation, messages }) {
+        REMOVE_MESSAGES: navigate(async function (conversation, messages) {
             const confirm = await this.$bvModal.msgBoxConfirm(
                 this.$tc("mail.actions.purge.modal.content", messages.length, messages[0]),
                 {
@@ -77,7 +70,7 @@ export default {
                 }
             );
             if (confirm) {
-                this.$_RemoveMixin_remove({ conversation, messages });
+                await this.$store.dispatch(`mail/${REMOVE_CONVERSATION_MESSAGES}`, { conversation, messages });
             }
             return confirm;
         }),
@@ -96,8 +89,9 @@ export default {
                 autoFocusButton: "ok"
             });
             if (confirm) {
-                this.$_RemoveMixin_remove({ conversation, messages: [draft] });
+                await this.$store.dispatch(`mail/${REMOVE_CONVERSATION_MESSAGES}`, { conversation, messages: [draft] });
             }
+            return confirm;
         },
         moveToTrash() {
             return this.MOVE_CONVERSATIONS_TO_TRASH(this.selected);
@@ -112,7 +106,7 @@ function navigate(action) {
     return async function (conversation, messages) {
         messages = Array.isArray(messages) ? [...messages] : [messages];
         const confirm = await action.call(this, conversation, messages);
-        if (confirm && messages.length === 1 && this.$store.getters["mail/" + IS_CURRENT_CONVERSATION](messages[0])) {
+        if (confirm && conversationMustBeRemoved(this.$store.state.mail.conversations, conversation, messages)) {
             const next = this.$store.getters["mail/" + NEXT_CONVERSATION];
             this.$router.navigate({ name: "v:mail:conversation", params: { conversation: next } });
         }

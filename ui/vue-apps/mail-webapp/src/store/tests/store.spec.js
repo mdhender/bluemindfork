@@ -64,8 +64,9 @@ describe("Mail store", () => {
         });
         test("ALL_SELECTED_CONVERSATIONS_ARE_UNREAD", () => {
             initMailbox(store);
-            store.state.conversations.conversationByKey = buildConversations([[], [Flag.SEEN], [Flag.SEEN], []]);
             initConversations(store);
+            store.state.conversations.messages[2].flags = [Flag.SEEN];
+            store.state.conversations.messages[3].flags = [Flag.SEEN];
             store.state.selection = [1, 4];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_UNREAD]).toBeTruthy();
             store.state.selection = [1, 2, 3];
@@ -75,8 +76,9 @@ describe("Mail store", () => {
         });
         test("ALL_SELECTED_CONVERSATIONS_ARE_READ", () => {
             initMailbox(store);
-            store.state.conversations.conversationByKey = buildConversations([[Flag.SEEN], [Flag.SEEN], [], []]);
             initConversations(store);
+            store.state.conversations.messages[1].flags = [Flag.SEEN];
+            store.state.conversations.messages[2].flags = [Flag.SEEN];
             store.state.selection = [1, 2];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_READ]).toBeTruthy();
             store.state.selection = [1, 2, 3];
@@ -86,8 +88,9 @@ describe("Mail store", () => {
         });
         test("ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED", () => {
             initMailbox(store);
-            store.state.conversations.conversationByKey = buildConversations([[Flag.FLAGGED], [Flag.FLAGGED], [], []]);
             initConversations(store);
+            store.state.conversations.messages[1].flags = [Flag.FLAGGED];
+            store.state.conversations.messages[2].flags = [Flag.FLAGGED];
             store.state.selection = [1, 2];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED]).toBeTruthy();
             store.state.selection = [1, 2, 3];
@@ -97,8 +100,9 @@ describe("Mail store", () => {
         });
         test("ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED", () => {
             initMailbox(store);
-            store.state.conversations.conversationByKey = buildConversations([[], [Flag.FLAGGED], [Flag.FLAGGED], []]);
             initConversations(store);
+            store.state.conversations.messages[2].flags = [Flag.FLAGGED];
+            store.state.conversations.messages[3].flags = [Flag.FLAGGED];
             store.state.selection = [1, 4];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED]).toBeTruthy();
             store.state.selection = [1, 2, 3];
@@ -310,7 +314,7 @@ describe("Mail store", () => {
                 if (key % 10 === 0) {
                     store.state.selection._removed.push(key);
                 }
-                store.state.conversations.conversationByKey[key] = { key, folderRef: { key: 1 }, messages: [{ key }] };
+                store.state.conversations.conversationByKey[key] = { key, folderRef: { key: 1 }, messages: [key] };
                 store.state.conversations.messages[key] = { key, folderRef: { key: 1 } };
             });
             expect(store.getters[SELECTION]).toEqual(
@@ -344,38 +348,39 @@ function initMailbox(store) {
     injector.register({ provide: "i18n", use: { t: n => n } });
 }
 
-function buildConversations(flags) {
+function initConversations(store) {
     const folderRef = { key: "folderKey" };
-    return {
-        1: {
+    const conversations = [
+        {
             key: 1,
             folderRef,
-            messages: [{ key: 1, folderRef, flags: flags[0], loading: LoadingStatus.LOADED }],
+            messages: [1],
             loading: LoadingStatus.LOADED
         },
-        2: {
+        {
             key: 2,
             folderRef,
-            messages: [{ key: 2, folderRef, flags: flags[1], loading: LoadingStatus.LOADED }],
+            messages: [2],
             loading: LoadingStatus.NOT_LOADED
         },
-        3: {
+        {
             key: 3,
             folderRef,
-            messages: [{ key: 3, folderRef, flags: flags[2], loading: LoadingStatus.LOADED }],
+            messages: [3],
             loading: LoadingStatus.LOADED
         },
-        4: {
+        {
             key: 4,
             folderRef,
-            messages: [{ key: 4, folderRef, flags: flags[3], loading: LoadingStatus.LOADED }],
+            messages: [4],
             loading: LoadingStatus.LOADED
         }
-    };
-}
-
-function initConversations(store) {
-    store.commit("SET_CONVERSATION_LIST", Object.values(store.state.conversations.conversationByKey));
-    const flattenMessages = Object.values(store.state.conversations.conversationByKey).flatMap(c => c.messages);
-    store.commit("ADD_MESSAGES", flattenMessages);
+    ];
+    const messages = [
+        { key: 1, folderRef, flags: [], loading: LoadingStatus.LOADED },
+        { key: 2, folderRef, flags: [], loading: LoadingStatus.LOADED },
+        { key: 3, folderRef, flags: [], loading: LoadingStatus.LOADED },
+        { key: 4, folderRef, flags: [], loading: LoadingStatus.LOADED }
+    ];
+    store.commit("SET_CONVERSATION_LIST", { conversations, messages });
 }
