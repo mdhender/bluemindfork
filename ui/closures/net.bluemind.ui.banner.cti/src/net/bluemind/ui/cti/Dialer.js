@@ -178,10 +178,12 @@ net.bluemind.ui.cti.Dialer.prototype.enterDocument = function() {
 
 net.bluemind.ui.cti.Dialer.prototype.handleOnlineStatus_ = function() {
   var online = restClient.online();
-  if (online) {
-    goog.style.setElementShown(this.parentElement_, true);
-  } else {
-    goog.style.setElementShown(this.parentElement_, false);
+  if (this.parentElement_.style) {
+      if (online) {
+        goog.style.setElementShown(this.parentElement_, true);
+      } else {
+        goog.style.setElementShown(this.parentElement_, false);
+      }
   }
 }
 /**
