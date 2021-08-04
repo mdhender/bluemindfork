@@ -64,8 +64,9 @@ describe("consultPanel node", () => {
                 serverEvent,
                 mailboxOwner: userUid
             };
+            const message = { eventInfo: { isResourceBooking: false } };
 
-            await store.dispatch(SET_EVENT_STATUS, { status: newStatus, mailbox: { owner: userUid } });
+            await store.dispatch(SET_EVENT_STATUS, { status: newStatus, message });
             expect(calendarService.update).toHaveBeenCalledWith(eventUid, serverEvent.value, true);
             expect(store.state.currentEvent.status).toEqual(newStatus);
         });
@@ -78,7 +79,8 @@ describe("consultPanel node", () => {
                 mailboxOwner: userUid
             };
             calendarService.update.mockReturnValue(Promise.reject());
-            const promise = store.dispatch(SET_EVENT_STATUS, { status: newStatus, mailbox: { owner: userUid } });
+            const message = { eventInfo: { isResourceBooking: false } };
+            const promise = store.dispatch(SET_EVENT_STATUS, { status: newStatus, message });
             expect(store.state.currentEvent.status).toEqual(newStatus);
             expect(calendarService.update).toHaveBeenCalledWith(eventUid, serverEvent.value, true);
             await promise;
@@ -98,7 +100,7 @@ describe("consultPanel node", () => {
                 mailboxOwner: userUid
             };
 
-            storeOptions.mutations[SET_CURRENT_EVENT_STATUS](store.state, { status: newStatus, uid: userUid });
+            storeOptions.mutations[SET_CURRENT_EVENT_STATUS](store.state, { status: newStatus });
             expect(store.state.currentEvent.status).toBe(newStatus);
             expect(store.state.currentEvent.serverEvent.value.main.attendees[1].partStatus).toBe(newStatus);
         });

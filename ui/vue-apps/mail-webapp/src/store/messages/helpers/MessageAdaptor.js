@@ -11,11 +11,9 @@ import { LoadingStatus } from "~/model/loading-status";
 export default {
     fromMailboxItem(remote, { key, uid }) {
         const message = createWithMetadata({ internalId: remote.internalId, folder: { key, uid } });
-        const { hasICS, isCounterEvent, eventUid, icsUid, needsReply, recuridIsoDate } = eventInfo(remote);
+        const eventInfo = getEventInfo(remote.value.body.headers);
         const adapted = {
-            remoteRef: {
-                imapUid: remote.value.imapUid
-            },
+            remoteRef: { imapUid: remote.value.imapUid },
             flags: remote.value.flags,
             date: new Date(remote.value.body.date),
             ...computeRecipients(remote),
@@ -30,8 +28,8 @@ export default {
             loading: LoadingStatus.LOADED,
             preview: remote.value.body.preview,
             hasAttachment: remote.value.body.smartAttach,
-            hasICS,
-            eventInfo: { isCounterEvent, eventUid, icsUid, needsReply, recuridIsoDate }
+            hasICS: eventInfo.hasICS,
+            eventInfo
         };
         return merge(message, adapted);
     },
@@ -101,10 +99,9 @@ function buildRecipientsForKind(kind, recipients) {
     }));
 }
 
-// TODO move to EventHelper ?
-function eventInfo(message) {
+function getEventInfo(headers) {
     let isCounterEvent = false;
-    const icsHeader = message.value.body.headers.find(({ name }) => {
+    const icsHeader = headers.find(({ name }) => {
         if (MessageHeader.X_BM_EVENT_COUNTERED.toUpperCase() === name.toUpperCase()) {
             isCounterEvent = true;
             return true;
@@ -116,6 +113,16 @@ function eventInfo(message) {
 
     if (!icsHeader) {
         return { hasICS: false };
+    }
+
+    let isResourceBooking = false,
+        resourceUid = "";
+    const resourceBooking = headers.find(
+        ({ name }) => MessageHeader.X_BM_RESOURCEBOOKING.toUpperCase() === name.toUpperCase()
+    );
+    if (resourceBooking) {
+        isResourceBooking = true;
+        resourceUid = resourceBooking.values[0].trim();
     }
 
     const icsHeaderValue = icsHeader.values[0].trim();
@@ -130,5 +137,5 @@ function eventInfo(message) {
     const needsReply =
         isCounterEvent || icsHeaderValue.includes('rsvp="true"') || icsHeaderValue.includes("rsvp='true'"); //TODO regexp
 
-    return { hasICS, isCounterEvent, eventUid, icsUid, needsReply, recuridIsoDate };
+    return { hasICS, isCounterEvent, eventUid, icsUid, needsReply, recuridIsoDate, isResourceBooking, resourceUid };
 }

@@ -278,6 +278,7 @@
     "mail.ics.counter.schedule.proposal": "New schedule proposal",
     "mail.ics.counter.tentative": "{attendee} tentatively accepted and proposes a new schedule",
     "mail.ics.counter": "{attendee} proposed a new schedule",
+    "mail.ics.resourcebooking": "This message contains a resource booking",
     "mail.list.filter.all": "All",
     "mail.list.filter.aria": "Message filters",
     "mail.list.filter.flagged": "Flagged",

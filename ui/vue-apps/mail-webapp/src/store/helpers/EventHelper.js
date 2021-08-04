@@ -6,7 +6,7 @@ import { LoadingStatus } from "~/model/loading-status";
 
 export default {
     adapt(event, mailboxOwner, originator, recuridIsoDate) {
-        const infos = this.eventInfos(event, mailboxOwner, recuridIsoDate);
+        const infos = this.eventInfos(event, recuridIsoDate);
         return {
             summary: infos.summary,
             organizer: {
@@ -77,11 +77,11 @@ export default {
     },
 
     setStatus(adaptedEvent, status) {
-        const infos = this.eventInfos(adaptedEvent.serverEvent, adaptedEvent.mailboxOwner, adaptedEvent.recuridIsoDate);
+        const infos = this.eventInfos(adaptedEvent.serverEvent, adaptedEvent.recuridIsoDate);
         this.findAttendee(infos.attendees, adaptedEvent.mailboxOwner).partStatus = status;
     },
 
-    eventInfos(event, mailboxOwner, recuridIsoDate) {
+    eventInfos(event, recuridIsoDate) {
         return !recuridIsoDate
             ? event.value.main
             : event.value.occurrences.find(occurrence => occurrence.recurid.iso8601 === recuridIsoDate);

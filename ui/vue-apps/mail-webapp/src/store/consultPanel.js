@@ -12,9 +12,7 @@ import { LoadingStatus } from "~/model/loading-status";
 export default {
     state: {
         currentEvent: { loading: LoadingStatus.NOT_LOADED },
-        remoteImages: {
-            mustBeBlocked: false
-        }
+        remoteImages: { mustBeBlocked: false }
     },
     actions: {
         async [FETCH_EVENT]({ commit }, { message, mailbox }) {
@@ -23,12 +21,19 @@ export default {
             if (message.eventInfo.icsUid) {
                 const events = await inject("CalendarPersistence").getByIcsUid(message.eventInfo.icsUid);
                 event = findEvent(events, message.eventInfo.recuridIsoDate) || events[0];
+            } else if (message.eventInfo.isResourceBooking) {
+                event = await inject("CalendarPersistence", "calendar:" + message.eventInfo.resourceUid).getComplete(
+                    message.eventInfo.eventUid
+                );
             } else {
                 event = await inject("CalendarPersistence").getComplete(message.eventInfo.eventUid);
             }
 
             if (event) {
-                event = EventHelper.adapt(event, mailbox.owner, message.from.address, message.eventInfo.recuridIsoDate);
+                const mailboxOwner = message.eventInfo.isResourceBooking
+                    ? message.eventInfo.resourceUid
+                    : mailbox.owner;
+                event = EventHelper.adapt(event, mailboxOwner, message.from.address, message.eventInfo.recuridIsoDate);
                 commit(SET_CURRENT_EVENT, event);
             } else {
                 commit(SET_CURRENT_EVENT, { loading: LoadingStatus.ERROR });
@@ -36,18 +41,16 @@ export default {
             }
         },
 
-        async [SET_EVENT_STATUS]({ state, commit }, { status, mailbox }) {
-            const uid = mailbox.owner;
+        async [SET_EVENT_STATUS]({ state, commit }, { message, status }) {
             const previousStatus = state.currentEvent.status;
             try {
                 commit(SET_CURRENT_EVENT_STATUS, { status });
-                await inject("CalendarPersistence").update(
-                    state.currentEvent.uid,
-                    state.currentEvent.serverEvent.value,
-                    true
-                );
+                const service = message.eventInfo.isResourceBooking
+                    ? inject("CalendarPersistence", "calendar:" + message.eventInfo.resourceUid)
+                    : inject("CalendarPersistence");
+                await service.update(state.currentEvent.uid, state.currentEvent.serverEvent.value, true);
             } catch {
-                commit(SET_CURRENT_EVENT_STATUS, { status: previousStatus, uid });
+                commit(SET_CURRENT_EVENT_STATUS, { status: previousStatus });
             }
         },
 

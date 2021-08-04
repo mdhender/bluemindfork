@@ -278,6 +278,7 @@
     "mail.ics.counter.schedule.proposal": "Proposition de nouvel horaire",
     "mail.ics.counter.tentative": "{attendee} a provisoirement accepté et propose une nouvelle date",
     "mail.ics.counter": "{attendee} a proposé une nouvelle date",
+    "mail.ics.resourcebooking": "Ce message contient une réservation de ressource",
     "mail.list.filter.all": "Tous",
     "mail.list.filter.aria": "Filtres de messages",
     "mail.list.filter.flagged": "Marqués",

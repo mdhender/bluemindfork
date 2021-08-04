@@ -274,6 +274,7 @@
     "mail.ics.counter.schedule.proposal": "Neuer Terminvorschlag",
     "mail.ics.counter.tentative": "{attendee} akzeptierte vorläufig und schlug einen neuen Termin vor",
     "mail.ics.counter": "{attendee} schlug einen neuen Termin vor",
+    "mail.ics.resourcebooking": "This message contains a resource booking",
     "mail.list.filter.all": "Alle",
     "mail.list.filter.aria": "E-Mail-Filter",
     "mail.list.filter.flagged": "Markiert",
