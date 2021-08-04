@@ -38,7 +38,12 @@ export default function (userSession) {
 
     injector.register({
         provide: "CalendarPersistence",
-        factory: containerUid => new CalendarClient(userSession.sid, containerUid)
+        factory: containerUid => {
+            if (!containerUid) {
+                return new CalendarClient(userSession.sid, "calendar:Default:" + userSession.userId);
+            }
+            return new CalendarClient(userSession.sid, containerUid);
+        }
     });
 
     injector.register({

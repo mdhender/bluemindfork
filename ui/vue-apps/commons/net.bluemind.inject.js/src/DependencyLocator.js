@@ -14,6 +14,9 @@ const DependencyLocaltor = {
             provider.forEach(p => this.register(p));
         } else {
             const { provide, factory } = annotateProvider(provider);
+            if (dependencies.get(provide)) {
+                console.warn("Watch out ! you're registering a listener already set : " + provide);
+            }
             dependencies.set(provide, factory);
         }
         return this;

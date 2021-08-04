@@ -58,14 +58,6 @@ function registerAPIClients() {
     });
 
     injector.register({
-        provide: "CalendarPersistence",
-        factory: () => {
-            const userSession = injector.getProvider("UserSession").get();
-            return new CalendarClient(userSession.sid, "calendar:Default:" + userSession.userId);
-        }
-    });
-
-    injector.register({
         provide: "MailConversationPersistence",
         factory: () => {
             const userSession = injector.getProvider("UserSession").get();
