@@ -46,9 +46,10 @@ public class RestoreReplicatedMailboxes extends RestoreReplicated implements Res
 		if (de.payload.length == 0) {
 			return;
 		}
+		monitor.log("Processing replicated mailbox:\n" + de.key + "\n" + new String(de.payload));
 		String ownerUid = de.key.owner.split("/")[0];
 		ItemValue<Mailbox> mbox = state.getMailbox(ownerUid);
-		logger.info("key:{} ::: payload:{} ::: mailbox:{}", de.key, new String(de.payload), mbox);
+//		logger.info("key:{} ::: payload:{} ::: mailbox:{}", de.key, new String(de.payload), mbox);
 		if (mbox == null) {
 			logger.warn("no mbox for this replica, skipping");
 			return;
@@ -63,7 +64,7 @@ public class RestoreReplicatedMailboxes extends RestoreReplicated implements Res
 		try (SyncClientOIO syncClient = new SyncClientOIO(imap.value.address(), 2502)) {
 			syncClient.authenticate("admin0", Token.admin0());
 			String syncResponse = syncClient.applyMailbox(replicatedMbox);
-			logger.info("APPLY MAILBOX aka {} => {}", replica.uid, syncResponse);
+			monitor.log("APPLY MAILBOX aka " + replica.uid + " => " + syncResponse);
 		} catch (Exception e) {
 			e.printStackTrace();
 			monitor.log("ERROR: " + e.getMessage());

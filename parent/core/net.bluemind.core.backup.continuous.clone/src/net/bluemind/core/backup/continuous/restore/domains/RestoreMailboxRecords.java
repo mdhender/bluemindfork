@@ -47,7 +47,7 @@ public class RestoreMailboxRecords extends RestoreReplicated implements RestoreD
 	}
 
 	public void restore(DataElement de) {
-		monitor.log("Restoring a mailbox record: " + de);
+		monitor.log("Processing mailbox record:\n" + de.key + "\n" + new String(de.payload));
 
 		String uniqueId = IMailReplicaUids.getUniqueId(de.key.uid);
 		Replica repl = state.getReplica(uniqueId);
@@ -88,8 +88,10 @@ public class RestoreMailboxRecords extends RestoreReplicated implements RestoreD
 			recordsBuffer.append(" GUID " + rec.value.messageBody).append(")");
 
 			String syncResponse = sync.applyMailbox(replicatedMbox, recordsBuffer.toString());
-			logger.info("APPLY MAILBOX {} => {}", repl.mbox.uid, syncResponse);
+//			logger.info("APPLY MAILBOX {} => {}", repl.mbox.uid, syncResponse);
+			monitor.log("APPLY MAILBOX aka " + repl.mbox.uid + " => " + syncResponse);
 		} catch (IOException e) {
+			monitor.log("ERROR: " + e.getMessage());
 			throw new CloneException(e);
 		}
 

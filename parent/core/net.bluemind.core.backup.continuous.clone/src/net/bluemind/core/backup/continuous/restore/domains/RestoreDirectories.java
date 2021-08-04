@@ -89,11 +89,10 @@ public class RestoreDirectories implements RestoreDomainType {
 		}
 		Map<String, ItemValue<Domain>> domains = new HashMap<>();
 
-		monitor.begin(1, "one to process");
-
 		String jsString = new String(de.payload);
 		JsonObject parsed = new JsonObject(jsString);
 		JsDirEntry js = new JsDirEntry();
+		monitor.log("Processing dir:\n" + de.key + "\n" + parsed.encode());
 		js.domainUid = de.key.uid;
 		if (parsed.getJsonObject("value").containsKey("entry")) {
 			js.kind = BaseDirEntry.Kind.valueOf(parsed.getJsonObject("value").getJsonObject("entry").getString("kind"));
@@ -102,9 +101,13 @@ public class RestoreDirectories implements RestoreDomainType {
 
 		observers.forEach(obs -> obs.beforeMailboxesPopulate(monitor));
 
-		processEntry(monitor.subWork(1), domains, js);
+		try {
+			processEntry(monitor.subWork(1), domains, js);
+		} catch (Exception e) {
+			monitor.log("Failed to process entry:" + e.getMessage());
+		}
 
-		monitor.end(true, "Finished processing dir entries", "OK");
+		monitor.log("Finished processing dir entry");
 
 	}
 

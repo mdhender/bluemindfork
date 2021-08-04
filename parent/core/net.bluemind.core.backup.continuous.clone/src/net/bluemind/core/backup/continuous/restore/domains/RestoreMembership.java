@@ -38,6 +38,7 @@ public class RestoreMembership implements RestoreDomainType {
 	}
 
 	public void restore(DataElement de) {
+		monitor.log("Processing membership:\n" + de.key + "\n" + new String(de.payload));
 		ItemValue<GroupMembership> ms = membersReader.read(new String(de.payload));
 
 		IGroup groupApi = target.instance(IGroup.class, de.key.owner);

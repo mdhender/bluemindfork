@@ -90,7 +90,7 @@ public class InstallFromBackupTask implements IServerTask {
 	@Override
 	public void run(IServerTaskMonitor monitor) throws Exception {
 
-		monitor.begin(4, "Topology, domains then directories...");
+		monitor.begin(2, "Topology, domains then directories...");
 
 		Path cloneStatePath = Paths.get("/etc/bm", "clone.state.json");
 
@@ -98,11 +98,11 @@ public class InstallFromBackupTask implements IServerTask {
 		ILiveStream orphansStream = streams.orphans();
 		CloneState cloneState = new CloneState(cloneStatePath, orphansStream);
 
-		ClonedOrphans orphans = cloneOrphans(monitor, orphansStream, cloneState);
+		ClonedOrphans orphans = cloneOrphans(monitor.subWork(1), orphansStream, cloneState);
 
 		List<ILiveStream> domainStreams = streams.domains();
 		ISdsSyncStore sdsStore = sdsAccess.forSysconf(orphans.sysconf);
-		cloneDomains(monitor, domainStreams, cloneState, orphans, sdsStore);
+		cloneDomains(monitor.subWork(1), domainStreams, cloneState, orphans, sdsStore);
 	}
 
 	private static class ClonedOrphans {
@@ -121,6 +121,7 @@ public class InstallFromBackupTask implements IServerTask {
 	}
 
 	public ClonedOrphans cloneOrphans(IServerTaskMonitor monitor, ILiveStream orphansStream, CloneState cloneState) {
+		monitor.begin(3, "Cloning orphans");
 		Map<String, List<DataElement>> orphansByType = new HashMap<>();
 		IResumeToken prevState = cloneState.forTopic(orphansStream);
 		IResumeToken orphansStreamIndex = orphansStream.subscribe(prevState, de -> {
@@ -134,35 +135,41 @@ public class InstallFromBackupTask implements IServerTask {
 		Map<String, ItemValue<Domain>> domains = new RestoreDomains(installationId, target, topology.values())
 				.restore(monitor, orphansByType.getOrDefault("domains", new ArrayList<>()));
 
-		SystemConf sysconf = new RestoreSysconf(installationId, target).restore(monitor,
+		SystemConf sysconf = new RestoreSysconf(target).restore(monitor,
 				orphansByType.getOrDefault("sysconf", new ArrayList<>()));
 
 		recordProcessed(monitor, cloneState, orphansStream, orphansStreamIndex);
 		orphansByType.clear();
-
+		monitor.end(true, "Orphans cloned", null);
 		return new ClonedOrphans(topology, domains, sysconf);
 	}
 
 	public void cloneDomains(IServerTaskMonitor monitor, List<ILiveStream> domainStreams, CloneState cloneState,
 			ClonedOrphans orphans, ISdsSyncStore sdsStore) {
-		IServerTaskMonitor domainMonitor = monitor.subWork("domains", domainStreams.size());
+		monitor.begin(domainStreams.size(), "Cloning domains");
+
 		domainStreams.forEach(domainStream -> {
 			ItemValue<Domain> domain = orphans.domains.get(domainStream.domainUid());
+			IServerTaskMonitor domainMonitor = monitor.subWork("Cloning domain " + domain, 1);
 			domainMonitor.begin(orphans.domains.size(), "Working on domain " + domain.uid);
 
 			IResumeToken domainPrevIndex = cloneState.forTopic(domainStream);
 			IResumeToken domainStreamIndex = domainPrevIndex;
 
 			try (RestoreState state = new RestoreState(domain.uid, orphans.topology)) {
-				DomainRestorationHandler restoration = new DomainRestorationHandler(monitor, domain, target, observers,
-						sdsStore, state);
-				domainStreamIndex = domainStream.subscribe(restoration::handle);
+				DomainRestorationHandler restoration = new DomainRestorationHandler(domainMonitor, domain, target,
+						observers, sdsStore, state);
+				domainStreamIndex = domainStream.subscribe(de -> restoration.handle(de, true));
+				domainStreamIndex = domainStream.subscribe(de -> restoration.handle(de, false));
 			} catch (IOException e) {
 				logger.error("unexpected error when closing", e);
 				domainMonitor.end(false, "Fail to restore " + domain.uid + ": " + e.getMessage(), null);
+			} catch (Exception e) {
+				logger.error("unexpected error", e);
+				domainMonitor.end(false, "Fail to restore " + domain.uid + ": " + e.getMessage(), null);
 			} finally {
 				recordProcessed(domainMonitor, cloneState, domainStream, domainStreamIndex);
-				domainMonitor.end(false, "Domain " + domain.uid + " fully restored", null);
+				domainMonitor.end(true, "Domain " + domain.uid + " fully restored", null);
 			}
 		});
 	}

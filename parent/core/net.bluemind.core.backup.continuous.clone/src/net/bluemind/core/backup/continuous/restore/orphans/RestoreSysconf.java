@@ -20,11 +20,9 @@ public class RestoreSysconf {
 
 	private static final Logger logger = LoggerFactory.getLogger(RestoreSysconf.class);
 
-	private final String installationId;
 	private final IServiceProvider target;
 
-	public RestoreSysconf(String installationId, IServiceProvider target) {
-		this.installationId = installationId;
+	public RestoreSysconf(IServiceProvider target) {
 		this.target = target;
 	}
 
@@ -44,6 +42,7 @@ public class RestoreSysconf {
 			sysconf = confApi.getValues();
 			monitor.log("System config is missing, using existing one " + sysconf);
 		}
+		monitor.progress(1, "System config restored");
 		return sysconf;
 	}
 }

@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.Handler;
 import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.restore.IClonePhaseObserver;
 import net.bluemind.core.container.model.ItemValue;
@@ -18,7 +17,7 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.sds.store.ISdsSyncStore;
 
-public class DomainRestorationHandler implements Handler<DataElement> {
+public class DomainRestorationHandler {// implements Handler<DataElement> {
 	private static final Logger logger = LoggerFactory.getLogger(DomainRestorationHandler.class);
 
 	private final Map<String, RestoreDomainType> restoresByType;
@@ -32,11 +31,11 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 				.stream().collect(Collectors.toMap(RestoreDomainType::type, Function.identity()));
 	}
 
-	@Override
-	public void handle(DataElement event) {
+//	@Override
+	public void handle(DataElement event, boolean system) {
 		RestoreDomainType restore = restoresByType.get(event.key.type);
 		logger.info("Restoring {} with {}", event.key.type, restore);
-		if (restore != null) {
+		if (system == "system".equals(event.key.owner) && restore != null) {
 			restore.restore(event);
 		}
 	}
