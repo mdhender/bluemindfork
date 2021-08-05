@@ -32,10 +32,10 @@ public class DomainRestorationHandler {// implements Handler<DataElement> {
 	}
 
 //	@Override
-	public void handle(DataElement event, boolean system) {
+	public void handle(DataElement event) {
 		RestoreDomainType restore = restoresByType.get(event.key.type);
 		logger.info("Restoring {} with {}", event.key.type, restore);
-		if (system == "system".equals(event.key.owner) && restore != null) {
+		if (restore != null) { // system == "system".equals(event.key.owner) &&
 			restore.restore(event);
 		}
 	}

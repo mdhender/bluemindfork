@@ -159,8 +159,8 @@ public class InstallFromBackupTask implements IServerTask {
 			try (RestoreState state = new RestoreState(domain.uid, orphans.topology)) {
 				DomainRestorationHandler restoration = new DomainRestorationHandler(domainMonitor, domain, target,
 						observers, sdsStore, state);
-				domainStreamIndex = domainStream.subscribe(de -> restoration.handle(de, true));
-				domainStreamIndex = domainStream.subscribe(de -> restoration.handle(de, false));
+//				domainStreamIndex = domainStream.subscribe(de -> restoration.handle(de, true));
+				domainStreamIndex = domainStream.subscribe(de -> restoration.handle(de)); // , false
 			} catch (IOException e) {
 				logger.error("unexpected error when closing", e);
 				domainMonitor.end(false, "Fail to restore " + domain.uid + ": " + e.getMessage(), null);
