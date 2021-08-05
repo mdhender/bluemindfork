@@ -5,9 +5,10 @@ import {
     MARK_CONVERSATIONS_AS_UNFLAGGED,
     MARK_CONVERSATIONS_AS_UNREAD
 } from "~/actions";
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import { Flag } from "@bluemind/email";
 import SelectionMixin from "./SelectionMixin";
+import { SEVERAL_CONVERSATIONS_SELECTED } from "~/getters";
 
 export default {
     mixins: [SelectionMixin],
@@ -18,6 +19,7 @@ export default {
         }
     },
     computed: {
+        ...mapGetters("mail", { SEVERAL_CONVERSATIONS_SELECTED }),
         showMarkAsRead() {
             return this.conversation
                 ? !this.conversation.flags.includes(Flag.SEEN)
