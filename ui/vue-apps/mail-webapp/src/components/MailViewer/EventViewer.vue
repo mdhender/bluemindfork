@@ -81,9 +81,7 @@ export default {
     watch: {
         "message.key": {
             immediate: true,
-            async handler(newKey, oldKey) {
-                console.log("message key changed ! new: ", newKey, " //// old: ", oldKey);
-                console.log(newKey !== oldKey);
+            async handler() {
                 try {
                     await this.FETCH_EVENT({ message: this.message, mailbox: this.CURRENT_MAILBOX });
                     this.REMOVE(this.eventNotFoundAlert.alert);

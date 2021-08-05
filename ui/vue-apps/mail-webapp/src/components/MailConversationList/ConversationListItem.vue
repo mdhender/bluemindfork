@@ -33,13 +33,12 @@
 
 <script>
 import { BmListGroupItem } from "@bluemind/styleguide";
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import ConversationListItemLeft from "./ConversationListItemLeft";
 import ConversationListItemMiddle from "./ConversationListItemMiddle";
 import ConversationListItemQuickActionButtons from "./ConversationListItemQuickActionButtons";
 import ScreenReaderOnlyConversationInformation from "./ScreenReaderOnlyConversationInformation";
 import { CONVERSATION_IS_SELECTED, CONVERSATION_MESSAGE_BY_KEY, IS_CURRENT_CONVERSATION, MY_SENT } from "~/getters";
-import { SET_CURRENT_CONVERSATION } from "~/mutations";
 import { isFlagged, isUnread } from "~/model/message";
 import { removeSentDuplicates } from "~/model/conversations";
 
@@ -88,13 +87,11 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("mail", { SET_CURRENT_CONVERSATION }),
         onTouch() {
             this.$emit("toggleSelect", this.conversation.key);
         },
         navigateTo() {
             if (this.conversationSize === 1) {
-                this.SET_CURRENT_CONVERSATION(this.conversation);
                 this.$router.navigate({
                     name: "v:mail:message",
                     params: { message: this.conversation.messages[0] }

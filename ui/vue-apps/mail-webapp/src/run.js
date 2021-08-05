@@ -1,7 +1,6 @@
 import Vue from "vue";
 
 import { ItemsTransferClient, MailConversationClient, OutboxClient } from "@bluemind/backend.mail.api";
-import { CalendarClient } from "@bluemind/calendar.api";
 import injector from "@bluemind/inject";
 import router from "@bluemind/router";
 import store from "@bluemind/store";

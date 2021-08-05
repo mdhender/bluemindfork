@@ -35,9 +35,18 @@ import {
     SET_BLOCK_REMOTE_IMAGES,
     SET_CURRENT_CONVERSATION,
     SET_MESSAGE_COMPOSING,
-    UNSELECT_ALL_CONVERSATIONS
+    UNSELECT_ALL_CONVERSATIONS,
+    RESET_ACTIVE_MESSAGE,
+    UNSET_CURRENT_CONVERSATION
 } from "~/mutations";
-import { ACTIVE_MESSAGE, CONVERSATION_LIST_IS_SEARCH_MODE, MY_DRAFTS, MY_MAILBOX, SELECTION_IS_EMPTY } from "~/getters";
+import {
+    ACTIVE_MESSAGE,
+    CONVERSATION_LIST_IS_SEARCH_MODE,
+    MY_DRAFTS,
+    MY_MAILBOX,
+    SELECTION_IS_EMPTY,
+    CONVERSATION_METADATA
+} from "~/getters";
 import { FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import BlockedRemoteContent from "./Alerts/BlockedRemoteContent";
 import VideoConferencing from "./Alerts/VideoConferencing";
@@ -76,7 +85,8 @@ export default {
             CONVERSATION_LIST_IS_SEARCH_MODE,
             MY_MAILBOX,
             MY_DRAFTS,
-            SELECTION_IS_EMPTY
+            SELECTION_IS_EMPTY,
+            CONVERSATION_METADATA
         }),
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-message") }),
         folder() {
@@ -121,6 +131,8 @@ export default {
         "$route.params.messagepath": {
             async handler(value) {
                 this.RESET_PARTS_DATA();
+                this.RESET_ACTIVE_MESSAGE();
+                this.UNSET_CURRENT_CONVERSATION();
                 if (value) {
                     try {
                         let assert = mailbox => mailbox && mailbox.loading === LoadingStatus.LOADED;
@@ -137,9 +149,11 @@ export default {
                         } else {
                             message = await this.FETCH_MESSAGE_IF_NOT_LOADED({
                                 internalId,
-                                folder: this.folders[folderKey]
+                                folder: this.folders[folderKey],
+                                activeFolderKey: this.activeFolder
                             });
                         }
+                        this.SET_CURRENT_CONVERSATION(this.CONVERSATION_METADATA(message.conversationRef.key));
                         this.SET_ACTIVE_MESSAGE(message);
 
                         if (!this.SELECTION_IS_EMPTY) {
@@ -156,13 +170,15 @@ export default {
     },
     methods: {
         ...mapMutations("mail", {
+            RESET_ACTIVE_MESSAGE,
             RESET_PARTS_DATA,
             SET_ACTIVE_FOLDER,
             SET_ACTIVE_MESSAGE,
             SET_BLOCK_REMOTE_IMAGES,
             SET_CURRENT_CONVERSATION,
             SET_MESSAGE_COMPOSING,
-            UNSELECT_ALL_CONVERSATIONS
+            UNSELECT_ALL_CONVERSATIONS,
+            UNSET_CURRENT_CONVERSATION
         }),
         ...mapActions("mail", { FETCH_MESSAGE_IF_NOT_LOADED }),
         ...mapActions("alert", { REMOVE, INFO })

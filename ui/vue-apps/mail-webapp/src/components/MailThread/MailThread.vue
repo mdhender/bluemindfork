@@ -29,7 +29,8 @@ import {
     SET_ACTIVE_MESSAGE,
     SET_BLOCK_REMOTE_IMAGES,
     SET_CURRENT_CONVERSATION,
-    UNSELECT_ALL_CONVERSATIONS
+    UNSELECT_ALL_CONVERSATIONS,
+    UNSET_CURRENT_CONVERSATION
 } from "~/mutations";
 import {
     CONVERSATION_LIST_IS_SEARCH_MODE,
@@ -117,6 +118,7 @@ export default {
                 if (conversationPath) {
                     try {
                         this.RESET_ACTIVE_MESSAGE();
+                        this.UNSET_CURRENT_CONVERSATION();
                         let assert = mailbox => mailbox && mailbox.loading === LoadingStatus.LOADED;
                         await this.$waitFor(MY_MAILBOX, assert);
 
@@ -172,7 +174,8 @@ export default {
             SET_ACTIVE_MESSAGE,
             SET_BLOCK_REMOTE_IMAGES,
             SET_CURRENT_CONVERSATION,
-            UNSELECT_ALL_CONVERSATIONS
+            UNSELECT_ALL_CONVERSATIONS,
+            UNSET_CURRENT_CONVERSATION
         }),
         ...mapActions("mail", { FETCH_CONVERSATION_IF_NOT_LOADED }),
         ...mapActions("alert", { REMOVE, INFO })
