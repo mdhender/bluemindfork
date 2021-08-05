@@ -27,12 +27,10 @@ public class RestoreSysconf {
 	}
 
 	public SystemConf restore(IServerTaskMonitor monitor, List<DataElement> sysconfs) {
-		SystemConf sysconf = sysconfs.stream().map(sysconfDE -> {
-			ValueReader<ItemValue<SystemConf>> scReader = JsonUtils.reader(new TypeReference<ItemValue<SystemConf>>() {
-			});
-			return scReader.read(new String(sysconfDE.payload)).value;
-		}).findFirst().orElse(null);
-
+		DataElement last = sysconfs.get(sysconfs.size() - 1);
+		ValueReader<ItemValue<SystemConf>> scReader = JsonUtils.reader(new TypeReference<ItemValue<SystemConf>>() {
+		});
+		SystemConf sysconf = scReader.read(new String(last.payload)).value;
 		ISystemConfiguration confApi = target.instance(ISystemConfiguration.class);
 		if (sysconf != null) {
 			monitor.log("Restore system configuration...");

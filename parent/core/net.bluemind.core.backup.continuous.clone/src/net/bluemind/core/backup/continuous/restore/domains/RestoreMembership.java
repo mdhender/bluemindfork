@@ -1,11 +1,9 @@
 package net.bluemind.core.backup.continuous.restore.domains;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -16,20 +14,23 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
+import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.IGroup;
-import net.bluemind.group.api.Member;
 
 public class RestoreMembership implements RestoreDomainType {
+	private static final Logger logger = LoggerFactory.getLogger(RestoreMembership.class);
 
 	private final ValueReader<ItemValue<GroupMembership>> membersReader = JsonUtils
 			.reader(new TypeReference<ItemValue<GroupMembership>>() {
 			});
 
 	private final IServerTaskMonitor monitor;
+	private ItemValue<Domain> domain;
 	private final IServiceProvider target;
 
-	public RestoreMembership(IServerTaskMonitor monitor, IServiceProvider target) {
+	public RestoreMembership(IServerTaskMonitor monitor, ItemValue<Domain> domain, IServiceProvider target) {
 		this.monitor = monitor;
+		this.domain = domain;
 		this.target = target;
 	}
 
@@ -38,24 +39,22 @@ public class RestoreMembership implements RestoreDomainType {
 	}
 
 	public void restore(DataElement de) {
-		monitor.log("Processing membership:\n" + de.key + "\n" + new String(de.payload));
-		ItemValue<GroupMembership> ms = membersReader.read(new String(de.payload));
+		try {
+			monitor.log("Processing membership:\n" + de.key + "\n" + new String(de.payload));
+			ItemValue<GroupMembership> ms = membersReader.read(new String(de.payload));
 
-		IGroup groupApi = target.instance(IGroup.class, de.key.owner);
+			IGroup groupApi = target.instance(IGroup.class, domain.uid);
 
-		monitor.log("Saving " + ms.value.members.size() + " member(s) for group " + ms.uid);
-		List<Member> current = Optional.ofNullable(groupApi.getMembers(ms.uid)).orElse(Collections.emptyList());
-		groupApi.add(ms.uid, ms.value.members);
-		Map<String, Member> indexed = current.stream()
-				.collect(Collectors.toMap(m -> m.type.name() + ":" + m.uid, m -> m));
-		Map<String, Member> newIndexed = ms.value.members.stream()
-				.collect(Collectors.toMap(m -> m.type.name() + ":" + m.uid, m -> m));
-		HashSet<String> extra = new HashSet<>(indexed.keySet());
-		extra.removeAll(newIndexed.keySet());
-		List<Member> toRemove = extra.stream().map(indexed::get).collect(Collectors.toList());
-		if (!toRemove.isEmpty()) {
-			monitor.log("Remove " + toRemove.size() + " extra member(s)");
-			groupApi.remove(ms.uid, toRemove);
+			if (ms.value.added) {
+				monitor.log("Saving 1 member for group " + ms.uid);
+				groupApi.add(ms.uid, Arrays.asList(ms.value.member));
+			} else {
+				monitor.log("Removing 1 member for group " + ms.uid);
+				groupApi.remove(ms.uid, Arrays.asList(ms.value.member));
+			}
+		} catch (Throwable t) {
+			monitor.log("The fuck " + t.getMessage());
+			logger.error("The big fuck", t);
 		}
 	}
 }

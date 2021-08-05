@@ -17,12 +17,12 @@
  */
 package net.bluemind.core.backup.continuous.dto;
 
-import java.util.List;
-
 import net.bluemind.group.api.Member;
 
 public class GroupMembership {
 
-	public List<Member> members;
+	public Member member;
+
+	public boolean added;
 
 }

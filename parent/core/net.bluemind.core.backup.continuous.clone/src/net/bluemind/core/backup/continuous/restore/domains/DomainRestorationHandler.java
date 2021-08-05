@@ -24,10 +24,9 @@ public class DomainRestorationHandler {// implements Handler<DataElement> {
 
 	public DomainRestorationHandler(IServerTaskMonitor monitor, ItemValue<Domain> domain, IServiceProvider target,
 			ArrayList<IClonePhaseObserver> observers, ISdsSyncStore sdsStore, RestoreState state) {
-		this.restoresByType = Arrays
-				.asList(new RestoreMailboxRecords(monitor, sdsStore, state),
-						new RestoreDirectories(monitor, target, observers, state),
-						new RestoreReplicatedMailboxes(monitor, domain, state), new RestoreMembership(monitor, target))
+		this.restoresByType = Arrays.asList(new RestoreMailboxRecords(monitor, sdsStore, state),
+				new RestoreDirectories(monitor, target, observers, state),
+				new RestoreReplicatedMailboxes(monitor, domain, state), new RestoreMembership(monitor, domain, target))
 				.stream().collect(Collectors.toMap(RestoreDomainType::type, Function.identity()));
 	}
 

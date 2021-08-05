@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
+import net.bluemind.core.backup.continuous.IBackupStore;
 import net.bluemind.core.backup.continuous.dto.GroupMembership;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
@@ -48,35 +49,36 @@ public class MembershipsContinuousHook implements IGroupHook {
 
 	@Override
 	public void onGroupDeleted(GroupMessage deleted) throws ServerFault {
+		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IGroup grpApi = prov.instance(IGroup.class, deleted.container.domainUid);
+		List<Member> fullList = grpApi.getMembers(deleted.group.uid);
+		saveMembers(deleted, fullList, false);
 	}
 
 	@Override
 	public void onAddMembers(GroupMessage group) throws ServerFault {
-		saveMembers(group);
-	}
-
-	private void saveMembers(GroupMessage group) {
-		ContainerDescriptor metaDesc = ContainerDescriptor.create(group.container.domainUid + "_membership",
-				group.container.domainUid + " membership", group.container.domainUid, "memberships",
-				group.container.domainUid, true);
-		GroupMembership gm = new GroupMembership();
-
-		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		IGroup grpApi = prov.instance(IGroup.class, group.container.domainUid);
-		List<Member> fullList = grpApi.getMembers(group.group.uid);
-		gm.members = fullList;
-		ItemValue<GroupMembership> iv = ItemValue.create(group.group.uid, gm);
-		iv.internalId = iv.uid.hashCode();
-		DefaultBackupStore.get().<GroupMembership>forContainer(metaDesc).store(iv);
-		logger.info("Saved memberships for {}", group.group.uid);
-
-		Bubble.owner(metaDesc);
-
+		saveMembers(group, group.members, true);
 	}
 
 	@Override
 	public void onRemoveMembers(GroupMessage group) throws ServerFault {
-		saveMembers(group);
+		saveMembers(group, group.members, false);
+	}
+
+	private void saveMembers(GroupMessage group, List<Member> members, boolean added) {
+		members.forEach(member -> {
+			ContainerDescriptor metaDesc = ContainerDescriptor.create(group.container.domainUid + "_membership",
+					group.container.domainUid + " membership", member.uid, "memberships", group.container.domainUid,
+					true);
+			GroupMembership gm = new GroupMembership();
+			gm.member = member;
+			gm.added = added;
+			ItemValue<GroupMembership> iv = ItemValue.create(group.group.uid, gm);
+			iv.internalId = iv.uid.hashCode();
+			IBackupStore<GroupMembership> store = DefaultBackupStore.get().<GroupMembership>forContainer(metaDesc);
+			store.store(iv);
+			logger.info("Saved memberships for {}", group.group.uid);
+		});
 	}
 
 }
