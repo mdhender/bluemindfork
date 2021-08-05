@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,13 +97,15 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 		return new ILiveBackupStreams() {
 
 			@Override
-			public ILiveStream orphans() {
-				return build(installationid, "__orphans__", orphanSubscriber);
+			public List<ILiveStream> listAvailable() {
+				List<ILiveStream> streams = domains();
+				streams.add(orphans());
+				return streams;
 			}
 
 			@Override
-			public List<ILiveStream> listAvailable() {
-				return Collections.emptyList();
+			public ILiveStream orphans() {
+				return build(installationid, "__orphans__", orphanSubscriber);
 			}
 
 			@Override
