@@ -26,7 +26,7 @@ import net.bluemind.core.container.model.ItemValue;
 public interface IBackupStore<T> {
 
 	@VisibleForTesting
-	CompletableFuture<Void> storeRaw(byte[] key, byte[] raw);
+	CompletableFuture<Void> storeRaw(String partitionKey, byte[] key, byte[] raw);
 
 	void store(ItemValue<T> data);
 

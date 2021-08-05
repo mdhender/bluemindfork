@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.MoreObjects;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
 import net.bluemind.core.backup.continuous.IBackupStore;
@@ -150,12 +151,14 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 			TopicDescriptor descriptor = DefaultTopicDescriptor.of(name);
 			waitingRecordsByTopicDescr.put(descriptor, remainingRecords);
 			TopicPublisher publisher = publisher(descriptor);
-			remainingRecords.forEach(
-					(key, value) -> publisher.store(descriptor.partitionKey(), key, value).whenComplete((v, t) -> {
-						if (t == null) {
-							remainingRecords.remove(key);
-						}
-					}));
+			remainingRecords.forEach((key, value) -> {
+				String partitionKey = descriptor.partitionKey(new JsonObject(new String(value)).getString("uid"));
+				publisher.store(partitionKey, key, value).whenComplete((v, t) -> {
+					if (t == null) {
+						remainingRecords.remove(key);
+					}
+				});
+			});
 		});
 	}
 }

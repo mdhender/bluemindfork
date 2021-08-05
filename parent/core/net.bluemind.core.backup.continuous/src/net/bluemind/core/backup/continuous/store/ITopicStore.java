@@ -69,8 +69,8 @@ public interface ITopicStore {
 			return installation().replace("bluemind-", "").replace("-", "") + "-" + domainUid();
 		}
 
-		default String partitionKey() {
-			return owner() + "@" + domainUid();
+		default String partitionKey(String uid) {
+			return (!owner().equals("system")) ? owner() : uid;
 		}
 
 	}

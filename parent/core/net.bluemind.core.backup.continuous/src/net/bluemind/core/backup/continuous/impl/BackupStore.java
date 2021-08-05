@@ -33,8 +33,7 @@ public class BackupStore<T> implements IBackupStore<T> {
 	}
 
 	@Override
-	public CompletableFuture<Void> storeRaw(byte[] key, byte[] raw) {
-		String partitionKey = descriptor.partitionKey();
+	public CompletableFuture<Void> storeRaw(String partitionKey, byte[] key, byte[] raw) {
 		waitingRecords.put(key, raw);
 		return publisher.store(partitionKey, key, raw).whenComplete((v, t) -> {
 			if (t == null) {
@@ -48,7 +47,8 @@ public class BackupStore<T> implements IBackupStore<T> {
 		RecordKey key = RecordKey.forItemValue(descriptor, data);
 		byte[] serializedKey = serializer.key(key);
 		byte[] serializedItem = serializer.value(data);
-		storeRaw(serializedKey, serializedItem).whenComplete((v, ex) -> {
+		String partitionKey = descriptor.partitionKey(data.uid);
+		storeRaw(partitionKey, serializedKey, serializedItem).whenComplete((v, ex) -> {
 			if (ex != null) {
 				logger.warn("Failed to store {} to {}: {}", key.id, publisher, ex.getMessage());
 			} else if (logger.isDebugEnabled()) {
@@ -62,7 +62,8 @@ public class BackupStore<T> implements IBackupStore<T> {
 		RecordKey key = RecordKey.forItemValue(descriptor, data);
 		byte[] serializedKey = serializer.key(key);
 		byte[] serializedItem = "".getBytes();
-		storeRaw(serializedKey, serializedItem).whenComplete((v, ex) -> {
+		String partitionKey = descriptor.partitionKey(data.uid);
+		storeRaw(partitionKey, serializedKey, serializedItem).whenComplete((v, ex) -> {
 			if (ex != null) {
 				logger.warn("Failed to store delete operation {} to {}: {}", key.id, publisher, ex.getMessage());
 			} else if (logger.isDebugEnabled()) {

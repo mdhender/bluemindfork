@@ -72,6 +72,7 @@ import net.bluemind.core.backup.continuous.restore.IClonePhaseObserver;
 import net.bluemind.core.backup.continuous.restore.InstallFromBackupTask;
 import net.bluemind.core.backup.continuous.restore.TopologyMapping;
 import net.bluemind.core.backup.continuous.restore.mbox.DefaultSdsStoreLoader;
+import net.bluemind.core.backup.continuous.store.TopicNames;
 import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.api.IOwnerSubscriptionUids;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
@@ -225,6 +226,7 @@ public class PopulateKafkaTests {
 					IBackupStoreFactory store = DefaultBackupStore.get();
 					byte[] jsonData = ByteStreams.toByteArray(tar);
 					JsonArray js = new JsonArray(Buffer.buffer(jsonData));
+					TopicNames topicNames = new TopicNames(iid);
 					js.forEach(keyValue -> {
 						JsonObject key = ((JsonObject) keyValue).getJsonObject("key");
 						JsonObject value = ((JsonObject) keyValue).getJsonObject("value");
@@ -243,7 +245,8 @@ public class PopulateKafkaTests {
 							System.err.println("Updated conf is " + value.encodePrettily());
 						}
 						System.err.println(descriptor + ":\nkey:" + key.encode() + "\nvalue:" + value.encode());
-						topic.storeRaw(key.toBuffer().getBytes(), value.toBuffer().getBytes());
+						String partitionKey = topicNames.forContainer(descriptor).partitionKey(value.getString("uid"));
+						topic.storeRaw(partitionKey, key.toBuffer().getBytes(), value.toBuffer().getBytes());
 					});
 				}
 			}
