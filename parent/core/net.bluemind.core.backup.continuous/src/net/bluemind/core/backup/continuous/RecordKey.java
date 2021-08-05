@@ -11,22 +11,26 @@ public class RecordKey {
 	public String uid;
 	public long id;
 	public String valueClass;
+	public boolean created;
 
 	public RecordKey() {
 
 	}
 
-	public RecordKey(String type, String owner, String uid, long id, String valueClass) {
+	public RecordKey(String type, String owner, String uid, long id, String valueClass, boolean created) {
 		this.type = type;
 		this.owner = owner;
 		this.uid = uid;
 		this.id = id;
 		this.valueClass = valueClass;
+		this.created = created;
 	}
 
 	public static <T> RecordKey forItemValue(TopicDescriptor descriptor, ItemValue<T> item) {
 		String valueClass = item.value == null ? null : item.value.getClass().getCanonicalName();
-		return new RecordKey(descriptor.type(), descriptor.owner(), descriptor.id(), item.internalId, valueClass);
+		boolean created = item.created == null || item.created.equals(item.updated);
+		return new RecordKey(descriptor.type(), descriptor.owner(), descriptor.id(), item.internalId, valueClass,
+				created);
 	}
 
 	public boolean match(TopicDescriptor descriptor) {
