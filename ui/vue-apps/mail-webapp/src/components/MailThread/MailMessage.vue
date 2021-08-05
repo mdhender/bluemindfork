@@ -45,9 +45,10 @@ import {
     MY_DRAFTS,
     MY_MAILBOX,
     SELECTION_IS_EMPTY,
-    CONVERSATION_METADATA
+    CONVERSATION_METADATA,
+    CONVERSATION_LIST_UNREAD_FILTER_ENABLED
 } from "~/getters";
-import { FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
+import { FETCH_MESSAGE_IF_NOT_LOADED, MARK_CONVERSATIONS_AS_READ } from "~/actions";
 import BlockedRemoteContent from "./Alerts/BlockedRemoteContent";
 import VideoConferencing from "./Alerts/VideoConferencing";
 import MailComposer from "../MailComposer";
@@ -78,6 +79,7 @@ export default {
         area: "mail-message"
     },
     computed: {
+        ...mapState("session", { settings: ({ settings }) => settings.remote }),
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapGetters("root-app", ["DEFAULT_IDENTITY"]),
         ...mapGetters("mail", {
@@ -86,7 +88,8 @@ export default {
             MY_MAILBOX,
             MY_DRAFTS,
             SELECTION_IS_EMPTY,
-            CONVERSATION_METADATA
+            CONVERSATION_METADATA,
+            CONVERSATION_LIST_UNREAD_FILTER_ENABLED
         }),
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-message") }),
         folder() {
@@ -129,40 +132,66 @@ export default {
         },
 
         "$route.params.messagepath": {
-            async handler(value) {
+            async handler(messagepath, oldMessagepath) {
+                if (oldMessagepath) {
+                    const { internalId: oldInternalId } = MessagePathParam.parse(oldMessagepath, this.activeFolder);
+                    if (isNewMessage({ remoteRef: { internalId: oldInternalId } })) {
+                        // preserve composer state for 1st save (route is changed only to have a valid route)
+                        return;
+                    }
+                }
                 this.RESET_PARTS_DATA();
                 this.RESET_ACTIVE_MESSAGE();
                 this.UNSET_CURRENT_CONVERSATION();
-                if (value) {
-                    try {
-                        let assert = mailbox => mailbox && mailbox.loading === LoadingStatus.LOADED;
-                        await this.$waitFor(MY_MAILBOX, assert);
-                        const { folderKey, internalId } = MessagePathParam.parse(value, this.activeFolder); //
-                        let message;
-                        if (isNewMessage({ remoteRef: { internalId } })) {
-                            if (this.$route.query?.action && this.$route.query?.message) {
-                                const { action, message: related } = this.$route.query;
-                                message = await this.initRelatedMessage(action, MessagePathParam.parse(related));
-                            } else {
-                                message = this.initNewMessage();
-                            }
+                try {
+                    let assert = mailbox => mailbox && mailbox.loading === LoadingStatus.LOADED;
+                    await this.$waitFor(MY_MAILBOX, assert);
+                    const { folderKey, internalId } = MessagePathParam.parse(messagepath, this.activeFolder);
+                    let message;
+                    if (isNewMessage({ remoteRef: { internalId } })) {
+                        if (this.$route.query?.action && this.$route.query?.message) {
+                            const { action, message: related } = this.$route.query;
+                            message = await this.initRelatedMessage(action, MessagePathParam.parse(related));
                         } else {
-                            message = await this.FETCH_MESSAGE_IF_NOT_LOADED({
-                                internalId,
-                                folder: this.folders[folderKey],
-                                activeFolderKey: this.activeFolder
-                            });
+                            message = this.initNewMessage();
                         }
-                        this.SET_CURRENT_CONVERSATION(this.CONVERSATION_METADATA(message.conversationRef.key));
-                        this.SET_ACTIVE_MESSAGE(message);
-
-                        if (!this.SELECTION_IS_EMPTY) {
-                            this.UNSELECT_ALL_CONVERSATIONS();
-                        }
-                    } catch (e) {
-                        this.$router.push({ name: "mail:home" });
-                        throw e;
+                    } else {
+                        message = await this.FETCH_MESSAGE_IF_NOT_LOADED({
+                            internalId,
+                            folder: this.folders[folderKey],
+                            activeFolderKey: this.activeFolder
+                        });
                     }
+                    // FIXME !! once message.conversationRef.key is always valid, remove this if / else
+                    // if conversations mode is not activate, then message.conversationRef.key is false (if you try to pass it to CONVERSATION_METADATA, it'll return undefined)
+                    const conversationsActivated =
+                        this.settings.mail_thread === "true" && this.folders[this.activeFolder].allowConversations;
+                    const conversationKey =
+                        conversationsActivated && !message.composing ? message.conversationRef.key : message.key;
+                    if (!message.composing) {
+                        await this.$waitFor(
+                            () => this.CONVERSATION_METADATA(conversationKey),
+                            conversation => Boolean(conversation)
+                        );
+                    }
+                    const conversation = this.CONVERSATION_METADATA(conversationKey);
+                    // FIXME ? conversation is null if message.composing
+                    this.SET_CURRENT_CONVERSATION(conversation);
+                    this.SET_ACTIVE_MESSAGE(message);
+
+                    if (!this.SELECTION_IS_EMPTY) {
+                        this.UNSELECT_ALL_CONVERSATIONS();
+                    }
+                    if (
+                        !this.CONVERSATION_LIST_UNREAD_FILTER_ENABLED &&
+                        this.folders[this.activeFolder].writable &&
+                        !message.composing
+                    ) {
+                        this.MARK_CONVERSATIONS_AS_READ({ conversations: [conversation], noAlert: true });
+                    }
+                } catch (e) {
+                    this.$router.push({ name: "mail:home" });
+                    throw e;
                 }
             },
             immediate: true
@@ -180,7 +209,7 @@ export default {
             UNSELECT_ALL_CONVERSATIONS,
             UNSET_CURRENT_CONVERSATION
         }),
-        ...mapActions("mail", { FETCH_MESSAGE_IF_NOT_LOADED }),
+        ...mapActions("mail", { FETCH_MESSAGE_IF_NOT_LOADED, MARK_CONVERSATIONS_AS_READ }),
         ...mapActions("alert", { REMOVE, INFO })
     }
 };

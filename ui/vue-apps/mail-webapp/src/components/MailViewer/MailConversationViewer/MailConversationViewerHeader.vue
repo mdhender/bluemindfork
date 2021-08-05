@@ -1,6 +1,6 @@
 <template>
     <div class="mail-conversation-viewer-header pl-5 pb-2 d-flex justify-content-between align-items-center">
-        <h1>{{ conversation[0].subject }}</h1>
+        <h1>{{ subject }}</h1>
         <bm-button
             v-if="!expanded"
             class="px-3"
@@ -30,8 +30,8 @@ export default {
     name: "MailConversationViewerHeader",
     components: { BmButton, BmIcon },
     props: {
-        conversation: {
-            type: Array,
+        subject: {
+            type: String,
             required: true
         },
         expanded: {

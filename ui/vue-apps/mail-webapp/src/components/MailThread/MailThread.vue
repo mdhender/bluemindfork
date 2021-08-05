@@ -143,10 +143,14 @@ export default {
                             case MessageCreationModes.REPLY:
                             case MessageCreationModes.REPLY_ALL:
                             case MessageCreationModes.FORWARD:
-                                await this.initRelatedMessage(action, {
-                                    internalId: relatedId,
-                                    folderKey: relatedFolderKey
-                                });
+                                await this.initRelatedMessage(
+                                    action,
+                                    {
+                                        internalId: relatedId,
+                                        folderKey: relatedFolderKey
+                                    },
+                                    conversation
+                                );
                                 break;
                             case MessageCreationModes.NEW:
                                 this.initNewMessage();

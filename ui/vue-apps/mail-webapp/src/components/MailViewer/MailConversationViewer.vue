@@ -1,7 +1,7 @@
 <template>
     <div class="mail-conversation-viewer bg-surface pt-5" :class="{ darkened }">
         <mail-conversation-viewer-header
-            :conversation="conversationMessages"
+            :subject="conversationMessages[0].subject"
             :expanded="expanded"
             @do-show-hidden-messages="showHiddenMessages = conversationMessages.map(Boolean)"
             @expand="expandAll()"
@@ -41,7 +41,11 @@
                 />
             </div>
         </div>
-        <mail-conversation-viewer-footer v-if="noDraftOpened" :last-non-draft="lastNonDraft" />
+        <mail-conversation-viewer-footer
+            v-if="noDraftOpened"
+            :last-non-draft="lastNonDraft"
+            :conversation-key="conversationMessages[0].conversationRef.key"
+        />
     </div>
 </template>
 <script>

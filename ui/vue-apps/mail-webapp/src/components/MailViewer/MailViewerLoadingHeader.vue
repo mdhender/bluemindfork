@@ -2,7 +2,7 @@
     <div class="d-flex flex-column bg-surface">
         <bm-row class="px-lg-5 px-4 pt-2">
             <bm-col cols="12">
-                <mail-viewer-toolbar class="d-none d-lg-flex" />
+                <bm-skeleton width="15%" />
             </bm-col>
         </bm-row>
         <bm-row class="px-lg-5 px-4 mb-2">
@@ -35,7 +35,6 @@
 
 <script>
 import { BmCol, BmRow, BmSkeleton, BmSkeletonAvatar } from "@bluemind/styleguide";
-import MailViewerToolbar from "./MailViewerToolbar";
 
 export default {
     name: "MailVIewerLoadingHeader",
@@ -43,8 +42,7 @@ export default {
         BmCol,
         BmRow,
         BmSkeleton,
-        BmSkeletonAvatar,
-        MailViewerToolbar
+        BmSkeletonAvatar
     }
 };
 </script>

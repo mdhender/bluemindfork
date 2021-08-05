@@ -1,7 +1,7 @@
 <template>
     <div v-if="currentEvent.loading === LoadingStatus.LOADED" class="event-viewer">
         <reply-to-counter-proposal v-if="message.eventInfo.isCounterEvent" />
-        <reply-to-invitation v-else />
+        <reply-to-invitation v-else :message="message" />
         <bm-choice-group
             class="border-bottom my-3"
             :options="choices"

@@ -79,7 +79,15 @@ export default {
             this.updateRoute(wasMessageOnlyLocal);
         },
         updateRoute(wasMessageOnlyLocal) {
-            if (wasMessageOnlyLocal && this.$store.getters["mail/" + ACTIVE_MESSAGE]?.key === this.message.key) {
+            const displayedInConversationMode =
+                this.conversationsActivated &&
+                this.$_ComposerActionsMixin_currentConversation &&
+                this.$_ComposerActionsMixin_currentConversation.messages.length > 1;
+            if (
+                wasMessageOnlyLocal &&
+                this.$store.getters["mail/" + ACTIVE_MESSAGE]?.key === this.message.key &&
+                !displayedInConversationMode
+            ) {
                 this.$router.navigate({
                     name: "v:mail:message",
                     params: { message: this.message }

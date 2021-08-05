@@ -89,6 +89,7 @@ const mutations = {
     },
     [ADD_MESSAGE_TO_CONVERSATION]: (state, { conversation, message }) => {
         if (conversation) {
+            message.conversationId = conversation.conversationId;
             message.conversationRef = { id: conversation.conversationId, key: conversation.key };
             state.conversationByKey[conversation.key].messages.push(message);
         }

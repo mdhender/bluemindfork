@@ -1,7 +1,13 @@
 <template>
     <div v-if="currentEvent.loading === LoadingStatus.LOADED" class="event-viewer-invitation pl-5">
         <h1>
-            {{ currentEvent.organizer.name }} {{ $t("mail.ics.got_invited") }}
+            {{ currentEvent.organizer.name }}
+            <template v-if="message.eventInfo.isResourceBooking">
+                {{ $t("mail.ics.resource_got_invited") }}
+            </template>
+            <template v-else>
+                {{ $t("mail.ics.got_invited") }}
+            </template>
             <span class="font-weight-bold">&laquo;{{ currentEvent.summary }}&raquo;</span>
         </h1>
         <hr />

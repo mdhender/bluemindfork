@@ -104,6 +104,7 @@ export default {
             if (this.folder && this.folder.remoteRef.uid) {
                 this.RENAME_FOLDER({ folder: this.folder, name, mailbox });
                 if (this.activeFolder === this.folder.key) {
+                    // FIXME if (conversation.length > 1)
                     this.$router.navigate({ name: "v:mail:conversation", params: { folder: this.folder.path } });
                 }
             } else if (this.folder) {

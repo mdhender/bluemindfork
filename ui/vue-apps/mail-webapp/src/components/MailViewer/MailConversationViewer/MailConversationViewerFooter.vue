@@ -1,13 +1,21 @@
 <template>
     <div class="mail-conversation-viewer-footer py-3">
-        <bm-button variant="primary" :aria-label="$t('mail.content.reply.aria')" @click="reply()">
+        <bm-button
+            variant="primary"
+            :aria-label="$t('mail.content.reply.aria')"
+            @click="reply(conversation, lastNonDraft)"
+        >
             <div class="d-flex align-items-center">
                 <bm-icon class="pr-1" icon="reply" size="2x" />
                 {{ $t("mail.content.reply.aria") }}
             </div>
         </bm-button>
         <span class="pl-3" />
-        <bm-button variant="primary" :aria-label="$t('mail.content.reply_all.aria')" @click="replyAll()">
+        <bm-button
+            variant="primary"
+            :aria-label="$t('mail.content.reply_all.aria')"
+            @click="replyAll(conversation, lastNonDraft)"
+        >
             <div class="d-flex align-items-center">
                 <bm-icon class="pr-1" icon="reply-all" size="2x" />
                 {{ $t("mail.content.reply_all.aria") }}
@@ -15,46 +23,35 @@
         </bm-button>
     </div>
 </template>
+
 <script>
+import { mapState } from "vuex";
 import { BmButton, BmIcon } from "@bluemind/styleguide";
-import { ComposerInitMixin } from "~/mixins";
-import { MessageCreationModes } from "~/model/message";
-import { draftPath } from "~/model/draft";
-import MessagePathParam from "~/router/MessagePathParam";
-import { MY_DRAFTS } from "~/getters";
-import { mapGetters } from "vuex";
+import { ReplyAndForwardRoutesMixin } from "~/mixins";
 
 export default {
     name: "MailConversationViewerFooter",
     components: { BmButton, BmIcon },
-    mixins: [ComposerInitMixin],
+    mixins: [ReplyAndForwardRoutesMixin],
     props: {
         lastNonDraft: {
             required: true,
             type: Object
+        },
+        conversationKey: {
+            required: true,
+            type: Number
         }
     },
-    data() {
-        return { MessageCreationModes };
-    },
     computed: {
-        ...mapGetters("mail", { MY_DRAFTS })
-    },
-    methods: {
-        reply() {
-            this.goTo(MessageCreationModes.REPLY);
-        },
-        replyAll() {
-            this.goTo(MessageCreationModes.REPLY_ALL);
-        },
-        goTo(action) {
-            const messagepath = draftPath(this.MY_DRAFTS);
-            const message = MessagePathParam.build("", this.lastNonDraft);
-            this.$router.navigate({ name: "mail:message", params: { messagepath }, query: { action, message } });
+        ...mapState("mail", { conversationByKey: ({ conversations }) => conversations.conversationByKey }),
+        conversation() {
+            return this.conversationByKey[this.conversationKey];
         }
     }
 };
 </script>
+
 <style lang="scss">
 .mail-conversation-viewer-footer {
     padding-left: 5.5rem;

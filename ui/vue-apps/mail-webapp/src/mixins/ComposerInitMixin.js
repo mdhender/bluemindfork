@@ -40,10 +40,7 @@ export default {
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapGetters("mail", { $_ComposerInitMixin_MY_DRAFTS: MY_DRAFTS }),
-        ...mapState("mail", {
-            $_ComposerInitMixin_partsByMessageKey: ({ partsData }) => partsData.partsByMessageKey,
-            $_ComposerInitMixin_currentConversation: ({ conversations }) => conversations.currentConversation
-        }),
+        ...mapState("mail", { $_ComposerInitMixin_partsByMessageKey: ({ partsData }) => partsData.partsByMessageKey }),
         ...mapState("session", { $_ComposerInitMixin_settings: ({ settings }) => settings.remote }),
         $_ComposerInitMixin_insertSignaturePref() {
             return this.$_ComposerInitMixin_settings.insert_signature;
@@ -55,7 +52,7 @@ export default {
         $_ComposerInitMixin_signature() {
             return this.$_ComposerInitMixin_defaultIdentity.signature;
         },
-        conversationsActivated() {
+        $_ComposerInitMixin_conversationsActivated() {
             return (
                 this.$_ComposerInitMixin_settings.mail_thread === "true" &&
                 this.folders[this.activeFolder].allowConversations
@@ -124,7 +121,7 @@ export default {
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(editorData.content);
         },
 
-        async initRelatedMessage(action, related) {
+        async initRelatedMessage(action, related, conversation) {
             switch (action) {
                 case MessageCreationModes.REPLY:
                 case MessageCreationModes.REPLY_ALL:
@@ -134,7 +131,7 @@ export default {
                             internalId: related.internalId,
                             folder: this.$store.state.mail.folders[related.folderKey]
                         });
-                        return this.initReplyOrForward(action, previous);
+                        return this.initReplyOrForward(action, previous, conversation);
                     } catch {
                         return this.initNewMessage();
                     }
@@ -159,7 +156,7 @@ export default {
         },
 
         // case of a reply or forward message
-        async initReplyOrForward(creationMode, previousMessage) {
+        async initReplyOrForward(creationMode, previousMessage, conversation) {
             const message = createReplyOrForward(
                 previousMessage,
                 this.$_ComposerInitMixin_MY_DRAFTS,
@@ -214,10 +211,7 @@ export default {
 
             this.$_ComposerInitMixin_ADD_MESSAGES([message]);
             if (creationMode !== MessageCreationModes.FORWARD) {
-                this.$_ComposerInitMixin_ADD_MESSAGE_TO_CONVERSATION({
-                    message,
-                    conversation: this.$_ComposerInitMixin_currentConversation
-                });
+                this.$_ComposerInitMixin_ADD_MESSAGE_TO_CONVERSATION({ message, conversation });
             }
 
             if (creationMode === MessageCreationModes.FORWARD) {
@@ -225,12 +219,11 @@ export default {
                 this.$_ComposerInitMixin_SET_ATTACHMENTS_FORWARDED(forwardedAttachments);
             }
 
-            if (this.conversationsActivated && creationMode !== MessageCreationModes.FORWARD) {
-                this.$router.navigate({
-                    name: "v:mail:conversation",
-                    params: { conversation: this.$_ComposerInitMixin_currentConversation }
-                });
-            } else {
+            if (
+                !this.$_ComposerInitMixin_conversationsActivated &&
+                creationMode === MessageCreationModes.FORWARD &&
+                !conversation
+            ) {
                 this.$router.navigate({ name: "v:mail:message", params: { message } });
             }
             return message;

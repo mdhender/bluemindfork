@@ -4,21 +4,40 @@
             <div class="font-weight-bold mb-1 d-block top">
                 <template v-if="!currentEvent.status || currentEvent.status === 'NeedsAction'">
                     <bm-icon icon="event" class="mr-2" size="lg" />
-                    <template v-if="ACTIVE_MESSAGE.eventInfo.isResourceBooking">
+                    <template v-if="message.eventInfo.isResourceBooking">
                         {{ $t("mail.ics.resourcebooking") }}
                     </template>
                     <template v-else>{{ $t("mail.ics") }}</template>
                 </template>
                 <template v-else>
                     <bm-icon :stacked="['event', computeEventIcon]" class="mr-2" size="lg" />
-                    <template v-if="currentEvent.status === 'Accepted'">{{ $t("mail.ics.accepted") }}</template>
-                    <template v-else-if="currentEvent.status === 'Tentative'">
-                        {{ $t("mail.ics.accepted.tentatively") }}
+                    <template v-if="currentEvent.status === 'Accepted'">
+                        <template v-if="message.eventInfo.isResourceBooking">
+                            {{ $t("mail.ics.resourcebooking.accepted") }}
+                        </template>
+                        <template v-else>
+                            {{ $t("mail.ics.accepted") }}
+                        </template>
                     </template>
-                    <template v-else-if="currentEvent.status === 'Declined'">{{ $t("mail.ics.declined") }}</template>
+                    <template v-else-if="currentEvent.status === 'Tentative'">
+                        <template v-if="message.eventInfo.isResourceBooking">
+                            {{ $t("mail.ics.resourcebooking.accepted.tentatively") }}
+                        </template>
+                        <template v-else>
+                            {{ $t("mail.ics.accepted.tentatively") }}
+                        </template>
+                    </template>
+                    <template v-else-if="currentEvent.status === 'Declined'">
+                        <template v-if="message.eventInfo.isResourceBooking">
+                            {{ $t("mail.ics.resourcebooking.declined") }}
+                        </template>
+                        <template v-else>
+                            {{ $t("mail.ics.declined") }}
+                        </template>
+                    </template>
                 </template>
             </div>
-            <div v-if="ACTIVE_MESSAGE.eventInfo.needsReply && currentEvent.status" class="mt-3">
+            <div v-if="message.eventInfo.needsReply && currentEvent.status" class="mt-3">
                 <bm-button
                     variant="outline-primary"
                     class="mr-2 px-1"
@@ -51,7 +70,7 @@
             <div class="font-weight-bold mb-1 d-block top">
                 <bm-skeleton width="30%" />
             </div>
-            <div v-if="ACTIVE_MESSAGE.eventInfo.needsReply" class="mt-3 d-flex">
+            <div v-if="message.eventInfo.needsReply" class="mt-3 d-flex">
                 <bm-skeleton-button class="mr-2 d-inline-block" width="6rem" />
                 <bm-skeleton-button class="mr-2 d-inline-block" width="12rem" />
                 <bm-skeleton-button class="mr-2 d-inline-block" width="6rem" />
@@ -61,12 +80,11 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapActions, mapState } from "vuex";
 
 import { BmButton, BmIcon, BmLabelIcon, BmSkeleton, BmSkeletonButton } from "@bluemind/styleguide";
 
 import { SET_EVENT_STATUS } from "~/actions";
-import { ACTIVE_MESSAGE } from "~/getters";
 import { LoadingStatus } from "~/model/loading-status";
 
 export default {
@@ -78,12 +96,17 @@ export default {
         BmSkeleton,
         BmSkeletonButton
     },
+    props: {
+        message: {
+            type: Object,
+            required: true
+        }
+    },
     data() {
         return { LoadingStatus };
     },
     computed: {
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
-        ...mapGetters("mail", { ACTIVE_MESSAGE }),
         computeEventIcon() {
             let icon = "event";
             if (this.currentEvent.status) {
@@ -105,7 +128,7 @@ export default {
     methods: {
         ...mapActions("mail", { SET_EVENT_STATUS }),
         answer(status) {
-            this.SET_EVENT_STATUS({ message: this.ACTIVE_MESSAGE, status });
+            this.SET_EVENT_STATUS({ message: this.message, status });
         }
     }
 };

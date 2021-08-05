@@ -4,7 +4,7 @@
             variant="simple-primary"
             :aria-label="$t('mail.content.reply.aria')"
             :title="$t('mail.content.reply.aria')"
-            @click="reply"
+            @click="reply(conversation, message)"
         >
             <bm-icon icon="reply" size="2x" />
             <span class="d-lg-none">{{ $t("mail.content.reply.aria") }}</span>
@@ -13,7 +13,7 @@
             variant="simple-primary"
             :aria-label="$t('mail.content.reply_all.aria')"
             :title="$t('mail.content.reply_all.aria')"
-            @click="replyAll"
+            @click="replyAll(conversation, message)"
         >
             <bm-icon icon="reply-all" size="2x" />
             <span class="d-lg-none">{{ $t("mail.content.reply_all.aria") }}</span>
@@ -22,7 +22,7 @@
             variant="simple-primary"
             :aria-label="$t('common.forward')"
             :title="$t('common.forward')"
-            @click="forward"
+            @click="forward(message)"
         >
             <bm-icon icon="forward" size="2x" />
             <span class="d-lg-none">{{ $t("common.forward") }}</span>
@@ -32,13 +32,10 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "vuex";
 import { BmButton, BmButtonToolbar, BmIcon } from "@bluemind/styleguide";
 
-import { MessageCreationModes } from "~/model/message";
-import { draftPath } from "~/model/draft";
-import { MY_DRAFTS } from "~/getters";
-import MessagePathParam from "~/router/MessagePathParam";
+import { ReplyAndForwardRoutesMixin } from "~/mixins";
 import MailViewerToolbarOtherActions from "./MailViewerToolbarOtherActions";
 
 export default {
@@ -49,16 +46,11 @@ export default {
         BmIcon,
         MailViewerToolbarOtherActions
     },
+    mixins: [ReplyAndForwardRoutesMixin],
     props: {
         message: {
             type: Object,
-            required: false,
-            default: null
-        },
-        conversation: {
-            type: Object,
-            required: false,
-            default: null
+            required: true
         },
         showOtherActions: {
             type: Boolean,
@@ -67,33 +59,14 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", { MY_DRAFTS })
-    },
-    methods: {
-        reply() {
-            this.goTo(MessageCreationModes.REPLY, this.conversation);
-        },
-        replyAll() {
-            this.goTo(MessageCreationModes.REPLY_ALL, this.conversation);
-        },
-        forward() {
-            this.goTo(MessageCreationModes.FORWARD);
-        },
-        goTo(action, conversation) {
-            if (conversation) {
-                this.$router.navigate({
-                    name: "v:mail:conversation",
-                    params: { conversation, action, related: this.message }
-                });
-            } else {
-                const messagepath = draftPath(this.MY_DRAFTS);
-                const message = MessagePathParam.build("", this.message);
-                this.$router.navigate({ name: "mail:message", params: { messagepath }, query: { action, message } });
-            }
+        ...mapState("mail", { conversationByKey: ({ conversations }) => conversations.conversationByKey }),
+        conversation() {
+            return this.conversationByKey[this.message.conversationRef.key];
         }
     }
 };
 </script>
+
 <style lang="scss" scoped>
 @import "~@bluemind/styleguide/css/_variables";
 @media (max-width: map-get($grid-breakpoints, "lg")) {
