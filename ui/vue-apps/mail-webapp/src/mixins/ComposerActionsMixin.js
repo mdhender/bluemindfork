@@ -139,6 +139,11 @@ export default {
 
                     if (!this.conversationsActivated) {
                         this.$router.navigate("v:mail:home");
+                    } else {
+                        this.$router.navigate({
+                            name: "v:mail:conversation",
+                            params: { conversation: this.$_ComposerActionsMixin_currentConversation }
+                        });
                     }
                 }
             }
