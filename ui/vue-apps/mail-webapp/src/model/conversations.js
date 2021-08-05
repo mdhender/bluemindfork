@@ -92,11 +92,6 @@ export function messagesInConversationFolder(getters, conversations) {
     );
 }
 
-/** @return true if each given conversation has more than one item in 'messages' property.  */
-export function conversationsOnly(conversations) {
-    return conversations.every(({ messages }) => messages.length > 1);
-}
-
 export function firstMessageFolderKey(conversation) {
     return conversation.messages[0].folderRef.key;
 }

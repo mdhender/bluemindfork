@@ -12,7 +12,13 @@
             <bm-icon icon="3dots" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.toolbar.more") }}</span>
         </template>
-        <bm-dropdown-item class="shadow-sm" :shortcut="$t('mail.shortcuts.purge')" @click="remove()">
+        <bm-dropdown-item
+            class="shadow-sm"
+            :shortcut="$t('mail.shortcuts.purge')"
+            :title="removeAriaText"
+            :aria-label="removeAriaText"
+            @click="remove()"
+        >
             {{ $t("mail.actions.purge") }}
         </bm-dropdown-item>
     </bm-dropdown>
@@ -21,7 +27,7 @@
 <script>
 import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
-import { RemoveMixin } from "~/mixins";
+import { ActionTextMixin, RemoveMixin } from "~/mixins";
 import { CONVERSATION_METADATA, SELECTION } from "~/getters";
 
 export default {
@@ -31,7 +37,7 @@ export default {
         BmDropdownItem,
         BmIcon
     },
-    mixins: [RemoveMixin],
+    mixins: [ActionTextMixin, RemoveMixin],
     computed: {
         ...mapGetters("mail", { CONVERSATION_METADATA, SELECTION }),
         ...mapState("mail", {

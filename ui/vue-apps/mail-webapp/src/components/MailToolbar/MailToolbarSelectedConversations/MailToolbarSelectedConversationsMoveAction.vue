@@ -5,15 +5,15 @@
         class="mail-toolbar-selected-conversations-move-action h-100"
         variant="inline-light"
         toggle-class="btn-lg-simple-dark"
-        :title="$t('mail.toolbar.move.tooltip')"
-        :aria-label="$t('mail.actions.move.aria')"
+        :title="moveAriaText"
+        :aria-label="moveAriaText"
         @shown="openMoveAutocomplete"
         @hide="resetPattern"
     >
         <global-events @keydown.tab.capture="forceCloseMoveAutocomplete" />
         <template slot="button-content">
             <bm-icon icon="folder" size="2x" />
-            <span class="d-none d-lg-block"> {{ $t("mail.actions.move") }}</span>
+            <span class="d-none d-lg-block"> {{ moveText }}</span>
         </template>
         <bm-dropdown-autocomplete
             ref="moveAutocomplete"
@@ -80,7 +80,7 @@ import MailFolderInput from "../../MailFolderInput";
 import { MailboxType } from "~/model/mailbox";
 import { isNameValid, translatePath } from "~/model/folder";
 import { ACTIVE_MESSAGE, CONVERSATION_METADATA, FOLDERS_BY_UPPERCASE_PATH, SELECTION } from "~/getters";
-import { FilterFolderMixin, MoveMixin } from "~/mixins";
+import { ActionTextMixin, FilterFolderMixin, MoveMixin } from "~/mixins";
 
 export default {
     name: "MailToolbarSelectedConversationsMoveAction",
@@ -95,7 +95,7 @@ export default {
         MailFolderIcon,
         MailFolderInput
     },
-    mixins: [FilterFolderMixin, MoveMixin],
+    mixins: [ActionTextMixin, FilterFolderMixin, MoveMixin],
     computed: {
         ...mapState("mail", ["mailboxes"]),
         ...mapState("mail", {

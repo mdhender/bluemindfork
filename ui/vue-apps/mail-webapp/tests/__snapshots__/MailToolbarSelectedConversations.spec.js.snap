@@ -29,7 +29,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     <span
       class="d-none d-lg-block"
     >
-       
+      
     </span>
   </button>
    

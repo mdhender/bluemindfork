@@ -1,3 +1,4 @@
+export { default as ActionTextMixin } from "./ActionTextMixin";
 export { default as ComposerActionsMixin } from "./ComposerActionsMixin";
 export { default as ComposerMixin } from "./ComposerMixin";
 export { default as ComposerInitMixin } from "./ComposerInitMixin";

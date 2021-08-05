@@ -10,36 +10,55 @@
             :style="'background: url(' + multipleSelectionIllustration + ') no-repeat center top'"
         >
             <div class="font-weight-bold mt-5 mb-2">
-                <h1>{{ SELECTION_KEYS.length }}</h1>
                 <h1>{{ mainText }}</h1>
             </div>
 
             <div v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE" class="bg-white py-2 px-3 actions-button w-75 mt-4">
                 <div class="arrow-up" />
-                <bm-button v-if="showMarkAsRead" variant="outline-secondary" @click="markAsRead()">
-                    <bm-label-icon icon="read">
-                        {{ markAsReadText }}
-                    </bm-label-icon>
+                <bm-button
+                    v-if="showMarkAsRead"
+                    variant="outline-secondary"
+                    :title="markAsReadAriaText"
+                    :aria-label="markAsReadAriaText"
+                    @click="markAsRead()"
+                >
+                    <bm-label-icon icon="read"> {{ markAsReadText }} </bm-label-icon>
                 </bm-button>
-                <bm-button v-if="showMarkAsUnread" variant="outline-secondary" @click="markAsUnread()">
-                    <bm-label-icon icon="unread">
-                        {{ markAsUnreadText }}
-                    </bm-label-icon>
+                <bm-button
+                    v-if="showMarkAsUnread"
+                    variant="outline-secondary"
+                    :title="markAsUnreadAriaText"
+                    :aria-label="markAsUnreadAriaText"
+                    @click="markAsUnread()"
+                >
+                    <bm-label-icon icon="unread"> {{ markAsUnreadText }} </bm-label-icon>
                 </bm-button>
-                <bm-button v-if="showMarkAsFlagged" variant="outline-secondary" @click="markAsFlagged()">
-                    <bm-label-icon icon="flag-outline">
-                        {{ $tc("mail.actions.mark_flagged", SELECTION_KEYS.length) }}
-                    </bm-label-icon>
+                <bm-button
+                    v-if="showMarkAsFlagged"
+                    variant="outline-secondary"
+                    :title="markAsFlaggedAriaText"
+                    :aria-label="markAsFlaggedAriaText"
+                    @click="markAsFlagged()"
+                >
+                    <bm-label-icon icon="flag-outline"> {{ markAsFlaggedText }} </bm-label-icon>
                 </bm-button>
-                <bm-button v-if="showMarkAsUnflagged" variant="outline-secondary" @click="markAsUnflagged()">
-                    <bm-label-icon icon="flag-fill">
-                        {{ $tc("mail.actions.mark_unflagged", SELECTION_KEYS.length) }}
-                    </bm-label-icon>
+                <bm-button
+                    v-if="showMarkAsUnflagged"
+                    variant="outline-secondary"
+                    :title="markAsUnflaggedAriaText"
+                    :aria-label="markAsUnflaggedAriaText"
+                    @click="markAsUnflagged()"
+                >
+                    <bm-label-icon icon="flag-fill"> {{ markAsUnflaggedText }} </bm-label-icon>
                 </bm-button>
-                <bm-button variant="outline-secondary" @click.exact="moveToTrash" @click.shift.exact="remove">
-                    <bm-label-icon icon="trash">
-                        {{ $tc("mail.actions.remove", SELECTION_KEYS.length) }}
-                    </bm-label-icon>
+                <bm-button
+                    variant="outline-secondary"
+                    :title="removeAriaText"
+                    :aria-label="removeAriaText"
+                    @click.exact="moveToTrash"
+                    @click.shift.exact="remove"
+                >
+                    <bm-label-icon icon="trash"> {{ removeText }} </bm-label-icon>
                 </bm-button>
             </div>
 
@@ -81,8 +100,7 @@ import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
 import MailFolderIcon from "./MailFolderIcon";
 import multipleSelectionIllustration from "../../assets/multiple-selection.png";
 
-import { FlagMixin, RemoveMixin } from "~/mixins";
-import { conversationsOnly } from "~/model/conversations";
+import { ActionTextMixin, FlagMixin, RemoveMixin } from "~/mixins";
 
 import {
     ALL_CONVERSATIONS_ARE_SELECTED,
@@ -106,7 +124,7 @@ export default {
         BmLabelIcon,
         MailFolderIcon
     },
-    mixins: [FlagMixin, RemoveMixin],
+    mixins: [ActionTextMixin, FlagMixin, RemoveMixin],
     data() {
         return {
             isReadOnlyAlertDismissed: false,
@@ -131,19 +149,21 @@ export default {
             return this.folders[this.activeFolder];
         },
         mainText() {
-            return conversationsOnly(this.selected)
-                ? this.$t("mail.conversations.selected")
-                : this.$t("mail.message.selected");
-        },
-        markAsReadText() {
-            return conversationsOnly(this.selected)
-                ? this.$t("mail.actions.mark_conversations_as_read")
-                : this.$tc("mail.actions.mark_as_read", this.SELECTION.length);
-        },
-        markAsUnreadText() {
-            return conversationsOnly(this.selected)
-                ? this.$t("mail.actions.mark_conversations_as_unread")
-                : this.$tc("mail.actions.mark_as_unread", this.SELECTION.length);
+            const selectionSize = this.selected.length;
+            const conversationsCount = this.conversationsInSelection.length;
+            const messagesCount = selectionSize - conversationsCount;
+
+            return conversationsCount > 1 && messagesCount > 1
+                ? this.$t("mail.messages.and.conversations.selected", { messagesCount, conversationsCount })
+                : conversationsCount > 1 && messagesCount === 1
+                ? this.$t("mail.message.and.conversations.selected", { conversationsCount })
+                : conversationsCount === 1 && messagesCount > 1
+                ? this.$t("mail.messages.and.conversation.selected", { messagesCount })
+                : conversationsCount === 1 && messagesCount === 1
+                ? this.$t("mail.message.and.conversation.selected")
+                : conversationsCount > 1
+                ? this.$t("mail.conversations.selected", { count: conversationsCount })
+                : this.$t("mail.message.selected", { count: messagesCount });
         },
         readOnlyAlert() {
             return {

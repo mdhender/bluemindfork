@@ -1,7 +1,6 @@
 import { mapActions, mapGetters } from "vuex";
 import { IS_CURRENT_CONVERSATION, MY_TRASH, NEXT_CONVERSATION } from "~/getters";
 import { MOVE_CONVERSATIONS_TO_TRASH, MOVE_MESSAGES_TO_TRASH, REMOVE_CONVERSATIONS, REMOVE_MESSAGES } from "~/actions";
-import { conversationsOnly } from "~/model/conversations";
 import FormattedDateMixin from "./FormattedDateMixin";
 import SelectionMixin from "./SelectionMixin";
 
@@ -31,11 +30,10 @@ export default {
             }
         }),
         REMOVE_CONVERSATIONS: navigateConversations(async function (conversations) {
-            const onlyConversations = conversationsOnly(conversations);
-            const textKey = onlyConversations
+            const textKey = this.selectedAreAllConversations
                 ? "mail.actions.purge.conversations.modal.content"
                 : "mail.actions.purge.modal.content";
-            const titleKey = onlyConversations
+            const titleKey = this.selectedAreAllConversations
                 ? "mail.actions.purge.conversations.modal.title"
                 : "mail.actions.purge.modal.title";
             const confirm = await this.$bvModal.msgBoxConfirm(

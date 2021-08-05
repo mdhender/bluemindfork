@@ -5,57 +5,57 @@
                 v-show="showMarkAsRead"
                 variant="inline-light"
                 class="unread btn-lg-simple-dark"
-                :title="$tc('mail.actions.mark_read.aria', SELECTION_KEYS.length || 1)"
-                :aria-label="$tc('mail.actions.mark_read.aria', SELECTION_KEYS.length || 1)"
+                :title="markAsReadAriaText"
+                :aria-label="markAsReadAriaText"
                 @click="markAsRead()"
             >
                 <bm-icon icon="read" size="2x" />
-                <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_read", SELECTION_KEYS.length || 1) }}</span>
+                <span class="d-none d-lg-block">{{ markAsReadText }}</span>
             </bm-button>
             <bm-button
                 v-show="showMarkAsUnread"
                 variant="inline-light"
                 class="read btn-lg-simple-dark"
-                :title="$tc('mail.actions.mark_unread.aria', SELECTION_KEYS.length || 1)"
-                :aria-label="$tc('mail.actions.mark_unread.aria', SELECTION_KEYS.length || 1)"
+                :title="markAsUnreadAriaText"
+                :aria-label="markAsUnreadAriaText"
                 @click="markAsUnread()"
             >
                 <bm-icon icon="unread" size="2x" />
-                <span class="d-none d-lg-block">{{ $tc("mail.actions.mark_unread", SELECTION_KEYS.length || 1) }}</span>
+                <span class="d-none d-lg-block">{{ markAsUnreadText }}</span>
             </bm-button>
             <mail-toolbar-selected-conversations-move-action />
             <bm-button
                 variant="inline-light"
                 class="btn-lg-simple-dark"
-                :title="$tc('mail.actions.remove.aria')"
-                :aria-label="$tc('mail.actions.remove.aria')"
+                :title="removeAriaText"
+                :aria-label="removeAriaText"
                 @click.exact="moveToTrash()"
                 @click.shift.exact="remove()"
             >
                 <bm-icon icon="trash" size="2x" />
-                <span class="d-none d-lg-block">{{ $tc("mail.actions.remove") }}</span>
+                <span class="d-none d-lg-block">{{ removeText }}</span>
             </bm-button>
             <bm-button
                 v-show="showMarkAsFlagged"
                 variant="inline-light"
                 class="flagged btn-lg-simple-dark"
-                :title="$tc('mail.actions.mark_flagged.aria', SELECTION_KEYS.length)"
-                :aria-label="$tc('mail.actions.mark_flagged.aria', SELECTION_KEYS.length)"
+                :title="markAsFlaggedAriaText"
+                :aria-label="markAsFlaggedAriaText"
                 @click="markAsFlagged()"
             >
                 <bm-icon icon="flag-outline" size="2x" />
-                <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_flagged") }}</span>
+                <span class="d-none d-lg-block"> {{ markAsFlaggedText }}</span>
             </bm-button>
             <bm-button
                 v-show="showMarkAsUnflagged"
                 variant="inline-light"
                 class="unflagged btn-lg-simple-dark"
-                :title="$tc('mail.actions.mark_unflagged.aria', SELECTION_KEYS.length)"
-                :aria-label="$tc('mail.actions.mark_unflagged.aria', SELECTION_KEYS.length)"
+                :title="markAsUnflaggedAriaText"
+                :aria-label="markAsUnflaggedAriaText"
                 @click="markAsUnflagged()"
             >
                 <bm-icon icon="flag-fill" size="2x" class="text-warning" />
-                <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_as_unflagged") }}</span>
+                <span class="d-none d-lg-block"> {{ markAsUnflaggedText }}</span>
             </bm-button>
             <mail-toolbar-selected-conversations-other-actions />
         </template>
@@ -67,7 +67,7 @@ import { BmButton, BmIcon } from "@bluemind/styleguide";
 import MailToolbarSelectedConversationsMoveAction from "./MailToolbarSelectedConversationsMoveAction";
 import MailToolbarSelectedConversationsOtherActions from "./MailToolbarSelectedConversationsOtherActions";
 import { mapGetters } from "vuex";
-import { FlagMixin, RemoveMixin, SelectionMixin } from "~/mixins";
+import { ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin } from "~/mixins";
 import { SELECTION_KEYS } from "~/getters";
 
 export default {
@@ -78,7 +78,7 @@ export default {
         MailToolbarSelectedConversationsMoveAction,
         MailToolbarSelectedConversationsOtherActions
     },
-    mixins: [FlagMixin, RemoveMixin, SelectionMixin],
+    mixins: [ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin],
     computed: {
         ...mapGetters("mail", { SELECTION_KEYS })
     }

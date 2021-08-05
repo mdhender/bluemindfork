@@ -1,10 +1,13 @@
 import { mapGetters, mapState } from "vuex";
-import { CONVERSATION_METADATA, SELECTION } from "~/getters";
+import { CONVERSATION_MESSAGE_BY_KEY, CONVERSATION_METADATA, MY_SENT, SELECTION } from "~/getters";
+import { removeSentDuplicates } from "~/model/conversations";
 
 export default {
     computed: {
         ...mapGetters("mail", {
+            $_SelectionMixin_CONVERSATION_MESSAGE_BY_KEY: CONVERSATION_MESSAGE_BY_KEY,
             $_SelectionMixin_metadata: CONVERSATION_METADATA,
+            $_SelectionMixin_MY_SENT: MY_SENT,
             $_SelectionMixin_SELECTION: SELECTION
         }),
         ...mapState("mail", {
@@ -24,6 +27,24 @@ export default {
             return (
                 this.selected &&
                 this.selected.some(({ folderRef }) => !this.$_SelectionMixin_folders[folderRef.key].writable)
+            );
+        },
+        selectedAreAllConversations() {
+            return this.selected.every(
+                s =>
+                    removeSentDuplicates(
+                        this.$_SelectionMixin_CONVERSATION_MESSAGE_BY_KEY(s.key),
+                        this.$_SelectionMixin_MY_SENT
+                    ).length > 1
+            );
+        },
+        conversationsInSelection() {
+            return this.selected.filter(
+                s =>
+                    removeSentDuplicates(
+                        this.$_SelectionMixin_CONVERSATION_MESSAGE_BY_KEY(s.key),
+                        this.$_SelectionMixin_MY_SENT
+                    ).length > 1
             );
         }
     }
