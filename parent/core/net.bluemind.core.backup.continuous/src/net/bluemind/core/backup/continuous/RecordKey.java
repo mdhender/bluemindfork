@@ -49,7 +49,8 @@ public class RecordKey {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("RecordKey [type=").append(type).append(", owner=").append(owner).append(", uid=").append(uid)
-				.append(", id=").append(id).append(", valueClass=").append(valueClass).append("]");
+				.append(", id=").append(id).append(", valueClass=").append(valueClass).append(", created=")
+				.append(created).append("]");
 		return builder.toString();
 	}
 
