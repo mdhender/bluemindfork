@@ -184,6 +184,9 @@ function extractAddressesFromHeader(header, isReplyAll) {
 // INTERNAL METHOD (exported only for testing purpose)
 export function computeSubject(creationMode, previousMessage) {
     const subjectPrefix = creationMode === MessageCreationModes.FORWARD ? "Fw: " : "Re: ";
+    if (!previousMessage.subject) {
+        return subjectPrefix;
+    }
     // avoid subject prefix repetitions (like "Re: Re: Re: Re: My Subject")
     if (subjectPrefix !== previousMessage.subject.substring(0, subjectPrefix.length)) {
         return subjectPrefix + previousMessage.subject;
