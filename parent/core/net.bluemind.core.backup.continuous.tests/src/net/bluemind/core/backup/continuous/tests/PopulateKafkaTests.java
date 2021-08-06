@@ -149,6 +149,8 @@ public class PopulateKafkaTests {
 		}
 
 		JdbcTestHelper.getInstance().beforeTest();
+		JdbcTestHelper.getInstance().getDataSource().getConnection().createStatement()
+				.execute("select setval('t_container_item_id_seq', 1000)");
 
 		Set<String> domains = populateKafka();
 
