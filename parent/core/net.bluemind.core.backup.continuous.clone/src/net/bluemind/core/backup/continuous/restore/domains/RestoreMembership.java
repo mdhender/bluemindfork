@@ -53,8 +53,7 @@ public class RestoreMembership implements RestoreDomainType {
 				groupApi.remove(ms.uid, Arrays.asList(ms.value.member));
 			}
 		} catch (Throwable t) {
-			monitor.log("The fuck " + t.getMessage());
-			logger.error("The big fuck", t);
+			monitor.log("Failed to restore membership: " + t.getMessage());
 		}
 	}
 }
