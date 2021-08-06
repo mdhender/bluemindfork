@@ -4,17 +4,13 @@
             {{ $t("mail.folder.create.subfolder") }}
         </bm-dropdown-item-button>
         <bm-dropdown-item-button
-            :disabled="isDefaultFolder || isMailshareRoot || isReadOnly"
+            :disabled="isDefaultFolder || isMailshareRoot"
             icon="rename"
             @click.stop="$emit('edit')"
         >
             {{ $t("mail.folder.rename") }}
         </bm-dropdown-item-button>
-        <bm-dropdown-item-button
-            :disabled="isDefaultFolder || isMailshareRoot || isReadOnly"
-            icon="trash"
-            @click.stop="deleteFolder"
-        >
+        <bm-dropdown-item-button :disabled="isDefaultFolder || isMailshareRoot" icon="trash" @click.stop="deleteFolder">
             {{ $t("common.delete") }}
         </bm-dropdown-item-button>
         <bm-dropdown-item-button
@@ -61,9 +57,6 @@ export default {
         },
         isDefaultFolder() {
             return isDefault(!this.folder.parent, this.folder.imapName, this.mailbox);
-        },
-        isReadOnly() {
-            return !this.folder.writable;
         },
         mailbox() {
             return this.mailboxes[this.folder.mailboxRef.key];

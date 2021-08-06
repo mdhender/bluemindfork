@@ -12,10 +12,15 @@
             class="flex-fill"
             :class="folder.unread > 0 ? 'font-weight-bold' : ''"
         />
-        <div v-if="!folder.writable" :title="$t('mail.folder.access.limited')" class="pr-1">
+        <div
+            v-if="!folder.writable"
+            :title="$t('mail.folder.access.limited')"
+            :class="folder.unread > 0 ? 'pr-1' : 'pr-2'"
+        >
             <bm-icon icon="info-circle" />
         </div>
         <mail-folder-item-menu
+            v-if="folder.writable"
             :folder="folder"
             class="mx-1"
             :class="folder.unread > 0 ? 'd-none' : ''"
@@ -26,6 +31,7 @@
             :value="folder.unread"
             :variant="folder.key != activeFolder ? 'secondary' : 'primary'"
             class="mx-1 d-block"
+            :class="{ 'read-only': !folder.writable }"
             :aria-label="$t('mail.folder.unread') + folder.unread"
         />
     </bm-dropzone>
@@ -164,7 +170,7 @@ export default {
             display: flex !important;
             visibility: visible;
         }
-        .bm-counter-badge {
+        .bm-counter-badge:not(.read-only) {
             display: none !important;
         }
     }

@@ -90,7 +90,7 @@ export default {
 
             if (hasRemoteImages(content) && this.settings.trust_every_remote_content === "false") {
                 // check if sender is known (found in any suscribed addressbook)
-            const searchResult = await apiAddressbooks.search(this.message.from.address);
+                const searchResult = await apiAddressbooks.search(this.message.from.address);
                 const isSenderKnown = searchResult.total > 0;
                 if (!isSenderKnown) {
                     this.WARNING(this.blockedContentAlert);

@@ -267,10 +267,12 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 	}
 
 	public void emptyFolder(long id) {
+		rbac.check(Verb.Write.name());
 		emptyFolder(id, true);
 	}
 
 	public void removeMessages(long id) {
+		rbac.check(Verb.Write.name());
 		emptyFolder(id, false);
 	}
 
@@ -298,6 +300,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 	}
 
 	public void markFolderAsRead(long id) {
+		rbac.check(Verb.Write.name());
 		ItemValue<MailboxFolder> folder = getCompleteById(id);
 		if (folder == null || folder.value == null) {
 			throw ServerFault.notFound("Folder with id " + id + " not found");
