@@ -109,6 +109,19 @@ export const MessageHeader = {
 
 export const MessageReplyAttributeSeparator = "data-bm-reply-separator";
 export const MessageForwardAttributeSeparator = "data-bm-forward-separator";
+export const MessageQuoteMozillaClass = "moz-cite-prefix";
+export const MessageQuoteGmailClass = "gmail_quote";
+export const MessageQuoteProtonClass = "protonmail_quote";
+export const MessageQuoteYahooClass = "yahoo_quoted";
+export const MessageQuoteClasses = [
+    MessageReplyAttributeSeparator,
+    MessageForwardAttributeSeparator,
+    MessageQuoteMozillaClass,
+    MessageQuoteGmailClass,
+    MessageQuoteProtonClass,
+    MessageQuoteYahooClass
+];
+export const MessageQuoteOutlookId = "divRplyFwdMsg";
 
 export function equal(a, b) {
     return (
@@ -129,4 +142,12 @@ export function isUnread(message) {
 
 export function isFlagged(message) {
     return message.loading === LoadingStatus.LOADED && message.flags.includes(Flag.FLAGGED);
+}
+
+/** Extract multi-valued / whitespace separated values from given header. */
+export function extractHeaderValues(message, headerName) {
+    const header = message.headers.find(h => h.name.toUpperCase() === headerName.toUpperCase());
+    return header && header.values && header.values.length
+        ? header.values.reduce((a, b) => (a.length ? a + " " + b : b), "").split(/\s+/)
+        : undefined;
 }

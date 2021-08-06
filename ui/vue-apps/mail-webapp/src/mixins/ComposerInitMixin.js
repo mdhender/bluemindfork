@@ -41,7 +41,7 @@ export default {
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapGetters("mail", { $_ComposerInitMixin_MY_DRAFTS: MY_DRAFTS }),
         ...mapState("mail", {
-            $_ComposerInitMixin_partsData: "partsData",
+            $_ComposerInitMixin_partsByMessageKey: ({ partsData }) => partsData.partsByMessageKey,
             $_ComposerInitMixin_currentConversation: ({ conversations }) => conversations.currentConversation
         }),
         ...mapState("session", { $_ComposerInitMixin_settings: ({ settings }) => settings.remote }),
@@ -94,7 +94,7 @@ export default {
             let content = getEditorContent(
                 this.userPrefTextOnly,
                 parts,
-                this.$_ComposerInitMixin_partsData[message.key],
+                this.$_ComposerInitMixin_partsByMessageKey[message.key],
                 this.$_ComposerInitMixin_lang
             );
             if (!this.userPrefTextOnly) {
@@ -181,7 +181,7 @@ export default {
             let contentFromPreviousMessage = getEditorContent(
                 this.userPrefTextOnly,
                 parts,
-                this.$_ComposerInitMixin_partsData[previousMessage.key],
+                this.$_ComposerInitMixin_partsByMessageKey[previousMessage.key],
                 this.$_ComposerInitMixin_lang
             );
 
@@ -190,7 +190,7 @@ export default {
                 const insertionResult = await InlineImageHelper.insertAsBase64(
                     [contentFromPreviousMessage],
                     partsWithCid,
-                    this.$_ComposerInitMixin_partsData[previousMessage.key]
+                    this.$_ComposerInitMixin_partsByMessageKey[previousMessage.key]
                 );
                 contentFromPreviousMessage = insertionResult.contentsWithImageInserted[0];
                 contentFromPreviousMessage = sanitizeHtml(contentFromPreviousMessage);

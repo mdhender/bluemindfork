@@ -47,3 +47,5 @@ export function mergePartsForRichEditor(partsToMerge, parts, userLang) {
     }
     return result;
 }
+
+export const VIEWER_CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN, MimeType.IMAGE];

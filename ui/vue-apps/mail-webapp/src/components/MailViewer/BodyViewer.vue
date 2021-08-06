@@ -1,7 +1,7 @@
 <template>
     <div class="body-viewer">
         <event-viewer v-if="message.hasICS && currentEvent" :current-event="currentEvent" :message="message" />
-        <parts-viewer v-else :message="message" />
+        <parts-viewer v-else :message="message" :collapse-quoted="collapseQuoted" />
     </div>
 </template>
 <script>
@@ -19,6 +19,10 @@ export default {
         message: {
             type: Object,
             required: true
+        },
+        collapseQuoted: {
+            type: Boolean,
+            default: false
         }
     },
     computed: {

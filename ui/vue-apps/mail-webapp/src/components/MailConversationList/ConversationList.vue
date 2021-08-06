@@ -169,12 +169,10 @@ export default {
             const conversationsToLoad = this.conversations.filter(({ loading }) =>
                 [LoadingStatus.NOT_LOADED, LoadingStatus.LOADING].includes(loading)
             );
+
             if (conversationsToLoad.length > 0) {
                 const messagesToLoad = this.conversations.flatMap(conversation => conversation.messages);
-                this.FETCH_MESSAGE_METADATA({
-                    messages: messagesToLoad,
-                    activeFolderKey: this.activeFolder.key
-                });
+                this.FETCH_MESSAGE_METADATA({ messages: messagesToLoad, activeFolderKey: this.activeFolder });
             }
         }
     },

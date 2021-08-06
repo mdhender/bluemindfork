@@ -10,7 +10,7 @@
                 addClickListener();
             "
         />
-        <div v-if="!scrollbarHeight" ref="scrollbarMeasure" class="scrollbar-measure" />
+        <div v-show="!scrollbarHeight" ref="scrollbarMeasure" class="scrollbar-measure" />
     </div>
 </template>
 
@@ -71,31 +71,37 @@ export default {
                 this.iFrameContent = this.buildHtml(content);
                 this.REMOVE(this.blockedContentAlert.alert);
             }
+        },
+        body() {
+            this.init();
         }
     },
     destroyed() {
         this.REMOVE(this.blockedContentAlert.alert);
     },
-    async mounted() {
-        let content = this.body;
-
-        if (hasRemoteImages(content) && this.settings.trust_every_remote_content === "false") {
-            // check if sender is known (found in any suscribed addressbook)
-            const searchResult = await apiAddressbooks.search(this.message.from.address);
-            const isSenderKnown = searchResult.total > 0;
-            if (!isSenderKnown) {
-                this.WARNING(this.blockedContentAlert);
-                this.SET_BLOCK_REMOTE_IMAGES(true);
-                content = blockRemoteImages(content);
-            }
-        }
-
-        this.scrollbarHeight = this.srollbarHeight();
-        this.iFrameContent = this.buildHtml(content);
+    mounted() {
+        this.init();
     },
     methods: {
         ...mapMutations("mail", [SET_BLOCK_REMOTE_IMAGES]),
         ...mapActions("alert", { WARNING, REMOVE }),
+        async init() {
+            let content = this.body;
+
+            if (hasRemoteImages(content) && this.settings.trust_every_remote_content === "false") {
+                // check if sender is known (found in any suscribed addressbook)
+            const searchResult = await apiAddressbooks.search(this.message.from.address);
+                const isSenderKnown = searchResult.total > 0;
+                if (!isSenderKnown) {
+                    this.WARNING(this.blockedContentAlert);
+                    this.SET_BLOCK_REMOTE_IMAGES(true);
+                    content = blockRemoteImages(content);
+                }
+            }
+
+            this.scrollbarHeight = this.srollbarHeight();
+            this.iFrameContent = this.buildHtml(content);
+        },
         resizeIFrame() {
             const resizeObserver = new ResizeObserver(entries => {
                 if (this.$refs.iFrameMailContent) {

@@ -1,11 +1,11 @@
 // activeMessage
 export const RESET_ACTIVE_MESSAGE = "RESET_ACTIVE_MESSAGE";
 export const SET_ACTIVE_MESSAGE = "SET_ACTIVE_MESSAGE";
-export const SET_ACTIVE_MESSAGE_PART_DATA = "SET_ACTIVE_MESSAGE_PART_DATA";
 
 // partsData
 export const RESET_PARTS_DATA = "RESET_PARTS_DATA";
 export const SET_PART_DATA = "SET_PART_DATA";
+export const SET_QUOTE_NODES = "SET_QUOTE_NODES";
 
 // mailboxes
 export const ADD_MAILBOXES = "ADD_MAILBOXES";

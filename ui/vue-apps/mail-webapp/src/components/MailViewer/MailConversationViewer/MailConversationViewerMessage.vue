@@ -47,7 +47,7 @@
                     v-if="message.attachments && message.attachments.length > 0"
                     :message="message"
                 />
-                <body-viewer v-if="MESSAGE_IS_LOADED(message.key)" :message="message" />
+                <body-viewer v-if="MESSAGE_IS_LOADED(message.key)" :message="message" collapse-quoted />
                 <mail-viewer-content-loading v-else />
             </div>
         </template>

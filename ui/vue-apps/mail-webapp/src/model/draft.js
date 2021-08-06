@@ -4,6 +4,7 @@ import MessagePathParam from "~/router/MessagePathParam";
 import { AttachmentStatus } from "./attachment";
 import { LoadingStatus } from "./loading-status";
 import {
+    extractHeaderValues,
     MessageHeader,
     // fetch,
     createWithMetadata as createMessage,
@@ -115,14 +116,6 @@ function handleIdentificationFields(message, previousMessage) {
     }
 }
 
-/** Extract multi-valued / whitespace separated values from given header. */
-function extractHeaderValues(message, headerName) {
-    const header = message.headers.find(h => h.name.toUpperCase() === headerName.toUpperCase());
-    return header && header.values && header.values.length
-        ? header.values.reduce((a, b) => (a.length ? a + " " + b : b), "").split(/\s+/)
-        : undefined;
-}
-
 // INTERNAL METHOD (exported only for testing purpose)
 export function computeCcRecipients(creationMode, previousMessage) {
     let cc = [];
@@ -198,24 +191,30 @@ export function computeSubject(creationMode, previousMessage) {
     return previousMessage.subject;
 }
 
-export function getEditorContent(userPrefTextOnly, parts, partsData, userLang) {
+export function getEditorContent(userPrefTextOnly, parts, partsByMessageKey, userLang) {
     let content;
     if (userPrefTextOnly) {
-        content = mergePartsForTextarea(parts, partsData);
+        content = mergePartsForTextarea(parts, partsByMessageKey);
     } else {
-        content = mergePartsForRichEditor(parts, partsData, userLang);
+        content = mergePartsForRichEditor(parts, partsByMessageKey, userLang);
     }
     return content;
 }
 
+// TODO move elsewhere
+export function findReplyOrForwardContentNode(document) {
+    return (
+        document.querySelector('div[id="' + MessageReplyAttributeSeparator + '"]') ||
+        document.querySelector('div[id="' + MessageForwardAttributeSeparator + '"]')
+    );
+}
+
+// TODO move elsewhere
 export function handleSeparator(content) {
     let collapsed,
         newContent = content;
-
     const doc = new DOMParser().parseFromString(content, "text/html");
-    const separator =
-        doc.querySelector('div[id="' + MessageReplyAttributeSeparator + '"]') ||
-        doc.querySelector('div[id="' + MessageForwardAttributeSeparator + '"]');
+    const separator = findReplyOrForwardContentNode(doc);
 
     if (separator) {
         collapsed = separator.outerHTML;

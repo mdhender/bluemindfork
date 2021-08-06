@@ -6,12 +6,14 @@
                 v-if="isHtmlPart(part)"
                 :key="part.address"
                 :value="htmlWithImageInserted[index]"
+                :collapse-quoted="collapseQuoted"
                 :message="message"
+                :part-address="part.address"
             />
             <text-plain-part-viewer
                 v-else-if="isTextPart(part)"
                 :key="part.address"
-                :value="partsData[message.key] && partsData[message.key][part.address]"
+                :value="partsByMessageKey[message.key] && partsByMessageKey[message.key][part.address]"
             />
             <image-part-viewer v-else-if="isImagePart(part)" :key="part.address" :value="computeImageUrl(part)" />
         </template>
@@ -19,19 +21,19 @@
 </template>
 
 <script>
-import { mapActions, mapMutations, mapState } from "vuex";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { computePreviewOrDownloadUrl, MimeType, InlineImageHelper } from "@bluemind/email";
 
-import { getPartsFromCapabilities } from "~/model/part";
+import { VIEWER_CAPABILITIES, getPartsFromCapabilities } from "~/model/part";
 import { create as createAttachment, AttachmentStatus } from "~/model/attachment";
 import ImagePartViewer from "./ImagePartViewer";
 import TextHtmlPartViewer from "./TextHtmlPartViewer";
 import TextPlainPartViewer from "./TextPlainPartViewer";
-import { FETCH_PART_DATA } from "~/actions";
+import { COMPUTE_QUOTE_NODES, FETCH_PART_DATA } from "~/actions";
+import { CONVERSATION_MESSAGE_BY_KEY, MY_SENT } from "~/getters";
 import { ADD_ATTACHMENT, REMOVE_ATTACHMENT } from "~/mutations";
-
-const VIEWER_CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN, MimeType.IMAGE];
+import { removeSentDuplicates } from "~/model/conversations";
 
 export default {
     name: "PartsViewer",
@@ -44,6 +46,10 @@ export default {
         message: {
             type: Object,
             required: true
+        },
+        collapseQuoted: {
+            type: Boolean,
+            default: false
         }
     },
     data() {
@@ -54,7 +60,8 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail", ["partsData"])
+        ...mapState("mail", { partsByMessageKey: ({ partsData }) => partsData.partsByMessageKey }),
+        ...mapGetters("mail", { CONVERSATION_MESSAGE_BY_KEY, MY_SENT })
     },
     watch: {
         "message.key": {
@@ -84,12 +91,19 @@ export default {
                 // display unsupported parts as attachment
                 const unsupported = others.filter(part => !doesViewerSupportPart(part));
                 this.displayAsAttachments(unsupported);
+
+                // find quotes
+                const conversationMessages = removeSentDuplicates(
+                    this.CONVERSATION_MESSAGE_BY_KEY(this.message.conversationRef.key),
+                    this.MY_SENT
+                );
+                await this.COMPUTE_QUOTE_NODES({ message: this.message, conversationMessages });
             },
             immediate: true
         }
     },
     methods: {
-        ...mapActions("mail", { FETCH_PART_DATA }),
+        ...mapActions("mail", { COMPUTE_QUOTE_NODES, FETCH_PART_DATA }),
         ...mapMutations("mail", { ADD_ATTACHMENT, REMOVE_ATTACHMENT }),
         isHtmlPart(part) {
             return MimeType.isHtml(part);
@@ -114,7 +128,7 @@ export default {
         },
         async handleCidParts(inlines) {
             const htmlParts = inlines.filter(MimeType.isHtml);
-            const htmlContents = htmlParts.map(part => this.partsData[this.message.key][part.address]);
+            const htmlContents = htmlParts.map(part => this.partsByMessageKey[this.message.key][part.address]);
             const cidImages = inlines.filter(part => MimeType.isImage(part) && part.contentId);
             const insertionResult = await InlineImageHelper.insertAsUrl(
                 htmlContents,

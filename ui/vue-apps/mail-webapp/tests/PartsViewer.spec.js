@@ -2,7 +2,6 @@ import flushPromises from "flush-promises";
 
 import { createStore, createWrapper } from "./testUtils";
 import PartsViewer from "../src/components/MailViewer/PartsViewer/PartsViewer";
-import MailAttachmentItem from "../src/components/MailAttachment/MailAttachmentItem";
 
 describe("PartsViewer", () => {
     test("image/* file type is a viewer capacity", async () => {
@@ -63,7 +62,8 @@ const message = {
     remoteRef: { imapUid: "imapUid" },
     composing: true,
     inlinePartsByCapabilities: [],
-    attachments: []
+    attachments: [],
+    conversationRef: {}
 };
 
 function mountComponent(inlinePartsByCapabilities) {
