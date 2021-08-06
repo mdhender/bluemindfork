@@ -12,6 +12,6 @@
     },
     "peerDependencies": {
         "vue": "^2.6.14",
-        "vuex": "^3.0.1"
+        "vuex": "^3.6.2"
     }
 }
