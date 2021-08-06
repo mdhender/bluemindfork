@@ -398,17 +398,19 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 				Long expId = GuidExpectedIdCache.expectedId(guidCacheKey);
 
 				if (expId != null) {
-					Item item = MailboxRecordItemCache.item(uid).orElse(defaultItem(uid, expId));
+					Item item = MailboxRecordItemCache.getAndInvalidate(container.owner + mr.messageBody)
+							.orElse(defaultItem(uid, expId));
 					upsert = UpsertResult.create(storeService.create(item, mr));
 					GuidExpectedIdCache.invalidate(guidCacheKey);
 				} else {
 					ExpectedId knownInternalId = BodyInternalIdCache.expectedRecordId(container.owner, mr.messageBody);
 					if (knownInternalId == null) {
-						Item item = MailboxRecordItemCache.item(uid).orElse(defaultItem(uid, null));
+						Item item = MailboxRecordItemCache.getAndInvalidate(container.owner + mr.messageBody)
+								.orElse(defaultItem(uid, null));
 						upsert = upsertByItem(item, mr);
 					} else {
-						logger.info("Create directly with the right id {} from replication.", knownInternalId);
-						Item item = MailboxRecordItemCache.item(uid).orElse(defaultItem(uid, knownInternalId.id));
+						Item item = MailboxRecordItemCache.getAndInvalidate(container.owner + mr.messageBody)
+								.orElse(defaultItem(uid, knownInternalId.id));
 						if (knownInternalId.updateOfBody == null) {
 							upsert = upsertByItem(item, mr);
 						} else {
@@ -426,7 +428,8 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 									upsert = UpsertResult.create(storeService.create(item, mr));
 								} catch (ServerFault refault) {
 									logger.warn("byId global failure: {}", refault.getMessage());
-									item = MailboxRecordItemCache.item(uid).orElse(defaultItem(uid, null));
+									item = MailboxRecordItemCache.getAndInvalidate(container.owner + mr.messageBody)
+											.orElse(defaultItem(uid, null));
 									upsert = upsertByItem(item, mr);
 								}
 							}
@@ -467,7 +470,8 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 					expungeIndex(Arrays.asList(mr.imapUid));
 					upNotifs.add(UpdateNotif.of(vanished.version, mr));
 				} else {
-					Item item = MailboxRecordItemCache.item(uid).orElse(defaultItem(uid, itemId));
+					Item item = MailboxRecordItemCache.getAndInvalidate(container.owner + mr.messageBody)
+							.orElse(defaultItem(uid, itemId));
 					ItemVersion upd = storeService.update(item, "itemId:" + itemId, mr);
 					if (mr.flags.contains(MailboxItemFlag.System.Deleted.value())) {
 						softDelete.incrementAndGet();
@@ -485,8 +489,6 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 					toUpdate.size() - deletes, deletes, System.currentTimeMillis() - time);
 			return storeService.getVersion();
 		});
-
-		records.stream().map(mr -> mr.imapUid + ".").forEach(MailboxRecordItemCache::invalidate);
 
 		// ensure nothing is missing (sds object store check)
 		List<String> toCheck = records.stream().map(mr -> mr.messageBody).collect(Collectors.toList());

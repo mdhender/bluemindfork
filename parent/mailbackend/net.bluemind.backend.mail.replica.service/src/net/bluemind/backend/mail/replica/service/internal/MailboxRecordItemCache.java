@@ -53,18 +53,18 @@ public class MailboxRecordItemCache {
 		}
 	}
 
-	public static Optional<Item> item(String uid) {
-		return Optional.ofNullable(uidToItem.getIfPresent(uid));
+	public static Optional<Item> getAndInvalidate(String uid) {
+		if (uid != null) {
+			Item item = uidToItem.getIfPresent(uid);
+			uidToItem.invalidate(uid);
+			return Optional.ofNullable(item);
+		} else {
+			return Optional.empty();
+		}
 	}
 
 	public static void store(String uid, Item item) {
 		uidToItem.put(uid, item);
-	}
-
-	public static void invalidate(String uid) {
-		if (uid != null) {
-			uidToItem.invalidate(uid);
-		}
 	}
 
 }

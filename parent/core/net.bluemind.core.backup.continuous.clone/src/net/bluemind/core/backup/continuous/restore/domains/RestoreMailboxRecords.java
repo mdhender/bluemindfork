@@ -61,7 +61,7 @@ public class RestoreMailboxRecords extends RestoreReplicated implements RestoreD
 		try (SyncClientOIO sync = new SyncClientOIO(ip, 2502)) {
 			sync.authenticate("admin0", Token.admin0());
 			ItemValue<MailboxRecord> rec = recReader.read(new String(de.payload));
-			MailboxRecordItemCache.store(rec.uid, rec.item());
+			MailboxRecordItemCache.store(de.key.owner + rec.value.messageBody, rec.item());
 			if (!state.containsBody(rec.value.messageBody)) {
 				MsgBodyTask bodyTask = new MsgBodyTask(sdsStore, sync, repl);
 				try {

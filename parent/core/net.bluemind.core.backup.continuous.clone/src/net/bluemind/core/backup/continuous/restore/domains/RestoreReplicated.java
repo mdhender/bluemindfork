@@ -16,7 +16,11 @@ public class RestoreReplicated {
 				.domainUid(replica.dom.uid)//
 				.mailboxUid(replica.mbox.uid)//
 				.partition(replica.part)//
-				.acl("admin0", Acl.ALL);
+				.acl("admin0", Acl.ALL);//
+//				.lastUid(replica.folder.value.lastUid)//
+//				.highestModSeq(replica.folder.value.highestModSeq)//
+//				.lastAppendDate(replica.folder.value.lastAppendDate)//
+//				.uidValidity(replica.folder.value.uidValidity);
 		boolean isRoot = (isUser && "INBOX".equals(folderName)) || (!isUser && mailboxName.equals(folderName));
 		if (isRoot) {
 			builder.root();
