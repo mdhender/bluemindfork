@@ -21,7 +21,7 @@
                 <slot name="head" />
             </div>
             <slot name="subhead" />
-            <div v-if="index !== 0" class="row pr-3 pl-5">
+            <div v-if="isMessageExpanded" class="row pr-3 pl-5">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                 <mail-viewer-recipients :message="message" class="px-3" />
             </div>
@@ -53,7 +53,12 @@ import MailViewerRecipients from "../MailViewerRecipients";
 export default {
     name: "MailConversationViewerItem",
     components: { BmAvatar, MailConversationViewerVerticalLine, MailViewerRecipients },
-    mixins: [MailConversationViewerItemMixin]
+    mixins: [MailConversationViewerItemMixin],
+    computed: {
+        isMessageExpanded() {
+            return Boolean(this.expandedMessages[this.index]);
+        }
+    }
 };
 </script>
 <style lang="scss">
