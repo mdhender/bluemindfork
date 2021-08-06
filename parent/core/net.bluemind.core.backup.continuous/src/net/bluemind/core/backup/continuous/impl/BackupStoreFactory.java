@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
-import org.mapdb.DBMaker.Maker;
 import org.mapdb.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +50,7 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 	private final ITopicStore topicStore;
 	private final boolean disabled;
 	private final DB handlesBackingStore;
-	private final Map<TopicDescriptor, Map<byte[], byte[]>> waitingRecordsByTopicDescr;
+	private final Map<String, Map<byte[], byte[]>> waitingRecordsByTopic;
 
 	public BackupStoreFactory(ITopicStore topicStore, boolean disabled) {
 		String iid = InstallationId.getIdentifier();
@@ -59,17 +58,18 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 		this.topicStore = topicStore;
 		this.disabled = disabled;
 		this.handlesBackingStore = buildDb();
-		this.waitingRecordsByTopicDescr = new HashMap<>();
+		this.waitingRecordsByTopic = new HashMap<>();
 		sendRemainingRecord();
 	}
 
 	@Override
 	public <T> IBackupStore<T> forContainer(BaseContainerDescriptor c) {
 		TopicDescriptor descriptor = names.forContainer(c);
+		String topicName = descriptor.physicalTopic();
 		TopicPublisher publisher = publisher(descriptor);
 		TopicSerializer<RecordKey, ItemValue<T>> serializer = new ItemValueSerializer<>();
-		Map<byte[], byte[]> waitingRecords = waitingRecordsByTopicDescr.computeIfAbsent(descriptor,
-				d -> handlesBackingStore.hashMap(descriptor.fullName()).keySerializer(Serializer.BYTE_ARRAY)
+		Map<byte[], byte[]> waitingRecords = waitingRecordsByTopic.computeIfAbsent(topicName,
+				d -> handlesBackingStore.hashMap(topicName).keySerializer(Serializer.BYTE_ARRAY)
 						.valueSerializer(Serializer.BYTE_ARRAY).createOrOpen());
 		return new BackupStore<>(publisher, descriptor, serializer, waitingRecords);
 	}
@@ -88,7 +88,6 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 
 	@Override
 	public ILiveBackupStreams forInstallation(String installationid) {
-
 		Set<String> topicNames = topicStore.topicNames(installationid);
 		TopicSubscriber orphanSubscriber = topicNames.stream().filter(name -> name.endsWith("__orphans__")).findFirst()
 				.map(topicStore::getSubscriber).orElse(null);
@@ -131,18 +130,16 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 	}
 
 	private DB buildDb() {
-		Path tmp = null;
 		try {
-			tmp = Files.createTempFile("records-waiting-for-ack", ".mapdb");
+			Path tmp = Files.createTempFile("records-waiting-for-ack", ".mapdb");
 			Files.deleteIfExists(tmp);
+			return DBMaker.fileDB(tmp.toFile().getAbsolutePath()).checksumHeaderBypass().fileMmapEnable()//
+					.fileMmapPreclearDisable() //
+					.cleanerHackEnable().make();
 		} catch (IOException e) {
 			logger.error("Unable to create tmp file for backingStore, using heapDB", e);
+			return DBMaker.heapDB().make();
 		}
-		Maker maker = (tmp != null) ? DBMaker.fileDB(tmp.toFile().getAbsolutePath()) : DBMaker.heapDB();
-		return maker.checksumHeaderBypass().fileMmapEnable()//
-				.fileMmapPreclearDisable() //
-				.cleanerHackEnable()//
-				.fileDeleteAfterClose().make();
 	}
 
 	private void sendRemainingRecord() {
@@ -150,7 +147,7 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 		allCollections.forEach((name, map) -> {
 			Map<byte[], byte[]> remainingRecords = (Map<byte[], byte[]>) map;
 			TopicDescriptor descriptor = DefaultTopicDescriptor.of(name);
-			waitingRecordsByTopicDescr.put(descriptor, remainingRecords);
+			waitingRecordsByTopic.put(descriptor.physicalTopic(), remainingRecords);
 			TopicPublisher publisher = publisher(descriptor);
 			remainingRecords.forEach((key, value) -> {
 				String partitionKey = descriptor.partitionKey(new JsonObject(new String(value)).getString("uid"));
