@@ -23,9 +23,7 @@
             <slot name="subhead" />
             <div v-if="index !== 0" class="row pr-3 pl-5">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
-                <div class="col pl-3 pb-2 text-truncate text-secondary font-weight-bold">
-                    <slot name="to" />
-                </div>
+                <mail-viewer-recipients :message="message" class="px-3" />
             </div>
             <div class="row pl-5">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
@@ -50,13 +48,11 @@
 import { BmAvatar } from "@bluemind/styleguide";
 import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import MailConversationViewerVerticalLine from "./MailConversationViewerVerticalLine";
+import MailViewerRecipients from "../MailViewerRecipients";
 
 export default {
     name: "MailConversationViewerItem",
-    components: {
-        BmAvatar,
-        MailConversationViewerVerticalLine
-    },
+    components: { BmAvatar, MailConversationViewerVerticalLine, MailViewerRecipients },
     mixins: [MailConversationViewerItemMixin]
 };
 </script>

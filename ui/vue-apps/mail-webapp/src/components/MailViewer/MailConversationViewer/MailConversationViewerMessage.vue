@@ -46,9 +46,6 @@
                 <mail-viewer-content-loading v-else />
             </div>
         </template>
-        <template slot="to">
-            {{ message.to ? message.to.map(to => to.dn || to.address).join(", ") : "" }}
-        </template>
     </mail-conversation-viewer-item>
 </template>
 <script>

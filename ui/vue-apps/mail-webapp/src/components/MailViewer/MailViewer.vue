@@ -26,20 +26,7 @@
                 <hr class="my-2" />
             </bm-col>
         </bm-row>
-        <bm-row class="px-lg-5 px-4">
-            <bm-col cols="12">
-                <mail-viewer-recipient v-if="message.to.length > 0" :recipients="message.to"
-                    >{{ $t("mail.content.to") }}
-                </mail-viewer-recipient>
-            </bm-col>
-        </bm-row>
-        <bm-row class="pb-2 px-lg-5 px-4">
-            <bm-col cols="12">
-                <mail-viewer-recipient v-if="message.cc.length > 0" :recipients="message.cc"
-                    >{{ $t("mail.content.copy") }}
-                </mail-viewer-recipient>
-            </bm-col>
-        </bm-row>
+        <mail-viewer-recipients :message="message" class="px-lg-5 px-4" />
         <bm-row class="px-lg-5">
             <bm-col cols="12">
                 <hr class="mail-viewer-splitter my-0" />
@@ -64,7 +51,7 @@ import { BmCol, BmRow } from "@bluemind/styleguide";
 
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 import MailViewerFrom from "./MailViewerFrom";
-import MailViewerRecipient from "./MailViewerRecipient";
+import MailViewerRecipients from "./MailViewerRecipients";
 import MailViewerToolbar from "./MailViewerToolbar";
 import { CONVERSATION_LIST_UNREAD_FILTER_ENABLED } from "~/getters";
 import { MARK_MESSAGE_AS_READ } from "~/actions";
@@ -77,7 +64,7 @@ export default {
         BodyViewer,
         MailAttachmentsBlock,
         MailViewerFrom,
-        MailViewerRecipient,
+        MailViewerRecipients,
         MailViewerToolbar
     },
     props: {
