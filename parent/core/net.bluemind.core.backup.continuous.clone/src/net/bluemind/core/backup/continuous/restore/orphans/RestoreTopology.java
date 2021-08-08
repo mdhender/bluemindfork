@@ -1,5 +1,8 @@
 package net.bluemind.core.backup.continuous.restore.orphans;
 
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,8 +25,13 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
+import net.bluemind.node.api.ExitList;
+import net.bluemind.node.api.INodeClient;
+import net.bluemind.node.api.NCUtils;
+import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.IInstallation;
 
 public class RestoreTopology {
@@ -72,10 +80,14 @@ public class RestoreTopology {
 			monitor.log("Reset ES indexes...");
 			target.instance(IInstallation.class).resetIndexes();
 		}
-		monitor.progress(1, "Dealt with topology");
 		List<ItemValue<Server>> exist = topoApi.allComplete();
-		return Optional.ofNullable(exist).orElse(touched).stream()
+
+		Map<String, ItemValue<Server>> serverByUid = Optional.ofNullable(exist).orElse(touched).stream()
 				.collect(Collectors.toMap(iv -> iv.uid, iv -> iv, (iv1, iv2) -> iv2));
+
+		bumpAllContainerItemId(monitor, serverByUid.values());
+		monitor.progress(1, "Dealt with topology");
+		return serverByUid;
 	}
 
 	public String logStreamWait(TaskRef ref) {
@@ -84,6 +96,52 @@ public class RestoreTopology {
 		}
 		ITask taskApi = target.instance(ITask.class, ref.id + "");
 		return GenericStream.streamToString(taskApi.log());
+	}
+
+	private void bumpAllContainerItemId(IServerTaskMonitor monitor, Collection<ItemValue<Server>> serverItems) {
+		long seq = 1000000;
+		monitor.log("Bumping container item id seq to for " + serverItems.size() + " server(s)");
+		serverItems.stream().map(serverItem -> serverItem.value)
+				.filter(server -> server.tags.contains(TagDescriptor.bm_pgsql.getTag())
+						|| server.tags.contains(TagDescriptor.bm_pgsql_data.getTag()))
+				.forEach(server -> {
+					bumpContainerItemId(monitor, server, seq);
+				});
+	}
+
+	private void bumpContainerItemId(IServerTaskMonitor monitor, Server server, long seq) {
+		INodeClient nodeClient = NodeActivator.get(server.ip);
+		List<String> dbNames = serverDbNames(server);
+		dbNames.forEach(dbName -> {
+			monitor.log("Bumping container item id seq to " + seq + " (server " + server.ip + " db " + dbName + ")");
+			String bumpCmd = String.format(
+					"PGPASSWORD=%s psql -h localhost -c \"select setval('t_container_item_id_seq', %d)\" %s %s", "bj",
+					seq, dbName, "bj");
+			String bumpCmdPath = "/tmp/dump-container-item-id-seq-" + System.nanoTime() + ".sh";
+			nodeClient.writeFile(bumpCmdPath, new ByteArrayInputStream(bumpCmd.getBytes()));
+			try {
+				NCUtils.execNoOut(nodeClient, "chmod +x " + bumpCmdPath);
+				ExitList el = NCUtils.exec(nodeClient, bumpCmdPath);
+				for (String log : el) {
+					if (!log.isEmpty()) {
+						monitor.log(log);
+					}
+				}
+			} finally {
+				NCUtils.execNoOut(nodeClient, "rm -f " + bumpCmdPath);
+			}
+		});
+	}
+
+	private List<String> serverDbNames(Server server) {
+		List<String> dbNames = new ArrayList<>();
+		if (server.tags.contains(TagDescriptor.bm_pgsql.getTag())) {
+			dbNames.add("bj");
+		}
+		if (server.tags.contains(TagDescriptor.bm_pgsql_data.getTag())) {
+			dbNames.add("bj-data");
+		}
+		return dbNames;
 	}
 
 }
