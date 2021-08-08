@@ -48,8 +48,8 @@ import net.bluemind.imap.mime.MimeTree;
 
 public class ItemTransfersTests extends AbstractRollingReplicationTests {
 
-	public static final int MAIL_COUNT = 500;
-	public static final int MARCO_POLO_CYCLES = 100;
+	public static final int MAIL_COUNT = 250;
+	public static final int MARCO_POLO_CYCLES = 50;
 
 	private String partition;
 	private String mboxRoot;

@@ -14,8 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-core,
  net.bluemind.system.api,
  com.fasterxml.jackson.core.jackson-databind,
- net.bluemind.core.backup.continuous.dto,
- net.bluemind.mapdb
+ net.bluemind.core.backup.continuous.dto
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.continuous
 Bundle-ActivationPolicy: lazy

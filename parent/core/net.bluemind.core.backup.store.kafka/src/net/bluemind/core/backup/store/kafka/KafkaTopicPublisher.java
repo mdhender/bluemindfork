@@ -32,7 +32,7 @@ public class KafkaTopicPublisher implements TopicPublisher {
 	@Override
 	public CompletableFuture<Void> store(String partitionToken, byte[] key, byte[] data) {
 		CompletableFuture<Void> comp = new CompletableFuture<>();
-		int partition = Math.abs(partitionToken.hashCode()) % KafkaTopicStore.PARTITION_COUNT;
+		int partition = partitionToken.hashCode() % KafkaTopicStore.PARTITION_COUNT;
 		ProducerRecord<byte[], byte[]> rec = new ProducerRecord<>(physicalTopic, partition, key, data);
 
 		producer.send(rec, (RecordMetadata metadata, Exception exception) -> {

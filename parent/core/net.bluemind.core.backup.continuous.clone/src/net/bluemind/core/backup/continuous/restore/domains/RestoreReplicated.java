@@ -1,6 +1,7 @@
 package net.bluemind.core.backup.continuous.restore.domains;
 
-import net.bluemind.backend.cyrus.internal.CyrusUniqueIds;
+import java.util.UUID;
+
 import net.bluemind.backend.cyrus.replication.client.ReplMailbox;
 import net.bluemind.core.backup.continuous.restore.mbox.UidDatalocMapping.Replica;
 import net.bluemind.imap.Acl;
@@ -28,11 +29,15 @@ public class RestoreReplicated {
 		if (!isUser) {
 			builder.sharedNs().folderName(folderName);
 			builder.acl("anyone", Acl.POST);
-			builder.uniqueId(CyrusUniqueIds.forMailbox(replica.dom.uid, replica.mbox, folderName));
+			// builder.uniqueId(CyrusUniqueIds.forMailbox(replica.dom.uid, replica.mbox,
+			// folderName));
+			builder.uniqueId(UUID.fromString(replica.folder.uid));
 		} else {
 			builder.folderName(folderName);
 			builder.acl(replica.mbox.value.name + "@" + replica.dom.uid, Acl.ALL);
-			builder.uniqueId(CyrusUniqueIds.forMailbox(replica.dom.uid, replica.mbox, folderName));
+			// builder.uniqueId(CyrusUniqueIds.forMailbox(replica.dom.uid, replica.mbox,
+			// folderName));
+			builder.uniqueId(UUID.fromString(replica.folder.uid));
 		}
 		return builder.build();
 	}

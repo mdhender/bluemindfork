@@ -1,25 +1,16 @@
 package net.bluemind.core.backup.continuous.impl;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.MoreObjects;
 
-import io.vertx.core.json.JsonObject;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
 import net.bluemind.core.backup.continuous.IBackupStore;
@@ -32,7 +23,6 @@ import net.bluemind.core.backup.continuous.TopicDeserializer;
 import net.bluemind.core.backup.continuous.TopicSerializer;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.store.ITopicStore;
-import net.bluemind.core.backup.continuous.store.ITopicStore.DefaultTopicDescriptor;
 import net.bluemind.core.backup.continuous.store.ITopicStore.TopicDescriptor;
 import net.bluemind.core.backup.continuous.store.TopicNames;
 import net.bluemind.core.backup.continuous.store.TopicPublisher;
@@ -49,29 +39,20 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 	private final TopicNames names;
 	private final ITopicStore topicStore;
 	private final boolean disabled;
-	private final DB handlesBackingStore;
-	private final Map<String, Map<byte[], byte[]>> waitingRecordsByTopic;
 
 	public BackupStoreFactory(ITopicStore topicStore, boolean disabled) {
 		String iid = InstallationId.getIdentifier();
 		this.names = new TopicNames(iid);
 		this.topicStore = topicStore;
 		this.disabled = disabled;
-		this.handlesBackingStore = buildDb();
-		this.waitingRecordsByTopic = new HashMap<>();
-		sendRemainingRecord();
 	}
 
 	@Override
 	public <T> IBackupStore<T> forContainer(BaseContainerDescriptor c) {
 		TopicDescriptor descriptor = names.forContainer(c);
-		String topicName = descriptor.physicalTopic();
 		TopicPublisher publisher = publisher(descriptor);
 		TopicSerializer<RecordKey, ItemValue<T>> serializer = new ItemValueSerializer<>();
-		Map<byte[], byte[]> waitingRecords = waitingRecordsByTopic.computeIfAbsent(topicName,
-				d -> handlesBackingStore.hashMap(topicName).keySerializer(Serializer.BYTE_ARRAY)
-						.valueSerializer(Serializer.BYTE_ARRAY).createOrOpen());
-		return new BackupStore<>(publisher, descriptor, serializer, waitingRecords);
+		return new BackupStore<>(publisher, descriptor, serializer);
 	}
 
 	private TopicPublisher publisher(TopicDescriptor descriptor) {
@@ -129,34 +110,4 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 		return new LiveStream(installationid, domainUid, subscriber, deserializer);
 	}
 
-	private DB buildDb() {
-		try {
-			Path tmp = Files.createTempFile("records-waiting-for-ack", ".mapdb");
-			Files.deleteIfExists(tmp);
-			return DBMaker.fileDB(tmp.toFile().getAbsolutePath()).checksumHeaderBypass().fileMmapEnable()//
-					.fileMmapPreclearDisable() //
-					.cleanerHackEnable().make();
-		} catch (IOException e) {
-			logger.error("Unable to create tmp file for backingStore, using heapDB", e);
-			return DBMaker.heapDB().make();
-		}
-	}
-
-	private void sendRemainingRecord() {
-		Map<String, Object> allCollections = this.handlesBackingStore.getAll();
-		allCollections.forEach((name, map) -> {
-			Map<byte[], byte[]> remainingRecords = (Map<byte[], byte[]>) map;
-			TopicDescriptor descriptor = DefaultTopicDescriptor.of(name);
-			waitingRecordsByTopic.put(descriptor.physicalTopic(), remainingRecords);
-			TopicPublisher publisher = publisher(descriptor);
-			remainingRecords.forEach((key, value) -> {
-				String partitionKey = descriptor.partitionKey(new JsonObject(new String(value)).getString("uid"));
-				publisher.store(partitionKey, key, value).whenComplete((v, t) -> {
-					if (t == null) {
-						remainingRecords.remove(key);
-					}
-				});
-			});
-		});
-	}
 }

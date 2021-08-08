@@ -112,10 +112,10 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 	}
 
 	private KafkaConsumer<byte[], byte[]> createKafkaConsumer() {
-		logger.info("{}:{}:{}", bootstrapServer, clientId, InstallationId.getIdentifier());
+		logger.warn("bootstrap: {}, clientId: {}, inst: {}", bootstrapServer, clientId, InstallationId.getIdentifier());
 		Properties cp = new Properties();
 		cp.setProperty("bootstrap.servers", bootstrapServer);
-		cp.setProperty("client.id", clientId + "_consumer");
+		cp.setProperty("client.id", clientId + "_cons_" + System.nanoTime());
 		cp.setProperty("group.id", "clone-of-" + InstallationId.getIdentifier());
 		cp.setProperty("enable.auto.commit", "true");
 		cp.setProperty("fetch.max.wait.ms", "100");

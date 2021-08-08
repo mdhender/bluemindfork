@@ -115,12 +115,16 @@ public class ReplMailbox {
 	}
 
 	private String cyrusName() {
-		String nsPrefix = (user) ? "user." : "";
-		String cyrusName = domainUid + "!" + nsPrefix + mailboxName.replace('.', '^');
-		if (!root) {
-			cyrusName += "." + folderName.replace('.', '^').replace('/', '.');
+		if (user) {
+			if (root) {
+				return domainUid + "!user." + mailboxName.replace('.', '^');
+			} else {
+				return domainUid + "!user." + mailboxName.replace('.', '^') + "."
+						+ folderName.replace('.', '^').replace('/', '.');
+			}
+		} else {
+			return domainUid + "!" + folderName.replace('.', '^').replace('/', '.');
 		}
-		return cyrusName;
 	}
 
 	public static Builder builder() {

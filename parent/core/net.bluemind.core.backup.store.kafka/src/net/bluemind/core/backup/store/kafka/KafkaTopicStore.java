@@ -27,7 +27,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.apache.kafka.clients.admin.AdminClient;
@@ -65,8 +64,6 @@ public class KafkaTopicStore implements ITopicStore {
 
 	private final Map<TopicDescriptor, KafkaTopicPublisher> knownPublisher = new ConcurrentHashMap<>();
 
-	private AtomicLong subId = new AtomicLong();
-
 	public KafkaTopicStore() {
 		kafkaBootstrapServers();
 
@@ -79,18 +76,6 @@ public class KafkaTopicStore implements ITopicStore {
 			properties.put("client.id", cid);
 
 			this.adminClient = AdminClient.create(properties);
-
-//				Properties topicsProdProps = new Properties();
-//				topicsProdProps.setProperty("bootstrap.servers", bootstrap);
-//				topicsProdProps.setProperty("acks", "all");
-//				topicsProdProps.setProperty("compression.type", COMPRESSION_TYPE);
-//				topicsProdProps.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-//				topicsProdProps.setProperty("value.serializer",
-//						"org.apache.kafka.common.serialization.StringSe	rializer");
-//				this.topicsListProd = new KafkaProducer<>(topicsProdProps);
-//				this.knownTopicsTopic = InstallationId.getIdentifier().replace("bluemind-", "").replace("-", "")
-//						+ "__known_topics";
-//				ensureKafkaTopic(knownTopicsTopic);
 		}
 	}
 

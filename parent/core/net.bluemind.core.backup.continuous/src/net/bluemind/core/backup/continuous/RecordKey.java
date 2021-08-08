@@ -34,7 +34,7 @@ public class RecordKey {
 	}
 
 	public boolean match(TopicDescriptor descriptor) {
-		return descriptor.type().equals(type) && descriptor.owner().equals(owner) && descriptor.id().equals(id);
+		return descriptor.type().equals(type) && descriptor.owner().equals(owner) && descriptor.id().equals(uid);
 	}
 
 	public byte[] serialize() {

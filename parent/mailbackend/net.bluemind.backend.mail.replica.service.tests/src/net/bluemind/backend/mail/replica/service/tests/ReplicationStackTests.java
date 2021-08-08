@@ -1218,7 +1218,9 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertNotNull(sent);
 		imapAsCyrusAdmin(sc -> {
 			CompletableFuture<ItemIdentifier> onMsSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
-			sc.rename(mailshare.name + "/Sent@" + domainUid, mailshare.name + "/Middle/Sent@" + domainUid);
+			boolean ren = sc.rename(mailshare.name + "/Sent@" + domainUid,
+					mailshare.name + "/Middle/Sent@" + domainUid);
+			assertTrue("rename failed", ren);
 			onMsSubtree.get(20, TimeUnit.SECONDS);
 			return null;
 		});

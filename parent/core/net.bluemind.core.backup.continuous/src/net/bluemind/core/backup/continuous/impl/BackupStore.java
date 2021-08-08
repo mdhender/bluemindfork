@@ -1,6 +1,5 @@
 package net.bluemind.core.backup.continuous.impl;
 
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -22,24 +21,17 @@ public class BackupStore<T> implements IBackupStore<T> {
 	private final TopicPublisher publisher;
 	private final TopicDescriptor descriptor;
 	private final TopicSerializer<RecordKey, ItemValue<T>> serializer;
-	private final Map<byte[], byte[]> waitingRecords;
 
 	public BackupStore(TopicPublisher publisher, TopicDescriptor descriptor,
-			TopicSerializer<RecordKey, ItemValue<T>> serializer, Map<byte[], byte[]> waitingRecords) {
+			TopicSerializer<RecordKey, ItemValue<T>> serializer) {
 		this.publisher = publisher;
 		this.descriptor = descriptor;
 		this.serializer = serializer;
-		this.waitingRecords = waitingRecords;
 	}
 
 	@Override
 	public CompletableFuture<Void> storeRaw(String partitionKey, byte[] key, byte[] raw) {
-		waitingRecords.put(key, raw);
-		return publisher.store(partitionKey, key, raw).whenComplete((v, t) -> {
-			if (t == null) {
-				waitingRecords.remove(key);
-			}
-		});
+		return publisher.store(partitionKey, key, raw);
 	}
 
 	@Override

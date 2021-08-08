@@ -410,7 +410,15 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 						upsert = upsertByItem(item, mr);
 					} else {
 						Item item = MailboxRecordItemCache.getAndInvalidate(container.owner + mr.messageBody)
-								.orElse(defaultItem(uid, knownInternalId.id));
+								.orElseGet(() -> {
+									// existing one for updateById or just a createById ?
+									ItemValue<MailboxRecord> cur = storeService.get(knownInternalId.id, null);
+									if (cur != null) {
+										return defaultItem(cur.uid, knownInternalId.id);
+									} else {
+										return defaultItem(uid, knownInternalId.id);
+									}
+								});
 						if (knownInternalId.updateOfBody == null) {
 							upsert = upsertByItem(item, mr);
 						} else {
@@ -470,9 +478,9 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 					expungeIndex(Arrays.asList(mr.imapUid));
 					upNotifs.add(UpdateNotif.of(vanished.version, mr));
 				} else {
-					Item item = MailboxRecordItemCache.getAndInvalidate(container.owner + mr.messageBody)
-							.orElse(defaultItem(uid, itemId));
-					ItemVersion upd = storeService.update(item, "itemId:" + itemId, mr);
+					Item item = MailboxRecordItemCache.getAndInvalidate(container.owner + mr.messageBody).orElse(null);
+					ItemVersion upd = item != null ? storeService.update(item, "itemId:" + itemId, mr)
+							: storeService.update(itemId, "itemId:" + itemId, mr);
 					if (mr.flags.contains(MailboxItemFlag.System.Deleted.value())) {
 						softDelete.incrementAndGet();
 					}

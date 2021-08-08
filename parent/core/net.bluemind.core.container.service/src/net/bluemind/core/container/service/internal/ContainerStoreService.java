@@ -370,7 +370,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			}
 			Item created = itemStore.update(item, dnToApply, flagsProvider.flags(value));
 			if (created == null) {
-				throw ServerFault.notFound("entry[" + created.uid + "]@" + container.uid + " not found");
+				throw ServerFault.notFound("entry[uid: " + item.uid + " / id:" + item.id + "]@" + container.uid
+						+ " not found, dn: " + dnToApply);
 			}
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(created.version, created.uid, created.externalId,

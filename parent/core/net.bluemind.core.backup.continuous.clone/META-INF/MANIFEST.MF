@@ -1,9 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.core.backup.continuous.clone
-Bundle-SymbolicName: net.bluemind.core.backup.continuous.clone
+Bundle-SymbolicName: net.bluemind.core.backup.continuous.clone;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-Activator: net.bluemind.core.backup.continuous.clone.CloneActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.backup.continuous,
@@ -34,9 +33,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.mapdb;bundle-version="3.0.8",
  net.bluemind.backend.cyrus.replication.client,
  net.bluemind.imap,
- net.bluemind.backend.cyrus,
  net.bluemind.node.api,
- net.bluemind.utils
+ net.bluemind.utils,
+ net.bluemind.system.service
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.continuous.clone
 Bundle-ActivationPolicy: lazy

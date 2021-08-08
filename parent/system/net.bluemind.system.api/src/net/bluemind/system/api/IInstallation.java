@@ -158,5 +158,5 @@ public interface IInstallation extends ICustomTheme {
 
 	@POST
 	@Path("_clone")
-	public TaskRef clone(@QueryParam("iid") String installationId, @QueryParam("topology") String topologyMappingPath);
+	public TaskRef clone(CloneConfiguration sourceParams);
 }

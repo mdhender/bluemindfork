@@ -21,8 +21,6 @@ package net.bluemind.system.service.internal;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
@@ -57,8 +55,6 @@ import net.bluemind.core.api.VersionInfo;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
-import net.bluemind.core.backup.continuous.restore.InstallFromBackupTask;
-import net.bluemind.core.backup.continuous.restore.TopologyMapping;
 import net.bluemind.core.bo.report.provider.HostReportProvider;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -71,17 +67,20 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.service.DomainsContainerIdentifier;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.client.AHCNodeClientFactory;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.system.api.CloneConfiguration;
 import net.bluemind.system.api.CustomLogo;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.ISystemConfiguration;
@@ -100,6 +99,7 @@ import net.bluemind.system.persistence.UpgraderStore;
 import net.bluemind.system.schemaupgrader.ComponentVersion;
 import net.bluemind.system.schemaupgrader.ComponentVersionExtensionPoint;
 import net.bluemind.system.schemaupgrader.ISchemaUpgradersProvider;
+import net.bluemind.system.service.clone.CloneSupport;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.system.subscriptionprovider.SubscriptionProviders;
 import net.bluemind.user.api.IUser;
@@ -146,21 +146,19 @@ public class InstallationService implements IInstallation {
 	}
 
 	@Override
-	public TaskRef clone(String installationId, String topologyMappingPath) {
+	public TaskRef clone(CloneConfiguration conf) {
 		if (!context.getSecurityContext().isDomainGlobal()) {
 			throw new ServerFault("Operation is only permitted for admin0", ErrorCode.PERMISSION_DENIED);
 		}
-		TopologyMapping topologyMapping;
-		try {
-			Path path = Paths.get(topologyMappingPath);
-			topologyMapping = new TopologyMapping(path);
-		} catch (IOException e) {
-			throw new ServerFault(
-					"Unable to read topology mapping file from " + topologyMappingPath + ": " + e.getMessage());
+		RunnableExtensionLoader<CloneSupport> clones = new RunnableExtensionLoader<>();
+		List<CloneSupport> loaded = clones.loadExtensions("net.bluemind.system.service", "clone_support",
+				"clone_support", "impl");
+		if (loaded.isEmpty()) {
+			throw new ServerFault("No implementors of clone_support");
 		}
-
-		InstallFromBackupTask tsk = new InstallFromBackupTask(installationId, DefaultBackupStore.get(), topologyMapping,
-				context.provider());
+		CloneSupport impl = loaded.get(0);
+		logger.info("Clone impl is {}", impl);
+		IServerTask tsk = impl.create(conf, context.provider(), DefaultBackupStore.get());
 		return context.provider().instance(ITasksManager.class).run(tsk);
 	}
 

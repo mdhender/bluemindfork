@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Properties;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -35,6 +36,11 @@ public class TopologyMapping {
 
 	public TopologyMapping(Properties props) {
 		this.props = props;
+	}
+
+	public TopologyMapping(Map<String, String> props) {
+		this();
+		props.forEach(this::register);
 	}
 
 	public TopologyMapping() {

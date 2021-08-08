@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.system.service.clone_support">
+      <clone_support
+            impl="net.bluemind.core.backup.continuous.clone.DefaultCloneSupport">
+      </clone_support>
+   </extension>
+
+</plugin>

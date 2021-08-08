@@ -3,6 +3,7 @@
 <plugin>
    <extension-point id="net.bluemind.globalsettings.hook" name="hook" schema="schema/net.bluemind.globalsettings.hook.exsd"/>
    <extension-point id="net.bluemind.system.external_systems" name="external_systems" schema="schema/net.bluemind.system.external_systems.exsd"/>
+   <extension-point id="net.bluemind.system.service.clone_support" name="clone_support" schema="schema/net.bluemind.system.service.clone_support.exsd"/>
    <extension
          point="net.bluemind.core.rest.apiEndpoint">
       <endpoint
