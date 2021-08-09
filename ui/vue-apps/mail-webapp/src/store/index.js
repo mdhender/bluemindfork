@@ -9,11 +9,10 @@ import conversationList from "./conversationList";
 import partsData from "./partsData";
 import route from "./route";
 import selection from "./selection";
-import { actions, state, getters, mutations } from "./store";
+import { state, getters, mutations } from "./store";
 
 export default {
     namespaced: true,
-    actions,
     state,
     getters,
     mutations,
