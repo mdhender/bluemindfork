@@ -59,9 +59,15 @@ public final class AHCHelper {
 	}
 
 	private static AsyncHttpClient newClient() {
-		AsyncHttpClientConfig config = new DefaultAsyncHttpClientConfig.Builder().setFollowRedirect(false)
-				.setMaxRedirects(0).setPooledConnectionIdleTimeout(10000).setMaxRequestRetry(0)
-				.setRequestTimeout(TIMEOUT).setReadTimeout(DEFAULT_IDLE_TIMEOUT).setSslContext(buildSSLContext())
+		AsyncHttpClientConfig config = new DefaultAsyncHttpClientConfig.Builder() //
+				.setFollowRedirect(false) //
+				.setMaxRedirects(0) //
+				.setPooledConnectionIdleTimeout(10000) //
+				.setMaxRequestRetry(0) //
+				.setHandshakeTimeout(30000) //
+				.setRequestTimeout(TIMEOUT) //
+				.setReadTimeout(DEFAULT_IDLE_TIMEOUT) //
+				.setSslContext(buildSSLContext()) //
 				.setUseNativeTransport(!EPOLL_DISABLED).build();
 		return new DefaultAsyncHttpClient(config);
 	}
