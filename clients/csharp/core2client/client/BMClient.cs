@@ -120,7 +120,7 @@ namespace core2client
                     }
                     else
                     {
-                        if (path.EndsWith("/loginWithParams"))
+                        if (path.EndsWith("/loginWithParams") || path.EndsWith("/login"))
                         {
                             this.logger.LogMessage(" *****");
                         }
