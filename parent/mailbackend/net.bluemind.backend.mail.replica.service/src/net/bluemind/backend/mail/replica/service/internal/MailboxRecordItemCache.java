@@ -27,9 +27,10 @@ import java.util.Optional;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
+import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
-import net.bluemind.core.container.model.Item;
+import net.bluemind.core.container.model.ItemValue;
 
 /**
  * When restoring a bluemind installation from a kafka topic, the mailbox record
@@ -44,7 +45,56 @@ public class MailboxRecordItemCache {
 	private MailboxRecordItemCache() {
 	}
 
-	private static final Cache<String, Item> uidToItem = Caffeine.newBuilder().recordStats().maximumSize(512).build();
+	public static class RecordRef {
+
+		public final String mailboxUniqueId;
+		public final long imapUid;
+		public final String bodyGuid;
+
+		public RecordRef(String mailboxUniqueId, long imapUid, String bodyGuid) {
+			this.mailboxUniqueId = mailboxUniqueId;
+			this.imapUid = imapUid;
+			this.bodyGuid = bodyGuid;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((bodyGuid == null) ? 0 : bodyGuid.hashCode());
+			result = prime * result + (int) (imapUid ^ (imapUid >>> 32));
+			result = prime * result + ((mailboxUniqueId == null) ? 0 : mailboxUniqueId.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			RecordRef other = (RecordRef) obj;
+			if (bodyGuid == null) {
+				if (other.bodyGuid != null)
+					return false;
+			} else if (!bodyGuid.equals(other.bodyGuid))
+				return false;
+			if (imapUid != other.imapUid)
+				return false;
+			if (mailboxUniqueId == null) {
+				if (other.mailboxUniqueId != null)
+					return false;
+			} else if (!mailboxUniqueId.equals(other.mailboxUniqueId))
+				return false;
+			return true;
+		}
+
+	}
+
+	private static final Cache<RecordRef, ItemValue<MailboxRecord>> uidToItem = Caffeine.newBuilder().recordStats()
+			.maximumSize(512).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override
@@ -53,18 +103,16 @@ public class MailboxRecordItemCache {
 		}
 	}
 
-	public static Optional<Item> getAndInvalidate(String uid) {
-		if (uid != null) {
-			Item item = uidToItem.getIfPresent(uid);
-			uidToItem.invalidate(uid);
-			return Optional.ofNullable(item);
-		} else {
-			return Optional.empty();
-		}
+	public static Optional<ItemValue<MailboxRecord>> getAndInvalidate(RecordRef ref) {
+		ItemValue<MailboxRecord> item = uidToItem.getIfPresent(ref);
+		uidToItem.invalidate(ref);
+		return Optional.ofNullable(item);
 	}
 
-	public static void store(String uid, Item item) {
-		uidToItem.put(uid, item);
+	public static void store(String mailboxUniqueId, ItemValue<MailboxRecord> item) {
+		RecordRef ref = new RecordRef(mailboxUniqueId, item.value.imapUid, item.value.messageBody);
+
+		uidToItem.put(ref, item);
 	}
 
 }

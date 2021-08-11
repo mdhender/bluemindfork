@@ -15,7 +15,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.core.backup.continuous;
+package net.bluemind.core.backup.continuous.api;
 
 import java.util.concurrent.CompletableFuture;
 

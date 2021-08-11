@@ -5,6 +5,8 @@ import java.util.function.BiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.MoreObjects;
+
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.backup.continuous.DataElement;
@@ -68,6 +70,14 @@ public class LiveStream implements ILiveStream {
 				handler.handle(de);
 			}
 		};
+	}
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(LiveStream.class)//
+				.add("iid", installationid)//
+				.add("dom", domainUid)//
+				.add("sub", subscriber).toString();
 	}
 
 	@Override

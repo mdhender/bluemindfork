@@ -186,7 +186,9 @@ public class MailConversationService implements IInternalMailConversation {
 
 	private long uidToId(String folderUid) {
 		try {
-			return containerStore.get(IMailReplicaUids.mboxRecords(folderUid)).id;
+			Container res = containerStore.get(IMailReplicaUids.mboxRecords(folderUid));
+			System.err.println("uidToId " + folderUid + " => " + res);
+			return res.id;
 		} catch (SQLException e) {
 			throw new ServerFault(e);
 		}

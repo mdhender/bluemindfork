@@ -19,12 +19,15 @@ package net.bluemind.core.container.api.internal;
 
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
+import net.bluemind.core.container.model.Item;
 
 public interface IInternalContainersFlatHierarchy extends IContainersFlatHierarchy {
 
 	void create(String uid, ContainerHierarchyNode node);
 
 	void createWithId(long id, String uid, ContainerHierarchyNode node);
+
+	void createItem(Item it, ContainerHierarchyNode node);
 
 	void update(String uid, ContainerHierarchyNode node);
 

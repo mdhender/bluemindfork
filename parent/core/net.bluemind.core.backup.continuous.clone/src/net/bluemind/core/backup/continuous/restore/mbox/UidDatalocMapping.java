@@ -34,6 +34,8 @@ public class UidDatalocMapping {
 		public final ItemValue<MailboxReplica> folder;
 		public final ItemValue<Mailbox> mbox;
 		public final ItemValue<Domain> dom;
+		public long appliedUid = 0;
+		public long appliedModseq = 0;
 
 		public Replica(CyrusPartition part, ItemValue<Domain> dom, ItemValue<Mailbox> mbox,
 				ItemValue<MailboxReplica> folder) {
@@ -56,6 +58,11 @@ public class UidDatalocMapping {
 			CyrusPartition cp) {
 		CyrusPartition dedup = knownPartitions.computeIfAbsent(cp.name, k -> cp);
 		Replica replica = new Replica(dedup, dom, mbox, repl);
+		Replica existing = mapping.get(repl.uid);
+		if (existing != null) {
+			replica.appliedModseq = existing.appliedModseq;
+			replica.appliedUid = existing.appliedUid;
+		}
 		mapping.put(repl.uid, replica);
 		return replica;
 	}

@@ -1,7 +1,5 @@
 package net.bluemind.core.backup.continuous.restore.domains;
 
-import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,10 +46,11 @@ public class RestoreMailboxRecords extends RestoreReplicated implements RestoreD
 
 	public void restore(DataElement de) {
 		monitor.log("Processing mailbox record:\n" + de.key + "\n" + new String(de.payload));
-
+		System.err.println("RECS for " + de.key);
 		String uniqueId = IMailReplicaUids.getUniqueId(de.key.uid);
 		Replica repl = state.getReplica(uniqueId);
 		if (repl == null) {
+			System.err.println("MAILBOX unknown " + de.key.uid + " !!!!! (record will be skipped)");
 			monitor.log("No replica for " + de.key.uid);
 			return;
 		}
@@ -61,17 +60,19 @@ public class RestoreMailboxRecords extends RestoreReplicated implements RestoreD
 		try (SyncClientOIO sync = new SyncClientOIO(ip, 2502)) {
 			sync.authenticate("admin0", Token.admin0());
 			ItemValue<MailboxRecord> rec = recReader.read(new String(de.payload));
-			MailboxRecordItemCache.store(de.key.owner + rec.value.messageBody, rec.item());
-			if (!state.containsBody(rec.value.messageBody)) {
-				MsgBodyTask bodyTask = new MsgBodyTask(sdsStore, sync, repl);
-				try {
-					int len = bodyTask.run(monitor, rec.value.messageBody);
-					state.storeBodySize(rec.value.messageBody, len);
-				} catch (Exception e) {
-					e.printStackTrace();
-					return;
-				}
+			MailboxRecordItemCache.store(uniqueId, rec);
+			// if (!state.containsBody(rec.value.messageBody)) {
+			MsgBodyTask bodyTask = new MsgBodyTask(sdsStore, sync, repl);
+			try {
+				int len = bodyTask.run(monitor, rec.value.messageBody);
+				state.storeBodySize(rec.value.messageBody, len);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return;
 			}
+			// }
+			repl.appliedUid = Math.max(repl.appliedUid, rec.value.imapUid);
+			repl.appliedModseq = Math.max(repl.appliedModseq, rec.value.modSeq);
 
 			ReplMailbox replicatedMbox = buildReplicatedMailbox(repl);
 
@@ -88,9 +89,14 @@ public class RestoreMailboxRecords extends RestoreReplicated implements RestoreD
 			recordsBuffer.append(" GUID " + rec.value.messageBody).append(")");
 
 			String syncResponse = sync.applyMailbox(replicatedMbox, recordsBuffer.toString());
-//			logger.info("APPLY MAILBOX {} => {}", repl.mbox.uid, syncResponse);
+			if (!syncResponse.startsWith("OK")) {
+				logger.error("APPLY MAILBOX {} => {}, exit(1)", repl.mbox.uid, syncResponse);
+				System.exit(1);
+			}
+
 			monitor.log("APPLY MAILBOX aka " + repl.mbox.uid + " => " + syncResponse);
-		} catch (IOException e) {
+
+		} catch (Exception e) {
 			monitor.log("ERROR: " + e.getMessage());
 			throw new CloneException(e);
 		}

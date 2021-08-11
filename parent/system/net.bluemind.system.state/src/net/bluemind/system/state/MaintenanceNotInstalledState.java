@@ -27,6 +27,8 @@ public class MaintenanceNotInstalledState extends State {
 		switch (operation) {
 		case "core.upgrade.start":
 			return new MaintenanceUpgradeState();
+		case "core.cloning.start":
+			return new CloningState();
 		default:
 			return super.stateChange(operation);
 		}

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>net.bluemind.core.backup.continuous.directory</name>
+	<name>net.bluemind.core.backup.continuous.api</name>
 	<comment></comment>
 	<projects>
 	</projects>

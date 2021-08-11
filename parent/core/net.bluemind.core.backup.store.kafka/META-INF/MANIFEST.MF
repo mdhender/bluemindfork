@@ -14,3 +14,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.store.kafka
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.backup.store.kafka
+Eclipse-RegisterBuddy: net.bluemind.kafka.client

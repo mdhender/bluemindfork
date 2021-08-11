@@ -30,9 +30,12 @@ import net.bluemind.system.api.SystemState;
 
 public class StateContext {
 
+	private StateContext() {
+
+	}
+
 	protected static final Logger logger = LoggerFactory.getLogger(StateContext.class);
 	private static State currentState;
-	private static Timer heartbeatTimer;
 
 	static {
 		currentState = new StartingState();
@@ -46,7 +49,7 @@ public class StateContext {
 		// have a component stuck in maintenance state. StateObserverVerticle
 		// only does something when the new state is different from the old
 		// state.
-		heartbeatTimer = new Timer("core-heartbeat-timer", true);
+		Timer heartbeatTimer = new Timer("core-heartbeat-timer", true);
 		heartbeatTimer.scheduleAtFixedRate(new TimerTask() {
 
 			@Override

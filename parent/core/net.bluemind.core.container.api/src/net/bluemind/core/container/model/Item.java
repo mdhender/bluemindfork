@@ -102,4 +102,9 @@ public class Item {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "Item{id: " + id + ", uid: " + uid + ", dn: " + displayName + ", v: " + version + "}";
+	}
+
 }

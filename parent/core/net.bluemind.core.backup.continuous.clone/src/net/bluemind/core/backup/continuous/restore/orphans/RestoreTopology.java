@@ -25,6 +25,7 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.ExitList;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
@@ -51,7 +52,8 @@ public class RestoreTopology {
 	public Map<String, ItemValue<Server>> restore(IServerTaskMonitor monitor, List<DataElement> servers) {
 		ValueReader<ItemValue<Server>> topoReader = JsonUtils.reader(new TypeReference<ItemValue<Server>>() {
 		});
-		IServer topoApi = target.instance(IServer.class, installationId);
+		logger.info("Get IServer API for installation {}", installationId);
+		IServer topoApi = target.instance(IServer.class, "default");
 		AtomicBoolean resetES = new AtomicBoolean();
 		List<ItemValue<Server>> touched = new LinkedList<>();
 		servers.forEach(srvDE -> {
@@ -78,6 +80,19 @@ public class RestoreTopology {
 		});
 		if (resetES.get()) {
 			monitor.log("Reset ES indexes...");
+			do {
+				Optional<ItemValue<Server>> exist = Topology.get().anyIfPresent("bm/es");
+				if (exist.isPresent()) {
+					break;
+				} else {
+					try {
+						monitor.log("Waiting for bm/es to appear in topology...");
+						Thread.sleep(200);
+					} catch (Exception e) {
+						Thread.currentThread().interrupt();
+					}
+				}
+			} while (true);
 			target.instance(IInstallation.class).resetIndexes();
 		}
 		List<ItemValue<Server>> exist = topoApi.allComplete();

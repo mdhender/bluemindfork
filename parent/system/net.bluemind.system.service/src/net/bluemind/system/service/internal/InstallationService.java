@@ -54,7 +54,6 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.VersionInfo;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.backup.continuous.DefaultBackupStore;
 import net.bluemind.core.bo.report.provider.HostReportProvider;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -157,9 +156,22 @@ public class InstallationService implements IInstallation {
 			throw new ServerFault("No implementors of clone_support");
 		}
 		CloneSupport impl = loaded.get(0);
-		logger.info("Clone impl is {}", impl);
-		IServerTask tsk = impl.create(conf, context.provider(), DefaultBackupStore.get());
-		return context.provider().instance(ITasksManager.class).run(tsk);
+		InstallationId.reload();
+
+		logger.info("Set sysconf overrides {}...", conf.sysconfOverride);
+		context.provider().instance(ISystemConfiguration.class).updateMutableValues(conf.sysconfOverride);
+
+		logger.info("[{}] Clone impl is {}", InstallationId.getIdentifier(), impl);
+		IServerTask tsk = impl.create(conf, context.provider(), conf.sysconfOverride);
+		IServerTask wrapped = new IServerTask() {
+
+			@Override
+			public void run(IServerTaskMonitor monitor) throws Exception {
+				tsk.run(monitor);
+				StateContext.setState("core.cloning.end");
+			}
+		};
+		return context.provider().instance(ITasksManager.class).run(wrapped);
 	}
 
 	@Override
@@ -180,7 +192,6 @@ public class InstallationService implements IInstallation {
 
 	private void initializeSystem(IServerTaskMonitor monitor) {
 		monitor.begin(100, "Initializing system...");
-		StateContext.setState("core.upgrade.start");
 
 		File token = new File("/etc/bm/bm-core.tok");
 		if (token.exists() && !context.getSecurityContext().isDomainGlobal()) {
@@ -192,12 +203,14 @@ public class InstallationService implements IInstallation {
 			logger.warn("mcast.id is already present, we create a new installation on an existing one !");
 		}
 		File clone = new File("/etc/bm/mcast.id.clone");
-
+		boolean cloning = clone.exists();
 		try {
-			if (clone.exists()) {
+			if (cloning) {
+				StateContext.setState("core.cloning.start");
 				logger.info("Using mcast.id.clone for installation");
 				Files.move(clone.toPath(), f.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			} else {
+				StateContext.setState("core.upgrade.start");
 				Files.write(f.toPath(), UUID.randomUUID().toString().getBytes());
 			}
 			InstallationId.reload();
@@ -289,7 +302,9 @@ public class InstallationService implements IInstallation {
 					+ e.getMessage());
 		}
 
-		StateContext.setState("core.upgrade.end");
+		if (!cloning) {
+			StateContext.setState("core.upgrade.end");
+		}
 		monitor.end(true, "Initialized system", null);
 	}
 

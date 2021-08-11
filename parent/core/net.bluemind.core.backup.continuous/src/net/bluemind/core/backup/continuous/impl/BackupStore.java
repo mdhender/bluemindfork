@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.MoreObjects;
 
-import net.bluemind.core.backup.continuous.IBackupStore;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.TopicSerializer;
+import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.store.ITopicStore.TopicDescriptor;
 import net.bluemind.core.backup.continuous.store.TopicPublisher;
 import net.bluemind.core.container.model.ItemValue;

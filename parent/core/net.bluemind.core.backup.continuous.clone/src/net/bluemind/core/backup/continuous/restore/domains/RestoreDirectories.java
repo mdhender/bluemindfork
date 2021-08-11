@@ -1,8 +1,8 @@
 package net.bluemind.core.backup.continuous.restore.domains;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -68,11 +68,11 @@ public class RestoreDirectories implements RestoreDomainType {
 
 	private final IServerTaskMonitor monitor;
 	private final IServiceProvider target;
-	private final ArrayList<IClonePhaseObserver> observers;
+	private final List<IClonePhaseObserver> observers;
 	private final RestoreState state;
 
-	public RestoreDirectories(IServerTaskMonitor monitor, IServiceProvider target,
-			ArrayList<IClonePhaseObserver> observers, RestoreState state) {
+	public RestoreDirectories(IServerTaskMonitor monitor, IServiceProvider target, List<IClonePhaseObserver> observers,
+			RestoreState state) {
 		this.monitor = monitor;
 		this.target = target;
 		this.observers = observers;
@@ -105,6 +105,8 @@ public class RestoreDirectories implements RestoreDomainType {
 			processEntry(monitor.subWork(1), domains, js);
 		} catch (Exception e) {
 			monitor.log("Failed to process entry:" + e.getMessage());
+			e.printStackTrace();
+			System.exit(1);
 		}
 
 		monitor.log("Finished processing dir entry");

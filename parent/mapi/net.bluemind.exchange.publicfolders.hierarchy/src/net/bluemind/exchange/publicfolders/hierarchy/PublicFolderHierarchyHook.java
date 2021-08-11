@@ -110,11 +110,15 @@ public class PublicFolderHierarchyHook implements IContainersHook, IAclHook {
 		void accept(IInternalContainersFlatHierarchy hierarchy) throws ServerFault;
 	}
 
+	private boolean pfOwner(String domainUid, DirEntry owner) {
+		return owner.entryUid.equals(PublicFolders.dirEntry(domainUid).entryUid);
+	}
+
 	private void hierarchyOp(BmContext ctx, ContainerDescriptor cd, HierarchyOperation operation) {
 		DirEntry owner = getOwner(ctx, cd);
 		if (owner == null) {
 			logger.warn("Owner not found in directory, Nothing to do on {} owned by {}", cd.uid, cd.owner);
-		} else if (owner.kind == Kind.MAILSHARE || owner.kind == Kind.CALENDAR || owner.kind == Kind.ADDRESSBOOK) {
+		} else if (pfOwner(cd.domainUid, owner) || owner.kind == Kind.CALENDAR || owner.kind == Kind.ADDRESSBOOK) {
 			if (cd.uid.equals(IAddressBookUids.userVCards(cd.domainUid))) {
 				logger.warn("Nothing to do on directory ab {}", cd.uid);
 			} else {
@@ -137,7 +141,12 @@ public class PublicFolderHierarchyHook implements IContainersHook, IAclHook {
 		hierarchyOp(ctx, cd, hier -> {
 			logger.info("Container created {}, should create in hierarchy", cd);
 			String hierUid = uid(cd);
-			hier.create(hierUid, ContainerHierarchyNode.of(cd));
+			ItemValue<ContainerHierarchyNode> existing = hier.getComplete(hierUid);
+			if (existing == null) {
+				hier.create(hierUid, ContainerHierarchyNode.of(cd));
+			} else {
+				hier.update(hierUid, ContainerHierarchyNode.of(cd));
+			}
 		});
 	}
 
@@ -172,10 +181,12 @@ public class PublicFolderHierarchyHook implements IContainersHook, IAclHook {
 	@Override
 	public void onContainerSubscriptionsChanged(BmContext ctx, ContainerDescriptor cd, List<String> subs,
 			List<String> unsubs) throws ServerFault {
+		// don't care
 	}
 
 	@Override
 	public void onContainerOfflineSyncStatusChanged(BmContext ctx, ContainerDescriptor cd, String subject) {
+		// don't care
 	}
 
 	@Override

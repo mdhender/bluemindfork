@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.replication.client.ReplMailbox;
 import net.bluemind.backend.cyrus.replication.client.SyncClientOIO;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.config.Token;
 import net.bluemind.core.backup.continuous.DataElement;
@@ -39,7 +40,7 @@ public class RestoreReplicatedMailboxes extends RestoreReplicated implements Res
 	}
 
 	public String type() {
-		return "replicated_mailboxes";
+		return IMailReplicaUids.REPLICATED_MBOXES;
 	}
 
 	public void restore(DataElement de) {
@@ -54,6 +55,7 @@ public class RestoreReplicatedMailboxes extends RestoreReplicated implements Res
 			logger.warn("no mbox for this replica, skipping");
 			return;
 		}
+		System.err.println("ReplicatedMailboxes " + mbox.value.name + " " + de.key);
 		ItemValue<Server> imap = state.getServer(mbox.value.dataLocation);
 		CyrusPartition partition = CyrusPartition.forServerAndDomain(imap, domain.uid);
 		ItemValue<MailboxReplica> replica = mrReader.read(new String(de.payload));
@@ -65,6 +67,10 @@ public class RestoreReplicatedMailboxes extends RestoreReplicated implements Res
 			syncClient.authenticate("admin0", Token.admin0());
 			String syncResponse = syncClient.applyMailbox(replicatedMbox);
 			monitor.log("APPLY MAILBOX aka " + replica.uid + " => " + syncResponse);
+			if (!syncResponse.startsWith("OK")) {
+				System.err.println("Failed on " + de.key + " => " + syncResponse);
+				System.exit(1);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			monitor.log("ERROR: " + e.getMessage());

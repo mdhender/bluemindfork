@@ -22,6 +22,7 @@ import java.security.InvalidParameterException;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,7 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 	private static final Logger logger = LoggerFactory.getLogger(Nginx.class);
 
 	private Vertx vertx;
-	private static Optional<String> defaultDomain;
+	private static final AtomicReference<String> defaultDomain = new AtomicReference<>();
 
 	private static class QueryParameters {
 		public final String clientIp;
@@ -91,7 +92,7 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 			}
 
 			user = decode(user).toLowerCase();
-			String latd = (!"admin0".equals(user) && defaultDomain.isPresent() && !user.contains("@"))
+			String latd = (!"admin0".equals(user) && defaultDomain.get() != null && !user.contains("@"))
 					? user + "@" + defaultDomain.get()
 					: user;
 
@@ -117,19 +118,21 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 	}
 
 	public Nginx() {
-		loadDefaultDomain();
+		try {
+			loadDefaultDomain();
+		} catch (Exception e) {
+			logger.warn("Problem loading default domain {}", e.getMessage());
+		}
 	}
 
 	private void loadDefaultDomain() {
-		Optional<String> defaultDomain = Optional.ofNullable(
-				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ISystemConfiguration.class)
-						.getValues().values.get(SysConfKeys.default_domain.name()));
-		if (defaultDomain.isPresent() && defaultDomain.get().trim().isEmpty()) {
-			Nginx.defaultDomain = Optional.empty();
+		Optional<String> def = Optional.ofNullable(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class).getValues().values.get(SysConfKeys.default_domain.name()));
+		if (def.isPresent() && def.get().trim().isEmpty()) {
+			Nginx.defaultDomain.set(null);
 			return;
 		}
-
-		Nginx.defaultDomain = defaultDomain;
+		def.ifPresent(defaultDomain::set);
 	}
 
 	@Override

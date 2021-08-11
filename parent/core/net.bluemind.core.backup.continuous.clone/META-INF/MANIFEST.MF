@@ -20,7 +20,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eclipse.common,
  com.google.guava,
  net.bluemind.backend.mail.replica.api,
- net.bluemind.backend.mail.replica.service,
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.config,
  net.bluemind.lib.jutf7,
@@ -35,7 +34,11 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.imap,
  net.bluemind.node.api,
  net.bluemind.utils,
- net.bluemind.system.service
+ net.bluemind.system.service,
+ net.bluemind.network.topology,
+ net.bluemind.backend.mail.replica.service,
+ net.bluemind.core.container.hierarchy.hook;bundle-version="4.1.0",
+ net.bluemind.exchange.publicfolders.hierarchy;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.continuous.clone
 Bundle-ActivationPolicy: lazy

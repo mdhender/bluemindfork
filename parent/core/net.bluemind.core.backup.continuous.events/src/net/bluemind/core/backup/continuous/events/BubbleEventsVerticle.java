@@ -36,8 +36,8 @@ import net.bluemind.addressbook.api.VCard;
 import net.bluemind.calendar.hook.CalendarHookAddress;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
-import net.bluemind.core.backup.continuous.IBackupStore;
-import net.bluemind.core.backup.continuous.IBackupStoreFactory;
+import net.bluemind.core.backup.continuous.api.IBackupStore;
+import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -137,7 +137,7 @@ public class BubbleEventsVerticle extends AbstractVerticle {
 
 		if (rateLimit.tryAcquire()) {
 			logger.info("Bubbling for d: {}, owner: {}", domain, owner);
-			IBackupStoreFactory backup = DefaultBackupStore.get();
+			IBackupStoreFactory backup = DefaultBackupStore.store();
 			ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 			IDirectory dirApi = prov.instance(IDirectory.class, domain);
 			DirEntry de = dirApi.findByEntryUid(owner);
@@ -184,7 +184,7 @@ public class BubbleEventsVerticle extends AbstractVerticle {
 		});
 
 		if (domLimit.tryAcquire()) {
-			IBackupStoreFactory backup = DefaultBackupStore.get();
+			IBackupStoreFactory backup = DefaultBackupStore.store();
 			ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
 			BaseContainerDescriptor domains = new BaseContainerDescriptor();

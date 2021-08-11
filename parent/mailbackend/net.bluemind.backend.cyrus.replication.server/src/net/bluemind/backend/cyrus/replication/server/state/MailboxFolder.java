@@ -241,6 +241,7 @@ public class MailboxFolder {
 		sb.append(" POP3_LAST_LOGIN ").append(pop3lastLogin);
 		// FIXME cyrus 3 new
 		sb.append(" POP3_SHOW_AFTER ").append("0");
+		sb.append(" XCONVMODSEQ ").append(highestModSeq);
 		sb.append(" UIDVALIDITY ").append(uidValidity);
 		sb.append(" PARTITION ").append(partition);
 		sb.append(" ACL \"").append(acl).append("\"");

@@ -38,8 +38,8 @@ import com.google.common.base.Suppliers;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.backup.continuous.DefaultBackupStore;
-import net.bluemind.core.backup.continuous.IBackupStore;
+import net.bluemind.core.backup.continuous.api.IBackupStore;
+import net.bluemind.core.backup.continuous.api.Providers;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ChangeLogEntry;
@@ -117,7 +117,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		this.weightProvider = wProv;
 		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				container.owner, container.type, container.domainUid, container.defaultContainer);
-		this.backupStream = DefaultBackupStore.get().forContainer(descriptor);
+		this.backupStream = Providers.get().forContainer(descriptor);
 		this.containerChangeEventProducer = Suppliers
 				.memoize(() -> new ContainerChangeEventProducer(securityContext, VertxPlatform.eventBus(), container));
 	}

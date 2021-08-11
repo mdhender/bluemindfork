@@ -135,7 +135,8 @@
       <plugin id="net.bluemind.core.annotationvalidator"/>
       <plugin id="net.bluemind.core.auditlog"/>
       <plugin id="net.bluemind.core.backup.continuous"/>
-      <plugin id="net.bluemind.core.backup.continuous.directory"/>
+      <plugin id="net.bluemind.core.backup.continuous.api"/>
+      <plugin id="net.bluemind.core.backup.continuous.clone"/>
       <plugin id="net.bluemind.core.backup.continuous.dto"/>
       <plugin id="net.bluemind.core.backup.continuous.events"/>
       <plugin id="net.bluemind.core.backup.store.kafka"/>

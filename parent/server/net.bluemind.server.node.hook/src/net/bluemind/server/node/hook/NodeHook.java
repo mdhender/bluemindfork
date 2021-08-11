@@ -152,7 +152,7 @@ public class NodeHook extends DefaultServerHook {
 				String line = null;
 				do {
 					line = br.readLine();
-					logger.info(line != null ? line : "---");
+					logger.info("{}", line != null ? line : "---");
 				} while (line != null);
 			}
 
@@ -182,15 +182,15 @@ public class NodeHook extends DefaultServerHook {
 		if ("127.0.0.1".equals(s.address()) || "localhost".equals(s.address())) {
 			return;
 		}
-		logger.info("***** new core, must copy " + clientCert);
+		if (logger.isInfoEnabled()) {
+			logger.info("***** new core @ {}, must copy {}", s.address(), clientCert);
+		}
 		try {
 			INodeClient remote = NodeActivator.get(s.address());
 			remote.writeFile(clientCert, new ByteArrayInputStream(Files.readAllBytes((new File(clientCert)).toPath())));
 			NCUtils.execNoOut(remote, "chmod 400 " + clientCert);
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		} catch (ServerFault e) {
-			logger.error(e.getMessage(), e);
+		} catch (ServerFault | IOException e) {
+			logger.error(e.getMessage());
 		}
 	}
 }

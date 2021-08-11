@@ -1,7 +1,7 @@
 package net.bluemind.core.backup.continuous.restore.domains;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -24,19 +24,25 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 	private final Map<String, RestoreDomainType> restoresByType;
 
 	public DomainRestorationHandler(IServerTaskMonitor monitor, ItemValue<Domain> domain, IServiceProvider target,
-			ArrayList<IClonePhaseObserver> observers, ISdsSyncStore sdsStore, RestoreState state) {
-		this.restoresByType = Arrays.asList(new RestoreMailboxRecords(monitor, sdsStore, state),
-				new RestoreDirectories(monitor, target, observers, state),
-				new RestoreReplicatedMailboxes(monitor, domain, state), new RestoreMembership(monitor, domain, target))
-				.stream().collect(Collectors.toMap(RestoreDomainType::type, Function.identity()));
+			List<IClonePhaseObserver> observers, ISdsSyncStore sdsStore, RestoreState state) {
+		this.restoresByType = Arrays.asList(//
+				new RestoreMailboxRecords(monitor, sdsStore, state), //
+				new RestoreDirectories(monitor, target, observers, state), //
+				new RestoreReplicatedMailboxes(monitor, domain, state), //
+				new RestoreFlatHierarchy(monitor, domain, target), //
+				new RestoreMembership(monitor, domain, target)//
+		).stream().collect(Collectors.toMap(RestoreDomainType::type, Function.identity()));
 	}
 
 	@Override
 	public void handle(DataElement event) {
 		RestoreDomainType restore = restoresByType.get(event.key.type);
-		logger.info("Restoring {} with {}", event.key.type, restore);
+		// logger.info("Restoring {} with {}", event.key.type, restore);
 		if (restore != null) { // system == "system".equals(event.key.owner) &&
+			System.err.println("Restore " + event.key.type + " " + event.key.id);
 			restore.restore(event);
+		} else {
+			logger.warn("Skip {}", event.key.type);
 		}
 	}
 

@@ -26,4 +26,12 @@ public interface IDomainUids {
 		return GLOBAL_VIRT;
 	}
 
+	public static String userGroup(String domainUid) {
+		return domainUid + "_user_group";
+	}
+
+	public static String adminGroup(String domainUid) {
+		return domainUid + "_admin_group";
+	}
+
 }

@@ -158,7 +158,8 @@ public class ChangelogStore extends JdbcAbstractStore {
 	}
 
 	private static final String INSERT_QUERY = "with lock as (select pg_advisory_xact_lock(#lock#), ? as version, ? as container_id, ? as item_uid, ? as item_external_id, ? as type, ? as author, now() as date, ? as origin, ? as item_id, ? as weight_seed) "
-			+ "INSERT INTO t_container_changelog (version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed) select version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed from lock";
+			+ "INSERT INTO t_container_changelog (version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed) select version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed FROM lock "
+			+ "ON CONFLICT ON CONSTRAINT t_container_changelog_pkey DO NOTHING";
 
 	private static final String CHANGESET_QUERY = "SELECT version, type, item_uid, item_id, weight_seed "
 			+ " FROM t_container_changeset WHERE container_id = ? AND version > ? order by item_id, version";

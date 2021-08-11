@@ -18,8 +18,12 @@
  */
 package net.bluemind.core.backup.continuous.clone;
 
-import net.bluemind.core.backup.continuous.IBackupStoreFactory;
+import java.util.Map;
+
+import net.bluemind.core.backup.continuous.DefaultBackupStore;
+import net.bluemind.core.backup.continuous.IBackupReader;
 import net.bluemind.core.backup.continuous.restore.InstallFromBackupTask;
+import net.bluemind.core.backup.continuous.restore.SysconfOverride;
 import net.bluemind.core.backup.continuous.restore.TopologyMapping;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.service.IServerTask;
@@ -29,9 +33,11 @@ import net.bluemind.system.service.clone.CloneSupport;
 public class DefaultCloneSupport implements CloneSupport {
 
 	@Override
-	public IServerTask create(CloneConfiguration conf, IServiceProvider prov, IBackupStoreFactory store) {
+	public IServerTask create(CloneConfiguration conf, IServiceProvider prov, Map<String, String> sysconfOverride) {
 		TopologyMapping tm = new TopologyMapping(conf.uidToIpMapping);
-		return new InstallFromBackupTask(conf.sourceInstallationId, store, tm, prov);
+		IBackupReader reader = DefaultBackupStore.reader();
+		return new InstallFromBackupTask(conf.sourceInstallationId, reader, new SysconfOverride(sysconfOverride), tm,
+				prov);
 	}
 
 }

@@ -1,10 +1,6 @@
 package net.bluemind.core.backup.continuous.impl;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,20 +9,15 @@ import com.google.common.base.MoreObjects;
 
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
-import net.bluemind.core.backup.continuous.IBackupStore;
-import net.bluemind.core.backup.continuous.IBackupStoreFactory;
-import net.bluemind.core.backup.continuous.ILiveBackupStreams;
-import net.bluemind.core.backup.continuous.ILiveStream;
 import net.bluemind.core.backup.continuous.NoopStore;
 import net.bluemind.core.backup.continuous.RecordKey;
-import net.bluemind.core.backup.continuous.TopicDeserializer;
 import net.bluemind.core.backup.continuous.TopicSerializer;
-import net.bluemind.core.backup.continuous.dto.VersionnedItem;
+import net.bluemind.core.backup.continuous.api.IBackupStore;
+import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.store.ITopicStore;
 import net.bluemind.core.backup.continuous.store.ITopicStore.TopicDescriptor;
 import net.bluemind.core.backup.continuous.store.TopicNames;
 import net.bluemind.core.backup.continuous.store.TopicPublisher;
-import net.bluemind.core.backup.continuous.store.TopicSubscriber;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 
@@ -56,58 +47,21 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 	}
 
 	private TopicPublisher publisher(TopicDescriptor descriptor) {
-		return CLONE_MARKER || disabled || "global.virt".equals(descriptor.domainUid())
-				? NoopStore.NOOP.getPublisher(descriptor)
-				: topicStore.getPublisher(descriptor);
+		return isNoop(descriptor) ? NoopStore.NOOP.getPublisher(descriptor) : topicStore.getPublisher(descriptor);
 	}
 
-	@Override
-	public Collection<String> installations() {
-		return topicStore.topicNames().stream().filter(name -> name.endsWith("__orphans__"))
-				.map(name -> name.substring(0, name.indexOf('-'))).collect(Collectors.toList());
-	}
-
-	@Override
-	public ILiveBackupStreams forInstallation(String installationid) {
-		Set<String> topicNames = topicStore.topicNames(installationid);
-		TopicSubscriber orphanSubscriber = topicNames.stream().filter(name -> name.endsWith("__orphans__")).findFirst()
-				.map(topicStore::getSubscriber).orElse(null);
-		List<TopicSubscriber> domainSubscribers = topicNames.stream().filter(name -> !name.endsWith("__orphans__"))
-				.map(topicStore::getSubscriber).collect(Collectors.toList());
-		return new ILiveBackupStreams() {
-
-			@Override
-			public List<ILiveStream> listAvailable() {
-				List<ILiveStream> streams = domains();
-				streams.add(orphans());
-				return streams;
-			}
-
-			@Override
-			public ILiveStream orphans() {
-				return build(installationid, "__orphans__", orphanSubscriber);
-			}
-
-			@Override
-			public List<ILiveStream> domains() {
-				return domainSubscribers.stream().map(subscriber -> {
-					logger.info("{}:{}", installationid, subscriber.topicName());
-					String[] tokens = subscriber.topicName().split("-");
-					return build(tokens[0], tokens[1], subscriber);
-				}).collect(Collectors.toList());
-			}
-		};
+	private boolean isNoop(TopicDescriptor descriptor) {
+		boolean ret = CLONE_MARKER || disabled || "global.virt".equals(descriptor.domainUid());
+		if (logger.isDebugEnabled() && ret) {
+			logger.debug("noop for {}", descriptor);
+		}
+		return ret;
 	}
 
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(DefaultBackupStore.class).add("topicStore", topicStore)
 				.add("clone", CLONE_MARKER).toString();
-	}
-
-	private ILiveStream build(String installationid, String domainUid, TopicSubscriber subscriber) {
-		TopicDeserializer<RecordKey, VersionnedItem<?>> deserializer = new ItemValueDeserializer();
-		return new LiveStream(installationid, domainUid, subscriber, deserializer);
 	}
 
 }

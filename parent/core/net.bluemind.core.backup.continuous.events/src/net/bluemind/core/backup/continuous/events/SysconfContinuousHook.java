@@ -39,7 +39,7 @@ public class SysconfContinuousHook implements ISystemConfigurationObserver {
 
 		ItemValue<SystemConf> metaItem = ItemValue.create("sysconf", conf);
 		metaItem.internalId = metaItem.uid.hashCode();
-		DefaultBackupStore.get().<SystemConf>forContainer(metaDesc).store(metaItem);
+		DefaultBackupStore.store().<SystemConf>forContainer(metaDesc).store(metaItem);
 		logger.info("Saved sysconf as {}", metaItem);
 
 	}

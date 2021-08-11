@@ -77,7 +77,7 @@ public class ContainersContinuousHook implements IContainersHook, IAclHook {
 		cm.settings = mgmApi.getSettings();
 		ItemValue<ContainerMetadata> metaItem = ItemValue.create(cd.uid + "_settings", cm);
 		metaItem.internalId = metaItem.uid.hashCode();
-		DefaultBackupStore.get().<ContainerMetadata>forContainer(metaDesc).store(metaItem);
+		DefaultBackupStore.store().<ContainerMetadata>forContainer(metaDesc).store(metaItem);
 		logger.info("Saved settings for {}", cd.uid);
 		Bubble.owner(cd);
 	}
@@ -93,7 +93,7 @@ public class ContainersContinuousHook implements IContainersHook, IAclHook {
 		cm.acls = current;
 		ItemValue<ContainerMetadata> metaItem = ItemValue.create(cd.uid + "_acls", cm);
 		metaItem.internalId = metaItem.uid.hashCode();
-		DefaultBackupStore.get().<ContainerMetadata>forContainer(metaDesc).store(metaItem);
+		DefaultBackupStore.store().<ContainerMetadata>forContainer(metaDesc).store(metaItem);
 		logger.info("Saved acls for {}", cd.uid);
 		Bubble.owner(cd);
 	}

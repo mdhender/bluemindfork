@@ -47,15 +47,22 @@ public class CloneState {
 		this.topicNameResume = new HashMap<>();
 		this.freshTopicNameResume = new ConcurrentHashMap<>();
 		this.path = p;
-		try {
-			byte[] content = Files.readAllBytes(p);
-			JsonObject js = new JsonObject(Buffer.buffer(content));
-			for (String top : js.fieldNames()) {
-				IResumeToken tok = any.parse(js.getJsonObject(top));
-				topicNameResume.put(top, tok);
+		if (p.toFile().exists()) {
+			try {
+				byte[] content = Files.readAllBytes(p);
+				JsonObject js = new JsonObject(Buffer.buffer(content));
+				for (String top : js.fieldNames()) {
+					JsonObject jsTok = js.getJsonObject(top);
+					System.err.println("[" + top + "] RESUME from " + jsTok);
+					IResumeToken tok = any.parse(jsTok);
+
+					topicNameResume.put(top, tok);
+				}
+			} catch (IOException e) {
+				logger.warn("clone state retrieval ({} {})", e.getClass(), e.getMessage());
 			}
-		} catch (IOException e) {
-			logger.warn("clone state retrieval ({})", e.getMessage());
+		} else {
+			logger.warn("No previous clone state at {}", p);
 		}
 
 	}

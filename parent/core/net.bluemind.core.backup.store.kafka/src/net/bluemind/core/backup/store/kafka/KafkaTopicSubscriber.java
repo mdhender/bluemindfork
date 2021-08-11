@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
@@ -28,6 +30,7 @@ import net.bluemind.core.backup.continuous.store.TopicSubscriber;
 public class KafkaTopicSubscriber implements TopicSubscriber {
 
 	private static final Logger logger = LoggerFactory.getLogger(KafkaTopicSubscriber.class);
+	private static final AtomicInteger subAlloc = new AtomicInteger();
 
 	private final String bootstrapServer;
 	private final String clientId;
@@ -89,9 +92,10 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 						handler.accept(rec.key(), rec.value());
 						processed.incrementAndGet();
 					} catch (Exception e) {
-						logger.error("handler {} failed", handler, e);
+						logger.error("handler {} failed, exit(1)", handler, e);
+						System.exit(1);
 					}
-//					
+
 					offsets.put(rec.partition(), rec.offset());
 				});
 			} while (true);
@@ -115,8 +119,9 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		logger.warn("bootstrap: {}, clientId: {}, inst: {}", bootstrapServer, clientId, InstallationId.getIdentifier());
 		Properties cp = new Properties();
 		cp.setProperty("bootstrap.servers", bootstrapServer);
-		cp.setProperty("client.id", clientId + "_cons_" + System.nanoTime());
+		cp.setProperty("client.id", clientId + "_" + subAlloc.incrementAndGet());
 		cp.setProperty("group.id", "clone-of-" + InstallationId.getIdentifier());
+		cp.setProperty(ConsumerConfig.METRIC_REPORTER_CLASSES_CONFIG, BluemindMetricsReporter.class.getCanonicalName());
 		cp.setProperty("enable.auto.commit", "true");
 		cp.setProperty("fetch.max.wait.ms", "100");
 		cp.setProperty("auto.offset.reset", "earliest");

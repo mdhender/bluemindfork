@@ -18,6 +18,8 @@
  */
 package net.bluemind.system.state;
 
+import java.io.File;
+
 import net.bluemind.config.Token;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -33,14 +35,36 @@ public class StartingState extends State {
 		case "core.started":
 			if (!Token.exists()) {
 				return new MaintenanceNotInstalledState();
+			} else if (kafkaConfigured(operation) && cloningStarted()) {
+				return new CloningState();
 			} else if (needsUpgrade()) {
 				return new MaintenanceUpgradeState();
+			}
+			return new RunningState();
+		case "core.cloning.start":
+			if (kafkaConfigured(operation)) {
+				return new CloningState();
 			}
 			return new RunningState();
 		default:
 			return super.stateChange(operation);
 		}
 
+	}
+
+	private boolean kafkaConfigured(String op) {
+		boolean confLooksOk = System.getProperty("bm.kafka.bootstrap.servers") != null
+				|| new File("/etc/bm/kafka.properties").exists();
+		if (!confLooksOk) {
+			logger.warn(
+					"\"bm.kafka.bootstrap.servers\" system prop is not set & /etc/bm/kafka.properties does not exist for transition '{}'",
+					op);
+		}
+		return confLooksOk;
+	}
+
+	private boolean cloningStarted() {
+		return new File("/etc/bm/continuous.clone").exists();
 	}
 
 	private boolean needsUpgrade() {

@@ -11,7 +11,7 @@ Require-Bundle: net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.lib.vertx;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",
  net.bluemind.core.commons;bundle-version="1.0.0";visibility:=reexport,
- net.bluemind.core.container.api;bundle-version="1.0.0",
+ net.bluemind.core.container.api;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.core.rest;bundle-version="1.0.0",
  slf4j.api,
  net.bluemind.core.container.hooks,
@@ -28,5 +28,5 @@ Require-Bundle: net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.user.persistence,
  net.bluemind.core.container.sharding,
  net.bluemind.config,
- net.bluemind.core.backup.continuous;visibility:=reexport
+ net.bluemind.core.backup.continuous.api;bundle-version="1.0.0";visibility:=reexport
 Automatic-Module-Name: net.bluemind.core.container.service

@@ -18,13 +18,14 @@
  */
 package net.bluemind.system.service.clone;
 
-import net.bluemind.core.backup.continuous.IBackupStoreFactory;
+import java.util.Map;
+
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.system.api.CloneConfiguration;
 
 public interface CloneSupport {
 
-	IServerTask create(CloneConfiguration conf, IServiceProvider prov, IBackupStoreFactory store);
+	IServerTask create(CloneConfiguration conf, IServiceProvider prov, Map<String, String> sysconfOverride);
 
 }

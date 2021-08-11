@@ -30,6 +30,7 @@ import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
+import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
@@ -68,6 +69,13 @@ public class InternalContainersHierarchyService implements IInternalContainersFl
 	public void createWithId(long id, String uid, ContainerHierarchyNode node) throws ServerFault {
 		rbacManager.check(Verb.Write.name(), Verb.Manage.name());
 		ItemVersion itemVersion = storeService.createWithId(uid, id, null, node.name, node);
+		eventsProducer.changed(itemVersion.version, node.containerUid, Operation.CREATE);
+	}
+
+	@Override
+	public void createItem(Item it, ContainerHierarchyNode node) throws ServerFault {
+		rbacManager.check(Verb.Write.name(), Verb.Manage.name());
+		ItemVersion itemVersion = storeService.create(it, node);
 		eventsProducer.changed(itemVersion.version, node.containerUid, Operation.CREATE);
 	}
 

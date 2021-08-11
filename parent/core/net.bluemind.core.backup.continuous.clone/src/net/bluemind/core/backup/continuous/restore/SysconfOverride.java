@@ -16,25 +16,22 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.core.backup.continuous.directory;
+package net.bluemind.core.backup.continuous.restore;
 
-import java.util.function.Supplier;
+import java.util.Map;
 
-abstract class ExpiringMemoizingSupplier<T> implements Supplier<T> {
-	private volatile T value;
+import com.google.common.collect.ImmutableMap;
 
-	@Override
-	public final T get() {
-		if (value == null) {
-			value = load();
-		}
-		return value;
+public class SysconfOverride {
+
+	private Map<String, String> overrides;
+
+	public SysconfOverride(Map<String, String> over) {
+		this.overrides = ImmutableMap.copyOf(over);
 	}
 
-	public abstract T load();
-
-	public final void expire() {
-		value = null;
+	public Map<String, String> getOverrides() {
+		return overrides;
 	}
 
 }

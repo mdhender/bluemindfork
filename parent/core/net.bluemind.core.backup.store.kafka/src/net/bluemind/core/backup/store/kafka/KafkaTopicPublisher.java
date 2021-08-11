@@ -1,9 +1,12 @@
 package net.bluemind.core.backup.store.kafka;
 
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
@@ -15,24 +18,24 @@ import net.bluemind.core.backup.continuous.store.TopicPublisher;
 
 public class KafkaTopicPublisher implements TopicPublisher {
 
-	private static final Logger logger = LoggerFactory.getLogger(KafkaTopicStore.class);
-
-	private static final byte[] EMPTY = new byte[] {};
+	private static final Logger logger = LoggerFactory.getLogger(KafkaTopicPublisher.class);
 
 	private final String bootstrapServer;
 	private final String physicalTopic;
 	private final KafkaProducer<byte[], byte[]> producer;
 
+	private static final Map<String, KafkaProducer<byte[], byte[]>> perPhyTopicProd = new ConcurrentHashMap<>();
+
 	public KafkaTopicPublisher(String bootstrapServer, String physicalTopic) {
 		this.bootstrapServer = bootstrapServer;
 		this.physicalTopic = physicalTopic;
-		this.producer = createKafkaProducer();
+		this.producer = perPhyTopicProd.computeIfAbsent(physicalTopic, s -> createKafkaProducer());
 	}
 
 	@Override
 	public CompletableFuture<Void> store(String partitionToken, byte[] key, byte[] data) {
 		CompletableFuture<Void> comp = new CompletableFuture<>();
-		int partition = partitionToken.hashCode() % KafkaTopicStore.PARTITION_COUNT;
+		int partition = Math.abs(partitionToken.hashCode() % KafkaTopicStore.PARTITION_COUNT);
 		ProducerRecord<byte[], byte[]> rec = new ProducerRecord<>(physicalTopic, partition, key, data);
 
 		producer.send(rec, (RecordMetadata metadata, Exception exception) -> {
@@ -50,6 +53,8 @@ public class KafkaTopicPublisher implements TopicPublisher {
 		Properties producerProps = new Properties();
 		producerProps.setProperty("bootstrap.servers", bootstrapServer);
 		producerProps.setProperty("acks", "all");
+		producerProps.setProperty(ProducerConfig.METRIC_REPORTER_CLASSES_CONFIG,
+				BluemindMetricsReporter.class.getCanonicalName());
 		producerProps.setProperty("compression.type", KafkaTopicStore.COMPRESSION_TYPE);
 		producerProps.setProperty("key.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
 		producerProps.setProperty("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");

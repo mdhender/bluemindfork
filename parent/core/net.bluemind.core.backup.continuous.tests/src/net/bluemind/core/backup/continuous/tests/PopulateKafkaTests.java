@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -32,6 +33,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,13 +65,15 @@ import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
-import net.bluemind.core.backup.continuous.IBackupStore;
-import net.bluemind.core.backup.continuous.IBackupStoreFactory;
+import net.bluemind.core.backup.continuous.IBackupReader;
 import net.bluemind.core.backup.continuous.ILiveBackupStreams;
 import net.bluemind.core.backup.continuous.ILiveStream;
+import net.bluemind.core.backup.continuous.api.IBackupStore;
+import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.restore.CloneState;
 import net.bluemind.core.backup.continuous.restore.IClonePhaseObserver;
 import net.bluemind.core.backup.continuous.restore.InstallFromBackupTask;
+import net.bluemind.core.backup.continuous.restore.SysconfOverride;
 import net.bluemind.core.backup.continuous.restore.TopologyMapping;
 import net.bluemind.core.backup.continuous.restore.mbox.DefaultSdsStoreLoader;
 import net.bluemind.core.backup.continuous.store.TopicNames;
@@ -97,6 +101,7 @@ import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.sds.store.s3.S3StoreFactory;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class PopulateKafkaTests {
@@ -123,7 +128,7 @@ public class PopulateKafkaTests {
 		ISdsBackingStore sds = new S3StoreFactory().create(VertxPlatform.getVertx(), s3conf.asJson());
 
 		System.err.println("sds: " + sds);
-		try (InputStream in = getClass().getClassLoader().getResourceAsStream("data/kafka/emls-single-topic.tar.bz2");
+		try (InputStream in = getClass().getClassLoader().getResourceAsStream("data/kafka/emls.tar.bz2");
 				BZip2CompressorInputStream bz2 = new BZip2CompressorInputStream(in);
 				TarArchiveInputStream tar = new TarArchiveInputStream(bz2)) {
 			TarArchiveEntry ce;
@@ -150,7 +155,7 @@ public class PopulateKafkaTests {
 
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDataSource().getConnection().createStatement()
-				.execute("select setval('t_container_item_id_seq', 1000)");
+				.execute("select setval('t_container_item_id_seq', 10000)");
 
 		Set<String> domains = populateKafka();
 
@@ -196,7 +201,12 @@ public class PopulateKafkaTests {
 		assertNotNull(ds);
 		ServerSideServiceProvider.mailboxDataSource.put("bm-master", ds);
 
+		System.err.println("set item_id seq on " + ds);
+		ds.getConnection().createStatement().execute("select setval('t_container_item_id_seq', 100000)");
+
 		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
+		StateContext.setState("core.started");
+		StateContext.setState("core.cloning.start");
 		System.err.println("Waiting for SyncServer...");
 		SyncServerHelper.waitFor();
 		System.err.println("=======================");
@@ -205,8 +215,7 @@ public class PopulateKafkaTests {
 	private Set<String> populateKafka() throws IOException {
 		Set<String> domains = new HashSet<>();
 
-		try (InputStream in = getClass().getClassLoader()
-				.getResourceAsStream("data/kafka/clone-dump-single-topic.tar.bz2");
+		try (InputStream in = getClass().getClassLoader().getResourceAsStream("data/kafka/clone-dump.tar.bz2");
 				BZip2CompressorInputStream bz2 = new BZip2CompressorInputStream(in);
 				TarArchiveInputStream tar = new TarArchiveInputStream(bz2)) {
 			TarArchiveEntry ce;
@@ -219,13 +228,13 @@ public class PopulateKafkaTests {
 					System.setProperty("bm.mcast.id", iid);
 					InstallationId.reload();
 
-					String domain = ce.getName().replace("./", "").substring(iidLen + 1);
+					String domain = ce.getName().replace("./", "").substring(iidLen + 1).replace(".json", "");
 					String domainUid = (domain.equals("__orphans__")) ? null : domain;
 					if (domainUid != null) {
 						domains.add(domainUid);
 					}
 
-					IBackupStoreFactory store = DefaultBackupStore.get();
+					IBackupStoreFactory store = DefaultBackupStore.store();
 					byte[] jsonData = ByteStreams.toByteArray(tar);
 					JsonArray js = new JsonArray(Buffer.buffer(jsonData));
 					TopicNames topicNames = new TopicNames(iid);
@@ -246,7 +255,8 @@ public class PopulateKafkaTests {
 							sysconfMap.put(SysConfKeys.sds_s3_secret_key.name(), "verySecretKey1");
 							System.err.println("Updated conf is " + value.encodePrettily());
 						}
-						System.err.println(descriptor + ":\nkey:" + key.encode() + "\nvalue:" + value.encode());
+						// System.err.println(descriptor + ":\nkey:" + key.encode() + "\nvalue:" +
+						// value.encode());
 						String partitionKey = topicNames.forContainer(descriptor).partitionKey(value.getString("uid"));
 						topic.storeRaw(partitionKey, key.toBuffer().getBytes(), value.toBuffer().getBytes());
 					});
@@ -254,7 +264,7 @@ public class PopulateKafkaTests {
 			}
 			InstallationId.getIdentifier();
 			System.err.println("installation: " + iid);
-			IBackupStoreFactory store = DefaultBackupStore.get();
+			IBackupReader store = DefaultBackupStore.reader();
 			ILiveBackupStreams streams = store.forInstallation(iid);
 			System.err.println("After populating kafka we have " + streams.domains().size() + " domain streams");
 			assertNotNull(streams.orphans());
@@ -270,7 +280,7 @@ public class PopulateKafkaTests {
 		TopologyMapping topo = new TopologyMapping();
 		topo.register("bm-master", cyrusIp);
 		DefaultSdsStoreLoader sds = new DefaultSdsStoreLoader();
-		IBackupStoreFactory store = DefaultBackupStore.get();
+		IBackupReader store = DefaultBackupStore.reader();
 		Collection<String> installs = store.installations();
 		assertEquals(1, installs.size());
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
@@ -278,6 +288,7 @@ public class PopulateKafkaTests {
 		String iid = InstallationId.getIdentifier();
 		ILiveStream anyStream = store.forInstallation(iid).orphans();
 		Path p = Paths.get("/etc/bm", "clone.state.json");
+		new File("/etc/bm").mkdirs();
 		CloneState cs = new CloneState(p, anyStream);
 		cs.clear().save();
 
@@ -299,7 +310,8 @@ public class PopulateKafkaTests {
 		};
 
 		try {
-			InstallFromBackupTask tsk = new InstallFromBackupTask(iid, store, topo, sds, prov);
+			InstallFromBackupTask tsk = new InstallFromBackupTask(iid, store,
+					new SysconfOverride(Collections.emptyMap()), topo, sds, prov);
 			tsk.registerObserver(obs);
 			TestTaskMonitor mon = new TestTaskMonitor();
 			tsk.run(mon);
@@ -346,6 +358,8 @@ public class PopulateKafkaTests {
 
 	@After
 	public void after() throws Exception {
+		StateContext.setState("core.cloning.end");
+
 		replicationHelper.stopReplication().get(10, TimeUnit.SECONDS);
 		Thread.sleep(2000);
 		Files.deleteIfExists(marker);

@@ -27,6 +27,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.apache.kafka.clients.admin.AdminClient;
@@ -52,6 +53,7 @@ import net.bluemind.core.backup.continuous.store.TopicSubscriber;
 public class KafkaTopicStore implements ITopicStore {
 
 	private static final Logger logger = LoggerFactory.getLogger(KafkaTopicStore.class);
+	private static final AtomicInteger cidAlloc = new AtomicInteger();
 
 	static final String COMPRESSION_TYPE = "zstd";
 	static final int PARTITION_COUNT = 64;
@@ -68,15 +70,19 @@ public class KafkaTopicStore implements ITopicStore {
 		kafkaBootstrapServers();
 
 		String loc = DataLocation.current();
-
+		logger.warn("kafka.bootstrap {}, zk {}", bootstrap, zkBootstrap);
 		if (bootstrap != null && zkBootstrap != null) {
 			Properties properties = new Properties();
 			properties.put("bootstrap.servers", bootstrap);
-			this.cid = "backup.store-" + InstallationId.getIdentifier() + "__" + loc + "_" + System.nanoTime();
+			this.cid = jvm() + "_" + InstallationId.getIdentifier() + "_" + loc + "_" + cidAlloc.incrementAndGet();
 			properties.put("client.id", cid);
 
 			this.adminClient = AdminClient.create(properties);
 		}
+	}
+
+	private String jvm() {
+		return System.getProperty("net.bluemind.property.product", "unknown");
 	}
 
 	private void kafkaBootstrapServers() {

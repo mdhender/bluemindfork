@@ -153,7 +153,7 @@ public class PublicFolderHierarchyRepair implements IDirEntryRepairSupport {
 
 	@Override
 	public Set<MaintenanceOperation> availableOperations(Kind kind) {
-		if (kind == Kind.MAILSHARE || kind == Kind.CALENDAR || kind == Kind.ADDRESSBOOK || kind == Kind.DOMAIN) {
+		if (kind == Kind.CALENDAR || kind == Kind.ADDRESSBOOK || kind == Kind.DOMAIN) {
 			return ImmutableSet.of(pfFlatHierOp);
 		} else {
 			return Collections.emptySet();
@@ -162,7 +162,7 @@ public class PublicFolderHierarchyRepair implements IDirEntryRepairSupport {
 
 	@Override
 	public Set<InternalMaintenanceOperation> ops(Kind kind) {
-		if (kind == Kind.MAILSHARE || kind == Kind.CALENDAR || kind == Kind.ADDRESSBOOK || kind == Kind.DOMAIN) {
+		if (kind == Kind.CALENDAR || kind == Kind.ADDRESSBOOK || kind == Kind.DOMAIN) {
 			return ImmutableSet.of(new PFRootMaintenance(context));
 		} else {
 			return Collections.emptySet();

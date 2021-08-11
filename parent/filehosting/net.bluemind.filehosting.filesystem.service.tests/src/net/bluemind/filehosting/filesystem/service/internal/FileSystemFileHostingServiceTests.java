@@ -369,14 +369,14 @@ public class FileSystemFileHostingServiceTests {
 				+ " bytes");
 		System.err.println("Getting file " + path);
 		Stream retreived = service.get(path);
-		System.err.println("Got " + retreived);
+		System.err.println(new Date() + " Got " + retreived);
 		CompletableFuture<Void> futBuf = GenericStream.slowRead(retreived);
 		futBuf.whenComplete((v, ex) -> {
 			try {
 				Files.delete(tmpStuff);
 			} catch (IOException e) {
 			}
-		}).get(40, TimeUnit.SECONDS);
+		}).get(2, TimeUnit.MINUTES);
 	}
 
 	@Test

@@ -2,5 +2,11 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="net.bluemind.core.backup.continuous.store" name="store" schema="schema/net.bluemind.core.backup.continuous.store.exsd"/>
+   <extension
+         point="net.bluemind.core.backup.continuous.api.factoryprovider">
+      <factory_provider
+            impl="net.bluemind.core.backup.continuous.impl.FactoryProviderImpl">
+      </factory_provider>
+   </extension>
 
 </plugin>

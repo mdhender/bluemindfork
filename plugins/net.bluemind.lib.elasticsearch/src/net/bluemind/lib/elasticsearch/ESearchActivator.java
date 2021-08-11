@@ -286,6 +286,7 @@ public final class ESearchActivator implements BundleActivator {
 	private static Client initClient(String tag) {
 		Collection<String> hosts = hosts(tag);
 		if (hosts == null || hosts.isEmpty()) {
+			logger.warn("Es host missing for tag {}", tag);
 			return null;
 		}
 		return createClient(hosts);

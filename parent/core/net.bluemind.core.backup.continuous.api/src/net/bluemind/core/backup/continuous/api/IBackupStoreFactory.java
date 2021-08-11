@@ -15,19 +15,12 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.core.backup.continuous;
-
-import java.util.Collection;
+package net.bluemind.core.backup.continuous.api;
 
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 
 public interface IBackupStoreFactory {
 
 	<T> IBackupStore<T> forContainer(BaseContainerDescriptor c);
-
-	// FIXME split / redo this whole re-read part
-	ILiveBackupStreams forInstallation(String installationid);
-
-	Collection<String> installations();
 
 }

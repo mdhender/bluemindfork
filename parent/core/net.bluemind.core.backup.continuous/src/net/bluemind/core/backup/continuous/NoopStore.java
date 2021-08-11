@@ -33,11 +33,11 @@ import net.bluemind.core.backup.continuous.store.TopicSubscriber;
 
 public class NoopStore {
 
-	private NoopStore() {
-
-	}
-
 	private static final Logger logger = LoggerFactory.getLogger(NoopStore.class);
+
+	private NoopStore() {
+		logger.debug("noop {}", this);
+	}
 
 	private static final class NoopToken implements IResumeToken {
 		private static final NoopToken INST = new NoopToken();

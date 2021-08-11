@@ -25,7 +25,7 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.server.api.Server;
 
 public class RestoreState implements Closeable {
-	private static final Logger logger = LoggerFactory.getLogger(RestoreMailboxRecords.class);
+	private static final Logger logger = LoggerFactory.getLogger(RestoreState.class);
 
 	private final Map<String, ItemValue<Server>> serverByDatalocation;
 	private Map<String, ItemValue<Mailbox>> mboxesByUid;

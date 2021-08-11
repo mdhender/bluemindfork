@@ -52,7 +52,7 @@ public class SyncServerVerticle extends AbstractVerticle {
 		MessageConsumer<JsonObject> stateConsumer = vertx.eventBus().consumer(SystemState.BROADCAST);
 		stateConsumer.handler(m -> {
 			SystemState state = SystemState.fromOperation(m.body().getString("operation"));
-			if (state == SystemState.CORE_STATE_RUNNING) {
+			if (state == SystemState.CORE_STATE_RUNNING || state == SystemState.CORE_STATE_CLONING) {
 				stateConsumer.unregister();
 				startSyncServer();
 			}

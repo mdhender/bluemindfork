@@ -28,6 +28,7 @@ public enum SystemState {
 	CORE_STATE_MAINTENANCE("core.state.maintenance"), //
 	CORE_STATE_NOT_INSTALLED("core.state.not.installed"), //
 	CORE_STATE_UPGRADE("core.state.upgrade"), //
+	CORE_STATE_CLONING("core.state.cloning"), //
 	CORE_STATE_STOPPING("core.state.stopping"), //
 	CORE_STATE_UNKNOWN("core.state.unkwown");
 

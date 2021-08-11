@@ -31,11 +31,14 @@ import org.junit.Test;
 import com.google.common.hash.Hashing;
 
 import io.vertx.core.json.JsonObject;
+import net.bluemind.config.InstallationId;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
-import net.bluemind.core.backup.continuous.IBackupStore;
-import net.bluemind.core.backup.continuous.IBackupStoreFactory;
+import net.bluemind.core.backup.continuous.IBackupReader;
+import net.bluemind.core.backup.continuous.ILiveBackupStreams;
 import net.bluemind.core.backup.continuous.ILiveStream;
 import net.bluemind.core.backup.continuous.RecordKey;
+import net.bluemind.core.backup.continuous.api.IBackupStore;
+import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.kafka.container.ZkKafkaContainer;
@@ -56,11 +59,13 @@ public class DefaultBackupStoreTests {
 	@AfterClass
 	public static void after() {
 		kafka.stop();
+		System.clearProperty("bm.mcast.id");
+		InstallationId.reload();
 	}
 
 	@Test
 	public void testWriteSomething() {
-		IBackupStoreFactory store = DefaultBackupStore.get();
+		IBackupStoreFactory store = DefaultBackupStore.store();
 		assertNotNull("store must not be null", store);
 		long time = 1;
 		ItemValue<Foo> rand = ItemValue.create("yeah" + time, Foo.random());
@@ -82,8 +87,36 @@ public class DefaultBackupStoreTests {
 	}
 
 	@Test
+	public void testInstallationIdTweaks() {
+		// 0536412c415145adbdb316e91e2b8f55
+		String iid = "bluemind-0536412c-4151-45ad-bdb3-16e91e2b8f55";
+		System.setProperty("bm.mcast.id", iid);
+		InstallationId.reload();
+		String setIid = InstallationId.getIdentifier();
+		System.err.println("setiid: " + setIid);
+		assertEquals(iid, setIid);
+		IBackupStoreFactory store = DefaultBackupStore.store();
+		IBackupReader reader = DefaultBackupStore.reader();
+		assertNotNull("store must not be null", store);
+		BaseContainerDescriptor container = BaseContainerDescriptor.create(
+				"bluemind-0536412c-4151-45ad-bdb3-16e91e2b8f55", "install Moisie", "system", "installation", null,
+				true);
+		RecordKey expectedKey = randomKey();
+		ItemValue<RecordKey> rand = ItemValue.create("yeah42", expectedKey);
+		IBackupStore<RecordKey> topic = store.forContainer(container);
+		topic.store(rand);
+
+		Collection<String> insts = reader.installations();
+		assertTrue(insts.contains(iid));
+		ILiveBackupStreams content = reader.forInstallation(iid);
+		ILiveStream orphans = content.orphans();
+		assertNotNull(orphans);
+	}
+
+	@Test
 	public void testReReadSomething() throws InterruptedException {
-		IBackupStoreFactory store = DefaultBackupStore.get();
+		IBackupStoreFactory store = DefaultBackupStore.store();
+		IBackupReader reader = DefaultBackupStore.reader();
 		assertNotNull("store must not be null", store);
 		long time = 1;
 		RecordKey expectedKey = randomKey();
@@ -98,11 +131,11 @@ public class DefaultBackupStoreTests {
 
 		System.err.println("Tried to store to " + topic + " from " + store);
 
-		Collection<String> installs = store.installations();
+		Collection<String> installs = reader.installations();
 		assertEquals(1, installs.size());
 		String iid = installs.iterator().next();
 		System.err.println("iid: " + iid);
-		ILiveStream stream = store.forInstallation(iid).orphans();
+		ILiveStream stream = reader.forInstallation(iid).orphans();
 		System.err.println("On " + stream);
 		stream.subscribeAll(null, de -> {
 			System.err.println("Getting something " + stream);

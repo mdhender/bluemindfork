@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
-import net.bluemind.core.backup.continuous.IBackupStore;
+import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.dto.GroupMembership;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
@@ -75,7 +75,7 @@ public class MembershipsContinuousHook implements IGroupHook {
 			gm.added = added;
 			ItemValue<GroupMembership> iv = ItemValue.create(group.group.uid, gm);
 			iv.internalId = iv.uid.hashCode();
-			IBackupStore<GroupMembership> store = DefaultBackupStore.get().<GroupMembership>forContainer(metaDesc);
+			IBackupStore<GroupMembership> store = DefaultBackupStore.store().<GroupMembership>forContainer(metaDesc);
 			store.store(iv);
 			logger.info("Saved memberships for {}", group.group.uid);
 		});

@@ -12,7 +12,7 @@ public class DataElement {
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(DataElement.class)//
-				.add("id", key.id)//
+				.add("key", key)//
 				.add("len", payload == null ? null : payload.length)//
 				.toString();
 	}

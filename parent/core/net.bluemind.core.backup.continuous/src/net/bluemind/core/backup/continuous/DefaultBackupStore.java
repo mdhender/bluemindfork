@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
+import net.bluemind.core.backup.continuous.impl.BackupReader;
 import net.bluemind.core.backup.continuous.impl.BackupStoreFactory;
 import net.bluemind.core.backup.continuous.store.ITopicStore;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
@@ -56,8 +58,12 @@ public class DefaultBackupStore {
 	private DefaultBackupStore() {
 	}
 
-	public static IBackupStoreFactory get() {
+	public static IBackupStoreFactory store() {
 		return new BackupStoreFactory(active, disabled);
+	}
+
+	public static IBackupReader reader() {
+		return new BackupReader(active);
 	}
 
 }

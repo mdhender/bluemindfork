@@ -37,7 +37,7 @@ public abstract class State {
 		default:
 			logger.warn("State ({}) {} cannot handle transition {}", this.getClass().getSimpleName(),
 					StateContext.getState().name(), operation);
-			throw new ServerFault("transition is not possible");
+			throw new ServerFault("transition '" + operation + "' from " + getSystemState() + " is not possible");
 		}
 	}
 

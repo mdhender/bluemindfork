@@ -59,6 +59,7 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.service.DirEntryHandlers;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.hook.IDomainHook;
 import net.bluemind.domain.service.DefaultGroups;
@@ -154,14 +155,14 @@ public class DomainsService implements IDomains {
 		IGroup groups = context.su().provider().instance(IGroup.class, uid);
 
 		DefaultGroups.userGroup((group, roles) -> {
-			String userGroupUid = uid + "_user_group";
+			String userGroupUid = IDomainUids.userGroup(uid);
 
 			groups.create(userGroupUid, group);
 			groups.setRoles(userGroupUid, roles);
 		});
 
 		DefaultGroups.adminGroup((group, roles) -> {
-			String adminGroupUid = uid + "_admin_group";
+			String adminGroupUid = IDomainUids.adminGroup(uid);
 
 			groups.create(adminGroupUid, group);
 			groups.setRoles(adminGroupUid, roles);
