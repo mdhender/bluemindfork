@@ -82,8 +82,10 @@ async function showNotification(message) {
     if ("serviceWorker" in navigator) {
         try {
             const registration = await navigator.serviceWorker.register("service-worker.js");
+            // eslint-disable-next-line no-console
             console.log("Registration succeeded. Scope is " + registration.scope);
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.log("Registration failed with " + error);
         }
 
@@ -94,6 +96,7 @@ async function showNotification(message) {
         });
 
         navigator.serviceWorker.addEventListener("waiting", () => {
+            // eslint-disable-next-line no-console
             console.warn(
                 "A new service worker has installed, but it can't activate until all tabs running the current version have fully unloaded."
             );

@@ -1,6 +1,6 @@
 <template>
     <article
-        v-if="CONVERSATION_IS_LOADED(conversation)"
+        v-if="CONVERSATION_IS_LOADED(CURRENT_CONVERSATION_METADATA)"
         class="mail-thread d-flex flex-column overflow-x-hidden bg-surface"
         :aria-label="$t('mail.application.region.messagethread')"
     >
@@ -9,7 +9,7 @@
                 <component :is="context.alert.renderer" :alert="context.alert" />
             </template>
         </bm-alert-area>
-        <mail-conversation-viewer :conversation="conversation" />
+        <mail-conversation-viewer :conversation="CURRENT_CONVERSATION_METADATA" />
         <div />
     </article>
     <article v-else class="mail-thread">
@@ -32,14 +32,7 @@ import {
     UNSELECT_ALL_CONVERSATIONS,
     UNSET_CURRENT_CONVERSATION
 } from "~/mutations";
-import {
-    CONVERSATION_LIST_IS_SEARCH_MODE,
-    CONVERSATION_METADATA,
-    CONVERSATION_IS_LOADED,
-    MY_DRAFTS,
-    MY_MAILBOX,
-    SELECTION_IS_EMPTY
-} from "~/getters";
+import { CONVERSATION_IS_LOADED, CURRENT_CONVERSATION_METADATA, MY_MAILBOX, SELECTION_IS_EMPTY } from "~/getters";
 import { FETCH_CONVERSATION_IF_NOT_LOADED } from "~/actions";
 import BlockedRemoteContent from "./Alerts/BlockedRemoteContent";
 import VideoConferencing from "./Alerts/VideoConferencing";
@@ -70,25 +63,15 @@ export default {
     },
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
-        ...mapState("mail", {
-            messages: ({ conversations }) => conversations.messages,
-            conversations: ({ conversations }) => conversations.conversationByKey,
-            currentConversation: ({ conversations }) => conversations.currentConversation
-        }),
         ...mapGetters("mail", {
-            CONVERSATION_LIST_IS_SEARCH_MODE,
-            CONVERSATION_METADATA,
-            MY_MAILBOX,
             CONVERSATION_IS_LOADED,
-            MY_DRAFTS,
+            CURRENT_CONVERSATION_METADATA,
+            MY_MAILBOX,
             SELECTION_IS_EMPTY
         }),
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-thread") }),
-        conversation() {
-            return this.CONVERSATION_METADATA(this.currentConversation?.key);
-        },
         folder() {
-            return this.conversation && this.folders[this.conversation.folderRef.key];
+            return this.CURRENT_CONVERSATION_METADATA && this.folders[this.CURRENT_CONVERSATION_METADATA.folderRef.key];
         },
         isADraft() {
             return isDraftFolder(this.folder.path);
@@ -108,7 +91,7 @@ export default {
                 this.REMOVE(this.readOnlyAlert.alert);
             }
         },
-        async "currentConversation.key"() {
+        "CURRENT_CONVERSATION_METADATA.key"() {
             this.SET_BLOCK_REMOTE_IMAGES(false);
         },
         "$route.params.conversationpath": {

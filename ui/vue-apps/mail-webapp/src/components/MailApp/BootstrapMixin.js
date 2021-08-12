@@ -55,7 +55,8 @@ export default {
             this.MY_MAILBOX_FOLDERS.forEach(this.UNREAD_FOLDER_COUNT);
             this.LOAD_MAX_MESSAGE_SIZE(inject("UserSession").userId);
         } catch (error) {
-            console.error("Error when bootstraping application... ", error);
+            // eslint-disable-next-line no-console
+            console.error("Error while bootstraping application... ", error);
             this.SET_APP_STATE("error");
         }
     }

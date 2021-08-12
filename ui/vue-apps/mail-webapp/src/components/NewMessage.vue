@@ -8,10 +8,7 @@
                 ? 'd-lg-none position-absolute new-message-responsive-btn z-index-110'
                 : 'text-nowrap d-lg-inline-block d-none'
         "
-        @click="
-            UNSET_CURRENT_CONVERSATION();
-            $router.navigate({ name: 'mail:message', params: { messagepath } });
-        "
+        @click="$router.navigate({ name: 'mail:message', params: { messagepath } })"
     >
         <bm-icon v-if="mobile" icon="plus" size="2x" />
         <bm-label-icon v-else icon="plus">{{ $t("mail.main.new") }}</bm-label-icon>
@@ -19,9 +16,8 @@
 </template>
 <script>
 import { BmButton, BmClipping, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters } from "vuex";
 import { MY_DRAFTS } from "~/getters";
-import { UNSET_CURRENT_CONVERSATION } from "~/mutations";
 import { draftPath } from "~/model/draft";
 
 export default {
@@ -44,9 +40,6 @@ export default {
         messagepath() {
             return draftPath(this.MY_DRAFTS);
         }
-    },
-    methods: {
-        ...mapMutations("mail", { UNSET_CURRENT_CONVERSATION })
     }
 };
 </script>

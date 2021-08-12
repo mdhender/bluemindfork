@@ -1,5 +1,4 @@
 import {
-    CLEAR_CONVERSATION_LIST,
     SELECT_ALL_CONVERSATIONS,
     SELECT_CONVERSATION,
     SET_CONVERSATION_LIST,
@@ -36,12 +35,6 @@ describe("selection", () => {
             storeOptions.mutations[REMOVE_CONVERSATIONS](state, [{ key: 3 }, { key: 4 }, { key: 5 }]);
             expect(state._keys).toEqual([1, 2, 3, 4]);
             expect(state._removed).toEqual([3, 4]);
-        });
-        test("CLEAR_CONVERSATION_LIST", () => {
-            state._keys = [1, 2, 3, 4, 5];
-            state._removed = [3, 4];
-            store.mutations[CLEAR_CONVERSATION_LIST](state);
-            expect(state).toEqual({ _keys: [], _removed: [] });
         });
         test("UNSELECT_CONVERSATION", () => {
             state._keys = [1, 2, 3, 4, 5];

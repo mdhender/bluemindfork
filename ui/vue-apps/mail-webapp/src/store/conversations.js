@@ -12,7 +12,9 @@ import {
     SET_CURRENT_CONVERSATION,
     SET_CONVERSATION_LIST,
     SET_MESSAGES_LOADING_STATUS,
-    UNSET_CURRENT_CONVERSATION
+    UNSET_CURRENT_CONVERSATION,
+    UNSELECT_ALL_CONVERSATIONS,
+    SELECT_ALL_CONVERSATIONS
 } from "~/mutations";
 import {
     ADD_FLAG,
@@ -33,7 +35,7 @@ import {
     CONVERSATION_MESSAGE_BY_KEY,
     CONVERSATION_METADATA,
     CONVERSATION_IS_LOADED,
-    CONVERSATION_IS_LOADING
+    CURRENT_CONVERSATION_METADATA
 } from "~/getters";
 import {
     createConversationStubsFromRawConversations,
@@ -101,7 +103,6 @@ const mutations = {
         conversations.forEach(conversation => Vue.set(state.conversationByKey, conversation.key, conversation));
     },
     [REMOVE_CONVERSATIONS]: (state, conversations) => {
-        console.log("ola removeConversation mutation ");
         conversations.forEach(conversation => Vue.delete(state.conversationByKey, conversation.key));
     },
     [ADD_MESSAGES]: (state, messages) => {
@@ -137,15 +138,18 @@ const mutations = {
             state,
             messages.filter(m => m.loading === LoadingStatus.ERROR)
         );
+    },
+    [UNSELECT_ALL_CONVERSATIONS]: state => {
+        state.currentConversation = undefined;
+    },
+    [SELECT_ALL_CONVERSATIONS]: state => {
+        state.currentConversation = undefined;
     }
 };
 
 const getters = {
     [CONVERSATION_IS_LOADED]: () => metadata => metadata?.loading === LoadingStatus.LOADED,
-
-    [CONVERSATION_IS_LOADING]: () => metadata => metadata?.loading === LoadingStatus.LOADING,
-
-    [CONVERSATION_MESSAGE_BY_KEY]: (state, { MY_TRASH }) => key => {
+    [CONVERSATION_MESSAGE_BY_KEY]: (state, { MY_SENT, MY_TRASH }) => key => {
         let messages = [];
         const conversation = state.conversationByKey[key];
         if (conversation) {
@@ -153,9 +157,11 @@ const getters = {
             conversation.messages.forEach(key => {
                 const message = state.messages[key];
                 const messageIsInTrash = message.folderRef.key === MY_TRASH.key;
+                const isSentDuplicatesIndex = isSentDuplicates(state, conversation, message, MY_SENT);
                 if (
                     message &&
                     message.loading !== LoadingStatus.ERROR &&
+                    isSentDuplicatesIndex === -1 &&
                     (!messageIsInTrash || conversationIsInTrash)
                 ) {
                     messages.push(message);
@@ -170,7 +176,9 @@ const getters = {
             return null;
         }
         return {
-            ...messages[0],
+            subject: messages[0].subject,
+            from: messages[0].from,
+            to: messages[0].to,
             key,
             size: messages.length,
             date: messages[messages.length - 1].date,
@@ -179,52 +187,36 @@ const getters = {
             ...reducedMetadata(state.conversationByKey[key].folderRef.key, messages),
             messages: messages.map(m => m.key)
         };
+    },
+    [CURRENT_CONVERSATION_METADATA]: (state, getters) => {
+        if (state.currentConversation) {
+            return getters.CONVERSATION_METADATA(state.currentConversation.key);
+        }
+        return undefined;
     }
 };
 
 function reducedMetadata(folderKey, messages) {
-    const remaining = messages.slice(1);
-    let flagsAndUnreadCount = updateFlagAndUnreadCount(folderKey, messages[0], {
-        flags: new Set([Flag.SEEN]),
-        unreadCount: 0
-    });
-    let loading = toLoad(messages[0]) ? LoadingStatus.LOADING : messages[0].loading;
-    const metadata = remaining.reduce(
-        ({ flags, unreadCount, loading }, message) => {
-            flagsAndUnreadCount = updateFlagAndUnreadCount(folderKey, message, { flags, unreadCount });
-            loading = updateLoadingStatus(message, loading);
-            return { ...flagsAndUnreadCount, loading };
-        },
-        { ...flagsAndUnreadCount, loading }
-    );
-    return { ...metadata, flags: Array.from(metadata.flags) };
-}
-
-const toLoad = message => {
-    return message.loading === LoadingStatus.NOT_LOADED || message.loading === LoadingStatus.LOADING;
-};
-
-const updateLoadingStatus = (message, loading) => {
-    if (toLoad(message)) {
-        loading = LoadingStatus.LOADING;
-    } else if (loading !== LoadingStatus.LOADING && message.loading === LoadingStatus.LOADED) {
+    let unreadCount = 0,
+        flags = new Set(),
         loading = LoadingStatus.LOADED;
-    }
-    return loading;
-};
-
-const updateFlagAndUnreadCount = (conversationFolderKey, message, { flags, unreadCount }) => {
-    if (message.folderRef.key === conversationFolderKey) {
-        if (isUnread(message)) {
-            flags.delete(Flag.SEEN);
-            ++unreadCount;
+    messages.forEach(m => {
+        if (m.folderRef.key === folderKey) {
+            if (isUnread(m)) {
+                unreadCount++;
+            } else if (unreadCount === 0) {
+                flags.add(Flag.SEEN);
+            }
+            if (isFlagged(m)) {
+                flags.add(Flag.FLAGGED);
+            }
         }
-        if (isFlagged(message)) {
-            flags.add(Flag.FLAGGED);
+        if (m.loading === LoadingStatus.NOT_LOADED || m.loading === LoadingStatus.LOADING) {
+            loading = m.loading;
         }
-    }
-    return { flags, unreadCount };
-};
+    });
+    return { unreadCount, flags: Array.from(flags), loading };
+}
 
 export default {
     actions,
@@ -375,4 +367,15 @@ function removeMessages({ conversationByKey }, messages) {
             }
         }
     });
+}
+
+// returns -1 if message is not a sent duplicate, otherwise, returns its index in conversation
+function isSentDuplicates(state, conversation, message, sentFolder) {
+    if (message.folderRef.key === sentFolder.key && conversation.messages.length > 1) {
+        const conversationMessages = conversation.messages.map(key => state.messages[key]);
+        return conversationMessages.findIndex(
+            convMessage => convMessage.key !== message.key && convMessage.messageId === message.messageId
+        );
+    }
+    return -1;
 }

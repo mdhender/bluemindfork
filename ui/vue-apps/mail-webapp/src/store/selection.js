@@ -1,5 +1,4 @@
 import {
-    CLEAR_CONVERSATION_LIST,
     REMOVE_CONVERSATIONS,
     SELECT_ALL_CONVERSATIONS,
     SELECT_CONVERSATION,
@@ -57,10 +56,6 @@ const mutations = {
                 _removed.push(_keys[i]);
             }
         }
-    },
-    [CLEAR_CONVERSATION_LIST]: state => {
-        state._keys = [];
-        state._removed = [];
     }
 };
 

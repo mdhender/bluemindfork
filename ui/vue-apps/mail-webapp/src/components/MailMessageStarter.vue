@@ -37,8 +37,9 @@
 import { BmButton, BmLabelIcon } from "@bluemind/styleguide";
 import emptyMessageIllustration from "../../assets/home-page.png";
 import NewMessage from "./NewMessage";
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import { MY_DRAFTS } from "~/getters";
+import { RESET_ACTIVE_MESSAGE, UNSET_CURRENT_CONVERSATION } from "~/mutations";
 
 export default {
     name: "MailMessageStarter",
@@ -54,6 +55,13 @@ export default {
     },
     computed: {
         ...mapGetters("mail", { MY_DRAFTS })
+    },
+    created() {
+        this.RESET_ACTIVE_MESSAGE();
+        this.UNSET_CURRENT_CONVERSATION();
+    },
+    methods: {
+        ...mapMutations("mail", { RESET_ACTIVE_MESSAGE, UNSET_CURRENT_CONVERSATION })
     }
 };
 </script>

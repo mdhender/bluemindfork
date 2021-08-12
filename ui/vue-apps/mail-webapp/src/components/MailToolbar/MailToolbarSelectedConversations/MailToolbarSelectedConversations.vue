@@ -1,12 +1,12 @@
 <template>
     <div class="mail-toolbar-selected-conversations">
-        <template v-if="!selectionHasReadOnlyFolders">
+        <template v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE">
             <bm-button
                 v-show="showMarkAsRead"
                 variant="inline-light"
                 class="unread btn-lg-simple-dark"
-                :title="markAsReadAriaText"
-                :aria-label="markAsReadAriaText"
+                :title="markAsReadAriaText(subject)"
+                :aria-label="markAsReadAriaText(subject)"
                 @click="markAsRead()"
             >
                 <bm-icon icon="read" size="2x" />
@@ -16,19 +16,19 @@
                 v-show="showMarkAsUnread"
                 variant="inline-light"
                 class="read btn-lg-simple-dark"
-                :title="markAsUnreadAriaText"
-                :aria-label="markAsUnreadAriaText"
+                :title="markAsUnreadAriaText(subject)"
+                :aria-label="markAsUnreadAriaText(subject)"
                 @click="markAsUnread()"
             >
                 <bm-icon icon="unread" size="2x" />
                 <span class="d-none d-lg-block">{{ markAsUnreadText }}</span>
             </bm-button>
-            <mail-toolbar-selected-conversations-move-action />
+            <mail-toolbar-selected-conversations-move-action :subject="subject" />
             <bm-button
                 variant="inline-light"
                 class="btn-lg-simple-dark"
-                :title="removeAriaText"
-                :aria-label="removeAriaText"
+                :title="removeAriaText(subject)"
+                :aria-label="removeAriaText(subject)"
                 @click.exact="moveToTrash()"
                 @click.shift.exact="remove()"
             >
@@ -39,8 +39,8 @@
                 v-show="showMarkAsFlagged"
                 variant="inline-light"
                 class="flagged btn-lg-simple-dark"
-                :title="markAsFlaggedAriaText"
-                :aria-label="markAsFlaggedAriaText"
+                :title="markAsFlaggedAriaText(subject)"
+                :aria-label="markAsFlaggedAriaText(subject)"
                 @click="markAsFlagged()"
             >
                 <bm-icon icon="flag-outline" size="2x" />
@@ -50,25 +50,25 @@
                 v-show="showMarkAsUnflagged"
                 variant="inline-light"
                 class="unflagged btn-lg-simple-dark"
-                :title="markAsUnflaggedAriaText"
-                :aria-label="markAsUnflaggedAriaText"
+                :title="markAsUnflaggedAriaText(subject)"
+                :aria-label="markAsUnflaggedAriaText(subject)"
                 @click="markAsUnflagged()"
             >
                 <bm-icon icon="flag-fill" size="2x" class="text-warning" />
                 <span class="d-none d-lg-block"> {{ markAsUnflaggedText }}</span>
             </bm-button>
-            <mail-toolbar-selected-conversations-other-actions />
+            <mail-toolbar-selected-conversations-other-actions :subject="subject" />
         </template>
     </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import { BmButton, BmIcon } from "@bluemind/styleguide";
 import MailToolbarSelectedConversationsMoveAction from "./MailToolbarSelectedConversationsMoveAction";
 import MailToolbarSelectedConversationsOtherActions from "./MailToolbarSelectedConversationsOtherActions";
-import { mapGetters } from "vuex";
 import { ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin } from "~/mixins";
-import { SELECTION_KEYS } from "~/getters";
+import { ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE, ONE_CONVERSATION_SELECTED } from "~/getters";
 
 export default {
     name: "MailToolbarSelectedConversations",
@@ -80,7 +80,10 @@ export default {
     },
     mixins: [ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin],
     computed: {
-        ...mapGetters("mail", { SELECTION_KEYS })
+        ...mapGetters("mail", { ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE, ONE_CONVERSATION_SELECTED }),
+        subject() {
+            return this.ONE_CONVERSATION_SELECTED ? this.selected[0].subject : "";
+        }
     }
 };
 </script>

@@ -130,7 +130,7 @@ import MailConversationViewerItem from "./MailConversationViewerItem";
 import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import MailConversationViewerFieldSep from "./MailConversationViewerFieldSep";
 import MailConversationViewerVerticalLine from "./MailConversationViewerVerticalLine";
-import { REMOVE_MESSAGES, UNSET_CURRENT_CONVERSATION } from "~/mutations";
+import { REMOVE_MESSAGES } from "~/mutations";
 import { MessageStatus } from "~/model/message";
 
 export default {
@@ -168,7 +168,7 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("mail", { REMOVE_MESSAGES, UNSET_CURRENT_CONVERSATION }),
+        ...mapMutations("mail", { REMOVE_MESSAGES }),
         async openExtendedEditing() {
             await this.saveAsap();
             this.$router.navigate({

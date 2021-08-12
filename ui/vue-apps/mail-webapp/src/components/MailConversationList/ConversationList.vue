@@ -3,8 +3,8 @@
         class="conversation-list bg-extra-light"
         tabindex="0"
         @scroll="onScroll"
-        @keyup.shift.delete.exact.prevent="REMOVE_CONVERSATIONS(selected)"
-        @keyup.delete.exact.prevent="MOVE_CONVERSATIONS_TO_TRASH(selected)"
+        @keyup.shift.delete.exact.prevent="remove()"
+        @keyup.delete.exact.prevent="moveToTrash()"
         @keyup.up.exact="goToByDiff(-1)"
         @keydown.up.prevent
         @keyup.down.exact="goToByDiff(+1)"
@@ -72,21 +72,16 @@ import ConversationListItemLoading from "./ConversationListItemLoading";
 import {
     ALL_CONVERSATIONS_ARE_SELECTED,
     CONVERSATION_IS_LOADED,
-    CONVERSATION_IS_LOADING,
     CONVERSATION_METADATA,
     CONVERSATION_IS_SELECTED,
     CONVERSATION_LIST_KEYS,
     CONVERSATION_LIST_ALL_KEYS,
     CONVERSATION_LIST_COUNT,
     CONVERSATION_LIST_HAS_NEXT,
-    CONVERSATION_LIST_CONVERSATIONS,
-    MY_TRASH,
-    SELECTION,
     SELECTION_IS_EMPTY
 } from "~/getters";
 import {
     RESET_CONVERSATION_LIST_PAGE,
-    SET_CURRENT_CONVERSATION,
     SELECT_ALL_CONVERSATIONS,
     SELECT_CONVERSATION,
     UNSELECT_ALL_CONVERSATIONS,
@@ -123,16 +118,12 @@ export default {
         ...mapGetters("mail", {
             ALL_CONVERSATIONS_ARE_SELECTED,
             CONVERSATION_IS_LOADED,
-            CONVERSATION_IS_LOADING,
             CONVERSATION_METADATA,
             CONVERSATION_IS_SELECTED,
             CONVERSATION_LIST_KEYS,
             CONVERSATION_LIST_ALL_KEYS,
             CONVERSATION_LIST_COUNT,
             CONVERSATION_LIST_HAS_NEXT,
-            CONVERSATION_LIST_CONVERSATIONS,
-            MY_TRASH,
-            SELECTION,
             SELECTION_IS_EMPTY
         }),
         ...mapState("mail", ["activeFolder"]),
@@ -144,9 +135,6 @@ export default {
         }),
         hasMore() {
             return this.length < this.CONVERSATION_LIST_COUNT;
-        },
-        selected() {
-            return this.SELECTION_IS_EMPTY ? this.currentConversation : this.SELECTION;
         },
         conversations() {
             return this.CONVERSATION_LIST_KEYS.map(key => this.CONVERSATION_METADATA(key)).filter(Boolean);
@@ -192,7 +180,6 @@ export default {
     methods: {
         ...mapMutations("mail", {
             RESET_CONVERSATION_LIST_PAGE,
-            SET_CURRENT_CONVERSATION,
             SELECT_ALL_CONVERSATIONS,
             SELECT_CONVERSATION,
             UNSELECT_ALL_CONVERSATIONS,
@@ -221,7 +208,6 @@ export default {
         },
         goToByKey(key) {
             const conversation = this.conversationByKey[key];
-            this.SET_CURRENT_CONVERSATION(conversation);
             this.$router.navigate({
                 name: "v:mail:conversation",
                 params: { conversation }
@@ -296,7 +282,6 @@ export default {
             this.toggleSelect(messageKey);
         },
         toggleSelect(messageKey) {
-            this.SET_CURRENT_CONVERSATION(null);
             if (this.CONVERSATION_IS_SELECTED(messageKey)) {
                 this.UNSELECT_CONVERSATION(messageKey);
             } else {

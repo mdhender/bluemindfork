@@ -5,8 +5,8 @@
         class="mail-toolbar-selected-conversations-move-action h-100"
         variant="inline-light"
         toggle-class="btn-lg-simple-dark"
-        :title="moveAriaText"
-        :aria-label="moveAriaText"
+        :title="moveAriaText(subject)"
+        :aria-label="moveAriaText(subject)"
         @shown="openMoveAutocomplete"
         @hide="resetPattern"
     >
@@ -79,8 +79,8 @@ import MailFolderIcon from "../../MailFolderIcon";
 import MailFolderInput from "../../MailFolderInput";
 import { MailboxType } from "~/model/mailbox";
 import { isNameValid, translatePath } from "~/model/folder";
-import { ACTIVE_MESSAGE, CONVERSATION_METADATA, FOLDERS_BY_UPPERCASE_PATH, SELECTION } from "~/getters";
-import { ActionTextMixin, FilterFolderMixin, MoveMixin } from "~/mixins";
+import { FOLDERS_BY_UPPERCASE_PATH } from "~/getters";
+import { ActionTextMixin, FilterFolderMixin, MoveMixin, SelectionMixin } from "~/mixins";
 
 export default {
     name: "MailToolbarSelectedConversationsMoveAction",
@@ -95,14 +95,16 @@ export default {
         MailFolderIcon,
         MailFolderInput
     },
-    mixins: [ActionTextMixin, FilterFolderMixin, MoveMixin],
+    mixins: [ActionTextMixin, FilterFolderMixin, MoveMixin, SelectionMixin],
+    props: {
+        subject: {
+            type: String,
+            required: true
+        }
+    },
     computed: {
         ...mapState("mail", ["mailboxes"]),
-        ...mapState("mail", {
-            conversations: ({ conversations }) => conversations.conversationByKey,
-            currentConversation: ({ conversations }) => conversations.currentConversation
-        }),
-        ...mapGetters("mail", { ACTIVE_MESSAGE, CONVERSATION_METADATA, FOLDERS_BY_UPPERCASE_PATH, SELECTION }),
+        ...mapGetters("mail", { FOLDERS_BY_UPPERCASE_PATH }),
         displayCreateFolderBtnFromPattern() {
             let pattern = this.pattern;
             if (pattern !== "") {
@@ -114,11 +116,7 @@ export default {
     },
     methods: {
         moveToFolder(folder) {
-            const conversations =
-                this.SELECTION.length > 0
-                    ? this.SELECTION.map(conversation => this.CONVERSATION_METADATA(conversation.key))
-                    : [this.CONVERSATION_METADATA(this.currentConversation.key)];
-            this.MOVE_CONVERSATIONS({ conversations, folder });
+            this.MOVE_CONVERSATIONS({ conversations: this.selected, folder });
             this.$refs["move-dropdown"].hide(true);
         },
         openMoveAutocomplete() {

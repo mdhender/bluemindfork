@@ -11,13 +11,10 @@ import {
     ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED,
     ALL_SELECTED_CONVERSATIONS_ARE_UNREAD,
     CONVERSATION_METADATA,
-    CURRENT_MAILBOX,
     MAILSHARE_FOLDERS,
     MAILSHARE_ROOT_FOLDERS,
-    CONVERSATION_LIST_CONVERSATIONS,
     MY_DRAFTS,
     MY_INBOX,
-    MY_MAILBOX,
     MY_MAILBOX_FOLDERS,
     MY_MAILBOX_ROOT_FOLDERS,
     MY_OUTBOX,
@@ -67,11 +64,11 @@ describe("Mail store", () => {
             initConversations(store);
             store.state.conversations.messages[2].flags = [Flag.SEEN];
             store.state.conversations.messages[3].flags = [Flag.SEEN];
-            store.state.selection = [1, 4];
+            store.state.selection._keys = [1, 4];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_UNREAD]).toBeTruthy();
-            store.state.selection = [1, 2, 3];
+            store.state.selection._keys = [1, 2, 3];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_UNREAD]).toBeFalsy();
-            store.state.selection = [];
+            store.state.selection._keys = [];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_UNREAD]).toBeFalsy();
         });
         test("ALL_SELECTED_CONVERSATIONS_ARE_READ", () => {
@@ -79,11 +76,11 @@ describe("Mail store", () => {
             initConversations(store);
             store.state.conversations.messages[1].flags = [Flag.SEEN];
             store.state.conversations.messages[2].flags = [Flag.SEEN];
-            store.state.selection = [1, 2];
+            store.state.selection._keys = [1, 2];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_READ]).toBeTruthy();
-            store.state.selection = [1, 2, 3];
+            store.state.selection._keys = [1, 2, 3];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_READ]).toBeFalsy();
-            store.state.selection = [];
+            store.state.selection._keys = [];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_READ]).toBeFalsy();
         });
         test("ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED", () => {
@@ -91,11 +88,11 @@ describe("Mail store", () => {
             initConversations(store);
             store.state.conversations.messages[1].flags = [Flag.FLAGGED];
             store.state.conversations.messages[2].flags = [Flag.FLAGGED];
-            store.state.selection = [1, 2];
+            store.state.selection._keys = [1, 2];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED]).toBeTruthy();
-            store.state.selection = [1, 2, 3];
+            store.state.selection._keys = [1, 2, 3];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED]).toBeFalsy();
-            store.state.selection = [];
+            store.state.selection._keys = [];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED]).toBeFalsy();
         });
         test("ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED", () => {
@@ -103,16 +100,16 @@ describe("Mail store", () => {
             initConversations(store);
             store.state.conversations.messages[2].flags = [Flag.FLAGGED];
             store.state.conversations.messages[3].flags = [Flag.FLAGGED];
-            store.state.selection = [1, 4];
+            store.state.selection._keys = [1, 4];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED]).toBeTruthy();
-            store.state.selection = [1, 2, 3];
+            store.state.selection._keys = [1, 2, 3];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED]).toBeFalsy();
-            store.state.selection = [];
+            store.state.selection._keys = [];
             expect(store.getters[ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED]).toBeFalsy();
         });
         test("ALL_CONVERSATIONS_ARE_SELECTED", () => {
             store.state.conversationList = { _keys: [1, 2, 3], _removed: [] };
-            store.state.selection = { _keys: [1, 2], _removed: [] };
+            store.state.selection._keys = { _keys: [1, 2], _removed: [] };
             expect(store.getters[ALL_CONVERSATIONS_ARE_SELECTED]).toBeFalsy();
             store.state.selection._keys = [1, 2, 3];
             expect(store.getters[ALL_CONVERSATIONS_ARE_SELECTED]).toBeTruthy();
@@ -135,40 +132,6 @@ describe("Mail store", () => {
             expect(store.getters[MAILSHARE_FOLDERS]).toEqual([store.state.folders["1"], store.state.folders["4"]]);
         });
 
-        // skipped because unable to mock CURRENT_MAILBOX
-        test.skip("CONVERSATION_LIST_CONVERSATIONS", () => {
-            Array.from(Array(500)).forEach((v, key) => {
-                if (key % 2 === 0) {
-                    store.state.conversationList._keys.push(key);
-                }
-                if (key % 10 === 0) {
-                    store.state.conversationList._removed.push(key);
-                }
-                const folderRef = { key: "folderKey" };
-                store.state.conversations.messages[key] = { key, folderRef };
-                store.state.conversations.conversationByKey[key] = {
-                    key,
-                    messages: [{ key, folderRef }]
-                };
-            });
-
-            // unable to mock CURRENT_MAILBOX FIXME
-            store.getters = {
-                ...store.getters,
-                [MY_MAILBOX]: { loading: LoadingStatus.LOADED, writable: true },
-                [CURRENT_MAILBOX]: { writable: true }
-            };
-
-            store.state.conversationList.currentPage = 0;
-            expect(store.getters[CONVERSATION_LIST_CONVERSATIONS]).toEqual([]);
-            store.state.conversationList.currentPage = 1;
-            expect(store.getters[CONVERSATION_LIST_CONVERSATIONS].length).toEqual(50);
-            expect(store.getters[CONVERSATION_LIST_CONVERSATIONS][0]).toEqual(
-                store.state.conversations.conversationByKey[store.state.conversationList._keys[1]]
-            );
-            store.state.conversationList.currentPage = 2;
-            expect(store.getters[CONVERSATION_LIST_CONVERSATIONS].length).toEqual(50);
-        });
         test("MY_MAILBOX_FOLDERS", () => {
             store.state.folders = {
                 "1": { key: "1", mailboxRef: { key: "A" } },

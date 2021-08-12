@@ -55,7 +55,8 @@ export default {
                 const date = new Date(null, null, null, 0, 0, -this.settingInSeconds);
                 return { timeSelected: this.$d(date, "short_time"), daysBefore: completeDays + 1 };
             } else {
-                console.error(
+                // eslint-disable-next-line no-console
+                console.warn(
                     "unable to decompose " +
                         this.settingInSeconds +
                         " seconds for all_day fields, display default values instead."

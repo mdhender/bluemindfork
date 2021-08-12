@@ -18,7 +18,6 @@ import {
 } from "~/getters";
 import { CONVERSATION_LIST_NEXT_PAGE, FETCH_CONVERSATION_LIST_KEYS } from "~/actions";
 import {
-    CLEAR_CONVERSATION_LIST,
     RESET_CONVERSATION_LIST_PAGE,
     SET_CONVERSATION_LIST,
     SET_CONVERSATION_LIST_FILTER,
@@ -141,13 +140,6 @@ describe("conversationList", () => {
                 conversations: [{ key: 3 }, { key: 4 }, { key: 5 }]
             });
             expect(state._keys).toEqual([3, 4, 5]);
-            expect(state._removed).toEqual([]);
-        });
-        test("CLEAR_CONVERSATION_LIST", () => {
-            state._keys = [1, 2, 3, 4];
-            state._removed = [2];
-            storeOptions.mutations[CLEAR_CONVERSATION_LIST](state);
-            expect(state._keys).toEqual([]);
             expect(state._removed).toEqual([]);
         });
         test("SET_CONVERSATION_LIST_STATUS", () => {

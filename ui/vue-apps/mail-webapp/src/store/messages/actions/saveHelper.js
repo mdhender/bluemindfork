@@ -44,6 +44,7 @@ export async function save(context, draft, messageCompose) {
 
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.IDLE }]);
     } catch (e) {
+        // eslint-disable-next-line no-console
         console.error(e);
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVE_ERROR }]);
     }

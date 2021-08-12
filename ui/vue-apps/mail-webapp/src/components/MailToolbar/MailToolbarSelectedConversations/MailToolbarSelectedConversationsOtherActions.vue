@@ -15,8 +15,8 @@
         <bm-dropdown-item
             class="shadow-sm"
             :shortcut="$t('mail.shortcuts.purge')"
-            :title="removeAriaText"
-            :aria-label="removeAriaText"
+            :title="removeAriaText(subject)"
+            :aria-label="removeAriaText(subject)"
             @click="remove()"
         >
             {{ $t("mail.actions.purge") }}
@@ -26,28 +26,16 @@
 
 <script>
 import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
-import { mapGetters, mapState } from "vuex";
 import { ActionTextMixin, RemoveMixin } from "~/mixins";
-import { CONVERSATION_METADATA, SELECTION } from "~/getters";
 
 export default {
     name: "MailToolbarConsultMessageOtherActions",
-    components: {
-        BmDropdown,
-        BmDropdownItem,
-        BmIcon
-    },
+    components: { BmDropdown, BmDropdownItem, BmIcon },
     mixins: [ActionTextMixin, RemoveMixin],
-    computed: {
-        ...mapGetters("mail", { CONVERSATION_METADATA, SELECTION }),
-        ...mapState("mail", {
-            conversations: ({ conversations }) => conversations.conversationByKey,
-            currentConversation: ({ conversations }) => conversations.currentConversation
-        }),
-        selected() {
-            return this.SELECTION.length
-                ? this.SELECTION.map(s => this.CONVERSATION_METADATA(s.key))
-                : [this.CONVERSATION_METADATA(this.currentConversation.key)];
+    props: {
+        subject: {
+            type: String,
+            required: true
         }
     }
 };

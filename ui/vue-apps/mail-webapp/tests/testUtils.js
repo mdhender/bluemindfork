@@ -32,13 +32,20 @@ inject.register({
 const mailbox = {
     key: "MY_MAILBOX",
     type: "users",
-    owner: userId
+    owner: userId,
+    writable: true
+};
+
+const fakedSessionStore = {
+    namespaced: true,
+    state: { settings: { remote: { mail_thread: "false" } } }
 };
 
 export function createStore() {
     const store = new Vuex.Store();
     store.registerModule("alert", AlertStore);
     store.registerModule("mail", MailAppStore);
+    store.registerModule("session", fakedSessionStore);
     store.commit("mail/SET_MAX_MESSAGE_SIZE", 10);
     store.commit("mail/ADD_MAILBOXES", [mailbox]);
     store.commit("mail/SET_MAILBOX_FOLDERS", {
@@ -63,6 +70,7 @@ export function createStore() {
     ];
     store.commit("mail/SET_CONVERSATION_LIST", { conversations, messages });
     store.commit("mail/SET_CURRENT_CONVERSATION", conversations[0]);
+    store.commit("mail/SET_ACTIVE_FOLDER", { key: folderUid });
 
     return store;
 }

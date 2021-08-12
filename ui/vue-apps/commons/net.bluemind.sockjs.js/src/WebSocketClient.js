@@ -38,6 +38,7 @@ export default class WebSocketClient {
         try {
             await this.send({ method: Method.REGISTER, path }, listener);
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.log("[Push] Waiting for websocket to be online", error);
         }
     }

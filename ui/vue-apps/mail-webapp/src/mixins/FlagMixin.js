@@ -5,10 +5,20 @@ import {
     MARK_CONVERSATIONS_AS_UNFLAGGED,
     MARK_CONVERSATIONS_AS_UNREAD
 } from "~/actions";
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 import { Flag } from "@bluemind/email";
 import SelectionMixin from "./SelectionMixin";
-import { SEVERAL_CONVERSATIONS_SELECTED } from "~/getters";
+import {
+    ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED,
+    ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED,
+    ALL_SELECTED_CONVERSATIONS_ARE_READ,
+    ALL_SELECTED_CONVERSATIONS_ARE_UNREAD,
+    ALL_CONVERSATIONS_ARE_SELECTED,
+    CONVERSATION_LIST_IS_SEARCH_MODE,
+    CURRENT_CONVERSATION_METADATA,
+    CURRENT_MAILBOX,
+    SEVERAL_CONVERSATIONS_SELECTED
+} from "~/getters";
 
 export default {
     mixins: [SelectionMixin],
@@ -19,27 +29,64 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", { SEVERAL_CONVERSATIONS_SELECTED }),
+        ...mapState("mail", {
+            $_FlagMixin_folders: state => state.folders,
+            $_FlagMixin_activeFolder: state => state.activeFolder
+        }),
+        ...mapGetters("mail", {
+            $_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED: SEVERAL_CONVERSATIONS_SELECTED,
+            $_FlagMixin_CURRENT_CONVERSATION_METADATA: CURRENT_CONVERSATION_METADATA,
+            $_FlagMixin_CONVERSATION_LIST_IS_SEARCH_MODE: CONVERSATION_LIST_IS_SEARCH_MODE,
+            $_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED: ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED,
+            $_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED: ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED,
+            $_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_READ: ALL_SELECTED_CONVERSATIONS_ARE_READ,
+            $_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNREAD: ALL_SELECTED_CONVERSATIONS_ARE_UNREAD,
+            $_FlagMixin_ALL_CONVERSATIONS_ARE_SELECTED: ALL_CONVERSATIONS_ARE_SELECTED,
+            $_FlagMixin_CURRENT_MAILBOX: CURRENT_MAILBOX
+        }),
         showMarkAsRead() {
-            return this.conversation
-                ? !this.conversation.flags.includes(Flag.SEEN)
-                : this.$_FlagMixin_atLeastOneSelectedHasNotFlag(Flag.SEEN);
+            if (this.conversation) {
+                return !this.conversation.flags.includes(Flag.SEEN);
+            } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
+                return !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_READ;
+            } else if (this.$_FlagMixin_CURRENT_CONVERSATION_METADATA) {
+                return !this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.SEEN);
+            }
+            return false;
         },
         showMarkAsUnread() {
-            return this.conversation
-                ? this.conversation.flags.includes(Flag.SEEN)
-                : this.$_FlagMixin_atLeastOneSelectedHasFlag(Flag.SEEN);
+            if (this.conversation) {
+                return this.conversation.flags.includes(Flag.SEEN);
+            } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
+                return !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNREAD;
+            } else if (this.$_FlagMixin_CURRENT_CONVERSATION_METADATA) {
+                return this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.SEEN);
+            }
+            return false;
         },
         showMarkAsFlagged() {
-            return this.conversation
-                ? !this.conversation.flags.includes(Flag.FLAGGED)
-                : this.$_FlagMixin_atLeastOneSelectedHasNotFlag(Flag.FLAGGED);
+            if (this.conversation) {
+                return !this.conversation.flags.includes(Flag.FLAGGED);
+            } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
+                return !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED;
+            } else if (this.$_FlagMixin_CURRENT_CONVERSATION_METADATA) {
+                return !this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.FLAGGED);
+            }
+            return false;
         },
         showMarkAsUnflagged() {
-            return this.conversation
-                ? this.conversation.flags.includes(Flag.FLAGGED)
-                : this.$_FlagMixin_atLeastOneSelectedHasFlag(Flag.FLAGGED);
+            if (this.conversation) {
+                return this.conversation.flags.includes(Flag.FLAGGED);
+            } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
+                return !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED;
+            } else if (this.$_FlagMixin_CURRENT_CONVERSATION_METADATA) {
+                return this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.FLAGGED);
+            }
+            return false;
         }
+        // $_FlagMixin_loopLimit() {
+        //     return Math.min(this.selected.length, CHECK_FLAG_ITERATION_LIMIT);
+        // }
     },
     methods: {
         ...mapActions("mail", {
@@ -52,14 +99,13 @@ export default {
         markAsRead(conversations) {
             if (
                 !conversations &&
-                this.SEVERAL_CONVERSATIONS_SELECTED &&
-                this.ALL_CONVERSATIONS_ARE_SELECTED &&
-                !this.CONVERSATION_LIST_FILTERED &&
-                !this.CONVERSATION_LIST_IS_SEARCH_MODE
+                this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED &&
+                this.$_FlagMixin_ALL_CONVERSATIONS_ARE_SELECTED &&
+                !this.$_FlagMixin_CONVERSATION_LIST_FILTERED &&
+                !this.$_FlagMixin_CONVERSATION_LIST_IS_SEARCH_MODE
             ) {
-                const folder = this.folders[this.activeFolder];
-                const mailbox = this.mailboxes[folder.mailboxRef.key];
-                return this.$_FlagMixin_markFolderAsRead({ folder, mailbox });
+                const folder = this.$_FlagMixin_folders[this.$_FlagMixin_activeFolder];
+                return this.$_FlagMixin_markFolderAsRead({ folder, mailbox: this.$_FlagMixin_CURRENT_MAILBOX });
             } else {
                 conversations = conversations || this.selected;
                 return this.$_FlagMixin_markAsRead({ conversations });
@@ -73,12 +119,6 @@ export default {
         },
         markAsUnflagged(conversations = this.selected) {
             return this.$_FlagMixin_markAsUnflagged({ conversations });
-        },
-        $_FlagMixin_atLeastOneSelectedHasFlag(flag) {
-            return this.selected.some(c => c.flags.includes(flag));
-        },
-        $_FlagMixin_atLeastOneSelectedHasNotFlag(flag) {
-            return this.selected.some(c => !c.flags.includes(flag));
         }
     }
 };

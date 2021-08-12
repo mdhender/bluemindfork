@@ -9,8 +9,6 @@ import {
     ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED,
     ALL_SELECTED_CONVERSATIONS_ARE_UNREAD,
     ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
-    CONVERSATION_IS_LOADED,
-    CONVERSATION_METADATA,
     CURRENT_MAILBOX,
     IS_ACTIVE_MESSAGE,
     IS_CURRENT_CONVERSATION,
@@ -18,7 +16,6 @@ import {
     MAILSHARE_KEYS,
     MAILSHARE_ROOT_FOLDERS,
     CONVERSATION_LIST_ALL_KEYS,
-    CONVERSATION_LIST_CONVERSATIONS,
     MY_DRAFTS,
     MY_INBOX,
     MY_MAILBOX_FOLDERS,
@@ -55,15 +52,10 @@ const NONE = 4;
 
 export const getters = {
     [CURRENT_MAILBOX]: state => state.mailboxes[state.folders[state.activeFolder]?.mailboxRef?.key],
-    [ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED]: (
-        state,
-        getters // TODO try to use SELECTION FLAGS, remove allSelectedConversationsAre
-    ) => allSelectedConversationsAre(state, getters, Flag.FLAGGED),
-    [ALL_SELECTED_CONVERSATIONS_ARE_READ]: (state, getters) => allSelectedConversationsAre(state, getters, Flag.SEEN),
-    [ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED]: (state, getters) =>
-        allSelectedConversationsAreNot(state, getters, Flag.FLAGGED),
-    [ALL_SELECTED_CONVERSATIONS_ARE_UNREAD]: (state, getters) =>
-        allSelectedConversationsAreNot(state, getters, Flag.SEEN),
+    [ALL_SELECTED_CONVERSATIONS_ARE_UNREAD]: (state, { SELECTION_FLAGS }) => SELECTION_FLAGS[Flag.SEEN] === NONE,
+    [ALL_SELECTED_CONVERSATIONS_ARE_READ]: (state, { SELECTION_FLAGS }) => SELECTION_FLAGS[Flag.SEEN] === ALL,
+    [ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED]: (state, { SELECTION_FLAGS }) => SELECTION_FLAGS[Flag.FLAGGED] === ALL,
+    [ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED]: (state, { SELECTION_FLAGS }) => SELECTION_FLAGS[Flag.FLAGGED] === NONE,
     [ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE]: (state, { CURRENT_MAILBOX }) => CURRENT_MAILBOX.writable,
     [ALL_CONVERSATIONS_ARE_SELECTED]: (state, { SELECTION_KEYS, CONVERSATION_LIST_ALL_KEYS }) =>
         SELECTION_KEYS.length > 0 && SELECTION_KEYS.length === CONVERSATION_LIST_ALL_KEYS.length,
@@ -75,8 +67,6 @@ export const getters = {
         MY_MAILBOX_FOLDERS.filter(({ parent }) => !parent).sort(compare),
     [MAILSHARE_ROOT_FOLDERS]: (state, { MAILSHARE_FOLDERS }) =>
         MAILSHARE_FOLDERS.filter(({ parent }) => !parent).sort(compare),
-    [CONVERSATION_LIST_CONVERSATIONS]: (state, { CONVERSATION_LIST_KEYS, CONVERSATION_METADATA }) =>
-        CONVERSATION_LIST_KEYS.map(key => CONVERSATION_METADATA(key)),
     [MY_INBOX]: myGetterFor(INBOX),
     [MY_OUTBOX]: myGetterFor(OUTBOX),
     [MY_DRAFTS]: myGetterFor(DRAFTS),
@@ -105,10 +95,10 @@ export const getters = {
     },
     [SELECTION]: (state, { CONVERSATION_METADATA, SELECTION_KEYS }) =>
         SELECTION_KEYS.map(key => CONVERSATION_METADATA(key)),
-    [SELECTION_FLAGS]: ({ conversations: { messages } }, { SELECTION_KEYS }) => {
+    [SELECTION_FLAGS]: (state, { CONVERSATION_METADATA, SELECTION_KEYS }) => {
         const meta = { [Flag.SEEN]: ALL | NONE, [Flag.FLAGGED]: ALL | NONE };
         for (let i = 0; i < SELECTION_KEYS.length && (meta[Flag.SEEN] || meta[Flag.FLAGGED]); i++) {
-            const { flags, loading } = messages[SELECTION_KEYS[i]];
+            const { flags, loading } = CONVERSATION_METADATA(SELECTION_KEYS[i]);
             if (loading !== LoadingStatus.LOADED) {
                 return { [Flag.SEEN]: UNKNOWN, [Flag.FLAGGED]: UNKNOWN };
             }
@@ -127,22 +117,4 @@ function myGetterFor(name) {
             return create(undefined, name, null, getters[MY_MAILBOX]);
         }
     };
-}
-function allSelectedConversationsAre({ selection }, getters, flag) {
-    if (selection.length > 0) {
-        return selection
-            .map(key => getters[CONVERSATION_METADATA](key))
-            .filter(Boolean)
-            .every(metadata => !getters[CONVERSATION_IS_LOADED](metadata) || metadata.flags.includes(flag));
-    }
-    return false;
-}
-function allSelectedConversationsAreNot({ selection }, getters, flag) {
-    if (selection.length > 0) {
-        return selection
-            .map(key => getters[CONVERSATION_METADATA](key))
-            .filter(Boolean)
-            .every(metadata => !getters[CONVERSATION_IS_LOADED](metadata) || !metadata.flags.includes(flag));
-    }
-    return false;
 }

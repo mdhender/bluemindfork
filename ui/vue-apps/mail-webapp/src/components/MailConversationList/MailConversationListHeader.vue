@@ -24,23 +24,16 @@
 <script>
 import { BmCheck, BmCol, BmRow, BmChoiceGroup } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapMutations } from "vuex";
-import { RESET_ACTIVE_MESSAGE, UNSELECT_ALL_CONVERSATIONS, UNSET_CURRENT_CONVERSATION } from "~/mutations";
+import { UNSELECT_ALL_CONVERSATIONS } from "~/mutations";
 import { TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
 import { ALL_CONVERSATIONS_ARE_SELECTED, SELECTION_IS_EMPTY } from "~/getters";
 const FILTER_INDEXES = { all: 0, unread: 1, flagged: 2 };
 
 export default {
     name: "MailConversationListHeader",
-    components: {
-        BmCheck,
-        BmCol,
-        BmRow,
-        BmChoiceGroup
-    },
+    components: { BmCheck, BmCol, BmRow, BmChoiceGroup },
     data() {
-        return {
-            TOGGLE_SELECTION_ALL
-        };
+        return { TOGGLE_SELECTION_ALL };
     },
     computed: {
         ...mapState("mail", { filter: ({ conversationList }) => conversationList.filter }),
@@ -70,13 +63,11 @@ export default {
     },
     watch: {
         filter() {
-            this.RESET_ACTIVE_MESSAGE();
             this.UNSELECT_ALL_CONVERSATIONS();
-            this.UNSET_CURRENT_CONVERSATION();
         }
     },
     methods: {
-        ...mapMutations("mail", { RESET_ACTIVE_MESSAGE, UNSELECT_ALL_CONVERSATIONS, UNSET_CURRENT_CONVERSATION })
+        ...mapMutations("mail", { UNSELECT_ALL_CONVERSATIONS })
     }
 };
 </script>

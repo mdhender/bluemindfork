@@ -38,9 +38,8 @@ import ConversationListItemLeft from "./ConversationListItemLeft";
 import ConversationListItemMiddle from "./ConversationListItemMiddle";
 import ConversationListItemQuickActionButtons from "./ConversationListItemQuickActionButtons";
 import ScreenReaderOnlyConversationInformation from "./ScreenReaderOnlyConversationInformation";
-import { CONVERSATION_IS_SELECTED, CONVERSATION_MESSAGE_BY_KEY, IS_CURRENT_CONVERSATION, MY_SENT } from "~/getters";
+import { CONVERSATION_IS_SELECTED, IS_CURRENT_CONVERSATION } from "~/getters";
 import { isFlagged, isUnread } from "~/model/message";
-import { removeSentDuplicates } from "~/model/conversations";
 
 export default {
     name: "ConversationListItem",
@@ -69,12 +68,7 @@ export default {
     },
     computed: {
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
-        ...mapGetters("mail", {
-            CONVERSATION_IS_SELECTED,
-            CONVERSATION_MESSAGE_BY_KEY,
-            IS_CURRENT_CONVERSATION,
-            MY_SENT
-        }),
+        ...mapGetters("mail", { CONVERSATION_IS_SELECTED, IS_CURRENT_CONVERSATION }),
         ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
         isUnread() {
             return isUnread(this.conversation);
@@ -83,7 +77,7 @@ export default {
             return isFlagged(this.conversation);
         },
         conversationSize() {
-            return removeSentDuplicates(this.CONVERSATION_MESSAGE_BY_KEY(this.conversation.key), this.MY_SENT).length;
+            return this.conversation.messages.length;
         }
     },
     methods: {

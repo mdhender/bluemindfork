@@ -3,8 +3,8 @@
         <bm-button-group>
             <template v-if="folderOfMessage.writable">
                 <bm-button
-                    :aria-label="removeAriaText"
-                    :title="removeAriaText"
+                    :aria-label="removeAriaText(subject)"
+                    :title="removeAriaText(subject)"
                     class="p-1 mr-2"
                     variant="inline-secondary"
                     @click.shift.exact.prevent.stop="REMOVE_CONVERSATIONS([conversation])"
@@ -15,8 +15,8 @@
                 <bm-button
                     v-if="showMarkAsRead"
                     class="p-1"
-                    :aria-label="markAsReadAriaText"
-                    :title="markAsReadAriaText"
+                    :aria-label="markAsReadAriaText(subject)"
+                    :title="markAsReadAriaText(subject)"
                     variant="inline-secondary"
                     @click.prevent.stop="markAsRead(conversation)"
                 >
@@ -25,8 +25,8 @@
                 <bm-button
                     v-else
                     class="p-1"
-                    :aria-label="markAsUnreadAriaText"
-                    :title="markAsUnreadAriaText"
+                    :aria-label="markAsUnreadAriaText(subject)"
+                    :title="markAsUnreadAriaText(subject)"
                     variant="inline-secondary"
                     @click.prevent.stop="markAsUnread(conversation)"
                 >
@@ -35,8 +35,8 @@
                 <bm-button
                     v-if="showMarkAsFlagged"
                     class="p-1 ml-2"
-                    :aria-label="markAsFlaggedAriaText"
-                    :title="markAsFlaggedAriaText"
+                    :aria-label="markAsFlaggedAriaText(subject)"
+                    :title="markAsFlaggedAriaText(subject)"
                     variant="inline-secondary"
                     @click.prevent.stop="markAsFlagged(conversation)"
                 >
@@ -45,8 +45,8 @@
                 <bm-button
                     v-else
                     class="p-1 ml-2"
-                    :aria-label="markAsUnflaggedAriaText"
-                    :title="markAsUnflaggedAriaText"
+                    :aria-label="markAsUnflaggedAriaText(subject)"
+                    :title="markAsUnflaggedAriaText(subject)"
                     variant="inline-secondary"
                     @click.prevent.stop="markAsUnflagged(conversation)"
                 >
@@ -59,10 +59,8 @@
 
 <script>
 import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon } from "@bluemind/styleguide";
-import { mapGetters, mapState } from "vuex";
-import { ActionTextMixin, FlagMixin, RemoveMixin } from "~/mixins";
-import { CONVERSATION_MESSAGE_BY_KEY, MY_SENT } from "~/getters";
-import { removeSentDuplicates } from "~/model/conversations";
+import { mapState } from "vuex";
+import { ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin } from "~/mixins";
 
 export default {
     name: "ConversationListItemQuickActionButtons",
@@ -72,7 +70,7 @@ export default {
         BmButton,
         BmIcon
     },
-    mixins: [ActionTextMixin, FlagMixin, RemoveMixin],
+    mixins: [ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin],
     props: {
         conversation: {
             type: Object,
@@ -81,18 +79,17 @@ export default {
     },
     computed: {
         ...mapState("mail", ["folders"]),
-        ...mapGetters("mail", {
-            CONVERSATION_MESSAGE_BY_KEY,
-            MY_SENT
-        }),
         folderOfMessage() {
             return this.folders[this.conversation.folderRef.key];
         },
         conversationSize() {
-            return removeSentDuplicates(this.CONVERSATION_MESSAGE_BY_KEY(this.conversation.key), this.MY_SENT).length;
+            return this.conversation.messages.length;
         },
         selected() {
             return [this.conversation];
+        },
+        subject() {
+            return this.conversation.subject;
         }
     }
 };

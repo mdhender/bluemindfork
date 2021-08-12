@@ -23,10 +23,10 @@ export default {
             }
         }),
         REMOVE_CONVERSATIONS: navigateConversations(async function (conversations) {
-            const textKey = this.selectedAreAllConversations
+            const textKey = this.conversationsActivated
                 ? "mail.actions.purge.conversations.modal.content"
                 : "mail.actions.purge.modal.content";
-            const titleKey = this.selectedAreAllConversations
+            const titleKey = this.conversationsActivated
                 ? "mail.actions.purge.conversations.modal.title"
                 : "mail.actions.purge.modal.title";
             const confirm = await this.$bvModal.msgBoxConfirm(

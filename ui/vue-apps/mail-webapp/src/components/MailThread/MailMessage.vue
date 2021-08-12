@@ -45,7 +45,6 @@ import {
     MY_DRAFTS,
     MY_MAILBOX,
     SELECTION_IS_EMPTY,
-    CONVERSATION_METADATA,
     CONVERSATION_LIST_UNREAD_FILTER_ENABLED
 } from "~/getters";
 import { FETCH_MESSAGE_IF_NOT_LOADED, MARK_CONVERSATIONS_AS_READ } from "~/actions";
@@ -81,6 +80,7 @@ export default {
     computed: {
         ...mapState("session", { settings: ({ settings }) => settings.remote }),
         ...mapState("mail", ["activeFolder", "folders"]),
+        ...mapState("mail", { conversationByKey: ({ conversations }) => conversations.conversationByKey }),
         ...mapGetters("root-app", ["DEFAULT_IDENTITY"]),
         ...mapGetters("mail", {
             ACTIVE_MESSAGE,
@@ -88,7 +88,6 @@ export default {
             MY_MAILBOX,
             MY_DRAFTS,
             SELECTION_IS_EMPTY,
-            CONVERSATION_METADATA,
             CONVERSATION_LIST_UNREAD_FILTER_ENABLED
         }),
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-message") }),
@@ -162,18 +161,18 @@ export default {
                         });
                     }
                     // FIXME !! once message.conversationRef.key is always valid, remove this if / else
-                    // if conversations mode is not activate, then message.conversationRef.key is false (if you try to pass it to CONVERSATION_METADATA, it'll return undefined)
+                    // if conversations mode is not activate, then message.conversationRef.key is false
                     const conversationsActivated =
                         this.settings.mail_thread === "true" && this.folders[this.activeFolder].allowConversations;
                     const conversationKey =
                         conversationsActivated && !message.composing ? message.conversationRef.key : message.key;
                     if (!message.composing) {
                         await this.$waitFor(
-                            () => this.CONVERSATION_METADATA(conversationKey),
+                            () => this.conversationByKey[conversationKey],
                             conversation => Boolean(conversation)
                         );
                     }
-                    const conversation = this.CONVERSATION_METADATA(conversationKey);
+                    const conversation = this.conversationByKey[conversationKey];
                     // FIXME ? conversation is null if message.composing
                     this.SET_CURRENT_CONVERSATION(conversation);
                     this.SET_ACTIVE_MESSAGE(message);

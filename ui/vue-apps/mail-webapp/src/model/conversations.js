@@ -134,32 +134,6 @@ export function sortConversationMessages(messages, folders) {
     return sorted;
 }
 
-/**
- * Remove duplicates in Sent (keep those in INBOX, need to be loaded).
- */
-export function removeSentDuplicates(messages, sentFolder) {
-    if (messages.length < 2) {
-        return messages;
-    }
-
-    const messageKeysByMessageId = {};
-    messages.forEach(message => {
-        if (message.loading !== LoadingStatus.NOT_LOADED) {
-            if (message.messageId) {
-                const messageKeys = messageKeysByMessageId[message.messageId] || [];
-                messageKeysByMessageId[message.messageId] = [...messageKeys, message.key];
-            }
-        }
-    });
-
-    const arrayOfMessageKeys = Object.values(messageKeysByMessageId);
-    return messages.filter(
-        f =>
-            f.folderRef.key !== sentFolder.key ||
-            !arrayOfMessageKeys.some(keys => keys.length > 1 && keys.includes(f.key))
-    );
-}
-
 export function conversationMustBeRemoved(state, conversation, messages) {
     if (!conversation) {
         return false;

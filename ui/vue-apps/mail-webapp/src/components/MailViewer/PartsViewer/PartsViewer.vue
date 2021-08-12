@@ -31,9 +31,8 @@ import ImagePartViewer from "./ImagePartViewer";
 import TextHtmlPartViewer from "./TextHtmlPartViewer";
 import TextPlainPartViewer from "./TextPlainPartViewer";
 import { COMPUTE_QUOTE_NODES, FETCH_PART_DATA } from "~/actions";
-import { CONVERSATION_MESSAGE_BY_KEY, MY_SENT } from "~/getters";
+import { CONVERSATION_MESSAGE_BY_KEY } from "~/getters";
 import { ADD_ATTACHMENT, REMOVE_ATTACHMENT } from "~/mutations";
-import { removeSentDuplicates } from "~/model/conversations";
 
 export default {
     name: "PartsViewer",
@@ -61,7 +60,7 @@ export default {
     },
     computed: {
         ...mapState("mail", { partsByMessageKey: ({ partsData }) => partsData.partsByMessageKey }),
-        ...mapGetters("mail", { CONVERSATION_MESSAGE_BY_KEY, MY_SENT })
+        ...mapGetters("mail", { CONVERSATION_MESSAGE_BY_KEY })
     },
     watch: {
         "message.key": {
@@ -93,10 +92,7 @@ export default {
                 this.displayAsAttachments(unsupported);
 
                 // find quotes
-                const conversationMessages = removeSentDuplicates(
-                    this.CONVERSATION_MESSAGE_BY_KEY(this.message.conversationRef.key),
-                    this.MY_SENT
-                );
+                const conversationMessages = this.CONVERSATION_MESSAGE_BY_KEY(this.message.conversationRef.key);
                 await this.COMPUTE_QUOTE_NODES({ message: this.message, conversationMessages });
             },
             immediate: true

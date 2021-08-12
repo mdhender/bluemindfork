@@ -15,6 +15,7 @@ const DependencyLocaltor = {
         } else {
             const { provide, factory } = annotateProvider(provider);
             if (dependencies.get(provide)) {
+                // eslint-disable-next-line no-console
                 console.warn("Watch out ! you're registering a listener already set : " + provide);
             }
             dependencies.set(provide, factory);

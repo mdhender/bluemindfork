@@ -57,10 +57,10 @@ import MailConversationViewerHeader from "./MailConversationViewer/MailConversat
 import MailConversationViewerHiddenItems from "./MailConversationViewer/MailConversationViewerHiddenItems";
 import MailConversationViewerMessage from "./MailConversationViewer/MailConversationViewerMessage";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { CONVERSATION_LIST_UNREAD_FILTER_ENABLED, CONVERSATION_MESSAGE_BY_KEY, MY_DRAFTS, MY_SENT } from "~/getters";
+import { CONVERSATION_LIST_UNREAD_FILTER_ENABLED, CONVERSATION_MESSAGE_BY_KEY, MY_DRAFTS } from "~/getters";
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
 import { MARK_CONVERSATIONS_AS_READ } from "~/actions";
-import { removeSentDuplicates, sortConversationMessages } from "~/model/conversations";
+import { sortConversationMessages } from "~/model/conversations";
 import { Flag } from "@bluemind/email";
 
 export default {
@@ -87,19 +87,11 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", {
-            CONVERSATION_LIST_UNREAD_FILTER_ENABLED,
-            CONVERSATION_MESSAGE_BY_KEY,
-            MY_DRAFTS,
-            MY_SENT
-        }),
+        ...mapGetters("mail", { CONVERSATION_LIST_UNREAD_FILTER_ENABLED, CONVERSATION_MESSAGE_BY_KEY, MY_DRAFTS }),
         ...mapState("mail", ["folders"]),
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
         conversationMessages() {
-            return sortConversationMessages(
-                removeSentDuplicates(this.CONVERSATION_MESSAGE_BY_KEY(this.conversation.key), this.MY_SENT),
-                this.folders
-            );
+            return sortConversationMessages(this.CONVERSATION_MESSAGE_BY_KEY(this.conversation.key), this.folders);
         },
         noDraftOpened() {
             return this.conversationMessages.every(message => !message.composing);

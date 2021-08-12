@@ -23,7 +23,7 @@ import MailToolbarSelectedConversations from "./MailToolbarSelectedConversations
 import {
     ACTIVE_MESSAGE,
     CONVERSATION_IS_LOADED,
-    CONVERSATION_METADATA,
+    CURRENT_CONVERSATION_METADATA,
     MESSAGE_IS_LOADED,
     SEVERAL_CONVERSATIONS_SELECTED
 } from "~/getters";
@@ -40,16 +40,18 @@ export default {
     },
     computed: {
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
-        ...mapState("mail", { currentConversation: ({ conversations }) => conversations.currentConversation }),
         ...mapGetters("mail", {
             ACTIVE_MESSAGE,
             CONVERSATION_IS_LOADED,
-            CONVERSATION_METADATA,
+            CURRENT_CONVERSATION_METADATA,
             MESSAGE_IS_LOADED,
             SEVERAL_CONVERSATIONS_SELECTED
         }),
         currentConversationIsLoaded() {
-            return this.CONVERSATION_IS_LOADED(this.CONVERSATION_METADATA(this.currentConversation?.key));
+            if (this.CURRENT_CONVERSATION_METADATA) {
+                return this.CONVERSATION_IS_LOADED(this.CURRENT_CONVERSATION_METADATA);
+            }
+            return false;
         }
     },
     methods: {

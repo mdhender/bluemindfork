@@ -18,8 +18,8 @@
                 <bm-button
                     v-if="showMarkAsRead"
                     variant="outline-secondary"
-                    :title="markAsReadAriaText"
-                    :aria-label="markAsReadAriaText"
+                    :title="markAsReadAriaText()"
+                    :aria-label="markAsReadAriaText()"
                     @click="markAsRead()"
                 >
                     <bm-label-icon icon="read"> {{ markAsReadText }} </bm-label-icon>
@@ -27,8 +27,8 @@
                 <bm-button
                     v-if="showMarkAsUnread"
                     variant="outline-secondary"
-                    :title="markAsUnreadAriaText"
-                    :aria-label="markAsUnreadAriaText"
+                    :title="markAsUnreadAriaText()"
+                    :aria-label="markAsUnreadAriaText()"
                     @click="markAsUnread()"
                 >
                     <bm-label-icon icon="unread"> {{ markAsUnreadText }} </bm-label-icon>
@@ -36,8 +36,8 @@
                 <bm-button
                     v-if="showMarkAsFlagged"
                     variant="outline-secondary"
-                    :title="markAsFlaggedAriaText"
-                    :aria-label="markAsFlaggedAriaText"
+                    :title="markAsFlaggedAriaText()"
+                    :aria-label="markAsFlaggedAriaText()"
                     @click="markAsFlagged()"
                 >
                     <bm-label-icon icon="flag-outline"> {{ markAsFlaggedText }} </bm-label-icon>
@@ -45,16 +45,16 @@
                 <bm-button
                     v-if="showMarkAsUnflagged"
                     variant="outline-secondary"
-                    :title="markAsUnflaggedAriaText"
-                    :aria-label="markAsUnflaggedAriaText"
+                    :title="markAsUnflaggedAriaText()"
+                    :aria-label="markAsUnflaggedAriaText()"
                     @click="markAsUnflagged()"
                 >
                     <bm-label-icon icon="flag-fill"> {{ markAsUnflaggedText }} </bm-label-icon>
                 </bm-button>
                 <bm-button
                     variant="outline-secondary"
-                    :title="removeAriaText"
-                    :aria-label="removeAriaText"
+                    :title="removeAriaText()"
+                    :aria-label="removeAriaText()"
                     @click.exact="moveToTrash"
                     @click.shift.exact="remove"
                 >
@@ -109,7 +109,6 @@ import {
     CONVERSATION_LIST_ALL_KEYS,
     CONVERSATION_LIST_FILTERED,
     CONVERSATION_LIST_IS_SEARCH_MODE,
-    SELECTION,
     SELECTION_KEYS
 } from "~/getters";
 import { RESET_ACTIVE_MESSAGE, SELECT_ALL_CONVERSATIONS, UNSELECT_ALL_CONVERSATIONS } from "~/mutations";
@@ -141,7 +140,6 @@ export default {
             CONVERSATION_LIST_ALL_KEYS,
             CONVERSATION_LIST_FILTERED,
             CONVERSATION_LIST_IS_SEARCH_MODE,
-            SELECTION,
             SELECTION_KEYS
         }),
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-multiple-selection-actions") }),
@@ -149,21 +147,10 @@ export default {
             return this.folders[this.activeFolder];
         },
         mainText() {
-            const selectionSize = this.selected.length;
-            const conversationsCount = this.conversationsInSelection.length;
-            const messagesCount = selectionSize - conversationsCount;
-
-            return conversationsCount > 1 && messagesCount > 1
-                ? this.$t("mail.messages.and.conversations.selected", { messagesCount, conversationsCount })
-                : conversationsCount > 1 && messagesCount === 1
-                ? this.$t("mail.message.and.conversations.selected", { conversationsCount })
-                : conversationsCount === 1 && messagesCount > 1
-                ? this.$t("mail.messages.and.conversation.selected", { messagesCount })
-                : conversationsCount === 1 && messagesCount === 1
-                ? this.$t("mail.message.and.conversation.selected")
-                : conversationsCount > 1
-                ? this.$t("mail.conversations.selected", { count: conversationsCount })
-                : this.$t("mail.message.selected", { count: messagesCount });
+            const count = this.SELECTION_KEYS.length;
+            return this.conversationsActivated
+                ? this.$t("mail.conversations.selected", { count })
+                : this.$t("mail.message.selected", { count });
         },
         readOnlyAlert() {
             return {

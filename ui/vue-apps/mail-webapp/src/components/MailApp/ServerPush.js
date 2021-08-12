@@ -17,6 +17,7 @@ export default {
             this.$_ServerPush_registerListener();
             await this.$_ServerPush_sendMessage({ type: "INIT" }, false);
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error("[SW] failed to init service worker", error);
         }
     },
@@ -54,6 +55,7 @@ export default {
                     const skipSync = !mailbox.offlineSync || !isUserMailbox;
                     await this.$_ServerPush_sendMessage(message, skipSync, data.body.mailbox);
                 } catch (error) {
+                    // eslint-disable-next-line no-console
                     console.error(`[SW] failed to send '${message}' to service worker`, error);
                 }
             };
