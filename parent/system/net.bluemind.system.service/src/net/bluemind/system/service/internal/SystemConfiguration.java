@@ -21,6 +21,7 @@ package net.bluemind.system.service.internal;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -97,10 +98,12 @@ public class SystemConfiguration implements ISystemConfiguration {
 	}
 
 	@Override
-	public void updateMutableValues(Map<String, String> values) throws ServerFault {
+	public void updateMutableValues(Map<String, String> v) throws ServerFault {
 		rbac.check(BasicRoles.ROLE_MANAGE_SYSTEM_CONF);
 
-		ParametersValidator.notNull(values);
+		ParametersValidator.notNull(v);
+
+		Map<String, String> values = new HashMap<>(v);
 
 		SystemConf previous = getValues();
 		SystemConfigurationHooks.getInstance().sanitize(previous, values);
