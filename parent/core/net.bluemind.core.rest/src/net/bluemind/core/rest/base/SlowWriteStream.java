@@ -47,15 +47,8 @@ public class SlowWriteStream implements WriteStream<Buffer> {
 
 	@Override
 	public WriteStream<Buffer> write(Buffer data) {
-		markQueueFull();
-		dl.add(data.length());
-		VertxPlatform.getVertx().setTimer(100, tid -> {
-			queueFull.set(false);
-			if (drain != null) {
-				drain.handle(null);
-			}
+		return write(data, ar -> {
 		});
-		return this;
 	}
 
 	private void markQueueFull() {
@@ -68,6 +61,9 @@ public class SlowWriteStream implements WriteStream<Buffer> {
 		dl.add(data.length());
 		VertxPlatform.getVertx().setTimer(100, tid -> {
 			queueFull.set(false);
+			if (drain != null) {
+				drain.handle(null);
+			}
 			handler.handle(Result.success());
 		});
 		return this;
