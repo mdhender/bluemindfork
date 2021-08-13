@@ -207,56 +207,66 @@ describe("Mail store", () => {
                     .fill(0)
                     .map((v, i) => 2 * i);
                 store.state.conversations.conversationByKey = store.state.conversationList._keys.reduce(
-                    (obj, key) => ({ ...obj, [key]: { key } }),
+                    (obj, key) => ({ ...obj, [key]: { key, folderRef: { key: "folderKey" }, messages: ["k1", "k2"] } }),
                     {}
                 );
+                store.state.conversations.messages = {
+                    k1: { key: "k1", folderRef: { key: "folderKey" } },
+                    k2: { key: "k2", folderRef: { key: "folderKey" } }
+                };
                 store.state.selection._keys = [];
                 store.state.conversations.currentConversation = undefined;
+                store.state.mailboxes = {
+                    myMailbox: { key: "myMailbox", owner: "me", loading: LoadingStatus.LOADED }
+                };
+                injector.register({
+                    provide: "UserSession",
+                    use: { userId: "me" }
+                });
+                store.state.folders = {
+                    "1": { key: "1", imapName: "whatever", mailboxRef: { key: "myMailbox" } },
+                    "1bis": { key: "1bis", imapName: DEFAULT_FOLDER_NAMES.INBOX, mailboxRef: { key: "other" } },
+                    "2": { key: "2", imapName: DEFAULT_FOLDER_NAMES.INBOX, mailboxRef: { key: "myMailbox" } },
+                    "3": { key: "3", imapName: DEFAULT_FOLDER_NAMES.OUTBOX, mailboxRef: { key: "myMailbox" } },
+                    "4": { key: "4", imapName: DEFAULT_FOLDER_NAMES.SENT, mailboxRef: { key: "myMailbox" } },
+                    "5": { key: "5", imapName: DEFAULT_FOLDER_NAMES.TRASH, mailboxRef: { key: "myMailbox" } },
+                    "6": { key: "6", imapName: DEFAULT_FOLDER_NAMES.DRAFTS, mailboxRef: { key: "myMailbox" } }
+                };
             });
             test("return first conversation after current conversation", () => {
                 store.state.conversations.currentConversation = { key: 2 };
-                const result = store.getters[NEXT_CONVERSATION];
+                const conversations = [store.state.conversations.currentConversation];
+                const result = store.getters[NEXT_CONVERSATION](conversations);
                 expect(result.key).toBe(4);
             });
             test("return the previous conversation if there is no next conversation ", () => {
                 store.state.conversations.currentConversation = { key: 18 };
-                const result = store.getters[NEXT_CONVERSATION];
+                const conversations = [store.state.conversations.currentConversation];
+                const result = store.getters[NEXT_CONVERSATION](conversations);
                 expect(result.key).toBe(16);
             });
             test("return null if there is no next conversation", () => {
                 store.state.conversationList._keys = [2];
                 store.state.conversations.currentConversation = { key: 2 };
-                const result = store.getters[NEXT_CONVERSATION];
+                const conversations = [store.state.conversations.currentConversation];
+                const result = store.getters[NEXT_CONVERSATION](conversations);
                 expect(result).toBeNull();
             });
             test("return null if no currentConversation", () => {
                 store.state.conversations.currentConversation = undefined;
-                const result = store.getters[NEXT_CONVERSATION];
+                const result = store.getters[NEXT_CONVERSATION]([]);
                 expect(result).toBeNull();
             });
-            test("return first conversation if current conversation is not in list", () => {
+            test("return null conversation if current conversation is not in list", () => {
                 store.state.conversations.conversationByKey[20] = {
                     key: 20,
                     remoteRef: { internalId: 1 },
                     folderRef: { key: 1 }
                 };
                 store.state.conversations.currentConversation = { key: 20 };
-                const result = store.getters[NEXT_CONVERSATION];
-                expect(result.key).toBe(0);
-            });
-            test("do not return first conversation if it is equal to current conversation", () => {
-                store.state.conversations.currentConversation = {
-                    key: 20,
-                    remoteRef: { internalId: 1 },
-                    folderRef: { key: 1 }
-                };
-                store.state.conversations.conversationByKey[0] = {
-                    key: 0,
-                    remoteRef: { internalId: 1 },
-                    folderRef: { key: 1 }
-                };
-                const result = store.getters[NEXT_CONVERSATION];
-                expect(result.key).toBe(2);
+                const conversations = [store.state.conversations.currentConversation];
+                const result = store.getters[NEXT_CONVERSATION](conversations);
+                expect(result).toBeNull();
             });
         });
         test("SELECTION", () => {

@@ -16,7 +16,7 @@ describe("MoveMixin", () => {
         MoveMixin.$_MoveMixin_mailbox = {};
         MoveMixin.$store = {
             getters: {
-                "mail/NEXT_CONVERSATION": "next",
+                "mail/NEXT_CONVERSATION": jest.fn(() => ({ key: "nextKey", messages: ["m1", "m2"] })),
                 "mail/IS_CURRENT_CONVERSATION": jest.fn().mockReturnValue(false)
             }
         };
@@ -52,23 +52,13 @@ describe("MoveMixin", () => {
         });
     });
     test("MOVE_CONVERSATIONS to call navigate if current conversation is moved", async () => {
-        const conversations = { key: "key" };
+        const conversations = { key: "key", messages: ["k1", "k2"] };
         const folder = {};
         MoveMixin.$store.getters["mail/IS_CURRENT_CONVERSATION"].mockReturnValue(true);
         MoveMixin.MOVE_CONVERSATIONS({ conversations, folder });
         expect(MoveMixin.$router.navigate).toHaveBeenCalledWith({
             name: "v:mail:conversation",
-            params: { conversation: "next" }
+            params: { conversation: { key: "nextKey", messages: ["m1", "m2"] } }
         });
-    });
-    test("MOVE_CONVERSATIONS not to call navigate is current message is not the only moved message", async () => {
-        let conversations = [{ key: "key" }, { key: "another" }];
-        const folder = {};
-        MoveMixin.$store.getters["mail/IS_CURRENT_CONVERSATION"].mockReturnValue(true);
-        MoveMixin.MOVE_CONVERSATIONS({ conversations, folder });
-        expect(MoveMixin.$router.navigate).not.toHaveBeenCalledWith();
-        conversations = { key: "another" };
-        MoveMixin.MOVE_CONVERSATIONS({ conversations, folder });
-        expect(MoveMixin.$router.navigate).not.toHaveBeenCalledWith();
     });
 });

@@ -21,7 +21,7 @@ describe("RemoveMixin", () => {
         RemoveMixin.$store = {
             dispatch: jest.fn(),
             getters: {
-                "mail/NEXT_CONVERSATION": "next",
+                "mail/NEXT_CONVERSATION": jest.fn(() => ({ key: "nextKey", messages: ["m1", "m2"] })),
                 "mail/IS_CURRENT_CONVERSATION": jest.fn().mockReturnValue(false),
                 "mail/MY_TRASH": { key: "trash" }
             },
@@ -82,32 +82,19 @@ describe("RemoveMixin", () => {
     });
 
     test("MOVE_CONVERSATIONS_TO_TRASH or REMOVE_CONVERSATIONS to call navigate if current message is removed", async () => {
-        const conversations = [{ key: "key", messages: [], folderRef: { key: "no-trash" } }];
+        const conversations = [{ key: "key", messages: ["k1", "k2"], folderRef: { key: "no-trash" } }];
         RemoveMixin.$store.getters["mail/IS_CURRENT_CONVERSATION"].mockReturnValue(true);
         await RemoveMixin.MOVE_CONVERSATIONS_TO_TRASH(conversations);
         expect(RemoveMixin.$router.navigate).toHaveBeenCalledWith({
             name: "v:mail:conversation",
-            params: { conversation: "next" }
+            params: { conversation: { key: "nextKey", messages: ["m1", "m2"] } }
         });
         RemoveMixin.$bvModal.msgBoxConfirm.mockResolvedValueOnce(true);
         await RemoveMixin.REMOVE_CONVERSATIONS(conversations);
         expect(RemoveMixin.$router.navigate).toHaveBeenCalledWith({
             name: "v:mail:conversation",
-            params: { conversation: "next" }
+            params: { conversation: { key: "nextKey", messages: ["m1", "m2"] } }
         });
-    });
-
-    test("MOVE_CONVERSATIONS_TO_TRASH or REMOVE_CONVERSATIONS not to call navigate if current message is not the only message removed", async () => {
-        const conversations = [
-            { key: "key", messages: [], folderRef: { key: "no-trash" } },
-            { key: "not-current", messages: [], folderRef: { key: "no-trash" } }
-        ];
-        RemoveMixin.$store.getters["mail/IS_CURRENT_CONVERSATION"].mockReturnValue(true);
-        await RemoveMixin.MOVE_CONVERSATIONS_TO_TRASH(conversations);
-        expect(RemoveMixin.$router.navigate).not.toHaveBeenCalled();
-        RemoveMixin.$bvModal.msgBoxConfirm.mockResolvedValueOnce(true);
-        await RemoveMixin.REMOVE_CONVERSATIONS(conversations);
-        expect(RemoveMixin.$router.navigate).not.toHaveBeenCalled();
     });
 
     test("MOVE_CONVERSATIONS_TO_TRASH or REMOVE_CONVERSATIONS not to call navigate if moved message is not the current one", async () => {

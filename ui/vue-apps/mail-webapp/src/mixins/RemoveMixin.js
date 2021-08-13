@@ -8,9 +8,10 @@ import {
 import FormattedDateMixin from "./FormattedDateMixin";
 import SelectionMixin from "./SelectionMixin";
 import { conversationMustBeRemoved } from "~/model/conversations";
+import { MailRoutesMixin } from "~/mixins";
 
 export default {
-    mixins: [FormattedDateMixin, SelectionMixin],
+    mixins: [FormattedDateMixin, MailRoutesMixin, SelectionMixin],
     methods: {
         MOVE_CONVERSATIONS_TO_TRASH: navigateConversations(async function (conversations) {
             const trash = this.$store.getters[`mail/${MY_TRASH}`];
@@ -104,25 +105,41 @@ export default {
 
 function navigate(action) {
     return async function (conversation, messages) {
+        const next = this.$store.getters["mail/" + NEXT_CONVERSATION]([conversation]);
+        const isCurrentConversation = this.$store.getters["mail/" + IS_CURRENT_CONVERSATION](conversation);
         messages = Array.isArray(messages) ? [...messages] : [messages];
         const confirm = await action.call(this, conversation, messages);
-        if (confirm && conversationMustBeRemoved(this.$store.state.mail.conversations, conversation, messages)) {
-            const next = this.$store.getters["mail/" + NEXT_CONVERSATION];
-            this.$router.navigate({ name: "v:mail:conversation", params: { conversation: next } });
+        if (
+            confirm &&
+            isCurrentConversation &&
+            conversationMustBeRemoved(this.$store.state.mail.conversations, conversation, messages)
+        ) {
+            if (!next) {
+                this.$router.push(this.folderRoute({ key: conversation.folderRef.key }));
+            } else if (next.messages.length > 1) {
+                this.$router.navigate({ name: "v:mail:conversation", params: { conversation: next } });
+            } else {
+                const message = this.$store.state.mail.conversations.messages[next.messages[0]];
+                this.$router.navigate({ name: "v:mail:message", params: { message } });
+            }
         }
     };
 }
 
 function navigateConversations(action) {
     return async function (conversations) {
+        const next = this.$store.getters["mail/" + NEXT_CONVERSATION](conversations);
+        const isCurrentConversation = this.$store.getters["mail/" + IS_CURRENT_CONVERSATION](conversations[0]);
         const confirm = await action.call(this, conversations);
-        if (
-            confirm &&
-            conversations.length === 1 &&
-            this.$store.getters["mail/" + IS_CURRENT_CONVERSATION](conversations[0])
-        ) {
-            const next = this.$store.getters["mail/" + NEXT_CONVERSATION];
-            this.$router.navigate({ name: "v:mail:conversation", params: { conversation: next } });
+        if (confirm && isCurrentConversation) {
+            if (!next) {
+                this.$router.push(this.folderRoute({ key: conversations[0].folderRef.key }));
+            } else if (next.messages.length > 1) {
+                this.$router.navigate({ name: "v:mail:conversation", params: { conversation: next } });
+            } else {
+                const message = this.$store.state.mail.conversations.messages[next.messages[0]];
+                this.$router.navigate({ name: "v:mail:message", params: { message } });
+            }
         }
     };
 }
