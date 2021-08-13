@@ -1,5 +1,5 @@
 <template>
-    <section class="mail-viewer d-flex flex-column flex-grow-1 bg-surface">
+    <section class="mail-viewer-loading d-flex flex-column flex-grow-1 bg-surface">
         <mail-viewer-loading-header />
         <bm-row class="px-lg-5">
             <bm-col>

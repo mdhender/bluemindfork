@@ -1,8 +1,5 @@
 <template>
-    <section
-        class="mail-viewer d-flex flex-column flex-grow-1 bg-surface overflow-auto"
-        :aria-label="$t('mail.application.region.messagedetails')"
-    >
+    <section class="mail-viewer d-flex flex-column flex-grow-1 bg-surface overflow-auto">
         <bm-row class="px-lg-5 px-4 pt-2">
             <bm-col cols="12">
                 <mail-viewer-toolbar class="d-none d-lg-flex" :message="message" />

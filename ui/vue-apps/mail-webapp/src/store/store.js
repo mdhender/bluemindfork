@@ -73,8 +73,8 @@ export const getters = {
     [MY_SENT]: myGetterFor(SENT),
     [MY_TRASH]: myGetterFor(TRASH),
     [ACTIVE_MESSAGE]: ({ conversations: { messages }, activeMessage }) => messages[activeMessage.key],
-    [IS_ACTIVE_MESSAGE]: ({ conversations: { messages } }, { ACTIVE_MESSAGE }) => ({ key }) =>
-        equal(messages[key], ACTIVE_MESSAGE),
+    [IS_ACTIVE_MESSAGE]: ({ activeMessage, conversations: { conversationByKey } }) => ({ key }) =>
+        key === activeMessage.key || conversationByKey[key].messages?.includes(activeMessage.key),
     [IS_CURRENT_CONVERSATION]: ({ conversations: { currentConversation } }) => conversation =>
         equal(conversation, currentConversation),
     [NEXT_CONVERSATION]: (

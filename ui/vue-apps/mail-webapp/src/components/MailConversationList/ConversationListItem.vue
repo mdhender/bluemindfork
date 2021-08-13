@@ -6,7 +6,7 @@
             ['conversation-list-item-' + userSettings.mail_message_list_style]: true,
             'not-seen': isUnread,
             'warning-custom': isFlagged,
-            active: CONVERSATION_IS_SELECTED(conversation.key) || IS_CURRENT_CONVERSATION(conversation)
+            active: CONVERSATION_IS_SELECTED(conversation.key) || IS_ACTIVE_MESSAGE(conversation)
         }"
         role="link"
         @click.exact="navigateTo"
@@ -38,7 +38,7 @@ import ConversationListItemLeft from "./ConversationListItemLeft";
 import ConversationListItemMiddle from "./ConversationListItemMiddle";
 import ConversationListItemQuickActionButtons from "./ConversationListItemQuickActionButtons";
 import ScreenReaderOnlyConversationInformation from "./ScreenReaderOnlyConversationInformation";
-import { CONVERSATION_IS_SELECTED, IS_CURRENT_CONVERSATION } from "~/getters";
+import { CONVERSATION_IS_SELECTED, IS_ACTIVE_MESSAGE } from "~/getters";
 import { isFlagged, isUnread } from "~/model/message";
 
 export default {
@@ -62,13 +62,11 @@ export default {
         }
     },
     data() {
-        return {
-            mouseIn: false
-        };
+        return { mouseIn: false };
     },
     computed: {
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
-        ...mapGetters("mail", { CONVERSATION_IS_SELECTED, IS_CURRENT_CONVERSATION }),
+        ...mapGetters("mail", { CONVERSATION_IS_SELECTED, IS_ACTIVE_MESSAGE }),
         ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
         isUnread() {
             return isUnread(this.conversation);

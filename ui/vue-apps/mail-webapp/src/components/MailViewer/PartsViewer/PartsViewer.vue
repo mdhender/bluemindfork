@@ -92,7 +92,9 @@ export default {
                 this.displayAsAttachments(unsupported);
 
                 // find quotes
-                const conversationMessages = this.CONVERSATION_MESSAGE_BY_KEY(this.message.conversationRef.key);
+                const conversationMessages = this.message.conversationRef
+                    ? this.CONVERSATION_MESSAGE_BY_KEY(this.message.conversationRef.key)
+                    : [this.message];
                 await this.COMPUTE_QUOTE_NODES({ message: this.message, conversationMessages });
             },
             immediate: true

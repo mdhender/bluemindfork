@@ -109,7 +109,9 @@ const mutations = {
         const cache = {};
         messages.forEach(message => {
             cache[message.key] = message;
-            const conversation = state.conversationByKey[message.conversationRef.key];
+            const conversation = message.conversationRef
+                ? state.conversationByKey[message.conversationRef.key]
+                : undefined;
             if (conversation && !conversation.messages.includes(message.key)) {
                 const bestIndexForInsertion = sortedIndexBy(conversation.messages, message.key, key =>
                     cache[key] ? cache[key].date : state.messages[key].date

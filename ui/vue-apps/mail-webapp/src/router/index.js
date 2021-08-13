@@ -1,7 +1,7 @@
-import MailActionsPanel from "../components/MailActionsPanel";
+import MailDefaultRightPanel from "../components/MailDefaultRightPanel";
 import MailApp from "../components/MailApp";
-import MailMessage from "../components/MailThread/MailMessage";
-import MailThread from "../components/MailThread/MailThread";
+import MailRouteMessage from "../components/MailRouteMessage";
+import MailRouteConversation from "../components/MailRouteConversation";
 import virtualRoutes from "./virtualRoutes";
 
 export default [
@@ -14,14 +14,14 @@ export default [
             {
                 name: "mail:message",
                 path: ".m/:messagepath",
-                component: MailMessage
+                component: MailRouteMessage
             },
             {
                 name: "mail:conversation",
                 path: ".t/:conversationpath",
-                component: MailThread
+                component: MailRouteConversation
             },
-            { name: "mail:home", path: "", component: MailActionsPanel },
+            { name: "mail:home", path: "", component: MailDefaultRightPanel },
 
             ...virtualRoutes.map(route => Object.assign(route, { path: "" }))
         ]
