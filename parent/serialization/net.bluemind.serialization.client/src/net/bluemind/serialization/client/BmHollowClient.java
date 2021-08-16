@@ -55,6 +55,7 @@ public class BmHollowClient implements AutoCloseable {
 		String path = String.format("http://%s:8090/serdata/%s/%s/%d/%s", getBaseUrl(), dataset, subset,
 				requestedVersion, type.name());
 		try {
+			logger.info("Reading hollow from {}...", path);
 			URL url = new URL(path);
 			this.con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod("GET");

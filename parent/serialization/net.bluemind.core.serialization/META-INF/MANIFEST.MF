@@ -15,7 +15,8 @@ Require-Bundle: com.netflix.hollow,
  net.bluemind.lib.vertx,
  slf4j.api,
  net.bluemind.core.rest,
- net.bluemind.eclipse.common
+ net.bluemind.eclipse.common,
+ com.google.guava
 Export-Package: net.bluemind.core.serialization
 Bundle-Activator: net.bluemind.core.serialization.Activator
 Automatic-Module-Name: net.bluemind.core.serialization

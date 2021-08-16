@@ -29,21 +29,21 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.MoreObjects;
 import com.netflix.hollow.api.consumer.HollowConsumer;
 
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.core.rest.http.vertx.NeedVertxExecutor;
 import net.bluemind.core.serialization.Activator;
 import net.bluemind.core.serialization.DataSerializer;
-import net.bluemind.lib.vertx.BlockingCode;
 
 public class HollowDataHandler implements Handler<HttpServerRequest>, NeedVertxExecutor {
 
 	private Vertx vertx;
-	private BlockingCode blocking;
 	private static final Logger logger = LoggerFactory.getLogger(HollowDataHandler.class);
 
 	@Override
@@ -55,6 +55,7 @@ public class HollowDataHandler implements Handler<HttpServerRequest>, NeedVertxE
 			Target target = null;
 			try {
 				target = Target.fromPath(request.path());
+				logger.info("target: {}", target);
 			} catch (Exception e) {
 				logger.warn("Cannot detect domain and version out of {}", request.path());
 				resp.setStatusCode(500).end();
@@ -71,18 +72,16 @@ public class HollowDataHandler implements Handler<HttpServerRequest>, NeedVertxE
 	}
 
 	private void retrieveVersion(Target target, HttpServerResponse resp) {
-		blocking.run(() -> getVersion(target)).whenComplete((version, ex) -> {
-			if (ex != null) {
-				logger.error(ex.getMessage(), ex);
-				resp.write(ex.getMessage());
-				resp.setStatusCode(500);
+		vertx.executeBlocking(prom -> prom.complete(getVersion(target)), false, ar -> {
+			if (ar.failed()) {
+				logger.error("retrieveVersion failed", ar.cause());
+				resp.setStatusCode(500).setStatusMessage("retrieveVersion " + ar.cause().getMessage());
 			} else {
-				resp.write(version + "");
 				resp.putHeader("Content-Type", "text/plain");
+				resp.write(ar.result() + "");
 			}
 			resp.end();
 		});
-
 	}
 
 	private long getVersion(Target target) {
@@ -90,15 +89,14 @@ public class HollowDataHandler implements Handler<HttpServerRequest>, NeedVertxE
 	}
 
 	private void retrieveData(Target target, HttpServerResponse resp) {
-		blocking.run(() -> getDataBlob(target)).whenComplete((blob, ex) -> {
-			if (ex != null || blob == null) {
-				error(resp, ex, target);
+		vertx.executeBlocking((Promise<BlobData> prom) -> prom.complete(getDataBlob(target)), false, ar -> {
+			if (ar.failed()) {
+				error(resp, ar.cause(), target);
 			} else {
+				BlobData blob = ar.result();
 				resp.putHeader("Content-Type", "application/octet-stream");
 				resp.putHeader("X-BM-DATASET_VERSION", "" + blob.toVersion);
-				resp.sendFile(blob.file.getAbsolutePath(), result -> {
-					blob.file.delete();
-				}).end();
+				resp.sendFile(blob.file.getAbsolutePath(), result -> blob.file.delete()).end();
 			}
 		});
 	}
@@ -148,8 +146,7 @@ public class HollowDataHandler implements Handler<HttpServerRequest>, NeedVertxE
 	@Override
 	public void setVertxExecutor(Vertx vertx, ExecutorService bmExecutor) {
 		this.vertx = vertx;
-		this.blocking = BlockingCode.forVertx(this.vertx).withExecutor(bmExecutor);
-		logger.info("setVertxExecutor success");
+		logger.info("setVertxExecutor {}", bmExecutor);
 	}
 
 	private static class Target {
@@ -179,6 +176,13 @@ public class HollowDataHandler implements Handler<HttpServerRequest>, NeedVertxE
 				throw new IllegalArgumentException("Cannot detect domain and version out of " + path);
 			}
 		}
+
+		@Override
+		public String toString() {
+			return MoreObjects.toStringHelper(Target.class).add("se", set).add("su", subset).add("v", version)
+					.add("t", type).toString();
+		}
+
 	}
 
 	private static enum BlobType {
