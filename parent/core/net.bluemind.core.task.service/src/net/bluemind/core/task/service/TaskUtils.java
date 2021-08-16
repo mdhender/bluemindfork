@@ -20,12 +20,16 @@ package net.bluemind.core.task.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.buffer.Buffer;
+import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
+import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
@@ -91,6 +95,15 @@ public class TaskUtils {
 	public static String logStreamWait(IServiceProvider provider, TaskRef ref) {
 		ITask taskApi = provider.instance(ITask.class, ref.id + "");
 		return GenericStream.streamToString(taskApi.log());
+	}
+
+	public static ExtendedTaskStatus wait(IServiceProvider provider, TaskRef ref, Consumer<String> log) {
+		ITask taskApi = provider.instance(ITask.class, ref.id + "");
+		Stream logs = taskApi.log();
+		VertxStream.<Buffer>read(logs).handler(b -> {
+			log.accept(b.toString());
+		});
+		return wait(provider, ref);
 	}
 
 	public static ExtendedTaskStatus wait(IServiceProvider provider, TaskRef ref) {
