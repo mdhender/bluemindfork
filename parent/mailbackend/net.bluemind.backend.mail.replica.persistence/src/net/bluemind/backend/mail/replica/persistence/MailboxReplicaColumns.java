@@ -56,6 +56,7 @@ public class MailboxReplicaColumns {
 			.col("options")//
 			.col("sync_crc")//
 			.col("quotaroot")//
+			.col("xconv_mod_seq")//
 	;
 
 	public static EntityPopulator<MailboxReplica> populator() {
@@ -77,6 +78,7 @@ public class MailboxReplicaColumns {
 				value.options = rs.getString(index++);
 				value.syncCRC = rs.getLong(index++);
 				value.quotaRoot = rs.getString(index++);
+				value.xconvModSeq = rs.getLong(index++);
 				return index;
 			}
 		};
@@ -105,6 +107,7 @@ public class MailboxReplicaColumns {
 				statement.setString(index++, value.options);
 				statement.setLong(index++, value.syncCRC);
 				statement.setString(index++, value.quotaRoot);
+				statement.setLong(index++, value.xconvModSeq);
 				statement.setString(index++, item.uid);
 				statement.setLong(index++, cont.id);
 				statement.setLong(index++, item.id);

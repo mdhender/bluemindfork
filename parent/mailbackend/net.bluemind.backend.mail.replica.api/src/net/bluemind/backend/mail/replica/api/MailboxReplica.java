@@ -55,6 +55,7 @@ public class MailboxReplica extends MailboxFolder {
 
 	public long lastUid;
 	public long highestModSeq;
+	public long xconvModSeq;
 	public long recentUid;
 	public Date recentTime;
 	public Date lastAppendDate;
@@ -69,10 +70,10 @@ public class MailboxReplica extends MailboxFolder {
 	@Override
 	public String toString() {
 		return "MailboxReplica{n=" + name + ", fn=" + fullName + ", parent=" + parentUid + ", lastUid=" + lastUid
-				+ ", highestModSeq=" + highestModSeq + ", recentUid=" + recentUid + ", recentTime=" + recentTime
-				+ ", lastAppendDate=" + lastAppendDate + ", pop3LastLogin=" + pop3LastLogin + ", uidValidity="
-				+ uidValidity + ", acls=" + acls + ", options=" + options + ", syncCRC=" + syncCRC + ", quotaRoot="
-				+ quotaRoot + ", dataLocation=" + dataLocation + "}";
+				+ ", highestModSeq=" + highestModSeq + ", xconvModSeq=" + xconvModSeq + ", recentUid=" + recentUid
+				+ ", recentTime=" + recentTime + ", lastAppendDate=" + lastAppendDate + ", pop3LastLogin="
+				+ pop3LastLogin + ", uidValidity=" + uidValidity + ", acls=" + acls + ", options=" + options
+				+ ", syncCRC=" + syncCRC + ", quotaRoot=" + quotaRoot + ", dataLocation=" + dataLocation + "}";
 	}
 
 }

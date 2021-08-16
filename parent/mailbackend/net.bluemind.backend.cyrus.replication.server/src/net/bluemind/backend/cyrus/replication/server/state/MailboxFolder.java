@@ -38,6 +38,7 @@ public class MailboxFolder {
 	private String uniqueId;
 	private long lastUid;
 	private long highestModSeq;
+	private long xconvmodseq;
 	private long recentUid;
 	private long recentTime;
 	private long lastAppendDate;
@@ -56,6 +57,9 @@ public class MailboxFolder {
 		mf.uniqueId = mbox.getString("UNIQUEID");
 		mf.lastUid = Long.parseLong(mbox.getString("LAST_UID"));
 		mf.highestModSeq = Long.parseLong(mbox.getString("HIGHESTMODSEQ"));
+		if (mbox.containsKey("XCONVMODSEQ")) {
+			mf.xconvmodseq = Long.parseLong(mbox.getString("XCONVMODSEQ"));
+		}
 		mf.recentUid = Long.parseLong(mbox.getString("RECENTUID"));
 		mf.recentTime = Long.parseLong(mbox.getString("RECENTTIME"));
 		mf.lastAppendDate = Long.parseLong(mbox.getString("LAST_APPENDDATE"));
@@ -108,6 +112,14 @@ public class MailboxFolder {
 
 	public void setHighestModSeq(long highestModSeq) {
 		this.highestModSeq = highestModSeq;
+	}
+
+	public long getXConvModSeq() {
+		return xconvmodseq;
+	}
+
+	public void setXConvModSeq(long xconvModSeq) {
+		this.xconvmodseq = xconvModSeq;
 	}
 
 	public long getRecentUid() {
@@ -220,6 +232,9 @@ public class MailboxFolder {
 		sb.append(" SYNC_CRC_ANNOT ").append("0");
 		sb.append(" LAST_UID ").append(lastUid);
 		sb.append(" HIGHESTMODSEQ ").append(highestModSeq);
+		if (xconvmodseq > 0) {
+			sb.append(" XCONVMODSEQ ").append(xconvmodseq);
+		}
 		sb.append(" RECENTUID ").append(recentUid);
 		sb.append(" RECENTTIME ").append(recentTime);
 		sb.append(" LAST_APPENDDATE ").append(lastAppendDate);

@@ -44,6 +44,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import org.junit.Before;
@@ -57,6 +58,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
+import net.bluemind.backend.cyrus.replication.client.SyncClient;
 import net.bluemind.backend.mail.api.Conversation;
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.IBaseMailboxFolders;
@@ -201,6 +203,20 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		this.allocations = idAllocator.allocateOfflineIds(2);
 
 		System.err.println("before() is complete, starting test...");
+	}
+
+	@Test
+	public void testXConvModSeq() throws Exception {
+		AtomicReference<String> ret = new AtomicReference<>();
+		SyncClient sc = new SyncClient("127.0.0.1", 2501);
+		sc.connect().thenCompose(v -> {
+			return sc.authenticate("admin0", "admin");
+		}).thenCompose(v -> {
+			return sc.getMailboxes(domainUid + "!user." + userUid);
+		}).thenAccept(v -> {
+			ret.set(String.join("", v.dataLines));
+		}).join();
+		assertTrue(ret.get().contains("XCONVMODSEQ"));
 	}
 
 	@Test

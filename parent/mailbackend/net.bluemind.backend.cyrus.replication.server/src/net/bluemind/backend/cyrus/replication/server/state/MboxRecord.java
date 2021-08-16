@@ -168,7 +168,7 @@ public class MboxRecord {
 			sb.append(" SIZE ").append(666);
 		}
 		sb.append(" GUID ").append(bodyGuid());
-		if(!annotations.isEmpty()) {
+		if (!annotations.isEmpty()) {
 			sb.append(" ANNOTATIONS (");
 			boolean first = true;
 			for (MailboxRecordAnnotation mra : annotations) {

@@ -134,6 +134,7 @@ public class DtoConverters {
 		MailboxReplica mr = new MailboxReplica();
 		mr.fullName = toReplicaName(root, nameWithoutPart);
 		mr.highestModSeq = mf.getHighestModSeq();
+		mr.xconvModSeq = mf.getXConvModSeq();
 		mr.lastUid = mf.getLastUid();
 		mr.recentUid = mf.getRecentUid();
 		mr.options = mf.getOptions();
@@ -175,6 +176,7 @@ public class DtoConverters {
 		mf.setName(fromReplicaName(partition, rd, mr));
 		mf.setUniqueId(replicaIV.uid);
 		mf.setHighestModSeq(mr.highestModSeq);
+		mf.setXConvModSeq(mr.xconvModSeq);
 		mf.setLastUid(mr.lastUid);
 		mf.setRecentUid(mr.recentUid);
 		mf.setOptions(mr.options);

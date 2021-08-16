@@ -28,6 +28,7 @@ create table IF NOT EXISTS t_mailbox_replica (
 	options varchar(32) not null,
 	sync_crc int8 not null,
 	quotaroot text,
+	xconv_mod_seq int8,
 	unique_id text not null,
 	container_id int4 not null references t_container(id) ON UPDATE CASCADE  on delete cascade,
 	item_id int4 references t_container_item(id) on delete cascade UNIQUE
