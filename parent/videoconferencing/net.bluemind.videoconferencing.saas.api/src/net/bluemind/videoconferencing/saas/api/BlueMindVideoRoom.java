@@ -17,16 +17,11 @@
   */
 package net.bluemind.videoconferencing.saas.api;
 
-import java.util.Map;
-
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
-public class BlueMindVisioTokenResponse {
-	public String error;
-	public int maxDuration;
-	public int maxOccupants;
-	public String room;
-	public String token;
-	public Map<String, Boolean> features;
+public class BlueMindVideoRoom {
+    public String owner;
+    public String identifier;
+    public String title;
 }

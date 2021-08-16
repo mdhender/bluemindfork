@@ -297,10 +297,4 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 				+ "where c.id = ? and ve.organizer_dir = ?";
 		return select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, owner });
 	}
-
-	public String findByConferenceId(String id) throws SQLException {
-		return unique(
-				"SELECT i.uid from t_container_item i, t_calendar_vevent v  where i.id = v.item_id and container_id = ? AND v.conference_id = ?",
-				StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, id });
-	}
 }

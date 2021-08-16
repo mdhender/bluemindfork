@@ -1157,9 +1157,9 @@
     axios "^0.18.0"
 
 "@bluemind/videoconferencing.saas.api@^4.1.0":
-  version "4.1.57829"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/videoconferencing.saas.api/-/videoconferencing.saas.api-4.1.57829.tgz#f9531c97567149d18570717e66c204224bd848aa"
-  integrity sha512-hcvXQd7L6u5f6NL4MGE3vma+GooXFN69lJFKT1DqbEnJDxeJLsHYv+uSyCf5h15NUYgLYYTa/ByKEfdydd/rYg==
+  version "4.1.58400"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/videoconferencing.saas.api/-/videoconferencing.saas.api-4.1.58400.tgz#04da92a54e7258615dcf5465442e4e63bfb5d454"
+  integrity sha512-el6zdQqAL3n9JGw38dOkDoUmKUR6+138uXW2ethE7ZcoThVIYM2G6AxXoQ3Zvz2QFocDI6zBWP8khGwWPO2B2w==
   dependencies:
     axios "^0.18.0"
 

@@ -413,6 +413,8 @@
       <plugin id="net.bluemind.videoconferencing.api"/>
       <plugin id="net.bluemind.videoconferencing.hosting"/>
       <plugin id="net.bluemind.videoconferencing.service"/>
+      <plugin id="net.bluemind.videoconferencing.saas.persistence"/>
+      <plugin id="net.bluemind.videoconferencing.saas.room.sqlschema"/>
       <plugin id="net.bluemind.videoconferencing.saas.service"/>
       <plugin id="net.bluemind.videoconferencing.saas.api"/>
       <plugin id="net.bluemind.webmail.sqlschema"/>

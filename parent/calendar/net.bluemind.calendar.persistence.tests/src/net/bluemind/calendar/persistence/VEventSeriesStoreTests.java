@@ -1038,23 +1038,6 @@ public class VEventSeriesStoreTests {
 		assertFalse(evt.acceptCounters);
 	}
 
-	@Test
-	public void testFindByBmConferenceId() throws SQLException {
-		ItemValue<VEventSeries> event = defaultVEvent();
-		event.value.main.conferenceId = "vi-deo-conf";
-		event.value.main.alarm = new ArrayList<VAlarm>();
-
-		itemStore.create(Item.create(event.uid, UUID.randomUUID().toString()));
-		Item item = itemStore.get(event.uid);
-		vEventStore.create(item, event.value);
-
-		String uid = vEventStore.findByConferenceId(event.value.main.conferenceId);
-		assertNotNull(uid);
-
-		uid = vEventStore.findByConferenceId("nu-ll");
-		assertNull(uid);
-	}
-
 	private VEventCounter counter(String cn, String email, VEventOccurrence counterEvent) {
 		VEventCounter counter = new VEventCounter();
 		counter.originator = new CounterOriginator();

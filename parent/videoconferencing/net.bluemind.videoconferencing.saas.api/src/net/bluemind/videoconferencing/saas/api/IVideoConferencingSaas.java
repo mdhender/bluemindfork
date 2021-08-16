@@ -17,6 +17,7 @@
   */
 package net.bluemind.videoconferencing.saas.api;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -28,5 +29,17 @@ import net.bluemind.core.api.BMApi;
 public interface IVideoConferencingSaas {
 	@POST
 	@Path("createToken/{roomName}")
-	public BlueMindVisioTokenResponse token(@PathParam(value = "roomName") String roomName);
+	public BlueMindVideoTokenResponse token(@PathParam(value = "roomName") String roomName);
+
+	@POST
+	@Path("createRoom")
+	public BlueMindVideoRoom create(BlueMindVideoRoom room);
+
+	@POST
+	@Path("updateTitle/{roomName}")
+	public void updateTitle(@PathParam(value = "roomName") String roomName, String title);
+
+	@GET
+	@Path("getRoom/{roomName}")
+	public BlueMindVideoRoom get(@PathParam(value = "roomName") String roomName);
 }

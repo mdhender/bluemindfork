@@ -18,6 +18,10 @@
  */
 package net.bluemind.webmodules.videoconferencing.saas;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -41,7 +45,7 @@ public class VisioHandler extends AbstractIndexHandler implements NeedVertx, IWe
 			"(?:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89ABab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$)|(?:[0-9a-zA-Z-_]{7,14}$)");
 
 	private static final String BLUEMIND_VIDEO_DOMAIN = tryReadDomain(Paths.get("/etc/bm", "bluemind.video"),
-			"visio.bluemind.net");
+			"video.bluemind.net");
 
 	private static String tryReadDomain(Path p, String defaultValue) {
 		if (p.toFile().exists()) {

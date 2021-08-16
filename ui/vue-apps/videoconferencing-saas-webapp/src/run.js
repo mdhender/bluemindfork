@@ -1,6 +1,6 @@
 import Vue from "vue";
 
-import BlueMindVisioApp from "./BlueMindVisioApp.vue";
+import BlueMindVideoApp from "./BlueMindVideoApp.vue";
 import injector from "@bluemind/inject";
 import router from "@bluemind/router";
 import { VideoConferencingSaasClient } from "@bluemind/videoconferencing.saas.api";
@@ -25,13 +25,13 @@ function registerUserSession() {
 registerAPIClients();
 registerUserSession();
 
-Vue.component("videoconferencing-saas-webapp", BlueMindVisioApp);
+Vue.component("videoconferencing-saas-webapp", BlueMindVideoApp);
 
 router.addRoutes([
     { path: "/index.html", redirect: "/" },
     {
-        name: "visio:root",
+        name: "video:root",
         path: "/:room*",
-        component: BlueMindVisioApp
+        component: BlueMindVideoApp
     }
 ]);

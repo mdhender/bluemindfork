@@ -1,5 +1,5 @@
 <template>
-    <div ref="visioContainer" style="height: 100vh; min-height:-webkit-fill-available; width: 100%"></div>
+    <div ref="visioContainer" style="height: 100vh; min-height: -webkit-fill-available; width: 100%;"></div>
 </template>
 
 <script>
@@ -8,7 +8,7 @@ export default {
     props: {
         domain: {
             type: String,
-            default: "visio.bluemind.net"
+            default: "video.bluemind.net"
         },
         options: {
             type: Object,
@@ -18,7 +18,7 @@ export default {
     mounted() {
         this.load("https://" + this.domain + "/external_api.js", () => {
             if (!window.JitsiMeetExternalAPI) {
-                throw new Error("Jitsi Meet API not loaded");
+                throw new Error("BlueMind.Video API not loaded");
             }
             this.embedJitsiWidget();
         });

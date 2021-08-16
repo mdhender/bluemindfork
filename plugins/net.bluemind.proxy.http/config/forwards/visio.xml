@@ -3,7 +3,8 @@
 	<forward path="/visio" target="locator://bm/visio:8080/visio" csp_disabled="true">
 		<auth kind="CORE2"/>
 		<whitelist>
-			<wl regex="^/visio/(?:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89ABab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$)|(?:[0-9a-zA-Z-_]{7,14}$)" />
+			<wl regex="^/visio/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89ABab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$" />
+			<wl regex="^/visio/[0-9a-zA-Z-_]{7,14}$" />
 			<wl regex="^/visio/(js|images|style|css)/.+$" />
 			<wl regex="^/visio/.+\.(css|map|js|ico|woff])$" />
 		</whitelist>

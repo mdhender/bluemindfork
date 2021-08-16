@@ -336,7 +336,6 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
   providerSelector.addItem(new goog.ui.MenuItem(MSG_SELECT_PROVIDER, -1));
   var domainUid = this.ctx.user['domainUid'];
   var dom = this.getDomHelper();
-  var bmVideoConfExpirationDate = goog.global['bmcSessionInfos']['roles'];
 
   var roles = goog.global['bmcSessionInfos']['roles'].split(',');
   goog.array.removeAllIf(this.videoConferencingResources_, function(res) {
@@ -439,7 +438,6 @@ net.bluemind.calendar.vevent.ui.Form.prototype.alarm_;
  * @private
  */
 net.bluemind.calendar.vevent.ui.Form.prototype.videoConferencingResources_;
-
 
 /**
  * Generate a date field

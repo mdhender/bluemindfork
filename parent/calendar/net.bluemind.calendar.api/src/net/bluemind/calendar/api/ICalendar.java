@@ -267,15 +267,4 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	@GET
 	@Path("_search_counters")
 	public ListResult<ItemValue<VEventSeries>> searchPendingCounters();
-
-	/**
-	 * Returns {@link VEventSeries} matching the given videoconference id
-	 * 
-	 * @param id videoconference id
-	 * @return the matching {@link VEventSeries}
-	 */
-	@GET
-	@Path("_conferenceid/{id}")
-	public ItemValue<VEventSeries> findByConferenceId(@PathParam(value = "id") String id) throws ServerFault;
-
 }

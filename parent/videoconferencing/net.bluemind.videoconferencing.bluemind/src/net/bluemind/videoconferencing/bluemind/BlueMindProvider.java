@@ -20,10 +20,11 @@ package net.bluemind.videoconferencing.bluemind;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
+import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -34,6 +35,8 @@ import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
 import net.bluemind.videoconferencing.api.VideoConference;
+import net.bluemind.videoconferencing.saas.api.BlueMindVideoRoom;
+import net.bluemind.videoconferencing.saas.api.IVideoConferencingSaas;
 import net.bluemind.videoconferencing.service.template.TemplateBasedVideoConferencingProvider;
 
 public class BlueMindProvider extends TemplateBasedVideoConferencingProvider implements IVideoConferencingProvider {
@@ -61,16 +64,31 @@ public class BlueMindProvider extends TemplateBasedVideoConferencingProvider imp
 	@Override
 	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
 			ItemValue<ResourceDescriptor> resource, ICalendarElement vevent) {
-
-		if (!context.getSecurityContext().getRoles().contains("hasFullVideoconferencing")) {
-			throw new ServerFault("missing hasFullVideoconferencing role");
-		}
-
-		Optional<String> externalUrl = Optional.ofNullable(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(ISystemConfiguration.class).getValues().values.get(SysConfKeys.external_url.name()));
+		ServerSideServiceProvider serviceProvider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		Optional<String> externalUrl = Optional
+				.ofNullable(serviceProvider.instance(ISystemConfiguration.class).getValues().values
+						.get(SysConfKeys.external_url.name()));
 		resourceSettings.put("url", externalUrl.get() + "/visio/");
 
+		IVideoConferencingSaas saasService = serviceProvider.instance(IVideoConferencingSaas.class);
+		BlueMindVideoRoom room = null;
+
+		if (!Strings.isNullOrEmpty(vevent.conferenceId)) {
+			room = saasService.get(vevent.conferenceId);
+		}
+
+		if (room == null) {
+			room = new BlueMindVideoRoom();
+			room.identifier = UUID.randomUUID().toString();
+			room.title = vevent.summary;
+			room.owner = context.getSecurityContext().getOwnerPrincipal();
+			saasService.create(room);
+			vevent.conferenceId = room.identifier;
+		} else {
+			if (!vevent.summary.equals(room.title)) {
+				saasService.updateTitle(vevent.conferenceId, vevent.summary);
+			}
+		}
 		return super.getConferenceInfo(context, resourceSettings, resource, vevent);
 	}
-
 }

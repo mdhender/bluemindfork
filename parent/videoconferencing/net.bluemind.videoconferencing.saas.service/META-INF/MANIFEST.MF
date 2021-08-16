@@ -8,11 +8,19 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.rest,
  net.bluemind.core.commons,
  net.bluemind.core.rest,
- net.bluemind.videoconferencing.saas.api,
  slf4j.api,
  org.asynchttpclient.async-http-client,
  org.reactivestreams.reactive-streams,
  net.bluemind.authentication.api,
  net.bluemind.user.api,
- com.fasterxml.jackson.core.jackson-core
+ com.fasterxml.jackson.core.jackson-core,
+ net.bluemind.system.sysconf.helper,
+ net.bluemind.system.api,
+ net.bluemind.calendar.api,
+ net.bluemind.core.container.persistence,
+ net.bluemind.core.container.service,
+ net.bluemind.core.container.api,
+ net.bluemind.videoconferencing.saas.api,
+ net.bluemind.videoconferencing.saas.persistence,
+ net.bluemind.config
 Export-Package: net.bluemind.videoconferencing.saas.service

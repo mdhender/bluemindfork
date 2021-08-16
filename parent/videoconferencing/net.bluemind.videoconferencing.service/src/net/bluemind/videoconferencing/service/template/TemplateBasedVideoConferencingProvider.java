@@ -44,8 +44,9 @@ public abstract class TemplateBasedVideoConferencingProvider {
 			if (!baseUrl.endsWith("/")) {
 				baseUrl += "/";
 			}
-
-			conferenceId = UUID.randomUUID().toString();
+			if (conferenceId == null) {
+				conferenceId = UUID.randomUUID().toString();
+			}
 			conference = baseUrl + conferenceId;
 		}
 		String description = templateHelper.processTemplate(context, resource, vevent, conference);

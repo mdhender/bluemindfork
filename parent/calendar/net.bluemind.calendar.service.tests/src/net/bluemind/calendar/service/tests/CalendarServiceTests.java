@@ -1845,27 +1845,4 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		assertEquals(updated.value.main.url, created.value.main.url);
 		assertEquals(updated.value.main.conference, created.value.main.conference);
 	}
-
-	@Test
-	public void testFindByConferenceId() throws ServerFault {
-		ICalendar service = getCalendarService(userSecurityContext, userCalendarContainer);
-
-		VEventSeries event = defaultVEvent();
-		event.main.conferenceId = UUID.randomUUID().toString();
-		String uid = "testEventUrl_" + System.nanoTime();
-		service.create(uid, event, sendNotifications);
-
-		ItemValue<VEventSeries> created = service.findByConferenceId(event.main.conferenceId);
-		assertNotNull(created);
-		assertEquals(event.main.conferenceId, created.value.main.conferenceId);
-
-		created.value.main.conferenceId = "UPDATED";
-
-		service.update(uid, created.value, null);
-
-		ItemValue<VEventSeries> updated = service.findByConferenceId(created.value.main.conferenceId);
-		assertNotNull(updated);
-		assertEquals(created.value.main.conferenceId, updated.value.main.conferenceId);
-	}
-
 }

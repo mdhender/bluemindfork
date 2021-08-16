@@ -737,19 +737,4 @@ public class CalendarService implements IInternalCalendar {
 		}).collect(Collectors.toList());
 		return ListResult.create(pendingPropositions);
 	}
-
-	@Override
-	public ItemValue<VEventSeries> findByConferenceId(String bmConferenceId) throws ServerFault {
-		rbacManager.check(Verb.Read.name());
-
-		String uid;
-		try {
-			uid = veventStore.findByConferenceId(bmConferenceId);
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
-		}
-
-		return getItemValue(uid);
-	}
-
 }

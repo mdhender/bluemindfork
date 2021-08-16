@@ -442,13 +442,17 @@
    <bundle id="net.bluemind.user.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.utils" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.videoconferencing.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.jitsi" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.starleaf" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.bluemind" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.videoconferencing.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.videoconferencing.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing.bluemind" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing.jitsi" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing.saas.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing.saas.room.sqlschema" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing.saas.persistence" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing.saas.service" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing.service" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing.starleaf" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.vertx.common" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.webmail.banner.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.webmail.sqlschema" version="4.1.0.qualifier"/>
