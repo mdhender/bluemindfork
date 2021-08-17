@@ -34,6 +34,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.internal.MonitorMessage.MessageType;
+import net.bluemind.core.utils.JsonUtils;
 
 public class TaskManager implements Handler<Message<JsonObject>> {
 
@@ -124,6 +125,9 @@ public class TaskManager implements Handler<Message<JsonObject>> {
 		log.put("end", end);
 		logs.add(log);
 		for (LogStream reader : readers) {
+			if (end) {
+				log.put("status", JsonUtils.asString(this.status));
+			}
 			reader.pushData(log);
 			if (end) {
 				reader.end();
