@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -120,7 +121,8 @@ public class Containers implements IContainers {
 		ContainerStore directoryDataStore = new ContainerStore(context, context.getDataSource(), securityContext);
 
 		String loc = null;
-		if (!"global.virt".equals(container.domainUid) && DATA_CONTAINER_TYPES.contains(descriptor.type)) {
+		if (!"global.virt".equals(container.domainUid) && DATA_CONTAINER_TYPES.contains(descriptor.type)
+				&& !pfDirEntry(descriptor.owner, descriptor.domainUid)) {
 			DirEntry entry = context.su().provider().instance(IDirectory.class, container.domainUid)
 					.findByEntryUid(descriptor.owner);
 
@@ -166,6 +168,21 @@ public class Containers implements IContainers {
 				return null;
 			});
 		}
+	}
+
+	private static final Map<String, String> domainToPF = new ConcurrentHashMap<>();
+
+	/**
+	 * This is similar to PublicFolders#mailboxGuid but we don't want to depend on
+	 * that.
+	 * 
+	 * @param owner
+	 * @param domainUid
+	 * @return
+	 */
+	private boolean pfDirEntry(String owner, String domainUid) {
+		return owner != null && domainUid != null && owner.equals(
+				domainToPF.computeIfAbsent(domainUid, dom -> UUID.nameUUIDFromBytes(dom.getBytes()).toString()));
 	}
 
 	@Override
