@@ -6,7 +6,7 @@ BMES="6.8.12-bluemind89"
 KAFKA="2.8.0-bluemind14"
 MINIO="2021.04.22-bluemind14"
 
-BMJDK="8u292-bluemind40"
+BMJDK="8u302-bluemind42"
 BMSNZIP="1.0.4-bluemind4"
 BMNGINX="1.20.1-bluemind100"
 BMPHP="5.6.40-bluemind98"
