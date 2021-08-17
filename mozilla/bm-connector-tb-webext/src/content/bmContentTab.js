@@ -56,6 +56,36 @@ specialTabs.bmTabType = {
       console.trace("OPEN TAB:", aTab, aArgs);
       specialTabs.contentTabType.openTab(aTab, aArgs);
       aTab.tabNode.setAttribute("bmApp", aArgs.bmApp);
+      aTab.progressListener.addProgressListener({
+        onProgressChange: function() {},
+        onProgressChange64: function() {},
+        onLocationChange: function bm_onLocationChange(aWebProgress, aRequest,
+          aLocationURI, aFlags) {
+            gBMOverlay._logger.debug("onLocationChange:" + aLocationURI.spec + ", " + aFlags);
+            try {
+              // nsIURI.path deprecated in tb >= 57
+              let path = aLocationURI.pathQueryRef ? aLocationURI.pathQueryRef : aLocationURI.path;
+              gBMOverlay._logger.debug("path:" + path);
+              if ((path && (path.indexOf("/login/index.html") == 0)
+                || (aLocationURI.spec != "about:blank" && aLocationURI.spec.indexOf(aArgs.contentPage) != 0))) {
+                let openInBackGround = !aTab.tabNode.selected;
+                let tabmail = document.getElementById("tabmail");
+                tabmail.closeTab(aTab);
+                delayOpener.open({
+                  bmApp: aArgs.bmApp,
+                  openInBackGround: true
+                });
+              }
+            } catch(e) {
+              gBMOverlay._logger.error("onLocationChange:" + e);
+            }
+          },
+          onStateChange: function() {},
+          onStatusChange: function() {},
+          onSecurityChange: function() {},
+          onRefreshAttempted: function() {},
+          onContentBlockingEvent: function() {}
+      });
     },
     tryCloseTab(aTab) {
       let docShell = aTab.browser.docShell;
