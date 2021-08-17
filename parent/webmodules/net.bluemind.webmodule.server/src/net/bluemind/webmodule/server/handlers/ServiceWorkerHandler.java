@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import io.netty.util.AsciiString;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpHeaders;
@@ -40,6 +41,8 @@ public class ServiceWorkerHandler implements IWebModuleConsumer, Handler<HttpSer
 		}
 	}
 
+	private static final CharSequence JS = new AsciiString("application/javascript");
+
 	@Override
 	public void handle(HttpServerRequest request) {
 		Map<String, Object> model = new HashMap<>();
@@ -55,11 +58,7 @@ public class ServiceWorkerHandler implements IWebModuleConsumer, Handler<HttpSer
 		}
 		HttpServerResponse resp = request.response();
 		byte[] data = sw.toString().getBytes();
-		resp.putHeader("Content-Length", "" + data.length);
-		resp.putHeader(HttpHeaders.CONTENT_TYPE, "application/javascript");
-		resp.write(Buffer.buffer(data));
-		resp.setStatusCode(200);
-		resp.end();
+		resp.putHeader(HttpHeaders.CONTENT_TYPE, JS).end(Buffer.buffer(data));
 	}
 
 	private List<String> getAssetsList() {
@@ -73,7 +72,8 @@ public class ServiceWorkerHandler implements IWebModuleConsumer, Handler<HttpSer
 
 	private static Boolean assetsFilter(String path) {
 
-		return !(path.startsWith(".") || path.endsWith(".devmode.js")|| path.endsWith(".nocache.js") || path.startsWith("WEB-INF"));
+		return !(path.startsWith(".") || path.endsWith(".devmode.js") || path.endsWith(".nocache.js")
+				|| path.startsWith("WEB-INF"));
 	}
 
 	@Override

@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.system.api.CustomLogo;
@@ -31,6 +32,7 @@ import net.bluemind.webmodule.server.handlers.IWebModuleConsumer;
 public class LogoHandler implements Handler<HttpServerRequest>, IWebModuleConsumer {
 
 	private static final Logger logger = LoggerFactory.getLogger(LogoHandler.class);
+	private static final CharSequence PNG = HttpHeaders.createOptimized("image/png");
 	private WebModule module;
 
 	@Override
@@ -39,11 +41,9 @@ public class LogoHandler implements Handler<HttpServerRequest>, IWebModuleConsum
 		CustomLogo logo = LogoManager.getLogo();
 		if (logo != null) {
 			HttpServerResponse response = event.response();
-			response.putHeader("Content-Length", "" + logo.content.length);
-			response.putHeader("ContentType", "image/png");
-			response.write(Buffer.buffer(logo.content));
 			response.setStatusCode(200);
-			response.end();
+			response.putHeader(HttpHeaders.CONTENT_TYPE, PNG);
+			response.end(Buffer.buffer(logo.content));
 		} else {
 			module.defaultHandler.handle(event);
 		}

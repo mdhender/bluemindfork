@@ -64,12 +64,7 @@ public class UploadThruHpsHandler implements Handler<HttpServerRequest> {
 						String response = "{\"taskRefId\":1 , \"count\":" + count + " , \"imported\":" + imported
 								+ ", \"complete\":true}";
 						HttpServerResponse resp = request.response();
-						resp.putHeader("Content-Length", "" + response.getBytes().length);
-
-						resp.write(response);
-						resp.setStatusCode(200);
-						resp.end();
-
+						resp.putHeader("Content-Length", "" + response.getBytes().length).end(response);
 					}
 
 				});

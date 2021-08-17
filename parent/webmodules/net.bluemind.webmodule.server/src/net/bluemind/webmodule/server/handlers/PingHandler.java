@@ -28,10 +28,7 @@ public class PingHandler implements Handler<HttpServerRequest> {
 	public void handle(HttpServerRequest request) {
 		HttpServerResponse resp = request.response();
 		String body = "" + System.currentTimeMillis();
-		resp.putHeader("Content-Length", "" + body.length());
-		resp.write(body);
-		resp.setStatusCode(200);
-		resp.end();
+		resp.end(body);
 	}
 
 }
