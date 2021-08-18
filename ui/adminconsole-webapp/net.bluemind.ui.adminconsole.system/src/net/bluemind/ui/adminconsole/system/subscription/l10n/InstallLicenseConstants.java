@@ -91,4 +91,6 @@ public interface InstallLicenseConstants extends ConstantsWithLookup {
 
 	String visioAccounts();
 
+	String videoSubscriptionEnds();
+
 }

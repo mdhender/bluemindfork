@@ -237,6 +237,16 @@
 							</g:Label>
 						</g:customCell>
 					</g:row>
+					<g:row>
+						<g:customCell>
+							<g:Label ui:field="videoSubscriptionEndsLabel" text="{ilc.videoSubscriptionEnds}">
+							</g:Label>
+						</g:customCell>
+						<g:customCell>
+							<g:Label ui:field="videoSubscriptionEnds">
+							</g:Label>
+						</g:customCell>
+					</g:row>
 
 					<g:row></g:row>
 

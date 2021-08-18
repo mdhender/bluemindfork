@@ -25,10 +25,6 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONObject;
@@ -42,8 +38,6 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
-import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
-import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
@@ -55,7 +49,6 @@ import net.bluemind.gwtconsoleapp.base.editor.ModelHandler;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenElement;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenRoot;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtScreenRoot;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtScreenRoot;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.gwtconsoleapp.base.notification.Notification;
@@ -140,6 +133,12 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 	Label maxVisioAccountsLabel;
 
 	@UiField
+	Label videoSubscriptionEnds;
+
+	@UiField
+	Label videoSubscriptionEndsLabel;
+
+	@UiField
 	HTML subscriptionPostInstallInformations;
 
 	@UiField
@@ -195,18 +194,12 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 		uploadLicenseButton.setText(InstallLicenseConstants.INST.updateLicenseButton());
 		setupUploadForm();
 		deleteLicenseButton.setVisible(false);
-		srws = new SubscriptionRemovalWarningDialog(new Runnable() {
-
-			@Override
-			public void run() {
-				save(null, null);
-			}
-		});
+		srws = new SubscriptionRemovalWarningDialog(() -> save(null, null));
 
 		noSubContacts.setHTML("<h2>" + SubscriptionConstants.INST.noSubscriptionContact() + "</h2>");
 		aboutSubContacts.setText(SubscriptionConstants.INST.subscriptionContacts());
 
-		licenceInformation.getColumnFormatter().setWidth(0, "300px");
+		licenceInformation.getColumnFormatter().setWidth(0, "350px");
 		licenceInformation.getColumnFormatter().setWidth(1, "200px");
 
 		mailTable.setInformationsPanels(aboutSubContacts, noSubContacts);
@@ -315,12 +308,8 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 	}
 
 	public static void registerType() {
-		GwtScreenRoot.register(TYPE, new IGwtDelegateFactory<IGwtScreenRoot, ScreenRoot>() {
-
-			@Override
-			public IGwtScreenRoot create(ScreenRoot screenRoot) {
-				return new SubscriptionWidget(screenRoot);
-			}
+		GwtScreenRoot.register(TYPE, screenRoot -> {
+			return new SubscriptionWidget(screenRoot);
 		});
 	}
 
@@ -333,23 +322,19 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 			deleteLicenseButton.setVisible(true);
 		}
 
-		deleteLicenseButton.addClickHandler(new ClickHandler() {
+		deleteLicenseButton.addClickHandler(event -> {
 
-			@Override
-			public void onClick(ClickEvent event) {
-
-				final DialogBox os = new DialogBox();
-				os.addStyleName("dialog");
-				srws.setSize("800px", "250px");
-				srws.setOverlay(os);
-				os.setWidget(srws);
-				os.setGlassEnabled(true);
-				os.setAutoHideEnabled(false);
-				os.setGlassStyleName("modalOverlay");
-				os.setModal(false);
-				os.center();
-				os.show();
-			}
+			final DialogBox os = new DialogBox();
+			os.addStyleName("dialog");
+			srws.setSize("800px", "250px");
+			srws.setOverlay(os);
+			os.setWidget(srws);
+			os.setGlassEnabled(true);
+			os.setAutoHideEnabled(false);
+			os.setGlassStyleName("modalOverlay");
+			os.setModal(false);
+			os.center();
+			os.show();
 		});
 
 		if (sub.kind == SubscriptionInformations.Kind.HOST) {
@@ -416,8 +401,10 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 			case FullVisioAccount:
 				maxVisioAccounts.setText(indicator.maxValue != null ? indicator.maxValue.toString() : "-");
 				visioAccounts.setText(indicator.currentValue != null ? indicator.currentValue.toString() : "-");
+				videoSubscriptionEnds.setText(indicator.expiration != null
+						? DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT).format(indicator.expiration)
+						: "-");
 				break;
-
 			default:
 				break;
 			}
@@ -442,7 +429,8 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 		maxVisioAccounts.setVisible(fullVisio);
 		visioAccountsLabel.setVisible(fullVisio);
 		maxVisioAccountsLabel.setVisible(fullVisio);
-
+		videoSubscriptionEnds.setVisible(fullVisio);
+		videoSubscriptionEndsLabel.setVisible(fullVisio);
 	}
 
 	private void setupUploadForm() {
@@ -453,41 +441,29 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 		uploadUrl = uploadUrl.substring(0, uploadUrl.lastIndexOf("/") + 1);
 		uploadFormPanel.setAction(uploadUrl + "fileupload");
 
-		uploadLicenseButton.addClickHandler(new ClickHandler() {
+		uploadLicenseButton.addClickHandler(event -> {
+			uploadLicenseFile.click();
+		});
 
-			@Override
-			public void onClick(ClickEvent event) {
-				uploadLicenseFile.click();
+		uploadLicenseFile.addChangeHandler(event -> {
+			if (!uploadLicenseFile.getFilename().isEmpty()) {
+				uploadFormPanel.submit();
 			}
 		});
 
-		uploadLicenseFile.addChangeHandler(new ChangeHandler() {
+		uploadFormPanel.addSubmitCompleteHandler(event -> {
+			uploadFormPanel.reset();
+			String ret = event.getResults();
+			String replaced = ret.replaceAll("<(\"[^\"]*\"|'[^']*'|[^'\">])*>", "");
+			JavaScriptObject safeEval = JsonUtils.safeEval(replaced);
+			JSONObject fileUploadData = new JSONObject(safeEval);
+			license = fileUploadData.get("data").isString().stringValue();
+			licenseFileName = fileUploadData.get("filename").isString().stringValue();
 
-			@Override
-			public void onChange(ChangeEvent event) {
-				if (!uploadLicenseFile.getFilename().isEmpty()) {
-					uploadFormPanel.submit();
-				}
-			}
-		});
-
-		uploadFormPanel.addSubmitCompleteHandler(new SubmitCompleteHandler() {
-
-			@Override
-			public void onSubmitComplete(SubmitCompleteEvent event) {
-				uploadFormPanel.reset();
-				String ret = event.getResults();
-				String replaced = ret.replaceAll("<(\"[^\"]*\"|'[^']*'|[^'\">])*>", "");
-				JavaScriptObject safeEval = JsonUtils.safeEval(replaced);
-				JSONObject fileUploadData = new JSONObject(safeEval);
-				license = fileUploadData.get("data").isString().stringValue();
-				licenseFileName = fileUploadData.get("filename").isString().stringValue();
-
-				save(license, licenseFileName);
-				subscriptionPostInstallInformations
-						.setHTML(InstallLicenseConstants.INST.subscriptionPostInstallInformations());
-				subscriptionPostInstallInformations.setVisible(true);
-			}
+			save(license, licenseFileName);
+			subscriptionPostInstallInformations
+					.setHTML(InstallLicenseConstants.INST.subscriptionPostInstallInformations());
+			subscriptionPostInstallInformations.setVisible(true);
 		});
 	}
 }
