@@ -63,13 +63,10 @@ public abstract class AbstractEmailHook implements IAclHook {
 	private EventBus eventBus;
 
 	public AbstractEmailHook() {
-		cfg = new Configuration();
+		cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		cfg.setClassForTemplateLoading(getClass(), "/templates");
 		eventBus = VertxPlatform.eventBus();
 	}
-
-	public abstract void onAclChanged(BmContext context, ContainerDescriptor container,
-			List<AccessControlEntry> previous, List<AccessControlEntry> current);
 
 	protected void notify(BmContext context, ContainerDescriptor container, List<AccessControlEntry> entries,
 			RawField... headers) throws ServerFault {
@@ -89,7 +86,7 @@ public abstract class AbstractEmailHook implements IAclHook {
 			fromDN = fromDE.displayName;
 		}
 
-		HashMap<String, String> data = new HashMap<String, String>();
+		HashMap<String, String> data = new HashMap<>();
 		data.put("user", fromDN);
 		data.put("videoconfdocumentation", VIDEOCONFERENCE_DOCUMENTATION_URL);
 
@@ -161,9 +158,7 @@ public abstract class AbstractEmailHook implements IAclHook {
 		try {
 			t = getTemplate(templateName, locale);
 			t.process(data, sw);
-		} catch (TemplateException e1) {
-			logger.error(e1.getMessage(), e1);
-		} catch (IOException e1) {
+		} catch (TemplateException | IOException e1) {
 			logger.error(e1.getMessage(), e1);
 		}
 
