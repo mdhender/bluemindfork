@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 
+import io.netty.util.AsciiString;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpHeaders;
@@ -35,6 +36,7 @@ public class VueHandler implements Handler<HttpServerRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(VueHandler.class);
 
+	private static final CharSequence JS = new AsciiString("application/javascript");
 	private static boolean vueDevFileExists = new File("/root/dev-vue").exists();
 	private static Buffer vueFileContent = Buffer.buffer(loadVueFile());
 
@@ -43,11 +45,7 @@ public class VueHandler implements Handler<HttpServerRequest> {
 		logger.debug("VueHandler {}", event.path());
 
 		HttpServerResponse response = event.response();
-		response.putHeader(HttpHeaders.CONTENT_TYPE, "application/javascript");
-		response.putHeader(HttpHeaders.CONTENT_LENGTH, "" + vueFileContent.length());
-		response.write(vueFileContent);
-		response.setStatusCode(200);
-		response.end();
+		response.putHeader(HttpHeaders.CONTENT_TYPE, JS).end(vueFileContent);
 	}
 
 	private static byte[] loadVueFile() {
