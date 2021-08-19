@@ -85,7 +85,7 @@ public class AttachmentService implements IAttachment {
 		try {
 			tmp = File.createTempFile("dedup", "." + ext);
 			GenericStream.streamToFile(document, tmp, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-			String hash = Files.asByteSource(tmp).hash(Hashing.goodFastHash(64)).toString();
+			String hash = Files.asByteSource(tmp).hash(Hashing.murmur3_128()).toString();
 			String path = FOLDER + hash + "." + ext;
 			if (!service.exists(path)) {
 				AsyncFile readStream = VertxPlatform.getVertx().fileSystem().openBlocking(tmp.getAbsolutePath(),
