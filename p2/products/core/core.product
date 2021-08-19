@@ -376,6 +376,7 @@
       <plugin id="net.bluemind.system.pg"/>
       <plugin id="net.bluemind.system.schemaupgrader"/>
       <plugin id="net.bluemind.system.schemaupgrader.runner"/>
+      <plugin id="net.bluemind.system.security.certificate"/>
       <plugin id="net.bluemind.system.service"/>
       <plugin id="net.bluemind.system.sqlschema"/>
       <plugin id="net.bluemind.system.state"/>
@@ -409,14 +410,13 @@
       <plugin id="net.bluemind.user.sqlschema"/>
       <plugin id="net.bluemind.utils"/>
       <plugin id="net.bluemind.vertx.core.patch" fragment="true"/>
-      <plugin id="net.bluemind.videoconferencing.saas.api"/>
       <plugin id="net.bluemind.videoconferencing.api"/>
       <plugin id="net.bluemind.videoconferencing.hosting"/>
-      <plugin id="net.bluemind.videoconferencing.service"/>
+      <plugin id="net.bluemind.videoconferencing.saas.api"/>
       <plugin id="net.bluemind.videoconferencing.saas.persistence"/>
       <plugin id="net.bluemind.videoconferencing.saas.room.sqlschema"/>
       <plugin id="net.bluemind.videoconferencing.saas.service"/>
-      <plugin id="net.bluemind.videoconferencing.saas.api"/>
+      <plugin id="net.bluemind.videoconferencing.service"/>
       <plugin id="net.bluemind.webmail.sqlschema"/>
       <plugin id="net.bluemind.xivo.client"/>
       <plugin id="net.bluemind.xivo.common"/>

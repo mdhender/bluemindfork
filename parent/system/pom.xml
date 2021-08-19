@@ -42,6 +42,7 @@
 		<module>net.bluemind.sentry.settings.tests</module>
 		<module>net.bluemind.core.bo.report.provider</module>
 		<module>net.bluemind.system.upgraders.sqlschema</module>
+		<module>net.bluemind.system.security.certificate</module>
 	</modules>
 
 </project>

@@ -168,8 +168,7 @@ public class PasswordExpireNotificationJob implements IScheduledJob {
 		report.reportByInterval.get(notificationInterval).usersToNotify = userUids.size();
 
 		Optional<String> externalUrl = Optional.ofNullable(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(ISystemConfiguration.class, domainName).getValues().values
-						.get(SysConfKeys.external_url.name()));
+				.instance(ISystemConfiguration.class).getValues().values.get(SysConfKeys.external_url.name()));
 		userUids.stream().forEach(userUid -> processUser(provider, externalUrl, notificationInterval, userUid));
 	}
 
