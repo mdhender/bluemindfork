@@ -18,6 +18,7 @@
  */
 package net.bluemind.domain.service.internal;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,6 +31,9 @@ import javax.ws.rs.PathParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
+
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.core.api.ParametersValidator;
@@ -39,7 +43,9 @@ import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.RBACManager;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.task.api.TaskRef;
@@ -64,6 +70,7 @@ import net.bluemind.hornetq.client.Topic;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mailbox.persistence.MailboxStore;
 import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.user.api.IUser;
@@ -391,6 +398,25 @@ public class DomainsService implements IDomains {
 
 		boolean update = !previousAliases.equals(domainItem.value.aliases);
 		if (update) {
+			SetView<String> deletedAliases = Sets.difference(previousAliases, domainItem.value.aliases);
+			if (!deletedAliases.isEmpty()) {
+				try {
+					MailboxStore mailboxStore = new MailboxStore(context.getDataSource(),
+							new ContainerStore(context, context.getDataSource(), SecurityContext.SYSTEM)
+									.get(domainItem.uid));
+					for (String deletedAlias : deletedAliases) {
+						if (mailboxStore.isUsedAlias(deletedAlias)) {
+							monitor.end(false, "Alias " + deletedAlias + " is still in use",
+									"Alias " + deletedAlias + " is still in use");
+							return;
+						}
+					}
+				} catch (SQLException e) {
+					monitor.end(false, "SQL error occured: " + e.getMessage(), "");
+					return;
+				}
+			}
+
 			store.update(domainItem.uid, domainItem.value.label, domainItem.value);
 			domainsCache.invalidate(domainItem.uid);
 		}

@@ -164,6 +164,12 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 			+ "   (e.all_aliases = true AND e.left_address = ?::text)" //
 			+ " ) LIMIT 1";
 
+	private static final String EMAIL_ALIAS_SEARCH_QUERY = "SELECT TRUE " //
+			+ " FROM t_mailbox_email e" //
+			+ " JOIN t_container_item item ON (item.id = e.item_id)" //
+			+ " WHERE container_id = ?" //
+			+ " AND (e.right_address = ?) LIMIT 1";
+
 	/**
 	 * @param q
 	 * @return
@@ -173,6 +179,12 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 		String leftPart = email.split("@")[0];
 		return unique(EMAIL_SEARCH_QUERY, StringCreator.FIRST, Collections.emptyList(),
 				new Object[] { container.id, email, leftPart });
+	}
+
+	public boolean isUsedAlias(String alias) throws SQLException {
+		Boolean unique = unique(EMAIL_ALIAS_SEARCH_QUERY, BooleanCreator.FIRST, Collections.emptyList(),
+				new Object[] { container.id, alias });
+		return unique != null;
 	}
 
 	/**

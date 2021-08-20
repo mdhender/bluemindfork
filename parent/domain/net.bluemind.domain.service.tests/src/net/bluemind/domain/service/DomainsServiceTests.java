@@ -19,6 +19,7 @@
 package net.bluemind.domain.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -59,6 +60,7 @@ import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.TaskUtils;
+import net.bluemind.core.task.service.TaskUtils.ExtendedTaskStatus;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnit;
@@ -72,6 +74,7 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
 public class DomainsServiceTests {
@@ -317,7 +320,28 @@ public class DomainsServiceTests {
 		PopulateHelper.addUser(domainUid, user);
 
 		// try to add alias to domain
-		getService().setAliases(domainUid, Sets.newHashSet(domainAlias));
+		TaskRef setAliases = getService().setAliases(domainUid, Sets.newHashSet(domainAlias));
+		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), setAliases);
+
+		user.login = "newuser";
+		user.emails = Arrays.asList(net.bluemind.core.api.Email.create(user.login + "@" + domainAlias, true));
+		PopulateHelper.addUser(domainUid, user);
+
+		setAliases = getService().setAliases(domainUid, Collections.emptySet());
+		ExtendedTaskStatus alias = TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM),
+				setAliases);
+		assertFalse(alias.state.succeed);
+		assertEquals("Alias " + domainAlias + " is still in use", alias.result);
+
+		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
+				domainUid);
+		userService.delete(user.login);
+		// FIXME replace
+		Thread.sleep(5000);
+
+		setAliases = getService().setAliases(domainUid, Collections.emptySet());
+		alias = TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), setAliases);
+		assertTrue(alias.state.succeed);
 
 //		try {
 //			
