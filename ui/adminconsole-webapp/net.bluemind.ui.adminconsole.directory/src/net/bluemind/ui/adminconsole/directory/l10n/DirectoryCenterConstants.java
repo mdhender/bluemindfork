@@ -56,9 +56,11 @@ public interface DirectoryCenterConstants extends Constants {
 	String emailColumn();
 
 	String orgUnitColumn();
-	
+
 	String fullAccount();
-	
+
 	String basicAccount();
+
+	String visioAccount();
 
 }

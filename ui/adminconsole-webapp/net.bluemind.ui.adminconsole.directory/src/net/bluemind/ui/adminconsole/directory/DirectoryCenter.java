@@ -328,6 +328,10 @@ public class DirectoryCenter extends Composite implements IGwtScreenRoot, IDomai
 			filterBox.addItem(DirectoryCenterConstants.INST.basicAccount(), DirEntry.AccountType.SIMPLE.name());
 		}
 
+		if (SubscriptionInfoHolder.subIncludesVisioAccount()) {
+			filterBox.addItem(DirectoryCenterConstants.INST.visioAccount(), DirEntry.AccountType.FULL_AND_VISIO.name());
+		}
+
 		newButtonContainer.getElement().setId("directory-center-new");
 		deleteButton.getElement().setId("directory-center-delete");
 		userFilter.getElement().setId("directory-center-toggle-user");
@@ -353,7 +357,7 @@ public class DirectoryCenter extends Composite implements IGwtScreenRoot, IDomai
 				// BM-6350
 				dq.hiddenFilter = false;
 				if (filterBox.getSelectedValue() != null) {
-					if (SubscriptionInfoHolder.subIncludesSimpleAccount() && filterBox.getSelectedIndex() > 2) {
+					if (filterBox.getSelectedIndex() > 2) {
 						dq.accountTypeFilter = DirEntry.AccountType.valueOf(filterBox.getSelectedValue());
 					} else {
 						dq.stateFilter = DirEntryQuery.StateFilter.valueOf(filterBox.getSelectedValue());
