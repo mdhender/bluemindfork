@@ -1880,6 +1880,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.showConferenceForm_ = function() 
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-desc-container').style.display = 'none';
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-desc').innerHTML = '';
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-url-copy-value').value = '';
+  this.getDomHelper().getElement('bm-ui-form-videoconferencing-warn').style.display = 'none';
 };
 
 net.bluemind.calendar.vevent.ui.Form.prototype.showConferenceData_ = function() {
@@ -1892,6 +1893,18 @@ net.bluemind.calendar.vevent.ui.Form.prototype.showConferenceData_ = function() 
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-desc-container').style.display = 'block';
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-desc').innerHTML = this.getModel().conferenceDescription;
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-url-copy-value').value = this.getModel().conference;
+
+  var roles = goog.global['bmcSessionInfos']['roles'].split(',');
+  if (goog.array.contains(roles, "hasSimpleVideoconferencing")) {
+    var selected = this.getChild('bm-ui-form-videoconferencing-select').getValue();
+    var bmProvider = goog.array.filter(this.videoConferencingResources_, function(res) {
+      return res.providerId == "videoconferencing-bluemind";
+    });
+    if (bmProvider.length > 0 && bmProvider[0].uid == selected) {
+        this.getDomHelper().getElement('bm-ui-form-videoconferencing-warn').style.display = 'block'; 
+    }
+  }
+
 };
 
 /**
