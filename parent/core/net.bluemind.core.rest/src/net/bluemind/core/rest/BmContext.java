@@ -33,6 +33,18 @@ public interface BmContext {
 
 	public DataSource getMailboxDataSource(String datalocation);
 
+	/**
+	 * dir for for {@link BmContext#getDataSource()}
+	 * 
+	 * datalocation matching {@link BmContext#getMailboxDataSource(String)}
+	 * 
+	 * null when unknown
+	 * 
+	 * @param ds
+	 * @return
+	 */
+	public String dataSourceLocation(DataSource ds);
+
 	public List<DataSource> getAllMailboxDataSource();
 
 	public IServiceProvider getServiceProvider();

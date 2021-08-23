@@ -61,6 +61,14 @@ public class BmTestContext implements BmContext {
 		this.dataSource = datasource;
 	}
 
+	public String dataSourceLocation(DataSource ds) {
+		if (ds == dataSource) {
+			return "dir";
+		} else {
+			return null;
+		}
+	}
+
 	@Override
 	public SecurityContext getSecurityContext() {
 		return securityContext;

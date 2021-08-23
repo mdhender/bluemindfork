@@ -19,6 +19,8 @@ package net.bluemind.core.container.persistence;
 
 import java.util.concurrent.TimeUnit;
 
+import javax.sql.DataSource;
+
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
@@ -50,12 +52,14 @@ public final class ContainerCache {
 		this.idCache = idCache;
 	}
 
-	public static ContainerCache get(BmContext context) {
+	public static ContainerCache get(BmContext context, DataSource dataSource) {
 		if (context == null || context.provider().instance(CacheRegistry.class) == null) {
 			return new ContainerCache(null, null);
 		} else {
 			CacheRegistry instance = context.provider().instance(CacheRegistry.class);
-			return new ContainerCache(instance.get("ContainerUidCache"), instance.get("ContainerIdCache"));
+			return new ContainerCache(instance.get("ContainerUidCache"),
+					instance.get("ContainerIdCache-" + context.dataSourceLocation(dataSource)));
+
 		}
 	}
 

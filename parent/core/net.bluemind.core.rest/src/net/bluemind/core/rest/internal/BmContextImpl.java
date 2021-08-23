@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -45,6 +46,15 @@ public class BmContextImpl implements BmContext {
 		this.securityContext = securityContext;
 		this.dataSource = dataSource;
 		this.mailboxDataSource = mailboxDataSource;
+	}
+
+	public String dataSourceLocation(DataSource ds) {
+		if (ds == dataSource) {
+			return "dir";
+		} else {
+			return mailboxDataSource.entrySet().stream().filter(e -> e.getValue() == ds).map(Entry::getKey).findAny()
+					.orElse(null);
+		}
 	}
 
 	@Override

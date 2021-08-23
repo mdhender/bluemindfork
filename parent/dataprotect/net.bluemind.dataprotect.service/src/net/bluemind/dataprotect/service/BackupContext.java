@@ -64,6 +64,16 @@ public class BackupContext implements BmContext {
 		this.provider = new RestoreServiceProvider(ServerSideServiceProvider.getProvider(this));
 	}
 
+	public String dataSourceLocation(DataSource ds) {
+		if (ds == pool) {
+			return "dir";
+		} else if (ds == dataPool) {
+			return "dataPool";
+		} else {
+			return null;
+		}
+	}
+
 	@Override
 	public BmContext su() {
 		return new BackupContext(pool, dataPool, SecurityContext.SYSTEM);

@@ -108,7 +108,7 @@ public class ContainerStore extends JdbcAbstractStore {
 	public ContainerStore(BmContext ctx, DataSource dataSource, SecurityContext securityContext) {
 		super(dataSource);
 		this.securityContext = securityContext;
-		this.cache = ContainerCache.get(ctx);
+		this.cache = ContainerCache.get(ctx, dataSource);
 	}
 
 	public List<Container> findByTypeAndOwner(String containerType, String owner) throws SQLException {
