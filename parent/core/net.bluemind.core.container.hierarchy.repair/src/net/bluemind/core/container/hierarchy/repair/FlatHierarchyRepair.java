@@ -97,7 +97,7 @@ public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 			IInternalContainersFlatHierarchyMgmt mgmtApi = context.provider()
 					.instance(IInternalContainersFlatHierarchyMgmt.class, domainUid, entry.entryUid);
 			mgmtApi.init();
-			IInternalContainersFlatHierarchy hierApi = context.provider()
+			IInternalContainersFlatHierarchy hierApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(IInternalContainersFlatHierarchy.class, domainUid, entry.entryUid);
 			IContainers contApi = context.provider().instance(IContainers.class);
 			List<BaseContainerDescriptor> ownedContainers = contApi

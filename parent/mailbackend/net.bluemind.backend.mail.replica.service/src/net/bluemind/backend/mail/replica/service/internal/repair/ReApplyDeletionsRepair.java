@@ -50,7 +50,9 @@ import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
@@ -311,7 +313,8 @@ public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
 	private void runOnUserMailbox(ReApplyDeletion op, String domainUid, IServerTaskMonitor monitor,
 			ItemValue<Mailbox> mbox) {
 		String latd = mbox.value.name + "@" + domainUid;
-		LoginResponse resp = context.provider().instance(IAuthentication.class).su(latd);
+		LoginResponse resp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IAuthentication.class).su(latd);
 		if (resp.authKey != null) {
 			String flag = "fix" + Long.toHexString(System.currentTimeMillis());
 
@@ -345,8 +348,8 @@ public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
 	}
 
 	private void processDbMailboxData(ReApplyDeletion op, String domainUid, ItemValue<Mailbox> mbox) {
-		IDbReplicatedMailboxes mboxFolders = context.provider().instance(IDbReplicatedMailboxes.class,
-				partition(domainUid), mboxRoot(mbox));
+		IDbReplicatedMailboxes mboxFolders = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDbReplicatedMailboxes.class, partition(domainUid), mboxRoot(mbox));
 		IContainers service = context.provider().instance(IContainers.class);
 		mboxFolders.all().forEach(folder -> {
 			if (folder.flags.contains(ItemFlag.Deleted)) {

@@ -35,8 +35,10 @@ import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
@@ -125,7 +127,8 @@ public class ReplicationDeletedMailboxRepair extends InternalMaintenanceOperatio
 			toRepair.put(folder.value.fullName, folder);
 		});
 
-		LoginResponse resp = context.provider().instance(IAuthentication.class).su(latd);
+		LoginResponse resp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IAuthentication.class).su(latd);
 
 		try (StoreClient sc = new StoreClient(backend.value.address(), 1143, latd, resp.authKey)) {
 

@@ -40,6 +40,7 @@
       <plugin id="com.fasterxml.jackson.module.jackson-module-afterburner"/>
       <plugin id="com.github.ben-manes.caffeine"/>
       <plugin id="com.github.lookfirst.sardine"/>
+      <plugin id="com.github.luben.zstd"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.google.guava.failureaccess"/>
       <plugin id="com.hazelcast"/>
@@ -91,6 +92,7 @@
       <plugin id="net.bluemind.aws.s3.utils"/>
       <plugin id="net.bluemind.backend.cyrus"/>
       <plugin id="net.bluemind.backend.cyrus.annotationdb"/>
+      <plugin id="net.bluemind.backend.cyrus.index"/>
       <plugin id="net.bluemind.backend.cyrus.integrity.check"/>
       <plugin id="net.bluemind.backend.cyrus.mailboxesdb"/>
       <plugin id="net.bluemind.backend.cyrus.partitions"/>
@@ -327,6 +329,7 @@
       <plugin id="net.bluemind.proxy.support"/>
       <plugin id="net.bluemind.resource.api"/>
       <plugin id="net.bluemind.resource.helper"/>
+      <plugin id="net.bluemind.resource.hook"/>
       <plugin id="net.bluemind.resource.hook.ics"/>
       <plugin id="net.bluemind.resource.persistence"/>
       <plugin id="net.bluemind.resource.service"/>
@@ -380,6 +383,7 @@
       <plugin id="net.bluemind.system.service"/>
       <plugin id="net.bluemind.system.sqlschema"/>
       <plugin id="net.bluemind.system.state"/>
+      <plugin id="net.bluemind.system.stateobserver"/>
       <plugin id="net.bluemind.system.subscriptionprovider"/>
       <plugin id="net.bluemind.system.sysconf.helper"/>
       <plugin id="net.bluemind.system.upgraders.sqlschema"/>
@@ -441,6 +445,7 @@
       <plugin id="org.apache.commons.collections"/>
       <plugin id="org.apache.commons.io"/>
       <plugin id="org.apache.commons.lang"/>
+      <plugin id="org.apache.commons.lang3"/>
       <plugin id="org.apache.httpcomponents.httpclient"/>
       <plugin id="org.apache.httpcomponents.httpcore"/>
       <plugin id="org.apache.james.apache-mime4j-core"/>
@@ -487,14 +492,16 @@
       <plugin id="org.w3c.dom.svg"/>
       <plugin id="org.xhtmlrenderer.flying-saucer-core"/>
       <plugin id="org.xhtmlrenderer.flying-saucer-pdf"/>
+      <plugin id="sentry"/>
+      <plugin id="sentry-logback"/>
       <plugin id="slf4j.api"/>
       <plugin id="xpp3"/>
    </plugins>
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
       <property name="osgi.noShutdown" value="true" />
+      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
    </configurations>
 
    <preferencesInfo>

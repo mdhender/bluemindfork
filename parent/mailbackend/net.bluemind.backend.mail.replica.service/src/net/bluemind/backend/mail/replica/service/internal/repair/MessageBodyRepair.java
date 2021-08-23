@@ -42,6 +42,7 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -145,7 +146,8 @@ public class MessageBodyRepair implements IDirEntryRepairSupport {
 					domainUid);
 			final String replicatedMailboxIdentifier = mailbox.value.type.nsPrefix
 					+ mailbox.value.name.replace(".", "^");
-			final IDbReplicatedMailboxes replicatedMailboxesService = ServerSideServiceProvider.getProvider(bmContext)
+			final IDbReplicatedMailboxes replicatedMailboxesService = ServerSideServiceProvider
+					.getProvider(SecurityContext.SYSTEM)
 					.instance(IDbReplicatedMailboxes.class, cyrusPartition.name, replicatedMailboxIdentifier);
 
 			// loop aver mailbox folders

@@ -128,7 +128,7 @@ public class CalendarViewService implements ICalendarView, IInCoreCalendarView, 
 		List<ItemValue<CalendarView>> values = new ArrayList<ItemValue<CalendarView>>(allUids.size());
 
 		for (String uid : allUids) {
-			values.add(get(uid));
+			values.add(storeService.get(uid, null));
 		}
 		ret.total = values.size();
 		ret.values = values;
@@ -151,8 +151,7 @@ public class CalendarViewService implements ICalendarView, IInCoreCalendarView, 
 	 */
 	private ItemValue<CalendarView> get(String uid) throws ServerFault {
 		rbacManager.check(Verb.Read.name());
-		ItemValue<CalendarView> ret = storeService.get(uid, null);
-		return ret;
+		return storeService.get(uid, null);
 	}
 
 	@Override

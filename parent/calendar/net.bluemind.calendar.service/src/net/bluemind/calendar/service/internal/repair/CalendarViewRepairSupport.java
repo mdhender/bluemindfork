@@ -38,7 +38,9 @@ import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
@@ -87,7 +89,8 @@ public class CalendarViewRepairSupport implements IDirEntryRepairSupport {
 		@SuppressWarnings("deprecation")
 		@Override
 		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			IUserCalendarViews view = context.provider().instance(IUserCalendarViews.class, domainUid, entry.entryUid);
+			IUserCalendarViews view = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IUserCalendarViews.class, domainUid, entry.entryUid);
 
 			processCalendarViews(view.list(), viewData -> {
 				logger.info("Calendarview {}:{} contains inaccessible calendar {}", viewData.view.uid,
