@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.backend.cyrus.annotationdb
-Bundle-SymbolicName: net.bluemind.backend.cyrus.annotationdb
+Bundle-SymbolicName: net.bluemind.backend.cyrus.annotationdb;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.backend.cyrus.annotationdb
@@ -9,5 +9,15 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: slf4j.api,
  net.bluemind.node.api,
  com.google.guava,
- net.bluemind.network.utils
+ net.bluemind.network.utils,
+ net.bluemind.core.task.spi,
+ net.bluemind.core.container.persistence,
+ net.bluemind.mailbox.api,
+ net.bluemind.server.api,
+ net.bluemind.user.api,
+ net.bluemind.backend.cyrus.index,
+ net.bluemind.backend.mail.replica.api,
+ net.bluemind.backend.cyrus.partitions,
+ net.bluemind.network.topology,
+ net.bluemind.directory.service
 Export-Package: net.bluemind.backend.cyrus.annotationdb
