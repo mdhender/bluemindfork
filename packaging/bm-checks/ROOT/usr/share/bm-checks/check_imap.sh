@@ -20,15 +20,13 @@ function check_imap_connexion {
 
 function check_imap_children_number {
     processImap=`ps aux | grep imap | wc -l`
-    processImapMax=`grep -Po "listen=\"1143.*maxchild=\K.*? " /etc/cyrus.conf`
+    processImapMax=`grep -Po "listen=\"1143.*maxchild=\K(\d+)" /etc/cyrus.conf`
 
     if [[ $processImap -gt `expr $processImapMax \* 3 / 2` ]]
     then
         echo "[WARNING] Maximum number of imap connexion may be too low. Recommended is 1.5 * number_of_users ($processImap/$processImapMax)"
         exit 1
     fi
-
-    
 }
 
 check_networkport "" 1143
