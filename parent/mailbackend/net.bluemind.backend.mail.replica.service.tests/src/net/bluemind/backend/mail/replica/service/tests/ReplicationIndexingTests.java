@@ -159,9 +159,9 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 				.must(QueryBuilders.termQuery("uid", lastUid));
 
 		do {
-			Thread.sleep(50);
+			Thread.sleep(100);
 			found = client.prepareSearch("mailspool_alias_" + userUid).setQuery(freshMailQuery).execute().actionGet();
-		} while (found.getHits().getTotalHits() == 0 && ++attempt < 200);
+		} while (found.getHits().getTotalHits() == 0 && ++attempt < 400);
 		assertTrue("We tried " + attempt + " times & didn't found the doc with uid " + lastUid,
 				found.getHits().getTotalHits() > 0);
 
