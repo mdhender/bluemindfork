@@ -36,15 +36,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
 import org.asynchttpclient.ListenableFuture;
 import org.asynchttpclient.Response;
 import org.asynchttpclient.handler.BodyDeferringAsyncHandler;
+import org.asynchttpclient.handler.BodyDeferringAsyncHandler.BodyDeferringInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +81,7 @@ import net.bluemind.directory.api.IDirectory;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.icalendar.parser.CalendarOwner;
 import net.bluemind.proxy.support.AHCWithProxy;
-import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.TagRef;
@@ -322,12 +325,33 @@ public class CalendarContainerSync implements ISyncableContainer {
 		return call(icsUrl, method, syncToken, etag);
 	}
 
+	private static class ClosingBodyDeffering extends BodyDeferringInputStream {
+		private final AsyncHttpClient ahc;
+
+		public ClosingBodyDeffering(final Future<Response> future, final BodyDeferringAsyncHandler bdah,
+				final InputStream in, AsyncHttpClient ahc) {
+			super(future, bdah, in);
+			this.ahc = ahc;
+		}
+
+		@Override
+		public void close() throws IOException {
+			try {
+				super.close();
+			} catch (IOException e) {
+				throw e;
+			} finally {
+				ahc.close();
+			}
+		}
+
+	}
+
 	private ResponseData call(String icsUrl, String method, String modifiedSince, String etag)
 			throws IOException, InterruptedException {
-		BoundRequestBuilder request = AHCWithProxy
-				.build(context.provider().instance(ISystemConfiguration.class).getValues()).prepare(method, icsUrl)
-				.addHeader("User-Agent",
-						"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0.2 Safari/604.4.7");
+		AsyncHttpClient ahc = AHCWithProxy.build(LocalSysconfCache.get());
+		BoundRequestBuilder request = ahc.prepare(method, icsUrl).addHeader("User-Agent",
+				"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0.2 Safari/604.4.7");
 
 		if (etag != null) {
 			request = request.addHeader("If-None-Match", etag);
@@ -367,8 +391,10 @@ public class CalendarContainerSync implements ISyncableContainer {
 			return new ResponseData(null, status, lastModified, newEtag, nextSync);
 		}
 
-		return new ResponseData(new BodyDeferringAsyncHandler.BodyDeferringInputStream(futureResponse,
-				bodyDeferringAsyncHandler, pipedInputStream), status, lastModified, newEtag, nextSync);
+		return new ResponseData(
+				new ClosingBodyDeffering(futureResponse, bodyDeferringAsyncHandler, pipedInputStream, ahc), status,
+				lastModified, newEtag, nextSync);
+
 	}
 
 	private Long parseRFC1123DateTime(String dateTime) {

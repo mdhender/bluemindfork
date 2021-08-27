@@ -23,6 +23,7 @@ Require-Bundle: net.bluemind.core.container.sync,
  net.bluemind.system.api,
  net.bluemind.proxy.support,
  net.bluemind.tag.api,
- net.bluemind.directory.api
+ net.bluemind.directory.api,
+ net.bluemind.system.sysconf.helper
 Export-Package: net.bluemind.calendar.sync
 Automatic-Module-Name: net.bluemind.calendar.sync
