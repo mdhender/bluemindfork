@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.exchange.mapi.hook
+Bundle-SymbolicName: net.bluemind.exchange.mapi.hook;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.exchange.mapi.api;visibility:=reexport,
+ net.bluemind.eclipse.common
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.exchange.mapi.hook
+Bundle-ActivationPolicy: lazy

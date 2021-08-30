@@ -13,6 +13,7 @@
 		<module>net.bluemind.exchange.mapi.sqlschema</module>
 		<module>net.bluemind.exchange.mapi.persistence</module>
 		<module>net.bluemind.exchange.mapi.persistence.tests</module>
+		<module>net.bluemind.exchange.mapi.hook</module>
 		<module>net.bluemind.exchange.mapi.service</module>
 		<module>net.bluemind.exchange.mapi.service.tests</module>
 		<module>net.bluemind.exchange.mapi.notifications</module>
