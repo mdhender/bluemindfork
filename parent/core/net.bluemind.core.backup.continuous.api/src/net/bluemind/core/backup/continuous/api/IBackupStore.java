@@ -28,8 +28,8 @@ public interface IBackupStore<T> {
 	@VisibleForTesting
 	CompletableFuture<Void> storeRaw(String partitionKey, byte[] key, byte[] raw);
 
-	void store(ItemValue<T> data);
+	CompletableFuture<Void> store(ItemValue<T> data);
 
-	void delete(ItemValue<T> data);
+	CompletableFuture<Void> delete(ItemValue<T> data);
 
 }

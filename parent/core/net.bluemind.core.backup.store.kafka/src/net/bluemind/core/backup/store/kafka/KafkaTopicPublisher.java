@@ -51,14 +51,17 @@ public class KafkaTopicPublisher implements TopicPublisher {
 
 	private KafkaProducer<byte[], byte[]> createKafkaProducer() {
 		Properties producerProps = new Properties();
-		producerProps.setProperty("bootstrap.servers", bootstrapServer);
-		producerProps.setProperty("acks", "all");
+		producerProps.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+		producerProps.setProperty(ProducerConfig.ACKS_CONFIG, "all");
 		producerProps.setProperty(ProducerConfig.METRIC_REPORTER_CLASSES_CONFIG,
 				BluemindMetricsReporter.class.getCanonicalName());
-		producerProps.setProperty("compression.type", KafkaTopicStore.COMPRESSION_TYPE);
-		producerProps.setProperty("key.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
-		producerProps.setProperty("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
-		producerProps.setProperty("batch.size", "250");
+		producerProps.setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG, KafkaTopicStore.COMPRESSION_TYPE);
+		producerProps.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+				"org.apache.kafka.common.serialization.ByteArraySerializer");
+		producerProps.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+				"org.apache.kafka.common.serialization.ByteArraySerializer");
+		producerProps.setProperty(ProducerConfig.LINGER_MS_CONFIG, Integer.toString(250));
+		producerProps.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(256 * 1024));
 		return new KafkaProducer<>(producerProps);
 	}
 

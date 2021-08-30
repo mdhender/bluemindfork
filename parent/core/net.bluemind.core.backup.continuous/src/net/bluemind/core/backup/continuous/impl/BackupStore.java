@@ -35,12 +35,12 @@ public class BackupStore<T> implements IBackupStore<T> {
 	}
 
 	@Override
-	public void store(ItemValue<T> data) {
+	public CompletableFuture<Void> store(ItemValue<T> data) {
 		RecordKey key = RecordKey.forItemValue(descriptor, data);
 		byte[] serializedKey = serializer.key(key);
 		byte[] serializedItem = serializer.value(data);
 		String partitionKey = descriptor.partitionKey(data.uid);
-		storeRaw(partitionKey, serializedKey, serializedItem).whenComplete((v, ex) -> {
+		return storeRaw(partitionKey, serializedKey, serializedItem).whenComplete((v, ex) -> {
 			if (ex != null) {
 				logger.warn("Failed to store {} to {}: {}", key.id, publisher, ex.getMessage());
 			} else if (logger.isDebugEnabled()) {
@@ -50,12 +50,12 @@ public class BackupStore<T> implements IBackupStore<T> {
 	}
 
 	@Override
-	public void delete(ItemValue<T> data) {
+	public CompletableFuture<Void> delete(ItemValue<T> data) {
 		RecordKey key = RecordKey.forItemValue(descriptor, data);
 		byte[] serializedKey = serializer.key(key);
 		byte[] serializedItem = "".getBytes();
 		String partitionKey = descriptor.partitionKey(data.uid);
-		storeRaw(partitionKey, serializedKey, serializedItem).whenComplete((v, ex) -> {
+		return storeRaw(partitionKey, serializedKey, serializedItem).whenComplete((v, ex) -> {
 			if (ex != null) {
 				logger.warn("Failed to store delete operation {} to {}: {}", key.id, publisher, ex.getMessage());
 			} else if (logger.isDebugEnabled()) {

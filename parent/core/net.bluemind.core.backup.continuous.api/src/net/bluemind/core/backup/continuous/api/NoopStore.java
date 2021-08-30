@@ -36,13 +36,13 @@ public final class NoopStore implements IBackupStoreFactory {
 			}
 
 			@Override
-			public void store(ItemValue<T> data) {
-				// ok
+			public CompletableFuture<Void> store(ItemValue<T> data) {
+				return CompletableFuture.completedFuture(null);
 			}
 
 			@Override
-			public void delete(ItemValue<T> data) {
-				// ok
+			public CompletableFuture<Void> delete(ItemValue<T> data) {
+				return CompletableFuture.completedFuture(null);
 			}
 		};
 	}
