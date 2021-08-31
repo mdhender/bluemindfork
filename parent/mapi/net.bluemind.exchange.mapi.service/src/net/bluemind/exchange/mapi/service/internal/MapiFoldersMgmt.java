@@ -44,6 +44,8 @@ import net.bluemind.exchange.mapi.api.IMapiFoldersMgmt;
 import net.bluemind.exchange.mapi.api.MapiFolder;
 import net.bluemind.exchange.mapi.api.MapiFolderContainer;
 import net.bluemind.exchange.mapi.api.MapiReplica;
+import net.bluemind.exchange.mapi.hook.IMapiArtifactsHook;
+import net.bluemind.exchange.mapi.hook.MapiArtifactsHooks;
 import net.bluemind.exchange.mapi.persistence.MapiFoldersStore;
 
 public class MapiFoldersMgmt implements IMapiFoldersMgmt {
@@ -70,6 +72,9 @@ public class MapiFoldersMgmt implements IMapiFoldersMgmt {
 
 			IContainers contApi = context.provider().instance(IContainers.class);
 			setupContainer(contApi, mf);
+			for (IMapiArtifactsHook h : MapiArtifactsHooks.get()) {
+				h.onMapiFolderStored(domain, replica.mailboxUid, mf);
+			}
 		} catch (SQLException e1) {
 			throw ServerFault.sqlFault(e1);
 		}

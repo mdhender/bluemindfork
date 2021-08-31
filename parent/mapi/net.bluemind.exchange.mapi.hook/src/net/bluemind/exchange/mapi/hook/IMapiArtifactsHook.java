@@ -22,8 +22,8 @@ import net.bluemind.exchange.mapi.api.MapiReplica;
 
 public interface IMapiArtifactsHook {
 
-	void onReplicaStored(MapiReplica mr);
+	void onReplicaStored(String domainUid, MapiReplica mr);
 
-	void onMapiFolderStored(MapiFolder mf);
+	void onMapiFolderStored(String domainUid, String ownerUid, MapiFolder mf);
 
 }

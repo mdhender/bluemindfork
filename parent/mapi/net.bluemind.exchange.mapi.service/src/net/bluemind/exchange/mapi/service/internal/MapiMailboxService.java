@@ -81,7 +81,7 @@ public class MapiMailboxService implements IMapiMailbox {
 		try {
 			mapiReplicaStore.store(replica);
 			for (IMapiArtifactsHook h : MapiArtifactsHooks.get()) {
-				h.onReplicaStored(replica);
+				h.onReplicaStored(domainUid, replica);
 			}
 		} catch (SQLException e1) {
 			throw ServerFault.sqlFault(e1);
