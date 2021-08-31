@@ -243,14 +243,9 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	public static Client getClient(String tag) {
-		Client client = clients.get(tag);
-		if (null == client) {
-			client = initClient(tag);
-			if (client != null) {
-				clients.put(tag, client);
-			} else {
-				logger.warn("no elasticsearch instance found for tag {}", tag);
-			}
+		Client client = clients.computeIfAbsent(tag, ESearchActivator::initClient);
+		if (client == null) {
+			logger.error("no elasticsearch instance found for tag {}", tag);
 		}
 		return client;
 	}
