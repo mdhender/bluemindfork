@@ -28,6 +28,7 @@ import {
     SET_CONVERSATION_LIST_STATUS,
     SET_CONVERSATION_LIST_PAGE
 } from "~/mutations";
+import { ItemFlag } from "@bluemind/core.container.api";
 
 const PAGE_SIZE = 50;
 
@@ -117,7 +118,15 @@ async function search({ filter, search }, folder) {
 
 async function list(state, folder, conversationsActivated) {
     if (conversationsActivated) {
-        const flagFilter = { mustNot: ["Deleted"] };
+        const flagFilter = { mustNot: [ItemFlag.Deleted] };
+        switch (state.filter) {
+            case ConversationListFilter.UNREAD:
+                flagFilter.mustNot.push(ItemFlag.Seen);
+                break;
+            case ConversationListFilter.FLAGGED:
+                flagFilter.must = [ItemFlag.Important];
+                break;
+        }
         const rawConversations = await inject("MailConversationPersistence").byFolder(folder.remoteRef.uid, flagFilter);
         return createConversationStubsFromRawConversations(rawConversations, folder);
     } else {

@@ -1,9 +1,6 @@
 import sortedIndexBy from "lodash.sortedindexby";
 
-import { Flag } from "@bluemind/email";
-
 import { MessageCreationModes, MessageStatus, createOnlyMetadata, messageKey } from "~/model/message";
-import { ConversationListFilter } from "~/store/conversationList";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 import { LoadingStatus } from "./loading-status";
 import { draftInfoHeader } from "~/model/draft";
@@ -84,19 +81,6 @@ export function messagesInConversationFolder(getters, conversations) {
 
 export function firstMessageFolderKey(conversation) {
     return conversation.messages[0].folderRef.key;
-}
-
-export function matchFilter(conversation, filter) {
-    switch (filter) {
-        case ConversationListFilter.ALL:
-            return true;
-        case ConversationListFilter.UNREAD:
-            return !conversation.flags.includes(Flag.SEEN);
-        case ConversationListFilter.FLAGGED:
-            return conversation.flags.includes(Flag.FLAGGED);
-        default:
-            return false;
-    }
 }
 
 /**

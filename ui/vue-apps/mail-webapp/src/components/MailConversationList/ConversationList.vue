@@ -36,7 +36,7 @@
         @keyup.shift.ctrl.exact.end="selectRange(CONVERSATION_LIST_ALL_KEYS[CONVERSATION_LIST_COUNT - 1])"
     >
         <div v-for="(conversation, index) in conversations" :key="conversation.key">
-            <template v-if="CONVERSATION_IS_LOADED(conversation) && matchFilter(conversation, filter)">
+            <template v-if="CONVERSATION_IS_LOADED(conversation)">
                 <date-separator :conversation="conversation" :index="index" />
                 <draggable-conversation
                     :ref="'conversation-' + conversation.key"
@@ -91,7 +91,6 @@ import { CONVERSATION_LIST_NEXT_PAGE, FETCH_MESSAGE_METADATA } from "~/actions";
 
 import { RemoveMixin } from "~/mixins";
 import { LoadingStatus } from "~/model/loading-status";
-import { matchFilter } from "~/model/conversations";
 
 const PAGE = 9;
 
@@ -110,8 +109,7 @@ export default {
             length: 20,
             lastFocusedConversation: null,
             anchoredConversationForShift: null,
-            draggedConversation: null,
-            matchFilter
+            draggedConversation: null
         };
     },
     computed: {
