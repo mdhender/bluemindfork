@@ -19,6 +19,8 @@
 
 package net.bluemind.domain.service.internal;
 
+import java.util.stream.Collectors;
+
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
@@ -42,11 +44,19 @@ public class DomainSanitizer implements ISanitizer<Domain> {
 	@Override
 	public void create(Domain domain) {
 		setMissingDefaultAlias(domain);
+		toLowerCase(domain);
 	}
 
 	@Override
 	public void update(Domain current, Domain updated) {
 		setMissingDefaultAlias(updated);
+		toLowerCase(updated);
+	}
+
+	private void toLowerCase(Domain domain) {
+		domain.defaultAlias = domain.defaultAlias.toLowerCase();
+		domain.name = domain.name.toLowerCase();
+		domain.aliases = domain.aliases.stream().map(String::toLowerCase).collect(Collectors.toSet());
 	}
 
 	private void setMissingDefaultAlias(Domain domain) {
