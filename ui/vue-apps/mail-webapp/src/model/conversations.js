@@ -9,14 +9,14 @@ import { isDraftFolder } from "~/model/folder";
 export function createConversationStubsFromRawConversations(rawConversations, folder) {
     const conversations = [],
         messages = [];
-    rawConversations.forEach(({ value: { messageRefs, conversationId: id } }) => {
-        const conversation = createConversationMetadata(id, FolderAdaptor.toRef(folder), messageRefs);
+    rawConversations.forEach(({ value: { messageRefs }, uid }) => {
+        const conversation = createConversationMetadata(uid, FolderAdaptor.toRef(folder), messageRefs);
         const index = sortedIndexBy(conversations, conversation, c => -c.date);
         conversations.splice(index, 0, conversation);
         messages.push(
             ...messageRefs.map(({ itemId: internalId, folderUid, date }) => {
                 const folder = FolderAdaptor.toRef(folderUid);
-                return createOnlyMetadata({ internalId, folder, conversationRef: { key: conversation.key, id }, date });
+                return createOnlyMetadata({ internalId, folder, conversationRef: { key: conversation.key, uid }, date });
             })
         );
     });
@@ -52,12 +52,12 @@ export function createConversationStubsFromSearchResult(searchResult) {
     return { conversations, messages };
 }
 
-function createConversationMetadata(id, { key, uid }, messages) {
+function createConversationMetadata(uid, { key, uid: folderUid }, messages) {
     const sorted = messages.sort((a, b) => a.date - b.date);
     return {
-        key: id && key ? messageKey(id, key) : null,
-        folderRef: { key, uid },
-        remoteRef: { internalId: id },
+        key: uid && key ? messageKey(uid, key) : null,
+        folderRef: { key, folderUid },
+        remoteRef: { uid },
         status: MessageStatus.IDLE,
         loading: LoadingStatus.NOT_LOADED,
         messages: sorted.map(({ itemId, folderUid }) => messageKey(itemId, folderUid)),

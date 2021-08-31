@@ -66,7 +66,7 @@ public class ConversationRepair implements IDirEntryRepairSupport {
 
 			try {
 				new ConversationSync(this.context, "ConversationRepair",
-						(service, conversation) -> updatedConversations.incrementAndGet(),
+						(uid, service, conversation) -> updatedConversations.incrementAndGet(),
 						(service, conversation) -> updatedConversations.incrementAndGet()).execute(domainUid,
 								entry.entryUid, monitor, report);
 				String msg = "Resync conversations of " + entry.entryUid + "@" + domainUid + " would touch "

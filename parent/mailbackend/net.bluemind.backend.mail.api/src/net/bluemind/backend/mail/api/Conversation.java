@@ -22,27 +22,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-
 import net.bluemind.core.api.BMApi;
 
 /** Conversation of messages. */
 @BMApi(version = "3")
 public class Conversation {
 
-	/** The IMAP identifier of this conversation. */
-	public long conversationId; // Cyrus thrid
-
 	/**
 	 * The messages of this conversation. Implementations should ensure there are no
 	 * duplicates.
 	 */
 	public List<MessageRef> messageRefs = Collections.emptyList();
-
-	@JsonGetter(value = "conversationId")
-	public String getConversationId() {
-		return String.valueOf(conversationId);
-	}
 
 	@BMApi(version = "3")
 	public static class MessageRef {

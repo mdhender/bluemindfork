@@ -133,7 +133,7 @@ export default {
                         }
 
                         const conversation = await this.FETCH_CONVERSATION_IF_NOT_LOADED({
-                            conversationId: internalId,
+                            uid: internalId,
                             folder: this.folders[folderKey]
                         });
 

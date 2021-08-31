@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -516,17 +515,17 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 	private void addMessageToConversation(String uid) {
 		ItemValue<MailboxRecord> record = storeService.get(uid, null);
-		ItemValue<Conversation> conversation = conversationService.byConversationId(record.value.conversationId);
+		String convUid = Long.toHexString(record.value.conversationId);
+		ItemValue<Conversation> conversation = conversationService.getComplete(convUid);
 		if (conversation == null) {
 			Conversation newConversation = new Conversation();
-			newConversation.conversationId = record.value.conversationId;
 			newConversation.messageRefs = new ArrayList<>();
 			MessageRef messageId = new MessageRef();
 			messageId.folderUid = IMailReplicaUids.uniqueId(container.uid);
 			messageId.itemId = record.internalId;
 			messageId.date = record.value.internalDate;
 			newConversation.messageRefs.add(messageId);
-			conversationService.create(UUID.randomUUID().toString(), newConversation);
+			conversationService.create(convUid, newConversation);
 		} else {
 			MessageRef messageId = new MessageRef();
 			messageId.folderUid = IMailReplicaUids.uniqueId(container.uid);

@@ -39,8 +39,8 @@ public interface IMailConversation {
 
 	/** Retrieve the conversation having the given Cyrus identifier. */
 	@GET
-	@Path("{conversationId}/_conversationId")
-	public ItemValue<Conversation> byConversationId(@PathParam(value = "conversationId") long conversationId);
+	@Path("{uid}")
+	public ItemValue<Conversation> getComplete(@PathParam(value = "uid") String uid);
 
 	/** Retrieve the conversations of the given folder. */
 	@POST

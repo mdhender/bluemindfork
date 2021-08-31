@@ -26,6 +26,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
+import javax.ws.rs.PathParam;
 
 import net.bluemind.backend.mail.api.Conversation;
 import net.bluemind.backend.mail.api.Conversation.MessageRef;
@@ -63,31 +64,27 @@ public class MailConversationService implements IInternalMailConversation {
 	@Override
 	public void create(String uid, Conversation conversation) {
 		rbacManager.check(Verb.Write.name());
-		storeService.create(uid, createDisplayName(conversation), conversationToInternal(conversation));
+		storeService.create(uid, createDisplayName(uid), conversationToInternal(conversation));
 	}
 
 	@Override
 	public void update(String uid, Conversation conversation) {
 		rbacManager.check(Verb.Write.name());
-		storeService.update(uid, createDisplayName(conversation), conversationToInternal(conversation));
+		storeService.update(uid, createDisplayName(uid), conversationToInternal(conversation));
 	}
 
 	@Override
-	public ItemValue<Conversation> byConversationId(long conversationId) {
+	public ItemValue<Conversation> getComplete(@PathParam(value = "uid") String uid) {
 		rbacManager.check(Verb.Read.name());
-		try {
-			Long itemId = conversationStore.byConversationId(conversationId);
-			if (itemId == null) {
-				return null;
-			}
-			return conversationToPublic(storeService.get(itemId, null));
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
+		ItemValue<InternalConversation> itemValue = storeService.get(uid, null);
+		if (itemValue == null) {
+			return null;
 		}
+		return conversationToPublic(itemValue);
 	}
 
-	private String createDisplayName(Conversation conversation) {
-		return "conversation_" + conversation.conversationId;
+	private String createDisplayName(String uid) {
+		return "conversation_" + uid;
 	}
 
 	@Override
@@ -138,7 +135,6 @@ public class MailConversationService implements IInternalMailConversation {
 
 	private InternalConversation conversationToInternal(Conversation conversation) {
 		InternalConversation internal = new InternalConversation();
-		internal.conversationId = conversation.conversationId;
 		internal.messageRefs = conversation.messageRefs.stream().map(this::messageToInternal)
 				.collect(Collectors.toList());
 		return internal;
@@ -146,7 +142,6 @@ public class MailConversationService implements IInternalMailConversation {
 
 	private ItemValue<Conversation> conversationToPublic(ItemValue<InternalConversation> itemValue) {
 		Conversation external = new Conversation();
-		external.conversationId = itemValue.value.conversationId;
 		external.messageRefs = itemValue.value.messageRefs.stream().map(this::messageToPublic).filter(Objects::nonNull)
 				.collect(Collectors.toList());
 		return ItemValue.create(itemValue, external);

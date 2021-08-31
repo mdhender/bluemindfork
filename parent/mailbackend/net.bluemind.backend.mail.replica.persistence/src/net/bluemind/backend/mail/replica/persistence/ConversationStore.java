@@ -50,8 +50,9 @@ public class ConversationStore extends AbstractItemValueStore<InternalConversati
 
 	@Override
 	public void update(Item item, InternalConversation conversation) throws SQLException {
-		String query = "UPDATE " + ConversationColumns.TABLE + " SET (" + ConversationColumns.COLUMNS.names() + ") = ("
-				+ ConversationColumns.COLUMNS.values() + ")" + " WHERE item_id = ? and container_id = ?";
+		String query = "UPDATE " + ConversationColumns.TABLE + " SET " + ConversationColumns.COLUMNS.names() + " = "
+				+ ConversationColumns.COLUMNS.values() + " WHERE item_id = ? and container_id = ?";
+
 		update(query, conversation, ConversationColumns.values(item, container.id));
 	}
 
@@ -75,21 +76,14 @@ public class ConversationStore extends AbstractItemValueStore<InternalConversati
 		logger.error("deleteAll not implemented");
 	}
 
-	public Long byConversationId(long conversationId) throws SQLException {
-		String query = "SELECT item_id FROM " + ConversationColumns.TABLE
-				+ " WHERE container_id = ? AND conversation_id = ?";
-		return unique(query, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id, conversationId });
-	}
-
 	public List<ItemV<InternalConversation>> byFolder(long folderId) throws SQLException {
 		String query = "SELECT item_id, " + ConversationColumns.COLUMNS.names() + " FROM " + ConversationColumns.TABLE
 				+ " WHERE container_id = ? AND messages @> '[{\"folderId\": " + folderId + "}]'::jsonb";
-		return select(query, con -> new ItemV<InternalConversation>(),
-				(rs, index, itemv) -> {
-					itemv.itemId = rs.getLong(index++);
-					itemv.value = new InternalConversation();
-					return ConversationColumns.populator().populate(rs, index, itemv.value);
-				}, new Object[] { container.id });
+		return select(query, con -> new ItemV<InternalConversation>(), (rs, index, itemv) -> {
+			itemv.itemId = rs.getLong(index++);
+			itemv.value = new InternalConversation();
+			return ConversationColumns.populator().populate(rs, index, itemv.value);
+		}, new Object[] { container.id });
 
 	}
 

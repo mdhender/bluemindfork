@@ -20,8 +20,6 @@ package net.bluemind.backend.mail.replica.api;
 
 import java.math.BigInteger;
 
-import net.bluemind.backend.mail.api.Conversation;
-
 public class ConversationAnnotation extends MailboxRecordAnnotation {
 
 	private static final String entryString = "/vendor/cmu/cyrus-imapd/thrid";
@@ -29,10 +27,6 @@ public class ConversationAnnotation extends MailboxRecordAnnotation {
 	public ConversationAnnotation(long conversationId) {
 		super.entry = entryString;
 		super.value = BigInteger.valueOf(conversationId).toString(16);
-	}
-
-	public ConversationAnnotation(Conversation conversation) {
-		this(conversation.conversationId);
 	}
 
 }

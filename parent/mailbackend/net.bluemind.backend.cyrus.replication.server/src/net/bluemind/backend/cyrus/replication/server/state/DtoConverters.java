@@ -33,7 +33,6 @@ import com.google.common.io.BaseEncoding;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.replication.server.state.MboxRecord.MessageRecordBuilder;
-import net.bluemind.backend.mail.api.Conversation;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.ConversationAnnotation;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -206,10 +205,10 @@ public class DtoConverters {
 		return builderFrom(mr).build();
 	}
 
-	public static MboxRecord from(MailboxRecord mr, Conversation conversation) {
+	public static MboxRecord from(MailboxRecord mr, long conversationId) {
 		MessageRecordBuilder builder = builderFrom(mr);
 		builder.annotations(
-				Collections.<MailboxRecordAnnotation>singletonList(new ConversationAnnotation(conversation)));
+				Collections.<MailboxRecordAnnotation>singletonList(new ConversationAnnotation(conversationId)));
 		return builder.build();
 
 	}

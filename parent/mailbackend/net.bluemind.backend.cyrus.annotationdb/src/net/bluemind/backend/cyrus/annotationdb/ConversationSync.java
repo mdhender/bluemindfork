@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -90,7 +89,8 @@ public class ConversationSync {
 	public ConversationSync(BmContext context, String task) {
 		this.context = context;
 		this.task = task;
-		this.create = (service, conversation) -> service.create(UUID.randomUUID().toString(), conversation);
+		this.create = (conversationId, service, conversation) -> service.create(Long.toHexString(conversationId),
+				conversation);
 		this.update = (service, conversation) -> service.update(conversation.uid, conversation.value);
 	}
 
@@ -233,15 +233,15 @@ public class ConversationSync {
 
 		conversationInfos.conversations.forEach(conversation -> {
 			IInternalMailConversation service = getService(domainUid, box.uid);
-			ItemValue<Conversation> existingConversation = service.byConversationId(conversation.conversationId);
+			ItemValue<Conversation> existingConversation = service
+					.getComplete(Long.toHexString(conversation.conversationId));
 			if (existingConversation == null) {
 				Conversation newConversation = new Conversation();
-				newConversation.conversationId = conversation.conversationId;
 				newConversation.messageRefs = new ArrayList<>();
 				addMessages(conversation, newConversation, box.uid, context.getMailboxDataSource(server.uid),
 						containers, bodyMessageMapping);
 				if (!newConversation.messageRefs.isEmpty()) {
-					create.apply(service, newConversation);
+					create.apply(conversation.conversationId, service, newConversation);
 				}
 			} else {
 				int currentMsgCount = existingConversation.value.messageRefs.size();
@@ -462,7 +462,7 @@ public class ConversationSync {
 
 	@FunctionalInterface
 	public interface Create {
-		public void apply(IInternalMailConversation service, Conversation conversaion);
+		public void apply(long conversationId, IInternalMailConversation service, Conversation conversaion);
 	}
 
 	@FunctionalInterface

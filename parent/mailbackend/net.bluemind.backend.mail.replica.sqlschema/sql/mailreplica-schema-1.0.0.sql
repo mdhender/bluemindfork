@@ -145,11 +145,10 @@ create table IF NOT EXISTS t_subtree_uid (
 create index IF NOT EXISTS subtree_uid_idx ON t_subtree_uid (domain_uid, mailbox_name);
 
 CREATE TABLE t_conversation (
-	conversation_id bigint not null, 
 	messages JSONB not null,
 	container_id int8 not null,
 	item_id int8 REFERENCES t_container_item(id) ON DELETE CASCADE,
-	unique(container_id, conversation_id)
+	unique(container_id, item_id)
 ) PARTITION BY HASH (container_id);
 CREATE INDEX i_conversation_messages ON t_conversation USING gin ((messages) jsonb_path_ops);
 CREATE INDEX i_conversation_item_id ON t_conversation (item_id);

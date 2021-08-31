@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import org.junit.Test;
 
@@ -67,12 +66,11 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 
 	@Test
 	public void create() {
-		create(UUID.randomUUID().toString(), 123456789L);
+		create(Long.toHexString(123456789L));
 	}
 
-	private Conversation create(String uid, Long conversationId, MessageRef... MessageRefs) {
+	private Conversation create(String uid, MessageRef... MessageRefs) {
 		Conversation conversation = new Conversation();
-		conversation.conversationId = conversationId;
 		if (MessageRefs != null) {
 			for (MessageRef id : MessageRefs) {
 				IDbMailboxRecords recordService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
@@ -103,9 +101,9 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 
 	@Test
 	public void update() {
-		String uid = UUID.randomUUID().toString();
 		Long conversationId = 123456789L;
-		create(uid, conversationId);
+		String uid = Long.toHexString(conversationId);
+		create(uid);
 
 		MessageRef messageId = new MessageRef();
 		messageId.folderUid = mboxUniqueId;
@@ -122,7 +120,6 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 
 	private void update(String uid, Long conversationId, MessageRef... MessageRefs) {
 		Conversation conversation = new Conversation();
-		conversation.conversationId = conversationId;
 		conversation.messageRefs = new ArrayList<>();
 		conversation.messageRefs.addAll(Arrays.asList(MessageRefs));
 		getService(SecurityContext.SYSTEM).update(uid, conversation);
@@ -130,9 +127,8 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 
 	@Test
 	public void byConversationId() {
-		String uid = UUID.randomUUID().toString();
-		Long conversationId = 123456789L;
-		create(uid, conversationId);
+		String conversationId = Long.toHexString(123456789L);
+		create(conversationId);
 
 		MessageRef messageId = new MessageRef();
 		messageId.folderUid = mboxUniqueId;
@@ -142,13 +138,12 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		messageId2.folderUid = mboxUniqueId;
 		messageId2.itemId = 66L;
 		messageId2.date = new Date(2);
-		String uid2 = UUID.randomUUID().toString();
-		Long conversationId2 = 999999L;
-		Conversation created = create(uid2, conversationId2, messageId, messageId2);
+		String conversationId2 = Long.toHexString(999999L);
+		Conversation created = create(conversationId2, messageId, messageId2);
 
-		ItemValue<Conversation> conversationItem = getService(SecurityContext.SYSTEM).byConversationId(conversationId2);
+		ItemValue<Conversation> conversationItem = getService(SecurityContext.SYSTEM).getComplete(conversationId2);
 		assertNotNull(conversationItem);
-		assertEquals(uid2, conversationItem.uid);
+		assertEquals(conversationId2, conversationItem.uid);
 		assertEquals(2, conversationItem.value.messageRefs.size());
 		assertEquals(created.messageRefs.get(0).folderUid, conversationItem.value.messageRefs.get(0).folderUid);
 		assertEquals(created.messageRefs.get(0).itemId, conversationItem.value.messageRefs.get(0).itemId);
@@ -157,8 +152,7 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 
 	@Test
 	public void byFolder() {
-		String uid = UUID.randomUUID().toString();
-		Long conversationId = 123456789L;
+		String conversationId = Long.toHexString(123456789L);
 		MessageRef MessageRef = new MessageRef();
 		MessageRef.folderUid = mboxUniqueId;
 		MessageRef.itemId = 42L;
@@ -167,10 +161,9 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		MessageRef2.folderUid = mboxUniqueId;
 		MessageRef2.itemId = 66L;
 		MessageRef2.date = new Date(2);
-		create(uid, conversationId, MessageRef, MessageRef2);
+		create(conversationId, MessageRef, MessageRef2);
 
-		String uid2 = UUID.randomUUID().toString();
-		Long conversationId2 = 88888888L;
+		String conversationId2 = Long.toHexString(88888888L);
 		MessageRef MessageRef3 = new MessageRef();
 		MessageRef3.folderUid = mboxUniqueId;
 		MessageRef3.itemId = 111L;
@@ -179,7 +172,7 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		MessageRef4.folderUid = mboxUniqueId;
 		MessageRef4.itemId = 51L;
 		MessageRef4.date = new Date(4);
-		create(uid2, conversationId2, MessageRef3, MessageRef4);
+		create(conversationId2, MessageRef3, MessageRef4);
 
 		List<ItemValue<Conversation>> conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
 				ItemFlagFilter.all());
@@ -189,8 +182,7 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 
 	@Test
 	public void testRemoveMessage() {
-		String uid = UUID.randomUUID().toString();
-		Long conversationId = 123456789L;
+		String conversationId = Long.toHexString(123456789L);
 
 		MessageRef messageId = new MessageRef();
 		messageId.folderUid = mboxUniqueId;
@@ -212,23 +204,22 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		messageId4.itemId = 51L;
 		messageId4.date = new Date(4);
 
-		create(uid, conversationId, messageId, messageId2, messageId3, messageId4);
+		create(conversationId, messageId, messageId2, messageId3, messageId4);
 
 		IMailConversation service = getService(SecurityContext.SYSTEM);
-		ItemValue<Conversation> byConversationId = service.byConversationId(conversationId);
+		ItemValue<Conversation> byConversationId = service.getComplete(conversationId);
 		assertEquals(4, byConversationId.value.messageRefs.size());
 
 		service.removeMessage(messageId2.folderUid, messageId2.itemId);
 
-		byConversationId = service.byConversationId(conversationId);
+		byConversationId = service.getComplete(conversationId);
 		assertEquals(3, byConversationId.value.messageRefs.size());
 
 	}
 
 	@Test
 	public void testRemoveLastMessage() {
-		String uid = UUID.randomUUID().toString();
-		Long conversationId = 123456789L;
+		String conversationId = Long.toHexString(123456789L);
 
 		MessageRef messageId = new MessageRef();
 		messageId.folderUid = mboxUniqueId;
@@ -250,10 +241,10 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		messageId4.itemId = 51L;
 		messageId4.date = new Date(4);
 
-		create(uid, conversationId, messageId, messageId2, messageId3, messageId4);
+		create(conversationId, messageId, messageId2, messageId3, messageId4);
 
 		IMailConversation service = getService(SecurityContext.SYSTEM);
-		ItemValue<Conversation> byConversationId = service.byConversationId(conversationId);
+		ItemValue<Conversation> byConversationId = service.getComplete(conversationId);
 		assertEquals(4, byConversationId.value.messageRefs.size());
 
 		service.removeMessage(messageId.folderUid, messageId.itemId);
@@ -261,7 +252,7 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		service.removeMessage(messageId3.folderUid, messageId3.itemId);
 		service.removeMessage(messageId4.folderUid, messageId4.itemId);
 
-		assertNull(service.byConversationId(conversationId));
+		assertNull(service.getComplete(conversationId));
 	}
 
 	protected IDbMessageBodies getBodies(SecurityContext ctx) {

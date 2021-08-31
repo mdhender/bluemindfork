@@ -230,10 +230,10 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 		IInternalMailConversation mc = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IInternalMailConversation.class, convContainer.uid);
 
+		long c1Id = 3711925925872193241l;
 		Conversation conversation = new Conversation();
-		conversation.conversationId = 3711925925872193241l;
 		conversation.messageRefs = Collections.emptyList();
-		mc.create(UUID.randomUUID().toString(), conversation);
+		mc.create(Long.toHexString(c1Id), conversation);
 
 		IDbMailboxRecords recs = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDbMailboxRecords.class, inbox.uid.substring(13));
@@ -243,13 +243,13 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 		record.internalDate = new Date();
 		record.lastUpdated = new Date();
 		record.messageBody = "FF";
-		record.conversationId = conversation.conversationId;
+		record.conversationId = c1Id;
 		recs.create(UUID.randomUUID().toString(), record);
 
+		long c2Id = 1334025322620571353l;
 		conversation = new Conversation();
-		conversation.conversationId = 1334025322620571353l;
 		conversation.messageRefs = Collections.emptyList();
-		mc.create(UUID.randomUUID().toString(), conversation);
+		mc.create(Long.toHexString(c2Id), conversation);
 
 		record = new MailboxRecord();
 		record.body = new MessageBody();
@@ -257,7 +257,7 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 		record.internalDate = new Date();
 		record.lastUpdated = new Date();
 		record.messageBody = "FF";
-		record.conversationId = conversation.conversationId;
+		record.conversationId = c2Id;
 		recs.create(UUID.randomUUID().toString(), record);
 
 		UnparsedResponse response = fullMailbox(mbox).get(30, TimeUnit.SECONDS);

@@ -254,10 +254,10 @@ function info(payload) {
     };
 }
 
-async function fetchConversationIfNotLoaded({ commit, state }, { conversationId, folder }) {
-    const key = messageKey(conversationId, folder.key);
+async function fetchConversationIfNotLoaded({ commit, state }, { uid, folder }) {
+    const key = messageKey(uid, folder.key);
     if (!state.conversationByKey[key]) {
-        const rawConversation = await inject("MailConversationPersistence").byConversationId(conversationId);
+        const rawConversation = await inject("MailConversationPersistence").getComplete(uid);
         const { conversations, messages } = createConversationStubsFromRawConversations([rawConversation], folder);
         commit(ADD_CONVERSATIONS, { conversations, messages });
     }

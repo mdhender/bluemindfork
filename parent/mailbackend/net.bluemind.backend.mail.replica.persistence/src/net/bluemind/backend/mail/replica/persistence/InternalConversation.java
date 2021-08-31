@@ -24,7 +24,6 @@ import java.util.List;
 
 public class InternalConversation {
 
-	public long conversationId;
 	public List<InternalMessageRef> messageRefs = Collections.emptyList();
 
 	public static class InternalMessageRef {

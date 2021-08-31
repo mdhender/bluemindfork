@@ -415,9 +415,11 @@ public class ReplicationState {
 							List<CompletableFuture<MboxRecord>> resolvedRecs = new ArrayList<>(records.size());
 							for (ItemValue<MailboxRecord> singleRecord : records) {
 								CompletableFuture<MboxRecord> composedRec = conversationApi
-										.byConversationId(singleRecord.value.conversationId).thenApply(c -> {
+										.getComplete(Long.toHexString(singleRecord.value.conversationId))
+										.thenApply(c -> {
 											MboxRecord convertedRecord = c != null
-													? DtoConverters.from(singleRecord.value, c.value)
+													? DtoConverters.from(singleRecord.value,
+															singleRecord.value.conversationId)
 													: DtoConverters.from(singleRecord.value);
 											return convertedRecord;
 										});

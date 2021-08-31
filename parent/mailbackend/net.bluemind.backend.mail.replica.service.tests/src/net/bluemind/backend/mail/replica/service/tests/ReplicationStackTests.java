@@ -3112,7 +3112,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		List<ItemValue<Conversation>> user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid,
 				ItemFlagFilter.all());
 		assertEquals(1, user1SentConversations.size());
-		long conversationId = user1SentConversations.get(0).value.conversationId;
+		long conversationId = Long.parseUnsignedLong(user1SentConversations.get(0).uid, 16);
 		long numberOfMessagesInConversation = user1SentConversations.get(0).value.messageRefs.size();
 		assertEquals(1, numberOfMessagesInConversation);
 
@@ -3129,7 +3129,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertEquals(user1ItemId2, user1InboxConversations.get(1).value.messageRefs.get(1).itemId);
 		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
 		assertEquals(1, user1SentConversations.size());
-		assertEquals(conversationId, user1InboxConversations.get(1).value.conversationId);
+		assertEquals(conversationId, Long.parseUnsignedLong(user1InboxConversations.get(1).uid, 16));
 		numberOfMessagesInConversation = user1InboxConversations.get(1).value.messageRefs.size();
 		assertEquals(2, numberOfMessagesInConversation);
 
@@ -3143,7 +3143,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertEquals(2, user1InboxConversations.size());
 		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
 		assertEquals(2, user1SentConversations.size());
-		assertNotEquals(conversationId, user1SentConversations.get(1).value.conversationId);
+		assertNotEquals(conversationId, Long.parseUnsignedLong(user1SentConversations.get(1).uid, 16));
 
 		//
 		// move sent message to trash

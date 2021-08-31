@@ -38,17 +38,16 @@ public class ConversationColumns {
 	public static final String TABLE = "t_conversation";
 
 	public static final Columns COLUMNS = Columns.create() //
-			.col("conversation_id")//
 			.col("messages", "jsonb");
 
-	private static final ListReader<InternalMessageRef> messageIdReader = JsonUtils.listReader(InternalMessageRef.class);
+	private static final ListReader<InternalMessageRef> messageIdReader = JsonUtils
+			.listReader(InternalMessageRef.class);
 
 	public static EntityPopulator<InternalConversation> populator() {
 		return new EntityPopulator<InternalConversation>() {
 
 			@Override
 			public int populate(ResultSet rs, int index, InternalConversation value) throws SQLException {
-				value.conversationId = rs.getLong(index++);
 				value.messageRefs = messageIdReader.read(rs.getString(index++));
 				return index;
 			}
@@ -61,7 +60,6 @@ public class ConversationColumns {
 			@Override
 			public int setValues(Connection con, PreparedStatement statement, int index, int currentRow,
 					InternalConversation value) throws SQLException {
-				statement.setLong(index++, value.conversationId);
 				statement.setString(index++, JsonUtils.asString(value.messageRefs));
 				statement.setLong(index++, item.id);
 				statement.setLong(index++, containerId);
