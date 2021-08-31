@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -20,8 +19,6 @@ import org.junit.Test;
 
 import com.google.common.base.Strings;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.Email;
@@ -48,27 +45,12 @@ public class C2ProviderTests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
-
-		final CountDownLatch cdl = new CountDownLatch(1);
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				cdl.countDown();
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		cdl.await();
-
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		domainUid = String.format("domain-%s.tld", System.currentTimeMillis());
-
 		PopulateHelper.initGlobalVirt();
 		PopulateHelper.createTestDomain(domainUid);
-
 		PopulateHelper.addDomainAdmin("admin0", "global.virt");
-
 	}
 
 	public static class TestListener implements ILogoutListener {
@@ -108,7 +90,32 @@ public class C2ProviderTests {
 		String sessionId = queue.poll(5, TimeUnit.SECONDS);
 		System.err.println("sessionid " + sessionId);
 		Assert.assertNotNull(sessionId);
+	}
 
+	@Test
+	public void testCaseInsensitiveLogin() throws InterruptedException {
+		C2ProviderFactory c2pf = new C2ProviderFactory();
+		TestListener tl = new TestListener();
+		c2pf.setLogoutListener(tl);
+		IAuthProvider provider = c2pf.get(VertxPlatform.getVertx());
+		Assert.assertNotNull(provider);
+		final BlockingQueue<String> queue = new LinkedBlockingDeque<>();
+		provider.sessionId("Admin0@Global.virt", "admin", true, Collections.emptyList(), new AsyncHandler<String>() {
+
+			@Override
+			public void success(String value) {
+				queue.offer(value);
+			}
+
+			@Override
+			public void failure(Throwable e) {
+				e.printStackTrace();
+			}
+		});
+
+		String sessionId = queue.poll(5, TimeUnit.SECONDS);
+		System.err.println("sessionid " + sessionId);
+		Assert.assertNotNull(sessionId);
 	}
 
 	@After

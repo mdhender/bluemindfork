@@ -96,7 +96,7 @@ public class C2Provider implements IAuthProvider {
 
 		logger.info("authenticating {}", loginAtDomain);
 		IAuthenticationPromise auth = sp.instance(TagDescriptor.bm_core.getTag(), IAuthenticationPromise.class);
-		auth.loginWithParams(loginAtDomain, password, "bm-hps", true).exceptionally(e -> {
+		auth.loginWithParams(loginAtDomain.toLowerCase(), password, "bm-hps", true).exceptionally(e -> {
 			logger.error("error during authentication of {}", loginAtDomain, e);
 			handler.failure(new ServerFault("error login: No server assigned or server not avalaible"));
 			return null;
