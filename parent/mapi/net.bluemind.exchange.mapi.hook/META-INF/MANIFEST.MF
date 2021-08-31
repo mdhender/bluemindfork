@@ -10,3 +10,4 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.exchange.mapi.hook
 Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.exchange.mapi.hook

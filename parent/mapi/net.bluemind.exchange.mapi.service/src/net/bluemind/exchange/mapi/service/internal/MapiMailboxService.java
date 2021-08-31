@@ -45,6 +45,8 @@ import net.bluemind.exchange.mapi.api.IMapiFolderAssociatedInformation;
 import net.bluemind.exchange.mapi.api.IMapiMailbox;
 import net.bluemind.exchange.mapi.api.MapiFAIContainer;
 import net.bluemind.exchange.mapi.api.MapiReplica;
+import net.bluemind.exchange.mapi.hook.IMapiArtifactsHook;
+import net.bluemind.exchange.mapi.hook.MapiArtifactsHooks;
 import net.bluemind.exchange.mapi.persistence.MapiReplicaStore;
 import net.bluemind.exchange.publicfolders.common.PublicFolders;
 import net.bluemind.hornetq.client.MQ;
@@ -78,6 +80,9 @@ public class MapiMailboxService implements IMapiMailbox {
 		replica.mailboxUid = this.mailboxUid;
 		try {
 			mapiReplicaStore.store(replica);
+			for (IMapiArtifactsHook h : MapiArtifactsHooks.get()) {
+				h.onReplicaStored(replica);
+			}
 		} catch (SQLException e1) {
 			throw ServerFault.sqlFault(e1);
 		}
