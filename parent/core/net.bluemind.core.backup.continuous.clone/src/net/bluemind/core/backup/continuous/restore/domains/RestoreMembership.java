@@ -15,6 +15,7 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 
 public class RestoreMembership implements RestoreDomainType {
@@ -44,7 +45,11 @@ public class RestoreMembership implements RestoreDomainType {
 			ItemValue<GroupMembership> ms = membersReader.read(new String(de.payload));
 
 			IGroup groupApi = target.instance(IGroup.class, domain.uid);
-
+			ItemValue<Group> existingGroup = groupApi.getComplete(ms.uid);
+			if (existingGroup == null) {
+				ItemValue<Group> clonedGroup = ItemValue.create(ms.item(), ms.value.group);
+				groupApi.createWithItem(ms.uid, clonedGroup);
+			}
 			if (ms.value.added) {
 				monitor.log("Saving 1 member for group " + ms.uid);
 				groupApi.add(ms.uid, Arrays.asList(ms.value.member));

@@ -73,7 +73,8 @@ public class MembershipsContinuousHook implements IGroupHook {
 			GroupMembership gm = new GroupMembership();
 			gm.member = member;
 			gm.added = added;
-			ItemValue<GroupMembership> iv = ItemValue.create(group.group.uid, gm);
+			gm.group = group.group.value;
+			ItemValue<GroupMembership> iv = ItemValue.create(group.group, gm);
 			iv.internalId = iv.uid.hashCode();
 			IBackupStore<GroupMembership> store = DefaultBackupStore.store().<GroupMembership>forContainer(metaDesc);
 			store.store(iv);

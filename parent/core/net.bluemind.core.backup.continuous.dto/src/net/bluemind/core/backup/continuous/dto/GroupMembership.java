@@ -17,11 +17,14 @@
  */
 package net.bluemind.core.backup.continuous.dto;
 
+import net.bluemind.group.api.Group;
 import net.bluemind.group.api.Member;
 
 public class GroupMembership {
 
 	public Member member;
+
+	public Group group;
 
 	public boolean added;
 
