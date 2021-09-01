@@ -457,7 +457,6 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 			AtomicInteger softDelete = new AtomicInteger();
 			toUpdate.forEach((Long itemId, MailboxRecord mr) -> {
-				String uid = mr.imapUid + ".";
 				VanishedBody vanished = BodyInternalIdCache.vanishedBody(container.owner, mr.messageBody);
 				if (vanished != null) {
 					logger.info("Using version from vanished item {} and the old imap uid", vanished);
