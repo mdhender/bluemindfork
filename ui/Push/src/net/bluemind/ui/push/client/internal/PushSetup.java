@@ -53,7 +53,7 @@ public class PushSetup {
 		OnlineListener cl = new OnlineListener() {
 
 			public void onOpen() {
-				register(mailboxUid + ".notifications.mails", new MailNotificationHandler());
+                setMailNotificationHandler(mailboxUid);
 
 				// open session
 				JSONObject message = new JSONObject();
@@ -109,6 +109,12 @@ public class PushSetup {
 		RestBusImpl.get().addListener(cl);
 
 	}
+
+    private static native String setMailNotificationHandler(String mailboxUid) /*-{
+                    if (!$wnd.bundles.hasOwnProperty("net.bluemind.webapp.root.js")) {
+                        @net.bluemind.ui.push.client.internal.PushSetup::register(Ljava/lang/String;Lnet/bluemind/ui/push/client/internal/MessageHandler;)(mailboxUid + ".notifications.mails", @net.bluemind.ui.push.client.internal.MailNotificationHandler::new()());
+                    }
+                }-*/;
 
 	private static native String getSidFromPage() /*-{
 													return $wnd.bmcSessionInfos['sid'];
