@@ -18,14 +18,20 @@
  */
 package net.bluemind.backend.mail.replica.service.internal;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Suppliers;
+import com.google.common.collect.Lists;
 
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
@@ -34,6 +40,7 @@ import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore.MailboxRecordItemV;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
+import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
 import net.bluemind.core.container.persistence.ContainersHierarchyNodeStore;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
@@ -46,6 +53,7 @@ public class ReplicatedDataExpirationService implements IReplicatedDataExpiratio
 	private final DataSource pool;
 	private final String serverUid;
 	private final MessageBodyStore bodyStore;
+	private final Supplier<MessageBodyObjectStore> bodyObjectStore;
 
 	private static final Logger logger = LoggerFactory.getLogger(ReplicatedDataExpirationService.class);
 
@@ -54,7 +62,7 @@ public class ReplicatedDataExpirationService implements IReplicatedDataExpiratio
 		this.pool = pool;
 		this.serverUid = serverUid;
 		this.bodyStore = new MessageBodyStore(pool);
-
+		this.bodyObjectStore = Suppliers.memoize(() -> new MessageBodyObjectStore(context));
 	}
 
 	@Override
@@ -104,6 +112,31 @@ public class ReplicatedDataExpirationService implements IReplicatedDataExpiratio
 				RecordIndexActivator.getIndexer().ifPresent(service -> service.deleteBodyEntries(deletedOrphanBodies));
 			}
 			return null;
+		});
+	}
+
+	@Override
+	public TaskRef deleteMessageBodiesFromObjectStore(int days) {
+		return context.provider().instance(ITasksManager.class).run(monitor -> {
+			monitor.begin(1, "Expiring expunged messages (" + days + " days) on server " + serverUid);
+			List<String> guids = JdbcAbstractStore.doOrFail(() -> {
+				return bodyStore.deletePurgedBodies(Instant.now().minusSeconds(TimeUnit.DAYS.toSeconds(days)));
+			});
+			MessageBodyObjectStore sdsStore = bodyObjectStore.get();
+			if (sdsStore != null) {
+				logger.info("Removing {} from object storage", guids.size());
+				for (List<String> partitionedGuids : Lists.partition(guids, 100)) {
+					monitor.log("Removing " + partitionedGuids.size() + " objects from object storage");
+					try {
+						sdsStore.delete(partitionedGuids);
+					} catch (Exception e) {
+						String guidListString = partitionedGuids.stream().collect(Collectors.joining(","));
+						logger.error("sdsStore.delete() failed on guids: [{}]", guidListString, e);
+						monitor.log("sdsStore.delete() failed on guids: " + guidListString);
+					}
+				}
+			}
+			monitor.end(true, "", "");
 		});
 	}
 

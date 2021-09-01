@@ -75,6 +75,11 @@ public enum SysConfKeys {
 	sds_s3_region,
 
 	/**
+	 * SDS remove delay (backup retention), expressed in days
+	 */
+	sds_backup_rentention_days,
+
+	/**
 	 * 
 	 */
 	subscription_contacts, cyrus_expunged_retention_time,

@@ -70,4 +70,8 @@ public interface SysConfMailConstants extends Messages {
 	String archiveKindS3();
 
 	String archiveKindScalityRing();
+
+	String sdsBackupRetentionDays();
+
+	String sdsBackupRetentionDaysTooltip();
 }

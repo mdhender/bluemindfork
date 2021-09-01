@@ -203,6 +203,9 @@
       </verticle>
       <verticle impl="net.bluemind.backend.mail.replica.service.internal.PerOwnerMailboxEventProducer$Factory">
       </verticle>
+      <verticle
+            impl="net.bluemind.backend.mail.replica.service.sds.SdsMessageBodyExpirationTimer$Factory">
+      </verticle>
    </extension>
    <extension
          point="net.bluemind.directory.repairSupport">

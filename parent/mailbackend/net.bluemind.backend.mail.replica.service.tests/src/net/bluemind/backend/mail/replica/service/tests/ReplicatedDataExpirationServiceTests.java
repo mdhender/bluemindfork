@@ -25,8 +25,14 @@ package net.bluemind.backend.mail.replica.service.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -59,7 +65,8 @@ public class ReplicatedDataExpirationServiceTests extends AbstractMailboxRecords
 	@Test
 	public void testDeletingExpiredMailsOnEmptyTable() {
 		try {
-			getExpirationService().deleteExpired(7);
+			TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM),
+					getExpirationService().deleteExpired(7));
 		} catch (Exception e) {
 			fail("Error while executing expiration task " + e.getMessage());
 		}
@@ -94,7 +101,90 @@ public class ReplicatedDataExpirationServiceTests extends AbstractMailboxRecords
 		}
 	}
 
-	private void createRecord(long imapUid, int lastUpdated, boolean expunged) {
+	@Test
+	public void testDeleteOrphanBodies() throws SQLException {
+		IReplicatedDataExpiration expirationService = getExpirationService();
+		MailboxRecord rec1 = null;
+		try {
+			rec1 = createRecord(10, 15, true);
+			createRecord(20, 5, true);
+			createRecord(30, 15, false);
+			createRecord(40, 5, false);
+			assertEquals(4, getService(SecurityContext.SYSTEM).all().size());
+			TaskRef deleteExpired = expirationService.deleteExpired(7);
+			TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), deleteExpired);
+
+			List<ItemValue<MailboxRecord>> records = getService(SecurityContext.SYSTEM).all();
+			assertEquals(3, records.size());
+			for (ItemValue<MailboxRecord> itemValue : records) {
+				assertFalse(itemValue.value.imapUid == 10);
+			}
+		} catch (Exception e) {
+			fail("Error while executing expiration task " + e.getMessage());
+			return;
+		}
+
+		expirationService.deleteOrphanMessageBodies();
+
+		Connection conn = JdbcTestHelper.getInstance().getMailboxDataDataSource().getConnection();
+		/*
+		 * t_message_body_purge_queue should have been filled by the trigger on
+		 * t_mailbox_record
+		 */
+		try (PreparedStatement st = conn
+				.prepareStatement("SELECT message_body_guid, created, removed FROM t_message_body_purge_queue")) {
+			ResultSet rs = st.executeQuery();
+			while (rs.next()) {
+				String guid = rs.getString(1);
+				Timestamp created = rs.getTimestamp(2);
+				Date removed = rs.getDate(3);
+				System.err.println("guid: " + guid + " created: " + created + " removed: " + removed);
+				assertEquals("\\x" + rec1.messageBody, guid);
+				assertFalse(created == null);
+				assertTrue(removed == null);
+			}
+		}
+
+		/* Set the created column in the past */
+		try (PreparedStatement st = conn
+				.prepareStatement("UPDATE t_message_body_purge_queue SET created = created - '30 days'::interval")) {
+			st.executeUpdate();
+		}
+
+		expirationService.deleteOrphanMessageBodies();
+
+		/*
+		 * Try to remove entities from t_message_body_purge_queue older than 1 day, this
+		 * should not do anything as entries are younger than that
+		 */
+		TaskRef t = expirationService.deleteMessageBodiesFromObjectStore(1);
+		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), t);
+
+		try (PreparedStatement st = conn
+				.prepareStatement("SELECT count(*) FROM t_message_body_purge_queue WHERE removed IS NOT NULL")) {
+			ResultSet rs = st.executeQuery();
+			rs.next();
+			assertEquals(1, rs.getInt(1));
+		}
+
+		/* Set the removed column in the past */
+		try (PreparedStatement st = conn
+				.prepareStatement("UPDATE t_message_body_purge_queue SET removed = removed - '30 days'::interval")) {
+			st.executeUpdate();
+		}
+
+		t = expirationService.deleteMessageBodiesFromObjectStore(1);
+		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), t);
+
+		/* Now, all entries should have been removed */
+		try (PreparedStatement st = conn.prepareStatement("SELECT count(*) FROM t_message_body_purge_queue")) {
+			ResultSet rs = st.executeQuery();
+			rs.next();
+			assertEquals(0, rs.getInt(1));
+		}
+	}
+
+	private MailboxRecord createRecord(long imapUid, int lastUpdated, boolean expunged) {
 		IDbMessageBodies mboxes = getBodies(SecurityContext.SYSTEM);
 		assertNotNull(mboxes);
 		ReadStream<Buffer> emlReadStream = openResource("data/with_inlines.eml");
@@ -103,16 +193,17 @@ public class ReplicatedDataExpirationServiceTests extends AbstractMailboxRecords
 		mboxes.create(bodyUid, bmStream);
 
 		IDbMailboxRecords records = getService(SecurityContext.SYSTEM);
-		MailboxRecord record = new MailboxRecord();
-		record.imapUid = imapUid;
-		record.internalDate = new Date();
-		record.lastUpdated = getDate(lastUpdated);
-		record.messageBody = bodyUid;
+		MailboxRecord mboxrecord = new MailboxRecord();
+		mboxrecord.imapUid = imapUid;
+		mboxrecord.internalDate = new Date();
+		mboxrecord.lastUpdated = getDate(lastUpdated);
+		mboxrecord.messageBody = bodyUid;
 		if (expunged) {
-			record.internalFlags = Arrays.asList(InternalFlag.expunged);
+			mboxrecord.internalFlags = Arrays.asList(InternalFlag.expunged);
 		}
 		String mailUid = "uid." + imapUid;
-		records.create(mailUid, record);
+		records.create(mailUid, mboxrecord);
+		return mboxrecord;
 	}
 
 	private Date getDate(int lastUpdated) {

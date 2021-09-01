@@ -137,6 +137,14 @@
 						ui:field="s3Region" />
 				</td>
 			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.sdsBackupRetentionDays}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:IntegerBox width="400px" ui:field="s3SdsBackupRetentionDays" />
+				</td>
+			</tr>
 		</table>
 		<table ui:field="archiveScalityTable">
 			<tr>
@@ -145,6 +153,14 @@
 				</td>
 				<td style='width:400px'>
 					<g:TextBox width="400px" ui:field="scalityEndpointAddress" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.sdsBackupRetentionDays}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:IntegerBox width="400px" ui:field="scalitySdsBackupRetentionDays" />
 				</td>
 			</tr>
 		</table>

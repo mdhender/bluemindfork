@@ -18,6 +18,8 @@
 package net.bluemind.backend.mail.replica.persistence;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -98,8 +100,36 @@ public class MessageBodyStore extends JdbcAbstractStore {
 				+ "WHERE pq.message_body_guid = mb.guid AND pq.created <= now() - '2 days'::interval "
 				+ "RETURNING encode(mb.guid, 'hex')";
 		List<String> selected = delete(query, StringCreator.FIRST, Arrays.asList((rs, index, val) -> index));
-		logger.info("{} orphan bodies purged.", selected.size());
+		int size = selected.size();
+		logger.info("{} orphan bodies purged.", size);
+		if (size > 0) {
+			markPurgeQueueRemoved();
+		}
 		return selected;
+	}
+
+	/**
+	 * Mark any entry of t_message_body_purge_queue which are not present inside
+	 * t_message_body for later removal. The removal is done by an external
+	 * verticle, which uses a configurable remove delay in SystemConfiguration.
+	 * 
+	 * @throws SQLException
+	 */
+	private void markPurgeQueueRemoved() throws SQLException {
+		String query = "UPDATE t_message_body_purge_queue SET removed=now() FROM (" //
+				+ "    SELECT pq.message_body_guid FROM t_message_body_purge_queue " //
+				+ "    pq LEFT JOIN t_message_body mb ON (mb.guid = pq.message_body_guid) " //
+				+ "    WHERE mb.guid IS NULL" //
+				+ ") pqnull " //
+				+ "WHERE pqnull.message_body_guid = t_message_body_purge_queue.message_body_guid";
+		update(query, null);
+	}
+
+	public List<String> deletePurgedBodies(Instant removedBefore) throws SQLException {
+		String query = "DELETE FROM t_message_body_purge_queue WHERE removed IS NOT NULL AND removed <= ? "
+				+ "RETURNING encode(message_body_guid, 'hex')";
+		return delete(query, StringCreator.FIRST, Arrays.asList((rs, index, val) -> index),
+				new Object[] { Timestamp.from(removedBefore) });
 	}
 
 	private String[] toByteArray(String... guids) {

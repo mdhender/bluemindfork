@@ -31,11 +31,8 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
 
-import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.ui.adminconsole.system.systemconf.SysConfModel;
 import net.bluemind.ui.adminconsole.system.systemconf.mail.l10n.SysConfMailConstants;
@@ -75,7 +72,7 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 
 	@UiField
 	TableElement archiveS3Table;
-	
+
 	@UiField
 	TableElement archiveScalityTable;
 
@@ -93,7 +90,13 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 
 	@UiField
 	TextBox s3BucketName;
-	
+
+	@UiField
+	IntegerBox s3SdsBackupRetentionDays;
+
+	@UiField
+	IntegerBox scalitySdsBackupRetentionDays;
+
 	@UiField
 	TextBox scalityEndpointAddress;
 
@@ -134,9 +137,8 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 
 	public static void registerType() {
 		GwtWidgetElement.register(TYPE, (widgetelement) -> {
-				return new SysConfMailEditor();
-			}
-		);
+			return new SysConfMailEditor();
+		});
 	}
 
 	@Override
@@ -145,6 +147,7 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 		String _CYRUS_ARCHIVE_DAYS_DEFAULT = "7";
 		String _CYRUS_MAX_CHILD_DEFAULT = "200";
 		String _ARCHIVE_KIND_DEFAULT = ArchiveKindValue.none.name();
+		String _SDS_BACKUP_RETENTION_DAYS_DEFAULT = "90";
 
 		SysConfModel map = SysConfModel.from(model);
 
@@ -170,16 +173,23 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 				Optional.ofNullable(map.get(SysConfKeys.archive_days.name())).orElse(_CYRUS_ARCHIVE_DAYS_DEFAULT));
 		archiveSizeThreshold.setText(readArchiveSizeThreshold(map, SysConfKeys.archive_size_threshold, 1024));
 
-		switch(archiveKindIndex) {
+		s3SdsBackupRetentionDays.setTitle(SysConfMailConstants.INST.sdsBackupRetentionDaysTooltip());
+		scalitySdsBackupRetentionDays.setTitle(SysConfMailConstants.INST.sdsBackupRetentionDaysTooltip());
+
+		switch (archiveKindIndex) {
 		case 2:
 			s3EndpointAddress.setText(map.get(SysConfKeys.sds_s3_endpoint.name()));
 			s3Region.setText(map.get(SysConfKeys.sds_s3_region.name()));
 			s3AccessKey.setText(map.get(SysConfKeys.sds_s3_access_key.name()));
 			s3SecretKey.setText(map.get(SysConfKeys.sds_s3_secret_key.name()));
 			s3BucketName.setText(map.get(SysConfKeys.sds_s3_bucket.name()));
+			s3SdsBackupRetentionDays.setText(Optional.ofNullable(map.get(SysConfKeys.sds_backup_rentention_days.name()))
+					.orElse(_SDS_BACKUP_RETENTION_DAYS_DEFAULT));
 			break;
 		case 3:
 			scalityEndpointAddress.setText(map.get(SysConfKeys.sds_s3_endpoint.name()));
+			scalitySdsBackupRetentionDays.setText(Optional.ofNullable(map.get(SysConfKeys.sds_backup_rentention_days.name()))
+					.orElse(_SDS_BACKUP_RETENTION_DAYS_DEFAULT));
 			break;
 		default:
 			break;
@@ -213,14 +223,16 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 			map.putString(SysConfKeys.sds_s3_access_key.name(), s3AccessKey.getText());
 			map.putString(SysConfKeys.sds_s3_secret_key.name(), s3SecretKey.getText());
 			map.putString(SysConfKeys.sds_s3_bucket.name(), s3BucketName.getText());
+			map.putString(SysConfKeys.sds_backup_rentention_days.name(), s3SdsBackupRetentionDays.getText());
 			break;
 		case 3:
 			map.putString(SysConfKeys.sds_s3_endpoint.name(), scalityEndpointAddress.getText());
+			map.putString(SysConfKeys.sds_backup_rentention_days.name(), scalitySdsBackupRetentionDays.getText());
 			break;
 		default:
 			break;
 		}
-	
+
 		map.putString(SysConfKeys.imap_max_child.name(), cyrusMaxChildTextBox.getText());
 
 		if (cyrusRetentionTimeTextBox.getValue() != null) {

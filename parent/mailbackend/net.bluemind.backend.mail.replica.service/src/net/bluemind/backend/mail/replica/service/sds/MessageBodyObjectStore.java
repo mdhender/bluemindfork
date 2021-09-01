@@ -35,6 +35,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.sds.dto.DeleteRequest;
 import net.bluemind.sds.dto.ExistRequest;
 import net.bluemind.sds.dto.GetRequest;
 import net.bluemind.sds.dto.MgetRequest;
@@ -162,5 +163,11 @@ public class MessageBodyObjectStore {
 			throw new ServerFault(e);
 		}
 		return paths.toArray(new Path[] {});
+	}
+
+	public void delete(List<String> guids) {
+		guids.stream().forEach(guid -> {
+			objectStore.delete(DeleteRequest.of(guid));
+		});
 	}
 }

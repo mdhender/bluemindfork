@@ -66,9 +66,11 @@ CREATE INDEX ON t_mailbox_record (last_updated)
 -- see MessageBodyStore.deleteOrphanBodies()
 CREATE TABLE IF NOT EXISTS t_message_body_purge_queue (
 	message_body_guid bytea UNIQUE PRIMARY KEY not null,
-	created TIMESTAMP NOT NULL default now()
+	created TIMESTAMP NOT NULL default now(),
+	removed DATE
 );
-CREATE INDEX ON t_message_body_purge_queue (created, message_body_guid);
+CREATE INDEX ON t_message_body_purge_queue (created);
+CREATE INDEX ON t_message_body_purge_queue (removed);
 
 CREATE OR REPLACE FUNCTION trigger_message_record_purge() RETURNS trigger AS
 $$

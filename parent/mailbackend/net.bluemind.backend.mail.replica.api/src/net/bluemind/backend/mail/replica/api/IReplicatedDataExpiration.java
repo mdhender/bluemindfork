@@ -37,4 +37,7 @@ public interface IReplicatedDataExpiration {
 	@Path("_delete_orphan_messagebodies")
 	public void deleteOrphanMessageBodies();
 
+	@POST
+	@Path("_delete_orphan_from_objectstorage")
+	public TaskRef deleteMessageBodiesFromObjectStore(@QueryParam("days") int days);
 }
