@@ -34,23 +34,33 @@ public class MapiArtifactsHook implements IMapiArtifactsHook {
 
 	@Override
 	public void onReplicaStored(String domainUid, MapiReplica mr) {
-		ContainerDescriptor metaDesc = ContainerDescriptor.create("mapi_artifacts", "mapi_artifacts", mr.mailboxUid,
-				"mapi_artifacts", domainUid, true);
+		ContainerDescriptor metaDesc = ContainerDescriptor.create(mr.mailboxUid + "_mapi_artifacts",
+				mr.mailboxUid + " mapi_artifacts", mr.mailboxUid, "mapi_artifacts", domainUid, true);
 		ItemValue<MapiReplica> replitem = ItemValue.create("replica", mr);
 		IBackupStoreFactory store = DefaultBackupStore.store();
-		store.<MapiReplica>forContainer(metaDesc).store(replitem);
-		logger.info("Pushed {} to {}", mr, store);
+		store.<MapiReplica>forContainer(metaDesc).store(replitem).whenComplete((v, ex) -> {
+			if (ex != null) {
+				logger.error(ex.getMessage(), ex);
+			} else {
+				logger.info("Pushed {} to {} via {}", mr, metaDesc, store);
+			}
+		});
 	}
 
 	@Override
 	public void onMapiFolderStored(String domainUid, String ownerUid, MapiFolder mf) {
 
-		ContainerDescriptor metaDesc = ContainerDescriptor.create("mapi_artifacts", "mapi_artifacts", ownerUid,
-				"mapi_artifacts", domainUid, true);
+		ContainerDescriptor metaDesc = ContainerDescriptor.create(ownerUid + "_mapi_artifacts",
+				ownerUid + " mapi_artifacts", ownerUid, "mapi_artifacts", domainUid, true);
 		ItemValue<MapiFolder> folder = ItemValue.create(mf.containerUid, mf);
 		IBackupStoreFactory store = DefaultBackupStore.store();
-		store.<MapiFolder>forContainer(metaDesc).store(folder);
-		logger.info("Pushed {} to {}", mf, store);
+		store.<MapiFolder>forContainer(metaDesc).store(folder).whenComplete((v, ex) -> {
+			if (ex != null) {
+				logger.error(ex.getMessage(), ex);
+			} else {
+				logger.info("Pushed {} to {} via {}", mf, metaDesc, store);
+			}
+		});
 	}
 
 }
