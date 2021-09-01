@@ -37,6 +37,7 @@
                     :is-reply-or-forward="true"
                     :conversation-size="conversationMessages.length"
                     @expand="expand(index)"
+                    @collapse="collapse(index)"
                     @darken="darken"
                 />
             </div>
@@ -159,6 +160,9 @@ export default {
         },
         expandAll() {
             this.expandedMessages = this.conversationMessages.map(() => true);
+        },
+        collapse(index) {
+            Vue.set(this.expandedMessages, index, false);
         },
         /** Collapse all messages we can. Not the last one, trailing drafts and unread. */
         collapseAll() {

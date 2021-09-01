@@ -41,6 +41,9 @@ export default {
     computed: {
         maxIndex() {
             return this.conversationSize - 1;
+        },
+        isMessageExpanded() {
+            return Boolean(this.expandedMessages[this.index]);
         }
     }
 };

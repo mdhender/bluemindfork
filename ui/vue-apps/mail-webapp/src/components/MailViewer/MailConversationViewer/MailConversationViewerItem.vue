@@ -4,14 +4,14 @@
             class="mail-conversation-viewer-item-body"
             :class="{ 'last-before-draft': isLastBeforeDraft }"
             tabindex="0"
-            @click.prevent="$emit('expand')"
-            @keypress.enter="$emit('expand')"
+            @click.prevent="expand"
+            @keypress.enter="toggle"
         >
             <div class="row pl-5">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" />
                 <div class="col spacer" />
             </div>
-            <div class="row min-height pl-5">
+            <div class="row min-height pl-5 click-to-collapse-zone" @click="collapse">
                 <div
                     class="col-1 d-flex align-items-center vertical-line"
                     :class="{ first: index === 0, last: index === maxIndex }"
@@ -21,9 +21,13 @@
                 <slot name="head" />
             </div>
             <slot name="subhead" />
-            <div v-if="isMessageExpanded && !message.composing" class="row pr-3 pl-5">
+            <div
+                v-if="isMessageExpanded && !message.composing"
+                class="row pr-3 pl-5 click-to-collapse-zone"
+                @click="collapse"
+            >
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
-                <mail-viewer-recipients :message="message" class="px-3" />
+                <mail-viewer-recipients :message="message" class="px-3" @click.native.stop />
             </div>
             <div class="row pl-5">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
@@ -54,9 +58,24 @@ export default {
     name: "MailConversationViewerItem",
     components: { BmAvatar, MailConversationViewerVerticalLine, MailViewerRecipients },
     mixins: [MailConversationViewerItemMixin],
-    computed: {
-        isMessageExpanded() {
-            return Boolean(this.expandedMessages[this.index]);
+    methods: {
+        collapse(event) {
+            if (this.isMessageExpanded && !this.message.composing) {
+                this.$emit("collapse");
+                event.stopPropagation(); // needed to prevent expand event to be called then
+            }
+        },
+        expand() {
+            if (!this.isMessageExpanded) {
+                this.$emit("expand");
+            }
+        },
+        toggle(event) {
+            if (!this.isMessageExpanded) {
+                this.expand();
+            } else {
+                this.collapse(event);
+            }
         }
     }
 };

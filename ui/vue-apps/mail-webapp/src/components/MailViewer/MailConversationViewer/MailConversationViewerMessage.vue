@@ -15,11 +15,11 @@
             <div class="d-lg-none d-flex align-items-center">
                 <mail-conversation-viewer-flags
                     class="z-index-250"
-                    :class="{ 'pr-3': !expandedMessages[index] }"
+                    :class="{ 'pr-3': !isMessageExpanded }"
                     :message="message"
                 />
                 <mail-viewer-toolbar-for-mobile
-                    v-if="expandedMessages[index]"
+                    v-if="isMessageExpanded"
                     :message="message"
                     :conversation="conversation"
                     @shown="$emit('darken', true)"
@@ -28,15 +28,15 @@
             </div>
             <div
                 class="col d-none d-lg-flex justify-content-end align-items-center text-secondary"
-                :class="{ 'pr-3': !expandedMessages[index] }"
+                :class="{ 'pr-3': !isMessageExpanded }"
             >
                 <mail-conversation-viewer-flags class="pr-2" :message="message" />
                 {{ $d(message.date, "full_date_time_short") }}
-                <mail-viewer-toolbar v-if="expandedMessages[index]" :message="message" show-other-actions />
+                <mail-viewer-toolbar v-if="isMessageExpanded" :message="message" show-other-actions />
             </div>
         </template>
         <template slot="content">
-            <div v-if="!expandedMessages[index]" class="col pl-3 pb-2 pr-3 text-truncate">{{ message.preview }}...</div>
+            <div v-if="!isMessageExpanded" class="col pl-3 pb-2 pr-3 text-truncate">{{ message.preview }}...</div>
             <div v-else class="col pl-3 pb-2 pr-3">
                 <mail-attachments-block
                     v-if="message.attachments && message.attachments.length > 0"
@@ -56,7 +56,7 @@ import MailViewerToolbar from "../MailViewerToolbar";
 import MailViewerToolbarForMobile from "../MailViewerToolbarForMobile";
 import MailConversationViewerFlags from "./MailConversationViewerFlags";
 import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
-import BodyViewer from "../BodyViewer.vue";
+import BodyViewer from "../BodyViewer";
 import MailAttachmentsBlock from "../../MailAttachment/MailAttachmentsBlock";
 import { MESSAGE_IS_LOADED } from "~/getters";
 import MailFolderIcon from "../../MailFolderIcon";
@@ -87,3 +87,9 @@ export default {
     }
 };
 </script>
+
+<style>
+.mail-conversation-viewer-message .click-to-collapse-zone {
+    cursor: pointer;
+}
+</style>

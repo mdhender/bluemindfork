@@ -30,7 +30,6 @@ export default {
     },
     computed: {
         ...mapState("mail", ["folders"]),
-        
         ...mapGetters("mail", { CURRENT_CONVERSATION_METADATA }),
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-thread") }),
         folder() {
