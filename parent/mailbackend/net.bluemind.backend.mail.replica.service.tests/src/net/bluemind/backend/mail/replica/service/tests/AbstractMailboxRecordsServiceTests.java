@@ -63,6 +63,7 @@ import net.bluemind.mailbox.api.IMailboxAclUids;
 public abstract class AbstractMailboxRecordsServiceTests<T> {
 
 	protected String mboxUniqueId;
+	protected String mboxUniqueId2;
 	protected String partition;
 	protected MailboxReplicaRootDescriptor mboxDescriptor;
 	protected String dom;
@@ -97,6 +98,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		JdbcActivator.getInstance().addMailboxDataSource("dataloc",
 				JdbcTestHelper.getInstance().getMailboxDataDataSource());
 		mboxUniqueId = MailboxUniqueId.random();
+		mboxUniqueId2 = MailboxUniqueId.random();
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 		BmTestContext testContext = new BmTestContext(securityContext);
 
@@ -136,14 +138,30 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		replica.options = "";
 		mboxStore.create(mboxRef, replica);
 
+		Item mboxRef2 = items.create(Item.create(mboxUniqueId2, null));
+		assertNotNull("failed to create replicated mbox item", mboxRef2);
+		MailboxReplica replica2 = new MailboxReplica();
+		replica2.fullName = "SUB";
+		replica2.name = "SUB";
+		replica2.acls = Collections.emptyList();
+		replica2.recentTime = replica.lastAppendDate = replica.lastAppendDate = replica.pop3LastLogin = new Date();
+		replica2.options = "";
+		mboxStore.create(mboxRef2, replica2);
+
 		// for the records
 		String containerId = IMailReplicaUids.mboxRecords(mboxUniqueId);
 		container = Container.create(containerId, IMailReplicaUids.MAILBOX_RECORDS, "test", "me", true);
 		container.domainUid = dom;
 		container = containerHome.create(container);
 
+		String containerId2 = IMailReplicaUids.mboxRecords(mboxUniqueId2);
+		Container container2 = Container.create(containerId2, IMailReplicaUids.MAILBOX_RECORDS, "test", "me", true);
+		container2.domainUid = dom;
+		container2 = containerHome.create(container2);
+
 		dirHome.createContainerLocation(conversionCont, "dataloc");
 		dirHome.createContainerLocation(container, "dataloc");
+		dirHome.createContainerLocation(container2, "dataloc");
 		dirHome.createContainerLocation(acl, "dataloc");
 
 	}

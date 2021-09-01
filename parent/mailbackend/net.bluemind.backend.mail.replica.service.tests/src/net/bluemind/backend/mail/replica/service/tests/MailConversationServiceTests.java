@@ -69,12 +69,12 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		create(Long.toHexString(123456789L));
 	}
 
-	private Conversation create(String uid, MessageRef... MessageRefs) {
+	private Conversation create(String uid, MessageRef... messageRefs) {
 		Conversation conversation = new Conversation();
-		if (MessageRefs != null) {
-			for (MessageRef id : MessageRefs) {
+		if (messageRefs != null) {
+			for (MessageRef id : messageRefs) {
 				IDbMailboxRecords recordService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-						.instance(IDbMailboxRecords.class, mboxUniqueId);
+						.instance(IDbMailboxRecords.class, id.folderUid);
 
 				IDbMessageBodies mboxes = getBodies(SecurityContext.SYSTEM);
 				Stream bmStream = GenericStream.simpleValue("test", t -> t.getBytes());
@@ -89,11 +89,10 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 				String mailUid = "uid." + index;
 				recordService.create(mailUid, record);
 				ItemValue<MailboxRecord> complete = recordService.getComplete(mailUid);
-				id.folderUid = mboxUniqueId;
 				id.itemId = complete.internalId;
 			}
 
-			conversation.messageRefs = Arrays.asList(MessageRefs);
+			conversation.messageRefs = Arrays.asList(messageRefs);
 		}
 		getService(SecurityContext.SYSTEM).create(uid, conversation);
 		return conversation;
@@ -178,6 +177,35 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 				ItemFlagFilter.all());
 		assertNotNull(conversations);
 		assertEquals(2, conversations.size());
+	}
+
+	@Test
+	public void testDeleteFolder() {
+		Long conversationId = 123456789L;
+		MessageRef messageRef = new MessageRef();
+		messageRef.folderUid = mboxUniqueId;
+		messageRef.itemId = 42L;
+		messageRef.date = new Date(1);
+		MessageRef messageRef2 = new MessageRef();
+		messageRef2.folderUid = mboxUniqueId;
+		messageRef2.itemId = 66L;
+		messageRef2.date = new Date(2);
+		MessageRef messageRef3 = new MessageRef();
+		messageRef3.folderUid = mboxUniqueId2;
+		messageRef3.itemId = 88L;
+		messageRef3.date = new Date(3);
+		String uid = Long.toHexString(conversationId);
+		create(uid, messageRef, messageRef2, messageRef3);
+
+		ItemValue<Conversation> conversation = getService(SecurityContext.SYSTEM).getComplete(uid);
+		assertEquals(3, conversation.value.messageRefs.size());
+		getService(SecurityContext.SYSTEM).deleteAll(mboxUniqueId);
+		conversation = getService(SecurityContext.SYSTEM).getComplete(uid);
+		assertEquals(1, conversation.value.messageRefs.size());
+		assertEquals(mboxUniqueId2, conversation.value.messageRefs.get(0).folderUid);
+		getService(SecurityContext.SYSTEM).deleteAll(mboxUniqueId2);
+		conversation = getService(SecurityContext.SYSTEM).getComplete(uid);
+		assertEquals(0, conversation.value.messageRefs.size());
 	}
 
 	@Test

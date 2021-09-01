@@ -95,4 +95,17 @@ public class ConversationStore extends AbstractItemValueStore<InternalConversati
 		return select(query, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
 	}
 
+	public void deleteMessagesInFolder(long folderId) throws SQLException {
+
+		String update = "with to_update as (select container_id, item_id, messages from " + ConversationColumns.TABLE
+				+ " WHERE container_id = ? AND messages @> '[{\"folderId\": " + folderId
+				+ "}]'::jsonb), clean_conversations as "
+				+ "(select coalesce(jsonb_agg(msg) filter (where msg is not null), '[]'::jsonb) as messages, item_id "
+				+ "from to_update left join jsonb_array_elements(messages) as msg on (msg->>'folderId')::bigint != ? "
+				+ "group by item_id) update t_conversation as c set messages=clean.messages from clean_conversations clean"
+				+ " where container_id = ? and c.item_id=clean.item_id";
+
+		update(update, new Object[] { container.id, folderId, container.id });
+	}
+
 }

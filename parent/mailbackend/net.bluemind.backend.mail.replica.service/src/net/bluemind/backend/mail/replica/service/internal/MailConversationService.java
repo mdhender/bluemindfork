@@ -133,6 +133,15 @@ public class MailConversationService implements IInternalMailConversation {
 		}
 	}
 
+	@Override
+	public void deleteAll(String folderUid) {
+		try {
+			conversationStore.deleteMessagesInFolder(uidToId(folderUid));
+		} catch (SQLException e) {
+			throw new ServerFault(e);
+		}
+	}
+
 	private InternalConversation conversationToInternal(Conversation conversation) {
 		InternalConversation internal = new InternalConversation();
 		internal.messageRefs = conversation.messageRefs.stream().map(this::messageToInternal)

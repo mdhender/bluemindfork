@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.mail.replica.api;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -42,5 +43,9 @@ public interface IInternalMailConversation extends IMailConversation {
 	@POST
 	@Path("{uid}")
 	public void update(@PathParam(value = "uid") String uid, Conversation conversation);
+
+	@DELETE
+	@Path("{folderUid}")
+	public void deleteAll(@PathParam(value = "folderUid") String folderUid);
 
 }
