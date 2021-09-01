@@ -241,7 +241,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		}
 		T value = getValue(item);
 		if (value == null) {
-			logger.warn("null value for existing item {}", item);
+			logger.warn("null value for existing item {} with store {}", item, itemValueStore);
 		}
 		ItemValue<T> ret = ItemValue.create(item, value);
 		decorate(item, ret);
