@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
@@ -32,6 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+
+import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.testhelper.CachesTestHelper;
 import net.bluemind.pool.BMPoolActivator;
 import net.bluemind.pool.Pool;
@@ -72,6 +76,8 @@ public class JdbcTestHelper {
 	public void beforeTest(String schemaName) throws Exception {
 		initPools(schemaName);
 		initializeSchema();
+		CacheRegistry.get().register("ContainerIdCache-10.1.2.3",
+				Caffeine.newBuilder().recordStats().expireAfterAccess(2, TimeUnit.MINUTES).build());
 	}
 
 	public void initPools() throws Exception {

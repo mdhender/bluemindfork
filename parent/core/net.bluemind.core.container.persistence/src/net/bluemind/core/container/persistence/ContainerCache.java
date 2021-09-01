@@ -17,17 +17,21 @@
   */
 package net.bluemind.core.container.persistence;
 
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.google.common.collect.Iterables;
 
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 
 public final class ContainerCache {
 
@@ -39,8 +43,12 @@ public final class ContainerCache {
 		public void registerCaches(CacheRegistry cr) {
 			cr.register("ContainerUidCache",
 					Caffeine.newBuilder().recordStats().expireAfterAccess(duration, unit).build());
-			cr.register("ContainerIdCache",
-					Caffeine.newBuilder().recordStats().expireAfterAccess(duration, unit).build());
+			BmContext suCtx = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
+			for (DataSource ds : Iterables.concat(Collections.singleton(suCtx.getDataSource()),
+					suCtx.getAllMailboxDataSource())) {
+				cr.register("ContainerIdCache-" + suCtx.dataSourceLocation(ds),
+						Caffeine.newBuilder().recordStats().expireAfterAccess(duration, unit).build());
+			}
 		}
 	}
 
@@ -57,9 +65,9 @@ public final class ContainerCache {
 			return new ContainerCache(null, null);
 		} else {
 			CacheRegistry instance = context.provider().instance(CacheRegistry.class);
-			return new ContainerCache(instance.get("ContainerUidCache"),
-					instance.get("ContainerIdCache-" + context.dataSourceLocation(dataSource)));
-
+			String lookupKey = "ContainerIdCache-" + context.dataSourceLocation(dataSource);
+			Cache<Long, Container> lookup = instance.get(lookupKey);
+			return new ContainerCache(instance.get("ContainerUidCache"), lookup);
 		}
 	}
 
