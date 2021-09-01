@@ -321,6 +321,10 @@
     "mail.viewer.no.subject": "(Pas de sujet)",
     "mail.viewer.no.preview": "(Pas d'aperçu disponible)",
     "mail": {
+        "actions": {
+            "save_draft": "Enregistrer en tant que brouillon",
+            "save_template": "Enregistrer en tant que modèle"
+        },
         "compose": {
             "toolbar": {
                 "insert_signature": "Insérer ma signature"

@@ -321,6 +321,10 @@
     "mail.viewer.no.preview": "(No preview available)",
     "mail.viewer.no.subject": "(No subject)",
     "mail": {
+        "actions": {
+            "save_draft": "Save as draft",
+            "save_template": "Save as template"
+        },
         "compose": {
             "toolbar": {
                 "insert_signature": "Insert my signature"

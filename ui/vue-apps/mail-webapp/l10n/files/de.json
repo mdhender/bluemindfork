@@ -321,6 +321,10 @@
     "mail.viewer.no.preview": "(Keine Voransicht verfügbar)",
     "mail.viewer.no.subject": "(Kein Betreff)",
     "mail": {
+        "actions": {
+            "save_draft": "Als Entwurf speichern",
+            "save_template": "Als Vorlage speichern"
+        },
         "compose": {
             "toolbar": {
                 "insert_signature": "Meine Signatur einfügen"

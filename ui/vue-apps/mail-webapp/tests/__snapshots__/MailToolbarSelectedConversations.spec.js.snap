@@ -11,6 +11,35 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   >
     <svg
       aria-hidden="true"
+      class="svg-inline--fa fa-plus-enveloppe fa-w-16 fa-2x"
+      data-icon="plus-enveloppe"
+      data-prefix="fas"
+      focusable="false"
+      role="img"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        class=""
+        d="M9 1L9 3 7 3 7 4 9 4 9 6 10 6 10 4 12 4 12 3 10 3 10 1 9 1zM1 3C0.4 3 0 3.4 0 4L0 9C0 9.6 0.4 10 1 10L9.5 10C9.8 10 10 9.8 10 9.5L10 7.5 9 7.5 9 9 1 9 1 4.6 4.7 7.4C4.9 7.5 5.1 7.5 5.3 7.4L7.8 5.6 7.8 5 6.8 5 5 6.4 1.8 4 5.3 4 5.3 3 1 3z"
+        fill="currentColor"
+      />
+    </svg>
+     
+    <span
+      class="d-none d-lg-block"
+    >
+       
+    </span>
+  </button>
+   
+  <button
+    class="btn unread btn-lg-simple-dark btn-inline-light"
+    style="display: none;"
+    type="button"
+  >
+    <svg
+      aria-hidden="true"
       class="svg-inline--fa fa-read fa-w-16 fa-2x"
       data-icon="read"
       data-prefix="fas"
@@ -385,6 +414,45 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
       role="menu"
       tabindex="-1"
     >
+       
+      <li
+        role="presentation"
+      >
+        <a
+          class="dropdown-item"
+          href="#"
+          icon="pencil"
+          role="menuitem"
+          target="_self"
+        >
+          <svg
+            aria-hidden="true"
+            class="svg-inline--fa fa-pencil fa-w-16 fa-fw"
+            data-icon="pencil"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            viewBox="0 0 12 12"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              class=""
+              d="M11.24 3.73287L5.51776 9.45555C5.47916 9.5038 5.42126 9.5424 5.36337 9.56171L1.1272 11.2891C1.0693 11.3181 1.00175 11.3277 0.943857 11.3277C0.818413 11.3277 0.702618 11.2795 0.606122 11.183C0.471028 11.0479 0.42278 10.8452 0.499977 10.6619L2.22725 6.42533C2.24655 6.36742 2.28515 6.30952 2.3334 6.27092L8.0556 0.548234C8.20999 0.384177 8.58632 0.171869 9.28109 0.499982C9.64778 0.673689 10.0531 0.972852 10.4294 1.34922C11.1724 2.08265 11.8189 3.15384 11.24 3.73287ZM10.4873 3.12489C10.4583 2.97048 10.275 2.55552 9.75392 2.0344C9.2425 1.51327 8.81791 1.32992 8.66352 1.30097L8.19069 1.77383C8.52843 1.94754 8.89511 2.21775 9.23285 2.55552C9.54163 2.85468 9.83112 3.22139 10.0241 3.58811L10.4873 3.12489ZM8.54773 3.2407C8.017 2.70992 7.60207 2.52657 7.45732 2.50727L3.67469 6.29022C4.03172 6.48323 4.39841 6.77274 4.70719 7.08155C5.01598 7.38072 5.30547 7.74743 5.49846 8.11415L9.28109 4.33119C9.2618 4.18643 9.0881 3.77147 8.54773 3.2407ZM2.73868 9.05023C2.87377 9.19499 2.97992 9.3301 3.05712 9.4652L4.74579 8.77037C4.67825 8.57737 4.4756 8.201 4.03172 7.75708C3.58784 7.31316 3.21151 7.11051 3.00887 7.04295L2.32375 8.73177C2.45884 8.80898 2.59394 8.91513 2.73868 9.05023Z M4.96313 10.3277H10.9631C11.2331 10.3277 11.4631 10.5477 11.4631 10.8277C11.4631 11.1077 11.2431 11.3277 10.9631 11.3277H4.96313C4.68313 11.3277 4.46313 11.1077 4.46313 10.8277C4.46313 10.5477 4.68313 10.3277 4.96313 10.3277Z"
+              fill="currentColor"
+            />
+          </svg>
+           
+          <div
+            class="dropdown-item-content"
+          >
+            
+        
+    
+          </div>
+           
+          <!---->
+        </a>
+      </li>
        
       <li
         class="shadow-sm"
