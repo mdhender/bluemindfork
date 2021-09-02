@@ -41,7 +41,7 @@ public class RestNetVerticle extends AbstractVerticle {
 	@Override
 	public void start(Promise<Void> started) {
 		HttpServer httpServer = vertx.createHttpServer(new HttpServerOptions().setAcceptBacklog(1024)
-				.setTcpKeepAlive(true).setTcpNoDelay(true).setReuseAddress(true));
+				.setTcpKeepAlive(true).setTcpNoDelay(true).setTcpFastOpen(true).setReuseAddress(true));
 
 		RouteMatcher routeMatcher = new RouteMatcher(vertx);
 		RestRootHandler rootHandler = new RestRootHandler(vertx);

@@ -43,8 +43,9 @@ public class HttpClientProvider {
 		HttpClient ret = clients.get(key);
 		if (ret == null) {
 			logger.debug("create client for {}:{}", hostname, port);
-			ret = vertx.createHttpClient(new HttpClientOptions().setKeepAlive(true).setTcpKeepAlive(true)
-					.setTcpNoDelay(true).setMaxPoolSize(200).setDefaultHost(hostname).setDefaultPort(port));
+			ret = vertx.createHttpClient(
+					new HttpClientOptions().setKeepAlive(true).setTcpKeepAlive(true).setTcpNoDelay(true)
+							.setMaxPoolSize(200).setTcpFastOpen(true).setDefaultHost(hostname).setDefaultPort(port));
 			clients.put(key, ret);
 		}
 

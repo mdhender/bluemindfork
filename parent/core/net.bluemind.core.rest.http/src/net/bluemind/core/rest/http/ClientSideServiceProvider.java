@@ -28,6 +28,7 @@ import org.asynchttpclient.uri.Uri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.channel.ChannelOption;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.kqueue.KQueue;
 import net.bluemind.core.rest.IServiceProvider;
@@ -55,6 +56,9 @@ public class ClientSideServiceProvider implements IServiceProvider {
 		builder.setConnectTimeout(to).setReadTimeout(to).setRequestTimeout(to).setFollowRedirect(false);
 		builder.setTcpNoDelay(true).setThreadPoolName("client-side-provider-ahc").setUseInsecureTrustManager(true);
 		builder.setSoReuseAddress(true);
+		builder.setHttpAdditionalChannelInitializer(ch -> {
+			ch.config().setOption(ChannelOption.TCP_FASTOPEN_CONNECT, true);
+		});
 		builder.setMaxRequestRetry(0);
 		return new DefaultAsyncHttpClient(builder.build());
 
