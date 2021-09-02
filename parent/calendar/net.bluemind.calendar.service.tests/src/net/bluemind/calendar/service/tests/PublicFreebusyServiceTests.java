@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.function.BiConsumer;
 
@@ -58,8 +59,12 @@ public class PublicFreebusyServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testSimple() throws ServerFault, IOException, ParserException {
 		VEventSeries vevent = defaultVEvent();
-		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.now().minusMonths(3).minusDays(2));
-		vevent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.now().minusMonths(3).minusDays(2).plusHours(1));
+		ZonedDateTime dtstart = ZonedDateTime.now().minusMonths(3).minusDays(2);
+		while (dtstart.get(ChronoField.DAY_OF_MONTH) > 28) {
+			dtstart = dtstart.minusDays(1);
+		}
+		vevent.main.dtstart = BmDateTimeHelper.time(dtstart);
+		vevent.main.dtend = BmDateTimeHelper.time(dtstart.plusHours(1));
 
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
@@ -87,8 +92,10 @@ public class PublicFreebusyServiceTests extends AbstractCalendarTests {
 		int count = 0;
 		for (int i = 0; i < slots.size(); i++) {
 			Property slot = (Property) slots.get(i);
+			System.err.println(slot.toString());
 			Parameter type = slot.getParameter("FBTYPE");
 			if (type.getValue().equals("BUSY")) {
+
 				count++;
 			}
 		}
@@ -141,8 +148,12 @@ public class PublicFreebusyServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testGetAstString() throws ServerFault, IOException, ParserException {
 		VEventSeries vevent = defaultVEvent();
-		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.now().minusMonths(3).minusDays(2));
-		vevent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.now().minusMonths(3).minusDays(2).plusHours(1));
+		ZonedDateTime dtstart = ZonedDateTime.now().minusMonths(3).minusDays(2);
+		while (dtstart.get(ChronoField.DAY_OF_MONTH) > 28) {
+			dtstart = dtstart.minusDays(1);
+		}
+		vevent.main.dtstart = BmDateTimeHelper.time(dtstart);
+		vevent.main.dtend = BmDateTimeHelper.time(dtstart.plusHours(1));
 
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
