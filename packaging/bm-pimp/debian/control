@@ -6,6 +6,6 @@ Standards-Version: 3.9.1
 
 Package: bm-pimp
 Architecture: amd64
-Depends: bm-jdk (= 8u302-bluemind42)
+Depends: bm-jdk (= 8u302-bluemind47)
 Description: BlueMind automated memory tuning
  BlueMind automated memory tuning
