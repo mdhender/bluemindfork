@@ -84,19 +84,19 @@ function BMDlist(/*nsIAbDirectory*/ aList) {
 
 BMDlist.prototype = {
     getId: function() {
-        bmUtils.getCharPref(this._list.UID + ".bm-id", null);
+        return bmUtils.getCharPref(this._list.UID + ".bm-id", null);
     },
     setId: function(value) {
         bmUtils.setCharPref(this._list.UID + ".bm-id", value);
     },
     getExtId: function() {
-        bmUtils.getCharPref(this._list.UID + ".bm-extId", null);
+        return bmUtils.getCharPref(this._list.UID + ".bm-extId", null);
     },
     setExtId: function(value) {
         bmUtils.setCharPref(this._list.UID + ".bm-extId", value ? value: "");
     },
     getFolder: function() {
-        bmUtils.getCharPref(this._list.UID + ".bm-folder", null);
+        return bmUtils.getCharPref(this._list.UID + ".bm-folder", null);
     },
     setFolder: function(value) {
         bmUtils.setCharPref(this._list.UID + ".bm-folder", value ? value: "");

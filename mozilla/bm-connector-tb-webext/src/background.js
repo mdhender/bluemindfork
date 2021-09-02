@@ -47,7 +47,8 @@ async function main() {
   await messenger.WindowListener.registerWindow("chrome://messenger/content/messenger.xhtml", "chrome://bm/content/messenger-inject.js");
 
   await messenger.WindowListener.registerWindow("chrome://messenger/content/addressbook/addressbook.xhtml", "chrome://bm/content/addressbook-inject.js");
-  await messenger.WindowListener.registerWindow("chrome://messenger/content/addressbook/abEditCardDialog.xhtml", "chrome://bm/content/abCard-inject.js");
+  await messenger.WindowListener.registerWindow("chrome://messenger/content/addressbook/abNewCardDialog.xhtml", "chrome://bm/content/abNewCard-inject.js");
+  await messenger.WindowListener.registerWindow("chrome://messenger/content/addressbook/abEditCardDialog.xhtml", "chrome://bm/content/abEditCard-inject.js");
   await messenger.WindowListener.registerWindow("chrome://messenger/content/addressbook/abEditListDialog.xhtml", "chrome://bm/content/abList-inject.js");
 
   await messenger.DefaultPrefsApi.setExtensionDefaultPrefs();
@@ -59,6 +60,7 @@ async function main() {
   await messenger.LoggerApi.init();
   await messenger.RPCClientApi.init();
   await messenger.AutocompleteApi.init();
+  await messenger.BmDirWrapperApi.init();
 
   // register a script which is called upon add-on unload
   await messenger.WindowListener.registerShutdownScript("chrome://bm/content/unload.js");
@@ -170,7 +172,7 @@ messenger.mailingLists.onMemberRemoved.addListener(async (parentId, id) => {
     return;
   }
   console.log("mail list member removed:" + id + " in:" + parentId);
-  let list = await messenger.mailingLists.get(node.parentId);
+  let list = await messenger.mailingLists.get(parentId);
   await messenger.NotifyTools.notifyExperiment({command: "onListUpdated", list: {parentId: list.parentId, id: list.id}});
 });
 

@@ -18,15 +18,6 @@
  * END LICENSE
 */
 
-Services.scriptloader.loadSubScript("chrome://bm/content/abList.js", window, "UTF-8");
-Services.scriptloader.loadSubScript("chrome://bm/content/abCommon.js", window, "UTF-8");
-
-function onLoad(isAddonActivation) {
-    WL.injectElements(`
-        <hbox id="bmInError" insertafter="ListDescriptionContainer" hidden="true">
-            <label id="bmError" class="red" value="" />
-        </hbox>
-    `, [], true);
-
-    WL.injectCSS("chrome://bm/content/skin/style.css");
-}
+RegisterSaveListener(function(aCard, aDoc) {
+    aCard.setProperty("bm-created-from-dialog", true);
+});

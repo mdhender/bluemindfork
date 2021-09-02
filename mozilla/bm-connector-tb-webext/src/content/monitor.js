@@ -104,14 +104,6 @@ var gBMMonitor = {
             //ok
         }
     },
-    isListenedDirectory: function(directory) {
-        this._logger.debug("directory [" + directory.UID + "]");
-        if(directory.isMailList) {
-            this._logger.debug("directory [" + directory.UID + "] is a Mailing List");
-            return false;
-        }
-        return this._listenedAb.containsKey(directory.URI);
-    },
     getAbDirectoryFromUri: function(aUri) {
         return this._abManager.getDirectory(aUri);
     },
@@ -132,16 +124,11 @@ var gBMMonitor = {
             this._observerService.notifyObservers(msg, "bm-ab-observe", "readonly");
             return;
         }
-        let id = card.getProperty("bm-id", null);
-        let added = card.getProperty("bm-added", false);
-        if (id || added) {
-            // https://bugzilla.mozilla.org/show_bug.cgi?id=1654322
-            return;
-        }
 
-        let notes = card.getProperty("Notes", "not exist");
+        let manual = card.getProperty("bm-created-from-dialog", false);
+        card.setProperty("bm-created-from-dialog", null);
         let found = false;
-        if (notes == "not exist" && bmService.listAddLocalMemberAckEnabled) {
+        if (!manual && bmService.listAddLocalMemberAckEnabled) {
             this._logger.debug("card added from list");
             for (let uid of this._listenedAb.keys()) {
                 if (directory.UID == uid) continue;
@@ -151,7 +138,7 @@ var gBMMonitor = {
                     found = true;
                     card.setProperty("bm-id", original.getProperty("bm-id", null));
                     card.setProperty("bm-local", "true");
-                    this._logger.debug("=> original card found: marked as bm-local");
+                    this._logger.debug("=> original card found in [" + dir.dirName + "] : marked as bm-local");
                     break;
                 }
             }
@@ -210,40 +197,34 @@ var gBMMonitor = {
             this._markCardDeleted(directory.URI, id);
         }
     },
-    notifyListRemoved: function(directory, list) {
-        this._logger.debug("list [" + list.dirName + "] removed from [" + directory.dirName + "]");
+    notifyListRemoved: function(directory, uid) {
+        this._logger.debug("list [" + uid + "] removed from [" + directory.dirName + "]");
         if (bmUtils.isBmDirectory(directory) && bmUtils.isBmReadOnlyAddressbook(directory)) {
             this._logger.debug("ERROR directory[" + directory.dirName + "] is not writable -> do not store change");
             return;
         }
-        let pref = list.UID;
+        let pref = uid;
         let id = bmUtils.getCharPref(pref + ".bm-id", null);
         if (!id) {
             //not a bm item or in added
         } else {
             //bm item
-            let isAdded = bmUtils.getBoolPref(pref + ".bm-added", false);
-            let isUpdated = bmUtils.getBoolPref(pref + ".bm-updated", false);
-            //if (isAdded || isUpdated) {
-            //    //already in added or updated
-            //} else {
-                let del = bmUtils.getCharPref(directory.URI + ".deleted.lists", "");
-                if (del.length > 0) {
-                    del += "|";
-                }
-                del += id;
-                bmUtils.setCharPref(directory.URI + ".deleted.lists", del);
-                bmUtils.deletePrefBranch(pref);
-                //remove local members
-                let cardsToDel = [];
-                let cards = directory.getCardsFromProperty("bm-parent", id, false);
-                for (let c of cards) {
-                    let card = c.QueryInterface(Components.interfaces.nsIAbCard);
-                    if (card) cardsToDel.push(card);
-                }
-                directory.deleteCards(cardsToDel);
-                this._logger.debug("=> list marked as deleted");
-            //}
+            let del = bmUtils.getCharPref(directory.URI + ".deleted.lists", "");
+            if (del.length > 0) {
+                del += "|";
+            }
+            del += id;
+            bmUtils.setCharPref(directory.URI + ".deleted.lists", del);
+            bmUtils.deletePrefBranch(pref);
+            //remove local members
+            let cardsToDel = [];
+            let cards = directory.getCardsFromProperty("bm-parent", id, false);
+            for (let c of cards) {
+                let card = c.QueryInterface(Components.interfaces.nsIAbCard);
+                if (card) cardsToDel.push(card);
+            }
+            directory.deleteCards(cardsToDel);
+            this._logger.debug("=> list marked as deleted");
         }
     },
     notifyCardModified: function(directory, card) {

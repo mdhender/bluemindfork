@@ -19,6 +19,7 @@
 */
 
 Services.scriptloader.loadSubScript("chrome://bm/content/addressbook.js", window, "UTF-8");
+Services.scriptloader.loadSubScript("chrome://bm/content/abCommon.js", window, "UTF-8");
 
 function onLoad(activatedWhileWindowOpen) {
     WL.injectElements(`

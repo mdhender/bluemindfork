@@ -92,6 +92,14 @@
         "paths": [["AutocompleteApi"]],
         "script": "content/api/Autocomplete/autocomplete-impl.js"
       }
+    },
+    "BmDirWrapperApi": {
+      "schema": "content/api/BmDirWrapper/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["BmDirWrapperApi"]],
+        "script": "content/api/BmDirWrapper/bmdirwrapper-impl.js"
+      }
     }
   }
 }

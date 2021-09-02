@@ -18,7 +18,8 @@
  * END LICENSE
 */
 
-Services.scriptloader.loadSubScript("chrome://bm/content/abCard.js", window, "UTF-8");
+Services.scriptloader.loadSubScript("chrome://bm/content/abEditCard.js", window, "UTF-8");
+Services.scriptloader.loadSubScript("chrome://bm/content/abCommon.js", window, "UTF-8");
 
 function onLoad(activatedWhileWindowOpen) {
     WL.injectElements(`

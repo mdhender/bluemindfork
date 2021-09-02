@@ -40,6 +40,13 @@ RegisterLoadListener(function(aCard, aDoc) {
         let errorHbox = aDoc.getElementById("bmInError");
         errorHbox.setAttribute("hidden", false);
     }
+    let local = aCard.getProperty("bm-local", null);
+    if (local == "true") {
+        let alertOfList = aDoc.getElementById("bmOfList");
+        alertOfList.setAttribute("value", aCard.getProperty("bm-parent-name", ""));
+        let alertLocal = aDoc.getElementById("bmAlertLocalCard");
+        alertLocal.setAttribute("hidden", false);
+    }
     bmUtils.session.editedCard = gEditCard.card;
 });
 
