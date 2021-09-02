@@ -10,7 +10,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.container.api;bundle-version="4.1.0",
  net.bluemind.core.rest,
  net.bluemind.directory.api,
- com.google.guava
+ com.google.guava,
+ net.bluemind.system.state,
+ net.bluemind.system.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: net.bluemind.core.container.hierarchy.hook
 Automatic-Module-Name: net.bluemind.core.container.hierarchy.hook

@@ -37,6 +37,7 @@ public class MapiArtifactsHook implements IMapiArtifactsHook {
 		ContainerDescriptor metaDesc = ContainerDescriptor.create(mr.mailboxUid + "_mapi_artifacts",
 				mr.mailboxUid + " mapi_artifacts", mr.mailboxUid, "mapi_artifacts", domainUid, true);
 		ItemValue<MapiReplica> replitem = ItemValue.create("replica", mr);
+		replitem.internalId = replitem.uid.hashCode();
 		IBackupStoreFactory store = DefaultBackupStore.store();
 		store.<MapiReplica>forContainer(metaDesc).store(replitem).whenComplete((v, ex) -> {
 			if (ex != null) {
@@ -53,6 +54,7 @@ public class MapiArtifactsHook implements IMapiArtifactsHook {
 		ContainerDescriptor metaDesc = ContainerDescriptor.create(ownerUid + "_mapi_artifacts",
 				ownerUid + " mapi_artifacts", ownerUid, "mapi_artifacts", domainUid, true);
 		ItemValue<MapiFolder> folder = ItemValue.create(mf.containerUid, mf);
+		folder.internalId = folder.uid.hashCode();
 		IBackupStoreFactory store = DefaultBackupStore.store();
 		store.<MapiFolder>forContainer(metaDesc).store(folder).whenComplete((v, ex) -> {
 			if (ex != null) {

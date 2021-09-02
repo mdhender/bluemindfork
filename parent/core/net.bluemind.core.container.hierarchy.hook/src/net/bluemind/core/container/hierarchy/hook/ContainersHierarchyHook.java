@@ -25,9 +25,12 @@ import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy;
 import net.bluemind.core.container.hooks.ContainersHookAdapter;
 import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class ContainersHierarchyHook extends ContainersHookAdapter {
 
@@ -63,6 +66,10 @@ public class ContainersHierarchyHook extends ContainersHookAdapter {
 	}
 
 	private void hierarchyOp(BmContext ctx, ContainerDescriptor cd, HierarchyOperation operation) {
+		SystemState state = StateContext.getState();
+		if (state == SystemState.CORE_STATE_CLONING) {
+			return;
+		}
 		DirEntry owner = getOwner(ctx, cd);
 		if (owner == null) {
 			logger.warn("Owner not found in directory, Nothing to do on {} owned by {}", cd.uid, cd.owner);
@@ -81,7 +88,12 @@ public class ContainersHierarchyHook extends ContainersHookAdapter {
 			String hierUid = uid(cd);
 			Long expected = HierarchyIdsHints.getHint(hierUid);
 			if (expected == null) {
-				hier.create(hierUid, ContainerHierarchyNode.of(cd));
+				ItemValue<ContainerHierarchyNode> existing = hier.getComplete(hierUid);
+				if (existing == null) {
+					hier.create(hierUid, ContainerHierarchyNode.of(cd));
+				} else {
+					hier.update(hierUid, ContainerHierarchyNode.of(cd));
+				}
 			} else {
 				hier.createWithId(expected, hierUid, ContainerHierarchyNode.of(cd));
 			}

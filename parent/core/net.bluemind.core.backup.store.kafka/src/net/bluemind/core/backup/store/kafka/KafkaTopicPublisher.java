@@ -43,6 +43,7 @@ public class KafkaTopicPublisher implements TopicPublisher {
 				logger.warn(exception.getMessage());
 				comp.completeExceptionally(exception);
 			} else {
+				logger.debug("[{}] stored part: {}, meta: {}", physicalTopic, partition, metadata);
 				comp.complete(null);
 			}
 		});

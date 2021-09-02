@@ -59,6 +59,8 @@ import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class PublicFolderHierarchyHook implements IContainersHook, IAclHook {
 
@@ -115,6 +117,10 @@ public class PublicFolderHierarchyHook implements IContainersHook, IAclHook {
 	}
 
 	private void hierarchyOp(BmContext ctx, ContainerDescriptor cd, HierarchyOperation operation) {
+		SystemState state = StateContext.getState();
+		if (state == SystemState.CORE_STATE_CLONING) {
+			return;
+		}
 		DirEntry owner = getOwner(ctx, cd);
 		if (owner == null) {
 			logger.warn("Owner not found in directory, Nothing to do on {} owned by {}", cd.uid, cd.owner);
