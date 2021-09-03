@@ -88,8 +88,7 @@ public class MapiMailboxService implements IMapiMailbox {
 	private void checkFaiContainer(MapiReplica replica) {
 		String faiContainerId = MapiFAIContainer.getIdentifier(replica);
 		DataSourceRouter.invalidateContainer(faiContainerId);
-		ContainerDescriptor fais = ContainerDescriptor.create(faiContainerId, faiContainerId,
-				pfMailbox ? PublicFolders.mailboxGuid(domainUid) : context.getSecurityContext().getSubject(),
+		ContainerDescriptor fais = ContainerDescriptor.create(faiContainerId, faiContainerId, mailboxUid,
 				MapiFAIContainer.TYPE, domainUid, true);
 		IContainers contApi = context.su().provider().instance(IContainers.class);
 		ContainerDescriptor current = contApi.getIfPresent(faiContainerId);
