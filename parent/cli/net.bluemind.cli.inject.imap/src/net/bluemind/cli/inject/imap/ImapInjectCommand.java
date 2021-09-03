@@ -26,9 +26,13 @@ import net.bluemind.cli.inject.common.AbstractMailInjectCommand;
 import net.bluemind.cli.inject.common.IMessageProducer;
 import net.bluemind.cli.inject.common.MailExchangeInjector;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "imap", description = "Injects a batch of emails through IMAP")
 public class ImapInjectCommand extends AbstractMailInjectCommand {
+
+	@Option(names = "--folders", description = "Populate N top-lvl with N children mail folders each in the mailbox")
+	public int folders = 0;
 
 	public static class Reg implements ICmdLetRegistration {
 
@@ -45,7 +49,7 @@ public class ImapInjectCommand extends AbstractMailInjectCommand {
 
 	@Override
 	protected MailExchangeInjector createInjector(CliContext ctx, String domUid, IMessageProducer prod) {
-		return new ImapInjector(ctx.adminApi(), domUid, prod);
+		return new ImapInjector(ctx.adminApi(), domUid, prod, folders);
 	}
 
 }
