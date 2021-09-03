@@ -21,6 +21,7 @@ package net.bluemind.domain.service.internal;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -31,9 +32,13 @@ import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.persistence.DomainSettingsStore;
 import net.bluemind.domain.persistence.DomainStore;
+import net.bluemind.role.hook.IRoleHook;
+import net.bluemind.role.hook.RoleEvent;
+import net.bluemind.role.hook.RoleHooks;
 import net.bluemind.role.persistence.RoleStore;
 
 public class DomainStoreService extends ContainerStoreService<Domain> {
@@ -41,13 +46,14 @@ public class DomainStoreService extends ContainerStoreService<Domain> {
 	private DomainSettingsStore domainSettingsStore;
 	private DomainStore domainStore;
 	private RoleStore roleStore;
+	private List<IRoleHook> roleHooks;
 
 	public DomainStoreService(DataSource pool, SecurityContext securityContext, Container container) {
 		super(pool, securityContext, container, new DomainStore(pool));
 		domainStore = new DomainStore(pool);
 		domainSettingsStore = new DomainSettingsStore(pool, container);
 		roleStore = new RoleStore(pool, container);
-
+		roleHooks = RoleHooks.get();
 	}
 
 	@Override
@@ -104,6 +110,9 @@ public class DomainStoreService extends ContainerStoreService<Domain> {
 			roleStore.set(item, roles);
 			return null;
 		});
+
+		RoleEvent event = new RoleEvent(uid, uid, BaseDirEntry.Kind.DOMAIN, roles);
+		roleHooks.forEach(hook -> hook.onRolesSet(event));
 
 	}
 

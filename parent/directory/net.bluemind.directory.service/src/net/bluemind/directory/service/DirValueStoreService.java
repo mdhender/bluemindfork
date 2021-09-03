@@ -38,6 +38,7 @@ import net.bluemind.core.container.persistence.ChangelogStore.LogEntry;
 import net.bluemind.core.container.persistence.IItemValueStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.persistence.DirEntryStore;
 import net.bluemind.directory.persistence.DirItemStore;
@@ -46,6 +47,9 @@ import net.bluemind.document.storage.DocumentStorage;
 import net.bluemind.document.storage.IDocumentStore;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.role.hook.IRoleHook;
+import net.bluemind.role.hook.RoleEvent;
+import net.bluemind.role.hook.RoleHooks;
 import net.bluemind.role.persistence.RoleStore;
 
 public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEntryAndValue<T>> {
@@ -69,19 +73,22 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 	protected DirEntryAdapter<T> adapter;
 	protected VCardStore vcardStore;
 	protected VCardAdapter<T> vcardAdapter;
+	protected Kind kind;
 	private IDocumentStore documentStore;
+	private List<IRoleHook> roleHooks;
 	private MailboxAdapter<T> mailboxAdapter;
 	protected ItemValue<Domain> domain;
 	private DirEntriesCache cache;
 
 	public DirValueStoreService(BmContext context, DataSource pool, SecurityContext securityContext,
-			ItemValue<Domain> domain, Container container, DirEntry.Kind kind, IItemValueStore<T> itemValueStore,
+			ItemValue<Domain> domain, Container container, Kind kind, IItemValueStore<T> itemValueStore,
 			DirEntryAdapter<T> adapter, VCardAdapter<T> vcardAdapter, MailboxAdapter<T> mailboxAdapter) {
 		super(context, pool, securityContext, container, new DirEntryAndValueStore<>(pool, container, itemValueStore));
 		this.domain = domain;
+		this.kind = kind;
 		this.roleStore = new RoleStore(pool, container);
+		this.roleHooks = RoleHooks.get();
 		this.itemStore = new DirItemStore(pool, container, securityContext, kind);
-		this.roleStore = new RoleStore(pool, container);
 
 		this.entryStore = new DirEntryStore(pool, container);
 		this.vcardStore = new VCardStore(pool, container);
@@ -127,6 +134,8 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 			return null;
 		});
 
+		RoleEvent event = new RoleEvent(domain.uid, uid, kind, roles);
+		roleHooks.forEach(hook -> hook.onRolesSet(event));
 	}
 
 	protected void deleteValues() throws ServerFault {

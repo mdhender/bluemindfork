@@ -33,13 +33,7 @@ import net.bluemind.hornetq.client.Topic;
 public class DomainsServiceFactory implements ServerSideServiceProvider.IServerSideServiceFactory<IDomains> {
 
 	public DomainsServiceFactory() {
-		MQ.init(new MQ.IMQConnectHandler() {
-
-			@Override
-			public void connected() {
-				MQ.registerProducer(Topic.SYSTEM_NOTIFICATIONS);
-			}
-		});
+		MQ.init(() -> MQ.registerProducer(Topic.SYSTEM_NOTIFICATIONS));
 	}
 
 	@Override

@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-Activator: net.bluemind.role.hook.RoleHookActivator
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.role.hook
+Bundle-SymbolicName: net.bluemind.role.hook;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: net.bluemind.role.hook
+Require-Bundle: slf4j.api,
+ org.eclipse.core.runtime,
+ net.bluemind.eclipse.common;bundle-version="1.0.0",
+ net.bluemind.role.api
+Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: net.bluemind.role.hook

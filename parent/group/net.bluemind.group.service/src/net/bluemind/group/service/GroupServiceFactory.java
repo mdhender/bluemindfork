@@ -38,9 +38,8 @@ public class GroupServiceFactory extends AbstractDirServiceFactory<IGroup>
 	private static final List<IGroupHook> groupHooks = getHooks();
 
 	static List<IGroupHook> getHooks() {
-		RunnableExtensionLoader<IGroupHook> loader = new RunnableExtensionLoader<IGroupHook>();
-		List<IGroupHook> hooks = loader.loadExtensions("net.bluemind.group.hook", "grouphook", "hook", "impl");
-		return hooks;
+		RunnableExtensionLoader<IGroupHook> loader = new RunnableExtensionLoader<>();
+		return loader.loadExtensions("net.bluemind.group.hook", "grouphook", "hook", "impl");
 	}
 
 	@Override

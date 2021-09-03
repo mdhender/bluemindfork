@@ -16,6 +16,7 @@
 		<module>net.bluemind.role.provider</module>
 		<module>net.bluemind.role.service</module>
 		<module>net.bluemind.role.service.tests</module>
+		<module>net.bluemind.role.hook</module>
 	</modules>
 
 </project>

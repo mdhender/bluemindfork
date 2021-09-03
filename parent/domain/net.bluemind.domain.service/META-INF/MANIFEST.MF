@@ -42,7 +42,8 @@ Require-Bundle: net.bluemind.domain.api;bundle-version="1.0.0",
  net.bluemind.deferredaction.api,
  net.bluemind.core.container.repair,
  net.bluemind.mailbox.persistence,
- com.github.ben-manes.caffeine
+ com.github.ben-manes.caffeine,
+ net.bluemind.role.hook
 Export-Package: net.bluemind.domain.service,
  net.bluemind.domain.service.internal
 Automatic-Module-Name: net.bluemind.domain.service

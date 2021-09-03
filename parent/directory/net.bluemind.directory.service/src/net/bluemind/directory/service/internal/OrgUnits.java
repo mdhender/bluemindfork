@@ -39,7 +39,6 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
-import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.directory.api.OrgUnitPath;
@@ -227,14 +226,14 @@ public class OrgUnits implements IOrgUnits {
 		return storeService.listByAdministrator(administrator, groups);
 	}
 
-	private List<ManageableOrgUnit> getManageableDirEntries(Set<DirEntry.Kind> mkinds) {
+	private List<ManageableOrgUnit> getManageableDirEntries(Set<Kind> mkinds) {
 		RBACManager rbacManager = RBACManager.forContext(context).forDomain(domain.uid);
 		List<ManageableOrgUnit> ret = new ArrayList<>();
 		for (Map.Entry<String, Set<String>> ouEntry : context.getSecurityContext().getRolesByOrgUnits().entrySet()) {
 			Set<Permission> perms = rbacManager.forOrgUnit(ouEntry.getKey()).resolve();
 			Set<Kind> kinds = perms.stream().filter((perm) -> perm instanceof DirEntryPermission)
 					.map((perm) -> ((DirEntryPermission) perm).getKind()).collect(Collectors.toSet());
-			for (DirEntry.Kind kind : mkinds) {
+			for (Kind kind : mkinds) {
 				if (kinds.contains(kind)) {
 					ret.add(new ManageableOrgUnit(ouEntry.getKey(), kinds));
 				}
@@ -244,7 +243,7 @@ public class OrgUnits implements IOrgUnits {
 		Set<Permission> perms = RBACManager.forContext(context).forDomain(domain.uid).resolve();
 		Set<Kind> kinds = perms.stream().filter((perm) -> perm instanceof DirEntryPermission)
 				.map((perm) -> ((DirEntryPermission) perm).getKind()).collect(Collectors.toSet());
-		for (DirEntry.Kind kind : mkinds) {
+		for (Kind kind : mkinds) {
 			if (kinds.contains(kind)) {
 				ret.add(new ManageableOrgUnit(null, kinds));
 			}

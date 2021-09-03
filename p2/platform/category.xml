@@ -312,6 +312,7 @@
    <bundle id="net.bluemind.resource.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.role.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.role.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.role.hook" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.role.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.role.provider" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.role.service" version="4.1.0.qualifier"/>

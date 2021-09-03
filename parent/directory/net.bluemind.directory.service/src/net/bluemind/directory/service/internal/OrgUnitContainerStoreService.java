@@ -42,6 +42,9 @@ import net.bluemind.directory.service.DirValueStoreService;
 import net.bluemind.directory.service.NullMailboxAdapter;
 import net.bluemind.directory.service.NullVCardAdapter;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.role.hook.AdminRoleEvent;
+import net.bluemind.role.hook.IRoleHook;
+import net.bluemind.role.hook.RoleHooks;
 
 public class OrgUnitContainerStoreService extends DirValueStoreService<OrgUnit> {
 
@@ -57,6 +60,7 @@ public class OrgUnitContainerStoreService extends DirValueStoreService<OrgUnit> 
 
 	private OrgUnitStore orgUnitStore;
 	private ItemStore genericItemStore;
+	private List<IRoleHook> roleHooks;
 
 	public OrgUnitContainerStoreService(BmContext context, Container container, ItemValue<Domain> domain) {
 		super(context, context.getDataSource(), context.getSecurityContext(), domain, container, Kind.ORG_UNIT,
@@ -64,6 +68,7 @@ public class OrgUnitContainerStoreService extends DirValueStoreService<OrgUnit> 
 				new NullMailboxAdapter<>());
 		this.orgUnitStore = new OrgUnitStore(context.getDataSource(), container);
 		this.genericItemStore = new ItemStore(context.getDataSource(), container, context.getSecurityContext());
+		this.roleHooks = RoleHooks.get();
 	}
 
 	@Override
@@ -121,6 +126,9 @@ public class OrgUnitContainerStoreService extends DirValueStoreService<OrgUnit> 
 			}
 
 			orgUnitStore.setAdminRoles(ouItem, adminItem, roles);
+
+			AdminRoleEvent event = new AdminRoleEvent(domain.uid, uid, dirUid, Kind.ORG_UNIT, roles);
+			roleHooks.forEach(hook -> hook.onAdministratorRolesSet(event));
 			return null;
 		});
 

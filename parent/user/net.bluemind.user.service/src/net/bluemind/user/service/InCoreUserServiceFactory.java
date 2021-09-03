@@ -39,12 +39,12 @@ public class InCoreUserServiceFactory extends AbstractDirServiceFactory<IInCoreU
 	private static final List<IPasswordUpdater> userPasswordUpdaters = getPasswordUpdaters();
 
 	private static List<IUserHook> getHooks() {
-		RunnableExtensionLoader<IUserHook> loader = new RunnableExtensionLoader<IUserHook>();
+		RunnableExtensionLoader<IUserHook> loader = new RunnableExtensionLoader<>();
 		return loader.loadExtensionsWithPriority("net.bluemind.user.hook", "userhook", "hook", "impl");
 	}
 
 	private static List<IPasswordUpdater> getPasswordUpdaters() {
-		RunnableExtensionLoader<IPasswordUpdater> loader = new RunnableExtensionLoader<IPasswordUpdater>();
+		RunnableExtensionLoader<IPasswordUpdater> loader = new RunnableExtensionLoader<>();
 		return loader.loadExtensionsWithPriority("net.bluemind.user", "passwordupdater", "password_updater", "impl");
 	}
 
@@ -56,9 +56,7 @@ public class InCoreUserServiceFactory extends AbstractDirServiceFactory<IInCoreU
 	@Override
 	protected IInCoreUser instanceImpl(BmContext context, ItemValue<Domain> domainValue, Container container)
 			throws ServerFault {
-
-		UserService service = new UserService(context, domainValue, container, userHooks, userPasswordUpdaters);
-		return service;
+		return new UserService(context, domainValue, container, userHooks, userPasswordUpdaters);
 	}
 
 }
