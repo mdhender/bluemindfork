@@ -30,19 +30,18 @@
             toggle-class="btn-lg-simple-dark"
             :disabled="isSaving || isSending"
             right
-            :title="saveActionTitle"
             @click="saveAsap"
         >
-            <template v-if="isDraft" #button-content>
-                <bm-icon icon="save" size="2x" />
-                <span class="d-none d-lg-block">{{ $t("common.save") }}</span>
+            <template #button-content>
+                <div :title="saveActionTitle">
+                    <bm-icon :icon="isDraft ? 'save' : 'plus-document'" size="2x" />
+                    <span class="d-none d-lg-block">{{ $t("common.save") }}</span>
+                </div>
             </template>
-            <template v-else #button-content>
-                <bm-icon icon="plus-document" size="2x" />
-                <span class="d-none d-lg-block">{{ $t("common.save") }}</span>
-            </template>
-            <bm-dropdown-item icon="save">{{ $t("mail.actions.save_draft") }}</bm-dropdown-item>
-            <bm-dropdown-item icon="plus-document">{{ $t("mail.actions.save_template") }}</bm-dropdown-item>
+            <bm-dropdown-item icon="save" @click="saveAsap">{{ $t("mail.actions.save_draft") }}</bm-dropdown-item>
+            <bm-dropdown-item icon="plus-document" @click="saveAsTemplate">{{
+                $t("mail.actions.save_template")
+            }}</bm-dropdown-item>
         </bm-dropdown>
         <bm-button
             variant="inline-light"

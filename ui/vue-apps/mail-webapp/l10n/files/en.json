@@ -110,6 +110,11 @@
                 "success": "\"{subject}\" has been removed permanently.|{count} messages have been successfully removed permanently..",
                 "error": "Failed to remove \"{subject}\".| Failed to remove selected messages."
             },
+            "save_as_template": {
+                "loading": "Saving \"{subject}\" as a template in progress...",
+                "success": "\"{subject}\" successfully saved as template!",
+                "error": "\"{subject}\" has not been saved as a template: {reason}"
+            },
             "send_message": {
                 "loading": "Sending \"{subject}\" in progress...",
                 "error": "\"{subject}\" has not been sent: {reason}",

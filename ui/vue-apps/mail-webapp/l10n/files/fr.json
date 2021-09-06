@@ -110,6 +110,11 @@
                 "success": "\"{subject}\" a bien été supprimé définitivement.|Les messages sélectionnés ont bien été supprimés définitivement.",
                 "error": "\"{subject}\" n'a pas pu être supprimé définitivement.|Les messages sélectionnés n'ont pas pu être supprimés définitivement."
             },
+            "save_as_template": {
+                "loading": "Enregistrement de \"{subject}\" en tant que modèle en cours...",
+                "success": "\"{subject}\" a bien été enregistré comme modèle!",
+                "error": "\"{subject}\" n'a pu être enregistré comme modèle: {reason}"
+            },
             "send_message": {
                 "loading": "Envoi de \"{subject}\" en cours...",
                 "success": "\"{subject}\" a bien été envoyé !",

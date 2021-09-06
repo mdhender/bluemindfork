@@ -35,6 +35,7 @@ export const MOVE_MESSAGES = "MOVE_MESSAGES";
 export const REMOVE_ATTACHMENT = "REMOVE_ATTACHMENT";
 export const REMOVE_MESSAGES = "REMOVE_MESSAGES";
 export const SAVE_MESSAGE = "SAVE_MESSAGE";
+export const SAVE_AS_TEMPLATE = "SAVE_AS_TEMPLATE";
 export const SEND_MESSAGE = "SEND_MESSAGE";
 
 // conversationList

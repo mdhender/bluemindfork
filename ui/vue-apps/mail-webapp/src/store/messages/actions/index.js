@@ -31,6 +31,7 @@ import {
     REMOVE_ATTACHMENT,
     REMOVE_MESSAGES,
     SAVE_MESSAGE,
+    SAVE_AS_TEMPLATE,
     SEND_MESSAGE
 } from "~/actions";
 
@@ -40,7 +41,8 @@ const markAsUnread = ({ dispatch }, messages) => dispatch(DELETE_FLAG, { message
 const markAsRead = ({ dispatch }, messages) => dispatch(ADD_FLAG, { messages, flag: Flag.SEEN });
 const markAsFlagged = ({ dispatch }, messages) => dispatch(ADD_FLAG, { messages, flag: Flag.FLAGGED });
 const markAsUnflagged = ({ dispatch }, messages) => dispatch(DELETE_FLAG, { messages, flag: Flag.FLAGGED });
-
+const saveAsTemplate = (context, { template, messageCompose }) =>
+    saveAsap(context, { draft: template, messageCompose });
 export default {
     [ADD_ATTACHMENTS]: addAttachments,
     [ADD_FLAG]: addFlag,
@@ -60,5 +62,6 @@ export default {
     [REMOVE_ATTACHMENT]: removeAttachment,
     [REMOVE_MESSAGES]: withAlert(removeMessages, REMOVE_MESSAGES, "RemoveMessages"),
     [SAVE_MESSAGE]: saveAsap,
+    [SAVE_AS_TEMPLATE]: withAlert(saveAsTemplate, SAVE_AS_TEMPLATE, "SaveAsTemplate"),
     [SEND_MESSAGE]: withAlert(send, SEND_MESSAGE, "SendMessage")
 };

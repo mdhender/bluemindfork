@@ -110,6 +110,11 @@
                 "success": "\"{subject}\" wurde erfolgreich gelöscht.|{count} E-Mails wurden erfolgreich gelöscht...",
                 "error": "Fehler beim Löschen von \"{subject}\".| Fehler beim Löschen der ausgewählten E-Mails."
             },
+            "save_as_template": {
+                "loading": "Speichern der Vorlage \"{subject}\" in Bearbeitung...",
+                "success": "\"{subject}\" erfolgreich als Vorlage gespeichert!",
+                "error": "\"{subject}\" konnte nicht als Vorlage gespeichert werden: {reason}"
+            },
             "send_message": {
                 "loading": "Versand von \"{subject}\"...",
                 "error": "\"{subject}\" konnte nicht gesendet werden.",

@@ -135,6 +135,20 @@ export function createDraftFromMessage(previousMessage, myDraftsFolder, userSess
     return message;
 }
 
+export function createFromDraft(previous, folder) {
+    const message = createEmpty(folder, {});
+    message.from = { ...previous.from };
+    message.to = previous.to.slice();
+    message.cc = previous.cc.slice();
+    message.bcc = previous.bcc.slice();
+    message.subject = previous.subject;
+    message.attachments = previous.attachments.slice();
+    message.hasAttacment = previous.hasAttacment;
+    message.inlinePartsByCapabilities = previous.inlinePartsByCapabilities.slice();
+    message.preview = previous.preview;
+    return message;
+}
+
 // INTERNAL METHOD (exported only for testing purpose)
 export function computeCcRecipients(creationMode, previousMessage) {
     let cc = [];

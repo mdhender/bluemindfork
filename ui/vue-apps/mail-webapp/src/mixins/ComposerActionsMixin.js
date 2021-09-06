@@ -8,6 +8,7 @@ import {
     REMOVE_ATTACHMENT,
     REMOVE_CONVERSATION_MESSAGES,
     SAVE_MESSAGE,
+    SAVE_AS_TEMPLATE,
     SEND_MESSAGE
 } from "~/actions";
 import {
@@ -17,10 +18,12 @@ import {
     MY_DRAFTS,
     MY_OUTBOX,
     MY_SENT,
+    MY_TEMPLATES,
     MY_MAILBOX_KEY
 } from "~/getters";
 import { ADD_MESSAGES, REMOVE_MESSAGES } from "~/mutations";
 import { isNewMessage } from "~/model/draft";
+import { createFromDraft } from "../model/draft";
 
 /**
  * Provide composition Vuex actions to components
@@ -78,6 +81,21 @@ export default {
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
             });
             this.updateRoute(wasMessageOnlyLocal);
+        },
+        saveAsTemplate() {
+            if (this.message.folderRef.key !== this.$store.getters[`mail/${MY_TEMPLATES}`].key) {
+                const template = createFromDraft(this.message, this.$store.getters[`mail/${MY_TEMPLATES}`]);
+                this.$store.commit(`mail/${ADD_MESSAGES}`, [template]);
+
+                return this.$store.dispatch(`mail/${SAVE_AS_TEMPLATE}`, {
+                    template,
+                    messageCompose: this.$_ComposerActionsMixin_messageCompose
+                });
+            }
+            return this.saveAsap();
+        },
+        saveAsDraft() {
+            return this.saveAsap();
         },
         updateRoute(wasMessageOnlyLocal) {
             const displayedInConversationMode =
