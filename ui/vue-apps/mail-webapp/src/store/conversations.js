@@ -112,11 +112,11 @@ const mutations = {
             const conversation = message.conversationRef
                 ? state.conversationByKey[message.conversationRef.key]
                 : undefined;
-            if (conversation && !conversation.messages.includes(message.key)) {
-                const bestIndexForInsertion = sortedIndexBy(conversation.messages, message.key, key =>
-                    cache[key] ? cache[key].date : state.messages[key].date
-                );
-                conversation.messages.splice(bestIndexForInsertion, 0, message.key);
+            if (conversation) {
+                const bestIndexForInsertion = sortedIndexBy(conversation.messages, message.key);
+                if (conversation.messages[bestIndexForInsertion] !== message.key) {
+                    conversation.messages.splice(bestIndexForInsertion, 0, message.key);
+                }
             }
         });
     },
@@ -124,11 +124,7 @@ const mutations = {
         messages.forEach(message => {
             const conversation = state.conversationByKey[message.conversationRef.key];
             if (conversation) {
-                const index = sortedIndexBy(
-                    conversation.messages,
-                    message.key,
-                    key => state.messages[key]?.date || Number.MAX_VALUE
-                );
+                const index = sortedIndexBy(conversation.messages, message.key);
                 if (conversation.messages[index] === message.key) {
                     conversation.messages.splice(index, 1);
                 }
@@ -166,7 +162,7 @@ const getters = {
                     sentDuplicateIndex === -1 &&
                     (!messageIsInTrash || conversationIsInTrash)
                 ) {
-                    messages.push(message);
+                    messages.splice(sortedIndexBy(messages, message, "date"), 0, message);
                 }
             });
         }

@@ -16,7 +16,12 @@ export function createConversationStubsFromRawConversations(rawConversations, fo
         messages.push(
             ...messageRefs.map(({ itemId: internalId, folderUid, date }) => {
                 const folder = FolderAdaptor.toRef(folderUid);
-                return createOnlyMetadata({ internalId, folder, conversationRef: { key: conversation.key, uid }, date });
+                return createOnlyMetadata({
+                    internalId,
+                    folder,
+                    conversationRef: { key: conversation.key, uid },
+                    date
+                });
             })
         );
     });
@@ -53,15 +58,21 @@ export function createConversationStubsFromSearchResult(searchResult) {
 }
 
 function createConversationMetadata(uid, { key, uid: folderUid }, messages) {
-    const sorted = messages.sort((a, b) => a.date - b.date);
+    const sorted = [];
+    let lastMessageDate = -1;
+    messages.forEach(({ date, itemId, folderUid }) => {
+        lastMessageDate = date > lastMessageDate ? date : lastMessageDate;
+        const key = messageKey(itemId, folderUid);
+        sorted.splice(sortedIndexBy(sorted, key), 0, key);
+    });
     return {
         key: uid && key ? messageKey(uid, key) : null,
         folderRef: { key, folderUid },
         remoteRef: { uid },
         status: MessageStatus.IDLE,
         loading: LoadingStatus.NOT_LOADED,
-        messages: sorted.map(({ itemId, folderUid }) => messageKey(itemId, folderUid)),
-        date: sorted[sorted.length - 1].date
+        messages: sorted,
+        date: lastMessageDate
     };
 }
 
