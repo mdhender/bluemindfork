@@ -159,11 +159,11 @@ const getters = {
             conversation.messages.forEach(key => {
                 const message = state.messages[key];
                 const messageIsInTrash = message.folderRef.key === MY_TRASH.key;
-                const isSentDuplicatesIndex = isSentDuplicates(state, conversation, message, MY_SENT);
+                const sentDuplicateIndex = findSentDuplicateIndex(state, conversation, message, MY_SENT);
                 if (
                     message &&
                     message.loading !== LoadingStatus.ERROR &&
-                    isSentDuplicatesIndex === -1 &&
+                    sentDuplicateIndex === -1 &&
                     (!messageIsInTrash || conversationIsInTrash)
                 ) {
                     messages.push(message);
@@ -371,9 +371,11 @@ function removeMessages({ conversationByKey }, messages) {
     });
 }
 
-// returns -1 if message is not a sent duplicate, otherwise, returns its index in conversation
-function isSentDuplicates(state, conversation, message, sentFolder) {
-    if (message.folderRef.key === sentFolder.key && conversation.messages.length > 1) {
+/**
+ *  @returns {number} -1 if message is not a sent duplicate, otherwise, returns its index in conversation
+ */
+function findSentDuplicateIndex(state, conversation, message, sentFolder) {
+    if (message.messageId && message.folderRef.key === sentFolder.key && conversation.messages.length > 1) {
         const conversationMessages = conversation.messages.map(key => state.messages[key]);
         return conversationMessages.findIndex(
             convMessage => convMessage.key !== message.key && convMessage.messageId === message.messageId
