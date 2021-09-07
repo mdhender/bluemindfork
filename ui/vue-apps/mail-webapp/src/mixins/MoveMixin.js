@@ -64,14 +64,7 @@ function navigateConversations(action) {
         const isCurrentConversation = this.$store.getters["mail/" + IS_CURRENT_CONVERSATION](conversations[0]);
         action.call(this, { conversations, folder });
         if (isCurrentConversation) {
-            if (!next) {
-                this.$router.push(this.folderRoute({ key: conversations[0].folderRef.key }));
-            } else if (next.messages.length > 1) {
-                this.$router.navigate({ name: "v:mail:conversation", params: { conversation: next } });
-            } else {
-                const message = this.$store.state.mail.conversations.messages[next.messages[0]];
-                this.$router.navigate({ name: "v:mail:message", params: { message } });
-            }
+            this.navigateTo(next, conversations[0].folderRef);
         }
     };
 }
@@ -83,14 +76,7 @@ function navigateConversationMessage(action) {
         const messageInFolder = conversation.messages.filter(m => m.folderRef.key === conversation.folderRef.key);
         action.call(this, { conversation, messages: [message], folder });
         if (messageInFolder.length === 1 && messageInFolder[0].key === message.key && isCurrentConversation) {
-            if (!next) {
-                this.$router.push(this.folderRoute({ key: conversation.folderRef.key }));
-            } else if (next.messages.length > 1) {
-                this.$router.navigate({ name: "v:mail:conversation", params: { conversation: next } });
-            } else {
-                const message = this.$store.state.mail.conversations.messages[next.messages[0]];
-                this.$router.navigate({ name: "v:mail:message", params: { message } });
-            }
+            this.navigateTo(next, conversation.folderRef);
         }
     };
 }

@@ -19,6 +19,21 @@ export default {
                 }
             }
             return { name: "v:mail:home", params: { folder: null, mailbox: null } };
+        },
+
+        /**
+         * Navigate to the URL of the given conversation. Fall back to message-like URL if the conversation is a single
+         * message. Fallback to the URL of the given folder if conversaiton is false.
+         */
+        navigateTo(conversation, folder) {
+            if (!conversation) {
+                this.$router.push(this.folderRoute(folder));
+            } else if (conversation.messages.length > 1) {
+                this.$router.navigate({ name: "v:mail:conversation", params: { conversation } });
+            } else {
+                const message = this.$store.state.mail.conversations.messages[conversation.messages[0]];
+                this.$router.navigate({ name: "v:mail:message", params: { message } });
+            }
         }
     }
 };

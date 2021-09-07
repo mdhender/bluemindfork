@@ -21,6 +21,7 @@ describe("MoveMixin", () => {
             }
         };
         MoveMixin.MOVE_CONVERSATIONS = MoveMixin.methods.MOVE_CONVERSATIONS;
+        MoveMixin.navigateTo = jest.fn();
     });
     beforeEach(() => {
         MoveMixin.$_MoveMixin_move.mockClear();
@@ -56,9 +57,7 @@ describe("MoveMixin", () => {
         const folder = {};
         MoveMixin.$store.getters["mail/IS_CURRENT_CONVERSATION"].mockReturnValue(true);
         MoveMixin.MOVE_CONVERSATIONS({ conversations, folder });
-        expect(MoveMixin.$router.navigate).toHaveBeenCalledWith({
-            name: "v:mail:conversation",
-            params: { conversation: { key: "nextKey", messages: ["m1", "m2"] } }
-        });
+        const next = { key: "nextKey", messages: ["m1", "m2"] };
+        expect(MoveMixin.navigateTo).toHaveBeenCalledWith(next, conversations.folderRef);
     });
 });

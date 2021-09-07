@@ -103,6 +103,17 @@ export default {
     }
 };
 
+function navigateConversations(action) {
+    return async function (conversations) {
+        const next = this.$store.getters["mail/" + NEXT_CONVERSATION](conversations);
+        const isCurrentConversation = this.$store.getters["mail/" + IS_CURRENT_CONVERSATION](conversations[0]);
+        const confirm = await action.call(this, conversations);
+        if (confirm && isCurrentConversation) {
+            this.navigateTo(next, conversations[0].folderRef);
+        }
+    };
+}
+
 function navigate(action) {
     return async function (conversation, messages) {
         const next = this.$store.getters["mail/" + NEXT_CONVERSATION]([conversation]);
@@ -114,32 +125,7 @@ function navigate(action) {
             isCurrentConversation &&
             conversationMustBeRemoved(this.$store.state.mail.conversations, conversation, messages)
         ) {
-            if (!next) {
-                this.$router.push(this.folderRoute({ key: conversation.folderRef.key }));
-            } else if (next.messages.length > 1) {
-                this.$router.navigate({ name: "v:mail:conversation", params: { conversation: next } });
-            } else {
-                const message = this.$store.state.mail.conversations.messages[next.messages[0]];
-                this.$router.navigate({ name: "v:mail:message", params: { message } });
-            }
-        }
-    };
-}
-
-function navigateConversations(action) {
-    return async function (conversations) {
-        const next = this.$store.getters["mail/" + NEXT_CONVERSATION](conversations);
-        const isCurrentConversation = this.$store.getters["mail/" + IS_CURRENT_CONVERSATION](conversations[0]);
-        const confirm = await action.call(this, conversations);
-        if (confirm && isCurrentConversation) {
-            if (!next) {
-                this.$router.push(this.folderRoute({ key: conversations[0].folderRef.key }));
-            } else if (next.messages.length > 1) {
-                this.$router.navigate({ name: "v:mail:conversation", params: { conversation: next } });
-            } else {
-                const message = this.$store.state.mail.conversations.messages[next.messages[0]];
-                this.$router.navigate({ name: "v:mail:message", params: { message } });
-            }
+            this.navigateTo(next, conversation.folderRef);
         }
     };
 }
