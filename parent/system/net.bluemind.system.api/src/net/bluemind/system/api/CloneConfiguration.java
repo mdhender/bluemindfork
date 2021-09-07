@@ -26,6 +26,7 @@ import net.bluemind.core.api.BMApi;
 @BMApi(version = "3")
 public class CloneConfiguration {
 
+	@BMApi(version = "3")
 	public enum Mode {
 
 		/**
