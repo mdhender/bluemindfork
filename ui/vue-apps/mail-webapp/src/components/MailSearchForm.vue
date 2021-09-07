@@ -58,12 +58,15 @@
                         :max-results="maxFolders"
                         @selected="setSelectedFolder"
                         @close="folderPattern = selectedFolder.path"
+                        @icon-click="folderPattern = ''"
                     >
                         {{ translatePath(item.path) }}
                     </bm-combo-box>
                 </bm-form-group>
                 <div class="d-flex flex-grow-1 align-items-end justify-content-end">
-                    <bm-button type="submit" variant="primary">{{ $t("common.action.search") }}</bm-button>
+                    <bm-button type="submit" variant="primary" :disabled="!pattern">{{
+                        $t("common.action.search")
+                    }}</bm-button>
                     <bm-button type="reset" variant="inline-secondary" class="ml-2">
                         {{ $t("common.action.reset") }}
                     </bm-button>
