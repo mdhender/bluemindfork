@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -511,7 +510,6 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 			AtomicInteger softDelete = new AtomicInteger();
 			toUpdate.forEach((Long itemId, MailboxRecord mr) -> {
-				String uid = mr.imapUid + ".";
 				VanishedBody vanished = BodyInternalIdCache.vanishedBody(container.owner, mr.messageBody);
 				if (vanished != null) {
 					logger.info("Using version from vanished item {} and the old imap uid", vanished);
@@ -572,14 +570,13 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		ItemValue<Conversation> conversation = conversationService.getComplete(convUid);
 		if (conversation == null) {
 			Conversation newConversation = new Conversation();
-			newConversation.conversationId = record.value.conversationId;
 			newConversation.messageRefs = new ArrayList<>();
 			MessageRef messageId = new MessageRef();
 			messageId.folderUid = mailboxUniqueId;
 			messageId.itemId = recInternalId;
 			messageId.date = internalDate;
 			newConversation.messageRefs.add(messageId);
-			conversationService.create(UUID.randomUUID().toString(), newConversation);
+			conversationService.create(convUid, newConversation);
 		} else {
 			MessageRef messageId = new MessageRef();
 			messageId.folderUid = mailboxUniqueId;
