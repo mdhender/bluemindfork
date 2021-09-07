@@ -20,6 +20,7 @@ package net.bluemind.backend.mail.replica.service.internal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -448,7 +449,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 				}
 				if (mr.conversationId != null) {
 					try {
-						addMessageToConversation(uid);
+						addMessageToConversation(idxAndNotif.internalId, mr.internalDate, mr.conversationId);
 					} catch (Exception e) {
 						logger.warn("Cannot store conversation", e);
 					}
@@ -512,24 +513,23 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 				createdIds);
 	}
 
-	private void addMessageToConversation(String uid) {
-		ItemValue<MailboxRecord> record = storeService.get(uid, null);
-		String convUid = Long.toHexString(record.value.conversationId);
+	private void addMessageToConversation(long recInternalId, Date internalDate, long conversationId) {
+		String convUid = Long.toHexString(conversationId);
 		ItemValue<Conversation> conversation = conversationService.getComplete(convUid);
 		if (conversation == null) {
 			Conversation newConversation = new Conversation();
 			newConversation.messageRefs = new ArrayList<>();
 			MessageRef messageId = new MessageRef();
-			messageId.folderUid = IMailReplicaUids.uniqueId(container.uid);
-			messageId.itemId = record.internalId;
-			messageId.date = record.value.internalDate;
+			messageId.folderUid = mailboxUniqueId;
+			messageId.itemId = recInternalId;
+			messageId.date = internalDate;
 			newConversation.messageRefs.add(messageId);
 			conversationService.create(convUid, newConversation);
 		} else {
 			MessageRef messageId = new MessageRef();
-			messageId.folderUid = IMailReplicaUids.uniqueId(container.uid);
-			messageId.itemId = record.internalId;
-			messageId.date = record.value.internalDate;
+			messageId.folderUid = mailboxUniqueId;
+			messageId.itemId = recInternalId;
+			messageId.date = internalDate;
 			if (!conversation.value.messageRefs.contains(messageId)) {
 				conversation.value.messageRefs.add(messageId);
 				conversationService.update(conversation.uid, conversation.value);
