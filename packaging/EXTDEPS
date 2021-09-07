@@ -3,8 +3,8 @@ BMSDS="1.0.0-318"
 
 BMES="6.8.12-bluemind89"
 
-KAFKA="2.8.0-bluemind14"
-MINIO="2021.04.22-bluemind14"
+KAFKA="2.8.0-bluemind15"
+MINIO="2021.04.22-bluemind15"
 
 BMJDK="8u302-bluemind47"
 BMSNZIP="1.0.4-bluemind4"
