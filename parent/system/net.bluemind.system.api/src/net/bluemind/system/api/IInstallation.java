@@ -159,4 +159,19 @@ public interface IInstallation extends ICustomTheme {
 	@POST
 	@Path("_clone")
 	public TaskRef clone(CloneConfiguration sourceParams);
+
+	/**
+	 * The instance will stop handling write requests then will write a BYE message
+	 * into kafka to relinquish control to the clone.
+	 * 
+	 * @throws ServerFault
+	 */
+	@PUT
+	@Path("state/_demote")
+	public void demoteLeader() throws ServerFault;
+
+	@PUT
+	@Path("state/_promote")
+	public void promoteLeader() throws ServerFault;
+
 }

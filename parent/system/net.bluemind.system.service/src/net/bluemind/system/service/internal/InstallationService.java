@@ -145,6 +145,18 @@ public class InstallationService implements IInstallation {
 	}
 
 	@Override
+	public void demoteLeader() throws ServerFault {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void promoteLeader() throws ServerFault {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
 	public TaskRef clone(CloneConfiguration conf) {
 		if (!context.getSecurityContext().isDomainGlobal()) {
 			throw new ServerFault("Operation is only permitted for admin0", ErrorCode.PERMISSION_DENIED);

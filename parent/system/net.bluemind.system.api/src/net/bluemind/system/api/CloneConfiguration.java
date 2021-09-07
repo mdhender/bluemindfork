@@ -26,10 +26,27 @@ import net.bluemind.core.api.BMApi;
 @BMApi(version = "3")
 public class CloneConfiguration {
 
+	public enum Mode {
+
+		/**
+		 * Keeps the clone loop running
+		 */
+		Tail,
+
+		OneShotThenPromote,
+
+		/**
+		 * mostly for test mode
+		 */
+		OneShotThenRunning,
+	}
+
 	public String sourceInstallationId;
 
 	public Map<String, String> uidToIpMapping = Collections.emptyMap();
 
 	public Map<String, String> sysconfOverride = Collections.emptyMap();
+
+	public Mode mode = Mode.OneShotThenRunning;
 
 }
