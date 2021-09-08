@@ -39,6 +39,7 @@
             centered
             :title="$t('mail.toolbar.move.tooltip')"
             auto-focus-button="ok"
+            :scrollable="false"
             @ok="moveOk"
             @cancel="moveCancel"
             @hide="moveCancel"
