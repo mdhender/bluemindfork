@@ -91,6 +91,7 @@ import { CONVERSATION_LIST_NEXT_PAGE, FETCH_MESSAGE_METADATA } from "~/actions";
 
 import { RemoveMixin } from "~/mixins";
 import { LoadingStatus } from "~/model/loading-status";
+import { init as initDateSeparator } from "./DateSeparator";
 
 const PAGE = 9;
 
@@ -163,6 +164,7 @@ export default {
     created() {
         this.RESET_CONVERSATION_LIST_PAGE();
         this.focusByKey(this.currentConversation?.key);
+        initDateSeparator();
     },
     mounted() {
         this.onScroll();

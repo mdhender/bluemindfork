@@ -34,9 +34,15 @@ export default {
     }
 };
 
-const allSeparators = [];
+let allSeparators = [];
 let dateRangeIndex;
 let separatorAdded;
+
+export function init() {
+    allSeparators = [];
+    dateRangeIndex = undefined;
+    separatorAdded = undefined;
+}
 
 function computeVisibilities() {
     dateRangeIndex = 0;
