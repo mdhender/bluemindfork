@@ -50,6 +50,7 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.sds.store.ISdsSyncStore;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.CloneConfiguration;
 import net.bluemind.system.api.SystemConf;
 
 public class InstallFromBackupTask implements IServerTask {
@@ -67,15 +68,18 @@ public class InstallFromBackupTask implements IServerTask {
 
 	private final SysconfOverride confOver;
 
-	public InstallFromBackupTask(String installationId, IBackupReader store, SysconfOverride over, TopologyMapping map,
-			IServiceProvider target) {
-		this(installationId, store, over, map, new DefaultSdsStoreLoader(), target);
+	private final CloneConfiguration cloneConf;
+
+	public InstallFromBackupTask(CloneConfiguration conf, IBackupReader store, SysconfOverride over,
+			TopologyMapping map, IServiceProvider target) {
+		this(conf, store, over, map, new DefaultSdsStoreLoader(), target);
 	}
 
 	@VisibleForTesting
-	public InstallFromBackupTask(String installationId, IBackupReader store, SysconfOverride over, TopologyMapping map,
-			ISdsStoreLoader sdsAccess, IServiceProvider target) {
-		this.installationId = installationId;
+	public InstallFromBackupTask(CloneConfiguration conf, IBackupReader store, SysconfOverride over,
+			TopologyMapping map, ISdsStoreLoader sdsAccess, IServiceProvider target) {
+		this.installationId = conf.sourceInstallationId;
+		this.cloneConf = conf;
 		this.target = target;
 		this.processedStreams = new HashMap<>();
 		this.topologyMapping = map;
@@ -105,6 +109,19 @@ public class InstallFromBackupTask implements IServerTask {
 		List<ILiveStream> domainStreams = streams.domains();
 		ISdsSyncStore sdsStore = sdsAccess.forSysconf(orphans.sysconf);
 		cloneDomains(monitor.subWork(1), domainStreams, cloneState, orphans, sdsStore);
+		monitor.log("Time to apply " + cloneConf.mode + "...");
+		switch (cloneConf.mode) {
+		case PROMOTE:
+			break;
+		case TAIL:
+			// loop with the resume tokens or pass more stuff to stream.subscribe...
+			break;
+		case FORK:
+		default:
+			System.err.println("for is fine, we should be in running state already.");
+			break;
+
+		}
 	}
 
 	private static class ClonedOrphans {

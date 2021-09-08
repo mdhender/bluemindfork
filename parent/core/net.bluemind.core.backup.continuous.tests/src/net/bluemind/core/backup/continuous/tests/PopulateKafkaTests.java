@@ -100,6 +100,7 @@ import net.bluemind.sds.dto.PutRequest;
 import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.sds.store.s3.S3StoreFactory;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.CloneConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -310,7 +311,9 @@ public class PopulateKafkaTests {
 		};
 
 		try {
-			InstallFromBackupTask tsk = new InstallFromBackupTask(iid, store,
+			CloneConfiguration conf = new CloneConfiguration();
+			conf.sourceInstallationId = iid;
+			InstallFromBackupTask tsk = new InstallFromBackupTask(conf, store,
 					new SysconfOverride(Collections.emptyMap()), topo, sds, prov);
 			tsk.registerObserver(obs);
 			TestTaskMonitor mon = new TestTaskMonitor();
