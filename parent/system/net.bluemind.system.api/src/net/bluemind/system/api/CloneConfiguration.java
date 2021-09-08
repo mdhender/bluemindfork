@@ -30,16 +30,21 @@ public class CloneConfiguration {
 	public enum Mode {
 
 		/**
-		 * Keeps the clone loop running
+		 * Keeps the clone loop running. {@link IInstallation#promoteLeader()} should be
+		 * called on the tailing clone to trigger the promote process.
 		 */
-		Tail,
-
-		OneShotThenPromote,
+		TAIL,
 
 		/**
-		 * mostly for test mode
+		 * Once received events from upstream install are under a certain threshold,
+		 * trigger {@link IInstallation#demoteLeader()} on the source installation.
 		 */
-		OneShotThenRunning,
+		PROMOTE,
+
+		/**
+		 * eg. to create a pre-production copy
+		 */
+		FORK,
 	}
 
 	public String sourceInstallationId;
@@ -48,6 +53,9 @@ public class CloneConfiguration {
 
 	public Map<String, String> sysconfOverride = Collections.emptyMap();
 
-	public Mode mode = Mode.OneShotThenRunning;
+	/**
+	 * Defaults to {@link Mode#FORK}
+	 */
+	public Mode mode = Mode.FORK;
 
 }
