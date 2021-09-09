@@ -700,7 +700,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			Long v = repEvent.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			return Ack.create(v);
 		} catch (TimeoutException e) {
-			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
+			throw new ServerFault(
+					"TimeOut running '" + imapCommand + "' in folder " + imapFolder + " for " + imapContext.latd,
+					ErrorCode.TIMEOUT);
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
