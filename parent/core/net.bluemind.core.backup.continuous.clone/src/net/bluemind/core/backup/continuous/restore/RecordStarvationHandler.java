@@ -69,15 +69,15 @@ public class RecordStarvationHandler implements IRecordStarvationStrategy {
 						.filter(iv -> iv.value.tags.contains("bm/core")).findFirst().orElse(null);
 				monitor.log("Ask active leader " + leaderCore + " to relinquish control....");
 				if (leaderCore != null) {
-					ClientSideServiceProvider prov = ClientSideServiceProvider
-							.getProvider("http://" + leaderCore + ":8090", null);
+					String url = "http://" + leaderCore.value.address() + ":8090";
+					ClientSideServiceProvider prov = ClientSideServiceProvider.getProvider(url, null);
 					IAuthentication authApi = prov.instance(IAuthentication.class);
 					LoginResponse auth = authApi.login("admin0@global.virt", "admin", "clone-demote");
 					if (auth.status != Status.Ok) {
-						System.err.println("Failed to auth on " + leaderCore + ": " + auth);
+						System.err.println("Failed auth on " + url + " -> " + auth);
 						System.exit(1);
 					}
-					prov = ClientSideServiceProvider.getProvider("http://" + leaderCore + ":8090", auth.authKey);
+					prov = ClientSideServiceProvider.getProvider(url, auth.authKey);
 					IInstallation masterInstApi = prov.instance(IInstallation.class, cloneConf.sourceInstallationId);
 					monitor.log("Calling demote....");
 					masterInstApi.demoteLeader();

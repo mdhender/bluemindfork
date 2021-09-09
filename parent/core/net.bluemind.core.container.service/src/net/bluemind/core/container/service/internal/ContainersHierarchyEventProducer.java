@@ -25,6 +25,8 @@ package net.bluemind.core.container.service.internal;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.api.ContainersFlatHierarchyBusAddresses;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class ContainersHierarchyEventProducer {
 
@@ -43,6 +45,9 @@ public class ContainersHierarchyEventProducer {
 	}
 
 	public void changed(long version, String containerUid, Operation op) {
+		if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
+			return;
+		}
 		JsonObject change = new JsonObject().put("version", version);
 		change.put("domain", domainUid).put("owner", ownerUid);
 		eventBus.publish(ContainersFlatHierarchyBusAddresses.ALL_HIERARCHY_CHANGES, change);

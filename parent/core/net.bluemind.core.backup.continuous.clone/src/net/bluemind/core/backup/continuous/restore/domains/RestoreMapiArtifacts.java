@@ -83,6 +83,12 @@ public class RestoreMapiArtifacts implements RestoreDomainType {
 	}
 
 	private void setupFolder(DataElement de) {
+		IMapiMailbox replApi = target.instance(IMapiMailbox.class, domain.uid, de.key.owner);
+		MapiReplica replica = replApi.get();
+		if (replica == null) {
+			logger.warn("Mapi folder setup occurs for {} before replica...");
+			return;
+		}
 		IMapiFoldersMgmt foldersApi = target.instance(IMapiFoldersMgmt.class, domain.uid, de.key.owner);
 		ItemValue<MapiFolder> folderItem = folderReader.read(new String(de.payload));
 		logger.info("Restore {}", folderItem.value);

@@ -17,6 +17,8 @@
  */
 package net.bluemind.core.backup.continuous.events;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +40,7 @@ public class MapiArtifactsHook implements IMapiArtifactsHook {
 				mr.mailboxUid + " mapi_artifacts", mr.mailboxUid, "mapi_artifacts", domainUid, true);
 		ItemValue<MapiReplica> replitem = ItemValue.create("replica", mr);
 		replitem.internalId = replitem.uid.hashCode();
+		replitem.created = new Date();
 		IBackupStoreFactory store = DefaultBackupStore.store();
 		store.<MapiReplica>forContainer(metaDesc).store(replitem).whenComplete((v, ex) -> {
 			if (ex != null) {
@@ -55,6 +58,7 @@ public class MapiArtifactsHook implements IMapiArtifactsHook {
 				ownerUid + " mapi_artifacts", ownerUid, "mapi_artifacts", domainUid, true);
 		ItemValue<MapiFolder> folder = ItemValue.create(mf.containerUid, mf);
 		folder.internalId = folder.uid.hashCode();
+		folder.created = new Date();
 		IBackupStoreFactory store = DefaultBackupStore.store();
 		store.<MapiFolder>forContainer(metaDesc).store(folder).whenComplete((v, ex) -> {
 			if (ex != null) {
