@@ -196,14 +196,13 @@ const getters = {
 
 function reducedMetadata(folderKey, messages) {
     let unreadCount = 0,
-        flags = new Set(),
+        flags = new Set([Flag.SEEN]),
         loading = LoadingStatus.LOADED;
     messages.forEach(m => {
         if (m.folderRef.key === folderKey) {
             if (isUnread(m)) {
                 unreadCount++;
-            } else if (unreadCount === 0) {
-                flags.add(Flag.SEEN);
+                flags.delete(Flag.SEEN);
             }
             if (isFlagged(m)) {
                 flags.add(Flag.FLAGGED);
