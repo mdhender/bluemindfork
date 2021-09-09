@@ -146,12 +146,19 @@ public class InstallationService implements IInstallation {
 
 	@Override
 	public void demoteLeader() throws ServerFault {
-		// TODO Auto-generated method stub
+		if (!context.getSecurityContext().isDomainGlobal()) {
+			throw new ServerFault("Operation demoteLeader is only permitted for admin0", ErrorCode.PERMISSION_DENIED);
+		}
+		logger.info("We should STEP-DOWN from leader position, current state is {}", StateContext.getState());
+		StateContext.setState("core.demote.start");
 
 	}
 
 	@Override
 	public void promoteLeader() throws ServerFault {
+		if (!context.getSecurityContext().isDomainGlobal()) {
+			throw new ServerFault("Operation proteLeader is only permitted for admin0", ErrorCode.PERMISSION_DENIED);
+		}
 		// TODO Auto-generated method stub
 
 	}

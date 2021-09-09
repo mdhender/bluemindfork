@@ -25,6 +25,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +38,7 @@ import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.IBackupReader;
 import net.bluemind.core.backup.continuous.ILiveBackupStreams;
 import net.bluemind.core.backup.continuous.ILiveStream;
+import net.bluemind.core.backup.continuous.IRecordStarvationStrategy;
 import net.bluemind.core.backup.continuous.restore.domains.DomainRestorationHandler;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.backup.continuous.restore.mbox.DefaultSdsStoreLoader;
@@ -42,6 +46,7 @@ import net.bluemind.core.backup.continuous.restore.mbox.ISdsStoreLoader;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreDomains;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreSysconf;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreTopology;
+import net.bluemind.core.backup.continuous.restore.orphans.RestoreTopology.PromotingServer;
 import net.bluemind.core.backup.continuous.store.ITopicStore.IResumeToken;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
@@ -49,7 +54,6 @@ import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.sds.store.ISdsSyncStore;
-import net.bluemind.server.api.Server;
 import net.bluemind.system.api.CloneConfiguration;
 import net.bluemind.system.api.SystemConf;
 
@@ -109,28 +113,16 @@ public class InstallFromBackupTask implements IServerTask {
 		List<ILiveStream> domainStreams = streams.domains();
 		ISdsSyncStore sdsStore = sdsAccess.forSysconf(orphans.sysconf);
 		cloneDomains(monitor.subWork(1), domainStreams, cloneState, orphans, sdsStore);
-		monitor.log("Time to apply " + cloneConf.mode + "...");
-		switch (cloneConf.mode) {
-		case PROMOTE:
-			break;
-		case TAIL:
-			// loop with the resume tokens or pass more stuff to stream.subscribe...
-			break;
-		case FORK:
-		default:
-			System.err.println("for is fine, we should be in running state already.");
-			break;
 
-		}
 	}
 
-	private static class ClonedOrphans {
+	public static class ClonedOrphans {
 
-		public Map<String, ItemValue<Server>> topology;
+		public Map<String, PromotingServer> topology;
 		public Map<String, ItemValue<Domain>> domains;
 		public SystemConf sysconf;
 
-		public ClonedOrphans(Map<String, ItemValue<Server>> topology, Map<String, ItemValue<Domain>> domains,
+		public ClonedOrphans(Map<String, PromotingServer> topology, Map<String, ItemValue<Domain>> domains,
 				SystemConf sysconf) {
 			this.topology = topology;
 			this.domains = domains;
@@ -148,7 +140,7 @@ public class InstallFromBackupTask implements IServerTask {
 			orphansByType.computeIfAbsent(de.key.type, key -> new ArrayList<>()).add(de);
 		});
 
-		Map<String, ItemValue<Server>> topology = new RestoreTopology(installationId, target, topologyMapping)
+		Map<String, PromotingServer> topology = new RestoreTopology(installationId, target, topologyMapping)
 				.restore(monitor, orphansByType.getOrDefault("installation", new ArrayList<>()));
 		System.err.println("topo is " + topology);
 
@@ -168,30 +160,44 @@ public class InstallFromBackupTask implements IServerTask {
 			ClonedOrphans orphans, ISdsSyncStore sdsStore) {
 		monitor.begin(domainStreams.size(), "Cloning domains");
 
-		domainStreams.forEach(domainStream -> {
+		int goal = domainStreams.size();
+		ExecutorService clonePool = Executors.newFixedThreadPool(goal);
+
+		IRecordStarvationStrategy starvation = new RecordStarvationHandler(monitor, cloneConf, orphans);
+
+		CompletableFuture<?>[] toWait = new CompletableFuture<?>[goal];
+		int slot = 0;
+		for (ILiveStream domainStream : domainStreams) {
 			ItemValue<Domain> domain = orphans.domains.get(domainStream.domainUid());
 			IServerTaskMonitor domainMonitor = monitor.subWork("Cloning domain " + domain, 1);
-			System.err.println("==== " + domain + " ====");
-			domainMonitor.begin(orphans.domains.size(), "Working on domain " + domain.uid);
+			toWait[slot++] = CompletableFuture.supplyAsync(() -> {
+				System.err.println("==== " + domain + " ====");
+				domainMonitor.begin(orphans.domains.size(), "Working on domain " + domain.uid);
 
-			IResumeToken domainPrevIndex = cloneState.forTopic(domainStream);
-			IResumeToken domainStreamIndex = domainPrevIndex;
+				IResumeToken domainPrevIndex = cloneState.forTopic(domainStream);
+				IResumeToken domainStreamIndex = domainPrevIndex;
 
-			try (RestoreState state = new RestoreState(domain.uid, orphans.topology)) {
-				DomainRestorationHandler restoration = new DomainRestorationHandler(domainMonitor, domain, target,
-						observers, sdsStore, state);
-				domainStreamIndex = domainStream.subscribe(de -> restoration.handle(de)); // , false
-			} catch (IOException e) {
-				logger.error("unexpected error when closing", e);
-				domainMonitor.end(false, "Fail to restore " + domain.uid + ": " + e.getMessage(), null);
-			} catch (Exception e) {
-				logger.error("unexpected error", e);
-				domainMonitor.end(false, "Fail to restore " + domain.uid + ": " + e.getMessage(), null);
-			} finally {
-				recordProcessed(domainMonitor, cloneState, domainStream, domainStreamIndex);
-				domainMonitor.end(true, "Domain " + domain.uid + " fully restored", null);
-			}
-		});
+				try (RestoreState state = new RestoreState(domain.uid, orphans.topology)) {
+					DomainRestorationHandler restoration = new DomainRestorationHandler(domainMonitor, domain, target,
+							observers, sdsStore, state);
+					domainStreamIndex = domainStream.subscribe(null, restoration::handle, starvation); // , false
+				} catch (IOException e) {
+					logger.error("unexpected error when closing", e);
+					domainMonitor.end(false, "Fail to restore " + domain.uid + ": " + e.getMessage(), null);
+				} catch (Exception e) {
+					logger.error("unexpected error", e);
+					domainMonitor.end(false, "Fail to restore " + domain.uid + ": " + e.getMessage(), null);
+				} finally {
+					recordProcessed(domainMonitor, cloneState, domainStream, domainStreamIndex);
+					domainMonitor.end(true, "Domain " + domain.uid + " fully restored", null);
+				}
+				return null;
+			}, clonePool);
+		}
+		CompletableFuture<Void> globalProm = CompletableFuture.allOf(toWait);
+		monitor.log("Waiting for domains cloning global promise...");
+		globalProm.join();
+
 	}
 
 	private void recordProcessed(IServerTaskMonitor monitor, CloneState cloneState, ILiveStream stream,

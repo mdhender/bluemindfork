@@ -20,19 +20,13 @@ package net.bluemind.system.state;
 
 import net.bluemind.system.api.SystemState;
 
-public class RunningState extends State {
+public class DemoteState extends State {
 
 	@Override
 	public State stateChange(String operation) {
 		switch (operation) {
-		case "core.started":
-			return this;
-		case "core.upgrade.start":
-			return new MaintenanceUpgradeState();
-		case "core.maintenance.start":
-			return new MaintenanceState();
 		case "core.demote.start":
-			return new DemoteState();
+			return this;
 		default:
 			return super.stateChange(operation);
 		}
@@ -40,7 +34,7 @@ public class RunningState extends State {
 
 	@Override
 	public SystemState getSystemState() {
-		return SystemState.CORE_STATE_RUNNING;
+		return SystemState.CORE_STATE_DEMOTED;
 	}
 
 }

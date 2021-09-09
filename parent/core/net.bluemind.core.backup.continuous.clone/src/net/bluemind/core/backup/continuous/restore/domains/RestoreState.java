@@ -19,6 +19,7 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.backup.continuous.restore.mbox.UidDatalocMapping;
 import net.bluemind.core.backup.continuous.restore.mbox.UidDatalocMapping.Replica;
+import net.bluemind.core.backup.continuous.restore.orphans.RestoreTopology.PromotingServer;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.mailbox.api.Mailbox;
@@ -27,13 +28,13 @@ import net.bluemind.server.api.Server;
 public class RestoreState implements Closeable {
 	private static final Logger logger = LoggerFactory.getLogger(RestoreState.class);
 
-	private final Map<String, ItemValue<Server>> serverByDatalocation;
+	private final Map<String, PromotingServer> serverByDatalocation;
 	private Map<String, ItemValue<Mailbox>> mboxesByUid;
 	private final DB handlesBackingStore;
 	private final HTreeMap<String, Integer> bodies;
 	private final UidDatalocMapping locationMapping;
 
-	public RestoreState(String domainUid, Map<String, ItemValue<Server>> topology) {
+	public RestoreState(String domainUid, Map<String, PromotingServer> topology) {
 		this.serverByDatalocation = topology;
 		this.locationMapping = new UidDatalocMapping();
 		this.mboxesByUid = new HashMap<>();
@@ -43,7 +44,7 @@ public class RestoreState implements Closeable {
 	}
 
 	public ItemValue<Server> getServer(String dataLocation) {
-		return serverByDatalocation.get(dataLocation);
+		return serverByDatalocation.get(dataLocation).clone;
 	}
 
 	public Replica storeReplica(ItemValue<Domain> domain, ItemValue<Mailbox> mbox, ItemValue<MailboxReplica> replica,

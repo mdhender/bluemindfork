@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.backup.continuous.DataElement;
+import net.bluemind.core.backup.continuous.restore.orphans.RestoreTopology.PromotingServer;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -20,7 +21,6 @@ import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.server.api.IServer;
-import net.bluemind.server.api.Server;
 
 public class RestoreDomains {
 
@@ -28,9 +28,9 @@ public class RestoreDomains {
 
 	private final String installationId;
 	private final IServiceProvider target;
-	private final Collection<ItemValue<Server>> servers;
+	private final Collection<PromotingServer> servers;
 
-	public RestoreDomains(String installationId, IServiceProvider target, Collection<ItemValue<Server>> servers) {
+	public RestoreDomains(String installationId, IServiceProvider target, Collection<PromotingServer> servers) {
 		this.installationId = installationId;
 		this.target = target;
 		this.servers = servers;
@@ -56,11 +56,11 @@ public class RestoreDomains {
 			} else {
 				logger.info("CREATE DOMAIN {}", dom);
 				domApi.create(dom.uid, dom.value);
-				for (ItemValue<Server> iv : servers) {
-					for (String tag : iv.value.tags) {
-						topoApi.assign(iv.uid, dom.uid, tag);
+				for (PromotingServer iv : servers) {
+					for (String tag : iv.clone.value.tags) {
+						topoApi.assign(iv.clone.uid, dom.uid, tag);
 					}
-					monitor.log("assign " + iv.uid + " to " + dom.uid);
+					monitor.log("assign " + iv.clone.uid + " to " + dom.uid);
 				}
 			}
 			domainsToHandle.put(dom.uid, dom);

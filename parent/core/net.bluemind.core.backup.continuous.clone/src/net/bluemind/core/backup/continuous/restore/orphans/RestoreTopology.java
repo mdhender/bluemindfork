@@ -43,21 +43,32 @@ public class RestoreTopology {
 	private final IServiceProvider target;
 	private final TopologyMapping topologyMapping;
 
+	public class PromotingServer {
+		public ItemValue<Server> leader;
+		public ItemValue<Server> clone;
+	}
+
 	public RestoreTopology(String installationId, IServiceProvider target, TopologyMapping topologyMapping) {
 		this.installationId = installationId;
 		this.target = target;
 		this.topologyMapping = topologyMapping;
 	}
 
-	public Map<String, ItemValue<Server>> restore(IServerTaskMonitor monitor, List<DataElement> servers) {
+	public Map<String, PromotingServer> restore(IServerTaskMonitor monitor, List<DataElement> servers) {
 		ValueReader<ItemValue<Server>> topoReader = JsonUtils.reader(new TypeReference<ItemValue<Server>>() {
 		});
 		logger.info("Get IServer API for installation {}", installationId);
 		IServer topoApi = target.instance(IServer.class, "default");
 		AtomicBoolean resetES = new AtomicBoolean();
-		List<ItemValue<Server>> touched = new LinkedList<>();
+		List<PromotingServer> touched = new LinkedList<>();
 		servers.forEach(srvDE -> {
-			ItemValue<Server> srv = topoReader.read(new String(srvDE.payload));
+			String asStr = new String(srvDE.payload);
+			ItemValue<Server> leader = topoReader.read(asStr);
+			ItemValue<Server> srv = topoReader.read(asStr);
+			PromotingServer ps = new PromotingServer();
+			ps.leader = leader;
+			ps.clone = srv;
+
 			TaskRef srvTask;
 			srv.value.ip = topologyMapping.ipAddressForUid(srv.uid, srv.value.ip);
 			ItemValue<Server> exist = topoApi.getComplete(srv.uid);
@@ -74,7 +85,7 @@ public class RestoreTopology {
 					resetES.set(true);
 				}
 			}
-			touched.add(srv);
+			touched.add(ps);
 			String wait = logStreamWait(srvTask);
 			monitor.log(srv.uid + ": " + wait);
 		});
@@ -95,12 +106,12 @@ public class RestoreTopology {
 			} while (true);
 			target.instance(IInstallation.class).resetIndexes();
 		}
-		List<ItemValue<Server>> exist = topoApi.allComplete();
+		// List<ItemValue<Server>> exist = topoApi.allComplete();
 
-		Map<String, ItemValue<Server>> serverByUid = Optional.ofNullable(exist).orElse(touched).stream()
-				.collect(Collectors.toMap(iv -> iv.uid, iv -> iv, (iv1, iv2) -> iv2));
+		Map<String, PromotingServer> serverByUid = touched.stream()
+				.collect(Collectors.toMap(iv -> iv.leader.uid, iv -> iv, (iv1, iv2) -> iv2));
 
-		bumpAllContainerItemId(monitor, serverByUid.values());
+		bumpAllContainerItemId(monitor, serverByUid.values().stream().map(ps -> ps.clone).collect(Collectors.toList()));
 		monitor.progress(1, "Dealt with topology");
 		return serverByUid;
 	}
