@@ -9,7 +9,6 @@
             <mail-composer v-if="DEFAULT_IDENTITY" :message="ACTIVE_MESSAGE" />
             <mail-composer-loading v-else />
         </template>
-
         <mail-viewer v-else :message="ACTIVE_MESSAGE" />
         <div />
     </div>

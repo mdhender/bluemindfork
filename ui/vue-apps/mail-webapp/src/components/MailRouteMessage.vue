@@ -6,7 +6,7 @@
 import MessagePathParam from "~/router/MessagePathParam";
 import { isNewMessage } from "~/model/draft";
 import { LoadingStatus } from "~/model/loading-status";
-import { CONVERSATION_LIST_UNREAD_FILTER_ENABLED, MY_MAILBOX, SELECTION_IS_EMPTY } from "~/getters";
+import { MY_MAILBOX, SELECTION_IS_EMPTY } from "~/getters";
 import {
     RESET_PARTS_DATA,
     SET_ACTIVE_MESSAGE,
@@ -25,14 +25,8 @@ export default {
     components: { MailMessagePanel },
     mixins: [ComposerInitMixin, WaitForMixin],
     computed: {
-        ...mapState("session", { settings: ({ settings }) => settings.remote }),
         ...mapState("mail", ["activeFolder", "folders"]),
-        ...mapState("mail", { conversationByKey: ({ conversations }) => conversations.conversationByKey }),
-        ...mapGetters("mail", {
-            CONVERSATION_LIST_UNREAD_FILTER_ENABLED,
-            MY_MAILBOX,
-            SELECTION_IS_EMPTY
-        })
+        ...mapGetters("mail", { MY_MAILBOX, SELECTION_IS_EMPTY })
     },
     watch: {
         "$route.params.messagepath": {
@@ -71,37 +65,6 @@ export default {
                             folder: this.folders[folderKey]
                         });
                     }
-
-                    // FIXME !! once message.conversationRef.key is always valid, remove this if / else
-                    // if conversations mode is not activate, then message.conversationRef.key is false
-                    const conversationsActivated =
-                        this.settings.mail_thread === "true" && this.folders[this.activeFolder].allowConversations;
-                    const conversationKey =
-                        conversationsActivated && !message.composing && message.conversationRef
-                            ? message.conversationRef.key
-                            : message.key;
-
-                    if (conversationKey) {
-                        if (!message.composing) {
-                            await this.$waitFor(
-                                () => this.conversationByKey[conversationKey],
-                                conversation => Boolean(conversation)
-                            );
-                        }
-                        const conversation = this.conversationByKey[conversationKey];
-                        if (conversation) {
-                            // FIXME ? conversation is null if message.composing
-                            this.SET_CURRENT_CONVERSATION(conversation);
-                            if (
-                                !this.CONVERSATION_LIST_UNREAD_FILTER_ENABLED &&
-                                this.folders[this.activeFolder].writable &&
-                                !message.composing
-                            ) {
-                                this.MARK_CONVERSATIONS_AS_READ({ conversations: [conversation], noAlert: true });
-                            }
-                        }
-                    }
-
                     this.SET_ACTIVE_MESSAGE(message);
                 } catch (e) {
                     this.$router.push({ name: "mail:home" });

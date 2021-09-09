@@ -83,17 +83,10 @@ export default {
             this.$emit("toggleSelect", this.conversation.key);
         },
         navigateTo() {
-            if (this.conversationSize === 1) {
-                this.$router.navigate({
-                    name: "v:mail:message",
-                    params: { message: this.messages[this.conversation.messages[0]] }
-                });
-            } else {
-                this.$router.navigate({
-                    name: "v:mail:conversation",
-                    params: { conversation: this.conversation }
-                });
-            }
+            this.$router.navigate({
+                name: "v:mail:conversation",
+                params: { conversation: this.conversation }
+            });
         }
     }
 };

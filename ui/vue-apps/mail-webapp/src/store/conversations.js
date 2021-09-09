@@ -39,6 +39,7 @@ import {
 } from "~/getters";
 import {
     createConversationStubsFromRawConversations,
+    createConversationStubsFromSortedIds,
     firstMessageInConversationFolder,
     messagesInConversationFolder,
     conversationMustBeRemoved
@@ -264,11 +265,17 @@ function info(payload) {
     };
 }
 
-async function fetchConversationIfNotLoaded({ commit, state }, { uid, folder }) {
+async function fetchConversationIfNotLoaded({ commit, state }, { uid, folder, conversationsActivated }) {
     const key = messageKey(uid, folder.key);
     if (!state.conversationByKey[key]) {
-        const rawConversation = await inject("MailConversationPersistence").getComplete(uid);
-        const { conversations, messages } = createConversationStubsFromRawConversations([rawConversation], folder);
+        let conversations, messages;
+        if (conversationsActivated) {
+            const rawConversation = await inject("MailConversationPersistence").getComplete(uid);
+            ({ conversations, messages } = createConversationStubsFromRawConversations([rawConversation], folder));
+        } else {
+            let id = Number(uid);
+            ({ conversations, messages } = createConversationStubsFromSortedIds([id], folder));
+        }
         commit(ADD_CONVERSATIONS, { conversations, messages });
     }
     return state.conversationByKey[key];

@@ -112,18 +112,10 @@ export default {
                     this.$router.navigate("v:mail:home");
                 } else {
                     this.$store.commit(`mail/${REMOVE_MESSAGES}`, { messages: [this.message] });
-
-                    if (this.conversationsActivated) {
-                        this.$router.navigate({
-                            name: "v:mail:conversation",
-                            params: { conversation: this.$_ComposerActionsMixin_currentConversation }
-                        });
-                    } else {
-                        this.$router.navigate({
-                            name: "v:mail:message",
-                            params: { message: this.$_ComposerActionsMixin_currentConversation }
-                        });
-                    }
+                    this.$router.navigate({
+                        name: "v:mail:conversation",
+                        params: { conversation: this.$_ComposerActionsMixin_currentConversation }
+                    });
                 }
             } else {
                 const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.draft.delete.confirm.content"), {
