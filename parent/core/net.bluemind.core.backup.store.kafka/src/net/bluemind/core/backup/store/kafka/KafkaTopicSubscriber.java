@@ -24,6 +24,9 @@ import com.google.common.base.Stopwatch;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.config.InstallationId;
+import net.bluemind.core.backup.continuous.IRecordStarvationStrategy;
+import net.bluemind.core.backup.continuous.IRecordStarvationStrategy.ExpectedBehaviour;
+import net.bluemind.core.backup.continuous.RecordStarvationStrategies;
 import net.bluemind.core.backup.continuous.store.ITopicStore.IResumeToken;
 import net.bluemind.core.backup.continuous.store.TopicSubscriber;
 
@@ -53,6 +56,12 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 
 	@Override
 	public IResumeToken subscribe(IResumeToken index, BiConsumer<byte[], byte[]> handler) {
+		return subscribe(index, handler, RecordStarvationStrategies.EARLY_ABORT);
+	}
+
+	@Override
+	public IResumeToken subscribe(IResumeToken index, BiConsumer<byte[], byte[]> handler,
+			IRecordStarvationStrategy strat) {
 		Stopwatch timeToFirstRecord = Stopwatch.createStarted();
 
 		try (KafkaConsumer<byte[], byte[]> consumer = createKafkaConsumer()) {
@@ -75,14 +84,19 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 			Map<Integer, Long> offsets = new HashMap<>();
 			AtomicLong processed = new AtomicLong();
 			do {
-				ConsumerRecords<byte[], byte[]> someRecords = consumer.poll(Duration.ofMillis(200));
+				ConsumerRecords<byte[], byte[]> someRecords = consumer.poll(Duration.ofMillis(500));
 				if (someRecords.isEmpty()) {
-					break;
+					ExpectedBehaviour expected = strat.onStarvation(new JsonObject().put("topic", topicName));
+					if (expected == ExpectedBehaviour.ABORT) {
+						break;
+					} else {
+						continue;
+					}
 				}
 
 				if (timeToFirstRecord.isRunning()) {
 					long latency = timeToFirstRecord.elapsed(TimeUnit.MILLISECONDS);
-					if (latency > 100) {
+					if (latency > 300) {
 						logger.warn("time to first record latency was {}ms.", latency);
 					}
 					timeToFirstRecord.stop();

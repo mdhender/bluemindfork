@@ -14,17 +14,10 @@ public interface ILiveStream {
 
 	IResumeToken subscribe(IResumeToken startOffset, Handler<DataElement> handler);
 
-	/**
-	 * Ignore owner & container uid, returns everything
-	 * 
-	 * @param startOffset
-	 * @param handler
-	 * @return
-	 */
-	IResumeToken subscribeAll(IResumeToken startOffset, Handler<DataElement> handler);
+	IResumeToken subscribe(IResumeToken startOffset, Handler<DataElement> handler, IRecordStarvationStrategy onStarve);
 
 	String installationId();
 
 	String domainUid();
-//
+
 }

@@ -11,6 +11,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.ILiveStream;
+import net.bluemind.core.backup.continuous.IRecordStarvationStrategy;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.TopicDeserializer;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
@@ -41,11 +42,6 @@ public class LiveStream implements ILiveStream {
 	}
 
 	@Override
-	public IResumeToken subscribeAll(IResumeToken startOffset, Handler<DataElement> handler) {
-		return subscriber.subscribe(startOffset, deserialize(handler));
-	}
-
-	@Override
 	public IResumeToken subscribe(IResumeToken startOffset, Handler<DataElement> handler) {
 		return subscriber.subscribe(startOffset, deserialize(handler));
 	}
@@ -53,6 +49,12 @@ public class LiveStream implements ILiveStream {
 	@Override
 	public IResumeToken subscribe(Handler<DataElement> handler) {
 		return subscriber.subscribe(deserialize(handler));
+	}
+
+	@Override
+	public IResumeToken subscribe(IResumeToken startOffset, Handler<DataElement> handler,
+			IRecordStarvationStrategy onStarve) {
+		return subscriber.subscribe(startOffset, deserialize(handler), onStarve);
 	}
 
 	private BiConsumer<byte[], byte[]> deserialize(Handler<DataElement> handler) {

@@ -137,7 +137,7 @@ public class DefaultBackupStoreTests {
 		System.err.println("iid: " + iid);
 		ILiveStream stream = reader.forInstallation(iid).orphans();
 		System.err.println("On " + stream);
-		stream.subscribeAll(null, de -> {
+		stream.subscribe(null, de -> {
 			System.err.println("Getting something " + stream);
 			System.err.println(de + " " + de.key.uid + " " + de.key.owner);
 			assertTrue(de.payload.length > 0);
@@ -146,10 +146,6 @@ public class DefaultBackupStoreTests {
 			assertTrue(parsed.containsKey("producedBy"));
 			assertTrue(parsed.containsKey("valueClass"));
 
-//			System.err.println(de.value);
-//			assertTrue(de.value.value instanceof RecordKey);
-//			ItemValue<RecordKey> itemValue = (ItemValue<RecordKey>) de.value;
-//			assertEquals(expectedKey.type, itemValue.value.type);
 		});
 
 	}

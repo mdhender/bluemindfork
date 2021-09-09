@@ -64,6 +64,12 @@ public class NoopStore {
 		}
 
 		@Override
+		public IResumeToken subscribe(IResumeToken index, BiConsumer<byte[], byte[]> de,
+				IRecordStarvationStrategy start) {
+			return index;
+		}
+
+		@Override
 		public IResumeToken subscribe(IResumeToken index, BiConsumer<byte[], byte[]> de) {
 			return index;
 		}
