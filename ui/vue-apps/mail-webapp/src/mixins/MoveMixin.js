@@ -53,8 +53,7 @@ async function move(payload, mailbox, createAction, moveAction) {
     if (!folder.key) {
         folder = await createAction({ ...folder, mailbox });
     }
-
-    moveAction(payload);
+    moveAction({ ...payload, folder });
 }
 
 function navigateConversations(action) {
