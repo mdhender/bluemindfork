@@ -197,7 +197,11 @@ const getters = {
 function reducedMetadata(folderKey, messages) {
     let unreadCount = 0,
         flags = new Set([Flag.SEEN]),
-        loading = LoadingStatus.LOADED;
+        loading = LoadingStatus.LOADED,
+        hasAttachment = false,
+        hasICS = false,
+        preview,
+        lastDate = -1;
     messages.forEach(m => {
         if (m.folderRef.key === folderKey) {
             if (isUnread(m)) {
@@ -211,8 +215,17 @@ function reducedMetadata(folderKey, messages) {
         if (m.loading === LoadingStatus.NOT_LOADED || m.loading === LoadingStatus.LOADING) {
             loading = m.loading;
         }
+        if (m.hasAttachment) {
+            hasAttachment = true;
+        }
+        if (m.hasICS) {
+            hasICS = true;
+        }
+        if (m.date > lastDate) {
+            preview = m.preview;
+        }
     });
-    return { unreadCount, flags: Array.from(flags), loading };
+    return { unreadCount, flags: Array.from(flags), loading, hasAttachment, hasICS, preview };
 }
 
 export default {
