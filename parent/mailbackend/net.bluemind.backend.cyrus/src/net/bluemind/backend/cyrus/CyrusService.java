@@ -242,8 +242,6 @@ public class CyrusService {
 			logger.info("Create {} => {}", intName, result);
 			System.err.println(intName + " => " + result);
 
-			MailboxOps.addSharedSeenAnnotation(sc, boxName);
-
 			return result.equals("OK success");
 		} catch (Exception e) {
 			throw new ServerFault(e);
