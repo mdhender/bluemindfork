@@ -18,7 +18,9 @@ import net.bluemind.addressbook.api.VCard;
 import net.bluemind.calendar.api.CalendarDescriptor;
 import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.core.backup.continuous.DataElement;
+import net.bluemind.core.backup.continuous.dto.Seppuku;
 import net.bluemind.core.backup.continuous.restore.IClonePhaseObserver;
+import net.bluemind.core.backup.continuous.restore.ISeppukuAckListener;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -66,16 +68,22 @@ public class RestoreDirectories implements RestoreDomainType {
 			.reader(new TypeReference<ItemValue<DirEntry>>() {
 			});
 
+	private final ValueReader<ItemValue<Seppuku>> byeReader = JsonUtils.reader(new TypeReference<ItemValue<Seppuku>>() {
+	});
+
 	private final IServerTaskMonitor monitor;
 	private final IServiceProvider target;
 	private final List<IClonePhaseObserver> observers;
 	private final RestoreState state;
 
+	private final ISeppukuAckListener byeAck;
+
 	public RestoreDirectories(IServerTaskMonitor monitor, IServiceProvider target, List<IClonePhaseObserver> observers,
-			RestoreState state) {
+			ISeppukuAckListener byeAck, RestoreState state) {
 		this.monitor = monitor;
 		this.target = target;
 		this.observers = observers;
+		this.byeAck = byeAck;
 		this.state = state;
 	}
 
@@ -90,6 +98,13 @@ public class RestoreDirectories implements RestoreDomainType {
 		Map<String, ItemValue<Domain>> domains = new HashMap<>();
 
 		String jsString = new String(de.payload);
+
+		if ("net.bluemind.core.backup.continuous.dto.Seppuku".equals(de.key.valueClass)) {
+			ItemValue<Seppuku> bye = byeReader.read(jsString);
+			byeAck.onSeppukuAck(bye.value);
+			return;
+		}
+
 		JsonObject parsed = new JsonObject(jsString);
 		JsDirEntry js = new JsDirEntry();
 		monitor.log("Processing dir:\n" + de.key + "\n" + parsed.encode());

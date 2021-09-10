@@ -18,6 +18,8 @@
  */
 package net.bluemind.core.container.service.internal;
 
+import static net.bluemind.core.container.service.internal.ReadOnlyMode.checkWritable;
+
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
@@ -120,7 +122,7 @@ public class ContainerManagement implements IContainerManagement {
 
 	@Override
 	public void setAccessControlList(List<AccessControlEntry> entries) throws ServerFault {
-
+		checkWritable();
 		if (!(container.owner.equals(securityContext.getSubject()) || rbacManager.can(Verb.Manage.name()))) {
 			throw new ServerFault("container " + container.uid + " is not manageable", ErrorCode.PERMISSION_DENIED);
 		}
@@ -165,6 +167,7 @@ public class ContainerManagement implements IContainerManagement {
 
 	@Override
 	public void update(ContainerModifiableDescriptor descriptor) throws ServerFault {
+		checkWritable();
 		rbacManager.check(Verb.Manage.name());
 
 		ContainerDescriptor prev = getDescriptor();
@@ -234,11 +237,13 @@ public class ContainerManagement implements IContainerManagement {
 
 	@Override
 	public void setPersonalSettings(Map<String, String> settings) throws ServerFault {
+		checkWritable();
 		containerPersonalSettingsStore.set(settings);
 	}
 
 	@Override
 	public void setSettings(Map<String, String> settings) throws ServerFault {
+		checkWritable();
 		rbacManager.check(Verb.Manage.name());
 
 		try {

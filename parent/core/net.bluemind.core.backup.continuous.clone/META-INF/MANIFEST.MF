@@ -41,7 +41,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.exchange.publicfolders.hierarchy;bundle-version="4.1.0",
  net.bluemind.exchange.mapi.api,
  net.bluemind.core.rest.http,
- net.bluemind.authentication.api
+ net.bluemind.authentication.api,
+ net.bluemind.system.state
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.continuous.clone
 Bundle-ActivationPolicy: lazy

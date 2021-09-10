@@ -38,5 +38,11 @@
             impl="net.bluemind.core.backup.continuous.events.MapiArtifactsHook">
       </artifacts>
    </extension>
+   <extension
+         point="net.bluemind.system.state">
+      <state-listener
+            class="net.bluemind.core.backup.continuous.events.TokenContinuousHook">
+      </state-listener>
+   </extension>
 
 </plugin>

@@ -26,15 +26,19 @@ import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.core.backup.continuous.IRecordStarvationStrategy;
+import net.bluemind.core.backup.continuous.dto.Seppuku;
 import net.bluemind.core.backup.continuous.restore.InstallFromBackupTask.ClonedOrphans;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.CloneConfiguration;
 import net.bluemind.system.api.IInstallation;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
-public class RecordStarvationHandler implements IRecordStarvationStrategy {
+public class RecordStarvationHandler implements IRecordStarvationStrategy, ISeppukuAckListener {
 
 	private boolean demoteAsked = false;
 	private final Set<String> starvedTopics;
@@ -42,13 +46,17 @@ public class RecordStarvationHandler implements IRecordStarvationStrategy {
 	private int goal;
 	private CloneConfiguration cloneConf;
 	private ClonedOrphans orphans;
+	private boolean leaderSeppukuAcked;
+	private IServiceProvider target;
 
-	public RecordStarvationHandler(IServerTaskMonitor forLogs, CloneConfiguration cloneConf, ClonedOrphans orphans) {
+	public RecordStarvationHandler(IServerTaskMonitor forLogs, CloneConfiguration cloneConf, ClonedOrphans orphans,
+			IServiceProvider target) {
 		this.monitor = forLogs;
 		starvedTopics = ConcurrentHashMap.newKeySet();
 		this.cloneConf = cloneConf;
 		this.orphans = orphans;
 		this.goal = orphans.domains.size();
+		this.target = target;
 	}
 
 	@Override
@@ -69,35 +77,67 @@ public class RecordStarvationHandler implements IRecordStarvationStrategy {
 						.filter(iv -> iv.value.tags.contains("bm/core")).findFirst().orElse(null);
 				monitor.log("Ask active leader " + leaderCore + " to relinquish control....");
 				if (leaderCore != null) {
-					String url = "http://" + leaderCore.value.address() + ":8090";
-					ClientSideServiceProvider prov = ClientSideServiceProvider.getProvider(url, null);
-					IAuthentication authApi = prov.instance(IAuthentication.class);
-					LoginResponse auth = authApi.login("admin0@global.virt", "admin", "clone-demote");
-					if (auth.status != Status.Ok) {
-						System.err.println("Failed auth on " + url + " -> " + auth);
-						System.exit(1);
-					}
-					prov = ClientSideServiceProvider.getProvider(url, auth.authKey);
-					IInstallation masterInstApi = prov.instance(IInstallation.class, cloneConf.sourceInstallationId);
-					monitor.log("Calling demote....");
-					masterInstApi.demoteLeader();
+					demoteLeader(leaderCore);
 				}
 				demoteAsked = true;
 				// run another kafka readloop & expect a BYE in topic
 				return ExpectedBehaviour.RETRY;
 			} else {
-				monitor.log("New starvation after demote was called !!!");
-				// assume we're good
-				return ExpectedBehaviour.ABORT;
+				monitor.log("New starvation after demote was called !!! (seppuku acked: " + leaderSeppukuAcked + ")");
+				if (!leaderSeppukuAcked) {
+					return ExpectedBehaviour.RETRY;
+				} else {
+					claimLeadership(monitor);
+					return ExpectedBehaviour.ABORT;
+				}
 			}
 		case FORK:
 			return ExpectedBehaviour.ABORT;
 		case TAIL:
+			if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
+				return ExpectedBehaviour.RETRY;
+			} else if (StateContext.getState() == SystemState.CORE_STATE_RUNNING) {
+				return ExpectedBehaviour.ABORT;
+			} else {
+				monitor.log("strange state for tail mode: " + StateContext.getState());
+				return ExpectedBehaviour.RETRY;
+			}
 		default:
 			System.err.println("loop for mode " + cloneConf.mode);
 			return ExpectedBehaviour.RETRY;
 		}
 
+	}
+
+	private void claimLeadership(IServerTaskMonitor mon) {
+		mon.log("Taking leader role for installation " + cloneConf.sourceInstallationId);
+		IInstallation instApi = target.instance(IInstallation.class, cloneConf.sourceInstallationId);
+		instApi.promoteLeader();
+	}
+
+	private void demoteLeader(ItemValue<Server> leaderCore) {
+		String url = "http://" + leaderCore.value.address() + ":8090";
+		ClientSideServiceProvider prov = ClientSideServiceProvider.getProvider(url, null);
+		IAuthentication authApi = prov.instance(IAuthentication.class);
+		LoginResponse auth = authApi.login("admin0@global.virt", "admin", "clone-demote");
+		if (auth.status != Status.Ok) {
+			System.err.println("Failed auth on " + url + " -> " + auth);
+			System.exit(1);
+		}
+		prov = ClientSideServiceProvider.getProvider(url, auth.authKey);
+		IInstallation masterInstApi = prov.instance(IInstallation.class, cloneConf.sourceInstallationId);
+		monitor.log("Calling demote....");
+		masterInstApi.demoteLeader();
+	}
+
+	@Override
+	public void onSeppukuAck(Seppuku bye) {
+		if (!demoteAsked) {
+			// we don't care about past suicides, we just want one after _our_ demote call
+			return;
+		}
+		monitor.log("Got LEADER Seppuku " + bye + " after demote. Time to STEP-UP as new leader");
+		this.leaderSeppukuAcked = true;
 	}
 
 }

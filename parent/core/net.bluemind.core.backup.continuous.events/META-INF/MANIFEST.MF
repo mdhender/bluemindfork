@@ -21,7 +21,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest,
  net.bluemind.core.backup.continuous.dto,
  net.bluemind.user.service,
- net.bluemind.exchange.mapi.hook
+ net.bluemind.exchange.mapi.hook,
+ net.bluemind.system.stateobserver
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.continuous.events
 Import-Package: net.bluemind.mailbox.api

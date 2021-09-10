@@ -25,7 +25,7 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 
 	private static final Logger logger = LoggerFactory.getLogger(BackupStoreFactory.class);
 
-	private static final boolean CLONE_MARKER = new File("/etc/bm/continuous.clone").exists();
+	private static final File CLONE_MARKER = new File("/etc/bm/continuous.clone");
 
 	private final TopicNames names;
 	private final ITopicStore topicStore;
@@ -51,7 +51,7 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 	}
 
 	private boolean isNoop(TopicDescriptor descriptor) {
-		boolean ret = CLONE_MARKER || disabled || "global.virt".equals(descriptor.domainUid());
+		boolean ret = CLONE_MARKER.exists() || disabled || "global.virt".equals(descriptor.domainUid());
 		if (logger.isDebugEnabled() && ret) {
 			logger.debug("noop for {}", descriptor);
 		}
@@ -61,7 +61,7 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(DefaultBackupStore.class).add("topicStore", topicStore)
-				.add("clone", CLONE_MARKER).toString();
+				.add("clone", CLONE_MARKER.exists()).toString();
 	}
 
 }

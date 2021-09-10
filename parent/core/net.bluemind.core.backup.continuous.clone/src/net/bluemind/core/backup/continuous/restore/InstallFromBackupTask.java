@@ -38,7 +38,6 @@ import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.IBackupReader;
 import net.bluemind.core.backup.continuous.ILiveBackupStreams;
 import net.bluemind.core.backup.continuous.ILiveStream;
-import net.bluemind.core.backup.continuous.IRecordStarvationStrategy;
 import net.bluemind.core.backup.continuous.restore.domains.DomainRestorationHandler;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.backup.continuous.restore.mbox.DefaultSdsStoreLoader;
@@ -163,7 +162,7 @@ public class InstallFromBackupTask implements IServerTask {
 		int goal = domainStreams.size();
 		ExecutorService clonePool = Executors.newFixedThreadPool(goal);
 
-		IRecordStarvationStrategy starvation = new RecordStarvationHandler(monitor, cloneConf, orphans);
+		RecordStarvationHandler starvation = new RecordStarvationHandler(monitor, cloneConf, orphans, target);
 
 		CompletableFuture<?>[] toWait = new CompletableFuture<?>[goal];
 		int slot = 0;
@@ -179,7 +178,7 @@ public class InstallFromBackupTask implements IServerTask {
 
 				try (RestoreState state = new RestoreState(domain.uid, orphans.topology)) {
 					DomainRestorationHandler restoration = new DomainRestorationHandler(domainMonitor, domain, target,
-							observers, sdsStore, state);
+							observers, sdsStore, starvation, state);
 					domainStreamIndex = domainStream.subscribe(null, restoration::handle, starvation); // , false
 				} catch (IOException e) {
 					logger.error("unexpected error when closing", e);

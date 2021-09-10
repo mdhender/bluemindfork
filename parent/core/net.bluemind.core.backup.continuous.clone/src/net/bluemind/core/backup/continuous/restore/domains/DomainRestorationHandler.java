@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.Handler;
 import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.restore.IClonePhaseObserver;
+import net.bluemind.core.backup.continuous.restore.ISeppukuAckListener;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -24,10 +25,11 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 	private final Map<String, RestoreDomainType> restoresByType;
 
 	public DomainRestorationHandler(IServerTaskMonitor monitor, ItemValue<Domain> domain, IServiceProvider target,
-			List<IClonePhaseObserver> observers, ISdsSyncStore sdsStore, RestoreState state) {
+			List<IClonePhaseObserver> observers, ISdsSyncStore sdsStore, ISeppukuAckListener byeAck,
+			RestoreState state) {
 		this.restoresByType = Arrays.asList(//
 				new RestoreMailboxRecords(monitor, sdsStore, state), //
-				new RestoreDirectories(monitor, target, observers, state), //
+				new RestoreDirectories(monitor, target, observers, byeAck, state), //
 				new RestoreReplicatedMailboxes(monitor, domain, state), //
 				new RestoreMapiArtifacts(monitor, domain, target), //
 				new RestoreFlatHierarchy(monitor, domain, target), //

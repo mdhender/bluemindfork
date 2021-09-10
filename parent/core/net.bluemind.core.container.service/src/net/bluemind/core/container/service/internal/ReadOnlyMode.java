@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2021
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -8,7 +8,6 @@
  * it under the terms of either the GNU Affero General Public License as
  * published by the Free Software Foundation (version 3 of the License).
  *
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -16,32 +15,19 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.system.state;
+package net.bluemind.core.container.service.internal;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
-public class RunningState extends State {
+public class ReadOnlyMode {
+	private ReadOnlyMode() {
+	}
 
-	@Override
-	public State stateChange(String operation) {
-		switch (operation) {
-		case "core.started":
-		case "core.cloning.end":
-			return this;
-		case "core.upgrade.start":
-			return new MaintenanceUpgradeState();
-		case "core.maintenance.start":
-			return new MaintenanceState();
-		case "core.demote.start":
-			return new DemoteState();
-		default:
-			return super.stateChange(operation);
+	public static void checkWritable() {
+		if (StateContext.getState() == SystemState.CORE_STATE_DEMOTED) {
+			throw new ServerFault("instance is not writable as state is " + SystemState.CORE_STATE_DEMOTED);
 		}
 	}
-
-	@Override
-	public SystemState getSystemState() {
-		return SystemState.CORE_STATE_RUNNING;
-	}
-
 }

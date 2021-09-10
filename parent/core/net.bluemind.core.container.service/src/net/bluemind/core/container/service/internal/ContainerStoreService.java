@@ -18,6 +18,8 @@
  */
 package net.bluemind.core.container.service.internal;
 
+import static net.bluemind.core.container.service.internal.ReadOnlyMode.checkWritable;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -293,6 +295,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public ItemVersion create(Item item, T value) {
+		checkWritable();
+
 		String uid = item.uid;
 		Long internalId = item.id;
 		return doOrFail(() -> {
@@ -356,6 +360,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public ItemVersion update(Item item, String displayName, T value) {
+		checkWritable();
+
 		return doOrFail(() -> {
 
 			String dnToApply = displayName;
@@ -389,6 +395,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public ItemVersion update(long itemId, String displayName, T value) {
+		checkWritable();
+
 		return doOrFail(() -> {
 
 			String dnToApply = displayName;
@@ -426,6 +434,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public ItemVersion delete(String uid) {
+		checkWritable();
+
 		return doOrFail(() -> {
 			Item item = itemStore.getForUpdate(uid);
 			if (item == null) {
@@ -445,6 +455,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public ItemVersion delete(long id) {
+		checkWritable();
+
 		return doOrFail(() -> {
 			Item item = itemStore.getForUpdate(id);
 			if (item == null) {
@@ -492,6 +504,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public void deleteAll() {
+		checkWritable();
+
 		doOrFail(() -> {
 			// delete values
 			deleteValues();
@@ -508,6 +522,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public void prepareContainerDelete() {
+		checkWritable();
+
 		doOrFail(() -> {
 			// delete acl
 			aclStore.deleteAll(container);
@@ -649,6 +665,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public void touch(String uid) {
+		checkWritable();
 		doOrFail(() -> {
 			Item item = itemStore.touch(uid);
 

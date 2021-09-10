@@ -23,6 +23,8 @@ import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
 public class Providers {
 
+	private static boolean disabled = false;
+
 	private Providers() {
 
 	}
@@ -30,7 +32,11 @@ public class Providers {
 	private static final FactoryProvider loaded = load();
 
 	public static final IBackupStoreFactory get() {
-		return loaded.get();
+		return disabled ? NoopStore.INSTANCE : loaded.get();
+	}
+
+	public static void disable() {
+		disabled = true;
 	}
 
 	private static FactoryProvider load() {

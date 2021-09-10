@@ -139,6 +139,7 @@
       <plugin id="net.bluemind.core.backup.continuous.clone"/>
       <plugin id="net.bluemind.core.backup.continuous.dto"/>
       <plugin id="net.bluemind.core.backup.continuous.events"/>
+      <plugin id="net.bluemind.core.backup.continuous.state"/>
       <plugin id="net.bluemind.core.backup.store.kafka"/>
       <plugin id="net.bluemind.core.bo.report.provider"/>
       <plugin id="net.bluemind.core.caches.registry"/>

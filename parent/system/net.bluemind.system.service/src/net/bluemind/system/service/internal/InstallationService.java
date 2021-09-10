@@ -56,6 +56,7 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.bo.report.provider.HostReportProvider;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
@@ -79,6 +80,8 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.client.AHCNodeClientFactory;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.Server;
 import net.bluemind.system.api.CloneConfiguration;
 import net.bluemind.system.api.CustomLogo;
 import net.bluemind.system.api.IInstallation;
@@ -150,6 +153,7 @@ public class InstallationService implements IInstallation {
 			throw new ServerFault("Operation demoteLeader is only permitted for admin0", ErrorCode.PERMISSION_DENIED);
 		}
 		logger.info("We should STEP-DOWN from leader position, current state is {}", StateContext.getState());
+		// LeaderStateListener will run the STEP-DOWN actions
 		StateContext.setState("core.demote.start");
 
 	}
@@ -159,7 +163,19 @@ public class InstallationService implements IInstallation {
 		if (!context.getSecurityContext().isDomainGlobal()) {
 			throw new ServerFault("Operation proteLeader is only permitted for admin0", ErrorCode.PERMISSION_DENIED);
 		}
-		// TODO Auto-generated method stub
+		if (StateContext.getState() != SystemState.CORE_STATE_CLONING) {
+			throw new ServerFault("Promote leader can only be called in cloning state");
+		}
+		// enable backup store
+		new File("/etc/bm/continuous.clone").delete();
+
+		// write topo with backup store enabled
+		IServer srvApi = context.provider().instance(IServer.class, InstallationId.getIdentifier());
+		List<ItemValue<Server>> all = srvApi.allComplete();
+		logger.info("Write my topology ({} server(s)) in backup store to step-up", all.size());
+		all.forEach(srv -> srvApi.update(srv.uid, srv.value));
+
+		StateContext.setState("core.cloning.end");
 
 	}
 

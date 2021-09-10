@@ -18,6 +18,7 @@
  */
 package net.bluemind.core.container.service.internal;
 
+import static net.bluemind.core.container.service.internal.ReadOnlyMode.checkWritable;
 import static net.bluemind.core.jdbc.JdbcAbstractStore.doOrContinue;
 import static net.bluemind.core.jdbc.JdbcAbstractStore.doOrFail;
 
@@ -101,6 +102,8 @@ public class Containers implements IContainers {
 
 	@Override
 	public void create(String uid, ContainerDescriptor descriptor) throws ServerFault {
+		checkWritable();
+
 		sanitizer.create(descriptor);
 		validator.create(descriptor);
 
@@ -186,7 +189,7 @@ public class Containers implements IContainers {
 
 	@Override
 	public void delete(String uid) throws ServerFault {
-
+		checkWritable();
 		DataSource dataSource = DataSourceRouter.get(context, uid);
 		ContainerStore containerStore = new ContainerStore(context, dataSource, securityContext);
 
@@ -251,6 +254,7 @@ public class Containers implements IContainers {
 
 	@Override
 	public void update(String uid, ContainerModifiableDescriptor descriptor) throws ServerFault {
+		checkWritable();
 		DataSource dataSource = DataSourceRouter.get(context, uid);
 		ContainerStore containerStore = new ContainerStore(context, dataSource, securityContext);
 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.system.state">
+      <state-listener
+            class="net.bluemind.core.backup.continuous.state.LeaderStateListener">
+      </state-listener>
+   </extension>
+
+</plugin>

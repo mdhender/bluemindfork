@@ -70,6 +70,7 @@
 		<module>net.bluemind.core.backup.continuous.dto</module>
 		<module>net.bluemind.core.backup.continuous.clone</module>
 		<module>net.bluemind.core.backup.continuous.events</module>
+		<module>net.bluemind.core.backup.continuous.state</module>
 		<module>net.bluemind.core.backup.continuous.tests</module>
 		<module>net.bluemind.core.backup.store.kafka</module>
 		<module>net.bluemind.core.backup.store.kafka.tests</module>
