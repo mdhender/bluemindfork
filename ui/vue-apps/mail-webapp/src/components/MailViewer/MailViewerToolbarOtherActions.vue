@@ -50,7 +50,7 @@
                         <bm-icon icon="folder" size="5x" class="mr-2 text-secondary" />
                     </div>
                     <div class="flex-columns modal-form-autocomplete">
-                        <p>Dossier de destination</p>
+                        <p>{{ $t("mail.actions.move.modal.combo.label") }}</p>
                         <bm-form-autocomplete-input
                             v-slot="{ item }"
                             v-model.trim="pattern"

@@ -152,6 +152,7 @@
     "mail.actions.move.item.warning.readonly": "Impossible de déplacer le message dans {path} (lecture seule)",
     "mail.actions.move.item.warning.self": "Ce message est déjà dans {path}",
     "mail.actions.move.item": "Déplacer le message vers {path} | Déplacer les messages sélectionnés vers {path}",
+    "mail.actions.move.modal.combo.label": "Dossier de destination",
     "mail.actions.move": "Déplacer",
     "mail.actions.purge.modal.content": "Supprimer définitivement le message \"{subject}\" ? | Supprimer définitivement les messages sélectionnés ?",
     "mail.actions.purge.draft.modal.content": "Supprimer le brouillon \"{subject}\" enregistré le {date} ?",

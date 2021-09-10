@@ -152,6 +152,7 @@
     "mail.actions.move.item.warning.readonly": "Can't move message in {path} (read only)",
     "mail.actions.move.item.warning.self": "This message is already in {path}",
     "mail.actions.move.item": "Move message to {path} | Move selected messages to {path}",
+    "mail.actions.move.modal.combo.label": "Destination folder",
     "mail.actions.move": "Move",
     "mail.actions.purge.modal.content": "Remove message \"{subject}\" permanently? | Remove selected messages permanently?",
     "mail.actions.purge.draft.modal.content": "Remove draft \"{subject}\" saved on {date} ?",

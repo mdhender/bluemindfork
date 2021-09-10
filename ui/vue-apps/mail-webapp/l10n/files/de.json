@@ -152,6 +152,7 @@
     "mail.actions.move.item.warning.readonly": "Verschieben nach {path} nicht möglich (keine Schreibrechte)",
     "mail.actions.move.item.warning.self": "Die E-Mail befindet sich bereits in {path}",
     "mail.actions.move.item": "Verschiebe E-Mail nach {path} | Verschiebe ausgewählte E-Mails nach {path}",
+    "mail.actions.move.modal.combo.label": "Zielordner",
     "mail.actions.move": "Verschieben",
     "mail.actions.purge.modal.content": "E-Mail \"{subject}\" permanent löschen? | Ausgewählte E-Mails permanent löschen?",
     "mail.actions.purge.draft.modal.content": "Entwurf \"{subject}\" am {date} gespeichert löschen?",
