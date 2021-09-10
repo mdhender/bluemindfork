@@ -1,81 +1,64 @@
-import { mapGetters } from "vuex";
 import SelectionMixin from "./SelectionMixin";
-import { SELECTION_KEYS } from "~/getters";
 
 export default {
     mixins: [SelectionMixin],
     computed: {
-        ...mapGetters("mail", { $_ActionTextMixin_selectionKeys: SELECTION_KEYS }),
-        $_ActionTextMixin_selectionLength() {
-            return this.$_ActionTextMixin_selectionKeys.length;
-        },
         markAsReadText() {
-            return this.conversationsActivated
-                ? this.$t("mail.actions.mark_conversations_as_read")
-                : this.$tc("mail.actions.mark_as_read", this.$_ActionTextMixin_selectionLength);
+            return this.selectionHasAtLeastOneConversation
+                ? this.$tc("mail.actions.mark_conversations_as_read", this.selected.length)
+                : this.$tc("mail.actions.mark_as_read", this.selected.length);
         },
         markAsUnreadText() {
-            return this.conversationsActivated
-                ? this.$t("mail.actions.mark_conversations_as_unread")
-                : this.$tc("mail.actions.mark_as_unread", this.$_ActionTextMixin_selectionLength);
+            return this.selectionHasAtLeastOneConversation
+                ? this.$tc("mail.actions.mark_conversations_as_unread", this.selected.length)
+                : this.$tc("mail.actions.mark_as_unread", this.selected.length);
         },
         markAsFlaggedText() {
-            return this.$tc("mail.actions.mark_flagged", this.$_ActionTextMixin_selectionLength);
+            return this.$tc("mail.actions.mark_flagged", this.selected.length);
         },
         markAsUnflaggedText() {
-            return this.$tc("mail.actions.mark_unflagged", this.$_ActionTextMixin_selectionLength);
+            return this.$tc("mail.actions.mark_unflagged", this.selected.length);
         },
         removeText() {
-            return this.$tc("mail.actions.remove", this.$_ActionTextMixin_selectionLength);
+            return this.$tc("mail.actions.remove", this.selected.length);
         },
         moveText() {
-            return this.$tc("mail.actions.move", this.$_ActionTextMixin_selectionLength);
+            return this.$tc("mail.actions.move", this.selected.length);
+        },
+        selectionHasAtLeastOneConversation() {
+            return this.conversationsActivated && this.selected.some(s => s.messages.length > 1);
         }
     },
     methods: {
         markAsReadAriaText(subject) {
-            return this.conversationsActivated
-                ? this.$tc("mail.actions.mark_conversations_read.aria", this.$_ActionTextMixin_selectionLength, {
-                      subject
-                  })
-                : this.$tc("mail.actions.mark_read.aria", this.$_ActionTextMixin_selectionLength, { subject });
+            return this.selectionHasAtLeastOneConversation
+                ? this.$tc("mail.actions.mark_conversations_read.aria", this.selected.length, { subject })
+                : this.$tc("mail.actions.mark_read.aria", this.selected.length, { subject });
         },
         markAsUnreadAriaText(subject) {
-            return this.conversationsActivated
-                ? this.$tc("mail.actions.mark_conversations_unread.aria", this.$_ActionTextMixin_selectionLength, {
-                      subject
-                  })
-                : this.$tc("mail.actions.mark_unread.aria", this.$_ActionTextMixin_selectionLength, { subject });
+            return this.selectionHasAtLeastOneConversation
+                ? this.$tc("mail.actions.mark_conversations_unread.aria", this.selected.length, { subject })
+                : this.$tc("mail.actions.mark_unread.aria", this.selected.length, { subject });
         },
         markAsFlaggedAriaText(subject) {
-            return this.conversationsActivated
-                ? this.$tc("mail.actions.mark_conversations_flagged.aria", this.$_ActionTextMixin_selectionLength, {
-                      subject
-                  })
-                : this.$tc("mail.actions.mark_flagged.aria", this.$_ActionTextMixin_selectionLength, { subject });
+            return this.selectionHasAtLeastOneConversation
+                ? this.$tc("mail.actions.mark_conversations_flagged.aria", this.selected.length, { subject })
+                : this.$tc("mail.actions.mark_flagged.aria", this.selected.length, { subject });
         },
         markAsUnflaggedAriaText(subject) {
-            return this.conversationsActivated
-                ? this.$tc("mail.actions.mark_conversations_unflagged.aria", this.$_ActionTextMixin_selectionLength, {
-                      subject
-                  })
-                : this.$tc("mail.actions.mark_unflagged.aria", this.$_ActionTextMixin_selectionLength, {
-                      subject
-                  });
+            return this.selectionHasAtLeastOneConversation
+                ? this.$tc("mail.actions.mark_conversations_unflagged.aria", this.selected.length, { subject })
+                : this.$tc("mail.actions.mark_unflagged.aria", this.selected.length, { subject });
         },
         removeAriaText(subject) {
-            return this.conversationsActivated
-                ? this.$tc("mail.actions.remove.conversations.aria", this.$_ActionTextMixin_selectionLength, {
-                      subject
-                  })
-                : this.$tc("mail.actions.remove.aria", this.$_ActionTextMixin_selectionLength, { subject });
+            return this.selectionHasAtLeastOneConversation
+                ? this.$tc("mail.actions.remove.conversations.aria", this.selected.length, { subject })
+                : this.$tc("mail.actions.remove.aria", this.selected.length, { subject });
         },
         moveAriaText(subject) {
-            return this.conversationsActivated
-                ? this.$tc("mail.actions.move.conversations.aria", this.$_ActionTextMixin_selectionLength, {
-                      subject
-                  })
-                : this.$tc("mail.actions.move.aria", this.$_ActionTextMixin_selectionLength, { subject });
+            return this.selectionHasAtLeastOneConversation
+                ? this.$tc("mail.actions.move.conversations.aria", this.selected.length, { subject })
+                : this.$tc("mail.actions.move.aria", this.selected.length, { subject });
         }
     }
 };

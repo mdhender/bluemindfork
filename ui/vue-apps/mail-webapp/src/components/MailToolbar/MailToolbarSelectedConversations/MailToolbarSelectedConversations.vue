@@ -68,7 +68,7 @@ import { BmButton, BmIcon } from "@bluemind/styleguide";
 import MailToolbarSelectedConversationsMoveAction from "./MailToolbarSelectedConversationsMoveAction";
 import MailToolbarSelectedConversationsOtherActions from "./MailToolbarSelectedConversationsOtherActions";
 import { ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin } from "~/mixins";
-import { ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE, ONE_CONVERSATION_SELECTED } from "~/getters";
+import { ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE } from "~/getters";
 
 export default {
     name: "MailToolbarSelectedConversations",
@@ -80,9 +80,9 @@ export default {
     },
     mixins: [ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin],
     computed: {
-        ...mapGetters("mail", { ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE, ONE_CONVERSATION_SELECTED }),
+        ...mapGetters("mail", { ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE }),
         subject() {
-            return this.ONE_CONVERSATION_SELECTED ? this.selected[0].subject : "";
+            return this.selected[0].subject;
         }
     }
 };
