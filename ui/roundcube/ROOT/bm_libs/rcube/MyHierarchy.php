@@ -177,6 +177,7 @@ class MyHierarchy {
       }
       $own = $_SESSION['bm_sso']['bmUserId'] == $uid;
       $folders[$uid] = array();
+      $rcmail = \rcmail::get_instance();      
       foreach($all as $folder) {
         $f = $folder->value;
         if ($f == null) continue;
@@ -184,8 +185,10 @@ class MyHierarchy {
           $f->path = \rcube_charset::utf8_to_utf7imap($f->fullName);
         } elseif ($f->fullName == "INBOX" || $f->fullName == $mailbox->name) {
           $f->path = $mailbox->path;
-        } else {
+        } else if ($mailbox->kind === "user") {
           $f->path = $mailbox->path . "/" . \rcube_charset::utf8_to_utf7imap($f->fullName);
+        } else  {
+          $f->path = $rcmail->config->get('mailshares_mbox') . "/" . \rcube_charset::utf8_to_utf7imap($f->fullName);
         }
         $f->uid = $folder->uid;
         $folders[$uid][$f->uid] = $f;     
