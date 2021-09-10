@@ -146,7 +146,7 @@ public class UserQuickCreateCommand implements ICmdLet, Runnable {
 					.filter(s -> s.value.tags.contains("mail/imap")).findAny().map(s -> s.uid).orElse(null);
 
 			IUser uApi = ctx.adminApi().instance(IUser.class, dom);
-			String uid = "cli-created-" + UUID.randomUUID().toString().toLowerCase();
+			String uid = "cli-created-" + UUID.nameUUIDFromBytes(loginAtDomain.getBytes()).toString().toLowerCase();
 			ctx.info("Creating " + uid + " for " + loginAtDomain);
 			uApi.create(uid, u);
 			if (userGroup != null) {
