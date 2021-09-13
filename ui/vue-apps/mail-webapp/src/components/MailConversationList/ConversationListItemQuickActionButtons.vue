@@ -1,6 +1,6 @@
 <template>
     <bm-button-group>
-        <template v-if="folderOfMessage.writable">
+        <template v-if="folder.writable">
             <bm-button
                 :aria-label="removeAriaText(1, subject)"
                 :title="removeAriaText(1, subject)"
@@ -69,7 +69,7 @@
 import { BmButtonGroup, BmButton, BmIcon } from "@bluemind/styleguide";
 import { mapState, mapGetters } from "vuex";
 import { ActionTextMixin, FlagMixin, RemoveMixin } from "~/mixins";
-import { MY_DRAFTS, MY_TEMPLATES } from "~getters";
+import { MY_DRAFTS, MY_TEMPLATES } from "~/getters";
 import { draftPath } from "~/model/draft";
 import MessagePathParam from "~/router/MessagePathParam";
 import { MessageCreationModes } from "../../model/message";

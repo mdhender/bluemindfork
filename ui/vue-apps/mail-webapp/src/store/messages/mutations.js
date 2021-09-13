@@ -28,7 +28,8 @@ import {
     SET_MESSAGE_PREVIEW,
     SET_MESSAGE_SUBJECT,
     SET_MESSAGE_TMP_ADDRESSES,
-    SET_MESSAGE_TO
+    SET_MESSAGE_TO,
+    SET_TEMPLATES_LIST
 } from "~/mutations";
 
 export default {
@@ -127,11 +128,14 @@ export default {
     [ADD_CONVERSATIONS]: (state, { messages }) => {
         messages.forEach(message => state[message.key] || Vue.set(state, message.key, message));
     },
-    [SET_CONVERSATION_LIST]: (state, { messages }) => {
-        // FIXME should update conversationRef
-        messages.forEach(message => state[message.key] || Vue.set(state, message.key, message));
-    },
+    [SET_CONVERSATION_LIST]: ADD_MESSAGES_STUBS,
+    [SET_TEMPLATES_LIST]: ADD_MESSAGES_STUBS,
     [REMOVE_CONVERSATIONS]: (state, conversations) => {
         conversations.forEach(({ messages }) => messages.forEach(key => Vue.delete(state, key)));
     }
 };
+
+function ADD_MESSAGES_STUBS(state, { messages }) {
+    // FIXME should update conversationRef
+    messages.forEach(message => state[message.key] || Vue.set(state, message.key, message));
+}

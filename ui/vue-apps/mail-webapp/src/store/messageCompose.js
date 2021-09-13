@@ -1,14 +1,14 @@
 import { inject } from "@bluemind/inject";
-
 import { LOAD_MAX_MESSAGE_SIZE } from "~/actions";
 import {
     RESET_PENDING_ATTACHMENTS,
-    SET_PENDING_ATTACHMENTS,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
     SET_MAX_MESSAGE_SIZE,
+    SET_PENDING_ATTACHMENTS,
     SET_SAVED_INLINE_IMAGES
 } from "~/mutations";
+import templateChooser from "./templateChooser";
 
 export default {
     mutations: {
@@ -46,5 +46,8 @@ export default {
         inlineImagesSaved: [],
         maxMessageSize: 0,
         pendingAttachments: [] // used only to store forwarded attachments when they are not uploaded
+    },
+    modules: {
+        templateChooser
     }
 };

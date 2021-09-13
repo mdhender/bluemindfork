@@ -331,6 +331,10 @@
             "save_template": "Enregistrer en tant que modèle"
         },
         "compose": {
+            "template_chooser": {
+                "title": "Appliquer un modèle à ce message",
+                "search": "Rechercher un modèle"
+            },
             "toolbar": {
                 "insert_signature": "Insérer ma signature",
                 "use_template": "Utiliser un modèle"

@@ -38,6 +38,7 @@
             @toggle-text-format="userPrefIsMenuBarOpened = !userPrefIsMenuBarOpened"
             @toggle-signature="toggleSignature"
         />
+        <template-chooser />
     </bm-form>
 </template>
 
@@ -51,6 +52,7 @@ import MailComposerAttachments from "./MailComposerAttachments";
 import MailComposerContent from "./MailComposerContent";
 import MailComposerRecipients from "./MailComposerRecipients";
 import MailComposerFooter from "./MailComposerFooter";
+import TemplateChooser from "./TemplateChooser";
 
 export default {
     name: "MailComposer",
@@ -60,7 +62,8 @@ export default {
         MailComposerAttachments,
         MailComposerFooter,
         MailComposerContent,
-        MailComposerRecipients
+        MailComposerRecipients,
+        TemplateChooser
     },
     mixins: [ComposerActionsMixin, ComposerMixin],
     computed: {

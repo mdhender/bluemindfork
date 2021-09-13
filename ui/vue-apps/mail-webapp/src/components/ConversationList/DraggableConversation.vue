@@ -34,6 +34,7 @@
         :is-selected="isSelected"
         :multiple="multiple"
         :selection-mode="selectionMode"
+        tabindex="-1"
         @check="$emit('check')"
     >
         <template v-slot:actions> <slot name="actions" /> </template>

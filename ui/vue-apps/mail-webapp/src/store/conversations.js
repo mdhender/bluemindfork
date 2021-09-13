@@ -17,7 +17,8 @@ import {
     SET_MESSAGES_LOADING_STATUS,
     UNSET_CURRENT_CONVERSATION,
     UNSELECT_ALL_CONVERSATIONS,
-    SET_SELECTION
+    SET_SELECTION,
+    SET_TEMPLATES_LIST
 } from "~/mutations";
 import {
     ADD_FLAG,
@@ -94,20 +95,8 @@ const mutations = {
     [UNSET_CURRENT_CONVERSATION]: state => {
         state.currentConversation = null;
     },
-    [SET_CONVERSATION_LIST]: (state, { conversations }) => {
-        conversations.forEach(conversation => {
-            const conversationInState = state.conversationByKey[conversation.key];
-            if (conversationInState) {
-                // FIXME remove once we use 'real' message ids for new messages
-                if (!containsNewMessage(conversationInState)) {
-                    conversationInState.messages = conversation.messages;
-                    conversationInState.date = conversation.date;
-                }
-            } else {
-                Vue.set(state.conversationByKey, conversation.key, conversation);
-            }
-        });
-    },
+    [SET_CONVERSATION_LIST]: ADD_CONVERSATIONS_STUBS,
+    [SET_TEMPLATES_LIST]: ADD_CONVERSATIONS_STUBS,
     [ADD_CONVERSATIONS]: (state, { conversations }) => {
         conversations.forEach(conversation => Vue.set(state.conversationByKey, conversation.key, conversation));
     },
@@ -197,6 +186,20 @@ const getters = {
     },
     [CURRENT_CONVERSATION_METADATA]: (state, getters) => getters.CONVERSATION_METADATA(state.currentConversation)
 };
+
+function ADD_CONVERSATIONS_STUBS({ conversationByKey }, { conversations }) {
+    conversations.forEach(conversation => {
+        if (conversationByKey[conversation.key]) {
+            // FIXME remove once we use 'real' message ids for new messages
+            if (!containsNewMessage(conversationByKey[conversation.key])) {
+                conversationByKey[conversation.key].messages = conversation.messages;
+                conversationByKey[conversation.key].date = conversation.date;
+            }
+        } else {
+            Vue.set(conversationByKey, conversation.key, conversation);
+        }
+    });
+}
 
 function reducedMetadata(folderKey, messages) {
     let unreadCount = 0,

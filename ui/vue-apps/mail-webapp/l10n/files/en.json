@@ -331,6 +331,10 @@
             "save_template": "Save as template"
         },
         "compose": {
+            "template_chooser": {
+                "title": "Apply template on this message",
+                "search": "Search template"
+            },
             "toolbar": {
                 "insert_signature": "Insert my signature",
                 "use_template": "Use a template"

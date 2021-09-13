@@ -153,5 +153,10 @@ export default {
     &.active:focus {
         background-color: $component-active-bg-darken;
     }
+
+    &[tabindex="-1"]:focus {
+        outline: $outline !important;
+        outline-offset: -1px;
+    }
 }
 </style>
