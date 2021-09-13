@@ -11,10 +11,13 @@
                 <bm-icon icon="3dots" size="2x" />
                 <span class="d-lg-none">{{ $t("mail.toolbar.more") }}</span>
             </template>
-            <bm-dropdown-item v-if="!message.flags.includes(Flag.SEEN)" @click="MARK_MESSAGE_AS_READ(message)">
+            <bm-dropdown-item
+                v-if="!message.flags.includes(Flag.SEEN)"
+                @click.prevent.stop="MARK_MESSAGE_AS_READ(message)"
+            >
                 {{ $tc("mail.actions.mark_as_read", 1) }}
             </bm-dropdown-item>
-            <bm-dropdown-item v-else @click="MARK_MESSAGE_AS_UNREAD(message)">
+            <bm-dropdown-item v-else @click.prevent.stop="MARK_MESSAGE_AS_UNREAD(message)">
                 {{ $tc("mail.actions.mark_as_unread", 1) }}
             </bm-dropdown-item>
             <bm-dropdown-item
@@ -26,11 +29,17 @@
             <bm-dropdown-item v-else @click.prevent.stop="MARK_MESSAGE_AS_UNFLAGGED(message)">
                 {{ $t("mail.actions.mark_unflagged") }}
             </bm-dropdown-item>
-            <bm-dropdown-item @click="move(message)">
+            <bm-dropdown-item @click.prevent.stop="move(message)">
                 {{ $t("mail.actions.move") }}
             </bm-dropdown-item>
-            <bm-dropdown-item @click.exact.prevent.stop="MOVE_MESSAGES_TO_TRASH(conversation, message)">
+            <bm-dropdown-item
+                @click.exact="MOVE_MESSAGES_TO_TRASH(conversation, message)"
+                @click.shift.exact="REMOVE_MESSAGES(conversation, message)"
+            >
                 {{ $t("mail.actions.remove") }}
+            </bm-dropdown-item>
+            <bm-dropdown-item @click.prevent.stop.exact="REMOVE_MESSAGES(conversation, message)">
+                {{ $t("mail.actions.purge") }}
             </bm-dropdown-item>
         </bm-dropdown>
 
