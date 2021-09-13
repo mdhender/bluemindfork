@@ -18,11 +18,13 @@
                 />
                 <component
                     :is="
-                        isDraft(index)
-                            ? message.composing
-                                ? 'mail-conversation-viewer-draft-editor'
-                                : 'mail-conversation-viewer-draft'
-                            : 'mail-conversation-viewer-message'
+                        MESSAGE_IS_LOADED(message.key)
+                            ? isDraft(index)
+                                ? message.composing
+                                    ? 'mail-conversation-viewer-draft-editor'
+                                    : 'mail-conversation-viewer-draft'
+                                : 'mail-conversation-viewer-message'
+                            : 'mail-viewer-loading'
                     "
                     v-else-if="!hiddenMessages[index]"
                     :class="{ expanded: expandedMessages[index] }"
@@ -56,9 +58,15 @@ import MailConversationViewerDraftEditor from "./MailConversationViewer/MailConv
 import MailConversationViewerFooter from "./MailConversationViewer/MailConversationViewerFooter";
 import MailConversationViewerHeader from "./MailConversationViewer/MailConversationViewerHeader";
 import MailConversationViewerHiddenItems from "./MailConversationViewer/MailConversationViewerHiddenItems";
+import MailViewerLoading from "./MailViewerLoading";
 import MailConversationViewerMessage from "./MailConversationViewer/MailConversationViewerMessage";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { CONVERSATION_LIST_UNREAD_FILTER_ENABLED, CONVERSATION_MESSAGE_BY_KEY, MY_DRAFTS } from "~/getters";
+import {
+    CONVERSATION_LIST_UNREAD_FILTER_ENABLED,
+    CONVERSATION_MESSAGE_BY_KEY,
+    MESSAGE_IS_LOADED,
+    MY_DRAFTS
+} from "~/getters";
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
 import { MARK_CONVERSATIONS_AS_READ } from "~/actions";
 import { sortConversationMessages } from "~/model/conversations";
@@ -72,7 +80,8 @@ export default {
         MailConversationViewerFooter,
         MailConversationViewerHeader,
         MailConversationViewerHiddenItems,
-        MailConversationViewerMessage
+        MailConversationViewerMessage,
+        MailViewerLoading
     },
     props: {
         conversation: {
@@ -88,7 +97,12 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { CONVERSATION_LIST_UNREAD_FILTER_ENABLED, CONVERSATION_MESSAGE_BY_KEY, MY_DRAFTS }),
+        ...mapGetters("mail", {
+            CONVERSATION_LIST_UNREAD_FILTER_ENABLED,
+            CONVERSATION_MESSAGE_BY_KEY,
+            MESSAGE_IS_LOADED,
+            MY_DRAFTS
+        }),
         ...mapState("mail", ["folders"]),
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
         conversationMessages() {
@@ -128,10 +142,10 @@ export default {
                 }
             },
             immediate: true
+        },
+        "conversationMessages.length"() {
+            this.expandUnreadOrLastAndTrailingDrafts();
         }
-    },
-    created() {
-        this.expandUnreadOrLastAndTrailingDrafts();
     },
     destroyed() {
         this.resetComposingStatuses();
@@ -180,7 +194,8 @@ export default {
             );
         },
         isUnread(index) {
-            return !this.conversationMessages[index].flags.includes(Flag.SEEN);
+            const message = this.conversationMessages[index];
+            return message.flags && !message.flags.includes(Flag.SEEN);
         },
         isInConversationFolder(index) {
             return this.conversationMessages[index].folderRef.key === this.conversation.folderRef.key;
