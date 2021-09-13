@@ -1,12 +1,13 @@
 import { inject } from "@bluemind/inject";
 import map from "lodash.map";
 import flatmap from "lodash.flatmap";
+import chunk from "lodash.chunk";
 
 import MessageAdaptor from "../messages/helpers/MessageAdaptor";
 import { ItemFlag } from "@bluemind/core.container.api";
 import { FolderAdaptor } from "../folders/helpers/FolderAdaptor";
 
-const MAX_SEARCH_RESULTS = 500;
+const MAX_CHUNK_SIZE = 500;
 
 export default {
     deleteFlag(messages, mailboxItemFlag) {
@@ -23,7 +24,11 @@ export default {
     async multipleById(messages) {
         const byFolder = groupByFolder(messages);
         const requests = map(byFolder, async ({ itemsId, folderRef }, folderUid) => {
-            const items = await api(folderUid).multipleById(itemsId);
+            const items = flatmap(
+                await Promise.all(
+                    chunk(itemsId, MAX_CHUNK_SIZE).map(chunkedIds => api(folderUid).multipleById(chunkedIds))
+                )
+            );
             return items
                 .filter(item => !item.flags.includes(ItemFlag.Deleted))
                 .map(item => MessageAdaptor.fromMailboxItem(item, folderRef));
@@ -99,7 +104,7 @@ function groupByFolder(messages) {
 }
 
 function searchQuery(query, filter, folderUid) {
-    return { query, recordQuery: filterQuery(filter), maxResults: MAX_SEARCH_RESULTS, scope: searchScope(folderUid) };
+    return { query, recordQuery: filterQuery(filter), maxResults: MAX_CHUNK_SIZE, scope: searchScope(folderUid) };
 }
 
 function filterQuery(filter) {

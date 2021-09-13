@@ -252,6 +252,15 @@ describe("Messages actions", () => {
             store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted.map(m => m.key) });
             expect(inject("MailboxItemsPersistence").multipleById).toHaveBeenCalledWith([1, 2, 3]);
         });
+        test("Call fetch message API is chunked", () => {
+            const maxMultipleById = 500;
+            const adapted = Array.from(Array(maxMultipleById * 4 + 2).keys()).map(id =>
+                createOnlyMetadata({ internalId: id, folder })
+            );
+            store.commit(ADD_MESSAGES, adapted);
+            store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted.map(m => m.key) });
+            expect(inject("MailboxItemsPersistence").multipleById).toHaveBeenCalledTimes(5);
+        });
         test("Add LOADING status while fetching to messages", async () => {
             const message = messages.pop();
             const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
