@@ -14,7 +14,7 @@ import {
     UNSELECT_ALL_CONVERSATIONS,
     UNSET_CURRENT_CONVERSATION
 } from "~/mutations";
-import { MY_MAILBOX, SELECTION_IS_EMPTY } from "~/getters";
+import { CONVERSATION_MESSAGE_BY_KEY, MY_MAILBOX, SELECTION_IS_EMPTY } from "~/getters";
 import { FETCH_CONVERSATION_IF_NOT_LOADED, FETCH_MESSAGE_METADATA } from "~/actions";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import MailConversationPanel from "./MailThread/MailConversationPanel";
@@ -27,7 +27,7 @@ export default {
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapState("session", { settings: ({ settings }) => settings.remote }),
-        ...mapGetters("mail", { MY_MAILBOX, SELECTION_IS_EMPTY })
+        ...mapGetters("mail", { CONVERSATION_MESSAGE_BY_KEY, MY_MAILBOX, SELECTION_IS_EMPTY })
     },
     watch: {
         "$route.params.conversationpath": {
@@ -64,19 +64,19 @@ export default {
                             break;
                     }
 
-                    let conversation;
                     const folder = this.folders[folderKey];
                     const conversationsActivated = this.settings.mail_thread === "true" && folder.allowConversations;
-                    conversation = await this.FETCH_CONVERSATION_IF_NOT_LOADED({
+                    const conversation = await this.FETCH_CONVERSATION_IF_NOT_LOADED({
                         uid: internalId,
                         folder,
                         conversationsActivated
                     });
-                    await this.FETCH_MESSAGE_METADATA({ messages: conversation.messages });
 
                     if (conversation) {
+                        await this.FETCH_MESSAGE_METADATA({ messages: conversation.messages });
+                        const messages = this.CONVERSATION_MESSAGE_BY_KEY(conversation.key);
                         this.SET_CURRENT_CONVERSATION(conversation);
-                        this.SET_ACTIVE_MESSAGE({ key: conversation.messages[0] });
+                        this.SET_ACTIVE_MESSAGE(messages[0]);
                     }
                 } catch (e) {
                     this.$router.push({ name: "mail:home" });
