@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import org.junit.After;
 import org.junit.Before;
@@ -139,6 +140,51 @@ public class CalendarSyncTests {
 		// resync
 		res = this.syncCal(uid);
 		assertTrue(res.status.nextSync > ns);
+	}
+
+	@Test
+	public void testNot200() throws Exception {
+		String uid = UUID.randomUUID().toString();
+		CalendarDescriptor cd = CalendarDescriptor.create("not 200", userUid, domain);
+		CompletableFuture<Void> comp = new CompletableFuture<>();
+		VertxPlatform.getVertx().createHttpServer().requestHandler(req -> {
+			req.endHandler(v -> {
+				req.response().setStatusMessage("fail").setStatusCode(400).end();
+			});
+		}).listen(9898, ar -> {
+			if (ar.failed()) {
+				comp.completeExceptionally(ar.cause());
+			} else {
+				System.err.println("listening !");
+				comp.complete(null);
+			}
+		});
+		comp.join();
+
+		HashMap<String, String> settings = new HashMap<String, String>();
+		settings.put("type", "externalIcs");
+		settings.put("icsUrl", "http://localhost:9898/fail");
+		cd.settings = settings;
+
+		getCalendarMgmtService().create(uid, cd);
+
+		getContainerManagementService(uid)
+				.setAccessControlList(Arrays.asList(AccessControlEntry.create(userUid, Verb.Write)));
+
+		// sync
+		ContainerSyncResult res = this.syncCal(uid);
+		assertNotNull(res);
+		Long ns = res.status.nextSync;
+		assertTrue(ns > 0);
+
+		// ensure we don't too many open files here
+		for (int i = 0; i < 1024; i++) {
+			res = this.syncCal(uid);
+			if (i % 100 == 0) {
+				System.err.println(i + " / 1024");
+			}
+			assertTrue(res.status.nextSync > ns);
+		}
 	}
 
 	private void internalSync(String icsUrl) throws ServerFault {

@@ -20,6 +20,7 @@ package net.bluemind.calendar.sync;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.MalformedURLException;
@@ -327,15 +328,21 @@ public class CalendarContainerSync implements ISyncableContainer {
 
 	private static class ClosingBodyDeffering extends BodyDeferringInputStream {
 		private final AsyncHttpClient ahc;
+		private OutputStream out;
 
 		public ClosingBodyDeffering(final Future<Response> future, final BodyDeferringAsyncHandler bdah,
-				final InputStream in, AsyncHttpClient ahc) {
+				final InputStream in, final OutputStream out, AsyncHttpClient ahc) {
 			super(future, bdah, in);
+			this.out = out;
 			this.ahc = ahc;
 		}
 
 		@Override
 		public void close() throws IOException {
+			try {
+				out.close();
+			} catch (IOException e) {
+			}
 			try {
 				super.close();
 			} catch (IOException e) {
@@ -387,13 +394,14 @@ public class CalendarContainerSync implements ISyncableContainer {
 			if (!futureResponse.isDone() || !futureResponse.isCancelled()) {
 				futureResponse.cancel(true);
 			}
-
+			pipedOutputStream.close();
+			pipedInputStream.close();
+			ahc.close();
 			return new ResponseData(null, status, lastModified, newEtag, nextSync);
 		}
 
-		return new ResponseData(
-				new ClosingBodyDeffering(futureResponse, bodyDeferringAsyncHandler, pipedInputStream, ahc), status,
-				lastModified, newEtag, nextSync);
+		return new ResponseData(new ClosingBodyDeffering(futureResponse, bodyDeferringAsyncHandler, pipedInputStream,
+				pipedOutputStream, ahc), status, lastModified, newEtag, nextSync);
 
 	}
 
