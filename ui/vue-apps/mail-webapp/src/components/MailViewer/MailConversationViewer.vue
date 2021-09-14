@@ -16,22 +16,12 @@
                     :conversation-size="conversationMessages.length"
                     @do-show-hidden-messages="doShowHiddenMessages(index)"
                 />
-                <component
-                    :is="
-                        MESSAGE_IS_LOADED(message.key)
-                            ? isDraft(index)
-                                ? message.composing
-                                    ? 'mail-conversation-viewer-draft-editor'
-                                    : 'mail-conversation-viewer-draft'
-                                : 'mail-conversation-viewer-message'
-                            : 'mail-viewer-loading'
-                    "
+                <mail-conversation-viewer-compo-switcher
                     v-else-if="!hiddenMessages[index]"
                     :class="{ expanded: expandedMessages[index] }"
                     :index="index"
                     :conversation="conversation"
                     :message="message"
-                    :message-key="message.key"
                     :expanded-messages="expandedMessages"
                     :next-is-hidden="!!hiddenMessages[index + 1]"
                     :is-last-before-draft="isLastBeforeDraft(index)"
@@ -53,20 +43,12 @@
 </template>
 <script>
 import Vue from "vue";
-import MailConversationViewerDraft from "./MailConversationViewer/MailConversationViewerDraft";
-import MailConversationViewerDraftEditor from "./MailConversationViewer/MailConversationViewerDraftEditor";
+import MailConversationViewerCompoSwitcher from "./MailConversationViewerCompoSwitcher";
 import MailConversationViewerFooter from "./MailConversationViewer/MailConversationViewerFooter";
 import MailConversationViewerHeader from "./MailConversationViewer/MailConversationViewerHeader";
 import MailConversationViewerHiddenItems from "./MailConversationViewer/MailConversationViewerHiddenItems";
-import MailViewerLoading from "./MailViewerLoading";
-import MailConversationViewerMessage from "./MailConversationViewer/MailConversationViewerMessage";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import {
-    CONVERSATION_LIST_UNREAD_FILTER_ENABLED,
-    CONVERSATION_MESSAGE_BY_KEY,
-    MESSAGE_IS_LOADED,
-    MY_DRAFTS
-} from "~/getters";
+import { CONVERSATION_LIST_UNREAD_FILTER_ENABLED, CONVERSATION_MESSAGE_BY_KEY, MY_DRAFTS } from "~/getters";
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
 import { MARK_CONVERSATIONS_AS_READ } from "~/actions";
 import { sortConversationMessages } from "~/model/conversations";
@@ -75,13 +57,10 @@ import { Flag } from "@bluemind/email";
 export default {
     name: "MailConversationViewer",
     components: {
-        MailConversationViewerDraft,
-        MailConversationViewerDraftEditor,
+        MailConversationViewerCompoSwitcher,
         MailConversationViewerFooter,
         MailConversationViewerHeader,
-        MailConversationViewerHiddenItems,
-        MailConversationViewerMessage,
-        MailViewerLoading
+        MailConversationViewerHiddenItems
     },
     props: {
         conversation: {
@@ -97,12 +76,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", {
-            CONVERSATION_LIST_UNREAD_FILTER_ENABLED,
-            CONVERSATION_MESSAGE_BY_KEY,
-            MESSAGE_IS_LOADED,
-            MY_DRAFTS
-        }),
+        ...mapGetters("mail", { CONVERSATION_LIST_UNREAD_FILTER_ENABLED, CONVERSATION_MESSAGE_BY_KEY, MY_DRAFTS }),
         ...mapState("mail", ["folders"]),
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
         conversationMessages() {
@@ -290,7 +264,7 @@ export default {
     .spacer {
         height: 0.5rem;
     }
-    .mail-conversation-viewer-item:not(.expanded) .mail-conversation-viewer-item-body:hover {
+    .mail-conversation-viewer-item:not(.expanded):not(.draft) .mail-conversation-viewer-item-body:hover {
         cursor: pointer;
         position: relative;
         &::before {
