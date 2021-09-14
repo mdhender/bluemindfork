@@ -27,7 +27,7 @@ export default {
             this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.FORWARD, message);
         },
         $_ReplyAndForwardRoutesMixin_goTo(action, related) {
-            if (this.$_ReplyAndForwardRoutesMixin_mustRedirectToConversation(action)) {
+            if (this.$_ReplyAndForwardRoutesMixin_conversationsActivated && action !== MessageCreationModes.FORWARD) {
                 this.initRelatedMessage(action, {
                     internalId: related.remoteRef.internalId,
                     folderKey: related.folderRef.key
@@ -37,12 +37,6 @@ export default {
                 const query = { action, message: MessagePathParam.build("", related) };
                 this.$router.navigate({ name: "mail:message", params: { messagepath }, query });
             }
-        },
-        $_ReplyAndForwardRoutesMixin_mustRedirectToConversation(action) {
-            return (
-                this.$_ReplyAndForwardRoutesMixin_conversationsActivated &&
-                (action === MessageCreationModes.REPLY_ALL || action === MessageCreationModes.REPLY)
-            );
         }
     }
 };

@@ -5,7 +5,6 @@
 <script>
 import ConversationPathParam from "~/router/ConversationPathParam";
 import { LoadingStatus } from "~/model/loading-status";
-import { MessageCreationModes } from "~/model/message";
 import {
     RESET_ACTIVE_MESSAGE,
     RESET_PARTS_DATA,
@@ -39,29 +38,10 @@ export default {
                     let assert = mailbox => mailbox && mailbox.loading === LoadingStatus.LOADED;
                     await this.$waitFor(MY_MAILBOX, assert);
 
-                    const { folderKey, internalId, action, relatedFolderKey, relatedId } = ConversationPathParam.parse(
-                        conversationPath,
-                        this.activeFolder
-                    );
+                    const { folderKey, internalId } = ConversationPathParam.parse(conversationPath, this.activeFolder);
 
                     if (!this.SELECTION_IS_EMPTY) {
                         this.UNSELECT_ALL_CONVERSATIONS();
-                    }
-
-                    switch (action) {
-                        case MessageCreationModes.REPLY:
-                        case MessageCreationModes.REPLY_ALL:
-                        case MessageCreationModes.FORWARD:
-                            await this.initRelatedMessage(action, {
-                                internalId: relatedId,
-                                folderKey: relatedFolderKey
-                            });
-                            break;
-                        case MessageCreationModes.NEW:
-                            this.initNewMessage();
-                            break;
-                        default:
-                            break;
                     }
 
                     const folder = this.folders[folderKey];
