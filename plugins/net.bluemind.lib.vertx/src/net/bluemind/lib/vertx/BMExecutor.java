@@ -87,7 +87,7 @@ public class BMExecutor {
 			long elapsed = end - start;
 			timer.record(elapsed, TimeUnit.NANOSECONDS);
 			if (elapsed > TimeUnit.SECONDS.toNanos(1)) {
-				logger.warn("{} took more than 1sec.", command);
+				logger.warn("{} took more than 1sec ({}ms).", command, TimeUnit.NANOSECONDS.toMillis(elapsed));
 			}
 		});
 	}
