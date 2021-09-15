@@ -46,7 +46,7 @@ export default {
         ...mapState("mail", { conversationByKey: ({ conversations }) => conversations.conversationByKey }),
         selected() {
             if (this.SELECTION_IS_EMPTY) {
-                return this.$store.state.mail.conversations.currentConversation?.key;
+                return this.$store.state.mail.conversations.currentConversation;
             } else {
                 return this.SELECTION_KEYS;
             }

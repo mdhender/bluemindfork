@@ -10,7 +10,14 @@ import {
     SAVE_MESSAGE,
     SEND_MESSAGE
 } from "~/actions";
-import { ACTIVE_MESSAGE, MY_DRAFTS, MY_OUTBOX, MY_SENT, MY_MAILBOX_KEY } from "~/getters";
+import {
+    ACTIVE_MESSAGE,
+    CURRENT_CONVERSATION_METADATA,
+    MY_DRAFTS,
+    MY_OUTBOX,
+    MY_SENT,
+    MY_MAILBOX_KEY
+} from "~/getters";
 import { ADD_MESSAGES, REMOVE_MESSAGES } from "~/mutations";
 import { isNewMessage } from "~/model/draft";
 
@@ -32,6 +39,7 @@ export default {
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapGetters("mail", {
+            $_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA: CURRENT_CONVERSATION_METADATA,
             $_ComposerActionsMixin_MY_DRAFTS: MY_DRAFTS,
             $_ComposerActionsMixin_MY_OUTBOX: MY_OUTBOX,
             $_ComposerActionsMixin_MY_SENT: MY_SENT,
@@ -80,7 +88,7 @@ export default {
             const displayedInConversationMode =
                 this.conversationsActivated &&
                 this.$_ComposerActionsMixin_currentConversation &&
-                this.$_ComposerActionsMixin_currentConversation.messages.length > 1;
+                this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA.messages.length > 1;
             if (
                 wasMessageOnlyLocal &&
                 this.$store.getters["mail/" + ACTIVE_MESSAGE]?.key === this.message.key &&
@@ -114,7 +122,7 @@ export default {
                     this.$store.commit(`mail/${REMOVE_MESSAGES}`, { messages: [this.message] });
                     this.$router.navigate({
                         name: "v:mail:conversation",
-                        params: { conversation: this.$_ComposerActionsMixin_currentConversation }
+                        params: { conversation: this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA }
                     });
                 }
             } else {
@@ -128,7 +136,7 @@ export default {
                     autoFocusButton: "ok"
                 });
                 if (confirm) {
-                    const conversation = this.$_ComposerActionsMixin_currentConversation;
+                    const conversation = this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA;
                     await this.$store.dispatch(`mail/${REMOVE_CONVERSATION_MESSAGES}`, {
                         conversation,
                         messages: [this.message]
@@ -140,7 +148,7 @@ export default {
                     } else {
                         this.$router.navigate({
                             name: "v:mail:conversation",
-                            params: { conversation: this.$_ComposerActionsMixin_currentConversation }
+                            params: { conversation: this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA }
                         });
                     }
                 }
@@ -158,7 +166,7 @@ export default {
             if (
                 !this.conversationsActivated ||
                 !this.$_ComposerActionsMixin_currentConversation ||
-                this.$_ComposerActionsMixin_currentConversation.messages.length < 2
+                this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA.messages.length < 2
             ) {
                 this.$router.navigate("v:mail:home");
             }

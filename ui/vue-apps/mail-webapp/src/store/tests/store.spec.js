@@ -234,21 +234,21 @@ describe("Mail store", () => {
                 };
             });
             test("return first conversation after current conversation", () => {
-                store.state.conversations.currentConversation = { key: 2 };
-                const conversations = [store.state.conversations.currentConversation];
+                store.state.conversations.currentConversation = 2;
+                const conversations = [{ key: store.state.conversations.currentConversation }];
                 const result = store.getters[NEXT_CONVERSATION](conversations);
                 expect(result.key).toBe(4);
             });
             test("return the previous conversation if there is no next conversation ", () => {
-                store.state.conversations.currentConversation = { key: 18 };
-                const conversations = [store.state.conversations.currentConversation];
+                store.state.conversations.currentConversation = 18;
+                const conversations = [{ key: store.state.conversations.currentConversation }];
                 const result = store.getters[NEXT_CONVERSATION](conversations);
                 expect(result.key).toBe(16);
             });
             test("return null if there is no next conversation", () => {
                 store.state.conversationList._keys = [2];
-                store.state.conversations.currentConversation = { key: 2 };
-                const conversations = [store.state.conversations.currentConversation];
+                store.state.conversations.currentConversation = 2;
+                const conversations = [{ key: store.state.conversations.currentConversation }];
                 const result = store.getters[NEXT_CONVERSATION](conversations);
                 expect(result).toBeNull();
             });
@@ -263,8 +263,8 @@ describe("Mail store", () => {
                     remoteRef: { internalId: 1 },
                     folderRef: { key: 1 }
                 };
-                store.state.conversations.currentConversation = { key: 20 };
-                const conversations = [store.state.conversations.currentConversation];
+                store.state.conversations.currentConversation = 20;
+                const conversations = [{ key: store.state.conversations.currentConversation }];
                 const result = store.getters[NEXT_CONVERSATION](conversations);
                 expect(result).toBeNull();
             });

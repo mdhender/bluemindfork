@@ -97,7 +97,12 @@ import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
 import MessagesOptionsForMobile from "./MessagesOptionsForMobile";
 import NewMessage from "./NewMessage";
-import { ACTIVE_MESSAGE, SEVERAL_CONVERSATIONS_SELECTED, SELECTION_IS_EMPTY } from "~/getters";
+import {
+    ACTIVE_MESSAGE,
+    CURRENT_CONVERSATION_METADATA,
+    SEVERAL_CONVERSATIONS_SELECTED,
+    SELECTION_IS_EMPTY
+} from "~/getters";
 import { Multipane, MultipaneResizer } from "@bluemind/vue-multipane";
 
 export default {
@@ -129,10 +134,15 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { ACTIVE_MESSAGE, SEVERAL_CONVERSATIONS_SELECTED, SELECTION_IS_EMPTY }),
+        ...mapGetters("mail", {
+            ACTIVE_MESSAGE,
+            CURRENT_CONVERSATION_METADATA,
+            SEVERAL_CONVERSATIONS_SELECTED,
+            SELECTION_IS_EMPTY
+        }),
         ...mapState("mail", { currentConversation: ({ conversations }) => conversations.currentConversation }),
         hideListInResponsiveMode() {
-            const item = this.ACTIVE_MESSAGE || this.currentConversation;
+            const item = this.ACTIVE_MESSAGE || this.CURRENT_CONVERSATION_METADATA;
             return item && (item.composing || this.SELECTION_IS_EMPTY);
         },
         composerOrMessageIsDisplayed() {

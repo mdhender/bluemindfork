@@ -84,8 +84,8 @@ const actions = {
 };
 
 const mutations = {
-    [SET_CURRENT_CONVERSATION]: (state, conversation) => {
-        state.currentConversation = conversation;
+    [SET_CURRENT_CONVERSATION]: (state, { key }) => {
+        state.currentConversation = key;
     },
     [UNSET_CURRENT_CONVERSATION]: state => {
         state.currentConversation = null;
@@ -187,12 +187,7 @@ const getters = {
             messages: messages.map(m => m.key)
         };
     },
-    [CURRENT_CONVERSATION_METADATA]: (state, getters) => {
-        if (state.currentConversation) {
-            return getters.CONVERSATION_METADATA(state.currentConversation.key);
-        }
-        return undefined;
-    }
+    [CURRENT_CONVERSATION_METADATA]: (state, getters) => getters.CONVERSATION_METADATA(state.currentConversation)
 };
 
 function reducedMetadata(folderKey, messages) {

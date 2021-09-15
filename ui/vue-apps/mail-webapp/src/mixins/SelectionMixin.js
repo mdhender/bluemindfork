@@ -11,7 +11,7 @@ export default {
     computed: {
         ...mapGetters("mail", {
             $_SelectionMixin_CONVERSATION_MESSAGE_BY_KEY: CONVERSATION_MESSAGE_BY_KEY,
-            $_SelectionMixin_currentConversationMetadata: CURRENT_CONVERSATION_METADATA,
+            $_SelectionMixin_CURRENT_CONVERSATION_METADATA: CURRENT_CONVERSATION_METADATA,
             $_SelectionMixin_MY_SENT: MY_SENT,
             $_SelectionMixin_SELECTION: SELECTION
         }),
@@ -25,7 +25,7 @@ export default {
             if (this.$_SelectionMixin_SELECTION.length > 0) {
                 return this.$_SelectionMixin_SELECTION;
             } else if (this.$_SelectionMixin_currentConversation) {
-                return [this.$_SelectionMixin_currentConversationMetadata];
+                return [this.$_SelectionMixin_CURRENT_CONVERSATION_METADATA];
             }
             return [];
         },
@@ -34,7 +34,7 @@ export default {
             if (selectionLength > 0) {
                 return selectionLength;
             }
-            return this.$_SelectionMixin_currentConversationMetadata ? 1 : 0;
+            return this.$_SelectionMixin_CURRENT_CONVERSATION_METADATA ? 1 : 0;
         },
         conversationsActivated() {
             return (

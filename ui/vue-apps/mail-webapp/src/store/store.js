@@ -75,8 +75,8 @@ export const getters = {
     [ACTIVE_MESSAGE]: ({ conversations: { messages }, activeMessage }) => messages[activeMessage.key],
     [IS_ACTIVE_MESSAGE]: ({ activeMessage, conversations: { conversationByKey } }) => ({ key }) =>
         key === activeMessage.key || conversationByKey[key].messages?.includes(activeMessage.key),
-    [IS_CURRENT_CONVERSATION]: ({ conversations: { currentConversation } }) => conversation =>
-        equal(conversation, currentConversation),
+    [IS_CURRENT_CONVERSATION]: ({ conversations: { currentConversation } }) => ({ key }) =>
+        equal(key, currentConversation),
     [NEXT_CONVERSATION]: (state, { [CONVERSATION_LIST_ALL_KEYS]: keys, CONVERSATION_METADATA }) => conversations => {
         if (keys.length > 1 && conversations.length) {
             const conversationKeys = conversations.map(c => c.key);

@@ -122,9 +122,6 @@ export default {
             CONVERSATION_METADATA
         }),
         ...mapState("mail", ["activeFolder"]),
-        ...mapState("mail", {
-            currentConversation: ({ conversations }) => conversations.currentConversation
-        }),
         conversations() {
             return this.conversationKeys.map(key => this.CONVERSATION_METADATA(key)).filter(Boolean);
         },

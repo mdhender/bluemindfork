@@ -206,7 +206,7 @@ describe("conversations", () => {
             expect(store.state.currentConversation).toBeFalsy();
             storeOptions.mutations[SET_CURRENT_CONVERSATION](store.state, { key: "key2" });
             expect(store.state.currentConversation).toBeTruthy();
-            expect(store.state.currentConversation.key).toBe("key2");
+            expect(store.state.currentConversation).toBe("key2");
         });
     });
     describe("hooks", () => {
