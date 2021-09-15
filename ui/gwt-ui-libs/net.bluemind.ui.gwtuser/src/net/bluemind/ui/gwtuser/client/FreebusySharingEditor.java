@@ -44,7 +44,8 @@ public class FreebusySharingEditor extends BaseSharingEditor {
 	@Override
 	protected String getContainerUid(JavaScriptObject model) {
 		JsMapStringJsObject map = model.cast();
-		return IFreebusyUids.getFreebusyContainerUid(map.getString("userId"));
+		String uid = map.get("userUid") != null ? map.getString("userUid") : map.getString("entryUid");
+		return IFreebusyUids.getFreebusyContainerUid(uid);
 	}
 
 	protected Map<String, String> getVerbs() {
