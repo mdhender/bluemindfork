@@ -266,29 +266,32 @@ public class CalendarContainerSync implements ISyncableContainer {
 			originalIcsUrlHasWebcalProtocol = false;
 		}
 
-		ResponseData response;
+		ResponseData response = null;
 		try {
 			response = requestIcs(icsUrl, "HEAD", modifiedSince, etag);
+			if (this.isNotModified(modifiedSince, response)) {
+				logger.debug("{} Not Modified (304 or header)", icsUrl);
+				syncData.modifiedSince = Long.toString(response.lastModified);
+				syncData.etag = response.etag;
+				throw new SyncElementsNotModifiedException();
+			}
+
+			if (response.status == 405) {
+				logger.debug("{} 405 Method Not Allowed", icsUrl);
+			}
+		} catch (SyncElementsNotModifiedException e) {
+			throw e;
 		} catch (MalformedURLException e) {
 			logger.error("invalid url '{}'", icsUrl, e);
 			syncData.modifiedSince = "";
 			throw e;
-		}
-
-		if (this.isNotModified(modifiedSince, response)) {
-			logger.debug("{} Not Modified (304 or header)", icsUrl);
-			syncData.modifiedSince = Long.toString(response.lastModified);
-			syncData.etag = response.etag;
-			throw new SyncElementsNotModifiedException();
-		}
-
-		if (response.status == 405) {
-			logger.debug("{} 405 Method Not Allowed", icsUrl);
+		} catch (Exception e) {
+			logger.warn("{} does probably not support HTTP HEAD", icsUrl);
 		}
 
 		ResponseData get = requestIcs(icsUrl, "GET", null, null);
 
-		syncData.nextSync = response.nextSync == 0 ? get.nextSync : response.nextSync;
+		syncData.nextSync = response == null || response.nextSync == 0 ? get.nextSync : response.nextSync;
 
 		if (get.status == 200) {
 			// GET returns a Last-Modified header
