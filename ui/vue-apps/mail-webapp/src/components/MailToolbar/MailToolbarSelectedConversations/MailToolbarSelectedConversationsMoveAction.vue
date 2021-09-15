@@ -5,8 +5,8 @@
         class="mail-toolbar-selected-conversations-move-action h-100"
         variant="inline-light"
         toggle-class="btn-lg-simple-dark"
-        :title="moveAriaText(subject)"
-        :aria-label="moveAriaText(subject)"
+        :title="moveAriaText()"
+        :aria-label="moveAriaText()"
         @shown="openMoveAutocomplete"
         @hide="resetPattern"
     >
@@ -96,12 +96,6 @@ export default {
         MailFolderInput
     },
     mixins: [ActionTextMixin, FilterFolderMixin, MoveMixin, SelectionMixin],
-    props: {
-        subject: {
-            type: String,
-            required: true
-        }
-    },
     computed: {
         ...mapState("mail", ["mailboxes"]),
         ...mapGetters("mail", { FOLDERS_BY_UPPERCASE_PATH }),

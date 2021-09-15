@@ -15,8 +15,8 @@
         <bm-dropdown-item
             class="shadow-sm"
             :shortcut="$t('mail.shortcuts.purge')"
-            :title="removeAriaText(subject)"
-            :aria-label="removeAriaText(subject)"
+            :title="removeAriaText()"
+            :aria-label="removeAriaText()"
             @click="remove()"
         >
             {{ $t("mail.actions.purge") }}
@@ -31,13 +31,7 @@ import { ActionTextMixin, RemoveMixin } from "~/mixins";
 export default {
     name: "MailToolbarConsultMessageOtherActions",
     components: { BmDropdown, BmDropdownItem, BmIcon },
-    mixins: [ActionTextMixin, RemoveMixin],
-    props: {
-        subject: {
-            type: String,
-            required: true
-        }
-    }
+    mixins: [ActionTextMixin, RemoveMixin]
 };
 </script>
 

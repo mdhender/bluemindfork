@@ -9,11 +9,10 @@ import MailMessageStarter from "./MailMessageStarter";
 import MailMultipleSelectionActions from "./MailMultipleSelectionActions";
 import { mapGetters, mapMutations } from "vuex";
 import {
-    CONVERSATION_MESSAGE_BY_KEY,
-    MY_SENT,
+    CONVERSATION_METADATA,
     ONE_CONVERSATION_SELECTED,
     SEVERAL_CONVERSATIONS_SELECTED,
-    SELECTION
+    SELECTION_KEYS
 } from "~/getters";
 import {
     RESET_ACTIVE_MESSAGE,
@@ -32,19 +31,19 @@ export default {
     },
     computed: {
         ...mapGetters("mail", {
-            CONVERSATION_MESSAGE_BY_KEY,
-            MY_SENT,
+            CONVERSATION_METADATA,
             ONE_CONVERSATION_SELECTED,
             SEVERAL_CONVERSATIONS_SELECTED,
-            SELECTION
+            SELECTION_KEYS
         })
     },
     watch: {
-        SELECTION: {
+        SELECTION_KEYS: {
             handler: function () {
                 if (this.ONE_CONVERSATION_SELECTED) {
-                    this.SET_ACTIVE_MESSAGE({ key: this.SELECTION[0].messages[0] });
-                    this.SET_CURRENT_CONVERSATION(this.SELECTION[0]);
+                    const conversation = this.CONVERSATION_METADATA(this.SELECTION_KEYS[0]);
+                    this.SET_ACTIVE_MESSAGE({ key: conversation.messages[0] });
+                    this.SET_CURRENT_CONVERSATION(conversation);
                 } else {
                     this.RESET_ACTIVE_MESSAGE();
                     this.UNSET_CURRENT_CONVERSATION();

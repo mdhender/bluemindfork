@@ -1,5 +1,11 @@
 import { mapGetters, mapState } from "vuex";
-import { CONVERSATION_MESSAGE_BY_KEY, CURRENT_CONVERSATION_METADATA, MY_SENT, SELECTION } from "~/getters";
+import {
+    CONVERSATION_MESSAGE_BY_KEY,
+    CURRENT_CONVERSATION_METADATA,
+    MY_SENT,
+    SELECTION,
+    SELECTION_KEYS
+} from "~/getters";
 
 export default {
     computed: {
@@ -22,6 +28,13 @@ export default {
                 return [this.$_SelectionMixin_currentConversationMetadata];
             }
             return [];
+        },
+        selectionLength() {
+            const selectionLength = this.$store.getters["mail/" + SELECTION_KEYS].length;
+            if (selectionLength > 0) {
+                return selectionLength;
+            }
+            return this.$_SelectionMixin_currentConversationMetadata ? 1 : 0;
         },
         conversationsActivated() {
             return (

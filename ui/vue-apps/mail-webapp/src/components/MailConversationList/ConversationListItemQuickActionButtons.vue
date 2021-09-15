@@ -3,8 +3,8 @@
         <bm-button-group>
             <template v-if="folderOfMessage.writable">
                 <bm-button
-                    :aria-label="removeAriaText(subject)"
-                    :title="removeAriaText(subject)"
+                    :aria-label="removeAriaText(1, subject)"
+                    :title="removeAriaText(1, subject)"
                     class="p-1 mr-2"
                     variant="inline-secondary"
                     @click.shift.exact.prevent.stop="REMOVE_CONVERSATIONS([conversation])"
@@ -15,8 +15,8 @@
                 <bm-button
                     v-if="showMarkAsRead"
                     class="p-1"
-                    :aria-label="markAsReadAriaText(subject)"
-                    :title="markAsReadAriaText(subject)"
+                    :aria-label="markAsReadAriaText(1, subject)"
+                    :title="markAsReadAriaText(1, subject)"
                     variant="inline-secondary"
                     @click.prevent.stop="markAsRead(conversation)"
                 >
@@ -25,8 +25,8 @@
                 <bm-button
                     v-else
                     class="p-1"
-                    :aria-label="markAsUnreadAriaText(subject)"
-                    :title="markAsUnreadAriaText(subject)"
+                    :aria-label="markAsUnreadAriaText(1, subject)"
+                    :title="markAsUnreadAriaText(1, subject)"
                     variant="inline-secondary"
                     @click.prevent.stop="markAsUnread(conversation)"
                 >
@@ -35,8 +35,8 @@
                 <bm-button
                     v-if="showMarkAsFlagged"
                     class="p-1 ml-2"
-                    :aria-label="markAsFlaggedAriaText(subject)"
-                    :title="markAsFlaggedAriaText(subject)"
+                    :aria-label="markAsFlaggedAriaText(1, subject)"
+                    :title="markAsFlaggedAriaText(1, subject)"
                     variant="inline-secondary"
                     @click.prevent.stop="markAsFlagged(conversation)"
                 >
@@ -45,8 +45,8 @@
                 <bm-button
                     v-else
                     class="p-1 ml-2"
-                    :aria-label="markAsUnflaggedAriaText(subject)"
-                    :title="markAsUnflaggedAriaText(subject)"
+                    :aria-label="markAsUnflaggedAriaText(1, subject)"
+                    :title="markAsUnflaggedAriaText(1, subject)"
                     variant="inline-secondary"
                     @click.prevent.stop="markAsUnflagged(conversation)"
                 >
@@ -60,7 +60,7 @@
 <script>
 import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon } from "@bluemind/styleguide";
 import { mapState } from "vuex";
-import { ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin } from "~/mixins";
+import { ActionTextMixin, FlagMixin, RemoveMixin } from "~/mixins";
 
 export default {
     name: "ConversationListItemQuickActionButtons",
@@ -70,7 +70,7 @@ export default {
         BmButton,
         BmIcon
     },
-    mixins: [ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin],
+    mixins: [ActionTextMixin, FlagMixin, RemoveMixin],
     props: {
         conversation: {
             type: Object,
