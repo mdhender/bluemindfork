@@ -27,7 +27,7 @@
                     <div :title="displayedSubject" class="mail-conversation-list-item-subject text-truncate">
                         {{ displayedSubject }}
                     </div>
-                    <strong v-if="conversation && conversationSize > 1 && conversation.unreadCount > 0" class="pl-1">
+                    <strong v-if="conversation && conversationSize > 1 && conversation.unreadCount > 0" class="pr-1">
                         ({{ conversation.unreadCount }})
                     </strong>
                 </div>
