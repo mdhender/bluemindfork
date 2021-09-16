@@ -33,7 +33,9 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 				new RestoreReplicatedMailboxes(monitor, domain, state), //
 				new RestoreMapiArtifacts(monitor, domain, target), //
 				new RestoreFlatHierarchy(monitor, domain, target), //
-				new RestoreMembership(monitor, domain, target)//
+				new RestoreMembership(monitor, domain, target), //
+				new RestoreRoles(monitor, domain, target), //
+				new RestoreOrgUnitAdminRoles(monitor, domain, target) //
 		).stream().collect(Collectors.toMap(RestoreDomainType::type, Function.identity()));
 	}
 
