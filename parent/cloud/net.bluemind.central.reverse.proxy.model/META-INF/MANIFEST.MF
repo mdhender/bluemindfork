@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.freemarker.freemarker;bundle-version="2.3.20",
  net.bluemind.eclipse.common;bundle-version="1.0.0",
  net.bluemind.system.api,
- slf4j.api
+ slf4j.api,
+ com.fasterxml.jackson.core.jackson-annotations
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.central.reverse.proxy.model,

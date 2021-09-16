@@ -158,6 +158,9 @@ public class ProxyInfoStoreTests {
 		AsyncTestContext.asyncTest(context -> {
 			JsonObject json = new JsonObject().put("dataLocation", "anyDataLocation").put("ip", "1.2.3.4");
 			vertx.eventBus().request(ADDRESS, json, ADD_INSTALLATION, ar -> context.assertions(() -> {
+				if (ar.failed()) {
+					ar.cause().printStackTrace();
+				}
 				assertTrue(ar.succeeded());
 				assertNull(ar.result().body());
 				verify(storage, times(1)).addDataLocation("anyDataLocation", "1.2.3.4");
