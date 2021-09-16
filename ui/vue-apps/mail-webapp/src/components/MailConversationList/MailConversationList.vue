@@ -35,14 +35,6 @@ export default {
             return this.folders[this.activeFolder];
         }
     },
-    watch: {
-        // dirty hack to load the first time
-        folder(value, oldValue) {
-            if (value && !oldValue) {
-                this.refreshList();
-            }
-        }
-    },
     methods: {
         ...mapActions("mail", { FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS }),
         async refreshList() {
