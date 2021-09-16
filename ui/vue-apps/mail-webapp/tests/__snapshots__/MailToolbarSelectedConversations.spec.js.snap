@@ -223,7 +223,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           tabindex="-1"
         >
           <div
-            class="mail-folder-input flex-fill d-flex align-items-center position-relative pl-2 pr-1 border-bottom"
+            class="mail-folder-input flex-fill d-none d-lg-flex align-items-center position-relative pl-2 pr-1 border-bottom"
           >
             <svg
               aria-hidden="true"

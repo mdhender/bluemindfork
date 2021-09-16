@@ -1,5 +1,8 @@
 <template>
-    <div :class="computeClassNames" class="mail-folder-input flex-fill d-flex align-items-center position-relative">
+    <div
+        :class="computeClassNames"
+        class="mail-folder-input flex-fill d-none d-lg-flex align-items-center position-relative"
+    >
         <bm-icon :icon="computeIconName" fixed-width />
         <bm-form-input
             ref="input"
