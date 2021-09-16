@@ -35,7 +35,7 @@
     "preferences.security.change_password.confirm_new": "Neues Passwort bestätigen",
     "preferences.security.change_password.confirm_new.invalid": "Passwörter stimmen nicht überein",
     "preferences.security.change_password.same_password": "Aktuelles und neues Passwort müssen unterschiedlich sein",
-    
+
     "preferences.telephony.status": "Phone status",
     "preferences.telephony.update_phone_status": "Meinen Telefonstatus im Instant Messaging aktualiseren, wenn ich in einer Besprechung bin",
     "preferences.telephony.answering_machine": "Answering machine",
@@ -95,8 +95,8 @@
     "preferences.calendar.my_calendars.publish_link_private_mode": "Kann meine privaten Termine einsehen",
     "preferences.calendar.my_calendars.publish_link_public_mode": "Kann nur meine öffentlichen Termine einsehen",
     "preferences.calendar.my_calendars.default": "Standard-Kalender",
-    
-    "preferences.mail.thread": "Gemeinsame Anzeige zusammengehöriger E-Mails (Konversationen)",
+
+    "preferences.mail.thread": "E-Mails anzeigen",
     "preferences.mail.thread.disable": "E-Mails einzeln anzeigen",
     "preferences.mail.thread.enable": "E-Mails gruppiert anzeigen",
     "preferences.mail.message.list.display": "Anzeigedichte",

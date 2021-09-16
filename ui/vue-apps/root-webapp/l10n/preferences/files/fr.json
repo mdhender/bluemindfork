@@ -27,7 +27,7 @@
     "preferences.general.default_application": "Application par défaut",
     "preferences.general.password": "Mot de passe",
     "preferences.general.manage_account": "gérer le compte",
-    
+
     "preferences.security.change_password": "Changement de mot de passe",
     "preferences.security.change_password.old": "Ancien mot de passe",
     "preferences.security.change_password.old.invalid": "Mot de passe incorrect",
@@ -35,7 +35,7 @@
     "preferences.security.change_password.confirm_new": "Confirmation nouveau mot de passe",
     "preferences.security.change_password.confirm_new.invalid": "Les mots de passe ne correspondent pas",
     "preferences.security.change_password.same_password": "Le mot de passe actuel et le nouveau doivent être différents",
-    
+
     "preferences.telephony.status": "Statut téléphonique",
     "preferences.telephony.update_phone_status": "Mettre à jour mon statut téléphonique lorsque je ne suis pas disponible sur la messagerie instantanée",
     "preferences.telephony.answering_machine": "Répondeur",
@@ -96,9 +96,9 @@
     "preferences.calendar.my_calendars.publish_link_public_mode": "Peut voir uniquement les rendez-vous publiques",
     "preferences.calendar.my_calendars.default": "Calendrier par défaut",
 
-    "preferences.mail.thread": "Afficher ensemble les réponses au même message (conversations)",
-    "preferences.mail.thread.disable": "Ne pas grouper les conversations",
-    "preferences.mail.thread.enable": "Grouper les conversations",
+    "preferences.mail.thread": "Affichage des messages",
+    "preferences.mail.thread.disable": "Ne pas grouper par conversation",
+    "preferences.mail.thread.enable": "Grouper par conversation",
     "preferences.mail.message.list.display": "Densité de l'affichage",
     "preferences.mail.message.list.display.full": "Complète",
     "preferences.mail.message.list.display.normal": "Normale",

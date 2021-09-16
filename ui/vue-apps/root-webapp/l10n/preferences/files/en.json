@@ -27,7 +27,7 @@
     "preferences.general.default_application": "Default application",
     "preferences.general.password": "Password",
     "preferences.general.manage_account": "manage account",
-    
+
     "preferences.security.change_password": "Password change",
     "preferences.security.change_password.old": "Old password",
     "preferences.security.change_password.old.invalid": "Wrong password",
@@ -35,7 +35,7 @@
     "preferences.security.change_password.confirm_new": "Confirm new password",
     "preferences.security.change_password.confirm_new.invalid": "Passwords don't match",
     "preferences.security.change_password.same_password": "Current and new password must be different",
-    
+
     "preferences.telephony.status": "Phone status",
     "preferences.telephony.update_phone_status": "Update my phone status when I am not available on instant messaging",
     "preferences.telephony.answering_machine": "Answering machine",
@@ -96,7 +96,7 @@
     "preferences.calendar.my_calendars.publish_link_public_mode": "Can only see my public appointments",
     "preferences.calendar.my_calendars.default": "Default calendar",
 
-    "preferences.mail.thread": "Show replies to the same message together (conversations)",
+    "preferences.mail.thread": "Messages display",
     "preferences.mail.thread.disable": "Show messages individually",
     "preferences.mail.thread.enable": "Show messages grouped by conversation",
     "preferences.mail.message.list.display": "Display density",
