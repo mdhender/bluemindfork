@@ -57,7 +57,7 @@
                         :items="filteredFolders"
                         :max-results="maxFolders"
                         @selected="setSelectedFolder"
-                        @close="folderPattern = selectedFolder.path"
+                        @close="folderPattern = translatePath(selectedFolder.path)"
                         @icon-click="folderPattern = ''"
                     >
                         {{ translatePath(item.path) }}
@@ -149,8 +149,10 @@ export default {
         ...mapGetters("mail", { MY_INBOX, MY_MAILBOX, MY_SENT, MY_TRASH }),
         filteredFolders() {
             if (this.folderPattern !== "") {
-                const filtered = Object.values(this.folders).filter(folder =>
-                    folder.path.toLowerCase().includes(this.folderPattern.toLowerCase())
+                const filtered = Object.values(this.folders).filter(
+                    folder =>
+                        folder.path.toLowerCase().includes(this.folderPattern.toLowerCase()) ||
+                        translatePath(folder.path).toLowerCase().includes(this.folderPattern.toLowerCase())
                 );
                 if (filtered) {
                     return filtered.slice(0, this.maxFolders);
@@ -200,7 +202,7 @@ export default {
         },
         setSelectedFolder(item) {
             this.selectedFolder = item;
-            this.folderPattern = item.path;
+            this.folderPattern = translatePath(item.path);
         },
         cancel() {
             this.updateRoute.cancel();
@@ -237,7 +239,7 @@ export default {
             }
         },
         compressFolderFullName(item) {
-            let text = item.path;
+            let text = translatePath(item.path);
             const size = text.length;
             const slashCount = (text.match(/\//g) || []).length;
             if (size > 30 && slashCount > 1) {
