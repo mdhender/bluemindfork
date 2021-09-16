@@ -212,7 +212,8 @@ const BM_STYLE = `
         }
 
         blockquote {
-            width: auto !important;
+            width: unset !important;
+            margin-inline-end: unset !important;
         }`;
 </script>
 
