@@ -21,6 +21,7 @@ package net.bluemind.core.backup.continuous.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
@@ -59,6 +60,8 @@ import com.google.common.io.ByteStreams;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.authentication.api.IAuthentication;
+import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.aws.s3.utils.S3Configuration;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
@@ -90,7 +93,11 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.dockerclient.DockerEnv;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.kafka.container.ZkKafkaContainer;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxAclUids;
@@ -105,6 +112,8 @@ import net.bluemind.system.api.CloneConfiguration.Mode;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.User;
 
 public class PopulateKafkaTests {
 
@@ -330,6 +339,20 @@ public class PopulateKafkaTests {
 		checkContainersLocations(prov, IMailReplicaUids.REPLICATED_MBOXES, true, false);
 		checkContainersLocations(prov, IMailReplicaUids.MAILBOX_RECORDS, true, false);
 
+		IDomains domApi = prov.instance(IDomains.class);
+		ItemValue<Domain> domFound = domApi.findByNameOrAliases("devenv.blue");
+		assertNotNull(domFound);
+		IDirectory dirApi = prov.instance(IDirectory.class, domFound.uid);
+		DirEntry found = dirApi.getByEmail("tom@devenv.blue");
+		assertNotNull(found);
+		System.err.println("Got " + found);
+		IUser user = prov.instance(IUser.class, domFound.uid);
+		ItemValue<User> asUser = user.getComplete(found.entryUid);
+		System.err.println("user: " + asUser);
+		LoginResponse sudo = prov.instance(IAuthentication.class).su(asUser.value.defaultEmailAddress());
+		assertNotNull(sudo.authUser.roles);
+		System.err.println("roles: " + sudo.authUser.roles);
+		assertTrue(sudo.authUser.roles.contains("hasMailWebapp"));
 	}
 
 	private void checkContainersLocations(ServerSideServiceProvider prov, String type, boolean noneOnDirExcepted,

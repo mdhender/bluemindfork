@@ -19,11 +19,16 @@ package net.bluemind.domain.api;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class DomainSettings {
 	public String domainUid;
 	public Map<String, String> settings;
 
-	public DomainSettings(String domainUid, Map<String, String> settings) {
+	@JsonCreator
+	public DomainSettings(@JsonProperty("domainUid") String domainUid,
+			@JsonProperty("settings") Map<String, String> settings) {
 		this.domainUid = domainUid;
 		this.settings = settings;
 	}

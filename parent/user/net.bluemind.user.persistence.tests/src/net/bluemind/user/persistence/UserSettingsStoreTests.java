@@ -24,7 +24,6 @@ import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -45,6 +44,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.user.api.User;
+import net.bluemind.user.api.UserSettings;
 
 public class UserSettingsStoreTests {
 	private static Logger logger = LoggerFactory.getLogger(UserSettingsStoreTests.class);
@@ -58,7 +58,6 @@ public class UserSettingsStoreTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
 		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
@@ -98,7 +97,7 @@ public class UserSettingsStoreTests {
 		userStore.create(item, u);
 
 		// Test get by item ID
-		Map<String, String> userSettings = userSettingsStore.get(item);
+		UserSettings userSettings = userSettingsStore.get(item);
 		assertNull(userSettings);
 	}
 
@@ -110,12 +109,13 @@ public class UserSettingsStoreTests {
 		userStore.create(item, u);
 
 		// Test create settings
-		HashMap<String, String> userSettings = new HashMap<String, String>();
+		HashMap<String, String> userSettings = new HashMap<>();
 		userSettings.put("lang", "fr");
-		userSettingsStore.create(item, userSettings);
+		userSettingsStore.create(item, UserSettings.of(userSettings));
 
-		Map<String, String> loadedUserSettings = userSettingsStore.get(item);
+		UserSettings loadedUserSettings = userSettingsStore.get(item);
 		assertNotNull(loadedUserSettings);
+		assertNotNull(loadedUserSettings.values);
 	}
 
 	@Test
@@ -126,15 +126,15 @@ public class UserSettingsStoreTests {
 		userStore.create(item, u);
 
 		// Test create settings
-		HashMap<String, String> userSettings = new HashMap<String, String>();
+		HashMap<String, String> userSettings = new HashMap<>();
 		userSettings.put("lang", "fr");
-		userSettingsStore.create(item, userSettings);
+		userSettingsStore.create(item, UserSettings.of(userSettings));
 
 		// Test get settings by item ID
-		Map<String, String> loadedUserSettings = userSettingsStore.get(item);
+		UserSettings loadedUserSettings = userSettingsStore.get(item);
 		assertNotNull(loadedUserSettings);
-		assertEquals(userSettings.size(), loadedUserSettings.size());
-		assertEquals(userSettings.get("lang"), loadedUserSettings.get("lang"));
+		assertEquals(userSettings.size(), loadedUserSettings.values.size());
+		assertEquals(userSettings.get("lang"), loadedUserSettings.values.get("lang"));
 	}
 
 	@Test
@@ -147,23 +147,25 @@ public class UserSettingsStoreTests {
 		// Test create settings
 		HashMap<String, String> userSettings = new HashMap<String, String>();
 		userSettings.put("lang", "fr");
-		userSettingsStore.create(item, userSettings);
+		userSettingsStore.create(item, UserSettings.of(userSettings));
 
 		// Test get settings by item ID
-		Map<String, String> loadedUserSettings = userSettingsStore.get(item);
+		UserSettings loadedUserSettings = userSettingsStore.get(item);
 		assertNotNull(loadedUserSettings);
+		assertNotNull(loadedUserSettings.values);
 
 		// Test update settings
 		userSettings.put("lang", "en");
 		userSettings.put("work_hours_end", "15");
-		userSettingsStore.update(item, userSettings);
+		userSettingsStore.update(item, UserSettings.of(userSettings));
 
 		// Test get settings by item ID
 		loadedUserSettings = userSettingsStore.get(item);
 		assertNotNull(loadedUserSettings);
-		assertEquals(userSettings.size(), loadedUserSettings.size());
-		assertEquals(userSettings.get("lang"), loadedUserSettings.get("lang"));
-		assertEquals(userSettings.get("work_hours_end"), loadedUserSettings.get("work_hours_end"));
+		assertNotNull(loadedUserSettings.values);
+		assertEquals(userSettings.size(), loadedUserSettings.values.size());
+		assertEquals(userSettings.get("lang"), loadedUserSettings.values.get("lang"));
+		assertEquals(userSettings.get("work_hours_end"), loadedUserSettings.values.get("work_hours_end"));
 	}
 
 	@Test
@@ -174,13 +176,13 @@ public class UserSettingsStoreTests {
 		userStore.create(item, u);
 
 		// Test create settings
-		HashMap<String, String> userSettings = new HashMap<String, String>();
+		HashMap<String, String> userSettings = new HashMap<>();
 		userSettings.put("lang", "fr");
-		userSettingsStore.create(item, userSettings);
+		userSettingsStore.create(item, UserSettings.of(userSettings));
 
 		// Test delete settings
 		userSettingsStore.delete(item);
-		Map<String, String> loadedUserSettings = userSettingsStore.get(item);
+		UserSettings loadedUserSettings = userSettingsStore.get(item);
 		assertNull(loadedUserSettings);
 	}
 
@@ -197,14 +199,15 @@ public class UserSettingsStoreTests {
 		User u2 = getDefaultUser();
 		userStore.create(item2, u2);
 
-		HashMap<String, String> userSettings = new HashMap<String, String>();
+		HashMap<String, String> userSettings = new HashMap<>();
 		userSettings.put("lang", "fr");
 
-		userSettingsStore.create(item, userSettings);
-		Map<String, String> us = userSettingsStore.get(item);
+		userSettingsStore.create(item, UserSettings.of(userSettings));
+		UserSettings us = userSettingsStore.get(item);
 		assertNotNull(us);
+		assertNotNull(us.values);
 
-		userSettingsStore.create(item2, userSettings);
+		userSettingsStore.create(item2, UserSettings.of(userSettings));
 		us = userSettingsStore.get(item2);
 		assertNotNull(us);
 

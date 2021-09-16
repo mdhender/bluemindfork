@@ -69,7 +69,7 @@ public class RestoreReplicatedMailboxes extends RestoreReplicated implements Res
 			monitor.log("APPLY MAILBOX aka " + replica.uid + " => " + syncResponse);
 			if (!syncResponse.startsWith("OK")) {
 				System.err.println("Failed on " + de.key + " => " + syncResponse);
-				System.exit(1);
+				logger.error("Failed on {}", replicatedMbox.applyMailboxCommand());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

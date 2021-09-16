@@ -106,8 +106,7 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 						handler.accept(rec.key(), rec.value());
 						processed.incrementAndGet();
 					} catch (Exception e) {
-						logger.error("handler {} failed, exit(1)", handler, e);
-						System.exit(1);
+						logger.error("handler {} failed, SHOULD exit(1)...", handler, e);
 					}
 
 					offsets.put(rec.partition(), rec.offset());

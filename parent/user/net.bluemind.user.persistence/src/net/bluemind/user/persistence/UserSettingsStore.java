@@ -30,8 +30,9 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.persistence.AbstractItemValueStore;
+import net.bluemind.user.api.UserSettings;
 
-public class UserSettingsStore extends AbstractItemValueStore<Map<String, String>> {
+public class UserSettingsStore extends AbstractItemValueStore<UserSettings> {
 	private static final Logger logger = LoggerFactory.getLogger(UserSettingsStore.class);
 
 	private final Container container;
@@ -45,18 +46,18 @@ public class UserSettingsStore extends AbstractItemValueStore<Map<String, String
 	}
 
 	@Override
-	public void create(Item item, Map<String, String> value) throws SQLException {
+	public void create(Item item, UserSettings value) throws SQLException {
 		StringBuilder query = new StringBuilder("INSERT INTO t_settings_user (item_id, ");
 		UserSettingsColumns.cols.appendNames(null, query);
 		query.append(") VALUES (" + item.id + ", ");
 		UserSettingsColumns.cols.appendValues(query);
 		query.append(")");
 
-		insert(query.toString(), value, UserSettingsColumns.statementValues());
+		insert(query.toString(), value.values, UserSettingsColumns.statementValues());
 	}
 
 	@Override
-	public void update(Item item, Map<String, String> value) throws SQLException {
+	public void update(Item item, UserSettings value) throws SQLException {
 		delete("DELETE FROM t_settings_user WHERE item_id = ?", new Object[] { item.id });
 
 		StringBuilder query = new StringBuilder("INSERT INTO t_settings_user (item_id, ");
@@ -65,7 +66,7 @@ public class UserSettingsStore extends AbstractItemValueStore<Map<String, String
 		UserSettingsColumns.cols.appendValues(query);
 		query.append(")");
 
-		insert(query.toString(), value, UserSettingsColumns.statementValues());
+		insert(query.toString(), value.values, UserSettingsColumns.statementValues());
 	}
 
 	@Override
@@ -74,7 +75,7 @@ public class UserSettingsStore extends AbstractItemValueStore<Map<String, String
 	}
 
 	@Override
-	public Map<String, String> get(Item item) throws SQLException {
+	public UserSettings get(Item item) throws SQLException {
 		StringBuilder query = new StringBuilder("SELECT ");
 
 		UserSettingsColumns.cols.appendNames(null, query);
@@ -83,7 +84,7 @@ public class UserSettingsStore extends AbstractItemValueStore<Map<String, String
 		query.append(" WHERE item_id = ").append(item.id);
 		Map<String, String> settings = unique(query.toString(), SETTINGS_CREATOR, UserSettingsColumns.populator());
 
-		return settings;
+		return settings == null ? null : UserSettings.of(settings);
 	}
 
 	@Override

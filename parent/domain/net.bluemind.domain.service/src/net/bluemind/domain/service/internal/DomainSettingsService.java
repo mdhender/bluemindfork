@@ -19,6 +19,7 @@
 package net.bluemind.domain.service.internal;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,7 @@ import net.bluemind.system.api.SysConfKeys;
 public class DomainSettingsService implements IDomainSettings, IInCoreDomainSettings {
 	private static final Logger logger = LoggerFactory.getLogger(DomainSettingsService.class);
 
-	private final ContainerStoreService<Map<String, String>> domainSettingsStoreService;
+	private final ContainerStoreService<DomainSettings> domainSettingsStoreService;
 	private final GlobalSettingsStore settingsStore;
 	private final DomainSettingsStore domainSettingsStore;
 	private final DomainSettingsValidator validator = new DomainSettingsValidator();
@@ -87,24 +88,26 @@ public class DomainSettingsService implements IDomainSettings, IInCoreDomainSett
 		logger.debug("Set domain settings: {}", domainUid);
 		DomainSettings newDomainSettings = new DomainSettings(domainUid, settings);
 
-		ItemValue<Map<String, String>> oldValues = domainSettingsStoreService.get(domainUid, null);
-		if (null == oldValues || null == oldValues.value || oldValues.value.isEmpty()) {
-			validator.create(context, settings, domainUid);
+		ItemValue<DomainSettings> oldValues = domainSettingsStoreService.get(domainUid, null);
+		Map<String, String> prev;
+		if (null == oldValues || null == oldValues.value || oldValues.value.settings == null
+				|| oldValues.value.settings.isEmpty()) {
+			validator.create(settings);
 			extValidator.create(newDomainSettings);
+			prev = Collections.emptyMap();
 		} else {
-			validator.update(context, oldValues.value, settings, domainUid);
-
-			DomainSettings oldDomainSettings = new DomainSettings(domainUid, oldValues.value);
-			extValidator.update(oldDomainSettings, newDomainSettings);
+			validator.update(oldValues.value.settings, settings, domainUid);
+			extValidator.update(oldValues.value, newDomainSettings);
+			prev = oldValues.value.settings;
 		}
 
-		domainSettingsStoreService.update(domainUid, null, settings);
+		domainSettingsStoreService.update(domainUid, null, newDomainSettings);
 
 		IDomains domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
 		ItemValue<Domain> domain = domainService.get(domainUid);
 
 		for (IDomainHook hook : hooks) {
-			hook.onSettingsUpdated(context, domain, oldValues.value, settings);
+			hook.onSettingsUpdated(context, domain, prev, settings);
 		}
 
 		VertxPlatform.eventBus().publish("domainsettings.updated", new JsonObject().put("containerUid", domainUid));
@@ -119,18 +122,18 @@ public class DomainSettingsService implements IDomainSettings, IInCoreDomainSett
 			return new HashMap<>(cached);
 		}
 
-		Map<String, String> domainSettings = new HashMap<String, String>();
+		Map<String, String> domainSettings = new HashMap<>();
 		try {
 			domainSettings.putAll(settingsStore.get());
 		} catch (SQLException sqle) {
 			throw new ServerFault(sqle);
 		}
 
-		ItemValue<Map<String, String>> ds = domainSettingsStoreService.get(domainUid, null);
+		ItemValue<DomainSettings> ds = domainSettingsStoreService.get(domainUid, null);
 		if (ds == null) {
 			return domainSettings;
-		} else if (ds.value != null && ds.value.size() > 0) {
-			domainSettings.putAll(ds.value);
+		} else if (ds.value != null && ds.value.settings != null && ds.value.settings.size() > 0) {
+			domainSettings.putAll(ds.value.settings);
 		}
 		cache.put(domainUid, domainSettings);
 
@@ -139,8 +142,7 @@ public class DomainSettingsService implements IDomainSettings, IInCoreDomainSett
 
 	private static List<IDomainHook> getHooks() {
 		RunnableExtensionLoader<IDomainHook> loader = new RunnableExtensionLoader<IDomainHook>();
-		List<IDomainHook> hooks = loader.loadExtensions("net.bluemind.domain", "domainHook", "hook", "class");
-		return hooks;
+		return loader.loadExtensions("net.bluemind.domain", "domainHook", "hook", "class");
 	}
 
 	@Override

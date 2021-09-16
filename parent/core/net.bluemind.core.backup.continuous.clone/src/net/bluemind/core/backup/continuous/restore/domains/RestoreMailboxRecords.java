@@ -88,10 +88,11 @@ public class RestoreMailboxRecords extends RestoreReplicated implements RestoreD
 			recordsBuffer.append(" SIZE ").append(state.getBodySize(rec.value.messageBody));
 			recordsBuffer.append(" GUID " + rec.value.messageBody).append(")");
 
-			String syncResponse = sync.applyMailbox(replicatedMbox, recordsBuffer.toString());
+			String recBuf = recordsBuffer.toString();
+			String syncResponse = sync.applyMailbox(replicatedMbox, recBuf);
 			if (!syncResponse.startsWith("OK")) {
 				logger.error("APPLY MAILBOX {} => {}, exit(1)", repl.mbox.uid, syncResponse);
-				System.exit(1);
+				logger.info("Failed on {}", replicatedMbox.applyMailboxCommand(recBuf));
 			}
 
 			monitor.log("APPLY MAILBOX aka " + repl.mbox.uid + " => " + syncResponse);

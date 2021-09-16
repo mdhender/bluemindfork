@@ -59,7 +59,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient<K, V> 
 			}
 			handle(records);
 			promise.complete(null);
-		}, true, (v) -> consume());
+		}, true, v -> consume());
 	}
 
 	private void handle(final ConsumerRecords<K, V> records) {

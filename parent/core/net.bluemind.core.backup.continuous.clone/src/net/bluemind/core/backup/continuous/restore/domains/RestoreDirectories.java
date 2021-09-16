@@ -43,7 +43,9 @@ import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
 import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
+import net.bluemind.user.api.UserSettings;
 
 public class RestoreDirectories implements RestoreDomainType {
 
@@ -64,6 +66,11 @@ public class RestoreDirectories implements RestoreDomainType {
 	private final ValueReader<ItemValue<FullDirEntry<ExternalUser>>> dirExtUReader = JsonUtils
 			.reader(new TypeReference<ItemValue<FullDirEntry<ExternalUser>>>() {
 			});
+
+	private final ValueReader<ItemValue<UserSettings>> userSettingsReader = JsonUtils
+			.reader(new TypeReference<ItemValue<UserSettings>>() {
+			});
+
 	private final ValueReader<ItemValue<DirEntry>> rawEntryReader = JsonUtils
 			.reader(new TypeReference<ItemValue<DirEntry>>() {
 			});
@@ -103,6 +110,12 @@ public class RestoreDirectories implements RestoreDomainType {
 			ItemValue<Seppuku> bye = byeReader.read(jsString);
 			byeAck.onSeppukuAck(bye.value);
 			return;
+		} else if ("net.bluemind.user.api.UserSettings".equals(de.key.valueClass)) {
+			ItemValue<UserSettings> settings = userSettingsReader.read(jsString);
+			IUserSettings setApi = target.instance(IUserSettings.class, de.key.uid);
+			monitor.log("User settings for " + settings.uid);
+			setApi.set(settings.uid, settings.value.values);
+			return;
 		}
 
 		JsonObject parsed = new JsonObject(jsString);
@@ -121,7 +134,6 @@ public class RestoreDirectories implements RestoreDomainType {
 		} catch (Exception e) {
 			monitor.log("Failed to process entry:" + e.getMessage());
 			e.printStackTrace();
-			System.exit(1);
 		}
 
 		monitor.log("Finished processing dir entry");

@@ -35,12 +35,13 @@ import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.user.api.IUserSettings;
+import net.bluemind.user.api.UserSettings;
 import net.bluemind.user.persistence.UserSettingsStore;
 
 public class UserSettingsService implements IUserSettings {
 	private static final Logger logger = LoggerFactory.getLogger(UserSettingsService.class);
 
-	private final ContainerStoreService<Map<String, String>> userSettingsStoreService;
+	private final ContainerStoreService<UserSettings> userSettingsStoreService;
 	private final Container userSettings;
 	private final UserSettingsStore userSettingsStore;
 	private final IDomainSettings domainSettingsService;
@@ -64,7 +65,7 @@ public class UserSettingsService implements IUserSettings {
 
 		logger.debug("Update user settings: {}", uid);
 		sanitizer.sanitize(settings, domainSettingsService);
-		userSettingsStoreService.update(uid, null, settings);
+		userSettingsStoreService.update(uid, null, UserSettings.of(settings));
 
 		VertxPlatform.eventBus().publish("usersettings.updated", getVertXEvent(uid));
 	}
@@ -81,11 +82,11 @@ public class UserSettingsService implements IUserSettings {
 			userSettings.putAll(ds);
 		}
 
-		ItemValue<Map<String, String>> us = userSettingsStoreService.get(uid, null);
+		ItemValue<UserSettings> us = userSettingsStoreService.get(uid, null);
 		if (us == null) {
 			return userSettings;
-		} else if (us.value != null && us.value.size() > 0) {
-			userSettings.putAll(us.value);
+		} else if (us.value != null && us.value.values != null && us.value.values.size() > 0) {
+			userSettings.putAll(us.value.values);
 		}
 
 		return userSettings;

@@ -21,7 +21,7 @@ import io.vertx.core.Promise;
 import net.bluemind.central.reverse.proxy.kafka.KafkaAdminClient;
 
 public class KafkaAdminClientImpl implements KafkaAdminClient {
-	private final Logger logger = LoggerFactory.getLogger(KafkaAdminClientImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(KafkaAdminClientImpl.class);
 
 	private final AdminClient adminClient;
 
@@ -29,6 +29,7 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
 		Properties props = new Properties();
 		props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 		this.adminClient = AdminClient.create(props);
+		logger.info("Created with {}: {}", bootstrapServers, adminClient);
 	}
 
 	@Override

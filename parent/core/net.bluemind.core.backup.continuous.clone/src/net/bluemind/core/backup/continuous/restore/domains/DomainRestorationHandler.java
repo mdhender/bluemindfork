@@ -33,6 +33,8 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 				new RestoreReplicatedMailboxes(monitor, domain, state), //
 				new RestoreMapiArtifacts(monitor, domain, target), //
 				new RestoreFlatHierarchy(monitor, domain, target), //
+				new RestoreVCard(monitor, target), //
+				new RestoreVEventSeries(monitor, target), //
 				new RestoreMembership(monitor, domain, target), //
 				new RestoreRoles(monitor, domain, target), //
 				new RestoreOrgUnitAdminRoles(monitor, domain, target) //

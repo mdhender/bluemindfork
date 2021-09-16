@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -37,6 +36,7 @@ import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.domain.api.DomainSettings;
 import net.bluemind.domain.persistence.DomainSettingsStore;
 
 public class DomainSettingsStoreTests {
@@ -50,7 +50,6 @@ public class DomainSettingsStoreTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
 		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
@@ -88,7 +87,7 @@ public class DomainSettingsStoreTests {
 		Item item = domainItemStore.get(domainUid);
 
 		// Test get by item ID
-		Map<String, String> domainSettings = domainSettingsStore.get(item);
+		DomainSettings domainSettings = domainSettingsStore.get(item);
 		assertNull(domainSettings);
 	}
 
@@ -100,10 +99,11 @@ public class DomainSettingsStoreTests {
 		// Test create settings
 		HashMap<String, String> domainSettings = new HashMap<String, String>();
 		domainSettings.put("lang", "fr");
-		domainSettingsStore.create(item, domainSettings);
+		domainSettingsStore.create(item, new DomainSettings(item.uid, domainSettings));
 
-		Map<String, String> loadedDomainSettings = domainSettingsStore.get(item);
+		DomainSettings loadedDomainSettings = domainSettingsStore.get(item);
 		assertNotNull(loadedDomainSettings);
+		assertNotNull(loadedDomainSettings.settings);
 	}
 
 	@Test
@@ -114,13 +114,13 @@ public class DomainSettingsStoreTests {
 		// Test create settings
 		HashMap<String, String> domainSettings = new HashMap<String, String>();
 		domainSettings.put("lang", "fr");
-		domainSettingsStore.create(item, domainSettings);
+		domainSettingsStore.create(item, new DomainSettings(item.uid, domainSettings));
 
 		// Test get settings by item ID
-		Map<String, String> loadedDomainSettings = domainSettingsStore.get(item);
+		DomainSettings loadedDomainSettings = domainSettingsStore.get(item);
 		assertNotNull(loadedDomainSettings);
-		assertEquals(domainSettings.size(), loadedDomainSettings.size());
-		assertEquals(domainSettings.get("lang"), loadedDomainSettings.get("lang"));
+		assertEquals(domainSettings.size(), loadedDomainSettings.settings.size());
+		assertEquals(domainSettings.get("lang"), loadedDomainSettings.settings.get("lang"));
 	}
 
 	@Test
@@ -131,23 +131,24 @@ public class DomainSettingsStoreTests {
 		// Test create settings
 		HashMap<String, String> domainSettings = new HashMap<String, String>();
 		domainSettings.put("lang", "fr");
-		domainSettingsStore.create(item, domainSettings);
+		domainSettingsStore.create(item, new DomainSettings(item.uid, domainSettings));
 
 		// Test get settings by item ID
-		Map<String, String> loadedDomainSettings = domainSettingsStore.get(item);
+		DomainSettings loadedDomainSettings = domainSettingsStore.get(item);
 		assertNotNull(loadedDomainSettings);
+		assertNotNull(loadedDomainSettings.settings);
 
 		// Test update settings
 		domainSettings.put("lang", "en");
 		domainSettings.put("work_hours_end", "15");
-		domainSettingsStore.update(item, domainSettings);
+		domainSettingsStore.update(item, new DomainSettings(item.uid, domainSettings));
 
 		// Test get settings by item ID
 		loadedDomainSettings = domainSettingsStore.get(item);
 		assertNotNull(loadedDomainSettings);
-		assertEquals(domainSettings.size(), loadedDomainSettings.size());
-		assertEquals(domainSettings.get("lang"), loadedDomainSettings.get("lang"));
-		assertEquals(domainSettings.get("work_hours_end"), loadedDomainSettings.get("work_hours_end"));
+		assertEquals(domainSettings.size(), loadedDomainSettings.settings.size());
+		assertEquals(domainSettings.get("lang"), loadedDomainSettings.settings.get("lang"));
+		assertEquals(domainSettings.get("work_hours_end"), loadedDomainSettings.settings.get("work_hours_end"));
 	}
 
 	@Test
@@ -156,13 +157,13 @@ public class DomainSettingsStoreTests {
 		Item item = domainItemStore.get(domainUid);
 
 		// Test create settings
-		HashMap<String, String> domainSettings = new HashMap<String, String>();
+		HashMap<String, String> domainSettings = new HashMap<>();
 		domainSettings.put("lang", "fr");
-		domainSettingsStore.create(item, domainSettings);
+		domainSettingsStore.create(item, new DomainSettings(item.uid, domainSettings));
 
 		// Test delete settings
 		domainSettingsStore.delete(item);
-		Map<String, String> loadedDomainSettings = domainSettingsStore.get(item);
+		DomainSettings loadedDomainSettings = domainSettingsStore.get(item);
 		assertNull(loadedDomainSettings);
 	}
 
@@ -174,14 +175,15 @@ public class DomainSettingsStoreTests {
 		domainItemStore.create(Item.create(domainUid2, null));
 		Item item2 = domainItemStore.get(domainUid2);
 
-		HashMap<String, String> domainSettings = new HashMap<String, String>();
+		HashMap<String, String> domainSettings = new HashMap<>();
 		domainSettings.put("lang", "fr");
 
-		domainSettingsStore.create(item, domainSettings);
-		Map<String, String> us = domainSettingsStore.get(item);
+		domainSettingsStore.create(item, new DomainSettings(item.uid, domainSettings));
+		DomainSettings us = domainSettingsStore.get(item);
 		assertNotNull(us);
+		assertNotNull(us.settings);
 
-		domainSettingsStore.create(item2, domainSettings);
+		domainSettingsStore.create(item2, new DomainSettings(item2.uid, domainSettings));
 		us = domainSettingsStore.get(item2);
 		assertNotNull(us);
 

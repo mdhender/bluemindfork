@@ -17,7 +17,10 @@
  */
 package net.bluemind.core.backup.continuous.state;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -61,8 +64,13 @@ public class LeaderStateListener implements IStateListener {
 	}
 
 	private void preventCoreStart() {
-		boolean set = new File("/etc/bm/bm-core.disabled").setLastModified(System.currentTimeMillis());
-		logger.info("Wrote ({}) /etc/bm/bm-core.disabled to prevent further starts.", set);
+		try {
+			Path path = Paths.get("/etc/bm/bm-core.disabled");
+			Files.createFile(path);
+			logger.info("Wrote ({}) /etc/bm/bm-core.disabled to prevent further starts.", path);
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
 
 	private void writeByeMessageToKafka(ServerSideServiceProvider prov) {

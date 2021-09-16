@@ -38,6 +38,8 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class CyrusServiceVerticle extends AbstractVerticle {
 
@@ -69,10 +71,12 @@ public class CyrusServiceVerticle extends AbstractVerticle {
 		mailboxDsConsumer.handler(message -> {
 			if (message.body().intValue() > 0) {
 				mailboxDsConsumer.unregister();
-
+				logger.info("Timer {} - restarting cyrus server(s)", id);
 				servers.forEach(server -> {
-					CyrusService cyrusService = new CyrusService(server.value.address());
-					cyrusService.reload();
+					if (StateContext.getState() != SystemState.CORE_STATE_CLONING) {
+						CyrusService cyrusService = new CyrusService(server.value.address());
+						cyrusService.reload();
+					}
 					if (PROBED_DISABLED) {
 						logger.warn("Probe will not start because {} exists.", PROBE_FN);
 					} else {

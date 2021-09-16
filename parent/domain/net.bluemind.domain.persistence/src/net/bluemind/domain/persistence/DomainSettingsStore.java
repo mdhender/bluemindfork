@@ -31,8 +31,9 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.persistence.AbstractItemValueStore;
+import net.bluemind.domain.api.DomainSettings;
 
-public class DomainSettingsStore extends AbstractItemValueStore<Map<String, String>> {
+public class DomainSettingsStore extends AbstractItemValueStore<DomainSettings> {
 
 	private static final Logger logger = LoggerFactory.getLogger(DomainSettingsStore.class);
 
@@ -41,7 +42,7 @@ public class DomainSettingsStore extends AbstractItemValueStore<Map<String, Stri
 	private static final Creator<Map<String, String>> DOMAIN_CREATOR = new Creator<Map<String, String>>() {
 		@Override
 		public Map<String, String> create(ResultSet con) throws SQLException {
-			return new HashMap<String, String>();
+			return new HashMap<>();
 		}
 	};
 
@@ -52,18 +53,18 @@ public class DomainSettingsStore extends AbstractItemValueStore<Map<String, Stri
 	}
 
 	@Override
-	public void create(Item item, Map<String, String> value) throws SQLException {
+	public void create(Item item, DomainSettings value) throws SQLException {
 		StringBuilder query = new StringBuilder("INSERT INTO t_settings_domain (item_id, ");
 		DomainSettingsColumns.appendNames(null, query);
 		query.append(") VALUES (" + item.id + ", ");
 		DomainSettingsColumns.appendValues(query);
 		query.append(")");
 
-		insert(query.toString(), value, DomainSettingsColumns.statementValues());
+		insert(query.toString(), value.settings, DomainSettingsColumns.statementValues());
 	}
 
 	@Override
-	public void update(Item item, Map<String, String> value) throws SQLException {
+	public void update(Item item, DomainSettings value) throws SQLException {
 		delete("DELETE FROM t_settings_domain WHERE item_id = ?", new Object[] { item.id });
 
 		StringBuilder query = new StringBuilder("INSERT INTO t_settings_domain (item_id, ");
@@ -72,7 +73,7 @@ public class DomainSettingsStore extends AbstractItemValueStore<Map<String, Stri
 		DomainSettingsColumns.appendValues(query);
 		query.append(")");
 
-		insert(query.toString(), value, DomainSettingsColumns.statementValues());
+		insert(query.toString(), value.settings, DomainSettingsColumns.statementValues());
 	}
 
 	@Override
@@ -81,7 +82,7 @@ public class DomainSettingsStore extends AbstractItemValueStore<Map<String, Stri
 	}
 
 	@Override
-	public Map<String, String> get(Item item) throws SQLException {
+	public DomainSettings get(Item item) throws SQLException {
 		StringBuilder query = new StringBuilder("SELECT ");
 
 		DomainSettingsColumns.appendNames(null, query);
@@ -90,7 +91,7 @@ public class DomainSettingsStore extends AbstractItemValueStore<Map<String, Stri
 		query.append(" WHERE item_id = ").append(item.id);
 		Map<String, String> settings = unique(query.toString(), DOMAIN_CREATOR, DomainSettingsColumns.populator());
 
-		return settings;
+		return settings == null ? null : new DomainSettings(item.uid, settings);
 	}
 
 	@Override

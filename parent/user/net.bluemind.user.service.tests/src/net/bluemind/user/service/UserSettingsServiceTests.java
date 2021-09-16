@@ -54,6 +54,7 @@ import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUserSettings;
+import net.bluemind.user.api.UserSettings;
 import net.bluemind.user.persistence.UserSettingsStore;
 
 public class UserSettingsServiceTests {
@@ -235,7 +236,7 @@ public class UserSettingsServiceTests {
 
 	@Test
 	public void domainSettingsDontDescendToUserSettings() throws ServerFault, InterruptedException, SQLException {
-		HashMap<String, String> userSettings = new HashMap<String, String>();
+		HashMap<String, String> userSettings = new HashMap<>();
 		userSettings.put("lang", "en");
 		userSettings.put("work_hours_end", "12");
 
@@ -254,11 +255,11 @@ public class UserSettingsServiceTests {
 		UserSettingsStore userSettingsStore = new UserSettingsStore(JdbcActivator.getInstance().getDataSource(),
 				userSettingsContainer);
 
-		ContainerStoreService<Map<String, String>> userSettingsStoreService = new ContainerStoreService<>(
+		ContainerStoreService<UserSettings> userSettingsStoreService = new ContainerStoreService<>(
 				JdbcActivator.getInstance().getDataSource(), SecurityContext.SYSTEM, userSettingsContainer,
 				userSettingsStore);
 
-		Map<String, String> us = userSettingsStoreService.get(user1, null).value;
+		Map<String, String> us = userSettingsStoreService.get(user1, null).value.values;
 
 		assertEquals("12", us.get("work_hours_end"));
 		assertEquals("en", us.get("lang"));

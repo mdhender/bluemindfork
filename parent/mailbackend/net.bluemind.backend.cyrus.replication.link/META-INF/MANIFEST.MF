@@ -20,5 +20,7 @@ Require-Bundle: net.bluemind.lib.vertx;bundle-version="4.1.0",
  net.bluemind.backend.cyrus.replication.observers,
  net.bluemind.metrics.registry,
  net.bluemind.core.task.service;bundle-version="4.1.0",
- net.bluemind.domain.api
+ net.bluemind.domain.api,
+ net.bluemind.system.state,
+ net.bluemind.system.api
 Export-Package: net.bluemind.backend.cyrus.replication.link.probe
