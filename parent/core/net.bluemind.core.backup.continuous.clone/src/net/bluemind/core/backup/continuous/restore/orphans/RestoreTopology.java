@@ -43,15 +43,19 @@ public class RestoreTopology {
 	private final IServiceProvider target;
 	private final TopologyMapping topologyMapping;
 
+	private String coreTok;
+
 	public class PromotingServer {
 		public ItemValue<Server> leader;
 		public ItemValue<Server> clone;
 	}
 
-	public RestoreTopology(String installationId, IServiceProvider target, TopologyMapping topologyMapping) {
+	public RestoreTopology(String installationId, IServiceProvider target, TopologyMapping topologyMapping,
+			String coreTok) {
 		this.installationId = installationId;
 		this.target = target;
 		this.topologyMapping = topologyMapping;
+		this.coreTok = coreTok;
 	}
 
 	public Map<String, PromotingServer> restore(IServerTaskMonitor monitor, List<DataElement> servers) {
@@ -62,6 +66,9 @@ public class RestoreTopology {
 		AtomicBoolean resetES = new AtomicBoolean();
 		List<PromotingServer> touched = new LinkedList<>();
 		servers.forEach(srvDE -> {
+			if (!srvDE.key.valueClass.equals(Server.class.getCanonicalName())) {
+				return;
+			}
 			String asStr = new String(srvDE.payload);
 			ItemValue<Server> leader = topoReader.read(asStr);
 			ItemValue<Server> srv = topoReader.read(asStr);

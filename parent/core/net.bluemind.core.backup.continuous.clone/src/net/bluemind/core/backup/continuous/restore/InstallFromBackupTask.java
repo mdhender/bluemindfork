@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,7 @@ import net.bluemind.core.backup.continuous.restore.mbox.DefaultSdsStoreLoader;
 import net.bluemind.core.backup.continuous.restore.mbox.ISdsStoreLoader;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreDomains;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreSysconf;
+import net.bluemind.core.backup.continuous.restore.orphans.RestoreToken;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreTopology;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreTopology.PromotingServer;
 import net.bluemind.core.backup.continuous.store.ITopicStore.IResumeToken;
@@ -120,9 +122,10 @@ public class InstallFromBackupTask implements IServerTask {
 		public Map<String, PromotingServer> topology;
 		public Map<String, ItemValue<Domain>> domains;
 		public SystemConf sysconf;
+		public String admin0Token;
 
 		public ClonedOrphans(Map<String, PromotingServer> topology, Map<String, ItemValue<Domain>> domains,
-				SystemConf sysconf) {
+				SystemConf sysconf, String admin0Token) {
 			this.topology = topology;
 			this.domains = domains;
 			this.sysconf = sysconf;
@@ -135,11 +138,14 @@ public class InstallFromBackupTask implements IServerTask {
 		Map<String, List<DataElement>> orphansByType = new HashMap<>();
 		IResumeToken prevState = cloneState.forTopic(orphansStream);
 		System.err.println("prevState for " + orphansStream + " -> " + prevState);
+		AtomicReference<String> coreToke = new AtomicReference<>();
 		IResumeToken orphansStreamIndex = orphansStream.subscribe(prevState, de -> {
 			orphansByType.computeIfAbsent(de.key.type, key -> new ArrayList<>()).add(de);
 		});
 
-		Map<String, PromotingServer> topology = new RestoreTopology(installationId, target, topologyMapping)
+		String coreTok = new RestoreToken().restore(monitor,
+				orphansByType.getOrDefault("installation", new ArrayList<>()));
+		Map<String, PromotingServer> topology = new RestoreTopology(installationId, target, topologyMapping, coreTok)
 				.restore(monitor, orphansByType.getOrDefault("installation", new ArrayList<>()));
 		System.err.println("topo is " + topology);
 
@@ -152,7 +158,7 @@ public class InstallFromBackupTask implements IServerTask {
 		recordProcessed(monitor, cloneState, orphansStream, orphansStreamIndex);
 		orphansByType.clear();
 		monitor.end(true, "Orphans cloned", null);
-		return new ClonedOrphans(topology, domains, sysconf);
+		return new ClonedOrphans(topology, domains, sysconf, coreTok);
 	}
 
 	public void cloneDomains(IServerTaskMonitor monitor, List<ILiveStream> domainStreams, CloneState cloneState,
