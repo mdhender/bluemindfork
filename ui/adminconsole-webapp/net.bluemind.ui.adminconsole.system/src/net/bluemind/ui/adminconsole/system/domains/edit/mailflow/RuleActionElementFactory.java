@@ -52,7 +52,7 @@ public class RuleActionElementFactory {
 		case "SenderInOuRule":
 			return new SenderInOuRule(parent, descriptor, ruleIdentifiers, config, domainUid);
 		case "SenderInGroupRule":
-			return new SenderInGroupRule(parent, descriptor, ruleIdentifiers, config, domainUid);
+			return new SenderInGroupRule(parent, descriptor, config, domainUid);
 		case "SenderIsRule":
 			return new SenderIsRule(parent, descriptor, ruleIdentifiers, config, domainUid);
 		case "SendDateIsBefore":

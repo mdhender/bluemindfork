@@ -42,6 +42,7 @@ import net.bluemind.mailflow.api.MailRuleActionAssignment;
 import net.bluemind.mailflow.api.MailRuleDescriptor;
 import net.bluemind.mailflow.api.gwt.endpoint.MailflowRulesGwtEndpoint;
 import net.bluemind.ui.adminconsole.system.domains.DomainKeys;
+import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.rules.SenderInGroupRule;
 import net.bluemind.ui.common.client.forms.Ajax;
 
 public class EditMailflowRulesEditor extends CompositeGwtWidgetElement {
@@ -80,25 +81,27 @@ public class EditMailflowRulesEditor extends CompositeGwtWidgetElement {
 
 		final JsMapStringJsObject map = model.cast();
 		final String domainUid = map.getString(DomainKeys.domainUid.name());
+		final String sessionId = Ajax.TOKEN.getSessionId();
 
 		addRuleAssignment.setStyleName("button");
-		IMailflowRulesPromise ruleService = new MailflowRulesGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid)
-				.promiseApi();
+		SenderInGroupRule.loadGroups(sessionId, domainUid)
+				.thenRun(() -> initRuleAssignmentWidgets(sessionId, domainUid));
+	}
 
+	private void initRuleAssignmentWidgets(String sessionId, String domainUid) {
+		IMailflowRulesPromise ruleService = new MailflowRulesGwtEndpoint(sessionId, domainUid).promiseApi();
 		CompletableFuture<List<MailRuleDescriptor>> listRules = ruleService.listRules();
 		CompletableFuture<List<MailActionDescriptor>> listActions = ruleService.listActions();
 		CompletableFuture<List<MailRuleActionAssignment>> listAssignments = ruleService.listAssignments();
 
-		listRules.thenAcceptBoth(listActions, (ruleIdentifiers, actionIdentifiers) -> {
-			listAssignments.thenAccept(assignments -> {
-				assignments.stream().sorted((a, b) -> Integer.compare(a.position, b.position))
-						.forEach(assignment -> ruleTable.add(
-								new RuleAssignmentWidget(ruleIdentifiers, actionIdentifiers, assignment, domainUid)));
-				addRuleAssignment.addClickHandler(c -> {
-					ruleTable.add(new RuleAssignmentWidget(ruleIdentifiers, actionIdentifiers, domainUid));
-				});
-			});
-		});
+		listRules.thenAcceptBoth(listActions,
+				(ruleIdentifiers, actionIdentifiers) -> listAssignments.thenAccept(assignments -> {
+					assignments.stream().sorted((a, b) -> Integer.compare(a.position, b.position))
+							.forEach(assignment -> ruleTable.add(new RuleAssignmentWidget(ruleIdentifiers,
+									actionIdentifiers, assignment, domainUid)));
+					addRuleAssignment.addClickHandler(c -> ruleTable
+							.add(new RuleAssignmentWidget(ruleIdentifiers, actionIdentifiers, domainUid)));
+				}));
 	}
 
 	@Override
@@ -127,8 +130,7 @@ public class EditMailflowRulesEditor extends CompositeGwtWidgetElement {
 					}
 				});
 			}
-			uids.forEach(uid -> ruleService.delete(uid));
+			uids.forEach(ruleService::delete);
 		});
 	}
-
 }

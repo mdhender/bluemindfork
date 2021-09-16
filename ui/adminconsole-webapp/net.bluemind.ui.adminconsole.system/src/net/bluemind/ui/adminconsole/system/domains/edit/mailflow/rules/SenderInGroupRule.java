@@ -18,14 +18,11 @@
  */
 package net.bluemind.ui.adminconsole.system.domains.edit.mailflow.rules;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -33,9 +30,13 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Panel;
 
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectoryPromise;
+import net.bluemind.directory.api.gwt.endpoint.DirectoryGwtEndpoint;
 import net.bluemind.group.api.IGroupPromise;
 import net.bluemind.group.api.gwt.endpoint.GroupGwtEndpoint;
-import net.bluemind.gwtconsoleapp.base.editor.Ajax;
+import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.mailflow.api.MailRuleDescriptor;
 import net.bluemind.mailflow.api.MailflowRule;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.RuleAssignmentWidget;
@@ -45,45 +46,36 @@ public class SenderInGroupRule extends RuleTreeItem {
 	Panel disclaimerConfig = new FlowPanel();
 	private Grid tbl;
 	private ListBox selectedValue = new ListBox();
-	private Map<String, String> groupMapping = new HashMap<>();
-	private Map<String, String> groupReverseMapping = new HashMap<>();
+	private String assignmentDesc = "";
+	private static List<ItemValue<DirEntry>> groups;
 
-	@Override
-	public CompletableFuture<Void> init() {
-		return CompletableFuture.runAsync(() -> fillGroupListBox(domainUid));
-	}
-
-	public SenderInGroupRule(RuleAssignmentWidget parent, MailRuleDescriptor descriptor,
-			List<MailRuleDescriptor> ruleIdentifiers, Panel config, String domainUid) {
+	public SenderInGroupRule(RuleAssignmentWidget parent, MailRuleDescriptor descriptor, Panel config,
+			String domainUid) {
 		super(parent, descriptor, config, domainUid);
+		this.assignmentDesc = parent.getDescription();
 		selectedValue.getElement().setAttribute("style", "width: 200px");
 		tbl = new Grid(1, 1);
 		tbl.setCellPadding(10);
 		tbl.setWidget(0, 0, selectedValue);
 		disclaimerConfig.add(tbl);
 		addListener();
+		fillGroupListBox();
 	}
 
-	private CompletableFuture<Void> fillGroupListBox(String domainUid) {
-		CompletableFuture<Void> future = new CompletableFuture<>();
-		resetFields();
-		IGroupPromise groupPromise = new GroupGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid).promiseApi();
-		groupPromise.allUids().thenAccept(list -> {
-			List<CompletableFuture<Void>> futures = new ArrayList<>();
-			for (String group : list) {
-				CompletableFuture<Void> subTask = new CompletableFuture<>();
-				futures.add(subTask);
-				groupPromise.getComplete(group).thenAccept(complete -> {
-					groupMapping.put(complete.uid, complete.value.name);
-					groupReverseMapping.put(complete.value.name, complete.uid);
-					selectedValue.addItem(complete.value.name);
-					subTask.complete(null);
-				});
-			}
-			CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]))
-					.thenRun(() -> future.complete(null));
+	public static CompletableFuture<Void> loadGroups(String sessionId, String domainUid) {
+		IGroupPromise groupPromise = new GroupGwtEndpoint(sessionId, domainUid).promiseApi();
+		return groupPromise.allUids().thenCompose(list -> {
+			IDirectoryPromise directoryPromise = new DirectoryGwtEndpoint(sessionId, domainUid).promiseApi();
+			return directoryPromise.getMultiple(list);
+		}).thenCompose(list -> {
+			SenderInGroupRule.groups = list;
+			return CompletableFuture.completedFuture(null);
 		});
-		return future;
+	}
+
+	private void fillGroupListBox() {
+		resetFields();
+		SenderInGroupRule.groups.forEach(group -> selectedValue.addItem(group.value.displayName, group.uid));
 	}
 
 	private void resetFields() {
@@ -99,21 +91,21 @@ public class SenderInGroupRule extends RuleTreeItem {
 
 	private ClickHandler createClickHandler() {
 		return (c -> {
-			config.forEach(w -> config.remove(w));
+			config.forEach(config::remove);
 			config.add(disclaimerConfig);
 		});
 	}
 
 	@Override
 	public MailflowRule toRule() {
-		if (selectedValue.getSelectedIndex() == -1 || groupMapping.isEmpty()) {
+		if (selectedValue.getSelectedIndex() == -1) {
 			return null;
 		}
 		MailflowRule rule = new MailflowRule();
 		rule.ruleIdentifier = super.ruleIdentifier;
 		rule.configuration = new HashMap<>();
 		String selectedItemText = ((ListBox) tbl.getWidget(0, 0)).getSelectedItemText();
-		String value = groupReverseMapping.get(selectedItemText);
+		String value = ((ListBox) tbl.getWidget(0, 0)).getSelectedValue();
 		rule.configuration.put("groupUid", value);
 		rule.configuration.put("groupName", selectedItemText);
 		return rule;
@@ -122,19 +114,26 @@ public class SenderInGroupRule extends RuleTreeItem {
 	@Override
 	public void set(Map<String, String> configuration) {
 		String group = configuration.get("groupUid");
+		String name = configuration.get("groupName");
 		if (null != group) {
-			fillGroupListBox(domainUid).thenRun(() -> {
-				String name = groupMapping.get(group);
-				for (Entry<String, String> a : groupMapping.entrySet()) {
-					GWT.log(a.getKey() + " --> " + a.getValue());
+			fillGroupListBox();
+			boolean hasFoundSelected = false;
+			for (int i = 0; i < selectedValue.getItemCount(); i++) {
+				if (selectedValue.getItemText(i).equals(name)) {
+					selectedValue.setSelectedIndex(i);
+					hasFoundSelected = true;
+					break;
 				}
-				for (int i = 0; i < selectedValue.getItemCount(); i++) {
-					if (selectedValue.getItemText(i).equals(name)) {
-						selectedValue.setSelectedIndex(i);
-						break;
-					}
-				}
-			});
+			}
+			if (!hasFoundSelected) {
+				selectedValue.addItem(name, group);
+				selectedValue.setSelectedIndex(selectedValue.getItemCount() - 1);
+				// throw an error if group has been deleted and still referenced in a mailflow
+				// rule
+				String errorMsg = "A mailflow rule contains a deleted group, you need to update it (assignment: "
+						+ assignmentDesc + " , deleted group: " + name + ")";
+				Notification.get().reportError(errorMsg);
+			}
 		}
 	}
 

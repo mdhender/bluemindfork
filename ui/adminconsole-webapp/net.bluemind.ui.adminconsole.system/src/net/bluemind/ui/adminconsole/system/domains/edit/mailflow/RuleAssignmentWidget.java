@@ -225,9 +225,6 @@ public class RuleAssignmentWidget extends Composite {
 		actionTitle.setText(RuleTexts.resolve(assignment.actionIdentifier));
 		removeAction.setVisible(true);
 		positionSelect.setSelectedIndex(Math.max(0, assignment.position - 1));
-		buildRuleTree(assignment.rules, ruleIdentifiers);
-		buildActionField(assignment.actionIdentifier, assignment.actionConfiguration);
-
 		if (assignment.mode == ExecutionMode.STOP_AFTER_EXECUTION) {
 			executionMode.setSelectedIndex(1);
 		}
@@ -240,7 +237,12 @@ public class RuleAssignmentWidget extends Composite {
 
 		description.setText(assignment.description);
 		isActive.setValue(assignment.isActive);
+
 		group.setText(assignment.group);
+
+		buildRuleTree(assignment.rules, ruleIdentifiers);
+		buildActionField(assignment.actionIdentifier, assignment.actionConfiguration);
+
 	}
 
 	private void buildActionField(String actionIdentifier, Map<String, String> actionConfiguration) {
@@ -269,6 +271,10 @@ public class RuleAssignmentWidget extends Composite {
 
 	public void treeReset() {
 		addRule.setVisible(true);
+	}
+
+	public String getDescription() {
+		return this.description.getText();
 	}
 
 	public Optional<MailRuleActionAssignment> get() {

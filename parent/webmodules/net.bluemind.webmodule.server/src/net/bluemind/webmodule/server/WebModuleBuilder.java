@@ -132,8 +132,8 @@ public class WebModuleBuilder {
 		for (String depBundle : j.getDependencies()) {
 			// should resolve every jsEntry of depBundle
 			logger.debug("resolve dependency {} for {}", depBundle, j.getBundle());
-			
-			for (JsEntry entry : getEntriesByBundle(depBundle)) {
+
+			for (JsEntry entry : getEntriesByBundle(depBundle, j)) {
 				if (!resolved.contains(entry.path)) {
 					if (unresolved.contains(entry.path)) {
 						throw new RuntimeException("circular dependency " + j.getBundle() + " -> " + depBundle);
@@ -150,13 +150,14 @@ public class WebModuleBuilder {
 		}
 	}
 
-	private List<JsEntry> getEntriesByBundle(String bundle) {		
-		List<JsEntry> result = js.stream()
-				.filter(entry -> bundle.equals(entry.getBundle())).collect(Collectors.toList());
+	private List<JsEntry> getEntriesByBundle(String bundle, JsEntry j) {
+		List<JsEntry> result = js.stream().filter(entry -> bundle.equals(entry.getBundle()))
+				.collect(Collectors.toList());
 		if (!result.isEmpty()) {
 			return result;
 		}
-		throw new RuntimeException("dependency " + bundle + " not found");
+		throw new RuntimeException(
+				"dependency " + bundle + " not found for JsEntry " + j.path + " (" + j.getBundle() + ")");
 	}
 
 	private JsEntry getEntryByPath(String path) {

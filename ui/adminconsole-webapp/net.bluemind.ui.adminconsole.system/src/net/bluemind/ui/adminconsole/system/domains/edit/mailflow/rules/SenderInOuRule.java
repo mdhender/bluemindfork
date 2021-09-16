@@ -105,7 +105,7 @@ public class SenderInOuRule extends RuleTreeItem {
 
 	private ClickHandler createClickHandler() {
 		return (c -> {
-			config.forEach(w -> config.remove(w));
+			config.forEach(config::remove);
 			config.add(disclaimerConfig);
 		});
 	}

@@ -49,12 +49,10 @@ public class CompositeTreeItem extends RuleTreeItem {
 
 	private ClickHandler createClickHandler(List<MailRuleDescriptor> ruleIdentifiers) {
 		return (c -> {
-			config.forEach(w -> config.remove(w));
+			config.forEach(config::remove);
 			List<String> ruleIds = ruleIdentifiers.stream().map(r -> r.ruleIdentifier).collect(Collectors.toList());
-			RuleActionPopup popup = new RuleActionPopup(ruleIds, ruleIdentifier -> {
-				this.addItem(RuleActionElementFactory.getRuleByIdentifier(parent, ruleIdentifier, ruleIdentifiers,
-						config, domainUid));
-			});
+			RuleActionPopup popup = new RuleActionPopup(ruleIds, ruleIdentifier -> this.addItem(RuleActionElementFactory
+					.getRuleByIdentifier(parent, ruleIdentifier, ruleIdentifiers, config, domainUid)));
 			popup.setModal(true);
 			popup.setPopupPosition(c.getClientX(), c.getClientY());
 			popup.show();
@@ -62,12 +60,10 @@ public class CompositeTreeItem extends RuleTreeItem {
 	}
 
 	public List<MailflowRule> resolveChildren() {
-		List<MailflowRule> children = new ArrayList<MailflowRule>();
-
+		List<MailflowRule> children = new ArrayList<>();
 		for (int i = 0; i < getChildCount(); i++) {
 			children.add(((RuleTreeItem) getChild(i)).toRule());
 		}
-
 		return children;
 	}
 
@@ -82,6 +78,7 @@ public class CompositeTreeItem extends RuleTreeItem {
 
 	@Override
 	public void set(Map<String, String> configuration) {
+		// nothing to set
 	}
 
 }
