@@ -30,6 +30,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 
 /**
@@ -49,8 +50,7 @@ public interface IOrgUnits {
 	/**
 	 * Get {@link OrgUnit} by UID
 	 * 
-	 * @param uid
-	 *                UID
+	 * @param uid UID
 	 * @return {@link net.bluemind.core.container.model.ItemValue} containing the
 	 *         {@link OrgUnit}, or null if not found
 	 */
@@ -61,8 +61,7 @@ public interface IOrgUnits {
 	/**
 	 * Get all child elements of an {@link OrgUnit}
 	 * 
-	 * @param uid
-	 *                {@link OrgUnit} UID
+	 * @param uid {@link OrgUnit} UID
 	 * @return {@link net.bluemind.core.container.model.ItemValue}s containing the
 	 *         {@link OrgUnit}s
 	 */
@@ -73,32 +72,49 @@ public interface IOrgUnits {
 	/**
 	 * Create an {@link OrgUnit}
 	 * 
-	 * @param uid
-	 *                  Unique ID of the new {@link OrgUnit}
-	 * @param value
-	 *                  {@link OrgUnit}
+	 * @param uid   Unique ID of the new {@link OrgUnit}
+	 * @param value {@link OrgUnit}
 	 */
 	@PUT
 	@Path("{uid}")
 	public void create(@PathParam(value = "uid") String uid, OrgUnit value);
 
 	/**
+	 * Creates a new {@link OrgUnit} with the given uid and {@link ItemValue}
+	 * 
+	 * @param uid         the {@link OrgUnit}'s unique id
+	 * @param orgUnitItem {@link ItemValue}
+	 * @throws ServerFault standard error object
+	 */
+	@PUT
+	@Path("{uid}/createwithitem")
+	public void createWithItem(@PathParam(value = "uid") String uid, ItemValue<OrgUnit> orgUnitItem);
+
+	/**
 	 * Update an {@link OrgUnit}
 	 * 
-	 * @param uid
-	 *                  UID of the {@link OrgUnit}
-	 * @param value
-	 *                  {@link OrgUnit}
+	 * @param uid   UID of the {@link OrgUnit}
+	 * @param value {@link OrgUnit}
 	 */
 	@POST
 	@Path("{uid}")
 	public void update(@PathParam(value = "uid") String uid, OrgUnit value);
 
 	/**
+	 * Modify an existing {@link OrgUnit}
+	 * 
+	 * @param uid         {@link OrgUnit}'s unique id
+	 * @param orgUnitItem updated {@link ItemValue}
+	 * @throws ServerFault standard error object
+	 */
+	@POST
+	@Path("{uid}/updatewithitem")
+	public void updateWithItem(@PathParam("uid") String uid, ItemValue<OrgUnit> orgUnitItem);
+
+	/**
 	 * Delete an {@link OrgUnit}
 	 * 
-	 * @param uid
-	 *                UID of the {@link OrgUnit}
+	 * @param uid UID of the {@link OrgUnit}
 	 */
 	@DELETE
 	@Path("{uid}")
@@ -107,8 +123,7 @@ public interface IOrgUnits {
 	/**
 	 * Get {@link OrgUnitPath} by {@link OrgUnit} UID
 	 * 
-	 * @param uid
-	 *                UID
+	 * @param uid UID
 	 * @return {@link OrgUnitPath} or null, if not found
 	 */
 	@GET
@@ -118,8 +133,7 @@ public interface IOrgUnits {
 	/**
 	 * Get a list of {@link OrgUnitPath}s by {@link OrgUnitQuery}
 	 * 
-	 * @param query
-	 *                  {@link OrgUnitQuery}
+	 * @param query {@link OrgUnitQuery}
 	 * @return List of matching {@link OrgUnitPath}s
 	 */
 	@POST
@@ -129,12 +143,9 @@ public interface IOrgUnits {
 	/**
 	 * Grant roles to a member of an {@link OrgUnit}
 	 * 
-	 * @param orgUnitUid
-	 *                        {@link OrgUnit} UID
-	 * @param dirEntryUid
-	 *                        UID of the member's {@link DirEntry} object
-	 * @param roles
-	 *                        Set of roles
+	 * @param orgUnitUid  {@link OrgUnit} UID
+	 * @param dirEntryUid UID of the member's {@link DirEntry} object
+	 * @param roles       Set of roles
 	 */
 	@POST
 	@Path("{uid}/{dirUid}/_set")
@@ -145,13 +156,10 @@ public interface IOrgUnits {
 	 * Get the roles of a member or the {@link net.bluemind.group.api.Group}s he is
 	 * member of
 	 * 
-	 * @param orgUnitUid
-	 *                        {@link OrgUnit} UID
-	 * @param dirEntryUid
-	 *                        UID of the member's {@link DirEntry} object
-	 * @param groups
-	 *                        UIDs of the {@link net.bluemind.group.api.Group}s the
-	 *                        {@link DirEntry} is member of
+	 * @param orgUnitUid  {@link OrgUnit} UID
+	 * @param dirEntryUid UID of the member's {@link DirEntry} object
+	 * @param groups      UIDs of the {@link net.bluemind.group.api.Group}s the
+	 *                    {@link DirEntry} is member of
 	 * @return Set of roles
 	 */
 	@POST
@@ -162,8 +170,7 @@ public interface IOrgUnits {
 	/**
 	 * Get the UIDs of an {@link OrgUnit}'s administrators
 	 * 
-	 * @param uid
-	 *                {@link OrgUnit} UID
+	 * @param uid {@link OrgUnit} UID
 	 * @return Set of UIDs
 	 */
 	@GET
@@ -174,11 +181,9 @@ public interface IOrgUnits {
 	 * Get a list of {@link OrgUnitPath}s by the UID of an administrator or the
 	 * {@link net.bluemind.group.api.Group}s he is member of
 	 * 
-	 * @param administrator
-	 *                          Administrator UID
-	 * @param groups
-	 *                          UIDs of the {@link net.bluemind.group.api.Group}s
-	 *                          the {@link DirEntry} is member of
+	 * @param administrator Administrator UID
+	 * @param groups        UIDs of the {@link net.bluemind.group.api.Group}s the
+	 *                      {@link DirEntry} is member of
 	 * @return List of {@link OrgUnitPath}s
 	 */
 	@POST
@@ -189,8 +194,7 @@ public interface IOrgUnits {
 	/**
 	 * Remove an administrator from an {@link OrgUnit}
 	 * 
-	 * @param administrator
-	 *                          Administrator UID
+	 * @param administrator Administrator UID
 	 */
 	@DELETE
 	@Path("_deleteadmin")

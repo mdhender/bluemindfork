@@ -23,9 +23,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.Before;
@@ -191,6 +194,25 @@ public class OrgUnitsTests {
 	}
 
 	@Test
+	public void testCreateWithItem() throws ParseException {
+		String itemUid = UUID.randomUUID().toString();
+		OrgUnit ou = new OrgUnit();
+		ou.name = "ou name";
+		ItemValue<OrgUnit> orgUnitItem = ItemValue.create(itemUid, ou);
+		orgUnitItem.internalId = 73;
+		orgUnitItem.externalId = "ou-" + System.currentTimeMillis();
+		orgUnitItem.displayName = "test";
+		orgUnitItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
+		orgUnitItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		orgUnitItem.version = 17;
+		orgUnits(domainAdminSC).createWithItem(itemUid, orgUnitItem);
+
+		ItemValue<OrgUnit> created = orgUnits(domainAdminSC).getComplete(itemUid);
+		assertItemEquals(orgUnitItem, created);
+		assertEquals(orgUnitItem.value.name, created.value.name);
+	}
+
+	@Test
 	public void testUpdate() {
 		OrgUnit ou = new OrgUnit();
 		ou.name = "checkThat";
@@ -277,6 +299,29 @@ public class OrgUnitsTests {
 			fail();
 		} catch (ServerFault e) {
 		}
+	}
+
+	@Test
+	public void testUpdateWithItem() throws ParseException {
+		String itemUid = UUID.randomUUID().toString();
+		OrgUnit ou = new OrgUnit();
+		ou.name = "ou name";
+		ItemValue<OrgUnit> orgUnitItem = ItemValue.create(itemUid, ou);
+		orgUnitItem.internalId = 73;
+		orgUnitItem.externalId = "ou-" + System.currentTimeMillis();
+		orgUnitItem.displayName = "test";
+		orgUnitItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
+		orgUnitItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		orgUnitItem.version = 17;
+		orgUnits(domainAdminSC).createWithItem(itemUid, orgUnitItem);
+		orgUnitItem.value.name = "ou name updated";
+		orgUnitItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		orgUnitItem.version = 23;
+		orgUnits(domainAdminSC).updateWithItem(itemUid, orgUnitItem);
+
+		ItemValue<OrgUnit> updated = orgUnits(domainAdminSC).getComplete(itemUid);
+		assertItemEquals(orgUnitItem, updated);
+		assertEquals(orgUnitItem.value.name, updated.value.name);
 	}
 
 	@Test
@@ -463,5 +508,14 @@ public class OrgUnitsTests {
 		assertEquals("rootuid", ouPath.get(0).parent.uid);
 		assertEquals("root", ouPath.get(0).parent.name);
 		assertNull(ouPath.get(0).parent.parent);
+	}
+
+	private void assertItemEquals(ItemValue<OrgUnit> expected, ItemValue<OrgUnit> value) {
+		assertEquals(expected.internalId, value.internalId);
+		assertEquals(expected.uid, value.uid);
+		assertEquals(expected.externalId, value.externalId);
+		assertEquals(expected.created, value.created);
+		assertEquals(expected.updated, value.updated);
+		assertEquals(expected.version, value.version);
 	}
 }

@@ -77,6 +77,13 @@ public class OrgUnits implements IOrgUnits {
 
 	@Override
 	public void create(String uid, OrgUnit value) {
+		ItemValue<OrgUnit> orgUnitItem = ItemValue.create(uid, value);
+		createWithItem(uid, orgUnitItem);
+	}
+
+	@Override
+	public void createWithItem(String uid, ItemValue<OrgUnit> orgUnitItem) {
+		OrgUnit value = orgUnitItem.value;
 		if (value.parentUid != null) {
 			rbacManager.forOrgUnit(value.parentUid).check(BasicRoles.ROLE_MANAGE_OU);
 		} else {
@@ -96,12 +103,20 @@ public class OrgUnits implements IOrgUnits {
 		sanitizer.create(value);
 		validator.create(value);
 
-		storeService.create(uid, value);
+		storeService.create(orgUnitItem);
 		dirEventProducer.changed(uid, storeService.getVersion());
+
 	}
 
 	@Override
 	public void update(String uid, OrgUnit value) {
+		ItemValue<OrgUnit> orgUnitItem = ItemValue.create(uid, value);
+		updateWithItem(uid, orgUnitItem);
+	}
+
+	@Override
+	public void updateWithItem(String uid, ItemValue<OrgUnit> orgUnitItem) {
+		OrgUnit value = orgUnitItem.value;
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_OU);
 		ItemValue<OrgUnit> previous = storeService.get(uid);
 		if (previous == null) {
@@ -120,7 +135,7 @@ public class OrgUnits implements IOrgUnits {
 		{
 			throw new ServerFault("Parent change is not allowed", ErrorCode.INVALID_PARAMETER);
 		}
-		storeService.update(uid, value);
+		storeService.update(orgUnitItem);
 		dirEventProducer.changed(uid, storeService.getVersion());
 	}
 
