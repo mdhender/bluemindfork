@@ -1,16 +1,16 @@
 <template>
     <div class="mail-conversation-list-item-shadow">
-        <mail-conversation-list-item-shadow-single v-if="count <= 1" :conversation="conversation" />
-        <mail-conversation-list-item-shadow-multiple v-else :count="count" />
+        <conversation-list-item-shadow-single v-if="count <= 1" :conversation="conversation" />
+        <conversation-list-item-shadow-multiple v-else :count="count" />
     </div>
 </template>
 <script>
-import MailConversationListItemShadowSingle from "./MailConversationListItemShadowSingle";
-import MailConversationListItemShadowMultiple from "./MailConversationListItemShadowMultiple";
+import ConversationListItemShadowSingle from "./ConversationListItemShadowSingle";
+import ConversationListItemShadowMultiple from "./ConversationListItemShadowMultiple";
 
 export default {
-    name: "MailConversationListItemShadow",
-    components: { MailConversationListItemShadowSingle, MailConversationListItemShadowMultiple },
+    name: "ConversationListItemShadow",
+    components: { ConversationListItemShadowSingle, ConversationListItemShadowMultiple },
     props: {
         conversation: {
             type: Object,

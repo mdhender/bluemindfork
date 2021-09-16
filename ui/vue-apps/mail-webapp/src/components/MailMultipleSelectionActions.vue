@@ -85,7 +85,7 @@
                         >"{{ conversationList.search.pattern }}"</span
                     >
                 </h3>
-                <bm-button @click="SELECT_ALL_CONVERSATIONS(CONVERSATION_LIST_ALL_KEYS)">
+                <bm-button @click="SET_SELECTION(CONVERSATION_LIST_ALL_KEYS)">
                     {{ $t("common.select.all") }}
                 </bm-button>
             </div>
@@ -110,7 +110,7 @@ import {
     CONVERSATION_LIST_IS_SEARCH_MODE,
     SELECTION_KEYS
 } from "~/getters";
-import { SELECT_ALL_CONVERSATIONS, UNSELECT_ALL_CONVERSATIONS } from "~/mutations";
+import { SET_SELECTION, UNSELECT_ALL_CONVERSATIONS } from "~/mutations";
 import { MailboxType } from "~/model/mailbox";
 
 export default {
@@ -173,7 +173,7 @@ export default {
         this.CLEAR("mail-multiple-selection-actions");
     },
     methods: {
-        ...mapMutations("mail", { SELECT_ALL_CONVERSATIONS, UNSELECT_ALL_CONVERSATIONS }),
+        ...mapMutations("mail", { SET_SELECTION, UNSELECT_ALL_CONVERSATIONS }),
         ...mapActions("alert", { REMOVE, CLEAR, INFO }),
         removeSelection() {
             this.UNSELECT_ALL_CONVERSATIONS();

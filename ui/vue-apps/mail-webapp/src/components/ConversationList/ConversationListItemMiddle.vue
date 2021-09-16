@@ -8,7 +8,7 @@
                 </span>
                 {{ fromOrTo }}
             </div>
-            <div v-if="CONVERSATION_LIST_IS_SEARCH_MODE && !mouseIn" class="d-flex slide">
+            <div v-if="CONVERSATION_LIST_IS_SEARCH_MODE" class="d-flex slide">
                 <mail-folder-icon
                     class="text-secondary text-truncate"
                     :shared="isFolderOfMailshare(folder)"
@@ -17,7 +17,7 @@
                     <i class="font-weight-bold">{{ folder.name }}</i>
                 </mail-folder-icon>
             </div>
-            <div v-else-if="!mouseIn" class="d-flex justify-content-end">
+            <div v-else class="d-flex justify-content-end">
                 <component :is="widget" v-for="widget in widgets" :key="widget.template" class="ml-2" />
             </div>
         </div>
@@ -38,7 +38,7 @@
                     {{ displayedPreview }}
                 </div>
             </div>
-            <div v-show="!mouseIn" class="mail-conversation-list-item-date text-secondary align-self-end">
+            <div class="mail-conversation-list-item-date text-secondary align-self-end">
                 <span class="d-none d-lg-block">
                     {{ displayedDate }}
                 </span>
@@ -88,10 +88,6 @@ export default {
             required: true
         },
         isImportant: {
-            type: Boolean,
-            required: true
-        },
-        mouseIn: {
             type: Boolean,
             required: true
         },

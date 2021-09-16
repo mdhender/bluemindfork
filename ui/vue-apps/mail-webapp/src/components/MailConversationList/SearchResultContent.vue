@@ -2,7 +2,7 @@
     <div class="h-100 d-flex flex-column">
         <search-result-content-header />
         <search-result-content-empty v-if="CONVERSATION_LIST_COUNT === 0" class="flex-fill" :pattern="search.pattern" />
-        <conversation-list v-else class="flex-fill" />
+        <mail-conversation-list-wrapper v-else class="flex-fill" />
     </div>
 </template>
 
@@ -10,7 +10,7 @@
 import { mapGetters, mapState } from "vuex";
 import SearchResultContentHeader from "./SearchResultContentHeader";
 import SearchResultContentEmpty from "./SearchResultContentEmpty";
-import ConversationList from "./ConversationList";
+import MailConversationListWrapper from "./MailConversationListWrapper";
 import { CONVERSATION_LIST_COUNT } from "~/getters";
 
 export default {
@@ -18,7 +18,7 @@ export default {
     components: {
         SearchResultContentHeader,
         SearchResultContentEmpty,
-        ConversationList
+        MailConversationListWrapper
     },
     computed: {
         ...mapGetters("mail", { CONVERSATION_LIST_COUNT }),

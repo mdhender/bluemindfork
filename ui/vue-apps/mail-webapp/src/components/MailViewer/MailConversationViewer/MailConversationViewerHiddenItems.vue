@@ -26,7 +26,7 @@
 </template>
 <script>
 import { BmButton } from "@bluemind/styleguide";
-import ConversationAvatar from "../../MailConversationList/ConversationAvatar";
+import ConversationAvatar from "~/components/ConversationList/ConversationAvatar";
 
 export default {
     name: "MailConversationViewerHiddenItems",

@@ -3,7 +3,7 @@
         class="conversation-list-item-loading d-flex"
         :class="{
             ['conversation-list-item-' + settings.mail_message_list_style]: true,
-            active: CONVERSATION_IS_SELECTED(conversation.key) || IS_ACTIVE_MESSAGE(conversation)
+            active: isSelected
         }"
         aria-hidden="true"
     >
@@ -22,8 +22,7 @@
 
 <script>
 import { BmListGroupItem, BmSkeleton, BmSkeletonAvatar } from "@bluemind/styleguide";
-import { mapGetters, mapState } from "vuex";
-import { IS_ACTIVE_MESSAGE, CONVERSATION_IS_SELECTED } from "~/getters";
+import { mapState } from "vuex";
 
 export default {
     name: "ConversationListItemLoading",
@@ -36,10 +35,14 @@ export default {
         conversation: {
             type: Object,
             required: true
+        },
+        isSelected: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
     computed: {
-        ...mapGetters("mail", { IS_ACTIVE_MESSAGE, CONVERSATION_IS_SELECTED }),
         ...mapState("session", { settings: ({ settings }) => settings.remote })
     }
 };

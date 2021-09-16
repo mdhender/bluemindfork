@@ -1,5 +1,5 @@
 import {
-    SELECT_ALL_CONVERSATIONS,
+    SET_SELECTION,
     SELECT_CONVERSATION,
     SET_CONVERSATION_LIST,
     UNSELECT_ALL_CONVERSATIONS,
@@ -48,16 +48,16 @@ describe("selection", () => {
             store.mutations[SELECT_CONVERSATION](state, 6);
             expect(state._keys).toEqual([1, 2, 3, 4, 5, 6]);
         });
-        test("SELECT_ALL_CONVERSATIONS", () => {
+        test("SET_SELECTION", () => {
             state._keys = [1, 2, 3, 4, 5];
-            store.mutations[SELECT_ALL_CONVERSATIONS](state, [6, 7, 8, 9]);
+            store.mutations[SET_SELECTION](state, [6, 7, 8, 9]);
             expect(state._keys).toEqual([6, 7, 8, 9]);
         });
-        test("SELECT_ALL_CONVERSATIONS: Range max size", done => {
+        test("SET_SELECTION: Range max size", done => {
             state._keys = [];
             const keys = Array(2 ** 16 + 1).fill(0);
             try {
-                store.mutations[SELECT_ALL_CONVERSATIONS](state, keys);
+                store.mutations[SET_SELECTION](state, keys);
             } catch (e) {
                 done.fail(e);
             }

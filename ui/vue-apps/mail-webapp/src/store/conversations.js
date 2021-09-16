@@ -14,7 +14,7 @@ import {
     SET_MESSAGES_LOADING_STATUS,
     UNSET_CURRENT_CONVERSATION,
     UNSELECT_ALL_CONVERSATIONS,
-    SELECT_ALL_CONVERSATIONS
+    SET_SELECTION
 } from "~/mutations";
 import {
     ADD_FLAG,
@@ -141,7 +141,7 @@ const mutations = {
     [UNSELECT_ALL_CONVERSATIONS]: state => {
         state.currentConversation = undefined;
     },
-    [SELECT_ALL_CONVERSATIONS]: state => {
+    [SET_SELECTION]: state => {
         state.currentConversation = undefined;
     }
 };

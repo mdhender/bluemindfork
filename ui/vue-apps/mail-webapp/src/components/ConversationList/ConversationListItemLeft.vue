@@ -2,16 +2,17 @@
     <div class="conversation-list-item-left d-flex flex-column align-items-center">
         <conversation-avatar
             v-if="conversationsActivated && conversation && conversationSize > 1"
-            :class="[SELECTION_IS_EMPTY ? '' : 'd-none']"
+            :class="[selectionMode === SELECTION_MODE.MONO ? '' : 'd-none']"
             :text="conversationSize > 99 ? '+99' : conversationSize"
             :font-size="conversationSize > 99 ? 'smaller' : 'unset'"
             :title="$t('mail.conversation.icon.title', { count: conversationSize })"
         />
-        <bm-avatar v-else :alt="fromOrTo" :class="[SELECTION_IS_EMPTY ? '' : 'd-none']" />
+        <bm-avatar v-else :alt="fromOrTo" :class="[selectionMode === SELECTION_MODE.MONO ? '' : 'd-none']" />
         <bm-check
-            :checked="CONVERSATION_IS_SELECTED(conversation.key)"
-            :class="[SELECTION_IS_EMPTY ? 'd-none' : 'd-block']"
-            @change="$emit('toggle-select', conversation.key, true)"
+            v-if="multiple"
+            :checked="selectionMode === SELECTION_MODE.MULTI && isSelected"
+            :class="[selectionMode === SELECTION_MODE.MONO ? 'd-none' : 'd-block']"
+            @change="$emit('check')"
             @click.exact.native.stop
             @keyup.native.space.stop
         />
@@ -28,9 +29,10 @@
 <script>
 import { BmAvatar, BmCheck, BmIcon } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
-import { MY_DRAFTS, MY_SENT, CONVERSATION_IS_SELECTED, SELECTION_IS_EMPTY } from "~/getters";
+import { MY_DRAFTS, MY_SENT } from "~/getters";
 import ConversationAvatar from "./ConversationAvatar";
 import MailAttachmentIcon from "../MailAttachmentIcon";
+import { SELECTION_MODE } from "./ConversationList.vue";
 
 export default {
     name: "ConversationListItemLeft",
@@ -49,11 +51,26 @@ export default {
         conversationSize: {
             type: Number,
             required: true
+        },
+        isSelected: {
+            type: Boolean,
+            required: true
+        },
+        multiple: {
+            type: Boolean,
+            required: true
+        },
+        selectionMode: {
+            type: String,
+            required: true
         }
+    },
+    data() {
+        return { SELECTION_MODE };
     },
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
-        ...mapGetters("mail", { CONVERSATION_IS_SELECTED, SELECTION_IS_EMPTY, MY_DRAFTS, MY_SENT }),
+        ...mapGetters("mail", { MY_DRAFTS, MY_SENT }),
         ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
 
         fromOrTo() {

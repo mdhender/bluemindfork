@@ -15,7 +15,7 @@
 import { BmRow, BmCol, BmAvatar, BmIcon } from "@bluemind/styleguide";
 
 export default {
-    name: "MailConversationListItemShadowSingle",
+    name: "ConversationListItemShadowSingle",
     components: {
         BmRow,
         BmCol,

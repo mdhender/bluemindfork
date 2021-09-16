@@ -5,7 +5,7 @@
                 <bm-check
                     :checked="ALL_CONVERSATIONS_ARE_SELECTED"
                     :indeterminate="!ALL_CONVERSATIONS_ARE_SELECTED && !SELECTION_IS_EMPTY"
-                    @change="$bus.$emit(TOGGLE_SELECTION_ALL)"
+                    @change="toggleSelection"
                 />
             </bm-col>
             <bm-col class="d-none d-lg-block">
@@ -24,20 +24,16 @@
 <script>
 import { BmCheck, BmCol, BmRow, BmChoiceGroup } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapMutations } from "vuex";
-import { UNSELECT_ALL_CONVERSATIONS } from "~/mutations";
-import { TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
-import { ALL_CONVERSATIONS_ARE_SELECTED, SELECTION_IS_EMPTY } from "~/getters";
+import { UNSELECT_ALL_CONVERSATIONS, SET_SELECTION } from "~/mutations";
+import { ALL_CONVERSATIONS_ARE_SELECTED, SELECTION_IS_EMPTY, CONVERSATION_LIST_ALL_KEYS } from "~/getters";
 const FILTER_INDEXES = { all: 0, unread: 1, flagged: 2 };
 
 export default {
     name: "MailConversationListHeader",
     components: { BmCheck, BmCol, BmRow, BmChoiceGroup },
-    data() {
-        return { TOGGLE_SELECTION_ALL };
-    },
     computed: {
         ...mapState("mail", { filter: ({ conversationList }) => conversationList.filter }),
-        ...mapGetters("mail", { ALL_CONVERSATIONS_ARE_SELECTED, SELECTION_IS_EMPTY }),
+        ...mapGetters("mail", { ALL_CONVERSATIONS_ARE_SELECTED, SELECTION_IS_EMPTY, CONVERSATION_LIST_ALL_KEYS }),
         filters() {
             return [
                 {
@@ -67,7 +63,15 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("mail", { UNSELECT_ALL_CONVERSATIONS })
+        ...mapMutations("mail", { SET_SELECTION, UNSELECT_ALL_CONVERSATIONS }),
+        toggleSelection() {
+            if (!this.ALL_CONVERSATIONS_ARE_SELECTED) {
+                this.SET_SELECTION(this.CONVERSATION_LIST_ALL_KEYS);
+            } else {
+                this.UNSELECT_ALL_CONVERSATIONS();
+            }
+            this.$router.navigate({ name: "v:mail:home" });
+        }
     }
 };
 </script>

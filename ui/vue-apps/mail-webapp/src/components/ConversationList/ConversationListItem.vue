@@ -1,24 +1,23 @@
 <template>
     <bm-list-group-item
-        v-touch:touchhold="onTouch"
+        v-touch:touchhold="toggle"
         class="d-flex conversation-list-item"
         :class="{
             ['conversation-list-item-' + userSettings.mail_message_list_style]: true,
             'not-seen': isUnread,
             'warning-custom': isFlagged,
-            active: CONVERSATION_IS_SELECTED(conversation.key) || IS_ACTIVE_MESSAGE(conversation)
+            active: isSelected
         }"
         role="link"
-        @click.exact="navigateTo"
-        @keyup.enter.exact="navigateTo"
-        @mouseenter="mouseIn = true"
-        @mouseleave="mouseIn = false"
     >
         <screen-reader-only-conversation-information :conversation="conversation" />
         <conversation-list-item-left
             :conversation="conversation"
             :conversation-size="conversationSize"
-            @toggle-select="$emit('toggle-select', conversation.key, true)"
+            :is-selected="isSelected"
+            :multiple="multiple"
+            :selection-mode="selectionMode"
+            @check="toggle"
         />
         <conversation-list-item-middle
             class="flex-fill px-2"
@@ -27,18 +26,19 @@
             :is-important="isFlagged"
             :mouse-in="mouseIn"
         />
-        <conversation-list-item-quick-action-buttons v-show="mouseIn" :conversation="conversation" />
+        <conversation-list-item-actions>
+            <template v-slot:actions> <slot name="actions" /> </template>
+        </conversation-list-item-actions>
     </bm-list-group-item>
 </template>
 
 <script>
 import { BmListGroupItem } from "@bluemind/styleguide";
-import { mapGetters, mapState } from "vuex";
+import { mapState } from "vuex";
 import ConversationListItemLeft from "./ConversationListItemLeft";
 import ConversationListItemMiddle from "./ConversationListItemMiddle";
-import ConversationListItemQuickActionButtons from "./ConversationListItemQuickActionButtons";
+import ConversationListItemActions from "./ConversationListItemActions";
 import ScreenReaderOnlyConversationInformation from "./ScreenReaderOnlyConversationInformation";
-import { CONVERSATION_IS_SELECTED, IS_ACTIVE_MESSAGE } from "~/getters";
 import { isFlagged, isUnread } from "~/model/message";
 
 export default {
@@ -46,8 +46,8 @@ export default {
     components: {
         BmListGroupItem,
         ConversationListItemLeft,
+        ConversationListItemActions,
         ConversationListItemMiddle,
-        ConversationListItemQuickActionButtons,
         ScreenReaderOnlyConversationInformation
     },
     props: {
@@ -55,10 +55,18 @@ export default {
             type: Object,
             required: true
         },
-        isMuted: {
+        isSelected: {
             type: Boolean,
             required: false,
             default: false
+        },
+        multiple: {
+            type: Boolean,
+            required: true
+        },
+        selectionMode: {
+            type: String,
+            required: true
         }
     },
     data() {
@@ -66,7 +74,6 @@ export default {
     },
     computed: {
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
-        ...mapGetters("mail", { CONVERSATION_IS_SELECTED, IS_ACTIVE_MESSAGE }),
         ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
         isUnread() {
             return isUnread(this.conversation);
@@ -79,14 +86,8 @@ export default {
         }
     },
     methods: {
-        onTouch() {
-            this.$emit("toggleSelect", this.conversation.key);
-        },
-        navigateTo() {
-            this.$router.navigate({
-                name: "v:mail:conversation",
-                params: { conversation: this.conversation }
-            });
+        toggle() {
+            this.$emit("check", !this.isSelected);
         }
     }
 };
@@ -96,7 +97,9 @@ export default {
 @import "~@bluemind/styleguide/css/variables";
 
 .conversation-list-item {
+    cursor: pointer;
     border-left: transparent solid 4px !important;
+
     .states .fa-event {
         color: $calendar-color;
     }
@@ -143,6 +146,17 @@ export default {
 
     &.warning-custom:not(.active) {
         background-color: $custom-warning-color;
+    }
+
+    &:hover {
+        background-color: $extra-light;
+        color: $dark;
+        &.active {
+            background-color: $component-active-bg-darken;
+        }
+    }
+    &.active:focus {
+        background-color: $component-active-bg-darken;
     }
 }
 </style>

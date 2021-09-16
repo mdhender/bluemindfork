@@ -1,6 +1,6 @@
 import {
     REMOVE_CONVERSATIONS,
-    SELECT_ALL_CONVERSATIONS,
+    SET_SELECTION,
     SELECT_CONVERSATION,
     SET_CONVERSATION_LIST,
     UNSELECT_ALL_CONVERSATIONS,
@@ -29,7 +29,7 @@ const mutations = {
     [SELECT_CONVERSATION]: ({ _keys }, key) => {
         if (!_keys.includes(key)) _keys.push(key);
     },
-    [SELECT_ALL_CONVERSATIONS]: (state, keys) => {
+    [SET_SELECTION]: (state, keys) => {
         state._keys = [...keys];
     },
     [UNSELECT_ALL_CONVERSATIONS]: state => {

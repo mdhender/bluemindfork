@@ -1,5 +1,6 @@
 <template>
     <bm-draggable
+        v-if="draggable"
         class="draggable-conversation"
         :class="{ muted: isMuted }"
         :tooltip="tooltip"
@@ -16,26 +17,41 @@
     >
         <conversation-list-item
             :conversation="conversation"
-            @toggle-select="$emit('toggle-select', conversation.key)"
-        />
+            :is-selected="isSelected"
+            :multiple="multiple"
+            :selection-mode="selectionMode"
+            @check="$emit('check')"
+        >
+            <template v-slot:actions> <slot name="actions" /> </template>
+        </conversation-list-item>
         <template v-slot:shadow>
-            <mail-conversation-list-item-shadow :conversation="conversation" :count="SELECTION_KEYS.length" />
+            <conversation-list-item-shadow :conversation="conversation" :count="SELECTION_KEYS.length" />
         </template>
     </bm-draggable>
+    <conversation-list-item
+        v-else
+        :conversation="conversation"
+        :is-selected="isSelected"
+        :multiple="multiple"
+        :selection-mode="selectionMode"
+        @check="$emit('check')"
+    >
+        <template v-slot:actions> <slot name="actions" /> </template>
+    </conversation-list-item>
 </template>
 
 <script>
 import { BmDraggable } from "@bluemind/styleguide";
 import { mapGetters } from "vuex";
-import MailConversationListItemShadow from "./MailConversationListItemShadow";
+import ConversationListItemShadow from "./ConversationListItemShadow";
 import ConversationListItem from "./ConversationListItem";
-import { CONVERSATION_IS_SELECTED, SELECTION, SELECTION_KEYS } from "~/getters";
+import { SELECTION, SELECTION_KEYS } from "~/getters";
 import { MoveMixin } from "~/mixins";
 
 export default {
     name: "DraggableConversation",
     components: {
-        MailConversationListItemShadow,
+        ConversationListItemShadow,
         BmDraggable,
         ConversationListItem
     },
@@ -47,8 +63,23 @@ export default {
         },
         isMuted: {
             type: Boolean,
-            required: false,
-            default: false
+            required: true
+        },
+        isSelected: {
+            type: Boolean,
+            required: true
+        },
+        draggable: {
+            type: Boolean,
+            required: true
+        },
+        multiple: {
+            type: Boolean,
+            required: true
+        },
+        selectionMode: {
+            type: String,
+            required: true
         }
     },
     data() {
@@ -60,9 +91,9 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { CONVERSATION_IS_SELECTED, SELECTION, SELECTION_KEYS }),
+        ...mapGetters("mail", { SELECTION, SELECTION_KEYS }),
         dragged() {
-            return this.CONVERSATION_IS_SELECTED(this.conversation.key) ? this.SELECTION : this.conversation;
+            return this.isSelected ? this.SELECTION : this.conversation;
         }
     },
     methods: {
@@ -119,13 +150,6 @@ export default {
     &:focus .list-group-item {
         outline: $outline;
         outline-offset: -1px;
-        &:hover {
-            background-color: $component-active-bg-darken;
-        }
-    }
-
-    &:focus &:hover {
-        background-color: $component-active-bg-darken;
     }
 }
 </style>
