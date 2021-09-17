@@ -380,12 +380,16 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 			// apply the changes
 			toCreate.forEach((MailboxRecord mr) -> {
 				String uid = mr.imapUid + ".";
+				VanishedBody vanished = BodyInternalIdCache.vanishedBody(container.owner, mr.messageBody);
 				if (mr.internalFlags.contains(InternalFlag.expunged)) {
-					EmitReplicationEvents.recordCreated(mailboxUniqueId, Long.MAX_VALUE, -1, mr.imapUid);
-					logger.debug("Skipping create on expunged record");
+					// when cyrus aggregate commands flag seen/delete with expunged sent by
+					// ImapMailboxRecordsService mailRewrite, we have a vanished body, we wait for
+					// record change and we care about its version.
+					long version = (vanished == null) ? Long.MAX_VALUE : vanished.version.version;
+					EmitReplicationEvents.recordCreated(mailboxUniqueId, version, -1, mr.imapUid);
+					logger.info("Skipping create on expunged record {} v{}", mr.imapUid, version);
 					return;
 				}
-				VanishedBody vanished = BodyInternalIdCache.vanishedBody(container.owner, mr.messageBody);
 				if (vanished != null) {
 					logger.info("Don't touch {} {} as it vanished", mr.imapUid, mr.messageBody);
 					expungeIndex(Arrays.asList(mr.imapUid));

@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -303,6 +304,34 @@ public class ItemStoreTests {
 			fail();
 		} catch (Exception e) {
 
+		}
+	}
+
+	@Test
+	public void testUpdateUpdated() throws SQLException, InterruptedException {
+		Item item = new Item();
+		item.uid = "test_" + System.nanoTime();
+		item.externalId = "externalId";
+		item.displayName = "test";
+		try {
+			home.create(item);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+
+		Item prevResult = home.get(item.uid);
+		assertNotNull(prevResult);
+		assertNotNull(prevResult.created);
+		assertNotNull(prevResult.updated);
+		assertEquals(prevResult.created, prevResult.updated);
+
+		for (int i = 0; i < 6; i++) {
+			Thread.sleep(10);
+			home.update(item.uid, item.displayName, Collections.emptyList());
+			Item updated = home.get(item.uid);
+			assertTrue("iteration #" + i, updated.updated.getTime() > prevResult.updated.getTime());
+			prevResult = updated;
 		}
 	}
 
