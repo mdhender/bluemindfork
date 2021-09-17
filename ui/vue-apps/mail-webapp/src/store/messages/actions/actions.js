@@ -57,16 +57,22 @@ export async function fetchMessageIfNotLoaded({ state, commit, dispatch }, { int
 }
 
 export async function fetchMessageMetadata({ state, commit }, { messages: messageKeys }) {
-    messageKeys = Array.isArray(messageKeys) ? messageKeys : [messageKeys];
-    const messages = messageKeys.map(key => state[key]);
-    const toFetch = messages.filter(({ composing }) => !composing);
+    const messages = [];
+    (Array.isArray(messageKeys) ? messageKeys : [messageKeys]).forEach(key => {
+        const message = state[key];
+        if (!message.composing) {
+            if (![LoadingStatus.ERROR, LoadingStatus.LOADING].includes(message.loading)) {
+                messages.push(message);
+            }
+        }
+    });
     commit(
         SET_MESSAGES_LOADING_STATUS,
         messages
             .filter(({ key }) => state[key] && state[key].loading !== LoadingStatus.LOADED)
             .map(message => ({ ...message, loading: LoadingStatus.LOADING }))
     );
-    const fullMessages = (await apiMessages.multipleById(toFetch))
+    const fullMessages = (await apiMessages.multipleById(messages))
         .filter(message => !state[message.key].version || state[message.key].version < message.version)
         .map(message => ({
             ...message,
