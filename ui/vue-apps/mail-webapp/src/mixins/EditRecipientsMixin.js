@@ -46,11 +46,7 @@ export default {
                 : recipientModes.TO | recipientModes.CC;
     },
     methods: {
-        ...mapMutations("mail", {
-            SET_MESSAGE_TO,
-            SET_MESSAGE_CC,
-            SET_MESSAGE_BCC
-        }),
+        ...mapMutations("mail", { SET_MESSAGE_TO, SET_MESSAGE_CC, SET_MESSAGE_BCC }),
         focus() {
             this.$refs.to.focus();
         },
