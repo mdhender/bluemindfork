@@ -1903,6 +1903,8 @@ net.bluemind.calendar.vevent.ui.Form.prototype.showConferenceData_ = function() 
     if (bmProvider.length > 0 && bmProvider[0].uid == selected) {
         this.getDomHelper().getElement('bm-ui-form-videoconferencing-warn').style.display = 'block'; 
     }
+  } else {
+    this.getDomHelper().getElement('bm-ui-form-videoconferencing-warn').style.display = 'none';
   }
 
 };
