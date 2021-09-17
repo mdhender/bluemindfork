@@ -1,4 +1,5 @@
 import { mapGetters, mapState } from "vuex";
+import throttle from "lodash.throttle";
 
 import { MY_MAILBOX_KEY, MAILBOXES_ARE_LOADED } from "~/getters";
 import { WaitForMixin } from "~/mixins";
@@ -65,8 +66,12 @@ export default {
                 this.$bus.$emit("mail-webapp/unread_folder_count", this.folders[folderUid]);
             }
             if (folderUid === this.activeFolder) {
-                this.$bus.$emit("mail-webapp/pushed_folder_changes", folderUid);
+                throttledFolderChanges(folderUid, this.$bus);
             }
         }
     }
 };
+
+const throttledFolderChanges = throttle((folderUid, bus) => {
+    bus.$emit("mail-webapp/pushed_folder_changes", folderUid);
+}, 5000);
