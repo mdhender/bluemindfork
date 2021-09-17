@@ -28,6 +28,7 @@
                     :next-is-draft="nextIsDraft(index)"
                     :is-reply-or-forward="true"
                     :conversation-size="conversationMessages.length"
+                    :is-draft="isDraft(index)"
                     @expand="expand(index)"
                     @collapse="collapse(index)"
                     @darken="darken"
