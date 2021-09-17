@@ -4,8 +4,10 @@ import { MY_DRAFTS } from "~/getters";
 import { MessageCreationModes } from "~/model/message";
 import { draftPath } from "~/model/draft";
 import MessagePathParam from "~/router/MessagePathParam";
+import { ComposerInitMixin } from "~/mixins";
 
 export default {
+    mixins: [ComposerInitMixin],
     computed: {
         ...mapGetters("mail", { MY_DRAFTS }),
         ...mapState("mail", ["activeFolder", "folders"]),
@@ -16,23 +18,23 @@ export default {
     },
     methods: {
         reply(conversation, message) {
-            this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.REPLY, message, conversation);
+            this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.REPLY, message);
         },
         replyAll(conversation, message) {
-            this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.REPLY_ALL, message, conversation);
+            this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.REPLY_ALL, message);
         },
         forward(message) {
             this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.FORWARD, message);
         },
-        $_ReplyAndForwardRoutesMixin_goTo(action, message, conversation) {
+        $_ReplyAndForwardRoutesMixin_goTo(action, related) {
             if (this.$_ReplyAndForwardRoutesMixin_mustRedirectToConversation(action)) {
-                this.$router.navigate({
-                    name: "v:mail:conversation",
-                    params: { conversation, action, related: message }
+                this.initRelatedMessage(action, {
+                    internalId: related.remoteRef.internalId,
+                    folderKey: related.folderRef.key
                 });
             } else {
                 const messagepath = draftPath(this.MY_DRAFTS);
-                const query = { action, message: MessagePathParam.build("", message) };
+                const query = { action, message: MessagePathParam.build("", related) };
                 this.$router.navigate({ name: "mail:message", params: { messagepath }, query });
             }
         },
