@@ -53,12 +53,12 @@ export default {
                     });
 
                     if (conversation) {
-                        this.SET_CURRENT_CONVERSATION(conversation);
                         let messages = this.CONVERSATION_MESSAGE_BY_KEY(conversation.key).filter(
                             message => message.loading === LoadingStatus.NOT_LOADED
                         );
                         await this.FETCH_MESSAGE_METADATA({ messages });
                         messages = this.CONVERSATION_MESSAGE_BY_KEY(conversation.key);
+                        this.SET_CURRENT_CONVERSATION(conversation);
                         this.SET_ACTIVE_MESSAGE(messages[0]);
                     }
                 } catch (e) {
