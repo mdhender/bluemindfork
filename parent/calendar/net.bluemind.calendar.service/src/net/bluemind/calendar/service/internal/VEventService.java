@@ -98,7 +98,7 @@ public class VEventService implements IVEvent {
 		BaseDirEntry.Kind calOwnerType = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDirectory.class, container.domainUid).findByEntryUid(container.owner).kind;
 
-		if (calOwnerType != Kind.CALENDAR) {
+		if (calOwnerType != Kind.CALENDAR && calOwnerType != Kind.RESOURCE) {
 			// owner tags
 			ITags service = context.provider().instance(ITags.class, ITagUids.defaultUserTags(container.owner));
 			allTags.addAll(
