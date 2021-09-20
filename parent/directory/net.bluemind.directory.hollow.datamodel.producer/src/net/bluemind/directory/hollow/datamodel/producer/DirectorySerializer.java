@@ -192,7 +192,7 @@ public class DirectorySerializer implements DataSerializer {
 							.findAny().orElse(null);
 					dirEntryToAddressBookRecord(domain, entry, mailbox, locationCache, installationId)
 							.ifPresent(rec -> {
-								if (entry.value.archived || dropHiddenEntry(entry)) {
+								if (dropHiddenEntry(entry)) {
 									populator.delete(new RecordPrimaryKey("AddressBookRecord",
 											new String[] { entry.value.entryUid }));
 								} else {
