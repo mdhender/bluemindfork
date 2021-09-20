@@ -434,7 +434,7 @@ public class Authentication implements IInCoreAuthentication {
 			LoginResponse resp = new LoginResponse();
 			resp.status = Status.Bad;
 			return resp;
-		} else if (user.value.archived) {
+		} else if (user.value.archived && !securityContext.getOrigin().equals("mapi-admin-link")) {
 			logger.error("user with login {} in {} is archived, su refused", localPart, domainPart);
 			LoginResponse resp = new LoginResponse();
 			resp.status = Status.Bad;

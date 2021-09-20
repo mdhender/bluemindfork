@@ -284,7 +284,7 @@ public class ProducerTests {
 		consumer.refreshTo(producer.produce());
 
 		byEmail = search.byEmail("user1@" + domainUid);
-		assertFalse(byEmail.isPresent());
+		assertTrue(byEmail.isPresent());
 	}
 
 	@Test
