@@ -11,7 +11,7 @@
                 <h2 class="d-inline align-middle">{{ $t("common.preference") }}</h2>
             </div>
         </div>
-        <pref-left-panel-nav :sections="sections" :user="user" class="flex-grow-1" />
+        <pref-left-panel-nav :sections="sections" :user="user" />
         <div class="p-3">
             <a href="/settings/" class="text-white font-weight-bold">{{ $t("preferences.access_old_settings_app") }}</a>
         </div>
