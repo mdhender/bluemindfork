@@ -2,6 +2,7 @@ export { default as ActionTextMixin } from "./ActionTextMixin";
 export { default as ComposerActionsMixin } from "./ComposerActionsMixin";
 export { default as ComposerMixin } from "./ComposerMixin";
 export { default as ComposerInitMixin } from "./ComposerInitMixin";
+export { default as DraftMixin } from "./DraftMixin";
 export { default as EditRecipientsMixin } from "./EditRecipientsMixin";
 export { default as FilterFolderMixin } from "./FilterFolderMixin";
 export { default as FlagMixin } from "./FlagMixin";

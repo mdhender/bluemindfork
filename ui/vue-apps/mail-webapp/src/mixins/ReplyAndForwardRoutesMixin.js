@@ -1,13 +1,12 @@
 import { mapGetters, mapState } from "vuex";
-
 import { MY_DRAFTS } from "~/getters";
 import { MessageCreationModes } from "~/model/message";
 import { draftPath } from "~/model/draft";
 import MessagePathParam from "~/router/MessagePathParam";
-import { ComposerInitMixin } from "~/mixins";
+import { DraftMixin, ComposerInitMixin } from "~/mixins";
 
 export default {
-    mixins: [ComposerInitMixin],
+    mixins: [DraftMixin, ComposerInitMixin],
     computed: {
         ...mapGetters("mail", { MY_DRAFTS }),
         ...mapState("mail", ["activeFolder", "folders"]),
@@ -17,10 +16,12 @@ export default {
         }
     },
     methods: {
-        reply(conversation, message) {
+        async reply(conversation, message) {
+            await this.saveAndCloseOpenDrafts(conversation);
             this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.REPLY, message);
         },
-        replyAll(conversation, message) {
+        async replyAll(conversation, message) {
+            await this.saveAndCloseOpenDrafts(conversation);
             this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.REPLY_ALL, message);
         },
         forward(message) {

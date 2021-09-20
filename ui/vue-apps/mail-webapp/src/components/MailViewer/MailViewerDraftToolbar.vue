@@ -7,7 +7,7 @@
             variant="simple-primary"
             :aria-label="$t('mail.actions.edit')"
             :title="$t('mail.actions.edit')"
-            @click="SET_MESSAGE_COMPOSING({ messageKey: message.key, composing: true })"
+            @click="openEditor()"
         >
             <bm-icon icon="pencil" size="lg" />
             <span class="d-lg-none">{{ $t("mail.actions.edit") }}</span>
@@ -26,18 +26,13 @@
 
 <script>
 import { BmButton, BmButtonToolbar, BmIcon } from "@bluemind/styleguide";
-import { ComposerInitMixin, RemoveMixin } from "~/mixins";
+import { DraftMixin, ComposerInitMixin, RemoveMixin } from "~/mixins";
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
-import { mapMutations } from "vuex";
 
 export default {
     name: "MailViewerDraftToolbar",
-    components: {
-        BmButton,
-        BmButtonToolbar,
-        BmIcon
-    },
-    mixins: [ComposerInitMixin, RemoveMixin],
+    components: { BmButton, BmButtonToolbar, BmIcon },
+    mixins: [DraftMixin, ComposerInitMixin, RemoveMixin],
     props: {
         conversation: {
             type: Object,
@@ -49,7 +44,10 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("mail", { SET_MESSAGE_COMPOSING })
+        async openEditor() {
+            await this.saveAndCloseOpenDrafts(this.conversation);
+            this.$store.commit(`mail/${SET_MESSAGE_COMPOSING}`, { messageKey: this.message.key, composing: true });
+        }
     }
 };
 </script>
