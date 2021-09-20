@@ -66,22 +66,25 @@ export default {
                 this.REMOVE(this.readOnlyAlert.alert);
             }
         },
-        async "ACTIVE_MESSAGE.key"() {
-            this.SET_BLOCK_REMOTE_IMAGES(false);
-            try {
-                if (this.ACTIVE_MESSAGE && !this.ACTIVE_MESSAGE.composing) {
-                    const folderKey = this.ACTIVE_MESSAGE.folderRef.key;
-                    if (this.MY_DRAFTS && folderKey === this.MY_DRAFTS.key) {
-                        this.SET_MESSAGE_COMPOSING({ messageKey: this.ACTIVE_MESSAGE.key, composing: true });
+        "ACTIVE_MESSAGE.key": {
+            handler() {
+                this.SET_BLOCK_REMOTE_IMAGES(false);
+                try {
+                    if (this.ACTIVE_MESSAGE && !this.ACTIVE_MESSAGE.composing) {
+                        const folderKey = this.ACTIVE_MESSAGE.folderRef.key;
+                        if (this.MY_DRAFTS && folderKey === this.MY_DRAFTS.key) {
+                            this.SET_MESSAGE_COMPOSING({ messageKey: this.ACTIVE_MESSAGE.key, composing: true });
+                        }
+                        if (this.CONVERSATION_LIST_IS_SEARCH_MODE) {
+                            this.SET_ACTIVE_FOLDER(this.folders[folderKey]);
+                        }
                     }
-                    if (this.CONVERSATION_LIST_IS_SEARCH_MODE) {
-                        this.SET_ACTIVE_FOLDER(this.folders[folderKey]);
-                    }
+                } catch (e) {
+                    this.$router.push({ name: "mail:home" });
+                    throw e;
                 }
-            } catch (e) {
-                this.$router.push({ name: "mail:home" });
-                throw e;
-            }
+            },
+            immediate: true
         }
     },
     methods: {
