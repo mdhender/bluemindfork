@@ -44,7 +44,7 @@
         },
         {
             "serverId": "webpack-dev-server-root",
-            "search": "/webapp/js/net.bluemind.webapp.root.js",
+            "search": "/(.*)/js/net.bluemind.webapp.root.js",
             "replace": "/js/net.bluemind.webapp.root.js",
             "active": true
         },
