@@ -41,6 +41,7 @@
             :last-non-draft="lastNonDraft"
             :conversation-key="conversation.key"
         />
+        <template-chooser />
     </div>
 </template>
 <script>
@@ -55,6 +56,7 @@ import { SET_MESSAGE_COMPOSING } from "~/mutations";
 import { MARK_CONVERSATIONS_AS_READ } from "~/actions";
 import { sortConversationMessages } from "~/model/conversations";
 import { Flag } from "@bluemind/email";
+import TemplateChooser from "~/components/TemplateChooser";
 
 export default {
     name: "MailConversationViewer",
@@ -62,7 +64,8 @@ export default {
         MailConversationViewerCompoSwitcher,
         MailConversationViewerFooter,
         MailConversationViewerHeader,
-        MailConversationViewerHiddenItems
+        MailConversationViewerHiddenItems,
+        TemplateChooser
     },
     props: {
         conversation: {

@@ -5,8 +5,8 @@
                 v-show="isTemplate"
                 variant="inline-light"
                 class="unread btn-lg-simple-dark"
-                :title="$t('mail.actions.edit_from_template.aria')"
-                :aria-label="$t('mail.actions.edit_from_template.aria')"
+                :title="$t('mail.actions.edit_from_template.aria', { subject })"
+                :aria-label="$t('mail.actions.edit_from_template.aria', { subject })"
                 @click="editFromTemplate"
             >
                 <bm-icon icon="plus-enveloppe" size="2x" />
@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import { BmButton, BmIcon } from "@bluemind/styleguide";
 import MailToolbarSelectedConversationsMoveAction from "./MailToolbarSelectedConversationsMoveAction";
 import MailToolbarSelectedConversationsOtherActions from "./MailToolbarSelectedConversationsOtherActions";
@@ -94,19 +94,22 @@ export default {
     },
     mixins: [ActionTextMixin, FlagMixin, RemoveMixin],
     computed: {
+        ...mapState("mail", { messages: state => state.conversations.messages }),
         ...mapGetters("mail", { ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE, MY_DRAFTS, MY_TEMPLATES }),
         isTemplate() {
             return this.selectionLength === 1 && this.selected[0]?.folderRef.key === this.MY_TEMPLATES.key;
+        },
+        subject() {
+            return this.selected[0]?.subject;
         }
     },
     methods: {
         editFromTemplate() {
-            const messagepath = draftPath(this.MY_DRAFTS);
-            const message = MessagePathParam.build("", this.selected[0]);
+            const template = this.messages[this.selected[0].messages[0]];
             this.$router.navigate({
                 name: "mail:message",
-                params: { messagepath },
-                query: { action: MessageCreationModes.EDIT_AS_NEW, message }
+                params: { messagepath: draftPath(this.MY_DRAFTS) },
+                query: { action: MessageCreationModes.EDIT_AS_NEW, message: MessagePathParam.build("", template) }
             });
         }
     }

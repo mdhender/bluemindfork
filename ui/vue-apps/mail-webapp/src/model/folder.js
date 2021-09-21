@@ -82,6 +82,7 @@ export function allowConversations(path, mailbox) {
     return ![
         DEFAULT_FOLDERS.SENT,
         DEFAULT_FOLDERS.DRAFTS,
+        DEFAULT_FOLDERS.TEMPLATES,
         DEFAULT_FOLDERS.TRASH,
         DEFAULT_FOLDERS.JUNK,
         DEFAULT_FOLDERS.OUTBOX

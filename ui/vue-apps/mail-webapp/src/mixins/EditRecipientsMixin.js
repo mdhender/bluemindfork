@@ -23,15 +23,30 @@ export default {
             recipientModes,
             /**
              * @example
-             * displayedRecipientFields = (TO|CC|BCC) means we want to display all 3 fields
-             * displayedRecipientFields = TO means we want to display TO field only
+             * $_EditRecipientsMixin_mode = (TO|CC|BCC) means we want to display all 3 fields
+             * $_EditRecipientsMixin_mode = TO means we want to display TO field only
              */
-            displayedRecipientFields: recipientModes.TO | recipientModes.CC | recipientModes.BCC,
+            $_EditRecipientsMixin_mode: recipientModes.TO | recipientModes.CC | recipientModes.BCC,
             autocompleteResults: [],
             autocompleteResultsTo: [],
             autocompleteResultsCc: [],
             autocompleteResultsBcc: []
         };
+    },
+    computed: {
+        displayedRecipientFields: {
+            get() {
+                return (
+                    this._data.$_EditRecipientsMixin_mode |
+                    (this.message.to.length > 0 && recipientModes.TO) |
+                    (this.message.cc.length > 0 && recipientModes.CC) |
+                    (this.message.bcc.length > 0 && recipientModes.BCC)
+                );
+            },
+            set(mode) {
+                this._data.$_EditRecipientsMixin_mode = mode;
+            }
+        }
     },
     watch: {
         autocompleteResults: function () {
@@ -41,10 +56,9 @@ export default {
         }
     },
     mounted() {
-        this.displayedRecipientFields =
-            this.isReplyOrForward && this.message.cc.length === 0
-                ? recipientModes.TO
-                : recipientModes.TO | recipientModes.CC;
+        this._data.$_EditRecipientsMixin_mode = this.isReplyOrForward
+            ? recipientModes.TO
+            : recipientModes.TO | recipientModes.CC;
     },
     methods: {
         ...mapMutations("mail", { SET_MESSAGE_TO, SET_MESSAGE_CC, SET_MESSAGE_BCC }),

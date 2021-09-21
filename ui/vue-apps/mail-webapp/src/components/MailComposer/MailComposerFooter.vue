@@ -56,7 +56,7 @@
                 <bm-dropdown-item-toggle :checked="isSignatureInserted" @click="$emit('toggle-signature')">{{
                     $t("mail.compose.toolbar.insert_signature")
                 }}</bm-dropdown-item-toggle>
-                <bm-dropdown-item-button icon="documents" @click="SET_TEMPLATE_CHOOSER_VISIBLE(true)">
+                <bm-dropdown-item-button icon="documents" @click="openTemplateChooser">
                     {{ $t("mail.compose.toolbar.use_template") }}
                 </bm-dropdown-item-button>
             </bm-dropdown>
@@ -71,7 +71,7 @@ import { BmButton, BmIcon, BmDropdown, BmDropdownItemButton, BmDropdownItemToggl
 import { ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
 import { MessageStatus } from "~/model/message";
 import { isNewMessage } from "~/model/draft";
-import { SET_TEMPLATE_CHOOSER_VISIBLE } from "~/mutations";
+import { SET_TEMPLATE_CHOOSER_TARGET, SET_TEMPLATE_CHOOSER_VISIBLE } from "~/mutations";
 import { mapMutations } from "vuex";
 
 export default {
@@ -148,9 +148,13 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("mail", { SET_TEMPLATE_CHOOSER_VISIBLE }),
+        ...mapMutations("mail", { SET_TEMPLATE_CHOOSER_TARGET, SET_TEMPLATE_CHOOSER_VISIBLE }),
         openFilePicker() {
             this.$refs.attachInputRef.click();
+        },
+        openTemplateChooser() {
+            this.SET_TEMPLATE_CHOOSER_VISIBLE(true);
+            this.SET_TEMPLATE_CHOOSER_TARGET(this.message.key);
         }
     }
 };

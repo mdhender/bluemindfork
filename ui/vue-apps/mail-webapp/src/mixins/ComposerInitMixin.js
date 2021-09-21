@@ -234,7 +234,12 @@ export default {
                 this.$_ComposerInitMixin_MY_DRAFTS,
                 inject("UserSession")
             );
+            await this.mergeMessageContent(message, previousMessage);
+            this.$router.navigate({ name: "v:mail:message", params: { message: message } });
+            return message;
+        },
 
+        async mergeMessageContent(message, previousMessage) {
             const parts = getPartsFromCapabilities(previousMessage, COMPOSER_CAPABILITIES);
 
             await this.$_ComposerInitMixin_FETCH_PART_DATA({
@@ -248,7 +253,7 @@ export default {
             let content = getEditorContent(
                 this.userPrefTextOnly,
                 parts,
-                this.$_ComposerInitMixin_partsData[previousMessage.key],
+                this.$_ComposerInitMixin_partsByMessageKey[previousMessage.key],
                 this.$_ComposerInitMixin_lang
             );
 
@@ -258,7 +263,7 @@ export default {
                 const result = await InlineImageHelper.insertAsBase64(
                     [content],
                     partsWithCid,
-                    this.$_ComposerInitMixin_partsData[previousMessage.key]
+                    this.$_ComposerInitMixin_partsByMessageKey[previousMessage.key]
                 );
                 content = sanitizeHtml(result.contentsWithImageInserted[0]);
             }
@@ -269,7 +274,6 @@ export default {
             const attachments = await uploadAttachments(previousMessage);
             this.$store.commit(`mail/${SET_PENDING_ATTACHMENTS}`, attachments);
 
-            this.$router.navigate({ name: "v:mail:message", params: { message: message } });
             return message;
         }
     }

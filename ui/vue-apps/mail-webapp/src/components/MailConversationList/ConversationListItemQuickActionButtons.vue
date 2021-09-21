@@ -22,7 +22,7 @@
                 <bm-icon icon="plus-enveloppe" size="lg" />
             </bm-button>
             <bm-button
-                v-if="showMarkAsRead"
+                v-else-if="showMarkAsRead"
                 class="p-1"
                 :aria-label="markAsReadAriaText(1, subject)"
                 :title="markAsReadAriaText(1, subject)"
@@ -89,7 +89,7 @@ export default {
         }
     },
     computed: {
-        ...mapState("mail", ["folders"]),
+        ...mapState("mail", { folders: "folders", messages: state => state.conversations.messages }),
         ...mapGetters("mail", { MY_DRAFTS, MY_TEMPLATES }),
         selected() {
             return [this.conversation];
@@ -105,13 +105,12 @@ export default {
         }
     },
     methods: {
-        editFromTemplate(current) {
-            const messagepath = draftPath(this.MY_DRAFTS);
-            const message = MessagePathParam.build("", current);
+        editFromTemplate() {
+            const template = this.messages[this.conversation.messages[0]];
             this.$router.navigate({
                 name: "mail:message",
-                params: { messagepath },
-                query: { action: MessageCreationModes.EDIT_AS_NEW, message }
+                params: { messagepath: draftPath(this.MY_DRAFTS) },
+                query: { action: MessageCreationModes.EDIT_AS_NEW, message: MessagePathParam.build("", template) }
             });
         }
     }

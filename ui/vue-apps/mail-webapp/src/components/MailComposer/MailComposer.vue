@@ -52,7 +52,7 @@ import MailComposerAttachments from "./MailComposerAttachments";
 import MailComposerContent from "./MailComposerContent";
 import MailComposerRecipients from "./MailComposerRecipients";
 import MailComposerFooter from "./MailComposerFooter";
-import TemplateChooser from "./TemplateChooser";
+import TemplateChooser from "~/components/TemplateChooser";
 
 export default {
     name: "MailComposer",

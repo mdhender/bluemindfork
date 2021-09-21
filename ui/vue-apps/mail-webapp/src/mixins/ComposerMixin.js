@@ -46,7 +46,6 @@ export default {
                     removeSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
                 );
             }
-            this.$refs.content.updateHtmlComposer();
         }
     }
 };

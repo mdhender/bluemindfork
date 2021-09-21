@@ -2,6 +2,7 @@ import { createConversationStubsFromSortedIds, createConversationStubsFromSearch
 import { FETCH_TEMPLATES_KEYS } from "~/actions";
 import {
     SET_TEMPLATE_CHOOSER_VISIBLE,
+    SET_TEMPLATE_CHOOSER_TARGET,
     SET_TEMPLATE_LIST_LOADING,
     SET_TEMPLATE_LIST_SEARCH_PATTERN,
     SET_TEMPLATES_LIST
@@ -13,6 +14,9 @@ export default {
     mutations: {
         [SET_TEMPLATE_CHOOSER_VISIBLE](state, isVisible) {
             state.visible = isVisible;
+        },
+        [SET_TEMPLATE_CHOOSER_TARGET](state, key) {
+            state.target = key;
         },
         [SET_TEMPLATE_LIST_LOADING](state, isLoading) {
             state.loading = isLoading;
@@ -41,7 +45,8 @@ export default {
         keys: [],
         loading: false,
         pattern: "",
-        visible: false
+        visible: false,
+        target: 0
     }
 };
 

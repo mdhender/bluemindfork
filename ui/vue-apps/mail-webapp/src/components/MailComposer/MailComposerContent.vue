@@ -78,26 +78,34 @@ export default {
                     await this.initFromRemoteMessage(this.message);
                 }
 
-                await this.updateHtmlComposer();
-
                 // focus on content when a recipient is already set
                 if (this.message.to.length > 0) {
                     this.focus();
                 }
             },
             immediate: true
+        },
+        "messageCompose.editorContent"() {
+            if (!this.lock) {
+                this.updateHtmlComposer();
+            }
         }
     },
     methods: {
         ...mapMutations("mail", [SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT]),
         async updateEditorContent(newContent) {
-            this.SET_DRAFT_EDITOR_CONTENT(newContent);
-            this.debouncedSave();
+            try {
+                this.lock = true;
+                this.SET_DRAFT_EDITOR_CONTENT(newContent);
+                this.debouncedSave();
+                await this.$nextTick();
+            } finally {
+                this.lock = false;
+            }
         },
         async expandContent() {
             this.SET_DRAFT_EDITOR_CONTENT(this.messageCompose.editorContent + this.messageCompose.collapsedContent);
             this.SET_DRAFT_COLLAPSED_CONTENT(null);
-            await this.updateHtmlComposer();
             this.focus();
         },
         focus() {
