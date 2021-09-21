@@ -1,5 +1,8 @@
 <template>
-    <div class="conversation-list-item-left d-flex flex-column align-items-center">
+    <div
+        class="conversation-list-item-left d-flex flex-column align-items-center"
+        :class="{ 'has-icon': conversation.hasICS || conversation.hasAttachment }"
+    >
         <conversation-avatar
             v-if="conversationsActivated && conversation && conversationSize > 1"
             :class="[selectionMode === SELECTION_MODE.MONO ? '' : 'd-none']"
@@ -7,7 +10,9 @@
             :font-size="conversationSize > 99 ? 'smaller' : 'unset'"
             :title="$t('mail.conversation.icon.title', { count: conversationSize })"
         />
-        <bm-avatar v-else :alt="fromOrTo" :class="[selectionMode === SELECTION_MODE.MONO ? '' : 'd-none']" />
+        <div v-else class="avatar" :class="[selectionMode === SELECTION_MODE.MONO ? '' : 'd-none']">
+            <bm-avatar :alt="fromOrTo" />
+        </div>
         <bm-check
             v-if="multiple"
             :checked="selectionMode === SELECTION_MODE.MULTI && isSelected"
@@ -96,16 +101,26 @@ export default {
 .conversation-list-item-left {
     min-width: $sp-2 + 1.3rem;
 
-    $avatar-height: 2em !important;
+    $avatar-height: 2em;
+
+    $icons-height: 1em;
 
     .bm-avatar {
         height: $avatar-height;
+    }
+
+    &.has-icon .avatar {
+        height: calc(#{$avatar-height} + #{$icons-height});
     }
 
     .bm-check {
         height: $avatar-height;
         // align with avatar
         transform: translateX(4px);
+    }
+
+    &.has-icon .bm-check {
+        height: calc(#{$avatar-height} + #{$icons-height});
     }
 
     .custom-control-label::after,

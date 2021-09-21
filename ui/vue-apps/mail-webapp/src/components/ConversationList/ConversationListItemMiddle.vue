@@ -23,13 +23,13 @@
         </div>
         <div class="d-flex flex-row">
             <div class="d-flex flex-column flex-fill overflow-hidden">
-                <div class="d-flex text-secondary">
-                    <div :title="displayedSubject" class="mail-conversation-list-item-subject text-truncate">
+                <div class="d-flex mail-conversation-list-item-subject">
+                    <div :title="displayedSubject" class="text-secondary text-truncate">
                         {{ displayedSubject }}
                     </div>
-                    <strong v-if="conversation && conversationSize > 1 && conversation.unreadCount > 0" class="pr-1">
+                    <span v-if="conversation && conversationSize > 1 && conversation.unreadCount > 0" class="px-1">
                         ({{ conversation.unreadCount }})
-                    </strong>
+                    </span>
                 </div>
                 <div
                     :title="displayedPreview"
