@@ -142,7 +142,7 @@ export default {
             }
         },
         manageAlertAfterSave(oldSettings, newSettings) {
-            const needAppReload = ["lang"];
+            const needAppReload = ["lang", "mail_thread"];
             const needReconnection = ["default_app"];
 
             const showReloadAppAlert = needAppReload.some(setting => oldSettings[setting] !== newSettings[setting]);
