@@ -56,7 +56,7 @@ export default {
                         let messages = this.CONVERSATION_MESSAGE_BY_KEY(conversation.key).filter(
                             message => message.loading === LoadingStatus.NOT_LOADED
                         );
-                        await this.FETCH_MESSAGE_METADATA({ messages });
+                        await this.FETCH_MESSAGE_METADATA({ messages: messages.map(m => m.key) });
                         messages = this.CONVERSATION_MESSAGE_BY_KEY(conversation.key);
                         this.SET_CURRENT_CONVERSATION(conversation);
                         this.SET_ACTIVE_MESSAGE(messages[0]);
