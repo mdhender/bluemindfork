@@ -25,9 +25,10 @@ import {
     CONVERSATION_IS_LOADED,
     CURRENT_CONVERSATION_METADATA,
     MESSAGE_IS_LOADED,
+    SELECTION_EMPTY,
     SEVERAL_CONVERSATIONS_SELECTED
 } from "~/getters";
-import { UNSET_CURRENT_CONVERSATION } from "~/mutations";
+import { UNSELECT_ALL_CONVERSATIONS, UNSET_CURRENT_CONVERSATION } from "~/mutations";
 
 export default {
     name: "MailToolbar",
@@ -45,6 +46,7 @@ export default {
             CONVERSATION_IS_LOADED,
             CURRENT_CONVERSATION_METADATA,
             MESSAGE_IS_LOADED,
+            SELECTION_EMPTY,
             SEVERAL_CONVERSATIONS_SELECTED
         }),
         currentConversationIsLoaded() {
@@ -55,9 +57,13 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("mail", { UNSET_CURRENT_CONVERSATION }),
+        ...mapMutations("mail", { UNSELECT_ALL_CONVERSATIONS, UNSET_CURRENT_CONVERSATION }),
         back() {
-            this.UNSET_CURRENT_CONVERSATION();
+            if (this.SELECTION_EMPTY) {
+                this.UNSET_CURRENT_CONVERSATION();
+            } else {
+                this.UNSELECT_ALL_CONVERSATIONS();
+            }
             this.$router.navigate("v:mail:home");
         }
     }

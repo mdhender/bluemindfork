@@ -10,7 +10,7 @@
                 cols="2"
                 order="0"
                 class="d-lg-flex justify-content-start pl-lg-4"
-                :class="hideListInResponsiveMode || composerOrMessageIsDisplayed ? 'd-none' : ''"
+                :class="hideListInResponsiveMode || composerOrMessageIsDisplayed || !SELECTION_IS_EMPTY ? 'd-none' : ''"
             >
                 <bm-button
                     variant="inline-light"
@@ -26,11 +26,16 @@
                 lg="3"
                 order="1"
                 class="d-lg-block px-2"
-                :class="hideListInResponsiveMode || composerOrMessageIsDisplayed ? 'd-none' : ''"
+                :class="hideListInResponsiveMode || composerOrMessageIsDisplayed || !SELECTION_IS_EMPTY ? 'd-none' : ''"
             >
                 <mail-search-form />
             </bm-col>
-            <bm-col cols="2" lg="0" order="2" :class="composerOrMessageIsDisplayed ? 'd-none' : 'd-lg-none'">
+            <bm-col
+                cols="2"
+                lg="0"
+                order="2"
+                :class="composerOrMessageIsDisplayed || !SELECTION_IS_EMPTY ? 'd-none' : 'd-lg-none'"
+            >
                 <messages-options-for-mobile @shown="darkened = true" @hidden="darkened = false" />
             </bm-col>
             <bm-col
