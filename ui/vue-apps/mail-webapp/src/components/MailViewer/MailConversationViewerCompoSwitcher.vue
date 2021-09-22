@@ -23,6 +23,11 @@ export default {
         MailViewerLoading
     },
     mixins: [MailConversationViewerItemMixin],
+    provide() {
+        return {
+            $messageViewerRoot: this
+        };
+    },
     computed: {
         ...mapGetters("mail", { MESSAGE_IS_LOADED })
     }

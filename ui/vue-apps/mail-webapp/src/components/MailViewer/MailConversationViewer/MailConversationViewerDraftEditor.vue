@@ -156,10 +156,8 @@ export default {
     computed: {
         ...mapState("mail", ["folders"])
     },
-    created() {
-        this.$nextTick().then(() => {
-            this.$el.scrollIntoView();
-        });
+    mounted() {
+        this.$nextTick(() => this.$el.scrollIntoView());
     },
     destroyed() {
         // clean up unsaved new message from conversation

@@ -47,7 +47,7 @@ export default {
             scrollbarHeight: null
         };
     },
-    inject: ["area"],
+    inject: ["area", "$messageViewerRoot"],
     computed: {
         ...mapState("mail", { mustBlockRemoteImages: state => state.consultPanel.remoteImages.mustBeBlocked }),
         ...mapState("session", { settings: ({ settings }) => settings.remote }),
@@ -111,6 +111,7 @@ export default {
                         this.$refs.iFrameMailContent.style.height =
                             this.computeIFrameHeight(htmlRootNode, currentHeight) + "px";
                     });
+                    this.$messageViewerRoot.$emit("resized");
                 }
             });
             resizeObserver.observe(this.$refs.iFrameMailContent);

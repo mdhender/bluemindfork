@@ -40,8 +40,11 @@ export default {
         MailViewerLoading,
         VideoConferencing
     },
-    provide: {
-        area: "mail-message"
+    provide() {
+        return {
+            area: "mail-message",
+            $messageViewerRoot: this
+        };
     },
     computed: {
         ...mapState("mail", ["folders"]),
