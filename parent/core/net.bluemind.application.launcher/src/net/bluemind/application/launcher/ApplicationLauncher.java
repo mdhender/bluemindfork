@@ -38,6 +38,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.BMVersion;
+import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -162,6 +163,9 @@ public class ApplicationLauncher implements IApplication {
 		}
 
 		JdbcActivator.getInstance().setMailboxDataSource(mailboxDataSource);
+		if (!mailboxDataSource.isEmpty()) {
+			CacheRegistry.init();
+		}
 
 		logger.info("{} mailbox datasource found, servers: {}", mailboxDataSource.size(), mailboxDataSource.keySet());
 	}

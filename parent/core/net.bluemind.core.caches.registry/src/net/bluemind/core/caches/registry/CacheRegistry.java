@@ -49,13 +49,16 @@ public class CacheRegistry {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(CacheRegistry.class);
-	private static final CacheRegistry registry = init();
+	private static CacheRegistry registry;
 
 	public static CacheRegistry get() {
+		if (registry == null) {
+			CacheRegistry.init();
+		}
 		return registry;
 	}
 
-	private static CacheRegistry init() {
+	public static void init() {
 		CacheRegistry cr = new CacheRegistry();
 		RunnableExtensionLoader<ICacheRegistration> loader = new RunnableExtensionLoader<>();
 		List<ICacheRegistration> toAdd = loader.loadExtensions("net.bluemind.core.caches.registry", "registration",
@@ -63,7 +66,7 @@ public class CacheRegistry {
 		for (ICacheRegistration icr : toAdd) {
 			icr.registerCaches(cr);
 		}
-		return cr;
+		CacheRegistry.registry = cr;
 	}
 
 	private final Map<String, Cache<?, ?>> caches;
