@@ -7,11 +7,16 @@ import { sanitizeHtml } from "@bluemind/html-utils";
 import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { MY_DRAFTS } from "~/getters";
 import {
+    ADD_ATTACHMENT,
     ADD_MESSAGES,
-    SET_PENDING_ATTACHMENTS,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
+    SET_MESSAGE_BCC,
+    SET_MESSAGE_CC,
+    SET_MESSAGE_SUBJECT,
     SET_MESSAGE_TMP_ADDRESSES,
+    SET_MESSAGE_TO,
+    SET_PENDING_ATTACHMENTS,
     SET_SAVED_INLINE_IMAGES
 } from "~/mutations";
 import { addSignature } from "~/model/signature";
@@ -20,7 +25,6 @@ import { getPartsFromCapabilities } from "~/model/part";
 import {
     addSeparator,
     COMPOSER_CAPABILITIES,
-    createDraftFromMessage,
     createEmpty,
     createReplyOrForward,
     getEditorContent,
@@ -228,18 +232,17 @@ export default {
             return message;
         },
 
-        async initEditAsNew(previousMessage) {
-            const message = createDraftFromMessage(
-                previousMessage,
-                this.$_ComposerInitMixin_MY_DRAFTS,
-                inject("UserSession")
-            );
-            await this.mergeMessageContent(message, previousMessage);
+        async initEditAsNew(related) {
+            const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS, inject("UserSession"));
+            this.mergeRecipients(message, related);
+            this.mergeSubject(message, related);
+            await this.mergetBody(message, related);
+            await this.mergeAttachments(message, related);
             this.$router.navigate({ name: "v:mail:message", params: { message: message } });
             return message;
         },
 
-        async mergeMessageContent(message, previousMessage) {
+        async mergeBody(message, previousMessage) {
             const parts = getPartsFromCapabilities(previousMessage, COMPOSER_CAPABILITIES);
 
             await this.$_ComposerInitMixin_FETCH_PART_DATA({
@@ -270,11 +273,29 @@ export default {
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
             this.$_ComposerInitMixin_ADD_MESSAGES([message]);
+        },
 
-            const attachments = await uploadAttachments(previousMessage);
-            this.$store.commit(`mail/${SET_PENDING_ATTACHMENTS}`, attachments);
+        async mergeAttachments({ key }, related) {
+            const attachments = (await apiMessages.getForUpdate(related)).attachments;
+            attachments.forEach(attachment =>
+                this.$store.commit(`mail/${ADD_ATTACHMENT}`, { messageKey: key, attachment })
+            );
+        },
 
-            return message;
+        async mergeSubject({ key }, related) {
+            this.$store.commit(`mail/${SET_MESSAGE_SUBJECT}`, { messageKey: key, subject: related.subject });
+        },
+
+        async mergeRecipients(message, { to, cc, bcc }) {
+            const rcpts = message.to;
+            let recipients = message.to.concat(to.filter(to => rcpts.every(rcpt => to.address !== rcpt.address)));
+            this.$store.commit(`mail/${SET_MESSAGE_TO}`, { messageKey: message.key, to: recipients });
+            rcpts.push(...message.cc);
+            recipients = message.cc.concat(cc.filter(cc => rcpts.every(rcpt => cc.address !== rcpt.address)));
+            this.$store.commit(`mail/${SET_MESSAGE_CC}`, { messageKey: message.key, cc: recipients });
+            rcpts.push(...message.bcc);
+            recipients = message.bcc.concat(bcc.filter(bcc => rcpts.every(rcpt => bcc.address !== rcpt.address)));
+            this.$store.commit(`mail/${SET_MESSAGE_BCC}`, { messageKey: message.key, bcc: recipients });
         }
     }
 };

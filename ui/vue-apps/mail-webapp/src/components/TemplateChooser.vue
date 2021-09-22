@@ -35,8 +35,8 @@
 import debounce from "lodash.debounce";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmModal, BmFormInput } from "@bluemind/styleguide";
-import { SET_MESSAGE_SUBJECT, SET_TEMPLATE_CHOOSER_VISIBLE, SET_TEMPLATE_LIST_SEARCH_PATTERN } from "~/mutations";
-import { FETCH_TEMPLATES_KEYS } from "~/actions";
+import { SET_TEMPLATE_CHOOSER_VISIBLE, SET_TEMPLATE_LIST_SEARCH_PATTERN } from "~/mutations";
+import { DEBOUNCED_SAVE_MESSAGE, FETCH_TEMPLATES_KEYS } from "~/actions";
 import { MY_TEMPLATES } from "~/getters";
 import TemplatesList from "./TemplateChooser/TemplatesList";
 import { ComposerInitMixin } from "~/mixins";
@@ -70,12 +70,8 @@ export default {
         ...mapGetters("root-app", { identity: "DEFAULT_IDENTITY" })
     },
     methods: {
-        ...mapMutations("mail", {
-            SET_MESSAGE_SUBJECT,
-            SET_TEMPLATE_CHOOSER_VISIBLE,
-            SET_TEMPLATE_LIST_SEARCH_PATTERN
-        }),
-        ...mapActions("mail", { FETCH_TEMPLATES_KEYS }),
+        ...mapMutations("mail", { SET_TEMPLATE_CHOOSER_VISIBLE, SET_TEMPLATE_LIST_SEARCH_PATTERN }),
+        ...mapActions("mail", { DEBOUNCED_SAVE_MESSAGE, FETCH_TEMPLATES_KEYS }),
         reset() {
             this.SET_TEMPLATE_LIST_SEARCH_PATTERN("");
             this.loadTemplates();
@@ -90,14 +86,14 @@ export default {
                 const template = this.messages[this.conversationByKey[this.selected].messages[0]];
                 const target = this.messages[this.target];
                 if (!target.subject.trim()) {
-                    this.SET_MESSAGE_SUBJECT({ messageKey: target.key, subject: template.subject });
+                    this.mergeSubject(target, template);
                 }
                 if (!(target.to.length || target.cc.length || target.bcc.length)) {
-                    target.to = template.to.slice();
-                    target.cc = template.cc.slice();
-                    target.bcc = template.bcc.slice();
+                    this.mergeRecipients(target, template);
                 }
-                this.mergeMessageContent(target, template);
+                await this.mergeAttachments(target, template);
+                await this.mergeBody(target, template);
+                this.DEBOUNCED_SAVE_MESSAGE({ draft: target, messageCompose: this.$store.state.mail.messageCompose });
             }
         },
         async canOverwriteContent() {

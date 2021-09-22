@@ -25,7 +25,7 @@ import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 export function isReadyToBeSaved(draft, messageCompose) {
     const checkAttachments =
         draft.attachments.every(a => a.status === AttachmentStatus.UPLOADED) ||
-        (isNewMessage(draft) && messageCompose.forwardedAttachments.length > 0); // due to attachments forward cases
+        (isNewMessage(draft) && messageCompose.pendingAttachments.length > 0); // due to attachments forward cases
     return (draft.status === MessageStatus.IDLE || draft.status === MessageStatus.NEW) && checkAttachments;
 }
 
